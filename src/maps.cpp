@@ -78,7 +78,7 @@ static bool global_z3_scrolling = true;
 // z1
 // #define hardcode_regions_mode 1
 // entire map is region
-#define hardcode_regions_mode 2
+// #define hardcode_regions_mode 2
 
 static const int hardcode_z3_regions[] = {
 #if hardcode_regions_mode == 0
@@ -137,36 +137,58 @@ static int scr_xy_to_index(int x, int y) {
 	return x + y*16;
 }
 
-static bool is_a_region(int map, int scr)
+static byte getNibble(byte byte, bool high)
 {
-	if (!global_z3_scrolling) return false;
+    if (high) return byte >> 4 & 0xF;
+    else      return byte & 0xF;
+}
+
+static byte get_region_id(int dmap, int scr)
+{
+	if (!global_z3_scrolling) return 0;
+
+#ifndef hardcode_regions_mode
+	int sx = scr % 16;
+	int sy = scr / 16;
+	// TODO z3 unroll this somewhere.
+	return getNibble(DMaps[currdmap].region_indices[sy][sx/2], sx % 2 == 0);
+#endif
+
 #if hardcode_regions_mode == 0
-	if (map != 1) return false;
+	if (DMaps[dmap].map != 1) return 0;
 #endif
 #if hardcode_regions_mode == 1
-	if (map != 0) return false;
+	if (DMaps[dmap].map != 0) return 0;
 #endif
-	if (scr >= 128) return false;
+	if (scr >= 128) return 0;
 	return hardcode_z3_regions[scr];
 }
 
+static bool is_a_region(int dmap, int scr)
+{
+	if (!global_z3_scrolling) return false;
+	return get_region_id(dmap, scr) != 0;
+}
+
+// TODO z3 rename is_in_current_region
 static bool is_in_region(int region_origin_scr, int scr)
 {
-	if (!is_a_region(currmap, scr)) return false;
-	int region_id = hardcode_z3_regions[region_origin_scr];
-	return region_id && region_id == hardcode_z3_regions[scr];
+	if (!is_a_region(currdmap, scr)) return false;
+	int region_id = get_region_id(currdmap, region_origin_scr);
+	return region_id && region_id == get_region_id(currdmap, scr);
 }
 
 bool is_z3_scrolling_mode()
 {
 	// Note: `screenscrolling` bit is only needed for some funky logic in do_scrolling_layer().
-	return is_a_region(currmap, currscr) || (screenscrolling && is_a_region(scrolling_map, scrolling_scr));
+	return is_a_region(currdmap, currscr) || (screenscrolling && is_a_region(scrolling_dmap, scrolling_scr));
 }
 
+// TODO z3 delete
 int z3_get_region_id(int screen_index)
 {
 	if (!global_z3_scrolling) return 0;
-	return hardcode_z3_regions[screen_index];
+	return get_region_id(currdmap, screen_index);
 }
 
 void z3_calculate_region(int screen_index, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h)

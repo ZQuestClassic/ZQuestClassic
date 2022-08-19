@@ -15146,7 +15146,7 @@ byte setUpperNibble(byte orig, byte nibble) {
     return res;
 }
 
-byte getNibble(byte byte, bool high) {
+static byte getNibble(byte byte, bool high) {
     if (high) return byte >> 4 & 0xF;
     else      return byte & 0xF;
 }

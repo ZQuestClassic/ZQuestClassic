@@ -25543,6 +25543,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 		case wtSCROLL:                                          // scrolling warp
 		{
 			int32_t c = DMaps[currdmap].color;
+			scrolling_dmap = currdmap;
 			scrolling_map = currmap;
 			currmap = DMaps[dmapID].map;
 			update_subscreens(dmapID);

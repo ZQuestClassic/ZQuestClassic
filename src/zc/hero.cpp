@@ -21673,6 +21673,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	case wtSCROLL:                                          // scrolling warp
 	{
 		int32_t c = DMaps[currdmap].color;
+		scrolling_dmap = currdmap;
 		scrolling_map = currmap;
 		currmap = DMaps[wdmap].map;
 		update_subscreens(wdmap);
@@ -21767,6 +21768,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	
 	case wtWHISTLE:                                         // whistle warp
 	{
+		scrolling_dmap = currdmap;
 		scrolling_map = currmap;
 		currmap = DMaps[wdmap].map;
 		scrollscr(index, wscr+DMaps[wdmap].xoff, wdmap);
@@ -23219,6 +23221,7 @@ void HeroClass::check_scroll_direction(direction dir)
 		}
 		else if(!edge_of_dmap(dir) && edge_of_region(dir))
 		{
+			scrolling_dmap = currdmap;
 			scrolling_map = currmap;
 			scrollscr(dir);
 			
