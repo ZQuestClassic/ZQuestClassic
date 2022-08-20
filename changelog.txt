@@ -1,5 +1,40 @@
 // 2.55 Change Log
-// Updated 13th Aug, 2022
+// Updated 17th Aug, 2022
+
+//A109
+
+Add 'OwnArray()'/'DestroyArray()' functions
+	( EmilyV, 17th Aug, 2022 )
+
+Fix more conveyor bugs
+	( Deedee, 17th Aug, 2022 )
+
+Fix light beam visual glitch
+Add 'itemsprite->DroppedBy'
+Fix droplist right click crash
+	( EmilyV, 16th Aug, 2022 )
+
+Generic script 'WaitEvent' system
+Fix ring/damage combo interaction
+	( EmilyV, 15th Aug, 2022 )
+
+Fix slow midis
+	( connorjclark, 15th Aug, 2022 )
+
+--Aug 15th Nightly
+
+EWeapon combo triggers
+	( EmilyV, 15th Aug, 2022 )
+
+Fix bugged cost counters
+Fix item 'pickup amount' bounding
+Add new combo trigger options (Lens, Light Beam, Push)
+'Toggle Transparent' combo flag
+Fix FFC 'Run at screen init' not working immediately after loading from save select screen
+	( EmilyV, 14th Aug, 2022 )
+
+Fix undamaged ghoma not blocking properly
+	( Deedee, 14th Aug, 2022 )
 
 --Aug 13th Nightly
 

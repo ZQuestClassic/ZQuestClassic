@@ -3031,7 +3031,7 @@ bool HeroClass::checkstab()
     bool found = false;
     int32_t melee_weapon_index = 0;
 	int32_t parentitem=-1;
-    
+    weapon* meleeweap = nullptr;
     for(int32_t i=0; i<Lwpns.Count(); i++)
     {
         w = (weapon*)Lwpns.spr(i);
@@ -3040,6 +3040,7 @@ bool HeroClass::checkstab()
         {
             found = true;
             melee_weapon_index = i+1;
+			meleeweap = w;
             // Position the sword as Hero slashes with it.
             if(w->id!=wHammer&&w->id!=wBugNet)
                 positionSword(w,w->parentitem);
@@ -3281,6 +3282,30 @@ bool HeroClass::checkstab()
 						int screen_index = get_screen_index_for_world_xy(wx, wy);
 						mapscr* screen = get_screen_for_world_xy(wx, wy);
 						int32_t pickup = ptr->pickup;
+						int32_t id2 = ptr->id;
+						int32_t pstr = ptr->pstring;
+						int32_t pstr_flags = ptr->pickup_string_flags;
+						if(!dofairy)
+						{
+							std::vector<int32_t> &ev = FFCore.eventData;
+							ev.clear();
+							ev.push_back(id2*10000);
+							ev.push_back(pickup*10000);
+							ev.push_back(pstr*10000);
+							ev.push_back(pstr_flags*10000);
+							ev.push_back(0);
+							ev.push_back(ptr->getUID());
+							ev.push_back(GENEVT_ICTYPE_MELEE*10000);
+							ev.push_back(w->getUID());
+							
+							throwGenScriptEvent(GENSCR_EVENT_COLLECT_ITEM);
+							bool nullify = ev[4] != 0;
+							if(nullify) continue;
+							id2 = ev[0]/10000;
+							pickup = (pickup&(ipCHECK|ipDUMMY)) | (ev[1]/10000);
+							pstr = ev[2] / 10000;
+							pstr_flags = ev[3] / 10000;
+						}
 						
 						if(pickup&ipONETIME) // set mITEM for one-time-only items
 							setmapflag2(screen, screen_index, mITEM);
@@ -3300,9 +3325,9 @@ bool HeroClass::checkstab()
 						}
 						else
 						{
-							collectitem_script(ptr->id);
+							collectitem_script(id2);
 							
-							getitem(ptr->id, false, true);
+							getitem(id2, false, true);
 						}
 						items.del(j);
 						
@@ -3317,6 +3342,17 @@ bool HeroClass::checkstab()
 							else if(w2->dragging>j)
 							{
 								w2->dragging-=1;
+							}
+						}
+						
+						if ( (pstr > 0 && pstr < msg_count) )
+						{
+							if ( ( (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) ) )
+							{
+								if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) )
+									FFCore.SetItemMessagePlayed(id2);
+								donewmsg(pstr);
+								break;
 							}
 						}
 						
@@ -3617,16 +3653,29 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 	else if(isCuttableItemType(type))
 	{
 		int32_t it = -1;
+		int32_t thedropset = -1;
 		
 		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1])/10000L : 12, bx, by);
 		if ( (combobuf[cid].usrflags&cflag2) )
 		{
-			it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
+			if(combobuf[cid].usrflags&cflag11)
+				it = combobuf[cid].attribytes[1];
+			else
+			{
+				it = select_dropitem(combobuf[cid].attribytes[1]); 
+				thedropset = combobuf[cid].attribytes[1]; 
+			}
 		}
-		else it = select_dropitem(12);
+		else
+		{
+			it = select_dropitem(12);
+			thedropset = 12;
+		}
 		if(it!=-1)
 		{
-			items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			item* itm = (new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			itm->from_dropset = thedropset;
+			items.add(itm);
 		}
 	}
 	
@@ -3856,6 +3905,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		else if(isCuttableItemType(type))
 		{
 			int32_t it = -1;
+			int32_t thedropset = -1;
 			if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 			{
 				if ( combobuf[cid].usrflags&cflag11 ) 
@@ -3865,13 +3915,20 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 				else
 				{
 					it = select_dropitem(combobuf[cid].attribytes[1]);
+					thedropset = combobuf[cid].attribytes[1];
 				}
 			}
-			else it = select_dropitem(12);
+			else
+			{
+				it = select_dropitem(12);
+				thedropset = 12;
+			}
 			
 			if(it!=-1)
 			{
-				items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+				item* itm = (new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+				itm->from_dropset = thedropset;
+				items.add(itm);
 			}
 		}
 		
@@ -3922,9 +3979,16 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		if(isCuttableItemType(type2))
 		{
 			int32_t it=-1;
+			int32_t thedropset=-1;
 			if ( (combobuf[cid].usrflags&cflag2) )
 			{
-				it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
+				if(combobuf[cid].usrflags&cflag11)
+					it = combobuf[cid].attribytes[1];
+				else
+				{
+					it = select_dropitem(combobuf[cid].attribytes[1]); 
+					thedropset = combobuf[cid].attribytes[1]; 
+				}
 			}
 			else
 			{
@@ -3942,7 +4006,9 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 			
 			if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
 			{
-				items.add(new item((zfix)fx, (zfix)fy,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+				item* itm = (new item((zfix)fx, (zfix)fy,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+				itm->from_dropset = thedropset;
+				items.add(itm);
 			}
 		}
 		
@@ -4169,17 +4235,30 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
         else if(isCuttableItemType(type))
         {
             int32_t it = -1;
+            int32_t thedropset = -1;
 		
 			if ( (combobuf[cid].usrflags&cflag2) )
 			{
-				it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
+				if(combobuf[cid].usrflags&cflag11)
+					it = combobuf[cid].attribytes[1];
+				else
+				{
+					it = select_dropitem(combobuf[cid].attribytes[1]); 
+					thedropset = combobuf[cid].attribytes[1];
+				}
 			}
-			else it = select_dropitem(12);
+			else
+			{
+				it = select_dropitem(12);
+				thedropset = 12;
+			}
 			
             if(it!=-1)
             {
-                items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
-            }
+                item* itm = (new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+				itm->from_dropset = thedropset;
+				items.add(itm);
+			}
         }
         
         putcombo(scrollbuf,(i&15)<<4,i&0xF0,tmpscr.data[i],tmpscr.cset[i]);
@@ -4431,6 +4510,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 		else if(isCuttableItemType(type))
         {
 			int32_t it = -1;
+			int32_t thedropset = -1;
 			if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 			{
 				if ( combobuf[cid].usrflags&cflag11 ) 
@@ -4440,13 +4520,20 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 				else
 				{
 					it = select_dropitem(combobuf[cid].attribytes[1]);
+					thedropset = combobuf[cid].attribytes[1];
 				}
 			}
-			else it = select_dropitem(12);
+			else
+			{
+				it = select_dropitem(12);
+				thedropset = 12;
+			}
 			
 			if(it!=-1)
 			{
-				items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+				item* itm = (new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+				itm->from_dropset = thedropset;
+				items.add(itm);
 			}
         }
         
@@ -4494,9 +4581,16 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
         if(isCuttableItemType(type2))
         {
             int32_t it=-1;
+            int32_t thedropset=-1;
 			if ( (combobuf[cid].usrflags&cflag2) )
 			{
-				it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
+				if(combobuf[cid].usrflags&cflag11)
+					it = combobuf[cid].attribytes[1];
+				else
+				{
+					it = select_dropitem(combobuf[cid].attribytes[1]); 
+					thedropset = combobuf[cid].attribytes[1];
+				}
 			}
 			else
 			{
@@ -4514,8 +4608,10 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
             
             if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
             {
-                items.add(new item((zfix)fx, (zfix)fy,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
-            }
+                item* itm = (new item((zfix)fx, (zfix)fy,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+				itm->from_dropset = thedropset;
+				items.add(itm);
+			}
         }
         
         if(get_bit(quest_rules,qr_MORESOUNDS))
@@ -4973,6 +5069,7 @@ void HeroClass::check_slash_block(weapon *w)
         else if(isCuttableItemType(type))
         {
 			int32_t it = -1;
+			int32_t thedropset = -1;
 			if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 			{
 				if ( combobuf[cid].usrflags&cflag11 ) 
@@ -4982,13 +5079,20 @@ void HeroClass::check_slash_block(weapon *w)
 				else
 				{
 					it = select_dropitem(combobuf[cid].attribytes[1]);
+					thedropset = combobuf[cid].attribytes[1];
 				}
 			}
-			else it = select_dropitem(12);
+			else
+			{
+				it = select_dropitem(12);
+				thedropset = 12;
+			}
 			
 			if(it!=-1)
 			{
-				items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+				item* itm = (new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+				itm->from_dropset = thedropset;
+				items.add(itm);
 			}
         }
         
@@ -5035,15 +5139,28 @@ void HeroClass::check_slash_block(weapon *w)
         if(isCuttableItemType(type2))
         {
             int32_t it=-1;
+			int32_t thedropset = -1;
 			if ( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) )
 			{
-				it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
+				if(combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11)
+					it = combobuf[MAPCOMBO(bx,by)-1].attribytes[1];
+				else
+				{
+					thedropset = combobuf[MAPCOMBO(bx,by)-1].attribytes[1];
+					it = select_dropitem(thedropset);
+				}
 			}
-			else it = select_dropitem(12);
-            
+			else
+			{
+				it = select_dropitem(12);
+				thedropset = 12;
+			}
+			
             if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
             {
-                items.add(new item((zfix)fx, (zfix)fy,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+				item* itm = (new item((zfix)fx, (zfix)fy,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+                itm->from_dropset = thedropset;
+                items.add(itm);
             }
         }
         
@@ -6191,28 +6308,54 @@ void HeroClass::checkhit()
 			if(s->id==wFire && (superman ? (diagonalMovement?s->hit(x+4,y+4-fakez,z,7,7,1):s->hit(x+7,y+7-fakez,z,2,2,1)) : s->hit(this))&&
 						(itemid < 0 || itemsbuf[itemid].family!=itype_dinsfire))
 			{
-				if(NayrusLoveShieldClk<=0)
+				std::vector<int32_t> &ev = FFCore.eventData;
+				ev.clear();
+				ev.push_back(lwpn_dp(i)*10000);
+				ev.push_back(s->hitdir(x,y,16,16,dir)*10000);
+				ev.push_back(0);
+				ev.push_back(NayrusLoveShieldClk>0?10000:0);
+				ev.push_back(48*10000);
+				ev.push_back(ZSD_LWPN*10000);
+				ev.push_back(s->getUID());
+				
+				throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
+				int32_t dmg = ev[0]/10000;
+				bool nullhit = ev[2] != 0;
+				
+				if(nullhit) {ev.clear(); return;}
+				
+				//Args: 'damage (post-ring)','hitdir','nullifyhit','type:npc','npc uid'
+				ev[0] = ringpower(dmg)*10000;
+				
+				throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
+				dmg = ev[0]/10000;
+				int32_t hdir = ev[1]/10000;
+				nullhit = ev[2] != 0;
+				bool nayrulove = ev[3] != 0;
+				int32_t iframes = ev[4] / 10000;
+				ev.clear();
+				if(nullhit) return;
+				if(!nayrulove)
 				{
-					int32_t ringpow = ringpower(lwpn_dp(i));
-					game->set_life(zc_max(game->get_life()-ringpow,0));
+					game->set_life(zc_max(game->get_life()-dmg,0));
 				}
 				
-				hitdir = s->hitdir(x,y,16,16,dir);
+				hitdir = hdir;
 				
 				if (action != rafting && action != freeze && action != sideswimfreeze)
 				{
-			if (IsSideSwim())
-			{
-				action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
-			}
-			else if (action == swimming || hopclk == 0xFF)
-			{
-				action=swimhit; FFCore.setHeroAction(swimhit);
-			}
-			else
-			{
-				action=gothit; FFCore.setHeroAction(gothit);
-			}
+					if (IsSideSwim())
+					{
+						action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
+					}
+					else if (action == swimming || hopclk == 0xFF)
+					{
+						action=swimhit; FFCore.setHeroAction(swimhit);
+					}
+					else
+					{
+						action=gothit; FFCore.setHeroAction(gothit);
+					}
 				}
 					
 				if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
@@ -6222,7 +6365,7 @@ void HeroClass::checkhit()
 					tapping = false;
 				}
 				
-				hclk=48;
+				hclk=iframes;
 				sfx(getHurtSFX(),pan(x.getInt()));
 				return;
 			}
@@ -6339,13 +6482,39 @@ killweapon:
 		{
 			if(((s->id==wBomb)||(s->id==wSBomb)) && s->hit(this) && !superman && (scriptcoldet&1) && !fallclk)
 			{
-				if(NayrusLoveShieldClk<=0)
+				std::vector<int32_t> &ev = FFCore.eventData;
+				ev.clear();
+				ev.push_back(((((weapon*)s)->parentitem>-1 ? itemsbuf[((weapon*)s)->parentitem].misc3 : ((weapon*)s)->power) *game->get_hp_per_heart())*10000);
+				ev.push_back(s->hitdir(x,y,16,16,dir)*10000);
+				ev.push_back(0);
+				ev.push_back(NayrusLoveShieldClk>0?10000:0);
+				ev.push_back(48*10000);
+				ev.push_back(ZSD_LWPN*10000);
+				ev.push_back(s->getUID());
+				
+				throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
+				int32_t dmg = ev[0]/10000;
+				bool nullhit = ev[2] != 0;
+				
+				if(nullhit) {ev.clear(); return;}
+				
+				//Args: 'damage (post-ring)','hitdir','nullifyhit','type:npc','npc uid'
+				ev[0] = ringpower(dmg)*10000;
+				
+				throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
+				dmg = ev[0]/10000;
+				int32_t hdir = ev[1]/10000;
+				nullhit = ev[2] != 0;
+				bool nayrulove = ev[3] != 0;
+				int32_t iframes = ev[4] / 10000;
+				ev.clear();
+				if(nullhit) return;
+				if(!nayrulove)
 				{
-					int32_t ringpow = ringpower(((((weapon*)s)->parentitem>-1 ? itemsbuf[((weapon*)s)->parentitem].misc3 : ((weapon*)s)->power) *game->get_hp_per_heart()));
-					game->set_life(zc_min(game->get_maxlife(), zc_max(game->get_life()-ringpow,0)));
+					game->set_life(zc_min(game->get_maxlife(), zc_max(game->get_life()-dmg,0)));
 				}
 				
-				hitdir = s->hitdir(x,y,16,16,dir);
+				hitdir = hdir;
 				
 				if (action != rafting && action != freeze && action != sideswimfreeze)
 				{
@@ -6370,7 +6539,7 @@ killweapon:
 					tapping = false;
 				}
 				
-				hclk=48;
+				hclk=iframes;
 				sfx(getHurtSFX(),pan(x.getInt()));
 				return;
 			}
@@ -6378,10 +6547,29 @@ killweapon:
 		
 		if(hclk==0 && s->id==wWind && s->hit(x+7,y+7-fakez,z,2,2,1) && !fairyclk)
 		{
+			std::vector<int32_t> &ev = FFCore.eventData;
+			ev.clear();
+			ev.push_back(0);
+			ev.push_back(s->dir*10000);
+			ev.push_back(0);
+			ev.push_back(0);
+			ev.push_back(ZSD_LWPN*10000);
+			ev.push_back(s->getUID());
+			
+			throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
+			bool nullhit = ev[2] != 0;
+			if(nullhit) {ev.clear(); return;}
+			
+			throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
+			int32_t hdir = ev[1]/10000;
+			nullhit = ev[2] != 0;
+			ev.clear();
+			if(nullhit) return;
+			
 			reset_hookshot();
 			xofs=1000;
 			action=inwind; FFCore.setHeroAction(inwind);
-			dir=s->dir;
+			dir=s->dir=hdir;
 			spins = charging = attackclk = 0;
 			
 			// In case Hero used two whistles in a row, summoning two whirlwinds,
@@ -6417,15 +6605,41 @@ killweapon:
 	if(hit2!=-1)
 	{
 		weapon* lwpnspr = (weapon*)Lwpns.spr(hit2);
-		if(NayrusLoveShieldClk<=0)
+		std::vector<int32_t> &ev = FFCore.eventData;
+		ev.clear();
+		ev.push_back((lwpn_dp(hit2)*10000));
+		ev.push_back(lwpnspr->hitdir(x,y,16,16,dir)*10000);
+		ev.push_back(0);
+		ev.push_back(NayrusLoveShieldClk>0?10000:0);
+		ev.push_back(48*10000);
+		ev.push_back(ZSD_LWPN*10000);
+		ev.push_back(lwpnspr->getUID());
+		
+		throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
+		int32_t dmg = ev[0]/10000;
+		bool nullhit = ev[2] != 0;
+		
+		if(nullhit) {ev.clear(); return;}
+		
+		//Args: 'damage (post-ring)','hitdir','nullifyhit','type:npc','npc uid'
+		ev[0] = ringpower(dmg)*10000;
+		
+		throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
+		dmg = ev[0]/10000;
+		int32_t hdir = ev[1]/10000;
+		nullhit = ev[2] != 0;
+		bool nayrulove = ev[3] != 0;
+		int32_t iframes = ev[4] / 10000;
+		ev.clear();
+		if(nullhit) return;
+		if(!nayrulove)
 		{
-			int32_t ringpow = ringpower(lwpn_dp(hit2));
-			game->set_life(zc_max(game->get_life()-ringpow,0));
+			game->set_life(zc_max(game->get_life()-dmg,0));
 			sethitHeroUID(HIT_BY_LWEAPON,(hit2+1));
 			sethitHeroUID(HIT_BY_LWEAPON_UID,lwpnspr->getUID());
 		}
 		
-		hitdir = lwpnspr->hitdir(x,y,16,16,dir);
+		hitdir = hdir;
 		lwpnspr->onhit(false);
 		
 		if (IsSideSwim())
@@ -6441,7 +6655,7 @@ killweapon:
 			action=gothit; FFCore.setHeroAction(gothit);
 		}
 			
-		hclk=48;
+		hclk=iframes;
 		
 		if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
 		{
@@ -6461,15 +6675,41 @@ killweapon:
 	if(hit2!=-1)
 	{
 		weapon* ewpnspr = (weapon*)Ewpns.spr(hit2);
-		if(NayrusLoveShieldClk<=0)
+		std::vector<int32_t> &ev = FFCore.eventData;
+		ev.clear();
+		ev.push_back((ewpn_dp(hit2)*10000));
+		ev.push_back(ewpnspr->hitdir(x,y,16,16,dir)*10000);
+		ev.push_back(0);
+		ev.push_back(NayrusLoveShieldClk>0?10000:0);
+		ev.push_back(48*10000);
+		ev.push_back(ZSD_EWPN*10000);
+		ev.push_back(ewpnspr->getUID());
+		
+		throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
+		int32_t dmg = ev[0]/10000;
+		bool nullhit = ev[2] != 0;
+		
+		if(nullhit) {ev.clear(); return;}
+		
+		//Args: 'damage (post-ring)','hitdir','nullifyhit','type:npc','npc uid'
+		ev[0] = ringpower(dmg)*10000;
+		
+		throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
+		dmg = ev[0]/10000;
+		int32_t hdir = ev[1]/10000;
+		nullhit = ev[2] != 0;
+		bool nayrulove = ev[3] != 0;
+		int32_t iframes = ev[4] / 10000;
+		ev.clear();
+		if(nullhit) return;
+		if(!nayrulove)
 		{
-			int32_t ringpow = ringpower(ewpn_dp(hit2));
-			game->set_life(zc_max(game->get_life()-ringpow,0));
+			game->set_life(zc_max(game->get_life()-dmg,0));
 			sethitHeroUID(HIT_BY_EWEAPON,(hit2+1));
 			sethitHeroUID(HIT_BY_EWEAPON_UID,ewpnspr->getUID());
 		}
 		
-		hitdir = ewpnspr->hitdir(x,y,16,16,dir);
+		hitdir = hdir;
 		ewpnspr->onhit(false);
 		
 		if (IsSideSwim())
@@ -6485,7 +6725,7 @@ killweapon:
 			action=gothit; FFCore.setHeroAction(gothit);
 		}
 			
-		hclk=48;
+		hclk=iframes;
 		
 		if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
 		{
@@ -6555,10 +6795,12 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		return false;
 		
 	int32_t hp_mod[4] = {0};
+	int32_t cid[8];
 	byte hasKB = 0;
 	
 	{
-		newcombo& cmb = combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1)];
+		cid[0] = layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1);
+		newcombo& cmb = combobuf[cid[0]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
@@ -6570,7 +6812,8 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		}
 	}
 	{
-		newcombo& cmb = combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2)];
+		cid[1] = layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2);
+		newcombo& cmb = combobuf[cid[1]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
@@ -6582,7 +6825,8 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		}
 	}
 	{
-		newcombo& cmb = combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1)];
+		cid[2] = layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1);
+		newcombo& cmb = combobuf[cid[2]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
@@ -6594,7 +6838,8 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		}
 	}
 	{
-		newcombo& cmb = combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2)];
+		cid[3] = layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2);
+		newcombo& cmb = combobuf[cid[3]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
@@ -6606,7 +6851,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		}
 	}
 	
-	
+	int32_t bestcid=0;
 	int32_t hp_modtotal=0;
 	if (!_effectflag(dx1,dy1,1, layer)) {hp_mod[0] = 0; hasKB &= ~(1<<0);}
 	if (!_effectflag(dx1,dy2,1, layer)) {hp_mod[1] = 0; hasKB &= ~(1<<1);}
@@ -6636,16 +6881,32 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		if(get_bit(quest_rules,qr_DMGCOMBOPRI))
 		{
 			if(hp_modtotal >= 0) //Okay, if it's over 0, it's healing Hero.
-				hp_modtotal = zc_min(hp_modtotal, hp_mod[i]);
+			{
+				if(hp_mod[i] < hp_modtotal)
+				{
+					hp_modtotal = hp_mod[i];
+					bestcid = cid[i];
+				}
+			}
 			else if(hp_mod[i] < 0) //If it's under 0, it's hurting Hero.
-				hp_modtotal = zc_max(hp_modtotal, hp_mod[i]);
+			{
+				if(hp_mod[i] > hp_modtotal)
+				{
+					hp_modtotal = hp_mod[i];
+					bestcid = cid[i];
+				}
+			}
 		}
-		else
-			hp_modtotal = zc_min(hp_modtotal, hp_mod[i]);
+		else if(hp_mod[i] < hp_modtotal)
+		{
+			hp_modtotal = hp_mod[i];
+			bestcid = cid[i];
+		}
 	}
 	
 	{
-		newcombo& cmb = combobuf[MAPFFCOMBO(dx1,dy1)];
+		cid[4] = MAPFFCOMBO(dx1,dy1);
+		newcombo& cmb = combobuf[cid[4]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
@@ -6657,7 +6918,8 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		}
 	}
 	{
-		newcombo& cmb = combobuf[MAPFFCOMBO(dx1,dy2)];
+		cid[5] = MAPFFCOMBO(dx1,dy2);
+		newcombo& cmb = combobuf[cid[5]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
@@ -6669,7 +6931,8 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		}
 	}
 	{
-		newcombo& cmb = combobuf[MAPFFCOMBO(dx2,dy1)];
+		cid[6] = MAPFFCOMBO(dx2,dy1);
+		newcombo& cmb = combobuf[cid[6]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
@@ -6681,7 +6944,8 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		}
 	}
 	{
-		newcombo& cmb = combobuf[MAPFFCOMBO(dx2,dy2)];
+		cid[7] = MAPFFCOMBO(dx2,dy2);
+		newcombo& cmb = combobuf[cid[7]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
@@ -6693,6 +6957,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		}
 	}
 	
+	int32_t bestffccid = 0;
 	int32_t hp_modtotalffc = 0;
 	
 	for (int32_t i = 0; i <= 1; ++i)
@@ -6718,21 +6983,41 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		if(get_bit(quest_rules,qr_DMGCOMBOPRI))
 		{
 			if(hp_modtotalffc >= 0)
-				hp_modtotalffc = zc_min(hp_modtotalffc, hp_mod[i]);
+			{
+				if(hp_mod[i] < hp_modtotalffc)
+				{
+					hp_modtotalffc = hp_mod[i];
+					bestffccid = cid[4+i];
+				}
+			}
 			else if(hp_mod[i] < 0)
-				hp_modtotalffc = zc_max(hp_modtotalffc, hp_mod[i]);
+			{
+				if(hp_mod[i] > hp_modtotalffc)
+				{
+					hp_modtotalffc = hp_mod[i];
+					bestffccid = cid[4+i];
+				}
+			}
 		}
-		else
-			hp_modtotalffc = zc_min(hp_modtotalffc, hp_mod[i]);
+		else if(hp_mod[i] < hp_modtotalffc)
+		{
+			hp_modtotalffc = hp_mod[i];
+			bestffccid = cid[4+i];
+		}
 	}
 	
 	int32_t hp_modmin = zc_min(hp_modtotal, hp_modtotalffc);
+	if(hp_modtotalffc < hp_modmin) bestcid = bestffccid;
 	
-	bool global_ring = (((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1)) || ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1)));
-	bool global_defring = ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1));
+	bool global_defring = ((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1));
 	bool global_perilring = ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1));
+
 	bool current_ring = ((tmpscr.flags6&fTOGGLERINGDAMAGE) != 0);
-	
+	if(current_ring)
+	{
+		global_defring = !global_defring;
+		global_perilring = !global_perilring;
+	}
 	int32_t itemid = current_item_id(itype_boots);
 	
 	bool bootsnosolid = itemid >= 0 && 0 != (itemsbuf[itemid].flags & ITEM_FLAG1);
@@ -6743,17 +7028,42 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		if((itemid<0) || ignoreBoots || (tmpscr.flags5&fDAMAGEWITHBOOTS) || (4<<current_item_power(itype_boots)<(abs(hp_modmin))) || (solid && bootsnosolid) || !(checkbunny(itemid) && checkmagiccost(itemid)))
 		{
 			if (!do_health_check) return true;
-			if(NayrusLoveShieldClk<=0)
+			std::vector<int32_t> &ev = FFCore.eventData;
+			ev.clear();
+			ev.push_back(-hp_modmin*10000);
+			ev.push_back((hasKB ? dir^1 : -1)*10000);
+			ev.push_back(0);
+			ev.push_back(NayrusLoveShieldClk>0?10000:0);
+			ev.push_back(48*10000);
+			ev.push_back(ZSD_COMBODATA*10000);
+			ev.push_back(bestcid);
+			
+			throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
+			int32_t dmg = ev[0]/10000;
+			bool nullhit = ev[2] != 0;
+			
+			if(nullhit) {ev.clear(); return false;}
+	
+			//Args: 'damage (post-ring)','hitdir','nullifyhit','type:npc','npc uid'
+			ev[0] = ringpower(dmg, !global_perilring, !global_defring)*10000;
+			
+			throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
+			dmg = ev[0]/10000;
+			int32_t hdir = ev[1]/10000;
+			nullhit = ev[2] != 0;
+			bool nayrulove = ev[3] != 0;
+			int32_t iframes = ev[4] / 10000;
+			ev.clear();
+			if(nullhit) return false;
+			
+			if(!nayrulove)
 			{
-				int32_t ringpow = ringpower(-hp_modmin, !global_perilring, !global_defring);
-				game->set_life(zc_max(game->get_life()-(global_ring!=current_ring ? ringpow:-hp_modmin),0));
+				game->set_life(zc_max(game->get_life()-dmg,0));
 			}
 			
-			if(hasKB)
-				hitdir = (dir^1);
-			else
-				hitdir = -1;
+			hitdir = hdir;
 			doHit(hitdir);
+			hclk = iframes;
 			return true;
 		}
 		else if (do_health_check) paymagiccost(itemid); // Boots are successful
@@ -6801,15 +7111,45 @@ int32_t HeroClass::hithero(int32_t hit2)
 	{
 		return -1;
 	}
-	if(NayrusLoveShieldClk<=0)
+	
+	std::vector<int32_t> &ev = FFCore.eventData;
+	ev.clear();
+	//Args: 'damage (pre-ring)','hitdir','nullifyhit','type:npc','npc uid'
+	ev.push_back((enemy_dp(hit2) *10000));
+	ev.push_back(((sprite*)enemyptr)->hitdir(x,y,16,16,dir)*10000);
+	ev.push_back(0);
+	ev.push_back(NayrusLoveShieldClk>0?10000:0);
+	ev.push_back(48*10000);
+	ev.push_back(ZSD_NPC*10000);
+	ev.push_back(enemyptr->getUID());
+	
+	throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
+	int32_t dmg = ev[0] / 10000;
+	bool nullhit = ev[2] != 0;
+	
+	if(nullhit) {ev.clear(); return -1;}
+	
+	//Args: 'damage (post-ring)','hitdir','nullifyhit','type:npc','npc uid'
+	ev[0] = ((ringpower(dmg)*10000));
+	
+	throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
+	dmg = ev[0] / 10000;
+	int32_t hdir = ev[1] / 10000;
+	nullhit = ev[2] != 0;
+	bool nayrulove = ev[3] != 0;
+	int32_t iframes = ev[4] / 10000;
+	ev.clear();
+	
+	if(nullhit) return -1;
+	
+	if(!nayrulove)
 	{
-		int32_t ringpow = ringpower(enemy_dp(hit2));
-		game->set_life(zc_max(game->get_life()-ringpow,0));
+		game->set_life(zc_max(game->get_life()-dmg,0));
 		sethitHeroUID(HIT_BY_NPC,(hit2+1));
 		sethitHeroUID(HIT_BY_NPC_UID,enemyptr->getUID());
 	}
 	
-	hitdir = ((sprite*)enemyptr)->hitdir(x,y,16,16,dir);
+	hitdir = hdir;
 	if (IsSideSwim())
 	{
 	   action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
@@ -6823,7 +7163,7 @@ int32_t HeroClass::hithero(int32_t hit2)
 		action=gothit; FFCore.setHeroAction(gothit);
 	}
 		
-	hclk=48;
+	hclk=iframes;
 	sfx(getHurtSFX(),pan(x.getInt()));
 	
 	if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
@@ -7872,13 +8212,20 @@ bool HeroClass::animate(int32_t)
 												if(cmb.usrflags&cflag3) //Breaks on swap
 												{
 													int32_t it = -1;
+													int32_t thedropset = -1;
 													if(cmb.usrflags&cflag4) //drop item
 													{
-														it = (cmb.usrflags&cflag5) ? cmb.attribytes[2] : select_dropitem(cmb.attribytes[2]); 
+														if(cmb.usrflags&cflag5)
+															it = cmb.attribytes[2];
+														else
+														{
+															it = select_dropitem(cmb.attribytes[2]); 
+															thedropset = cmb.attribytes[2];
+														}
 													}
 													
 													breakable* br = new breakable(x, y, zfix(0),
-														cmb, target_scr->cset[target_pos], it, cmb.attribytes[2],
+														cmb, target_scr->cset[target_pos], it, thedropset, cmb.attribytes[2],
 														cmb.attribytes[1] ? -1 : 0, cmb.attribytes[1], switchhookclk);
 													br->switch_hooked = true;
 													decorations.add(br);
@@ -7960,15 +8307,24 @@ bool HeroClass::animate(int32_t)
 												}
 												
 												int32_t it = -1;
+												int32_t thedropset = -1;
 												if(isCuttableItemType(cmb.type)) //Drop an item
 												{
 													if ( (cmb.usrflags&cflag2) )
 													{
-														it = (cmb.usrflags&cflag11)
-															? cmb.attribytes[1]
-															: select_dropitem(cmb.attribytes[1]); 
+														if(cmb.usrflags&cflag11)
+															it = cmb.attribytes[1];
+														else
+														{
+															it = select_dropitem(cmb.attribytes[1]); 
+															thedropset = cmb.attribytes[1];
+														}
 													}
-													else it = select_dropitem(12);
+													else
+													{
+														it = select_dropitem(12);
+														thedropset = 12;
+													}
 												}
 												
 												byte breaksfx = 0;
@@ -8001,7 +8357,7 @@ bool HeroClass::animate(int32_t)
 														: -2))));
 												
 												breakable* br = new breakable(x, y, zfix(0),
-													cmb, breakcs, it, breaksfx,
+													cmb, breakcs, it, thedropset, breaksfx,
 													decotype, cmb.attribytes[0], switchhookclk);
 												br->switch_hooked = true;
 												decorations.add(br);
@@ -21053,12 +21409,29 @@ RaftingStuff:
 		
 		if(code>-1)
 		{
-			if(currdmap != (code>>8))
+			bool changedlevel = false;
+			bool changeddmap = false;
+			if(currdmap != code>>8)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
-			currdmap = code>>8;
-			if(dlevel != DMaps[currdmap].level)
+				changeddmap = true;
+			}
+			if(dlevel != DMaps[code>>8].level)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
-			dlevel  = DMaps[currdmap].level;
+				changedlevel = true;
+			}
+			currdmap = code>>8;
+			dlevel = DMaps[currdmap].level;
+			if(changeddmap)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
+			}
+			if(changedlevel)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
+			}
+			
 			currmap = DMaps[currdmap].map;
 			homescr = (code&0xFF) + DMaps[currdmap].xoff;
 			init_dmap();
@@ -21490,12 +21863,29 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		music_stop();
 		kill_sfx();
 		blackscr(30,false);
+		bool changedlevel = false;
+		bool changeddmap = false;
 		if(currdmap != wdmap)
+		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+			changeddmap = true;
+		}
 		if(dlevel != DMaps[wdmap].level)
+		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
+			changedlevel = true;
+		}
+		dlevel = DMaps[wdmap].level;
 		currdmap = wdmap;
-		dlevel=DMaps[currdmap].level;
+		if(changeddmap)
+		{
+			throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
+		}
+		if(changedlevel)
+		{
+			throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
+		}
+		
 		currmap=DMaps[currdmap].map;
 		init_dmap();
 		update_subscreens(wdmap);
@@ -21718,12 +22108,29 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		}
 		if(!intradmap)
 		{
+			bool changedlevel = false;
+			bool changeddmap = false;
 			if(currdmap != wdmap)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+				changeddmap = true;
+			}
 			if(dlevel != DMaps[wdmap].level)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
+				changedlevel = true;
+			}
+			dlevel = DMaps[wdmap].level;
 			currdmap = wdmap;
-			dlevel = DMaps[currdmap].level;
+			if(changeddmap)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
+			}
+			if(changedlevel)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
+			}
+			
 			homescr = currscr = wscr + DMaps[wdmap].xoff;
 			z3_load_region();
 			init_dmap();
@@ -21866,12 +22273,29 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		}
 		
 		int32_t c = DMaps[currdmap].color;
+		bool changedlevel = false;
+		bool changeddmap = false;
 		if(currdmap != wdmap)
+		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+			changeddmap = true;
+		}
 		if(dlevel != DMaps[wdmap].level)
+		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
+			changedlevel = true;
+		}
+		dlevel = DMaps[wdmap].level;
 		currdmap = wdmap;
-		dlevel = DMaps[currdmap].level;
+		if(changeddmap)
+		{
+			throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
+		}
+		if(changedlevel)
+		{
+			throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
+		}
+
 		currmap = DMaps[currdmap].map;
 		init_dmap();
 		update_subscreens(wdmap);
@@ -22036,12 +22460,28 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			}
 			
 			int32_t c = DMaps[currdmap].color;
+			bool changedlevel = false;
+			bool changeddmap = false;
 			if(currdmap != wdmap)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+				changeddmap = true;
+			}
 			if(dlevel != DMaps[wdmap].level)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
+				changedlevel = true;
+			}
+			dlevel = DMaps[wdmap].level;
 			currdmap = wdmap;
-			dlevel = DMaps[currdmap].level;
+			if(changeddmap)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
+			}
+			if(changedlevel)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
+			}
 			currmap = DMaps[currdmap].map;
 			init_dmap();
 			update_subscreens(wdmap);
@@ -25784,12 +26224,28 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	
 	if(destdmap != -1)
 	{
+		bool changedlevel = false;
+		bool changeddmap = false;
 		if(currdmap != destdmap)
+		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+			changeddmap = true;
+		}
 		if(dlevel != DMaps[destdmap].level)
+		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
-		currdmap = destdmap;
+			changedlevel = true;
+		}
 		dlevel = DMaps[destdmap].level;
+		currdmap = destdmap;
+		if(changeddmap)
+		{
+			throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
+		}
+		if(changedlevel)
+		{
+			throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
+		}
 	}
 		
 	//if Hero is going from non-water to water, and we set his animation to "hopping" above, we must now
@@ -27224,8 +27680,10 @@ void HeroClass::checkitems(int32_t index)
 	int32_t pickup = ptr->pickup;
 	int32_t PriceIndex = ptr->PriceIndex;
 	int32_t id2 = ptr->id;
+	int32_t holdid = ptr->id;
 	int32_t pstr = ptr->pstring;
 	int32_t pstr_flags = ptr->pickup_string_flags;
+	if(ptr->fallclk > 0) return; //Don't pick up a falling item
 	
 	if(itemsbuf[id2].family == itype_progressive_itm)
 	{
@@ -27233,6 +27691,7 @@ void HeroClass::checkitems(int32_t index)
 		if(newid > -1)
 		{
 			id2 = newid;
+			holdid = newid;
 			pstr = itemsbuf[newid].pstring;
 			pstr_flags = itemsbuf[newid].pickup_string_flags;
 		}
@@ -27240,7 +27699,6 @@ void HeroClass::checkitems(int32_t index)
 	
 	bool bottledummy = (pickup&ipCHECK) && scr.room == rBOTTLESHOP;
 	
-	if(ptr->fallclk > 0) return; //Don't pick up a falling item
 	if(bottledummy) //Dummy bullshit! 
 	{
 		if(!game->canFillBottle())
@@ -27288,10 +27746,29 @@ void HeroClass::checkitems(int32_t index)
 	}
 	else
 	{
+		std::vector<int32_t> &ev = FFCore.eventData;
+		ev.clear();
+		ev.push_back(id2*10000);
+		ev.push_back(pickup*10000);
+		ev.push_back(pstr*10000);
+		ev.push_back(pstr_flags*10000);
+		ev.push_back(0);
+		ev.push_back(ptr->getUID());
+		ev.push_back(GENEVT_ICTYPE_COLLECT*10000);
+		ev.push_back(0);
+		
+		throwGenScriptEvent(GENSCR_EVENT_COLLECT_ITEM);
+		bool nullify = ev[4] != 0;
+		if(nullify) return;
+		id2 = ev[0]/10000;
+		pickup = (pickup&(ipCHECK|ipDUMMY)) | (ev[1]/10000);
+		pstr = ev[2] / 10000;
+		pstr_flags = ev[3] / 10000;
+		
 		if(itemsbuf[id2].family == itype_bottlefill && !game->canFillBottle())
 			return; //No picking these up unless you have a bottle to fill!
 		
-		if(((pickup&ipTIMER) && (ptr->clk2 < 32))&& !(ptr->pickup & ipCANGRAB))
+		if(((pickup&ipTIMER) && (ptr->clk2 < 32))&& !(pickup & ipCANGRAB))
 			if(ptr->id!=iFairyMoving)
 				// wait for it to stop flashing, doesn't check for other items yet
 				return;
@@ -27493,8 +27970,8 @@ void HeroClass::checkitems(int32_t index)
 			//restart music
 			if(get_bit(quest_rules, qr_HOLDNOSTOPMUSIC) == 0)
 				music_stop();
-				
-			holditem=ptr->id; // NES consistency: when combining blue potions, hold up the blue potion.
+			
+			holditem=holdid; // NES consistency: when combining blue potions, hold up the blue potion.
 			freeze_guys=true;
 			//show the info string
 			 

@@ -2862,6 +2862,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 		bool r = true;
 		if(loadquest_report)
 		{
+			enter_sys_pal();
 			AlertDialog("Quest saved in newer version",
 				"This quest was last saved in a newer version of ZQuest."
 				" Attempting to load this quest may not work correctly; to"
@@ -2871,6 +2872,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 				{
 					r = ret;
 				}).show();
+			exit_sys_pal();
 		}
 		if(!r)
 			return qe_silenterr;
@@ -2880,6 +2882,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 		bool r = true;
 		if(loadquest_report)
 		{
+			enter_sys_pal();
 			AlertDialog("Quest saved in newer build",
 				"This quest was last saved in a newer build of ZQuest, and may have"
 				" issues loading in this build."
@@ -2888,6 +2891,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 				{
 					r = ret;
 				}).show();
+			exit_sys_pal();
 		}
 		if(!r)
 			return qe_silenterr;
@@ -3627,6 +3631,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if(compatrule_version < 31)
 	{
 		set_bit(quest_rules,qr_GOHMA_UNDAMAGED_BUG,1);
+		set_bit(quest_rules,qr_FFCPRELOAD_BUGGED_LOAD,1);
 	}
 	
 	//always set

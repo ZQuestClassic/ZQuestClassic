@@ -731,6 +731,7 @@ void clearConsole();
 
 enum scr_timing
 {
+	SCR_TIMING_INIT = -1,
 	//0
 	SCR_TIMING_START_FRAME, SCR_TIMING_POST_COMBO_ANIM, SCR_TIMING_POST_POLL_INPUT,
 	SCR_TIMING_POST_FFCS, SCR_TIMING_POST_GLOBAL_ACTIVE,
@@ -767,6 +768,37 @@ enum
 	GENSCR_ST_CHANGE_LEVEL,
 	GENSCR_NUMST
 };
+enum
+{
+	GENSCR_EVENT_NIL = -1,
+	GENSCR_EVENT_INIT,
+	GENSCR_EVENT_CONTINUE,
+	GENSCR_EVENT_FFC_PRELOAD,
+	GENSCR_EVENT_CHANGE_SCREEN,
+	GENSCR_EVENT_CHANGE_DMAP,
+	GENSCR_EVENT_CHANGE_LEVEL,
+	GENSCR_EVENT_HERO_HIT_1,
+	GENSCR_EVENT_HERO_HIT_2,
+	GENSCR_EVENT_COLLECT_ITEM,
+	GENSCR_EVENT_ENEMY_DROP_ITEM_1,
+	GENSCR_EVENT_ENEMY_DROP_ITEM_2,
+	GENSCR_EVENT_ENEMY_DEATH,
+	GENSCR_EVENT_ENEMY_HIT1,
+	GENSCR_EVENT_ENEMY_HIT2,
+	GENSCR_NUMEVENT
+};
+enum
+{
+	GENEVT_ICTYPE_COLLECT, //Hero collected the item
+	GENEVT_ICTYPE_MELEE, //Melee lweapon collected the item
+	GENEVT_ICTYPE_MELEE_EW, //Melee eweapon collected the item
+	GENEVT_ICTYPE_RANGED_DRAG //Ranged weapon collected, and will drag
+};
+enum
+{
+	ZSD_NPC, ZSD_LWPN, ZSD_EWPN, ZSD_ITSPR, ZSD_COMBODATA,
+	NUM_ZSD
+};
 
 struct user_genscript
 {
@@ -775,6 +807,7 @@ struct user_genscript
 	std::vector<int32_t> data;
 	word exitState;
 	word reloadState;
+	uint32_t eventstate;
 	int32_t initd[8];
 private:
 	size_t _dataSize;
@@ -782,7 +815,9 @@ public:
 	//Temp Vars
 	bool initialized;
 	bool wait_atleast;
+	bool waitevent;
 	scr_timing waituntil;
+	int32_t indx;
 	refInfo ri;
 	int32_t stack[MAX_SCRIPT_REGISTERS];
 	
@@ -793,8 +828,11 @@ public:
 		initialized = false;
 		wait_atleast = true;
 		waituntil = SCR_TIMING_START_FRAME;
+		waitevent = false;
 		exitState = 0;
 		reloadState = 0;
+		eventstate = 0;
+		indx = -1;
 		ri.Clear();
 		memset(stack, 0, sizeof(stack));
 		memset(initd, 0, sizeof(initd));
@@ -804,17 +842,16 @@ public:
 	}
 	void launch()
 	{
+		quit();
 		doscript = true;
 		initialized = false;
 		wait_atleast = true;
 		waituntil = SCR_TIMING_START_FRAME;
+		waitevent = false;
 		ri.Clear();
 		memset(stack, 0, sizeof(stack));
 	}
-	void quit()
-	{
-		doscript = false;
-	}
+	void quit();
 	size_t dataSize() const
 	{
 		return _dataSize;
@@ -837,7 +874,9 @@ public:
 };
 extern user_genscript user_scripts[NUMSCRIPTSGENERIC];
 extern int32_t genscript_timing;
+void countGenScripts();
 void timeExitAllGenscript(byte exState);
+void throwGenScriptEvent(int32_t event);
 void load_genscript(const gamedata& gd);
 void save_genscript(gamedata& gd);
 
@@ -854,6 +893,7 @@ int32_t max_ff_rules;
 mapscr* tempScreens[7];
 mapscr* ScrollingScreens[7];
 int32_t ScrollingData[SZ_SCROLLDATA];
+std::vector<int32_t> eventData;
 int32_t getQRBit(int32_t rule);
 void setHeroAction(int32_t a);
 int32_t getHeroAction();
@@ -1961,7 +2001,7 @@ enum __Error
     {
         ZScriptArray& a = getArray(ptr);
         
-        if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
             return size_t(-1);
             
         return a.Size();
@@ -1972,7 +2012,7 @@ enum __Error
     {
         ZScriptArray& a = getArray(ptr);
         
-        if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
             return -1;
             
         word count;
@@ -1987,7 +2027,7 @@ enum __Error
     {
         ZScriptArray& a = getArray(ptr);
         
-        if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
         {
             str.clear();
             return;
@@ -2007,7 +2047,7 @@ enum __Error
         ZScriptArray& a = getArray(ptr);
         ZScriptArray& b = getArray(ptr2);
         
-        if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
             return;
 	
 	if(b == INVALIDARRAY)
@@ -2024,7 +2064,7 @@ enum __Error
     {
         ZScriptArray& a = getArray(ptr);
         
-        if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
             return;
             
         for(word i = 0; checkUserArrayIndex(i, a.Size()) == _NoError && num_values != 0; i++)
@@ -2037,7 +2077,7 @@ enum __Error
     {
         ZScriptArray& a = getArray(ptr);
         
-        if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
             return;
 	if ( getSize(ptr) < (unsigned)min_size )
 	{
@@ -2054,7 +2094,7 @@ enum __Error
     {
         ZScriptArray& a = getArray(ptr);
         
-        if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
             return -10000;
             
         if(checkUserArrayIndex(offset, a.Size()) == _NoError)
@@ -2068,7 +2108,7 @@ enum __Error
     {
         ZScriptArray& a = getArray(ptr);
         
-        if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
             return;
             
         if(checkUserArrayIndex(offset, a.Size()) == _NoError)
@@ -2093,7 +2133,7 @@ enum __Error
     {
         ZScriptArray& a = getArray(ptr);
         
-        if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
             return _InvalidPointer;
             
         word j = 0, k = userStride;
@@ -2124,7 +2164,7 @@ enum __Error
     {
         ZScriptArray& a = getArray(ptr);
         
-        if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
             return _InvalidPointer;
             
         word i;
@@ -2160,7 +2200,7 @@ enum __Error
     {
         ZScriptArray& a = getArray(ptr);
         
-        if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
             return _InvalidPointer;
             
         word j = 0, k = userStride;
@@ -3294,10 +3334,12 @@ enum ASM_DEFINE
 	LPOWERV,
 	LPOWERV2,
 	SCRTRIGGERCOMBO,
-
+	WAITEVENT,
+	OWNARRAYR,
+	DESTROYARRAYR,
 	GETSCREENINDEXFORRPOS,
-	
-	NUMCOMMANDS           //0x01D6
+
+	NUMCOMMANDS           //0x01D8
 };
 
 
@@ -4793,19 +4835,22 @@ enum ASM_DEFINE
 #define COMBODTRIGGERLIGHTBEAM  0x1466
 #define COMBODTRIGGERCTR        0x1467
 #define COMBODTRIGGERCTRAMNT    0x1468
-#define REGIONDD                0x1469
-#define REGIONCD                0x146A
-#define REGIONFD                0x146B
-#define REGIONTD                0x146C
-#define REGIONID                0x146D
-#define REGIONSD                0x146E
-#define REGIONED                0x146F
-#define REGIONWORLDWIDTH        0x1470
-#define REGIONWORLDHEIGHT       0x1471
-#define REGIONSCREENWIDTH       0x1472
-#define REGIONSCREENHEIGHT      0x1473
+#define GENDATAEVENTSTATE       0x1469
+#define GAMEEVENTDATA           0x146A
+#define ITEMDROPPEDBY           0x146B
+#define REGIONDD                0x146C
+#define REGIONCD                0x146D
+#define REGIONFD                0x146E
+#define REGIONTD                0x146F
+#define REGIONID                0x1470
+#define REGIONSD                0x1471
+#define REGIONED                0x1472
+#define REGIONWORLDWIDTH        0x1473
+#define REGIONWORLDHEIGHT       0x1474
+#define REGIONSCREENWIDTH       0x1475
+#define REGIONSCREENHEIGHT      0x1476
 
-#define NUMVARIABLES         	0x1474
+#define NUMVARIABLES         	0x1477
 
 //} End variables
 

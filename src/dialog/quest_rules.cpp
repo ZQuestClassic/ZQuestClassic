@@ -800,7 +800,10 @@ static const GUI::ListData compatRulesList
 	{ "Screen->State[] 0x80 bug", qr_SCREENSTATE_80s_BUG,
 		"If enabled, 'Screen->State[]' will use an old behavior that may read the wrong screen data." },
 	{ "Undamaged Gohma can be hit on any side", qr_GOHMA_UNDAMAGED_BUG,
-		"If enabled, the first weapon to hit a Gohma will not be blocked, regardless of where it hits." }
+		"If enabled, the first weapon to hit a Gohma will not be blocked, regardless of where it hits." },
+	{ "Preload FFCs don't work on init screen", qr_FFCPRELOAD_BUGGED_LOAD,
+		"If enabled, FFCs that 'run on screen init' will not run before the opening wipe on the first screen"
+		" loading from the save select screen." }
 };
 
 static const GUI::ListData enemiesRulesList

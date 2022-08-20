@@ -2045,15 +2045,18 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 			}
 		}
 		else savedata[i].clear_portal();
+		
+		savedata[i].clear_genscript();
+		
+		word num_gen_scripts;
 		if(section_version >= 25)
 		{
-			word num_scripts;
 			byte dummybyte;
-			if(!p_igetw(&num_scripts, f, true))
+			if(!p_igetw(&num_gen_scripts, f, true))
 			{
 				return 73;
 			}
-			for(size_t q=0; q<num_scripts; q++)
+			for(size_t q=0; q<num_gen_scripts; q++)
 			{
 				if(!p_getc(&dummybyte,f, true))
 					return 74;
@@ -2075,7 +2078,6 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 						return 79;
 			}
 		}
-		else savedata[i].clear_genscript();
 		
 		if(section_version >= 26)
 		{
@@ -2090,6 +2092,16 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 		else
 		{
 			std::fill(savedata[i].xstates, savedata[i].xstates+(MAXMAPS2*MAPSCRSNORMAL), 0);
+		}
+		
+		std::fill(savedata[i].gen_eventstate, savedata[i].gen_eventstate+NUMSCRIPTSGENERIC, 0);
+		if(section_version >= 27)
+		{
+			for(size_t q=0; q<num_gen_scripts; q++)
+			{
+				if(!p_igetl(&savedata[i].gen_eventstate[q],f, true))
+					return 78;
+			}
 		}
 	}
 	
@@ -2692,6 +2704,14 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 			if(!p_iputl(savedata[i].xstates[j],f))
 			{
 				return 78;
+			}
+		}
+		
+		for(auto q = 0; q < NUMSCRIPTSGENERIC; ++q)
+		{
+			if(!p_iputl(savedata[i].gen_eventstate[q],f))
+			{
+				return 79;
 			}
 		}
 	}

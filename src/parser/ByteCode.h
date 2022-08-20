@@ -1411,28 +1411,22 @@
 #define COMBODTRIGGERLIGHTBEAM  1328
 #define COMBODTRIGGERCTR        1329
 #define COMBODTRIGGERCTRAMNT    1330
-#define REGIONID                1331 // region_max_rpos of these
-#define REGIONTD                1332 // region_max_rpos of these
-#define REGIONSD                1333 // region_max_rpos of these
-#define REGIONED                1334 // region_max_rpos of these
-// #define REGIONIDM               1335 // region_max_rpos of these
-// #define REGIONTDM               1336 // region_max_rpos of these
-// #define REGIONSDM               1337 // region_max_rpos of these
-// #define REGIONDDM               1338 // region_max_rpos of these
-// #define REGIONCDM               1339 // region_max_rpos of these
-// #define REGIONFDM               1340 // region_max_rpos of these
-// #define REGIONIDM               1341 // region_max_rpos of these
-// #define REGIONTDM               1342 // region_max_rpos of these
-// #define REGIONSDM               1343 // region_max_rpos of these
-#define REGIONDD                1344 // region_max_rpos of these
-#define REGIONCD                1345 // region_max_rpos of these
-#define REGIONFD                1346 // region_max_rpos of these
-#define REGIONWORLDWIDTH        1347
-#define REGIONWORLDHEIGHT       1348
-#define REGIONSCREENWIDTH       1349
-#define REGIONSCREENHEIGHT      1350
+#define GENDATAEVENTSTATE       1331
+#define GAMEEVENTDATA           1332
+#define ITEMDROPPEDBY           1333
+#define REGIONID                1334 // region_max_rpos of these
+#define REGIONTD                1335 // region_max_rpos of these
+#define REGIONSD                1336 // region_max_rpos of these
+#define REGIONED                1337 // region_max_rpos of these
+#define REGIONDD                1338 // region_max_rpos of these
+#define REGIONCD                1339 // region_max_rpos of these
+#define REGIONFD                1340 // region_max_rpos of these
+#define REGIONWORLDWIDTH        1341
+#define REGIONWORLDHEIGHT       1342
+#define REGIONSCREENWIDTH       1343
+#define REGIONSCREENHEIGHT      1344
 
-#define LAST_BYTECODE           1351
+#define LAST_BYTECODE           1345
 
 //} END OF BYTECODE
 
@@ -1980,6 +1974,16 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OWaitTo(a->clone(),b->clone());
+		}
+	};
+	
+	class OWaitEvent : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OWaitEvent();
 		}
 	};
 	
@@ -4730,6 +4734,26 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OResizeArrayRegister(a->clone(), b->clone());
+		}
+	};
+	class OOwnArrayRegister : public UnaryOpcode
+	{
+	public:
+		OOwnArrayRegister(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OOwnArrayRegister(a->clone());
+		}
+	};
+	class ODestroyArrayRegister : public UnaryOpcode
+	{
+	public:
+		ODestroyArrayRegister(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ODestroyArrayRegister(a->clone());
 		}
 	};
 

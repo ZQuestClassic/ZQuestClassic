@@ -279,6 +279,7 @@ protected:
 	virtual int32_t defend(int32_t wpnId, int32_t *power, int32_t edef);
 //New 2.55 Weapon System
 	int32_t resolveEnemyDefence(weapon *w);
+	int32_t defendNewInt(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable, weapon* w=nullptr);
 	virtual int32_t defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable);
 	//virtual int32_t defend_wdmg(int32_t wpnId, int32_t dmg, int32_t edef);
 	bool candamage(int32_t power, int32_t edef, byte unblockable);

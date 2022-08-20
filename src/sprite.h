@@ -293,13 +293,13 @@ class breakable : public sprite
 public:
     int32_t aclk, aframe, o_tile, aspd, frames;
 	newcombo const& cmb;
-	int32_t dropitem, breaktimer;
+	int32_t dropitem, breaktimer, fromdropset;
 	int8_t breaksprtype;
 	byte breaksfx,breakspr;
 	
 	breakable(zfix X, zfix Y, zfix Z, newcombo const& cmb, int32_t cset);
 	breakable(zfix X, zfix Y, zfix Z, newcombo const& cmb, int32_t cset, int32_t dropitem,
-		byte breaksfx, int8_t breaksprtype, byte breakspr, int32_t breaktimer);
+		int32_t fromdropset, byte breaksfx, int8_t breaksprtype, byte breakspr, int32_t breaktimer);
 	
 	virtual bool animate(int32_t);
 };

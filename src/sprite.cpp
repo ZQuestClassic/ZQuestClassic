@@ -2725,7 +2725,7 @@ bool portal::animate(int32_t)
 //BreakableCombo
 
 breakable::breakable(zfix X, zfix Y, zfix Z, newcombo const& cmb, int32_t cset)
-	: cmb(cmb), dropitem(-1), breaksfx(0), breaksprtype(0),
+	: cmb(cmb), dropitem(-1), fromdropset(-1), breaksfx(0), breaksprtype(0),
 	breakspr(0), breaktimer(0)
 {
 	x = X; y = Y; z = Z;
@@ -2739,9 +2739,9 @@ breakable::breakable(zfix X, zfix Y, zfix Z, newcombo const& cmb, int32_t cset)
 	id = 0; //negative id doesn't draw!
 }
 
-breakable::breakable(zfix X, zfix Y, zfix Z, newcombo const& cmb, int32_t cset, int32_t dropitem,
+breakable::breakable(zfix X, zfix Y, zfix Z, newcombo const& cmb, int32_t cset, int32_t dropitem, int32_t fromdropset,
 	byte breaksfx, int8_t breaksprtype, byte breakspr, int32_t breaktimer)
-	: cmb(cmb), dropitem(dropitem), breaksfx(breaksfx), breaksprtype(breaksprtype),
+	: cmb(cmb), dropitem(dropitem), fromdropset(fromdropset), breaksfx(breaksfx), breaksprtype(breaksprtype),
 	breakspr(breakspr), breaktimer(breaktimer)
 {
 	x = X; y = Y; z = Z;
@@ -2782,7 +2782,11 @@ bool breakable::animate(int32_t)
 			}
 			if(breaksfx) sfx(breaksfx,int32_t(x));
 			if(dropitem > -1)
-				items.add(new item(x, y, z, dropitem, ipBIGRANGE + ipTIMER, 0));
+			{
+				item* itm = (new item(x, y, z, dropitem, ipBIGRANGE + ipTIMER, 0));
+				itm->from_dropset = fromdropset;
+				items.add(itm);
+			}
 			return true; //sprite dead
 		}
 	}

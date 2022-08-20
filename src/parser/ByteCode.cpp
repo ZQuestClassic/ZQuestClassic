@@ -657,6 +657,8 @@ string ZScript::VarToString(int32_t ID)
 		return "GAMEMISCSPR";
 	case GAMEMISCSFX:
 		return "GAMEMISCSFX";
+	case GAMEEVENTDATA:
+		return "GAMEEVENTDATA";
 		
 	case SCREENSTATED:
 		return "SCREENSTATED";
@@ -2125,6 +2127,7 @@ string ZScript::VarToString(int32_t ID)
 	case NPCDSHADOWSPR: return "NPCDSHADOWSPR";
 	case NPCDSPAWNSPR: return "NPCDSPAWNSPR";
 	case NPCDDEATHSPR: return "NPCDDEATHSPR";
+	case ITEMDROPPEDBY: return "ITEMDROPPEDBY";
 	
 	case REFGENERICDATA: return "REFGENERICDATA";
 	case GENDATARUNNING: return "GENDATARUNNING";
@@ -2133,6 +2136,7 @@ string ZScript::VarToString(int32_t ID)
 	case GENDATADATA: return "GENDATADATA";
 	case GENDATAINITD: return "GENDATAINITD";
 	case GENDATARELOADSTATE: return "GENDATARELOADSTATE";
+	case GENDATAEVENTSTATE: return "GENDATAEVENTSTATE";
 	
 	case COMBODCSET2FLAGS: return "COMBODCSET2FLAGS";
 	case HEROIMMORTAL: return "HEROIMMORTAL";
@@ -2387,6 +2391,11 @@ string OWaitdraw::toString()
 string OWaitTo::toString()
 {
     return "WAITTO " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OWaitEvent::toString()
+{
+    return "WAITEVENT";
 }
 
 string ONoOp::toString()
@@ -3634,6 +3643,14 @@ string ODeallocateMemImmediate::toString()
 string OResizeArrayRegister::toString()
 {
     return "RESIZEARRAYR " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+}
+string OOwnArrayRegister::toString()
+{
+    return "OWNARRAYR " + getArgument()->toString();
+}
+string ODestroyArrayRegister::toString()
+{
+    return "DESTROYARRAYR " + getArgument()->toString();
 }
 
 string OSave::toString()

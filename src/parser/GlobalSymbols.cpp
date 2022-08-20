@@ -594,6 +594,7 @@ static AccessorTable GlobalTable[] =
 	{ "Waitframe",              ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Waitdraw",               ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "WaitTo",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "WaitEvent",              ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Trace",                  ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "TraceLWeapon",           ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    1,           { ZVARTYPEID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "TraceEWeapon",           ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    1,           { ZVARTYPEID_EWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -642,6 +643,8 @@ static AccessorTable GlobalTable[] =
 	{ "GetDepthBuffer",         ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    4,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,         	    	   -1,         	    	   -1,         	    	   -1,         	    	   -1,         	    	   -1,         	    	   -1,         	    	   -1,       	    	       -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                          } },
 	{ "SizeOfArray",            ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "ResizeArray",            ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_UNTYPED, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "OwnArray",               ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "DestroyArray",           ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "SizeOfArrayBool",        ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           { ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "SizeOfArrayFFC",         ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           { ZVARTYPEID_FFC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "SizeOfArrayItem",        ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           { ZVARTYPEID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -958,6 +961,16 @@ void GlobalSymbols::generateCode()
         LABELBACK(label);
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
         addOpcode2 (code, new OWaitTo(new VarArgument(EXP1), new VarArgument(EXP2)));
+        RETURN();
+        function->giveCode(code);
+	}
+	//int WaitEvent()
+	{
+	    Function* function = getFunction("WaitEvent", 0);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        addOpcode2 (code, new OWaitEvent());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
 	}
@@ -1434,7 +1447,7 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    //int32_t ResizeArray(untyped ptr, int sz)
+    //void ResizeArray(untyped ptr, int sz)
     {
 	    Function* function = getFunction("ResizeArray", 2);
         int32_t label = function->getLabel();
@@ -1443,6 +1456,28 @@ void GlobalSymbols::generateCode()
         LABELBACK(label);
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
         addOpcode2 (code, new OResizeArrayRegister(new VarArgument(EXP1),new VarArgument(EXP2)));
+        RETURN();
+        function->giveCode(code);
+    }
+    //void OwnArray(untyped ptr)
+    {
+	    Function* function = getFunction("OwnArray", 1);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        addOpcode2 (code, new OOwnArrayRegister(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+    }
+    //void DestroyArray(untyped ptr)
+    {
+	    Function* function = getFunction("DestroyArray", 1);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        addOpcode2 (code, new ODestroyArrayRegister(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
     }
@@ -4222,6 +4257,8 @@ static AccessorTable itemTable[] =
 	{ "Remove",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getShadowSprite",        ZVARTYPEID_FLOAT,         GETTER,       ITEMSHADOWSPR,        1,           0,                                    1,           { ZVARTYPEID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setShadowSprite",        ZVARTYPEID_VOID,          SETTER,       ITEMSHADOWSPR,        1,           0,                                    2,           { ZVARTYPEID_ITEM, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getDroppedBy",           ZVARTYPEID_FLOAT,         GETTER,       ITEMDROPPEDBY,        1,           0,                                    1,           { ZVARTYPEID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setDroppedBy",           ZVARTYPEID_VOID,          SETTER,       ITEMDROPPEDBY,        1,           0,                                    2,           { ZVARTYPEID_ITEM, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getSwitchHooked",        ZVARTYPEID_BOOL,          GETTER,       ITMSWHOOKED,          1,           0,                                    1,           { ZVARTYPEID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSwitchHooked",        ZVARTYPEID_VOID,          SETTER,       ITMSWHOOKED,          1,           0,                                    2,           { ZVARTYPEID_ITEM, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Switch",                 ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_ITEM, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -4854,6 +4891,8 @@ static AccessorTable gameTable[] =
 	{ "setMiscSprites[]",              ZVARTYPEID_VOID,          SETTER,       GAMEMISCSPR,          256,            0,                                    3,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getMiscSFX[]",                  ZVARTYPEID_FLOAT,         GETTER,       GAMEMISCSFX,          256,            0,                                    2,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setMiscSFX[]",                  ZVARTYPEID_VOID,          SETTER,       GAMEMISCSFX,          256,            0,                                    3,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getEventData[]",                ZVARTYPEID_UNTYPED,       GETTER,       GAMEEVENTDATA,        214748,         0,                                    2,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setEventData[]",                ZVARTYPEID_VOID,          SETTER,       GAMEEVENTDATA,        214748,         0,                                    3,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                              -1,                       -1,           -1,                   -1,             0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
@@ -14486,6 +14525,8 @@ static AccessorTable GenericDataTable[] =
 	{ "setExitState[]",         ZVARTYPEID_VOID,          SETTER,       GENDATAEXITSTATE,   1,             0,                                    3,           { ZVARTYPEID_GENERICDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getReloadState[]",       ZVARTYPEID_BOOL,          GETTER,       GENDATARELOADSTATE, 1,             0,                                    2,           { ZVARTYPEID_GENERICDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setReloadState[]",       ZVARTYPEID_VOID,          SETTER,       GENDATARELOADSTATE, 1,             0,                                    3,           { ZVARTYPEID_GENERICDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getEventListen[]",       ZVARTYPEID_BOOL,          GETTER,       GENDATAEVENTSTATE,  1,             0,                                    2,           { ZVARTYPEID_GENERICDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setEventListen[]",       ZVARTYPEID_VOID,          SETTER,       GENDATAEVENTSTATE,  1,             0,                                    3,           { ZVARTYPEID_GENERICDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getData[]",              ZVARTYPEID_UNTYPED,       GETTER,       GENDATADATA,        214748,        0,                                    2,           { ZVARTYPEID_GENERICDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setData[]",              ZVARTYPEID_VOID,          SETTER,       GENDATADATA,        214748,        0,                                    3,           { ZVARTYPEID_GENERICDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getInitD[]",             ZVARTYPEID_UNTYPED,       GETTER,       GENDATAINITD,       8,             0,                                    2,           { ZVARTYPEID_GENERICDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },

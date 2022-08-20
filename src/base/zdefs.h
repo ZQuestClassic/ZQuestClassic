@@ -276,7 +276,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            46
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        26 //skipped 13->15 for 2.53.1
+#define V_SAVEGAME        27
 #define V_COMBOALIASES     3
 #define V_HEROSPRITES      15
 #define V_SUBSCREEN        7
@@ -1101,7 +1101,7 @@ enum
 	qr_CONVEYORS_L1_L2, qr_CUSTOMCOMBOS_EVERY_LAYER, qr_SUBSCR_BACKWARDS_ID_ORDER, qr_FASTCOUNTERDRAIN,
 	qr_OLD_LOCKBLOCK_COLLISION, qr_DECO_2_YOFFSET, qr_SCREENSTATE_80s_BUG, qr_AUTOCOMBO_ANY_LAYER,
 	//60
-	qr_GOHMA_UNDAMAGED_BUG,
+	qr_GOHMA_UNDAMAGED_BUG, qr_FFCPRELOAD_BUGGED_LOAD,
 	//70
 	
 	//ZScript Parser //room for 20 of these
@@ -1342,7 +1342,7 @@ enum
 #define combotriggerCMBTYPEFX    0x10000000
 #define combotriggerONLYGENTRIG  0x20000000
 #define combotriggerKILLWPN      0x40000000
-//#define combotriggerSOMETHING    0x80000000
+#define combotriggerEWFIREBALL   0x80000000
 
 //Page 2, triggerflags[1]
 #define combotriggerHOOKSHOT     0x00000001
@@ -1373,6 +1373,31 @@ enum
 #define combotriggerPUSH         0x02000000
 #define combotriggerLENSON       0x04000000
 #define combotriggerLENSOFF      0x08000000
+#define combotriggerEWARROW      0x10000000
+#define combotriggerEWBRANG      0x20000000
+#define combotriggerEWSWORD      0x40000000
+#define combotriggerEWROCK       0x80000000
+
+//triggerflags[2]
+#define combotriggerEWSCRIPT01   0x00000001
+#define combotriggerEWSCRIPT02   0x00000002
+#define combotriggerEWSCRIPT03   0x00000004
+#define combotriggerEWSCRIPT04   0x00000008
+#define combotriggerEWSCRIPT05   0x00000010
+#define combotriggerEWSCRIPT06   0x00000020
+#define combotriggerEWSCRIPT07   0x00000040
+#define combotriggerEWSCRIPT08   0x00000080
+#define combotriggerEWSCRIPT09   0x00000100
+#define combotriggerEWSCRIPT10   0x00000200
+#define combotriggerEWMAGIC      0x00000400
+#define combotriggerEWBBLAST     0x00000800
+#define combotriggerEWSBBLAST    0x00001000
+#define combotriggerEWLITBOMB    0x00002000
+#define combotriggerEWLITSBOMB   0x00004000
+#define combotriggerEWFIRETRAIL  0x00008000
+#define combotriggerEWFLAME      0x00010000
+#define combotriggerEWWIND       0x00020000
+#define combotriggerEWFLAME2     0x00040000
 
 #define ctrigNONE        0x00
 #define ctrigIGNORE_SIGN 0x01
@@ -4328,6 +4353,7 @@ struct gamedata
 	int32_t gen_dataSize[NUMSCRIPTSGENERIC];
 	std::vector<int32_t> gen_data[NUMSCRIPTSGENERIC];
 	uint32_t xstates[MAXMAPS2*MAPSCRSNORMAL];
+	uint32_t gen_eventstate[NUMSCRIPTSGENERIC];
 	
 	// member functions
 	// public:
@@ -5416,6 +5442,8 @@ bool load_dev_info(std::string const& devstr);
 bool load_dev_info_clipboard();
 std::string generate_zq_about();
 
+void enter_sys_pal();
+void exit_sys_pal();
 
 extern bool global_z3_scrolling_extended_height_mode;
 extern int32_t global_viewport_x, global_viewport_y;
