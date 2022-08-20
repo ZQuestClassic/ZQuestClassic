@@ -22,11 +22,9 @@ void call_zinf_dlg()
 		}
 		tmp_zinfo.clear();
 	}
-	sp_release_screen_all();
 }
 void do_reload_zidlg()
 {
-	sp_acquire_screen();
 	reload_zi_dlg = true;
 }
 

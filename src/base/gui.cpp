@@ -37,32 +37,6 @@
 #include "base/gui.h"
 #include "mem_debug.h"
 
-
-//Jank fuckery for old-style dialogs to use in some cases...
-//Really shouldn't need this in the long-term, but need to upgrade all dialogs
-//to the new gui system to avoid needing this....
-static size_t sp_acquire_ctr = 0;
-void sp_acquire_screen()
-{
-	++sp_acquire_ctr;
-	acquire_screen();
-}
-void sp_release_screen()
-{
-	if(sp_acquire_ctr)
-	{
-		--sp_acquire_ctr;
-		release_screen();
-	}
-}
-void sp_release_screen_all()
-{
-	while(sp_acquire_ctr)
-	{
-		--sp_acquire_ctr;
-		release_screen();
-	}
-}
 void broadcast_dialog_message(DIALOG* dialog, int32_t msg, int32_t c)
 {
 	while(dialog->proc)
@@ -305,7 +279,6 @@ void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& r
 	int32_t ret=0;
     broadcast_dialog_message(dialog, MSG_START, 0);
     broadcast_dialog_message(dialog, MSG_DRAW, 0);
-	sp_release_screen_all();
 	while(!done && ret>=0)
 		ret=do_zqdialog(dialog, focus_obj);
 	running=false;
@@ -318,41 +291,37 @@ void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& r
 	}
 }
 
-int32_t popup_zqdialog_special(DIALOG *dialog, int32_t focus_obj)
+static BITMAP* zqdialog_tmp_bmp = nullptr;
+
+void popup_zqdialog_start(DIALOG *dialog)
 {
-    BITMAP *bmp;
-    BITMAP *gui_bmp;
-    int32_t ret;
-    ASSERT(dialog);
+    DCHECK(dialog);
+    DCHECK(!zqdialog_tmp_bmp);
+    zqdialog_tmp_bmp = create_bitmap_ex(8, dialog->w, dialog->h);
     
-    bmp = create_bitmap_ex(8, dialog->w, dialog->h);
-    gui_bmp = screen;
-    
-    if(bmp)
+    if(zqdialog_tmp_bmp)
     {
         scare_mouse_area(dialog->x, dialog->y, dialog->w, dialog->h);
-        blit(gui_bmp, bmp, dialog->x, dialog->y, 0, 0, dialog->w, dialog->h);
+        blit(screen, zqdialog_tmp_bmp, dialog->x, dialog->y, 0, 0, dialog->w, dialog->h);
         unscare_mouse();
     }
     else
     {
         *allegro_errno = ENOMEM;
     }
-	
-    broadcast_dialog_message(dialog, MSG_START, 0);
-    broadcast_dialog_message(dialog, MSG_DRAW, 0);
-	sp_release_screen_all();
-    ret = do_zqdialog(dialog, focus_obj);
-    sp_acquire_screen();
-    if(bmp)
+}
+
+void popup_zqdialog_end(DIALOG *dialog)
+{
+    if (zqdialog_tmp_bmp)
     {
         scare_mouse_area(dialog->x, dialog->y, dialog->w, dialog->h);
-        blit(bmp, gui_bmp, 0, 0, dialog->x, dialog->y, dialog->w, dialog->h);
+        blit(zqdialog_tmp_bmp, screen, 0, 0, dialog->x, dialog->y, dialog->w, dialog->h);
         unscare_mouse();
-        destroy_bitmap(bmp);
+        destroy_bitmap(zqdialog_tmp_bmp);
+        zqdialog_tmp_bmp = nullptr;
     }
     position_mouse_z(0);
-    return ret;
 }
 
 /*** end of gui.cpp ***/

@@ -29,7 +29,6 @@ void call_qr_dialog(size_t qrs_per_tab, std::function<void(byte*)> setQRs)
 }
 void do_reload_qrdlg()
 {
-	sp_acquire_screen();
 	reload_qr_dlg = true;
 }
 
