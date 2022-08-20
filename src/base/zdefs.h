@@ -175,6 +175,8 @@
 #define MAX_SCRIPT_REGISTERS (1<<BITS_SP)
 #define MAX_SCRIPT_REGISTERS_250 256
 
+#define DCHECK_RANGE_INCLUSIVE(x, low, high) DCHECK(x >= low && x <= high)
+#define DCHECK_RANGE_EXCLUSIVE(x, low, high) DCHECK(x >= low && x < high)
 #define DCHECK_LAYER_ZERO_INDEX(l) DCHECK(l >= 0 && l < 7)
 #define DCHECK_LAYER_NEG1_INDEX(l) DCHECK(l >= -1 && l < 6)
 

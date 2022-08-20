@@ -73,24 +73,13 @@ int scrolling_maze_mode = 0;
 
 static bool global_z3_scrolling = true;
 
-// majora's ALTTP test
-#define hardcode_regions_mode 0
 // z1
 // #define hardcode_regions_mode 1
 // entire map is region
 // #define hardcode_regions_mode 2
 
-static const int hardcode_z3_regions[] = {
-#if hardcode_regions_mode == 0
-	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
-#elif hardcode_regions_mode == 1
+static int current_region_indices[128] = {
+#if hardcode_regions_mode == 1
 	// 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	// 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	// 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -166,24 +155,29 @@ bool is_z3_scrolling_mode()
 int get_region_id(int dmap, int scr)
 {
 	if (!global_z3_scrolling) return 0;
-
+	if (scr >= 128) return 0;
 #ifndef hardcode_regions_mode
-	int sx = scr % 16;
-	int sy = scr / 16;
-	// TODO z3 unroll this somewhere.
-	return getNibble(DMaps[currdmap].region_indices[sy][sx/2], sx % 2 == 0);
+	if (dmap == currdmap) return current_region_indices[scr];
 #endif
 
+// TODO z3 delete
 #if hardcode_regions_mode == 0
 	if (DMaps[dmap].map != 1) return 0;
 #endif
 #if hardcode_regions_mode == 1
 	if (DMaps[dmap].map != 0) return 0;
 #endif
-	if (scr >= 128) return 0;
-	return hardcode_z3_regions[scr];
+
+#ifndef hardcode_regions_mode
+	int sx = scr % 16;
+	int sy = scr / 16;
+	return getNibble(DMaps[currdmap].region_indices[sy][sx/2], sx % 2 == 0);
+#else
+	return 1;
+#endif
 }
 
+// TODO z3 needs dmap
 void z3_calculate_region(int screen_index, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h)
 {
 	if (!is_z3_scrolling_mode())
@@ -237,10 +231,23 @@ void z3_calculate_region(int screen_index, int& origin_scr, int& region_scr_widt
 	world_h = 176*region_scr_height;
 	region_scr_dx = input_scr_x - origin_scr_x;
 	region_scr_dy = input_scr_y - origin_scr_y;
+
+	DCHECK_RANGE_INCLUSIVE(region_scr_width, 0, 16);
+	DCHECK_RANGE_INCLUSIVE(region_scr_height, 0, 8);
 }
 
 void z3_load_region()
 {
+#ifndef hardcode_regions_mode
+	for (int sy = 0; sy < 8; sy++)
+	{
+		for (int sx = 0; sx < 16; sx++)
+		{
+			current_region_indices[sx + sy*16] = getNibble(DMaps[currdmap].region_indices[sy][sx/2], sx % 2 == 0);
+		}
+	}
+#endif
+
 	z3_calculate_region(currscr, z3_origin_screen_index, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
 	region_max_rpos = static_cast<rpos_t>(region_scr_width*region_scr_height*176 - 1);
 	initial_region_scr = currscr;
@@ -403,7 +410,7 @@ const mapscr* get_canonical_scr(int map, int screen)
 
 mapscr* get_scr(int map, int screen)
 {
-	DCHECK(screen >= 0 && screen < 136);
+	DCHECK_RANGE_EXCLUSIVE(screen, 0, 136);
 	if (screen == initial_region_scr && map == currmap) return &tmpscr;
 
 	if (map == currmap)
