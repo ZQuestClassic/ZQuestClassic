@@ -74,7 +74,7 @@ int scrolling_maze_mode = 0;
 static bool global_z3_scrolling = true;
 
 // majora's ALTTP test
-// #define hardcode_regions_mode 0
+#define hardcode_regions_mode 0
 // z1
 // #define hardcode_regions_mode 1
 // entire map is region
@@ -143,27 +143,6 @@ static byte getNibble(byte byte, bool high)
     else      return byte & 0xF;
 }
 
-static byte get_region_id(int dmap, int scr)
-{
-	if (!global_z3_scrolling) return 0;
-
-#ifndef hardcode_regions_mode
-	int sx = scr % 16;
-	int sy = scr / 16;
-	// TODO z3 unroll this somewhere.
-	return getNibble(DMaps[currdmap].region_indices[sy][sx/2], sx % 2 == 0);
-#endif
-
-#if hardcode_regions_mode == 0
-	if (DMaps[dmap].map != 1) return 0;
-#endif
-#if hardcode_regions_mode == 1
-	if (DMaps[dmap].map != 0) return 0;
-#endif
-	if (scr >= 128) return 0;
-	return hardcode_z3_regions[scr];
-}
-
 static bool is_a_region(int dmap, int scr)
 {
 	if (!global_z3_scrolling) return false;
@@ -184,11 +163,25 @@ bool is_z3_scrolling_mode()
 	return is_a_region(currdmap, currscr) || (screenscrolling && is_a_region(scrolling_dmap, scrolling_scr));
 }
 
-// TODO z3 delete
-int z3_get_region_id(int screen_index)
+int get_region_id(int dmap, int scr)
 {
 	if (!global_z3_scrolling) return 0;
-	return get_region_id(currdmap, screen_index);
+
+#ifndef hardcode_regions_mode
+	int sx = scr % 16;
+	int sy = scr / 16;
+	// TODO z3 unroll this somewhere.
+	return getNibble(DMaps[currdmap].region_indices[sy][sx/2], sx % 2 == 0);
+#endif
+
+#if hardcode_regions_mode == 0
+	if (DMaps[dmap].map != 1) return 0;
+#endif
+#if hardcode_regions_mode == 1
+	if (DMaps[dmap].map != 0) return 0;
+#endif
+	if (scr >= 128) return 0;
+	return hardcode_z3_regions[scr];
 }
 
 void z3_calculate_region(int screen_index, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h)

@@ -23800,9 +23800,9 @@ void HeroClass::calc_darkroom_hero2(int32_t x1, int32_t y1)
 
 static void for_every_nearby_screen_during_scroll(const std::function <void (mapscr*, int, int, int, int)>& fn)
 {
-	int old_region = z3_get_region_id(scrolling_scr);
-	int new_region = z3_get_region_id(currscr);
-	bool is_region_scrolling = z3_get_region_id(currscr) || z3_get_region_id(scrolling_scr);
+	int old_region = get_region_id(scrolling_dmap, scrolling_scr);
+	int new_region = get_region_id(currdmap, currscr);
+	bool is_region_scrolling = old_region || new_region;
 
 	// TODO z3 is this odd ordering necessary still?
 	for (int draw_dx = 1; draw_dx >= -1; draw_dx--)
@@ -23813,6 +23813,7 @@ static void for_every_nearby_screen_during_scroll(const std::function <void (map
 			// Only relevant for side warps.
 			bool use_dest_map = Hero.is_warping && (XY_DELTA_TO_DIR(draw_dx, 0) == scrolling_dir || XY_DELTA_TO_DIR(0, draw_dy) == scrolling_dir);
 			int base_map = use_dest_map ? currmap : scrolling_map;
+			int base_dmap = use_dest_map ? currdmap : scrolling_dmap;
 			int base_scr = use_dest_map ? currscr : scrolling_scr;
 			int base_scr_x = base_scr % 16;
 			int base_scr_y = base_scr / 16;
@@ -23829,7 +23830,7 @@ static void for_every_nearby_screen_during_scroll(const std::function <void (map
 			int scr = scr_x + scr_y * 16;
 			if (!is_region_scrolling && scr != currscr && scr != scrolling_scr) continue;
 
-			int region = z3_get_region_id(scr);
+			int region = get_region_id(base_dmap, scr);
 			// TODO z3
 			// if (scr == scrolling_scr || scr == currscr || (old_region && old_region == region) || (new_region && region == new_region))
 			{
@@ -24904,7 +24905,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			tempdestscr = currscr + dir_to_scr_offset((direction)scrolldir);
 		}
 		
-		if (z3_get_region_id(currscr) || z3_get_region_id(tempdestscr))
+		if (get_region_id(currdmap, currscr) || get_region_id(currdmap, tempdestscr))
 		{
 			HeroClass::scrollscr_butgood(scrolldir, destscr, destdmap);
 			return;
