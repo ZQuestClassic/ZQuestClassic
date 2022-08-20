@@ -9326,6 +9326,7 @@ bool HeroClass::animate(int32_t)
 				break;
 			}
 		}
+		if(awarp) break;
 	}
 	
 	awarp=false;
@@ -9334,52 +9335,49 @@ bool HeroClass::animate(int32_t)
 	{
 		int32_t ind=0;
 		
-		if(!awarp)
+		newcombo const& cmb = combobuf[tmpscr->ffdata[i]];
+		if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
 		{
-			newcombo const& cmb = combobuf[tmpscr->ffdata[i]];
-			if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
+			if(cmb.type==cAWARPA)
 			{
-				if(cmb.type==cAWARPA)
-				{
-					awarp=true;
-					ind=0;
-				}
-				else if(cmb.type==cAWARPB)
-				{
-					awarp=true;
-					ind=1;
-				}
-				else if(cmb.type==cAWARPC)
-				{
-					awarp=true;
-					ind=2;
-				}
-				else if(cmb.type==cAWARPD)
-				{
-					awarp=true;
-					ind=3;
-				}
-				else if(cmb.type==cAWARPR)
-				{
-					awarp=true;
-					ind=zc_oldrand()%4;
-				}
+				awarp=true;
+				ind=0;
 			}
-			
-			if(awarp)
+			else if(cmb.type==cAWARPB)
 			{
-				if(tmpscr->flags5&fDIRECTAWARP)
-				{
-					didpit=true;
-					pitx=x;
-					pity=y;
-				}
-				
-				sdir = dir;
-				dowarp(1,ind);
+				awarp=true;
+				ind=1;
+			}
+			else if(cmb.type==cAWARPC)
+			{
+				awarp=true;
+				ind=2;
+			}
+			else if(cmb.type==cAWARPD)
+			{
+				awarp=true;
+				ind=3;
+			}
+			else if(cmb.type==cAWARPR)
+			{
+				awarp=true;
+				ind=zc_oldrand()%4;
 			}
 		}
 		
+		if(awarp)
+		{
+			if(tmpscr->flags5&fDIRECTAWARP)
+			{
+				didpit=true;
+				pitx=x;
+				pity=y;
+			}
+			
+			sdir = dir;
+			dowarp(1,ind);
+			break;
+		}
 	}
 	
 	if(ffwarp)
