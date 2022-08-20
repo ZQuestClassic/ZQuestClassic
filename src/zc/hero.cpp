@@ -24577,7 +24577,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	double new_hero_x, new_hero_y; 
 	{
 		int new_origin_scr, new_region_scr_width, new_region_scr_height, new_region_scr_dx, new_region_scr_dy, new_world_w, new_world_h;
-		z3_calculate_region(destscr, new_origin_scr, new_region_scr_width, new_region_scr_height, new_region_scr_dx, new_region_scr_dy, new_world_w, new_world_h);
+		z3_calculate_region(destdmap, destscr, new_origin_scr, new_region_scr_width, new_region_scr_height, new_region_scr_dx, new_region_scr_dy, new_world_w, new_world_h);
 		int new_origin_scr_x = new_origin_scr % 16;
 		int new_origin_scr_y = new_origin_scr / 16;
 

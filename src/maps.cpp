@@ -138,12 +138,16 @@ static bool is_a_region(int dmap, int scr)
 	return get_region_id(dmap, scr) != 0;
 }
 
-// TODO z3 rename is_in_current_region
-static bool is_in_region(int region_origin_scr, int scr)
+static bool is_in_region(int region_origin_scr, int dmap, int scr)
 {
-	if (!is_a_region(currdmap, scr)) return false;
-	int region_id = get_region_id(currdmap, region_origin_scr);
-	return region_id && region_id == get_region_id(currdmap, scr);
+	if (!is_a_region(dmap, scr)) return false;
+	int region_id = get_region_id(dmap, region_origin_scr);
+	return region_id && region_id == get_region_id(dmap, scr);
+}
+
+static bool is_in_current_region(int scr)
+{
+	return is_in_region(z3_origin_screen_index, currdmap, scr);
 }
 
 bool is_z3_scrolling_mode()
@@ -178,7 +182,7 @@ int get_region_id(int dmap, int scr)
 }
 
 // TODO z3 needs dmap
-void z3_calculate_region(int screen_index, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h)
+void z3_calculate_region(int dmap, int screen_index, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h)
 {
 	if (!is_z3_scrolling_mode())
 	{
@@ -201,12 +205,12 @@ void z3_calculate_region(int screen_index, int& origin_scr, int& region_scr_widt
 	origin_scr = screen_index;
 	while (origin_scr_x > 0)
 	{
-		if (!is_in_region(origin_scr, scr_xy_to_index(origin_scr_x - 1, origin_scr_y))) break;
+		if (!is_in_region(origin_scr, dmap, scr_xy_to_index(origin_scr_x - 1, origin_scr_y))) break;
 		origin_scr_x--;
 	}
 	while (origin_scr_y > 0)
 	{
-		if (!is_in_region(origin_scr, scr_xy_to_index(origin_scr_x, origin_scr_y - 1))) break;
+		if (!is_in_region(origin_scr, dmap, scr_xy_to_index(origin_scr_x, origin_scr_y - 1))) break;
 		origin_scr_y--;
 	}
 	origin_scr = scr_xy_to_index(origin_scr_x, origin_scr_y);
@@ -215,13 +219,13 @@ void z3_calculate_region(int screen_index, int& origin_scr, int& region_scr_widt
 	int region_scr_right = origin_scr_x;
 	while (region_scr_right < 15)
 	{
-		if (!is_in_region(origin_scr, scr_xy_to_index(region_scr_right + 1, origin_scr_y))) break;
+		if (!is_in_region(origin_scr, dmap, scr_xy_to_index(region_scr_right + 1, origin_scr_y))) break;
 		region_scr_right++;
 	}
 	int region_scr_bottom = origin_scr_y;
 	while (region_scr_bottom < 7)
 	{
-		if (!is_in_region(origin_scr, scr_xy_to_index(origin_scr_x, region_scr_bottom + 1))) break;
+		if (!is_in_region(origin_scr, dmap, scr_xy_to_index(origin_scr_x, region_scr_bottom + 1))) break;
 		region_scr_bottom++;
 	}
 
@@ -248,7 +252,7 @@ void z3_load_region()
 	}
 #endif
 
-	z3_calculate_region(currscr, z3_origin_screen_index, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
+	z3_calculate_region(currdmap, currscr, z3_origin_screen_index, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
 	region_max_rpos = static_cast<rpos_t>(region_scr_width*region_scr_height*176 - 1);
 	initial_region_scr = currscr;
 	scrolling_maze_state = 0;
@@ -304,7 +308,7 @@ void z3_update_currscr()
 	int dx = Hero.getX().getFloor() / 256;
 	int dy = Hero.getY().getFloor() / 176;
 	int newscr = z3_origin_screen_index + dx + dy * 16;
-	if (dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_region(z3_origin_screen_index, newscr))
+	if (dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_current_region(newscr))
 	{
 		region_scr_dx = dx;
 		region_scr_dy = dy;
@@ -323,7 +327,7 @@ bool edge_of_region(direction dir)
 	if (dir == left) scr_x -= 1;
 	if (dir == right) scr_x += 1;
 	if (scr_x < 0 || scr_x > 16 || scr_y < 0 || scr_y > 8) return true;
-	return !is_in_region(z3_origin_screen_index, scr_xy_to_index(scr_x, scr_y));
+	return !is_in_current_region(scr_xy_to_index(scr_x, scr_y));
 }
 
 // x, y are world coordinates (aka, where hero is in relation to origin screen)
@@ -938,7 +942,7 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t
 	DCHECK_LAYER_NEG1_INDEX(layer);
 	DCHECK(map >= 0 && screen >= 0);
 	if (map < 0 || screen < 0) return 0; // TODO z3 rm
-	if (map == currmap && is_in_region(z3_origin_screen_index, screen)) return MAPCOMBO2(layer, x, y);
+	if (map == currmap && is_in_current_region(screen)) return MAPCOMBO2(layer, x, y);
 	return MAPCOMBO3(map, screen, layer, COMBOPOS_REGION(x, y), secrets);
 }
 
@@ -949,7 +953,7 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, rpos_t rpos, bool 
 	DCHECK((!(rpos > region_max_rpos || (int)rpos < 0)));
 	if (map < 0 || screen < 0) return 0; // TODO z3 rm
 	
-	if (map == currmap && is_in_region(z3_origin_screen_index, screen)) return MAPCOMBO2(layer, COMBOX_REGION(rpos), COMBOY_REGION(rpos));
+	if (map == currmap && is_in_current_region(screen)) return MAPCOMBO2(layer, COMBOX_REGION(rpos), COMBOY_REGION(rpos));
 	
 	// Screen is not in temporary memory, so we have to load and trigger some secrets in MAPCOMBO3.
 
@@ -4129,7 +4133,7 @@ void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigne
 
 	for (int scr = 0; scr < 128; scr++)
 	{
-		if (is_in_region(z3_origin_screen_index, scr))
+		if (is_in_current_region(scr))
 		{
 			int scr_x = scr % 16;
 			int scr_y = scr / 16;
@@ -4177,7 +4181,7 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 			}
 
 			int scr = global_z3_cur_scr_drawing = scr_x + scr_y * 16;
-			if (!is_in_region(z3_origin_screen_index, scr)) continue;
+			if (!is_in_current_region(scr)) continue;
 
 			mapscr* myscr = get_scr(currmap, scr);
 			if (!(myscr->valid & mVALID)) continue;
@@ -5400,7 +5404,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 
 	for (int screen_index = 0; screen_index < 128; screen_index++)
 	{
-		if (screen_index != scr && is_in_region(z3_origin_screen_index, screen_index))
+		if (screen_index != scr && is_in_region(z3_origin_screen_index, destdmap, screen_index))
 		{
 			load_a_screen_and_layers(destdmap, currmap, screen_index);
 		}
