@@ -24514,7 +24514,6 @@ void resize_scriptinfo_dlg()
 
 void showScriptInfo(zasm_meta const* meta)
 {
-	sp_release_screen_all();
 	scriptinfo_dlg[3].dp = (void*)meta;
 	scriptinfo_dlg[0].dp2 = lfont;
 	if(is_large)
@@ -26533,10 +26532,11 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 	setup_scriptslot_dlg(slots_msg, slotflags);
 	bool retval = false;
 	
+    popup_zqdialog_start(assignscript_dlg);
 	while(true)
 	{
 		slotflags = reload_scripts(scripts);
-		ret = popup_zqdialog_special(assignscript_dlg,ret);
+        ret = do_zqdialog(assignscript_dlg, ret);
 		
 		FILE* tempfile = NULL;
 		switch(ret)
@@ -27129,7 +27129,6 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 					//kill_sfx();
 					voice_start(sfx_voice[compile_finish_sample]);
 				}
-				sp_release_screen_all();
 				InfoDialog("Slots Assigned",buf).show();
 				if ( compile_finish_sample > 0 )
 				{
@@ -27644,8 +27643,9 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 			}
 		}
 	}
+
 exit_do_slots:
-	sp_release_screen_all();
+    popup_zqdialog_end(assignscript_dlg);
 	return retval;
 }
 
@@ -27721,7 +27721,6 @@ static DIALOG clearslots_dlg[] =
 
 void doClearSlots(byte* flags)
 {
-	sp_release_screen_all();
 	//{ Setup
 	clearslots_dlg[0].dp2=lfont;
 	clearslots_dlg[3].d1 = get_selected_tab((TABPANEL*)assignscript_dlg[1].dp); //Default to current tab's type

@@ -26,11 +26,7 @@ int32_t  zc_popup_dialog_dbuf(DIALOG* , int32_t);
 int32_t  PopUp_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int32_t f);
 void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& running);
 
-void sp_acquire_screen();
-void sp_release_screen();
-void sp_release_screen_all();
-int32_t popup_zqdialog_special(DIALOG *dialog, int32_t focus_obj);
-//int32_t  popup_zqdialog(DIALOG *dialog, int32_t focus_obj);
-//int32_t  do_zqdialog(DIALOG *dialog, int32_t focus_obj);
+void popup_zqdialog_start(DIALOG *dialog);
+void popup_zqdialog_end(DIALOG *dialog);
 #endif                                                      // _GUI_H_
 
