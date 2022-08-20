@@ -25,6 +25,7 @@ private:
 	std::function<void(byte*)> setQRs;
 	std::shared_ptr<GUI::TextField> mapCountTF;
 	byte local_qrs[QR_SZ];
+	byte const* realqrs;
 	size_t qrs_per_tab;
 };
 

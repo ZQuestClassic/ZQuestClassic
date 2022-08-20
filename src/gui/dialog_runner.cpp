@@ -47,6 +47,17 @@ DialogRunner::DialogRunner(): focused(-1), redrawPending(false), done(false), re
 	running(false)
 {}
 
+void DialogRunner::clear()
+{
+	focused = -1;
+	redrawPending = false;
+	done = false;
+	realized = false;
+	running = false;
+	widgets.clear();
+	alDialog.clear();
+}
+
 DialogRef DialogRunner::push(shared_ptr<Widget> owner, DIALOG dlg)
 {
 	auto pos = alDialog.size();

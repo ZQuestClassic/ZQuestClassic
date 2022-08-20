@@ -29,7 +29,7 @@ void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& r
 void sp_acquire_screen();
 void sp_release_screen();
 void sp_release_screen_all();
-void popup_zqdialog_start(DIALOG *dialog);
-void popup_zqdialog_end(DIALOG *dialog);
+void popup_zqdialog_start();
+void popup_zqdialog_end();
 #endif                                                      // _GUI_H_
 

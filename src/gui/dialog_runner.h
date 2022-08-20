@@ -93,6 +93,7 @@ private:
 	bool redrawPending, done, realized, running;
 
 	DialogRunner();
+	void clear();
 
 	/* Sets up the DIALOG array for a dialog so that it can be run. */
 	void realize(std::shared_ptr<Widget> root);
