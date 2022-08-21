@@ -31439,7 +31439,10 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(strcmp(curcontrol, oldcontrol))
 	{
-		jwin_alert("	   !!WARNING - This is ALPHA!!", "This version of ZQuest might corrupt your quest or crash.", "Features might change or disappear with no warning.", "Build quests at your OWN RISK!", "OK", NULL, 0, 0, lfont);
+		InfoDialog("Alpha Warning", "WARNING:\nThis is an ALPHA version of ZQuest."
+			" There may be major bugs, which could cause quests"
+			"\nto crash or become corrupted. Keep backups of your quest file!!"
+			"\nAdditionally, new features may change over time.").show();
 	}
 
 //	FFCore.ZScriptConsole(true);
@@ -31452,7 +31455,9 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(strcmp(curcontrol, oldcontrol))
 	{
-		jwin_alert("	   !!WARNING - This is BETA!!", "This version of ZQuest might corrupt your quest or crash.", "Features might change or disappear with no warning.", "Build quests at your OWN RISK!", "OK", NULL, 0, 0, lfont);
+		InfoDialog("Beta Warning", "WARNING:\nThis is an BETA version of ZQuest."
+			" There may be bugs, which could cause quests"
+			"\nto crash or become corrupted. Keep backups of your quest file!!").show();
 	}
 
 //	FFCore.ZScriptConsole(true);
@@ -32556,154 +32561,10 @@ finished:
     }
 }
 
-
+void call_vidmode_dlg();
 int32_t onZQVidMode()
 {
-    char str_a[80], str_b[80], str_c[80];
-    str_a[0]=0;
-    str_b[0]=0;
-    str_c[0]=0;
-    int32_t mode=gfx_driver->id;
-#ifdef ALLEGRO_DOS
-    
-    switch(mode)
-    {
-    case GFX_MODEX:
-        sprintf(str_a,"VGA Mode X");
-        break;
-        
-    case GFX_VESA1:
-        sprintf(str_a,"VESA 1.x");
-        break;
-        
-    case GFX_VESA2B:
-        sprintf(str_a,"VESA2 Banked");
-        break;
-        
-    case GFX_VESA2L:
-        sprintf(str_a,"VESA2 Linear");
-        break;
-        
-    case GFX_VESA3:
-        sprintf(str_a,"VESA3");
-        break;
-        
-    case GFX_AUTODETECT_WINDOWED:
-        sprintf(str_a,"Autodetect Windowed");
-        break;
-        
-    case GFX_AUTODETECT_FULLSCREEN:
-        sprintf(str_a,"Autodetect Fullscreen");
-        break;
-        
-    default:
-        sprintf(str_a,"Unknown... ?");
-        break;
-    }
-    
-#elif defined(ALLEGRO_WINDOWS)
-    
-    switch(mode)
-    {
-    case GFX_DIRECTX:
-        sprintf(str_a,"DirectX Hardware Accelerated");
-        break;
-    
-    case GFX_DIRECTX_SOFT:
-        sprintf(str_a,"DirectX Software Accelerated");
-        break;
-    
-    case GFX_DIRECTX_SAFE:
-        sprintf(str_a,"DirectX Safe");
-        break;
-    
-    case GFX_DIRECTX_WIN:
-        sprintf(str_a,"DirectX Windowed");
-        break;
-    
-    case GFX_GDI:
-        sprintf(str_a,"GDI");
-        break;
-    
-    case GFX_AUTODETECT_WINDOWED:
-        sprintf(str_a,"Autodetect Windowed");
-        break;
-    
-    case GFX_AUTODETECT_FULLSCREEN:
-        sprintf(str_a,"Autodetect Fullscreen");
-        break;
-    
-    default:
-        sprintf(str_a,"Unknown... ?");
-        break;
-    }
-    
-#elif defined(ALLEGRO_MACOSX)
-    
-    switch(mode)
-    {
-    case GFX_SAFE:
-        sprintf(str_a,"MacOS X Safe");
-        break;
-    
-    case GFX_QUARTZ_FULLSCREEN:
-        sprintf(str_a,"MacOS X Fullscreen Quartz");
-        break;
-    
-    case GFX_QUARTZ_WINDOW:
-        sprintf(str_a,"MacOS X Windowed Quartz");
-        break;
-    
-    case GFX_AUTODETECT_WINDOWED:
-        sprintf(str_a,"Autodetect Windowed");
-        break;
-    
-    case GFX_AUTODETECT_FULLSCREEN:
-        sprintf(str_a,"Autodetect Fullscreen");
-        break;
-    
-    default:
-        sprintf(str_a,"Unknown... ?");
-        break;
-    }
-    
-#elif defined(ALLEGRO_LINUX)
-    
-    switch(mode)
-    {
-    case GFX_AUTODETECT_WINDOWED:
-        sprintf(str_a,"Autodetect Windowed");
-        break;
-    
-    case GFX_AUTODETECT_FULLSCREEN:
-        sprintf(str_a,"Autodetect Fullscreen");
-        break;
-    
-    default:
-        sprintf(str_a,"Unknown... ?");
-        break;
-    }
-    
-#elif defined(ALLEGRO_GP2X)
-    
-    switch(mode)
-    {
-    case GFX_AUTODETECT_WINDOWED:
-        sprintf(str_a,"Autodetect Windowed");
-        break;
-    
-    case GFX_AUTODETECT_FULLSCREEN:
-        sprintf(str_a,"Autodetect Fullscreen");
-        break;
-    
-    default:
-        sprintf(str_a,"Unknown... ?");
-        break;
-    }
-    
-#endif
-    sprintf(str_c,"%dx%d 8-bit",zq_screen_w*zq_scale,zq_screen_h*zq_scale);
-    jwin_alert("Video Mode",str_a,str_b,str_c,"OK",NULL,13,27,lfont);
+    call_vidmode_dlg();
     return D_O_K;
 }
 

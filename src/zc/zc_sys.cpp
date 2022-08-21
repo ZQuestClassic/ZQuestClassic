@@ -6990,105 +6990,10 @@ int32_t onQuest()
     return D_O_K;
 }
 
+void call_vidmode_dlg();
 int32_t onVidMode()
 {
-    int32_t VidMode=gfx_driver->id;
-#ifdef ALLEGRO_DOS
-    
-    switch(VidMode)
-    {
-    case GFX_MODEX:
-        sprintf(str_a,"VGA Mode X");
-        break;
-        
-    case GFX_VESA1:
-        sprintf(str_a,"VESA 1.x");
-        break;
-        
-    case GFX_VESA2B:
-        sprintf(str_a,"VESA2 Banked");
-        break;
-        
-    case GFX_VESA2L:
-        sprintf(str_a,"VESA2 Linear");
-        break;
-        
-    case GFX_VESA3:
-        sprintf(str_a,"VESA3");
-        break;
-        
-    default:
-        sprintf(str_a,"Unknown... ?");
-        break;
-    }
-    
-#elif defined(ALLEGRO_WINDOWS)
-    
-    switch(VidMode)
-    {
-    case GFX_DIRECTX:
-        sprintf(str_a,"DirectX Hardware Accelerated");
-        break;
-    
-    case GFX_DIRECTX_SOFT:
-        sprintf(str_a,"DirectX Software Accelerated");
-        break;
-    
-    case GFX_DIRECTX_SAFE:
-        sprintf(str_a,"DirectX Safe");
-        break;
-    
-    case GFX_DIRECTX_WIN:
-        sprintf(str_a,"DirectX Windowed");
-        break;
-    
-    case GFX_GDI:
-        sprintf(str_a,"GDI");
-        break;
-    
-    default:
-        sprintf(str_a,"Unknown... ?");
-        break;
-    }
-    
-#elif defined(ALLEGRO_MACOSX)
-    
-    switch(VidMode)
-    {
-    case GFX_SAFE:
-        sprintf(str_a,"MacOS X Safe");
-        break;
-    
-    case GFX_QUARTZ_FULLSCREEN:
-        sprintf(str_a,"MacOS X Fullscreen Quartz");
-        break;
-    
-    case GFX_QUARTZ_WINDOW:
-        sprintf(str_a,"MacOS X Windowed Quartz");
-        break;
-    
-    default:
-        sprintf(str_a,"Unknown... ?");
-        break;
-    }
-    
-#elif defined(ALLEGRO_LINUX)
-    
-    switch(VidMode)
-    {
-    case GFX_AUTODETECT_WINDOWED:
-        sprintf(str_a,"Autodetect Windowed");
-        break;
-    
-    default:
-        sprintf(str_a,"Unknown... ?");
-        break;
-    }
-    
-#endif
-    
-    sprintf(str_b,"%dx%d 8-bit",resx,resy);
-    jwin_alert("Video Mode",str_a,str_b,NULL,"OK",NULL,13,27,lfont);
+    call_vidmode_dlg();
     return D_O_K;
 }
 
