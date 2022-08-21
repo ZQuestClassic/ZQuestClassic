@@ -25041,7 +25041,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			do_layer(framebuf, 0, map, scr, 6, myscr, -offx, -offy, tempscreen, false, !is_old_scr); //layer 6
 		});
 		
-		// TODO z3 pretty sure this doesn't do anything.
+		// pretty sure this doesn't do anything.
 		// if(msg_bg_display_buf->clip == 0)
 		// {
 		// 	blit_msgstr_bg(framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
@@ -25252,7 +25252,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	opendoors=0;
 	markBmap(-1);
 	
-	// TODO z3
 	if(isdungeon())
 	{
 		switch(tmpscr.door[scrolldir^1])

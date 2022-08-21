@@ -274,7 +274,7 @@ bool movingblock::animate(int32_t)
 	if(fallclk)
 	{
 		if(fallclk == PITFALL_FALL_FRAMES)
-			sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt())); // TODO z3 ???
+			sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
 		if(!--fallclk)
 		{
 			blockmoving=false;

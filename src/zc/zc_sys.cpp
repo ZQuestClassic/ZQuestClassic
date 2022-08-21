@@ -9547,12 +9547,15 @@ int32_t pan(int32_t x)
         return 128;
         
     case 1:
+        x = Hero.getX().getInt() - x + 128;
         return vbound((x>>1)+68,0,255);
         
     case 2:
+        x = Hero.getX().getInt() - x + 128;
         return vbound(((x*3)>>2)+36,0,255);
     }
     
+    x = Hero.getX().getInt() - x + 128;
     return vbound(x,0,255);
 }
 
