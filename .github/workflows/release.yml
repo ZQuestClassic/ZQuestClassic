@@ -77,7 +77,7 @@ jobs:
             fi
           else
             # Nightly
-            if [ '${{ inputs.nightly_number }}' == '1' || '${{ inputs.nightly_number }}' == '' ]; then
+            if [ '${{ inputs.nightly_number }}' == '1' ] || [ '${{ inputs.nightly_number }}' == '' ]; then
                 echo "::set-output name=release_tag_name::nightly-${{ steps.current-time.outputs.formattedTime }}"
                 echo "::set-output name=release_name::Nightly ${{ steps.current-time.outputs.formattedTime }}"
             else
