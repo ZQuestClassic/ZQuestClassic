@@ -73,40 +73,11 @@ int scrolling_maze_mode = 0;
 
 static bool global_z3_scrolling = true;
 
-// z1
-// #define hardcode_regions_mode 1
 // entire map is region
-// #define hardcode_regions_mode 2
+// #define hardcode_regions_mode 1
 
 static int current_region_indices[128] = {
-#if hardcode_regions_mode == 1
-	// 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	// 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	// 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	// 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	// 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	// 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	// 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	// 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-
-	// 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	// 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	// 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	// 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	// 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	// 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	// 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	// 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-
-	3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	0, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-#elif hardcode_regions_mode == 2
+#ifdef hardcode_regions_mode
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -162,14 +133,6 @@ int get_region_id(int dmap, int scr)
 	if (scr >= 128) return 0;
 #ifndef hardcode_regions_mode
 	if (dmap == currdmap) return current_region_indices[scr];
-#endif
-
-// TODO z3 delete
-#if hardcode_regions_mode == 0
-	if (DMaps[dmap].map != 1) return 0;
-#endif
-#if hardcode_regions_mode == 1
-	if (DMaps[dmap].map != 0) return 0;
 #endif
 
 #ifndef hardcode_regions_mode
@@ -5378,6 +5341,8 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index)
 // If scr >= 0x80, `currscr` will be saved to `homescr` and also be loaded into `special_warp_return_screen`.
 void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_x80_dir)
 {
+	if (destdmap < 0 ? currdmap : destdmap) destdmap = currdmap;
+
 	int previous_currscr = currscr;
 	currscr = scr;
 	z3_load_region();
@@ -5403,7 +5368,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 		}
 	}
 
-	int32_t destlvl = DMaps[destdmap < 0 ? currdmap : destdmap].level;
+	int32_t destlvl = DMaps[destdmap].level;
 	// TODO z3 special warp return scr?
 	// toggle_switches(game->lvlswitches[destlvl], true, tmp == 0 ? &tmpscr : &special_warp_return_screen, tmp == 0 ? currscr : homescr);
 	toggle_switches(game->lvlswitches[destlvl], true);
