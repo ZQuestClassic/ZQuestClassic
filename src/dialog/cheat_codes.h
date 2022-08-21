@@ -17,18 +17,14 @@ class CheatCodesDialog: public GUI::Dialog<CheatCodesDialog>
 public:
 	enum class message { OK, CANCEL };
 
-	CheatCodesDialog(bool enabled, std::string_view oldCodes[4],
-		std::function<void(bool, std::string_view[4])> setCheatCodes);
+	CheatCodesDialog();
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
-	bool enabled;
 	std::shared_ptr<GUI::Checkbox> enabledCB;
-	std::string_view oldCodes[4];
 	std::shared_ptr<GUI::TextField> textFields[4];
-	std::function<void(bool, std::string_view[4])> setCheatCodes;
 };
 
 #endif
