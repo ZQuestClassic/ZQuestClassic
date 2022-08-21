@@ -181,7 +181,6 @@ int get_region_id(int dmap, int scr)
 #endif
 }
 
-// TODO z3 needs dmap
 void z3_calculate_region(int dmap, int screen_index, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h)
 {
 	if (!is_z3_scrolling_mode())
@@ -469,7 +468,9 @@ mapscr* get_home_scr()
 	return get_scr(currmap, homescr);
 }
 
-// TODO z3: remove, just use rpos?
+// You probably don't want to use these - use COMBOPOS_REGION instead.
+// Only use these EXTENDED functions if you want the index value to go like this:
+//     0 1 2 ... 14 15 (end screen 0x0) (start screen 1x0) 16 17 18 ...
 int32_t COMBOPOS_REGION_EXTENDED(int32_t pos, int32_t scr_dx, int32_t scr_dy)
 {
 	int x = (pos%16) + scr_dx*16;
@@ -639,8 +640,7 @@ void clear_dmaps()
 
 int32_t isdungeon(int32_t dmap, int32_t scr) // The arg is only used by loadscr2 and loadscr
 {
-	// TODO z3
-    if(scr < 0) scr=global_z3_cur_scr_drawing == -1 ? currscr : global_z3_cur_scr_drawing;
+    if(scr < 0) scr=initial_region_scr;
     
     if(dmap < 0) dmap = currdmap;
     
