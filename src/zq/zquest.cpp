@@ -26532,7 +26532,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 	setup_scriptslot_dlg(slots_msg, slotflags);
 	bool retval = false;
 	
-    popup_zqdialog_start(assignscript_dlg);
+    popup_zqdialog_start();
 	while(true)
 	{
 		slotflags = reload_scripts(scripts);
@@ -27645,7 +27645,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 	}
 
 exit_do_slots:
-    popup_zqdialog_end(assignscript_dlg);
+    popup_zqdialog_end();
 	return retval;
 }
 

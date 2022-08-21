@@ -8,43 +8,34 @@
 
 extern zquestheader header;
 
-static zinfo tmp_zinfo;
-static bool reload_zi_dlg = false;
 void call_zinf_dlg()
 {
 	ZInfoDialog().show();
-	if(reload_zi_dlg)
-	{
-		while(reload_zi_dlg)
-		{
-			reload_zi_dlg = false;
-			ZInfoDialog(tmp_zinfo).show();
-		}
-		tmp_zinfo.clear();
-	}
-}
-void do_reload_zidlg()
-{
-	reload_zi_dlg = true;
 }
 
-ZInfoDialog::ZInfoDialog(zinfo const& cpyfrom): lzinfo(),
+ZInfoDialog::ZInfoDialog() : lzinfo(),
 	list_itemclass(GUI::ZCListData::itemclass(true)),
 	list_combotype(GUI::ZCListData::combotype(true, true)),
 	list_counters(GUI::ZCListData::counters(true, true)),
 	list_mapflag(GUI::ZCListData::mapflag(numericalFlags, true, true))
-{
-	lzinfo.copyFrom(cpyfrom);
-}
-
-ZInfoDialog::ZInfoDialog() : ZInfoDialog(ZI) {}
+{}
 
 static bool extzinf;
 static size_t zinftab = 0;
+static zinfo tmp_zinfo;
+static bool loaded_zi = false;
 std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
+	
+	if(loaded_zi)
+	{
+		lzinfo.copyFrom(tmp_zinfo);
+		loaded_zi = false;
+		tmp_zinfo.clear();
+	}
+	else lzinfo.copyFrom(ZI); //Load ZInfo Data
 	
 	static int32_t selic = 0, selct = 0, selmf = 0, selctr = 0;
 	static char **icnameptr = nullptr, **ichelpptr = nullptr, **ctnameptr = nullptr,
@@ -579,7 +570,8 @@ bool ZInfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			{
 				if(load_zi(tmp_zinfo))
 				{
-					do_reload_zidlg();
+					loaded_zi = true;
+					rerun_dlg = true;
 					return true;
 				}
 			}

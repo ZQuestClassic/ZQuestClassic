@@ -21,15 +21,6 @@ static bool reload_qr_dlg = false;
 void call_qr_dialog(size_t qrs_per_tab, std::function<void(byte*)> setQRs)
 {
 	QRDialog(quest_rules, qrs_per_tab, setQRs).show();
-	while(reload_qr_dlg)
-	{
-		reload_qr_dlg = false;
-		QRDialog(quest_rules, qrs_per_tab, setQRs).show();
-	}
-}
-void do_reload_qrdlg()
-{
-	reload_qr_dlg = true;
 }
 
 //{
@@ -1442,15 +1433,16 @@ void applyRuleTemplate(int32_t ruleTemplate)
 }
 
 QRDialog::QRDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*)> setQRs):
-	setQRs(setQRs), qrs_per_tab(qrs_per_tab)
-{
-	memcpy(local_qrs, qrs, QR_SZ);
-}
+	setQRs(setQRs), qrs_per_tab(qrs_per_tab), realqrs(qrs)
+{}
 
 std::shared_ptr<GUI::Widget> QRDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
+	
+	memcpy(local_qrs, realqrs, QR_SZ); //Load QRs
+	
 	return Window(
 		title = "Quest Options",
 		onEnter = message::OK,
@@ -1626,11 +1618,11 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			return false;
 		case message::RULESET:
 			call_ruleset_dlg();
-			do_reload_qrdlg();
+			rerun_dlg = true;
 			return true;
 		case message::RULETMP:
 			call_ruletemplate_dlg();
-			do_reload_qrdlg();
+			rerun_dlg = true;
 			return true;
 		case message::CHEATS:
 			call_cheats_dlg();
@@ -1643,7 +1635,7 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			if(load_qr_hexstr_clipboard())
 			{
 				popup_bugfix_dlg("dsa_compatrule2");
-				do_reload_qrdlg();
+				rerun_dlg = true;
 				return true;
 			}
 			InfoDialog("Error", "No QR String could be loaded from the clipboard").show();
