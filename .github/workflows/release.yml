@@ -41,15 +41,19 @@ jobs:
 
       - id: should_run
         continue-on-error: true
-        if: ${{ github.event_name == 'schedule' }}
+        if: github.event_name == 'schedule' && github.event.pull_request.head.repo.full_name == 'ArmageddonGames/ZQuestClassic'
         run: test -z $(git rev-list --after="1 week" ${{ github.sha }}) && echo "::set-output name=should_run::false"
 
   create-tag:
     runs-on: ubuntu-latest
+    env:
+       HAVE_SENTRY_TOKEN: ${{ secrets.SENTRY_TOKEN != '' }}
     outputs:
       release_tag_name: ${{ steps.make-vars.outputs.release_tag_name }}
       release_name: ${{ steps.make-vars.outputs.release_name }}
     steps:
+      - name: git clone
+        uses: actions/checkout@v2
       - name: Get current time
         uses: josStorer/get-current-time@v2
         id: current-time
@@ -57,42 +61,23 @@ jobs:
           format: YYYY-MM-DD
       - id: make-vars
         run: |
-          if [ '${{ github.event.inputs.full_release }}' == 'true' ]; then
-            if [ '${{ github.event.inputs.versiontype }}' == 'alpha' ]; then
-              # Alpha
-              echo "::set-output name=release_tag_name::2.55-alpha-${{ inputs.number }}"
-              echo "::set-output name=release_name::2.55 Alpha ${{ inputs.number }}"
-            elif [ '${{ github.event.inputs.versiontype }}' == 'beta' ]; then
-              # Beta
-              echo "::set-output name=release_tag_name::2.55-beta-${{ inputs.number }}"
-              echo "::set-output name=release_name::2.55 Beta ${{ inputs.number }}"
-            elif [ '${{ github.event.inputs.versiontype }}' == 'gamma' ]; then
-              # Gamma
-              echo "::set-output name=release_tag_name::2.55-gamma-${{ inputs.number }}"
-              echo "::set-output name=release_name::2.55 Gamma ${{ inputs.number }}"
-            else
-              # Release
-              echo "::set-output name=release_tag_name::2.55-release-${{ inputs.number }}"
-              echo "::set-output name=release_name::2.55 Release ${{ inputs.number }}"
-            fi
-          else
-            # Nightly
-            if [ '${{ inputs.nightly_number }}' == '1' ] || [ '${{ inputs.nightly_number }}' == '' ]; then
-                echo "::set-output name=release_tag_name::nightly-${{ steps.current-time.outputs.formattedTime }}"
-                echo "::set-output name=release_name::Nightly ${{ steps.current-time.outputs.formattedTime }}"
-            else
-                echo "::set-output name=release_tag_name::nightly-${{ steps.current-time.outputs.formattedTime }}-${{ inputs.nightly_number }}"
-                echo "::set-output name=release_name::Nightly ${{ steps.current-time.outputs.formattedTime }} (${{ inputs.nightly_number }})"
-            fi
-          fi
+          python3 .github/workflows/print-release-name-vars.py \
+            --github_org=${{ github.repository_owner }} \
+            --full_release=${{ github.event.inputs.full_release }} \
+            --version_type=${{ github.event.inputs.versiontype }} \
+            --formatted_time=${{ steps.current-time.outputs.formattedTime }} \
+            --number=${{ inputs.number }} \
+            --nightly_number=${{ inputs.nightly_number }}
 
       - name: Setup Sentry CLI
         uses: mathieu-bour/setup-sentry-cli@1.2.0
+        if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
         with:
           token: ${{ secrets.SENTRY_TOKEN }}
           organization: zeldaclassic
           project: zelda-classic
       - run: sentry-cli releases new ${{ steps.make-vars.outputs.release_tag_name }}
+        if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
 
   release-win:
     needs:
@@ -101,6 +86,8 @@ jobs:
     if: ${{ needs.check-date.outputs.should_run != 'false' }}
 
     runs-on: windows-2022
+    env:
+       HAVE_SENTRY_TOKEN: ${{ secrets.SENTRY_TOKEN != '' }}
     strategy:
       matrix:
         arrays: [
@@ -122,6 +109,7 @@ jobs:
       with:
         args: install .github/dependencies.config -y
     - name: Setup Sentry CLI
+      if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
       uses: mathieu-bour/setup-sentry-cli@1.2.0
       with:
         token: ${{ secrets.SENTRY_TOKEN }}
@@ -137,6 +125,7 @@ jobs:
     - run: mv output/_auto/buildpack.zip "output/_auto/${{ needs.create-tag.outputs.release_tag_name }}-${{ matrix.arrays.name }}.zip"
 
     - name: Upload debugging symbols
+      if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
       run: sentry-cli upload-dif ${{ needs.create-tag.outputs.release_tag_name }} --include-sources --wait Release
 
     - name: Release
@@ -195,17 +184,21 @@ jobs:
       - release-win
       - release-mac
     runs-on: ubuntu-latest
+    env:
+       HAVE_SENTRY_TOKEN: ${{ secrets.SENTRY_TOKEN != '' }}
 
     steps:
       - name: git clone
         uses: actions/checkout@v2
       - name: Setup Sentry CLI
+        if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
         uses: mathieu-bour/setup-sentry-cli@1.2.0
         with:
           token: ${{ secrets.SENTRY_TOKEN }}
           organization: zeldaclassic
           project: zelda-classic
       - name: Finalize sentry
+        if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
         run: |
           sentry-cli releases set-commits ${{ needs.create-tag.outputs.release_tag_name }} --auto
           sentry-cli releases finalize ${{ needs.create-tag.outputs.release_tag_name }}
