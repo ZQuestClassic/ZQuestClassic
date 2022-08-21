@@ -2011,15 +2011,8 @@ bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by)
 	return ret;
 }
 
-// TODO z3 ! remove
-bool hiddenstair(int32_t tmp,bool redraw)                       // tmp = index of tmpscr[]
+bool hiddenstair2(mapscr *s,bool redraw)
 {
-    return hiddenstair2(tmp == 0 ? &tmpscr : &special_warp_return_screen, redraw);
-}
-
-bool hiddenstair2(mapscr *s,bool redraw)                       // tmp = index of tmpscr[]
-{
-    
     if((s->stairx || s->stairy) && s->secretcombo[sSTAIRS])
     {
         int32_t di = COMBOPOS(s->stairx,s->stairy);
@@ -5648,7 +5641,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	{
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
 		{
-			hiddenstair(tmp,false);
+			hiddenstair2(screen, false);
 			hidden_entrance(tmp,false,false,-3);
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
@@ -5847,7 +5840,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 	{
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
 		{
-			hiddenstair(tmp,false);
+			hiddenstair2(&screen, false);
 			hidden_entrance(tmp,false,false,-3);
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before

@@ -192,7 +192,6 @@ bool isSwitchHookable(newcombo const& cmb);
 rpos_t check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook);
 bool ishookshottable(int32_t bx, int32_t by);
 bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by);
-bool hiddenstair(int32_t tmp, bool redraw);                      // tmp = index of tmpscr[]
 bool hiddenstair2(mapscr *s, bool redraw);                      
 bool remove_screenstatecombos2(mapscr *s, int32_t screen_index, bool do_layers, int32_t what1, int32_t what2);
 
