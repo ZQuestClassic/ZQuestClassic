@@ -247,17 +247,22 @@ void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, in
 	int viewport_w = 256;
 	int viewport_h = 176;
 	viewport_x = hero_x - viewport_w/2;
+	viewport_y = hero_y - viewport_h/2 + viewport_y_offset;
+	
 	// TODO z3 this is quite a hack
+	// code is more complicated than it should be because even in extended height mode, y=0
+	// is still the row just under where the subscreen is painted. Should just change that.
 	if (global_z3_scrolling_extended_height_mode)
-		viewport_y = viewport_y_offset + hero_y - (viewport_h-64)/2;
-	else
-		viewport_y = viewport_y_offset + hero_y - viewport_h/2;
+	{
+		viewport_y += 32;
+		world_h -= 32;
+	}
 	
 	// if (scr->flags&fMAZE) return;
 
 	// Clamp the viewport to the edges of the region.
 	viewport_x = CLAMP(0, world_w - viewport_w, viewport_x);
-	viewport_y = CLAMP(0, world_h - viewport_h, viewport_y);
+	viewport_y = CLAMP(global_z3_scrolling_extended_height_mode ? 64 : 0, world_h - viewport_h, viewport_y);
 }
 
 void z3_update_viewport()
@@ -329,7 +334,7 @@ pos_handle get_pos_handle_for_world_xy(int x, int y, int layer)
 }
 
 // These functions all return _temporary_ screens. Any modifcations made to them (either by the engine
-// directly or via zscript) only last until the next screen (or region) is loaded.
+// directly or via zscript) only last until the next screen (or region) is loaded (via loadscr).
 
 // Returns the screen containing the (x, y) world position.
 mapscr* get_screen_for_world_xy(int x, int y)
@@ -424,11 +429,6 @@ mapscr* get_layer_scr(int map, int screen, int layer)
 mapscr* get_layer_scr_for_xy(int x, int y, int layer)
 {
 	return get_layer_scr(currmap, get_screen_index_for_world_xy(x, y), layer);
-}
-
-mapscr* get_home_scr()
-{
-	return get_scr(currmap, homescr);
 }
 
 // You probably don't want to use these - use COMBOPOS_REGION instead.
@@ -3466,9 +3466,9 @@ void draw_cmb_pos(BITMAP* dest, int32_t x, int32_t y, rpos_t rpos, int32_t cid,
 }
 
 // `draw_cmb_pos` only does meaningful work if the combo being drawn is within the bounds of
-// the `bmp` bitmap. However, even getting to that point where `puttile16` (for example) knows
+// the `bmp` bitmap. However, even getting to the point where `puttile16` (for example) knows
 // to cull is somewhat expensive. Since it can only draw 16x16 pixels, we can do the equivalent
-// culling here by only drawing the rows/columns that are within the bitmap bounds. This nets
+// culling here by determining the rows/columns that are within the bitmap bounds. This nets
 // on the order of ~30 FPS in uncapped mode on my machine, depending on the viewport/region size.
 //
 // These two inequalities must be true for `draw_cmb_pos` to do anything useful:
@@ -4146,7 +4146,7 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 			int offy = z3_get_region_relative_dy(scr) * 176;
 
 			if (offx - global_viewport_x <= -256) continue;
-			if (offy - global_viewport_y <= -176) continue;
+			if (offy - global_viewport_y <= (global_z3_scrolling_extended_height_mode ? -240 : -176)) continue;
 			if (offx - global_viewport_x >= 256) continue;
 			if (offy - global_viewport_y >= 176) continue;
 
