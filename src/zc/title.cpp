@@ -2103,6 +2103,18 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 					return 78;
 			}
 		}
+		if(section_version >= 28)
+		{
+			for(size_t q = 0; q < NUM_GSWITCHES; ++q)
+			{
+				if(!p_igetl(&savedata[i].gswitch_timers[q],f, true))
+					return 79;
+			}
+		}
+		else
+		{
+			std::fill(savedata[i].gswitch_timers, savedata[i].gswitch_timers+NUM_GSWITCHES, 0);
+		}
 	}
 	
 	
@@ -2713,6 +2725,10 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 			{
 				return 79;
 			}
+		}
+		if(!pfwrite(savedata[i].gswitch_timers,NUM_GSWITCHES*sizeof(int32_t),f))
+		{
+			return 80;
 		}
 	}
 	

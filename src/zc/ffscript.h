@@ -4837,8 +4837,9 @@ enum ASM_DEFINE
 #define GENDATAEVENTSTATE       0x1469
 #define GAMEEVENTDATA           0x146A
 #define ITEMDROPPEDBY           0x146B
+#define GAMEGSWITCH             0x146C
 
-#define NUMVARIABLES         	0x146C
+#define NUMVARIABLES         	0x146D
 
 //} End variables
 

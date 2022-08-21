@@ -267,7 +267,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            46
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        27
+#define V_SAVEGAME        28
 #define V_COMBOALIASES     3
 #define V_HEROSPRITES      15
 #define V_SUBSCREEN        7
@@ -1092,7 +1092,7 @@ enum
 	qr_CONVEYORS_L1_L2, qr_CUSTOMCOMBOS_EVERY_LAYER, qr_SUBSCR_BACKWARDS_ID_ORDER, qr_FASTCOUNTERDRAIN,
 	qr_OLD_LOCKBLOCK_COLLISION, qr_DECO_2_YOFFSET, qr_SCREENSTATE_80s_BUG, qr_AUTOCOMBO_ANY_LAYER,
 	//60
-	qr_GOHMA_UNDAMAGED_BUG, qr_FFCPRELOAD_BUGGED_LOAD,
+	qr_GOHMA_UNDAMAGED_BUG, qr_FFCPRELOAD_BUGGED_LOAD, qr_SWITCHES_AFFECT_MOVINGBLOCKS,
 	//70
 	
 	//ZScript Parser //room for 20 of these
@@ -4263,6 +4263,7 @@ enum
 	crCUSTOM24, crCUSTOM25, MAX_COUNTERS
 };
 #define DIDCHEAT_BIT 0x80
+#define NUM_GSWITCHES 256
 struct gamedata
 {
 	//private:
@@ -4346,6 +4347,8 @@ struct gamedata
 	std::vector<int32_t> gen_data[NUMSCRIPTSGENERIC];
 	uint32_t xstates[MAXMAPS2*MAPSCRSNORMAL];
 	uint32_t gen_eventstate[NUMSCRIPTSGENERIC];
+	
+	int32_t gswitch_timers[NUM_GSWITCHES];
 	
 	// member functions
 	// public:

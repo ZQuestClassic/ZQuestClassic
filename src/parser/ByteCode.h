@@ -1414,8 +1414,9 @@
 #define GENDATAEVENTSTATE       1331
 #define GAMEEVENTDATA           1332
 #define ITEMDROPPEDBY           1333
+#define GAMEGSWITCH             1334
 
-#define LAST_BYTECODE           1334
+#define LAST_BYTECODE           1335
 
 //} END OF BYTECODE
 

@@ -179,6 +179,9 @@ static const GUI::ListData comboRulesList
 		" Note that this rule does not affect Push (Wait) or similar"
 		" blocks, which both have a hardcoded 16 frame delay and need"
 		" all enemies to be killed."},
+	{ "Moving pushblock switch blocks obey switch toggle", qr_SWITCHES_AFFECT_MOVINGBLOCKS, 
+		"If enabled, when a crystal switch toggles, it will toggle any"
+		" pushblocks that are currently moving, while they are moving."},
 	{ "Burn Flags Are Triggered Instantly", qr_INSTABURNFLAGS, 
 		"Makes it so Fire weapons instantly trigger secrets upon touching"
 		" a burn spot. If this rule is disabled, fire weapons need to linger"

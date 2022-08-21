@@ -2414,6 +2414,7 @@ script_variable variable_list[]=
 	{ "GENDATAEVENTSTATE", GENDATAEVENTSTATE, 0, 0 },
 	{ "GAMEEVENTDATA", GAMEEVENTDATA, 0, 0 },
 	{ "ITEMDROPPEDBY", ITEMDROPPEDBY, 0, 0 },
+	{ "GAMEGSWITCH", GAMEGSWITCH, 0, 0 },
 	
 	{ " ",  -1, 0, 0 }
 };

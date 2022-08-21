@@ -88,6 +88,7 @@ void gamedata::Clear()
 	clear_portal();
 	
 	clear_genscript();
+    std::fill(gswitch_timers, gswitch_timers+256, 0);
     isclearing=false;
 }
 
@@ -201,6 +202,11 @@ void gamedata::Copy(const gamedata& g)
 		gen_data[q].clear();
 		gen_data[q].resize(g.gen_data[q].size());
 		gen_data[q] = g.gen_data[q];
+	}
+	
+	for(size_t q = 0; q < 256; ++q)
+	{
+		gswitch_timers[q] = g.gswitch_timers[q];
 	}
 }
 

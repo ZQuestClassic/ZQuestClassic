@@ -4862,6 +4862,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	}
 	
 	toggle_switches(game->lvlswitches[destlvl], true, tmpscr + tmp, tmpscr2);
+	toggle_gswitches_load(tmpscr+tmp, tmpscr2);
 	
 	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKBLOCK)			  // if special stuff done before
 	{
@@ -5946,6 +5947,8 @@ void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t)
 		for(int32_t pos = 0; pos < 176; ++pos)
 		{
 			newcombo const& cmb = combobuf[scr->data[pos]];
+			if(cmb.usrflags & cflag10) //global state
+				continue;
 			if((cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && cmb.attribytes[0] < 32)
 			{
 				if(flags&(1<<cmb.attribytes[0]))
@@ -5987,7 +5990,8 @@ void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t)
 						if(!scr_2->data[pos]) //Don't increment empty space
 							continue;
 						newcombo const& cmb_2 = combobuf[scr_2->data[pos]];
-						if(lyr2 > lyr && (cmb_2.type == cCSWITCH || cmb_2.type == cCSWITCHBLOCK) && cmb_2.attribytes[0] < 32 && (flags&(1<<cmb_2.attribytes[0])))
+						if(lyr2 > lyr && (cmb_2.type == cCSWITCH || cmb_2.type == cCSWITCHBLOCK) && !(cmb.usrflags & cflag10)
+								&& cmb_2.attribytes[0] < 32 && (flags&(1<<cmb_2.attribytes[0])))
 							continue; //This is a switch/block that will be hit later in the loop!
 						set<int32_t> oldData2;
 						//Increment the combo/cset by the original cmb's attributes
@@ -6018,6 +6022,177 @@ void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t)
 				}
 			}
 		}
+	}
+	if(get_bit(quest_rules, qr_SWITCHES_AFFECT_MOVINGBLOCKS) && mblock2.clk)
+	{
+		newcombo const& cmb = combobuf[mblock2.bcombo];
+		if(!(cmb.usrflags & cflag10) && (cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && cmb.attribytes[0] < 32)
+		{
+			if(flags&(1<<cmb.attribytes[0]))
+			{
+				//Increment the combo/cset by the attributes
+				int32_t cmbofs = (cmb.attributes[0]/10000L);
+				int32_t csofs = (cmb.attributes[1]/10000L);
+				mblock2.bcombo = BOUND_COMBO(mblock2.bcombo + cmbofs);
+				mblock2.cs = (mblock2.cs + csofs) & 15;
+				int32_t cmbid = mblock2.bcombo;
+				if(combobuf[cmbid].animflags & AF_CYCLE)
+				{
+					combobuf[cmbid].tile = combobuf[cmbid].o_tile;
+					combobuf[cmbid].cur_frame=0;
+					combobuf[cmbid].aclk = 0;
+				}
+			}
+		}
+	}
+}
+
+void toggle_gswitches(int32_t state, bool entry)
+{
+	toggle_gswitches(state,entry,tmpscr,tmpscr2);
+}
+void toggle_gswitches(int32_t state, bool entry, mapscr* m, mapscr* t)
+{
+	bool states[256] = {false};
+	states[state] = true;
+	toggle_gswitches(states, entry, m, t);
+}
+void toggle_gswitches(bool* states, bool entry, mapscr* m, mapscr* t)
+{
+	if(!states) return;
+	byte togglegrid[176] = {0};
+	for(int32_t lyr = 0; lyr < 7; ++lyr)
+	{
+		mapscr* scr = (lyr ? &t[lyr-1] : m);
+		for(int32_t pos = 0; pos < 176; ++pos)
+		{
+			newcombo const& cmb = combobuf[scr->data[pos]];
+			if(!(cmb.usrflags & cflag10)) //not global state
+				continue;
+			if(cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK)
+			{
+				if(states[cmb.attribytes[0]])
+				{
+					set<int32_t> oldData;
+					//Increment the combo/cset by the attributes
+					int32_t cmbofs = (cmb.attributes[0]/10000L);
+					int32_t csofs = (cmb.attributes[1]/10000L);
+					oldData.insert(scr->data[pos]);
+					scr->data[pos] = BOUND_COMBO(scr->data[pos] + cmbofs);
+					scr->cset[pos] = (scr->cset[pos] + csofs) & 15;
+					if(entry && (cmb.usrflags&cflag8))
+					{
+						newcombo const* tmp = &combobuf[scr->data[pos]];
+						while(tmp->nextcombo && (oldData.find(tmp->nextcombo) == oldData.end()))
+						{
+							scr->data[pos] = tmp->nextcombo;
+							if(!(tmp->animflags & AF_CYCLENOCSET))
+								scr->cset[pos] = tmp->nextcset;
+							oldData.insert(tmp->nextcombo);
+							tmp = &combobuf[tmp->nextcombo];
+						}
+					}
+					int32_t cmbid = scr->data[pos];
+					if(combobuf[cmbid].animflags & AF_CYCLE)
+					{
+						combobuf[cmbid].tile = combobuf[cmbid].o_tile;
+						combobuf[cmbid].cur_frame=0;
+						combobuf[cmbid].aclk = 0;
+					}
+					togglegrid[pos] |= (1<<lyr); //Mark this pos toggled for this layer
+					if(cmb.type == cCSWITCH) continue; //Switches don't toggle other layers
+					for(int32_t lyr2 = 0; lyr2 < 7; ++lyr2) //Toggle same pos on other layers, if flag set
+					{
+						if(lyr==lyr2) continue;
+						if(!(cmb.usrflags&(1<<lyr2))) continue;
+						if(togglegrid[pos]&(1<<lyr2)) continue;
+						mapscr* scr_2 = (lyr2 ? &t[lyr2-1] : m);
+						if(!scr_2->data[pos]) //Don't increment empty space
+							continue;
+						newcombo const& cmb_2 = combobuf[scr_2->data[pos]];
+						if(lyr2 > lyr && (cmb_2.type == cCSWITCH || cmb_2.type == cCSWITCHBLOCK)
+							&& (cmb_2.usrflags & cflag10) && (states[cmb_2.attribytes[0]]))
+							continue; //This is a switch/block that will be hit later in the loop!
+						set<int32_t> oldData2;
+						//Increment the combo/cset by the original cmb's attributes
+						oldData2.insert(scr_2->data[pos]);
+						scr_2->data[pos] = BOUND_COMBO(scr_2->data[pos] + cmbofs);
+						scr_2->cset[pos] = (scr_2->cset[pos] + csofs) & 15;
+						if(entry && (cmb.usrflags&cflag8)) //Skip cycling on screen entry
+						{
+							newcombo const* tmp = &combobuf[scr_2->data[pos]];
+							while(tmp->nextcombo && (oldData2.find(tmp->nextcombo) == oldData2.end()))
+							{
+								scr_2->data[pos] = tmp->nextcombo;
+								if(!(tmp->animflags & AF_CYCLENOCSET))
+									scr_2->cset[pos] = tmp->nextcset;
+								oldData2.insert(tmp->nextcombo);
+								tmp = &combobuf[tmp->nextcombo];
+							}
+						}
+						int32_t cmbid2 = scr_2->data[pos];
+						if(combobuf[cmbid2].animflags & AF_CYCLE)
+						{
+							combobuf[cmbid2].tile = combobuf[cmbid2].o_tile;
+							combobuf[cmbid2].cur_frame=0;
+							combobuf[cmbid2].aclk = 0;
+						}
+						togglegrid[pos] |= (1<<lyr2); //Mark this pos toggled for this layer
+					}
+				}
+			}
+		}
+	}
+	
+	if(get_bit(quest_rules, qr_SWITCHES_AFFECT_MOVINGBLOCKS) && mblock2.clk)
+	{
+		newcombo const& cmb = combobuf[mblock2.bcombo];
+		if((cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && (cmb.usrflags & cflag10))
+		{
+			if(states[cmb.attribytes[0]])
+			{
+				//Increment the combo/cset by the attributes
+				int32_t cmbofs = (cmb.attributes[0]/10000L);
+				int32_t csofs = (cmb.attributes[1]/10000L);
+				mblock2.bcombo = BOUND_COMBO(mblock2.bcombo + cmbofs);
+				mblock2.cs = (mblock2.cs + csofs) & 15;
+				int32_t cmbid = mblock2.bcombo;
+				if(combobuf[cmbid].animflags & AF_CYCLE)
+				{
+					combobuf[cmbid].tile = combobuf[cmbid].o_tile;
+					combobuf[cmbid].cur_frame=0;
+					combobuf[cmbid].aclk = 0;
+				}
+			}
+		}
+	}
+}
+void toggle_gswitches_load(mapscr* m, mapscr* t)
+{
+	bool states[256] = {false};
+	for(auto q = 0; q < 256; ++q)
+	{
+		states[q] = game->gswitch_timers[q] != 0;
+	}
+	toggle_gswitches(states, true, m, t);
+}
+void run_gswitch_timers()
+{
+	bool states[256] = {false};
+	for(auto q = 0; q < 256; ++q)
+	{
+		if(game->gswitch_timers[q] > 0)
+			if(!--game->gswitch_timers[q])
+				states[q] = true;
+	}
+	toggle_gswitches(states, false, tmpscr, tmpscr2);
+}
+void onload_gswitch_timers() //Reset all timers that were counting down, no trigger necessary
+{
+	for(auto q = 0; q < 256; ++q)
+	{
+		if(game->gswitch_timers[q] > 0)
+			game->gswitch_timers[q] = 0;
 	}
 }
 
