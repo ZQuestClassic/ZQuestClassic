@@ -7338,8 +7338,21 @@ int32_t get_register(const int32_t arg)
 			ret=game->lvlitems[(ri->d[rINDEX])/10000]*10000;
 			break;
 		case GAMELSWITCH:
-			ret=game->lvlswitches[(ri->d[rINDEX])/10000];
+		{
+			int32_t ind = (ri->d[rINDEX])/10000;
+			if(unsigned(ind) >= MAXLEVELS)
+				ret = 0;
+			else ret=game->lvlswitches[ind];
 			break;
+		}
+		case GAMEGSWITCH:
+		{
+			int32_t ind = (ri->d[rINDEX])/10000;
+			if(unsigned(ind) >= NUM_GSWITCHES)
+				ret = 0;
+			else ret=game->gswitch_timers[ind]*10000;
+			break;
+		}
 		case GAMEBOTTLEST:
 			ret=game->get_bottle_slot((ri->d[rINDEX])/10000)*10000;
 			break;
@@ -17032,8 +17045,19 @@ void set_register(const int32_t arg, const int32_t value)
 			game->lvlitems[(ri->d[rINDEX])/10000]=value/10000;
 			break;
 		case GAMELSWITCH:
-			game->lvlswitches[(ri->d[rINDEX])/10000]=value;
+		{
+			int32_t ind = (ri->d[rINDEX])/10000;
+			if(unsigned(ind) < MAXLEVELS)
+				game->lvlswitches[ind]=value;
 			break;
+		}
+		case GAMEGSWITCH:
+		{
+			int32_t ind = (ri->d[rINDEX])/10000;
+			if(unsigned(ind) < NUM_GSWITCHES)
+				game->gswitch_timers[ind]=value/10000;
+			break;
+		}
 		case GAMEBOTTLEST:
 			game->set_bottle_slot((ri->d[rINDEX])/10000,value/10000);
 			break;
@@ -38192,6 +38216,7 @@ script_variable ZASMVars[]=
 	{ "GENDATAEVENTSTATE", GENDATAEVENTSTATE, 0, 0 },
 	{ "GAMEEVENTDATA", GAMEEVENTDATA, 0, 0 },
 	{ "ITEMDROPPEDBY", ITEMDROPPEDBY, 0, 0 },
+	{ "GAMEGSWITCH", GAMEGSWITCH, 0, 0 },
 	{ "REGIONWORLDWIDTH", REGIONWORLDWIDTH, 0, 0 },
 	{ "REGIONWORLDHEIGHT", REGIONWORLDHEIGHT, 0, 0 },
 	{ "REGIONSCREENWIDTH", REGIONSCREENWIDTH, 0, 0 },

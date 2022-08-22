@@ -1414,19 +1414,20 @@
 #define GENDATAEVENTSTATE       1331
 #define GAMEEVENTDATA           1332
 #define ITEMDROPPEDBY           1333
-#define REGIONID                1334 // region_max_rpos of these
-#define REGIONTD                1335 // region_max_rpos of these
-#define REGIONSD                1336 // region_max_rpos of these
-#define REGIONED                1337 // region_max_rpos of these
-#define REGIONDD                1338 // region_max_rpos of these
-#define REGIONCD                1339 // region_max_rpos of these
-#define REGIONFD                1340 // region_max_rpos of these
-#define REGIONWORLDWIDTH        1341
-#define REGIONWORLDHEIGHT       1342
-#define REGIONSCREENWIDTH       1343
-#define REGIONSCREENHEIGHT      1344
+#define GAMEGSWITCH             1334
+#define REGIONID                1335 // region_max_rpos of these
+#define REGIONTD                1336 // region_max_rpos of these
+#define REGIONSD                1337 // region_max_rpos of these
+#define REGIONED                1338 // region_max_rpos of these
+#define REGIONDD                1339 // region_max_rpos of these
+#define REGIONCD                1340 // region_max_rpos of these
+#define REGIONFD                1341 // region_max_rpos of these
+#define REGIONWORLDWIDTH        1342
+#define REGIONWORLDHEIGHT       1343
+#define REGIONSCREENWIDTH       1344
+#define REGIONSCREENHEIGHT      1345
 
-#define LAST_BYTECODE           1345
+#define LAST_BYTECODE           1346
 
 //} END OF BYTECODE
 

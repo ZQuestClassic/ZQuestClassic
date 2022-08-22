@@ -1909,6 +1909,7 @@ int32_t init_game()
 	*/
 	//Copy saved data to RAM data (but not global arrays)
 	game->Copy(saves[currgame]);
+	onload_gswitch_timers();
 	load_genscript(*game);
 	genscript_timing = SCR_TIMING_START_FRAME;
 	timeExitAllGenscript(GENSCR_ST_RELOAD);
@@ -2542,10 +2543,11 @@ int32_t init_game()
 
 int32_t cont_game()
 {
-	//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
-	FFCore.init();
 	timeExitAllGenscript(GENSCR_ST_CONTINUE);
 	throwGenScriptEvent(GENSCR_EVENT_CONTINUE);
+	//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
+	FFCore.init();
+	onload_gswitch_timers();
 	didpit=false;
 	Hero.unfreeze();
 	Hero.reset_hookshot();
@@ -3568,6 +3570,7 @@ void game_loop()
 			animate_combos();
 			update_combo_timers();
 		}
+		run_gswitch_timers();
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_COMBO_ANIM);
 		#if LOGGAMELOOP > 0
 		al_trace("game_loop is calling: %s\n", "load_control_state()\n");

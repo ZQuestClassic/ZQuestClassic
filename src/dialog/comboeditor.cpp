@@ -41,7 +41,7 @@ bool hasCTypeEffects(int32_t type)
 		case cARMOS: case cBSGRAVE: case cGRAVE:
 		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
-		case cSTEPSFX: case cSWITCHHOOK:
+		case cSTEPSFX: case cSWITCHHOOK: case cCSWITCHBLOCK:
 			return true;
 	}
 	return false;
@@ -443,7 +443,8 @@ std::string getComboTypeHelpText(int32_t id)
 			break;
 		case cCSWITCH:
 			typehelp = "Switch combos, when triggered (Triggers tab), toggle a switch state for the current 'level'."
-				" These states affect Switchblock combos in any dmaps of the same level, and are saved between sessions.";
+				" These states affect Switchblock combos in any dmaps of the same level, and are saved between sessions."
+				" If the 'Use Global State' flag is set, a set of 256 global states shared between levels will be used instead.";
 			break;
 		case cSWITCHHOOK:
 			typehelp = "When hit with a switch-hook, swaps position with the player (staying on the same layer).";
@@ -1536,10 +1537,25 @@ void ComboEditorDialog::loadComboType()
 			h_attribute[0] = "Value to add to the combo ID when triggered";
 			l_attribute[1] = "CSet Change:";
 			h_attribute[1] = "Value to add to the cset when triggered";
-			l_attribyte[0] = "State Num:";
-			h_attribyte[0] = "Range 0-31 inclusive, which of the level's switch states to trigger from";
 			l_attribyte[1] = "SFX:";
 			h_attribyte[1] = "SFX to play when triggered";
+			l_flag[9] = "Global State";
+			h_flag[9] = "Use a global state instead of a level-based state.";
+			if(FL(cflag10)) //Global State
+			{
+				l_attribyte[0] = "State Num:";
+				h_attribyte[0] = "Range 0-255 inclusive, which of the global switch states to trigger from";
+				l_attribute[2] = "Timed Trigger";
+				h_attribute[2] = "If > 0, the trigger will revert after this many frames."
+					" If used, the trigger will NOT remain through save/load."
+					" Also, timed switches can only turn the switch state 'on', cannot toggle it back 'off'."
+					" Hitting the switch while already on will reset the timer.";
+			}
+			else
+			{
+				l_attribyte[0] = "State Num:";
+				h_attribyte[0] = "Range 0-31 inclusive, which of the level's switch states to trigger from";
+			}
 			break;
 		}
 		case cCSWITCHBLOCK:
@@ -1558,13 +1574,11 @@ void ComboEditorDialog::loadComboType()
 			l_flag[7] = "Skip Cycle on Screen Entry";
 			h_flag[7] = "Combo cycle the switch combo on screen entry, to skip any rising/falling animation";
 			l_flag[8] = "Allow walk-on-top";
-			h_flag[7] = "Allows the player to walk along solid switchblocks if they are on them";
+			h_flag[8] = "Allows the player to walk along solid switchblocks if they are on them";
 			l_attribute[0] = "Combo Change:";
 			h_attribute[0] = "Value to add to the combo ID when triggered";
 			l_attribute[1] = "CSet Change:";
 			h_attribute[1] = "Value to add to the cset when triggered";
-			l_attribyte[0] = "State Num:";
-			h_attribyte[0] = "Range 0-31 inclusive, which of the level's switch states to trigger from";
 			if(FL(cflag9)) //Allow walk-on-top
 			{
 				l_flag[9] = "-8px DrawYOffset";
@@ -1576,6 +1590,18 @@ void ComboEditorDialog::loadComboType()
 				l_attribute[3] = "Step Height:";
 				h_attribute[3] = "The Z amount below the block's Z-height that you can jump atop it from. This allows"
 					" for 'walking up stairs' type effects.";
+			}
+			l_flag[9] = "Global State";
+			h_flag[9] = "Use a global state instead of a level-based state.";
+			if(FL(cflag10)) //Global State
+			{
+				l_attribyte[0] = "State Num:";
+				h_attribyte[0] = "Range 0-255 inclusive, which of the global switch states to trigger from";
+			}
+			else
+			{
+				l_attribyte[0] = "State Num:";
+				h_attribyte[0] = "Range 0-31 inclusive, which of the level's switch states to trigger from";
 			}
 			break;
 		}

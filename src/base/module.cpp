@@ -4,327 +4,6 @@
 
 extern zcmodule moduledata;
 
-const char CustomComboAttributeTypes[20][4][17] =
-{
-	{ "cCUSTOM1ATTRIB0", "cCUSTOM1ATTRIB1", "cCUSTOM1ATTRIB2", "cCUSTOM1ATTRIB3" }, 
-	{ "cCUSTOM2ATTRIB0", "cCUSTOM2ATTRIB1", "cCUSTOM2ATTRIB2", "cCUSTOM2ATTRIB3" }, 
-	{ "cCUSTOM3ATTRIB0", "cCUSTOM3ATTRIB1", "cCUSTOM3ATTRIB2", "cCUSTOM3ATTRIB3" }, 
-	{ "cCUSTOM4ATTRIB0", "cCUSTOM4ATTRIB1", "cCUSTOM4ATTRIB2", "cCUSTOM4ATTRIB3" }, 
-	{ "cCUSTOM5ATTRIB0", "cCUSTOM5ATTRIB1", "cCUSTOM5ATTRIB2", "cCUSTOM5ATTRIB3" }, 
-	{ "cCUSTOM6ATTRIB0", "cCUSTOM6ATTRIB1", "cCUSTOM6ATTRIB2", "cCUSTOM6ATTRIB3" }, 
-	{ "cCUSTOM7ATTRIB0", "cCUSTOM7ATTRIB1", "cCUSTOM7ATTRIB2", "cCUSTOM7ATTRIB3" }, 
-	{ "cCUSTOM8ATTRIB0", "cCUSTOM8ATTRIB1", "cCUSTOM8ATTRIB2", "cCUSTOM8ATTRIB3" }, 
-	{ "cCUSTOM9ATTRIB0", "cCUSTOM9ATTRIB1", "cCUSTOM9ATTRIB2", "cCUSTOM9ATTRIB3" }, 
-	{ "cCUSTOM10ATTRIB0", "cCUSTOM10ATTRIB1", "cCUSTOM10ATTRIB2", "cCUSTOM10ATTRIB3" },
-	
-	{ "cCUSTOM11ATTRIB0", "cCUSTOM11ATTRIB1", "cCUSTOM11ATTRIB2", "cCUSTOM11ATTRIB3" }, 
-	{ "cCUSTOM12ATTRIB0", "cCUSTOM12ATTRIB1", "cCUSTOM12ATTRIB2", "cCUSTOM12ATTRIB3" }, 
-	{ "cCUSTOM13ATTRIB0", "cCUSTOM13ATTRIB1", "cCUSTOM13ATTRIB2", "cCUSTOM13ATTRIB3" }, 
-	{ "cCUSTOM14ATTRIB0", "cCUSTOM14ATTRIB1", "cCUSTOM14ATTRIB2", "cCUSTOM14ATTRIB3" }, 
-	{ "cCUSTOM15ATTRIB0", "cCUSTOM15ATTRIB1", "cCUSTOM15ATTRIB2", "cCUSTOM15ATTRIB3" }, 
-	{ "cCUSTOM16ATTRIB0", "cCUSTOM16ATTRIB1", "cCUSTOM16ATTRIB2", "cCUSTOM16ATTRIB3" }, 
-	{ "cCUSTOM17ATTRIB0", "cCUSTOM17ATTRIB1", "cCUSTOM17ATTRIB2", "cCUSTOM17ATTRIB3" }, 
-	{ "cCUSTOM18ATTRIB0", "cCUSTOM18ATTRIB1", "cCUSTOM18ATTRIB2", "cCUSTOM18ATTRIB3" }, 
-	{ "cCUSTOM19ATTRIB0", "cCUSTOM19ATTRIB1", "cCUSTOM19ATTRIB2", "cCUSTOM19ATTRIB3" }, 
-	{ "cCUSTOM20ATTRIB0", "cCUSTOM20ATTRIB1", "cCUSTOM20ATTRIB2", "cCUSTOM20ATTRIB3" }
-};
-
-const char CustomComboATTRuteTypes[20][4][17] =
-{
-	{ "cCUSTOM1ATTR0", "cCUSTOM1ATTR1", "cCUSTOM1ATTR2", "cCUSTOM1ATTR3" }, 
-	{ "cCUSTOM2ATTR0", "cCUSTOM2ATTR1", "cCUSTOM2ATTR2", "cCUSTOM2ATTR3" }, 
-	{ "cCUSTOM3ATTR0", "cCUSTOM3ATTR1", "cCUSTOM3ATTR2", "cCUSTOM3ATTR3" }, 
-	{ "cCUSTOM4ATTR0", "cCUSTOM4ATTR1", "cCUSTOM4ATTR2", "cCUSTOM4ATTR3" }, 
-	{ "cCUSTOM5ATTR0", "cCUSTOM5ATTR1", "cCUSTOM5ATTR2", "cCUSTOM5ATTR3" }, 
-	{ "cCUSTOM6ATTR0", "cCUSTOM6ATTR1", "cCUSTOM6ATTR2", "cCUSTOM6ATTR3" }, 
-	{ "cCUSTOM7ATTR0", "cCUSTOM7ATTR1", "cCUSTOM7ATTR2", "cCUSTOM7ATTR3" }, 
-	{ "cCUSTOM8ATTR0", "cCUSTOM8ATTR1", "cCUSTOM8ATTR2", "cCUSTOM8ATTR3" }, 
-	{ "cCUSTOM9ATTR0", "cCUSTOM9ATTR1", "cCUSTOM9ATTR2", "cCUSTOM9ATTR3" }, 
-	{ "cCUSTOM10ATTR0", "cCUSTOM10ATTR1", "cCUSTOM10ATTR2", "cCUSTOM10ATTR3" },
-	
-	{ "cCUSTOM11ATTR0", "cCUSTOM11ATTR1", "cCUSTOM11ATTR2", "cCUSTOM11ATTR3" }, 
-	{ "cCUSTOM12ATTR0", "cCUSTOM12ATTR1", "cCUSTOM12ATTR2", "cCUSTOM12ATTR3" }, 
-	{ "cCUSTOM13ATTR0", "cCUSTOM13ATTR1", "cCUSTOM13ATTR2", "cCUSTOM13ATTR3" }, 
-	{ "cCUSTOM14ATTR0", "cCUSTOM14ATTR1", "cCUSTOM14ATTR2", "cCUSTOM14ATTR3" }, 
-	{ "cCUSTOM15ATTR0", "cCUSTOM15ATTR1", "cCUSTOM15ATTR2", "cCUSTOM15ATTR3" }, 
-	{ "cCUSTOM16ATTR0", "cCUSTOM16ATTR1", "cCUSTOM16ATTR2", "cCUSTOM16ATTR3" }, 
-	{ "cCUSTOM17ATTR0", "cCUSTOM17ATTR1", "cCUSTOM17ATTR2", "cCUSTOM17ATTR3" }, 
-	{ "cCUSTOM18ATTR0", "cCUSTOM18ATTR1", "cCUSTOM18ATTR2", "cCUSTOM18ATTR3" }, 
-	{ "cCUSTOM19ATTR0", "cCUSTOM19ATTR1", "cCUSTOM19ATTR2", "cCUSTOM19ATTR3" }, 
-	{ "cCUSTOM20ATTR0", "cCUSTOM20ATTR1", "cCUSTOM20ATTR2", "cCUSTOM20ATTR3" }
-};
-
-const char CustomComboAttribyteTypes[20][8][17] =
-{
-	{ "cCUSTOM1ATTRIB0", "cCUSTOM1ATTRIB1", "cCUSTOM1ATTRIB2", "cCUSTOM1ATTRIB3", "cCUSTOM1ATTRIB4", "cCUSTOM1ATTRIB5", "cCUSTOM1ATTRIB6", "cCUSTOM1ATTRIB7" }, 
-	{ "cCUSTOM2ATTRIB0", "cCUSTOM2ATTRIB1", "cCUSTOM2ATTRIB2", "cCUSTOM2ATTRIB3", "cCUSTOM2ATTRIB4", "cCUSTOM2ATTRIB5", "cCUSTOM2ATTRIB6", "cCUSTOM2ATTRIB7" }, 
-	{ "cCUSTOM3ATTRIB0", "cCUSTOM3ATTRIB1", "cCUSTOM3ATTRIB2", "cCUSTOM3ATTRIB3", "cCUSTOM3ATTRIB4", "cCUSTOM3ATTRIB5", "cCUSTOM3ATTRIB6", "cCUSTOM3ATTRIB7" }, 
-	{ "cCUSTOM4ATTRIB0", "cCUSTOM4ATTRIB1", "cCUSTOM4ATTRIB2", "cCUSTOM4ATTRIB3", "cCUSTOM4ATTRIB4", "cCUSTOM4ATTRIB5", "cCUSTOM4ATTRIB6", "cCUSTOM4ATTRIB7" }, 
-	{ "cCUSTOM5ATTRIB0", "cCUSTOM5ATTRIB1", "cCUSTOM5ATTRIB2", "cCUSTOM5ATTRIB3", "cCUSTOM5ATTRIB4", "cCUSTOM5ATTRIB5", "cCUSTOM5ATTRIB6", "cCUSTOM5ATTRIB7" }, 
-	{ "cCUSTOM6ATTRIB0", "cCUSTOM6ATTRIB1", "cCUSTOM6ATTRIB2", "cCUSTOM6ATTRIB3", "cCUSTOM6ATTRIB4", "cCUSTOM6ATTRIB5", "cCUSTOM6ATTRIB6", "cCUSTOM6ATTRIB7" }, 
-	{ "cCUSTOM7ATTRIB0", "cCUSTOM7ATTRIB1", "cCUSTOM7ATTRIB2", "cCUSTOM7ATTRIB3", "cCUSTOM7ATTRIB4", "cCUSTOM7ATTRIB5", "cCUSTOM7ATTRIB6", "cCUSTOM7ATTRIB7" }, 
-	{ "cCUSTOM8ATTRIB0", "cCUSTOM8ATTRIB1", "cCUSTOM8ATTRIB2", "cCUSTOM8ATTRIB3", "cCUSTOM8ATTRIB4", "cCUSTOM8ATTRIB5", "cCUSTOM8ATTRIB6", "cCUSTOM8ATTRIB7" }, 
-	{ "cCUSTOM9ATTRIB0", "cCUSTOM9ATTRIB1", "cCUSTOM9ATTRIB2", "cCUSTOM9ATTRIB3", "cCUSTOM9ATTRIB4", "cCUSTOM9ATTRIB5", "cCUSTOM9ATTRIB6", "cCUSTOM9ATTRIB7" }, 
-	{ "cCUSTOM10ATTRIB0", "cCUSTOM10ATTRIB1", "cCUSTOM10ATTRIB2", "cCUSTOM10ATTRIB3", "cCUSTOM10ATTRIB4", "cCUSTOM10ATTRIB5", "cCUSTOM10ATTRIB6", "cCUSTOM10ATTRIB7" },
-	
-	{ "cCUSTOM11ATTRIB0", "cCUSTOM11ATTRIB1", "cCUSTOM11ATTRIB2", "cCUSTOM11ATTRIB3", "cCUSTOM11ATTRIB4", "cCUSTOM11ATTRIB5", "cCUSTOM11ATTRIB6", "cCUSTOM11ATTRIB7" }, 
-	{ "cCUSTOM12ATTRIB0", "cCUSTOM12ATTRIB1", "cCUSTOM12ATTRIB2", "cCUSTOM12ATTRIB3", "cCUSTOM12ATTRIB4", "cCUSTOM12ATTRIB5", "cCUSTOM12ATTRIB6", "cCUSTOM12ATTRIB7" }, 
-	{ "cCUSTOM13ATTRIB0", "cCUSTOM13ATTRIB1", "cCUSTOM13ATTRIB2", "cCUSTOM13ATTRIB3", "cCUSTOM13ATTRIB4", "cCUSTOM13ATTRIB5", "cCUSTOM13ATTRIB6", "cCUSTOM13ATTRIB7" }, 
-	{ "cCUSTOM14ATTRIB0", "cCUSTOM14ATTRIB1", "cCUSTOM14ATTRIB2", "cCUSTOM14ATTRIB3", "cCUSTOM14ATTRIB4", "cCUSTOM14ATTRIB5", "cCUSTOM14ATTRIB6", "cCUSTOM14ATTRIB7" }, 
-	{ "cCUSTOM15ATTRIB0", "cCUSTOM15ATTRIB1", "cCUSTOM15ATTRIB2", "cCUSTOM15ATTRIB3", "cCUSTOM15ATTRIB4", "cCUSTOM15ATTRIB5", "cCUSTOM15ATTRIB6", "cCUSTOM15ATTRIB7" }, 
-	{ "cCUSTOM16ATTRIB0", "cCUSTOM16ATTRIB1", "cCUSTOM16ATTRIB2", "cCUSTOM16ATTRIB3", "cCUSTOM16ATTRIB4", "cCUSTOM16ATTRIB5", "cCUSTOM16ATTRIB6", "cCUSTOM16ATTRIB7" }, 
-	{ "cCUSTOM17ATTRIB0", "cCUSTOM17ATTRIB1", "cCUSTOM17ATTRIB2", "cCUSTOM17ATTRIB3", "cCUSTOM17ATTRIB4", "cCUSTOM17ATTRIB5", "cCUSTOM17ATTRIB6", "cCUSTOM17ATTRIB7" }, 
-	{ "cCUSTOM18ATTRIB0", "cCUSTOM18ATTRIB1", "cCUSTOM18ATTRIB2", "cCUSTOM18ATTRIB3", "cCUSTOM18ATTRIB4", "cCUSTOM18ATTRIB5", "cCUSTOM18ATTRIB6", "cCUSTOM18ATTRIB7" }, 
-	{ "cCUSTOM19ATTRIB0", "cCUSTOM19ATTRIB1", "cCUSTOM19ATTRIB2", "cCUSTOM19ATTRIB3", "cCUSTOM19ATTRIB4", "cCUSTOM19ATTRIB5", "cCUSTOM19ATTRIB6", "cCUSTOM19ATTRIB7" }, 
-	{ "cCUSTOM20ATTRIB0", "cCUSTOM20ATTRIB1", "cCUSTOM20ATTRIB2", "cCUSTOM20ATTRIB3", "cCUSTOM20ATTRIB4", "cCUSTOM20ATTRIB5", "cCUSTOM20ATTRIB6", "cCUSTOM20ATTRIB7" }
-};
-
-const char CustomComboAttrishortTypes[20][8][17] =
-{
-	{ "cCUSTOM1ATTRSH0", "cCUSTOM1ATTRSH1", "cCUSTOM1ATTRSH2", "cCUSTOM1ATTRSH3", "cCUSTOM1ATTRSH4", "cCUSTOM1ATTRSH5", "cCUSTOM1ATTRSH6", "cCUSTOM1ATTRSH7" }, 
-	{ "cCUSTOM2ATTRSH0", "cCUSTOM2ATTRSH1", "cCUSTOM2ATTRSH2", "cCUSTOM2ATTRSH3", "cCUSTOM2ATTRSH4", "cCUSTOM2ATTRSH5", "cCUSTOM2ATTRSH6", "cCUSTOM2ATTRSH7" }, 
-	{ "cCUSTOM3ATTRSH0", "cCUSTOM3ATTRSH1", "cCUSTOM3ATTRSH2", "cCUSTOM3ATTRSH3", "cCUSTOM3ATTRSH4", "cCUSTOM3ATTRSH5", "cCUSTOM3ATTRSH6", "cCUSTOM3ATTRSH7" }, 
-	{ "cCUSTOM4ATTRSH0", "cCUSTOM4ATTRSH1", "cCUSTOM4ATTRSH2", "cCUSTOM4ATTRSH3", "cCUSTOM4ATTRSH4", "cCUSTOM4ATTRSH5", "cCUSTOM4ATTRSH6", "cCUSTOM4ATTRSH7" }, 
-	{ "cCUSTOM5ATTRSH0", "cCUSTOM5ATTRSH1", "cCUSTOM5ATTRSH2", "cCUSTOM5ATTRSH3", "cCUSTOM5ATTRSH4", "cCUSTOM5ATTRSH5", "cCUSTOM5ATTRSH6", "cCUSTOM5ATTRSH7" }, 
-	{ "cCUSTOM6ATTRSH0", "cCUSTOM6ATTRSH1", "cCUSTOM6ATTRSH2", "cCUSTOM6ATTRSH3", "cCUSTOM6ATTRSH4", "cCUSTOM6ATTRSH5", "cCUSTOM6ATTRSH6", "cCUSTOM6ATTRSH7" }, 
-	{ "cCUSTOM7ATTRSH0", "cCUSTOM7ATTRSH1", "cCUSTOM7ATTRSH2", "cCUSTOM7ATTRSH3", "cCUSTOM7ATTRSH4", "cCUSTOM7ATTRSH5", "cCUSTOM7ATTRSH6", "cCUSTOM7ATTRSH7" }, 
-	{ "cCUSTOM8ATTRSH0", "cCUSTOM8ATTRSH1", "cCUSTOM8ATTRSH2", "cCUSTOM8ATTRSH3", "cCUSTOM8ATTRSH4", "cCUSTOM8ATTRSH5", "cCUSTOM8ATTRSH6", "cCUSTOM8ATTRSH7" }, 
-	{ "cCUSTOM9ATTRSH0", "cCUSTOM9ATTRSH1", "cCUSTOM9ATTRSH2", "cCUSTOM9ATTRSH3", "cCUSTOM9ATTRSH4", "cCUSTOM9ATTRSH5", "cCUSTOM9ATTRSH6", "cCUSTOM9ATTRSH7" }, 
-	{ "cCUSTOM10ATTRSH0", "cCUSTOM10ATTRSH1", "cCUSTOM10ATTRSH2", "cCUSTOM10ATTRSH3", "cCUSTOM10ATTRSH4", "cCUSTOM10ATTRSH5", "cCUSTOM10ATTRSH6", "cCUSTOM10ATTRSH7" },
-	
-	{ "cCUSTOM11ATTRSH0", "cCUSTOM11ATTRSH1", "cCUSTOM11ATTRSH2", "cCUSTOM11ATTRSH3", "cCUSTOM11ATTRSH4", "cCUSTOM11ATTRSH5", "cCUSTOM11ATTRSH6", "cCUSTOM11ATTRSH7" }, 
-	{ "cCUSTOM12ATTRSH0", "cCUSTOM12ATTRSH1", "cCUSTOM12ATTRSH2", "cCUSTOM12ATTRSH3", "cCUSTOM12ATTRSH4", "cCUSTOM12ATTRSH5", "cCUSTOM12ATTRSH6", "cCUSTOM12ATTRSH7" }, 
-	{ "cCUSTOM13ATTRSH0", "cCUSTOM13ATTRSH1", "cCUSTOM13ATTRSH2", "cCUSTOM13ATTRSH3", "cCUSTOM13ATTRSH4", "cCUSTOM13ATTRSH5", "cCUSTOM13ATTRSH6", "cCUSTOM13ATTRSH7" }, 
-	{ "cCUSTOM14ATTRSH0", "cCUSTOM14ATTRSH1", "cCUSTOM14ATTRSH2", "cCUSTOM14ATTRSH3", "cCUSTOM14ATTRSH4", "cCUSTOM14ATTRSH5", "cCUSTOM14ATTRSH6", "cCUSTOM14ATTRSH7" }, 
-	{ "cCUSTOM15ATTRSH0", "cCUSTOM15ATTRSH1", "cCUSTOM15ATTRSH2", "cCUSTOM15ATTRSH3", "cCUSTOM15ATTRSH4", "cCUSTOM15ATTRSH5", "cCUSTOM15ATTRSH6", "cCUSTOM15ATTRSH7" }, 
-	{ "cCUSTOM16ATTRSH0", "cCUSTOM16ATTRSH1", "cCUSTOM16ATTRSH2", "cCUSTOM16ATTRSH3", "cCUSTOM16ATTRSH4", "cCUSTOM16ATTRSH5", "cCUSTOM16ATTRSH6", "cCUSTOM16ATTRSH7" }, 
-	{ "cCUSTOM17ATTRSH0", "cCUSTOM17ATTRSH1", "cCUSTOM17ATTRSH2", "cCUSTOM17ATTRSH3", "cCUSTOM17ATTRSH4", "cCUSTOM17ATTRSH5", "cCUSTOM17ATTRSH6", "cCUSTOM17ATTRSH7" }, 
-	{ "cCUSTOM18ATTRSH0", "cCUSTOM18ATTRSH1", "cCUSTOM18ATTRSH2", "cCUSTOM18ATTRSH3", "cCUSTOM18ATTRSH4", "cCUSTOM18ATTRSH5", "cCUSTOM18ATTRSH6", "cCUSTOM18ATTRSH7" }, 
-	{ "cCUSTOM19ATTRSH0", "cCUSTOM19ATTRSH1", "cCUSTOM19ATTRSH2", "cCUSTOM19ATTRSH3", "cCUSTOM19ATTRSH4", "cCUSTOM19ATTRSH5", "cCUSTOM19ATTRSH6", "cCUSTOM19ATTRSH7" }, 
-	{ "cCUSTOM20ATTRSH0", "cCUSTOM20ATTRSH1", "cCUSTOM20ATTRSH2", "cCUSTOM20ATTRSH3", "cCUSTOM20ATTRSH4", "cCUSTOM20ATTRSH5", "cCUSTOM20ATTRSH6", "cCUSTOM20ATTRSH7" }
-};
-
-const char CustomComboAttributeFlags[20][16][16] =
-{
-	{ 	
-		"cCust1F0", "cCust1F1", "cCust1F2", "cCust1F3", "cCust1F4", "cCust1F5",  "cCust1F6", "cCust1F7", 
-		"cCust1F8", "cCust1F9", "cCust1F10", "cCust1F11", "cCust1F12", "cCust1F13", "cCust1F14", "cCust1F15", 
-	},
-	{ 	
-		"cCust2F0", "cCust2F1", "cCust2F2", "cCust2F3", "cCust2F4", "cCust2F5",  "cCust2F6", "cCust2F7", 
-		"cCust2F8", "cCust2F9", "cCust2F10", "cCust2F11", "cCust2F12", "cCust2F13", "cCust2F14", "cCust2F15", 
-	},
-	{ 	
-		"cCust3F0", "cCust3F1", "cCust3F2", "cCust3F3", "cCust3F4", "cCust3F5",  "cCust3F6", "cCust3F7", 
-		"cCust3F8", "cCust3F9", "cCust3F10", "cCust3F11", "cCust3F12", "cCust3F13", "cCust3F14", "cCust3F15", 
-	},
-	{ 	
-		"cCust4F0", "cCust4F1", "cCust4F2", "cCust4F3", "cCust4F4", "cCust4F5",  "cCust4F6", "cCust4F7", 
-		"cCust4F8", "cCust4F9", "cCust4F10", "cCust4F11", "cCust4F12", "cCust4F13", "cCust4F14", "cCust4F15", 
-	},
-	{ 	
-		"cCust5F0", "cCust5F1", "cCust5F2", "cCust5F3", "cCust5F4", "cCust5F5",  "cCust5F6", "cCust5F7", 
-		"cCust5F8", "cCust5F9", "cCust5F10", "cCust5F11", "cCust5F12", "cCust5F13", "cCust5F14", "cCust5F15", 
-	},
-	{ 	
-		"cCust6F0", "cCust6F1", "cCust6F2", "cCust6F3", "cCust6F4", "cCust6F5",  "cCust6F6", "cCust6F7", 
-		"cCust6F8", "cCust6F9", "cCust6F10", "cCust6F11", "cCust6F12", "cCust6F13", "cCust6F14", "cCust6F15", 
-	},
-	{ 	
-		"cCust7F0", "cCust7F1", "cCust7F2", "cCust7F3", "cCust7F4", "cCust7F5",  "cCust7F6", "cCust7F7", 
-		"cCust7F8", "cCust7F9", "cCust7F10", "cCust7F11", "cCust7F12", "cCust7F13", "cCust7F14", "cCust7F15", 
-	},
-	{ 	
-		"cCust8F0", "cCust8F1", "cCust8F2", "cCust8F3", "cCust8F4", "cCust8F5",  "cCust8F6", "cCust8F7", 
-		"cCust8F8", "cCust8F9", "cCust8F10", "cCust8F11", "cCust8F12", "cCust8F13", "cCust8F14", "cCust8F15", 
-	},
-	{ 	
-		"cCust9F0", "cCust9F1", "cCust9F2", "cCust9F3", "cCust9F4", "cCust9F5",  "cCust9F6", "cCust9F7", 
-		"cCust9F8", "cCust9F9", "cCust9F10", "cCust9F11", "cCust9F12", "cCust9F13", "cCust9F14", "cCust9F15", 
-	},
-	{ 	
-		"cCust10F0", "cCust10F1", "cCust10F2", "cCust10F3", "cCust10F4", "cCust10F5",  "cCust10F6", "cCust10F7", 
-		"cCust10F8", "cCust10F9", "cCust10F10", "cCust10F11", "cCust10F12", "cCust10F13", "cCust10F14", "cCust10F15", 
-	},
-	{ 	
-		"cCust11F0", "cCust11F1", "cCust11F2", "cCust11F3", "cCust11F4", "cCust11F5",  "cCust11F6", "cCust11F7", 
-		"cCust11F8", "cCust11F9", "cCust11F10", "cCust11F11", "cCust11F12", "cCust11F13", "cCust11F14", "cCust11F15", 
-	},
-	{ 	
-		"cCust12F0", "cCust12F1", "cCust12F2", "cCust12F3", "cCust12F4", "cCust12F5",  "cCust12F6", "cCust12F7", 
-		"cCust12F8", "cCust12F9", "cCust12F10", "cCust12F11", "cCust12F12", "cCust12F13", "cCust12F14", "cCust12F15", 
-	},
-	{ 	
-		"cCust13F0", "cCust13F1", "cCust13F2", "cCust13F3", "cCust13F4", "cCust13F5",  "cCust13F6", "cCust13F7", 
-		"cCust13F8", "cCust13F9", "cCust13F10", "cCust13F11", "cCust13F12", "cCust13F13", "cCust13F14", "cCust13F15", 
-	},
-	{ 	
-		"cCust14F0", "cCust14F1", "cCust14F2", "cCust14F3", "cCust14F4", "cCust14F5",  "cCust14F6", "cCust14F7", 
-		"cCust14F8", "cCust14F9", "cCust14F10", "cCust14F11", "cCust14F12", "cCust14F13", "cCust14F14", "cCust14F15", 
-	},
-	{ 	
-		"cCust15F0", "cCust15F1", "cCust15F2", "cCust15F3", "cCust15F4", "cCust15F5",  "cCust15F6", "cCust15F7", 
-		"cCust15F8", "cCust15F9", "cCust15F10", "cCust15F11", "cCust15F12", "cCust15F13", "cCust15F14", "cCust15F15", 
-	},
-};
-
-const char defaultCustomComboFlags[20][16][32]=
-{
-	{ 
-		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
-		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
-	},
-	{ 
-		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
-		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
-	},
-	{ 
-		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
-		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
-	},
-	{ 
-		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
-		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
-	},
-	{ 
-		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
-		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
-	},
-	{ 
-		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
-		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
-	},
-	{ 
-		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
-		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
-	},
-	{ 
-		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
-		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
-	},
-	{ 
-		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
-		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
-	},
-	{ 
-		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
-		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
-	},
-	{ 
-		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
-		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
-	},
-	{ 
-		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
-		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
-	},
-	{ 
-		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
-		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
-	},
-	{ 
-		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
-		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
-	},
-	{ 
-		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
-		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
-	},
-	{ 
-		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
-		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
-	},
-	{ 
-		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
-		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
-	},
-	{ 
-		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
-		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
-	},
-	{ 
-		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
-		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
-	},
-	{ 
-		"Flag 1", "Flag 2", "Flag 3", "Flag 4", "Flag 5", "Flag 6", "Flag 7", "Flag 8", 
-		"Engine", "Flag 10", "Flag 11", "Flag 12", "Flag 13", "Flag 14", "Flag 15", "Flag 16"
-	}
-
-};
-
-const char defaultCustomComboAttribytes[20][8][17]=
-{
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" },
-	{ "Attribytes[0]", "Attribytes[1]", "Attribytes[2]", "Attribytes[3]", "Attribytes[4]", "Attribytes[5]", "Attribytes[6]", "Attribytes[7]" }
-};
-
-const char defaultCustomComboAttrishorts[20][8][17]=
-{
-	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
-	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
-	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
-	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
-	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
-	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
-	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
-	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
-	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
-	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
-	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
-	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
-	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
-	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
-	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
-	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
-	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
-	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
-	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" },
-	{ "Attrishorts[0]", "Attrishorts[1]", "Attrishorts[2]", "Attrishorts[3]", "Attrishorts[4]", "Attrishorts[5]", "Attrishorts[6]", "Attrishorts[7]" }
-};
-
-const char defaultCustomComboAttributes[20][4][17]=
-{
-	{ "Attributes[0]", "Attributes[1]", "Attributes[2]", "Attributes[3]" },
-	{ "Attributes[0]", "Attributes[1]", "Attributes[2]", "Attributes[3]" },
-	{ "Attributes[0]", "Attributes[1]", "Attributes[2]", "Attributes[3]" },
-	{ "Attributes[0]", "Attributes[1]", "Attributes[2]", "Attributes[3]" },
-	{ "Attributes[0]", "Attributes[1]", "Attributes[2]", "Attributes[3]" },
-	{ "Attributes[0]", "Attributes[1]", "Attributes[2]", "Attributes[3]" },
-	{ "Attributes[0]", "Attributes[1]", "Attributes[2]", "Attributes[3]" },
-	{ "Attributes[0]", "Attributes[1]", "Attributes[2]", "Attributes[3]" },
-	{ "Attributes[0]", "Attributes[1]", "Attributes[2]", "Attributes[3]" },
-	{ "Attributes[0]", "Attributes[1]", "Attributes[2]", "Attributes[3]" },
-	{ "Attributes[0]", "Attributes[1]", "Attributes[2]", "Attributes[3]" },
-	{ "Attributes[0]", "Attributes[1]", "Attributes[2]", "Attributes[3]" },
-	{ "Attributes[0]", "Attributes[1]", "Attributes[2]", "Attributes[3]" },
-	{ "Attributes[0]", "Attributes[1]", "Attributes[2]", "Attributes[3]" },
-	{ "Attributes[0]", "Attributes[1]", "Attributes[2]", "Attributes[3]" },
-	{ "Attributes[0]", "Attributes[1]", "Attributes[2]", "Attributes[3]" },
-	{ "Attributes[0]", "Attributes[1]", "Attributes[2]", "Attributes[3]" },
-	{ "Attributes[0]", "Attributes[1]", "Attributes[2]", "Attributes[3]" },
-	{ "Attributes[0]", "Attributes[1]", "Attributes[2]", "Attributes[3]" },
-	{ "Attributes[0]", "Attributes[1]", "Attributes[2]", "Attributes[3]" }
-};
-
 bool ZModule::init(bool d) //bool default
 {
 	memset(moduledata.module_name, 0, sizeof(moduledata.module_name));
@@ -363,11 +42,8 @@ bool ZModule::init(bool d) //bool default
 	memset(moduledata.moduleinfo3, 0, sizeof(moduledata.moduleinfo3));
 	memset(moduledata.moduleinfo4, 0, sizeof(moduledata.moduleinfo4));
 	memset(moduledata.moduletimezone, 0, sizeof(moduledata.moduletimezone));
-	memset(moduledata.combotypeCustomAttributes, 0, sizeof(moduledata.combotypeCustomAttributes));
-	memset(moduledata.combotypeCustomAttribytes, 0, sizeof(moduledata.combotypeCustomAttribytes));
-	memset(moduledata.combotypeCustomFlags, 0, sizeof(moduledata.combotypeCustomFlags));
 	//memset(moduledata.module_base_nsf, 0, sizeof(moduledata.module_base_nsf));
-		
+	
 	moduledata.modver_1 = 0;
 	moduledata.modver_2 = 0;	
 	moduledata.modver_3 = 0;
@@ -394,7 +70,6 @@ bool ZModule::init(bool d) //bool default
 	}
 	if ( d )
 	{
-		
 		//zcm path
 		set_config_file(moduledata.module_name); //Switch to the module to load its config properties.
 		//al_trace("Module name set to %s\n",moduledata.module_name);
@@ -501,7 +176,7 @@ bool ZModule::init(bool d) //bool default
 		
 		const char default_enemy_types[eeMAX][255] =
 		{
-		    "-Guy","Walking Enemy","-Unused","Tektite","Leever",
+			"-Guy","Walking Enemy","-Unused","Tektite","Leever",
 			"Peahat","Zora","Rock","Ghini","-Unused",
 			"Keese","-Unused","-Unused","-Unused","-Unused",//goriya
 			"Trap","Wall Master","-Unused","-Unused","-Unused",//likelike
@@ -510,13 +185,13 @@ bool ZModule::init(bool d) //bool default
 			"Patra","Ganon","Projectile Shooter","-Unused","-Unused",//zol trib
 			"-Unused","-Unused","Spin Tile","(None)","-Fairy","Other (Floating)","Other",
 			"-max250",
-  		        "Custom 01", "Custom 02", "Custom 03", "Custom 04", "Custom 05",
-		        "Custom 06", "Custom 07", "Custom 08", "Custom 09", "Custom 10",
-		        "Custom 11", "Custom 12", "Custom 13", "Custom 14", "Custom 15",
-		        "Custom 16", "Custom 17", "Custom 18", "Custom 19", "Custom 20",
-		        "Friendly NPC 01", "Friendly NPC 02", "Friendly NPC 03", "Friendly NPC 04",
-		        "Friendly NPC 05", "Friendly NPC 06", "Friendly NPC 07",
-		        "Friendly NPC 08", "Friendly NPC 09", "Friendly NPC 10"
+			"Custom 01", "Custom 02", "Custom 03", "Custom 04", "Custom 05",
+			"Custom 06", "Custom 07", "Custom 08", "Custom 09", "Custom 10",
+			"Custom 11", "Custom 12", "Custom 13", "Custom 14", "Custom 15",
+			"Custom 16", "Custom 17", "Custom 18", "Custom 19", "Custom 20",
+			"Friendly NPC 01", "Friendly NPC 02", "Friendly NPC 03", "Friendly NPC 04",
+			"Friendly NPC 05", "Friendly NPC 06", "Friendly NPC 07",
+			"Friendly NPC 08", "Friendly NPC 09", "Friendly NPC 10"
 		};
 		for ( int32_t q = 0; q < eeMAX; q++ )
 		{
@@ -550,7 +225,8 @@ bool ZModule::init(bool d) //bool default
 			"ea_fly4f8d","ea_unused3","ea_4f8dLG","ea_tek4","ea_3f4d",
 			"ea_2f4d","ea_lev4","ea_2f4dT","ea_wiz4","ea_dod4",
 			"ea_bsdod","ea_fly4f4dT","ea_fly_4f4dF","ea_4f","ea_gan",
-			"ea_2fLG"
+			"ea_2fLG", "ea_4f8dLGT", "ea_4f4dLGT", "ea_4f8dLGF",
+			"ea_4f4dLG", "ea_4f4dLGF"
 		};
 		for ( int32_t q = 0; q < aMAX; q++ )
 		{
@@ -566,10 +242,10 @@ bool ZModule::init(bool d) //bool default
 		};
 		const char roomtype_defaults[rMAX][255] =
 		{
-		    "(None)","Special Item","Pay for Info","Secret Money","Gamble",
-		    "Door Repair","Red Potion or Heart Container","Feed the Goriya","Triforce Check",
-		    "Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
-		    "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash",
+			"(None)","Special Item","Pay for Info","Secret Money","Gamble",
+			"Door Repair","Red Potion or Heart Container","Feed the Goriya","Triforce Check",
+			"Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
+			"3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash",
 			"More Arrows","Take One Item","Bottle Shop"
 		};
 		for ( int32_t q = 0; q < rMAX; q++ )
@@ -580,9 +256,9 @@ bool ZModule::init(bool d) //bool default
 		
 		const char enemy_walk_type_defaults[e9tARMOS+1][255] =
 		{
-		    "Normal", "Rope", "Vire", "Pols Voice", "Armos"
+			"Normal", "Rope", "Vire", "Pols Voice", "Armos"
 		};
-
+		
 		const char enemy_walk_style_cats[e9tARMOS+1][255]=
 		{
 			"wsNormal","wsCharge","wsHopSplit","wsHop","wsStatue"
@@ -595,10 +271,10 @@ bool ZModule::init(bool d) //bool default
 		const char guy_types[gDUMMY1][255]=
 		{
 			"gNONE", "gOLDMAN", "gOLDWOMAN", "gDUDE", "gORC",
-		    "gFIRE", "gFAIRY", "gGRUMBLE", "gPRINCESS", "gOLDMAN2",
-		    "gEMPTY"
+			"gFIRE", "gFAIRY", "gGRUMBLE", "gPRINCESS", "gOLDMAN2",
+			"gEMPTY"
 		};
-
+		
 		const char guy_default_names[gDUMMY1][255]=
 		{
 			"(None)","Abei","Ama","Merchant","Moblin","Fire",
@@ -695,36 +371,6 @@ bool ZModule::init(bool d) //bool default
 			strcpy(moduledata.player_weapon_names[q],(lweapon_cats[q][0] ? zc_get_config("LWEAPONS",lweapon_cats[q],lweapon_default_names[q]) : lweapon_default_names[q]));
 			//al_trace("LWeapon ID %d is: %s\n", q, moduledata.player_weapon_names[q]);
 		}
-		const char counter_cats[33][255]=
-		{
-			"crNONE","crLIFE","crMONEY","crBOMBS","crARROWS","crMAGIC","crKEYS",
-			"crSBOMBS","crCUSTOM1","crCUSTOM2","crCUSTOM3","crCUSTOM4","crCUSTOM5","crCUSTOM6",
-			"crCUSTOM7","crCUSTOM8","crCUSTOM9","crCUSTOM10","crCUSTOM11","crCUSTOM12","crCUSTOM13",
-			"crCUSTOM14","crCUSTOM15","crCUSTOM16","crCUSTOM17","crCUSTOM18","crCUSTOM19",
-			"crCUSTOM20","crCUSTOM21","crCUSTOM22","crCUSTOM23","crCUSTOM24","crCUSTOM25"
-		};
-
-		for ( int32_t q = 0; q < 20; q++ )
-		{
-			for ( int32_t w = 0; w < 4; w++ )
-				strcpy(moduledata.combotypeCustomAttributes[q][w],zc_get_config("CUSTOMCOMBOTYPES",CustomComboAttributeTypes[q][w],defaultCustomComboAttributes[q][w]));
-		}
-		for ( int32_t q = 0; q < 20; q++ )
-		{
-			for ( int32_t w = 0; w < 8; w++ )
-				strcpy(moduledata.combotypeCustomAttribytes[q][w],zc_get_config("CUSTOMCOMBOTYPES",CustomComboAttribyteTypes[q][w],defaultCustomComboAttribytes[q][w]));
-		}
-		for ( int32_t q = 0; q < 20; q++ )
-		{
-			for ( int32_t w = 0; w < 8; w++ )
-				strcpy(moduledata.combotypeCustomAttrishorts[q][w],zc_get_config("CUSTOMCOMBOTYPES",CustomComboAttrishortTypes[q][w],defaultCustomComboAttrishorts[q][w]));
-		}
-		for ( int32_t q = 0; q < 20; q++ )
-		{
-			for ( int32_t e = 0; e < 16; e++ )
-				strcpy(moduledata.combotypeCustomFlags[q][e],zc_get_config("CUSTOMCOMBOFLAGS",CustomComboAttributeFlags[q][e],defaultCustomComboFlags[q][e]));
-		
-		}
 		
 		al_trace("Module Title: %s\n", moduledata.moduletitle);
 		al_trace("Module Author: %s\n", moduledata.moduleauthor);
@@ -737,7 +383,7 @@ bool ZModule::init(bool d) //bool default
 		//al_trace("Build Day: %s\n",dayextension(moduledata.modday).c_str());
 		//al_trace("Build Month: %s\n",(char*)months[moduledata.modmonth]);
 		//al_trace("Build Year: %d\n",moduledata.modyear);
-		al_trace("Build Date: %s %s, %d at @ %d:%d %s\n", dayextension(moduledata.modday).c_str(), 
+		al_trace("Module Date: %s %s, %d at @ %d:%d %s\n", dayextension(moduledata.modday).c_str(), 
 			(char*)months[moduledata.modmonth], moduledata.modyear, moduledata.modhour, moduledata.modminute, moduledata.moduletimezone);
 	}
 	
@@ -745,3 +391,4 @@ bool ZModule::init(bool d) //bool default
 	zc_set_config_standard();
 	return true;
 }
+

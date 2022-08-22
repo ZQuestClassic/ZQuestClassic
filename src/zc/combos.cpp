@@ -284,13 +284,74 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 bool do_cswitch_combo(newcombo const& cmb, weapon* w)
 {
 	byte pair = cmb.attribytes[0];
-	if(pair > 31) return false;
-	game->lvlswitches[dlevel] ^= (1 << pair);
-	toggle_switches(1<<pair, false);
+	if(cmb.usrflags & cflag10) //global state
+	{
+		int32_t tmr = cmb.attributes[2] / 10000;
+		bool oldstate = game->gswitch_timers[pair];
+		if(tmr > 0)
+		{
+			game->gswitch_timers[pair] = tmr;
+		}
+		else
+		{
+			if(game->gswitch_timers[pair])
+				game->gswitch_timers[pair] = 0;
+			else game->gswitch_timers[pair] = -1;
+		}
+		if(oldstate != (game->gswitch_timers[pair] != 0))
+		{
+			toggle_gswitches(pair, false);
+		}
+	}
+	else
+	{
+		if(pair > 31) return false;
+		game->lvlswitches[dlevel] ^= (1 << pair);
+		toggle_switches(1<<pair, false);
+	}
 	if(w && (cmb.usrflags&cflag1))
 		killgenwpn(w); //Kill weapon
 	if(cmb.attribytes[1]) sfx(cmb.attribytes[1]);
 	return true;
+}
+
+void trigger_cswitch_block(int32_t layer, int32_t pos)
+{
+	if(unsigned(layer) > 6 || unsigned(pos) > 175) return;
+	mapscr* scr = FFCore.tempScreens[layer];
+	auto cid = scr->data[pos];
+	newcombo const& cmb = combobuf[cid];
+	if(cmb.type != cCSWITCHBLOCK) return;
+	
+	int32_t cmbofs = (cmb.attributes[0]/10000L);
+	int32_t csofs = (cmb.attributes[1]/10000L);
+	scr->data[pos] = BOUND_COMBO(cid + cmbofs);
+	scr->cset[pos] = (scr->cset[pos] + csofs) & 15;
+	auto newcid = scr->data[pos];
+	if(combobuf[newcid].animflags & AF_CYCLE)
+	{
+		combobuf[newcid].tile = combobuf[newcid].o_tile;
+		combobuf[newcid].cur_frame=0;
+		combobuf[newcid].aclk = 0;
+	}
+	for(auto lyr = 0; lyr < 7; ++lyr)
+	{
+		if(lyr == layer) continue;
+		if(!(cmb.usrflags&(1<<lyr))) continue;
+		mapscr* scr_2 = FFCore.tempScreens[lyr];
+		if(!scr_2->data[pos]) //Don't increment empty space
+			continue;
+		newcombo const& cmb_2 = combobuf[scr_2->data[pos]];
+		scr_2->data[pos] = BOUND_COMBO(scr_2->data[pos] + cmbofs);
+		scr_2->cset[pos] = (scr_2->cset[pos] + csofs) & 15;
+		int32_t newcid2 = scr_2->data[pos];
+		if(combobuf[newcid2].animflags & AF_CYCLE)
+		{
+			combobuf[newcid2].tile = combobuf[newcid2].o_tile;
+			combobuf[newcid2].cur_frame=0;
+			combobuf[newcid2].aclk = 0;
+		}
+	}
 }
 
 void spawn_decoration(newcombo const& cmb, int32_t pos)
@@ -1459,6 +1520,10 @@ bool do_trigger_combo(const pos_handle& pos_handle, int32_t special, weapon* w)
 			{
 				case cCSWITCH:
 					do_cswitch_combo(cmb, w);
+					break;
+				
+				case cCSWITCHBLOCK:
+					trigger_cswitch_block(lyr,pos);
 					break;
 				
 				case cSIGNPOST:

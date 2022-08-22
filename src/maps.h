@@ -257,6 +257,12 @@ bool hit_walkflag(int32_t x,int32_t y,int32_t cnt);
 void map_bkgsfx(bool on);
 void toggle_switches(dword flags, bool entry);
 void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index);
+void toggle_gswitches(int32_t state, bool entry);
+void toggle_gswitches(int32_t state, bool entry, mapscr* m, mapscr* t);
+void toggle_gswitches(bool* states, bool entry, mapscr* m, mapscr* t);
+void toggle_gswitches_load(mapscr* m, mapscr* t);
+void run_gswitch_timers();
+void onload_gswitch_timers();
 
 //
 void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest=NULL,BITMAP* transdest=NULL);

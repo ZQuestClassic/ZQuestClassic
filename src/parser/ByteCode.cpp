@@ -591,6 +591,8 @@ string ZScript::VarToString(int32_t ID)
 		return "GAMELKEYSD";
 	case GAMELSWITCH:
 		return "GAMELSWITCH";
+	case GAMEGSWITCH:
+		return "GAMEGSWITCH";
 	case GAMEBOTTLEST:
 		return "GAMEBOTTLEST";
 		

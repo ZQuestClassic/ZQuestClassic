@@ -4838,19 +4838,20 @@ enum ASM_DEFINE
 #define GENDATAEVENTSTATE       0x1469
 #define GAMEEVENTDATA           0x146A
 #define ITEMDROPPEDBY           0x146B
-#define REGIONDD                0x146C
-#define REGIONCD                0x146D
-#define REGIONFD                0x146E
-#define REGIONTD                0x146F
-#define REGIONID                0x1470
-#define REGIONSD                0x1471
-#define REGIONED                0x1472
-#define REGIONWORLDWIDTH        0x1473
-#define REGIONWORLDHEIGHT       0x1474
-#define REGIONSCREENWIDTH       0x1475
-#define REGIONSCREENHEIGHT      0x1476
+#define GAMEGSWITCH             0x146C
+#define REGIONDD                0x146D
+#define REGIONCD                0x146E
+#define REGIONFD                0x146F
+#define REGIONTD                0x1470
+#define REGIONID                0x1471
+#define REGIONSD                0x1472
+#define REGIONED                0x1473
+#define REGIONWORLDWIDTH        0x1474
+#define REGIONWORLDHEIGHT       0x1475
+#define REGIONSCREENWIDTH       0x1476
+#define REGIONSCREENHEIGHT      0x1477
 
-#define NUMVARIABLES         	0x1477
+#define NUMVARIABLES         	0x1478
 
 //} End variables
 

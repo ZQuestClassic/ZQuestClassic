@@ -3175,6 +3175,12 @@ long LSwitches[512];
  * The crystal switch state for each of the 256 levels
  * All 32 bits are used, wherein '1Lb<<n' represents the 'nth' switch state, for n = 0-31
 
+int GSwitch[256];
+ * The 256 global crystal switch TIMERS.
+ * If the timer is '< 0', it is active without a timer (same as a normal switch toggle)
+ * If the timer is '0', it is inactive
+ * If the timer is '> 0', it is active for that many more frames before reverting.
+
 int BottleState[256];
  * The contents of empty bottles, up to 256 slots
 
