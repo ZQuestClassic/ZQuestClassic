@@ -2069,7 +2069,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
       wy+=2;
     }*/
     w->x = x+wx;
-    w->y = y+wy-(54-(yofs+slashyofs))-fakez;
+    w->y = y+wy-(original_playing_field_offset-(yofs+slashyofs))-fakez;
     w->z = (z+zofs);
     w->tile = t;
     w->flip = f;
@@ -24533,7 +24533,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	{
 		step = get_scroll_step(scrolldir);
 		delay = get_scroll_delay(scrolldir);
-		scroll_counter = (scrolldir == up || scrolldir == down ? 176 : 256) / step;
+		int scroll_height = 176 + (global_z3_scrolling_extended_height_mode ? 56 : 0);
+		scroll_counter = (scrolldir == up || scrolldir == down ? scroll_height : 256) / step;
 
 		dx = 0;
 		dy = 0;
@@ -24871,10 +24872,10 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			// TODO z3 do this in a better way that actually works
 			//bound Hero when me move him off the screen in the last couple of frames of scrolling
 			{
-				if(y > world_h - 16) y = world_h - 16;
-				if(y < 0)            y = 0;
-				if(x > world_w - 16) x = world_w - 16;
-				if(x < 0)            x = 0;
+				// if(y > world_h - 16) y = world_h - 16;
+				// if(y < 0)            y = 0;
+				// if(x > world_w - 16) x = world_w - 16;
+				// if(x < 0)            x = 0;
 			}
 			
 			if(ladderx > 0 || laddery > 0)
@@ -24956,7 +24957,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			putscr(scrollbuf, offx, offy, myscr);
 		});
 
-		blit(scrollbuf, framebuf, 0, 0, 0, playing_field_offset, 256, 168);
+		int mapscr_view_height = 168 + (global_z3_scrolling_extended_height_mode ? 56 : 0);
+		blit(scrollbuf, framebuf, 0, 0, 0, playing_field_offset, 256, mapscr_view_height);
 		do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
 
 		for_every_nearby_screen_during_scroll([&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
@@ -25100,7 +25102,9 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		}
 
 		bool showtime = game->get_timevalid() && !game->did_cheat() && get_bit(quest_rules,qr_TIME);
-		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, showtime, sspUP);
+		// TODO z3
+		if (!global_z3_scrolling_extended_height_mode)
+			put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, showtime, sspUP);
 		if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
 			do_primitives(framebuf, 7, newscr, 0, playing_field_offset);
 		

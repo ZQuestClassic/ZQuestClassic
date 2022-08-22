@@ -12,8 +12,9 @@ using namespace util;
 extern PALETTE RAMpal;
 extern bool update_hw_pal;
 
-bool global_z3_scrolling_extended_height_mode = true;
+bool global_z3_scrolling_extended_height_mode = !true;
 int32_t global_viewport_x = 0, global_viewport_y = 0;
+int32_t global_viewport_w = 176, global_viewport_h = 256;
 int32_t global_z3_cur_scr_drawing = -1;
 
 const char months[13][13] =

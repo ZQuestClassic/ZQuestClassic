@@ -244,25 +244,14 @@ void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, in
 		return;
 	}
 
-	int viewport_w = 256;
-	int viewport_h = 176;
-	viewport_x = hero_x - viewport_w/2;
-	viewport_y = hero_y - viewport_h/2 + viewport_y_offset;
-	
-	// TODO z3 this is quite a hack
-	// code is more complicated than it should be because even in extended height mode, y=0
-	// is still the row just under where the subscreen is painted. Should just change that.
-	if (global_z3_scrolling_extended_height_mode)
-	{
-		viewport_y += 32;
-		world_h -= 32;
-	}
+	global_viewport_w = 256;
+	global_viewport_h = global_z3_scrolling_extended_height_mode ? 240 : 176;
 	
 	// if (scr->flags&fMAZE) return;
 
 	// Clamp the viewport to the edges of the region.
-	viewport_x = CLAMP(0, world_w - viewport_w, viewport_x);
-	viewport_y = CLAMP(global_z3_scrolling_extended_height_mode ? 64 : 0, world_h - viewport_h, viewport_y);
+	viewport_x = CLAMP(0, world_w - global_viewport_w, hero_x - global_viewport_w/2);
+	viewport_y = CLAMP(0, world_h - global_viewport_h, hero_y - global_viewport_h/2 + viewport_y_offset);
 }
 
 void z3_update_viewport()
@@ -4146,9 +4135,9 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 			int offy = z3_get_region_relative_dy(scr) * 176;
 
 			if (offx - global_viewport_x <= -256) continue;
-			if (offy - global_viewport_y <= (global_z3_scrolling_extended_height_mode ? -240 : -176)) continue;
+			if (offy - global_viewport_y <= -176) continue;
 			if (offx - global_viewport_x >= 256) continue;
-			if (offy - global_viewport_y >= 176) continue;
+			if (offy - global_viewport_y >= (global_z3_scrolling_extended_height_mode ? 240 : 176)) continue;
 
 			fn(myscr, scr, offx, offy);
 		}
@@ -4532,7 +4521,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	//you have to do this, because do_layer calls overcombo, which doesn't respect the clipping rectangle, which messes up the triforce curtain. -DD
 	blit(framebuf, temp_buf, 0, 0, 0, 0, 256, 224);
 	
-	//5. Draw some layers onto temp_buf and scrollbuf
+	//5. Draw some layers onto temp_buf
 	
 	for_every_nearby_screen([&](mapscr* myscr, int screen_index, int offx, int offy) {
 		if(!XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
@@ -4624,7 +4613,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	masked_blit(framebuf, temp_buf, 0, 0, 0, 0, 256, 224);
 	
-	//9. Draw some layers onto temp_buf and scrollbuf
+	//9. Draw some layers onto temp_buf
 	
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
@@ -5960,8 +5949,6 @@ void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* screen)
 	
 	bool over = XOR(screen->flags7&fLAYER2BG,DMaps[currdmap].flags&dmfLAYER2BG)
 		|| XOR(screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG);
-
-	// if (global_z3_scrolling_extended_height_mode)
 
 	int start_x, end_x, start_y, end_y;
 	get_bounds_for_draw_cmb_calls(dest, x, y, start_x, end_x, start_y, end_y);

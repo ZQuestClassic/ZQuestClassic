@@ -5448,7 +5448,7 @@ void enter_sys_pal();
 void exit_sys_pal();
 
 extern bool global_z3_scrolling_extended_height_mode;
-extern int32_t global_viewport_x, global_viewport_y;
+extern int32_t global_viewport_x, global_viewport_y, global_viewport_w, global_viewport_h;
 extern int32_t global_z3_cur_scr_drawing;
 
 #undef cmb1
