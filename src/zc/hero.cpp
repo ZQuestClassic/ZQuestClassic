@@ -24573,7 +24573,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	double prev_y = y.getFloat();
 	int axis_alignment_amount = 0;
 	int new_viewport_x, new_viewport_y;
-	double new_hero_x, new_hero_y; 
+	double old_hero_x = x, old_hero_y = y;
+	double new_hero_x, new_hero_y;
 	{
 		int new_origin_scr, new_region_scr_width, new_region_scr_height, new_region_scr_dx, new_region_scr_dy, new_world_w, new_world_h;
 		z3_calculate_region(destdmap == -1 ? currdmap : destdmap, destscr, new_origin_scr, new_region_scr_width, new_region_scr_height, new_region_scr_dx, new_region_scr_dy, new_world_w, new_world_h);
@@ -24751,6 +24752,10 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	// 0 for align, then scroll.
 	// 1 for scroll, then align.
 	int align_mode = 1;
+
+	// For the duration of the scrolling, we use the old screen/region coordinates. This means that the new
+	// screens are drawn with offsets as if they were relative to the old coordinate system - this is handled
+	// within the calls to for_every_nearby_screen_during_scroll.
 	
 	for(word i = 0; (scroll_counter >= 0 && delay != 0) || align_counter; i++, scroll_counter--) //Go!
 	{
@@ -24869,16 +24874,12 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 				break;
 			}
 			
-			// TODO z3 do this in a better way that actually works
-			//bound Hero when me move him off the screen in the last couple of frames of scrolling
-			{
-				// if(y > world_h - 16) y = world_h - 16;
-				// if(y < 0)            y = 0;
-				// if(x > world_w - 16) x = world_w - 16;
-				// if(x < 0)            x = 0;
-			}
+			// bound Hero to screen edge, needed for the last couple of frames of scrolling.
+			int sch = 176 + (global_z3_scrolling_extended_height_mode ? 64 : 0);
+			x = vbound(x, old_hero_x - 256 + 16, old_hero_x + 256 - 16);
+			y = vbound(y, old_hero_y - sch + 16, old_hero_y + sch - 16);
 			
-			if(ladderx > 0 || laddery > 0)
+			if (ladderx > 0 || laddery > 0)
 			{
 				// If the ladder moves on both axes, the player can
 				// gradually shift it by going back and forth
