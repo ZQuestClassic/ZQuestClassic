@@ -3507,7 +3507,9 @@ void game_loop()
 		clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
 		clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
 		clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
-		
+
+		z3_update_viewport();
+		z3_update_currscr();
 		
 		// Three kinds of freezes: freeze, freezemsg, freezeff
 		
@@ -3828,8 +3830,7 @@ void game_loop()
 		
 		
 		
-		z3_update_viewport();
-		z3_update_currscr();
+
 		
 		#if LOGGAMELOOP > 0
 		al_trace("game_loop is calling: %s\n", "draw_screen()\n");

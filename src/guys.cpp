@@ -14950,8 +14950,8 @@ eAquamentus::eAquamentus(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Cl
 	//these are here to bypass compiler warnings about unused arguments
 	if ( !(editorflags & ENEMY_FLAG5) )
 	{
-		x = (x.getFloor()/256)*256 + (dmisc1 ? 64 : 176);
-		y = (y.getFloor()/176)*176 + 64;
+		x = (x.getInt()/256)*256 + (dmisc1 ? 64 : 176);
+		y = (y.getInt()/176)*176 + 64;
 	}
 	else { x = X; y = Y; }
 	
@@ -15029,7 +15029,7 @@ bool eAquamentus::animate(int32_t index)
 		clk3=32;
 	}
 	
-	int screen_x = x.getFloor()%256;
+	int screen_x = x.getInt()%256;
 	if(!((clk4+1)&63))
 	{
 		int32_t d2=(zc_oldrand()%3)+1;

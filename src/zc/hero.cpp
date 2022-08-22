@@ -23608,8 +23608,11 @@ void HeroClass::check_scroll_direction(direction dir)
 {
 	bool should_scroll = true;
 
-	if (dir == left || dir == right) x = CLAMP(0, world_w-16, (float)x);
-	if (dir == up  || dir == down)   y = CLAMP(0, world_h-16, (float)y);
+	if (dir == left)  x = 0;
+	if (dir == right) x = world_w - 16;
+	if (dir == up)    y = 0;
+	if (dir == down)  y = world_h - 16;
+	z3_update_currscr();
 
 	if((z > 0 || fakez > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
 		should_scroll = false;
@@ -23617,14 +23620,14 @@ void HeroClass::check_scroll_direction(direction dir)
 	if(nextcombo_wf(dir))
 		should_scroll = false;
 	
-	int dir_flag;
+	int dir_flag = 0;
 	if (dir == up)         dir_flag = wfUP;
 	else if (dir == down)  dir_flag = wfDOWN;
 	else if (dir == left)  dir_flag = wfLEFT;
 	else if (dir == right) dir_flag = wfRIGHT;
-	else return; // TODO z3
+	// else {} // TODO z3
 
-	mapscr* scr = get_screen_for_world_xy(x, y);
+	mapscr* scr = get_scr(currmap, currscr);
 
 	if(get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(scr->flags&fMAZE))&&action!=inwind &&action!=scrolling && !(scr->flags2&dir_flag))
 	{
@@ -23716,11 +23719,10 @@ void HeroClass::checkscroll()
 		direction advance_dir = dir_invalid;
 		if (scrolling_maze_mode == 0)
 		{
-			// Only check the direction hero is currently facing.
-			if (dir == right && x0%256 > 256-16) advance_dir = right;
-			if (dir == left && x0 < 0)           advance_dir = left;
-			if (dir == down && y0%176 > 176-16)  advance_dir = down;
-			if (dir == up && y0 < 0)             advance_dir = up;
+			if (x0%256 > 256-16) advance_dir = right;
+			if (x0 < 0)          advance_dir = left;
+			if (y0%176 > 176-16) advance_dir = down;
+			if (y0 < 0)          advance_dir = up;
 		}
 		else if (scrolling_maze_mode == 1)
 		{
@@ -24569,8 +24571,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	// Determine by how much we need to align to the new region's viewport.
 	// This sets `axis_alignment_amount` to the number of pixels needed to adjust along the secondary axis
 	// to move the old viewport to the new viewport.
-	double prev_x = x.getFloat();
-	double prev_y = y.getFloat();
+	int prev_x = x.getInt();
+	int prev_y = y.getInt();
 	int axis_alignment_amount = 0;
 	int new_viewport_x, new_viewport_y;
 	double old_hero_x = x, old_hero_y = y;
@@ -24618,6 +24620,9 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 				new_hero_y = y;
 			}
 		}
+
+		new_hero_x = vbound(new_hero_x, 0., (double)new_world_w-16);
+		// new_hero_y = vbound(new_hero_y, 0., (double)new_world_h-16);
 
 		int old_viewport_x = global_viewport_x;
 		int old_viewport_y = global_viewport_y;
@@ -24946,10 +24951,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		// Draw screens' background layer primitives together, after their layers' combos.
 		// Not ideal, but probably good enough for all realistic purposes.
 		// Note: Not drawing for every screen because the old scrolling code only did this for the new screen...
-		{
-			if(XOR(any_screen_layer2bg, DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, 0, 0);
-			if(XOR(any_screen_layer3bg, DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, 0, 0);
-		}
+		if(XOR(any_screen_layer2bg, DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, 0, 0);
+		if(XOR(any_screen_layer3bg, DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, 0, 0);
 
 		for_every_nearby_screen_during_scroll([&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
 			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;

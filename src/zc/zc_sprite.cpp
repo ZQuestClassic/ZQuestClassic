@@ -217,7 +217,7 @@ void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
     endy=y=by;
     dir=d2;
     oldflag=f;
-	rpos_t rpos = COMBOPOS_REGION(x.getFloor(), y.getFloor());
+	rpos_t rpos = COMBOPOS_REGION(x.getInt(), y.getInt());
 	size_t combopos = RPOS_TO_POS(rpos);
 	auto pos_handle = get_pos_handle(rpos, blockLayer);
 	mapscr *m = pos_handle.screen;

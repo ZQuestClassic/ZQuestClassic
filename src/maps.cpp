@@ -261,8 +261,8 @@ void z3_update_viewport()
 
 void z3_update_currscr()
 {
-	int dx = Hero.getX().getFloor() / 256;
-	int dy = Hero.getY().getFloor() / 176;
+	int dx = Hero.getX().getInt() / 256;
+	int dy = Hero.getY().getInt() / 176;
 	int newscr = z3_origin_screen_index + dx + dy * 16;
 	if (dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_current_region(newscr))
 	{
