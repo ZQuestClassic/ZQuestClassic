@@ -24587,14 +24587,14 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		{
 			case up:
 			{
-				new_hero_x = new_region_scr_dx*256 + fmod(prev_x, 256);
+				new_hero_x = new_region_scr_dx*256 + prev_x%256;
 				new_hero_y = new_world_h - 16;
 			}
 			break;
 			
 			case down:
 			{
-				new_hero_x = new_region_scr_dx*256 + fmod(prev_x, 256);
+				new_hero_x = new_region_scr_dx*256 + prev_x%256;
 				new_hero_y = 0;
 			}
 			break;
@@ -24602,14 +24602,14 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			case left:
 			{
 				new_hero_x = new_world_w - 16;
-				new_hero_y = new_region_scr_dy*176 + fmod(prev_y, 176);
+				new_hero_y = new_region_scr_dy*176 + prev_y%176;
 			}
 			break;
 			
 			case right:
 			{
 				new_hero_x = 0;
-				new_hero_y = new_region_scr_dy*176 + fmod(prev_y, 176);
+				new_hero_y = new_region_scr_dy*176 + prev_y%176;
 			}
 			break;
 
