@@ -5374,8 +5374,8 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 				break;
 			}
 			
-			int tmp = screen_index == currscr ? 0 : 1;
-			putdoor(scrollbuf,tmp,i,base_screen->door[i],false);
+			// int tmp = screen_index == currscr ? 0 : 1;
+			// putdoor(scrollbuf,tmp,i,base_screen->door[i],false);
 			
 			if(door==dSHUTTER||door==d1WAYSHUTTER)
 			{
@@ -5391,6 +5391,8 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 // Note: for regions, only the initial screen load calls this function. Simply walking between screens
 // in the same region does not use this, because every screen in a region is loaded into temporary memory up front.
 // If scr >= 0x80, `currscr` will be saved to `homescr` and also be loaded into `special_warp_return_screen`.
+// If overlay is true, the old tmpscr combos will be copied to the new tmpscr combos on all layers (but only where
+// the new screen has a 0 combo).
 void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_x80_dir)
 {
 	if (destdmap < 0 ? currdmap : destdmap) destdmap = currdmap;
@@ -5422,6 +5424,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 }
 
 // Don't use this directly!
+// TODO z3 delete me!
 void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay=false)
 {
 	bool is_setting_special_warp_return_screen = tmp == 1;
