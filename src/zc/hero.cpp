@@ -24880,7 +24880,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			}
 			
 			// bound Hero to screen edge, needed for the last couple of frames of scrolling.
-			int sch = 176 + (global_z3_scrolling_extended_height_mode ? 64 : 0);
+			int sch = 176 + (global_z3_scrolling_extended_height_mode ? 56 : 0);
 			x = vbound(x, old_hero_x - 256 + 16, old_hero_x + 256 - 16);
 			y = vbound(y, old_hero_y - sch + 16, old_hero_y + sch - 16);
 			

@@ -245,7 +245,7 @@ void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, in
 	}
 
 	global_viewport_w = 256;
-	global_viewport_h = global_z3_scrolling_extended_height_mode ? 240 : 176;
+	global_viewport_h = 176 + (global_z3_scrolling_extended_height_mode ? 56 : 0);
 	
 	// if (scr->flags&fMAZE) return;
 
