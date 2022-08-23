@@ -4545,11 +4545,6 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		}
 	});
 	
-	if (!global_z3_scrolling_extended_height_mode)
-	{
-		rectfill(temp_buf, 0, 0, 256, playing_field_offset, 0);
-	}
-	
 	particles.draw(temp_buf, true, -1);
 	
 	//6. Blit temp_buf onto framebuf with clipping
