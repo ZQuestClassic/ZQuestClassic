@@ -1775,8 +1775,8 @@ void close_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
     }
     
     black_opening_count = 66;
-    black_opening_x = x - global_viewport_x;
-    black_opening_y = y - global_viewport_y;
+    black_opening_x = x - viewport.x;
+    black_opening_y = y - viewport.y;
     lensclk = 0;
     //black_opening_shape=(black_opening_shape+1)%bosMAX;
     
@@ -1822,8 +1822,8 @@ void open_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
     
     black_opening_count = -66;
 
-    black_opening_x = x - global_viewport_x;
-    black_opening_y = y - global_viewport_y;
+    black_opening_x = x - viewport.x;
+    black_opening_y = y - viewport.y;
     lensclk = 0;
     if(black_opening_shape == bosFADEBLACK)
 	{
@@ -4100,8 +4100,8 @@ int32_t onSaveMapPic()
 		return D_O_K;;
 	}
 
-    global_viewport_x = 0;
-	global_viewport_y = 0;
+    viewport.x = 0;
+	viewport.y = 0;
 	
 	// draw the map
 	set_clip_rect(_screen_draw_buffer, 0, 0, _screen_draw_buffer->w, _screen_draw_buffer->h);

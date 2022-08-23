@@ -61,8 +61,6 @@ extern HeroClass Hero;
 
 static std::map<int, std::vector<mapscr*>> temporary_screens;
 static mapscr* temporary_screens_currmap[136*7] = {nullptr};
-int viewport_x, viewport_y;
-int viewport_y_offset;
 int world_w, world_h;
 static int z3_origin_screen_index;
 int region_scr_dx, region_scr_dy;
@@ -235,28 +233,26 @@ void z3_clear_temporary_screens()
 	}
 }
 
-void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, int hero_y, int& viewport_x, int& viewport_y)
+void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, int hero_y, viewport_t& viewport)
 {
 	if (!is_z3_scrolling_mode())
 	{
-		viewport_x = 0;
-		viewport_y = 0;
+		viewport.x = 0;
+		viewport.y = 0;
 		return;
 	}
 
-	global_viewport_w = 256;
-	global_viewport_h = 176 + (global_z3_scrolling_extended_height_mode ? 56 : 0);
-	
-	// if (scr->flags&fMAZE) return;
+	viewport.w = 256;
+	viewport.h = 176 + (global_z3_scrolling_extended_height_mode ? 56 : 0);
 
 	// Clamp the viewport to the edges of the region.
-	viewport_x = CLAMP(0, world_w - global_viewport_w, hero_x - global_viewport_w/2);
-	viewport_y = CLAMP(0, world_h - global_viewport_h, hero_y - global_viewport_h/2 + viewport_y_offset + 16);
+	viewport.x = CLAMP(0, world_w - viewport.w, hero_x - viewport.w/2);
+	viewport.y = CLAMP(0, world_h - viewport.h, hero_y - viewport.h/2 + viewport.yofs + 16);
 }
 
 void z3_update_viewport()
 {
-	z3_calculate_viewport(&tmpscr, world_w, world_h, Hero.getX(), Hero.getY(), global_viewport_x, global_viewport_y);
+	z3_calculate_viewport(&tmpscr, world_w, world_h, Hero.getX(), Hero.getY(), viewport);
 }
 
 void z3_update_currscr()
@@ -3479,8 +3475,8 @@ static void get_bounds_for_draw_cmb_calls(BITMAP* bmp, int x, int y, int& start_
 void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int32_t layer, mapscr* basescr, int32_t x, int32_t y, bool scrolling, int32_t tempscreen)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
-	x += global_viewport_x;
-	y += global_viewport_y;
+	x += viewport.x;
+	y += viewport.y;
 
 	mapscr const* tmp = NULL;
 	if (!is_z3_scrolling_mode())
@@ -3760,10 +3756,10 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 	
 	for(int32_t i=0; i<4; i++)
 	{
-		int32_t tx=((i&2)<<2)+xx - global_viewport_x;
-		int32_t ty=((i&1)<<3)+yy - global_viewport_y;
-		int32_t tx2=((i&2)<<2)+x - global_viewport_x;
-		int32_t ty2=((i&1)<<3)+y - global_viewport_y;
+		int32_t tx=((i&2)<<2)+xx - viewport.x;
+		int32_t ty=((i&1)<<3)+yy - viewport.y;
+		int32_t tx2=((i&2)<<2)+x - viewport.x;
+		int32_t ty2=((i&1)<<3)+y - viewport.y;
 		for (int32_t j = lyr-1; j <= 1; j++)
 		{
 			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
@@ -3832,8 +3828,8 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 				for(int32_t j=0; j<16; j+=2)
 				if(((k+j)/2)%2)
 				{
-					int32_t x0 = x - global_viewport_x;
-					int32_t y0 = y - global_viewport_y;
+					int32_t x0 = x - viewport.x;
+					int32_t y0 = y - viewport.y;
 					rectfill(dest,x0+k,y0+j,x0+k+1,y0+j+1,color);
 				}
 		}
@@ -3843,8 +3839,8 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 			{
 				if (!(bridgedetected & (1<<i)))
 				{
-					int32_t tx=((i&2)<<2)+x - global_viewport_x;
-					int32_t ty=((i&1)<<3)+y - global_viewport_y;
+					int32_t tx=((i&2)<<2)+x - viewport.x;
+					int32_t ty=((i&1)<<3)+y - viewport.y;
 					for(int32_t k=0; k<8; k+=2)
 						for(int32_t j=0; j<8; j+=2)
 							if((k+j)%4 < 2) rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,color);
@@ -3863,10 +3859,10 @@ void put_effectflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs,
 	
 	for(int32_t i=0; i<4; i++)
 	{
-		int32_t tx=((i&2)<<2)+xx - global_viewport_x;
-		int32_t ty=((i&1)<<3)+yy - global_viewport_y;
-		int32_t tx2=((i&2)<<2)+x - global_viewport_x;
-		int32_t ty2=((i&1)<<3)+y - global_viewport_y;
+		int32_t tx=((i&2)<<2)+xx - viewport.x;
+		int32_t ty=((i&1)<<3)+yy - viewport.y;
+		int32_t tx2=((i&2)<<2)+x - viewport.x;
+		int32_t ty2=((i&1)<<3)+y - viewport.y;
 	
 		if(((c.walk>>4)&(1<<i)) && c.type != cNONE)
 		{
@@ -4134,10 +4130,10 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 			int offx = z3_get_region_relative_dx(scr) * 256;
 			int offy = z3_get_region_relative_dy(scr) * 176;
 
-			if (offx - global_viewport_x <= -256) continue;
-			if (offy - global_viewport_y <= -176) continue;
-			if (offx - global_viewport_x >= 256) continue;
-			if (offy - global_viewport_y >= (global_z3_scrolling_extended_height_mode ? 240 : 176)) continue;
+			if (offx - viewport.x <= -256) continue;
+			if (offy - viewport.y <= -176) continue;
+			if (offx - viewport.x >= 256) continue;
+			if (offy - viewport.y >= (global_z3_scrolling_extended_height_mode ? 240 : 176)) continue;
 
 			fn(myscr, scr, offx, offy);
 		}
@@ -4273,13 +4269,13 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 			int32_t ccx = (int32_t)Hero.getClimbCoverX();
 			int32_t ccy = (int32_t)Hero.getClimbCoverY();
 			
-			overcombo(scrollbuf,ccx-global_viewport_x,ccy+cmby2+playing_field_offset-global_viewport_y,MAPCOMBO(ccx,ccy+cmby2),MAPCSET(ccx,ccy+cmby2));
-			putcombo(scrollbuf,ccx-global_viewport_x,ccy+playing_field_offset-global_viewport_y,MAPCOMBO(ccx,ccy),MAPCSET(ccx,ccy));
+			overcombo(scrollbuf,ccx-viewport.x,ccy+cmby2+playing_field_offset-viewport.y,MAPCOMBO(ccx,ccy+cmby2),MAPCSET(ccx,ccy+cmby2));
+			putcombo(scrollbuf,ccx-viewport.x,ccy+playing_field_offset-viewport.y,MAPCOMBO(ccx,ccy),MAPCSET(ccx,ccy));
 			
 			if(int32_t(Hero.getX())&15)
 			{
-				overcombo(scrollbuf,ccx+16-global_viewport_x,ccy+cmby2+playing_field_offset-global_viewport_y,MAPCOMBO(ccx+16,ccy+cmby2),MAPCSET(ccx+16,ccy+cmby2));
-				putcombo(scrollbuf,ccx+16-global_viewport_x,ccy+playing_field_offset-global_viewport_y,MAPCOMBO(ccx+16,ccy),MAPCSET(ccx+16,ccy));
+				overcombo(scrollbuf,ccx+16-viewport.x,ccy+cmby2+playing_field_offset-viewport.y,MAPCOMBO(ccx+16,ccy+cmby2),MAPCSET(ccx+16,ccy+cmby2));
+				putcombo(scrollbuf,ccx+16-viewport.x,ccy+playing_field_offset-viewport.y,MAPCOMBO(ccx+16,ccy),MAPCSET(ccx+16,ccy));
 			}
 		}
 	}
@@ -4319,13 +4315,13 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 			int32_t ccx = (int32_t)(Hero.getClimbCoverX());
 			int32_t ccy = (int32_t)(Hero.getClimbCoverY());
 			
-			overcombo(scrollbuf,ccx-global_viewport_x,ccy+cmby2+playing_field_offset-global_viewport_y,MAPCOMBO(ccx,ccy+cmby2),MAPCSET(ccx,ccy+cmby2));
-			putcombo(scrollbuf,ccx-global_viewport_x,ccy+playing_field_offset-global_viewport_y,MAPCOMBO(ccx,ccy),MAPCSET(ccx,ccy));
+			overcombo(scrollbuf,ccx-viewport.x,ccy+cmby2+playing_field_offset-viewport.y,MAPCOMBO(ccx,ccy+cmby2),MAPCSET(ccx,ccy+cmby2));
+			putcombo(scrollbuf,ccx-viewport.x,ccy+playing_field_offset-viewport.y,MAPCOMBO(ccx,ccy),MAPCSET(ccx,ccy));
 			
 			if(int32_t(Hero.getX())&15)
 			{
-				overcombo(scrollbuf,ccx+16-global_viewport_x,ccy+cmby2+playing_field_offset-global_viewport_y,MAPCOMBO(ccx+16,ccy+cmby2),MAPCSET(ccx+16,ccy+cmby2));
-				putcombo(scrollbuf,ccx+16-global_viewport_x,ccy+playing_field_offset-global_viewport_y,MAPCOMBO(ccx+16,ccy),MAPCSET(ccx+16,ccy));
+				overcombo(scrollbuf,ccx+16-viewport.x,ccy+cmby2+playing_field_offset-viewport.y,MAPCOMBO(ccx+16,ccy+cmby2),MAPCSET(ccx+16,ccy+cmby2));
+				putcombo(scrollbuf,ccx+16-viewport.x,ccy+playing_field_offset-viewport.y,MAPCOMBO(ccx+16,ccy),MAPCSET(ccx+16,ccy));
 			}
 		}
 	}
@@ -5934,8 +5930,8 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* screen)
 {
 	int scr = get_screen_index_for_world_xy(x, y);
-	x -= global_viewport_x;
-	y -= global_viewport_y;
+	x -= viewport.x;
+	y -= viewport.y;
 
 	if(screen->valid==0||!show_layer_0||screen->hidelayers & 1)
 	{
@@ -7134,8 +7130,8 @@ void ViewMap()
 	// draw the map
 	set_clip_rect(scrollbuf_old, 0, 0, scrollbuf_old->w, scrollbuf_old->h);
 
-	global_viewport_x = 0;
-	global_viewport_y = 0;
+	viewport.x = 0;
+	viewport.y = 0;
 	
 	for(int32_t y=0; y<8; y++)
 	{

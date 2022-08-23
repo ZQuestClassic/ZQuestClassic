@@ -4361,8 +4361,8 @@ void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest,BITMAP* 
 {
 	if(!glowRad) return;
 
-	cx -= global_viewport_x;
-	cy -= global_viewport_y;
+	cx -= viewport.x;
+	cy -= viewport.y;
 
 	//Default bitmap handling
 	if(!dest) dest = darkscr_bmp_curscr;
@@ -4381,8 +4381,8 @@ void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* d
 {
 	if(!glowRad) return;
 
-	sx -= global_viewport_x;
-	sy -= global_viewport_y;
+	sx -= viewport.x;
+	sy -= viewport.y;
 
 	//Default bitmap handling
 	if(!dest) dest = darkscr_bmp_curscr;

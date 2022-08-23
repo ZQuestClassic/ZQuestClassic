@@ -1600,12 +1600,12 @@ void HeroClass::draw_under(BITMAP* dest)
     {
         if(((dir==left) || (dir==right)) && (get_bit(quest_rules,qr_RLFIX)))
         {
-            overtile16(dest, itemsbuf[c_raft].tile, x - global_viewport_x, y+playing_field_offset+4 - global_viewport_y,
+            overtile16(dest, itemsbuf[c_raft].tile, x - viewport.x, y+playing_field_offset+4 - viewport.y,
                        itemsbuf[c_raft].csets&15, rotate_value((itemsbuf[c_raft].misc_flags>>2)&3)^3);
         }
         else
         {
-            overtile16(dest, itemsbuf[c_raft].tile, x - global_viewport_x, y+playing_field_offset+4 - global_viewport_y,
+            overtile16(dest, itemsbuf[c_raft].tile, x - viewport.x, y+playing_field_offset+4 - viewport.y,
                        itemsbuf[c_raft].csets&15, (itemsbuf[c_raft].misc_flags>>2)&3);
         }
     }
@@ -1614,12 +1614,12 @@ void HeroClass::draw_under(BITMAP* dest)
     {
         if((ladderdir>=left) && (get_bit(quest_rules,qr_RLFIX)))
         {
-            overtile16(dest, itemsbuf[c_ladder].tile, ladderx - global_viewport_x, laddery+playing_field_offset - global_viewport_y,
+            overtile16(dest, itemsbuf[c_ladder].tile, ladderx - viewport.x, laddery+playing_field_offset - viewport.y,
                        itemsbuf[c_ladder].csets&15, rotate_value((itemsbuf[c_ladder].misc_flags>>2)&3)^3);
         }
         else
         {
-            overtile16(dest, itemsbuf[c_ladder].tile, ladderx - global_viewport_x, laddery+playing_field_offset - global_viewport_y,
+            overtile16(dest, itemsbuf[c_ladder].tile, ladderx - viewport.x, laddery+playing_field_offset - viewport.y,
                        itemsbuf[c_ladder].csets&15, (itemsbuf[c_ladder].misc_flags>>2)&3);
         }
     }
@@ -3935,7 +3935,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		{
 			int x, y;
 			COMBOXY_REGION(rpos, x, y);
-			putcombo(scrollbuf, x - global_viewport_x, y - global_viewport_y, s->data[i], s->cset[i]);
+			putcombo(scrollbuf, x - viewport.x, y - viewport.y, s->data[i], s->cset[i]);
 		}
 		
 		if(get_bit(quest_rules,qr_MORESOUNDS))
@@ -5384,9 +5384,9 @@ void HeroClass::check_pound_block(int32_t bx, int32_t by)
         
 		// int x, y;
 		// COMBOXY_REGION(rpos, x, y);
-		// x -= global_viewport_x;
-		// y -= global_viewport_y;
-        putcombo(scrollbuf, bx - global_viewport_x, by - global_viewport_y, s->data[pos], s->cset[pos]);
+		// x -= viewport.x;
+		// y -= viewport.y;
+        putcombo(scrollbuf, bx - viewport.x, by - viewport.y, s->data[pos], s->cset[pos]);
     }
     
     if(!ignoreffc)
@@ -19758,11 +19758,11 @@ void HeroClass::handleSpotlights()
 			if(id > 0) //tile
 			{
 				//Draw 'tile' at 'pos'
-				overtile16(lightbeam_bmp, tile+offs, COMBOX_REGION_EXTENDED(pos)-global_viewport_x, COMBOY_REGION_EXTENDED(pos)-global_viewport_y, cs, 0);
+				overtile16(lightbeam_bmp, tile+offs, COMBOX_REGION_EXTENDED(pos)-viewport.x, COMBOY_REGION_EXTENDED(pos)-viewport.y, cs, 0);
 			}
 			else //colors
 			{
-				masked_blit(cbmp, lightbeam_bmp, offs*16, 0, COMBOX_REGION_EXTENDED(pos)-global_viewport_x, COMBOY_REGION_EXTENDED(pos)-global_viewport_y, 16, 16);
+				masked_blit(cbmp, lightbeam_bmp, offs*16, 0, COMBOX_REGION_EXTENDED(pos)-viewport.x, COMBOY_REGION_EXTENDED(pos)-viewport.y, 16, 16);
 			}
 		}
 		//
@@ -23126,7 +23126,7 @@ void HeroClass::walkdown(bool opening) //entering cave
     Ewpns.clear();
     items.clear();
     
-	viewport_y_offset = 0;
+	viewport.yofs = 0;
     for(int32_t i=0; i<64; i++)
     {
         herostep();
@@ -23137,7 +23137,7 @@ void HeroClass::walkdown(bool opening) //entering cave
         if((i&3)==3)
 		{
             ++y;
-			--viewport_y_offset;
+			--viewport.yofs;
 		}
 
         draw_screen(&tmpscr);
@@ -23146,7 +23146,7 @@ void HeroClass::walkdown(bool opening) //entering cave
         if(Quit)
             break;
     }
-	viewport_y_offset = 0;
+	viewport.yofs = 0;
     
     action=none; FFCore.setHeroAction(none);
 }
@@ -23186,7 +23186,7 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
     Ewpns.clear();
     items.clear();
     
-	viewport_y_offset = 16;
+	viewport.yofs = 16;
     for(int32_t i=0; i<64; i++)
     {
         herostep();
@@ -23197,7 +23197,7 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
         if((i&3)==3)
 		{
             ++y;
-			--viewport_y_offset;
+			--viewport.yofs;
 		}
             
         draw_screen(&tmpscr);
@@ -23206,7 +23206,7 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
         if(Quit)
             break;
     }
-	viewport_y_offset = 0;
+	viewport.yofs = 0;
     
     action=none; FFCore.setHeroAction(none);
 }
@@ -23246,7 +23246,7 @@ void HeroClass::walkup(bool opening) //exiting cave
     Ewpns.clear();
     items.clear();
     
-	viewport_y_offset = -16;
+	viewport.yofs = -16;
     for(int32_t i=0; i<64; i++)
     {
         herostep();
@@ -23257,7 +23257,7 @@ void HeroClass::walkup(bool opening) //exiting cave
         if((i&3)==0)
 		{
             --y;
-			++viewport_y_offset;
+			++viewport.yofs;
 		}
             
         draw_screen(&tmpscr);
@@ -23266,7 +23266,7 @@ void HeroClass::walkup(bool opening) //exiting cave
         if(Quit)
             break;
     }
-	viewport_y_offset = 0;
+	viewport.yofs = 0;
     map_bkgsfx(true);
     loadside=dir^1;
     action=none; FFCore.setHeroAction(none);
@@ -24574,7 +24574,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	int prev_x = x.getInt();
 	int prev_y = y.getInt();
 	int axis_alignment_amount = 0;
-	int new_viewport_x, new_viewport_y;
 	double old_hero_x = x, old_hero_y = y;
 	double new_hero_x, new_hero_y;
 	{
@@ -24621,20 +24620,20 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			}
 		}
 
+		// TODO z3 !
 		new_hero_x = vbound(new_hero_x, 0., (double)new_world_w-16);
 		// new_hero_y = vbound(new_hero_y, 0., (double)new_world_h-16);
 
-		int old_viewport_x = global_viewport_x;
-		int old_viewport_y = global_viewport_y;
+		viewport_t new_viewport;
+		z3_calculate_viewport(&tmpscr, new_world_w, new_world_h, new_hero_x, new_hero_y, new_viewport);
+
 		int old_origin_scr = z3_get_origin_scr();
 		int old_origin_scr_x = old_origin_scr % 16;
 		int old_origin_scr_y = old_origin_scr / 16;
-		z3_calculate_viewport(&tmpscr, new_world_w, new_world_h, new_hero_x, new_hero_y, new_viewport_x, new_viewport_y);
-
-		int old_hero_screen_x = x.getInt() - old_viewport_x;
-		int old_hero_screen_y = y.getInt() - old_viewport_y;
-		int new_hero_screen_x = new_hero_x - new_viewport_x;
-		int new_hero_screen_y = new_hero_y - new_viewport_y;
+		int old_hero_screen_x = x.getInt() - viewport.x;
+		int old_hero_screen_y = y.getInt() - viewport.y;
+		int new_hero_screen_x = new_hero_x - new_viewport.x;
+		int new_hero_screen_y = new_hero_y - new_viewport.y;
 		if (dx)      axis_alignment_amount = new_hero_screen_y - old_hero_screen_y;
 		else if (dy) axis_alignment_amount = new_hero_screen_x - old_hero_screen_x;
 		else         axis_alignment_amount = 0;
@@ -25083,8 +25082,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 				int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256;
 				int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176;
-				int dx = sx + offx - global_viewport_x;
-				int dy = sy + offy + playing_field_offset - global_viewport_y;
+				int dx = sx + offx - viewport.x;
+				int dy = sy + offy + playing_field_offset - viewport.y;
 				
 				calc_darkroom_combos2(scr, offx, offy);
 
@@ -25120,8 +25119,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 				int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256;
 				int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176;
-				int dx = sx + offx - global_viewport_x;
-				int dy = sy + offy + playing_field_offset - global_viewport_y;
+				int dx = sx + offx - viewport.x;
+				int dy = sy + offy + playing_field_offset - viewport.y;
 
 				if(myscr->flags9 & fDARK_DITHER) //dither the entire bitmap
 				{

@@ -1154,8 +1154,8 @@ void sprite::draw(BITMAP* dest)
 	int32_t sy = real_y(y+yofs)-real_z(z+zofs);
 	sy -= fake_z(fakez);
 	
-	sx -= global_viewport_x;
-	sy -= global_viewport_y;
+	sx -= viewport.x;
+	sy -= viewport.y;
 
 #ifndef IS_ZQUEST
 	// TODO get actual size
@@ -1601,8 +1601,8 @@ void sprite::drawzcboss(BITMAP* dest)
     int32_t sy = real_y(y+yofs)-real_z(z+zofs);
     sy -= fake_z(fakez);
 
-	sx -= global_viewport_x;
-	sy -= global_viewport_y;
+	sx -= viewport.x;
+	sy -= viewport.y;
     
     if(id<0)
         return;
@@ -1956,8 +1956,8 @@ void sprite::drawzcboss(BITMAP* dest)
 
 void sprite::draw8(BITMAP* dest)
 {
-    int32_t sx = real_x(x+xofs) - global_viewport_x;
-    int32_t sy = real_y(y+yofs)-real_z(z+zofs) - global_viewport_y;
+    int32_t sx = real_x(x+xofs) - viewport.x;
+    int32_t sy = real_y(y+yofs)-real_z(z+zofs) - viewport.y;
 	sy -= fake_z(fakez);
     
     if(id<0)
@@ -1980,8 +1980,8 @@ void sprite::draw8(BITMAP* dest)
 
 void sprite::drawcloaked(BITMAP* dest)
 {
-    int32_t sx = real_x(x+xofs) - global_viewport_x;
-    int32_t sy = real_y(y+yofs)-real_z(z+zofs) - global_viewport_y;
+    int32_t sx = real_x(x+xofs) - viewport.x;
+    int32_t sy = real_y(y+yofs)-real_z(z+zofs) - viewport.y;
     sy -= fake_z(fakez);
     
     if(id<0)
@@ -2042,8 +2042,8 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
 		return;
 	}
 	
-	int32_t sx = real_x(x+xofs+shadowxofs)+(txsz-1)*8 - global_viewport_x;
-	int32_t sy = real_y(y+yofs+shadowyofs)+(tysz-1)*16 - global_viewport_y;
+	int32_t sx = real_x(x+xofs+shadowxofs)+(txsz-1)*8 - viewport.x;
+	int32_t sy = real_y(y+yofs+shadowyofs)+(tysz-1)*16 - viewport.y;
 	//int32_t sy1 = sx-56; //subscreen offset
 	//if ( ispitfall(x+xofs, y+yofs+16) || ispitfall(x+xofs+8, y+yofs+16) || ispitfall(x+xofs+15, y+yofs+16)  ) return;
 	//sWTF, why is this offset by half the screen. Can't do this right now. Sanity. -Z
@@ -2689,7 +2689,7 @@ void movingblock::draw(BITMAP *dest)
     else if(clk)
     {
         //    sprite::draw(dest);
-        overcombo(dest,real_x(x+xofs)-global_viewport_x,real_y(y+yofs)-global_viewport_y,bcombo ,cs);
+        overcombo(dest,real_x(x+xofs)-viewport.x,real_y(y+yofs)-viewport.y,bcombo ,cs);
     }
 }
 

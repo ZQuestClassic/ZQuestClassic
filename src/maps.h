@@ -57,11 +57,16 @@ extern bool triggered_screen_secrets;
 // How large the current region is in pixels. If not currently in z3 scrolling mode, this is just the size
 // of a single screen (256, 176).
 extern int world_w, world_h;
-// The camera offset in the above world-space coordinates. If not currently in z3 scrolling mode,
-// this is just 0. Otherwise it attempts to center the hero in the middle of the camera, snapping
-// to the region edges.
-extern int viewport_x, viewport_y;
-extern int viewport_y_offset;
+// The "camera" in the above world-space coordinates.
+// viewport.x and viewport.y are the world-point to draw in the top-left corner of the screen.
+// In region mode, x and y are set such that the hero in the middle of the screen when possible, snapping
+// to the region edges when not.
+//
+// If not currently in z3 scrolling mode:
+//  - x, y is 0
+//  - w, h is 256, 176
+// this is just 0.
+extern viewport_t viewport;
 // The screen offset from the region origin that the hero is currently standing in. If not currently
 // in z3 scrolling mode, this is just 0.
 extern int region_scr_dx, region_scr_dy;
@@ -82,7 +87,7 @@ int get_region_id(int dmap, int screen_index);
 void z3_calculate_region(int dmap, int screen_index, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h);
 void z3_load_region();
 void z3_clear_temporary_screens();
-void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, int hero_y, int& viewport_x, int& viewport_y);
+void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, int hero_y, viewport_t& viewport);
 void z3_update_viewport();
 void z3_update_currscr();
 bool edge_of_region(direction dir);

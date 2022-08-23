@@ -233,7 +233,7 @@ void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
     *ci = m->undercset;
 	// TODO z3
 	FFCore.reset_combo_script(blockLayer, combopos);
-    putcombo(scrollbuf,x-global_viewport_x,y-global_viewport_y,*di,*ci);
+    putcombo(scrollbuf,x-viewport.x,y-viewport.y,*di,*ci);
     clk=32;
     blockmoving=true;
 }

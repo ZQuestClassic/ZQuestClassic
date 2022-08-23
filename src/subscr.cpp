@@ -3311,8 +3311,8 @@ item* get_subscreenitem(int32_t itemtype)
 
 void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype)
 {
-    x += global_viewport_x;
-    y += global_viewport_y;
+    x += viewport.x;
+    y += viewport.y;
     
     // We need to do a reverse loop to prevent the Bow from being drawn above the Arrow (Bow & Arrow).
     int32_t overridecheck = 0xFFFF;
@@ -4220,8 +4220,8 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 						if(p!=-1)
 						{
 							// TODO z3 verify
-							tempsel->x=global_viewport_x;
-							tempsel->y=global_viewport_y;
+							tempsel->x=viewport.x;
+							tempsel->y=viewport.y;
 							int32_t tmpx = css->objects[p].x+xofs+(big_sel?(j%2?8:-8):0);
 							int32_t tmpy = css->objects[p].y+yofs+(big_sel?(j>1?8:-8):0);
 							tempsel->tile+=(zc_max(itemsbuf[tempsel->id].frames,1)*j);
@@ -4275,8 +4275,8 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 
 void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
 {
-    x += global_viewport_x;
-    y += global_viewport_y;
+    x += viewport.x;
+    y += viewport.y;
 
     switch(button)
     {

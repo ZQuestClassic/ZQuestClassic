@@ -7342,8 +7342,8 @@ void weapon::draw(BITMAP *dest)
 						++tile;
 				}
 				
-				int beam_x = x - global_viewport_x;
-				int beam_y = y + playing_field_offset - global_viewport_y;
+				int beam_x = x - viewport.x;
+				int beam_y = y + playing_field_offset - viewport.y;
 				if(!type2 || type2 == 4 || f==0 || (type2>1 && f==3)) overtile16(dest,tile,beam_x-2-ofs,beam_y-2-ofs-(z+zofs)-fakez,cs,0);
 				
 				if(!type2 || type2 == 4 || f==2 || (type2>1 && f==1)) overtile16(dest,tile,beam_x+2+ofs,beam_y-2-ofs-(z+zofs)-fakez,cs,1);
@@ -7425,8 +7425,8 @@ void weapon::draw(BITMAP *dest)
 				}
 			}
 			
-			int x0 = x - global_viewport_x;
-			int y0 = y - global_viewport_y;
+			int x0 = x - viewport.x;
+			int y0 = y - viewport.y;
 			overtile16(dest,tile,x0+((clk&1)?7:-7),y0+yofs-fakez-13-(z+zofs),cs,0);
 			overtile16(dest,tile,x0,y0+yofs-fakez-(z+zofs),cs,0);
 			overtile16(dest,tile,x0+((clk&1)?-14:14),y0+yofs-fakez-(z+zofs),cs,0);

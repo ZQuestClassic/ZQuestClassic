@@ -5379,6 +5379,15 @@ struct pos_handle
 	rpos_t rpos;
 };
 
+struct viewport_t
+{
+	int32_t x;
+	int32_t y;
+	int32_t w;
+	int32_t h;
+	int32_t yofs;
+};
+
 enum //Mapscr hardcodes for temp mapscrs
 {
 	MAPSCR_SCROLL6 = -14,
@@ -5447,7 +5456,7 @@ void enter_sys_pal();
 void exit_sys_pal();
 
 extern bool global_z3_scrolling_extended_height_mode;
-extern int32_t global_viewport_x, global_viewport_y, global_viewport_w, global_viewport_h;
+extern viewport_t viewport;
 extern int32_t global_z3_cur_scr_drawing;
 
 #undef cmb1

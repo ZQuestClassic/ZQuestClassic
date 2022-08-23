@@ -11017,8 +11017,8 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 			isTargetOffScreenBmp = true;
 		}
 
-		xoffset -= global_viewport_x;
-		yoffset -= global_viewport_y;
+		xoffset -= viewport.x;
+		yoffset -= viewport.y;
 		
 		switch(sdci[0])
 		{
