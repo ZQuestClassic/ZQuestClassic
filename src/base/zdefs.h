@@ -5374,7 +5374,7 @@ struct pos_handle
 {
 	mapscr* screen;
 	int32_t screen_index;
-	// 0 = base screen, 1 = first layer, etc.
+	// 0 = base screen, 1 = first layer, etc. Up to 6.
 	int32_t layer;
 	rpos_t rpos;
 };

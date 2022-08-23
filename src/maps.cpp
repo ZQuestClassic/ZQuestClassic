@@ -366,7 +366,7 @@ const mapscr* get_canonical_scr(int map, int screen)
 
 mapscr* get_scr(int map, int screen)
 {
-	DCHECK_RANGE_EXCLUSIVE(screen, 0, 136);
+	DCHECK_RANGE_INCLUSIVE(screen, 0, 135);
 	if (screen == initial_region_scr && map == currmap) return &tmpscr;
 
 	if (map == currmap)
@@ -5196,7 +5196,7 @@ void openshutters()
 			mapscr* scr = get_layer_scr(currmap, screen_index, lyr - 1);
 			pos_handle.screen = scr;
 			pos_handle.screen_index = screen_index;
-			pos_handle.layer = lyr; // TODO z3 work out if this is -1 or 0 indexed
+			pos_handle.layer = lyr;
 			for (auto pos = 0; pos < 176; ++pos)
 			{
 				newcombo const& cmb = combobuf[scr->data[pos]];
@@ -5248,6 +5248,8 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index)
 		}
 		if (map == currmap) temporary_screens_currmap[screen_index*7+i+1] = screens[i+1];
 	}
+
+	if (map != currmap) temporary_screens[map*MAPSCRS + screen_index] = screens;
 
 	// Apply perm secrets, if applicable.
 	if (canPermSecret(dmap, screen_index))
@@ -5306,18 +5308,21 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index)
 	{
 		remove_bosschests(base_screen, screen_index);
 	}
-
+	
 	int mi = (currmap * MAPSCRSNORMAL) + (screen_index >= 0x80 ? homescr : screen_index);
 	clear_xstatecombos2(base_screen, screen_index, mi);
 
-	if (map != currmap) temporary_screens[map*MAPSCRS + screen_index] = screens;
+	int destlvl = DMaps[dmap].level;
+	toggle_switches(game->lvlswitches[destlvl], true, base_screen, screen_index);
+
+	// toggle_gswitches_load(tmp == 0 ? &tmpscr : &special_warp_return_screen, tmpscr2); // TODO z3 !
 }
 
 // Sets `currscr` to `scr` and loads new screens into temporary memory.
 // Called anytime a player moves to a new screen (either via warping, scrolling, continue,
 // starting the game, etc...)
-// Note: for regions, on the initial screen load calls this function. Simply walking between screens
-// in the same region does not use this.
+// Note: for regions, only the initial screen load calls this function. Simply walking between screens
+// in the same region does not use this, because every screen in a region is loaded into temporary memory up front.
 // If scr >= 0x80, `currscr` will be saved to `homescr` and also be loaded into `special_warp_return_screen`.
 void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_x80_dir)
 {
@@ -5347,11 +5352,6 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 			load_a_screen_and_layers(destdmap, currmap, screen_index);
 		}
 	}
-
-	int32_t destlvl = DMaps[destdmap].level;
-	// TODO z3 special warp return scr?
-	// toggle_switches(game->lvlswitches[destlvl], true, tmp == 0 ? &tmpscr : &special_warp_return_screen, tmp == 0 ? currscr : homescr);
-	toggle_switches(game->lvlswitches[destlvl], true);
 }
 
 // Don't use this directly!
