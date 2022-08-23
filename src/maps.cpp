@@ -251,7 +251,7 @@ void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, in
 
 	// Clamp the viewport to the edges of the region.
 	viewport_x = CLAMP(0, world_w - global_viewport_w, hero_x - global_viewport_w/2);
-	viewport_y = CLAMP(0, world_h - global_viewport_h, hero_y - global_viewport_h/2 + viewport_y_offset);
+	viewport_y = CLAMP(0, world_h - global_viewport_h, hero_y - global_viewport_h/2 + viewport_y_offset + 16);
 }
 
 void z3_update_viewport()
