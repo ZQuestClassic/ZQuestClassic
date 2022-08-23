@@ -374,6 +374,8 @@ mapscr* get_scr(int map, int screen)
 		int index = screen*7;
 		if (!temporary_screens_currmap[index])
 		{
+			// TODO z3 this should never happen?
+			DCHECK(false);
 			load_a_screen_and_layers(currdmap, map, screen);
 		}
 		return temporary_screens_currmap[index];
@@ -1977,6 +1979,7 @@ bool hiddenstair2(mapscr *s,bool redraw)
     return false;
 }
 
+// TODO z3 remove
 bool remove_screenstatecombos(int32_t tmp, int32_t what1, int32_t what2)
 {
 	mapscr *s = tmp == 0 ? &tmpscr : &special_warp_return_screen;
@@ -1986,6 +1989,7 @@ bool remove_screenstatecombos(int32_t tmp, int32_t what1, int32_t what2)
 bool remove_screenstatecombos2(mapscr *s, int32_t screen_index, bool do_layers, int32_t what1, int32_t what2)
 {
 	if (screen_index >= 128) s = &special_warp_return_screen;
+	DCHECK(s);
 	
 	bool didit=false;
 	
@@ -5288,33 +5292,44 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index)
 	toggle_switches(game->lvlswitches[destlvl], true, base_screen, screen_index);
 	toggle_gswitches_load(screen_index);
 
-	if (game->maps[(currmap*MAPSCRSNORMAL)+screen_index]&mLOCKBLOCK)
+	// Old code would call these state functions even for 0x80+ screens, which doesn't
+	// make any damn sense. Technically some quest could rely on this weird behavior
+	// to have state on a 0x80+ screen that stored it's data in some random screen of the next map,
+	// so we have a compat rule for this now.
+	// TODO z3 ! make this a compat QR. for now am lazy and using "region mode" as stand-in.
+	int mi = currmap*MAPSCRSNORMAL + screen_index;
+	bool check_for_state_things_0x80_qr = !is_z3_scrolling_mode();
+	bool should_check_for_state_things = (check_for_state_things_0x80_qr || screen_index < 0x80) && mi < MAXMAPS2*MAPSCRSNORMAL;
+
+	if (should_check_for_state_things)
 	{
-		remove_lockblocks(base_screen, screen_index);
+		if (game->maps[mi]&mLOCKBLOCK)
+		{
+			remove_lockblocks(base_screen, screen_index);
+		}
+		
+		if (game->maps[mi]&mBOSSLOCKBLOCK)
+		{
+			remove_bosslockblocks(base_screen, screen_index);
+		}
+		
+		if (game->maps[mi]&mCHEST)
+		{
+			remove_chests(base_screen, screen_index);
+		}
+		
+		if (game->maps[mi]&mLOCKEDCHEST)
+		{
+			remove_lockedchests(base_screen, screen_index);
+		}
+		
+		if (game->maps[mi]&mBOSSCHEST)
+		{
+			remove_bosschests(base_screen, screen_index);
+		}
+		
+		clear_xstatecombos2(base_screen, screen_index, mi);
 	}
-	
-	if (game->maps[(currmap*MAPSCRSNORMAL)+screen_index]&mBOSSLOCKBLOCK)
-	{
-		remove_bosslockblocks(base_screen, screen_index);
-	}
-	
-	if (game->maps[(currmap*MAPSCRSNORMAL)+screen_index]&mCHEST)
-	{
-		remove_chests(base_screen, screen_index);
-	}
-	
-	if (game->maps[(currmap*MAPSCRSNORMAL)+screen_index]&mLOCKEDCHEST)
-	{
-		remove_lockedchests(base_screen, screen_index);
-	}
-	
-	if (game->maps[(currmap*MAPSCRSNORMAL)+screen_index]&mBOSSCHEST)
-	{
-		remove_bosschests(base_screen, screen_index);
-	}
-	
-	int mi = (currmap * MAPSCRSNORMAL) + (screen_index >= 0x80 ? homescr : screen_index);
-	clear_xstatecombos2(base_screen, screen_index, mi);
 }
 
 // Sets `currscr` to `scr` and loads new screens into temporary memory.
