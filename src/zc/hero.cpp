@@ -24620,7 +24620,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			}
 		}
 
-		viewport_t new_viewport;
+		viewport_t new_viewport = {0};
 		z3_calculate_viewport(&tmpscr, new_world_w, new_world_h, new_hero_x, new_hero_y, new_viewport);
 
 		int old_origin_scr = z3_get_origin_scr();

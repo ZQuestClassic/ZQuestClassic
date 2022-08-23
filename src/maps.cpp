@@ -4544,6 +4544,11 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 			do_layer(temp_buf, -1, currmap, screen_index, 2, myscr, -offx, -offy, 2);
 		}
 	});
+
+	if (!global_z3_scrolling_extended_height_mode)
+	{
+		rectfill(temp_buf, 0, 0, 256, playing_field_offset - 1, 0);
+	}
 	
 	particles.draw(temp_buf, true, -1);
 	
