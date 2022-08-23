@@ -376,7 +376,7 @@ mapscr* get_scr(int map, int screen)
 		{
 			// TODO z3 this should never happen?
 			DCHECK(false);
-			load_a_screen_and_layers(currdmap, map, screen);
+			load_a_screen_and_layers(currdmap, map, screen, -1);
 		}
 		return temporary_screens_currmap[index];
 	}
@@ -384,7 +384,7 @@ mapscr* get_scr(int map, int screen)
 	int index = map*MAPSCRS + screen;
 	auto it = temporary_screens.find(index);
 	if (it != temporary_screens.end()) return it->second[0];
-	load_a_screen_and_layers(currdmap, map, screen);
+	load_a_screen_and_layers(currdmap, map, screen, -1);
 	return temporary_screens[index][0];
 }
 
@@ -400,7 +400,8 @@ mapscr* get_layer_scr(int map, int screen, int layer)
 		int index = screen*7;
 		if (!temporary_screens_currmap[index])
 		{
-			load_a_screen_and_layers(currdmap, map, screen);
+			DCHECK(false); // TODO z3 ?
+			load_a_screen_and_layers(currdmap, map, screen, -1);
 		}
 		return temporary_screens_currmap[index+layer+1];
 	}
@@ -408,7 +409,7 @@ mapscr* get_layer_scr(int map, int screen, int layer)
 	int index = map*MAPSCRS + screen;
 	auto it = temporary_screens.find(index);
 	if (it != temporary_screens.end()) return it->second[layer + 1];
-	load_a_screen_and_layers(currdmap, map, screen);
+	load_a_screen_and_layers(currdmap, map, screen, -1);
 	return temporary_screens[index][layer + 1];
 }
 
@@ -590,9 +591,8 @@ void clear_dmaps()
 
 int32_t isdungeon(int32_t dmap, int32_t scr) // The arg is only used by loadscr2 and loadscr
 {
-    if(scr < 0) scr=initial_region_scr;
-    
-    if(dmap < 0) dmap = currdmap;
+    if (scr < 0) scr = initial_region_scr;
+    if (dmap < 0) dmap = currdmap;
     
     // dungeons can have any dlevel above 0
     if((DMaps[dmap].type&dmfTYPE) == dmDNGN)
@@ -5216,7 +5216,7 @@ void openshutters()
 	sfx(WAV_DOOR, 128);
 }
 
-void load_a_screen_and_layers(int dmap, int map, int screen_index)
+void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 {
 	std::vector<mapscr*> screens;
 
@@ -5286,8 +5286,6 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index)
 		}
 	}
 
-	// TODO z3 get parity with loadscr_old
-
 	int destlvl = DMaps[dmap].level;
 	toggle_switches(game->lvlswitches[destlvl], true, base_screen, screen_index);
 	toggle_gswitches_load(screen_index);
@@ -5330,6 +5328,61 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index)
 		
 		clear_xstatecombos2(base_screen, screen_index, mi);
 	}
+
+	// check doors
+	if (!is_z3_scrolling_mode()) // TODO z3
+	if (isdungeon(dmap, screen_index))
+	{
+		for(int32_t i=0; i<4; i++)
+		{
+			int32_t door=base_screen->door[i];
+			
+			switch(door)
+			{
+			case d1WAYSHUTTER:
+			case dSHUTTER:
+				if((ldir^1)==i)
+				{
+					base_screen->door[i]=dOPENSHUTTER;
+				}
+				
+				opendoors = -4;
+				break;
+				
+			case dLOCKED:
+				if(should_check_for_state_things && game->maps[mi]&(1<<i))
+				{
+					base_screen->door[i]=dUNLOCKED;
+				}
+				
+				break;
+				
+			case dBOSS:
+				if(should_check_for_state_things && game->maps[mi]&(1<<i))
+				{
+					base_screen->door[i]=dOPENBOSS;
+				}
+				
+				break;
+				
+			case dBOMB:
+				if(should_check_for_state_things && game->maps[mi]&(1<<i))
+				{
+					base_screen->door[i]=dBOMBED;
+				}
+				
+				break;
+			}
+			
+			int tmp = screen_index == currscr ? 0 : 1;
+			putdoor(scrollbuf,tmp,i,base_screen->door[i],false);
+			
+			if(door==dSHUTTER||door==d1WAYSHUTTER)
+			{
+				base_screen->door[i]=door;
+			}
+		}
+	}
 }
 
 // Sets `currscr` to `scr` and loads new screens into temporary memory.
@@ -5363,7 +5416,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	{
 		if (screen_index != scr && is_in_region(z3_origin_screen_index, destdmap, screen_index))
 		{
-			load_a_screen_and_layers(destdmap, currmap, screen_index);
+			load_a_screen_and_layers(destdmap, currmap, screen_index, ldir);
 		}
 	}
 }
