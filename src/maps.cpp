@@ -5397,6 +5397,15 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 {
 	if (destdmap < 0 ? currdmap : destdmap) destdmap = currdmap;
 
+	triggered_screen_secrets = false;
+	init_combo_timers();
+	timeExitAllGenscript(GENSCR_ST_CHANGE_SCREEN);
+	
+	clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
+	clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
+	clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
+	clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
+
 	int previous_currscr = currscr;
 	currscr = scr;
 	z3_load_region();
@@ -5404,62 +5413,74 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	if (scr >= 0x80)
 	{
 		homescr = previous_currscr;
-		loadscr_old(1, destdmap, homescr, no_x80_dir ? -1 : ldir, overlay);
+		loadscr_old(1, destdmap, homescr, no_x80_dir ? -1 : ldir, overlay, false);
 	}
 	else
 	{
 		homescr = scr;
 	}
 
-	loadscr_old(0, destdmap, scr, ldir, overlay);
-	if (!is_z3_scrolling_mode()) return;
+	loadscr_old(0, destdmap, scr, ldir, overlay, false);
 
-	for (int screen_index = 0; screen_index < 128; screen_index++)
+	if (is_z3_scrolling_mode())
 	{
-		if (screen_index != scr && is_in_region(z3_origin_screen_index, destdmap, screen_index))
+		for (int screen_index = 0; screen_index < 128; screen_index++)
 		{
-			load_a_screen_and_layers(destdmap, currmap, screen_index, ldir);
+			if (screen_index != scr && is_in_region(z3_origin_screen_index, destdmap, screen_index))
+			{
+				load_a_screen_and_layers(destdmap, currmap, screen_index, ldir);
+			}
 		}
 	}
+
+	game->load_portal();
+	throwGenScriptEvent(GENSCR_EVENT_CHANGE_SCREEN);
 }
 
 // Don't use this directly!
-// TODO z3 delete me!
-void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay=false)
+// Some stuff needs to be refactored before this function can be removed:
+//    - remove tmpscr, tmpscr2, etc. Just store these things in the larger temporary screen vectors.
+//      (this is hard)
+//    - do the "overlay" logic (but just for tmpscr, not every single screen in a region) in
+//      load_a_screen_and_layers (this is easy).
+//    - delete old scrollscr code
+void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay,bool do_setups)
 {
 	bool is_setting_special_warp_return_screen = tmp == 1;
-
-	if(!is_setting_special_warp_return_screen)
-	{
-		triggered_screen_secrets = false; //Reset var
-		init_combo_timers();
-		timeExitAllGenscript(GENSCR_ST_CHANGE_SCREEN);
-	}
-	clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
 	int32_t destlvl = DMaps[destdmap < 0 ? currdmap : destdmap].level;
-	
-	//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
-	for(word x=0; x<animated_combos; x++)
+
+	if (do_setups)
 	{
-		if(combobuf[animated_combo_table4[x][0]].nextcombo!=0)
+		if(!is_setting_special_warp_return_screen)
 		{
-			combobuf[animated_combo_table4[x][0]].aclk = 0;
+			triggered_screen_secrets = false; //Reset var
+			init_combo_timers();
+			timeExitAllGenscript(GENSCR_ST_CHANGE_SCREEN);
 		}
-	}
-	
-	for(word x=0; x<animated_combos2; x++)
-	{
-		if(combobuf[animated_combo_table24[x][0]].nextcombo!=0)
+		clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
+		clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
+		clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
+		clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
+
+		//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
+		for(word x=0; x<animated_combos; x++)
 		{
-			combobuf[animated_combo_table24[x][0]].aclk = 0;
+			if(combobuf[animated_combo_table4[x][0]].nextcombo!=0)
+			{
+				combobuf[animated_combo_table4[x][0]].aclk = 0;
+			}
 		}
+		
+		for(word x=0; x<animated_combos2; x++)
+		{
+			if(combobuf[animated_combo_table24[x][0]].nextcombo!=0)
+			{
+				combobuf[animated_combo_table24[x][0]].aclk = 0;
+			}
+		}
+		
+		reset_combo_animations2();
 	}
-	
-	reset_combo_animations2();
-	
 	
 	mapscr previous_scr = tmp == 0 ? tmpscr : special_warp_return_screen;
 	mapscr* screen = tmp == 0 ? &tmpscr : &special_warp_return_screen;
@@ -5472,13 +5493,17 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	screen->cset = TheMaps[currmap*MAPSCRS+scr].cset;
 	
 	//screen / screendata script
-	FFCore.clear_screen_stack();
-	screenScriptData.Clear();
-	FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
-	FFCore.deallocateAllArrays(SCRIPT_COMBO, 0);
-	//reset combo script doscripts
-	//Init combo scripts
-	FFCore.init_combo_doscript();
+	if (do_setups)
+	{
+		FFCore.clear_screen_stack();
+		screenScriptData.Clear();
+		FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
+		FFCore.deallocateAllArrays(SCRIPT_COMBO, 0);
+		//reset combo script doscripts
+		//Init combo scripts
+		FFCore.init_combo_doscript();
+	}
+
 	if ( TheMaps[currmap*MAPSCRS+scr].script > 0 )
 	{
 		screen->script = TheMaps[currmap*MAPSCRS+scr].script;
@@ -5801,8 +5826,11 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		}
 	}
 	
-	game->load_portal();
-	if(!tmp) throwGenScriptEvent(GENSCR_EVENT_CHANGE_SCREEN);
+	if (do_setups)
+	{
+		game->load_portal();
+		if(!tmp) throwGenScriptEvent(GENSCR_EVENT_CHANGE_SCREEN);
+	}
 }
 
 // Screen is being viewed by the Overworld Map viewer.
