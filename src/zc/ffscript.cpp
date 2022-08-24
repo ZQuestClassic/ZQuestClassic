@@ -8076,7 +8076,7 @@ int32_t get_register(const int32_t arg)
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
 			{
-				if(scr==(currmap*MAPSCRS+currscr))
+				if(scr==(currmap*MAPSCRS+initial_region_scr))
 					ret=tmpscr.data[pos]*10000;
 				else if(layr>-1)
 					ret=tmpscr2[layr].data[pos]*10000;
@@ -8119,7 +8119,7 @@ int32_t get_register(const int32_t arg)
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
 			{
-				if(scr==(currmap*MAPSCRS+currscr))
+				if(scr==(currmap*MAPSCRS+initial_region_scr))
 					ret=tmpscr.cset[pos]*10000;
 				else if(layr>-1)
 					ret=tmpscr2[layr].cset[pos]*10000;
@@ -8161,7 +8161,7 @@ int32_t get_register(const int32_t arg)
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
 			{
-				if(scr==(currmap*MAPSCRS+currscr))
+				if(scr==(currmap*MAPSCRS+initial_region_scr))
 					ret=tmpscr.sflag[pos]*10000;
 				else if(layr>-1)
 					ret=tmpscr2[layr].sflag[pos]*10000;
@@ -8204,7 +8204,7 @@ int32_t get_register(const int32_t arg)
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
 			{
-				if(scr==(currmap*MAPSCRS+currscr))
+				if(scr==(currmap*MAPSCRS+initial_region_scr))
 					ret=combobuf[tmpscr.data[pos]].type*10000;
 				else if(layr>-1)
 					ret=combobuf[tmpscr2[layr].data[pos]].type*10000;
@@ -8247,7 +8247,7 @@ int32_t get_register(const int32_t arg)
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
 					{
-				if(scr==(currmap*MAPSCRS+currscr))
+				if(scr==(currmap*MAPSCRS+initial_region_scr))
 					ret=combobuf[tmpscr.data[pos]].flag*10000;
 				else if(layr>-1)
 					ret=combobuf[tmpscr2[layr].data[pos]].flag*10000;
@@ -8289,7 +8289,7 @@ int32_t get_register(const int32_t arg)
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
 			{
-				if(scr==(currmap*MAPSCRS+currscr))
+				if(scr==(currmap*MAPSCRS+initial_region_scr))
 					ret=(combobuf[tmpscr.data[pos]].walk&15)*10000;
 				else if(layr>-1)
 					ret=(combobuf[tmpscr2[layr].data[pos]].walk&15)*10000;
@@ -17800,7 +17800,7 @@ void set_register(const int32_t arg, const int32_t value)
 				break;
 			}
 			int32_t combo = vbound(value/10000,0,MAXCOMBOS);
-			if(scr==(currmap*MAPSCRS+currscr))
+			if(scr==(currmap*MAPSCRS+initial_region_scr))
 			{
 				screen_combo_modify_preroutine(&tmpscr,pos);
 				
@@ -17808,7 +17808,7 @@ void set_register(const int32_t arg, const int32_t value)
 				
 			TheMaps[scr].data[pos]=combo;
 			
-			if(scr==(currmap*MAPSCRS+currscr))
+			if(scr==(currmap*MAPSCRS+initial_region_scr))
 			{
 				tmpscr.data[pos] = combo;
 				screen_combo_modify_postroutine(&tmpscr,pos);
@@ -17866,7 +17866,7 @@ void set_register(const int32_t arg, const int32_t value)
 			
 			TheMaps[scr].cset[pos]=(value/10000)&15;
 			
-			if(scr==(currmap*MAPSCRS+currscr))
+			if(scr==(currmap*MAPSCRS+initial_region_scr))
 				tmpscr.cset[pos] = value/10000;
 				
 			int32_t layr = whichlayer(scr);
@@ -17908,7 +17908,7 @@ void set_register(const int32_t arg, const int32_t value)
 			
 			TheMaps[scr].sflag[pos]=value/10000;
 			
-			if(scr==(currmap*MAPSCRS+currscr))
+			if(scr==(currmap*MAPSCRS+initial_region_scr))
 				tmpscr.sflag[pos] = value/10000;
 				
 			int32_t layr = whichlayer(scr);

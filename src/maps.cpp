@@ -114,7 +114,7 @@ static bool is_in_region(int region_origin_scr, int dmap, int scr)
 	return region_id && region_id == get_region_id(dmap, scr);
 }
 
-static bool is_in_current_region(int scr)
+bool is_in_current_region(int scr)
 {
 	return is_in_region(z3_origin_screen_index, currdmap, scr);
 }
