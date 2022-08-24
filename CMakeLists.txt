@@ -596,6 +596,7 @@ set(zc_warnings
 
 foreach(target IN LISTS zc_targets)
 	target_compile_definitions(${target} PRIVATE ZC_APP_NAME="${target}")
+	target_compile_definitions(${target} PRIVATE "$<$<CONFIG:DEBUG>:DCHECK_IS_ON>")
 endforeach()
 
 if(WANT_SENTRY)

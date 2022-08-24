@@ -2434,9 +2434,6 @@ void oldputtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int
 
 void overtileblock16(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t w, int32_t h, int32_t color, int32_t flip, byte skiprows)
 {
-    if (tile == 8918 && (flip == 0 || flip == 1)) {
-        int lol = 1;
-    }
 	if(skiprows>0 && tile%TILES_PER_ROW+w>=TILES_PER_ROW)
 	{
 		byte w2=(tile+w)%TILES_PER_ROW;

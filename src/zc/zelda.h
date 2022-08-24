@@ -452,7 +452,6 @@ extern byte   guygrid[176];
 extern mapscr scrolling_screen;
 extern mapscr tmpscr;
 extern mapscr special_warp_return_screen;
-// TODO z3 ! remove
 extern mapscr tmpscr2[6];
 extern mapscr tmpscr3[6];
 extern char   sig_str[44];

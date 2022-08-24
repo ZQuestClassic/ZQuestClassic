@@ -7601,7 +7601,6 @@ bool HeroClass::animate(int32_t)
 					sfx(thesfx,pan((int32_t)x));
 			}
 		}
-		int lol = 1;
 	}
 	else
 	{
@@ -18348,6 +18347,7 @@ void HeroClass::checkgenpush()
 			bx2 = x + 17;
 			break;
 	}
+	// TODO z3 !
 	auto pos1 = COMBOPOS(bx,by);
 	auto pos2 = COMBOPOS(bx2,by2);
 	for(auto layer = 0; layer < 7; ++layer)
@@ -24238,29 +24238,31 @@ void HeroClass::calc_darkroom_hero2(int32_t x1, int32_t y1)
 	}
 }
 
-static void for_every_nearby_screen_during_scroll(const std::function <void (mapscr*, int, int, int, int)>& fn)
+static void for_every_nearby_screen_during_scroll(const std::vector<mapscr*>& old_temporary_screens, const std::function <void (mapscr*, int, int, int, int)>& fn)
 {
 	int old_region = get_region_id(scrolling_dmap, scrolling_scr);
 	int new_region = get_region_id(currdmap, currscr);
 	bool is_region_scrolling = old_region || new_region;
 
 	// TODO z3 is this odd ordering necessary still?
+	// Note: (draw_dx = 0, draw_dy = 0) denotes the scrolling screen,
+	// while (   < scrolling_dir >    ) denotes currscr (the destination screen).
 	for (int draw_dx = 1; draw_dx >= -1; draw_dx--)
 	{
 		for (int draw_dy = -1; draw_dy <= 1; draw_dy++)
 		{
-			// Whichever direction we are scrolling into, should load screens in the same map as the destination screen.
-			// Only relevant for side warps.
-			bool use_dest_map = Hero.is_warping && (XY_DELTA_TO_DIR(draw_dx, 0) == scrolling_dir || XY_DELTA_TO_DIR(0, draw_dy) == scrolling_dir);
-			int base_map = use_dest_map ? currmap : scrolling_map;
-			int base_dmap = use_dest_map ? currdmap : scrolling_dmap;
-			int base_scr = use_dest_map ? currscr : scrolling_scr;
+			// Depending on which direction we are scrolling, need to select from the correct set of screens.
+			bool use_old_screens = !(XY_DELTA_TO_DIR(draw_dx, 0) == scrolling_dir || XY_DELTA_TO_DIR(0, draw_dy) == scrolling_dir);
+			int base_map = use_old_screens ? scrolling_map : currmap;
+			int base_dmap = use_old_screens ? scrolling_dmap : currdmap;
+			int base_scr = use_old_screens ? scrolling_scr : currscr;
 			int base_scr_x = base_scr % 16;
 			int base_scr_y = base_scr / 16;
-			if (use_dest_map)
+
+			if (!use_old_screens)
 			{
 				if (scrolling_dir == up || scrolling_dir == down) base_scr_y -= draw_dy;
-				else                                              base_scr_x -= draw_dy;
+				else                                              base_scr_x -= draw_dx;
 			}
 
 			int scr_x = base_scr_x + draw_dx;
@@ -24275,8 +24277,21 @@ static void for_every_nearby_screen_during_scroll(const std::function <void (map
 			// if (scr == scrolling_scr || scr == currscr || (old_region && old_region == region) || (new_region && region == new_region))
 			{
 				global_z3_cur_scr_drawing = scr;
-				mapscr* myscr = get_scr(base_map, scr);
-				fn(myscr, base_map, scr, draw_dx, draw_dy);
+				mapscr* myscr = use_old_screens ?
+					old_temporary_screens[scr*7] :
+					get_scr(base_map, scr);
+				if (myscr)
+				{
+					int dx = draw_dx + z3_get_region_relative_dx(currscr);
+					int dy = draw_dy + z3_get_region_relative_dy(currscr);
+
+					if (scrolling_dir == up)    dy += 1;
+					if (scrolling_dir == down)  dy -= 1;
+					if (scrolling_dir == left)  dx += 1;
+					if (scrolling_dir == right) dx -= 1;
+
+					fn(myscr, base_map, scr, dx, dy);
+				}
 			}
 		}
 	}
@@ -24502,6 +24517,10 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		}
 	}
 
+	// For the duration of the scrolling (except for the above waiting chunk), the new screen/region
+	// viewport is used for all drawing operations. This means that the old screens are drawn with offsets
+	// relative to the new coordinate system - this is handled in for_every_nearby_screen_during_scroll.
+
 	script_drawing_commands.Clear();
 	FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
 	
@@ -24540,45 +24559,48 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 		dx = 0;
 		dy = 0;
-		if (scrolldir == up) dy = -1;
-		if (scrolldir == down) dy = 1;
-		if (scrolldir == left) dx = -1;
+		if (scrolldir == up)    dy = -1;
+		if (scrolldir == down)  dy = 1;
+		if (scrolldir == left)  dx = -1;
 		if (scrolldir == right) dx = 1;
 	}
 
-	if (destscr != -1)
+	if (destscr == -1 && checkmaze(oldscr, true) && !edge_of_dmap(scrolldir))
 	{
-		currscr = destscr;
-	}
-	else if (checkmaze(oldscr, true) && !edge_of_dmap(scrolldir))
-	{
-		currscr += dir_to_scr_offset((direction)scrolldir);
-		destscr = currscr;
+		destscr = currscr + dir_to_scr_offset((direction)scrolldir);
 	}
 	currmap = destmap;
 
-	// When scrolling to a new map, currmap has already been set (by callers) to the destination map.
-	// So we need to clear the temporary cache lookup, since it keeps temporary screens of the "currmap"
-	// in a quick lookup table. Otherwise we'd draw the wrong screens during side warps (if drawing the same
-	// screen indices in different maps).
-	if (currmap != scrolling_map)
-	{
-		z3_clear_temporary_screens();
-	}
+	// `loadscr` typically frees all temporary screens, but we need them for drawing during scrolling.
+	std::vector<mapscr*> old_temporary_screens = z3_take_temporary_screens();
 
+	// Remember everything about the current region.
+	int old_origin_scr = z3_get_origin_scr();
+	int old_region_scr_width = region_scr_width;
+	int old_region_scr_height = region_scr_height;
+	int old_region_scr_dx = region_scr_dx;
+	int old_region_scr_dy = region_scr_dy;
+	int old_world_w = world_w;
+	int old_world_h = world_h;
+	viewport_t old_viewport = viewport;
+
+	loadscr(destdmap, destscr, scrolldir, overlay);
 	mapscr* newscr = get_scr(destmap, destscr);
 
+	// TODO z3: better comment for this chunk of code
 	// Determine by how much we need to align to the new region's viewport.
-	// This sets `axis_alignment_amount` to the number of pixels needed to adjust along the secondary axis
+	// This sets `secondary_axis_alignment_amount` to the number of pixels needed to adjust along the secondary axis
 	// to move the old viewport to the new viewport.
+	viewport_t new_viewport = {0};
 	int prev_x = x.getInt();
 	int prev_y = y.getInt();
-	int axis_alignment_amount = 0;
+	int secondary_axis_alignment_amount = 0;
 	double old_hero_x = x, old_hero_y = y;
 	double new_hero_x, new_hero_y;
 	{
 		int new_origin_scr, new_region_scr_width, new_region_scr_height, new_region_scr_dx, new_region_scr_dy, new_world_w, new_world_h;
 		z3_calculate_region(destdmap == -1 ? currdmap : destdmap, destscr, new_origin_scr, new_region_scr_width, new_region_scr_height, new_region_scr_dx, new_region_scr_dy, new_world_w, new_world_h);
+		// int new_origin_scr = z3_get_origin_scr();
 		int new_origin_scr_x = new_origin_scr % 16;
 		int new_origin_scr_y = new_origin_scr / 16;
 
@@ -24615,24 +24637,72 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			// Should never happen ...
 			default:
 			{
+				DCHECK(false);
 				new_hero_x = x;
 				new_hero_y = y;
 			}
 		}
 
-		viewport_t new_viewport = {0};
-		z3_calculate_viewport(&tmpscr, new_world_w, new_world_h, new_hero_x, new_hero_y, new_viewport);
+		z3_calculate_viewport(newscr, new_world_w, new_world_h, new_hero_x, new_hero_y, new_viewport);
 
-		int old_origin_scr = z3_get_origin_scr();
 		int old_origin_scr_x = old_origin_scr % 16;
 		int old_origin_scr_y = old_origin_scr / 16;
-		int old_hero_screen_x = x.getInt() - viewport.x;
-		int old_hero_screen_y = y.getInt() - viewport.y;
+		int old_hero_screen_x = x.getInt() - old_viewport.x;
+		int old_hero_screen_y = y.getInt() - old_viewport.y;
 		int new_hero_screen_x = new_hero_x - new_viewport.x;
 		int new_hero_screen_y = new_hero_y - new_viewport.y;
-		if (dx)      axis_alignment_amount = new_hero_screen_y - old_hero_screen_y;
-		else if (dy) axis_alignment_amount = new_hero_screen_x - old_hero_screen_x;
-		else         axis_alignment_amount = 0;
+		if (dx)      secondary_axis_alignment_amount = new_hero_screen_y - old_hero_screen_y;
+		else if (dy) secondary_axis_alignment_amount = new_hero_screen_x - old_hero_screen_x;
+		else         secondary_axis_alignment_amount = 0;
+
+		// Set the current viewport to be what the final viewport will be... minus some adjustments
+		// that will be undone during the scrolling loop. Read on.
+		viewport = new_viewport;
+
+		// We're scrolling from the new region coordinate system to the old one, but we want
+		// to maintain the hero at the same position on the display relative to the edges at the start
+		// and only align during the scrolling loop. So translate the "starting" viewport to account
+		// for this later alignment.
+		if (dx)      viewport.y += secondary_axis_alignment_amount;
+		else if (dy) viewport.x += secondary_axis_alignment_amount;
+
+		// Move hero to their current position, but within the new screen's coordinate system.
+		// ...also, minus one viewport in the scrolling direction.
+		switch(scrolldir)
+		{
+			case up:
+			{
+				x = new_region_scr_dx*256 + prev_x%256;
+				y = new_world_h;
+				// TODO z3 prob right, but need to improve extended height mode (not be a global)
+				viewport.y += new_viewport.h;
+			}
+			break;
+			
+			case down:
+			{
+				x = new_region_scr_dx*256 + prev_x%256;
+				y = -16;
+				viewport.y -= new_viewport.h;
+			}
+			break;
+
+			case right:
+			{
+				x = -16;
+				y = new_region_scr_dy*176 + prev_y%176;
+				viewport.x -= new_viewport.w;
+			}
+			break;
+			
+			case left:
+			{
+				x = new_world_w;
+				y = new_region_scr_dy*176 + prev_y%176;
+				viewport.x += new_viewport.w;
+			}
+			break;
+		}
 	}
 
 	// change Hero's state if entering water
@@ -24734,13 +24804,13 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	}
 
 	bool draw_dark = false;
-	for_every_nearby_screen_during_scroll([&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
+	for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
 		draw_dark = draw_dark || (myscr->flags&fDARK);
 	});
 
 	int no_move = 0;
 	int move_counter = 0;
-	int align_counter = abs(axis_alignment_amount);
+	int align_counter = abs(secondary_axis_alignment_amount);
 	bool end_frames = false;
 
 	scroll_counter *= delay;
@@ -24752,10 +24822,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	// 0 for align, then scroll.
 	// 1 for scroll, then align.
 	int align_mode = 1;
-
-	// For the duration of the scrolling, we use the old screen/region coordinates. This means that the new
-	// screens are drawn with offsets as if they were relative to the old coordinate system - this is handled
-	// within the calls to for_every_nearby_screen_during_scroll.
 	
 	for(word i = 0; (scroll_counter >= 0 && delay != 0) || align_counter; i++, scroll_counter--) //Go!
 	{
@@ -24816,11 +24882,11 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			}
 		}
 		
-		if (axis_alignment_amount)
+		if (secondary_axis_alignment_amount)
 		{
-			int delta = (abs(axis_alignment_amount) - align_counter) * (axis_alignment_amount > 0 ? 1 : -1);
-			if (scrolldir == up || scrolldir == down) sx += delta;
-			else                                      sy += delta;
+			int delta = align_counter * (secondary_axis_alignment_amount > 0 ? 1 : -1);
+			if (scrolldir == up || scrolldir == down) viewport.x = new_viewport.x + delta;
+			else                                      viewport.y = new_viewport.y + delta;
 		}
 			
 		if(scrolldir == up || scrolldir == down)
@@ -24876,8 +24942,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			
 			// bound Hero to screen edge, needed for the last couple of frames of scrolling.
 			int sch = 176 + (global_z3_scrolling_extended_height_mode ? 56 : 0);
-			x = vbound(x, old_hero_x - 256 + 16, old_hero_x + 256 - 16);
-			y = vbound(y, old_hero_y - sch + 16, old_hero_y + sch - 16);
+			x = vbound(x, new_hero_x - 256, new_hero_x + 256);
+			y = vbound(y, new_hero_y - sch, new_hero_y + sch);
 			
 			if (ladderx > 0 || laddery > 0)
 			{
@@ -24933,9 +24999,9 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 		bool any_screen_layer2bg = false;
 		bool any_screen_layer3bg = false;
-		for_every_nearby_screen_during_scroll([&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
-			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
-			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy;
+		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
+			int offx = draw_dx * 256 + sx;
+			int offy = draw_dy * 176 + sy;
 
 			any_screen_layer2bg = any_screen_layer2bg || myscr->flags7&fLAYER2BG;
 			any_screen_layer3bg = any_screen_layer3bg || myscr->flags7&fLAYER3BG;
@@ -24949,9 +25015,9 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		if(XOR(any_screen_layer2bg, DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, 0, 0);
 		if(XOR(any_screen_layer3bg, DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, 0, 0);
 
-		for_every_nearby_screen_during_scroll([&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
-			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
-			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy;
+		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
+			int offx = draw_dx * 256 + sx;
+			int offy = draw_dy * 176 + sy;
 			
 			putscr(scrollbuf, offx, offy, myscr);
 		});
@@ -24960,9 +25026,9 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		blit(scrollbuf, framebuf, 0, 0, 0, playing_field_offset, 256, mapscr_view_height);
 		do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
 
-		for_every_nearby_screen_during_scroll([&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
-			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
-			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy;
+		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
+			int offx = draw_dx * 256 + sx;
+			int offy = draw_dy * 176 + sy;
 
 			bool primitives = myscr != oldscr;
 			do_layer(framebuf, 0, map, scr, 1, myscr, -offx, -offy, 2, false, primitives);
@@ -24971,10 +25037,10 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			if(!(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))) do_layer(framebuf, 0, map, scr, 2, myscr, -offx, -offy, 2, false, primitives);
 		});
 
-		for_every_nearby_screen_during_scroll([&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
-			bool is_old_scr = draw_dx == 0 && draw_dy == 0;
-			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
-			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy;
+		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
+			bool is_old_scr = scr == scrolling_scr;
+			int offx = draw_dx * 256 + sx;
+			int offy = draw_dy * 176 + sy;
 
 			do_layer(framebuf, -2, map, scr, 0, myscr, -offx, -offy, 3);
 			if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
@@ -24992,9 +25058,9 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			}
 		});
 
-		for_every_nearby_screen_during_scroll([&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
-			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
-			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy + playing_field_offset;
+		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
+			int offx = draw_dx * 256 + sx;
+			int offy = draw_dy * 176 + sy + playing_field_offset;
 			putscrdoors(framebuf, offx, offy, myscr);
 		});
 
@@ -25009,19 +25075,20 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		{
 			draw_under(framebuf); //draw the ladder or raft
 			decorations.draw2(framebuf, true);
-			if (scrolldir == up || scrolldir == down) x += sx;
-			else                                      y += sy;
-			draw(framebuf); //Hero
 			if (scrolldir == up || scrolldir == down) x -= sx;
 			else                                      y -= sy;
+			draw(framebuf); //Hero
+			if (scrolldir == up || scrolldir == down) x += sx;
+			else                                      y += sy;
 			decorations.draw(framebuf,  true);
 		}
 		
-		for_every_nearby_screen_during_scroll([&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
-			bool is_old_scr = draw_dx == 0 && draw_dy == 0;
-			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
-			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy;
+		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
+			bool is_old_scr = scr == scrolling_scr;
+			int offx = draw_dx * 256 + sx;
+			int offy = draw_dy * 176 + sy;
 			// This only matters for overhead FFCs. See do_scrolling_layer.
+			// TODO z3
 			int tempscreen = is_old_scr ? 3 : 2;
 
 			if(!(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)))
@@ -25062,9 +25129,9 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
 			clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
 			clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
-			for_every_nearby_screen_during_scroll([&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
-				int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
-				int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy;
+			for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
+				int offx = draw_dx * 256 + sx;
+				int offy = draw_dy * 176 + sy;
 				calc_darkroom_combos2(scr, offx, offy);
 			});
 			calc_darkroom_hero2(sx, sy);
@@ -25073,11 +25140,11 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		if(get_bit(quest_rules, qr_NEW_DARKROOM) && get_bit(quest_rules, qr_NEWDARK_L6))
 		{
 			set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
-			for_every_nearby_screen_during_scroll([&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
+			for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
 				if (!(myscr->flags & fDARK)) return;
 
-				int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256;
-				int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176;
+				int offx = draw_dx * 256;
+				int offy = draw_dy * 176;
 				int dx = sx + offx - viewport.x;
 				int dy = sy + offy + playing_field_offset - viewport.y;
 				
@@ -25110,11 +25177,11 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		if(get_bit(quest_rules, qr_NEW_DARKROOM) && !get_bit(quest_rules, qr_NEWDARK_L6))
 		{
 			set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
-			for_every_nearby_screen_during_scroll([&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
+			for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
 				if (!(myscr->flags & fDARK)) return;
 
-				int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256;
-				int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176;
+				int offx = draw_dx * 256;
+				int offy = draw_dy * 176;
 				int dx = sx + offx - viewport.x;
 				int dy = sy + offy + playing_field_offset - viewport.y;
 
@@ -25155,7 +25222,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	clear_bitmap(msg_portrait_display_buf);
 	set_clip_state(msg_portrait_display_buf, 1);
 
-	loadscr(destdmap, currscr, scrolldir, overlay);
 	x = new_hero_x;
 	y = new_hero_y;
 
@@ -25324,10 +25390,22 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, false); //Prewaitdraw
 		//ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, true); //Waitdraw
 	}
+
+	// Bye!
+	for (int i = 0; i < 136*7; i++)
+	{
+		if (old_temporary_screens[i])
+		{
+			free(old_temporary_screens[i]);
+			old_temporary_screens[i] = NULL;
+		}
+	}
 }
 
 void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 {
+	static bool use_new_code = true;
+
 	if (action==freeze||action==sideswimfreeze)
 	{
 		return;
@@ -25345,7 +25423,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			tempdestscr = currscr + dir_to_scr_offset((direction)scrolldir);
 		}
 		
-		if (get_region_id(currdmap, currscr) || get_region_id(currdmap, tempdestscr))
+		if (use_new_code || get_region_id(currdmap, currscr) || get_region_id(currdmap, tempdestscr))
 		{
 			HeroClass::scrollscr_butgood(scrolldir, destscr, destdmap);
 			return;

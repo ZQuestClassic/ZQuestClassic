@@ -233,12 +233,35 @@ void z3_clear_temporary_screens()
 	}
 }
 
+std::vector<mapscr*> z3_take_temporary_screens()
+{
+	std::vector<mapscr*> screens(temporary_screens_currmap, temporary_screens_currmap + 136*7);
+	for (int i = 0; i < 136*7; i++)
+	{
+		temporary_screens_currmap[i] = nullptr;
+	}
+
+	// To make calling code simpler, let's copy the few screens that don't live
+	// in the temporary screens array.
+	for (int i = 0; i < 7; i++)
+	{
+		mapscr* s = get_layer_scr(currmap, initial_region_scr, i - 1);
+		DCHECK(s);
+		DCHECK(!screens[initial_region_scr*7 + i]);
+		screens[initial_region_scr*7 + i] = new mapscr(*s);
+	}
+
+	return screens;
+}
+
 void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, int hero_y, viewport_t& viewport)
 {
 	if (!is_z3_scrolling_mode())
 	{
 		viewport.x = 0;
 		viewport.y = 0;
+		viewport.w = 256;
+		viewport.h = 176;
 		return;
 	}
 
@@ -351,12 +374,20 @@ int z3_get_origin_scr()
 
 int z3_get_region_relative_dx(int screen_index)
 {
-	return screen_index % 16 - z3_origin_screen_index % 16;
+	return z3_get_region_relative_dx(screen_index, z3_origin_screen_index);
+}
+int z3_get_region_relative_dx(int screen_index, int origin_screen_index)
+{
+	return screen_index % 16 - origin_screen_index % 16;
 }
 
 int z3_get_region_relative_dy(int screen_index)
 {
-	return screen_index / 16 - z3_origin_screen_index / 16;
+	return z3_get_region_relative_dy(screen_index, z3_origin_screen_index);
+}
+int z3_get_region_relative_dy(int screen_index, int origin_screen_index)
+{
+	return screen_index / 16 - origin_screen_index / 16;
 }
 
 const mapscr* get_canonical_scr(int map, int screen)
@@ -374,8 +405,8 @@ mapscr* get_scr(int map, int screen)
 		int index = screen*7;
 		if (!temporary_screens_currmap[index])
 		{
-			// TODO z3 this should never happen?
-			DCHECK(false);
+			// TODO z3 ! this should never happen?
+			// DCHECK(false);
 			load_a_screen_and_layers(currdmap, map, screen, -1);
 		}
 		return temporary_screens_currmap[index];
@@ -400,7 +431,7 @@ mapscr* get_layer_scr(int map, int screen, int layer)
 		int index = screen*7;
 		if (!temporary_screens_currmap[index])
 		{
-			DCHECK(false); // TODO z3 ?
+			// DCHECK(false); // TODO z3 ?
 			load_a_screen_and_layers(currdmap, map, screen, -1);
 		}
 		return temporary_screens_currmap[index+layer+1];
@@ -1629,6 +1660,8 @@ int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, i
 // TODO z3 just make iswaterrex take world coords, then delete this one.
 int32_t iswaterex_z3(int32_t combo, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck, bool ShallowCheck, bool hero)
 {
+	if (x<0 || x>=world_w || y<0 || y>=world_h)
+		return false;
 	int screen = get_screen_index_for_world_xy(x, y);
 	return iswaterex(combo, currmap, screen, layer, x, y, secrets, fullcheck, LayerCheck, ShallowCheck, hero);
 }
@@ -3418,41 +3451,46 @@ void draw_cmb_pos(BITMAP* dest, int32_t x, int32_t y, rpos_t rpos, int32_t cid,
 	int32_t cset, byte layer, bool over, bool transp)
 {
 	byte pos = RPOS_TO_POS(rpos);
-	rpos_t plrpos = COMBOPOS_REGION(Hero.x+8, Hero.y+8);
-	bool dosw = false;
-	if(rpos == hooked_comborpos && (hooked_layerbits & (1<<layer)))
+
+	if (!screenscrolling)
 	{
-		if(hooked_undercombos[layer] > -1)
+		rpos_t plrpos = COMBOPOS_REGION(Hero.x+8, Hero.y+8);
+		bool dosw = false;
+		if(rpos == hooked_comborpos && (hooked_layerbits & (1<<layer)))
 		{
-			draw_cmb(dest, COMBOX(pos)+x, COMBOY(pos)+y,
-				hooked_undercombos[layer], hooked_undercombos[layer+7], over, transp);
+			if(hooked_undercombos[layer] > -1)
+			{
+				draw_cmb(dest, COMBOX(pos)+x, COMBOY(pos)+y,
+					hooked_undercombos[layer], hooked_undercombos[layer+7], over, transp);
+			}
+			dosw = true;
 		}
-		dosw = true;
-	}
-	else if(rpos == plrpos && (hooked_layerbits & (1<<(layer+8))))
-	{
-		dosw = true;
-	}
-	if(dosw)
-	{
-		switch(Hero.switchhookstyle)
+		else if(rpos == plrpos && (hooked_layerbits & (1<<(layer+8))))
 		{
-			default: case swPOOF:
-				break; //Nothing special here
-			case swFLICKER:
+			dosw = true;
+		}
+		if(dosw)
+		{
+			switch(Hero.switchhookstyle)
 			{
-				if(abs(Hero.switchhookclk-33)&0b1000)
-					break; //Drawn this frame
-				return; //Not drawn this frame
-			}
-			case swRISE:
-			{
-				//Draw rising up
-				y -= 8-(abs(Hero.switchhookclk-32)/4);
-				break;
+				default: case swPOOF:
+					break; //Nothing special here
+				case swFLICKER:
+				{
+					if(abs(Hero.switchhookclk-33)&0b1000)
+						break; //Drawn this frame
+					return; //Not drawn this frame
+				}
+				case swRISE:
+				{
+					//Draw rising up
+					y -= 8-(abs(Hero.switchhookclk-32)/4);
+					break;
+				}
 			}
 		}
 	}
+
 	draw_cmb(dest, COMBOX(pos)+x, COMBOY(pos)+y, cid, cset, over, transp);
 }
 
@@ -3478,32 +3516,11 @@ static void get_bounds_for_draw_cmb_calls(BITMAP* bmp, int x, int y, int& start_
 	end_y   = MIN(11, ceil((bmp->h - y) / 16.0));
 }
 
-void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int32_t layer, mapscr* basescr, int32_t x, int32_t y, bool scrolling, int32_t tempscreen)
+void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int32_t layer, mapscr* basescr, mapscr* layerscr, int32_t x, int32_t y, bool scrolling, bool is_from_old_scr)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
 	x += viewport.x;
 	y += viewport.y;
-
-	mapscr const* tmp = NULL;
-	if (!is_z3_scrolling_mode())
-	{
-		if (tempscreen == 2)
-		{
-			tmp = get_layer_scr(map, scr, layer - 1);
-		}
-		else
-		{
-			// TODO z3
-			// tmp = get_layer_scr(map, homescr, layer - 1);
-			tmp = layer > 0 ?
-				(&tmpscr3[layer-1]) :
-				(layer ? NULL : &special_warp_return_screen);
-		}
-	}
-	else if (layer > 0)
-	{
-		tmp = get_layer_scr(map, scr, layer - 1);
-	}
 
 	bool over = true, transp = false;
 	
@@ -3519,7 +3536,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int
 						&& !((basescr->ffflags[i]&ffLENSINVIS) && lensclk) //If lens is active and ffc is invis to lens, don't draw
 						&& (!(basescr->ffflags[i]&ffLENSVIS) || lensclk)) //If FFC does not require lens, or lens is active, draw
 					{
-						if(scrolling && (basescr->ffflags[i] & ffCARRYOVER) != 0 && tempscreen == 3)
+						if(scrolling && (basescr->ffflags[i] & ffCARRYOVER) != 0 && is_from_old_scr)
 							continue; //If scrolling, only draw carryover ffcs from newscr and not oldscr,
 							
 						//otherwise we'll draw the same one twice
@@ -3545,31 +3562,31 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int
 			return;
 			
 		case -2:                                                //push blocks
-			if(tmp && tmp->valid)
+			if(layerscr && layerscr->valid)
 			{
 				for(int32_t i=0; i<176; i++)
 				{
-					int32_t mf=tmp->sflag[i], mf2 = combobuf[tmp->data[i]].flag;
+					int32_t mf=layerscr->sflag[i], mf2 = combobuf[layerscr->data[i]].flag;
 					
 					if(mf==mfPUSHUD || mf==mfPUSH4 || mf==mfPUSHED || ((mf>=mfPUSHLR)&&(mf<=mfPUSHRINS))
 						|| mf2==mfPUSHUD || mf2==mfPUSH4 || mf2==mfPUSHED || ((mf2>=mfPUSHLR)&&(mf2<=mfPUSHRINS)))
 					{
 						auto rpos = POS_TO_RPOS(i, scr);
-						draw_cmb_pos(bmp, -x, playing_field_offset-y, rpos, tmp->data[i], tmp->cset[i], layer, true, false);
+						draw_cmb_pos(bmp, -x, playing_field_offset-y, rpos, layerscr->data[i], layerscr->cset[i], layer, true, false);
 					}
 				}
 			}
 			return;
 			
 		case -1:                                                //over combo
-			if(tmp && tmp->valid)
+			if(layerscr && layerscr->valid)
 			{
 				for(int32_t i=0; i<176; i++)
 				{
-					if(combo_class_buf[combobuf[tmp->data[i]].type].overhead)
+					if(combo_class_buf[combobuf[layerscr->data[i]].type].overhead)
 					{
 						auto rpos = POS_TO_RPOS(i, scr);
-						draw_cmb_pos(bmp, -x, playing_field_offset-y, rpos, tmp->data[i], tmp->cset[i], layer, true, false);
+						draw_cmb_pos(bmp, -x, playing_field_offset-y, rpos, layerscr->data[i], layerscr->cset[i], layer, true, false);
 					}
 				}
 			}
@@ -3581,7 +3598,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int
 		case 6:
 			if(TransLayers || basescr->layeropacity[layer-1]==255)
 			{
-				if(tmp && tmp->valid)
+				if(layerscr && layerscr->valid)
 				{
 					if(basescr->layeropacity[layer-1]!=255)
 						transp = true;
@@ -3593,7 +3610,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int
 		case 2:
 			if(TransLayers || basescr->layeropacity[layer-1]==255)
 			{
-				if(tmp && tmp->valid)
+				if(layerscr && layerscr->valid)
 				{
 					if(basescr->layeropacity[layer-1]!=255)
 						transp = true;
@@ -3609,7 +3626,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int
 		case 3:
 			if(TransLayers || basescr->layeropacity[layer-1]==255)
 			{
-				if(tmp && tmp->valid)
+				if(layerscr && layerscr->valid)
 				{
 					if(basescr->layeropacity[layer-1]!=255)
 						transp = true;
@@ -3636,7 +3653,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int
 		{
 			int i = cx + cy*16;
 			auto rpos = POS_TO_RPOS(i, scr);
-			draw_cmb_pos(bmp, x, y, rpos, tmp->data[i], tmp->cset[i], layer, over, transp);
+			draw_cmb_pos(bmp, x, y, rpos, layerscr->data[i], layerscr->cset[i], layer, over, transp);
 		}
 	}
 }
@@ -3650,6 +3667,23 @@ void do_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t
 void do_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int32_t layer, mapscr* basescr, int32_t x, int32_t y, int32_t tempscreen, bool scrolling, bool drawprimitives)
 {
 	DCHECK(tempscreen == 2 || tempscreen == 3);
+
+	mapscr* layerscr;
+	if (is_z3_scrolling_mode() || tempscreen == 2)
+	{
+		layerscr = get_layer_scr(map, scr, layer - 1);
+	}
+	else
+	{
+		layerscr = layer > 0 ?
+			(&tmpscr3[layer-1]) :
+			(layer ? NULL : &special_warp_return_screen);
+	}
+	do_layer(bmp, type, map, scr, layer, basescr, layerscr, x, y, scrolling, drawprimitives, tempscreen == 3);
+}
+
+void do_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int32_t layer, mapscr* basescr, mapscr* layerscr, int32_t x, int32_t y, bool scrolling, bool is_from_old_scr, bool drawprimitives)
+{
     bool showlayer = true;
     
     switch(type ? type : layer)
@@ -3737,12 +3771,12 @@ void do_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int32_t layer
     if(showlayer)
     {
 		if(type || !(basescr->hidelayers & (1 << (layer))))
-			do_scrolling_layer(bmp, type, map, scr, layer, basescr, x, y, scrolling, tempscreen);
+			do_scrolling_layer(bmp, type, map, scr, layer, basescr, layerscr, x, y, scrolling, is_from_old_scr);
         
         if(!type && drawprimitives && layer > 0 && layer <= 6)
         {
 			// TODO z3
-            do_primitives(bmp, layer, basescr, 0,  playing_field_offset);
+            do_primitives(bmp, layer, basescr, 0, playing_field_offset);
         }
     }
 }
