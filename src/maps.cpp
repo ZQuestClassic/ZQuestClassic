@@ -681,7 +681,8 @@ int32_t COMBOTYPEL(int32_t layer,int32_t x,int32_t y)
 	mapscr* m = get_layer_scr_for_xy(x, y, layer - 1);
     if (!layer || m->valid == 0) return 0;
 
-    return combobuf[MAPCOMBO2(layer-1,x,y)].type;
+	int32_t combo = COMBOPOS(x%256, y%176);
+    return combobuf[m->data[combo]].type;
 }
 
 int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y)
@@ -694,7 +695,7 @@ int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y)
     if (m->valid == 0) return 0;
 	
     int32_t combo = COMBOPOS(x%256, y%176);
-    return combobuf[tmpscr2[layer-1].data[combo]].flag;
+    return combobuf[m->data[combo]].flag;
 }
 
 
@@ -1020,17 +1021,17 @@ int32_t COMBOTYPE2(int32_t layer,int32_t x,int32_t y)
 {
     if(layer < 1)
     {
-	for (int32_t i = layer+1; i <= 1; ++i)
-	{
-		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		for (int32_t i = layer+1; i <= 1; ++i)
 		{
-			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,i)) return cNONE;
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,i)) return cNONE;
+			}
+			else
+			{
+				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && _effectflag_layer(x,y,i)) return cNONE;
+			}
 		}
-		else
-		{
-			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && _effectflag_layer(x,y,i)) return cNONE;
-		}
-	}
     }
     if(layer==-1) return COMBOTYPE(x,y);
     if(tmpscr2[layer].valid==0)
@@ -4172,7 +4173,7 @@ void draw_msgstr(byte layer, bool tempb = false)
 void draw_screen(bool showhero, bool runGeneric)
 {
 	mapscr* this_screen = &tmpscr;
-	
+
 	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
 	{
 		FFCore.doScriptMenuDraws();
