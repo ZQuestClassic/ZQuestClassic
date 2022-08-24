@@ -6158,156 +6158,19 @@ static bool _walkflag_new(int32_t x, int32_t y, zfix const& switchblockstate)
 
 bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 {
-	if (is_z3_scrolling_mode())
+	int max_x = world_w;
+	int max_y = world_h;
+	if (!get_bit(quest_rules, qr_LTTPWALK))
 	{
-		int max_x = world_w;
-		int max_y = world_h;
-		if (!get_bit(quest_rules, qr_LTTPWALK))
-		{
-			max_x -= 7;
-			max_y -= 7;
-		}
-		if (x < 0 || y < 0) return false;
-		if (x >= max_x) return false;
-		if (x >= max_x - 8 && cnt == 2) return false;
-		if (y >= max_y) return false;
-		return _walkflag_new(x, y, switchblockstate) || (cnt == 2 && _walkflag_new(x + 8, y, switchblockstate));
+		max_x -= 7;
+		max_y -= 7;
 	}
-	else if(get_bit(quest_rules,qr_LTTPWALK))
-	{
-		if(x<0||y<0) return false;
-		
-		if(x>255) return false;
-		
-		if(x>247&&cnt==2) return false;
-		
-		if(y>175) return false;
-	}
-	else
-	{
-		if(x<0||y<0) return false;
-		
-		if(x>248) return false;
-		
-		if(x>240&&cnt==2) return false;
-		
-		if(y>168) return false;
-	}
+	if (x < 0 || y < 0) return false;
+	if (x >= max_x) return false;
+	if (x >= max_x - 8 && cnt == 2) return false;
+	if (y >= max_y) return false;
 	
-	mapscr *s0, *s1, *s2;
-	s0=&tmpscr;
-	s1=(tmpscr2->valid)?tmpscr2:&tmpscr;
-	s2=(tmpscr2[1].valid)?tmpscr2+1:&tmpscr;
-	//  s2=TheMaps+((*tmpscr).layermap[1]-1)MAPSCRS+((*tmpscr).layerscreen[1]);
-	
-	int32_t bx=(x>>4)+(y&0xF0);
-	newcombo c = combobuf[s0->data[bx]];
-	newcombo c1 = combobuf[s1->data[bx]];
-	newcombo c2 = combobuf[s2->data[bx]];
-	bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-				   (iswater_type(c2.type))) && DRIEDLAKE);
-	int32_t b=1;
-	
-	if(x&8) b<<=2;
-	
-	if(y&8) b<<=1;
-	
-	int32_t cwalkflag = c.walk;
-	if(onSwitch(c,switchblockstate) && c.type == cCSWITCHBLOCK && c.usrflags&cflag9) cwalkflag &= (c.walk>>4)^0xF;
-	else if ((c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
-	if (s1 != s0)
-	{
-		if(onSwitch(c1,switchblockstate) && c1.type == cCSWITCHBLOCK && c1.usrflags&cflag9) cwalkflag &= (c1.walk>>4)^0xF;
-		else if ((iswater_type(c1.type) && ((c1.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
-		else if (c1.type == cBRIDGE)
-		{
-			if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-			{
-				int efflag = (c1.walk & 0xF0)>>4;
-				int newsolid = (c1.walk & 0xF);
-				cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
-			}
-			else cwalkflag &= c1.walk;
-		}
-		else if ((iswater_type(c1.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && ((c1.usrflags&cflag3) || (c1.usrflags&cflag4)) && ((c1.walk>>4)&b))) cwalkflag = 0;
-		else cwalkflag |= c1.walk;
-	}
-	if (s2 != s0)
-	{
-		if(onSwitch(c2,switchblockstate) && c2.type == cCSWITCHBLOCK && c2.usrflags&cflag9) cwalkflag &= (c2.walk>>4)^0xF;
-		else if ((iswater_type(c2.type) && ((c2.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
-		else if (c2.type == cBRIDGE)
-		{
-			if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-			{
-				int efflag = (c2.walk & 0xF0)>>4;
-				int newsolid = (c2.walk & 0xF);
-				cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
-			}
-			else cwalkflag &= c2.walk;
-		}
-		else if ((iswater_type(c2.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && ((c2.usrflags&cflag3) || (c2.usrflags&cflag4))) && ((c2.walk>>4)&b)) cwalkflag = 0;
-		else cwalkflag |= c2.walk;
-	}
-	
-	if((cwalkflag&b) && !dried)
-		return true;
-		
-	if(cnt==1) return false;
-	
-	++bx;
-	
-	if(!(x&8))
-		b<<=2;
-	else
-	{
-		c  = combobuf[s0->data[bx]];
-		c1 = combobuf[s1->data[bx]];
-		c2 = combobuf[s2->data[bx]];
-		dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-				  (iswater_type(c2.type))) && DRIEDLAKE);
-		b=1;
-		
-		if(y&8) b<<=1;
-	}
-	cwalkflag = c.walk;
-	if(onSwitch(c,switchblockstate) && c.type == cCSWITCHBLOCK && c.usrflags&cflag9) cwalkflag &= (c.walk>>4)^0xF;
-	else if ((c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
-	if (s1 != s0)
-	{
-		if(onSwitch(c1,switchblockstate) && c1.type == cCSWITCHBLOCK && c1.usrflags&cflag9) cwalkflag &= (c1.walk>>4)^0xF;
-		else if ((iswater_type(c1.type) && ((c1.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
-		else if (c1.type == cBRIDGE)
-		{
-			if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-			{
-				int efflag = (c1.walk & 0xF0)>>4;
-				int newsolid = (c1.walk & 0xF);
-				cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
-			}
-			else cwalkflag &= c1.walk;
-		}
-		else if ((iswater_type(c1.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && ((c1.usrflags&cflag3) || (c1.usrflags&cflag4))) && ((c1.walk>>4)&b)) cwalkflag = 0;
-		else cwalkflag |= c1.walk;
-	}
-	if (s2 != s0)
-	{
-		if(onSwitch(c2,switchblockstate) && c2.type == cCSWITCHBLOCK && c2.usrflags&cflag9) cwalkflag &= (c2.walk>>4)^0xF;
-		else if ((iswater_type(c2.type) && ((c2.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
-		else if (c2.type == cBRIDGE)
-		{
-			if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-			{
-				int efflag = (c2.walk & 0xF0)>>4;
-				int newsolid = (c2.walk & 0xF);
-				cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
-			}
-			else cwalkflag &= c2.walk;
-		}
-		else if ((iswater_type(c2.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && ((c2.usrflags&cflag3) || (c2.usrflags&cflag4))) && ((c2.walk>>4)&b)) cwalkflag = 0;
-		else cwalkflag |= c2.walk;
-	}
-	return (cwalkflag&b) ? !dried : false;
+	return _walkflag_new(x, y, switchblockstate) || (cnt == 2 && _walkflag_new(x + 8, y, switchblockstate));
 }
 
 bool _effectflag_new(int32_t x, int32_t y, int32_t layer)
