@@ -3838,7 +3838,7 @@ void game_loop()
 		#if LOGGAMELOOP > 0
 		al_trace("game_loop is calling: %s\n", "draw_screen()\n");
 		#endif
-		if ( !FFCore.system_suspend[susptSCREENDRAW] ) draw_screen(&tmpscr,true,true);
+		if ( !FFCore.system_suspend[susptSCREENDRAW] ) draw_screen(true,true);
 		else FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
 		
 		//clear Hero's last hits 

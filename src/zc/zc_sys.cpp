@@ -1791,7 +1791,7 @@ void close_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 		FFCore.warpScriptCheck();
         for(int32_t i=0; i<66; i++)
         {
-            draw_screen(&tmpscr);
+            draw_screen();
             //put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
             syskeys();
             advanceframe(true);
@@ -1835,7 +1835,7 @@ void open_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 		FFCore.warpScriptCheck();
         for(int32_t i=0; i<66; i++)
         {
-            draw_screen(&tmpscr);
+            draw_screen();
             //put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
             syskeys();
             advanceframe(true);
@@ -5006,7 +5006,7 @@ void zapout()
 void zapin()
 {
 	FFCore.warpScriptCheck();
-    draw_screen(&tmpscr);
+    draw_screen();
     set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
     //put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
     blit(framebuf,scrollbuf,0,0,256,0,256,224);
@@ -5029,7 +5029,7 @@ void zapin()
 
 void wavyout(bool showhero)
 {
-    draw_screen(&tmpscr, showhero);
+    draw_screen(showhero);
     //put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
     
     BITMAP *wavebuf = create_bitmap_ex(8,288,224);
@@ -5095,7 +5095,7 @@ void wavyout(bool showhero)
 
 void wavyin()
 {
-    draw_screen(&tmpscr);
+    draw_screen();
     //put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
     
     BITMAP *wavebuf = create_bitmap_ex(8,288,224);
@@ -5220,7 +5220,7 @@ void openscreen(int32_t shape)
 	FFCore.warpScriptCheck();
     for(int32_t i=0; i<80; i++)
     {
-        draw_screen(&tmpscr);
+        draw_screen();
         //? draw_screen already draws the subscreen -DD
         //put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
         x=128-(((i*128/80)/8)*8);
@@ -5280,7 +5280,7 @@ void closescreen(int32_t shape)
 	FFCore.warpScriptCheck();
     for(int32_t i=79; i>=0; --i)
     {
-        draw_screen(&tmpscr);
+        draw_screen();
         //? draw_screen already draws the subscreen -DD
         //put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
         x=128-(((i*128/80)/8)*8);

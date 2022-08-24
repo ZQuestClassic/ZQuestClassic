@@ -4169,10 +4169,10 @@ void draw_msgstr(byte layer, bool tempb = false)
 	}
 }
 
-// TODO z3 remove this_screen
-void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
+void draw_screen(bool showhero, bool runGeneric)
 {
-	// DCHECK(this_screen == &tmpscr);
+	mapscr* this_screen = &tmpscr;
+	
 	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
 	{
 		FFCore.doScriptMenuDraws();

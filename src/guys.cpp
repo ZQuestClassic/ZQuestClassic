@@ -16280,7 +16280,7 @@ void getBigTri(int32_t id2)
 	
 	setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 	
-	draw_screen(&tmpscr);
+	draw_screen();
 	
 	for(int32_t f=0; f<24*8 && !Quit; f++)
 	{

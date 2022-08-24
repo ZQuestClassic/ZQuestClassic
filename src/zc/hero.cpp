@@ -501,7 +501,7 @@ void HeroClass::sethitHeroUID(int32_t type, int32_t screen_index)
 	    }
 	    
 	    
-	    draw_screen(&tmpscr);
+	    draw_screen();
 	    
 	    //clear Hero's last hits 
 	    //for ( int32_t q = 0; q < 4; q++ ) Hero.sethitHeroUID(q, 0);
@@ -21334,7 +21334,7 @@ RaftingStuff:
 	//I have no idea why we do this skip, but I'll dutifully propagate it to all cases below...
 	/*if(tmpscr[t].tilewarptype[index] != wtNOWARP)
 	{
-		draw_screen(&tmpscr);
+		draw_screen();
 		advanceframe(true);
 	}*/
 	
@@ -21371,7 +21371,7 @@ RaftingStuff:
 						? false : COOLSCROLL);
 						
 		FFCore.warpScriptCheck();
-		draw_screen(cur_scr);
+		draw_screen();
         advanceframe(true);
 		
 		skippedaframe=true;
@@ -21397,7 +21397,7 @@ RaftingStuff:
 		if(!skippedaframe)
 		{
 			FFCore.warpScriptCheck();
-			draw_screen(&tmpscr);
+			draw_screen();
 			advanceframe(true);
 		}
 		
@@ -21448,7 +21448,7 @@ RaftingStuff:
 		if(!skippedaframe)
 		{
 			FFCore.warpScriptCheck();
-			draw_screen(base_scr);
+			draw_screen();
 			advanceframe(true);
 		}
 		
@@ -21492,7 +21492,7 @@ RaftingStuff:
 		if(!skippedaframe && (base_scr->tilewarptype[index]!=wtNOWARP))
 		{
 			FFCore.warpScriptCheck();
-			draw_screen(cur_scr);
+			draw_screen();
 			advanceframe(true);
 		}
 		
@@ -21720,7 +21720,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			specialcave = ITEMCELLAR;
 			map_bkgsfx(false);
 			kill_enemy_sfx();
-			draw_screen(&tmpscr, false);
+			draw_screen(false);
 			
 			//unless the room is already dark, fade to black
 			if(!darkroom)
@@ -21733,7 +21733,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			bool no_x80_dir = true; // TODO: is this necessary?
 			loadscr(wdmap, 0x80, down, false, no_x80_dir);
 			if ( dontdraw < 2 ) {  dontdraw=1; }
-			draw_screen(&tmpscr);
+			draw_screen();
 			fade(11,true,true);
 			darkroom = false;
 			dir=down;
@@ -21782,7 +21782,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		if(warpsfx > 0) sfx(warpsfx,pan(x.getInt()));
 		specialcave = PASSAGEWAY;
 		byte warpscr2 = wscr + DMaps[wdmap].xoff;
-		draw_screen(cur_scr,false);
+		draw_screen(false);
 		
 		if(!get_bit(quest_rules, qr_NEW_DARKROOM))
 		{
@@ -21797,7 +21797,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		//preloaded freeform combos
 		ffscript_engine(true);
 		if ( dontdraw < 2 ) { dontdraw=1; }
-		draw_screen(&tmpscr);
+		draw_screen();
 		lighting(false, true);
 		dir=down;
 		x=48;
@@ -23076,7 +23076,7 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
         }
         
 	
-        draw_screen(&tmpscr);
+        draw_screen();
 		if (canSideviewLadder()) setOnSideviewLadder(true);
         advanceframe(true);
         
@@ -23094,7 +23094,7 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
 		y = y.getInt();
 	}
     set_respawn_point();
-    draw_screen(&tmpscr);
+    draw_screen();
     eat_buttons();
     shiftdir=sh;
 }
@@ -23140,7 +23140,7 @@ void HeroClass::walkdown(bool opening) //entering cave
 			--viewport.yofs;
 		}
 
-        draw_screen(&tmpscr);
+        draw_screen();
         advanceframe(true);
         
         if(Quit)
@@ -23200,7 +23200,7 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
 			--viewport.yofs;
 		}
             
-        draw_screen(&tmpscr);
+        draw_screen();
         advanceframe(true);
         
         if(Quit)
@@ -23260,7 +23260,7 @@ void HeroClass::walkup(bool opening) //exiting cave
 			++viewport.yofs;
 		}
             
-        draw_screen(&tmpscr);
+        draw_screen();
         advanceframe(true);
         
         if(Quit)
@@ -23309,7 +23309,7 @@ void HeroClass::walkup2(bool opening) //entering cave2
         if((i&3)==0)
             --y;
             
-        draw_screen(&tmpscr);
+        draw_screen();
         advanceframe(true);
         
         if(Quit)
@@ -23327,7 +23327,7 @@ void HeroClass::stepout() // Step out of item cellars and passageways
     stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
     map_bkgsfx(false);
     kill_enemy_sfx();
-    draw_screen(&tmpscr,false);
+    draw_screen(false);
     fade(sc>=GUYCAVE?10:11,true,false);
     blackscr(30,true);
     ringcolor(false);
@@ -23346,7 +23346,7 @@ void HeroClass::stepout() // Step out of item cellars and passageways
     }
     
     loadscr(currdmap, homescr, 255, false);                                   // bogus direction
-    draw_screen(&tmpscr,false);
+    draw_screen(false);
     
     if(get_bit(quest_rules, qr_NEW_DARKROOM) || !(tmpscr.flags&fDARK))
     {
@@ -24456,7 +24456,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_ITEMSPRITE_WAITDRAW);
 		
 		//This is no longer a do-while, as the first iteration is now slightly different. -Em
-		draw_screen(&tmpscr,true,true);
+		draw_screen(true,true);
 		
 		// if(cx == scx)
 		// 	rehydratelake(false);
@@ -24484,7 +24484,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 				ZScriptVersion::RunScrollingScript(scrolldir, wait_counter, 0, 0, false, true); // Waitdraw
 			}
 			else FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
-			draw_screen(&tmpscr,true,true);
+			draw_screen(true,true);
 			
 			if (wait_counter == scx)
 				rehydratelake(false);
@@ -25510,7 +25510,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_ITEMSPRITE_WAITDRAW);
 	
 	//This is no longer a do-while, as the first iteration is now slightly different. -Em
-	draw_screen(&tmpscr,true,true);
+	draw_screen(true,true);
 	
 	if(cx == scx)
 		rehydratelake(false);
@@ -25535,7 +25535,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, true); //Waitdraw
 		}
 		else FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
-		draw_screen(&tmpscr,true,true);
+		draw_screen(true,true);
 		
 		if(cx == scx)
 			rehydratelake(false);
@@ -28531,11 +28531,11 @@ void HeroClass::getTriforce(int32_t id2)
 				draw_screen_clip_rect_x2=255-curtain_x;
 				draw_screen_clip_rect_y1=0;
 				draw_screen_clip_rect_y2=223;
-				//draw_screen(&tmpscr);
+				//draw_screen();
 			}
 		}
 	
-		draw_screen(&tmpscr);
+		draw_screen();
 		//this causes bugs
 		//the subscreen appearing over the curtain effect should now be fixed in draw_screen
 		//so this is not necessary -DD
@@ -28960,7 +28960,7 @@ void HeroClass::heroDeathAnimation()
 				{
 					if(f<60)
 					{
-						draw_screen(&tmpscr);
+						draw_screen();
 						//reuse our static subscreen
 						set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 						blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
@@ -28982,7 +28982,7 @@ void HeroClass::heroDeathAnimation()
                     
 					if(f>=60 && f<=169)
 					{
-						draw_screen(&tmpscr);
+						draw_screen();
 						//reuse our static subscreen
 						blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
 						red_shift();
@@ -29100,7 +29100,7 @@ void HeroClass::heroDeathAnimation()
                 
 				if(f < 169)
 				{
-					draw_screen(&tmpscr);
+					draw_screen();
 					//reuse our static subscreen
 					blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
 				}
@@ -29259,7 +29259,7 @@ void HeroClass::ganon_intro()
             holditem=getItemID(itemsbuf,itype_triforcepiece,1);
         }
         
-        draw_screen(&tmpscr);
+        draw_screen();
         advanceframe(true);
         
         if(rSbtn())
