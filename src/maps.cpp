@@ -1825,36 +1825,37 @@ int32_t getpitfall(int32_t x, int32_t y) //Return the highest-layer active pit c
 	return 0;
 }
 
-bool isSVLadder(int32_t x, int32_t y)
-{
-	if(x<0 || x>255 || y<0 || y>175)
-        return false;
-	
-    mapscr *s1, *s2;
-    s1=(tmpscr2->valid)?tmpscr2:&tmpscr;
-    s2=(tmpscr2[1].valid)?tmpscr2+1:&tmpscr;
-	
-    int32_t combo = COMBOPOS(x,y);
-    return (tmpscr.sflag[combo] == mfSIDEVIEWLADDER) || (combobuf[tmpscr.data[combo]].flag == mfSIDEVIEWLADDER) ||
-		(s1->sflag[combo] == mfSIDEVIEWLADDER) || (combobuf[s1->data[combo]].flag == mfSIDEVIEWLADDER) ||
-		(s2->sflag[combo] == mfSIDEVIEWLADDER) || (combobuf[s2->data[combo]].flag == mfSIDEVIEWLADDER);
-}
-
-bool isSVPlatform(int32_t x, int32_t y)
+static bool checkSV(int32_t x, int32_t y, int32_t flag)
 {
 	if(x<0 || x>=world_w || y<0 || y>=world_h)
         return false;
 	
+	int32_t pos = COMBOPOS(x%256, y%176);
 	mapscr* base_scr = get_layer_scr_for_xy(x, y, -1);
-	mapscr* lyr1_scr = get_layer_scr_for_xy(x, y, 0);
-	mapscr* lyr2_scr = get_layer_scr_for_xy(x, y, 1);
-    mapscr* s1 = (lyr1_scr->valid) ? lyr1_scr : base_scr;
-	mapscr* s2 = (lyr2_scr->valid) ? lyr2_scr : base_scr;
+	if (base_scr->sflag[pos] == flag || combobuf[base_scr->data[pos]].flag == flag)
+		return true;
 	
-    int32_t combo = COMBOPOS(x%256, y%176);
-    return (base_scr->sflag[combo] == mfSIDEVIEWPLATFORM) || (combobuf[base_scr->data[combo]].flag == mfSIDEVIEWPLATFORM) ||
-		(s1->sflag[combo] == mfSIDEVIEWPLATFORM) || (combobuf[s1->data[combo]].flag == mfSIDEVIEWPLATFORM) ||
-		(s2->sflag[combo] == mfSIDEVIEWPLATFORM) || (combobuf[s2->data[combo]].flag == mfSIDEVIEWPLATFORM);
+	mapscr* lyr1_scr = get_layer_scr_for_xy(x, y, 0);
+	if (lyr1_scr->valid)
+		if (lyr1_scr->sflag[pos] == flag || combobuf[lyr1_scr->data[pos]].flag == flag)
+			return true;
+	
+	mapscr* lyr2_scr = get_layer_scr_for_xy(x, y, 1);
+	if (lyr2_scr->valid)
+		if (lyr2_scr->sflag[pos] == flag || combobuf[lyr2_scr->data[pos]].flag == flag)
+			return true;
+	
+	return false;
+}
+
+bool isSVLadder(int32_t x, int32_t y)
+{
+	return checkSV(x, y, mfSIDEVIEWLADDER);
+}
+
+bool isSVPlatform(int32_t x, int32_t y)
+{
+	return checkSV(x, y, mfSIDEVIEWPLATFORM);
 }
 
 bool checkSVLadderPlatform(int32_t x, int32_t y)
