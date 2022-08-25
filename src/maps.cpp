@@ -136,7 +136,7 @@ int get_region_id(int dmap, int scr)
 #ifndef hardcode_regions_mode
 	int sx = scr % 16;
 	int sy = scr / 16;
-	return getNibble(DMaps[currdmap].region_indices[sy][sx/2], sx % 2 == 0);
+	return getNibble(DMaps[dmap].region_indices[sy][sx/2], sx % 2 == 0);
 #else
 	return 1;
 #endif
@@ -200,19 +200,21 @@ void z3_calculate_region(int dmap, int screen_index, int& origin_scr, int& regio
 	DCHECK_RANGE_INCLUSIVE(region_scr_height, 0, 8);
 }
 
-void z3_load_region()
+void z3_load_region(int dmap)
 {
+	if (dmap == -1) dmap = currdmap;
+
 #ifndef hardcode_regions_mode
 	for (int sy = 0; sy < 8; sy++)
 	{
 		for (int sx = 0; sx < 16; sx++)
 		{
-			current_region_indices[sx + sy*16] = getNibble(DMaps[currdmap].region_indices[sy][sx/2], sx % 2 == 0);
+			current_region_indices[sx + sy*16] = getNibble(DMaps[dmap].region_indices[sy][sx/2], sx % 2 == 0);
 		}
 	}
 #endif
 
-	z3_calculate_region(currdmap, currscr, z3_origin_screen_index, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
+	z3_calculate_region(dmap, currscr, z3_origin_screen_index, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
 	region_max_rpos = static_cast<rpos_t>(region_scr_width*region_scr_height*176 - 1);
 	initial_region_scr = currscr;
 	scrolling_maze_state = 0;
@@ -405,8 +407,8 @@ mapscr* get_scr(int map, int screen)
 		int index = screen*7;
 		if (!temporary_screens_currmap[index])
 		{
-			// TODO z3 ! this should never happen?
-			// DCHECK(false);
+			// Only needed during screen scrolling.
+			DCHECK(screenscrolling);
 			load_a_screen_and_layers(currdmap, map, screen, -1);
 		}
 		return temporary_screens_currmap[index];
@@ -431,7 +433,8 @@ mapscr* get_layer_scr(int map, int screen, int layer)
 		int index = screen*7;
 		if (!temporary_screens_currmap[index])
 		{
-			// DCHECK(false); // TODO z3 ?
+			// Only needed during screen scrolling.
+			DCHECK(screenscrolling);
 			load_a_screen_and_layers(currdmap, map, screen, -1);
 		}
 		return temporary_screens_currmap[index+layer+1];
@@ -478,7 +481,8 @@ int32_t COMBOY_REGION_EXTENDED(int32_t pos)
 
 int32_t COMBOPOS(int32_t x, int32_t y)
 {
-	DCHECK(x >= 0 && x < 256 && y >= 0 && y < 176);
+	// TODO z3 !
+	// DCHECK(x >= 0 && x < 256 && y >= 0 && y < 176);
 	return (((y) & 0xF0) + ((x) >> 4));
 }
 int32_t COMBOX(int32_t pos)
@@ -3667,6 +3671,7 @@ void do_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t
 void do_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int32_t layer, mapscr* basescr, int32_t x, int32_t y, int32_t tempscreen, bool scrolling, bool drawprimitives)
 {
 	DCHECK(tempscreen == 2 || tempscreen == 3);
+	DCHECK_LAYER_ZERO_INDEX(layer);
 
 	mapscr* layerscr;
 	if (is_z3_scrolling_mode() || tempscreen == 2)
@@ -5449,7 +5454,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 
 	int previous_currscr = currscr;
 	currscr = scr;
-	z3_load_region();
+	z3_load_region(destdmap);
 
 	if (scr >= 0x80)
 	{
