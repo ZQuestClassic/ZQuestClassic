@@ -1306,6 +1306,7 @@ void setxmapflag2(int32_t screen, int32_t flag)
 }
 void setxmapflag(int32_t mi2, uint32_t flag)
 {
+	if(game->xstates[mi2] & flag) return;
     byte cscr = mi2&((1<<7)-1);
     byte cmap = (mi2>>7);
     char buf[20];
@@ -1323,6 +1324,7 @@ void setxmapflag(uint32_t flag)
 }
 void unsetxmapflag(int32_t mi2, uint32_t flag)
 {
+	if(!(game->xstates[mi2] & flag)) return;
     byte cscr = mi2&((1<<7)-1);
     byte cmap = (mi2>>7);
     char buf[20];
