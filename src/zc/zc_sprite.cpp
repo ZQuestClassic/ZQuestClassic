@@ -268,6 +268,12 @@ bool is_push(mapscr* m, int32_t pos)
 
 bool movingblock::animate(int32_t)
 {
+	if (x > world_w || y > world_h)
+	{
+		// movingblock keeps animating even when moving to a different screen ...
+		return false;
+	}
+
 	auto pos_handle = get_pos_handle_for_world_xy(x, y, blockLayer);
 	mapscr* m = pos_handle.screen;
 
