@@ -5087,6 +5087,7 @@ void edit_enemydata(int32_t index)
 	
 	setEnemyLabels(guysbuf[index].family);
 	
+	popup_zqdialog_start();
 	do
 	{
 		for(int32_t i=0; i<10; i++)
@@ -5180,7 +5181,7 @@ void edit_enemydata(int32_t index)
 		enedata_dlg[332].dp = attribs[30];
 		enedata_dlg[333].dp = attribs[31];*/
 		
-		ret = zc_popup_dialog(enedata_dlg,3);
+		ret = do_zqdialog(enedata_dlg,3);
 		
 		
 		
@@ -5449,7 +5450,7 @@ void edit_enemydata(int32_t index)
 	}
 	//252 == 	OK button, 253 == Cancel Button
 	while(ret != 252 && ret != 253 && ret != 0);
-	
+	popup_zqdialog_end();
 }
 
 extern DIALOG elist_dlg[];

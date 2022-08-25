@@ -21319,144 +21319,145 @@ static DIALOG enemy_dlg[] =
 
 int32_t onEnemies()
 {
-    word oldenemy[10];
-    memcpy(oldenemy,Map.CurrScr()->enemy,10*sizeof(word));
-    restore_mouse();
-    char buf[24] = " ";
-    int32_t ret;
-    int32_t copy=-1;
-    
-    build_bie_list(true);
-    
-    enemy_dlg[0].dp2=lfont;
-    
-    if(Map.CanPaste())
-    {
-        enemy_dlg[3].flags=D_EXIT;
-        sprintf(buf,"Past&e (from %d:%02X)",(Map.CopyScr()>>8)+1,Map.CopyScr()&255);
-    }
-    else
-    {
-        enemy_dlg[3].flags=D_DISABLED;
-        sprintf(buf,"Past&e from screen");
-    }
-    
-    enemy_dlg[3].dp=buf;
-    enemy_dlg[2].d1=0;
-    
-    do
-    {
-        if(copy==-1)
-        {
-            enemy_dlg[13].y=zq_screen_h;
-        }
-        else
-        {
-            enemy_dlg[13].y=(int32_t)((copy<<3)*(is_large?1.6:1))+enemy_dlg[2].y+4;
-        }
-        
-        if(is_large)
-        {
-            large_dialog(enemy_dlg);
-            // Fix d_enelist_proc
-            enemy_dlg[2].dp2 = 0;
-            //((ListData *)enemy_dlg[2].dp)->font = &sfont3;
-            ((ListData *)enemy_dlg[2].dp)->font = &lfont_l;
-        }
-        
-        ret = zc_do_dialog(enemy_dlg,2);
-        
-        switch(ret)
-        {
-        case 2:
-        {
-            int32_t exit_status;
-            int32_t i = enemy_dlg[2].d1;
-            
-            do
-            {
-                int32_t enemy = Map.CurrScr()->enemy[i];
-                enemy = select_enemy("Select Enemy",enemy,true,false,exit_status);
-                
-                if(enemy>=0)
-                {
-                    if(exit_status==5 && enemy > 0)
-                    {
-                        edit_enemydata(enemy);
-                    }
-                    else
-                    {
-                        saved=false;
-                        Map.CurrScr()->enemy[i] = enemy;
-                    }
-                }
-            }
-            while(exit_status==5);
-        }
-        break;
-        
-        case 3:
-            saved=false;
-            Map.PasteEnemies();
-            break;
-            
-        case 5:
-            onEnemyFlags();
-            break;
-            
-        case 6:
-            onPattern();
-            break;
-            
-        case 7:
-            copy = enemy_dlg[2].d1;
-            break;
-            
-        case 8:
-            saved=false;
-            
-            if(copy>=0)
-            {
-                Map.CurrScr()->enemy[enemy_dlg[2].d1] = Map.CurrScr()->enemy[copy];
-            }
-            
-            break;
-            
-        case 9:
-            saved=false;
-            Map.CurrScr()->enemy[enemy_dlg[2].d1] = 0;
-            break;
-            
-        case 0:
-        case 11: //cancel
-            memcpy(Map.CurrScr()->enemy,oldenemy,10*sizeof(word));
-            break;
-            
-        case 10: //ok
-        {
-            bool end = false;
-            
-            for(int32_t i=0; i<10; i++)
-            {
-                if(Map.CurrScr()->enemy[i]==0)
-                    end = true;
-                else if(end)
-                {
-                    if(jwin_alert("Inactive Enemies","Enemies won't appear if they're preceded"," by '(None)' in the list! Continue?",NULL,"Yes","No",'y','n',lfont)==2)
-                        ret=-1;
-                        
-                    break;
-                }
-            }
-            
-            break;
-        }
-        }
-    }
-    while(ret<10&&ret!=0);
-    
-    refresh(rALL);
-    return D_O_K;
+	word oldenemy[10];
+	memcpy(oldenemy,Map.CurrScr()->enemy,10*sizeof(word));
+	restore_mouse();
+	char buf[24] = " ";
+	int32_t ret;
+	int32_t copy=-1;
+	
+	build_bie_list(true);
+	
+	enemy_dlg[0].dp2=lfont;
+	
+	if(Map.CanPaste())
+	{
+		enemy_dlg[3].flags=D_EXIT;
+		sprintf(buf,"Past&e (from %d:%02X)",(Map.CopyScr()>>8)+1,Map.CopyScr()&255);
+	}
+	else
+	{
+		enemy_dlg[3].flags=D_DISABLED;
+		sprintf(buf,"Past&e from screen");
+	}
+	
+	enemy_dlg[3].dp=buf;
+	enemy_dlg[2].d1=0;
+	
+	do
+	{
+		if(copy==-1)
+		{
+			enemy_dlg[13].y=zq_screen_h;
+		}
+		else
+		{
+			enemy_dlg[13].y=(int32_t)((copy<<3)*(is_large?1.6:1))+enemy_dlg[2].y+4;
+		}
+		
+		if(is_large)
+		{
+			large_dialog(enemy_dlg);
+			// Fix d_enelist_proc
+			enemy_dlg[2].dp2 = 0;
+			//((ListData *)enemy_dlg[2].dp)->font = &sfont3;
+			((ListData *)enemy_dlg[2].dp)->font = &lfont_l;
+		}
+		
+		ret = zc_do_dialog(enemy_dlg,2);
+		
+		switch(ret)
+		{
+		case 2:
+		{
+			int32_t exit_status;
+			int32_t i = enemy_dlg[2].d1;
+			popup_zqdialog_start();
+			do
+			{
+				int32_t enemy = Map.CurrScr()->enemy[i];
+				enemy = select_enemy("Select Enemy",enemy,true,false,exit_status);
+				
+				if(enemy>=0)
+				{
+					if(exit_status==5 && enemy > 0)
+					{
+						edit_enemydata(enemy);
+					}
+					else
+					{
+						saved=false;
+						Map.CurrScr()->enemy[i] = enemy;
+					}
+				}
+			}
+			while(exit_status==5);
+			popup_zqdialog_end();
+		}
+		break;
+		
+		case 3:
+			saved=false;
+			Map.PasteEnemies();
+			break;
+			
+		case 5:
+			onEnemyFlags();
+			break;
+			
+		case 6:
+			onPattern();
+			break;
+			
+		case 7:
+			copy = enemy_dlg[2].d1;
+			break;
+			
+		case 8:
+			saved=false;
+			
+			if(copy>=0)
+			{
+				Map.CurrScr()->enemy[enemy_dlg[2].d1] = Map.CurrScr()->enemy[copy];
+			}
+			
+			break;
+			
+		case 9:
+			saved=false;
+			Map.CurrScr()->enemy[enemy_dlg[2].d1] = 0;
+			break;
+			
+		case 0:
+		case 11: //cancel
+			memcpy(Map.CurrScr()->enemy,oldenemy,10*sizeof(word));
+			break;
+			
+		case 10: //ok
+		{
+			bool end = false;
+			
+			for(int32_t i=0; i<10; i++)
+			{
+				if(Map.CurrScr()->enemy[i]==0)
+					end = true;
+				else if(end)
+				{
+					if(jwin_alert("Inactive Enemies","Enemies won't appear if they're preceded"," by '(None)' in the list! Continue?",NULL,"Yes","No",'y','n',lfont)==2)
+						ret=-1;
+						
+					break;
+				}
+			}
+			
+			break;
+		}
+		}
+	}
+	while(ret<10&&ret!=0);
+	
+	refresh(rALL);
+	return D_O_K;
 }
 
 /*******************************/
