@@ -479,8 +479,7 @@ int32_t COMBOY_REGION_EXTENDED(int32_t pos)
 
 int32_t COMBOPOS(int32_t x, int32_t y)
 {
-	// TODO z3 !
-	// DCHECK(x >= 0 && x < 256 && y >= 0 && y < 176);
+	DCHECK(x >= 0 && x < 256 && y >= 0 && y < 176);
 	return (((y) & 0xF0) + ((x) >> 4));
 }
 int32_t COMBOX(int32_t pos)

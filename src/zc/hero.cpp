@@ -18315,6 +18315,17 @@ void HeroClass::checkchest(int32_t type)
 		prompt_combo = 0;
 }
 
+void HeroClass::checkgenpush(rpos_t rpos)
+{
+	for (int layer = 0; layer < 7; ++layer)
+	{
+		auto pos_handle = get_pos_handle(rpos, layer);
+		newcombo const& cmb = combobuf[pos_handle.screen->data[RPOS_TO_POS(rpos)]];
+		if (cmb.triggerflags[1] & combotriggerPUSH)
+			do_trigger_combo(pos_handle);
+	}
+}
+
 void HeroClass::checkgenpush()
 {
 	if(pushing < 8 || pushing % 8) return;
@@ -18347,23 +18358,11 @@ void HeroClass::checkgenpush()
 			bx2 = x + 17;
 			break;
 	}
-	// TODO z3 !
-	auto pos1 = COMBOPOS(bx,by);
-	auto pos2 = COMBOPOS(bx2,by2);
-	for(auto layer = 0; layer < 7; ++layer)
-	{
-		mapscr* tmp = FFCore.tempScreens[layer];
-		
-		newcombo const& cmb1 = combobuf[tmp->data[pos1]];
-		if(cmb1.triggerflags[1] & combotriggerPUSH)
-			do_trigger_combo(layer,pos1);
-		
-		if(pos1==pos2) continue;
-		
-		newcombo const& cmb2 = combobuf[tmp->data[pos2]];
-		if(cmb2.triggerflags[1] & combotriggerPUSH)
-			do_trigger_combo(layer,pos2);
-	}
+
+	rpos_t rpos_1 = COMBOPOS_REGION(bx, by);
+	rpos_t rpos_2 = COMBOPOS_REGION(bx2, by2);
+	checkgenpush(rpos_1);
+	if (rpos_1 != rpos_2) checkgenpush(rpos_2);
 }
 
 void HeroClass::checksigns() //Also checks for generic trigger buttons
