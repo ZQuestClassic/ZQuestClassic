@@ -407,8 +407,7 @@ mapscr* get_scr(int map, int screen)
 		int index = screen*7;
 		if (!temporary_screens_currmap[index])
 		{
-			// Only needed during screen scrolling.
-			DCHECK(screenscrolling);
+			// Only needed during screen scrolling, and loadscr_old(1) ...
 			load_a_screen_and_layers(currdmap, map, screen, -1);
 		}
 		return temporary_screens_currmap[index];
@@ -433,8 +432,7 @@ mapscr* get_layer_scr(int map, int screen, int layer)
 		int index = screen*7;
 		if (!temporary_screens_currmap[index])
 		{
-			// Only needed during screen scrolling.
-			DCHECK(screenscrolling);
+			// Only needed during screen scrolling, and loadscr_old(1) ...
 			load_a_screen_and_layers(currdmap, map, screen, -1);
 		}
 		return temporary_screens_currmap[index+layer+1];
@@ -5334,7 +5332,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 
 	int destlvl = DMaps[dmap].level;
 	toggle_switches(game->lvlswitches[destlvl], true, base_screen, screen_index);
-	toggle_gswitches_load(screen_index);
+	toggle_gswitches_load(base_screen, screen_index);
 
 	// Old code would call these state functions even for 0x80+ screens, which doesn't
 	// make any damn sense. Technically some quest could rely on this weird behavior
@@ -5751,7 +5749,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	}
 	
 	toggle_switches(game->lvlswitches[destlvl], true, tmp == 0 ? &tmpscr : &special_warp_return_screen, tmp == 0 ? initial_region_scr : homescr);
-	toggle_gswitches_load(tmp == 0 ? initial_region_scr : homescr);
+	toggle_gswitches_load(tmp == 0 ? &tmpscr : &special_warp_return_screen, tmp == 0 ? initial_region_scr : homescr);
 	
 	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKBLOCK)			  // if special stuff done before
 	{
@@ -6923,22 +6921,22 @@ void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index)
 void toggle_gswitches(int32_t state, bool entry)
 {
 	for_every_screen_in_region([&](mapscr* z3_scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
-		toggle_gswitches(state, entry, screen_index);
+		toggle_gswitches(state, entry, z3_scr, screen_index);
 	});
 }
-void toggle_gswitches(int32_t state, bool entry, int screen_index)
+void toggle_gswitches(int32_t state, bool entry, mapscr* base_screen, int screen_index)
 {
 	bool states[256] = {false};
 	states[state] = true;
-	toggle_gswitches(states, entry, screen_index);
+	toggle_gswitches(states, entry, base_screen, screen_index);
 }
-void toggle_gswitches(bool* states, bool entry, int screen_index)
+void toggle_gswitches(bool* states, bool entry, mapscr* base_screen, int screen_index)
 {
 	if(!states) return;
 	byte togglegrid[176] = {0};
 	for(int32_t lyr = 0; lyr < 7; ++lyr)
 	{
-		mapscr* scr = get_layer_scr(currmap, screen_index, lyr - 1);
+		mapscr* scr = lyr == 0 ? base_screen : get_layer_scr(currmap, screen_index, lyr - 1);
 		for(int32_t pos = 0; pos < 176; ++pos)
 		{
 			newcombo const& cmb = combobuf[scr->data[pos]];
@@ -6981,7 +6979,7 @@ void toggle_gswitches(bool* states, bool entry, int screen_index)
 						if(lyr==lyr2) continue;
 						if(!(cmb.usrflags&(1<<lyr2))) continue;
 						if(togglegrid[pos]&(1<<lyr2)) continue;
-						mapscr* scr_2 = get_layer_scr(currmap, screen_index, lyr2 - 1);
+						mapscr* scr_2 = lyr2 == 0 ? base_screen : get_layer_scr(currmap, screen_index, lyr2 - 1);
 						if(!scr_2->data[pos]) //Don't increment empty space
 							continue;
 						newcombo const& cmb_2 = combobuf[scr_2->data[pos]];
@@ -7042,14 +7040,14 @@ void toggle_gswitches(bool* states, bool entry, int screen_index)
 		}
 	}
 }
-void toggle_gswitches_load(int screen_index)
+void toggle_gswitches_load(mapscr* base_screen, int screen_index)
 {
 	bool states[256] = {false};
 	for(auto q = 0; q < 256; ++q)
 	{
 		states[q] = game->gswitch_timers[q] != 0;
 	}
-	toggle_gswitches(states, true, screen_index);
+	toggle_gswitches(states, true, base_screen, screen_index);
 }
 void run_gswitch_timers()
 {
@@ -7061,7 +7059,7 @@ void run_gswitch_timers()
 				states[q] = true;
 	}
 	for_every_screen_in_region([&](mapscr* z3_scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
-		toggle_gswitches(states, false, screen_index);
+		toggle_gswitches(states, false, z3_scr, screen_index);
 	});
 }
 void onload_gswitch_timers() //Reset all timers that were counting down, no trigger necessary

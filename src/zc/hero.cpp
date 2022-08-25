@@ -25140,8 +25140,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
 			clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
 			for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* screens[], int map, int scr, int draw_dx, int draw_dy) {
-				int offx = draw_dx * 256;
-				int offy = draw_dy * 176;
+				int offx = draw_dx * 256 + sx;
+				int offy = draw_dy * 176 + sy;
 				calc_darkroom_combos2(scr, offx, offy);
 			});
 			calc_darkroom_hero2(sx, sy);
@@ -25156,8 +25156,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 				int offx = draw_dx * 256;
 				int offy = draw_dy * 176;
-				int dx = sx + offx - viewport.x;
-				int dy = sy + offy + playing_field_offset - viewport.y;
+				int dx = offx - viewport.x;
+				int dy = offy + playing_field_offset - viewport.y;
 				
 				calc_darkroom_combos2(scr, offx, offy);
 
