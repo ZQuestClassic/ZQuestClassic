@@ -214,6 +214,7 @@ void z3_load_region(int dmap)
 	}
 #endif
 
+	// TODO z3 unroll
 	z3_calculate_region(dmap, currscr, z3_origin_screen_index, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
 	region_max_rpos = static_cast<rpos_t>(region_scr_width*region_scr_height*176 - 1);
 	initial_region_scr = currscr;

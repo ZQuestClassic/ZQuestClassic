@@ -24481,8 +24481,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		//This is no longer a do-while, as the first iteration is now slightly different. -Em
 		draw_screen(true,true);
 		
-		// if(cx == scx)
-		// 	rehydratelake(false);
+		rehydratelake(false);
 			
 		FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
 	}
@@ -24579,10 +24578,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	}
 	currmap = destmap;
 
-	// `loadscr` typically frees all temporary screens, but we need them for drawing during scrolling.
+	// Remember everything about the current region, because `loadscr` is about to reset this data.
 	std::vector<mapscr*> old_temporary_screens = z3_take_temporary_screens();
-
-	// Remember everything about the current region.
 	int old_origin_scr = z3_get_origin_scr();
 	int old_region_scr_width = region_scr_width;
 	int old_region_scr_height = region_scr_height;
@@ -24590,25 +24587,20 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	int old_region_scr_dy = region_scr_dy;
 	int old_world_w = world_w;
 	int old_world_h = world_h;
+	int old_x = x.getInt();
+	int old_y = y.getInt();
 	viewport_t old_viewport = viewport;
 
 	loadscr(destdmap == -1 ? currdmap : destdmap, destscr, scrolldir, overlay);
 	mapscr* newscr = get_scr(destmap, destscr);
-
-	// TODO z3: better comment for this chunk of code
-	// Determine by how much we need to align to the new region's viewport.
-	// This sets `secondary_axis_alignment_amount` to the number of pixels needed to adjust along the secondary axis
-	// to move (the position of link relative to the display) from the old viewport to the new viewport.
-	viewport_t new_viewport = {0};
-	viewport_t initial_viewport = {0};
-	int prev_x = x.getInt();
-	int prev_y = y.getInt();
-	int secondary_axis_alignment_amount = 0;
-	double old_hero_x = x, old_hero_y = y;
+	
+	// Determine what the player position will be after scrolling (within the new screen's coordinate system),
+	// and what the new viewport will be.
 	double new_hero_x, new_hero_y;
+	viewport_t new_viewport = {0};
 	{
-		int new_origin_scr, new_region_scr_width, new_region_scr_height, new_region_scr_dx, new_region_scr_dy, new_world_w, new_world_h;
-		z3_calculate_region(destdmap == -1 ? currdmap : destdmap, destscr, new_origin_scr, new_region_scr_width, new_region_scr_height, new_region_scr_dx, new_region_scr_dy, new_world_w, new_world_h);
+		// The above `loadscr` has loaded the destination screen's region information into these global variables.
+		int new_origin_scr = z3_get_origin_scr();
 		int new_origin_scr_x = new_origin_scr % 16;
 		int new_origin_scr_y = new_origin_scr / 16;
 
@@ -24616,29 +24608,29 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		{
 			case up:
 			{
-				new_hero_x = new_region_scr_dx*256 + prev_x%256;
-				new_hero_y = new_world_h - 16;
+				new_hero_x = region_scr_dx*256 + old_x%256;
+				new_hero_y = world_h - 16;
 			}
 			break;
 			
 			case down:
 			{
-				new_hero_x = new_region_scr_dx*256 + prev_x%256;
+				new_hero_x = region_scr_dx*256 + old_x%256;
 				new_hero_y = 0;
 			}
 			break;
 			
 			case left:
 			{
-				new_hero_x = new_world_w - 16;
-				new_hero_y = new_region_scr_dy*176 + prev_y%176;
+				new_hero_x = world_w - 16;
+				new_hero_y = region_scr_dy*176 + old_y%176;
 			}
 			break;
 			
 			case right:
 			{
 				new_hero_x = 0;
-				new_hero_y = new_region_scr_dy*176 + prev_y%176;
+				new_hero_y = region_scr_dy*176 + old_y%176;
 			}
 			break;
 
@@ -24651,8 +24643,14 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			}
 		}
 
-		z3_calculate_viewport(newscr, new_world_w, new_world_h, new_hero_x, new_hero_y, new_viewport);
+		z3_calculate_viewport(newscr, world_w, world_h, new_hero_x, new_hero_y, new_viewport);
+	}
 
+	// Determine by how much we need to align to the new region's viewport.
+	// This sets `secondary_axis_alignment_amount` to the number of pixels needed to adjust along the secondary axis
+	// to move (the position of link relative to the display) from the old viewport to the new viewport.
+	int secondary_axis_alignment_amount;
+	{
 		int old_origin_scr_x = old_origin_scr % 16;
 		int old_origin_scr_y = old_origin_scr / 16;
 		int old_hero_screen_x = x.getInt() - old_viewport.x;
@@ -24662,9 +24660,12 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		if (dx)      secondary_axis_alignment_amount = new_hero_screen_y - old_hero_screen_y;
 		else if (dy) secondary_axis_alignment_amount = new_hero_screen_x - old_hero_screen_x;
 		else         secondary_axis_alignment_amount = 0;
+	}
 
-		// Set the initial scrolling viewport to be what the final viewport will be... minus some adjustments
-		// that will be undone during the scrolling loop. Read on.
+	// Set the initial scrolling viewport to be what the new viewport will be... minus some adjustments
+	// that will be undone during the scrolling loop. Read on.
+	viewport_t initial_viewport = {0};
+	{
 		initial_viewport = new_viewport;
 
 		// We're scrolling from the new region coordinate system to the old one, but we want
@@ -24680,34 +24681,34 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		{
 			case up:
 			{
-				x = new_region_scr_dx*256 + prev_x%256;
-				y = new_world_h;
+				x = region_scr_dx*256 + old_x%256;
+				y = world_h;
 				// TODO z3 prob right, but need to improve extended height mode (not be a global)
-				initial_viewport.y += new_viewport.h;
+				initial_viewport.y += viewport.h;
 			}
 			break;
 			
 			case down:
 			{
-				x = new_region_scr_dx*256 + prev_x%256;
+				x = region_scr_dx*256 + old_x%256;
 				y = -16;
-				initial_viewport.y -= new_viewport.h;
+				initial_viewport.y -= viewport.h;
 			}
 			break;
 
 			case right:
 			{
 				x = -16;
-				y = new_region_scr_dy*176 + prev_y%176;
-				initial_viewport.x -= new_viewport.w;
+				y = region_scr_dy*176 + old_y%176;
+				initial_viewport.x -= viewport.w;
 			}
 			break;
 			
 			case left:
 			{
-				x = new_world_w;
-				y = new_region_scr_dy*176 + prev_y%176;
-				initial_viewport.x += new_viewport.w;
+				x = world_w;
+				y = region_scr_dy*176 + old_y%176;
+				initial_viewport.x += viewport.w;
 			}
 			break;
 		}
