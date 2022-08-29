@@ -3633,6 +3633,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_GOHMA_UNDAMAGED_BUG,1);
 		set_bit(quest_rules,qr_FFCPRELOAD_BUGGED_LOAD,1);
 	}
+	if(compatrule_version < 32)
+	{
+		set_bit(quest_rules,qr_BROKEN_GETPIXEL_VALUE,1);
+	}
 	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);

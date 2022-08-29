@@ -31,6 +31,7 @@ uint8_t using_SRAM = 0;
 #include "zc_malloc.h"
 #include "base/module.h"
 #include "combos.h"
+#include "drawing.h"
 using namespace util;
 #include <sstream>
 using std::ostringstream;
@@ -22697,24 +22698,16 @@ void FFScript::do_graphics_getpixel()
 {
 	int32_t yoffset = 0;
 	const bool brokenOffset= ( (get_bit(extra_rules, er_BITMAPOFFSET)!=0) || (get_bit(quest_rules,qr_BITMAPOFFSETFIX)!=0) );
-	
 	int32_t ref = (ri->d[rEXP1]);
-	//zprint2("ref is: %d\n", ri->d[rEXP1]);
-	
-	
 	
 	if ( ref == -10000 || ref == -20000 || ref >= 10000 ) //Bitmaps Loaded by LoadBitmapID have values of -10000 to 70000
 	{
 		ref /= 10000;
 	}
 	else ref -= 10; //Bitmaps other than those loaded by LoadBitmapID
-	//zprint2("ref is now: %d\n", ref);
 	
 	BITMAP *bitty = FFCore.GetScriptBitmap(ref);
 	int32_t xpos  = ri->d[rINDEX2] / 10000;
-	
-	
-	
 	
 	if(!brokenOffset && ref == -1 )
 	{
@@ -22726,19 +22719,15 @@ void FFScript::do_graphics_getpixel()
 	}
 	
 	int32_t ypos = (ri->d[rINDEX] / 10000)+yoffset;
-	
-	//zprint2("ypos: %d\n", ypos);
-	//zprint2("xpos: %d\n", xpos);
-	
 	if(!bitty)
-		{
+	{
 		bitty = scrollbuf;
-		//al_trace("Getpixel: Loaded ScrollBuf into bitty /n");
-		//return -10000;
 	}
 	
 	int32_t ret =  getpixel(bitty, xpos, ypos); //This is a palette index value. 
 	
+	if(!get_bit(quest_rules,qr_BROKEN_GETPIXEL_VALUE))
+		ret *= 10000;
 	set_register(sarg1, ret);
 }
 
@@ -24821,11 +24810,13 @@ void do_drawing_command(const int32_t script_command)
 			set_user_bitmap_command_args(j, 6); script_drawing_commands[j][17] = SH::read_stack(ri->sp+6); break;
 		case BITMAPGETPIXEL:
 		{
-			for(int32_t q = 0; q < 20; q++)
-			{
-				Z_scripterrlog("getpixel SH::read_stack(ri->sp+%d) is: %d\n", q, SH::read_stack(ri->sp+q));
-			}
-			set_user_bitmap_command_args(j, 3); script_drawing_commands[j][17] = SH::read_stack(ri->sp+3); break;
+			//UNUSED
+			// for(int32_t q = 0; q < 20; q++)
+			// {
+				// Z_scripterrlog("getpixel SH::read_stack(ri->sp+%d) is: %d\n", q, SH::read_stack(ri->sp+q));
+			// }
+			set_user_bitmap_command_args(j, 3); script_drawing_commands[j][17] = SH::read_stack(ri->sp+3);
+			break;
 		}
 		case BMPBLIT:	
 		{
@@ -28402,6 +28393,9 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			case GRAPHICSGETPIXEL:
 				FFCore.do_graphics_getpixel();
 				break;
+			case GRAPHICSCOUNTCOLOR:
+				FFCore.do_bmpcollision();
+				break;
 			
 			case GETSCREENDOOR:
 				do_getscreendoor();
@@ -31411,7 +31405,7 @@ int32_t FFScript::create_user_bitmap_ex(int32_t w, int32_t h, int32_t d = 8)
 	return id;
 }
 
-BITMAP* FFScript::GetScriptBitmap(int32_t id)
+BITMAP* FFScript::GetScriptBitmap(int32_t id, bool skipError)
 {
 	switch(id)
 	{
@@ -31428,7 +31422,7 @@ BITMAP* FFScript::GetScriptBitmap(int32_t id)
 		}
 		default: 
 		{
-			if(user_bitmap* b = checkBitmap(id+10, NULL, true))
+			if(user_bitmap* b = checkBitmap(id+10, NULL, true, skipError))
 			{
 				return b->u_bmp;
 			}
@@ -31730,58 +31724,59 @@ int32_t FFScript::GetDefaultWeaponSprite(int32_t wpn_id)
 
 int32_t FFScript::do_getpixel()
 {
-
 	int32_t xoffset = 0, yoffset = 0;
-	int32_t xoff = 0; int32_t yoff = 0; //IDR where these are normally read off-hand. 
-	//Sticking this here to do initial tests. Will fix later. 
-	//They're for the subscreen offsets. 
-	const bool brokenOffset= ( (get_bit(extra_rules, er_BITMAPOFFSET)!=0) || (get_bit(quest_rules,qr_BITMAPOFFSETFIX)!=0) );
+	int32_t xoff = 0; int32_t yoff = 0;
+	const bool brokenOffset= ( (get_bit(extra_rules, er_BITMAPOFFSET)!=0)
+		|| (get_bit(quest_rules,qr_BITMAPOFFSETFIX)!=0) );
 	
-	//bool isTargetOffScreenBmp = false;
-	//al_trace("Getpixel: The current bitmap ID is: %d /n",ri->bitmapref);
-	//zscriptDrawingRenderTarget->SetCurrentRenderTarget(ri->bitmapref);
-	//BITMAP *bitty = zscriptDrawingRenderTarget->GetBitmapPtr(ri->bitmapref);
 	BITMAP *bitty = FFCore.GetScriptBitmap(ri->bitmapref-10);
-	// zprint("Getpixel pointer is: %d\n", ri->bitmapref-10);
-	//bmp = targetBitmap;
 	if(!bitty)
-		{
+	{
 		bitty = scrollbuf;
-		//al_trace("Getpixel: Loaded ScrollBuf into bitty /n");
-		//return -10000;
 	}
 	// draw to screen with subscreen offset
 	if(!brokenOffset && ri->bitmapref == 10-1 )
 	{
-				xoffset = xoff;
-				yoffset = 56; //should this be -56?
+		xoffset = xoff;
+		yoffset = 56; //should this be -56?
 	}
 	else
 	{
 		xoffset = 0;
 		yoffset = 0;
 	}
-	//sdci[1]=x
-	//sdci[2]=y
-	//sdci[3]= return val?
-	//al_trace("Getpixel: ri->d[rINDEX] is: %d /n",ri->d[rINDEX]);
-	//al_trace("Getpixel: ri->d[rINDEX2] is: %d /n",ri->d[rINDEX2]);
-	//int32_t x1=ri->d[rINDEX]/10000;
-	//int32_t y1=ri->d[rINDEX2]/10000;
-	
-	//al_trace("Getpixel: X is: %d /n",x1);
-	//al_trace("Getpixel: Y is: %d /n",y1);
-	//al_trace("Getpixel: X is: %d /n",ri->d[rINDEX]/10000);
-	//al_trace("Getpixel: Y is: %d /n",ri->d[rINDEX2]/10000);
 	
 	int32_t yv = ri->d[rINDEX2]/10000 + yoffset;
-	//int32_t ret =  getpixel(bitty, x1+xoffset, y1+yoffset); //This is a palette index value. 
-	int32_t ret =  getpixel(bitty, ri->d[rINDEX]/10000, yv	); //This is a palette index value. 
-	
-	//al_trace("Getpixel: Returning a palette index value of: %d /n",ret);
-	//al_trace("I'm not yet sure if the PALETTE type will use a value div/mult by 10000. /n");
-	
+	int32_t ret =  getpixel(bitty, ri->d[rINDEX]/10000, yv); //This is a palette index value. 
+	if(!get_bit(quest_rules,qr_BROKEN_GETPIXEL_VALUE))
+		ret *= 10000;
 	return ret;
+}
+
+void FFScript::do_bmpcollision()
+{
+	int32_t bmpref = SH::read_stack(ri->sp + 5);
+	int32_t maskbmpref = SH::read_stack(ri->sp + 4);
+	int32_t x = SH::read_stack(ri->sp + 3) / 10000;
+	int32_t y = SH::read_stack(ri->sp + 2) / 10000;
+	int32_t checkCol = SH::read_stack(ri->sp + 1) / 10000;
+	int32_t maskCol = SH::read_stack(ri->sp + 0) / 10000;
+	BITMAP *checkbit = FFCore.GetScriptBitmap(bmpref-10, true);
+	BITMAP *maskbit = FFCore.GetScriptBitmap(maskbmpref-10, true);
+	if(!(checkbit && maskbit))
+	{
+		set_register(sarg1, -10000);
+		char buf1[16];
+		char buf2[16];
+		zc_itoa(bmpref, buf1);
+		zc_itoa(maskbmpref, buf2);
+		Z_scripterrlog("Invalid bitmap%s passed to 'bitmap->CountColor()': %s%s%s\n",
+			(checkbit || maskbit) ? "" : "s", checkbit ? "" : buf1,
+			(checkbit || maskbit) ? "" : ", ", maskbit ? "" : buf2);
+		return;
+	}
+	int32_t ret = countColor(checkbit, maskbit, x, y, checkCol, maskCol);
+	set_register(sarg1, ret*10000);
 }
 
 
@@ -36580,6 +36575,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "WAITEVENT",			   0,   0,   0,   0},
 	{ "OWNARRAYR",			   1,   0,   0,   0},
 	{ "DESTROYARRAYR",			   1,   0,   0,   0},
+	{ "GRAPHICSCOUNTCOLOR",			   1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

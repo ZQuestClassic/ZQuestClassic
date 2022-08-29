@@ -30,5 +30,6 @@ void lampcone(BITMAP* dest, int32_t sx, int32_t sy, int32_t range, int32_t dir, 
 void ditherLampCone(BITMAP* dest, int32_t sx, int32_t sy, int32_t range, int32_t dir, int32_t color, byte ditherType, byte ditherArg, int32_t xoffs=0, int32_t yoffs=0);
 
 void replColor(BITMAP* dest, byte col, byte startCol, byte endCol, bool shift);
+int32_t countColor(BITMAP* src, BITMAP* mask, int32_t x, int32_t y, int32_t checkCol, int32_t maskCol);
 
 #endif

@@ -579,3 +579,30 @@ void replColor(BITMAP* dest, byte col, byte startCol, byte endCol, bool shift)
 	bmp_unwrite_line(dest);
 }
 
+//Counts the number of pixels in 'src' matching 'checkCol' in the masked area that matches 'maskCol'
+//Any color < 0 will match with any non-zero color.
+int32_t countColor(BITMAP* src, BITMAP* mask, int32_t x, int32_t y, int32_t checkCol, int32_t maskCol)
+{
+	int32_t wid = zc_min(src->w-x, mask->w);
+	int32_t hei = zc_min(src->h-y, mask->h);
+	int32_t count = 0;
+	for(int32_t ty = 0; ty < hei; ++ty)
+	{
+		uintptr_t mask_addr = bmp_read_line(mask, ty);
+		uintptr_t read_addr = bmp_read_line(src, ty+y);
+		for(int32_t tx = 0; tx < wid; ++tx)
+		{
+			int32_t maskc = bmp_read8(mask_addr+tx);
+			if(maskCol < 0 ? maskc : maskc==maskCol)
+			{
+				int32_t color = bmp_read8(read_addr+tx+x);
+				if(checkCol < 0 ? color : color==checkCol)
+					++count;
+			}
+		}
+	}
+	bmp_unwrite_line(mask);
+	bmp_unwrite_line(src);
+	return count;
+}
+

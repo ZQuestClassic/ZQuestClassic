@@ -1119,7 +1119,7 @@ void do_set_oggex_position(const bool v);
 void go_get_oggex_position();
 void do_set_oggex_speed(const bool v);
 
-BITMAP* GetScriptBitmap(int32_t id);
+BITMAP* GetScriptBitmap(int32_t id, bool skipError = false);
 
 int32_t highest_valid_user_bitmap();
 int32_t do_create_bitmap();
@@ -1225,6 +1225,7 @@ void SetItemMessagePlayed(int32_t itm);
 bool GetItemMessagePlayed(int32_t itm);
 	
 int32_t do_getpixel();
+void do_bmpcollision();
 int32_t GetDefaultWeaponSprite(int32_t w);
 
 int32_t GetQuestVersion();
@@ -3337,8 +3338,9 @@ enum ASM_DEFINE
 	WAITEVENT,
 	OWNARRAYR,
 	DESTROYARRAYR,
+	GRAPHICSCOUNTCOLOR,
 	
-	NUMCOMMANDS           //0x01D7
+	NUMCOMMANDS           //0x01D8
 };
 
 

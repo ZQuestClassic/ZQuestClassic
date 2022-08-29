@@ -5457,6 +5457,10 @@ string OGraphicsGetpixel::toString()
 {
     return "GRAPHICSGETPIXEL " + getArgument()->toString();
 }
+string OGraphicsCountColor::toString()
+{
+    return "GRAPHICSCOUNTCOLOR " + getArgument()->toString();
+}
 
 string OBMPDrawScreenSolidityRegister::toString()
 {

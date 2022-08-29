@@ -9844,6 +9844,17 @@ namespace ZScript
 		}
 	};
 	
+	class OGraphicsCountColor : public UnaryOpcode
+	{
+	public:
+		OGraphicsCountColor(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OGraphicsCountColor(a->clone());
+		}
+	};
+	
 	class ODirExists : public UnaryOpcode
 	{
 	public:

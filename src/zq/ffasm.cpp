@@ -1064,6 +1064,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "WAITEVENT",         0,   0,   0,   0},
 	{ "OWNARRAYR",         1,   0,   0,   0},
 	{ "DESTROYARRAYR",         1,   0,   0,   0},
+	{ "GRAPHICSCOUNTCOLOR",         1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
