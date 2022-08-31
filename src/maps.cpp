@@ -1597,7 +1597,7 @@ bool remove_xstatecombos2(mapscr *s, mapscr *t, int32_t mi, byte xflag, bool tri
 	for(int32_t i=0; i<176; i++)
 	{
 		newcombo const& cmb = combobuf[s->data[i]];
-		if(force_ex_trigger(0,i,xflag))
+		if(force_ex_trigger(0,i,xflag,mi))
 			didit = true;
 		else switch(cmb.type)
 		{
@@ -1627,7 +1627,7 @@ bool remove_xstatecombos2(mapscr *s, mapscr *t, int32_t mi, byte xflag, bool tri
 			for(int32_t i=0; i<176; i++)
 			{
 				newcombo const& cmb = combobuf[t[j].data[i]];
-				if(force_ex_trigger(j,i,xflag))
+				if(force_ex_trigger(j,i,xflag,mi))
 					didit = true;
 				else switch(cmb.type)
 				{

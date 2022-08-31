@@ -9660,6 +9660,10 @@ int32_t writecombos(PACKFILE *f, word version, word build, word start_combo, wor
 			{
 				new_return(47);
 			}
+			if(!p_putc(combobuf[i].trigcopycat,f))
+			{
+				new_return(48);
+			}
 			for ( int32_t q = 0; q < 11; q++ ) 
 			{
 				if(!p_putc(combobuf[i].label[q],f))

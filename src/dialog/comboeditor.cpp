@@ -2594,6 +2594,25 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 											"\nand if the exstate set here is already set, the combo will automatically trigger"
 											"\nwithout any effects other than combo/cset change.").show();
 									}
+								),
+								Label(text = "Copycat:", fitParent = true),
+								TextField(
+									fitParent = true,
+									vPadding = 0_px,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 255, val = local_comboref.trigcopycat,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.trigcopycat = val;
+									}),
+								Button(
+									width = 1.5_em, padding = 0_px, forceFitH = true,
+									text = "?", hAlign = 1.0, onPressFunc = [&]()
+									{
+										InfoDialog("Copycat","If the value is > 0, the combo is linked to that copycat ID."
+											"\nIf this combo is triggered, all other linked combos will also trigger,"
+											"\nand if any other linked combo triggers, this combo will trigger.").show();
+									}
 								)
 							),
 							Rows<2>(framed = true,

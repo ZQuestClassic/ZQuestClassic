@@ -17479,6 +17479,10 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 			{
 				return qe_invalid;
 			}
+			if(!p_getc(&temp_combo.trigcopycat,f,true))
+			{
+				return qe_invalid;
+			}
 		}
 		else
 		{
@@ -17487,6 +17491,7 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 			temp_combo.spawnenemy = 0;
 			temp_combo.exstate = -1;
 			temp_combo.spawnip = 0;
+			temp_combo.trigcopycat = 0;
 		}
 		
 		if(section_version>=12) //combo label

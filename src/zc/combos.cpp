@@ -1385,38 +1385,92 @@ bool trigger_switchhookblock(int32_t lyr, int32_t pos)
 	return true;
 }
 
-bool force_ex_trigger(int32_t lyr, int32_t pos, char xstate)
+static byte copycat_id = 0;
+bool do_copycat_trigger(int32_t lyr, int32_t pos)
 {
+	if(!copycat_id) return false;
 	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
+	mapscr* tmp = FFCore.tempScreens[lyr];
+	int32_t cid = tmp->data[pos];
+	newcombo const& cmb = combobuf[cid];
+	if(cmb.trigcopycat == copycat_id)
+	{
+		do_trigger_combo(lyr,pos);
+		return true;
+	}
+	return false;
+}
+
+void do_ex_trigger(int32_t lyr, int32_t pos)
+{
+	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return;
 	mapscr* tmp = FFCore.tempScreens[lyr];
 	int32_t cid = tmp->data[pos];
 	int32_t ocs = tmp->cset[pos];
 	newcombo const& cmb = combobuf[cid];	
+	if(cmb.trigchange)
+	{
+		tmp->data[pos] = cid+cmb.trigchange;
+	}
+	if(cmb.trigcschange)
+	{
+		tmp->cset[pos] = (ocs+cmb.trigcschange) & 0xF;
+	}
+	if(cmb.triggerflags[0] & combotriggerRESETANIM)
+	{
+		newcombo& rcmb = combobuf[tmp->data[pos]];
+		rcmb.tile = rcmb.o_tile;
+		rcmb.cur_frame=0;
+		rcmb.aclk = 0;
+	}
+	
+	if(cmb.trigcopycat) //has a copycat set
+	{
+		if(!copycat_id) //not already in a copycat
+		{
+			bool skipself = tmp->data[pos] == cid;
+			copycat_id = cmb.trigcopycat;
+			for(auto cclayer = 0; cclayer < 7; ++cclayer)
+			{
+				for(auto ccpos = 0; ccpos < 176; ++ccpos)
+				{
+					if(cclayer == lyr && ccpos == pos && skipself)
+						continue;
+					
+					do_copycat_trigger(cclayer, ccpos);
+				}
+			}
+			copycat_id = 0;
+		}
+	}
+}
+static int32_t exmi = -1;
+bool force_ex_trigger(int32_t lyr, int32_t pos, char xstate, int32_t mi)
+{
+	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
+	if(mi < 0)
+	{
+		if(exmi > -1)
+			mi = exmi;
+		else mi = (currmap*MAPSCRSNORMAL)+homescr;
+	}
+	bool doexmi = exmi==-1;
+	mapscr* tmp = FFCore.tempScreens[lyr];
+	newcombo const& cmb = combobuf[tmp->data[pos]];	
 	if(cmb.exstate > -1 && (xstate < 0 || xstate == cmb.exstate))
 	{
-		if(xstate >= 0 || getxmapflag(1<<cmb.exstate))
+		if(xstate >= 0 || getxmapflag(mi,1<<cmb.exstate))
 		{
-			if(cmb.trigchange)
-			{
-				tmp->data[pos] = cid+cmb.trigchange;
-			}
-			if(cmb.trigcschange)
-			{
-				tmp->cset[pos] = (ocs+cmb.trigcschange) & 0xF;
-			}
-			if(cmb.triggerflags[0] & combotriggerRESETANIM)
-			{
-				newcombo& rcmb = combobuf[tmp->data[pos]];
-				rcmb.tile = rcmb.o_tile;
-				rcmb.cur_frame=0;
-				rcmb.aclk = 0;
-			}
+			if(doexmi) exmi = mi;
+			do_ex_trigger(lyr,pos);
+			if(doexmi) exmi = -1;
 			return true;
 		}
 	}
 	return false;
 }
-//Forcibly triggers a combo at a given position
+
+//Triggers a combo at a given position
 bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 {
 	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
@@ -1442,25 +1496,8 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 	if(cmb.exstate > -1)
 	{
 		exflag = 1<<cmb.exstate;
-		if(getxmapflag(exflag))
-		{
-			if(cmb.trigchange)
-			{
-				tmp->data[pos] = cid+cmb.trigchange;
-			}
-			if(cmb.trigcschange)
-			{
-				tmp->cset[pos] = (ocs+cmb.trigcschange) & 0xF;
-			}
-			if(cmb.triggerflags[0] & combotriggerRESETANIM)
-			{
-				newcombo& rcmb = combobuf[tmp->data[pos]];
-				rcmb.tile = rcmb.o_tile;
-				rcmb.cur_frame=0;
-				rcmb.aclk = 0;
-			}
+		if(force_ex_trigger(lyr,pos))
 			return true;
-		}
 	}
 	if(cmb.triggeritem) //Item requirement
 	{
@@ -1694,7 +1731,6 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 				{
 					itm = new item(cx, cy, 0, item_id, pflags, 0);
 					items.add(itm);
-					zprint2("combo trigger spawned item %d\n", item_id);
 				}
 				if(itm_ex)
 				{
@@ -1710,7 +1746,28 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 		
 		if(cmb.exstate > -1 && trigexstate)
 		{
-			setxmapflag(exflag);
+			int32_t mi = exmi==-1 ? (currmap*MAPSCRSNORMAL)+homescr : exmi;
+			setxmapflag(mi, exflag);
+		}
+		
+		if(cmb.trigcopycat) //has a copycat set
+		{
+			if(!copycat_id) //not already in a copycat
+			{
+				bool skipself = tmp->data[pos] == cid;
+				copycat_id = cmb.trigcopycat;
+				for(auto cclayer = 0; cclayer < 7; ++cclayer)
+				{
+					for(auto ccpos = 0; ccpos < 176; ++ccpos)
+					{
+						if(cclayer == lyr && ccpos == pos && skipself)
+							continue;
+						
+						do_copycat_trigger(cclayer, ccpos);
+					}
+				}
+				copycat_id = 0;
+			}
 		}
 	}
 	if(used_bit && grid)

@@ -3194,6 +3194,7 @@ struct newcombo
 	int16_t spawnenemy; //16 bits
 	int8_t exstate; //8 bits
 	int32_t spawnip; //32 bits
+	byte trigcopycat; //8 bits
 	char label[11];
 		//Only one of these per combo: Otherwise we would have 
 		//int32_t triggerlevel[54] (1,728 bits extra per combo in a quest, and in memory) !!
@@ -3254,6 +3255,7 @@ struct newcombo
 		spawnenemy = 0;
 		exstate = -1;
 		spawnip = 0;
+		trigcopycat = 0;
 		trigchange = 0;
 		for(int32_t q = 0; q < 11; ++q)
 			label[q] = 0;
@@ -3309,6 +3311,7 @@ struct newcombo
 		if(spawnenemy) return false;
 		if(exstate > -1) return false;
 		if(spawnip) return false;
+		if(trigcopycat) return false;
 		if(strlen(label)) return false;
 		for(auto q = 0; q < 8; ++q)
 			if(attribytes[q]) return false;
