@@ -12968,7 +12968,7 @@ static int32_t edit_scrdata3[] = // Flags 2
 
 static int32_t edit_scrdata5[] = // Enemies
 {
-    7,16,17,25,36,107,108,109,110,111,112,113,20,114,115,116,-1
+    7,16,17,25,36,107,108,109,110,111,112,113,20,114,115,116,144,-1
 };
 
 static int32_t edit_scrdata2[] = // Data 1
@@ -13255,6 +13255,7 @@ static DIALOG scrdata_dlg[] =
     { jwin_check_proc,      15,  188,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "...Dithered Darkness", NULL, NULL },
     { jwin_check_proc,      15,  198,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "...Transparent Darkness", NULL, NULL },
     { jwin_check_proc,      165, 178,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Disable Magic Mirror", NULL, NULL },
+    { jwin_check_proc,      165, 178,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Chain 'Enemies->' triggers", NULL, NULL },
 	{ NULL,                  0,    0,       0,    0,          0,            0,             0,  0,  0,  0,       NULL, NULL,  NULL }
 };
 
@@ -13545,6 +13546,7 @@ int32_t onScrData()
 	scrdata_dlg[141].flags = (f&fDARK_DITHER) ? D_SELECTED : 0;
 	scrdata_dlg[142].flags = (f&fDARK_TRANS) ? D_SELECTED : 0;
 	scrdata_dlg[143].flags = (f&fDISABLE_MIRROR) ? D_SELECTED : 0;
+	scrdata_dlg[144].flags = (f&fENEMY_WAVES) ? D_SELECTED : 0;
 	
 	word g = Map.CurrScr()->noreset;
 	scrdata_dlg[74].flags = (g&mSECRET) ? D_SELECTED : 0;
@@ -13674,6 +13676,7 @@ int32_t onScrData()
 		f |= scrdata_dlg[141].flags & D_SELECTED ? fDARK_DITHER:0;
 		f |= scrdata_dlg[142].flags & D_SELECTED ? fDARK_TRANS:0;
 		f |= scrdata_dlg[143].flags & D_SELECTED ? fDISABLE_MIRROR:0;
+		f |= scrdata_dlg[144].flags & D_SELECTED ? fENEMY_WAVES:0;
 		Map.CurrScr()->flags9 = f;
 		
 		g=0;

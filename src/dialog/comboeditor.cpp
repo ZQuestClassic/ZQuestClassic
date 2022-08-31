@@ -2320,7 +2320,11 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								INFOBTN("Triggered when the player pushes against the combo"),
 								TRIGFLAG(57,"Push->"),
 								INFOBTN("'Proximity:' requires the player to be far away, instead of close"),
-								TRIGFLAG(19,"Invert Proximity Req")
+								TRIGFLAG(19,"Invert Proximity Req"),
+								INFOBTN("Triggers when all enemies are defeated"),
+								TRIGFLAG(87, "Enemies->"),
+								INFOBTN("Triggers when screen secrets trigger"),
+								TRIGFLAG(88, "Secrets->")
 							),
 							Rows<3>(framed = true,
 								Label(text = "Proximity:", fitParent = true),

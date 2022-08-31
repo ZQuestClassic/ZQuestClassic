@@ -483,17 +483,16 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool 
 		return 0;
 		
 	mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
-	
 	if(m->data.empty()) return 0;
     
 	if(m->valid==0) return 0;
 	
+	int32_t mi = (map*MAPSCRSNORMAL)+screen;
 	int32_t flags = 0;
 	
-	if(secrets && game->maps[(map*MAPSCRSNORMAL)+screen])
+	if(secrets)
 	{
-		flags = game->maps[(map*MAPSCRSNORMAL)+screen];
-		//secrets = false;
+		flags = game->maps[mi];
 	}
 	
 	int32_t mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
@@ -549,6 +548,8 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool 
 	{
 	    remove_screenstatecombos2(&scr, (mapscr*)NULL, cBOSSCHEST, cBOSSCHEST2);
 	}
+	
+	clear_xstatecombos2(&scr, nullptr, mi);
 	
 	return scr.data[pos];						// entire combo code
 }
@@ -1584,7 +1585,7 @@ bool remove_xstatecombos(int32_t tmp, int32_t mi, byte xflag)
 {
 	mapscr *s = tmpscr + tmp;
 	mapscr *t = tmpscr2;
-	return remove_xstatecombos2(s, t, mi, xflag);
+	return remove_xstatecombos2(s, t, mi, xflag, false);
 }
 bool remove_xstatecombos2(mapscr *s, mapscr *t, byte xflag, bool triggers)
 {
@@ -1597,7 +1598,7 @@ bool remove_xstatecombos2(mapscr *s, mapscr *t, int32_t mi, byte xflag, bool tri
 	for(int32_t i=0; i<176; i++)
 	{
 		newcombo const& cmb = combobuf[s->data[i]];
-		if(force_ex_trigger(0,i,xflag,mi))
+		if(triggers && force_ex_trigger(0,i,xflag))
 			didit = true;
 		else switch(cmb.type)
 		{
@@ -1627,7 +1628,7 @@ bool remove_xstatecombos2(mapscr *s, mapscr *t, int32_t mi, byte xflag, bool tri
 			for(int32_t i=0; i<176; i++)
 			{
 				newcombo const& cmb = combobuf[t[j].data[i]];
-				if(force_ex_trigger(j,i,xflag,mi))
+				if(triggers && force_ex_trigger(j,i,xflag))
 					didit = true;
 				else switch(cmb.type)
 				{
@@ -1661,17 +1662,17 @@ void clear_xstatecombos(int32_t tmp, int32_t mi)
 {
 	mapscr *s = tmpscr + tmp;
 	mapscr *t = tmpscr2;
-	clear_xstatecombos2(s, t, mi);
+	clear_xstatecombos2(s, t, mi, tmp==0);
 }
 void clear_xstatecombos2(mapscr *s, mapscr *t)
 {
 	clear_xstatecombos2(s, t, (currmap*MAPSCRSNORMAL)+homescr);
 }
-void clear_xstatecombos2(mapscr *s, mapscr *t, int32_t mi)
+void clear_xstatecombos2(mapscr *s, mapscr *t, int32_t mi, bool triggers)
 {
 	for(byte q = 0; q < 32; ++q)
 	{
-		remove_xstatecombos2(s,t,mi,q,true);
+		remove_xstatecombos2(s,t,mi,q,triggers);
 	}
 }
 
@@ -1822,11 +1823,6 @@ int32_t findtrigger(int32_t scombo, bool ff)
 // single:
 // >-1 : the singular triggering combo
 // -1: triggered by some other cause
-// -2: triggered by Enemies->Secret
-// -3: triggered by Secrets screen state
-// -4: Screen->TriggerSecrets()
-// -5: triggered by Items->Secret
-// -5: triggered by Generic Combo
 void hidden_entrance(int32_t tmp,bool refresh, bool high16only,int32_t single) //Perhaps better known as 'Trigger Secrets'
 {
 	//There are no calls to 'hidden_entrance' in the code where tmp != 0
@@ -1842,6 +1838,17 @@ void hidden_entrance(int32_t tmp,bool refresh, bool high16only,int32_t single) /
 			   "");
 	if(single < 0)
 		triggered_screen_secrets = true;
+	for(auto lyr = 0; lyr < 7; ++lyr)
+	{
+		for(auto pos = 0; pos < 176; ++pos)
+		{
+			newcombo const& cmb = combobuf[FFCore.tempScreens[lyr]->data[pos]];
+			if(cmb.triggerflags[2] & combotriggerSECRETSTR)
+			{
+				do_trigger_combo(lyr,pos);
+			}
+		}
+	}
 	hidden_entrance2(tmpscr + tmp, tmpscr2, high16only, single);
 }
 void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Perhaps better known as 'Trigger Secrets'
@@ -4845,7 +4852,10 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
 		{
 			hiddenstair(tmp,false);
+			auto oscr = homescr;
+			homescr = scr;
 			hidden_entrance(tmp,false,false,-3);
+			scr = oscr;
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
 		{
@@ -5042,7 +5052,10 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
 		{
 			hiddenstair(tmp,false);
+			auto oscr = homescr;
+			homescr = scr;
 			hidden_entrance(tmp,false,false,-3);
+			scr = oscr;
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
 		{

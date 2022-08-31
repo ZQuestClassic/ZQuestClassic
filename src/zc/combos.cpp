@@ -1444,26 +1444,16 @@ void do_ex_trigger(int32_t lyr, int32_t pos)
 		}
 	}
 }
-static int32_t exmi = -1;
-bool force_ex_trigger(int32_t lyr, int32_t pos, char xstate, int32_t mi)
+bool force_ex_trigger(int32_t lyr, int32_t pos, char xstate)
 {
 	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
-	if(mi < 0)
-	{
-		if(exmi > -1)
-			mi = exmi;
-		else mi = (currmap*MAPSCRSNORMAL)+homescr;
-	}
-	bool doexmi = exmi==-1;
 	mapscr* tmp = FFCore.tempScreens[lyr];
 	newcombo const& cmb = combobuf[tmp->data[pos]];	
 	if(cmb.exstate > -1 && (xstate < 0 || xstate == cmb.exstate))
 	{
-		if(xstate >= 0 || getxmapflag(mi,1<<cmb.exstate))
+		if(xstate >= 0 || getxmapflag(1<<cmb.exstate))
 		{
-			if(doexmi) exmi = mi;
 			do_ex_trigger(lyr,pos);
-			if(doexmi) exmi = -1;
 			return true;
 		}
 	}
@@ -1746,8 +1736,7 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 		
 		if(cmb.exstate > -1 && trigexstate)
 		{
-			int32_t mi = exmi==-1 ? (currmap*MAPSCRSNORMAL)+homescr : exmi;
-			setxmapflag(mi, exflag);
+			setxmapflag(exflag);
 		}
 		
 		if(cmb.trigcopycat) //has a copycat set

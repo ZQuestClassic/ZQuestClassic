@@ -589,6 +589,7 @@ extern bool fake_pack_writing;
 #define fDARK_DITHER        0x08 //'S.Flags1' ...dithered dark
 #define fDARK_TRANS         0x10 //'S.Flags1' ...transparent dark
 #define fDISABLE_MIRROR     0x20 //'S.Flags1' Disable Magic Mirror
+#define fENEMY_WAVES     0x40 //'E.Flags' Chain 'Enemies->' triggers
 
 //lens layer effects
 #define llNORMAL        0
@@ -1369,29 +1370,31 @@ enum
 #define combotriggerEWROCK       0x80000000
 
 //triggerflags[2]
-#define combotriggerEWSCRIPT01   0x00000001
-#define combotriggerEWSCRIPT02   0x00000002
-#define combotriggerEWSCRIPT03   0x00000004
-#define combotriggerEWSCRIPT04   0x00000008
-#define combotriggerEWSCRIPT05   0x00000010
-#define combotriggerEWSCRIPT06   0x00000020
-#define combotriggerEWSCRIPT07   0x00000040
-#define combotriggerEWSCRIPT08   0x00000080
-#define combotriggerEWSCRIPT09   0x00000100
-#define combotriggerEWSCRIPT10   0x00000200
-#define combotriggerEWMAGIC      0x00000400
-#define combotriggerEWBBLAST     0x00000800
-#define combotriggerEWSBBLAST    0x00001000
-#define combotriggerEWLITBOMB    0x00002000
-#define combotriggerEWLITSBOMB   0x00004000
-#define combotriggerEWFIRETRAIL  0x00008000
-#define combotriggerEWFLAME      0x00010000
-#define combotriggerEWWIND       0x00020000
-#define combotriggerEWFLAME2     0x00040000
-#define combotriggerSPCITEM      0x00080000
-#define combotriggerEXSTITEM     0x00100000
-#define combotriggerEXSTENEMY    0x00200000
-#define combotriggerAUTOGRABITEM 0x00400000
+#define combotriggerEWSCRIPT01     0x00000001
+#define combotriggerEWSCRIPT02     0x00000002
+#define combotriggerEWSCRIPT03     0x00000004
+#define combotriggerEWSCRIPT04     0x00000008
+#define combotriggerEWSCRIPT05     0x00000010
+#define combotriggerEWSCRIPT06     0x00000020
+#define combotriggerEWSCRIPT07     0x00000040
+#define combotriggerEWSCRIPT08     0x00000080
+#define combotriggerEWSCRIPT09     0x00000100
+#define combotriggerEWSCRIPT10     0x00000200
+#define combotriggerEWMAGIC        0x00000400
+#define combotriggerEWBBLAST       0x00000800
+#define combotriggerEWSBBLAST      0x00001000
+#define combotriggerEWLITBOMB      0x00002000
+#define combotriggerEWLITSBOMB     0x00004000
+#define combotriggerEWFIRETRAIL    0x00008000
+#define combotriggerEWFLAME        0x00010000
+#define combotriggerEWWIND         0x00020000
+#define combotriggerEWFLAME2       0x00040000
+#define combotriggerSPCITEM        0x00080000
+#define combotriggerEXSTITEM       0x00100000
+#define combotriggerEXSTENEMY      0x00200000
+#define combotriggerAUTOGRABITEM   0x00400000
+#define combotriggerKILLENEMIES    0x00800000
+#define combotriggerSECRETSTR      0x01000000
 
 #define ctrigNONE        0x00
 #define ctrigIGNORE_SIGN 0x01

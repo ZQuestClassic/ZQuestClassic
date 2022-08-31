@@ -29,7 +29,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir = -1);
 bool trigger_stepfx(int32_t lyr, int32_t pos, bool stepped = false);
 
 void do_ex_trigger(int32_t lyr, int32_t pos);
-bool force_ex_trigger(int32_t lyr, int32_t pos, char xstate = -1, int32_t mi = -1);
+bool force_ex_trigger(int32_t lyr, int32_t pos, char xstate = -1);
 bool do_trigger_combo(int32_t layer, int32_t pos, int32_t special = 0, weapon* w = NULL);
 
 void init_combo_timers();

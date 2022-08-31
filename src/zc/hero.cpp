@@ -19976,14 +19976,6 @@ void HeroClass::checkspecial()
     {
         // after beating enemies
         
-        // if room has traps, guys don't come back
-        for(int32_t i=0; i<eMAXGUYS; i++)
-        {
-            if(guysbuf[i].family==eeTRAP&&guysbuf[i].misc2)
-                if(guys.idCount(i) && !getmapflag(mTMPNORET))
-                    setmapflag(mTMPNORET);
-        }
-        
         // item
         if(hasitem&(4|2|1))
         {
@@ -20006,20 +19998,46 @@ void HeroClass::checkspecial()
             hasitem &= ~ (4|2|1);
         }
         
-        // clear enemies and open secret
-        if(!did_secret && (tmpscr->flags2&fCLEARSECRET))
-        {
-			bool only16_31 = get_bit(quest_rules,qr_ENEMIES_SECRET_ONLY_16_31)?true:false;
-            hidden_entrance(0,true,only16_31,-2);
-            
-            if(tmpscr->flags4&fENEMYSCRTPERM && canPermSecret())
-            {
-                if(!(tmpscr->flags5&fTEMPSECRETS)) setmapflag(mSECRET);
-            }
-            
-            sfx(tmpscr->secretsfx);
-            did_secret=true;
-        }
+		// generic 'Enemies->' trigger
+		for(auto lyr = 0; lyr < 7; ++lyr)
+		{
+			for(auto pos = 0; pos < 176; ++pos)
+			{
+				newcombo const& cmb = combobuf[FFCore.tempScreens[lyr]->data[pos]];
+				if(cmb.triggerflags[2] & combotriggerKILLENEMIES)
+				{
+					do_trigger_combo(lyr,pos);
+				}
+			}
+		}
+		if(tmpscr->flags9 & fENEMY_WAVES)
+		{
+			hasmainguy = hasMainGuy(); //possibly un-beat the enemies (another 'wave'?)
+		}
+        if(!hasmainguy)
+		{
+			// if room has traps, guys don't come back
+			for(int32_t i=0; i<eMAXGUYS; i++)
+			{
+				if(guysbuf[i].family==eeTRAP&&guysbuf[i].misc2)
+					if(guys.idCount(i) && !getmapflag(mTMPNORET))
+						setmapflag(mTMPNORET);
+			}
+			// clear enemies and open secret
+			if(!did_secret && (tmpscr->flags2&fCLEARSECRET))
+			{
+				bool only16_31 = get_bit(quest_rules,qr_ENEMIES_SECRET_ONLY_16_31)?true:false;
+				hidden_entrance(0,true,only16_31,-2);
+				
+				if(tmpscr->flags4&fENEMYSCRTPERM && canPermSecret())
+				{
+					if(!(tmpscr->flags5&fTEMPSECRETS)) setmapflag(mSECRET);
+				}
+				
+				sfx(tmpscr->secretsfx);
+				did_secret=true;
+			}
+		}
     }
     
     // doors

@@ -1584,7 +1584,7 @@ int32_t get_screeneflags(mapscr *m, int32_t flagset)
 		
 	case 2:
 		f = ornextflag(m->flags3&128)    | ornextflag(m->flags&2)       | ornextflag((m->flags2>>4)&8)
-			| ornextflag(m->flags4&16);
+			| ornextflag(m->flags4&16) | ornextflag(m->flags9&fENEMY_WAVES);
 		break;
 	}
 	
