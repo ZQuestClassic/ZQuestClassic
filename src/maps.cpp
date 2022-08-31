@@ -1586,19 +1586,20 @@ bool remove_xstatecombos(int32_t tmp, int32_t mi, byte xflag)
 	mapscr *t = tmpscr2;
 	return remove_xstatecombos2(s, t, mi, xflag);
 }
-bool remove_xstatecombos2(mapscr *s, mapscr *t, byte xflag)
+bool remove_xstatecombos2(mapscr *s, mapscr *t, byte xflag, bool triggers)
 {
-	return remove_xstatecombos2(s, t, (currmap*MAPSCRSNORMAL)+homescr, xflag);
+	return remove_xstatecombos2(s, t, (currmap*MAPSCRSNORMAL)+homescr, xflag, triggers);
 }
-bool remove_xstatecombos2(mapscr *s, mapscr *t, int32_t mi, byte xflag)
+bool remove_xstatecombos2(mapscr *s, mapscr *t, int32_t mi, byte xflag, bool triggers)
 {
 	bool didit=false;
-	
+	if(!getxmapflag(mi, 1<<xflag)) return false;
 	for(int32_t i=0; i<176; i++)
 	{
 		newcombo const& cmb = combobuf[s->data[i]];
-		if(!(cmb.usrflags&cflag16)) continue; //custom state instead of normal state
-		switch(cmb.type)
+		if(force_ex_trigger(0,i,xflag))
+			didit = true;
+		else switch(cmb.type)
 		{
 			case cLOCKBLOCK: case cLOCKBLOCK2:
 			case cBOSSLOCKBLOCK: case cBOSSLOCKBLOCK2:
@@ -1606,7 +1607,8 @@ bool remove_xstatecombos2(mapscr *s, mapscr *t, int32_t mi, byte xflag)
 			case cLOCKEDCHEST: case cLOCKEDCHEST2:
 			case cBOSSCHEST: case cBOSSCHEST2:
 			{
-				if(cmb.attribytes[5] == xflag && getxmapflag(mi, 1<<xflag))
+				if(!(cmb.usrflags&cflag16)) continue; //custom state instead of normal state
+				if(cmb.attribytes[5] == xflag)
 				{
 					s->data[i]++;
 					didit=true;
@@ -1625,8 +1627,9 @@ bool remove_xstatecombos2(mapscr *s, mapscr *t, int32_t mi, byte xflag)
 			for(int32_t i=0; i<176; i++)
 			{
 				newcombo const& cmb = combobuf[t[j].data[i]];
-				if(!(cmb.usrflags&cflag16)) continue; //custom state instead of normal state
-				switch(cmb.type)
+				if(force_ex_trigger(j,i,xflag))
+					didit = true;
+				else switch(cmb.type)
 				{
 					case cLOCKBLOCK: case cLOCKBLOCK2:
 					case cBOSSLOCKBLOCK: case cBOSSLOCKBLOCK2:
@@ -1634,7 +1637,8 @@ bool remove_xstatecombos2(mapscr *s, mapscr *t, int32_t mi, byte xflag)
 					case cLOCKEDCHEST: case cLOCKEDCHEST2:
 					case cBOSSCHEST: case cBOSSCHEST2:
 					{
-						if(cmb.attribytes[5] == xflag && getxmapflag(mi, 1<<xflag))
+						if(!(cmb.usrflags&cflag16)) continue; //custom state instead of normal state
+						if(cmb.attribytes[5] == xflag)
 						{
 							t[j].data[i]++;
 							didit=true;
@@ -1667,7 +1671,7 @@ void clear_xstatecombos2(mapscr *s, mapscr *t, int32_t mi)
 {
 	for(byte q = 0; q < 32; ++q)
 	{
-		remove_xstatecombos2(s,t,mi,q);
+		remove_xstatecombos2(s,t,mi,q,true);
 	}
 }
 

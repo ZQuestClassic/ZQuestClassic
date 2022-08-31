@@ -17457,6 +17457,37 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 			}
 		}
 		else temp_combo.triglbeam = 0;
+		if(section_version >= 31)
+		{
+			if(!p_getc(&temp_combo.trigcschange,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetw(&temp_combo.spawnitem,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetw(&temp_combo.spawnenemy,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_getc(&temp_combo.exstate,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetl(&temp_combo.spawnip,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		else
+		{
+			temp_combo.trigcschange = 0;
+			temp_combo.spawnitem = 0;
+			temp_combo.spawnenemy = 0;
+			temp_combo.exstate = -1;
+			temp_combo.spawnip = 0;
+		}
 		
 		if(section_version>=12) //combo label
 		{

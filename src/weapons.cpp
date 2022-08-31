@@ -642,12 +642,12 @@ void getdraggeditem(int32_t j)
     
     if(it==NULL)
         return;
-        
+	
     it->x = HeroX();
     it->y = HeroY();
     it->fakez = HeroFakeZ();
     it->z = HeroZ();
-    HeroCheckItems();
+    HeroCheckItems(j);
 }
 
 void weapon::setAngle(double angletoset)
@@ -860,7 +860,8 @@ weapon::weapon(weapon const & other):
 	//If the cloned weapon is not getting an incremented UID for ZASM, then it needs one below.
 	script_wrote_otile(other.script_wrote_otile),
 	weapon_dying_frame(other.weapon_dying_frame),
-	unblockable(other.unblockable)
+	unblockable(other.unblockable),
+	misc_wflags(other.misc_wflags)
     
 	
 	//End Weapon editor non-arrays. 
@@ -1119,6 +1120,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	weapon_dying_frame = false;
 	parent_script_UID = 0;
 	unblockable = 0;
+	misc_wflags = 0;
 	if ( Parentitem > -1 )
 	{
 		weaponscript = itemsbuf[Parentitem].weaponscript;
@@ -3455,7 +3457,8 @@ bool weapon::animate(int32_t index)
 						collectitem_script(id2);
 						
 						getitem(id2, false, true);
-						
+						if(ptr->pickupexstate > -1 && ptr->pickupexstate < 32)
+							setxmapflag(1<<ptr->pickupexstate);
 						items.del(j);
 						
 						for(int32_t i=0; i<Lwpns.Count(); i++)
@@ -5334,10 +5337,10 @@ bool weapon::animate(int32_t index)
 					{
 						getdraggeditem(dragging);
 					}
-					if ( doscript )
-					{
-						if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
-					}
+					// if ( doscript )
+					// {
+						// if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+					// }
 					return true;
 				}
 			}
@@ -7738,6 +7741,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, i
 	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "height", height);
 	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "width", width);
 	unblockable = 0;
+	misc_wflags = 0;
     x=X;
     y=Y;
     z=Z;

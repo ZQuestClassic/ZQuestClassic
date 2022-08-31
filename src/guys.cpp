@@ -2448,6 +2448,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	do_animation = 1;
 	immortal = false;
 	noSlide = false;
+	deathexstate = -1;
 	
 	hashero=false;
 	
@@ -2620,8 +2621,9 @@ enemy::enemy(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	//scripttile(other.scripttile),			//int32_t
 	//scriptflip(other.scriptflip),			//int32_t
 	//do_animation(other.do_animation),			//int32_t
-	immortal(other.immortal),			//int32_t
-	noSlide(other.noSlide),			//int32_t
+	immortal(other.immortal),			//bool
+	noSlide(other.noSlide),			//bool
+	deathexstate(other.deathexstate),			//int32_t
 	flags(other.flags),			//int32_t
 	step(other.step),			//int32_t
 	
@@ -3185,6 +3187,11 @@ bool enemy::Dead(int32_t index)
 	}
 	if(dying)
 	{
+		if(deathexstate > -1 && deathexstate < 32)
+		{
+			setxmapflag(1<<deathexstate);
+			deathexstate = -1;
+		}
 		--clk2;
 		
 		if((get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS) && clk2==12)

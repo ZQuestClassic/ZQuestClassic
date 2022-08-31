@@ -9640,6 +9640,26 @@ int32_t writecombos(PACKFILE *f, word version, word build, word start_combo, wor
 			{
 				new_return(42);
 			}
+			if(!p_putc(combobuf[i].trigcschange,f))
+			{
+				new_return(43);
+			}
+			if(!p_iputw(combobuf[i].spawnitem,f))
+			{
+				new_return(44);
+			}
+			if(!p_iputw(combobuf[i].spawnenemy,f))
+			{
+				new_return(45);
+			}
+			if(!p_putc(combobuf[i].exstate,f))
+			{
+				new_return(46);
+			}
+			if(!p_iputl(combobuf[i].spawnip,f))
+			{
+				new_return(47);
+			}
 			for ( int32_t q = 0; q < 11; q++ ) 
 			{
 				if(!p_putc(combobuf[i].label[q],f))

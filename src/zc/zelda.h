@@ -145,7 +145,7 @@ byte HeroGetDontDraw();
 void setSwordClk(int32_t newclk);
 void setItemClk(int32_t newclk);
 int32_t  HeroLStep();
-void HeroCheckItems();
+void HeroCheckItems(int32_t index = -1);
 zfix  HeroModifiedX();
 zfix  HeroModifiedY();
 zfix  GuyX(int32_t j);

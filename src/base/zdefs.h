@@ -253,7 +253,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            15
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          30
+#define V_COMBOS          31
 #define V_CSETS            5 //palette data
 #define V_MAPS            22
 #define V_DMAPS            16
@@ -1388,6 +1388,10 @@ enum
 #define combotriggerEWFLAME      0x00010000
 #define combotriggerEWWIND       0x00020000
 #define combotriggerEWFLAME2     0x00040000
+#define combotriggerSPCITEM      0x00080000
+#define combotriggerEXSTITEM     0x00100000
+#define combotriggerEXSTENEMY    0x00200000
+#define combotriggerAUTOGRABITEM 0x00400000
 
 #define ctrigNONE        0x00
 #define ctrigIGNORE_SIGN 0x01
@@ -3185,6 +3189,11 @@ struct newcombo
 	byte trigctr; //8 bits
 	int32_t trigctramnt; //32 bits
 	byte triglbeam; //8 bits
+	int8_t trigcschange; //8 bits
+	int16_t spawnitem; //16 bits
+	int16_t spawnenemy; //16 bits
+	int8_t exstate; //8 bits
+	int32_t spawnip; //32 bits
 	char label[11];
 		//Only one of these per combo: Otherwise we would have 
 		//int32_t triggerlevel[54] (1,728 bits extra per combo in a quest, and in memory) !!
@@ -3240,6 +3249,11 @@ struct newcombo
 		trigctr = 0;
 		trigctramnt = 0;
 		triglbeam = 0;
+		trigcschange = 0;
+		spawnitem = 0;
+		spawnenemy = 0;
+		exstate = -1;
+		spawnip = 0;
 		trigchange = 0;
 		for(int32_t q = 0; q < 11; ++q)
 			label[q] = 0;
@@ -3290,6 +3304,11 @@ struct newcombo
 		if(trigctr) return false;
 		if(trigctramnt) return false;
 		if(triglbeam) return false;
+		if(trigcschange) return false;
+		if(spawnitem) return false;
+		if(spawnenemy) return false;
+		if(exstate > -1) return false;
+		if(spawnip) return false;
 		if(strlen(label)) return false;
 		for(auto q = 0; q < 8; ++q)
 			if(attribytes[q]) return false;

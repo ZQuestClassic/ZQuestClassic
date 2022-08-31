@@ -123,6 +123,8 @@ public:
 	bool noSlide;
 	int16_t hitdir;
 	
+	int8_t deathexstate;
+	
 	int32_t getScriptUID();
 	void setScriptUID(int32_t new_id);
 	//void explode(int32_t type);

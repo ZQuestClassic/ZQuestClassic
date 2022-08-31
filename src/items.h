@@ -55,6 +55,7 @@ public:
     int32_t linked_parent;
 	bool is_dragged;
 	int16_t from_dropset;
+	int8_t pickupexstate;
     //int32_t weapoverrideFLAGS; 
     
     //word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.

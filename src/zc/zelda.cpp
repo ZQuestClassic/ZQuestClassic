@@ -1483,9 +1483,9 @@ int32_t  HeroLStep()
 {
     return Hero.getLStep();
 }
-void HeroCheckItems()
+void HeroCheckItems(int32_t index)
 {
-    Hero.checkitems();
+    Hero.checkitems(index);
 }
 byte HeroGetDontDraw()
 {

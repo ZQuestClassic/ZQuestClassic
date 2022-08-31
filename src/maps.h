@@ -108,8 +108,8 @@ bool remove_screenstatecombos2(mapscr *s, mapscr *t, int32_t what1, int32_t what
 
 bool remove_xstatecombos(int32_t tmp, byte xflag);
 bool remove_xstatecombos(int32_t tmp, int32_t mi, byte xflag);
-bool remove_xstatecombos2(mapscr *s, mapscr *t, byte xflag);
-bool remove_xstatecombos2(mapscr *s, mapscr *t, int32_t mi, byte xflag);
+bool remove_xstatecombos2(mapscr *s, mapscr *t, byte xflag, bool triggers = false);
+bool remove_xstatecombos2(mapscr *s, mapscr *t, int32_t mi, byte xflag, bool triggers = false);
 void clear_xstatecombos(int32_t tmp);
 void clear_xstatecombos(int32_t tmp, int32_t mi);
 void clear_xstatecombos2(mapscr *s, mapscr *t);

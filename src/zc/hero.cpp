@@ -3309,6 +3309,8 @@ bool HeroClass::checkstab()
 						else if(pickup&ipONETIME2) // set mSPECIALITEM flag for other one-time-only items
 							setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 						
+						if(ptr->pickupexstate > -1 && ptr->pickupexstate < 32)
+							setxmapflag(1<<ptr->pickupexstate);
 						if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
 						{
 							if(tmpscr->flags9&fITEMSECRETPERM) setmapflag(mSECRET);
@@ -26578,6 +26580,7 @@ void HeroClass::checkitems(int32_t index)
 	//   return;
 	item* ptr = (item*)items.spr(index);
 	int32_t pickup = ptr->pickup;
+	int8_t exstate = ptr->pickupexstate;
 	int32_t PriceIndex = ptr->PriceIndex;
 	int32_t id2 = ptr->id;
 	int32_t holdid = ptr->id;
@@ -26801,6 +26804,11 @@ void HeroClass::checkitems(int32_t index)
 		}
 		else if(pickup&ipONETIME2)                                // set mSPECIALITEM flag for other one-time-only items
 			setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+		
+		if(exstate > -1 && exstate < 32)
+		{
+			setxmapflag(1<<exstate);
+		}
 		
 		if(pickup&ipSECRETS)                                // Trigger secrets if this item has the secret pickup
 		{

@@ -1385,16 +1385,83 @@ bool trigger_switchhookblock(int32_t lyr, int32_t pos)
 	return true;
 }
 
+bool force_ex_trigger(int32_t lyr, int32_t pos, char xstate)
+{
+	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
+	mapscr* tmp = FFCore.tempScreens[lyr];
+	int32_t cid = tmp->data[pos];
+	int32_t ocs = tmp->cset[pos];
+	newcombo const& cmb = combobuf[cid];	
+	if(cmb.exstate > -1 && (xstate < 0 || xstate == cmb.exstate))
+	{
+		if(xstate >= 0 || getxmapflag(1<<cmb.exstate))
+		{
+			if(cmb.trigchange)
+			{
+				tmp->data[pos] = cid+cmb.trigchange;
+			}
+			if(cmb.trigcschange)
+			{
+				tmp->cset[pos] = (ocs+cmb.trigcschange) & 0xF;
+			}
+			if(cmb.triggerflags[0] & combotriggerRESETANIM)
+			{
+				newcombo& rcmb = combobuf[tmp->data[pos]];
+				rcmb.tile = rcmb.o_tile;
+				rcmb.cur_frame=0;
+				rcmb.aclk = 0;
+			}
+			return true;
+		}
+	}
+	return false;
+}
 //Forcibly triggers a combo at a given position
 bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 {
 	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
 	mapscr* tmp = FFCore.tempScreens[lyr];
 	int32_t cid = tmp->data[pos];
+	int32_t ocs = tmp->cset[pos];
 	int32_t cx = COMBOX(pos);
 	int32_t cy = COMBOY(pos);
 	newcombo const& cmb = combobuf[cid];	
 	bool hasitem = false;
+	
+	word ctramnt = game->get_counter(cmb.trigctr);
+	bool onlytrigctr = !(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG);
+	
+	int32_t flag = tmp->sflag[pos];
+	int32_t flag2 = cmb.flag;
+	
+	byte* grid = nullptr;
+	bool check_bit = false;
+	bool used_bit = false;
+	
+	uint32_t exflag = 0;
+	if(cmb.exstate > -1)
+	{
+		exflag = 1<<cmb.exstate;
+		if(getxmapflag(exflag))
+		{
+			if(cmb.trigchange)
+			{
+				tmp->data[pos] = cid+cmb.trigchange;
+			}
+			if(cmb.trigcschange)
+			{
+				tmp->cset[pos] = (ocs+cmb.trigcschange) & 0xF;
+			}
+			if(cmb.triggerflags[0] & combotriggerRESETANIM)
+			{
+				newcombo& rcmb = combobuf[tmp->data[pos]];
+				rcmb.tile = rcmb.o_tile;
+				rcmb.cur_frame=0;
+				rcmb.aclk = 0;
+			}
+			return true;
+		}
+	}
 	if(cmb.triggeritem) //Item requirement
 	{
 		hasitem = game->get_item(cmb.triggeritem) && !item_disabled(cmb.triggeritem)
@@ -1419,8 +1486,7 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 				return false;
 		}
 	}
-	word ctramnt = game->get_counter(cmb.trigctr);
-	bool onlytrigctr = !(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG);
+	
 	if(!onlytrigctr && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
 	{
 		if(ctramnt >= cmb.trigctramnt)
@@ -1438,12 +1504,7 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 		if(ctramnt >= cmb.trigctramnt)
 			return false;
 	}
-	int32_t flag = tmp->sflag[pos];
-	int32_t flag2 = cmb.flag;
 	
-	byte* grid = nullptr;
-	bool check_bit = false;
-	bool used_bit = false;
 	if(w)
 	{
 		grid = (lyr ? w->wscreengrid_layer[lyr-1] : w->wscreengrid);
@@ -1561,11 +1622,16 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 			used_bit = true;
 			tmp->data[pos] = cid+cmb.trigchange;
 		}
+		if(cmb.trigcschange)
+		{
+			used_bit = true;
+			tmp->cset[pos] = (ocs+cmb.trigcschange) & 0xF;
+		}
 		
 		if(cmb.triggerflags[0] & combotriggerRESETANIM)
 		{
 			newcombo& rcmb = combobuf[tmp->data[pos]];
-            rcmb.tile = rcmb.o_tile;
+			rcmb.tile = rcmb.o_tile;
 			rcmb.cur_frame=0;
 			rcmb.aclk = 0;
 		}
@@ -1583,6 +1649,68 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 			{
 				game->change_counter(-cmb.trigctramnt, cmb.trigctr);
 			}
+		}
+		bool trigexstate = true;
+		if(cmb.spawnenemy)
+		{
+			enemy* enm = nullptr;
+			bool enm_ex = (cmb.triggerflags[2] & combotriggerEXSTENEMY);
+			word numcreated = addenemy(cx, cy, cmb.spawnenemy, -10);
+			if(numcreated)
+			{
+				word index = guys.Count() - numcreated;
+				enm = (enemy*)guys.spr(index);
+			}
+			if(enm_ex)
+			{
+				trigexstate = false;
+				if(enm)
+				{
+					enm->deathexstate = cmb.exstate;
+				}
+			}
+		}
+		if(cmb.spawnitem)
+		{
+			bool itm_ex = (cmb.triggerflags[2] & combotriggerEXSTITEM);
+			bool specitem = (cmb.triggerflags[2] & combotriggerSPCITEM);
+			if(specitem && getmapflag(mSPECIALITEM))
+			{
+				//already collected
+				if(itm_ex) trigexstate = true;
+			}
+			else
+			{
+				const int32_t allowed_pflags = ipHOLDUP | ipTIMER | ipSECRETS | ipCANGRAB;
+				int32_t pflags = cmb.spawnip & allowed_pflags;
+				SETFLAG(pflags, ipONETIME2, specitem);
+				int32_t item_id = cmb.spawnitem;
+				if(item_id < 0)
+				{
+					item_id = select_dropitem(-item_id);
+				}
+				item* itm = nullptr;
+				if(unsigned(item_id) < MAXITEMS)
+				{
+					itm = new item(cx, cy, 0, item_id, pflags, 0);
+					items.add(itm);
+					zprint2("combo trigger spawned item %d\n", item_id);
+				}
+				if(itm_ex)
+				{
+					trigexstate = false;
+					if(itm) itm->pickupexstate = cmb.exstate;
+				}
+				if(cmb.triggerflags[2] & combotriggerAUTOGRABITEM)
+				{
+					if(itm) itm->set_forcegrab(true);
+				}
+			}
+		}
+		
+		if(cmb.exstate > -1 && trigexstate)
+		{
+			setxmapflag(exflag);
 		}
 	}
 	if(used_bit && grid)
