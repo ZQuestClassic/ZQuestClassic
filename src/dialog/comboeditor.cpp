@@ -3198,9 +3198,11 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									INFOBTN("Triggered when the player pushes against the combo"),
 									TRIGFLAG(57,"Push->"),
 									INFOBTN("'Item:' must NOT be owned to trigger"),
-									TRIGFLAG(49,"Invert Item Req"),
-									INFOBTN("'Proximity:' requires the player to be far away, instead of close"),
-									TRIGFLAG(19,"Invert Proximity Req")
+									TRIGFLAG(19,"Invert Proximity Req"),
+									INFOBTN("Triggers when all enemies are defeated"),
+									TRIGFLAG(87, "Enemies->"),
+									INFOBTN("Triggers when screen secrets trigger"),
+									TRIGFLAG(88, "Secrets->")
 								)
 							)
 						)),
@@ -3315,6 +3317,139 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								TRIGFLAG(53,"Consume amount"),
 								INFOBTN("The 'Consume Amount' will occur even if the combo does not meet its' trigger conditions."),
 								TRIGFLAG(54,"Consume w/o trig")
+							)
+						)),
+						TabRef(name = "States/Spawning", ScrollingPane(
+							Column(
+								Row(
+									Rows<3>(framed = true,
+										padding = DEFAULT_PADDING+2_px,
+										Label(text = "Req Item:", fitParent = true),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = 0, high = 255, val = local_comboref.triggeritem,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_comboref.triggeritem = val;
+											}),
+										Button(
+											width = 1.5_em, padding = 0_px, forceFitH = true,
+											text = "?", hAlign = 1.0, onPressFunc = [&]()
+											{
+												InfoDialog("Item Requirement","If the value is >0, the item "
+													" id set here must be owned to trigger the combo."
+													"\nIf 'Invert Item Req' is checked, the item must NOT be owned instead."
+													"\nIf 'Consume Item Req' is checked, the item will be removed upon triggering.").show();
+											}
+										),
+										Label(text = "Spawn Item:", fitParent = true),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = -255, high = 255, val = local_comboref.spawnitem,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_comboref.spawnitem = val;
+											}),
+										Button(
+											width = 1.5_em, padding = 0_px, forceFitH = true,
+											text = "?", hAlign = 1.0, onPressFunc = [&]()
+											{
+												InfoDialog("Spawn Item","If the value is >0, the item "
+													" id set here will be spawned when the combo is triggered."
+													"\nIf the value is <0, it will be treated as a dropset to drop."
+													"\nIf 'Spawns Special Item' is checked, the item will count as the room's special item,"
+													"\nnot spawning if the special item state is already set."
+													"\nIf 'Trigger ExState after item pickup' is checked, the combo will not set its'"
+													"\nExState on being triggered, instead setting it when the item is picked up.").show();
+											}
+										),
+										Label(text = "Spawn Enemy:", fitParent = true),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = 0, high = 511, val = local_comboref.spawnenemy,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_comboref.spawnenemy = val;
+											}),
+										Button(
+											width = 1.5_em, padding = 0_px, forceFitH = true,
+											text = "?", hAlign = 1.0, onPressFunc = [&]()
+											{
+												InfoDialog("Spawn Enemy","If the value is >0, the enemy "
+													" id set here will be spawned when the combo is triggered."
+													"\nIf 'Trigger ExState after enemy kill' is checked, the combo will not set its'"
+													"\nExState on being triggered, instead setting it when the enemy is defeated.").show();
+											}
+										),
+										Label(text = "ExState:", fitParent = true),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = -1, high = 31, val = local_comboref.exstate,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_comboref.exstate = val;
+											}),
+										Button(
+											width = 1.5_em, padding = 0_px, forceFitH = true,
+											text = "?", hAlign = 1.0, onPressFunc = [&]()
+											{
+												InfoDialog("ExState","If the value is >=0, the exstate "
+													" id set here will be set when the combo is triggered,"
+													"\nand if the exstate set here is already set, the combo will automatically trigger"
+													"\nwithout any effects other than combo/cset change.").show();
+											}
+										),
+										Label(text = "Copycat:", fitParent = true),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = 0, high = 255, val = local_comboref.trigcopycat,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_comboref.trigcopycat = val;
+											}),
+										Button(
+											width = 1.5_em, padding = 0_px, forceFitH = true,
+											text = "?", hAlign = 1.0, onPressFunc = [&]()
+											{
+												InfoDialog("Copycat","If the value is > 0, the combo is linked to that copycat ID."
+													"\nIf this combo is triggered, all other linked combos will also trigger,"
+													"\nand if any other linked combo triggers, this combo will trigger.").show();
+											}
+										)
+									),
+									Column(framed = true, frameText = "Spawned Item Pickup",
+										padding = DEFAULT_PADDING+2_px,
+										MISCFLAG(spawnip, ipHOLDUP, "Hold Up Item"),
+										MISCFLAG(spawnip, ipTIMER, "Time Out Item"),
+										MISCFLAG(spawnip, ipSECRETS, "Item Triggers Secrets"),
+										MISCFLAG(spawnip, ipCANGRAB, "Can Hook Item")
+									)
+								),
+								Rows<2>(framed = true,
+									padding = DEFAULT_PADDING+2_px,
+									INFOBTN("'Req Item:' must NOT be owned to trigger"),
+									TRIGFLAG(49,"Invert Item Req"),
+									INFOBTN("'Req Item:' will be taken when triggering"),
+									TRIGFLAG(50,"Consume Item Req"),
+									INFOBTN("'Spawn Item' will be linked to the room's Special Item state"),
+									TRIGFLAG(83, "Spawns Special Item"),
+									INFOBTN("The combo's 'ExState' will be set when the spawned item is picked up, rather than when it is triggered."),
+									TRIGFLAG(84, "Trigger ExState after item pickup"),
+									INFOBTN("The combo's 'ExState' will be set when the spawned enemy is defeated, rather than when it is triggered."),
+									TRIGFLAG(85, "Trigger ExState after enemy kill"),
+									INFOBTN("The item spawned by the combo will automatically be collected by the player."),
+									TRIGFLAG(86, "Spawned Item auto-collects")
+								)
 							)
 						))
 					)),
