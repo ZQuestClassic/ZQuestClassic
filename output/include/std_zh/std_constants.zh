@@ -2609,7 +2609,8 @@ DEFINE CT_GLASS              = 171;
 DEFINE CT_LIGHT_TARGET       = 172;
 DEFINE CT_SWITCHHOOK_BLOCK   = 173;
 DEFINE CT_CUSTOM_BLOCKER     = 174;
-DEFINE CT_MAX                = 175;
+DEFINE CT_SHOOTER            = 175;
+DEFINE CT_MAX                = 176;
 
 
 //////////////////

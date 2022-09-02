@@ -125,7 +125,7 @@ public:
     void convertType(bool toLW);
     weapon(weapon const &other);
     //weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentid, int32_t prntid, bool isDummy=false);
-    weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentid, int32_t prntid, bool isDummy=false, byte script_gen=0, byte isLW=0, byte special = 0, int32_t Linked_Parent = 0);
+    weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentid, int32_t prntid, bool isDummy=false, byte script_gen=0, byte isLW=0, byte special = 0, int32_t Linked_Parent = 0, int32_t use_sprite = -1);
     weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, int32_t step, int32_t prntid, int32_t height, int32_t width, int32_t a, int32_t b, int32_t c, int32_t d, int32_t e, int32_t f, int32_t g);
     virtual ~weapon();
 	void cleanup_sfx();
@@ -147,9 +147,14 @@ public:
 	virtual int32_t run_script(int32_t mode);
 };
 
-int32_t AngleToDir(double ddir);
-double DirToDegrees(int d);
 double WrapAngle(double radians);
+double WrapDegrees(double degrees);
+double DegreesToRadians(double deg);
+double RadiansToDegrees(double rad);
+double DirToRadians(int dir);
+double DirToDegrees(int dir);
+int32_t AngleToDir(double radians);
+int32_t AngleToDir4(double radians);
 
 void killgenwpn(weapon* w);
 void do_generic_combo(weapon *w, int32_t bx, int32_t by, int32_t wid, 

@@ -42,6 +42,7 @@ bool hasCTypeEffects(int32_t type)
 		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
 		case cSTEPSFX: case cSWITCHHOOK: case cCSWITCHBLOCK:
+		case cSHOOTER:
 			return true;
 	}
 	return false;
@@ -454,6 +455,9 @@ std::string getComboTypeHelpText(int32_t id)
 			break;
 		case cCUSTOMBLOCK:
 			typehelp = "Blocks weapons denoted by the weapon triggerflags.";
+			break;
+		case cSHOOTER:
+			typehelp = "Shoots, as a turret. Triggering with 'ComboType Effects' causes it to instantly shoot.";
 			break;
 		case cARMOS:
 			typehelp = "When touched, this combo produces an Armos and changes to the screen's Under Combo."
@@ -1199,6 +1203,69 @@ void ComboEditorDialog::loadComboType()
 		{
 			l_attribyte[0] = "Block SFX";
 			h_attribyte[0] = "SFX to play when blocking a weapon";
+			break;
+		}
+		case cSHOOTER:
+		{
+			l_attribyte[0] = "Shot SFX:";
+			h_attribyte[0] = "SFX to play when shooting a weapon";
+			l_attribyte[1] = "Weapon Type:";
+			h_attribyte[1] = "The LWeapon or EWeapon ID to be shot";
+			l_attribyte[2] = "Sprite:";
+			h_attribyte[2] = "The sprite of the spawned weapon";
+			
+			//short[0],[1] : Rate
+			//bute[0] : Angle/Dir
+			//bute[1] : Prox Limit
+			l_attribute[2] = "Damage:";
+			h_attribute[2] = "The damage of the spawned weapon";
+			l_attribute[3] = "Step Speed:";
+			h_attribute[3] = "The speed of the weapon, in 100ths px/frame";
+			
+			l_flag[0] = "Angular";
+			h_flag[0] = "Specify an angle (in degrees) instead of a direction (8dir)";
+			l_flag[1] = "Variable Rate";
+			h_flag[1] = "Fires at a varying rate instead of a constant rate";
+			l_flag[2] = "Instant Shot";
+			h_flag[2] = "Shoots when the timer starts, rather than ends";
+			l_flag[3] = "Stops by Player Proximity";
+			h_flag[3] = "If the player is within the specified number of pixels, the shooter will be unable to shoot.";
+			l_flag[4] = "'Custom Weapons' are LWeapons";
+			h_flag[4] = "If a 'Custom Weapon' ID is used, it will be treated as an LWeapon with this checked, and an EWeapon otherwise.";
+			l_flag[5] = "Auto-rotate sprite";
+			h_flag[5] = "Attempt to rotate the sprite to match the weapon's angle";
+			if(FL(cflag1)) //Angular
+			{
+				l_attribute[0] = "Angle (Degrees)";
+				h_attribute[0] = "If between 0 and 360, acts as an angle in degrees."
+					"\nUse '-1' to aim at the player (4-dir)"
+					"\nUse '-2' to aim at the player (8-dir)"
+					"\nUse '-3' to aim at the player (angular)";
+			}
+			else
+			{
+				l_attribute[0] = "Direction";
+				h_attribute[0] = "A direction from 0 to 7. 0 = up, 1 = down, etc.";
+			}
+			if(FL(cflag2)) //Variable rate
+			{
+				l_attrishort[0] = "Lower Fire Rate:";
+				h_attrishort[0] = "If lower than the 'Upper Fire Rate', the combo will fire between the two rates.";
+				l_attrishort[1] = "Upper Fire Rate:";
+				h_attrishort[1] = "If higher than the 'Lower Fire Rate', the combo will fire between the two rates.";
+			}
+			else
+			{
+				l_attrishort[0] = "Fire Rate:";
+				h_attrishort[0] = "Combo fires every this many frames (0 = don't fire)";
+			}
+			if(FL(cflag4)) //Stops by Player Proximity
+			{
+				l_attribute[1] = "Proximity Limit";
+				h_attribute[1] = "If the player is at least this close (in pixels) to the combo,"
+					"\nthe combo will fail to shoot.";
+			}
+			
 			break;
 		}
 		case cTALLGRASSTOUCHY: case cTALLGRASSNEXT:

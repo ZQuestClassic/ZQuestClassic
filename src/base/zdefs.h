@@ -821,7 +821,7 @@ enum
 	//170
 	cSPOTLIGHT, cGLASS, cLIGHTTARGET, cSWITCHHOOK, cBUTTONPROMPT,
 	//175
-	cCUSTOMBLOCK,
+	cCUSTOMBLOCK, cSHOOTER,
     cMAX,
 	// ! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
@@ -5447,6 +5447,8 @@ std::string generate_zq_about();
 
 void enter_sys_pal();
 void exit_sys_pal();
+
+#define SMART_WRAP(x, mod) (x < 0 ? ((mod-(-x%mod))%mod) : (x%mod))
 
 #undef cmb1
 #undef cmb2

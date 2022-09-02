@@ -41,22 +41,32 @@ extern FFScript FFCore;
 extern ZModule zcm;
 extern enemy Enemy;
 extern byte epilepsyFlashReduction;
-
 double WrapAngle( double radians ) 
 {
 	while (radians <= -PI) radians += (PI*2);
 	while (radians > PI) radians -= (PI*2);
 	return radians;
 }
+double WrapDegrees( double degrees )
+{
+	while (degrees <= -180.0) degrees += 360.0;
+	while (degrees > 180.0) degrees -= 360.0;
+	return degrees;
+}
 
-static double DegreesToRadians(double d)
+double DegreesToRadians(double d)
 {
 	double dvs = PI/180.0;
 	return d*dvs;
-	
 }
 
-static double DirToRadians(int d)
+double RadiansToDegrees(double rad)
+{
+	double dvs = 180.0/PI;
+	return rad*dvs;
+}
+
+double DirToRadians(int d)
 {
 	switch(d)
 	{
@@ -78,7 +88,6 @@ static double DirToRadians(int d)
 			return DegreesToRadians(45);
 	}
 	return 0;
-	
 }
 
 double DirToDegrees(int d)
@@ -103,7 +112,6 @@ double DirToDegrees(int d)
 			return 45;
 	}
 	return 0;
-	
 }
 
 //double ddir=atan2(double(fakey-(Hero.y)),double(Hero.x-fakex));
@@ -142,6 +150,28 @@ int32_t AngleToDir(double ddir)
 	else
 	{
 		lookat=left;
+	}
+	return lookat;
+}
+int32_t AngleToDir4(double ddir)
+{
+	int32_t lookat=0;
+	
+	if(ddir <= 135.0 && ddir > 45.0)
+	{
+		lookat = down;
+	}
+	else if(ddir <= 45.0 && ddir > -45.0)
+	{
+		lookat = right;
+	}
+	else if(ddir <= -45.0 && ddir > -135.0)
+	{
+		lookat = up;
+	}
+	else
+	{
+		lookat = left;
 	}
 	return lookat;
 }
@@ -1087,7 +1117,7 @@ weapon::~weapon()
 	cleanup_sfx();
 }
 
-weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentitem, int32_t prntid, bool isDummy, byte script_gen, byte isLW, byte special, int32_t Linked_Parent) : sprite(), parentid(prntid)
+weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentitem, int32_t prntid, bool isDummy, byte script_gen, byte isLW, byte special, int32_t Linked_Parent, int32_t use_sprite) : sprite(), parentid(prntid)
 {
 	x=X;
 	y=Y;
@@ -1202,7 +1232,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	//memset(stack,0,sizeof(stack));
 	//memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
 	
-	int32_t defaultw, itemid = parentitem;
+	int32_t defaultw = 0, itemid = parentitem;
 	
 	if(id>wEnemyWeapons)
 	{
@@ -1244,6 +1274,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		case wBugNet:
 		{
 			defaultw = itemsbuf[parentitem].wpn;
+			if(use_sprite > -1) defaultw = use_sprite;
 			LOADGFX(defaultw);
 			break;
 		}
@@ -1273,6 +1304,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					
 					defaultw = itemsbuf[parentitem].wpn;
+					if(use_sprite > -1) defaultw = use_sprite;
 					LOADGFX(defaultw);
 					
 					if (!( itemsbuf[parentitem].flags & ITEM_FLAG1 ) )
@@ -1301,7 +1333,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				}
 				else 
 				{
-					LOADGFX(0);
+					if(use_sprite > -1) defaultw = use_sprite;
+					LOADGFX(defaultw);
 				}
 			}
 			else
@@ -1310,10 +1343,10 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				{
 					enemy *e = (enemy*)guys.getByUID(parentid);
 					int32_t enemy_wpnsprite = e->wpnsprite;
-					if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-					else LOADGFX(0);
+					if ( enemy_wpnsprite > 0 ) defaultw = enemy_wpnsprite;
 				}
-				else LOADGFX(0);
+				if(use_sprite > -1) defaultw = use_sprite;
+				LOADGFX(defaultw);
 			}
 			break;
 		}
@@ -1332,6 +1365,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 				
 				defaultw = itemsbuf[parentitem].wpn;
+				if(use_sprite > -1) defaultw = use_sprite;
 				LOADGFX(defaultw);
 				
 				if (!( itemsbuf[parentitem].flags & ITEM_FLAG1 ) )
@@ -1360,7 +1394,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			}
 			else 
 			{
-				LOADGFX(0);
+				if(use_sprite > -1) defaultw = use_sprite;
+				LOADGFX(defaultw);
 			}
 			break;
 		}
@@ -1458,6 +1493,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			else
 				defaultw = wSWORD;
 			
+			if(use_sprite > -1) defaultw = use_sprite;
 			LOADGFX(defaultw);
 			break;
 		}
@@ -1498,6 +1534,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			else
 				defaultw = wWAND;
 			
+			if(use_sprite > -1) defaultw = use_sprite;
 			LOADGFX(defaultw);
 			break;
 		}
@@ -1537,6 +1574,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			else
 				defaultw = wHAMMER;
 			
+			if(use_sprite > -1) defaultw = use_sprite;
 			LOADGFX(defaultw);
 			break;
 		}
@@ -1573,6 +1611,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			else
 				defaultw = wCBYRNA;
 				
+			if(use_sprite > -1) defaultw = use_sprite;
 			LOADGFX(defaultw);
 			int32_t speed = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc1,1) : 1;
 			int32_t qty = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc3,1) : 1;
@@ -1688,6 +1727,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			else
 				defaultw = ewSWORD;
 				
+			if(use_sprite > -1) defaultw = use_sprite;
 			LOADGFX(defaultw);
 			flash = 1;
 			cs = 6;
@@ -1743,6 +1783,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			{
 				defaultw = wARROW;
 			}
+			if(use_sprite > -1) defaultw = use_sprite;
 			LOADGFX(defaultw);
 			step=3;
 			if ( parentitem > -1 )
@@ -1835,7 +1876,9 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				}
 			}
 			*/
-			LOADGFX(linked_parent ? linked_parent : wSSPARKLE);
+			defaultw = linked_parent ? linked_parent : wSSPARKLE;
+			if(use_sprite > -1) defaultw = use_sprite;
+			LOADGFX(defaultw);
 			step=0;
 			break;
 		}
@@ -1863,7 +1906,9 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				}
 			}
 			*/
-			LOADGFX(linked_parent ? linked_parent : wFSPARKLE);
+			defaultw = linked_parent ? linked_parent : wFSPARKLE;
+			if(use_sprite > -1) defaultw = use_sprite;
+			LOADGFX(defaultw);
 			step=0;
 			break;
 		}
@@ -1947,6 +1992,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			}
 			else { defaultw = wFIRE; step = 0.5;}
 			
+			if(use_sprite > -1) defaultw = use_sprite;
 			LOADGFX(defaultw);
 			
 			
@@ -1998,6 +2044,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				}
 			}
 		
+			if(use_sprite > -1) defaultw = use_sprite;
 			LOADGFX(defaultw);
 			
 			break;
@@ -2040,6 +2087,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				misc = (id==wSBomb ? 1 : 50);
 			}
 			
+			if(use_sprite > -1) defaultw = use_sprite;
 			LOADGFX(defaultw);
 			
 			break;
@@ -2079,6 +2127,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				}
 			}
 		
+			if(use_sprite > -1) defaultw = use_sprite;
 			LOADGFX(defaultw);
 			break;
 		}
@@ -2109,6 +2158,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			//Z_message("parentitem: %d\n",parentitem);
 		
 		
+			if(use_sprite > -1) defaultw = use_sprite;
 			LOADGFX(defaultw);
 			if ( itemid > -1 )
 			{
@@ -2214,6 +2264,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			else
 				defaultw = wBRANG;
 				
+			if(use_sprite > -1) defaultw = use_sprite;
 			LOADGFX(defaultw);
 			
 			dummy_bool[0]=false;                                  //grenade armed?
@@ -2236,6 +2287,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				defaultw = wHSHEAD;
 			
 			itemdata const& hshot = itemsbuf[parentitem>-1 ? parentitem : current_item_id(family_class)];
+			if(use_sprite > -1) defaultw = use_sprite;
 			LOADGFX(defaultw);
 			step = 4;
 			clk2=256;
@@ -2342,6 +2394,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				defaultw = wHSHANDLE;
 			itemdata const& hshot = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)];
 				
+			if(use_sprite > -1) defaultw = use_sprite;
 			LOADGFX(defaultw);
 			if ( do_animation ) 
 			{
@@ -2446,6 +2499,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				
 			step = 0;
 			
+			if(use_sprite > -1) defaultw = use_sprite;
 			switch(dir)
 			{
 				case down:
@@ -2519,15 +2573,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		case ewLitBomb:
 		case ewBomb:
 		{
+			defaultw = ewBOMB;
 			if ( parentid > -1 )
 			{
 				enemy *e = (enemy*)guys.getByUID(parentid);
 				int32_t enemy_wpnsprite = e->wpnsprite;
-				if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-				
-				else LOADGFX(ewBOMB);
+				if ( enemy_wpnsprite > 0 ) defaultw = enemy_wpnsprite;
 			}
-			else LOADGFX(ewBOMB);
+			if(use_sprite > -1) defaultw = use_sprite;
+			LOADGFX(defaultw);
 			hxofs=0;
 			hxsz=16;
 			
@@ -2570,13 +2624,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		case ewLitSBomb:
 		case ewSBomb:
 		{
+			defaultw = ewSBOMB;
 			if ( parentid > -1 )
 			{
 				enemy *e = (enemy*)guys.getByUID(parentid);
-				int32_t enemy_wpnsprite = e->wpnsprite; if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-				else LOADGFX(ewSBOMB);
+				int32_t enemy_wpnsprite = e->wpnsprite;
+				if ( enemy_wpnsprite > 0 ) defaultw = enemy_wpnsprite;
 			}
-			else LOADGFX(ewSBOMB);
+			if(use_sprite > -1) defaultw = use_sprite;
+			LOADGFX(defaultw);
 			hxofs=0;
 			hxsz=16;
 			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
@@ -2632,14 +2688,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			}
 			
 			wid = zc_min(zc_max(current_item(itype_brang),1),3)-1+wBRANG;
+			defaultw = wid;
 			if ( parentid > -1 )
 			{
 				enemy *e = (enemy*)guys.getByUID(parentid);
 				int32_t enemy_wpnsprite = e->wpnsprite; 
-				if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-				else LOADGFX(wid);
+				if ( enemy_wpnsprite > 0 ) defaultw = enemy_wpnsprite;
 			}
-			else LOADGFX(wid);
+			if(use_sprite > -1) defaultw = use_sprite;
+			LOADGFX(defaultw);
 			break;
 		}
 			
@@ -2655,14 +2712,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		//fallthrough
 		case ewFireball:
 		{
+			defaultw = ewFIREBALL;
 			if ( parentid > -1 && !isLWeapon )
 			{
 				enemy *e = (enemy*)guys.getByUID(parentid);
 				int32_t enemy_wpnsprite = e->wpnsprite; 
-				if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-				else LOADGFX(ewFIREBALL);
+				if ( enemy_wpnsprite > 0 ) defaultw = (enemy_wpnsprite);
 			}
-			else LOADGFX(ewFIREBALL);
+			if(use_sprite > -1) defaultw = use_sprite;
+			LOADGFX(defaultw);
 			step=1.75;
 			
 			if(Type&2)
@@ -2675,7 +2733,9 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		}
 		case wRefFireball:
 		{
-			LOADGFX(ewFIREBALL);
+			defaultw = ewFIREBALL;
+			if(use_sprite > -1) defaultw = use_sprite;
+			LOADGFX(defaultw);
 			step=1.75;
 			
 			if(Type&2)
@@ -2689,14 +2749,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			
 		case ewRock:
 		{
+			defaultw = ewROCK;
 			if ( parentid > -1 && !isLWeapon )
 			{
 				enemy *e = (enemy*)guys.getByUID(parentid);
 				int32_t enemy_wpnsprite = e->wpnsprite; 
-				if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-				else LOADGFX(ewROCK);
+				if ( enemy_wpnsprite > 0 ) defaultw = enemy_wpnsprite;
 			}
-			else LOADGFX(ewROCK);
+			if(use_sprite > -1) defaultw = use_sprite;
+			LOADGFX(defaultw);
 			
 			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
 			{
@@ -2717,14 +2778,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			
 		case ewArrow:
 		{
+			defaultw = ewARROW;
 			if ( parentid > -1 && !isLWeapon )
 			{
 				enemy *e = (enemy*)guys.getByUID(parentid);
 				int32_t enemy_wpnsprite = e->wpnsprite; 
-				if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-				else LOADGFX(ewARROW);
+				if ( enemy_wpnsprite > 0 ) defaultw = enemy_wpnsprite;
 			}
-			else LOADGFX(ewARROW);
+			if(use_sprite > -1) defaultw = use_sprite;
+			LOADGFX(defaultw);
 			step=2;
 			if ( do_animation ) 
 			{
@@ -2757,14 +2819,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			
 		case ewSword:
 		{
+			defaultw = ewSWORD;
 			if ( parentid > -1 && !isLWeapon )
 			{
 				enemy *e = (enemy*)guys.getByUID(parentid);
 				int32_t enemy_wpnsprite = e->wpnsprite; 
-				if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-				else LOADGFX(ewSWORD);
+				if ( enemy_wpnsprite > 0 ) defaultw = enemy_wpnsprite;
 			}
-			else LOADGFX(ewSWORD);
+			if(use_sprite > -1) defaultw = use_sprite;
+			LOADGFX(defaultw);
 			
 			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
 			{
@@ -2812,14 +2875,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		{
 			//reached case wRefMagic in weapons.cpp
 			//al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",1734);
+			defaultw = ewMAGIC;
 			if ( parentid > -1 && !script_gen && (!(id == ewMagic && isLWeapon)) )
 			{
 				enemy *e = (enemy*)guys.getByUID(parentid);
 				int32_t enemy_wpnsprite = e->wpnsprite; 
-				if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-				else LOADGFX(ewMAGIC);
+				if ( enemy_wpnsprite > 0 ) defaultw = enemy_wpnsprite;
 			}
-			else LOADGFX(ewMAGIC);
+			if(use_sprite > -1) defaultw = use_sprite;
+			LOADGFX(defaultw);
 			
 			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
 			{
@@ -2872,26 +2936,26 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		{
 			if(id==ewFlame)
 			{
+				defaultw = ewFLAME;
 				if ( parentid > -1  && !script_gen && !isLWeapon)
 				{
 					enemy *e = (enemy*)guys.getByUID(parentid);
 					int32_t enemy_wpnsprite = e->wpnsprite; 
-					if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-					else LOADGFX(ewFLAME);
+					if ( enemy_wpnsprite > 0 ) defaultw = enemy_wpnsprite;
 				}
-				else LOADGFX(ewFLAME);
 			}
 			else
 			{
+				defaultw = ewFLAME2;
 				if ( parentid > -1 && !script_gen &&!isLWeapon )
 				{
 					enemy *e = (enemy*)guys.getByUID(parentid);
 					int32_t enemy_wpnsprite = e->wpnsprite; 
-					if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-					else LOADGFX(ewFLAME2);
+					if ( enemy_wpnsprite > 0 ) defaultw = enemy_wpnsprite;
 				}
-				else LOADGFX(ewFLAME2);
 			}
+			if(use_sprite > -1) defaultw = use_sprite;
+			LOADGFX(defaultw);
 			if(dir==255)
 			{
 				step=2;
@@ -2932,14 +2996,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			
 		case ewFireTrail:
 		{
+			defaultw = ewFIRETRAIL;
 			if ( parentid > -1 && !script_gen &&!isLWeapon)
 			{
 				enemy *e = (enemy*)guys.getByUID(parentid);
 				int32_t enemy_wpnsprite = e->wpnsprite; 
-				if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-				else LOADGFX(ewFIRETRAIL);
+				if ( enemy_wpnsprite > 0 ) defaultw = enemy_wpnsprite;
 			}
-			else LOADGFX(ewFIRETRAIL);
+			if(use_sprite > -1) defaultw = use_sprite;
+			LOADGFX(defaultw);
 			step=0;
 			dir=-1;
 			
@@ -2968,14 +3033,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				hxsz=hysz=16;
 			}
 			
+			defaultw = ewWIND;
 			if ( parentid > -1 && !script_gen &&!isLWeapon)
 			{
 				enemy *e = (enemy*)guys.getByUID(parentid);
 				int32_t enemy_wpnsprite = e->wpnsprite;
-				if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-				else LOADGFX(ewWIND);
+				if ( enemy_wpnsprite > 0 ) defaultw = enemy_wpnsprite;
 			}
-			else LOADGFX(ewWIND);
+			if(use_sprite > -1) defaultw = use_sprite;
+			LOADGFX(defaultw);
 			clk=0;
 			step=3;
 			break;
@@ -3069,12 +3135,13 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					tile=0;
 					break;
 			}
-			
+			if(use_sprite > -1) LOADGFX(use_sprite);
 			break;
 		}
 		
 		default:
-			LOADGFX(0);
+			if(use_sprite > -1) defaultw = use_sprite;
+			LOADGFX(defaultw);
 			break;
 	}
 	

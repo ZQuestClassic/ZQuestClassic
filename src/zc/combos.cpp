@@ -21,14 +21,17 @@ struct cmbtimer
 {
 	int32_t data;
 	byte clk;
+	word shootrclk;
 	void clear()
 	{
 		data = 0;
 		clk = 0;
+		shootrclk = 0;
 	}
-	cmbtimer() : data(0), clk(0) {}
+	cmbtimer() : data(0), clk(0), shootrclk(0) {}
 };
 cmbtimer combo_trig_timers[7][176];
+cmbtimer ffc_trig_timers[32];
 
 bool alwaysCTypeEffects(int32_t type)
 {
@@ -1385,6 +1388,105 @@ bool trigger_switchhookblock(int32_t lyr, int32_t pos)
 	return true;
 }
 
+bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
+{
+	if(cmb.type != cSHOOTER) return false;
+	if(wx > 255 || wx < -15 || wy > 175 || wy < -15) return false;
+	
+	bool proxstop = cmb.usrflags&cflag4;
+	zfix proxlim = zslongToFix(cmb.attributes[1]);
+	if(proxstop && dist(wx,wy,Hero.getX(),Hero.getY()) <= proxlim)
+		return false;
+	
+	bool angular = cmb.usrflags&cflag1;
+	double radians = 0;
+	int32_t dir = -1;
+	if(angular)
+	{
+		int32_t zslDegrees = cmb.attributes[0];
+		if(zslDegrees >= 0 && zslDegrees <= 3600000)
+		{
+			radians = WrapAngle(DegreesToRadians(zslDegrees/10000.0));
+			dir = AngleToDir(radians);
+		}
+		else
+		{
+			double _MSVC2022_tmp1, _MSVC2022_tmp2;
+			double at_player = atan2_MSVC2022_FIX(double(Hero.getY()-wy),double(Hero.getX()-wx));
+			at_player = WrapAngle(at_player);
+			switch(zslDegrees/10000)
+			{
+				case -1: //4-dir at player
+				{
+					angular = false;
+					dir = AngleToDir4(at_player);
+					break;
+				}
+				case -2: //8-dir at player
+				{
+					angular = false;
+					dir = AngleToDir(at_player);
+					break;
+				}
+				case -3: //angular at player
+				{
+					radians = at_player;
+					dir = AngleToDir(at_player);
+					break;
+				}
+				default: dir = AngleToDir(0);
+			}
+		}
+	}
+	else dir = vbound(cmb.attributes[0]/10000, -1, 15);
+	
+	byte shotsfx = cmb.attribytes[0];
+	byte weapid = cmb.attribytes[1];
+	byte weapspr = cmb.attribytes[2];
+	int32_t damage = cmb.attributes[2] / 10000;
+	zfix steprate = zslongToFix(cmb.attributes[3]/100);
+	if(damage < 0) damage = 0;
+	bool lw = weapid < wEnemyWeapons;
+	if(weapid >= wScript1 && weapid <= wScript10)
+		lw = (cmb.usrflags&cflag5)!=0;
+	bool autorot = (cmb.usrflags&cflag6);
+	
+	auto wdir = autorot ? right : dir;
+	weapon* wpn = nullptr;
+	if(lw)
+	{
+		wpn = new weapon((zfix)wx,(zfix)wy,(zfix)0,weapid,0,damage,wdir,-1, Hero.getUID(),false,0,1,0,0,weapspr);
+		Lwpns.add(wpn);
+	}
+	else
+	{
+		wpn = new weapon((zfix)wx,(zfix)wy,(zfix)0,weapid,0,damage,wdir, -1,-1,false,0,0,0,0,weapspr);
+		Ewpns.add(wpn);
+	}
+	wpn->angular = angular;
+	wpn->angle = radians;
+	wpn->dir = dir;
+	wpn->step = steprate;
+	wpn->xofs = 0;
+	wpn->yofs = (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
+	if(autorot)
+	{
+		if(angular)
+			wpn->rotation = RadiansToDegrees(wpn->angle);
+		else wpn->rotation = DirToDegrees(wpn->dir);
+		wpn->rotation = WrapDegrees(wpn->rotation);
+		wpn->autorotate = true;
+	}
+	
+	if(shotsfx)
+		sfx(shotsfx);
+	return true;
+}
+bool trigger_shooter(newcombo const& cmb, int32_t pos)
+{
+	if(unsigned(pos) > 175) return false;
+	return trigger_shooter(cmb, COMBOX(pos), COMBOY(pos));
+}
 static byte copycat_id = 0;
 bool do_copycat_trigger(int32_t lyr, int32_t pos)
 {
@@ -1627,6 +1729,10 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 						return false;
 					break;
 				
+				case cSHOOTER:
+					if(!trigger_shooter(cmb,pos))
+						return false;
+					break;
 				default:
 					used_bit = false;
 			}
@@ -1777,8 +1883,49 @@ void init_combo_timers()
 			combo_trig_timers[lyr][pos].clear();
 		}
 	}
+	for(auto f = 0; f < 32; ++f)
+	{
+		ffc_trig_timers[f].clear();
+	}
 }
 
+
+
+static void handle_shooter(newcombo const& cmb, cmbtimer& timer, zfix wx, zfix wy)
+{
+	int32_t lowrate = zc_max(0,cmb.attrishorts[0]);
+	int32_t highrate = zc_max(0,cmb.attrishorts[1]);
+	bool splitrate = cmb.usrflags&cflag2;
+	bool instashot = cmb.usrflags&cflag3;
+	if(splitrate)
+	{
+		if(lowrate > highrate) return;
+		if(lowrate == highrate) splitrate = false;
+	}
+	if(!splitrate)
+	{
+		if(!lowrate) return;
+	}
+	
+	if(timer.shootrclk > 1)
+	{
+		if(--timer.shootrclk == 1)
+		{
+			if(!instashot) trigger_shooter(cmb, wx, wy);
+		}
+	}
+	else
+	{
+		auto rate = (splitrate ? zc_rand(highrate,lowrate) : lowrate);
+		timer.shootrclk = zc_max(1,rate);
+		if(instashot || timer.shootrclk == 1) trigger_shooter(cmb, wx, wy);
+	}
+}
+
+static void handle_shooter(newcombo const& cmb, cmbtimer& timer, int32_t pos)
+{
+	handle_shooter(cmb, timer, COMBOX(pos), COMBOY(pos));
+}
 void update_combo_timers()
 {
 	for(auto lyr = 0; lyr < 7; ++lyr)
@@ -1789,8 +1936,8 @@ void update_combo_timers()
 			cmbtimer& timer = combo_trig_timers[lyr][pos];
 			if(timer.data != scr->data[pos])
 			{
+				timer.clear();
 				timer.data = scr->data[pos];
-				timer.clk = 0;
 			}
 			newcombo const& cmb = combobuf[timer.data];
 			if(cmb.trigtimer)
@@ -1799,9 +1946,35 @@ void update_combo_timers()
 				{
 					timer.clk = 0;
 					do_trigger_combo(lyr, pos);
+					if(timer.data != scr->data[pos])
+						timer.shootrclk = 0;
 					timer.data = scr->data[pos];
 				}
 			}
+			if(cmb.type == cSHOOTER)
+			{
+				handle_shooter(cmb, timer, pos);
+			}
+		}
+	}
+	mapscr* ffscr = FFCore.tempScreens[0];
+	for(auto ffc = 0; ffc < 32; ++ffc)
+	{
+		cmbtimer& timer = ffc_trig_timers[ffc];
+		auto data = ffscr->ffdata[ffc];
+		if(timer.data != data)
+		{
+			timer.clear();
+			timer.data = data;
+		}
+		newcombo const& cmb = combobuf[data];
+		if(cmb.type == cSHOOTER)
+		{
+			zfix wx = zslongToFix(ffscr->ffx[ffc]);
+			zfix wy = zslongToFix(ffscr->ffy[ffc]);
+			wx += (ffscr->ffTileWidth(ffc)-1)*8;
+			wy += (ffscr->ffTileHeight(ffc)-1)*8;
+			handle_shooter(cmb, timer, wx, wy);
 		}
 	}
 }
