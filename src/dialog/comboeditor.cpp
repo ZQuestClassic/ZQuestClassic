@@ -1213,14 +1213,25 @@ void ComboEditorDialog::loadComboType()
 			h_attribyte[1] = "The LWeapon or EWeapon ID to be shot";
 			l_attribyte[2] = "Sprite:";
 			h_attribyte[2] = "The sprite of the spawned weapon";
+			//byte[3] : multishot shot count
+			l_attribyte[4] = "Unblockable";
+			h_attribyte[4] = "Sum the following values to create a flagset:"
+				"\n1: Bypass 'Block' defense"
+				"\n2: Bypass 'Ignore' defense"
+				"\n4: Bypass enemy/player shield blocking"
+				"\n8: Bypass player shield reflecting";
+			l_attribyte[5] = "Script";
+			h_attribyte[5] = "LWeapon or EWeapon script ID to attach to the fired weapons";
 			
 			//short[0],[1] : Rate
+			l_attrishort[2] = "Damage:";
+			h_attrishort[2] = "The damage of the spawned weapon";
+			
 			//bute[0] : Angle/Dir
 			//bute[1] : Prox Limit
-			l_attribute[2] = "Damage:";
-			h_attribute[2] = "The damage of the spawned weapon";
-			l_attribute[3] = "Step Speed:";
-			h_attribute[3] = "The speed of the weapon, in 100ths px/frame";
+			//bute[3] : Multishot Spread
+			l_attribute[2] = "Step Speed:";
+			h_attribute[2] = "The speed of the weapon, in 100ths px/frame";
 			
 			l_flag[0] = "Angular";
 			h_flag[0] = "Specify an angle (in degrees) instead of a direction (8dir)";
@@ -1234,6 +1245,10 @@ void ComboEditorDialog::loadComboType()
 			h_flag[4] = "If a 'Custom Weapon' ID is used, it will be treated as an LWeapon with this checked, and an EWeapon otherwise.";
 			l_flag[5] = "Auto-rotate sprite";
 			h_flag[5] = "Attempt to rotate the sprite to match the weapon's angle";
+			l_flag[6] = "Multi-Shot";
+			h_flag[6] = "Shoot multiple weapons at once";
+			l_flag[7] = "Boss Fireball";
+			h_flag[7] = "If a fireball weapon type is used, it will be considered a 'boss' fireball.";
 			if(FL(cflag1)) //Angular
 			{
 				l_attribute[0] = "Angle (Degrees)";
@@ -1265,7 +1280,13 @@ void ComboEditorDialog::loadComboType()
 				h_attribute[1] = "If the player is at least this close (in pixels) to the combo,"
 					"\nthe combo will fail to shoot.";
 			}
-			
+			if(FL(cflag7)) //Multi Shot
+			{
+				l_attribyte[3] = "Shot Count";
+				h_attribyte[3] = "How many shots (min 1) to fire";
+				l_attribute[3] = "Shot Spread";
+				h_attribute[3] = "Angle (in degrees) between each weapon (0 to 360)";
+			}
 			break;
 		}
 		case cTALLGRASSTOUCHY: case cTALLGRASSNEXT:

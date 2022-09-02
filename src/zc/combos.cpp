@@ -1388,6 +1388,69 @@ bool trigger_switchhookblock(int32_t lyr, int32_t pos)
 	return true;
 }
 
+static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool angular, double radians, int32_t dir)
+{
+	byte weapid = cmb.attribytes[1];
+	byte weapspr = cmb.attribytes[2];
+	int32_t damage = cmb.attrishorts[2];
+	zfix steprate = zslongToFix(cmb.attributes[2]/100);
+	if(damage < 0) damage = 0;
+	bool lw = weapid < wEnemyWeapons;
+	if(weapid >= wScript1 && weapid <= wScript10)
+		lw = (cmb.usrflags&cflag5)!=0;
+	bool autorot = (cmb.usrflags&cflag6);
+	bool boss = cmb.usrflags&cflag8;
+	
+	auto wdir = autorot ? right : dir;
+	weapon* wpn = nullptr;
+	if(lw)
+	{
+		wpn = new weapon((zfix)wx,(zfix)wy,(zfix)0,weapid,0,damage,wdir,-1, Hero.getUID(),false,0,1,0,0,weapspr);
+		Lwpns.add(wpn);
+	}
+	else
+	{
+		wpn = new weapon((zfix)wx,(zfix)wy,(zfix)0,weapid,0,damage,wdir, -1,-1,false,0,0,0,0,weapspr);
+		Ewpns.add(wpn);
+	}
+	wpn->angular = angular;
+	wpn->angle = radians;
+	if(angular) dir = AngleToDir(radians);
+	wpn->dir = dir;
+	wpn->step = steprate;
+	wpn->xofs = 0;
+	wpn->yofs = (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
+	if(autorot)
+	{
+		if(angular)
+			wpn->rotation = RadiansToDegrees(wpn->angle);
+		else wpn->rotation = DirToDegrees(wpn->dir);
+		wpn->rotation = WrapDegrees(wpn->rotation);
+		wpn->autorotate = true;
+	}
+	if(weapid == ewFireball || weapid == ewFireball2)
+	{
+		SETFLAG(wpn->type, 1, boss);
+	}
+	wpn->unblockable = cmb.attribytes[4] & WPNUNB_ALL;
+	
+	auto scrid = cmb.attribytes[5];
+	bool valid_script = false;
+	if(scrid > 0)
+	{
+		if(lw)
+		{
+			if(lwpnmap[scrid-1].hasScriptData()) valid_script = true;
+		}
+		else if(ewpnmap[scrid-1].hasScriptData()) valid_script = true;
+	}
+	if(valid_script)
+	{
+		wpn->weaponscript = scrid;
+		wpn->doscript = 1;
+	}
+	return wpn;
+}
 bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 {
 	if(cmb.type != cSHOOTER) return false;
@@ -1441,43 +1504,31 @@ bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 	else dir = vbound(cmb.attributes[0]/10000, -1, 15);
 	
 	byte shotsfx = cmb.attribytes[0];
-	byte weapid = cmb.attribytes[1];
-	byte weapspr = cmb.attribytes[2];
-	int32_t damage = cmb.attributes[2] / 10000;
-	zfix steprate = zslongToFix(cmb.attributes[3]/100);
-	if(damage < 0) damage = 0;
-	bool lw = weapid < wEnemyWeapons;
-	if(weapid >= wScript1 && weapid <= wScript10)
-		lw = (cmb.usrflags&cflag5)!=0;
-	bool autorot = (cmb.usrflags&cflag6);
-	
-	auto wdir = autorot ? right : dir;
-	weapon* wpn = nullptr;
-	if(lw)
+	auto shotcount = zc_max(1,cmb.attribytes[3]);
+	if((cmb.usrflags&cflag7) && shotcount > 1) //multishot
 	{
-		wpn = new weapon((zfix)wx,(zfix)wy,(zfix)0,weapid,0,damage,wdir,-1, Hero.getUID(),false,0,1,0,0,weapspr);
-		Lwpns.add(wpn);
+		if(!angular)
+		{
+			angular = true;
+			radians = WrapAngle(DirToRadians(dir));
+		}
+		double spreadangle = WrapAngle(DegreesToRadians(cmb.attributes[3]/10000.0));
+		double startangle = 0;
+		if(shotcount&1) //odd
+		{
+			startangle = radians - (spreadangle * floor(shotcount/2));
+		}
+		else
+		{
+			startangle = radians - (spreadangle * ((shotcount/2.0)-0.5));
+		}
+		for(auto q = 0; q < shotcount; ++q)
+		{
+			double angle = WrapAngle(startangle + (q*spreadangle));
+			fire_shooter_wpn(cmb, wx, wy, angular, angle, dir);
+		}
 	}
-	else
-	{
-		wpn = new weapon((zfix)wx,(zfix)wy,(zfix)0,weapid,0,damage,wdir, -1,-1,false,0,0,0,0,weapspr);
-		Ewpns.add(wpn);
-	}
-	wpn->angular = angular;
-	wpn->angle = radians;
-	wpn->dir = dir;
-	wpn->step = steprate;
-	wpn->xofs = 0;
-	wpn->yofs = (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
-	if(autorot)
-	{
-		if(angular)
-			wpn->rotation = RadiansToDegrees(wpn->angle);
-		else wpn->rotation = DirToDegrees(wpn->dir);
-		wpn->rotation = WrapDegrees(wpn->rotation);
-		wpn->autorotate = true;
-	}
-	
+	else fire_shooter_wpn(cmb, wx, wy, angular, radians, dir);
 	if(shotsfx)
 		sfx(shotsfx);
 	return true;
