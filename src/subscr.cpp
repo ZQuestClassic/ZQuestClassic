@@ -5243,7 +5243,7 @@ void load_Sitems(miscQdata *misc)
     Sitems.clear();
     
     // HC Pieces
-    if(misc->colors.HCpieces_tile || misc->colors.HCpieces_tile)
+    if(misc->colors.HCpieces_tile)
     {
         //      item *HCP = new item((zfix)(inventory_x[5]-ofs),(zfix)y,iMax,0,0);
         item *HCP = new item((zfix)0,(zfix)0,(zfix)0,iHCPiece,0,0);
@@ -5251,7 +5251,7 @@ void load_Sitems(miscQdata *misc)
         if(HCP)
         {
             int32_t hcpphc =  game->get_hcp_per_hc();
-            HCP->tile   = (misc->colors.HCpieces_tile != 0 ? misc->colors.HCpieces_tile : misc->colors.HCpieces_tile) + vbound(game->get_HCpieces(),0,hcpphc > 0 ? hcpphc-1 : 0);
+            HCP->tile   = misc->colors.HCpieces_tile + vbound(game->get_HCpieces(),0,hcpphc > 0 ? hcpphc-1 : 0);
             HCP->o_tile = HCP->tile;
             HCP->cs     = misc->colors.HCpieces_cset;
             HCP->frames = 0;
