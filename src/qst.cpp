@@ -17493,6 +17493,17 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 			temp_combo.spawnip = 0;
 			temp_combo.trigcopycat = 0;
 		}
+		if(section_version >= 32)
+		{
+			if(!p_getc(&temp_combo.trigcooldown,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		else
+		{
+			temp_combo.trigcooldown = 0;
+		}
 		
 		if(section_version>=12) //combo label
 		{

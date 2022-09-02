@@ -2470,6 +2470,24 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										InfoDialog("Timed Trigger","If the value is >0, the combo will"
 											" trigger itself every 'n' frames.").show();
 									}
+								),
+								Label(text = "Cooldown:", fitParent = true),
+								TextField(
+									fitParent = true,
+									vPadding = 0_px,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 255, val = local_comboref.trigcooldown,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.trigcooldown = val;
+									}),
+								Button(
+									width = 1.5_em, padding = 0_px, forceFitH = true,
+									text = "?", hAlign = 1.0, onPressFunc = [&]()
+									{
+										InfoDialog("Trigger Cooldown","If the value is >0, the combo will"
+											" be unable to be triggered for 'n' frames after being triggered.").show();
+									}
 								)
 							)
 						)),
@@ -3259,6 +3277,24 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 											{
 												InfoDialog("Timed Trigger","If the value is >0, the combo will"
 													" trigger itself every 'n' frames.").show();
+											}
+										),
+										Label(text = "Cooldown:", fitParent = true),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = 0, high = 255, val = local_comboref.trigcooldown,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_comboref.trigcooldown = val;
+											}),
+										Button(
+											width = 1.5_em, padding = 0_px, forceFitH = true,
+											text = "?", hAlign = 1.0, onPressFunc = [&]()
+											{
+												InfoDialog("Trigger Cooldown","If the value is >0, the combo will"
+													" be unable to be triggered for 'n' frames after being triggered.").show();
 											}
 										)
 									)
