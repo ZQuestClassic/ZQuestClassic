@@ -100,8 +100,6 @@ int32_t main(int32_t argc, char* argv[])
 		al_destroy_config(tempcfg);
 	}
 
-	all_set_display_flags(ALLEGRO_NOFRAME);
-
 	zc_set_config_standard();
 
 	if(install_timer() < 0
