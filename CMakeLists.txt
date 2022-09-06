@@ -65,7 +65,7 @@ option(SHARED "" ON)
 include(FetchContent)
 FetchContent_Declare(
   allegro5
-  GIT_REPOSITORY https://github.com/pedro-w/allegro5.git
+  GIT_REPOSITORY https://github.com/connorjclark/allegro5.git
   GIT_TAG        palette-access
 )
 FetchContent_GetProperties(allegro5)
