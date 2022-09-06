@@ -21,11 +21,8 @@ BITMAP *al5_bitmap_to_al4_bitmap(ALLEGRO_BITMAP *a5bmp, RGB *pal)
     if (ncolors > 0)
     {
         al_get_bitmap_palette(a5bmp, &a5pal[0]);
-    }
 
-    if (ncolors > 0)
-    {
-        bmp = create_bitmap_ex(8, al_get_bitmap_width(a5bmp), al_get_bitmap_height(a5bmp));
+        bmp = create_bitmap_ex(24, al_get_bitmap_width(a5bmp), al_get_bitmap_height(a5bmp));
         if (!bmp)
         {
             goto fail;
@@ -44,22 +41,30 @@ BITMAP *al5_bitmap_to_al4_bitmap(ALLEGRO_BITMAP *a5bmp, RGB *pal)
         {
             for (j = 0; j < al_get_bitmap_width(a5bmp); j++)
             {
-                // TODO: could do a more direct memory access instead.
                 color = al_get_pixel(a5bmp, j, i);
-                putpixel(bmp, j, i, color.r * 255.0f);
+                // Note: I tried KEEP_INDEX (which would make color.r an index into the above pal),
+                // but there seems to be a bug in the KEEP_INDEX bitmap loading code.
+                // Ex: https://www.purezc.net/index.php?page=tiles&id=206 Link Portrait.bmp should have
+                // 12 unique colors but when using KEEP_INDEX, there are way more.
+                // There shouldn't be any loss in precision from reading as truecolor here, especially
+                // since `_fixup_loaded_bitmap` below will convert the bitmap to 8 bit anyway.
+                putpixel(bmp, j, i, makecol24(color.r*255, color.g*255, color.b*255));
             }
         }
         al_unlock_bitmap(a5bmp);
+
+        bmp = _fixup_loaded_bitmap(bmp, pal, 8);
     }
     else
     {
+        // No palette provided, so let's create our own.
         bmp = create_bitmap_ex(8, al_get_bitmap_width(a5bmp), al_get_bitmap_height(a5bmp));
         if (!bmp)
         {
             goto fail;
         }
 
-        int cur_pal_index = 0;
+        int next_pal_index = 0;
         bool truecolor_fallback = false;
 
         al_lock_bitmap(a5bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
@@ -74,7 +79,7 @@ BITMAP *al5_bitmap_to_al4_bitmap(ALLEGRO_BITMAP *a5bmp, RGB *pal)
                 r /= 4;
                 g /= 4;
                 b /= 4;
-                for (k = 0; k < cur_pal_index; k++)
+                for (k = 0; k < next_pal_index; k++)
                 {
                     if (pal[k].r == r && pal[k].g == g && pal[k].b == b)
                     {
@@ -84,17 +89,17 @@ BITMAP *al5_bitmap_to_al4_bitmap(ALLEGRO_BITMAP *a5bmp, RGB *pal)
                 }
                 if (!found_existing_color)
                 {
-                    if (cur_pal_index == 256)
+                    if (next_pal_index == 256)
                     {
                         truecolor_fallback = true;
                         break;
                     }
 
-                    pal[cur_pal_index].r = r;
-                    pal[cur_pal_index].g = g;
-                    pal[cur_pal_index].b = b;
-                    cur_pal_index += 1;
-                    k = cur_pal_index;
+                    pal[next_pal_index].r = r;
+                    pal[next_pal_index].g = g;
+                    pal[next_pal_index].b = b;
+                    k = next_pal_index;
+                    next_pal_index += 1;
                 }
 
                 putpixel(bmp, j, i, k);
@@ -103,17 +108,25 @@ BITMAP *al5_bitmap_to_al4_bitmap(ALLEGRO_BITMAP *a5bmp, RGB *pal)
 
         if (truecolor_fallback)
         {
+            // Too many colors, let's load as true color and toss the hard work to `_fixup_loaded_bitmap`.
+            // TODO: would it be equivalent to always just do this, even if <256 colors in the bitmap?
+            destroy_bitmap(bmp);
+            bmp = create_bitmap_ex(24, al_get_bitmap_width(a5bmp), al_get_bitmap_height(a5bmp));
+            if (!bmp)
+            {
+                goto fail;
+            }
+
             for (i = 0; i < al_get_bitmap_height(a5bmp); i++)
             {
                 for (j = 0; j < al_get_bitmap_width(a5bmp); j++)
                 {
                     color = al_get_pixel(a5bmp, j, i);
-                    al_unmap_rgb(color, &r, &g, &b);
-                    putpixel(bmp, j, i, makecol(r, g, b));
+                    putpixel(bmp, j, i, makecol24(color.r*255, color.g*255, color.b*255));
                 }
             }
 
-            generate_332_palette(pal);
+            bmp = _fixup_loaded_bitmap(bmp, pal, 8);
         }
 
         al_unlock_bitmap(a5bmp);
@@ -133,7 +146,7 @@ fail:
 
 BITMAP *load_al4_bitmap_through_al5(AL_CONST char *filename, RGB *pal)
 {
-    ALLEGRO_BITMAP *a5bmp = al_load_bitmap_flags(filename, ALLEGRO_KEEP_PALETTE | ALLEGRO_KEEP_INDEX);
+    ALLEGRO_BITMAP *a5bmp = al_load_bitmap_flags(filename, ALLEGRO_KEEP_PALETTE);
     BITMAP* bmp = al5_bitmap_to_al4_bitmap(a5bmp, pal);
     al_destroy_bitmap(a5bmp);
     return bmp;
@@ -178,14 +191,12 @@ fail:
 
 BITMAP *load_bmp_al5(AL_CONST char *filename, RGB *pal)
 {
-    // allegro 4 bitmap loading code has a lot of stuff for converting palettes
-    // of non-8bpp bitmaps that we want to utilize. But some of the newest bitmap
-    // formats only work in allegro 5, so fallback to that if needed.
-    BITMAP *bmp = load_bmp(filename, pal);
-    // TODO: this doesn't actually work very well yet, so I'd rather fail to load new bitmaps
-    // than load with wrong colors.
-    // if (!bmp) bmp = load_al4_bitmap_through_al5(filename, pal);
-    return bmp;
+    BITMAP *bmp = load_al4_bitmap_through_al5(filename, pal);
+    if (bmp) return bmp;
+
+    // Not sure if there are cases where the above may fail but a4's load_bmp would succeed,
+    // but just in case...
+    return load_bmp(filename, pal);
 }
 
 BITMAP *load_gif(AL_CONST char *filename, RGB *pal)
