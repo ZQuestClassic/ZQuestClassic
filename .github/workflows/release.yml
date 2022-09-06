@@ -24,10 +24,6 @@ on:
         type: boolean
         description: Full Version (i.e. NOT a nightly)
         default: false
-      nightly_number:
-        type: string
-        description: Numbered nightly, in case multiple are released on the same date
-        default: 1
 
 jobs:
   check-date:
@@ -66,8 +62,7 @@ jobs:
             --full_release=${{ github.event.inputs.full_release }} \
             --version_type=${{ github.event.inputs.versiontype }} \
             --formatted_time=${{ steps.current-time.outputs.formattedTime }} \
-            --number=${{ inputs.number }} \
-            --nightly_number=${{ inputs.nightly_number }}
+            --number=${{ inputs.number }}
 
       - name: Setup Sentry CLI
         uses: mathieu-bour/setup-sentry-cli@1.2.0
