@@ -52,20 +52,16 @@ BITMAP *al5_bitmap_to_al4_bitmap(ALLEGRO_BITMAP *a5bmp, RGB *pal)
             }
         }
         al_unlock_bitmap(a5bmp);
-
-        bmp = _fixup_loaded_bitmap(bmp, pal, 8);
     }
     else
     {
-        // No palette provided, so let's create our own.
-        bmp = create_bitmap_ex(8, al_get_bitmap_width(a5bmp), al_get_bitmap_height(a5bmp));
+        // No palette provided, so let's create our own by just writing as truecolor and
+        // deferring to _fixup_loaded_bitmap.
+        bmp = create_bitmap_ex(24, al_get_bitmap_width(a5bmp), al_get_bitmap_height(a5bmp));
         if (!bmp)
         {
             goto fail;
         }
-
-        int next_pal_index = 0;
-        bool truecolor_fallback = false;
 
         al_lock_bitmap(a5bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
         for (i = 0; i < al_get_bitmap_height(a5bmp); i++)
@@ -73,65 +69,13 @@ BITMAP *al5_bitmap_to_al4_bitmap(ALLEGRO_BITMAP *a5bmp, RGB *pal)
             for (j = 0; j < al_get_bitmap_width(a5bmp); j++)
             {
                 color = al_get_pixel(a5bmp, j, i);
-                al_unmap_rgb(color, &r, &g, &b);
-
-                bool found_existing_color = false;
-                r /= 4;
-                g /= 4;
-                b /= 4;
-                for (k = 0; k < next_pal_index; k++)
-                {
-                    if (pal[k].r == r && pal[k].g == g && pal[k].b == b)
-                    {
-                        found_existing_color = true;
-                        break;
-                    }
-                }
-                if (!found_existing_color)
-                {
-                    if (next_pal_index == 256)
-                    {
-                        truecolor_fallback = true;
-                        break;
-                    }
-
-                    pal[next_pal_index].r = r;
-                    pal[next_pal_index].g = g;
-                    pal[next_pal_index].b = b;
-                    k = next_pal_index;
-                    next_pal_index += 1;
-                }
-
-                putpixel(bmp, j, i, k);
+                putpixel(bmp, j, i, makecol24(color.r*255, color.g*255, color.b*255));
             }
         }
-
-        if (truecolor_fallback)
-        {
-            // Too many colors, let's load as true color and toss the hard work to `_fixup_loaded_bitmap`.
-            // TODO: would it be equivalent to always just do this, even if <256 colors in the bitmap?
-            destroy_bitmap(bmp);
-            bmp = create_bitmap_ex(24, al_get_bitmap_width(a5bmp), al_get_bitmap_height(a5bmp));
-            if (!bmp)
-            {
-                goto fail;
-            }
-
-            for (i = 0; i < al_get_bitmap_height(a5bmp); i++)
-            {
-                for (j = 0; j < al_get_bitmap_width(a5bmp); j++)
-                {
-                    color = al_get_pixel(a5bmp, j, i);
-                    putpixel(bmp, j, i, makecol24(color.r*255, color.g*255, color.b*255));
-                }
-            }
-
-            bmp = _fixup_loaded_bitmap(bmp, pal, 8);
-        }
-
         al_unlock_bitmap(a5bmp);
     }
 
+    bmp = _fixup_loaded_bitmap(bmp, pal, 8);
     return bmp;
 
 fail:
