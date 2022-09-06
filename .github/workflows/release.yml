@@ -63,7 +63,7 @@ jobs:
         run: |
           python3 .github/workflows/print-release-name-vars.py \
             --github_org=${{ github.repository_owner }} \
-            --full_release=${{ github.event.inputs.full_release && 'true' || 'false' }} \
+            --full_release=${{ github.event.inputs.full_release }} \
             --version_type=${{ github.event.inputs.versiontype }} \
             --formatted_time=${{ steps.current-time.outputs.formattedTime }} \
             --number=${{ inputs.number }} \
