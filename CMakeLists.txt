@@ -66,7 +66,7 @@ include(FetchContent)
 FetchContent_Declare(
   allegro5
   GIT_REPOSITORY https://github.com/connorjclark/allegro5.git
-  GIT_TAG        palette-access
+  GIT_TAG        my-allegro-fork
 )
 FetchContent_GetProperties(allegro5)
 if(NOT allegro5_POPULATED)

@@ -18,11 +18,14 @@ BITMAP *al5_bitmap_to_al4_bitmap(ALLEGRO_BITMAP *a5bmp, RGB *pal)
     }
 
     int ncolors = al_get_bitmap_palette(a5bmp, NULL);
+    int bpp = al_get_bitmap_bit_count(a5bmp);
     if (ncolors > 0)
     {
+        // This case is only hit when allegro 4 bmp loading code fails. See load_bmp_al5.
+
         al_get_bitmap_palette(a5bmp, &a5pal[0]);
 
-        bmp = create_bitmap_ex(24, al_get_bitmap_width(a5bmp), al_get_bitmap_height(a5bmp));
+        bmp = create_bitmap_ex(bpp, al_get_bitmap_width(a5bmp), al_get_bitmap_height(a5bmp));
         if (!bmp)
         {
             goto fail;
@@ -42,16 +45,15 @@ BITMAP *al5_bitmap_to_al4_bitmap(ALLEGRO_BITMAP *a5bmp, RGB *pal)
             for (j = 0; j < al_get_bitmap_width(a5bmp); j++)
             {
                 color = al_get_pixel(a5bmp, j, i);
-                // Note: I tried KEEP_INDEX (which would make color.r an index into the above pal),
-                // but there seems to be a bug in the KEEP_INDEX bitmap loading code.
-                // Ex: https://www.purezc.net/index.php?page=tiles&id=206 Link Portrait.bmp should have
-                // 12 unique colors but when using KEEP_INDEX, there are way more.
-                // There shouldn't be any loss in precision from reading as truecolor here, especially
-                // since `_fixup_loaded_bitmap` below will convert the bitmap to 8 bit anyway.
-                putpixel(bmp, j, i, makecol24(color.r*255, color.g*255, color.b*255));
+                r = color.r * 255;
+                g = color.g * 255;
+                b = color.b * 255;
+                putpixel(bmp, j, i, bestfit_color(pal, r>>2, g>>2, b>>2));
             }
         }
         al_unlock_bitmap(a5bmp);
+
+        if (bpp != 8) bmp = _fixup_loaded_bitmap(bmp, pal, 8);
     }
     else
     {
@@ -73,9 +75,10 @@ BITMAP *al5_bitmap_to_al4_bitmap(ALLEGRO_BITMAP *a5bmp, RGB *pal)
             }
         }
         al_unlock_bitmap(a5bmp);
+
+        bmp = _fixup_loaded_bitmap(bmp, pal, 8);
     }
 
-    bmp = _fixup_loaded_bitmap(bmp, pal, 8);
     return bmp;
 
 fail:
@@ -135,12 +138,12 @@ fail:
 
 BITMAP *load_bmp_al5(AL_CONST char *filename, RGB *pal)
 {
-    BITMAP *bmp = load_al4_bitmap_through_al5(filename, pal);
+    // First try allegro 4 bmp loading. It can't handle the newest bitmap formats, so on failure
+    // fallback to our bmp loading code. It tries to do all the same palette shennanigans that
+    // allegro 4 does.
+    BITMAP *bmp = load_bmp(filename, pal);
     if (bmp) return bmp;
-
-    // Not sure if there are cases where the above may fail but a4's load_bmp would succeed,
-    // but just in case...
-    return load_bmp(filename, pal);
+    return load_al4_bitmap_through_al5(filename, pal);
 }
 
 BITMAP *load_gif(AL_CONST char *filename, RGB *pal)
