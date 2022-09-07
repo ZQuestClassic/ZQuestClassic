@@ -264,7 +264,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        32
-#define V_GUYS            46
+#define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        28
@@ -2254,7 +2254,7 @@ struct guydata
     word script; //For future npc action scripts. 
     //int16_t parentCore; //Probably not needed here. -Z
     int32_t editorflags;
-	byte moveflags;
+	dword moveflags;
     
     char initD_label[8][65];
     char weapon_initD_label[8][65];
@@ -2284,17 +2284,21 @@ struct guydata
     
 };
 //Moveflags
-#define FLAG_OBEYS_GRAV        0x01
-#define FLAG_CAN_PITFALL       0x02
-#define FLAG_CAN_PITWALK       0x04
-#define FLAG_CAN_WATERDROWN    0x08
-#define FLAG_CAN_WATERWALK     0x10
-#define FLAG_ONLY_WATERWALK    0x20 //Only walks on water
-#define FLAG_ONLY_SHALLOW_WATERWALK 0x40 //Only walks on shallow water
-#define FLAG_ONLY_PITWALK 0x80 //Only walks on pitfalls
-#define FLAG_NO_FAKE_Z 0x100
-#define FLAG_NO_REAL_Z 0x200
-#define FLAG_USE_FAKE_Z 0x400
+#define FLAG_OBEYS_GRAV               0x0001
+#define FLAG_CAN_PITFALL              0x0002
+#define FLAG_CAN_PITWALK              0x0004
+#define FLAG_CAN_WATERDROWN           0x0008
+#define FLAG_CAN_WATERWALK            0x0010
+#define FLAG_ONLY_WATERWALK           0x0020 //Only walks on water
+#define FLAG_ONLY_SHALLOW_WATERWALK   0x0040 //Only walks on shallow water
+#define FLAG_ONLY_PITWALK             0x0080 //Only walks on pitfalls
+#define FLAG_NO_FAKE_Z                0x0100
+#define FLAG_NO_REAL_Z                0x0200
+#define FLAG_USE_FAKE_Z               0x0400
+#define FLAG_IGNORE_SOLIDITY          0x0800
+#define FLAG_IGNORE_BLOCKFLAGS        0x1000
+#define FLAG_IGNORE_SCREENEDGE        0x2000
+#define FLAG_USE_NEW_MOVEMENT         0x4000
 
 class refInfo
 {

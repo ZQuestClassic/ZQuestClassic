@@ -5942,7 +5942,7 @@ int32_t get_register(const int32_t arg)
 			if(GuyH::loadNPC(ri->guyref, "npc->MoveFlags[]") == SH::_NoError)
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 10, "npc->MoveFlags[]") != SH::_NoError)
+				if(BC::checkBounds(indx, 0, 14, "npc->MoveFlags[]") != SH::_NoError)
 					ret = 0; //false
 				else
 				{
@@ -16764,7 +16764,7 @@ void set_register(const int32_t arg, const int32_t value)
 			if(GuyH::loadNPC(ri->guyref, "npc->MoveFlags[]") == SH::_NoError)
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 10, "npc->MoveFlags[]") == SH::_NoError)
+				if(BC::checkBounds(indx, 0, 14, "npc->MoveFlags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					int32_t bit = 1<<indx;

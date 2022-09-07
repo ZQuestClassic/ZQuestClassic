@@ -15081,9 +15081,21 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             
 			if(guyversion >= 42)
 			{
-				if(!p_getc(&(tempguy.moveflags),f,keepdata))
+				if(guyversion >= 47)
 				{
-					return qe_invalid;
+					if(!p_igetl(&(tempguy.moveflags),f,keepdata))
+					{
+						return qe_invalid;
+					}
+				}
+				else
+				{
+					byte fl;
+					if(!p_getc(&fl,f,keepdata))
+					{
+						return qe_invalid;
+					}
+					tempguy.moveflags = fl;
 				}
 			}
 			else

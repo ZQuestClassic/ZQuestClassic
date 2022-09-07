@@ -60,7 +60,9 @@ void do_fix(zfix& coord, int32_t val, bool nearest_half = false)
 	int32_t c = coord.getInt();
 	if(nearest_half)
 	{
-		c += (val/2);
+		if (c < 0)
+			c -= val / 2;
+		else c += (val/2);
 	}
 	c -= c % val;
 	coord = c;
@@ -263,6 +265,7 @@ bool enemy::shadow_overpit(enemy *e)
 // Returns true iff a combo type or flag precludes enemy movement.
 bool enemy::groundblocked(int32_t dx, int32_t dy, bool isKB)
 {
+	if(moveflags & FLAG_IGNORE_BLOCKFLAGS) return false;
 	int32_t c = COMBOTYPE(dx,dy);
 	bool pit_blocks = (!(moveflags & (FLAG_CAN_PITWALK|FLAG_ONLY_PITWALK)) && (!(moveflags & FLAG_CAN_PITFALL) || !isKB));
 	bool water_blocks = (!(moveflags & (FLAG_CAN_WATERWALK|FLAG_ONLY_WATERWALK|FLAG_ONLY_SHALLOW_WATERWALK)) && (!(moveflags & FLAG_CAN_WATERDROWN) || !isKB) && get_bit(quest_rules,qr_DROWN));
@@ -281,6 +284,7 @@ bool enemy::groundblocked(int32_t dx, int32_t dy, bool isKB)
 // Returns true iff enemy is floating and blocked by a combo type or flag.
 bool enemy::flyerblocked(int32_t dx, int32_t dy, int32_t special, bool isKB)
 {
+	if(moveflags & FLAG_IGNORE_BLOCKFLAGS) return false;
 	bool pit_blocks = (!(moveflags & FLAG_CAN_PITWALK) && (!(moveflags & FLAG_CAN_PITFALL) || !isKB));
 	bool water_blocks = (!(moveflags & FLAG_CAN_WATERWALK) && (!(moveflags & FLAG_CAN_WATERDROWN) || !isKB));
 	return ((special==spw_floater)&&
@@ -2742,7 +2746,10 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 		input_x = dx;
 	if(input_y == -1000)
 		input_y = dy;
-	if(input_x<16-nb || input_y<zc_max(16-yg-nb,0) || input_x>=240+nb-hxsz || input_y>=160+nb-hysz)
+	
+	if(!(moveflags & FLAG_IGNORE_SCREENEDGE)
+		&& (input_x<16-nb || input_y<zc_max(16-yg-nb,0)
+			|| input_x>=240+nb-hxsz || input_y>=160+nb-hysz))
 		return true;
 	
 	if(!(moveflags & FLAG_CAN_PITWALK) && (!(moveflags & FLAG_CAN_PITFALL) || !kb)) //Don't walk into pits, unless being knocked back
@@ -2751,7 +2758,10 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 			return true;
 	}
 	
+	bool flying = false;
 	bool cansolid = false;
+	if(moveflags & FLAG_IGNORE_SOLIDITY)
+		cansolid = true;
 	switch(special)
 	{
 		case spw_clipbottomright:
@@ -2763,32 +2773,35 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 		case spw_wizzrobe: // fall through
 		case spw_floater: // Special case for fliers and wizzrobes - hack!
 			{
-				if(isdungeon())
+				if(isdungeon() && !(moveflags & FLAG_IGNORE_SCREENEDGE))
 				{
 					if(dy < 32-yg || dy >= 144) return true;
 					if(dx < 32 || dx >= 224) return true;
 				}
-				if(flyerblocked(dx, dy, special, kb))
+				if(!(moveflags & FLAG_IGNORE_BLOCKFLAGS) && flyerblocked(dx, dy, special, kb))
 					return true;
 				cansolid = true;
+				flying = true;
 			}
 	}
 	
 	dx &= ~7;
 	dy &= ~7;
 	
-	if(!cansolid && groundblocked(dx,dy,kb)) return true;
-	
+	if(!flying && !(moveflags & FLAG_IGNORE_BLOCKFLAGS) && groundblocked(dx,dy,kb)) return true;
+
+	if (dx < 0 || dx > 255 || dy < 0 || dy > 175)
+		return false;
 	//_walkflag code
 	mapscr *s1, *s2;
 	s1=(((*tmpscr).layermap[0]-1)>=0)?tmpscr2:NULL;
 	s2=(((*tmpscr).layermap[1]-1)>=0)?tmpscr2+1:NULL;
-	
+
 	int32_t cpos=(dx>>4)+(dy&0xF0);
 	int32_t ci = tmpscr->data[cpos], ci1 = (s1?s1:tmpscr)->data[cpos], ci2 = (s2?s2:tmpscr)->data[cpos];
-	newcombo c = combobuf[ci];
-	newcombo c1 = combobuf[ci1];
-	newcombo c2 = combobuf[ci2];
+	newcombo const& c = combobuf[ci];
+	newcombo const& c1 = combobuf[ci1];
+	newcombo const& c2 = combobuf[ci2];
 	
 	int32_t b=1;
 	if(dx&8) b<<=2;
@@ -3293,7 +3306,7 @@ bool enemy::animate(int32_t index)
 	{
 	//skip, as it can go out of bounds, from immortality
 	}
-	else if (   ( (get_bit(quest_rules, qr_OUTOFBOUNDSENEMIES)) != (editorflags&ENEMY_FLAG11) ) && !NEWOUTOFBOUNDS(x,y,z+fakez)   )
+	else if (   (moveflags & FLAG_IGNORE_SCREENEDGE) || (( (get_bit(quest_rules, qr_OUTOFBOUNDSENEMIES)) != (editorflags&ENEMY_FLAG11) ) && !NEWOUTOFBOUNDS(x,y,z+fakez))   )
 	{
 	//skip, it can go out of bounds, from a quest rule, or from the enemy editor (but not both!)
 	}
@@ -3517,6 +3530,8 @@ bool enemy::m_walkflag_simple(int32_t dx,int32_t dy)
 
 bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32_t input_x, int32_t input_y, bool kb)
 {
+	if(moveflags & FLAG_USE_NEW_MOVEMENT)
+		return scr_walkflag(dx,dy,special,dir,input_x,input_y,kb);
 	int32_t yg = (special==spw_floater)?8:0;
 	int32_t nb = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
 	switch(dir)
@@ -6584,7 +6599,7 @@ void enemy::try_death(bool force_kill)
 void enemy::fix_coords(bool bound)
 {
 	if ((get_bit(quest_rules,qr_OUTOFBOUNDSENEMIES) ? 1 : 0) ^ ((editorflags&ENEMY_FLAG11)?1:0)) return;
-	
+	if(moveflags & FLAG_IGNORE_SCREENEDGE) bound = false;
 	
 	
 	if(bound)
