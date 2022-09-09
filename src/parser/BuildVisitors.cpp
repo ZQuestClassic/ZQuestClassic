@@ -2325,19 +2325,20 @@ void BuildOpcodes::stringLiteralDeclaration(
 		arrayRefs.push_back(offset);
 	}
 
-	// Initialize array.
-	addOpcode(new OSetRegister(new VarArgument(INDEX),
-							   new VarArgument(EXP1)));
-	for (int32_t i = 0; i < (int32_t)data.size(); ++i)
-	{
-		addOpcode(new OWritePODArrayII(
-						  new LiteralArgument(i * 10000L),
-						  new LiteralArgument(data[i] * 10000L)));
-	}
-	//Add nullchar
-	addOpcode(new OWritePODArrayII(
-					  new LiteralArgument(data.size() * 10000L),
-					  new LiteralArgument(0)));
+	addOpcode(new OWritePODString(new VarArgument(EXP1), new StringArgument(data)));
+	// // Initialize array.
+	// addOpcode(new OSetRegister(new VarArgument(INDEX),
+							   // new VarArgument(EXP1)));
+	// for (size_t i = 0; i < data.size(); ++i)
+	// {
+		// addOpcode(new OWritePODArrayII(
+						  // new LiteralArgument(i * 10000L),
+						  // new LiteralArgument(data[i] * 10000L)));
+	// }
+	// //Add nullchar
+	// addOpcode(new OWritePODArrayII(
+					  // new LiteralArgument(data.size() * 10000L),
+					  // new LiteralArgument(0)));
 }
 
 void BuildOpcodes::stringLiteralFree(
@@ -2364,18 +2365,19 @@ void BuildOpcodes::stringLiteralFree(
 									  new VarArgument(SFTEMP)));
 
 	// Initialize.
-	addOpcode2(init, new OSetRegister(new VarArgument(INDEX),
-									new VarArgument(EXP1)));
-	for (int32_t i = 0; i < (int32_t)data.size(); ++i)
-	{
-		addOpcode2(init, new OWritePODArrayII(
-							   new LiteralArgument(i * 10000L),
-							   new LiteralArgument(data[i] * 10000L)));
-	}
-	//Add nullchar
-	addOpcode2(init, new OWritePODArrayII(
-						   new LiteralArgument(data.size() * 10000L),
-						   new LiteralArgument(0)));
+	addOpcode2(init, new OWritePODString(new VarArgument(EXP1), new StringArgument(data)));
+	// addOpcode2(init, new OSetRegister(new VarArgument(INDEX),
+									// new VarArgument(EXP1)));
+	// for (int32_t i = 0; i < (int32_t)data.size(); ++i)
+	// {
+		// addOpcode2(init, new OWritePODArrayII(
+							   // new LiteralArgument(i * 10000L),
+							   // new LiteralArgument(data[i] * 10000L)));
+	// }
+	// //Add nullchar
+	// addOpcode2(init, new OWritePODArrayII(
+						   // new LiteralArgument(data.size() * 10000L),
+						   // new LiteralArgument(0)));
 
 	////////////////////////////////////////////////////////////////
 	// Actual Code.
@@ -2464,41 +2466,41 @@ void BuildOpcodes::arrayLiteralDeclaration(
 	}
 
 	// Initialize array.
-	addOpcode(new OSetRegister(new VarArgument(INDEX),
-							   new VarArgument(EXP1)));
-	int32_t i = 0;
-	for (auto it = host.elements.begin();
-		 it != host.elements.end(); ++it, i += 10000L)
+	std::vector<int32_t> constelements;
+	bool varelem = false;
+	bool constelem = false;
+	for (auto it = host.elements.begin(); it != host.elements.end(); ++it)
 	{
 		if (optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
 		{
-			addOpcode(new OWritePODArrayII(new LiteralArgument(i),
-										   new LiteralArgument(*val)));
+			constelements.push_back(*val);
+			constelem = true;
 		}
 		else
 		{
-			addOpcode(new OPushRegister(new VarArgument(INDEX)));
-			visit(*it, &context);
-			addOpcode(new OPopRegister(new VarArgument(INDEX)));
-			addOpcode(new OWritePODArrayIR(new LiteralArgument(i),
-										   new VarArgument(EXP1)));
+			constelements.push_back(0);
+			varelem = true;
 		}
 	}
-	
-	////////////////////////////////////////////////////////////////
-	// Actual Code.
-/* I added this because calling an 'internal function with an array literal, inside a user
-	created function is using SETV with bizarre values. -ZScript
-	//Didn't work.
-	int32_t offset = *getStackOffset(manager) * 10000L;
-	// Local variable, get its value from the stack.
-	addOpcode(new OSetRegister(new VarArgument(SFTEMP),
-							   new VarArgument(SFRAME)));
-	addOpcode(new OAddImmediate(new VarArgument(SFTEMP),
-								new LiteralArgument(offset)));
-	addOpcode(new OLoadIndirect(new VarArgument(EXP1),
-								new VarArgument(SFTEMP)));
-	*/
+	if(constelem)
+	{
+		addOpcode(new OWritePODArray(new VarArgument(EXP1), new VectorArgument(constelements)));
+	}
+	if(varelem)
+	{
+		addOpcode(new OSetRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
+		int32_t i = 0;
+		for (auto it = host.elements.begin(); it != host.elements.end(); ++it, i += 10000L)
+		{
+			if (!(*it)->getCompileTimeValue(this, scope))
+			{
+				addOpcode(new OPushRegister(new VarArgument(INDEX)));
+				visit(*it, &context);
+				addOpcode(new OPopRegister(new VarArgument(INDEX)));
+				addOpcode(new OWritePODArrayIR(new LiteralArgument(i), new VarArgument(EXP1)));
+			}
+		}
+	}
 }
 
 void BuildOpcodes::arrayLiteralFree(
@@ -2551,26 +2553,41 @@ void BuildOpcodes::arrayLiteralFree(
 							   new VarArgument(SFTEMP)));
 
 	// Initialize.
-	addOpcode2(context.initCode, new OSetRegister(new VarArgument(INDEX),
-												new VarArgument(EXP1)));
-	int32_t i = 0;
-	for (auto it = host.elements.begin();
-		 it != host.elements.end(); ++it, i += 10000L)
+	std::vector<int32_t> constelements;
+	bool constelem = false;
+	bool varelem = false;
+	for (auto it = host.elements.begin(); it != host.elements.end(); ++it)
 	{
 		if (optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
 		{
-			addOpcode2(context.initCode, new OWritePODArrayII(new LiteralArgument(i),
-															new LiteralArgument(*val)));
+			constelements.push_back(*val);
+			constelem = true;
 		}
 		else
 		{
-			addOpcode2(context.initCode, new OPushRegister(new VarArgument(INDEX)));
-			opcodeTargets.push_back(&context.initCode);
-			visit(*it, &context);
-			opcodeTargets.pop_back();
-			addOpcode2(context.initCode, new OPopRegister(new VarArgument(INDEX)));
-			addOpcode2(context.initCode, new OWritePODArrayIR(new LiteralArgument(i),
-															new VarArgument(EXP1)));
+			constelements.push_back(0);
+			varelem = true;
+		}
+	}
+	if(constelem)
+	{
+		addOpcode2(context.initCode, new OWritePODArray(new VarArgument(EXP1), new VectorArgument(constelements)));
+	}
+	if(varelem)
+	{
+		addOpcode2(context.initCode, new OSetRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
+		int32_t i = 0;
+		for (auto it = host.elements.begin(); it != host.elements.end(); ++it, i += 10000L)
+		{
+			if (!(*it)->getCompileTimeValue(this, scope))
+			{
+				addOpcode2(context.initCode, new OPushRegister(new VarArgument(INDEX)));
+				opcodeTargets.push_back(&context.initCode);
+				visit(*it, &context);
+				opcodeTargets.pop_back();
+				addOpcode2(context.initCode, new OPopRegister(new VarArgument(INDEX)));
+				addOpcode2(context.initCode, new OWritePODArrayIR(new LiteralArgument(i), new VarArgument(EXP1)));
+			}
 		}
 	}
 

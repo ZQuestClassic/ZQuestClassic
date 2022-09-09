@@ -12686,28 +12686,62 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_
 	
     for(int32_t j=0; j<num_commands; j++)
     {
-        
-        if(!p_iputw((*script)->zasm[j].command,f))
+        auto& zas = (*script)->zasm[j];
+        if(!p_iputw(zas.command,f))
         {
             new_return(20);
         }
         
-        if((*script)->zasm[j].command==0xFFFF)
+        if(zas.command==0xFFFF)
         {
             break;
         }
         else
         {
-		//al_trace("Current FFScript XCommand Being Written: %d\n", (*script)->zasm[j].command);
-            if(!p_iputl((*script)->zasm[j].arg1,f))
+            if(!p_iputl(zas.arg1,f))
             {
                 new_return(21);
             }
             
-            if(!p_iputl((*script)->zasm[j].arg2,f))
+            if(!p_iputl(zas.arg2,f))
             {
                 new_return(22);
             }
+			
+			uint32_t sz = 0;
+			if(zas.strptr)
+				sz = zas.strptr->size();
+			if(!p_iputl(sz,f))
+			{
+                new_return(23);
+			}
+			if(sz)
+			{
+				for(size_t q = 0; q < sz; ++q)
+				{
+					if(!p_putc(zas.strptr->at(q),f))
+					{
+						new_return(24);
+					}
+				}
+			}
+			sz = 0;
+			if(zas.vecptr)
+				sz = zas.vecptr->size();
+			if(!p_iputl(sz,f))
+			{
+                new_return(25);
+			}
+			if(sz) //vector found
+			{
+				for(size_t q = 0; q < sz; ++q)
+				{
+					if(!p_iputl(zas.vecptr->at(q),f))
+					{
+						return qe_invalid;
+					}
+				}
+			}
         }
     }
     

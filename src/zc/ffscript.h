@@ -2160,73 +2160,6 @@ enum __Error
         return _NoError;
     }
     
-    
-    int32_t setArray(const int32_t ptr, const std::string s2)
-    {
-        ZScriptArray& a = getArray(ptr);
-        
-		if (&a == &INVALIDARRAY)
-            return _InvalidPointer;
-            
-        word i;
-        
-        for(i = 0; i < s2.size(); i++)
-        {
-            if(i >= a.Size())
-            {
-                a.Back() = '\0';
-                return _Overflow;
-            }
-            
-            if(checkUserArrayIndex(i, a.Size()) == _NoError)
-                a[i] = s2[i] * 10000;
-        }
-        
-        if(checkUserArrayIndex(i, a.Size()) == _NoError)
-            a[i] = '\0';
-            
-        return _NoError;
-    }
-    
-    
-    //Puts values of a client <type> array into a zscript array. returns 0 on success. Overloaded
-    template <typename T>
-    int32_t setArray(const int32_t ptr, const word size, T *refArray)
-    {
-        return setArray(ptr, size, 0, 0, 0, refArray);
-    }
-    
-    template <typename T>
-    int32_t setArray(const int32_t ptr, const word size, word userOffset, const word userStride, const word refArrayOffset, T *refArray)
-    {
-        ZScriptArray& a = getArray(ptr);
-        
-		if (&a == &INVALIDARRAY)
-            return _InvalidPointer;
-            
-        word j = 0, k = userStride;
-        
-        for(word i = 0; j < size; i++)
-        {
-            if(i >= a.Size())
-                return _Overflow; //Resize?
-                
-            if(userOffset-- > 0)
-                continue;
-                
-            if(k > 0)
-                k--;
-            else if(checkUserArrayIndex(i, a.Size()) == _NoError)
-            {
-                a[i] = int32_t(refArray[j + refArrayOffset]) * 10000;
-                k = userStride;
-                j++;
-            }
-        }
-        
-        return _NoError;
-    }
-    
 	static void deallocateAllArrays(const byte scriptType, const int32_t UID, bool requireAlways = true);
 	static void deallocateAllArrays();
 	
@@ -3339,8 +3272,10 @@ enum ASM_DEFINE
 	OWNARRAYR,
 	DESTROYARRAYR,
 	GRAPHICSCOUNTCOLOR,
+	WRITEPODSTRING,
+	WRITEPODARRAY,
 	
-	NUMCOMMANDS           //0x01D8
+	NUMCOMMANDS           //0x01DA
 };
 
 

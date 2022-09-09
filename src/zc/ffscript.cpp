@@ -544,12 +544,16 @@ miscQdata *misc;
 //We gain some speed by not passing as arguments
 int32_t sarg1 = 0;
 int32_t sarg2 = 0;
+std::vector<int32_t> *sargvec;
+std::string *sargstr;
 refInfo *ri = NULL;
 script_data *curscript = NULL;
 int32_t(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
 
 static std::vector<int32_t> sarg1cache;
 static std::vector<int32_t> sarg2cache;
+static std::vector<std::vector<int32_t>*> sargvec_cache;
+static std::vector<std::string*> sargstr_cache;
 static std::vector<refInfo*> ricache;
 static std::vector<script_data*> sdcache;
 static std::vector<int32_t(*)[MAX_SCRIPT_REGISTERS]> stackcache;
@@ -557,6 +561,8 @@ void push_ri()
 {
 	sarg1cache.push_back(sarg1);
 	sarg2cache.push_back(sarg2);
+	sargvec_cache.push_back(sargvec);
+	sargstr_cache.push_back(sargstr);
 	ricache.push_back(ri);
 	sdcache.push_back(curscript);
 	stackcache.push_back(stack);
@@ -565,6 +571,8 @@ void pop_ri()
 {
 	sarg1 = sarg1cache.back(); sarg1cache.pop_back();
 	sarg2 = sarg2cache.back(); sarg2cache.pop_back();
+	sargvec = sargvec_cache.back(); sargvec_cache.pop_back();
+	sargstr = sargstr_cache.back(); sargstr_cache.pop_back();
 	ri = ricache.back(); ricache.pop_back();
 	curscript = sdcache.back(); sdcache.pop_back();
 	stack = stackcache.back(); stackcache.pop_back();
@@ -2427,7 +2435,7 @@ public:
 	}
 	
 	
-	static int32_t setArray(const int32_t ptr, const string s2)
+	static int32_t setArray(const int32_t ptr, string const& s2)
 	{
 		ZScriptArray &a = getArray(ptr);
 		
@@ -2456,13 +2464,13 @@ public:
 	
 	//Puts values of a client <type> array into a zscript array. returns 0 on success. Overloaded
 	template <typename T>
-	static int32_t setArray(const int32_t ptr, const word size, T *refArray)
+	static int32_t setArray(const int32_t ptr, const word size, T *refArray, bool x10k = true)
 	{
-		return setArray(ptr, size, 0, 0, 0, refArray);
+		return setArray(ptr, size, 0, 0, 0, refArray, x10k);
 	}
 	
 	template <typename T>
-	static int32_t setArray(const int32_t ptr, const word size, word userOffset, const word userStride, const word refArrayOffset, T *refArray)
+	static int32_t setArray(const int32_t ptr, const word size, word userOffset, const word userStride, const word refArrayOffset, T *refArray, bool x10k = true)
 	{
 		ZScriptArray& a = getArray(ptr);
 		
@@ -2476,14 +2484,17 @@ public:
 			if(i >= a.Size())
 				return _Overflow; //Resize?
 				
-			if(userOffset-- > 0)
+			if (userOffset > 0)
+			{
+				--userOffset;
 				continue;
+			}
 				
 			if(k > 0)
 				k--;
 			else if(BC::checkUserArrayIndex(i, a.Size()) == _NoError)
 			{
-				a[i] = int32_t(refArray[j + refArrayOffset]) * 10000;
+				a[i] = int32_t(refArray[j + refArrayOffset]) * (x10k ? 10000 : 1);
 				k = userStride;
 				j++;
 			}
@@ -26290,6 +26301,18 @@ void do_readpod(const bool v)
 	int32_t val = ArrayH::getElement(ri->d[rINDEX] / 10000, indx);
 	set_register(sarg1, val);
 }
+void do_writepodstr()
+{
+	if(!sargstr) return;
+	auto ptr = get_register(sarg1) / 10000;
+	ArrayH::setArray(ptr, *sargstr);
+}
+void do_writepodarr()
+{
+	if(!sargvec) return;
+	auto ptr = get_register(sarg1) / 10000;
+	ArrayH::setArray(ptr, sargvec->size(), sargvec->data(), false);
+}
 void do_writepod(const bool v1, const bool v2)
 {
 	int32_t indx = SH::get_arg(sarg1, v1) / 10000;
@@ -26683,6 +26706,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 	word scommand = curscript->zasm[ri->pc].command;
 	sarg1 = curscript->zasm[ri->pc].arg1;
 	sarg2 = curscript->zasm[ri->pc].arg2;
+	sargstr = curscript->zasm[ri->pc].strptr;
+	sargvec = curscript->zasm[ri->pc].vecptr;
 	
 	
 #ifdef _FFDISSASSEMBLY
@@ -27165,6 +27190,16 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			case WRITEPODARRAYVV:
 			{
 				do_writepod(true,true);
+				break;
+			}
+			case WRITEPODSTRING:
+			{
+				do_writepodstr();
+				break;
+			}
+			case WRITEPODARRAY:
+			{
+				do_writepodarr();
 				break;
 			}
 				
@@ -30203,6 +30238,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			scommand = curscript->zasm[ri->pc].command;
 			sarg1 = curscript->zasm[ri->pc].arg1;
 			sarg2 = curscript->zasm[ri->pc].arg2;
+			sargstr = curscript->zasm[ri->pc].strptr;
+			sargvec = curscript->zasm[ri->pc].vecptr;
 		}
 		if(scommand == WAITDRAW)
 		{
@@ -36576,6 +36613,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "OWNARRAYR",			   1,   0,   0,   0},
 	{ "DESTROYARRAYR",			   1,   0,   0,   0},
 	{ "GRAPHICSCOUNTCOLOR",			   1,   0,   0,   0},
+	{ "WRITEPODSTRING",           1,   0,   0,   1},
+	{ "WRITEPODARRAY",           1,   0,   0,   2},
 	{ "",                    0,   0,   0,   0}
 };
 

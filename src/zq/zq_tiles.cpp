@@ -16306,6 +16306,7 @@ REDRAW:
 			r_click = false;
 			goto REDRAW;
 		}
+		update_hw_screen();
 	}
 	while(!done);
 	

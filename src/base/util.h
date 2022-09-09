@@ -37,6 +37,15 @@ namespace util
 	bool checkPath(const char* path, const bool is_dir);
 	void safe_al_trace(const char* str);
 	bool zc_isalpha(int c);
+	std::string escape_string(char const* str);
+	std::string escape_string(std::string const& str);
+	std::string unescape_string(char const* str);
+	std::string unescape_string(std::string const& str);
+	size_t escstr_size(char const* str);
+	std::string stringify_vector(std::vector<int32_t> const& vec, bool dec);
+	void unstringify_vector(std::vector<int32_t>& vec, std::string const& str, bool dec);
+	void unstringify_vector(std::vector<int32_t>& vec, char const* str, bool dec);
+	size_t vecstr_size(char const* str);
 }
 int32_t vbound(int32_t val, int32_t low, int32_t high);
 double vbound(double val, double low, double high);

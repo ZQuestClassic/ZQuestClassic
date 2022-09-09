@@ -165,10 +165,10 @@ namespace ZScript
 	{
 	public:
 		GetLabels(std::set<int32_t>& usedLabels) : usedLabels(usedLabels) {}
-
+		
 		std::set<int32_t>& usedLabels;
 		std::vector<int32_t> newLabels;
-			
+		
 		void caseLabel(LabelArgument& host, void*)
 		{
 			int32_t id = host.getID();
@@ -185,12 +185,12 @@ namespace ZScript
 		{
 			std::map<int32_t, int32_t> *labels = (std::map<int32_t, int32_t> *)param;
 			int32_t lineno = (*labels)[host.getID()];
-        
+			
 			if(lineno==0)
 			{
 				zconsole_error("Internal error: couldn't find function label %d", host.getID());
 			}
-        
+			
 			host.setLineNo(lineno);
 		}
 	};

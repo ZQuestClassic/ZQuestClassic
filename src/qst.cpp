@@ -12922,13 +12922,6 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 	return 0;
 }
 
-//Eh?
-bool is_string_command(int32_t command)
-{
-    command = command;
-    return false;
-}
-
 void reset_scripts()
 {
     //OK, who spaced this? ;)
@@ -13058,28 +13051,27 @@ void reset_scripts()
     }
 }
 
+extern script_command command_list[];
 int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , word s_version, word , script_data **script, word zmeta_version)
 {
-
-    //Please also update loadquest() when modifying this method -DD
-    ffscript temp_script;
-    temp_script.ptr=NULL;
-    int32_t num_commands=1000;
+	//Please also update loadquest() when modifying this method -DD
+	ffscript temp_script;
+	int32_t num_commands=1000;
 	
-    if(s_version>=2)
-    {
-        if(!p_igetl(&num_commands,f,true))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    if(keepdata)
-    {
-        if((*script) != NULL) //Surely we want to do this regardless of keepdata? //No, we don't -V
-            delete (*script);
+	if(s_version>=2)
+	{
+		if(!p_igetl(&num_commands,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	
+	if(keepdata)
+	{
+		if((*script) != NULL) //Surely we want to do this regardless of keepdata? //No, we don't -V
+			delete (*script);
 		(*script) = new script_data(num_commands);
-    }
+	}
 	if(s_version >= 16)
 	{
 		zasm_meta temp_meta;
@@ -13170,56 +13162,83 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , 
 		if(keepdata)
 			(*script)->meta = temp_meta;
 	}
-    
-    for(int32_t j=0; j<num_commands; j++)
-    {
-        if(!p_igetw(&(temp_script.command),f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(temp_script.command == 0xFFFF)
-        {
-            if(keepdata)
-                (*script)->zasm[j].command = 0xFFFF;
-                
-            break;
-        }
-        else
-        {
-            if(is_string_command(temp_script.command))
-            {
-            }
-            else
-            {
-                if(!p_igetl(&(temp_script.arg1),f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&(temp_script.arg2),f,keepdata))
-                {
-                    return qe_invalid;
-                }
-            }
-            
-            if(keepdata)
-            {
-                (*script)->zasm[j].command = temp_script.command;
-		    //al_trace("Current FFScript XCommand Being Read: %d\n", (*script)[j].command);
-                (*script)->zasm[j].arg1 = temp_script.arg1;
-                (*script)->zasm[j].arg2 = temp_script.arg2;
-                // I'll comment this out until the whole routine is finished using ptr
-                //if(is_string_command(temp_script.command))
-                //{
-                //( *script)[j].ptr=(char *)zc_malloc(256);
-                //memcpy((*script)[j].ptr, temp_script.ptr, 256);
-                //}
-            }
-        }
-    }
-    
-    return 0;
+	
+	temp_script.clear();
+	for(int32_t j=0; j<num_commands; j++)
+	{
+		if(!p_igetw(&(temp_script.command),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(temp_script.command == 0xFFFF)
+		{
+			if(keepdata)
+				(*script)->zasm[j].clear();
+			break;
+		}
+		else
+		{
+			if(!p_igetl(&(temp_script.arg1),f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_igetl(&(temp_script.arg2),f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(s_version >= 21)
+			{
+				uint32_t sz = 0;
+				if(!p_igetl(&sz,f,keepdata))
+				{
+					return qe_invalid;
+				}
+				if(sz) //string found
+				{
+					temp_script.strptr = new std::string();
+					char dummy;
+					for(size_t q = 0; q < sz; ++q)
+					{
+						if(!p_getc(&dummy,f,keepdata))
+						{
+							return qe_invalid;
+						}
+						temp_script.strptr->push_back(dummy);
+					}
+					zprint2("Found string '%s'\n", escape_string(*temp_script.strptr).c_str());
+				}
+				if(!p_igetl(&sz,f,keepdata))
+				{
+					return qe_invalid;
+				}
+				if(sz) //vector found
+				{
+					temp_script.vecptr = new std::vector<int32_t>();
+					int32_t dummy;
+					for(size_t q = 0; q < sz; ++q)
+					{
+						if(!p_igetl(&dummy,f,keepdata))
+						{
+							return qe_invalid;
+						}
+						temp_script.vecptr->push_back(dummy);
+					}
+					zprint2("Found vec '%s'\n", stringify_vector(*temp_script.vecptr, true).c_str());
+				}
+			}
+			
+			if(keepdata)
+			{
+				temp_script.give((*script)->zasm[j]);
+			}
+		}
+		temp_script.clear();
+	}
+	
+	return 0;
 }
 
 extern SAMPLE customsfxdata[WAV_COUNT];

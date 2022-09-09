@@ -272,7 +272,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEROSPRITES      15
 #define V_SUBSCREEN        7
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         20
+#define V_FFSCRIPT         21
 #define V_SFX              8
 #define V_FAVORITES        1
 
@@ -2930,13 +2930,55 @@ struct ffscript
     word command;
     int32_t arg1;
     int32_t arg2;
-    char *ptr;
+	std::vector<int32_t> *vecptr;
+	std::string *strptr;
+	ffscript()
+	{
+		command = 0xFFFF;
+		arg1 = 0;
+		arg2 = 0;
+		vecptr = nullptr;
+		strptr = nullptr;
+	}
+	~ffscript()
+	{
+		if(vecptr)
+		{
+			delete vecptr;
+			vecptr = nullptr;
+		}
+		if(strptr)
+		{
+			delete strptr;
+			strptr = nullptr;
+		}
+	}
+	void give(ffscript& other)
+	{
+		other.command = command;
+		other.arg1 = arg1;
+		other.arg2 = arg2;
+		other.vecptr = vecptr;
+		other.strptr = strptr;
+		vecptr = nullptr;
+		strptr = nullptr;
+		clear();
+	}
 	void clear()
 	{
 		command = 0xFFFF;
 		arg1 = 0;
 		arg2 = 0;
-		ptr = NULL;
+		if(vecptr)
+		{
+			delete vecptr;
+			vecptr = nullptr;
+		}
+		if(strptr)
+		{
+			delete strptr;
+			strptr = nullptr;
+		}
 	}
 };
 
@@ -3044,7 +3086,7 @@ struct script_command
     byte args;
     byte arg1_type; //0=reg, 1=val;
     byte arg2_type; //0=reg, 1=val;
-    bool more_stuff;
+    byte arr_type; //0x1 = string, 0x2 = array
 };
 
 struct script_variable
