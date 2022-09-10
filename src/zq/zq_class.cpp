@@ -4486,6 +4486,7 @@ void zmap::ExecuteCommand(std::shared_ptr<user_input_command> command, bool skip
         undo_stack.push_back(command);
         CapCommandHistory();
     }
+    saved = false;
 }
 
 void zmap::UndoCommand()
@@ -4504,6 +4505,7 @@ void zmap::UndoCommand()
     command->undo();
     redo_stack.push(command);
     undo_stack.pop_back();
+    saved = false;
 }
 
 void zmap::RedoCommand()
@@ -4522,6 +4524,7 @@ void zmap::RedoCommand()
     command->execute();
     undo_stack.push_back(command);
     redo_stack.pop();
+    saved = false;
 }
 
 void zmap::ClearCommandHistory()
