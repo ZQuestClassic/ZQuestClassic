@@ -6805,7 +6805,7 @@ void refresh(int32_t flags)
 				"Favorite Combos", "Favorite Combos", "Favorite Combos",
 				"Favorite Aliases", "Combo Pool"
 			};
-			textprintf_ex(menu1,font,favorites_list.x-2,favorites_list.y-11,jwin_pal[jcBOXFG],-1,dmbufs[draw_mode]);
+			textprintf_ex(menu1,font,favorites_list.x-2,favorites_list.y-11,jwin_pal[jcBOXFG],-1,"%s",dmbufs[draw_mode]);
 			if(draw_mode==dm_cpool)
 			{
 				for(int32_t i=0; i<(favorites_list.w*favorites_list.h); i++)
