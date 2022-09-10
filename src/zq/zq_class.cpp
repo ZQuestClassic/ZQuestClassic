@@ -8778,676 +8778,595 @@ int32_t writeweapons(PACKFILE *f, zquestheader *Header)
 
 int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 {
-    if((i*MAPSCRS+j)>=int32_t(TheMaps.size()))
-    {
-        return qe_invalid;
-    }
-    
-    mapscr& screen=TheMaps.at(i*MAPSCRS+j);
-    
-    if(!p_putc(screen.valid,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.guy,f))
-    {
-        return qe_invalid;
-    }
-    
-    {
-        if(!p_iputw(screen.str,f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    if(!p_putc(screen.room,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.item,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.hasitem, f))
-    {
-        return qe_invalid;
-    }
-    
-    for(int32_t k=0; k<4; k++)
-    {
-        if(!p_putc(screen.tilewarptype[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    if(!p_iputw(screen.door_combo_set,f))
-    {
-        return qe_invalid;
-    }
-    
-    for(int32_t k=0; k<4; k++)
-    {
-        if(!p_putc(screen.warpreturnx[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<4; k++)
-    {
-        if(!p_putc(screen.warpreturny[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    if(!p_iputw(screen.warpreturnc,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.stairx,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.stairy,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.itemx,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.itemy,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_iputw(screen.color,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.enemyflags,f))
-    {
-        return qe_invalid;
-    }
-    
-    for(int32_t k=0; k<4; k++)
-    {
-        if(!p_putc(screen.door[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<4; k++)
-    {
-        if(!p_iputw(screen.tilewarpdmap[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<4; k++)
-    {
-        if(!p_putc(screen.tilewarpscr[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    if(!p_putc(screen.tilewarpoverlayflags,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.exitdir,f))
-    {
-        return qe_invalid;
-    }
-    
-    for(int32_t k=0; k<10; k++)
-    {
-        {
-            if(!p_iputw(screen.enemy[k],f))
-            {
-                return qe_invalid;
-            }
-        }
-    }
-    
-    if(!p_putc(screen.pattern,f))
-    {
-        return qe_invalid;
-    }
-    
-    for(int32_t k=0; k<4; k++)
-    {
-        if(!p_putc(screen.sidewarptype[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    if(!p_putc(screen.sidewarpoverlayflags,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.warparrivalx,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.warparrivaly,f))
-    {
-        return qe_invalid;
-    }
-    
-    for(int32_t k=0; k<4; k++)
-    {
-        if(!p_putc(screen.path[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<4; k++)
-    {
-        if(!p_putc(screen.sidewarpscr[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<4; k++)
-    {
-        if(!p_iputw(screen.sidewarpdmap[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    if(!p_putc(screen.sidewarpindex,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_iputw(screen.undercombo,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.undercset,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_iputw(screen.catchall,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.flags,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.flags2,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.flags3,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.flags4,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.flags5,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_iputw(screen.noreset,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_iputw(screen.nocarry,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.flags6,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.flags7,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.flags8,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.flags9,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.flags10,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.csensitive,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.oceansfx,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.bosssfx,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.secretsfx,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.holdupsfx,f))
-    {
-        return qe_invalid;
-    }
-    
-    for(int32_t k=0; k<6; k++)
-    {
-        if(!p_putc(screen.layermap[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<6; k++)
-    {
-        if(!p_putc(screen.layerscreen[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<6; k++)
-    {
-        if(!p_putc(screen.layeropacity[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    if(!p_iputw(screen.timedwarptics,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.nextmap,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.nextscr,f))
-    {
-        return qe_invalid;
-    }
-    
-    for(int32_t k=0; k<128; k++)
-    {
-        if(!p_iputw(screen.secretcombo[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<128; k++)
-    {
-        if(!p_putc(screen.secretcset[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<128; k++)
-    {
-        if(!p_putc(screen.secretflag[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
-    {
-        try
-        {
-            if(!p_iputw(screen.data.at(k),f))
-            {
-                return qe_invalid;
-            }
-        }
-        catch(std::out_of_range& )
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
-    {
-        try
-        {
-            if(!p_putc(screen.sflag.at(k),f))
-            {
-                return qe_invalid;
-            }
-        }
-        catch(std::out_of_range& )
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
-    {
-        try
-        {
-            if(!p_putc(screen.cset.at(k),f))
-            {
-                return qe_invalid;
-            }
-        }
-        catch(std::out_of_range& )
-        {
-            return qe_invalid;
-        }
-    }
-    
-    if(!p_iputw(screen.screen_midi,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.lens_layer,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_iputl(screen.numff,f))
-    {
-        return qe_invalid;
-    }
-    
-    for(int32_t k=0; k<32; k++)
-    {
-        if((screen.numff>>k)&1)
-        {
-            if(!p_iputw(screen.ffdata[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_putc(screen.ffcset[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputw(screen.ffdelay[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.ffx[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.ffy[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.ffxdelta[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.ffydelta[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.ffxdelta2[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.ffydelta2[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_putc(screen.fflink[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_putc(screen.ffwidth[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_putc(screen.ffheight[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.ffflags[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputw(screen.ffscript[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.initd[k][0],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.initd[k][1],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.initd[k][2],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.initd[k][3],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.initd[k][4],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.initd[k][5],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.initd[k][6],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.initd[k][7],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_putc(screen.inita[k][0]/10000,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_putc(screen.inita[k][1]/10000,f))
-            {
-                return qe_invalid;
-            }
-        }
-    }
-    
-    for ( int32_t q = 0; q < 10; q++ ) 
-    {
-	if(!p_iputl(screen.npcstrings[q],f))
+	if((i*MAPSCRS+j)>=int32_t(TheMaps.size()))
+		return qe_invalid;
+	
+	mapscr& screen=TheMaps.at(i*MAPSCRS+j);
+	
+	if(!p_putc(screen.valid,f))
+		return qe_invalid;
+	if(!(screen.valid & mVALID))
+		return qe_OK;
+	//Calculate what needs writing
+	uint32_t scr_has_flags = 0;
+	if(screen.guy || screen.str
+		|| screen.room || screen.catchall)
+		scr_has_flags |= SCRHAS_ROOMDATA;
+	if((screen.warpreturnc&0x00FF) || screen.tilewarpoverlayflags)
+		scr_has_flags |= SCRHAS_TWARP;
+	else for(auto q = 0; q < 4; ++q)
 	{
-		return qe_invalid;
-	} 
-    }
-    for ( int32_t q = 0; q < 10; q++ ) 
-    {
-	if(!p_iputw(screen.new_items[q],f))
+		if(screen.tilewarptype[q]
+			|| screen.tilewarpdmap[q]
+			|| screen.tilewarpscr[q])
+		{
+			scr_has_flags |= SCRHAS_TWARP;
+			break;
+		}
+	}
+	if((screen.warpreturnc&0xFF00) || screen.sidewarpindex
+		|| screen.sidewarpoverlayflags)
+		scr_has_flags |= SCRHAS_SWARP;
+	else for(auto q = 0; q < 4; ++q)
 	{
-		return qe_invalid;
-	} 
-    }
-    for ( int32_t q = 0; q < 10; q++ ) 
-    {
-	if(!p_iputw(screen.new_item_x[q],f))
+		if(screen.sidewarptype[q]
+			|| screen.sidewarpdmap[q]
+			|| screen.sidewarpscr[q])
+		{
+			scr_has_flags |= SCRHAS_SWARP;
+			break;
+		}
+	}
+	if(screen.warparrivalx || screen.warparrivaly)
+		scr_has_flags |= SCRHAS_WARPRET;
+	else for(auto q = 0; q < 4; ++q)
 	{
-		return qe_invalid;
-	} 
-    }
-    for ( int32_t q = 0; q < 10; q++ ) 
-    {
-	if(!p_iputw(screen.new_item_y[q],f))
+		if(screen.warpreturnx[q] || screen.warpreturny[q])
+		{
+			scr_has_flags |= SCRHAS_WARPRET;
+			break;
+		}
+	}
+	
+	if(screen.hidelayers || screen.hidescriptlayers)
+		scr_has_flags |= SCRHAS_LAYERS;
+	else for(auto q = 0; q < 6; ++q)
 	{
-		return qe_invalid;
-	} 
-    }
-    if(!p_iputw(screen.script,f))
-    {
-		return qe_invalid;
-    } 
-    for ( int32_t q = 0; q < 8; q++ )
-    {
-	if(!p_iputl(screen.screeninitd[q],f))
+		if(screen.layermap[q] || screen.layerscreen[q]
+			|| screen.layeropacity[q]!=255)
+		{
+			scr_has_flags |= SCRHAS_LAYERS;
+			break;
+		}
+	}
+	
+	if(screen.exitdir)
+		scr_has_flags |= SCRHAS_MAZE;
+	else for(auto q = 0; q < 4; ++q)
 	{
+		if(screen.path[q])
+		{
+			scr_has_flags |= SCRHAS_MAZE;
+			break;
+		}
+	}
+	
+	if(screen.door_combo_set || screen.stairx
+		|| screen.stairy || screen.undercombo
+		|| screen.undercset)
+		scr_has_flags |= SCRHAS_D_S_U;
+	else for(auto q = 0; q < 4; ++q)
+	{
+		if(screen.door[q])
+		{
+			scr_has_flags |= SCRHAS_D_S_U;
+			break;
+		}
+	}
+	
+	if(screen.flags || screen.flags2
+		|| screen.flags3 || screen.flags4
+		|| screen.flags5 || screen.flags6
+		|| screen.flags7 || screen.flags8
+		|| screen.flags9 || screen.flags10
+		|| screen.enemyflags)
+		scr_has_flags |= SCRHAS_FLAGS;
+	
+	if(screen.pattern)
+		scr_has_flags |= SCRHAS_ENEMY;
+	else for(auto q = 0; q < 10; ++q)
+	{
+		if(screen.enemy[q])
+		{
+			scr_has_flags |= SCRHAS_ENEMY;
+			break;
+		}
+	}
+	
+	if(screen.noreset || screen.nocarry
+		|| screen.nextmap || screen.nextscr)
+		scr_has_flags |= SCRHAS_CARRY;
+	
+	if(screen.script || screen.preloadscript)
+		scr_has_flags |= SCRHAS_SCRIPT;
+	else for(auto q = 0; q < 8; ++q)
+	{
+		if(screen.screeninitd[q])
+		{
+			scr_has_flags |= SCRHAS_SCRIPT;
+			break;
+		}
+	}
+	
+	for(auto q = 0; q < 10; ++q)
+	{
+		if(screen.npcstrings[q]
+			|| screen.new_items[q]
+			|| screen.new_item_x[q]
+			|| screen.new_item_y[q])
+		{
+			scr_has_flags |= SCRHAS_UNUSED;
+			break;
+		}
+	}
+	
+	for(auto q = 0; q < 128; ++q)
+	{
+		if(screen.secretcombo[q]
+			|| screen.secretcset[q]
+			|| screen.secretflag[q])
+		{
+			scr_has_flags |= SCRHAS_SECRETS;
+			break;
+		}
+	}
+	
+	for(auto q = 0; q < 176; ++q)
+	{
+		if(screen.data[q] || screen.cset[q]
+			|| screen.sflag[q])
+		{
+			scr_has_flags |= SCRHAS_COMBOFLAG;
+			break;
+		}
+	}
+	
+	if(screen.color || screen.csensitive != 1
+		|| screen.oceansfx || screen.bosssfx
+		|| screen.secretsfx || screen.holdupsfx
+		|| screen.timedwarptics || screen.screen_midi != -1
+		|| screen.lens_layer)
+		scr_has_flags |= SCRHAS_MISC;
+	
+	if(!p_iputl(scr_has_flags,f))
 		return qe_invalid;
-	} 
-	    
-    }
-    if(!p_putc(screen.preloadscript,f))
-    {
+	
+	//Write stuff
+	if(scr_has_flags & SCRHAS_ROOMDATA)
+	{
+		if(!p_putc(screen.guy,f))
+			return qe_invalid;
+		if(!p_iputw(screen.str,f))
+			return qe_invalid;
+		if(!p_putc(screen.room,f))
+			return qe_invalid;
+		if(!p_iputw(screen.catchall,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & SCRHAS_ITEM)
+	{
+		if(!p_putc(screen.item,f))
+			return qe_invalid;
+		if(!p_putc(screen.hasitem,f))
+			return qe_invalid;
+		if(!p_putc(screen.itemx,f))
+			return qe_invalid;
+		if(!p_putc(screen.itemy,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & (SCRHAS_SWARP|SCRHAS_TWARP))
+	{
+		if(!p_iputw(screen.warpreturnc,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & SCRHAS_TWARP)
+	{
+		for(int32_t k=0; k<4; k++)
+		{
+			if(!p_putc(screen.tilewarptype[k],f))
+				return qe_invalid;
+		}
+		for(int32_t k=0; k<4; k++)
+		{
+			if(!p_iputw(screen.tilewarpdmap[k],f))
+				return qe_invalid;
+		}
+		
+		for(int32_t k=0; k<4; k++)
+		{
+			if(!p_putc(screen.tilewarpscr[k],f))
+				return qe_invalid;
+		}
+		
+		if(!p_putc(screen.tilewarpoverlayflags,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & SCRHAS_SWARP)
+	{
+		for(int32_t k=0; k<4; k++)
+		{
+			if(!p_putc(screen.sidewarptype[k],f))
+				return qe_invalid;
+		}
+		for(int32_t k=0; k<4; k++)
+		{
+			if(!p_iputw(screen.sidewarpdmap[k],f))
+				return qe_invalid;
+		}
+		
+		for(int32_t k=0; k<4; k++)
+		{
+			if(!p_putc(screen.sidewarpscr[k],f))
+				return qe_invalid;
+		}
+		
+		if(!p_putc(screen.sidewarpoverlayflags,f))
+			return qe_invalid;
+		if(!p_putc(screen.sidewarpindex,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & SCRHAS_WARPRET)
+	{
+		for(int32_t k=0; k<4; k++)
+		{
+			if(!p_putc(screen.warpreturnx[k],f))
+				return qe_invalid;
+		}
+		for(int32_t k=0; k<4; k++)
+		{
+			if(!p_putc(screen.warpreturny[k],f))
+				return qe_invalid;
+		}
+		if(!p_putc(screen.warparrivalx,f))
+			return qe_invalid;
+		if(!p_putc(screen.warparrivaly,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & SCRHAS_LAYERS)
+	{
+		for(int32_t k=0; k<6; k++)
+		{
+			if(!p_putc(screen.layermap[k],f))
+				return qe_invalid;
+		}
+		for(int32_t k=0; k<6; k++)
+		{
+			if(!p_putc(screen.layerscreen[k],f))
+				return qe_invalid;
+		}
+		for(int32_t k=0; k<6; k++)
+		{
+			if(!p_putc(screen.layeropacity[k],f))
+				return qe_invalid;
+		}
+		if(!p_putc(screen.hidelayers,f))
+			return qe_invalid;
+		if(!p_putc(screen.hidescriptlayers,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & SCRHAS_MAZE)
+	{
+		for(int32_t k=0; k<4; k++)
+		{
+			if(!p_putc(screen.path[k],f))
+				return qe_invalid;
+		}
+		if(!p_putc(screen.exitdir,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & SCRHAS_D_S_U)
+	{
+		if(!p_iputw(screen.door_combo_set,f))
+			return qe_invalid;
+		for(int32_t k=0; k<4; k++)
+		{
+			if(!p_putc(screen.door[k],f))
+				return qe_invalid;
+		}
+		if(!p_putc(screen.stairx,f))
+			return qe_invalid;
+		if(!p_putc(screen.stairy,f))
+			return qe_invalid;
+		if(!p_iputw(screen.undercombo,f))
+			return qe_invalid;
+		if(!p_putc(screen.undercset,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & SCRHAS_FLAGS)
+	{
+		if(!p_putc(screen.flags,f))
+			return qe_invalid;
+		if(!p_putc(screen.flags2,f))
+			return qe_invalid;
+		if(!p_putc(screen.flags3,f))
+			return qe_invalid;
+		if(!p_putc(screen.flags4,f))
+			return qe_invalid;
+		if(!p_putc(screen.flags5,f))
+			return qe_invalid;
+		if(!p_putc(screen.flags6,f))
+			return qe_invalid;
+		if(!p_putc(screen.flags7,f))
+			return qe_invalid;
+		if(!p_putc(screen.flags8,f))
+			return qe_invalid;
+		if(!p_putc(screen.flags9,f))
+			return qe_invalid;
+		if(!p_putc(screen.flags10,f))
+			return qe_invalid;
+		if(!p_putc(screen.enemyflags,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & SCRHAS_ENEMY)
+	{
+		for(int32_t k=0; k<10; k++)
+		{
+			if(!p_iputw(screen.enemy[k],f))
+				return qe_invalid;
+		}
+		if(!p_putc(screen.pattern,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & SCRHAS_CARRY)
+	{
+		if(!p_iputw(screen.noreset,f))
+			return qe_invalid;
+		if(!p_iputw(screen.nocarry,f))
+			return qe_invalid;
+		if(!p_putc(screen.nextmap,f))
+			return qe_invalid;
+		if(!p_putc(screen.nextscr,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & SCRHAS_SCRIPT)
+	{
+		if(!p_iputw(screen.script,f))
+			return qe_invalid;
+		if(!p_putc(screen.preloadscript,f))
+			return qe_invalid;
+		for ( int32_t q = 0; q < 8; q++ )
+		{
+			if(!p_iputl(screen.screeninitd[q],f))
+				return qe_invalid;
+		}
+	}
+	if(scr_has_flags & SCRHAS_UNUSED)
+	{
+		for ( int32_t q = 0; q < 10; q++ ) 
+		{
+			if(!p_iputl(screen.npcstrings[q],f))
+				return qe_invalid;
+		}
+		for ( int32_t q = 0; q < 10; q++ ) 
+		{
+			if(!p_iputw(screen.new_items[q],f))
+				return qe_invalid;
+		}
+		for ( int32_t q = 0; q < 10; q++ ) 
+		{
+			if(!p_iputw(screen.new_item_x[q],f))
+				return qe_invalid;
+		}
+		for ( int32_t q = 0; q < 10; q++ ) 
+		{
+			if(!p_iputw(screen.new_item_y[q],f))
+				return qe_invalid;
+		}
+	}
+	if(scr_has_flags & SCRHAS_SECRETS)
+	{
+		for(int32_t k=0; k<128; k++)
+		{
+			if(!p_iputw(screen.secretcombo[k],f))
+				return qe_invalid;
+		}
+		
+		for(int32_t k=0; k<128; k++)
+		{
+			if(!p_putc(screen.secretcset[k],f))
+				return qe_invalid;
+		}
+		
+		for(int32_t k=0; k<128; k++)
+		{
+			if(!p_putc(screen.secretflag[k],f))
+				return qe_invalid;
+		}
+	}
+	if(scr_has_flags & SCRHAS_COMBOFLAG)
+	{
+		for(int32_t k=0; k<176; ++k)
+		{
+			if(!p_iputw(screen.data.at(k),f))
+				return qe_invalid;
+		}
+		for(int32_t k=0; k<176; ++k)
+		{
+			if(!p_putc(screen.sflag.at(k),f))
+				return qe_invalid;
+		}
+		for(int32_t k=0; k<176; ++k)
+		{
+			if(!p_putc(screen.cset.at(k),f))
+				return qe_invalid;
+		}
+	}
+	if(scr_has_flags & SCRHAS_MISC)
+	{
+		if(!p_iputw(screen.color,f))
+			return qe_invalid;
+		if(!p_putc(screen.csensitive,f))
+			return qe_invalid;
+		if(!p_putc(screen.oceansfx,f))
+			return qe_invalid;
+		if(!p_putc(screen.bosssfx,f))
+			return qe_invalid;
+		if(!p_putc(screen.secretsfx,f))
+			return qe_invalid;
+		if(!p_putc(screen.holdupsfx,f))
+			return qe_invalid;
+		if(!p_iputw(screen.timedwarptics,f))
+			return qe_invalid;
+		if(!p_iputw(screen.screen_midi,f))
+			return qe_invalid;
+		if(!p_putc(screen.lens_layer,f))
+			return qe_invalid;
+	}
+	
+	if(!p_iputl(screen.numff,f))
 		return qe_invalid;
-    }
-    if(!p_putc(screen.hidelayers,f))
-    {
-		return qe_invalid;
-    }
-    if(!p_putc(screen.hidescriptlayers,f))
-    {
-		return qe_invalid;
-    }
-    return qe_OK;
+	for(int32_t k=0; k<32; k++)
+	{
+		if((screen.numff>>k)&1)
+		{
+			if(!p_iputw(screen.ffdata[k],f))
+				return qe_invalid;
+			
+			if(!p_putc(screen.ffcset[k],f))
+				return qe_invalid;
+			
+			if(!p_iputw(screen.ffdelay[k],f))
+				return qe_invalid;
+			
+			if(!p_iputl(screen.ffx[k],f))
+				return qe_invalid;
+			
+			if(!p_iputl(screen.ffy[k],f))
+				return qe_invalid;
+			
+			if(!p_iputl(screen.ffxdelta[k],f))
+				return qe_invalid;
+			
+			if(!p_iputl(screen.ffydelta[k],f))
+				return qe_invalid;
+			
+			if(!p_iputl(screen.ffxdelta2[k],f))
+				return qe_invalid;
+			
+			if(!p_iputl(screen.ffydelta2[k],f))
+				return qe_invalid;
+			
+			if(!p_putc(screen.fflink[k],f))
+				return qe_invalid;
+			
+			if(!p_putc(screen.ffwidth[k],f))
+				return qe_invalid;
+			
+			if(!p_putc(screen.ffheight[k],f))
+				return qe_invalid;
+			
+			if(!p_iputl(screen.ffflags[k],f))
+				return qe_invalid;
+			
+			if(!p_iputw(screen.ffscript[k],f))
+				return qe_invalid;
+			
+			for(auto q = 0; q < 8; ++q)
+			{
+				if(!p_iputl(screen.initd[k][q],f))
+					return qe_invalid;
+			}
+			
+			if(!p_putc(screen.inita[k][0]/10000,f))
+				return qe_invalid;
+			
+			if(!p_putc(screen.inita[k][1]/10000,f))
+				return qe_invalid;
+		}
+	}
+	
+	return qe_OK;
 }
 
 int32_t writemaps(PACKFILE *f, zquestheader *)
 {
-    dword section_id=ID_MAPS;
-    dword section_version=V_MAPS;
-    dword section_cversion=CV_MAPS;
-    dword section_size = 0;
-    
-    //section id
-    if(!p_mputl(section_id,f))
-    {
-        new_return(1);
-    }
-    
-    //section version info
-    if(!p_iputw(section_version,f))
-    {
-        new_return(2);
-    }
-    
-    if(!p_iputw(section_cversion,f))
-    {
-        new_return(3);
-    }
-    
-    for(int32_t writecycle=0; writecycle<2; ++writecycle)
-    {
-        fake_pack_writing=(writecycle==0);
-        
-        //section size
-        if(!p_iputl(section_size,f))
-        {
-            new_return(4);
-        }
-        
-        writesize=0;
-        
-        //finally...  section data
-        if(!p_iputw(map_count,f))
-        {
-            new_return(5);
-        }
-        
-        for(int32_t i=0; i<map_count && i<MAXMAPS2; i++)
-        {
-            for(int32_t j=0; j<MAPSCRS; j++)
-                writemapscreen(f,i,j);
-        }
-        
-        if(writecycle==0)
-        {
-            section_size=writesize;
-        }
-    }
-    
-    if(writesize!=int32_t(section_size) && save_warn)
-    {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writemaps()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
-    }
-    
-    new_return(0);
+	dword section_id=ID_MAPS;
+	dword section_version=V_MAPS;
+	dword section_cversion=CV_MAPS;
+	dword section_size = 0;
+	
+	//section id
+	if(!p_mputl(section_id,f))
+	{
+		new_return(1);
+	}
+	
+	//section version info
+	if(!p_iputw(section_version,f))
+	{
+		new_return(2);
+	}
+	
+	if(!p_iputw(section_cversion,f))
+	{
+		new_return(3);
+	}
+	
+	for(int32_t writecycle=0; writecycle<2; ++writecycle)
+	{
+		fake_pack_writing=(writecycle==0);
+		
+		//section size
+		if(!p_iputl(section_size,f))
+		{
+			new_return(4);
+		}
+		
+		writesize=0;
+		
+		//finally...  section data
+		if(!p_iputw(map_count,f))
+		{
+			new_return(5);
+		}
+		
+		for(int32_t i=0; i<map_count && i<MAXMAPS2; i++)
+		{
+			byte valid = 0;
+			for(int32_t j=0; j<MAPSCRS; j++)
+			{
+				if((i*MAPSCRS+j)>=int32_t(TheMaps.size()))
+					break;
+				mapscr& screen=TheMaps.at(i*MAPSCRS+j);
+				if(screen.valid & mVALID)
+				{
+					valid = 1;
+					break;
+				}
+			}
+			if(!p_putc(valid,f))
+			{
+				new_return(6);
+			}
+			if(!valid) continue;
+			for(int32_t j=0; j<MAPSCRS; j++)
+				writemapscreen(f,i,j);
+		}
+		
+		if(writecycle==0)
+		{
+			section_size=writesize;
+		}
+	}
+	
+	if(writesize!=int32_t(section_size) && save_warn)
+	{
+		char ebuf[80];
+		sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
+		jwin_alert("Error:  writemaps()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+	}
+	
+	new_return(0);
 }
 
 int32_t writecombos(PACKFILE *f, word version, word build, word start_combo, word max_combos)

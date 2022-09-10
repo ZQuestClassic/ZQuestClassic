@@ -255,7 +255,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS          33
 #define V_CSETS            5 //palette data
-#define V_MAPS            22
+#define V_MAPS            23
 #define V_DMAPS            16
 #define V_DOORS            1
 #define V_ITEMS           53
@@ -5432,6 +5432,23 @@ extern void removeFromItemCache(int32_t itemid);
 #define CHAS_ANIM     0x08
 #define CHAS_SCRIPT   0x10
 #define CHAS_GENERAL  0x20
+
+#define SCRHAS_ROOMDATA  0x00000001
+#define SCRHAS_ITEM      0x00000002
+#define SCRHAS_TWARP     0x00000004
+#define SCRHAS_SWARP     0x00000008
+#define SCRHAS_WARPRET   0x00000010
+#define SCRHAS_LAYERS    0x00000020
+#define SCRHAS_MAZE      0x00000040
+#define SCRHAS_D_S_U     0x00000080
+#define SCRHAS_FLAGS     0x00000100
+#define SCRHAS_ENEMY     0x00000200
+#define SCRHAS_CARRY     0x00000400
+#define SCRHAS_SCRIPT    0x00000800
+#define SCRHAS_UNUSED    0x00001000
+#define SCRHAS_SECRETS   0x00002000
+#define SCRHAS_COMBOFLAG 0x00004000
+#define SCRHAS_MISC      0x00008000
 
 #define until(n) while(!(n))
 #define unless(n) if(!(n))
