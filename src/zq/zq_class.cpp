@@ -4300,9 +4300,9 @@ void list_command::execute()
 
 void list_command::undo()
 {
-    for (auto command : commands)
+    for (int i = commands.size() - 1; i >= 0; i--)
     {
-        command->undo();
+        commands[i]->undo();
     }
 }
 
