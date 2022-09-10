@@ -14,6 +14,7 @@
 #include "base/zdefs.h"
 #include <stdio.h>
 #include <string_view>
+#include <stack>
 
 int32_t COMBOPOS(int32_t x, int32_t y);
 int32_t COMBOX(int32_t pos);
@@ -24,6 +25,103 @@ void set_preview_mode(int32_t prv);
 /************************/
 /****** ZMAP class ******/
 /************************/
+
+class user_input_command
+{
+public:
+    int map, scr;
+
+    virtual void execute() = 0;
+    virtual void undo() = 0;
+    int size() { return 0; }
+};
+
+class list_command : public user_input_command
+{
+public:
+    std::vector<std::shared_ptr<user_input_command>> commands;
+
+    void execute();
+    void undo();
+    int size();
+};
+
+class set_combo_command : public user_input_command
+{
+public:
+    int pos, combo, cset;
+    int prev_combo, prev_cset;
+
+    void execute();
+    void undo();
+};
+
+class set_flag_command : public user_input_command
+{
+public:
+    int pos, flag;
+    int prev_flag;
+
+    void execute();
+    void undo();
+};
+
+class set_door_command : public user_input_command
+{
+public:
+    int side, door;
+    int prev_door;
+
+    void execute();
+    void undo();
+};
+
+enum PasteCommandType {
+    ScreenAll,
+    ScreenAllToEveryScreen,
+    ScreenData,
+    ScreenDoors,
+    ScreenEnemies,
+    ScreenFFCombos,
+    ScreenGuy,
+    ScreenLayers,
+    ScreenOneFFC,
+    ScreenPalette,
+    ScreenPartial,
+    ScreenPartialToEveryScreen,
+    ScreenRoom,
+    ScreenSecretCombos,
+    ScreenUnderCombo,
+    ScreenWarpLocations,
+    ScreenWarps,
+};
+
+class paste_screen_command : public user_input_command
+{
+public:
+    PasteCommandType type;
+    int data;
+    std::shared_ptr<mapscr> screen;
+    std::vector<std::shared_ptr<mapscr>> prev_screens;
+
+    void execute();
+    void undo();
+    int size();
+
+private:
+    void perform(mapscr* to);
+};
+
+class set_screen_command : public user_input_command
+{
+public:
+    std::shared_ptr<mapscr> screen;
+    std::shared_ptr<mapscr> prev_screen;
+
+    void execute();
+    void undo();
+    int size();
+};
 
 void reset_dmap(int32_t index);
 //void mapfix_0x166(mapscr *scr);
@@ -37,12 +135,13 @@ class zmap
     int32_t scrpos[MAXMAPS2+1];
 
     mapscr copymapscr;
-    mapscr undomap[MAPSCRS+6];
     mapscr prvscr; //NEW
     mapscr prvlayers[6];
+    std::deque<std::shared_ptr<user_input_command>> undo_stack;
+    std::stack<std::shared_ptr<user_input_command>> redo_stack;
     //int32_t prv_mode; //NEW
     int32_t prv_cmbcycle, prv_map, prv_scr, prv_freeze, prv_advance, prv_time; //NEW
-    bool can_undo,can_paste,can_undo_map,can_paste_map,screen_copy;
+    bool can_paste;
     // A screen which uses the current screen as a layer
     int32_t layer_target_map, layer_target_scr, layer_target_multiple;
 
@@ -51,33 +150,47 @@ public:
     zmap();
     ~zmap();
     bool CanUndo();
+    bool CanRedo();
     bool CanPaste();
     int32_t  CopyScr();
     int32_t  getCopyFFC();
     void setCopyFFC(int32_t n);
-    void Ugo();
-    void Uhuilai();
+
+    // Undo/Redo
+    void StartListCommand();
+    void FinishListCommand();
+    void RevokeListCommand();
+    void ExecuteCommand(std::shared_ptr<user_input_command> command, bool skip_execute = false);
+    void UndoCommand();
+    void RedoCommand();
+    void ClearCommandHistory();
+    void CapCommandHistory();
+    void DoSetComboCommand(int map, int scr, int pos, int combo, int cset);
+    void DoSetFlagCommand(int map, int scr, int pos, int flag);
+    void DoSetDoorCommand(int side, int door);
+    void DoPasteScreenCommand(PasteCommandType type, int data = 0);
+    void DoClearScreenCommand();
+    void DoTemplateCommand(int floorcombo, int floorcset, int scr);
+
     void Copy();
     void CopyFFC(int32_t n);
-    void Paste();
-    void PasteAll();
-    void PasteToAll();
-    void PasteAllToAll();
-    void PasteUnderCombo();
-    void PasteSecretCombos();
-    void PasteFFCombos();
-    void PasteOneFFC(int32_t i);
-    void PasteWarps();
-    void PasteScreenData();
-    void PasteWarpLocations();
-    void PasteDoors();
-    void PasteLayers();
-    void PasteRoom();
-    void PasteGuy();
-    void PastePalette();
-    void PasteEnemies();
-    void setCanPaste(bool _set);
-    void setCanUndo(bool _set);
+    void Paste(const mapscr& copymapscr);
+    void PasteAll(const mapscr& copymapscr);
+    void PasteToAll(const mapscr& copymapscr);
+    void PasteAllToAll(const mapscr& copymapscr);
+    void PasteUnderCombo(const mapscr& copymapscr);
+    void PasteSecretCombos(const mapscr& copymapscr);
+    void PasteFFCombos(const mapscr& copymapscr);
+    void PasteOneFFC(const mapscr& copymapscr, int32_t i);
+    void PasteWarps(const mapscr& copymapscr);
+    void PasteScreenData(const mapscr& copymapscr);
+    void PasteWarpLocations(const mapscr& copymapscr);
+    void PasteDoors(const mapscr& copymapscr);
+    void PasteLayers(const mapscr& copymapscr);
+    void PasteRoom(const mapscr& copymapscr);
+    void PasteGuy(const mapscr& copymapscr);
+    void PastePalette(const mapscr& copymapscr);
+    void PasteEnemies(const mapscr& copymapscr);
     void update_combo_cycling();
     void update_freeform_combos();
     int32_t getMapCount();
@@ -120,6 +233,7 @@ public:
     mapscr *AbsoluteScr(int32_t map, int32_t scr);
     int32_t  getCurrMap();
     bool isDark();
+    void setCurrentView(int32_t map, int32_t scr);
     void setCurrMap(int32_t index);
     int32_t  getCurrScr();
     void setCurrScr(int32_t scr);
@@ -136,7 +250,6 @@ public:
     void put_door(BITMAP *dest,int32_t pos,int32_t side,int32_t type,int32_t xofs,int32_t yofs,bool ignorepos, int32_t scr);
     void over_door(BITMAP *dest,int32_t pos,int32_t side,int32_t xofs,int32_t yofs,bool ignorepos, int32_t scr);
     void TemplateAll();
-    void Template(int32_t floorcombo, int32_t floorcset);
     void Template(int32_t floorcombo, int32_t floorcset, int32_t scr);
     void putdoor(int32_t side,int32_t door);
     void putdoor2(int32_t side,int32_t door);

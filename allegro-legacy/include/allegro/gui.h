@@ -160,6 +160,7 @@ AL_LEGACY_FUNC(int, d_check_proc, (int msg, DIALOG *d, int c));
 AL_LEGACY_FUNC(int, d_radio_proc, (int msg, DIALOG *d, int c));
 AL_LEGACY_FUNC(int, d_icon_proc, (int msg, DIALOG *d, int c));
 AL_LEGACY_FUNC(int, d_keyboard_proc, (int msg, DIALOG *d, int c));
+AL_LEGACY_FUNC(int, d_keyboard_proc_m, (int msg, DIALOG *d, int c));
 AL_LEGACY_FUNC(int, d_edit_proc, (int msg, DIALOG *d, int c));
 AL_LEGACY_FUNC(int, d_list_proc, (int msg, DIALOG *d, int c));
 AL_LEGACY_FUNC(int, d_text_list_proc, (int msg, DIALOG *d, int c));

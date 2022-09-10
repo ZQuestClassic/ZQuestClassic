@@ -118,7 +118,7 @@ mapscr* zmap::get_prvscr()
 
 zmap::zmap()
 {
-    can_undo=can_paste=false;
+    can_paste=false;
     prv_cmbcycle=0;
     prv_advance=0;
     prv_freeze=0;
@@ -136,9 +136,6 @@ zmap::zmap()
     layer_target_map = 0;
     layer_target_scr = 0;
     layer_target_multiple = 0;
-    can_undo_map=false;
-    can_paste_map=false;
-    screen_copy=false;
     
 }
 zmap::~zmap()
@@ -147,7 +144,11 @@ zmap::~zmap()
 
 bool zmap::CanUndo()
 {
-    return can_undo;
+    return undo_stack.size() > 0;
+}
+bool zmap::CanRedo()
+{
+    return redo_stack.size() > 0;
 }
 bool zmap::CanPaste()
 {
@@ -587,6 +588,19 @@ bool zmap::isDark()
 {
     return (screens[currscr].flags&fDARK)!=0;
 }
+
+void zmap::setCurrentView(int32_t map, int32_t scr)
+{
+    bool change_view = map != Map.getCurrMap() || scr != Map.getCurrScr();
+    if (map != Map.getCurrMap()) Map.setCurrMap(map);
+    if (scr != Map.getCurrScr()) Map.setCurrScr(scr);
+    if (change_view)
+    {
+        refresh(rALL);
+        rebuild_trans_table();
+    }
+}
+
 void zmap::setCurrMap(int32_t index)
 {
     int32_t oldmap=currmap;
@@ -596,11 +610,6 @@ void zmap::setCurrMap(int32_t index)
     
     currscr=scrpos[currmap];
     loadlvlpal(getcolor());
-    
-    if(currmap!=oldmap)
-    {
-        can_undo=false;
-    }
     
     reset_combo_animations2();
 }
@@ -634,11 +643,6 @@ void zmap::setCurrScr(int32_t scr)
     if(newcolor!=oldcolor)
     {
         rebuild_trans_table();
-    }
-    
-    if(currscr!=oldscr)
-    {
-        can_undo=false;
     }
     
     reset_combo_animations2();
@@ -742,16 +746,13 @@ int32_t zmap::tcmbflag2(int32_t pos)
 
 void zmap::TemplateAll()
 {
+    StartListCommand();
     for(int32_t i=0; i<128; i++)
     {
         if((screens[i].valid&mVALID) && isDungeon(i))
-            Template(-1,i);
+            DoTemplateCommand(-1, i, currscr);
     }
-}
-
-void zmap::Template(int32_t floorcombo, int32_t floorcset)
-{
-    Template(floorcombo, floorcset, currscr);
+    FinishListCommand();
 }
 
 void zmap::Template(int32_t floorcombo, int32_t floorcset, int32_t scr)
@@ -4289,56 +4290,371 @@ void zmap::putdoor(int32_t scr,int32_t side,int32_t door)
     }
 }
 
-void zmap::Ugo()
+void list_command::execute()
 {
-    mapscr *layer;
-    int32_t layermap, layerscreen;
-    layer=AbsoluteScr(currmap,currscr);
-    
-    for(int32_t x=0; x<MAPSCRS; x++)
+    for (auto command : commands)
     {
-        copy_mapscr(&undomap[x], &screens[x]);
+        command->execute();
     }
-    
-    for(int32_t k=0; k<6; ++k)
-    {
-        undomap[MAPSCRS+k].zero_memory();
-        layermap=layer->layermap[k]-1;
-        
-        if(layermap>-1 && layermap<map_count)
-        {
-            layerscreen=layer->layerscreen[k];
-            copy_mapscr(&undomap[MAPSCRS+k], AbsoluteScr(layermap,layerscreen));
-        }
-    }
-    
-    can_undo=true;
 }
 
-void zmap::Uhuilai()
+void list_command::undo()
 {
-    mapscr *layer;
-    int32_t layermap, layerscreen;
-    layer=AbsoluteScr(currmap,currscr);
-    
-    if(can_undo)
+    for (auto command : commands)
     {
-        for(int32_t x=0; x<MAPSCRS; x++)
+        command->undo();
+    }
+}
+
+int list_command::size()
+{
+    int s = 0;
+    for (auto command : commands)
+    {
+        s += command->size();
+    }
+    return s;
+}
+
+void set_combo_command::execute()
+{
+    if (combo != -1) Map.AbsoluteScr(map, scr)->data[pos] = combo;
+    Map.AbsoluteScr(map, scr)->cset[pos] = cset;
+}
+
+void set_combo_command::undo()
+{
+    if (combo != -1) Map.AbsoluteScr(map, scr)->data[pos] = prev_combo;
+    Map.AbsoluteScr(map, scr)->cset[pos] = prev_cset;
+}
+
+void set_flag_command::execute()
+{
+    Map.AbsoluteScr(map, scr)->sflag[pos] = flag;
+}
+
+void set_flag_command::undo()
+{
+    Map.AbsoluteScr(map, scr)->sflag[pos] = prev_flag;
+}
+
+void set_door_command::execute()
+{
+    Map.putdoor(scr, side, door);
+    refresh(rMAP | rNOCURSOR);
+}
+
+void set_door_command::undo()
+{
+    Map.putdoor(scr, side, prev_door);
+    refresh(rMAP | rNOCURSOR);
+}
+
+void paste_screen_command::execute()
+{
+    perform(screen.get());
+}
+
+void paste_screen_command::undo()
+{
+    if (prev_screens.size() > 1)
+    {
+        ASSERT(type == PasteCommandType::ScreenPartialToEveryScreen || type == PasteCommandType::ScreenAllToEveryScreen);
+        ASSERT(prev_screens.size() == 128);
+        for (int i = 0; i < 128; i++)
         {
-            zc_swap(screens[x],undomap[x]);
+            copy_mapscr(Map.AbsoluteScr(map, i), prev_screens[i].get());
+            // TODO: why not just this?
+            // If this changes, also change the line in PasteAllToAll and PasteAll to use simply copy assignment.
+            // *Map.AbsoluteScr(map, i) = *prev_screens[i].get();
         }
-        
-        for(int32_t k=0; k<6; ++k)
-        {
-            layermap=layer->layermap[k]-1;
-            
-            if(layermap>-1 && layermap<map_count)
-            {
-                layerscreen=layer->layerscreen[k];
-                zc_swap(*AbsoluteScr(layermap,layerscreen),undomap[MAPSCRS+k]);
-            }
+        return;
+    }
+
+    perform(prev_screens[0].get());
+}
+
+int paste_screen_command::size()
+{
+    return prev_screens.size() + 1;
+}
+
+void paste_screen_command::perform(mapscr* to)
+{
+    if (to)
+    {
+        switch (type) {
+            case ScreenAll:                  Map.PasteAll(*to); break;
+            case ScreenAllToEveryScreen:     Map.PasteAllToAll(*to); break;
+            case ScreenData:                 Map.PasteScreenData(*to); break;
+            case ScreenDoors:                Map.PasteDoors(*to); break;
+            case ScreenEnemies:              Map.PasteEnemies(*to); break;
+            case ScreenFFCombos:             Map.PasteFFCombos(*to); break;
+            case ScreenGuy:                  Map.PasteGuy(*to); break;
+            case ScreenLayers:               Map.PasteLayers(*to); break;
+            case ScreenOneFFC:               Map.PasteOneFFC(*to, data); break;
+            case ScreenPalette:              Map.PastePalette(*to); break;
+            case ScreenPartial:              Map.Paste(*to); break;
+            case ScreenPartialToEveryScreen: Map.PasteToAll(*to); break;
+            case ScreenRoom:                 Map.PasteRoom(*to); break;
+            case ScreenSecretCombos:         Map.PasteSecretCombos(*to); break;
+            case ScreenUnderCombo:           Map.PasteUnderCombo(*to); break;
+            case ScreenWarpLocations:        Map.PasteWarpLocations(*to); break;
+            case ScreenWarps:                Map.PasteWarps(*to); break;
         }
     }
+    else
+    {
+        Map.clearscr(scr);
+    }
+    refresh(rALL);
+}
+
+void set_screen_command::execute()
+{
+    if (screen)
+    {
+        copy_mapscr(Map.AbsoluteScr(map, scr), screen.get());
+    }
+    else
+    {
+        Map.clearscr(scr);
+    }
+    refresh(rALL);
+}
+
+void set_screen_command::undo()
+{
+    if (prev_screen)
+    {
+        copy_mapscr(Map.AbsoluteScr(map, scr), prev_screen.get());
+    }
+    else
+    {
+        Map.clearscr(scr);
+    }
+    refresh(rALL);
+}
+
+int set_screen_command::size()
+{
+    return (prev_screen ? 1 : 0) + (screen ? 1 : 0);
+}
+
+static std::shared_ptr<list_command> current_list_command;
+void zmap::StartListCommand()
+{
+    ASSERT(!current_list_command);
+    current_list_command.reset(new list_command);
+}
+
+void zmap::FinishListCommand()
+{
+    if (current_list_command->commands.size() == 1)
+    {
+        undo_stack.push_back(current_list_command->commands[0]);
+    }
+    else if (current_list_command->commands.size() > 1)
+    {
+        undo_stack.push_back(current_list_command);
+    }
+    CapCommandHistory();
+    current_list_command = nullptr;
+}
+
+void zmap::RevokeListCommand()
+{
+    current_list_command->undo();
+    current_list_command = nullptr;
+}
+
+void zmap::ExecuteCommand(std::shared_ptr<user_input_command> command, bool skip_execute)
+{
+    redo_stack = std::stack<std::shared_ptr<user_input_command>>();
+    if (!skip_execute) command->execute();
+    if (current_list_command)
+    {
+        current_list_command->commands.push_back(command);
+        if (current_list_command->commands.size() == 1)
+        {
+            current_list_command->map = command->map;
+            current_list_command->scr = command->scr;
+        }
+    }
+    else
+    {
+        undo_stack.push_back(command);
+        CapCommandHistory();
+    }
+}
+
+void zmap::UndoCommand()
+{
+    if (undo_stack.size() <= 0) return;
+
+    // If not currently looking at the associated screen, first change the view
+    // and wait for the next call to actually undo this command.
+    auto command = undo_stack.back();
+    if (command->map != Map.getCurrMap() || command->scr != Map.getCurrScr())
+    {
+        setCurrentView(command->map, command->scr);
+        return;
+    }
+    
+    command->undo();
+    redo_stack.push(command);
+    undo_stack.pop_back();
+}
+
+void zmap::RedoCommand()
+{
+    if (redo_stack.size() <= 0) return;
+
+    // If not currently looking at the associated screen, first change the view
+    // and wait for the next call to actually execute this command.
+    auto command = redo_stack.top();
+    if (command->map != Map.getCurrMap() || command->scr != Map.getCurrScr())
+    {
+        setCurrentView(command->map, command->scr);
+        return;
+    }
+
+    command->execute();
+    undo_stack.push_back(command);
+    redo_stack.pop();
+}
+
+void zmap::ClearCommandHistory()
+{
+    current_list_command = nullptr;
+    undo_stack = std::deque<std::shared_ptr<user_input_command>>();
+    redo_stack = std::stack<std::shared_ptr<user_input_command>>();
+}
+
+// Extra amount is from mapscr's vectors.
+static int size_of_mapscr = sizeof(mapscr) + 4*176;
+// Allow the undo system to use roughly 100 MB of memory.
+// This doesn't count the memory used by commands that don't store a mapscr,
+// but that should be negligible.
+static int max_command_size = 100e6 / size_of_mapscr;
+void zmap::CapCommandHistory()
+{
+    int size;
+    do
+    {
+        size = 0;
+        for (auto command : undo_stack)
+        {
+            size += command->size();
+        }
+        if (size > max_command_size) undo_stack.pop_front();
+    } while (size > max_command_size);
+}
+
+void zmap::DoSetComboCommand(int map, int scr, int pos, int combo, int cset)
+{
+    std::shared_ptr<set_combo_command> command(new set_combo_command);
+    command->map = map;
+    command->scr = scr;
+    command->pos = pos;
+    command->combo = combo;
+    command->cset = cset;
+    command->prev_combo = Map.AbsoluteScr(map, scr)->data[pos];
+    command->prev_cset = Map.AbsoluteScr(map, scr)->cset[pos];
+    if ((command->combo != -1 && command->prev_combo == command->combo) && command->cset == command->prev_cset)
+    {
+        // nothing to do...
+        return;
+    }
+
+    ExecuteCommand(command);
+}
+
+void zmap::DoSetFlagCommand(int map, int scr, int pos, int flag)
+{
+    std::shared_ptr<set_flag_command> command(new set_flag_command);
+    command->map = map;
+    command->scr = scr;
+    command->pos = pos;
+    command->flag = flag;
+    command->prev_flag = Map.AbsoluteScr(map, scr)->sflag[pos];
+    if (command->flag == command->prev_flag)
+    {
+        // nothing to do...
+        return;
+    }
+
+    ExecuteCommand(command);
+}
+
+void zmap::DoSetDoorCommand(int side, int door)
+{
+    std::shared_ptr<set_door_command> command(new set_door_command);
+    command->map = currmap;
+    command->scr = currscr;
+    command->side = side;
+    command->door = door;
+    command->prev_door = Map.CurrScr()->door[side];
+    if (command->door == command->prev_door)
+    {
+        // nothing to do...
+        return;
+    }
+
+    ExecuteCommand(command);
+}
+
+void zmap::DoPasteScreenCommand(PasteCommandType type, int data)
+{
+    std::shared_ptr<paste_screen_command> command(new paste_screen_command);
+    command->type = type;
+    command->map = currmap;
+    command->scr = currscr;
+    command->data = data;
+    command->screen = std::shared_ptr<mapscr>(new mapscr(copymapscr));
+
+    if (type == PasteCommandType::ScreenPartialToEveryScreen || type == PasteCommandType::ScreenAllToEveryScreen)
+    {
+        for (int i=0; i < 128; i++)
+        {
+            command->prev_screens.push_back(std::shared_ptr<mapscr>(new mapscr(screens[i])));
+        }
+    }
+    else
+    {
+        command->prev_screens.push_back(std::shared_ptr<mapscr>(new mapscr(screens[currscr])));
+    }
+
+    ExecuteCommand(command);
+}
+
+void zmap::DoClearScreenCommand()
+{
+    if (!(Map.CurrScr()->valid&mVALID))
+    {
+        // nothing to do...
+        return;
+    }
+
+    std::shared_ptr<set_screen_command> command(new set_screen_command);
+    command->map = currmap;
+    command->scr = currscr;
+    command->prev_screen = std::shared_ptr<mapscr>(new mapscr(screens[currscr]));
+    command->screen = std::shared_ptr<mapscr>(nullptr);
+
+    ExecuteCommand(command);
+}
+
+void zmap::DoTemplateCommand(int floorcombo, int floorcset, int scr)
+{
+    std::shared_ptr<set_screen_command> command(new set_screen_command);
+    command->map = currmap;
+    command->scr = currscr;
+    command->prev_screen = std::shared_ptr<mapscr>(new mapscr(*Map.CurrScr()));
+    Template(floorcombo, floorcset, scr);
+    command->screen = std::shared_ptr<mapscr>(new mapscr(*Map.CurrScr()));
+
+    ExecuteCommand(command, true);
 }
 
 void zmap::Copy()
@@ -4367,11 +4683,10 @@ void zmap::CopyFFC(int32_t n)
     }
 }
 
-void zmap::Paste()
+void zmap::Paste(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         int32_t oldcolor=getcolor();
         
         if(!(screens[currscr].valid&mVALID))
@@ -4421,23 +4736,20 @@ void zmap::Paste()
     }
 }
 
-void zmap::PasteUnderCombo()
+void zmap::PasteUnderCombo(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         screens[currscr].undercombo = copymapscr.undercombo;
         screens[currscr].undercset = copymapscr.undercset;
         saved=false;
     }
 }
 
-void zmap::PasteSecretCombos()
+void zmap::PasteSecretCombos(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
-        
         for(int32_t i=0; i<128; i++)
         {
             screens[currscr].secretcombo[i] = copymapscr.secretcombo[i];
@@ -4449,11 +4761,10 @@ void zmap::PasteSecretCombos()
     }
 }
 
-void zmap::PasteFFCombos()
+void zmap::PasteFFCombos(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         screens[currscr].numff = copymapscr.numff;
         
         for(int32_t i=0; i<32; i++)
@@ -4486,12 +4797,11 @@ void zmap::PasteFFCombos()
     }
 }
 
-void zmap::PasteOneFFC(int32_t i) //i - destination ffc slot
+void zmap::PasteOneFFC(const mapscr& copymapscr, int32_t i) //i - destination ffc slot
 {
     if(copyffc < 0)  // Sanity check
         return;
-        
-    Ugo();
+
     screens[currscr].ffdata[i] = copymapscr.ffdata[copyffc];
     screens[currscr].ffcset[i] = copymapscr.ffcset[copyffc];
     // Don't copy X or Y
@@ -4519,11 +4829,10 @@ void zmap::PasteOneFFC(int32_t i) //i - destination ffc slot
     saved=false;
 }
 
-void zmap::PasteWarps()
+void zmap::PasteWarps(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         screens[currscr].sidewarpindex = copymapscr.sidewarpindex;
         
         for(int32_t i=0; i<4; i++)
@@ -4544,11 +4853,10 @@ void zmap::PasteWarps()
     }
 }
 
-void zmap::PasteScreenData()
+void zmap::PasteScreenData(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         screens[currscr].csensitive = copymapscr.csensitive;
         screens[currscr].oceansfx = copymapscr.oceansfx;
         screens[currscr].bosssfx = copymapscr.bosssfx;
@@ -4588,11 +4896,10 @@ void zmap::PasteScreenData()
     }
 }
 
-void zmap::PasteWarpLocations()
+void zmap::PasteWarpLocations(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         screens[currscr].warpreturnc = copymapscr.warpreturnc;
         screens[currscr].warparrivalx = copymapscr.warparrivalx;
         screens[currscr].warparrivaly = copymapscr.warparrivaly;
@@ -4607,12 +4914,10 @@ void zmap::PasteWarpLocations()
     }
 }
 
-void zmap::PasteDoors()
+void zmap::PasteDoors(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
-        
         for(int32_t i=0; i<4; i++)
             screens[currscr].door[i] = copymapscr.door[i];
             
@@ -4621,12 +4926,10 @@ void zmap::PasteDoors()
     }
 }
 
-void zmap::PasteLayers()
+void zmap::PasteLayers(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
-        
         for(int32_t i=0; i<6; i++)
         {
             screens[currscr].layermap[i] = copymapscr.layermap[i];
@@ -4638,33 +4941,30 @@ void zmap::PasteLayers()
     }
 }
 
-void zmap::PasteRoom()
+void zmap::PasteRoom(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         screens[currscr].room = copymapscr.room;
         screens[currscr].catchall = copymapscr.catchall;
         saved=false;
     }
 }
 
-void zmap::PasteGuy()
+void zmap::PasteGuy(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         screens[currscr].guy = copymapscr.guy;
         screens[currscr].str = copymapscr.str;
         saved=false;
     }
 }
 
-void zmap::PastePalette()
+void zmap::PastePalette(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         int32_t oldcolor=getcolor();
         screens[currscr].color = copymapscr.color;
         int32_t newcolor=getcolor();
@@ -4684,11 +4984,10 @@ void zmap::PastePalette()
     }
 }
 
-void zmap::PasteAll()
+void zmap::PasteAll(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         int32_t oldcolor=getcolor();
         copy_mapscr(&screens[currscr], &copymapscr);
         //screens[currscr]=copymapscr;
@@ -4710,11 +5009,10 @@ void zmap::PasteAll()
 }
 
 
-void zmap::PasteToAll()
+void zmap::PasteToAll(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         int32_t oldcolor=getcolor();
         
         for(int32_t x=0; x<128; x++)
@@ -4755,11 +5053,10 @@ void zmap::PasteToAll()
     }
 }
 
-void zmap::PasteAllToAll()
+void zmap::PasteAllToAll(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         int32_t oldcolor=getcolor();
         
         for(int32_t x=0; x<128; x++)
@@ -4785,7 +5082,7 @@ void zmap::PasteAllToAll()
     }
 }
 
-void zmap::PasteEnemies()
+void zmap::PasteEnemies(const mapscr& copymapscr)
 {
     if(can_paste)
     {
@@ -4797,16 +5094,6 @@ void zmap::PasteEnemies()
 void zmap::setCopyFFC(int32_t n)
 {
 	copyffc = n;
-}
-
-void zmap::setCanUndo(bool _set)
-{
-    can_paste=can_paste_map=_set;
-}
-
-void zmap::setCanPaste(bool _set)
-{
-    can_undo=can_undo_map=_set;
 }
 
 void zmap::update_combo_cycling()
@@ -6618,6 +6905,8 @@ int32_t load_quest(const char *filename, bool compressed, bool encrypted)
 			set_window_title(buf);
 		}
 	}
+
+    Map.ClearCommandHistory();
 	
 	return ret;
 }

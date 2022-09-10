@@ -1098,6 +1098,7 @@ static MENU paste_item_menu[] =
 static MENU edit_menu[] =
 {
     { (char *)"&Undo\tU",                   onUndo,                    NULL,                     0,            NULL   },
+    { (char *)"&Redo\tY",                   onRedo,                    NULL,                     0,            NULL   },
     { (char *)"&Copy\tC",                   onCopy,                    NULL,                     0,            NULL   },
     { (char *)"&Paste\tV",                  onPaste,                   NULL,                     0,            NULL   },
     { (char *)"Paste A&ll",                 onPasteAll,                NULL,                     0,            NULL   },
@@ -1719,13 +1720,17 @@ void onSKey()
 
 static DIALOG dialogs[] =
 {
-    // still unused:  jm
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)  (d1)         (d2)     (dp) */
     // { d_nbmenu_proc,     0,    0,    0,    13,    0,    0,    0,       D_USER,  0,             0, ((is_large) ? (void *) the_menu_large : (void *) the_menu), NULL, NULL },
     { d_nbmenu_proc,     0,    0,    0,    13,    0,    0,    0,       D_USER,  0,             0, (void *) the_menu, NULL, NULL },
     
     { d_dummy_proc,   0,    0,    0,    0,    0,    0,    0,     0,       0,              0, (void *) onIncreaseCSet, NULL, NULL },
     { d_dummy_proc,   0,    0,    0,    0,    0,    0,    0,     0,       0,              0, (void *) onDecreaseCSet, NULL, NULL },
+
+    { d_keyboard_proc_m, 0,    0,    0,    0,    0,    0,    0,       0, KEY_Z, KB_COMMAND_FLAG|KB_SHIFT_FLAG, (void *) onRedo, NULL, NULL },
+    { d_keyboard_proc_m, 0,    0,    0,    0,    0,    0,    0,       0, KEY_Z, KB_COMMAND_FLAG,               (void *) onUndo, NULL, NULL },
+    { d_keyboard_proc_m, 0,    0,    0,    0,    0,    0,    0,       0, KEY_Y, KB_COMMAND_FLAG,               (void *) onRedo, NULL, NULL },
+
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '*',     0,       0,              0, (void *) onIncreaseFlag, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_CLOSEBRACE, 0, (void *) onIncreaseFlag, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '/',     0,       0,              0, (void *) onDecreaseFlag, NULL, NULL },
@@ -3249,7 +3254,14 @@ int32_t onReTemplate()
 
 int32_t onUndo()
 {
-    Map.Uhuilai();
+    Map.UndoCommand();
+    refresh(rALL);
+    return D_O_K;
+}
+
+int32_t onRedo()
+{
+    Map.RedoCommand();
     refresh(rALL);
     return D_O_K;
 }
@@ -3297,16 +3309,14 @@ int32_t onPaste()
 		return onPasteToAll();
 	else
 	{
-		Map.Paste();
-		refresh(rALL);
+		Map.DoPasteScreenCommand(PasteCommandType::ScreenPartial);
 	}
 	return D_O_K;
 }
 
 int32_t onPasteAll()
 {
-	Map.PasteAll();
-	refresh(rALL);
+	Map.DoPasteScreenCommand(PasteCommandType::ScreenAll);
 	return D_O_K;
 }
 
@@ -3314,8 +3324,7 @@ int32_t onPasteToAll()
 {
 	if(confirmBox("You are about to paste to all screens on the current map."))
 	{
-		Map.PasteToAll();
-		refresh(rALL);
+		Map.DoPasteScreenCommand(PasteCommandType::ScreenPartialToEveryScreen);
 	}
 	return D_O_K;
 }
@@ -3324,93 +3333,80 @@ int32_t onPasteAllToAll()
 {
 	if(confirmBox("You are about to paste to all screens on the current map."))
 	{
-		Map.PasteAllToAll();
-		refresh(rALL);
+		Map.DoPasteScreenCommand(PasteCommandType::ScreenAllToEveryScreen);
 	}
 	return D_O_K;
 }
 
 int32_t onPasteUnderCombo()
 {
-    Map.PasteUnderCombo();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenUnderCombo);
     return D_O_K;
 }
 
 int32_t onPasteSecretCombos()
 {
-    Map.PasteSecretCombos();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenSecretCombos);
     return D_O_K;
 }
 
 int32_t onPasteFFCombos()
 {
-    Map.PasteFFCombos();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenFFCombos);
     return D_O_K;
 }
 
 int32_t onPasteWarps()
 {
-    Map.PasteWarps();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenWarps);
     return D_O_K;
 }
 
 int32_t onPasteScreenData()
 {
-    Map.PasteScreenData();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenData);
     return D_O_K;
 }
 
 int32_t onPasteWarpLocations()
 {
-    Map.PasteWarpLocations();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenWarpLocations);
     return D_O_K;
 }
 
 int32_t onPasteDoors()
 {
-    Map.PasteDoors();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenDoors);
     return D_O_K;
 }
 
 int32_t onPasteLayers()
 {
-    Map.PasteLayers();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenLayers);
     return D_O_K;
 }
 
 int32_t onPastePalette()
 {
-    Map.PastePalette();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenPalette);
     return D_O_K;
 }
 
 int32_t onPasteRoom()
 {
-    Map.PasteRoom();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenRoom);
     return D_O_K;
 }
 
 int32_t onPasteGuy()
 {
-    Map.PasteGuy();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenGuy);
     return D_O_K;
 }
 
 int32_t onPasteEnemies()
 {
-    Map.PasteEnemies();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenEnemies);
     return D_O_K;
 }
 
@@ -3422,16 +3418,13 @@ int32_t onDelete()
     {
         if(jwin_alert("Confirm Delete","Delete this screen?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
         {
-            Map.Ugo();
-            Map.clearscr(Map.getCurrScr());
-            refresh(rALL);
+            Map.DoClearScreenCommand();
         }
     }
     
     memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
     saved=false;
     return D_O_K;
-    
 }
 
 int32_t onDeleteMap()
@@ -7654,7 +7647,6 @@ byte relational_source_grid[256]=
 
 void draw(bool justcset)
 {
-    Map.Ugo();
     saved=false;
     int32_t drawmap, drawscr;
     
@@ -7682,7 +7674,8 @@ void draw(bool justcset)
     }
     
     refresh(rMAP+rSCRMAP);
-    
+
+    Map.StartListCommand();
     while(gui_mouse_b())
     {
         int32_t x=gui_mouse_x();
@@ -7707,18 +7700,13 @@ void draw(bool justcset)
                 
                 if(!combo_cols)
                 {
+                    bool change_combo = !(key[KEY_LSHIFT]||key[KEY_RSHIFT]) && !justcset;
                     for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
                     {
                         for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
                         {
                             int32_t c=cstart+(cy*16)+cx;
-                            
-                            if(!(key[KEY_LSHIFT]||key[KEY_RSHIFT]))
-                            {
-                                if(!justcset) Map.AbsoluteScr(drawmap, drawscr)->data[c]=cc+cx;
-                            }
-                            
-                            Map.AbsoluteScr(drawmap, drawscr)->cset[c]=CSet;
+                            Map.DoSetComboCommand(drawmap, drawscr, c, change_combo ? -1 : (cc + cx), CSet);
                         }
                         
                         cc+=20;
@@ -7739,10 +7727,7 @@ void draw(bool justcset)
                             if(cc>=0&&cc<256)
                             {
                                 cc+=(p*256);
-                                
-                                if(!justcset) Map.AbsoluteScr(drawmap, drawscr)->data[c]=cc;
-                                
-                                Map.AbsoluteScr(drawmap, drawscr)->cset[c]=CSet;
+                                Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : cc, CSet);
                             }
                         }
                     }
@@ -7762,8 +7747,7 @@ void draw(bool justcset)
                 if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
                 {
                     relational_tile_grid[(cy+rtgyo)][cx+rtgxo]=1;
-                    Map.AbsoluteScr(drawmap, drawscr)->data[cstart]=Combo+47;
-                    Map.AbsoluteScr(drawmap, drawscr)->cset[cstart]=CSet;
+                    Map.DoSetComboCommand(drawmap, drawscr, cstart, Combo+47, CSet);
                 }
                 else
                 {
@@ -7800,8 +7784,7 @@ void draw(bool justcset)
                            
                         if(relational_tile_grid[((c2>>4)+rtgyo)][(c2&15)+rtgxo]==0)
                         {
-                            Map.AbsoluteScr(drawmap, drawscr)->data[c2]=Combo+relational_source_grid[c3];
-                            Map.AbsoluteScr(drawmap, drawscr)->cset[c2]=CSet;
+                            Map.DoSetComboCommand(drawmap, drawscr, c2, Combo+relational_source_grid[c3], CSet);
                         }
                     }
                 }
@@ -7844,8 +7827,7 @@ void draw(bool justcset)
                         }
                     }
                     
-                    Map.AbsoluteScr(drawmap, drawscr)->data[cstart]=Combo;
-                    Map.AbsoluteScr(drawmap, drawscr)->cset[cstart]=CSet;
+                    Map.DoSetComboCommand(drawmap, drawscr, cstart, Combo, CSet);
                 }
                 else
                 {
@@ -7876,8 +7858,7 @@ void draw(bool justcset)
                         }
                     }
                     
-                    Map.AbsoluteScr(drawmap, drawscr)->data[cstart]=Combo+48+47;
-                    Map.AbsoluteScr(drawmap, drawscr)->cset[cstart]=CSet;
+                    Map.DoSetComboCommand(drawmap, drawscr, cstart, Combo+48+47, CSet);
                 }
                 
                 for(int32_t y2=0; y2<11; ++y2)
@@ -7897,8 +7878,7 @@ void draw(bool justcset)
                            
                         if(relational_tile_grid[(y2+rtgyo)][x2+rtgxo]<2)
                         {
-                            Map.AbsoluteScr(drawmap, drawscr)->data[c2]=Combo+relational_source_grid[c3]+(48*c4);
-                            Map.AbsoluteScr(drawmap, drawscr)->cset[c2]=CSet;
+                            Map.DoSetComboCommand(drawmap, drawscr, c2, Combo+relational_source_grid[c3]+(48*c4), CSet);
                         }
                     }
                 }
@@ -7944,8 +7924,7 @@ void draw(bool justcset)
                                 
                                 if(combo->combos[p])
                                 {
-                                    Map.AbsoluteScr(drawmap, drawscr)->data[c]=combo->combos[p];
-                                    Map.AbsoluteScr(drawmap, drawscr)->cset[c]=wrap(combo->csets[p]+alias_cset_mod, 0, 11);
+                                    Map.DoSetComboCommand(drawmap, drawscr, c, combo->combos[p], wrap(combo->csets[p]+alias_cset_mod, 0, 11));
                                 }
                             }
                         }
@@ -8015,8 +7994,7 @@ void draw(bool justcset)
                                             
                                             if((combo->combos[p])&&(amap>=0))
                                             {
-                                                Map.AbsoluteScr(amap, ascr)->data[c]=combo->combos[p];
-                                                Map.AbsoluteScr(amap, ascr)->cset[c]=wrap(combo->csets[p]+alias_cset_mod, 0, 11);
+                                                Map.DoSetComboCommand(amap, ascr, c, combo->combos[p], wrap(combo->csets[p]+alias_cset_mod, 0, 11));
                                             }
                                         }
                                     }
@@ -8033,6 +8011,8 @@ void draw(bool justcset)
         do_animations();
         refresh(rALL);
     }
+
+    Map.FinishListCommand();
 }
 
 
@@ -8041,7 +8021,6 @@ void draw(bool justcset)
 void replace(int32_t c)
 {
     saved=false;
-    Map.Ugo();
     int32_t drawmap, drawscr;
     
     if(CurrentLayer==0)
@@ -8063,13 +8042,14 @@ void replace(int32_t c)
     int32_t targetcombo = Map.AbsoluteScr(drawmap, drawscr)->data[c];
     int32_t targetcset  = Map.AbsoluteScr(drawmap, drawscr)->cset[c];
     
+    Map.StartListCommand();
     if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
     {
         for(int32_t i=0; i<176; i++)
         {
             if((Map.AbsoluteScr(drawmap, drawscr)->cset[i])==targetcset)
             {
-                Map.AbsoluteScr(drawmap, drawscr)->cset[i]=CSet;
+                Map.DoSetComboCommand(drawmap, drawscr, i, -1, CSet);
             }
         }
     }
@@ -8080,11 +8060,11 @@ void replace(int32_t c)
             if(((Map.AbsoluteScr(drawmap, drawscr)->data[i])==targetcombo) &&
                     ((Map.AbsoluteScr(drawmap, drawscr)->cset[i])==targetcset))
             {
-                Map.AbsoluteScr(drawmap, drawscr)->data[i]=Combo;
-                Map.AbsoluteScr(drawmap, drawscr)->cset[i]=CSet;
+                Map.DoSetComboCommand(drawmap, drawscr, i, Combo, CSet);
             }
         }
     }
+    Map.FinishListCommand();
     
     refresh(rMAP);
 }
@@ -8092,7 +8072,6 @@ void replace(int32_t c)
 void draw_block(int32_t start,int32_t w,int32_t h)
 {
     saved=false;
-    Map.Ugo();
     int32_t drawmap, drawscr;
     
     if(CurrentLayer==0)
@@ -8118,18 +8097,18 @@ void draw_block(int32_t start,int32_t w,int32_t h)
         Map.setcolor(Color);
     }
     
+    Map.StartListCommand();
     for(int32_t y=0; y<h && (y<<4)+start < 176; y++)
         for(int32_t x=0; x<w && (start&15)+x < 16; x++)
         {
-            Map.AbsoluteScr(drawmap, drawscr)->data[start+(y<<4)+x]=Combo+(y*4)+x;
-            Map.AbsoluteScr(drawmap, drawscr)->cset[start+(y<<4)+x]=CSet;
-            
+            Map.DoSetComboCommand(drawmap, drawscr, start+(y<<4)+x, Combo+(y*4)+x, CSet);
         }
-        
+    
+    Map.FinishListCommand();
     refresh(rMAP+rSCRMAP);
 }
 
-void fill(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset)
+static void fill(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset)
 {
     if(!only_cset)
     {
@@ -8139,13 +8118,8 @@ void fill(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, 
     
     if((fillscr->cset[((sy<<4)+sx)])!=targetcset)
         return;
-        
-    if(!only_cset)
-    {
-        fillscr->data[((sy<<4)+sx)]=Combo;
-    }
     
-    fillscr->cset[((sy<<4)+sx)]=CSet;
+    Map.DoSetComboCommand(Map.getCurrMap(), Map.getCurrScr(), (sy<<4)+sx, only_cset ? -1 : Combo, CSet);
     
     if((sy>0) && (dir!=down))                                 // && ((Map.CurrScr()->data[(((sy-1)<<4)+sx)]&0x7FF)==target))
         fill(fillscr, targetcombo, targetcset, sx, sy-1, up, diagonal, only_cset);
@@ -8176,12 +8150,12 @@ void fill(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, 
     
 }
 
-void fill_flag(mapscr* fillscr, int32_t targetflag, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal)
+static void fill_flag(mapscr* fillscr, int32_t targetflag, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal)
 {
 	if((fillscr->sflag[((sy<<4)+sx)])!=targetflag)
 		return;
 	
-	fillscr->sflag[((sy<<4)+sx)]=Flag;
+    Map.DoSetFlagCommand(Map.getCurrMap(), Map.getCurrScr(), (sy<<4)+sx, Flag);
 	
 	if((sy>0) && (dir!=down))
 		fill_flag(fillscr, targetflag, sx, sy-1, up, diagonal);
@@ -8212,8 +8186,7 @@ void fill_flag(mapscr* fillscr, int32_t targetflag, int32_t sx, int32_t sy, int3
 	
 }
 
-
-void fill2(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset)
+static void fill2(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset)
 {
     if(!only_cset)
     {
@@ -8223,13 +8196,8 @@ void fill2(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx,
     
     if((fillscr->cset[((sy<<4)+sx)])==targetcset)
         return;
-        
-    if(!only_cset)
-    {
-        fillscr->data[((sy<<4)+sx)]=Combo;
-    }
     
-    fillscr->cset[((sy<<4)+sx)]=CSet;
+    Map.DoSetComboCommand(Map.getCurrMap(), Map.getCurrScr(), (sy<<4)+sx, only_cset ? -1 : Combo, CSet);
     
     if((sy>0) && (dir!=down))                                 // && ((Map.CurrScr()->data[(((sy-1)<<4)+sx)]&0x7FF)!=target))
         fill2(fillscr, targetcombo, targetcset, sx, sy-1, up, diagonal, only_cset);
@@ -8785,7 +8753,6 @@ int32_t set_fill2_8();
 
 void flood()
 {
-    // int32_t start=0, w=0, h=0;
     int32_t drawmap, drawscr;
     
     if(CurrentLayer==0)
@@ -8805,7 +8772,6 @@ void flood()
     }
     
     saved=false;
-    Map.Ugo();
     
     if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
     {
@@ -8814,27 +8780,19 @@ void flood()
         Map.setcolor(Color);
     }
     
-    /* for(int32_t y=0; y<h && (y<<4)+start < 176; y++)
-      for(int32_t x=0; x<w && (start&15)+x < 16; x++)
-      */
-    if(!(key[KEY_LSHIFT]||key[KEY_RSHIFT]))
-    {
-        for(int32_t i=0; i<176; i++)
-        {
-            Map.AbsoluteScr(drawmap, drawscr)->data[i]=Combo;
-        }
-    }
-    
+    bool include_combos = !(key[KEY_LSHIFT]||key[KEY_RSHIFT]);
+    Map.StartListCommand();
+
     for(int32_t i=0; i<176; i++)
     {
-        Map.AbsoluteScr(drawmap, drawscr)->cset[i]=CSet;
+        Map.DoSetComboCommand(drawmap, drawscr, i, include_combos ? Combo : -1, CSet);
     }
     
+    Map.FinishListCommand();
     refresh(rMAP+rSCRMAP);
 }
 void flood_flag()
 {
-    // int32_t start=0, w=0, h=0;
     int32_t drawmap, drawscr;
     
     if(CurrentLayer==0)
@@ -8854,7 +8812,6 @@ void flood_flag()
     }
     
     saved=false;
-    Map.Ugo();
     
     if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
     {
@@ -8863,10 +8820,12 @@ void flood_flag()
         Map.setcolor(Color);
     }
     
+    Map.StartListCommand();
     for(int32_t i=0; i<176; i++)
     {
-        Map.AbsoluteScr(drawmap, drawscr)->sflag[i]=Flag;
+        Map.DoSetFlagCommand(drawmap, drawscr, i, Flag);
     }
+    Map.FinishListCommand();
     
     refresh(rMAP+rSCRMAP);
 }
@@ -8901,7 +8860,6 @@ void fill_4()
              !(key[KEY_LSHIFT]||key[KEY_RSHIFT])))
     {
         saved=false;
-        Map.Ugo();
         
         if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
         {
@@ -8910,9 +8868,11 @@ void fill_4()
             Map.setcolor(Color);
         }
         
+        Map.StartListCommand();
         fill(Map.AbsoluteScr(drawmap, drawscr),
              (Map.AbsoluteScr(drawmap, drawscr)->data[(by<<4)+bx]),
              (Map.AbsoluteScr(drawmap, drawscr)->cset[(by<<4)+bx]), bx, by, 255, 0, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
+        Map.FinishListCommand();
         refresh(rMAP+rSCRMAP);
     }
 }
@@ -8944,7 +8904,6 @@ void fill_4_flag()
     if(Map.AbsoluteScr(drawmap,drawscr)->sflag[(by<<4)+bx] != Flag)
     {
         saved=false;
-        Map.Ugo();
         
         if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
         {
@@ -8953,9 +8912,11 @@ void fill_4_flag()
             Map.setcolor(Color);
         }
         
+        Map.StartListCommand();
 		fill_flag(Map.AbsoluteScr(drawmap, drawscr),
              (Map.AbsoluteScr(drawmap, drawscr)->sflag[(by<<4)+bx]),
              bx, by, 255, 0);
+        Map.FinishListCommand();
         refresh(rMAP+rSCRMAP);
     }
 }
@@ -8989,7 +8950,6 @@ void fill_8()
              !(key[KEY_LSHIFT]||key[KEY_RSHIFT])))
     {
         saved=false;
-        Map.Ugo();
         
         if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
         {
@@ -8998,9 +8958,11 @@ void fill_8()
             Map.setcolor(Color);
         }
         
+        Map.StartListCommand();
         fill(Map.AbsoluteScr(drawmap, drawscr),
              (Map.AbsoluteScr(drawmap, drawscr)->data[(by<<4)+bx]),
              (Map.AbsoluteScr(drawmap, drawscr)->cset[(by<<4)+bx]), bx, by, 255, 1, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
+        Map.FinishListCommand();
         refresh(rMAP+rSCRMAP);
     }
 }
@@ -9032,7 +8994,6 @@ void fill_8_flag()
     if(Map.AbsoluteScr(drawmap,drawscr)->sflag[(by<<4)+bx]!=Flag)
     {
         saved=false;
-        Map.Ugo();
         
         if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
         {
@@ -9041,9 +9002,11 @@ void fill_8_flag()
             Map.setcolor(Color);
         }
         
+        Map.StartListCommand();
         fill_flag(Map.AbsoluteScr(drawmap, drawscr),
              (Map.AbsoluteScr(drawmap, drawscr)->sflag[(by<<4)+bx]),
              bx, by, 255, 1);
+        Map.FinishListCommand();
         refresh(rMAP+rSCRMAP);
     }
 }
@@ -9075,7 +9038,6 @@ void fill2_4()
     int32_t bx= (x>>4)/(mapscreensize);
     
     saved=false;
-    Map.Ugo();
     
     if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
     {
@@ -9084,7 +9046,9 @@ void fill2_4()
         Map.setcolor(Color);
     }
     
+    Map.StartListCommand();
     fill2(Map.AbsoluteScr(drawmap, drawscr), Combo, CSet, bx, by, 255, 0, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
+    Map.FinishListCommand();
     refresh(rMAP+rSCRMAP);
 }
 
@@ -9114,7 +9078,6 @@ void fill2_8()
     int32_t bx= (x>>4)/(mapscreensize);
     
     saved=false;
-    Map.Ugo();
     
     if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
     {
@@ -9123,7 +9086,9 @@ void fill2_8()
         Map.setcolor(Color);
     }
     
+    Map.StartListCommand();
     fill2(Map.AbsoluteScr(drawmap, drawscr), Combo, CSet, bx, by, 255, 1, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
+    Map.FinishListCommand();
     refresh(rMAP+rSCRMAP);
 }
 
@@ -10460,7 +10425,7 @@ void domouse()
 							{
 								if(jwin_alert("Confirm Paste","Really replace the FFC with","the data of the copied FFC?",NULL,"&Yes","&No",'y','n',lfont)==1)
 								{
-									Map.PasteOneFFC(i);
+                                    Map.DoPasteScreenCommand(PasteCommandType::ScreenOneFFC, i);
 									saved=false;
 								}
 							}
@@ -10680,7 +10645,7 @@ void domouse()
 					{
 						Map.CurrScr()->ffx[earliestfreeffc] = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
 						Map.CurrScr()->ffy[earliestfreeffc] = (((y-startyint)&(~0x000F))/mapscreensize)*10000;
-						Map.PasteOneFFC(earliestfreeffc);
+                        Map.DoPasteScreenCommand(PasteCommandType::ScreenOneFFC, earliestfreeffc);
 					}
 					break;
 					
@@ -11111,8 +11076,6 @@ int32_t onCSetFix()
         
     if(zc_popup_dialog(csetfix_dlg,-1)==6)
     {
-        Map.Ugo();
-        
         if(csetfix_dlg[2].flags&D_SELECTED)
         {
             s=0;
@@ -11157,13 +11120,15 @@ int32_t onCSetFix()
               */
         }
         
+        Map.StartListCommand();
         for(int32_t y=s; y<y2; y++)
         {
             for(int32_t x=s; x<x2; x++)
             {
-                Map.CurrScr()->cset[(y<<4)+x] = CSet;
+                Map.DoSetComboCommand(Map.getCurrMap(), Map.getCurrScr(), (y<<4)+x, -1, CSet);
             }
         }
+        Map.FinishListCommand();
         
         refresh(rMAP);
         saved = false;
@@ -11341,8 +11306,7 @@ int32_t onTemplate()
     if(zc_popup_dialog(template_dlg,-1)==5)
     {
         saved=false;
-        Map.Ugo();
-        Map.Template((template_dlg[3].flags==D_SELECTED) ? template_dlg[2].d1 : -1, template_dlg[2].fg);
+        Map.DoTemplateCommand((template_dlg[3].flags==D_SELECTED) ? template_dlg[2].d1 : -1, template_dlg[2].fg, Map.getCurrScr());
         refresh(rMAP+rSCRMAP);
     }
     
@@ -21401,7 +21365,7 @@ int32_t onEnemies()
 		
 		case 3:
 			saved=false;
-			Map.PasteEnemies();
+            Map.DoPasteScreenCommand(PasteCommandType::ScreenEnemies);
 			break;
 			
 		case 5:
@@ -29378,8 +29342,6 @@ int32_t onLayers()
                 }
             }
         }
-        
-        Map.Ugo();
     }
     
     // Check that the working layer wasn't just disabled
@@ -31689,11 +31651,13 @@ int32_t main(int32_t argc,char **argv)
 		
 		edit_menu[0].flags =
 			commands[cmdUndo].flags = Map.CanUndo() ? 0 : D_DISABLED;
+        edit_menu[1].flags =
+			commands[cmdRedo].flags = Map.CanRedo() ? 0 : D_DISABLED;
 			
-		edit_menu[2].flags =
-		    edit_menu[3].flags =
-			edit_menu[4].flags =
-			    edit_menu[5].flags =
+		edit_menu[3].flags =
+		    edit_menu[4].flags =
+			edit_menu[5].flags =
+			    edit_menu[6].flags =
 				paste_menu[0].flags =
 				    paste_menu[1].flags =
 					paste_item_menu[0].flags =
@@ -31723,8 +31687,8 @@ int32_t main(int32_t argc,char **argv)
 																	    commands[cmdPasteDoors].flags =
 																		commands[cmdPasteLayers].flags = Map.CanPaste() ? 0 : D_DISABLED;
                                                                                 																																		
-		edit_menu[1].flags =
-			edit_menu[6].flags =
+		edit_menu[2].flags =
+			edit_menu[7].flags =
 				commands[cmdCopy].flags =
 					commands[cmdDelete].flags = (Map.CurrScr()->valid&mVALID) ? 0 : D_DISABLED;
 					
@@ -33015,7 +32979,8 @@ command_pair commands[cmdMAX]=
     { "Bottle Shop Types",                  0, (intF) onBottleShopTypes },
     { "Water Solidity Fix",                 0, (intF) onWaterSolidity },
     { "Effect Square Fix",                  0, (intF) onEffectFix },
-    { "Test Quest",                         0, (intF) onTestQst }
+    { "Test Quest",                         0, (intF) onTestQst },
+    { "Redo",                               0, (intF) onRedo }
 };
 
 /********************************/
