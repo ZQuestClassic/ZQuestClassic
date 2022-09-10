@@ -9507,216 +9507,250 @@ int32_t writecombos(PACKFILE *f, word version, word build, word start_combo, wor
         
         for(int32_t i=start_combo; i<start_combo+combos_used; i++)
         {
-            if(!p_iputl(combobuf[i].tile,f))
-            {
-                new_return(6);
-            }
-            
-            if(!p_putc(combobuf[i].flip,f))
-            {
-                new_return(7);
-            }
-            
-            if(!p_putc(combobuf[i].walk,f))
-            {
-                new_return(8);
-            }
-            
-            if(!p_putc(combobuf[i].type,f))
-            {
-                new_return(9);
-            }
-            
-            if(!p_putc(combobuf[i].csets,f))
-            {
-                new_return(10);
-            }
-            
-            if(!p_putc(combobuf[i].frames,f))
-            {
-                new_return(11);
-            }
-            
-            if(!p_putc(combobuf[i].speed,f))
-            {
-                new_return(12);
-            }
-            
-            if(!p_iputw(combobuf[i].nextcombo,f))
-            {
-                new_return(13);
-            }
-            
-            if(!p_putc(combobuf[i].nextcset,f))
-            {
-                new_return(14);
-            }
-            
-            if(!p_putc(combobuf[i].flag,f))
-            {
-                new_return(15);
-            }
-            
-            if(!p_putc(combobuf[i].skipanim,f))
-            {
-                new_return(16);
-            }
-            
-            if(!p_iputw(combobuf[i].nexttimer,f))
-            {
-                new_return(17);
-            }
-            
-            if(!p_putc(combobuf[i].skipanimy,f))
-            {
-                new_return(18);
-            }
-            
-            if(!p_putc(combobuf[i].animflags,f))
-            {
-                new_return(19);
-            }
+			newcombo const& tmp_cmb = combobuf[i];
+			//Check what needs writing
+			byte combo_has_flags = 0;
+			for(auto q = 0; q < 8; ++q)
+			{
+				if(tmp_cmb.attribytes[q] || tmp_cmb.attrishorts[q]
+					|| (q < 4 && tmp_cmb.attributes[q]))
+				{
+					combo_has_flags |= CHAS_ATTRIB;
+					break;
+				}
+			}
+			if(tmp_cmb.triggerflags[0] || tmp_cmb.triggerflags[1]
+				|| tmp_cmb.triggerflags[2] || tmp_cmb.triggerlevel
+				|| tmp_cmb.triggerbtn || tmp_cmb.triggeritem
+				|| tmp_cmb.trigtimer || tmp_cmb.trigsfx
+				|| tmp_cmb.trigchange || tmp_cmb.trigprox
+				|| tmp_cmb.trigctr || tmp_cmb.trigctramnt
+				|| tmp_cmb.triglbeam || tmp_cmb.trigcschange
+				|| tmp_cmb.spawnitem || tmp_cmb.spawnenemy
+				|| tmp_cmb.exstate > -1 || tmp_cmb.spawnip
+				|| tmp_cmb.trigcopycat || tmp_cmb.trigcooldown)
+				combo_has_flags |= CHAS_TRIG;
+			if(tmp_cmb.usrflags || tmp_cmb.genflags)
+				combo_has_flags |= CHAS_FLAG;
+			if(tmp_cmb.frames || tmp_cmb.speed || tmp_cmb.nextcombo
+				|| tmp_cmb.nextcset || tmp_cmb.skipanim || tmp_cmb.skipanimy
+				|| tmp_cmb.animflags)
+				combo_has_flags |= CHAS_ANIM;
+			if(tmp_cmb.script || strlen(tmp_cmb.label)
+				|| tmp_cmb.initd[0] || tmp_cmb.initd[1])
+				combo_has_flags |= CHAS_SCRIPT;
+			if(tmp_cmb.o_tile || tmp_cmb.flip || tmp_cmb.walk != 0xF0
+				|| tmp_cmb.type || tmp_cmb.csets)
+				combo_has_flags |= CHAS_GENERAL;
 			
-			for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+			if(!p_putc(combo_has_flags,f))
 			{
-				if(!p_iputl(combobuf[i].attributes[q],f))
+				new_return(50);
+			}
+			if(!combo_has_flags) continue;
+			//Write the combo
+			if(combo_has_flags&CHAS_GENERAL)
+			{
+				if(!p_iputl(tmp_cmb.o_tile,f))
 				{
-					new_return(20);
+					new_return(6);
+				}
+				
+				if(!p_putc(tmp_cmb.flip,f))
+				{
+					new_return(7);
+				}
+				
+				if(!p_putc(tmp_cmb.walk,f))
+				{
+					new_return(8);
+				}
+				
+				if(!p_putc(tmp_cmb.type,f))
+				{
+					new_return(9);
+				}
+				
+				if(!p_putc(tmp_cmb.flag,f))
+				{
+					new_return(15);
+				}
+				
+				if(!p_putc(tmp_cmb.csets,f))
+				{
+					new_return(10);
 				}
 			}
-			if(!p_iputl(combobuf[i].usrflags,f))
+			if(combo_has_flags&CHAS_SCRIPT)
 			{
-				new_return(21);
-			}	 
-			if(!p_iputw(combobuf[i].genflags,f))
-			{
-				new_return(33);
-			}	 
-			for ( int32_t q = 0; q < 3; q++ ) 
-			{
-				if(!p_iputl(combobuf[i].triggerflags[q],f))
+				for ( int32_t q = 0; q < 11; q++ ) 
 				{
-					new_return(22);
+					if(!p_putc(tmp_cmb.label[q],f))
+					{
+						new_return(24);
+					}
+				}
+				if(!p_iputw(tmp_cmb.script,f))
+				{
+					new_return(26);
+				}
+				for ( int32_t q = 0; q < 2; q++ )
+				{
+					if(!p_iputl(tmp_cmb.initd[q],f))
+					{
+						new_return(27);
+					}
 				}
 			}
-		   
-			if(!p_iputl(combobuf[i].triggerlevel,f))
+			if(combo_has_flags&CHAS_ANIM)
 			{
-				new_return(23);
-			}	
-			if(!p_putc(combobuf[i].triggerbtn,f))
-			{
-				new_return(34);
-			}
-			if(!p_putc(combobuf[i].triggeritem,f))
-			{
-				new_return(35);
-			}
-			if(!p_putc(combobuf[i].trigtimer,f))
-			{
-				new_return(36);
-			}
-			if(!p_putc(combobuf[i].trigsfx,f))
-			{
-				new_return(37);
-			}
-			if(!p_iputl(combobuf[i].trigchange,f))
-			{
-				new_return(38);
-			}
-			if(!p_iputw(combobuf[i].trigprox,f))
-			{
-				new_return(39);
-			}
-			if(!p_putc(combobuf[i].trigctr,f))
-			{
-				new_return(40);
-			}
-			if(!p_iputl(combobuf[i].trigctramnt,f))
-			{
-				new_return(41);
-			}
-			if(!p_putc(combobuf[i].triglbeam,f))
-			{
-				new_return(42);
-			}
-			if(!p_putc(combobuf[i].trigcschange,f))
-			{
-				new_return(43);
-			}
-			if(!p_iputw(combobuf[i].spawnitem,f))
-			{
-				new_return(44);
-			}
-			if(!p_iputw(combobuf[i].spawnenemy,f))
-			{
-				new_return(45);
-			}
-			if(!p_putc(combobuf[i].exstate,f))
-			{
-				new_return(46);
-			}
-			if(!p_iputl(combobuf[i].spawnip,f))
-			{
-				new_return(47);
-			}
-			if(!p_putc(combobuf[i].trigcopycat,f))
-			{
-				new_return(48);
-			}
-			if(!p_putc(combobuf[i].trigcooldown,f))
-			{
-				new_return(49);
-			}
-			for ( int32_t q = 0; q < 11; q++ ) 
-			{
-				if(!p_putc(combobuf[i].label[q],f))
+				if(!p_putc(tmp_cmb.frames,f))
 				{
-					new_return(24);
+					new_return(11);
+				}
+				
+				if(!p_putc(tmp_cmb.speed,f))
+				{
+					new_return(12);
+				}
+				
+				if(!p_iputw(tmp_cmb.nextcombo,f))
+				{
+					new_return(13);
+				}
+				
+				if(!p_putc(tmp_cmb.nextcset,f))
+				{
+					new_return(14);
+				}
+				
+				if(!p_putc(tmp_cmb.skipanim,f))
+				{
+					new_return(16);
+				}
+							
+				if(!p_putc(tmp_cmb.skipanimy,f))
+				{
+					new_return(18);
+				}
+				
+				if(!p_putc(tmp_cmb.animflags,f))
+				{
+					new_return(19);
 				}
 			}
-			for ( int32_t q = 0; q < 4; q++ ) //attribytes were sized 4 in this version, I bumped them up.
+			if(combo_has_flags&CHAS_ATTRIB)
 			{
-				if(!p_putc(combobuf[i].attribytes[q],f))
+				for ( int32_t q = 0; q < 4; q++ )
 				{
-					new_return(25);
+					if(!p_iputl(tmp_cmb.attributes[q],f))
+					{
+						new_return(20);
+					}
+				}
+				for ( int32_t q = 0; q < 8; q++ )
+				{
+					if(!p_putc(tmp_cmb.attribytes[q],f))
+					{
+						new_return(25);
+					}
+				}
+				for ( int32_t q = 0; q < 8; q++ ) //I also added attrishorts -Dimi
+				{
+					if(!p_iputw(tmp_cmb.attrishorts[q],f))
+					{
+						new_return(32);
+					}
 				}
 			}
-			if(!p_iputw(combobuf[i].script,f))
+			if(combo_has_flags&CHAS_FLAG)
 			{
-				new_return(26);
-			}
-			for ( int32_t q = 0; q < 2; q++ )
-			{
-				if(!p_iputl(combobuf[i].initd[q],f))
+				if(!p_iputl(tmp_cmb.usrflags,f))
 				{
-					new_return(27);
+					new_return(21);
+				}	 
+				if(!p_iputw(tmp_cmb.genflags,f))
+				{
+					new_return(33);
 				}
 			}
-			if(!p_iputl(combobuf[i].o_tile,f))
+			if(combo_has_flags&CHAS_TRIG)
 			{
-				new_return(28);
-			}
-			if(!p_putc(combobuf[i].cur_frame,f))
-			{
-				new_return(29);
-			}
-			if(!p_putc(combobuf[i].aclk,f))
-			{
-				new_return(30);
-			}
-			for ( int32_t q = 4; q < 8; q++ ) //I bumped up attribytes -Dimi
-			{
-				if(!p_putc(combobuf[i].attribytes[q],f))
+				for ( int32_t q = 0; q < 3; q++ ) 
 				{
-					new_return(31);
+					if(!p_iputl(tmp_cmb.triggerflags[q],f))
+					{
+						new_return(22);
+					}
 				}
-			}
-			for ( int32_t q = 0; q < 8; q++ ) //I also added attrishorts -Dimi
-			{
-				if(!p_iputw(combobuf[i].attrishorts[q],f))
+			   
+				if(!p_iputl(tmp_cmb.triggerlevel,f))
 				{
-					new_return(32);
+					new_return(23);
+				}	
+				if(!p_putc(tmp_cmb.triggerbtn,f))
+				{
+					new_return(34);
+				}
+				if(!p_putc(tmp_cmb.triggeritem,f))
+				{
+					new_return(35);
+				}
+				if(!p_putc(tmp_cmb.trigtimer,f))
+				{
+					new_return(36);
+				}
+				if(!p_putc(tmp_cmb.trigsfx,f))
+				{
+					new_return(37);
+				}
+				if(!p_iputl(tmp_cmb.trigchange,f))
+				{
+					new_return(38);
+				}
+				if(!p_iputw(tmp_cmb.trigprox,f))
+				{
+					new_return(39);
+				}
+				if(!p_putc(tmp_cmb.trigctr,f))
+				{
+					new_return(40);
+				}
+				if(!p_iputl(tmp_cmb.trigctramnt,f))
+				{
+					new_return(41);
+				}
+				if(!p_putc(tmp_cmb.triglbeam,f))
+				{
+					new_return(42);
+				}
+				if(!p_putc(tmp_cmb.trigcschange,f))
+				{
+					new_return(43);
+				}
+				if(!p_iputw(tmp_cmb.spawnitem,f))
+				{
+					new_return(44);
+				}
+				if(!p_iputw(tmp_cmb.spawnenemy,f))
+				{
+					new_return(45);
+				}
+				if(!p_putc(tmp_cmb.exstate,f))
+				{
+					new_return(46);
+				}
+				if(!p_iputl(tmp_cmb.spawnip,f))
+				{
+					new_return(47);
+				}
+				if(!p_putc(tmp_cmb.trigcopycat,f))
+				{
+					new_return(48);
+				}
+				if(!p_putc(tmp_cmb.trigcooldown,f))
+				{
+					new_return(49);
 				}
 			}
         }

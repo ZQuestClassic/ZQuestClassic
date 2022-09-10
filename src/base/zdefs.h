@@ -253,7 +253,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            15
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          32
+#define V_COMBOS          33
 #define V_CSETS            5 //palette data
 #define V_MAPS            22
 #define V_DMAPS            16
@@ -5425,6 +5425,13 @@ extern void removeFromItemCache(int32_t itemid);
 #define RUNSCRIPT_OK			0
 #define RUNSCRIPT_ERROR			1
 #define RUNSCRIPT_SELFDELETE	2
+
+#define CHAS_ATTRIB   0x01
+#define CHAS_FLAG     0x02
+#define CHAS_TRIG     0x04
+#define CHAS_ANIM     0x08
+#define CHAS_SCRIPT   0x10
+#define CHAS_GENERAL  0x20
 
 #define until(n) while(!(n))
 #define unless(n) if(!(n))
