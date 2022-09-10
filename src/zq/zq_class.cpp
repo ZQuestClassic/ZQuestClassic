@@ -4340,13 +4340,13 @@ void set_flag_command::undo()
 
 void set_door_command::execute()
 {
-    Map.putdoor(scr, side, door);
+    Map.putdoor(view_scr, side, door);
     refresh(rMAP | rNOCURSOR);
 }
 
 void set_door_command::undo()
 {
-    Map.putdoor(scr, side, prev_door);
+    Map.putdoor(view_scr, side, prev_door);
     refresh(rMAP | rNOCURSOR);
 }
 
@@ -4363,7 +4363,7 @@ void paste_screen_command::undo()
         ASSERT(prev_screens.size() == 128);
         for (int i = 0; i < 128; i++)
         {
-            copy_mapscr(Map.AbsoluteScr(map, i), prev_screens[i].get());
+            copy_mapscr(Map.AbsoluteScr(view_map, i), prev_screens[i].get());
             // TODO: why not just this?
             // If this changes, also change the line in PasteAllToAll and PasteAll to use simply copy assignment.
             // *Map.AbsoluteScr(map, i) = *prev_screens[i].get();
@@ -4405,7 +4405,7 @@ void paste_screen_command::perform(mapscr* to)
     }
     else
     {
-        Map.clearscr(scr);
+        Map.clearscr(view_scr);
     }
     refresh(rALL);
 }
@@ -4414,11 +4414,11 @@ void set_screen_command::execute()
 {
     if (screen)
     {
-        copy_mapscr(Map.AbsoluteScr(map, scr), screen.get());
+        copy_mapscr(Map.AbsoluteScr(view_map, view_scr), screen.get());
     }
     else
     {
-        Map.clearscr(scr);
+        Map.clearscr(view_scr);
     }
     refresh(rALL);
 }
@@ -4427,11 +4427,11 @@ void set_screen_command::undo()
 {
     if (prev_screen)
     {
-        copy_mapscr(Map.AbsoluteScr(map, scr), prev_screen.get());
+        copy_mapscr(Map.AbsoluteScr(view_map, view_scr), prev_screen.get());
     }
     else
     {
-        Map.clearscr(scr);
+        Map.clearscr(view_scr);
     }
     refresh(rALL);
 }
@@ -4477,8 +4477,8 @@ void zmap::ExecuteCommand(std::shared_ptr<user_input_command> command, bool skip
         current_list_command->commands.push_back(command);
         if (current_list_command->commands.size() == 1)
         {
-            current_list_command->map = command->map;
-            current_list_command->scr = command->scr;
+            current_list_command->view_map = command->view_map;
+            current_list_command->view_scr = command->view_scr;
         }
     }
     else
@@ -4495,9 +4495,9 @@ void zmap::UndoCommand()
     // If not currently looking at the associated screen, first change the view
     // and wait for the next call to actually undo this command.
     auto command = undo_stack.back();
-    if (command->map != Map.getCurrMap() || command->scr != Map.getCurrScr())
+    if (command->view_map != Map.getCurrMap() || command->view_scr != Map.getCurrScr())
     {
-        setCurrentView(command->map, command->scr);
+        setCurrentView(command->view_map, command->view_scr);
         return;
     }
     
@@ -4513,9 +4513,9 @@ void zmap::RedoCommand()
     // If not currently looking at the associated screen, first change the view
     // and wait for the next call to actually execute this command.
     auto command = redo_stack.top();
-    if (command->map != Map.getCurrMap() || command->scr != Map.getCurrScr())
+    if (command->view_map != Map.getCurrMap() || command->view_scr != Map.getCurrScr())
     {
-        setCurrentView(command->map, command->scr);
+        setCurrentView(command->view_map, command->view_scr);
         return;
     }
 
@@ -4554,6 +4554,8 @@ void zmap::CapCommandHistory()
 void zmap::DoSetComboCommand(int map, int scr, int pos, int combo, int cset)
 {
     std::shared_ptr<set_combo_command> command(new set_combo_command);
+    command->view_map = currmap;
+    command->view_scr = currscr;
     command->map = map;
     command->scr = scr;
     command->pos = pos;
@@ -4573,6 +4575,8 @@ void zmap::DoSetComboCommand(int map, int scr, int pos, int combo, int cset)
 void zmap::DoSetFlagCommand(int map, int scr, int pos, int flag)
 {
     std::shared_ptr<set_flag_command> command(new set_flag_command);
+    command->view_map = currmap;
+    command->view_scr = currscr;
     command->map = map;
     command->scr = scr;
     command->pos = pos;
@@ -4590,8 +4594,8 @@ void zmap::DoSetFlagCommand(int map, int scr, int pos, int flag)
 void zmap::DoSetDoorCommand(int side, int door)
 {
     std::shared_ptr<set_door_command> command(new set_door_command);
-    command->map = currmap;
-    command->scr = currscr;
+    command->view_map = currmap;
+    command->view_scr = currscr;
     command->side = side;
     command->door = door;
     command->prev_door = Map.CurrScr()->door[side];
@@ -4607,9 +4611,9 @@ void zmap::DoSetDoorCommand(int side, int door)
 void zmap::DoPasteScreenCommand(PasteCommandType type, int data)
 {
     std::shared_ptr<paste_screen_command> command(new paste_screen_command);
+    command->view_map = currmap;
+    command->view_scr = currscr;
     command->type = type;
-    command->map = currmap;
-    command->scr = currscr;
     command->data = data;
     command->screen = std::shared_ptr<mapscr>(new mapscr(copymapscr));
 
@@ -4637,8 +4641,8 @@ void zmap::DoClearScreenCommand()
     }
 
     std::shared_ptr<set_screen_command> command(new set_screen_command);
-    command->map = currmap;
-    command->scr = currscr;
+    command->view_map = currmap;
+    command->view_scr = currscr;
     command->prev_screen = std::shared_ptr<mapscr>(new mapscr(screens[currscr]));
     command->screen = std::shared_ptr<mapscr>(nullptr);
 
@@ -4648,8 +4652,8 @@ void zmap::DoClearScreenCommand()
 void zmap::DoTemplateCommand(int floorcombo, int floorcset, int scr)
 {
     std::shared_ptr<set_screen_command> command(new set_screen_command);
-    command->map = currmap;
-    command->scr = currscr;
+    command->view_map = currmap;
+    command->view_scr = currscr;
     command->prev_screen = std::shared_ptr<mapscr>(new mapscr(*Map.CurrScr()));
     Template(floorcombo, floorcset, scr);
     command->screen = std::shared_ptr<mapscr>(new mapscr(*Map.CurrScr()));

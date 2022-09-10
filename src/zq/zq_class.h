@@ -31,7 +31,9 @@ void set_preview_mode(int32_t prv);
 class user_input_command
 {
 public:
-    int map, scr;
+    // The screen the user was on when command was created.
+    int view_map;
+    int view_scr;
 
     virtual void execute() = 0;
     virtual void undo() = 0;
@@ -51,7 +53,7 @@ public:
 class set_combo_command : public user_input_command
 {
 public:
-    int pos, combo, cset;
+    int map, scr, pos, combo, cset;
     int prev_combo, prev_cset;
 
     void execute();
@@ -61,7 +63,7 @@ public:
 class set_flag_command : public user_input_command
 {
 public:
-    int pos, flag;
+    int map, scr, pos, flag;
     int prev_flag;
 
     void execute();
