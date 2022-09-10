@@ -14,6 +14,8 @@
 #include "base/zdefs.h"
 #include <stdio.h>
 #include <string_view>
+#include <deque>
+#include <memory>
 #include <stack>
 
 int32_t COMBOPOS(int32_t x, int32_t y);
