@@ -13210,7 +13210,6 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , 
 						}
 						temp_script.strptr->push_back(dummy);
 					}
-					zprint2("Found string '%s'\n", escape_string(*temp_script.strptr).c_str());
 				}
 				if(!p_igetl(&sz,f,keepdata))
 				{
@@ -13228,7 +13227,6 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , 
 						}
 						temp_script.vecptr->push_back(dummy);
 					}
-					zprint2("Found vec '%s'\n", stringify_vector(*temp_script.vecptr, true).c_str());
 				}
 			}
 			
