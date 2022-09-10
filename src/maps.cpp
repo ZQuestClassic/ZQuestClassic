@@ -49,15 +49,31 @@ extern FFScript FFCore;
 
 extern HeroClass Hero;
 
-// TODO z3 checklist
+/*
+bugs even w/o scrolling mode:
+
+    equipped item disappers when opening subscreen
+
+bugs in scrolling mode:
+
+    wallmaster
+    death animation
+    triforce animation
+*/
+
+// TODO z3 checklist do all before starting beta
 // screen secrets:
 //    - trigger all secrets in region
 //    - multiple triggers across many screens in a region (multi-block puzzle)
 //    - perm secrets
 // sword beams / ewpns should only despawn when leaving viewport
-
-// ffcs
-// define regions dynamically
+// monster spawning code as moving around
+// make sure ffcs work
+// ffc carryovers
+// ensure screen scrolling compatability (esp. scripts)
+// zscript this->Rpos
+// zscript docs
+// play thru an entire quest myself
 
 static std::map<int, std::vector<mapscr*>> temporary_screens;
 static mapscr* temporary_screens_currmap[136*7] = {nullptr};
