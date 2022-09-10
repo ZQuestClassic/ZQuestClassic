@@ -997,8 +997,7 @@ int32_t open_quest(char const* path)
 	Map.setCurrMap(zinit.last_map);
 	Map.setCopyFFC(-1); //Do not have an initial ffc on the clipboard. 
 	Map.setCurrScr(zinit.last_screen);
-	Map.setCanPaste(false);
-	Map.setCanUndo(false);
+	Map.ClearCommandHistory();
 	rebuild_trans_table();
 	rebuild_string_list();
 	onDrawingModeNormal();

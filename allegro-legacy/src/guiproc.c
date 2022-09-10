@@ -646,6 +646,48 @@ int d_keyboard_proc(int msg, DIALOG *d, int c)
    return ret;
 }
 
+/* d_keyboard_proc_m:
+ *  Same as d_keyboard_proc, but d1 must be the scan code and d2 the required key modifier(s).
+ */
+int d_keyboard_proc_m(int msg, DIALOG *d, int c)
+{
+   int (*proc)(void);
+   int ret = D_O_K;
+   ASSERT(d);
+
+   switch (msg) {
+
+      case MSG_START:
+	 d->w = d->h = 0;
+	 break;
+
+      case MSG_XCHAR:
+	 // check scan code
+	 if ((c>>8) != d->d1) break;
+
+	 // check modifiers
+	 bool mod = (key_shifts & d->d2) == d->d2;
+
+	 // treat CMD (mac) same as CTRL–just try both.
+	 if (!mod && (d->d2 & KB_COMMAND_FLAG) != 0)
+	 {
+		int ctrl_swapped = (d->d2 & ~KB_COMMAND_FLAG) | KB_CTRL_FLAG;
+		mod = (key_shifts & ctrl_swapped) == ctrl_swapped;
+	 }
+	 if (!mod) break;
+
+	 ret |= D_USED_CHAR;
+	 /* fall through */
+
+      case MSG_KEY:
+	 proc = d->dp;
+	 ret |= (*proc)();
+	 break;
+   }
+
+   return ret;
+}
+
 
 
 /* d_edit_proc:
