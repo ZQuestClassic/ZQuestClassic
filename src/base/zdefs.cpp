@@ -812,6 +812,7 @@ combo_pool& combo_pool::operator=(combo_pool const& other)
 	{
 		add(cp.cid, cp.cset, cp.quant);
 	}
+	recalc();
 	return *this;
 }
 void combo_pool::push(int32_t cid, int8_t cs, word q) //add a combo with quantity
