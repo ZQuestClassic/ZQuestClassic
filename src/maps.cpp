@@ -2087,7 +2087,7 @@ bool remove_screenstatecombos2(mapscr *s, int32_t screen_index, bool do_layers, 
 // TODO z3
 bool remove_xstatecombos_old(int32_t tmp, byte xflag, bool triggers)
 {
-	return remove_xstatecombos_old(tmp, (currmap*MAPSCRSNORMAL)+homescr, xflag);
+	return remove_xstatecombos_old(tmp, (currmap*MAPSCRSNORMAL)+homescr, xflag, triggers);
 }
 bool remove_xstatecombos_old(int32_t tmp, int32_t mi, byte xflag, bool triggers)
 {
