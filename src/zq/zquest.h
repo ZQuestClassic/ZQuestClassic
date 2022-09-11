@@ -294,8 +294,10 @@ int32_t onDrawingModeNormal();
 int32_t onDrawingModeRelational();
 int32_t onDrawingModeDungeon();
 int32_t onDrawingModeAlias();
+int32_t onDrawingModePool();
 int32_t onReTemplate();
 int32_t onUndo();
+int32_t onRedo();
 int32_t onCopy();
 int32_t onFlipDMapHorizontal(int32_t d);
 int32_t onFlipDMapVertical(int32_t d);
@@ -432,9 +434,9 @@ void update_combobrush();
 void draw(bool);
 void replace(int32_t c);
 void draw_block(int32_t start,int32_t w,int32_t h);
-void fill(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset);
-void fill_flag(mapscr* fillscr, int32_t targetflag, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal);
-void fill2(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset);
+static void fill(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset);
+static void fill_flag(mapscr* fillscr, int32_t targetflag, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal);
+static void fill2(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset);
 int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c);
 
 /**************************/
@@ -767,6 +769,8 @@ enum
 	cmdWaterSolidFix,
 	cmdEffectSquareFix,
 	cmdTestQuest,
+    cmdRedo,
+	cmdDrawingModePool,
     cmdMAX
 };
 

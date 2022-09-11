@@ -1437,34 +1437,18 @@ namespace ZScript
 	class VarArgument;
 	class LabelArgument;
 	class GlobalArgument;
+	class StringArgument;
+	class VectorArgument;
 
 	class ArgumentVisitor
 	{
 	public:
-		virtual void caseLiteral(LiteralArgument &host, void *param)
-		{
-			void *temp;
-			temp=&host;
-			param=param; /*these are here to bypass compiler warnings about unused arguments*/
-		}
-		virtual void caseVar(VarArgument &host, void *param)
-		{
-			void *temp;
-			temp=&host;
-			param=param; /*these are here to bypass compiler warnings about unused arguments*/
-		}
-		virtual void caseLabel(LabelArgument &host, void *param)
-		{
-			void *temp;
-			temp=&host;
-			param=param; /*these are here to bypass compiler warnings about unused arguments*/
-		}
-		virtual void caseGlobal(GlobalArgument &host, void *param)
-		{
-			void *temp;
-			temp=&host;
-			param=param; /*these are here to bypass compiler warnings about unused arguments*/
-		}
+		virtual void caseLiteral(LiteralArgument&, void *){}
+		virtual void caseString(StringArgument&, void *){}
+		virtual void caseVector(VectorArgument&, void *){}
+		virtual void caseVar(VarArgument&, void *){}
+		virtual void caseLabel(LabelArgument&, void *){}
+		virtual void caseGlobal(GlobalArgument&, void *){}
 		virtual ~ArgumentVisitor() {}
 	};
 
@@ -1492,6 +1476,39 @@ namespace ZScript
 		}
 	private:
 		int32_t value;
+	};
+	
+	class StringArgument : public Argument
+	{
+	public:
+		StringArgument(std::string const& Value) : value(Value) {}
+		std::string toString();
+		void execute(ArgumentVisitor &host, void *param)
+		{
+			host.caseString(*this, param);
+		}
+		Argument *clone()
+		{
+			return new StringArgument(value);
+		}
+	private:
+		std::string value;
+	};
+	class VectorArgument : public Argument
+	{
+	public:
+		VectorArgument(std::vector<int32_t> const& Value) : value(Value) {}
+		std::string toString();
+		void execute(ArgumentVisitor &host, void *param)
+		{
+			host.caseVector(*this, param);
+		}
+		Argument *clone()
+		{
+			return new VectorArgument(value);
+		}
+	private:
+		std::vector<int32_t> value;
 	};
 
 	std::string VarToString(int32_t ID);
@@ -1779,6 +1796,26 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OWritePODArrayII(a->clone(),b->clone());
+		}
+	};
+	class OWritePODString : public BinaryOpcode
+	{
+	public:
+		OWritePODString(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OWritePODString(a->clone(),b->clone());
+		}
+	};
+	class OWritePODArray : public BinaryOpcode
+	{
+	public:
+		OWritePODArray(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OWritePODArray(a->clone(),b->clone());
 		}
 	};
 
@@ -9852,6 +9889,17 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OGraphicsGetpixel(a->clone());
+		}
+	};
+	
+	class OGraphicsCountColor : public UnaryOpcode
+	{
+	public:
+		OGraphicsCountColor(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OGraphicsCountColor(a->clone());
 		}
 	};
 	

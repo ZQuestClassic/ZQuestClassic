@@ -1282,7 +1282,7 @@ void sprite::draw(BITMAP* dest)
 								if(tileToDraw%TILES_PER_ROW<j) // Wrapped around
 									tileToDraw+=TILES_PER_ROW*(tysz-1);
 							    
-								overtile16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,((scriptflip > -1) ? scriptflip : flip));
+								overtile16(sprBMP,tileToDraw,0+(txsz-j-1)*16,0+i*16,cs,((scriptflip > -1) ? scriptflip : flip));
 							}
 						}
 						if ( rotation )
@@ -1326,7 +1326,7 @@ void sprite::draw(BITMAP* dest)
 								if(tileToDraw%TILES_PER_ROW<j)
 									tileToDraw+=TILES_PER_ROW*(tysz-1);
 							    
-								overtile16(sprBMP,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
+								overtile16(sprBMP,tileToDraw,0+j*16,0+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
 							}
 						}
 						if ( rotation )
@@ -1369,7 +1369,7 @@ void sprite::draw(BITMAP* dest)
 								if(tileToDraw%TILES_PER_ROW<j)
 									tileToDraw+=TILES_PER_ROW*(tysz-1);
 							    
-								overtile16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
+								overtile16(sprBMP,tileToDraw,0+(txsz-j-1)*16,0+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
 							}
 						}
 						if ( rotation )

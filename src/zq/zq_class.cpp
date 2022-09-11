@@ -118,7 +118,7 @@ mapscr* zmap::get_prvscr()
 
 zmap::zmap()
 {
-    can_undo=can_paste=false;
+    can_paste=false;
     prv_cmbcycle=0;
     prv_advance=0;
     prv_freeze=0;
@@ -136,9 +136,6 @@ zmap::zmap()
     layer_target_map = 0;
     layer_target_scr = 0;
     layer_target_multiple = 0;
-    can_undo_map=false;
-    can_paste_map=false;
-    screen_copy=false;
     
 }
 zmap::~zmap()
@@ -147,7 +144,11 @@ zmap::~zmap()
 
 bool zmap::CanUndo()
 {
-    return can_undo;
+    return undo_stack.size() > 0;
+}
+bool zmap::CanRedo()
+{
+    return redo_stack.size() > 0;
 }
 bool zmap::CanPaste()
 {
@@ -587,6 +588,19 @@ bool zmap::isDark()
 {
     return (screens[currscr].flags&fDARK)!=0;
 }
+
+void zmap::setCurrentView(int32_t map, int32_t scr)
+{
+    bool change_view = map != Map.getCurrMap() || scr != Map.getCurrScr();
+    if (map != Map.getCurrMap()) Map.setCurrMap(map);
+    if (scr != Map.getCurrScr()) Map.setCurrScr(scr);
+    if (change_view)
+    {
+        refresh(rALL);
+        rebuild_trans_table();
+    }
+}
+
 void zmap::setCurrMap(int32_t index)
 {
     int32_t oldmap=currmap;
@@ -596,11 +610,6 @@ void zmap::setCurrMap(int32_t index)
     
     currscr=scrpos[currmap];
     loadlvlpal(getcolor());
-    
-    if(currmap!=oldmap)
-    {
-        can_undo=false;
-    }
     
     reset_combo_animations2();
 }
@@ -634,11 +643,6 @@ void zmap::setCurrScr(int32_t scr)
     if(newcolor!=oldcolor)
     {
         rebuild_trans_table();
-    }
-    
-    if(currscr!=oldscr)
-    {
-        can_undo=false;
     }
     
     reset_combo_animations2();
@@ -742,16 +746,13 @@ int32_t zmap::tcmbflag2(int32_t pos)
 
 void zmap::TemplateAll()
 {
+    StartListCommand();
     for(int32_t i=0; i<128; i++)
     {
         if((screens[i].valid&mVALID) && isDungeon(i))
-            Template(-1,i);
+            DoTemplateCommand(-1, i, currscr);
     }
-}
-
-void zmap::Template(int32_t floorcombo, int32_t floorcset)
-{
-    Template(floorcombo, floorcset, currscr);
+    FinishListCommand();
 }
 
 void zmap::Template(int32_t floorcombo, int32_t floorcset, int32_t scr)
@@ -4289,56 +4290,378 @@ void zmap::putdoor(int32_t scr,int32_t side,int32_t door)
     }
 }
 
-void zmap::Ugo()
+void list_command::execute()
 {
-    mapscr *layer;
-    int32_t layermap, layerscreen;
-    layer=AbsoluteScr(currmap,currscr);
-    
-    for(int32_t x=0; x<MAPSCRS; x++)
+    for (auto command : commands)
     {
-        copy_mapscr(&undomap[x], &screens[x]);
+        command->execute();
     }
-    
-    for(int32_t k=0; k<6; ++k)
-    {
-        undomap[MAPSCRS+k].zero_memory();
-        layermap=layer->layermap[k]-1;
-        
-        if(layermap>-1 && layermap<map_count)
-        {
-            layerscreen=layer->layerscreen[k];
-            copy_mapscr(&undomap[MAPSCRS+k], AbsoluteScr(layermap,layerscreen));
-        }
-    }
-    
-    can_undo=true;
 }
 
-void zmap::Uhuilai()
+void list_command::undo()
 {
-    mapscr *layer;
-    int32_t layermap, layerscreen;
-    layer=AbsoluteScr(currmap,currscr);
-    
-    if(can_undo)
+    for (int i = commands.size() - 1; i >= 0; i--)
     {
-        for(int32_t x=0; x<MAPSCRS; x++)
+        commands[i]->undo();
+    }
+}
+
+int list_command::size()
+{
+    int s = 0;
+    for (auto command : commands)
+    {
+        s += command->size();
+    }
+    return s;
+}
+
+void set_combo_command::execute()
+{
+    if (combo != -1) Map.AbsoluteScr(map, scr)->data[pos] = combo;
+    Map.AbsoluteScr(map, scr)->cset[pos] = cset;
+}
+
+void set_combo_command::undo()
+{
+    if (combo != -1) Map.AbsoluteScr(map, scr)->data[pos] = prev_combo;
+    Map.AbsoluteScr(map, scr)->cset[pos] = prev_cset;
+}
+
+void set_flag_command::execute()
+{
+    Map.AbsoluteScr(map, scr)->sflag[pos] = flag;
+}
+
+void set_flag_command::undo()
+{
+    Map.AbsoluteScr(map, scr)->sflag[pos] = prev_flag;
+}
+
+void set_door_command::execute()
+{
+    Map.putdoor(view_scr, side, door);
+    refresh(rMAP | rNOCURSOR);
+}
+
+void set_door_command::undo()
+{
+    Map.putdoor(view_scr, side, prev_door);
+    refresh(rMAP | rNOCURSOR);
+}
+
+void paste_screen_command::execute()
+{
+    perform(screen.get());
+}
+
+void paste_screen_command::undo()
+{
+    if (prev_screens.size() > 1)
+    {
+        ASSERT(type == PasteCommandType::ScreenPartialToEveryScreen || type == PasteCommandType::ScreenAllToEveryScreen);
+        ASSERT(prev_screens.size() == 128);
+        for (int i = 0; i < 128; i++)
         {
-            zc_swap(screens[x],undomap[x]);
+            copy_mapscr(Map.AbsoluteScr(view_map, i), prev_screens[i].get());
+            // TODO: why not just this?
+            // If this changes, also change the line in PasteAllToAll and PasteAll to use simply copy assignment.
+            // *Map.AbsoluteScr(map, i) = *prev_screens[i].get();
         }
-        
-        for(int32_t k=0; k<6; ++k)
-        {
-            layermap=layer->layermap[k]-1;
-            
-            if(layermap>-1 && layermap<map_count)
-            {
-                layerscreen=layer->layerscreen[k];
-                zc_swap(*AbsoluteScr(layermap,layerscreen),undomap[MAPSCRS+k]);
-            }
+        return;
+    }
+
+    perform(prev_screens[0].get());
+}
+
+int paste_screen_command::size()
+{
+    return prev_screens.size() + 1;
+}
+
+void paste_screen_command::perform(mapscr* to)
+{
+    if (to)
+    {
+        switch (type) {
+            case ScreenAll:                  Map.PasteAll(*to); break;
+            case ScreenAllToEveryScreen:     Map.PasteAllToAll(*to); break;
+            case ScreenData:                 Map.PasteScreenData(*to); break;
+            case ScreenDoors:                Map.PasteDoors(*to); break;
+            case ScreenEnemies:              Map.PasteEnemies(*to); break;
+            case ScreenFFCombos:             Map.PasteFFCombos(*to); break;
+            case ScreenGuy:                  Map.PasteGuy(*to); break;
+            case ScreenLayers:               Map.PasteLayers(*to); break;
+            case ScreenOneFFC:               Map.PasteOneFFC(*to, data); break;
+            case ScreenPalette:              Map.PastePalette(*to); break;
+            case ScreenPartial:              Map.Paste(*to); break;
+            case ScreenPartialToEveryScreen: Map.PasteToAll(*to); break;
+            case ScreenRoom:                 Map.PasteRoom(*to); break;
+            case ScreenSecretCombos:         Map.PasteSecretCombos(*to); break;
+            case ScreenUnderCombo:           Map.PasteUnderCombo(*to); break;
+            case ScreenWarpLocations:        Map.PasteWarpLocations(*to); break;
+            case ScreenWarps:                Map.PasteWarps(*to); break;
         }
     }
+    else
+    {
+        Map.clearscr(view_scr);
+    }
+    refresh(rALL);
+}
+
+void set_screen_command::execute()
+{
+    if (screen)
+    {
+        copy_mapscr(Map.AbsoluteScr(view_map, view_scr), screen.get());
+    }
+    else
+    {
+        Map.clearscr(view_scr);
+    }
+    refresh(rALL);
+}
+
+void set_screen_command::undo()
+{
+    if (prev_screen)
+    {
+        copy_mapscr(Map.AbsoluteScr(view_map, view_scr), prev_screen.get());
+    }
+    else
+    {
+        Map.clearscr(view_scr);
+    }
+    refresh(rALL);
+}
+
+int set_screen_command::size()
+{
+    return (prev_screen ? 1 : 0) + (screen ? 1 : 0);
+}
+
+static std::shared_ptr<list_command> current_list_command;
+void zmap::StartListCommand()
+{
+    ASSERT(!current_list_command);
+    current_list_command.reset(new list_command);
+}
+
+void zmap::FinishListCommand()
+{
+    if (current_list_command->commands.size() == 1)
+    {
+        undo_stack.push_back(current_list_command->commands[0]);
+    }
+    else if (current_list_command->commands.size() > 1)
+    {
+        undo_stack.push_back(current_list_command);
+    }
+    CapCommandHistory();
+    current_list_command = nullptr;
+}
+
+void zmap::RevokeListCommand()
+{
+    current_list_command->undo();
+    current_list_command = nullptr;
+}
+
+void zmap::ExecuteCommand(std::shared_ptr<user_input_command> command, bool skip_execute)
+{
+    redo_stack = std::stack<std::shared_ptr<user_input_command>>();
+    if (!skip_execute) command->execute();
+    if (current_list_command)
+    {
+        current_list_command->commands.push_back(command);
+        if (current_list_command->commands.size() == 1)
+        {
+            current_list_command->view_map = command->view_map;
+            current_list_command->view_scr = command->view_scr;
+        }
+    }
+    else
+    {
+        undo_stack.push_back(command);
+        CapCommandHistory();
+    }
+    saved = false;
+}
+
+void zmap::UndoCommand()
+{
+    if (undo_stack.size() <= 0) return;
+
+    // If not currently looking at the associated screen, first change the view
+    // and wait for the next call to actually undo this command.
+    auto command = undo_stack.back();
+    if (command->view_map != Map.getCurrMap() || command->view_scr != Map.getCurrScr())
+    {
+        setCurrentView(command->view_map, command->view_scr);
+        return;
+    }
+    
+    command->undo();
+    redo_stack.push(command);
+    undo_stack.pop_back();
+    saved = false;
+}
+
+void zmap::RedoCommand()
+{
+    if (redo_stack.size() <= 0) return;
+
+    // If not currently looking at the associated screen, first change the view
+    // and wait for the next call to actually execute this command.
+    auto command = redo_stack.top();
+    if (command->view_map != Map.getCurrMap() || command->view_scr != Map.getCurrScr())
+    {
+        setCurrentView(command->view_map, command->view_scr);
+        return;
+    }
+
+    command->execute();
+    undo_stack.push_back(command);
+    redo_stack.pop();
+    saved = false;
+}
+
+void zmap::ClearCommandHistory()
+{
+    current_list_command = nullptr;
+    undo_stack = std::deque<std::shared_ptr<user_input_command>>();
+    redo_stack = std::stack<std::shared_ptr<user_input_command>>();
+}
+
+// Extra amount is from mapscr's vectors.
+static int size_of_mapscr = sizeof(mapscr) + 4*176;
+// Allow the undo system to use roughly 100 MB of memory.
+// This doesn't count the memory used by commands that don't store a mapscr,
+// but that should be negligible.
+static int max_command_size = 100e6 / size_of_mapscr;
+void zmap::CapCommandHistory()
+{
+    int size;
+    do
+    {
+        size = 0;
+        for (auto command : undo_stack)
+        {
+            size += command->size();
+        }
+        if (size > max_command_size) undo_stack.pop_front();
+    } while (size > max_command_size);
+}
+
+void zmap::DoSetComboCommand(int map, int scr, int pos, int combo, int cset)
+{
+    std::shared_ptr<set_combo_command> command(new set_combo_command);
+    command->view_map = currmap;
+    command->view_scr = currscr;
+    command->map = map;
+    command->scr = scr;
+    command->pos = pos;
+    command->combo = combo;
+    command->cset = cset;
+    command->prev_combo = Map.AbsoluteScr(map, scr)->data[pos];
+    command->prev_cset = Map.AbsoluteScr(map, scr)->cset[pos];
+    if ((command->combo != -1 && command->prev_combo == command->combo) && command->cset == command->prev_cset)
+    {
+        // nothing to do...
+        return;
+    }
+
+    ExecuteCommand(command);
+}
+
+void zmap::DoSetFlagCommand(int map, int scr, int pos, int flag)
+{
+    std::shared_ptr<set_flag_command> command(new set_flag_command);
+    command->view_map = currmap;
+    command->view_scr = currscr;
+    command->map = map;
+    command->scr = scr;
+    command->pos = pos;
+    command->flag = flag;
+    command->prev_flag = Map.AbsoluteScr(map, scr)->sflag[pos];
+    if (command->flag == command->prev_flag)
+    {
+        // nothing to do...
+        return;
+    }
+
+    ExecuteCommand(command);
+}
+
+void zmap::DoSetDoorCommand(int side, int door)
+{
+    std::shared_ptr<set_door_command> command(new set_door_command);
+    command->view_map = currmap;
+    command->view_scr = currscr;
+    command->side = side;
+    command->door = door;
+    command->prev_door = Map.CurrScr()->door[side];
+    if (command->door == command->prev_door)
+    {
+        // nothing to do...
+        return;
+    }
+
+    ExecuteCommand(command);
+}
+
+void zmap::DoPasteScreenCommand(PasteCommandType type, int data)
+{
+    std::shared_ptr<paste_screen_command> command(new paste_screen_command);
+    command->view_map = currmap;
+    command->view_scr = currscr;
+    command->type = type;
+    command->data = data;
+    command->screen = std::shared_ptr<mapscr>(new mapscr(copymapscr));
+
+    if (type == PasteCommandType::ScreenPartialToEveryScreen || type == PasteCommandType::ScreenAllToEveryScreen)
+    {
+        for (int i=0; i < 128; i++)
+        {
+            command->prev_screens.push_back(std::shared_ptr<mapscr>(new mapscr(screens[i])));
+        }
+    }
+    else
+    {
+        command->prev_screens.push_back(std::shared_ptr<mapscr>(new mapscr(screens[currscr])));
+    }
+
+    ExecuteCommand(command);
+}
+
+void zmap::DoClearScreenCommand()
+{
+    if (!(Map.CurrScr()->valid&mVALID))
+    {
+        // nothing to do...
+        return;
+    }
+
+    std::shared_ptr<set_screen_command> command(new set_screen_command);
+    command->view_map = currmap;
+    command->view_scr = currscr;
+    command->prev_screen = std::shared_ptr<mapscr>(new mapscr(screens[currscr]));
+    command->screen = std::shared_ptr<mapscr>(nullptr);
+
+    ExecuteCommand(command);
+}
+
+void zmap::DoTemplateCommand(int floorcombo, int floorcset, int scr)
+{
+    std::shared_ptr<set_screen_command> command(new set_screen_command);
+    command->view_map = currmap;
+    command->view_scr = currscr;
+    command->prev_screen = std::shared_ptr<mapscr>(new mapscr(*Map.CurrScr()));
+    Template(floorcombo, floorcset, scr);
+    command->screen = std::shared_ptr<mapscr>(new mapscr(*Map.CurrScr()));
+
+    ExecuteCommand(command, true);
 }
 
 void zmap::Copy()
@@ -4367,11 +4690,10 @@ void zmap::CopyFFC(int32_t n)
     }
 }
 
-void zmap::Paste()
+void zmap::Paste(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         int32_t oldcolor=getcolor();
         
         if(!(screens[currscr].valid&mVALID))
@@ -4421,23 +4743,20 @@ void zmap::Paste()
     }
 }
 
-void zmap::PasteUnderCombo()
+void zmap::PasteUnderCombo(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         screens[currscr].undercombo = copymapscr.undercombo;
         screens[currscr].undercset = copymapscr.undercset;
         saved=false;
     }
 }
 
-void zmap::PasteSecretCombos()
+void zmap::PasteSecretCombos(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
-        
         for(int32_t i=0; i<128; i++)
         {
             screens[currscr].secretcombo[i] = copymapscr.secretcombo[i];
@@ -4449,11 +4768,10 @@ void zmap::PasteSecretCombos()
     }
 }
 
-void zmap::PasteFFCombos()
+void zmap::PasteFFCombos(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         screens[currscr].numff = copymapscr.numff;
         
         for(int32_t i=0; i<32; i++)
@@ -4486,12 +4804,11 @@ void zmap::PasteFFCombos()
     }
 }
 
-void zmap::PasteOneFFC(int32_t i) //i - destination ffc slot
+void zmap::PasteOneFFC(const mapscr& copymapscr, int32_t i) //i - destination ffc slot
 {
     if(copyffc < 0)  // Sanity check
         return;
-        
-    Ugo();
+
     screens[currscr].ffdata[i] = copymapscr.ffdata[copyffc];
     screens[currscr].ffcset[i] = copymapscr.ffcset[copyffc];
     // Don't copy X or Y
@@ -4519,11 +4836,10 @@ void zmap::PasteOneFFC(int32_t i) //i - destination ffc slot
     saved=false;
 }
 
-void zmap::PasteWarps()
+void zmap::PasteWarps(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         screens[currscr].sidewarpindex = copymapscr.sidewarpindex;
         
         for(int32_t i=0; i<4; i++)
@@ -4544,11 +4860,10 @@ void zmap::PasteWarps()
     }
 }
 
-void zmap::PasteScreenData()
+void zmap::PasteScreenData(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         screens[currscr].csensitive = copymapscr.csensitive;
         screens[currscr].oceansfx = copymapscr.oceansfx;
         screens[currscr].bosssfx = copymapscr.bosssfx;
@@ -4588,11 +4903,10 @@ void zmap::PasteScreenData()
     }
 }
 
-void zmap::PasteWarpLocations()
+void zmap::PasteWarpLocations(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         screens[currscr].warpreturnc = copymapscr.warpreturnc;
         screens[currscr].warparrivalx = copymapscr.warparrivalx;
         screens[currscr].warparrivaly = copymapscr.warparrivaly;
@@ -4607,12 +4921,10 @@ void zmap::PasteWarpLocations()
     }
 }
 
-void zmap::PasteDoors()
+void zmap::PasteDoors(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
-        
         for(int32_t i=0; i<4; i++)
             screens[currscr].door[i] = copymapscr.door[i];
             
@@ -4621,12 +4933,10 @@ void zmap::PasteDoors()
     }
 }
 
-void zmap::PasteLayers()
+void zmap::PasteLayers(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
-        
         for(int32_t i=0; i<6; i++)
         {
             screens[currscr].layermap[i] = copymapscr.layermap[i];
@@ -4638,33 +4948,30 @@ void zmap::PasteLayers()
     }
 }
 
-void zmap::PasteRoom()
+void zmap::PasteRoom(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         screens[currscr].room = copymapscr.room;
         screens[currscr].catchall = copymapscr.catchall;
         saved=false;
     }
 }
 
-void zmap::PasteGuy()
+void zmap::PasteGuy(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         screens[currscr].guy = copymapscr.guy;
         screens[currscr].str = copymapscr.str;
         saved=false;
     }
 }
 
-void zmap::PastePalette()
+void zmap::PastePalette(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         int32_t oldcolor=getcolor();
         screens[currscr].color = copymapscr.color;
         int32_t newcolor=getcolor();
@@ -4684,11 +4991,10 @@ void zmap::PastePalette()
     }
 }
 
-void zmap::PasteAll()
+void zmap::PasteAll(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         int32_t oldcolor=getcolor();
         copy_mapscr(&screens[currscr], &copymapscr);
         //screens[currscr]=copymapscr;
@@ -4710,11 +5016,10 @@ void zmap::PasteAll()
 }
 
 
-void zmap::PasteToAll()
+void zmap::PasteToAll(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         int32_t oldcolor=getcolor();
         
         for(int32_t x=0; x<128; x++)
@@ -4755,11 +5060,10 @@ void zmap::PasteToAll()
     }
 }
 
-void zmap::PasteAllToAll()
+void zmap::PasteAllToAll(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        Ugo();
         int32_t oldcolor=getcolor();
         
         for(int32_t x=0; x<128; x++)
@@ -4785,7 +5089,7 @@ void zmap::PasteAllToAll()
     }
 }
 
-void zmap::PasteEnemies()
+void zmap::PasteEnemies(const mapscr& copymapscr)
 {
     if(can_paste)
     {
@@ -4797,16 +5101,6 @@ void zmap::PasteEnemies()
 void zmap::setCopyFFC(int32_t n)
 {
 	copyffc = n;
-}
-
-void zmap::setCanUndo(bool _set)
-{
-    can_paste=can_paste_map=_set;
-}
-
-void zmap::setCanPaste(bool _set)
-{
-    can_undo=can_undo_map=_set;
 }
 
 void zmap::update_combo_cycling()
@@ -6619,6 +6913,8 @@ int32_t load_quest(const char *filename, bool compressed, bool encrypted)
 			set_window_title(buf);
 		}
 	}
+
+    Map.ClearCommandHistory();
 	
 	return ret;
 }
@@ -8790,676 +9086,595 @@ int32_t writeweapons(PACKFILE *f, zquestheader *Header)
 
 int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 {
-    if((i*MAPSCRS+j)>=int32_t(TheMaps.size()))
-    {
-        return qe_invalid;
-    }
-    
-    mapscr& screen=TheMaps.at(i*MAPSCRS+j);
-    
-    if(!p_putc(screen.valid,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.guy,f))
-    {
-        return qe_invalid;
-    }
-    
-    {
-        if(!p_iputw(screen.str,f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    if(!p_putc(screen.room,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.item,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.hasitem, f))
-    {
-        return qe_invalid;
-    }
-    
-    for(int32_t k=0; k<4; k++)
-    {
-        if(!p_putc(screen.tilewarptype[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    if(!p_iputw(screen.door_combo_set,f))
-    {
-        return qe_invalid;
-    }
-    
-    for(int32_t k=0; k<4; k++)
-    {
-        if(!p_putc(screen.warpreturnx[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<4; k++)
-    {
-        if(!p_putc(screen.warpreturny[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    if(!p_iputw(screen.warpreturnc,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.stairx,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.stairy,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.itemx,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.itemy,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_iputw(screen.color,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.enemyflags,f))
-    {
-        return qe_invalid;
-    }
-    
-    for(int32_t k=0; k<4; k++)
-    {
-        if(!p_putc(screen.door[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<4; k++)
-    {
-        if(!p_iputw(screen.tilewarpdmap[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<4; k++)
-    {
-        if(!p_putc(screen.tilewarpscr[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    if(!p_putc(screen.tilewarpoverlayflags,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.exitdir,f))
-    {
-        return qe_invalid;
-    }
-    
-    for(int32_t k=0; k<10; k++)
-    {
-        {
-            if(!p_iputw(screen.enemy[k],f))
-            {
-                return qe_invalid;
-            }
-        }
-    }
-    
-    if(!p_putc(screen.pattern,f))
-    {
-        return qe_invalid;
-    }
-    
-    for(int32_t k=0; k<4; k++)
-    {
-        if(!p_putc(screen.sidewarptype[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    if(!p_putc(screen.sidewarpoverlayflags,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.warparrivalx,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.warparrivaly,f))
-    {
-        return qe_invalid;
-    }
-    
-    for(int32_t k=0; k<4; k++)
-    {
-        if(!p_putc(screen.path[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<4; k++)
-    {
-        if(!p_putc(screen.sidewarpscr[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<4; k++)
-    {
-        if(!p_iputw(screen.sidewarpdmap[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    if(!p_putc(screen.sidewarpindex,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_iputw(screen.undercombo,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.undercset,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_iputw(screen.catchall,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.flags,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.flags2,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.flags3,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.flags4,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.flags5,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_iputw(screen.noreset,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_iputw(screen.nocarry,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.flags6,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.flags7,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.flags8,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.flags9,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.flags10,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.csensitive,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.oceansfx,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.bosssfx,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.secretsfx,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.holdupsfx,f))
-    {
-        return qe_invalid;
-    }
-    
-    for(int32_t k=0; k<6; k++)
-    {
-        if(!p_putc(screen.layermap[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<6; k++)
-    {
-        if(!p_putc(screen.layerscreen[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<6; k++)
-    {
-        if(!p_putc(screen.layeropacity[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    if(!p_iputw(screen.timedwarptics,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.nextmap,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.nextscr,f))
-    {
-        return qe_invalid;
-    }
-    
-    for(int32_t k=0; k<128; k++)
-    {
-        if(!p_iputw(screen.secretcombo[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<128; k++)
-    {
-        if(!p_putc(screen.secretcset[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<128; k++)
-    {
-        if(!p_putc(screen.secretflag[k],f))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
-    {
-        try
-        {
-            if(!p_iputw(screen.data.at(k),f))
-            {
-                return qe_invalid;
-            }
-        }
-        catch(std::out_of_range& )
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
-    {
-        try
-        {
-            if(!p_putc(screen.sflag.at(k),f))
-            {
-                return qe_invalid;
-            }
-        }
-        catch(std::out_of_range& )
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
-    {
-        try
-        {
-            if(!p_putc(screen.cset.at(k),f))
-            {
-                return qe_invalid;
-            }
-        }
-        catch(std::out_of_range& )
-        {
-            return qe_invalid;
-        }
-    }
-    
-    if(!p_iputw(screen.screen_midi,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_putc(screen.lens_layer,f))
-    {
-        return qe_invalid;
-    }
-    
-    if(!p_iputl(screen.numff,f))
-    {
-        return qe_invalid;
-    }
-    
-    for(int32_t k=0; k<32; k++)
-    {
-        if((screen.numff>>k)&1)
-        {
-            if(!p_iputw(screen.ffdata[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_putc(screen.ffcset[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputw(screen.ffdelay[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.ffx[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.ffy[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.ffxdelta[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.ffydelta[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.ffxdelta2[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.ffydelta2[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_putc(screen.fflink[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_putc(screen.ffwidth[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_putc(screen.ffheight[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.ffflags[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputw(screen.ffscript[k],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.initd[k][0],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.initd[k][1],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.initd[k][2],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.initd[k][3],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.initd[k][4],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.initd[k][5],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.initd[k][6],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_iputl(screen.initd[k][7],f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_putc(screen.inita[k][0]/10000,f))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_putc(screen.inita[k][1]/10000,f))
-            {
-                return qe_invalid;
-            }
-        }
-    }
-    
-    for ( int32_t q = 0; q < 10; q++ ) 
-    {
-	if(!p_iputl(screen.npcstrings[q],f))
+	if((i*MAPSCRS+j)>=int32_t(TheMaps.size()))
+		return qe_invalid;
+	
+	mapscr& screen=TheMaps.at(i*MAPSCRS+j);
+	
+	if(!p_putc(screen.valid,f))
+		return qe_invalid;
+	if(!(screen.valid & mVALID))
+		return qe_OK;
+	//Calculate what needs writing
+	uint32_t scr_has_flags = 0;
+	if(screen.guy || screen.str
+		|| screen.room || screen.catchall)
+		scr_has_flags |= SCRHAS_ROOMDATA;
+	if((screen.warpreturnc&0x00FF) || screen.tilewarpoverlayflags)
+		scr_has_flags |= SCRHAS_TWARP;
+	else for(auto q = 0; q < 4; ++q)
 	{
-		return qe_invalid;
-	} 
-    }
-    for ( int32_t q = 0; q < 10; q++ ) 
-    {
-	if(!p_iputw(screen.new_items[q],f))
+		if(screen.tilewarptype[q]
+			|| screen.tilewarpdmap[q]
+			|| screen.tilewarpscr[q])
+		{
+			scr_has_flags |= SCRHAS_TWARP;
+			break;
+		}
+	}
+	if((screen.warpreturnc&0xFF00) || screen.sidewarpindex
+		|| screen.sidewarpoverlayflags)
+		scr_has_flags |= SCRHAS_SWARP;
+	else for(auto q = 0; q < 4; ++q)
 	{
-		return qe_invalid;
-	} 
-    }
-    for ( int32_t q = 0; q < 10; q++ ) 
-    {
-	if(!p_iputw(screen.new_item_x[q],f))
+		if(screen.sidewarptype[q]
+			|| screen.sidewarpdmap[q]
+			|| screen.sidewarpscr[q])
+		{
+			scr_has_flags |= SCRHAS_SWARP;
+			break;
+		}
+	}
+	if(screen.warparrivalx || screen.warparrivaly)
+		scr_has_flags |= SCRHAS_WARPRET;
+	else for(auto q = 0; q < 4; ++q)
 	{
-		return qe_invalid;
-	} 
-    }
-    for ( int32_t q = 0; q < 10; q++ ) 
-    {
-	if(!p_iputw(screen.new_item_y[q],f))
+		if(screen.warpreturnx[q] || screen.warpreturny[q])
+		{
+			scr_has_flags |= SCRHAS_WARPRET;
+			break;
+		}
+	}
+	
+	if(screen.hidelayers || screen.hidescriptlayers)
+		scr_has_flags |= SCRHAS_LAYERS;
+	else for(auto q = 0; q < 6; ++q)
 	{
-		return qe_invalid;
-	} 
-    }
-    if(!p_iputw(screen.script,f))
-    {
-		return qe_invalid;
-    } 
-    for ( int32_t q = 0; q < 8; q++ )
-    {
-	if(!p_iputl(screen.screeninitd[q],f))
+		if(screen.layermap[q] || screen.layerscreen[q]
+			|| screen.layeropacity[q]!=255)
+		{
+			scr_has_flags |= SCRHAS_LAYERS;
+			break;
+		}
+	}
+	
+	if(screen.exitdir)
+		scr_has_flags |= SCRHAS_MAZE;
+	else for(auto q = 0; q < 4; ++q)
 	{
+		if(screen.path[q])
+		{
+			scr_has_flags |= SCRHAS_MAZE;
+			break;
+		}
+	}
+	
+	if(screen.door_combo_set || screen.stairx
+		|| screen.stairy || screen.undercombo
+		|| screen.undercset)
+		scr_has_flags |= SCRHAS_D_S_U;
+	else for(auto q = 0; q < 4; ++q)
+	{
+		if(screen.door[q])
+		{
+			scr_has_flags |= SCRHAS_D_S_U;
+			break;
+		}
+	}
+	
+	if(screen.flags || screen.flags2
+		|| screen.flags3 || screen.flags4
+		|| screen.flags5 || screen.flags6
+		|| screen.flags7 || screen.flags8
+		|| screen.flags9 || screen.flags10
+		|| screen.enemyflags)
+		scr_has_flags |= SCRHAS_FLAGS;
+	
+	if(screen.pattern)
+		scr_has_flags |= SCRHAS_ENEMY;
+	else for(auto q = 0; q < 10; ++q)
+	{
+		if(screen.enemy[q])
+		{
+			scr_has_flags |= SCRHAS_ENEMY;
+			break;
+		}
+	}
+	
+	if(screen.noreset || screen.nocarry
+		|| screen.nextmap || screen.nextscr)
+		scr_has_flags |= SCRHAS_CARRY;
+	
+	if(screen.script || screen.preloadscript)
+		scr_has_flags |= SCRHAS_SCRIPT;
+	else for(auto q = 0; q < 8; ++q)
+	{
+		if(screen.screeninitd[q])
+		{
+			scr_has_flags |= SCRHAS_SCRIPT;
+			break;
+		}
+	}
+	
+	for(auto q = 0; q < 10; ++q)
+	{
+		if(screen.npcstrings[q]
+			|| screen.new_items[q]
+			|| screen.new_item_x[q]
+			|| screen.new_item_y[q])
+		{
+			scr_has_flags |= SCRHAS_UNUSED;
+			break;
+		}
+	}
+	
+	for(auto q = 0; q < 128; ++q)
+	{
+		if(screen.secretcombo[q]
+			|| screen.secretcset[q]
+			|| screen.secretflag[q])
+		{
+			scr_has_flags |= SCRHAS_SECRETS;
+			break;
+		}
+	}
+	
+	for(auto q = 0; q < 176; ++q)
+	{
+		if(screen.data[q] || screen.cset[q]
+			|| screen.sflag[q])
+		{
+			scr_has_flags |= SCRHAS_COMBOFLAG;
+			break;
+		}
+	}
+	
+	if(screen.color || screen.csensitive != 1
+		|| screen.oceansfx || screen.bosssfx
+		|| screen.secretsfx || screen.holdupsfx
+		|| screen.timedwarptics || screen.screen_midi != -1
+		|| screen.lens_layer)
+		scr_has_flags |= SCRHAS_MISC;
+	
+	if(!p_iputl(scr_has_flags,f))
 		return qe_invalid;
-	} 
-	    
-    }
-    if(!p_putc(screen.preloadscript,f))
-    {
+	
+	//Write stuff
+	if(scr_has_flags & SCRHAS_ROOMDATA)
+	{
+		if(!p_putc(screen.guy,f))
+			return qe_invalid;
+		if(!p_iputw(screen.str,f))
+			return qe_invalid;
+		if(!p_putc(screen.room,f))
+			return qe_invalid;
+		if(!p_iputw(screen.catchall,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & SCRHAS_ITEM)
+	{
+		if(!p_putc(screen.item,f))
+			return qe_invalid;
+		if(!p_putc(screen.hasitem,f))
+			return qe_invalid;
+		if(!p_putc(screen.itemx,f))
+			return qe_invalid;
+		if(!p_putc(screen.itemy,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & (SCRHAS_SWARP|SCRHAS_TWARP))
+	{
+		if(!p_iputw(screen.warpreturnc,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & SCRHAS_TWARP)
+	{
+		for(int32_t k=0; k<4; k++)
+		{
+			if(!p_putc(screen.tilewarptype[k],f))
+				return qe_invalid;
+		}
+		for(int32_t k=0; k<4; k++)
+		{
+			if(!p_iputw(screen.tilewarpdmap[k],f))
+				return qe_invalid;
+		}
+		
+		for(int32_t k=0; k<4; k++)
+		{
+			if(!p_putc(screen.tilewarpscr[k],f))
+				return qe_invalid;
+		}
+		
+		if(!p_putc(screen.tilewarpoverlayflags,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & SCRHAS_SWARP)
+	{
+		for(int32_t k=0; k<4; k++)
+		{
+			if(!p_putc(screen.sidewarptype[k],f))
+				return qe_invalid;
+		}
+		for(int32_t k=0; k<4; k++)
+		{
+			if(!p_iputw(screen.sidewarpdmap[k],f))
+				return qe_invalid;
+		}
+		
+		for(int32_t k=0; k<4; k++)
+		{
+			if(!p_putc(screen.sidewarpscr[k],f))
+				return qe_invalid;
+		}
+		
+		if(!p_putc(screen.sidewarpoverlayflags,f))
+			return qe_invalid;
+		if(!p_putc(screen.sidewarpindex,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & SCRHAS_WARPRET)
+	{
+		for(int32_t k=0; k<4; k++)
+		{
+			if(!p_putc(screen.warpreturnx[k],f))
+				return qe_invalid;
+		}
+		for(int32_t k=0; k<4; k++)
+		{
+			if(!p_putc(screen.warpreturny[k],f))
+				return qe_invalid;
+		}
+		if(!p_putc(screen.warparrivalx,f))
+			return qe_invalid;
+		if(!p_putc(screen.warparrivaly,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & SCRHAS_LAYERS)
+	{
+		for(int32_t k=0; k<6; k++)
+		{
+			if(!p_putc(screen.layermap[k],f))
+				return qe_invalid;
+		}
+		for(int32_t k=0; k<6; k++)
+		{
+			if(!p_putc(screen.layerscreen[k],f))
+				return qe_invalid;
+		}
+		for(int32_t k=0; k<6; k++)
+		{
+			if(!p_putc(screen.layeropacity[k],f))
+				return qe_invalid;
+		}
+		if(!p_putc(screen.hidelayers,f))
+			return qe_invalid;
+		if(!p_putc(screen.hidescriptlayers,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & SCRHAS_MAZE)
+	{
+		for(int32_t k=0; k<4; k++)
+		{
+			if(!p_putc(screen.path[k],f))
+				return qe_invalid;
+		}
+		if(!p_putc(screen.exitdir,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & SCRHAS_D_S_U)
+	{
+		if(!p_iputw(screen.door_combo_set,f))
+			return qe_invalid;
+		for(int32_t k=0; k<4; k++)
+		{
+			if(!p_putc(screen.door[k],f))
+				return qe_invalid;
+		}
+		if(!p_putc(screen.stairx,f))
+			return qe_invalid;
+		if(!p_putc(screen.stairy,f))
+			return qe_invalid;
+		if(!p_iputw(screen.undercombo,f))
+			return qe_invalid;
+		if(!p_putc(screen.undercset,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & SCRHAS_FLAGS)
+	{
+		if(!p_putc(screen.flags,f))
+			return qe_invalid;
+		if(!p_putc(screen.flags2,f))
+			return qe_invalid;
+		if(!p_putc(screen.flags3,f))
+			return qe_invalid;
+		if(!p_putc(screen.flags4,f))
+			return qe_invalid;
+		if(!p_putc(screen.flags5,f))
+			return qe_invalid;
+		if(!p_putc(screen.flags6,f))
+			return qe_invalid;
+		if(!p_putc(screen.flags7,f))
+			return qe_invalid;
+		if(!p_putc(screen.flags8,f))
+			return qe_invalid;
+		if(!p_putc(screen.flags9,f))
+			return qe_invalid;
+		if(!p_putc(screen.flags10,f))
+			return qe_invalid;
+		if(!p_putc(screen.enemyflags,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & SCRHAS_ENEMY)
+	{
+		for(int32_t k=0; k<10; k++)
+		{
+			if(!p_iputw(screen.enemy[k],f))
+				return qe_invalid;
+		}
+		if(!p_putc(screen.pattern,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & SCRHAS_CARRY)
+	{
+		if(!p_iputw(screen.noreset,f))
+			return qe_invalid;
+		if(!p_iputw(screen.nocarry,f))
+			return qe_invalid;
+		if(!p_putc(screen.nextmap,f))
+			return qe_invalid;
+		if(!p_putc(screen.nextscr,f))
+			return qe_invalid;
+	}
+	if(scr_has_flags & SCRHAS_SCRIPT)
+	{
+		if(!p_iputw(screen.script,f))
+			return qe_invalid;
+		if(!p_putc(screen.preloadscript,f))
+			return qe_invalid;
+		for ( int32_t q = 0; q < 8; q++ )
+		{
+			if(!p_iputl(screen.screeninitd[q],f))
+				return qe_invalid;
+		}
+	}
+	if(scr_has_flags & SCRHAS_UNUSED)
+	{
+		for ( int32_t q = 0; q < 10; q++ ) 
+		{
+			if(!p_iputl(screen.npcstrings[q],f))
+				return qe_invalid;
+		}
+		for ( int32_t q = 0; q < 10; q++ ) 
+		{
+			if(!p_iputw(screen.new_items[q],f))
+				return qe_invalid;
+		}
+		for ( int32_t q = 0; q < 10; q++ ) 
+		{
+			if(!p_iputw(screen.new_item_x[q],f))
+				return qe_invalid;
+		}
+		for ( int32_t q = 0; q < 10; q++ ) 
+		{
+			if(!p_iputw(screen.new_item_y[q],f))
+				return qe_invalid;
+		}
+	}
+	if(scr_has_flags & SCRHAS_SECRETS)
+	{
+		for(int32_t k=0; k<128; k++)
+		{
+			if(!p_iputw(screen.secretcombo[k],f))
+				return qe_invalid;
+		}
+		
+		for(int32_t k=0; k<128; k++)
+		{
+			if(!p_putc(screen.secretcset[k],f))
+				return qe_invalid;
+		}
+		
+		for(int32_t k=0; k<128; k++)
+		{
+			if(!p_putc(screen.secretflag[k],f))
+				return qe_invalid;
+		}
+	}
+	if(scr_has_flags & SCRHAS_COMBOFLAG)
+	{
+		for(int32_t k=0; k<176; ++k)
+		{
+			if(!p_iputw(screen.data.at(k),f))
+				return qe_invalid;
+		}
+		for(int32_t k=0; k<176; ++k)
+		{
+			if(!p_putc(screen.sflag.at(k),f))
+				return qe_invalid;
+		}
+		for(int32_t k=0; k<176; ++k)
+		{
+			if(!p_putc(screen.cset.at(k),f))
+				return qe_invalid;
+		}
+	}
+	if(scr_has_flags & SCRHAS_MISC)
+	{
+		if(!p_iputw(screen.color,f))
+			return qe_invalid;
+		if(!p_putc(screen.csensitive,f))
+			return qe_invalid;
+		if(!p_putc(screen.oceansfx,f))
+			return qe_invalid;
+		if(!p_putc(screen.bosssfx,f))
+			return qe_invalid;
+		if(!p_putc(screen.secretsfx,f))
+			return qe_invalid;
+		if(!p_putc(screen.holdupsfx,f))
+			return qe_invalid;
+		if(!p_iputw(screen.timedwarptics,f))
+			return qe_invalid;
+		if(!p_iputw(screen.screen_midi,f))
+			return qe_invalid;
+		if(!p_putc(screen.lens_layer,f))
+			return qe_invalid;
+	}
+	
+	if(!p_iputl(screen.numff,f))
 		return qe_invalid;
-    }
-    if(!p_putc(screen.hidelayers,f))
-    {
-		return qe_invalid;
-    }
-    if(!p_putc(screen.hidescriptlayers,f))
-    {
-		return qe_invalid;
-    }
-    return qe_OK;
+	for(int32_t k=0; k<32; k++)
+	{
+		if((screen.numff>>k)&1)
+		{
+			if(!p_iputw(screen.ffdata[k],f))
+				return qe_invalid;
+			
+			if(!p_putc(screen.ffcset[k],f))
+				return qe_invalid;
+			
+			if(!p_iputw(screen.ffdelay[k],f))
+				return qe_invalid;
+			
+			if(!p_iputl(screen.ffx[k],f))
+				return qe_invalid;
+			
+			if(!p_iputl(screen.ffy[k],f))
+				return qe_invalid;
+			
+			if(!p_iputl(screen.ffxdelta[k],f))
+				return qe_invalid;
+			
+			if(!p_iputl(screen.ffydelta[k],f))
+				return qe_invalid;
+			
+			if(!p_iputl(screen.ffxdelta2[k],f))
+				return qe_invalid;
+			
+			if(!p_iputl(screen.ffydelta2[k],f))
+				return qe_invalid;
+			
+			if(!p_putc(screen.fflink[k],f))
+				return qe_invalid;
+			
+			if(!p_putc(screen.ffwidth[k],f))
+				return qe_invalid;
+			
+			if(!p_putc(screen.ffheight[k],f))
+				return qe_invalid;
+			
+			if(!p_iputl(screen.ffflags[k],f))
+				return qe_invalid;
+			
+			if(!p_iputw(screen.ffscript[k],f))
+				return qe_invalid;
+			
+			for(auto q = 0; q < 8; ++q)
+			{
+				if(!p_iputl(screen.initd[k][q],f))
+					return qe_invalid;
+			}
+			
+			if(!p_putc(screen.inita[k][0]/10000,f))
+				return qe_invalid;
+			
+			if(!p_putc(screen.inita[k][1]/10000,f))
+				return qe_invalid;
+		}
+	}
+	
+	return qe_OK;
 }
 
 int32_t writemaps(PACKFILE *f, zquestheader *)
 {
-    dword section_id=ID_MAPS;
-    dword section_version=V_MAPS;
-    dword section_cversion=CV_MAPS;
-    dword section_size = 0;
-    
-    //section id
-    if(!p_mputl(section_id,f))
-    {
-        new_return(1);
-    }
-    
-    //section version info
-    if(!p_iputw(section_version,f))
-    {
-        new_return(2);
-    }
-    
-    if(!p_iputw(section_cversion,f))
-    {
-        new_return(3);
-    }
-    
-    for(int32_t writecycle=0; writecycle<2; ++writecycle)
-    {
-        fake_pack_writing=(writecycle==0);
-        
-        //section size
-        if(!p_iputl(section_size,f))
-        {
-            new_return(4);
-        }
-        
-        writesize=0;
-        
-        //finally...  section data
-        if(!p_iputw(map_count,f))
-        {
-            new_return(5);
-        }
-        
-        for(int32_t i=0; i<map_count && i<MAXMAPS2; i++)
-        {
-            for(int32_t j=0; j<MAPSCRS; j++)
-                writemapscreen(f,i,j);
-        }
-        
-        if(writecycle==0)
-        {
-            section_size=writesize;
-        }
-    }
-    
-    if(writesize!=int32_t(section_size) && save_warn)
-    {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writemaps()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
-    }
-    
-    new_return(0);
+	dword section_id=ID_MAPS;
+	dword section_version=V_MAPS;
+	dword section_cversion=CV_MAPS;
+	dword section_size = 0;
+	
+	//section id
+	if(!p_mputl(section_id,f))
+	{
+		new_return(1);
+	}
+	
+	//section version info
+	if(!p_iputw(section_version,f))
+	{
+		new_return(2);
+	}
+	
+	if(!p_iputw(section_cversion,f))
+	{
+		new_return(3);
+	}
+	
+	for(int32_t writecycle=0; writecycle<2; ++writecycle)
+	{
+		fake_pack_writing=(writecycle==0);
+		
+		//section size
+		if(!p_iputl(section_size,f))
+		{
+			new_return(4);
+		}
+		
+		writesize=0;
+		
+		//finally...  section data
+		if(!p_iputw(map_count,f))
+		{
+			new_return(5);
+		}
+		
+		for(int32_t i=0; i<map_count && i<MAXMAPS2; i++)
+		{
+			byte valid = 0;
+			for(int32_t j=0; j<MAPSCRS; j++)
+			{
+				if((i*MAPSCRS+j)>=int32_t(TheMaps.size()))
+					break;
+				mapscr& screen=TheMaps.at(i*MAPSCRS+j);
+				if(screen.valid & mVALID)
+				{
+					valid = 1;
+					break;
+				}
+			}
+			if(!p_putc(valid,f))
+			{
+				new_return(6);
+			}
+			if(!valid) continue;
+			for(int32_t j=0; j<MAPSCRS; j++)
+				writemapscreen(f,i,j);
+		}
+		
+		if(writecycle==0)
+		{
+			section_size=writesize;
+		}
+	}
+	
+	if(writesize!=int32_t(section_size) && save_warn)
+	{
+		char ebuf[80];
+		sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
+		jwin_alert("Error:  writemaps()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+	}
+	
+	new_return(0);
 }
 
 int32_t writecombos(PACKFILE *f, word version, word build, word start_combo, word max_combos)
@@ -9519,188 +9734,250 @@ int32_t writecombos(PACKFILE *f, word version, word build, word start_combo, wor
         
         for(int32_t i=start_combo; i<start_combo+combos_used; i++)
         {
-            if(!p_iputl(combobuf[i].tile,f))
-            {
-                new_return(6);
-            }
-            
-            if(!p_putc(combobuf[i].flip,f))
-            {
-                new_return(7);
-            }
-            
-            if(!p_putc(combobuf[i].walk,f))
-            {
-                new_return(8);
-            }
-            
-            if(!p_putc(combobuf[i].type,f))
-            {
-                new_return(9);
-            }
-            
-            if(!p_putc(combobuf[i].csets,f))
-            {
-                new_return(10);
-            }
-            
-            if(!p_putc(combobuf[i].frames,f))
-            {
-                new_return(11);
-            }
-            
-            if(!p_putc(combobuf[i].speed,f))
-            {
-                new_return(12);
-            }
-            
-            if(!p_iputw(combobuf[i].nextcombo,f))
-            {
-                new_return(13);
-            }
-            
-            if(!p_putc(combobuf[i].nextcset,f))
-            {
-                new_return(14);
-            }
-            
-            if(!p_putc(combobuf[i].flag,f))
-            {
-                new_return(15);
-            }
-            
-            if(!p_putc(combobuf[i].skipanim,f))
-            {
-                new_return(16);
-            }
-            
-            if(!p_iputw(combobuf[i].nexttimer,f))
-            {
-                new_return(17);
-            }
-            
-            if(!p_putc(combobuf[i].skipanimy,f))
-            {
-                new_return(18);
-            }
-            
-            if(!p_putc(combobuf[i].animflags,f))
-            {
-                new_return(19);
-            }
+			newcombo const& tmp_cmb = combobuf[i];
+			//Check what needs writing
+			byte combo_has_flags = 0;
+			for(auto q = 0; q < 8; ++q)
+			{
+				if(tmp_cmb.attribytes[q] || tmp_cmb.attrishorts[q]
+					|| (q < 4 && tmp_cmb.attributes[q]))
+				{
+					combo_has_flags |= CHAS_ATTRIB;
+					break;
+				}
+			}
+			if(tmp_cmb.triggerflags[0] || tmp_cmb.triggerflags[1]
+				|| tmp_cmb.triggerflags[2] || tmp_cmb.triggerlevel
+				|| tmp_cmb.triggerbtn || tmp_cmb.triggeritem
+				|| tmp_cmb.trigtimer || tmp_cmb.trigsfx
+				|| tmp_cmb.trigchange || tmp_cmb.trigprox
+				|| tmp_cmb.trigctr || tmp_cmb.trigctramnt
+				|| tmp_cmb.triglbeam || tmp_cmb.trigcschange
+				|| tmp_cmb.spawnitem || tmp_cmb.spawnenemy
+				|| tmp_cmb.exstate > -1 || tmp_cmb.spawnip
+				|| tmp_cmb.trigcopycat || tmp_cmb.trigcooldown)
+				combo_has_flags |= CHAS_TRIG;
+			if(tmp_cmb.usrflags || tmp_cmb.genflags)
+				combo_has_flags |= CHAS_FLAG;
+			if(tmp_cmb.frames || tmp_cmb.speed || tmp_cmb.nextcombo
+				|| tmp_cmb.nextcset || tmp_cmb.skipanim || tmp_cmb.skipanimy
+				|| tmp_cmb.animflags)
+				combo_has_flags |= CHAS_ANIM;
+			if(tmp_cmb.script || strlen(tmp_cmb.label)
+				|| tmp_cmb.initd[0] || tmp_cmb.initd[1])
+				combo_has_flags |= CHAS_SCRIPT;
+			if(tmp_cmb.o_tile || tmp_cmb.flip || tmp_cmb.walk != 0xF0
+				|| tmp_cmb.type || tmp_cmb.csets)
+				combo_has_flags |= CHAS_GENERAL;
 			
-			for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+			if(!p_putc(combo_has_flags,f))
 			{
-				if(!p_iputl(combobuf[i].attributes[q],f))
+				new_return(50);
+			}
+			if(!combo_has_flags) continue;
+			//Write the combo
+			if(combo_has_flags&CHAS_GENERAL)
+			{
+				if(!p_iputl(tmp_cmb.o_tile,f))
 				{
-					new_return(20);
+					new_return(6);
+				}
+				
+				if(!p_putc(tmp_cmb.flip,f))
+				{
+					new_return(7);
+				}
+				
+				if(!p_putc(tmp_cmb.walk,f))
+				{
+					new_return(8);
+				}
+				
+				if(!p_putc(tmp_cmb.type,f))
+				{
+					new_return(9);
+				}
+				
+				if(!p_putc(tmp_cmb.flag,f))
+				{
+					new_return(15);
+				}
+				
+				if(!p_putc(tmp_cmb.csets,f))
+				{
+					new_return(10);
 				}
 			}
-			if(!p_iputl(combobuf[i].usrflags,f))
+			if(combo_has_flags&CHAS_SCRIPT)
 			{
-				new_return(21);
-			}	 
-			if(!p_iputw(combobuf[i].genflags,f))
-			{
-				new_return(33);
-			}	 
-			for ( int32_t q = 0; q < 3; q++ ) 
-			{
-				if(!p_iputl(combobuf[i].triggerflags[q],f))
+				for ( int32_t q = 0; q < 11; q++ ) 
 				{
-					new_return(22);
+					if(!p_putc(tmp_cmb.label[q],f))
+					{
+						new_return(24);
+					}
+				}
+				if(!p_iputw(tmp_cmb.script,f))
+				{
+					new_return(26);
+				}
+				for ( int32_t q = 0; q < 2; q++ )
+				{
+					if(!p_iputl(tmp_cmb.initd[q],f))
+					{
+						new_return(27);
+					}
 				}
 			}
-		   
-			if(!p_iputl(combobuf[i].triggerlevel,f))
+			if(combo_has_flags&CHAS_ANIM)
 			{
-				new_return(23);
-			}	
-			if(!p_putc(combobuf[i].triggerbtn,f))
-			{
-				new_return(34);
-			}
-			if(!p_putc(combobuf[i].triggeritem,f))
-			{
-				new_return(35);
-			}
-			if(!p_putc(combobuf[i].trigtimer,f))
-			{
-				new_return(36);
-			}
-			if(!p_putc(combobuf[i].trigsfx,f))
-			{
-				new_return(37);
-			}
-			if(!p_iputl(combobuf[i].trigchange,f))
-			{
-				new_return(38);
-			}
-			if(!p_iputw(combobuf[i].trigprox,f))
-			{
-				new_return(39);
-			}
-			if(!p_putc(combobuf[i].trigctr,f))
-			{
-				new_return(40);
-			}
-			if(!p_iputl(combobuf[i].trigctramnt,f))
-			{
-				new_return(41);
-			}
-			if(!p_putc(combobuf[i].triglbeam,f))
-			{
-				new_return(42);
-			}
-			for ( int32_t q = 0; q < 11; q++ ) 
-			{
-				if(!p_putc(combobuf[i].label[q],f))
+				if(!p_putc(tmp_cmb.frames,f))
 				{
-					new_return(24);
+					new_return(11);
+				}
+				
+				if(!p_putc(tmp_cmb.speed,f))
+				{
+					new_return(12);
+				}
+				
+				if(!p_iputw(tmp_cmb.nextcombo,f))
+				{
+					new_return(13);
+				}
+				
+				if(!p_putc(tmp_cmb.nextcset,f))
+				{
+					new_return(14);
+				}
+				
+				if(!p_putc(tmp_cmb.skipanim,f))
+				{
+					new_return(16);
+				}
+							
+				if(!p_putc(tmp_cmb.skipanimy,f))
+				{
+					new_return(18);
+				}
+				
+				if(!p_putc(tmp_cmb.animflags,f))
+				{
+					new_return(19);
 				}
 			}
-			for ( int32_t q = 0; q < 4; q++ ) //attribytes were sized 4 in this version, I bumped them up.
+			if(combo_has_flags&CHAS_ATTRIB)
 			{
-				if(!p_putc(combobuf[i].attribytes[q],f))
+				for ( int32_t q = 0; q < 4; q++ )
 				{
-					new_return(25);
+					if(!p_iputl(tmp_cmb.attributes[q],f))
+					{
+						new_return(20);
+					}
+				}
+				for ( int32_t q = 0; q < 8; q++ )
+				{
+					if(!p_putc(tmp_cmb.attribytes[q],f))
+					{
+						new_return(25);
+					}
+				}
+				for ( int32_t q = 0; q < 8; q++ ) //I also added attrishorts -Dimi
+				{
+					if(!p_iputw(tmp_cmb.attrishorts[q],f))
+					{
+						new_return(32);
+					}
 				}
 			}
-			if(!p_iputw(combobuf[i].script,f))
+			if(combo_has_flags&CHAS_FLAG)
 			{
-				new_return(26);
-			}
-			for ( int32_t q = 0; q < 2; q++ )
-			{
-				if(!p_iputl(combobuf[i].initd[q],f))
+				if(!p_iputl(tmp_cmb.usrflags,f))
 				{
-					new_return(27);
+					new_return(21);
+				}	 
+				if(!p_iputw(tmp_cmb.genflags,f))
+				{
+					new_return(33);
 				}
 			}
-			if(!p_iputl(combobuf[i].o_tile,f))
+			if(combo_has_flags&CHAS_TRIG)
 			{
-				new_return(28);
-			}
-			if(!p_putc(combobuf[i].cur_frame,f))
-			{
-				new_return(29);
-			}
-			if(!p_putc(combobuf[i].aclk,f))
-			{
-				new_return(30);
-			}
-			for ( int32_t q = 4; q < 8; q++ ) //I bumped up attribytes -Dimi
-			{
-				if(!p_putc(combobuf[i].attribytes[q],f))
+				for ( int32_t q = 0; q < 3; q++ ) 
 				{
-					new_return(31);
+					if(!p_iputl(tmp_cmb.triggerflags[q],f))
+					{
+						new_return(22);
+					}
 				}
-			}
-			for ( int32_t q = 0; q < 8; q++ ) //I also added attrishorts -Dimi
-			{
-				if(!p_iputw(combobuf[i].attrishorts[q],f))
+			   
+				if(!p_iputl(tmp_cmb.triggerlevel,f))
 				{
-					new_return(32);
+					new_return(23);
+				}	
+				if(!p_putc(tmp_cmb.triggerbtn,f))
+				{
+					new_return(34);
+				}
+				if(!p_putc(tmp_cmb.triggeritem,f))
+				{
+					new_return(35);
+				}
+				if(!p_putc(tmp_cmb.trigtimer,f))
+				{
+					new_return(36);
+				}
+				if(!p_putc(tmp_cmb.trigsfx,f))
+				{
+					new_return(37);
+				}
+				if(!p_iputl(tmp_cmb.trigchange,f))
+				{
+					new_return(38);
+				}
+				if(!p_iputw(tmp_cmb.trigprox,f))
+				{
+					new_return(39);
+				}
+				if(!p_putc(tmp_cmb.trigctr,f))
+				{
+					new_return(40);
+				}
+				if(!p_iputl(tmp_cmb.trigctramnt,f))
+				{
+					new_return(41);
+				}
+				if(!p_putc(tmp_cmb.triglbeam,f))
+				{
+					new_return(42);
+				}
+				if(!p_putc(tmp_cmb.trigcschange,f))
+				{
+					new_return(43);
+				}
+				if(!p_iputw(tmp_cmb.spawnitem,f))
+				{
+					new_return(44);
+				}
+				if(!p_iputw(tmp_cmb.spawnenemy,f))
+				{
+					new_return(45);
+				}
+				if(!p_putc(tmp_cmb.exstate,f))
+				{
+					new_return(46);
+				}
+				if(!p_iputl(tmp_cmb.spawnip,f))
+				{
+					new_return(47);
+				}
+				if(!p_putc(tmp_cmb.trigcopycat,f))
+				{
+					new_return(48);
+				}
+				if(!p_putc(tmp_cmb.trigcooldown,f))
+				{
+					new_return(49);
 				}
 			}
         }
@@ -11014,7 +11291,7 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 					new_return(98);
 				}
 			}
-			if(!p_putc(guysbuf[i].moveflags,f))
+			if(!p_iputl(guysbuf[i].moveflags,f))
 				new_return(99);
 			if(!p_putc(guysbuf[i].spr_shadow,f))
 				new_return(100);
@@ -12670,28 +12947,62 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_
 	
     for(int32_t j=0; j<num_commands; j++)
     {
-        
-        if(!p_iputw((*script)->zasm[j].command,f))
+        auto& zas = (*script)->zasm[j];
+        if(!p_iputw(zas.command,f))
         {
             new_return(20);
         }
         
-        if((*script)->zasm[j].command==0xFFFF)
+        if(zas.command==0xFFFF)
         {
             break;
         }
         else
         {
-		//al_trace("Current FFScript XCommand Being Written: %d\n", (*script)->zasm[j].command);
-            if(!p_iputl((*script)->zasm[j].arg1,f))
+            if(!p_iputl(zas.arg1,f))
             {
                 new_return(21);
             }
             
-            if(!p_iputl((*script)->zasm[j].arg2,f))
+            if(!p_iputl(zas.arg2,f))
             {
                 new_return(22);
             }
+			
+			uint32_t sz = 0;
+			if(zas.strptr)
+				sz = zas.strptr->size();
+			if(!p_iputl(sz,f))
+			{
+                new_return(23);
+			}
+			if(sz)
+			{
+				for(size_t q = 0; q < sz; ++q)
+				{
+					if(!p_putc(zas.strptr->at(q),f))
+					{
+						new_return(24);
+					}
+				}
+			}
+			sz = 0;
+			if(zas.vecptr)
+				sz = zas.vecptr->size();
+			if(!p_iputl(sz,f))
+			{
+                new_return(25);
+			}
+			if(sz) //vector found
+			{
+				for(size_t q = 0; q < sz; ++q)
+				{
+					if(!p_iputl(zas.vecptr->at(q),f))
+					{
+						return qe_invalid;
+					}
+				}
+			}
         }
     }
     

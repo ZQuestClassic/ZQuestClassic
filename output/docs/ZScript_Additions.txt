@@ -7453,7 +7453,7 @@ bool isAllocated();
  * A bitmap which has not been allocated should not be used, and should be allocated with `Game->AllocateBitmap()` or created with `Game->CreateBitmap()`
  * A bitmap which has been allocated, but is not valid, cannot be written to; however, it can be used with `bitmap->Create()` or `bitmap->Read()`
  
-float GetPixel(int x, int y);
+int GetPixel(int x, int y);
  * Returns the palette index value of a pixel on the current bitmap pointer.
 
 void Create(int layer, int width, int height);
@@ -7549,6 +7549,17 @@ void ReplaceColors( int layer, int color, int startCol, int endCol )
  
 void ShiftColors( int layer, int shift, int startCol, int endCol )
  * Adds 'shift' to colors >= startCol and <= endCol
+
+int CountColor(bitmap mask, int x, int y, int checkColor, int maskColor);
+ * Checks the area of the bitmap specified by the mask for the specified 'checkColor',
+ *     returning how many pixels match.
+ * If 'maskColor' is '-1', any non-0 portion of the mask bitmap will be checked.
+ *     Otherwise, only areas of the mask bitmap that match the maskColor will be checked.
+ * The area checked is from `x,y` to `x+mask->Width,y+mask->Height`. If this goes out of bounds,
+ *     the out of bounds area is ignored.
+ * As this is not a drawing function, draws that occur this frame will *NOT* be read-
+ *     only whatever was drawn to the bitmap at the end of the previous frame will
+ *     (similar to GetPixel())
 
 void Blit	
 	( 

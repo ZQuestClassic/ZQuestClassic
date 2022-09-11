@@ -261,9 +261,9 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            15
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          30
+#define V_COMBOS          33
 #define V_CSETS            5 //palette data
-#define V_MAPS            22
+#define V_MAPS            23
 #define V_DMAPS            17
 #define V_DOORS            1
 #define V_ITEMS           53
@@ -272,7 +272,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        32
-#define V_GUYS            46
+#define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        28
@@ -280,11 +280,11 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEROSPRITES      15
 #define V_SUBSCREEN        7
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         20
+#define V_FFSCRIPT         21
 #define V_SFX              8
 #define V_FAVORITES        1
 
-#define V_COMPATRULE       31
+#define V_COMPATRULE       32
 #define V_ZINFO            2
 
 //= V_SHOPS is under V_MISC
@@ -597,6 +597,7 @@ extern bool fake_pack_writing;
 #define fDARK_DITHER        0x08 //'S.Flags1' ...dithered dark
 #define fDARK_TRANS         0x10 //'S.Flags1' ...transparent dark
 #define fDISABLE_MIRROR     0x20 //'S.Flags1' Disable Magic Mirror
+#define fENEMY_WAVES     0x40 //'E.Flags' Chain 'Enemies->' triggers
 
 //lens layer effects
 #define llNORMAL        0
@@ -828,7 +829,7 @@ enum
 	//170
 	cSPOTLIGHT, cGLASS, cLIGHTTARGET, cSWITCHHOOK, cBUTTONPROMPT,
 	//175
-	cCUSTOMBLOCK,
+	cCUSTOMBLOCK, cSHOOTER,
     cMAX,
 	// ! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
@@ -1100,7 +1101,7 @@ enum
 	qr_CONVEYORS_L1_L2, qr_CUSTOMCOMBOS_EVERY_LAYER, qr_SUBSCR_BACKWARDS_ID_ORDER, qr_FASTCOUNTERDRAIN,
 	qr_OLD_LOCKBLOCK_COLLISION, qr_DECO_2_YOFFSET, qr_SCREENSTATE_80s_BUG, qr_AUTOCOMBO_ANY_LAYER,
 	//60
-	qr_GOHMA_UNDAMAGED_BUG, qr_FFCPRELOAD_BUGGED_LOAD, qr_SWITCHES_AFFECT_MOVINGBLOCKS,
+	qr_GOHMA_UNDAMAGED_BUG, qr_FFCPRELOAD_BUGGED_LOAD, qr_SWITCHES_AFFECT_MOVINGBLOCKS, qr_BROKEN_GETPIXEL_VALUE,
 	//70
 	
 	//ZScript Parser //room for 20 of these
@@ -1378,25 +1379,31 @@ enum
 #define combotriggerEWROCK       0x80000000
 
 //triggerflags[2]
-#define combotriggerEWSCRIPT01   0x00000001
-#define combotriggerEWSCRIPT02   0x00000002
-#define combotriggerEWSCRIPT03   0x00000004
-#define combotriggerEWSCRIPT04   0x00000008
-#define combotriggerEWSCRIPT05   0x00000010
-#define combotriggerEWSCRIPT06   0x00000020
-#define combotriggerEWSCRIPT07   0x00000040
-#define combotriggerEWSCRIPT08   0x00000080
-#define combotriggerEWSCRIPT09   0x00000100
-#define combotriggerEWSCRIPT10   0x00000200
-#define combotriggerEWMAGIC      0x00000400
-#define combotriggerEWBBLAST     0x00000800
-#define combotriggerEWSBBLAST    0x00001000
-#define combotriggerEWLITBOMB    0x00002000
-#define combotriggerEWLITSBOMB   0x00004000
-#define combotriggerEWFIRETRAIL  0x00008000
-#define combotriggerEWFLAME      0x00010000
-#define combotriggerEWWIND       0x00020000
-#define combotriggerEWFLAME2     0x00040000
+#define combotriggerEWSCRIPT01     0x00000001
+#define combotriggerEWSCRIPT02     0x00000002
+#define combotriggerEWSCRIPT03     0x00000004
+#define combotriggerEWSCRIPT04     0x00000008
+#define combotriggerEWSCRIPT05     0x00000010
+#define combotriggerEWSCRIPT06     0x00000020
+#define combotriggerEWSCRIPT07     0x00000040
+#define combotriggerEWSCRIPT08     0x00000080
+#define combotriggerEWSCRIPT09     0x00000100
+#define combotriggerEWSCRIPT10     0x00000200
+#define combotriggerEWMAGIC        0x00000400
+#define combotriggerEWBBLAST       0x00000800
+#define combotriggerEWSBBLAST      0x00001000
+#define combotriggerEWLITBOMB      0x00002000
+#define combotriggerEWLITSBOMB     0x00004000
+#define combotriggerEWFIRETRAIL    0x00008000
+#define combotriggerEWFLAME        0x00010000
+#define combotriggerEWWIND         0x00020000
+#define combotriggerEWFLAME2       0x00040000
+#define combotriggerSPCITEM        0x00080000
+#define combotriggerEXSTITEM       0x00100000
+#define combotriggerEXSTENEMY      0x00200000
+#define combotriggerAUTOGRABITEM   0x00400000
+#define combotriggerKILLENEMIES    0x00800000
+#define combotriggerSECRETSTR      0x01000000
 
 #define ctrigNONE        0x00
 #define ctrigIGNORE_SIGN 0x01
@@ -2256,7 +2263,7 @@ struct guydata
     word script; //For future npc action scripts. 
     //int16_t parentCore; //Probably not needed here. -Z
     int32_t editorflags;
-	byte moveflags;
+	dword moveflags;
     
     char initD_label[8][65];
     char weapon_initD_label[8][65];
@@ -2286,17 +2293,21 @@ struct guydata
     
 };
 //Moveflags
-#define FLAG_OBEYS_GRAV        0x01
-#define FLAG_CAN_PITFALL       0x02
-#define FLAG_CAN_PITWALK       0x04
-#define FLAG_CAN_WATERDROWN    0x08
-#define FLAG_CAN_WATERWALK     0x10
-#define FLAG_ONLY_WATERWALK    0x20 //Only walks on water
-#define FLAG_ONLY_SHALLOW_WATERWALK 0x40 //Only walks on shallow water
-#define FLAG_ONLY_PITWALK 0x80 //Only walks on pitfalls
-#define FLAG_NO_FAKE_Z 0x100
-#define FLAG_NO_REAL_Z 0x200
-#define FLAG_USE_FAKE_Z 0x400
+#define FLAG_OBEYS_GRAV               0x0001
+#define FLAG_CAN_PITFALL              0x0002
+#define FLAG_CAN_PITWALK              0x0004
+#define FLAG_CAN_WATERDROWN           0x0008
+#define FLAG_CAN_WATERWALK            0x0010
+#define FLAG_ONLY_WATERWALK           0x0020 //Only walks on water
+#define FLAG_ONLY_SHALLOW_WATERWALK   0x0040 //Only walks on shallow water
+#define FLAG_ONLY_PITWALK             0x0080 //Only walks on pitfalls
+#define FLAG_NO_FAKE_Z                0x0100
+#define FLAG_NO_REAL_Z                0x0200
+#define FLAG_USE_FAKE_Z               0x0400
+#define FLAG_IGNORE_SOLIDITY          0x0800
+#define FLAG_IGNORE_BLOCKFLAGS        0x1000
+#define FLAG_IGNORE_SCREENEDGE        0x2000
+#define FLAG_USE_NEW_MOVEMENT         0x4000
 
 class refInfo
 {
@@ -2930,13 +2941,55 @@ struct ffscript
     word command;
     int32_t arg1;
     int32_t arg2;
-    char *ptr;
+	std::vector<int32_t> *vecptr;
+	std::string *strptr;
+	ffscript()
+	{
+		command = 0xFFFF;
+		arg1 = 0;
+		arg2 = 0;
+		vecptr = nullptr;
+		strptr = nullptr;
+	}
+	~ffscript()
+	{
+		if(vecptr)
+		{
+			delete vecptr;
+			vecptr = nullptr;
+		}
+		if(strptr)
+		{
+			delete strptr;
+			strptr = nullptr;
+		}
+	}
+	void give(ffscript& other)
+	{
+		other.command = command;
+		other.arg1 = arg1;
+		other.arg2 = arg2;
+		other.vecptr = vecptr;
+		other.strptr = strptr;
+		vecptr = nullptr;
+		strptr = nullptr;
+		clear();
+	}
 	void clear()
 	{
 		command = 0xFFFF;
 		arg1 = 0;
 		arg2 = 0;
-		ptr = NULL;
+		if(vecptr)
+		{
+			delete vecptr;
+			vecptr = nullptr;
+		}
+		if(strptr)
+		{
+			delete strptr;
+			strptr = nullptr;
+		}
 	}
 };
 
@@ -3044,7 +3097,7 @@ struct script_command
     byte args;
     byte arg1_type; //0=reg, 1=val;
     byte arg2_type; //0=reg, 1=val;
-    bool more_stuff;
+    byte arr_type; //0x1 = string, 0x2 = array
 };
 
 struct script_variable
@@ -3196,6 +3249,13 @@ struct newcombo
 	byte trigctr; //8 bits
 	int32_t trigctramnt; //32 bits
 	byte triglbeam; //8 bits
+	int8_t trigcschange; //8 bits
+	int16_t spawnitem; //16 bits
+	int16_t spawnenemy; //16 bits
+	int8_t exstate; //8 bits
+	int32_t spawnip; //32 bits
+	byte trigcopycat; //8 bits
+	byte trigcooldown; //8 bits
 	char label[11];
 		//Only one of these per combo: Otherwise we would have 
 		//int32_t triggerlevel[54] (1,728 bits extra per combo in a quest, and in memory) !!
@@ -3251,6 +3311,13 @@ struct newcombo
 		trigctr = 0;
 		trigctramnt = 0;
 		triglbeam = 0;
+		trigcschange = 0;
+		spawnitem = 0;
+		spawnenemy = 0;
+		exstate = -1;
+		spawnip = 0;
+		trigcopycat = 0;
+		trigcooldown = 0;
 		trigchange = 0;
 		for(int32_t q = 0; q < 11; ++q)
 			label[q] = 0;
@@ -3301,6 +3368,13 @@ struct newcombo
 		if(trigctr) return false;
 		if(trigctramnt) return false;
 		if(triglbeam) return false;
+		if(trigcschange) return false;
+		if(spawnitem) return false;
+		if(spawnenemy) return false;
+		if(exstate > -1) return false;
+		if(spawnip) return false;
+		if(trigcopycat) return false;
+		if(trigcooldown) return false;
 		if(strlen(label)) return false;
 		for(auto q = 0; q < 8; ++q)
 			if(attribytes[q]) return false;
@@ -5359,6 +5433,30 @@ extern void removeFromItemCache(int32_t itemid);
 #define RUNSCRIPT_ERROR			1
 #define RUNSCRIPT_SELFDELETE	2
 
+#define CHAS_ATTRIB   0x01
+#define CHAS_FLAG     0x02
+#define CHAS_TRIG     0x04
+#define CHAS_ANIM     0x08
+#define CHAS_SCRIPT   0x10
+#define CHAS_GENERAL  0x20
+
+#define SCRHAS_ROOMDATA  0x00000001
+#define SCRHAS_ITEM      0x00000002
+#define SCRHAS_TWARP     0x00000004
+#define SCRHAS_SWARP     0x00000008
+#define SCRHAS_WARPRET   0x00000010
+#define SCRHAS_LAYERS    0x00000020
+#define SCRHAS_MAZE      0x00000040
+#define SCRHAS_D_S_U     0x00000080
+#define SCRHAS_FLAGS     0x00000100
+#define SCRHAS_ENEMY     0x00000200
+#define SCRHAS_CARRY     0x00000400
+#define SCRHAS_SCRIPT    0x00000800
+#define SCRHAS_UNUSED    0x00001000
+#define SCRHAS_SECRETS   0x00002000
+#define SCRHAS_COMBOFLAG 0x00004000
+#define SCRHAS_MISC      0x00008000
+
 #define until(n) while(!(n))
 #define unless(n) if(!(n))
 #define SETFLAG(v, fl, b)	if(b) v |= (fl); else v &= ~(fl)
@@ -5455,6 +5553,8 @@ void exit_sys_pal();
 extern bool global_z3_scrolling_extended_height_mode;
 extern viewport_t viewport;
 extern int32_t global_z3_cur_scr_drawing;
+
+#define SMART_WRAP(x, mod) (x < 0 ? ((mod-(-x%mod))%mod) : (x%mod))
 
 #undef cmb1
 #undef cmb2

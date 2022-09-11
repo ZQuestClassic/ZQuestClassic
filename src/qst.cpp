@@ -3633,6 +3633,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_GOHMA_UNDAMAGED_BUG,1);
 		set_bit(quest_rules,qr_FFCPRELOAD_BUGGED_LOAD,1);
 	}
+	if(compatrule_version < 32)
+	{
+		set_bit(quest_rules,qr_BROKEN_GETPIXEL_VALUE,1);
+	}
 	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
@@ -4557,13 +4561,15 @@ void clear_screen(mapscr *temp_scr)
     {
         temp_scr->layeropacity[j]=255;
     }
+	temp_scr->screen_midi=-1;
+	temp_scr->csensitive=1;
+	temp_scr->secretsfx=27;
+	temp_scr->holdupsfx=20;
     
     for(int32_t j=0; j<32; j++)
     {
         temp_scr->ffwidth[j] = 15;
         temp_scr->ffheight[j] = 15;
-        //temp_scr->a[j][0] = 10000;
-        //temp_scr->a[j][1] = 10000;
     }
 }
 
@@ -12932,13 +12938,6 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 	return 0;
 }
 
-//Eh?
-bool is_string_command(int32_t command)
-{
-    command = command;
-    return false;
-}
-
 void reset_scripts()
 {
     //OK, who spaced this? ;)
@@ -13068,28 +13067,27 @@ void reset_scripts()
     }
 }
 
+extern script_command command_list[];
 int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , word s_version, word , script_data **script, word zmeta_version)
 {
-
-    //Please also update loadquest() when modifying this method -DD
-    ffscript temp_script;
-    temp_script.ptr=NULL;
-    int32_t num_commands=1000;
+	//Please also update loadquest() when modifying this method -DD
+	ffscript temp_script;
+	int32_t num_commands=1000;
 	
-    if(s_version>=2)
-    {
-        if(!p_igetl(&num_commands,f,true))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    if(keepdata)
-    {
-        if((*script) != NULL) //Surely we want to do this regardless of keepdata? //No, we don't -V
-            delete (*script);
+	if(s_version>=2)
+	{
+		if(!p_igetl(&num_commands,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	
+	if(keepdata)
+	{
+		if((*script) != NULL) //Surely we want to do this regardless of keepdata? //No, we don't -V
+			delete (*script);
 		(*script) = new script_data(num_commands);
-    }
+	}
 	if(s_version >= 16)
 	{
 		zasm_meta temp_meta;
@@ -13180,56 +13178,81 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , 
 		if(keepdata)
 			(*script)->meta = temp_meta;
 	}
-    
-    for(int32_t j=0; j<num_commands; j++)
-    {
-        if(!p_igetw(&(temp_script.command),f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(temp_script.command == 0xFFFF)
-        {
-            if(keepdata)
-                (*script)->zasm[j].command = 0xFFFF;
-                
-            break;
-        }
-        else
-        {
-            if(is_string_command(temp_script.command))
-            {
-            }
-            else
-            {
-                if(!p_igetl(&(temp_script.arg1),f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&(temp_script.arg2),f,keepdata))
-                {
-                    return qe_invalid;
-                }
-            }
-            
-            if(keepdata)
-            {
-                (*script)->zasm[j].command = temp_script.command;
-		    //al_trace("Current FFScript XCommand Being Read: %d\n", (*script)[j].command);
-                (*script)->zasm[j].arg1 = temp_script.arg1;
-                (*script)->zasm[j].arg2 = temp_script.arg2;
-                // I'll comment this out until the whole routine is finished using ptr
-                //if(is_string_command(temp_script.command))
-                //{
-                //( *script)[j].ptr=(char *)zc_malloc(256);
-                //memcpy((*script)[j].ptr, temp_script.ptr, 256);
-                //}
-            }
-        }
-    }
-    
-    return 0;
+	
+	temp_script.clear();
+	for(int32_t j=0; j<num_commands; j++)
+	{
+		if(!p_igetw(&(temp_script.command),f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(temp_script.command == 0xFFFF)
+		{
+			if(keepdata)
+				(*script)->zasm[j].clear();
+			break;
+		}
+		else
+		{
+			if(!p_igetl(&(temp_script.arg1),f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_igetl(&(temp_script.arg2),f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(s_version >= 21)
+			{
+				uint32_t sz = 0;
+				if(!p_igetl(&sz,f,keepdata))
+				{
+					return qe_invalid;
+				}
+				if(sz) //string found
+				{
+					temp_script.strptr = new std::string();
+					char dummy;
+					for(size_t q = 0; q < sz; ++q)
+					{
+						if(!p_getc(&dummy,f,keepdata))
+						{
+							return qe_invalid;
+						}
+						temp_script.strptr->push_back(dummy);
+					}
+				}
+				if(!p_igetl(&sz,f,keepdata))
+				{
+					return qe_invalid;
+				}
+				if(sz) //vector found
+				{
+					temp_script.vecptr = new std::vector<int32_t>();
+					int32_t dummy;
+					for(size_t q = 0; q < sz; ++q)
+					{
+						if(!p_igetl(&dummy,f,keepdata))
+						{
+							return qe_invalid;
+						}
+						temp_script.vecptr->push_back(dummy);
+					}
+				}
+			}
+			
+			if(keepdata)
+			{
+				temp_script.give((*script)->zasm[j]);
+			}
+		}
+		temp_script.clear();
+	}
+	
+	return 0;
 }
 
 extern SAMPLE customsfxdata[WAV_COUNT];
@@ -15091,9 +15114,21 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             
 			if(guyversion >= 42)
 			{
-				if(!p_getc(&(tempguy.moveflags),f,keepdata))
+				if(guyversion >= 47)
 				{
-					return qe_invalid;
+					if(!p_igetl(&(tempguy.moveflags),f,keepdata))
+					{
+						return qe_invalid;
+					}
+				}
+				else
+				{
+					byte fl;
+					if(!p_getc(&fl,f,keepdata))
+					{
+						return qe_invalid;
+					}
+					tempguy.moveflags = fl;
 				}
 			}
 			else
@@ -15448,7 +15483,7 @@ darknuts:
 }
 
 
-int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version)
+int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version)
 {
     byte tempbyte, padding;
     int32_t extras, secretcombos;
@@ -15800,12 +15835,12 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
                 temp_mapscr->enemy[k]+=10;
             }
         }
-	//don't read in any invalid data
-	if ( ((unsigned)temp_mapscr->enemy[k]) > MAXGUYS )
-	{
-		al_trace("Tried to read an invalid enemy ID (%d) for tmpscr.enemy[%d]. This has been cleared to 0.\n", temp_mapscr->enemy[k], k);
-		temp_mapscr->enemy[k] = 0;
-	}
+		//don't read in any invalid data
+		if ( ((unsigned)temp_mapscr->enemy[k]) > MAXGUYS )
+		{
+			al_trace("Tried to read an invalid enemy ID (%d) for tmpscr->enemy[%d]. This has been cleared to 0.\n", temp_mapscr->enemy[k], k);
+			temp_mapscr->enemy[k] = 0;
+		}
     }
     
     if(!p_getc(&(temp_mapscr->pattern),f,true))
@@ -16770,34 +16805,34 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
     //2.55 starts here
     if ( version >= 19 && Header->zelda_version > 0x253 )
     {
-	for ( int32_t q = 0; q < 10; q++ ) 
-	{
-		if(!p_igetl(&(temp_mapscr->npcstrings[q]),f,true))
+		for ( int32_t q = 0; q < 10; q++ ) 
 		{
-                        return qe_invalid;
-		} 
-	}
-	for ( int32_t q = 0; q < 10; q++ ) 
-	{
-		if(!p_igetw(&(temp_mapscr->new_items[q]),f,true))
+			if(!p_igetl(&(temp_mapscr->npcstrings[q]),f,true))
+			{
+				return qe_invalid;
+			} 
+		}
+		for ( int32_t q = 0; q < 10; q++ ) 
 		{
-                        return qe_invalid;
-		} 
-	}
-	for ( int32_t q = 0; q < 10; q++ ) 
-	{
-		if(!p_igetw(&(temp_mapscr->new_item_x[q]),f,true))
+			if(!p_igetw(&(temp_mapscr->new_items[q]),f,true))
+			{
+				return qe_invalid;
+			} 
+		}
+		for ( int32_t q = 0; q < 10; q++ ) 
 		{
-                        return qe_invalid;
-		} 
-	}
-	for ( int32_t q = 0; q < 10; q++ ) 
-	{
-		if(!p_igetw(&(temp_mapscr->new_item_y[q]),f,true))
+			if(!p_igetw(&(temp_mapscr->new_item_x[q]),f,true))
+			{
+				return qe_invalid;
+			} 
+		}
+		for ( int32_t q = 0; q < 10; q++ ) 
 		{
-                        return qe_invalid;
-		} 
-	}
+			if(!p_igetw(&(temp_mapscr->new_item_y[q]),f,true))
+			{
+				return qe_invalid;
+			} 
+		}
     }
     if ( version < 19 && Header->zelda_version > 0x253 )
     {
@@ -16873,248 +16908,566 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
     
     return 0;
 }
-
+int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version)
+{
+	if(version < 23)
+	{
+		auto ret = readmapscreen_old(f,Header,temp_mapscr,temp_map,version);
+		if(ret) return ret;
+	}
+	else
+	{
+		if(!p_getc(&(temp_mapscr->valid),f,true))
+			return qe_invalid;
+		if(!(temp_mapscr->valid & mVALID))
+			return 0; //Empty screen
+		uint32_t scr_has_flags;
+		if(!p_igetl(&scr_has_flags,f,true))
+			return qe_invalid;
+		
+		if(scr_has_flags & SCRHAS_ROOMDATA)
+		{
+			if(!p_getc(&(temp_mapscr->guy),f,true))
+				return qe_invalid;
+			if(!p_igetw(&(temp_mapscr->str),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->room),f,true))
+				return qe_invalid;
+			if(!p_igetw(&(temp_mapscr->catchall),f,true))
+				return qe_invalid;
+		}
+		if(scr_has_flags & SCRHAS_ITEM)
+		{
+			if(!p_getc(&(temp_mapscr->item),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->hasitem),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->itemx),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->itemy),f,true))
+				return qe_invalid;
+		}
+		if(scr_has_flags & (SCRHAS_SWARP|SCRHAS_TWARP))
+		{
+			if(!p_igetw(&temp_mapscr->warpreturnc,f,true))
+				return qe_invalid;
+		}
+		if(scr_has_flags & SCRHAS_TWARP)
+		{
+			for(int32_t i=0; i<4; i++)
+			{
+				if(!p_getc(&(temp_mapscr->tilewarptype[i]),f,true))
+					return qe_invalid;
+			}
+			for(int32_t i=0; i<4; i++)
+			{
+				if(!p_igetw(&(temp_mapscr->tilewarpdmap[i]),f,true))
+					return qe_invalid;
+			}
+			for(int32_t i=0; i<4; i++)
+			{
+				if(!p_getc(&(temp_mapscr->tilewarpscr[i]),f,true))
+					return qe_invalid;
+			}
+			if(!p_getc(&(temp_mapscr->tilewarpoverlayflags),f,true))
+				return qe_invalid;
+		}
+		if(scr_has_flags & SCRHAS_SWARP)
+		{
+			for(int32_t i=0; i<4; i++)
+			{
+				if(!p_getc(&(temp_mapscr->sidewarptype[i]),f,true))
+					return qe_invalid;
+			}
+			for(int32_t i=0; i<4; i++)
+			{
+				if(!p_igetw(&(temp_mapscr->sidewarpdmap[i]),f,true))
+					return qe_invalid;
+			}
+			for(int32_t i=0; i<4; i++)
+			{
+				if(!p_getc(&(temp_mapscr->sidewarpscr[i]),f,true))
+					return qe_invalid;
+			}
+			if(!p_getc(&(temp_mapscr->sidewarpoverlayflags),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->sidewarpindex),f,true))
+				return qe_invalid;
+		}
+		if(scr_has_flags & SCRHAS_WARPRET)
+		{
+			for(int32_t i=0; i<4; i++)
+			{
+				if(!p_getc(&(temp_mapscr->warpreturnx[i]),f,true))
+					return qe_invalid;
+			}
+			for(int32_t i=0; i<4; i++)
+			{
+				if(!p_getc(&(temp_mapscr->warpreturny[i]),f,true))
+					return qe_invalid;
+			}
+			if(!p_getc(&(temp_mapscr->warparrivalx),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->warparrivaly),f,true))
+				return qe_invalid;
+		}
+		if(scr_has_flags & SCRHAS_LAYERS)
+		{
+			for(int32_t k=0; k<6; k++)
+			{
+				if(!p_getc(&(temp_mapscr->layermap[k]),f,true))
+					return qe_invalid;
+			}
+			for(int32_t k=0; k<6; k++)
+			{
+				if(!p_getc(&(temp_mapscr->layerscreen[k]),f,true))
+					return qe_invalid;
+			}
+			for(int32_t k=0; k<6; k++)
+			{
+				if(!p_getc(&(temp_mapscr->layeropacity[k]),f,true))
+					return qe_invalid;
+			}
+			if(!p_getc(&(temp_mapscr->hidelayers),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->hidescriptlayers),f,true))
+				return qe_invalid;
+		}
+		else
+		{			
+			for(int32_t k=0; k<6; k++)
+			{
+				temp_mapscr->layeropacity[k] = 255;
+			}
+		}
+		if(scr_has_flags & SCRHAS_MAZE)
+		{
+			for(int32_t k=0; k<4; k++)
+			{
+				if(!p_getc(&(temp_mapscr->path[k]),f,true))
+					return qe_invalid;
+			}
+			if(!p_getc(&(temp_mapscr->exitdir),f,true))
+				return qe_invalid;
+		}
+		if(scr_has_flags & SCRHAS_D_S_U)
+		{
+			if(!p_igetw(&(temp_mapscr->door_combo_set),f,true))
+				return qe_invalid;
+			for(int32_t k=0; k<4; k++)
+			{
+				if(!p_getc(&(temp_mapscr->door[k]),f,true))
+					return qe_invalid;
+			}
+			
+			if(!p_getc(&(temp_mapscr->stairx),f,true))
+				return qe_invalid;
+			
+			if(!p_getc(&(temp_mapscr->stairy),f,true))
+				return qe_invalid;
+			if(!p_igetw(&(temp_mapscr->undercombo),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->undercset),f,true))
+				return qe_invalid;
+		}
+		if(scr_has_flags & SCRHAS_FLAGS)
+		{
+			if(!p_getc(&(temp_mapscr->flags),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->flags2),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->flags3),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->flags4),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->flags5),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->flags6),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->flags7),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->flags8),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->flags9),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->flags10),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->enemyflags),f,true))
+				return qe_invalid;
+		}
+		if(scr_has_flags & SCRHAS_ENEMY)
+		{
+			for(int32_t k=0; k<10; k++)
+			{
+				if(!p_igetw(&(temp_mapscr->enemy[k]),f,true))
+					return qe_invalid;
+				if (unsigned(temp_mapscr->enemy[k]) > MAXGUYS)
+					temp_mapscr->enemy[k] = 0;
+			}
+			if(!p_getc(&(temp_mapscr->pattern),f,true))
+				return qe_invalid;
+		}
+		if(scr_has_flags & SCRHAS_CARRY)
+		{
+			if(!p_igetw(&(temp_mapscr->noreset),f,true))
+				return qe_invalid;
+			if(!p_igetw(&(temp_mapscr->nocarry),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->nextmap),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->nextscr),f,true))
+				return qe_invalid;
+		}
+		if(scr_has_flags & SCRHAS_SCRIPT)
+		{
+			if(!p_igetw(&(temp_mapscr->script),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->preloadscript),f,true))
+				return qe_invalid;
+			for ( int32_t q = 0; q < 8; q++ )
+			{
+				if(!p_igetl(&(temp_mapscr->screeninitd[q]),f,true))
+					return qe_invalid;
+			}
+		}
+		if(scr_has_flags & SCRHAS_UNUSED)
+		{
+			for ( int32_t q = 0; q < 10; q++ ) 
+			{
+				if(!p_igetl(&(temp_mapscr->npcstrings[q]),f,true))
+					return qe_invalid;
+			}
+			for ( int32_t q = 0; q < 10; q++ ) 
+			{
+				if(!p_igetw(&(temp_mapscr->new_items[q]),f,true))
+					return qe_invalid;
+			}
+			for ( int32_t q = 0; q < 10; q++ ) 
+			{
+				if(!p_igetw(&(temp_mapscr->new_item_x[q]),f,true))
+					return qe_invalid;
+			}
+			for ( int32_t q = 0; q < 10; q++ ) 
+			{
+				if(!p_igetw(&(temp_mapscr->new_item_y[q]),f,true))
+					return qe_invalid;
+			}
+		}
+		if(scr_has_flags & SCRHAS_SECRETS)
+		{
+			for(int32_t k=0; k<128; k++)
+			{
+				if(!p_igetw(&(temp_mapscr->secretcombo[k]),f,true))
+					return qe_invalid;
+			}
+			for(int32_t k=0; k<128; k++)
+			{
+				if(!p_getc(&(temp_mapscr->secretcset[k]),f,true))
+					return qe_invalid;
+			}
+			for(int32_t k=0; k<128; k++)
+			{
+				if(!p_getc(&(temp_mapscr->secretflag[k]),f,true))
+					return qe_invalid;
+			}
+		}
+		temp_mapscr->data.resize(176, 0);
+		temp_mapscr->sflag.resize(176, 0);
+		temp_mapscr->cset.resize(176, 0);
+		if(scr_has_flags & SCRHAS_COMBOFLAG)
+		{
+			for(int32_t k=0; k<176; ++k)
+			{
+				if(!p_igetw(&(temp_mapscr->data[k]),f,true))
+					return qe_invalid;
+			}
+			for(int32_t k=0; k<176; ++k)
+			{
+				if(!p_getc(&(temp_mapscr->sflag[k]),f,true))
+					return qe_invalid;
+			}
+			for(int32_t k=0; k<176; ++k)
+			{
+				if(!p_getc(&(temp_mapscr->cset[k]),f,true))
+					return qe_invalid;
+			}
+		}
+		if(scr_has_flags & SCRHAS_MISC)
+		{
+			if(!p_igetw(&(temp_mapscr->color),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->csensitive),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->oceansfx),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->bosssfx),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->secretsfx),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->holdupsfx),f,true))
+				return qe_invalid;
+			if(!p_igetw(&(temp_mapscr->timedwarptics),f,true))
+				return qe_invalid;
+			if(!p_igetw(&(temp_mapscr->screen_midi),f,true))
+				return qe_invalid;
+			if(!p_getc(&(temp_mapscr->lens_layer),f,true))
+				return qe_invalid;
+		}
+		else
+		{
+			temp_mapscr->screen_midi = -1;
+			temp_mapscr->csensitive = 1;
+		}
+		//FFC
+		if(!p_igetl(&(temp_mapscr->numff),f,true))
+			return qe_invalid;
+		for(auto m = 0; m < 32; ++m)
+		{
+			if(temp_mapscr->numff & (1<<m))
+			{
+				if(!p_igetw(&(temp_mapscr->ffdata[m]),f,true))
+					return qe_invalid;
+				if(!p_getc(&(temp_mapscr->ffcset[m]),f,true))
+					return qe_invalid;
+				if(!p_igetw(&(temp_mapscr->ffdelay[m]),f,true))
+					return qe_invalid;
+				if(!p_igetl(&(temp_mapscr->ffx[m]),f,true))
+					return qe_invalid;
+				if(!p_igetl(&(temp_mapscr->ffy[m]),f,true))
+					return qe_invalid;
+				if(!p_igetl(&(temp_mapscr->ffxdelta[m]),f,true))
+					return qe_invalid;
+				if(!p_igetl(&(temp_mapscr->ffydelta[m]),f,true))
+					return qe_invalid;
+				if(!p_igetl(&(temp_mapscr->ffxdelta2[m]),f,true))
+					return qe_invalid;
+				if(!p_igetl(&(temp_mapscr->ffydelta2[m]),f,true))
+					return qe_invalid;
+				if(!p_getc(&(temp_mapscr->fflink[m]),f,true))
+					return qe_invalid;
+				if(!p_getc(&(temp_mapscr->ffwidth[m]),f,true))
+					return qe_invalid;
+				if(!p_getc(&(temp_mapscr->ffheight[m]),f,true))
+					return qe_invalid;
+				if(!p_igetl(&(temp_mapscr->ffflags[m]),f,true))
+					return qe_invalid;
+				if(!p_igetw(&(temp_mapscr->ffscript[m]),f,true))
+					return qe_invalid;
+				for(auto q = 0; q < 8; ++q)
+				{
+					if(!p_igetl(&(temp_mapscr->initd[m][q]),f,true))
+						return qe_invalid;
+				}
+				byte tempbyte;
+				if(!p_getc(&(tempbyte),f,true))
+					return qe_invalid;
+				temp_mapscr->inita[m][0]=tempbyte*10000;
+				
+				if(!p_getc(&(tempbyte),f,true))
+					return qe_invalid;
+				temp_mapscr->inita[m][1]=tempbyte*10000;
+				
+				temp_mapscr->initialized[m] = false;
+			}
+			else
+			{
+				temp_mapscr->ffdata[m]=0;
+				temp_mapscr->ffcset[m]=0;
+				temp_mapscr->ffdelay[m]=0;
+				temp_mapscr->ffx[m]=0;
+				temp_mapscr->ffy[m]=0;
+				temp_mapscr->ffxdelta[m]=0;
+				temp_mapscr->ffydelta[m]=0;
+				temp_mapscr->ffxdelta2[m]=0;
+				temp_mapscr->ffydelta2[m]=0;
+				temp_mapscr->ffdata[m]=0;
+				temp_mapscr->ffwidth[m]=15;
+				temp_mapscr->ffheight[m]=15;
+				temp_mapscr->ffflags[m]=0;
+				temp_mapscr->ffscript[m]=0;
+				temp_mapscr->initialized[m] = false;
+			}
+			
+			ffcScriptData[m].a[0] = 10000;
+			ffcScriptData[m].a[1] = 10000;
+		}
+		//END FFC
+	}
+	return 0;
+}
 
 
 int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
-
-    int32_t scr=0;
-    
-    word version=0;
-    dword dummy;
-    int32_t screens_to_read;
-    
-    mapscr temp_mapscr;
-    zcmap temp_map;
-    word temp_map_count;
-    dword section_size;
-    
-    if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<137)))
-    {
-        screens_to_read=MAPSCRS192b136;
-    }
-    else
-    {
-        screens_to_read=MAPSCRS;
-    }
-    
-    if(Header->zelda_version > 0x192)
-    {
-        //section version info
-        if(!p_igetw(&version,f,true))
-        {
-            return qe_invalid;
-        }
+	int32_t scr=0;
 	
-	FFCore.quest_format[vMaps] = version;
-        
-        //al_trace("Maps version %d\n", version);
-        if(!p_igetw(&dummy,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        //section size
-        if(!p_igetl(&section_size,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        //finally...  section data
-        if(!p_igetw(&temp_map_count,f,true))
-        {
-            return 5;
-        }
-    }
-    else
-    {
-        temp_map_count=map_count;
-    }
-    
-    
-    if(keepdata)
-    {
-        const int32_t _mapsSize = MAPSCRS*temp_map_count;
-        TheMaps.resize(_mapsSize);
-        
-        for(int32_t i(0); i<_mapsSize; i++)
-            TheMaps[i].zero_memory();
-        
-        // Used to be done for each screen
-        for(int32_t i=0; i<32; i++)
-        {
-            ffcScriptData[i].a[0] = 10000;
-            ffcScriptData[i].a[1] = 10000;
-        }
-        
-        memset(ZCMaps, 0, sizeof(zcmap)*MAXMAPS2);
-    }
-    
-    temp_mapscr.zero_memory();
-    
-    for(int32_t i=0; i<temp_map_count && i<MAXMAPS2; i++)
-    {
-        memset(&temp_map, 0, sizeof(zcmap));
-        /*if(version>12)
-        {
-            if(!p_getc(&(temp_map.tileWidth),f,true))
-            {
-              return qe_invalid;
-            }
-          if(!p_getc(&(temp_map.tileHeight),f,true))
-            {
-              return qe_invalid;
-            }
-          if(!p_igetw(&(temp_map.subaWidth),f,true))
-            {
-              return qe_invalid;
-            }
-          if(!p_igetw(&(temp_map.subaHeight),f,true))
-            {
-              return qe_invalid;
-            }
-          if(!p_igetw(&(temp_map.subpWidth),f,true))
-            {
-              return qe_invalid;
-            }
-          if(!p_igetw(&(temp_map.subpHeight),f,true))
-            {
-              return qe_invalid;
-            }
-          if(!p_igetw(&(temp_map.scrResWidth),f,true))
-            {
-              return qe_invalid;
-            }
-          if(!p_igetw(&(temp_map.scrResHeight),f,true))
-            {
-              return qe_invalid;
-            }
-          if(!p_igetw(&(temp_map.viewWidth),f,true))
-            {
-              return qe_invalid;
-            }
-          if(!p_igetw(&(temp_map.viewHeight),f,true))
-            {
-              return qe_invalid;
-            }
-          if(!p_igetw(&(temp_map.viewX),f,true))
-            {
-              return qe_invalid;
-            }
-          if(!p_igetw(&(temp_map.viewY),f,true))
-            {
-              return qe_invalid;
-            }
-          if(!p_getc(&(temp_map.subaTrans),f,true))
-            {
-              return qe_invalid;
-            }
-          if(!p_getc(&(temp_map.subpTrans),f,true))
-            {
-              return qe_invalid;
-            }
-        }
-        else
-        {*/
-        temp_map.scrResWidth = 256;
-        temp_map.scrResHeight = 224;
-        temp_map.tileWidth = 16;
-        temp_map.tileHeight = 11;
-        temp_map.viewWidth = 256;
-        temp_map.viewHeight = 176;
-        temp_map.viewX = 0;
-        temp_map.viewY = 64;
-        temp_map.subaWidth = 256;
-        temp_map.subaHeight = 168;
-        temp_map.subaTrans = false;
-        temp_map.subpWidth = 256;
-        temp_map.subpHeight = 56;
-        temp_map.subpTrans = false;
-        
-        //}
-        for(int32_t j=0; j<screens_to_read; j++)
-        {
-            scr=i*MAPSCRS+j;
-            clear_screen(&temp_mapscr);
-            readmapscreen(f, Header, &temp_mapscr, &temp_map, version);
-            
-            if(keepdata==true)
-            {
-            
-//		delete_theMaps_data( scr );
-                TheMaps[scr] = temp_mapscr;
-                
-            }
-        }
-        
-        if(keepdata==true)
-        {
-            map_count = temp_map_count;
-            
-            if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<137)))
-            {
-                int32_t index = (i*MAPSCRS+132);
-                //.....hmmm. todo: test this. >_>
-                
-//		delete_theMaps_data(index);
-                TheMaps[index]=TheMaps[index-1];
-                
-                const int32_t _mapsSize = (temp_map.tileWidth)*(temp_map.tileHeight);
-                
-                //err...what? @_@
-                TheMaps[index].data.resize(_mapsSize, 0);
-                TheMaps[index].sflag.resize(_mapsSize, 0);
-                TheMaps[index].cset.resize(_mapsSize, 0);
-                
-                TheMaps[i*MAPSCRS+132].data = TheMaps[i*MAPSCRS+131].data;
-                TheMaps[i*MAPSCRS+132].sflag = TheMaps[i*MAPSCRS+131].sflag;
-                TheMaps[i*MAPSCRS+132].cset = TheMaps[i*MAPSCRS+131].cset;
-                
-                for(int32_t j=133; j<MAPSCRS; j++)
-                {
-                    scr=i*MAPSCRS+j;
-                    
-                    TheMaps[scr].zero_memory();
-                    TheMaps[scr].valid = mVERSION;
-                    TheMaps[scr].screen_midi = -1;
-                    TheMaps[scr].csensitive = 1;
-                }
-            }
-            
-            if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<154)))
-            {
-                for(int32_t j=0; j<MAPSCRS; j++)
-                {
-                    scr=i*MAPSCRS+j;
-                    TheMaps[scr].door_combo_set=MakeDoors(i, j);
-                    
-                    for(int32_t k=0; k<128; k++)
-                    {
-                        TheMaps[scr].secretcset[k]=tcmbcset2(i, TheMaps[scr].secretcombo[k]);
-                        TheMaps[scr].secretflag[k]=tcmbflag2(i, TheMaps[scr].secretcombo[k]);
-                        TheMaps[scr].secretcombo[k]=tcmbdat2(i, j, TheMaps[scr].secretcombo[k]);
-                    }
-                }
-            }
-        }
-        
-        if(keepdata==true)
-        {
-            memcpy(&ZCMaps[i], &temp_map, sizeof(zcmap));
-        }
-    }
-    
-    clear_screen(&temp_mapscr);
-    return 0;
+	word version=0;
+	dword dummy;
+	int32_t screens_to_read;
+	
+	mapscr temp_mapscr;
+	zcmap temp_map;
+	word temp_map_count;
+	dword section_size;
+	
+	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<137)))
+	{
+		screens_to_read=MAPSCRS192b136;
+	}
+	else
+	{
+		screens_to_read=MAPSCRS;
+	}
+	
+	if(Header->zelda_version > 0x192)
+	{
+		//section version info
+		if(!p_igetw(&version,f,true))
+		{
+			return qe_invalid;
+		}
+	
+		FFCore.quest_format[vMaps] = version;
+		
+		//al_trace("Maps version %d\n", version);
+		if(!p_igetw(&dummy,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		//section size
+		if(!p_igetl(&section_size,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		//finally...  section data
+		if(!p_igetw(&temp_map_count,f,true))
+		{
+			return 5;
+		}
+	}
+	else
+	{
+		temp_map_count=map_count;
+	}
+	
+	
+	if(keepdata)
+	{
+		const int32_t _mapsSize = MAPSCRS*temp_map_count;
+		TheMaps.resize(_mapsSize);
+		
+		for(int32_t i(0); i<_mapsSize; i++)
+			TheMaps[i].zero_memory();
+		
+		// Used to be done for each screen
+		for(int32_t i=0; i<32; i++)
+		{
+			ffcScriptData[i].a[0] = 10000;
+			ffcScriptData[i].a[1] = 10000;
+		}
+		
+		memset(ZCMaps, 0, sizeof(zcmap)*MAXMAPS2);
+	}
+	
+	temp_mapscr.zero_memory();
+	
+	memset(&temp_map, 0, sizeof(zcmap));
+	temp_map.scrResWidth = 256;
+	temp_map.scrResHeight = 224;
+	temp_map.tileWidth = 16;
+	temp_map.tileHeight = 11;
+	temp_map.viewWidth = 256;
+	temp_map.viewHeight = 176;
+	temp_map.viewX = 0;
+	temp_map.viewY = 64;
+	temp_map.subaWidth = 256;
+	temp_map.subaHeight = 168;
+	temp_map.subaTrans = false;
+	temp_map.subpWidth = 256;
+	temp_map.subpHeight = 56;
+	temp_map.subpTrans = false;
+	for(int32_t i=0; i<temp_map_count && i<MAXMAPS2; i++)
+	{
+		if(keepdata==true) //!TODO Trim fully
+		{
+			memcpy(&ZCMaps[i], &temp_map, sizeof(zcmap));
+		}
+		byte valid=1;
+		if(version > 22)
+		{
+			if(!p_getc(&valid,f,true))
+				return qe_invalid;
+		}
+		for(int32_t j=0; j<screens_to_read; j++)
+		{
+			scr=i*MAPSCRS+j;
+			clear_screen(&temp_mapscr);
+			if(valid)
+				readmapscreen(f, Header, &temp_mapscr, &temp_map, version);
+			
+			if(keepdata==true)
+			{
+				TheMaps[scr] = temp_mapscr;
+			}
+		}
+		
+		if(keepdata==true)
+		{
+			if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<137)))
+			{
+				int32_t index = (i*MAPSCRS+132);
+				
+				TheMaps[index]=TheMaps[index-1];
+				
+				TheMaps[index].data.resize(176, 0);
+				TheMaps[index].sflag.resize(176, 0);
+				TheMaps[index].cset.resize(176, 0);
+				
+				TheMaps[i*MAPSCRS+132].data = TheMaps[i*MAPSCRS+131].data;
+				TheMaps[i*MAPSCRS+132].sflag = TheMaps[i*MAPSCRS+131].sflag;
+				TheMaps[i*MAPSCRS+132].cset = TheMaps[i*MAPSCRS+131].cset;
+				
+				for(int32_t j=133; j<MAPSCRS; j++)
+				{
+					scr=i*MAPSCRS+j;
+					
+					TheMaps[scr].zero_memory();
+					TheMaps[scr].valid = mVERSION;
+					TheMaps[scr].screen_midi = -1;
+					TheMaps[scr].csensitive = 1;
+				}
+			}
+			
+			if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<154)))
+			{
+				for(int32_t j=0; j<MAPSCRS; j++)
+				{
+					scr=i*MAPSCRS+j;
+					TheMaps[scr].door_combo_set=MakeDoors(i, j);
+					
+					for(int32_t k=0; k<128; k++)
+					{
+						TheMaps[scr].secretcset[k]=tcmbcset2(i, TheMaps[scr].secretcombo[k]);
+						TheMaps[scr].secretflag[k]=tcmbflag2(i, TheMaps[scr].secretcombo[k]);
+						TheMaps[scr].secretcombo[k]=tcmbdat2(i, j, TheMaps[scr].secretcombo[k]);
+					}
+				}
+			}
+		}
+	}
+	if(keepdata)
+	{
+		map_count = temp_map_count;
+	}
+	clear_screen(&temp_mapscr);
+	return 0;
 }
 
 
-int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos, bool keepdata)
+int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word version, word build, word start_combo, word max_combos, bool keepdata)
 {
-	//these are here to bypass compiler warnings about unused arguments
-	Header=Header;
-
 	reset_combo_animations();
 	reset_combo_animations2();
 
@@ -17125,8 +17478,7 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 	int32_t dummy;
 	byte padding;
 	newcombo temp_combo;
-	word section_version=0;
-	word section_cversion=0;
+	//word section_cversion=0;
 
 	if(keepdata==true)
 	{
@@ -17134,28 +17486,28 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 			combobuf[q].clear();
 	}
 
-	if(version > 0x192)
-	{
-		//section version info
-		if(!p_igetw(&section_version,f,true))
-		{
-			return qe_invalid;
-		}
+	// if(version > 0x192)
+	// {
+		// //section version info
+		// if(!p_igetw(&section_version,f,true))
+		// {
+			// return qe_invalid;
+		// }
 		
-		FFCore.quest_format[vCombos] = section_version;
+		// FFCore.quest_format[vCombos] = section_version;
 		
-		//al_trace("Combos version %d\n", section_version);
-		if(!p_igetw(&section_cversion,f,true))
-		{
-			return qe_invalid;
-		}
+		// //al_trace("Combos version %d\n", section_version);
+		// if(!p_igetw(&section_cversion,f,true))
+		// {
+			// return qe_invalid;
+		// }
 		
-		//section size
-		if(!p_igetl(&dummy,f,true))
-		{
-			return qe_invalid;
-		}
-	}
+		// //section size
+		// if(!p_igetl(&dummy,f,true))
+		// {
+			// return qe_invalid;
+		// }
+	// }
 
 	if(version < 0x174)
 	{
@@ -17467,6 +17819,53 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 			}
 		}
 		else temp_combo.triglbeam = 0;
+		if(section_version >= 31)
+		{
+			if(!p_getc(&temp_combo.trigcschange,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetw(&temp_combo.spawnitem,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetw(&temp_combo.spawnenemy,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_getc(&temp_combo.exstate,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetl(&temp_combo.spawnip,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_getc(&temp_combo.trigcopycat,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		else
+		{
+			temp_combo.trigcschange = 0;
+			temp_combo.spawnitem = 0;
+			temp_combo.spawnenemy = 0;
+			temp_combo.exstate = -1;
+			temp_combo.spawnip = 0;
+			temp_combo.trigcopycat = 0;
+		}
+		if(section_version >= 32)
+		{
+			if(!p_getc(&temp_combo.trigcooldown,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		else
+		{
+			temp_combo.trigcooldown = 0;
+		}
 		
 		if(section_version>=12) //combo label
 		{
@@ -17563,7 +17962,7 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 			{
 				if(!p_igetw(&temp_combo.attrishorts[q],f,true))
 				{
-				return qe_invalid;
+					return qe_invalid;
 				}
 			}
 			
@@ -17779,6 +18178,295 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 	}
 
 
+	setup_combo_animations();
+	setup_combo_animations2();
+	return 0;
+}
+int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos, bool keepdata)
+{
+	word section_version=0;
+	word section_cversion=0;
+	word combos_used=0;
+	int32_t dummy;
+	byte padding;
+	newcombo temp_combo;
+	
+	reset_combo_animations();
+	reset_combo_animations2();
+	init_combo_classes();
+
+	if(keepdata==true) //reset combos
+	{
+		for(int32_t q = start_combo; q < start_combo+max_combos; ++q)
+			combobuf[q].clear();
+	}
+	
+	if(version > 0x192) //Version info
+	{
+		if(!p_igetw(&section_version,f,true))
+		{
+			return qe_invalid;
+		}
+		FFCore.quest_format[vCombos] = section_version;
+		if(!p_igetw(&section_cversion,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		//section size
+		if(!p_igetl(&dummy,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	
+	if(section_version > 32) //Cleanup time!
+	{
+		if(!p_igetw(&combos_used,f,true))
+		{
+			return qe_invalid;
+		}
+		for(int32_t i=0; i<combos_used; i++)
+		{
+			byte combo_has_flags;
+			if(!p_getc(&combo_has_flags,f,true))
+				return qe_invalid;
+			
+			temp_combo.clear();
+			if(combo_has_flags)
+			{
+				if(combo_has_flags&CHAS_GENERAL)
+				{
+					if(!p_igetl(&temp_combo.tile,f,true))
+					{
+						return qe_invalid;
+					}
+					temp_combo.o_tile = temp_combo.tile;
+					
+					if(!p_getc(&temp_combo.flip,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&temp_combo.walk,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&temp_combo.type,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&temp_combo.flag,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&temp_combo.csets,f,true))
+					{
+						return qe_invalid;
+					}
+				}
+				if(combo_has_flags&CHAS_SCRIPT)
+				{
+					for ( int32_t q = 0; q < 11; q++ )
+					{
+						if(!p_getc(&temp_combo.label[q],f,true))
+						{
+							return qe_invalid;
+						}
+					}
+					if(!p_igetw(&temp_combo.script,f,true)) return qe_invalid;
+					for ( int32_t q = 0; q < 2; q++ )
+					{
+						if(!p_igetl(&temp_combo.initd[q],f,true))
+						{
+							return qe_invalid;
+						}
+					}
+				}
+				if(combo_has_flags&CHAS_ANIM)
+				{
+					if(!p_getc(&temp_combo.frames,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&temp_combo.speed,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_igetw(&temp_combo.nextcombo,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&temp_combo.nextcset,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&temp_combo.skipanim,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&temp_combo.skipanimy,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&temp_combo.animflags,f,true))
+					{
+						return qe_invalid;
+					}
+				}
+				if(combo_has_flags&CHAS_ATTRIB)
+				{
+					for ( int32_t q = 0; q < 4; q++ )
+					{
+						if(!p_igetl(&temp_combo.attributes[q],f,true))
+						{
+							return qe_invalid;
+						}
+					}
+					for ( int32_t q = 0; q < 8; q++ )
+					{
+						if(!p_getc(&temp_combo.attribytes[q],f,true))
+						{
+							return qe_invalid;
+						}
+					}
+					for ( int32_t q = 0; q < 8; q++ )
+					{
+						if(!p_igetw(&temp_combo.attrishorts[q],f,true))
+						{
+							return qe_invalid;
+						}
+					}
+				}
+				if(combo_has_flags&CHAS_FLAG)
+				{
+					if(!p_igetl(&temp_combo.usrflags,f,true))
+					{
+						return qe_invalid;
+					}
+					if(!p_igetw(&temp_combo.genflags,f,true))
+					{
+						return qe_invalid;
+					}
+				}
+				if(combo_has_flags&CHAS_TRIG)
+				{
+					for ( int32_t q = 0; q < 3; q++ )
+					{
+						if(!p_igetl(&temp_combo.triggerflags[q],f,true))
+						{
+							return qe_invalid;
+						}
+					}
+					if(!p_igetl(&temp_combo.triggerlevel,f,true))
+					{
+						return qe_invalid;
+					}
+					if(!p_getc(&temp_combo.triggerbtn,f,true))
+					{
+						return qe_invalid;
+					}
+					if(!p_getc(&temp_combo.triggeritem,f,true))
+					{
+						return qe_invalid;
+					}
+					if(!p_getc(&temp_combo.trigtimer,f,true))
+					{
+						return qe_invalid;
+					}
+					if(!p_getc(&temp_combo.trigsfx,f,true))
+					{
+						return qe_invalid;
+					}
+					if(!p_igetl(&temp_combo.trigchange,f,true))
+					{
+						return qe_invalid;
+					}
+					if(!p_igetw(&temp_combo.trigprox,f,true))
+					{
+						return qe_invalid;
+					}
+					if(!p_getc(&temp_combo.trigctr,f,true))
+					{
+						return qe_invalid;
+					}
+					if(!p_igetl(&temp_combo.trigctramnt,f,true))
+					{
+						return qe_invalid;
+					}
+					if(!p_getc(&temp_combo.triglbeam,f,true))
+					{
+						return qe_invalid;
+					}
+					if(!p_getc(&temp_combo.trigcschange,f,true))
+					{
+						return qe_invalid;
+					}
+					if(!p_igetw(&temp_combo.spawnitem,f,true))
+					{
+						return qe_invalid;
+					}
+					if(!p_igetw(&temp_combo.spawnenemy,f,true))
+					{
+						return qe_invalid;
+					}
+					if(!p_getc(&temp_combo.exstate,f,true))
+					{
+						return qe_invalid;
+					}
+					if(!p_igetl(&temp_combo.spawnip,f,true))
+					{
+						return qe_invalid;
+					}
+					if(!p_getc(&temp_combo.trigcopycat,f,true))
+					{
+						return qe_invalid;
+					}
+					if(!p_getc(&temp_combo.trigcooldown,f,true))
+					{
+						return qe_invalid;
+					}
+				}
+			}
+			
+			if(keepdata==true && i>=start_combo)
+				memcpy(&combobuf[i], &temp_combo, sizeof(temp_combo));
+		}
+	}
+	else //Call the old function for all old versions
+	{
+		auto ret = readcombos_old(section_version,f,Header,version,build,start_combo,max_combos,keepdata);
+		if(ret) return ret; //error, end read
+	}
+	
+	if(keepdata && false/*section_version < 34*/)
+	{
+		for(int32_t i=start_combo; i<combos_used; i++)
+		{
+			newcombo& cmb = combobuf[i];
+			//Do anything to 'cmb' needed for version handling
+		}
+	}
+	
+	if(keepdata==true)
+	{
+		if(!get_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0))
+		{
+			combobuf[0].walk = 0xF0;
+			combobuf[0].type = 0;
+			combobuf[0].flag = 0;
+		}
+	}
+	
 	setup_combo_animations();
 	setup_combo_animations2();
 	return 0;

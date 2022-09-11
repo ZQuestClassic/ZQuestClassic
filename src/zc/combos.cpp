@@ -21,14 +21,27 @@ struct cmbtimer
 {
 	int32_t data;
 	byte clk;
+	word shootrclk;
+	byte trig_cd;
 	void clear()
 	{
 		data = 0;
 		clk = 0;
+		shootrclk = 0;
+		trig_cd = 0;
 	}
-	cmbtimer() : data(0), clk(0) {}
+	void updateData(int32_t newdata)
+	{
+		if(data != newdata)
+		{
+			clear();
+			data = newdata;
+		}
+	}
+	cmbtimer() {clear();}
 };
 cmbtimer combo_trig_timers[7][176];
+cmbtimer ffc_trig_timers[32];
 
 bool alwaysCTypeEffects(int32_t type)
 {
@@ -315,6 +328,7 @@ bool do_cswitch_combo(newcombo const& cmb, weapon* w)
 	return true;
 }
 
+// TODO z3 !
 void trigger_cswitch_block(int32_t layer, int32_t pos)
 {
 	if(unsigned(layer) > 6 || unsigned(pos) > 175) return;
@@ -834,7 +848,7 @@ bool trigger_lockblock(const pos_handle& pos_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag2(pos_handle.screen_index, 1<<cmb.attribytes[5]);
-				remove_xstatecombos2(pos_handle.screen, pos_handle.screen_index, 1<<cmb.attribytes[5]);
+				remove_xstatecombos2(pos_handle.screen, pos_handle.screen_index, 1<<cmb.attribytes[5], false);
 				break;
 			}
 			setmapflag2(pos_handle.screen, pos_handle.screen_index, mLOCKBLOCK);
@@ -867,7 +881,7 @@ bool trigger_lockblock(const pos_handle& pos_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag2(pos_handle.screen_index, 1<<cmb.attribytes[5]);
-				remove_xstatecombos2(pos_handle.screen, pos_handle.screen_index, 1<<cmb.attribytes[5]);
+				remove_xstatecombos2(pos_handle.screen, pos_handle.screen_index, 1<<cmb.attribytes[5], false);
 				break;
 			}
 			setmapflag2(pos_handle.screen, pos_handle.screen_index, mBOSSLOCKBLOCK);
@@ -1420,6 +1434,233 @@ bool trigger_switchhookblock(const pos_handle& pos_handle)
 	return true;
 }
 
+static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool angular, double radians, int32_t dir)
+{
+	byte weapid = cmb.attribytes[1];
+	byte weapspr = cmb.attribytes[2];
+	int32_t damage = cmb.attrishorts[2];
+	zfix steprate = zslongToFix(cmb.attributes[2]/100);
+	if(damage < 0) damage = 0;
+	bool lw = weapid < wEnemyWeapons;
+	if(weapid >= wScript1 && weapid <= wScript10)
+		lw = (cmb.usrflags&cflag5)!=0;
+	bool autorot = (cmb.usrflags&cflag6);
+	bool boss = cmb.usrflags&cflag8;
+	
+	auto wdir = autorot ? right : dir;
+	weapon* wpn = nullptr;
+	if(lw)
+	{
+		wpn = new weapon((zfix)wx,(zfix)wy,(zfix)0,weapid,0,damage,wdir,-1, Hero.getUID(),false,0,1,0,0,weapspr);
+		Lwpns.add(wpn);
+	}
+	else
+	{
+		wpn = new weapon((zfix)wx,(zfix)wy,(zfix)0,weapid,0,damage,wdir, -1,-1,false,0,0,0,0,weapspr);
+		Ewpns.add(wpn);
+	}
+	wpn->angular = angular;
+	wpn->angle = radians;
+	if(angular) dir = AngleToDir(radians);
+	wpn->dir = dir;
+	wpn->step = steprate;
+	wpn->xofs = 0;
+	wpn->yofs = (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
+	if(autorot)
+	{
+		if(angular)
+			wpn->rotation = RadiansToDegrees(wpn->angle);
+		else wpn->rotation = DirToDegrees(wpn->dir);
+		wpn->rotation = WrapDegrees(wpn->rotation);
+		wpn->autorotate = true;
+	}
+	if(weapid == ewFireball || weapid == ewFireball2)
+	{
+		SETFLAG(wpn->type, 1, boss);
+	}
+	wpn->unblockable = cmb.attribytes[4] & WPNUNB_ALL;
+	
+	auto scrid = cmb.attribytes[5];
+	bool valid_script = false;
+	if(scrid > 0)
+	{
+		if(lw)
+		{
+			if(lwpnmap[scrid-1].hasScriptData()) valid_script = true;
+		}
+		else if(ewpnmap[scrid-1].hasScriptData()) valid_script = true;
+	}
+	if(valid_script)
+	{
+		wpn->weaponscript = scrid;
+		wpn->doscript = 1;
+	}
+	return wpn;
+}
+bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
+{
+	if(cmb.type != cSHOOTER) return false;
+	if(wx >= world_w || wx < -15 || wy >= world_h || wy < -15) return false;
+	
+	bool proxstop = cmb.usrflags&cflag4;
+	zfix proxlim = zslongToFix(cmb.attributes[1]);
+	if(proxstop && dist(wx,wy,Hero.getX(),Hero.getY()) <= proxlim)
+		return false;
+	
+	bool angular = cmb.usrflags&cflag1;
+	double radians = 0;
+	int32_t dir = -1;
+	if(angular)
+	{
+		int32_t zslDegrees = cmb.attributes[0];
+		if(zslDegrees >= 0 && zslDegrees <= 3600000)
+		{
+			radians = WrapAngle(DegreesToRadians(zslDegrees/10000.0));
+			dir = AngleToDir(radians);
+		}
+		else
+		{
+			double _MSVC2022_tmp1, _MSVC2022_tmp2;
+			double at_player = atan2_MSVC2022_FIX(double(Hero.getY()-wy),double(Hero.getX()-wx));
+			at_player = WrapAngle(at_player);
+			switch(zslDegrees/10000)
+			{
+				case -1: //4-dir at player
+				{
+					angular = false;
+					dir = AngleToDir4(at_player);
+					break;
+				}
+				case -2: //8-dir at player
+				{
+					angular = false;
+					dir = AngleToDir(at_player);
+					break;
+				}
+				case -3: //angular at player
+				{
+					radians = at_player;
+					dir = AngleToDir(at_player);
+					break;
+				}
+				default: dir = AngleToDir(0);
+			}
+		}
+	}
+	else dir = vbound(cmb.attributes[0]/10000, -1, 15);
+	
+	byte shotsfx = cmb.attribytes[0];
+	auto shotcount = zc_max(1,cmb.attribytes[3]);
+	if((cmb.usrflags&cflag7) && shotcount > 1) //multishot
+	{
+		if(!angular)
+		{
+			angular = true;
+			radians = WrapAngle(DirToRadians(dir));
+		}
+		double spreadangle = WrapAngle(DegreesToRadians(cmb.attributes[3]/10000.0));
+		double startangle = 0;
+		if(shotcount&1) //odd
+		{
+			startangle = radians - (spreadangle * floor(shotcount/2));
+		}
+		else
+		{
+			startangle = radians - (spreadangle * ((shotcount/2.0)-0.5));
+		}
+		for(auto q = 0; q < shotcount; ++q)
+		{
+			double angle = WrapAngle(startangle + (q*spreadangle));
+			fire_shooter_wpn(cmb, wx, wy, angular, angle, dir);
+		}
+	}
+	else fire_shooter_wpn(cmb, wx, wy, angular, radians, dir);
+	if(shotsfx)
+		sfx(shotsfx);
+	return true;
+}
+bool trigger_shooter(newcombo const& cmb, int32_t pos)
+{
+	if(unsigned(pos) > 175) return false;
+	return trigger_shooter(cmb, COMBOX(pos), COMBOY(pos));
+}
+static byte copycat_id = 0;
+bool do_copycat_trigger(int32_t lyr, int32_t pos)
+{
+	if(!copycat_id) return false;
+	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
+	mapscr* tmp = FFCore.tempScreens[lyr];
+	int32_t cid = tmp->data[pos];
+	newcombo const& cmb = combobuf[cid];
+	if(cmb.trigcopycat == copycat_id)
+	{
+		do_trigger_combo(lyr,pos);
+		return true;
+	}
+	return false;
+}
+
+// TODO z3 !
+void do_ex_trigger(int32_t lyr, int32_t pos)
+{
+	DCHECK_LAYER_ZERO_INDEX(lyr);
+	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return;
+	mapscr* tmp = FFCore.tempScreens[lyr];
+	int32_t cid = tmp->data[pos];
+	int32_t ocs = tmp->cset[pos];
+	newcombo const& cmb = combobuf[cid];	
+	if(cmb.trigchange)
+	{
+		tmp->data[pos] = cid+cmb.trigchange;
+	}
+	if(cmb.trigcschange)
+	{
+		tmp->cset[pos] = (ocs+cmb.trigcschange) & 0xF;
+	}
+	if(cmb.triggerflags[0] & combotriggerRESETANIM)
+	{
+		newcombo& rcmb = combobuf[tmp->data[pos]];
+		rcmb.tile = rcmb.o_tile;
+		rcmb.cur_frame=0;
+		rcmb.aclk = 0;
+	}
+	
+	if(cmb.trigcopycat) //has a copycat set
+	{
+		if(!copycat_id) //not already in a copycat
+		{
+			bool skipself = tmp->data[pos] == cid;
+			copycat_id = cmb.trigcopycat;
+			for(auto cclayer = 0; cclayer < 7; ++cclayer)
+			{
+				for(auto ccpos = 0; ccpos < 176; ++ccpos)
+				{
+					if(cclayer == lyr && ccpos == pos && skipself)
+						continue;
+					
+					do_copycat_trigger(cclayer, ccpos);
+				}
+			}
+			copycat_id = 0;
+		}
+	}
+}
+bool force_ex_trigger(const pos_handle& pos_handle, char xstate)
+{
+	if (unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
+	int pos = RPOS_TO_POS(pos_handle.rpos);
+	newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];	
+	if(cmb.exstate > -1 && (xstate < 0 || xstate == cmb.exstate))
+	{
+		if(xstate >= 0 || getxmapflag(1<<cmb.exstate))
+		{
+			do_ex_trigger(pos_handle.layer, pos);
+			return true;
+		}
+	}
+	return false;
+}
+
 // TODO z3 remove
 bool do_trigger_combo(int layer, int pos, int32_t special, weapon* w)
 {
@@ -1438,8 +1679,28 @@ bool do_trigger_combo(const pos_handle& pos_handle, int32_t special, weapon* w)
 	int32_t cx, cy;
 	COMBOXY_REGION(pos_handle.rpos, cx, cy);
 
+	cmbtimer& timer = combo_trig_timers[lyr][pos];
+	int32_t ocs = pos_handle.screen->cset[pos];
 	newcombo const& cmb = combobuf[cid];	
 	bool hasitem = false;
+	
+	word ctramnt = game->get_counter(cmb.trigctr);
+	bool onlytrigctr = !(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG);
+	
+	int32_t flag = pos_handle.screen->sflag[pos];
+	int32_t flag2 = cmb.flag;
+	
+	byte* grid = nullptr;
+	bool check_bit = false;
+	bool used_bit = false;
+	
+	uint32_t exflag = 0;
+	if(cmb.exstate > -1)
+	{
+		exflag = 1<<cmb.exstate;
+		if (force_ex_trigger(pos_handle))
+			return true;
+	}
 	if(cmb.triggeritem) //Item requirement
 	{
 		hasitem = game->get_item(cmb.triggeritem) && !item_disabled(cmb.triggeritem)
@@ -1464,8 +1725,7 @@ bool do_trigger_combo(const pos_handle& pos_handle, int32_t special, weapon* w)
 				return false;
 		}
 	}
-	word ctramnt = game->get_counter(cmb.trigctr);
-	bool onlytrigctr = !(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG);
+	
 	if(!onlytrigctr && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
 	{
 		if(ctramnt >= cmb.trigctramnt)
@@ -1483,158 +1743,250 @@ bool do_trigger_combo(const pos_handle& pos_handle, int32_t special, weapon* w)
 		if(ctramnt >= cmb.trigctramnt)
 			return false;
 	}
-	int32_t flag = pos_handle.screen->sflag[pos];
-	int32_t flag2 = cmb.flag;
 	
-	byte* grid = nullptr;
-	bool check_bit = false;
-	bool used_bit = false;
 	if(w)
 	{
 		// TODO z3
 		grid = (lyr ? w->wscreengrid_layer[lyr-1] : w->wscreengrid);
 		check_bit = get_bit(grid, pos);
 	}
-	if((cmb.triggerflags[0] & combotriggerCMBTYPEFX) || alwaysCTypeEffects(cmb.type))
+	if(!timer.trig_cd)
 	{
-		switch(cmb.type)
+		if((cmb.triggerflags[0] & combotriggerCMBTYPEFX) || alwaysCTypeEffects(cmb.type))
 		{
-			case cSCRIPT1: case cSCRIPT2: case cSCRIPT3: case cSCRIPT4: case cSCRIPT5:
-			case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
-			case cTRIGGERGENERIC:
-				if(w)
-					do_generic_combo(w, cx, cy, (w->useweapon > 0) ? w->useweapon : w->id, cid, flag, flag2, cmb.attribytes[3], pos, false, lyr);
-				else do_generic_combo2(cx, cy, cid, flag, flag2, cmb.attribytes[3], pos, false, lyr);
-				break;
-			case cCUSTOMBLOCK:
-				if(!w) break;
-				killgenwpn(w);
-				if(cmb.attribytes[0])
-					sfx(cmb.attribytes[0]);
-				break;
-		}
-		if(!check_bit)
-		{
-			used_bit = true;
 			switch(cmb.type)
 			{
-				case cCSWITCH:
-					do_cswitch_combo(cmb, w);
+				case cSCRIPT1: case cSCRIPT2: case cSCRIPT3: case cSCRIPT4: case cSCRIPT5:
+				case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
+				case cTRIGGERGENERIC:
+					if(w)
+						do_generic_combo(w, cx, cy, (w->useweapon > 0) ? w->useweapon : w->id, cid, flag, flag2, cmb.attribytes[3], pos, false, lyr);
+					else do_generic_combo2(cx, cy, cid, flag, flag2, cmb.attribytes[3], pos, false, lyr);
 					break;
-				
-				case cCSWITCHBLOCK:
-					trigger_cswitch_block(lyr,pos);
+				case cCUSTOMBLOCK:
+					if(!w) break;
+					killgenwpn(w);
+					if(cmb.attribytes[0])
+						sfx(cmb.attribytes[0]);
 					break;
-				
-				case cSIGNPOST:
-				{
-					if(!(special & ctrigIGNORE_SIGN))
-					{
-						trigger_sign(cmb);
-					}
-					break;
-				}
-				
-				case cSLASH: case cSLASHITEM: case cBUSH: case cFLOWERS: case cTALLGRASS:
-				case cTALLGRASSNEXT:case cSLASHNEXT: case cSLASHNEXTITEM: case cBUSHNEXT:
-				case cSLASHTOUCHY: case cSLASHITEMTOUCHY: case cBUSHTOUCHY: case cFLOWERSTOUCHY:
-				case cTALLGRASSTOUCHY: case cSLASHNEXTTOUCHY: case cSLASHNEXTITEMTOUCHY:
-				case cBUSHNEXTTOUCHY:
-					trigger_cuttable(pos_handle);
-					break;
-					
-				case cSTEP: case cSTEPSAME: case cSTEPALL:
-					if (!trigger_step(pos_handle))
-						return false;
-					break;
-				
-				case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
-				case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
-				case cDIVEWARP: case cDIVEWARPB: case cDIVEWARPC: case cDIVEWARPD:
-				case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
-				case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
-				case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
-					trigger_warp(cmb);
-					break;
-				
-				case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
-					if (!trigger_chest(pos_handle))
-						return false;
-					break;
-				case cLOCKBLOCK: case cBOSSLOCKBLOCK:
-					if (!trigger_lockblock(pos_handle))
-						return false;
-					break;
-				
-				case cARMOS: case cBSGRAVE: case cGRAVE:
-					if (!trigger_armos_grave(pos_handle))
-						return false;
-					break;
-				
-				case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
-				case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
-					trigger_damage_combo(pos_handle);
-					break;
-				
-				case cSTEPSFX:
-					trigger_stepfx(pos_handle);
-					break;
-				
-				case cSWITCHHOOK:
-					if (!trigger_switchhookblock(pos_handle))
-						return false;
-					break;
-				
-				default:
-					used_bit = false;
 			}
-		}
-	}
-	
-	if(!check_bit)
-	{
-		if (cmb.triggerflags[1]&combotriggerSECRETS)
-		{
-			used_bit = true;
-			trigger_secrets_for_screen(pos_handle.screen_index, false, -6);
-			if (canPermSecret(currdmap, pos_handle.screen_index) && !(pos_handle.screen->flags5&fTEMPSECRETS))
-				setmapflag2(pos_handle.screen, pos_handle.screen_index, mSECRET);
-			sfx(pos_handle.screen->secretsfx);
-		}
-		
-		if(cmb.trigchange)
-		{
-			used_bit = true;
-			pos_handle.screen->data[pos] = cid+cmb.trigchange;
-		}
-		
-		if(cmb.triggerflags[0] & combotriggerRESETANIM)
-		{
-			newcombo& rcmb = combobuf[pos_handle.screen->data[pos]];
-            rcmb.tile = rcmb.o_tile;
-			rcmb.cur_frame=0;
-			rcmb.aclk = 0;
-		}
-		
-		if(cmb.trigsfx)
-			sfx(cmb.trigsfx, pan(COMBOX(pos)));
-		
-		if(cmb.triggeritem && hasitem && (cmb.triggerflags[1] & combotriggerCONSUMEITEM))
-		{
-			takeitem(cmb.triggeritem);
-		}
-		if(onlytrigctr && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
-		{
-			if(ctramnt >= cmb.trigctramnt)
+			if(!check_bit)
 			{
-				game->change_counter(-cmb.trigctramnt, cmb.trigctr);
+				used_bit = true;
+				switch(cmb.type)
+				{
+					case cCSWITCH:
+						do_cswitch_combo(cmb, w);
+						break;
+					
+					case cCSWITCHBLOCK:
+						trigger_cswitch_block(lyr, pos);
+						break;
+					
+					case cSIGNPOST:
+					{
+						if(!(special & ctrigIGNORE_SIGN))
+						{
+							trigger_sign(cmb);
+						}
+						break;
+					}
+					
+					case cSLASH: case cSLASHITEM: case cBUSH: case cFLOWERS: case cTALLGRASS:
+					case cTALLGRASSNEXT:case cSLASHNEXT: case cSLASHNEXTITEM: case cBUSHNEXT:
+					case cSLASHTOUCHY: case cSLASHITEMTOUCHY: case cBUSHTOUCHY: case cFLOWERSTOUCHY:
+					case cTALLGRASSTOUCHY: case cSLASHNEXTTOUCHY: case cSLASHNEXTITEMTOUCHY:
+					case cBUSHNEXTTOUCHY:
+						trigger_cuttable(pos_handle);
+						break;
+						
+					case cSTEP: case cSTEPSAME: case cSTEPALL:
+						if(!trigger_step(pos_handle))
+							return false;
+						break;
+					
+					case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
+					case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
+					case cDIVEWARP: case cDIVEWARPB: case cDIVEWARPC: case cDIVEWARPD:
+					case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
+					case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
+					case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
+						trigger_warp(cmb);
+						break;
+					
+					case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
+						if(!trigger_chest(pos_handle))
+							return false;
+						break;
+					case cLOCKBLOCK: case cBOSSLOCKBLOCK:
+						if(!trigger_lockblock(pos_handle))
+							return false;
+						break;
+					
+					case cARMOS: case cBSGRAVE: case cGRAVE:
+						if(!trigger_armos_grave(pos_handle))
+							return false;
+						break;
+					
+					case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
+					case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
+						trigger_damage_combo(pos_handle);
+						break;
+					
+					case cSTEPSFX:
+						trigger_stepfx(pos_handle);
+						break;
+					
+					case cSWITCHHOOK:
+						if(!trigger_switchhookblock(pos_handle))
+							return false;
+						break;
+					
+					case cSHOOTER:
+						if(!trigger_shooter(cmb,pos))
+							return false;
+						break;
+					default:
+						used_bit = false;
+				}
 			}
 		}
+		
+		if(!check_bit)
+		{
+			if (cmb.triggerflags[1]&combotriggerSECRETS)
+			{
+				used_bit = true;
+				hidden_entrance(0, true, false, -6);
+				if(canPermSecret(currdmap, pos_handle.screen_index) && !(pos_handle.screen->flags5&fTEMPSECRETS))
+					setmapflag2(pos_handle.screen, pos_handle.screen_index, mSECRET);
+				sfx(pos_handle.screen->secretsfx);
+			}
+			
+			if(cmb.trigchange)
+			{
+				used_bit = true;
+				pos_handle.screen->data[pos] = cid+cmb.trigchange;
+			}
+			if(cmb.trigcschange)
+			{
+				used_bit = true;
+				pos_handle.screen->cset[pos] = (ocs+cmb.trigcschange) & 0xF;
+			}
+			
+			if(cmb.triggerflags[0] & combotriggerRESETANIM)
+			{
+				newcombo& rcmb = combobuf[pos_handle.screen->data[pos]];
+				rcmb.tile = rcmb.o_tile;
+				rcmb.cur_frame=0;
+				rcmb.aclk = 0;
+			}
+			
+			if(cmb.trigsfx)
+				sfx(cmb.trigsfx, pan(COMBOX(pos)));
+			
+			if(cmb.triggeritem && hasitem && (cmb.triggerflags[1] & combotriggerCONSUMEITEM))
+			{
+				takeitem(cmb.triggeritem);
+			}
+			if(onlytrigctr && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
+			{
+				if(ctramnt >= cmb.trigctramnt)
+				{
+					game->change_counter(-cmb.trigctramnt, cmb.trigctr);
+				}
+			}
+			bool trigexstate = true;
+			if(cmb.spawnenemy)
+			{
+				enemy* enm = nullptr;
+				bool enm_ex = (cmb.triggerflags[2] & combotriggerEXSTENEMY);
+				word numcreated = addenemy(cx, cy, cmb.spawnenemy, -10);
+				if(numcreated)
+				{
+					word index = guys.Count() - numcreated;
+					enm = (enemy*)guys.spr(index);
+				}
+				if(enm_ex)
+				{
+					trigexstate = false;
+					if(enm)
+					{
+						enm->deathexstate = cmb.exstate;
+					}
+				}
+			}
+			if(cmb.spawnitem)
+			{
+				bool itm_ex = (cmb.triggerflags[2] & combotriggerEXSTITEM);
+				bool specitem = (cmb.triggerflags[2] & combotriggerSPCITEM);
+				if(specitem && getmapflag(mSPECIALITEM))
+				{
+					//already collected
+					if(itm_ex) trigexstate = true;
+				}
+				else
+				{
+					const int32_t allowed_pflags = ipHOLDUP | ipTIMER | ipSECRETS | ipCANGRAB;
+					int32_t pflags = cmb.spawnip & allowed_pflags;
+					SETFLAG(pflags, ipONETIME2, specitem);
+					int32_t item_id = cmb.spawnitem;
+					if(item_id < 0)
+					{
+						item_id = select_dropitem(-item_id);
+					}
+					item* itm = nullptr;
+					if(unsigned(item_id) < MAXITEMS)
+					{
+						itm = new item(cx, cy, 0, item_id, pflags, 0);
+						items.add(itm);
+					}
+					if(itm_ex)
+					{
+						trigexstate = false;
+						if(itm) itm->pickupexstate = cmb.exstate;
+					}
+					if(cmb.triggerflags[2] & combotriggerAUTOGRABITEM)
+					{
+						if(itm) itm->set_forcegrab(true);
+					}
+				}
+			}
+			
+			if(cmb.exstate > -1 && trigexstate)
+			{
+				setxmapflag(exflag);
+			}
+			
+			if(cmb.trigcopycat) //has a copycat set
+			{
+				if(!copycat_id) //not already in a copycat
+				{
+					bool skipself = pos_handle.screen->data[pos] == cid;
+					copycat_id = cmb.trigcopycat;
+					for(auto cclayer = 0; cclayer < 7; ++cclayer)
+					{
+						for(auto ccpos = 0; ccpos < 176; ++ccpos)
+						{
+							if(cclayer == lyr && ccpos == pos && skipself)
+								continue;
+							
+							do_copycat_trigger(cclayer, ccpos);
+						}
+					}
+					copycat_id = 0;
+				}
+			}
+			
+			if(cmb.trigcooldown)
+				timer.trig_cd = cmb.trigcooldown;
+		}
+		if(used_bit && grid)
+		{
+			set_bit(grid,pos,1);
+		}
 	}
-	if(used_bit && grid)
-	{
-		set_bit(grid,pos,1);
-	}
+
 	if(w && (cmb.triggerflags[0] & combotriggerKILLWPN))
 		killgenwpn(w);
 	return true;
@@ -1649,8 +2001,51 @@ void init_combo_timers()
 			combo_trig_timers[lyr][pos].clear();
 		}
 	}
+	for(auto f = 0; f < 32; ++f)
+	{
+		ffc_trig_timers[f].clear();
+	}
 }
 
+
+
+static void handle_shooter(newcombo const& cmb, cmbtimer& timer, zfix wx, zfix wy)
+{
+	int32_t lowrate = zc_max(0,cmb.attrishorts[0]);
+	int32_t highrate = zc_max(0,cmb.attrishorts[1]);
+	bool splitrate = cmb.usrflags&cflag2;
+	bool instashot = cmb.usrflags&cflag3;
+	if(splitrate)
+	{
+		if(lowrate > highrate) return;
+		if(lowrate == highrate) splitrate = false;
+	}
+	if(!splitrate)
+	{
+		if(!lowrate) return;
+	}
+	
+	if(timer.shootrclk > 1)
+	{
+		if(--timer.shootrclk == 1)
+		{
+			if(!instashot) trigger_shooter(cmb, wx, wy);
+		}
+	}
+	else
+	{
+		auto rate = (splitrate ? zc_rand(highrate,lowrate) : lowrate);
+		timer.shootrclk = zc_max(1,rate);
+		if(instashot || timer.shootrclk == 1) trigger_shooter(cmb, wx, wy);
+	}
+}
+
+static void handle_shooter(newcombo const& cmb, cmbtimer& timer, rpos_t rpos)
+{
+	int x, y;
+	COMBOXY_REGION(rpos, x, y);
+	handle_shooter(cmb, timer, x, y);
+}
 void update_combo_timers()
 {
 	for_every_screen_in_region([&](mapscr* z3_scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
@@ -1664,23 +2059,42 @@ void update_combo_timers()
 
 			for (auto pos = 0; pos < 176; ++pos)
 			{
+				pos_handle.rpos = POS_TO_RPOS(pos, z3_scr_dx, z3_scr_dy);
+
 				cmbtimer& timer = combo_trig_timers[lyr][pos];
-				if (timer.data != scr->data[pos])
-				{
-					timer.data = scr->data[pos];
-					timer.clk = 0;
-				}
+				timer.updateData(scr->data[pos]);
 				newcombo const& cmb = combobuf[timer.data];
 				if (cmb.trigtimer)
 				{
 					if (++timer.clk >= cmb.trigtimer)
 					{
 						timer.clk = 0;
-						pos_handle.rpos = POS_TO_RPOS(pos, z3_scr_dx, z3_scr_dy);
+						
 						do_trigger_combo(pos_handle);
-						timer.data = scr->data[pos];
+						timer.updateData(scr->data[pos]);
 					}
 				}
+				if(timer.trig_cd) --timer.trig_cd;
+				if(cmb.type == cSHOOTER)
+				{
+					handle_shooter(cmb, timer, pos_handle.rpos);
+				}
+			}
+		}
+
+		mapscr* ffscr = FFCore.tempScreens[0];
+		for(auto ffc = 0; ffc < 32; ++ffc)
+		{
+			cmbtimer& timer = ffc_trig_timers[ffc];
+			timer.updateData(ffscr->ffdata[ffc]);
+			newcombo const& cmb = combobuf[timer.data];
+			if(cmb.type == cSHOOTER)
+			{
+				zfix wx = zslongToFix(ffscr->ffx[ffc]);
+				zfix wy = zslongToFix(ffscr->ffy[ffc]);
+				wx += (ffscr->ffTileWidth(ffc)-1)*8;
+				wy += (ffscr->ffTileHeight(ffc)-1)*8;
+				handle_shooter(cmb, timer, wx, wy);
 			}
 		}
 	});

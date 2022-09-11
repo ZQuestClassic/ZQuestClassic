@@ -258,9 +258,11 @@ size_and_pos comboalias_preview[3];
 
 size_and_pos combo_preview;
 size_and_pos combolist_window;
+size_and_pos drawmode_btn;
 size_and_pos panel[9];
 size_and_pos favorites_window;
 size_and_pos favorites_list;
+size_and_pos favorites_x;
 size_and_pos commands_window;
 size_and_pos commands_list;
 size_and_pos layer_panel;
@@ -279,6 +281,48 @@ int32_t layerpanel_checkbox_sz = 13;
 int32_t favorite_combos[MAXFAVORITECOMBOS];
 int32_t favorite_comboaliases[MAXFAVORITECOMBOALIASES];
 int32_t favorite_commands[MAXFAVORITECOMMANDS];
+
+#define MAXPOOLCOMBOS MAXFAVORITECOMBOS
+
+struct cmbdat_pair
+{
+    int32_t data;
+    byte cset;
+    cmbdat_pair() { clear(); }
+    void clear()
+    {
+        data = -1;
+        cset = 0;
+    }
+    bool valid() const
+    {
+        return data > -1;
+    }
+};
+bool pool_dirty=true;
+cmbdat_pair pool_combos[MAXPOOLCOMBOS];
+static std::vector<byte> pool;
+
+bool pool_valid()
+{
+	if(pool_dirty)
+	{
+		pool.clear();
+		for(auto q = 0; q < MAXPOOLCOMBOS; ++q)
+		{
+			if(pool_combos[q].valid())
+				pool.push_back(q);
+		}
+		pool_dirty = false;
+	}
+	return pool.size() > 0;
+}
+cmbdat_pair const& get_pool_combo()
+{
+	if(!pool_valid()) return pool_combos[0];
+	auto ind = zc_rand(pool.size()-1);
+	return pool_combos[pool.at(ind)];
+}
 
 int32_t mapscreen_x, mapscreen_y, mapscreensize, showedges, showallpanels;
 int32_t mouse_scroll_h;
@@ -1098,6 +1142,7 @@ static MENU paste_item_menu[] =
 static MENU edit_menu[] =
 {
     { (char *)"&Undo\tU",                   onUndo,                    NULL,                     0,            NULL   },
+    { (char *)"&Redo\tY",                   onRedo,                    NULL,                     0,            NULL   },
     { (char *)"&Copy\tC",                   onCopy,                    NULL,                     0,            NULL   },
     { (char *)"&Paste\tV",                  onPaste,                   NULL,                     0,            NULL   },
     { (char *)"Paste A&ll",                 onPasteAll,                NULL,                     0,            NULL   },
@@ -1112,9 +1157,10 @@ static MENU edit_menu[] =
 static MENU drawing_mode_menu[] =
 {
     { (char *)"&Normal",                    onDrawingModeNormal,       NULL,                     0,            NULL   },
-    { (char *)"&Combo Alias",               onDrawingModeAlias,        NULL,                     0,            NULL   },
-    { (char *)"&Dungeon Carving",           onDrawingModeDungeon,      NULL,                     0,            NULL   },
     { (char *)"&Relational",                onDrawingModeRelational,   NULL,                     0,            NULL   },
+    { (char *)"&Dungeon Carving",           onDrawingModeDungeon,      NULL,                     0,            NULL   },
+    { (char *)"&Combo Alias",               onDrawingModeAlias,        NULL,                     0,            NULL   },
+    { (char *)"&Pool",                      onDrawingModePool,         NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -1719,13 +1765,17 @@ void onSKey()
 
 static DIALOG dialogs[] =
 {
-    // still unused:  jm
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)  (d1)         (d2)     (dp) */
     // { d_nbmenu_proc,     0,    0,    0,    13,    0,    0,    0,       D_USER,  0,             0, ((is_large) ? (void *) the_menu_large : (void *) the_menu), NULL, NULL },
     { d_nbmenu_proc,     0,    0,    0,    13,    0,    0,    0,       D_USER,  0,             0, (void *) the_menu, NULL, NULL },
     
     { d_dummy_proc,   0,    0,    0,    0,    0,    0,    0,     0,       0,              0, (void *) onIncreaseCSet, NULL, NULL },
     { d_dummy_proc,   0,    0,    0,    0,    0,    0,    0,     0,       0,              0, (void *) onDecreaseCSet, NULL, NULL },
+
+    { d_keyboard_proc_m, 0,    0,    0,    0,    0,    0,    0,       0, KEY_Z, KB_COMMAND_FLAG|KB_SHIFT_FLAG, (void *) onRedo, NULL, NULL },
+    { d_keyboard_proc_m, 0,    0,    0,    0,    0,    0,    0,       0, KEY_Z, KB_COMMAND_FLAG,               (void *) onUndo, NULL, NULL },
+    { d_keyboard_proc_m, 0,    0,    0,    0,    0,    0,    0,       0, KEY_Y, KB_COMMAND_FLAG,               (void *) onRedo, NULL, NULL },
+
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '*',     0,       0,              0, (void *) onIncreaseFlag, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_CLOSEBRACE, 0, (void *) onIncreaseFlag, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '/',     0,       0,              0, (void *) onDecreaseFlag, NULL, NULL },
@@ -3154,13 +3204,14 @@ int32_t onOptions()
     return D_O_K;
 }
 
-enum {dm_normal, dm_relational, dm_dungeon, dm_alias, dm_max};
+enum {dm_normal, dm_relational, dm_dungeon, dm_alias, dm_cpool, dm_max};
 const char *dm_names[dm_max]=
 {
     "Normal",
     "Relational",
     "Dungeon",
-    "Alias"
+    "Alias",
+	"Pool"
 };
 
 byte relational_tile_grid[11+(rtgyo*2)][16+(rtgxo*2)];
@@ -3236,6 +3287,20 @@ int32_t onDrawingModeAlias()
     return D_O_K;
 }
 
+int32_t onDrawingModePool()
+{
+    if(draw_mode==dm_cpool)
+    {
+        return onDrawingModeNormal();
+    }
+    
+    draw_mode=dm_cpool;
+    memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+    fix_drawing_mode_menu();
+    restore_mouse();
+    return D_O_K;
+}
+
 int32_t onReTemplate()
 {
     if(jwin_alert("Confirm Overwrite","Apply NES Dungeon template to","all screens on this map?",NULL,"&Yes","&No",'y','n',lfont)==1)
@@ -3249,7 +3314,14 @@ int32_t onReTemplate()
 
 int32_t onUndo()
 {
-    Map.Uhuilai();
+    Map.UndoCommand();
+    refresh(rALL);
+    return D_O_K;
+}
+
+int32_t onRedo()
+{
+    Map.RedoCommand();
     refresh(rALL);
     return D_O_K;
 }
@@ -3297,16 +3369,14 @@ int32_t onPaste()
 		return onPasteToAll();
 	else
 	{
-		Map.Paste();
-		refresh(rALL);
+		Map.DoPasteScreenCommand(PasteCommandType::ScreenPartial);
 	}
 	return D_O_K;
 }
 
 int32_t onPasteAll()
 {
-	Map.PasteAll();
-	refresh(rALL);
+	Map.DoPasteScreenCommand(PasteCommandType::ScreenAll);
 	return D_O_K;
 }
 
@@ -3314,8 +3384,7 @@ int32_t onPasteToAll()
 {
 	if(confirmBox("You are about to paste to all screens on the current map."))
 	{
-		Map.PasteToAll();
-		refresh(rALL);
+		Map.DoPasteScreenCommand(PasteCommandType::ScreenPartialToEveryScreen);
 	}
 	return D_O_K;
 }
@@ -3324,93 +3393,80 @@ int32_t onPasteAllToAll()
 {
 	if(confirmBox("You are about to paste to all screens on the current map."))
 	{
-		Map.PasteAllToAll();
-		refresh(rALL);
+		Map.DoPasteScreenCommand(PasteCommandType::ScreenAllToEveryScreen);
 	}
 	return D_O_K;
 }
 
 int32_t onPasteUnderCombo()
 {
-    Map.PasteUnderCombo();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenUnderCombo);
     return D_O_K;
 }
 
 int32_t onPasteSecretCombos()
 {
-    Map.PasteSecretCombos();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenSecretCombos);
     return D_O_K;
 }
 
 int32_t onPasteFFCombos()
 {
-    Map.PasteFFCombos();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenFFCombos);
     return D_O_K;
 }
 
 int32_t onPasteWarps()
 {
-    Map.PasteWarps();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenWarps);
     return D_O_K;
 }
 
 int32_t onPasteScreenData()
 {
-    Map.PasteScreenData();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenData);
     return D_O_K;
 }
 
 int32_t onPasteWarpLocations()
 {
-    Map.PasteWarpLocations();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenWarpLocations);
     return D_O_K;
 }
 
 int32_t onPasteDoors()
 {
-    Map.PasteDoors();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenDoors);
     return D_O_K;
 }
 
 int32_t onPasteLayers()
 {
-    Map.PasteLayers();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenLayers);
     return D_O_K;
 }
 
 int32_t onPastePalette()
 {
-    Map.PastePalette();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenPalette);
     return D_O_K;
 }
 
 int32_t onPasteRoom()
 {
-    Map.PasteRoom();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenRoom);
     return D_O_K;
 }
 
 int32_t onPasteGuy()
 {
-    Map.PasteGuy();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenGuy);
     return D_O_K;
 }
 
 int32_t onPasteEnemies()
 {
-    Map.PasteEnemies();
-    refresh(rALL);
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenEnemies);
     return D_O_K;
 }
 
@@ -3422,16 +3478,13 @@ int32_t onDelete()
     {
         if(jwin_alert("Confirm Delete","Delete this screen?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
         {
-            Map.Ugo();
-            Map.clearscr(Map.getCurrScr());
-            refresh(rALL);
+            Map.DoClearScreenCommand();
         }
     }
     
     memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
     saved=false;
     return D_O_K;
-    
 }
 
 int32_t onDeleteMap()
@@ -5845,6 +5898,16 @@ bool isFavCmdSelected(int32_t cmd)
 			return ViewLayer2BG;
 		case cmdViewL3BG:
 			return ViewLayer3BG;
+		case cmdDrawingModePool:
+			return draw_mode==dm_cpool;
+		case cmdDrawingModeRelational:
+			return draw_mode==dm_relational;
+		case cmdDrawingModeDungeon:
+			return draw_mode==dm_dungeon;
+		case cmdDrawingModeAlias:
+			return draw_mode==dm_alias;
+		case cmdDrawingModeNormal:
+			return draw_mode==dm_normal;
 		case cmdShowDark:
 			return (get_bit(quest_rules,qr_NEW_DARKROOM) && (Flags&cNEWDARK));
 	}
@@ -6336,7 +6399,7 @@ void refresh(int32_t flags)
                 draw_layer_button(menu1,map_page_bar[btn].x, map_page_bar[btn].y, map_page_bar[btn].w, map_page_bar[btn].h,tbuf,(btn==current_mappage?D_SELECTED:0));
             }
             
-            draw_text_button(menu1,combolist_window.x-64,0,64,16,dm_names[draw_mode],vc(1),vc(14),0,true);
+            draw_text_button(menu1,drawmode_btn.x,drawmode_btn.y,drawmode_btn.w,drawmode_btn.h,dm_names[draw_mode],vc(1),vc(14),0,true);
         }
     }
     
@@ -6732,13 +6795,26 @@ void refresh(int32_t flags)
             rectfill(menu1,favorites_window.x+2,favorites_window.y+2,favorites_window.x+favorites_window.w-3,favorites_window.y+favorites_window.h-3,jwin_pal[jcBOX]);
             jwin_draw_frame(menu1,favorites_list.x-2,favorites_list.y-2,(favorites_list.w<<4)+4,(favorites_list.h<<4)+4, FR_DEEP);
             rectfill(menu1,favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w<<4)-1,favorites_list.y+(favorites_list.h<<4)-1,jwin_pal[jcBOXFG]);
-            textprintf_ex(menu1,font,favorites_list.x-2,favorites_list.y-11,jwin_pal[jcBOXFG],-1,"Favorite Combos");
             
-            if(draw_mode!=dm_alias)
-            {
-                for(int32_t i=0; i<(favorites_list.w*favorites_list.h); i++)
+			jwin_draw_frame(menu1,favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,FR_ETCHED);
+			const auto szval = 2;
+			line(menu1, favorites_x.x+szval, favorites_x.y+szval, favorites_x.x+(10-szval), favorites_x.y+(10-szval),jwin_pal[jcBOXFG]);
+			line(menu1, favorites_x.x+szval, favorites_x.y+(10-szval), favorites_x.x+(10-szval), favorites_x.y+szval,jwin_pal[jcBOXFG]);
+			char const* dmbufs[] =
+			{
+				"Favorite Combos", "Favorite Combos", "Favorite Combos",
+				"Favorite Aliases", "Combo Pool"
+			};
+			textprintf_ex(menu1,font,favorites_list.x-2,favorites_list.y-11,jwin_pal[jcBOXFG],-1,"%s",dmbufs[draw_mode]);
+			if(draw_mode==dm_cpool)
+			{
+				for(int32_t i=0; i<(favorites_list.w*favorites_list.h); i++)
                 {
-                    if(favorite_combos[i]==-1)
+                    if(pool_combos[i].valid())
+                    {
+                        put_combo(menu1,(i%favorites_list.w)*16+favorites_list.x,(i/favorites_list.w)*16+favorites_list.y,pool_combos[i].data,pool_combos[i].cset,Flags&(cFLAGS|cWALK),0);
+                    }
+                    else
                     {
                         if(InvalidStatic)
                         {
@@ -6758,15 +6834,11 @@ void refresh(int32_t flags)
                             line(menu1, (i%favorites_list.w)*16+favorites_list.x, (i/favorites_list.w)*16+favorites_list.y+15, (i%favorites_list.w)*16+favorites_list.x+15, (i/favorites_list.w)*16+favorites_list.y, vc(15));
                         }
                     }
-                    else
-                    {
-                        put_combo(menu1,(i%favorites_list.w)*16+favorites_list.x,(i/favorites_list.w)*16+favorites_list.y,favorite_combos[i],CSet,Flags&(cFLAGS|cWALK),0);
-                    }
                 }
-            }
-            else
+			}
+            else if(draw_mode==dm_alias)
             {
-                for(int32_t i=0; i<(favorites_list.w*favorites_list.h); i++)
+				for(int32_t i=0; i<(favorites_list.w*favorites_list.h); i++)
                 {
                     if(favorite_comboaliases[i]==-1)
                     {
@@ -6791,6 +6863,36 @@ void refresh(int32_t flags)
                     else
                     {
                         draw_combo_alias_thumbnail(menu1, &combo_aliases[favorite_comboaliases[i]], (i%favorites_list.w)*16+favorites_list.x,(i/favorites_list.w)*16+favorites_list.y,1);
+                    }
+                }
+            }
+            else
+			{
+				for(int32_t i=0; i<(favorites_list.w*favorites_list.h); i++)
+                {
+                    if(favorite_combos[i]==-1)
+                    {
+                        if(InvalidStatic)
+                        {
+                            for(int32_t dy=0; dy<16; dy++)
+                            {
+                                for(int32_t dx=0; dx<16; dx++)
+                                {
+                                    menu1->line[(i/favorites_list.w)*16+favorites_list.y+dy][(i%favorites_list.w)*16+favorites_list.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
+                                }
+                            }
+                        }
+                        else
+                        {
+                            rectfill(menu1, (i%favorites_list.w)*16+favorites_list.x, (i/favorites_list.w)*16+favorites_list.y, (i%favorites_list.w)*16+favorites_list.x+15, (i/favorites_list.w)*16+favorites_list.y+15, vc(0));
+                            safe_rect(menu1, (i%favorites_list.w)*16+favorites_list.x, (i/favorites_list.w)*16+favorites_list.y, (i%favorites_list.w)*16+favorites_list.x+15, (i/favorites_list.w)*16+favorites_list.y+15, vc(15));
+                            line(menu1, (i%favorites_list.w)*16+favorites_list.x, (i/favorites_list.w)*16+favorites_list.y, (i%favorites_list.w)*16+favorites_list.x+15, (i/favorites_list.w)*16+favorites_list.y+15, vc(15));
+                            line(menu1, (i%favorites_list.w)*16+favorites_list.x, (i/favorites_list.w)*16+favorites_list.y+15, (i%favorites_list.w)*16+favorites_list.x+15, (i/favorites_list.w)*16+favorites_list.y, vc(15));
+                        }
+                    }
+                    else
+                    {
+                        put_combo(menu1,(i%favorites_list.w)*16+favorites_list.x,(i/favorites_list.w)*16+favorites_list.y,favorite_combos[i],CSet,Flags&(cFLAGS|cWALK),0);
                     }
                 }
             }
@@ -7436,6 +7538,15 @@ void select_scr()
     ComboBrush=tempcb;
 }
 
+void clear_cpool()
+{
+	for(int32_t i=0; i<MAXFAVORITECOMBOS; ++i)
+	{
+		pool_combos[i].clear();
+	}
+	pool_dirty = true;
+}
+
 bool select_favorite()
 {
     int32_t tempcb=ComboBrush;
@@ -7459,19 +7570,28 @@ bool select_favorite()
         
         int32_t tempc=(((y-favorites_list.y)>>4)*favorites_list.w)+((x-favorites_list.x)>>4);
         
-        if(draw_mode!=dm_alias)
+		if(draw_mode==dm_cpool)
+		{
+			if(pool_combos[tempc].valid())
+			{
+				Combo=pool_combos[tempc].data;
+				CSet=pool_combos[tempc].cset;
+				valid = true;
+			}
+		}
+        else if(draw_mode==dm_alias)
         {
-            if(favorite_combos[tempc]!=-1)
+            if(favorite_comboaliases[tempc]!=-1)
             {
-                Combo=favorite_combos[tempc];
+                combo_apos=favorite_comboaliases[tempc];
                 valid=true;
             }
         }
         else
         {
-            if(favorite_comboaliases[tempc]!=-1)
+			if(favorite_combos[tempc]!=-1)
             {
-                combo_apos=favorite_comboaliases[tempc];
+                Combo=favorite_combos[tempc];
                 valid=true;
             }
         }
@@ -7654,7 +7774,8 @@ byte relational_source_grid[256]=
 
 void draw(bool justcset)
 {
-    Map.Ugo();
+	if(draw_mode == dm_cpool && !pool_valid())
+		return;
     saved=false;
     int32_t drawmap, drawscr;
     
@@ -7682,7 +7803,9 @@ void draw(bool justcset)
     }
     
     refresh(rMAP+rSCRMAP);
-    
+	int32_t lastpos = -1;
+	
+    Map.StartListCommand();
     while(gui_mouse_b())
     {
         int32_t x=gui_mouse_x();
@@ -7697,351 +7820,382 @@ void draw(bool justcset)
             int32_t cxstart=(x-startxint)/int32_t(16*mapscreensize);
             int32_t cystart=(y-startyint)/int32_t(16*mapscreensize);
             int32_t cstart=(cystart*16)+cxstart;
+			if(cstart == lastpos) continue;
+			lastpos = cstart;
             combo_alias *combo = &combo_aliases[combo_apos];
             
             switch(draw_mode)
             {
-            case dm_normal:
-            {
-                int32_t cc=Combo;
-                
-                if(!combo_cols)
-                {
-                    for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
-                    {
-                        for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
-                        {
-                            int32_t c=cstart+(cy*16)+cx;
-                            
-                            if(!(key[KEY_LSHIFT]||key[KEY_RSHIFT]))
-                            {
-                                if(!justcset) Map.AbsoluteScr(drawmap, drawscr)->data[c]=cc+cx;
-                            }
-                            
-                            Map.AbsoluteScr(drawmap, drawscr)->cset[c]=CSet;
-                        }
-                        
-                        cc+=20;
-                    }
-                }
-                else
-                {
-                    int32_t p=Combo/256;
-                    int32_t pc=Combo%256;
-                    
-                    for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
-                    {
-                        for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
-                        {
-                            int32_t c=cstart+(cy*16)+cx;
-                            cc=((cx/4)*52)+(cy*4)+(cx%4)+pc;
-                            
-                            if(cc>=0&&cc<256)
-                            {
-                                cc+=(p*256);
-                                
-                                if(!justcset) Map.AbsoluteScr(drawmap, drawscr)->data[c]=cc;
-                                
-                                Map.AbsoluteScr(drawmap, drawscr)->cset[c]=CSet;
-                            }
-                        }
-                    }
-                }
-                
-                update_combobrush();
-            }
-            break;
-            
-            case dm_relational:
-            {
-                int32_t c2,c3;
-                int32_t cx, cy, cx2, cy2;
-                cy=cstart>>4;
-                cx=cstart&15;
-                
-                if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
-                {
-                    relational_tile_grid[(cy+rtgyo)][cx+rtgxo]=1;
-                    Map.AbsoluteScr(drawmap, drawscr)->data[cstart]=Combo+47;
-                    Map.AbsoluteScr(drawmap, drawscr)->cset[cstart]=CSet;
-                }
-                else
-                {
-                    relational_tile_grid[(cy+rtgyo)][cx+rtgxo]=0;
-                }
-                
-                for(int32_t y2=-1; y2<2; ++y2)
-                {
-                    cy2=cy+y2;
-                    
-                    if((cy2>11)||(cy2<0))
-                    {
-                        continue;
-                    }
-                    
-                    for(int32_t x2=-1; x2<2; ++x2)
-                    {
-                        cx2=cx+x2;
-                        
-                        if((cx2>15)||(cx2<0))
-                        {
-                            continue;
-                        }
-                        
-                        c2=cstart+(y2*16)+x2;
-                        c3=((relational_tile_grid[((cy2-1)+rtgyo)][(cx2+1)+rtgxo]?1:0)<<0)+
-                           ((relational_tile_grid[((cy2-1)+rtgyo)][(cx2-1)+rtgxo]?1:0)<<1)+
-                           ((relational_tile_grid[((cy2+1)+rtgyo)][(cx2-1)+rtgxo]?1:0)<<2)+
-                           ((relational_tile_grid[((cy2+1)+rtgyo)][(cx2+1)+rtgxo]?1:0)<<3)+
-                           ((relational_tile_grid[((cy2)+rtgyo)][(cx2+1)+rtgxo]?1:0)<<4)+
-                           ((relational_tile_grid[((cy2-1)+rtgyo)][(cx2)+rtgxo]?1:0)<<5)+
-                           ((relational_tile_grid[((cy2)+rtgyo)][(cx2-1)+rtgxo]?1:0)<<6)+
-                           ((relational_tile_grid[((cy2+1)+rtgyo)][(cx2)+rtgxo]?1:0)<<7);
-                           
-                        if(relational_tile_grid[((c2>>4)+rtgyo)][(c2&15)+rtgxo]==0)
-                        {
-                            Map.AbsoluteScr(drawmap, drawscr)->data[c2]=Combo+relational_source_grid[c3];
-                            Map.AbsoluteScr(drawmap, drawscr)->cset[c2]=CSet;
-                        }
-                    }
-                }
-            }
-            break;
-            
-            case dm_dungeon:
-            {
-                int32_t c2,c3,c4;
-                int32_t cx, cy, cx2, cy2;
-                cy=cstart>>4;
-                cx=cstart&15;
-                
-                if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
-                {
-                    relational_tile_grid[(cy+rtgyo)][cx+rtgxo]=0;
-                    
-                    for(int32_t y2=-1; y2<2; ++y2)
-                    {
-                        cy2=cy+y2;
-                        
-                        if((cy2>11)||(cy2<0))
-                        {
-                            continue;
-                        }
-                        
-                        for(int32_t x2=-1; x2<2; ++x2)
-                        {
-                            cx2=cx+x2;
-                            
-                            if((cx2>15)||(cx2<0))
-                            {
-                                continue;
-                            }
-                            
-                            if(relational_tile_grid[(cy2+rtgyo)][cx2+rtgxo]!=0)
-                            {
-                                relational_tile_grid[(cy2+rtgyo)][cx2+rtgxo]=1;
-                            };
-                        }
-                    }
-                    
-                    Map.AbsoluteScr(drawmap, drawscr)->data[cstart]=Combo;
-                    Map.AbsoluteScr(drawmap, drawscr)->cset[cstart]=CSet;
-                }
-                else
-                {
-                    relational_tile_grid[(cy+rtgyo)][cx+rtgxo]=2;
-                    
-                    for(int32_t y2=-1; y2<2; ++y2)
-                    {
-                        cy2=cy+y2;
-                        
-                        if((cy2>11)||(cy2<0))
-                        {
-                            continue;
-                        }
-                        
-                        for(int32_t x2=-1; x2<2; ++x2)
-                        {
-                            cx2=cx+x2;
-                            
-                            if((cx2>15)||(cx2<0))
-                            {
-                                continue;
-                            }
-                            
-                            if(relational_tile_grid[(cy2+rtgyo)][cx2+rtgxo]==0)
-                            {
-                                relational_tile_grid[(cy2+rtgyo)][cx2+rtgxo]=1;
-                            };
-                        }
-                    }
-                    
-                    Map.AbsoluteScr(drawmap, drawscr)->data[cstart]=Combo+48+47;
-                    Map.AbsoluteScr(drawmap, drawscr)->cset[cstart]=CSet;
-                }
-                
-                for(int32_t y2=0; y2<11; ++y2)
-                {
-                    for(int32_t x2=0; x2<16; ++x2)
-                    {
-                        c2=(y2*16)+x2;
-                        c4=relational_tile_grid[((y2)+rtgyo)][(x2)+rtgxo];
-                        c3=(((relational_tile_grid[((y2-1)+rtgyo)][(x2+1)+rtgxo]>c4)?1:0)<<0)+
-                           (((relational_tile_grid[((y2-1)+rtgyo)][(x2-1)+rtgxo]>c4)?1:0)<<1)+
-                           (((relational_tile_grid[((y2+1)+rtgyo)][(x2-1)+rtgxo]>c4)?1:0)<<2)+
-                           (((relational_tile_grid[((y2+1)+rtgyo)][(x2+1)+rtgxo]>c4)?1:0)<<3)+
-                           (((relational_tile_grid[((y2)+rtgyo)][(x2+1)+rtgxo]>c4)?1:0)<<4)+
-                           (((relational_tile_grid[((y2-1)+rtgyo)][(x2)+rtgxo]>c4)?1:0)<<5)+
-                           (((relational_tile_grid[((y2)+rtgyo)][(x2-1)+rtgxo]>c4)?1:0)<<6)+
-                           (((relational_tile_grid[((y2+1)+rtgyo)][(x2)+rtgxo]>c4)?1:0)<<7);
-                           
-                        if(relational_tile_grid[(y2+rtgyo)][x2+rtgxo]<2)
-                        {
-                            Map.AbsoluteScr(drawmap, drawscr)->data[c2]=Combo+relational_source_grid[c3]+(48*c4);
-                            Map.AbsoluteScr(drawmap, drawscr)->cset[c2]=CSet;
-                        }
-                    }
-                }
-            }
-            break;
-            
-            case dm_alias:
-                if(!combo->layermask)
-                {
-                    int32_t ox=0, oy=0;
-                    
-                    switch(alias_origin)
-                    {
-                    case 0:
-                        ox=0;
-                        oy=0;
-                        break;
-                        
-                    case 1:
-                        ox=(combo->width);
-                        oy=0;
-                        break;
-                        
-                    case 2:
-                        ox=0;
-                        oy=(combo->height);
-                        break;
-                        
-                    case 3:
-                        ox=(combo->width);
-                        oy=(combo->height);
-                        break;
-                    }
-                    
-                    for(int32_t cy=0; cy-oy+cystart<11&&cy<=combo->height; cy++)
-                    {
-                        for(int32_t cx=0; cx-ox+cxstart<16&&cx<=combo->width; cx++)
-                        {
-                            if((cx+cxstart-ox>=0)&&(cy+cystart-oy>=0))
-                            {
-                                int32_t c=cstart+((cy-oy)*16)+cx-ox;
-                                int32_t p=(cy*(combo->width+1))+cx;
-                                
-                                if(combo->combos[p])
-                                {
-                                    Map.AbsoluteScr(drawmap, drawscr)->data[c]=combo->combos[p];
-                                    Map.AbsoluteScr(drawmap, drawscr)->cset[c]=wrap(combo->csets[p]+alias_cset_mod, 0, 11);
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    int32_t amap=0, ascr=0;
-                    int32_t lcheck = 1;
-                    int32_t laypos = 0;
-                    int32_t ox=0, oy=0;
-                    
-                    switch(alias_origin)
-                    {
-                    case 0:
-                        ox=0;
-                        oy=0;
-                        break;
-                        
-                    case 1:
-                        ox=(combo->width);
-                        oy=0;
-                        break;
-                        
-                    case 2:
-                        ox=0;
-                        oy=(combo->height);
-                        break;
-                        
-                    case 3:
-                        ox=(combo->width);
-                        oy=(combo->height);
-                        break;
-                    }
-                    
-                    for(int32_t cz=0; cz<7; cz++, lcheck<<=1)
-                    {
-                        if(!cz)
-                        {
-                            amap = Map.getCurrMap();
-                            ascr = Map.getCurrScr();
-                        }
-                        else
-                        {
-                            if(cz==1) lcheck>>=1;
-                            
-                            if(combo->layermask&lcheck)
-                            {
-                                amap = Map.CurrScr()->layermap[cz-1]-1;
-                                ascr = Map.CurrScr()->layerscreen[cz-1];
-                                laypos++;
-                            }
-                        }
-                        
-                        for(int32_t cy=0; cy-oy+cystart<11&&cy<=combo->height; cy++)
-                        {
-                            for(int32_t cx=0; cx-ox+cxstart<16&&cx<=combo->width; cx++)
-                            {
-                                if((!cz)||/*(Map.CurrScr()->layermap[cz>0?cz-1:0])*/amap>=0)
-                                {
-                                    if((cz==0)||(combo->layermask&lcheck))
-                                    {
-                                        if((cx+cxstart-ox>=0)&&(cy+cystart-oy>=0))
-                                        {
-                                            int32_t c=cstart+((cy-oy)*16)+cx-ox;
-                                            int32_t p=((cy*(combo->width+1))+cx)+((combo->width+1)*(combo->height+1)*laypos);
-                                            
-                                            if((combo->combos[p])&&(amap>=0))
-                                            {
-                                                Map.AbsoluteScr(amap, ascr)->data[c]=combo->combos[p];
-                                                Map.AbsoluteScr(amap, ascr)->cset[c]=wrap(combo->csets[p]+alias_cset_mod, 0, 11);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                break;
+				case dm_normal:
+				{
+					int32_t cc=Combo;
+					
+					if(!combo_cols)
+					{
+						bool change_combo = !(key[KEY_LSHIFT]||key[KEY_RSHIFT]) && !justcset;
+						for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
+						{
+							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
+							{
+								int32_t c=cstart+(cy*16)+cx;
+								Map.DoSetComboCommand(drawmap, drawscr, c, change_combo ? -1 : (cc + cx), CSet);
+							}
+							
+							cc+=20;
+						}
+					}
+					else
+					{
+						int32_t p=Combo/256;
+						int32_t pc=Combo%256;
+						
+						for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
+						{
+							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
+							{
+								int32_t c=cstart+(cy*16)+cx;
+								cc=((cx/4)*52)+(cy*4)+(cx%4)+pc;
+								
+								if(cc>=0&&cc<256)
+								{
+									cc+=(p*256);
+									Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : cc, CSet);
+								}
+							}
+						}
+					}
+					
+					update_combobrush();
+				}
+				break;
+				case dm_cpool:
+				{
+					cmbdat_pair const& poolcmb = get_pool_combo();
+					int32_t cid = poolcmb.data;
+					byte cs = poolcmb.cset;
+					
+					if(!combo_cols)
+					{
+						bool change_combo = !(key[KEY_LSHIFT]||key[KEY_RSHIFT]) && !justcset;
+						for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
+						{
+							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
+							{
+								int32_t c=cstart+(cy*16)+cx;
+								Map.DoSetComboCommand(drawmap, drawscr, c, change_combo ? -1 : (cid + cx), cs);
+							}
+							
+							cid+=20;
+						}
+					}
+					else
+					{
+						int32_t p=cid/256;
+						int32_t pc=cid%256;
+						
+						for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
+						{
+							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
+							{
+								int32_t c=cstart+(cy*16)+cx;
+								cid=((cx/4)*52)+(cy*4)+(cx%4)+pc;
+								
+								if(cid>=0&&cid<256)
+								{
+									cid+=(p*256);
+									Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : cid, cs);
+								}
+							}
+						}
+					}
+					
+					update_combobrush();
+				}
+				break;
+				
+				case dm_relational:
+				{
+					int32_t c2,c3;
+					int32_t cx, cy, cx2, cy2;
+					cy=cstart>>4;
+					cx=cstart&15;
+					
+					if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
+					{
+						relational_tile_grid[(cy+rtgyo)][cx+rtgxo]=1;
+						Map.DoSetComboCommand(drawmap, drawscr, cstart, Combo+47, CSet);
+					}
+					else
+					{
+						relational_tile_grid[(cy+rtgyo)][cx+rtgxo]=0;
+					}
+					
+					for(int32_t y2=-1; y2<2; ++y2)
+					{
+						cy2=cy+y2;
+						
+						if((cy2>11)||(cy2<0))
+						{
+							continue;
+						}
+						
+						for(int32_t x2=-1; x2<2; ++x2)
+						{
+							cx2=cx+x2;
+							
+							if((cx2>15)||(cx2<0))
+							{
+								continue;
+							}
+							
+							c2=cstart+(y2*16)+x2;
+							c3=((relational_tile_grid[((cy2-1)+rtgyo)][(cx2+1)+rtgxo]?1:0)<<0)+
+							   ((relational_tile_grid[((cy2-1)+rtgyo)][(cx2-1)+rtgxo]?1:0)<<1)+
+							   ((relational_tile_grid[((cy2+1)+rtgyo)][(cx2-1)+rtgxo]?1:0)<<2)+
+							   ((relational_tile_grid[((cy2+1)+rtgyo)][(cx2+1)+rtgxo]?1:0)<<3)+
+							   ((relational_tile_grid[((cy2)+rtgyo)][(cx2+1)+rtgxo]?1:0)<<4)+
+							   ((relational_tile_grid[((cy2-1)+rtgyo)][(cx2)+rtgxo]?1:0)<<5)+
+							   ((relational_tile_grid[((cy2)+rtgyo)][(cx2-1)+rtgxo]?1:0)<<6)+
+							   ((relational_tile_grid[((cy2+1)+rtgyo)][(cx2)+rtgxo]?1:0)<<7);
+							   
+							if(relational_tile_grid[((c2>>4)+rtgyo)][(c2&15)+rtgxo]==0)
+							{
+								Map.DoSetComboCommand(drawmap, drawscr, c2, Combo+relational_source_grid[c3], CSet);
+							}
+						}
+					}
+				}
+				break;
+				
+				case dm_dungeon:
+				{
+					int32_t c2,c3,c4;
+					int32_t cx, cy, cx2, cy2;
+					cy=cstart>>4;
+					cx=cstart&15;
+					
+					if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
+					{
+						relational_tile_grid[(cy+rtgyo)][cx+rtgxo]=0;
+						
+						for(int32_t y2=-1; y2<2; ++y2)
+						{
+							cy2=cy+y2;
+							
+							if((cy2>11)||(cy2<0))
+							{
+								continue;
+							}
+							
+							for(int32_t x2=-1; x2<2; ++x2)
+							{
+								cx2=cx+x2;
+								
+								if((cx2>15)||(cx2<0))
+								{
+									continue;
+								}
+								
+								if(relational_tile_grid[(cy2+rtgyo)][cx2+rtgxo]!=0)
+								{
+									relational_tile_grid[(cy2+rtgyo)][cx2+rtgxo]=1;
+								};
+							}
+						}
+						
+						Map.DoSetComboCommand(drawmap, drawscr, cstart, Combo, CSet);
+					}
+					else
+					{
+						relational_tile_grid[(cy+rtgyo)][cx+rtgxo]=2;
+						
+						for(int32_t y2=-1; y2<2; ++y2)
+						{
+							cy2=cy+y2;
+							
+							if((cy2>11)||(cy2<0))
+							{
+								continue;
+							}
+							
+							for(int32_t x2=-1; x2<2; ++x2)
+							{
+								cx2=cx+x2;
+								
+								if((cx2>15)||(cx2<0))
+								{
+									continue;
+								}
+								
+								if(relational_tile_grid[(cy2+rtgyo)][cx2+rtgxo]==0)
+								{
+									relational_tile_grid[(cy2+rtgyo)][cx2+rtgxo]=1;
+								};
+							}
+						}
+						
+						Map.DoSetComboCommand(drawmap, drawscr, cstart, Combo+48+47, CSet);
+					}
+					
+					for(int32_t y2=0; y2<11; ++y2)
+					{
+						for(int32_t x2=0; x2<16; ++x2)
+						{
+							c2=(y2*16)+x2;
+							c4=relational_tile_grid[((y2)+rtgyo)][(x2)+rtgxo];
+							c3=(((relational_tile_grid[((y2-1)+rtgyo)][(x2+1)+rtgxo]>c4)?1:0)<<0)+
+							   (((relational_tile_grid[((y2-1)+rtgyo)][(x2-1)+rtgxo]>c4)?1:0)<<1)+
+							   (((relational_tile_grid[((y2+1)+rtgyo)][(x2-1)+rtgxo]>c4)?1:0)<<2)+
+							   (((relational_tile_grid[((y2+1)+rtgyo)][(x2+1)+rtgxo]>c4)?1:0)<<3)+
+							   (((relational_tile_grid[((y2)+rtgyo)][(x2+1)+rtgxo]>c4)?1:0)<<4)+
+							   (((relational_tile_grid[((y2-1)+rtgyo)][(x2)+rtgxo]>c4)?1:0)<<5)+
+							   (((relational_tile_grid[((y2)+rtgyo)][(x2-1)+rtgxo]>c4)?1:0)<<6)+
+							   (((relational_tile_grid[((y2+1)+rtgyo)][(x2)+rtgxo]>c4)?1:0)<<7);
+							   
+							if(relational_tile_grid[(y2+rtgyo)][x2+rtgxo]<2)
+							{
+								Map.DoSetComboCommand(drawmap, drawscr, c2, Combo+relational_source_grid[c3]+(48*c4), CSet);
+							}
+						}
+					}
+				}
+				break;
+				
+				case dm_alias:
+					if(!combo->layermask)
+					{
+						int32_t ox=0, oy=0;
+						
+						switch(alias_origin)
+						{
+						case 0:
+							ox=0;
+							oy=0;
+							break;
+							
+						case 1:
+							ox=(combo->width);
+							oy=0;
+							break;
+							
+						case 2:
+							ox=0;
+							oy=(combo->height);
+							break;
+							
+						case 3:
+							ox=(combo->width);
+							oy=(combo->height);
+							break;
+						}
+						
+						for(int32_t cy=0; cy-oy+cystart<11&&cy<=combo->height; cy++)
+						{
+							for(int32_t cx=0; cx-ox+cxstart<16&&cx<=combo->width; cx++)
+							{
+								if((cx+cxstart-ox>=0)&&(cy+cystart-oy>=0))
+								{
+									int32_t c=cstart+((cy-oy)*16)+cx-ox;
+									int32_t p=(cy*(combo->width+1))+cx;
+									
+									if(combo->combos[p])
+									{
+										Map.DoSetComboCommand(drawmap, drawscr, c, combo->combos[p], wrap(combo->csets[p]+alias_cset_mod, 0, 11));
+									}
+								}
+							}
+						}
+					}
+					else
+					{
+						int32_t amap=0, ascr=0;
+						int32_t lcheck = 1;
+						int32_t laypos = 0;
+						int32_t ox=0, oy=0;
+						
+						switch(alias_origin)
+						{
+						case 0:
+							ox=0;
+							oy=0;
+							break;
+							
+						case 1:
+							ox=(combo->width);
+							oy=0;
+							break;
+							
+						case 2:
+							ox=0;
+							oy=(combo->height);
+							break;
+							
+						case 3:
+							ox=(combo->width);
+							oy=(combo->height);
+							break;
+						}
+						
+						for(int32_t cz=0; cz<7; cz++, lcheck<<=1)
+						{
+							if(!cz)
+							{
+								amap = Map.getCurrMap();
+								ascr = Map.getCurrScr();
+							}
+							else
+							{
+								if(cz==1) lcheck>>=1;
+								
+								if(combo->layermask&lcheck)
+								{
+									amap = Map.CurrScr()->layermap[cz-1]-1;
+									ascr = Map.CurrScr()->layerscreen[cz-1];
+									laypos++;
+								}
+							}
+							
+							for(int32_t cy=0; cy-oy+cystart<11&&cy<=combo->height; cy++)
+							{
+								for(int32_t cx=0; cx-ox+cxstart<16&&cx<=combo->width; cx++)
+								{
+									if((!cz)||/*(Map.CurrScr()->layermap[cz>0?cz-1:0])*/amap>=0)
+									{
+										if((cz==0)||(combo->layermask&lcheck))
+										{
+											if((cx+cxstart-ox>=0)&&(cy+cystart-oy>=0))
+											{
+												int32_t c=cstart+((cy-oy)*16)+cx-ox;
+												int32_t p=((cy*(combo->width+1))+cx)+((combo->width+1)*(combo->height+1)*laypos);
+												
+												if((combo->combos[p])&&(amap>=0))
+												{
+													Map.DoSetComboCommand(amap, ascr, c, combo->combos[p], wrap(combo->csets[p]+alias_cset_mod, 0, 11));
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					
+					break;
             }
         }
         
         do_animations();
         refresh(rALL);
     }
+
+    Map.FinishListCommand();
 }
-
-
-
 
 void replace(int32_t c)
 {
+	if(draw_mode == dm_cpool && !pool_valid())
+		return;
     saved=false;
-    Map.Ugo();
     int32_t drawmap, drawscr;
     
     if(CurrentLayer==0)
@@ -8062,14 +8216,23 @@ void replace(int32_t c)
     
     int32_t targetcombo = Map.AbsoluteScr(drawmap, drawscr)->data[c];
     int32_t targetcset  = Map.AbsoluteScr(drawmap, drawscr)->cset[c];
+	int32_t cid = Combo;
+	byte cs = CSet;
     
+    Map.StartListCommand();
     if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
     {
         for(int32_t i=0; i<176; i++)
         {
             if((Map.AbsoluteScr(drawmap, drawscr)->cset[i])==targetcset)
             {
-                Map.AbsoluteScr(drawmap, drawscr)->cset[i]=CSet;
+				if(draw_mode == dm_cpool)
+				{
+					cmbdat_pair const& poolcmb = get_pool_combo();
+					cid = poolcmb.data;
+					cs = poolcmb.cset;
+				}
+                Map.DoSetComboCommand(drawmap, drawscr, i, -1, cs);
             }
         }
     }
@@ -8080,19 +8243,26 @@ void replace(int32_t c)
             if(((Map.AbsoluteScr(drawmap, drawscr)->data[i])==targetcombo) &&
                     ((Map.AbsoluteScr(drawmap, drawscr)->cset[i])==targetcset))
             {
-                Map.AbsoluteScr(drawmap, drawscr)->data[i]=Combo;
-                Map.AbsoluteScr(drawmap, drawscr)->cset[i]=CSet;
+				if(draw_mode == dm_cpool)
+				{
+					cmbdat_pair const& poolcmb = get_pool_combo();
+					cid = poolcmb.data;
+					cs = poolcmb.cset;
+				}
+                Map.DoSetComboCommand(drawmap, drawscr, i, cid, cs);
             }
         }
     }
+    Map.FinishListCommand();
     
     refresh(rMAP);
 }
 
 void draw_block(int32_t start,int32_t w,int32_t h)
 {
+	if(draw_mode == dm_cpool && !pool_valid())
+		return;
     saved=false;
-    Map.Ugo();
     int32_t drawmap, drawscr;
     
     if(CurrentLayer==0)
@@ -8118,19 +8288,29 @@ void draw_block(int32_t start,int32_t w,int32_t h)
         Map.setcolor(Color);
     }
     
+	int32_t cid = Combo;
+	byte cs = CSet;
+	if(draw_mode == dm_cpool)
+	{
+		cmbdat_pair const& poolcmb = get_pool_combo();
+		cid = poolcmb.data;
+		cs = poolcmb.cset;
+	}
+    Map.StartListCommand();
     for(int32_t y=0; y<h && (y<<4)+start < 176; y++)
         for(int32_t x=0; x<w && (start&15)+x < 16; x++)
         {
-            Map.AbsoluteScr(drawmap, drawscr)->data[start+(y<<4)+x]=Combo+(y*4)+x;
-            Map.AbsoluteScr(drawmap, drawscr)->cset[start+(y<<4)+x]=CSet;
-            
+            Map.DoSetComboCommand(drawmap, drawscr, start+(y<<4)+x, cid+(y*4)+x, cs);
         }
-        
+    
+    Map.FinishListCommand();
     refresh(rMAP+rSCRMAP);
 }
 
-void fill(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset)
+static void fill(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset)
 {
+	if(draw_mode == dm_cpool && !pool_valid())
+		return;
     if(!only_cset)
     {
         if((fillscr->data[((sy<<4)+sx)])!=targetcombo)
@@ -8139,13 +8319,17 @@ void fill(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, 
     
     if((fillscr->cset[((sy<<4)+sx)])!=targetcset)
         return;
-        
-    if(!only_cset)
-    {
-        fillscr->data[((sy<<4)+sx)]=Combo;
-    }
     
-    fillscr->cset[((sy<<4)+sx)]=CSet;
+	int32_t cid = Combo;
+	byte cs = CSet;
+	if(draw_mode == dm_cpool)
+	{
+		cmbdat_pair const& poolcmb = get_pool_combo();
+		cid = poolcmb.data;
+		cs = poolcmb.cset;
+	}
+    
+    Map.DoSetComboCommand(Map.getCurrMap(), Map.getCurrScr(), (sy<<4)+sx, only_cset ? -1 : cid, cs);
     
     if((sy>0) && (dir!=down))                                 // && ((Map.CurrScr()->data[(((sy-1)<<4)+sx)]&0x7FF)==target))
         fill(fillscr, targetcombo, targetcset, sx, sy-1, up, diagonal, only_cset);
@@ -8176,12 +8360,12 @@ void fill(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, 
     
 }
 
-void fill_flag(mapscr* fillscr, int32_t targetflag, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal)
+static void fill_flag(mapscr* fillscr, int32_t targetflag, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal)
 {
 	if((fillscr->sflag[((sy<<4)+sx)])!=targetflag)
 		return;
 	
-	fillscr->sflag[((sy<<4)+sx)]=Flag;
+    Map.DoSetFlagCommand(Map.getCurrMap(), Map.getCurrScr(), (sy<<4)+sx, Flag);
 	
 	if((sy>0) && (dir!=down))
 		fill_flag(fillscr, targetflag, sx, sy-1, up, diagonal);
@@ -8212,9 +8396,10 @@ void fill_flag(mapscr* fillscr, int32_t targetflag, int32_t sx, int32_t sy, int3
 	
 }
 
-
-void fill2(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset)
+static void fill2(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset)
 {
+	if(draw_mode == dm_cpool && !pool_valid())
+		return;
     if(!only_cset)
     {
         if((fillscr->data[((sy<<4)+sx)])==targetcombo)
@@ -8223,13 +8408,17 @@ void fill2(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx,
     
     if((fillscr->cset[((sy<<4)+sx)])==targetcset)
         return;
-        
-    if(!only_cset)
-    {
-        fillscr->data[((sy<<4)+sx)]=Combo;
-    }
     
-    fillscr->cset[((sy<<4)+sx)]=CSet;
+	int32_t cid = Combo;
+	byte cs = CSet;
+	if(draw_mode == dm_cpool)
+	{
+		cmbdat_pair const& poolcmb = get_pool_combo();
+		cid = poolcmb.data;
+		cs = poolcmb.cset;
+	}
+	
+    Map.DoSetComboCommand(Map.getCurrMap(), Map.getCurrScr(), (sy<<4)+sx, only_cset ? -1 : cid, cs);
     
     if((sy>0) && (dir!=down))                                 // && ((Map.CurrScr()->data[(((sy-1)<<4)+sx)]&0x7FF)!=target))
         fill2(fillscr, targetcombo, targetcset, sx, sy-1, up, diagonal, only_cset);
@@ -8785,7 +8974,6 @@ int32_t set_fill2_8();
 
 void flood()
 {
-    // int32_t start=0, w=0, h=0;
     int32_t drawmap, drawscr;
     
     if(CurrentLayer==0)
@@ -8805,7 +8993,6 @@ void flood()
     }
     
     saved=false;
-    Map.Ugo();
     
     if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
     {
@@ -8814,27 +9001,19 @@ void flood()
         Map.setcolor(Color);
     }
     
-    /* for(int32_t y=0; y<h && (y<<4)+start < 176; y++)
-      for(int32_t x=0; x<w && (start&15)+x < 16; x++)
-      */
-    if(!(key[KEY_LSHIFT]||key[KEY_RSHIFT]))
-    {
-        for(int32_t i=0; i<176; i++)
-        {
-            Map.AbsoluteScr(drawmap, drawscr)->data[i]=Combo;
-        }
-    }
-    
+    bool include_combos = !(key[KEY_LSHIFT]||key[KEY_RSHIFT]);
+    Map.StartListCommand();
+
     for(int32_t i=0; i<176; i++)
     {
-        Map.AbsoluteScr(drawmap, drawscr)->cset[i]=CSet;
+        Map.DoSetComboCommand(drawmap, drawscr, i, include_combos ? Combo : -1, CSet);
     }
     
+    Map.FinishListCommand();
     refresh(rMAP+rSCRMAP);
 }
 void flood_flag()
 {
-    // int32_t start=0, w=0, h=0;
     int32_t drawmap, drawscr;
     
     if(CurrentLayer==0)
@@ -8854,7 +9033,6 @@ void flood_flag()
     }
     
     saved=false;
-    Map.Ugo();
     
     if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
     {
@@ -8863,10 +9041,12 @@ void flood_flag()
         Map.setcolor(Color);
     }
     
+    Map.StartListCommand();
     for(int32_t i=0; i<176; i++)
     {
-        Map.AbsoluteScr(drawmap, drawscr)->sflag[i]=Flag;
+        Map.DoSetFlagCommand(drawmap, drawscr, i, Flag);
     }
+    Map.FinishListCommand();
     
     refresh(rMAP+rSCRMAP);
 }
@@ -8896,12 +9076,12 @@ void fill_4()
     int32_t by= (y>>4)/(mapscreensize);
     int32_t bx= (x>>4)/(mapscreensize);
     
-    if(Map.AbsoluteScr(drawmap,drawscr)->cset[(by<<4)+bx]!=CSet ||
+    if(draw_mode == dm_cpool
+		|| (Map.AbsoluteScr(drawmap,drawscr)->cset[(by<<4)+bx]!=CSet ||
             (Map.AbsoluteScr(drawmap,drawscr)->data[(by<<4)+bx]!=Combo &&
-             !(key[KEY_LSHIFT]||key[KEY_RSHIFT])))
+             !(key[KEY_LSHIFT]||key[KEY_RSHIFT]))))
     {
         saved=false;
-        Map.Ugo();
         
         if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
         {
@@ -8910,9 +9090,11 @@ void fill_4()
             Map.setcolor(Color);
         }
         
+        Map.StartListCommand();
         fill(Map.AbsoluteScr(drawmap, drawscr),
              (Map.AbsoluteScr(drawmap, drawscr)->data[(by<<4)+bx]),
              (Map.AbsoluteScr(drawmap, drawscr)->cset[(by<<4)+bx]), bx, by, 255, 0, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
+        Map.FinishListCommand();
         refresh(rMAP+rSCRMAP);
     }
 }
@@ -8944,7 +9126,6 @@ void fill_4_flag()
     if(Map.AbsoluteScr(drawmap,drawscr)->sflag[(by<<4)+bx] != Flag)
     {
         saved=false;
-        Map.Ugo();
         
         if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
         {
@@ -8953,9 +9134,11 @@ void fill_4_flag()
             Map.setcolor(Color);
         }
         
+        Map.StartListCommand();
 		fill_flag(Map.AbsoluteScr(drawmap, drawscr),
              (Map.AbsoluteScr(drawmap, drawscr)->sflag[(by<<4)+bx]),
              bx, by, 255, 0);
+        Map.FinishListCommand();
         refresh(rMAP+rSCRMAP);
     }
 }
@@ -8984,12 +9167,12 @@ void fill_8()
     int32_t by= (y>>4)/(mapscreensize);
     int32_t bx= (x>>4)/(mapscreensize);
     
-    if(Map.AbsoluteScr(drawmap,drawscr)->cset[(by<<4)+bx]!=CSet ||
+    if(draw_mode == dm_cpool
+		|| (Map.AbsoluteScr(drawmap,drawscr)->cset[(by<<4)+bx]!=CSet ||
             (Map.AbsoluteScr(drawmap,drawscr)->data[(by<<4)+bx]!=Combo &&
-             !(key[KEY_LSHIFT]||key[KEY_RSHIFT])))
+             !(key[KEY_LSHIFT]||key[KEY_RSHIFT]))))
     {
         saved=false;
-        Map.Ugo();
         
         if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
         {
@@ -8998,9 +9181,11 @@ void fill_8()
             Map.setcolor(Color);
         }
         
+        Map.StartListCommand();
         fill(Map.AbsoluteScr(drawmap, drawscr),
              (Map.AbsoluteScr(drawmap, drawscr)->data[(by<<4)+bx]),
              (Map.AbsoluteScr(drawmap, drawscr)->cset[(by<<4)+bx]), bx, by, 255, 1, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
+        Map.FinishListCommand();
         refresh(rMAP+rSCRMAP);
     }
 }
@@ -9032,7 +9217,6 @@ void fill_8_flag()
     if(Map.AbsoluteScr(drawmap,drawscr)->sflag[(by<<4)+bx]!=Flag)
     {
         saved=false;
-        Map.Ugo();
         
         if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
         {
@@ -9041,9 +9225,11 @@ void fill_8_flag()
             Map.setcolor(Color);
         }
         
+        Map.StartListCommand();
         fill_flag(Map.AbsoluteScr(drawmap, drawscr),
              (Map.AbsoluteScr(drawmap, drawscr)->sflag[(by<<4)+bx]),
              bx, by, 255, 1);
+        Map.FinishListCommand();
         refresh(rMAP+rSCRMAP);
     }
 }
@@ -9075,7 +9261,6 @@ void fill2_4()
     int32_t bx= (x>>4)/(mapscreensize);
     
     saved=false;
-    Map.Ugo();
     
     if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
     {
@@ -9084,7 +9269,9 @@ void fill2_4()
         Map.setcolor(Color);
     }
     
+    Map.StartListCommand();
     fill2(Map.AbsoluteScr(drawmap, drawscr), Combo, CSet, bx, by, 255, 0, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
+    Map.FinishListCommand();
     refresh(rMAP+rSCRMAP);
 }
 
@@ -9114,7 +9301,6 @@ void fill2_8()
     int32_t bx= (x>>4)/(mapscreensize);
     
     saved=false;
-    Map.Ugo();
     
     if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
     {
@@ -9123,7 +9309,9 @@ void fill2_8()
         Map.setcolor(Color);
     }
     
+    Map.StartListCommand();
     fill2(Map.AbsoluteScr(drawmap, drawscr), Combo, CSet, bx, by, 255, 1, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
+    Map.FinishListCommand();
     refresh(rMAP+rSCRMAP);
 }
 
@@ -9918,9 +10106,9 @@ void domouse()
 		//on the drawing mode button
 		if(is_large)
 		{
-			if(isinRect(x,y,combolist_window.x-64,0,combolist_window.x-1,15))
+			if(isinRect(x,y,drawmode_btn.x,drawmode_btn.y,drawmode_btn.x+drawmode_btn.w-1,drawmode_btn.y+drawmode_btn.h-1))
 			{
-				if(do_text_button(combolist_window.x-64,0,64,16,dm_names[draw_mode],vc(1),vc(14),true))
+				if(do_text_button(drawmode_btn.x,drawmode_btn.y,drawmode_btn.w,drawmode_btn.h,dm_names[draw_mode],vc(1),vc(14),true))
 					onDrawingMode();
 			}
 		}
@@ -10242,14 +10430,67 @@ void domouse()
 	}
 	
 		//on the favorites list
+		if(isinRect(x,y,favorites_x.x,favorites_x.y,favorites_x.x+favorites_x.w-1,favorites_list.y+favorites_x.h-1))
+		{
+			switch(draw_mode)
+			{
+				case dm_cpool:
+					AlertDialog("Clear Combo Pool",
+						"Are you sure you want to clear the combo pool?",
+						[&](bool ret,bool)
+						{
+							if(ret)
+							{
+								clear_cpool();
+								refresh(rFAVORITES);
+							}
+						}).show();
+					break;
+				case dm_alias:
+					AlertDialog("Clear Favorite Aliases",
+						"Are you sure you want to clear all favorite aliases?",
+						[&](bool ret,bool)
+						{
+							if(ret)
+							{
+								for(auto q = 0; q < MAXFAVORITECOMBOALIASES; ++q)
+								{
+									favorite_comboaliases[q] = -1;
+								}
+								saved = false;
+								refresh(rFAVORITES);
+							}
+						}).show();
+					break;
+				default:
+					AlertDialog("Clear Favorite Combos",
+						"Are you sure you want to clear all favorite combos?",
+						[&](bool ret,bool)
+						{
+							if(ret)
+							{
+								for(auto q = 0; q < MAXFAVORITECOMBOS; ++q)
+								{
+									favorite_combos[q] = -1;
+								}
+								saved = false;
+								refresh(rFAVORITES);
+							}
+						}).show();
+					break;
+			}
+		}
 		if(isinRect(x,y,favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w*16)-1,favorites_list.y+(favorites_list.h*16)-1))
 		{
 			int32_t row=vbound(((y-favorites_list.y)>>4),0,favorites_list.h-1);
 			int32_t col=vbound(((x-favorites_list.x)>>4),0,favorites_list.w-1);
 			int32_t f=(row*favorites_list.w)+col;
-			
-			if(key[KEY_LSHIFT] || key[KEY_RSHIFT] ||
-			   (draw_mode==dm_alias?favorite_comboaliases:favorite_combos)[f]==-1)
+			int32_t* fav = favorite_combos;
+			bool dmcond;
+			if(draw_mode==dm_alias) dmcond = favorite_comboaliases[f] != -1;
+			else if(draw_mode==dm_cpool) dmcond = true/*pool_combos[f].valid()*/;
+			else dmcond = favorite_combos[f] != -1;
+			if(key[KEY_LSHIFT] || key[KEY_RSHIFT] || dmcond)
 			{
 				int32_t tempcb=ComboBrush;
 				ComboBrush=0;
@@ -10259,19 +10500,29 @@ void domouse()
 					x=gui_mouse_x();
 					y=gui_mouse_y();
 					
-					if(draw_mode != dm_alias)
+					if(draw_mode==dm_cpool)
 					{
-						if(favorite_combos[f]!=Combo)
+						if(pool_combos[f].data!=Combo
+							|| pool_combos[f].cset!=CSet)
 						{
-							favorite_combos[f]=Combo;
+							pool_combos[f].data = Combo;
+							pool_combos[f].cset = CSet;
+							pool_dirty = true;
+						}
+					}
+					else if(draw_mode == dm_alias)
+					{
+						if(favorite_comboaliases[f]!=combo_apos)
+						{
+							favorite_comboaliases[f]=combo_apos;
 							saved=false;
 						}
 					}
 					else
 					{
-						if(favorite_comboaliases[f]!=combo_apos)
+						if(favorite_combos[f]!=Combo)
 						{
-							favorite_comboaliases[f]=combo_apos;
+							favorite_combos[f]=Combo;
 							saved=false;
 						}
 					}
@@ -10292,19 +10543,27 @@ void domouse()
 					x=gui_mouse_x();
 					y=gui_mouse_y();
 					
-					if(draw_mode != dm_alias)
+					if(draw_mode==dm_cpool)
 					{
-						if(favorite_combos[f]!=-1)
+						if(pool_combos[f].valid())
 						{
-							favorite_combos[f]=-1;
+							pool_combos[f].clear();
+							pool_dirty = true;
+						}
+					}
+					else if(draw_mode == dm_alias)
+					{
+						if(favorite_comboaliases[f]!=-1)
+						{
+							favorite_comboaliases[f]=-1;
 							saved=false;
 						}
 					}
 					else
 					{
-						if(favorite_comboaliases[f]!=-1)
+						if(favorite_combos[f]!=-1)
 						{
-							favorite_comboaliases[f]=-1;
+							favorite_combos[f]=-1;
 							saved=false;
 						}
 					}
@@ -10417,6 +10676,15 @@ void domouse()
 	}
 	else if(gui_mouse_b()&2)
 	{
+		//on the drawing mode button
+		if(is_large)
+		{
+			if(isinRect(x,y,drawmode_btn.x,drawmode_btn.y,drawmode_btn.x+drawmode_btn.w-1,drawmode_btn.y+drawmode_btn.h-1))
+			{
+				popup_menu(drawing_mode_menu,x,y);
+			}
+		}
+		
 		if(isinRect(x,y,startxint,startyint, int32_t(startx+(256*mapscreensize)-1), int32_t(starty+(176*mapscreensize)-1)))
 		{
 			ComboBrushPause=1;
@@ -10460,7 +10728,7 @@ void domouse()
 							{
 								if(jwin_alert("Confirm Paste","Really replace the FFC with","the data of the copied FFC?",NULL,"&Yes","&No",'y','n',lfont)==1)
 								{
-									Map.PasteOneFFC(i);
+                                    Map.DoPasteScreenCommand(PasteCommandType::ScreenOneFFC, i);
 									saved=false;
 								}
 							}
@@ -10680,7 +10948,7 @@ void domouse()
 					{
 						Map.CurrScr()->ffx[earliestfreeffc] = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
 						Map.CurrScr()->ffy[earliestfreeffc] = (((y-startyint)&(~0x000F))/mapscreensize)*10000;
-						Map.PasteOneFFC(earliestfreeffc);
+                        Map.DoPasteScreenCommand(PasteCommandType::ScreenOneFFC, earliestfreeffc);
 					}
 					break;
 					
@@ -10885,14 +11153,19 @@ void domouse()
 							break;
 							
 						case 2:
-							if(draw_mode != dm_alias)
+							if(draw_mode==dm_cpool)
 							{
-								favorite_combos[f]=-1;
+								pool_combos[f].clear();
+								pool_dirty = true;
+							}
+							else if(draw_mode == dm_alias)
+							{
+								favorite_comboaliases[f]=-1;
 								saved = false;
 							}
 							else
 							{
-								favorite_comboaliases[f]=-1;
+								favorite_combos[f]=-1;
 								saved = false;
 							}
 							
@@ -11111,8 +11384,6 @@ int32_t onCSetFix()
         
     if(zc_popup_dialog(csetfix_dlg,-1)==6)
     {
-        Map.Ugo();
-        
         if(csetfix_dlg[2].flags&D_SELECTED)
         {
             s=0;
@@ -11157,13 +11428,15 @@ int32_t onCSetFix()
               */
         }
         
+        Map.StartListCommand();
         for(int32_t y=s; y<y2; y++)
         {
             for(int32_t x=s; x<x2; x++)
             {
-                Map.CurrScr()->cset[(y<<4)+x] = CSet;
+                Map.DoSetComboCommand(Map.getCurrMap(), Map.getCurrScr(), (y<<4)+x, -1, CSet);
             }
         }
+        Map.FinishListCommand();
         
         refresh(rMAP);
         saved = false;
@@ -11341,8 +11614,7 @@ int32_t onTemplate()
     if(zc_popup_dialog(template_dlg,-1)==5)
     {
         saved=false;
-        Map.Ugo();
-        Map.Template((template_dlg[3].flags==D_SELECTED) ? template_dlg[2].d1 : -1, template_dlg[2].fg);
+        Map.DoTemplateCommand((template_dlg[3].flags==D_SELECTED) ? template_dlg[2].d1 : -1, template_dlg[2].fg, Map.getCurrScr());
         refresh(rMAP+rSCRMAP);
     }
     
@@ -12968,7 +13240,7 @@ static int32_t edit_scrdata3[] = // Flags 2
 
 static int32_t edit_scrdata5[] = // Enemies
 {
-    7,16,17,25,36,107,108,109,110,111,112,113,20,114,115,116,-1
+    7,16,17,25,36,107,108,109,110,111,112,113,20,114,115,116,144,-1
 };
 
 static int32_t edit_scrdata2[] = // Data 1
@@ -13255,6 +13527,7 @@ static DIALOG scrdata_dlg[] =
     { jwin_check_proc,      15,  188,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "...Dithered Darkness", NULL, NULL },
     { jwin_check_proc,      15,  198,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "...Transparent Darkness", NULL, NULL },
     { jwin_check_proc,      165, 178,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Disable Magic Mirror", NULL, NULL },
+    { jwin_check_proc,      165, 178,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Chain 'Enemies->' triggers", NULL, NULL },
 	{ NULL,                  0,    0,       0,    0,          0,            0,             0,  0,  0,  0,       NULL, NULL,  NULL }
 };
 
@@ -13545,6 +13818,7 @@ int32_t onScrData()
 	scrdata_dlg[141].flags = (f&fDARK_DITHER) ? D_SELECTED : 0;
 	scrdata_dlg[142].flags = (f&fDARK_TRANS) ? D_SELECTED : 0;
 	scrdata_dlg[143].flags = (f&fDISABLE_MIRROR) ? D_SELECTED : 0;
+	scrdata_dlg[144].flags = (f&fENEMY_WAVES) ? D_SELECTED : 0;
 	
 	word g = Map.CurrScr()->noreset;
 	scrdata_dlg[74].flags = (g&mSECRET) ? D_SELECTED : 0;
@@ -13674,6 +13948,7 @@ int32_t onScrData()
 		f |= scrdata_dlg[141].flags & D_SELECTED ? fDARK_DITHER:0;
 		f |= scrdata_dlg[142].flags & D_SELECTED ? fDARK_TRANS:0;
 		f |= scrdata_dlg[143].flags & D_SELECTED ? fDISABLE_MIRROR:0;
+		f |= scrdata_dlg[144].flags & D_SELECTED ? fENEMY_WAVES:0;
 		Map.CurrScr()->flags9 = f;
 		
 		g=0;
@@ -21580,7 +21855,7 @@ int32_t onEnemies()
 		
 		case 3:
 			saved=false;
-			Map.PasteEnemies();
+            Map.DoPasteScreenCommand(PasteCommandType::ScreenEnemies);
 			break;
 			
 		case 5:
@@ -25078,7 +25353,9 @@ int32_t onCompileScript()
 	
 	if(is_large)
 		large_dialog(compile_dlg);
-		
+
+    int32_t retval = D_O_K;
+    popup_zqdialog_start();
 	for(;;) //while(true)
 	{
 		sprintf(zScriptBytes, "%d Bytes in Buffer", (int32_t)(zScript.size()));
@@ -25087,395 +25364,396 @@ int32_t onCompileScript()
 		try_recovering_missing_scripts = (compile_dlg[9].flags & D_SELECTED) ? 1 : 0;
 		switch(ret)
 		{
-		case 0:
-		case 1:
-			//Cancel
-			return D_O_K;
-			
-		case 2:
-			//Edit
-			doEditZScript(vc(15),vc(0));
-			break;
-			
-		case 3:
-		{
-			//Load from File
-			if(zScript.size() > 0)
+			case 0:
+			case 1:
+				//Cancel
+				goto exit_oncompilescript;
+				
+			case 2:
+				//Edit
+				doEditZScript(vc(15),vc(0));
+				break;
+				
+			case 3:
 			{
-				if(jwin_alert("Confirm Overwrite","Loading will erase the current buffer.","Proceed anyway?",NULL,"Yes","No",'y','n',lfont)==2)
+				//Load from File
+				if(zScript.size() > 0)
+				{
+					if(jwin_alert("Confirm Overwrite","Loading will erase the current buffer.","Proceed anyway?",NULL,"Yes","No",'y','n',lfont)==2)
+						break;
+						
+					zScript.clear();
+				}
+				
+				if(!getname("Load ZScript (.z, .zh, .zs, .zlib, etc.)", (char *)"z,zh,zs,zlib,zasm,zscript,squid" ,NULL,datapath,false))
 					break;
 					
-				zScript.clear();
-			}
-			
-			if(!getname("Load ZScript (.z, .zh, .zs, .zlib, etc.)", (char *)"z,zh,zs,zlib,zasm,zscript,squid" ,NULL,datapath,false))
-				break;
+				FILE *zscript = fopen(temppath,"r");
 				
-			FILE *zscript = fopen(temppath,"r");
-			
-			if(zscript == NULL)
-			{
-				jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-				break;
-			}
-			
-			char c = fgetc(zscript);
-			
-			while(!feof(zscript))
-			{
-				zScript += c;
-				c = fgetc(zscript);
-			}
-			
-			fclose(zscript);
-			saved = false;
-			break;
-		}
-		
-		case 6:
-			//Export
-		{
-			if(!getname("Save ZScript (.zs)", "zs", NULL,datapath,false))
-				break;
-				
-			if(exists(temppath))
-			{
-				if(jwin_alert("Confirm Overwrite","File already exists.","Overwrite?",NULL,"Yes","No",'y','n',lfont)==2)
+				if(zscript == NULL)
+				{
+					jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
 					break;
-			}
-			
-			FILE *zscript = fopen(temppath,"w");
-			
-			if(!zscript)
-			{
-				jwin_alert("Error","Unable to open file for writing!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-				break;
-			}
-			
-			int32_t written = (int32_t)fwrite(zScript.c_str(), sizeof(char), zScript.size(), zscript);
-			
-			if(written != (int32_t)zScript.size())
-				jwin_alert("Error","IO error while writing script to file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
 				
-			fclose(zscript);
-			break;
-		}
-		
-		case 5:
-		{
-			#ifdef _WIN32
-			memresult = GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof( memCounter ));
-			memuse = memCounter.WorkingSetSize / 1024 / 1024;
-			zprint2("Mem use: %d\n", memuse);
-			if ( memuse >= 3072 )
-			{
-				jwin_alert("Memory exhausted!","Please save your quest, then close and"," relaunch ZQuest before compiling.",NULL,"O&K",NULL,'k',0,lfont);
-				return 0;
-			}	
-			#endif
-			//need elseif for linux here! -Z
-			//Compile!
-			char tmpfilename[L_tmpnam];
-			std::tmpnam(tmpfilename);
-			FILE *tempfile = fopen(tmpfilename,"w");
-
-			char consolefilename[L_tmpnam];
-			std::tmpnam(consolefilename);
-
-			if(!tempfile)
-			{
-				jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-				return D_O_K;
-			}
-			
-			fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
-			fclose(tempfile);
-			
-			script_data old_init_script(*globalscripts[0]);
-			uint32_t lastInitSize = old_init_script.size();
-			map<string, ZScript::ScriptTypeID> stypes;
-			map<string, disassembled_script_data> scripts;
-			
-			int32_t code = -9999;
-			if(!fileexists(ZSCRIPT_FILE))
-			{
-				InfoDialog("Parser", ZSCRIPT_FILE " was not found!").show();
-				break;
-			}
-			parser_console.kill();
-			if (!DisableCompileConsole) 
-			{
-				parser_console.Create("ZScript Parser Output", 600, 200, NULL, "zconsole.exe");
-				parser_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
-				parser_console.gotoxy(0,0);
-				zconsole_info2("%s", "External ZScript Parser\n");
-			}
-			else
-			{
-				box_start(1, "Compile Progress", lfont, sfont,true, 512, 280);
-			}
-
-			std::string quest_rules_hex = get_qr_hexstr();
-
-			clock_t start_compile_time = clock();
-			const char* argv[] = {
-#ifndef _WIN32
-				ZSCRIPT_FILE,
-#endif
-				"-input", tmpfilename,
-				"-console", consolefilename,
-				"-qr", quest_rules_hex.c_str(),
-				"-linked", NULL, NULL};
-			if(zc_get_config("Compiler","noclose_compile_console",0))
-				argv[3] = "-noclose";
-			process_manager* pm = launch_piped_process(ZSCRIPT_FILE, argv);
-			if(!pm)
-			{
-				InfoDialog("Parser","Failed to launch " ZSCRIPT_FILE).show();
-				break;
-			}
-			
-			int current = 0, last = 0;
-			int syncthing = 0;
-			pm->read(&syncthing, sizeof(int32_t));
-
-			FILE *console = fopen(consolefilename, "r");
-			char buf4[512];
-			bool hasWarnErr = false;
-			if (console) 
-			{
-				for(;;) //while (true)
+				char c = fgetc(zscript);
+				
+				while(!feof(zscript))
 				{
-					pm->read(&code, sizeof(int32_t));
-					if (code != ZC_CONSOLE_INFO_CODE && code != ZC_CONSOLE_ERROR_CODE && code != ZC_CONSOLE_WARN_CODE) break;
-					else
+					zScript += c;
+					c = fgetc(zscript);
+				}
+				
+				fclose(zscript);
+				saved = false;
+				break;
+			}
+			
+			case 6:
+				//Export
+			{
+				if(!getname("Save ZScript (.zs)", "zs", NULL,datapath,false))
+					break;
+					
+				if(exists(temppath))
+				{
+					if(jwin_alert("Confirm Overwrite","File already exists.","Overwrite?",NULL,"Yes","No",'y','n',lfont)==2)
+						break;
+				}
+				
+				FILE *zscript = fopen(temppath,"w");
+				
+				if(!zscript)
+				{
+					jwin_alert("Error","Unable to open file for writing!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					break;
+				}
+				
+				int32_t written = (int32_t)fwrite(zScript.c_str(), sizeof(char), zScript.size(), zscript);
+				
+				if(written != (int32_t)zScript.size())
+					jwin_alert("Error","IO error while writing script to file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					
+				fclose(zscript);
+				break;
+			}
+			
+			case 5:
+			{
+				#ifdef _WIN32
+				memresult = GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof( memCounter ));
+				memuse = memCounter.WorkingSetSize / 1024 / 1024;
+				zprint2("Mem use: %d\n", memuse);
+				if ( memuse >= 3072 )
+				{
+					jwin_alert("Memory exhausted!","Please save your quest, then close and"," relaunch ZQuest before compiling.",NULL,"O&K",NULL,'k',0,lfont);
+					goto exit_oncompilescript;
+				}	
+				#endif
+				//need elseif for linux here! -Z
+				//Compile!
+				char tmpfilename[L_tmpnam];
+				std::tmpnam(tmpfilename);
+				FILE *tempfile = fopen(tmpfilename,"w");
+
+				char consolefilename[L_tmpnam];
+				std::tmpnam(consolefilename);
+
+				if(!tempfile)
+				{
+					jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					goto exit_oncompilescript;
+				}
+				
+				fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
+				fclose(tempfile);
+				
+				script_data old_init_script(*globalscripts[0]);
+				uint32_t lastInitSize = old_init_script.size();
+				map<string, ZScript::ScriptTypeID> stypes;
+				map<string, disassembled_script_data> scripts;
+				
+				int32_t code = -9999;
+				if(!fileexists(ZSCRIPT_FILE))
+				{
+					InfoDialog("Parser", ZSCRIPT_FILE " was not found!").show();
+					break;
+				}
+				parser_console.kill();
+				if (!DisableCompileConsole) 
+				{
+					parser_console.Create("ZScript Parser Output", 600, 200, NULL, "zconsole.exe");
+					parser_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
+					parser_console.gotoxy(0,0);
+					zconsole_info2("%s", "External ZScript Parser\n");
+				}
+				else
+				{
+					box_start(1, "Compile Progress", lfont, sfont,true, 512, 280);
+				}
+
+				std::string quest_rules_hex = get_qr_hexstr();
+
+				clock_t start_compile_time = clock();
+				const char* argv[] = {
+				#ifndef _WIN32
+					ZSCRIPT_FILE,
+				#endif
+					"-input", tmpfilename,
+					"-console", consolefilename,
+					"-qr", quest_rules_hex.c_str(),
+					"-linked", NULL, NULL};
+				if(zc_get_config("Compiler","noclose_compile_console",0))
+					argv[3] = "-noclose";
+				process_manager* pm = launch_piped_process(ZSCRIPT_FILE, argv);
+				if(!pm)
+				{
+					InfoDialog("Parser","Failed to launch " ZSCRIPT_FILE).show();
+					break;
+				}
+				
+				int current = 0, last = 0;
+				int syncthing = 0;
+				pm->read(&syncthing, sizeof(int32_t));
+
+				FILE *console = fopen(consolefilename, "r");
+				char buf4[512];
+				bool hasWarnErr = false;
+				if (console) 
+				{
+					for(;;) //while (true)
 					{
-						if(code != ZC_CONSOLE_INFO_CODE) hasWarnErr = true;
-						fseek(console, 0, SEEK_END);
-						current = ftell(console);
-						if (current != last) {
-							int amount = (current-last);
-							fseek(console, last, SEEK_SET);
-							last = current;
-							int end = fread(&buf4, sizeof(char), amount, console);
-							buf4[end] = 0;
-							ReadConsole(buf4, code);
+						pm->read(&code, sizeof(int32_t));
+						if (code != ZC_CONSOLE_INFO_CODE && code != ZC_CONSOLE_ERROR_CODE && code != ZC_CONSOLE_WARN_CODE) break;
+						else
+						{
+							if(code != ZC_CONSOLE_INFO_CODE) hasWarnErr = true;
+							fseek(console, 0, SEEK_END);
+							current = ftell(console);
+							if (current != last) {
+								int amount = (current-last);
+								fseek(console, last, SEEK_SET);
+								last = current;
+								int end = fread(&buf4, sizeof(char), amount, console);
+								buf4[end] = 0;
+								ReadConsole(buf4, code);
+							}
+							pm->write(&code, sizeof(int32_t));
 						}
-						pm->write(&code, sizeof(int32_t));
 					}
 				}
-			}
-			pm->read(&code, sizeof(int32_t));
-			clock_t end_compile_time = clock();
-			
-			
-			char tmp[128] = {0};
-			sprintf(tmp,"%lf",(end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC));
-			for(size_t ind = strlen(tmp)-1; ind > 0; --ind)
-			{
-				if(tmp[ind] == '0' && tmp[ind-1] != '.') tmp[ind] = 0;
-				else break;
-			}
-			char buf[1024] = {0};
-			sprintf(buf, "ZScript compilation: Returned code '%d' (%s)\n"
-				"Compile took %s seconds (%ld cycles)%s",
-				code, code ? "failure" : "success",
-				tmp, end_compile_time - start_compile_time,
-				code ? (!DisableCompileConsole?"\nCompilation failed. See console for details.":"\nCompilation failed.") : "");
-			
-			if(!code)
-			{
-				read_compile_data(stypes, scripts);
-				if (!(DisableCompileConsole || hasWarnErr)) 
+				pm->read(&code, sizeof(int32_t));
+				clock_t end_compile_time = clock();
+				
+				
+				char tmp[128] = {0};
+				sprintf(tmp,"%lf",(end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC));
+				for(size_t ind = strlen(tmp)-1; ind > 0; --ind)
 				{
-					parser_console.kill();
+					if(tmp[ind] == '0' && tmp[ind-1] != '.') tmp[ind] = 0;
+					else break;
 				}
-			}
-			else if (DisableCompileConsole)
-			{
-				char buf3[256] = {0};
-				sprintf(buf3, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),end_compile_time - start_compile_time);
-				box_out(buf3);
-				box_eol();
-				box_out("Compilation failed.");
-				box_eol();
-			}
-			compile_sfx(!code);
-			if (DisableCompileConsole) box_end(true);
-			
-			delete pm;
-			
-			bool cancel = code;
-			if (!DisableCompileConsole) 
-			{
-				if(code)
-					InfoDialog("ZScript Parser", buf).show();
-				else AlertDialog("ZScript Parser", buf,
-					[&](bool ret,bool)
+				char buf[1024] = {0};
+				sprintf(buf, "ZScript compilation: Returned code '%d' (%s)\n"
+					"Compile took %s seconds (%ld cycles)%s",
+					code, code ? "failure" : "success",
+					tmp, end_compile_time - start_compile_time,
+					code ? (!DisableCompileConsole?"\nCompilation failed. See console for details.":"\nCompilation failed.") : "");
+				
+				if(!code)
+				{
+					read_compile_data(stypes, scripts);
+					if (!(DisableCompileConsole || hasWarnErr)) 
 					{
-						cancel = !ret;
-					}, "Continue", "Cancel").show();
-			}
-			if ( compile_success_sample > 0 )
-			{
-				if(sfx_voice[compile_success_sample]!=-1)
-				{
-					deallocate_voice(sfx_voice[compile_success_sample]);
-					sfx_voice[compile_success_sample]=-1;
-				}
-			}
-			if ( compile_error_sample > 0 )
-			{
-				if(sfx_voice[compile_error_sample]!=-1)
-				{
-					deallocate_voice(sfx_voice[compile_error_sample]);
-					sfx_voice[compile_error_sample]=-1;
-				}
-			}
-			refresh(rALL);
-			
-			if(cancel)
-				break;
-			
-			asffcscripts.clear();
-			asffcscripts.push_back("<none>");
-			asglobalscripts.clear();
-			asglobalscripts.push_back("<none>");
-			asitemscripts.clear();
-			asitemscripts.push_back("<none>");
-			asnpcscripts.clear();
-			asnpcscripts.push_back("<none>");
-			aseweaponscripts.clear();
-			aseweaponscripts.push_back("<none>");
-			aslweaponscripts.clear();
-			aslweaponscripts.push_back("<none>");
-			asplayerscripts.clear();
-			asplayerscripts.push_back("<none>");
-			asdmapscripts.clear();
-			asdmapscripts.push_back("<none>");
-			asscreenscripts.clear();
-			asscreenscripts.push_back("<none>");
-			asitemspritescripts.clear();
-			asitemspritescripts.push_back("<none>");
-			ascomboscripts.clear();
-			ascomboscripts.push_back("<none>");
-			asgenericscripts.clear();
-			asgenericscripts.push_back("<none>");
-			clear_map_states();
-			globalmap[0].updateName("~Init"); //force name to ~Init
-			
-			using namespace ZScript;
-			for (auto it = stypes.begin(); it != stypes.end(); ++it)
-			{
-				string const& name = it->first;
-				switch(it->second)
-				{
-					case scrTypeIdFfc:
-						asffcscripts.push_back(name);
-						break;
-					case scrTypeIdItem:
-						asitemscripts.push_back(name);
-						break;
-					case scrTypeIdNPC:
-						asnpcscripts.push_back(name);
-						break;
-					case scrTypeIdEWeapon:
-						aseweaponscripts.push_back(name);
-						break;
-					case scrTypeIdLWeapon:
-						aslweaponscripts.push_back(name);
-						break;
-					case scrTypeIdPlayer:
-						asplayerscripts.push_back(name);
-						break;
-					case scrTypeIdDMap:
-						asdmapscripts.push_back(name);
-						break;
-					case scrTypeIdScreen:
-						asscreenscripts.push_back(name);
-						break;
-					case scrTypeIdItemSprite:
-						asitemspritescripts.push_back(name);
-						break;
-					case scrTypeIdComboData:
-						ascomboscripts.push_back(name);
-						break;
-					case scrTypeIdGeneric:
-						asgenericscripts.push_back(name);
-						break;
-					case scrTypeIdGlobal:
-						if (name != "~Init")
-						{
-							asglobalscripts.push_back(name);
-						}
-						break;
-				}
-			}
-		
-			//scripts are compiled without error, so store the zscript version here: -Z, 25th July 2019, A29
-			misc.zscript_last_compiled_version = V_FFSCRIPT;
-			FFCore.quest_format[vLastCompile] = V_FFSCRIPT;
-			al_trace("Compiled scripts in version: %d\n", misc.zscript_last_compiled_version);
-			
-			assignscript_dlg[0].dp2 = lfont;
-			assignscript_dlg[4].d1 = -1;
-			assignscript_dlg[5].d1 = -1;
-			assignscript_dlg[7].d1 = -1;
-			assignscript_dlg[8].d1 = -1;
-			assignscript_dlg[10].d1 = -1;
-			assignscript_dlg[11].d1 = -1;
-			assignscript_dlg[13].flags = 0;
-			
-			do_script_disassembly(scripts, true);
-			
-			//assign scripts to slots
-			do_slots(scripts);
-			
-			if(WarnOnInitChanged)
-			{
-				uint32_t newInitSize = 0;
-				script_data const& new_init_script = *globalscripts[0];
-				newInitSize = new_init_script.size();
-				bool initChanged = newInitSize != lastInitSize;
-				if(!initChanged) //Same size, but is the content the same?
-				{
-					if(!old_init_script.valid() || !new_init_script.valid())
-					{
-						if(old_init_script.valid() || new_init_script.valid())
-							initChanged = true;
+						parser_console.kill();
 					}
-					else for(uint32_t q = 0; q < newInitSize; ++q)
-					{
-						if(old_init_script.zasm[q].command != new_init_script.zasm[q].command
-						   || old_init_script.zasm[q].arg1 != new_init_script.zasm[q].arg1
-						   || old_init_script.zasm[q].arg2 != new_init_script.zasm[q].arg2)
+				}
+				else if (DisableCompileConsole)
+				{
+					char buf3[256] = {0};
+					sprintf(buf3, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),end_compile_time - start_compile_time);
+					box_out(buf3);
+					box_eol();
+					box_out("Compilation failed.");
+					box_eol();
+				}
+				compile_sfx(!code);
+				if (DisableCompileConsole) box_end(true);
+				
+				delete pm;
+				
+				bool cancel = code;
+				if (!DisableCompileConsole) 
+				{
+					if(code)
+						InfoDialog("ZScript Parser", buf).show();
+					else AlertDialog("ZScript Parser", buf,
+						[&](bool ret,bool)
 						{
-							initChanged = true;
+							cancel = !ret;
+						}, "Continue", "Cancel").show();
+				}
+				if ( compile_success_sample > 0 )
+				{
+					if(sfx_voice[compile_success_sample]!=-1)
+					{
+						deallocate_voice(sfx_voice[compile_success_sample]);
+						sfx_voice[compile_success_sample]=-1;
+					}
+				}
+				if ( compile_error_sample > 0 )
+				{
+					if(sfx_voice[compile_error_sample]!=-1)
+					{
+						deallocate_voice(sfx_voice[compile_error_sample]);
+						sfx_voice[compile_error_sample]=-1;
+					}
+				}
+				//refresh(rALL);
+				
+				if(cancel)
+					break;
+				
+				asffcscripts.clear();
+				asffcscripts.push_back("<none>");
+				asglobalscripts.clear();
+				asglobalscripts.push_back("<none>");
+				asitemscripts.clear();
+				asitemscripts.push_back("<none>");
+				asnpcscripts.clear();
+				asnpcscripts.push_back("<none>");
+				aseweaponscripts.clear();
+				aseweaponscripts.push_back("<none>");
+				aslweaponscripts.clear();
+				aslweaponscripts.push_back("<none>");
+				asplayerscripts.clear();
+				asplayerscripts.push_back("<none>");
+				asdmapscripts.clear();
+				asdmapscripts.push_back("<none>");
+				asscreenscripts.clear();
+				asscreenscripts.push_back("<none>");
+				asitemspritescripts.clear();
+				asitemspritescripts.push_back("<none>");
+				ascomboscripts.clear();
+				ascomboscripts.push_back("<none>");
+				asgenericscripts.clear();
+				asgenericscripts.push_back("<none>");
+				clear_map_states();
+				globalmap[0].updateName("~Init"); //force name to ~Init
+				
+				using namespace ZScript;
+				for (auto it = stypes.begin(); it != stypes.end(); ++it)
+				{
+					string const& name = it->first;
+					switch(it->second)
+					{
+						case scrTypeIdFfc:
+							asffcscripts.push_back(name);
 							break;
-						}
+						case scrTypeIdItem:
+							asitemscripts.push_back(name);
+							break;
+						case scrTypeIdNPC:
+							asnpcscripts.push_back(name);
+							break;
+						case scrTypeIdEWeapon:
+							aseweaponscripts.push_back(name);
+							break;
+						case scrTypeIdLWeapon:
+							aslweaponscripts.push_back(name);
+							break;
+						case scrTypeIdPlayer:
+							asplayerscripts.push_back(name);
+							break;
+						case scrTypeIdDMap:
+							asdmapscripts.push_back(name);
+							break;
+						case scrTypeIdScreen:
+							asscreenscripts.push_back(name);
+							break;
+						case scrTypeIdItemSprite:
+							asitemspritescripts.push_back(name);
+							break;
+						case scrTypeIdComboData:
+							ascomboscripts.push_back(name);
+							break;
+						case scrTypeIdGeneric:
+							asgenericscripts.push_back(name);
+							break;
+						case scrTypeIdGlobal:
+							if (name != "~Init")
+							{
+								asglobalscripts.push_back(name);
+							}
+							break;
 					}
 				}
-				if(initChanged) //Global init changed
-				{
-					AlertFuncDialog("Init Script Changed",
-						"Either global variables, or your global script Init, have changed. ("+to_string(lastInitSize)+"->"+to_string(newInitSize)+")\n\n"
-						"This can break existing save files of your quest. To prevent users "
-						"from loading save files that would break, you can raise the \"Quest "
-						"Ver\" and \"Min. Ver\" in the Header menu (Quest>>Options>>Header)\n\n"
-						"Ensure that both versions are higher than \"Quest Ver\" was previously, "
-						"and that \"Quest Ver\" is the same or higher than \"Min. Ver\"",
-						2, 1, //2 buttons, where buttons[1] is focused
-						"Header", doCompileOpenHeader,
-						"OK", NULL
-					).show();
-				}
-			}
 			
-			return D_O_K;
-		}
+				//scripts are compiled without error, so store the zscript version here: -Z, 25th July 2019, A29
+				misc.zscript_last_compiled_version = V_FFSCRIPT;
+				FFCore.quest_format[vLastCompile] = V_FFSCRIPT;
+				al_trace("Compiled scripts in version: %d\n", misc.zscript_last_compiled_version);
+				
+				assignscript_dlg[0].dp2 = lfont;
+				assignscript_dlg[4].d1 = -1;
+				assignscript_dlg[5].d1 = -1;
+				assignscript_dlg[7].d1 = -1;
+				assignscript_dlg[8].d1 = -1;
+				assignscript_dlg[10].d1 = -1;
+				assignscript_dlg[11].d1 = -1;
+				assignscript_dlg[13].flags = 0;
+				
+				do_script_disassembly(scripts, true);
+				
+				//assign scripts to slots
+				do_slots(scripts);
+				
+				if(WarnOnInitChanged)
+				{
+					uint32_t newInitSize = 0;
+					script_data const& new_init_script = *globalscripts[0];
+					newInitSize = new_init_script.size();
+					bool initChanged = newInitSize != lastInitSize;
+					if(!initChanged) //Same size, but is the content the same?
+					{
+						if(!old_init_script.valid() || !new_init_script.valid())
+						{
+							if(old_init_script.valid() || new_init_script.valid())
+								initChanged = true;
+						}
+						else for(uint32_t q = 0; q < newInitSize; ++q)
+						{
+							if(old_init_script.zasm[q].command != new_init_script.zasm[q].command
+							   || old_init_script.zasm[q].arg1 != new_init_script.zasm[q].arg1
+							   || old_init_script.zasm[q].arg2 != new_init_script.zasm[q].arg2)
+							{
+								initChanged = true;
+								break;
+							}
+						}
+					}
+					if(initChanged) //Global init changed
+					{
+						AlertFuncDialog("Init Script Changed",
+							"Either global variables, or your global script Init, have changed. ("+to_string(lastInitSize)+"->"+to_string(newInitSize)+")\n\n"
+							"This can break existing save files of your quest. To prevent users "
+							"from loading save files that would break, you can raise the \"Quest "
+							"Ver\" and \"Min. Ver\" in the Header menu (Quest>>Options>>Header)\n\n"
+							"Ensure that both versions are higher than \"Quest Ver\" was previously, "
+							"and that \"Quest Ver\" is the same or higher than \"Min. Ver\"",
+							2, 1, //2 buttons, where buttons[1] is focused
+							"Header", doCompileOpenHeader,
+						    "OK", NULL
+						).show();
+					}
+				}
+				goto exit_oncompilescript;
+			}
 		}
 	}
-// return D_O_K;//unreachable
+exit_oncompilescript:
+    popup_zqdialog_end();
+    return retval;
 }
 
 int32_t onSlotAssign()
@@ -29560,8 +29838,6 @@ int32_t onLayers()
                 }
             }
         }
-        
-        Map.Ugo();
     }
     
     // Check that the working layer wasn't just disabled
@@ -30890,6 +31166,11 @@ int32_t main(int32_t argc,char **argv)
 		combo_preview.w=32;
 		combo_preview.h=32;
 		
+		drawmode_btn.x = combolist_window.x-64;
+		drawmode_btn.y = 0;
+		drawmode_btn.w = 64;
+		drawmode_btn.h = 16;
+		
 		combolist[0].x=combolist_window.x+8;
 		combolist[0].y=combolist_window.y+64;
 		combolist[0].w=4;
@@ -30987,6 +31268,11 @@ int32_t main(int32_t argc,char **argv)
 		favorites_list.y=favorites_window.y+16;
 		favorites_list.w=(favorites_window.w-16)>>4;
 		favorites_list.h=(favorites_window.h-24)>>4;
+		
+		favorites_x.x = favorites_window.x + favorites_window.w - 9 - 12;
+		favorites_x.y = favorites_list.y - 14;
+		favorites_x.w = 12;
+		favorites_x.h = 12;
 		
 		commands_window.w=combolist_window.x-(panel[0].x+panel[0].w);
 		commands_window.h=zq_screen_h-panel[0].y;
@@ -31140,6 +31426,11 @@ int32_t main(int32_t argc,char **argv)
 		favorites_list.w=-1;
 		favorites_list.h=-1;
 		
+		favorites_x.x = -1;
+		favorites_x.y = -1;
+		favorites_x.w = -1;
+		favorites_x.h = -1;
+		
 		commands_window.x=-1;
 		commands_window.y=-1;
 		commands_window.w=-1;
@@ -31159,7 +31450,9 @@ int32_t main(int32_t argc,char **argv)
 	for(int32_t i=0; i<MAXFAVORITECOMBOS; ++i)
 	{
 		favorite_combos[i]=-1;
+		pool_combos[i].clear();
 	}
+	pool_dirty = true;
 	
 	for(int32_t i=0; i<MAXFAVORITECOMBOALIASES; ++i)
 	{
@@ -31808,7 +32101,6 @@ int32_t main(int32_t argc,char **argv)
 	}
 	else dialogs[0].dp = (void *) the_menu_large;
 	*/
-	
 	call_foo_dlg();
 	while(!quit)
 	{
@@ -31872,11 +32164,13 @@ int32_t main(int32_t argc,char **argv)
 		
 		edit_menu[0].flags =
 			commands[cmdUndo].flags = Map.CanUndo() ? 0 : D_DISABLED;
+        edit_menu[1].flags =
+			commands[cmdRedo].flags = Map.CanRedo() ? 0 : D_DISABLED;
 			
-		edit_menu[2].flags =
-		    edit_menu[3].flags =
-			edit_menu[4].flags =
-			    edit_menu[5].flags =
+		edit_menu[3].flags =
+		    edit_menu[4].flags =
+			edit_menu[5].flags =
+			    edit_menu[6].flags =
 				paste_menu[0].flags =
 				    paste_menu[1].flags =
 					paste_item_menu[0].flags =
@@ -31906,8 +32200,8 @@ int32_t main(int32_t argc,char **argv)
 																	    commands[cmdPasteDoors].flags =
 																		commands[cmdPasteLayers].flags = Map.CanPaste() ? 0 : D_DISABLED;
                                                                                 																																		
-		edit_menu[1].flags =
-			edit_menu[6].flags =
+		edit_menu[2].flags =
+			edit_menu[7].flags =
 				commands[cmdCopy].flags =
 					commands[cmdDelete].flags = (Map.CurrScr()->valid&mVALID) ? 0 : D_DISABLED;
 					
@@ -33198,7 +33492,9 @@ command_pair commands[cmdMAX]=
     { "Bottle Shop Types",                  0, (intF) onBottleShopTypes },
     { "Water Solidity Fix",                 0, (intF) onWaterSolidity },
     { "Effect Square Fix",                  0, (intF) onEffectFix },
-    { "Test Quest",                         0, (intF) onTestQst }
+    { "Test Quest",                         0, (intF) onTestQst },
+    { "Redo",                               0, (intF) onRedo },
+    { "Combo Pool Mode",                    0, (intF) onDrawingModePool }
 };
 
 /********************************/

@@ -138,9 +138,7 @@ void edit_door(int32_t side)
         }
         
         saved=false;
-        //   Map.Ugo();
-        Map.putdoor(side,index);
-        refresh(rMAP | rNOCURSOR);
+        Map.DoSetDoorCommand(side, index);
     }
 }
 
@@ -176,8 +174,7 @@ int32_t onDoors()
         
     if(Map.getCurrMap()>=Map.getMapCount())
         return D_O_K;
-        
-    Map.Ugo();
+    
     bool done=false;
     int32_t ret=0;
     door_select_dlg[9].d1=Map.CurrScr()->door_combo_set;
@@ -196,7 +193,8 @@ int32_t onDoors()
         
     if(is_large)
         large_dialog(door_select_dlg, 1.5);
-        
+    
+    Map.StartListCommand();
     do
     {
         ret = zc_popup_dialog(door_select_dlg,-1);
@@ -219,6 +217,7 @@ int32_t onDoors()
                     Map.putdoor(i,Map.CurrScr()->door[i]);
             }
             
+            Map.FinishListCommand();
             done=true;
             break;
             
@@ -229,7 +228,7 @@ int32_t onDoors()
                 Map.putdoor(i,Map.CurrScr()->door[i]);
             }
             
-            Map.Uhuilai();
+            Map.RevokeListCommand();
             done=true;
         }
     }

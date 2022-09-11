@@ -9148,7 +9148,8 @@ BitmapSymbols BitmapSymbols::singleton = BitmapSymbols();
 static AccessorTable BitmapTable[] =
 {
 //	  name,                     rettype,                  setorget,     var,                  num,           funcFlags,                            numParams,   params
-	{ "GetPixel",               ZVARTYPEID_UNTYPED,       FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "GetPixel",               ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "CountColor",             ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      6,           { ZVARTYPEID_BITMAP, ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 //	{ "Create",                 ZVARTYPEID_BITMAP,        FUNCTION,     0,                    1,             0,                                    3,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Rectangle",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    13,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_BOOL,      ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                      } },
 	{ "Circle",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    12,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_BOOL,      ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           } },
@@ -9227,7 +9228,7 @@ BitmapSymbols::BitmapSymbols()
 
 void BitmapSymbols::generateCode()
 {
-	//void GetPixel(bitmap, layer, "filename")
+	//void GetPixel(bitmap, x, y)
 	{
 		Function* function = getFunction("GetPixel", 3);
 		int32_t label = function->getLabel();
@@ -9239,6 +9240,18 @@ void BitmapSymbols::generateCode()
 		//pop pointer to EXP1
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
 		addOpcode2 (code, new OGraphicsGetpixel(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void GetPixel(bitmap, bitmap, int, int, int, int)
+	{
+		Function* function = getFunction("CountColor", 6);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OGraphicsCountColor(new VarArgument(EXP1)));
+		LABELBACK(label);
+		POP_ARGS(6, REFBITMAP);
 		RETURN();
 		function->giveCode(code);
 	}

@@ -65,8 +65,8 @@ option(SHARED "" ON)
 include(FetchContent)
 FetchContent_Declare(
   allegro5
-  GIT_REPOSITORY https://github.com/liballeg/allegro5.git
-  GIT_TAG        ff0bff067f5ba480d8ba50f360505d89c27fe0e5
+  GIT_REPOSITORY https://github.com/connorjclark/allegro5.git
+  GIT_TAG        f982afaad0bd45da1305caca8ac0ce1e6b4104e8
 )
 FetchContent_GetProperties(allegro5)
 if(NOT allegro5_POPULATED)

@@ -404,6 +404,7 @@ public:
     }
     void Resize(const size_type _Z, const size_type _Y, const size_type _X)
     {
+		if(_SameDimensions(_Z,_Y,_X)) return;
         const size_type _OldSize = _size;
         const size_type _NewSize = _GetSize(_Z, _Y, _X);
         
@@ -533,6 +534,19 @@ protected:
         
         _size = _GetSize(_X, _Y, _Z);
     }
+	
+	bool _SameDimensions(size_type _X)
+	{
+		return _dim[0] == _X && _dim[1] == 0 && _dim[2] == 0;
+	}
+	bool _SameDimensions(size_type _Y, size_type _X)
+	{
+		return _dim[0] == _X && _dim[1] == _Y && _dim[2] == 0;
+	}
+	bool _SameDimensions(size_type _Z, size_type _Y, size_type _X)
+	{
+		return _dim[0] == _X && _dim[1] == _Y && _dim[2] == _Z;
+	}
     
     size_type _GetSize(size_type _Z, size_type _Y, size_type _X) const
     {

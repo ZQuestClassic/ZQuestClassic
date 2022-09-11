@@ -62,6 +62,7 @@ bugs in scrolling mode:
 */
 
 // TODO z3 checklist do all before starting beta
+// pos_handle_t
 // screen secrets:
 //    - trigger all secrets in region
 //    - multiple triggers across many screens in a region (multi-block puzzle)
@@ -936,7 +937,7 @@ int32_t MAPCOMBO2(int32_t layer, int32_t x, int32_t y)
 	return pos_handle.screen->data[RPOS_TO_POS(pos_handle.rpos)];
 }
 
-// TODO z3 seems bad to take a screen index, but also take (x, y) in world coordinates...
+// TODO z3 ! seems bad to take a screen index, but also take (x, y) in world coordinates...
 int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets)
 {
 	DCHECK_LAYER_NEG1_INDEX(layer);
@@ -970,12 +971,12 @@ int32_t MAPCOMBO3(mapscr *m, int32_t map, int32_t screen, int32_t layer, int32_t
     
 	if(m->valid==0) return 0;
 	
+	int32_t mi = (map*MAPSCRSNORMAL)+screen;
 	int32_t flags = 0;
 	
-	if(secrets && game->maps[(map*MAPSCRSNORMAL)+screen])
+	if(secrets)
 	{
-		flags = game->maps[(map*MAPSCRSNORMAL)+screen];
-		//secrets = false;
+		flags = game->maps[mi];
 	}
 	
 	int32_t mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
@@ -1034,6 +1035,8 @@ int32_t MAPCOMBO3(mapscr *m, int32_t map, int32_t screen, int32_t layer, int32_t
 	{
 	    remove_screenstatecombos2(&scr, screen, false, cBOSSCHEST, cBOSSCHEST2);
 	}
+	
+	clear_xstatecombos2(&scr, screen, mi);
 	
 	return scr.data[pos];
 }
@@ -2083,35 +2086,72 @@ bool remove_screenstatecombos2(mapscr *s, int32_t screen_index, bool do_layers, 
 }
 
 // TODO z3
-bool remove_xstatecombos_old(int32_t tmp, byte xflag)
+bool remove_xstatecombos_old(int32_t tmp, byte xflag, bool triggers)
 {
 	return remove_xstatecombos_old(tmp, (currmap*MAPSCRSNORMAL)+homescr, xflag);
 }
-bool remove_xstatecombos_old(int32_t tmp, int32_t mi, byte xflag)
+bool remove_xstatecombos_old(int32_t tmp, int32_t mi, byte xflag, bool triggers)
 {
 	mapscr *s = tmp == 0 ? &tmpscr : &special_warp_return_screen;
-	return remove_xstatecombos2(s, currscr, mi, xflag);
+	return remove_xstatecombos2(s, currscr, mi, xflag, false);
 }
-bool remove_xstatecombos2(mapscr *s, int32_t scr, byte xflag)
+
+bool remove_xstatecombos2(mapscr *s, int32_t scr, byte xflag, bool triggers)
 {
 	int mi = (currmap * MAPSCRSNORMAL) + (scr >= 0x80 ? homescr : scr);
-	return remove_xstatecombos2(s, scr, mi, xflag);
+	return remove_xstatecombos2(s, scr, mi, xflag, triggers);
 }
-bool remove_xstatecombos2(mapscr *s, int32_t scr, int32_t mi, byte xflag)
+bool remove_xstatecombos2(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool triggers)
 {
 	bool didit=false;
-	
-	for(int32_t j=-1; j<6; j++)
+	if(!getxmapflag(mi, 1<<xflag)) return false;
+
+	pos_handle pos_handle;
+	pos_handle.screen = s;
+	pos_handle.screen_index = scr;
+	pos_handle.layer = 0;
+	for(int32_t i=0; i<176; i++)
+	{
+		pos_handle.rpos = POS_TO_RPOS(i, scr);
+		newcombo const& cmb = combobuf[s->data[i]];
+		if(triggers && force_ex_trigger(pos_handle, xflag))
+			didit = true;
+		else switch(cmb.type)
+		{
+			case cLOCKBLOCK: case cLOCKBLOCK2:
+			case cBOSSLOCKBLOCK: case cBOSSLOCKBLOCK2:
+			case cCHEST: case cCHEST2:
+			case cLOCKEDCHEST: case cLOCKEDCHEST2:
+			case cBOSSCHEST: case cBOSSCHEST2:
+			{
+				if(!(cmb.usrflags&cflag16)) continue; //custom state instead of normal state
+				if(cmb.attribytes[5] == xflag)
+				{
+					s->data[i]++;
+					didit=true;
+				}
+				break;
+			}
+		}
+	}
+
+	for (int j = -1; j < 6; j++)
 	{
 		if (j != -1) s = get_layer_scr(currmap, scr, j);
 		if (s->data.empty()) continue;
+
+		pos_handle.screen = s;
+		pos_handle.screen_index = scr;
+		pos_handle.layer = j + 1;
 		
 		for (int32_t i=0; i<176; i++)
 		{
+			pos_handle.rpos = POS_TO_RPOS(i, scr);
 			// TODO z3 very slow! prob best to figure out how to not call this function so much.
 			newcombo const& cmb = combobuf[s->data[i]];
-			if(!(cmb.usrflags&cflag16)) continue; //custom state instead of normal state
-			switch(cmb.type)
+			if(triggers && force_ex_trigger(pos_handle, xflag))
+				didit = true;
+			else switch(cmb.type)
 			{
 				case cLOCKBLOCK: case cLOCKBLOCK2:
 				case cBOSSLOCKBLOCK: case cBOSSLOCKBLOCK2:
@@ -2119,7 +2159,8 @@ bool remove_xstatecombos2(mapscr *s, int32_t scr, int32_t mi, byte xflag)
 				case cLOCKEDCHEST: case cLOCKEDCHEST2:
 				case cBOSSCHEST: case cBOSSCHEST2:
 				{
-					if(cmb.attribytes[5] == xflag && getxmapflag(mi, 1<<xflag))
+					if(!(cmb.usrflags&cflag16)) continue; //custom state instead of normal state
+					if(cmb.attribytes[5] == xflag)
 					{
 						s->data[i]++;
 						didit=true;
@@ -2136,19 +2177,19 @@ bool remove_xstatecombos2(mapscr *s, int32_t scr, int32_t mi, byte xflag)
 // TODO z3
 void clear_xstatecombos_old(int32_t tmp)
 {
-	clear_xstatecombos_old(tmp, (currmap*MAPSCRSNORMAL)+homescr);
+	clear_xstatecombos_old(tmp, (currmap*MAPSCRSNORMAL)+homescr, tmp==0);
 }
-void clear_xstatecombos_old(int32_t tmp, int32_t mi)
+void clear_xstatecombos_old(int32_t tmp, int32_t mi, bool triggers)
 {
 	mapscr *s = tmp == 0 ? &tmpscr : &special_warp_return_screen;
-	clear_xstatecombos2(s, currscr, mi);
+	clear_xstatecombos2(s, currscr, mi, triggers);
 }
 
-void clear_xstatecombos2(mapscr *s, int32_t scr, int32_t mi)
+void clear_xstatecombos2(mapscr *s, int32_t scr, int32_t mi, bool triggers)
 {
 	for(byte q = 0; q < 32; ++q)
 	{
-		remove_xstatecombos2(s,scr,mi,q);
+		remove_xstatecombos2(s,scr,mi,q,triggers);
 	}
 }
 
@@ -2307,12 +2348,7 @@ int32_t findtrigger(int32_t screen_index, int32_t scombo, bool ff)
 // single:
 // >-1 : the singular triggering combo
 // -1: triggered by some other cause
-// -2: triggered by Enemies->Secret
-// -3: triggered by Secrets screen state
-// -4: Screen->TriggerSecrets()
-// -5: triggered by Items->Secret
-// -5: triggered by Generic Combo
-// TODO z3 take pos_handle or a new screen_handle ???
+// TODO z3 ! take pos_handle or a new screen_handle ???
 void trigger_secrets_for_screen(int32_t screen, bool high16only, int32_t single)
 {
 	//There are no calls to 'hidden_entrance' in the code where tmp != 0
@@ -2328,6 +2364,7 @@ void trigger_secrets_for_screen(int32_t screen, bool high16only, int32_t single)
 			   "");
 	if(single < 0)
 		triggered_screen_secrets = true;
+
 	bool do_layers = true;
 	trigger_secrets_for_screen(screen, NULL, do_layers, high16only, single);
 }
@@ -2349,6 +2386,7 @@ void hidden_entrance(int32_t tmp, bool refresh, bool high16only, int32_t single)
 			   "");
 	if(single < 0)
 		triggered_screen_secrets = true;
+	
 	bool do_layers = true;
 	trigger_secrets_for_screen(-1, tmp == 0 ? &tmpscr : &special_warp_return_screen, do_layers, high16only, single);
 }
@@ -2358,6 +2396,21 @@ void trigger_secrets_for_screen(int32_t screen_index, mapscr *s, bool do_layers,
 	DCHECK(screen_index != -1 || s);
 	if (!s) s = get_scr(currmap, screen_index);
 	if (screen_index == -1) screen_index = initial_region_scr;
+
+	if (do_layers)
+	{
+		for(auto lyr = 0; lyr < 7; ++lyr)
+		{
+			for (auto pos = 0; pos < 176; ++pos)
+			{
+				newcombo const& cmb = combobuf[FFCore.tempScreens[lyr]->data[pos]];
+				if(cmb.triggerflags[2] & combotriggerSECRETSTR)
+				{
+					do_trigger_combo(get_pos_handle(POS_TO_RPOS(pos, initial_region_scr), lyr));
+				}
+			}
+		}
+	}
 
 	int32_t ft=0; //Flag trigger?
 	int32_t msflag=0; // Misc. secret flag
@@ -5744,7 +5797,10 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
 		{
 			hiddenstair2(screen, false);
+			auto oscr = homescr;
+			homescr = scr;
 			hidden_entrance(tmp,false,false,-3);
+			scr = oscr;
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
 		{
@@ -5947,7 +6003,10 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
 		{
 			hiddenstair2(&screen, false);
+			auto oscr = homescr;
+			homescr = scr;
 			hidden_entrance(tmp,false,false,-3);
+			scr = oscr;
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
 		{

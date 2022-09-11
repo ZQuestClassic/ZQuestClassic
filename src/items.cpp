@@ -329,6 +329,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	force_grab=false;
 	itemdata const& itm = itemsbuf[id];
 	from_dropset = -1;
+	pickupexstate = -1;
 
 	#ifndef IS_ZQUEST
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_ITEM); //This is used by child npcs. 

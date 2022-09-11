@@ -1,6 +1,8 @@
 
 #include "base/util.h"
 #include <fstream>
+#include <sstream>
+#include <iomanip>
 #include <sys/stat.h>
 
 using namespace std;
@@ -425,6 +427,337 @@ namespace util
 	{
 	    if(unsigned(c) > 255) return false;
 	    return isalpha((char)c);
+	}
+	
+	string escape_string(char const* str)
+	{
+		ostringstream oss;
+		oss << "\"";
+		size_t len = strlen(str);
+		for(size_t q = 0; q < len; ++q)
+		{
+			char c = str[q];
+			if(c < ' ' || c > '~')
+			{
+				switch(c)
+				{
+					case '\n': oss << "\\n"; break;
+					case '\t': oss << "\\t"; break;
+					case '\a': oss << "\\a"; break;
+					case '\b': oss << "\\b"; break;
+					case '\f': oss << "\\f"; break;
+					case '\r': oss << "\\r"; break;
+					case '\v': oss << "\\v"; break;
+					case '"': oss << "\\\""; break;
+					case '\\': oss << "\\\\"; break;
+					default:
+					{
+						oss << "\\x" << std::setfill('0') << std::setw(2) << std::hex << c;
+						break;
+					}
+				}
+			}
+			else oss << c;
+		}
+		oss << "\"";
+		return oss.str();
+	}
+	string escape_string(string const& str)
+	{
+		ostringstream oss;
+		oss << "\"";
+		size_t len = str.size();
+		for(size_t q = 0; q < len; ++q)
+		{
+			char c = str[q];
+			if(c < ' ' || c > '~')
+			{
+				switch(c)
+				{
+					case '\n': oss << "\\n"; break;
+					case '\t': oss << "\\t"; break;
+					case '\a': oss << "\\a"; break;
+					case '\b': oss << "\\b"; break;
+					case '\f': oss << "\\f"; break;
+					case '\r': oss << "\\r"; break;
+					case '\v': oss << "\\v"; break;
+					case '"': oss << "\\\""; break;
+					case '\\': oss << "\\\\"; break;
+					default:
+					{
+						oss << "\\x" << std::setfill('0') << std::setw(2) << std::hex << (int32_t(c)&0xFF);
+						break;
+					}
+				}
+			}
+			else oss << c;
+		}
+		oss << "\"";
+		return oss.str();
+	}
+		
+	string unescape_string(char const* str)
+	{
+		ostringstream oss;
+		bool in_str = false;
+		size_t len = strlen(str);
+		for(size_t q = 0; q < len; ++q)
+		{
+			if(str[q] == '"')
+			{
+				if(in_str) break;
+				else in_str = true;
+			}
+			else if(in_str)
+			{
+				if(str[q] == '\\')
+				{
+					if(++q < len)
+					{
+						switch(str[q])
+						{
+							case 'n': oss << '\n'; break;
+							case 't': oss << '\t'; break;
+							case 'a': oss << '\a'; break;
+							case 'b': oss << '\b'; break;
+							case 'f': oss << '\f'; break;
+							case 'r': oss << '\r'; break;
+							case 'v': oss << '\v'; break;
+							case '\\': oss << '\\'; break;
+							case '"': oss << '"'; break;
+							case 'x':
+							{
+								if(q+2 < len)
+								{
+									char hb[3] = {str[q+1],str[q+2],0};
+									oss << char(zc_xtoi(hb));
+								}
+								q += 2;
+								break;
+							}
+							default: oss << str[q]; break;
+						}
+					}
+				}
+				else oss << str[q];
+			}
+		}
+		return oss.str();
+	}
+	string unescape_string(string const& str)
+	{
+		ostringstream oss;
+		bool in_str = false;
+		size_t len = str.size();
+		for(size_t q = 0; q < len; ++q)
+		{
+			if(str[q] == '"')
+			{
+				if(in_str) break;
+				else in_str = true;
+			}
+			else if(in_str)
+			{
+				if(str[q] == '\\')
+				{
+					if(++q < len)
+					{
+						switch(str[q])
+						{
+							case 'n': oss << '\n'; break;
+							case 't': oss << '\t'; break;
+							case 'a': oss << '\a'; break;
+							case 'b': oss << '\b'; break;
+							case 'f': oss << '\f'; break;
+							case 'r': oss << '\r'; break;
+							case 'v': oss << '\v'; break;
+							case '\\': oss << '\\'; break;
+							case '"': oss << '"'; break;
+							case 'x':
+							{
+								if(q+2 < len)
+								{
+									char hb[3] = {str[q+1],str[q+2],0};
+									oss << char(zc_xtoi(hb));
+								}
+								q += 2;
+								break;
+							}
+							default: oss << str[q]; break;
+						}
+					}
+				}
+				else oss << str[q];
+			}
+		}
+		return oss.str();
+	}
+	size_t escstr_size(char const* str)
+	{
+		bool in_str = false;
+		size_t len = strlen(str);
+		size_t start = 0, q;
+		bool complete = false;
+		for(q = 0; q < len; ++q)
+		{
+			if(str[q] == '"')
+			{
+				if(in_str)
+				{
+					complete = true;
+					break;
+				}
+				else
+				{
+					start = q;
+					in_str = true;
+				}
+			}
+			else if(in_str)
+			{
+				if(str[q] == '\\')
+				{
+					if(++q < len)
+					{
+						if(str[q] == 'x')
+						{
+							q += 2;
+						}
+					}
+				}
+			}
+		}
+		if(!complete) return 0;
+		if(!in_str) return 0;
+		return q-start+1;
+	}
+	
+	string stringify_vector(vector<int32_t> const& vec, bool dec)
+	{
+		ostringstream oss;
+		oss << "{";
+		for(size_t q = 0; q < vec.size(); ++q)
+		{
+			if(dec)
+			{
+				int32_t val = vec[q];
+				if(val % 10000)
+				{
+					char buf[16] = {0};
+					sprintf(buf, "%d.%04d", val/10000, abs(val%10000));
+					for(auto q = strlen(buf)-1; buf[q] == '0'; --q)
+					{
+						//Kill trailing zeroes
+						buf[q] = 0;
+					}
+					oss << buf;
+				}
+				else
+				{
+					oss << std::to_string(vec[q]/10000);
+				}
+			}
+			else oss << std::to_string(vec[q]);
+			if(q+1 < vec.size())
+				oss << ",";
+		}
+		oss << "}";
+		return oss.str();
+	}
+	void unstringify_vector(vector<int32_t>& vec, string const& str, bool dec)
+	{
+		vec.clear();
+		bool in_str = false;
+		size_t len = str.size();
+		for(size_t q = 0; q < len; ++q)
+		{
+			if(str[q] == '{')
+				in_str = true;
+			else if(str[q] == '}' && in_str)
+				break;
+			else if(in_str)
+			{
+				char buf[16] = {0};
+				size_t ind = 0;
+				while(str[q] == ',' && q+1 < len) ++q;
+				for(char c = str[q]; c != ',' && c != '}' && q+1 < len; c = str[++q])
+				{
+					buf[ind++] = c;
+				}
+				if(buf[0])
+				{
+					if(dec)
+						vec.push_back(ffparse2(buf));
+					else vec.push_back(atoi(buf));
+				}
+				if(str[q] == '}') break;
+			}
+		}
+	}
+	void unstringify_vector(vector<int32_t>& vec, char const* str, bool dec)
+	{
+		vec.clear();
+		bool in_str = false;
+		size_t len = strlen(str);
+		for(size_t q = 0; q < len; ++q)
+		{
+			if(str[q] == '{')
+				in_str = true;
+			else if(str[q] == '}' && in_str)
+				break;
+			else if(in_str)
+			{
+				char buf[16] = {0};
+				size_t ind = 0;
+				while(str[q] == ',' && q+1 < len) ++q;
+				for(char c = str[q]; c != ',' && c != '}' && q+1 < len; c = str[++q])
+				{
+					buf[ind++] = c;
+				}
+				if(buf[0])
+				{
+					if(dec)
+						vec.push_back(ffparse2(buf));
+					else vec.push_back(atoi(buf));
+				}
+				if(str[q] == '}') break;
+			}
+		}
+	}
+	size_t vecstr_size(char const* str)
+	{
+		bool in_str = false;
+		size_t len = strlen(str);
+		size_t start = 0, q;
+		bool complete = false;
+		for(q = 0; q < len; ++q)
+		{
+			if(!in_str && str[q] == '{')
+			{
+				in_str = true;
+				start = q;
+			}
+			else if(in_str)
+			{
+				if(str[q] == '}')
+				{
+					complete = true;
+					break;
+				}
+				size_t ind = 0;
+				while(str[q] == ',' && q+1 < len) ++q;
+				for(char c = str[q]; c != ',' && c != '}' && q+1 < len; c = str[++q])
+				{}
+				if(str[q] == '}')
+				{
+					complete = true;
+					break;
+				}
+			}
+		}
+		if(!complete) return 0;
+		if(!in_str) return 0;
+		return q-start+1;
 	}
 }
 using namespace util;

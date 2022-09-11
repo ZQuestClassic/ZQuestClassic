@@ -2217,6 +2217,16 @@ string LabelArgument::toStringSetV()
     }
 }
 
+string StringArgument::toString()
+{
+	return util::escape_string(value);
+}
+
+string VectorArgument::toString()
+{
+	return util::stringify_vector(value, true);
+}
+
 string OSetTrue::toString()
 {
     return "SETTRUE " + getArgument()->toString();
@@ -2302,6 +2312,14 @@ string OWritePODArrayIR::toString()
 string OWritePODArrayII::toString()
 {
 	return "WRITEPODARRAYVV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OWritePODString::toString()
+{
+	return "WRITEPODSTRING " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OWritePODArray::toString()
+{
+	return "WRITEPODARRAY " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OAddImmediate::toString()
@@ -5499,6 +5517,10 @@ string OBMPDrawScreenComboTRegister::toString()
 string OGraphicsGetpixel::toString()
 {
     return "GRAPHICSGETPIXEL " + getArgument()->toString();
+}
+string OGraphicsCountColor::toString()
+{
+    return "GRAPHICSCOUNTCOLOR " + getArgument()->toString();
 }
 
 string OBMPDrawScreenSolidityRegister::toString()

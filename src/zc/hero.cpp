@@ -3312,6 +3312,8 @@ bool HeroClass::checkstab()
 						else if(pickup&ipONETIME2) // set mSPECIALITEM flag for other one-time-only items
 							setmapflag2(screen, screen_index, (currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 						
+						if(ptr->pickupexstate > -1 && ptr->pickupexstate < 32)
+							setxmapflag(1<<ptr->pickupexstate);
 						if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
 						{
 							if (screen->flags9&fITEMSECRETPERM) setmapflag2(screen, screen_index, mSECRET);
@@ -17754,7 +17756,7 @@ void HeroClass::oldchecklockblock()
 	if(cmb.usrflags&cflag16)
 	{
 		setxmapflag2(pos_handle.screen_index, 1<<cmb.attribytes[5]);
-		remove_xstatecombos2(pos_handle.screen, pos_handle.screen_index, 1<<cmb.attribytes[5]);
+		remove_xstatecombos2(pos_handle.screen, pos_handle.screen_index, 1<<cmb.attribytes[5], false);
 	}
 	else
 	{
@@ -20052,7 +20054,7 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
 
 bool did_secret;
 
-// TODO z3
+// TODO z3 !
 void HeroClass::checkspecial()
 {
     checktouchblk();
@@ -20064,14 +20066,6 @@ void HeroClass::checkspecial()
     else
     {
         // after beating enemies
-        
-        // if room has traps, guys don't come back
-        for(int32_t i=0; i<eMAXGUYS; i++)
-        {
-            if(guysbuf[i].family==eeTRAP&&guysbuf[i].misc2)
-                if(guys.idCount(i) && !getmapflag(mTMPNORET))
-                    setmapflag(mTMPNORET);
-        }
         
         // item
         if(hasitem&(4|2|1))
@@ -20095,20 +20089,46 @@ void HeroClass::checkspecial()
             hasitem &= ~ (4|2|1);
         }
         
-        // clear enemies and open secret
-        if(!did_secret && (tmpscr.flags2&fCLEARSECRET))
-        {
-			bool only16_31 = get_bit(quest_rules,qr_ENEMIES_SECRET_ONLY_16_31)?true:false;
-            hidden_entrance(0,true,only16_31,-2);
-            
-            if(tmpscr.flags4&fENEMYSCRTPERM && canPermSecret(currdmap, currscr))
-            {
-                if(!(tmpscr.flags5&fTEMPSECRETS)) setmapflag(mSECRET);
-            }
-            
-            sfx(tmpscr.secretsfx);
-            did_secret=true;
-        }
+		// generic 'Enemies->' trigger
+		for(auto lyr = 0; lyr < 7; ++lyr)
+		{
+			for(auto pos = 0; pos < 176; ++pos)
+			{
+				newcombo const& cmb = combobuf[FFCore.tempScreens[lyr]->data[pos]];
+				if(cmb.triggerflags[2] & combotriggerKILLENEMIES)
+				{
+					do_trigger_combo(lyr,pos);
+				}
+			}
+		}
+		if(tmpscr.flags9 & fENEMY_WAVES)
+		{
+			hasmainguy = hasMainGuy(); //possibly un-beat the enemies (another 'wave'?)
+		}
+        if(!hasmainguy)
+		{
+			// if room has traps, guys don't come back
+			for(int32_t i=0; i<eMAXGUYS; i++)
+			{
+				if(guysbuf[i].family==eeTRAP&&guysbuf[i].misc2)
+					if(guys.idCount(i) && !getmapflag(mTMPNORET))
+						setmapflag(mTMPNORET);
+			}
+			// clear enemies and open secret
+			if(!did_secret && (tmpscr.flags2&fCLEARSECRET))
+			{
+				bool only16_31 = get_bit(quest_rules,qr_ENEMIES_SECRET_ONLY_16_31)?true:false;
+				hidden_entrance(0,true,only16_31,-2);
+				
+				if(tmpscr.flags4&fENEMYSCRTPERM && canPermSecret(currdmap, currscr))
+				{
+					if(!(tmpscr.flags5&fTEMPSECRETS)) setmapflag(mSECRET);
+				}
+				
+				sfx(tmpscr.secretsfx);
+				did_secret=true;
+			}
+		}
     }
     
     // doors
@@ -27768,6 +27788,7 @@ void HeroClass::checkitems(int32_t index)
 	//   return;
 	item* ptr = (item*)items.spr(index);
 	int32_t pickup = ptr->pickup;
+	int8_t exstate = ptr->pickupexstate;
 	int32_t PriceIndex = ptr->PriceIndex;
 	int32_t id2 = ptr->id;
 	int32_t holdid = ptr->id;
@@ -27991,6 +28012,11 @@ void HeroClass::checkitems(int32_t index)
 		}
 		else if(pickup&ipONETIME2)                                // set mSPECIALITEM flag for other one-time-only items
 			setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+		
+		if(exstate > -1 && exstate < 32)
+		{
+			setxmapflag(1<<exstate);
+		}
 		
 		if(pickup&ipSECRETS)                                // Trigger secrets if this item has the secret pickup
 		{
