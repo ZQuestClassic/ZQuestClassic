@@ -62,7 +62,6 @@ bugs in scrolling mode:
 */
 
 // TODO z3 checklist do all before starting beta
-// pos_handle_t
 // screen secrets:
 //    - trigger all secrets in region
 //    - multiple triggers across many screens in a region (multi-block puzzle)
@@ -347,7 +346,7 @@ int get_screen_index_for_rpos(rpos_t rpos)
 	return scr_xy_to_index(scr_x, scr_y);
 }
 
-pos_handle get_pos_handle(rpos_t rpos, int layer)
+pos_handle_t get_pos_handle(rpos_t rpos, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
 	int screen_index = get_screen_index_for_rpos(rpos);
@@ -355,7 +354,7 @@ pos_handle get_pos_handle(rpos_t rpos, int layer)
 	return {screen, screen_index, layer, rpos};
 }
 
-pos_handle get_pos_handle_for_world_xy(int x, int y, int layer)
+pos_handle_t get_pos_handle_for_world_xy(int x, int y, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
 	return get_pos_handle(COMBOPOS_REGION(x, y), layer);
@@ -917,7 +916,7 @@ int32_t getFFCAt(int32_t x, int32_t y)
     return -1;
 }
 
-int32_t MAPCOMBO(const pos_handle& pos_handle)
+int32_t MAPCOMBO(const pos_handle_t& pos_handle)
 {
 	if (pos_handle.screen->data.empty()) return 0;
 	if (pos_handle.screen->valid == 0) return 0;
@@ -2106,7 +2105,7 @@ bool remove_xstatecombos2(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool t
 	bool didit=false;
 	if(!getxmapflag(mi, 1<<xflag)) return false;
 
-	pos_handle pos_handle;
+	pos_handle_t pos_handle;
 	pos_handle.screen = s;
 	pos_handle.screen_index = scr;
 	pos_handle.layer = 0;
@@ -5309,7 +5308,7 @@ void openshutters()
 		}
 	
 	for_every_screen_in_region([&](mapscr* z3_scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
-		pos_handle pos_handle;
+		pos_handle_t pos_handle;
 		for (auto lyr = 0; lyr < 7; ++lyr)
 		{
 			mapscr* scr = get_layer_scr(currmap, screen_index, lyr - 1);

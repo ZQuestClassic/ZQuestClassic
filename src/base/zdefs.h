@@ -5465,11 +5465,11 @@ enum class rpos_t : int32_t {
 	NONE = -1,
 };
 
-struct pos_handle
+struct pos_handle_t
 {
 	mapscr* screen;
 	int32_t screen_index;
-	// 0 = base screen, 1 = first layer, etc. Up to 6.
+	// 0 = base screen, 1 = layer 1, etc. Up to 6.
 	int32_t layer;
 	rpos_t rpos;
 };

@@ -389,7 +389,7 @@ void spawn_decoration(newcombo const& cmb, int32_t pos)
 	}
 }
 
-void trigger_cuttable(const pos_handle& pos_handle)
+void trigger_cuttable(const pos_handle_t& pos_handle)
 {
 	if(unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return;
 
@@ -520,7 +520,7 @@ void trigger_cuttable(const pos_handle& pos_handle)
 	spawn_decoration(cmb, pos);
 }
 
-bool trigger_step(const pos_handle& pos_handle)
+bool trigger_step(const pos_handle_t& pos_handle)
 {
 	if(unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
 
@@ -722,7 +722,7 @@ bool trigger_warp(newcombo const& cmb)
 	return true;
 }
 
-bool trigger_chest(const pos_handle& pos_handle)
+bool trigger_chest(const pos_handle_t& pos_handle)
 {
 	int pos = RPOS_TO_POS(pos_handle.rpos);
 	if (unsigned(pos_handle.layer) > 6 || unsigned(pos) > unsigned(region_max_rpos)) return false;
@@ -835,7 +835,7 @@ bool trigger_chest(const pos_handle& pos_handle)
 }
 
 // TODO z3 test
-bool trigger_lockblock(const pos_handle& pos_handle)
+bool trigger_lockblock(const pos_handle_t& pos_handle)
 {
 	DCHECK(pos_handle.rpos <= region_max_rpos);
 	
@@ -896,7 +896,7 @@ bool trigger_lockblock(const pos_handle& pos_handle)
 	return true;
 }
 
-bool trigger_armos_grave(const pos_handle& pos_handle, int32_t trigdir)
+bool trigger_armos_grave(const pos_handle_t& pos_handle, int32_t trigdir)
 {
 	if (pos_handle.layer != 0) return false; // Currently cannot activate on layers >0!
 	if (unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
@@ -1148,7 +1148,7 @@ bool trigger_armos_grave(const pos_handle& pos_handle, int32_t trigdir)
 	return true;
 }
 
-bool trigger_damage_combo(const pos_handle& pos_handle)
+bool trigger_damage_combo(const pos_handle_t& pos_handle)
 {
 	int pos = RPOS_TO_POS(pos_handle.rpos);
 	if (unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
@@ -1223,7 +1223,7 @@ bool trigger_damage_combo(const pos_handle& pos_handle)
 	return false;
 }
 
-bool trigger_stepfx(const pos_handle& pos_handle, bool stepped)
+bool trigger_stepfx(const pos_handle_t& pos_handle, bool stepped)
 {
 	if (unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
 
@@ -1415,7 +1415,7 @@ bool trigger_stepfx(const pos_handle& pos_handle, bool stepped)
 	return true;
 }
 
-bool trigger_switchhookblock(const pos_handle& pos_handle)
+bool trigger_switchhookblock(const pos_handle_t& pos_handle)
 {
 	if (unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
 	if(Hero.switchhookclk) return false;
@@ -1645,7 +1645,7 @@ void do_ex_trigger(int32_t lyr, int32_t pos)
 		}
 	}
 }
-bool force_ex_trigger(const pos_handle& pos_handle, char xstate)
+bool force_ex_trigger(const pos_handle_t& pos_handle, char xstate)
 {
 	if (unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
 	int pos = RPOS_TO_POS(pos_handle.rpos);
@@ -1669,7 +1669,7 @@ bool do_trigger_combo(int layer, int pos, int32_t special, weapon* w)
 }
 
 // Forcibly triggers a combo at a given position
-bool do_trigger_combo(const pos_handle& pos_handle, int32_t special, weapon* w)
+bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w)
 {
 	if (unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
 
@@ -2049,7 +2049,7 @@ static void handle_shooter(newcombo const& cmb, cmbtimer& timer, rpos_t rpos)
 void update_combo_timers()
 {
 	for_every_screen_in_region([&](mapscr* z3_scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
-		pos_handle pos_handle;
+		pos_handle_t pos_handle;
 		for (auto lyr = 0; lyr < 7; ++lyr)
 		{
 			mapscr* scr = get_layer_scr(currmap, screen_index, lyr - 1);

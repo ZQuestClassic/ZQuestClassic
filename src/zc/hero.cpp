@@ -5287,7 +5287,7 @@ void HeroClass::check_pound_block(int32_t bx, int32_t by)
     int32_t pos = RPOS_TO_POS(rpos);
     if (unsigned(rpos) > unsigned(region_max_rpos))
         return;
-	pos_handle pos_handle = get_pos_handle(rpos, 0);
+	pos_handle_t pos_handle = get_pos_handle(rpos, 0);
         
     bool ignorescreen=false;
     bool ignoreffc=false;

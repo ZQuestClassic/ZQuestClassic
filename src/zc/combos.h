@@ -22,17 +22,17 @@ bool try_locked_combo(newcombo const& cmb);
 
 void trigger_sign(newcombo const& cmb, int screen_index);
 void trigger_sign(newcombo const& cmb);
-void trigger_cuttable(const pos_handle& pos_handle);
-bool trigger_step(const pos_handle& pos_handle);
-bool trigger_chest(const pos_handle& pos_handle);
-bool trigger_lockblock(const pos_handle& pos_handle);
-bool trigger_armos_grave(const pos_handle& pos_handle, int32_t trigdir = -1);
-bool trigger_stepfx(const pos_handle& pos_handle, bool stepped = false);
+void trigger_cuttable(const pos_handle_t& pos_handle);
+bool trigger_step(const pos_handle_t& pos_handle);
+bool trigger_chest(const pos_handle_t& pos_handle);
+bool trigger_lockblock(const pos_handle_t& pos_handle);
+bool trigger_armos_grave(const pos_handle_t& pos_handle, int32_t trigdir = -1);
+bool trigger_stepfx(const pos_handle_t& pos_handle, bool stepped = false);
 
-void do_ex_trigger(const pos_handle& pos_handle);
-bool force_ex_trigger(const pos_handle& pos_handle, char xstate = -1);
+void do_ex_trigger(const pos_handle_t& pos_handle);
+bool force_ex_trigger(const pos_handle_t& pos_handle, char xstate = -1);
 bool do_trigger_combo(int layer, int pos, int32_t special = 0, weapon* w = NULL);
-bool do_trigger_combo(const pos_handle& pos_handle, int32_t special = 0, weapon* w = NULL);
+bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special = 0, weapon* w = NULL);
 
 void init_combo_timers();
 void update_combo_timers();
