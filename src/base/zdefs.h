@@ -3938,6 +3938,7 @@ struct combo_pool
 	combo_pool& operator=(combo_pool const& other);
 	void push(int32_t cid, int8_t cs, word q=1); //add a quantity of a combo entry
 	void add(int32_t cid, int8_t cs, word q=1); //add a new combo entry
+	void swap(size_t ind1, size_t ind2);
 	void erase(size_t ind); //Remove a combo
 	void trim(); //Trim any invalid entries
 	cpool_entry const* get_ind(size_t index) const;

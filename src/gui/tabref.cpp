@@ -32,6 +32,7 @@ void TabRef::calculateSize()
 	content->calculateSize();
 	setPreferredWidth(Size::pixels(content->getTotalWidth()));
 	setPreferredHeight(Size::pixels(content->getTotalHeight()));
+	Widget::calculateSize();
 }
 
 void TabRef::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)

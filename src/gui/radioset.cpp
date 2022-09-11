@@ -85,6 +85,7 @@ void RadioSet::calculateSize()
 	content->calculateSize();
 	setPreferredWidth(Size::pixels(content->getWidth()));
 	setPreferredHeight(Size::pixels(content->getHeight()));
+	Widget::calculateSize();
 }
 
 void RadioSet::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)

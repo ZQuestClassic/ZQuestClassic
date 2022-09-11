@@ -293,6 +293,7 @@ void SelTileSwatch::calculateSize()
 	Size h = (th*sized(16_px,32_px))+4_px;
 	setPreferredWidth(w + (showsVals ? text_length(widgFont, "Tile: 999999") : 0));
 	setPreferredHeight(h);
+	Widget::calculateSize();
 }
 
 void SelTileSwatch::calc_selcolor()

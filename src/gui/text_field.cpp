@@ -86,7 +86,7 @@ void TextField::setVal(int32_t val)
 		}
 		
 	}
-	std::string_view v(buf);
+	std::string v(buf);
 	//
 	size_t s = 1;
 	switch(tfType)
@@ -108,8 +108,7 @@ void TextField::setVal(int32_t val)
 	}
 	check_len(s);
 	//
-	v.copy(buffer.get(), maxLength);
-	buffer[std::min(maxLength, v.size())] = '\0';
+	strcpy(buffer.get(), v.c_str());
 	
 	Size nsz = Size::largePixels(isSwapType() ? 16 : 0) + Size::pixels(gui_text_width(widgFont, &buffer[0]));
 	if(getWidth() < nsz)

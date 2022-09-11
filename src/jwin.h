@@ -168,7 +168,7 @@ enum guiEvent
 
 enum
 {
-	ONTICK_EXIT = -1, ONTICK_CONTINUE, ONTICK_CLOSE
+	ONTICK_EXIT = -1, ONTICK_CONTINUE, ONTICK_CLOSE, ONTICK_REDRAW
 };
 
 #define GUI_EVENT(dlg, event)                  \

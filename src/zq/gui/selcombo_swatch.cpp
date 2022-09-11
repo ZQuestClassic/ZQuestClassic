@@ -12,6 +12,12 @@
 #include "zquest.h"
 #include "zq_tiles.h"
 
+static int32_t copy_combo=0, copy_cset=0;
+void set_combo_copy()
+{
+	copy_combo = Combo;
+	copy_cset = CSet;
+}
 int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 {
 	switch(msg)
@@ -23,18 +29,17 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 			
 			if(key[KEY_ALT])
 			{
-				if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-				{
-					d->d2 = CSet;
-					GUI_EVENT(d, geCHANGE_SELECTION);
-				}
-				else
-				{
-					d->d1 = Combo;
-					d->d2 = CSet;
-					GUI_EVENT(d, geCHANGE_SELECTION);
-				}
+				if(!(key[KEY_LSHIFT] || key[KEY_RSHIFT]))
+					d->d1 = copy_combo;
+				d->d2 = copy_cset;
+				GUI_EVENT(d, geCHANGE_SELECTION);
 				return D_REDRAW;
+			}
+			else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+			{
+				if(!(key[KEY_LSHIFT] || key[KEY_RSHIFT]))
+					copy_combo = d->d1;
+				copy_cset = d->d2;
 			}
 			else if(gui_mouse_b()&2) //rclick
 			{
@@ -52,7 +57,7 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 			}
 		}
 		break;
-
+		
 		case MSG_DRAW:
 			BITMAP *buf = create_bitmap_ex(8,20,20);
 			BITMAP *bigbmp = create_bitmap_ex(8,d->h,d->h);
@@ -62,7 +67,7 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 				clear_bitmap(buf);
 				
 				if(d->d1)
-					overtile16(buf,combobuf[d->d1].o_tile,2,2,d->d2,0);
+					overtile16(buf,combobuf[d->d1].tile,2,2,d->d2,combobuf[d->d1].flip);
 					
 				stretch_blit(buf, bigbmp, 2,2, 17, 17, 2, 2, d->h-4, d->h-4);
 				destroy_bitmap(buf);
@@ -177,6 +182,7 @@ void SelComboSwatch::calculateSize()
 	Size s = sized(16_px,32_px)+4_px;
 	setPreferredWidth(s + (showsVals ? 3_spx+text_length(widgFont, "Combo: 99999") : 0_px));
 	setPreferredHeight(s);
+	Widget::calculateSize();
 }
 
 int32_t SelComboSwatch::onEvent(int32_t event, MessageDispatcher& sendMessage)

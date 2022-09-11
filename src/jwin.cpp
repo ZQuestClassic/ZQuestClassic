@@ -7931,6 +7931,8 @@ int32_t d_vsync_proc(int32_t msg,DIALOG *d,int32_t c)
 									return ret;
 							}
 							return D_EXIT;
+						case ONTICK_REDRAW:
+							return D_REDRAW;
 					}
 				}
 			}

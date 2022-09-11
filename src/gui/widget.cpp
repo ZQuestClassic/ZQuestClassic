@@ -183,13 +183,18 @@ void Widget::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 		contW = maxwidth;
 	if(maxheight > -1 && contH > maxheight)
 		contH = maxheight;
+	int32_t forceW = contW, forceH = contH;
+	if(minwidth > -1 && forceW < minwidth)
+		forceW = minwidth;
+	if(minheight > -1 && forceH < minheight)
+		forceH = minheight;
 	if(flags & f_FORCE_FIT_W)
 	{
-		overrideWidth(Size::pixels(contW));
+		overrideWidth(Size::pixels(forceW));
 	}
 	if(flags & f_FORCE_FIT_H)
 	{
-		overrideHeight(Size::pixels(contH));
+		overrideHeight(Size::pixels(forceH));
 	}
 	if(flags&f_FIT_PARENT)
 	{

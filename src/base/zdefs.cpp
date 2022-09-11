@@ -833,6 +833,33 @@ void combo_pool::add(int32_t cid, int8_t cs, word q) //add a new combo entry
 	totalweight += q;
 	combos.emplace_back(cid,cs,q);
 }
+void combo_pool::swap(size_t ind1, size_t ind2) //Swap 2 combos
+{
+	if(ind1 >= combos.size()) return;
+	if(ind2 >= combos.size()) return;
+	
+	auto it1 = combos.begin();
+	for(size_t q = 0; q < ind1 && it1 != combos.end(); ++q)
+		++it1;
+	if(it1 == combos.end()) return;
+	
+	auto it2 = combos.begin();
+	for(size_t q = 0; q < ind2 && it2 != combos.end(); ++q)
+		++it2;
+	if(it2 == combos.end()) return;
+	
+	cpool_entry cp1 = *it1;
+	cpool_entry cp2 = *it2;
+	it1 = combos.insert(it1, cp2);
+	it1 = combos.erase(++it1);
+	//it2 is invalidated, find it again?
+	it2 = combos.begin();
+	for(size_t q = 0; q < ind2 && it2 != combos.end(); ++q)
+		++it2;
+	if(it2 == combos.end()) assert(false); //should never happen
+	it2 = combos.insert(it2, cp1);
+	it2 = combos.erase(++it2);
+}
 void combo_pool::erase(size_t ind) //Remove a combo
 {
 	if(ind >= combos.size()) return;
@@ -872,9 +899,10 @@ cpool_entry const* combo_pool::get_ind(size_t index) const
 }
 cpool_entry const* combo_pool::get_w(size_t weight_index) const
 {
-	if(!combos.size())
+	if(!combos.size() || totalweight < 1
+		|| weight_index >= size_t(totalweight))
 		return nullptr;
-	auto curweight = 0;
+	size_t curweight = 0;
 	for(cpool_entry const& cp : combos)
 	{
 		curweight += cp.quant;
@@ -885,6 +913,8 @@ cpool_entry const* combo_pool::get_w(size_t weight_index) const
 }
 cpool_entry const* combo_pool::pick() const
 {
+	if(totalweight < 1)
+		return nullptr;
 	return get_w(zc_rand(totalweight-1));
 }
 static bool load_entry(cpool_entry const* entry, int32_t& cid, int8_t& cs)
@@ -931,5 +961,4 @@ cpool_entry* combo_pool::get(int32_t cid, int8_t cs)
 	}
 	return nullptr;
 }
-
 
