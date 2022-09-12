@@ -6147,7 +6147,12 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 
 void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* screen)
 {
+	// This is a bogus value while screenscrolling == true, but that's ok
+	// because it is only used to calculate the rpos, and during screenscrolling
+	// only the modulus to get pos (draw_cmb_pos does RPOS_TO_POS) is needed, which
+	// is always the same no matter the value of scr.
 	int scr = get_screen_index_for_world_xy(x, y);
+
 	x -= viewport.x;
 	y -= viewport.y;
 

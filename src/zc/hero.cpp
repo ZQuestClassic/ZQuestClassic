@@ -24257,10 +24257,12 @@ void HeroClass::calc_darkroom_hero2(int32_t x1, int32_t y1)
 	}
 }
 
-static void for_every_nearby_screen_during_scroll(const std::vector<mapscr*>& old_temporary_screens, const std::function <void (mapscr*[], int, int, int, int)>& fn)
+static void for_every_nearby_screen_during_scroll(
+	const std::vector<mapscr*>& old_temporary_screens,
+	const std::function <void (mapscr*[], int, int, int, int)>& fn)
 {
 	int old_region = get_region_id(scrolling_dmap, scrolling_scr);
-	int new_region = get_region_id(currdmap, currscr);
+	int new_region = get_region_id(scrolling_destdmap, currscr);
 	bool is_region_scrolling = old_region || new_region;
 
 	// TODO z3 is this odd ordering necessary still?
@@ -24270,15 +24272,15 @@ static void for_every_nearby_screen_during_scroll(const std::vector<mapscr*>& ol
 	{
 		for (int draw_dy = -1; draw_dy <= 1; draw_dy++)
 		{
-			// Depending on which direction we are scrolling, need to select from the correct set of screens.
-			bool use_old_screens = !(XY_DELTA_TO_DIR(draw_dx, 0) == scrolling_dir || XY_DELTA_TO_DIR(0, draw_dy) == scrolling_dir);
-			int base_map = use_old_screens ? scrolling_map : currmap;
-			int base_dmap = use_old_screens ? scrolling_dmap : currdmap;
-			int base_scr = use_old_screens ? scrolling_scr : currscr;
+			// Depending on which direction we are scrolling, need to select the correct set of screens.
+			bool use_new_screens = XY_DELTA_TO_DIR(draw_dx, 0) == scrolling_dir || XY_DELTA_TO_DIR(0, draw_dy) == scrolling_dir;
+			int base_map = use_new_screens ? currmap : scrolling_map;
+			int base_dmap = use_new_screens ? scrolling_destdmap : scrolling_dmap;
+			int base_scr = use_new_screens ? currscr : scrolling_scr;
 			int base_scr_x = base_scr % 16;
 			int base_scr_y = base_scr / 16;
 
-			if (!use_old_screens)
+			if (use_new_screens)
 			{
 				if (scrolling_dir == up || scrolling_dir == down) base_scr_y -= draw_dy;
 				else                                              base_scr_x -= draw_dx;
@@ -24296,9 +24298,9 @@ static void for_every_nearby_screen_during_scroll(const std::vector<mapscr*>& ol
 			// if (scr == scrolling_scr || scr == currscr || (old_region && old_region == region) || (new_region && region == new_region))
 			{
 				global_z3_cur_scr_drawing = scr;
-				mapscr* base_screen = use_old_screens ?
-					old_temporary_screens[scr*7] :
-					get_scr(base_map, scr);
+				mapscr* base_screen = use_new_screens ?
+					get_scr(base_map, scr) :
+					old_temporary_screens[scr*7];
 				if (base_screen)
 				{
 					int dx = draw_dx + z3_get_region_relative_dx(currscr);
@@ -24313,9 +24315,9 @@ static void for_every_nearby_screen_during_scroll(const std::vector<mapscr*>& ol
 					screens[0] = base_screen;
 					for (int i = 1; i < 7; i++)
 					{
-						screens[i] = use_old_screens ?
-							old_temporary_screens[scr*7 + i] :
-							get_layer_scr(base_map, scr, i - 1);
+						screens[i] = use_new_screens ?
+							get_layer_scr(base_map, scr, i - 1) :
+							old_temporary_screens[scr*7 + i];
 					}
 
 					fn(screens, base_map, scr, dx, dy);
@@ -24597,6 +24599,12 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		destscr = currscr + dir_to_scr_offset((direction)scrolldir);
 	}
 	currmap = destmap;
+
+	// Can't change currdmap before scrolling is done, because some places requires currdmap to remain the same:
+	//   - fade
+	//   - lighting
+	//   - more?
+	scrolling_destdmap = destdmap == -1 ? currdmap : destdmap;
 
 	// Remember everything about the current region, because `loadscr` is about to reset this data.
 	std::vector<mapscr*> old_temporary_screens = z3_take_temporary_screens();
@@ -25043,6 +25051,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		// Draw screens' background layer primitives together, after their layers' combos.
 		// Not ideal, but probably good enough for all realistic purposes.
 		// Note: Not drawing for every screen because the old scrolling code only did this for the new screen...
+		// TODO z3
 		if(XOR(any_screen_layer2bg, DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, 0, 0);
 		if(XOR(any_screen_layer3bg, DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, 0, 0);
 
@@ -25300,7 +25309,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	FFCore.ScrollingData[SCROLLDATA_OX] = 0;
 	FFCore.ScrollingData[SCROLLDATA_OY] = 0;
 	
-	if(destdmap != -1)
+	if (destdmap != -1)
 	{
 		if(currdmap != destdmap)
 			timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);

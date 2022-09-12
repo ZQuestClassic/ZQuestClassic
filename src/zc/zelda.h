@@ -396,7 +396,7 @@ extern int32_t currscr;
 // The initial screen that the player loads into when entering a region. If not in region mode, this is equal to currscr.
 // Corresponds to tmpscr and tmpscr2.
 extern int32_t initial_region_scr;
-extern int32_t frame,currmap,dlevel,warpscr,worldscr,scrolling_scr,scrolling_map,scrolling_dmap;
+extern int32_t frame,currmap,dlevel,warpscr,worldscr,scrolling_scr,scrolling_map,scrolling_dmap,scrolling_destdmap;
 extern direction scrolling_dir;
 extern int32_t newscr_clk,opendoors,currdmap,fadeclk,currgame,listpos;
 extern int32_t lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn, Xwpn, Ywpn;
