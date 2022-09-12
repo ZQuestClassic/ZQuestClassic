@@ -134,7 +134,8 @@ void sel_combo(int32_t &tile, int32_t &tile2, int32_t s, bool cols);
 
 //extern word ctable[MAXCOMBOS];
 
-int32_t select_combo_2(int32_t &tile,int32_t &cs);
+bool select_combo_2(int32_t &cmb,int32_t &cs);
+bool select_combo_3(int32_t &cmb,int32_t &cs);
 int32_t combo_screen(int32_t pg, int32_t tl);
 int32_t onCombos();
 

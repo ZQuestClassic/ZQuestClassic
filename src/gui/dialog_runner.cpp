@@ -100,14 +100,8 @@ void DialogRunner::realize(shared_ptr<Widget> root)
 	dialogConstructed.emit();
 }
 
-#ifdef IS_ZQUEST
-void set_combo_copy();
-#endif
 void DialogRunner::runInner(std::shared_ptr<Widget> root)
 {
-	#ifdef IS_ZQUEST
-	set_combo_copy();
-	#endif
 	realize(root);
 	realized = true;
 	new_gui_popup_dialog(alDialog.data(), focused, done, running);

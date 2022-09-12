@@ -5,6 +5,7 @@
 #include <boost/format.hpp>
 #include "zc_list_data.h"
 #include "gui/use_size.h"
+#include "zq_tiles.h"
 
 extern bool saved;
 combo_pool temp_cpool;
@@ -12,6 +13,7 @@ combo_pool copy_cpool;
 static bool copied_cpool = false;
 static combo_pool* retptr;
 static int32_t cursor_cset;
+static bool new_usecs = false;
 
 extern int32_t CSet;
 extern combo_pool combo_pools[];
@@ -54,6 +56,15 @@ std::shared_ptr<GUI::Widget> ComboPoolDialog::view()
 		onClose = message::CANCEL,
 		Column(
 			wingrid = Column(padding=0_px),
+			Row(
+				Checkbox(colSpan = 3,
+					text = "New Combos default 'Use CSet'", topPadding = 0_px,
+					checked = new_usecs,
+					onToggleFunc = [&](bool state)
+					{
+						new_usecs = state;
+					})
+			),
 			Row(
 				vAlign = 1.0,
 				spacing = 2_em,
@@ -228,7 +239,9 @@ std::shared_ptr<GUI::Widget> ComboPoolDialog::view()
 			onClick = message::RELOAD,
 			onPressFunc = [&]()
 			{
-				temp_cpool.add(0,-1,1);
+				int32_t cmb,cs;
+				if(select_combo_3(cmb,cs))
+					temp_cpool.add(cmb,new_usecs ? cs : -1,1);
 			})
 	));
 	if(ind/per_row >= vis_rows)

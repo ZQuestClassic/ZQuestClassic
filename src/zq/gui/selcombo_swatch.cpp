@@ -12,12 +12,6 @@
 #include "zquest.h"
 #include "zq_tiles.h"
 
-static int32_t copy_combo=0, copy_cset=0;
-void set_combo_copy()
-{
-	copy_combo = Combo;
-	copy_cset = CSet;
-}
 int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 {
 	switch(msg)
@@ -26,20 +20,14 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 		{
 			int32_t cmb = d->d1;
 			int32_t cs = d->d2;
-			
+			bool ctrl = key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL];
 			if(key[KEY_ALT])
 			{
 				if(!(key[KEY_LSHIFT] || key[KEY_RSHIFT]))
-					d->d1 = copy_combo;
-				d->d2 = copy_cset;
+					d->d1 = Combo;
+				d->d2 = CSet;
 				GUI_EVENT(d, geCHANGE_SELECTION);
 				return D_REDRAW;
-			}
-			else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-			{
-				if(!(key[KEY_LSHIFT] || key[KEY_RSHIFT]))
-					copy_combo = d->d1;
-				copy_cset = d->d2;
 			}
 			else if(gui_mouse_b()&2) //rclick
 			{
@@ -48,12 +36,15 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 				GUI_EVENT(d, geCHANGE_SELECTION);
 				return D_REDRAW;
 			}
-			else if((gui_mouse_b()&1) && select_combo_2(cmb,cs))
+			else if(gui_mouse_b()&1)
 			{
-				d->d1 = cmb;
-				d->d2 = cs;
-				GUI_EVENT(d, geCHANGE_SELECTION);
-				return D_REDRAW;
+				if(ctrl ? select_combo_3(cmb,cs) : select_combo_2(cmb,cs))
+				{
+					d->d1 = cmb;
+					d->d2 = cs;
+					GUI_EVENT(d, geCHANGE_SELECTION);
+					return D_REDRAW;
+				}
 			}
 		}
 		break;

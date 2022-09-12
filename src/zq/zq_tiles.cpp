@@ -16647,14 +16647,14 @@ void draw_combo_list_window()
 }
 
 
-
-int32_t select_combo_2(int32_t &tile,int32_t &cs)
+static int32_t _selected_combo=-1, _selected_cset=-1;
+bool select_combo_2(int32_t &cmb,int32_t &cs)
 {
 	reset_combo_animations();
 	reset_combo_animations2();
-	// static int32_t tile=0;
-	int32_t page=tile>>8;
-	int32_t tile2=tile;
+	// static int32_t cmb=0;
+	int32_t page=cmb>>8;
+	int32_t tile2=cmb;
 	int32_t done=0;
 	int32_t tile_clicked=-1;
 	int32_t t2;
@@ -16694,7 +16694,7 @@ int32_t select_combo_2(int32_t &tile,int32_t &cs)
 	
 	draw_combo_list_window();
 	draw_combos(page,cs,combo_cols);
-	combo_info(tile,tile2,cs,copy,copycnt,page,4);
+	combo_info(cmb,tile2,cs,copy,copycnt,page,4);
 	unscare_mouse();
 	
 	while(gui_mouse_b())
@@ -16715,7 +16715,7 @@ int32_t select_combo_2(int32_t &tile,int32_t &cs)
 			if(page<COMBO_PAGES-1)
 			{
 				++page;
-				tile=tile2=(page<<8)+(tile&0xFF);
+				cmb=tile2=(page<<8)+(cmb&0xFF);
 			}
 			
 			position_mouse_z(0);
@@ -16726,7 +16726,7 @@ int32_t select_combo_2(int32_t &tile,int32_t &cs)
 			if(page>0)
 			{
 				--page;
-				tile=tile2=(page<<8)+(tile&0xFF);
+				cmb=tile2=(page<<8)+(cmb&0xFF);
 			}
 			
 			position_mouse_z(0);
@@ -16738,7 +16738,7 @@ int32_t select_combo_2(int32_t &tile,int32_t &cs)
 			switch(readkey()>>8)
 			{
 			case KEY_DEL:
-				tile=0;
+				cmb=0;
 				done=2;
 				break;
 				
@@ -16773,22 +16773,22 @@ int32_t select_combo_2(int32_t &tile,int32_t &cs)
 				break;
 				
 			case KEY_UP:
-				sel_combo(tile,tile2,-COMBOS_PER_ROW,combo_cols);
+				sel_combo(cmb,tile2,-COMBOS_PER_ROW,combo_cols);
 				redraw=true;
 				break;
 				
 			case KEY_DOWN:
-				sel_combo(tile,tile2,COMBOS_PER_ROW,combo_cols);
+				sel_combo(cmb,tile2,COMBOS_PER_ROW,combo_cols);
 				redraw=true;
 				break;
 				
 			case KEY_LEFT:
-				sel_combo(tile,tile2,-1,combo_cols);
+				sel_combo(cmb,tile2,-1,combo_cols);
 				redraw=true;
 				break;
 				
 			case KEY_RIGHT:
-				sel_combo(tile,tile2,1,combo_cols);
+				sel_combo(cmb,tile2,1,combo_cols);
 				redraw=true;
 				break;
 				
@@ -16796,7 +16796,7 @@ int32_t select_combo_2(int32_t &tile,int32_t &cs)
 				if(page>0)
 				{
 					--page;
-					tile=tile2=(page<<8)+(tile&0xFF);
+					cmb=tile2=(page<<8)+(cmb&0xFF);
 				}
 				
 				redraw=true;
@@ -16806,7 +16806,7 @@ int32_t select_combo_2(int32_t &tile,int32_t &cs)
 				if(page<COMBO_PAGES-1)
 				{
 					++page;
-					tile=tile2=(page<<8)+(tile&0xFF);
+					cmb=tile2=(page<<8)+(cmb&0xFF);
 				}
 				
 				redraw=true;
@@ -16819,7 +16819,7 @@ int32_t select_combo_2(int32_t &tile,int32_t &cs)
 				if(!cancelgetnum)
 					page=(zc_min(choosepage,COMBO_PAGES-1));
 					
-				tile=tile2=(page<<8)+(tile&0xFF);
+				cmb=tile2=(page<<8)+(cmb&0xFF);
 				redraw=true;
 				break;
 			}
@@ -16860,7 +16860,7 @@ int32_t select_combo_2(int32_t &tile,int32_t &cs)
 				
 				bound(t,0,255);
 				t+=page<<8;
-				tile=tile2=t;
+				cmb=tile2=t;
 				
 				if(tile_clicked!=t)
 				{
@@ -16947,8 +16947,8 @@ int32_t select_combo_2(int32_t &tile,int32_t &cs)
 				bound(t,0,255);
 				t+=page<<8;
 				
-				if(t<zc_min(tile,tile2) || t>zc_max(tile,tile2))
-					tile=tile2=t;
+				if(t<zc_min(cmb,tile2) || t>zc_max(cmb,tile2))
+					cmb=tile2=t;
 			}
 			
 			bdown = r_click = true;
@@ -16961,14 +16961,14 @@ int32_t select_combo_2(int32_t &tile,int32_t &cs)
 		if(redraw)
 			draw_combos(page,cs,combo_cols);
 			
-		combo_info(tile,tile2,cs,copy,copycnt,page,4);
+		combo_info(cmb,tile2,cs,copy,copycnt,page,4);
 		
 		if(f&8)
 		{
 			int32_t x,y;
 			scare_mouse();
 			
-			for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
+			for(int32_t i=zc_min(cmb,tile2); i<=zc_max(cmb,tile2); i++)
 			{
 				if((i>>8)==page)
 				{
@@ -17026,7 +17026,27 @@ down:
 	comeback();
 	setup_combo_animations();
 	setup_combo_animations2();
-	return done-1;
+	
+	bool ret = done==2;
+	if(ret)
+	{
+		_selected_combo = cmb;
+		_selected_cset = cs;
+	}
+	
+	return ret;
+}
+
+bool select_combo_3(int32_t &cmb,int32_t &cs)
+{
+	if(_selected_combo < 0)
+	{
+		_selected_combo = Combo;
+		_selected_cset = CSet;
+	}
+	cmb = _selected_combo;
+	cs = _selected_cset;
+	return select_combo_2(cmb,cs);
 }
 
 static DIALOG advpaste_dlg[] =
@@ -17996,6 +18016,8 @@ REDRAW:
 	comeback();
 	setup_combo_animations();
 	setup_combo_animations2();
+	_selected_combo = tile;
+	_selected_cset = cs;
 	return done-1;
 }
 
