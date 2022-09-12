@@ -10072,6 +10072,51 @@ int32_t writecomboaliases(PACKFILE *f, word version, word build)
                 }
             }
         }
+		
+		//Combo pools!
+		int16_t num_cpools;
+		for(num_cpools = MAXCOMBOPOOLS-1; num_cpools >= 0; --num_cpools)
+		{
+			if(combo_pools[num_cpools].valid()) //found a used pool
+			{
+				++num_cpools;
+				break;
+			}
+		}
+		if(num_cpools < 0) num_cpools = 0;
+		
+        if(!p_iputw(num_cpools,f))
+        {
+            new_return(12);
+        }
+		
+		for(auto cp = 0; cp < num_cpools; ++cp)
+		{
+			combo_pool const& pool = combo_pools[cp];
+			int32_t num_combos = pool.combos.size();
+			if(!p_iputl(num_combos,f))
+			{
+				new_return(13);
+			}
+			
+			for(auto q = 0; q < num_combos; ++q)
+			{
+				cpool_entry const& entry = pool.combos.at(q);
+				if(!p_iputl(entry.cid,f))
+				{
+					new_return(14);
+				}
+				if(!p_putc(entry.cset,f))
+				{
+					new_return(15);
+				}
+				if(!p_iputw(entry.quant,f))
+				{
+					new_return(16);
+				}
+			}
+		}
+		
         
         if(writecycle==0)
         {

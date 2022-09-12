@@ -268,7 +268,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        28
-#define V_COMBOALIASES     3
+#define V_COMBOALIASES     4
 #define V_HEROSPRITES      15
 #define V_SUBSCREEN        7
 #define V_ITEMDROPSETS     2
@@ -3887,6 +3887,7 @@ struct dmap
 #define OLDMAXCOMBOALIASES 256
 #define MAX250COMBOALIASES 2048
 #define MAXCOMBOALIASES 8192
+#define MAXCOMBOPOOLS 8192
 
 struct combo_alias
 {
@@ -3906,6 +3907,66 @@ struct combo_alias
     word cset;
     word *combos;    // Dynamic array. Will be stored in quest.
     byte *csets;
+};
+
+struct cpool_entry
+{
+	int32_t cid;
+	int8_t cset;
+	word quant;
+	void clear()
+	{
+		cid = -1;
+		cset = -1;
+		quant = 0;
+	}
+	bool valid() const
+	{
+		return quant > 0 && unsigned(cid) < MAXCOMBOS;
+	}
+	cpool_entry() { clear(); }
+	cpool_entry(int32_t data,int8_t cs,word q) :
+		cid(data), cset(cs), quant(q)
+	{}
+};
+struct combo_pool
+{
+	std::vector<cpool_entry> combos;
+	
+	combo_pool() : totalweight(0)
+	{}
+	combo_pool& operator=(combo_pool const& other);
+	void push(int32_t cid, int8_t cs, word q=1); //add a quantity of a combo entry
+	void add(int32_t cid, int8_t cs, word q=1); //add a new combo entry
+	void swap(size_t ind1, size_t ind2);
+	void erase(size_t ind); //Remove a combo
+	void trim(); //Trim any invalid entries
+	cpool_entry const* get_ind(size_t index) const;
+	cpool_entry const* get_w(size_t weight_index) const;
+	cpool_entry const* pick() const;
+	bool get_ind(int32_t& cid, int8_t& cs, size_t index) const;
+	bool get_w(int32_t& cid, int8_t& cs, size_t weight_index) const;
+	bool pick(int32_t& cid, int8_t& cs) const;
+	void clear()
+	{
+		combos.clear();
+		combos.shrink_to_fit();
+		totalweight = 0;
+	}
+	void recalc();
+	size_t getTotalWeight() const
+	{
+		return totalweight;
+	}
+	bool valid() const
+	{
+		return totalweight > 0;
+	}
+private:
+	//Does not need saving
+	size_t totalweight;
+	
+	cpool_entry* get(int32_t cid, int8_t cs); //get a combo existing in the list
 };
 
 struct shoptype

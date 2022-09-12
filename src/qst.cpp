@@ -127,6 +127,7 @@ const byte clavio[9]={97,109,111,110,103,117,115,0};
 //       qe_missing, qe_internal, qe_pwd, qe_match, qe_minver };
 
 extern combo_alias combo_aliases[MAXCOMBOALIASES];
+extern combo_pool combo_pools[MAXCOMBOPOOLS];
 const char *qst_error[] =
 {
     "OK","File not found","Invalid quest file",
@@ -18589,6 +18590,56 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
         }
     }
     
+	word num_combo_pools = 0;
+	if(sversion >= 4)
+	{
+		if(!p_igetw(&num_combo_pools,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	
+	for(combo_pool& pool : combo_pools)
+	{
+		pool.clear();
+	}
+	
+	combo_pool temp_cpool;
+	for(word cp = 0; cp < num_combo_pools; ++cp)
+	{
+		int32_t num_combos_in_pool = 0;
+		if(!p_igetl(&num_combos_in_pool,f,true))
+		{
+			return qe_invalid;
+		}
+		if(num_combos_in_pool < 1) continue; //nothing to read
+		
+		temp_cpool.clear();
+		
+		int32_t cp_cid; int8_t cp_cs; word cp_quant;
+		for(auto q = 0; q < num_combos_in_pool; ++q)
+		{
+			if(!p_igetl(&cp_cid,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_getc(&cp_cs,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetw(&cp_quant,f,true))
+			{
+				return qe_invalid;
+			}
+			temp_cpool.add(cp_cid, cp_cs, cp_quant);
+		}
+			
+		if(keepdata)
+		{
+			combo_pools[cp] = temp_cpool;
+		}
+	}
+	
     return 0;
 }
 

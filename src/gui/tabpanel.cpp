@@ -106,6 +106,7 @@ void TabPanel::calculateSize()
 		setPreferredWidth(Size::pixels(maxW+6));
 		setPreferredHeight(Size::pixels(text_height(widgFont) + sized(7,4)) + Size::pixels(maxH));
 	}
+	Widget::calculateSize();
 }
 
 void TabPanel::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)

@@ -93,6 +93,7 @@ void Radio::realize(DialogRunner& runner)
 void Radio::calculateSize()
 {
 	setPreferredWidth(9_spx+12_px+Size::pixels(gui_text_width(widgFont, text.c_str())));
+	Widget::calculateSize();
 }
 
 int32_t Radio::onEvent(int32_t event, MessageDispatcher& sendMessage)

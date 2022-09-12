@@ -71,7 +71,9 @@ public:
 	
 	void forceDraw()
 	{
+		acquire_screen();
 		broadcast_dialog_message(MSG_DRAW, 0);
+		release_screen();
 		redrawPending = false;
 	}
 

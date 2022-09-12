@@ -102,6 +102,7 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 
 		case MSG_DRAW:
 		{
+			acquire_screen();
 			rectfill(gui_get_screen(), d->x, d->y, d->x+d->w-1, d->y+d->h-1, d->bg);
 			d->flags &= ~D_GOTFOCUS;
 			_jwin_draw_scrollable_frame(d, sp->contentHeight, sp->scrollPos, d->h, 0);
@@ -128,6 +129,7 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 				}
 			}
 			END_CLIP();
+			release_screen();
 			break;
 		}
 		case MSG_CLICK:
@@ -249,6 +251,7 @@ void ScrollingPane::calculateSize()
 		contentHeight=content->getTotalHeight();
 		maxScrollPos=contentHeight-getHeight();
 	}
+	Widget::calculateSize();
 }
 
 void ScrollingPane::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)

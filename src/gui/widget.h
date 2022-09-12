@@ -145,7 +145,11 @@ public:
 	 * This doesn't need to be implemented if they're set already
 	 * before the dialog is realized.
 	 */
-	virtual void calculateSize() {}
+	virtual void calculateSize()
+	{
+		setPreferredWidth(Size::pixels(width));
+		setPreferredHeight(Size::pixels(height));
+	}
 
 	/* Size and position the widget within the available space.
 	 * This is very quick and dirty; all of the sizing and positioning stuff
@@ -177,6 +181,12 @@ public:
 
 	/* Returns the height limit of the widget. This should only be used by widgets. */
 	int32_t getMaxHeight() const { return maxheight; }
+
+	/* Returns the width limit of the widget. This should only be used by widgets. */
+	int32_t getMinWidth() const { return minwidth; }
+
+	/* Returns the height limit of the widget. This should only be used by widgets. */
+	int32_t getMinHeight() const { return minheight; }
 
 	/* Returns the width of the widget plus left and right padding.
 	 * This should only be used by widgets.

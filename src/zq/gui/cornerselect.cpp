@@ -148,6 +148,7 @@ void CornerSwatch::calculateSize()
 	Size s = sized(16_px,32_px)+4_px;
 	setPreferredWidth(s);
 	setPreferredHeight(s);
+	Widget::calculateSize();
 }
 
 int32_t CornerSwatch::onEvent(int32_t event, MessageDispatcher& sendMessage)

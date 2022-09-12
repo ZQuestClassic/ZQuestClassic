@@ -777,6 +777,7 @@ enum
 extern command_struct bic[cmdMAX];
 
 extern combo_alias combo_aliases[MAXCOMBOALIASES];
+extern combo_pool combo_pools[MAXCOMBOPOOLS];
 //int32_t combo_apos;
 //int32_t combo_alistpos;
 

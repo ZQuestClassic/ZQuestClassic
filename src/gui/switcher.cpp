@@ -55,6 +55,7 @@ void Switcher::calculateSize()
 	}
 	setPreferredWidth(Size::pixels(maxW));
 	setPreferredHeight(Size::pixels(maxH));
+	Widget::calculateSize();
 }
 
 void Switcher::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)

@@ -20,20 +20,13 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 		{
 			int32_t cmb = d->d1;
 			int32_t cs = d->d2;
-			
+			bool ctrl = key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL];
 			if(key[KEY_ALT])
 			{
-				if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-				{
-					d->d2 = CSet;
-					GUI_EVENT(d, geCHANGE_SELECTION);
-				}
-				else
-				{
+				if(!(key[KEY_LSHIFT] || key[KEY_RSHIFT]))
 					d->d1 = Combo;
-					d->d2 = CSet;
-					GUI_EVENT(d, geCHANGE_SELECTION);
-				}
+				d->d2 = CSet;
+				GUI_EVENT(d, geCHANGE_SELECTION);
 				return D_REDRAW;
 			}
 			else if(gui_mouse_b()&2) //rclick
@@ -43,16 +36,19 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 				GUI_EVENT(d, geCHANGE_SELECTION);
 				return D_REDRAW;
 			}
-			else if((gui_mouse_b()&1) && select_combo_2(cmb,cs))
+			else if(gui_mouse_b()&1)
 			{
-				d->d1 = cmb;
-				d->d2 = cs;
-				GUI_EVENT(d, geCHANGE_SELECTION);
-				return D_REDRAW;
+				if(ctrl ? select_combo_3(cmb,cs) : select_combo_2(cmb,cs))
+				{
+					d->d1 = cmb;
+					d->d2 = cs;
+					GUI_EVENT(d, geCHANGE_SELECTION);
+					return D_REDRAW;
+				}
 			}
 		}
 		break;
-
+		
 		case MSG_DRAW:
 			BITMAP *buf = create_bitmap_ex(8,20,20);
 			BITMAP *bigbmp = create_bitmap_ex(8,d->h,d->h);
@@ -62,7 +58,7 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 				clear_bitmap(buf);
 				
 				if(d->d1)
-					overtile16(buf,combobuf[d->d1].o_tile,2,2,d->d2,0);
+					overtile16(buf,combobuf[d->d1].tile,2,2,d->d2,combobuf[d->d1].flip);
 					
 				stretch_blit(buf, bigbmp, 2,2, 17, 17, 2, 2, d->h-4, d->h-4);
 				destroy_bitmap(buf);
@@ -177,6 +173,7 @@ void SelComboSwatch::calculateSize()
 	Size s = sized(16_px,32_px)+4_px;
 	setPreferredWidth(s + (showsVals ? 3_spx+text_length(widgFont, "Combo: 99999") : 0_px));
 	setPreferredHeight(s);
+	Widget::calculateSize();
 }
 
 int32_t SelComboSwatch::onEvent(int32_t event, MessageDispatcher& sendMessage)

@@ -285,7 +285,10 @@ void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& r
 	running=true;
 	int32_t ret=0;
 	broadcast_dialog_message(dialog, MSG_START, 0);
+	acquire_screen();
+	popup_zqdialog_draw();
 	broadcast_dialog_message(dialog, MSG_DRAW, 0);
+	release_screen();
 	while(!done && ret>=0)
 		ret=do_zqdialog(dialog, focus_obj);
 	running=false;
@@ -307,6 +310,18 @@ void popup_zqdialog_start()
 	{
 		*allegro_errno = ENOMEM;
 	}
+}
+
+void popup_zqdialog_draw()
+{
+	if (zqdialog_tmp_bmps.size())
+	{
+		BITMAP* tmp_bmp = zqdialog_tmp_bmps.back();
+		scare_mouse();
+		blit(tmp_bmp, screen, 0, 0, 0, 0, zq_screen_w, zq_screen_h);
+		unscare_mouse();
+	}
+	position_mouse_z(0);
 }
 
 void popup_zqdialog_end()

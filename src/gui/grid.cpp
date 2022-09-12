@@ -105,9 +105,22 @@ void Grid::calculateSize()
 			child->calculateSize();
 			if(!child->getForceFitWid())
 				total += child->getTotalWidth();
+			else
+			{
+				auto mw = child->getMinWidth();
+				if(mw > -1) total += mw;
+			}
 			
-			if(!child->getForceFitHei() && child->getRowSpan() == 1)
-				max = std::max(max, child->getTotalHeight());
+			if(child->getRowSpan() == 1)
+			{
+				if(!child->getForceFitHei())
+					max = std::max(max, child->getTotalHeight());
+				else
+				{
+					auto mh = child->getMinHeight();
+					if(mh > -1) max = std::max(max, mh);
+				}
+			}
 		}
 		tempRowWidths.push_back(total);
 		tempRowHeights.push_back(max);
@@ -127,11 +140,24 @@ void Grid::calculateSize()
 
 			auto& child = children[index];
 			
-			if(!child->getForceFitWid() && child->getColSpan() == 1)
-				max = std::max(max, child->getTotalWidth());
+			if(child->getColSpan() == 1)
+			{
+				if(!child->getForceFitWid())
+					max = std::max(max, child->getTotalWidth());
+				else
+				{
+					auto mw = child->getMinWidth();
+					if(mw > -1) max = std::max(max, mw);
+				}
+			}
 			
 			if(!child->getForceFitHei())
 				total += child->getTotalHeight();
+			else
+			{
+				auto mh = child->getMinHeight();
+				if(mh > -1) total += mh;
+			}
 		}
 		tempColWidths.push_back(max);
 		tempColHeights.push_back(total);
@@ -253,6 +279,7 @@ void Grid::calculateSize()
 			prefH = ch;
 	}
 	setPreferredHeight(Size::pixels(prefH));
+	Widget::calculateSize();
 }
 
 
