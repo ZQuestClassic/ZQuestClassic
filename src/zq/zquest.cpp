@@ -589,6 +589,7 @@ combo_pool combo_pools[MAXCOMBOPOOLS];
 static int32_t combo_pool_pos=0; //currently selected combo pool
 static int32_t combo_pool_listpos[3]= {0,0,0}; //first displayed combo pool
 bool weighted_cpool = true;
+bool cpool_prev_visible = false;
 
 bool trip=false;
 
@@ -6596,12 +6597,15 @@ void refresh(int32_t flags)
 		}
 	}
     
-    if(flags&rCOMBOS)
+    if((flags&rCOMBOS) || (draw_mode == dm_cpool && (flags&rFAVORITES)))
     {
         if(is_large)
         {
-            jwin_draw_frame(menu1,combolist_window.x,combolist_window.y,combolist_window.w,combolist_window.h, FR_WIN);
-            rectfill(menu1,combolist_window.x+2,combolist_window.y+2,combolist_window.x+combolist_window.w-3,combolist_window.y+combolist_window.h-3,jwin_pal[jcBOX]);
+			auto real_h = combolist_window.h;
+			if(draw_mode==dm_cpool)
+				real_h = (favorites_window.y-combolist_window.y)+favorites_window.h;
+            jwin_draw_frame(menu1,combolist_window.x,combolist_window.y,combolist_window.w,real_h, FR_WIN);
+            rectfill(menu1,combolist_window.x+2,combolist_window.y+2,combolist_window.x+combolist_window.w-3,combolist_window.y+real_h-3,jwin_pal[jcBOX]);
             jwin_draw_frame(menu1,combolistscrollers[0].x,combolistscrollers[0].y,combolistscrollers[0].w,combolistscrollers[0].h,FR_ETCHED);
             
             for(int32_t i=0; i<3; i++)
@@ -6722,8 +6726,6 @@ void refresh(int32_t flags)
 				jwin_draw_frame(menu1,comboaliaslist[1].x-2,comboaliaslist[1].y-2,(comboaliaslist[1].w<<4)+4,(comboaliaslist[1].h<<4)+4,FR_DEEP);
 				jwin_draw_frame(menu1,comboaliaslist[2].x-2,comboaliaslist[2].y-2,(comboaliaslist[2].w<<4)+4,(comboaliaslist[2].h<<4)+4,FR_DEEP);
 				
-				jwin_draw_frame(menu1,combopool_preview.x-2,combopool_preview.y-2,combopool_preview.w+4,combopool_preview.h+4,FR_DEEP);
-				
 				if(MouseScroll)
 				{
 					jwin_draw_frame(menu1,comboaliaslist[0].x-2,comboaliaslist[0].y-10,(comboaliaslist[0].w<<4)+4,6,FR_DEEP);
@@ -6734,12 +6736,10 @@ void refresh(int32_t flags)
 					rectfill(menu1,comboaliaslist[1].x,comboaliaslist[1].y-8,comboaliaslist[1].x+(comboaliaslist[1].w<<4)-1,comboaliaslist[1].y-7,jwin_pal[jcBOXFG]);
 					rectfill(menu1,comboaliaslist[2].x,comboaliaslist[2].y-8,comboaliaslist[2].x+(comboaliaslist[2].w<<4)-1,comboaliaslist[2].y-7,jwin_pal[jcBOXFG]);
 					
-					jwin_draw_frame(menu1,combopool_preview.x-2,combopool_preview.y+combopool_preview.h+4,combopool_preview.w+4,6,FR_DEEP);
-					
 					rectfill(menu1,combopool_preview.x,combopool_preview.y+combopool_preview.h+6,combopool_preview.x+combopool_preview.w-1,combopool_preview.y+combopool_preview.h+7,jwin_pal[jcBOXFG]);
 				}
 			}
-			else if(draw_mode == dm_cpool)
+			else
 			{
 				auto sx = comboaliaslist[0].x, sy = comboaliaslist[0].y;
 				auto sw = (comboaliaslist[0].w<<4),
@@ -6778,36 +6778,47 @@ void refresh(int32_t flags)
 			//Handle Preview
 			combo_pool const& cpool = combo_pools[combo_pool_pos];
 			
-			rectfill(menu1,combopool_preview.x,combopool_preview.y,
-				combopool_preview.x+combopool_preview.w-1,
-				combopool_preview.y+combopool_preview.h-1,vc(0));
-			size_t ind = 0;
+            int32_t cid; int8_t cs;
 			size_t total = weighted_cpool ? cpool.getTotalWeight() : cpool.combos.size();
-			draw_text_button(menu1,combopool_prevbtn.x,combopool_prevbtn.y,
-				combopool_prevbtn.w,combopool_prevbtn.h,
-				weighted_cpool ? "Weighted" : "Unweighted",vc(1),vc(14),0,true);
-			if(is_large)
-				textprintf_ex(menu1,font,combopool_prevbtn.x+combopool_prevbtn.w+5,
-					combopool_prevbtn.y,jwin_pal[jcBOXFG],-1,"Preview");
-			for(auto y = 0; y < combopool_preview.h; y += 16)
+			size_t ind = 0;
+			size_t indw = combopool_preview.w/16;
+			size_t indh = combopool_preview.h/16;
+			size_t rows = total ? 1+vbound(total/indw,0,indh) : 0;
+			size_t real_height = rows*16;
+			
+			cpool_prev_visible = rows > 0;
+			if(rows)
 			{
-				for(auto x = 0; x < combopool_preview.w; x += 16, ++ind)
+				jwin_draw_frame(menu1,combopool_preview.x-2,combopool_preview.y-2,
+					combopool_preview.w+4,real_height+4,FR_DEEP);
+				rectfill(menu1,combopool_preview.x,combopool_preview.y,
+					combopool_preview.x+combopool_preview.w-1,
+					combopool_preview.y+real_height-1,vc(0));
+				draw_text_button(menu1,combopool_prevbtn.x,combopool_prevbtn.y,
+					combopool_prevbtn.w,combopool_prevbtn.h,
+					weighted_cpool ? "Weighted" : "Unweighted",vc(1),vc(14),0,true);
+				if(is_large)
+					textprintf_ex(menu1,font,combopool_prevbtn.x+combopool_prevbtn.w+5,
+						combopool_prevbtn.y,jwin_pal[jcBOXFG],-1,"Preview");
+				for(auto y = 0; y < real_height; y += 16)
 				{
-					auto nx = combopool_preview.x+x, ny = combopool_preview.y+y;
-					if(ind < total)
+					for(auto x = 0; x < combopool_preview.w; x += 16, ++ind)
 					{
-						int32_t cid;
-						int8_t cs = CSet;
-						if(weighted_cpool
-							? cpool.get_w(cid,cs,ind)
-							: cpool.get_ind(cid,cs,ind))
+						auto nx = combopool_preview.x+x, ny = combopool_preview.y+y;
+						if(ind < total)
 						{
-							put_combo(menu1,nx,ny,cid,cs,Flags&(cFLAGS|cWALK),0);
-							continue;
+							cs = CSet;
+							if(weighted_cpool
+								? cpool.get_w(cid,cs,ind)
+								: cpool.get_ind(cid,cs,ind))
+							{
+								put_combo(menu1,nx,ny,cid,cs,Flags&(cFLAGS|cWALK),0);
+								continue;
+							}
 						}
+						//No combo to display
+						xout(menu1, nx, ny, nx+15, ny+15, vc(15));
 					}
-					//No combo to display
-					xout(menu1, nx, ny, nx+15, ny+15, vc(15));
 				}
 			}
 		}
@@ -6988,7 +6999,7 @@ void refresh(int32_t flags)
     
     if(flags&rFAVORITES)
     {
-        if(is_large)
+        if(is_large && draw_mode!=dm_cpool)
         {
             jwin_draw_frame(menu1,favorites_window.x,favorites_window.y,favorites_window.w,favorites_window.h, FR_WIN);
             rectfill(menu1,favorites_window.x+2,favorites_window.y+2,favorites_window.x+favorites_window.w-3,favorites_window.y+favorites_window.h-3,jwin_pal[jcBOX]);
@@ -10142,7 +10153,8 @@ void domouse()
 				}
 			}
 		}
-		if(isinRect(x,y,combopool_prevbtn.x,combopool_prevbtn.y,
+		if(cpool_prev_visible
+			&& isinRect(x,y,combopool_prevbtn.x,combopool_prevbtn.y,
 				combopool_prevbtn.x+combopool_prevbtn.w-1,
 				combopool_prevbtn.y+combopool_prevbtn.h-1))
 		{
@@ -10676,6 +10688,7 @@ void domouse()
 		{
 			switch(draw_mode)
 			{
+				case dm_cpool: break;
 				case dm_alias:
 					AlertDialog("Clear Favorite Aliases",
 						"Are you sure you want to clear all favorite aliases?",
@@ -11427,28 +11440,7 @@ void domouse()
 			
 			if(j==0||is_large)
 			{
-				if(draw_mode != dm_alias)
-				{
-					if(isinRect(x,y,combolist[j].x,combolist[j].y,combolist[j].x+(combolist[j].w*16)-1,combolist[j].y+(combolist[j].h*16)-1))
-					{
-						if(mouse_z<0)  //scroll down
-						{
-							First[current_combolist] = zc_min(MAXCOMBOS-combolist[j].w*combolist[j].h,
-															  First[current_combolist] + combolist[j].w*z);
-							redraw|=rALL;
-						}
-						else //scroll up
-						{
-							if(First[current_combolist]>0)
-							{
-								First[current_combolist]-=zc_min(First[current_combolist],combolist[j].w*z);
-								//          refresh(rCOMBOS);
-								redraw|=rALL;
-							}
-						}
-					}
-				}
-				else
+				if(draw_mode == dm_alias)
 				{
 					if(isinRect(x,y,comboaliaslist[j].x,comboaliaslist[j].y,comboaliaslist[j].x+(comboaliaslist[j].w*16)-1,comboaliaslist[j].y+(comboaliaslist[j].h*16)-1))
 					{
@@ -11463,6 +11455,48 @@ void domouse()
 							if(combo_alistpos[current_comboalist]>0)
 							{
 								combo_alistpos[current_comboalist]-=zc_min(combo_alistpos[current_comboalist],comboaliaslist[j].w*z);
+								//          refresh(rCOMBOS);
+								redraw|=rALL;
+							}
+						}
+					}
+				}
+				else if(draw_mode == dm_cpool)
+				{
+					if(isinRect(x,y,comboaliaslist[j].x,comboaliaslist[j].y,comboaliaslist[j].x+(comboaliaslist[j].w*16)-1,comboaliaslist[j].y+(comboaliaslist[j].h*16)-1))
+					{
+						if(mouse_z<0)  //scroll down
+						{
+							combo_pool_listpos[current_cpoollist] = zc_min(MAXCOMBOPOOLS - comboaliaslist[j].w*comboaliaslist[j].h,
+																 combo_pool_listpos[current_cpoollist]+comboaliaslist[j].w*z);
+							redraw|=rALL;
+						}
+						else //scroll up
+						{
+							if(combo_pool_listpos[current_cpoollist]>0)
+							{
+								combo_pool_listpos[current_cpoollist]-=zc_min(combo_pool_listpos[current_cpoollist],comboaliaslist[j].w*z);
+								//          refresh(rCOMBOS);
+								redraw|=rALL;
+							}
+						}
+					}
+				}
+				else
+				{
+					if(isinRect(x,y,combolist[j].x,combolist[j].y,combolist[j].x+(combolist[j].w*16)-1,combolist[j].y+(combolist[j].h*16)-1))
+					{
+						if(mouse_z<0)  //scroll down
+						{
+							First[current_combolist] = zc_min(MAXCOMBOS-combolist[j].w*combolist[j].h,
+															  First[current_combolist] + combolist[j].w*z);
+							redraw|=rALL;
+						}
+						else //scroll up
+						{
+							if(First[current_combolist]>0)
+							{
+								First[current_combolist]-=zc_min(First[current_combolist],combolist[j].w*z);
 								//          refresh(rCOMBOS);
 								redraw|=rALL;
 							}
@@ -31248,18 +31282,6 @@ int32_t main(int32_t argc,char **argv)
 		comboalias_preview[2].w=comboaliaslist[2].w<<4;
 		comboalias_preview[2].h=64;
 		
-		combopool_preview.x=comboaliaslist[0].x;
-		combopool_preview.y=comboaliaslist[0].y+(comboaliaslist[0].h<<4)+16;
-		combopool_preview.w=(comboaliaslist[2].x+(comboaliaslist[2].w<<4))-comboaliaslist[0].x;
-		combopool_preview.h=64;
-		
-		FONT* tfont = is_large?lfont_l:nfont;
-		combopool_prevbtn.w = text_length(tfont, "Unweighted")+10;
-		combopool_prevbtn.h = 11;
-		combopool_prevbtn.x = combopool_preview.x;
-		combopool_prevbtn.y = combopool_preview.y-combopool_prevbtn.h;
-		
-		
 		mapscreen_x=0;
 		mapscreen_y=16;
 		mapscreensize=2;
@@ -31332,6 +31354,18 @@ int32_t main(int32_t argc,char **argv)
 		commands_list.y=commands_window.y+20;
 		commands_list.w=2;
 		commands_list.h=4;
+		
+		combopool_preview.x=comboaliaslist[0].x;
+		combopool_preview.y=comboaliaslist[0].y+(comboaliaslist[0].h<<4)+16;
+		combopool_preview.w=(comboaliaslist[2].x+(comboaliaslist[2].w<<4))-comboaliaslist[0].x;
+		combopool_preview.h=(favorites_window.y-combopool_preview.y)+favorites_window.h-10;
+		combopool_preview.h -= combopool_preview.h%16;
+		
+		FONT* tfont = is_large?lfont_l:nfont;
+		combopool_prevbtn.w = text_length(tfont, "Unweighted")+10;
+		combopool_prevbtn.h = 11;
+		combopool_prevbtn.x = combopool_preview.x;
+		combopool_prevbtn.y = combopool_preview.y-combopool_prevbtn.h;
 		
 		//Help Dialogue Sizing
 		help_dlg[0].w=800;
