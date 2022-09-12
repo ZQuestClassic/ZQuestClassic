@@ -262,7 +262,6 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 				onSelectFunc = [&](int32_t val)
 				{
 					icswitcher->switchTo(switchids[val]);
-					broadcast_dialog_message(MSG_DRAW, 0);
 				}
 			),
 			icswitcher

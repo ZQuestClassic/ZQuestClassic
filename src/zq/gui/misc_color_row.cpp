@@ -135,6 +135,7 @@ void MiscColorRow::calculateSize()
 {
 	setPreferredWidth(Size::pixels(4 + (isSys ? 17 : 16) * 8));
 	setPreferredHeight(20_px);
+	Widget::calculateSize();
 }
 
 void MiscColorRow::realize(DialogRunner& runner)

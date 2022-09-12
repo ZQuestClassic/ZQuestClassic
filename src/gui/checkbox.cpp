@@ -88,6 +88,7 @@ void Checkbox::calculateSize()
 {
 	//setPreferredHeight(Size::pixels(std::min(9_spx.resolve(), text_height(widgFont)+2_spx.resolve())));
 	setPreferredWidth(9_spx+12_px+Size::pixels(gui_text_width(widgFont, text.c_str())));
+	Widget::calculateSize();
 }
 
 int32_t Checkbox::onEvent(int32_t event, MessageDispatcher& sendMessage)

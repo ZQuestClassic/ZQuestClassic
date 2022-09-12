@@ -60,6 +60,7 @@ void Frame::calculateSize()
 		setPreferredWidth(10_em);
 		setPreferredHeight(5_em);
 	}
+	Widget::calculateSize();
 }
 
 void Frame::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)

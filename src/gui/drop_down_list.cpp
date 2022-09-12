@@ -95,6 +95,7 @@ void DropDownList::calculateSize()
 	}
 	setPreferredWidth(sized(5_em,3_em)+maxWid);
 	overrideHeight(sized(16_px, 21_px));
+	Widget::calculateSize();
 }
 
 void DropDownList::applyVisibility(bool visible)

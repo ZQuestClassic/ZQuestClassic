@@ -202,6 +202,7 @@ void TileFrame::calculateSize()
 {
 	setPreferredWidth(sized(16_px,32_px)*(data[tfr_dosized]?data[tfr_skipx]+1:1)+4_px);
 	setPreferredHeight(sized(16_px,32_px)*(data[tfr_dosized]?data[tfr_skipy]+1:1)+4_px);
+	Widget::calculateSize();
 }
 
 void TileFrame::realize(DialogRunner& runner)

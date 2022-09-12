@@ -79,6 +79,7 @@ void PaletteFrame::applyDisabled(bool dis)
 void PaletteFrame::calculateSize()
 {
 	setPreferredHeight(8_spx*count);
+	Widget::calculateSize();
 }
 
 void PaletteFrame::realize(DialogRunner& runner)

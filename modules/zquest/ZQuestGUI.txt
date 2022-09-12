@@ -63,6 +63,7 @@ src/dialog/test_quest_dlg.cpp
 src/dialog/string_editor.cpp
 src/dialog/waterpit_convert.cpp
 src/dialog/vidmode.cpp
+src/dialog/combopool.cpp
 
 
 ## End of ZQuest GUI module
