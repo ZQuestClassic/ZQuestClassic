@@ -3432,6 +3432,7 @@ struct newcombo
 #define LF_SPECIALITEM    0x08
 #define LF_NOUCSET        0x10
 #define LF_NOWPNCMBCSET   0x20
+#define LF_BREAKONSOLID   0x40
 
 struct tiletype
 {

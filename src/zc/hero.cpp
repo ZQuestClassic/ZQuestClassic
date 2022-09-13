@@ -1467,6 +1467,8 @@ void HeroClass::init()
 		lift_wpn = nullptr;
 	}
 	liftclk = 0;
+	tliftclk = 0;
+	liftheight = 0;
     if ( dontdraw != 2 ) {  dontdraw = 0; } //scripted dontdraw == 2, normal == 1, draw hero == 0
     hookshot_used=false;
     hookshot_frozen=false;
@@ -2946,7 +2948,10 @@ void HeroClass::masked_draw(BITMAP* dest)
 			if(lift_wpn)
 			{
 				handle_lift(false);
+				bool shad = lift_wpn->has_shadow;
+				lift_wpn->has_shadow = false;
 				lift_wpn->draw(sub);
+				lift_wpn->has_shadow = shad;
 			}
 			prompt_draw(sub);
             xofs+=16;
@@ -2960,7 +2965,10 @@ void HeroClass::masked_draw(BITMAP* dest)
 		if(lift_wpn)
 		{
 			handle_lift(false);
+			bool shad = lift_wpn->has_shadow;
+			lift_wpn->has_shadow = false;
 			lift_wpn->draw(dest);
+			lift_wpn->has_shadow = shad;
 		}
 		prompt_draw(dest);
     }
@@ -8914,13 +8922,15 @@ bool HeroClass::animate(int32_t)
 		{
 			action=lifting; FFCore.setHeroAction(lifting);
 		}
-		else liftclk = 0;
+		else
+		{
+			liftclk = 0;
+			tliftclk = 0;
+		}
 	}
 	else if(lift_wpn)
 	{
-		lift_wpn->x = x;
-		lift_wpn->y = y;
-		lift_wpn->z = 8;
+		handle_lift(false);
 	}
 	
 		
@@ -9841,11 +9851,9 @@ void HeroClass::doMirror(int32_t mirrorid)
 
 void HeroClass::do_liftglove(int32_t liftid, bool passive)
 {
-	if(z>0 || fakez>0) return;
-	
 	if(liftid < 0)
 		liftid = current_item_id(itype_liftglove);
-	if(liftid < 0) return;
+	if(!can_lift(liftid)) return;
 	itemdata const& glove = itemsbuf[liftid];
 	byte intbtn = byte(glove.misc1&0xFF);
 	if(passive)
@@ -9854,22 +9862,65 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 			return; //not pressed
 	}
 	
+	bool had_weapon = lift_wpn;
+	
+	if(!(had_weapon || //Allow throwing while bunnied/don't charge magic for throwing
+		(checkbunny(liftid) && checkmagiccost(liftid))))
+	{
+		if(QMisc.miscsfx[sfxERROR])
+			sfx(QMisc.miscsfx[sfxERROR]);
+		return;
+	}
+	if(glove.script!=0 && (item_doscript[liftid] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+		return;
+	
+	bool paidmagic = had_weapon; //don't pay to throw, only to lift
+	if(glove.script)
+	{
+		if(!paidmagic)
+		{
+			paidmagic = true;
+			paymagiccost(liftid);
+		}
+		
+		ri = &(itemScriptData[liftid]);
+		for ( int32_t q = 0; q < 1024; q++ )
+			item_stack[liftid][q] = 0xFFFF;
+		ri->Clear();
+		item_doscript[liftid] = 1;
+		itemscriptInitialised[liftid] = 0;
+		ZScriptVersion::RunScript(SCRIPT_ITEM, glove.script, liftid);
+		
+		bool has_weapon = lift_wpn;
+		if(has_weapon != had_weapon) //Item action script changed the lift information
+		{
+			if(passive)
+			{
+				getIntBtnInput(intbtn, true, true, false, false, false); //eat buttons
+			}
+			return;
+		}
+	}
+	
 	if(lift_wpn)
 	{
+		if(!paidmagic)
+		{
+			paidmagic = true;
+			paymagiccost(liftid);
+		}
 		if(!liftclk)
 		{
 			//Throw the weapon!
 			//hero's direction and position
-			lift_wpn->x = x;
-			lift_wpn->y = y;
+			handle_lift(false); //sets position properly, accounting for large weapons
 			if(glove.flags & ITEM_FLAG1)
 			{
 				lift_wpn->z = 0;
-				lift_wpn->fakez = 8;
+				lift_wpn->fakez = liftheight;
 			}
-			else lift_wpn->z = 8;
+			else lift_wpn->z = liftheight;
 			lift_wpn->dir = dir;
-			lift_wpn->has_shadow = true; //Restore the shadow
 			//Configured throw speed in both axes
 			lift_wpn->step = zfix(glove.misc2)/100;
 			if(glove.flags & ITEM_FLAG1)
@@ -9925,24 +9976,27 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 			bx2 = x + 17;
 			break;
 	}
-	int32_t pos = COMBOPOS(bx,by);
-	int32_t pos2 = COMBOPOS(bx2,by2);
+	int32_t pos = COMBOPOS_B(bx,by);
+	int32_t pos2 = COMBOPOS_B(bx2,by2);
 	int32_t foundpos = -1;
 	
 	bool lifted = false;
 	for(auto lyr = 6; lyr >= 0; --lyr)
 	{
 		mapscr* scr = FFCore.tempScreens[lyr];
-		newcombo const& cmb = combobuf[scr->data[pos]];
-		if(cmb.liftflags & LF_LIFTABLE)
+		if(pos > -1)
 		{
-			if(do_lift_combo(lyr,pos,liftid))
+			newcombo const& cmb = combobuf[scr->data[pos]];
+			if(cmb.liftflags & LF_LIFTABLE)
 			{
-				lifted = true;
-				break;
+				if(do_lift_combo(lyr,pos,liftid))
+				{
+					lifted = true;
+					break;
+				}
 			}
 		}
-		if(pos != pos2)
+		if(pos != pos2 && pos2 > -1)
 		{
 			newcombo const& cmb2 = combobuf[scr->data[pos2]];
 			if(cmb2.liftflags & LF_LIFTABLE)
@@ -9956,42 +10010,138 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 		}
 	}
 	if(!lifted) return;
+	if(!paidmagic)
+	{
+		paidmagic = true;
+		paymagiccost(liftid);
+	}
 	if(passive)
 	{
 		getIntBtnInput(intbtn, true, true, false, false, false); //eat buttons
 	}
+	return;
 }
 void HeroClass::handle_lift(bool dec)
 {
+	lift_wpn->fakez = 0;
 	if(!lift_wpn) liftclk = 0;
 	if(liftclk <= (dec?1:0))
 	{
 		liftclk = 0;
+		tliftclk = 0;
 		if(lift_wpn)
 		{
-			lift_wpn->x = x;
-			lift_wpn->y = y;
-			lift_wpn->z = 8;
+			if(lift_wpn->txsz > 1 || lift_wpn->tysz > 1)
+			{
+				lift_wpn->x = x+8 - (lift_wpn->txsz*8);
+				lift_wpn->y = y+8 - (lift_wpn->tysz*8);
+			}
+			else
+			{
+				lift_wpn->x = x;
+				lift_wpn->y = y;
+			}
+			lift_wpn->z = liftheight;
 		}
-		action = none; FFCore.setHeroAction(none);
+		if(!dec) {action = none; FFCore.setHeroAction(none);}
 		return;
 	}
-	int32_t xsign=0, ysign=0;
-	switch(X_DIR(dir))
-	{
-		case left: xsign = -1; break;
-		case right: xsign = 1; break;
-	}
-	switch(Y_DIR(dir))
-	{
-		case up: ysign = -1; break;
-		case down: ysign = 1; break;
-	}
 	if(dec) --liftclk;
-	int32_t dist = liftclk;
-	lift_wpn->x = x+(dist*xsign);
-	lift_wpn->y = y+(dist*ysign);
-	lift_wpn->z = (16-liftclk)/2;
+	double xdist, ydist;
+	double perc = (liftclk/double(tliftclk));
+	switch(dir)
+	{
+		case up:
+		{
+			xdist = 0;
+			ydist = -16;
+			if(lift_wpn->txsz > 1)
+			{
+				xdist = -((lift_wpn->txsz*8)-8);
+			}
+			else xdist = 0;
+			if(lift_wpn->tysz > 1)
+			{
+				ydist = -(lift_wpn->tysz*16);
+			}
+			ydist *= perc;
+			break;
+		}
+		case down:
+		{
+			xdist = 0;
+			ydist = 16;
+			if(lift_wpn->txsz > 1)
+			{
+				xdist = -((lift_wpn->txsz*8)-8);
+			}
+			else xdist = 0;
+			ydist *= perc;
+			break;
+		}
+		case left:
+		{
+			xdist = -16;
+			ydist = 0;
+			if(lift_wpn->txsz > 1)
+			{
+				xdist = -(lift_wpn->txsz*16);
+			}
+			if(lift_wpn->tysz > 1)
+			{
+				ydist = -((lift_wpn->tysz*8)-8);
+			}
+			else ydist = 0;
+			xdist *= perc;
+			break;
+		}
+		case right:
+		{
+			xdist = 16;
+			ydist = 0;
+			if(lift_wpn->tysz > 1)
+			{
+				ydist = -((lift_wpn->tysz*8)-8);
+			}
+			else ydist = 0;
+			xdist *= perc;
+			break;
+		}
+	}
+	
+	lift_wpn->x = x + xdist;
+	lift_wpn->y = y + ydist;
+	lift_wpn->z = liftheight*(1.0-perc);
+}
+bool HeroClass::can_lift(int32_t gloveid)
+{
+	if(unsigned(gloveid) >= MAXITEMS) return false;
+	if(lstunclock) return false;
+	if(HeroItemClk()) return false;
+	itemdata const& glove = itemsbuf[gloveid];
+	switch(action)
+	{
+		case none: case walking:
+			break;
+		
+		case swimming:
+			if(glove.flags & ITEM_FLAG2)
+				break;
+			return false;
+		
+		default:
+			return false;
+	}
+	return true;
+}
+void HeroClass::lift(weapon* w, byte timer, zfix height)
+{
+	lift_wpn = w;
+	liftclk = timer;
+	tliftclk = timer;
+	if(height < 0)
+		liftheight = 0;
+	else liftheight = height;
 }
 
 void HeroClass::doSwitchHook(byte style)
@@ -10209,6 +10359,7 @@ bool HeroClass::startwpn(int32_t itemid)
 		case itype_liftglove:
 		{
 			do_liftglove(itemid,false);
+			dowpn = -1;
 			ret = false;
 			break;
 		}
@@ -10263,10 +10414,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			{
 				paidmagic = true;
 				paymagiccost(itemid);
-			}
-			
-			if(itm.script)
-			{
+				
 				ri = &(itemScriptData[itemid]);
 				for ( int32_t q = 0; q < 1024; q++ )
 					item_stack[itemid][q] = 0xFFFF;

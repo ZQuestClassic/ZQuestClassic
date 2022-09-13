@@ -36,8 +36,11 @@ extern byte bszboomflip[4];
 #define WPNUNB_REFL      0x08
 #define WPNUNB_ALL       0x0F
 
-#define WPNPICKITEMS     0x01
-#define WPNBREAKONLAND   0x02
+#define WFLAG_PICKUP_ITEMS         0x01
+#define WFLAG_BREAK_WHEN_LANDING   0x02
+#define WFLAG_BREAK_ON_SOLID       0x04
+
+#define WFLAG_MAX 2
 
 class weapon : public sprite
 {

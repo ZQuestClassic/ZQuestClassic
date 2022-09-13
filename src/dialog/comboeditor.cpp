@@ -2851,6 +2851,16 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									}
 								),
 								//
+								INFOBTN("The thrown object will break when hitting a solid combo"),
+								Checkbox(colSpan = 2,
+									text = "Weapon breaks on solids", hAlign = 0.0,
+									checked = local_comboref.liftflags & LF_BREAKONSOLID,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_comboref.liftflags,LF_BREAKONSOLID,state);
+									}
+								),
+								//
 								DummyWidget(),
 								Checkbox(colSpan = 2,
 									text = "Use Dropset instead of Item ID", hAlign = 0.0,

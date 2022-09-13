@@ -323,6 +323,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 				"\nand does not have its' own lift sound.");
 			_SET(actionsnd[1], "Throw Sound", "SFX to play when an object is thrown");
 			_SET(flag[0], "Fake Z Throw", "Throws weapons in the fakez axis instead of the z axis");
+			_SET(flag[1], "Lift In Water", "Allows lifting while swimming");
 			break;
 		}
 		case itype_magicring:

@@ -1284,7 +1284,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	switch(id) //flags
 	{
 		case wThrown:
-			misc_wflags = WPNBREAKONLAND;
+			misc_wflags = WFLAG_BREAK_WHEN_LANDING;
 			break;
 	}
 	
@@ -3504,7 +3504,7 @@ bool weapon::animate(int32_t index)
 	bool hooked=false;
 	//Z_scripterrlog("Weapon script is: %d\n",weaponscript);
 	
-	if(misc_wflags & WPNPICKITEMS) //Weapon grabs touched items, giving them to the player, similar to engine melee weapons.
+	if(misc_wflags & WFLAG_PICKUP_ITEMS) //Weapon grabs touched items, giving them to the player, similar to engine melee weapons.
 	{
 		zfix wx = x+hxofs;
 		zfix wy = y+hyofs-fakez;
@@ -3722,7 +3722,7 @@ bool weapon::animate(int32_t index)
 					
 				fall = 0;
 				
-				if(misc_wflags & WPNBREAKONLAND) //Die
+				if(misc_wflags & WFLAG_BREAK_WHEN_LANDING) //Die
 					dead = 0;
 			}
 			
@@ -3738,7 +3738,7 @@ bool weapon::animate(int32_t index)
 				if(fakez <= 0)
 				{
 					fakez = fakefall = 0;
-					if(didfall && (misc_wflags & WPNBREAKONLAND)) //Die
+					if(didfall && (misc_wflags & WFLAG_BREAK_WHEN_LANDING)) //Die
 						dead = 0;
 				}
 				else if(fakefall <= (int32_t)zinit.terminalv)
@@ -3754,7 +3754,7 @@ bool weapon::animate(int32_t index)
 				if(z <= 0)
 				{
 					z = fall = 0;
-					if(didfall && (misc_wflags & WPNBREAKONLAND)) //Die
+					if(didfall && (misc_wflags & WFLAG_BREAK_WHEN_LANDING)) //Die
 						dead = 0;
 				}
 				else if(fall <= (int32_t)zinit.terminalv)
@@ -6879,6 +6879,12 @@ bool weapon::animate(int32_t index)
 		}
 	}
 	
+	if(misc_wflags & WFLAG_BREAK_ON_SOLID)
+	{
+		if(_walkflag(x,y,2) || _walkflag(x,y+8,2))
+			dead = 0;
+	}
+	
 	if(bounce)
 	{
 		switch(dir)
@@ -6927,7 +6933,8 @@ bool weapon::animate(int32_t index)
 	{
 		if(death_spawnitem > -1)
 		{
-			item* itm = (new item(x, y,(zfix)0, death_spawnitem, death_item_pflags, 0));
+			item* itm = (new item(x, y, z, death_spawnitem, death_item_pflags, 0));
+			itm->fakez = fakez;
 			items.add(itm);
 		}
 		if(death_spawndropset > -1)
@@ -6935,19 +6942,20 @@ bool weapon::animate(int32_t index)
 			auto itid = select_dropitem(death_spawndropset);
 			if(itid > -1)
 			{
-				item* itm = (new item(x, y,(zfix)0, itid, death_item_pflags, 0));
+				item* itm = (new item(x, y, z, itid, death_item_pflags, 0));
+				itm->fakez = fakez;
 				itm->from_dropset = death_spawndropset;
 				items.add(itm);
 			}
 		}
 		switch(death_sprite)
 		{
-			case -2: decorations.add(new dBushLeaves(x, y, dBUSHLEAVES, 0, 0)); break;
-			case -3: decorations.add(new dFlowerClippings(x, y, dFLOWERCLIPPINGS, 0, 0)); break;
-			case -4: decorations.add(new dGrassClippings(x, y, dGRASSCLIPPINGS, 0, 0)); break;
+			case -2: decorations.add(new dBushLeaves(x, y-(z+fakez), dBUSHLEAVES, 0, 0)); break;
+			case -3: decorations.add(new dFlowerClippings(x, y-(z+fakez), dFLOWERCLIPPINGS, 0, 0)); break;
+			case -4: decorations.add(new dGrassClippings(x, y-(z+fakez), dGRASSCLIPPINGS, 0, 0)); break;
 			default:
 				if(death_sprite < 0) break;
-				decorations.add(new comboSprite(x, y, 0, 0, death_sprite));
+				decorations.add(new comboSprite(x, y-(z+fakez), 0, 0, death_sprite));
 		}
 		if(death_sfx > 0)
 			sfx(death_sfx, pan(int32_t(x)));

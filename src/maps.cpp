@@ -65,6 +65,12 @@ int32_t COMBOPOS(int32_t x, int32_t y)
 {
     return (((y) & 0xF0) + ((x) >> 4));
 }
+int32_t COMBOPOS_B(int32_t x, int32_t y)
+{
+	if(unsigned(x) >= 256 || unsigned(y) >= 176)
+		return -1;
+	return COMBOPOS(x,y);
+}
 int32_t COMBOX(int32_t pos)
 {
     return ((pos) % 16 * 16);

@@ -1946,7 +1946,7 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 bool do_lift_combo(int32_t lyr, int32_t pos, int32_t gloveid)
 {
 	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
-	if(gloveid < 0) return false;
+	if(!Hero.can_lift(gloveid)) return false;
 	if(Hero.lift_wpn) return false;
 	mapscr* tmp = FFCore.tempScreens[lyr];
 	int32_t cid = tmp->data[pos];
@@ -2016,13 +2016,14 @@ bool do_lift_combo(int32_t lyr, int32_t pos, int32_t gloveid)
 	}
 	
 	w->moveflags |= FLAG_OBEYS_GRAV;
+	if(cmb.liftflags & LF_BREAKONSOLID)
+		w->misc_wflags |= WFLAG_BREAK_ON_SOLID;
 	
 	w->death_sprite = cmb.liftbreaksprite;
 	w->death_sfx = cmb.liftbreaksfx;
-	w->has_shadow = false;
 	
-	Hero.lift_wpn = w;
-	Hero.liftclk = 16;
+	Hero.lift(w, 16, 8);
+	
 	tmp->data[pos] = cmb.liftundercmb;
 	if(!(cmb.liftflags & LF_NOUCSET))
 		tmp->cset[pos] = cmb.liftundercs;

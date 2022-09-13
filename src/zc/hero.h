@@ -321,6 +321,8 @@ public:
 	
 	weapon* lift_wpn;
 	byte liftclk;
+	byte tliftclk;
+	zfix liftheight;
 	
 	
 	// Methods below here.
@@ -370,7 +372,9 @@ public:
 	bool mirrorBonk();
 	void doMirror(int32_t mirrorid);
 	void do_liftglove(int32_t liftid, bool passive);
+	bool can_lift(int32_t gloveid);
 	void handle_lift(bool dec = true);
+	void lift(weapon* w, byte timer, zfix height);
 	bool doattack();
 	bool can_attack();
 	void do_rafting();
