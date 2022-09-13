@@ -1821,6 +1821,13 @@ void ComboEditorDialog::updateAnimation()
 	tswatch->setFlip(local_comboref.flip);
 }
 
+static const GUI::ListData listdata_lift_gfx
+{
+	{"This Combo GFX", 0},
+	{"Other Combo GFX", 1},
+	{"Sprite Data GFX", 2}
+};
+
 //{ Macros
 
 #define DISABLE_WEAP_DATA true
@@ -2747,6 +2754,127 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							)
 						))
 					)),
+					/*TabRef(name = "Lifting", visible = false, Rows<2>(
+						Frame(
+							padding = 0_px,
+							vAlign = 0.5,
+							// forceFitH = true,
+							// forceFitW = true,
+							Column(
+								Label(text = "Graphics"),
+								DropDownList(data = listdata_lift_gfx,
+										fitParent = true,
+										selectedValue = local_comboref.liftgfx,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_comboref.liftgfx = val;
+										}
+									),
+								Label(text = "Other Combo GFX"),
+								SelComboSwatch(
+										showvals = true,
+										combo = local_comboref.liftcmb,
+										cset = local_comboref.liftcs,
+										onSelectFunc = [&](int32_t cmb, int32_t c)
+										{
+											local_comboref.liftcmb = cmb;
+											local_comboref.liftcs = c;
+										}
+									),
+								Label(text = "Sprite Data GFX"),
+								DropDownList(data = list_sprites,
+										fitParent = true,
+										selectedValue = local_comboref.liftsprite,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_comboref.liftsprite = val;
+										}
+									)
+							)
+						),
+						Frame(
+							padding = 0_px,
+							vAlign = 0.5,
+							forceFitH = true,
+							// forceFitW = true,
+							Rows<3>(
+								Checkbox(colSpan = 3,
+									text = "Is Liftable", hAlign = 0.0,
+									checked = local_comboref.liftflags & LF_LIFTABLE,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_comboref.liftflags,LF_LIFTABLE,state);
+									}
+								),
+								Label(text = "Damage:", hAlign = 1.0),
+								TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 255, val = local_comboref.liftdmg,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.liftdmg = val;
+									}),
+								INFOBTN("Weapon Power for the 'thrown object' weapon"),
+								Label(text = "Lift Level:", hAlign = 1.0),
+								TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 255, val = local_comboref.liftlvl,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.liftlvl = val;
+									}),
+								INFOBTN("The level of " + string(ZI.getItemClassName(itype_liftglove)) + " needed to lift this object."),
+								Label(text = "Lift SFX:", hAlign = 1.0),
+								TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 255, val = local_comboref.liftsfx,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.liftsfx = val;
+									}),
+								INFOBTN("The sfx to play when lifted")
+							)
+						),
+						Frame(
+							padding = 0_px,
+							vAlign = 0.5,
+							// forceFitH = true,
+							forceFitW = true,
+							colSpan = 2,
+							Rows<4>(
+								INFOBTN("If 0, drops no item."
+									"\nIf >0, drops that item ID."),
+								Label(text = "Item Drop:"),
+								TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 255, val = local_comboref.liftitm,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.liftitm = val;
+									}),
+								DummyWidget(),
+								DummyWidget(),
+								Checkbox(colSpan = 3,
+									text = "Use Dropset instead of Item ID", hAlign = 0.0,
+									checked = local_comboref.liftflags & LF_DROPSET,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_comboref.liftflags,LF_DROPSET,state);
+									}
+								),
+								INFOBTN("The item will be dropped under the combo when"
+									" it is lifted, instead of from the thrown object when it breaks."),
+								Checkbox(colSpan = 3,
+									text = "Drop on lift instead of break", hAlign = 0.0,
+									checked = local_comboref.liftflags & LF_DROPONLIFT,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_comboref.liftflags,LF_DROPONLIFT,state);
+									}
+								)
+							)
+						)
+					)),*/
 					TabRef(name = "Script", Column(
 						INITD_ROW2(0, local_comboref.initd),
 						INITD_ROW2(1, local_comboref.initd),

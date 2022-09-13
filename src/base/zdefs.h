@@ -3245,6 +3245,17 @@ struct newcombo
 	int32_t spawnip; //32 bits
 	byte trigcopycat; //8 bits
 	byte trigcooldown; //8 bits
+	
+	word liftcmb;
+	byte liftcs;
+	byte liftdmg;
+	byte liftlvl;
+	byte liftitm;
+	byte liftflags;
+	byte liftgfx;
+	byte liftsprite;
+	byte liftsfx;
+	
 	char label[11];
 		//Only one of these per combo: Otherwise we would have 
 		//int32_t triggerlevel[54] (1,728 bits extra per combo in a quest, and in memory) !!
@@ -3320,6 +3331,16 @@ struct newcombo
 		o_tile = 0;
 		cur_frame = 0;
 		aclk = 0;
+		
+		liftcmb = 0;
+		liftcs = 0;
+		liftdmg = 0;
+		liftlvl = 0;
+		liftitm = 0;
+		liftflags = 0;
+		liftgfx = 0;
+		liftsprite = 0;
+		liftsfx = 0;
 	}
 
 	bool is_blank(bool ignoreEff = false)
@@ -3375,6 +3396,17 @@ struct newcombo
 		if(o_tile) return false;
 		if(cur_frame) return false;
 		if(aclk) return false;
+		
+		if(liftcmb) return false;
+		if(liftcs) return false;
+		if(liftdmg) return false;
+		if(liftlvl) return false;
+		if(liftitm) return false;
+		if(liftflags) return false;
+		if(liftgfx) return false;
+		if(liftsprite) return false;
+		if(liftsfx) return false;
+		
 		return true;
 	}
 };
@@ -3383,6 +3415,10 @@ struct newcombo
 #define AF_CYCLE          0x02
 #define AF_CYCLENOCSET    0x04
 #define AF_TRANSPARENT    0x08
+
+#define LF_LIFTABLE       0x01
+#define LF_DROPSET        0x02
+#define LF_DROPONLIFT     0x04
 
 struct tiletype
 {
@@ -4293,6 +4329,7 @@ enum // used for gamedata ITEMS
 	itype_script2, itype_script3, itype_script4, itype_script5, itype_script6, itype_script7, itype_script8, itype_script9, itype_script10,
 	itype_icerod, itype_atkring, itype_lantern, itype_pearl, itype_bottle, itype_bottlefill, itype_bugnet,
 	itype_mirror, itype_switchhook, itype_itmbundle, itype_progressive_itm, itype_note, itype_refill,
+	itype_liftglove,
 	/*
 	itype_templast,
 	itype_ether, itype_bombos, itype_quake, 
@@ -5493,6 +5530,7 @@ extern void removeFromItemCache(int32_t itemid);
 #define CHAS_ANIM     0x08
 #define CHAS_SCRIPT   0x10
 #define CHAS_GENERAL  0x20
+#define CHAS_LIFT     0x40
 
 #define SCRHAS_ROOMDATA  0x00000001
 #define SCRHAS_ITEM      0x00000002

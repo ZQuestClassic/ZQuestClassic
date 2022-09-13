@@ -312,6 +312,10 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(actionsnd[0], "Activation Sound", "SFX to play when the item is used");
 			break;
 		}
+		case itype_liftglove:
+		{
+			break;
+		}
 		case itype_magicring:
 		{
 			_SET(power, "Infinite Magic:", "If >0, grants infinite magic");

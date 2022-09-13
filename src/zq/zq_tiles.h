@@ -34,7 +34,7 @@ int32_t writetilefile(PACKFILE *f, int32_t index, int32_t count);
 int32_t readtilefile_to_location(PACKFILE *f, int32_t start);
 int32_t readtilefile_to_location(PACKFILE *f, int32_t start, int32_t skip);
 
-int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite);
+int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t start = -1);
 int32_t readcombofile_to_location(PACKFILE *f, int32_t start, byte nooverwrite, int32_t skip);
 int32_t writecombofile(PACKFILE *f, int32_t index, int32_t count);
 
