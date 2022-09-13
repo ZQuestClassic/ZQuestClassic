@@ -2781,7 +2781,7 @@ int32_t parse_script_file(script_data **script, const char *path, bool report_su
 int32_t parse_script_file(script_data **script, FILE* fscript, bool report_success)
 {
 	saved=false;
-	char *buffer = new char[0x400];
+	char *buffer = new char[0x401];
 	char *combuf = new char[0x100];
 	char *arg1buf = new char[0x100];
 	char *arg2buf = new char[0x100];
@@ -2817,6 +2817,7 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 			{
 				ungetc(temp,fscript);
 				buffer[j] = getc(fscript);
+				buffer[j+1] = '\0';
 				if(j==0 && buffer[j] == '#' && !meta_done) //Metadata line
 				{
 					while(getc(fscript)!='\n')
@@ -2863,6 +2864,7 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 							break;
 						}
 						buffer[ind++] = vec ? toupper(c) : c;
+						buffer[ind] = '\0';
 						if(vec)
 						{
 							if(c == '}')
