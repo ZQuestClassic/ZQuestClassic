@@ -376,7 +376,7 @@ GUI::ListData GUI::ZCListData::counters(bool numbered, bool skipNone)
 	return ls;
 }
 
-GUI::ListData GUI::ZCListData::miscsprites()
+GUI::ListData GUI::ZCListData::miscsprites(bool skipNone, bool inclNegSpecialVals)
 {
 	std::map<std::string, int32_t> ids;
 	std::set<std::string> sprnames;
@@ -390,7 +390,14 @@ GUI::ListData GUI::ZCListData::miscsprites()
 	}
 	
 	GUI::ListData ls;
-	
+	if(inclNegSpecialVals)
+	{
+		ls.add("Grass Clippings", -4);
+		ls.add("Flower Clippings", -3);
+		ls.add("Bush Leaves", -2);
+	}
+	if(!skipNone)
+		ls.add("(None)", -1);
 	for(auto it = sprnames.begin(); it != sprnames.end(); ++it)
 	{
 		ls.add(*it, ids[*it]);

@@ -18389,6 +18389,14 @@ int32_t readcombo_loop(PACKFILE* f, word section_version, newcombo& temp_combo)
 			{
 				return qe_invalid;
 			}
+			if(!p_igetw(&temp_combo.liftundercmb,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_getc(&temp_combo.liftundercs,f,true))
+			{
+				return qe_invalid;
+			}
 			if(!p_getc(&temp_combo.liftdmg,f,true))
 			{
 				return qe_invalid;
@@ -18414,6 +18422,14 @@ int32_t readcombo_loop(PACKFILE* f, word section_version, newcombo& temp_combo)
 				return qe_invalid;
 			}
 			if(!p_getc(&temp_combo.liftsfx,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetw(&temp_combo.liftbreaksprite,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_getc(&temp_combo.liftbreaksfx,f,true))
 			{
 				return qe_invalid;
 			}

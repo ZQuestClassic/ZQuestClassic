@@ -17070,7 +17070,7 @@ static DIALOG advpaste_dlg[] =
 	{ jwin_check_proc,		110,	   40,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Triggered By", NULL, NULL },
 	{ jwin_check_proc,		110,	   50,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Script", NULL, NULL },
 	{ jwin_check_proc,		110,	   60,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Effect", NULL, NULL },
-	{ d_dummy_proc, 		110,	   70,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Lift", NULL, NULL },
+	{ jwin_check_proc,		110,	   70,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Lift", NULL, NULL },
 	
 	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -17199,7 +17199,9 @@ int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 		if(advpaste_dlg[17].flags & D_SELECTED)   // lift
 		{
 			combobuf[i].liftcmb = combo.liftcmb;
+			combobuf[i].liftundercmb = combo.liftundercmb;
 			combobuf[i].liftcs = combo.liftcs;
+			combobuf[i].liftundercs = combo.liftundercs;
 			combobuf[i].liftdmg = combo.liftdmg;
 			combobuf[i].liftlvl = combo.liftlvl;
 			combobuf[i].liftitm = combo.liftitm;
@@ -17207,6 +17209,8 @@ int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 			combobuf[i].liftgfx = combo.liftgfx;
 			combobuf[i].liftsprite = combo.liftsprite;
 			combobuf[i].liftsfx = combo.liftsfx;
+			combobuf[i].liftbreaksprite = combo.liftbreaksprite;
+			combobuf[i].liftbreaksfx = combo.liftbreaksfx;
 		}
 	}
 	

@@ -276,7 +276,7 @@ const char default_itype_strings[itype_max][255] =
 	"Custom Weapon 06", "Custom Weapon 07", "Custom Weapon 08", "Custom Weapon 09", "Custom Weapon 10",
 	"Ice Rod", "Attack Ring", "Lanterns", "Pearls", "Bottles", "Bottle Fillers", "Bug Nets", "Mirrors",
 	"SwitchHooks", "Item Bundle", "Progressive Item", "Note", "Refiller",
-	//"Lift Glove"
+	"Lift Glove"
 };
 const char counter_default_names[MAX_COUNTERS][255] =
 {

@@ -70,6 +70,7 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index, bool cl
 	list_combscript(GUI::ZCListData::combodata_script()),
 	list_counters_nn(GUI::ZCListData::counters(true, true)),
 	list_sprites(GUI::ZCListData::miscsprites()),
+	list_sprites_spec(GUI::ZCListData::miscsprites(false,true)),
 	list_weaptype(GUI::ZCListData::lweaptypes()),
 	list_deftypes(GUI::ZCListData::deftypes())
 {
@@ -2754,12 +2755,11 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							)
 						))
 					)),
-					/*TabRef(name = "Lifting", visible = false, Rows<2>(
+					TabRef(name = "Lifting", Row(
 						Frame(
 							padding = 0_px,
 							vAlign = 0.5,
-							// forceFitH = true,
-							// forceFitW = true,
+							fitParent = true,
 							Column(
 								Label(text = "Graphics"),
 								DropDownList(data = listdata_lift_gfx,
@@ -2789,16 +2789,40 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										{
 											local_comboref.liftsprite = val;
 										}
+									),
+								Label(text = "Break Sprite"),
+								DropDownList(data = list_sprites_spec,
+										fitParent = true,
+										selectedValue = local_comboref.liftbreaksprite,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_comboref.liftbreaksprite = val;
+										}
 									)
 							)
 						),
 						Frame(
 							padding = 0_px,
 							vAlign = 0.5,
-							forceFitH = true,
-							// forceFitW = true,
+							fitParent = true,
 							Rows<3>(
-								Checkbox(colSpan = 3,
+								DummyWidget(),
+								Label(text = "Lift Undercombo:", colSpan = 2, hAlign = 0.0),
+								//
+								INFOBTN("The combo that will replace this combo when lifted"),
+								SelComboSwatch(
+									colSpan = 2, hAlign = 0.0,
+									showvals = true,
+									combo = local_comboref.liftundercmb,
+									cset = local_comboref.liftundercs,
+									onSelectFunc = [&](int32_t cmb, int32_t c)
+									{
+										local_comboref.liftundercmb = cmb;
+										local_comboref.liftundercs = c;
+									}),
+								//
+								DummyWidget(),
+								Checkbox(colSpan = 2,
 									text = "Is Liftable", hAlign = 0.0,
 									checked = local_comboref.liftflags & LF_LIFTABLE,
 									onToggleFunc = [&](bool state)
@@ -2806,6 +2830,64 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										SETFLAG(local_comboref.liftflags,LF_LIFTABLE,state);
 									}
 								),
+								//
+								DummyWidget(),
+								Checkbox(colSpan = 2,
+									text = "Lift Undercombo ignores CSet", hAlign = 0.0,
+									checked = local_comboref.liftflags & LF_NOUCSET,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_comboref.liftflags,LF_NOUCSET,state);
+									}
+								),
+								//
+								DummyWidget(),
+								Checkbox(colSpan = 2,
+									text = "Other Combo GFX ignores CSet", hAlign = 0.0,
+									checked = local_comboref.liftflags & LF_NOWPNCMBCSET,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_comboref.liftflags,LF_NOWPNCMBCSET,state);
+									}
+								),
+								//
+								DummyWidget(),
+								Checkbox(colSpan = 2,
+									text = "Use Dropset instead of Item ID", hAlign = 0.0,
+									checked = local_comboref.liftflags & LF_DROPSET,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_comboref.liftflags,LF_DROPSET,state);
+									}
+								),
+								//
+								INFOBTN("The item will be dropped under the combo when"
+									" it is lifted, instead of from the thrown object when it breaks."),
+								Checkbox(colSpan = 2,
+									text = "Drop on lift instead of break", hAlign = 0.0,
+									checked = local_comboref.liftflags & LF_DROPONLIFT,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_comboref.liftflags,LF_DROPONLIFT,state);
+									}
+								),
+								//
+								INFOBTN("The item will be the room's 'Special Item', and will not 'time out'."),
+								Checkbox(colSpan = 2,
+									text = "Drops Special Item", hAlign = 0.0,
+									checked = local_comboref.liftflags & LF_SPECIALITEM,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_comboref.liftflags,LF_SPECIALITEM,state);
+									}
+								)
+							)
+						),
+						Frame(
+							padding = 0_px,
+							vAlign = 0.5,
+							fitParent = true,
+							Rows<3>(
 								Label(text = "Damage:", hAlign = 1.0),
 								TextField(
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -2815,6 +2897,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										local_comboref.liftdmg = val;
 									}),
 								INFOBTN("Weapon Power for the 'thrown object' weapon"),
+								//
 								Label(text = "Lift Level:", hAlign = 1.0),
 								TextField(
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -2824,6 +2907,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										local_comboref.liftlvl = val;
 									}),
 								INFOBTN("The level of " + string(ZI.getItemClassName(itype_liftglove)) + " needed to lift this object."),
+								//
 								Label(text = "Lift SFX:", hAlign = 1.0),
 								TextField(
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -2832,18 +2916,18 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									{
 										local_comboref.liftsfx = val;
 									}),
-								INFOBTN("The sfx to play when lifted")
-							)
-						),
-						Frame(
-							padding = 0_px,
-							vAlign = 0.5,
-							// forceFitH = true,
-							forceFitW = true,
-							colSpan = 2,
-							Rows<4>(
-								INFOBTN("If 0, drops no item."
-									"\nIf >0, drops that item ID."),
+								INFOBTN("The sfx to play when lifted"),
+								//
+								Label(text = "Break SFX:", hAlign = 1.0),
+								TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 255, val = local_comboref.liftbreaksfx,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.liftbreaksfx = val;
+									}),
+								INFOBTN("The sfx to play when the object breaks"),
+								//
 								Label(text = "Item Drop:"),
 								TextField(
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -2852,29 +2936,11 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									{
 										local_comboref.liftitm = val;
 									}),
-								DummyWidget(),
-								DummyWidget(),
-								Checkbox(colSpan = 3,
-									text = "Use Dropset instead of Item ID", hAlign = 0.0,
-									checked = local_comboref.liftflags & LF_DROPSET,
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_comboref.liftflags,LF_DROPSET,state);
-									}
-								),
-								INFOBTN("The item will be dropped under the combo when"
-									" it is lifted, instead of from the thrown object when it breaks."),
-								Checkbox(colSpan = 3,
-									text = "Drop on lift instead of break", hAlign = 0.0,
-									checked = local_comboref.liftflags & LF_DROPONLIFT,
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_comboref.liftflags,LF_DROPONLIFT,state);
-									}
-								)
+								INFOBTN("If 0, drops no item."
+									"\nIf >0, drops that item ID.")
 							)
 						)
-					)),*/
+					)),
 					TabRef(name = "Script", Column(
 						INITD_ROW2(0, local_comboref.initd),
 						INITD_ROW2(1, local_comboref.initd),

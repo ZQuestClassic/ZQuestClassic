@@ -9088,6 +9088,8 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 	if(screen.guy || screen.str
 		|| screen.room || screen.catchall)
 		scr_has_flags |= SCRHAS_ROOMDATA;
+	if(screen.hasitem)
+		scr_has_flags |= SCRHAS_ITEM;
 	if((screen.warpreturnc&0x00FF) || screen.tilewarpoverlayflags)
 		scr_has_flags |= SCRHAS_TWARP;
 	else for(auto q = 0; q < 4; ++q)
@@ -9703,7 +9705,9 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		combo_has_flags |= CHAS_GENERAL;
 	if(tmp_cmb.liftcmb || tmp_cmb.liftcs || tmp_cmb.liftdmg
 		|| tmp_cmb.liftlvl || tmp_cmb.liftitm || tmp_cmb.liftflags
-		|| tmp_cmb.liftgfx || tmp_cmb.liftsprite || tmp_cmb.liftsfx)
+		|| tmp_cmb.liftgfx || tmp_cmb.liftsprite || tmp_cmb.liftsfx
+		|| tmp_cmb.liftundercmb || tmp_cmb.liftundercs
+		|| tmp_cmb.liftbreaksprite!=-1 || tmp_cmb.liftbreaksfx)
 		combo_has_flags |= CHAS_LIFT;
 	
 	if(!p_putc(combo_has_flags,f))
@@ -9926,33 +9930,49 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		{
 			return 52;
 		}
-		if(!p_putc(tmp_cmb.liftdmg,f))
+		if(!p_iputw(tmp_cmb.liftundercmb,f))
 		{
 			return 53;
 		}
-		if(!p_putc(tmp_cmb.liftlvl,f))
+		if(!p_putc(tmp_cmb.liftundercs,f))
 		{
 			return 54;
 		}
-		if(!p_putc(tmp_cmb.liftitm,f))
+		if(!p_putc(tmp_cmb.liftdmg,f))
 		{
 			return 55;
 		}
-		if(!p_putc(tmp_cmb.liftflags,f))
+		if(!p_putc(tmp_cmb.liftlvl,f))
 		{
 			return 56;
 		}
-		if(!p_putc(tmp_cmb.liftgfx,f))
+		if(!p_putc(tmp_cmb.liftitm,f))
 		{
 			return 57;
 		}
-		if(!p_putc(tmp_cmb.liftsprite,f))
+		if(!p_putc(tmp_cmb.liftflags,f))
 		{
 			return 58;
 		}
-		if(!p_putc(tmp_cmb.liftsfx,f))
+		if(!p_putc(tmp_cmb.liftgfx,f))
 		{
 			return 59;
+		}
+		if(!p_putc(tmp_cmb.liftsprite,f))
+		{
+			return 60;
+		}
+		if(!p_putc(tmp_cmb.liftsfx,f))
+		{
+			return 61;
+		}
+		if(!p_iputw(tmp_cmb.liftbreaksprite,f))
+		{
+			return 62;
+		}
+		if(!p_putc(tmp_cmb.liftbreaksfx,f))
+		{
+			return 63;
 		}
 	}
 	return 0;

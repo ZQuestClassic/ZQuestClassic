@@ -4130,7 +4130,7 @@ int32_t weaponToDefence(int32_t wid)
 		case wScript10:  return edefSCRIPT10;
 		case wIce:  return edefICE;
 		case wSound: return edefSONIC;
-		//case wThrowRock: return edefTHROWNROCK;
+		case wThrown: return edefTHROWN;
 		//case wPot: return edefPOT;
 //		case wLitZap: return edefELECTRIC;
 //		case wZ3Sword: return edefZ3SWORD;

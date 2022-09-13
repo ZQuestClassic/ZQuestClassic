@@ -3678,6 +3678,7 @@ enum //constants for 'GENEV_HEROHIT_HITTYPE'
 enum //*weapon->Flags[] indexes
 {
 	WFLAG_PICKUP_ITEMS,
+	WFLAG_BREAKS_ON_LANDING,
 	WFLAG_MAX
 };
 

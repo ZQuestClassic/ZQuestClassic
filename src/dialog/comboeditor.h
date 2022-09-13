@@ -56,7 +56,7 @@ private:
 	int32_t index;
 	newcombo local_comboref;
 	GUI::ListData list_ctype, list_flag, list_combscript,
-		list_counters_nn, list_sprites, list_weaptype, list_deftypes;
+		list_counters_nn, list_sprites, list_sprites_spec, list_weaptype, list_deftypes;
 	friend bool call_combo_editor(int32_t index);
 };
 

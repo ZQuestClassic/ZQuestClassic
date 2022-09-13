@@ -314,6 +314,15 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		}
 		case itype_liftglove:
 		{
+			_SET(misc[0], "Button", "If 0, the item must be equipped to a button to use it.\n"
+				"Otherwise, any of the specified buttons will activate the glove, even when not equipped to a button.\n"
+				"Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)");
+			_SET(misc[1], "Throw Step", "The speed, in 1/100ths pixel per frame, of the thrown object");
+			_SET(misc[2], "Throw Jump", "The jump value, in 1/100ths pixel per frame, of the thrown object");
+			_SET(actionsnd[0], "Lift Sound", "SFX to play when an object is lifted,"
+				"\nand does not have its' own lift sound.");
+			_SET(actionsnd[1], "Throw Sound", "SFX to play when an object is thrown");
+			_SET(flag[0], "Fake Z Throw", "Throws weapons in the fakez axis instead of the z axis");
 			break;
 		}
 		case itype_magicring:

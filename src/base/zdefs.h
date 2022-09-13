@@ -1425,7 +1425,7 @@ enum
 	//39
     wScript9, wScript10, wIce, wFlame, //ice rod, fire rod
     wSound, // -Z: sound + defence split == digdogger, sound + one hit kill == pols voice -Z
-	wThrowRock, wPot, //Thrown pot or rock -Z
+	wThrown, wPot, //Thrown pot or rock -Z //Just gonna use a single 'wThrown' -Em
 	wLit, //Lightning or Electric -Z
 	wBombos, wEther, wQuake,// -Z
 	wSword180, wSwordLA,
@@ -1721,7 +1721,7 @@ enum
 	edefSCRIPT01, 	edefSCRIPT02,	edefSCRIPT03,	edefSCRIPT04,	edefSCRIPT05,	//24
 	edefSCRIPT06, 	edefSCRIPT07,	edefSCRIPT08,	edefSCRIPT09,	edefSCRIPT10,	//29
 	edefICE,	edefBAIT, 	edefWIND,	edefSPARKLE,	edefSONIC,	//34
-	edefWhistle,	edefSwitchHook,	edefRES007,	edefRES008,	edefRES009,	//39
+	edefWhistle,	edefSwitchHook,	edefTHROWN,	edefRES008,	edefRES009,	//39
 	edefRES010,	//x40
 	edefLAST255 //41
 	/*
@@ -3246,15 +3246,17 @@ struct newcombo
 	byte trigcopycat; //8 bits
 	byte trigcooldown; //8 bits
 	
-	word liftcmb;
-	byte liftcs;
-	byte liftdmg;
-	byte liftlvl;
-	byte liftitm;
 	byte liftflags;
-	byte liftgfx;
-	byte liftsprite;
+	byte liftlvl;
 	byte liftsfx;
+	byte liftitm;
+	byte liftgfx;
+	word liftcmb, liftundercmb;
+	byte liftcs, liftundercs;
+	byte liftsprite;
+	byte liftdmg;
+	int16_t liftbreaksprite;
+	byte liftbreaksfx;
 	
 	char label[11];
 		//Only one of these per combo: Otherwise we would have 
@@ -3333,7 +3335,9 @@ struct newcombo
 		aclk = 0;
 		
 		liftcmb = 0;
+		liftundercmb = 0;
 		liftcs = 0;
+		liftundercs = 0;
 		liftdmg = 0;
 		liftlvl = 0;
 		liftitm = 0;
@@ -3341,6 +3345,8 @@ struct newcombo
 		liftgfx = 0;
 		liftsprite = 0;
 		liftsfx = 0;
+		liftbreaksprite = -1;
+		liftbreaksfx = 0;
 	}
 
 	bool is_blank(bool ignoreEff = false)
@@ -3398,7 +3404,9 @@ struct newcombo
 		if(aclk) return false;
 		
 		if(liftcmb) return false;
+		if(liftundercmb) return false;
 		if(liftcs) return false;
+		if(liftundercs) return false;
 		if(liftdmg) return false;
 		if(liftlvl) return false;
 		if(liftitm) return false;
@@ -3406,6 +3414,8 @@ struct newcombo
 		if(liftgfx) return false;
 		if(liftsprite) return false;
 		if(liftsfx) return false;
+		if(liftbreaksprite != -1) return false;
+		if(liftbreaksfx) return false;
 		
 		return true;
 	}
@@ -3419,6 +3429,9 @@ struct newcombo
 #define LF_LIFTABLE       0x01
 #define LF_DROPSET        0x02
 #define LF_DROPONLIFT     0x04
+#define LF_SPECIALITEM    0x08
+#define LF_NOUCSET        0x10
+#define LF_NOWPNCMBCSET   0x20
 
 struct tiletype
 {
