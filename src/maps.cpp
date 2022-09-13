@@ -123,11 +123,34 @@ static bool is_a_region(int dmap, int scr)
 	return get_region_id(dmap, scr) != 0;
 }
 
-static bool is_in_region(int region_origin_scr, int dmap, int scr)
+static bool is_same_region_id(int region_origin_scr, int dmap, int scr)
 {
 	if (!is_a_region(dmap, scr)) return false;
 	int region_id = get_region_id(dmap, region_origin_scr);
 	return region_id && region_id == get_region_id(dmap, scr);
+}
+
+static bool is_in_region(int region_origin_scr, int dmap, int scr)
+{
+	if (!is_same_region_id(region_origin_scr, dmap, scr)) return false;
+
+	if (region_origin_scr != z3_origin_screen_index)
+	{
+		return true;
+	}
+	
+	// TODO: the above is wrong when region ids are reused. We don't have the width/height
+	// of non-current regions onhand so we'd have to calculate that.
+	int z3_scr_x = z3_origin_screen_index % 16;
+	int z3_scr_y = z3_origin_screen_index / 16;
+	int scr_x = scr % 16;
+	int scr_y = scr / 16;
+	
+	if (scr_x > z3_scr_x + region_scr_width) return false;
+	if (scr_x < z3_scr_x) return false;
+	if (scr_y > z3_scr_y + region_scr_height) return false;
+	if (scr_y < z3_scr_y) return false;
+	return true;
 }
 
 bool is_in_current_region(int scr)
@@ -181,12 +204,12 @@ void z3_calculate_region(int dmap, int screen_index, int& origin_scr, int& regio
 	origin_scr = screen_index;
 	while (origin_scr_x > 0)
 	{
-		if (!is_in_region(origin_scr, dmap, scr_xy_to_index(origin_scr_x - 1, origin_scr_y))) break;
+		if (!is_same_region_id(origin_scr, dmap, scr_xy_to_index(origin_scr_x - 1, origin_scr_y))) break;
 		origin_scr_x--;
 	}
 	while (origin_scr_y > 0)
 	{
-		if (!is_in_region(origin_scr, dmap, scr_xy_to_index(origin_scr_x, origin_scr_y - 1))) break;
+		if (!is_same_region_id(origin_scr, dmap, scr_xy_to_index(origin_scr_x, origin_scr_y - 1))) break;
 		origin_scr_y--;
 	}
 	origin_scr = scr_xy_to_index(origin_scr_x, origin_scr_y);
@@ -195,13 +218,13 @@ void z3_calculate_region(int dmap, int screen_index, int& origin_scr, int& regio
 	int region_scr_right = origin_scr_x;
 	while (region_scr_right < 15)
 	{
-		if (!is_in_region(origin_scr, dmap, scr_xy_to_index(region_scr_right + 1, origin_scr_y))) break;
+		if (!is_same_region_id(origin_scr, dmap, scr_xy_to_index(region_scr_right + 1, origin_scr_y))) break;
 		region_scr_right++;
 	}
 	int region_scr_bottom = origin_scr_y;
 	while (region_scr_bottom < 7)
 	{
-		if (!is_in_region(origin_scr, dmap, scr_xy_to_index(origin_scr_x, region_scr_bottom + 1))) break;
+		if (!is_same_region_id(origin_scr, dmap, scr_xy_to_index(origin_scr_x, region_scr_bottom + 1))) break;
 		region_scr_bottom++;
 	}
 
@@ -4189,10 +4212,8 @@ void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigne
 	{
 		if (is_in_current_region(scr))
 		{
-			int scr_x = scr % 16;
-			int scr_y = scr / 16;
-			if (scr_x < z3_scr_x || scr_y < z3_scr_y) continue;
-
+			unsigned int scr_x = scr % 16;
+			unsigned int scr_y = scr / 16;
 			unsigned int z3_scr_dx = scr_x - z3_scr_x;
 			unsigned int z3_scr_dy = scr_y - z3_scr_y;
 			mapscr* z3_scr = get_scr(currmap, scr);

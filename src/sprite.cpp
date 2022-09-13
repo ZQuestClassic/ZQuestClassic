@@ -1259,6 +1259,7 @@ void sprite::draw(BITMAP* dest)
 					
 				
 				destroy_bitmap(temp);
+				destroy_bitmap(temp2);
 				break;
 			}
 			case 3:
@@ -1473,7 +1474,7 @@ void sprite::draw(BITMAP* dest)
 					}
 					else doSpriteDraw(drawstyle, dest, sprBMP, sx, sy);
 				}
-				if ( sprBMP ) destroy_bitmap(sprBMP);
+				destroy_bitmap(sprBMP);
 				break;
 			}
 			break; //Aye, we break switch(e) here.
@@ -1578,11 +1579,7 @@ void sprite::draw(BITMAP* dest)
 	if(show_hitboxes && !is_zquest())
 		rect(dest,x+hxofs,y+playing_field_offset+hyofs-(z+zofs)-fakez,x+hxofs+hxsz-1,(y+playing_field_offset+hyofs+hysz-(z+zofs)-fakez)-1,vc((id+16)%255));
 
-	if ( sprBMP2 ) 
-	{
-		//if there is still somehow data in the scaling bitmap
-		destroy_bitmap(sprBMP2);
-	}
+	destroy_bitmap(sprBMP2);
 	
 	yofs = tyoffs;
 }

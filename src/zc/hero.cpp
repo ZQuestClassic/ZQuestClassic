@@ -2927,7 +2927,7 @@ attack:
 
 void HeroClass::masked_draw(BITMAP* dest)
 {
-    if(isdungeon() && currscr<128 && (x<16 || x>224 || y<18 || y>146) && !get_bit(quest_rules,qr_FREEFORM))
+    if(isdungeon() && currscr<128 && (x<16 || x>(world_w-32) || y<18 || y>(world_h-30)) && !get_bit(quest_rules,qr_FREEFORM))
     {
         // clip under doorways
         BITMAP *sub=create_sub_bitmap(dest,16,playing_field_offset+16,224,144);
