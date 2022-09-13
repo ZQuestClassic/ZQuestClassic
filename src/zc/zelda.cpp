@@ -3939,7 +3939,7 @@ void game_loop()
 						game->set_bombs(zc_min(game->get_bombs() + itemsbuf[itemid].misc1, game->get_maxbombs()));
 					}
 					
-					if(itemsbuf[itemid].flags & ITEM_FLAG1)
+					if((itemsbuf[itemid].flags & ITEM_FLAG1) && zinit.bomb_ratio)
 					{
 						int32_t ratio = zinit.bomb_ratio;
 						
