@@ -24,6 +24,7 @@ public:
 	{
 		content = std::move(newContent);
 	}
+	void setPtr(int32_t* ptr);
 
 private:
 	using mousePosFunc=int32_t();
@@ -35,6 +36,7 @@ private:
 	int32_t scrollPos, maxScrollPos, contentHeight;
 	mousePosFunc* oldMouseX;
 	mousePosFunc* oldMouseY;
+	int32_t* scrollptr;
 
 	void scroll(int32_t amount) noexcept;
 	bool scrollToShowChild(int32_t childPos);

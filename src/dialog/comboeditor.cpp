@@ -17,6 +17,8 @@ using std::string;
 using std::to_string;
 
 static size_t cmb_tab1 = 0, cmb_tab2 = 0, cmb_tab3 = 0;
+static int32_t scroll_pos1 = 0, scroll_pos2 = 0, scroll_pos3 = 0, scroll_pos4 = 0,
+	scroll_pos5 = 0, scroll_pos6 = 0, scroll_pos7 = 0, scroll_pos8 = 0;
 
 bool hasCTypeEffects(int32_t type)
 {
@@ -2242,6 +2244,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						)
 					)),
 					TabRef(name = "Attribs", ScrollingPane(
+						ptr = &scroll_pos1,
 						fitParent = true,
 						Rows<6>(
 							Label(text = "Attribytes", colSpan = 3),
@@ -3246,6 +3249,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					TabRef(name = "Attribs", TabPanel(
 							ptr = &cmb_tab2,
 							TabRef(name = "Bytes", ScrollingPane(fitParent = true,
+								ptr = &scroll_pos2,
 								Rows<3>(
 									CMB_ATTRIBYTE(0),
 									CMB_ATTRIBYTE(1),
@@ -3258,6 +3262,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								)
 							)),
 							TabRef(name = "Shorts", ScrollingPane(fitParent = true,
+								ptr = &scroll_pos3,
 								Rows<3>(
 									CMB_ATTRISHORT(0),
 									CMB_ATTRISHORT(1),
@@ -3270,6 +3275,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								)
 							)),
 							TabRef(name = "Attributes", ScrollingPane(fitParent = true,
+								ptr = &scroll_pos4,
 								Rows<3>(
 									CMB_ATTRIBUTE(0),
 									CMB_ATTRIBUTE(1),
@@ -3281,6 +3287,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					TabRef(name = "Triggers", TabPanel(
 						ptr = &cmb_tab3,
 						TabRef(name = "Weapons", ScrollingPane(
+							ptr = &scroll_pos5,
 							Column(framed = true,
 								Row(
 									l_minmax_trig = Label(text = "Min Level (Applies to all):"),
@@ -3341,6 +3348,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							)
 						)),
 						TabRef(name = "EWeapons", ScrollingPane(
+							ptr = &scroll_pos6,
 							Column(framed = true,
 								Rows<2>(
 									TRIGFLAG(31,"Fireball"),
@@ -3371,6 +3379,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							)
 						)),
 						TabRef(name = "Other", ScrollingPane(
+							ptr = &scroll_pos7,
 							Row(
 								Column(padding = 0_px,
 									Column(framed = true,
@@ -3648,6 +3657,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							)
 						)),
 						TabRef(name = "States/Spawning", ScrollingPane(
+							ptr = &scroll_pos8,
 							Column(
 								Row(
 									Rows<3>(framed = true,

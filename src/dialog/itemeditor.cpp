@@ -985,6 +985,7 @@ int32_t calcBottleTile(itemdata const& local_itemref, byte bottleVal)
 //}
 
 static size_t itmtabs[4] = {0};
+static int32_t scroll_pos1 = 0, scroll_pos2 = 0;
 static byte bottleType = 0;
 std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 {
@@ -2382,6 +2383,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 					TabRef(name = "Data", TabPanel(
 						ptr = &itmtabs[1],
 						TabRef(name = "Attrib", ScrollingPane(
+							ptr = &scroll_pos1,
 							Rows<3>(
 								Label(width=ATTR_LAB_WID,textAlign=2,text="Level:"),
 								Button(forceFitH = true, text = "?",
@@ -2414,6 +2416,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							)
 						)),
 						TabRef(name = "Flags", ScrollingPane(
+							ptr = &scroll_pos2,
 							Column(
 								topMargin = 6_px,
 								Column(

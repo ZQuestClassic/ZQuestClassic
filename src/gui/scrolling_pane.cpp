@@ -140,6 +140,7 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 				d->d1=1;
 				d->d2=sp->scrollPos;
 				_handle_jwin_scrollable_scroll_click(d, sp->contentHeight, &sp->scrollPos, nullptr);
+				if(sp->scrollptr) *(sp->scrollptr) = sp->scrollPos;
 				d->d1=0;
 			}
 			return D_O_K;
@@ -183,7 +184,7 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 }
 
 ScrollingPane::ScrollingPane(): childrenEnd(0), scrollPos(0), maxScrollPos(0),
-	contentHeight(0), oldMouseX(nullptr), oldMouseY(nullptr)
+	contentHeight(0), oldMouseX(nullptr), oldMouseY(nullptr), scrollptr(nullptr)
 {
 	bgColor=jwin_pal[jcBOX];
 }
@@ -194,6 +195,7 @@ void ScrollingPane::scroll(int32_t amount) noexcept
 	int32_t newPos=std::clamp(scrollPos+amount, 0, maxScrollPos);
 	amount=newPos-scrollPos;
 	scrollPos=newPos;
+	if(scrollptr && alDialog) *scrollptr = scrollPos;
 	for(size_t i = 1; i < childrenEnd; ++i)
 		alDialog[i].y-=amount;
 }
@@ -238,6 +240,13 @@ void ScrollingPane::applyDisabled(bool dis)
 		content->applyDisabled(dis);
 		END_CLIP();
 	}
+}
+
+void ScrollingPane::setPtr(int32_t* ptr)
+{
+	scrollptr = ptr;
+	if(ptr && alDialog)
+		scroll(*ptr-scrollPos);
 }
 
 void ScrollingPane::calculateSize()
@@ -323,6 +332,9 @@ void ScrollingPane::realize(DialogRunner& runner)
 		0, 0, // d1, d2
 		this, nullptr, nullptr // dp, dp2, dp3
 	});
+	
+	if(scrollptr)
+		scroll(*scrollptr-scrollPos);
 }
 
 }
