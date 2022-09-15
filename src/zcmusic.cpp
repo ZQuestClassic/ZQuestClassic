@@ -1693,6 +1693,9 @@ Music_Emu* gme_load_file(const char* filename, const char* ext)
         gme_delete(emu);
         return NULL;
     }
+
+    gme_set_autoload_playback_limit(emu, false);
+
     return emu;
 }
 
