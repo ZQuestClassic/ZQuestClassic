@@ -4176,12 +4176,12 @@ int32_t onPgDn()
 			{
 				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 				{
-					First[current_combolist]-=zc_min(First[current_combolist],256);
+					First[current_combolist]=zc_min((MAXCOMBOS-combolist[0].w*combolist[0].h),First[current_combolist]+256);
 					clear_tooltip();
 				}
 				else
 				{
-					First[current_combolist]-=zc_min(First[current_combolist],(combolist[0].w*combolist[0].h));
+					First[current_combolist]=zc_min((MAXCOMBOS-(combolist[0].w*combolist[0].h)),First[current_combolist]+(combolist[0].w*combolist[0].h));
 					clear_tooltip();
 				}
 				
