@@ -2476,7 +2476,7 @@ struct mapscr
 	}
 	void ffEffectWidth(size_t ind, byte val)
 	{
-		ffwidth[ind] = (ffwidth[ind] & ~63) | (val-1)&63;
+		ffwidth[ind] = (ffwidth[ind] & ~63) | ((val-1)&63);
 	}
 	byte ffEffectHeight(size_t ind) const
 	{
@@ -2484,7 +2484,7 @@ struct mapscr
 	}
 	void ffEffectHeight(size_t ind, byte val)
 	{
-		ffheight[ind] = (ffheight[ind] & ~63) | (val-1)&63;
+		ffheight[ind] = (ffheight[ind] & ~63) | ((val-1)&63);
 	}
 	byte ffTileWidth(size_t ind) const
 	{
