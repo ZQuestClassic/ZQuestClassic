@@ -5530,7 +5530,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 // the new screen has a 0 combo).
 void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_x80_dir)
 {
-	if (destdmap < 0 ? currdmap : destdmap) destdmap = currdmap;
+	if (destdmap < 0) destdmap = currdmap;
 
 	triggered_screen_secrets = false;
 	init_combo_timers();
