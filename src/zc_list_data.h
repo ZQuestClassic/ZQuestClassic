@@ -15,7 +15,7 @@ namespace GUI::ZCListData
 	GUI::ListData combotype(bool numbered = false, bool skipNone = false);
 	GUI::ListData mapflag(int32_t numericalFlags, bool numbered = false, bool skipNone = false);
 	GUI::ListData counters(bool numbered = false, bool skipNone = false);
-	GUI::ListData miscsprites();
+	GUI::ListData miscsprites(bool skipNone = true, bool inclNegSpecialVals = false);
 	GUI::ListData bottletype();
 	GUI::ListData dmaps(bool numbered = false);
 	GUI::ListData lweaptypes();

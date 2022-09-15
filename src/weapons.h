@@ -36,7 +36,11 @@ extern byte bszboomflip[4];
 #define WPNUNB_REFL      0x08
 #define WPNUNB_ALL       0x0F
 
-#define WPNPICKITEMS     0x01
+#define WFLAG_PICKUP_ITEMS         0x01
+#define WFLAG_BREAK_WHEN_LANDING   0x02
+#define WFLAG_BREAK_ON_SOLID       0x04
+
+#define WFLAG_MAX 2
 
 class weapon : public sprite
 {
@@ -71,7 +75,14 @@ public:
 	byte misc_wflags;
 	byte wscreengrid[22];
 	byte wscreengrid_layer[6][22];
-
+	
+	int16_t death_spawnitem;
+	int16_t death_spawndropset;
+	int32_t death_item_pflags;
+	int16_t death_sprite;
+	byte death_sfx;
+	bool has_shadow;
+	
 	//!DIMI: More variables? That suuuuuure won't break anything. Nope.
     int32_t count1; 
     int32_t count2;
@@ -130,6 +141,7 @@ public:
     virtual ~weapon();
 	void cleanup_sfx();
     void LOADGFX(int32_t wpn);
+    void LOADGFX_CMB(int32_t cid, int32_t cset);
     void findcombotriggers();
     bool Dead();
     bool isScriptGenerated();

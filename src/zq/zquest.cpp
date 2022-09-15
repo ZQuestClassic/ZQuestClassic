@@ -31822,7 +31822,6 @@ int32_t main(int32_t argc,char **argv)
 		exit(0);
 	}
 	zcmusic_init();
-	zcmusic_init();
 	
 	switch(zqColorDepth) //defaults to 8bit
 	{

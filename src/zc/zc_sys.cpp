@@ -9588,6 +9588,19 @@ static bool rButton(bool &btn, bool &flag)
     
     return false;
 }
+static bool rButtonPeek(bool btn, bool flag)
+{
+    if(!btn)
+    {
+		return false;
+    }
+    else if(!flag)
+    {
+        return true;
+    }
+    
+    return false;
+}
 
 bool control_state[18]=
 {
@@ -9731,7 +9744,7 @@ bool zc_key_pressed()
     return false;
 }
 
-bool getInput(int32_t btn, bool press, bool drunk, bool ignoreDisable, bool eatEntirely)
+bool getInput(int32_t btn, bool press, bool drunk, bool ignoreDisable, bool eatEntirely, bool peek)
 {
 	bool ret = false, drunkstate = false;
 	bool* flag = NULL;
@@ -9796,23 +9809,28 @@ bool getInput(int32_t btn, bool press, bool drunk, bool ignoreDisable, bool eatE
 			}
 	}
 	assert(flag);
-	if(press) ret = rButton(ret, *flag);
+	if(press)
+	{
+		if(peek)
+			ret = rButtonPeek(ret, *flag);
+		else ret = rButton(ret, *flag);
+	}
 	if(eatEntirely && ret) control_state[btn] = false;
 	if(drunk && drunkstate) ret = !ret;
 	return ret;
 }
 
-byte getIntBtnInput(byte intbtn, bool press, bool drunk, bool ignoreDisable, bool eatEntirely)
+byte getIntBtnInput(byte intbtn, bool press, bool drunk, bool ignoreDisable, bool eatEntirely, bool peek)
 {
 	byte ret = 0;
-	if(intbtn & INT_BTN_A) ret |= getInput(btnA, press, drunk, ignoreDisable, eatEntirely) ? INT_BTN_A : 0;
-	if(intbtn & INT_BTN_B) ret |= getInput(btnB, press, drunk, ignoreDisable, eatEntirely) ? INT_BTN_B : 0;
-	if(intbtn & INT_BTN_L) ret |= getInput(btnL, press, drunk, ignoreDisable, eatEntirely) ? INT_BTN_L : 0;
-	if(intbtn & INT_BTN_R) ret |= getInput(btnR, press, drunk, ignoreDisable, eatEntirely) ? INT_BTN_R : 0;
-	if(intbtn & INT_BTN_EX1) ret |= getInput(btnEx1, press, drunk, ignoreDisable, eatEntirely) ? INT_BTN_EX1 : 0;
-	if(intbtn & INT_BTN_EX2) ret |= getInput(btnEx2, press, drunk, ignoreDisable, eatEntirely) ? INT_BTN_EX2 : 0;
-	if(intbtn & INT_BTN_EX3) ret |= getInput(btnEx3, press, drunk, ignoreDisable, eatEntirely) ? INT_BTN_EX3 : 0;
-	if(intbtn & INT_BTN_EX4) ret |= getInput(btnEx4, press, drunk, ignoreDisable, eatEntirely) ? INT_BTN_EX4 : 0;
+	if(intbtn & INT_BTN_A) ret |= getInput(btnA, press, drunk, ignoreDisable, eatEntirely, peek) ? INT_BTN_A : 0;
+	if(intbtn & INT_BTN_B) ret |= getInput(btnB, press, drunk, ignoreDisable, eatEntirely, peek) ? INT_BTN_B : 0;
+	if(intbtn & INT_BTN_L) ret |= getInput(btnL, press, drunk, ignoreDisable, eatEntirely, peek) ? INT_BTN_L : 0;
+	if(intbtn & INT_BTN_R) ret |= getInput(btnR, press, drunk, ignoreDisable, eatEntirely, peek) ? INT_BTN_R : 0;
+	if(intbtn & INT_BTN_EX1) ret |= getInput(btnEx1, press, drunk, ignoreDisable, eatEntirely, peek) ? INT_BTN_EX1 : 0;
+	if(intbtn & INT_BTN_EX2) ret |= getInput(btnEx2, press, drunk, ignoreDisable, eatEntirely, peek) ? INT_BTN_EX2 : 0;
+	if(intbtn & INT_BTN_EX3) ret |= getInput(btnEx3, press, drunk, ignoreDisable, eatEntirely, peek) ? INT_BTN_EX3 : 0;
+	if(intbtn & INT_BTN_EX4) ret |= getInput(btnEx4, press, drunk, ignoreDisable, eatEntirely, peek) ? INT_BTN_EX4 : 0;
 	return ret; //No early return, to make sure all button presses are eaten that should be! -Em
 }
 

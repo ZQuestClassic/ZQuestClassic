@@ -34,6 +34,8 @@ bool force_ex_trigger(const pos_handle_t& pos_handle, char xstate = -1);
 bool do_trigger_combo(int layer, int pos, int32_t special = 0, weapon* w = NULL);
 bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special = 0, weapon* w = NULL);
 
+bool do_lift_combo(int32_t lyr, int32_t pos, int32_t gloveid);
+
 void init_combo_timers();
 void update_combo_timers();
 

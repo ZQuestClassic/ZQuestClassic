@@ -53,7 +53,7 @@ enum actiontype
 	// New 2.55 ActionTypes
 	falling, lavadrowning, sideswimming, sideswimhit, sideswimattacking, 
 	sidewaterhold1, sidewaterhold2, sideswimcasting, sideswimfreeze, sidedrowning,
-	sideswimisspinning, sideswimischarging, la_max
+	sideswimisspinning, sideswimischarging, lifting, la_max
 };
 
 typedef struct tilesequence
@@ -319,6 +319,11 @@ public:
 	byte hoverflags;
 	int32_t extra_jump_count;
 	
+	weapon* lift_wpn;
+	byte liftclk;
+	byte tliftclk;
+	zfix liftheight;
+	
 	
 	// Methods below here.
 	void doSwitchHook(byte style);
@@ -368,6 +373,10 @@ public:
 	bool startwpn(int32_t itemid);
 	bool mirrorBonk();
 	void doMirror(int32_t mirrorid);
+	void do_liftglove(int32_t liftid, bool passive);
+	bool can_lift(int32_t gloveid);
+	void handle_lift(bool dec = true);
+	void lift(weapon* w, byte timer, zfix height);
 	bool doattack();
 	bool can_attack();
 	void do_rafting();

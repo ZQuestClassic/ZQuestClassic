@@ -18,13 +18,15 @@ void TabRef::setContent(std::shared_ptr<Widget> newContent) noexcept
 void TabRef::applyVisibility(bool visible)
 {
 	Widget::applyVisibility(visible);
-	content->applyVisibility(visible);
+	if(content)
+		content->applyVisibility(visible);
 }
 
 void TabRef::applyDisabled(bool dis)
 {
 	Widget::applyDisabled(dis);
-	content->setDisabled(dis);
+	if(content)
+		content->setDisabled(dis);
 }
 
 void TabRef::calculateSize()

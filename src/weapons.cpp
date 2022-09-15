@@ -895,7 +895,13 @@ weapon::weapon(weapon const & other):
 	script_wrote_otile(other.script_wrote_otile),
 	weapon_dying_frame(other.weapon_dying_frame),
 	unblockable(other.unblockable),
-	misc_wflags(other.misc_wflags)
+	misc_wflags(other.misc_wflags),
+	death_spawnitem(other.death_spawnitem),
+	death_spawndropset(other.death_spawndropset),
+	death_item_pflags(other.death_item_pflags),
+	death_sprite(other.death_sprite),
+	death_sfx(other.death_sfx),
+	has_shadow(other.has_shadow)
     
 	
 	//End Weapon editor non-arrays. 
@@ -1155,6 +1161,12 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	parent_script_UID = 0;
 	unblockable = 0;
 	misc_wflags = 0;
+	death_spawnitem = -1;
+	death_spawndropset = -1;
+	death_sprite = -1;
+	death_sfx = 0;
+	death_item_pflags = 0;
+	has_shadow = true;
 	if ( Parentitem > -1 )
 	{
 		weaponscript = itemsbuf[Parentitem].weaponscript;
@@ -1254,8 +1266,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		}
 	}
 	
-	//Default Gravity
-	switch(id)
+	switch(id) //Default Gravity
 	{
 		case wFire:
 		
@@ -1270,8 +1281,17 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		case wBait:
 		case ewFlame:
 		case ewFireTrail:
+		case wThrown:
 			moveflags |= FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
 	}
+	
+	switch(id) //flags
+	{
+		case wThrown:
+			misc_wflags = WFLAG_BREAK_WHEN_LANDING;
+			break;
+	}
+	
 	
 	switch(id)
 	{
@@ -3198,6 +3218,23 @@ void weapon::LOADGFX(int32_t wpn)
     temp1 = wpnsbuf[wFIRE].newtile;
     behind = (wpnsbuf[wid].misc&WF_BEHIND)!=0;
 }
+void weapon::LOADGFX_CMB(int32_t cid, int32_t cset)
+{
+    if(unsigned(cid)>=MAXCOMBOS)
+        return;
+	newcombo const& cmb = combobuf[cid];
+	
+	flash = 0;
+	cs = vbound(cset,0,15);
+	o_tile = cmb.o_tile;
+	tile = cmb.tile;
+	ref_o_tile = o_tile;
+	o_cset = cset;
+	o_flip= cmb.flip;
+	o_speed = cmb.speed;
+	o_type = 0;
+	frames = cmb.frames;
+}
 
 bool weapon::Dead()
 {
@@ -3471,7 +3508,7 @@ bool weapon::animate(int32_t index)
 	bool hooked=false;
 	//Z_scripterrlog("Weapon script is: %d\n",weaponscript);
 	
-	if(misc_wflags & WPNPICKITEMS) //Weapon grabs touched items, giving them to the player, similar to engine melee weapons.
+	if(misc_wflags & WFLAG_PICKUP_ITEMS) //Weapon grabs touched items, giving them to the player, similar to engine melee weapons.
 	{
 		zfix wx = x+hxofs;
 		zfix wy = y+hyofs-fakez;
@@ -3691,6 +3728,9 @@ bool weapon::animate(int32_t index)
 					y-=(int32_t)y%8; // Fix position
 					
 				fall = 0;
+				
+				if(misc_wflags & WFLAG_BREAK_WHEN_LANDING) //Die
+					dead = 0;
 			}
 			
 			if (y > world_h + 16) dead=0;  // Out of bounds
@@ -3699,11 +3739,14 @@ bool weapon::animate(int32_t index)
 		{
 			if (!(moveflags & FLAG_NO_FAKE_Z))
 			{
+				bool didfall = fakez > 0;
 				fakez-=fakefall/100;
 			
 				if(fakez <= 0)
 				{
 					fakez = fakefall = 0;
+					if(didfall && (misc_wflags & WFLAG_BREAK_WHEN_LANDING)) //Die
+						dead = 0;
 				}
 				else if(fakefall <= (int32_t)zinit.terminalv)
 				{
@@ -3712,11 +3755,14 @@ bool weapon::animate(int32_t index)
 			}
 			if (!(moveflags & FLAG_NO_REAL_Z))
 			{
+				bool didfall = z > 0;
 				z-=fall/100;
 				
 				if(z <= 0)
 				{
 					z = fall = 0;
+					if(didfall && (misc_wflags & WFLAG_BREAK_WHEN_LANDING)) //Die
+						dead = 0;
 				}
 				else if(fall <= (int32_t)zinit.terminalv)
 				{
@@ -6840,6 +6886,12 @@ bool weapon::animate(int32_t index)
 		}
 	}
 	
+	if(misc_wflags & WFLAG_BREAK_ON_SOLID)
+	{
+		if(_walkflag(x,y,2) || _walkflag(x,y+8,2))
+			dead = 0;
+	}
+	
 	if(bounce)
 	{
 		switch(dir)
@@ -6875,16 +6927,47 @@ bool weapon::animate(int32_t index)
 		--dead;
 	}
 	
-	//if ( linked_parent != wBrang || linked_parent != wArrow && id != wPhantom )
-	//{
-		if(dead == 0 && !weapon_dying_frame && get_bit(quest_rules,qr_WEAPONS_EXTRA_FRAME))
+	bool ret = dead==0;
+	if(ret && !weapon_dying_frame && get_bit(quest_rules,qr_WEAPONS_EXTRA_FRAME))
+	{
+		if(id!=wSword)
 		{
-			if(id==wSword) return true;
 			weapon_dying_frame = true;
-			return false;
+			ret = false;
 		}
-	//}
-	return dead==0;
+	}
+	if(ret)
+	{
+		if(death_spawnitem > -1)
+		{
+			item* itm = (new item(x, y, z, death_spawnitem, death_item_pflags, 0));
+			itm->fakez = fakez;
+			items.add(itm);
+		}
+		if(death_spawndropset > -1)
+		{
+			auto itid = select_dropitem(death_spawndropset);
+			if(itid > -1)
+			{
+				item* itm = (new item(x, y, z, itid, death_item_pflags, 0));
+				itm->fakez = fakez;
+				itm->from_dropset = death_spawndropset;
+				items.add(itm);
+			}
+		}
+		switch(death_sprite)
+		{
+			case -2: decorations.add(new dBushLeaves(x, y-(z+fakez), dBUSHLEAVES, 0, 0)); break;
+			case -3: decorations.add(new dFlowerClippings(x, y-(z+fakez), dFLOWERCLIPPINGS, 0, 0)); break;
+			case -4: decorations.add(new dGrassClippings(x, y-(z+fakez), dGRASSCLIPPINGS, 0, 0)); break;
+			default:
+				if(death_sprite < 0) break;
+				decorations.add(new comboSprite(x, y-(z+fakez), 0, 0, death_sprite));
+		}
+		if(death_sfx > 0)
+			sfx(death_sfx, pan(int32_t(x)));
+	}
+	return ret;
 }
 
 void weapon::onhit(bool clipped, enemy* e, int32_t ehitType)
@@ -7713,7 +7796,7 @@ void weapon::draw(BITMAP *dest)
 	
 	// draw it
 	
-	if ( (z > 0||fakez > 0) && get_bit(quest_rules, qr_WEAPONSHADOWS) )
+	if (has_shadow && (z > 0||fakez > 0) && get_bit(quest_rules, qr_WEAPONSHADOWS) )
 	{
 		shadowtile = wpnsbuf[spr_shadow].newtile+aframe;
 		sprite::drawshadow(dest,get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
@@ -7821,6 +7904,12 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, i
 	//Z_scripterrlog("Dummy weapon param(%s) is: %d\n", "width", width);
 	unblockable = 0;
 	misc_wflags = 0;
+	death_spawnitem = -1;
+	death_spawndropset = -1;
+	death_sprite = -1;
+	death_sfx = 0;
+	has_shadow = true;
+	death_item_pflags = 0;
     x=X;
     y=Y;
     z=Z;

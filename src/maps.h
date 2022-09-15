@@ -21,6 +21,7 @@ int32_t COMBOPOS_REGION_EXTENDED(int32_t x, int32_t y);
 int32_t COMBOX_REGION_EXTENDED(int32_t pos);
 int32_t COMBOY_REGION_EXTENDED(int32_t pos);
 int32_t COMBOPOS(int32_t x, int32_t y);
+int32_t COMBOPOS_B(int32_t x, int32_t y);
 int32_t COMBOX(int32_t pos);
 int32_t COMBOY(int32_t pos);
 

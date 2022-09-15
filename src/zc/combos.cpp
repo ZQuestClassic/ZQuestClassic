@@ -1295,7 +1295,7 @@ bool trigger_stepfx(const pos_handle_t& pos_handle, bool stepped)
 			case wIce:
 			case wFlame: 
 			case wSound: // -Z: sound + defence split == digdogger, sound + one hit kill == pols voice -Z
-			//case wThrowRock: 
+			//case wThrown: 
 			//case wPot: //Thrown pot or rock -Z
 			//case wLit: //Lightning or Electric -Z
 			//case wBombos: 
@@ -1681,7 +1681,7 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 
 	cmbtimer& timer = combo_trig_timers[lyr][pos];
 	int32_t ocs = pos_handle.screen->cset[pos];
-	newcombo const& cmb = combobuf[cid];	
+	newcombo const& cmb = combobuf[cid];
 	bool hasitem = false;
 	
 	word ctramnt = game->get_counter(cmb.trigctr);
@@ -1989,6 +1989,94 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 
 	if(w && (cmb.triggerflags[0] & combotriggerKILLWPN))
 		killgenwpn(w);
+	return true;
+}
+
+bool do_lift_combo(int32_t lyr, int32_t pos, int32_t gloveid)
+{
+	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
+	if(!Hero.can_lift(gloveid)) return false;
+	if(Hero.lift_wpn) return false;
+	mapscr* tmp = FFCore.tempScreens[lyr];
+	int32_t cid = tmp->data[pos];
+	int32_t cset = tmp->cset[pos];
+	int32_t cx = COMBOX(pos);
+	int32_t cy = COMBOY(pos);
+	newcombo const& cmb = combobuf[cid];
+	itemdata const& glove = itemsbuf[gloveid];
+	if(cmb.liftlvl > glove.fam_type) return false;
+	//Able to lift, run effects
+	if(cmb.liftsfx) sfx(cmb.liftsfx,pan(cx));
+	else if(glove.usesound) sfx(glove.usesound,pan(cx));
+	
+	int32_t dropitem = -1, dropset = -1;
+	bool hasitem = cmb.liftitm>0;
+	auto pflags = ipBIGRANGE | ((cmb.liftflags&LF_SPECIALITEM) ? ipONETIME : ipTIMER);
+	if(hasitem)
+	{
+		if(cmb.liftflags & LF_DROPSET)
+			dropset = cmb.liftitm;
+		else dropitem = cmb.liftitm;
+	}
+	
+	if(hasitem && (cmb.liftflags&LF_SPECIALITEM) && getmapflag(mSPECIALITEM))
+	{
+		hasitem = false;
+		dropitem = dropset = -1;
+	}
+	
+	if(hasitem && (cmb.liftflags & LF_DROPONLIFT))
+	{
+		if(dropset > -1) dropitem = select_dropitem(dropset);
+		if(dropitem > -1)
+		{
+			item* itm = (new item((zfix)cx, (zfix)cy,(zfix)0, dropitem, pflags, 0));
+			itm->from_dropset = dropset;
+			items.add(itm);
+		}
+	}
+	
+	weapon* w = new weapon(cx, cy, 0, wThrown, 0, cmb.liftdmg*game->get_hero_dmgmult(),
+		oppositeDir[NORMAL_DIR(HeroDir())], gloveid, Hero.getUID(), false, 0, 1);
+	if(hasitem && !(cmb.liftflags & LF_DROPONLIFT))
+	{
+		w->death_spawnitem = dropitem;
+		w->death_spawndropset = dropset;
+		w->death_item_pflags = pflags;
+	}
+	switch(cmb.liftgfx)
+	{
+		case 0: //This combo
+		{
+			w->LOADGFX_CMB(cid,cset);
+			break;
+		}
+		case 1: //Other combo
+		{
+			auto lcs = (cmb.liftflags & LF_NOWPNCMBCSET) ? cset : cmb.liftcs;
+			w->LOADGFX_CMB(cmb.liftcmb,lcs);
+			break;
+		}
+		case 2: //Sprite Data
+		{
+			w->LOADGFX(cmb.liftsprite);
+			break;
+		}
+	}
+	
+	w->moveflags |= FLAG_OBEYS_GRAV;
+	if(cmb.liftflags & LF_BREAKONSOLID)
+		w->misc_wflags |= WFLAG_BREAK_ON_SOLID;
+	
+	w->death_sprite = cmb.liftbreaksprite;
+	w->death_sfx = cmb.liftbreaksfx;
+	
+	Hero.lift(w, 16, 8);
+	
+	tmp->data[pos] = cmb.liftundercmb;
+	if(!(cmb.liftflags & LF_NOUCSET))
+		tmp->cset[pos] = cmb.liftundercs;
+	tmp->sflag[pos] = 0;
 	return true;
 }
 

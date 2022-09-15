@@ -312,6 +312,20 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(actionsnd[0], "Activation Sound", "SFX to play when the item is used");
 			break;
 		}
+		case itype_liftglove:
+		{
+			_SET(misc[0], "Button", "If 0, the item must be equipped to a button to use it.\n"
+				"Otherwise, any of the specified buttons will activate the glove, even when not equipped to a button.\n"
+				"Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)");
+			_SET(misc[1], "Throw Step", "The speed, in 1/100ths pixel per frame, of the thrown object");
+			_SET(misc[2], "Throw Jump", "The jump value, in 1/100ths pixel per frame, of the thrown object");
+			_SET(actionsnd[0], "Lift Sound", "SFX to play when an object is lifted,"
+				"\nand does not have its' own lift sound.");
+			_SET(actionsnd[1], "Throw Sound", "SFX to play when an object is thrown");
+			_SET(flag[0], "Fake Z Throw", "Throws weapons in the fakez axis instead of the z axis");
+			_SET(flag[1], "Lift In Water", "Allows lifting while swimming");
+			break;
+		}
 		case itype_magicring:
 		{
 			_SET(power, "Infinite Magic:", "If >0, grants infinite magic");
@@ -971,6 +985,7 @@ int32_t calcBottleTile(itemdata const& local_itemref, byte bottleVal)
 //}
 
 static size_t itmtabs[4] = {0};
+static int32_t scroll_pos1 = 0, scroll_pos2 = 0;
 static byte bottleType = 0;
 std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 {
@@ -2368,6 +2383,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 					TabRef(name = "Data", TabPanel(
 						ptr = &itmtabs[1],
 						TabRef(name = "Attrib", ScrollingPane(
+							ptr = &scroll_pos1,
 							Rows<3>(
 								Label(width=ATTR_LAB_WID,textAlign=2,text="Level:"),
 								Button(forceFitH = true, text = "?",
@@ -2400,6 +2416,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							)
 						)),
 						TabRef(name = "Flags", ScrollingPane(
+							ptr = &scroll_pos2,
 							Column(
 								topMargin = 6_px,
 								Column(

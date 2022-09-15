@@ -122,6 +122,7 @@ Button(forceFitH = true, text = "?", \
 //}
 
 static size_t stred_tab_1 = 0;
+static int32_t scroll_pos1 = 0;
 std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 {
 	using namespace GUI::Builder;
@@ -368,6 +369,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 							}
 						),
 						ScrollingPane(
+							ptr = &scroll_pos1,
 							height = 48_px, padding = 0_px,
 							preview = MsgPreview(data = &tmpMsgStr, index = strIndex, text = start_text)
 						),

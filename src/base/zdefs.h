@@ -1434,7 +1434,7 @@ enum
 	//39
     wScript9, wScript10, wIce, wFlame, //ice rod, fire rod
     wSound, // -Z: sound + defence split == digdogger, sound + one hit kill == pols voice -Z
-	wThrowRock, wPot, //Thrown pot or rock -Z
+	wThrown, wPot, //Thrown pot or rock -Z //Just gonna use a single 'wThrown' -Em
 	wLit, //Lightning or Electric -Z
 	wBombos, wEther, wQuake,// -Z
 	wSword180, wSwordLA,
@@ -1730,7 +1730,7 @@ enum
 	edefSCRIPT01, 	edefSCRIPT02,	edefSCRIPT03,	edefSCRIPT04,	edefSCRIPT05,	//24
 	edefSCRIPT06, 	edefSCRIPT07,	edefSCRIPT08,	edefSCRIPT09,	edefSCRIPT10,	//29
 	edefICE,	edefBAIT, 	edefWIND,	edefSPARKLE,	edefSONIC,	//34
-	edefWhistle,	edefSwitchHook,	edefRES007,	edefRES008,	edefRES009,	//39
+	edefWhistle,	edefSwitchHook,	edefTHROWN,	edefRES008,	edefRES009,	//39
 	edefRES010,	//x40
 	edefLAST255 //41
 	/*
@@ -2485,7 +2485,7 @@ struct mapscr
 	}
 	void ffEffectWidth(size_t ind, byte val)
 	{
-		ffwidth[ind] = (ffwidth[ind] & ~63) | (val-1)&63;
+		ffwidth[ind] = (ffwidth[ind] & ~63) | ((val-1)&63);
 	}
 	byte ffEffectHeight(size_t ind) const
 	{
@@ -2493,7 +2493,7 @@ struct mapscr
 	}
 	void ffEffectHeight(size_t ind, byte val)
 	{
-		ffheight[ind] = (ffheight[ind] & ~63) | (val-1)&63;
+		ffheight[ind] = (ffheight[ind] & ~63) | ((val-1)&63);
 	}
 	byte ffTileWidth(size_t ind) const
 	{
@@ -3256,6 +3256,19 @@ struct newcombo
 	int32_t spawnip; //32 bits
 	byte trigcopycat; //8 bits
 	byte trigcooldown; //8 bits
+	
+	byte liftflags;
+	byte liftlvl;
+	byte liftsfx;
+	byte liftitm;
+	byte liftgfx;
+	word liftcmb, liftundercmb;
+	byte liftcs, liftundercs;
+	byte liftsprite;
+	byte liftdmg;
+	int16_t liftbreaksprite;
+	byte liftbreaksfx;
+	
 	char label[11];
 		//Only one of these per combo: Otherwise we would have 
 		//int32_t triggerlevel[54] (1,728 bits extra per combo in a quest, and in memory) !!
@@ -3331,6 +3344,20 @@ struct newcombo
 		o_tile = 0;
 		cur_frame = 0;
 		aclk = 0;
+		
+		liftcmb = 0;
+		liftundercmb = 0;
+		liftcs = 0;
+		liftundercs = 0;
+		liftdmg = 0;
+		liftlvl = 0;
+		liftitm = 0;
+		liftflags = 0;
+		liftgfx = 0;
+		liftsprite = 0;
+		liftsfx = 0;
+		liftbreaksprite = -1;
+		liftbreaksfx = 0;
 	}
 
 	bool is_blank(bool ignoreEff = false)
@@ -3386,6 +3413,21 @@ struct newcombo
 		if(o_tile) return false;
 		if(cur_frame) return false;
 		if(aclk) return false;
+		
+		if(liftcmb) return false;
+		if(liftundercmb) return false;
+		if(liftcs) return false;
+		if(liftundercs) return false;
+		if(liftdmg) return false;
+		if(liftlvl) return false;
+		if(liftitm) return false;
+		if(liftflags) return false;
+		if(liftgfx) return false;
+		if(liftsprite) return false;
+		if(liftsfx) return false;
+		if(liftbreaksprite != -1) return false;
+		if(liftbreaksfx) return false;
+		
 		return true;
 	}
 };
@@ -3394,6 +3436,14 @@ struct newcombo
 #define AF_CYCLE          0x02
 #define AF_CYCLENOCSET    0x04
 #define AF_TRANSPARENT    0x08
+
+#define LF_LIFTABLE       0x01
+#define LF_DROPSET        0x02
+#define LF_DROPONLIFT     0x04
+#define LF_SPECIALITEM    0x08
+#define LF_NOUCSET        0x10
+#define LF_NOWPNCMBCSET   0x20
+#define LF_BREAKONSOLID   0x40
 
 struct tiletype
 {
@@ -4300,6 +4350,7 @@ enum // used for gamedata ITEMS
 	itype_script2, itype_script3, itype_script4, itype_script5, itype_script6, itype_script7, itype_script8, itype_script9, itype_script10,
 	itype_icerod, itype_atkring, itype_lantern, itype_pearl, itype_bottle, itype_bottlefill, itype_bugnet,
 	itype_mirror, itype_switchhook, itype_itmbundle, itype_progressive_itm, itype_note, itype_refill,
+	itype_liftglove,
 	/*
 	itype_templast,
 	itype_ether, itype_bombos, itype_quake, 
@@ -5500,6 +5551,7 @@ extern void removeFromItemCache(int32_t itemid);
 #define CHAS_ANIM     0x08
 #define CHAS_SCRIPT   0x10
 #define CHAS_GENERAL  0x20
+#define CHAS_LIFT     0x40
 
 #define SCRHAS_ROOMDATA  0x00000001
 #define SCRHAS_ITEM      0x00000002

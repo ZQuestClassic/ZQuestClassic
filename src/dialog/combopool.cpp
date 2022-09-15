@@ -27,6 +27,7 @@ void call_cpool_dlg(int32_t index)
 }
 
 void animate_combos();
+static int32_t scroll_pos1 = 0;
 std::shared_ptr<GUI::Widget> ComboPoolDialog::view()
 {
 	using namespace GUI::Builder;
@@ -247,11 +248,13 @@ std::shared_ptr<GUI::Widget> ComboPoolDialog::view()
 	if(ind/per_row >= vis_rows)
 	{
 		wingrid->add(ScrollingPane(
+			ptr = &scroll_pos1,
 			minheight = Size::pixels(hei*vis_rows+DEFAULT_PADDING_INT*2),
 			sgrid));
 	}
 	else
 	{
+		scroll_pos1 = 0;
 		wingrid->add(sgrid);
 	}
 	return window;

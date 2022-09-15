@@ -2037,7 +2037,7 @@ public:
 			case wFlame: return wsEFire2; //new
 			//not implemented; t/b/a
 			case wSound:
-			case wThrowRock: 
+			case wThrown: 
 			case wPot:
 			case wLit:
 			case wBombos:
@@ -2174,7 +2174,7 @@ public:
 			case wFlame: return wsEFire2; //new
 			//not implemented; t/b/a
 			case wSound:
-			case wThrowRock: 
+			case wThrown: 
 			case wPot:
 			case wLit:
 			case wBombos:
@@ -6566,7 +6566,7 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkLWpn(ri->lwpn,"Flags[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 0, "lweapon->Flags[]") != SH::_NoError)
+				if(BC::checkBounds(indx, 0, WFLAG_MAX, "lweapon->Flags[]") != SH::_NoError)
 					ret = 0; //false
 				else
 				{
@@ -7125,7 +7125,7 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkEWpn(ri->ewpn,"Flags[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 0, "eweapon->Flags[]") != SH::_NoError)
+				if(BC::checkBounds(indx, 0, WFLAG_MAX, "eweapon->Flags[]") != SH::_NoError)
 					ret = 0; //false
 				else
 				{
@@ -15447,7 +15447,7 @@ void set_register(const int32_t arg, const int32_t value)
 			if(0!=(s=checkLWpn(ri->lwpn,"Flags[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 0, "lweapon->Flags[]") == SH::_NoError)
+				if(BC::checkBounds(indx, 0, WFLAG_MAX, "lweapon->Flags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					int32_t bit = 1<<indx;
@@ -16017,7 +16017,7 @@ void set_register(const int32_t arg, const int32_t value)
 			if(0!=(s=checkEWpn(ri->ewpn,"Flags[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 0, "eweapon->Flags[]") == SH::_NoError)
+				if(BC::checkBounds(indx, 0, WFLAG_MAX, "eweapon->Flags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					int32_t bit = 1<<indx;
@@ -43041,7 +43041,7 @@ defWpnSprite FFScript::getDefWeaponSprite(int32_t wpnid)
 		case wFlame: return wsEFire2; //new
 		//not implemented; t/b/a
 		case wSound:
-		case wThrowRock: 
+		case wThrown: 
 		case wPot:
 		case wLit:
 		case wBombos:
