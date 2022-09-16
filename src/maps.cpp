@@ -4267,8 +4267,7 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 	int currscr_x = currscr % 16;
 	int currscr_y = currscr / 16;
 
-	// TODO z3 remove odd ordering?
-	for (int currscr_dx = 1; currscr_dx >= -1; currscr_dx--)
+	for (int currscr_dx = -1; currscr_dx <= 1; currscr_dx++)
 	{
 		for (int currscr_dy = -1; currscr_dy <= 1; currscr_dy++)
 		{

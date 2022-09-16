@@ -24611,10 +24611,9 @@ static void for_every_nearby_screen_during_scroll(
 	int new_region = get_region_id(scrolling_destdmap, currscr);
 	bool is_region_scrolling = old_region || new_region;
 
-	// TODO z3 is this odd ordering necessary still?
-	// Note: (draw_dx = 0, draw_dy = 0) denotes the scrolling screen,
-	// while (   < scrolling_dir >    ) denotes currscr (the destination screen).
-	for (int draw_dx = 1; draw_dx >= -1; draw_dx--)
+	// Note: (draw_dx = 0, draw_dy = 0) denotes the starting screen (scrolling_scr),
+	// while (   < scrolling_dir >    ) denotes the destination screen (currscr).
+	for (int draw_dx = -1; draw_dx <= 1; draw_dx++)
 	{
 		for (int draw_dy = -1; draw_dy <= 1; draw_dy++)
 		{
