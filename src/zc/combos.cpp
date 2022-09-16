@@ -1633,7 +1633,7 @@ void do_ex_trigger(const pos_handle_t& pos_handle)
 		{
 			bool skipself = pos_handle.screen->data[pos] == cid;
 			copycat_id = cmb.trigcopycat;
-			for_every_rpos_in_region([&](const pos_handle_t& cc_pos_handle) {
+			for_every_pos_in_region([&](const pos_handle_t& cc_pos_handle) {
 				if (skipself && cc_pos_handle.layer == pos_handle.layer && cc_pos_handle.rpos == pos_handle.rpos) return;
 				do_copycat_trigger(cc_pos_handle);
 			});
@@ -1853,7 +1853,7 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 			if (cmb.triggerflags[1]&combotriggerSECRETS)
 			{
 				used_bit = true;
-				hidden_entrance(0, true, false, -6);
+				trigger_secrets_for_screen(false, -6);
 				if(canPermSecret(currdmap, pos_handle.screen_index) && !(pos_handle.screen->flags5&fTEMPSECRETS))
 					setmapflag2(pos_handle.screen, pos_handle.screen_index, mSECRET);
 				sfx(pos_handle.screen->secretsfx);
@@ -1960,7 +1960,7 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 				{
 					bool skipself = pos_handle.screen->data[pos] == cid;
 					copycat_id = cmb.trigcopycat;
-					for_every_rpos_in_region([&](const pos_handle_t& cc_pos_handle) {
+					for_every_pos_in_region([&](const pos_handle_t& cc_pos_handle) {
 						if (skipself && cc_pos_handle.layer == pos_handle.layer && cc_pos_handle.rpos == pos_handle.rpos) return;
 						do_copycat_trigger(cc_pos_handle);
 					});

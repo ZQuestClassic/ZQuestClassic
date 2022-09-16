@@ -20168,7 +20168,7 @@ void HeroClass::handleSpotlights()
 	if(hastrigs && istrigged && !alltrig)
 	{
 		// TODO z3 what screen? main screen?
-		hidden_entrance(0,true,false,-7);
+		trigger_secrets_for_screen(false, -7);
 		sfx(tmpscr.secretsfx);
 		if(!(tmpscr.flags5&fTEMPSECRETS))
 		{
@@ -20464,7 +20464,7 @@ void HeroClass::checkspecial()
 			if(!did_secret && (tmpscr.flags2&fCLEARSECRET))
 			{
 				bool only16_31 = get_bit(quest_rules,qr_ENEMIES_SECRET_ONLY_16_31)?true:false;
-				hidden_entrance(0,true,only16_31,-2);
+				trigger_secrets_for_screen(only16_31,-2);
 				
 				if(tmpscr.flags4&fENEMYSCRTPERM && canPermSecret(currdmap, currscr))
 				{
@@ -28375,8 +28375,9 @@ void HeroClass::checkitems(int32_t index)
 		
 		if(pickup&ipSECRETS)                                // Trigger secrets if this item has the secret pickup
 		{
+			// TODO z3
 			if(tmpscr.flags9&fITEMSECRETPERM) setmapflag(mSECRET);
-			hidden_entrance(0, true, false, -5);
+			trigger_secrets_for_screen(false, -5);
 		}
 			
 		collectitem_script(id2);

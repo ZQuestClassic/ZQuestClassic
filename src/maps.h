@@ -102,7 +102,7 @@ pos_handle_t get_pos_handle_for_world_xy(int x, int y, int layer);
 mapscr* get_screen_for_world_xy(int x, int y);
 mapscr* get_screen_layer_for_xy_offset(int x, int y, int layer);
 void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigned int, unsigned int)>& fn);
-void for_every_rpos_in_region(const std::function <void (const pos_handle_t&)>& fn);
+void for_every_pos_in_region(const std::function <void (const pos_handle_t&)>& fn);
 int z3_get_origin_scr();
 int z3_get_region_relative_dx(int screen_index);
 int z3_get_region_relative_dx(int screen_index, int origin_screen_index);
@@ -223,6 +223,7 @@ bool remove_bosschests(mapscr* s, int32_t screen_index);
 
 bool overheadcombos(mapscr *s);
 void delete_fireball_shooter(mapscr *s, int32_t i);
+void trigger_secrets_for_screen(bool high16only, int32_t single=-1);
 void trigger_secrets_for_screen(int32_t screen, bool high16only=false, int32_t single=-1);
 void hidden_entrance(int32_t tmp, bool refresh, bool high16only=false, int32_t single=-1);
 void trigger_secrets_for_screen(int32_t screen_index, mapscr *s, bool do_layers, bool high16only=false, int32_t single=-1);

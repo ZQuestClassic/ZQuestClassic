@@ -2371,7 +2371,11 @@ int32_t findtrigger(int32_t screen_index, int32_t scombo, bool ff)
 // single:
 // >-1 : the singular triggering combo
 // -1: triggered by some other cause
-// TODO z3 ! take pos_handle or a new screen_handle ???
+void trigger_secrets_for_screen(bool high16only, int32_t single)
+{
+	trigger_secrets_for_screen(initial_region_scr, high16only, single);
+}
+
 void trigger_secrets_for_screen(int32_t screen, bool high16only, int32_t single)
 {
 	//There are no calls to 'hidden_entrance' in the code where tmp != 0
@@ -2414,7 +2418,7 @@ void hidden_entrance(int32_t tmp, bool refresh, bool high16only, int32_t single)
 	trigger_secrets_for_screen(-1, tmp == 0 ? &tmpscr : &special_warp_return_screen, do_layers, high16only, single);
 }
 
-void trigger_secrets_for_screen(int32_t screen_index, mapscr *s, bool do_layers, bool high16only, int32_t single) //Perhaps better known as 'Trigger Secrets'
+void trigger_secrets_for_screen(int32_t screen_index, mapscr *s, bool do_layers, bool high16only, int32_t single)
 {
 	DCHECK(screen_index != -1 || s);
 	if (!s) s = get_scr(currmap, screen_index);
@@ -2426,7 +2430,7 @@ void trigger_secrets_for_screen(int32_t screen_index, mapscr *s, bool do_layers,
 		{
 			for (auto pos = 0; pos < 176; ++pos)
 			{
-				newcombo const& cmb = combobuf[FFCore.tempScreens[lyr]->data[pos]];
+				newcombo const& cmb = combobuf[get_layer_scr(currmap, screen_index, lyr - 1)->data[pos]];
 				if(cmb.triggerflags[2] & combotriggerSECRETSTR)
 				{
 					do_trigger_combo(get_pos_handle(POS_TO_RPOS(pos, initial_region_scr), lyr));
@@ -4227,7 +4231,7 @@ void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigne
 	global_z3_cur_scr_drawing = -1;
 }
 
-void for_every_rpos_in_region(const std::function <void (const pos_handle_t&)>& fn)
+void for_every_pos_in_region(const std::function <void (const pos_handle_t&)>& fn)
 {
 	pos_handle_t pos_handle;
 	for (int screen_index = 0; screen_index < 128; screen_index++)
