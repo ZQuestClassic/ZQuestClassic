@@ -328,20 +328,20 @@ bool do_cswitch_combo(newcombo const& cmb, weapon* w)
 	return true;
 }
 
-// TODO z3 !
-void trigger_cswitch_block(int32_t layer, int32_t pos)
+static void trigger_cswitch_block(const pos_handle_t& pos_handle)
 {
-	if(unsigned(layer) > 6 || unsigned(pos) > 175) return;
-	mapscr* scr = FFCore.tempScreens[layer];
-	auto cid = scr->data[pos];
+	if(unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return;
+
+	int pos = RPOS_TO_POS(pos_handle.rpos);
+	int cid = pos_handle.screen->data[pos];
 	newcombo const& cmb = combobuf[cid];
 	if(cmb.type != cCSWITCHBLOCK) return;
 	
 	int32_t cmbofs = (cmb.attributes[0]/10000L);
 	int32_t csofs = (cmb.attributes[1]/10000L);
-	scr->data[pos] = BOUND_COMBO(cid + cmbofs);
-	scr->cset[pos] = (scr->cset[pos] + csofs) & 15;
-	auto newcid = scr->data[pos];
+	pos_handle.screen->data[pos] = BOUND_COMBO(cid + cmbofs);
+	pos_handle.screen->cset[pos] = (pos_handle.screen->cset[pos] + csofs) & 15;
+	auto newcid = pos_handle.screen->data[pos];
 	if(combobuf[newcid].animflags & AF_CYCLE)
 	{
 		combobuf[newcid].tile = combobuf[newcid].o_tile;
@@ -350,7 +350,7 @@ void trigger_cswitch_block(int32_t layer, int32_t pos)
 	}
 	for(auto lyr = 0; lyr < 7; ++lyr)
 	{
-		if(lyr == layer) continue;
+		if(lyr == pos_handle.layer) continue;
 		if(!(cmb.usrflags&(1<<lyr))) continue;
 		mapscr* scr_2 = FFCore.tempScreens[lyr];
 		if(!scr_2->data[pos]) //Don't increment empty space
@@ -1776,7 +1776,7 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 						break;
 					
 					case cCSWITCHBLOCK:
-						trigger_cswitch_block(lyr, pos);
+						trigger_cswitch_block(pos_handle);
 						break;
 					
 					case cSIGNPOST:
