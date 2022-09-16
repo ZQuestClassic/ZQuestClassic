@@ -23,6 +23,7 @@
 #include "gamedata.h"
 #include "guys.h"
 #include "ffscript.h"
+#include "replay.h"
 
 extern HeroClass   Hero;
 extern int32_t directItem;
@@ -315,7 +316,7 @@ void dosubscr(miscQdata *misc)
         
         if(NESquit && Up() && cAbtn() && cBbtn())
         {
-            Udown=true;
+            down_control_states[btnUp] = true;
             Quit=qQUIT;
         }
         

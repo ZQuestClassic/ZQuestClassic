@@ -24,6 +24,8 @@
 #include "tiles.h"
 #include "particles.h"
 #include "maps.h"
+#include "replay.h"
+#include "guys.h"
 
 #ifndef IS_ZQUEST
 #include "hero.h"
@@ -2297,6 +2299,8 @@ void sprite_list::drawcloaked2(BITMAP* dest,bool lowfirst)
     }
 }
 
+extern char *guy_string[];
+
 void sprite_list::animate()
 {
 	active_iterator = 0;
@@ -2307,6 +2311,13 @@ void sprite_list::animate()
 		{
 			if(sprites[active_iterator]->animate(active_iterator))
 			{
+#ifndef IS_ZQUEST
+				if (replay_is_active() && dynamic_cast<enemy*>(sprites[active_iterator]) != nullptr)
+				{
+					enemy* as_enemy = dynamic_cast<enemy*>(sprites[active_iterator]);
+					replay_step_comment(string_format("enemy died %s", guy_string[as_enemy->id]));
+				}
+#endif
 				del(active_iterator);
 			}
 		}

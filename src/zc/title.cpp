@@ -2115,6 +2115,27 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 		{
 			std::fill(savedata[i].gswitch_timers, savedata[i].gswitch_timers+NUM_GSWITCHES, 0);
 		}
+		if(section_version >= 29)
+		{
+			word replay_path_len;
+			if(!p_igetw(&replay_path_len, f, true))
+				return 80;
+
+			auto buf = std::make_unique<char[]>(replay_path_len + 1);
+			buf[replay_path_len] = '\0';
+			if (!pfread(buf.get(), replay_path_len, f, true))
+				return 81;
+			savedata[i].replay_file = buf.get();
+
+			// TODO why doesn't this work?
+			// savedata[i].replay_file.reserve(replay_path_len + 1);
+			// if (!pfread(savedata[i].replay_file.data(), replay_path_len, f, true))
+			// 	return 81;
+		}
+		else
+		{
+			savedata[i].replay_file = "";
+		}
 	}
 	
 	
@@ -2730,6 +2751,10 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 		{
 			return 80;
 		}
+		if (!p_iputw(savedata[i].replay_file.length(), f))
+			return 81;
+		if (!pfwrite((void*)savedata[i].replay_file.c_str(), savedata[i].replay_file.length(), f))
+			return 82;
 	}
 	
 	return 0;
@@ -2737,7 +2762,7 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 
 int32_t save_savedgames()
 {
-	if(zqtesting_mode||saves==NULL)
+	if (disable_save_to_disk || saves==NULL)
 		return 1;
 	
 	// Not sure why this happens, but apparently it does...
@@ -4343,6 +4368,8 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 		cont_game();
 		return;
 	}
+
+	if (replay_get_mode() == ReplayMode::Record) replay_stop();
 	
 	if(q==qRESET && !skip_title)
 	{
@@ -4415,6 +4442,8 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 
 void game_over(int32_t type)
 {
+	if (replay_is_debug())
+		replay_step_comment("game_over");
 
 	FFCore.kb_typing_mode = false; 
 	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
@@ -4482,8 +4511,9 @@ void game_over(int32_t type)
 	int32_t curcset = SaveScreenSettings[SAVESC_CURSOR_CSET];
 	bool done=false;
 	
-	do load_control_state();
-	
+	do {
+		load_control_state();
+	}
 	while(getInput(btnS, true, false, true));//rSbtn
 	
 	do
@@ -4559,6 +4589,9 @@ void game_over(int32_t type)
 		advanceframe(true);
 	}
 	while(!Quit && !done);
+
+	if (replay_is_debug())
+		replay_step_comment("game_over selection made");
 	
 	reset_combo_animations();
 	reset_combo_animations2();
@@ -4567,6 +4600,9 @@ void game_over(int32_t type)
 	
 	if(done)
 	{
+		if (replay_is_debug())
+			replay_step_comment("game_over done");
+
 		if(pos)
 		{
 			if(standalone_mode && !skip_title)
@@ -4608,6 +4644,7 @@ void game_over(int32_t type)
 			load_game_icon(saves+currgame,false,currgame);
 			show_saving(screen);
 			save_savedgames();
+			if (replay_get_mode() == ReplayMode::Record) replay_save();
 		}
 	}
 }
@@ -4643,6 +4680,7 @@ void save_game(bool savepoint)
 	load_game_icon(saves+currgame,false,currgame);
 	show_saving(screen);
 	save_savedgames();
+	if (replay_get_mode() == ReplayMode::Record) replay_save();
 }
 
 bool save_game(bool savepoint, int32_t type)
@@ -4785,6 +4823,7 @@ bool save_game(bool savepoint, int32_t type)
 				load_game_icon(saves+currgame,false,currgame);
 				show_saving(screen);
 				save_savedgames();
+				if (replay_get_mode() == ReplayMode::Record) replay_save();
 				didsaved=true;
 				
 				if(type)

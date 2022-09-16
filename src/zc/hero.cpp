@@ -7441,21 +7441,21 @@ bool HeroClass::animate(int32_t)
 		damageovertimeclk = -1;
 	}
 	
-	if(do_cheat_goto)
+	if(cheats_execute_goto)
 	{
 		didpit=true;
 		pitx=x;
 		pity=y;
 		dowarp(3,0);
-		do_cheat_goto=false;
+		cheats_execute_goto=false;
 		return false;
 	}
 	
-	if(do_cheat_light)
+	if(cheats_execute_light)
 	{
 		naturaldark = !naturaldark;
 		lighting(false, false, pal_litOVERRIDE);//Forcibly set permLit, overriding it's current setting
-		do_cheat_light = false;
+		cheats_execute_light = false;
 	}
 	
 	if(action!=climbcovertop&&action!=climbcoverbottom)
@@ -21253,7 +21253,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	if(flag==mfZELDA||flag2==mfZELDA||flag3==mfZELDA || combo_class_buf[type].win_game)
 	{
 		attackclk = 0; //get rid of Hero's sword if it was stuck out, charged. 
-		saved_Zelda();
+		win_game();
 		return;
 	}
 	
@@ -25080,6 +25080,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	currdmap = newdmap;
 	for(word i = 0; cx >= 0 && delay != 0; i++, cx--) //Go!
 	{
+		locking_keys = true;
+		replay_poll();
+		locking_keys = false;
 		if(Quit)
 		{
 			screenscrolling = false;
@@ -26610,6 +26613,9 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 	{
 		return;
 	}
+
+	if (replay_is_active())
+		replay_step_comment(string_format("getitem %s", item_string[id]));
 	
 	if(get_bit(quest_rules,qr_SCC_ITEM_COMBINES_ITEMS))
 	{
@@ -27875,8 +27881,12 @@ void HeroClass::getTriforce(int32_t id2)
 	while
 	(
 		(f < ( (itemsbuf[id2].misc4 > 0) ? itemsbuf[id2].misc4 : 408)) 
-		|| (!(itemsbuf[id2].flags & ITEM_FLAG15) /*&& !(itemsbuf[id2].flags & ITEM_FLAG11)*/ && (midi_pos > 0)) 
-		|| (/*!(itemsbuf[id2].flags & ITEM_FLAG15) &&*/ !(itemsbuf[id2].flags & ITEM_FLAG11) && (zcmusic!=NULL) && (zcmusic->position<800) ) 
+		|| (!(itemsbuf[id2].flags & ITEM_FLAG15) /*&& !(itemsbuf[id2].flags & ITEM_FLAG11)*/ && (midi_pos > 0 && !replay_is_active())) 
+		|| (/*!(itemsbuf[id2].flags & ITEM_FLAG15) &&*/ !(itemsbuf[id2].flags & ITEM_FLAG11) && (zcmusic!=NULL) && (zcmusic->position<800 && !replay_is_active())
+		// Music is played at the same speed when fps is uncapped, so in replay mode we need to ignore the music position and instead
+		// just count frames. 480 is the number of frames it takes for the triforce song in classic_1st.qst to finish playing, but the exact
+		// value doesn't matter.
+		|| (replay_is_active() && f < 480) )
 	);   // 800 may not be just right, but it works
 
 	action=none; FFCore.setHeroAction(none);
@@ -28628,8 +28638,9 @@ void HeroClass::ganon_intro()
     cont_sfx(WAV_ROAR);	
 }
 
-void HeroClass::saved_Zelda()
+void HeroClass::win_game()
 {
+    replay_step_comment("win_game");
     Playing=Paused=false;
     action=won; FFCore.setHeroAction(won);
     Quit=qWON;

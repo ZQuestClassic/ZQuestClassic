@@ -30,7 +30,7 @@ jobs:
     - run: cp src/metadata/*.h.sig src/metadata/sigs/
     - run: cmake . -A ${{ matrix.arch }}
 
-    # Build things individually just to have some seperation in the GHA UI.
+    # Build things individually just to have some separation in the GHA UI.
     - run: cmake --build . --config Release --target zcsound
     - run: cmake --build . --config Release --target zquest
     - run: cmake --build . --config Release --target zelda
@@ -45,6 +45,15 @@ jobs:
       working-directory: output/_auto
     - run: ./zscript.exe -input "include/std.zh" -unlinked
       working-directory: output/_auto/buildpack
+    
+    # Run replay tests.
+    - run: python3 -Xutf8 ${{ github.workspace }}/tests/run_replay_tests.py --build_folder=${{ github.workspace }}/Release --retries=3
+      working-directory: output/_auto/buildpack
+    - uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: replays ${{ matrix.arch }}
+        path: ${{ github.workspace }}/tests/replays/
 
   compile-mac:
     runs-on: macos-12
@@ -74,3 +83,12 @@ jobs:
       working-directory: output/_auto
     - run: ./zscript -input "include/std.zh" -unlinked
       working-directory: output/_auto/zelda-classic-mac/ZeldaClassic.app/Contents/Resources
+    
+    # Run replay tests.
+    - run: python3 ${{ github.workspace }}/tests/run_replay_tests.py --build_folder=${{ github.workspace }}/build/Release --retries=3
+      working-directory: output/_auto/zelda-classic-mac/ZeldaClassic.app/Contents/Resources
+    - uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: replays osx
+        path: ${{ github.workspace }}/tests/replays/

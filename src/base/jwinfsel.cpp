@@ -1253,6 +1253,16 @@ void relativize_path(char* dest, char const* src_path)
     strcpy(dest, std::filesystem::relative(src_path, rootpath).string().c_str());
 }
 
+/* relativize_path:
+  *  Takes a path, and returns it's relative path from the root directory.
+  */
+std::string relativize_path(std::string src_path)
+{
+	char rootpath[PATH_MAX] = {0};
+	get_root_path(rootpath, PATH_MAX);
+    return std::filesystem::relative(src_path, rootpath).string();
+}
+
 /* derelativize_path:
   *  Takes a relative path from the root directory, and returns its' absolute path.
   */

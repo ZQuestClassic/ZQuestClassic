@@ -1,6 +1,10 @@
 // 2.55 Change Log
 // Updated 30th Sept, 2022
 
+// Unreleased
+
+New replay/recording system. See `docs/replays.md` for instructions.
+
 // 30th Sept nightly
 
 Fix scripts not finding the correct folder to create files in
@@ -7986,7 +7990,7 @@ Added kill_sfx() call to three other possible places where the Cane of Byyrna
 	Whenever we call stopCaneOfByrna()
 	If we can't pay the cost during item / weapon init
 	If the beams aren't created during init, for some reason. 	
-Cleared Link's attackclk before calling saved_Zelda(). 
+Cleared Link's attackclk before calling win_game(). 
 	This prevents a charged sword, or other weapon, from carrying
 	over to the ending sequence as a visual artefact. 
 Stop playing byrna beam sfx as soon as the beams die in Link.cpp

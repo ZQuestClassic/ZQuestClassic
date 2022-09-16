@@ -20,6 +20,7 @@
 #include <string.h>
 #include <math.h>
 #include <map>
+#include <filesystem>
 #include <ctype.h>
 #include <sstream>
 #include "base/zc_alleg.h"
@@ -27,6 +28,8 @@
 #include "zc_init.h"
 //#include "zquest.h"
 #include "init.h"
+#include "replay.h"
+#include "cheats.h"
 
 #ifdef ALLEGRO_DOS
 #include <unistd.h>
@@ -688,6 +691,23 @@ void show_saving(BITMAP *target)
     }
     else
         textout_ex(target,zfont,buf,scrx+200,scry+224,-1,-1);
+}
+
+void show_replay_controls(BITMAP *target)
+{
+    if (!replay_is_replaying())
+        return;
+    
+    std::string text = replay_get_buttons_string();
+        
+    if(sbig)
+    {
+        int32_t x = scrx+180+((screen_scale-1)*120);
+        int32_t y = scry+224+((screen_scale-1)*104);
+        textout_ex(target,zfont,text.c_str(),x,y,-1,-1);
+    }
+    else
+        textout_ex(target,zfont,text.c_str(),scrx+180,scry+224,-1,-1);
 }
 
 //----------------------------------------------------------------
@@ -3944,6 +3964,8 @@ void updatescr(bool allowwavy)
     
     if(ShowFPS)// &&(frame&1))
         show_fps(screen);
+    
+    show_replay_controls(screen);
         
     if(Paused)
         show_paused(screen);
@@ -4360,7 +4382,22 @@ void f_Quit(int32_t type)
     switch(type)
     {
     case qQUIT:
-        onQuit();
+        if (replay_is_replaying())
+        {
+            disableClickToFreeze=false;
+            Quit=qQUIT;
+            
+            // Trying to evade a door repair charge?
+            if(repaircharge)
+            {
+                game->change_drupy(-repaircharge);
+                repaircharge=0;
+            }
+        }
+        else
+        {
+            onQuit();
+        }
         break;
         
     case qRESET:
@@ -4399,20 +4436,13 @@ void f_Quit(int32_t type)
 
 int32_t onNoWalls()
 {
-    toogam = !toogam;
-    
-    if(toogam)
-    {
-        cheat_superman=true;
-        setClock(true);
-    }
-    
+    cheats_enqueue(Cheat::Walls);
     return D_O_K;
 }
 
 int32_t onIgnoreSideview()
 {
-    ignoreSideview = !ignoreSideview;
+    cheats_enqueue(Cheat::IgnoreSideView);
     return D_O_K;
 }
 
@@ -4446,17 +4476,13 @@ int32_t input_idle(bool checkmouse)
 
 int32_t onGoFast()
 {
-    gofast=gofast?false:true;
+    cheats_enqueue(Cheat::Fast);
     return D_O_K;
 }
 
 int32_t onKillCheat()
 {
-    for(int32_t i=0; i<guys.Count(); i++)
-    {
-        if(!(((enemy*)guys.spr(i))->flags & guy_doesntcount))((enemy*)guys.spr(i))->kickbucket();
-    }
-    
+    cheats_enqueue(Cheat::Kill);
     return D_O_K;
 }
 
@@ -4538,7 +4564,7 @@ int32_t onShowHitboxes()
 
 int32_t onLightSwitch()
 {
-    do_cheat_light=true;
+    cheats_enqueue(Cheat::Light);
     return D_O_K;
 }
 
@@ -4679,20 +4705,20 @@ void syskeys()
     {
 	if( CheatModifierKeys() )
 	{
-			if(zc_readkey(KEY_ASTERISK) || zc_readkey(KEY_H))   game->set_life(game->get_maxlife());
+			if(zc_readkey(KEY_ASTERISK) || zc_readkey(KEY_H))   cheats_enqueue(Cheat::Life, game->get_maxlife());
 			
-			if(zc_readkey(KEY_SLASH_PAD) || zc_readkey(KEY_M))  game->set_magic(game->get_maxmagic());
+			if(zc_readkey(KEY_SLASH_PAD) || zc_readkey(KEY_M))  cheats_enqueue(Cheat::Magic, game->get_maxmagic());
 			
-			if(zc_readkey(KEY_R))          game->set_drupy(999);
+			if(zc_readkey(KEY_R))          cheats_enqueue(Cheat::Rupies, game->get_maxcounter(1));
 			
 			if(zc_readkey(KEY_B))
 			{
-			    onCheatBombs();
+                cheats_enqueue(Cheat::Bombs, game->get_maxbombs(), game->get_maxcounter(6));
 			}
 			
 			if(zc_readkey(KEY_A))
 			{
-			    onCheatArrows();
+                cheats_enqueue(Cheat::Arrows, game->get_maxarrows());
 			}
 	}
     }
@@ -4703,8 +4729,7 @@ void syskeys()
 		{
 			if(rI())
 			{
-				setClock(!getClock());
-				cheat_superman=getClock();
+                cheats_enqueue(Cheat::Clock);
 			}
 		}
     }
@@ -4715,24 +4740,17 @@ void syskeys()
 	{
 			if(rF11())
 			{
-			    onNoWalls();
+			    cheats_enqueue(Cheat::Walls);
 			}
 			
 			if(rQ())
 			{
-			    onGoFast();
+			    cheats_enqueue(Cheat::Fast);
 			}
 			
 			if(zc_readkey(KEY_F))
 			{
-			    if(Hero.getAction()==freeze)
-			    {
-				Hero.unfreeze();
-			    }
-			    else
-			    {
-				Hero.Freeze();
-			    }
+			    cheats_enqueue(Cheat::Freeze);
 			}
 			
 			if(zc_readkey(KEY_G))   onGoToComplete();
@@ -4758,11 +4776,11 @@ void syskeys()
 			
 			if(zc_readkey(KEY_W))   onShowLayerW();
 			
-			if(zc_readkey(KEY_L))   onLightSwitch();
+			if(zc_readkey(KEY_L))   cheats_enqueue(Cheat::Light);
 			
-			if(zc_readkey(KEY_V))   onIgnoreSideview();
+			if(zc_readkey(KEY_V))   cheats_enqueue(Cheat::IgnoreSideView);
 			
-			if(zc_readkey(KEY_K))   onKillCheat();
+			if(zc_readkey(KEY_K))   cheats_enqueue(Cheat::Kill);
 			if(zc_readkey(KEY_O))   onShowLayerO();
 			if(zc_readkey(KEY_P))   onShowLayerP();
 			if(zc_readkey(KEY_C))   onShowHitboxes();
@@ -4987,10 +5005,19 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
         game->change_time(1);
         
     Advance=false;
+
+    locking_keys = true;
     ++frame;
 	update_keys(); //Update ZScript key arrays
+    locking_keys = false;
     
     syskeys();
+    if (replay_is_replaying())
+        replay_peek_quit();
+    if (Quit)
+        replay_step_quit(Quit);
+    if (GameFlags & GAMEFLAG_TRYQUIT)
+        replay_step_quit(0);
 	if(allowF6Script)
 	{
 		FFCore.runF6Engine();
@@ -6573,6 +6600,129 @@ static MENU zcmodule_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
+int32_t onToggleRecordingNewSaves()
+{
+    if (zc_get_config("zeldadx", "replay_new_saves", false))
+    {
+        zc_set_config("zeldadx", "replay_new_saves", false);
+    }
+    else
+    {
+        zc_set_config("zeldadx", "replay_new_saves", true);
+        jwin_alert("Recording", "Newly created saves will be recorded and written to a replay file.",
+            NULL,NULL,"OK",NULL,13,27,lfont);
+    }
+	return D_O_K;
+}
+
+int32_t onStopReplayOrRecord()
+{
+    if (replay_is_replaying())
+    {
+	    replay_quit();
+    }
+    else if (replay_get_mode() == ReplayMode::Record)
+    {
+        if (!replay_get_meta_bool("test_mode"))
+        {
+            jwin_alert("Recording", "You cannot stop recording a save file.",
+                NULL,NULL,"OK",NULL,13,27,lfont);
+            return D_CLOSE;
+        }
+
+        if (jwin_alert("Stop Recording",
+            "Save replay to disk and stop recording?",
+            "This will stop the recording.",
+            NULL,
+            "Yes","No",13,27,lfont) != 1)
+        return D_CLOSE;
+
+        replay_save();
+        replay_stop();
+    }
+	return D_O_K;
+}
+
+int32_t onLoadReplay()
+{
+    if (Playing)
+    {
+        if (jwin_alert("Replay - Warning!",
+            "Loading a replay will exit the current game.",
+            "All unsaved progress will be lost.",
+            "Do you wish to continue?",
+            "Yes","No",13,27,lfont) != 1)
+        return D_CLOSE;
+    }
+
+	if (jwin_alert("Replay",
+        "Select a replay file to play back.",
+        "You won't be able to save, and it won't effect existing saves.",
+        "You can stop the replay and take over manually any time.",
+        "OK","Nevermind",13,27,lfont) == 1)
+    {
+        char replay_path[2048];
+        strcpy(replay_path, "replays/");
+        if (jwin_file_select_ex(
+                string_format("Load Replay (.%s)", REPLAY_EXTENSION.c_str()).c_str(),
+                replay_path, REPLAY_EXTENSION.c_str(), 2048, -1, -1, lfont) == 0)
+            return D_CLOSE;
+
+        replay_stop();
+        load_replay_file(ReplayMode::Replay, replay_path);
+        Quit = qRESET;
+        return D_CLOSE;
+    }
+	return D_O_K;
+}
+
+int32_t onSaveReplay()
+{
+    if (replay_get_mode() == ReplayMode::Record)
+    {
+        if (!replay_get_meta_bool("test_mode"))
+        {
+            if (jwin_alert("Save Replay",
+                "This will save a copy of the replay up to this point.",
+                "The official replay file will be untouched.",
+                "Do you wish to continue?",
+                "Yes","No",13,27,lfont) != 1)
+            return D_CLOSE;
+
+            char replay_path[2048];
+            strcpy(replay_path, replay_get_filename().c_str());
+            if (jwin_file_select_ex(
+                    string_format("Save Replay (.%s)", REPLAY_EXTENSION.c_str()).c_str(),
+                    replay_path, REPLAY_EXTENSION.c_str(), 2048, -1, -1, lfont) == 0)
+                return D_CLOSE;
+
+            if (fileexists(replay_path))
+            {
+                jwin_alert("Save Replay", "You cannot overwrite an existing file.",
+                    NULL,NULL,"OK",NULL,13,27,lfont);
+                return D_CLOSE;
+            }
+
+            replay_save(replay_path);
+        }
+        else
+        {
+            replay_save();
+        }
+    }
+    return D_O_K;
+}
+
+static MENU replay_menu[] =
+{
+    { (char *)"Record new saves",           onToggleRecordingNewSaves, NULL,                     0,            NULL   },
+    { (char *)"Stop replay",                onStopReplayOrRecord,      NULL,                     0,            NULL   },
+    { (char *)"Load replay",                onLoadReplay,              NULL,                     0,            NULL   },
+    { (char *)"Save replay",                onSaveReplay,              NULL,                     0,            NULL   },
+    
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
 static DIALOG credits_dlg[] =
 {
     /* (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)    (d1)      (d2)     (dp)     (dp2) (dp3) */
@@ -6617,9 +6767,8 @@ int32_t onGoTo()
         
     if(zc_popup_dialog(goto_dlg,4)==1)
     {
-        cheat_goto_dmap=goto_dlg[4].d2;
-        cheat_goto_screen=zc_min(zc_xtoi(cheat_goto_screen_str),0x7F);
-        do_cheat_goto=true;
+        // dmap, screen
+        cheats_enqueue(Cheat::GoTo, goto_dlg[4].d2, zc_min(zc_xtoi(cheat_goto_screen_str),0x7F));
     };
     
     return D_O_K;
@@ -7012,14 +7161,7 @@ int32_t onVidMode()
 //Added an extra statement, so that if the key is cleared to 0, the cleared
 //keybinding status need not be unique. -Z ( 1st April, 2019 )
 
-enum uKey
-{
-	ukey_a, ukey_b, ukey_s, ukey_l, ukey_r, ukey_p, ukey_ex1, ukey_ex2, ukey_ex3, ukey_ex4,
-	ukey_du, ukey_dd, ukey_dl, ukey_dr, ukey_mod1a, ukey_mod1b, ukey_mod2a, ukey_mod2b,
-	num_ukey
-};
-
-static void load_ukeys(int32_t* arr)
+void load_ukeys(int32_t* arr)
 {
 	arr[ukey_a] = Akey;
 	arr[ukey_b] = Bkey;
@@ -7041,65 +7183,15 @@ static void load_ukeys(int32_t* arr)
 	arr[ukey_mod2b] = cheat_modifier_keys[3];
 };
 
-static std::string get_ukey_name(int32_t k)
+static const char* ukey_names[] = {
+    "A", "B", "Start", "L", "R", "Map",
+    "Ex1", "Ex2", "Ex3", "Ex4", "Up", "Down",
+    "Left", "Right", "Cheat Mod L1", "Cheat Mod L2",
+    "Cheat Mod R1", "Cheat Mod R2",
+};
+std::string get_ukey_name(int32_t k)
 {
-	switch(k)
-	{
-		case ukey_a:
-			return "A";
-			break;
-		case ukey_b:
-			return "B";
-			break;
-		case ukey_s:
-			return "Start";
-			break;
-		case ukey_l:
-			return "L";
-			break;
-		case ukey_r:
-			return "R";
-			break;
-		case ukey_p:
-			return "Map";
-			break;
-		case ukey_ex1:
-			return "Ex1";
-			break;
-		case ukey_ex2:
-			return "Ex2";
-			break;
-		case ukey_ex3:
-			return "Ex3";
-			break;
-		case ukey_ex4:
-			return "Ex4";
-			break;
-		case ukey_du:
-			return "Up";
-			break;
-		case ukey_dd:
-			return "Down";
-			break;
-		case ukey_dl:
-			return "Left";
-			break;
-		case ukey_dr:
-			return "Right";
-			break;
-		case ukey_mod1a:
-			return "Cheat Mod L1";
-			break;
-		case ukey_mod1b:
-			return "Cheat Mod L2";
-			break;
-		case ukey_mod2a:
-			return "Cheat Mod R1";
-			break;
-		case ukey_mod2b:
-			return "Cheat Mod R2";
-			break;
-	}
+    if (k < num_ukey) return ukey_names[k];
 	return "";
 }
 
@@ -7658,52 +7750,57 @@ int32_t getnumber(const char *prompt,int32_t initialval)
 
 int32_t onLife()
 {
-    //this used to be a 0 instead of a 1.
-    game->set_life(vbound(getnumber("Life",game->get_life()),1,game->get_maxlife()));
+    int value = vbound(getnumber("Life",game->get_life()),1,game->get_maxlife());
+    cheats_enqueue(Cheat::Life, value);
     return D_O_K;
 }
 
 int32_t onHeartC()
 {
-    game->set_maxlife(vbound(getnumber("Heart Containers",game->get_maxlife()/game->get_hp_per_heart()),1,4095) * game->get_hp_per_heart());
-    game->set_life(vbound(getnumber("Life",game->get_life()/game->get_hp_per_heart()),1,game->get_maxlife()/game->get_hp_per_heart())*game->get_hp_per_heart());
+    int max_life = vbound(getnumber("Heart Containers",game->get_maxlife()/game->get_hp_per_heart()),1,4095) * game->get_hp_per_heart();
+    int life = vbound(getnumber("Life",game->get_life()/game->get_hp_per_heart()),1,max_life/game->get_hp_per_heart())*game->get_hp_per_heart();
+    cheats_enqueue(Cheat::MaxLife, max_life);
+    cheats_enqueue(Cheat::Life, life);
     return D_O_K;
 }
 
 int32_t onMagicC()
 {
-    game->set_maxmagic(vbound(getnumber("Magic Containers",game->get_maxmagic()/game->get_mp_per_block()),0,2047) * game->get_mp_per_block());
-    game->set_magic(vbound(getnumber("Magic",game->get_magic()/game->get_mp_per_block()),0,game->get_maxmagic()/game->get_mp_per_block())*game->get_mp_per_block());
+    int max_magic = vbound(getnumber("Magic Containers",game->get_maxmagic()/game->get_mp_per_block()),0,2047) * game->get_mp_per_block();
+    int magic = vbound(getnumber("Magic",game->get_magic()/game->get_mp_per_block()),0,game->get_maxmagic()/game->get_mp_per_block())*game->get_mp_per_block();
+    cheats_enqueue(Cheat::MaxMagic, max_magic);
+    cheats_enqueue(Cheat::Magic, magic);
     return D_O_K;
 }
 
 int32_t onRupies()
 {
-    game->set_rupies(vbound(getnumber("Rupees",game->get_rupies()),0,game->get_maxcounter(1)));
+    int value = vbound(getnumber("Rupees",game->get_rupies()),0,game->get_maxcounter(1));
+    cheats_enqueue(Cheat::Rupies, value);
     return D_O_K;
 }
 
 int32_t onMaxBombs()
 {
-    game->set_maxbombs(vbound(getnumber("Max Bombs",game->get_maxbombs()),0,0xFFFF));
-    game->set_bombs(game->get_maxbombs());
+    int value = vbound(getnumber("Max Bombs",game->get_maxbombs()),0,0xFFFF);
+    cheats_enqueue(Cheat::MaxBombs, value);
+    cheats_enqueue(Cheat::Bombs, value);
     return D_O_K;
 }
 
 int32_t onRefillLife()
 {
-    game->set_life(game->get_maxlife());
+    cheats_enqueue(Cheat::Life, game->get_maxlife());
     return D_O_K;
 }
 int32_t onRefillMagic()
 {
-    game->set_magic(game->get_maxmagic());
+    cheats_enqueue(Cheat::Magic, game->get_maxmagic());
     return D_O_K;
 }
 int32_t onClock()
 {
-	setClock(!getClock());
-	cheat_superman=getClock();
+    cheats_enqueue(Cheat::Clock);
 	return D_O_K;
 }
 
@@ -7740,28 +7837,19 @@ int32_t onCheat()
 
 int32_t onCheatRupies()
 {
-    game->set_drupy(game->get_maxcounter(1));
+    cheats_enqueue(Cheat::Rupies, game->get_maxcounter(1));
     return D_O_K;
 }
 
 int32_t onCheatArrows()
 {
-    game->set_arrows(game->get_maxarrows());
+    cheats_enqueue(Cheat::Arrows, game->get_maxarrows());
     return D_O_K;
 }
 
 int32_t onCheatBombs()
 {
-    //getitem(iBombs,true);
-    for(int32_t i=0; i<MAXITEMS; i++)
-    {
-        if(itemsbuf[i].family == itype_bomb
-                || itemsbuf[i].family == itype_sbomb)
-            getitem(i, true);
-    }
-    
-    game->set_bombs(game->get_maxbombs());
-    game->set_sbombs(game->get_maxcounter(6));
+    cheats_enqueue(Cheat::Bombs, game->get_maxbombs(), game->get_maxcounter(6));
     return D_O_K;
 }
 
@@ -7907,6 +7995,11 @@ static MENU name_entry_mode_menu[] =
     { NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
+static void set_controls_menu_active()
+{
+    
+}
+
 static MENU settings_menu[] =
 {
     { (char *)"C&ontrols",                  NULL,                    controls_menu,             0, NULL },
@@ -7949,6 +8042,7 @@ static MENU misc_menu[] =
 	{ (char *)"Show ZScript Debugger",      onConsoleZScript,        NULL,                      0, NULL },
 	{ (char *)"Clear Directory Cache",      OnnClearQuestDir,        NULL,                      0, NULL },
 	{ (char *)"Modules",                    NULL,                    zcmodule_menu,             0, NULL },
+    { (char *)"Replay",                     NULL,                    replay_menu,               0, NULL },
 
 	{ NULL,                                 NULL,                    NULL,                      0, NULL }
 };
@@ -8725,6 +8819,7 @@ void System()
         title_menu[1].flags = (title_version==1) ? D_SELECTED : 0;
         title_menu[2].flags = (title_version==2) ? D_SELECTED : 0;
         
+        settings_menu[0].flags = replay_is_replaying() ? D_DISABLED : 0;
         settings_menu[5].flags = Throttlefps?D_SELECTED:0;
         settings_menu[6].flags = ShowFPS?D_SELECTED:0;
         settings_menu[7].flags = TransLayers?D_SELECTED:0;
@@ -8746,6 +8841,8 @@ void System()
 		cheat_menu[1].text  = (cheat >= 1) || get_debug() ? bar_str : NULL;
 		cheat_menu[3].text  = (cheat >= 2) || get_debug() ? bar_str : NULL;
 		cheat_menu[8].text  = (cheat >= 3) || get_debug() ? bar_str : NULL;
+		// TODO add onCheatConsole to new cheats_enqueue system for replay support.
+		cheat_menu[9].flags = replay_is_active() ? D_DISABLED : 0;
 		cheat_menu[10].text = (cheat >= 4) || get_debug() ? bar_str : NULL;
 		cheat_menu[4].flags = getClock() ? D_SELECTED : 0;
 		cheat_menu[11].flags = toogam ? D_SELECTED : 0;
@@ -8770,6 +8867,15 @@ void System()
         
         settings_menu[11].flags = heart_beep ? D_SELECTED : 0;
         settings_menu[12].flags = use_save_indicator ? D_SELECTED : 0;
+
+        replay_menu[0].text = zc_get_config("zeldadx", "replay_new_saves", false) ?
+            (char *)"Disable recording new saves" :
+            (char *)"Enable recording new saves";
+        replay_menu[1].flags = replay_is_active() ? 0 : D_DISABLED;
+        replay_menu[1].text = replay_get_mode() == ReplayMode::Record ?
+            (char *)"Stop recording" :
+            (char *)"Stop replaying";
+        replay_menu[3].flags = replay_get_mode() == ReplayMode::Record ? 0 : D_DISABLED;
 	
         reset_snapshot_format_menu();
         snapshot_format_menu[SnapshotFormat].flags = D_SELECTED;
@@ -9612,12 +9718,23 @@ static bool rButtonPeek(bool btn, bool flag)
     return false;
 }
 
-bool control_state[18]=
+// Updated only by keyboard/gamepad.
+// If in replay mode, this is set directly by the replay system.
+// This should never be read from directly - use control_state instead.
+bool raw_control_state[ZC_CONTROL_STATES]=
 {
     false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
 };
 
-bool disable_control[18]=
+// Every call to load_control_state (pretty much every frame) resets this to be equal to raw_control_state.
+// This state can drift from raw_control_state if button states are "eaten" or overriden by a script. But that only
+// lasts until the next call to load_control_state.
+bool control_state[ZC_CONTROL_STATES]=
+{
+    false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
+};
+
+bool disable_control[ZC_CONTROL_STATES]=
 {
     false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
 };
@@ -9667,8 +9784,8 @@ bool key_truestate[127]=
 	false,false,false,false,false,false,false
 };
 
-bool button_press[18] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
-bool button_hold[18] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+bool button_press[ZC_CONTROL_STATES] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+bool button_hold[ZC_CONTROL_STATES] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
 #define STICK_1_X joy[joystick_index].stick[js_stick_1_x_stick].axis[js_stick_1_x_axis]
 #define STICK_1_Y joy[joystick_index].stick[js_stick_1_y_stick].axis[js_stick_1_y_axis]
@@ -9678,37 +9795,48 @@ bool button_hold[18] = {false, false, false, false, false, false, false, false, 
 
 void load_control_state()
 {
-    control_state[0]=zc_getrawkey(DUkey, true)||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset < -STICK_PRECISION : joybtn(DUbtn));
-    control_state[1]=zc_getrawkey(DDkey, true)||(analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - js_stick_1_y_offset > STICK_PRECISION : joybtn(DDbtn));
-    control_state[2]=zc_getrawkey(DLkey, true)||(analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - js_stick_1_x_offset < -STICK_PRECISION : joybtn(DLbtn));
-    control_state[3]=zc_getrawkey(DRkey, true)||(analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - js_stick_1_x_offset > STICK_PRECISION : joybtn(DRbtn));
-    control_state[4]=zc_getrawkey(Akey, true)||joybtn(Abtn);
-    control_state[5]=zc_getrawkey(Bkey, true)||joybtn(Bbtn);
-    control_state[6]=zc_getrawkey(Skey, true)||joybtn(Sbtn);
-    control_state[7]=zc_getrawkey(Lkey, true)||joybtn(Lbtn);
-    control_state[8]=zc_getrawkey(Rkey, true)||joybtn(Rbtn);
-    control_state[9]=zc_getrawkey(Pkey, true)||joybtn(Pbtn);
-    control_state[10]=zc_getrawkey(Exkey1, true)||joybtn(Exbtn1);
-    control_state[11]=zc_getrawkey(Exkey2, true)||joybtn(Exbtn2);
-    control_state[12]=zc_getrawkey(Exkey3, true)||joybtn(Exbtn3);
-    control_state[13]=zc_getrawkey(Exkey4, true)||joybtn(Exbtn4);
-    
-    if(num_joysticks != 0)
+    locking_keys = true;
+    if (!replay_is_replaying())
     {
-        control_state[14] = STICK_2_Y.pos - js_stick_2_y_offset < -STICK_PRECISION;
-        control_state[15] = STICK_2_Y.pos - js_stick_2_y_offset > STICK_PRECISION;
-        control_state[16] = STICK_2_X.pos - js_stick_2_x_offset < -STICK_PRECISION;
-        control_state[17] = STICK_2_X.pos - js_stick_2_x_offset > STICK_PRECISION;
-		// zprint2("Detected %d joysticks... %d%d%d%d\n", num_joysticks, control_state[14]?1:0, control_state[15]?1:0, control_state[16]?1:0, control_state[17]?1:0);
+        raw_control_state[0]=zc_getrawkey(DUkey, true)||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset < -STICK_PRECISION : joybtn(DUbtn));
+        raw_control_state[1]=zc_getrawkey(DDkey, true)||(analog_movement ? STICK_1_Y.d2 || STICK_1_Y.pos - js_stick_1_y_offset > STICK_PRECISION : joybtn(DDbtn));
+        raw_control_state[2]=zc_getrawkey(DLkey, true)||(analog_movement ? STICK_1_X.d1 || STICK_1_X.pos - js_stick_1_x_offset < -STICK_PRECISION : joybtn(DLbtn));
+        raw_control_state[3]=zc_getrawkey(DRkey, true)||(analog_movement ? STICK_1_X.d2 || STICK_1_X.pos - js_stick_1_x_offset > STICK_PRECISION : joybtn(DRbtn));
+        raw_control_state[4]=zc_getrawkey(Akey, true)||joybtn(Abtn);
+        raw_control_state[5]=zc_getrawkey(Bkey, true)||joybtn(Bbtn);
+        raw_control_state[6]=zc_getrawkey(Skey, true)||joybtn(Sbtn);
+        raw_control_state[7]=zc_getrawkey(Lkey, true)||joybtn(Lbtn);
+        raw_control_state[8]=zc_getrawkey(Rkey, true)||joybtn(Rbtn);
+        raw_control_state[9]=zc_getrawkey(Pkey, true)||joybtn(Pbtn);
+        raw_control_state[10]=zc_getrawkey(Exkey1, true)||joybtn(Exbtn1);
+        raw_control_state[11]=zc_getrawkey(Exkey2, true)||joybtn(Exbtn2);
+        raw_control_state[12]=zc_getrawkey(Exkey3, true)||joybtn(Exbtn3);
+        raw_control_state[13]=zc_getrawkey(Exkey4, true)||joybtn(Exbtn4);
+        
+        if(num_joysticks != 0)
+        {
+            raw_control_state[14] = STICK_2_Y.pos - js_stick_2_y_offset < -STICK_PRECISION;
+            raw_control_state[15] = STICK_2_Y.pos - js_stick_2_y_offset > STICK_PRECISION;
+            raw_control_state[16] = STICK_2_X.pos - js_stick_2_x_offset < -STICK_PRECISION;
+            raw_control_state[17] = STICK_2_X.pos - js_stick_2_x_offset > STICK_PRECISION;
+            // zprint2("Detected %d joysticks... %d%d%d%d\n", num_joysticks, raw_control_state[14]?1:0, raw_control_state[15]?1:0, raw_control_state[16]?1:0, raw_control_state[17]?1:0);
+        }
+        else
+        {
+            raw_control_state[14] = false;
+            raw_control_state[15] = false;
+            raw_control_state[16] = false;
+            raw_control_state[17] = false;
+            // zprint2("Detected 0 joysticks... clearing inputaxis values.\n");
+        }
     }
-	else
-	{
-		control_state[14] = false;
-		control_state[15] = false;
-		control_state[16] = false;
-		control_state[17] = false;
-		// zprint2("Detected 0 joysticks... clearing inputaxis values.\n");
-	}
+    replay_poll();
+    locking_keys = false;
+
+    for (int i = 0; i < ZC_CONTROL_STATES; i++)
+    {
+        control_state[i] = raw_control_state[i];
+    }
     
     button_press[0]=rButton(control_state[0],button_hold[0]);
     button_press[1]=rButton(control_state[1],button_hold[1]);
@@ -9757,38 +9885,32 @@ bool zc_key_pressed()
 bool getInput(int32_t btn, bool press, bool drunk, bool ignoreDisable, bool eatEntirely, bool peek)
 {
 	bool ret = false, drunkstate = false;
-	bool* flag = NULL;
+	bool* flag = &down_control_states[btn];
 	switch(btn)
 	{
 		case btnF12:
 			ret = zc_getkey(KEY_F12, ignoreDisable);
-			flag = &F12;
 			eatEntirely = false;
 			break;
 		case btnF11:
 			ret = zc_getkey(KEY_F11, ignoreDisable);
-			flag = &F11;
 			eatEntirely = false;
 			break;
 		case btnF5:
 			ret = zc_getkey(KEY_F5, ignoreDisable);
-			flag = &F5;
 			eatEntirely = false;
 			break;
 		case btnQ:
 			ret = zc_getkey(KEY_Q, ignoreDisable);
-			flag = &keyQ;
 			eatEntirely = false;
 			break;
 		case btnI:
 			ret = zc_getkey(KEY_I, ignoreDisable);
-			flag = &keyI;
 			eatEntirely = false;
 			break;
 		case btnM:
 			if(FFCore.kb_typing_mode) return false;
 			ret = zc_getrawkey(KEY_ESC, ignoreDisable);
-			flag = &Mdown;
 			eatEntirely = false;
 			break;
 		default: //control_state[] index
@@ -9796,27 +9918,6 @@ bool getInput(int32_t btn, bool press, bool drunk, bool ignoreDisable, bool eatE
 			if(!ignoreDisable && get_bit(quest_rules, qr_FIXDRUNKINPUTS) && disable_control[btn]) drunk = false;
 			else if(btn<11) drunkstate = drunk_toggle_state[btn];
 			ret = control_state[btn] && (ignoreDisable || !disable_control[btn]);
-			switch(btn)
-			{
-				case btnUp: flag = &Udown; break;
-				case btnDown: flag = &Ddown; break;
-				case btnLeft: flag = &Ldown; break;
-				case btnRight: flag = &Rdown; break;
-				case btnA: flag = &Adown; break;
-				case btnB: flag = &Bdown; break;
-				case btnS: flag = &Sdown; break;
-				case btnL: flag = &LBdown; break;
-				case btnR: flag = &RBdown; break;
-				case btnP: flag = &Pdown; break;
-				case btnEx1: flag = &Ex1down; break;
-				case btnEx2: flag = &Ex2down; break;
-				case btnEx3: flag = &Ex3down; break;
-				case btnEx4: flag = &Ex4down; break;
-				case btnAxisUp: flag = &AUdown; break;
-				case btnAxisDown: flag = &ADdown; break;
-				case btnAxisLeft: flag = &ALdown; break;
-				case btnAxisRight: flag = &ARdown; break;
-			}
 	}
 	assert(flag);
 	if(press)
@@ -10045,12 +10146,6 @@ bool rI()
     return getInput(btnI, true);
 }
 
-/*No longer in use -V
-bool drunk()
-{
-    return ((!(frame%((zc_rand()%100)+1)))&&(zc_rand()%MAXDRUNKCLOCK<Hero.DrunkClock()));
-}*/
-
 bool DrunkUp()
 {
     return getInput(btnUp, false, true);
@@ -10223,17 +10318,17 @@ bool zc_readrawkey(int32_t k, bool ignoreDisable)
 
 bool zc_getrawkey(int32_t k, bool ignoreDisable)
 {
-	if(ignoreDisable) return key[k];
-	switch(k)
-	{
-		case KEY_F7:
-		case KEY_F8:
-		case KEY_F9:
-			return key[k];
-			
-		default:
-			return key[k] && !disabledKeys[k];
-	}
+    if(ignoreDisable) return key[k];
+    switch(k)
+    {
+        case KEY_F7:
+        case KEY_F8:
+        case KEY_F9:
+            return key[k];
+            
+        default:
+            return key[k] && !disabledKeys[k];
+    }
 }
 
 void update_keys()

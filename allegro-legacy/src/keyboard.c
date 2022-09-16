@@ -32,6 +32,7 @@ int key_led_flag = TRUE;
 
 volatile char key[KEY_MAX];                  /* key pressed flags */
 volatile char _key[KEY_MAX];
+volatile bool locking_keys = FALSE;
 
 volatile int key_shifts = 0;                 /* current shift state */
 volatile int _key_shifts = 0;
@@ -432,6 +433,8 @@ static INLINE void update_shifts(void)
  */
 void _handle_key_press(int keycode, int scancode)
 {
+   while (locking_keys);
+
    if ((keyboard_driver->poll) || (!keyboard_polled)) {
       /* process immediately */
       if (scancode > 0) {

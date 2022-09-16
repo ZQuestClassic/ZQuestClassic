@@ -2921,7 +2921,7 @@ int32_t get_register(const int32_t arg)
 			ret = 0;
 			break;
 		case DEBUGTESTING:
-			ret = zqtesting_mode ? 10000 : 0;
+			ret = use_testingst_start ? 10000 : 0;
 			break;
 		
 		//debug ri->d[]
@@ -22005,7 +22005,7 @@ void do_rnd(const bool v)
 void do_srnd(const bool v)
 {
 	uint32_t seed = SH::get_arg(sarg1, v); //Do not `/10000`- allow the decimal portion to be used! -V
-	zc_srand(seed);
+	zc_game_srand(seed);
 }
 
 void do_srndrnd()
@@ -22013,7 +22013,7 @@ void do_srndrnd()
 	//Randomize the seed to the current system time, + or - the product of 2 random numbers.
 	int32_t seed = time(0) + ((zc_rand() * int64_t(zc_rand())) * (zc_rand(1) ? 1 : -1));
 	set_register(sarg1, seed);
-	zc_srand(seed);
+	zc_game_srand(seed);
 }
 
 //Returns the system Real-Time-Clock value for a specific type. 
@@ -25010,8 +25010,15 @@ void FFScript::AlloffLimited(int32_t flagset)
 	
 	lensclk = 0;
 	lensid=-1;
-	drawguys=Udown=Ddown=Ldown=Rdown=Adown=Bdown=Sdown=true;
-	
+	drawguys=true;
+	down_control_states[btnUp] =
+		down_control_states[btnDown] =
+			down_control_states[btnLeft] =
+				down_control_states[btnRight] =
+					down_control_states[btnA] =
+						down_control_states[btnB] =
+							down_control_states[btnS] = true;
+
 	if(watch && !cheat_superman)
 	{
 		Hero.setClock(false);
@@ -30708,6 +30715,7 @@ void FFScript::user_rng_init()
 {
 	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
 	{
+		replay_register_rng(&script_rnggens[q]);
 		script_rngs[q].set_gen(&script_rnggens[q]);
 	}
 }

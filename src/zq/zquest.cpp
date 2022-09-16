@@ -34364,3 +34364,5 @@ void paymagiccost(int32_t itemid, bool ignoreTimer)
 void enter_sys_pal(){}
 void exit_sys_pal(){}
 
+void replay_step_comment(std::string comment) {}
+bool replay_is_debug() {return false;}

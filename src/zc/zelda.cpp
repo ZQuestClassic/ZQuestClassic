@@ -12,6 +12,7 @@
 #include "precompiled.h" //always first
 
 #include <memory>
+#include <filesystem>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -52,6 +53,9 @@
 #include "base/util.h"
 #include "drawing.h"
 #include "dialog/info.h"
+#include "replay.h"
+#include "cheats.h"
+
 using namespace util;
 extern FFScript FFCore; //the core script engine.
 extern byte epilepsyFlashReduction;
@@ -82,12 +86,16 @@ int32_t switch_type = 0; //Init here to avoid Linux building error in g++.
 bool saved = true;
 bool zqtesting_mode = false;
 static char testingqst_name[512] = {0};
+bool use_testingst_start = false;
 static uint16_t testingqst_dmap = 0;
 static uint8_t testingqst_screen = 0;
 static uint8_t testingqst_retsqr = 0;
+static bool replay_debug_arg = false;
 
 extern CConsoleLoggerEx zscript_coloured_console;
 extern CConsoleLoggerEx coloured_console;
+
+static zc_randgen drunk_rng;
 
 #include "init.h"
 #include <assert.h>
@@ -160,6 +168,7 @@ bool is_large=false;
 bool standalone_mode=false;
 char *standalone_quest=NULL;
 bool skip_title=false;
+bool disable_save_to_disk=false;
 
 int32_t favorite_combos[MAXFAVORITECOMBOS] = {0};
 int32_t favorite_comboaliases[MAXFAVORITECOMBOALIASES]= {0};
@@ -377,7 +386,7 @@ int32_t magicdrainclk=0, conveyclk=3, memrequested=0;
 byte newconveyorclk = 0;
 float avgfps=0;
 dword fps_secs=0;
-bool do_cheat_goto=false, do_cheat_light=false;
+bool cheats_execute_goto=false, cheats_execute_light=false;
 int32_t checkx = 0, checky = 0;
 int32_t loadlast=0;
 int32_t skipcont=0;
@@ -397,7 +406,9 @@ bool __debug=false,debug_enabled = false;
 bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
      loaded_enemies= false,drawguys= false,details=false,watch= false;
 bool darkroom=false,naturaldark=false,BSZ= false;                         //,NEWSUBSCR;
-bool Udown= false,Ddown= false,Ldown= false,Rdown= false,Adown= false,Bdown= false,Sdown= false,Mdown= false,LBdown= false,RBdown= false,Pdown= false,Ex1down= false,Ex2down= false,Ex3down= false,Ex4down= false,AUdown= false,ADdown= false,ALdown= false,ARdown= false,F12= false,F11= false, F5= false,keyI= false, keyQ= false,
+
+bool down_control_states[controls::btnLast] = {false};
+bool F12= false,F11= false, F5= false,keyI= false, keyQ= false,
      SystemKeys=true,NESquit= false,volkeys= false,useCD=false,boughtsomething=false,
      fixed_door=false, hookshot_used=false, hookshot_frozen=false,
      pull_hero=false, hs_fix=false, hs_switcher=false,
@@ -1397,7 +1408,14 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
     
     lensclk = 0;
     lensid=-1;
-    drawguys=Udown=Ddown=Ldown=Rdown=Adown=Bdown=Sdown=true;
+    drawguys=true;
+	down_control_states[btnUp] =
+		down_control_states[btnDown] =
+			down_control_states[btnLeft] =
+				down_control_states[btnRight] =
+					down_control_states[btnA] =
+						down_control_states[btnB] =
+							down_control_states[btnS] = true;
     
     if(watch && !cheat_superman)
     {
@@ -1838,8 +1856,79 @@ void init_dmap()
 
 int32_t init_game()
 {
-	//port250QuestRules();	
-	zc_srand(time(0));
+    // Various things use the frame counter to do random stuff (ex: runDrunkRNG).
+	// We only bother setting it to 0 here so that recordings will play back the
+	// same way, even if manually started in the ZC UI (in which case,` frame` starts
+	// as a non-zero number for the recording, but is 0 during replay).
+    frame = 0;
+
+	//Copy saved data to RAM data (but not global arrays)
+	game->Copy(saves[currgame]);
+	bool firstplay = (game->get_hasplayed() == 0);
+
+	// The following code is the setup for recording a save file, enabled via "replay_new_saves" config.
+	// It allows users to start a recording on a new quest, or to continue a recording on an existing quest.
+	// This block runs _only_ for recordings associated with a save file. See `-replay` above for how recordings
+	// are handled for `-test` mode.
+	bool replay_new_saves = zc_get_config("zeldadx", "replay_new_saves", false);
+	if (!zqtesting_mode && (replay_new_saves || !firstplay) && !replay_is_active())
+	{
+		std::filesystem::path replay_file_dir = zc_get_config("zeldadx", "replay_file_dir", "replays/");
+		std::filesystem::create_directory(replay_file_dir);
+		if (firstplay && replay_new_saves)
+		{
+			// TODO: need to escape?
+			auto replay_path_prefix = replay_file_dir / string_format("%s-%s", saves[currgame].title, saves[currgame]._name);
+			std::string replay_path = string_format("%s.%s", replay_path_prefix.string().c_str(), REPLAY_EXTENSION.c_str());
+			if (std::filesystem::exists(replay_path))
+			{
+				int i = 1;
+				do {
+					i += 1;
+					replay_path = string_format("%s-%d.%s", replay_path_prefix.string().c_str(), i, REPLAY_EXTENSION.c_str());
+				} while (std::filesystem::exists(replay_path));
+			}
+
+			if (jwin_alert("Recording",
+				"You are about to create a new recording at:",
+				string_format("%s", relativize_path(replay_path).c_str()).c_str(),
+				"Do you wish to record this save file?",
+				"Yes","No",13,27,lfont)!=0)
+			{
+				saves[currgame].replay_file = replay_path;
+				replay_start(ReplayMode::Record, replay_path);
+				replay_set_debug(replay_debug_arg);
+				replay_set_sync_rng(true);
+				replay_set_meta("qst", relativize_path(game->qstpath));
+				replay_save();
+			}
+		}
+		else if (!firstplay && !saves[currgame].replay_file.empty())
+		{
+			if (!std::filesystem::exists(saves[currgame].replay_file))
+			{
+				std::string msg = string_format("Replay file %s does not exist. Cannot continue recording.",
+					saves[currgame].replay_file.c_str());
+				jwin_alert("Recording",msg.c_str(),NULL,NULL,"OK",NULL,13,27,lfont);
+			}
+			else
+			{
+				replay_continue(saves[currgame].replay_file);
+			}
+		}
+	}
+
+	replay_step_comment("init_game");
+	replay_forget_input();
+	
+	//port250QuestRules();
+	
+	int initial_seed = time(0);
+	replay_register_rng(zc_get_default_rand());
+	replay_register_rng(&drunk_rng);
+	zc_game_srand(initial_seed);
+	zc_game_srand(initial_seed, &drunk_rng);
+
 	//introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
 	FFCore.kb_typing_mode = false;
 	
@@ -1874,7 +1963,7 @@ int32_t init_game()
 	wavy=quakeclk=0;
 	show_layer_0=show_layer_1=show_layer_2=show_layer_3=show_layer_4=show_layer_5=show_layer_6=true;
 	show_layer_over=show_layer_push=show_sprites=show_ffcs=true;
-	cheat_superman=do_cheat_light=do_cheat_goto=show_walkflags=show_effectflags=show_ff_scripts=show_hitboxes=false;
+	cheat_superman=cheats_execute_light=cheats_execute_goto=show_walkflags=show_effectflags=show_ff_scripts=show_hitboxes=false;
 	//al_trace("Clearing old RenderTarget\n");
 	if ( zscriptDrawingRenderTarget ) zscriptDrawingRenderTarget->SetCurrentRenderTarget(-1); //clear the last set Rendertarget between games
 	//zscriptDrawingRenderTarget = new ZScriptDrawingRenderTarget();
@@ -1903,8 +1992,8 @@ int32_t init_game()
 	
 	zc_free(dummy);
 	*/
-	//Copy saved data to RAM data (but not global arrays)
-	game->Copy(saves[currgame]);
+	
+
 	onload_gswitch_timers();
 	load_genscript(*game);
 	genscript_timing = SCR_TIMING_START_FRAME;
@@ -2095,12 +2184,11 @@ int32_t init_game()
 		// zprint2("Path creating... %s\n",create_path(qst_files_path)?"Success!":"Failure!");
 	}
 	
-	if(zqtesting_mode)
+	if(use_testingst_start)
 	{
 		cheat = 4;
 		maxcheat = 4;
 	}
-	bool firstplay = (game->get_hasplayed() == 0);
 	
 	BSZ = get_bit(quest_rules,qr_BSZELDA)!=0;
 	//setupherotiles(zinit.heroAnimationStyle);
@@ -2118,7 +2206,7 @@ int32_t init_game()
 	//  currdmap = warpscr = worldscr=0;
 	if(firstplay)
 	{
-		if(!zqtesting_mode)
+		if (!use_testingst_start)
 			game->set_continue_dmap(zinit.start_dmap);
 		resetItems(game,&zinit,true);
 		if ( FFCore.getQuestHeaderInfo(vZelda) < 0x190 )
@@ -2230,7 +2318,7 @@ int32_t init_game()
 	//ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
 	
 	Hero.init();
-	if(zqtesting_mode
+	if (use_testingst_start
 		&& currscr == testingqst_screen
 		&& currdmap == testingqst_dmap)
 	{
@@ -2421,7 +2509,6 @@ int32_t init_game()
 		}
 	}
 	
-	
 	show_subscreen_dmap_dots=true;
 	show_subscreen_items=true;
 	show_subscreen_numbers=true;
@@ -2511,6 +2598,7 @@ int32_t init_game()
 
 int32_t cont_game()
 {
+	replay_step_comment("cont_game");
 	timeExitAllGenscript(GENSCR_ST_CONTINUE);
 	throwGenScriptEvent(GENSCR_EVENT_CONTINUE);
 	//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
@@ -2596,7 +2684,7 @@ int32_t cont_game()
 	loadlvlpal(DMaps[currdmap].color);
 	lighting(false,true);
 	Hero.init();
-	if(zqtesting_mode
+	if (use_testingst_start
 		&& currscr == testingqst_screen
 		&& currdmap == testingqst_dmap)
 	{
@@ -3469,6 +3557,8 @@ void game_loop()
 			midi_paused=false;
 			midi_suspended = midissuspNONE;
 		}
+
+		cheats_execute_queued();
 		
 		//  walkflagx=0; walkflagy=0;
 		runDrunkRNG();
@@ -3644,6 +3734,7 @@ void game_loop()
 						{
 							//set a B item hack
 							//Bwpn = Bweapon(Bpos);
+							replay_step_comment("hero died");
 							Quit = qGAMEOVER;
 						}
 						
@@ -4005,8 +4096,8 @@ void runDrunkRNG(){
 	//Runs the RNG for drunk for each control which makes use of drunk toggling. 
 	//Index 0-10 refer to control_state[0]-[9], while index 11 is used for `DrunkrMbtn()`/`DrunkcMbtn()`, which do not use control_states[]
 	for(int32_t i = 0; i<sizeof(drunk_toggle_state); i++){
-		if((!(frame%((zc_oldrand()%100)+1)))&&(zc_oldrand()%MAXDRUNKCLOCK<Hero.DrunkClock())){
-			drunk_toggle_state[i] = (zc_oldrand()%2)?true:false;
+		if((!(frame%((zc_oldrand(&drunk_rng)%100)+1)))&&(zc_oldrand(&drunk_rng)%MAXDRUNKCLOCK<Hero.DrunkClock())){
+			drunk_toggle_state[i] = (zc_oldrand(&drunk_rng)%2)?true:false;
 		} else {
 			drunk_toggle_state[i] = false;
 		}
@@ -4449,6 +4540,38 @@ int32_t onFullscreen()
 	    return D_REDRAW;
     }
     else return D_O_K;
+}
+
+static bool load_replay_file_called = false;
+static bool current_session_is_replay = false;
+void load_replay_file(ReplayMode mode, std::string replay_file)
+{
+	ASSERT(mode == ReplayMode::Replay || mode == ReplayMode::Assert || mode == ReplayMode::Update);
+	replay_start(mode, replay_file);
+	strcpy(testingqst_name, replay_get_meta_str("qst").c_str());
+	if (replay_get_meta_bool("test_mode"))
+	{
+		testingqst_dmap = replay_get_meta_int("starting_dmap");
+		testingqst_screen = replay_get_meta_int("starting_scr");
+		testingqst_retsqr = replay_get_meta_int("starting_retsqr");
+		use_testingst_start = true;
+	}
+	else
+	{
+		use_testingst_start = false;
+	}
+	load_replay_file_called = true;
+}
+
+void zc_game_srand(int seed, zc_randgen* rng)
+{
+	if (rng == nullptr)
+		rng = zc_get_default_rand();
+
+	if (replay_is_active())
+		replay_set_rng_seed(rng, seed);
+	else
+		zc_srand(seed, rng);
 }
 
 int main(int argc, char **argv)
@@ -5170,6 +5293,7 @@ int main(int argc, char **argv)
 		}
 		show_saving(screen);
 		save_savedgames();
+		if (replay_get_mode() == ReplayMode::Record) replay_save();
 		save_game_configs();
 		set_gfx_mode(GFX_TEXT,80,25,0,0);
 		//rest(250); // ???
@@ -5342,23 +5466,6 @@ int main(int argc, char **argv)
 		}
 	}
 	
-	if(!checked_epilepsy)
-	{
-		clear_to_color(screen,BLACK);
-		system_pal();
-		if(jwin_alert("EPILEPSY Options",
-			  "Do you desire epilepsy protection?",
-			  "This will reduce the intensity of flashing effects",
-			  "and reduce the amplitude of wavy screen effects.",
-			  "No","Yes",13,27,lfont)!=1)
-		{
-			epilepsyFlashReduction = 1;
-		}
-		set_config_int("zeldadx","checked_epilepsy",1);
-		save_game_configs();
-		checked_epilepsy = 1;
-	}
-	
 	//set switching/focus mode -Z
 	set_display_switch_mode(is_windowed_mode()?(pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND):SWITCH_BACKAMNESIA);
 	
@@ -5404,30 +5511,73 @@ int main(int argc, char **argv)
 			Z_error_fatal("Failed '-test \"%s\" %d %d'\n", testingqst_name, dm, scr);
 			exit(1);
 		}
+		use_testingst_start = true;
 		testingqst_dmap = (uint16_t)dm;
 		testingqst_screen = (uint8_t)scr;
 		testingqst_retsqr = (uint8_t)retsqr;
 	}
+
+	int replay_arg = used_switch(argc, argv, "-replay");
+	int record_arg = used_switch(argc, argv, "-record");
+	int assert_arg = used_switch(argc, argv, "-assert");
+	int update_arg = used_switch(argc, argv, "-update");
+	int frame_arg = used_switch(argc, argv, "-frame");
+	replay_debug_arg = used_switch(argc, argv, "-replay-debug") > 0;
+	if (replay_arg > 0)
+	{
+		load_replay_file(ReplayMode::Replay, argv[replay_arg + 1]);
+	}
+	else if (assert_arg > 0)
+	{
+		load_replay_file(ReplayMode::Assert, argv[assert_arg + 1]);
+	}
+	else if (update_arg > 0)
+	{
+		load_replay_file(ReplayMode::Update, argv[update_arg + 1]);
+	}
+	else if (record_arg > 0)
+	{
+		ASSERT(zqtesting_mode);
+
+		replay_start(ReplayMode::Record, argv[record_arg + 1]);
+		replay_set_debug(replay_debug_arg);
+		replay_set_sync_rng(true);
+		replay_set_meta("qst", testingqst_name);
+		replay_set_meta_bool("test_mode", true);
+		replay_set_meta("starting_dmap", testingqst_dmap);
+		replay_set_meta("starting_scr", testingqst_screen);
+		replay_set_meta("starting_retsqr", testingqst_retsqr);
+		use_testingst_start = true;
+	}
+	if (frame_arg > 0)
+		replay_set_frame_arg(std::stoi(argv[frame_arg + 1]));
 	
 	//clearConsole();
-	init_saves();
-	if(!zqtesting_mode)
+	if(!zqtesting_mode && !replay_is_active())
 	{
-		// load saved games
-		zprint2("Loading Saved Games\n");
-		if(load_savedgames() != 0)
+		if (!checked_epilepsy)
 		{
-			Z_error_fatal("Insufficient memory");
-			quit_game();
+			clear_to_color(screen,BLACK);
+			system_pal();
+			if(jwin_alert("EPILEPSY Options",
+				"Do you desire epilepsy protection?",
+				"This will reduce the intensity of flashing effects",
+				"and reduce the amplitude of wavy screen effects.",
+				"No","Yes",13,27,lfont)!=1)
+			{
+				epilepsyFlashReduction = 1;
+			}
+			set_config_int("zeldadx","checked_epilepsy",1);
+			save_game_configs();
+			checked_epilepsy = 1;
 		}
-		zprint2("Finished Loading Saved Games\n");
 	}
 
 	set_display_switch_callback(SWITCH_IN,switch_in_callback);
 	set_display_switch_callback(SWITCH_OUT,switch_out_callback);
 	
 	// AG logo
-	if(!(zqtesting_mode||fast_start||zc_get_config("zeldadx","skip_logo",1)))
+	if(!(zqtesting_mode||replay_is_active()||fast_start||zc_get_config("zeldadx","skip_logo",1)))
 	{
 		set_volume(240,-1);
 		aglogo(tmp_scr, scrollbuf, resx, resy);
@@ -5463,19 +5613,47 @@ int main(int argc, char **argv)
 	
 #endif
 	
-	
-	if(zqtesting_mode)
+reload_for_replay_file:
+	load_replay_file_called = false;
+	current_session_is_replay = replay_is_active();
+	disable_save_to_disk = zqtesting_mode || replay_is_active();
+
+	init_saves();
+	if (!disable_save_to_disk)
+	{
+		// load saved games
+		zprint2("Loading Saved Games\n");
+		if(load_savedgames() != 0)
+		{
+			Z_error_fatal("Insufficient memory");
+			quit_game();
+		}
+		zprint2("Finished Loading Saved Games\n");
+	}
+
+	if (zqtesting_mode || replay_is_active())
 	{
 		currgame = 0;
 		saves[0].Clear();
-		saves[0].set_continue_dmap(testingqst_dmap);
-		saves[0].set_continue_scrn(testingqst_screen);
+		if (use_testingst_start)
+		{
+			saves[0].set_continue_dmap(testingqst_dmap);
+			saves[0].set_continue_scrn(testingqst_screen);
+		}
+		else
+		{
+			saves[0].set_continue_scrn(0xFF);
+		}
 		strcpy(saves[0].qstpath, testingqst_name);
 		saves[0].set_quest(0xFF);
 		saves[0].set_name("Hero");
 		clearConsole();
-		Z_message("Test mode: \"%s\", %d, %d\n", testingqst_name, testingqst_dmap, testingqst_screen);
+		if (use_testingst_start)
+			Z_message("Test mode: \"%s\", %d, %d\n", testingqst_name, testingqst_dmap, testingqst_screen);
+		if (replay_is_active())
+			Z_message("Replay is active");
 	}
+
 	while(Quit!=qEXIT)
 	{
 		// this is here to continually fix the keyboard repeat
@@ -5483,7 +5661,7 @@ int main(int argc, char **argv)
 		toogam = false;
 		ignoreSideview=false;
 		clear_bitmap(lightbeam_bmp);
-		if(zqtesting_mode)
+		if (zqtesting_mode || replay_is_replaying())
 		{
 			int32_t q = Quit;
 			Quit = 0;
@@ -5514,8 +5692,9 @@ int main(int argc, char **argv)
 			
 #endif
 			game_loop();
-			
-			//Perpetual item Script:
+			if (replay_is_debug() && !Quit)
+				replay_step_comment(string_format("frame %d hero %d %d", frame, HeroX().getInt(), HeroY().getInt()));
+
 			FFCore.newScriptEngine();
 			
 			FFCore.runF6Engine();
@@ -5524,6 +5703,12 @@ int main(int argc, char **argv)
 			//for ( int32_t q = 0; q < 4; q++ ) Hero.sethitHeroUID(q, 0);
 			//clearing this here makes it impossible 
 			//to read before or after waitdraw in scripts. 
+		}
+
+		if (Quit == qRESET && load_replay_file_called)
+		{
+			Quit = 0;
+			goto reload_for_replay_file;
 		}
 		
 		tmpscr->flags3=0;
@@ -5561,7 +5746,7 @@ int main(int argc, char **argv)
 				FFCore.init_combo_doscript(); //clear running combo script data
 				//Run Global script OnExit
 				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
-			   
+
 				if(!skipcont&&!get_bit(quest_rules,qr_NOCONTINUE)) game_over(get_bit(quest_rules,qr_NOSAVE));
 				
 				if(Quit==qSAVE)
@@ -5662,10 +5847,42 @@ int main(int argc, char **argv)
 		kill_sfx();
 		music_stop();
 		clear_to_color(screen,BLACK);
+
+		if (replay_is_active())
+		{
+			if (replay_is_assert_done())
+			{
+				Quit = qEXIT;
+			}
+			else if (replay_get_mode() != ReplayMode::Record && Quit == qEXIT)
+			{
+				locking_keys = true;
+				replay_poll();
+				locking_keys = false;
+				Quit = qQUIT;
+			}
+			else if (Quit == qQUIT)
+			{
+				locking_keys = true;
+				replay_poll();
+				locking_keys = false;
+			}
+		}
+
+		if (current_session_is_replay && !replay_is_active() && Quit != qEXIT && Quit != qCONT)
+		{
+			// Replay is over, so jump up to load the real saves.
+			Quit = 0;
+			zqtesting_mode = false;
+			use_testingst_start = false;
+			goto reload_for_replay_file;
+		}
 	}
 	
 	// clean up
 	
+	if (zqtesting_mode && replay_get_mode() == ReplayMode::Record) replay_save();
+	replay_stop();
 	music_stop();
 	kill_sfx();
 	
@@ -5692,6 +5909,7 @@ int main(int argc, char **argv)
 	}
 	show_saving(screen);
 	save_savedgames();
+	if (replay_get_mode() == ReplayMode::Record) replay_save();
 	save_game_configs();
 	set_gfx_mode(GFX_TEXT,80,25,0,0);
 	//rest(250); // ???
@@ -5738,6 +5956,9 @@ void delete_everything_else() //blarg.
 
 void quit_game()
 {
+	if (zqtesting_mode && replay_get_mode() == ReplayMode::Record) replay_save();
+	replay_stop();
+
 	script_drawing_commands.Dispose(); //for allegro bitmaps
 	
 	remove_installed_timers();

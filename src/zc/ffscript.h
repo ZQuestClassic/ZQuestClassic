@@ -8,6 +8,7 @@
 #include <list>
 #include <deque>
 #include "zelda.h" //This is probably the source of the duplication of BMP_MOUSE. -Z
+#include "replay.h"
 
 #define ZS_BYTE 255
 #define ZS_CHAR 255
@@ -607,7 +608,7 @@ struct user_rng
 	}
 	void srand(int32_t seed)
 	{
-		zc_srand(seed, gen);
+		zc_game_srand(seed, gen);
 	}
 	int32_t srand()
 	{
