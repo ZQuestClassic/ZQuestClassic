@@ -4223,12 +4223,37 @@ void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigne
 			unsigned int z3_scr_dx = scr_x - z3_scr_x;
 			unsigned int z3_scr_dy = scr_y - z3_scr_y;
 			mapscr* z3_scr = get_scr(currmap, scr);
+			// TODO z3!
 			global_z3_cur_scr_drawing = scr;
 			fn(z3_scr, scr, z3_scr_dx, z3_scr_dy);
 		}
 	}
 
 	global_z3_cur_scr_drawing = -1;
+}
+
+void for_every_rpos_in_region(const std::function <void (const pos_handle_t&)>& fn)
+{
+	pos_handle_t pos_handle;
+	for (int screen_index = 0; screen_index < 128; screen_index++)
+	{
+		if (!is_in_current_region(screen_index)) continue;
+
+		rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen_index), z3_get_region_relative_dy(screen_index));
+		for (auto lyr = 0; lyr < 7; ++lyr)
+		{
+			mapscr* scr = get_layer_scr(currmap, screen_index, lyr - 1);
+			pos_handle.screen = scr;
+			pos_handle.screen_index = screen_index;
+			pos_handle.layer = lyr;
+
+			for (auto pos = 0; pos < 176; ++pos)
+			{
+				pos_handle.rpos = (rpos_t)((int)base_rpos + pos);
+				fn(pos_handle);
+			}
+		}
+	}
 }
 
 static void for_every_nearby_screen(const std::function <void (mapscr*, int, int, int)>& fn)
@@ -4242,6 +4267,7 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 	int currscr_x = currscr % 16;
 	int currscr_y = currscr / 16;
 
+	// TODO z3 remove odd ordering?
 	for (int currscr_dx = 1; currscr_dx >= -1; currscr_dx--)
 	{
 		for (int currscr_dy = -1; currscr_dy <= 1; currscr_dy++)

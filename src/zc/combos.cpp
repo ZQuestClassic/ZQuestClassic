@@ -1584,42 +1584,44 @@ bool trigger_shooter(newcombo const& cmb, int32_t pos)
 	if(unsigned(pos) > 175) return false;
 	return trigger_shooter(cmb, COMBOX(pos), COMBOY(pos));
 }
+
 static byte copycat_id = 0;
-bool do_copycat_trigger(int32_t lyr, int32_t pos)
+static bool do_copycat_trigger(const pos_handle_t& pos_handle)
 {
 	if(!copycat_id) return false;
-	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
-	mapscr* tmp = FFCore.tempScreens[lyr];
-	int32_t cid = tmp->data[pos];
+	if (unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
+	int pos = RPOS_TO_POS(pos_handle.rpos);
+	
+	if (unsigned(pos) > 175) return false;
+	int32_t cid = pos_handle.screen->data[pos];
 	newcombo const& cmb = combobuf[cid];
 	if(cmb.trigcopycat == copycat_id)
 	{
-		do_trigger_combo(lyr,pos);
+		do_trigger_combo(pos_handle.layer, pos);
 		return true;
 	}
 	return false;
 }
 
-// TODO z3 !
-void do_ex_trigger(int32_t lyr, int32_t pos)
+void do_ex_trigger(const pos_handle_t& pos_handle)
 {
-	DCHECK_LAYER_ZERO_INDEX(lyr);
-	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return;
-	mapscr* tmp = FFCore.tempScreens[lyr];
-	int32_t cid = tmp->data[pos];
-	int32_t ocs = tmp->cset[pos];
+	if (pos_handle.rpos > region_max_rpos) return;
+
+	int32_t pos = RPOS_TO_POS(pos_handle.rpos);
+	int32_t cid = pos_handle.screen->data[pos];
+	int32_t ocs = pos_handle.screen->cset[pos];
 	newcombo const& cmb = combobuf[cid];	
 	if(cmb.trigchange)
 	{
-		tmp->data[pos] = cid+cmb.trigchange;
+		pos_handle.screen->data[pos] = cid+cmb.trigchange;
 	}
 	if(cmb.trigcschange)
 	{
-		tmp->cset[pos] = (ocs+cmb.trigcschange) & 0xF;
+		pos_handle.screen->cset[pos] = (ocs+cmb.trigcschange) & 0xF;
 	}
 	if(cmb.triggerflags[0] & combotriggerRESETANIM)
 	{
-		newcombo& rcmb = combobuf[tmp->data[pos]];
+		newcombo& rcmb = combobuf[pos_handle.screen->data[pos]];
 		rcmb.tile = rcmb.o_tile;
 		rcmb.cur_frame=0;
 		rcmb.aclk = 0;
@@ -1629,18 +1631,12 @@ void do_ex_trigger(int32_t lyr, int32_t pos)
 	{
 		if(!copycat_id) //not already in a copycat
 		{
-			bool skipself = tmp->data[pos] == cid;
+			bool skipself = pos_handle.screen->data[pos] == cid;
 			copycat_id = cmb.trigcopycat;
-			for(auto cclayer = 0; cclayer < 7; ++cclayer)
-			{
-				for(auto ccpos = 0; ccpos < 176; ++ccpos)
-				{
-					if(cclayer == lyr && ccpos == pos && skipself)
-						continue;
-					
-					do_copycat_trigger(cclayer, ccpos);
-				}
-			}
+			for_every_rpos_in_region([&](const pos_handle_t& cc_pos_handle) {
+				if (skipself && cc_pos_handle.layer == pos_handle.layer && cc_pos_handle.rpos == pos_handle.rpos) return;
+				do_copycat_trigger(cc_pos_handle);
+			});
 			copycat_id = 0;
 		}
 	}
@@ -1654,7 +1650,7 @@ bool force_ex_trigger(const pos_handle_t& pos_handle, char xstate)
 	{
 		if(xstate >= 0 || getxmapflag(1<<cmb.exstate))
 		{
-			do_ex_trigger(pos_handle.layer, pos);
+			do_ex_trigger(pos_handle);
 			return true;
 		}
 	}
@@ -1964,16 +1960,10 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 				{
 					bool skipself = pos_handle.screen->data[pos] == cid;
 					copycat_id = cmb.trigcopycat;
-					for(auto cclayer = 0; cclayer < 7; ++cclayer)
-					{
-						for(auto ccpos = 0; ccpos < 176; ++ccpos)
-						{
-							if(cclayer == lyr && ccpos == pos && skipself)
-								continue;
-							
-							do_copycat_trigger(cclayer, ccpos);
-						}
-					}
+					for_every_rpos_in_region([&](const pos_handle_t& cc_pos_handle) {
+						if (skipself && cc_pos_handle.layer == pos_handle.layer && cc_pos_handle.rpos == pos_handle.rpos) return;
+						do_copycat_trigger(cc_pos_handle);
+					});
 					copycat_id = 0;
 				}
 			}
