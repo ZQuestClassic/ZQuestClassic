@@ -21090,7 +21090,7 @@ bool ok2add(int32_t id)
 	return true;
 }
 
-void activate_fireball_statue(int32_t pos)
+static void activate_fireball_statue(mapscr* screen, int screen_index, int32_t pos)
 {
 	if(!(tmpscr.enemyflags&efFIREBALLS) || statueID<0)
 	{
@@ -21100,6 +21100,8 @@ void activate_fireball_statue(int32_t pos)
 	int32_t cx=-1000, cy=-1000;
 	int32_t x = (pos&15)<<4;
 	int32_t y = pos&0xF0;
+	int dx = z3_get_region_relative_dx(screen_index)*256;
+	int dy = z3_get_region_relative_dy(screen_index)*176;
 	
 	int32_t ctype = combobuf[MAPCOMBO(x,y)].type;
 	
@@ -21140,42 +21142,45 @@ void activate_fireball_statue(int32_t pos)
 			}
 		}
 		
-		addenemy(cx, cy, statueID, !isfixedtogrid(statueID) ? 24 : 0);
+		addenemy(dx + cx, dy + cy, statueID, !isfixedtogrid(statueID) ? 24 : 0);
 	}
 }
 
-void activate_fireball_statues()
+static void activate_fireball_statues(mapscr* screen, int screen_index)
 {
-	if(!(tmpscr.enemyflags&efFIREBALLS))
+	if(!(screen->enemyflags&efFIREBALLS))
 	{
 		return;
 	}
 	
 	for(int32_t i=0; i<176; i++)
 	{
-		activate_fireball_statue(i);
+		activate_fireball_statue(screen, screen_index, i);
 	}
 }
 
-void load_default_enemies(mapscr* scr)
+void load_default_enemies(mapscr* screen, int screen_index)
 {
+	int dx = z3_get_region_relative_dx(screen_index)*256;
+	int dy = z3_get_region_relative_dy(screen_index)*176;
+
 	wallm_load_clk=frame-80;
 	int32_t Id=0;
 	
-	if(scr->enemyflags&efZORA)
+	if(screen->enemyflags&efZORA)
 	{
 		if(zoraID>=0)
-			addenemy(-16, -16, zoraID, 0);
+			addenemy(dx + -16, dy + -16, zoraID, 0);
 	}
 	
-	if(scr->enemyflags&efTRAP4)
+	if(screen->enemyflags&efTRAP4)
 	{
 		if(cornerTrapID>=0)
 		{
-			addenemy(32, 32, cornerTrapID, -14);
-			addenemy(208, 32, cornerTrapID, -14);
-			addenemy(32, 128, cornerTrapID, -14);
-			addenemy(208, 128, cornerTrapID, -14);
+			addenemy(dx + 32, dy + 32, cornerTrapID, -14);
+			addenemy(dx + 208, dy + 32, cornerTrapID, -14);
+			addenemy(dx + 32, dy + 128, cornerTrapID, -14);
+			addenemy(dx + 208, dy + 128, cornerTrapID, -14);
 		}
 	}
 	
@@ -21190,18 +21195,18 @@ void load_default_enemies(mapscr* scr)
 			if(ctype==cTRAP_H || cflag==mfTRAP_H || cflag_i==mfTRAP_H)
 			{
 				if(trapLOSHorizontalID>=0)
-					addenemy(x, y, trapLOSHorizontalID, -14);
+					addenemy(dx + x, dy + y, trapLOSHorizontalID, -14);
 			}
 			else if(ctype==cTRAP_V || cflag==mfTRAP_V || cflag_i==mfTRAP_V)
 			{
 				if(trapLOSVerticalID>=0)
-					addenemy(x, y, trapLOSVerticalID, -14);
+					addenemy(dx + x, dy + y, trapLOSVerticalID, -14);
 			}
 			else if(ctype==cTRAP_4 || cflag==mfTRAP_4 || cflag_i==mfTRAP_4)
 			{
 				if(trapLOS4WayID>=0)
 				{
-					if(addenemy(x, y, trapLOS4WayID, -14))
+					if(addenemy(dx + x, dy + y, trapLOS4WayID, -14))
 						guys.spr(guys.Count()-1)->dummy_int[1]=2;
 				}
 			}
@@ -21209,23 +21214,23 @@ void load_default_enemies(mapscr* scr)
 			else if(ctype==cTRAP_LR || cflag==mfTRAP_LR || cflag_i==mfTRAP_LR)
 			{
 				if(trapConstantHorizontalID>=0)
-					addenemy(x, y, trapConstantHorizontalID, -14);
+					addenemy(dx + x, dy + y, trapConstantHorizontalID, -14);
 			}
 			else if(ctype==cTRAP_UD || cflag==mfTRAP_UD || cflag_i==mfTRAP_UD)
 			{
 				if(trapConstantVerticalID>=0)
-					addenemy(x, y, trapConstantVerticalID, -14);
+					addenemy(dx + x, dy + y, trapConstantVerticalID, -14);
 			}
 			
 			if(ctype==cSPINTILE1)
 			{
 				// Awaken spinning tile
-				awaken_spinning_tile(scr,COMBOPOS(x,y));
+				awaken_spinning_tile(screen, COMBOPOS_REGION(dx + x, dy + y));
 			}
 		}
 	}
 	
-	if(scr->enemyflags&efTRAP2)
+	if(screen->enemyflags&efTRAP2)
 	{
 		if(centerTrapID>=-1)
 		{
@@ -21237,20 +21242,19 @@ void load_default_enemies(mapscr* scr)
 		}
 	}
 	
-	if(scr->enemyflags&efROCKS)
+	if(screen->enemyflags&efROCKS)
 	{
 		if(rockID>=0)
 		{
-			addenemy(zc_oldrand()&0xF0, 0, rockID, 0);
-			addenemy(zc_oldrand()&0xF0, 0, rockID, 0);
-			addenemy(zc_oldrand()&0xF0, 0, rockID, 0);
+			addenemy(dx + (zc_oldrand()&0xF0), 0, rockID, 0);
+			addenemy(dx + (zc_oldrand()&0xF0), 0, rockID, 0);
+			addenemy(dx + (zc_oldrand()&0xF0), 0, rockID, 0);
 		}
 	}
-	
-	activate_fireball_statues();
 }
 
 
+// TODO z3 !
 // Everything that must be done before we change a screen's combo to another combo, or a combo's type to another type.
 // There's 2 routines because it's unclear if combobuf or tmpscr.data gets modified. -L
 void screen_combo_modify_preroutine(mapscr *s, int32_t pos)
@@ -21258,16 +21262,18 @@ void screen_combo_modify_preroutine(mapscr *s, int32_t pos)
 	delete_fireball_shooter(s, pos);
 }
 
+// TODO z3 !
 // Everything that must be done after we change a screen's combo to another combo. -L
 void screen_combo_modify_postroutine(mapscr *s, int32_t pos)
 {
 	s->valid |= mVALID;
-	activate_fireball_statue(pos);
+	activate_fireball_statue(s, currscr, pos); // TODO z3
 	
 	if(combobuf[s->data[pos]].type==cSPINTILE1)
 	{
 		// Awaken spinning tile
-		awaken_spinning_tile(s,pos);
+		// TODO z3 !
+		awaken_spinning_tile(s, (rpos_t)pos);
 	}
 	/* Shouldn't be needed anymore?
 	int32_t lyr = -1;
@@ -21286,9 +21292,12 @@ void screen_combo_modify_postroutine(mapscr *s, int32_t pos)
 	} */
 }
 
-void awaken_spinning_tile(mapscr *s, int32_t pos)
+void awaken_spinning_tile(mapscr *s, rpos_t rpos)
 {
-	addenemy((pos&15)<<4,pos&0xF0,(s->cset[pos]<<12)+eSPINTILE1,combobuf[s->data[pos]].o_tile+zc_max(1,combobuf[s->data[pos]].frames));
+	int pos = RPOS_TO_POS(rpos);
+	int x, y;
+	COMBOXY_REGION(rpos, x, y);
+	addenemy(x, y, (s->cset[pos]<<12)+eSPINTILE1, combobuf[s->data[pos]].o_tile + zc_max(1,combobuf[s->data[pos]].frames));
 }
 
 
@@ -21473,7 +21482,7 @@ void side_load_enemies()
 		bool reload=true;
 		bool unbeatablereload = true;
 		
-		load_default_enemies(&tmpscr);
+		load_default_enemies(&tmpscr, currscr);
 		
 		for(int32_t i=0; i<6; i++)
 			if(visited[i]==s)
@@ -21864,11 +21873,6 @@ bool scriptloadenemies()
 	return true;
 }
 
-// static void loadenemies(mapscr* scr)
-// {
-
-// }
-
 void loadenemies()
 {
 	if(script_sle || sle_clk)
@@ -21895,19 +21899,12 @@ void loadenemies()
 	
 	loaded_enemies=true;
 	
-	// do enemies that are always loaded
-	// TODO z3
-	load_default_enemies(&tmpscr);
-	
 	// dungeon basements
 	
 	static byte dngn_enemy_x[4] = {32,96,144,208};
 	
 	if(currscr>=128)
 	{
-		int dx = z3_get_region_relative_dx(currscr)*256;
-		int dy = z3_get_region_relative_dy(currscr)*176;
-
 		if(DMaps[currdmap].flags&dmfCAVES) return;
 		if ( DMaps[currdmap].flags&dmfNEWCELLARENEMIES )
 		{
@@ -21915,109 +21912,51 @@ void loadenemies()
 			{
 				if ( tmpscr.enemy[i] )
 				{
-					addenemy(dx+dngn_enemy_x[i],dy+96,tmpscr.enemy[i],-14-i);
+					addenemy(dngn_enemy_x[i],96,tmpscr.enemy[i],-14-i);
 				}
 			}
 		}
 		else
 		{
 			for(int32_t i=0; i<4; i++)
-				addenemy(dx+dngn_enemy_x[i],dy+96,tmpscr.enemy[i]?tmpscr.enemy[i]:(int32_t)eKEESE1,-14-i);
+				addenemy(dngn_enemy_x[i],96,tmpscr.enemy[i]?tmpscr.enemy[i]:(int32_t)eKEESE1,-14-i);
 		}
 		return;
 	}
+
+	// check if it's been long enough to reload all enemies
+	int32_t loadcnt = 10;
+	int16_t s = (currmap<<7)+currscr;
+	bool beenhere = false;
+	bool reload = true;
+	bool unbeatablereload = true;
 	
-	if (!is_z3_scrolling_mode())
+	for(int32_t i=0; i<6; i++)
+		if(visited[i]==s)
+			beenhere = true;
+			
+	if(!beenhere) //Okay so this basically checks the last 6 unique screen's you've been in and checks if the current screen is one of them.
 	{
-		// check if it's been long enough to reload all enemies
-		int32_t loadcnt = 10;
-		int16_t s = (currmap<<7)+currscr;
-		bool beenhere = false;
-		bool reload = true;
-		bool unbeatablereload = true;
-		
-		for(int32_t i=0; i<6; i++)
-			if(visited[i]==s)
-				beenhere = true;
-				
-		if(!beenhere) //Okay so this basically checks the last 6 unique screen's you've been in and checks if the current screen is one of them.
-		{
-			visited[vhead]=s; //If not, it adds it to the array,
-			vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
-		}
-		else if(game->guys[s]==0) //Then, if you have been here, and the number of enemies left on the screen is 0,
-		{
-			loadcnt = 0; //It will tell it not to load any enemies,
-			reload  = false; //both by setting loadcnt to 0 and making the reload if statement not run.
-		}
-		
-		if(reload) //This if statement is only false if this screen is one of the last 6 screens you visited and you left 0 enemies alive.
-		{
-			loadcnt = game->guys[s]; //Otherwise, if this if statement is true, it will try to load the last amount of enemies you left alive.
-			
-			if(loadcnt==0 || //Then, if the number of enemies is 0, that means you left 0 enemies alive on a screen but haven't been there in the past 6 screens.
-				(get_bit(quest_rules, qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK) && !beenhere)) //Alternatively, if you have the quest rule enabled that always respawns all enemies after a period of time, and you haven't been here in 6 screens.
-					loadcnt = 10; //That means all enemies need to be respawned.
-			if (!beenhere && get_bit(quest_rules, qr_UNBEATABLES_DONT_KEEP_DEAD))
-			{
-				for(int32_t i = 0; i<loadcnt && tmpscr.enemy[i]>0; i++)
-				{
-					if (!(guysbuf[tmpscr.enemy[i]].flags & guy_doesntcount)) 
-					{
-						unbeatablereload = false;
-					}
-				}
-				if (unbeatablereload)
-				{
-					loadcnt = 10;
-				}
-			}
-		}
-		
-		if((get_bit(quest_rules,qr_ALWAYSRET)) || (tmpscr.flags3&fENEMIESRETURN)) //If enemies always return is enabled quest-wide or for this screen,
-			loadcnt = 10; //All enemies also need to be respawned.
-			
-		int32_t pos=zc_oldrand()%9; //This sets up a variable for spawnEnemy to edit  so as to spawn the enemies pseudo-randomly.
-		int32_t clk=-15,fastguys=0; //clk being negative means the enemy is in it's spawn poof.
-		int32_t i=0,guycnt=0; //Lastly, resets guycnt to 0 so spawnEnemy can increment it manually per-enemy.
-		
-		for(; i<loadcnt && tmpscr.enemy[i]>0; i++)
-		{
-			spawnEnemy(&tmpscr, pos, clk, 0, 0, fastguys, i, guycnt, loadcnt);
-			
-			--clk; //Each additional enemy spawns with a slightly longer spawn poof than the previous.
-		}
-		
-		game->guys[s] = guycnt;
-		//} //if(true)
+		visited[vhead]=s; //If not, it adds it to the array,
+		vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
 	}
-	else
-	for_every_screen_in_region([&](mapscr* z3_scr, int scr, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+	else if(game->guys[s]==0) //Then, if you have been here, and the number of enemies left on the screen is 0,
+	{
+		loadcnt = 0; //It will tell it not to load any enemies,
+		reload  = false; //both by setting loadcnt to 0 and making the reload if statement not run.
+	}
+	
+	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+		// do enemies that are always loaded
+		load_default_enemies(screen, screen_index);
+		activate_fireball_statues(screen, screen_index);
+		
 		// check if it's been long enough to reload all enemies
 		int32_t loadcnt = 10;
-		int16_t s = (currmap<<7)+scr;
-		bool beenhere = false;
-		bool reload = true;
-		bool unbeatablereload = true;
+		int16_t s = (currmap<<7)+screen_index;
 
 		// TODO z3
-		if (scr != currscr) return;
-		
-		// TODO z3
-		// for(int32_t i=0; i<6; i++)
-		// 	if(visited[i]==s)
-		// 		beenhere = true;
-				
-		// if(!beenhere) //Okay so this basically checks the last 6 unique screen's you've been in and checks if the current screen is one of them.
-		// {
-		// 	visited[vhead]=s; //If not, it adds it to the array,
-		// 	vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
-		// }
-		// else if(game->guys[s]==0) //Then, if you have been here, and the number of enemies left on the screen is 0,
-		// {
-		// 	loadcnt = 0; //It will tell it not to load any enemies,
-		// 	reload  = false; //both by setting loadcnt to 0 and making the reload if statement not run.
-		// }
+		if (screen_index != currscr) return;
 		
 		if(reload) //This if statement is only false if this screen is one of the last 6 screens you visited and you left 0 enemies alive.
 		{
@@ -22028,9 +21967,9 @@ void loadenemies()
 					loadcnt = 10; //That means all enemies need to be respawned.
 			if (!beenhere && get_bit(quest_rules, qr_UNBEATABLES_DONT_KEEP_DEAD))
 			{
-				for(int32_t i = 0; i<loadcnt && z3_scr->enemy[i]>0; i++)
+				for(int32_t i = 0; i<loadcnt && screen->enemy[i]>0; i++)
 				{
-					if (!(guysbuf[z3_scr->enemy[i]].flags & guy_doesntcount)) 
+					if (!(guysbuf[screen->enemy[i]].flags & guy_doesntcount)) 
 					{
 						unbeatablereload = false;
 					}
@@ -22042,16 +21981,16 @@ void loadenemies()
 			}
 		}
 		
-		if((get_bit(quest_rules,qr_ALWAYSRET)) || (z3_scr->flags3&fENEMIESRETURN)) //If enemies always return is enabled quest-wide or for this screen,
+		if((get_bit(quest_rules,qr_ALWAYSRET)) || (screen->flags3&fENEMIESRETURN)) //If enemies always return is enabled quest-wide or for this screen,
 			loadcnt = 10; //All enemies also need to be respawned.
 			
 		int32_t pos=zc_oldrand()%9; //This sets up a variable for spawnEnemy to edit  so as to spawn the enemies pseudo-randomly.
 		int32_t clk=-15,x=0,y=0,fastguys=0; //clk being negative means the enemy is in it's spawn poof.
 		int32_t i=0,guycnt=0; //Lastly, resets guycnt to 0 so spawnEnemy can increment it manually per-enemy.
 		
-		for(; i<loadcnt && z3_scr->enemy[i]>0; i++)
+		for(; i<loadcnt && screen->enemy[i]>0; i++)
 		{
-			spawnEnemy(z3_scr, pos, clk, z3_scr_dx*256, z3_scr_dy*176, fastguys, i, guycnt, loadcnt);
+			spawnEnemy(screen, pos, clk, z3_scr_dx*256, z3_scr_dy*176, fastguys, i, guycnt, loadcnt);
 			
 			--clk; //Each additional enemy spawns with a slightly longer spawn poof than the previous.
 		}

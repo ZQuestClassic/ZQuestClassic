@@ -41,7 +41,7 @@ int32_t weaponToDefence(int32_t wid);
 int32_t getWeaponID(weapon *w);
 
 // Start spinning tiles - called by load_default_enemies
-void awaken_spinning_tile(mapscr *s, int32_t pos);
+void awaken_spinning_tile(mapscr *s, rpos_t rpos);
 
 // Used to remove/add fireball shooter enemies
 void screen_combo_modify_preroutine(mapscr *s, int32_t pos);
@@ -913,7 +913,7 @@ void never_return(int32_t index);
 bool hasBoss();
 bool slowguy(int32_t id);
 bool ok2add(int32_t id);
-void load_default_enemies(mapscr* scr);
+void load_default_enemies(mapscr* screen, int screen_index);
 void nsp(bool random);
 int32_t next_side_pos(bool random);
 bool can_side_load(int32_t id);
