@@ -45,6 +45,7 @@ void awaken_spinning_tile(mapscr *s, rpos_t rpos);
 
 // Used to remove/add fireball shooter enemies
 void screen_combo_modify_preroutine(mapscr *s, int32_t pos);
+void screen_combo_modify_preroutine(const pos_handle_t& pos_handle);
 void screen_combo_modify_postroutine(mapscr *s, int32_t pos);
 
 // Find the IDs of enemies spawned by combos and flags. Called once on loading a quest.

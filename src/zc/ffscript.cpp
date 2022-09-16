@@ -17464,7 +17464,8 @@ void set_register(const int32_t arg, const int32_t value)
 		}
 		else
 		{
-			screen_combo_modify_preroutine(&tmpscr,pos);
+			auto pos_handle = get_pos_handle((rpos_t)pos, 0);
+			screen_combo_modify_preroutine(pos_handle);
 			tmpscr.data[pos]=(val);
 			screen_combo_modify_postroutine(&tmpscr,pos);
 		}
@@ -17485,7 +17486,8 @@ void set_register(const int32_t arg, const int32_t value)
 		}
 		else
 		{
-			screen_combo_modify_preroutine(&tmpscr,pos);
+			auto pos_handle = get_pos_handle((rpos_t)pos, 0);
+			screen_combo_modify_preroutine(pos_handle);
 			tmpscr.cset[pos]=(val)&15;
 			screen_combo_modify_postroutine(&tmpscr,pos);
 		}
@@ -17529,7 +17531,7 @@ void set_register(const int32_t arg, const int32_t value)
             {
                 if(tmpscr.data[i] == tmpscr.data[pos])
                 {
-                    screen_combo_modify_preroutine(&tmpscr,i);
+                    screen_combo_modify_preroutine(get_pos_handle((rpos_t)i, 0));
                 }
             }
             
@@ -17621,10 +17623,10 @@ void set_register(const int32_t arg, const int32_t value)
 		}
 		else
 		{
-			mapscr* screen = get_screen_for_rpos(rpos);
-			screen_combo_modify_preroutine(screen,pos);
-			screen->data[pos]=(val);
-			screen_combo_modify_postroutine(screen,pos);
+			auto pos_handle = get_pos_handle(rpos, 0);
+			screen_combo_modify_preroutine(pos_handle);
+			pos_handle.screen->data[pos]=(val);
+			screen_combo_modify_postroutine(pos_handle.screen, pos);
 		}
 	}
 	break;
@@ -17644,10 +17646,10 @@ void set_register(const int32_t arg, const int32_t value)
 		}
 		else
 		{
-			mapscr* screen = get_screen_for_rpos(rpos);
-			screen_combo_modify_preroutine(screen,pos);
-			tmpscr.cset[pos]=(val)&15;
-			screen_combo_modify_postroutine(screen,pos);
+			auto pos_handle = get_pos_handle((rpos_t)pos, 0);
+			screen_combo_modify_preroutine(pos_handle);
+			pos_handle.screen->cset[pos]=(val)&15;
+			screen_combo_modify_postroutine(pos_handle.screen, pos);
 		}
 	}
 	break;
@@ -17690,15 +17692,15 @@ void set_register(const int32_t arg, const int32_t value)
         else
         {
 			mapscr* screen = get_screen_for_rpos(rpos);
-
-            // Preprocess each instance of the combo on the screen
-            for(int32_t i = 0; i < 176; i++)
-            {
-                if(screen->data[i] == screen->data[pos])
+            
+			// Preprocess each instance of the combo in the region.
+			for_every_pos_in_region([&](const pos_handle_t& pos_handle) {
+				int pos = RPOS_TO_POS(pos_handle.rpos);
+				if (pos_handle.screen->data[pos] == screen->data[pos])
                 {
-                    screen_combo_modify_preroutine(screen,i);
+                    screen_combo_modify_preroutine(pos_handle);
                 }
-            }
+			});
             
             combobuf[screen->data[pos]].type=val;
             

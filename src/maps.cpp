@@ -253,7 +253,6 @@ void z3_load_region(int dmap)
 	}
 #endif
 
-	// TODO z3 unroll
 	z3_calculate_region(dmap, currscr, z3_origin_screen_index, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
 	region_max_rpos = static_cast<rpos_t>(region_scr_width*region_scr_height*176 - 1);
 	initial_region_scr = currscr;
@@ -2256,29 +2255,29 @@ bool overheadcombos(mapscr *s)
     return false;
 }
 
-void delete_fireball_shooter(mapscr *s, int32_t i)
+void delete_fireball_shooter(const pos_handle_t& pos_handle)
 {
     int32_t cx=0, cy=0;
-    int32_t ct=combobuf[s->data[i]].type;
+    int32_t pos = RPOS_TO_POS(pos_handle.rpos);
+    int32_t ct=combobuf[pos_handle.screen->data[pos]].type;
     
     if(ct!=cL_STATUE && ct!=cR_STATUE && ct!=cC_STATUE)
         return;
-        
+    
+    COMBOXY_REGION(pos_handle.rpos, cx, cy);
     switch(ct)
     {
     case cL_STATUE:
-        cx=((i&15)<<4)+4;
-        cy=(i&0xF0)+7;
+        cx += 4;
+        cy += 7;
         break;
         
     case cR_STATUE:
-        cx=((i&15)<<4)-8;
-        cy=(i&0xF0)-1;
+        cx -= 8;
+        cy -= 1;
         break;
         
     case cC_STATUE:
-        cx=((i&15)<<4);
-        cy=(i&0xF0);
         break;
     }
     

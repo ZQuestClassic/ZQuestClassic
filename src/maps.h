@@ -222,7 +222,7 @@ bool remove_lockedchests(mapscr* s, int32_t screen_index);
 bool remove_bosschests(mapscr* s, int32_t screen_index);
 
 bool overheadcombos(mapscr *s);
-void delete_fireball_shooter(mapscr *s, int32_t i);
+void delete_fireball_shooter(const pos_handle_t& pos_handle);
 void trigger_secrets_for_screen(bool high16only, int32_t single=-1);
 void trigger_secrets_for_screen(int32_t screen, bool high16only=false, int32_t single=-1);
 void hidden_entrance(int32_t tmp, bool refresh, bool high16only=false, int32_t single=-1);

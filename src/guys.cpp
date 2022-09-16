@@ -21254,12 +21254,19 @@ void load_default_enemies(mapscr* screen, int screen_index)
 }
 
 
-// TODO z3 !
 // Everything that must be done before we change a screen's combo to another combo, or a combo's type to another type.
 // There's 2 routines because it's unclear if combobuf or tmpscr.data gets modified. -L
 void screen_combo_modify_preroutine(mapscr *s, int32_t pos)
 {
-	delete_fireball_shooter(s, pos);
+	// TODO z3 ! remove
+	pos_handle_t pos_handle;
+	pos_handle.screen = s;
+	pos_handle.rpos = (rpos_t)pos;
+	delete_fireball_shooter(pos_handle);
+}
+void screen_combo_modify_preroutine(const pos_handle_t& pos_handle)
+{
+	delete_fireball_shooter(pos_handle);
 }
 
 // TODO z3 !
