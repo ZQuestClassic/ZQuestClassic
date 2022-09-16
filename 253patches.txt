@@ -285,7 +285,7 @@ Reverted the patch that stopped Ganon from hurting Link if Link
 
 	The NES Ganon hurts Link. 
 
-Cleared Link's attackclk before calling saved_Zelda(). 
+Cleared Link's attackclk before calling win_game(). 
 	This prevents a charged sword, or other weapon, from carrying
 	over to the ending sequence as a visual artefact. 
 Stop playing byrna beam sfx as soon as the beams die in Link.cpp

@@ -177,6 +177,19 @@ namespace util
 		}
 		return q < 2048;
 	}
+
+	static void reverse( char *s )
+	{
+		if ( *s )
+		{
+			for ( char *first = s, *last = s + strlen( s ); first < --last; ++first )
+			{
+				char c = *first;
+				*first = *last;
+				*last = c;
+			}
+		}
+	}
 	
 	char* zc_itoa(int32_t value, char* str, int32_t base)
 	{
@@ -206,10 +219,7 @@ namespace util
 			str[n++] = '-';
 		}
 		str[n] = '\0';
-		for (p = str, q = p + n/2; p != q; ++p, --q)
-			{
-			c = *p, *p = *q, *q = c;
-		}
+		reverse(str);
 		return str;
 #endif
 	}
@@ -827,5 +837,3 @@ char const* get_snap_str()
 		return snap;
 	return nil;
 }
-
-

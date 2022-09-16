@@ -1092,8 +1092,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     {
         if(zinit2->items[i] && (itemsbuf[i].flags & ITEM_GAMEDATA))
         {
-            if(!game2->get_item(i))
-                getitem(i,true,false);
+            getitem(i,true,false);
         }
         else
             game2->set_item_no_flush(i,false);

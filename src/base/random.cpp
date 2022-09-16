@@ -2,9 +2,16 @@
 
 zc_randgen default_rng;
 
+zc_randgen* zc_get_default_rand()
+{
+	return &default_rng;
+}
+
 int32_t zc_oldrand(zc_randgen* rng)
 {
-	return zc_rand(RAND_MAX, 0, rng);
+	// RAND_MAX can't be used because it is platform dependent, and we need
+	// reproducible randomness. 0x7fff is the value MSVC uses.
+	return zc_rand(0x7fff, 0, rng);
 }
 
 int32_t zc_rand(zc_randgen* rng)

@@ -77,19 +77,21 @@ void update_keys();
 bool zc_disablekey(int32_t k, bool val);
 void eat_buttons();
 
-extern bool control_state[18];
-extern bool disable_control[18];
+#define ZC_CONTROL_STATES 18
+extern bool raw_control_state[ZC_CONTROL_STATES];
+extern bool control_state[ZC_CONTROL_STATES];
+extern bool disable_control[ZC_CONTROL_STATES];
 extern bool drunk_toggle_state[11];
 extern bool disabledKeys[127];
 extern bool KeyInput[127]; //ZScript 'Input->Key[]'
 extern bool KeyPress[127]; //ZScript 'Input->KeyPress[]'
 extern bool key_truestate[127]; //Internal, used for ZScript 'Input->KeyPress[]'
-extern bool button_press[18];
+extern bool button_press[ZC_CONTROL_STATES];
 extern int32_t cheat_modifier_keys[4]; //two options each, default either control and either shift
 extern const char *qst_dir_name;
 extern char qst_files_path[2048];
 
-extern bool button_hold[18];
+extern bool button_hold[ZC_CONTROL_STATES];
 
 void load_control_state();
 extern int32_t sfx_voice[WAV_COUNT];
@@ -167,6 +169,15 @@ bool DrunkrEx2btn();
 bool DrunkrEx3btn();
 bool DrunkrEx4btn();
 
+enum uKey
+{
+	ukey_a, ukey_b, ukey_s, ukey_l, ukey_r, ukey_p, ukey_ex1, ukey_ex2, ukey_ex3, ukey_ex4,
+	ukey_du, ukey_dd, ukey_dl, ukey_dr, ukey_mod1a, ukey_mod1b, ukey_mod2a, ukey_mod2b,
+	num_ukey
+};
+void load_ukeys(int32_t* arr);
+std::string get_ukey_name(int32_t k);
+
 int32_t after_time();
 
 enum {bosCIRCLE=0, bosOVAL, bosTRIANGLE, bosSMAS, bosFADEBLACK, bosMAX};
@@ -177,6 +188,7 @@ void dump_pal(BITMAP *dest);
 void show_paused(BITMAP *target);
 void show_fps(BITMAP *target);
 void show_saving(BITMAP *target);
+void show_replay_controls(BITMAP *target);
 bool game_vid_mode(int32_t mode,int32_t wait);
 void init_NES_mode();
 

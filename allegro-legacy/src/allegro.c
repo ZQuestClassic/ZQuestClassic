@@ -582,7 +582,7 @@ void al_assert(AL_CONST char *file, int line)
       return;
 
    /* todo, some day: use snprintf (C99) */
-   sprintf(buf, "Assert failed at line %d of %s", line, file);
+   sprintf(buf, "Assert failed at %s:%d", file, line);
 
    if (assert_handler) {
       if (assert_handler(buf))

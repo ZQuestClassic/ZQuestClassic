@@ -267,7 +267,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        28
+#define V_SAVEGAME        29
 #define V_COMBOALIASES     4
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        7
@@ -4667,6 +4667,8 @@ struct gamedata
 	uint32_t gen_eventstate[NUMSCRIPTSGENERIC];
 	
 	int32_t gswitch_timers[NUM_GSWITCHES];
+
+	std::string replay_file;
 	
 	// member functions
 	// public:
@@ -5008,7 +5010,8 @@ enum controls //Args for 'getInput()'
 	//control_state indeces
 	btnUp, btnDown, btnLeft, btnRight, btnA, btnB, btnS, btnL, btnR, btnP, btnEx1, btnEx2, btnEx3, btnEx4, btnAxisUp, btnAxisDown, btnAxisLeft, btnAxisRight,
 	//Other controls
-	btnM, btnF12, btnF11, btnF5, btnQ, btnI
+	btnM, btnF12, btnF11, btnF5, btnQ, btnI,
+	btnLast,
 };
 
 #define INT_BTN_A   0x01

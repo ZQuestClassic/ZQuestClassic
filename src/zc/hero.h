@@ -426,7 +426,7 @@ private:
 	int32_t  EwpnHit();
 	int32_t  LwpnHit();
 	void heroDeathAnimation();
-	void saved_Zelda();
+	void win_game();
    
 	void check_conveyor();
 	bool sideviewhammerpound();
