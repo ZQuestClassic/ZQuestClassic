@@ -956,7 +956,7 @@ int32_t MAPCOMBO2(int32_t layer, int32_t x, int32_t y)
 {
 	DCHECK_LAYER_NEG1_INDEX(layer);
 	if (x < 0 || y < 0 || x >= world_w || y >= world_h) return 0;
-    if (layer <= -1) return MAPCOMBO(x, y);
+    if (layer == -1) return MAPCOMBO(x, y);
     
 	auto pos_handle = get_pos_handle_for_world_xy(x, y, layer + 1);
 	if (pos_handle.screen->data.empty()) return 0;
@@ -965,12 +965,12 @@ int32_t MAPCOMBO2(int32_t layer, int32_t x, int32_t y)
 	return pos_handle.screen->data[RPOS_TO_POS(pos_handle.rpos)];
 }
 
-// TODO z3 ! seems bad to take a screen index, but also take (x, y) in world coordinates...
+// MAPCOMBO3 will read from the current temporary screens or, if (map, screen) is not loaded,
+// will load that screen and apply the relevant secrets before evaluating the combo at that position.
 int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets)
 {
 	DCHECK_LAYER_NEG1_INDEX(layer);
 	DCHECK(map >= 0 && screen >= 0);
-	if (map < 0 || screen < 0) return 0; // TODO z3 rm
 	if (map == currmap && is_in_current_region(screen)) return MAPCOMBO2(layer, x, y);
 	return MAPCOMBO3(map, screen, layer, COMBOPOS_REGION(x, y), secrets);
 }
@@ -980,15 +980,10 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, rpos_t rpos, bool 
 	DCHECK_LAYER_NEG1_INDEX(layer);
 	DCHECK(map >= 0 && screen >= 0);
 	DCHECK((!(rpos > region_max_rpos || (int)rpos < 0)));
-	if (map < 0 || screen < 0) return 0; // TODO z3 rm
 	
-	if (map == currmap && is_in_current_region(screen)) return MAPCOMBO2(layer, COMBOX_REGION(rpos), COMBOY_REGION(rpos));
+	if (map == currmap && is_in_current_region(screen)) return MAPCOMBO(get_pos_handle(rpos, layer + 1));
 	
 	// Screen is not in temporary memory, so we have to load and trigger some secrets in MAPCOMBO3.
-
-	if (rpos > region_max_rpos || (int)rpos < 0)
-		return 0;
-		
 	mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
 	return MAPCOMBO3(m, map, screen, layer, RPOS_TO_POS(rpos), secrets);
 }

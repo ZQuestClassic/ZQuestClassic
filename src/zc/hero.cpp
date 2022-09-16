@@ -23868,6 +23868,7 @@ bool HeroClass::nextcombo_wf(int32_t d2)
     return (c.walk&b) ? !dried && !swim : false;
 }
 
+// TODO z3: need to test this in region
 bool HeroClass::nextcombo_solid(int32_t d2)
 {
 	if(toogam || currscr>=128)
