@@ -1086,12 +1086,13 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							)
 						)),
 						TabRef(name = "Flags", Column(padding = 0_px,
-							Rows<2>(
+							Rows<4>(
 								framed = true,
 								frameText = "General Flags",
 								topPadding = DEFAULT_PADDING+0.4_em,
 								bottomPadding = DEFAULT_PADDING+1_px,
 								bottomMargin = 1_em,
+								INFOBTN(""),
 								Checkbox(
 									width = FLAGS_WID,
 									checked = (local_itemref.flags & ITEM_EDIBLE),
@@ -1101,7 +1102,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										SETFLAG(local_itemref.flags,ITEM_EDIBLE,state);
 									}
 								),
+								INFOBTN("The item's 'Action Script' runs every frame while the item is owned,"
+									"\ninstead of when the item is 'used'."),
 								FLAG_CHECK_NOINFO(15,ITEM_PASSIVESCRIPT),
+								INFOBTN(""),
 								Checkbox(
 									width = FLAGS_WID,
 									checked = (local_itemref.flags & ITEM_SIDESWIM_DISABLED),
@@ -1111,6 +1115,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										SETFLAG(local_itemref.flags,ITEM_SIDESWIM_DISABLED,state);
 									}
 								),
+								INFOBTN(""),
 								Checkbox(
 									width = FLAGS_WID,
 									checked = (local_itemref.flags & ITEM_BUNNY_ENABLED),
@@ -1118,6 +1123,26 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									onToggleFunc = [&](bool state)
 									{
 										SETFLAG(local_itemref.flags,ITEM_BUNNY_ENABLED,state);
+									}
+								),
+								INFOBTN(""),
+								Checkbox(
+									width = FLAGS_WID,
+									checked = (local_itemref.flags & ITEM_JINX_IMMUNE),
+									text = "Immune to jinxes",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.flags,ITEM_JINX_IMMUNE,state);
+									}
+								),
+								INFOBTN("With this checked, swords will use the item jinx, and vice-versa."),
+								Checkbox(
+									width = FLAGS_WID,
+									checked = (local_itemref.flags & ITEM_FLIP_JINX),
+									text = "Uses Other Jinx",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.flags,ITEM_FLIP_JINX,state);
 									}
 								)
 							),
@@ -2419,12 +2444,13 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							ptr = &scroll_pos2,
 							Column(
 								topMargin = 6_px,
-								Column(
+								Rows<2>(
 									framed = true,
 									frameText = "General Flags",
 									topPadding = DEFAULT_PADDING+0.4_em,
 									bottomPadding = DEFAULT_PADDING+1_px,
 									bottomMargin = 1_em,
+									INFOBTN(""),
 									Checkbox(
 										width = FLAGS_WID,
 										checked = (local_itemref.flags & ITEM_EDIBLE),
@@ -2434,7 +2460,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 											SETFLAG(local_itemref.flags,ITEM_EDIBLE,state);
 										}
 									),
+									INFOBTN("The item's 'Action Script' runs every frame while the item is owned,"
+										"\ninstead of when the item is 'used'."),
 									FLAG_CHECK_NOINFO(15,ITEM_PASSIVESCRIPT),
+									INFOBTN(""),
 									Checkbox(
 										width = FLAGS_WID,
 										checked = (local_itemref.flags & ITEM_SIDESWIM_DISABLED),
@@ -2444,6 +2473,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 											SETFLAG(local_itemref.flags,ITEM_SIDESWIM_DISABLED,state);
 										}
 									),
+									INFOBTN(""),
 									Checkbox(
 										width = FLAGS_WID,
 										checked = (local_itemref.flags & ITEM_BUNNY_ENABLED),
@@ -2451,6 +2481,26 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										onToggleFunc = [&](bool state)
 										{
 											SETFLAG(local_itemref.flags,ITEM_BUNNY_ENABLED,state);
+										}
+									),
+									INFOBTN(""),
+									Checkbox(
+										width = FLAGS_WID,
+										checked = (local_itemref.flags & ITEM_JINX_IMMUNE),
+										text = "Immune to jinxes",
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_itemref.flags,ITEM_JINX_IMMUNE,state);
+										}
+									),
+									INFOBTN("With this checked, swords will use the item jinx, and vice-versa."),
+									Checkbox(
+										width = FLAGS_WID,
+										checked = (local_itemref.flags & ITEM_FLIP_JINX),
+										text = "Uses Other Jinx",
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_itemref.flags,ITEM_FLIP_JINX,state);
 										}
 									)
 								),

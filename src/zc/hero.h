@@ -609,6 +609,8 @@ int32_t enemy_dp(int32_t index);
 int32_t ewpn_dp(int32_t index);
 int32_t lwpn_dp(int32_t index);
 bool checkbunny(int32_t itemid);
+bool usesSwordJinx(int32_t itemid);
+bool checkitem_jinx(int32_t itemid);
 bool checkmagiccost(int32_t itemid);
 void paymagiccost(int32_t itemid, bool ignoreTimer = false);
 int32_t Bweapon(int32_t pos);

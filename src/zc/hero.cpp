@@ -118,7 +118,6 @@ static inline bool on_sideview_solid(int32_t x, int32_t y, bool ignoreFallthroug
 
 bool usingActiveShield(int32_t itmid)
 {
-	if(HeroItemClk()) return false;
 	switch(Hero.action) //filter allowed actions
 	{
 		case none: case walking: case rafting:
@@ -128,8 +127,9 @@ bool usingActiveShield(int32_t itmid)
 	}
 	if(itmid < 0)
 		itmid = (Hero.active_shield_id < 0
-			? current_item_id(itype_shield) : Hero.active_shield_id);
+			? current_item_id(itype_shield,true,true) : Hero.active_shield_id);
 	if(itmid < 0) return false;
+	if(!checkitem_jinx(itmid)) return false;
 	if(!(itemsbuf[itmid].flags & ITEM_FLAG9)) return false;
 	if(!isItmPressed(itmid)) return false;
 	return (checkbunny(itmid) && checkmagiccost(itmid));
@@ -606,9 +606,11 @@ void HeroClass::resetflags(bool all)
     inlikelike=blowcnt=whirlwind=specialcave=hclk=fairyclk=refill_why=didstuff=0;
 	usecounts.clear();
     
-    if(swordclk>0 || all)
-        swordclk=0;
-        
+	if(swordclk>0 || all)
+	{
+		swordclk=0;
+		verifyAWpn();
+	}
     if(itemclk>0 || all)
         itemclk=0;
         
@@ -1133,6 +1135,7 @@ int32_t  HeroClass::getItemClk()
 void HeroClass::setSwordClk(int32_t newclk)
 {
     swordclk=newclk;
+	verifyAWpn();
 }
 void HeroClass::setItemClk(int32_t newclk)
 {
@@ -1686,7 +1689,11 @@ bool HeroClass::agonyflag(int32_t flag)
 // The Whimsical Ring is applied on a target-by-target basis.
 int32_t HeroClass::weaponattackpower()
 {
-    int32_t power = attack==wCByrna ? itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_cbyrna)].misc4 : directWpn>-1 ? itemsbuf[directWpn].power : (current_item_power(attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword));
+	auto itid = current_item_id(attack==wCByrna ? itype_cbyrna
+		: attack==wWand ? itype_wand
+		: attack==wHammer ? itype_hammer
+		: itype_sword);
+    int32_t power = attack==wCByrna ? itemsbuf[itid].misc4 : itemsbuf[itid].power;
     
     // Multiply it by the power of the spin attack/quake hammer, if applicable.
     power *= (spins>0 ? itemsbuf[current_item_id(attack==wHammer ? itype_quakescroll : (spins>5 || current_item_id(itype_spinscroll) < 0) ? itype_spinscroll2 : itype_spinscroll)].power : 1);
@@ -7253,7 +7260,7 @@ int32_t HeroClass::hithero(int32_t hit2)
 				drunkclk += dm8;
 				break;
 			}
-			
+			verifyAWpn();
 			if(dm7 >= e7tEATITEMS)
 			{
 				EatHero(hit2);
@@ -8769,7 +8776,10 @@ bool HeroClass::animate(int32_t)
 						}
 					}
 					if(bt->flags & BTFLAG_CURESWJINX)
+					{
 						swordclk = 0;
+						verifyAWpn();
+					}
 					if(bt->flags & BTFLAG_CUREITJINX)
 						itemclk = 0;
 					if(word max = std::max(toFill[0], std::max(toFill[1], toFill[2])))
@@ -8880,8 +8890,10 @@ bool HeroClass::animate(int32_t)
 	else last_hurrah=false;
 	
 	if(swordclk>0)
+	{
 		--swordclk;
-		
+		if(!swordclk) verifyAWpn();
+	}
 	if(itemclk>0)
 		--itemclk;
 		
@@ -9852,7 +9864,7 @@ void HeroClass::doMirror(int32_t mirrorid)
 void HeroClass::do_liftglove(int32_t liftid, bool passive)
 {
 	if(liftid < 0)
-		liftid = current_item_id(itype_liftglove);
+		liftid = current_item_id(itype_liftglove,true,true);
 	if(!can_lift(liftid)) return;
 	itemdata const& glove = itemsbuf[liftid];
 	byte intbtn = byte(glove.misc1&0xFF);
@@ -10117,7 +10129,7 @@ bool HeroClass::can_lift(int32_t gloveid)
 {
 	if(unsigned(gloveid) >= MAXITEMS) return false;
 	if(lstunclock) return false;
-	if(HeroItemClk()) return false;
+	if(!checkitem_jinx(gloveid)) return false;
 	itemdata const& glove = itemsbuf[gloveid];
 	switch(action)
 	{
@@ -10460,7 +10472,10 @@ bool HeroClass::startwpn(int32_t itemid)
 				if(run || (bt->flags&BTFLAG_ALLOWIFFULL))
 				{
 					if(bt->flags & BTFLAG_CURESWJINX)
+					{
 						swordclk = 0;
+						verifyAWpn();
+					}
 					if(bt->flags & BTFLAG_CUREITJINX)
 						itemclk = 0;
 					if(!paidmagic)
@@ -11436,6 +11451,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				if(swordclk)
 					did_something = true;
 				swordclk = 0;
+				verifyAWpn();
 			}
 			for(auto q = 0; q < 5; ++q)
 			{
@@ -11881,8 +11897,7 @@ void do_lens()
 	int32_t itemid = lensid >= 0 ? lensid : wpnPressed>0 ? wpnPressed : Hero.getLastLensID()>0 ? Hero.getLastLensID() : current_item_id(itype_lens);
 	if(itemid >= 0)
 	{
-		//HeroItemClk is the item jinx.
-		if(isWpnPressed(itype_lens) && !HeroItemClk() && !lensclk && checkbunny(itemid) && checkmagiccost(itemid))
+		if(isWpnPressed(itype_lens) && checkitem_jinx(itemid) && !lensclk && checkbunny(itemid) && checkmagiccost(itemid))
 		{
 			if(lensid<0)
 			{
@@ -11933,24 +11948,24 @@ void do_lens()
 //Add 2.10 version check to call this
 void do_210_lens()
 {
-    int32_t itemid = lensid >= 0 ? lensid : directWpn>-1 ? directWpn : current_item_id(itype_lens);
-    
-    if(itemid<0)
-        return;
-        
-    if(isWpnPressed(itype_lens) && !HeroItemClk() && !lensclk && checkmagiccost(itemid))
-    {
-        if(lensid<0)
-        {
-            lensid=itemid;
-            
-            if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(itemsbuf[itemid].usesound);
-        }
-        
-        paymagiccost(itemid, true);
-        
-        if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl && !(item_doscript[itemid] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
-        {
+	int32_t itemid = lensid >= 0 ? lensid : directWpn>-1 ? directWpn : current_item_id(itype_lens);
+	
+	if(itemid<0)
+		return;
+	
+	if(isWpnPressed(itype_lens) && checkitem_jinx(itemid) && !lensclk && checkmagiccost(itemid))
+	{
+		if(lensid<0)
+		{
+			lensid=itemid;
+			
+			if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(itemsbuf[itemid].usesound);
+		}
+		
+		paymagiccost(itemid, true);
+		
+		if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl && !(item_doscript[itemid] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+		{
 		//clear the item script stack for a new script
 		//itemScriptData[(itemid & 0xFFF)].Clear();
 		ri = &(itemScriptData[itemid]);
@@ -11962,23 +11977,23 @@ void do_210_lens()
 		itemscriptInitialised[itemid] = 0;
 		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid);
 		did_scriptl=true;
-        }
-        
-        if (itemsbuf[itemid].magiccosttimer[0]) lensclk = itemsbuf[itemid].magiccosttimer[0];
+		}
+		
+		if (itemsbuf[itemid].magiccosttimer[0]) lensclk = itemsbuf[itemid].magiccosttimer[0];
 	else lensclk = 12;
-    }
-    else
-    {
-        did_scriptl=false;
-        
-        if(lensid>-1 && !(isWpnPressed(itype_lens) && !HeroItemClk() && checkmagiccost(itemid)))
-        {
-            lensid=-1;
-            lensclk = 0;
-            
-            if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(WAV_ZN1LENSOFF);
-        }
-    }
+	}
+	else
+	{
+		did_scriptl=false;
+		
+		if(lensid>-1 && !(isWpnPressed(itype_lens) && checkitem_jinx(itemid) && checkmagiccost(itemid)))
+		{
+			lensid=-1;
+			lensclk = 0;
+			
+			if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(WAV_ZN1LENSOFF);
+		}
+	}
 }
 
 void HeroClass::do_hopping()
@@ -12968,7 +12983,8 @@ void HeroClass::movehero()
 			btnwpn=-1;
 	}
 	
-	if(can_attack() && (directWpn>-1 ? itemsbuf[directWpn].family==itype_sword : current_item(itype_sword)) && swordclk==0 && btnwpn==itype_sword && charging==0)
+	auto swordid = (directWpn>-1 ? directWpn : current_item_id(itype_sword));
+	if(can_attack() && (swordid > -1 && itemsbuf[swordid].family==itype_sword) && checkitem_jinx(swordid) && btnwpn==itype_sword && charging==0)
 	{
 		attackid=directWpn>-1 ? directWpn : current_item_id(itype_sword);
 		if(checkbunny(attackid) && (checkmagiccost(attackid) || !(itemsbuf[attackid].flags & ITEM_FLAG6)))
@@ -13072,14 +13088,15 @@ void HeroClass::movehero()
 	
 	WalkflagInfo info;
 	
-	if(can_attack() && itemclk==0 && btnwpn>itype_sword && charging==0 && btnwpn!=itype_rupee) // This depends on item 0 being a rupee...
+	bool no_jinx = true;
+	if(can_attack() && btnwpn>itype_sword && charging==0 && btnwpn!=itype_rupee) // This depends on item 0 being a rupee...
 	{
 		bool paidmagic = false;
-		
 		if(btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_wand : false) : current_item(itype_wand)))
 		{
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_wand);
-			if(checkbunny(attackid) && ((!(itemsbuf[attackid].flags & ITEM_FLAG6)) || checkmagiccost(attackid)))
+			no_jinx = checkitem_jinx(attackid);
+			if(no_jinx && checkbunny(attackid) && ((!(itemsbuf[attackid].flags & ITEM_FLAG6)) || checkmagiccost(attackid)))
 			{
 				if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_hero_flags & LF_PAID_WAND_COST)){
 					paymagiccost(attackid,true);
@@ -13098,7 +13115,8 @@ void HeroClass::movehero()
 		else if((btnwpn==itype_hammer)&&!((action==attacking||action==sideswimattacking) && attack==wHammer)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_hammer : false) : current_item(itype_hammer)))
 		{
-			if(!(checkmagiccost(dowpn) && checkbunny(dowpn)))
+			no_jinx = checkitem_jinx(dowpn);
+			if(!(no_jinx && checkmagiccost(dowpn) && checkbunny(dowpn)))
 			{
 				if(QMisc.miscsfx[sfxERROR])
 					sfx(QMisc.miscsfx[sfxERROR]);
@@ -13118,15 +13136,20 @@ void HeroClass::movehero()
 		{
 			//checkbunny handled where magic cost is paid
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_candle);
-			SetAttack();
-			attack=wFire;
-			attackclk=0;
+			no_jinx = checkitem_jinx(attackid);
+			if(no_jinx)
+			{
+				SetAttack();
+				attack=wFire;
+				attackclk=0;
+			}
 		}
 		else if((btnwpn==itype_cbyrna)&&!((action==attacking||action==sideswimattacking) && attack==wCByrna)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_cbyrna : false) : current_item(itype_cbyrna)))
 		{
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_cbyrna);
-			if(checkbunny(attackid) && ((!(itemsbuf[attackid].flags & ITEM_FLAG6)) || checkmagiccost(attackid)))
+			no_jinx = checkitem_jinx(attackid);
+			if(no_jinx && checkbunny(attackid) && ((!(itemsbuf[attackid].flags & ITEM_FLAG6)) || checkmagiccost(attackid)))
 			{
 				if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_hero_flags & LF_PAID_CBYRNA_COST)){
 					paymagiccost(attackid,true);
@@ -13146,7 +13169,8 @@ void HeroClass::movehero()
 				&& (directWpn>-1 ? (!item_disabled(directWpn) && itemsbuf[directWpn].family==itype_bugnet) : current_item(itype_bugnet)))
 		{
 			attackid = directWpn>-1 ? directWpn : current_item_id(itype_bugnet);
-			if(checkbunny(attackid) && checkmagiccost(attackid))
+			no_jinx = checkitem_jinx(attackid);
+			if(no_jinx && checkbunny(attackid) && checkmagiccost(attackid))
 			{
 				paymagiccost(attackid);
 				SetAttack();
@@ -13162,34 +13186,39 @@ void HeroClass::movehero()
 		}
 		else
 		{
-			paidmagic = startwpn(directWpn>-1 ? directWpn : current_item_id(btnwpn));
-			
-			if(paidmagic)
+			auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
+			no_jinx = checkitem_jinx(itmid);
+			if(no_jinx)
 			{
-				if(action==casting || action==drowning || action==lavadrowning || action == sideswimcasting || action==sidedrowning)
+				paidmagic = startwpn(itmid);
+				
+				if(paidmagic)
 				{
-					;
+					if(action==casting || action==drowning || action==lavadrowning || action == sideswimcasting || action==sidedrowning)
+					{
+						;
+					}
+					else
+					{
+						SetAttack();
+						attackclk=0;
+						attack=none;
+						
+						if(btnwpn==itype_brang)
+						{
+							attack=wBrang;
+						}
+					}
 				}
 				else
 				{
-					SetAttack();
-					attackclk=0;
-					attack=none;
-					
-					if(btnwpn==itype_brang)
-					{
-						attack=wBrang;
-					}
+					// Weapon not started: directWpn should be reset to prev. value.
+					directWpn = olddirectwpn;
 				}
-			}
-			else
-			{
-				// Weapon not started: directWpn should be reset to prev. value.
-				directWpn = olddirectwpn;
 			}
 		}
 		
-		if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scriptb && !(item_doscript[dowpn] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+		if(dowpn>-1 && no_jinx && itemsbuf[dowpn].script!=0 && !did_scriptb && !(item_doscript[dowpn] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 		{
 			if(!((paidmagic || checkmagiccost(dowpn)) && checkbunny(dowpn)))
 			{
@@ -13216,10 +13245,12 @@ void HeroClass::movehero()
 			}
 		}
 		
-		if(action==casting || action==drowning || action==lavadrowning || action == sideswimcasting || action==sidedrowning)
+		if(no_jinx && (action==casting || action==drowning || action==lavadrowning || action == sideswimcasting || action==sidedrowning))
 		{
 			return;
 		}
+		if(!no_jinx)
+			did_scriptb = false;
 	}
 	else
 	{
@@ -25815,6 +25846,21 @@ bool checkbunny(int32_t itemid)
 	return !Hero.BunnyClock() || (itemid > 0 && itemsbuf[itemid].flags&ITEM_BUNNY_ENABLED);
 }
 
+bool usesSwordJinx(int32_t itemid)
+{
+	itemdata const& it = itemsbuf[itemid];
+	bool ret = (it.family==itype_sword);
+	if(it.flags & ITEM_FLIP_JINX) return !ret;
+	return ret;
+}
+bool checkitem_jinx(int32_t itemid)
+{
+	itemdata const& it = itemsbuf[itemid];
+	if(it.flags & ITEM_JINX_IMMUNE) return true;
+	if(usesSwordJinx(itemid)) return HeroSwordClk() == 0;
+	return HeroItemClk() == 0;
+}
+
 int32_t Bweapon(int32_t pos)
 {
     if(pos < 0 || current_subscreen_active == NULL)
@@ -26132,9 +26178,8 @@ void selectNextYWpn(int32_t type)
 
 void verifyAWpn()
 {
-	if ( (game->forced_awpn != -1) ) 
-	{ 
-		//zprint2("verifyAWpn(); returning early. game->forced_awpn is: %d\n",game->forced_awpn); 
+	if ( (game->forced_awpn != -1) )
+	{
 		return;
 	}
     if(!get_bit(quest_rules,qr_SELECTAWPN))
@@ -26152,9 +26197,8 @@ void verifyAWpn()
 
 void verifyBWpn()
 {
-	if ( (game->forced_bwpn != -1) ) 
-	{ 
-		//zprint2("verifyAWpn(); returning early. game->forced_awpn is: %d\n",game->forced_awpn); 
+	if ( (game->forced_bwpn != -1) )
+	{
 		return;
 	}
     game->bwpn = selectWpn_new(SEL_VERIFY_RIGHT, game->bwpn, game->awpn, game->xwpn, game->ywpn);
@@ -26164,9 +26208,8 @@ void verifyBWpn()
 
 void verifyXWpn()
 {
-	if ( (game->forced_xwpn != -1) ) 
-	{ 
-		//zprint2("verifyAWpn(); returning early. game->forced_awpn is: %d\n",game->forced_awpn); 
+	if ( (game->forced_xwpn != -1) )
+	{
 		return;
 	}
 	if(get_bit(quest_rules,qr_SET_XBUTTON_ITEMS))
@@ -26178,9 +26221,8 @@ void verifyXWpn()
 
 void verifyYWpn()
 {
-	if ( (game->forced_ywpn != -1) ) 
-	{ 
-		//zprint2("verifyAWpn(); returning early. game->forced_awpn is: %d\n",game->forced_awpn); 
+	if ( (game->forced_ywpn != -1) )
+	{
 		return;
 	}
 	if(get_bit(quest_rules,qr_SET_YBUTTON_ITEMS))
@@ -26339,12 +26381,9 @@ int32_t selectWpn_new(int32_t type, int32_t startpos, int32_t forbiddenpos, int3
 // Select the sword for the A button if the 'select A button weapon' quest rule isn't set.
 int32_t selectSword()
 {
-    int32_t ret = current_item_id(itype_sword);
-    
-    if(ret == -1)
-        ret = 0;
-        
-    return ret;
+	auto ret = current_item_id(itype_sword);
+	if(ret == -1) return 0;
+	return ret;
 }
 
 // Adding code here for allowing hardcoding a button to a specific itemclass.
@@ -27411,50 +27450,51 @@ void HeroClass::checkitems(int32_t index)
 
 void HeroClass::StartRefill(int32_t refillWhat)
 {
-    if(!refilling)
-    {
-        refillclk=21;
-        stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
-        sfx(WAV_REFILL,128,true);
-        refilling=refillWhat;
-	if(FFCore.quest_format[vZelda] < 0x255) 
+	if(!refilling)
 	{
-		//Yes, this isn't a QR check. This was implemented before the QRs got bumped up.
-		//I attempted to change this check to a quest rule, but here's the issue: this affects
-		//triforces and potions as well, not just fairy flags. This means that having a compat rule
-		//would result in a rule that is checked by default for every tileset or quest made before
-		//2.55, one in a place most people won't check. That means that if they were to go to use
-		//the new potion or triforce flags for jinx curing behavior, they'd find that it doesn't work,
-		//all because of an obscure compat rule being checked. Most peoples instincts are sadly not
-		//"go through the compat rules and turn them all off", so this remains a version check instead
-		//of a qr check. Don't make my mistake and waste time trying to change this in vain. -Deedee
-		Start250Refill(refillWhat);
-	}
-	else //use 2.55+ behavior
-	{
-		if(refill_why>=0) // Item index
+		refillclk=21;
+		stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
+		sfx(WAV_REFILL,128,true);
+		refilling=refillWhat;
+		if(FFCore.quest_format[vZelda] < 0x255) 
 		{
-			if(itemsbuf[refill_why].family==itype_potion)
+			//Yes, this isn't a QR check. This was implemented before the QRs got bumped up.
+			//I attempted to change this check to a quest rule, but here's the issue: this affects
+			//triforces and potions as well, not just fairy flags. This means that having a compat rule
+			//would result in a rule that is checked by default for every tileset or quest made before
+			//2.55, one in a place most people won't check. That means that if they were to go to use
+			//the new potion or triforce flags for jinx curing behavior, they'd find that it doesn't work,
+			//all because of an obscure compat rule being checked. Most peoples instincts are sadly not
+			//"go through the compat rules and turn them all off", so this remains a version check instead
+			//of a qr check. Don't make my mistake and waste time trying to change this in vain. -Deedee
+			Start250Refill(refillWhat);
+		}
+		else //use 2.55+ behavior
+		{
+			if(refill_why>=0) // Item index
 			{
-				if(itemsbuf[refill_why].flags & ITEM_FLAG3)swordclk=0;
-				if(itemsbuf[refill_why].flags & ITEM_FLAG4)itemclk=0;
+				if(itemsbuf[refill_why].family==itype_potion)
+				{
+					if(itemsbuf[refill_why].flags & ITEM_FLAG3){swordclk=0;verifyAWpn();}
+					if(itemsbuf[refill_why].flags & ITEM_FLAG4)itemclk=0;
+				}
+				else if((itemsbuf[refill_why].family==itype_triforcepiece))
+				{
+					if(itemsbuf[refill_why].flags & ITEM_FLAG3){swordclk=0;verifyAWpn();}
+					if(itemsbuf[refill_why].flags & ITEM_FLAG4)itemclk=0;
+				}
 			}
-			else if((itemsbuf[refill_why].family==itype_triforcepiece))
+			else if(refill_why==REFILL_FAIRY)
 			{
-				if(itemsbuf[refill_why].flags & ITEM_FLAG3)swordclk=0;
-				if(itemsbuf[refill_why].flags & ITEM_FLAG4)itemclk=0;
+				if(!get_bit(quest_rules,qr_NONBUBBLEFAIRIES)){swordclk=0;verifyAWpn();}
+				if(get_bit(quest_rules,qr_ITEMBUBBLE))itemclk=0;
 			}
 		}
-		else if(refill_why==REFILL_FAIRY)
-		{
-			if(!get_bit(quest_rules,qr_NONBUBBLEFAIRIES))swordclk=0;
-			if(get_bit(quest_rules,qr_ITEMBUBBLE))itemclk=0;
-		}
 	}
-    }
 }
 
-void HeroClass::Start250Refill(int32_t refillWhat){
+void HeroClass::Start250Refill(int32_t refillWhat)
+{
 	if(!refilling)
 	{
 		refillclk=21;
@@ -27467,21 +27507,21 @@ void HeroClass::Start250Refill(int32_t refillWhat){
 			if((itemsbuf[refill_why].family==itype_potion)&&(!get_bit(quest_rules,qr_NONBUBBLEMEDICINE)))
 			{
 				swordclk=0;
-				
+				verifyAWpn();
 				if(get_bit(quest_rules,qr_ITEMBUBBLE)) itemclk=0;
 			}
 
 			if((itemsbuf[refill_why].family==itype_triforcepiece)&&(!get_bit(quest_rules,qr_NONBUBBLETRIFORCE)))
 			{
 				swordclk=0;
-				
+				verifyAWpn();
 				if(get_bit(quest_rules,qr_ITEMBUBBLE)) itemclk=0;
 			}
 		}
 		else if((refill_why==REFILL_FAIRY)&&(!get_bit(quest_rules,qr_NONBUBBLEFAIRIES)))
-			{
+		{
 			swordclk=0;
-			
+			verifyAWpn();
 			if(get_bit(quest_rules,qr_ITEMBUBBLE)) itemclk=0;
 		}
 	}

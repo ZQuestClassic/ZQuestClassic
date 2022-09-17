@@ -1932,6 +1932,8 @@ struct itemdata
 #define ITEM_SIDESWIM_DISABLED  0x02000000
 #define ITEM_BUNNY_ENABLED      0x04000000
 #define ITEM_VALIDATEONLY2      0x08000000
+#define ITEM_JINX_IMMUNE        0x10000000
+#define ITEM_FLIP_JINX          0x20000000
     word script;												// Which script the item is using
     char count;
     word amount;

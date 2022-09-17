@@ -2251,9 +2251,14 @@ void flushItemCache()
 }
 
 // This is used often, so it should be as direct as possible.
-int32_t current_item_id(int32_t itemtype, bool checkmagic)
+int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 {
-	if(itemtype!=itype_ring)  // Rings must always be checked.
+	if(jinx_check)
+	{
+		if(!(HeroSwordClk() || HeroItemClk()))
+			jinx_check = false; //not jinxed
+	}
+	if(itemtype!=itype_ring && !jinx_check)  // Rings must always be checked, as must jinx checks...
 	{
 		std::map<int32_t,int32_t>::iterator res = itemcache.find(itemtype);
 		
@@ -2276,6 +2281,11 @@ int32_t current_item_id(int32_t itemtype, bool checkmagic)
 					if ( !get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) ) continue; //don't make items with a magic cost vanish!! -Z
 				}
 			}
+			if(jinx_check && (usesSwordJinx(i) ? HeroSwordClk() : HeroItemClk()))
+			{
+				if(!(itemsbuf[i].flags & ITEM_JINX_IMMUNE))
+					continue;
+			}
 			
 			if(itemsbuf[i].fam_type >= highestlevel)
 			{
@@ -2285,10 +2295,29 @@ int32_t current_item_id(int32_t itemtype, bool checkmagic)
 		}
 	}
 	
-	itemcache[itemtype] = result;
+	if(!jinx_check) //Can't cache jinx_check results
+		itemcache[itemtype] = result;
 	return result;
 }
 
+// 'jinx_check' indicates that the highest level item *immune to jinxes* should be returned.
+int32_t current_item_id(int32_t itemtype, bool checkmagic, bool jinx_check)
+{
+	auto ret = _c_item_id_internal(itemtype,checkmagic,jinx_check);
+	if(!jinx_check) //If not already a jinx-immune-only check...
+	{
+		//And the player IS jinxed...
+		if(HeroSwordClk() || HeroItemClk())
+		{
+			//Then do a jinx-immune-only check here
+			auto ret2 = _c_item_id_internal(itemtype,checkmagic,true);
+			//And *IF IT FINDS A VALID ITEM*, return that one instead! -Em
+			//Should NOT need a compat rule, as this should always return -1 in old quests.
+			if(ret2 > -1) return ret2;
+		}
+	}
+	return ret;
+}
 int32_t current_item_power(int32_t itemtype)
 {
     int32_t result = current_item_id(itemtype,true);
