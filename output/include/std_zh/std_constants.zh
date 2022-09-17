@@ -698,9 +698,13 @@ DEFINE IC_BUG_NET                 = 272;
 DEFINE IC_MIRRORS                 = 273;
 DEFINE IC_SWITCHHOOK              = 274;
 DEFINE IC_ITEM_BUNDLE             = 275;
+DEFINE IC_PROGRESSIVE             = 276;
+DEFINE IC_NOTE                    = 277;
+DEFINE IC_REFILL                  = 278;
+DEFINE IC_LIFTGLOVE               = 279;
 
 //Itemclasses not less than this are reserved for future engine itemclasses
-DEFINE IC_MAXUSABLE               = 276;
+DEFINE IC_MAXUSABLE               = 280;
 
 DEFINE IC_MAX                     = 512; //Last of enum. All itemclassesare < this.
 
@@ -893,16 +897,8 @@ DEFINE LW_SCRIPT9            = 39;
 DEFINE LW_SCRIPT10           = 40;
 
 //Planned for 2.6
-DEFINE LW_ICE		= 41;
-DEFINE LW_SOUND		= 42;
-DEFINE LW_THROWROCK 		= 43; //Z3 rock
-DEFINE LW_POT		= 44; //Thrown pot
-DEFINE LW_ELECTRIC		= 45; //Zap
-DEFINE LW_Z3SWORD		= 46;
-DEFINE LW_GBSWORD		= 47;
-DEFINE LW_SPINATTACK		= 48;
-DEFINE LW_SHIELD		= 49; 
-DEFINE LW_SHOVEL		= 50; 
+DEFINE LW_ICE                = 41;
+DEFINE LW_THROWN             = 44;
 
 //EWeapon types. Use with Screen->CreateEWeapon() and Screen->LoadEWeapon().
 DEFINE EW_ARROW              = 130;
@@ -1433,6 +1429,7 @@ DEFINE NPCD_SCRIPT           = 17;
 DEFINE NPCD_STOMP            = 15;
 DEFINE NPCD_SWITCHHOOK       = 36;
 DEFINE NPCD_SWORD            = 9;
+DEFINE NPCD_THROWN           = 37;
 DEFINE NPCD_WAND             = 5;
 DEFINE NPCD_WHISTLE          = 35; //whistle lweapon
 
@@ -2215,6 +2212,7 @@ enum HeroAction
 	LA_SIDEDROWN,
 	LA_SIDESWIMSPINNING,
 	LA_SIDESWIMCHARGING,
+	LA_LIFTING,
 	LA_MAX
 };
 
