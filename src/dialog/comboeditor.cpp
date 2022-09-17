@@ -2321,7 +2321,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									TRIGFLAG(34,"Byrna"),
 									TRIGFLAG(35,"Refl. Beam"),
 									TRIGFLAG(36,"Stomp"),
-									DummyWidget(),
+									TRIGFLAG(89, "Thrown"),
 									TRIGFLAG(37,"Custom Weapon 1"),
 									TRIGFLAG(38,"Custom Weapon 2"),
 									TRIGFLAG(39,"Custom Weapon 3"),
@@ -2950,7 +2950,28 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										local_comboref.liftitm = val;
 									}),
 								INFOBTN("If 0, drops no item."
-									"\nIf >0, drops that item ID.")
+									"\nIf >0, drops that item ID."),
+								//
+								Label(text = "Lift Height"),
+								TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 255, val = local_comboref.lifthei,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.lifthei = val;
+									}),
+								INFOBTN("The Z-height the combo will be lifted to"),
+								//
+								Label(text = "Lift Time"),
+								TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 255, val = local_comboref.lifttime,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.lifttime = val;
+									}),
+								INFOBTN("The time, in frames, it takes to lift the combo")
+								
 							)
 						)
 					)),
@@ -3333,7 +3354,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									TRIGFLAG(34,"Byrna"),
 									TRIGFLAG(35,"Refl. Beam"),
 									TRIGFLAG(36,"Stomp"),
-									DummyWidget(),
+									TRIGFLAG(89, "Thrown"),
 									TRIGFLAG(37,"Custom Weapon 1"),
 									TRIGFLAG(38,"Custom Weapon 2"),
 									TRIGFLAG(39,"Custom Weapon 3"),

@@ -2022,7 +2022,7 @@ bool do_lift_combo(int32_t lyr, int32_t pos, int32_t gloveid)
 	w->death_sprite = cmb.liftbreaksprite;
 	w->death_sfx = cmb.liftbreaksfx;
 	
-	Hero.lift(w, 16, 8);
+	Hero.lift(w, cmb.lifttime, cmb.lifthei);
 	
 	tmp->data[pos] = cmb.liftundercmb;
 	if(!(cmb.liftflags & LF_NOUCSET))

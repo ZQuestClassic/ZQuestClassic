@@ -356,13 +356,13 @@ static bool CanComboTrigger(weapon *w)
 		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 		case ewFireball: case ewFireball2: case ewArrow: case ewBrang: case ewSword: case ewRock:
 		case ewMagic: case ewBomb: case ewSBomb: case ewLitBomb: case ewLitSBomb: case ewFireTrail:
-		case ewFlame: case ewWind: case ewFlame2:
+		case ewFlame: case ewWind: case ewFlame2: case wThrown:
 			return true;
 	}
 	return false;
 }
 
-static int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid)
+int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid)
 {
 	if(screenIsScrolling()) return 0;
 	int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
@@ -394,6 +394,7 @@ static int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid)
 		case wCByrna: trig = (cmb.triggerflags[1]&combotriggerBYRNA); break;
 		case wRefBeam: trig = (cmb.triggerflags[1]&combotriggerREFBEAM); break;
 		case wStomp: trig = (cmb.triggerflags[1]&combotriggerSTOMP); break;
+		case wThrown: trig = (cmb.triggerflags[2]&combotriggerTHROWN); break;
 		case wScript1: trig = w->isLWeapon ? (cmb.triggerflags[1]&combotriggerSCRIPT01) : (cmb.triggerflags[2]&combotriggerEWSCRIPT01); break;
 		case wScript2: trig = w->isLWeapon ? (cmb.triggerflags[1]&combotriggerSCRIPT02) : (cmb.triggerflags[2]&combotriggerEWSCRIPT02); break;
 		case wScript3: trig = w->isLWeapon ? (cmb.triggerflags[1]&combotriggerSCRIPT03) : (cmb.triggerflags[2]&combotriggerEWSCRIPT03); break;

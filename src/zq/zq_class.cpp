@@ -9713,7 +9713,8 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		|| tmp_cmb.liftlvl || tmp_cmb.liftitm || tmp_cmb.liftflags
 		|| tmp_cmb.liftgfx || tmp_cmb.liftsprite || tmp_cmb.liftsfx
 		|| tmp_cmb.liftundercmb || tmp_cmb.liftundercs
-		|| tmp_cmb.liftbreaksprite!=-1 || tmp_cmb.liftbreaksfx)
+		|| tmp_cmb.liftbreaksprite!=-1 || tmp_cmb.liftbreaksfx
+		|| tmp_cmb.lifthei!=8 || tmp_cmb.lifttime!=16)
 		combo_has_flags |= CHAS_LIFT;
 	
 	if(!p_putc(combo_has_flags,f))
@@ -9979,6 +9980,14 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		if(!p_putc(tmp_cmb.liftbreaksfx,f))
 		{
 			return 63;
+		}
+		if(!p_putc(tmp_cmb.lifthei,f))
+		{
+			return 64;
+		}
+		if(!p_putc(tmp_cmb.lifttime,f))
+		{
+			return 65;
 		}
 	}
 	return 0;

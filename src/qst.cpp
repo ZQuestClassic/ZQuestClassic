@@ -18169,7 +18169,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 	setup_combo_animations2();
 	return 0;
 }
-int32_t readcombo_loop(PACKFILE* f, word section_version, newcombo& temp_combo)
+int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 {
 	byte combo_has_flags;
 	if(!p_getc(&combo_has_flags,f,true))
@@ -18382,56 +18382,37 @@ int32_t readcombo_loop(PACKFILE* f, word section_version, newcombo& temp_combo)
 		if(combo_has_flags&CHAS_LIFT)
 		{
 			if(!p_igetw(&temp_combo.liftcmb,f,true))
-			{
 				return qe_invalid;
-			}
 			if(!p_getc(&temp_combo.liftcs,f,true))
-			{
 				return qe_invalid;
-			}
 			if(!p_igetw(&temp_combo.liftundercmb,f,true))
-			{
 				return qe_invalid;
-			}
 			if(!p_getc(&temp_combo.liftundercs,f,true))
-			{
 				return qe_invalid;
-			}
 			if(!p_getc(&temp_combo.liftdmg,f,true))
-			{
 				return qe_invalid;
-			}
 			if(!p_getc(&temp_combo.liftlvl,f,true))
-			{
 				return qe_invalid;
-			}
 			if(!p_getc(&temp_combo.liftitm,f,true))
-			{
 				return qe_invalid;
-			}
 			if(!p_getc(&temp_combo.liftflags,f,true))
-			{
 				return qe_invalid;
-			}
 			if(!p_getc(&temp_combo.liftgfx,f,true))
-			{
 				return qe_invalid;
-			}
 			if(!p_getc(&temp_combo.liftsprite,f,true))
-			{
 				return qe_invalid;
-			}
 			if(!p_getc(&temp_combo.liftsfx,f,true))
-			{
 				return qe_invalid;
-			}
 			if(!p_igetw(&temp_combo.liftbreaksprite,f,true))
-			{
 				return qe_invalid;
-			}
 			if(!p_getc(&temp_combo.liftbreaksfx,f,true))
-			{
 				return qe_invalid;
+			if(s_version >= 34)
+			{
+				if(!p_getc(&temp_combo.lifthei,f,true))
+					return qe_invalid;
+				if(!p_getc(&temp_combo.lifttime,f,true))
+					return qe_invalid;
 			}
 		}
 	}

@@ -32244,7 +32244,7 @@ int32_t main(int32_t argc,char **argv)
 		
 		file_menu[fileSave].flags =
 			file_menu[fileRevert].flags =
-				dialogs[16].flags =
+				dialogs[19].flags =
 					commands[cmdSave].flags =
 						commands[cmdRevert].flags = (saved | disable_saving|OverwriteProtection) ? D_DISABLED : 0;
 						

@@ -168,6 +168,7 @@ double DirToDegrees(int dir);
 int32_t AngleToDir(double radians);
 int32_t AngleToDir4(double radians);
 
+int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid);
 void killgenwpn(weapon* w);
 void do_generic_combo(weapon *w, int32_t bx, int32_t by, int32_t wid, 
 	int32_t cid, int32_t flag, int32_t flag2, int32_t ft, int32_t scombo, bool single16, int32_t layer);
