@@ -711,10 +711,10 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					DummyWidget(),
 					Checkbox(
 						text = "Invisible", hAlign = 0.0,
-						checked = local_subref.d2 & 0b1,
+						checked = !(local_subref.d2 & 0b1),
 						onToggleFunc = [&](bool state)
 						{
-							SETFLAG(local_subref.d2, 0b1, state);
+							SETFLAG(local_subref.d2, 0b1, !state);
 						}
 					)
 				);
