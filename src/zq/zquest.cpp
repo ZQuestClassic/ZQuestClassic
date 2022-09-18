@@ -21339,13 +21339,21 @@ int32_t onPattern()
 // Now just calls onScrData()
 int32_t onEnemyFlags()
 {
-    int32_t i=-1;
-    
-    while(scrdata_tabs[++i].text != NULL)
-        scrdata_tabs[i].flags = (i==2 ? D_SELECTED : 0);
-        
-    onScrData();
-    return D_O_K;
+	int32_t i=-1;
+	
+	bool found = false;
+	while(scrdata_tabs[++i].text != NULL)
+	{
+		if(!strcmp(scrdata_tabs[i].text, "E.Flags"))
+		{
+			found = true;
+			scrdata_tabs[i].flags = D_SELECTED;
+		}
+		else scrdata_tabs[i].flags = 0;
+	}
+	if(!found) scrdata_tabs[3].flags = D_SELECTED;
+	onScrData();
+	return D_O_K;
 }
 
 const char *enemy_viewer(int32_t index, int32_t *list_size)
