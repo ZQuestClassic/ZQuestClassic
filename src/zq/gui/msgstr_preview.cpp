@@ -20,16 +20,17 @@ int32_t msg_code_operands(int32_t cc);
 
 void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t index = -1)
 {
-	bool oldmargin = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0;
 	int32_t ssc_tile_hei = -1;
 	int32_t w = str->w; //8-256
 	int32_t h = str->h; //8-168
 	int32_t nextstring = str->nextstring;
-	int16_t msg_margins[4];
-	for(int32_t q = 0; q < 4; ++q)
-	{
-		msg_margins[q] = oldmargin ? 0 : str->margins[q];
-	}
+	byte msg_margins[4];
+	
+	byte old_margins[4] = {8,0,8,8};
+	if(get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS))
+		memcpy(msg_margins, old_margins, sizeof(msg_margins));
+	else memcpy(msg_margins, str->margins, sizeof(msg_margins));
+	
 	int32_t cursor_x = msg_margins[left];
 	int32_t cursor_y = msg_margins[up];
 	
@@ -211,7 +212,7 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 							
 							sprintf(cbuf,"%c",namestr[q]);
 							
-							textout_styled_aligned_ex(buf,workfont,cbuf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),shdtype,sstaLEFT,msgcolour,shdcolor,-1);
+							textout_styled_aligned_ex(buf,workfont,cbuf,cursor_x,cursor_y,shdtype,sstaLEFT,msgcolour,shdcolor,-1);
 							
 							cursor_x += workfont->vtable->char_length(workfont, namestr[q]);
 							cursor_x += str->hspace;
@@ -278,12 +279,12 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 					default:
 						if(s3[k] >= 32 && s3[k] <= 126)
 						{
-							//textprintf_ex(buf,workfont,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msgcolour,-1,"%c",s3[k]);
+							//textprintf_ex(buf,workfont,cursor_x,cursor_y,msgcolour,-1,"%c",s3[k]);
 							char cbuf[2] = {0};
 							
 							sprintf(cbuf,"%c",s3[k]);
 							
-							textout_styled_aligned_ex(buf,workfont,cbuf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),shdtype,sstaLEFT,msgcolour,shdcolor,-1);
+							textout_styled_aligned_ex(buf,workfont,cbuf,cursor_x,cursor_y,shdtype,sstaLEFT,msgcolour,shdcolor,-1);
 							
 							cursor_x += workfont->vtable->char_length(workfont, s3[k]);
 							cursor_x += str->hspace;

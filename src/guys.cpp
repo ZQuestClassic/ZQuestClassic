@@ -22426,7 +22426,7 @@ bool parsemsgcode()
 			ssc_tile_hei = ssc_tile_hei_buf;
 			ssc_tile_hei_buf = -1;
 			cursor_y += thei + MsgStrings[msgstr].vspace;
-			cursor_x=(get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0 ? 0 : msg_margins[left]);
+			cursor_x=msg_margins[left];
 			return true;
 		}	
 		
@@ -22899,7 +22899,6 @@ bool atend(char const* str)
 
 void putmsg()
 {
-	bool oldmargin = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0;
 	if(!msgorig) msgorig=msgstr;
 	
 	if(wait_advance && linkedmsgclk < 1)
@@ -22947,7 +22946,7 @@ void putmsg()
 	}
 	if(wait_advance) return; //Waiting for buttonpress
 	
-	if(!do_run_menu && (!msgstr || msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || cursor_y >= msg_h-(oldmargin?0:msg_margins[down])))
+	if(!do_run_menu && (!msgstr || msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || cursor_y >= msg_h-msg_margins[down]))
 	{
 		if(!msgstr)
 			msgorig=0;
@@ -22971,7 +22970,7 @@ void putmsg()
 				goto breakout; // break out if message speed was changed to non-zero
 			else if(!do_run_menu && !doing_name_insert && !parsemsgcode())
 			{
-				if(cursor_y >= msg_h-(oldmargin?0:msg_margins[down]))
+				if(cursor_y >= msg_h-msg_margins[down])
 					break;
 					
 				wrapmsgstr(s3);
@@ -22980,36 +22979,36 @@ void putmsg()
 				{
 					tlength = msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]) + MsgStrings[msgstr].hspace;
 					
-					if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
-					   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
+					if(cursor_x+tlength > (msg_w-msg_margins[right])
+					   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 							? true : strcmp(s3," ")!=0))
 					{
 						int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
 						ssc_tile_hei = ssc_tile_hei_buf;
 						ssc_tile_hei_buf = -1;
 						cursor_y += thei + MsgStrings[msgstr].vspace;
-						cursor_x=oldmargin ? 0 : msg_margins[left];
+						cursor_x=msg_margins[left];
 					}
 					
 					char buf[2] = {0};
 					sprintf(buf,"%c",MsgStrings[msgstr].s[msgptr]);
 					
-					textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
+					textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x,cursor_y,msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
 					
 					cursor_x+=tlength;
 				}
 				else
 				{
 					tlength = text_length(msgfont, s3) + ((int32_t)strlen(s3)*MsgStrings[msgstr].hspace);
-					if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
-					   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
+					if(cursor_x+tlength > (msg_w-msg_margins[right])
+					   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 							? true : strcmp(s3," ")!=0))
 					{
 						int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
 						ssc_tile_hei = ssc_tile_hei_buf;
 						ssc_tile_hei_buf = -1;
 						cursor_y += thei + MsgStrings[msgstr].vspace;
-						cursor_x=oldmargin ? 0 : msg_margins[left];
+						cursor_x=msg_margins[left];
 					}
 					
 					sfx(MsgStrings[msgstr].sfx);
@@ -23017,7 +23016,7 @@ void putmsg()
 					char buf[2] = {0};
 					sprintf(buf,"%c",MsgStrings[msgstr].s[msgptr]);
 					
-					textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
+					textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x,cursor_y,msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
 					
 					cursor_x += msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]);
 					cursor_x += MsgStrings[msgstr].hspace;
@@ -23037,7 +23036,7 @@ void putmsg()
 			{
 				if(*nameptr)
 				{
-					if(cursor_y >= msg_h-(oldmargin?0:msg_margins[down]))
+					if(cursor_y >= msg_h-msg_margins[down])
 						break;
 					
 					char s3[9] = {0};
@@ -23054,15 +23053,15 @@ void putmsg()
 					
 					tlength = text_length(msgfont, s3) + ((int32_t)strlen(s3)*MsgStrings[msgstr].hspace);
 					
-					if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
-					   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
+					if(cursor_x+tlength > (msg_w-msg_margins[right])
+					   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 							? true : strcmp(s3," ")!=0))
 					{
 						int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
 						ssc_tile_hei = ssc_tile_hei_buf;
 						ssc_tile_hei_buf = -1;
 						cursor_y += thei + MsgStrings[msgstr].vspace;
-						cursor_x=oldmargin ? 0 : msg_margins[left];
+						cursor_x=msg_margins[left];
 					}
 					
 					sfx(MsgStrings[msgstr].sfx);
@@ -23070,7 +23069,7 @@ void putmsg()
 					char buf[2] = {0};
 					sprintf(buf,"%c",*nameptr);
 					
-					textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
+					textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x,cursor_y,msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
 					
 					cursor_x += msgfont->vtable->char_length(msgfont, *nameptr);
 					cursor_x += MsgStrings[msgstr].hspace;
@@ -23116,15 +23115,15 @@ breakout:
 		{
 			tlength = msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]) + MsgStrings[msgstr].hspace;
 			
-			if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
-			   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
+			if(cursor_x+tlength > (msg_w-msg_margins[right])
+			   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 					? 1 : strcmp(s3," ")!=0))
 			{
 				int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
 				ssc_tile_hei = ssc_tile_hei_buf;
 				ssc_tile_hei_buf = -1;
 				cursor_y += thei + MsgStrings[msgstr].vspace;
-				cursor_x=oldmargin ? 0 : msg_margins[left];
+				cursor_x=msg_margins[left];
 			}
 			
 			cursor_x+=tlength;
@@ -23149,7 +23148,7 @@ breakout:
 	
 reparsesinglechar:
 	// Continue printing the string!
-	if(!atend(MsgStrings[msgstr].s.c_str()+msgptr) && cursor_y < msg_h-(oldmargin?0:msg_margins[down]))
+	if(!atend(MsgStrings[msgstr].s.c_str()+msgptr) && cursor_y < msg_h-msg_margins[down])
 	{
 		if(!do_run_menu && !doing_name_insert && !parsemsgcode())
 		{
@@ -23157,15 +23156,15 @@ reparsesinglechar:
 			
 			tlength = text_length(msgfont, s3) + ((int32_t)strlen(s3)*MsgStrings[msgstr].hspace);
 			
-			if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
-			   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
+			if(cursor_x+tlength > (msg_w-msg_margins[right])
+			   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 					? true : strcmp(s3," ")!=0))
 			{
 				int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
 				ssc_tile_hei = ssc_tile_hei_buf;
 				ssc_tile_hei_buf = -1;
 				cursor_y += thei + MsgStrings[msgstr].vspace;
-				cursor_x=oldmargin ? 0 : msg_margins[left];
+				cursor_x=msg_margins[left];
 				//if(space) s3[0]=0;
 			}
 			
@@ -23174,7 +23173,7 @@ reparsesinglechar:
 			char buf[2] = {0};
 			sprintf(buf,"%c",MsgStrings[msgstr].s[msgptr]);
 			
-			textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
+			textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x,cursor_y,msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
 			
 			cursor_x += msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]);
 			cursor_x += MsgStrings[msgstr].hspace;
@@ -23212,15 +23211,15 @@ reparsesinglechar:
 			
 			tlength = text_length(msgfont, s3) + ((int32_t)strlen(s3)*MsgStrings[msgstr].hspace);
 			
-			if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
-			   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
+			if(cursor_x+tlength > (msg_w-msg_margins[right])
+			   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 					? true : strcmp(s3," ")!=0))
 			{
 				int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
 				ssc_tile_hei = ssc_tile_hei_buf;
 				ssc_tile_hei_buf = -1;
 				cursor_y += thei + MsgStrings[msgstr].vspace;
-				cursor_x=oldmargin ? 0 : msg_margins[left];
+				cursor_x=msg_margins[left];
 			}
 			
 			sfx(MsgStrings[msgstr].sfx);
@@ -23228,7 +23227,7 @@ reparsesinglechar:
 			char buf[2] = {0};
 			sprintf(buf,"%c",*nameptr);
 			
-			textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
+			textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x,cursor_y,msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
 			
 			cursor_x += msgfont->vtable->char_length(msgfont, *nameptr);
 			cursor_x += MsgStrings[msgstr].hspace;
@@ -23260,15 +23259,15 @@ reparsesinglechar:
 				{
 					tlength = msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]) + MsgStrings[msgstr].hspace;
 					
-					if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
-					   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
+					if(cursor_x+tlength > (msg_w-msg_margins[right])
+					   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 							? true : strcmp(s3," ")!=0))
 					{
 						int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
 						ssc_tile_hei = ssc_tile_hei_buf;
 						ssc_tile_hei_buf = -1;
 						cursor_y += thei + MsgStrings[msgstr].vspace;
-						cursor_x=oldmargin ? 0 : msg_margins[left];
+						cursor_x=msg_margins[left];
 					}
 					
 					cursor_x+=tlength;
@@ -23293,7 +23292,7 @@ reparsesinglechar:
 	}
 strendcheck:
 	// Done printing the string
-	if(do_end_str || !doing_name_insert && !do_run_menu && (msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || cursor_y >= msg_h-(oldmargin?0:msg_margins[down]) || atend(MsgStrings[msgstr].s.c_str()+msgptr)) && !linkedmsgclk)
+	if(do_end_str || !doing_name_insert && !do_run_menu && (msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || cursor_y >= msg_h-msg_margins[down] || atend(MsgStrings[msgstr].s.c_str()+msgptr)) && !linkedmsgclk)
 	{
 		if(!do_end_str)
 			while(parsemsgcode()); // Finish remaining control codes

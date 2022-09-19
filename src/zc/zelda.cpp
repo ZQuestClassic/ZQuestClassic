@@ -1082,10 +1082,10 @@ void donewmsg(int32_t str)
     msg_bg(MsgStrings[msgstr]);
     msg_prt();
     
-	for(int32_t q = 0; q < 4; ++q)
-	{
-		msg_margins[q] = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0 ? 0 : MsgStrings[msgstr].margins[q];
-	}
+	byte old_margins[4] = {8,0,8,8};
+	if(get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS))
+		memcpy(msg_margins, old_margins, sizeof(msg_margins));
+	else memcpy(msg_margins, MsgStrings[msgstr].margins, sizeof(msg_margins));
     cursor_x=msg_margins[left];
     cursor_y=msg_margins[up];
 }
