@@ -4861,7 +4861,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 			auto oscr = homescr;
 			homescr = scr;
 			hidden_entrance(tmp,false,false,-3);
-			scr = oscr;
+			homescr = oscr;
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
 		{
