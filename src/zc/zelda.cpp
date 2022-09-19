@@ -317,7 +317,7 @@ word     msgclk = 0, msgstr = 0, enqueued_str = 0,
          msg_xpos=0,
          msg_ypos=0,
          msgorig=0;
-byte msg_margins[4] = {0};
+int16_t msg_margins[4] = {0};
 byte msgstr_layer = 6;
 int32_t prt_tile=0;
 byte prt_cset=0, prt_x=0, prt_y=0, prt_tw=0, prt_th=0, msg_shdtype=0, msg_shdcol=0;
@@ -1082,10 +1082,10 @@ void donewmsg(int32_t str)
     msg_bg(MsgStrings[msgstr]);
     msg_prt();
     
-	byte old_margins[4] = {8,0,8,8};
-	if(get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS))
-		memcpy(msg_margins, old_margins, sizeof(msg_margins));
-	else memcpy(msg_margins, MsgStrings[msgstr].margins, sizeof(msg_margins));
+	int16_t old_margins[4] = {8,0,8,8};
+	int16_t const* copy_from = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS) ? old_margins : MsgStrings[msgstr].margins;
+	for(auto q = 0; q < 4; ++q)
+		msg_margins[q] = copy_from[q];
     cursor_x=msg_margins[left];
     cursor_y=msg_margins[up];
 }
