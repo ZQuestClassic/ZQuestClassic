@@ -8542,13 +8542,16 @@ bool HeroClass::animate(int32_t)
 	{
 		selectNextBWpn(SEL_RIGHT);
 	}
-	else if(rEx3btn() && /* !get_bit(quest_rules,qr_SELECTAWPN)*/ get_bit(quest_rules,qr_USE_EX1_EX2_INVENTORYSWAP))
+	else if (get_bit(quest_rules, qr_SELECTAWPN))
 	{
-		selectNextAWpn(SEL_LEFT);
-	}
-	else if(rEx4btn() && /* !get_bit(quest_rules,qr_SELECTAWPN)*/ get_bit(quest_rules,qr_USE_EX1_EX2_INVENTORYSWAP))
-	{
-		selectNextAWpn(SEL_RIGHT);
+		if (rEx3btn() && /* !get_bit(quest_rules,qr_SELECTAWPN)*/ get_bit(quest_rules, qr_USE_EX1_EX2_INVENTORYSWAP))
+		{
+			selectNextAWpn(SEL_LEFT);
+		}
+		else if (rEx4btn() && /* !get_bit(quest_rules,qr_SELECTAWPN)*/ get_bit(quest_rules, qr_USE_EX1_EX2_INVENTORYSWAP))
+		{
+			selectNextAWpn(SEL_RIGHT);
+		}
 	}
 		
 	if(rPbtn())
@@ -8848,7 +8851,7 @@ bool HeroClass::animate(int32_t)
 		action=falling; FFCore.setHeroAction(falling);
 	}
 	
-	do_liftglove(-1,true);
+	handle_passive_buttons();
 	if(liftclk)
 	{
 		if(lift_wpn)
@@ -9782,6 +9785,63 @@ void HeroClass::doMirror(int32_t mirrorid)
 	}
 }
 
+void HeroClass::handle_passive_buttons()
+{
+	do_liftglove(-1,true);
+	do_jump(-1,true);
+}
+
+bool HeroClass::do_jump(int32_t jumpid, bool passive)
+{
+	if(jumpid < 0)
+		jumpid = current_item_id(itype_rocs,true,true);
+	
+	if(unsigned(jumpid) >= MAXITEMS) return false;
+	if(inlikelike || charging) return false;
+	if(!checkitem_jinx(jumpid)) return false;
+	
+	itemdata const& itm = itemsbuf[jumpid];
+	
+	bool standing = isStanding(true);
+	if(!(standing || extra_jump_count < itm.misc1)) return false;
+	if(!(checkbunny(jumpid) && checkmagiccost(jumpid)))
+	{
+		if(QMisc.miscsfx[sfxERROR])
+			sfx(QMisc.miscsfx[sfxERROR]);
+		return false;
+	}
+	
+	byte intbtn = byte(itm.misc2&0xFF);
+	if(passive)
+	{
+		if(!getIntBtnInput(intbtn, true, true, false, false, true))
+			return false; //not pressed
+	}
+	
+	paymagiccost(jumpid);
+	
+	if(!standing)
+	{
+		++extra_jump_count;
+		fall = 0;
+		fakefall = 0;
+		if(hoverclk > 0)
+			hoverclk = -hoverclk;
+	}
+	if(itm.flags & ITEM_FLAG1)
+		setFall(fall - itm.power);
+	else setFall(fall - (FEATHERJUMP*(itm.power+2)));
+	
+	setOnSideviewLadder(false);
+	
+	// Reset the ladder, unless on an unwalkable combo
+	if((ladderx || laddery) && !(_walkflag(ladderx,laddery,0,SWITCHBLOCK_STATE)))
+		reset_ladder();
+		
+	sfx(itm.usesound,pan(x.getInt()));
+	
+	return true;
+}
 void HeroClass::do_liftglove(int32_t liftid, bool passive)
 {
 	if(liftid < 0)
@@ -10476,47 +10536,7 @@ bool HeroClass::startwpn(int32_t itemid)
 		
 		case itype_rocs:
 		{
-			if(!inlikelike && charging==0)
-			{
-				bool standing = isStanding(true);
-				if(standing || extra_jump_count < itm.misc1)
-				{
-					if(!(checkbunny(itemid) && checkmagiccost(itemid)))
-					{
-						if(QMisc.miscsfx[sfxERROR])
-							sfx(QMisc.miscsfx[sfxERROR]);
-						return false;
-					}
-					
-					paymagiccost(itemid);
-					
-					
-					if(!standing)
-					{
-						++extra_jump_count;
-						fall = 0;
-						fakefall = 0;
-						if(hoverclk > 0)
-							hoverclk = -hoverclk;
-					}
-					if(itm.flags & ITEM_FLAG1)
-						setFall(fall - itm.power);
-					else
-					{
-						setFall(fall - (FEATHERJUMP*(itm.power+2)));
-					}
-					
-					setOnSideviewLadder(false);
-					
-					// Reset the ladder, unless on an unwalkable combo
-					if((ladderx || laddery) && !(_walkflag(ladderx,laddery,0,SWITCHBLOCK_STATE)))
-						reset_ladder();
-						
-					sfx(itm.usesound,pan(x.getInt()));
-					//zprint2("fall is: %d\n", (int32_t)fall);
-				}
-			}
-			
+			if(!do_jump(itemid,false)) return false;
 			ret = false;
 		}
 		break;

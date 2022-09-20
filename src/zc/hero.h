@@ -371,6 +371,8 @@ public:
 	bool startwpn(int32_t itemid);
 	bool mirrorBonk();
 	void doMirror(int32_t mirrorid);
+	void handle_passive_buttons();
+	bool do_jump(int32_t jumpid, bool passive);
 	void do_liftglove(int32_t liftid, bool passive);
 	bool can_lift(int32_t gloveid);
 	void handle_lift(bool dec = true);
