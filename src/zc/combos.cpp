@@ -1623,6 +1623,7 @@ bool force_ex_trigger(int32_t lyr, int32_t pos, char xstate)
 	return false;
 }
 
+static bool triggering_generic_secrets = false;
 //Triggers a combo at a given position
 bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 {
@@ -1808,7 +1809,12 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 			if (cmb.triggerflags[1]&combotriggerSECRETS)
 			{
 				used_bit = true;
-				hidden_entrance(0, true, false, -6);
+				if(!(special & ctrigSECRETS) && !triggering_generic_secrets)
+				{
+					triggering_generic_secrets = true;
+					hidden_entrance(0, true, false, -6);
+					triggering_generic_secrets = false;
+				}
 				if(canPermSecret() && !(tmpscr->flags5&fTEMPSECRETS))
 					setmapflag(mSECRET);
 				sfx(tmpscr->secretsfx);

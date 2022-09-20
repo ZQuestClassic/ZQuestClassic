@@ -1851,7 +1851,7 @@ void hidden_entrance(int32_t tmp,bool refresh, bool high16only,int32_t single) /
 			newcombo const& cmb = combobuf[FFCore.tempScreens[lyr]->data[pos]];
 			if(cmb.triggerflags[2] & combotriggerSECRETSTR)
 			{
-				do_trigger_combo(lyr,pos);
+				do_trigger_combo(lyr,pos,ctrigSECRETS);
 			}
 		}
 	}

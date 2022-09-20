@@ -1399,6 +1399,7 @@ enum
 
 #define ctrigNONE        0x00
 #define ctrigIGNORE_SIGN 0x01
+#define ctrigSECRETS     0x02
 
 // weapon types in game engine
 enum
