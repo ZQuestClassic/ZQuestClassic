@@ -14138,11 +14138,29 @@ void do_movecombo(combo_move_data const& cmd)
 	
 	for(int32_t i=0; i<MAXCOMBOS; i++)
 	{
-		if((combobuf[i].nextcombo>=cmd.copy1)&&(combobuf[i].nextcombo<cmd.copy1+cmd.copycnt))
+		newcombo& cmb = combobuf[i];
+		if(cmb.nextcombo && (cmb.nextcombo>=cmd.copy1)&&(cmb.nextcombo<cmd.copy1+cmd.copycnt))
 		{
-			//since next combo 0 represents "no next combo," do not move it away from 0 -DD
-			if(combobuf[i].nextcombo != 0)
-				combobuf[i].nextcombo += diff;
+			cmb.nextcombo += diff;
+		}
+		if(cmb.liftcmb && (cmb.liftcmb>=cmd.copy1)&&(cmb.liftcmb<cmd.copy1+cmd.copycnt))
+		{
+			cmb.liftcmb += diff;
+		}
+		if(cmb.liftundercmb && (cmb.liftundercmb>=cmd.copy1)&&(cmb.liftundercmb<cmd.copy1+cmd.copycnt))
+		{
+			cmb.liftundercmb += diff;
+		}
+	}
+	for(auto q = 0; q < MAXCOMBOPOOLS; ++q)
+	{
+		combo_pool pool = combo_pools[q];
+		for(cpool_entry& cp : pool.combos)
+		{
+			if(cp.cid && (cp.cid >= cmd.copy1) && (cp.cid < cmd.copy1+cmd.copycnt))
+			{
+				cp.cid += diff;
+			}
 		}
 	}
 	
