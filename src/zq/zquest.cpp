@@ -10730,8 +10730,8 @@ void domouse()
 			int32_t f=(row*favorites_list.w)+col;
 			int32_t* fav = favorite_combos;
 			bool dmcond;
-			if(draw_mode==dm_alias) dmcond = favorite_comboaliases[f] != -1;
-			else dmcond = favorite_combos[f] != -1;
+			if(draw_mode==dm_alias) dmcond = favorite_comboaliases[f] < 0;
+			else dmcond = favorite_combos[f] < 0;
 			if(key[KEY_LSHIFT] || key[KEY_RSHIFT] || dmcond)
 			{
 				int32_t tempcb=ComboBrush;
