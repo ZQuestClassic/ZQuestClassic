@@ -8534,24 +8534,19 @@ bool HeroClass::animate(int32_t)
 		
 	}
 	
-	if(DrunkrLbtn() && /* !get_bit(quest_rules,qr_SELECTAWPN)*/ !get_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP))
+	if(!get_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP))
 	{
-		selectNextBWpn(SEL_LEFT);
+		if(DrunkrLbtn())
+			selectNextBWpn(SEL_LEFT);
+		else if(DrunkrRbtn())
+			selectNextBWpn(SEL_RIGHT);
 	}
-	else if(DrunkrRbtn() && /* !get_bit(quest_rules,qr_SELECTAWPN)*/ !get_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP))
+	if (get_bit(quest_rules, qr_SELECTAWPN) && get_bit(quest_rules, qr_USE_EX1_EX2_INVENTORYSWAP))
 	{
-		selectNextBWpn(SEL_RIGHT);
-	}
-	else if (get_bit(quest_rules, qr_SELECTAWPN))
-	{
-		if (rEx3btn() && /* !get_bit(quest_rules,qr_SELECTAWPN)*/ get_bit(quest_rules, qr_USE_EX1_EX2_INVENTORYSWAP))
-		{
+		if (rEx3btn())
 			selectNextAWpn(SEL_LEFT);
-		}
-		else if (rEx4btn() && /* !get_bit(quest_rules,qr_SELECTAWPN)*/ get_bit(quest_rules, qr_USE_EX1_EX2_INVENTORYSWAP))
-		{
+		else if (rEx4btn())
 			selectNextAWpn(SEL_RIGHT);
-		}
 	}
 		
 	if(rPbtn())
