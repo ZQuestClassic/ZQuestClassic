@@ -9786,8 +9786,12 @@ void HeroClass::handle_passive_buttons()
 	do_jump(-1,true);
 }
 
+static bool did_passive_jump = false;
 bool HeroClass::do_jump(int32_t jumpid, bool passive)
 {
+	if(passive) did_passive_jump = false;
+	else if(did_passive_jump) return false; //don't jump twice in the same frame
+	
 	if(jumpid < 0)
 		jumpid = current_item_id(itype_rocs,true,true);
 	
@@ -9835,6 +9839,7 @@ bool HeroClass::do_jump(int32_t jumpid, bool passive)
 		
 	sfx(itm.usesound,pan(x.getInt()));
 	
+	if(passive) did_passive_jump = true;
 	return true;
 }
 void HeroClass::do_liftglove(int32_t liftid, bool passive)
