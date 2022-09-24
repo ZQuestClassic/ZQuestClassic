@@ -10797,6 +10797,20 @@ void domouse()
 				
 				ComboBrush=tempcb;
 			}
+			else if(key[KEY_ALT] || key[KEY_ALTGR])
+			{
+				if(select_favorite())
+				{
+					switch(draw_mode)
+					{
+						case dm_alias:
+						case dm_cpool:
+							break;
+						default:
+							First[current_combolist]=vbound((Combo/combolist[0].w*combolist[0].w)-(combolist[0].w*combolist[0].h/2),0,MAXCOMBOS-(combolist[0].w*combolist[0].h));
+					}
+				}
+			}
 			else
 			{
 				select_favorite();
