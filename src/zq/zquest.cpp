@@ -8488,7 +8488,7 @@ void draw_block(int32_t start,int32_t w,int32_t h)
     refresh(rMAP+rSCRMAP);
 }
 
-static void fill(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset)
+static void fill(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset)
 {
     if(!only_cset)
     {
@@ -8507,35 +8507,34 @@ static void fill(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32
 		if(!pool.pick(cid,cs)) return;
 	}
     
-    Map.DoSetComboCommand(Map.getCurrMap(), Map.getCurrScr(), (sy<<4)+sx, only_cset ? -1 : cid, cs);
+    Map.DoSetComboCommand(map, screen_index, (sy<<4)+sx, only_cset ? -1 : cid, cs);
     
     if((sy>0) && (dir!=down))                                 // && ((Map.CurrScr()->data[(((sy-1)<<4)+sx)]&0x7FF)==target))
-        fill(fillscr, targetcombo, targetcset, sx, sy-1, up, diagonal, only_cset);
+        fill(map, screen_index, fillscr, targetcombo, targetcset, sx, sy-1, up, diagonal, only_cset);
         
     if((sy<10) && (dir!=up))                                  // && ((Map.CurrScr()->data[(((sy+1)<<4)+sx)]&0x7FF)==target))
-        fill(fillscr, targetcombo, targetcset, sx, sy+1, down, diagonal, only_cset);
+        fill(map, screen_index, fillscr, targetcombo, targetcset, sx, sy+1, down, diagonal, only_cset);
         
     if((sx>0) && (dir!=right))                                // && ((Map.CurrScr()->data[((sy<<4)+sx-1)]&0x7FF)==target))
-        fill(fillscr, targetcombo, targetcset, sx-1, sy, left, diagonal, only_cset);
+        fill(map, screen_index, fillscr, targetcombo, targetcset, sx-1, sy, left, diagonal, only_cset);
         
     if((sx<15) && (dir!=left))                                // && ((Map.CurrScr()->data[((sy<<4)+sx+1)]&0x7FF)==target))
-        fill(fillscr, targetcombo, targetcset, sx+1, sy, right, diagonal, only_cset);
+        fill(map, screen_index, fillscr, targetcombo, targetcset, sx+1, sy, right, diagonal, only_cset);
         
     if(diagonal==1)
     {
         if((sy>0) && (sx>0) && (dir!=r_down))                   // && ((Map.CurrScr()->data[(((sy-1)<<4)+sx-1)]&0x7FF)==target))
-            fill(fillscr, targetcombo, targetcset, sx-1, sy-1, l_up, diagonal, only_cset);
+            fill(map, screen_index, fillscr, targetcombo, targetcset, sx-1, sy-1, l_up, diagonal, only_cset);
             
         if((sy<10) && (sx<15) && (dir!=l_up))                   // && ((Map.CurrScr()->data[(((sy+1)<<4)+sx+1)]&0x7FF)==target))
-            fill(fillscr, targetcombo, targetcset, sx+1, sy+1, r_down, diagonal, only_cset);
+            fill(map, screen_index, fillscr, targetcombo, targetcset, sx+1, sy+1, r_down, diagonal, only_cset);
             
         if((sx>0) && (sy<10) && (dir!=r_up))                    // && ((Map.CurrScr()->data[(((sy+1)<<4)+sx-1)]&0x7FF)==target))
-            fill(fillscr, targetcombo, targetcset, sx-1, sy+1, l_down, diagonal, only_cset);
+            fill(map, screen_index, fillscr, targetcombo, targetcset, sx-1, sy+1, l_down, diagonal, only_cset);
             
         if((sx<15) && (sy>0) && (dir!=l_down))                  // && ((Map.CurrScr()->data[(((sy-1)<<4)+sx+1)]&0x7FF)==target))
-            fill(fillscr, targetcombo, targetcset, sx+1, sy-1, r_up, diagonal, only_cset);
+            fill(map, screen_index, fillscr, targetcombo, targetcset, sx+1, sy-1, r_up, diagonal, only_cset);
     }
-    
 }
 
 static void fill_flag(mapscr* fillscr, int32_t targetflag, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal)
@@ -9266,7 +9265,7 @@ void fill_4()
         }
         
         Map.StartListCommand();
-        fill(Map.AbsoluteScr(drawmap, drawscr),
+        fill(drawmap, drawscr, Map.AbsoluteScr(drawmap, drawscr),
              (Map.AbsoluteScr(drawmap, drawscr)->data[(by<<4)+bx]),
              (Map.AbsoluteScr(drawmap, drawscr)->cset[(by<<4)+bx]), bx, by, 255, 0, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
         Map.FinishListCommand();
@@ -9357,7 +9356,7 @@ void fill_8()
         }
         
         Map.StartListCommand();
-        fill(Map.AbsoluteScr(drawmap, drawscr),
+        fill(drawmap, drawscr, Map.AbsoluteScr(drawmap, drawscr),
              (Map.AbsoluteScr(drawmap, drawscr)->data[(by<<4)+bx]),
              (Map.AbsoluteScr(drawmap, drawscr)->cset[(by<<4)+bx]), bx, by, 255, 1, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
         Map.FinishListCommand();
