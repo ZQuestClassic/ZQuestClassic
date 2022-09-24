@@ -14154,7 +14154,7 @@ void do_movecombo(combo_move_data const& cmd)
 	}
 	for(auto q = 0; q < MAXCOMBOPOOLS; ++q)
 	{
-		combo_pool pool = combo_pools[q];
+		combo_pool& pool = combo_pools[q];
 		for(cpool_entry& cp : pool.combos)
 		{
 			if(cp.cid && (cp.cid >= cmd.copy1) && (cp.cid < cmd.copy1+cmd.copycnt))
