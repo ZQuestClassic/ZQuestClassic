@@ -6986,6 +6986,7 @@ int32_t onMIDICredits()
 	{
 		midi_suspended = midissuspRESUME;
 		currmidi = restore_midi;
+		midi_pos = paused_midi_pos;
 	}
         
     if(text) zc_free(text);
