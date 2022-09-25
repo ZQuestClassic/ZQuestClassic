@@ -6951,10 +6951,20 @@ int32_t onMIDICredits()
         return D_O_K;
     }
     
+	bool do_pause_midi = midi_pos >= 0 && currmidi;
+	auto restore_midi = currmidi;
+	if(do_pause_midi)
+	{
+		paused_midi_pos = midi_pos;
+		stop_midi();
+		midi_paused=true;
+		midi_suspended = midissuspHALTED;
+	}
+	
     midi_dlg[0].dp2=lfont;
     midi_dlg[2].d1 = 0;
     midi_dlg[2].d2 = 0;
-    midi_dlg[4].flags = (midi_pos >= 0) ? D_DISABLED : D_EXIT;
+    midi_dlg[4].flags = D_EXIT;
     midi_dlg[5].flags = (tunes[midi_dlg[2].d1].flags&tfDISABLESAVE) ? D_DISABLED : D_EXIT;
     
     listening = false;
@@ -6971,6 +6981,12 @@ int32_t onMIDICredits()
     
     if(listening)
         music_stop();
+	
+	if(do_pause_midi)
+	{
+		midi_suspended = midissuspRESUME;
+		currmidi = restore_midi;
+	}
         
     if(text) zc_free(text);
     if(zmi) zc_free(zmi);
