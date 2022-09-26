@@ -49,7 +49,8 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 	size_t dummy;
 	ZScript::ScriptTypeID _id;
 	char buf[512] = {0};
-	char buf2[512] = {0};
+	char* buf2 = nullptr;
+	size_t buf2sz = 0;
 	
 	FILE *tempfile = fopen("tmp2","rb");
 			
@@ -73,6 +74,7 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 	for(size_t ind = 0; ind < scripts_sz; ++ind)
 	{
 		fread(&dummy, sizeof(size_t), 1, tempfile);
+
 		dummy = fread(buf, sizeof(char), dummy, tempfile);
 		buf[dummy] = 0;
 		
@@ -87,19 +89,37 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 		for(size_t ind2 = 0; ind2 < tmp; ++ind2)
 		{
 			fread(&dummy, sizeof(size_t), 1, tempfile);
+			if (buf2sz < dummy + 1)
+			{
+				if (buf2) zc_free(buf2);
+				buf2sz = zc_max(dummy + 1, 1024);
+				buf2 = (char*)zc_malloc(buf2sz);
+				if (!buf2)
+				{
+					buf2sz = 0;
+					goto read_compile_error;
+				}
+			}
 			dummy = fread(buf2, sizeof(char), dummy, tempfile);
+			if (dummy >= buf2sz)
+			{
+				dummy = buf2sz - 1; //This indicates an error, and shouldn't be reached...
+			}
 			buf2[dummy] = 0;
 			int32_t lbl;
 			fread(&lbl, sizeof(int32_t), 1, tempfile);
-			std::shared_ptr<ZScript::Opcode> oc = std::make_shared<ZScript::ArbitraryOpcode>(string(buf2));
+			std::shared_ptr<ZScript::Opcode> oc = std::make_shared<ZScript::ArbitraryOpcode>(buf2);
 			oc->setLabel(lbl);
 			dsd.second.push_back(oc);
 		}
 		
 		scripts[buf] = dsd;
 	}
+
+read_compile_error:
 	fclose(tempfile);
 	
+	if (buf2) zc_free(buf2);
 	/*
 	reader->read(&stypes_sz, sizeof(size_t));
 	for(size_t ind = 0; ind < stypes_sz; ++ind)

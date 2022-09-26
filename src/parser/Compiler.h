@@ -81,6 +81,7 @@ namespace ZScript
 	{
 	public:
 		ArbitraryOpcode(std::string data) : str(data) {}
+		ArbitraryOpcode(char const* data) : str(data) {}
 		std::string str;
 		std::string toString()
 		{
