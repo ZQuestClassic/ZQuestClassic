@@ -1483,6 +1483,7 @@ void HeroClass::init()
     magiccastclk=0;
     magicitem = nayruitem = -1;
 	last_lens_id = 0; //Should be -1 (-Z)
+	last_savepoint_id = 0;
 	misc_internal_hero_flags = 0;
 	last_cane_of_byrna_item_id = -1;
 	on_sideview_ladder = false;
@@ -9475,6 +9476,7 @@ bool HeroClass::animate(int32_t)
 	{
 		int32_t tmp_subscr_clk = frame;
 		
+		int32_t save_type = 0;
 		switch(lsave)
 		{
 		case 0:
@@ -9493,12 +9495,13 @@ bool HeroClass::animate(int32_t)
 		}
 			
 			
-		case 1:
-			save_game((tmpscr->flags4&fSAVEROOM) != 0, 0);
-			break;
-			
 		case 2:
-			save_game((tmpscr->flags4&fSAVEROOM) != 0, 1);
+			save_type = 1;
+			[[fallthrough]];
+		case 1:
+			if(last_savepoint_id)
+				trigger_save(combobuf[last_savepoint_id]);
+			else save_game((tmpscr->flags4&fSAVEROOM) != 0, save_type); //sanity? 
 			break;
 		}
 	}
@@ -18815,6 +18818,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	}
 endsigns:
 	if(!cmb.triggerbtn) return;
+	if(on_cooldown(found_lyr, COMBOPOS(fx,fy))) return;
 	switch(dir)
 	{
 		case down:
@@ -18842,6 +18846,13 @@ endsigns:
 		prompt_cset = cmb.attribytes[0];
 		prompt_x = cmb.attrishorts[0];
 		prompt_y = cmb.attrishorts[1];
+	}
+	else if(cmb.prompt_cid)
+	{
+		prompt_combo = cmb.prompt_cid;
+		prompt_cset = cmb.prompt_cs;
+		prompt_x = cmb.prompt_x;
+		prompt_y = cmb.prompt_y;
 	}
 }
 
@@ -20960,36 +20971,63 @@ void HeroClass::checkspecial2(int32_t *ls)
 	y2 = ty+11;
 	
 	types[0] = COMBOTYPE(x1,y1);
+	cids[0] = MAPCOMBO(x1,y1);
 	
 	if(MAPFFCOMBO(x1,y1))
+	{
 		types[0] = FFCOMBOTYPE(x1,y1);
-		
+		cids[0] = MAPFFCOMBO(x1,y1);
+	}
+	
 	types[1] = COMBOTYPE(x1,y2);
+	cids[1] = MAPCOMBO(x1,y2);
 	
 	if(MAPFFCOMBO(x1,y2))
+	{
 		types[1] = FFCOMBOTYPE(x1,y2);
+		cids[1] = MAPFFCOMBO(x1,y2);
+	}
 		
 	types[2] = COMBOTYPE(x2,y1);
+	cids[2] = MAPCOMBO(x2,y1);
 	
 	if(MAPFFCOMBO(x2,y1))
+	{
 		types[2] = FFCOMBOTYPE(x2,y1);
+		cids[2] = MAPFFCOMBO(x2,y1);
+	}
 		
 	types[3] = COMBOTYPE(x2,y2);
+	cids[3] = MAPCOMBO(x2,y2);
 	
 	if(MAPFFCOMBO(x2,y2))
+	{
 		types[3] = FFCOMBOTYPE(x2,y2);
+		cids[3] = MAPFFCOMBO(x2,y2);
+	}
 		
 	
 	for(int32_t i=0; i<4; i++)
 	{
+		if(combobuf[cids[i]].triggerflags[0] & combotriggerONLYGENTRIG)
+		{
+			if(types[i] == cSAVE || types[i] == cSAVE2)
+			{
+				types[i] = cNONE;
+				setsave = false;
+				break;
+			}
+		}
 		if(types[i]==cSAVE) setsave=true;
 		
 		if(types[i]==cSAVE2) setsave=true;
 	}
 	
 	if(setsave && types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
+	{
+		last_savepoint_id = cids[0];
 		type = types[0];
-		
+	}
 	//
 	// Now, let's check for Drowning combos...
 	//

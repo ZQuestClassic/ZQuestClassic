@@ -310,6 +310,7 @@ public:
 	int32_t lastHitBy[NUM_HIT_TYPES_USED][2]; //[enemy, eweapon, combo, flag
 	
 	int32_t last_lens_id;// The item ID of the last Lens of Truth type item used
+	word last_savepoint_id; //combo id of save point
 	
 	int32_t misc_internal_hero_flags;// Flags to hold data temporarily for misc handling
 	int32_t last_cane_of_byrna_item_id;

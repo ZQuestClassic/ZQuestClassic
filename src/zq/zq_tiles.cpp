@@ -14151,6 +14151,10 @@ void do_movecombo(combo_move_data const& cmd)
 		{
 			cmb.liftundercmb += diff;
 		}
+		if(cmb.prompt_cid && (cmb.prompt_cid>=cmd.copy1)&&(cmb.prompt_cid<cmd.copy1+cmd.copycnt))
+		{
+			cmb.prompt_cid += diff;
+		}
 	}
 	for(auto q = 0; q < MAXCOMBOPOOLS; ++q)
 	{

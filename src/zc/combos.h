@@ -27,6 +27,7 @@ bool trigger_chest(int32_t lyr, int32_t pos);
 bool trigger_lockblock(int32_t lyr, int32_t pos);
 bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir = -1);
 bool trigger_stepfx(int32_t lyr, int32_t pos, bool stepped = false);
+void trigger_save(newcombo const& cmb);
 
 void do_ex_trigger(int32_t lyr, int32_t pos);
 bool force_ex_trigger(int32_t lyr, int32_t pos, char xstate = -1);
@@ -36,6 +37,7 @@ bool do_lift_combo(int32_t lyr, int32_t pos, int32_t gloveid);
 
 void init_combo_timers();
 void update_combo_timers();
+bool on_cooldown(int32_t lyr, int32_t pos);
 
 #endif
 

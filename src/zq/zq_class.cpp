@@ -9695,7 +9695,9 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		|| tmp_cmb.triglbeam || tmp_cmb.trigcschange
 		|| tmp_cmb.spawnitem || tmp_cmb.spawnenemy
 		|| tmp_cmb.exstate > -1 || tmp_cmb.spawnip
-		|| tmp_cmb.trigcopycat || tmp_cmb.trigcooldown)
+		|| tmp_cmb.trigcopycat || tmp_cmb.trigcooldown
+		|| tmp_cmb.prompt_cid || tmp_cmb.prompt_cs
+		|| tmp_cmb.prompt_x != 12 || tmp_cmb.prompt_y != -8)
 		combo_has_flags |= CHAS_TRIG;
 	if(tmp_cmb.usrflags || tmp_cmb.genflags)
 		combo_has_flags |= CHAS_FLAG;
@@ -9925,6 +9927,22 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		if(!p_putc(tmp_cmb.trigcooldown,f))
 		{
 			return 49;
+		}
+		if(!p_iputw(tmp_cmb.prompt_cid,f))
+		{
+			return 50;
+		}
+		if(!p_putc(tmp_cmb.prompt_cs,f))
+		{
+			return 51;
+		}
+		if(!p_iputw(tmp_cmb.prompt_x,f))
+		{
+			return 52;
+		}
+		if(!p_iputw(tmp_cmb.prompt_y,f))
+		{
+			return 53;
 		}
 	}
 	if(combo_has_flags&CHAS_LIFT)

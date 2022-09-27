@@ -7,6 +7,7 @@
 #include "guys.h"
 #include "ffscript.h"
 #include "hero.h"
+#include "title.h"
 
 extern sprite_list items, decorations;
 extern FFScript FFCore;
@@ -1548,6 +1549,32 @@ bool trigger_shooter(newcombo const& cmb, int32_t pos)
 	if(unsigned(pos) > 175) return false;
 	return trigger_shooter(cmb, COMBOX(pos), COMBOY(pos));
 }
+void trigger_save(newcombo const& cmb)
+{
+	if(cmb.type != cSAVE && cmb.type != cSAVE2) return;
+	auto save_type = cmb.type == cSAVE2 ? 1 : 0;
+	if(cmb.usrflags & cflag1) //restore hp
+	{
+		double perc = cmb.attribytes[0]/100.0;
+		word life = word(perc*game->get_maxlife());
+		if(cmb.attribytes[0]==100) //sanity incase of floating point error
+			life = game->get_maxlife();
+		if(game->get_life() < life)
+			game->set_life(life);
+	}
+	if(cmb.usrflags & cflag2) //restore magic
+	{
+		double perc = cmb.attribytes[0]/100.0;
+		word magic = word(perc*game->get_maxmagic());
+		if(cmb.attribytes[0]==100) //sanity incase of floating point error
+			magic = game->get_maxmagic();
+		if(game->get_magic() < magic)
+			game->set_magic(magic);
+	}
+	save_game((tmpscr->flags4&fSAVEROOM) != 0, save_type);
+}
+
+
 static byte copycat_id = 0;
 bool do_copycat_trigger(int32_t lyr, int32_t pos)
 {
@@ -1797,6 +1824,9 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 					case cSHOOTER:
 						if(!trigger_shooter(cmb,pos))
 							return false;
+						break;
+					case cSAVE: case cSAVE2:
+						trigger_save(cmb);
 						break;
 					default:
 						used_bit = false;
@@ -2052,6 +2082,12 @@ void init_combo_timers()
 	}
 }
 
+bool on_cooldown(int32_t lyr, int32_t pos)
+{
+	if(unsigned(lyr) > 7 || unsigned(pos) > 176)
+		return false;
+	return combo_trig_timers[lyr][pos].trig_cd != 0;
+}
 
 
 static void handle_shooter(newcombo const& cmb, cmbtimer& timer, zfix wx, zfix wy)

@@ -253,7 +253,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            15
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          34
+#define V_COMBOS          35
 #define V_CSETS            5 //palette data
 #define V_MAPS            23
 #define V_DMAPS            16
@@ -3262,6 +3262,9 @@ struct newcombo
 	int16_t liftbreaksprite;
 	byte liftbreaksfx;
 	byte lifthei, lifttime;
+	word prompt_cid;
+	byte prompt_cs;
+	int16_t prompt_x, prompt_y;
 	
 	char label[11];
 		//Only one of these per combo: Otherwise we would have 
@@ -3329,9 +3332,10 @@ struct newcombo
 		for(int32_t q = 0; q < 11; ++q)
 			label[q] = 0;
 		for(int32_t q = 0; q < 8; ++q)
-			attribytes[0] = 0;
-		for(int32_t q = 0; q < 8; ++q)
-			attrishorts[0] = 0;
+		{
+			attribytes[q] = 0;
+			attrishorts[q] = 0;
+		}
 		script = 0;
 		for(int32_t q = 0; q < 2; ++q)
 			initd[q] = 0;
@@ -3354,6 +3358,11 @@ struct newcombo
 		liftbreaksfx = 0;
 		lifthei = 8;
 		lifttime = 16;
+		
+		prompt_cid = 0;
+		prompt_cs = 0;
+		prompt_x = 12;
+		prompt_y = -8;
 	}
 
 	bool is_blank(bool ignoreEff = false)
@@ -3425,6 +3434,10 @@ struct newcombo
 		if(liftbreaksfx) return false;
 		if(lifthei) return false;
 		if(lifttime) return false;
+		if(prompt_cid) return false;
+		if(prompt_cs) return false;
+		if(prompt_x != 12) return false;
+		if(prompt_y != -8) return false;
 		
 		return true;
 	}
