@@ -15021,8 +15021,11 @@ void set_register(const int32_t arg, const int32_t value)
 		*/        
 		case LWPNDEAD:
 			if(0!=(s=checkLWpn(ri->lwpn,"DeadState")))
-				((weapon*)s)->dead=(value/10000);
-				
+			{
+				auto dead = value/10000;
+				((weapon*)s)->dead=dead;
+				if(dead != 0) ((weapon*)s)->weapon_dying_frame = false;
+			}
 			break;
 			
 		case LWPNID:
@@ -15613,7 +15616,11 @@ void set_register(const int32_t arg, const int32_t value)
 			
 		case EWPNDEAD:
 			if(0!=(s=checkEWpn(ri->ewpn,"DeadState")))
-				((weapon*)s)->dead=(value/10000);
+			{
+				auto dead = value/10000;
+				((weapon*)s)->dead=dead;
+				if(dead != 0) ((weapon*)s)->weapon_dying_frame = false;
+			}
 				
 			break;
 			
