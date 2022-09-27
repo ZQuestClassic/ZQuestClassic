@@ -24,7 +24,7 @@ int32_t addtomsglist(int32_t index, bool allow_numerical_sort = true);
 void build_bistringcat_list();
 const char *stringcatlist(int32_t index, int32_t *list_size);
 std::string parse_msg_str(std::string const& s);
-int32_t msg_code_operands(int32_t cc);
+int32_t msg_code_operands(byte cc);
 int32_t d_msgtile_proc(int32_t msg,DIALOG *d,int32_t c);
 void strlist_rclick_func(int32_t index, int32_t x, int32_t y);
 
@@ -239,6 +239,33 @@ void strip_extra_spaces(std::string &string)
 	string = string.substr(string.find_first_not_of(' '), string.find_last_not_of(' '));
 }
 
+void scc_insert(char* buf, size_t& msgptr,byte cc,size_t limit = -1)
+{
+	switch(cc) //special scc inserts
+	{
+		case MSGC_MENUCHOICE:
+			buf[msgptr++] = '>';
+			break;
+		case MSGC_DRAWTILE:
+			buf[msgptr++] = '[';
+			if(msgptr >= limit) break;
+			buf[msgptr++] = ']';
+			break;
+		case MSGC_NAME:
+			buf[msgptr++] = '(';
+			if(msgptr >= limit) break;
+			buf[msgptr++] = 'N';
+			if(msgptr >= limit) break;
+			buf[msgptr++] = 'a';
+			if(msgptr >= limit) break;
+			buf[msgptr++] = 'm';
+			if(msgptr >= limit) break;
+			buf[msgptr++] = 'e';
+			if(msgptr >= limit) break;
+			buf[msgptr++] = ')';
+			break;
+	}
+}
 
 char *MsgString(int32_t index, bool show_number, bool pad_number)
 {
@@ -267,38 +294,44 @@ char *MsgString(int32_t index, bool show_number, bool pad_number)
 	uint32_t length = MsgStrings[index].s.size();
 	//return s;
 	
+	size_t msgptr=0;
 	//remove preceding spaces;
-	for(; i<length && (MsgStrings[index].s[i]==' ' || MsgStrings[index].s[i]<32 || MsgStrings[index].s[i]>126); ++i)
+	for(; i<length && (MsgStrings[index].s[i]==' ' || MsgStrings[index].s[i]<32 || MsgStrings[index].s[i]>126);)
 	{
-		if(MsgStrings[index].s[i]!=' ')  // Is it a control code?
+		byte c = MsgStrings[index].s[i];
+		++i;
+		if(c!=' ')  // Is it a control code?
 		{
-			for(int32_t numops=msg_code_operands(MsgStrings[index].s[i]-1); numops>0; numops--)
+			for(int32_t numops=msg_code_operands(c-1); numops>0; numops--)
 			{
 				i++;
 				if(i>=length) break; //sanity!
 				if((byte)(MsgStrings[index].s[i])==255)
 					i+=2;
 			}
+			scc_insert(t,msgptr,c-1,70);
+			if(msgptr) break;
 		}
 	}
 	
-	int32_t msgptr=0;
 	
 	for(; msgptr<70 && i<MsgStrings[index].s.size(); i++)
 	{
-		if(i<length && MsgStrings[index].s[i]>=32 && MsgStrings[index].s[i]<=126)
+		byte c = MsgStrings[index].s[i];
+		if(i<length && c>=32 && c<=126)
 		{
-			t[msgptr++]=MsgStrings[index].s[i];
+			t[msgptr++]=c;
 		}
-		else if(i<length && MsgStrings[index].s[i])
+		else if(i<length && c)
 		{
-			for(int32_t numops=msg_code_operands(MsgStrings[index].s[i]-1); numops>0; numops--)
+			for(int32_t numops=msg_code_operands(c-1); numops>0; numops--)
 			{
 				i++;
 				if(i>=length) break; //sanity!
 				if((byte)(MsgStrings[index].s[i])==255)
 					i+=2;
 			}
+			scc_insert(t,msgptr,c-1,70);
 		}
 	}
 	
@@ -1222,7 +1255,7 @@ int32_t msg_at_pos(int32_t pos)
 }
 
 // Returns number of arguments to each control code
-int32_t msg_code_operands(int32_t cc)
+int32_t msg_code_operands(byte cc)
 {
 	switch(cc)
 	{

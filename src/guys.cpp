@@ -23097,8 +23097,11 @@ void putmsg()
 			}
 		}
 		
-		msgclk=72;
-		msgpos=10000;
+		if (!do_run_menu)
+		{
+			msgclk = 72;
+			msgpos = 10000;
+		}
 	}
 	else
 	{

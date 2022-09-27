@@ -16,7 +16,7 @@ FONT* getfont(int32_t fonta);
 std::string parse_msg_str(std::string const& s);
 void strip_trailing_spaces(std::string& str);
 word grab_next_argument(std::string const& s2, uint32_t* i);
-int32_t msg_code_operands(int32_t cc);
+int32_t msg_code_operands(byte cc);
 
 void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t index = -1)
 {
