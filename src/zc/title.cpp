@@ -4683,6 +4683,7 @@ bool save_game(bool savepoint, int32_t type)
 		textout_ex(framebuf,zfont,SaveScreenText[SAVESC_DONTSAVE],88,96,( SaveScreenSettings[SAVESC_TEXT_DONTSAVE_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_DONTSAVE_COLOUR] : QMisc.colors.msgtext),-1);
 		textout_ex(framebuf,zfont,SaveScreenText[SAVESC_QUIT],88,120,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);
 		
+		rUp(); rDown(); rSbtn(); //eat inputs
 		do
 		{
 			load_control_state();
@@ -4805,6 +4806,7 @@ bool save_game(bool savepoint, int32_t type)
 				int32_t g=-1;
 				bool done3=false;
 				
+				rUp(); rDown(); rSbtn(); //eat inputs
 				do
 				{
 					load_control_state();
