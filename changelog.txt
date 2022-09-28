@@ -1,7 +1,11 @@
 // 2.55 Change Log
 // Updated 28th Sept, 2022
 
+// 28th Sept nightly
+
 Add 'Lifting' and 'Lift+Walk' player sprites
+Update default quest
+Fix scrolling warp palette oddities
 	( EmilyV, 28th Sept, 2022 )
 
 // 27th Sept nightly
