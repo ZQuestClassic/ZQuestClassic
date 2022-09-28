@@ -1,5 +1,114 @@
 // 2.55 Change Log
-// Updated 17th Aug, 2022
+// Updated 28th Sept, 2022
+
+
+
+// 27th Sept nightly
+
+Fix menu-related SCCs
+Fix save point menu cursor moving when holding buttons
+Save Point combos now support 'ComboType Effects' triggers,
+	and have flags/attributes to allow healing the player's
+	life and magic when activating the save point.
+Fix script writing 'weapon->DeadState' not properly resetting
+	'dying frame' to keep weapon alive.
+	( EmilyV, 27th Sept, 2022 )
+
+Quest MIDI Info now always allows listening
+	( EmilyV, 25th Sept, 2022 )
+
+Fix L/R quickswap eating inputs even when disabled by QR
+Fix jumping twice in one frame with feather button option
+Add 'Alt+Click' on 'Favorite Combos' to 'Scroll to Combo'
+	( EmilyV, 24th Sept, 2022 )
+
+Fix floodfill crash on layers
+	( connorjclark, 24th Sept, 2022 )
+
+Fix combo pools/lifting being offset when inserting/moving combos
+Fix favorite combos menu
+	( EmilyV, 21st Sept, 2022 )
+
+Fix softlock when click+dragging on dropdowns
+	( EmilyV, 20th Sept, 2022 )
+
+Add hex value box to palette editor
+Fix crash when using both '->Secrets' and 'Triggers Secrets' on
+	the same combo
+Add button-based option to feathers
+	( EmilyV, 19th Sept, 2022 )
+
+Fix 'Flags' button on screen enemy dialog going to wrong
+	tab of screen data
+Fix lockblock-related bug
+Fix string margins
+	( EmilyV, 18th Sept, 2022 )
+
+Add 'Thrown' weapon combo trigger
+Add 'lift height'/'lift time' combo options
+	( EmilyV, 17th Sept, 2022 )
+
+Add advanced 'jinx' related options to items
+	( EmilyV, 16th Sept, 2022 )
+
+Add 'Lift Glove', combo lifting
+Fix crash related to having a 0 bomb ratio
+	( EmilyV, 13th Sept, 2022 )
+
+Compress screen data, greatly reducing quest file sizes
+Fix 'flip' for large-sprite enemies
+Add 'Combo Pools', similar to combo aliases, used to place
+	a random combo from a weighted pool of combos. Intended to be useful
+	for decorative purposes, ex. random varying grass/flowers
+	( EmilyV, 10th-11th Sept, 2022 )
+
+Add multiple-undo/redo to screen editing
+	( connorjclark, 10th Sept, 2022 )
+
+Fix 'ResizeArray()'
+Compress combodata, reducing quest file sizes.
+	( EmilyV, 9th Sept, 2022 )
+
+Optimize ZScript array initializers
+	( EmilyV, 8th Sept, 2022 )
+
+Add new enemy movement flags
+	( EmilyV, 7th Sept, 2022 )
+
+Allegro 5 / image loading fixes (bmp)
+	( connorjclark, 5th-7th Sept, 2022 )
+
+Fix ZLauncher missing window frame
+	( connorjclark, 3rd Sept, 2022 )
+
+Add 'Shooter' combo type- a custom turret combo
+Add 'Cooldown' timer for combo triggers
+	( EmilyV, 2nd Sept, 2022 )
+
+Fix dragging items
+More combo triggers tab options
+	( EmilyV, 31st Aug, 2022 )
+
+Fix 'bitmap->GetPixel()' not being *10000
+Add 'bitmap->CountColor()'
+	( EmilyV, 29th Aug, 2022 )
+
+Add global and timed states for Switch combos
+Update 'Video Mode' dialog to allow custom resizing of the window
+	( EmilyV, 21st Aug, 2022 )
+
+Fix auto-warps repeating infinitely
+Fix cheat code editing dialog
+	( EmilyV, 20th Aug, 2022 )
+
+Fix program not exiting correctly
+	( connorjclark, 19th Aug, 2022 )
+
+Try to fix mouse cursor lingering at edge of screen
+	( EmilyV, 19th Aug, 2022 )
+
+Fix 'Progressive Item' showing incorrect tile on hold up
+	( EmilyV, 18th Aug, 2022 )
 
 //A109
 
