@@ -22428,29 +22428,6 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		}
 		if(!intradmap)
 		{
-			bool changedlevel = false;
-			bool changeddmap = false;
-			if(currdmap != wdmap)
-			{
-				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
-				changeddmap = true;
-			}
-			if(dlevel != DMaps[wdmap].level)
-			{
-				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
-				changedlevel = true;
-			}
-			dlevel = DMaps[wdmap].level;
-			currdmap = wdmap;
-			if(changeddmap)
-			{
-				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
-			}
-			if(changedlevel)
-			{
-				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
-			}
-			
 			homescr = currscr = wscr + DMaps[wdmap].xoff;
 			init_dmap();
 			
@@ -25067,22 +25044,19 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	if(newscr->bosssfx != oldscr->bosssfx)	adjust_sfx(oldscr->bosssfx, 128, false);
 	//Preloaded ffc scripts
 	homescr=currscr;
-	if(destdmap >= 0)
-	{
-		int32_t dmap = currdmap; // Kludge
-		currdmap = destdmap;
-		ffscript_engine(true);
-		currdmap = dmap;
-	}
-	else
-		ffscript_engine(true);
+	auto olddmap = currdmap;
+	auto newdmap = (destdmap >= 0) ? destdmap : currdmap;
+	
+	currdmap = newdmap;
+	ffscript_engine(true);
+	currdmap = olddmap;
 		
 	// There are two occasions when scrolling must be darkened:
 	// 1) When scrolling into a dark room.
 	// 2) When scrolling between DMaps of different colours.
 	if(destdmap != -1 && DMaps[destdmap].color != currcset)
 	{
-		fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, false);
+		fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : DMaps[destdmap].color, true, false);
 		darkroom = true;
 	}
 	else if(!darkroom)
@@ -25096,6 +25070,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	//previously it was for(0 to delay) advanceframes at end of loop
 	int32_t no_move = 0;
 	
+	currdmap = newdmap;
 	for(word i = 0; cx >= 0 && delay != 0; i++, cx--) //Go!
 	{
 		if(Quit)
@@ -25501,7 +25476,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		//FFCore.runF6EngineScrolling(newscr,oldscr,tx,ty,tx2,ty2,sx,sy,scrolldir);
 		action=lastaction; FFCore.setHeroAction(lastaction);
 	}//end main scrolling loop (2 spaces tab width makes me sad =( )
-	
+	currdmap = olddmap;
 	
 	clear_bitmap(msg_txt_display_buf);
 	set_clip_state(msg_txt_display_buf, 1);
@@ -25557,12 +25532,12 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	{
 		bool changedlevel = false;
 		bool changeddmap = false;
-		if(currdmap != destdmap)
+		if(olddmap != destdmap)
 		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 			changeddmap = true;
 		}
-		if(dlevel != DMaps[destdmap].level)
+		if(DMaps[olddmap].level != DMaps[destdmap].level)
 		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 			changedlevel = true;
