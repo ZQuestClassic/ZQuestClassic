@@ -217,6 +217,11 @@ bool HeroClass::isStanding(bool forJump)
 	if(val == -1) return true;
 	return forJump;
 }
+bool HeroClass::isLifting()
+{
+	if(lift_wpn) return true;
+	return false;
+}
 
 void HeroClass::set_respawn_point(bool setwarp)
 {
@@ -2431,7 +2436,7 @@ attack:
 		bool inwater = iswaterex(MAPCOMBO(x+4,y+9), currmap, currscr, -1, x+4, y+9, true, false)  && iswaterex(MAPCOMBO(x+4,y+15), currmap, currscr, -1, x+4, y+15, true, false) &&  iswaterex(MAPCOMBO(x+11,y+9), currmap, currscr, -1, x+11, y+9, true, false) && iswaterex(MAPCOMBO(x+11,y+15), currmap, currscr, -1, x+11, y+15, true, false);
 		
 		int32_t jumping2 = int32_t(jumping*((zinit.gravity2 / 100)/16.0));
-		
+		bool noliftspr = get_bit(quest_rules,qr_NO_LIFT_SPRITE);
 		//if (jumping!=0) al_trace("%d %d %f %d\n",jumping,zinit.gravity,zinit.gravity/16.0,jumping2);
 		switch(zinit.heroAnimationStyle)
 		{
@@ -2524,9 +2529,25 @@ attack:
 				herotile(&tile, &flip, &extend, ls_falling, dir, zinit.heroAnimationStyle);
 				if ( script_hero_sprite <= 0 ) tile+=((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
 			}
+			else if(!noliftspr&&action==lifting&&isLifting())
+			{
+				herotile(&tile, &flip, &extend, ls_lifting, dir, zinit.heroAnimationStyle);
+				if(script_hero_sprite <= 0)
+				{
+					auto frames = vbound(liftingspr[dir][spr_frames],1,255);
+					auto speed = tliftclk/frames;
+					auto curframe = (tliftclk-liftclk)/speed;
+					if(unsigned(curframe) < frames)
+						tile += curframe * (extend == 2 ? 2 : 1);
+				}
+			}
 			else
 			{
-				herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswim:ls_walk, dir, zinit.heroAnimationStyle);
+				if(IsSideSwim())
+					herotile(&tile, &flip, &extend, ls_sideswim, dir, zinit.heroAnimationStyle);
+				else if(!noliftspr&&isLifting())
+					herotile(&tile, &flip, &extend, ls_liftwalk, dir, zinit.heroAnimationStyle);
+				else herotile(&tile, &flip, &extend, ls_walk, dir, zinit.heroAnimationStyle);
 				
 				if(dir>up)
 				{
@@ -2620,9 +2641,25 @@ attack:
 				herotile(&tile, &flip, &extend, ls_falling, dir, zinit.heroAnimationStyle);
 				if ( script_hero_sprite <= 0 ) tile += ((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
 			}
+			else if(!noliftspr&&action==lifting&&isLifting())
+			{
+				herotile(&tile, &flip, &extend, ls_lifting, dir, zinit.heroAnimationStyle);
+				if(script_hero_sprite <= 0)
+				{
+					auto frames = vbound(liftingspr[dir][spr_frames],1,255);
+					auto speed = vbound(tliftclk/frames,1,255);
+					auto curframe = (tliftclk-liftclk)/speed;
+					if(unsigned(curframe) < frames)
+						tile += curframe * (extend == 2 ? 2 : 1);
+				}
+			}
 			else
 			{
-				herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswim:ls_walk, dir, zinit.heroAnimationStyle);
+				if(IsSideSwim())
+					herotile(&tile, &flip, &extend, ls_sideswim, dir, zinit.heroAnimationStyle);
+				else if(!noliftspr&&isLifting())
+					herotile(&tile, &flip, &extend, ls_liftwalk, dir, zinit.heroAnimationStyle);
+				else herotile(&tile, &flip, &extend, ls_walk, dir, zinit.heroAnimationStyle);
 				
 				if(dir>up)
 				{
@@ -2662,7 +2699,8 @@ attack:
 					herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_lavadrown, dir, zinit.heroAnimationStyle);
 					if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 			
-			}else if(action == sidedrowning)
+			}
+			else if(action == sidedrowning)
 			{
 					herotile(&tile, &flip, &extend, ls_sidedrown, down, zinit.heroAnimationStyle);
 					if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
@@ -2704,9 +2742,25 @@ attack:
 				herotile(&tile, &flip, &extend, ls_falling, dir, zinit.heroAnimationStyle);
 				if (script_hero_sprite <= 0 ) tile += ((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
 			}
+			else if(!noliftspr&&action==lifting&&isLifting())
+			{
+				herotile(&tile, &flip, &extend, ls_lifting, dir, zinit.heroAnimationStyle);
+				if(script_hero_sprite <= 0)
+				{
+					auto frames = vbound(liftingspr[dir][spr_frames],1,255);
+					auto speed = tliftclk/frames;
+					auto curframe = (tliftclk-liftclk)/speed;
+					if(unsigned(curframe) < frames)
+						tile += curframe * (extend == 2 ? 2 : 1);
+				}
+			}
 			else
 			{
-				herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswim:ls_walk, dir, zinit.heroAnimationStyle);
+				if(IsSideSwim())
+					herotile(&tile, &flip, &extend, ls_sideswim, dir, zinit.heroAnimationStyle);
+				else if(!noliftspr&&isLifting())
+					herotile(&tile, &flip, &extend, ls_liftwalk, dir, zinit.heroAnimationStyle);
+				else herotile(&tile, &flip, &extend, ls_walk, dir, zinit.heroAnimationStyle);
 				
 				if(action == walking || action == climbcoverbottom || action == climbcovertop)
 				{

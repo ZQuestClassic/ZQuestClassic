@@ -3638,6 +3638,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		set_bit(quest_rules,qr_BROKEN_GETPIXEL_VALUE,1);
 	}
+	if(compatrule_version < 33)
+	{
+		set_bit(quest_rules,qr_NO_LIFT_SPRITE,1);
+	}
 	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
@@ -10199,7 +10203,7 @@ int32_t readherosprites2(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 			memset(usingcanespr, 0, sizeof(usingcanespr));
 			memset(pushingspr, 0, sizeof(pushingspr));
 			memset(liftingspr, 0, sizeof(liftingspr));
-			memset(liftingheavyspr, 0, sizeof(liftingheavyspr));
+			memset(liftingwalkspr, 0, sizeof(liftingwalkspr));
 			memset(stunnedspr, 0, sizeof(stunnedspr));
 			memset(stunned_waterspr, 0, sizeof(stunned_waterspr));
 			memset(fallingspr, 0, sizeof(fallingspr));
@@ -10718,9 +10722,17 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 				if(!p_getc(&extend,f,keepdata))
 					return qe_invalid;
 				
+				byte frames = 0;
+				if(v_herosprites > 15)
+				{
+					if(!p_getc(&frames,f,keepdata))
+						return qe_invalid;
+				}
+				
 				if(keepdata)
 				{
 					setSprite(liftingspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
+					liftingspr[q][spr_frames] = frames;
 				}
 			}
 			
@@ -10737,7 +10749,7 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 				
 				if(keepdata)
 				{
-					setSprite(liftingheavyspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
+					setSprite(liftingwalkspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 			
@@ -10988,7 +11000,7 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 			memset(usingcanespr, 0, sizeof(usingcanespr));
 			memset(pushingspr, 0, sizeof(pushingspr));
 			memset(liftingspr, 0, sizeof(liftingspr));
-			memset(liftingheavyspr, 0, sizeof(liftingheavyspr));
+			memset(liftingwalkspr, 0, sizeof(liftingwalkspr));
 			memset(stunnedspr, 0, sizeof(stunnedspr));
 			memset(stunned_waterspr, 0, sizeof(stunned_waterspr));
 			memset(fallingspr, 0, sizeof(fallingspr));

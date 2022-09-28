@@ -20,9 +20,9 @@ enum
     ls_swim, ls_jump, ls_charge, ls_drown, ls_falling, ls_lavadrown, 
     ls_sideswim, ls_sideswimslash, ls_sideswimstab, ls_sideswimpound, 
     ls_sideswimcharge, ls_sidewaterhold1, ls_sidewaterhold2, 
-    ls_sideswimcast, ls_sidedrown, ls_revslash, ls_max
+    ls_sideswimcast, ls_sidedrown, ls_revslash, ls_lifting, ls_liftwalk, ls_max
 };
-enum {spr_tile, spr_flip, spr_extend};
+enum {spr_tile, spr_flip, spr_extend, spr_frames};
 //enum {cst_tile, cst_extend};
 enum {spr_landhold, spr_waterhold};
 enum {spr_hold1, spr_hold2, spr_holdsword, spr_holdmax};
@@ -58,8 +58,8 @@ extern int32_t diggingspr[4][3];                                //dir,          
 extern int32_t usingrodspr[4][3];                               //dir,                           tile/flip/extend
 extern int32_t usingcanespr[4][3];                              //dir,                           tile/flip/extend
 extern int32_t pushingspr[4][3];                                //dir,                           tile/flip/extend
-extern int32_t liftingspr[4][3];                                //dir,                           tile/flip/extend
-extern int32_t liftingheavyspr[4][3];                           //dir,                           tile/flip/extend
+extern int32_t liftingspr[4][4];                                //dir,                           tile/flip/extend/frames
+extern int32_t liftingwalkspr[4][3];                            //dir,                           tile/flip/extend
 extern int32_t stunnedspr[4][3];                                //dir,                           tile/flip/extend
 extern int32_t stunned_waterspr[4][3];                          //dir,                           tile/flip/extend
 extern int32_t drowningspr[4][3];                               //dir,                           tile/flip/extend

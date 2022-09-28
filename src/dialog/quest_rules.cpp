@@ -796,7 +796,9 @@ static const GUI::ListData compatRulesList
 		"If enabled, the first weapon to hit a Gohma will not be blocked, regardless of where it hits." },
 	{ "Preload FFCs don't work on init screen", qr_FFCPRELOAD_BUGGED_LOAD,
 		"If enabled, FFCs that 'run on screen init' will not run before the opening wipe on the first screen"
-		" loading from the save select screen." }
+		" loading from the save select screen." },
+	{ "No lifting sprite", qr_NO_LIFT_SPRITE,
+		"If enabled, the player will not display a 'lifting' sprite." }
 };
 
 static const GUI::ListData enemiesRulesList

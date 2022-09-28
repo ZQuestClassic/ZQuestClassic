@@ -327,6 +327,7 @@ public:
 	
 	
 	// Methods below here.
+	bool isLifting();
 	void doSwitchHook(byte style);
 	bool isStanding(bool forJump = false);
 	void explode(int32_t type);

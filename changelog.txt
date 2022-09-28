@@ -1,7 +1,8 @@
 // 2.55 Change Log
 // Updated 28th Sept, 2022
 
-
+Add 'Lifting' and 'Lift+Walk' player sprites
+	( EmilyV, 28th Sept, 2022 )
 
 // 27th Sept nightly
 

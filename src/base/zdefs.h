@@ -269,14 +269,14 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_CHEATS           1
 #define V_SAVEGAME        28
 #define V_COMBOALIASES     4
-#define V_HEROSPRITES      15
+#define V_HEROSPRITES      16
 #define V_SUBSCREEN        7
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         21
 #define V_SFX              8
 #define V_FAVORITES        1
 
-#define V_COMPATRULE       32
+#define V_COMPATRULE       33
 #define V_ZINFO            2
 
 //= V_SHOPS is under V_MISC
@@ -1094,6 +1094,7 @@ enum
 	qr_OLD_LOCKBLOCK_COLLISION, qr_DECO_2_YOFFSET, qr_SCREENSTATE_80s_BUG, qr_AUTOCOMBO_ANY_LAYER,
 	//60
 	qr_GOHMA_UNDAMAGED_BUG, qr_FFCPRELOAD_BUGGED_LOAD, qr_SWITCHES_AFFECT_MOVINGBLOCKS, qr_BROKEN_GETPIXEL_VALUE,
+	qr_NO_LIFT_SPRITE,
 	//70
 	
 	//ZScript Parser //room for 20 of these

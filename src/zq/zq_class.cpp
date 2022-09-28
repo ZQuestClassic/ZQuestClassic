@@ -11776,14 +11776,16 @@ int32_t writeherosprites(PACKFILE *f, zquestheader *Header)
 				new_return(15);
 			if(!p_putc((byte)liftingspr[q][spr_extend],f))
 				new_return(15);
+			if(!p_putc((byte)liftingspr[q][spr_frames],f))
+				new_return(15);
 		}
 		for(int32_t q = 0; q < 4; ++q)
 		{
-			if(!p_iputl(liftingheavyspr[q][spr_tile],f))
+			if(!p_iputl(liftingwalkspr[q][spr_tile],f))
 				new_return(15);
-			if(!p_putc((byte)liftingheavyspr[q][spr_flip],f))
+			if(!p_putc((byte)liftingwalkspr[q][spr_flip],f))
 				new_return(15);
-			if(!p_putc((byte)liftingheavyspr[q][spr_extend],f))
+			if(!p_putc((byte)liftingwalkspr[q][spr_extend],f))
 				new_return(15);
 		}
 		for(int32_t q = 0; q < 4; ++q)
