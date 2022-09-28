@@ -84,7 +84,9 @@ int32_t d_cstile_proc(int32_t msg,DIALOG *d,int32_t c)
 		int32_t t = d->d1;
 		int32_t cs = d->d2;
 		
-		if(select_tile(t,f,1,cs,true))
+		if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+			? select_tile_2(t,f,1,cs,true)
+			: select_tile(t,f,1,cs,true))
 		{
 			d->d1 = t;
 			d->d2 = cs;
@@ -4682,7 +4684,9 @@ int32_t d_ecstile_proc(int32_t msg,DIALOG *d,int32_t c)
 		int32_t t = d->d1;
 		int32_t cs = d->d2;
 		
-		if(select_tile(t,f,1,cs,true))
+		if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+			? select_tile_2(t,f,1,cs,true)
+			: select_tile(t,f,1,cs,true))
 		{
 			d->d1 = t;
 			enedata_dlg[247].d2 = cs;
@@ -7396,7 +7400,9 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 					break;
 			}
 			
-			if(select_tile(t,f,2,cs,false,extend, true))
+			if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				? select_tile_2(t,f,2,cs,false,extend,true)
+				: select_tile(t,f,2,cs,false,extend,true))
 			{
 				extend=ex;
 				setherotile(t,f,extend,d->d2,d->d1);

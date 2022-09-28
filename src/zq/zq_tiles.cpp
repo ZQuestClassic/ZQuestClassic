@@ -15017,6 +15017,7 @@ int32_t writetilefile(PACKFILE *f, int32_t index, int32_t count)
 	
 }
 
+static int32_t _selected_tile=-1, _selected_tcset=-1;
 int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs,int32_t exnow, bool always_use_flip)
 {
 	reset_combo_animations();
@@ -16419,7 +16420,28 @@ REDRAW:
 	register_used_tiles();
 	setup_combo_animations();
 	setup_combo_animations2();
-	return done-1;
+	int32_t ret = done-1;
+	if(ret)
+	{
+		_selected_tile = tile;
+		_selected_tcset = cs;
+	}
+	return ret;
+}
+int32_t select_tile_2(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs,int32_t exnow, bool always_use_flip)
+{
+	if(_selected_tile > -1)
+	{
+		tile = _selected_tile;
+		cs = _selected_tcset;
+	}
+	int32_t ret = select_tile(tile,flip,type,cs,edit_cs,exnow,always_use_flip);
+	if(_selected_tile < 0)
+	{
+		_selected_tile = tile;
+		_selected_tcset = cs;
+	}
+	return ret;
 }
 
 int32_t onTiles()

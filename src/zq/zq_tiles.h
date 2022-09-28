@@ -125,6 +125,7 @@ void delete_tiles(int32_t &tile,int32_t &tile2,bool rect_sel);
 void overlay_tile2(int32_t dest,int32_t src,int32_t cs,bool backwards);
 void sel_tile(int32_t &tile, int32_t &tile2, int32_t &first, int32_t type, int32_t s);
 int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs, int32_t exnow=0, bool always_use_flip=false);
+int32_t select_tile_2(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs, int32_t exnow=0, bool always_use_flip=false);
 int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs, int32_t exnow=0, bool always_use_flip=false);
 int32_t onTiles();
 void draw_combo(BITMAP *dest, int32_t x,int32_t y,int32_t c,int32_t cs);
