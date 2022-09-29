@@ -35,6 +35,7 @@
 #include "mem_debug.h"
 #include "dialog/info.h"
 #include "dialog/scaletile.h"
+#include "dialog/alert.h"
 
 extern zcmodule moduledata;
 
@@ -5831,6 +5832,7 @@ static MENU select_tile_rc_menu[] =
 	{ (char *)"H-Flip",  NULL,  NULL, 0, NULL },
 	{ (char *)"V-Flip",  NULL,  NULL, 0, NULL },
 	{ (char *)"Create Combos",  NULL,  NULL, 0, NULL },
+	{ (char *)"Insert",  NULL,  NULL, 0, NULL },
 	{ NULL,              NULL,  NULL, 0, NULL }
 };
 
@@ -5858,7 +5860,7 @@ int32_t tile_page_row(int32_t tile)
 enum {ti_none, ti_encompass, ti_broken};
 
 //striped check and striped selection
-int32_t move_intersection_ss(newcombo &cmb, int32_t selection_first, int32_t selection_last)
+int32_t move_intersection_ss(newcombo &cmb, int32_t selection_first, int32_t selection_last, int32_t offset = 0)
 {
 	int32_t cmb_first = cmb.o_tile;
 	int32_t cmb_last = cmb.o_tile;
@@ -5869,6 +5871,8 @@ int32_t move_intersection_ss(newcombo &cmb, int32_t selection_first, int32_t sel
 	}
 	while(cmb.tile != cmb.o_tile);
 	reset_combo_animation(cmb);
+	cmb_first += offset;
+	cmb_last += offset;
 	
 	if(cmb_first > selection_last || cmb_last < selection_first)
 		return ti_none;
@@ -5877,7 +5881,7 @@ int32_t move_intersection_ss(newcombo &cmb, int32_t selection_first, int32_t sel
 	
 	do
 	{
-		if(cmb.tile >= selection_first && cmb.tile <= selection_last)
+		if(cmb.tile+offset >= selection_first && cmb.tile+offset <= selection_last)
 		{
 			reset_combo_animation(cmb);
 			return ti_broken; //contained, but non-encompassing.
@@ -5945,7 +5949,7 @@ int32_t move_intersection_rs(int32_t check_left, int32_t check_top, int32_t chec
 
 
 //striped check and rectangular selection
-int32_t move_intersection_sr(newcombo &cmb, int32_t selection_left, int32_t selection_top, int32_t selection_width, int32_t selection_height)
+int32_t move_intersection_sr(newcombo &cmb, int32_t selection_left, int32_t selection_top, int32_t selection_width, int32_t selection_height, int32_t offset = 0)
 {
 	if(selection_width < TILES_PER_ROW)
 	{
@@ -5958,6 +5962,8 @@ int32_t move_intersection_sr(newcombo &cmb, int32_t selection_left, int32_t sele
 		}
 		while(cmb.tile != cmb.o_tile);
 		reset_combo_animation(cmb);
+		cmb_first += offset;
+		cmb_last += offset;
 		
 		if((TILEROW(cmb_first)>=selection_top) &&
 				(TILEROW(cmb_last)<=selection_top+selection_height-1) &&
@@ -6034,7 +6040,7 @@ int32_t move_intersection_sr(newcombo &cmb, int32_t selection_left, int32_t sele
 		}
 	}
 	
-	return move_intersection_ss(cmb, selection_top*TILES_PER_ROW+selection_left, (selection_top+selection_height-1)*TILES_PER_ROW+selection_left+selection_width-1);
+	return move_intersection_ss(cmb, selection_top*TILES_PER_ROW+selection_left, (selection_top+selection_height-1)*TILES_PER_ROW+selection_left+selection_width-1, offset);
 }
 int32_t move_intersection_sr(int32_t check_first, int32_t check_last, int32_t selection_left, int32_t selection_top, int32_t selection_width, int32_t selection_height)
 {
@@ -10164,6 +10170,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 	bool *move_combo_list = new bool[MAXCOMBOS];
 	bool *move_items_list = new bool[iMax];
 	bool *move_weapons_list = new bool[wMAX];
+	bool *move_enemy_list = new bool[eMAXGUYS];
 	bool move_hero_sprites_list[num_hspr];
 	bool move_mapstyles_list[6];
 	//bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
@@ -10175,32 +10182,34 @@ bool do_movetile_united(tile_move_data const& tmd)
 	// if delete erases other defined tiles
 	int32_t selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
 	bool done = false;
-	
-	for(int32_t q=0; q<2 && !done; ++q)
+	bool first = true;
+	bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
+	int32_t diff = 0;
+	for(int32_t q=tmd.move?1:0; q>=0 && !done; --q)
 	{
-	
 		switch(q)
 		{
-		case 0:
-			selection_first=tmd.dest_first;
-			selection_last=tmd.dest_last;
-			selection_left=tmd.dest_left;
-			selection_top=tmd.dest_top;
-			selection_width=tmd.dest_width;
-			selection_height=tmd.dest_height;
-			break;
-			
-		case 1:
-			selection_first=tmd.src_first;
-			selection_last=tmd.src_last;
-			selection_left=tmd.src_left;
-			selection_top=tmd.src_top;
-			selection_width=tmd.src_width;
-			selection_height=tmd.src_height;
-			break;
+			case 0:
+				if(tmd.move)
+					diff = tmd.dest_first-tmd.src_first;
+				selection_first=tmd.dest_first;
+				selection_last=tmd.dest_last;
+				selection_left=tmd.dest_left;
+				selection_top=tmd.dest_top;
+				selection_width=tmd.dest_width;
+				selection_height=tmd.dest_height;
+				break;
+				
+			case 1: case 2:
+				selection_first=tmd.src_first;
+				selection_last=tmd.src_last;
+				selection_left=tmd.src_left;
+				selection_top=tmd.src_top;
+				selection_width=tmd.src_width;
+				selection_height=tmd.src_height;
+				break;
 		}
 		
-		if(tmd.move||q==0)
 		{
 			//check combos
 			if(!done)
@@ -10212,7 +10221,8 @@ bool do_movetile_united(tile_move_data const& tmd)
 				
 				for(int32_t u=0; u<MAXCOMBOS; u++)
 				{
-					move_combo_list[u]=false;
+					if(first) move_combo_list[u]=false;
+					else if(move_combo_list[u]) continue;
 					
 					if(tmd.rect)
 					{
@@ -10244,9 +10254,9 @@ bool do_movetile_united(tile_move_data const& tmd)
 							
 							found=true;
 						}
-						else if(i==ti_encompass)
+						else if (i == ti_encompass)
 						{
-							move_combo_list[u]=true;
+							move_combo_list[u] = true;
 						}
 					}
 				}
@@ -10257,7 +10267,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					if(tmd.move)
 					{
-						sprintf(buf3, "will be partially cleared by the tmd.move.");
+						sprintf(buf3, "will be partially cleared by the move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -10299,7 +10309,8 @@ bool do_movetile_united(tile_move_data const& tmd)
 				
 				for(int32_t u=0; u<iMax; u++)
 				{
-					move_items_list[u]=false;
+					if(first) move_items_list[u]=false;
+					else if(move_items_list[u]) continue;
 					
 					if(tmd.rect)
 					{
@@ -10344,7 +10355,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					if(tmd.move)
 					{
-						sprintf(buf3, "will be partially cleared by the tmd.move.");
+						sprintf(buf3, "will be partially cleared by the move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -10388,7 +10399,9 @@ bool do_movetile_united(tile_move_data const& tmd)
 				for(int32_t u=0; u<wMAX; u++)
 				{
 					ignore_frames=false;
-					move_weapons_list[u]=false;
+					if(first) move_weapons_list[u]=false;
+					else if(move_weapons_list[u]) continue;
+					
 					int32_t m=0;
 					
 					switch(biw[u].i)
@@ -10548,7 +10561,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					if(tmd.move)
 					{
-						sprintf(buf3, "will be partially cleared by the tmd.move.");
+						sprintf(buf3, "will be partially cleared by the move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -10590,7 +10603,8 @@ bool do_movetile_united(tile_move_data const& tmd)
 				
 				for(int32_t u=0; u<num_hspr; u++)
 				{
-					move_hero_sprites_list[u]=false;
+					if(first) move_hero_sprites_list[u]=false;
+					else if(move_hero_sprites_list[u]) continue;
 					
 					if(tmd.rect)
 					{
@@ -10635,7 +10649,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					if(tmd.move)
 					{
-						sprintf(buf3, "will be partially cleared by the tmd.move.");
+						sprintf(buf3, "will be partially cleared by the move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -10703,7 +10717,8 @@ bool do_movetile_united(tile_move_data const& tmd)
 				
 				for(int32_t u=0; u<6; u++)
 				{
-					move_mapstyles_list[u]=false;
+					if(first) move_mapstyles_list[u]=false;
+					else if(move_mapstyles_list[u]) continue;
 					
 					if(tmd.rect)
 					{
@@ -10748,7 +10763,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					if(tmd.move)
 					{
-						sprintf(buf3, "items will be partially cleared by the tmd.move.");
+						sprintf(buf3, "items will be partially cleared by the move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -10793,7 +10808,8 @@ bool do_movetile_united(tile_move_data const& tmd)
 				
 				for(int32_t u=0; u<4; u++)
 				{
-					move_game_icons_list[u]=false;
+					if(first) move_game_icons_list[u]=false;
+					else if(move_game_icons_list[u]) continue;
 					
 					if(tmd.rect)
 					{
@@ -10867,7 +10883,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					if(tmd.move)
 					{
-						sprintf(buf3, "will be partially cleared by the tmd.move.");
+						sprintf(buf3, "will be partially cleared by the move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -10918,7 +10934,8 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					for(int32_t u=0; u<4; u++)
 					{
-						move_dmap_maps_list[t][u]=false;
+						if(first) move_dmap_maps_list[t][u]=false;
+						else if(move_dmap_maps_list[t][u]) continue;
 						
 						if(tmd.rect)
 						{
@@ -10964,7 +10981,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					if(tmd.move)
 					{
-						sprintf(buf3, "subscreen maps will be partially cleared by the tmd.move.");
+						sprintf(buf3, "subscreen maps will be partially cleared by the move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -11003,11 +11020,12 @@ bool do_movetile_united(tile_move_data const& tmd)
 				found=false;
 				flood=false;
 				build_bie_list(false);
-				bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
 				int32_t u;
 				
 				for(u=0; u<eMAXGUYS; u++)
 				{
+					if(first) move_enemy_list[u] = false;
+					else if(move_enemy_list[u]) continue;
 					const guydata& enemy=guysbuf[bie[u].i];
 					bool darknut=false;
 					int32_t gleeok=0;
@@ -11081,9 +11099,13 @@ bool do_movetile_united(tile_move_data const& tmd)
 							
 							found=true;
 						}
+						else if(i == ti_encompass)
+							move_enemy_list[u] = true;
 						
 						if(darknut)
 						{
+							bool did_move = move_enemy_list[u];
+							if(first) move_enemy_list[u] = false;
 							if(tmd.rect)
 							{
 								i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile+120), TILEROW(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
@@ -11112,9 +11134,13 @@ bool do_movetile_united(tile_move_data const& tmd)
 								
 								found=true;
 							}
+							else if(i == ti_encompass && did_move)
+								move_enemy_list[u] = true;
 						}
-						else if(enemy.family==eeGANON && i==ti_none)
+						else if(enemy.family==eeGANON && i!=ti_broken)
 						{
+							bool did_move = move_enemy_list[u];
+							if(first) move_enemy_list[u] = false;
 							if(tmd.rect)
 							{
 								i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_left, selection_top, selection_width, selection_height);
@@ -11143,9 +11169,13 @@ bool do_movetile_united(tile_move_data const& tmd)
 								
 								found=true;
 							}
+							else if(i == ti_encompass && did_move)
+								move_enemy_list[u] = true;
 						}
-						else if(gleeok && i==ti_none)
+						else if(gleeok && i!=ti_broken)
 						{
+							bool did_move = move_enemy_list[u];
+							if(first) move_enemy_list[u] = false;
 							for(int32_t j=0; j<4 && i==ti_none; ++j)
 							{
 								if(tmd.rect)
@@ -11204,6 +11234,8 @@ bool do_movetile_united(tile_move_data const& tmd)
 								
 								found=true;
 							}
+							else if(i == ti_encompass && did_move)
+								move_enemy_list[u] = true;
 						}
 					}
 					else
@@ -11254,9 +11286,13 @@ bool do_movetile_united(tile_move_data const& tmd)
 							
 							found=true;
 						}
+						else if(i == ti_encompass)
+							move_enemy_list[u] = true;
 						
 						if(guysbuf[bie[u].i].s_tile!=0)
 						{
+							bool did_move = move_enemy_list[u];
+							if(first) move_enemy_list[u] = false;
 							if(guysbuf[bie[u].i].s_height==0)
 							{
 								if(tmd.rect)
@@ -11299,6 +11335,8 @@ bool do_movetile_united(tile_move_data const& tmd)
 								
 								found=true;
 							}
+							else if(i == ti_encompass && did_move)
+								move_enemy_list[u] = true;
 						}
 					}
 				}
@@ -11309,7 +11347,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					if(tmd.move)
 					{
-						sprintf(buf3, "will be partially cleared by the tmd.move.");
+						sprintf(buf3, "will be partially cleared by the move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -11340,6 +11378,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 				}
 			}
 		}
+		first = false;
 	}
 	
 	//
@@ -11516,6 +11555,22 @@ bool do_movetile_united(tile_move_data const& tmd)
 					}
 				}
 			}
+		
+			for(int32_t u=0; u<eMAXGUYS; u++)
+			{
+				if(move_enemy_list[u])
+				{
+					guydata& enemy=guysbuf[bie[u].i];
+					if(newtiles)
+						enemy.e_tile += diff;
+					else
+					{
+						enemy.tile += diff;
+						if(enemy.s_tile)
+							enemy.s_tile += diff;
+					}
+				}
+			}
 		}
 	}
 	
@@ -11527,6 +11582,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 	delete[] move_combo_list;
 	delete[] move_items_list;
 	delete[] move_weapons_list;
+	delete[] move_enemy_list;
 	
 	if(done)
 		return false;
@@ -14308,6 +14364,26 @@ void move_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt)
 	tile2=tile;
 }
 
+void do_delete_tiles(int32_t firsttile, int32_t lasttile, bool rect_sel)
+{
+	if(firsttile > lasttile)
+		zc_swap(firsttile,lasttile);
+	int32_t coldiff = 0;
+	if(rect_sel && TILECOL(firsttile)>TILECOL(lasttile))
+	{
+		coldiff=TILECOL(firsttile)-TILECOL(lasttile);
+		firsttile-=coldiff;
+		lasttile+=coldiff;
+	}
+	for(int32_t t=firsttile; t<=lasttile; ++t)
+		if(!rect_sel ||
+				((TILECOL(t)>=TILECOL(firsttile)) &&
+				 (TILECOL(t)<=TILECOL(lasttile))))
+			reset_tile(newtilebuf, t, tf4Bit);
+	saved=false;
+	register_blank_tiles();
+}
+
 void delete_tiles(int32_t &tile,int32_t &tile2,bool rect_sel)
 {
 	char buf[40];
@@ -14325,22 +14401,11 @@ void delete_tiles(int32_t &tile,int32_t &tile2,bool rect_sel)
 	{
 		int32_t firsttile=zc_min(tile,tile2), lasttile=zc_max(tile,tile2), coldiff=0;
 		
-		if(rect_sel && TILECOL(firsttile)>TILECOL(lasttile))
-		{
-			coldiff=TILECOL(firsttile)-TILECOL(lasttile);
-			firsttile-=coldiff;
-			lasttile+=coldiff;
-		}
-		
 		go_tiles();
 		
 		//if copying to an earlier tile, copy from left to right
 		//otherwise, copy from right to left
-		for(int32_t t=firsttile; t<=lasttile; t++)
-			if(!rect_sel ||
-					((TILECOL(t)>=TILECOL(firsttile)) &&
-					 (TILECOL(t)<=TILECOL(lasttile))))
-				reset_tile(newtilebuf, t, tf4Bit);
+		do_delete_tiles(firsttile, lasttile, rect_sel);
 				
 		tile=tile2=zc_min(tile,tile2);
 		saved=false;
@@ -15888,15 +15953,82 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					hide_8bit_marker();
 					break;
 				
-				case KEY_M:
-					//al_trace("mass combo key pressed, type == %d\n",type);
+				case KEY_I: //insert tiles
 					if(type==0)
 					{
-						//al_trace("mass combo key pressed, copy == %d\n",copy);
+						bool warn = (rect_sel
+							&& ((tile/20)!=(tile2/20))
+							&& !(tile%20==0&&tile2%20==19));
+						int32_t z=zc_min(tile,tile2);
+						int32_t count = abs(tile-tile2) + 1;
+						tile=z;
+						tile2=NEWMAXTILES;
+						copy = tile + count;
+						copycnt = NEWMAXTILES-copy;
+						
+						if(key[KEY_LSHIFT]||key[KEY_RSHIFT]) //Remove
+						{
+							char buf[64];
+							
+							if(count>1)
+								sprintf(buf,"Remove tiles %d - %d?",tile, copy-1);
+							else
+								sprintf(buf,"Remove tile %d?",tile);
+								
+							AlertDialog("Remove Tiles", std::string(buf)
+								+"\nThis will offset the tiles that follow!"
+								+(warn?"\nRemoving tiles ignores rectangular selections!":""),
+								[&](bool ret,bool)
+								{
+									if(ret)
+									{
+										go_tiles();
+										if(copy_tiles(tile,tile2,copy,copycnt,false,true))
+										{
+											redraw=true;
+											saved=false;
+										}
+									}
+								}).show();
+						}
+						else
+						{
+							char buf[64];
+							
+							if(count>1)
+								sprintf(buf,"Insert %d blank tiles?",count);
+							else
+								sprintf(buf,"Insert a blank tile?");
+								
+							AlertDialog("Insert Tiles", std::string(buf)
+								+"\nThis will offset the tiles that follow!"
+								+(warn?"\nInserting tiles ignores rectangular selections!":""),
+								[&](bool ret,bool)
+								{
+									if(ret)
+									{
+										go_tiles();
+										if(copy_tiles(copy,tile2,tile,copycnt,false,true))
+										{
+											redraw=true;
+											saved=false;
+										}
+									}
+								}).show();
+						}
+						
+						copy=-1;
+						tile2=tile=z;
+					}
+					break;
+				case KEY_M:
+					if(type==0)
+					{
 						if((copy!=-1)&&(copy!=zc_min(tile,tile2)))
 						{
 							go_tiles();
-							saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,true);
+							if(copy_tiles(tile,tile2,copy,copycnt,rect_sel,true))
+								saved=false;
 						}
 						else if(copy==-1)
 						{
@@ -15978,13 +16110,12 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 							}
 						}
 					}
+					register_blank_tiles();
+					register_used_tiles();
+					redraw=true;
+					saved=false;
+					break;
 				}
-				
-				register_blank_tiles();
-				register_used_tiles();
-				redraw=true;
-				saved=false;
-				break;
 				
 				case KEY_B:
 				{
@@ -16274,6 +16405,7 @@ REDRAW:
 			select_tile_view_menu[1].flags = HIDE_UNUSED ? D_SELECTED : 0;
 			select_tile_view_menu[2].flags = HIDE_BLANK ? D_SELECTED : 0;
 			select_tile_view_menu[3].flags = HIDE_8BIT_MARKER ? D_SELECTED : 0;
+			select_tile_view_menu[7].flags = (type!=0) ? D_DISABLED : 0;
 			int32_t m = popup_menu(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
 			redraw=true;
 			
@@ -16397,6 +16529,75 @@ REDRAW:
 					}
 				}
 				break;
+				
+				case 17:
+					if(type==0)
+					{
+						bool warn = (rect_sel
+							&& ((tile/20)!=(tile2/20))
+							&& !(tile%20==0&&tile2%20==19));
+						int32_t z=zc_min(tile,tile2);
+						int32_t count = abs(tile-tile2) + 1;
+						tile=z;
+						tile2=NEWMAXTILES;
+						copy = tile + count;
+						copycnt = NEWMAXTILES-copy;
+						
+						if(key[KEY_LSHIFT]||key[KEY_RSHIFT]) //Remove
+						{
+							char buf[64];
+							
+							if(count>1)
+								sprintf(buf,"Remove tiles %d - %d?",tile, copy-1);
+							else
+								sprintf(buf,"Remove tile %d?",tile);
+								
+							AlertDialog("Remove Tiles", std::string(buf)
+								+"\nThis will offset the tiles that follow!"
+								+(warn?"\nRemoving tiles ignores rectangular selections!":""),
+								[&](bool ret,bool)
+								{
+									if(ret)
+									{
+										go_tiles();
+										if(copy_tiles(tile,tile2,copy,copycnt,false,true))
+										{
+											redraw=true;
+											saved=false;
+										}
+									}
+								}).show();
+						}
+						else
+						{
+							char buf[64];
+							
+							if(count>1)
+								sprintf(buf,"Insert %d blank tiles?",count);
+							else
+								sprintf(buf,"Insert a blank tile?");
+								
+							AlertDialog("Insert Tiles", std::string(buf)
+								+"\nThis will offset the tiles that follow!"
+								+(warn?"\nInserting tiles ignores rectangular selections!":""),
+								[&](bool ret,bool)
+								{
+									if(ret)
+									{
+										go_tiles();
+										if(copy_tiles(copy,tile2,tile,copycnt,false,true))
+										{
+											redraw=true;
+											saved=false;
+										}
+									}
+								}).show();
+						}
+						
+						copy=-1;
+						tile2=tile=z;
+					}
+					break;
 					
 				default:
 					redraw=false;
@@ -17735,10 +17936,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				
 				copy=-1;
 				tile2=tile=z;
-				
-				//thse next 2 lines are handled by the move_combos function now
-				//setup_combo_animations();
-				//setup_combo_animations2();
 			}
 			break;
 			
@@ -20984,6 +21181,7 @@ REDRAW_DMAP_SELTILE:
 			select_tile_view_menu[1].flags = HIDE_UNUSED ? D_SELECTED : 0;
 			select_tile_view_menu[2].flags = HIDE_BLANK ? D_SELECTED : 0;
 			select_tile_view_menu[3].flags = HIDE_8BIT_MARKER ? D_SELECTED : 0;
+			select_tile_view_menu[7].flags = (type!=0) ? D_DISABLED : 0;
 			int32_t m = popup_menu(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
 			redraw=true;
 			
@@ -21081,11 +21279,11 @@ REDRAW_DMAP_SELTILE:
 		  }
 			
 		
-		case 16: //mass combo
-		{
-		if(type==0)
+			case 16: //mass combo
+			{
+				if(type==0)
 				{
-			 //al_trace("mass combo key pressed, copy == %d\n",copy);
+					//al_trace("mass combo key pressed, copy == %d\n",copy);
 					if((copy!=-1)&&(copy!=zc_min(tile,tile2)))
 					{
 						go_tiles();
@@ -21096,20 +21294,87 @@ REDRAW_DMAP_SELTILE:
 						// I don't know what this was supposed to be doing before.
 						// It didn't work in anything like a sensible way.
 						if(rect_sel)
-			{
+						{
 							make_combos_rect(top, left, rows, columns, cs);
-			}
+						}
 						else
-			{
+						{
 							make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
-			}
+						}
 					}
-					
 					redraw=true;
 				}
-			
-		}
+			}
 			break;
+				
+			case 17:
+				if(type==0)
+				{
+					bool warn = (rect_sel
+						&& ((tile/20)!=(tile2/20))
+						&& !(tile%20==0&&tile2%20==19));
+					int32_t z=zc_min(tile,tile2);
+					int32_t count = abs(tile-tile2) + 1;
+					tile=z;
+					tile2=NEWMAXTILES;
+					copy = tile + count;
+					copycnt = NEWMAXTILES-copy;
+					
+					if(key[KEY_LSHIFT]||key[KEY_RSHIFT]) //Remove
+					{
+						char buf[64];
+						
+						if(count>1)
+							sprintf(buf,"Remove tiles %d - %d?",tile, copy-1);
+						else
+							sprintf(buf,"Remove tile %d?",tile);
+							
+						AlertDialog("Remove Tiles", std::string(buf)
+							+"\nThis will offset the tiles that follow!"
+							+(warn?"\nRemoving tiles ignores rectangular selections!":""),
+							[&](bool ret,bool)
+							{
+								if(ret)
+								{
+									go_tiles();
+									if(copy_tiles(tile,tile2,copy,copycnt,false,true))
+									{
+										redraw=true;
+										saved=false;
+									}
+								}
+							}).show();
+					}
+					else
+					{
+						char buf[64];
+						
+						if(count>1)
+							sprintf(buf,"Insert %d blank tiles?",count);
+						else
+							sprintf(buf,"Insert a blank tile?");
+							
+						AlertDialog("Insert Tiles", std::string(buf)
+							+"\nThis will offset the tiles that follow!"
+							+(warn?"\nInserting tiles ignores rectangular selections!":""),
+							[&](bool ret,bool)
+							{
+								if(ret)
+								{
+									go_tiles();
+									if(copy_tiles(copy,tile2,tile,copycnt,false,true))
+									{
+										redraw=true;
+										saved=false;
+									}
+								}
+							}).show();
+					}
+					
+					copy=-1;
+					tile2=tile=z;
+				}
+				break;
 				
 			default:
 				redraw=false;
