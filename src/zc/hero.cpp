@@ -1468,7 +1468,7 @@ void HeroClass::init()
     scriptcoldet=1;
     blowcnt=whirlwind=specialcave=0;
     hopclk=diveclk=fallclk=0;
-	fallCombo = -1;
+	fallCombo = 0;
 	pit_pulldir = -1;
     hopdir=-1;
     conveyor_flags=0;
@@ -21710,7 +21710,7 @@ RaftingStuff:
 		didpit=true;
 		pitx=x;
 		pity=y;
-	warp_sound = warpsfx2;
+		warp_sound = warpsfx2;
 	}
 	
 	if(DMaps[currdmap].flags&dmf3STAIR && (currscr==129 || !(DMaps[currdmap].flags&dmfGUYCAVES))
@@ -21896,6 +21896,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	attackclk = charging = spins = tapping = 0;
 	attack = none;
 	if ( warp_sound > 0 ) warpsfx = warp_sound;
+	warp_sound = 0;
 	word wdmap=0;
 	byte wscr=0,wtype=0,t=0;
 	bool overlay=false;
