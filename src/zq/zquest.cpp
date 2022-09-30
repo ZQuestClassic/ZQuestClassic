@@ -25050,6 +25050,7 @@ static int32_t zscripparsertrules[] =
 	-1
 };
 
+void write_includepaths();
 int32_t onZScriptCompilerSettings()
 {
 	if(is_large)
@@ -25103,13 +25104,12 @@ int32_t onZScriptCompilerSettings()
 		set_config_file("zscript.cfg");
 		zc_set_config("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
 		zc_set_config("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
-		set_config_file("zquest.cfg");
 		memset(FFCore.scriptRunString, 0, sizeof(FFCore.scriptRunString));
 		strcpy(FFCore.scriptRunString,temprunstring);
-		al_trace("Run string set to: %s\n",FFCore.scriptRunString);
+		set_config_file("zquest.cfg");
 		FFCore.updateIncludePaths();
 		ZQincludePaths = FFCore.includePaths;
-		
+		write_includepaths();
 		
 	}
 	
@@ -33155,6 +33155,16 @@ bool screenIsScrolling()
     return false;
 }
 
+void write_includepaths()
+{
+	FILE* f = fopen("includepaths.txt", "w");
+	if(f)
+	{
+		fwrite(FFCore.includePathString,1,strlen(FFCore.includePathString),f);
+		fclose(f);
+	}
+}
+
 int32_t save_config_file()
 {
     //packfile_password("");
@@ -33177,12 +33187,7 @@ int32_t save_config_file()
     
 	set_config_string("ZCMODULE","current_module",moduledata.module_name);
 	//
-	FILE* f = fopen("includepaths.txt", "w");
-	if(f)
-	{
-		fwrite(FFCore.includePathString,1,strlen(FFCore.includePathString),f);
-		fclose(f);
-	}
+	write_includepaths();
 	//
 	set_config_string("Compiler","run_string",FFCore.scriptRunString);
 	
@@ -34001,8 +34006,9 @@ void FFScript::updateIncludePaths()
 void FFScript::initRunString()
 {
 	memset(scriptRunString,0,sizeof(scriptRunString));
+	set_config_file("zscript.cfg");
 	strcpy(scriptRunString,zc_get_config("Compiler","run_string","run"));
-	al_trace("Run is set to: %s \n",scriptRunString);
+	zc_set_config_standard();
 }
 
 void FFScript::initIncludePaths()

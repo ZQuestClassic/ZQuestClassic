@@ -34014,8 +34014,9 @@ void FFScript::updateIncludePaths()
 void FFScript::initRunString()
 {
 	memset(scriptRunString,0,sizeof(scriptRunString));
-	strcpy(scriptRunString,get_config_string("Compiler","run_string","run"));
-	al_trace("Run is set to: %s \n",scriptRunString);
+	set_config_file("zscript.cfg");
+	strcpy(scriptRunString,zc_get_config("Compiler","run_string","run"));
+	zc_set_config_standard();
 }
 
 void FFScript::initIncludePaths()
