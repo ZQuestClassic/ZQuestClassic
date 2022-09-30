@@ -285,9 +285,11 @@ void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& r
 	running=true;
 	int32_t ret=0;
 	acquire_screen();
+	scare_mouse();
 	broadcast_dialog_message(dialog, MSG_START, 0);
 	popup_zqdialog_draw();
 	broadcast_dialog_message(dialog, MSG_DRAW, 0);
+	unscare_mouse();
 	release_screen();
 	while(!done && ret>=0)
 		ret=do_zqdialog(dialog, focus_obj);
