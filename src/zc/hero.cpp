@@ -2536,7 +2536,9 @@ attack:
 				{
 					auto frames = vbound(liftingspr[dir][spr_frames],1,255);
 					auto speed = tliftclk/frames;
-					auto curframe = (tliftclk-liftclk)/speed;
+					if (speed < 1) speed = 1;
+					auto curframe = (tliftclk - liftclk) / speed;
+					if (!tliftclk) curframe = frames - 1;
 					if(unsigned(curframe) < frames)
 						tile += curframe * (extend == 2 ? 2 : 1);
 				}
@@ -2647,8 +2649,10 @@ attack:
 				if(script_hero_sprite <= 0)
 				{
 					auto frames = vbound(liftingspr[dir][spr_frames],1,255);
-					auto speed = vbound(tliftclk/frames,1,255);
-					auto curframe = (tliftclk-liftclk)/speed;
+					auto speed = tliftclk/frames;
+					if (speed < 1) speed = 1;
+					auto curframe = (tliftclk - liftclk) / speed;
+					if (!tliftclk) curframe = frames - 1;
 					if(unsigned(curframe) < frames)
 						tile += curframe * (extend == 2 ? 2 : 1);
 				}
@@ -2749,7 +2753,9 @@ attack:
 				{
 					auto frames = vbound(liftingspr[dir][spr_frames],1,255);
 					auto speed = tliftclk/frames;
+					if (speed < 1) speed = 1;
 					auto curframe = (tliftclk-liftclk)/speed;
+					if (!tliftclk) curframe = frames - 1;
 					if(unsigned(curframe) < frames)
 						tile += curframe * (extend == 2 ? 2 : 1);
 				}
