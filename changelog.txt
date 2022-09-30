@@ -1,5 +1,19 @@
 // 2.55 Change Log
-// Updated 28th Sept, 2022
+// Updated 30th Sept, 2022
+
+// 30th Sept nightly
+
+Fix scripts not finding the correct folder to create files in
+Fix ZScript Compile related crashes
+Fix GUI/Scrollbar related crashes
+	( EmilyV, 30th Sept, 2022 )
+
+// 29th Sept nightly
+
+Fix default quest
+Add 'Insert' and 'Remove' ('I' + 'Shift+I') to tile editor
+Fix sfx on 'Direct Warp' combos sticking
+	( EmilyV, 29th Sept, 2022 )
 
 // 28th Sept nightly
 
