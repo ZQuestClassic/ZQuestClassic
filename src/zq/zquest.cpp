@@ -25802,30 +25802,10 @@ int32_t onCompileScript()
 				
 				if(WarnOnInitChanged)
 				{
-					uint32_t newInitSize = 0;
 					script_data const& new_init_script = *globalscripts[0];
-					newInitSize = new_init_script.size();
-					bool initChanged = newInitSize != lastInitSize;
-					if(!initChanged) //Same size, but is the content the same?
+					if(new_init_script != old_init_script) //Global init changed
 					{
-						if(!old_init_script.valid() || !new_init_script.valid())
-						{
-							if(old_init_script.valid() || new_init_script.valid())
-								initChanged = true;
-						}
-						else for(uint32_t q = 0; q < newInitSize; ++q)
-						{
-							if(old_init_script.zasm[q].command != new_init_script.zasm[q].command
-							   || old_init_script.zasm[q].arg1 != new_init_script.zasm[q].arg1
-							   || old_init_script.zasm[q].arg2 != new_init_script.zasm[q].arg2)
-							{
-								initChanged = true;
-								break;
-							}
-						}
-					}
-					if(initChanged) //Global init changed
-					{
+						auto newInitSize = new_init_script.size();
 						AlertFuncDialog("Init Script Changed",
 							"Either global variables, or your global script Init, have changed. ("+to_string(lastInitSize)+"->"+to_string(newInitSize)+")\n\n"
 							"This can break existing save files of your quest. To prevent users "

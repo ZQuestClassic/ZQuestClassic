@@ -2928,6 +2928,34 @@ struct zasm_meta
 		memcpy(&author, &(other.author),33);
 		return *this;
 	}
+	bool operator==(zasm_meta const& other) const
+	{
+		if(zasm_v != other.zasm_v) return false;
+		if(meta_v != other.meta_v) return false;
+		if(ffscript_v != other.ffscript_v) return false;
+		if(script_type != other.script_type) return false;
+		if(flags != other.flags) return false;
+		if(compiler_v1 != other.compiler_v1) return false;
+		if(compiler_v2 != other.compiler_v2) return false;
+		if(compiler_v3 != other.compiler_v3) return false;
+		if(compiler_v4 != other.compiler_v4) return false;
+		for(auto q = 0; q < 8; ++q)
+		{
+			if(strcmp(run_idens[q], other.run_idens[q]))
+				return false;
+			if(run_types[q] != other.run_types[q])
+				return false;
+		}
+		if(strcmp(script_name, other.script_name))
+			return false;
+		if(strcmp(author, other.author))
+			return false;
+		return true;
+	}
+	bool operator!=(zasm_meta const& other) const
+	{
+		return !(*this == other);
+	}
 };
 
 struct ffscript
@@ -2985,6 +3013,56 @@ struct ffscript
 			strptr = nullptr;
 		}
 	}
+	void copy(ffscript& other)
+	{
+		other.clear();
+		other.command = command;
+		other.arg1 = arg1;
+		other.arg2 = arg2;
+		if(vecptr)
+		{
+			other.vecptr = new std::vector<int32_t>();
+			for(int32_t val : *vecptr)
+				other.vecptr->push_back(val);
+		}
+		if(strptr)
+		{
+			other.strptr = new std::string();
+			for(char c : *strptr)
+				other.strptr->push_back(c);
+		}
+	}
+	
+	bool operator==(ffscript const& other) const
+	{
+		//Compare primitive members
+		if(command != other.command) return false;
+		if(arg1 != other.arg1) return false;
+		if(arg2 != other.arg2) return false;
+		//Check for pointer existence differences
+		if((vecptr==nullptr)!=(other.vecptr==nullptr)) return false;
+		if((strptr==nullptr)!=(other.strptr==nullptr)) return false;
+		//If both have a pointer, compare pointer size/contents
+		if(vecptr)
+		{
+			if(vecptr->size() != other.vecptr->size())
+				return false;
+			if((*vecptr) != (*other.vecptr))
+				return false;
+		}
+		if(strptr)
+		{
+			if(strptr->size() != other.strptr->size())
+				return false;
+			if(strptr->compare(*other.strptr))
+				return false;
+		}
+		return true;
+	}
+	bool operator!=(ffscript const& other) const
+	{
+		return !(*this == other);
+	}
 };
 
 struct script_data
@@ -3031,7 +3109,10 @@ struct script_data
 		if(other.size())
 		{
             zasm = new ffscript[other.size()];
-			memcpy(zasm, other.zasm, sizeof(ffscript)*other.size());
+			for(size_t q = 0; q < other.size(); ++q)
+			{
+				other.zasm[q].copy(zasm[q]);
+			}
 		}
 		else
 		{
@@ -3072,6 +3153,8 @@ struct script_data
 	void transfer(script_data& other)
 	{
 		other.meta = meta;
+		if(other.zasm)
+			delete[] other.zasm;
 		other.zasm = zasm;
 		zasm = NULL;
 		null_script();
@@ -3081,6 +3164,30 @@ struct script_data
 	{
 		set(other);
 		return *this;
+	}
+	
+	bool equal_zasm(script_data const& other) const
+	{
+		if(valid() != other.valid()) return false;
+		auto sz = size();
+		auto othersz = other.size();
+		if(sz != othersz) return false;
+		for(auto q = 0; q < sz; ++q)
+		{
+			if(zasm[q] != other.zasm[q]) return false;
+		}
+		return true;
+	}
+	
+	bool operator==(script_data const& other) const
+	{
+		if(meta != other.meta) return false;
+		return equal_zasm(other);
+	}
+	
+	bool operator!=(script_data const& other) const
+	{
+		return !(*this == other);
 	}
 	
 };
