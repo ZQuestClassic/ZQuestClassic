@@ -10604,7 +10604,7 @@ int32_t writestrings_text(PACKFILE *f)
     new_return(0);
 }
 
-
+bool isblanktile(tiledata *buf, int32_t i);
 int32_t writetiles(PACKFILE *f, word version, word build, int32_t start_tile, int32_t max_tiles)
 {
     //these are here to bypass compiler warnings about unused arguments
@@ -10662,28 +10662,24 @@ int32_t writetiles(PACKFILE *f, word version, word build, int32_t start_tile, in
         }
         
         for(int32_t i=0; i<tiles_used; ++i)
-        //for(int32_t i=0; i<NEWMAXTILES; ++i)
         {
-            if(!p_putc(newtilebuf[start_tile+i].format,f))
-            {
-                new_return(6);
-            }
-            
-            if(!pfwrite(newtilebuf[start_tile+i].data,tilesize(newtilebuf[start_tile+i].format),f))
-            {
-                new_return(7);
-            }
-	    /*
-            if(!p_putc(newtilebuf[start_tile+i].format,f))
-            {
-                new_return(6);
-            }
-            
-            if(!pfwrite(newtilebuf[start_tile+i].data,tilesize(newtilebuf[start_tile+i].format),f))
-            {
-                new_return(7);
-            }
-	    */
+			if(isblanktile(newtilebuf, start_tile+i))
+			{
+				if(!p_putc(0,f))
+					new_return(8);
+			}
+			else
+			{
+				if(!p_putc(newtilebuf[start_tile+i].format,f))
+				{
+					new_return(6);
+				}
+				
+				if(!pfwrite(newtilebuf[start_tile+i].data,tilesize(newtilebuf[start_tile+i].format),f))
+				{
+					new_return(7);
+				}
+			}
         }
         
         if(writecycle==0)

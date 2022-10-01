@@ -2785,27 +2785,27 @@ bool is_valid_format(byte format)
 
 int32_t tilesize(byte format)
 {
-    switch(format)
-    {
-    case tf32Bit:
-        return 1024;
-        
-    case tf24Bit:
-        return 768;
-        
-    case tf16Bit:
-    case tf8Bit:
-    case tf4Bit:
-        return (64<<format);
-    }
-    
-    al_trace("Invalid tile format encountered.\n");
-    
-    // BUG: This is triggered by the 'grab' option, and certainly others as well.
-    // if at any point a selected tile is 'blank' (newtilebuf[0] for example), then we have might a problem.
-    // These should probably be dealt with where they really occur, however simply returning a
-    // sane amount right now should fix any crashes associated with this. -Gleeok
-    return 256;
+	switch(format)
+	{
+		case tf32Bit:
+			return 1024;
+			
+		case tf24Bit:
+			return 768;
+			
+		case tf16Bit:
+		case tf8Bit:
+		case tf4Bit:
+			return (64<<format);
+	}
+	
+	al_trace("Invalid tile format encountered.\n");
+	
+	// BUG: This is triggered by the 'grab' option, and certainly others as well.
+	// if at any point a selected tile is 'blank' (newtilebuf[0] for example), then we have might a problem.
+	// These should probably be dealt with where they really occur, however simply returning a
+	// sane amount right now should fix any crashes associated with this. -Gleeok
+	return 256;
 }
 
 int32_t comboa_lmasktotal(byte layermask)

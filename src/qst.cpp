@@ -19084,8 +19084,8 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
                 return qe_invalid;
             }
             
-	    FFCore.quest_format[vTiles] = section_version;
-	    
+			FFCore.quest_format[vTiles] = section_version;
+			
             if(!p_igetw(&section_cversion,f,true))
             {
                 delete[] temp_tile;
@@ -19100,11 +19100,11 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
             }
         }
         
-	//if ( build < 41 ) 
-	//{
-	//	tiles_used = ZC250MAXTILES;
-	//}
-	
+		//if ( build < 41 ) 
+		//{
+		//	tiles_used = ZC250MAXTILES;
+		//}
+		
         if(version < 0x174)
         {
             tiles_used=TILES_PER_PAGE*4;
@@ -19117,41 +19117,40 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
         {
             //finally...  section data
             if ( version >= 0x254 && build >= 41 ) //read and write the size of tiles_used properly
-	    { 
-		    if(!p_igetl(&tiles_used,f,true))
-		    {
-			delete[] temp_tile;
-			return qe_invalid;
-		    }
-	    }
-	    else
-	    {
-		 if(!p_igetw(&tiles_used,f,true))
-		    {
-			delete[] temp_tile;
-			return qe_invalid;
-		    }
-	    }
-	    
+			{ 
+				if(!p_igetl(&tiles_used,f,true))
+				{
+					delete[] temp_tile;
+					return qe_invalid;
+				}
+			}
+			else
+			{
+				if(!p_igetw(&tiles_used,f,true))
+				{
+					delete[] temp_tile;
+					return qe_invalid;
+				}
+			}
         }
         
         tiles_used=zc_min(tiles_used, max_tiles);
         
-	//if ( version < 0x254 || ( version >= 0x254 && build < 41 )) //don't do this, it crashes ZQuest. -Z
-	//if ( version < 0x254 && build < 41 )
-	if ( version < 0x254 || (version == 0x254 && build < 41) )
-	//if ( build < 41 )
-	{
-		tiles_used=zc_min(tiles_used, ZC250MAXTILES-start_tile);
-	}
-	else //2.55
-	{
-		tiles_used = zc_min(tiles_used,NEWMAXTILES-start_tile); 
-	}
-	
-	//if ( section_version > 1 ) tiles_used = NEWMAXTILES;
-        
-	//al_trace("tiles_used = %d\n", tiles_used);
+		//if ( version < 0x254 || ( version >= 0x254 && build < 41 )) //don't do this, it crashes ZQuest. -Z
+		//if ( version < 0x254 && build < 41 )
+		if ( version < 0x254 || (version == 0x254 && build < 41) )
+		//if ( build < 41 )
+		{
+			tiles_used=zc_min(tiles_used, ZC250MAXTILES-start_tile);
+		}
+		else //2.55
+		{
+			tiles_used = zc_min(tiles_used,NEWMAXTILES-start_tile); 
+		}
+		
+		//if ( section_version > 1 ) tiles_used = NEWMAXTILES;
+			
+		//al_trace("tiles_used = %d\n", tiles_used);
 	
         for(int32_t i=0; i<tiles_used; ++i)
         {
@@ -19166,7 +19165,15 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
                     return qe_invalid;
                 }
             }
-            
+            if(section_version > 2 && !format)
+			{
+				if(keepdata)
+				{
+					reset_tile(buf,start_tile+i,tf4Bit);
+				}
+				continue;
+			}
+			
             if(!pfread(temp_tile,tilesize(format),f,true))
             {
                 delete[] temp_tile;
@@ -19217,25 +19224,22 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
     
     if(keepdata==true)
     {
-	    //al_trace("calling reset_tile()");
-	if ( version < 0x254 || ( version >= 0x254 && build < 41 ))
-	{
-		for(int32_t i=start_tile+tiles_used; i<max_tiles; ++i)
+		if ( version < 0x254 || ( version >= 0x254 && build < 41 ))
 		{
-			//al_trace("Resetting tiles for ZC250MAXTILES, iteration: %d\n", i);
-		    reset_tile(buf,i,tf4Bit);
+			for(int32_t i=start_tile+tiles_used; i<max_tiles; ++i)
+			{
+				//al_trace("Resetting tiles for ZC250MAXTILES, iteration: %d\n", i);
+				reset_tile(buf,i,tf4Bit);
+			}
 		}
-	}
-
-	else
-	{
-		for(int32_t i=start_tile+tiles_used; i<max_tiles; ++i)
+		else
 		{
-			//al_trace("Resetting tiles for build 41+\n");
-		    reset_tile(buf,i,tf4Bit);
+			for(int32_t i=start_tile+tiles_used; i<max_tiles; ++i)
+			{
+				//al_trace("Resetting tiles for build 41+\n");
+				reset_tile(buf,i,tf4Bit);
+			}
 		}
-	}
-	
         
         if((version < 0x192)|| ((version == 0x192)&&(build<186)))
         {
@@ -19281,9 +19285,7 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
             }
         }
         
-	
-	
-	al_trace("Registering blank tiles\n");
+		al_trace("Registering blank tiles\n");
         register_blank_tiles(max_tiles);
     }
     
