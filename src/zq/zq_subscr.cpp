@@ -1006,7 +1006,7 @@ static ListData misccolor_list(misccolorlist, &font);
 static ListData spectile_list(spectilelist, &font);
 static ListData ssfont_list(ssfontlist, &font);
 static ListData colortype_list(colortypelist, &font);
-static ListData item_list(itemlist, &font);
+static ListData item_list(itemlist_num, &font);
 
 void replacedp(DIALOG &d, const char *newdp, size_t size)
 {

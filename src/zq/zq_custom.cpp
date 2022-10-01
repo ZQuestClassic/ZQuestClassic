@@ -258,7 +258,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 /******  onCustomItems  ******/
 /*****************************/
 
-static ListData weapon_list(weaponlist, &pfont);
+static ListData weapon_list(weaponlist_num, &pfont);
 
 const char *defenselist(int32_t index, int32_t *list_size)
 {

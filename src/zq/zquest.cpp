@@ -12871,14 +12871,13 @@ int32_t bii_cnt=-1;
 
 void build_bii_list(bool usenone)
 {
-    int32_t start=bii_cnt=0;
+	int32_t start=bii_cnt=0;
     
     if(usenone)
     {
         bii[0].s = (char *)"(None)";
         bii[0].i = -2;
-        bii_cnt=1;
-        start=1;
+        bii_cnt=start=1;
     }
     
     for(int32_t i=0; i<iMax; i++)
@@ -12900,6 +12899,7 @@ void build_bii_list(bool usenone)
     }
 }
 
+
 const char *itemlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
@@ -12909,6 +12909,19 @@ const char *itemlist(int32_t index, int32_t *list_size)
     }
     
     return bii[index].s;
+}
+const char *itemlist_num(int32_t index, int32_t *list_size)
+{
+    if(index<0)
+    {
+        *list_size = bii_cnt;
+        return NULL;
+    }
+	static char biin_buf[64+6];
+	if(bii[index].i < 0)
+		return bii[index].s;
+    sprintf(biin_buf, "%s (%03d)", bii[index].s, bii[index].i);
+    return biin_buf;
 }
 
 // disable items on dmaps stuff
@@ -12982,7 +12995,7 @@ int32_t select_item(const char *prompt,int32_t item,bool is_editor,int32_t &exit
     ilist_dlg[0].dp=(void *)prompt;
     ilist_dlg[0].dp2=lfont;
     ilist_dlg[2].d1=index;
-    ListData item_list(itemlist, &font);
+    ListData item_list(itemlist_num, &font);
     ilist_dlg[2].dp=(void *) &item_list;
     
     if(is_large)
@@ -13053,6 +13066,19 @@ const char *weaponlist(int32_t index, int32_t *list_size)
     }
     
     return biw[index].s;
+}
+const char *weaponlist_num(int32_t index, int32_t *list_size)
+{
+    if(index<0)
+    {
+        *list_size = biw_cnt;
+        return NULL;
+    }
+	static char biwn_buf[64+6];
+	if(biw[index].i < 0)
+		return biw[index].s;
+    sprintf(biwn_buf, "%s (%03d)", biw[index].s, biw[index].i);
+    return biwn_buf;
 }
 int32_t writeoneweapon(PACKFILE *f, int32_t index)
 {
@@ -13358,7 +13384,7 @@ int32_t select_weapon(const char *prompt,int32_t weapon)
     wlist_dlg[0].dp=(void *)prompt;
     wlist_dlg[0].dp2=lfont;
     wlist_dlg[2].d1=index;
-    ListData weapon_list(weaponlist, &font);
+    ListData weapon_list(weaponlist_num, &font);
     wlist_dlg[2].dp=(void *) &weapon_list;
     wlist_dlg[2].dp3 = (void *)&wpnsprite_rclick_func;
     wlist_dlg[2].flags|=(D_USER<<1);
@@ -16697,7 +16723,7 @@ void editdmap(int32_t index)
     build_bii_list(false);
     initDI(index);
     ListData DI_list(DIlist, &font);
-    ListData item_list(itemlist, &font);
+    ListData item_list(itemlist_num, &font);
     editdmap_dlg[101].dp = (void*)&DI_list;
     editdmap_dlg[101].d1 = 0;
     editdmap_dlg[102].dp = (void*)&item_list;
@@ -20591,7 +20617,7 @@ void EditShopType(int32_t index)
     editshop_dlg[23].dp = info3;
     
 //  ListData item_list(itemlist, is_large ? &sfont3 : &font);
-    ListData item_list(itemlist, is_large ? &lfont_l : &font);
+    ListData item_list(itemlist_num, is_large ? &lfont_l : &font);
     
     editshop_dlg[9].dp  = (void *) &item_list;
     editshop_dlg[11].dp  = (void *) &item_list;
@@ -20868,7 +20894,7 @@ void EditItemDropSet(int32_t index)
     sprintf(chance[0],"%d",item_drop_sets[index].chance[0]);
     edititemdropset_dlg[7].dp = chance[0];
     
-    ListData item_list(itemlist, is_large ? &lfont_l : &font);
+    ListData item_list(itemlist_num, is_large ? &lfont_l : &font);
     sprintf(percent_str[0],"    ");
     edititemdropset_dlg[9].dp  = percent_str[0];
     
