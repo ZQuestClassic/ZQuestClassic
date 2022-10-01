@@ -376,14 +376,19 @@ GUI::ListData GUI::ZCListData::counters(bool numbered, bool skipNone)
 	return ls;
 }
 
-GUI::ListData GUI::ZCListData::miscsprites(bool skipNone, bool inclNegSpecialVals)
+GUI::ListData GUI::ZCListData::miscsprites(bool skipNone, bool inclNegSpecialVals, bool numbered)
 {
 	std::map<std::string, int32_t> ids;
 	std::set<std::string> sprnames;
 	
 	for(int32_t i=0; i<wMAX; ++i)
 	{
-		std::string sname(weapon_string[i]);
+		char buf[512];
+		char* ptr = buf;
+		if(numbered)
+			sprintf(buf, "%s (%03d)", weapon_string[i], i);
+		else ptr = weapon_string[i];
+		std::string sname(ptr);
 		
 		ids[sname] = i;
 		sprnames.insert(sname);
@@ -392,9 +397,18 @@ GUI::ListData GUI::ZCListData::miscsprites(bool skipNone, bool inclNegSpecialVal
 	GUI::ListData ls;
 	if(inclNegSpecialVals)
 	{
-		ls.add("Grass Clippings", -4);
-		ls.add("Flower Clippings", -3);
-		ls.add("Bush Leaves", -2);
+		if(numbered)
+		{
+			ls.add("Grass Clippings (-004)", -4);
+			ls.add("Flower Clippings (-003)", -3);
+			ls.add("Bush Leaves (-002)", -2);
+		}
+		else
+		{
+			ls.add("Grass Clippings", -4);
+			ls.add("Flower Clippings", -3);
+			ls.add("Bush Leaves", -2);
+		}
 	}
 	if(!skipNone)
 		ls.add("(None)", -1);

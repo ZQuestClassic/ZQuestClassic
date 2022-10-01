@@ -5835,6 +5835,8 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 				if(!abc_keypresses[q]) break;
 				if(!isdigit(abc_keypresses[q]))
 				{
+					if(q == 0 && abc_keypresses[q] == '-')
+						continue;
 					numsearch = false;
 					break; 
 				}
@@ -5846,12 +5848,13 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 				if(!foundmatch)
 				{
 					char buf[6];
-					sprintf(buf, "(%03d)", num);
+					if(num < 0) sprintf(buf, "(%04d)", num);
+					else sprintf(buf, "(%03d)", num);
 					std::string cmp = buf;
 					for(int32_t listpos = 0; listpos < max; ++listpos)
 					{
 						std::string str((data->listFunc(listpos,&dummy)));
-						size_t trimpos = str.find_last_not_of("(0123456789)");
+						size_t trimpos = str.find_last_not_of("-(0123456789)");
 						if(trimpos != std::string::npos) ++trimpos;
 						str.erase(0, trimpos);
 						zprint2("checking '%s'\n", str.c_str());
