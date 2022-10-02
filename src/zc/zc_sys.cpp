@@ -5438,42 +5438,6 @@ int32_t OnnClearQuestDir()
 	else return D_O_K;
 }
 
-int32_t onDebugConsole()
-{
-	if ( !zconsole ) {
-		if(jwin_alert3(
-			"WARNING: Closing the Debug Console", 
-			"WARNING: Closing the console window by using the close window widget will TERMINATE ZC!", 
-			"To SAFELY close the debug console, use the SHOW DEBUG CONSOLE menu uption again!",
-			"Are you seure that you wish to open the debug console?",
-		 "&Yes", 
-		"&No", 
-		NULL, 
-		'y', 
-		'n', 
-		NULL, 
-		lfont) == 1)
-		{
-			DebugConsole::Open();
-			
-			zconsole = true;
-			
-			save_game_configs();
-			return D_O_K;
-		}
-		
-		else return D_O_K;
-	}
-	else { 
-		
-		zconsole = false;
-		
-		save_game_configs();
-		DebugConsole::Close();
-		return D_O_K;
-	}
-}
-
 
 int32_t onConsoleZASM()
 {

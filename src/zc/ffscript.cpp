@@ -26752,10 +26752,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			//Halt on new script if set to advance to next script
 			FFCore.zasm_break_mode = ZASM_BREAK_HALT;
 			FFCore.TraceScriptIDs(true);
-			#ifdef _WIN32
 			coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | 
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Breaking for script start\n");
-			#endif
 		}
 		else FFCore.zasm_break_mode = ZASM_BREAK_NONE;
 	}
@@ -26763,10 +26761,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 	{
 		//Print new script metadata when starting script
 		FFCore.TraceScriptIDs(true);
-		#ifdef _WIN32
 		coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Start of script\n");
-		#endif
 	}
 	
 	while(scommand != 0xFFFF && scommand != WAITFRAME
@@ -37973,7 +37969,6 @@ script_variable ZASMVars[]=
 
 void FFScript::ZScriptConsole(int32_t attributes,const char *format,...)
 {
-	#ifdef _WIN32
 	//if ( open )
 	{
 		zscript_coloured_console.Create("ZQuest Creator Logging Console", 600, 200, NULL, NULL);
@@ -37989,7 +37984,6 @@ void FFScript::ZScriptConsole(int32_t attributes,const char *format,...)
 		//close
 	//	zscript_coloured_console.Close();
 	//}
-	#endif	
 }
 
 void clearConsole()
@@ -38025,7 +38019,6 @@ void clearConsole()
 void FFScript::ZScriptConsole(bool open)
 {
 	al_trace("Opening ZScript Console");
-	#ifdef _WIN32
 	if ( open )
 	{
 		zscript_coloured_console.Create("ZScript Debug Console", 600, 200, NULL, NULL);
@@ -38040,24 +38033,18 @@ void FFScript::ZScriptConsole(bool open)
 		zscript_coloured_console.Close();
 		zscript_debugger = 0;
 	}
-	#endif	
 }
-
 
 void FFScript::ZScriptConsolePrint(int32_t attributes,const char *format,...)
 {
-	#ifdef _WIN32
-	
 	coloured_console.cprintf( attributes,format);
 	//coloured_console.print();
-	#endif	
 }
 
 void FFScript::ZASMPrint(bool open)
 {
 	if(SKIPZASMPRINT()) return;
 	zprint("%s ZASM Console\n", open ? "Opening" : "Closing");
-	#ifdef _WIN32
 	if ( open )
 	{
 		coloured_console.Create("ZASM Debugger", 600, 200, NULL, NULL);
@@ -38075,7 +38062,6 @@ void FFScript::ZASMPrint(bool open)
 		coloured_console.Close();
 		zasm_debugger = 0;
 	}
-	#endif	
 }
 
 std::string ZASMVarToString(int32_t arg)
@@ -38108,7 +38094,6 @@ std::string ZASMVarToString(int32_t arg)
 void FFScript::ZASMPrintCommand(const word scommand)
 {
 	if(SKIPZASMPRINT()) return;
-	#ifdef _WIN32
 	//if ( !zasm_debugger ) return;
 	
 	script_command s_c = ZASMcommands[scommand];
@@ -38166,13 +38151,11 @@ void FFScript::ZASMPrintCommand(const word scommand)
 	//s_c.name is the string with the instruction
 	
 	//coloured_console.print();
-	#endif	
 }
 
 void FFScript::ZASMPrintVarSet(const int32_t arg, int32_t argval)
 {
 	if(SKIPZASMPRINT()) return;
-	#ifdef _WIN32
 	//if ( !zasm_debugger ) return;
 	// script_variable s_v = ZASMVars[arg];
 	//s_v.name is the string with the instruction
@@ -38181,13 +38164,11 @@ void FFScript::ZASMPrintVarSet(const int32_t arg, int32_t argval)
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%d\n",argval);
 	//coloured_console.print();
-	#endif	
 }
 
 void FFScript::ZASMPrintVarGet(const int32_t arg, int32_t argval)
 {
 	if(SKIPZASMPRINT()) return;
-	#ifdef _WIN32
 	//if ( !zasm_debugger ) return;
 	// script_variable s_v = ZASMVars[arg];
 	//s_v.name is the string with the instruction
@@ -38196,7 +38177,6 @@ void FFScript::ZASMPrintVarGet(const int32_t arg, int32_t argval)
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%d\n",argval);
 	//coloured_console.print();
-	#endif	
 }
 
 
@@ -38219,13 +38199,8 @@ void FFScript::do_trace(bool v)
 		printf("%s\n", s2.c_str());
 	if ( zscript_debugger ) 
 	{
-		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", s2.c_str());
-		#else //Unix
-			std::cout << "Z_scripterrlog Test\n" << std::endl;
-			printf("%s\n", s2.c_str());	
-		#endif
 	}
 }
 
@@ -38240,13 +38215,8 @@ void FFScript::do_tracebool(const bool v)
 	
 	if ( zscript_debugger ) 
 	{
-		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", temp ? "true": "false");
-		#else //Unix
-			std::cout << "Z_scripterrlog Test\n" << std::endl;
-			printf("%s\n", temp ? "true": "false");	
-		#endif
 	}
 }
 
@@ -38260,14 +38230,8 @@ void traceStr(string const& str)
 	
 	if ( zscript_debugger ) 
 	{
-		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s", str.c_str());
-
-		#else //Unix
-			std::cout << "Z_scripterrlog Test\n" << std::endl;
-			printf("%s", str.c_str());	
-		#endif
 	}
 }
 
@@ -38534,25 +38498,14 @@ void FFScript::do_breakpoint()
 	
 	if ( zscript_debugger ) 
 	{
-		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | 
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", str.c_str());
-
-		#else //Unix
-			std::cout << "Z_scripterrlog Test\n" << std::endl;
-			printf("%s", str.c_str());	
-		#endif
 	}
 	if( zasm_debugger )
 	{
 		FFCore.zasm_break_mode = ZASM_BREAK_HALT; //Halt ZASM debugger; break execution
-		#ifdef _WIN32
 		coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", str.c_str());
-		#else //Unix
-			std::cout << "Z_scripterrlog Test\n" << std::endl;
-			printf("%s", str.c_str());	
-		#endif
 	}
 }
 
@@ -38564,13 +38517,8 @@ void FFScript::do_tracenl()
 		printf("\n");
 		if ( zscript_debugger ) 
 	{
-		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"\n");
-		#else //Unix
-			std::cout << "Z_scripterrlog Test\n" << std::endl;
-			printf("\n");	
-		#endif
 	}
 }
 
@@ -38580,9 +38528,7 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 	if(DEVTIMESTAMP)
 	{
 		if(!zasm_debugger && zasm_console) return;
-		#ifdef _WIN32
 		CConsoleLoggerEx console = (zasm_console ? coloured_console : zscript_coloured_console);
-		#endif
 		bool cond = (zasm_console ? zasm_debugger : zscript_debugger);
 		
 		char buf[256] = {0};
@@ -38596,100 +38542,58 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 		//
 		
 		al_trace("%s", buf);
-		#ifdef _WIN32
 		if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),buf); }
-		#else //Unix
-			std::cout << "Z_scripterrlog Test\n" << std::endl;
-			printf("%s", buf);
-		#endif
 	}
 	if(get_bit(quest_rules,qr_TRACESCRIPTIDS) || DEVLOGGING )
 	{
 		if(!zasm_debugger && zasm_console) return;
-		#ifdef _WIN32
 		CConsoleLoggerEx console = (zasm_console ? coloured_console : zscript_coloured_console);
-		#endif
 		bool cond = (zasm_console ? zasm_debugger : zscript_debugger);
 		switch(curScriptType)
 		{
 			case SCRIPT_GLOBAL:
 				al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].scriptname.c_str());
-				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Global script %u (%s): ", 
 					curScriptNum+1, globalmap[curScriptNum].scriptname.c_str()); }
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].scriptname.c_str());	
-				#endif
 				break;
 			
 			case SCRIPT_PLAYER:
 				al_trace("Player script %u (%s): ", curScriptNum, playermap[curScriptNum-1].scriptname.c_str());
-				#ifdef _WIN32
 				if ( cond ) { console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Player script %u (%s): ", curScriptNum, playermap[curScriptNum-1].scriptname.c_str()); }
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("Player script %u (%s): ", curScriptNum, playermap[curScriptNum-1].scriptname.c_str());	
-				#endif    
 			break;
 			
 			case SCRIPT_LWPN:
 				al_trace("LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());
-				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());}
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());	
-				#endif      
 			break;
 			
 			case SCRIPT_EWPN:
 				al_trace("EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());
-				#ifdef _WIN32
 				if ( cond ) { console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());}
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());	
-				#endif      
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());} 
 			break;
 			
 			case SCRIPT_NPC:
 				al_trace("NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());
-				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());}
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());
-				#endif         
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());}     
 			break;
 				
 			case SCRIPT_FFC:
 				al_trace("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());
 				
-				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());}
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());
-				#endif   
 			break;
 				
 			case SCRIPT_ITEM:
 				al_trace("Itemdata script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());
-				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Itemdata script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());}
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("Itemdata script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());
-				#endif   
 			break;
 			
 			case SCRIPT_ONMAP:
@@ -38698,74 +38602,42 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 			case SCRIPT_DMAP:
 				al_trace("DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());
 				
-				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());}
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());
-				#endif   
 			break;
 			
 			case SCRIPT_ITEMSPRITE:
 				al_trace("itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());
-				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());}
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());
-				#endif   
 			break;
 			
 			case SCRIPT_SCREEN:
 				al_trace("Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());
-				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());}
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());
-				#endif   
 			break;
 			
 			//case SCRIPT_SUBSCREEN:
 			//	al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());
-			//	#ifdef _WIN32
 			//	if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			//		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());}
-			//	#endif
 			//break;
 			
 			case SCRIPT_COMBO:
 				al_trace("combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
-				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());}
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
-				#endif  
 			break;
 			case SCRIPT_GENERIC:
 				al_trace("Generic Script %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());
-				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Generic Script %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());}
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("Generic Script %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());
-				#endif  
 				break;
 			case SCRIPT_GENERIC_FROZEN:
 				al_trace("Generic Script (FRZ) %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());
-				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Generic Script (FRZ) %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());}
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("Generic Script (FRZ) %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());
-				#endif  
 				break;
 		}
 	}
@@ -38838,13 +38710,8 @@ void FFScript::do_tracetobase()
 	
 	if ( zscript_debugger ) 
 	{
-		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", s2.c_str());
-		#else //Unix
-			std::cout << "Z_scripterrlog Test\n" << std::endl;
-			printf("%s\n", s2.c_str());
-		#endif 
 	}
 }
 
