@@ -3202,9 +3202,9 @@ void weapon::LOADGFX(int32_t wpn)
         
     wid = wpn;
     flash = wpnsbuf[wid].misc&3;
-    tile  = wpnsbuf[wid].newtile;
+    tile  = wpnsbuf[wid].tile;
     cs = wpnsbuf[wid].csets&15;
-    o_tile = wpnsbuf[wid].newtile;
+    o_tile = wpnsbuf[wid].tile;
     tile = o_tile;
     ref_o_tile = o_tile;
     o_cset = wpnsbuf[wid].csets;
@@ -3212,7 +3212,7 @@ void weapon::LOADGFX(int32_t wpn)
     o_speed = wpnsbuf[wid].speed;
     o_type = wpnsbuf[wid].type;
     frames = wpnsbuf[wid].frames;
-    temp1 = wpnsbuf[wFIRE].newtile;
+    temp1 = wpnsbuf[wFIRE].tile;
     behind = (wpnsbuf[wid].misc&WF_BEHIND)!=0;
 }
 void weapon::LOADGFX_CMB(int32_t cid, int32_t cset)
@@ -3446,7 +3446,7 @@ bool weapon::animate(int32_t index)
 		int32_t fr = spr.frames ? spr.frames : 1;
 		int32_t spd = spr.speed ? spr.speed : 1;
 		int32_t animclk = (PITFALL_FALL_FRAMES-fallclk);
-		tile = spr.newtile + zc_min(animclk / spd, fr-1);
+		tile = spr.tile + zc_min(animclk / spd, fr-1);
 		
 		if(isLWeapon)
 			run_script(MODE_NORMAL);
@@ -3484,7 +3484,7 @@ bool weapon::animate(int32_t index)
 			int32_t fr = spr.frames ? spr.frames : 1;
 			int32_t spd = spr.speed ? spr.speed : 1;
 			int32_t animclk = (WATER_DROWN_FRAMES-drownclk);
-			tile = spr.newtile + zc_min(animclk / spd, fr-1);
+			tile = spr.tile + zc_min(animclk / spd, fr-1);
 		}
 		else 
 		{
@@ -3493,7 +3493,7 @@ bool weapon::animate(int32_t index)
 			int32_t fr = spr.frames ? spr.frames : 1;
 			int32_t spd = spr.speed ? spr.speed : 1;
 			int32_t animclk = (WATER_DROWN_FRAMES-drownclk);
-			tile = spr.newtile + zc_min(animclk / spd, fr-1);
+			tile = spr.tile + zc_min(animclk / spd, fr-1);
 		}
 		
 		if(isLWeapon)
@@ -7547,7 +7547,7 @@ void weapon::draw(BITMAP *dest)
 					break;
 				}
 				
-				tile = wpnsbuf[id2].newtile;
+				tile = wpnsbuf[id2].tile;
 				cs = wpnsbuf[id2].csets&15;
 				boomframes = wpnsbuf[id2].frames;
 				
@@ -7787,7 +7787,7 @@ void weapon::draw(BITMAP *dest)
 	
 	if (has_shadow && (z > 0||fakez > 0) && get_bit(quest_rules, qr_WEAPONSHADOWS) )
 	{
-		shadowtile = wpnsbuf[spr_shadow].newtile+aframe;
+		shadowtile = wpnsbuf[spr_shadow].tile+aframe;
 		sprite::drawshadow(dest,get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
 	}
 	sprite::draw(dest);

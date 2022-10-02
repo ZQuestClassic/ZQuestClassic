@@ -178,13 +178,13 @@ void dBushLeaves::draw(BITMAP *dest)
 	int32_t t=0;
 	if ( the_deco_sprite )
 	{
-		t=wpnsbuf[the_deco_sprite].newtile;
+		t=wpnsbuf[the_deco_sprite].tile;
 		cs=wpnsbuf[the_deco_sprite].csets&15;
 		
 	}
 	else
 	{
-		t=wpnsbuf[iwBushLeaves].newtile;
+		t=wpnsbuf[iwBushLeaves].tile;
 		cs=wpnsbuf[iwBushLeaves].csets&15;
 		
 	}
@@ -235,7 +235,7 @@ void comboSprite::draw(BITMAP *dest)
 		return;
 	}
 	al_trace("Drawing combo sprite.z\n");
-	tile=wpnsbuf[the_deco_sprite].newtile;
+	tile=wpnsbuf[the_deco_sprite].tile;
 	cs=wpnsbuf[the_deco_sprite].csets&15;
 	sprite::draw(dest);
 }
@@ -248,7 +248,7 @@ void comboSprite::realdraw(BITMAP *dest, int32_t draw_what)
 	}
 	
 	int32_t fb=the_deco_sprite;
-	int32_t t=wpnsbuf[fb].newtile;
+	int32_t t=wpnsbuf[fb].tile;
 	int32_t fr=zc_max(1,wpnsbuf[fb].frames);
 	int32_t spd=zc_max(1,wpnsbuf[fb].speed);
 	cs=wpnsbuf[fb].csets&15;
@@ -401,13 +401,13 @@ void dFlowerClippings::draw(BITMAP *dest)
 	
 	if ( the_deco_sprite )
 	{
-		t=wpnsbuf[the_deco_sprite].newtile;
+		t=wpnsbuf[the_deco_sprite].tile;
 		cs=wpnsbuf[the_deco_sprite].csets&15;
 		
 	}
 	else
 	{
-		t=wpnsbuf[iwFlowerClippings].newtile;
+		t=wpnsbuf[iwFlowerClippings].tile;
 		cs=wpnsbuf[iwFlowerClippings].csets&15;
 		
 	}
@@ -505,13 +505,13 @@ void dGrassClippings::draw(BITMAP *dest)
 	
 	if ( the_deco_sprite )
 	{
-		t=wpnsbuf[the_deco_sprite].newtile;
+		t=wpnsbuf[the_deco_sprite].tile;
 		cs=wpnsbuf[the_deco_sprite].csets&15;
 		
 	}
 	else
 	{
-		t=wpnsbuf[iwGrassClippings].newtile;
+		t=wpnsbuf[iwGrassClippings].tile;
 		cs=wpnsbuf[iwGrassClippings].csets&15;
 		
 	}
@@ -581,7 +581,7 @@ void dHammerSmack::draw(BITMAP *dest)
 		return;
 	}
 	
-	int32_t t=wpnsbuf[wpnid].newtile;
+	int32_t t=wpnsbuf[wpnid].tile;
 	cs=wpnsbuf[wpnid].csets&15;
 	flip=0;
 	
@@ -620,13 +620,13 @@ void dTallGrass::draw(BITMAP *dest)
 	int32_t t=0;
 	if ( the_deco_sprite )
 	{
-		t=wpnsbuf[the_deco_sprite].newtile*4;
+		t=wpnsbuf[the_deco_sprite].tile*4;
 		cs=wpnsbuf[the_deco_sprite].csets&15;
 		
 	}
 	else
 	{
-		t=wpnsbuf[iwTallGrass].newtile*4;
+		t=wpnsbuf[iwTallGrass].tile*4;
 		cs=wpnsbuf[iwTallGrass].csets&15;
 		
 	}
@@ -694,13 +694,13 @@ void dRipples::draw(BITMAP *dest)
 	
 	if ( the_deco_sprite )
 	{
-		t=wpnsbuf[the_deco_sprite].newtile*4;
+		t=wpnsbuf[the_deco_sprite].tile*4;
 		cs=wpnsbuf[the_deco_sprite].csets&15;
 		
 	}
 	else
 	{
-		t=wpnsbuf[iwRipples].newtile*4;
+		t=wpnsbuf[iwRipples].tile*4;
 		cs=wpnsbuf[iwRipples].csets&15;
 		
 	}
@@ -724,7 +724,7 @@ dHover::dHover(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : decoratio
 
 void dHover::draw(BITMAP *dest)
 {
-	int32_t t=wpnsbuf[wpnid].newtile*4;
+	int32_t t=wpnsbuf[wpnid].tile*4;
 	cs=wpnsbuf[wpnid].csets&15;
 	flip=0;
 	x=HeroX();
@@ -766,7 +766,7 @@ void dNayrusLoveShield::realdraw(BITMAP *dest, int32_t draw_what)
 	         itemsbuf[current_item_id(itype_nayruslove)].wpn5 : (byte) iwNayrusLoveShieldFront) :
 	            (itemsbuf[current_item_id(itype_nayruslove)].wpn10 ?
 	             itemsbuf[current_item_id(itype_nayruslove)].wpn10 : (byte) iwNayrusLoveShieldBack));
-	int32_t t=wpnsbuf[fb].newtile;
+	int32_t t=wpnsbuf[fb].tile;
 	int32_t fr=wpnsbuf[fb].frames;
 	int32_t spd=wpnsbuf[fb].speed;
 	cs=wpnsbuf[fb].csets&15;

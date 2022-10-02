@@ -882,12 +882,12 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					switch(local_subref.d2)
 					{
 						case ssmstSSVINETILE:
-							tl = wpnsbuf[iwSubscreenVine].newtile;
+							tl = wpnsbuf[iwSubscreenVine].tile;
 							tw = 3;
 							crn = local_subref.d3;
 							break;
 						case ssmstMAGICMETER:
-							tl = wpnsbuf[iwMMeter].newtile;
+							tl = wpnsbuf[iwMMeter].tile;
 							tw = 9;
 							crn = local_subref.d3;
 							break;
@@ -951,7 +951,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								case 0:
 									tswatches[0]->setTileWid(3);
 									tswatches[0]->setMiniOnly(true);
-									newtile = wpnsbuf[iwSubscreenVine].newtile;
+									newtile = wpnsbuf[iwSubscreenVine].tile;
 									crn = (oldval==-1 ? local_subref.d1&0b11 : local_subref.d3);
 									local_subref.d1 = (newtile<<2);
 									local_subref.d3 = crn;
@@ -959,7 +959,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								case 1:
 									tswatches[0]->setTileWid(9);
 									tswatches[0]->setMiniOnly(true);
-									newtile = wpnsbuf[iwMMeter].newtile;
+									newtile = wpnsbuf[iwMMeter].tile;
 									crn = (oldval==-1 ? local_subref.d1&0b11 : local_subref.d3);
 									local_subref.d1 = (newtile<<2);
 									local_subref.d3 = crn;

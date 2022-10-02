@@ -8902,7 +8902,7 @@ int32_t get_register(const int32_t arg)
 		///----------------------------------------------------------------------------------------------------//
 		//spritedata sp-> Variables
 			
-		case SPRITEDATATILE: GET_SPRITEDATA_VAR_INT(newtile, "Tile") break;
+		case SPRITEDATATILE: GET_SPRITEDATA_VAR_INT(tile, "Tile") break;
 		case SPRITEDATAMISC: GET_SPRITEDATA_VAR_INT(misc, "Misc") break;
 		case SPRITEDATACSETS: GET_SPRITEDATA_VAR_INT(csets, "CSet") break;
 		case SPRITEDATAFRAMES: GET_SPRITEDATA_VAR_INT(frames, "Frames") break;
@@ -18501,7 +18501,7 @@ void set_register(const int32_t arg, const int32_t value)
 		
 	///----------------------------------------------------------------------------------------------------//
 	//spritedata sp-> Variables
-		case SPRITEDATATILE: SET_SPRITEDATA_VAR_INT(newtile, "Tile"); break;
+		case SPRITEDATATILE: SET_SPRITEDATA_VAR_INT(tile, "Tile"); break;
 		case SPRITEDATAMISC: SET_SPRITEDATA_VAR_BYTE(misc, "Misc"); break;
 		case SPRITEDATACSETS: SET_SPRITEDATA_VAR_BYTE(csets, "CSet"); break;
 		case SPRITEDATAFRAMES: SET_SPRITEDATA_VAR_BYTE(frames, "Frames"); break;
@@ -39516,93 +39516,94 @@ void FFScript::write_combos(PACKFILE *f, int32_t version_id)
 }
 void FFScript::read_weaponsprtites(PACKFILE *f, int32_t vers_id)
 {   
-		for(int32_t i=0; i<wMAX; i++)
+	for(int32_t i=0; i<wMAX; i++)
+	{
+		word oldtile = 0;
+		if(!p_igetw(&oldtile,f,true))
 		{
-			if(!p_igetw(&wpnsbuf[i].tile,f,true))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",6);
-			}
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",6);
+		}
 			
-			if(!p_getc(&wpnsbuf[i].misc,f,true))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",7);
-			}
+		if(!p_getc(&wpnsbuf[i].misc,f,true))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",7);
+		}
 			
-			if(!p_getc(&wpnsbuf[i].csets,f,true))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",8);
-			}
+		if(!p_getc(&wpnsbuf[i].csets,f,true))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",8);
+		}
 			
-			if(!p_getc(&wpnsbuf[i].frames,f,true))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",9);
-			}
+		if(!p_getc(&wpnsbuf[i].frames,f,true))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",9);
+		}
 			
-			if(!p_getc(&wpnsbuf[i].speed,f,true))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",10);
-			}
+		if(!p_getc(&wpnsbuf[i].speed,f,true))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",10);
+		}
 			
-			if(!p_getc(&wpnsbuf[i].type,f,true))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",11);
-			}
+		if(!p_getc(&wpnsbuf[i].type,f,true))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",11);
+		}
 		
 		if(!p_igetw(&wpnsbuf[i].script,f,true))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
-			}
-		
-		if(!p_igetl(&wpnsbuf[i].newtile,f,true))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
-			}
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
 		}
+
+		if(!p_igetl(&wpnsbuf[i].tile,f,true))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
+		}
+	}
 }
 void FFScript::write_weaponsprtites(PACKFILE *f, int32_t vers_id)
 {   
-		for(int32_t i=0; i<wMAX; i++)
+	for(int32_t i=0; i<wMAX; i++)
+	{
+		if(!p_iputw(wpnsbuf[i].tile,f))
 		{
-			if(!p_iputw(wpnsbuf[i].tile,f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",6);
-			}
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",6);
+		}
 			
-			if(!p_putc(wpnsbuf[i].misc,f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",7);
-			}
+		if(!p_putc(wpnsbuf[i].misc,f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",7);
+		}
 			
-			if(!p_putc(wpnsbuf[i].csets,f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",8);
-			}
+		if(!p_putc(wpnsbuf[i].csets,f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",8);
+		}
 			
-			if(!p_putc(wpnsbuf[i].frames,f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",9);
-			}
+		if(!p_putc(wpnsbuf[i].frames,f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",9);
+		}
 			
-			if(!p_putc(wpnsbuf[i].speed,f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",10);
-			}
+		if(!p_putc(wpnsbuf[i].speed,f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",10);
+		}
 			
-			if(!p_putc(wpnsbuf[i].type,f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",11);
-			}
+		if(!p_putc(wpnsbuf[i].type,f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",11);
+		}
 		
 		if(!p_iputw(wpnsbuf[i].script,f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
-			}
-		
-		if(!p_iputl(wpnsbuf[i].newtile,f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
-			}
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
 		}
+		
+		if(!p_iputl(wpnsbuf[i].tile,f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
+		}
+	}
 }
 
 

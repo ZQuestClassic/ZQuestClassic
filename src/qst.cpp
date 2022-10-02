@@ -9526,85 +9526,79 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
                 reset_weaponname(i);
     }
     
-    for(int32_t i=0; i<weapons_to_read; i++)
-    {
-	    
-		    
-        if(!p_igetw(&tempweapon.tile,f,true))
+	for(int32_t i=0; i<weapons_to_read; i++)
 	{
-	    return qe_invalid;
-	}	
-        
-        if(!p_getc(&tempweapon.misc,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&tempweapon.csets,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&tempweapon.frames,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&tempweapon.speed,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&tempweapon.type,f,true))
-        {
-            return qe_invalid;
-        }
-	
-	if ( s_version >= 7 )
-	{
-		if(!p_igetw(&tempweapon.script,f,true))
+		word oldtile = 0;
+		if (s_version < 8)
 		{
-		    return qe_invalid;
+			if (!p_igetw(&oldtile, f, true))
+				return qe_invalid;
 		}
-		if(!p_igetl(&tempweapon.newtile,f,true))
+
+		if(!p_getc(&tempweapon.misc,f,true))
 		{
-		    return qe_invalid;
-		}	    
-	}
-	if ( s_version < 7 && Header->zelda_version >= 0x193 ) 
-	{
-		tempweapon.newtile = tempweapon.tile;
-	}
+			return qe_invalid;
+		}
         
-        if(Header->zelda_version < 0x193)
-        {
-            if(!p_getc(&padding,f,true))
-            {
-                return qe_invalid;
-            }
-        }
+		if(!p_getc(&tempweapon.csets,f,true))
+		{
+			return qe_invalid;
+		}
+        
+		if(!p_getc(&tempweapon.frames,f,true))
+		{
+			return qe_invalid;
+		}
+        
+		if(!p_getc(&tempweapon.speed,f,true))
+		{
+			return qe_invalid;
+		}
+        
+		if(!p_getc(&tempweapon.type,f,true))
+		{
+			return qe_invalid;
+		}
 	
-	if ( Header->zelda_version < 0x193 ) 
-	{
-		tempweapon.newtile = tempweapon.tile;
-		//al_trace("Reading a tempwpn tile ID (%d) from a quest built in: %x", tempweapon.tile, Header->zelda_version);
+		if ( s_version >= 7 )
+		{
+			if(!p_igetw(&tempweapon.script,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetl(&tempweapon.tile,f,true))
+			{
+				return qe_invalid;
+			}	    
+		}
+		if ( s_version < 7 ) 
+		{
+			tempweapon.tile = oldtile;
+		}
+        
+		if(Header->zelda_version < 0x193)
+		{
+			if(!p_getc(&padding,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+        
+		if(s_version < 6)
+		{
+			if(i==ewFIRETRAIL)
+			{
+				tempweapon.misc |= WF_BEHIND;
+			}
+			else
+				tempweapon.misc &= ~WF_BEHIND;
+		}
+        
+		if(keepdata==true)
+		{
+			memcpy(&wpnsbuf[i], &tempweapon, sizeof(tempweapon));
+		}
 	}
-        
-        if(s_version < 6)
-        {
-            if(i==ewFIRETRAIL)
-            {
-                tempweapon.misc |= WF_BEHIND;
-            }
-            else
-                tempweapon.misc &= ~WF_BEHIND;
-        }
-        
-        if(keepdata==true)
-        {
-            memcpy(&wpnsbuf[i], &tempweapon, sizeof(tempweapon));
-        }
-    }
     
     if(keepdata==true)
     {

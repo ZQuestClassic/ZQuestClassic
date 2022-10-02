@@ -1578,9 +1578,12 @@ static DIALOG wpndata_dlg[] =
 
 
 
-
+void call_sprite_dlg(int32_t index);
 void edit_weapondata(int32_t index)
 {
+	call_sprite_dlg(index); return;
+	//OLD CODE
+	/*
 	char frm[8], spd[8], fcs[8], typ[8];
 	char name[64];
 	char wpnnumstr[75];
@@ -1588,7 +1591,7 @@ void edit_weapondata(int32_t index)
 	sprintf(wpnnumstr, "Sprite %d: %s", index, weapon_string[index]);
 	wpndata_dlg[0].dp  = wpnnumstr;
 	wpndata_dlg[0].dp2 = lfont;
-	wpndata_dlg[2].d1  = wpnsbuf[index].newtile;
+	wpndata_dlg[2].d1  = wpnsbuf[index].tile;
 	wpndata_dlg[2].d2  = wpnsbuf[index].csets&15;
 	
 	for(int32_t i=0; i<4; i++)
@@ -1619,7 +1622,7 @@ void edit_weapondata(int32_t index)
 	{
 		ret = zc_popup_dialog(wpndata_dlg,3);
 		
-		test.newtile  = wpndata_dlg[2].d1;
+		test.tile  = wpndata_dlg[2].d1;
 		test.csets = wpndata_dlg[2].d2;
 		
 		test.misc  = 0;
@@ -1643,7 +1646,8 @@ void edit_weapondata(int32_t index)
 		strcpy(weapon_string[index],name);
 		wpnsbuf[index] = test;
 		saved = false;
-	}
+	}*/
+	
 }
 
 int32_t onCustomWpns()

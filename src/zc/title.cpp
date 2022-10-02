@@ -3011,7 +3011,7 @@ static void list_save(int32_t save_num, int32_t ypos)
 		game->set_life(saves[save_num].get_maxlife());
 		game->set_hp_per_heart(saves[save_num].get_hp_per_heart());
 		
-		//wpnsbuf[iwQuarterHearts].newtile = moduledata.select_screen_tiles[sels_heart_tile];
+		//wpnsbuf[iwQuarterHearts].tile = moduledata.select_screen_tiles[sels_heart_tile];
 		//Setting the cset does nothing, because it lifemeter() uses overtile8()
 		//Modules should set the cset manually. 
 		//wpnsbuf[iwQuarterHearts].csets = moduledata.select_screen_tile_csets[sels_heart_tilettile_cset];

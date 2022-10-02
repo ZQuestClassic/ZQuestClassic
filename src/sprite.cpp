@@ -1475,7 +1475,7 @@ void sprite::draw(BITMAP* dest)
 		isspawning = true;
 		if(e!=3) //if extend != 3 
 		{
-			int32_t t  = wpnsbuf[spr_spawn].newtile;
+			int32_t t  = wpnsbuf[spr_spawn].tile;
 			int32_t cs2 = wpnsbuf[spr_spawn].csets&15;
             
 			if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
@@ -1514,7 +1514,7 @@ void sprite::draw(BITMAP* dest)
 		}
 		else //extend == 3?
 		{
-			sprite w((zfix)sx,(zfix)sy,wpnsbuf[extend].newtile,wpnsbuf[extend].csets&15,0,0,0);
+			sprite w((zfix)sx,(zfix)sy,wpnsbuf[extend].tile,wpnsbuf[extend].csets&15,0,0,0);
 			w.xofs = xofs;
 			w.yofs = yofs;
 			w.zofs = zofs;
@@ -1849,7 +1849,7 @@ void sprite::drawzcboss(BITMAP* dest)
     {
         if(e!=3)
         {
-            int32_t t  = wpnsbuf[spr_spawn].newtile;
+            int32_t t  = wpnsbuf[spr_spawn].tile;
             int32_t cs2 = wpnsbuf[spr_spawn].csets&15;
             
             if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
@@ -1888,7 +1888,7 @@ void sprite::drawzcboss(BITMAP* dest)
         }
         else
         {
-            sprite w((zfix)sx,(zfix)sy,wpnsbuf[extend].newtile,wpnsbuf[extend].csets&15,0,0,0);
+            sprite w((zfix)sx,(zfix)sy,wpnsbuf[extend].tile,wpnsbuf[extend].csets&15,0,0,0);
             w.xofs = xofs;
             w.yofs = yofs;
             w.zofs = zofs;
@@ -1980,7 +1980,7 @@ void sprite::drawcloaked(BITMAP* dest)
     }
     else
     {
-        int32_t t  = wpnsbuf[spr_spawn].newtile;
+        int32_t t  = wpnsbuf[spr_spawn].tile;
         int32_t cs2 = wpnsbuf[spr_spawn].csets&15;
         
 		if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
@@ -2638,7 +2638,7 @@ void movingblock::draw(BITMAP *dest)
 		int32_t fr = spr.frames ? spr.frames : 1;
 		int32_t spd = spr.speed ? spr.speed : 1;
 		int32_t animclk = (PITFALL_FALL_FRAMES-fallclk);
-		tile = spr.newtile + zc_min(animclk / spd, fr-1);
+		tile = spr.tile + zc_min(animclk / spd, fr-1);
 		sprite::draw(dest);
 		
 		cs = old_cs;
@@ -2656,7 +2656,7 @@ void movingblock::draw(BITMAP *dest)
 			int32_t fr = spr.frames ? spr.frames : 1;
 			int32_t spd = spr.speed ? spr.speed : 1;
 			int32_t animclk = (WATER_DROWN_FRAMES-drownclk);
-			tile = spr.newtile + zc_min(animclk / spd, fr-1);
+			tile = spr.tile + zc_min(animclk / spd, fr-1);
 			sprite::draw(dest);
 		}
 		else 
@@ -2666,7 +2666,7 @@ void movingblock::draw(BITMAP *dest)
 			int32_t fr = spr.frames ? spr.frames : 1;
 			int32_t spd = spr.speed ? spr.speed : 1;
 			int32_t animclk = (WATER_DROWN_FRAMES-drownclk);
-			tile = spr.newtile + zc_min(animclk / spd, fr-1);
+			tile = spr.tile + zc_min(animclk / spd, fr-1);
 			sprite::draw(dest);
 		}
 		
@@ -2685,7 +2685,7 @@ portal::portal(int32_t dm, int32_t scr, int32_t gfx, int32_t sfx, int32_t spr)
 	: destdmap(dm), destscr(scr), weffect(gfx), wsfx(sfx)
 {
 	wpndata const& portalsprite = wpnsbuf[spr];
-	o_tile = portalsprite.newtile;
+	o_tile = portalsprite.tile;
 	aspd = portalsprite.speed ? portalsprite.speed : 1;
 	frames = portalsprite.frames ? portalsprite.frames : 1;
 	aframe = 0;

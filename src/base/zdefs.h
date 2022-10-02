@@ -259,7 +259,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_DMAPS            16
 #define V_DOORS            1
 #define V_ITEMS           53
-#define V_WEAPONS          7
+#define V_WEAPONS          8
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
@@ -2068,18 +2068,19 @@ struct itemdata
 
 struct wpndata
 {
-    word tile;
-    byte misc;                                                // 000bvhff (vh:flipping, f:flash (1:NES, 2:BSZ))
-    byte csets;                                               // ffffcccc (f:flash cset, c:cset)
-    byte frames;                                              // animation frame count
-    byte speed;                                               // animation speed
-    byte type;                                                // used by certain weapons
-//  byte wpn_type;
-    word script;
-	int32_t newtile; //copy tile to newtile at quest load and update all refs?
-//  byte exp;                                                 // not used
+	int32_t tile;
+	byte misc;                                                // 000bvhff (vh:flipping, f:flash (1:NES, 2:BSZ))
+	byte csets;                                               // ffffcccc (f:flash cset, c:cset)
+	byte frames;                                              // animation frame count
+	byte speed;                                               // animation speed
+	byte type;                                                // used by certain weapons
+	word script;
 };
 
+#define     WF_AUTOFLASH        0x01
+#define     WF_2PFLASH          0x02
+#define     WF_HFLIP            0x04
+#define     WF_VFLIP            0x08
 #define		WF_BEHIND			0x10	//Weapon renders behind other sprites
 
 struct quest_template

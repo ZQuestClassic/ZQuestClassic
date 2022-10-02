@@ -2647,7 +2647,7 @@ void lifemeter(BITMAP *dest,int32_t x,int32_t y,int32_t cs,bool bs_style)
 		y+=24;
 	}
 	int32_t tile = 0;
-	const int32_t basetile = FFCore.getQuestHeaderInfo(vZelda) > 0x192 ? (wpnsbuf[iwQuarterHearts].newtile) : (wpnsbuf[iwQuarterHearts].tile);
+	const int32_t basetile = wpnsbuf[iwQuarterHearts].tile;
 	const int32_t max_iter = (game != NULL ? zc_min(game->get_maxlife(),game->get_hp_per_heart()*24) : 1);
 	const int32_t inc = (game != NULL ? game->get_hp_per_heart() : 16);
 	
@@ -2833,7 +2833,7 @@ void magicmeter(BITMAP *dest,int32_t x,int32_t y)
     if(game->get_maxmagic()==0) return;
     
     int32_t tile;
-    int32_t mmtile=FFCore.getQuestHeaderInfo(vZelda) > 0x192 ? wpnsbuf[iwMMeter].newtile : wpnsbuf[iwMMeter].tile;
+    int32_t mmtile=wpnsbuf[iwMMeter].tile;
     int32_t mmcset=wpnsbuf[iwMMeter].csets&15;
     overtile8(dest,(mmtile*4)+2,x-8,y,mmcset,0);
     
@@ -4132,11 +4132,11 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 						switch(css->objects[i].d2)
 						{
 							case ssmstSSVINETILE:
-								t= FFCore.getQuestHeaderInfo(vZelda) > 0x192 ? wpnsbuf[iwSubscreenVine].newtile*4 : wpnsbuf[iwSubscreenVine].tile*4;
+								t=wpnsbuf[iwSubscreenVine].tile*4;
 								break;
 								
 							case ssmstMAGICMETER:
-								t=FFCore.getQuestHeaderInfo(vZelda) > 0x192 ? wpnsbuf[iwMMeter].newtile*4 : wpnsbuf[iwMMeter].tile*4;
+								t=wpnsbuf[iwMMeter].tile*4;
 								break;
 								
 							default:

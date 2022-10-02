@@ -63,7 +63,7 @@ bool item::animate(int32_t)
 			int32_t fr = spr.frames ? spr.frames : 1;
 			int32_t spd = spr.speed ? spr.speed : 1;
 			int32_t animclk = (PITFALL_FALL_FRAMES-fallclk);
-			tile = spr.newtile + zc_min(animclk / spd, fr-1);
+			tile = spr.tile + zc_min(animclk / spd, fr-1);
 			
 			// run_script(MODE_NORMAL);
 			
@@ -82,7 +82,7 @@ bool item::animate(int32_t)
 				int32_t fr = spr.frames ? spr.frames : 1;
 				int32_t spd = spr.speed ? spr.speed : 1;
 				int32_t animclk = (WATER_DROWN_FRAMES-drownclk);
-				tile = spr.newtile + zc_min(animclk / spd, fr-1);
+				tile = spr.tile + zc_min(animclk / spd, fr-1);
 			}
 			else 
 			{
@@ -91,7 +91,7 @@ bool item::animate(int32_t)
 				int32_t fr = spr.frames ? spr.frames : 1;
 				int32_t spd = spr.speed ? spr.speed : 1;
 				int32_t animclk = (WATER_DROWN_FRAMES-drownclk);
-				tile = spr.newtile + zc_min(animclk / spd, fr-1);
+				tile = spr.tile + zc_min(animclk / spd, fr-1);
 			}
 			
 			// run_script(MODE_NORMAL);
@@ -299,7 +299,7 @@ void item::draw(BITMAP *dest)
 		
 	if ( (z > 0 || fakez > 0) && get_bit(quest_rules, qr_ITEMSHADOWS) )
 	{
-		shadowtile = wpnsbuf[spr_shadow].newtile+aframe;
+		shadowtile = wpnsbuf[spr_shadow].tile+aframe;
 		sprite::drawshadow(dest,get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
 	}
 	if(!(pickup&ipFADE) || fadeclk<0 || fadeclk&1 || fallclk || drownclk)

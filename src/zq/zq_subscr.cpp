@@ -470,13 +470,13 @@ int32_t d_stilelist_proc(int32_t msg,DIALOG *d,int32_t c)
         case ssmstSSVINETILE:
             (d-15)->w=52;
             (d-14)->w=48;
-            (d-14)->d1=wpnsbuf[iwSubscreenVine].newtile;
+            (d-14)->d1=wpnsbuf[iwSubscreenVine].tile;
             break;
             
         case ssmstMAGICMETER:
             (d-15)->w=148;
             (d-14)->w=144;
-            (d-14)->d1=wpnsbuf[iwMMeter].newtile;
+            (d-14)->d1=wpnsbuf[iwMMeter].tile;
             break;
             
         case -1:

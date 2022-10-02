@@ -3814,9 +3814,9 @@ void game_loop()
 		if(linkedmsgclk==1 && !do_end_str)
 		{
 		#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "if(wpnsbuf[iwMore].newtile!=0)\n");
+		al_trace("game_loop is calling: %s\n", "if(wpnsbuf[iwMore].tile!=0)\n");
 		#endif
-			if(wpnsbuf[iwMore].newtile!=0)
+			if(wpnsbuf[iwMore].tile!=0)
 			{
 				putweapon(framebuf,zinit.msg_more_x, message_more_y(), wPhantom, 4, up, lens_hint_weapon[wPhantom][0], lens_hint_weapon[wPhantom][1],-1);
 			}

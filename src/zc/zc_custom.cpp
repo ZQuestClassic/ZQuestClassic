@@ -643,8 +643,8 @@ void herotile(int32_t *tile, int32_t *flip, int32_t state, int32_t dir, int32_t)
 
 void setupherotiles(int32_t style)
 {
-    old_floatspr = wpnsbuf[iwSwim].newtile;
-    old_slashspr = wpnsbuf[iwHeroSlash].newtile;
+    old_floatspr = wpnsbuf[iwSwim].tile;
+    old_slashspr = wpnsbuf[iwHeroSlash].tile;
     herospr = 4;
     
     switch(style)

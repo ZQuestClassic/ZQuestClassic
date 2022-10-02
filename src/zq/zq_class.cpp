@@ -9020,12 +9020,7 @@ int32_t writeweapons(PACKFILE *f, zquestheader *Header)
         }
         
         for(int32_t i=0; i<wMAX; i++)
-        {
-            if(!p_iputw(wpnsbuf[i].tile,f))
-            {
-                new_return(6);
-            }
-            
+        {            
             if(!p_putc(wpnsbuf[i].misc,f))
             {
                 new_return(7);
@@ -9051,12 +9046,12 @@ int32_t writeweapons(PACKFILE *f, zquestheader *Header)
                 new_return(11);
             }
 	    
-	    if(!p_iputw(wpnsbuf[i].script,f))
+	        if(!p_iputw(wpnsbuf[i].script,f))
             {
                 new_return(12);
             }
 	    
-	    if(!p_iputl(wpnsbuf[i].newtile,f))
+	        if(!p_iputl(wpnsbuf[i].tile,f))
             {
                 new_return(12);
             }

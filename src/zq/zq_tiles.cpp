@@ -6636,7 +6636,7 @@ void register_used_tiles()
 			break;
 		}
 		
-		for(int32_t t=zc_max(wpnsbuf[u].newtile,0); t<zc_min(wpnsbuf[u].newtile+zc_max((ignore_frames?0:wpnsbuf[u].frames),1)+m,NEWMAXTILES); ++t)
+		for(int32_t t=zc_max(wpnsbuf[u].tile,0); t<zc_min(wpnsbuf[u].tile+zc_max((ignore_frames?0:wpnsbuf[u].frames),1)+m,NEWMAXTILES); ++t)
 		{
 			used_tile_table[t]=true;
 		}
@@ -10488,14 +10488,14 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					if(tmd.rect)
 					{
-						i=move_intersection_sr(wpnsbuf[biw[u].i].newtile, wpnsbuf[biw[u].i].newtile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_left, selection_top, selection_width, selection_height);
+						i=move_intersection_sr(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_left, selection_top, selection_width, selection_height);
 					}
 					else
 					{
-						i=move_intersection_ss(wpnsbuf[biw[u].i].newtile, wpnsbuf[biw[u].i].newtile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_first, selection_last);
+						i=move_intersection_ss(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_first, selection_last);
 					}
 					
-					if((i!=ti_none)&&(wpnsbuf[biw[u].i].newtile!=0))
+					if((i!=ti_none)&&(wpnsbuf[biw[u].i].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
@@ -11479,7 +11479,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 			{
 				if(move_weapons_list[u])
 				{
-					wpnsbuf[biw[u].i].newtile+=diff;
+					wpnsbuf[biw[u].i].tile+=diff;
 				}
 			}
 			
@@ -13427,9 +13427,9 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 				break;
 			}
 			
-			i=move_intersection_sr(wpnsbuf[biw[u].i].newtile, wpnsbuf[biw[u].i].newtile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, dest_left, dest_top, dest_width, dest_height);
+			i=move_intersection_sr(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, dest_left, dest_top, dest_width, dest_height);
 			
-			if((i!=ti_none)&&(wpnsbuf[biw[u].i].newtile!=0))
+			if((i!=ti_none)&&(wpnsbuf[biw[u].i].tile!=0))
 			{
 				sprintf(temptext, "%s\n", biw[u].s);
 					

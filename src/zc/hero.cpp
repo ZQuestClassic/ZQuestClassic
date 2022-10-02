@@ -1567,7 +1567,7 @@ void HeroClass::drawshadow(BITMAP* dest, bool translucent)
 {
     int32_t tempy=yofs;
     yofs+=8;
-    shadowtile = wpnsbuf[spr_shadow].newtile;
+    shadowtile = wpnsbuf[spr_shadow].tile;
     sprite::drawshadow(dest,translucent);
     yofs=tempy;
 }
@@ -1915,7 +1915,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
             {
                 wy-=9;
                 wx-=3;
-                t = wpnsbuf[wpn2].newtile;
+                t = wpnsbuf[wpn2].tile;
                 cs2 = wpnsbuf[wpn2].csets&15;
                 f=0;
             }
@@ -1932,7 +1932,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
             {
                 wy+=15;
                 wx+=2;
-                t = wpnsbuf[wpn2].newtile;
+                t = wpnsbuf[wpn2].tile;
                 cs2 = wpnsbuf[wpn2].csets&15;
                 ++t;
                 f=0;
@@ -1951,7 +1951,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
                 wx-=15;
                 wy+=3;
                 slashxofs-=1;
-                t = wpnsbuf[wpn2].newtile;
+                t = wpnsbuf[wpn2].tile;
                 cs2 = wpnsbuf[wpn2].csets&15;
                 t+=2;
                 f=0;
@@ -1979,7 +1979,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
             {
                 wx+=15;
                 slashxofs+=1;
-                t = wpnsbuf[wpn2].newtile;
+                t = wpnsbuf[wpn2].tile;
                 cs2 = wpnsbuf[wpn2].csets&15;
                 
                 if(spins>0 || (itemsbuf[itemid].flags & ITEM_FLAG8))
@@ -2129,7 +2129,7 @@ attack:
 				}
 				positionNet(w, itemid);
 			}
-			else if((attack==wSword || attack==wWand || ((attack==wFire || attack==wCByrna) && itemsbuf[itemid].wpn)) && wpnsbuf[itemsbuf[itemid].wpn].newtile)
+			else if((attack==wSword || attack==wWand || ((attack==wFire || attack==wCByrna) && itemsbuf[itemid].wpn)) && wpnsbuf[itemsbuf[itemid].wpn].tile)
 			{
 				// Create a sword weapon at the right spot.
 				weapon *w=NULL;
@@ -28252,7 +28252,7 @@ void HeroClass::heroDeathAnimation()
                     
 				extend = 0;
 				cs = wpnsbuf[spr_death].csets&15;
-				tile = wpnsbuf[spr_death].newtile;
+				tile = wpnsbuf[spr_death].tile;
 				if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
 				{
 					tile += deathfrm;

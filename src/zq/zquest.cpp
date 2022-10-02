@@ -13082,83 +13082,76 @@ const char *weaponlist_num(int32_t index, int32_t *list_size)
 }
 int32_t writeoneweapon(PACKFILE *f, int32_t index)
 {
-    
     dword section_version=V_WEAPONS;
     dword section_cversion=CV_WEAPONS;
-	int32_t zversion = ZELDA_VERSION;
-	int32_t zbuild = VERSION_BUILD;
+    int32_t zversion = ZELDA_VERSION;
+    int32_t zbuild = VERSION_BUILD;
     int32_t iid = biw[index].i;
-	al_trace("Writing Weapon Sprite .zwpnspr file for weapon id: %d\n", iid);
+    al_trace("Writing Weapon Sprite .zwpnspr file for weapon id: %d\n", iid);
   
     //section version info
-	if(!p_iputl(zversion,f))
-	{
-		return 0;
-	}
-	if(!p_iputl(zbuild,f))
-	{
-		return 0;
-	}
-	if(!p_iputw(section_version,f))
-	{
-		return 0;
-	}
+    if(!p_iputl(zversion,f))
+    {
+	    return 0;
+    }
+    if(!p_iputl(zbuild,f))
+    {
+	    return 0;
+    }
+    if(!p_iputw(section_version,f))
+    {
+	    return 0;
+    }
     
-	if(!p_iputw(section_cversion,f))
-	{
-		return 0;
-	}
+    if(!p_iputw(section_cversion,f))
+    {
+	    return 0;
+    }
     
-	//weapon string
+    //weapon string
 	
-	if(!pfwrite((char *)weapon_string[iid], 64, f))
-	{
-                return 0;
-	}
-	//section data
-	if(!p_iputw(wpnsbuf[iid].tile,f))
-            {
-                return 0;
-            }
+    if(!pfwrite((char *)weapon_string[iid], 64, f))
+    {
+        return 0;
+    }
             
-            if(!p_putc(wpnsbuf[iid].misc,f))
-            {
-                return 0;
-            }
+    if(!p_putc(wpnsbuf[iid].misc,f))
+    {
+        return 0;
+    }
             
-            if(!p_putc(wpnsbuf[iid].csets,f))
-            {
-                return 0;
-            }
+    if(!p_putc(wpnsbuf[iid].csets,f))
+    {
+        return 0;
+    }
             
-            if(!p_putc(wpnsbuf[iid].frames,f))
-            {
-                return 0;
-            }
+    if(!p_putc(wpnsbuf[iid].frames,f))
+    {
+        return 0;
+    }
             
-            if(!p_putc(wpnsbuf[iid].speed,f))
-            {
-                return 0;
-            }
+    if(!p_putc(wpnsbuf[iid].speed,f))
+    {
+        return 0;
+    }
             
-            if(!p_putc(wpnsbuf[iid].type,f))
-            {
-                return 0;
-            }
+    if(!p_putc(wpnsbuf[iid].type,f))
+    {
+        return 0;
+    }
 	    
-	    if(!p_iputw(wpnsbuf[iid].script,f))
-            {
-                return 0;
-            }
+    if(!p_iputw(wpnsbuf[iid].script,f))
+    {
+        return 0;
+    }
 	    
-	    //2.55 starts here
-	    if(!p_iputl(wpnsbuf[iid].newtile,f))
-            {
-                return 0;
-            }
+    //2.55 starts here
+    if(!p_iputl(wpnsbuf[iid].tile,f))
+    {
+        return 0;
+    }
 
-	
-	return 1;
+    return 1;
 }
 
 
@@ -13210,9 +13203,6 @@ int32_t readoneweapon(PACKFILE *f, int32_t index)
 		al_trace("Reading a .zwpnspr packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
 	}
 	
-    
-	
-    
 	char tmp_wpn_name[64];
 	memset(tmp_wpn_name,0,64);
 	if(!pfread(&tmp_wpn_name, 64, f,true))
@@ -13220,58 +13210,56 @@ int32_t readoneweapon(PACKFILE *f, int32_t index)
 		return 0;
 	}
 	
-	if(!p_igetw(&tempwpnspr.tile,f,true))
-            {
-                return 0;
-            }
+    word oldtile = 0;
+    if(section_version < 8)
+	    if(!p_igetw(&oldtile,f,true))
+            return 0;
             
-            if(!p_getc(&tempwpnspr.misc,f,true))
-            {
-                return 0;
-            }
+    if(!p_getc(&tempwpnspr.misc,f,true))
+    {
+        return 0;
+    }
             
-            if(!p_getc(&tempwpnspr.csets,f,true))
-            {
-                return 0;
-            }
+    if(!p_getc(&tempwpnspr.csets,f,true))
+    {
+        return 0;
+    }
             
-            if(!p_getc(&tempwpnspr.frames,f,true))
-            {
-                return 0;
-            }
+    if(!p_getc(&tempwpnspr.frames,f,true))
+    {
+        return 0;
+    }
             
-            if(!p_getc(&tempwpnspr.speed,f,true))
-            {
-                return 0;
-            }
-            
-            if(!p_getc(&tempwpnspr.type,f,true))
-            {
-                return 0;
-            }
-	    
-	    if(!p_igetw(&tempwpnspr.script,f,true))
-            {
-                return 0;
-            }
-	    
-	    
-	    
-	    //2.55 starts here
-	    if ( zversion >= 0x255 )
-	    {
-			if  ( section_version >= 7 )
+    if(!p_getc(&tempwpnspr.speed,f,true))
+    {
+        return 0;
+    }
+    
+    if(!p_getc(&tempwpnspr.type,f,true))
+    {
+        return 0;
+    }
+	
+	if(!p_igetw(&tempwpnspr.script,f,true))
+    {
+        return 0;
+    }
+
+	//2.55 starts here
+	if ( zversion >= 0x255 )
+	{
+		if  ( section_version >= 7 )
+		{
+			if(!p_igetl(&tempwpnspr.tile,f,true))
 			{
-				if(!p_igetl(&tempwpnspr.newtile,f,true))
-				{
-					return 0;
-				}
+				return 0;
 			}
-	    }
-	    if ( zversion < 0x255 ) 
-	    {
-		    tempwpnspr.newtile = tempwpnspr.tile;
-	    }
+		}
+	}
+	if ( zversion < 0x255 ) 
+	{
+		tempwpnspr.tile = oldtile;
+	}
 	::memcpy( &(wpnsbuf[biw[index].i]),&tempwpnspr, sizeof(wpndata));
 	::memcpy(weapon_string[biw[index].i], tmp_wpn_name, 64);
        
@@ -15176,7 +15164,7 @@ int32_t d_wlist_proc(int32_t msg,DIALOG *d,int32_t c)
 		
 		int32_t tile = 0;
 		int32_t cset = 0;
-		tile= wpnsbuf[biw[d->d1].i].newtile;
+		tile= wpnsbuf[biw[d->d1].i].tile;
 		cset= wpnsbuf[biw[d->d1].i].csets&15;
 		int32_t x = d->x + d->w + 4;
 		int32_t y = d->y;
