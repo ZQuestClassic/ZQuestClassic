@@ -11,6 +11,8 @@
 #include <gui/window.h>
 #include <functional>
 
+void call_sprite_dlg(int32_t index);
+
 class SpriteDataDialog: public GUI::Dialog<SpriteDataDialog>
 {
 public:

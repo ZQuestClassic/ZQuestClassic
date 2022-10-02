@@ -37,6 +37,7 @@
 #include "dialog/misc_sfx.h"
 #include "dialog/misc_sprs.h"
 #include "dialog/info.h"
+#include "dialog/spritedata.h"
 extern FFScript FFCore;
 
 extern int32_t ex;
@@ -1578,7 +1579,6 @@ static DIALOG wpndata_dlg[] =
 
 
 
-void call_sprite_dlg(int32_t index);
 void edit_weapondata(int32_t index)
 {
 	call_sprite_dlg(index); return;
