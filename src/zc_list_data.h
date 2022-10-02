@@ -28,6 +28,7 @@ namespace GUI::ZCListData
 	GUI::ListData combodata_script();
     GUI::ListData const& deftypes();
     GUI::ListData const& warpeffects();
+    GUI::ListData const& screenstate();
 }
 
 #endif

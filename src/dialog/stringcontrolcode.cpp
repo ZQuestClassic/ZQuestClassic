@@ -152,7 +152,8 @@ SCCDialog::SCCDialog() :
 	list_dmaps(dmap_list),
 	list_weffect(GUI::ZCListData::warpeffects()),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
-	list_midi(GUI::ZCListData::midinames(true))
+	list_midi(GUI::ZCListData::midinames(true)),
+	list_screenstate(GUI::ZCListData::screenstate())
 {
 	memset(args, 0, sizeof(args));
 	default_args();
@@ -222,10 +223,10 @@ std::string scc_help(byte scc)
 		case MSGC_SETUPMENU: return "Sets the Menu Cursor up as a tile draw";
 		case MSGC_MENUCHOICE: return "Adds a menu choice";
 		case MSGC_RUNMENU: return "Starts a menu";
-		// case MSGC_GOTOMENUCHOICE:
-		// case MSGC_TRIGSECRETS:
-		// case MSGC_SETSCREENSTATE:
-		// case MSGC_SETSCREENSTATER:
+		case MSGC_GOTOMENUCHOICE: return "Switch to another string based on menu choice";
+		case MSGC_TRIGSECRETS: return "Trigger screen secrets, either temp or perm";
+		case MSGC_SETSCREENSTATE: return "Set a state of the current screen";
+		case MSGC_SETSCREENSTATER: return "Set a state of any screen";
 	}
 	return "";
 }
@@ -873,16 +874,87 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 		case MSGC_RUNMENU:
 			sgrid = Row(DummyWidget());
 			break;
-		// case MSGC_GOTOMENUCHOICE:
-		// case MSGC_TRIGSECRETS:
-		// case MSGC_SETSCREENSTATE:
-		// case MSGC_SETSCREENSTATER:
+		case MSGC_GOTOMENUCHOICE:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Choice:"),
+					NUM_FIELD(cur_args[0],0,MAX_SCC_ARG),
+					INFOBTN("The menu choice to check against")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("String:"),
+					DDL(cur_args[1],list_strings),
+					INFOBTN("String to switch to if the chosen choice was chosen")
+				)
+			);
+			break;
+		}
+		case MSGC_TRIGSECRETS:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Checkbox(text = "Permanent",
+					checked = cur_args[0]!=0,
+					onToggleFunc = [&](bool state)
+					{
+						cur_args[0] = state?1:0;
+					}
+				)
+			);
+			break;
+		}
+		case MSGC_SETSCREENSTATE:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("State:"),
+					DDL(cur_args[0],list_screenstate),
+					INFOBTN("The screen state to set")
+				),
+				Checkbox(text = "On",
+					checked = cur_args[1]!=0,
+					onToggleFunc = [&](bool state)
+					{
+						cur_args[1] = state?1:0;
+					}
+				)
+			);
+			break;
+		}
+		case MSGC_SETSCREENSTATER:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("DMap:"),
+					NUM_FIELD(cur_args[0],0,255),
+					INFOBTN("Map to modify")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Screen:"),
+					HEX_FIELD(cur_args[1],0,255),
+					INFOBTN("Screen to modify")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("State:"),
+					DDL(cur_args[2],list_screenstate),
+					INFOBTN("The screen state to set")
+				),
+				Checkbox(text = "On",
+					checked = cur_args[3]!=0,
+					onToggleFunc = [&](bool state)
+					{
+						cur_args[3] = state?1:0;
+					}
+				)
+			);
+			break;
+		}
 		default:
 			sgrid = Row(padding = 0_px, vAlign = 0.0,TXT("WIP!"));
 			break;
 	}
 	wingrid->add(
-		Frame(minheight = sized(120_px,200_px), fitParent = true,
+		Frame(minheight = sized(120_px,180_px), fitParent = true,
 			sgrid
 		)
 	);

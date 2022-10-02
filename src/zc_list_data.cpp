@@ -664,5 +664,30 @@ GUI::ListData const& GUI::ZCListData::warpeffects()
 	return warp_effects;
 }
 
+static const GUI::ListData screen_state
+{
+	{ "Door Up", 0 },
+	{ "Door Down", 1 },
+	{ "Door Left", 2 },
+	{ "Door Right", 3 },
+	{ "Screen Item", 4 },
+	{ "Special Item", 5 },
+	{ "Enemies Never Return", 6 },
+	{ "Enemies Temp No Return", 7 },
+	{ "Lockblock", 8 },
+	{ "Boss Lockblock", 9 },
+	{ "Chest", 10 },
+	{ "Locked Chest", 11 },
+	{ "Boss Chest", 12 },
+	{ "Secrets", 13 },
+	{ "Visited", 14 },
+	{ "Light Triggers", 15 }
+};
+
+GUI::ListData const& GUI::ZCListData::screenstate()
+{
+	return screen_state;
+}
+
 
 
