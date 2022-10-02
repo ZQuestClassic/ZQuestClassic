@@ -22617,7 +22617,7 @@ bool parsemsgcode()
 		{
 			int32_t odds = (int32_t)(grab_next_argument());
 			
-			if(!((zc_oldrand()%(2*odds))/odds))
+			if(!odds || !(zc_oldrand()%odds))
 				goto switched;
 				
 			(void)grab_next_argument();
@@ -22662,7 +22662,7 @@ bool parsemsgcode()
 		{
 			int32_t it = (int32_t)grab_next_argument();
 			
-			if(it<MAXITEMS && game->item[it])
+			if(unsigned(it)<MAXITEMS && game->item[it])
 				goto switched;
 				
 			(void)grab_next_argument();

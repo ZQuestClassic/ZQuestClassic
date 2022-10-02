@@ -884,8 +884,10 @@ int32_t onStrings()
 			int32_t lp = addAfter>=0 ? MsgStrings[addAfter].listpos : -1;
 			int32_t templateID=atoi(static_cast<char*>(strlist_dlg[22].dp));
 			
+			auto oldspeed = zinit.msg_speed;
+			zinit.msg_speed=atoi(msgspeed_string);
 			call_stringedit_dialog(size_t(index), templateID, addAfter);
-			
+			zinit.msg_speed=oldspeed;
 			if(MsgStrings[index].listpos!=msg_count) // Created new string
 			{
 				// Select the new message
@@ -1255,6 +1257,29 @@ int32_t msg_at_pos(int32_t pos)
 }
 
 // Returns number of arguments to each control code
+bool is_msgc(byte cc)
+{
+	switch(cc)
+	{
+		case MSGC_COLOUR: case MSGC_SPEED: case MSGC_GOTOIFGLOBAL:
+		case MSGC_GOTOIFRAND: case MSGC_GOTOIF: case MSGC_GOTOIFCTR:
+		case MSGC_GOTOIFCTRPC: case MSGC_GOTOIFTRI:
+		case MSGC_GOTOIFTRICOUNT: case MSGC_CTRUP: case MSGC_CTRDN:
+		case MSGC_CTRSET: case MSGC_CTRUPPC: case MSGC_CTRDNPC:
+		case MSGC_CTRSETPC: case MSGC_GIVEITEM: case MSGC_TAKEITEM:
+		case MSGC_WARP: case MSGC_SETSCREEND: case MSGC_SFX:
+		case MSGC_MIDI: case MSGC_NAME: case MSGC_GOTOIFCREEND:
+		//case MSGC_CHANGEPORTRAIT:
+		case MSGC_NEWLINE: case MSGC_SHDCOLOR:
+		case MSGC_SHDTYPE: case MSGC_DRAWTILE: case MSGC_ENDSTRING:
+		case MSGC_WAIT_ADVANCE: case MSGC_SETUPMENU:
+		case MSGC_MENUCHOICE: case MSGC_RUNMENU:
+		case MSGC_GOTOMENUCHOICE: case MSGC_TRIGSECRETS:
+		case MSGC_SETSCREENSTATE: case MSGC_SETSCREENSTATER:
+			return true;
+	}
+	return false;
+}
 int32_t msg_code_operands(byte cc)
 {
 	switch(cc)
