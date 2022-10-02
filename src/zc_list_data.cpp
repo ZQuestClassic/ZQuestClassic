@@ -8,6 +8,15 @@ extern char *sfx_string[];
 extern char *item_string[];
 extern miscQdata QMisc;
 
+#ifndef IS_PARSER
+#ifndef IS_ZQUEST
+#define customtunes tunes
+extern zctune tunes[MAXMIDIS];
+#else
+extern zctune *customtunes;
+#endif
+#endif
+
 const char *msgfont_str[font_max] =
 {
 	"Zelda NES", "Link to the Past", "LttP Small", "Allegro Default", "GUI Font Bold", "GUI Font", "GUI Font Narrow", "Zelda NES (Matrix)", "BS Time (Incomplete)", "Small", "Small 2",
@@ -476,6 +485,25 @@ GUI::ListData GUI::ZCListData::sfxnames(bool numbered)
 			sprintf(name, "%s (%03d)", sfx_name, i);
 		else strcpy(name, sfx_name);
 		ls.add(name, i);
+		delete[] name;
+	}
+	
+	return ls;
+}
+GUI::ListData GUI::ZCListData::midinames(bool numbered)
+{
+	std::map<std::string, int32_t> vals;
+	
+	GUI::ListData ls;
+	ls.add("(None)", 0);
+	for(int32_t i=0; i<MAXCUSTOMTUNES; ++i)
+	{
+		char const* midi_name = customtunes[i].title;
+		char* name = new char[strlen(midi_name) + 7];
+		if(numbered)
+			sprintf(name, "%s (%03d)", midi_name, i+1);
+		else strcpy(name, midi_name);
+		ls.add(name, i+1);
 		delete[] name;
 	}
 	

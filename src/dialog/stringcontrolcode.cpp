@@ -110,7 +110,7 @@ void SCCDialog::default_args()
 
 #define NUM_FIELD(v,_min,_max) \
 TextField( \
-	fitParent = true, maxwidth = sized(5.25_em, 4.5_em), \
+	fitParent = true, width = sized(5.25_em, 4.5_em), \
 	maxheight = 24_lpx, \
 	type = GUI::TextField::type::INT_DECIMAL, \
 	low = _min, high = _max, val = v, \
@@ -121,7 +121,7 @@ TextField( \
 
 #define HEX_FIELD(v,_min,_max) \
 TextField( \
-	fitParent = true, maxwidth = sized(5.25_em, 4.5_em), \
+	fitParent = true, width = sized(5.25_em, 4.5_em), \
 	maxheight = 24_lpx, \
 	type = GUI::TextField::type::INT_HEX, \
 	low = _min, high = _max, val = v, \
@@ -151,7 +151,8 @@ SCCDialog::SCCDialog() :
 	list_counters(GUI::ZCListData::counters(true, true)),
 	list_dmaps(dmap_list),
 	list_weffect(GUI::ZCListData::warpeffects()),
-	list_sfx(GUI::ZCListData::sfxnames(true))
+	list_sfx(GUI::ZCListData::sfxnames(true)),
+	list_midi(GUI::ZCListData::midinames(true))
 {
 	memset(args, 0, sizeof(args));
 	default_args();
@@ -204,12 +205,27 @@ std::string scc_help(byte scc)
 		case MSGC_TAKEITEM: return "Remove an item from the player. This works similarly to"
 			" an enemy eating the item.";
 		case MSGC_WARP: return "Warp the player";
-		
+		case MSGC_SETSCREEND: return "Set the value of any screen's 'Screen->D[]'";
+		case MSGC_SFX: return "Plays an SFX";
+		case MSGC_MIDI: return "Plays a MIDI";
 		case MSGC_NAME: return "Insert the player's save file name in the string";
-		
+		case MSGC_GOTOIFCREEND: return "Switch to another string if an index of a"
+			" remote screen's 'Screen->D[]' is at least a given value";
 		case MSGC_NEWLINE: return "Add a line break to the string";
 		case MSGC_SHDCOLOR: return "Change the shadow color of the text after the SCC";
 		case MSGC_SHDTYPE: return "Change the shadow type of the text after the SCC";
+		case MSGC_DRAWTILE: return "Draws a tile in the textbox";
+		case MSGC_ENDSTRING: return "Immediately exit the current string, going to the 'next string'"
+			" if one is set.";
+		case MSGC_WAIT_ADVANCE: return "Immediately pause the string until the player presses 'A'"
+			" to advance the text";
+		case MSGC_SETUPMENU: return "Sets the Menu Cursor up as a tile draw";
+		case MSGC_MENUCHOICE: return "Adds a menu choice";
+		case MSGC_RUNMENU: return "Starts a menu";
+		// case MSGC_GOTOMENUCHOICE:
+		// case MSGC_TRIGSECRETS:
+		// case MSGC_SETSCREENSTATE:
+		// case MSGC_SETSCREENSTATER:
 	}
 	return "";
 }
@@ -624,13 +640,88 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 			}
 			break;
 		}
-		// case MSGC_SETSCREEND:
-		// case MSGC_SFX:
-		// case MSGC_MIDI:
+		case MSGC_SETSCREEND:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("DMap:"),
+					DDL(cur_args[0],list_dmaps),
+					INFOBTN("DMap to edit")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Screen:"),
+					HEX_FIELD(cur_args[1],0,255),
+					INFOBTN("Screen to edit (relative to dmap offset)")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Register:"),
+					NUM_FIELD(cur_args[2],0,7),
+					INFOBTN("Screen->D[] register to edit")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Value:"),
+					NUM_FIELD(cur_args[3],0,MAX_SCC_ARG),
+					INFOBTN("Value to assign to register")
+				)
+			);
+			break;
+		}
+		case MSGC_SFX:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("SFX:"),
+					DDL(cur_args[0], list_sfx),
+					INFOBTN("SFX to play")
+				)
+			);
+			break;
+		}
+		case MSGC_MIDI:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("MIDI:"),
+					DDL(cur_args[0], list_midi),
+					INFOBTN("MIDI to play")
+				)
+			);
+			break;
+		}
 		case MSGC_NAME:
 			sgrid = Row(DummyWidget());
 			break;
-		// case MSGC_GOTOIFCREEND:
+		case MSGC_GOTOIFCREEND:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("DMap:"),
+					DDL(cur_args[0],list_dmaps),
+					INFOBTN("DMap to check")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Screen:"),
+					HEX_FIELD(cur_args[1],0,255),
+					INFOBTN("Screen to check (relative to dmap offset)")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Register:"),
+					NUM_FIELD(cur_args[2],0,7),
+					INFOBTN("Screen->D[] register to check")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Value:"),
+					NUM_FIELD(cur_args[3],0,MAX_SCC_ARG),
+					INFOBTN("Value to check against 'Screen->D[]'")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("String:"),
+					DDL(cur_args[4],list_strings),
+					INFOBTN("String to switch to if condition met")
+				)
+			);
+			break;
+		}
 		case MSGC_NEWLINE:
 			sgrid = Row(DummyWidget());
 			break;
@@ -676,12 +767,112 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 			);
 			break;
 		}
-		// case MSGC_DRAWTILE:
-		// case MSGC_ENDSTRING:
-		// case MSGC_WAIT_ADVANCE:
-		// case MSGC_SETUPMENU:
-		// case MSGC_MENUCHOICE:
-		// case MSGC_RUNMENU:
+		case MSGC_DRAWTILE:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Tile/CSet:"),
+					SelTileSwatch(
+						tile = cur_args[0],
+						cset = cur_args[1],
+						flip = cur_args[4],
+						showFlip = true,
+						showvals = true,
+						onSelectFunc = [&](int32_t t, int32_t c, int32_t f,int32_t)
+						{
+							cur_args[0] = t;
+							cur_args[1] = c;
+							cur_args[4] = f;
+						}
+					),
+					INFOBTN("Tile/CSet/Flip to draw")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Width (pixels):"),
+					NUM_FIELD(cur_args[2],0,255),
+					INFOBTN("Width of the draw, in pixels")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Height (pixels):"),
+					NUM_FIELD(cur_args[3],0,255),
+					INFOBTN("Height of the draw, in pixels")
+				)
+			);
+			break;
+		}
+		case MSGC_ENDSTRING:
+			sgrid = Row(DummyWidget());
+			break;
+		case MSGC_WAIT_ADVANCE:
+			sgrid = Row(DummyWidget());
+			break;
+		case MSGC_SETUPMENU:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Tile/CSet:"),
+					SelTileSwatch(
+						tile = cur_args[0],
+						cset = cur_args[1],
+						flip = cur_args[4],
+						showFlip = true,
+						showvals = true,
+						onSelectFunc = [&](int32_t t, int32_t c, int32_t f,int32_t)
+						{
+							cur_args[0] = t;
+							cur_args[1] = c;
+							cur_args[4] = f;
+						}
+					),
+					INFOBTN("Tile/CSet/Flip to use for menu cursor")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Width (pixels):"),
+					NUM_FIELD(cur_args[2],0,255),
+					INFOBTN("Width of the menu cursor, in pixels")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Height (pixels):"),
+					NUM_FIELD(cur_args[3],0,255),
+					INFOBTN("Height of the menu cursor, in pixels")
+				)
+			);
+			break;
+		}
+		case MSGC_MENUCHOICE:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Position:"),
+					NUM_FIELD(cur_args[0],0,MAX_SCC_ARG),
+					INFOBTN("Menu Cursor Position")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Up Position:"),
+					NUM_FIELD(cur_args[1],0,MAX_SCC_ARG),
+					INFOBTN("Position to move to when 'Up' is pressed")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Down Position:"),
+					NUM_FIELD(cur_args[2],0,MAX_SCC_ARG),
+					INFOBTN("Position to move to when 'Down' is pressed")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Left Position:"),
+					NUM_FIELD(cur_args[3],0,MAX_SCC_ARG),
+					INFOBTN("Position to move to when 'Left' is pressed")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Right Position:"),
+					NUM_FIELD(cur_args[4],0,MAX_SCC_ARG),
+					INFOBTN("Position to move to when 'Right' is pressed")
+				)
+			);
+			break;
+		}
+		case MSGC_RUNMENU:
+			sgrid = Row(DummyWidget());
+			break;
 		// case MSGC_GOTOMENUCHOICE:
 		// case MSGC_TRIGSECRETS:
 		// case MSGC_SETSCREENSTATE:
