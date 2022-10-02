@@ -11,6 +11,8 @@
 extern bool saved;
 extern miscQdata misc;
 extern zinitdata zinit;
+extern ListData dmap_list;
+
 static std::string retstr;
 static MsgStr const* refstr = nullptr;
 static MsgStr def_refstr;
@@ -28,7 +30,7 @@ std::string run_scc_dlg(MsgStr const* ref)
 	return retstr;
 }
 
-void calc_retstr(byte scc, word* args)
+void calc_retstr(byte scc, int32_t* args)
 {
 	if(!is_msgc(scc))
 	{
@@ -38,9 +40,13 @@ void calc_retstr(byte scc, word* args)
 	std::ostringstream oss;
 	oss << "\\" << word(scc);
 	auto count = msg_code_operands(scc);
+	int32_t val;
 	for(auto q = 0; q < count; ++q)
 	{
-		oss << "\\" << args[q];
+		if(unsigned(args[q]) >= MAX_SCC_ARG)
+			val = -1;
+		else val = word(args[q]);
+		oss << "\\" << val;
 	}
 	retstr = oss.str();
 }
@@ -98,6 +104,8 @@ void SCCDialog::default_args()
 	
 	args[MSGC_SHDCOLOR][0] = refstr->shadow_color;
 	args[MSGC_SHDTYPE][0] = refstr->shadow_type;
+	
+	warp_xy_toggle = true;
 }
 
 #define NUM_FIELD(v,_min,_max) \
@@ -105,6 +113,17 @@ TextField( \
 	fitParent = true, maxwidth = sized(5.25_em, 4.5_em), \
 	maxheight = 24_lpx, \
 	type = GUI::TextField::type::INT_DECIMAL, \
+	low = _min, high = _max, val = v, \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+	{ \
+		v = val; \
+	})
+
+#define HEX_FIELD(v,_min,_max) \
+TextField( \
+	fitParent = true, maxwidth = sized(5.25_em, 4.5_em), \
+	maxheight = 24_lpx, \
+	type = GUI::TextField::type::INT_HEX, \
 	low = _min, high = _max, val = v, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
@@ -124,13 +143,15 @@ DropDownList(data = lister, \
 #define TXT(txt) \
 Label(text = txt, hAlign = 1.0)
 
-#define MAX_ARG 65023
 GUI::ListData createShadowTypesListData();
 SCCDialog::SCCDialog() :
 	list_sccs(SCCListData()),
 	list_shtype(createShadowTypesListData()),
 	list_items(GUI::ZCListData::items(true)),
-	list_counters(GUI::ZCListData::counters(true, true))
+	list_counters(GUI::ZCListData::counters(true, true)),
+	list_dmaps(dmap_list),
+	list_weffect(GUI::ZCListData::warpeffects()),
+	list_sfx(GUI::ZCListData::sfxnames(true))
 {
 	memset(args, 0, sizeof(args));
 	default_args();
@@ -144,8 +165,18 @@ SCCDialog::SCCDialog() :
 		def_refstr.clear();
 	}
 }
+
+static const GUI::ListData list_arrivals
+{
+	{ "A", 0 },
+	{ "B", 1 },
+	{ "C", 2 },
+	{ "D", 3 },
+	{ "Pit Warp", 5 }
+};
 std::string scc_help(byte scc)
 {
+	std::string mcguffinname(ZI.getItemClassName(itype_triforcepiece));
 	switch(scc)
 	{
 		case MSGC_COLOUR: return "Change the text color of the text after the SCC";
@@ -158,6 +189,21 @@ std::string scc_help(byte scc)
 			" of a specific counter";
 		case MSGC_GOTOIFCTRPC: return "Switch to another string if the player has enough"
 			" of a specific counter, percentage-based";
+		case MSGC_GOTOIFTRI: return "Switch to another string if the specified level's '"
+			+mcguffinname+"' is owned";
+		case MSGC_GOTOIFTRICOUNT: return "Switch to another string if the specified number of '"
+			+mcguffinname+"' are owned";
+		case MSGC_CTRUP: return "Increase a counter by an amount";
+		case MSGC_CTRDN: return "Decrease a counter by an amount";
+		case MSGC_CTRSET: return "Set a counter to an amount";
+		case MSGC_CTRUPPC: return "Increase a counter by a percentage of its' maximum";
+		case MSGC_CTRDNPC: return "Decrease a counter by a percentage of its' maximum";
+		case MSGC_CTRSETPC: return "Set a counter to a percentage of its' maximum";
+		case MSGC_GIVEITEM: return "'Silently' give an item to the player. This will not"
+			" cause all normal item pickup effects to occur.";
+		case MSGC_TAKEITEM: return "Remove an item from the player. This works similarly to"
+			" an enemy eating the item.";
+		case MSGC_WARP: return "Warp the player";
 		
 		case MSGC_NAME: return "Insert the player's save file name in the string";
 		
@@ -176,6 +222,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 	window.reset();
 	
 	std::shared_ptr<GUI::Grid> wingrid, sgrid;
+	std::string mcguffinname(ZI.getItemClassName(itype_triforcepiece));
 	static std::string scc_helpstr;
 	scc_helpstr = scc_help(curscc);
 	window = Window(
@@ -264,7 +311,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 					NUM_FIELD(cur_args[0],0,7),
 					INFOBTN("Index of current screen's 'Screen->D[]' to check"),
 					TXT("Min Value:"),
-					NUM_FIELD(cur_args[1],0,MAX_ARG),
+					NUM_FIELD(cur_args[1],0,MAX_SCC_ARG),
 					INFOBTN("Value to check against 'Screen->D[]'")
 				),
 				Row(padding = 0_px, hAlign = 1.0,
@@ -280,7 +327,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 			sgrid = Column(padding = 0_px, vAlign = 0.0,
 				Row(padding = 0_px, hAlign = 1.0,
 					TXT("Factor:"),
-					NUM_FIELD(cur_args[0],0,MAX_ARG),
+					NUM_FIELD(cur_args[0],0,MAX_SCC_ARG),
 					INFOBTN("1-in-N chance of switching strings")
 				),
 				Row(padding = 0_px, hAlign = 1.0,
@@ -315,7 +362,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 					DDL(cur_args[0],list_counters),
 					INFOBTN("Switch strings if enough of this counter is full"),
 					TXT("Amount:"),
-					NUM_FIELD(cur_args[1],0,MAX_ARG),
+					NUM_FIELD(cur_args[1],0,MAX_SCC_ARG),
 					INFOBTN("Switch strings if at least this much of the counter is full")
 				),
 				Row(padding = 0_px, hAlign = 1.0,
@@ -345,17 +392,238 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 			);
 			break;
 		}
-		// case MSGC_GOTOIFTRI:
-		// case MSGC_GOTOIFTRICOUNT:
-		// case MSGC_CTRUP:
-		// case MSGC_CTRDN:
-		// case MSGC_CTRSET:
-		// case MSGC_CTRUPPC:
-		// case MSGC_CTRDNPC:
-		// case MSGC_CTRSETPC:
-		// case MSGC_GIVEITEM:
-		// case MSGC_TAKEITEM:
-		// case MSGC_WARP:
+		case MSGC_GOTOIFTRI:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Level:"),
+					NUM_FIELD(cur_args[0],0,511),
+					INFOBTN("Switch strings if the specified level's '"+mcguffinname+"' is owned")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("String:"),
+					DDL(cur_args[1],list_strings),
+					INFOBTN("String to switch to if the specified '"+mcguffinname+"' is owned")
+				)
+			);
+			break;
+		}
+		case MSGC_GOTOIFTRICOUNT:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT(mcguffinname+" Count:"),
+					NUM_FIELD(cur_args[0],0,511),
+					INFOBTN("Switch strings if at least this many '"+mcguffinname+"' are owned")
+				),
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("String:"),
+					DDL(cur_args[1],list_strings),
+					INFOBTN("String to switch to if the specified number of '"+mcguffinname+"' are owned")
+				)
+			);
+			break;
+		}
+		case MSGC_CTRUP:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Rows<3>(padding = 0_px, hAlign = 1.0,
+					TXT("Counter:"),
+					DDL(cur_args[0],list_counters),
+					INFOBTN("Counter to increase"),
+					TXT("Amount:"),
+					NUM_FIELD(cur_args[1],0,MAX_SCC_ARG),
+					INFOBTN("Amount to increase the counter by")
+				)
+			);
+			break;
+		}
+		case MSGC_CTRDN:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Rows<3>(padding = 0_px, hAlign = 1.0,
+					TXT("Counter:"),
+					DDL(cur_args[0],list_counters),
+					INFOBTN("Counter to decrease"),
+					TXT("Amount:"),
+					NUM_FIELD(cur_args[1],0,MAX_SCC_ARG),
+					INFOBTN("Amount to decrease the counter by")
+				)
+			);
+			break;
+		}
+		case MSGC_CTRSET:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Rows<3>(padding = 0_px, hAlign = 1.0,
+					TXT("Counter:"),
+					DDL(cur_args[0],list_counters),
+					INFOBTN("Counter to set"),
+					TXT("Amount:"),
+					NUM_FIELD(cur_args[1],0,MAX_SCC_ARG),
+					INFOBTN("Amount to set the counter to")
+				)
+			);
+			break;
+		}
+		case MSGC_CTRUPPC:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Rows<3>(padding = 0_px, hAlign = 1.0,
+					TXT("Counter:"),
+					DDL(cur_args[0],list_counters),
+					INFOBTN("Counter to increase"),
+					TXT("Percentage:"),
+					NUM_FIELD(cur_args[1],0,100),
+					INFOBTN("Percentage to increase the counter by")
+				)
+			);
+			break;
+		}
+		case MSGC_CTRDNPC:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Rows<3>(padding = 0_px, hAlign = 1.0,
+					TXT("Counter:"),
+					DDL(cur_args[0],list_counters),
+					INFOBTN("Counter to decrease"),
+					TXT("Percentage:"),
+					NUM_FIELD(cur_args[1],0,100),
+					INFOBTN("Percentage to decrease the counter by")
+				)
+			);
+			break;
+		}
+		case MSGC_CTRSETPC:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Rows<3>(padding = 0_px, hAlign = 1.0,
+					TXT("Counter:"),
+					DDL(cur_args[0],list_counters),
+					INFOBTN("Counter to set"),
+					TXT("Percentage:"),
+					NUM_FIELD(cur_args[1],0,100),
+					INFOBTN("Percentage to set the counter to")
+				)
+			);
+			break;
+		}
+		case MSGC_GIVEITEM:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Item:"),
+					DDL(cur_args[0],list_items),
+					INFOBTN("Item to give silently")
+				)
+			);
+			break;
+		}
+		case MSGC_TAKEITEM:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(padding = 0_px, hAlign = 1.0,
+					TXT("Item:"),
+					DDL(cur_args[0],list_items),
+					INFOBTN("Item to take silently")
+				)
+			);
+			break;
+		}
+		case MSGC_WARP:
+		{
+			if(warp_xy_toggle)
+			{
+				sgrid = Column(padding = 0_px, vAlign = 0.0,
+					Row(padding = 0_px, hAlign = 1.0,
+						TXT("DMap:"),
+						DDL(cur_args[0],list_dmaps),
+						INFOBTN("DMap to warp to")
+					),
+					Row(padding = 0_px, hAlign = 1.0,
+						TXT("Screen:"),
+						HEX_FIELD(cur_args[1],0,255),
+						INFOBTN("Screen to warp to (relative to dmap offset)")
+					),
+					Row(padding = 0_px, hAlign = 1.0,
+						Checkbox(text = "Use X/Y",
+							checked = warp_xy_toggle,
+							onToggle = message::RELOAD,
+							onToggleFunc = [&](bool state)
+							{
+								warp_xy_toggle = state;
+								cur_args[2] = state ? 0 : -1;
+								cur_args[3] = 0;
+							}
+						),
+						INFOBTN("Use X/Y coordinates instead of arrival point")
+					),
+					Row(padding = 0_px, hAlign = 1.0,
+						TXT("X:"),
+						NUM_FIELD(cur_args[2],0,240),
+						INFOBTN("The exact X coordinate to warp to"),
+						TXT("Y:"),
+						NUM_FIELD(cur_args[3],0,160),
+						INFOBTN("The exact Y coordinate to warp to")
+					),
+					Row(padding = 0_px, hAlign = 1.0,
+						TXT("Warp Effect:"),
+						DDL(cur_args[4],list_weffect),
+						INFOBTN("Warp effect to display")
+					),
+					Row(padding = 0_px, hAlign = 1.0,
+						TXT("SFX:"),
+						DDL(cur_args[5],list_sfx),
+						INFOBTN("SFX to play during the warp")
+					)
+				);
+			}
+			else
+			{
+				sgrid = Column(padding = 0_px, vAlign = 0.0,
+					Row(padding = 0_px, hAlign = 1.0,
+						TXT("DMap:"),
+						DDL(cur_args[0],list_dmaps),
+						INFOBTN("DMap to warp to")
+					),
+					Row(padding = 0_px, hAlign = 1.0,
+						TXT("Screen:"),
+						HEX_FIELD(cur_args[1],0,255),
+						INFOBTN("Screen to warp to (relative to dmap offset)")
+					),
+					Row(padding = 0_px, hAlign = 1.0,
+						Checkbox(text = "Use X/Y",
+							checked = warp_xy_toggle,
+							onToggle = message::RELOAD,
+							onToggleFunc = [&](bool state)
+							{
+								warp_xy_toggle = state;
+								cur_args[2] = state ? 0 : -1;
+								cur_args[3] = 0;
+							}
+						),
+						INFOBTN("Use X/Y coordinates instead of arrival point")
+					),
+					Row(padding = 0_px, hAlign = 1.0,
+						TXT("Arrival Point:"),
+						DDL(cur_args[3],list_arrivals),
+						INFOBTN("Where to arrive from the warp; either a blue return square letter,"
+							" or a 'Pit Warp'")
+					),
+					Row(padding = 0_px, hAlign = 1.0,
+						TXT("Warp Effect:"),
+						DDL(cur_args[4],list_weffect),
+						INFOBTN("Warp effect to display")
+					),
+					Row(padding = 0_px, hAlign = 1.0,
+						TXT("SFX:"),
+						DDL(cur_args[5],list_sfx),
+						INFOBTN("SFX to play during the warp")
+					)
+				);
+			}
+			break;
+		}
 		// case MSGC_SETSCREEND:
 		// case MSGC_SFX:
 		// case MSGC_MIDI:
@@ -423,7 +691,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 			break;
 	}
 	wingrid->add(
-		Frame(minheight = sized(90_px,120_px), fitParent = true,
+		Frame(minheight = sized(120_px,200_px), fitParent = true,
 			sgrid
 		)
 	);

@@ -621,3 +621,20 @@ GUI::ListData const& GUI::ZCListData::deftypes()
 {
 	return defense_types;
 }
+
+static const GUI::ListData warp_effects
+{
+	{ "None", 0 },
+	{ "Zap", 1 },
+	{ "Wave", 2 },
+	{ "Instant", 3 },
+	{ "Open", 4 }
+};
+
+GUI::ListData const& GUI::ZCListData::warpeffects()
+{
+	return warp_effects;
+}
+
+
+

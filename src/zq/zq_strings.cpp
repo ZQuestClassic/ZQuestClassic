@@ -1011,10 +1011,16 @@ std::string parse_msg_str(std::string const& s)
 			byte twofiftyfives = 0;
 			byte digits = 0;
 			
+			bool neg = false;
+			if(i+1 < s.size() && s[i+1] == '-')
+			{
+				neg = true;
+				++i;
+			}
 			// Read the entire number
 			while(i+1<s.size() && s[i+1]>='0' && s[i+1]<='9' && ++digits <= 5)
 			{
-				i++;
+				++i;
 				msgcc*=10; // Move the current number one decimal place right.
 				msgcc+=byte(s[i]-'0');
 				
@@ -1023,6 +1029,11 @@ std::string parse_msg_str(std::string const& s)
 				{
 					twofiftyfives = (msgcc/254)<<0;
 				}
+			}
+			if(neg)
+			{
+				msgcc = MAX_SCC_ARG;
+				twofiftyfives = (msgcc/254)<<0;
 			}
 			smsg += (char)((msgcc % 254) + 1); // As 0 is null, we must store codes 1 higher than their actual value...
 
@@ -1172,7 +1183,9 @@ char* encode_msg_str(std::string const& message)
 					}
 					
 					// Append the argument to sccBuf.
-					sprintf(sccArgBuf, "\\%hu", sccArg);
+					if(sccArg == MAX_SCC_ARG)
+						strcpy(sccArgBuf, "\\-1");
+					else sprintf(sccArgBuf, "\\%hu", sccArg);
 					strcat(sccBuf, sccArgBuf);
 				}
 			}

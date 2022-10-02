@@ -29,9 +29,11 @@ public:
 private:
 	std::shared_ptr<GUI::Window> window;
 	byte curscc;
-	word args[256][5];
-	GUI::ListData list_sccs, list_shtype, list_strings, list_items, list_counters;
-	word* cur_args;
+	int32_t args[256][6];
+	GUI::ListData list_sccs, list_shtype, list_strings, list_items, list_counters, list_dmaps,
+		list_weffect, list_sfx;
+	int32_t* cur_args;
+	bool warp_xy_toggle;
 	
 	void default_args();
 };

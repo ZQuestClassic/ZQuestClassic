@@ -22522,6 +22522,8 @@ bool parsemsgcode()
 			int32_t    dy =  grab_next_argument();
 			int32_t    wfx =  grab_next_argument();
 			int32_t    sfx =  grab_next_argument();
+			if(dx >= MAX_SCC_ARG) dx = -1;
+			if(dy >= MAX_SCC_ARG) dy = -1;
 			FFCore.warp_player(wtIWARP, dmap, scrn, dx, dy, wfx, sfx, warpFlagDONTKILLMUSIC, 0);
 			return true;
 		}

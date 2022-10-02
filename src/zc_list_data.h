@@ -26,6 +26,7 @@ namespace GUI::ZCListData
 	GUI::ListData lweapon_script();
 	GUI::ListData combodata_script();
     GUI::ListData const& deftypes();
+    GUI::ListData const& warpeffects();
 }
 
 #endif
