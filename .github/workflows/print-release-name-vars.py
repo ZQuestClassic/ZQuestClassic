@@ -1,6 +1,7 @@
 import argparse
 import subprocess
 
+
 def str2bool(v):
     if isinstance(v, bool):
         return v
@@ -10,6 +11,7 @@ def str2bool(v):
         return False
     else:
         raise argparse.ArgumentTypeError('Boolean value expected.')
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--github_org', required=True)
@@ -25,13 +27,23 @@ if args.number:
 release_tag_name = ''
 release_name = ''
 
+
+def maybe_add_org_prefix(tag_name):
+    if args.github_org != 'ArmageddonGames':
+        return f'{args.github_org}-{tag_name}'
+    else:
+        return tag_name
+
+
 if args.full_release:
-    release_tag_name = f'2.55-{args.version_type}-{args.number}'
+    release_tag_name = maybe_add_org_prefix(
+        f'2.55-{args.version_type}-{args.number}')
     release_name = f'2.55 {args.version_type.capitalize()} {args.number}'
 else:
     i = 1
     while True:
-        release_tag_name = f'nightly-{args.formatted_time}'
+        release_tag_name = maybe_add_org_prefix(
+            f'nightly-{args.formatted_time}')
         release_name = f'Nightly {args.formatted_time}'
         if i != 1:
             release_tag_name += f'-{i}'
@@ -41,9 +53,6 @@ else:
             i += 1
         else:
             break
-
-if args.github_org != 'ArmageddonGames':
-    release_tag_name = f'{args.github_org}-{release_tag_name}'
 
 print(f'::set-output name=release_tag_name::{release_tag_name}')
 print(f'::set-output name=release_name::{release_name}')
