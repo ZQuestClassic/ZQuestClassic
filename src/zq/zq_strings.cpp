@@ -884,8 +884,10 @@ int32_t onStrings()
 			int32_t lp = addAfter>=0 ? MsgStrings[addAfter].listpos : -1;
 			int32_t templateID=atoi(static_cast<char*>(strlist_dlg[22].dp));
 			
+			auto oldspeed = zinit.msg_speed;
+			zinit.msg_speed=atoi(msgspeed_string);
 			call_stringedit_dialog(size_t(index), templateID, addAfter);
-			
+			zinit.msg_speed=oldspeed;
 			if(MsgStrings[index].listpos!=msg_count) // Created new string
 			{
 				// Select the new message
@@ -1009,10 +1011,16 @@ std::string parse_msg_str(std::string const& s)
 			byte twofiftyfives = 0;
 			byte digits = 0;
 			
+			bool neg = false;
+			if(i+1 < s.size() && s[i+1] == '-')
+			{
+				neg = true;
+				++i;
+			}
 			// Read the entire number
 			while(i+1<s.size() && s[i+1]>='0' && s[i+1]<='9' && ++digits <= 5)
 			{
-				i++;
+				++i;
 				msgcc*=10; // Move the current number one decimal place right.
 				msgcc+=byte(s[i]-'0');
 				
@@ -1021,6 +1029,11 @@ std::string parse_msg_str(std::string const& s)
 				{
 					twofiftyfives = (msgcc/254)<<0;
 				}
+			}
+			if(neg)
+			{
+				msgcc = MAX_SCC_ARG;
+				twofiftyfives = (msgcc/254)<<0;
 			}
 			smsg += (char)((msgcc % 254) + 1); // As 0 is null, we must store codes 1 higher than their actual value...
 
@@ -1170,7 +1183,9 @@ char* encode_msg_str(std::string const& message)
 					}
 					
 					// Append the argument to sccBuf.
-					sprintf(sccArgBuf, "\\%hu", sccArg);
+					if(sccArg == MAX_SCC_ARG)
+						strcpy(sccArgBuf, "\\-1");
+					else sprintf(sccArgBuf, "\\%hu", sccArg);
 					strcat(sccBuf, sccArgBuf);
 				}
 			}
@@ -1255,6 +1270,29 @@ int32_t msg_at_pos(int32_t pos)
 }
 
 // Returns number of arguments to each control code
+bool is_msgc(byte cc)
+{
+	switch(cc)
+	{
+		case MSGC_COLOUR: case MSGC_SPEED: case MSGC_GOTOIFGLOBAL:
+		case MSGC_GOTOIFRAND: case MSGC_GOTOIF: case MSGC_GOTOIFCTR:
+		case MSGC_GOTOIFCTRPC: case MSGC_GOTOIFTRI:
+		case MSGC_GOTOIFTRICOUNT: case MSGC_CTRUP: case MSGC_CTRDN:
+		case MSGC_CTRSET: case MSGC_CTRUPPC: case MSGC_CTRDNPC:
+		case MSGC_CTRSETPC: case MSGC_GIVEITEM: case MSGC_TAKEITEM:
+		case MSGC_WARP: case MSGC_SETSCREEND: case MSGC_SFX:
+		case MSGC_MIDI: case MSGC_NAME: case MSGC_GOTOIFCREEND:
+		//case MSGC_CHANGEPORTRAIT:
+		case MSGC_NEWLINE: case MSGC_SHDCOLOR:
+		case MSGC_SHDTYPE: case MSGC_DRAWTILE: case MSGC_ENDSTRING:
+		case MSGC_WAIT_ADVANCE: case MSGC_SETUPMENU:
+		case MSGC_MENUCHOICE: case MSGC_RUNMENU:
+		case MSGC_GOTOMENUCHOICE: case MSGC_TRIGSECRETS:
+		case MSGC_SETSCREENSTATE: case MSGC_SETSCREENSTATER:
+			return true;
+	}
+	return false;
+}
 int32_t msg_code_operands(byte cc)
 {
 	switch(cc)

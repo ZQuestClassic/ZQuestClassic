@@ -8,6 +8,15 @@ extern char *sfx_string[];
 extern char *item_string[];
 extern miscQdata QMisc;
 
+#ifndef IS_PARSER
+#ifndef IS_ZQUEST
+#define customtunes tunes
+extern zctune tunes[MAXMIDIS];
+#else
+extern zctune *customtunes;
+#endif
+#endif
+
 const char *msgfont_str[font_max] =
 {
 	"Zelda NES", "Link to the Past", "LttP Small", "Allegro Default", "GUI Font Bold", "GUI Font", "GUI Font Narrow", "Zelda NES (Matrix)", "BS Time (Incomplete)", "Small", "Small 2",
@@ -481,6 +490,25 @@ GUI::ListData GUI::ZCListData::sfxnames(bool numbered)
 	
 	return ls;
 }
+GUI::ListData GUI::ZCListData::midinames(bool numbered)
+{
+	std::map<std::string, int32_t> vals;
+	
+	GUI::ListData ls;
+	ls.add("(None)", 0);
+	for(int32_t i=0; i<MAXCUSTOMTUNES; ++i)
+	{
+		char const* midi_name = customtunes[i].title;
+		char* name = new char[strlen(midi_name) + 7];
+		if(numbered)
+			sprintf(name, "%s (%03d)", midi_name, i+1);
+		else strcpy(name, midi_name);
+		ls.add(name, i+1);
+		delete[] name;
+	}
+	
+	return ls;
+}
 
 static void load_scriptnames(std::set<std::string> &names, std::map<std::string, int32_t> &vals,
 	std::map<int32_t, script_slot_data> scrmap, int32_t count)
@@ -621,3 +649,45 @@ GUI::ListData const& GUI::ZCListData::deftypes()
 {
 	return defense_types;
 }
+
+static const GUI::ListData warp_effects
+{
+	{ "None", 0 },
+	{ "Zap", 1 },
+	{ "Wave", 2 },
+	{ "Instant", 3 },
+	{ "Open", 4 }
+};
+
+GUI::ListData const& GUI::ZCListData::warpeffects()
+{
+	return warp_effects;
+}
+
+static const GUI::ListData screen_state
+{
+	{ "Door Up", 0 },
+	{ "Door Down", 1 },
+	{ "Door Left", 2 },
+	{ "Door Right", 3 },
+	{ "Screen Item", 4 },
+	{ "Special Item", 5 },
+	{ "Enemies Never Return", 6 },
+	{ "Enemies Temp No Return", 7 },
+	{ "Lockblock", 8 },
+	{ "Boss Lockblock", 9 },
+	{ "Chest", 10 },
+	{ "Locked Chest", 11 },
+	{ "Boss Chest", 12 },
+	{ "Secrets", 13 },
+	{ "Visited", 14 },
+	{ "Light Triggers", 15 }
+};
+
+GUI::ListData const& GUI::ZCListData::screenstate()
+{
+	return screen_state;
+}
+
+
+

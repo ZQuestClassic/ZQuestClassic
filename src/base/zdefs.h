@@ -3777,6 +3777,7 @@ struct zquestheader
 
 enum { msLINKED };
 
+#define MAX_SCC_ARG 65023
 /* Note: Printable ASCII begins at 32 and ends at 126, inclusive. */
 #define MSGC_COLOUR            1    // 2 args (cset,swatch)
 #define MSGC_SPEED             2    // 1 arg  (speed)
