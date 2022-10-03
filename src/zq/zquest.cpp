@@ -14331,7 +14331,7 @@ const char *numberlist(int32_t index, int32_t *list_size)
 }
 
 static char dmap_str_buf[37];
-int32_t dmap_list_size=1;
+int32_t dmap_list_size=MAXDMAPS;
 bool dmap_list_zero=true;
 
 const char *dmaplist(int32_t index, int32_t *list_size)

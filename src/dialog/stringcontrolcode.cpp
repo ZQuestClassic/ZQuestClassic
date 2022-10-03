@@ -30,12 +30,11 @@ std::string run_scc_dlg(MsgStr const* ref)
 	return retstr;
 }
 
-void calc_retstr(byte scc, int32_t* args)
+std::string calc_retstr(byte scc, int32_t* args)
 {
 	if(!is_msgc(scc))
 	{
-		retstr = "";
-		return;
+		return "";
 	}
 	std::ostringstream oss;
 	oss << "\\" << word(scc);
@@ -48,7 +47,7 @@ void calc_retstr(byte scc, int32_t* args)
 		else val = word(args[q]);
 		oss << "\\" << val;
 	}
-	retstr = oss.str();
+	return oss.str();
 }
 
 const GUI::ListData SCCListData()
@@ -265,6 +264,18 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 							InfoDialog("Info",scc_helpstr).show();
 						})
 				)
+			),
+			Row(
+				vAlign = 1.0,
+				spacing = 2_em,
+				Button(
+					text = "Copy",
+					minwidth = 90_lpx,
+					onClick = message::COPY),
+				Button(
+					text = "Paste",
+					minwidth = 90_lpx,
+					onClick = message::PASTE)
 			),
 			Row(
 				vAlign = 1.0,
@@ -558,22 +569,22 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 						INFOBTN("DMap to warp to")
 					),
 					Row(padding = 0_px, hAlign = 1.0,
-						TXT("Screen:"),
+						TXT("Screen: 0x"),
 						HEX_FIELD(cur_args[1],0,255),
 						INFOBTN("Screen to warp to (relative to dmap offset)")
 					),
 					Row(padding = 0_px, hAlign = 1.0,
-						Checkbox(text = "Use X/Y",
-							checked = warp_xy_toggle,
-							onToggle = message::RELOAD,
-							onToggleFunc = [&](bool state)
+						Button(text = "Use Arrival Point",
+							onClick = message::RELOAD,
+							maxheight = 1.5_em,
+							onPressFunc = [&]()
 							{
-								warp_xy_toggle = state;
-								cur_args[2] = state ? 0 : -1;
+								warp_xy_toggle = false;
+								cur_args[2] = -1;
 								cur_args[3] = 0;
 							}
 						),
-						INFOBTN("Use X/Y coordinates instead of arrival point")
+						INFOBTN("Use Arrival Point or Pit Warp instead of X/Y coordinates")
 					),
 					Row(padding = 0_px, hAlign = 1.0,
 						TXT("X:"),
@@ -604,18 +615,18 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 						INFOBTN("DMap to warp to")
 					),
 					Row(padding = 0_px, hAlign = 1.0,
-						TXT("Screen:"),
+						TXT("Screen: 0x"),
 						HEX_FIELD(cur_args[1],0,255),
 						INFOBTN("Screen to warp to (relative to dmap offset)")
 					),
 					Row(padding = 0_px, hAlign = 1.0,
-						Checkbox(text = "Use X/Y",
-							checked = warp_xy_toggle,
-							onToggle = message::RELOAD,
-							onToggleFunc = [&](bool state)
+						Button(text = "Use X/Y Coordinates",
+							onClick = message::RELOAD,
+							maxheight = 1.5_em,
+							onPressFunc = [&]()
 							{
-								warp_xy_toggle = state;
-								cur_args[2] = state ? 0 : -1;
+								warp_xy_toggle = true;
+								cur_args[2] = 0;
 								cur_args[3] = 0;
 							}
 						),
@@ -961,6 +972,71 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 	return window;
 }
 
+bool SCCDialog::load_scc_str(std::string const& str)
+{
+	size_t q = 0;
+	byte scc;
+	int32_t t_args[6];
+	int cur_arg = -1;
+	int limit = 6;
+	while(q < str.size() && cur_arg < limit)
+	{
+		if(str.at(q) == '\\') //SCC escape slash
+		{
+			size_t ind = 0;
+			char buf[8] = {0};
+			++q;
+			while(q < str.size())
+			{
+				char c = str.at(q);
+				bool cont = false;
+				switch(c)
+				{
+					case '-': case '0': case '1': case '2': case '3':
+					case '4': case '5': case '6': case '7': case '8':
+					case '9':
+						buf[ind++] = c;
+						buf[ind] = 0;
+						cont = ind<6;
+						++q;
+						break;
+				}
+				if(!cont) break;
+			}
+			int32_t val = atoi(buf);
+			//if(val < 0) val = MAX_SCC_ARG;
+			
+			if(cur_arg < 0)
+			{
+				scc = byte(val);
+				limit = msg_code_operands(scc);
+				++cur_arg;
+			}
+			else
+			{
+				t_args[cur_arg++] = val;
+			}
+		}
+		else break;
+	}
+	if(cur_arg < 0) return false; //no scc
+	if(cur_arg < limit) return false; //missing params
+	
+	curscc = scc;
+	for(q = 0; q < limit; ++q)
+	{
+		args[scc][q] = t_args[q];
+	}
+	switch(scc)
+	{
+		case MSGC_WARP:
+		{
+			warp_xy_toggle = unsigned(t_args[2]) < MAX_SCC_ARG;
+		}
+	}
+	return true;
+}
+
 bool SCCDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	switch(msg.message)
@@ -968,8 +1044,21 @@ bool SCCDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::RELOAD:
 			rerun_dlg = true;
 			return true;
+		case message::COPY:
+			set_al_clipboard(calc_retstr(curscc, args[curscc]));
+			return false;
+		case message::PASTE:
+		{
+			std::string cb;
+			if(get_al_clipboard(cb) && load_scc_str(cb))
+			{
+				rerun_dlg = true;
+				return true;
+			}
+			return false;
+		}
 		case message::OK:
-			calc_retstr(curscc, args[curscc]);
+			retstr = calc_retstr(curscc, args[curscc]);
 			return true;
 
 		case message::CANCEL:

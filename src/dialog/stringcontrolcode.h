@@ -18,7 +18,7 @@ class SCCDialog: public GUI::Dialog<SCCDialog>
 public:
 	enum class message
 	{
-		OK, CANCEL, RELOAD
+		OK, CANCEL, RELOAD, COPY, PASTE
 	};
 
 	SCCDialog();
@@ -36,6 +36,7 @@ private:
 	bool warp_xy_toggle;
 	
 	void default_args();
+	bool load_scc_str(std::string const& str);
 };
 
 #endif
