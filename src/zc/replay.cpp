@@ -534,7 +534,7 @@ static void check_assert()
                                               replay_step->print().c_str(), record_step->print().c_str());
             fprintf(stderr, "%s\n", error.c_str());
             replay_save(filename + ".roundtrip");
-            Paused = true;
+            // Paused = true;
             break;
         }
 
@@ -645,6 +645,9 @@ void replay_continue(std::string filename_)
 
 void replay_poll()
 {
+    if (mode == ReplayMode::Off)
+        return;
+
     ASSERT(locking_keys);
 
     if (did_attempt_input_during_replay && replay_is_replaying())
