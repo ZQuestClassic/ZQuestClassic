@@ -6858,6 +6858,69 @@ int TriggerChange;
  * The amount the combo will change by when triggered.
  * Ex. '1' acts as '->Next', '-1' acts as '->Prev'.
  * If '0', no change occurs.
+int TrigCSetChange;
+ * The amount the cset will change by when triggered.
+
+int TrigCooldown;
+ * The combo's cooldown between triggers
+
+int TrigCopycat;
+ * If >0, triggering this combo triggers all other combos with matching TrigCopycat.
+
+int TrigExState;
+ * If >-1, the ExState that the combo is linked to.
+
+int TrigSpawnEnemy;
+ * If >0, the enemy ID spawned when the combo is triggered.
+int TrigSpawnItem;
+ * If >0, the item ID (or dropset ID) spawned when the combo is triggered.
+int TrigSpawnItemPickup;
+ * The item pickup flags for the spawned item
+ * Only the flags IP_HOLDUP, IP_TIMEOUT, IP_TRIGGERSECRETS, IP_ALWAYSGRAB are used.
+
+int LiftGFXCombo;
+ * The 'Other Combo GFX' field
+int LiftGFXCSet;
+ * The 'Other Combo GFX' field's CSet
+int LiftGFXSprite;
+ * The 'Sprite Data GFX' field
+
+int LiftUnderCombo;
+ * The combo that appears under the lifted combo
+int LiftUnderCSet;
+ * The cset that appears under the lifted combo
+
+int LiftDamage;
+ * The damage value of the lifted combo as an lweapon
+
+int LiftLevel;
+ * The required level of lift glove to lift this combo
+
+int LiftItem;
+ * The item (or dropset) dropped when lifting the combo
+
+bool LiftFlags[7];
+ * A set of flags related to lifting (use LF_ constants)
+
+int LiftGFXType;
+ * The type of GFX to use when lifting the combo.
+
+int LiftSFX;
+ * The SFX played when lifting.
+ * If 0, uses the sfx set on the Lift Glove instead.
+
+int LiftBreakSprite;
+ * The sprite data index to display on the object breaking
+int LiftBreakSFX;
+ * The SFX to play when the object breaks
+
+int LiftHeight;
+ * The height above the player's head the object is held
+
+int LiftTime;
+ * The time, in frames, it takes to completely lift the combo.
+ * This is also the duration of the player's Lifting animation
+ *   when lifting this combo.
 
 // t/b/a
 //void GetLabel() / GetName()
