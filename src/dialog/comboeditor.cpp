@@ -2056,6 +2056,11 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	using namespace GUI::Key;
+
+	// Too many locals error in low-optimization mode for emscripten.
+#ifdef EMSCRIPTEN_DEBUG
+	return std::shared_ptr<GUI::Widget>(nullptr);
+#endif
 	
 	char titlebuf[256];
 	sprintf(titlebuf, "Combo Editor (%d)", index);
