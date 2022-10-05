@@ -8712,6 +8712,7 @@ finished:
     while(gui_mouse_b())
     {
         /* do nothing */
+        rest(1);
     }
     
     showxypos_x=-1000;
@@ -8937,6 +8938,7 @@ finished:
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+        rest(1);
 	}
 }
 
@@ -12151,6 +12153,7 @@ int32_t d_scombo_proc(int32_t msg,DIALOG *d,int32_t c)
             while(gui_mouse_b())
             {
                 /* do nothing */
+                rest(1);
             }
             
             if(select_flag(f))
@@ -15878,6 +15881,7 @@ int32_t d_title_edit_proc(int32_t msg,DIALOG *d,int32_t c)
         while(gui_mouse_b())
         {
             /* do nothing */
+            rest(1);
         }
         
         break;
@@ -16022,6 +16026,7 @@ int32_t d_intro_edit_proc(int32_t msg,DIALOG *d,int32_t c)
         while(gui_mouse_b())
         {
             /* do nothing */
+            rest(1);
         }
         
         break;
@@ -19270,6 +19275,7 @@ int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c)
         while(gui_mouse_b())
         {
             /* do nothing */
+            rest(1);
         }
     }
     break;
@@ -22288,6 +22294,7 @@ int32_t d_comboa_proc(int32_t msg,DIALOG *d,int32_t c)
             while(gui_mouse_b())
             {
                 /* do nothing */
+                rest(1);
             }
             
             return D_REDRAW;
@@ -33198,6 +33205,7 @@ finished:
     while(gui_mouse_b())
     {
         /* do nothing */
+        rest(1);
     }
 }
 

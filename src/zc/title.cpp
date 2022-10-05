@@ -3573,6 +3573,7 @@ static bool register_name()
 						while(key[KEY_ESC])
 						{
 							/* do nothing */
+							rest(1);
 						}
 						
 						break;
