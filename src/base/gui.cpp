@@ -130,6 +130,7 @@ int32_t PopUp_dialog(DIALOG *d,int32_t f)
 	while(update_dialog(player))
 	{
 		/* do nothing */
+		rest(1);
 	}
 	
 	int32_t ret = shutdown_dialog(player);
@@ -181,6 +182,7 @@ int32_t PopUp_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int32_t f)
 	while(update_dialog_through_bitmap(buffer,player))
 	{
 		/* do nothing */
+		rest(1);
 	}
 	
 	int32_t ret = shutdown_dialog(player);

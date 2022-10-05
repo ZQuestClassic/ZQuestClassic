@@ -77,7 +77,7 @@ async function requestPermission() {
     } catch { }
   }
 
-  if (result) result = await attachedDirHandle.requestPermission(options) === 'granted';
+  if (result && attachedDirHandle) result = await attachedDirHandle.requestPermission(options) === 'granted';
   document.querySelector('.content').classList.remove('hidden');
   document.querySelector('.permission').classList.add('hidden');
   return result;

@@ -56,7 +56,7 @@ INLINE int32_t popup_menu(MENU *menu,int32_t x,int32_t y)
 {
     while(gui_mouse_b())
     {
-        rest(0);
+        rest(1);
     }
     
     return jwin_do_menu(menu,x,y);

@@ -182,7 +182,7 @@ void rest_callback(unsigned int time, void (*callback)(void))
 	    if (callback)
 	       callback();
 	    else
-	       rest(0);
+	       rest(1);
 
 	 } while (rest_count > 0);
 
@@ -192,7 +192,7 @@ void rest_callback(unsigned int time, void (*callback)(void))
    else {
       time = clock() + MIN(time * CLOCKS_PER_SEC / 1000, 2);
       do {
-         rest(0);
+         rest(1);
       } while (clock() < (clock_t)time);
    }
 }
