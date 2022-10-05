@@ -108,11 +108,23 @@ if [[ "$DEBUG" ]]; then
   EMCC_FLAGS+=(
     -O2
     -g
+    -DEMSCRIPTEN_DEBUG
   )
   LINKER_FLAGS+=(
-    # --threadprofiler
     -s ASSERTIONS=1
   )
+
+  # Makes linking faster, but can't actually run the result because ASYNCIFY is disabled.
+  # https://github.com/emscripten-core/emscripten/issues/18001
+  if [[ "$FAST_LINK" ]]; then
+    LINKER_FLAGS+=(
+      -s ASYNCIFY=0
+      -s WASM_BIGINT
+      -s LEGALIZE_JS_FFI=0
+      -s ERROR_ON_WASM_CHANGES_AFTER_LINK
+    )
+  fi
+
   CONFIG="Debug"
 else
   EMCC_FLAGS+=(
@@ -229,5 +241,10 @@ mv ../../output/_auto/buildpack_lazy files
 
 build_js
 
-# Now start a local webserver in the build_emscripten folder:
-#   npx statikk --port 8000 --coi
+echo "done configuring emscripten build."
+echo ""
+echo "run the ninja build rule (ex: ninja $CONFIG/zelda.js) to rebuild a target"
+echo "you only need to re-run build_emscripten.sh if something in this file is changed"
+echo ""
+echo "be sure to start a local webserver in the build_emscripten folder:"
+echo "    npx statikk --port 8000 --coi"
