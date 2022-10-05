@@ -2798,7 +2798,9 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 int32_t parse_script_file(script_data **script, const char *path, bool report_success)
 {
 	FILE *fscript = fopen(path,"rb");
-	return parse_script_file(script, fscript, report_success);
+	int32_t result = parse_script_file(script, fscript, report_success);
+	fclose(fscript);
+	return result;
 }
 int32_t parse_script_file(script_data **script, FILE* fscript, bool report_success)
 {
@@ -3297,7 +3299,6 @@ zasmfile_fail:
 	delete [] combuf;
 	delete [] arg1buf;
 	delete [] arg2buf;
-	fclose(fscript);
 	return success?D_O_K:D_CLOSE;
 }
 

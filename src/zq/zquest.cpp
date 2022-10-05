@@ -26920,9 +26920,6 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 			case 0:
 			case 2:
 				//Cancel
-				if(tempfile!=NULL) fclose(tempfile);
-				
-				//return false;
 				goto exit_do_slots;
 				
 			case 3:
@@ -27516,8 +27513,6 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				}
 				build_biffs_list();
 				build_biitems_list();
-				if(tempfile!=NULL) fclose(tempfile);
-				//return true;
 				retval = true;
 				goto exit_do_slots;
 			}
@@ -28403,10 +28398,13 @@ int32_t onImportZASM()
 	script_data *temp_slot = new script_data();
 	if(parse_script_file(&temp_slot, zasm_import_file, false) == D_CLOSE)
 	{
+		fclose(zasm_import_file);
 		jwin_alert("Error","Failed to parse specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
 		delete temp_slot;
 		return D_O_K;
 	}
+	fclose(zasm_import_file);
+
 	char namebuf[33] = {0};
 	if(temp_slot->meta.valid()) //Found metadata
 	{
