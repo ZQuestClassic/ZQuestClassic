@@ -1198,7 +1198,7 @@ void GlobalSymbols::generateCode()
     }
     //int32_t LPow(int32_t first, int32_t second)
     {
-	    Function* function = getFunction("Pow", 2);
+	    Function* function = getFunction("LPow", 2);
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
