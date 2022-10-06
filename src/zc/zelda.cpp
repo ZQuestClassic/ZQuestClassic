@@ -29,6 +29,7 @@
 #include <al5img.h>
 
 #include "zc_malloc.h"
+#include "WindowsScaling.h"
 #include "mem_debug.h"
 #include "zscriptversion.h"
 #include "zcmusic.h"
@@ -5424,8 +5425,14 @@ int main(int argc, char **argv)
 		int o_window_h = al_get_display_height(all_get_display());
 		int center_x = o_window_x + o_window_w / 2;
 		int center_y = o_window_y + o_window_h / 2;
-		al_resize_display(all_get_display(), window_width, window_height);
-		al_set_window_position(all_get_display(), center_x - window_width / 2, center_y - window_height / 2);
+		double vscale =  getverticalscale(); 
+		double hscale =  gethorizontalscale(); 
+		al_trace("%f\n", vscale);
+		al_trace("%f\n", hscale);
+		int window_width_temp = window_width*hscale;
+		int window_height_temp = window_height*vscale;
+		al_resize_display(all_get_display(), window_width_temp, window_height_temp);
+		al_set_window_position(all_get_display(), center_x - window_width_temp / 2, center_y - window_height_temp / 2);
 	}
 	
 	sbig = (screen_scale > 1);
