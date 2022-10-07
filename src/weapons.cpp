@@ -3642,6 +3642,23 @@ bool weapon::animate(int32_t index)
 		}
 		
 		}*/
+		byte temp_screengrid[22];
+		byte temp_screengrid_layer[2][22];
+		byte temp_ffcgrid[4];
+		memcpy(temp_screengrid, screengrid, sizeof(screengrid));
+		memcpy(temp_screengrid_layer[0], screengrid_layer[0], sizeof(screengrid_layer[0]));
+		memcpy(temp_screengrid_layer[1], screengrid_layer[1], sizeof(screengrid_layer[1]));
+		memcpy(temp_ffcgrid, ffcgrid, sizeof(ffcgrid));
+		
+		for(int32_t q=0; q<22; q++)
+		{
+			screengrid[q] = 0;
+			screengrid_layer[0][q] = 0;
+			screengrid_layer[1][q] = 0;
+		}
+		
+		for(int32_t q=0; q<4; q++)
+			ffcgrid[q] = 0;
 		
 		for(int32_t dx = 0; dx < hxsz; dx += 16)
 		{
@@ -3699,6 +3716,11 @@ bool weapon::animate(int32_t index)
 		
 		//Hero.check_wand_block(this);
 		//Hero.check_pound_block(this);
+		
+		memcpy(screengrid, temp_screengrid, sizeof(screengrid));
+		memcpy(screengrid_layer[0], temp_screengrid_layer[0], sizeof(screengrid_layer[0]));
+		memcpy(screengrid_layer[1], temp_screengrid_layer[1], sizeof(screengrid_layer[1]));
+		memcpy(ffcgrid, temp_ffcgrid, sizeof(ffcgrid));
 	}
 	else findcombotriggers();
 	
