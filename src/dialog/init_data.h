@@ -39,6 +39,16 @@ private:
 	bool isZC;
 	
 	std::function<void(zinitdata const&)> setVals;
+
+	// Various helper functions to build the GUI.
+	std::shared_ptr<GUI::Widget> WORD_FIELD(word* member);
+	template <typename T>
+	std::shared_ptr<GUI::Widget> VAL_FIELD_IMPL(T minval, T maxval, T* member, bool dis);
+	std::shared_ptr<GUI::Widget> COUNTER_FRAME(const char* name, std::shared_ptr<GUI::Widget> field1, std::shared_ptr<GUI::Widget> field2);
+	std::shared_ptr<GUI::Widget> LEVEL_FIELD(int ind);
+	std::shared_ptr<GUI::Widget> BTN_100(int val);
+	std::shared_ptr<GUI::Widget> BTN_10(int val);
+	std::shared_ptr<GUI::Widget> TRICHECK(int ind);
 };
 
 #endif
