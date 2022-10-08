@@ -213,6 +213,7 @@ bool SpriteDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	{
 		case message::OK:
 			memcpy(&sourceSprite, &tempSprite, sizeof(tempSprite));
+			strcpy(weapon_string[index], localName);
 			saved = false;
 			return true;
 
