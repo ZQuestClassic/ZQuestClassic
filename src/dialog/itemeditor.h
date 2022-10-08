@@ -91,6 +91,10 @@ private:
 	GUI::ListData list_items, list_counters, list_sprites,
 		list_itemdatscript, list_itemsprscript, list_weaponscript,
 		list_weaptype, list_deftypes, list_bottletypes;
+	std::shared_ptr<GUI::Widget> ATTRIB_FIELD_IMPL(int32_t* mem, int index);
+	std::shared_ptr<GUI::Widget> FLAG_CHECK(int index, int bit);
+	template <typename T>
+	std::shared_ptr<GUI::Widget> SPRITE_DROP_IMPL(T* mem, int index);
 	friend void call_item_editor(int32_t index);
 };
 

@@ -906,40 +906,57 @@ TextField( \
 		local_itemref.member = val; \
 	})
 
-#define ATTRIB_FIELD(member, index) \
-l_attribs[index] = Label(textAlign = 2, width = ATTR_LAB_WID), \
-ib_attribs[index] = Button(forceFitH = true, text = "?", \
-	disabled = true, \
-	onPressFunc = [&]() \
-	{ \
-		InfoDialog("Attribute Info",h_attribs[index]).show(); \
-	}), \
-TextField(maxLength = 11, \
-	type = GUI::TextField::type::INT_DECIMAL, width = ATTR_WID, \
-	val = local_itemref.member, \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		local_itemref.member = val; \
-	})
+std::shared_ptr<GUI::Widget> ItemEditorDialog::ATTRIB_FIELD_IMPL(int32_t* mem, int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
 
-#define FLAG_CHECK(index, bit) \
-Row(padding = 0_px, \
-	ib_flags[index] = Button(forceFitH = true, text = "?", \
-		disabled = true, \
-		onPressFunc = [&]() \
-		{ \
-			InfoDialog("Flags Info",h_flags[index]).show(); \
-		}), \
-	l_flags[index] = Checkbox( \
-		width = FLAGS_WID, \
-		checked = (local_itemref.flags & bit), \
-		onToggleFunc = [&](bool state) \
-		{ \
-			SETFLAG(local_itemref.flags,bit,state); \
-			loadItemClass(); \
-		} \
-	) \
-)
+	return Row(
+		colSpan = 3,
+		l_attribs[index] = Label(textAlign = 2, width = ATTR_LAB_WID),
+		ib_attribs[index] = Button(forceFitH = true, text = "?",
+		disabled = true,
+		onPressFunc = [&, index]()
+		{
+			InfoDialog("Attribute Info",h_attribs[index]).show();
+		}),
+		TextField(maxLength = 11,
+			type = GUI::TextField::type::INT_DECIMAL, width = ATTR_WID,
+			val = *mem,
+			onValChangedFunc = [mem](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				*mem = val;
+			}
+		)
+	);
+}
+
+#define ATTRIB_FIELD(member, index) ATTRIB_FIELD_IMPL(&local_itemref.member, index)
+
+std::shared_ptr<GUI::Widget> ItemEditorDialog::FLAG_CHECK(int index, int bit)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(padding = 0_px,
+		ib_flags[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("Flags Info",h_flags[index]).show();
+			}),
+		l_flags[index] = Checkbox(
+			width = FLAGS_WID,
+			checked = (local_itemref.flags & bit),
+			onToggleFunc = [&, bit](bool state)
+			{
+				SETFLAG(local_itemref.flags,bit,state);
+				loadItemClass();
+			}
+		)
+	);
+}
+
 #define FLAG_CHECK_NOINFO(index, bit) \
 l_flags[index] = Checkbox( \
 	width = FLAGS_WID, \
@@ -950,25 +967,33 @@ l_flags[index] = Checkbox( \
 	} \
 ) \
 
-#define SPRITE_DROP(ind, mem) \
-Row(vPadding = 0_px, \
-	l_spr[ind] = Label(textAlign = 2, width = SPR_LAB_WID, topMargin = 1_px), \
-	ib_spr[ind] = Button(forceFitH = true, text = "?", \
-		disabled = true, \
-		onPressFunc = [&]() \
-		{ \
-			InfoDialog("Sprite Info",h_spr[ind]).show(); \
-		}), \
-	DropDownList( \
-		maxwidth = sized(18_em, 14_em), \
-		data = list_sprites, \
-		selectedValue = local_itemref.mem, \
-		onSelectFunc = [&](int32_t val) \
-		{ \
-			local_itemref.mem = val; \
-		} \
-	) \
-)
+template <typename T>
+std::shared_ptr<GUI::Widget> ItemEditorDialog::SPRITE_DROP_IMPL(T* mem, int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(vPadding = 0_px,
+		l_spr[index] = Label(textAlign = 2, width = SPR_LAB_WID, topMargin = 1_px),
+		ib_spr[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("Sprite Info",h_spr[index]).show();
+			}),
+		DropDownList(
+			maxwidth = sized(18_em, 14_em),
+			data = list_sprites,
+			selectedValue = *mem,
+			onSelectFunc = [mem](int32_t val)
+			{
+				*mem = val;
+			}
+		)
+	);
+}
+
+#define SPRITE_DROP(ind, mem) SPRITE_DROP_IMPL(&local_itemref.mem, ind)
 
 int32_t calcBottleTile(itemdata const& local_itemref, byte bottleVal)
 {
