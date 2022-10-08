@@ -1860,45 +1860,72 @@ static const GUI::ListData listdata_lift_gfx
 #define ACTION_FIELD_WID 6_em
 #define FLAGS_WID 16_em
 
-#define NUM_FIELD(member,_min,_max) \
-TextField( \
-	fitParent = true, \
-	type = GUI::TextField::type::INT_DECIMAL, \
-	low = _min, high = _max, val = local_comboref.member, \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		local_comboref.member = val; \
-	})
+static std::shared_ptr<GUI::Widget> NUM_FIELD_IMPL(word* data, word min, word max)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
 	
-#define ANIM_FIELD(member,_min,_max) \
-TextField( \
-	fitParent = true, \
-	type = GUI::TextField::type::INT_DECIMAL, \
-	low = _min, high = _max, val = local_comboref.member, \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		local_comboref.member = val; \
-		updateAnimation(); \
-	})
+	return TextField(
+		type = GUI::TextField::type::INT_DECIMAL,
+		maxLength = 5,
+		val = *data,
+		low = min,
+		high = max,
+		fitParent = true,
+		onValChangedFunc = [data](GUI::TextField::type,std::string_view,int32_t val)
+		{
+			*data = val;
+		}
+	);
+}
 
-#define CMB_FLAG(ind) \
-Row(padding = 0_px, \
-	ib_flags[ind] = Button(forceFitH = true, text = "?", \
-		disabled = true, \
-		onPressFunc = [&]() \
-		{ \
-			InfoDialog("Flag Info",h_flag[ind]).show(); \
-		}), \
-	l_flags[ind] = Checkbox( \
-		minwidth = FLAGS_WID, hAlign = 0.0, \
-		checked = local_comboref.usrflags & (1<<ind), fitParent = true, \
-		onToggleFunc = [&](bool state) \
-		{ \
-			SETFLAG(local_comboref.usrflags,(1<<ind),state); \
-			loadComboType(); \
-		} \
-	) \
-)
+#define NUM_FIELD(member,_min,_max) NUM_FIELD_IMPL(&local_comboref.member, _min, _max)
+
+std::shared_ptr<GUI::Widget> ComboEditorDialog::ANIM_FIELD_IMPL(byte* data, byte min, byte max)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return TextField(
+		type = GUI::TextField::type::INT_DECIMAL,
+		maxLength = 5,
+		val = *data,
+		low = min,
+		high = max,
+		fitParent = true,
+		onValChangedFunc = [&, data](GUI::TextField::type,std::string_view,int32_t val)
+		{
+			*data = val;
+			updateAnimation();
+		}
+	);
+}
+
+#define ANIM_FIELD(member, _min, _max) ANIM_FIELD_IMPL(&local_comboref.member, _min, _max)
+
+std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_FLAG(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(padding = 0_px, colSpan=2,
+		ib_flags[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("Flag Info",h_flag[index]).show();
+			}),
+		l_flags[index] = Checkbox(
+			minwidth = FLAGS_WID, hAlign = 0.0,
+			checked = local_comboref.usrflags & (1<<index), fitParent = true,
+			onToggleFunc = [&, index](bool state)
+			{
+				SETFLAG(local_comboref.usrflags,(1<<index),state);
+				loadComboType();
+			}
+		)
+	);
+}
 
 #define CMB_GEN_FLAG(ind,str) \
 Checkbox(text = str, \
@@ -1910,67 +1937,93 @@ Checkbox(text = str, \
 		} \
 	)
 
-#define CMB_ATTRIBYTE(ind) \
-l_attribytes[ind] = Label(minwidth = ATTR_LAB_WID, textAlign = 2), \
-ib_attribytes[ind] = Button(forceFitH = true, text = "?", \
-	disabled = true, \
-	onPressFunc = [&]() \
-	{ \
-		InfoDialog("Attribyte Info",h_attribyte[ind]).show(); \
-	}), \
-TextField( \
-	fitParent = true, minwidth = 8_em, \
-	type = GUI::TextField::type::SWAP_BYTE, \
-	low = 0, high = 255, val = local_comboref.attribytes[ind], \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		local_comboref.attribytes[ind] = val; \
-	})
+std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRIBYTE(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(padding = 0_px, colSpan = 3,
+		l_attribytes[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
+		ib_attribytes[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("Attribyte Info",h_attribyte[index]).show();
+			}),
+		TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_BYTE,
+			low = 0, high = 255, val = local_comboref.attribytes[index],
+			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_comboref.attribytes[index] = val;
+			})
+	);
+}
 
-#define CMB_ATTRISHORT(ind) \
-l_attrishorts[ind] = Label(minwidth = ATTR_LAB_WID, textAlign = 2), \
-ib_attrishorts[ind] = Button(forceFitH = true, text = "?", \
-	disabled = true, \
-	onPressFunc = [&]() \
-	{ \
-		InfoDialog("Attrishort Info",h_attrishort[ind]).show(); \
-	}), \
-TextField( \
-	fitParent = true, minwidth = 8_em, \
-	type = GUI::TextField::type::SWAP_SSHORT, \
-	low = -32768, high = 32767, val = local_comboref.attrishorts[ind], \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		local_comboref.attrishorts[ind] = val; \
-	})
+std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRISHORT(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(padding = 0_px, colSpan = 3,
+		l_attrishorts[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
+		ib_attrishorts[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("Attrishort Info",h_attrishort[index]).show();
+			}),
+		TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_SSHORT,
+			low = -32768, high = 32767, val = local_comboref.attrishorts[index],
+			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_comboref.attrishorts[index] = val;
+			})
+	);
+}
 
-#define CMB_ATTRIBUTE(ind) \
-l_attributes[ind] = Label(minwidth = ATTR_LAB_WID, textAlign = 2), \
-ib_attributes[ind] = Button(forceFitH = true, text = "?", \
-	disabled = true, \
-	onPressFunc = [&]() \
-	{ \
-		InfoDialog("Attribute Info",h_attribute[ind]).show(); \
-	}), \
-TextField( \
-	fitParent = true, minwidth = 8_em, \
-	type = GUI::TextField::type::SWAP_ZSINT, \
-	val = local_comboref.attributes[ind], \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		local_comboref.attributes[ind] = val; \
-	})
+std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRIBUTE(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(padding = 0_px, colSpan = 3,
+		l_attributes[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
+		ib_attributes[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("Attribute Info",h_attribute[index]).show();
+			}),
+		TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_ZSINT,
+			val = local_comboref.attributes[index],
+			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_comboref.attributes[index] = val;
+			})
+	);
+}
 
-#define TRIGFLAG(ind, str) \
-Checkbox( \
-	text = str, hAlign = 0.0, \
-	checked = (local_comboref.triggerflags[ind/32] & (1<<(ind%32))), \
-	fitParent = true, \
-	onToggleFunc = [&](bool state) \
-	{ \
-		SETFLAG(local_comboref.triggerflags[ind/32],(1<<(ind%32)),state); \
-	} \
-)
+std::shared_ptr<GUI::Checkbox> ComboEditorDialog::TRIGFLAG(int index, const char* str)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Checkbox(
+		text = str, hAlign = 0.0,
+		checked = (local_comboref.triggerflags[index/32] & (1<<(index%32))),
+		fitParent = true,
+		onToggleFunc = [&, index](bool state)
+		{
+			SETFLAG(local_comboref.triggerflags[index/32],(1<<(index%32)),state);
+		}
+	);
+}
 
 #define MISCFLAG(member, bit, str) \
 Checkbox( \
@@ -4134,7 +4187,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 	}
 	l_minmax_trig->setText((local_comboref.triggerflags[0] & (combotriggerINVERTMINMAX))
 		? maxstr : minstr);
-	loadComboType();
+	//loadComboType();
 	return window;
 }
 

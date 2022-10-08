@@ -57,6 +57,12 @@ private:
 	newcombo local_comboref;
 	GUI::ListData list_ctype, list_flag, list_combscript,
 		list_counters_nn, list_sprites, list_sprites_spec, list_weaptype, list_deftypes;
+	std::shared_ptr<GUI::Widget> ANIM_FIELD_IMPL(byte* data, byte min, byte max);
+	std::shared_ptr<GUI::Widget> CMB_FLAG(int index);
+	std::shared_ptr<GUI::Widget> CMB_ATTRIBYTE(int index);
+	std::shared_ptr<GUI::Widget> CMB_ATTRISHORT(int index);
+	std::shared_ptr<GUI::Widget> CMB_ATTRIBUTE(int index);
+	std::shared_ptr<GUI::Checkbox> TRIGFLAG(int index, const char* str);
 	friend bool call_combo_editor(int32_t index);
 };
 
