@@ -167,8 +167,11 @@ std::shared_ptr<GUI::Widget> InitDataDialog::BTN_100(int val)
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 
+	char str[10];
+	sprintf(str, "%03d", val);
+
 	return Button(maxwidth = sized(3_em,4_em), padding = 0_px, margins = 0_px,
-		text = ZCGUI_STRINGIZE(val), onClick = message::LEVEL, onPressFunc = [&]()
+		text = str, onClick = message::LEVEL, onPressFunc = [&]()
 		{
 			setOfs((levelsOffset%100)+val);
 		}
@@ -180,8 +183,11 @@ std::shared_ptr<GUI::Widget> InitDataDialog::BTN_10(int val)
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 
+	char str[10];
+	sprintf(str, "%02d", val);
+
 	return Button(maxwidth = sized(3_em,4_em), padding = 0_px, margins = 0_px,
-		text = ZCGUI_STRINGIZE(val), onClick = message::LEVEL, onPressFunc = [&]()
+		text = str, onClick = message::LEVEL, onPressFunc = [&]()
 		{
 			setOfs(((levelsOffset/100)*100) + val);
 		}
