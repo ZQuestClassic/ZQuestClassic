@@ -58,7 +58,8 @@ TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL, \
 	})
 
 #define VAL_FIELD(t, name, minval, maxval, member, dis) \
-VAL_FIELD_IMPL<t>(name, minval, maxval, &local_zinit.member, dis)
+Label(text = name, hAlign = 0.0), \
+VAL_FIELD_IMPL<t>(minval, maxval, &local_zinit.member, dis)
 
 #define DEC_VAL_FIELD(name, minval, maxval, numPlaces, member, dis) \
 Label(text = name, hAlign = 0.0), \
@@ -113,23 +114,19 @@ std::shared_ptr<GUI::Widget> InitDataDialog::COUNTER_FRAME(const char* name, std
 }
 
 template <typename T>
-std::shared_ptr<GUI::Widget> InitDataDialog::VAL_FIELD_IMPL(const char* name, T minval, T maxval, T* member, bool dis)
+std::shared_ptr<GUI::Widget> InitDataDialog::VAL_FIELD_IMPL(T minval, T maxval, T* member, bool dis)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 
-	return Rows<1>(
-		padding = 0_px,
-		Label(text = name, hAlign = 0.0),
-		TextField(disabled = dis, maxLength = 11, type = GUI::TextField::type::INT_DECIMAL,
-			hAlign = 1.0, low = minval, high = maxval, val = *member,
-			width = 4.5_em,
-			fitParent = true,
-			onValChangedFunc = [member](GUI::TextField::type,std::string_view,int32_t val)
-			{
-				*member = val;
-			}
-		)
+	return TextField(disabled = dis, maxLength = 11, type = GUI::TextField::type::INT_DECIMAL,
+		hAlign = 1.0, low = minval, high = maxval, val = *member,
+		width = 4.5_em,
+		fitParent = true,
+		onValChangedFunc = [member](GUI::TextField::type,std::string_view,int32_t val)
+		{
+			*member = val;
+		}
 	);
 }
 
