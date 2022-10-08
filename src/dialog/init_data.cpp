@@ -139,23 +139,23 @@ std::shared_ptr<GUI::Widget> InitDataDialog::LEVEL_FIELD(int ind)
 		padding = 0_px,
 		l_lab[ind] = Label(text = std::to_string(ind), width = 3_em, textAlign = 2),
 		l_maps[ind] = Checkbox(checked = get_bit(local_zinit.map,ind+levelsOffset),
-			onToggleFunc = [&](bool state)
+			onToggleFunc = [&, ind](bool state)
 			{
 				set_bit(local_zinit.map, ind+levelsOffset, state);
 			}),
 		l_comp[ind] = Checkbox(checked = get_bit(local_zinit.compass,ind+levelsOffset),
-			onToggleFunc = [&](bool state)
+			onToggleFunc = [&, ind](bool state)
 			{
 				set_bit(local_zinit.compass, ind+levelsOffset, state);
 			}),
 		l_bkey[ind] = Checkbox(checked = get_bit(local_zinit.boss_key,ind+levelsOffset),
-			onToggleFunc = [&](bool state)
+			onToggleFunc = [&, ind](bool state)
 			{
 				set_bit(local_zinit.boss_key, ind+levelsOffset, state);
 			}),
 		l_keys[ind] = TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL,
 			val = local_zinit.level_keys[ind+levelsOffset], high = 255,
-			onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
 			{
 				local_zinit.level_keys[ind+levelsOffset] = val;
 			})
@@ -171,7 +171,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::BTN_100(int val)
 	sprintf(str, "%03d", val);
 
 	return Button(maxwidth = sized(3_em,4_em), padding = 0_px, margins = 0_px,
-		text = str, onClick = message::LEVEL, onPressFunc = [&]()
+		text = str, onClick = message::LEVEL, onPressFunc = [&, val]()
 		{
 			setOfs((levelsOffset%100)+val);
 		}
@@ -187,7 +187,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::BTN_10(int val)
 	sprintf(str, "%02d", val);
 
 	return Button(maxwidth = sized(3_em,4_em), padding = 0_px, margins = 0_px,
-		text = str, onClick = message::LEVEL, onPressFunc = [&]()
+		text = str, onClick = message::LEVEL, onPressFunc = [&, val]()
 		{
 			setOfs(((levelsOffset/100)*100) + val);
 		}
@@ -202,7 +202,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::TRICHECK(int ind)
 	return Checkbox(
 		checked = get_bit(&(local_zinit.triforce),ind),
 		text = std::to_string(ind+1),
-		onToggleFunc = [&](bool state)
+		onToggleFunc = [&, ind](bool state)
 		{
 			set_bit(&local_zinit.triforce,ind,state);
 		}
