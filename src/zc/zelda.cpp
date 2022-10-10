@@ -4689,6 +4689,10 @@ int main(int argc, char **argv)
 	
 	// set and load game configurations
 	zc_set_config_standard();
+
+	for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
+	strcpy(save_file_name,get_config_string("SAVEFILE","save_filename","zc.sav"));
+	SAVE_FILE = (char *)save_file_name;
 	
 	if(!zc_config_standard_exists())
 	{
@@ -5573,6 +5577,8 @@ int main(int argc, char **argv)
 		}
 	}
 
+	init_saves();
+
 	set_display_switch_callback(SWITCH_IN,switch_in_callback);
 	set_display_switch_callback(SWITCH_OUT,switch_out_callback);
 	
@@ -5618,7 +5624,6 @@ reload_for_replay_file:
 	current_session_is_replay = replay_is_active();
 	disable_save_to_disk = zqtesting_mode || replay_is_active();
 
-	init_saves();
 	if (!disable_save_to_disk)
 	{
 		// load saved games
