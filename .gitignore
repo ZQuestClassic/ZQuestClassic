@@ -35,6 +35,7 @@
 /*.dir/
 [Dd]ebugPublic/
 [Rr]elease/
+[Rr]elWithDebInfo/
 [Rr]eleases/
 x64/
 x86/
