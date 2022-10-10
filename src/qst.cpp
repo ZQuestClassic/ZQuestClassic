@@ -2856,9 +2856,9 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 	int32_t vercmp = tempheader.compareVer();
 	int32_t astatecmp = compare(int32_t(tempheader.getAlphaState()), ALPHA_STATE);
 	int32_t avercmp = compare(tempheader.getAlphaVer(), ALPHA_VER);
-	if(vercmp > 1 || (!vercmp &&
-		(astatecmp > 1 || (!astatecmp &&
-			avercmp > 1))))
+	if(vercmp > 0 || (!vercmp &&
+		(astatecmp > 0 || (!astatecmp &&
+			avercmp > 0))))
 	{
 		bool r = true;
 		if(loadquest_report)
