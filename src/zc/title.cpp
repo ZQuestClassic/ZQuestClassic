@@ -2291,7 +2291,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	for(int32_t i=0; i<MAXSAVES; i++)
 	{
 		byte showmetadata = get_config_int("zeldadx","print_metadata_for_each_save_slot",0);
-		zprint2("Reading Save Slot %d\n", i);
+		//zprint2("Reading Save Slot %d\n", i);
 		
 		if(strlen(saves[i].qstpath))
 		{

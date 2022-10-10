@@ -79,7 +79,6 @@ extern byte monochrome_console;
 
 CScriptDrawingCommands scriptdraws;
 FFScript FFCore;
-zquestheader ZCheader;
 ZModule zcm;
 zcmodule moduledata;
 script_bitmaps scb;
@@ -31911,15 +31910,15 @@ int32_t FFScript::get_screenHeight(mapscr *m)
 
 int32_t FFScript::GetQuestVersion()
 {
-	return ZCheader.zelda_version;
+	return QHeader.zelda_version;
 }
 int32_t FFScript::GetQuestBuild()
 {
-	return ZCheader.build;
+	return QHeader.build;
 }
 int32_t FFScript::GetQuestSectionVersion(int32_t section)
 {
-	return ZCheader.zelda_version;
+	return QHeader.zelda_version;
 }
 
 int32_t FFScript::GetDefaultWeaponSprite(int32_t wpn_id)
@@ -38272,17 +38271,14 @@ void clearConsole()
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"      /____/\\___\\_\\__,_/\\___/____/\\__/\n\n");
 
 	zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
-	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Data Logging & ZScript Debug Console\n");
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Data Logging & ZScript Debug Console\n");
 	
+	zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Running: %s\n", getProgramVerStr());
 	if ( FFCore.getQuestHeaderInfo(vZelda) > 0 )
 	{
 		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Made in ZC Version %x, Build %d\n", FFCore.getQuestHeaderInfo(vZelda), FFCore.getQuestHeaderInfo(vBuild));
-	}
-	else
-	{
-		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%s, Version %s\n", ZC_PLAYER_NAME, ZC_PLAYER_V);
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Made in: %s\n", QHeader.getVerStr());
 	}
 }
 void FFScript::ZScriptConsole(bool open)

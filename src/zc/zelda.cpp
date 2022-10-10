@@ -4594,7 +4594,7 @@ int main(int argc, char **argv)
 	sprintf(zc_aboutstr,"%s (%s), Version %s", ZC_PLAYER_NAME, PROJECT_NAME, ZC_PLAYER_V);
 	
 
-	Z_title("%s, v.%s %s",ZC_PLAYER_NAME, ZC_PLAYER_V, ALPHA_VER_STR);
+	Z_title("ZC Launched: %s, v.%s %s",ZC_PLAYER_NAME, ZC_PLAYER_V, ALPHA_VER_STR);
 	
 	if(used_switch(argc, argv, "-standalone"))
 	{
@@ -5680,7 +5680,7 @@ reload_for_replay_file:
 			Quit = 0;
 		}
 		else titlescreen(load_save);
-		
+		clearConsole();
 		callback_switchin = 0;
 		load_save=0;
 		setup_combo_animations();

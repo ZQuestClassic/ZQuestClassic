@@ -58,6 +58,8 @@
 #include "mem_debug.h"
 #include "zconsole.h"
 #include "ffscript.h"
+#include "dialog/info.h"
+#include "dialog/alert.h"
 extern FFScript FFCore;
 extern bool Playing;
 int32_t sfx_voice[WAV_COUNT];
@@ -5468,32 +5470,32 @@ int32_t OnnClearQuestDir()
 
 int32_t onConsoleZASM()
 {
-	if ( !zasm_debugger ) {
-		if(jwin_alert3(
-			"WARNING: ZASM Debugger", 
-			"ENabling this will open the ZASM Debugger Console", 
-			"Depending on the size of your scripts, this will cause ZC Player to run slowly.",
-			"Are you seure that you wish to open the ZASM Debugger?",
-		 "&Yes", 
-		"&No", 
-		NULL, 
-		'y', 
-		'n', 
-		NULL, 
-		lfont) == 1)
-		{
-			FFCore.ZASMPrint(true);
-			zasm_debugger = 1;
-			save_game_configs();
-			return D_O_K;
-		}
-		
-		else return D_O_K;
+	if ( !zasm_debugger )
+	{
+		AlertDialog("WARNING: ZASM Debugger",
+			"Enabling this will open the ZASM Debugger Console" 
+			"\nThis will likely grind ZC to a halt with lag."
+			"\nTo make any use of this, it is suggested that you read"
+			"\nthe documentation for 'void Breakpoint(char[] string);'"
+			" in 'ZScript_Additions.txt'"
+			"\nThis is not recommended for normal users,"
+			" and is only intended for ZC developers,"
+			"\nor quest developers coding directly in ZASM"
+			"\nAre you sure that you wish to open the ZASM Debugger?",
+			[&](bool ret,bool)
+			{
+				if(ret)
+				{
+					FFCore.ZASMPrint(true);
+					zasm_debugger = 1;
+					save_game_configs();
+				}
+			}).show();
+		return D_O_K;
 	}
-	else { 
-		
+	else
+	{
 		zasm_debugger = 0;
-		
 		save_game_configs();
 		FFCore.ZASMPrint(false);
 		return D_O_K;
@@ -5503,32 +5505,27 @@ int32_t onConsoleZASM()
 
 int32_t onConsoleZScript()
 {
-	if ( !zscript_debugger ) {
-		if(jwin_alert3(
-			"WARNING: ZScript Debugger", 
-			"ENabling this will open the ZScript Debugger Console", 
-			"Depending on the size of your scripts, this will cause ZC Player to run slowly.",
-			"Are you seure that you wish to open the ZScript Debugger?",
-		 "&Yes", 
-		"&No", 
-		NULL, 
-		'y', 
-		'n', 
-		NULL, 
-		lfont) == 1)
-		{
-			FFCore.ZScriptConsole(true);
-			zscript_debugger = 1;
-			save_game_configs();
-			return D_O_K;
-		}
-		
-		else return D_O_K;
+	if ( !zscript_debugger )
+	{
+		AlertDialog("ZScript Debugger",
+			"Enabling this will open the ZScript Debugger Console" 
+			"\nThis will display any messages logged by scripts,"
+			" including script errors."
+			"\nAre you sure that you wish to open the ZScript Debugger?",
+			[&](bool ret,bool)
+			{
+				if(ret)
+				{
+					FFCore.ZScriptConsole(true);
+					zscript_debugger = 1;
+					save_game_configs();
+				}
+			}).show();
+		return D_O_K;
 	}
-	else { 
-		
+	else
+	{
 		zscript_debugger = 0;
-		
 		save_game_configs();
 		FFCore.ZScriptConsole(false);
 		return D_O_K;
@@ -7107,7 +7104,6 @@ int32_t onMIDICredits()
     return D_O_K;
 }
 
-#include "dialog/info.h"
 int32_t onAbout()
 {
 	char buf1[80]={0};

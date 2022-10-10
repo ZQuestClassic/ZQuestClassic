@@ -3657,123 +3657,19 @@ struct zquestheader
 	bool external_zinfo;
 	
 	
-	bool is_legacy() const
-	{
-		return new_version_id_main < 2 || (new_version_id_main == 2 && new_version_id_second < 55);
-	}
-	int8_t getAlphaState() const
-	{
-		if(new_version_id_release) return 3;
-		else if(new_version_id_gamma) return 2;
-		else if(new_version_id_beta) return 1;
-		else if(new_version_id_alpha) return 0;
-		return -1;
-	}
-	char const* getAlphaStr(bool ignoreNightly = false) const
-	{
-		static char buf[40] = "";
-		char format[20] = "%s";
-		if(!ignoreNightly && new_version_is_nightly) strcpy(format, "Nightly (%s)");
-		if(new_version_id_release) sprintf(buf, format, "Release");
-		else if(new_version_id_gamma) sprintf(buf, format, "Gamma");
-		else if(new_version_id_beta) sprintf(buf, format, "Beta");
-		else if(new_version_id_alpha) sprintf(buf, format, "Alpha");
-		else sprintf(buf, format, "Unknown");
-		return buf;
-	}
-	int32_t getAlphaVer() const
-	{
-		if(new_version_id_release) return new_version_id_release;
-		else if(new_version_id_gamma) return new_version_id_gamma;
-		else if(new_version_id_beta) return new_version_id_beta;
-		else if(new_version_id_alpha) return new_version_id_alpha;
-		return 0;
-	}
-	char const* getAlphaVerStr() const
-	{
-		static char buf[40] = "";
-		if(new_version_is_nightly)
-		{
-			if(getAlphaVer() < 0)
-				sprintf(buf, "Nightly (%s ?\?)", getAlphaStr(true));
-			else sprintf(buf, "Nightly (%s %d/%d)", getAlphaStr(true), getAlphaVer()-1, getAlphaVer());
-		}
-		else
-		{
-			if(getAlphaVer() < 0)
-				sprintf(buf, "%s ?\?", getAlphaStr(true));
-			else sprintf(buf, "%s %d", getAlphaStr(true), getAlphaVer());
-		}
-		return buf;
-	}
-	char const* getVerStr() const
-	{
-		static char buf[80] = "";
-		if(is_legacy())
-		{
-			sprintf(buf, "Legacy %d.%d.%d", new_version_id_main, new_version_id_second, new_version_id_third);
-			if(getAlphaVer())
-			{
-				strcat(buf, " ");
-				strcat(buf, getAlphaVerStr());
-			}
-		}
-		else if(new_version_id_fourth > 0)
-			sprintf(buf, "%d.%d.%d.%d %s", new_version_id_main, new_version_id_second,
-				new_version_id_third, new_version_id_fourth, getAlphaVerStr());
-		else sprintf(buf, "%d.%d.%d %s", new_version_id_main, new_version_id_second,
-				new_version_id_third, getAlphaVerStr());
-		return buf;
-	}
-	int32_t compareDate() const
-	{
-		zprint2("Comparing dates: '%04d-%02d-%02d %02d:%02d', '%04d-%02d-%02d %02d:%02d'\n",
-			new_version_id_date_year, new_version_id_date_month, new_version_id_date_day,
-			new_version_id_date_hour, new_version_id_date_minute,
-			BUILDTM_YEAR, BUILDTM_MONTH, BUILDTM_DAY, BUILDTM_HOUR, BUILDTM_MINUTE);
-		//!TODO handle timezones (build_timezone, __TIMEZONE__)
-		if(new_version_id_date_year > BUILDTM_YEAR)
-			return 1;
-		if(new_version_id_date_year < BUILDTM_YEAR)
-			return -1;
-		if(new_version_id_date_month > BUILDTM_MONTH)
-			return 1;
-		if(new_version_id_date_month < BUILDTM_MONTH)
-			return -1;
-		if(new_version_id_date_day > BUILDTM_DAY)
-			return 1;
-		if(new_version_id_date_day < BUILDTM_DAY)
-			return -1;
-		#define BUILDTIME_FUZZ 10
-		int32_t time_minutes = (new_version_id_date_hour*60)+new_version_id_date_minute;
-		int32_t btm_minutes = (BUILDTM_HOUR*60)+BUILDTM_MINUTE;
-		if(time_minutes > btm_minutes+BUILDTIME_FUZZ)
-			return 1;
-		if(time_minutes < btm_minutes-BUILDTIME_FUZZ)
-			return -1;
-		return 0;
-	}
-	int32_t compareVer() const
-	{
-		if(new_version_id_main > V_ZC_FIRST)
-			return 1;
-		if(new_version_id_main < V_ZC_FIRST)
-			return -1;
-		if(new_version_id_second > V_ZC_SECOND)
-			return 1;
-		if(new_version_id_second < V_ZC_SECOND)
-			return -1;
-		if(new_version_id_third > V_ZC_THIRD)
-			return 1;
-		if(new_version_id_third < V_ZC_THIRD)
-			return -1;
-		if(new_version_id_fourth > V_ZC_FOURTH)
-			return 1;
-		if(new_version_id_fourth < V_ZC_FOURTH)
-			return -1;
-		return 0;
-	}
+	bool is_legacy() const;
+	int8_t getAlphaState() const;
+	char const* getAlphaStr(bool ignoreNightly = false) const;
+	int32_t getAlphaVer() const;
+	char const* getAlphaVerStr() const;
+	char const* getVerStr() const;
+	int32_t compareDate() const;
+	int32_t compareVer() const;
 };
+
+int8_t getProgramAlphaState();
+char const* getProgramAlphaVerStr();
+char const* getProgramVerStr();
 
 enum { msLINKED };
 
