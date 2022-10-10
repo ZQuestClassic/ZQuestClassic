@@ -1509,93 +1509,131 @@ public:
 };
 
 byte flagpos;
-int32_t ornextflag(bool flag)
+int32_t flagval;
+void clear_ornextflag()
 {
-	int32_t f = (flag?1:0)<<flagpos;
-	flagpos++;
-	return f;
+	flagpos = 0;
+	flagval = 0;
+}
+void ornextflag(bool flag)
+{
+	if(flag) flagval |= 1<<flagpos;
+	++flagpos;
 }
 
 int32_t get_screenflags(mapscr *m, int32_t flagset)
 {
-	int32_t f=0;
-	flagpos = 0;
+	clear_ornextflag();
 	
 	switch(flagset)
 	{
-	case 0: // Room Type
-		f = ornextflag(m->flags6&1)  | ornextflag(m->flags6&2) | ornextflag(m->flags7&8);
-		break;
-		
-	case 1: // View
-		f = ornextflag(m->flags3&8)  | ornextflag(m->flags7&16) | ornextflag(m->flags3&16)
-			| ornextflag(m->flags3&64) | ornextflag(m->flags7&2)  | ornextflag(m->flags7&1)
-			| ornextflag(m->flags&fDARK) | ornextflag(m->flags9&fDARK_DITHER) | ornextflag(m->flags9&fDARK_TRANS);
-		break;
-		
-	case 2: // Secrets
-		f = ornextflag(m->flags&1)   | ornextflag(m->flags5&16) | ornextflag(m->flags6&4)
-			| ornextflag(m->flags6&32);
-		break;
-		
-	case 3: // Warp
-		f = ornextflag(m->flags5&4)  | ornextflag(m->flags5&8)  | ornextflag(m->flags&64)
-			| ornextflag(m->flags8&64) | ornextflag(m->flags3&32) | ornextflag(m->flags9&fDISABLE_MIRROR);
-		break;
-		
-	case 4: // Item
-		f = ornextflag(m->flags3&1)  | ornextflag(m->flags7&4)  | ornextflag(m->flags8&0x40)  | ornextflag(m->flags8&0x80)  | ornextflag(m->flags9&0x01)  | ornextflag(m->flags9&0x02)  | ornextflag(m->flags9&0x04);
-		break;
-		
-	case 5: // Combo
-		f = ornextflag((m->flags2>>4)&2)| ornextflag(m->flags3&2)| ornextflag(m->flags5&2)
-			| ornextflag(m->flags6&64);
-		break;
-		
-	case 6: // Save
-		f = ornextflag(m->flags4&64) | ornextflag(m->flags4&128) | ornextflag(m->flags6&8)
-			| ornextflag(m->flags6&16);
-		break;
-		
-	case 7: // FFC
-		f = ornextflag(m->flags6&128)| ornextflag(m->flags5&128);
-		break;
-		
-	case 8: // Whistle
-		f = ornextflag(m->flags&16)  | ornextflag(m->flags7&64)  | ornextflag(m->flags7&128);
-		break;
-		
-	case 9: // Misc
-		f = ornextflag(m->flags&32)  | ornextflag(m->flags5&64)  | m->flags8<<2;
-		break;
+		case 0: // Room Type
+			ornextflag(m->flags6&1);
+			ornextflag(m->flags6&2);
+			ornextflag(m->flags7&8);
+			break;
+			
+		case 1: // View
+			ornextflag(m->flags3&8);
+			ornextflag(m->flags7&16);
+			ornextflag(m->flags3&16);
+			ornextflag(m->flags3&64);
+			ornextflag(m->flags7&2);
+			ornextflag(m->flags7&1);
+			ornextflag(m->flags&fDARK);
+			ornextflag(m->flags9&fDARK_DITHER);
+			ornextflag(m->flags9&fDARK_TRANS);
+			break;
+			
+		case 2: // Secrets
+			ornextflag(m->flags&1);
+			ornextflag(m->flags5&16);
+			ornextflag(m->flags6&4);
+			ornextflag(m->flags6&32);
+			break;
+			
+		case 3: // Warp
+			ornextflag(m->flags5&4);
+			ornextflag(m->flags5&8);
+			ornextflag(m->flags&64);
+			ornextflag(m->flags8&64);
+			ornextflag(m->flags3&32);
+			ornextflag(m->flags9&fDISABLE_MIRROR);
+			break;
+			
+		case 4: // Item
+			ornextflag(m->flags3&1);
+			ornextflag(m->flags7&4);
+			ornextflag(m->flags8&0x40);
+			ornextflag(m->flags8&0x80);
+			ornextflag(m->flags9&0x01);
+			ornextflag(m->flags9&0x02);
+			ornextflag(m->flags9&0x04);
+			break;
+			
+		case 5: // Combo
+			ornextflag((m->flags2>>4)&2);
+			ornextflag(m->flags3&2);
+			ornextflag(m->flags5&2);
+			ornextflag(m->flags6&64);
+			break;
+			
+		case 6: // Save
+			ornextflag(m->flags4&64);
+			ornextflag(m->flags4&128);
+			ornextflag(m->flags6&8);
+			ornextflag(m->flags6&16);
+			break;
+			
+		case 7: // FFC
+			ornextflag(m->flags6&128);
+			ornextflag(m->flags5&128);
+			break;
+			
+		case 8: // Whistle
+			ornextflag(m->flags&16);
+			ornextflag(m->flags7&64);
+			ornextflag(m->flags7&128);
+			break;
+			
+		case 9: // Misc
+			ornextflag(m->flags&32);
+			ornextflag(m->flags5&64);
+			flagval |= m->flags8<<2;
+			break;
 	}
 	
-	return f*10000;
+	return flagval*10000;
 }
 
 int32_t get_screeneflags(mapscr *m, int32_t flagset)
 {
-	int32_t f=0;
-	flagpos = 0;
+	clear_ornextflag();
 	
 	switch(flagset)
 	{
-	case 0:
-		f = m->enemyflags&0x1F;
-		break;
-		
-	case 1:
-		f = ornextflag(m->enemyflags&32) | ornextflag(m->enemyflags&64) | ornextflag(m->flags3&4)
-			| ornextflag(m->enemyflags&128)| ornextflag((m->flags2>>4)&4);
-		break;
-		
-	case 2:
-		f = ornextflag(m->flags3&128)    | ornextflag(m->flags&2)       | ornextflag((m->flags2>>4)&8)
-			| ornextflag(m->flags4&16) | ornextflag(m->flags9&fENEMY_WAVES);
-		break;
+		case 0:
+			flagval |= m->enemyflags&0x1F;
+			break;
+			
+		case 1:
+			ornextflag(m->enemyflags&32);
+			ornextflag(m->enemyflags&64);
+			ornextflag(m->flags3&4);
+			ornextflag(m->enemyflags&128);
+			ornextflag((m->flags2>>4)&4);
+			break;
+			
+		case 2:
+			ornextflag(m->flags3&128);
+			ornextflag(m->flags&2);
+			ornextflag((m->flags2>>4)&8);
+			ornextflag(m->flags4&16);
+			ornextflag(m->flags9&fENEMY_WAVES);
+			break;
 	}
 	
-	return f*10000;
+	return flagval*10000;
 }
 
 int32_t get_mi(int32_t ref)
@@ -1880,18 +1918,19 @@ public:
 	
 	static int32_t getMFlags()
 	{
+		clear_ornextflag();
 		flagpos = 5;
 		// Must be in the same order as in the Enemy Editor pane
-		return (tempenemy->flags&0x1F)
-				| ornextflag(tempenemy->flags&(lens_only))
-				| ornextflag(tempenemy->flags2&(guy_flashing))
-				| ornextflag(tempenemy->flags2&(guy_blinking))
-				| ornextflag(tempenemy->flags2&(guy_transparent))
-				| ornextflag(tempenemy->flags&(inv_front))
-				| ornextflag(tempenemy->flags&(inv_left))
-				| ornextflag(tempenemy->flags&(inv_right))
-				| ornextflag(tempenemy->flags&(inv_back))
-				| ornextflag(tempenemy->flags&(guy_bkshield));
+		ornextflag(tempenemy->flags&(lens_only));
+		ornextflag(tempenemy->flags2&(guy_flashing));
+		ornextflag(tempenemy->flags2&(guy_blinking));
+		ornextflag(tempenemy->flags2&(guy_transparent));
+		ornextflag(tempenemy->flags&(inv_front));
+		ornextflag(tempenemy->flags&(inv_left));
+		ornextflag(tempenemy->flags&(inv_right));
+		ornextflag(tempenemy->flags&(inv_back));
+		ornextflag(tempenemy->flags&(guy_bkshield));
+		return (tempenemy->flags&0x1F) | flagval;
 	}
 	
 	static INLINE void clearTemp()
