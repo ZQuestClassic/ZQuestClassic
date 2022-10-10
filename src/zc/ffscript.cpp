@@ -38277,29 +38277,33 @@ void clearConsole()
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Running: %s\n", getProgramVerStr());
 	if ( FFCore.getQuestHeaderInfo(vZelda) > 0 )
 	{
-		auto vercmp = QHeader.compareVer();
-		auto astatecmp = compare(int32_t(QHeader.getAlphaState()), ALPHA_STATE);
-		auto avercmp = compare(QHeader.getAlphaVer(), ALPHA_VER);
-		auto timecmp = QHeader.compareDate();
-		if(!(vercmp || astatecmp || avercmp))
+		char const* verstr = QHeader.getVerStr();
+		if(verstr[0])
 		{
-			if(!timecmp || !QHeader.new_version_is_nightly)
-				zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Made in this build\n", QHeader.getVerStr());
-			else if(timecmp < 0)
+			auto vercmp = QHeader.compareVer();
+			auto astatecmp = compare(int32_t(QHeader.getAlphaState()), ALPHA_STATE);
+			auto avercmp = compare(QHeader.getAlphaVer(), ALPHA_VER);
+			auto timecmp = QHeader.compareDate();
+			if(!(vercmp || astatecmp || avercmp))
 			{
-				zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Made in an earlier nightly of the same build\n", QHeader.getVerStr());
+				if(!timecmp || !QHeader.new_version_is_nightly)
+					zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
+						CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Made in this build\n", verstr);
+				else if(timecmp < 0)
+				{
+					zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
+						CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Made in an earlier nightly of the same build\n", verstr);
+				}
+				else
+				{
+					zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
+						CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Made in an LATER nightly of the same build!\n"
+							"This may be unsafe to play in this version!\n", verstr);
+				}
 			}
-			else
-			{
-				zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Made in an LATER nightly of the same build!\n"
-						"This may be unsafe to play in this version!\n", QHeader.getVerStr());
-			}
+			else zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Made in: %s\n", verstr);
 		}
-		else zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Made in: %s\n", QHeader.getVerStr());
 	}
 }
 void FFScript::ZScriptConsole(bool open)

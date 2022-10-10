@@ -1077,8 +1077,11 @@ char const* zquestheader::getVerStr() const
 				else strcpy(buf, "2.10.x");
 				break;
 			}
+			case 0:
+				buf[0] = 0;
+				break;
 			default:
-				sprintf(buf, "Unkown version: '%X, build %d'", zelda_version, build);
+				sprintf(buf, "Unknown version: '%X, build %d'", zelda_version, build);
 				break;
 		}
 	}
