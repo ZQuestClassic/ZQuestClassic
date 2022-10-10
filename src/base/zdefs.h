@@ -5664,6 +5664,7 @@ std::string generate_zq_about();
 
 void enter_sys_pal();
 void exit_sys_pal();
+void* loadzcmusic(char* filename, char* QUESTPATH);
 
 #define SMART_WRAP(x, mod) (x < 0 ? ((mod-(-x%mod))%mod) : (x%mod))
 

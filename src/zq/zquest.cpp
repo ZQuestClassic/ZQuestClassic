@@ -16572,11 +16572,11 @@ static DIALOG editdmap_dlg[] =
 
 void editdmap(int32_t index)
 {
-    //DMapEditorLastMaptileUsed = 0;
-    char levelstr[4], compassstr[4], contstr[4], mirrordmapstr[4], tmusicstr[56], dmapnumstr[60];
-    char *tmfname;
-    byte gridstring[8];
-    static int32_t xy[2];
+	//DMapEditorLastMaptileUsed = 0;
+	char levelstr[4], compassstr[4], contstr[4], mirrordmapstr[4], tmusicstr[56], dmapnumstr[60];
+	char *tmfname;
+	byte gridstring[8];
+	static int32_t xy[2];
 	
 	char initdvals[8][13]; //script
 	char subinitdvals[8][13]; //script
@@ -16597,18 +16597,18 @@ void editdmap(int32_t index)
 		editdmap_dlg[148+q].dp = sub_initd_labels[q];
 		editdmap_dlg[169+q].dp = onmap_initd_labels[q];
 	}
-    
 	
 	
-    sprintf(levelstr,"%d",DMaps[index].level);
-    sprintf(dmapnumstr,"Edit DMap (%d)",index);
-    sprintf(compassstr,"%02X",DMaps[index].compass);
-    sprintf(contstr,"%02X",DMaps[index].cont);
-    sprintf(mirrordmapstr,"%d",DMaps[index].mirrorDMap);
-    sprintf(dmap_title,"%s",DMaps[index].title);
-    sprintf(dmap_name,"%s",DMaps[index].name);
-    sprintf(dmap_intro,"%s",DMaps[index].intro);
-    sprintf(tmusicstr,"%s",DMaps[index].tmusic);
+	
+	sprintf(levelstr,"%d",DMaps[index].level);
+	sprintf(dmapnumstr,"Edit DMap (%d)",index);
+	sprintf(compassstr,"%02X",DMaps[index].compass);
+	sprintf(contstr,"%02X",DMaps[index].cont);
+	sprintf(mirrordmapstr,"%d",DMaps[index].mirrorDMap);
+	sprintf(dmap_title,"%s",DMaps[index].title);
+	sprintf(dmap_name,"%s",DMaps[index].name);
+	sprintf(dmap_intro,"%s",DMaps[index].intro);
+	sprintf(tmusicstr,"%s",DMaps[index].tmusic);
 	
 	//dmap script
 	build_bidmaps_list(); //dmap scripts lister
@@ -16632,7 +16632,7 @@ void editdmap(int32_t index)
 			editdmap_dlg[186].d1 = j; 
 		}
 	}
-    
+	
 	for ( int32_t q = 0; q < 8; q++ )
 	{
 		editdmap_dlg[138+q].dp = initdvals[q];
@@ -16646,290 +16646,282 @@ void editdmap(int32_t index)
 		editdmap_dlg[177+q].dp3 = &(editdmap_dlg[203+q]);
 	}
 	
-    editdmap_dlg[0].dp=dmapnumstr;
-    editdmap_dlg[0].dp2=lfont;
-    editdmap_dlg[4].dp=dmap_name;
-    editdmap_dlg[9].d1 = DMaps[index].minimap_1_tile;
-    editdmap_dlg[9].fg = DMaps[index].minimap_1_cset;
-    editdmap_dlg[12].d1 = DMaps[index].largemap_1_tile;
-    editdmap_dlg[12].fg = DMaps[index].largemap_1_cset;
-    editdmap_dlg[15].d1 = DMaps[index].minimap_2_tile;
-    editdmap_dlg[15].fg = DMaps[index].minimap_2_cset;
-    editdmap_dlg[18].d1 = DMaps[index].largemap_2_tile;
-    editdmap_dlg[18].fg = DMaps[index].largemap_2_cset;
-    editdmap_dlg[20].d1=(DMaps[index].map>(map_count-1))?0:DMaps[index].map;
-    xy[0]=editdmap_dlg[20].x;
-    xy[1]=editdmap_dlg[20].y;
-    editdmap_dlg[21].dp3=xy;
-    xmapspecs[1]=DMaps[index].xoff;
-    editdmap_dlg[21].d2=DMaps[index].xoff+7;
-    editdmap_dlg[23].d1=(DMaps[index].type&dmfTYPE);
-    editdmap_dlg[25].dp=levelstr;
-    
-    editdmap_dlg[26].dp2=is_large?nfont:spfont;
-    editdmap_dlg[27].dp2=is_large?nfont:spfont;
-    
-    for(int32_t i=0; i<8; i++)
-    {
-        for(int32_t j=0; j<8; j++)
-        {
-            set_bit(gridstring,8*i+j,get_bit((byte *)(DMaps[index].grid+i),7-j));
-        }
-    }
-    
-    editdmap_dlg[58].dp=gridstring;
-    editdmap_dlg[60].dp=compassstr;
-    editdmap_dlg[62].dp=contstr;
-    editdmap_dlg[214].dp=mirrordmapstr;
-    editdmap_dlg[63].flags = (DMaps[index].type&dmfCONTINUE) ? D_SELECTED : 0;
-    editdmap_dlg[65].d1=DMaps[index].color;
-    editdmap_dlg[75].d1=DMaps[index].active_subscreen;
-    editdmap_dlg[77].d1=DMaps[index].passive_subscreen;
-    editdmap_dlg[83].d1=DMaps[index].midi;
-    editdmap_dlg[87].dp=tmusicstr;
-    dmap_tracks=0;
-    ZCMUSIC *tempdmapzcmusic = (ZCMUSIC*)zcmusic_load_file(tmusicstr);
-    
-    // Failed to load - try the quest directory
-    if(tempdmapzcmusic==NULL)
-    {
-        char musicpath[256];
-        replace_filename(musicpath, filepath, tmusicstr, 256);
-        tempdmapzcmusic = (ZCMUSIC*)zcmusic_load_file(musicpath);
-    }
-    
-    if(tempdmapzcmusic!=NULL)
-    {
-        dmap_tracks=zcmusic_get_tracks(tempdmapzcmusic);
-        dmap_tracks=(dmap_tracks<2)?0:dmap_tracks;
-    }
-    
-    zcmusic_unload_file(tempdmapzcmusic);
-    editdmap_dlg[89].flags=(dmap_tracks<2)?D_DISABLED:0;
-    editdmap_dlg[89].d1=vbound(DMaps[index].tmusictrack,0,dmap_tracks > 0 ? dmap_tracks-1 : 0);
-    
-    build_bii_list(false);
-    initDI(index);
-    ListData DI_list(DIlist, &font);
-    ListData item_list(itemlist_num, &font);
-    editdmap_dlg[101].dp = (void*)&DI_list;
-    editdmap_dlg[101].d1 = 0;
-    editdmap_dlg[102].dp = (void*)&item_list;
-    editdmap_dlg[102].d1 = 0;
-    
-    editdmap_dlg[110].flags = (DMaps[index].flags& dmfCAVES)? D_SELECTED : 0;
-    editdmap_dlg[111].flags = (DMaps[index].flags& dmf3STAIR)? D_SELECTED : 0;
-    editdmap_dlg[112].flags = (DMaps[index].flags& dmfWHIRLWIND)? D_SELECTED : 0;
-    editdmap_dlg[113].flags = (DMaps[index].flags& dmfGUYCAVES)? D_SELECTED : 0;
-    editdmap_dlg[114].flags = (DMaps[index].flags& dmfNOCOMPASS)? D_SELECTED : 0;
-    editdmap_dlg[115].flags = (DMaps[index].flags& dmfWAVY)? D_SELECTED : 0;
-    editdmap_dlg[116].flags = (DMaps[index].flags& dmfWHIRLWINDRET)? D_SELECTED : 0;
-    editdmap_dlg[117].flags = (DMaps[index].flags& dmfALWAYSMSG) ? D_SELECTED : 0;
-    editdmap_dlg[118].flags = (DMaps[index].flags& dmfVIEWMAP) ? D_SELECTED : 0;
-    editdmap_dlg[119].flags = (DMaps[index].flags& dmfDMAPMAP) ? D_SELECTED : 0;
-    editdmap_dlg[120].flags = (DMaps[index].flags& dmfMINIMAPCOLORFIX) ? D_SELECTED : 0;
-    
-    editdmap_dlg[121].flags = (DMaps[index].flags& dmfSCRIPT1) ? D_SELECTED : 0;
-    editdmap_dlg[122].flags = (DMaps[index].flags& dmfSCRIPT2) ? D_SELECTED : 0;
-    editdmap_dlg[123].flags = (DMaps[index].flags& dmfSCRIPT3) ? D_SELECTED : 0;
-    editdmap_dlg[124].flags = (DMaps[index].flags& dmfSCRIPT4) ? D_SELECTED : 0;
-    editdmap_dlg[125].flags = (DMaps[index].flags& dmfSCRIPT5) ? D_SELECTED : 0;
-    editdmap_dlg[127].flags = (DMaps[index].sideview) ? D_SELECTED : 0;
-    editdmap_dlg[128].flags = (DMaps[index].flags& dmfLAYER3BG) ? D_SELECTED : 0;
-    editdmap_dlg[129].flags = (DMaps[index].flags& dmfLAYER2BG) ? D_SELECTED : 0;
-    
-    editdmap_dlg[168].flags = (DMaps[index].flags& dmfNEWCELLARENEMIES)? D_SELECTED : 0;
-    editdmap_dlg[211].flags = (DMaps[index].flags& dmfBUNNYIFNOPEARL) ? D_SELECTED : 0;
-    editdmap_dlg[212].flags = (DMaps[index].flags& dmfMIRRORCONTINUE) ? D_SELECTED : 0;
-    
-    if(is_large)
-    {
-        if(!editdmap_dlg[0].d1)
-        {
-            xmapspecs[2]=int32_t(xmapspecs[2]*1.5);
-            xmapspecs[3]=int32_t(xmapspecs[3]*1.5);
-            editdmap_dlg[7].x+=4;
-            editdmap_dlg[13].x+=4;
-            editdmap_dlg[26].y-=12;
-            editdmap_dlg[27].y-=12;
-            editdmap_dlg[59].x+=10;
-            editdmap_dlg[61].x+=10;
-            editdmap_dlg[213].x+=10;
-        }
-        
-        large_dialog(editdmap_dlg);
-        xy[0]=editdmap_dlg[20].x;
-        xy[1]=editdmap_dlg[20].y;
-        int32_t dest[6] = { 11, 17, 14, 8, 67, 70 };
-        int32_t src[6] = { 12, 12, 9, 9, 68, 71 };
-        
-        for(int32_t i=0; i<6; i++)
-        {
-            editdmap_dlg[dest[i]].w = editdmap_dlg[src[i]].w+4;
-            editdmap_dlg[dest[i]].h = editdmap_dlg[src[i]].h+4;
-            editdmap_dlg[dest[i]].x = editdmap_dlg[src[i]].x-2;
-            editdmap_dlg[dest[i]].y = editdmap_dlg[src[i]].y-2;
-        }
-    }
-    
-    int32_t ret=-1;
-    
-    while(ret!=0&&ret!=1&&ret!=2)
-    {
-        ret=zc_popup_dialog(editdmap_dlg,-1);
-        
-        switch(ret)
-        {
-        case 90:                                              //grab a filename for tracker music
-        {
-            if(getname("Load DMap Music",(char*)zcmusic_types,NULL,tmusicpath,false))
-            {
-                strcpy(tmusicpath,temppath);
-                tmfname=get_filename(tmusicpath);
-                
-                if(strlen(tmfname)>55)
-                {
-                    jwin_alert("Error","Filename too long","(>55 characters",NULL,"O&K",NULL,'k',0,lfont);
-                    temppath[0]=0;
-                }
-                else
-                {
-                    sprintf(tmusicstr,"%s",tmfname);
-                    editdmap_dlg[87].dp=tmusicstr;
-                    dmap_tracks=0;
-                    tempdmapzcmusic = (ZCMUSIC*)zcmusic_load_file(tmusicstr);
-                    
-                    // Failed to load - try the quest directory
-                    if(tempdmapzcmusic==NULL)
-                    {
-                        char musicpath[256];
-                        replace_filename(musicpath, filepath, tmusicstr, 256);
-                        tempdmapzcmusic = (ZCMUSIC*)zcmusic_load_file(musicpath);
-                    }
-                    
-                    if(tempdmapzcmusic!=NULL)
-                    {
-                        dmap_tracks=zcmusic_get_tracks(tempdmapzcmusic);
-                        dmap_tracks=(dmap_tracks<2)?0:dmap_tracks;
-                    }
-                    
-                    zcmusic_unload_file(tempdmapzcmusic);
-                    editdmap_dlg[89].flags=(dmap_tracks<2)?D_DISABLED:0;
-                    editdmap_dlg[89].d1=0;
-                }
-            }
-        }
-        break;
-        
-        case 91:                                              //clear tracker music
-            memset(tmusicstr, 0, 56);
-            editdmap_dlg[89].flags=D_DISABLED;
-            editdmap_dlg[89].d1=0;
-            break;
-            
-        case 104: 											// item disable "->"
-            deleteDI(editdmap_dlg[101].d1, index);
-            break;
-            
-        case 105: 											// item disable "<-"
-        {
-            // 101 is the disabled list, 102 the item list
-            insertDI(editdmap_dlg[102].d1, index);
-        }
-        break;
-        }
-    }
-    
-    if(ret==1)
-    {
-        saved=false;
-        sprintf(DMaps[index].name,"%s",dmap_name);
-        DMaps[index].minimap_1_tile = editdmap_dlg[9].d1;
-        DMaps[index].minimap_1_cset = editdmap_dlg[9].fg;
-        DMaps[index].largemap_1_tile = editdmap_dlg[12].d1;
-        DMaps[index].largemap_1_cset = editdmap_dlg[12].fg;
-        DMaps[index].minimap_2_tile = editdmap_dlg[15].d1;
-        DMaps[index].minimap_2_cset = editdmap_dlg[15].fg;
-        DMaps[index].largemap_2_tile = editdmap_dlg[18].d1;
-        DMaps[index].largemap_2_cset = editdmap_dlg[18].fg;
-        DMaps[index].map = (editdmap_dlg[20].d1>(map_count-1))?0:editdmap_dlg[20].d1;
-        DMaps[index].xoff = xmapspecs[1];
-        DMaps[index].type=editdmap_dlg[23].d1|((editdmap_dlg[63].flags & D_SELECTED)?dmfCONTINUE:0);
-        
-        if((DMaps[index].type & dmfTYPE) == dmOVERW)
-            DMaps[index].xoff = 0;
-            
-        DMaps[index].level=vbound(atoi(levelstr),0,MAXLEVELS-1);
-        
-        for(int32_t i=0; i<8; i++)
-        {
-            for(int32_t j=0; j<8; j++)
-            {
-                set_bit((byte *)(DMaps[index].grid+i),7-j,get_bit(gridstring,8*i+j));
-            }
-        }
-        
-        DMaps[index].compass = zc_xtoi(compassstr);
-        DMaps[index].cont = vbound(zc_xtoi(contstr), -DMaps[index].xoff, 0x7F-DMaps[index].xoff);
-        DMaps[index].mirrorDMap = vbound(atoi(mirrordmapstr), -1, 511);
-        DMaps[index].color = editdmap_dlg[65].d1;
-        DMaps[index].active_subscreen=editdmap_dlg[75].d1;
-        DMaps[index].passive_subscreen=editdmap_dlg[77].d1;
-        DMaps[index].midi = editdmap_dlg[83].d1;
-        sprintf(DMaps[index].tmusic, "%s", tmusicstr);
-        sprintf(DMaps[index].title,"%s",dmap_title);
-        sprintf(DMaps[index].intro,"%s",dmap_intro);
-        DMaps[index].tmusictrack = editdmap_dlg[89].d1;
-        
-        int32_t f=0;
-        f |= editdmap_dlg[110].flags & D_SELECTED ? dmfCAVES:0;
-        f |= editdmap_dlg[111].flags & D_SELECTED ? dmf3STAIR:0;
-        f |= editdmap_dlg[112].flags & D_SELECTED ? dmfWHIRLWIND:0;
-        f |= editdmap_dlg[113].flags & D_SELECTED ? dmfGUYCAVES:0;
-        f |= editdmap_dlg[114].flags & D_SELECTED ? dmfNOCOMPASS:0;
-        f |= editdmap_dlg[115].flags & D_SELECTED ? dmfWAVY:0;
-        f |= editdmap_dlg[116].flags & D_SELECTED ? dmfWHIRLWINDRET:0;
-        f |= editdmap_dlg[117].flags & D_SELECTED ? dmfALWAYSMSG:0;
-        f |= editdmap_dlg[118].flags & D_SELECTED ? dmfVIEWMAP:0;
-        f |= editdmap_dlg[119].flags & D_SELECTED ? dmfDMAPMAP:0;
-        f |= editdmap_dlg[120].flags & D_SELECTED ? dmfMINIMAPCOLORFIX:0;
-        
-        f |= editdmap_dlg[121].flags & D_SELECTED ? dmfSCRIPT1:0;
-        f |= editdmap_dlg[122].flags & D_SELECTED ? dmfSCRIPT2:0;
-        f |= editdmap_dlg[123].flags & D_SELECTED ? dmfSCRIPT3:0;
-        f |= editdmap_dlg[124].flags & D_SELECTED ? dmfSCRIPT4:0;
-        f |= editdmap_dlg[125].flags & D_SELECTED ? dmfSCRIPT5:0;
-        f |= editdmap_dlg[128].flags & D_SELECTED ? dmfLAYER3BG:0;
-        f |= editdmap_dlg[129].flags & D_SELECTED ? dmfLAYER2BG:0;
-        f |= editdmap_dlg[168].flags & D_SELECTED ? dmfNEWCELLARENEMIES:0;
-        f |= editdmap_dlg[211].flags & D_SELECTED ? dmfBUNNYIFNOPEARL:0;
-        f |= editdmap_dlg[212].flags & D_SELECTED ? dmfMIRRORCONTINUE:0;
-        DMaps[index].flags = f;
+	editdmap_dlg[0].dp=dmapnumstr;
+	editdmap_dlg[0].dp2=lfont;
+	editdmap_dlg[4].dp=dmap_name;
+	editdmap_dlg[9].d1 = DMaps[index].minimap_1_tile;
+	editdmap_dlg[9].fg = DMaps[index].minimap_1_cset;
+	editdmap_dlg[12].d1 = DMaps[index].largemap_1_tile;
+	editdmap_dlg[12].fg = DMaps[index].largemap_1_cset;
+	editdmap_dlg[15].d1 = DMaps[index].minimap_2_tile;
+	editdmap_dlg[15].fg = DMaps[index].minimap_2_cset;
+	editdmap_dlg[18].d1 = DMaps[index].largemap_2_tile;
+	editdmap_dlg[18].fg = DMaps[index].largemap_2_cset;
+	editdmap_dlg[20].d1=(DMaps[index].map>(map_count-1))?0:DMaps[index].map;
+	xy[0]=editdmap_dlg[20].x;
+	xy[1]=editdmap_dlg[20].y;
+	editdmap_dlg[21].dp3=xy;
+	xmapspecs[1]=DMaps[index].xoff;
+	editdmap_dlg[21].d2=DMaps[index].xoff+7;
+	editdmap_dlg[23].d1=(DMaps[index].type&dmfTYPE);
+	editdmap_dlg[25].dp=levelstr;
 	
-	DMaps[index].sideview = editdmap_dlg[127].flags & D_SELECTED ? 1:0;
-	DMaps[index].script = bidmaps[editdmap_dlg[147].d1].second + 1;
-	DMaps[index].active_sub_script = bidmaps[editdmap_dlg[165].d1].second + 1;
-	DMaps[index].passive_sub_script = bidmaps[editdmap_dlg[167].d1].second + 1;
-	DMaps[index].onmap_script = bidmaps[editdmap_dlg[186].d1].second + 1;
+	editdmap_dlg[26].dp2=is_large?nfont:spfont;
+	editdmap_dlg[27].dp2=is_large?nfont:spfont;
 	
-	//for ( int32_t q = 0; q < 8; ++q )
-	//{
-	//	strcpy(initd_labels[q], editdmap_dlg[130+q].dp);
-	//}
-	
-	for ( int32_t q = 0; q < 8; q++ )
+	for(int32_t i=0; i<8; i++)
 	{
-		DMaps[index].initD[q] = editdmap_dlg[138+q].fg;
-		DMaps[index].sub_initD[q] = editdmap_dlg[156+q].fg;
-		DMaps[index].onmap_initD[q] = editdmap_dlg[177+q].fg;
-		////initd_labels
-		sprintf(DMaps[index].initD_label[q],"%s",initd_labels[q]);
-		sprintf(DMaps[index].sub_initD_label[q],"%s",sub_initd_labels[q]);
-		sprintf(DMaps[index].onmap_initD_label[q],"%s",onmap_initd_labels[q]);
-//		strcpy(DMaps[index].initD_label[q], initd_labels[q]);
-		//vbound(atoi(initdvals[q])*10000,-2147483647, 2147483647);
+		for(int32_t j=0; j<8; j++)
+		{
+			set_bit(gridstring,8*i+j,get_bit((byte *)(DMaps[index].grid+i),7-j));
+		}
 	}
-    }
+	
+	editdmap_dlg[58].dp=gridstring;
+	editdmap_dlg[60].dp=compassstr;
+	editdmap_dlg[62].dp=contstr;
+	editdmap_dlg[214].dp=mirrordmapstr;
+	editdmap_dlg[63].flags = (DMaps[index].type&dmfCONTINUE) ? D_SELECTED : 0;
+	editdmap_dlg[65].d1=DMaps[index].color;
+	editdmap_dlg[75].d1=DMaps[index].active_subscreen;
+	editdmap_dlg[77].d1=DMaps[index].passive_subscreen;
+	editdmap_dlg[83].d1=DMaps[index].midi;
+	editdmap_dlg[87].dp=tmusicstr;
+	dmap_tracks=0;
+	ZCMUSIC *tempdmapzcmusic = (ZCMUSIC*)zcmusic_load_file(tmusicstr);
+	
+	// Failed to load - try the quest directory
+	if(tempdmapzcmusic==NULL)
+	{
+		char musicpath[256];
+		replace_filename(musicpath, filepath, tmusicstr, 256);
+		tempdmapzcmusic = (ZCMUSIC*)zcmusic_load_file(musicpath);
+	}
+	
+	if(tempdmapzcmusic!=NULL)
+	{
+		dmap_tracks=zcmusic_get_tracks(tempdmapzcmusic);
+		dmap_tracks=(dmap_tracks<2)?0:dmap_tracks;
+	}
+	
+	zcmusic_unload_file(tempdmapzcmusic);
+	editdmap_dlg[89].flags=(dmap_tracks<2)?D_DISABLED:0;
+	editdmap_dlg[89].d1=vbound(DMaps[index].tmusictrack,0,dmap_tracks > 0 ? dmap_tracks-1 : 0);
+	
+	build_bii_list(false);
+	initDI(index);
+	ListData DI_list(DIlist, &font);
+	ListData item_list(itemlist_num, &font);
+	editdmap_dlg[101].dp = (void*)&DI_list;
+	editdmap_dlg[101].d1 = 0;
+	editdmap_dlg[102].dp = (void*)&item_list;
+	editdmap_dlg[102].d1 = 0;
+	
+	editdmap_dlg[110].flags = (DMaps[index].flags& dmfCAVES)? D_SELECTED : 0;
+	editdmap_dlg[111].flags = (DMaps[index].flags& dmf3STAIR)? D_SELECTED : 0;
+	editdmap_dlg[112].flags = (DMaps[index].flags& dmfWHIRLWIND)? D_SELECTED : 0;
+	editdmap_dlg[113].flags = (DMaps[index].flags& dmfGUYCAVES)? D_SELECTED : 0;
+	editdmap_dlg[114].flags = (DMaps[index].flags& dmfNOCOMPASS)? D_SELECTED : 0;
+	editdmap_dlg[115].flags = (DMaps[index].flags& dmfWAVY)? D_SELECTED : 0;
+	editdmap_dlg[116].flags = (DMaps[index].flags& dmfWHIRLWINDRET)? D_SELECTED : 0;
+	editdmap_dlg[117].flags = (DMaps[index].flags& dmfALWAYSMSG) ? D_SELECTED : 0;
+	editdmap_dlg[118].flags = (DMaps[index].flags& dmfVIEWMAP) ? D_SELECTED : 0;
+	editdmap_dlg[119].flags = (DMaps[index].flags& dmfDMAPMAP) ? D_SELECTED : 0;
+	editdmap_dlg[120].flags = (DMaps[index].flags& dmfMINIMAPCOLORFIX) ? D_SELECTED : 0;
+	
+	editdmap_dlg[121].flags = (DMaps[index].flags& dmfSCRIPT1) ? D_SELECTED : 0;
+	editdmap_dlg[122].flags = (DMaps[index].flags& dmfSCRIPT2) ? D_SELECTED : 0;
+	editdmap_dlg[123].flags = (DMaps[index].flags& dmfSCRIPT3) ? D_SELECTED : 0;
+	editdmap_dlg[124].flags = (DMaps[index].flags& dmfSCRIPT4) ? D_SELECTED : 0;
+	editdmap_dlg[125].flags = (DMaps[index].flags& dmfSCRIPT5) ? D_SELECTED : 0;
+	editdmap_dlg[127].flags = (DMaps[index].sideview) ? D_SELECTED : 0;
+	editdmap_dlg[128].flags = (DMaps[index].flags& dmfLAYER3BG) ? D_SELECTED : 0;
+	editdmap_dlg[129].flags = (DMaps[index].flags& dmfLAYER2BG) ? D_SELECTED : 0;
+	
+	editdmap_dlg[168].flags = (DMaps[index].flags& dmfNEWCELLARENEMIES)? D_SELECTED : 0;
+	editdmap_dlg[211].flags = (DMaps[index].flags& dmfBUNNYIFNOPEARL) ? D_SELECTED : 0;
+	editdmap_dlg[212].flags = (DMaps[index].flags& dmfMIRRORCONTINUE) ? D_SELECTED : 0;
+	
+	if(is_large)
+	{
+		if(!editdmap_dlg[0].d1)
+		{
+			xmapspecs[2]=int32_t(xmapspecs[2]*1.5);
+			xmapspecs[3]=int32_t(xmapspecs[3]*1.5);
+			editdmap_dlg[7].x+=4;
+			editdmap_dlg[13].x+=4;
+			editdmap_dlg[26].y-=12;
+			editdmap_dlg[27].y-=12;
+			editdmap_dlg[59].x+=10;
+			editdmap_dlg[61].x+=10;
+			editdmap_dlg[213].x+=10;
+		}
+		
+		large_dialog(editdmap_dlg);
+		xy[0]=editdmap_dlg[20].x;
+		xy[1]=editdmap_dlg[20].y;
+		int32_t dest[6] = { 11, 17, 14, 8, 67, 70 };
+		int32_t src[6] = { 12, 12, 9, 9, 68, 71 };
+		
+		for(int32_t i=0; i<6; i++)
+		{
+			editdmap_dlg[dest[i]].w = editdmap_dlg[src[i]].w+4;
+			editdmap_dlg[dest[i]].h = editdmap_dlg[src[i]].h+4;
+			editdmap_dlg[dest[i]].x = editdmap_dlg[src[i]].x-2;
+			editdmap_dlg[dest[i]].y = editdmap_dlg[src[i]].y-2;
+		}
+	}
+	
+	int32_t ret=-1;
+	
+	while(ret!=0&&ret!=1&&ret!=2)
+	{
+		ret=zc_popup_dialog(editdmap_dlg,-1);
+		
+		switch(ret)
+		{
+		case 90:											  //grab a filename for tracker music
+		{
+			if(getname("Load DMap Music",(char*)zcmusic_types,NULL,tmusicpath,false))
+			{
+				strcpy(tmusicpath,temppath);
+				tmfname=get_filename(tmusicpath);
+				
+				if(strlen(tmfname)>55)
+				{
+					jwin_alert("Error","Filename too long","(>55 characters",NULL,"O&K",NULL,'k',0,lfont);
+					temppath[0]=0;
+				}
+				else
+				{
+					sprintf(tmusicstr,"%s",tmfname);
+					editdmap_dlg[87].dp=tmusicstr;
+					dmap_tracks=0;
+					tempdmapzcmusic = (ZCMUSIC*)loadzcmusic(tmusicstr, filepath);
+					
+					if(tempdmapzcmusic!=NULL)
+					{
+						dmap_tracks=zcmusic_get_tracks(tempdmapzcmusic);
+						dmap_tracks=(dmap_tracks<2)?0:dmap_tracks;
+					}
+					
+					zcmusic_unload_file(tempdmapzcmusic);
+					editdmap_dlg[89].flags=(dmap_tracks<2)?D_DISABLED:0;
+					editdmap_dlg[89].d1=0;
+				}
+			}
+		}
+		break;
+		
+		case 91:											  //clear tracker music
+			memset(tmusicstr, 0, 56);
+			editdmap_dlg[89].flags=D_DISABLED;
+			editdmap_dlg[89].d1=0;
+			break;
+			
+		case 104: 											// item disable "->"
+			deleteDI(editdmap_dlg[101].d1, index);
+			break;
+			
+		case 105: 											// item disable "<-"
+		{
+			// 101 is the disabled list, 102 the item list
+			insertDI(editdmap_dlg[102].d1, index);
+		}
+		break;
+		}
+	}
+	
+	if(ret==1)
+	{
+		saved=false;
+		sprintf(DMaps[index].name,"%s",dmap_name);
+		DMaps[index].minimap_1_tile = editdmap_dlg[9].d1;
+		DMaps[index].minimap_1_cset = editdmap_dlg[9].fg;
+		DMaps[index].largemap_1_tile = editdmap_dlg[12].d1;
+		DMaps[index].largemap_1_cset = editdmap_dlg[12].fg;
+		DMaps[index].minimap_2_tile = editdmap_dlg[15].d1;
+		DMaps[index].minimap_2_cset = editdmap_dlg[15].fg;
+		DMaps[index].largemap_2_tile = editdmap_dlg[18].d1;
+		DMaps[index].largemap_2_cset = editdmap_dlg[18].fg;
+		DMaps[index].map = (editdmap_dlg[20].d1>(map_count-1))?0:editdmap_dlg[20].d1;
+		DMaps[index].xoff = xmapspecs[1];
+		DMaps[index].type=editdmap_dlg[23].d1|((editdmap_dlg[63].flags & D_SELECTED)?dmfCONTINUE:0);
+		
+		if((DMaps[index].type & dmfTYPE) == dmOVERW)
+			DMaps[index].xoff = 0;
+			
+		DMaps[index].level=vbound(atoi(levelstr),0,MAXLEVELS-1);
+		
+		for(int32_t i=0; i<8; i++)
+		{
+			for(int32_t j=0; j<8; j++)
+			{
+				set_bit((byte *)(DMaps[index].grid+i),7-j,get_bit(gridstring,8*i+j));
+			}
+		}
+		
+		DMaps[index].compass = zc_xtoi(compassstr);
+		DMaps[index].cont = vbound(zc_xtoi(contstr), -DMaps[index].xoff, 0x7F-DMaps[index].xoff);
+		DMaps[index].mirrorDMap = vbound(atoi(mirrordmapstr), -1, 511);
+		DMaps[index].color = editdmap_dlg[65].d1;
+		DMaps[index].active_subscreen=editdmap_dlg[75].d1;
+		DMaps[index].passive_subscreen=editdmap_dlg[77].d1;
+		DMaps[index].midi = editdmap_dlg[83].d1;
+		sprintf(DMaps[index].tmusic, "%s", tmusicstr);
+		sprintf(DMaps[index].title,"%s",dmap_title);
+		sprintf(DMaps[index].intro,"%s",dmap_intro);
+		DMaps[index].tmusictrack = editdmap_dlg[89].d1;
+		
+		int32_t f=0;
+		f |= editdmap_dlg[110].flags & D_SELECTED ? dmfCAVES:0;
+		f |= editdmap_dlg[111].flags & D_SELECTED ? dmf3STAIR:0;
+		f |= editdmap_dlg[112].flags & D_SELECTED ? dmfWHIRLWIND:0;
+		f |= editdmap_dlg[113].flags & D_SELECTED ? dmfGUYCAVES:0;
+		f |= editdmap_dlg[114].flags & D_SELECTED ? dmfNOCOMPASS:0;
+		f |= editdmap_dlg[115].flags & D_SELECTED ? dmfWAVY:0;
+		f |= editdmap_dlg[116].flags & D_SELECTED ? dmfWHIRLWINDRET:0;
+		f |= editdmap_dlg[117].flags & D_SELECTED ? dmfALWAYSMSG:0;
+		f |= editdmap_dlg[118].flags & D_SELECTED ? dmfVIEWMAP:0;
+		f |= editdmap_dlg[119].flags & D_SELECTED ? dmfDMAPMAP:0;
+		f |= editdmap_dlg[120].flags & D_SELECTED ? dmfMINIMAPCOLORFIX:0;
+		
+		f |= editdmap_dlg[121].flags & D_SELECTED ? dmfSCRIPT1:0;
+		f |= editdmap_dlg[122].flags & D_SELECTED ? dmfSCRIPT2:0;
+		f |= editdmap_dlg[123].flags & D_SELECTED ? dmfSCRIPT3:0;
+		f |= editdmap_dlg[124].flags & D_SELECTED ? dmfSCRIPT4:0;
+		f |= editdmap_dlg[125].flags & D_SELECTED ? dmfSCRIPT5:0;
+		f |= editdmap_dlg[128].flags & D_SELECTED ? dmfLAYER3BG:0;
+		f |= editdmap_dlg[129].flags & D_SELECTED ? dmfLAYER2BG:0;
+		f |= editdmap_dlg[168].flags & D_SELECTED ? dmfNEWCELLARENEMIES:0;
+		f |= editdmap_dlg[211].flags & D_SELECTED ? dmfBUNNYIFNOPEARL:0;
+		f |= editdmap_dlg[212].flags & D_SELECTED ? dmfMIRRORCONTINUE:0;
+		DMaps[index].flags = f;
+	
+		DMaps[index].sideview = editdmap_dlg[127].flags & D_SELECTED ? 1:0;
+		DMaps[index].script = bidmaps[editdmap_dlg[147].d1].second + 1;
+		DMaps[index].active_sub_script = bidmaps[editdmap_dlg[165].d1].second + 1;
+		DMaps[index].passive_sub_script = bidmaps[editdmap_dlg[167].d1].second + 1;
+		DMaps[index].onmap_script = bidmaps[editdmap_dlg[186].d1].second + 1;
+		
+		//for ( int32_t q = 0; q < 8; ++q )
+		//{
+		//	strcpy(initd_labels[q], editdmap_dlg[130+q].dp);
+		//}
+		
+		for ( int32_t q = 0; q < 8; q++ )
+		{
+			DMaps[index].initD[q] = editdmap_dlg[138+q].fg;
+			DMaps[index].sub_initD[q] = editdmap_dlg[156+q].fg;
+			DMaps[index].onmap_initD[q] = editdmap_dlg[177+q].fg;
+			////initd_labels
+			sprintf(DMaps[index].initD_label[q],"%s",initd_labels[q]);
+			sprintf(DMaps[index].sub_initD_label[q],"%s",sub_initd_labels[q]);
+			sprintf(DMaps[index].onmap_initD_label[q],"%s",onmap_initd_labels[q]);
+			//strcpy(DMaps[index].initD_label[q], initd_labels[q]);
+			//vbound(atoi(initdvals[q])*10000,-2147483647, 2147483647);
+		}
+	}
 }
 
 //int32_t selectdmapxy[6] = {90,142,164,150,164,160};

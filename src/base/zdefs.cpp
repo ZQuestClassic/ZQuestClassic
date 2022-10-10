@@ -3,6 +3,7 @@
 #include "base/zapp.h"
 #include "dialog/info.h"
 #include <sstream>
+#include "zcmusic.h"
 
 extern byte quest_rules[QUESTRULES_NEW_SIZE];
 
@@ -63,6 +64,73 @@ RGB mixRGB(int32_t r1,int32_t g1,int32_t b1,int32_t r2,int32_t g2,int32_t b2,int
 	x.filler=0;
 	return x;
 }
+
+#ifndef IS_LAUNCHER
+void* loadzcmusic(char* filename, char* QUESTPATH)
+{
+	ZCMUSIC *newzcmusic = NULL;
+	
+	char exedir[2048];
+	char qstdir[2048];
+	char qstfname[2048];
+	// Try the ZC directory first
+	{
+		char exepath[2048];
+		char musicpath[2048];
+		get_executable_name(exepath, 2048);
+		replace_filename(exedir, exepath, "", 2048);
+		append_filename(musicpath, exedir, filename, 2048);
+		newzcmusic=(ZCMUSIC*)zcmusic_load_file_ex(musicpath);
+	}
+	
+	// Not in ZC directory, try the quest directory -Em
+	if(newzcmusic==NULL)
+	{
+		//get the filename w/o extension
+		replace_extension(qstfname, get_filename(QUESTPATH), "", 2048);
+		//get the quest path w/o filename
+		replace_filename(qstdir, QUESTPATH, "", 2048);
+		char musicpath[2048];
+		append_filename(musicpath, qstdir, filename, 2048);
+		newzcmusic=(ZCMUSIC*)zcmusic_load_file_ex(musicpath);
+	}
+	
+	//Not found yet, check subfolder options under the exe dir -Em
+	if(newzcmusic==NULL)
+	{
+		char musicpath[2048];
+		char buf[2048];
+		sprintf(buf, "%s_music\\%s", qstfname, filename);
+		regulate_path(buf);
+		append_filename(musicpath, exedir, buf, 2048);
+		newzcmusic=(ZCMUSIC*)zcmusic_load_file_ex(musicpath);
+		if(newzcmusic==NULL) //not in 'questname_music/', check 'music/'
+		{
+			sprintf(buf, "music\\%s", filename);
+			append_filename(musicpath, exedir, buf, 2048);
+			newzcmusic=(ZCMUSIC*)zcmusic_load_file_ex(musicpath);
+		}
+	}
+	
+	//Not found yet, check subfolder options under the qst dir
+	if(newzcmusic==NULL)
+	{
+		char musicpath[2048];
+		char buf[2048];
+		sprintf(buf, "%s_music\\%s", qstfname, filename);
+		regulate_path(buf);
+		append_filename(musicpath, qstdir, buf, 2048);
+		newzcmusic=(ZCMUSIC*)zcmusic_load_file_ex(musicpath);
+		if(newzcmusic==NULL) //not in 'questname_music/', check 'music/'
+		{
+			sprintf(buf, "music\\%s", filename);
+			append_filename(musicpath, qstdir, buf, 2048);
+			newzcmusic=(ZCMUSIC*)zcmusic_load_file_ex(musicpath);
+		}
+	}
+	return newzcmusic;
+}
+#endif
 
 static char themefile[2048] = {0};
 char tmp_themefile[2048] = {0};
