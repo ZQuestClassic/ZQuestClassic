@@ -21308,6 +21308,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 			if(!(ladderx+laddery)) drownCombo = water;
 			if (combobuf[water].usrflags&cflag1) Drown(1);
 			else Drown();
+			if(byte drown_sfx = combobuf[water].attribytes[4])
+				sfx(drown_sfx, pan(int32_t(x)));
 		}
 		else if (!isSwimming())
 		{

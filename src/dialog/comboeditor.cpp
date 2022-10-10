@@ -662,6 +662,8 @@ void ComboEditorDialog::loadComboType()
 			h_attribute[0] = "The amount of damage dealt when drowning, in HP points. If negative, drowning will heal the player.";
 			l_attribyte[0] = "Flipper Level:";
 			h_attribyte[0] = "The minimum level flippers required to swim in the water. Flippers of lower level will have no effect.";
+			l_attribyte[4] = "Drown SFX:";
+			h_attribyte[4] = "The SFX played when drowning";
 			if(FL(cflag2)) //Modify HP
 			{
 				l_flag[4] = "Rings affect HP Mod";
