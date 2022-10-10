@@ -23,6 +23,7 @@
 #include "base/util.h"
 #include "zcmusic.h"
 #include "zc_malloc.h"
+#include <filesystem>
 
 using namespace util;
 
@@ -60,78 +61,62 @@ static int32_t zcmusic_bufsz_private = 64;
 
 ALLEGRO_MUTEX* playlistmutex = NULL;
 
-void* loadzcmusic(char* filename, char* QUESTPATH)
+ZCMUSIC* zcmusic_load_for_quest(char* filename, char* quest_path)
 {
-	ZCMUSIC *newzcmusic = NULL;
-	
-	char exedir[2048];
-	char qstdir[2048];
-	char qstfname[2048];
-	// Try the ZC directory first
-	{
-		char exepath[2048];
-		char musicpath[2048];
-		get_executable_name(exepath, 2048);
-		replace_filename(exedir, exepath, "", 2048);
-		append_filename(musicpath, exedir, filename, 2048);
-		newzcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
-	}
-	
-	// Not in ZC directory, try the quest directory -Em
-	if(newzcmusic==NULL)
-	{
-		//get the filename w/o extension
-		replace_extension(qstfname, get_filename(QUESTPATH), "", 2048);
-		//get the quest path w/o filename
-		replace_filename(qstdir, QUESTPATH, "", 2048);
-		char musicpath[2048];
-		append_filename(musicpath, qstdir, filename, 2048);
-		newzcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
-	}
-	
-	//Not found yet, check subfolder options under the exe dir -Em
-	if(newzcmusic==NULL)
-	{
-		char musicpath[2048];
-		char buf[2048];
-		sprintf(buf, "%s_music\\%s", qstfname, filename);
-		regulate_path(buf);
-		append_filename(musicpath, exedir, buf, 2048);
-		newzcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
-		if(newzcmusic==NULL) //not in 'questname_music/', check 'music/'
-		{
-			sprintf(buf, "music\\%s", filename);
-			append_filename(musicpath, exedir, buf, 2048);
-			newzcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
-		}
-	}
-	
-	//Not found yet, check subfolder options under the qst dir
-	if(newzcmusic==NULL)
-	{
-		char musicpath[2048];
-		char buf[2048];
-		sprintf(buf, "%s_music\\%s", qstfname, filename);
-		regulate_path(buf);
-		append_filename(musicpath, qstdir, buf, 2048);
-		newzcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
-		if(newzcmusic==NULL) //not in 'questname_music/', check 'music/'
-		{
-			sprintf(buf, "music\\%s", filename);
-			append_filename(musicpath, qstdir, buf, 2048);
-			newzcmusic=(ZCMUSIC*)zcmusic_load_file(musicpath);
-		}
-	}
-	return newzcmusic;
+    char exe_path[PATH_MAX];
+    get_executable_name(exe_path, PATH_MAX);
+    auto exe_dir = std::filesystem::path(exe_path).parent_path();
+    auto quest_dir = std::filesystem::path(quest_path).parent_path();
+
+    for (int i = 0; i <= 5; i++)
+    {
+        std::filesystem::path dir;
+        if (i == 0)
+        {
+            dir = exe_dir;
+        }
+        else if (i == 1)
+        {
+            dir = quest_dir;
+        }
+        else if (i == 2)
+        {
+            dir = exe_dir / std::filesystem::path(quest_path).filename();
+            dir += "_music";
+        }
+        else if (i == 3)
+        {
+            dir = exe_dir / "music";
+        }
+        else if (i == 4)
+        {
+            dir = quest_dir / std::filesystem::path(quest_path).filename();
+            dir += "_music";
+        }
+        else if (i == 5)
+        {
+            dir = quest_dir / "music";
+        }
+
+        auto path = dir / filename;
+        if (!std::filesystem::exists(path))
+            continue;
+
+		ZCMUSIC *newzcmusic = zcmusic_load_file(path.c_str());
+        if (newzcmusic)
+            return newzcmusic;
+    }
+
+    return nullptr;
 }
 
-typedef struct DUHFILE : public ZCMUSICBASE
+typedef struct DUHFILE : public ZCMUSIC
 {
     DUH *s;
     AL_DUH_PLAYER *p;
 } DUHFILE;
 
-typedef struct OGGFILE : public ZCMUSICBASE
+typedef struct OGGFILE : public ZCMUSIC
 {
     ALOGG_OGGSTREAM *s;
     PACKFILE *f;
@@ -139,7 +124,7 @@ typedef struct OGGFILE : public ZCMUSICBASE
     int32_t vol;
 } OGGFILE;
 
-typedef struct OGGEXFILE : public ZCMUSICBASE
+typedef struct OGGEXFILE : public ZCMUSIC
 {
     ALOGG_OGG *s;
     FILE *f;
@@ -147,7 +132,7 @@ typedef struct OGGEXFILE : public ZCMUSICBASE
     int32_t vol;
 } OGGEXFILE;
 
-typedef struct MP3FILE : public ZCMUSICBASE
+typedef struct MP3FILE : public ZCMUSIC
 {
     ALMP3_MP3STREAM *s;
     PACKFILE *f;
@@ -155,7 +140,7 @@ typedef struct MP3FILE : public ZCMUSICBASE
     int32_t vol;
 } MP3FILE;
 
-typedef struct GMEFILE : public ZCMUSICBASE
+typedef struct GMEFILE : public ZCMUSIC
 {
     AUDIOSTREAM *stream;
     struct Music_Emu* emu;
@@ -376,7 +361,7 @@ extern "C"
         }
     }
     
-    ZCMUSIC const * zcmusic_load_file(const char *filename)
+    ZCMUSIC * zcmusic_load_file(const char *filename)
     {
         if(filename == NULL)
         {
@@ -387,7 +372,7 @@ extern "C"
         
         if(strlen(filename)>255)
         {
-            al_trace("Music file '%s' not loaded: filename too int32_t\n", filename);
+            al_trace("Music file '%s' not loaded: filename too long\n", filename);
             return NULL;
         }
         
@@ -538,7 +523,7 @@ error:
         return NULL;
     }
     
-    ZCMUSIC const * zcmusic_load_file_ex(const char *filename)
+    ZCMUSIC * zcmusic_load_file_ex(const char *filename)
     {
         if(filename == NULL)
         {

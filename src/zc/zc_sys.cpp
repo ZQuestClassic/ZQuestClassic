@@ -8998,7 +8998,7 @@ INLINE int32_t mixvol(int32_t v1,int32_t v2)
 // Run an NSF, or a MIDI if the NSF is missing somehow.
 bool try_zcmusic(char *filename, int32_t track, int32_t midi)
 {
-	ZCMUSIC *newzcmusic = (ZCMUSIC*)loadzcmusic(filename, qstpath);
+	ZCMUSIC *newzcmusic = zcmusic_load_for_quest(filename, qstpath);
 	
 	// Found it
 	if(newzcmusic!=NULL)
@@ -9025,7 +9025,7 @@ bool try_zcmusic(char *filename, int32_t track, int32_t midi)
 
 bool try_zcmusic_ex(char *filename, int32_t track, int32_t midi)
 {
-	ZCMUSIC *newzcmusic = (ZCMUSIC*)loadzcmusic(filename, qstpath);
+	ZCMUSIC *newzcmusic = zcmusic_load_for_quest(filename, qstpath);
 	// Found it
 	if(newzcmusic!=NULL)
 	{
@@ -9118,8 +9118,6 @@ void play_DmapMusic()
 	static int32_t ttrack=0;
 	bool domidi=false;
 	
-	// Seems like this ought to call try_zcmusic()...
-	
 	if(DMaps[currdmap].tmusic[0]!=0)
 	{
 		if(zcmusic==NULL ||
@@ -9133,7 +9131,7 @@ void play_DmapMusic()
 				zcmusic = NULL;
 			}
 			
-			zcmusic = (ZCMUSIC*)loadzcmusic(DMaps[currdmap].tmusic, qstpath);
+			zcmusic = zcmusic_load_for_quest(DMaps[currdmap].tmusic, qstpath);
 			
 			if(zcmusic!=NULL)
 			{

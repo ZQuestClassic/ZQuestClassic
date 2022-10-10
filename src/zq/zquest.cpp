@@ -16797,7 +16797,7 @@ void editdmap(int32_t index)
 					sprintf(tmusicstr,"%s",tmfname);
 					editdmap_dlg[87].dp=tmusicstr;
 					dmap_tracks=0;
-					tempdmapzcmusic = (ZCMUSIC*)loadzcmusic(tmusicstr, filepath);
+					tempdmapzcmusic = zcmusic_load_for_quest(tmusicstr, filepath);
 					
 					if(tempdmapzcmusic!=NULL)
 					{
