@@ -61,6 +61,7 @@ ZCM_EXTERN int32_t zcmusic_change_track(ZCMUSIC* zcm, int32_t tracknum);
 ZCM_EXTERN int32_t zcmusic_get_curpos(ZCMUSIC* zcm);
 ZCM_EXTERN void zcmusic_set_curpos(ZCMUSIC* zcm, int32_t value);
 ZCM_EXTERN void zcmusic_set_speed(ZCMUSIC* zcm, int32_t value);
+ZCM_EXTERN void* loadzcmusic(char* filename, char* QUESTPATH);
 
 #ifdef __cplusplus
 }                                                           // extern "C"
