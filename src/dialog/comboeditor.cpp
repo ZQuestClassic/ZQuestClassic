@@ -4187,7 +4187,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 	}
 	l_minmax_trig->setText((local_comboref.triggerflags[0] & (combotriggerINVERTMINMAX))
 		? maxstr : minstr);
-	//loadComboType();
+	loadComboType();
 	return window;
 }
 
