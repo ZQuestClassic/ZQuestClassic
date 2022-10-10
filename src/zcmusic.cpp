@@ -102,7 +102,7 @@ ZCMUSIC* zcmusic_load_for_quest(char* filename, char* quest_path)
         if (!std::filesystem::exists(path))
             continue;
 
-		ZCMUSIC *newzcmusic = zcmusic_load_file(path.c_str());
+		ZCMUSIC *newzcmusic = zcmusic_load_file(path.string().c_str());
         if (newzcmusic)
             return newzcmusic;
     }
