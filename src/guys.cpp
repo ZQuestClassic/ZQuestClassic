@@ -22414,6 +22414,12 @@ bool runMenuCursor()
 	//false if pos changed this frame; no confirming while moving the cursor!
 }
 
+bool bottom_margin_clip()
+{
+	return !get_bit(quest_rules, qr_OLD_STRING_EDITOR_MARGINS)
+		&& cursor_y >= (msg_h + (get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)?16:0) - msg_margins[down]);
+}
+
 bool parsemsgcode()
 {
 	if(msgptr>=MsgStrings[msgstr].s.size()) return false;
@@ -22605,7 +22611,7 @@ bool parsemsgcode()
 				ssc_tile_hei = ssc_tile_hei_buf;
 				ssc_tile_hei_buf = -1;
 				cursor_y += thei + MsgStrings[msgstr].vspace;
-				if(cursor_y >= (msg_h - msg_margins[down])) break;
+				if(bottom_margin_clip()) return true;
 				cursor_x=msg_margins[left];
 			}
 			
@@ -22724,21 +22730,21 @@ bool parsemsgcode()
 		
 		case MSGC_MENUCHOICE:
 		{
+			int32_t pos = grab_next_argument();
+			int32_t upos = grab_next_argument();
+			int32_t dpos = grab_next_argument();
+			int32_t lpos = grab_next_argument();
+			int32_t rpos = grab_next_argument();
 			if(cursor_x+MsgStrings[msgstr].hspace + msg_menu_data[MNU_CURSOR_WID] > msg_w-msg_margins[right])
 			{
 				int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
 				ssc_tile_hei = ssc_tile_hei_buf;
 				ssc_tile_hei_buf = -1;
 				cursor_y += thei + MsgStrings[msgstr].vspace;
-				// if(cursor_y >= (msg_h - msg_margins[down])) break;
+				if(bottom_margin_clip()) break;
 				cursor_x=msg_margins[left];
 			}
 			
-			int32_t pos = grab_next_argument();
-			int32_t upos = grab_next_argument();
-			int32_t dpos = grab_next_argument();
-			int32_t lpos = grab_next_argument();
-			int32_t rpos = grab_next_argument();
 			menu_options[pos] = menu_choice(cursor_x, cursor_y, pos,
 				upos, dpos, lpos, rpos);
 			
@@ -22901,6 +22907,7 @@ bool atend(char const* str)
 
 void putmsg()
 {
+	bool oldmargin = get_bit(quest_rules, qr_OLD_STRING_EDITOR_MARGINS)!=0;
 	if(!msgorig) msgorig=msgstr;
 	
 	if(wait_advance && linkedmsgclk < 1)
@@ -22948,7 +22955,7 @@ void putmsg()
 	}
 	if(wait_advance) return; //Waiting for buttonpress
 	
-	if(!do_run_menu && (!msgstr || msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || cursor_y >= msg_h-msg_margins[down]))
+	if(!do_run_menu && (!msgstr || msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || bottom_margin_clip()))
 	{
 		if(!msgstr)
 			msgorig=0;
@@ -22972,7 +22979,7 @@ void putmsg()
 				goto breakout; // break out if message speed was changed to non-zero
 			else if(!do_run_menu && !doing_name_insert && !parsemsgcode())
 			{
-				if(cursor_y >= msg_h-msg_margins[down])
+				if(bottom_margin_clip())
 					break;
 					
 				wrapmsgstr(s3);
@@ -22989,6 +22996,7 @@ void putmsg()
 						ssc_tile_hei = ssc_tile_hei_buf;
 						ssc_tile_hei_buf = -1;
 						cursor_y += thei + MsgStrings[msgstr].vspace;
+						if(bottom_margin_clip()) break;
 						cursor_x=msg_margins[left];
 					}
 					
@@ -23010,6 +23018,7 @@ void putmsg()
 						ssc_tile_hei = ssc_tile_hei_buf;
 						ssc_tile_hei_buf = -1;
 						cursor_y += thei + MsgStrings[msgstr].vspace;
+						if(bottom_margin_clip()) break;
 						cursor_x=msg_margins[left];
 					}
 					
@@ -23038,7 +23047,7 @@ void putmsg()
 			{
 				if(*nameptr)
 				{
-					if(cursor_y >= msg_h-msg_margins[down])
+					if(bottom_margin_clip())
 						break;
 					
 					char s3[9] = {0};
@@ -23063,6 +23072,7 @@ void putmsg()
 						ssc_tile_hei = ssc_tile_hei_buf;
 						ssc_tile_hei_buf = -1;
 						cursor_y += thei + MsgStrings[msgstr].vspace;
+						if(bottom_margin_clip()) break;
 						cursor_x=msg_margins[left];
 					}
 					
@@ -23128,6 +23138,7 @@ breakout:
 				ssc_tile_hei = ssc_tile_hei_buf;
 				ssc_tile_hei_buf = -1;
 				cursor_y += thei + MsgStrings[msgstr].vspace;
+				if(bottom_margin_clip()) break;
 				cursor_x=msg_margins[left];
 			}
 			
@@ -23153,7 +23164,7 @@ breakout:
 	
 reparsesinglechar:
 	// Continue printing the string!
-	if(!atend(MsgStrings[msgstr].s.c_str()+msgptr) && cursor_y < msg_h-msg_margins[down])
+	if(!atend(MsgStrings[msgstr].s.c_str()+msgptr) && !bottom_margin_clip())
 	{
 		if(!do_run_menu && !doing_name_insert && !parsemsgcode())
 		{
@@ -23169,6 +23180,7 @@ reparsesinglechar:
 				ssc_tile_hei = ssc_tile_hei_buf;
 				ssc_tile_hei_buf = -1;
 				cursor_y += thei + MsgStrings[msgstr].vspace;
+				if(bottom_margin_clip()) goto strendcheck;
 				cursor_x=msg_margins[left];
 				//if(space) s3[0]=0;
 			}
@@ -23224,6 +23236,7 @@ reparsesinglechar:
 				ssc_tile_hei = ssc_tile_hei_buf;
 				ssc_tile_hei_buf = -1;
 				cursor_y += thei + MsgStrings[msgstr].vspace;
+				if(bottom_margin_clip()) goto strendcheck;
 				cursor_x=msg_margins[left];
 			}
 			
@@ -23272,6 +23285,7 @@ reparsesinglechar:
 						ssc_tile_hei = ssc_tile_hei_buf;
 						ssc_tile_hei_buf = -1;
 						cursor_y += thei + MsgStrings[msgstr].vspace;
+						if(bottom_margin_clip()) break;
 						cursor_x=msg_margins[left];
 					}
 					
@@ -23297,7 +23311,7 @@ reparsesinglechar:
 	}
 strendcheck:
 	// Done printing the string
-	if(do_end_str || !doing_name_insert && !do_run_menu && (msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || cursor_y >= msg_h-msg_margins[down] || atend(MsgStrings[msgstr].s.c_str()+msgptr)) && !linkedmsgclk)
+	if(do_end_str || !doing_name_insert && !do_run_menu && (msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || bottom_margin_clip() || atend(MsgStrings[msgstr].s.c_str()+msgptr)) && !linkedmsgclk)
 	{
 		if(!do_end_str)
 			while(parsemsgcode()); // Finish remaining control codes
