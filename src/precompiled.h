@@ -19,7 +19,6 @@
 
 //Boost
 #include <boost/make_shared.hpp>
-#include <boost/optional.hpp>
 #include <boost/smart_ptr.hpp>
 #include <boost/move/make_unique.hpp>
 
