@@ -119,6 +119,7 @@ target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primi
 #############################################################
 
 include_directories(./include/zlib123)
+include_directories(./include/xxhash)
 include_directories(./src)
 # TODO: remove
 include_directories(./src/zc)

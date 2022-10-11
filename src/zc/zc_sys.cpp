@@ -60,6 +60,11 @@
 #include "ffscript.h"
 #include "dialog/info.h"
 #include "dialog/alert.h"
+
+#define XXH_STATIC_LINKING_ONLY
+#define XXH_IMPLEMENTATION
+#include <xxhash.h>
+
 extern FFScript FFCore;
 extern bool Playing;
 int32_t sfx_voice[WAV_COUNT];
@@ -3820,6 +3825,20 @@ void updatescr(bool allowwavy)
 			--black_opening_count;
 		}
 	}
+
+	if (replay_is_debug() && replay_get_mode() != ReplayMode::Replay)
+	{
+		static long prev_hash = 0;
+		int depth = bitmap_color_depth(framebuf);
+		size_t len = framebuf->w * framebuf->h * BYTES_PER_PIXEL(depth);
+		uint32_t hash = XXH32(framebuf->dat, len, 0);
+		if (hash != prev_hash)
+		{
+			replay_step_comment(string_format("gfx %x", hash));
+			prev_hash = hash;
+		}
+	}
+
 	if(black_opening_count==0&&black_opening_shape==bosFADEBLACK)
 	{
 		black_opening_shape = bosCIRCLE;
