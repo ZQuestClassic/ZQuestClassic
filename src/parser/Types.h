@@ -6,7 +6,6 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <boost/type_traits.hpp>
 #include "CompilerUtils.h"
 #include "parserDefs.h"
 

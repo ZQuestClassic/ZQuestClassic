@@ -27,7 +27,13 @@
 #undef new
 #endif // new
 
-#include <optional>
+#if (__cplusplus < 201703L)
+    #include <boost/optional.hpp>
+#else
+    #include <optional>
+    using std::nullopt_t, std::nullopt;
+#endif
+#include <boost/type_traits.hpp>
 
 #include <algorithm>
 #include <cassert>
@@ -36,8 +42,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
-using std::nullopt_t, std::nullopt;
 
 namespace ZScript
 {
@@ -131,6 +135,110 @@ bool operator!=(SafeBool<T> const& lhs, SafeBool<U> const& rhs) {
     return false;
 }
 
+
+////////////////////////////////////////////////////////////////
+// Simple std::optional (from C++17).
+// Soley adapts existing code with boost::optional
+
+
+#if (__cplusplus < 201703L)
+// Empty optional instance.
+typedef boost::none_t nullopt_t;
+const nullopt_t nullopt(boost::none);
+
+template<typename T>
+class optional : public SafeBool<optional<T> >
+{
+public:
+	typedef T value_type;
+
+	// Construct empty optional.
+	optional() : data_() {}
+	optional(nullopt_t) : data_(nullopt) {}
+	// Construct with value.
+	optional(const T& value) : data_(value) {}
+	// Construct with value (eliminate double optional).
+	optional(const optional& rhs)
+	{
+		if (rhs.data_.has_value()) {
+			data_.emplace(*rhs);
+		}
+	}
+
+	~optional()
+	{
+		data_.reset();
+	}
+
+	optional& operator=(nullopt_t)
+	{
+		data_.reset();
+		return *this;
+	}
+	optional& operator=(const optional& rhs)
+	{
+		data_.emplace(*rhs);
+		return *this;
+	}
+
+	const T* operator->() const
+	{
+		assert(data_.has_value());
+		return &data_.value();
+	}
+	T* operator->()
+	{
+		assert(data_.has_value());
+		return &data_.value();
+	}
+	const T& operator*() const
+	{
+		assert(data_.has_value());
+		return data_.value();
+	}
+
+	T& operator*()
+	{
+		assert(data_.has_value());
+		return data_.value();
+	}
+
+	bool has_value() const { return data_.has_value(); }
+	const T& value() const
+	{
+		assert(data_.has_value());
+		return data_.value();
+	}
+	T& value()
+	{
+		assert(data_.has_value());
+		return data_.value();
+	}
+
+	template<typename U>
+	T value_or(const U& v) const
+	{
+		return data_.value_or(v);
+	}
+
+	template <typename U>
+	T value_or(U& v)
+	{
+		return data_.value_or(v);
+	}
+
+	// Destroys the value if present.
+	void reset()
+	{
+		data_.reset();
+	}
+
+	bool safe_bool() const { return data_.has_value(); }
+
+private:
+	boost::optional<T> data_;
+};
+#else
 template<typename T>
 class optional : public std::optional<T>, public SafeBool<optional<T> > {
 public:
@@ -146,6 +254,8 @@ public:
 
 	bool safe_bool() const { return this->has_value(); }
 };
+#endif // (__cplusplus < 201703L)
+
 
 
 ////////////////////////////////////////////////////////////////
@@ -282,6 +392,15 @@ Value findLargest(
 	}
 	return largest;
 }
+
+// HACK! This is to use mem_debug in PCH
+#if (defined(_DEBUG) && defined(_MSC_VER) && defined(__trapperkeeper_h_) && defined(VLD_FORCE_ENABLE))
+#if (VLD_FORCE_ENABLE == 0)
+#undef DEBUG_NEW
+#define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
+#define new DEBUG_NEW
+#endif // (VLD_FORCE_ENABLE == 0)
+#endif // (defined(_DEBUG) && defined(_MSC_VER) && defined(__trapperkeeper_h_) && defined(VLD_FORCE_ENABLE))
 
 
 #endif // !ZSCRIPT_COMPILER_UTILS_H
