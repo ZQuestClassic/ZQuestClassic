@@ -55,7 +55,6 @@
 #include "hero.h"
 #include "title.h"
 #include "particles.h"
-#include "mem_debug.h"
 #include "zconsole.h"
 #include "ffscript.h"
 #include "dialog/info.h"
@@ -7071,8 +7070,8 @@ void get_info(int32_t index)
 
 int32_t onMIDICredits()
 {
-	text = (char*)zc_malloc(4096);
-	zmi = (midi_info*)zc_malloc(sizeof(midi_info));
+	text = (char*)malloc(4096);
+	zmi = (midi_info*)malloc(sizeof(midi_info));
 	
 	if(!text || !zmi)
 	{
@@ -7118,8 +7117,8 @@ int32_t onMIDICredits()
 		midi_pos = paused_midi_pos;
 	}
 		
-	if(text) zc_free(text);
-	if(zmi) zc_free(zmi);
+	if(text) free(text);
+	if(zmi) free(zmi);
 	return D_O_K;
 }
 

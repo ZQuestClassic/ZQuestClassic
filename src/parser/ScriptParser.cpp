@@ -19,7 +19,6 @@
 #include "SemanticAnalyzer.h"
 #include "BuildVisitors.h"
 #include "RegistrationVisitor.h"
-#include "mem_debug.h"
 #include "ZScript.h"
 using std::unique_ptr;
 using std::shared_ptr;

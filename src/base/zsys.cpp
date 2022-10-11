@@ -32,7 +32,6 @@ using std::getline;
 #include "base/zsys.h"
 #include "zc_sys.h"
 #include "jwin.h"
-#include "mem_debug.h"
 #include "zconsole/ConsoleLogger.h"
 
 #ifdef _MSC_VER
@@ -2124,7 +2123,7 @@ void copy_dialog(DIALOG **to, DIALOG *from)
         /* do nothing */
     }
     
-    (*to)=(DIALOG*)zc_malloc((count+1)*sizeof(DIALOG));
+    (*to)=(DIALOG*)malloc((count+1)*sizeof(DIALOG));
     memcpy((*to),from,sizeof(DIALOG)*(count+1));
     
     for(int32_t i=0; i<count; ++i)
@@ -2165,7 +2164,7 @@ void copy_dialog(DIALOG **to, DIALOG *from)
                  (from[i].proc==jwin_text_proc)||
                  (from[i].proc==jwin_win_proc)))
         {
-            (*to)[i].dp=zc_malloc(strlen((char *)from[i].dp)+1);
+            (*to)[i].dp=malloc(strlen((char *)from[i].dp)+1);
             strcpy((char *)(*to)[i].dp,(char *)from[i].dp);
         }
         
@@ -2297,7 +2296,7 @@ void free_dialog(DIALOG **dlg)
                  ((*dlg)[i].proc==jwin_text_proc)||
                  ((*dlg)[i].proc==jwin_win_proc)))
         {
-            zc_free((*dlg)[i].dp);
+            free((*dlg)[i].dp);
         }
         
         
@@ -2374,7 +2373,7 @@ void free_dialog(DIALOG **dlg)
     }
     
     memset((*dlg),0,sizeof(DIALOG)*(count+1));
-    zc_free((*dlg));
+    free((*dlg));
 }
 
 /*static char * packpasswrd = NULL;

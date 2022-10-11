@@ -91,9 +91,9 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 			fread(&dummy, sizeof(size_t), 1, tempfile);
 			if (buf2sz < dummy + 1)
 			{
-				if (buf2) zc_free(buf2);
+				if (buf2) free(buf2);
 				buf2sz = zc_max(dummy + 1, 1024);
-				buf2 = (char*)zc_malloc(buf2sz);
+				buf2 = (char*)malloc(buf2sz);
 				if (!buf2)
 				{
 					buf2sz = 0;
@@ -119,7 +119,7 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 read_compile_error:
 	fclose(tempfile);
 	
-	if (buf2) zc_free(buf2);
+	if (buf2) free(buf2);
 	/*
 	reader->read(&stypes_sz, sizeof(size_t));
 	for(size_t ind = 0; ind < stypes_sz; ++ind)

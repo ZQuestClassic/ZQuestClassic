@@ -32,7 +32,6 @@
 #include "zqscale.h"
 #include "zc_custom.h"
 #include "questReport.h"
-#include "mem_debug.h"
 #include "dialog/info.h"
 #include "dialog/scaletile.h"
 #include "dialog/alert.h"
@@ -498,10 +497,10 @@ void go_tiles()
 		
 		if(newundotilebuf[i].data!=NULL)
 		{
-			zc_free(newundotilebuf[i].data);
+			free(newundotilebuf[i].data);
 		}
 		
-		newundotilebuf[i].data=(byte *)zc_malloc(tilesize(newundotilebuf[i].format));
+		newundotilebuf[i].data=(byte *)malloc(tilesize(newundotilebuf[i].format));
 		
 		if(newundotilebuf[i].data==NULL)
 		{
@@ -531,10 +530,10 @@ void go_slide_tiles(int32_t columns, int32_t rows, int32_t top, int32_t left)
 			
 			if(newundotilebuf[t].data!=NULL)
 			{
-				zc_free(newundotilebuf[t].data);
+				free(newundotilebuf[t].data);
 			}
 			
-			newundotilebuf[t].data=(byte *)zc_malloc(tilesize(newundotilebuf[t].format));
+			newundotilebuf[t].data=(byte *)malloc(tilesize(newundotilebuf[t].format));
 			
 			if(newundotilebuf[t].data==NULL)
 			{
@@ -565,10 +564,10 @@ void comeback_tiles()
 		
 		if(newtilebuf[i].data!=NULL)
 		{
-			zc_free(newtilebuf[i].data);
+			free(newtilebuf[i].data);
 		}
 		
-		newtilebuf[i].data=(byte *)zc_malloc(tilesize(newtilebuf[i].format));
+		newtilebuf[i].data=(byte *)malloc(tilesize(newtilebuf[i].format));
 		
 		if(newtilebuf[i].data==NULL)
 		{
@@ -3682,7 +3681,7 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	if(is_valid_format(newtilebuf[0].format))
 	{
 		hold.format = newtilebuf[0].format;
-		hold.data = (byte *)zc_malloc(tilesize(hold.format));
+		hold.data = (byte *)malloc(tilesize(hold.format));
 		memcpy(hold.data, newtilebuf[0].data, tilesize(hold.format));
 	}
 	else
@@ -3695,12 +3694,12 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	
 	if(newtilebuf[0].data!=NULL)
 	{
-		zc_free(newtilebuf[0].data);
+		free(newtilebuf[0].data);
 	}
 	
 	if(is_valid_format(newtilebuf[0].format))
 	{
-		newtilebuf[0].data = (byte *)zc_malloc(tilesize(newtilebuf[0].format));
+		newtilebuf[0].data = (byte *)malloc(tilesize(newtilebuf[0].format));
 		
 		for(int32_t i=0; i<tilesize(newtilebuf[0].format); i++)
 		{
@@ -3718,12 +3717,12 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	
 	if(newtilebuf[0].data!=NULL)
 	{
-		zc_free(newtilebuf[0].data);
+		free(newtilebuf[0].data);
 	}
 	
 	if(is_valid_format(newtilebuf[0].format))
 	{
-		newtilebuf[0].data = (byte *)zc_malloc(tilesize(newtilebuf[0].format));
+		newtilebuf[0].data = (byte *)malloc(tilesize(newtilebuf[0].format));
 		
 		for(int32_t i=0; i<newtilebuf[0].format*128; i++)
 		{
@@ -3737,7 +3736,7 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	
 	if(hold.data!=NULL)
 	{
-		zc_free(hold.data);
+		free(hold.data);
 	}
 	
 	puttile16(screen2,tile,208,192+yofs,cs,0);
@@ -3896,7 +3895,7 @@ void load_imagebuf()
 			break;
 			
 		case ftBIN:
-			zc_free(imagebuf);
+			free(imagebuf);
 			break;
 		}
 		
@@ -3937,11 +3936,11 @@ void load_imagebuf()
 		
 		if(imagesize)
 		{
-			imagebuf = zc_malloc(imagesize);
+			imagebuf = malloc(imagesize);
 			
 			if(!readfile(imagepath,imagebuf,imagesize))
 			{
-				zc_free(imagebuf);
+				free(imagebuf);
 				imagesize=0;
 				imagetype=0;
 			}
@@ -4539,10 +4538,10 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 			
 			if(dest[currtile].data!=NULL)
 			{
-				zc_free(dest[currtile].data);
+				free(dest[currtile].data);
 			}
 			
-			dest[currtile].data=(byte *)zc_malloc(tilesize(dest[currtile].format));
+			dest[currtile].data=(byte *)malloc(tilesize(dest[currtile].format));
 			
 			if(dest[currtile].data==NULL)
 			{
@@ -5409,10 +5408,10 @@ void grab_tile(int32_t tile,int32_t &cs)
 				int32_t format=(bp==8) ? tf8Bit : tf4Bit;
 				
 				if(newtilebuf[temptile].data!=NULL)
-					zc_free(newtilebuf[temptile].data);
+					free(newtilebuf[temptile].data);
 				
 				newtilebuf[temptile].format=format;
-				newtilebuf[temptile].data=(byte *)zc_malloc(tilesize(format));
+				newtilebuf[temptile].data=(byte *)malloc(tilesize(format));
 				
 				//newtilebuf[temptile].format=newformat[(TILES_PER_ROW*y)+x];
 				
@@ -5769,9 +5768,9 @@ void reset_tile(tiledata *buf, int32_t t, int32_t format=1)
   buf[t].format=format;
   if (buf[t].data!=NULL)
   {
-	zc_free(buf[t].data);
+	free(buf[t].data);
   }
-  buf[t].data=(byte *)zc_malloc(tilesize(buf[t].format));
+  buf[t].data=(byte *)malloc(tilesize(buf[t].format));
   if (buf[t].data==NULL)
   {
 	Z_error_fatal("Unable to initialize tile #%d.\n", t);

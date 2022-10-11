@@ -16,7 +16,6 @@
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
 #include "zeldadat.h"
-#include "zc_malloc.h"
 
 extern DATAFILE* data;
 

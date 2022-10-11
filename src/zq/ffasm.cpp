@@ -13,7 +13,6 @@
 #include "ffscript.h"
 #include "ffasm.h"
 
-#include "zc_malloc.h"
 #include "zquest.h"
 #include "base/zsys.h"
 #include "base/util.h"
@@ -2466,7 +2465,7 @@ int32_t ffparse(char *string)
 	
 	int32_t ret=0;
 	char *tempstring1;
-	tempstring1=(char *)zc_malloc(strlen(string)+5);
+	tempstring1=(char *)malloc(strlen(string)+5);
 	strcpy(tempstring1, string);
 	
 	for(int32_t i=0; i<4; ++i)
@@ -2488,7 +2487,7 @@ int32_t ffparse(char *string)
 	else ret+=atoi(ptr);
 	
 	if(tempstring1) //may be safer
-		zc_free(tempstring1);
+		free(tempstring1);
 	return ret;
 }
 bool ffcheck(char *arg)

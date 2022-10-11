@@ -31,7 +31,6 @@
 #include "title.h"
 #include "gamedata.h"
 #include "hero.h"
-#include "mem_debug.h"
 #include "ffscript.h"
 
 #ifdef _MSC_VER
@@ -2147,7 +2146,7 @@ void set_up_standalone_save()
 	char *fn=get_filename(standalone_quest);
 	saves[0].set_name(fn);
 	
-	qstpath=(char*)zc_malloc(2048);
+	qstpath=(char*)malloc(2048);
 	strncpy(qstpath, standalone_quest, 2047);
 	qstpath[2047]='\0';
 	chosecustomquest=true;
@@ -2212,7 +2211,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	*/
 	FFCore.skip_ending_credits = 0;
 	char *fname = SAVE_FILE;
-	char *iname = (char *)zc_malloc(2048);
+	char *iname = (char *)malloc(2048);
 	int32_t ret;
 	PACKFILE *f=NULL;
 	FILE *f2=NULL;
@@ -2337,7 +2336,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	
 	pack_fclose(f);
 	delete_file(tmpfilename);
-	zc_free(iname);
+	free(iname);
 	return 0;
 	
 newdata:
@@ -2402,7 +2401,7 @@ init:
 	if(standalone_mode)
 		set_up_standalone_save();
 		
-	zc_free(iname);
+	free(iname);
 	return 0;
 	
 }
@@ -2801,7 +2800,7 @@ int32_t save_savedgames()
 	delete_file(tmpfilename);
 	
 	FILE *f2=NULL;
-	char *iname = (char *)zc_malloc(2048);
+	char *iname = (char *)malloc(2048);
 	strcpy(iname, SAVE_FILE);
 	
 	for(int32_t i=0; iname[i]!='\0'; iname[i]=='.'?iname[i]='\0':i++)
@@ -2818,7 +2817,7 @@ int32_t save_savedgames()
 		fputc(*(di2++),f2);
 		
 	fclose(f2);
-	zc_free(iname);
+	free(iname);
 	return ret;
 }
 

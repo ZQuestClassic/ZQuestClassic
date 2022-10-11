@@ -43,8 +43,6 @@
 #include <string>
 #include <vector>
 
-#include "zc_malloc.h"
-
 namespace ZScript
 {
     class DataTypeCustom;
@@ -281,10 +279,10 @@ void appendElements(TargetContainer& target, SourceContainer const& source)
 template <typename Container>
 void deleteElements(Container& container)
 {
-	typedef typename Container::value_type value_type;
 	for (typename Container::iterator it = container.begin();
 		it != container.end(); ++it) {
-		delete_s(*it);
+		delete *it;
+		*it = typename Container::value_type();
 	}
 }
 
@@ -327,7 +325,8 @@ void deleteSeconds(Map& map)
 {
 	for (typename Map::iterator it = map.begin();
 		it != map.end(); ++it) {
-		delete_s(it->second);
+		delete it->second;
+		it->second = typename Map::mapped_type();
 	}
 }
 

@@ -28,7 +28,6 @@ uint8_t using_SRAM = 0;
 #include "script_drawing.h"
 #include "base/util.h"
 #include "ending.h"
-#include "zc_malloc.h"
 #include "base/module.h"
 #include "combos.h"
 #include "drawing.h"
@@ -112,7 +111,7 @@ void user_dir::clear()
 	if(list)
 	{
 		list->clear();
-		zc_free(list);
+		free(list);
 		list = NULL;
 	}
 }
@@ -120,7 +119,7 @@ void user_dir::setPath(const char* buf)
 {
 	if(!list)
 	{
-		list = (FLIST *) zc_malloc(sizeof(FLIST));
+		list = (FLIST *) malloc(sizeof(FLIST));
 	}
 	reserved = true;
 	filepath = std::string(buf) + "/";
@@ -480,12 +479,10 @@ extern int32_t directItemY;
 #include "zc_init.h"
 #include "base/zsys.h"
 #include "title.h"
-#include "mem_debug.h"
 #include "zscriptversion.h"
 
 #include "pal.h"
 #include "base/zdefs.h"
-#include "zc_malloc.h"
 #include "rendertarget.h" //Needed for LoadBitmap
 
 #include "zc_custom.h"

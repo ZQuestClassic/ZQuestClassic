@@ -7,7 +7,6 @@
 #include "CompilerUtils.h"
 #include "Types.h"
 
-#include "mem_debug.h"
 
 #define BITS_SP	10
 #define MAX_SCRIPT_REGISTERS	(1<<BITS_SP)

@@ -28,7 +28,6 @@
 #include "tiles.h"
 #include "pal.h"
 #include "hero.h"
-#include "mem_debug.h"
 #include "ffscript.h"
 #include "decorations.h"
 #include "drawing.h"

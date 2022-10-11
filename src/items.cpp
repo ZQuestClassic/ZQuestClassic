@@ -22,7 +22,6 @@
 #include "maps.h"
 #include "zelda.h"
 #include "base/zdefs.h"
-#include "mem_debug.h"
 #include "ffscript.h"
 
 #include <queue>

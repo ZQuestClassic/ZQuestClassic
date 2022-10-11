@@ -22,7 +22,6 @@
 #include "base/zsys.h"
 #include "base/util.h"
 #include "zcmusic.h"
-#include "zc_malloc.h"
 #include <filesystem>
 
 using namespace util;
@@ -388,7 +387,7 @@ extern "C"
                 goto error;
             }
             
-            p->fname = (char*)zc_malloc(strlen(filename)+1);
+            p->fname = (char*)malloc(strlen(filename)+1);
             
             if(!p->fname)
             {
@@ -416,7 +415,7 @@ extern "C"
                 goto error;
             }
             
-            p->fname = (char*)zc_malloc(strlen(filename)+1);
+            p->fname = (char*)malloc(strlen(filename)+1);
             
             if(!p->fname)
             {
@@ -470,7 +469,7 @@ extern "C"
             
             if(d)
             {
-                DUHFILE *p = (DUHFILE*)zc_malloc(sizeof(DUHFILE));
+                DUHFILE *p = (DUHFILE*)malloc(sizeof(DUHFILE));
                 
                 if(!p)
                 {
@@ -501,7 +500,7 @@ extern "C"
                 
                 if(emu)
                 {
-                    GMEFILE *p=(GMEFILE*)zc_malloc(sizeof(GMEFILE));
+                    GMEFILE *p=(GMEFILE*)malloc(sizeof(GMEFILE));
                     
                     if(!p) return NULL;
                     
@@ -550,7 +549,7 @@ error:
                 goto error;
             }
             
-            p->fname = (char*)zc_malloc(strlen(filename)+1);
+            p->fname = (char*)malloc(strlen(filename)+1);
             
             if(!p->fname)
             {
@@ -912,7 +911,7 @@ error:
             {
                 unload_duh(((DUHFILE*)zcm)->s);
                 ((DUHFILE*)zcm)->s = NULL;
-                zc_free(zcm);
+                free(zcm);
             }
             
             break;
@@ -1057,7 +1056,7 @@ MP3FILE *load_mp3_file(const char *filename)
     char *data = new char[(zcmusic_bufsz_private*512)];
     int32_t len;
     
-    if((p = (MP3FILE *)zc_malloc(sizeof(MP3FILE)))==NULL)
+    if((p = (MP3FILE *)malloc(sizeof(MP3FILE)))==NULL)
         goto error;
         
     if((f = pack_fopen_password(filename, F_READ,""))==NULL)
@@ -1108,7 +1107,7 @@ error:
         pack_fclose(f);
         
     if(p)
-        zc_free(p);
+        free(p);
         
     delete[] data;
     return NULL;
@@ -1167,8 +1166,8 @@ void unload_mp3_file(MP3FILE *mp3)
         
         if(mp3->fname != NULL)
         {
-            zc_free(mp3->fname);
-            zc_free(mp3);
+            free(mp3->fname);
+            free(mp3);
         }
     }
 }
@@ -1233,7 +1232,7 @@ bool mp3_reset(MP3FILE *mp3)
             mp3->playing = ZCM_STOPPED;
             mp3->s = tmp3->s;
             mp3->f = tmp3->f;
-            zc_free(tmp3);
+            free(tmp3);
             return true;
         }
     }
@@ -1272,7 +1271,7 @@ OGGFILE *load_ogg_file(const char *filename)
     char *data = new char[(zcmusic_bufsz_private*512)];
     int32_t len;
     
-    if((p = (OGGFILE *)zc_malloc(sizeof(OGGFILE)))==NULL)
+    if((p = (OGGFILE *)malloc(sizeof(OGGFILE)))==NULL)
     {
         goto error;
     }
@@ -1313,7 +1312,7 @@ error:
         pack_fclose(f);
         
     if(p)
-        zc_free(p);
+        free(p);
         
     delete[] data;
     return NULL;
@@ -1372,8 +1371,8 @@ void unload_ogg_file(OGGFILE *ogg)
         
         if(ogg->fname != NULL)
         {
-            zc_free(ogg->fname);
-            zc_free(ogg);
+            free(ogg->fname);
+            free(ogg);
         }
     }
 }
@@ -1438,7 +1437,7 @@ bool ogg_reset(OGGFILE *ogg)
             ogg->playing = ZCM_STOPPED;
             ogg->s = togg->s;
             ogg->f = togg->f;
-            zc_free(togg);
+            free(togg);
             return true;
         }
     }
@@ -1472,13 +1471,13 @@ void ogg_stop(OGGFILE *ogg)
 OGGEXFILE *load_ogg_ex_file(const char *filename) //!dimi: Start of og_ex. og_ex allows for seeking and getting total length of audio file.
 {
     //OGGEXFILE *p = NULL;
-    OGGEXFILE *p = (OGGEXFILE*)zc_malloc(sizeof(OGGEXFILE));
+    OGGEXFILE *p = (OGGEXFILE*)malloc(sizeof(OGGEXFILE));
     FILE *f = fopen(filename, "rb");
     ALOGG_OGG *s = alogg_create_ogg_from_file(f);
     /*char *data = new char[(zcmusic_bufsz_private*512)];
     int32_t len;*/
     
-    /*if((p = (OGGEXFILE*)zc_malloc(sizeof(OGGEXFILE)))==NULL)
+    /*if((p = (OGGEXFILE*)malloc(sizeof(OGGEXFILE)))==NULL)
     {
         goto error;
     }*/
@@ -1527,7 +1526,7 @@ error:
         fclose(f);
         
     if(p)
-        zc_free(p);
+        free(p);
         
     //delete[] data;
     return NULL;
@@ -1581,8 +1580,8 @@ void unload_ogg_ex_file(OGGEXFILE *ogg)
         
         if(ogg->fname != NULL)
         {
-            zc_free(ogg->fname);
-            zc_free(ogg);
+            free(ogg->fname);
+            free(ogg);
         }
     }
 }
@@ -1647,7 +1646,7 @@ bool ogg_ex_reset(OGGEXFILE *ogg)
             ogg->playing = ZCM_STOPPED;
             ogg->s = togg->s;
             ogg->f = togg->f;
-            zc_free(togg);
+            free(togg);
             return true;
         }
     }
@@ -1777,7 +1776,7 @@ int32_t unload_gme_file(GMEFILE* gme)
             zcmusic_stop(gme);
             gme_delete(gme->emu);
             gme->emu=NULL;
-            zc_free(gme);
+            free(gme);
         }
     }
     

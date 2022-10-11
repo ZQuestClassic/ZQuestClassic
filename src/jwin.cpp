@@ -36,7 +36,6 @@
 #include <sstream>
 #include "base/zsys.h"
 #include <stdio.h>
-#include "mem_debug.h"
 #include "base/util.h"
 #include "pal.h"
 #include "gui/tabpanel.h"

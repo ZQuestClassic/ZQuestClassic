@@ -40,7 +40,6 @@ extern HeroClass Hero;
 extern ZModule zcm;
 extern zcmodule moduledata;
 extern refInfo playerScriptData;
-#include "mem_debug.h"
 #include "zscriptversion.h"
 #include "particles.h"
 

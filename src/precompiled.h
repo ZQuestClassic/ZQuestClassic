@@ -42,10 +42,6 @@
 //allegro
 #include "base/zc_alleg.h"
 
-//zc
-#include "zc_malloc.h"
-#include "mem_debug.h"
-
 #endif // ZC_PCH
 #endif // !PRECOMPILED_H
 

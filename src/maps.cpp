@@ -41,7 +41,6 @@ extern word combo_doscript[176];
 extern refInfo screenScriptData;
 extern FFScript FFCore;
 #include "particles.h"
-#include "mem_debug.h"
 
 
 #define EPSILON 0.01 // Define your own tolerance

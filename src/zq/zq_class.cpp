@@ -43,7 +43,6 @@
 #include "subscr.h"
 #include "zq_strings.h"
 #include "zq_subscr.h"
-#include "mem_debug.h"
 #include "ffscript.h"
 #include "base/util.h"
 #include "zq_files.h"
@@ -230,7 +229,7 @@ bool zmap::reset_templates(bool validate)
         return false;
     }
     
-    char *deletefilename=(char *)zc_malloc(1);
+    char *deletefilename=(char *)malloc(1);
     ASSERT(deletefilename);
     deletefilename[0]=0;
     

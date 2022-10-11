@@ -35,7 +35,6 @@
 
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
-#include "mem_debug.h"
 #include "particles.h"
 #include "dialog/alert.h"
 #include "dialog/alertfunc.h"
@@ -23528,7 +23527,7 @@ static ListData ffscript_list(ffscriptlist, &font);
 char *strip_decimals(char *string)
 {
     int32_t len=(int32_t)strlen(string);
-    char *src=(char *)zc_malloc(len+1);
+    char *src=(char *)malloc(len+1);
     char *tmpsrc=src;
     memcpy(src,string,len+1);
     memset(src,0,len+1);
@@ -23549,7 +23548,7 @@ char *strip_decimals(char *string)
     }
     
     memcpy(string,src,len);
-    zc_free(src);
+    free(src);
     return string;
 }
 
@@ -23559,7 +23558,7 @@ char *clean_numeric_string(char *string)
     bool found_sign=false;
     bool found_decimal=false;
     int32_t len=(int32_t)strlen(string);
-    char *src=(char *)zc_malloc(len+1);
+    char *src=(char *)malloc(len+1);
     char *tmpsrc=src;
     memcpy(src,string,len+1);
     memset(src,0,len+1);
@@ -23581,7 +23580,7 @@ char *clean_numeric_string(char *string)
     }
     
     len=(int32_t)strlen(src);
-    char *src2=(char *)zc_malloc(len+1);
+    char *src2=(char *)malloc(len+1);
     tmpsrc=src2;
     memcpy(src,src2,len+1);
     memset(src2,0,len+1);
@@ -23621,8 +23620,8 @@ char *clean_numeric_string(char *string)
     }
     
     sprintf(string, "%s", src2);
-    zc_free(src);
-    zc_free(src2);
+    free(src);
+    free(src2);
     return string;
 }
 
@@ -28836,7 +28835,7 @@ void change_sfx(SAMPLE *sfx1, SAMPLE *sfx2)
     
     if(sfx1->data != NULL)
     {
-        zc_free(sfx1->data);
+        free(sfx1->data);
     }
     
     if(sfx2->data == NULL)
@@ -28859,7 +28858,7 @@ void change_sfx(SAMPLE *sfx1, SAMPLE *sfx2)
             len = (sfx1->bits==8?1:2)*(sfx1->stereo == 0 ? 1 : 2)*sfx1->len;
         }
         
-        sfx1->data = zc_malloc(len);
+        sfx1->data = malloc(len);
         memcpy(sfx1->data, sfx2->data, len);
     }
 }
@@ -28990,7 +28989,7 @@ int32_t onEditSFX(int32_t index)
 				{
 					if(templist[i].data != NULL)
 					{
-						zc_free(templist[i].data);
+						free(templist[i].data);
 						templist[i].data = NULL;
 					}
 				}
@@ -30435,7 +30434,7 @@ int32_t main(int32_t argc,char **argv)
 	//FFScript::init();
 	memrequested+=sizeof(zctune)*MAXCUSTOMMIDIS_ZQ;
 	Z_message("Allocating tunes buffer (%s)... ", byte_conversion2(sizeof(zctune)*MAXCUSTOMMIDIS_ZQ,memrequested,-1,-1));
-	customtunes = (zctune*)zc_malloc(sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
+	customtunes = (zctune*)malloc(sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
 	memset(customtunes, 0, sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
 	
 	/*
@@ -30465,7 +30464,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	/*memrequested+=sizeof(emusic)*MAXMUSIC;
 	Z_message("Allocating Enhanced Music buffer (%s)... ", byte_conversion2(sizeof(emusic)*MAXMUSIC,memrequested,-1,-1));
-	enhancedMusic = (emusic*)zc_malloc(sizeof(emusic)*MAXMUSIC);
+	enhancedMusic = (emusic*)malloc(sizeof(emusic)*MAXMUSIC);
 	if(!enhancedMusic)
 	{
 	  Z_error_fatal("Error");
@@ -30489,7 +30488,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	memrequested+=sizeof(newcombo)*MAXCOMBOS;
 	Z_message("Allocating combo undo buffer (%s)... ", byte_conversion2(sizeof(newcombo)*MAXCOMBOS,memrequested,-1,-1));
-	undocombobuf = (newcombo*)zc_malloc(sizeof(newcombo)*MAXCOMBOS);
+	undocombobuf = (newcombo*)malloc(sizeof(newcombo)*MAXCOMBOS);
 	
 	if(!undocombobuf)
 	{
@@ -30510,7 +30509,7 @@ int32_t main(int32_t argc,char **argv)
 	memrequested+=(NEWMAXTILES*sizeof(tiledata));
 	Z_message("Allocating new tile undo buffer (%s)... ", byte_conversion2(NEWMAXTILES*sizeof(tiledata),memrequested,-1,-1));
 	
-	if((newundotilebuf=(tiledata*)zc_malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
+	if((newundotilebuf=(tiledata*)malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
 	{
 		Z_error_fatal("Error: no memory for tile undo buffer!");
 		quit_game();
@@ -30520,7 +30519,7 @@ int32_t main(int32_t argc,char **argv)
 	Z_message("OK\n");										// Allocating new tile buffer...
 	
 	Z_message("Resetting new tile buffer...");
-	newtilebuf = (tiledata*)zc_malloc(NEWMAXTILES*sizeof(tiledata));
+	newtilebuf = (tiledata*)malloc(NEWMAXTILES*sizeof(tiledata));
 	
 	for(int32_t j=0; j<NEWMAXTILES; j++)
 		newtilebuf[j].data=NULL;
@@ -30529,13 +30528,13 @@ int32_t main(int32_t argc,char **argv)
 	
 	memrequested+=(2048*5);
 	Z_message("Allocating file path buffers (%s)... ", byte_conversion2(2048*7,memrequested,-1,-1));
-	filepath=(char*)zc_malloc(2048);
-	temppath=(char*)zc_malloc(2048);
-	datapath=(char*)zc_malloc(2048);
-	midipath=(char*)zc_malloc(2048);
-	imagepath=(char*)zc_malloc(2048);
-	tmusicpath=(char*)zc_malloc(2048);
-	last_timed_save=(char*)zc_malloc(2048);
+	filepath=(char*)malloc(2048);
+	temppath=(char*)malloc(2048);
+	datapath=(char*)malloc(2048);
+	midipath=(char*)malloc(2048);
+	imagepath=(char*)malloc(2048);
+	tmusicpath=(char*)malloc(2048);
+	last_timed_save=(char*)malloc(2048);
 	
 	if(!filepath || !datapath || !temppath || !imagepath || !midipath || !tmusicpath || !last_timed_save)
 	{
@@ -30815,7 +30814,7 @@ int32_t main(int32_t argc,char **argv)
 	}
 	}
 	
-	helpbuf = (char*)zc_malloc(helpsize<65536?65536:helpsize*2+1);
+	helpbuf = (char*)malloc(helpsize<65536?65536:helpsize*2+1);
 	
 	if(!helpbuf)
 	{
@@ -30888,7 +30887,7 @@ int32_t main(int32_t argc,char **argv)
 	}
 	}
 	
-	shieldblockhelpbuf = (char*)zc_malloc(shieldblockhelpsize<65536?65536:shieldblockhelpsize*2+1);
+	shieldblockhelpbuf = (char*)malloc(shieldblockhelpsize<65536?65536:shieldblockhelpsize*2+1);
 	
 	if(!shieldblockhelpbuf)
 	{
@@ -30960,7 +30959,7 @@ int32_t main(int32_t argc,char **argv)
 	}
 	}
 	
-	zscripthelpbuf = (char*)zc_malloc(zscripthelpsz<65536?65536:zscripthelpsz*2+1);
+	zscripthelpbuf = (char*)malloc(zscripthelpsz<65536?65536:zscripthelpsz*2+1);
 	
 	if(!zscripthelpbuf)
 	{
@@ -31032,7 +31031,7 @@ int32_t main(int32_t argc,char **argv)
 	}
 	}
 	
-	zstringshelpbuf = (char*)zc_malloc(zstringshelpsz<65536?65536:zstringshelpsz*2+1);
+	zstringshelpbuf = (char*)malloc(zstringshelpsz<65536?65536:zstringshelpsz*2+1);
 	
 	if(!zstringshelpbuf)
 	{
@@ -32484,7 +32483,7 @@ void quit_game()
         if(customsfxdata[i].data!=NULL)
         {
 //      delete [] customsfxdata[i].data;
-            zc_free(customsfxdata[i].data);
+            free(customsfxdata[i].data);
         }
         
         delete [] sfx_string[i];
@@ -32571,40 +32570,38 @@ void quit_game()
         for(int32_t i=0; i<MAXCUSTOMMIDIS_ZQ; i++)
             customtunes[i].reset();
             
-        zc_free(customtunes);
+        free(customtunes);
     }
     
     al_trace("Cleaning undotilebuf. \n");
     
-    if(undocombobuf) zc_free(undocombobuf);
+    if(undocombobuf) free(undocombobuf);
     
     if(newundotilebuf)
     {
         for(int32_t i=0; i<NEWMAXTILES; i++)
-            if(newundotilebuf[i].data) zc_free(newundotilebuf[i].data);
+            if(newundotilebuf[i].data) free(newundotilebuf[i].data);
             
-        zc_free(newundotilebuf);
+        free(newundotilebuf);
     }
     
-    if(filepath) zc_free(filepath);
+    if(filepath) free(filepath);
     
-    if(temppath) zc_free(temppath);
+    if(temppath) free(temppath);
     
-    if(datapath) zc_free(datapath);
+    if(datapath) free(datapath);
     
-    if(midipath) zc_free(midipath);
+    if(midipath) free(midipath);
     
-    if(imagepath) zc_free(imagepath);
+    if(imagepath) free(imagepath);
     
-    if(tmusicpath) zc_free(tmusicpath);
+    if(tmusicpath) free(tmusicpath);
     
-    if(last_timed_save) zc_free(last_timed_save);
+    if(last_timed_save) free(last_timed_save);
     
     cleanup_datafiles_on_exit();
 	destroy_mouse_events();
     destroy_bitmaps_on_exit();
-    __zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debugging for it defined.
-    
 }
 
 void quit_game2()
@@ -32670,7 +32667,7 @@ void quit_game2()
         if(customsfxdata[i].data!=NULL)
         {
 //      delete [] customsfxdata[i].data;
-            zc_free(customsfxdata[i].data);
+            free(customsfxdata[i].data);
         }
         
         delete [] sfx_string[i];
@@ -32757,39 +32754,37 @@ void quit_game2()
         for(int32_t i=0; i<MAXCUSTOMMIDIS_ZQ; i++)
             customtunes[i].reset();
             
-        zc_free(customtunes);
+        free(customtunes);
     }
     
     al_trace("Cleaning undotilebuf. \n");
     
-    if(undocombobuf) zc_free(undocombobuf);
+    if(undocombobuf) free(undocombobuf);
     
     if(newundotilebuf)
     {
         for(int32_t i=0; i<NEWMAXTILES; i++)
-            if(newundotilebuf[i].data) zc_free(newundotilebuf[i].data);
+            if(newundotilebuf[i].data) free(newundotilebuf[i].data);
             
-        zc_free(newundotilebuf);
+        free(newundotilebuf);
     }
     
-    if(filepath) zc_free(filepath);
+    if(filepath) free(filepath);
     
-    if(temppath) zc_free(temppath);
+    if(temppath) free(temppath);
     
-    if(datapath) zc_free(datapath);
+    if(datapath) free(datapath);
     
-    if(midipath) zc_free(midipath);
+    if(midipath) free(midipath);
     
-    if(imagepath) zc_free(imagepath);
+    if(imagepath) free(imagepath);
     
-    if(tmusicpath) zc_free(tmusicpath);
+    if(tmusicpath) free(tmusicpath);
     
-    if(last_timed_save) zc_free(last_timed_save);
+    if(last_timed_save) free(last_timed_save);
     
     cleanup_datafiles_on_exit();
     //destroy_bitmaps_on_exit();
-    __zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debugging for it defined.
-    
 }
 
 void center_zquest_dialogs()
@@ -33178,10 +33173,10 @@ int32_t save_config_file()
     char cmdnametitle[20];
     char qtnametitle[20];
     char qtpathtitle[20];
-    char *datapath2=(char *)zc_malloc(2048);
-    char *midipath2=(char *)zc_malloc(2048);
-    char *imagepath2=(char *)zc_malloc(2048);
-    char *tmusicpath2=(char *)zc_malloc(2048);
+    char *datapath2=(char *)malloc(2048);
+    char *midipath2=(char *)malloc(2048);
+    char *imagepath2=(char *)malloc(2048);
+    char *tmusicpath2=(char *)malloc(2048);
     strcpy(datapath2, datapath);
     strcpy(midipath2, midipath);
     strcpy(imagepath2, imagepath);
@@ -33308,10 +33303,10 @@ int32_t save_config_file()
     
     
     flush_config_file();
-    zc_free(datapath2);
-    zc_free(midipath2);
-    zc_free(imagepath2);
-    zc_free(tmusicpath2);
+    free(datapath2);
+    free(midipath2);
+    free(imagepath2);
+    free(tmusicpath2);
     return 0;
 }
 
@@ -33657,7 +33652,7 @@ int32_t get_longest_line_length(FONT *f, char *str)
         }
     }
     
-    //zc_free(kill);
+    //free(kill);
     return maxlen;
 }
 
@@ -33774,7 +33769,7 @@ void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, 
             }
         }
         
-        //zc_free(kill);
+        //free(kill);
     }
     
     return;
@@ -33794,113 +33789,6 @@ void ZQ_ClearQuestPath(){
 	
 	
 }
-
-
-
-/////////////////////////////////////////////////
-// zc_malloc
-/////////////////////////////////////////////////
-
-//Want Logging:
-//Set this to 1 to allow zc_malloc/zc_free to track pointers and
-//write logging data to allegro.log
-#define ZC_DEBUG_MALLOC_WANT_LOGGING_INFO 0
-
-
-#include <set>
-#include "vectorset.h"
-
-#if (defined(NDEBUG) || !defined(_DEBUG)) && (ZC_DEBUG_MALLOC_ENABLED) && (ZC_DEBUG_MALLOC_WANT_LOGGING_INFO) //this is not fun with debug
-#define ZC_WANT_DETAILED_MALLOC_LOGGING 1
-#endif
-
-#if ZC_WANT_DETAILED_MALLOC_LOGGING
-size_t totalBytesAllocated = 0;
-//typedef vectorset<void*> debug_malloc_pool_type; //to slow for zquest (size is huge)
-typedef std::set<void*> debug_malloc_pool_type;
-debug_malloc_pool_type debug_zc_malloc_allocated_pool;
-#endif
-
-void* __zc_debug_malloc(size_t numBytes, const char* file, int32_t line)
-{
-#ifdef ZC_WANT_DETAILED_MALLOC_LOGGING
-    static bool zcDbgMallocInit = false;
-    
-    if(!zcDbgMallocInit)
-    {
-        zcDbgMallocInit = true;
-        //debug_zc_malloc_allocated_pool.reserve(1 << 17);
-        //yeah. completely ridiculous... there's no reason zc should ever need this many..
-        //BUT it does... go figure
-    }
-    
-    totalBytesAllocated += numBytes;
-    
-    al_trace("INFO: %i : %s, line %i, %u bytes, pool size %u, total %u,",
-             0,
-             file,
-             line,
-             numBytes,
-             debug_zc_malloc_allocated_pool.size(),
-             totalBytesAllocated / 1024
-            );
-#endif
-            
-    ZC_MALLOC_ALWAYS_ASSERT(numBytes != 0);
-    void* p = malloc(numBytes);
-    
-#ifdef ZC_WANT_DETAILED_MALLOC_LOGGING
-    al_trace("at address %x\n", (int32_t)p);
-    
-    if(!p)
-        al_trace("____________ ERROR: __zc_debug_malloc: returned null. out of memory.\n");
-        
-    //debug_malloc_pool_type::insert_iterator_type it = debug_zc_malloc_allocated_pool.insert(p);
-    std::pair< std::set<void*>::iterator, bool > it = debug_zc_malloc_allocated_pool.insert(p);
-    
-    if(!it.second)
-        al_trace("____________ ERROR: malloc returned identical address to one in use... No way Jose!\n");
-        
-#endif
-        
-    return p;
-}
-
-
-void __zc_debug_free(void* p, const char* file, int32_t line)
-{
-    ZC_MALLOC_ALWAYS_ASSERT(p != 0);
-    
-#ifdef ZC_WANT_DETAILED_MALLOC_LOGGING
-    al_trace("INFO: %i : %s line %i, freeing memory at address %x\n", 0, file, line, (int32_t)p);
-    
-    size_t numErased = debug_zc_malloc_allocated_pool.erase(p);
-    
-    if(numErased == 0)
-        al_trace("____________ ERROR: __zc_debug_free: no known ptr to memory exists. ..attempting to free it anyways.\n");
-        
-#endif
-        
-    free(p);
-}
-
-
-void __zc_debug_malloc_free_print_memory_leaks()
-{
-#if ZC_WANT_DETAILED_MALLOC_LOGGING
-    al_trace("LOGGING INFO FROM debug_zc_malloc_allocated_pool:\n");
-    
-    for(debug_malloc_pool_type::iterator it = debug_zc_malloc_allocated_pool.begin();
-            it != debug_zc_malloc_allocated_pool.end();
-            ++it
-       )
-    {
-        al_trace("block at address %x.\n", (int32_t)*it);
-    }
-    
-#endif
-}
-
 
 void __zc_always_assert(bool e, const char* expression, const char* file, int32_t line)
 {

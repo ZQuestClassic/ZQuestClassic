@@ -21,7 +21,6 @@
 #include "items.h"
 #include <stdio.h>
 #include <string.h>
-#include "gc.h"
 #include "ffscript.h"
 
 bool show_subscreen_dmap_dots=true;

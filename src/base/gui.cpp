@@ -35,7 +35,6 @@
 #include "jwin.h"
 #include "base/jwinfsel.h"
 #include "base/gui.h"
-#include "mem_debug.h"
 
 extern int32_t zq_screen_w, zq_screen_h;
 

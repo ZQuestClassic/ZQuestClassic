@@ -307,7 +307,7 @@ void zinfo::clear_ic_help()
 	for(auto q = 0; q < itype_max; ++q)
 	{
 		if(ic_help_string[q])
-			zc_free(ic_help_string[q]);
+			free(ic_help_string[q]);
 		ic_help_string[q] = nullptr;
 	}
 }
@@ -316,7 +316,7 @@ void zinfo::clear_ic_name()
 	for(auto q = 0; q < itype_max; ++q)
 	{
 		if(ic_name[q])
-			zc_free(ic_name[q]);
+			free(ic_name[q]);
 		ic_name[q] = nullptr;
 	}
 }
@@ -325,7 +325,7 @@ void zinfo::clear_ctype_name()
 	for(auto q = 0; q < cMAX; ++q)
 	{
 		if(ctype_name[q])
-			zc_free(ctype_name[q]);
+			free(ctype_name[q]);
 		ctype_name[q] = nullptr;
 	}
 }
@@ -334,7 +334,7 @@ void zinfo::clear_ctype_help()
 	for(auto q = 0; q < cMAX; ++q)
 	{
 		if(ctype_help_string[q])
-			zc_free(ctype_help_string[q]);
+			free(ctype_help_string[q]);
 		ctype_help_string[q] = nullptr;
 	}
 }
@@ -343,7 +343,7 @@ void zinfo::clear_mf_name()
 	for(auto q = 0; q < mfMAX; ++q)
 	{
 		if(mf_name[q])
-			zc_free(mf_name[q]);
+			free(mf_name[q]);
 		mf_name[q] = nullptr;
 	}
 }
@@ -352,7 +352,7 @@ void zinfo::clear_mf_help()
 	for(auto q = 0; q < mfMAX; ++q)
 	{
 		if(mf_help_string[q])
-			zc_free(mf_help_string[q]);
+			free(mf_help_string[q]);
 		mf_help_string[q] = nullptr;
 	}
 }
@@ -361,7 +361,7 @@ void zinfo::clear_ctr_name()
 	for(auto q = 0; q < MAX_COUNTERS; ++q)
 	{
 		if(ctr_name[q])
-			zc_free(ctr_name[q]);
+			free(ctr_name[q]);
 		ctr_name[q] = nullptr;
 	}
 }
@@ -378,14 +378,14 @@ void zinfo::clear()
 
 void assignchar(char** p, char const* str)
 {
-	if(*p) zc_free(*p);
+	if(*p) free(*p);
 	if(!str)
 	{
 		*p = nullptr;
 		return;
 	}
 	size_t len = strlen(str);
-	*p = (char*)zc_malloc(len+1);
+	*p = (char*)malloc(len+1);
 	memcpy(*p, str, len);
 	(*p)[len] = 0;
 }
@@ -680,7 +680,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 			return qe_invalid;
 		if(namesize)
 		{
-			z.ic_name[q] = (char*)zc_malloc(namesize+1);
+			z.ic_name[q] = (char*)malloc(namesize+1);
 			if (!z.ic_name[q]) return qe_nomem;
 			if(!pfread(z.ic_name[q],namesize,f,true))
 				return qe_invalid;
@@ -692,7 +692,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 			return qe_invalid;
 		if(htxtsz)
 		{
-			char* p = (char*)zc_malloc(htxtsz+1);
+			char* p = (char*)malloc(htxtsz+1);
 			if (!p) return qe_nomem;
 			if(!pfread(p,htxtsz,f,true))
 				return qe_invalid;
@@ -713,7 +713,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 				return qe_invalid;
 			if(namesize)
 			{
-				char* p = (char*)zc_malloc(namesize+1);
+				char* p = (char*)malloc(namesize+1);
 				if(!pfread(p,namesize,f,true))
 					return qe_invalid;
 				p[namesize] = 0;
@@ -725,7 +725,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 				return qe_invalid;
 			if(htxtsz)
 			{
-				char* p = (char*)zc_malloc(htxtsz+1);
+				char* p = (char*)malloc(htxtsz+1);
 				if(!pfread(p,htxtsz,f,true))
 					return qe_invalid;
 				p[htxtsz] = 0;
@@ -743,7 +743,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 				return qe_invalid;
 			if(namesize)
 			{
-				char* p = (char*)zc_malloc(namesize+1);
+				char* p = (char*)malloc(namesize+1);
 				if(!pfread(p,namesize,f,true))
 					return qe_invalid;
 				p[namesize] = 0;
@@ -755,7 +755,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 				return qe_invalid;
 			if(htxtsz)
 			{
-				char* p = (char*)zc_malloc(htxtsz+1);
+				char* p = (char*)malloc(htxtsz+1);
 				if (!p) return qe_nomem;
 				if(!pfread(p,htxtsz,f,true))
 					return qe_invalid;
@@ -776,7 +776,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 				if(valid_str(old_mapflag_strings[q]))
 				{
 					byte namesize = (byte)(vbound(strlen(old_mapflag_strings[q]),0,255));
-					z.mf_name[q] = (char*)zc_malloc(namesize+1);
+					z.mf_name[q] = (char*)malloc(namesize+1);
 					if (!z.mf_name[q]) return qe_nomem;
 					memcpy(z.mf_name[q], old_mapflag_strings[q], namesize);
 					z.mf_name[q][namesize] = 0;
@@ -784,7 +784,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 					char const* scrdesc = "These flags have no built-in effect,"
 						" but can be given special significance with ZASM or ZScript.";
 					namesize = (byte)strlen(scrdesc);
-					z.mf_help_string[q] = (char*)zc_malloc(namesize+1);
+					z.mf_help_string[q] = (char*)malloc(namesize+1);
 					if (!z.mf_help_string[q]) return qe_nomem;
 					memcpy(z.mf_help_string[q], scrdesc, namesize);
 					z.mf_help_string[q][namesize] = 0;
@@ -804,7 +804,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 				return qe_invalid;
 			if(namesize)
 			{
-				char* p = (char*)zc_malloc(namesize+1);
+				char* p = (char*)malloc(namesize+1);
 				if (!p) return qe_nomem;
 				if(!pfread(p,namesize,f,true))
 					return qe_invalid;

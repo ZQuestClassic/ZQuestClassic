@@ -21,6 +21,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <sstream>
 
 #include "base/zc_alleg.h"
 
@@ -28,8 +29,6 @@
 
 #include <al5img.h>
 
-#include "zc_malloc.h"
-#include "mem_debug.h"
 #include "zscriptversion.h"
 #include "zcmusic.h"
 #include "base/zdefs.h"
@@ -1623,7 +1622,7 @@ int8_t smart_vercmp(char const* a, char const* b)
 			continue;
 		return strcmp(a, b);
 	}
-	char *cpya = (char*)zc_malloc(strlen(a)+1), *cpyb = (char*)zc_malloc(strlen(b)+1);
+	char *cpya = (char*)malloc(strlen(a)+1), *cpyb = (char*)malloc(strlen(b)+1);
 	strcpy(cpya, a); strcpy(cpyb, b);
 	char *ptra = cpya, *ptrb = cpyb, *tmpa = cpya, *tmpb = cpyb;
 	std::vector<int32_t> avec, bvec;
@@ -1657,7 +1656,7 @@ int8_t smart_vercmp(char const* a, char const* b)
 			break;
 		}
 	}
-	zc_free(cpya); zc_free(cpyb);
+	free(cpya); free(cpyb);
 	while(avec.size() < bvec.size())
 		avec.push_back(0);
 	while(bvec.size() < avec.size())
@@ -1986,11 +1985,11 @@ int32_t init_game()
 	if(game != NULL)
 		delete game;
 		
-	char *dummy = (char *) zc_malloc((zc_oldrand()%(RAND_MAX/2))+32);
+	char *dummy = (char *) malloc((zc_oldrand()%(RAND_MAX/2))+32);
 	game = new gamedata;
 	game->Clear();
 	
-	zc_free(dummy);
+	free(dummy);
 	*/
 	
 
@@ -4643,8 +4642,8 @@ int main(int argc, char **argv)
 #endif
 	memrequested += 4096;
 	Z_message("Allocating quest path buffers (%s)...", byte_conversion2(4096,memrequested,-1,-1));
-	qstdir = (char*)zc_malloc(2048);
-	qstpath = (char*)zc_malloc(2048);
+	qstdir = (char*)malloc(2048);
+	qstpath = (char*)malloc(2048);
 	
 	if(!qstdir || !qstpath)
 	{
@@ -5062,7 +5061,7 @@ int main(int argc, char **argv)
 	
 	if(save_arg && (argc>(save_arg+1)))
 	{
-		SAVE_FILE = (char *)zc_malloc(2048);
+		SAVE_FILE = (char *)malloc(2048);
 		sprintf(SAVE_FILE, "%s", argv[save_arg+1]);
 		
 		regulate_path(SAVE_FILE);
@@ -5308,7 +5307,6 @@ int main(int argc, char **argv)
 		Z_message("Zelda Classic web site: http://www.zeldaclassic.com\n");
 		Z_message("Zelda Classic wiki: http://www.shardstorm.com/ZCwiki/\n");
 			
-		__zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debug_malloc_logging defined.
 		skipcont = 0;
 		if(forceExit) //fix for the allegro at_exit() hang.
 			exit(0);
@@ -5925,7 +5923,6 @@ reload_for_replay_file:
 	Z_message("Zelda Classic web site: http://www.zeldaclassic.com\n");
 	Z_message("Zelda Classic wiki: http://www.shardstorm.com/ZCwiki/\n");
 	
-	__zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debug_malloc_logging defined.
 	skipcont = 0;
 	
 	zscript_coloured_console.kill();
@@ -6042,7 +6039,7 @@ void quit_game()
 		if(customsfxdata[i].data!=NULL)
 		{
 //      delete [] customsfxdata[i].data;
-			zc_free(customsfxdata[i].data);
+			free(customsfxdata[i].data);
 		}
 	}
 	
@@ -6134,12 +6131,12 @@ void quit_game()
 	al_trace("Deleting quest buffers... \n");
 	del_qst_buffers();
 	
-	if(qstdir) zc_free(qstdir);
+	if(qstdir) free(qstdir);
 	
-	if(qstpath) zc_free(qstpath);
+	if(qstpath) free(qstpath);
 	
-	//if(TheMaps != NULL) zc_free(TheMaps);
-	//if(ZCMaps != NULL) zc_free(ZCMaps);
+	//if(TheMaps != NULL) free(TheMaps);
+	//if(ZCMaps != NULL) free(ZCMaps);
 	//  dumb_exit();
 }
 
@@ -6157,117 +6154,6 @@ bool isSideViewHero(int32_t t)
 int32_t d_timer_proc(int32_t, DIALOG *, int32_t)
 {
     return D_O_K;
-}
-
-
-
-
-
-
-/////////////////////////////////////////////////
-// zc_malloc
-/////////////////////////////////////////////////
-
-//Want Logging:
-//Set this to 1 to allow zc_malloc/zc_free to track pointers and
-//write logging data to allegro.log
-#define ZC_DEBUG_MALLOC_WANT_LOGGING_INFO 0
-
-
-#include "vectorset.h"
-
-#if (defined(NDEBUG) || !defined(_DEBUG)) && (ZC_DEBUG_MALLOC_ENABLED) && (ZC_DEBUG_MALLOC_WANT_LOGGING_INFO) //this is not fun with debug
-#define ZC_WANT_DETAILED_MALLOC_LOGGING 1
-#endif
-
-
-#if ZC_WANT_DETAILED_MALLOC_LOGGING
-size_t totalBytesAllocated = 0;
-typedef vectorset<void*> debug_malloc_pool_type;
-debug_malloc_pool_type debug_zc_malloc_allocated_pool;
-#endif
-
-void* __zc_debug_malloc(size_t numBytes, const char* file, int32_t line)
-{
-#if ZC_WANT_DETAILED_MALLOC_LOGGING
-    static bool zcDbgMallocInit = false;
-    
-    if(!zcDbgMallocInit)
-    {
-        zcDbgMallocInit = true;
-        debug_zc_malloc_allocated_pool.reserve(1 << 17);
-        //yeah. completely ridiculous... there's no reason zc should ever need this many..
-        //BUT it does... go figure
-    }
-    
-    totalBytesAllocated += numBytes;
-    
-    //char buf[1024];
-    //sprintf(buf, "%i : %s, line %i, %u bytes allocated.\n", 0, file, line, numBytes);
-    //al_trace("%s", buf);
-    
-    al_trace("info: %i : %s, line %i, %u bytes, pool size %u, total %u,",
-             0,
-             file,
-             line,
-             numBytes,
-             debug_zc_malloc_allocated_pool.size(),
-             totalBytesAllocated / 1024
-            );
-#endif
-            
-    ZC_MALLOC_ALWAYS_ASSERT(numBytes != 0);
-    void* p = malloc(numBytes);
-    
-#if ZC_WANT_DETAILED_MALLOC_LOGGING
-    al_trace("at address %x\n", (int32_t)p);
-    
-    if(!p)
-        al_trace("____________ ERROR: __zc_debug_malloc: returned null. out of memory.\n");
-        
-    debug_malloc_pool_type::insert_iterator_type it = debug_zc_malloc_allocated_pool.insert(p);
-    
-    if(!it.second)
-        al_trace("____________ ERROR: malloc returned identical address to one in use... No way Jose!\n");
-        
-#endif
-        
-    return p;
-}
-
-
-void __zc_debug_free(void* p, const char* file, int32_t line)
-{
-    ZC_MALLOC_ALWAYS_ASSERT(p != 0);
-    
-#if ZC_WANT_DETAILED_MALLOC_LOGGING
-    al_trace("alloc info: %i : %s line %i, freeing memory at address %x\n", 0, file, line, (int32_t)p);
-    
-    size_t numErased = debug_zc_malloc_allocated_pool.erase(p);
-    
-    if(numErased == 0)
-        al_trace("____________ ERROR: __zc_debug_free: no known ptr to memory exists. ..attempting to free it anyways.\n");
-        
-#endif
-        
-    free(p);
-}
-
-
-void __zc_debug_malloc_free_print_memory_leaks()
-{
-#if ZC_WANT_DETAILED_MALLOC_LOGGING
-    al_trace("LOGGING INFO FROM debug_zc_malloc_allocated_pool:\n");
-    
-    for(debug_malloc_pool_type::iterator it = debug_zc_malloc_allocated_pool.begin();
-            it != debug_zc_malloc_allocated_pool.end();
-            ++it
-       )
-    {
-        al_trace("block at address %x.\n", (int32_t)*it);
-    }
-    
-#endif
 }
 
 

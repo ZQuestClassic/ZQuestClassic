@@ -28,7 +28,6 @@
 #include "tiles.h"
 #include "zq_tiles.h"
 #include "zq_custom.h"
-#include "zc_malloc.h"
 
 #ifdef _MSC_VER
 #define getcwd _getcwd
@@ -234,7 +233,7 @@ int32_t ListQTs(bool edit)
 {
     qtlist_dlg[0].dp2=lfont;
     int32_t index=0;
-    quest_template *BackupQTs = (quest_template*)zc_malloc(sizeof(quest_template)*MAXQTS);
+    quest_template *BackupQTs = (quest_template*)malloc(sizeof(quest_template)*MAXQTS);
     
     memcpy(BackupQTs,QuestTemplates,sizeof(quest_template)*qt_count);
     
@@ -374,7 +373,7 @@ int32_t ListQTs(bool edit)
         }
     }
     
-    zc_free(BackupQTs);
+    free(BackupQTs);
     return index;
 }
 
