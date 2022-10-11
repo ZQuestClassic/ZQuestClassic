@@ -597,6 +597,7 @@ set(zc_targets zquest zelda zlauncher zcbase zcgui zcsound zscript zconsolelogge
 set(zc_apps zquest zelda zlauncher)
 set(zc_warnings
 	-Werror=format
+	-Werror=inconsistent-missing-override
 )
 
 foreach(target IN LISTS zc_targets)
