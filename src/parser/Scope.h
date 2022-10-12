@@ -70,8 +70,8 @@ namespace ZScript
 		// Accessors
 		TypeStore const& getTypeStore() const {return typeStore_;}
 		TypeStore& getTypeStore() {return typeStore_;}
-		optional<std::string> const& getName() const {return name_;}
-		optional<std::string>& getName() {return name_;}
+		std::optional<std::string> const& getName() const {return name_;}
+		std::optional<std::string>& getName() {return name_;}
 
 		// Inheritance
 		virtual Scope* getParent() const = 0;
@@ -85,7 +85,7 @@ namespace ZScript
 		// Lookup Local
 		virtual DataType const* getLocalDataType(std::string const& name)
 			const = 0;
-		virtual optional<ScriptType> getLocalScriptType(
+		virtual std::optional<ScriptType> getLocalScriptType(
 			std::string const& name) const = 0;
 		virtual ZClass* getLocalClass(std::string const& name) const = 0;
 		virtual Datum* getLocalDatum(std::string const& name) const = 0;
@@ -145,7 +145,7 @@ namespace ZScript
 
 		// If this scope starts a new stack frame, return its total stack
 		// size.
-		virtual optional<int32_t> getRootStackSize() const {return nullopt;}
+		virtual std::optional<int32_t> getRootStackSize() const {return std::nullopt;}
 
 		// Let this scope know that it needs to recalculate the stack size.
 		virtual void invalidateStackSize();
@@ -155,8 +155,8 @@ namespace ZScript
 		virtual int32_t getLocalStackDepth() const {return 0;}
 
 		// Get the stack offset for this local datum.
-		virtual optional<int32_t> getLocalStackOffset(Datum const&) const {
-			return nullopt;}
+		virtual std::optional<int32_t> getLocalStackOffset(Datum const&) const {
+			return std::nullopt;}
 			
 		//
 		bool operator==(Scope* other) {return id == other->getId();}
@@ -164,7 +164,7 @@ namespace ZScript
 		
 	protected:
 		TypeStore& typeStore_;
-		optional<std::string> name_;
+		std::optional<std::string> name_;
 		std::vector<NamespaceScope*> usingNamespaces;
 		int32_t getId() const {return id;}
 
@@ -237,7 +237,7 @@ namespace ZScript
 	// Resolve an option value under the scope. Will only return empty if
 	// the provided option is invalid. If the option is valid but not set,
 	// returns the default value for it.
-	optional<int32_t> lookupOption(Scope const&, CompileOption);
+	std::optional<int32_t> lookupOption(Scope const&, CompileOption);
 	
 	std::vector<NamespaceScope*> lookupUsingNamespaces(Scope const& scope);
 
@@ -249,14 +249,14 @@ namespace ZScript
 
 	// Get the stack offset for a datum, checking parents until we hit a
 	// root.
-	optional<int32_t> lookupStackOffset(Scope const&, Datum const&);
+	std::optional<int32_t> lookupStackOffset(Scope const&, Datum const&);
 
 	// Find the total size of the stack scope is in.
-	optional<int32_t> lookupStackSize(Scope const&);
+	std::optional<int32_t> lookupStackSize(Scope const&);
 	
 	// Lookup the stack offset and then subtract it from the root stack
 	// size.
-	optional<int32_t> lookupStackPosition(Scope const&, Datum const&);
+	std::optional<int32_t> lookupStackPosition(Scope const&, Datum const&);
 	
 	////////////////
 	// Get all in branch
@@ -307,7 +307,7 @@ namespace ZScript
 		// Lookup Local
 		DataType const* getLocalDataType(std::string const& name)
 			const /*override*/;
-		optional<ScriptType> getLocalScriptType(std::string const& name)
+		std::optional<ScriptType> getLocalScriptType(std::string const& name)
 			const /*override*/;
 		virtual ZClass* getLocalClass(std::string const& name) const;
 		virtual Datum* getLocalDatum(std::string const& name) const;
@@ -360,7 +360,7 @@ namespace ZScript
 		
 		// Stack
 		virtual int32_t getLocalStackDepth() const {return stackDepth_;}
-		virtual optional<int32_t> getLocalStackOffset(Datum const& datum) const;
+		virtual std::optional<int32_t> getLocalStackOffset(Datum const& datum) const;
 		
 	protected:
 		Scope* parent_;
@@ -453,14 +453,14 @@ namespace ZScript
 		
 		virtual bool isGlobal() const {return true;}
 		virtual bool isRoot() const {return true;}
-		virtual optional<int32_t> getRootStackSize() const;
+		virtual std::optional<int32_t> getRootStackSize() const;
 
 		// Also check the descendant listings.
 		// Single
 		virtual Scope* getChild(std::string const& name) const;
 		virtual DataType const* getLocalDataType(
 				std::string const& name) const;
-		optional<ScriptType> getLocalScriptType(std::string const& name)
+		std::optional<ScriptType> getLocalScriptType(std::string const& name)
 			const /*override*/;
 		virtual ZClass* getLocalClass(std::string const& name) const;
 		virtual Datum* getLocalDatum(std::string const& name) const;
@@ -486,12 +486,12 @@ namespace ZScript
 		bool registerSetter(std::string const& name, Function* setter);
 		bool registerFunction(Function* function);
 		virtual void removeFunction(Function* func);
-		optional<Function*> getDescFuncBySig(FunctionSignature& sig);
+		std::optional<Function*> getDescFuncBySig(FunctionSignature& sig);
 		
 		bool checkImport(ASTImportDecl* node, int32_t headerGuard, CompileErrorHandler* errorHandler);
 		bool isImported(std::string const& path);
 	private:
-		mutable optional<int32_t> stackSize_;
+		mutable std::optional<int32_t> stackSize_;
 
 		// Unowned pointers to descendant's stuff.
 		std::map<std::string, Scope*> descChildren_;
@@ -522,9 +522,9 @@ namespace ZScript
 		FunctionScope(Scope* parent, FileScope* parentFile, Function& function);
 		bool isFunction() const {return true;}
 		Function& function;
-		optional<int32_t> getRootStackSize() const;
+		std::optional<int32_t> getRootStackSize() const;
 	private:
-		mutable optional<int32_t> stackSize;
+		mutable std::optional<int32_t> stackSize;
 	};
 	
 	class NamespaceScope : public BasicScope

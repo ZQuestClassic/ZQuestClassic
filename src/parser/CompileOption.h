@@ -24,7 +24,7 @@ namespace ZScript
 		bool safe_bool() const;
 		
 		// Get the set value if we're not a special type.
-		optional<CompileOptionValue> getValue() const;
+		std::optional<CompileOptionValue> getValue() const;
 
 		std::string asString() const;
 
@@ -60,7 +60,7 @@ namespace ZScript
 		static void initialize();
 		static void updateDefaults();
 
-		static optional<CompileOption> get(std::string const& name);
+		static std::optional<CompileOption> get(std::string const& name);
 
 		CompileOption() : id_(-1) {}
 
@@ -76,7 +76,7 @@ namespace ZScript
 		std::string* getName() const;
 	
 		// Get the default option value.
-		optional<CompileOptionValue> getDefault() const;
+		std::optional<CompileOptionValue> getDefault() const;
 		void setDefault(CompileOptionValue value);
 	
 	private:

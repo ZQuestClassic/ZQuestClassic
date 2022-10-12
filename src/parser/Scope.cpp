@@ -16,7 +16,7 @@ using std::unique_ptr;
 // Scope
 
 Scope::Scope(TypeStore& typeStore)
-	: typeStore_(typeStore), name_(nullopt)
+	: typeStore_(typeStore), name_(std::nullopt)
 {
 	id = ScopeID++;
 }
@@ -217,7 +217,7 @@ ScriptType ZScript::lookupScriptType(Scope const& scope, string const& name)
 {
 	for (Scope const* current = &scope;
 	     current; current = current->getParent())
-		if (optional<ScriptType> type = current->getLocalScriptType(name))
+		if (std::optional<ScriptType> type = current->getLocalScriptType(name))
 			return *type;
 	return ScriptType::invalid;
 }
@@ -407,7 +407,7 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 		auto targetSize = parameterTypes.size();
 		auto maxSize = function.paramTypes.size();
 		auto minSize = maxSize - function.opt_vals.size();
-		// Match against parameter count, including optional params.
+		// Match against parameter count, including std::optional params.
 		if (maxSize < targetSize || minSize > targetSize)
 		{
 			it = functions.erase(it);
@@ -435,9 +435,9 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 	}
 }
 
-optional<int32_t> ZScript::lookupOption(Scope const& scope, CompileOption option)
+std::optional<int32_t> ZScript::lookupOption(Scope const& scope, CompileOption option)
 {
-	if (!option.isValid()) return nullopt;
+	if (!option.isValid()) return std::nullopt;
 	for (Scope const* current = &scope;
 	     current; current = current->getParent())
 	{
@@ -483,46 +483,46 @@ vector<NamespaceScope*> ZScript::lookupUsingNamespaces(Scope const& scope)
 
 bool ZScript::isStackRoot(Scope const& scope)
 {
-	return scope.getRootStackSize();
+	return scope.getRootStackSize().has_value();
 }
 
-optional<int32_t> ZScript::lookupStackOffset(
+std::optional<int32_t> ZScript::lookupStackOffset(
 		Scope const& scope, Datum const& datum)
 {
 	Scope* s = const_cast<Scope*>(&scope);
 	while (s)
 	{
-		if (optional<int32_t> offset = s->getLocalStackOffset(datum))
+		if (std::optional<int32_t> offset = s->getLocalStackOffset(datum))
 			return offset;
 
-		if (isStackRoot(*s)) return nullopt;
+		if (isStackRoot(*s)) return std::nullopt;
 
 		s = s->getParent();
 	}
-	return nullopt;
+	return std::nullopt;
 }
 
-optional<int32_t> ZScript::lookupStackSize(Scope const& scope)
+std::optional<int32_t> ZScript::lookupStackSize(Scope const& scope)
 {
 	Scope* s = const_cast<Scope*>(&scope);
 	while (s)
 	{
-		if (optional<int32_t> size = s->getRootStackSize())
+		if (std::optional<int32_t> size = s->getRootStackSize())
 			return size;
 
 		s = s->getParent();
 	}
-	return nullopt;
+	return std::nullopt;
 }
 
-optional<int32_t> ZScript::lookupStackPosition(
+std::optional<int32_t> ZScript::lookupStackPosition(
 		Scope const& scope, Datum const& datum)
 {
-	optional<int32_t> offset = lookupStackOffset(scope, datum);
-	optional<int32_t> size = lookupStackSize(scope);
+	std::optional<int32_t> offset = lookupStackOffset(scope, datum);
+	std::optional<int32_t> size = lookupStackSize(scope);
 	if (offset && size)
 		return *size - 1 - *offset;
-	return nullopt;
+	return std::nullopt;
 }
 
 // Get all in branch
@@ -692,7 +692,7 @@ DataType const* BasicScope::getLocalDataType(string const& name) const
 	return find<DataType const*>(dataTypes_, name).value_or(boost::add_pointer<DataType const>::type());
 }
 
-optional<ScriptType> BasicScope::getLocalScriptType(string const& name) const
+std::optional<ScriptType> BasicScope::getLocalScriptType(string const& name) const
 {
 	return find<ScriptType>(scriptTypes_, name);
 }
@@ -731,7 +731,7 @@ vector<Function*> BasicScope::getLocalFunctions(string const& name) const
 
 CompileOptionSetting BasicScope::getLocalOption(CompileOption option) const
 {
-	if (optional<CompileOptionSetting> setting =
+	if (std::optional<CompileOptionSetting> setting =
 	    	find<CompileOptionSetting>(options_, option))
 		return *setting;
 	return defaultOption_;
@@ -881,12 +881,12 @@ Function* BasicScope::addFunction(
 	}
 	FunctionSignature signature(name, paramTypes);
 	Function* foundFunc = NULL;
-	optional<Function*> optFunc = find<Function*>(functionsBySignature_, signature);
+	std::optional<Function*> optFunc = find<Function*>(functionsBySignature_, signature);
 	if(optFunc)
 		foundFunc = *optFunc;
 	else if(isFile() || isRoot())
 	{
-		optional<Function*> rootFunc = getRoot(*this)->getDescFuncBySig(signature);
+		std::optional<Function*> rootFunc = getRoot(*this)->getDescFuncBySig(signature);
 		if(rootFunc)
 			foundFunc = *rootFunc;
 	}
@@ -897,8 +897,8 @@ Function* BasicScope::addFunction(
 			if(prototype) //Another identical prototype being declared
 			{
 				//Check default returns
-				optional<int32_t> val = foundFunc->defaultReturn->getCompileTimeValue(handler, this);
-				optional<int32_t> val2 = node->defaultReturn.get()->getCompileTimeValue(handler, this);
+				std::optional<int32_t> val = foundFunc->defaultReturn->getCompileTimeValue(handler, this);
+				std::optional<int32_t> val2 = node->defaultReturn.get()->getCompileTimeValue(handler, this);
 				if(!val || !val2 || (*val != *val2)) //Different or erroring default returns
 				{
 					handler->handleError(CompileError::BadDefaultReturn(node, node->name));
@@ -947,7 +947,7 @@ void BasicScope::removeFunction(Function* function)
 	FunctionSignature signature(function->name, function->paramTypes);
 	functionsBySignature_.erase(signature); //Erase from signature map
 	//Find in name map, and erase
-	optional<vector<Function*> > foundVector = find<vector<Function*> >(functionsByName_, function->name);
+	std::optional<vector<Function*> > foundVector = find<vector<Function*> >(functionsByName_, function->name);
 	if(!foundVector) return;
 	vector<Function*>& funcvector = *foundVector;
 	if(funcvector.size() == 1 && funcvector.back() == function)
@@ -979,7 +979,7 @@ void BasicScope::setOption(CompileOption option, CompileOptionSetting value)
 
 bool BasicScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 {
-	if (optional<string> name = datum.getName())
+	if (std::optional<string> name = datum.getName())
 	{
 		if (find<Datum*>(namedData_, *name))
 		{
@@ -1004,7 +1004,7 @@ bool BasicScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 
 // Stack
 
-optional<int32_t> BasicScope::getLocalStackOffset(Datum const& datum) const
+std::optional<int32_t> BasicScope::getLocalStackOffset(Datum const& datum) const
 {
 	Datum* key = const_cast<Datum*>(&datum);
 	return find<int32_t>(stackOffsets_, key);
@@ -1133,7 +1133,7 @@ bool FileScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 		return false;
 
 	// Register in root scope if it's named.
-	if (optional<string> name = datum.getName())
+	if (std::optional<string> name = datum.getName())
 	{
 		if (!getRoot(*this)->registerDatum(*name, &datum))
 		{
@@ -1218,7 +1218,7 @@ RootScope::RootScope(TypeStore& typeStore)
 	BuiltinConstant::create(*this, DataType::CRNG, "RandGen", 0); //Nullptr is valid for engine RNG
 }
 
-optional<int32_t> RootScope::getRootStackSize() const
+std::optional<int32_t> RootScope::getRootStackSize() const
 {
 	if (!stackSize_)
 	{
@@ -1246,9 +1246,9 @@ DataType const* RootScope::getLocalDataType(string const& name) const
 	return result;
 }
 
-optional<ScriptType> RootScope::getLocalScriptType(string const& name) const
+std::optional<ScriptType> RootScope::getLocalScriptType(string const& name) const
 {
-	if (optional<ScriptType> result = BasicScope::getLocalScriptType(name))
+	if (std::optional<ScriptType> result = BasicScope::getLocalScriptType(name))
 		return result;
 	return find<ScriptType>(descScriptTypes_, name);
 }
@@ -1298,7 +1298,7 @@ Function* RootScope::getLocalFunction(
 vector<Function*> RootScope::getLocalFunctions(string const& name) const
 {
 	vector<Function*> results(BasicScope::getLocalFunctions(name));
-	if (optional<vector<Function*> > desc =
+	if (std::optional<vector<Function*> > desc =
 	    	find<vector<Function*> >(descFunctionsByName_, name))
 		appendElements(results, *desc);
 	return results;
@@ -1406,7 +1406,7 @@ void RootScope::removeFunction(Function* function)
 	FunctionSignature signature(function->name, function->paramTypes);
 	descFunctionsBySignature_.erase(signature); //Erase from signature map
 	//Find in name map, and erase
-	optional<vector<Function*> > foundVector = find<vector<Function*> >(descFunctionsByName_, function->name);
+	std::optional<vector<Function*> > foundVector = find<vector<Function*> >(descFunctionsByName_, function->name);
 	if(!foundVector) return;
 	vector<Function*>& funcvector = *foundVector;
 	if(funcvector.size() == 1 && funcvector.back() == function)
@@ -1425,7 +1425,7 @@ void RootScope::removeFunction(Function* function)
 	}
 }
 
-optional<Function*> RootScope::getDescFuncBySig(FunctionSignature& sig)
+std::optional<Function*> RootScope::getDescFuncBySig(FunctionSignature& sig)
 {
 	return find<Function*>(descFunctionsBySignature_, sig);
 }
@@ -1489,7 +1489,7 @@ FunctionScope::FunctionScope(Scope* parent, FileScope* parentFile, Function& fun
 	stackDepth_ = 0;
 }
 
-optional<int32_t> FunctionScope::getRootStackSize() const
+std::optional<int32_t> FunctionScope::getRootStackSize() const
 {
 	if (!stackSize)
 	{

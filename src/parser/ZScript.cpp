@@ -217,11 +217,11 @@ BuiltinScript* ZScript::createScript(
 	return script;
 }
 
-optional<int32_t> ZScript::getLabel(Script const& script)
+std::optional<int32_t> ZScript::getLabel(Script const& script)
 {
 	if (Function* run = script.getRun())
 		return run->getLabel();
-	return nullopt;
+	return std::nullopt;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -259,7 +259,7 @@ bool ZScript::isGlobal(Datum const& datum)
 		&& datum.getName();
 }
 
-optional<int32_t> ZScript::getStackOffset(Datum const& datum)
+std::optional<int32_t> ZScript::getStackOffset(Datum const& datum)
 {
 	return lookupStackPosition(datum.scope, datum);
 }
@@ -299,20 +299,20 @@ Variable::Variable(
 	: Datum(scope, type),
 	  node(node),
 	  globalId((scope.isGlobal() || scope.isScript())
-	           ? optional<int32_t>(ScriptParser::getUniqueGlobalID())
-	           : nullopt)
+	           ? std::optional<int32_t>(ScriptParser::getUniqueGlobalID())
+	           : std::nullopt)
 {
 	node.manager = this;
 }
 
-optional<int32_t> Variable::getCompileTimeValue(bool getinitvalue) const
+std::optional<int32_t> Variable::getCompileTimeValue(bool getinitvalue) const
 {
 	if(getinitvalue)
 	{
 		ASTExprVarInitializer* init = node.getInitializer();
-		return init ? init->value : nullopt;
+		return init ? init->value : std::nullopt;
 	}
-	return nullopt;
+	return std::nullopt;
 }
 
 // ZScript::BuiltinVariable
@@ -332,8 +332,8 @@ BuiltinVariable::BuiltinVariable(
 	: Datum(scope, type),
 	  name(name),
 	  globalId((scope.isGlobal() || scope.isScript())
-	           ? optional<int32_t>(ScriptParser::getUniqueGlobalID())
-	           : nullopt)
+	           ? std::optional<int32_t>(ScriptParser::getUniqueGlobalID())
+	           : std::nullopt)
 {}
 
 // ZScript::Constant
@@ -355,7 +355,7 @@ Constant::Constant(
 	node.manager = this;
 }
 
-optional<string> Constant::getName() const {return node.name;}
+std::optional<string> Constant::getName() const {return node.name;}
 
 // ZScript::BuiltinConstant
 
@@ -442,7 +442,7 @@ Function::Function(DataType const* returnType, string const& name,
 				   int32_t flags, int32_t internal_flags, bool prototype, ASTExprConst* defaultReturn)
 	: node(NULL), internalScope(NULL), thisVar(NULL),
 	  returnType(returnType), name(name), paramTypes(paramTypes), paramNames(paramNames), opt_vals(),
-	  id(id), label(nullopt), flags(flags), internal_flags(internal_flags), hasPrefixType(false),
+	  id(id), label(std::nullopt), flags(flags), internal_flags(internal_flags), hasPrefixType(false),
 	  prototype(prototype), defaultReturn(defaultReturn)
 {}
 

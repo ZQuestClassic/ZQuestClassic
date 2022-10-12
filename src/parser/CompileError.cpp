@@ -255,10 +255,10 @@ CompileError& CompileError::operator=(CompileError const& rhs)
 	return *this;
 }
 
-optional<CompileError::Id> CompileError::getId() const
+std::optional<CompileError::Id> CompileError::getId() const
 {
 	if (pimpl_) return pimpl_->getId();
-	return nullopt;
+	return std::nullopt;
 }
 
 bool CompileError::isStrict() const

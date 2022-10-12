@@ -45,20 +45,20 @@ DataType const* TypeStore::getType(DataTypeId typeId) const
 	return ownedTypes[typeId];
 }
 
-optional<DataTypeId> TypeStore::getTypeId(DataType const& type) const
+std::optional<DataTypeId> TypeStore::getTypeId(DataType const& type) const
 {
 	return find<DataTypeId>(typeIdMap, &type);
 }
 
-optional<DataTypeId> TypeStore::assignTypeId(DataType const& type)
+std::optional<DataTypeId> TypeStore::assignTypeId(DataType const& type)
 {
 	if (!type.isResolved())
 	{
 		log_error(CompileError::UnresolvedType(NULL, type.getName()));
-		return nullopt;
+		return std::nullopt;
 	}
 
-	if (find<DataTypeId>(typeIdMap, &type)) return nullopt;
+	if (find<DataTypeId>(typeIdMap, &type)) return std::nullopt;
 
 	DataTypeId id = ownedTypes.size();
 	DataType const* storedType = type.clone();
@@ -67,15 +67,15 @@ optional<DataTypeId> TypeStore::assignTypeId(DataType const& type)
 	return id;
 }
 
-optional<DataTypeId> TypeStore::getOrAssignTypeId(DataType const& type)
+std::optional<DataTypeId> TypeStore::getOrAssignTypeId(DataType const& type)
 {
 	if (!type.isResolved())
 	{
 		log_error(CompileError::UnresolvedType(NULL, type.getName()));
-		return nullopt;
+		return std::nullopt;
 	}
 
-	if (optional<DataTypeId> typeId = find<DataTypeId>(typeIdMap, &type))
+	if (std::optional<DataTypeId> typeId = find<DataTypeId>(typeIdMap, &type))
 		return typeId;
 	
 	DataTypeId id = ownedTypes.size();

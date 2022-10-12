@@ -27,13 +27,7 @@
 #undef new
 #endif // new
 
-#if (__cplusplus < 201703L)
-    #include <boost/optional.hpp>
-#else
-    #include <optional>
-    using std::nullopt_t, std::nullopt;
-#endif
-#include <boost/type_traits.hpp>
+#include <optional>
 
 #include <algorithm>
 #include <cassert>
@@ -135,129 +129,6 @@ bool operator!=(SafeBool<T> const& lhs, SafeBool<U> const& rhs) {
     return false;
 }
 
-
-////////////////////////////////////////////////////////////////
-// Simple std::optional (from C++17).
-// Soley adapts existing code with boost::optional
-
-
-#if (__cplusplus < 201703L)
-// Empty optional instance.
-typedef boost::none_t nullopt_t;
-const nullopt_t nullopt(boost::none);
-
-template<typename T>
-class optional : public SafeBool<optional<T> >
-{
-public:
-	typedef T value_type;
-
-	// Construct empty optional.
-	optional() : data_() {}
-	optional(nullopt_t) : data_(nullopt) {}
-	// Construct with value.
-	optional(const T& value) : data_(value) {}
-	// Construct with value (eliminate double optional).
-	optional(const optional& rhs)
-	{
-		if (rhs.data_.has_value()) {
-			data_.emplace(*rhs);
-		}
-	}
-
-	~optional()
-	{
-		data_.reset();
-	}
-
-	optional& operator=(nullopt_t)
-	{
-		data_.reset();
-		return *this;
-	}
-	optional& operator=(const optional& rhs)
-	{
-		data_.emplace(*rhs);
-		return *this;
-	}
-
-	const T* operator->() const
-	{
-		assert(data_.has_value());
-		return &data_.value();
-	}
-	T* operator->()
-	{
-		assert(data_.has_value());
-		return &data_.value();
-	}
-	const T& operator*() const
-	{
-		assert(data_.has_value());
-		return data_.value();
-	}
-
-	T& operator*()
-	{
-		assert(data_.has_value());
-		return data_.value();
-	}
-
-	bool has_value() const { return data_.has_value(); }
-	const T& value() const
-	{
-		assert(data_.has_value());
-		return data_.value();
-	}
-	T& value()
-	{
-		assert(data_.has_value());
-		return data_.value();
-	}
-
-	template<typename U>
-	T value_or(const U& v) const
-	{
-		return data_.value_or(v);
-	}
-
-	template <typename U>
-	T value_or(U& v)
-	{
-		return data_.value_or(v);
-	}
-
-	// Destroys the value if present.
-	void reset()
-	{
-		data_.reset();
-	}
-
-	bool safe_bool() const { return data_.has_value(); }
-
-private:
-	boost::optional<T> data_;
-};
-#else
-template<typename T>
-class optional : public std::optional<T>, public SafeBool<optional<T> > {
-public:
-    typedef T value_type;
-
-	// Construct empty optional.
-	optional() : std::optional<T>() {}
-	optional(nullopt_t) : std::optional<T>(nullopt) {}
-	// Construct with value.
-	optional(const T& value) : std::optional<T>(value) {}
-	// Construct with value (eliminate double optional).
-	optional(const optional& rhs) : std::optional<T>(rhs) {}
-
-	bool safe_bool() const { return this->has_value(); }
-};
-#endif // (__cplusplus < 201703L)
-
-
-
 ////////////////////////////////////////////////////////////////
 // Containers
 
@@ -288,10 +159,10 @@ void deleteElements(Container& container)
 
 // Return the only element of a container, or nothing.
 template <typename Element, typename Container>
-optional<Element> getOnly(Container const& container)
+std::optional<Element> getOnly(Container const& container)
 {
 	typename Container::size_type size = container.size();
-	if (size != 1) return nullopt;
+	if (size != 1) return std::nullopt;
 	return container.front();
 }
 
@@ -343,22 +214,22 @@ void overwritePairs(Map& target, Map const& source)
 namespace detail {
 	template <typename Element, typename Map, typename Key>
 	struct find_impl {
-		static optional<Element> _(Map const& map, Key const& key)
+		static std::optional<Element> _(Map const& map, Key const& key)
 		{
 			typename Map::const_iterator it = map.find(key);
-			if (it == map.end()) return optional<Element>(nullopt);
+			if (it == map.end()) return std::optional<Element>(std::nullopt);
 			Element const& element = it->second;
-			return optional<Element>(element);
+			return std::optional<Element>(element);
 		}
 	};
 
 	template <typename Element, typename Key>
 	struct find_impl<Element, std::set<Element>, Key> {
-		static optional<Element> _(
+		static std::optional<Element> _(
 				std::set<Element> const& set, Key const& key)
 		{
 			typename std::set<Element>::const_iterator it = set.find(key);
-			if (it == set.end()) return nullopt;
+			if (it == set.end()) return std::nullopt;
 			return *it;
 		}
 	};
@@ -366,7 +237,7 @@ namespace detail {
 
 // Find an element in a map.
 template <typename Element, typename Map, typename Key>
-optional<Element> find(Map const& map, Key const& key)
+std::optional<Element> find(Map const& map, Key const& key)
 {
 	return detail::find_impl<Element, Map, Key>::_(map, key);
 }
@@ -392,15 +263,6 @@ Value findLargest(
 	}
 	return largest;
 }
-
-// HACK! This is to use mem_debug in PCH
-#if (defined(_DEBUG) && defined(_MSC_VER) && defined(__trapperkeeper_h_) && defined(VLD_FORCE_ENABLE))
-#if (VLD_FORCE_ENABLE == 0)
-#undef DEBUG_NEW
-#define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
-#define new DEBUG_NEW
-#endif // (VLD_FORCE_ENABLE == 0)
-#endif // (defined(_DEBUG) && defined(_MSC_VER) && defined(__trapperkeeper_h_) && defined(VLD_FORCE_ENABLE))
 
 
 #endif // !ZSCRIPT_COMPILER_UTILS_H

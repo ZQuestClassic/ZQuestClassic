@@ -47,7 +47,7 @@ void RecursiveVisitor::handleError(CompileError const& error)
 			 it != ancestor.compileErrorCatches.end(); ++it)
 		{
 			ASTExprConst& idNode = **it;
-			optional<int32_t> errorId = idNode.getCompileTimeValue(this, scope);
+			std::optional<int32_t> errorId = idNode.getCompileTimeValue(this, scope);
 			assert(errorId);
 			// If we've found a handler, remove that handler from the node's
 			// list of handlers and disable the current node (if not a
@@ -220,7 +220,7 @@ void RecursiveVisitor::caseStmtRepeat(ASTStmtRepeat& host, void* param)
 {
 	visit(*host.iter, param);
 	if(breakRecursion(host, param)) return;
-	optional<int32_t> repeats = (*host.iter).getCompileTimeValue(this, scope);
+	std::optional<int32_t> repeats = (*host.iter).getCompileTimeValue(this, scope);
 	if(host.bodies.size() == 0)
 	{
 		if(repeats)
@@ -302,7 +302,7 @@ void RecursiveVisitor::caseImportCondDecl(ASTImportCondDecl& host, void* param)
 {
 	visit(*host.cond, param);
 	if(breakRecursion(host, param)) return;
-	optional<int32_t> val = host.cond->getCompileTimeValue(this, scope);
+	std::optional<int32_t> val = host.cond->getCompileTimeValue(this, scope);
 	if(val && (*val != 0))
 	{
 		if(!host.preprocessed)

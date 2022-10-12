@@ -158,7 +158,7 @@ namespace ZScript
 			Program&, Scope&, ScriptType, std::string const& name,
 			CompileErrorHandler* = NULL);
 	
-	optional<int32_t> getLabel(Script const&);
+	std::optional<int32_t> getLabel(Script const&);
 
 	
 	////////////////////////////////////////////////////////////////
@@ -200,16 +200,16 @@ namespace ZScript
 		int32_t const id;
 
 		// Get the data's name.
-		virtual optional<std::string> getName() const {return nullopt;}
+		virtual std::optional<std::string> getName() const {return std::nullopt;}
 		
 		// Get the value at compile time.
-		virtual optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return nullopt;}
+		virtual std::optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return std::nullopt;}
 
 		// Get the declaring node.
 		virtual AST* getNode() const {return NULL;}
 		
 		// Get the global register this uses.
-		virtual optional<int32_t> getGlobalId() const {return nullopt;}
+		virtual std::optional<int32_t> getGlobalId() const {return std::nullopt;}
 		
 		virtual bool isBuiltIn() const {return false;}
 		
@@ -224,7 +224,7 @@ namespace ZScript
 	bool isGlobal(Datum const& data);
 
 	// Return the stack offset of the value.
-	optional<int32_t> getStackOffset(Datum const&);
+	std::optional<int32_t> getStackOffset(Datum const&);
 
 	// A literal value that requires memory management.
 	class Literal : public Datum
@@ -250,15 +250,15 @@ namespace ZScript
 				Scope&, ASTDataDecl&, DataType const&,
 				CompileErrorHandler* = NULL);
 
-		optional<std::string> getName() const {return node.name;}
+		std::optional<std::string> getName() const {return node.name;}
 		ASTDataDecl* getNode() const {return &node;}
-		optional<int32_t> getGlobalId() const {return globalId;}
-		optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const;
+		std::optional<int32_t> getGlobalId() const {return globalId;}
+		std::optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const;
 	private:
 		Variable(Scope& scope, ASTDataDecl& node, DataType const& type);
 
 		ASTDataDecl& node;
-		optional<int32_t> globalId;
+		std::optional<int32_t> globalId;
 	};
 
 	// A compiler generated variable.
@@ -269,8 +269,8 @@ namespace ZScript
 				Scope&, DataType const&, std::string const& name,
 				CompileErrorHandler* = NULL);
 
-		optional<std::string> getName() const {return name;}
-		optional<int32_t> getGlobalId() const {return globalId;}
+		std::optional<std::string> getName() const {return name;}
+		std::optional<int32_t> getGlobalId() const {return globalId;}
 
 		virtual bool isBuiltIn() const {return true;}
 		
@@ -278,7 +278,7 @@ namespace ZScript
 		BuiltinVariable(Scope&, DataType const&, std::string const& name);
 
 		std::string const name;
-		optional<int32_t> globalId;
+		std::optional<int32_t> globalId;
 	};
 
 	// An inlined constant.
@@ -289,9 +289,9 @@ namespace ZScript
 				Scope&, ASTDataDecl&, DataType const&, int32_t value,
 				CompileErrorHandler* = NULL);
 
-		optional<std::string> getName() const;
+		std::optional<std::string> getName() const;
 
-		optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return value;}
+		std::optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return value;}
 
 		ASTDataDecl* getNode() const {return &node;}
 	
@@ -310,8 +310,8 @@ namespace ZScript
 				Scope&, DataType const&, std::string const& name, int32_t value,
 				CompileErrorHandler* = NULL);
 
-		optional<std::string> getName() const {return name;}
-		optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return value;}
+		std::optional<std::string> getName() const {return name;}
+		std::optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return value;}
 
 		virtual bool isBuiltIn() const {return true;}
 		
@@ -402,7 +402,7 @@ namespace ZScript
 		ASTExprConst* defaultReturn;
 		
 	private:
-		mutable optional<int32_t> label;
+		mutable std::optional<int32_t> label;
 		int32_t flags;
 
 		// Code implementing this function.

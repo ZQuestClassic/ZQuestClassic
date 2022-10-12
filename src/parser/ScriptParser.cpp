@@ -711,7 +711,7 @@ ScriptsData::ScriptsData(Program& program)
 			for(vector<DataType const*>::const_iterator it = run->paramTypes.begin();
 				it != run->paramTypes.end(); ++it)
 			{
-				optional<DataTypeId> id = program.getTypeStore().getTypeId(**it);
+				std::optional<DataTypeId> id = program.getTypeStore().getTypeId(**it);
 				meta.run_types[ind++] = id ? *id : ZVARTYPEID_VOID;
 			}
 		}

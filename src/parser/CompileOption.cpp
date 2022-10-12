@@ -41,9 +41,9 @@ bool CompileOptionSetting::safe_bool() const
 	return type_ != TYPE_UNSET;
 }
 
-optional<CompileOptionValue> CompileOptionSetting::getValue() const
+std::optional<CompileOptionValue> CompileOptionSetting::getValue() const
 {
-	if (type_ != TYPE_VALUE) return nullopt;
+	if (type_ != TYPE_VALUE) return std::nullopt;
 	return value_;
 }
 
@@ -145,10 +145,10 @@ void CompileOption::updateDefaults()
 	}
 }
 
-optional<CompileOption> CompileOption::get(string const& name)
+std::optional<CompileOption> CompileOption::get(string const& name)
 {
 	map<string, CompileOption>::const_iterator it = nameMap.find(name);
-	if (it == nameMap.end()) return nullopt;
+	if (it == nameMap.end()) return std::nullopt;
 	return it->second;
 }
 
@@ -163,9 +163,9 @@ std::string* CompileOption::getName() const
 	return &entries[id_].name;
 }
 
-optional<CompileOptionValue> CompileOption::getDefault() const
+std::optional<CompileOptionValue> CompileOption::getDefault() const
 {
-	if (!isValid()) return nullopt;
+	if (!isValid()) return std::nullopt;
 	return entries[id_].defaultValue;
 }
 
