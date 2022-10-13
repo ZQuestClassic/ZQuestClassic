@@ -2,7 +2,7 @@ M debug true
 M qst modules/classic/classic_1st.qst
 M sync_rng true
 M time_created Mon Oct  3 18:17:17 2022
-M time_updated Mon Oct 10 21:21:20 2022
+M time_updated Wed Oct 12 18:43:18 2022
 C 0 init_game
 R 0 0 257 0
 C 0 getitem Shield 1 (Small)
@@ -428,48 +428,48 @@ C 233 frame 150 hero 112 152
 C 234 frame 151 hero 112 152
 C 235 frame 152 hero 112 152
 C 236 frame 153 hero 112 152
-C 236 gfx 84771ec2
+C 236 gfx 6533698f
 C 237 frame 154 hero 112 152
 C 238 frame 155 hero 112 152
 C 239 frame 156 hero 112 152
 C 240 frame 157 hero 112 152
-C 240 gfx 1ca1b410
+C 240 gfx 863b7e5d
 C 241 frame 158 hero 112 152
-C 241 gfx 55013ec4
+C 241 gfx 8217679e
 C 242 frame 159 hero 112 152
-C 242 gfx 16853c75
+C 242 gfx 2f4572c
 C 243 frame 160 hero 112 152
 C 244 frame 161 hero 112 152
 C 245 frame 162 hero 112 152
 C 246 frame 163 hero 112 152
 C 247 frame 164 hero 112 152
 C 248 frame 165 hero 112 152
-C 248 gfx da613c44
+C 248 gfx 64ac35b7
 C 249 frame 166 hero 112 152
 C 250 frame 167 hero 112 152
 C 251 frame 168 hero 112 152
 C 252 frame 169 hero 112 152
-C 252 gfx cdf9663d
+C 252 gfx 6b8df31a
 C 253 frame 170 hero 112 152
-C 253 gfx 478b04cf
+C 253 gfx e42f75a8
 C 254 frame 171 hero 112 152
-C 254 gfx 2c78462b
+C 254 gfx fa6f034
 C 255 frame 172 hero 112 152
 C 256 frame 173 hero 112 152
 C 257 frame 174 hero 112 152
 C 258 frame 175 hero 112 152
 C 259 frame 176 hero 112 152
 C 260 frame 177 hero 112 152
-C 260 gfx f5e98ce5
+C 260 gfx 7fe13ead
 C 261 frame 178 hero 112 152
 C 262 frame 179 hero 112 152
 C 263 frame 180 hero 112 152
 C 264 frame 181 hero 112 152
-C 264 gfx 4c4efa75
+C 264 gfx dc379ca2
 C 265 frame 182 hero 112 152
-C 265 gfx c7d78e01
+C 265 gfx 32c6ddec
 C 266 frame 183 hero 112 152
-C 266 gfx c1914179
+C 266 gfx 779abfa6
 C 267 frame 184 hero 112 152
 C 268 frame 185 hero 112 152
 C 269 frame 186 hero 112 152
@@ -480,11 +480,11 @@ C 273 frame 190 hero 112 152
 C 274 frame 191 hero 112 152
 C 275 frame 192 hero 112 152
 C 276 frame 193 hero 112 152
-C 276 gfx ea0011d8
+C 276 gfx eb0f9a2
 C 277 frame 194 hero 112 152
-C 277 gfx 26511e8
+C 277 gfx 247cc4f3
 C 278 frame 195 hero 112 152
-C 278 gfx dc8a350a
+C 278 gfx 6be9d8d9
 C 279 frame 196 hero 112 152
 C 280 frame 197 hero 112 152
 C 281 frame 198 hero 112 152
@@ -492,30 +492,30 @@ D 281 Up
 C 282 frame 199 hero 112 152
 C 283 frame 200 hero 112 152
 C 284 frame 201 hero 112 152
-C 284 gfx 9ac4c00f
+C 284 gfx a9f01b06
 C 285 frame 202 hero 112 152
 C 286 frame 203 hero 112 152
 C 287 frame 204 hero 112 152
 C 288 frame 205 hero 112 152
-C 288 gfx 80e8cf8e
+C 288 gfx 47fab268
 C 289 frame 206 hero 112 152
-C 289 gfx a6573c34
+C 289 gfx 817291cd
 C 290 frame 207 hero 112 152
-C 290 gfx 11db05a1
+C 290 gfx 8de15de4
 C 291 frame 208 hero 112 152
 C 292 frame 209 hero 112 152
 C 293 frame 210 hero 112 152
 C 294 frame 211 hero 112 152
 C 295 frame 212 hero 112 152
 C 296 frame 213 hero 112 152
-C 296 gfx 7236879b
+C 296 gfx 32666abf
 C 297 frame 214 hero 112 152
 C 298 frame 215 hero 112 152
 C 299 frame 216 hero 112 152
 C 300 frame 217 hero 112 152
-C 300 gfx 95653745
+C 300 gfx 71307b8e
 C 301 frame 218 hero 112 152
-C 301 gfx d7bd406a
+C 301 gfx a6a0de8b
 C 302 frame 219 hero 112 152
 C 303 frame 220 hero 112 152
 C 304 frame 221 hero 112 152
@@ -523,133 +523,133 @@ C 305 frame 222 hero 112 152
 C 306 frame 223 hero 112 152
 C 307 frame 224 hero 112 152
 C 308 frame 225 hero 112 152
-C 308 gfx aa7a23b0
+C 308 gfx 8da8bfda
 C 309 frame 226 hero 112 152
 C 310 frame 227 hero 112 152
 C 311 frame 228 hero 112 152
 C 312 frame 229 hero 112 152
-C 312 gfx f849b125
+C 312 gfx bb591ce1
 C 313 frame 230 hero 112 152
-C 313 gfx 70d7944f
+C 313 gfx 535dce64
 C 314 frame 231 hero 112 152
-C 314 gfx c2daeedf
+C 314 gfx 5a3bfc36
 C 315 frame 232 hero 112 152
 C 316 frame 233 hero 112 152
 C 317 frame 234 hero 112 152
 C 318 frame 235 hero 112 152
 C 319 frame 236 hero 112 152
 C 320 frame 237 hero 112 152
-C 320 gfx cdcbbf93
+C 320 gfx d7bac4a6
 C 321 frame 238 hero 112 152
 C 322 frame 239 hero 112 152
 C 323 frame 240 hero 112 152
 C 324 frame 241 hero 112 152
-C 324 gfx c22d3709
+C 324 gfx 1763b71
 C 325 frame 242 hero 112 152
-C 325 gfx 3b6113a5
+C 325 gfx c7b196bd
 C 326 frame 243 hero 112 152
-C 326 gfx 13d26fa0
+C 326 gfx 15435029
 C 327 frame 244 hero 112 152
 C 328 frame 245 hero 112 152
 C 329 frame 246 hero 112 152
 C 330 frame 247 hero 112 152
 C 331 frame 248 hero 112 152
 C 332 frame 249 hero 112 151
-C 332 gfx 12900697
+C 332 gfx bc40bc06
 C 333 frame 250 hero 112 150
-C 333 gfx 1942eb8c
+C 333 gfx 60cee23c
 C 334 frame 251 hero 112 149
-C 334 gfx 3d1a5420
+C 334 gfx 22821d3f
 C 335 frame 252 hero 112 147
-C 335 gfx ced5848
+C 335 gfx 46bcecfc
 C 336 frame 253 hero 112 146
-C 336 gfx ab8fe03f
+C 336 gfx 54abd7bb
 C 337 frame 254 hero 112 144
-C 337 gfx 76395b6f
+C 337 gfx 14a8a158
 C 338 frame 255 hero 112 143
-C 338 gfx 46c5abe5
+C 338 gfx b8fa934f
 C 339 frame 256 hero 112 142
-C 339 gfx b94ae1cc
+C 339 gfx b1e32aa7
 C 340 frame 257 hero 112 141
-C 340 gfx 6782bc
+C 340 gfx df64066c
 C 341 frame 258 hero 112 139
-C 341 gfx a5b5db2a
+C 341 gfx 6c5f5303
 C 342 frame 259 hero 112 138
-C 342 gfx 3851f499
+C 342 gfx 6543e659
 C 343 frame 260 hero 112 136
-C 343 gfx d5b41d1f
+C 343 gfx 9eb6db18
 C 344 frame 261 hero 112 135
-C 344 gfx 957cb8a7
+C 344 gfx 6f685988
 C 345 frame 262 hero 112 134
-C 345 gfx dbb8996d
+C 345 gfx 22429c6a
 C 346 frame 263 hero 112 133
-C 346 gfx 5bb23363
+C 346 gfx ce185fa6
 C 347 frame 264 hero 112 131
-C 347 gfx 9aea3944
+C 347 gfx 81797dde
 C 348 frame 265 hero 112 130
-C 348 gfx a234c314
+C 348 gfx 57387c35
 C 349 frame 266 hero 112 128
-C 349 gfx 32cedd95
+C 349 gfx f9f55626
 C 350 frame 267 hero 112 127
-C 350 gfx 1eff95a1
+C 350 gfx 458d74bc
 C 351 frame 268 hero 112 126
-C 351 gfx 42179800
+C 351 gfx b381f343
 C 352 frame 269 hero 112 125
-C 352 gfx a8e802cb
+C 352 gfx 692e27d7
 C 353 frame 270 hero 112 123
-C 353 gfx 33115838
+C 353 gfx 707f7b6f
 C 354 frame 271 hero 112 122
-C 354 gfx e5c7c1d7
+C 354 gfx 54135512
 C 355 frame 272 hero 112 120
-C 355 gfx 89aab8d7
+C 355 gfx 1f7c12f5
 C 356 frame 273 hero 112 119
-C 356 gfx c4e04fb5
+C 356 gfx 3e63e72a
 C 357 frame 274 hero 112 118
-C 357 gfx 2b088a70
+C 357 gfx f6a29ef8
 C 358 frame 275 hero 112 117
-C 358 gfx 48cb83f
+C 358 gfx c382568d
 C 359 frame 276 hero 112 115
-C 359 gfx ca8d638f
+C 359 gfx 9a284071
 C 360 frame 277 hero 112 114
-C 360 gfx 62468753
+C 360 gfx 56b2fcbf
 C 361 frame 278 hero 112 112
-C 361 gfx 9594d0a
+C 361 gfx 78116870
 C 362 frame 279 hero 112 111
-C 362 gfx 32816731
+C 362 gfx 5bd0705c
 C 363 frame 280 hero 112 110
-C 363 gfx 311c86c
+C 363 gfx 1b95decc
 C 364 frame 281 hero 112 109
-C 364 gfx 80a23370
+C 364 gfx 9a35cbb4
 C 365 frame 282 hero 112 107
-C 365 gfx ce9d8e59
+C 365 gfx 8805c285
 C 366 frame 283 hero 112 106
-C 366 gfx 9729d8b6
+C 366 gfx 4571de78
 C 367 frame 284 hero 112 104
-C 367 gfx 35dcb3f
+C 367 gfx 3093fb4
 C 368 frame 285 hero 112 103
-C 368 gfx 275ab9db
+C 368 gfx 25632faf
 C 369 frame 286 hero 112 102
-C 369 gfx ba516c47
+C 369 gfx 3ac745bb
 C 370 frame 287 hero 112 101
-C 370 gfx 24290ea8
+C 370 gfx 2b1635c7
 D 370 Right
 C 371 frame 288 hero 112 99
-C 371 gfx 95e9941
+C 371 gfx 35db57f8
 U 371 Up
 C 372 frame 289 hero 112 98
-C 372 gfx 2454f053
+C 372 gfx 64f84a24
 C 373 frame 290 hero 112 96
-C 373 gfx 5f50edd
+C 373 gfx bde92e53
 C 374 frame 291 hero 113 96
-C 374 gfx 273db355
+C 374 gfx 13b38ad5
 C 375 frame 292 hero 114 96
-C 375 gfx 2e097bd9
+C 375 gfx cef49526
 C 376 frame 293 hero 116 96
-C 376 gfx bb1558c7
+C 376 gfx b1648b65
 C 377 frame 294 hero 117 96
-C 377 gfx 839d0b6d
+C 377 gfx eb310397
 C 378 frame 295 hero 119 96
-C 378 gfx 1242dd1
+C 378 gfx 3f504d5e
 C 379 getitem Sword 1 (Wooden)
 C 379 frame 296 hero 120 96
 C 379 gfx ac3444ee
@@ -14944,16 +14944,16 @@ C 8372 frame 277 hero 223 80
 C 8373 frame 278 hero 223 80
 C 8374 frame 279 hero 223 80
 C 8375 frame 280 hero 223 80
-C 8375 gfx 5e593e42
+C 8375 gfx f523a579
 C 8376 frame 281 hero 223 80
-C 8376 gfx 48c0e7a9
+C 8376 gfx 4cb0d9c8
 C 8377 frame 282 hero 223 80
-C 8377 gfx f57a9f26
+C 8377 gfx d138b739
 C 8378 frame 283 hero 223 80
 C 8379 frame 284 hero 223 80
 C 8380 frame 285 hero 223 80
 C 8381 frame 286 hero 223 80
-C 8381 gfx c91ce5e5
+C 8381 gfx 60e1af9c
 C 8382 frame 287 hero 223 80
 C 8383 frame 288 hero 223 80
 C 8384 frame 289 hero 223 80
@@ -14961,30 +14961,30 @@ C 8385 frame 290 hero 223 80
 C 8386 frame 291 hero 223 80
 C 8387 frame 292 hero 223 80
 C 8388 frame 293 hero 223 80
-C 8388 gfx c85d2d9e
+C 8388 gfx ac92dd14
 C 8389 frame 294 hero 223 80
-C 8389 gfx 3ffee577
+C 8389 gfx 92cd4b0b
 C 8390 frame 295 hero 223 80
 C 8391 frame 296 hero 223 80
 C 8392 frame 297 hero 223 80
 C 8393 frame 298 hero 223 80
-C 8393 gfx 33e9e35
+C 8393 gfx 143eb061
 C 8394 frame 299 hero 223 80
 C 8395 frame 300 hero 223 80
 C 8396 frame 301 hero 223 80
 C 8397 frame 302 hero 223 80
 C 8398 frame 303 hero 223 80
 C 8399 frame 304 hero 223 80
-C 8399 gfx 707e5bbf
+C 8399 gfx 77cdbb08
 C 8400 frame 305 hero 223 80
-C 8400 gfx cf621a25
+C 8400 gfx de6165f0
 C 8401 frame 306 hero 223 80
-C 8401 gfx 23a559ba
+C 8401 gfx 4adf97c5
 C 8402 frame 307 hero 223 80
 C 8403 frame 308 hero 223 80
 C 8404 frame 309 hero 223 80
 C 8405 frame 310 hero 223 80
-C 8405 gfx b54e93a3
+C 8405 gfx d9b6c4da
 C 8406 frame 311 hero 223 80
 C 8407 frame 312 hero 223 80
 C 8408 frame 313 hero 223 80
@@ -14992,30 +14992,30 @@ C 8409 frame 314 hero 223 80
 C 8410 frame 315 hero 223 80
 C 8411 frame 316 hero 223 80
 C 8412 frame 317 hero 223 80
-C 8412 gfx 12ed1f4d
+C 8412 gfx 99a3dd9b
 C 8413 frame 318 hero 223 80
-C 8413 gfx ffd6120a
+C 8413 gfx d96fb216
 C 8414 frame 319 hero 223 80
 C 8415 frame 320 hero 223 80
 C 8416 frame 321 hero 223 80
 C 8417 frame 322 hero 223 80
-C 8417 gfx 7bc20f50
+C 8417 gfx 92410d0c
 C 8418 frame 323 hero 223 80
 C 8419 frame 324 hero 223 80
 C 8420 frame 325 hero 223 80
 C 8421 frame 326 hero 223 80
 C 8422 frame 327 hero 223 80
 C 8423 frame 328 hero 223 80
-C 8423 gfx 4bd973b1
+C 8423 gfx 886acb8d
 C 8424 frame 329 hero 223 80
-C 8424 gfx 53039012
+C 8424 gfx ee298fb7
 C 8425 frame 330 hero 223 80
-C 8425 gfx 63511246
+C 8425 gfx 82438177
 C 8426 frame 331 hero 223 80
 C 8427 frame 332 hero 223 80
 C 8428 frame 333 hero 223 80
 C 8429 frame 334 hero 223 80
-C 8429 gfx 84017a9e
+C 8429 gfx 16b0d0ac
 C 8430 frame 335 hero 223 80
 C 8431 frame 336 hero 223 80
 C 8432 frame 337 hero 223 80
@@ -15023,208 +15023,208 @@ C 8433 frame 338 hero 223 80
 C 8434 frame 339 hero 223 80
 D 8434 Left
 C 8435 frame 340 hero 223 80
-C 8435 gfx 4748da23
+C 8435 gfx 1bddb8a1
 C 8436 frame 341 hero 223 80
-C 8436 gfx 19c5533
+C 8436 gfx e5dbb913
 C 8437 frame 342 hero 223 80
-C 8437 gfx ddb420f0
+C 8437 gfx e505d386
 C 8438 frame 343 hero 223 80
 C 8439 frame 344 hero 223 80
 C 8440 frame 345 hero 223 80
 C 8441 frame 346 hero 223 80
-C 8441 gfx b1cdcbe5
+C 8441 gfx 2a7b60f9
 C 8442 frame 347 hero 223 80
 C 8443 frame 348 hero 223 80
 C 8444 frame 349 hero 223 80
 C 8445 frame 350 hero 223 80
 C 8446 frame 351 hero 223 80
 C 8447 frame 352 hero 223 80
-C 8447 gfx 4e16cac9
+C 8447 gfx 5c652a9e
 C 8448 frame 353 hero 223 80
-C 8448 gfx 720cfd67
+C 8448 gfx 5a86e715
 C 8449 frame 354 hero 223 80
-C 8449 gfx f6117f90
+C 8449 gfx c0deab50
 C 8450 frame 355 hero 223 80
 C 8451 frame 356 hero 223 80
 C 8452 frame 357 hero 223 80
 C 8453 frame 358 hero 222 80
-C 8453 gfx 91be077c
+C 8453 gfx 8ceabf57
 C 8454 frame 359 hero 221 80
-C 8454 gfx b0c4be26
+C 8454 gfx 14b95496
 C 8455 frame 360 hero 219 80
-C 8455 gfx 4af41744
+C 8455 gfx 4331a44b
 C 8456 frame 361 hero 218 80
-C 8456 gfx d1896d2e
+C 8456 gfx b3a189a0
 C 8457 frame 362 hero 216 80
-C 8457 gfx db9e81cc
+C 8457 gfx 932118d3
 C 8458 frame 363 hero 215 80
-C 8458 gfx 2d6fae97
+C 8458 gfx 321fa4fc
 C 8459 frame 364 hero 214 80
-C 8459 gfx b94f0fa6
+C 8459 gfx 7734ebe
 C 8460 frame 365 hero 213 80
-C 8460 gfx ae9154c0
+C 8460 gfx 18531906
 C 8461 frame 366 hero 211 80
-C 8461 gfx ad82de56
+C 8461 gfx a6ab0595
 C 8462 frame 367 hero 210 80
-C 8462 gfx db647d3a
+C 8462 gfx 76126e1
 C 8463 frame 368 hero 208 80
-C 8463 gfx 3682b14a
+C 8463 gfx a7555cf8
 C 8464 frame 369 hero 207 80
-C 8464 gfx 36a1074e
+C 8464 gfx 3b21b0e7
 C 8465 frame 370 hero 206 80
-C 8465 gfx 57a47136
+C 8465 gfx c41bb44f
 C 8466 frame 371 hero 205 80
-C 8466 gfx 8d12f4a3
+C 8466 gfx 3d0f37d7
 C 8467 frame 372 hero 203 80
-C 8467 gfx 73dfa71d
+C 8467 gfx 9c6a8422
 C 8468 frame 373 hero 202 80
-C 8468 gfx 699c6eee
+C 8468 gfx 6ffcf782
 C 8469 frame 374 hero 200 80
-C 8469 gfx c1873b63
+C 8469 gfx 9baebb2c
 C 8470 frame 375 hero 199 80
-C 8470 gfx 450f4673
+C 8470 gfx 3964f0d4
 C 8471 frame 376 hero 198 80
-C 8471 gfx e26a5c0b
+C 8471 gfx b98c0b6b
 C 8472 frame 377 hero 197 80
-C 8472 gfx 319ca557
+C 8472 gfx 9e4e18c4
 C 8473 frame 378 hero 195 80
-C 8473 gfx 20d5e76e
+C 8473 gfx 457b4c8d
 C 8474 frame 379 hero 194 80
-C 8474 gfx eced1d7
+C 8474 gfx 3ad50672
 C 8475 frame 380 hero 192 80
-C 8475 gfx 6251a0e1
+C 8475 gfx 80623c8f
 C 8476 frame 381 hero 191 80
-C 8476 gfx d35eec69
+C 8476 gfx 9251e050
 C 8477 frame 382 hero 190 80
-C 8477 gfx c99ce473
+C 8477 gfx e725ee34
 U 8477 Left
 D 8477 A
 C 8478 frame 383 hero 190 80
-C 8478 gfx 4c19b27d
+C 8478 gfx deab433f
 C 8479 frame 384 hero 190 80
 C 8480 frame 385 hero 190 80
 C 8481 frame 386 hero 190 80
 C 8482 frame 387 hero 190 80
 C 8483 frame 388 hero 190 80
-C 8483 gfx e328385b
+C 8483 gfx e3e2d25e
 C 8484 frame 389 hero 190 80
-C 8484 gfx b6f81797
+C 8484 gfx c11d7f97
 U 8484 A
 C 8485 frame 390 hero 190 80
-C 8485 gfx 1be34d64
+C 8485 gfx f728602b
 C 8486 frame 391 hero 190 80
 C 8487 frame 392 hero 190 80
 C 8488 frame 393 hero 190 80
 C 8489 frame 394 hero 190 80
 C 8490 frame 395 hero 190 80
-C 8490 gfx 3b80f444
+C 8490 gfx 9fff9682
 C 8491 frame 396 hero 190 80
-C 8491 gfx 386b8ab7
+C 8491 gfx b624efd8
 C 8492 frame 397 hero 190 80
-C 8492 gfx 54415cbc
+C 8492 gfx 1e9334bf
 C 8493 frame 398 hero 190 80
-C 8493 gfx 71829e1d
+C 8493 gfx 68bf3cbb
 C 8494 frame 399 hero 190 80
-C 8494 gfx aa0c4ea3
+C 8494 gfx ea86b672
 C 8495 frame 400 hero 190 80
-C 8495 gfx c4351b01
+C 8495 gfx a78c4648
 C 8496 frame 401 hero 190 80
-C 8496 gfx 557f9cd7
+C 8496 gfx 9f693c71
 C 8497 frame 402 hero 190 80
-C 8497 gfx 7b0ea94
+C 8497 gfx b9a661a7
 C 8498 frame 403 hero 190 80
-C 8498 gfx e4489ab8
+C 8498 gfx e3f5db3d
 C 8499 frame 404 hero 190 80
-C 8499 gfx 5f2b0a67
+C 8499 gfx ebbe362
 C 8500 frame 405 hero 190 80
-C 8500 gfx c57e42bd
+C 8500 gfx ec480305
 C 8501 frame 406 hero 190 80
-C 8501 gfx 5bea10cd
+C 8501 gfx fde9e239
 C 8502 frame 407 hero 190 80
-C 8502 gfx 9ffc65fe
+C 8502 gfx 5f1444b5
 C 8503 frame 408 hero 190 80
-C 8503 gfx 442dbb7b
+C 8503 gfx 8438417d
 C 8504 frame 409 hero 190 80
-C 8504 gfx 70ac5e60
+C 8504 gfx 11c5ab5d
 C 8505 frame 410 hero 190 80
-C 8505 gfx ac88517f
+C 8505 gfx ce3c1f8e
 D 8505 Right
 C 8506 frame 411 hero 191 80
-C 8506 gfx fc63e07f
+C 8506 gfx 109cdc08
 C 8507 frame 412 hero 192 80
-C 8507 gfx 8a3dac5d
+C 8507 gfx 93d1e117
 C 8508 frame 413 hero 193 80
-C 8508 gfx ca9b025b
+C 8508 gfx ebc724c9
 C 8509 frame 414 hero 194 80
-C 8509 gfx 95610b3f
+C 8509 gfx 839eef7c
 C 8510 frame 415 hero 196 80
-C 8510 gfx 94bf5dd3
+C 8510 gfx 841b9a75
 C 8511 frame 416 hero 197 80
-C 8511 gfx aa1d06c5
+C 8511 gfx 517b60dc
 C 8512 frame 417 hero 199 80
-C 8512 gfx 800859aa
+C 8512 gfx c9d9acb6
 C 8513 frame 418 hero 200 80
-C 8513 gfx f96b3126
+C 8513 gfx 56b80b22
 C 8514 frame 419 hero 201 80
-C 8514 gfx 4917a119
+C 8514 gfx 1c8c233b
 C 8515 frame 420 hero 202 80
-C 8515 gfx 3771000b
+C 8515 gfx 8ada8f29
 C 8516 frame 421 hero 204 80
-C 8516 gfx e6d60afe
+C 8516 gfx ba3fd139
 C 8517 frame 422 hero 205 80
-C 8517 gfx 380c2429
+C 8517 gfx ae94af9f
 C 8518 frame 423 hero 207 80
-C 8518 gfx 4bb88cff
+C 8518 gfx 512d5f68
 C 8519 frame 424 hero 208 80
-C 8519 gfx bf73c0fd
+C 8519 gfx b84b25fd
 C 8520 frame 425 hero 209 80
-C 8520 gfx 83673af4
+C 8520 gfx 3015dea1
 C 8521 frame 426 hero 210 80
-C 8521 gfx 6ed109c0
+C 8521 gfx 678d39c6
 C 8522 frame 427 hero 212 80
-C 8522 gfx b3abf9a9
+C 8522 gfx 728613a0
 C 8523 frame 428 hero 213 80
-C 8523 gfx 830621e2
+C 8523 gfx ed7a8e43
 C 8524 frame 429 hero 215 80
-C 8524 gfx 8a3b313a
+C 8524 gfx 64a5cf92
 C 8525 frame 430 hero 216 80
-C 8525 gfx aa60221e
+C 8525 gfx 96f5bd2e
 C 8526 frame 431 hero 217 80
-C 8526 gfx 94fb7362
+C 8526 gfx de8e1f5b
 C 8527 frame 432 hero 218 80
-C 8527 gfx 841612c4
+C 8527 gfx c3501c76
 C 8528 frame 433 hero 220 80
-C 8528 gfx 4cd40452
+C 8528 gfx 2b032649
 C 8529 frame 434 hero 221 80
-C 8529 gfx c36d4ef8
+C 8529 gfx cba597aa
 C 8530 frame 435 hero 223 80
-C 8530 gfx 15816cc7
+C 8530 gfx 1ba13a5d
 C 8531 frame 436 hero 224 80
-C 8531 gfx a152af8b
+C 8531 gfx 3e03c455
 C 8532 frame 437 hero 225 80
-C 8532 gfx ad69bd29
+C 8532 gfx 5eb2fad7
 C 8533 frame 438 hero 226 80
-C 8533 gfx b4a185a6
+C 8533 gfx bff1a3b1
 C 8534 frame 439 hero 228 80
-C 8534 gfx 4c32d9a6
+C 8534 gfx 924da39e
 C 8535 frame 440 hero 229 80
-C 8535 gfx d36ccca7
+C 8535 gfx 5f4b9c78
 C 8536 frame 441 hero 231 80
-C 8536 gfx c8215151
+C 8536 gfx 700ba524
 C 8537 frame 442 hero 232 80
-C 8537 gfx 25885c93
+C 8537 gfx 48385c30
 C 8538 frame 443 hero 233 80
-C 8538 gfx 41f7b463
+C 8538 gfx 535c03c6
 C 8539 frame 444 hero 234 80
-C 8539 gfx 7e5c08bb
+C 8539 gfx 86350799
 C 8540 frame 445 hero 236 80
-C 8540 gfx 74492d36
+C 8540 gfx bee644e4
 C 8541 frame 446 hero 237 80
-C 8541 gfx 19a95365
+C 8541 gfx ef592b69
 C 8542 frame 447 hero 239 80
-C 8542 gfx 90140631
+C 8542 gfx bc605d89
 C 8543 frame 448 hero 240 80
-C 8543 gfx e6136fad
+C 8543 gfx 974969d1
 C 8544 gfx 766e996f
 C 8544 scr=66
 R 8544 0 257 0
