@@ -4441,9 +4441,6 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 
 void game_over(int32_t type)
 {
-	if (replay_is_debug())
-		replay_step_comment("game_over");
-
 	FFCore.kb_typing_mode = false; 
 	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	/*
@@ -4599,8 +4596,10 @@ void game_over(int32_t type)
 	
 	if(done)
 	{
-		if (replay_is_debug())
-			replay_step_comment("game_over done");
+		// This is always the last step before a game save replay is stopped. On replay_continue,
+		// the frame_count is set to this step's frame + 1 to continue the recording–so this comment
+		// is super important.
+		replay_step_comment("game_over");
 
 		if(pos)
 		{

@@ -1045,16 +1045,20 @@ void replay_set_rng_seed(zc_randgen *rng, int seed)
     if (replay_is_replaying())
     {
         RngReplayStep *rng_step = find_rng_step(index, replay_log_current_index, replay_log);
-        // Only OK to be missing if in update mode.
-        if (mode != ReplayMode::Update || rng_step)
+        if (rng_step)
         {
-            if (!rng_step && mode == ReplayMode::Assert)
+            seed = rng_step->seed;
+        }
+        // Only OK to be missing if in update mode.
+        else if (mode != ReplayMode::Update)
+        {
+            int line_number = replay_log_current_index + meta_map.size() + 1;
+            fprintf(stderr, "<%d> rng desync\n", line_number);
+            if (mode == ReplayMode::Assert)
             {
-                fprintf(stderr, "rng desync at step index %zu\n", replay_log_current_index);
                 replay_stop();
             }
-            ASSERT(rng_step);
-            seed = rng_step->seed;
+            ASSERT(false);
         }
     }
 

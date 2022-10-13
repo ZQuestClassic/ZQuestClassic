@@ -2,7 +2,7 @@ M debug true
 M qst modules/classic/classic_1st.qst
 M sync_rng true
 M time_created Mon Oct  3 18:17:17 2022
-M time_updated Wed Oct 12 18:43:18 2022
+M time_updated Thu Oct 13 16:57:54 2022
 C 0 init_game
 R 0 0 257 0
 C 0 getitem Shield 1 (Small)
@@ -23029,7 +23029,6 @@ C 12670 gfx 6ea318dc
 C 12671 frame 249 hero 128 88
 Q 12671 1
 C 12671 gfx 5339b6c2
-C 12671 game_over
 D 12671 Start
 C 12674 gfx 8a64e44c
 U 12679 Start
@@ -23056,4 +23055,4 @@ C 12778 gfx c438650f
 C 12782 gfx 8c1050e3
 C 12783 game_over selection made
 C 12783 gfx 76e206c8
-C 12783 game_over done
+C 12783 game_over

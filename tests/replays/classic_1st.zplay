@@ -1,7 +1,7 @@
 M qst modules/classic/classic_1st.qst
 M sync_rng true
 M time_created Mon Oct  3 18:13:23 2022
-M time_updated Mon Oct  3 18:13:23 2022
+M time_updated Thu Oct 13 16:57:35 2022
 C 0 init_game
 R 0 0 1 1664442051
 R 0 2 257 1962970203
@@ -1219,6 +1219,7 @@ D 21847 Start
 U 21851 Start
 D 21853 Start
 U 21861 Start
+C 21912 game_over
 C 21912 cont_game
 R 21912 2 257 719780593
 C 21912 dmap=0
@@ -2142,6 +2143,7 @@ D 35058 Start
 U 35062 Start
 D 35065 Start
 U 35069 Start
+C 35123 game_over
 C 35123 cont_game
 R 35123 2 257 1496180334
 C 35123 dmap=0
@@ -6686,6 +6688,7 @@ U 103681 Down
 Q 103701 1
 D 103714 Start
 U 103720 Start
+C 103779 game_over
 C 103779 cont_game
 R 103779 2 257 -2145850323
 C 103779 dmap=0
@@ -10336,6 +10339,7 @@ U 154446 Left
 D 154452 Start
 U 154461 Start
 D 154491 Up
+C 154517 game_over
 C 154517 cont_game
 R 154517 2 257 825619241
 C 154517 dmap=9
@@ -10966,6 +10970,7 @@ U 162422 Right
 U 162422 A
 D 162437 Start
 U 162450 Start
+C 162502 game_over
 C 162502 cont_game
 R 162502 2 257 746060255
 C 162502 dmap=9
@@ -11555,6 +11560,7 @@ U 170184 Up
 U 170184 A
 D 170198 Start
 U 170208 Start
+C 170263 game_over
 C 170263 cont_game
 R 170263 2 257 1519234658
 C 170263 dmap=9

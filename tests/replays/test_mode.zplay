@@ -6,7 +6,7 @@ M starting_scr 118
 M sync_rng true
 M test_mode true
 M time_created Mon Oct  3 18:17:38 2022
-M time_updated Wed Oct 12 18:42:21 2022
+M time_updated Thu Oct 13 16:57:39 2022
 C 0 init_game
 R 0 0 1 1664390467
 R 0 2 257 1962918619
@@ -2208,7 +2208,6 @@ C 1173 frame 104 hero 128 115
 C 1174 frame 105 hero 128 115
 Q 1174 1
 C 1174 gfx c517f608
-C 1174 game_over
 D 1174 Start
 C 1177 gfx 8a64e44c
 U 1181 Start
@@ -2235,7 +2234,7 @@ C 1281 gfx c438650f
 C 1285 gfx 8c1050e3
 C 1286 game_over selection made
 C 1286 gfx 76e206c8
-C 1286 game_over done
+C 1286 game_over
 C 1287 init_game
 R 1287 0 1 1664390500
 R 1287 2 257 -202660548

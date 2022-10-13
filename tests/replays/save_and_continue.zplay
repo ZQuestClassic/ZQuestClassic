@@ -1,7 +1,7 @@
 M debug true
 M qst modules/classic/classic_1st.qst
 M time_created Mon Oct  3 17:59:04 2022
-M time_updated Wed Oct 12 18:42:45 2022
+M time_updated Thu Oct 13 16:57:43 2022
 C 0 init_game
 R 0 0 257 0
 C 0 getitem Shield 1 (Small)
@@ -1268,7 +1268,6 @@ C 714 frame 989 hero 101 64
 C 715 frame 990 hero 101 64
 C 716 frame 991 hero 101 64
 Q 716 1
-C 716 game_over
 D 716 Start
 C 719 gfx 8a64e44c
 U 724 Start
@@ -1295,7 +1294,7 @@ C 816 gfx c438650f
 C 820 gfx 8c1050e3
 C 821 game_over selection made
 C 821 gfx 76e206c8
-C 821 game_over done
+C 821 game_over
 C 822 init_game
 R 822 0 257 0
 C 822 dmap=0
@@ -2349,7 +2348,6 @@ C 1375 gfx b83a31be
 C 1376 frame 665 hero 160 24
 C 1377 frame 666 hero 160 24
 Q 1377 1
-C 1377 game_over
 D 1377 Start
 C 1380 gfx 8a64e44c
 U 1384 Start
@@ -2376,7 +2374,7 @@ C 1493 gfx c438650f
 C 1497 gfx 8c1050e3
 C 1498 game_over selection made
 C 1498 gfx 76e206c8
-C 1498 game_over done
+C 1498 game_over
 C 1499 init_game
 R 1499 0 257 0
 C 1499 dmap=0
@@ -3205,7 +3203,6 @@ C 1935 gfx 7080f424
 C 1936 frame 548 hero 191 128
 Q 1936 1
 C 1936 gfx b23bac9c
-C 1936 game_over
 D 1936 Start
 C 1939 gfx 8a64e44c
 U 1943 Start
@@ -3229,7 +3226,7 @@ C 2040 gfx 39844129
 C 2044 gfx 8a64e44c
 C 2045 game_over selection made
 C 2045 gfx 76e206c8
-C 2045 game_over done
+C 2045 game_over
 C 2045 cont_game
 R 2045 2 257 0
 C 2045 dmap=0
@@ -3912,7 +3909,6 @@ C 2405 gfx 7aec04a7
 C 2406 frame 1129 hero 181 96
 Q 2406 1
 C 2406 gfx 3e5a9c15
-C 2406 game_over
 D 2406 Start
 C 2409 gfx 8a64e44c
 U 2413 Start
@@ -3939,4 +3935,4 @@ C 2521 gfx c438650f
 C 2525 gfx 8c1050e3
 C 2526 game_over selection made
 C 2526 gfx 76e206c8
-C 2526 game_over done
+C 2526 game_over
