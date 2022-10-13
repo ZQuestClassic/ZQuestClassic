@@ -290,6 +290,18 @@ void HeroClass::set_respawn_point(bool setwarp)
 				return;
 			}
 		} //End check water
+		
+		int poses[4] = {
+			COMBOPOS(x,y+(bigHitbox?0:8)),
+			COMBOPOS(x,y+15),
+			COMBOPOS(x+15,y+(bigHitbox?0:8)),
+			COMBOPOS(x+15,y+15)
+			};
+		for(auto pos : poses)
+		{
+			if(HASFLAG_ANY(mfUNSAFEGROUND, pos)) //"Unsafe Ground" flag touching the player
+				return;
+		}
 	}
 	respawn_x = x;
 	respawn_y = y;

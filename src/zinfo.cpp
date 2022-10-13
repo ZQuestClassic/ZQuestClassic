@@ -223,7 +223,7 @@ const char map_flag_default_string[mfMAX][255] =
 	"-Trigger LW_SCRIPT3 (Unimplemented)", "-Trigger LW_SCRIPT4 (Unimplemented)", "-Trigger LW_SCRIPT5 (Unimplemented)", "-Trigger LW_SCRIPT6 (Unimplemented)", "-Trigger LW_SCRIPT7 (Unimplemented)", "-Trigger LW_SCRIPT8 (Unimplemented)", "-Trigger LW_SCRIPT9 (Unimplemented)", "-Trigger LW_SCRIPT10 (Unimplemented)",
 	"Script 32", "Script 33", "Script 34", "Script 35", "Script 36", "Script 37", "Script 38", "Script 39",
 	"Script 40", "Script 41", "Script 42", "Script 43", "Script 44", "Script 45", "Script 46", "Script 47",
-	"Script 48", "Sideview Ladder", "Sideview Platform","Spawn No Enemies","Spawn All Enemies","Secrets->Next","No Mirroring","-mf167","-mf168","-mf169", "-mf170","-mf171","-mf172","-mf173","-mf174","-mf175","-mf176","-mf177","-mf178","-mf179",
+	"Script 48", "Sideview Ladder", "Sideview Platform","Spawn No Enemies","Spawn All Enemies","Secrets->Next","No Mirroring","Unsafe Ground","-mf168","-mf169", "-mf170","-mf171","-mf172","-mf173","-mf174","-mf175","-mf176","-mf177","-mf178","-mf179",
 	"-mf180","-mf181","-mf182","-mf183","-mf184","-mf185","-mf186","-mf187","-mf188","-mf189", "-mf190","-mf191","-mf192","-mf193","-mf194","-mf195","-mf196","-mf197","-mf198","-mf199",
 	"-mf200","-mf201","-mf202","-mf203","-mf204","-mf205","-mf206","-mf207","-mf208","-mf209", "-mf210","-mf211","-mf212","-mf213","-mf214","-mf215","-mf216","-mf217","-mf218","-mf219",
 	"-mf220","-mf221","-mf222","-mf223","-mf224","-mf225","-mf226","-mf227","-mf228","-mf229", "-mf230","-mf231","-mf232","-mf233","-mf234","-mf235","-mf236","-mf237","-mf238","-mf239",
@@ -424,7 +424,7 @@ char const* zinfo::getItemClassHelp(size_t q)
 		return ic_help_string[q];
 	if(valid_str(itemclass_help_string_defaults[q]))
 		return itemclass_help_string_defaults[q];
-	return "";
+	return nilptr;
 }
 char const* zinfo::getComboTypeName(size_t q)
 {
@@ -432,7 +432,7 @@ char const* zinfo::getComboTypeName(size_t q)
 		return ctype_name[q];
 	if(valid_str(default_ctype_strings[q]))
 		return default_ctype_strings[q];
-	return "";
+	return nilptr;
 }
 static std::string ctype_help_buff;
 char const* zinfo::getComboTypeHelp(size_t q)
@@ -442,7 +442,7 @@ char const* zinfo::getComboTypeHelp(size_t q)
 	ctype_help_buff = getComboTypeHelpText(q);
 	if(ctype_help_buff.size())
 		return ctype_help_buff.c_str();
-	return "";
+	return nilptr;
 }
 char const* zinfo::getMapFlagName(size_t q)
 {
@@ -450,16 +450,17 @@ char const* zinfo::getMapFlagName(size_t q)
 		return mf_name[q];
 	if(valid_str(map_flag_default_string[q]))
 		return map_flag_default_string[q];
-	return "";
+	return nilptr;
 }
+static std::string mf_help_buff;
 char const* zinfo::getMapFlagHelp(size_t q)
 {
 	if(valid_str(mf_help_string[q]))
 		return mf_help_string[q];
-	std::string defstr = getMapFlagHelpText(q);
-	if(defstr.size())
-		return defstr.c_str(); // TODO: fix C26816
-	return "";
+	mf_help_buff = getMapFlagHelpText(q);
+	if(mf_help_buff.size())
+		return mf_help_buff.c_str();
+	return nilptr;
 }
 char const* zinfo::getCtrName(int32_t q)
 {

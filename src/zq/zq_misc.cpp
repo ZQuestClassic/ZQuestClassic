@@ -550,7 +550,7 @@ const char *flag_string[MAXFLAGS] =
     "159 Spawn NPC (Scripted)",
     "160 SwitchHook Spot (Scripted)",
     "161 Sideview Ladder",
-    "162 Sideview Platform","163 Spawn No Enemies","164 Spawn All Enemies","165 Secrets->Next","166 No Mirroring","167 mf167","168 mf168","169 mf169",
+    "162 Sideview Platform","163 Spawn No Enemies","164 Spawn All Enemies","165 Secrets->Next","166 No Mirroring","167 Unsafe Ground","168 mf168","169 mf169",
     "170 mf170","171 mf171","172 mf172","173 mf173","174 mf174","175 mf175","176 mf176","177 mf177","178 mf178","179 mf179",
     "180 mf180","181 mf181","182 mf182","183 mf183","184 mf184","185 mf185","186 mf186","187 mf187","188 mf188","189 mf189",
     "190 mf190","191 mf191","192 mf192","193 mf193","194 mf194","195 mf195","196 mf196","197 mf197","198 mf198","199 mf199",
