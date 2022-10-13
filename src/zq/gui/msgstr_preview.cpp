@@ -33,7 +33,7 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 	int32_t nextstring = str->nextstring;
 	int16_t msg_margins[4];
 	
-	int16_t old_margins[4] = {8,0,8,0};
+	int16_t old_margins[4] = {8,0,8,-8};
 	int16_t const* copy_from = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS) ? old_margins : str->margins;
 	for(auto q = 0; q < 4; ++q)
 		msg_margins[q] = copy_from[q];

@@ -1092,7 +1092,7 @@ void donewmsg(int32_t str)
     msg_bg(MsgStrings[msgstr]);
     msg_prt();
     
-	int16_t old_margins[4] = {8,0,8,0};
+	int16_t old_margins[4] = {8,0,8,-8};
 	int16_t const* copy_from = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS) ? old_margins : MsgStrings[msgstr].margins;
 	for(auto q = 0; q < 4; ++q)
 		msg_margins[q] = copy_from[q];

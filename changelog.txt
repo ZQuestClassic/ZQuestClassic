@@ -3,6 +3,9 @@
 
 // Alpha 110
 
+Actually fix string margin issues, for real this time, I swear.
+	( EmilyV, 12th Oct, 2022 )
+
 Enhanced music fixes for dmap music
 	( Deedee, 10th Oct, 2022 )
 
