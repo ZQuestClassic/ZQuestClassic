@@ -26,6 +26,7 @@
 #include "maps.h"
 #include "replay.h"
 #include "guys.h"
+#include <fmt/format.h>
 
 #ifndef IS_ZQUEST
 #include "hero.h"
@@ -2315,7 +2316,7 @@ void sprite_list::animate()
 				if (replay_is_active() && dynamic_cast<enemy*>(sprites[active_iterator]) != nullptr)
 				{
 					enemy* as_enemy = dynamic_cast<enemy*>(sprites[active_iterator]);
-					replay_step_comment(string_format("enemy died %s", guy_string[as_enemy->id]));
+					replay_step_comment(string_format("enemy died %s", guy_string[as_enemy->id0xFFF]));
 				}
 #endif
 				del(active_iterator);

@@ -1,7 +1,7 @@
 M qst modules/classic/classic_1st.qst
 M sync_rng true
 M time_created Mon Oct  3 18:13:23 2022
-M time_updated Thu Oct 13 16:57:35 2022
+M time_updated Fri Oct 14 13:36:51 2022
 C 0 init_game
 R 0 0 1 1664442051
 R 0 2 257 1962970203
@@ -1872,9 +1872,9 @@ U 31503 Right
 D 31508 A
 U 31519 Up
 U 31521 A
-C 31533 enemy died (null)
-C 31534 enemy died (null)
-C 31535 enemy died (null)
+C 31533 enemy died Moldorm
+C 31534 enemy died Moldorm
+C 31535 enemy died Moldorm
 D 31537 Down
 D 31550 A
 U 31566 A
@@ -1887,14 +1887,14 @@ D 31600 Right
 U 31603 A
 U 31604 Down
 U 31608 Right
-C 31609 enemy died (null)
-C 31610 enemy died (null)
+C 31609 enemy died Moldorm
+C 31610 enemy died Moldorm
 D 31612 Left
 D 31621 A
 U 31632 A
 D 31642 A
 U 31644 Left
-C 31646 enemy died (null)
+C 31646 enemy died Moldorm
 D 31648 Left
 U 31654 A
 U 31665 Left
@@ -1905,11 +1905,11 @@ D 31705 A
 U 31718 A
 D 31727 Up
 U 31728 Right
-C 31730 enemy died (null)
+C 31730 enemy died Moldorm
 C 31731 enemy died (None)
 D 31773 A
 U 31788 A
-C 31798 enemy died (null)
+C 31798 enemy died Moldorm
 D 31798 A
 U 31814 A
 D 31821 A
@@ -1917,7 +1917,7 @@ U 31827 Up
 U 31836 A
 D 31839 Right
 D 31845 A
-C 31846 enemy died (null)
+C 31846 enemy died Moldorm
 U 31851 Right
 U 31864 A
 D 31873 Right
@@ -1927,7 +1927,7 @@ U 31883 Down
 D 31895 Down
 U 31895 Right
 U 31897 A
-C 31907 enemy died (null)
+C 31907 enemy died Moldorm
 C 31908 enemy died Fairy
 D 31922 Left
 U 31923 Down
@@ -4066,8 +4066,8 @@ D 64307 Right
 D 64311 A
 U 64316 Right
 D 64320 Left
-C 64321 enemy died (null)
-C 64321 enemy died (null)
+C 64321 enemy died Gleeok (2 Heads)
+C 64321 enemy died Gleeok (2 Heads)
 U 64325 A
 D 64329 Down
 U 64332 Left
@@ -5724,7 +5724,7 @@ U 88582 A
 D 88610 A
 U 88620 A
 D 88623 Right
-C 88635 enemy died (null)
+C 88635 enemy died Digdogger Kid (1)
 U 88663 Right
 D 88668 Left
 U 88712 Left
@@ -6340,9 +6340,9 @@ U 99186 Up
 D 99190 A
 U 99201 A
 D 99202 Right
-C 99206 enemy died (null)
-C 99206 enemy died (null)
-C 99206 enemy died (null)
+C 99206 enemy died Gleeok (3 Heads)
+C 99206 enemy died Gleeok (3 Heads)
+C 99206 enemy died Gleeok (3 Heads)
 D 99207 Down
 U 99211 Down
 C 99224 enemy died Gleeok (3 Heads)
@@ -7692,9 +7692,9 @@ D 119465 A
 U 119471 Down
 U 119479 A
 D 119484 Right
-C 119490 enemy died (null)
-C 119490 enemy died (null)
-C 119490 enemy died (null)
+C 119490 enemy died Digdogger Kid (2)
+C 119490 enemy died Digdogger Kid (3)
+C 119490 enemy died Digdogger Kid (4)
 U 119494 Right
 D 119502 Left
 D 119518 Down
@@ -9036,10 +9036,10 @@ D 138164 Up
 U 138167 Right
 D 138184 A
 U 138190 Up
-C 138191 enemy died (null)
-C 138191 enemy died (null)
-C 138191 enemy died (null)
-C 138191 enemy died (null)
+C 138191 enemy died Gleeok (4 Heads)
+C 138191 enemy died Gleeok (4 Heads)
+C 138191 enemy died Gleeok (4 Heads)
+C 138191 enemy died Gleeok (4 Heads)
 D 138194 Right
 U 138194 A
 D 138204 Up
@@ -9371,16 +9371,16 @@ U 144364 Right
 U 144366 Up
 U 144372 A
 D 144376 Down
-C 144384 enemy died (null)
+C 144384 enemy died Lanmola (L1)
 U 144394 Down
 D 144398 Up
 D 144399 A
 U 144409 Up
 D 144412 Down
 U 144417 A
-C 144424 enemy died (null)
-C 144425 enemy died (null)
-C 144426 enemy died (null)
+C 144424 enemy died Lanmola (L1)
+C 144425 enemy died Lanmola (L1)
+C 144426 enemy died Lanmola (L1)
 U 144427 Down
 D 144432 Up
 D 144440 A
@@ -9392,11 +9392,11 @@ D 144466 Up
 D 144474 A
 U 144483 Up
 U 144486 A
-C 144499 enemy died (null)
+C 144499 enemy died Lanmola (L1)
 D 144504 A
 U 144524 A
 D 144527 Up
-C 144532 enemy died (null)
+C 144532 enemy died Lanmola (L1)
 C 144533 enemy died Lanmola (L1)
 U 144554 Up
 D 144558 Down
@@ -9433,7 +9433,7 @@ D 144862 B
 U 144869 Right
 U 144876 B
 D 144888 Left
-C 144894 enemy died (null)
+C 144894 enemy died Lanmola (L1)
 U 144898 Left
 D 144912 Right
 U 144928 Right
@@ -9443,8 +9443,8 @@ D 144944 Right
 U 144950 Right
 D 144951 B
 U 144961 B
-C 144993 enemy died (null)
-C 145022 enemy died (null)
+C 144993 enemy died Lanmola (L1)
+C 145022 enemy died Lanmola (L1)
 D 145065 Right
 D 145068 B
 U 145074 Right
@@ -9472,7 +9472,7 @@ U 145318 Right
 D 145318 B
 U 145333 B
 D 145358 Left
-C 145363 enemy died (null)
+C 145363 enemy died Lanmola (L1)
 C 145364 enemy died Lanmola (L1)
 D 145367 Up
 U 145370 Left
@@ -9649,7 +9649,7 @@ D 147881 A
 U 147885 Left
 U 147892 A
 D 147898 A
-C 147906 enemy died (null)
+C 147906 enemy died Patra (Big Circle)
 U 147906 A
 D 147914 Right
 U 147926 Right
@@ -9660,13 +9660,13 @@ D 147943 Right
 U 147946 A
 U 147956 Right
 D 147958 Left
-C 147960 enemy died (null)
+C 147960 enemy died Patra (Big Circle)
 D 147961 A
 U 147967 Left
 D 147975 Right
 U 147978 A
 U 147985 Right
-C 147986 enemy died (null)
+C 147986 enemy died Patra (Big Circle)
 D 147988 Left
 D 147990 A
 U 147997 Left
@@ -9674,12 +9674,12 @@ D 148000 Right
 U 148009 A
 U 148011 Right
 D 148013 Left
-C 148015 enemy died (null)
+C 148015 enemy died Patra (Big Circle)
 D 148018 A
 U 148022 Left
 D 148033 Right
 U 148036 A
-C 148043 enemy died (null)
+C 148043 enemy died Patra (Big Circle)
 D 148063 Up
 U 148064 Right
 U 148107 Up
@@ -9718,11 +9718,11 @@ D 148356 A
 U 148366 A
 U 148376 Down
 D 148377 A
-C 148381 enemy died (null)
+C 148381 enemy died Patra (Big Circle)
 U 148386 A
 D 148391 A
 U 148404 A
-C 148406 enemy died (null)
+C 148406 enemy died Patra (Big Circle)
 D 148411 Up
 U 148418 Up
 D 148420 Down
@@ -9739,7 +9739,7 @@ D 148490 Down
 D 148506 A
 U 148519 Down
 U 148522 A
-C 148531 enemy died (null)
+C 148531 enemy died Patra (Big Circle)
 D 148535 Down
 D 148545 A
 U 148549 Down
@@ -10102,9 +10102,9 @@ U 152393 Left
 U 152402 A
 D 152408 A
 U 152415 A
-C 152417 enemy died (null)
+C 152417 enemy died Patra (Oval)
 D 152420 Right
-C 152433 enemy died (null)
+C 152433 enemy died Patra (Oval)
 D 152435 Down
 U 152438 Down
 U 152439 Right
@@ -10125,7 +10125,7 @@ D 152508 A
 U 152510 Left
 U 152519 A
 D 152529 A
-C 152533 enemy died (null)
+C 152533 enemy died Patra (Oval)
 U 152540 A
 D 152543 Down
 U 152575 Down
@@ -10136,8 +10136,8 @@ U 152598 A
 D 152600 A
 U 152609 A
 D 152611 A
-C 152613 enemy died (null)
-C 152617 enemy died (null)
+C 152613 enemy died Patra (Oval)
+C 152617 enemy died Patra (Oval)
 U 152620 A
 D 152622 A
 U 152634 A
@@ -10164,7 +10164,7 @@ D 152794 A
 U 152800 Down
 U 152805 A
 D 152812 A
-C 152819 enemy died (null)
+C 152819 enemy died Patra (Oval)
 U 152831 A
 D 152836 Down
 D 152841 A
@@ -10178,7 +10178,7 @@ D 152906 A
 U 152916 Down
 U 152918 A
 D 152921 A
-C 152931 enemy died (null)
+C 152931 enemy died Patra (Oval)
 U 152931 A
 D 152936 Up
 D 152941 Left
@@ -10189,7 +10189,7 @@ D 152976 A
 U 152979 Down
 U 152988 A
 D 152993 A
-C 153002 enemy died (null)
+C 153002 enemy died Patra (Oval)
 U 153002 A
 D 153004 Down
 D 153011 Left
@@ -12782,8 +12782,8 @@ U 186787 A
 D 186789 A
 D 186795 Left
 U 186798 A
-C 186804 enemy died (null)
-C 186804 enemy died (null)
+C 186804 enemy died Patra (Oval)
+C 186804 enemy died Patra (Oval)
 U 186811 Left
 D 186814 Right
 D 186819 A
@@ -12816,7 +12816,7 @@ U 186975 A
 D 186979 A
 U 186985 A
 D 186987 A
-C 186991 enemy died (null)
+C 186991 enemy died Patra (Oval)
 U 186998 A
 D 187006 Down
 D 187008 Left
@@ -12840,7 +12840,7 @@ D 187137 A
 U 187146 A
 D 187150 A
 U 187159 A
-C 187162 enemy died (null)
+C 187162 enemy died Patra (Oval)
 D 187166 A
 D 187167 Right
 U 187176 A
@@ -12856,10 +12856,10 @@ U 187249 A
 D 187255 A
 U 187262 A
 D 187265 A
-C 187266 enemy died (null)
+C 187266 enemy died Patra (Oval)
 D 187277 Left
 U 187283 A
-C 187286 enemy died (null)
+C 187286 enemy died Patra (Oval)
 D 187290 Down
 U 187292 Left
 D 187302 Left
@@ -12873,7 +12873,7 @@ U 187339 Right
 U 187340 A
 D 187352 Right
 D 187353 A
-C 187356 enemy died (null)
+C 187356 enemy died Patra (Oval)
 U 187356 Right
 U 187368 A
 D 187372 Left
@@ -12890,7 +12890,7 @@ U 187442 Right
 U 187444 A
 D 187448 A
 U 187460 A
-C 187462 enemy died (null)
+C 187462 enemy died Patra (Oval)
 D 187470 Right
 D 187490 A
 U 187494 Right
