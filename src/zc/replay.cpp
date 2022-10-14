@@ -6,6 +6,7 @@
 #include <map>
 #include <fstream>
 #include <sstream>
+#include <fmt/format.h>
 
 struct ReplayStep;
 
@@ -129,7 +130,7 @@ struct ButtonReplayStep : public ReplayStep
 
     std::string print()
     {
-        return string_format("%c %d %s", type, frame, button_names[button_index]);
+        return fmt::format("{} {} {}", type, frame, button_names[button_index]);
     }
 };
 
@@ -147,7 +148,7 @@ struct CommentReplayStep : ReplayStep
 
     std::string print()
     {
-        return string_format("%c %d %s", type, frame, comment.c_str());
+        return fmt::format("{} {} {}", type, frame, comment);
     }
 };
 
@@ -167,7 +168,7 @@ struct QuitReplayStep : ReplayStep
 
     std::string print()
     {
-        return string_format("%c %d %d", type, frame, quit_state);
+        return fmt::format("{} {} {}", type, frame, quit_state);
     }
 };
 
@@ -189,11 +190,11 @@ struct CheatReplayStep : ReplayStep
     {
         std::string cheat_name = cheat_to_string(cheat);
         if (arg1 == -1)
-            return string_format("%c %d %s", type, frame, cheat_name.c_str());
+            return fmt::format("{} {} {}", type, frame, cheat_name);
         else if (arg2 == -1)
-            return string_format("%c %d %s %d", type, frame, cheat_name.c_str(), arg1);
+            return fmt::format("{} {} {} {}", type, frame, cheat_name, arg1);
         else
-            return string_format("%c %d %s %d %d", type, frame, cheat_name.c_str(), arg1, arg2);
+            return fmt::format("{} {} {} {} {}", type, frame, cheat_name, arg1, arg2);
     }
 };
 
@@ -214,7 +215,7 @@ struct RngReplayStep : ReplayStep
 
     std::string print()
     {
-        return string_format("%c %d %d %d %d", type, frame, start_index, end_index, seed);
+        return fmt::format("{} {} {} {} {}", type, frame, start_index, end_index, seed);
     }
 };
 
@@ -444,9 +445,9 @@ static void save_replay(std::string filename, const std::vector<std::shared_ptr<
 
     std::ofstream out(filename);
     for (auto it : meta_map)
-        out << string_format("%c %s %s", TypeMeta, it.first.c_str(), it.second.c_str()).c_str() << '\n';
+        out << fmt::format("{} {} {}", TypeMeta, it.first, it.second) << '\n';
     for (auto it : log)
-        out << it->print().c_str() << '\n';
+        out << it->print() << '\n';
     out.close();
 }
 
@@ -530,8 +531,8 @@ static void check_assert()
         {
             has_assert_failed = true;
             int line_number = assert_current_index + meta_map.size() + 1;
-            std::string error = string_format("<%d> expected:\n\t%s\nbut got:\n\t%s", line_number,
-                                              replay_step->print().c_str(), record_step->print().c_str());
+            std::string error = fmt::format("<{}> expected:\n\t{}\nbut got:\n\t{}", line_number,
+                                              replay_step->print(), record_step->print());
             fprintf(stderr, "%s\n", error.c_str());
             replay_save(filename + ".roundtrip");
             // Paused = true;
@@ -922,7 +923,7 @@ void replay_set_meta(std::string key, std::string value)
 void replay_set_meta(std::string key, int value)
 {
     if (replay_is_active())
-        meta_map[key] = string_format("%d", value);
+        meta_map[key] = fmt::format("{}", value);
 }
 
 void replay_set_meta_bool(std::string key, bool value)

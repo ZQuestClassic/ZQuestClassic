@@ -54,6 +54,8 @@
 #include "dialog/info.h"
 #include "replay.h"
 #include "cheats.h"
+#include <fmt/format.h>
+#include <fmt/std.h>
 
 using namespace util;
 extern FFScript FFCore; //the core script engine.
@@ -1877,20 +1879,23 @@ int32_t init_game()
 		if (firstplay && replay_new_saves)
 		{
 			// TODO: need to escape?
-			auto replay_path_prefix = replay_file_dir / string_format("%s-%s", saves[currgame].title, saves[currgame]._name);
-			std::string replay_path = string_format("%s.%s", replay_path_prefix.string().c_str(), REPLAY_EXTENSION.c_str());
+			std::string filename_prefix = fmt::format("{}-{}", saves[currgame].title, saves[currgame]._name);
+			filename_prefix.erase(0, filename_prefix.find_first_not_of("\t\n\v\f\r ")); // left trim
+			filename_prefix.erase(filename_prefix.find_last_not_of("\t\n\v\f\r ") + 1); // right trim
+			auto replay_path_prefix = replay_file_dir / filename_prefix;
+			std::string replay_path = fmt::format("{}.{}", replay_path_prefix.string(), REPLAY_EXTENSION);
 			if (std::filesystem::exists(replay_path))
 			{
 				int i = 1;
 				do {
 					i += 1;
-					replay_path = string_format("%s-%d.%s", replay_path_prefix.string().c_str(), i, REPLAY_EXTENSION.c_str());
+					replay_path = fmt::format("{}-{}.{}", replay_path_prefix.string(), i, REPLAY_EXTENSION);
 				} while (std::filesystem::exists(replay_path));
 			}
 
 			if (jwin_alert("Recording",
 				"You are about to create a new recording at:",
-				string_format("%s", relativize_path(replay_path).c_str()).c_str(),
+				relativize_path(replay_path).c_str(),
 				"Do you wish to record this save file?",
 				"Yes","No",13,27,lfont)!=0)
 			{
@@ -1906,8 +1911,8 @@ int32_t init_game()
 		{
 			if (!std::filesystem::exists(saves[currgame].replay_file))
 			{
-				std::string msg = string_format("Replay file %s does not exist. Cannot continue recording.",
-					saves[currgame].replay_file.c_str());
+				std::string msg = fmt::format("Replay file {} does not exist. Cannot continue recording.",
+					saves[currgame].replay_file);
 				jwin_alert("Recording",msg.c_str(),NULL,NULL,"OK",NULL,13,27,lfont);
 			}
 			else
@@ -5696,7 +5701,7 @@ reload_for_replay_file:
 #endif
 			game_loop();
 			if (replay_is_debug() && !Quit)
-				replay_step_comment(string_format("frame %d hero %d %d", frame, HeroX().getInt(), HeroY().getInt()));
+				replay_step_comment(fmt::format("frame {} hero {} {}", frame, HeroX().getInt(), HeroY().getInt()));
 
 			FFCore.newScriptEngine();
 			

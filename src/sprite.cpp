@@ -2316,7 +2316,7 @@ void sprite_list::animate()
 				if (replay_is_active() && dynamic_cast<enemy*>(sprites[active_iterator]) != nullptr)
 				{
 					enemy* as_enemy = dynamic_cast<enemy*>(sprites[active_iterator]);
-					replay_step_comment(string_format("enemy died %s", guy_string[as_enemy->id0xFFF]));
+					replay_step_comment(fmt::format("enemy died {}", guy_string[as_enemy->id&0xFFF]));
 				}
 #endif
 				del(active_iterator);

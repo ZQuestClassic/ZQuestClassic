@@ -42,6 +42,7 @@ extern zcmodule moduledata;
 extern refInfo playerScriptData;
 #include "zscriptversion.h"
 #include "particles.h"
+#include <fmt/format.h>
 
 extern refInfo itemScriptData[256];
 extern refInfo itemCollectScriptData[256];
@@ -26630,7 +26631,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 	}
 
 	if (replay_is_active())
-		replay_step_comment(string_format("getitem %s", item_string[id]));
+		replay_step_comment(fmt::format("getitem {}", item_string[id]));
 	
 	if(get_bit(quest_rules,qr_SCC_ITEM_COMBINES_ITEMS))
 	{

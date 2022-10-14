@@ -41,6 +41,7 @@ extern word combo_doscript[176];
 extern refInfo screenScriptData;
 extern FFScript FFCore;
 #include "particles.h"
+#include <fmt/format.h>
 
 
 #define EPSILON 0.01 // Define your own tolerance
@@ -1860,7 +1861,7 @@ void hidden_entrance(int32_t tmp,bool refresh, bool high16only,int32_t single) /
 void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Perhaps better known as 'Trigger Secrets'
 {
 	if (replay_is_active())
-		replay_step_comment(string_format("trigger secrets scr=%d", currscr));
+		replay_step_comment(fmt::format("trigger secrets scr={}", currscr));
 
 	/*
 	mapscr *s = tmpscr + tmp;
@@ -4642,14 +4643,14 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		{
 			if (strlen(DMaps[destdmap].name) > 0)
 			{
-				replay_step_comment(string_format("dmap=%d %s", destdmap, DMaps[destdmap].name));
+				replay_step_comment(fmt::format("dmap={} {}", destdmap, DMaps[destdmap].name));
 			}
 			else
 			{
-				replay_step_comment(string_format("dmap=%d", destdmap));
+				replay_step_comment(fmt::format("dmap={}", destdmap));
 			}
 		}
-		replay_step_comment(string_format("scr=%d", scr));
+		replay_step_comment(fmt::format("scr={}", scr));
 
 		// Reset the rngs and frame count so that recording steps can be modified without impacting
 		// behavior of later screens.
