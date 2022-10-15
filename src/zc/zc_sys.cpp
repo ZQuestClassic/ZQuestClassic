@@ -8749,6 +8749,7 @@ void switch_in_callback()
 void game_pal()
 {
 	is_sys_pal = false;
+	entered_sys_pal = 0;
 	clear_to_color(screen,BLACK);
 	hw_palette = &RAMpal;
 	update_hw_pal = true;

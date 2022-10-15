@@ -664,16 +664,19 @@ void replay_poll()
         }
         keyboard_callback = nullptr;
         locking_keys = false;
-
-        if (jwin_alert("Replay",
-                       "Would you like to halt the replay and",
-                       "take back control?",
-                       "",
-                       "Yes", "No", 'y', 'n', lfont) == 1)
-        {
-            replay_quit();
-            return;
-        }
+		
+		enter_sys_pal();
+		if (jwin_alert("Replay",
+					   "Would you like to halt the replay and",
+					   "take back control?",
+					   "",
+					   "Yes", "No", 'y', 'n', lfont) == 1)
+		{
+			replay_quit();
+			exit_sys_pal();
+			return;
+		}
+		exit_sys_pal();
 
         did_attempt_input_during_replay = false;
         locking_keys = true;

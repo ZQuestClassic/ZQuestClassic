@@ -1892,7 +1892,7 @@ int32_t init_game()
 					replay_path = fmt::format("{}-{}.{}", replay_path_prefix.string(), i, REPLAY_EXTENSION);
 				} while (std::filesystem::exists(replay_path));
 			}
-
+			enter_sys_pal();
 			if (jwin_alert("Recording",
 				"You are about to create a new recording at:",
 				relativize_path(replay_path).c_str(),
@@ -1906,6 +1906,7 @@ int32_t init_game()
 				replay_set_meta("qst", relativize_path(game->qstpath));
 				replay_save();
 			}
+			exit_sys_pal();
 		}
 		else if (!firstplay && !saves[currgame].replay_file.empty())
 		{
@@ -1913,7 +1914,9 @@ int32_t init_game()
 			{
 				std::string msg = fmt::format("Replay file {} does not exist. Cannot continue recording.",
 					saves[currgame].replay_file);
+				enter_sys_pal();
 				jwin_alert("Recording",msg.c_str(),NULL,NULL,"OK",NULL,13,27,lfont);
+				exit_sys_pal();
 			}
 			else
 			{
@@ -5556,6 +5559,23 @@ int main(int argc, char **argv)
 		replay_set_meta("starting_retsqr", testingqst_retsqr);
 		use_testingst_start = true;
 	}
+	else if(zqtesting_mode)
+	{
+		std::filesystem::path replay_file_dir = zc_get_config("zeldadx", "replay_file_dir", "replays/");
+		std::filesystem::create_directory(replay_file_dir);
+		auto replay_path_prefix = replay_file_dir / "latest_test_replay";
+		std::string replay_path = fmt::format("{}.{}", replay_path_prefix.string(), REPLAY_EXTENSION);
+		replay_start(ReplayMode::Record, replay_path);
+		
+		replay_set_debug(replay_debug_arg);
+		replay_set_sync_rng(true);
+		replay_set_meta("qst", testingqst_name);
+		replay_set_meta_bool("test_mode", true);
+		replay_set_meta("starting_dmap", testingqst_dmap);
+		replay_set_meta("starting_scr", testingqst_screen);
+		replay_set_meta("starting_retsqr", testingqst_retsqr);
+		use_testingst_start = true;
+	}
 	if (frame_arg > 0)
 		replay_set_frame_arg(std::stoi(argv[frame_arg + 1]));
 	
@@ -5659,9 +5679,9 @@ reload_for_replay_file:
 		if (use_testingst_start)
 			Z_message("Test mode: \"%s\", %d, %d\n", testingqst_name, testingqst_dmap, testingqst_screen);
 		if (replay_is_active())
-			Z_message("Replay is active");
+			Z_message("Replay is active\n");
 	}
-
+	
 	while(Quit!=qEXIT)
 	{
 		// this is here to continually fix the keyboard repeat
@@ -5680,7 +5700,8 @@ reload_for_replay_file:
 				//Failed initializing? Keep trying.
 				do Quit = 0; while(init_game());
 			}
-			Quit = 0;
+			Quit = load_replay_file_called ? qRESET : 0;
+			game_pal();
 		}
 		else titlescreen(load_save);
 		clearConsole();
