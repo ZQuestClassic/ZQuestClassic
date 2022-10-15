@@ -1857,6 +1857,8 @@ void init_dmap()
 
 int32_t init_game()
 {
+	current_subscreen_active = nullptr;
+
     // Various things use the frame counter to do random stuff (ex: runDrunkRNG).
 	// We only bother setting it to 0 here so that recordings will play back the
 	// same way, even if manually started in the ZC UI (in which case,` frame` starts
