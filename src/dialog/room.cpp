@@ -2,7 +2,6 @@
 #include "common.h"
 #include "info.h"
 #include <gui/builder.h>
-#include <boost/format.hpp>
 
 // Used as a indices into argSwitcher. Make sure the order matches.
 enum { argTEXT_FIELD, argITEM_LIST, argSHOP_LIST, argINFO_LIST, argBSHOP_LIST };

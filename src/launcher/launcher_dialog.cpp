@@ -5,7 +5,6 @@
 #include "theme_editor.h"
 #include "launcher.h"
 #include "gui/builder.h"
-#include <boost/format.hpp>
 
 LauncherDialog::LauncherDialog(){}
 

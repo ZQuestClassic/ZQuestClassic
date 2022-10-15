@@ -1,7 +1,7 @@
 #include "common.h"
 #include "zq_misc.h"
 #include "zquest.h"
-#include <boost/format.hpp>
+#include <fmt/format.h>
 #include <algorithm>
 #include <array>
 #include <vector>
@@ -40,9 +40,7 @@ GUI::ListData getStringListData()
 	return GUI::ListData(msg_count,
 		[&msgMap](size_t index)
 		{
-			return boost::str(boost::format("%1%: %2%")
-				% msgMap[index]
-				% MsgStrings[msgMap[index]].s.c_str());
+			return fmt::format("{}: {}", msgMap[index], MsgStrings[msgMap[index]].s);
 		},
 		[&msgMap](size_t index)
 		{
@@ -55,9 +53,7 @@ GUI::ListData getShopListData()
 	return GUI::ListData(256,
 		[](size_t index)
 		{
-			return boost::str(boost::format("%1%:  %2%")
-				% index
-				% misc.shop[index].name);
+			return fmt::format("{}: {}", index, misc.shop[index].name);
 		},
 		[](size_t index)
 		{
@@ -70,9 +66,7 @@ GUI::ListData getBShopListData()
 	return GUI::ListData(256,
 		[](size_t index)
 		{
-			return boost::str(boost::format("%1%:  %2%")
-				% index
-				% misc.bottle_shop_types[index].name);
+			return fmt::format("{}: {}", index, misc.bottle_shop_types[index].name);
 		},
 		[](size_t index)
 		{
@@ -85,9 +79,7 @@ GUI::ListData getInfoShopListData()
 	return GUI::ListData(256,
 		[](size_t index)
 		{
-			return boost::str(boost::format("%1%:  %2%")
-				% index
-				% misc.info[index].name);
+			return fmt::format("{}: {}", index, misc.info[index].name);
 		},
 		[](size_t index)
 		{
