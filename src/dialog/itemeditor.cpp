@@ -1351,13 +1351,13 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								//
 								Label(text = "Increase By:", hAlign = 1.0),
 								TextField(
-									val = ((local_itemref.amount & 0x4000) ? -1 : 1)*(local_itemref.amount & 0x3FFF),
+									val = ((local_itemref.amount & 0x4000) ? -1 : 1)*signed(local_itemref.amount & 0x3FFF),
 									type = GUI::TextField::type::INT_DECIMAL,
 									fitParent = true, low = -9999, high = 16383,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.amount &= 0x8000;
-										local_itemref.amount |= ((val&0x3FFF)|(val<0?0x4000:0));
+										local_itemref.amount |= (abs(val)&0x3FFF)|(val<0?0x4000:0);
 									}
 								),
 								Checkbox(
@@ -2710,13 +2710,13 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								//
 								Label(text = "Increase By:", hAlign = 1.0),
 								TextField(
-									val = ((local_itemref.amount & 0x4000) ? -1 : 1)*(local_itemref.amount & 0x3FFF),
+									val = ((local_itemref.amount & 0x4000) ? -1 : 1)*signed(local_itemref.amount & 0x3FFF),
 									type = GUI::TextField::type::INT_DECIMAL,
 									fitParent = true, low = -9999, high = 16383,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.amount &= 0x8000;
-										local_itemref.amount |= ((val&0x3FFF)|(val<0?0x4000:0));
+										local_itemref.amount |= (abs(val)&0x3FFF)|(val<0?0x4000:0);
 									}
 								),
 								Checkbox(
