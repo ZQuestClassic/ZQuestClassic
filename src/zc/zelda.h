@@ -238,7 +238,7 @@ void doGFXMonohue(int32_t _r, int32_t _g, int32_t _b, bool m);
 void doTint(int32_t _r, int32_t _g, int32_t _b);
 
 void runDrunkRNG();
-void load_replay_file(ReplayMode mode, std::string replay_file);
+void load_replay_file_deferred(ReplayMode mode, std::string replay_file);
 void zc_game_srand(int seed, zc_randgen* rng = nullptr);
 
 //Save screen settings. 

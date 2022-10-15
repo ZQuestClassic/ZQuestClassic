@@ -6684,8 +6684,8 @@ int32_t onLoadReplay()
 				replay_path, REPLAY_EXTENSION.c_str(), 2048, -1, -1, lfont) == 0)
 			return D_CLOSE;
 
-		replay_stop();
-		load_replay_file(ReplayMode::Replay, replay_path);
+		replay_quit();
+		load_replay_file_deferred(ReplayMode::Replay, replay_path);
 		Quit = qRESET;
 		return D_CLOSE;
 	}
@@ -7610,6 +7610,7 @@ int32_t onReset()
 	{
 		disableClickToFreeze=false;
 		Quit=qRESET;
+		replay_quit();
 		return D_CLOSE;
 	}
 	

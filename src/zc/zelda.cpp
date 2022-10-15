@@ -4549,9 +4549,8 @@ int32_t onFullscreen()
     else return D_O_K;
 }
 
-static bool load_replay_file_called = false;
 static bool current_session_is_replay = false;
-void load_replay_file(ReplayMode mode, std::string replay_file)
+static void load_replay_file(ReplayMode mode, std::string replay_file)
 {
 	ASSERT(mode == ReplayMode::Replay || mode == ReplayMode::Assert || mode == ReplayMode::Update);
 	replay_start(mode, replay_file);
@@ -4567,7 +4566,20 @@ void load_replay_file(ReplayMode mode, std::string replay_file)
 	{
 		use_testingst_start = false;
 	}
-	load_replay_file_called = true;
+}
+
+static bool load_replay_file_deffered_called = false;
+static std::string load_replay_file_filename;
+static ReplayMode load_replay_file_mode;
+// Because using "Load Replay" GUI menu can happen while another replay is
+// within an inner game-loop (like scrollscr), which can bleed the old replay
+// into the new one if `replay_start` is called from the GUI control code.
+// Instead, save the information needed to call load_replay_file later.
+void load_replay_file_deferred(ReplayMode mode, std::string replay_file)
+{
+	load_replay_file_deffered_called = true;
+	load_replay_file_mode = mode;
+	load_replay_file_filename = replay_file;
 }
 
 void zc_game_srand(int seed, zc_randgen* rng)
@@ -5643,7 +5655,12 @@ int main(int argc, char **argv)
 #endif
 	
 reload_for_replay_file:
-	load_replay_file_called = false;
+	if (load_replay_file_deffered_called)
+	{
+		load_replay_file(load_replay_file_mode, load_replay_file_filename);
+		load_replay_file_deffered_called = false;
+	}
+
 	current_session_is_replay = replay_is_active();
 	disable_save_to_disk = zqtesting_mode || replay_is_active();
 
@@ -5700,7 +5717,11 @@ reload_for_replay_file:
 				//Failed initializing? Keep trying.
 				do Quit = 0; while(init_game());
 			}
-			Quit = load_replay_file_called ? qRESET : 0;
+			// Unclear why Quit=0 is needed here for testing mode, but this breaks
+			// 'Load Replay' + quiting during init_game, so let's not do it when replaying.
+			// Seems totally safe to just delete this, but I don't want to test that right now.
+			if (!replay_is_replaying())
+				Quit = 0;
 			game_pal();
 		}
 		else titlescreen(load_save);
@@ -5734,7 +5755,7 @@ reload_for_replay_file:
 			//to read before or after waitdraw in scripts. 
 		}
 
-		if (Quit == qRESET && load_replay_file_called)
+		if (load_replay_file_deffered_called)
 		{
 			Quit = 0;
 			goto reload_for_replay_file;
