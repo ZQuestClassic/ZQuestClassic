@@ -78,10 +78,7 @@ static bool _a5_setup_screen(int w, int h)
 #else
   if (_a5_display_fullscreen) flags |= ALLEGRO_FULLSCREEN;
 #endif
-// TODO: currently broken on mac.
-#ifndef __APPLE__
   else flags |= ALLEGRO_RESIZABLE;
-#endif
 
   al_set_new_display_flags(flags);
 
