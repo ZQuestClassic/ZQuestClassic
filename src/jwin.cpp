@@ -958,6 +958,16 @@ int32_t jwin_rtext_proc(int32_t msg, DIALOG *d, int32_t c)
     return D_O_K;
 }
 
+int32_t d_ctext2_proc(int32_t msg, DIALOG *d, int32_t c)
+{
+	if(msg == MSG_DRAW)
+		scare_mouse();
+	auto ret = d_ctext_proc(msg, d, c);
+	if(msg == MSG_DRAW)
+		unscare_mouse();
+	return ret;
+}
+
 int32_t new_text_proc(int32_t msg, DIALOG *d, int32_t c)
 {
 	BITMAP* oldscreen = screen;
@@ -5799,9 +5809,9 @@ static DIALOG alert_dialog[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)   (dp2)  (dp3) */
     { jwin_win_proc,     0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
-    { d_ctext_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
-    { d_ctext_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
-    { d_ctext_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
+    { d_ctext2_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
+    { d_ctext2_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
+    { d_ctext2_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
     { jwin_button_proc,  0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL,  NULL,  NULL },
     { jwin_button_proc,  0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL,  NULL,  NULL },
     { jwin_button_proc,  0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL,  NULL,  NULL },

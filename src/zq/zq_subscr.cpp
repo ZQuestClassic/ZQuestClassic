@@ -1014,7 +1014,7 @@ void replacedp(DIALOG &d, const char *newdp, size_t size)
             (d.proc==d_check_proc)||
             (d.proc==d_comboa_radio_proc)||
             (d.proc==d_comboabutton_proc)||
-            (d.proc==d_ctext_proc)||
+            (d.proc==d_ctext2_proc)||
             (d.proc==d_edit_proc)||
             (d.proc==d_jbutton_proc)||
             (d.proc==d_kbutton_proc)||
