@@ -81,23 +81,10 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
                     double scale;
                     all_get_display_transform(&native_width, &native_height, &display_width, &display_height, &offset_x, &offset_y, &scale);
 
-                    if (gfx_capabilities & GFX_HW_CURSOR)
+                    if (all_get_fullscreen_flag() && (gfx_capabilities & GFX_HW_CURSOR))
                     {
                         _mouse_x -= offset_x;
                         _mouse_y -= offset_y;
-                    }
-
-                    // Show OS cursor when hovering over letterboxing.
-                    if (mouse_is_ready && !(gfx_capabilities & GFX_HW_CURSOR))
-                    {
-                        if (_mouse_x < offset_x || _mouse_y < offset_y || _mouse_x >= display_width - offset_x || _mouse_y >= display_height - offset_y)
-                        {
-                            al_show_mouse_cursor(_a5_display);
-                        }
-                        else
-                        {
-                            al_hide_mouse_cursor(_a5_display);
-                        }
                     }
 
                     if (all_get_fullscreen_flag())
@@ -188,19 +175,14 @@ static void a5_mouse_get_mickeys(int * x, int * y)
 
 static void a5_mouse_enable_hardware_cursor(int mode)
 {
-    if(mode)
+    static bool is_enabled = true;
+    if (mode != is_enabled && _a5_display)
     {
-        if(_a5_display)
-        {
+        if (mode)
             al_show_mouse_cursor(_a5_display);
-        }
-    }
-    else
-    {
-        if(_a5_display)
-        {
+        else
             al_hide_mouse_cursor(_a5_display);
-        }
+        is_enabled = mode;
     }
 }
 

@@ -107,10 +107,10 @@ static bool _a5_setup_screen(int w, int h)
 
   // local edit to include GFX_HW_CURSOR
   /* see if we need to hide the mouse cursor */
-  if(al_is_mouse_installed() && !(gfx_capabilities & GFX_SYSTEM_CURSOR) && !(gfx_capabilities & GFX_HW_CURSOR))
-  {
-      al_hide_mouse_cursor(_a5_display);
-  }
+  // if(al_is_mouse_installed() && !(gfx_capabilities & GFX_SYSTEM_CURSOR) && !(gfx_capabilities & GFX_HW_CURSOR))
+  // {
+  //     al_hide_mouse_cursor(_a5_display);
+  // }
 
   pixel_format = al_get_bitmap_format(_a5_screen);
   if(pixel_format == ALLEGRO_PIXEL_FORMAT_ARGB_8888 || pixel_format == ALLEGRO_PIXEL_FORMAT_ABGR_8888 || pixel_format == ALLEGRO_PIXEL_FORMAT_RGBA_8888 || pixel_format == ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE)

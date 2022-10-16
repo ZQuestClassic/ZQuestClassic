@@ -403,6 +403,65 @@ zinitdata zinit;
 int32_t onImport_ComboAlias();
 int32_t onExport_ComboAlias();
 
+// TODO: this should probably be in base, so it can be used in the player too.
+static ALLEGRO_EVENT_QUEUE *evq = nullptr;
+void init_mouse_events()
+{
+	if (!evq)
+	{
+		evq = al_create_event_queue();
+		al_register_event_source(evq, al_get_mouse_event_source());
+	}
+}
+void update_mouse_events()
+{
+	if (evq)
+	{
+		ALLEGRO_EVENT event;
+		while (al_get_next_event(evq, &event))
+		{
+			switch (event.type)
+			{
+			case ALLEGRO_EVENT_MOUSE_AXES:
+			{
+				int mouse_x = event.mouse.x;
+				int mouse_y = event.mouse.y;
+
+				int native_width, native_height, display_width, display_height, offset_x, offset_y;
+				double scale;
+				all_get_display_transform(&native_width, &native_height, &display_width, &display_height, &offset_x, &offset_y, &scale);
+
+				// Show OS cursor when hovering over letterboxing.
+				if (mouse_on_screen() && !(gfx_capabilities & GFX_HW_CURSOR))
+				{
+					static bool is_within_letterbox_prev = !false;
+					bool is_within_letterbox = !all_get_fullscreen_flag() &&
+						(mouse_x < offset_x || mouse_y < offset_y ||
+						mouse_x >= display_width - offset_x || mouse_y >= display_height - offset_y);
+					
+					if (is_within_letterbox_prev == is_within_letterbox)
+					{
+						break;
+					}
+					else if (is_within_letterbox)
+					{
+						enable_hardware_cursor();
+						show_mouse(NULL);
+					}
+					else
+					{
+						disable_hardware_cursor();
+						show_mouse(screen);
+					}
+					is_within_letterbox_prev = is_within_letterbox;
+				}
+				break;
+			}
+			}
+		}
+	}
+}
+
 void set_console_state();
 
 void clearConsole()
@@ -8706,7 +8765,10 @@ finished:
 void doflags()
 {
 	if (zc_get_config("zquest","hw_cursor",0) == 1)
+	{
 		select_mouse_cursor(MOUSE_CURSOR_ALLEGRO);
+		disable_hardware_cursor();
+	}
 	set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
 	int32_t of=Flags;
 	Flags=cFLAGS;
@@ -8890,12 +8952,16 @@ void doflags()
 		
 		do_animations();
 		refresh(rALL | rNOCURSOR);
+		update_mouse_events();
 	}
 	
 finished:
 	Flags=of;
 	if (zc_get_config("zquest","hw_cursor",0) == 1)
+	{
 		select_mouse_cursor(MOUSE_CURSOR_ARROW);
+		enable_hardware_cursor();
+	}
 	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
 	refresh(rMAP+rMENU);
 	
@@ -31811,8 +31877,6 @@ int32_t main(int32_t argc,char **argv)
 		//Z_message("OK\n");
 	}
 
-	// Must wait for the display thread to create the a5 display before the
-	// hardware cursor can be enabled.
 	if (zc_get_config("zquest","hw_cursor",0) == 1)
 	{
 		// Must wait for the display thread to create the a5 display before the
@@ -31837,6 +31901,7 @@ int32_t main(int32_t argc,char **argv)
 	center_zq_subscreen_dialogs();
 	center_zq_tiles_dialogs();
 	center_zquest_dialogs();
+	init_mouse_events();
 	
 	screen2 = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
 	tmp_scr = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
@@ -32299,6 +32364,7 @@ int32_t main(int32_t argc,char **argv)
 		maps_menu[2].flags=(Map.getCurrMap()>0)? 0 : D_DISABLED;
 		
 		etc_menu[4].flags=(isFullScreen()==1)?D_SELECTED:0;
+		update_mouse_events();
 		quit = !update_dialog(player2);
 		
 		//clear_keybuf();
@@ -34131,6 +34197,7 @@ void update_hw_screen(bool force)
 {
 	if(force || myvsync)
 	{
+		update_mouse_events();
 		if(update_hw_pal)
 		{
 			set_palette(RAMpal);
