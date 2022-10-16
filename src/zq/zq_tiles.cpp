@@ -1880,6 +1880,8 @@ void shift_selection_grid(int32_t xoffs, int32_t yoffs)
 void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 {
 	go();
+	if (zc_get_config("zquest","hw_cursor",0) == 1)
+		select_mouse_cursor(MOUSE_CURSOR_ALLEGRO);
 	undocount = tilesize(newtilebuf[tile].format);
 	clear_selection_grid();
 	selecting_x1=selecting_x2=selecting_y1=selecting_y2=-1;
@@ -3186,6 +3188,8 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	destroy_bitmap(selection_pattern);
 	destroy_bitmap(selecting_pattern);
 	destroy_bitmap(intersection_pattern);
+	if (zc_get_config("zquest","hw_cursor",0) == 1)
+		select_mouse_cursor(MOUSE_CURSOR_ARROW);
 }
 
 /*  Grab Tile Code  */

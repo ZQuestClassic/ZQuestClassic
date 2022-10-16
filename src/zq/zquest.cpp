@@ -407,6 +407,9 @@ int32_t onExport_ComboAlias();
 static ALLEGRO_EVENT_QUEUE* evq = nullptr;
 void init_mouse_events()
 {
+	if (zc_get_config("zquest","hw_cursor",0) == 1)
+		return;
+
 	if(!evq)
 	{
 		evq = al_create_event_queue();
@@ -8747,6 +8750,8 @@ finished:
 
 void doflags()
 {
+	if (zc_get_config("zquest","hw_cursor",0) == 1)
+		select_mouse_cursor(MOUSE_CURSOR_ALLEGRO);
 	set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
 	int32_t of=Flags;
 	Flags=cFLAGS;
@@ -8934,6 +8939,8 @@ void doflags()
 	
 finished:
 	Flags=of;
+	if (zc_get_config("zquest","hw_cursor",0) == 1)
+		select_mouse_cursor(MOUSE_CURSOR_ARROW);
 	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
 	refresh(rMAP+rMENU);
 	
@@ -30599,8 +30606,6 @@ int32_t main(int32_t argc,char **argv)
 		quit_game();
 	}
 	
-	enable_hardware_cursor();
-	
 	LOCK_VARIABLE(lastfps);
 	
 	LOCK_VARIABLE(framecnt);
@@ -31787,8 +31792,6 @@ int32_t main(int32_t argc,char **argv)
 		quit_game();
 		}
 		
-		enable_hardware_cursor();
-		
 		LOCK_VARIABLE(lastfps);
 		
 		LOCK_VARIABLE(framecnt);
@@ -31852,8 +31855,20 @@ int32_t main(int32_t argc,char **argv)
 				  tempmode, get_color_depth(), zq_screen_w*zqwin_scale, zq_screen_h*zqwin_scale);
 		//Z_message("OK\n");
 	}
+
+	// Must wait for the display thread to create the a5 display before the
+	// hardware cursor can be enabled.
+	if (zc_get_config("zquest","hw_cursor",0) == 1)
+	{
+		// Must wait for the display thread to create the a5 display before the
+		// hardware cursor can be enabled.
+		while (!all_get_display()) sleep(1);
+		enable_hardware_cursor();
+		select_mouse_cursor(MOUSE_CURSOR_ARROW);
+		show_mouse(screen);
+	}
+
 	//check and log RTC date and time
-	
 	for (int32_t q = 0; q < curTimeLAST; q++) 
 	{
 		int32_t t_time_v = FFCore.getTime(q);

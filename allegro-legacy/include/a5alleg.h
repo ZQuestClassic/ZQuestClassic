@@ -43,6 +43,7 @@ AL_LEGACY_FUNC(int, all_get_display_flags, (void));
 // local edit
 AL_LEGACY_FUNC(void, all_lock_screen, (void));
 AL_LEGACY_FUNC(void, all_unlock_screen, (void));
+AL_LEGACY_FUNC(void, all_mouse_is_ready, (bool));
 
 #ifdef __cplusplus
 }

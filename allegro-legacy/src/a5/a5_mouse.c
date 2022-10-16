@@ -30,6 +30,13 @@ static int prevy = -1;
 static int prevz = -1;
 static bool mouse_hidden = false;
 
+// local edit
+static bool mouse_is_ready = false;
+void all_mouse_is_ready(bool b)
+{
+    mouse_is_ready = b;
+}
+
 static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
 {
     ALLEGRO_EVENT_QUEUE * queue;
@@ -57,18 +64,29 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
                     _mouse_z = event.mouse.z;
 
                     // local edit
+                    // all of this complexity is because ZC is not coded to be resolution-independent
+                    // re: it's UI
                     int native_width, native_height, display_width, display_height, offset_x, offset_y;
                     double scale;
                     all_get_display_transform(&native_width, &native_height, &display_width, &display_height, &offset_x, &offset_y, &scale);
 
-                    // Show OS cursor when hovering over letterboxing.
-                    if (_mouse_x < offset_x || _mouse_y < offset_y || _mouse_x >= display_width - offset_x || _mouse_y >= display_height - offset_y)
+                    if (gfx_capabilities & GFX_HW_CURSOR)
                     {
-                        al_show_mouse_cursor(_a5_display);
+                        _mouse_x -= offset_x;
+                        _mouse_y -= offset_y;
                     }
-                    else
+
+                    // Show OS cursor when hovering over letterboxing.
+                    if (mouse_is_ready && !(gfx_capabilities & GFX_HW_CURSOR))
                     {
-                        al_hide_mouse_cursor(_a5_display);
+                        if (_mouse_x < offset_x || _mouse_y < offset_y || _mouse_x >= display_width - offset_x || _mouse_y >= display_height - offset_y)
+                        {
+                            al_show_mouse_cursor(_a5_display);
+                        }
+                        else
+                        {
+                            al_hide_mouse_cursor(_a5_display);
+                        }
                     }
 
                     if (all_get_fullscreen_flag())

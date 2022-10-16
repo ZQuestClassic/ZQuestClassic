@@ -108,8 +108,9 @@ static bool _a5_setup_screen(int w, int h)
   al_init_user_event_source(&_a5_display_thread_event_source);
   al_register_event_source(_a5_display_vsync_event_queue, &_a5_display_thread_event_source);
 
+  // local edit to include GFX_HW_CURSOR
   /* see if we need to hide the mouse cursor */
-  if(al_is_mouse_installed() && !(gfx_capabilities & GFX_SYSTEM_CURSOR))
+  if(al_is_mouse_installed() && !(gfx_capabilities & GFX_SYSTEM_CURSOR) && !(gfx_capabilities & GFX_HW_CURSOR))
   {
       al_hide_mouse_cursor(_a5_display);
   }
@@ -371,6 +372,7 @@ static void a5_display_move_mouse(int x, int y)
 
 static int a5_display_show_mouse(BITMAP * bp, int x, int y)
 {
+  all_mouse_is_ready(true); 
   if(bp)
   {
     return -1;
@@ -382,6 +384,7 @@ static int a5_display_show_mouse(BITMAP * bp, int x, int y)
 
 static void a5_display_hide_mouse(void)
 {
+  all_mouse_is_ready(false); 
   al_hide_mouse_cursor(_a5_display);
 }
 

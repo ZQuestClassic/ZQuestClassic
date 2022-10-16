@@ -5436,6 +5436,15 @@ int main(int argc, char **argv)
 		Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
 	}
 
+	if (zc_get_config("zeldadx","hw_cursor",0) == 1)
+	{
+		// Must wait for the display thread to create the a5 display before the
+		// hardware cursor can be enabled.
+		while (!all_get_display()) sleep(1);
+		enable_hardware_cursor();
+		select_mouse_cursor(MOUSE_CURSOR_ARROW);
+	}
+
 	if (!all_get_fullscreen_flag()) {
 		// Just in case.
 		while (!all_get_display()) {

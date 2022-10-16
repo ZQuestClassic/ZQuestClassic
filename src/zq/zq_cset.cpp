@@ -1391,6 +1391,8 @@ static DIALOG colors_dlg[] =
 
 int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 {
+	if (zc_get_config("zquest","hw_cursor",0) == 1)
+		select_mouse_cursor(MOUSE_CURSOR_ALLEGRO);
 
     char tempstuff[17];
     cset_first=first;
@@ -1602,6 +1604,8 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
     comeback();
     destroy_bitmap(bmp);
     //delete[] buf;
+	if (zc_get_config("zquest","hw_cursor",0) == 1)
+		select_mouse_cursor(MOUSE_CURSOR_ARROW);
     return int32_t(ret==23);
 }
 

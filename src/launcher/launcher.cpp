@@ -110,7 +110,6 @@ int32_t main(int32_t argc, char* argv[])
 		QUIT_LAUNCHER();
 	}
 	
-	enable_hardware_cursor();
 	LOCK_VARIABLE(lastfps);
 	
 	LOCK_VARIABLE(framecnt);
@@ -194,6 +193,15 @@ int32_t main(int32_t argc, char* argv[])
 	{
 		Z_error_fatal(allegro_error);
 		QUIT_LAUNCHER();
+	}
+
+	if (zc_get_config("ZLAUNCH","hw_cursor",0) == 1)
+	{
+		// Must wait for the display thread to create the a5 display before the
+		// hardware cursor can be enabled.
+		while (!all_get_display()) sleep(1);
+		enable_hardware_cursor();
+		select_mouse_cursor(MOUSE_CURSOR_ARROW);
 	}
 	
 	Z_message("Loading bitmaps..."); //{
