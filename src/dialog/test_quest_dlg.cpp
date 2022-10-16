@@ -4,6 +4,7 @@
 #include "zq_class.h"
 #include "gui/builder.h"
 #include "zc_list_data.h"
+#include <filesystem>
 
 int32_t onSave();
 int32_t onSaveAs();
@@ -154,25 +155,52 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			}
 			test_killer.kill();
 
+			// TODO: this should be a GUI checkbox.
+			bool should_record = zc_get_config("zquest", "test_mode_record", false);
+			std::filesystem::path replay_file_dir = zc_get_config("zquest", "replay_file_dir", "replays/");
+			std::filesystem::create_directory(replay_file_dir);
+			auto replay_path = replay_file_dir / "latest_test_replay.zplay";
+
 			char arg2[5];
 			sprintf(arg2, "%d", test_start_dmap);
 			char arg3[5];
 			sprintf(arg3, "%d", test_start_screen);
 			char arg4[5];
 			sprintf(arg4, "%d", test_ret_sqr);
-			const char* argv[] = {
+			
+			// TODO: should really use a std::vector for launch_process args.
+			if (should_record)
+			{
+				const char* argv[] = {
 #ifndef _WIN32
-				ZELDA_FILE,
+					ZELDA_FILE,
 #endif
-				"-test",
-				filepath,
-				arg2,
-				arg3,
-				arg4,
-				NULL
-			};
-
-			test_killer = launch_process(ZELDA_FILE, argv);
+					"-record",
+					replay_path.c_str(),
+					"-test",
+					filepath,
+					arg2,
+					arg3,
+					arg4,
+					NULL
+				};
+				test_killer = launch_process(ZELDA_FILE, argv);
+			}
+			else
+			{
+				const char* argv[] = {
+#ifndef _WIN32
+					ZELDA_FILE,
+#endif
+					"-test",
+					filepath,
+					arg2,
+					arg3,
+					arg4,
+					NULL
+				};
+				test_killer = launch_process(ZELDA_FILE, argv);
+			}
 		}
 		return true;
 		

@@ -5582,23 +5582,6 @@ int main(int argc, char **argv)
 		replay_set_meta("starting_retsqr", testingqst_retsqr);
 		use_testingst_start = true;
 	}
-	else if(zqtesting_mode)
-	{
-		std::filesystem::path replay_file_dir = zc_get_config("zeldadx", "replay_file_dir", "replays/");
-		std::filesystem::create_directory(replay_file_dir);
-		auto replay_path_prefix = replay_file_dir / "latest_test_replay";
-		std::string replay_path = fmt::format("{}.{}", replay_path_prefix.string(), REPLAY_EXTENSION);
-		replay_start(ReplayMode::Record, replay_path);
-		
-		replay_set_debug(replay_debug_arg);
-		replay_set_sync_rng(true);
-		replay_set_meta("qst", testingqst_name);
-		replay_set_meta_bool("test_mode", true);
-		replay_set_meta("starting_dmap", testingqst_dmap);
-		replay_set_meta("starting_scr", testingqst_screen);
-		replay_set_meta("starting_retsqr", testingqst_retsqr);
-		use_testingst_start = true;
-	}
 	if (frame_arg > 0)
 		replay_set_frame_arg(std::stoi(argv[frame_arg + 1]));
 	
