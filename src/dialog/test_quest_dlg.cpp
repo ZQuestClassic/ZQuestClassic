@@ -159,7 +159,7 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			bool should_record = zc_get_config("zquest", "test_mode_record", false);
 			std::filesystem::path replay_file_dir = zc_get_config("zquest", "replay_file_dir", "replays/");
 			std::filesystem::create_directory(replay_file_dir);
-			auto replay_path = replay_file_dir / "latest_test_replay.zplay";
+			auto replay_path = (replay_file_dir / "latest_test_replay.zplay");
 
 			char arg2[5];
 			sprintf(arg2, "%d", test_start_dmap);
@@ -176,7 +176,7 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 					ZELDA_FILE,
 #endif
 					"-record",
-					replay_path.c_str(),
+					replay_path.string().c_str(),
 					"-test",
 					filepath,
 					arg2,
