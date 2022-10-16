@@ -66,7 +66,7 @@ include(FetchContent)
 FetchContent_Declare(
   allegro5
   GIT_REPOSITORY https://github.com/connorjclark/allegro5.git
-  GIT_TAG        f982afaad0bd45da1305caca8ac0ce1e6b4104e8
+  GIT_TAG        cf819df50e1554e4cdef2d28fa41ad96dcdfd5ba
 )
 FetchContent_GetProperties(allegro5)
 if(NOT allegro5_POPULATED)

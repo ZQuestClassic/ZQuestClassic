@@ -369,7 +369,8 @@ static void mouse_move(void)
 	    mon = TRUE;
 	 }
 	 else {
-	    gfx_driver->move_mouse(mx=MOUSE_OFFSCREEN, my=MOUSE_OFFSCREEN);
+      // local edit
+	   //  gfx_driver->move_mouse(mx=MOUSE_OFFSCREEN, my=MOUSE_OFFSCREEN);
 	    mon = FALSE;
 	 }
       }

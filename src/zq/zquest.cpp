@@ -403,51 +403,6 @@ zinitdata zinit;
 int32_t onImport_ComboAlias();
 int32_t onExport_ComboAlias();
 
-
-static ALLEGRO_EVENT_QUEUE* evq = nullptr;
-void init_mouse_events()
-{
-	if (zc_get_config("zquest","hw_cursor",0) == 1)
-		return;
-
-	if(!evq)
-	{
-		evq = al_create_event_queue();
-		al_register_event_source(evq, al_get_mouse_event_source());
-	}
-}
-void update_mouse_events()
-{
-	if(evq)
-	{
-		ALLEGRO_EVENT event;
-		while(al_get_next_event(evq, &event))
-		{
-			switch(event.type)
-			{
-				case ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY:
-				{
-					show_mouse(screen);
-					break;
-				}
-				case ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY:
-				{
-					show_mouse(NULL);
-					break;
-				}
-			}
-		}
-	}
-}
-void destroy_mouse_events()
-{
-	if(evq)
-	{
-		al_destroy_event_queue(evq);
-		evq = nullptr;
-	}
-}
-
 void set_console_state();
 
 void clearConsole()
@@ -31883,8 +31838,6 @@ int32_t main(int32_t argc,char **argv)
 	center_zq_tiles_dialogs();
 	center_zquest_dialogs();
 	
-	init_mouse_events();
-	
 	screen2 = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
 	tmp_scr = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
 	menu1 = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
@@ -32346,7 +32299,6 @@ int32_t main(int32_t argc,char **argv)
 		maps_menu[2].flags=(Map.getCurrMap()>0)? 0 : D_DISABLED;
 		
 		etc_menu[4].flags=(isFullScreen()==1)?D_SELECTED:0;
-		update_mouse_events();
 		quit = !update_dialog(player2);
 		
 		//clear_keybuf();
@@ -32615,7 +32567,6 @@ void quit_game()
     if(last_timed_save) free(last_timed_save);
     
     cleanup_datafiles_on_exit();
-	destroy_mouse_events();
     destroy_bitmaps_on_exit();
 }
 
@@ -34180,7 +34131,6 @@ void update_hw_screen(bool force)
 {
 	if(force || myvsync)
 	{
-		update_mouse_events();
 		if(update_hw_pal)
 		{
 			set_palette(RAMpal);

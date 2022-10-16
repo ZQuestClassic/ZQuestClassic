@@ -57,6 +57,17 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
         {
             switch(event.type)
             {
+                // local edit
+                case ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY:
+                {
+                    _mouse_on = -1;
+                    break;
+                }
+                case ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY:
+                {
+                    _mouse_on = 0;
+                    break;
+                }
                 case ALLEGRO_EVENT_MOUSE_AXES:
                 {
                     _mouse_x = event.mouse.x;
