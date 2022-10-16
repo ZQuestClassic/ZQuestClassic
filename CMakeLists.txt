@@ -272,6 +272,12 @@ list(APPEND IMAGELIBS al5img)
 # Common libraries
 #############################################################
 
+# Remove once generally available in all compilers for c++ 20.
+add_library(fmt STATIC
+	src/fmt/format.cc
+)
+target_include_directories(fmt PUBLIC include/fmt)
+
 add_library(zcbase STATIC
 	src/base/alleg_compat.cpp
 	src/base/colors.cpp
@@ -287,7 +293,7 @@ add_library(zcbase STATIC
 	src/base/zdefs.cpp
 	src/base/zsys.cpp
 )
-target_link_libraries(zcbase PUBLIC allegro_with_legacy)
+target_link_libraries(zcbase PUBLIC allegro_with_legacy fmt)
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	target_link_options(zcbase PRIVATE "/WHOLEARCHIVE")
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -323,12 +329,6 @@ add_library(zcgui STATIC
 	src/gui/window.cpp
 )
 target_link_libraries(zcgui PUBLIC allegro_with_legacy)
-
-# Remove once generally available in all compilers for c++ 20.
-add_library(fmt STATIC
-	src/fmt/format.cc
-)
-target_include_directories(fmt PUBLIC include/fmt)
 
 #############################################################
 # ZConsole
@@ -481,7 +481,7 @@ add_executable(zelda ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE_S
 target_compile_definitions(zelda PRIVATE IS_PLAYER)
 set_property(TARGET zelda PROPERTY VS_DPI_AWARE "OFF")
 target_include_directories(zelda PRIVATE src/zc)
-target_link_libraries(zelda PRIVATE allegro_with_legacy fmt)
+target_link_libraries(zelda PRIVATE allegro_with_legacy)
 
 if(WIN32)
 	target_link_libraries(zelda PRIVATE zconsolelogger zcbase zcgui zcsound winmm ${IMAGELIBS} ${ZELDALIBSEXTRA})
@@ -526,7 +526,7 @@ if(Boost_FOUND)
 	add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZQUEST_MODULES})
 	set_property(TARGET zquest PROPERTY VS_DPI_AWARE "OFF")
 
-	target_link_libraries(zquest PUBLIC allegro_with_legacy zconsolelogger zcbase zcgui zcsound fmt ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
+	target_link_libraries(zquest PUBLIC allegro_with_legacy zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
 	target_include_directories(zquest PRIVATE src/zq)
 
 	if(MSVC AND USE_PCH)
@@ -563,7 +563,7 @@ endif()
 if(${BISON_FOUND} AND ${FLEX_FOUND})
 	add_executable(zscript ${ZSCRIPT_CORE_SOURCES} ${PARSER_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZSCRIPT_MODULES})
 	target_include_directories(zscript PRIVATE src/zq)
-	target_link_libraries(zscript PRIVATE allegro_with_legacy zconsolelogger fmt ${ZSCRIPTLIBSEXTRA})
+	target_link_libraries(zscript PRIVATE allegro_with_legacy zconsolelogger ${ZSCRIPTLIBSEXTRA})
 	target_compile_definitions(zscript PRIVATE IS_PARSER)
 endif()
 
@@ -583,7 +583,7 @@ add_executable(zlauncher ${LAUNCHER_SOURCES} ${LAUNCHER_GUI_SOURCES} ${LAUNCHERE
 target_compile_definitions(zlauncher PRIVATE IS_LAUNCHER)
 set_property(TARGET zlauncher PROPERTY VS_DPI_AWARE "OFF")
 target_include_directories(zlauncher PRIVATE src/launcher)
-target_link_libraries(zlauncher PRIVATE allegro_with_legacy zcbase zcgui zconsolelogger fmt ${LAUNCHERLIBSEXTRA})
+target_link_libraries(zlauncher PRIVATE allegro_with_legacy zcbase zcgui zconsolelogger ${LAUNCHERLIBSEXTRA})
 
 #############################################################
 # Allegro 5 Example

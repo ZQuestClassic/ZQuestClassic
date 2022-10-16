@@ -4,6 +4,7 @@
 #include "zq_class.h"
 #include "gui/builder.h"
 #include "zc_list_data.h"
+#include <fmt/format.h>
 #include <filesystem>
 
 int32_t onSave();
@@ -161,46 +162,19 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			std::filesystem::create_directory(replay_file_dir);
 			auto replay_path = (replay_file_dir / "latest_test_replay.zplay");
 
-			char arg2[5];
-			sprintf(arg2, "%d", test_start_dmap);
-			char arg3[5];
-			sprintf(arg3, "%d", test_start_screen);
-			char arg4[5];
-			sprintf(arg4, "%d", test_ret_sqr);
-			
-			// TODO: should really use a std::vector for launch_process args.
+			std::vector<std::string> args = {
+				"-test",
+				filepath,
+				fmt::format("{}", test_start_dmap),
+				fmt::format("{}", test_start_screen),
+				fmt::format("{}", test_ret_sqr),
+			};
 			if (should_record)
 			{
-				const char* argv[] = {
-#ifndef _WIN32
-					ZELDA_FILE,
-#endif
-					"-record",
-					replay_path.string().c_str(),
-					"-test",
-					filepath,
-					arg2,
-					arg3,
-					arg4,
-					NULL
-				};
-				test_killer = launch_process(ZELDA_FILE, argv);
+				args.push_back("-record");
+				args.push_back(replay_path.string().c_str());
 			}
-			else
-			{
-				const char* argv[] = {
-#ifndef _WIN32
-					ZELDA_FILE,
-#endif
-					"-test",
-					filepath,
-					arg2,
-					arg3,
-					arg4,
-					NULL
-				};
-				test_killer = launch_process(ZELDA_FILE, argv);
-			}
+			test_killer = launch_process(ZELDA_FILE, args);
 		}
 		return true;
 		

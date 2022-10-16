@@ -25625,17 +25625,15 @@ int32_t onCompileScript()
 				std::string quest_rules_hex = get_qr_hexstr();
 
 				clock_t start_compile_time = clock();
-				const char* argv[] = {
-				#ifndef _WIN32
-					ZSCRIPT_FILE,
-				#endif
+				std::vector<std::string> args = {
 					"-input", tmpfilename,
 					"-console", consolefilename,
 					"-qr", quest_rules_hex.c_str(),
-					"-linked", NULL, NULL};
+					"-linked",
+				};
 				if(zc_get_config("Compiler","noclose_compile_console",0))
-					argv[3] = "-noclose";
-				process_manager* pm = launch_piped_process(ZSCRIPT_FILE, argv);
+					args.push_back("-noclose");
+				process_manager* pm = launch_piped_process(ZSCRIPT_FILE, args);
 				if(!pm)
 				{
 					InfoDialog("Parser","Failed to launch " ZSCRIPT_FILE).show();

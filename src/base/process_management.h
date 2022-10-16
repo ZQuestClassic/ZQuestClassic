@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include <string>
+#include <vector>
 
 static uint32_t __dummy_;
 
@@ -235,8 +236,8 @@ struct child_process_handler : public io_manager
 	#endif
 };
 
-process_killer launch_process(char const* file, const char *argv[] = NULL);
-process_manager* launch_piped_process(char const* file, const char *argv[] = NULL);
+process_killer launch_process(std::string file, const std::vector<std::string>& args = {});
+process_manager* launch_piped_process(std::string file, const std::vector<std::string>& args = {});
 
 #endif
 
