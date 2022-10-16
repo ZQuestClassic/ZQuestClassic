@@ -199,7 +199,7 @@ int32_t main(int32_t argc, char* argv[])
 	{
 		// Must wait for the display thread to create the a5 display before the
 		// hardware cursor can be enabled.
-		while (!all_get_display()) sleep(1);
+		while (!all_get_display()) rest(1);
 		enable_hardware_cursor();
 		select_mouse_cursor(MOUSE_CURSOR_ARROW);
 	}
