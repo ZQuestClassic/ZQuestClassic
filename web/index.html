@@ -4,9 +4,13 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no">
+  <link rel="manifest"
+    href='data:application/manifest+json,{ "name": "Zelda Classic", "display": "fullscreen", "orientation": "landscape"}'>
   <title>Zelda Classic</title>
   <style>
     body {
+      overscroll-behavior: none;
       margin: 0;
       background-color: black;
       color: whitesmoke;
@@ -16,6 +20,14 @@
 
     .hidden {
       display: none !important;
+    }
+
+    .flex {
+      display: flex;
+    }
+
+    .justify-evenly {
+      justify-content: space-evenly;
     }
 
     a {
@@ -91,6 +103,49 @@
     canvas {
       border: 0 none;
     }
+
+    .touch-inputs {
+      display: none;
+      margin: 15vh 5vh;
+      flex-grow: 1;
+      align-items: end;
+      justify-content: center;
+    }
+
+    @media only screen and (hover: none) {
+      .touch-inputs {
+        display: flex;
+      }
+    }
+
+    .touch-input {
+      color: white;
+      font-weight: bold;
+      padding: 15px 4px;
+      width: 100%;
+      height: 100%;
+      user-select: none;
+      pointer-events: all;
+      text-align: center;
+    }
+
+    .touch-input.pressed {
+      transform: translate(2px, 2px);
+    }
+
+    .dpad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .dpad .touch-input {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0;
+      width: 5vw;
+      height: 5vw;
+    }
   </style>
 </head>
 
@@ -130,7 +185,38 @@
   </div>
 
   <div class="content">
+    <div class="touch-inputs">
+      <div class="dpad">
+        <div class="touch-input" data-x="-1" data-y="-1"></div>
+        <div class="touch-input" data-x="0" data-y="-1">U</div>
+        <div class="touch-input" data-x="1" data-y="-1"></div>
+        <div class="touch-input" data-x="-1" data-y="0">L</div>
+        <div></div>
+        <div class="touch-input" data-x="1" data-y="0">R</div>
+        <div class="touch-input" data-x="-1" data-y="1"></div>
+        <div class="touch-input" data-x="0" data-y="1">D</div>
+        <div class="touch-input" data-x="1" data-y="1"></div>
+      </div>
+    </div>
+
     <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+
+    <div class="touch-inputs">
+      <div style="width: 100%">
+        <div class="flex justify-evenly" style="margin: 5vh 0">
+          <div class="touch-input" data-action="Start">Start</div>
+          <div class="touch-input" data-action="Map">Map</div>
+        </div>
+        <div class="flex justify-evenly" style="margin: 5vh 0">
+          <div class="touch-input" data-action="L">L</div>
+          <div class="touch-input" data-action="R">R</div>
+        </div>
+        <div class="flex justify-evenly" style="margin: 5vh 0">
+          <div class="touch-input" data-action="B">B</div>
+          <div class="touch-input" data-action="A">A</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <template class="tmpl-selected-quest">
@@ -189,6 +275,9 @@
         window.Module = {
           arguments: args,
           canvas: document.querySelector('canvas'),
+          onRuntimeInitialized: () => {
+            setupTouchControls();
+          },
           setStatus: function (text) {
             if (!text || text === 'Running...') return;
             if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
@@ -325,6 +414,104 @@
       });
 
       document.querySelector('.quest-list__entry').click();
+    }
+
+    function setupTouchControls() {
+      const createKeyEvent = Module.cwrap('create_synthetic_key_event', null, ['int', 'int']);
+      const EVENTS = {
+        KEY_DOWN: 10,
+        KEY_CHAR: 11,
+        KEY_UP: 12,
+      };
+      const KEY_CODES = {
+        B: 217,
+        A: 219,
+        Start: 67,
+        Map: 75,
+        L: 26,
+        R: 24,
+        Left: 82,
+        Right: 83,
+        Down: 84,
+        Up: 85,
+      };
+      const getDirectionalKey = (x, y) => {
+        if (x === -1) return KEY_CODES.Left;
+        if (x === 1) return KEY_CODES.Right;
+        if (y === -1) return KEY_CODES.Down;
+        if (y === 1) return KEY_CODES.Up;
+      }
+      const sendKeyEvent = (eventType, key) => {
+        if (eventType === 'touchstart') createKeyEvent(EVENTS.KEY_DOWN, key);
+        if (eventType === 'touchmove' || eventType === 'touchstart') createKeyEvent(EVENTS.KEY_CHAR, key);
+        if (eventType === 'touchend') createKeyEvent(EVENTS.KEY_UP, key);
+      };
+
+      const getKeysForInputElement = (el) => {
+        const action = el.getAttribute('data-action');
+        if (action) {
+          return [KEY_CODES[action]];
+        }
+
+        const keys = [];
+        const x = Number(el.getAttribute('data-x'));
+        const y = Number(el.getAttribute('data-y'));
+        if (x) keys.push(getDirectionalKey(x, 0));
+        if (y) keys.push(getDirectionalKey(0, y));
+
+        return keys;
+      }
+
+      for (const touchInputsEl of document.querySelectorAll('.touch-inputs')) {
+        let activeInputEl = null;
+        const setActiveInputEl = el => {
+          if (activeInputEl) activeInputEl.classList.remove('pressed');
+          activeInputEl = el;
+          if (activeInputEl) activeInputEl.classList.add('pressed');
+        };
+
+        const touchFn = (eventType, e) => {
+          let touch;
+          if (eventType === 'touchend') {
+            if (e.targetTouches.length !== 0) return;
+            touch = e.changedTouches[0];
+          } else {
+            if (e.targetTouches.length !== 1) return;
+            touch = e.targetTouches[0];
+          }
+
+          const elementMouseIsOver = document.elementFromPoint(touch.clientX, touch.clientY);
+          const inputEl = elementMouseIsOver.classList.contains('touch-input') ? elementMouseIsOver : null;
+
+          if (!inputEl && elementMouseIsOver.closest('.touch-inputs') === touchInputsEl && eventType !== 'touchend') {
+            // In the "dead zone" between the inputs (ex: the middle of the dpad).
+            return;
+          }
+
+          if (activeInputEl && (inputEl !== activeInputEl || !inputEl)) {
+            for (const key of getKeysForInputElement(activeInputEl)) {
+              sendKeyEvent('touchend', key);
+            }
+          }
+
+          if (!inputEl) {
+            setActiveInputEl(null);
+            return;
+          }
+
+          for (const key of getKeysForInputElement(inputEl)) {
+            sendKeyEvent(eventType, key);
+          }
+
+          setActiveInputEl(eventType === 'touchend' ? null : inputEl);
+        };
+
+        touchInputsEl.addEventListener('touchstart', e => touchFn('touchstart', e));
+        touchInputsEl.addEventListener('touchmove', e => touchFn('touchmove', e));
+        touchInputsEl.addEventListener('touchend', e => touchFn('touchend', e));
+        touchInputsEl.addEventListener('touchcancel', e => touchFn('touchend', e));
+        touchInputsEl.addEventListener('contextmenu', e => e.preventDefault());
+      }
     }
 
     main();

@@ -29,6 +29,7 @@ static int prevx = -1;
 static int prevy = -1;
 static int prevz = -1;
 static bool mouse_hidden = false;
+static bool have_touch_input = false;
 
 // local edit
 static bool mouse_is_ready = false;
@@ -49,6 +50,8 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
         return NULL;
     }
     al_register_event_source(queue, al_get_mouse_event_source());
+    if (have_touch_input)
+        al_register_event_source(queue, al_get_touch_input_event_source());
     while(!al_get_thread_should_stop(thread))
     {
         al_init_timeout(&timeout, 0.1);
@@ -118,8 +121,30 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
                     _mouse_b &= ~(1 << (event.mouse.button - 1));
                     break;
                 }
+
+                // local edit
+                // emulate mouse click on touch.
+                case ALLEGRO_EVENT_TOUCH_BEGIN:
+                case ALLEGRO_EVENT_TOUCH_MOVE:
+                case ALLEGRO_EVENT_TOUCH_END:
+                {
+                    if (event.touch.primary)
+                    {
+                        _mouse_x = event.touch.x;
+                        _mouse_y = event.touch.y;
+                        if (event.type == ALLEGRO_EVENT_TOUCH_END)
+                        {
+                            _mouse_b |= 1;
+                        }
+                    }
+                    break;
+                }
             }
             _handle_mouse_input();
+            if (event.type == ALLEGRO_EVENT_TOUCH_END && event.touch.primary)
+            {
+                _mouse_b &= ~1;
+            }
         }
     }
     al_destroy_event_queue(queue);
@@ -132,6 +157,8 @@ static int a5_mouse_init(void)
     {
         return -1;
     }
+    have_touch_input = al_install_touch_input();
+
     if(_a5_display)
     {
         al_hide_mouse_cursor(_a5_display);

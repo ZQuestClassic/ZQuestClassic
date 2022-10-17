@@ -1,6 +1,8 @@
 #include "emscripten_utils.h"
 #include <emscripten/emscripten.h>
 #include <emscripten/val.h>
+#include "base/zc_alleg.h"
+#include <allegro5/events.h>
 
 EM_ASYNC_JS(void, em_init_fs_, (), {
   // Initialize the filesystem with 0-byte files for every quest.
@@ -88,4 +90,27 @@ void em_mark_ready_status() {
 	EM_ASM({
 		Module.setStatus('Ready');
 	});
+}
+
+bool em_is_mobile() {
+  return EM_ASM_INT({
+    return window.matchMedia("(hover: none)").matches;
+  });
+}
+
+bool has_init_fake_key_events = false;
+ALLEGRO_EVENT_SOURCE fake_src;
+extern "C" void create_synthetic_key_event(ALLEGRO_EVENT_TYPE type, int keycode)
+{
+  if (!has_init_fake_key_events)
+  {
+    al_init_user_event_source(&fake_src);
+    all_keyboard_queue_register_event_source(&fake_src);
+    has_init_fake_key_events = true;
+  }
+
+  ALLEGRO_EVENT event;
+  event.any.type = type;
+  event.keyboard.keycode = keycode;
+  al_emit_user_event(&fake_src, &event, NULL);
 }

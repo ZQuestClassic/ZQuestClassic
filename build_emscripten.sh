@@ -69,6 +69,8 @@ EMCC_FLAGS=(
 LINKER_FLAGS=(
   --shell-file="../../web/index.html"
   --shared-memory
+  -s EXPORTED_FUNCTIONS=_main,_create_synthetic_key_event
+  -s EXPORTED_RUNTIME_METHODS=cwrap
   -s FORCE_FILESYSTEM=1
   -s ASYNCIFY=1
   -s FULL_ES2=1
@@ -91,7 +93,7 @@ if [[ "$DEBUG" ]]; then
     -g
   )
   LINKER_FLAGS+=(
-    --threadprofiler
+    # --threadprofiler
     -s ASSERTIONS=1
   )
   # CMAKE_BUILD_TYPE="Debug"
@@ -152,8 +154,5 @@ then
   exit 1
 fi
 
-# Now start a local webserver in build_emscripten folder.
-# Note: You will need to install this chrome extension: https://chrome.google.com/webstore/detail/modheader/idgpnmonknjnojddfkpgkljpfnnfcklj?hl=en
-# and set these response headers: 
-# - Cross-Origin-Embedder-Policy: require-corp
-# - Cross-Origin-Opener-Policy: same-origin
+# Now start a local webserver in the build_emscripten folder:
+#   npx statikk --port 8000 --coi
