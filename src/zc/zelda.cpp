@@ -4737,6 +4737,11 @@ int main(int argc, char **argv)
 #ifdef __EMSCRIPTEN__
 	all_disable_threaded_display();
 	init_filesystem_em();
+	EM_ASM({
+		FS.mkdir('/persist');
+		FS.mount(IDBFS, {}, '/persist');
+		FS.syncfs(true, () => {});
+	});
 #endif
 	
 #ifndef __EMSCRIPTEN__
@@ -5125,6 +5130,9 @@ int main(int argc, char **argv)
 	{	    
 		for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
 			strcpy(save_file_name,get_config_string("SAVEFILE","save_filename","zc.sav"));
+#ifdef __EMSCRIPTEN__
+		strcpy(save_file_name, "/persist/zc.sav");
+#endif
 		SAVE_FILE = (char *)save_file_name;
 	}
 	//al_trace("Current save file is: %s\n", save_file_name);
