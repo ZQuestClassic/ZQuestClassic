@@ -7,6 +7,10 @@
 #include <fmt/format.h>
 #include <filesystem>
 
+#ifdef __EMSCRIPTEN__
+#include "base/emscripten_utils.h"
+#endif
+
 int32_t onSave();
 int32_t onSaveAs();
 extern char *filepath;
@@ -149,6 +153,9 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	{
 		case message::OK:
 		{
+#ifdef __EMSCRIPTEN__
+			em_open_test_mode(filepath, test_start_dmap, test_start_screen, test_ret_sqr);
+#else
 			if(!fileexists(ZELDA_FILE))
 			{
 				InfoDialog("Error", ZELDA_FILE " not found!").show();
@@ -175,6 +182,7 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				args.push_back(replay_path.string().c_str());
 			}
 			test_killer = launch_process(ZELDA_FILE, args);
+#endif
 		}
 		return true;
 		

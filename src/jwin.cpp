@@ -6399,8 +6399,10 @@ dropit:
     object_message(d, MSG_DRAW, 0);
     unscare_mouse();
     
-    while(gui_mouse_b())
+    while(gui_mouse_b()) {
         clear_keybuf();
+        rest(0);
+    }
 
     if(d1!=d->d1)
         GUI_EVENT(d, geCHANGE_SELECTION);

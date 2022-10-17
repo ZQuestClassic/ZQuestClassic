@@ -6320,16 +6320,21 @@ void __zc_always_assert(bool e, const char* expression, const char* file, int32_
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
-extern "C" void copy_url()
+extern "C" void get_shareable_url()
 {
 	EM_ASM({
 		const qstpath = UTF8ToString($0);
 		const url = new URL(location.href);
+		url.search = '';
 		url.searchParams.set('quest', qstpath.replace('/_quests/', ''));
 		url.searchParams.set('dmap', $1);
 		url.searchParams.set('screen', $2);
-		navigator.clipboard.writeText(url.toString());
+		ZC.url = url.toString();
 	}, qstpath, currdmap, currscr);
+}
+extern "C" void open_test_mode() {
+	// do nothing.
+	// just here because dumb linker error.
 }
 #endif
 

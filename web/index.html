@@ -171,6 +171,12 @@
       height: 5vw;
     }
   </style>
+  <script>
+    window.ZC_Constants = {
+      zeldaUrl: 'zelda.html',
+      zquestUrl: 'zquest.html',
+    };
+  </script>
 </head>
 
 <body>
@@ -180,6 +186,7 @@
       <button class="panel-button" data-panel=".about">About</button>
       <button class="panel-button" data-panel=".quest-list">Quest List</button>
       <button class="panel-button hidden button--copyurl">Copy URL</button>
+      <button class="panel-button hidden button--open-testmode">Open Test Mode</button>
     </div>
 
     <div class="emscripten">
@@ -285,6 +292,9 @@
     <div>
       <a class="play-link">Play!</a>
     </div>
+    <div>
+      <a class="editor-link">Open in Editor</a>
+    </div>
 
     <br>
     <div class="information"></div>
@@ -375,16 +385,24 @@
     // import initModule from './zelda.mjs';
 
     async function main() {
+      const TARGET = '__TARGET__';
+
       try {
         const statusElement = document.getElementById('status');
         const progressElement = document.getElementById('progress');
 
         const args = [];
         const params = new URLSearchParams(location.search);
-        if (params.get('quest') && params.get('dmap') && params.get('screen')) {
-          args.push('-test', '/_quests/' + params.get('quest'), params.get('dmap'), params.get('screen'));
-          if (params.get('retsquare')) args.push(params.get('retsquare'));
-          document.querySelector('.button--testmode').classList.remove('hidden');
+        if (TARGET === 'zelda') {
+          if (params.get('quest') && params.get('dmap') && params.get('screen')) {
+            args.push('-test', '/_quests/' + params.get('quest'), params.get('dmap'), params.get('screen'));
+            if (params.get('retsquare')) args.push(params.get('retsquare'));
+            document.querySelector('.button--testmode').classList.remove('hidden');
+          }
+        } else if (TARGET === 'zquest') {
+          if (params.get('quest')) {
+            args.push('/_quests/' + params.get('quest'));
+          }
         }
 
         // window.Module = await initModule({
@@ -394,6 +412,7 @@
           onRuntimeInitialized: () => {
             setupTouchControls();
             setupCopyUrl();
+            if (TARGET === 'zquest') setupOpenTestMode();
           },
           setStatus: function (text) {
             if (!text || text === 'Running...') return;
@@ -537,9 +556,16 @@
         const url = quest.urls[0];
         const path = window.ZC.createPathFromUrl(url);
         const questParamValue = path.replace('/_quests/', '');
-        const playQuestUrl = new URL(location.href);
+
+        const playQuestUrl = new URL(ZC_Constants.zeldaUrl, location.href);
+        playQuestUrl.search = '';
         playQuestUrl.searchParams.set('quest', questParamValue);
         contentEl.querySelector('.play-link').href = playQuestUrl;
+
+        const editQuestUrl = new URL(ZC_Constants.zquestUrl, location.href);
+        editQuestUrl.search = '';
+        editQuestUrl.searchParams.set('quest', questParamValue);
+        contentEl.querySelector('.editor-link').href = editQuestUrl;
 
         questListCurrentEl.textContent = '';
         questListCurrentEl.append(contentEl);
@@ -685,9 +711,20 @@
       const el = document.querySelector('.button--copyurl');
       el.classList.remove('hidden');
 
-      const copyUrl = Module.cwrap('copy_url', null, []);
+      const getShareableUrl = Module.cwrap('get_shareable_url', 'string', []);
       el.addEventListener('click', () => {
-        copyUrl();
+        getShareableUrl();
+        if (ZC.url) navigator.clipboard.writeText(ZC.url);
+      });
+    }
+
+    function setupOpenTestMode() {
+      const el = document.querySelector('.button--open-testmode');
+      el.classList.remove('hidden');
+
+      const openTestMode = Module.cwrap('open_test_mode', null, []);
+      el.addEventListener('click', () => {
+        openTestMode();
       });
     }
 
