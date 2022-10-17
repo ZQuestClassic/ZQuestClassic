@@ -606,6 +606,7 @@ void HeroClass::Drown(int32_t state)
 	if(ladderx+laddery)
 		return;
 	
+	drop_liftwpn();
 	switch(state)
 	{
 		case 1:
@@ -8986,6 +8987,7 @@ bool HeroClass::animate(int32_t)
 		//!DROWN
 		// Helpful comment to find drowning -Dimi
 		
+		drop_liftwpn();
 		if(--drownclk==0)
 		{
 			action=none; FFCore.setHeroAction(none);
@@ -9917,6 +9919,30 @@ bool HeroClass::do_jump(int32_t jumpid, bool passive)
 	if(passive) did_passive_jump = true;
 	return true;
 }
+void HeroClass::drop_liftwpn()
+{
+	if(!lift_wpn) return;
+	
+	handle_lift(false); //sets position properly, accounting for large weapons
+	auto liftid = current_item_id(itype_liftglove,true,true);
+	itemdata const& glove = itemsbuf[liftid];
+	if(glove.flags & ITEM_FLAG1)
+	{
+		lift_wpn->z = 0;
+		lift_wpn->fakez = liftheight;
+	}
+	else lift_wpn->z = liftheight;
+	lift_wpn->dir = dir;
+	lift_wpn->step = 0;
+	lift_wpn->fakefall = 0;
+	lift_wpn->fall = 0;
+	if(glove.flags & ITEM_FLAG1)
+		lift_wpn->moveflags |= FLAG_NO_REAL_Z;
+	else
+		lift_wpn->moveflags |= FLAG_NO_FAKE_Z;
+	Lwpns.add(lift_wpn);
+	lift_wpn = nullptr;
+}
 void HeroClass::do_liftglove(int32_t liftid, bool passive)
 {
 	if(liftid < 0)
@@ -10111,7 +10137,10 @@ void HeroClass::handle_lift(bool dec)
 			}
 			lift_wpn->z = liftheight;
 		}
-		if(!dec) {action = none; FFCore.setHeroAction(none);}
+		if(action == lifting)
+		{
+			action = none; FFCore.setHeroAction(none);
+		}
 		return;
 	}
 	if(dec) --liftclk;
@@ -12853,6 +12882,7 @@ void HeroClass::pitfall()
 {
 	if(fallclk)
 	{
+		drop_liftwpn();
 		if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
 		//Handle falling
 		if(!--fallclk)
@@ -12907,6 +12937,7 @@ void HeroClass::pitfall()
 			action=falling; FFCore.setHeroAction(falling);
 			spins = 0;
 			charging = 0;
+			drop_liftwpn();
 		}
 	}
 }
