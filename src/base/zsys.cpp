@@ -34,6 +34,10 @@ using std::getline;
 #include "jwin.h"
 #include "zconsole/ConsoleLogger.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#endif
+
 #ifdef _MSC_VER
 #define stricmp _stricmp
 #endif
@@ -629,6 +633,21 @@ int32_t encode_file_007(const char *srcfile, const char *destfile, int32_t key2,
     return 0;
 }
 
+#ifdef __EMSCRIPTEN__
+// Quest files don't have real data until we know the user needs it.
+// See init_filesystem_em
+EM_ASYNC_JS(void, fetch_quest_em, (const char *path), {
+    path = UTF8ToString(path);
+    if (FS.stat(path).size) return;
+
+    const url = window.ZC.pathToUrl[path];
+	const response = await fetch(url);
+	const data = await response.arrayBuffer();
+    const buffer = new Uint8Array(data);
+    FS.writeFile(path, buffer);
+});
+#endif
+
 //
 // RETURNS:
 //   0 - OK
@@ -646,6 +665,13 @@ int32_t decode_file_007(const char *srcfile, const char *destfile, const char *h
     int32_t tog = 0, c, r=0, err;
     int32_t size, i;
     int16_t c1 = 0, c2 = 0, check1, check2;
+
+#ifdef __EMSCRIPTEN__
+    if (strncmp("/_quests/", srcfile, strlen("/_quests/")) == 0)
+    {
+        fetch_quest_em(srcfile);
+    }
+#endif
     
     // open files
     size = file_size_ex_password(srcfile, password);
