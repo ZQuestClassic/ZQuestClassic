@@ -1,5 +1,5 @@
 diff --git a/SDL_mixer.h b/SDL_mixer.h
-index cbb8ae6..2f61521 100644
+index cbb8ae6..a2846ae 100644
 --- a/SDL_mixer.h
 +++ b/SDL_mixer.h
 @@ -134,6 +134,7 @@ typedef enum {
@@ -10,13 +10,14 @@ index cbb8ae6..2f61521 100644
      MUS_MODPLUG_UNUSED
  } Mix_MusicType;
  
-@@ -599,6 +600,10 @@ extern DECLSPEC void SDLCALL Mix_ResumeMusic(void);
+@@ -599,6 +600,11 @@ extern DECLSPEC void SDLCALL Mix_ResumeMusic(void);
  extern DECLSPEC void SDLCALL Mix_RewindMusic(void);
  extern DECLSPEC int SDLCALL Mix_PausedMusic(void);
  
 +/* Tracks */
 +extern DECLSPEC void SDLCALL Mix_StartTrack(int track);
 +extern DECLSPEC int SDLCALL Mix_GetNumTracks(Mix_Music *music);
++extern DECLSPEC void* SDLCALL Mix_GetTrackInfo(Mix_Music *music, int track);
 +
  /* Set the current position in the music stream.
     This returns 0 if successful, or -1 if it failed or isn't implemented.
@@ -36637,7 +36638,7 @@ index 0000000..d009d0d
 +	}
 +#endif
 diff --git a/music.c b/music.c
-index 1b2dfe4..da45912 100644
+index 1b2dfe4..56e8cfd 100644
 --- a/music.c
 +++ b/music.c
 @@ -40,6 +40,7 @@
@@ -36689,7 +36690,7 @@ index 1b2dfe4..da45912 100644
      return detect_music_type_from_magic(magic);
  }
  
-@@ -867,6 +895,32 @@ int Mix_PausedMusic(void)
+@@ -867,6 +895,46 @@ int Mix_PausedMusic(void)
      return (music_active == SDL_FALSE);
  }
  
@@ -36719,11 +36720,25 @@ index 1b2dfe4..da45912 100644
 +    return result;
 +}
 +
++void* Mix_GetTrackInfo(Mix_Music *music, int track)
++{
++    void* info;
++
++    Mix_LockAudio();
++    if (music && music->interface->GetTrackInfo) {
++        info = music->interface->GetTrackInfo(music->context, track);
++    } else {
++        info = NULL;
++    }
++    Mix_UnlockAudio();
++    return info;
++}
++
  /* Check the status of the music */
  static SDL_bool music_internal_playing(void)
  {
 diff --git a/music.h b/music.h
-index a9b7923..50940ca 100644
+index a9b7923..80b1f65 100644
 --- a/music.h
 +++ b/music.h
 @@ -39,6 +39,7 @@ typedef enum
@@ -36734,7 +36749,7 @@ index a9b7923..50940ca 100644
      MIX_MUSIC_LAST
  } Mix_MusicAPI;
  
-@@ -100,6 +101,12 @@ typedef struct
+@@ -100,6 +101,15 @@ typedef struct
      /* Unload the library */
      void (*Unload)(void);
  
@@ -36744,15 +36759,18 @@ index a9b7923..50940ca 100644
 +    /* Get number of tracks. Returns -1 if not applicable */
 +    int (*GetNumTracks)(void *music);
 +
++    /* Get a format-specific structure representing metadata about the given track */
++    void *(*GetTrackInfo)(void *music, int track);
++
  } Mix_MusicInterface;
  
  
 diff --git a/music_gme.c b/music_gme.c
 new file mode 100644
-index 0000000..534a854
+index 0000000..fd64ad1
 --- /dev/null
 +++ b/music_gme.c
-@@ -0,0 +1,659 @@
+@@ -0,0 +1,680 @@
 +// https://github.com/WohlSoft/SDL-Mixer-X
 +
 +/*
@@ -37348,6 +37366,26 @@ index 0000000..534a854
 +    return -1;
 +}
 +
++static void* GME_GetTrackInfo(void *music_p, int track)
++{
++    gme_info_t *musInfo;
++    const char *err;
++    GME_Music *music = (GME_Music *)music_p;
++
++    if (!music) {
++        return NULL;
++    }
++
++    err = gme.gme_track_info(music->game_emu, &musInfo, track);
++    if (err != 0) {
++        GME_delete(music);
++        Mix_SetError("GME: %s", err);
++        return NULL;
++    }
++
++    return musInfo;
++}
++
 +
 +Mix_MusicInterface Mix_MusicInterface_GME =
 +{
@@ -37376,6 +37414,7 @@ index 0000000..534a854
 +    // zc
 +    GME_StartTrack,
 +    GME_GetNumTracks,
++    GME_GetTrackInfo,
 +
 +    // SDL_mixer X defines all these things, but its too many / wrong order to interop
 +    // with SDL_mixer from emscripten ports.

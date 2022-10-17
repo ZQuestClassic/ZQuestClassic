@@ -4386,7 +4386,8 @@ const char *tracknumlist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,255);
-        sprintf(track_number_str_buf,"%02d",index+1);
+        std::string name = zcmusic_get_track_name(zcmusic, index);
+        sprintf(track_number_str_buf,"%02d %s",index+1, name.c_str());
         return track_number_str_buf;
     }
     
