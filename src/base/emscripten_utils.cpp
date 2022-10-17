@@ -100,6 +100,21 @@ bool em_is_mobile() {
   });
 }
 
+void em_open_test_mode(const char* qstpath, int dmap, int scr, int retsquare) {
+	EM_ASM({
+		if (0x80 < $2) return;
+
+		const qstpath = UTF8ToString($0);
+		const url = new URL(ZC_Constants.zeldaUrl, location.href);
+		url.search = '';
+		url.searchParams.set('quest', qstpath.replace('/_quests/', ''));
+		url.searchParams.set('dmap', $1);
+		url.searchParams.set('screen', $2);
+		if ($3 !== -1) url.searchParams.set('retsquare', $3);
+		window.open(url.toString(), '_blank');
+	}, qstpath, dmap, scr, retsquare);
+}
+
 bool has_init_fake_key_events = false;
 ALLEGRO_EVENT_SOURCE fake_src;
 extern "C" void create_synthetic_key_event(ALLEGRO_EVENT_TYPE type, int keycode)

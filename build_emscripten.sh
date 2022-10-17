@@ -73,7 +73,7 @@ EMCC_FLAGS=(
 LINKER_FLAGS=(
   --shell-file="../../web/index.html"
   --shared-memory
-  -s EXPORTED_FUNCTIONS=_main,_create_synthetic_key_event,_copy_url
+  -s EXPORTED_FUNCTIONS=_main,_create_synthetic_key_event,_get_shareable_url,_open_test_mode
   -s EXPORTED_RUNTIME_METHODS=cwrap
   -s FORCE_FILESYSTEM=1
   -s ASYNCIFY=1
@@ -167,6 +167,13 @@ if ! grep -q "$HASH" zc.data.js
 then
   echo "failed to replace data hash"
   exit 1
+fi
+
+if [ -f zelda.html ]; then
+  sed -i -e 's/__TARGET__/zelda/' zelda.html
+fi
+if [ -f zquest.html ]; then
+  sed -i -e 's/__TARGET__/zquest/' zquest.html
 fi
 
 # Now start a local webserver in the build_emscripten folder:
