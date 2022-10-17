@@ -44,6 +44,7 @@
 #include "base/zsys.h"
 #include "qst.h"
 #include "zc_sys.h"
+#include "play_midi.h"
 #include "debug.h"
 #include "jwin.h"
 #include "base/jwinfsel.h"
@@ -8717,12 +8718,12 @@ void switch_out_callback()
 	}
 
 #ifdef _WIN32
-	if(midi_patch_fix==0 || currmidi==0)
+	if(midi_patch_fix==0 || currmidi==-1)
 		return;
 
 	
 	paused_midi_pos = midi_pos;
-	stop_midi();
+	zc_stop_midi();
 	midi_paused=true;
 	midi_suspended = midissuspHALTED;
 #endif
@@ -8736,7 +8737,7 @@ void switch_in_callback()
 	}
 
 #ifdef _WIN32
-	if(midi_patch_fix==0 || currmidi==0)
+	if(midi_patch_fix==0 || currmidi==-1)
 		return;
 	
 	else
@@ -8762,7 +8763,7 @@ void music_pause()
 {
 	//al_pause_duh(tmplayer);
 	zcmusic_pause(zcmusic, ZCM_PAUSE);
-	midi_pause();
+	zc_midi_pause();
 	midi_paused=true;
 }
 
@@ -8770,7 +8771,7 @@ void music_resume()
 {
 	//al_resume_duh(tmplayer);
 	zcmusic_pause(zcmusic, ZCM_RESUME);
-	midi_resume();
+	zc_midi_resume();
 	midi_paused=false;
 }
 
@@ -8782,9 +8783,9 @@ void music_stop()
 	//tmplayer=NULL;
 	zcmusic_stop(zcmusic);
 	zcmusic_unload_file(zcmusic);
-	stop_midi();
+	zc_stop_midi();
 	midi_paused=false;
-	currmidi=0;
+	currmidi=-1;
 }
 
 void System()
@@ -9026,7 +9027,7 @@ bool try_zcmusic(char *filename, int32_t track, int32_t midi)
 	{
 		zcmusic_stop(zcmusic);
 		zcmusic_unload_file(zcmusic);
-		stop_midi();
+		zc_stop_midi();
 		
 		zcmusic=newzcmusic;
 		zcmusic_play(zcmusic, emusic_volume);
@@ -9052,7 +9053,7 @@ bool try_zcmusic_ex(char *filename, int32_t track, int32_t midi)
 	{
 		zcmusic_stop(zcmusic);
 		zcmusic_unload_file(zcmusic);
-		stop_midi();
+		zc_stop_midi();
 		
 		zcmusic=newzcmusic;
 		zcmusic_play(zcmusic, emusic_volume);
@@ -9090,10 +9091,6 @@ void set_zcmusicspeed(int32_t speed)
 
 void jukebox(int32_t index,int32_t loop)
 {
-#ifdef __EMSCRIPTEN__
-    return;
-#endif
-
 	music_stop();
 	
 	if(index<0)		 index=MAXMIDIS-1;
@@ -9105,10 +9102,10 @@ void jukebox(int32_t index,int32_t loop)
 	// Allegro's DIGMID driver (the one normally used on on Linux) gets
 	// stuck notes when a song stops. This fixes it.
 	if(strcmp(midi_driver->name, "DIGMID")==0)
-		set_volume(0, 0);
+		zc_set_volume(0, 0);
 		
-	set_volume(-1, mixvol(tunes[index].volume,midi_volume>>1));
-	play_midi((MIDI*)tunes[index].data,loop);
+	zc_set_volume(-1, mixvol(tunes[index].volume,midi_volume>>1));
+	zc_play_midi((MIDI*)tunes[index].data,loop);
 	
 	if(tunes[index].start>0)
 		midi_seek(tunes[index].start);
@@ -9160,7 +9157,7 @@ void play_DmapMusic()
 			
 			if(zcmusic!=NULL)
 			{
-				stop_midi();
+				zc_stop_midi();
 				strcpy(tfile,DMaps[currdmap].tmusic);
 				zcmusic_play(zcmusic, emusic_volume);
 				int32_t temptracks=0;
@@ -9249,7 +9246,7 @@ void master_volume(int32_t dv,int32_t mv)
 	if(mv>=0) midi_volume=zc_max(zc_min(mv,255),0);
 	
 	int32_t i = zc_min(zc_max(currmidi,0),MAXMIDIS-1);
-	set_volume(digi_volume,mixvol(tunes[i].volume,midi_volume));
+	zc_set_volume(digi_volume,mixvol(tunes[i].volume,midi_volume));
 }
 
 /*****************/

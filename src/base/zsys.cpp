@@ -1244,9 +1244,9 @@ void box_end(bool pause)
     {
         if(pause)
         {
-	    //set_volume(255,-1);
-	    //kill_sfx();
-	    //sfx(20,128, false,true);
+	    //zc_set_volume(255,-1);
+	    // kill_sfx();
+	    // sfx(20,128, false,true);
 	
             box_eol();
             box_out("-- press a key --");
@@ -2453,7 +2453,7 @@ FILE * trace_file;
 
 int32_t zc_trace_handler(const char * msg)
 {
-    printf("%s", msg);
+    // printf("%s", msg);
     if(trace_file == 0)
     {
         trace_file = fopen("allegro.log", "a+");
