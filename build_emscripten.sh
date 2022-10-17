@@ -135,6 +135,12 @@ sed -i -e 's/(SDL_INIT_EVERYTHING)/(SDL_INIT_EVERYTHING-SDL_INIT_HAPTIC)/' _deps
 # This emscripten-specific timer code actually really messes up the framerate, making it go way too fast.
 sed -i -e 's/ _al_timer_thread_handle_tick/\/\/_al_timer_thread_handle_tick/' _deps/allegro5-src/src/sdl/sdl_system.c
 
+# Fix allegro's SDL's joysticks for emscripten.
+# See https://github.com/liballeg/allegro5/pull/1326
+sed -i -e 's/if (count <= 0)/if (false)/' _deps/allegro5-src/src/sdl/sdl_joystick.c
+NEEDLE="joysticks = calloc(count, sizeof \* joysticks);"
+sed -i -e "s/$NEEDLE$/joysticks = count > 0 ? calloc(count, sizeof * joysticks) : NULL;/" _deps/allegro5-src/src/sdl/sdl_joystick.c
+
 TARGETS="${@:-zelda zquest}"
 cmake --build . -t $TARGETS
 
