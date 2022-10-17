@@ -5742,7 +5742,10 @@ int32_t d_j_clearbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 		kb_clearjoystick(d);
 		
 		while(gui_mouse_b())
+		{
 			clear_keybuf();
+			rest(1);
+		}
 			
 		return D_REDRAW;
 	}
@@ -5756,15 +5759,17 @@ int32_t d_kbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 	{
 	case MSG_KEY:
 	case MSG_CLICK:
-	
+
 		kb_getkey(d);
 		
-		while(gui_mouse_b())
+		while(gui_mouse_b()) {
 			clear_keybuf();
+			rest(1);
+		}
 			
 		return D_REDRAW;
 	}
-	
+
 	return jwin_button_proc(msg,d,c);
 }
 
@@ -5775,15 +5780,17 @@ int32_t d_k_clearbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 	{
 	case MSG_KEY:
 	case MSG_CLICK:
-	
+
 		kb_clearkey(d);
 		
-		while(gui_mouse_b())
+		while(gui_mouse_b()) {
 			clear_keybuf();
+			rest(1);
+		}
 			
 		return D_REDRAW;
 	}
-	
+
 	return jwin_button_proc(msg,d,c);
 }
 
@@ -5821,15 +5828,17 @@ int32_t d_jbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 	{
 	case MSG_KEY:
 	case MSG_CLICK:
-	
+
 		j_getbtn(d);
 		
-		while(gui_mouse_b())
+		while(gui_mouse_b()) {
+			rest(1);
 			clear_keybuf();
+		}
 			
 		return D_REDRAW;
 	}
-	
+
 	return jwin_button_proc(msg,d,c);
 }
 
@@ -7414,7 +7423,7 @@ int32_t onKeyboard()
 			done=true;
 		}
 
-        rest(0);
+        rest(1);
 	}
 	
 	save_game_configs();
@@ -9514,7 +9523,7 @@ const char* joybtn_name(int32_t b)
 int32_t next_press_key()
 {
 	char k[127];
-	
+
 	for(int32_t i=0; i<127; i++)
 		k[i]=key[i];
 		
@@ -9523,9 +9532,9 @@ int32_t next_press_key()
 		for(int32_t i=0; i<127; i++)
 			if(key[i]!=k[i])
 				return i;
-		rest(0);
+		rest(1);
 	}
-	
+
 	//	return (readkey()>>8);
 }
 
@@ -9533,7 +9542,7 @@ int32_t next_press_btn()
 {
 	clear_keybuf();
 	/*bool b[joy[joystick_index].num_buttons+1];
-	
+
 	for(int32_t i=1; i<=joy[joystick_index].num_buttons; i++)
 		b[i]=joybtn(i);*/
 		
@@ -9561,9 +9570,9 @@ int32_t next_press_btn()
 		}
 		
 		if(done) break;
-		rest(0);
+		rest(1);
 	}
-	
+
 	//now, we need to wait for them to press any button
 	for(;;)
 	{
@@ -9585,7 +9594,7 @@ int32_t next_press_btn()
 		{
 			if(joybtn(i)) return i;
 		}
-		rest(0);
+		rest(1);
 	}
 }
 

@@ -552,7 +552,7 @@ static int32_t jwin_do_x_button(BITMAP *dest, int32_t x, int32_t y)
         
         /* let other objects continue to animate */
         broadcast_dialog_message(MSG_IDLE, 0);
-        rest(0);
+        rest(1);
     }
     
     if(down)
@@ -6401,7 +6401,7 @@ dropit:
     
     while(gui_mouse_b()) {
         clear_keybuf();
-        rest(0);
+        rest(1);
     }
 
     if(d1!=d->d1)
