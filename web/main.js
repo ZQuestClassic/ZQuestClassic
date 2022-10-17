@@ -48,6 +48,34 @@ window.ZC = {
     const url = createUrlString(ZC_Constants.zeldaUrl, params);
     window.open(url, '_blank');
   },
+  async runZscriptCompiler(scriptPath, consolePath, qr) {
+    scriptPath = PATH.join('/root-fs', scriptPath);
+    consolePath = PATH.join('/root-fs', consolePath);
+
+    const {default: ZScript} = await import('./zscript.mjs' + (Math.random() ? '' : ''));
+    let onExitPromiseResolve;
+    const onExitPromise = new Promise(resolve => onExitPromiseResolve = resolve);
+    await ZScript({
+      preRun(zscript) {
+        // For some reason `set_config_file` errors if the file doesn't exist ...
+        if (!FS.analyzePath('/local/zscript.cfg').exists) FS.writeFile('/local/zscript.cfg', '');
+
+        zscript.FS.mkdir('/root-fs');
+        zscript.FS.mount(PROXYFS, {
+          root: '/',
+          fs: FS,
+        }, '/root-fs');
+        zscript.FS.chdir('/root-fs');
+      },
+      onExit: onExitPromiseResolve,
+      arguments: ['-linked', '-input', scriptPath, '-console', consolePath, '-qr', qr],
+    });
+
+    const code = await onExitPromise;
+    // Not necessary, but avoids lag when playing the sfx.
+    await new Promise(resolve => setTimeout(resolve, 100));
+    return {code};
+  },
   async fsSync(populate) {
     // Sync /local to IndexedDB or to the attached folder.
     await new Promise((resolve, reject) => FS.syncfs(populate, (err) => {

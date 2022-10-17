@@ -42,14 +42,15 @@ function apply_patch {
 
 echo "Applying patches ..."
 
+echo -e "__pycache__\ncache\n" > "$EMCC_DIR"/.gitignore
 apply_patch "$EMCC_DIR" "$SCRIPT_DIR/emscripten.patch" $GIT_CLEAN
 
 # Ensure that the SDL source code has been downloaded,
 # otherwise the patches can't be applied.
 if [ ! -d "$EMCC_CACHE_DIR/ports/sdl2" ]
 then
-  embuilder build sdl2
-  embuilder clear sdl2
+  embuilder build sdl2-mt
+  embuilder clear sdl2-mt
 fi
 if [ ! -d "$EMCC_CACHE_DIR/ports/sdl2_mixer/SDL_mixer-gme-4" ]
 then
@@ -57,13 +58,6 @@ then
   embuilder build sdl2_mixer
   embuilder clear sdl2_mixer
 fi
-
-# Manually delete libraries from Emscripten cache to force a rebuild.
-rm -rf "$EMCC_CACHE_LIB_DIR"/libSDL2-mt.a
-rm -rf "$EMCC_CACHE_LIB_DIR"/libSDL2_mixer_gme_mid-mod-mp3-ogg.a
-# This would work except you can't clear port variants.
-# https://github.com/emscripten-core/emscripten/issues/16744
-# embuilder clear sdl2-mt sdl2_mixer_gme_mid_mod_mp3_ogg
 
 apply_patch "$EMCC_CACHE_DIR/ports/sdl2/SDL-4b8d69a41687e5f6f4b05f7fd9804dd9fcac0347" "$SCRIPT_DIR/sdl2.patch" $GIT_CLEAN
 apply_patch "$EMCC_CACHE_DIR/ports/sdl2_mixer/SDL_mixer-gme-4" "$SCRIPT_DIR/sdl2_mixer.patch" $GIT_CLEAN

@@ -120,6 +120,17 @@ void em_open_test_mode(const char* qstpath, int dmap, int scr, int retsquare) {
 	}, qstpath, dmap, scr, retsquare);
 }
 
+EM_ASYNC_JS(int, em_compile_zscript_, (const char* script_path, const char* console_path, const char* qr), {
+  script_path = UTF8ToString(script_path);
+  console_path = UTF8ToString(console_path);
+  qr = UTF8ToString(qr);
+  const {code} = await ZC.runZscriptCompiler(script_path, console_path, qr);
+  return code;
+});
+int em_compile_zscript(const char* script_path, const char* console_path, const char* qr) {
+  return em_compile_zscript_(script_path, console_path, qr);
+}
+
 bool has_init_fake_key_events = false;
 ALLEGRO_EVENT_SOURCE fake_src;
 extern "C" void create_synthetic_key_event(ALLEGRO_EVENT_TYPE type, int keycode)

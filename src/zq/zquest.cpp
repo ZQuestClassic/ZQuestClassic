@@ -25443,6 +25443,7 @@ int32_t onCompileScript()
 {
 	compile_dlg[0].dp2 = lfont;
 	int32_t memuse = 0;
+    bool hasWarnErr = false;
 	#ifdef _WIN32
 	PROCESS_MEMORY_COUNTERS memCounter;
 	BOOL memresult = false;
@@ -25579,6 +25580,11 @@ int32_t onCompileScript()
 				map<string, ZScript::ScriptTypeID> stypes;
 				map<string, disassembled_script_data> scripts;
 				
+                std::string quest_rules_hex = get_qr_hexstr();
+                clock_t start_compile_time = clock();
+#ifdef __EMSCRIPTEN__
+                int32_t code = em_compile_zscript(tmpfilename, consolefilename, quest_rules_hex.c_str());
+#else
 				int32_t code = -9999;
 				if(!fileexists(ZSCRIPT_FILE))
 				{
@@ -25598,9 +25604,6 @@ int32_t onCompileScript()
 					box_start(1, "Compile Progress", lfont, sfont,true, 512, 280);
 				}
 
-				std::string quest_rules_hex = get_qr_hexstr();
-
-				clock_t start_compile_time = clock();
 				std::vector<std::string> args = {
 					"-input", tmpfilename,
 					"-console", consolefilename,
@@ -25657,6 +25660,8 @@ int32_t onCompileScript()
 					}
 				}
 				pm->read(&code, sizeof(int32_t));
+                delete pm;
+#endif
 				clock_t end_compile_time = clock();
 				
 				
@@ -25671,7 +25676,7 @@ int32_t onCompileScript()
 				sprintf(buf, "ZScript compilation: Returned code '%d' (%s)\n"
 					"Compile took %s seconds (%ld cycles)%s",
 					code, code ? "failure" : "success",
-					tmp, end_compile_time - start_compile_time,
+					tmp, (long)end_compile_time - start_compile_time,
 					code ? (!DisableCompileConsole?"\nCompilation failed. See console for details.":"\nCompilation failed.") : "");
 				
 				if(!code)
@@ -25685,7 +25690,7 @@ int32_t onCompileScript()
 				else if (DisableCompileConsole)
 				{
 					char buf3[256] = {0};
-					sprintf(buf3, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),end_compile_time - start_compile_time);
+					sprintf(buf3, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),(long)end_compile_time - start_compile_time);
 					box_out(buf3);
 					box_eol();
 					box_out("Compilation failed.");
@@ -25693,8 +25698,6 @@ int32_t onCompileScript()
 				}
 				compile_sfx(!code);
 				if (DisableCompileConsole) box_end(true);
-				
-				delete pm;
 				
 				bool cancel = code;
 				if (!DisableCompileConsole) 
