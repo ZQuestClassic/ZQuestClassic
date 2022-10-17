@@ -5497,6 +5497,9 @@ int32_t OnnClearQuestDir()
 		strcpy(qstdir,get_config_string("zeldadx","win_qst_dir",""));
 		//strcpy(filepath,get_config_string("zeldadx","win_qst_dir",""));
 		save_game_configs();
+#ifdef __EMSCRIPTEN__
+		em_sync_fs();
+#endif
 		return D_O_K;
 	}
 	else return D_O_K;
