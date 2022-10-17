@@ -159,7 +159,9 @@ void zcmusic_unload_file(ZCMUSIC *&zcm)
     return;
 
   Mix_FreeMusic(zcm->mus);
+  zcm->mus = NULL;
   free(zcm);
+  zcm = NULL;
 }
 int32_t zcmusic_get_tracks(ZCMUSIC *zcm) { return 0; }
 int32_t zcmusic_change_track(ZCMUSIC *zcm, int32_t tracknum) { return 0; }
