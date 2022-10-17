@@ -39,6 +39,7 @@
 #include "aglogo.h"
 #include "base/zsys.h"
 #include "base/zapp.h"
+#include "play_midi.h"
 #include "qst.h"
 #include "matrix.h"
 #include "jwin.h"
@@ -375,7 +376,7 @@ byte use_debug_console=0, console_on_top = 0, use_win32_proc=1, zasm_debugger = 
 int32_t homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0;
 int32_t newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
 int32_t lastentrance=0,lastentrance_dmap=0,prices[3]= {0},loadside = 0, Bwpn = 0, Awpn = 0, Xwpn = 0, Ywpn = 0;
-int32_t digi_volume = 0,midi_volume = 0,sfx_volume = 0,emusic_volume = 0,currmidi = 0,hasitem = 0,whistleclk = 0,pan_style = 0;
+int32_t digi_volume = 0,midi_volume = 0,sfx_volume = 0,emusic_volume = 0,currmidi = -1,hasitem = 0,whistleclk = 0,pan_style = 0;
 bool analog_movement=true;
 int32_t joystick_index=0,Akey = 0,Bkey = 0,Skey = 0,Lkey = 0,Rkey = 0,Pkey = 0,Exkey1 = 0,Exkey2 = 0,Exkey3 = 0,Exkey4 = 0,Abtn = 0,Bbtn = 0,Sbtn = 0,Mbtn = 0,Lbtn = 0,Rbtn = 0,Pbtn = 0,Exbtn1 = 0,Exbtn2 = 0,Exbtn3 = 0,Exbtn4 = 0,Quit=0;
 uint32_t GameFlags=0;
@@ -3529,18 +3530,18 @@ void game_loop()
 		genscript_timing = SCR_TIMING_START_FRAME;
 		if((pause_in_background && callback_switchin && midi_patch_fix))
 		{
-			if(currmidi!=0)
+			if(currmidi>=0)
 			{
 				if(callback_switchin == 2) 
 				{
-					if ( currmidi != 0 )
+					if ( currmidi >= 0 )
 					{
 						int32_t digi_vol, midi_vol;
 					
 						get_volume(&digi_vol, &midi_vol);
-						stop_midi();
+						zc_stop_midi();
 						jukebox(currmidi);
-						set_volume(digi_vol, midi_vol);
+						zc_set_volume(digi_vol, midi_vol);
 						midi_seek(paused_midi_pos);
 					}
 					midi_paused=false;
@@ -3551,7 +3552,7 @@ void game_loop()
 				{
 					paused_midi_pos = midi_pos;
 					midi_paused=true;
-					stop_midi();
+					zc_stop_midi();
 					++callback_switchin;
 				}
 			}
@@ -3562,14 +3563,14 @@ void game_loop()
 		}
 		else if(midi_suspended==midissuspRESUME )
 		{
-			if ( currmidi != 0 )
+			if ( currmidi >= 0 )
 			{
 				int32_t digi_vol, midi_vol;
 			
 				get_volume(&digi_vol, &midi_vol);
-				stop_midi();
+				zc_stop_midi();
 				jukebox(currmidi);
-				set_volume(digi_vol, midi_vol);
+				zc_set_volume(digi_vol, midi_vol);
 				midi_seek(paused_midi_pos);
 			}
 			midi_paused=false;
@@ -5282,7 +5283,6 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-#ifndef __EMSCRIPTEN__
 		if(install_sound(DIGI_AUTODETECT,MIDI_AUTODETECT,NULL))
 		{
 			//      Z_error_fatal(allegro_error);
@@ -5292,7 +5292,6 @@ int main(int argc, char **argv)
 		{
 			Z_message("OK\n");
 		}
-#endif
 	}
 	
 	Z_init_sound();
@@ -5643,7 +5642,7 @@ int main(int argc, char **argv)
 	// AG logo
 	if(!(zqtesting_mode||replay_is_active()||fast_start||zc_get_config("zeldadx","skip_logo",1)))
 	{
-		set_volume(240,-1);
+		zc_set_volume(240,-1);
 		aglogo(tmp_scr, scrollbuf, resx, resy);
 		master_volume(digi_volume,midi_volume);
 	}

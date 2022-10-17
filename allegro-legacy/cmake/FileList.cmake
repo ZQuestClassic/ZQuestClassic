@@ -114,7 +114,7 @@ set(ALLEGRO_LEGACY_SRC_A5_FILES
         src/a5/a5_mouse_driver.c
         src/a5/a5_joystick.c
         src/a5/a5_joystick_driver.c
-        # src/a5/a5_midi.c
+        src/a5/a5_midi.c
         src/a5/a5_midi_driver.c
         src/a5/a5_system.c
         src/a5/a5_system_driver.c
@@ -133,7 +133,7 @@ set(ALLEGRO_LEGACY_SRC_MIDIA5_UNIX_FILES
 
 # local edit
 set(ALLEGRO_LEGACY_SRC_MIDIA5_SDL_FILES
-        src/a5/midia5/sdl/sdl_audio.c
+        src/a5/midia5/sdl/sdl_midi.c
 )
 
 set(ALLEGRO_LEGACY_SRC_MIDIA5_MACOS_FILES
