@@ -116,6 +116,10 @@ static zc_randgen drunk_rng;
 #define getcwd _getcwd
 #endif
 
+// #ifdef __EMSCRIPTEN__
+// #include <emscripten/emscripten.h>
+// #endif
+
 // MSVC fix
 #if _MSC_VER >= 1900
 FILE _iob[] = { *stdin, *stdout, *stderr };
@@ -213,6 +217,11 @@ void throttleFPS()
 {
 #ifdef _WIN32           // TEMPORARY!! -Trying to narrow down a win10 bug that affects performance.
     timeBeginPeriod(1); // Basically, jist is that other programs can affect the FPS of ZC in weird ways. (making it better for example... go figure)
+#endif
+
+#ifdef __EMSCRIPTEN__
+	rest(0);
+	return;
 #endif
     
     if( (Throttlefps ^ (zc_getkey(KEY_TILDE)!=0)) || get_bit(quest_rules, qr_NOFASTMODE) )
@@ -623,6 +632,10 @@ bool update_hw_pal = false;
 PALETTE* hw_palette = NULL;
 void update_hw_screen(bool force)
 {
+#ifdef __EMSCRIPTEN__
+	// force = true;
+#endif __EMSCRIPTEN__
+
 	//if(!hw_screen) return;
 	if(force || (!is_sys_pal && !Throttlefps) || myvsync)
 	{
@@ -635,6 +648,9 @@ void update_hw_screen(bool force)
 		}
 		myvsync=0;
 		all_mark_screen_dirty();
+#ifdef __EMSCRIPTEN__
+		all_render_screen();
+#endif
 	}
 }
 
@@ -4700,15 +4716,21 @@ int main(int argc, char **argv)
 		al_destroy_config(tempcfg);
 	}
 	
+#ifdef __EMSCRIPTEN__
+	all_disable_threaded_display();
+#endif
+	
+#ifndef __EMSCRIPTEN__
 	if(!al_init_image_addon())
 	{
 		Z_error_fatal("Failed al_init_image_addon");
 		quit_game();
 	}
-	
-	three_finger_flag=false;
-	
+
 	al5img_init();
+#endif
+
+	three_finger_flag=false;
 	
 	// set and load game configurations
 	zc_set_config_standard();
@@ -4728,13 +4750,13 @@ int main(int argc, char **argv)
 	}
 	
 #ifndef __APPLE__ // Should be done on Mac, too, but I haven't gotten that working
-	if(!is_only_instance("zc.lck"))
-	{
-		if(used_switch(argc, argv, "-multiple") || zc_get_config("zeldadx","multiple_instances",0))
-			onlyInstance=false;
-		else
-			exit(1);
-	}
+	// if(!is_only_instance("zc.lck"))
+	// {
+	// 	if(used_switch(argc, argv, "-multiple") || zc_get_config("zeldadx","multiple_instances",0))
+	// 		onlyInstance=false;
+	// 	else
+	// 		exit(1);
+	// }
 #endif
 	
 	//Set up MODULES: This must occur before trying to load the default quests, as the 
@@ -4869,10 +4891,16 @@ int main(int argc, char **argv)
 	}
 	
 	//set_keyboard_rate(1000,160);
-	
+
+#ifndef __EMSCRIPTEN__
 	LOCK_VARIABLE(logic_counter);
 	LOCK_FUNCTION(update_logic_counter);
-	install_int_ex(update_logic_counter, BPS_TO_TIMER(60));
+	if (install_int_ex(update_logic_counter, BPS_TO_TIMER(60)) < 0)
+	{
+		Z_error_fatal("Could not install timer.\n");
+		quit_game();
+	}
+#endif
 	
 #ifdef _SCRIPT_COUNTER
 	LOCK_VARIABLE(script_counter);
@@ -5265,6 +5293,7 @@ int main(int argc, char **argv)
 	}
 	else
 	{
+#ifndef __EMSCRIPTEN__
 		if(install_sound(DIGI_AUTODETECT,MIDI_AUTODETECT,NULL))
 		{
 			//      Z_error_fatal(allegro_error);
@@ -5274,6 +5303,7 @@ int main(int argc, char **argv)
 		{
 			Z_message("OK\n");
 		}
+#endif
 	}
 	
 	Z_init_sound();
@@ -5449,6 +5479,7 @@ int main(int argc, char **argv)
 		show_mouse(screen);
 	}
 
+#ifndef __EMSCRIPTEN__
 	if (!all_get_fullscreen_flag()) {
 		// Just in case.
 		while (!all_get_display()) {
@@ -5464,6 +5495,7 @@ int main(int argc, char **argv)
 		al_resize_display(all_get_display(), window_width, window_height);
 		al_set_window_position(all_get_display(), center_x - window_width / 2, center_y - window_height / 2);
 	}
+#endif
 	
 	sbig = (screen_scale > 1);
 	switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
@@ -5502,6 +5534,10 @@ int main(int argc, char **argv)
 			return 0;
 		}
 	}
+
+#ifdef __EMSCRIPTEN__
+	checked_epilepsy = true;
+#endif
 	
 	//set switching/focus mode -Z
 	set_display_switch_mode(is_windowed_mode()?(pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND):SWITCH_BACKAMNESIA);

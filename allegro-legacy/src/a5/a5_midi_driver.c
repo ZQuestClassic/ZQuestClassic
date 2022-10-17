@@ -20,6 +20,8 @@
 #include "allegro/platform/ala5.h"
 
 BEGIN_MIDI_DRIVER_LIST
+#ifndef __EMSCRIPTEN__
 MIDI_DRIVER_ALLEGRO_5
+#endif
 MIDI_DRIVER_DIGMID
 END_MIDI_DRIVER_LIST

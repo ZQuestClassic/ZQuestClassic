@@ -114,11 +114,14 @@ set(ALLEGRO_LEGACY_SRC_A5_FILES
         src/a5/a5_mouse_driver.c
         src/a5/a5_joystick.c
         src/a5/a5_joystick_driver.c
-        src/a5/a5_midi.c
+        # src/a5/a5_midi.c
         src/a5/a5_midi_driver.c
         src/a5/a5_system.c
         src/a5/a5_system_driver.c
         )
+if(NOT EMSCRIPTEN)
+        list(APPEND ALLEGRO_LEGACY_SRC_A5_FILES src/a5/a5_midi.c)
+endif()
 
 set(ALLEGRO_LEGACY_SRC_MIDIA5_FILES
         src/a5/midia5/midia5.c

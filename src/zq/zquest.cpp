@@ -27450,10 +27450,10 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				}
 
 				clock_t end_assign_time = clock();
-				al_trace("Assign Slots took %lf seconds (%ld cycles)\n", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,end_assign_time-start_assign_time);
+				al_trace("Assign Slots took %lf seconds (%ld cycles)\n", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,(long)end_assign_time-start_assign_time);
 				char buf[256] = {0};
 				sprintf(buf, "ZScripts successfully loaded into script slots"
-					"\nAssign Slots took %lf seconds (%ld cycles)", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,end_assign_time-start_assign_time);
+					"\nAssign Slots took %lf seconds (%ld cycles)", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,(long)end_assign_time-start_assign_time);
 				//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
 				compile_finish_sample = vbound(zc_get_config("Compiler","compile_finish_sample",34),0,255);
 				compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",200),0,255);
@@ -30551,11 +30551,13 @@ int32_t main(int32_t argc,char **argv)
 		al_destroy_config(tempcfg);
 	}
 
+#ifndef __EMSCRIPTEN__
 	if(!al_init_image_addon())
 	{
 		Z_error_fatal("Failed al_init_image_addon");
 		quit_game();
 	}
+#endif
 
 	al5img_init();
 	

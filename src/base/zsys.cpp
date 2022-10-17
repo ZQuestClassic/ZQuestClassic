@@ -2453,6 +2453,7 @@ FILE * trace_file;
 
 int32_t zc_trace_handler(const char * msg)
 {
+    printf("%s", msg);
     if(trace_file == 0)
     {
         trace_file = fopen("allegro.log", "a+");
