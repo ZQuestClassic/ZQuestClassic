@@ -552,6 +552,7 @@ static int32_t jwin_do_x_button(BITMAP *dest, int32_t x, int32_t y)
         
         /* let other objects continue to animate */
         broadcast_dialog_message(MSG_IDLE, 0);
+        rest(0);
     }
     
     if(down)
