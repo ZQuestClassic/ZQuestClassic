@@ -47,6 +47,11 @@
 #include "base/util.h"
 #include "zq_files.h"
 #include "dialog/alert.h"
+
+#ifdef __EMSCRIPTEN__
+#include "base/emscripten_utils.h"
+#endif
+
 using namespace util;
 extern FFScript FFCore;
 
@@ -14342,6 +14347,10 @@ int32_t save_quest(const char *filename, bool timed_save)
 		
 		delete_file(tmpfilename);
 	}
+
+#ifdef __EMSCRIPTEN__
+	em_sync_fs();
+#endif
 	
 	return ret;
 }

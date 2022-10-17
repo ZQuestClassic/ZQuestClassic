@@ -6320,13 +6320,7 @@ void __zc_always_assert(bool e, const char* expression, const char* file, int32_
 extern "C" void get_shareable_url()
 {
 	EM_ASM({
-		const qstpath = UTF8ToString($0);
-		const url = new URL(location.href);
-		url.search = '';
-		url.searchParams.set('quest', qstpath.replace('/_quests/', ''));
-		url.searchParams.set('dmap', $1);
-		url.searchParams.set('screen', $2);
-		ZC.url = url.toString();
+		ZC.setShareableUrl({quest: UTF8ToString($0), dmap: $1, screen: $2});
 	}, qstpath, currdmap, currscr);
 }
 extern "C" void open_test_mode() {

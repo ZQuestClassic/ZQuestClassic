@@ -186,5 +186,13 @@ cp -r ../../timidity .
 rm -rf files
 mv ../../output/_auto/buildpack_lazy files
 
+ESBUILD_ARGS=()
+if ! [[ "$DEBUG" ]]; then
+  ESBUILD_ARGS+=(
+    --minify
+  )
+fi
+npx esbuild --bundle ../../web/main.js --outfile=main.js --sourcemap ${ESBUILD_ARGS[@]}
+
 # Now start a local webserver in the build_emscripten folder:
 #   npx statikk --port 8000 --coi

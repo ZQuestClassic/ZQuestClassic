@@ -34,12 +34,14 @@ EM_ASYNC_JS(void, em_init_fs_, (), {
   }
 
   // Mount the persisted files (zc.sav and zc.cfg live here).
-  FS.mkdir('/persist');
-  FS.mount(IDBFS, {}, '/persist');
+  FS.mkdir('/local');
+  FS.mount(IDBFS, {}, '/local');
   await new Promise(resolve => FS.syncfs(true, resolve));
-  if (!FS.analyzePath('/persist/zc.cfg').exists) {
-    FS.writeFile('/persist/zc.cfg', FS.readFile('/zc.cfg'));
-  } else {
+  if (!FS.analyzePath('/local/zc.cfg').exists) {
+    FS.writeFile('/local/zc.cfg', FS.readFile('/zc.cfg'));
+  }
+  if (!FS.analyzePath('/local/zquest.cfg').exists) {
+    FS.writeFile('/local/zquest.cfg', FS.readFile('/zquest.cfg'));
   }
 });
 void em_init_fs() {
@@ -117,16 +119,7 @@ bool em_is_mobile() {
 
 void em_open_test_mode(const char* qstpath, int dmap, int scr, int retsquare) {
 	EM_ASM({
-		if (0x80 < $2) return;
-
-		const qstpath = UTF8ToString($0);
-		const url = new URL(ZC_Constants.zeldaUrl, location.href);
-		url.search = '';
-		url.searchParams.set('quest', qstpath.replace('/_quests/', ''));
-		url.searchParams.set('dmap', $1);
-		url.searchParams.set('screen', $2);
-		if ($3 !== -1) url.searchParams.set('retsquare', $3);
-		window.open(url.toString(), '_blank');
+    ZC.openTestMode(UTF8ToString($0), $1, $2, $3);
 	}, qstpath, dmap, scr, retsquare);
 }
 

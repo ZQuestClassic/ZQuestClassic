@@ -33365,6 +33365,9 @@ int32_t save_config_file()
     
     
     flush_config_file();
+#ifdef __EMSCRIPTEN__
+    em_sync_fs();
+#endif
     free(datapath2);
     free(midipath2);
     free(imagepath2);
@@ -34339,13 +34342,7 @@ extern "C" void open_test_mode()
 extern "C" void get_shareable_url()
 {
 	EM_ASM({
-		const qstpath = UTF8ToString($0);
-		const url = new URL(location.href);
-		url.search = '';
-		url.searchParams.set('quest', qstpath.replace('/_quests/', ''));
-		url.searchParams.set('map', $1);
-		url.searchParams.set('screen', $2);
-		ZC.url = url.toString();
+        ZC.setShareableUrl({quest: UTF8ToString($0), map: $1, screen: $2});
 	}, filepath, Map.getCurrMap(), Map.getCurrScr());
 }
 #endif
