@@ -1,5 +1,6 @@
 #include "emscripten_utils.h"
 #include <emscripten/emscripten.h>
+#include <emscripten/val.h>
 
 EM_ASYNC_JS(void, init_fs_em_, (), {
   // Initialize the filesystem with 0-byte files for every quest.
@@ -61,4 +62,17 @@ EM_ASYNC_JS(void, fetch_quest_em_, (const char *path), {
 });
 void fetch_quest_em(const char *path) {
   fetch_quest_em_(path);
+}
+
+EM_ASYNC_JS(emscripten::EM_VAL, get_query_params_, (), {
+  const params = new URLSearchParams(location.search);
+  return Emval.toHandle({
+    quest: params.get('quest') || '',
+  });
+});
+QueryParams get_query_params() {
+  auto val = emscripten::val::take_ownership(get_query_params_());
+  QueryParams result;
+  result.quest = val["quest"].as<std::string>();
+  return result;
 }

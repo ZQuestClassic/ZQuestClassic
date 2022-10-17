@@ -69,6 +69,7 @@ LINKER_FLAGS=(
   -s INITIAL_MEMORY=4229300224
   -s PTHREAD_POOL_SIZE=15
   -lidbfs.js
+  -lembind
 )
 
 CMAKE_BUILD_TYPE=""
