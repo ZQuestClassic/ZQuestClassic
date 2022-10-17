@@ -633,6 +633,8 @@ target_link_libraries(al5_example PRIVATE allegro_with_legacy allegro_font alleg
 if (EMSCRIPTEN)
 	target_link_options(zelda PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_create_synthetic_key_event")
 	target_link_options(zquest PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_create_synthetic_key_event,_open_test_mode")
+	target_link_options(zscript PRIVATE "SHELL:-s PTHREAD_POOL_SIZE=1" "SHELL:-s EXTRA_EXPORTED_RUNTIME_METHODS=['FS','PROXYFS']")
+	set_target_properties(zscript PROPERTIES SUFFIX ".mjs")
 endif()
 
 #############################################################

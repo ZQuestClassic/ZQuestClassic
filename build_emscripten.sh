@@ -2,16 +2,17 @@
 
 set -e
 
-if ! command -v emcc &> /dev/null
+if ! command -v emsdk &> /dev/null
 then
-  echo "emcc could not be found. You must install emsdk"
+  echo "emsdk could not be found."
   echo "https://emscripten.org/docs/getting_started/downloads.html"
   exit 1
 fi
 
-EMCC_VERSION=3.1.9
+EMCC_VERSION=3.1.10
 emsdk install $EMCC_VERSION
 emsdk activate $EMCC_VERSION
+source emsdk_env.sh
 
 cd timidity
 node convert-sf.js
@@ -74,7 +75,6 @@ EMCC_FLAGS=(
   -I "$EMCC_CACHE_INCLUDE_DIR/AL"
 )
 LINKER_FLAGS=(
-  --shell-file="../web/index.html"
   --shared-memory
   -s EXPORTED_RUNTIME_METHODS=cwrap
   -s FORCE_FILESYSTEM=1
@@ -90,6 +90,7 @@ LINKER_FLAGS=(
   -s EXIT_RUNTIME=1
   -s MINIFY_HTML=0
   -lidbfs.js
+  -lproxyfs.js
   -lembind
 )
 EMCC_AND_LINKER_FLAGS=(
@@ -150,12 +151,22 @@ emcmake cmake \
   -D CMAKE_C_FLAGS="${EMCC_FLAGS[*]} ${EMCC_AND_LINKER_FLAGS[*]}" \
   -D CMAKE_CXX_FLAGS="${EMCC_FLAGS[*]} ${EMCC_AND_LINKER_FLAGS[*]} -D_NPASS" \
   -D CMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS[*]} ${EMCC_AND_LINKER_FLAGS[*]}" \
-  -D CMAKE_EXECUTABLE_SUFFIX_CXX=".html" \
   ..
 
-sh ../patches/apply.sh
+# TODO: can this be removed?
+# Manually delete libraries from Emscripten cache to force a rebuild.
+rm -rf "$EMCC_CACHE_LIB_DIR"/libSDL2-mt.a "$EMCC_CACHE_LIB_DIR"/libSDL2.a
+rm -rf "$EMCC_CACHE_LIB_DIR"/libSDL2_mixer_gme_mid-mod-mp3-ogg.a
+# This would work except you can't clear port variants.
+# https://github.com/emscripten-core/emscripten/issues/16744
+# embuilder clear sdl2-mt sdl2_mixer_gme_mid_mod_mp3_ogg
 
-TARGETS="${@:-zelda zquest}"
+bash ../patches/apply.sh
+
+# TODO: why doesn't emscripten build this for us?
+embuilder build sdl2-mt
+
+TARGETS="${@:-zelda zquest zscript}"
 cmake --build . --config $CONFIG -t $TARGETS
 cd $CONFIG
 
@@ -202,15 +213,19 @@ function insert_css {
   mv tmp.html "$1"
 }
 
-if [ -f zelda.html ]; then
+if [[ "${TARGETS[*]}" =~ "zelda" ]]; then
+  cp ../../web/index.html zelda.html
   sed -i -e 's/__TARGET__/zelda/' zelda.html
   sed -i -e 's|__DATA__|<script src="zc.data.js"></script>|' zelda.html
+  sed -i -e 's|__SCRIPT__|<script async src="zelda.js"></script>|' zelda.html
   set_files zelda.html
   insert_css zelda.html
 fi
-if [ -f zquest.html ]; then
+if [[ "${TARGETS[*]}" =~ "zquest" ]]; then
+  cp ../../web/index.html zquest.html
   sed -i -e 's/__TARGET__/zquest/' zquest.html
   sed -i -e 's|__DATA__|<script src="zc.data.js"></script><script src="zq.data.js"></script>|' zquest.html
+  sed -i -e 's|__SCRIPT__|<script async src="zquest.js"></script>|' zquest.html
   set_files zquest.html
   insert_css zquest.html
 fi

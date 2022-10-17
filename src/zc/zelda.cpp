@@ -6316,7 +6316,6 @@ void __zc_always_assert(bool e, const char* expression, const char* file, int32_
 }
 
 #ifdef __EMSCRIPTEN__
-#include <emscripten/emscripten.h>
 extern "C" void get_shareable_url()
 {
 	EM_ASM({
