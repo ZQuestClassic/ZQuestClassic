@@ -1264,19 +1264,19 @@ void box_end(bool pause)
             
             do
             {
-                //        poll_mouse();
+                rest(0);
             }
             while(gui_mouse_b());
             
             do
             {
-                //        poll_mouse();
+                rest(0);
             }
             while((!keypressed()) && (!gui_mouse_b()));
             
             do
             {
-                //        poll_mouse();
+                rest(0);
             }
             while(gui_mouse_b());
             

@@ -356,6 +356,9 @@ void load_game_configs()
 	TransLayers = zc_get_config(cfg_sect,"translayers",1)!=0;
 	SnapshotFormat = zc_get_config(cfg_sect,"snapshot_format",3);
 	NameEntryMode = zc_get_config(cfg_sect,"name_entry_mode",0);
+#ifdef __EMSCRIPTEN__
+	if (em_is_mobile()) NameEntryMode = 2;
+#endif
 	ShowFPS = zc_get_config(cfg_sect,"showfps",0)!=0;
 	NESquit = zc_get_config(cfg_sect,"fastquit",0)!=0;
 	ClickToFreeze = zc_get_config(cfg_sect,"clicktofreeze",1)!=0;
@@ -7400,6 +7403,8 @@ int32_t onKeyboard()
 
 			done=true;
 		}
+
+        rest(0);
 	}
 	
 	save_game_configs();
