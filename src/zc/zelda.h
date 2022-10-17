@@ -504,6 +504,8 @@ extern char *qstdir;
 extern gamedata *saves;
 extern gamedata *game;
 
+extern std::string load_qstpath;
+
 extern volatile int32_t lastfps;
 extern volatile int32_t framecnt;
 extern void throttleFPS();

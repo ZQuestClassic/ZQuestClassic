@@ -4191,6 +4191,17 @@ static void select_game(bool skip = false)
 		draw_cursor(pos,mode);
 		advanceframe(true);
 		saveslot = pos + listpos;
+
+		if(!load_qstpath.empty())
+		{
+			register_name();
+			currgame = savecnt - 1;
+			loadlast = currgame + 1;
+			strcpy(qstpath, load_qstpath.c_str());
+			chosecustomquest = true;
+			load_custom_game(currgame);
+			break;
+		}
 		
 		if(popup_choose_quest)
 		{
