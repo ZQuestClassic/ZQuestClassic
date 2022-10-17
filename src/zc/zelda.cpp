@@ -625,6 +625,7 @@ void update_hw_screen(bool force)
 	//if(!hw_screen) return;
 	if(force || (!is_sys_pal && !Throttlefps) || myvsync)
 	{
+		zc_process_mouse_events();
 		blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
 		if(update_hw_pal && hw_palette)
 		{
@@ -4858,6 +4859,7 @@ int main(int argc, char **argv)
 		Z_error_fatal(allegro_error);
 		quit_game();
 	}
+	zc_install_mouse_event_handler();
 	
 	if(install_joystick(JOY_TYPE_AUTODETECT) < 0)
 	{
@@ -5443,6 +5445,7 @@ int main(int argc, char **argv)
 		while (!all_get_display()) rest(1);
 		enable_hardware_cursor();
 		select_mouse_cursor(MOUSE_CURSOR_ARROW);
+		show_mouse(screen);
 	}
 
 	if (!all_get_fullscreen_flag()) {
