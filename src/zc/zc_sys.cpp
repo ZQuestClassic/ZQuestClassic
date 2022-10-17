@@ -337,7 +337,7 @@ void load_game_configs()
 	DRbtn = zc_get_config(cfg_sect,"btn_right",16);
 	
 	epilepsyFlashReduction = zc_get_config(cfg_sect,"epilepsy_flash_reduction",0);
-   
+
 	digi_volume = zc_get_config(cfg_sect,"digi",248);
 	midi_volume = zc_get_config(cfg_sect,"midi",255);
 	sfx_volume = zc_get_config(cfg_sect,"sfx",248);
@@ -4642,6 +4642,10 @@ static void restoreInput()
 */
 void syskeys()
 {
+// #ifdef __EMSCRIPTEN__
+//     return;
+// #endif
+
 	  //Saffith's method of separating system and game key bindings. Can't do this!!
 	//backupAndClearInput(); //This caused input to become randomly 'stuck'. -Z
 	
@@ -9086,6 +9090,10 @@ void set_zcmusicspeed(int32_t speed)
 
 void jukebox(int32_t index,int32_t loop)
 {
+#ifdef __EMSCRIPTEN__
+    return;
+#endif
+
 	music_stop();
 	
 	if(index<0)		 index=MAXMIDIS-1;

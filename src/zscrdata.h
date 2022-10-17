@@ -48,7 +48,7 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 	stypes.clear();
 	scripts.clear();
 	size_t stypes_sz, scripts_sz;
-	size_t dummy;
+	uint32_t dummy;
 	ZScript::ScriptTypeID _id;
 	char buf[512] = {0};
 	char* buf2 = nullptr;

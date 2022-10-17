@@ -61,6 +61,9 @@ add_definitions(-DALLEGRO_KCM_AUDIO_SRC)
 #    aintern_bitmap.h:154:33: error: unknown type name 'ALLEGRO_BITMAP_WRAP'
 add_definitions(-DALLEGRO_UNSTABLE)
 option(SHARED "" ON)
+# set(BUILD_SHARED_LIBS ${SHARED})
+# TODO: work this out.
+set(CMAKE_BUILD_TYPE Release)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -112,7 +115,11 @@ add_subdirectory(allegro-legacy EXCLUDE_FROM_ALL)
 add_library(allegro_with_legacy INTERFACE)
 target_include_directories(allegro_with_legacy INTERFACE ${allegro5_SOURCE_DIR}/include ${allegro5_BINARY_DIR}/include)
 target_include_directories(allegro_with_legacy INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/allegro-legacy/include ${CMAKE_CURRENT_BINARY_DIR}/allegro-legacy/include)
-target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primitives allegro_image allegro_dialog allegro_main)
+target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primitives allegro_image allegro_main)
+
+if (NOT EMSCRIPTEN)
+	target_link_libraries(allegro_with_legacy INTERFACE allegro_dialog)
+endif()
 
 #############################################################
 # Header and source file lists
@@ -124,10 +131,17 @@ include_directories(./src)
 # TODO: remove
 include_directories(./src/zc)
 
-set(ZCSOUNDSOURCES
-	src/zcmusic.cpp
-	src/zcmusicd.cpp
-)
+if (EMSCRIPTEN)
+	set(ZCSOUNDSOURCES
+		src/zcmusic_fake.cpp
+		src/zcmusicd.cpp
+	)
+else()
+	set(ZCSOUNDSOURCES
+		src/zcmusic.cpp
+		src/zcmusicd.cpp
+	)
+endif()
 
 set(ZELDA_MODULES
 	${CMAKE_SOURCE_DIR}/modules/zelda/ZeldaCore.txt
@@ -226,7 +240,19 @@ if(MSVC)
 		list(APPEND ZQUESTEXTRASOURCES src/precompiledzq.cpp)
 	endif()
 
-# Linux
+elseif(EMSCRIPTEN)
+	# link_directories(/usr/lib/i386-linux-gnu)
+	add_definitions(-DALLEGRO_LINUX) # Mistakenly used in the source.
+
+	# TODO: figure out media libraries. probably replace this with w/e SDL offers.
+	# set(IMAGELIBS algif ldpng jpgal png z)
+	# set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
+	# set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm dl)
+
+	add_compile_options("-m32")
+	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32 -static-libgcc -export-dynamic")
+	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32 -static-libgcc")
+
 elseif(LINUX)
 	link_directories(/usr/lib/i386-linux-gnu)
 	link_directories(./libs/linux)
@@ -236,7 +262,6 @@ elseif(LINUX)
 	set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
 	set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm dl)
 
-	add_compile_options("-m32")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32 -static-libgcc -export-dynamic")
 	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32 -static-libgcc")
 endif()
@@ -657,7 +682,7 @@ endif()
 # Visual Studio
 #############################################################
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	# "Edit and Continue" functionality
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /ZI")
 	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /SAFESEH:NO")

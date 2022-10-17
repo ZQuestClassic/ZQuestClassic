@@ -77,6 +77,7 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
                     // local edit
                     // all of this complexity is because ZC is not coded to be resolution-independent
                     // re: it's UI
+#ifndef __EMSCRIPTEN__
                     int native_width, native_height, display_width, display_height, offset_x, offset_y;
                     double scale;
                     all_get_display_transform(&native_width, &native_height, &display_width, &display_height, &offset_x, &offset_y, &scale);
@@ -97,6 +98,7 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
                         _mouse_x = native_width * ((double)_mouse_x - offset_x) / ((double)display_width - offset_x * 2);
                         _mouse_y = native_height * ((double)_mouse_y - offset_y) / ((double)display_height - offset_y * 2);
                     }
+#endif
 
                     if (prevx != _mouse_x || prevy != _mouse_y || prevz != _mouse_z) {
                         all_mark_screen_dirty();
