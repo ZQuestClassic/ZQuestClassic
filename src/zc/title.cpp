@@ -33,6 +33,10 @@
 #include "hero.h"
 #include "ffscript.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#endif
+
 #ifdef _MSC_VER
 #define strupr _strupr
 #define stricmp _stricmp
@@ -2822,6 +2826,13 @@ int32_t save_savedgames()
 		
 	fclose(f2);
 	free(iname);
+
+#ifdef __EMSCRIPTEN__
+	EM_ASM({
+		FS.syncfs(false, () => {});
+	});
+#endif
+
 	return ret;
 }
 
