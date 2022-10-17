@@ -11,6 +11,8 @@
 #endif
 
 int32_t zcmusic_bufsz = 64;
+static std::vector<ZCMUSIC*> playlist;
+static ALLEGRO_MUTEX *playlistmutex = NULL;
 
 // TODO: dedupe this function.
 ZCMUSIC* zcmusic_load_for_quest(char* filename, char* quest_path)
@@ -93,6 +95,8 @@ void zcm_extract_name(const char *path, char *name, int32_t type)
 
 bool zcmusic_init(int32_t flags)
 {
+  if (!playlistmutex) playlistmutex = al_create_mutex();
+
   if (Mix_OpenAudioDevice(22050, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 0, NULL, 0) < 0)
   {
     al_trace("Mix_OpenAudioDevice error: %s\n", Mix_GetError());
@@ -101,7 +105,29 @@ bool zcmusic_init(int32_t flags)
 
   return true;
 }
-bool zcmusic_poll(int32_t flags) { return false; }
+bool zcmusic_poll(int32_t flags) {
+  al_lock_mutex(playlistmutex);
+
+  std::vector<ZCMUSIC*>::iterator b = playlist.begin();
+  while(b != playlist.end())
+  {
+      switch((*b)->playing)
+      {
+      case ZCM_STOPPED:
+          // if it has stopped, remove it from playlist;
+          b = playlist.erase(b);
+          break;
+      case ZCM_PLAYING:
+          (*b)->position++;
+          break;
+      }
+      b++;
+  }
+
+  al_unlock_mutex(playlistmutex);
+
+  return true;
+}
 void zcmusic_exit() {}
 
 ZCMUSIC *zcmusic_load_file(const char *filename)
@@ -124,7 +150,7 @@ ZCMUSIC *zcmusic_load_file(const char *filename)
   zcm_extract_name(filename, music->filename, FILENAMEALL);
   music->filename[255] = '\0';
   music->track = 0;
-  music->playing = 0;
+  music->playing = ZCM_STOPPED;
   music->position = 0;
   music->mus = mus;
 
@@ -135,31 +161,52 @@ bool zcmusic_play(ZCMUSIC *zcm, int32_t vol)
 {
   if (Mix_PlayMusic(zcm->mus, -1) < 0)
   {
-    zcm->playing = 0;
+    zcm->playing = ZCM_STOPPED;
     al_trace("Mix_PlayMusic error: %s\n", Mix_GetError());
     return 1;
   }
 
   // In case it was paused.
   Mix_ResumeMusic();
-  zcm->playing = 1;
+  zcm->playing = ZCM_PLAYING;
+
+  al_lock_mutex(playlistmutex);
+  playlist.push_back(zcm);
+  al_unlock_mutex(playlistmutex);
+
   return 0;
 }
 bool zcmusic_pause(ZCMUSIC *zcm, int32_t pause)
 {
+  if (zcm == NULL) return false;
+
+  al_lock_mutex(playlistmutex);
+
+  if (pause == ZCM_TOGGLE) {
+    pause = (zcm->playing == ZCM_PAUSED) ? ZCM_RESUME : ZCM_PAUSE;
+  }
+
   if (pause == ZCM_RESUME) {
     Mix_ResumeMusic();
-    zcm->playing = 0;
-  } else {
+    zcm->playing = ZCM_PLAYING;
+  } else if (pause == ZCM_PAUSE) {
     Mix_PauseMusic();
-    zcm->playing = -1;
+    zcm->playing = ZCM_PAUSED;
   }
+
+  al_unlock_mutex(playlistmutex);
   return true;
 }
 bool zcmusic_stop(ZCMUSIC *zcm)
 {
+  if (zcm == NULL) return false;
+
+  al_lock_mutex(playlistmutex);
+
   Mix_HaltMusic();
   zcm->playing = 0;
+
+  al_unlock_mutex(playlistmutex);
   return true;
 }
 void zcmusic_unload_file(ZCMUSIC *&zcm)
@@ -167,10 +214,21 @@ void zcmusic_unload_file(ZCMUSIC *&zcm)
   if (zcm == NULL)
     return;
 
+  al_lock_mutex(playlistmutex);
+
+  for (auto it = playlist.begin(); it != playlist.end(); it++) {
+    if (*it == zcm) {
+      it = playlist.erase(it);
+      break;
+    }
+  }
+
   Mix_FreeMusic(zcm->mus);
   zcm->mus = NULL;
   free(zcm);
   zcm = NULL;
+
+  al_unlock_mutex(playlistmutex);
 }
 int32_t zcmusic_get_tracks(ZCMUSIC *zcm) {
   if (zcm == NULL)
