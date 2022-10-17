@@ -122,3 +122,12 @@ void zc_set_volume(int digi_volume, int midi_volume)
   set_volume(digi_volume, midi_volume);
 #endif
 }
+
+void zc_midi_seek(int pos)
+{
+#ifdef __EMSCRIPTEN__
+  Mix_SetMusicPosition(pos);
+#else
+  midi_seek(pos);
+#endif
+}

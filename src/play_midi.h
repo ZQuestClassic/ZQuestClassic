@@ -16,5 +16,6 @@ void zc_midi_pause();
 void zc_midi_resume();
 void zc_stop_midi();
 void zc_set_volume(int digi_volume, int midi_volume);
+void zc_midi_seek(int pos);
 
 #endif

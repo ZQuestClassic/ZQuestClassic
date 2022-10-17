@@ -4606,7 +4606,7 @@ int32_t playTune(int32_t pos)
     
     if(zc_play_midi((MIDI*)zcdata[THETRAVELSOFLINK_MID].dat,true)==0)
     {
-        midi_seek(pos);
+        zc_midi_seek(pos);
         
         etc_menu[8].flags = D_SELECTED;
         commands[cmdPlayTune].flags = 0;
@@ -18450,7 +18450,7 @@ void edit_tune(int32_t i)
                 
                 if(pos>0)
                 {
-                    midi_seek(pos);
+                    zc_midi_seek(pos);
                 }
                 
                 break;
@@ -18482,7 +18482,7 @@ void edit_tune(int32_t i)
                 
                 if(pos>0)
                 {
-                    midi_seek(pos);
+                    zc_midi_seek(pos);
                 }
                 
                 break;
@@ -18498,7 +18498,7 @@ void edit_tune(int32_t i)
             midi_loop_end = -1;
             zc_play_midi((MIDI*)data,loop);
             zc_set_volume(-1,volume);
-            midi_seek(pos<0?start:pos);
+            zc_midi_seek(pos<0?start:pos);
             midi_loop_start = loop_start;
             midi_loop_end = loop_end;
         }
