@@ -9717,6 +9717,8 @@ void load_control_state()
 	for (int i = 0; i < ZC_CONTROL_STATES; i++)
 	{
 		control_state[i] = raw_control_state[i];
+		if(!control_state[i])
+			down_control_states[i] = false;
 	}
 	
 	button_press[0]=rButton(control_state[0],button_hold[0]);
