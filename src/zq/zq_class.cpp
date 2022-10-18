@@ -9078,6 +9078,7 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		return qe_invalid;
 	
 	mapscr& screen=TheMaps.at(i*MAPSCRS+j);
+	bool is_0x80_screen = j >= 0x80;
 	
 	if(!p_putc(screen.valid,f))
 		return qe_invalid;
@@ -9088,7 +9089,7 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 	if(screen.guy || screen.str
 		|| screen.room || screen.catchall)
 		scr_has_flags |= SCRHAS_ROOMDATA;
-	if(screen.hasitem)
+	if(screen.hasitem || (is_0x80_screen && (screen.itemx||screen.itemy)))
 		scr_has_flags |= SCRHAS_ITEM;
 	if((screen.warpreturnc&0x00FF) || screen.tilewarpoverlayflags)
 		scr_has_flags |= SCRHAS_TWARP;
