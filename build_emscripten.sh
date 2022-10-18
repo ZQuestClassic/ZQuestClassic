@@ -9,7 +9,7 @@ then
   exit 1
 fi
 
-EMCC_VERSION=3.1.15
+EMCC_VERSION=3.1.24
 emsdk install $EMCC_VERSION
 emsdk activate $EMCC_VERSION
 source emsdk_env.sh
