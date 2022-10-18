@@ -709,12 +709,12 @@ void show_replay_controls(BITMAP *target)
 		
 	if(sbig)
 	{
-		int32_t x = scrx+180+((screen_scale-1)*120);
+		int32_t x = scrx+140+((screen_scale-1)*120);
 		int32_t y = scry+224+((screen_scale-1)*104);
-		textout_ex(target,zfont,text.c_str(),x,y,-1,-1);
+		textout_ex(target,zfont,text.c_str(),x,y,-1,0);
 	}
 	else
-		textout_ex(target,zfont,text.c_str(),scrx+180,scry+224,-1,-1);
+		textout_ex(target,zfont,text.c_str(),scrx+140,scry+224,-1,0);
 }
 
 //----------------------------------------------------------------

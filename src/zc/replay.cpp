@@ -983,6 +983,7 @@ std::string replay_get_filename()
 std::string replay_get_buttons_string()
 {
     std::string text;
+    text += fmt::format("{} ", frame_count);
     for (int i = 0; i < ZC_CONTROL_STATES; i++)
     {
         if (raw_control_state[i])
