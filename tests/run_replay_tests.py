@@ -29,7 +29,6 @@
 import argparse
 import subprocess
 import os
-import sys
 import difflib
 import pathlib
 
@@ -57,36 +56,23 @@ def run_replay_test(replay_file):
     # TODO: fix this common-ish error, and whatever else is causing random failures.
     # Assertion failed: (mutex), function al_lock_mutex, file threads.Assertion failed: (mutex), function al_lock_mutex, file threads.c, line 324.
     # Assertion failed: (mutex), function al_lock_mutex, file threads.c, line 324.
-    attempts = 0
-    while attempts <= args.retries:
-        attempts += 1
-        exe_name = 'zelda.exe' if os.name == 'nt' else 'zelda'
-        exe_path = f'{args.build_folder}/{exe_name}'
-        exe_args = [
-            exe_path,
-            '-update' if args.update else '-assert', replay_file,
-            '-v1' if args.throttle_fps else '-v0',
-        ]
-        if args.frame is not None:
-            exe_args.extend(['-frame', str(args.frame)])
+    exe_name = 'zelda.exe' if os.name == 'nt' else 'zelda'
+    exe_path = f'{args.build_folder}/{exe_name}'
+    exe_args = [
+        exe_path,
+        '-update' if args.update else '-assert', replay_file,
+        '-v1' if args.throttle_fps else '-v0',
+    ]
+    if args.frame is not None:
+        exe_args.extend(['-frame', str(args.frame)])
 
-        process = subprocess.Popen(exe_args,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE,
-                                   text=True)
-        stdout, stderr = process.communicate()
+    process = subprocess.Popen(exe_args,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE,
+                               text=True)
+    stdout, stderr = process.communicate()
 
-        print('❌' if process.returncode != 0 else '✅')
-
-        if process.returncode != 0:
-            print('stdout:')
-            print(stdout)
-            print('\nstderr:')
-            print(stderr)
-            continue
-        else:
-            break
-
+    diff = None
     if not args.update and process.returncode == 120:
         roundtrip_path = pathlib.Path(f'{replay_file}.roundtrip')
         if os.path.exists(roundtrip_path):
@@ -94,23 +80,47 @@ def run_replay_test(replay_file):
                 fromlines = f.readlines()
             with open(roundtrip_path) as f:
                 tolines = f.readlines()
-            sys.stdout.writelines(difflib.context_diff(
+            diff_iter = difflib.context_diff(
                 fromlines, tolines,
                 str(replay_file.relative_to(replays_dir)),
-                str(roundtrip_path.relative_to(replays_dir))))
+                str(roundtrip_path.relative_to(replays_dir)),
+                n=3)
+            diff = ''.join(diff_iter)
         else:
-            print('missing roundtrip file, cannnot print diff')
+            diff = 'missing roundtrip file, cannnot diff'
 
-    return process.returncode == 0
+    return process.returncode == 0, stdout, stderr, diff
 
 
-num_failures = 0
-print(f'running {len(tests)} replay tests')
+test_states = {}
 for test in tests:
-    print(f'= {test.relative_to(replays_dir)} ... ', end='', flush=True)
-    if not run_replay_test(test):
-        num_failures += 1
+    test_states[test] = False
 
+print(f'running {len(tests)} replay tests\n')
+iteration_count = 0
+for i in range(args.retries + 1):
+    if all(test_states.values()):
+        break
+
+    if i != 0:
+        print('\nretrying failures...\n')
+
+    for test in [t for t in tests if not test_states[t]]:
+        print(f'= {test.relative_to(replays_dir)} ... ', end='', flush=True)
+        test_states[test], stdout, stderr, diff = run_replay_test(test)
+        print('✅' if test_states[test] else '❌')
+
+        # Only print on failure and last attempt.
+        if not test_states[test] and i == args.retries:
+            print('stdout:')
+            print(stdout)
+            print('\nstderr:')
+            print(stderr)
+            print('\ndiff:')
+            print(diff)
+
+
+num_failures = sum(not state for state in test_states.values())
 if num_failures == 0:
     print('all replay tests passed')
 else:
