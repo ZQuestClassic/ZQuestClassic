@@ -25110,7 +25110,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// 2) When scrolling between DMaps of different colours.
 	if(destdmap != -1 && DMaps[destdmap].color != currcset)
 	{
-		fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : DMaps[destdmap].color, true, false);
+		fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, false);
 		darkroom = true;
 	}
 	else if(!darkroom)
