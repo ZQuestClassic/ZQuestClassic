@@ -611,6 +611,7 @@ void replay_start(ReplayMode mode_, std::string filename_)
     {
         std::time_t ct = std::time(0);
         replay_set_meta("time_created", strtok(ctime(&ct), "\n"));
+        replay_set_meta("version", 2);
         start_recording();
         break;
     }
@@ -953,6 +954,13 @@ std::string replay_get_meta_str(std::string key)
 int replay_get_meta_int(std::string key)
 {
     return std::stoi(get_meta_raw_value(key).c_str());
+}
+
+int replay_get_meta_int(std::string key, int defaultValue)
+{
+    std::string raw = get_meta_raw_value(key);
+    if (raw.empty()) return defaultValue;
+    return std::stoi(raw.c_str());
 }
 
 bool replay_get_meta_bool(std::string key)

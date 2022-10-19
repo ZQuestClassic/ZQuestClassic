@@ -2,6 +2,7 @@ M qst modules/classic/classic_1st.qst
 M sync_rng true
 M time_created Mon Oct  3 18:13:23 2022
 M time_updated Mon Oct 17 20:53:04 2022
+M version 2
 C 0 init_game
 R 0 0 1 1664442051
 R 0 2 257 1962970203

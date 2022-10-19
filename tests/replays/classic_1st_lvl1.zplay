@@ -3,6 +3,7 @@ M qst modules/classic/classic_1st.qst
 M sync_rng true
 M time_created Mon Oct  3 18:17:17 2022
 M time_updated Thu Oct 13 16:57:54 2022
+M version 2
 C 0 init_game
 R 0 0 257 0
 C 0 getitem Shield 1 (Small)

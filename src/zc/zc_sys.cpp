@@ -9714,10 +9714,13 @@ void load_control_state()
 	replay_poll();
 	locking_keys = false;
 
+	// Some test replay files were made before a serious input bug was fixed, so instead
+	// of re-doing them or tossing them out, just check for that zplay version.
+	bool botched_input = replay_is_replaying() && replay_get_meta_int("version", 1) == 1;
 	for (int i = 0; i < ZC_CONTROL_STATES; i++)
 	{
 		control_state[i] = raw_control_state[i];
-		if(!control_state[i])
+		if(!botched_input && !control_state[i])
 			down_control_states[i] = false;
 	}
 	

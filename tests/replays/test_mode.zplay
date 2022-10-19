@@ -7,6 +7,7 @@ M sync_rng true
 M test_mode true
 M time_created Mon Oct  3 18:17:38 2022
 M time_updated Thu Oct 13 16:57:39 2022
+M version 2
 C 0 init_game
 R 0 0 1 1664390467
 R 0 2 257 1962918619
