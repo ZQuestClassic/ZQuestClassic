@@ -86,7 +86,8 @@ def run_replay_test(replay_file):
                 str(replay_file.relative_to(replays_dir)),
                 str(roundtrip_path.relative_to(replays_dir)),
                 n=3)
-            diff = ''.join(diff_iter)
+            trimmed_diff_lines = [x for _, x in zip(range(100), diff_iter)]
+            diff = ''.join(trimmed_diff_lines)
         else:
             diff = 'missing roundtrip file, cannnot diff'
 
