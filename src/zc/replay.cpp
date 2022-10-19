@@ -725,6 +725,8 @@ void replay_poll()
         check_assert();
         if (replay_log_current_index == replay_log.size() && assert_current_index == replay_log.size())
             replay_stop();
+        if (has_assert_failed && frame_count - replay_log[assert_current_index]->frame > 60*60)
+            replay_stop();
         break;
     case ReplayMode::Update:
         do_replaying_poll();
