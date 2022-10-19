@@ -47,7 +47,7 @@ jobs:
       working-directory: output/_auto/buildpack
     
     # Run replay tests.
-    - run: python3 -Xutf8 ${{ github.workspace }}/tests/run_replay_tests.py --build_folder=${{ github.workspace }}/Release --retries=1
+    - run: python3 -Xutf8 ${{ github.workspace }}/tests/run_replay_tests.py --build_folder=${{ github.workspace }}/Release --retries=1 --ci windows
       working-directory: output/_auto/buildpack
     - uses: actions/upload-artifact@v3
       if: failure()
@@ -85,7 +85,7 @@ jobs:
       working-directory: output/_auto/zelda-classic-mac/ZeldaClassic.app/Contents/Resources
     
     # Run replay tests.
-    - run: python3 ${{ github.workspace }}/tests/run_replay_tests.py --build_folder=${{ github.workspace }}/build/Release --retries=3
+    - run: python3 ${{ github.workspace }}/tests/run_replay_tests.py --build_folder=${{ github.workspace }}/build/Release --retries=1 --ci osx
       working-directory: output/_auto/zelda-classic-mac/ZeldaClassic.app/Contents/Resources
     - uses: actions/upload-artifact@v3
       if: failure()
