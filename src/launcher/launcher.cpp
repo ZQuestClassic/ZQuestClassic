@@ -203,6 +203,13 @@ int32_t main(int32_t argc, char* argv[])
 		enable_hardware_cursor();
 		select_mouse_cursor(MOUSE_CURSOR_ARROW);
 	}
+	else
+	{
+#ifdef _WIN32
+		while (!all_get_display()) rest(1);
+		al_hide_mouse_cursor(all_get_display());
+#endif
+	}
 	
 	Z_message("Loading bitmaps..."); //{
 	tmp_scr = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
