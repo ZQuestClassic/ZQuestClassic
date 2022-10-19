@@ -31,6 +31,7 @@ import subprocess
 import os
 import difflib
 import pathlib
+import shutil
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--build_folder', default='build/Debug')
@@ -95,6 +96,11 @@ def run_replay_test(replay_file):
 test_states = {}
 for test in tests:
     test_states[test] = False
+
+    # qst files need to be relative to the build folder, so copy them over.
+    maybe_qst_path = test.with_suffix('.qst')
+    if maybe_qst_path.exists():
+        shutil.copy2(maybe_qst_path, args.build_folder)
 
 print(f'running {len(tests)} replay tests\n')
 iteration_count = 0

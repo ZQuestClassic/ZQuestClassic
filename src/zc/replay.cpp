@@ -36,6 +36,7 @@ static bool did_attempt_input_during_replay;
 static int frame_count;
 static bool previous_control_state[ZC_CONTROL_STATES];
 static std::vector<zc_randgen *> rngs;
+static uint32_t prev_gfx_hash;
 
 struct ReplayStep
 {
@@ -600,6 +601,7 @@ void replay_start(ReplayMode mode_, std::string filename_)
     filename = filename_;
     manual_takeover_start_index = assert_current_index = replay_log_current_index = frame_count = 0;
     frame_arg = -1;
+    prev_gfx_hash = 0;
     ButtonReplayStep::load_keys();
 
     switch (mode)
@@ -907,6 +909,42 @@ void replay_step_comment(std::string comment)
         if (mode == ReplayMode::Assert)
             check_assert();
     }
+}
+
+// https://base91.sourceforge.net/
+// The maximum number of digits this can generate:
+//     uint64_t = 10
+//     uint32_t = 5
+//     uint16_t = 3
+//     uint8_t  = 2
+template <typename T>
+std::string int_to_basE91(T value)
+{
+    const char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&()*+,./:;<=>?@[]^_`{|}~\"";
+    std::string result;
+    while (value > 0)
+    {
+        T remainder = value % 91;
+        value /= 91;
+        result.insert(result.begin(), alphabet[remainder]);
+    }
+    return result;
+}
+
+void replay_step_gfx(uint32_t gfx_hash)
+{
+    // Skip if last invocation was the same value.
+    if (gfx_hash == prev_gfx_hash)
+        return;
+
+    prev_gfx_hash = gfx_hash;
+    // 16 bits should be enough entropy to detect visual regressions.
+    // Using uint16_t reduces .zplay by ~7%.
+    replay_step_comment(int_to_basE91((uint16_t)gfx_hash));
+
+    // Note: I tried a simple queue cache to remember the last N hashes and use shorthand
+    // for repeats (ex: gfx ^2), but even with a huge memory of 16777216 hashes the
+    // savings was never more than 2%, so not worth it.
 }
 
 void replay_set_meta(std::string key, std::string value)

@@ -3832,11 +3832,7 @@ void updatescr(bool allowwavy)
 		int depth = bitmap_color_depth(framebuf);
 		size_t len = framebuf->w * framebuf->h * BYTES_PER_PIXEL(depth);
 		uint32_t hash = XXH32(framebuf->dat, len, 0);
-		if (hash != prev_hash)
-		{
-			replay_step_comment(fmt::format("gfx {:x}", hash));
-			prev_hash = hash;
-		}
+		replay_step_gfx(hash);
 	}
 
 	if(black_opening_count==0&&black_opening_shape==bosFADEBLACK)

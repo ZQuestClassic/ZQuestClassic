@@ -38,6 +38,7 @@ void replay_save(std::string filename);
 void replay_stop_manual_takeover();
 
 void replay_step_comment(std::string comment);
+void replay_step_gfx(uint32_t gfx_hash);
 void replay_step_quit(int quit_state);
 void replay_step_cheat(Cheat cheat, int arg1 = -1, int arg2 = -1);
 
