@@ -3828,7 +3828,6 @@ void updatescr(bool allowwavy)
 
 	if (replay_is_debug() && replay_get_mode() != ReplayMode::Replay)
 	{
-		static long prev_hash = 0;
 		int depth = bitmap_color_depth(framebuf);
 		size_t len = framebuf->w * framebuf->h * BYTES_PER_PIXEL(depth);
 		uint32_t hash = XXH32(framebuf->dat, len, 0);

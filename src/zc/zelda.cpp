@@ -5747,7 +5747,7 @@ reload_for_replay_file:
 				int y = HeroY().getInt();
 				if (x != replay_debug_last_x || y != replay_debug_last_y)
 				{
-					replay_step_comment(fmt::format("h {:x} {:x}", frame, x, y));
+					replay_step_comment(fmt::format("h {:x} {:x}", x, y));
 					replay_debug_last_x = x;
 					replay_debug_last_y = y;
 				}
