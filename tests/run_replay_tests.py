@@ -32,6 +32,7 @@ import os
 import difflib
 import pathlib
 import shutil
+from time import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--build_folder', default='build/Debug')
@@ -67,14 +68,17 @@ def run_replay_test(replay_file):
     if args.frame is not None:
         exe_args.extend(['-frame', str(args.frame)])
 
-    process = subprocess.Popen(exe_args,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE,
-                               text=True)
-    stdout, stderr = process.communicate()
+    try:
+        process_result = subprocess.run(exe_args,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                text=True,
+                                timeout=60*10)
+    except subprocess.TimeoutExpired as e:
+        return False, f'{e}\n\n{e.stdout}', e.stderr, None
 
     diff = None
-    if not args.update and process.returncode == 120:
+    if not args.update and process_result.returncode == 120:
         roundtrip_path = pathlib.Path(f'{replay_file}.roundtrip')
         if os.path.exists(roundtrip_path):
             with open(replay_file) as f:
@@ -91,7 +95,7 @@ def run_replay_test(replay_file):
         else:
             diff = 'missing roundtrip file, cannnot diff'
 
-    return process.returncode == 0, stdout, stderr, diff
+    return process_result.returncode == 0, process_result.stdout, process_result.stderr, diff
 
 
 test_states = {}
