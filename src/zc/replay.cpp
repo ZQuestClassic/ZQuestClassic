@@ -951,7 +951,7 @@ void replay_step_gfx(uint32_t gfx_hash)
     prev_gfx_hash = gfx_hash;
     // 16 bits should be enough entropy to detect visual regressions.
     // Using uint16_t reduces .zplay by ~7%.
-    replay_step_comment(int_to_basE91((uint16_t)gfx_hash));
+    replay_step_comment(fmt::format("g {}", int_to_basE91((uint16_t)gfx_hash)));
 
     // Note: I tried a simple queue cache to remember the last N hashes and use shorthand
     // for repeats (ex: gfx ^2), but even with a huge memory of 16777216 hashes the

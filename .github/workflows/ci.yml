@@ -21,6 +21,8 @@ jobs:
 
     - name: git clone
       uses: actions/checkout@v2
+      with:
+        lfs: true
 
     - name: Install Dependencies
       uses: crazy-max/ghaction-chocolatey@v1
@@ -63,6 +65,8 @@ jobs:
     steps:
     - name: git clone
       uses: actions/checkout@v2
+      with:
+        lfs: true
     
     - run: brew install ninja dylibbundler create-dmg
     - name: Install Bison
