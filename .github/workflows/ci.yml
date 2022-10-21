@@ -53,7 +53,9 @@ jobs:
       if: failure()
       with:
         name: replays ${{ matrix.arch }}
-        path: ${{ github.workspace }}/tests/replays/
+        path: |
+          ${{ github.workspace }}/tests/replays/*.zplay.roundtrip
+          ${{ github.workspace }}/tests/replays/*.zplay.unexpected*
 
   compile-mac:
     runs-on: macos-12
@@ -91,4 +93,6 @@ jobs:
       if: failure()
       with:
         name: replays osx
-        path: ${{ github.workspace }}/tests/replays/
+        path: |
+          ${{ github.workspace }}/tests/replays/*.zplay.roundtrip
+          ${{ github.workspace }}/tests/replays/*.zplay.unexpected*
