@@ -1690,9 +1690,9 @@ void ComboEditorDialog::loadComboType()
 				h_attribute[3] = "The Z amount below the block's Z-height that you can jump atop it from. This allows"
 					" for 'walking up stairs' type effects.";
 			}
-			l_flag[9] = "Global State";
-			h_flag[9] = "Use a global state instead of a level-based state.";
-			if(FL(cflag10)) //Global State
+			l_flag[10] = "Global State";
+			h_flag[10] = "Use a global state instead of a level-based state.";
+			if(FL(cflag11)) //Global State
 			{
 				l_attribyte[0] = "State Num:";
 				h_attribyte[0] = "Range 0-255 inclusive, which of the global switch states to trigger from";
