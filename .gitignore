@@ -129,3 +129,4 @@ output/_auto/*.zip
 
 # Other
 *.zplay.roundtrip
+*.zplay.unexpected*
