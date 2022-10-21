@@ -1638,9 +1638,9 @@ void ComboEditorDialog::loadComboType()
 			h_attribute[1] = "Value to add to the cset when triggered";
 			l_attribyte[1] = "SFX:";
 			h_attribyte[1] = "SFX to play when triggered";
-			l_flag[9] = "Global State";
-			h_flag[9] = "Use a global state instead of a level-based state.";
-			if(FL(cflag10)) //Global State
+			l_flag[10] = "Global State";
+			h_flag[10] = "Use a global state instead of a level-based state.";
+			if(FL(cflag11)) //Global State
 			{
 				l_attribyte[0] = "State Num:";
 				h_attribyte[0] = "Range 0-255 inclusive, which of the global switch states to trigger from";
