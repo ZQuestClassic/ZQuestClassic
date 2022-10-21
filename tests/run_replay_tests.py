@@ -1,5 +1,8 @@
 # For more information, see replay.h
 
+# Before this will work, you need to install git-lfs:
+#     https://git-lfs.github.com/
+
 # To create a new replay test, run:
 #    ./zelda -record path_to_file.zplay -test path_to_game.qst dmap screen
 #
@@ -32,7 +35,6 @@ import os
 import difflib
 import pathlib
 import shutil
-from time import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--build_folder', default='build/Debug')
