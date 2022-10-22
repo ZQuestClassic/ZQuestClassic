@@ -2,6 +2,8 @@
 #define __zc_math_h_
 
 #include <math.h>
+#include "sin1.h"
+#include "replay.h"
 
 namespace zc
 {
@@ -78,7 +80,40 @@ inline float CalculateBezier(const float p1, const float t1, const float t2, con
     return ((p1 * A) + (t1 * B) + (t2 * C) + (t3 * D) + (p2 * E));
 }
 
+#define Q15 (1.0/(double)((1<<15)-1))
+inline double Sin(double x)
+{
+	if (replay_is_active())
+	{
+		// x needs to be converted from radians -> angles -> sin1 domain
+		x = x * (180/PI * 32768.0/360.0);
+		return sin1(x) * Q15;
+	}
+	else
+		return std::sin(x);
+}
 
+inline double Cos(double x)
+{
+	if (replay_is_active())
+	{
+		x = x * (180/PI * 32768.0/360.0);
+		return cos1(x) * Q15;
+	}
+	else
+		return std::cos(x);
+}
+
+inline double Tan(double x)
+{
+	if (replay_is_active())
+	{
+		x = x * (180/PI * 32768.0/360.0);
+		return (sin1(x) * Q15) / (cos1(x) * Q15);
+	}
+	else
+		return std::tan(x);
+}
 
 
 

@@ -5,6 +5,7 @@
 #include "precompiled.h" //always first
 
 #include "particles.h"
+#include "base/zc_math.h"
 
 particle::~particle()
 {
@@ -40,8 +41,8 @@ void particle::move(zfix s)
 {
     if(angular)
     {
-        x += cos(angle)*s;
-        y += sin(angle)*s;
+        x += zc::math::Cos(angle)*s;
+        y += zc::math::Sin(angle)*s;
 		return;
     }
 	

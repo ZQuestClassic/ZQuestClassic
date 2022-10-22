@@ -33,6 +33,7 @@
 #include "ffscript.h"
 #include "drawing.h"
 #include "combos.h"
+#include "base/zc_math.h"
 extern FFScript FFCore;
 extern word combo_doscript[176];
 extern byte itemscriptInitialised[256];
@@ -2923,8 +2924,8 @@ attack:
 			ny=y;
 		}
 		
-		double tx = cos(a2)*53  +nx;
-		double ty = -sin(a2)*53 +ny+playing_field_offset;
+		double tx = zc::math::Cos(a2)*53  +nx;
+		double ty = -zc::math::Sin(a2)*53 +ny+playing_field_offset;
 		overtile8(dest,htile,int32_t(tx),int32_t(ty),1,0);
 		a2-=PI/4;
 		++hearts;

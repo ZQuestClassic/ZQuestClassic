@@ -34228,4 +34228,5 @@ void enter_sys_pal(){}
 void exit_sys_pal(){}
 
 void replay_step_comment(std::string comment) {}
+bool replay_is_active() {return false;}
 bool replay_is_debug() {return false;}

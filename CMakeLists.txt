@@ -206,8 +206,6 @@ if(MSVC)
 	# Turn off warnings for all targets that aren't ours (set later in Misc. section)
 	add_compile_options(/W0)
 
-	# REQUIRED or else MSVC throws internal compiler error(!)
-	add_compile_options("$<$<CONFIG:RELEASE>:/fp:fast>")
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	
 	if(MSVC_VERSION GREATER 1600)
@@ -241,6 +239,13 @@ elseif(LINUX)
 	add_compile_options("-m32")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32 -static-libgcc -export-dynamic")
 	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32 -static-libgcc")
+endif()
+
+if(MSVC)
+	# REQUIRED or else MSVC throws internal compiler error(!)
+	add_compile_options("/fp:fast")
+else(UNIX)
+	add_compile_options("-ffp-model=fast")
 endif()
 
 #############################################################
@@ -287,6 +292,7 @@ add_library(zcbase STATIC
 	src/base/module.cpp
 	src/base/process_management.cpp
 	src/base/random.cpp
+	src/base/sin1.cpp
 	src/base/util.cpp
 	src/base/win32.cpp
 	src/base/zapp.cpp

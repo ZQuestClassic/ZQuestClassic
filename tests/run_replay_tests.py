@@ -60,9 +60,6 @@ if args.ci:
         # Never finishes.
         'new2013.zplay',
     ]
-    if args.ci == 'windows':
-        # Unaddressed graphical difference.
-        replays_failing_in_ci.append('classic_1st.zplay')
     tests = [t for t in tests if t.name not in replays_failing_in_ci]
 
 def run_replay_test(replay_file):

@@ -32,6 +32,7 @@
 #include "decorations.h"
 #include "drawing.h"
 #include "combos.h"
+#include "base/zc_math.h"
 
 extern HeroClass Hero;
 extern zinitdata zinit;
@@ -3926,8 +3927,8 @@ bool weapon::animate(int32_t index)
 			
 			int32_t speed = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc1,1) : 1;
 			int32_t radius = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc2,8) : 8;
-			double xdiff = -(sin((double)clk/speed) * radius);
-			double ydiff = (cos((double)clk/speed) * radius);
+			double xdiff = -(zc::math::Sin((double)clk/speed) * radius);
+			double ydiff = (zc::math::Cos((double)clk/speed) * radius);
 			
 			double ddir=atan2(double(ydiff),double(xdiff));
 			

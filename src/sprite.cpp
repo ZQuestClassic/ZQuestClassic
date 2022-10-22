@@ -26,6 +26,7 @@
 #include "maps.h"
 #include "replay.h"
 #include "guys.h"
+#include "base/zc_math.h"
 #include <fmt/format.h>
 
 #ifndef IS_ZQUEST
@@ -1028,8 +1029,8 @@ void sprite::move(zfix s)
 {
     if(angular)
     {
-        x += cos(angle)*s;
-        y += sin(angle)*s;
+        x += zc::math::Cos(angle)*s;
+        y += zc::math::Sin(angle)*s;
 		return;
     }
     
