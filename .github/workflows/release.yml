@@ -29,18 +29,26 @@ jobs:
   check-date:
     runs-on: ubuntu-latest
     outputs:
-      should_run: ${{ steps.should_run.outputs.should_run }}
+      should_run: ${{ steps.should_run_cron.outputs.should_run || steps.should_run_normal.outputs.should_run }}
     steps:
       - uses: actions/checkout@v2
       - name: print latest_commit
         run: echo ${{ github.sha }}
 
-      - id: should_run
+      - id: should_run_cron
         continue-on-error: true
         if: github.event_name == 'schedule' && github.event.pull_request.head.repo.full_name == 'ArmageddonGames/ZQuestClassic'
-        run: test -z $(git rev-list --after="1 week" ${{ github.sha }}) && echo "::set-output name=should_run::false"
+        run: test -z $(git rev-list --after="1 week" ${{ github.sha }}) || echo "::set-output name=should_run::true"
+      - id: should_run_normal
+        continue-on-error: true
+        if: github.event_name != 'schedule'
+        run: echo "::set-output name=should_run::true"
 
   create-tag:
+    needs:
+      - check-date
+    if: ${{ needs.check-date.outputs.should_run == 'true' }}
+
     runs-on: ubuntu-latest
     env:
        HAVE_SENTRY_TOKEN: ${{ secrets.SENTRY_TOKEN != '' }}
@@ -79,7 +87,7 @@ jobs:
     needs:
       - check-date
       - create-tag
-    if: ${{ needs.check-date.outputs.should_run != 'false' }}
+    if: ${{ needs.check-date.outputs.should_run == 'true' }}
 
     runs-on: windows-2022
     env:
@@ -138,7 +146,7 @@ jobs:
     needs:
       - check-date
       - create-tag
-    if: ${{ needs.check-date.outputs.should_run != 'false' }}
+    if: ${{ needs.check-date.outputs.should_run == 'true' }}
 
     runs-on: macos-12
 
