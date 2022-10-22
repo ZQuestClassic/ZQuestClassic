@@ -4706,6 +4706,11 @@ int main(int argc, char **argv)
 	}
 	
 	Z_message("Initializing Allegro... ");
+	if(!al_init())
+	{
+		Z_error_fatal("Failed Init!");
+		quit_game();
+	}
 	if(allegro_init() != 0)
 	{
 		Z_error_fatal("Failed Init!");
@@ -4718,6 +4723,7 @@ int main(int argc, char **argv)
 		al_merge_config_into(al_get_system_config(), tempcfg);
 		al_destroy_config(tempcfg);
 	}
+
 
 #ifdef __EMSCRIPTEN__
 	em_mark_initializing_status();
