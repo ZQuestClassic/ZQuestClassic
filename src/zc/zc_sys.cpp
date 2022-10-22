@@ -30,6 +30,7 @@
 #include "init.h"
 #include "replay.h"
 #include "cheats.h"
+#include "base/zc_math.h"
 
 #ifdef ALLEGRO_DOS
 #include <unistd.h>
@@ -1903,9 +1904,9 @@ void black_opening(BITMAP *dest,int32_t x,int32_t y,int32_t a,int32_t max_a)
 		double a0=angle;
 		double a2=angle+P23;
 		double a4=angle+P43;
-		triangle(tmp_scr, x+int32_t(cos(a0)*r), y-int32_t(sin(a0)*r),
-				 x+int32_t(cos(a2)*r), y-int32_t(sin(a2)*r),
-				 x+int32_t(cos(a4)*r), y-int32_t(sin(a4)*r),
+		triangle(tmp_scr, x+int32_t(zc::math::Cos(a0)*r), y-int32_t(zc::math::Sin(a0)*r),
+				 x+int32_t(zc::math::Cos(a2)*r), y-int32_t(zc::math::Sin(a2)*r),
+				 x+int32_t(zc::math::Cos(a4)*r), y-int32_t(zc::math::Sin(a4)*r),
 				 0);
 		break;
 	}
@@ -3712,11 +3713,11 @@ void draw_wavy(BITMAP *source, BITMAP *target, int32_t amplitude, bool interpol)
 		if(j&1 && interpol)
 		{
 			// Add 288*2048 to ensure it's never negative. It'll get modded out.
-			ofs=288*2048+int32_t(sin((double(i+j)*2*PI/amp2))*amplitude);
+			ofs=288*2048+int32_t(zc::math::Sin((double(i+j)*2*PI/amp2))*amplitude);
 		}
 		else
 		{
-			ofs=288*2048-int32_t(sin((double(i+j)*2*PI/amp2))*amplitude);
+			ofs=288*2048-int32_t(zc::math::Sin((double(i+j)*2*PI/amp2))*amplitude);
 		}
 		
 		if(ofs)
@@ -5150,7 +5151,7 @@ void wavyout(bool showhero)
 				
 				if((j<i)&&(j&1))
 				{
-					ofs=int32_t(sin((double(i+j)*2*PI/168.0))*amplitude);
+					ofs=int32_t(zc::math::Sin((double(i+j)*2*PI/168.0))*amplitude);
 				}
 				
 				framebuf->line[j+playing_field_offset][k]=wavebuf->line[j+playing_field_offset][k+ofs+16];
@@ -5223,7 +5224,7 @@ void wavyin()
 				
 				if((j<(167-i))&&(j&1))
 				{
-					ofs=int32_t(sin((double(i+j)*2*PI/168.0))*amplitude);
+					ofs=int32_t(zc::math::Sin((double(i+j)*2*PI/168.0))*amplitude);
 				}
 				
 				framebuf->line[j+playing_field_offset][k]=wavebuf->line[j+playing_field_offset][k+ofs+16];

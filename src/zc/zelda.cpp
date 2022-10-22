@@ -54,6 +54,7 @@
 #include "dialog/info.h"
 #include "replay.h"
 #include "cheats.h"
+#include "base/zc_math.h"
 #include <fmt/format.h>
 #include <fmt/std.h>
 
@@ -4080,7 +4081,7 @@ void game_loop()
 			// Earthquake!
 			if(quakeclk>0 && !FFCore.system_suspend[susptQUAKE] )
 			{
-				playing_field_offset=56+((int32_t)(sin((double)(--quakeclk*2-frame))*4));
+				playing_field_offset=56+((int32_t)(zc::math::Sin((double)(--quakeclk*2-frame))*4));
 			}
 			else
 			{
