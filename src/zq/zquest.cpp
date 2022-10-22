@@ -30578,10 +30578,18 @@ int32_t main(int32_t argc,char **argv)
 	
 	
 	set_uformat(U_ASCII);
+
 	Z_message("Initializing Allegro... ");
-	
-	allegro_init();
-	three_finger_flag=false;
+	if(!al_init())
+	{
+		Z_error_fatal("Failed Init!");
+		quit_game();
+	}
+	if(allegro_init() != 0)
+	{
+		Z_error_fatal("Failed Init!");
+		quit_game();
+	}
 
 	// Merge old a4 config into a5 system config.
 	ALLEGRO_CONFIG *tempcfg = al_load_config_file(zc_get_standard_config_name());
@@ -30590,6 +30598,7 @@ int32_t main(int32_t argc,char **argv)
 		al_destroy_config(tempcfg);
 	}
 
+	three_finger_flag=false;
 	if(!al_init_image_addon())
 	{
 		Z_error_fatal("Failed al_init_image_addon");
