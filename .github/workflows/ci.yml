@@ -96,3 +96,45 @@ jobs:
         path: |
           ${{ github.workspace }}/tests/replays/*.zplay.roundtrip
           ${{ github.workspace }}/tests/replays/*.zplay.unexpected*
+
+  compile-web:
+    runs-on: macos-12
+
+    steps:
+      - name: git clone
+        uses: actions/checkout@v2
+
+      - uses: mymindstorm/setup-emsdk@v11
+        with:
+          version: '3.1.24'
+          actions-cache-folder: 'emsdk-cache'
+      - run: brew install ninja
+      - name: Install Bison
+        run: |
+          wget http://ftp.gnu.org/gnu/bison/bison-3.6.tar.gz
+          tar -zxvf bison-3.6.tar.gz
+          cd bison-3.6
+          ./configure
+          make
+          sudo make install
+      - name: Install Node.js 16.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+
+      - run: |
+          git clone https://github.com/psi29a/unsf.git
+          cd unsf
+          cmake -S . -B build .
+          cmake --build build
+          echo "UNSF=$PWD/build/unsf-static" >> $GITHUB_ENV
+
+      - run: cp src/metadata/*.h.sig src/metadata/sigs/
+      - run: bash build_emscripten.sh
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: emscripten cmake
+          path: |
+            ${{ github.workspace }}/build_emscripten/CMakeFiles/CMakeOutput.log
+            ${{ github.workspace }}/build_emscripten/CMakeFiles/CMakeError.log

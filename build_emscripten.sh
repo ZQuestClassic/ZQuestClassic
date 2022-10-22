@@ -92,6 +92,7 @@ LINKER_FLAGS=(
   -lidbfs.js
   -lproxyfs.js
   -lembind
+  -lpthread
 )
 EMCC_AND_LINKER_FLAGS=(
   # Error when using -fwasm-exceptions:
@@ -139,6 +140,10 @@ function build_js {
 
 # LINKER_FLAGS+=(-s SAFE_HEAP=1)
 # EMCC_FLAGS+=(--memoryprofiler)
+
+# TODO: remove when this is fixed
+# https://github.com/emscripten-core/emscripten/issues/18090
+embuilder build sdl2
 
 emcmake cmake \
   -G "Ninja Multi-Config" \
