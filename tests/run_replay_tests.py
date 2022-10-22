@@ -35,6 +35,7 @@ import os
 import difflib
 import pathlib
 import shutil
+from time import sleep
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--build_folder', default='build/Debug')
@@ -76,14 +77,19 @@ def run_replay_test(replay_file):
     if args.frame is not None:
         exe_args.extend(['-frame', str(args.frame)])
 
-    try:
-        process_result = subprocess.run(exe_args,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE,
-                                text=True,
-                                timeout=60*10)
-    except subprocess.TimeoutExpired as e:
-        return False, f'{e}\n\n{e.stdout}', e.stderr, None
+    for _ in range(0, 5):
+        try:
+            process_result = subprocess.run(exe_args,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE,
+                                    text=True,
+                                    timeout=60*10)
+            if 'Replay is active' in process_result.stdout:
+                break
+            print('did not start correctly, trying again...')
+            sleep(1)
+        except subprocess.TimeoutExpired as e:
+            return False, f'{e}\n\n{e.stdout}', e.stderr, None
 
     diff = None
     if not args.update and process_result.returncode == 120:
