@@ -1,8 +1,8 @@
 diff --git a/addons/audio/sdl_audio.c b/addons/audio/sdl_audio.c
-index ef9fc058f..f04b052e0 100644
+index 1fc7a3982..a23443961 100644
 --- a/addons/audio/sdl_audio.c
 +++ b/addons/audio/sdl_audio.c
-@@ -72,8 +72,10 @@ static int sdl_allocate_voice(ALLEGRO_VOICE *voice)
+@@ -74,8 +74,10 @@ static int sdl_allocate_voice(ALLEGRO_VOICE *voice)
     want.freq = voice->frequency;
     want.format = allegro_format_to_sdl(voice->depth);
     want.channels = al_get_channel_count(voice->chan_conf);
@@ -14,61 +14,11 @@ index ef9fc058f..f04b052e0 100644
     want.callback = audio_callback;
     want.userdata = sv;
  
-diff --git a/src/sdl/sdl_joystick.c b/src/sdl/sdl_joystick.c
-index 447713ae0..60b647af5 100644
---- a/src/sdl/sdl_joystick.c
-+++ b/src/sdl/sdl_joystick.c
-@@ -49,7 +49,9 @@ static SDL_Joystick *get_sdl(ALLEGRO_JOYSTICK *allegro)
- 
- void _al_sdl_joystick_event(SDL_Event *e)
- {
--   if (count <= 0)
-+   // Fix allegro's SDL's joysticks for emscripten.
-+   // See https://github.com/liballeg/allegro5/pull/1326
-+   if (false)
-       return;
- 
-    ALLEGRO_EVENT event;
-@@ -97,7 +99,7 @@ void _al_sdl_joystick_event(SDL_Event *e)
- static bool sdl_init_joystick(void)
- {
-    count = SDL_NumJoysticks();
--   joysticks = calloc(count, sizeof * joysticks);
-+   joysticks = count > 0 ? calloc(count, sizeof * joysticks) : NULL;
-    int i;
-    for (i = 0; i < count; i++) {
-       joysticks[i].sdl = SDL_JoystickOpen(i);
-@@ -116,7 +118,9 @@ static bool sdl_init_joystick(void)
-       info->num_buttons = bn;
-       int b;
-       for (b = 0; b < bn; b++) {
--         info->button[b].name = "button";
-+         // Fix allegro's SDL's support for joystick button names.
-+         // See https://github.com/liballeg/allegro5/pull/1327
-+         info->button[b].name = SDL_IsGameController(i) ? SDL_GameControllerGetStringForButton(b) : "button";
-       }
-    }
-    SDL_JoystickEventState(SDL_ENABLE);
-diff --git a/src/sdl/sdl_mouse.c b/src/sdl/sdl_mouse.c
-index f74b7fc15..46e5a39ce 100644
---- a/src/sdl/sdl_mouse.c
-+++ b/src/sdl/sdl_mouse.c
-@@ -187,8 +187,8 @@ static bool sdl_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
- 
- static bool sdl_set_mouse_axis(int which, int value)
- {
--   if (which == 1) mouse->state.z = value;
--   else if (which == 2) mouse->state.w = value;
-+   if (which == 2) mouse->state.z = value;
-+   else if (which == 3) mouse->state.w = value;
-    else return false;
-    return true;
- }
 diff --git a/src/sdl/sdl_system.c b/src/sdl/sdl_system.c
-index 3e9967658..2d82b8466 100644
+index 332c8b9d5..dd81f0e8f 100644
 --- a/src/sdl/sdl_system.c
 +++ b/src/sdl/sdl_system.c
-@@ -126,7 +126,8 @@ static void sdl_heartbeat(void)
+@@ -132,7 +132,8 @@ static void sdl_heartbeat(void)
  #ifdef __EMSCRIPTEN__
     double t = al_get_time();
     double interval = t - s->timer_time;
@@ -78,13 +28,3 @@ index 3e9967658..2d82b8466 100644
     s->timer_time = t;
  #endif
     al_unlock_mutex(s->mutex);
-@@ -138,7 +139,8 @@ static ALLEGRO_SYSTEM *sdl_initialize(int flags)
-    ALLEGRO_SYSTEM_SDL *s = al_calloc(1, sizeof *s);
-    s->system.vt = vt;
- 
--   SDL_Init(SDL_INIT_EVERYTHING);
-+   // https://github.com/liballeg/allegro5/pull/1322
-+   SDL_Init(SDL_INIT_EVERYTHING-SDL_INIT_HAPTIC);
- 
-    _al_vector_init(&s->system.displays, sizeof (ALLEGRO_DISPLAY_SDL *));
- 
