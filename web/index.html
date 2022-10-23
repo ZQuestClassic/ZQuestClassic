@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-us">
 
 <head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>Zelda Classic</title>
   <style>
     body {
@@ -166,99 +168,101 @@
     };
   </script>
 
-  <script type="module">
+  <script>
     // TODO: es6 would be better, but there is an issue:
     // https://github.com/emscripten-core/emscripten/issues/16625
     // import initModule from './zelda.mjs';
 
-    try {
-      const statusElement = document.getElementById('status');
-      const progressElement = document.getElementById('progress');
+    async function main() {
+      try {
+        const statusElement = document.getElementById('status');
+        const progressElement = document.getElementById('progress');
 
-      const args = [];
-      const params = new URLSearchParams(location.search);
-      if (params.get('quest') && params.get('dmap') && params.get('screen')) {
-        args.push('-test', '/_quests/' + params.get('quest'), params.get('dmap'), params.get('screen'));
-        if (params.get('retsquare')) args.push(params.get('retsquare'));
-      }
-
-      // window.Module = await initModule({
-      window.Module = {
-        arguments: args,
-        canvas: document.querySelector('canvas'),
-        setStatus: function (text) {
-          if (!text || text === 'Running...') return;
-          if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
-
-          if (text === 'Ready') {
-            progressElement.value = null;
-            progressElement.max = null;
-            progressElement.hidden = true;
-            statusElement.hidden = true;
-            return;
-          }
-
-          if (text === Module.setStatus.last.text) return;
-          const m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
-          const now = Date.now();
-          if (m && now - Module.setStatus.last.time < 30) return; // if this is a progress update, skip it if too soon
-          Module.setStatus.last.time = now;
-          Module.setStatus.last.text = text;
-          if (m) {
-            text = m[1];
-            progressElement.value = parseInt(m[2]) * 100;
-            progressElement.max = parseInt(m[4]) * 100;
-            progressElement.hidden = false;
-          } else {
-            progressElement.max = null;
-            progressElement.hidden = true;
-          }
-          statusElement.innerHTML = text;
-        },
-        expectedDataFileDownloads: 0,
-        totalDependencies: 0,
-        monitorRunDependencies: function (left) {
-          Module.totalDependencies = Math.max(Module.totalDependencies, left);
-          Module.setStatus(left ? 'Preparing... (' + (Module.totalDependencies - left) + '/' + Module.totalDependencies + ')' : '');
+        const args = [];
+        const params = new URLSearchParams(location.search);
+        if (params.get('quest') && params.get('dmap') && params.get('screen')) {
+          args.push('-test', '/_quests/' + params.get('quest'), params.get('dmap'), params.get('screen'));
+          if (params.get('retsquare')) args.push(params.get('retsquare'));
         }
-      };
 
-      const resize = () => {
-        let w = 640;
-        let h = 480;
-        const heightAvail = innerHeight - document.querySelector('header').clientHeight;
-        const canvasScale = Math.min(innerWidth / w, heightAvail / h);
-        canvas.style.width = (Math.floor(w * canvasScale)) + "px";
-        canvas.style.height = (Math.floor(h * canvasScale)) + "px";
-      };
-      window.addEventListener('resize', resize);
-      resize();
+        // window.Module = await initModule({
+        window.Module = {
+          arguments: args,
+          canvas: document.querySelector('canvas'),
+          setStatus: function (text) {
+            if (!text || text === 'Running...') return;
+            if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
 
-      const requestPersist = () => {
-        navigator.storage.persist();
-        canvas.removeEventListener('click', requestPersist);
-      }
-      canvas.addEventListener('click', requestPersist);
-
-      for (const el of [...document.querySelectorAll('.panel-button')]) {
-        el.addEventListener('click', () => {
-          for (const buttonEl of document.querySelectorAll('.panel-button')) {
-            const panelEl = document.querySelector(buttonEl.getAttribute('data-panel'));
-            if (el === buttonEl) {
-              buttonEl.classList.toggle('active');
-              panelEl.classList.toggle('hidden');
-            } else {
-              buttonEl.classList.remove('active');
-              panelEl.classList.add('hidden');
+            if (text === 'Ready') {
+              progressElement.value = null;
+              progressElement.max = null;
+              progressElement.hidden = true;
+              statusElement.hidden = true;
+              return;
             }
-          }
-        });
-      }
 
-      await renderQuestList();
-    } catch (err) {
-      console.error(err);
-      document.querySelector('.content').textContent = err.toString();
+            if (text === Module.setStatus.last.text) return;
+            const m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+            const now = Date.now();
+            if (m && now - Module.setStatus.last.time < 30) return; // if this is a progress update, skip it if too soon
+            Module.setStatus.last.time = now;
+            Module.setStatus.last.text = text;
+            if (m) {
+              text = m[1];
+              progressElement.value = parseInt(m[2]) * 100;
+              progressElement.max = parseInt(m[4]) * 100;
+              progressElement.hidden = false;
+            } else {
+              progressElement.max = null;
+              progressElement.hidden = true;
+            }
+            statusElement.innerHTML = text;
+          },
+          expectedDataFileDownloads: 0,
+          totalDependencies: 0,
+          monitorRunDependencies: function (left) {
+            Module.totalDependencies = Math.max(Module.totalDependencies, left);
+            Module.setStatus(left ? 'Preparing... (' + (Module.totalDependencies - left) + '/' + Module.totalDependencies + ')' : '');
+          }
+        };
+
+        const resize = () => {
+          let w = 640;
+          let h = 480;
+          const heightAvail = innerHeight - document.querySelector('header').clientHeight;
+          const canvasScale = Math.min(innerWidth / w, heightAvail / h);
+          canvas.style.width = (Math.floor(w * canvasScale)) + "px";
+          canvas.style.height = (Math.floor(h * canvasScale)) + "px";
+        };
+        window.addEventListener('resize', resize);
+        resize();
+
+        const requestPersist = () => {
+          navigator.storage.persist();
+          canvas.removeEventListener('click', requestPersist);
+        }
+        canvas.addEventListener('click', requestPersist);
+
+        for (const el of [...document.querySelectorAll('.panel-button')]) {
+          el.addEventListener('click', () => {
+            for (const buttonEl of document.querySelectorAll('.panel-button')) {
+              const panelEl = document.querySelector(buttonEl.getAttribute('data-panel'));
+              if (el === buttonEl) {
+                buttonEl.classList.toggle('active');
+                panelEl.classList.toggle('hidden');
+              } else {
+                buttonEl.classList.remove('active');
+                panelEl.classList.add('hidden');
+              }
+            }
+          });
+        }
+
+        await renderQuestList();
+      } catch (err) {
+        console.error(err);
+        document.querySelector('.content').textContent = err.toString();
+      }
     }
 
     async function renderQuestList() {
@@ -322,8 +326,11 @@
 
       document.querySelector('.quest-list__entry').click();
     }
+
+    main();
   </script>
-  <script async src="./zelda.js"></script>
+  <script src="zc.data.js"></script>
+  {{{ SCRIPT }}}
 </body>
 
 </html>

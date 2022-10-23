@@ -67,10 +67,9 @@ EMCC_FLAGS=(
   -I "$EMCC_CACHE_INCLUDE_DIR/AL"
 )
 LINKER_FLAGS=(
-  --preload-file="../../output/_auto/buildpack@/"
-  --preload-file="../../freepats@/etc/timidity"
-  --use-preload-cache
+  --shell-file="../../web/index.html"
   --shared-memory
+  -s FORCE_FILESYSTEM=1
   -s ASYNCIFY=1
   -s FULL_ES2=1
   -s SDL2_MIXER_FORMATS="['mid','ogg','mp3']"
@@ -80,6 +79,7 @@ LINKER_FLAGS=(
   # Necessary to avoid a deadlock. Bisected to here:
   # https://chromium.googlesource.com/external/github.com/emscripten-core/emscripten.git/+log/1a0b77c572ad..c48f73a5c763
   -s EXIT_RUNTIME=1
+  -s MINIFY_HTML=0
   -lidbfs.js
   -lembind
 )
@@ -103,15 +103,6 @@ else
   CMAKE_BUILD_TYPE="Release"
 fi
 
-if [[ "$DEFAULT_EMCC_HTML" ]]; then
-  # If for some reason you want to view the WASM in emscripten's default HTML shell,
-  # use this option.
-  CMAKE_EXECUTABLE_SUFFIX_CXX=".html"
-else
-  # Otherwise you should load "index.html" (copied from web/ folder) in a browser.
-  CMAKE_EXECUTABLE_SUFFIX_CXX=".js"
-fi
-
 # Find memory leaks.
 # EMCC_FLAGS+=(-fsanitize=leak)
 # LINKER_FLAGS+=(-fsanitize=leak -s EXIT_RUNTIME)
@@ -130,7 +121,7 @@ emcmake cmake ../.. \
   -D CMAKE_C_FLAGS="${EMCC_FLAGS[*]}" \
   -D CMAKE_CXX_FLAGS="${EMCC_FLAGS[*]}" \
   -D CMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS[*]}" \
-  -D CMAKE_EXECUTABLE_SUFFIX_CXX="$CMAKE_EXECUTABLE_SUFFIX_CXX"
+  -D CMAKE_EXECUTABLE_SUFFIX_CXX=".html"
 
 # The a5 SDL audio system hardcodes a value for # samples that is too high. Until I can upstream a patch to make this
 # configurable, just manually change it here!
@@ -142,20 +133,24 @@ sed -i -e 's/(SDL_INIT_EVERYTHING)/(SDL_INIT_EVERYTHING-SDL_INIT_HAPTIC)/' _deps
 # This emscripten-specific timer code actually really messes up the framerate, making it go way too fast.
 sed -i -e 's/ _al_timer_thread_handle_tick/\/\/_al_timer_thread_handle_tick/' _deps/allegro5-src/src/sdl/sdl_system.c
 
-cmake --build . -t $@
+TARGETS="${@:-zelda zquest}"
+cmake --build . -t $TARGETS
+
+"$(dirname $(which emcc))"/tools/file_packager.py zc.data \
+  --no-node \
+  --preload "../../output/_auto/buildpack@/" \
+  --preload "../../freepats@/etc/timidity" \
+  --use-preload-cache \
+  --js-output=zc.data.js
 
 # https://github.com/emscripten-core/emscripten/issues/11952
-HASH=$(shasum -a 256 zelda.data | awk '{print $1}')
-if [ -f zelda.js ]
+HASH=$(shasum -a 256 zc.data | awk '{print $1}')
+sed -i -e "s/\"package_uuid\": \"[^\"]*\"/\"package_uuid\":\"$HASH\"/" zc.data.js
+if ! grep -q "$HASH" zc.data.js
 then
-  sed -i -e "s/\"package_uuid\":\"[^\"]*\"/\"package_uuid\":\"$HASH\"/" zelda.js
+  echo "failed to replace data hash"
+  exit 1
 fi
-# if [ -f zquest.js ]
-# then
-#   sed -i -e "s/\"package_uuid\":\"[^\"]*\"/\"package_uuid\":\"$HASH\"/" zquest.js
-# fi
-
-cp ../../web/index.html .
 
 # Now start a local webserver in build_emscripten folder.
 # Note: You will need to install this chrome extension: https://chrome.google.com/webstore/detail/modheader/idgpnmonknjnojddfkpgkljpfnnfcklj?hl=en
