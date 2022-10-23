@@ -169,6 +169,11 @@ uint8_t __isZQuest = 1; //Shared functionscan reference this. -Z
 
 #include "zqscale.h"
 #include "base/util.h"
+
+#ifdef __EMSCRIPTEN__
+#include "base/emscripten_utils.h"
+#endif
+
 using namespace util;
 
 using std::vector;
@@ -30583,7 +30588,9 @@ int32_t main(int32_t argc,char **argv)
 #endif
 
 #ifdef __EMSCRIPTEN__
+	em_mark_initializing_status();
 	all_disable_threaded_display();
+	em_init_fs();
 #endif
 	
 	//set_config_file("ag.cfg");
@@ -32041,6 +32048,11 @@ int32_t main(int32_t argc,char **argv)
 	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
 	show_mouse(screen);
 	//Display annoying beta warning message
+
+#ifdef __EMSCRIPTEN__
+	em_mark_ready_status();
+#endif
+
 #if V_ZC_ALPHA
 	char *curcontrol = getBetaControlString();
 	const char *oldcontrol = zc_get_config("zquest", "beta_warning", "");

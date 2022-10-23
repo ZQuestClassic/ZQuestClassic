@@ -108,7 +108,7 @@ ZCMUSIC *zcmusic_load_file(const char *filename)
 #ifdef __EMSCRIPTEN__
   if (strncmp("/_quests/", filename, strlen("/_quests/")) == 0)
   {
-    fetch_file_em(filename);
+    em_fetch_file(filename);
   }
 #endif
 

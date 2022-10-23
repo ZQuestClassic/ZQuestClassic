@@ -9,9 +9,11 @@ struct QueryParams
   std::string quest;
 };
 
-void init_fs_em();
-void sync_fs_em();
-void fetch_file_em(const char *path);
+void em_init_fs();
+void em_sync_fs();
+void em_fetch_file(const char *path);
 QueryParams get_query_params();
+void em_mark_initializing_status();
+void em_mark_ready_status();
 
 #endif
