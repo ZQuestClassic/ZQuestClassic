@@ -6442,10 +6442,10 @@ void enemy::drawshadow(BITMAP *dest, bool translucent)
 	}
 	else
 	{
-		if(enemycanfall(id) && shadowtile == 0)
+		if(enemycanfall(id, false) && shadowtile == 0)
 			shadowtile = wpnsbuf[spr_shadow].tile;
 			
-		if(z>0 || fakez>0 || !enemycanfall(id))
+		if(z>0 || fakez>0 || !enemycanfall(id, false))
 		{
 			if(!shadow_overpit(this))
 			sprite::drawshadow(dest,translucent);
@@ -20696,7 +20696,7 @@ bool canfall(int32_t id)
 	return !never_in_air(id) && !isflier(id) && !isjumper(id);
 }
 
-bool enemy::enemycanfall(int32_t id)
+bool enemy::enemycanfall(int32_t id, bool checkgrav)
 {
 	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
 	{
@@ -20738,15 +20738,18 @@ bool enemy::enemycanfall(int32_t id)
 		}
 	}
 	
-	if ( isflier(id) || isjumper(id) || never_in_air(id) )
-	{
-		if ( moveflags & FLAG_OBEYS_GRAV ) return true;
-		else return false;
-	}
-	else
-	{
-		return (moveflags & FLAG_OBEYS_GRAV);    
-	}
+	if(!checkgrav) return true;
+	return (moveflags & FLAG_OBEYS_GRAV);
+	
+	// if ( isflier(id) || isjumper(id) || never_in_air(id) )
+	// {
+		// if ( moveflags & FLAG_OBEYS_GRAV ) return true;
+		// else return false;
+	// }
+	// else
+	// {
+		// return (moveflags & FLAG_OBEYS_GRAV);    
+	// }
 	//return !never_in_air(id) && !isflier(id) && !isjumper(id);
 }
 
