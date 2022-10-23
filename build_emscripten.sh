@@ -43,6 +43,9 @@ sed -i -e 's/impl->OnlyHasDefaultOutputDevice = 1/impl->OnlyHasDefaultOutputDevi
 # configurable, just manually change it here!
 sed -i -e 's/4096/512/' _deps/allegro5-src/addons/audio/sdl_audio.c
 
+# https://github.com/liballeg/allegro5/pull/1322
+sed -i -e 's/(SDL_INIT_EVERYTHING)/(SDL_INIT_EVERYTHING-SDL_INIT_HAPTIC)/' _deps/allegro5-src/src/sdl/sdl_system.c
+
 EMCC_FLAGS=(
   -s USE_FREETYPE=1
   -s USE_VORBIS=1
@@ -64,7 +67,7 @@ LINKER_FLAGS=(
   -s SDL2_MIXER_FORMATS="['mid']"
   -s LLD_REPORT_UNDEFINED
   -s INITIAL_MEMORY=4229300224
-  -s PTHREAD_POOL_SIZE=14
+  -s PTHREAD_POOL_SIZE=15
   -lidbfs.js
 )
 
@@ -87,6 +90,15 @@ else
   CMAKE_BUILD_TYPE="Release"
 fi
 
+if [[ "$DEFAULT_EMCC_HTML" ]]; then
+  # If for some reason you want to view the WASM in emscripten's default HTML shell,
+  # use this option.
+  CMAKE_EXECUTABLE_SUFFIX_CXX=".html"
+else
+  # Otherwise you should load "index.html" (copied from web/ folder) in a browser.
+  CMAKE_EXECUTABLE_SUFFIX_CXX=".js"
+fi
+
 # Find memory leaks.
 # EMCC_FLAGS+=(-fsanitize=leak)
 # LINKER_FLAGS+=(-fsanitize=leak -s EXIT_RUNTIME)
@@ -94,7 +106,6 @@ fi
 # LINKER_FLAGS+=(-s SAFE_HEAP=1)
 # EMCC_FLAGS+=(--memoryprofiler)
 
-# -D ALLEGRO_WAIT_EVENT_SLEEP=ON \
 emcmake cmake .. \
   -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
   -D ALLEGRO_SDL=ON \
@@ -106,6 +117,14 @@ emcmake cmake .. \
   -D CMAKE_C_FLAGS="${EMCC_FLAGS[*]}" \
   -D CMAKE_CXX_FLAGS="${EMCC_FLAGS[*]}" \
   -D CMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS[*]}" \
-  -D CMAKE_EXECUTABLE_SUFFIX_CXX=".html"
+  -D CMAKE_EXECUTABLE_SUFFIX_CXX="$CMAKE_EXECUTABLE_SUFFIX_CXX"
 
 cmake --build . -t zelda
+
+cp ../web/index.html .
+
+# Now start a local webserver in build_emscripten folder.
+# Note: You will need to install this chrome extension: https://chrome.google.com/webstore/detail/modheader/idgpnmonknjnojddfkpgkljpfnnfcklj?hl=en
+# and set these response headers: 
+# - Cross-Origin-Embedder-Policy: require-corp
+# - Cross-Origin-Opener-Policy: same-origin

@@ -6851,6 +6851,9 @@ int32_t onCredits()
 	while(update_dialog(p))
 	{
 		throttleFPS();
+#ifdef __EMSCRIPTEN__
+		all_render_screen();
+#endif
 		++c;
 		l = zc_max((c>>1)-30,0);
 		
@@ -7977,12 +7980,14 @@ static MENU game_menu[] =
 	{ (char *)"L&oad Quest...",			onCustomGame,			 NULL,					  0, NULL },
 	{ (char *)"&End Game\tF6",			 onTryQuitMenu,				NULL,					  0, NULL },
 	{ (char *)"",						  NULL,					 NULL,					  0, NULL },
-#ifndef ALLEGRO_MACOSX
-	{ (char *)"&Reset\tF9",				onReset,				  NULL,					  0, NULL },
-	{ (char *)"&Quit\tF10",				onExit,				   NULL,					  0, NULL },
-#else
+#ifdef __EMSCRIPTEN__
+	{ (char *)"&Reset\tF7",             onReset,                  NULL,                      0, NULL },
+#elif defined(ALLEGRO_MACOSX)
 	{ (char *)"&Reset\tF7",				onReset,				  NULL,					  0, NULL },
 	{ (char *)"&Quit\tF8",				onExit,				   NULL,					  0, NULL },
+#else
+	{ (char *)"&Reset\tF9",				onReset,				  NULL,					  0, NULL },
+	{ (char *)"&Quit\tF10",				onExit,				   NULL,					  0, NULL },
 #endif
 	{ NULL,								NULL,					 NULL,					  0, NULL }
 };

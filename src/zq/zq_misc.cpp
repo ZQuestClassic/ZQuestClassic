@@ -1182,6 +1182,10 @@ int32_t checksave()
 
 int32_t onExit()
 {
+#ifdef __EMSCRIPTEN__
+	return D_O_K;
+#endif
+
     restore_mouse();
 
     if(checksave()==0)

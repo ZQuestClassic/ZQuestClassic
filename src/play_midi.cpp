@@ -36,12 +36,8 @@ int play_midi_em(MIDI *midi, int32_t loop)
     if (Mix_OpenAudioDevice(22050, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 0, NULL, 0) < 0)
     {
       al_trace("Mix_OpenAudioDevice error: %s\n", Mix_GetError());
-      printf("Mix_OpenAudioDevice error: %s\n", Mix_GetError());
       return 1;
     }
-    printf("play_midi SDL_GetAudioDeviceName: %s\n", SDL_GetAudioDeviceName(NULL, false));
-    printf("play_midi SDL_GetAudioDeviceName 0: %s\n", SDL_GetAudioDeviceName(0, false));
-    printf("play_midi SDL_GetAudioDeviceName 1: %s\n", SDL_GetAudioDeviceName(1, false));
     has_opened_audio = true;
   }
 

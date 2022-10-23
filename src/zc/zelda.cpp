@@ -118,6 +118,7 @@ static zc_randgen drunk_rng;
 #endif
 
 #ifdef __EMSCRIPTEN__
+#include <emscripten.h>
 #include "base/emscripten_utils.h"
 #endif
 
@@ -4709,6 +4710,9 @@ int main(int argc, char **argv)
 	}
 
 #ifdef __EMSCRIPTEN__
+	EM_ASM({
+		Module.setStatus('Initializing Runtime ...');
+	});
 	all_disable_threaded_display();
 	init_fs_em();
 #endif
@@ -5683,6 +5687,12 @@ int main(int argc, char **argv)
 		}
 	}
 	
+#endif
+
+#ifdef __EMSCRIPTEN__
+	EM_ASM({
+		Module.setStatus('Ready');
+	});
 #endif
 	
 reload_for_replay_file:
