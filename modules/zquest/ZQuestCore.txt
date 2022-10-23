@@ -22,4 +22,3 @@ src/zconfig.cpp
 
 ## End of ZQuest Core module
 )
-

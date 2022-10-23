@@ -35,7 +35,7 @@ using std::getline;
 #include "zconsole/ConsoleLogger.h"
 
 #ifdef __EMSCRIPTEN__
-#include <emscripten/emscripten.h>
+#include "emscripten_utils.h"
 #endif
 
 #ifdef _MSC_VER
@@ -632,21 +632,6 @@ int32_t encode_file_007(const char *srcfile, const char *destfile, int32_t key2,
     fclose(dest);
     return 0;
 }
-
-#ifdef __EMSCRIPTEN__
-// Quest files don't have real data until we know the user needs it.
-// See init_filesystem_em
-EM_ASYNC_JS(void, fetch_quest_em, (const char *path), {
-    path = UTF8ToString(path);
-    if (FS.stat(path).size) return;
-
-    const url = window.ZC.pathToUrl[path];
-	const response = await fetch(url);
-	const data = await response.arrayBuffer();
-    const buffer = new Uint8Array(data);
-    FS.writeFile(path, buffer);
-});
-#endif
 
 //
 // RETURNS:

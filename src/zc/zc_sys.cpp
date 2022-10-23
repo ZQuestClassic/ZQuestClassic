@@ -67,6 +67,10 @@
 #define XXH_IMPLEMENTATION
 #include <xxhash.h>
 
+#ifdef __EMSCRIPTEN__
+#include "base/emscripten_utils.h"
+#endif
+
 extern FFScript FFCore;
 extern bool Playing;
 int32_t sfx_voice[WAV_COUNT];
@@ -571,6 +575,9 @@ void save_game_configs()
 	set_config_int(cfg_sect,"zc_192b163_warp_compatibility",zc_192b163_warp_compatibility);
    
 	flush_config_file();
+#ifdef __EMSCRIPTEN__
+	sync_fs_em();
+#endif
 }
 
 //----------------------------------------------------------------
@@ -4643,10 +4650,6 @@ static void restoreInput()
 */
 void syskeys()
 {
-// #ifdef __EMSCRIPTEN__
-//     return;
-// #endif
-
 	  //Saffith's method of separating system and game key bindings. Can't do this!!
 	//backupAndClearInput(); //This caused input to become randomly 'stuck'. -Z
 	
@@ -5432,12 +5435,14 @@ int32_t onEsc() // Unused?? -L
 int32_t onVsync()
 {
 	Throttlefps = !Throttlefps;
+	save_game_configs();
 	return D_O_K;
 }
 
 int32_t onClickToFreeze()
 {
 	ClickToFreeze = !ClickToFreeze;
+	save_game_configs();
 	return D_O_K;
 }
 
@@ -5481,7 +5486,7 @@ int32_t OnnClearQuestDir()
 		flush_config_file();
 		strcpy(qstdir,get_config_string("zeldadx","win_qst_dir",""));
 		//strcpy(filepath,get_config_string("zeldadx","win_qst_dir",""));
-		//save_game_configs();
+		save_game_configs();
 		return D_O_K;
 	}
 	else return D_O_K;
@@ -5562,18 +5567,21 @@ int32_t onFrameSkip()
 int32_t onTransLayers()
 {
 	TransLayers = !TransLayers;
+	save_game_configs();
 	return D_O_K;
 }
 
 int32_t onNESquit()
 {
 	NESquit = !NESquit;
+	save_game_configs();
 	return D_O_K;
 }
 
 int32_t onVolKeys()
 {
 	volkeys = !volkeys;
+	save_game_configs();
 	return D_O_K;
 }
 
@@ -5594,6 +5602,7 @@ int32_t onShowFPS()
 		show_paused(screen);
 		
 	unscare_mouse();
+	save_game_configs();
 	return D_O_K;
 }
 
@@ -7450,9 +7459,6 @@ int32_t onGamepad()
 
 int32_t onSound()
 {
-	//if out of beta, we cmight want to clear the settings from scripts:
-	//#ifndef IS_BETA
-	
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	{
 		master_volume(-1,((int32_t)FFCore.usr_midi_volume));
@@ -7473,7 +7479,7 @@ int32_t onSound()
 	{
 		pan_style = (int32_t)FFCore.usr_panstyle;
 	}
-	//#endif
+
 	int32_t m = midi_volume;
 	int32_t d = digi_volume;
 	int32_t e = emusic_volume;
@@ -7529,6 +7535,7 @@ int32_t onSound()
 		pan_style	 = p;
 	}
 	
+	save_game_configs();
 	return D_O_K;
 }
 
@@ -7649,19 +7656,21 @@ int32_t onDebug()
 {
 	if(debug_enabled)
 		set_debug(!get_debug());
-		
+	save_game_configs();	
 	return D_O_K;
 }
 
 int32_t onHeartBeep()
 {
 	heart_beep=!heart_beep;
+	save_game_configs();
 	return D_O_K;
 }
 
 int32_t onSaveIndicator()
 {
 	use_save_indicator=!use_save_indicator;
+	save_game_configs();
 	return D_O_K;
 }
 
