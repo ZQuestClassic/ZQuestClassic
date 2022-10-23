@@ -118,7 +118,7 @@ static zc_randgen drunk_rng;
 #endif
 
 #ifdef __EMSCRIPTEN__
-#include <emscripten/emscripten.h>
+#include "base/emscripten_utils.h"
 #endif
 
 // MSVC fix
@@ -4605,32 +4605,6 @@ void zc_game_srand(int seed, zc_randgen* rng)
 		zc_srand(seed, rng);
 }
 
-#ifdef __EMSCRIPTEN__
-// Initialize the filesystem with 0-byte files for every quest.
-EM_ASYNC_JS(void, init_filesystem_em, (), {
-	const response = await fetch("https://hoten.cc/quest-maker/play/quest-manifest.json");
-	const quests = await response.json();
-	FS.mkdir('/_quests');
-
-	window.ZC = {
-		pathToUrl: {},
-	};
-	for (let i = 0; i < quests.length; i++) {
-		const quest = quests[i];
-		if (!quest.urls.length) continue;
-
-		const url = quest.urls[0];
-		const urlSplit = url.split('/');
-		const filename = urlSplit[urlSplit.length - 1];
-		const path = `/_quests/${i}-${filename}`;
-		FS.writeFile(path, '');
-		// UHHHH why does this result in an error during linking (acorn parse error) ???
-		// window.ZC.pathToUrl[path] = `https://hoten.cc/quest-maker/play/${url}`;
-		window.ZC.pathToUrl[path] = 'https://hoten.cc/quest-maker/play/' + url;
-	}
-});
-#endif
-
 int main(int argc, char **argv)
 {
 	common_main_setup(App::zelda, argc, argv);
@@ -4733,15 +4707,10 @@ int main(int argc, char **argv)
 		al_merge_config_into(al_get_system_config(), tempcfg);
 		al_destroy_config(tempcfg);
 	}
-	
+
 #ifdef __EMSCRIPTEN__
 	all_disable_threaded_display();
-	init_filesystem_em();
-	EM_ASM({
-		FS.mkdir('/persist');
-		FS.mount(IDBFS, {}, '/persist');
-		FS.syncfs(true, () => {});
-	});
+	init_fs_em();
 #endif
 	
 #ifndef __EMSCRIPTEN__
@@ -4761,6 +4730,11 @@ int main(int argc, char **argv)
 
 	for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
 	strcpy(save_file_name,get_config_string("SAVEFILE","save_filename","zc.sav"));
+#ifdef __EMSCRIPTEN__
+	// There was a bug that causes browser zc.cfg files to use the wrong value for the save file.
+	if (strcmp(save_file_name, "zc.sav") == 0)
+		strcpy(save_file_name, "/local/zc.sav");
+#endif
 	SAVE_FILE = (char *)save_file_name;
 	
 	if(!zc_config_standard_exists())

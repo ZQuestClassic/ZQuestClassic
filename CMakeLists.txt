@@ -308,7 +308,7 @@ add_library(fmt STATIC
 )
 target_include_directories(fmt PUBLIC include/fmt)
 
-add_library(zcbase STATIC
+set(zcbase_sources
 	src/base/alleg_compat.cpp
 	src/base/colors.cpp
 	src/base/fonts.cpp
@@ -324,6 +324,10 @@ add_library(zcbase STATIC
 	src/base/zdefs.cpp
 	src/base/zsys.cpp
 )
+if (EMSCRIPTEN)
+    list(APPEND zcbase_sources src/base/emscripten_utils.cpp)
+endif()
+add_library(zcbase STATIC ${zcbase_sources})
 target_link_libraries(zcbase PUBLIC allegro_with_legacy fmt)
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	target_link_options(zcbase PRIVATE "/WHOLEARCHIVE")

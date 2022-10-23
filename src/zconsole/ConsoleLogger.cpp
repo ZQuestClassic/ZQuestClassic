@@ -93,7 +93,7 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 	if (!helper_executable) {
 		// TODO: should remove this option now.
 		// helper_executable=
-		// 	( zc_get_config("zc.cfg","CONSOLE","console_on_top",0) ) 
+		// 	( zc_get_config(STANDARD_CFG,"CONSOLE","console_on_top",0) ) 
 		// 	? "ZConsole_OnTop.exe"
 		// 	: "ZConsole.exe"; //DEFAULT_HELPER_EXE
 		helper_executable = DEFAULT_HELPER_EXE;
