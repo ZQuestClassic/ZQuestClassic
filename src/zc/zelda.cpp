@@ -5696,7 +5696,7 @@ reload_for_replay_file:
 		if (use_testingst_start)
 			Z_message("Test mode: \"%s\", %d, %d\n", testingqst_name, testingqst_dmap, testingqst_screen);
 		if (replay_is_active())
-			Z_message("Replay is active\n");
+			printf("Replay is active\n");
 	}
 	
 	while(Quit!=qEXIT)
