@@ -15,9 +15,12 @@ EM_ASYNC_JS(void, init_fs_em_, (), {
     if (!quest.urls.length) continue;
 
     const url = quest.urls[0];
+    const id = quest.projectUrl ?
+      quest.projectUrl.substring('https://www.purezc.net/index.php?page=quests&id='.length) :
+      0;
     const urlSplit = url.split('/');
     const filename = urlSplit[urlSplit.length - 1];
-    const path = `/_quests/${i}-${filename}`;
+    const path = `/_quests/${id}-${filename}`;
     FS.writeFile(path, '');
     // UHHHH why does this result in an error during linking (acorn parse error) ???
     // window.ZC.pathToUrl[path] = `https://hoten.cc/quest-maker/play/${url}`;

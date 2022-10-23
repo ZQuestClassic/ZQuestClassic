@@ -936,8 +936,10 @@ static MENU file_menu[] =
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&Import\t ",                 NULL,                      import_menu,              0,            NULL   },
 	{ (char *)"&Export\t ",                 NULL,                      export_menu,              0,            NULL   },
+#ifndef __EMSCRIPTEN__
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"E&xit\tESC",                 onExit,                    NULL,                     0,            NULL   },
+#endif
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 

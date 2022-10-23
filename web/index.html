@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Zelda Classic</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: black;
+      color: whitesmoke;
+    }
+
+    a {
+      color: whitesmoke;
+    }
+
+    header {
+      padding: 5px;
+    }
+
+    .about-button {
+      font-size: 18px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .about {
+      margin: 0 5vw;
+    }
+
+    .emscripten {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .content {
+      display: flex;
+      justify-content: center;
+    }
+
+    canvas {
+      border: 0 none;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <span class="about-button">?</span>
+    <div class="about" hidden>
+      <p>
+        This is an alpha version of Zelda Classic for the browser. You can expect crashes, occasional sound hiccups, and
+        other bugs.
+        But for the most part things should work well enough to play any quest that the Windows version can handle.
+      </p>
+      <p>
+        Currently, this seems to work best in FireFox.
+      </p>
+      <p>
+        When creating a save file, you will find in the "_quests" directory every quest that has been uploaded to
+        <a target="_blank" href="https://www.purezc.net/index.php?page=quests">purezc.com</a>. There's a lot of quests,
+        so to help locate the file you want you should look at the URL on purezc.com and use the id, which every qst
+        file starts with.
+      </p>
+      <p>
+        To report issues, contact Connor (discord connorclark#9300) or file an issue on the <a target="_blank"
+          href="https://github.com/ArmageddonGames/ZeldaClassic">GitHub</a> issue tracker.
+      </p>
+    </div>
+  </header>
+  <div class="emscripten">
+    <progress value="0" max="100" id="progress"></progress>
+    <div id="status">Downloading...</div>
+  </div>
+
+  <div class="content">
+    <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex=1></canvas>
+  </div>
+
+  <script type="module">
+    // TODO: es6 would be better, but there is an issue:
+    // https://github.com/emscripten-core/emscripten/issues/16625
+    // import initModule from './zelda.mjs';
+
+    try {
+      const statusElement = document.getElementById('status');
+      const progressElement = document.getElementById('progress');
+
+      // window.Module = await initModule({
+      window.Module = {
+        canvas: document.querySelector('canvas'),
+        setStatus: function (text) {
+          if (!text || text === 'Running...') return;
+          if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+
+          if (text === 'Ready') {
+            progressElement.value = null;
+            progressElement.max = null;
+            progressElement.hidden = true;
+            statusElement.hidden = true;
+            return;
+          }
+
+          if (text === Module.setStatus.last.text) return;
+          const m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+          const now = Date.now();
+          if (m && now - Module.setStatus.last.time < 30) return; // if this is a progress update, skip it if too soon
+          Module.setStatus.last.time = now;
+          Module.setStatus.last.text = text;
+          if (m) {
+            text = m[1];
+            progressElement.value = parseInt(m[2]) * 100;
+            progressElement.max = parseInt(m[4]) * 100;
+            progressElement.hidden = false;
+          } else {
+            progressElement.max = null;
+            progressElement.hidden = true;
+          }
+          statusElement.innerHTML = text;
+        },
+        expectedDataFileDownloads: 0,
+        totalDependencies: 0,
+        monitorRunDependencies: function (left) {
+          Module.totalDependencies = Math.max(Module.totalDependencies, left);
+          Module.setStatus(left ? 'Preparing... (' + (Module.totalDependencies - left) + '/' + Module.totalDependencies + ')' : '');
+        }
+      };
+
+      const resize = () => {
+        let w = 640;
+        let h = 480;
+        const heightAvail = innerHeight - document.querySelector('header').clientHeight;
+        const canvasScale = Math.min(innerWidth / w, heightAvail / h);
+        canvas.style.width = (Math.floor(w * canvasScale)) + "px";
+        canvas.style.height = (Math.floor(h * canvasScale)) + "px";
+      };
+      window.addEventListener('resize', resize);
+      resize();
+
+      const requestPersist = () => {
+        navigator.storage.persist();
+        canvas.removeEventListener('click', requestPersist);
+      }
+      canvas.addEventListener('click', requestPersist);
+
+      const aboutButtonEl = document.querySelector('.about-button');
+      aboutButtonEl.addEventListener('click', () => {
+        const el = document.querySelector('.about');
+        el.hidden = !el.hidden;
+        if (el.hidden) {
+          aboutButtonEl.textContent = '?';
+        } else {
+          aboutButtonEl.textContent = 'X';
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      document.querySelector('.content').textContent = err.toString();
+    }
+  </script>
+  <script async src="./zelda.js"></script>
+</body>
+
+</html>
