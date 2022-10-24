@@ -23278,6 +23278,7 @@ reparsesinglechar:
 			{
 				while(MsgStrings[msgstr].s[msgptr]==' ')
 				{
+					msgspace = true;
 					tlength = msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]) + MsgStrings[msgstr].hspace;
 					
 					if(cursor_x+tlength > (msg_w-msg_margins[right])
