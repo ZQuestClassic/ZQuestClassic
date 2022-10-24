@@ -6,6 +6,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef ALLEGRO_SDL
+#include <SDL.h>
+#endif
+
 #ifdef HAS_SENTRY
 #define SENTRY_BUILD_STATIC 1
 #include "sentry.h"
@@ -48,6 +52,10 @@ void common_main_setup(App id, int argc, char **argv)
     if (!is_in_osx_application_bundle() && argc > 0) {
         chdir(std::filesystem::path(argv[0]).parent_path().c_str());
     }
+#endif
+
+#ifdef ALLEGRO_SDL
+	SDL_LogSetAllPriority(SDL_LOG_PRIORITY_DEBUG);
 #endif
 }
 
