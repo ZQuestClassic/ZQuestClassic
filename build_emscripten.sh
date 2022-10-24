@@ -170,6 +170,7 @@ bash ../web/patches/apply.sh
 
 # TODO: why doesn't emscripten build this for us?
 embuilder build sdl2-mt
+embuilder build sdl2_mixer_gme_mid_mod_mp3_ogg
 
 TARGETS="${@:-zelda zquest zscript}"
 cmake --build . --config $CONFIG -t $TARGETS

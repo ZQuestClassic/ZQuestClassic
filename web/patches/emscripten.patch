@@ -6,7 +6,7 @@ index 6121fa1..5de1e1f 100755
      'sdl2-mt': ('sdl2', {'USE_PTHREADS': 1}),
      'icu-mt': ('icu', {'USE_PTHREADS': 1}),
      'sdl2_mixer_mp3': ('sdl2_mixer', {'SDL2_MIXER_FORMATS': ["mp3"]}),
-+    'sdl2_mixer_gme_mid_mp3_ogg': ('sdl2_mixer', {'SDL2_MIXER_FORMATS': ["gme", "mid", "mp3", "ogg"]}),
++    'sdl2_mixer_gme_mid_mod_mp3_ogg': ('sdl2_mixer', {'SDL2_MIXER_FORMATS': ["gme", "mid", "mod", "mp3", "ogg"]}),
      'sdl2_mixer_none': ('sdl2_mixer', {'SDL2_MIXER_FORMATS': []}),
      'sdl2_image_png': ('sdl2_image', {'SDL2_IMAGE_FORMATS': ["png"]}),
      'sdl2_image_jpg': ('sdl2_image', {'SDL2_IMAGE_FORMATS': ["jpg"]}),
