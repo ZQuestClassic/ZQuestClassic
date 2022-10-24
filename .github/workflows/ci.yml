@@ -20,9 +20,7 @@ jobs:
         arch: ${{ matrix.arch }}
 
     - name: git clone
-      uses: actions/checkout@v2
-      with:
-        lfs: true
+      uses: nschloe/action-cached-lfs-checkout@v1
 
     - name: Install Dependencies
       uses: crazy-max/ghaction-chocolatey@v1
@@ -64,9 +62,7 @@ jobs:
 
     steps:
     - name: git clone
-      uses: actions/checkout@v2
-      with:
-        lfs: true
+      uses: nschloe/action-cached-lfs-checkout@v1
     
     - run: brew install ninja dylibbundler create-dmg
     - name: Install Bison
