@@ -28,6 +28,7 @@ using namespace util;
 
 #define REGISTRATION_REC_LIMIT		50
 
+void zconsole_db(const char *format,...);
 void zconsole_warn(const char *format,...);
 void zconsole_error(const char *format,...);
 void zconsole_info(const char *format,...);

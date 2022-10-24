@@ -157,6 +157,7 @@ namespace ZScript
 
 		static int32_t const recursionLimit = 30;
 	private:
+		static bool valid_include(ASTImportDecl& decl, std::string& ret_fname);
 		static std::string prepareFilename(std::string const& filename);
 		static std::string* checkIncludes(std::string& includePath, std::string const& importname, std::vector<std::string> includes);
 		static std::vector<std::shared_ptr<Opcode>> assembleOne(

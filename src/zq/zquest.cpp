@@ -25588,26 +25588,36 @@ int32_t onCompileScript()
 				FILE *console = fopen(consolefilename, "r");
 				char buf4[512];
 				bool hasWarnErr = false;
+				bool running = true;
 				if (console) 
 				{
-					for(;;) //while (true)
+					while(running)
 					{
 						pm->read(&code, sizeof(int32_t));
-						if (code != ZC_CONSOLE_INFO_CODE && code != ZC_CONSOLE_ERROR_CODE && code != ZC_CONSOLE_WARN_CODE) break;
-						else
+						switch(code)
 						{
-							if(code != ZC_CONSOLE_INFO_CODE) hasWarnErr = true;
-							fseek(console, 0, SEEK_END);
-							current = ftell(console);
-							if (current != last) {
-								int amount = (current-last);
-								fseek(console, last, SEEK_SET);
-								last = current;
-								int end = fread(&buf4, sizeof(char), amount, console);
-								buf4[end] = 0;
-								ReadConsole(buf4, code);
-							}
-							pm->write(&code, sizeof(int32_t));
+							case ZC_CONSOLE_DB_CODE:
+							case ZC_CONSOLE_ERROR_CODE:
+							case ZC_CONSOLE_WARN_CODE:
+								hasWarnErr = true;
+								[[fallthrough]];
+							case ZC_CONSOLE_INFO_CODE:
+								fseek(console, 0, SEEK_END);
+								current = ftell(console);
+								if (current != last)
+								{
+									int amount = (current-last);
+									fseek(console, last, SEEK_SET);
+									last = current;
+									int end = fread(&buf4, sizeof(char), amount, console);
+									buf4[end] = 0;
+									ReadConsole(buf4, code);
+								}
+								pm->write(&code, sizeof(int32_t));
+								break;
+							default:
+								running = false;
+								break;
 						}
 					}
 				}

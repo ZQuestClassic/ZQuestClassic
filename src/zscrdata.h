@@ -8,9 +8,11 @@
 #include "zquest.h"
 #endif //!IS_PARSER
 
+#define ZC_CONSOLE_INFO_CODE -9998
 #define ZC_CONSOLE_ERROR_CODE -9997
 #define ZC_CONSOLE_WARN_CODE -9996
-#define ZC_CONSOLE_INFO_CODE -9998
+#define ZC_CONSOLE_DB_CODE -9995
+#define ZC_CONSOLE_TERM_CODE -9994
 
 using std::map;
 using std::string;
@@ -266,10 +268,41 @@ void write_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, 
 
 CConsoleLoggerEx parser_console;
 
+static const int32_t DB_COLOR = CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY;
 static const int32_t WARN_COLOR = CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_GREEN;
 static const int32_t ERR_COLOR = CConsoleLoggerEx::COLOR_RED;
 static const int32_t INFO_COLOR = CConsoleLoggerEx::COLOR_WHITE;
 
+void zconsole_db2(const char *format,...)
+{
+	if (!DisableCompileConsole)
+	{
+		int32_t v = parser_console.cprintf( DB_COLOR, "[DEBUG] ");
+		if(v < 0) return; //Failed to print
+	}
+	//{
+	int32_t ret;
+	char tmp[1024];
+	
+	va_list argList;
+	va_start(argList, format);
+	#ifdef WIN32
+	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#else
+	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#endif
+	tmp[vbound(ret,0,1023)]=0;
+	
+	va_end(argList);
+	//}
+	al_trace("%s\n", tmp);
+	if (!DisableCompileConsole) parser_console.cprintf( DB_COLOR, "%s\n", tmp);
+	else
+	{
+		box_out(tmp);
+		box_eol();
+	}
+}
 void zconsole_warn2(const char *format,...)
 {
 	if (!DisableCompileConsole)
@@ -366,6 +399,7 @@ void ReadConsole(char buf[], int code)
 	//al_trace("%s\n", buf);
 	switch(code)
 	{
+		case ZC_CONSOLE_DB_CODE: zconsole_db2("%s", buf); break;
 		case ZC_CONSOLE_WARN_CODE: zconsole_warn2("%s", buf); break;
 		case ZC_CONSOLE_ERROR_CODE: zconsole_error2("%s", buf); break;
 		default: zconsole_info2("%s", buf); break;
