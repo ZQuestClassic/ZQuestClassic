@@ -55,8 +55,8 @@ fi
 if [ ! -d "$EMCC_CACHE_DIR/ports/sdl2_mixer/SDL_mixer-gme-4" ]
 then
   rm -rf "$EMCC_CACHE_DIR/ports/sdl2_mixer"
-  embuilder build sdl2_mixer
-  embuilder clear sdl2_mixer
+  embuilder build sdl2_mixer_gme_mid_mod_mp3_ogg
+  embuilder clear sdl2_mixer_gme_mid_mod_mp3_ogg
 fi
 
 apply_patch "$EMCC_CACHE_DIR/ports/sdl2/SDL-0fcfaf9e9482953ee425cc15b91160b92de3df7f" "$SCRIPT_DIR/sdl2.patch" $GIT_CLEAN
