@@ -2604,31 +2604,44 @@ string get_meta(zasm_meta const& meta)
 	oss << "#ZASM_VERSION = " << meta.zasm_v
 		<< "\n#METADATA_VERSION = " << meta.meta_v
 		<< "\n#FFSCRIPT_VERSION = " << meta.ffscript_v
-		<< "\n#SCRIPT_NAME = " << meta.script_name
-		<< "\n#AUTHOR = " << meta.author
-		<< "\n#SCRIPT_TYPE = " << get_script_name(meta.script_type).c_str()
+		<< "\n#SCRIPT_NAME = " << meta.script_name;
+	if(meta.author.size())
+		oss << "\n#AUTHOR = " << meta.author;
+	oss << "\n#SCRIPT_TYPE = " << get_script_name(meta.script_type).c_str()
 		<< "\n#AUTO_GEN = " << ((meta.flags & ZMETA_AUTOGEN) ? "TRUE" : "FALSE")
 		<< "\n#COMPILER_V1 = " << meta.compiler_v1
 		<< "\n#COMPILER_V2 = " << meta.compiler_v2
 		<< "\n#COMPILER_V3 = " << meta.compiler_v3
-		<< "\n#COMPILER_V4 = " << meta.compiler_v4
-		<< "\n#PARAM_TYPE_1 = " << ZScript::getTypeName(meta.run_types[0])
-		<< "\n#PARAM_NAME_1 = " << meta.run_idens[0]
-		<< "\n#PARAM_TYPE_2 = " << ZScript::getTypeName(meta.run_types[1])
-		<< "\n#PARAM_NAME_2 = " << meta.run_idens[1]
-		<< "\n#PARAM_TYPE_3 = " << ZScript::getTypeName(meta.run_types[2])
-		<< "\n#PARAM_NAME_3 = " << meta.run_idens[2]
-		<< "\n#PARAM_TYPE_4 = " << ZScript::getTypeName(meta.run_types[3])
-		<< "\n#PARAM_NAME_4 = " << meta.run_idens[3]
-		<< "\n#PARAM_TYPE_5 = " << ZScript::getTypeName(meta.run_types[4])
-		<< "\n#PARAM_NAME_5 = " << meta.run_idens[4]
-		<< "\n#PARAM_TYPE_6 = " << ZScript::getTypeName(meta.run_types[5])
-		<< "\n#PARAM_NAME_6 = " << meta.run_idens[5]
-		<< "\n#PARAM_TYPE_7 = " << ZScript::getTypeName(meta.run_types[6])
-		<< "\n#PARAM_NAME_7 = " << meta.run_idens[6]
-		<< "\n#PARAM_TYPE_8 = " << ZScript::getTypeName(meta.run_types[7])
-		<< "\n#PARAM_NAME_8 = " << meta.run_idens[7]
-		<< "\n";
+		<< "\n#COMPILER_V4 = " << meta.compiler_v4;
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(!meta.run_idens[q].size())
+			continue;
+		oss << "\n#PARAM_TYPE_" << (q+1) << " = " << ZScript::getTypeName(meta.run_types[q])
+			<< "\n#PARAM_NAME_" << (q+1) << " = " << meta.run_idens[q];
+	}
+	for(auto q = 0; q < 4; ++q)
+	{
+		if(meta.attributes[q].size())
+			oss << "\n#ATTRIBUTE_" << (q+1) << " = " << meta.attributes[q];
+		if(meta.attributes_help[q].size())
+			oss << "\n#ATTRIBUTE_HELP_" << (q+1) << " = " << meta.attributes_help[q];
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(meta.attribytes[q].size())
+			oss << "\n#ATTRIBYTE_" << (q+1) << " = " << meta.attribytes[q];
+		if(meta.attribytes_help[q].size())
+			oss << "\n#ATTRIBYTE_HELP_" << (q+1) << " = " << meta.attribytes_help[q];
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(meta.attrishorts[q].size())
+			oss << "\n#ATTRISHORT_" << (q+1) << " = " << meta.attrishorts[q];
+		if(meta.attrishorts_help[q].size())
+			oss << "\n#ATTRISHORT_HELP_" << (q+1) << " = " << meta.attrishorts_help[q];
+	}
+	oss << "\n";
 	return oss.str();
 }
 
@@ -2672,11 +2685,11 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 	else if(cmd == "#SCRIPT_NAME")
 	{
 		replchar(val, ' ', '_');
-		strcpy(meta.script_name, val.c_str());
+		meta.script_name = val;
 	}
 	else if(cmd == "#AUTHOR")
 	{
-		strcpy(meta.author, val.c_str());
+		meta.author = val;
 	}
 	else if(cmd == "#AUTO_GEN")
 	{
@@ -2710,85 +2723,85 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 	{
 		meta.compiler_v4 = atoi(val.c_str());
 	}
-	else if(cmd == "#PARAM_NAME_1")
+	else if(cmd.size() == 13 && !cmd.compare(0,12,"#PARAM_NAME_"))
 	{
-		replchar(val, ' ', '_');
-		strcpy(meta.run_idens[0], val.c_str());
+		byte ind = cmd.at(12) - '1';
+		if (ind < 8)
+		{
+			replchar(val, ' ', '_');
+			meta.run_idens[ind] = val;
+		}
+		else return false;
 	}
-	else if(cmd == "#PARAM_NAME_2")
+	else if(cmd.size() == 13 && !cmd.compare(0,12,"#PARAM_TYPE_"))
 	{
-		replchar(val, ' ', '_');
-		strcpy(meta.run_idens[1], val.c_str());
+		byte ind = cmd.at(12) - '1';
+		if (ind < 8)
+		{
+			replchar(val, ' ', '_');
+			meta.run_types[ind] = ZScript::getTypeId(val);
+		}
+		else return false;
 	}
-	else if(cmd == "#PARAM_NAME_3")
+	else if (cmd.size() == 12 && !cmd.compare(0, 11, "#ATTRIBUTE_"))
 	{
-		replchar(val, ' ', '_');
-		strcpy(meta.run_idens[2], val.c_str());
+		byte ind = cmd.at(11) - '1';
+		if (ind < 4)
+		{
+			replchar(val, ' ', '_');
+			meta.attributes[ind] = val;
+		}
+		else return false;
 	}
-	else if(cmd == "#PARAM_NAME_4")
+	else if (cmd.size() == 17 && !cmd.compare(0, 16, "#ATTRIBUTE_HELP_"))
 	{
-		replchar(val, ' ', '_');
-		strcpy(meta.run_idens[3], val.c_str());
+		byte ind = cmd.at(16) - '1';
+		if (ind < 4)
+		{
+			replchar(val, ' ', '_');
+			meta.attributes_help[ind] = val;
+		}
+		else return false;
 	}
-	else if(cmd == "#PARAM_NAME_5")
+	else if (cmd.size() == 12 && !cmd.compare(0, 11, "#ATTRIBYTE_"))
 	{
-		replchar(val, ' ', '_');
-		strcpy(meta.run_idens[4], val.c_str());
+		byte ind = cmd.at(11) - '1';
+		if (ind < 8)
+		{
+			replchar(val, ' ', '_');
+			meta.attribytes[ind] = val;
+		}
+		else return false;
 	}
-	else if(cmd == "#PARAM_NAME_6")
+	else if (cmd.size() == 17 && !cmd.compare(0, 16, "#ATTRIBYTE_HELP_"))
 	{
-		replchar(val, ' ', '_');
-		strcpy(meta.run_idens[5], val.c_str());
+		byte ind = cmd.at(16) - '1';
+		if (ind < 8)
+		{
+			replchar(val, ' ', '_');
+			meta.attribytes_help[ind] = val;
+		}
+		else return false;
 	}
-	else if(cmd == "#PARAM_NAME_7")
+	else if (cmd.size() == 13 && !cmd.compare(0, 12, "#ATTRISHORT_"))
 	{
-		replchar(val, ' ', '_');
-		strcpy(meta.run_idens[6], val.c_str());
+		byte ind = cmd.at(12) - '1';
+		if (ind < 8)
+		{
+			replchar(val, ' ', '_');
+			meta.attrishorts[ind] = val;
+		}
+		else return false;
 	}
-	else if(cmd == "#PARAM_NAME_8")
+	else if (cmd.size() == 18 && !cmd.compare(0, 17, "#ATTRISHORT_HELP_"))
 	{
-		replchar(val, ' ', '_');
-		strcpy(meta.run_idens[7], val.c_str());
-	}
-	else if(cmd == "#PARAM_TYPE_1")
-	{
-		upperstr(val);
-		meta.run_types[0] = ZScript::getTypeId(val);
-	}
-	else if(cmd == "#PARAM_TYPE_2")
-	{
-		upperstr(val);
-		meta.run_types[1] = ZScript::getTypeId(val);
-	}
-	else if(cmd == "#PARAM_TYPE_3")
-	{
-		upperstr(val);
-		meta.run_types[2] = ZScript::getTypeId(val);
-	}
-	else if(cmd == "#PARAM_TYPE_4")
-	{
-		upperstr(val);
-		meta.run_types[3] = ZScript::getTypeId(val);
-	}
-	else if(cmd == "#PARAM_TYPE_5")
-	{
-		upperstr(val);
-		meta.run_types[4] = ZScript::getTypeId(val);
-	}
-	else if(cmd == "#PARAM_TYPE_6")
-	{
-		upperstr(val);
-		meta.run_types[5] = ZScript::getTypeId(val);
-	}
-	else if(cmd == "#PARAM_TYPE_7")
-	{
-		upperstr(val);
-		meta.run_types[6] = ZScript::getTypeId(val);
-	}
-	else if(cmd == "#PARAM_TYPE_8")
-	{
-		upperstr(val);
-		meta.run_types[7] = ZScript::getTypeId(val);
+		byte ind = cmd.at(17) - '1';
+		if (ind < 8)
+		{
+			replchar(val, ' ', '_');
+			meta.attrishorts_help[ind] = val;
+		}
+		else return false;
 	}
 	else return false;
 	

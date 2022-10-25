@@ -705,7 +705,10 @@ ASTDecl::ASTDecl(LocationData const& location)
 // ASTScript
 
 ASTScript::ASTScript(LocationData const& location)
-	: ASTDecl(location), type(NULL), name(""), author(""), script(NULL) {}
+	: ASTDecl(location), type(NULL), script(NULL)
+{
+	metadata.autogen();
+}
 
 void ASTScript::execute(ASTVisitor& visitor, void* param)
 {

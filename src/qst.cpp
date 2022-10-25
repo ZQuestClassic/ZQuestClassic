@@ -13061,6 +13061,8 @@ extern script_command command_list[];
 int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , word s_version, word , script_data **script, word zmeta_version)
 {
 	//Please also update loadquest() when modifying this method -DD
+	char b33[34] = {0};
+	b33[33] = 0;
 	ffscript temp_script;
 	int32_t num_commands=1000;
 	
@@ -13104,9 +13106,20 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , 
 		
 		for(int32_t q = 0; q < 8; ++q)
 		{
-			for(int32_t c = 0; c < 33; ++c)
+			if(zmeta_version < 3)
 			{
-				if(!p_getc(&(temp_meta.run_idens[q][c]),f,true))
+				for(int32_t c = 0; c < 33; ++c)
+				{
+					if(!p_getc(&(b33[c]),f,true))
+					{
+						return qe_invalid;
+					}
+				}
+				temp_meta.run_idens[q].assign(b33);
+			}
+			else
+			{
+				if(!p_getcstr(&temp_meta.run_idens[q],f,true))
 				{
 					return qe_invalid;
 				}
@@ -13146,22 +13159,52 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , 
 			return qe_invalid;
 		}
 		
-		if(zmeta_version >= 2)
+		if(zmeta_version == 2)
 		{
 			for(int32_t c = 0; c < 33; ++c)
 			{
-				if(!p_getc(&(temp_meta.script_name[c]),f,true))
+				if(!p_getc(&b33[c],f,true))
 				{
 					return qe_invalid;
 				}
 			}
+			temp_meta.script_name.assign(b33);
 			
 			for(int32_t c = 0; c < 33; ++c)
 			{
-				if(!p_getc(&(temp_meta.author[c]),f,true))
+				if(!p_getc(&b33[c],f,true))
 				{
 					return qe_invalid;
 				}
+			}
+			temp_meta.author.assign(b33);
+		}
+		else if(zmeta_version > 2)
+		{
+			if(!p_getcstr(&temp_meta.script_name,f,true))
+				return qe_invalid;
+			if(!p_getcstr(&temp_meta.author,f,true))
+				return qe_invalid;
+			for(auto q = 0; q < 4; ++q)
+			{
+				if(!p_getcstr(&temp_meta.attributes[q],f,true))
+					return qe_invalid;
+				if(!p_getwstr(&temp_meta.attributes_help[q],f,true))
+					return qe_invalid;
+			}
+			for(auto q = 0; q < 8; ++q)
+			{
+				if(!p_getcstr(&temp_meta.attribytes[q],f,true))
+					return qe_invalid;
+				if(!p_getwstr(&temp_meta.attribytes_help[q],f,true))
+					return qe_invalid;
+			}
+			for(auto q = 0; q < 8; ++q)
+			{
+				if(!p_getcstr(&temp_meta.attrishorts[q],f,true))
+					return qe_invalid;
+				if(!p_getwstr(&temp_meta.attrishorts_help[q],f,true))
+					return qe_invalid;
 			}
 		}
 		

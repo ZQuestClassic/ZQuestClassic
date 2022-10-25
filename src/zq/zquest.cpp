@@ -24795,24 +24795,51 @@ int32_t jwin_zmeta_proc(int32_t msg, DIALOG *d, int32_t )
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
 				memset(buf, 0, sizeof(buf));
-				sprintf(buf, "Script Name: %s", meta.script_name);
+				sprintf(buf, "Script Name: %s", meta.script_name.c_str());
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
 				memset(buf, 0, sizeof(buf));
-				sprintf(buf, "Author: %s", meta.author);
+				sprintf(buf, "Author: %s", meta.author.c_str());
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
 				memset(buf, 0, sizeof(buf));
 				sprintf(buf, "Script Type: %s", get_script_name(meta.script_type).c_str());
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
+				for(auto q = 0; q < 4; ++q)
+				{
+					if(!meta.attributes[q].size())
+						continue;
+					memset(buf, 0, sizeof(buf));
+					sprintf(buf, "Attributes[%d]: %s", q, meta.attributes[q].c_str());
+					t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
+					d->w = zc_max(d->w, t_w);
+				}
+				for(auto q = 0; q < 8; ++q)
+				{
+					if(!meta.attribytes[q].size())
+						continue;
+					memset(buf, 0, sizeof(buf));
+					sprintf(buf, "Attribytes[%d]: %s", q, meta.attribytes[q].c_str());
+					t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
+					d->w = zc_max(d->w, t_w);
+				}
+				for(auto q = 0; q < 8; ++q)
+				{
+					if(!meta.attrishorts[q].size())
+						continue;
+					memset(buf, 0, sizeof(buf));
+					sprintf(buf, "Attrishorts[%d]: %s", q, meta.attrishorts[q].c_str());
+					t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
+					d->w = zc_max(d->w, t_w);
+				}
 				bool indentrun = false;
 				int32_t run_indent = txtout(NULL, "void run(", 0, 0, false);
 				std::ostringstream oss;
 				oss << "void run(";
 				for(int32_t q = 0; q < 8; ++q)
 				{
-					if(meta.run_idens[q][0] == 0 || meta.run_types[q] == ZMETA_NULL_TYPE) continue;
+					if(!meta.run_idens[q].size() || meta.run_types[q] == ZMETA_NULL_TYPE) continue;
 					if(q > 0)
 						oss << ", ";
 					string type_name = ZScript::getTypeName(meta.run_types[q]);
@@ -28405,11 +28432,11 @@ int32_t onImportZASM()
 	}
 	fclose(zasm_import_file);
 
-	char namebuf[33] = {0};
+    std::string namebuf;
 	if(temp_slot->meta.valid()) //Found metadata
 	{
 		importzasm_dlg[3].d1 = getType(temp_slot->meta.script_type);
-		strcpy(namebuf, temp_slot->meta.script_name);
+		namebuf = temp_slot->meta.script_name;
 		switch(importzasm_dlg[3].d1)
 		{
 			default: //Shouldn't occur, but to be safe
@@ -28455,7 +28482,7 @@ int32_t onImportZASM()
 		importzasm_dlg[4].dp = (void*)&ffscript_list;
 		importzasm_dlg[4].d1 = 0;
 	}
-	importzasm_dlg[8].dp = (void*)namebuf;
+	importzasm_dlg[8].dp = (void*)namebuf.c_str();
 	bool confirmed = false;
 	int32_t indx = 1;
 	while(!confirmed)
