@@ -814,6 +814,28 @@ Annotated_Script :
 				script->metadata.author = val;
 				continue;
 			}
+			else if((key.size() == 5 || key.size() == 6) && !key.compare(0,4,"Flag"))
+			{
+				byte c = key[4]-'0';
+				if(key.size() == 6)
+					c = (c*10)+key[5]-'0';
+				if(--c < 16)
+				{
+					script->metadata.usrflags[c] = val;
+					continue;
+				}
+			}
+			else if((key.size() == 9 || key.size() == 10) && !key.compare(0,8,"FlagHelp"))
+			{
+				byte c = key[8]-'0';
+				if(key.size() == 10)
+					c = (c*10)+key[9]-'0';
+				if(--c < 16)
+				{
+					script->metadata.usrflags_help[c] = val;
+					continue;
+				}
+			}
 			else if(key.size() == 10)
 			{
 				if(!key.compare(0,9,"Attribute"))

@@ -2641,6 +2641,13 @@ string get_meta(zasm_meta const& meta)
 		if(meta.attrishorts_help[q].size())
 			oss << "\n#ATTRISHORT_HELP_" << (q+1) << " = " << meta.attrishorts_help[q];
 	}
+	for(auto q = 0; q < 16; ++q)
+	{
+		if(meta.usrflags[q].size())
+			oss << "\n#FLAG_" << (q+1) << " = " << meta.usrflags[q];
+		if(meta.usrflags_help[q].size())
+			oss << "\n#FLAG_HELP_" << (q+1) << " = " << meta.usrflags_help[q];
+	}
 	oss << "\n";
 	return oss.str();
 }
@@ -2748,7 +2755,6 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 		byte ind = cmd.at(11) - '1';
 		if (ind < 4)
 		{
-			replchar(val, ' ', '_');
 			meta.attributes[ind] = val;
 		}
 		else return false;
@@ -2758,7 +2764,6 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 		byte ind = cmd.at(16) - '1';
 		if (ind < 4)
 		{
-			replchar(val, ' ', '_');
 			meta.attributes_help[ind] = val;
 		}
 		else return false;
@@ -2768,7 +2773,6 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 		byte ind = cmd.at(11) - '1';
 		if (ind < 8)
 		{
-			replchar(val, ' ', '_');
 			meta.attribytes[ind] = val;
 		}
 		else return false;
@@ -2778,7 +2782,6 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 		byte ind = cmd.at(16) - '1';
 		if (ind < 8)
 		{
-			replchar(val, ' ', '_');
 			meta.attribytes_help[ind] = val;
 		}
 		else return false;
@@ -2788,7 +2791,6 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 		byte ind = cmd.at(12) - '1';
 		if (ind < 8)
 		{
-			replchar(val, ' ', '_');
 			meta.attrishorts[ind] = val;
 		}
 		else return false;
@@ -2798,8 +2800,29 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 		byte ind = cmd.at(17) - '1';
 		if (ind < 8)
 		{
-			replchar(val, ' ', '_');
 			meta.attrishorts_help[ind] = val;
+		}
+		else return false;
+	}
+	else if ((cmd.size() == 7 || cmd.size() == 8) && !cmd.compare(0, 6, "#FLAG_"))
+	{
+		byte ind = cmd.at(6) - '0';
+		if (cmd.size() == 8)
+			ind = (ind * 10) + cmd.at(7) - '0';
+		if (--ind < 16)
+		{
+			meta.usrflags[ind] = val;
+		}
+		else return false;
+	}
+	else if ((cmd.size() == 12 || cmd.size() == 13) && !cmd.compare(0, 11, "#FLAG_HELP_"))
+	{
+		byte ind = cmd.at(11) - '1';
+		if (cmd.size() == 13)
+			ind = (ind * 10) + cmd.at(12) - '0';
+		if (--ind < 16)
+		{
+			meta.usrflags_help[ind] = val;
 		}
 		else return false;
 	}

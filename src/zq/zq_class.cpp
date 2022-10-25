@@ -13087,6 +13087,13 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_
 		if(!p_putwstr(tmeta.attrishorts_help[q],f))
 			new_return(32);
 	}
+	for(auto q = 0; q < 16; ++q)
+	{
+		if(!p_putcstr(tmeta.usrflags[q],f))
+			new_return(33);
+		if(!p_putwstr(tmeta.usrflags_help[q],f))
+			new_return(34);
+	}
 	
     for(int32_t j=0; j<num_commands; j++)
     {

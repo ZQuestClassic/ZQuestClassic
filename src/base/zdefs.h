@@ -2857,9 +2857,11 @@ struct zasm_meta
 	std::string attributes[4];
 	std::string attribytes[8];
 	std::string attrishorts[8];
+	std::string usrflags[16];
 	std::string attributes_help[4];
 	std::string attribytes_help[8];
 	std::string attrishorts_help[8];
+	std::string usrflags_help[16];
 	
 	void setFlag(byte flag)
 	{
@@ -2892,8 +2894,11 @@ struct zasm_meta
 		compiler_v2 = 0;
 		compiler_v3 = 0;
 		compiler_v4 = 0;
-		for(int32_t q = 0; q < 8; ++q)
+		for(int32_t q = 0; q < 16; ++q)
 		{
+			usrflags[q].clear();
+			usrflags_help[q].clear();
+			if(q > 7) continue;
 			run_idens[q].clear();
 			run_types[q] = ZMETA_NULL_TYPE;
 			attribytes[q].clear();
@@ -2933,8 +2938,11 @@ struct zasm_meta
 		meta_v = other.meta_v;
 		ffscript_v = other.ffscript_v;
 		script_type = other.script_type;
-		for(int32_t q = 0; q < 8; ++q)
+		for(auto q = 0; q < 16; ++q)
 		{
+			usrflags[q] = other.usrflags[q];
+			usrflags_help[q] = other.usrflags_help[q];
+			if(q > 7) continue;
 			run_idens[q] = other.run_idens[q];
 			run_types[q] = other.run_types[q];
 			attribytes[q] = other.attribytes[q];
@@ -2965,8 +2973,13 @@ struct zasm_meta
 		if(compiler_v2 != other.compiler_v2) return false;
 		if(compiler_v3 != other.compiler_v3) return false;
 		if(compiler_v4 != other.compiler_v4) return false;
-		for(auto q = 0; q < 8; ++q)
+		for(auto q = 0; q < 16; ++q)
 		{
+			if(usrflags[q].compare(other.usrflags[q]))
+				return false;
+			if(usrflags_help[q].compare(other.usrflags_help[q]))
+				return false;
+			if(q > 7) continue;
 			if(run_idens[q].compare(other.run_idens[q]))
 				return false;
 			if(run_types[q] != other.run_types[q])

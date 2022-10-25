@@ -13206,6 +13206,13 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , 
 				if(!p_getwstr(&temp_meta.attrishorts_help[q],f,true))
 					return qe_invalid;
 			}
+			for(auto q = 0; q < 16; ++q)
+			{
+				if(!p_getcstr(&temp_meta.usrflags[q],f,true))
+					return qe_invalid;
+				if(!p_getwstr(&temp_meta.usrflags_help[q],f,true))
+					return qe_invalid;
+			}
 		}
 		
 		if(keepdata)

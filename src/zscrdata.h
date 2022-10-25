@@ -102,12 +102,16 @@ void write_meta(zasm_meta const& meta, FILE* f)
 		write_str(meta.attribytes[q], f);
 	for(auto q = 0; q < 8; ++q)
 		write_str(meta.attrishorts[q], f);
+	for(auto q = 0; q < 16; ++q)
+		write_str(meta.usrflags[q], f);
 	for(auto q = 0; q < 4; ++q)
 		write_str(meta.attributes_help[q], f);
 	for(auto q = 0; q < 8; ++q)
 		write_str(meta.attribytes_help[q], f);
 	for(auto q = 0; q < 8; ++q)
 		write_str(meta.attrishorts_help[q], f);
+	for(auto q = 0; q < 16; ++q)
+		write_str(meta.usrflags_help[q], f);
 }
 
 void read_meta(zasm_meta& meta, FILE* f)
@@ -133,12 +137,16 @@ void read_meta(zasm_meta& meta, FILE* f)
 		read_str(meta.attribytes[q], f);
 	for(auto q = 0; q < 8; ++q)
 		read_str(meta.attrishorts[q], f);
+	for(auto q = 0; q < 16; ++q)
+		read_str(meta.usrflags[q], f);
 	for(auto q = 0; q < 4; ++q)
 		read_str(meta.attributes_help[q], f);
 	for(auto q = 0; q < 8; ++q)
 		read_str(meta.attribytes_help[q], f);
 	for(auto q = 0; q < 8; ++q)
 		read_str(meta.attrishorts_help[q], f);
+	for(auto q = 0; q < 16; ++q)
+		read_str(meta.usrflags_help[q], f);
 }
 
 void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, disassembled_script_data>& scripts)
@@ -146,7 +154,7 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 	stypes.clear();
 	scripts.clear();
 	size_t stypes_sz, scripts_sz;
-	uint32_t dummy;
+	size_t dummy;
 	ZScript::ScriptTypeID _id;
 	char buf[512] = {0};
 	char* buf2 = nullptr;

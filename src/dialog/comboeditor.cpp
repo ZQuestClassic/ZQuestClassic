@@ -1821,6 +1821,10 @@ void ComboEditorDialog::loadComboType()
 		zasm_meta const& meta = comboscripts[local_comboref.script]->meta;
 		for(size_t q = 0; q < 16; ++q)
 		{
+			if(meta.usrflags[q].size())
+				l_flag[q] = meta.usrflags[q];
+			if(meta.usrflags_help[q].size())
+				h_flag[q] = meta.usrflags_help[q];
 			if(q > 7) continue;
 			if(meta.attribytes[q].size())
 				l_attribyte[q] = meta.attribytes[q];
