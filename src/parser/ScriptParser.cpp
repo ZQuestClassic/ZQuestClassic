@@ -703,23 +703,17 @@ ScriptsData::ScriptsData(Program& program)
 		string const& name = script.getName();
 		zasm_meta& meta = theScripts[name].first;
 		theScripts[name].second = script.code;
-		meta.autogen();
+		meta = script.getMetadata();
 		meta.script_type = script.getType().getTrueId();
-		string const& author = script.getAuthor();
-		strcpy(meta.script_name, name.substr(0,32).c_str());
-		strcpy(meta.author, author.substr(0,32).c_str());
-		// al_trace(meta.script_name);
-		// al_trace(meta.author);
-		// safe_al_trace(name.c_str());
-		// safe_al_trace(author.c_str());
+		meta.script_name = name;
+		meta.author = script.getAuthor();
 		if(Function* run = script.getRun())
 		{
 			int32_t ind = 0;
 			for(vector<string const*>::const_iterator it = run->paramNames.begin();
 				it != run->paramNames.end(); ++it)
 			{
-				char* dest = meta.run_idens[ind++];
-				strcpy(dest, (**it).c_str());
+				meta.run_idens[ind++] = (**it);
 			}
 			ind = 0;
 			for(vector<DataType const*>::const_iterator it = run->paramTypes.begin();

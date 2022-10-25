@@ -23,6 +23,7 @@ enum ReplayMode
     Assert,
     Update,
     ManualTakeover,
+    Snapshot,
 };
 
 void replay_start(ReplayMode mode_, std::string filename_);

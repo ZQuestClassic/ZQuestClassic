@@ -684,8 +684,7 @@ namespace ZScript
 		void addDeclaration(ASTDecl& declaration);
 
 		owning_ptr<ASTScriptType> type;
-		std::string name;
-		std::string author;
+		zasm_meta metadata;
 		owning_vector<ASTSetOption> options;
 		owning_vector<ASTDataDeclList> variables;
 		owning_vector<ASTFuncDecl> functions;

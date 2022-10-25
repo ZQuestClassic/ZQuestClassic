@@ -90,6 +90,7 @@ namespace ZScript
 		virtual ScriptType getType() const = 0;
 		virtual std::string const& getName() const = 0;
 		virtual std::string const& getAuthor() const = 0;
+		virtual zasm_meta const& getMetadata() const = 0;
 		virtual ASTScript* getNode() const = 0;
 		virtual ScriptScope& getScope() = 0;
 		virtual ScriptScope const& getScope() const = 0;
@@ -116,8 +117,9 @@ namespace ZScript
 
 	public:
 		ScriptType getType() const /*override*/;
-		std::string const& getName() const /*override*/ {return node.name;};
-		std::string const& getAuthor() const /*override*/ {return node.author;};
+		std::string const& getName() const /*override*/ {return node.metadata.script_name;};
+		std::string const& getAuthor() const /*override*/ {return node.metadata.author;};
+		zasm_meta const& getMetadata() const /*override*/ {return node.metadata;};
 		ASTScript* getNode() const /*override*/ {return &node;};
 		ScriptScope& getScope() /*override*/ {return *scope;}
 		ScriptScope const& getScope() const /*override*/ {return *scope;}
@@ -134,11 +136,16 @@ namespace ZScript
 		friend BuiltinScript* createScript(
 				Program&, Scope&, ScriptType, std::string const& name,
 				CompileErrorHandler*);
-
 	public:
 		ScriptType getType() const /*override*/ {return type;}
 		std::string const& getName() const /*override*/ {return name;};
 		std::string const& getAuthor() const /*override*/ {return builtin_author;};
+		zasm_meta const& getMetadata() const /*override*/
+		{
+			static zasm_meta builtin_meta;
+			builtin_meta.autogen();
+			return builtin_meta;
+		};
 		ASTScript* getNode() const /*override*/ {return NULL;};
 		ScriptScope& getScope() /*override*/ {return *scope;}
 		ScriptScope const& getScope() const /*override*/ {return *scope;}

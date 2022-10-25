@@ -808,14 +808,97 @@ Annotated_Script :
 			ASTAnnotation* a = set[q];
 			std::string key = a->first->getValue();
 			std::string val = a->second->getValue();
+			bool valid;
 			if(key == "Author")
 			{
-				script->author = val;
+				script->metadata.author = val;
+				continue;
 			}
-			else
+			else if((key.size() == 5 || key.size() == 6) && !key.compare(0,4,"Flag"))
 			{
-				yymsg("WARNING: Bad Annotation: \"" + key + "\"");
+				byte c = key[4]-'0';
+				if(key.size() == 6)
+					c = (c*10)+key[5]-'0';
+				if(--c < 16)
+				{
+					script->metadata.usrflags[c] = val;
+					continue;
+				}
 			}
+			else if((key.size() == 9 || key.size() == 10) && !key.compare(0,8,"FlagHelp"))
+			{
+				byte c = key[8]-'0';
+				if(key.size() == 10)
+					c = (c*10)+key[9]-'0';
+				if(--c < 16)
+				{
+					script->metadata.usrflags_help[c] = val;
+					continue;
+				}
+			}
+			else if(key.size() == 10)
+			{
+				if(!key.compare(0,9,"Attribute"))
+				{
+					char c = key[9]-'1';
+					if(unsigned(c) < 4)
+					{
+						script->metadata.attributes[c] = val;
+						continue;
+					}
+				}
+				else if(!key.compare(0,9,"Attribyte"))
+				{
+					char c = key[9]-'1';
+					if(unsigned(c) < 8)
+					{
+						script->metadata.attribytes[c] = val;
+						continue;
+					}
+				}
+			}
+			else if(key.size() == 11 && !key.compare(0,10,"Attrishort"))
+			{
+				char c = key[10]-'1';
+				if(unsigned(c) < 8)
+				{
+					script->metadata.attrishorts[c] = val;
+					continue;
+				}
+			}
+			else if(key.size() == 14)
+			{
+				if(!key.compare(0,13,"AttributeHelp"))
+				{
+					char c = key[13]-'1';
+					if(unsigned(c) < 4)
+					{
+						script->metadata.attributes_help[c] = val;
+						continue;
+					}
+				}
+				else if(!key.compare(0,13,"AttribyteHelp"))
+				{
+					char c = key[13]-'1';
+					if(unsigned(c) < 8)
+					{
+						script->metadata.attribytes_help[c] = val;
+						continue;
+					}
+				}
+			}
+			else if(key.size() == 15 && !key.compare(0,14,"AttrishortHelp"))
+			{
+				char c = key[14]-'1';
+				if(unsigned(c) < 8)
+				{
+					script->metadata.attrishorts_help[c] = val;
+					continue;
+				}
+			}
+			
+			//continue before here for valid annotation
+			yymsg("WARNING: Bad Annotation: \"" + key + "\"");
 		}
 		delete list;
 		$$ = script;}
@@ -827,7 +910,7 @@ Script :
 		ASTString* name = (ASTString*)$3;
 		ASTScript* script = (ASTScript*)$4;
 		script->type = type;
-		script->name = name->getValue();
+		script->metadata.script_name = name->getValue();
 		script->location = @$;
 		$$ = script;
 		delete name;}
@@ -837,7 +920,7 @@ Script :
 		ASTString* name = (ASTString*)$2;
 		ASTScript* script = (ASTScript*)$3;
 		script->type = type;
-		script->name = name->getValue();
+		script->metadata.script_name = name->getValue();
 		script->location = @$;
 		$$ = script;
 		delete name;}
