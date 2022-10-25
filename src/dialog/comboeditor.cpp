@@ -12,6 +12,7 @@ extern newcombo *combobuf;
 extern comboclass *combo_class_buf;
 extern int32_t CSet;
 extern int32_t numericalFlags;
+extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 char *ordinal(int32_t num);
 using std::string;
 using std::to_string;
@@ -19,6 +20,7 @@ using std::to_string;
 static size_t cmb_tab1 = 0, cmb_tab2 = 0, cmb_tab3 = 0;
 static int32_t scroll_pos1 = 0, scroll_pos2 = 0, scroll_pos3 = 0, scroll_pos4 = 0,
 	scroll_pos5 = 0, scroll_pos6 = 0, scroll_pos7 = 0, scroll_pos8 = 0;
+static bool combo_use_script_data = true;
 
 bool hasCTypeEffects(int32_t type)
 {
@@ -54,6 +56,7 @@ bool hasCTypeEffects(int32_t type)
 static bool edited = false, cleared = false;
 bool call_combo_editor(int32_t index)
 {
+	combo_use_script_data = zc_get_config("zquest","show_comboscript_meta_attribs",1)?true:false;
 	int32_t cs = CSet;
 	edited = false; cleared = false;
 	ComboEditorDialog(index).show();
@@ -63,6 +66,7 @@ bool call_combo_editor(int32_t index)
 		ComboEditorDialog(index, true).show();
 	}
 	if(!edited) CSet = cs;
+	zc_set_config("zquest","show_comboscript_meta_attribs",combo_use_script_data?1:0);
 	return edited;
 }
 
@@ -1812,6 +1816,27 @@ void ComboEditorDialog::loadComboType()
 			break;
 		}
 	}
+	if(local_comboref.script && combo_use_script_data)
+	{
+		zasm_meta const& meta = comboscripts[local_comboref.script]->meta;
+		for(size_t q = 0; q < 16; ++q)
+		{
+			if(q > 7) continue;
+			if(meta.attribytes[q].size())
+				l_attribyte[q] = meta.attribytes[q];
+			if(meta.attribytes_help[q].size())
+				h_attribyte[q] = meta.attribytes_help[q];
+			if(meta.attrishorts[q].size())
+				l_attrishort[q] = meta.attrishorts[q];
+			if(meta.attrishorts_help[q].size())
+				h_attrishort[q] = meta.attrishorts_help[q];
+			if(q > 3) continue;
+			if(meta.attributes[q].size())
+				l_attribute[q] = meta.attributes[q];
+			if(meta.attributes_help[q].size())
+				h_attribute[q] = meta.attributes_help[q];
+		}
+	}
 	for(size_t q = 0; q < 16; ++q)
 	{
 		l_flags[q]->setText(l_flag[q]);
@@ -1944,6 +1969,19 @@ Checkbox(text = str, \
 		} \
 	)
 
+#define COMBO_SCRIPT_LIST(name, list, mem) \
+Label(minwidth = 6.5_em, text = name, textAlign = 2), \
+DropDownList( \
+	fitParent = true, \
+	data = list, \
+	selectedValue = mem, \
+	onSelectFunc = [&](int32_t val) \
+	{ \
+		mem = val; \
+		loadComboType(); \
+	} \
+)
+
 std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRIBYTE(int index)
 {
 	using namespace GUI::Builder;
@@ -2061,7 +2099,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 #ifdef EMSCRIPTEN_DEBUG
 	return std::shared_ptr<GUI::Widget>(nullptr);
 #endif
-	
+ 	
 	char titlebuf[256];
 	sprintf(titlebuf, "Combo Editor (%d)", index);
 	if(is_large)
@@ -3104,8 +3142,15 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						INITD_ROW2(1, local_comboref.initd),
 						Row(
 							padding = 0_px,
-							SCRIPT_LIST("Combo Script:", list_combscript, local_comboref.script)
-						)
+							COMBO_SCRIPT_LIST("Combo Script:", list_combscript, local_comboref.script)
+						),
+						Checkbox(text = "Show Script Attrib Metadata",
+							checked = combo_use_script_data,
+							onToggleFunc = [&](bool state)
+							{
+								combo_use_script_data = state;
+								loadComboType();
+							})
 					))
 				),
 				Row(
@@ -4173,8 +4218,15 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						INITD_ROW2(1, local_comboref.initd),
 						Row(
 							padding = 0_px,
-							SCRIPT_LIST("Combo Script:", list_combscript, local_comboref.script)
-						)
+							COMBO_SCRIPT_LIST("Combo Script:", list_combscript, local_comboref.script)
+						),
+						Checkbox(text = "Show Script Attrib Metadata",
+							checked = combo_use_script_data,
+							onToggleFunc = [&](bool state)
+							{
+								combo_use_script_data = state;
+								loadComboType();
+							})
 					))
 				),
 				Row(
