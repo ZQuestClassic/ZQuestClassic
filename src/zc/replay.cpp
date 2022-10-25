@@ -627,6 +627,7 @@ void replay_start(ReplayMode mode_, std::string filename_)
         break;
     }
     case ReplayMode::Replay:
+    case ReplayMode::Snapshot:
         load_replay(filename);
         break;
     case ReplayMode::Assert:
@@ -724,6 +725,7 @@ void replay_poll()
         do_recording_poll();
         break;
     case ReplayMode::Replay:
+    case ReplayMode::Snapshot:
         do_replaying_poll();
         if (replay_log_current_index == replay_log.size())
             replay_stop();
@@ -814,6 +816,12 @@ void replay_stop()
     {
         replay_save();
         exit(0);
+    }
+
+    if (mode == ReplayMode::Snapshot)
+    {
+        fmt::print(stderr, "Missed expected snapshot frame: {}\n", frame_arg);
+        exit(1);
     }
 
     mode = ReplayMode::Off;
@@ -957,6 +965,22 @@ void replay_step_gfx(uint32_t gfx_hash)
     // for repeats (ex: gfx ^2), but even with a huge memory of 16777216 hashes the
     // savings was never more than 2%, so not worth it.
 
+    if (mode == ReplayMode::Snapshot && frame_arg != -1)
+    {
+        if (frame_arg == frame_count)
+        {
+            std::string img_filename = fmt::format("{}.{}.bmp", filename, frame_count);
+            fmt::print("Saving requested bitmap: {}\n", img_filename);
+            save_bitmap(img_filename.c_str(), framebuf, RAMpal);
+            exit(0);
+        }
+        else if (frame_arg < frame_count)
+        {
+            fmt::print(stderr, "Missed expected snapshot frame: {}\n", frame_arg);
+            exit(1);
+        }
+    }
+
 	if (mode == ReplayMode::Assert && has_assert_failed)
 	{
 		size_t step_index = record_log.size() - 1;
@@ -968,8 +992,8 @@ void replay_step_gfx(uint32_t gfx_hash)
 				steps_are_equal(record_log.back().get(), replay_log.at(step_index).get());
 			if (!gfx_matches)
 			{
-				fprintf(stderr, "Saving unexpected bitmap\n");
 				std::string img_filename = fmt::format("{}.unexpected-{}.bmp", filename, frame_count);
+				fmt::print(stderr, "Saving unexpected bitmap: {}\n", img_filename);
 				save_bitmap(img_filename.c_str(), framebuf, RAMpal);
 			}
 		}
