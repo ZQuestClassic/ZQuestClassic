@@ -57,35 +57,9 @@ TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL, \
 		local_zinit.member = val; \
 	})
 
-#define WORD_FIELD(member) \
-TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL, \
-	high = 65535, val = local_zinit.member, \
-	fitParent = true, \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		local_zinit.member = val; \
-	})
-
-#define COUNTER_FRAME(name, field1, field2) \
-Rows<2>( \
-	framed = true, frameText = name, hAlign = 0.0, \
-	margins = 2_spx, \
-	Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"), \
-	Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"), \
-	field1, \
-	field2 \
-)
-
-#define VAL_FIELD(name, minval, maxval, member, dis) \
+#define VAL_FIELD(t, name, minval, maxval, member, dis) \
 Label(text = name, hAlign = 0.0), \
-TextField(disabled = dis, maxLength = 11, type = GUI::TextField::type::INT_DECIMAL, \
-	hAlign = 1.0, low = minval, high = maxval, val = local_zinit.member, \
-	width = 4.5_em, \
-	fitParent = true, \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		local_zinit.member = val; \
-	})
+VAL_FIELD_IMPL<t>(minval, maxval, &local_zinit.member, dis)
 
 #define DEC_VAL_FIELD(name, minval, maxval, numPlaces, member, dis) \
 Label(text = name, hAlign = 0.0), \
@@ -107,64 +81,143 @@ ColorSel(disabled = dis, hAlign = 1.0, val = local_zinit.member, \
 		local_zinit.member = val; \
 	})
 
-#define LEVEL_FIELD(ind) \
-Row( \
-	padding = 0_px, \
-	l_lab[ind] = Label(text = std::to_string(ind), width = 3_em, textAlign = 2), \
-	l_maps[ind] = Checkbox(checked = get_bit(local_zinit.map,ind+levelsOffset), \
-		onToggleFunc = [&](bool state) \
-		{ \
-			set_bit(local_zinit.map, ind+levelsOffset, state); \
-		}), \
-	l_comp[ind] = Checkbox(checked = get_bit(local_zinit.compass,ind+levelsOffset), \
-		onToggleFunc = [&](bool state) \
-		{ \
-			set_bit(local_zinit.compass, ind+levelsOffset, state); \
-		}), \
-	l_bkey[ind] = Checkbox(checked = get_bit(local_zinit.boss_key,ind+levelsOffset), \
-		onToggleFunc = [&](bool state) \
-		{ \
-			set_bit(local_zinit.boss_key, ind+levelsOffset, state); \
-		}), \
-	l_keys[ind] = TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL, \
-		val = local_zinit.level_keys[ind+levelsOffset], high = 255, \
-		onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-		{ \
-			local_zinit.level_keys[ind+levelsOffset] = val; \
-		}) \
-)
-
-#define BTN_100(val) \
-Button(maxwidth = sized(3_em,4_em), padding = 0_px, margins = 0_px, \
-	text = ZCGUI_STRINGIZE(val), onClick = message::LEVEL, onPressFunc = [&]() \
-	{ \
-		setOfs((levelsOffset%100)+val); \
-	} \
-)
-
-#define BTN_10(val) \
-Button(maxwidth = sized(3_em,4_em), padding = 0_px, margins = 0_px, \
-	text = ZCGUI_STRINGIZE(val), onClick = message::LEVEL, onPressFunc = [&]() \
-	{ \
-		setOfs(((levelsOffset/100)*100) + val); \
-	} \
-)
-
-#define TRICHECK(ind) \
-Checkbox( \
-	checked = get_bit(&(local_zinit.triforce),ind), \
-	text = std::to_string(ind+1), \
-	onToggleFunc = [&](bool state) \
-	{ \
-		set_bit(&(local_zinit.triforce),ind,state); \
-	} \
-)
 //}
+
+std::shared_ptr<GUI::Widget> InitDataDialog::WORD_FIELD(word* member)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
+		high = 65535, val = *member,
+		fitParent = true,
+		onValChangedFunc = [member](GUI::TextField::type,std::string_view,int32_t val)
+		{
+			*member = val;
+		}
+	);
+}
+
+std::shared_ptr<GUI::Widget> InitDataDialog::COUNTER_FRAME(const char* name, std::shared_ptr<GUI::Widget> field1, std::shared_ptr<GUI::Widget> field2)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+
+	return Rows<2>(
+		framed = true, frameText = name, hAlign = 0.0,
+		margins = 2_spx,
+		Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
+		Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
+		field1,
+		field2
+	);
+}
+
+template <typename T>
+std::shared_ptr<GUI::Widget> InitDataDialog::VAL_FIELD_IMPL(T minval, T maxval, T* member, bool dis)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+
+	return TextField(disabled = dis, maxLength = 11, type = GUI::TextField::type::INT_DECIMAL,
+		hAlign = 1.0, low = minval, high = maxval, val = *member,
+		width = 4.5_em,
+		fitParent = true,
+		onValChangedFunc = [member](GUI::TextField::type,std::string_view,int32_t val)
+		{
+			*member = val;
+		}
+	);
+}
+
+std::shared_ptr<GUI::Widget> InitDataDialog::LEVEL_FIELD(int ind)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+
+	return Row(
+		padding = 0_px,
+		l_lab[ind] = Label(text = std::to_string(ind), width = 3_em, textAlign = 2),
+		l_maps[ind] = Checkbox(checked = get_bit(local_zinit.map,ind+levelsOffset),
+			onToggleFunc = [&, ind](bool state)
+			{
+				set_bit(local_zinit.map, ind+levelsOffset, state);
+			}),
+		l_comp[ind] = Checkbox(checked = get_bit(local_zinit.compass,ind+levelsOffset),
+			onToggleFunc = [&, ind](bool state)
+			{
+				set_bit(local_zinit.compass, ind+levelsOffset, state);
+			}),
+		l_bkey[ind] = Checkbox(checked = get_bit(local_zinit.boss_key,ind+levelsOffset),
+			onToggleFunc = [&, ind](bool state)
+			{
+				set_bit(local_zinit.boss_key, ind+levelsOffset, state);
+			}),
+		l_keys[ind] = TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL,
+			val = local_zinit.level_keys[ind+levelsOffset], high = 255,
+			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_zinit.level_keys[ind+levelsOffset] = val;
+			})
+	);
+}
+
+std::shared_ptr<GUI::Widget> InitDataDialog::BTN_100(int val)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+
+	char str[10];
+	sprintf(str, "%03d", val);
+
+	return Button(maxwidth = sized(3_em,4_em), padding = 0_px, margins = 0_px,
+		text = str, onClick = message::LEVEL, onPressFunc = [&, val]()
+		{
+			setOfs((levelsOffset%100)+val);
+		}
+	);
+}
+
+std::shared_ptr<GUI::Widget> InitDataDialog::BTN_10(int val)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+
+	char str[10];
+	sprintf(str, "%02d", val);
+
+	return Button(maxwidth = sized(3_em,4_em), padding = 0_px, margins = 0_px,
+		text = str, onClick = message::LEVEL, onPressFunc = [&, val]()
+		{
+			setOfs(((levelsOffset/100)*100) + val);
+		}
+	);
+}
+
+std::shared_ptr<GUI::Widget> InitDataDialog::TRICHECK(int ind)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+
+	return Checkbox(
+		checked = get_bit(&(local_zinit.triforce),ind),
+		text = std::to_string(ind+1),
+		onToggleFunc = [&, ind](bool state)
+		{
+			set_bit(&local_zinit.triforce,ind,state);
+		}
+	);
+}
 
 std::shared_ptr<GUI::Widget> InitDataDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
+
+	// Too many locals error in low-optimization mode for emscripten.
+#ifdef EMSCRIPTEN_DEBUG
+	return std::shared_ptr<GUI::Widget>(nullptr);
+#endif
 	
 	map<int32_t, map<int32_t, vector<int32_t> > > families;
 	icswitcher = Switcher(fitParent = true, hAlign = 0.0, vAlign = 0.0);
@@ -292,7 +345,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								margins = 2_spx,
 								Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
 								Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
-								WORD_FIELD(bombs),
+								WORD_FIELD(&local_zinit.bombs),
 								TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
 									high = 65535, val = local_zinit.max_bombs,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -307,7 +360,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
 								Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
 								Label(hAlign = 1.0, bottomPadding = 0_px, text = "Ratio"),
-								WORD_FIELD(super_bombs),
+								WORD_FIELD(&local_zinit.super_bombs),
 								sBombMax = TextField(
 									maxLength = 5,
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -322,40 +375,40 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 										sBombMax->setVal(SBOMB_RATIO);
 									})
 							),
-							COUNTER_FRAME(ZI.getCtrName(crARROWS), WORD_FIELD(arrows), WORD_FIELD(max_arrows)),
-							COUNTER_FRAME(ZI.getCtrName(crMONEY), WORD_FIELD(rupies), WORD_FIELD(max_rupees)),
-							COUNTER_FRAME(ZI.getCtrName(crKEYS), BYTE_FIELD(keys), WORD_FIELD(max_keys))
+							COUNTER_FRAME(ZI.getCtrName(crARROWS), WORD_FIELD(&local_zinit.arrows), WORD_FIELD(&local_zinit.max_arrows)),
+							COUNTER_FRAME(ZI.getCtrName(crMONEY), WORD_FIELD(&local_zinit.rupies), WORD_FIELD(&local_zinit.max_rupees)),
+							COUNTER_FRAME(ZI.getCtrName(crKEYS), BYTE_FIELD(keys), WORD_FIELD(&local_zinit.max_keys))
 						)),
 						TabRef(name = "Cust 1", Columns<3>(margins = 1_px,
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM1), WORD_FIELD(scrcnt[0]), WORD_FIELD(scrmaxcnt[0])),
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM2), WORD_FIELD(scrcnt[1]), WORD_FIELD(scrmaxcnt[1])),
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM3), WORD_FIELD(scrcnt[2]), WORD_FIELD(scrmaxcnt[2])),
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM4), WORD_FIELD(scrcnt[3]), WORD_FIELD(scrmaxcnt[3])),
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM5), WORD_FIELD(scrcnt[4]), WORD_FIELD(scrmaxcnt[4])),
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM6), WORD_FIELD(scrcnt[5]), WORD_FIELD(scrmaxcnt[5])),
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM7), WORD_FIELD(scrcnt[6]), WORD_FIELD(scrmaxcnt[6])),
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM8), WORD_FIELD(scrcnt[7]), WORD_FIELD(scrmaxcnt[7])),
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM9), WORD_FIELD(scrcnt[8]), WORD_FIELD(scrmaxcnt[8]))
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM1), WORD_FIELD(&local_zinit.scrcnt[0]), WORD_FIELD(&local_zinit.scrmaxcnt[0])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM2), WORD_FIELD(&local_zinit.scrcnt[1]), WORD_FIELD(&local_zinit.scrmaxcnt[1])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM3), WORD_FIELD(&local_zinit.scrcnt[2]), WORD_FIELD(&local_zinit.scrmaxcnt[2])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM4), WORD_FIELD(&local_zinit.scrcnt[3]), WORD_FIELD(&local_zinit.scrmaxcnt[3])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM5), WORD_FIELD(&local_zinit.scrcnt[4]), WORD_FIELD(&local_zinit.scrmaxcnt[4])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM6), WORD_FIELD(&local_zinit.scrcnt[5]), WORD_FIELD(&local_zinit.scrmaxcnt[5])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM7), WORD_FIELD(&local_zinit.scrcnt[6]), WORD_FIELD(&local_zinit.scrmaxcnt[6])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM8), WORD_FIELD(&local_zinit.scrcnt[7]), WORD_FIELD(&local_zinit.scrmaxcnt[7])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM9), WORD_FIELD(&local_zinit.scrcnt[8]), WORD_FIELD(&local_zinit.scrmaxcnt[8]))
 						)),
 						TabRef(name = "Cust 2", Columns<3>(margins = 1_px,
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM10), WORD_FIELD(scrcnt[9]), WORD_FIELD(scrmaxcnt[9])),
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM11), WORD_FIELD(scrcnt[10]), WORD_FIELD(scrmaxcnt[10])),
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM12), WORD_FIELD(scrcnt[11]), WORD_FIELD(scrmaxcnt[11])),
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM13), WORD_FIELD(scrcnt[12]), WORD_FIELD(scrmaxcnt[12])),
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM14), WORD_FIELD(scrcnt[13]), WORD_FIELD(scrmaxcnt[13])),
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM15), WORD_FIELD(scrcnt[14]), WORD_FIELD(scrmaxcnt[14])),
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM16), WORD_FIELD(scrcnt[15]), WORD_FIELD(scrmaxcnt[15])),
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM17), WORD_FIELD(scrcnt[16]), WORD_FIELD(scrmaxcnt[16])),
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM18), WORD_FIELD(scrcnt[17]), WORD_FIELD(scrmaxcnt[17]))
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM10), WORD_FIELD(&local_zinit.scrcnt[9]), WORD_FIELD(&local_zinit.scrmaxcnt[9])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM11), WORD_FIELD(&local_zinit.scrcnt[10]), WORD_FIELD(&local_zinit.scrmaxcnt[10])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM12), WORD_FIELD(&local_zinit.scrcnt[11]), WORD_FIELD(&local_zinit.scrmaxcnt[11])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM13), WORD_FIELD(&local_zinit.scrcnt[12]), WORD_FIELD(&local_zinit.scrmaxcnt[12])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM14), WORD_FIELD(&local_zinit.scrcnt[13]), WORD_FIELD(&local_zinit.scrmaxcnt[13])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM15), WORD_FIELD(&local_zinit.scrcnt[14]), WORD_FIELD(&local_zinit.scrmaxcnt[14])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM16), WORD_FIELD(&local_zinit.scrcnt[15]), WORD_FIELD(&local_zinit.scrmaxcnt[15])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM17), WORD_FIELD(&local_zinit.scrcnt[16]), WORD_FIELD(&local_zinit.scrmaxcnt[16])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM18), WORD_FIELD(&local_zinit.scrcnt[17]), WORD_FIELD(&local_zinit.scrmaxcnt[17]))
 						)),
 						TabRef(name = "Cust 3", Columns<3>(margins = 1_px,
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM19), WORD_FIELD(scrcnt[18]), WORD_FIELD(scrmaxcnt[18])),
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM20), WORD_FIELD(scrcnt[19]), WORD_FIELD(scrmaxcnt[19])),
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM21), WORD_FIELD(scrcnt[20]), WORD_FIELD(scrmaxcnt[20])),
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM22), WORD_FIELD(scrcnt[21]), WORD_FIELD(scrmaxcnt[21])),
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM23), WORD_FIELD(scrcnt[22]), WORD_FIELD(scrmaxcnt[22])),
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM24), WORD_FIELD(scrcnt[23]), WORD_FIELD(scrmaxcnt[23])),
-							COUNTER_FRAME(ZI.getCtrName(crCUSTOM25), WORD_FIELD(scrcnt[24]), WORD_FIELD(scrmaxcnt[24]))
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM19), WORD_FIELD(&local_zinit.scrcnt[18]), WORD_FIELD(&local_zinit.scrmaxcnt[18])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM20), WORD_FIELD(&local_zinit.scrcnt[19]), WORD_FIELD(&local_zinit.scrmaxcnt[19])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM21), WORD_FIELD(&local_zinit.scrcnt[20]), WORD_FIELD(&local_zinit.scrmaxcnt[20])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM22), WORD_FIELD(&local_zinit.scrcnt[21]), WORD_FIELD(&local_zinit.scrmaxcnt[21])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM23), WORD_FIELD(&local_zinit.scrcnt[22]), WORD_FIELD(&local_zinit.scrmaxcnt[22])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM24), WORD_FIELD(&local_zinit.scrcnt[23]), WORD_FIELD(&local_zinit.scrmaxcnt[23])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM25), WORD_FIELD(&local_zinit.scrcnt[24]), WORD_FIELD(&local_zinit.scrmaxcnt[24]))
 						))
 					)),
 					TabRef(name = "LItems", Column(
@@ -466,8 +519,8 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 										" your starting value is high enough, you can allow stacking several"
 										" levels of lowered magic cost)")
 								),
-								WORD_FIELD(magic),
-								WORD_FIELD(max_magic),
+								WORD_FIELD(&local_zinit.magic),
+								WORD_FIELD(&local_zinit.max_magic),
 								BYTE_FIELD(magicdrainrate)
 							)
 						),
@@ -503,19 +556,19 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 									padding = 0_px,
 									DEC_VAL_FIELD("Gravity:",1,99990000,4,gravity2,isZC),
 									DEC_VAL_FIELD("Terminal Vel:",1,999900,2,terminalv,isZC),
-									VAL_FIELD("Jump Layer Height:",0,255,jump_hero_layer_threshold,isZC),
-									VAL_FIELD("Player Step:",0,9999,heroStep,isZC),
-									VAL_FIELD("Subscreen Fall Mult:",1,85,subscrSpeed,isZC)
+									VAL_FIELD(byte,"Jump Layer Height:",0,255,jump_hero_layer_threshold,isZC),
+									VAL_FIELD(word,"Player Step:",0,9999,heroStep,isZC),
+									VAL_FIELD(word,"Subscreen Fall Mult:",1,85,subscrSpeed,isZC)
 								)
 							),
 							Column(vAlign = 0.0,
 								Rows<2>(
 									margins = 0_px,
 									padding = 0_px,
-									VAL_FIELD("HP Per Heart:",1,255,hp_per_heart,false),
-									VAL_FIELD("MP Per Block:",1,255,magic_per_block,false),
-									VAL_FIELD("Player Damage Mult:",1,255,hero_damage_multiplier,false),
-									VAL_FIELD("Enemy Damage Mult:",1,255,ene_damage_multiplier,false),
+									VAL_FIELD(byte,"HP Per Heart:",1,255,hp_per_heart,false),
+									VAL_FIELD(byte,"MP Per Block:",1,255,magic_per_block,false),
+									VAL_FIELD(byte,"Player Damage Mult:",1,255,hero_damage_multiplier,false),
+									VAL_FIELD(byte,"Enemy Damage Mult:",1,255,ene_damage_multiplier,false),
 									COLOR_FIELD("Darkness Color", darkcol,false)
 								)
 							)
@@ -525,11 +578,11 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								Rows<2>(
 									margins = 0_px,
 									padding = 0_px,
-									VAL_FIELD("Light Dither Type:",0,255,dither_type,false),
-									VAL_FIELD("Light Dither Arg:",0,255,dither_arg,false),
-									VAL_FIELD("Light Dither %:",0,255,dither_percent,false),
-									VAL_FIELD("Light Radius:",0,255,def_lightrad,false),
-									VAL_FIELD("Light Transp. %:",0,255,transdark_percent,false)
+									VAL_FIELD(byte,"Light Dither Type:",0,255,dither_type,false),
+									VAL_FIELD(byte,"Light Dither Arg:",0,255,dither_arg,false),
+									VAL_FIELD(byte,"Light Dither %:",0,255,dither_percent,false),
+									VAL_FIELD(byte,"Light Radius:",0,255,def_lightrad,false),
+									VAL_FIELD(byte,"Light Transp. %:",0,255,transdark_percent,false)
 								)
 							),
 							Column(vAlign = 0.0,
@@ -537,9 +590,9 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 									margins = 0_px,
 									padding = 0_px,
 									DEC_VAL_FIELD("Water Gravity:",-99990000,99990000,4,swimgravity,false),
-									VAL_FIELD("Swideswim Up Step:",0,9999,heroSideswimUpStep,false),
-									VAL_FIELD("Swideswim Side Step:",0,9999,heroSideswimSideStep,false),
-									VAL_FIELD("Swideswim Down Step:",0,9999,heroSideswimDownStep,false),
+									VAL_FIELD(word,"Swideswim Up Step:",0,9999,heroSideswimUpStep,false),
+									VAL_FIELD(word,"Swideswim Side Step:",0,9999,heroSideswimSideStep,false),
+									VAL_FIELD(word,"Swideswim Down Step:",0,9999,heroSideswimDownStep,false),
 									DEC_VAL_FIELD("Sideswim Leaving Jump:",-2550000,2550000,4,exitWaterJump,false)
 								)
 							)
@@ -549,8 +602,8 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								Rows<2>(
 									margins = 0_px,
 									padding = 0_px,
-									VAL_FIELD("Bunny Tile Mod:",-214748,214748,bunny_ltm,false),
-									VAL_FIELD("SwitchHook Style:",0,255,switchhookstyle,false)
+									VAL_FIELD(int32_t,"Bunny Tile Mod:",-214748,214748,bunny_ltm,false),
+									VAL_FIELD(byte,"SwitchHook Style:",0,255,switchhookstyle,false)
 								)
 							)
 						))
@@ -589,7 +642,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							margins = 2_spx,
 							Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
 							Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
-							WORD_FIELD(bombs),
+							WORD_FIELD(&local_zinit.bombs),
 							TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
 								high = 65535, val = local_zinit.max_bombs,
 								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -604,7 +657,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
 							Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
 							Label(hAlign = 1.0, bottomPadding = 0_px, text = "Ratio"),
-							WORD_FIELD(super_bombs),
+							WORD_FIELD(&local_zinit.super_bombs),
 							sBombMax = TextField(
 								maxLength = 5,
 								type = GUI::TextField::type::INT_DECIMAL,
@@ -619,38 +672,38 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 									sBombMax->setVal(SBOMB_RATIO);
 								})
 						),
-						COUNTER_FRAME(ZI.getCtrName(crARROWS), WORD_FIELD(arrows), WORD_FIELD(max_arrows)),
-						COUNTER_FRAME(ZI.getCtrName(crMONEY), WORD_FIELD(rupies), WORD_FIELD(max_rupees)),
-						COUNTER_FRAME(ZI.getCtrName(crKEYS), BYTE_FIELD(keys), WORD_FIELD(max_keys))
+						COUNTER_FRAME(ZI.getCtrName(crARROWS), WORD_FIELD(&local_zinit.arrows), WORD_FIELD(&local_zinit.max_arrows)),
+						COUNTER_FRAME(ZI.getCtrName(crMONEY), WORD_FIELD(&local_zinit.rupies), WORD_FIELD(&local_zinit.max_rupees)),
+						COUNTER_FRAME(ZI.getCtrName(crKEYS), BYTE_FIELD(keys), WORD_FIELD(&local_zinit.max_keys))
 					)),
 					TabRef(name = "Custom 1", Columns<5>(margins = 1_px,
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM1), WORD_FIELD(scrcnt[0]), WORD_FIELD(scrmaxcnt[0])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM2), WORD_FIELD(scrcnt[1]), WORD_FIELD(scrmaxcnt[1])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM3), WORD_FIELD(scrcnt[2]), WORD_FIELD(scrmaxcnt[2])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM4), WORD_FIELD(scrcnt[3]), WORD_FIELD(scrmaxcnt[3])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM5), WORD_FIELD(scrcnt[4]), WORD_FIELD(scrmaxcnt[4])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM6), WORD_FIELD(scrcnt[5]), WORD_FIELD(scrmaxcnt[5])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM7), WORD_FIELD(scrcnt[6]), WORD_FIELD(scrmaxcnt[6])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM8), WORD_FIELD(scrcnt[7]), WORD_FIELD(scrmaxcnt[7])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM9), WORD_FIELD(scrcnt[8]), WORD_FIELD(scrmaxcnt[8])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM10), WORD_FIELD(scrcnt[9]), WORD_FIELD(scrmaxcnt[9])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM11), WORD_FIELD(scrcnt[10]), WORD_FIELD(scrmaxcnt[10])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM12), WORD_FIELD(scrcnt[11]), WORD_FIELD(scrmaxcnt[11])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM13), WORD_FIELD(scrcnt[12]), WORD_FIELD(scrmaxcnt[12])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM14), WORD_FIELD(scrcnt[13]), WORD_FIELD(scrmaxcnt[13])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM15), WORD_FIELD(scrcnt[14]), WORD_FIELD(scrmaxcnt[14]))
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM1), WORD_FIELD(&local_zinit.scrcnt[0]), WORD_FIELD(&local_zinit.scrmaxcnt[0])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM2), WORD_FIELD(&local_zinit.scrcnt[1]), WORD_FIELD(&local_zinit.scrmaxcnt[1])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM3), WORD_FIELD(&local_zinit.scrcnt[2]), WORD_FIELD(&local_zinit.scrmaxcnt[2])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM4), WORD_FIELD(&local_zinit.scrcnt[3]), WORD_FIELD(&local_zinit.scrmaxcnt[3])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM5), WORD_FIELD(&local_zinit.scrcnt[4]), WORD_FIELD(&local_zinit.scrmaxcnt[4])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM6), WORD_FIELD(&local_zinit.scrcnt[5]), WORD_FIELD(&local_zinit.scrmaxcnt[5])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM7), WORD_FIELD(&local_zinit.scrcnt[6]), WORD_FIELD(&local_zinit.scrmaxcnt[6])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM8), WORD_FIELD(&local_zinit.scrcnt[7]), WORD_FIELD(&local_zinit.scrmaxcnt[7])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM9), WORD_FIELD(&local_zinit.scrcnt[8]), WORD_FIELD(&local_zinit.scrmaxcnt[8])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM10), WORD_FIELD(&local_zinit.scrcnt[9]), WORD_FIELD(&local_zinit.scrmaxcnt[9])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM11), WORD_FIELD(&local_zinit.scrcnt[10]), WORD_FIELD(&local_zinit.scrmaxcnt[10])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM12), WORD_FIELD(&local_zinit.scrcnt[11]), WORD_FIELD(&local_zinit.scrmaxcnt[11])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM13), WORD_FIELD(&local_zinit.scrcnt[12]), WORD_FIELD(&local_zinit.scrmaxcnt[12])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM14), WORD_FIELD(&local_zinit.scrcnt[13]), WORD_FIELD(&local_zinit.scrmaxcnt[13])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM15), WORD_FIELD(&local_zinit.scrcnt[14]), WORD_FIELD(&local_zinit.scrmaxcnt[14]))
 					)),
 					TabRef(name = "Custom 2", Columns<5>(margins = 1_px,
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM16), WORD_FIELD(scrcnt[15]), WORD_FIELD(scrmaxcnt[15])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM17), WORD_FIELD(scrcnt[16]), WORD_FIELD(scrmaxcnt[16])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM18), WORD_FIELD(scrcnt[17]), WORD_FIELD(scrmaxcnt[17])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM19), WORD_FIELD(scrcnt[18]), WORD_FIELD(scrmaxcnt[18])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM20), WORD_FIELD(scrcnt[19]), WORD_FIELD(scrmaxcnt[19])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM21), WORD_FIELD(scrcnt[20]), WORD_FIELD(scrmaxcnt[20])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM22), WORD_FIELD(scrcnt[21]), WORD_FIELD(scrmaxcnt[21])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM23), WORD_FIELD(scrcnt[22]), WORD_FIELD(scrmaxcnt[22])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM24), WORD_FIELD(scrcnt[23]), WORD_FIELD(scrmaxcnt[23])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM25), WORD_FIELD(scrcnt[24]), WORD_FIELD(scrmaxcnt[24]))
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM16), WORD_FIELD(&local_zinit.scrcnt[15]), WORD_FIELD(&local_zinit.scrmaxcnt[15])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM17), WORD_FIELD(&local_zinit.scrcnt[16]), WORD_FIELD(&local_zinit.scrmaxcnt[16])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM18), WORD_FIELD(&local_zinit.scrcnt[17]), WORD_FIELD(&local_zinit.scrmaxcnt[17])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM19), WORD_FIELD(&local_zinit.scrcnt[18]), WORD_FIELD(&local_zinit.scrmaxcnt[18])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM20), WORD_FIELD(&local_zinit.scrcnt[19]), WORD_FIELD(&local_zinit.scrmaxcnt[19])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM21), WORD_FIELD(&local_zinit.scrcnt[20]), WORD_FIELD(&local_zinit.scrmaxcnt[20])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM22), WORD_FIELD(&local_zinit.scrcnt[21]), WORD_FIELD(&local_zinit.scrmaxcnt[21])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM23), WORD_FIELD(&local_zinit.scrcnt[22]), WORD_FIELD(&local_zinit.scrmaxcnt[22])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM24), WORD_FIELD(&local_zinit.scrcnt[23]), WORD_FIELD(&local_zinit.scrmaxcnt[23])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM25), WORD_FIELD(&local_zinit.scrcnt[24]), WORD_FIELD(&local_zinit.scrmaxcnt[24]))
 					))
 				)),
 				TabRef(name = "LItems", Column(
@@ -759,8 +812,8 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 									" your starting value is high enough, you can allow stacking several"
 									" levels of lowered magic cost)")
 							),
-							WORD_FIELD(magic),
-							WORD_FIELD(max_magic),
+							WORD_FIELD(&local_zinit.magic),
+							WORD_FIELD(&local_zinit.max_magic),
 							BYTE_FIELD(magicdrainrate)
 						)
 					),
@@ -795,27 +848,27 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							padding = 0_px,
 							DEC_VAL_FIELD("Gravity:",1,99990000,4,gravity2,isZC),
 							DEC_VAL_FIELD("Terminal Vel:",1,999900,2,terminalv,isZC),
-							VAL_FIELD("Jump Layer Height:",0,255,jump_hero_layer_threshold,isZC),
-							VAL_FIELD("Player Step:",0,9999,heroStep,isZC),
-							VAL_FIELD("Subscren Fall Mult:",1,85,subscrSpeed,isZC),
-							VAL_FIELD("HP Per Heart:",1,255,hp_per_heart,false),
-							VAL_FIELD("MP Per Block:",1,255,magic_per_block,false),
-							VAL_FIELD("Player Damage Mult:",1,255,hero_damage_multiplier,false),
-							VAL_FIELD("Enemy Damage Mult:",1,255,ene_damage_multiplier,false)
+							VAL_FIELD(byte,"Jump Layer Height:",0,255,jump_hero_layer_threshold,isZC),
+							VAL_FIELD(word,"Player Step:",0,9999,heroStep,isZC),
+							VAL_FIELD(word,"Subscren Fall Mult:",1,85,subscrSpeed,isZC),
+							VAL_FIELD(byte,"HP Per Heart:",1,255,hp_per_heart,false),
+							VAL_FIELD(byte,"MP Per Block:",1,255,magic_per_block,false),
+							VAL_FIELD(byte,"Player Damage Mult:",1,255,hero_damage_multiplier,false),
+							VAL_FIELD(byte,"Enemy Damage Mult:",1,255,ene_damage_multiplier,false)
 						)
 					),
 					Column(vAlign = 0.0,
 						Rows<2>(
 							margins = 0_px,
 							padding = 0_px,
-							VAL_FIELD("Light Dither Type:",0,255,dither_type,false),
-							VAL_FIELD("Light Dither Arg:",0,255,dither_arg,false),
-							VAL_FIELD("Light Dither Percentage:",0,255,dither_percent,false),
-							VAL_FIELD("Light Radius:",0,255,def_lightrad,false),
-							VAL_FIELD("Light Transp. Percentage:",0,255,transdark_percent,false),
+							VAL_FIELD(byte,"Light Dither Type:",0,255,dither_type,false),
+							VAL_FIELD(byte,"Light Dither Arg:",0,255,dither_arg,false),
+							VAL_FIELD(byte,"Light Dither Percentage:",0,255,dither_percent,false),
+							VAL_FIELD(byte,"Light Radius:",0,255,def_lightrad,false),
+							VAL_FIELD(byte,"Light Transp. Percentage:",0,255,transdark_percent,false),
 							COLOR_FIELD("Darkness Color:", darkcol,false),
-							VAL_FIELD("Bunny Tile Mod:",-214748,214748,bunny_ltm,false),
-							VAL_FIELD("SwitchHook Style:",0,255,switchhookstyle,false)
+							VAL_FIELD(int32_t,"Bunny Tile Mod:",-214748,214748,bunny_ltm,false),
+							VAL_FIELD(byte,"SwitchHook Style:",0,255,switchhookstyle,false)
 						)
 					),
 					Column(vAlign = 0.0,
@@ -823,9 +876,9 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							margins = 0_px,
 							padding = 0_px,
 							DEC_VAL_FIELD("Water Gravity:",-99990000,99990000,4,swimgravity,false),
-							VAL_FIELD("Swideswim Up Step:",0,9999,heroSideswimUpStep,false),
-							VAL_FIELD("Swideswim Side Step:",0,9999,heroSideswimSideStep,false),
-							VAL_FIELD("Swideswim Down Step:",0,9999,heroSideswimDownStep,false),
+							VAL_FIELD(word, "Swideswim Up Step:",0,9999,heroSideswimUpStep,false),
+							VAL_FIELD(word, "Swideswim Side Step:",0,9999,heroSideswimSideStep,false),
+							VAL_FIELD(word, "Swideswim Down Step:",0,9999,heroSideswimDownStep,false),
 							DEC_VAL_FIELD("Sideswim Leaving Jump:",-2550000,2550000,4,exitWaterJump,false)
 						)
 					)

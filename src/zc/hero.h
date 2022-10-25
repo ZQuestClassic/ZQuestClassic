@@ -310,6 +310,7 @@ public:
 	int32_t lastHitBy[NUM_HIT_TYPES_USED][2]; //[enemy, eweapon, combo, flag
 	
 	int32_t last_lens_id;// The item ID of the last Lens of Truth type item used
+	word last_savepoint_id; //combo id of save point
 	
 	int32_t misc_internal_hero_flags;// Flags to hold data temporarily for misc handling
 	int32_t last_cane_of_byrna_item_id;
@@ -326,6 +327,7 @@ public:
 	
 	
 	// Methods below here.
+	bool isLifting();
 	void doSwitchHook(byte style);
 	bool isStanding(bool forJump = false);
 	void explode(int32_t type);
@@ -373,6 +375,9 @@ public:
 	bool startwpn(int32_t itemid);
 	bool mirrorBonk();
 	void doMirror(int32_t mirrorid);
+	void handle_passive_buttons();
+	bool do_jump(int32_t jumpid, bool passive);
+	void drop_liftwpn();
 	void do_liftglove(int32_t liftid, bool passive);
 	bool can_lift(int32_t gloveid);
 	void handle_lift(bool dec = true);
@@ -426,7 +431,7 @@ private:
 	int32_t  EwpnHit();
 	int32_t  LwpnHit();
 	void heroDeathAnimation();
-	void saved_Zelda();
+	void win_game();
    
 	void check_conveyor();
 	bool sideviewhammerpound();
@@ -613,6 +618,8 @@ int32_t enemy_dp(int32_t index);
 int32_t ewpn_dp(int32_t index);
 int32_t lwpn_dp(int32_t index);
 bool checkbunny(int32_t itemid);
+bool usesSwordJinx(int32_t itemid);
+bool checkitem_jinx(int32_t itemid);
 bool checkmagiccost(int32_t itemid);
 void paymagiccost(int32_t itemid, bool ignoreTimer = false);
 int32_t Bweapon(int32_t pos);

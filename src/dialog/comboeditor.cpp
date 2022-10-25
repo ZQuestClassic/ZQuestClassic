@@ -45,6 +45,7 @@ bool hasCTypeEffects(int32_t type)
 		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
 		case cSTEPSFX: case cSWITCHHOOK: case cCSWITCHBLOCK:
 		case cSHOOTER:
+		case cSAVE: case cSAVE2:
 			return true;
 	}
 	return false;
@@ -582,6 +583,11 @@ std::string getMapFlagHelpText(int32_t id)
 			flaghelp = "While touching this flag, attempting to use a Mirror item will fail.";
 			break;
 		}
+		case mfUNSAFEGROUND:
+		{
+			flaghelp = "While touching this flag, the 'last safe position' will not be updated";
+			break;
+		}
 	}
 	return flaghelp;
 }
@@ -661,6 +667,8 @@ void ComboEditorDialog::loadComboType()
 			h_attribute[0] = "The amount of damage dealt when drowning, in HP points. If negative, drowning will heal the player.";
 			l_attribyte[0] = "Flipper Level:";
 			h_attribyte[0] = "The minimum level flippers required to swim in the water. Flippers of lower level will have no effect.";
+			l_attribyte[4] = "Drown SFX:";
+			h_attribyte[4] = "The SFX played when drowning";
 			if(FL(cflag2)) //Modify HP
 			{
 				l_flag[4] = "Rings affect HP Mod";
@@ -1630,9 +1638,9 @@ void ComboEditorDialog::loadComboType()
 			h_attribute[1] = "Value to add to the cset when triggered";
 			l_attribyte[1] = "SFX:";
 			h_attribyte[1] = "SFX to play when triggered";
-			l_flag[9] = "Global State";
-			h_flag[9] = "Use a global state instead of a level-based state.";
-			if(FL(cflag10)) //Global State
+			l_flag[10] = "Global State";
+			h_flag[10] = "Use a global state instead of a level-based state.";
+			if(FL(cflag11)) //Global State
 			{
 				l_attribyte[0] = "State Num:";
 				h_attribyte[0] = "Range 0-255 inclusive, which of the global switch states to trigger from";
@@ -1682,9 +1690,9 @@ void ComboEditorDialog::loadComboType()
 				h_attribute[3] = "The Z amount below the block's Z-height that you can jump atop it from. This allows"
 					" for 'walking up stairs' type effects.";
 			}
-			l_flag[9] = "Global State";
-			h_flag[9] = "Use a global state instead of a level-based state.";
-			if(FL(cflag10)) //Global State
+			l_flag[10] = "Global State";
+			h_flag[10] = "Use a global state instead of a level-based state.";
+			if(FL(cflag11)) //Global State
 			{
 				l_attribyte[0] = "State Num:";
 				h_attribyte[0] = "Range 0-255 inclusive, which of the global switch states to trigger from";
@@ -1785,6 +1793,24 @@ void ComboEditorDialog::loadComboType()
 			}
 			break;
 		}
+		case cSAVE: case cSAVE2:
+		{
+			l_flag[0] = "Restores Life";
+			h_flag[0] = "If checked, restores life up to the percentage listed in attribytes.";
+			l_flag[1] = "Restores Magic";
+			h_flag[1] = "If checked, restores magic up to the percentage listed in attribytes.";
+			if(FL(cflag1))
+			{
+				l_attribyte[0] = "Life Percentage";
+				h_attribyte[0] = "Restore life up to this percentage, if it is lower.";
+			}
+			if(FL(cflag2))
+			{
+				l_attribyte[1] = "Magic Percentage";
+				h_attribyte[1] = "Restore magic up to this percentage, if it is lower.";
+			}
+			break;
+		}
 	}
 	for(size_t q = 0; q < 16; ++q)
 	{
@@ -1841,45 +1867,72 @@ static const GUI::ListData listdata_lift_gfx
 #define ACTION_FIELD_WID 6_em
 #define FLAGS_WID 16_em
 
-#define NUM_FIELD(member,_min,_max) \
-TextField( \
-	fitParent = true, \
-	type = GUI::TextField::type::INT_DECIMAL, \
-	low = _min, high = _max, val = local_comboref.member, \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		local_comboref.member = val; \
-	})
+static std::shared_ptr<GUI::Widget> NUM_FIELD_IMPL(word* data, word min, word max)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
 	
-#define ANIM_FIELD(member,_min,_max) \
-TextField( \
-	fitParent = true, \
-	type = GUI::TextField::type::INT_DECIMAL, \
-	low = _min, high = _max, val = local_comboref.member, \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		local_comboref.member = val; \
-		updateAnimation(); \
-	})
+	return TextField(
+		type = GUI::TextField::type::INT_DECIMAL,
+		maxLength = 5,
+		val = *data,
+		low = min,
+		high = max,
+		fitParent = true,
+		onValChangedFunc = [data](GUI::TextField::type,std::string_view,int32_t val)
+		{
+			*data = val;
+		}
+	);
+}
 
-#define CMB_FLAG(ind) \
-Row(padding = 0_px, \
-	ib_flags[ind] = Button(forceFitH = true, text = "?", \
-		disabled = true, \
-		onPressFunc = [&]() \
-		{ \
-			InfoDialog("Flag Info",h_flag[ind]).show(); \
-		}), \
-	l_flags[ind] = Checkbox( \
-		minwidth = FLAGS_WID, hAlign = 0.0, \
-		checked = local_comboref.usrflags & (1<<ind), fitParent = true, \
-		onToggleFunc = [&](bool state) \
-		{ \
-			SETFLAG(local_comboref.usrflags,(1<<ind),state); \
-			loadComboType(); \
-		} \
-	) \
-)
+#define NUM_FIELD(member,_min,_max) NUM_FIELD_IMPL(&local_comboref.member, _min, _max)
+
+std::shared_ptr<GUI::Widget> ComboEditorDialog::ANIM_FIELD_IMPL(byte* data, byte min, byte max)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return TextField(
+		type = GUI::TextField::type::INT_DECIMAL,
+		maxLength = 5,
+		val = *data,
+		low = min,
+		high = max,
+		fitParent = true,
+		onValChangedFunc = [&, data](GUI::TextField::type,std::string_view,int32_t val)
+		{
+			*data = val;
+			updateAnimation();
+		}
+	);
+}
+
+#define ANIM_FIELD(member, _min, _max) ANIM_FIELD_IMPL(&local_comboref.member, _min, _max)
+
+std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_FLAG(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(padding = 0_px, colSpan=2,
+		ib_flags[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("Flag Info",h_flag[index]).show();
+			}),
+		l_flags[index] = Checkbox(
+			minwidth = FLAGS_WID, hAlign = 0.0,
+			checked = local_comboref.usrflags & (1<<index), fitParent = true,
+			onToggleFunc = [&, index](bool state)
+			{
+				SETFLAG(local_comboref.usrflags,(1<<index),state);
+				loadComboType();
+			}
+		)
+	);
+}
 
 #define CMB_GEN_FLAG(ind,str) \
 Checkbox(text = str, \
@@ -1891,67 +1944,93 @@ Checkbox(text = str, \
 		} \
 	)
 
-#define CMB_ATTRIBYTE(ind) \
-l_attribytes[ind] = Label(minwidth = ATTR_LAB_WID, textAlign = 2), \
-ib_attribytes[ind] = Button(forceFitH = true, text = "?", \
-	disabled = true, \
-	onPressFunc = [&]() \
-	{ \
-		InfoDialog("Attribyte Info",h_attribyte[ind]).show(); \
-	}), \
-TextField( \
-	fitParent = true, minwidth = 8_em, \
-	type = GUI::TextField::type::SWAP_BYTE, \
-	low = 0, high = 255, val = local_comboref.attribytes[ind], \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		local_comboref.attribytes[ind] = val; \
-	})
+std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRIBYTE(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(padding = 0_px, colSpan = 3,
+		l_attribytes[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
+		ib_attribytes[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("Attribyte Info",h_attribyte[index]).show();
+			}),
+		TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_BYTE,
+			low = 0, high = 255, val = local_comboref.attribytes[index],
+			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_comboref.attribytes[index] = val;
+			})
+	);
+}
 
-#define CMB_ATTRISHORT(ind) \
-l_attrishorts[ind] = Label(minwidth = ATTR_LAB_WID, textAlign = 2), \
-ib_attrishorts[ind] = Button(forceFitH = true, text = "?", \
-	disabled = true, \
-	onPressFunc = [&]() \
-	{ \
-		InfoDialog("Attrishort Info",h_attrishort[ind]).show(); \
-	}), \
-TextField( \
-	fitParent = true, minwidth = 8_em, \
-	type = GUI::TextField::type::SWAP_SSHORT, \
-	low = -32768, high = 32767, val = local_comboref.attrishorts[ind], \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		local_comboref.attrishorts[ind] = val; \
-	})
+std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRISHORT(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(padding = 0_px, colSpan = 3,
+		l_attrishorts[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
+		ib_attrishorts[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("Attrishort Info",h_attrishort[index]).show();
+			}),
+		TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_SSHORT,
+			low = -32768, high = 32767, val = local_comboref.attrishorts[index],
+			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_comboref.attrishorts[index] = val;
+			})
+	);
+}
 
-#define CMB_ATTRIBUTE(ind) \
-l_attributes[ind] = Label(minwidth = ATTR_LAB_WID, textAlign = 2), \
-ib_attributes[ind] = Button(forceFitH = true, text = "?", \
-	disabled = true, \
-	onPressFunc = [&]() \
-	{ \
-		InfoDialog("Attribute Info",h_attribute[ind]).show(); \
-	}), \
-TextField( \
-	fitParent = true, minwidth = 8_em, \
-	type = GUI::TextField::type::SWAP_ZSINT, \
-	val = local_comboref.attributes[ind], \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		local_comboref.attributes[ind] = val; \
-	})
+std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRIBUTE(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(padding = 0_px, colSpan = 3,
+		l_attributes[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
+		ib_attributes[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("Attribute Info",h_attribute[index]).show();
+			}),
+		TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_ZSINT,
+			val = local_comboref.attributes[index],
+			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_comboref.attributes[index] = val;
+			})
+	);
+}
 
-#define TRIGFLAG(ind, str) \
-Checkbox( \
-	text = str, hAlign = 0.0, \
-	checked = (local_comboref.triggerflags[ind/32] & (1<<(ind%32))), \
-	fitParent = true, \
-	onToggleFunc = [&](bool state) \
-	{ \
-		SETFLAG(local_comboref.triggerflags[ind/32],(1<<(ind%32)),state); \
-	} \
-)
+std::shared_ptr<GUI::Checkbox> ComboEditorDialog::TRIGFLAG(int index, const char* str)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Checkbox(
+		text = str, hAlign = 0.0,
+		checked = (local_comboref.triggerflags[index/32] & (1<<(index%32))),
+		fitParent = true,
+		onToggleFunc = [&, index](bool state)
+		{
+			SETFLAG(local_comboref.triggerflags[index/32],(1<<(index%32)),state);
+		}
+	);
+}
 
 #define MISCFLAG(member, bit, str) \
 Checkbox( \
@@ -1977,6 +2056,11 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	using namespace GUI::Key;
+
+	// Too many locals error in low-optimization mode for emscripten.
+#ifdef EMSCRIPTEN_DEBUG
+	return std::shared_ptr<GUI::Widget>(nullptr);
+#endif
 	
 	char titlebuf[256];
 	sprintf(titlebuf, "Combo Editor (%d)", index);
@@ -2321,7 +2405,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									TRIGFLAG(34,"Byrna"),
 									TRIGFLAG(35,"Refl. Beam"),
 									TRIGFLAG(36,"Stomp"),
-									DummyWidget(),
+									TRIGFLAG(89, "Thrown"),
 									TRIGFLAG(37,"Custom Weapon 1"),
 									TRIGFLAG(38,"Custom Weapon 2"),
 									TRIGFLAG(39,"Custom Weapon 3"),
@@ -2365,140 +2449,180 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								)
 							)
 						)),
-						TabRef(name = "Other", Row(
-							Column(framed = true,
-								Row(padding = 0_px,
-									Label(text = "Buttons:"),
+						TabRef(name = "Other", Column(
+							Row(padding = 0_px,
+								Column(framed = true, vAlign = 1.0,
+									Row(padding = 0_px,
+										Label(text = "Buttons:"),
+										TextField(
+											fitParent = true,
+											bottomPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = 0, high = 255, val = local_comboref.triggerbtn,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_comboref.triggerbtn = val;
+											}),
+										Button(
+											width = 1.5_em, padding = 0_px, forceFitH = true,
+											text = "?", hAlign = 1.0, onPressFunc = [&]()
+											{
+												InfoDialog("Button Triggers","Sum all the buttons you want to be usable:\n"
+													"(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
+													"Buttons used while standing against the combo from a direction"
+													" with the 'Btn: [dir]' flag checked for that side"
+													" will trigger the combo.").show();
+											}
+										)
+									),
+									Column(
+										TRIGFLAG(20,"Btn: Top"),
+										TRIGFLAG(21,"Btn: Bottom"),
+										TRIGFLAG(22,"Btn: Left"),
+										TRIGFLAG(23,"Btn: Right")
+									)
+								),
+								Rows<3>(framed = true, vAlign = 1.0,
+									Label(text = "Button Prompt:"),
+									SelComboSwatch(
+											showvals = true,
+											combo = local_comboref.prompt_cid,
+											cset = local_comboref.prompt_cs,
+											onSelectFunc = [&](int32_t cmb, int32_t c)
+											{
+												local_comboref.prompt_cid = cmb;
+												local_comboref.prompt_cs = c;
+											}
+										),
+									INFOBTN("Combo to display when within range to press the triggering button."),
+									Label(text = "Prompt Xoffset:"),
 									TextField(
 										fitParent = true,
 										bottomPadding = 0_px,
 										type = GUI::TextField::type::INT_DECIMAL,
-										low = 0, high = 255, val = local_comboref.triggerbtn,
+										low = -32768, high = 32767, val = local_comboref.prompt_x,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
-											local_comboref.triggerbtn = val;
+											local_comboref.prompt_x = val;
+										}),
+									INFOBTN("X Offset of the prompt combo from the player."),
+									Label(text = "Prompt Yoffset:"),
+									TextField(
+										fitParent = true,
+										bottomPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = -32768, high = 32767, val = local_comboref.prompt_y,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.prompt_y = val;
+										}),
+									INFOBTN("Y Offset of the prompt combo from the player.")
+								)
+							),
+							Row(padding = 0_px,
+								Rows<4>(framed = true, vAlign = 0.0,
+									INFOBTN("Triggers every frame automatically"),
+									TRIGFLAG(47,"Always Triggered"),
+									INFOBTN("Triggers when room shutters would open"),
+									TRIGFLAG(27,"Shutter->"),
+									INFOBTN("Triggers when stepped on"),
+									TRIGFLAG(25,"Step->"),
+									INFOBTN("Triggers when stepped on by even a pixel"),
+									TRIGFLAG(26,"Step-> (Sensitive)"),
+									INFOBTN("Triggered when hit by a Light Beam matching the 'LightBeam' value"),
+									TRIGFLAG(55,"Light On->"),
+									INFOBTN("Triggered when NOT hit by a Light Beam matching the 'LightBeam' value"),
+									TRIGFLAG(56,"Light Off->"),
+									INFOBTN("Triggered when a " + std::string(ZI.getItemClassName(itype_lens))
+										+ " with 'Triggers Lens Trigflag' checked is activated."),
+									TRIGFLAG(58,"Lens On->"),
+									INFOBTN("Triggered when a " + std::string(ZI.getItemClassName(itype_lens))
+										+ " with 'Triggers Lens Trigflag' checked is NOT activated."),
+									TRIGFLAG(59,"Lens Off->"),
+									INFOBTN("Triggered when the player pushes against the combo"),
+									TRIGFLAG(57,"Push->"),
+									INFOBTN("'Proximity:' requires the player to be far away, instead of close"),
+									TRIGFLAG(19,"Invert Proximity Req"),
+									INFOBTN("Triggers when all enemies are defeated"),
+									TRIGFLAG(87, "Enemies->"),
+									INFOBTN("Triggers when screen secrets trigger"),
+									TRIGFLAG(88, "Secrets->")
+								),
+								Rows<3>(framed = true, vAlign = 0.0,
+									Label(text = "Proximity:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 5000, val = local_comboref.trigprox,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.trigprox = (word)val;
 										}),
 									Button(
 										width = 1.5_em, padding = 0_px, forceFitH = true,
 										text = "?", hAlign = 1.0, onPressFunc = [&]()
 										{
-											InfoDialog("Button Triggers","Sum all the buttons you want to be usable:\n"
-												"(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
-												"Buttons used while standing against the combo from a direction"
-												" with the 'Btn: [dir]' flag checked for that side"
-												" will trigger the combo.").show();
+											InfoDialog("Proximity Requirement","If the value is >0, the combo "
+												" will only trigger if the player is within that number of pixels of the combo."
+												"\nIf 'Invert Proximity Req' is checked, the player must be FARTHER than that distance instead.").show();
+										}
+									),
+									Label(text = "LightBeam:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 32, val = local_comboref.triglbeam,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.triglbeam = (byte)val;
+										}),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "?", hAlign = 1.0, onPressFunc = [&]()
+										{
+											InfoDialog("LightBeam Requirement","Interacts with the 'Light On' / 'Light Off' flags."
+												" If '0', any light beam counts for those flags."
+												"\nIf '1-32', only a matching light beam counts for those flags.").show();
+										}
+									),
+									Label(text = "Timer:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 255, val = local_comboref.trigtimer,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.trigtimer = val;
+										}),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "?", hAlign = 1.0, onPressFunc = [&]()
+										{
+											InfoDialog("Timed Trigger","If the value is >0, the combo will"
+												" trigger itself every 'n' frames.").show();
+										}
+									),
+									Label(text = "Cooldown:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 255, val = local_comboref.trigcooldown,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.trigcooldown = val;
+										}),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "?", hAlign = 1.0, onPressFunc = [&]()
+										{
+											InfoDialog("Trigger Cooldown","If the value is >0, the combo will"
+												" be unable to be triggered for 'n' frames after being triggered.").show();
 										}
 									)
-								),
-								Column(
-									TRIGFLAG(20,"Btn: Top"),
-									TRIGFLAG(21,"Btn: Bottom"),
-									TRIGFLAG(22,"Btn: Left"),
-									TRIGFLAG(23,"Btn: Right")
-								)
-							),
-							Rows<4>(framed = true,
-								INFOBTN("Triggers every frame automatically"),
-								TRIGFLAG(47,"Always Triggered"),
-								INFOBTN("Triggers when room shutters would open"),
-								TRIGFLAG(27,"Shutter->"),
-								INFOBTN("Triggers when stepped on"),
-								TRIGFLAG(25,"Step->"),
-								INFOBTN("Triggers when stepped on by even a pixel"),
-								TRIGFLAG(26,"Step-> (Sensitive)"),
-								INFOBTN("Triggered when hit by a Light Beam matching the 'LightBeam' value"),
-								TRIGFLAG(55,"Light On->"),
-								INFOBTN("Triggered when NOT hit by a Light Beam matching the 'LightBeam' value"),
-								TRIGFLAG(56,"Light Off->"),
-								INFOBTN("Triggered when a " + std::string(ZI.getItemClassName(itype_lens))
-									+ " with 'Triggers Lens Trigflag' checked is activated."),
-								TRIGFLAG(58,"Lens On->"),
-								INFOBTN("Triggered when a " + std::string(ZI.getItemClassName(itype_lens))
-									+ " with 'Triggers Lens Trigflag' checked is NOT activated."),
-								TRIGFLAG(59,"Lens Off->"),
-								INFOBTN("Triggered when the player pushes against the combo"),
-								TRIGFLAG(57,"Push->"),
-								INFOBTN("'Proximity:' requires the player to be far away, instead of close"),
-								TRIGFLAG(19,"Invert Proximity Req"),
-								INFOBTN("Triggers when all enemies are defeated"),
-								TRIGFLAG(87, "Enemies->"),
-								INFOBTN("Triggers when screen secrets trigger"),
-								TRIGFLAG(88, "Secrets->")
-							),
-							Rows<3>(framed = true,
-								Label(text = "Proximity:", fitParent = true),
-								TextField(
-									fitParent = true,
-									vPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = 0, high = 5000, val = local_comboref.trigprox,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_comboref.trigprox = (word)val;
-									}),
-								Button(
-									width = 1.5_em, padding = 0_px, forceFitH = true,
-									text = "?", hAlign = 1.0, onPressFunc = [&]()
-									{
-										InfoDialog("Proximity Requirement","If the value is >0, the combo "
-											" will only trigger if the player is within that number of pixels of the combo."
-											"\nIf 'Invert Proximity Req' is checked, the player must be FARTHER than that distance instead.").show();
-									}
-								),
-								Label(text = "LightBeam:", fitParent = true),
-								TextField(
-									fitParent = true,
-									vPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = 0, high = 32, val = local_comboref.triglbeam,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_comboref.triglbeam = (byte)val;
-									}),
-								Button(
-									width = 1.5_em, padding = 0_px, forceFitH = true,
-									text = "?", hAlign = 1.0, onPressFunc = [&]()
-									{
-										InfoDialog("LightBeam Requirement","Interacts with the 'Light On' / 'Light Off' flags."
-											" If '0', any light beam counts for those flags."
-											"\nIf '1-32', only a matching light beam counts for those flags.").show();
-									}
-								),
-								Label(text = "Timer:", fitParent = true),
-								TextField(
-									fitParent = true,
-									vPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = 0, high = 255, val = local_comboref.trigtimer,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_comboref.trigtimer = val;
-									}),
-								Button(
-									width = 1.5_em, padding = 0_px, forceFitH = true,
-									text = "?", hAlign = 1.0, onPressFunc = [&]()
-									{
-										InfoDialog("Timed Trigger","If the value is >0, the combo will"
-											" trigger itself every 'n' frames.").show();
-									}
-								),
-								Label(text = "Cooldown:", fitParent = true),
-								TextField(
-									fitParent = true,
-									vPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = 0, high = 255, val = local_comboref.trigcooldown,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_comboref.trigcooldown = val;
-									}),
-								Button(
-									width = 1.5_em, padding = 0_px, forceFitH = true,
-									text = "?", hAlign = 1.0, onPressFunc = [&]()
-									{
-										InfoDialog("Trigger Cooldown","If the value is >0, the combo will"
-											" be unable to be triggered for 'n' frames after being triggered.").show();
-									}
 								)
 							)
 						)),
@@ -2950,7 +3074,28 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										local_comboref.liftitm = val;
 									}),
 								INFOBTN("If 0, drops no item."
-									"\nIf >0, drops that item ID.")
+									"\nIf >0, drops that item ID."),
+								//
+								Label(text = "Lift Height"),
+								TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 255, val = local_comboref.lifthei,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.lifthei = val;
+									}),
+								INFOBTN("The Z-height the combo will be lifted to"),
+								//
+								Label(text = "Lift Time"),
+								TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 255, val = local_comboref.lifttime,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.lifttime = val;
+									}),
+								INFOBTN("The time, in frames, it takes to lift the combo")
+								
 							)
 						)
 					)),
@@ -3333,7 +3478,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									TRIGFLAG(34,"Byrna"),
 									TRIGFLAG(35,"Refl. Beam"),
 									TRIGFLAG(36,"Stomp"),
-									DummyWidget(),
+									TRIGFLAG(89, "Thrown"),
 									TRIGFLAG(37,"Custom Weapon 1"),
 									TRIGFLAG(38,"Custom Weapon 2"),
 									TRIGFLAG(39,"Custom Weapon 3"),
@@ -3415,27 +3560,43 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										)
 									),
 									Rows<3>(framed = true,
-										padding = DEFAULT_PADDING+2_px,
-										Label(text = "Item:", fitParent = true),
+										Label(text = "Button Prompt:"),
+										SelComboSwatch(
+												showvals = true,
+												combo = local_comboref.prompt_cid,
+												cset = local_comboref.prompt_cs,
+												onSelectFunc = [&](int32_t cmb, int32_t c)
+												{
+													local_comboref.prompt_cid = cmb;
+													local_comboref.prompt_cs = c;
+												}
+											),
+										INFOBTN("Combo to display when within range to press the triggering button."),
+										Label(text = "Prompt Xoffset:"),
 										TextField(
 											fitParent = true,
-											vPadding = 0_px,
+											bottomPadding = 0_px,
 											type = GUI::TextField::type::INT_DECIMAL,
-											low = 0, high = 255, val = local_comboref.triggeritem,
+											low = -32768, high = 32767, val = local_comboref.prompt_x,
 											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 											{
-												local_comboref.triggeritem = val;
+												local_comboref.prompt_x = val;
 											}),
-										Button(
-											width = 1.5_em, padding = 0_px, forceFitH = true,
-											text = "?", hAlign = 1.0, onPressFunc = [&]()
+										INFOBTN("X Offset of the prompt combo from the player."),
+										Label(text = "Prompt Yoffset:"),
+										TextField(
+											fitParent = true,
+											bottomPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = -32768, high = 32767, val = local_comboref.prompt_y,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 											{
-												InfoDialog("Item Requirement","If the value is >0, the item "
-													" id set here must be owned to trigger the combo."
-													"\nIf 'Invert Item Req' is checked, the item must NOT be owned instead."
-													"\nIf 'Consume Item Req' is checked, the item will be removed upon triggering.").show();
-											}
-										),
+												local_comboref.prompt_y = val;
+											}),
+										INFOBTN("Y Offset of the prompt combo from the player.")
+									),
+									Rows<3>(framed = true,
+										padding = DEFAULT_PADDING+2_px,
 										Label(text = "Proximity:", fitParent = true),
 										TextField(
 											fitParent = true,
@@ -3791,6 +3952,222 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							)
 						))
 					)),
+					TabRef(name = "Lifting", ScrollingPane(Column(
+						Frame(
+							padding = 0_px,
+							vAlign = 0.5,
+							fitParent = true,
+							Column(
+								Label(text = "Graphics"),
+								DropDownList(data = listdata_lift_gfx,
+										fitParent = true,
+										selectedValue = local_comboref.liftgfx,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_comboref.liftgfx = val;
+										}
+									),
+								Label(text = "Other Combo GFX"),
+								SelComboSwatch(
+										showvals = true,
+										combo = local_comboref.liftcmb,
+										cset = local_comboref.liftcs,
+										onSelectFunc = [&](int32_t cmb, int32_t c)
+										{
+											local_comboref.liftcmb = cmb;
+											local_comboref.liftcs = c;
+										}
+									),
+								Label(text = "Sprite Data GFX"),
+								DropDownList(data = list_sprites,
+										fitParent = true,
+										selectedValue = local_comboref.liftsprite,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_comboref.liftsprite = val;
+										}
+									),
+								Label(text = "Break Sprite"),
+								DropDownList(data = list_sprites_spec,
+										fitParent = true,
+										selectedValue = local_comboref.liftbreaksprite,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_comboref.liftbreaksprite = val;
+										}
+									)
+							)
+						),
+						Frame(
+							padding = 0_px,
+							vAlign = 0.5,
+							fitParent = true,
+							Rows<3>(
+								DummyWidget(),
+								Label(text = "Lift Undercombo:", colSpan = 2, hAlign = 0.0),
+								//
+								INFOBTN("The combo that will replace this combo when lifted"),
+								SelComboSwatch(
+									colSpan = 2, hAlign = 0.0,
+									showvals = true,
+									combo = local_comboref.liftundercmb,
+									cset = local_comboref.liftundercs,
+									onSelectFunc = [&](int32_t cmb, int32_t c)
+									{
+										local_comboref.liftundercmb = cmb;
+										local_comboref.liftundercs = c;
+									}),
+								//
+								DummyWidget(),
+								Checkbox(colSpan = 2,
+									text = "Is Liftable", hAlign = 0.0,
+									checked = local_comboref.liftflags & LF_LIFTABLE,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_comboref.liftflags,LF_LIFTABLE,state);
+									}
+								),
+								//
+								DummyWidget(),
+								Checkbox(colSpan = 2,
+									text = "Lift Undercombo ignores CSet", hAlign = 0.0,
+									checked = local_comboref.liftflags & LF_NOUCSET,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_comboref.liftflags,LF_NOUCSET,state);
+									}
+								),
+								//
+								DummyWidget(),
+								Checkbox(colSpan = 2,
+									text = "Other Combo GFX ignores CSet", hAlign = 0.0,
+									checked = local_comboref.liftflags & LF_NOWPNCMBCSET,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_comboref.liftflags,LF_NOWPNCMBCSET,state);
+									}
+								),
+								//
+								INFOBTN("The thrown object will break when hitting a solid combo"),
+								Checkbox(colSpan = 2,
+									text = "Weapon breaks on solids", hAlign = 0.0,
+									checked = local_comboref.liftflags & LF_BREAKONSOLID,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_comboref.liftflags,LF_BREAKONSOLID,state);
+									}
+								),
+								//
+								DummyWidget(),
+								Checkbox(colSpan = 2,
+									text = "Use Dropset instead of Item ID", hAlign = 0.0,
+									checked = local_comboref.liftflags & LF_DROPSET,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_comboref.liftflags,LF_DROPSET,state);
+									}
+								),
+								//
+								INFOBTN("The item will be dropped under the combo when"
+									" it is lifted, instead of from the thrown object when it breaks."),
+								Checkbox(colSpan = 2,
+									text = "Drop on lift instead of break", hAlign = 0.0,
+									checked = local_comboref.liftflags & LF_DROPONLIFT,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_comboref.liftflags,LF_DROPONLIFT,state);
+									}
+								),
+								//
+								INFOBTN("The item will be the room's 'Special Item', and will not 'time out'."),
+								Checkbox(colSpan = 2,
+									text = "Drops Special Item", hAlign = 0.0,
+									checked = local_comboref.liftflags & LF_SPECIALITEM,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_comboref.liftflags,LF_SPECIALITEM,state);
+									}
+								)
+							)
+						),
+						Frame(
+							padding = 0_px,
+							vAlign = 0.5,
+							fitParent = true,
+							Rows<3>(
+								Label(text = "Damage:", hAlign = 1.0),
+								TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 255, val = local_comboref.liftdmg,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.liftdmg = val;
+									}),
+								INFOBTN("Weapon Power for the 'thrown object' weapon"),
+								//
+								Label(text = "Lift Level:", hAlign = 1.0),
+								TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 255, val = local_comboref.liftlvl,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.liftlvl = val;
+									}),
+								INFOBTN("The level of " + string(ZI.getItemClassName(itype_liftglove)) + " needed to lift this object."),
+								//
+								Label(text = "Lift SFX:", hAlign = 1.0),
+								TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 255, val = local_comboref.liftsfx,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.liftsfx = val;
+									}),
+								INFOBTN("The sfx to play when lifted"),
+								//
+								Label(text = "Break SFX:", hAlign = 1.0),
+								TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 255, val = local_comboref.liftbreaksfx,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.liftbreaksfx = val;
+									}),
+								INFOBTN("The sfx to play when the object breaks"),
+								//
+								Label(text = "Item Drop:"),
+								TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 255, val = local_comboref.liftitm,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.liftitm = val;
+									}),
+								INFOBTN("If 0, drops no item."
+									"\nIf >0, drops that item ID."),
+								//
+								Label(text = "Lift Height"),
+								TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 255, val = local_comboref.lifthei,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.lifthei = val;
+									}),
+								INFOBTN("The Z-height the combo will be lifted to"),
+								//
+								Label(text = "Lift Time"),
+								TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 255, val = local_comboref.lifttime,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.lifttime = val;
+									}),
+								INFOBTN("The time, in frames, it takes to lift the combo")
+							)
+						)
+					))),
 					TabRef(name = "Script", Column(
 						INITD_ROW2(0, local_comboref.initd),
 						INITD_ROW2(1, local_comboref.initd),

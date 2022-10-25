@@ -20,6 +20,7 @@
 #include "ending.h"
 #include "zelda.h"
 #include "base/zsys.h"
+#include "play_midi.h"
 #include "sprite.h"
 #include "items.h"
 #include "pal.h"
@@ -598,7 +599,7 @@ void ending()
 	
 	
 	
-	stop_midi();
+	zc_stop_midi();
 	//restore user volume if it was changed by script
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	{
@@ -656,6 +657,7 @@ void ending()
 	game->set_cont_hearts(zinit.cont_heart);
 	show_saving(scrollbuf);
 	save_savedgames();
+	if (replay_get_mode() == ReplayMode::Record) replay_save();
 }
 
 
@@ -720,7 +722,7 @@ void ending_scripted()
         }
         
         ringcolor(false);
-	stop_midi();
+	zc_stop_midi();
 	//restore user volume if it was changed by script
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	{
@@ -780,6 +782,7 @@ void ending_scripted()
 	game->set_hasplayed(false);
 	show_saving(scrollbuf);
 	save_savedgames();
+	if (replay_get_mode() == ReplayMode::Record) replay_save();
 }
 
 void inc_quest()

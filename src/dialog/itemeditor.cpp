@@ -353,11 +353,18 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->actionsnd[0] = "Hovering Sound:";
 			break;
 		}
-		case itype_rocs: //!TODO Help Text
+		case itype_rocs:
 		{
-			inf->power = "Jump Power:";
-			inf->misc[0] = "Extra Jumps:";
-			inf->flag[0] = "Jump is Power/100";
+			_SET(misc[0], "Extra Jumps:", "The number of times this item can be used in mid-air"
+				" without landing.");
+			_SET(misc[1], "Button", "If 0, the item must be equipped to a button to use it.\n"
+				"Otherwise, any of the specified buttons will activate the glove, even when not equipped to a button.\n"
+				"Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)");
+			if(FLAG(1))
+				_SET(power, "Jump Power:", "The player will jump with a force of 'power'");
+			else _SET(power, "Jump Power:", "The player will jump with a force of '(power*80)+160)'");
+			_SET(flag[0], "Jump is Power/100", "If enabled, the player jumps with a force"
+				" of 'power' instead of '(power*80)+160'");
 			inf->actionsnd[0] = "Jumping Sound:";
 			break;
 		}
@@ -899,40 +906,57 @@ TextField( \
 		local_itemref.member = val; \
 	})
 
-#define ATTRIB_FIELD(member, index) \
-l_attribs[index] = Label(textAlign = 2, width = ATTR_LAB_WID), \
-ib_attribs[index] = Button(forceFitH = true, text = "?", \
-	disabled = true, \
-	onPressFunc = [&]() \
-	{ \
-		InfoDialog("Attribute Info",h_attribs[index]).show(); \
-	}), \
-TextField(maxLength = 11, \
-	type = GUI::TextField::type::INT_DECIMAL, width = ATTR_WID, \
-	val = local_itemref.member, \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		local_itemref.member = val; \
-	})
+std::shared_ptr<GUI::Widget> ItemEditorDialog::ATTRIB_FIELD_IMPL(int32_t* mem, int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
 
-#define FLAG_CHECK(index, bit) \
-Row(padding = 0_px, \
-	ib_flags[index] = Button(forceFitH = true, text = "?", \
-		disabled = true, \
-		onPressFunc = [&]() \
-		{ \
-			InfoDialog("Flags Info",h_flags[index]).show(); \
-		}), \
-	l_flags[index] = Checkbox( \
-		width = FLAGS_WID, \
-		checked = (local_itemref.flags & bit), \
-		onToggleFunc = [&](bool state) \
-		{ \
-			SETFLAG(local_itemref.flags,bit,state); \
-			loadItemClass(); \
-		} \
-	) \
-)
+	return Row(
+		colSpan = 3,
+		l_attribs[index] = Label(textAlign = 2, width = ATTR_LAB_WID),
+		ib_attribs[index] = Button(forceFitH = true, text = "?",
+		disabled = true,
+		onPressFunc = [&, index]()
+		{
+			InfoDialog("Attribute Info",h_attribs[index]).show();
+		}),
+		TextField(maxLength = 11,
+			type = GUI::TextField::type::INT_DECIMAL, width = ATTR_WID,
+			val = *mem,
+			onValChangedFunc = [mem](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				*mem = val;
+			}
+		)
+	);
+}
+
+#define ATTRIB_FIELD(member, index) ATTRIB_FIELD_IMPL(&local_itemref.member, index)
+
+std::shared_ptr<GUI::Widget> ItemEditorDialog::FLAG_CHECK(int index, int bit)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(padding = 0_px,
+		ib_flags[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("Flags Info",h_flags[index]).show();
+			}),
+		l_flags[index] = Checkbox(
+			width = FLAGS_WID,
+			checked = (local_itemref.flags & bit),
+			onToggleFunc = [&, bit](bool state)
+			{
+				SETFLAG(local_itemref.flags,bit,state);
+				loadItemClass();
+			}
+		)
+	);
+}
+
 #define FLAG_CHECK_NOINFO(index, bit) \
 l_flags[index] = Checkbox( \
 	width = FLAGS_WID, \
@@ -943,25 +967,33 @@ l_flags[index] = Checkbox( \
 	} \
 ) \
 
-#define SPRITE_DROP(ind, mem) \
-Row(vPadding = 0_px, \
-	l_spr[ind] = Label(textAlign = 2, width = SPR_LAB_WID, topMargin = 1_px), \
-	ib_spr[ind] = Button(forceFitH = true, text = "?", \
-		disabled = true, \
-		onPressFunc = [&]() \
-		{ \
-			InfoDialog("Sprite Info",h_spr[ind]).show(); \
-		}), \
-	DropDownList( \
-		maxwidth = sized(18_em, 14_em), \
-		data = list_sprites, \
-		selectedValue = local_itemref.mem, \
-		onSelectFunc = [&](int32_t val) \
-		{ \
-			local_itemref.mem = val; \
-		} \
-	) \
-)
+template <typename T>
+std::shared_ptr<GUI::Widget> ItemEditorDialog::SPRITE_DROP_IMPL(T* mem, int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(vPadding = 0_px,
+		l_spr[index] = Label(textAlign = 2, width = SPR_LAB_WID, topMargin = 1_px),
+		ib_spr[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("Sprite Info",h_spr[index]).show();
+			}),
+		DropDownList(
+			maxwidth = sized(18_em, 14_em),
+			data = list_sprites,
+			selectedValue = *mem,
+			onSelectFunc = [mem](int32_t val)
+			{
+				*mem = val;
+			}
+		)
+	);
+}
+
+#define SPRITE_DROP(ind, mem) SPRITE_DROP_IMPL(&local_itemref.mem, ind)
 
 int32_t calcBottleTile(itemdata const& local_itemref, byte bottleVal)
 {
@@ -991,6 +1023,11 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
+
+	// Too many locals error in low-optimization mode for emscripten.
+#ifdef EMSCRIPTEN_DEBUG
+	return std::shared_ptr<GUI::Widget>(nullptr);
+#endif
 	
 	char titlebuf[256];
 	sprintf(titlebuf, "Item Editor (%d): %s", index, itemname.c_str());
@@ -1086,12 +1123,13 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							)
 						)),
 						TabRef(name = "Flags", Column(padding = 0_px,
-							Rows<2>(
+							Rows<4>(
 								framed = true,
 								frameText = "General Flags",
 								topPadding = DEFAULT_PADDING+0.4_em,
 								bottomPadding = DEFAULT_PADDING+1_px,
 								bottomMargin = 1_em,
+								DINFOBTN(),
 								Checkbox(
 									width = FLAGS_WID,
 									checked = (local_itemref.flags & ITEM_EDIBLE),
@@ -1101,7 +1139,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										SETFLAG(local_itemref.flags,ITEM_EDIBLE,state);
 									}
 								),
+								INFOBTN("The item's 'Action Script' runs every frame while the item is owned,"
+									"\ninstead of when the item is 'used'."),
 								FLAG_CHECK_NOINFO(15,ITEM_PASSIVESCRIPT),
+								DINFOBTN(),
 								Checkbox(
 									width = FLAGS_WID,
 									checked = (local_itemref.flags & ITEM_SIDESWIM_DISABLED),
@@ -1111,6 +1152,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										SETFLAG(local_itemref.flags,ITEM_SIDESWIM_DISABLED,state);
 									}
 								),
+								DINFOBTN(),
 								Checkbox(
 									width = FLAGS_WID,
 									checked = (local_itemref.flags & ITEM_BUNNY_ENABLED),
@@ -1118,6 +1160,26 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									onToggleFunc = [&](bool state)
 									{
 										SETFLAG(local_itemref.flags,ITEM_BUNNY_ENABLED,state);
+									}
+								),
+								DINFOBTN(),
+								Checkbox(
+									width = FLAGS_WID,
+									checked = (local_itemref.flags & ITEM_JINX_IMMUNE),
+									text = "Immune to jinxes",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.flags,ITEM_JINX_IMMUNE,state);
+									}
+								),
+								INFOBTN("With this checked, swords will use the item jinx, and vice-versa."),
+								Checkbox(
+									width = FLAGS_WID,
+									checked = (local_itemref.flags & ITEM_FLIP_JINX),
+									text = "Uses Other Jinx",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.flags,ITEM_FLIP_JINX,state);
 									}
 								)
 							),
@@ -1294,13 +1356,13 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								//
 								Label(text = "Increase By:", hAlign = 1.0),
 								TextField(
-									val = ((local_itemref.amount & 0x4000) ? -1 : 1)*(local_itemref.amount & 0x3FFF),
+									val = ((local_itemref.amount & 0x4000) ? -1 : 1)*signed(local_itemref.amount & 0x3FFF),
 									type = GUI::TextField::type::INT_DECIMAL,
 									fitParent = true, low = -9999, high = 16383,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.amount &= 0x8000;
-										local_itemref.amount |= ((val&0x3FFF)|(val<0?0x4000:0));
+										local_itemref.amount |= (abs(val)&0x3FFF)|(val<0?0x4000:0);
 									}
 								),
 								Checkbox(
@@ -2419,12 +2481,13 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							ptr = &scroll_pos2,
 							Column(
 								topMargin = 6_px,
-								Column(
+								Rows<2>(
 									framed = true,
 									frameText = "General Flags",
 									topPadding = DEFAULT_PADDING+0.4_em,
 									bottomPadding = DEFAULT_PADDING+1_px,
 									bottomMargin = 1_em,
+									DINFOBTN(),
 									Checkbox(
 										width = FLAGS_WID,
 										checked = (local_itemref.flags & ITEM_EDIBLE),
@@ -2434,7 +2497,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 											SETFLAG(local_itemref.flags,ITEM_EDIBLE,state);
 										}
 									),
+									INFOBTN("The item's 'Action Script' runs every frame while the item is owned,"
+										"\ninstead of when the item is 'used'."),
 									FLAG_CHECK_NOINFO(15,ITEM_PASSIVESCRIPT),
+									DINFOBTN(),
 									Checkbox(
 										width = FLAGS_WID,
 										checked = (local_itemref.flags & ITEM_SIDESWIM_DISABLED),
@@ -2444,6 +2510,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 											SETFLAG(local_itemref.flags,ITEM_SIDESWIM_DISABLED,state);
 										}
 									),
+									DINFOBTN(),
 									Checkbox(
 										width = FLAGS_WID,
 										checked = (local_itemref.flags & ITEM_BUNNY_ENABLED),
@@ -2451,6 +2518,26 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										onToggleFunc = [&](bool state)
 										{
 											SETFLAG(local_itemref.flags,ITEM_BUNNY_ENABLED,state);
+										}
+									),
+									DINFOBTN(),
+									Checkbox(
+										width = FLAGS_WID,
+										checked = (local_itemref.flags & ITEM_JINX_IMMUNE),
+										text = "Immune to jinxes",
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_itemref.flags,ITEM_JINX_IMMUNE,state);
+										}
+									),
+									INFOBTN("With this checked, swords will use the item jinx, and vice-versa."),
+									Checkbox(
+										width = FLAGS_WID,
+										checked = (local_itemref.flags & ITEM_FLIP_JINX),
+										text = "Uses Other Jinx",
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_itemref.flags,ITEM_FLIP_JINX,state);
 										}
 									)
 								),
@@ -2628,13 +2715,13 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								//
 								Label(text = "Increase By:", hAlign = 1.0),
 								TextField(
-									val = ((local_itemref.amount & 0x4000) ? -1 : 1)*(local_itemref.amount & 0x3FFF),
+									val = ((local_itemref.amount & 0x4000) ? -1 : 1)*signed(local_itemref.amount & 0x3FFF),
 									type = GUI::TextField::type::INT_DECIMAL,
 									fitParent = true, low = -9999, high = 16383,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.amount &= 0x8000;
-										local_itemref.amount |= ((val&0x3FFF)|(val<0?0x4000:0));
+										local_itemref.amount |= (abs(val)&0x3FFF)|(val<0?0x4000:0);
 									}
 								),
 								Checkbox(

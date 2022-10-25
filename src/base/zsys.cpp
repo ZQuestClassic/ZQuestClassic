@@ -32,8 +32,11 @@ using std::getline;
 #include "base/zsys.h"
 #include "zc_sys.h"
 #include "jwin.h"
-#include "mem_debug.h"
 #include "zconsole/ConsoleLogger.h"
+
+#ifdef __EMSCRIPTEN__
+#include "emscripten_utils.h"
+#endif
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
@@ -647,6 +650,13 @@ int32_t decode_file_007(const char *srcfile, const char *destfile, const char *h
     int32_t tog = 0, c, r=0, err;
     int32_t size, i;
     int16_t c1 = 0, c2 = 0, check1, check2;
+
+#ifdef __EMSCRIPTEN__
+    if (em_is_lazy_file(srcfile))
+    {
+        em_fetch_file(srcfile);
+    }
+#endif
     
     // open files
     size = file_size_ex_password(srcfile, password);
@@ -1245,28 +1255,28 @@ void box_end(bool pause)
     {
         if(pause)
         {
-	    //set_volume(255,-1);
-	    //kill_sfx();
-	    //sfx(20,128, false,true);
+	    //zc_set_volume(255,-1);
+	    // kill_sfx();
+	    // sfx(20,128, false,true);
 	
             box_eol();
             box_out("-- press a key --");
             
             do
             {
-                //        poll_mouse();
+                rest(1);
             }
             while(gui_mouse_b());
             
             do
             {
-                //        poll_mouse();
+                rest(1);
             }
             while((!keypressed()) && (!gui_mouse_b()));
             
             do
             {
-                //        poll_mouse();
+                rest(1);
             }
             while(gui_mouse_b());
             
@@ -2124,7 +2134,7 @@ void copy_dialog(DIALOG **to, DIALOG *from)
         /* do nothing */
     }
     
-    (*to)=(DIALOG*)zc_malloc((count+1)*sizeof(DIALOG));
+    (*to)=(DIALOG*)malloc((count+1)*sizeof(DIALOG));
     memcpy((*to),from,sizeof(DIALOG)*(count+1));
     
     for(int32_t i=0; i<count; ++i)
@@ -2165,7 +2175,7 @@ void copy_dialog(DIALOG **to, DIALOG *from)
                  (from[i].proc==jwin_text_proc)||
                  (from[i].proc==jwin_win_proc)))
         {
-            (*to)[i].dp=zc_malloc(strlen((char *)from[i].dp)+1);
+            (*to)[i].dp=malloc(strlen((char *)from[i].dp)+1);
             strcpy((char *)(*to)[i].dp,(char *)from[i].dp);
         }
         
@@ -2297,7 +2307,7 @@ void free_dialog(DIALOG **dlg)
                  ((*dlg)[i].proc==jwin_text_proc)||
                  ((*dlg)[i].proc==jwin_win_proc)))
         {
-            zc_free((*dlg)[i].dp);
+            free((*dlg)[i].dp);
         }
         
         
@@ -2374,7 +2384,7 @@ void free_dialog(DIALOG **dlg)
     }
     
     memset((*dlg),0,sizeof(DIALOG)*(count+1));
-    zc_free((*dlg));
+    free((*dlg));
 }
 
 /*static char * packpasswrd = NULL;
@@ -2454,6 +2464,7 @@ FILE * trace_file;
 
 int32_t zc_trace_handler(const char * msg)
 {
+    // printf("%s", msg);
     if(trace_file == 0)
     {
         trace_file = fopen("allegro.log", "a+");

@@ -601,6 +601,9 @@ DropDownList( \
 	} \
 )
 
+#define DINFOBTN() \
+Button(forceFitH = true, text = "?", \
+	disabled = true)
 #define INFOBTN(inf) \
 Button(forceFitH = true, text = "?", \
 	onPressFunc = [=]() \

@@ -71,8 +71,11 @@ int32_t jwin_cset_proc(int32_t msg, DIALOG* d, int32_t c);
 int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c);
 void onInsertColor();
 void onInsertColor_Text();
+void onInsertColor_Hex();
 void jumpText(int32_t r, int32_t g, int32_t b);
+void jumpHex(int32_t r, int32_t g, int32_t b);
 void onJumpText();
+void onJumpHex();
 void onJumpHSL();
 
 static DIALOG edit_cset_dlg[] =
@@ -102,6 +105,10 @@ static DIALOG edit_cset_dlg[] =
     { jwin_text_proc,        16,  164,   8,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "B", NULL, NULL },
     { jwin_check_proc,      230,   30,   8,   9,    vc(0),              vc(11),           0,       0,          0,             0, (void *) "View 8b values", NULL, NULL },
 	// 20
+    { jwin_text_proc,       16,   54,   8,     8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "0x", NULL, NULL },
+    { jwin_edit_proc,       24,   50,   48,   16,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          6,             0,       NULL, NULL, NULL },
+	{ jwin_func_button_proc,16,   70,   40,   21,    vc(14),   vc(1),      0,      0,          0,             0, (void *) "Insert", NULL, (void*) onInsertColor_Hex },
+	{ jwin_func_button_proc,16,   95,   40,   21,    vc(14),   vc(1),      0,      0,          0,             0, (void *) "Jump", NULL, (void*) onJumpHex },
 	
 	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -616,6 +623,38 @@ void onJumpText()
 	jumpText(RAMpal[14*16+color_index].r, RAMpal[14*16+color_index].g, RAMpal[14*16+color_index].b);
 }
 
+void onInsertColor_Hex()
+{
+	int32_t col = zc_xtoi((char*)edit_cset_dlg[21].dp);
+	auto r = (col&0xFF0000)>>16;
+	auto g = (col&0x00FF00)>>8;
+	auto b = (col&0x0000FF)>>0;
+	
+	r = vbound(r, 0, 252)/4;
+	g = vbound(g, 0, 252)/4;
+	b = vbound(b, 0, 252)/4;
+	RAMpal[14*16+color_index].r = r;
+	RAMpal[14*16+color_index].g = g;
+	RAMpal[14*16+color_index].b = b;
+	set_palette_range(RAMpal,0,255,false);
+	edit_cset_dlg[9].flags |= D_DIRTY;
+}
+
+void jumpHex(int32_t r, int32_t g, int32_t b)
+{
+	r*=4;
+	g*=4;
+	b*=4;
+	char* hexbuf = (char*)edit_cset_dlg[21].dp;
+	sprintf(hexbuf, "%06X", (r<<16)|(g<<8)|(b<<0));
+	object_message(&edit_cset_dlg[21], MSG_DRAW, 0);
+}
+
+void onJumpHex()
+{
+	jumpHex(RAMpal[14*16+color_index].r, RAMpal[14*16+color_index].g, RAMpal[14*16+color_index].b);
+}
+
 void onJumpHSL()
 {
 	
@@ -655,11 +694,15 @@ bool edit_dataset(int32_t dataset)
 	edit_cset_dlg[10].dp = (void*)bufr;
 	edit_cset_dlg[11].dp = (void*)bufg;
 	edit_cset_dlg[12].dp = (void*)bufb;
+	char bufhex[7] = "000000";
+	edit_cset_dlg[21].dp = (void*)bufhex;
 	
-	while(gui_mouse_b()) {} //Do nothing
+	while(gui_mouse_b()) {
+		rest(1);
+	} //Do nothing
 	edit_cset_dlg[0].dp2 = lfont;
 	int32_t ret = zc_popup_dialog(edit_cset_dlg,3);
-	al_trace("DLG RETURN VAL -------------------------- %d", ret);
+	//al_trace("DLG RETURN VAL -------------------------- %d", ret);
 	switch(ret)
 	{
 		case 3: //Cancel
@@ -674,7 +717,9 @@ bool edit_dataset(int32_t dataset)
 	
 	set_palette(RAMpal);
 	rectfill(screen, 0, 0, screen->w, screen->h, BLACK);
-	while(gui_mouse_b()) {} //Do nothing
+	while(gui_mouse_b()) {
+		rest(1);
+	} //Do nothing
 	font = old;
 	return ret==4;
 }
@@ -926,6 +971,7 @@ bool grab_dataset(int32_t dataset)
     while(gui_mouse_b())
     {
         /* do nothing */
+				rest(1);
     }
     
     scare_mouse();
@@ -1350,6 +1396,11 @@ static DIALOG colors_dlg[] =
 
 int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 {
+	if (zc_get_config("zquest","hw_cursor",0) == 1)
+	{
+		select_mouse_cursor(MOUSE_CURSOR_ALLEGRO);
+		disable_hardware_cursor();
+	}
 
     char tempstuff[17];
     cset_first=first;
@@ -1541,6 +1592,7 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
     while(gui_mouse_b())
     {
         /* do nothing */
+				rest(1);
     }
     
     clear_to_color(screen,vc(0));
@@ -1561,6 +1613,11 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
     comeback();
     destroy_bitmap(bmp);
     //delete[] buf;
+	if (zc_get_config("zquest","hw_cursor",0) == 1)
+	{
+		select_mouse_cursor(MOUSE_CURSOR_ARROW);
+		enable_hardware_cursor();
+	}
     return int32_t(ret==23);
 }
 

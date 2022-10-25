@@ -25,7 +25,6 @@
 #include "qst.h"
 #include "init.h"
 #include <assert.h>
-#include "mem_debug.h"
 #include "dialog/info.h"
 #include "dialog/subscr_props.h"
 
@@ -470,13 +469,13 @@ int32_t d_stilelist_proc(int32_t msg,DIALOG *d,int32_t c)
         case ssmstSSVINETILE:
             (d-15)->w=52;
             (d-14)->w=48;
-            (d-14)->d1=wpnsbuf[iwSubscreenVine].newtile;
+            (d-14)->d1=wpnsbuf[iwSubscreenVine].tile;
             break;
             
         case ssmstMAGICMETER:
             (d-15)->w=148;
             (d-14)->w=144;
-            (d-14)->d1=wpnsbuf[iwMMeter].newtile;
+            (d-14)->d1=wpnsbuf[iwMMeter].tile;
             break;
             
         case -1:
@@ -1006,7 +1005,7 @@ static ListData misccolor_list(misccolorlist, &font);
 static ListData spectile_list(spectilelist, &font);
 static ListData ssfont_list(ssfontlist, &font);
 static ListData colortype_list(colortypelist, &font);
-static ListData item_list(itemlist, &font);
+static ListData item_list(itemlist_num, &font);
 
 void replacedp(DIALOG &d, const char *newdp, size_t size)
 {
@@ -1015,7 +1014,7 @@ void replacedp(DIALOG &d, const char *newdp, size_t size)
             (d.proc==d_check_proc)||
             (d.proc==d_comboa_radio_proc)||
             (d.proc==d_comboabutton_proc)||
-            (d.proc==d_ctext_proc)||
+            (d.proc==d_ctext2_proc)||
             (d.proc==d_edit_proc)||
             (d.proc==d_jbutton_proc)||
             (d.proc==d_kbutton_proc)||
@@ -1050,12 +1049,12 @@ void replacedp(DIALOG &d, const char *newdp, size_t size)
             (d.proc==jwin_edit_proc))
     {
         if(d.dp != NULL)
-            zc_free(d.dp);
+            free(d.dp);
             
         if(newdp != NULL)
         {
             size = zc_max(size, strlen((char *)newdp)+1);
-            d.dp = zc_malloc(size);
+            d.dp = malloc(size);
             strcpy((char*)d.dp, newdp);
         }
         else
@@ -1242,13 +1241,13 @@ int32_t onDuplicateSubscreenObject()
             
             if(css->objects[i].dp1!=NULL)
             {
-                //css->objects[c].dp1=zc_malloc(strlen((char *)css->objects[i].dp1)+1);
+                //css->objects[c].dp1=malloc(strlen((char *)css->objects[i].dp1)+1);
                 css->objects[c].dp1= new char[strlen((char *)css->objects[i].dp1)+1];
                 strcpy((char *)css->objects[c].dp1,(char *)css->objects[i].dp1);
             }
             else
             {
-                //css->objects[c].dp1=zc_malloc(2);
+                //css->objects[c].dp1=malloc(2);
                 css->objects[c].dp1 = new char[2];
                 ((char *)css->objects[c].dp1)[0]=0;
             }
@@ -2780,7 +2779,7 @@ const char *sso_str[ssoMAX]=
 char *sso_name(int32_t type)
 {
     char *tempname;
-    tempname=(char*)zc_malloc(255);
+    tempname=(char*)malloc(255);
     
     if(type>=0 && type <ssoMAX)
     {
@@ -2857,7 +2856,7 @@ void doNewSubscreenObject(int32_t type)
 {
     subscreen_object tempsso;
 	memset(&tempsso,0,sizeof(subscreen_object));
-	//tempsso.dp1=(char *)zc_malloc(2);
+	//tempsso.dp1=(char *)malloc(2);
 	tempsso.dp1 = new char[2];
 	((char *)tempsso.dp1)[0]=0;
 	tempsso.type=type;
@@ -3804,7 +3803,7 @@ void edit_subscreen()
     subscreen_dlg[4].dp=(void *)css;
     subscreen_dlg[5].fg=jwin_pal[jcBOX];
     subscreen_dlg[5].bg=jwin_pal[jcBOX];
-    str_oname=(char *)zc_malloc(255);
+    str_oname=(char *)malloc(255);
     subscreen_dlg[6].dp=(void *)str_oname;
     subscreen_dlg[8].dp=(void *)(css->name);
     update_sso_name();

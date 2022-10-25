@@ -8,6 +8,7 @@
 #include <list>
 #include <deque>
 #include "zelda.h" //This is probably the source of the duplication of BMP_MOUSE. -Z
+#include "replay.h"
 
 #define ZS_BYTE 255
 #define ZS_CHAR 255
@@ -607,7 +608,7 @@ struct user_rng
 	}
 	void srand(int32_t seed)
 	{
-		zc_srand(seed, gen);
+		zc_game_srand(seed, gen);
 	}
 	int32_t srand()
 	{
@@ -4776,19 +4777,41 @@ enum ASM_DEFINE
 #define GAMEEVENTDATA           0x146A
 #define ITEMDROPPEDBY           0x146B
 #define GAMEGSWITCH             0x146C
-#define REGIONDD                0x146D
-#define REGIONCD                0x146E
-#define REGIONFD                0x146F
-#define REGIONTD                0x1470
-#define REGIONID                0x1471
-#define REGIONSD                0x1472
-#define REGIONED                0x1473
-#define REGIONWORLDWIDTH        0x1474
-#define REGIONWORLDHEIGHT       0x1475
-#define REGIONSCREENWIDTH       0x1476
-#define REGIONSCREENHEIGHT      0x1477
+#define COMBODTRIGGERCOOLDOWN   0x146D
+#define COMBODTRIGGERCOPYCAT    0x146E
+#define COMBODTRIGITEMPICKUP    0x146F
+#define COMBODTRIGEXSTATE       0x1470
+#define COMBODTRIGSPAWNENEMY    0x1471
+#define COMBODTRIGSPAWNITEM     0x1472
+#define COMBODTRIGCSETCHANGE    0x1473
+#define COMBODLIFTGFXCOMBO      0x1474
+#define COMBODLIFTGFXCCSET      0x1475
+#define COMBODLIFTUNDERCMB      0x1476
+#define COMBODLIFTUNDERCS       0x1477
+#define COMBODLIFTDAMAGE        0x1478
+#define COMBODLIFTLEVEL         0x1479
+#define COMBODLIFTITEM          0x147A
+#define COMBODLIFTFLAGS         0x147B
+#define COMBODLIFTGFXTYPE       0x147C
+#define COMBODLIFTGFXSPRITE     0x147D
+#define COMBODLIFTSFX           0x147E
+#define COMBODLIFTBREAKSPRITE   0x147F
+#define COMBODLIFTBREAKSFX      0x1480
+#define COMBODLIFTHEIGHT        0x1481
+#define COMBODLIFTTIME          0x1482
+#define REGIONDD                0x1483
+#define REGIONCD                0x1484
+#define REGIONFD                0x1485
+#define REGIONTD                0x1486
+#define REGIONID                0x1487
+#define REGIONSD                0x1488
+#define REGIONED                0x1489
+#define REGIONWORLDWIDTH        0x148A
+#define REGIONWORLDHEIGHT       0x148B
+#define REGIONSCREENWIDTH       0x148C
+#define REGIONSCREENHEIGHT      0x148D
 
-#define NUMVARIABLES         	0x1478
+#define NUMVARIABLES         	0x148D
 
 //} End variables
 

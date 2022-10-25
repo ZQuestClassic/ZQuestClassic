@@ -7,6 +7,7 @@
 #include "guys.h"
 #include "ffscript.h"
 #include "hero.h"
+#include "title.h"
 
 extern sprite_list items, decorations;
 extern FFScript FFCore;
@@ -297,7 +298,7 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 bool do_cswitch_combo(newcombo const& cmb, weapon* w)
 {
 	byte pair = cmb.attribytes[0];
-	if(cmb.usrflags & cflag10) //global state
+	if(cmb.usrflags & cflag11) //global state
 	{
 		int32_t tmr = cmb.attributes[2] / 10000;
 		bool oldstate = game->gswitch_timers[pair];
@@ -1585,6 +1586,32 @@ bool trigger_shooter(newcombo const& cmb, int32_t pos)
 	return trigger_shooter(cmb, COMBOX(pos), COMBOY(pos));
 }
 
+void trigger_save(newcombo const& cmb)
+{
+	if(cmb.type != cSAVE && cmb.type != cSAVE2) return;
+	auto save_type = cmb.type == cSAVE2 ? 1 : 0;
+	if(cmb.usrflags & cflag1) //restore hp
+	{
+		double perc = cmb.attribytes[0]/100.0;
+		word life = word(perc*game->get_maxlife());
+		if(cmb.attribytes[0]==100) //sanity incase of floating point error
+			life = game->get_maxlife();
+		if(game->get_life() < life)
+			game->set_life(life);
+	}
+	if(cmb.usrflags & cflag2) //restore magic
+	{
+		double perc = cmb.attribytes[0]/100.0;
+		word magic = word(perc*game->get_maxmagic());
+		if(cmb.attribytes[0]==100) //sanity incase of floating point error
+			magic = game->get_maxmagic();
+		if(game->get_magic() < magic)
+			game->set_magic(magic);
+	}
+	// TODO z3 !
+	save_game((tmpscr.flags4&fSAVEROOM) != 0, save_type);
+}
+
 static byte copycat_id = 0;
 static bool do_copycat_trigger(const pos_handle_t& pos_handle)
 {
@@ -1656,6 +1683,8 @@ bool force_ex_trigger(const pos_handle_t& pos_handle, char xstate)
 	}
 	return false;
 }
+
+static bool triggering_generic_secrets = false;
 
 // TODO z3 remove
 bool do_trigger_combo(int layer, int pos, int32_t special, weapon* w)
@@ -1842,6 +1871,9 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 						if(!trigger_shooter(cmb,pos))
 							return false;
 						break;
+					case cSAVE: case cSAVE2:
+						trigger_save(cmb);
+						break;
 					default:
 						used_bit = false;
 				}
@@ -1853,7 +1885,12 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 			if (cmb.triggerflags[1]&combotriggerSECRETS)
 			{
 				used_bit = true;
-				trigger_secrets_for_screen(false, -6);
+				if(!(special & ctrigSECRETS) && !triggering_generic_secrets)
+				{
+					triggering_generic_secrets = true;
+					trigger_secrets_for_screen(false, -6);
+					triggering_generic_secrets = false;
+				}
 				if(canPermSecret(currdmap, pos_handle.screen_index) && !(pos_handle.screen->flags5&fTEMPSECRETS))
 					setmapflag2(pos_handle.screen, pos_handle.screen_index, mSECRET);
 				sfx(pos_handle.screen->secretsfx);
@@ -2061,7 +2098,7 @@ bool do_lift_combo(int32_t lyr, int32_t pos, int32_t gloveid)
 	w->death_sprite = cmb.liftbreaksprite;
 	w->death_sfx = cmb.liftbreaksfx;
 	
-	Hero.lift(w, 16, 8);
+	Hero.lift(w, cmb.lifttime, cmb.lifthei);
 	
 	tmp->data[pos] = cmb.liftundercmb;
 	if(!(cmb.liftflags & LF_NOUCSET))
@@ -2085,6 +2122,12 @@ void init_combo_timers()
 	}
 }
 
+bool on_cooldown(int32_t lyr, int32_t pos)
+{
+	if(unsigned(lyr) > 7 || unsigned(pos) > 176)
+		return false;
+	return combo_trig_timers[lyr][pos].trig_cd != 0;
+}
 
 
 static void handle_shooter(newcombo const& cmb, cmbtimer& timer, zfix wx, zfix wy)

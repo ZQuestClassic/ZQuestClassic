@@ -29,9 +29,9 @@ You may need to tweak the configuration settings for other platforms.
  
 The included build scripts will build all targets.
 
-**3))** Included in this repository are pre-built libraries for many of ZC's dependencies, including Allegro and several Allegro add-on libraries for handling sound. These binaries are included for the most common platforms for convenience of the developers, but if you are using a different operating system or toolchain you may need to rebuild these binaries from source. There are (currently) no automated scripts for doing this, but the source packages are included in the `/other` directory.
+**3))** Included in this repository are pre-built libraries for many of ZC's dependencies, including several Allegro add-on libraries for handling sound. These binaries are included for the most common platforms for convenience of the developers, but if you are using a different operating system or toolchain you may need to rebuild these binaries from source. There are (currently) no automated scripts for doing this, but the source packages are included in the `/other` directory.
 
-Zelda Classic requires a modified version of the Allegro 4.2.2 library. Again, pre-built library binaries are available in `/libs`, and if you need to rebuild the library from source, it is contained in `./allegro/fixed/all422-fixed.zip`. A stripped-down version of the fixed library, containing only the header files needed to compile ZC, is in `./allegro`. **Do not try to link Zelda Classic against the standard 4.2.2 Allegro library. You must use the pre-built binaries, or the modified source.**
+Zelda Classic builds Allegro 5 from source. The code base still uses Allegro 4 APIs, but uses [Allegro-Legacy](https://github.com/NewCreature/Allegro-Legacy) to translate into Allegro 5.
 
 **4))** Zelda Classic works **only** when compiled for a 32-bit architecture (but the compiled binaries will run fine on 64-bit operating systems.) This means that to successfully compile ZC, you must set your compiler to generate 32-bit code, and you must **obtain 32-bit versions of all external libraries** (or build them yourself from source). For example, on 64-bit Ubuntu you may need to install the packages g++-multilib, libx11-dev:i386, libxext-dev:i386, libxcursor-dev:i386, libxxf86vm-dev:i386, libxpm-dev:i386, libasound2-dev:i386, and possibly others. If you are getting linker errors, check carefully for messages about binary incompatibility with the external libraries.
 
@@ -68,7 +68,7 @@ cmake ..
 make
 ```
 
-Binaries will be created in the `build` folder.
+Binaries will be created in the `build` folder. You will need to copy the data files created by the buildpack.sh script to the Debug/Release folder.
 
 ## Contributing to Zelda Classic
 

@@ -6,7 +6,6 @@
 #include "qst.h"
 #include "tiles.h"
 #include "base/zc_alleg.h"
-#include "zc_malloc.h"
 #include "base/zdefs.h"
 #include "zq_custom.h"
 #include "zq_misc.h"
@@ -24,7 +23,7 @@ int32_t addtomsglist(int32_t index, bool allow_numerical_sort = true);
 void build_bistringcat_list();
 const char *stringcatlist(int32_t index, int32_t *list_size);
 std::string parse_msg_str(std::string const& s);
-int32_t msg_code_operands(int32_t cc);
+int32_t msg_code_operands(byte cc);
 int32_t d_msgtile_proc(int32_t msg,DIALOG *d,int32_t c);
 void strlist_rclick_func(int32_t index, int32_t x, int32_t y);
 
@@ -195,7 +194,7 @@ void strlist_rclick_func(int32_t index, int32_t x, int32_t y)
 char *strip_extra_spaces(char *string)
 {
 	int32_t len=(int32_t)strlen(string);
-	char *src=(char *)zc_malloc(len+1);
+	char *src=(char *)malloc(len+1);
 	char *tmpsrc=src;
 	memcpy(src,string,len+1);
 	memset(src,0,len+1);
@@ -230,7 +229,7 @@ char *strip_extra_spaces(char *string)
 	*tmpsrc=0;
 	//  memcpy(string,src,len);
 	strcpy(string,src);
-	zc_free(src);
+	free(src);
 	return string;
 }
 
@@ -239,6 +238,33 @@ void strip_extra_spaces(std::string &string)
 	string = string.substr(string.find_first_not_of(' '), string.find_last_not_of(' '));
 }
 
+void scc_insert(char* buf, size_t& msgptr,byte cc,size_t limit = -1)
+{
+	switch(cc) //special scc inserts
+	{
+		case MSGC_MENUCHOICE:
+			buf[msgptr++] = '>';
+			break;
+		case MSGC_DRAWTILE:
+			buf[msgptr++] = '[';
+			if(msgptr >= limit) break;
+			buf[msgptr++] = ']';
+			break;
+		case MSGC_NAME:
+			buf[msgptr++] = '(';
+			if(msgptr >= limit) break;
+			buf[msgptr++] = 'N';
+			if(msgptr >= limit) break;
+			buf[msgptr++] = 'a';
+			if(msgptr >= limit) break;
+			buf[msgptr++] = 'm';
+			if(msgptr >= limit) break;
+			buf[msgptr++] = 'e';
+			if(msgptr >= limit) break;
+			buf[msgptr++] = ')';
+			break;
+	}
+}
 
 char *MsgString(int32_t index, bool show_number, bool pad_number)
 {
@@ -267,38 +293,44 @@ char *MsgString(int32_t index, bool show_number, bool pad_number)
 	uint32_t length = MsgStrings[index].s.size();
 	//return s;
 	
+	size_t msgptr=0;
 	//remove preceding spaces;
-	for(; i<length && (MsgStrings[index].s[i]==' ' || MsgStrings[index].s[i]<32 || MsgStrings[index].s[i]>126); ++i)
+	for(; i<length && (MsgStrings[index].s[i]==' ' || MsgStrings[index].s[i]<32 || MsgStrings[index].s[i]>126);)
 	{
-		if(MsgStrings[index].s[i]!=' ')  // Is it a control code?
+		byte c = MsgStrings[index].s[i];
+		++i;
+		if(c!=' ')  // Is it a control code?
 		{
-			for(int32_t numops=msg_code_operands(MsgStrings[index].s[i]-1); numops>0; numops--)
+			for(int32_t numops=msg_code_operands(c-1); numops>0; numops--)
 			{
 				i++;
 				if(i>=length) break; //sanity!
 				if((byte)(MsgStrings[index].s[i])==255)
 					i+=2;
 			}
+			scc_insert(t,msgptr,c-1,70);
+			if(msgptr) break;
 		}
 	}
 	
-	int32_t msgptr=0;
 	
 	for(; msgptr<70 && i<MsgStrings[index].s.size(); i++)
 	{
-		if(i<length && MsgStrings[index].s[i]>=32 && MsgStrings[index].s[i]<=126)
+		byte c = MsgStrings[index].s[i];
+		if(i<length && c>=32 && c<=126)
 		{
-			t[msgptr++]=MsgStrings[index].s[i];
+			t[msgptr++]=c;
 		}
-		else if(i<length && MsgStrings[index].s[i])
+		else if(i<length && c)
 		{
-			for(int32_t numops=msg_code_operands(MsgStrings[index].s[i]-1); numops>0; numops--)
+			for(int32_t numops=msg_code_operands(c-1); numops>0; numops--)
 			{
 				i++;
 				if(i>=length) break; //sanity!
 				if((byte)(MsgStrings[index].s[i])==255)
 					i+=2;
 			}
+			scc_insert(t,msgptr,c-1,70);
 		}
 	}
 	
@@ -851,8 +883,10 @@ int32_t onStrings()
 			int32_t lp = addAfter>=0 ? MsgStrings[addAfter].listpos : -1;
 			int32_t templateID=atoi(static_cast<char*>(strlist_dlg[22].dp));
 			
+			auto oldspeed = zinit.msg_speed;
+			zinit.msg_speed=atoi(msgspeed_string);
 			call_stringedit_dialog(size_t(index), templateID, addAfter);
-			
+			zinit.msg_speed=oldspeed;
 			if(MsgStrings[index].listpos!=msg_count) // Created new string
 			{
 				// Select the new message
@@ -976,10 +1010,16 @@ std::string parse_msg_str(std::string const& s)
 			byte twofiftyfives = 0;
 			byte digits = 0;
 			
+			bool neg = false;
+			if(i+1 < s.size() && s[i+1] == '-')
+			{
+				neg = true;
+				++i;
+			}
 			// Read the entire number
 			while(i+1<s.size() && s[i+1]>='0' && s[i+1]<='9' && ++digits <= 5)
 			{
-				i++;
+				++i;
 				msgcc*=10; // Move the current number one decimal place right.
 				msgcc+=byte(s[i]-'0');
 				
@@ -988,6 +1028,11 @@ std::string parse_msg_str(std::string const& s)
 				{
 					twofiftyfives = (msgcc/254)<<0;
 				}
+			}
+			if(neg)
+			{
+				msgcc = MAX_SCC_ARG;
+				twofiftyfives = (msgcc/254)<<0;
 			}
 			smsg += (char)((msgcc % 254) + 1); // As 0 is null, we must store codes 1 higher than their actual value...
 
@@ -1137,7 +1182,9 @@ char* encode_msg_str(std::string const& message)
 					}
 					
 					// Append the argument to sccBuf.
-					sprintf(sccArgBuf, "\\%hu", sccArg);
+					if(sccArg == MAX_SCC_ARG)
+						strcpy(sccArgBuf, "\\-1");
+					else sprintf(sccArgBuf, "\\%hu", sccArg);
 					strcat(sccBuf, sccArgBuf);
 				}
 			}
@@ -1222,7 +1269,30 @@ int32_t msg_at_pos(int32_t pos)
 }
 
 // Returns number of arguments to each control code
-int32_t msg_code_operands(int32_t cc)
+bool is_msgc(byte cc)
+{
+	switch(cc)
+	{
+		case MSGC_COLOUR: case MSGC_SPEED: case MSGC_GOTOIFGLOBAL:
+		case MSGC_GOTOIFRAND: case MSGC_GOTOIF: case MSGC_GOTOIFCTR:
+		case MSGC_GOTOIFCTRPC: case MSGC_GOTOIFTRI:
+		case MSGC_GOTOIFTRICOUNT: case MSGC_CTRUP: case MSGC_CTRDN:
+		case MSGC_CTRSET: case MSGC_CTRUPPC: case MSGC_CTRDNPC:
+		case MSGC_CTRSETPC: case MSGC_GIVEITEM: case MSGC_TAKEITEM:
+		case MSGC_WARP: case MSGC_SETSCREEND: case MSGC_SFX:
+		case MSGC_MIDI: case MSGC_NAME: case MSGC_GOTOIFCREEND:
+		//case MSGC_CHANGEPORTRAIT:
+		case MSGC_NEWLINE: case MSGC_SHDCOLOR:
+		case MSGC_SHDTYPE: case MSGC_DRAWTILE: case MSGC_ENDSTRING:
+		case MSGC_WAIT_ADVANCE: case MSGC_SETUPMENU:
+		case MSGC_MENUCHOICE: case MSGC_RUNMENU:
+		case MSGC_GOTOMENUCHOICE: case MSGC_TRIGSECRETS:
+		case MSGC_SETSCREENSTATE: case MSGC_SETSCREENSTATER:
+			return true;
+	}
+	return false;
+}
+int32_t msg_code_operands(byte cc)
 {
 	switch(cc)
 	{

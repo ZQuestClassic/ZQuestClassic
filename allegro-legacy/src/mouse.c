@@ -364,11 +364,13 @@ static void mouse_move(void)
 
       if (gfx_capabilities & GFX_HW_CURSOR) {
 	 if (_mouse_on) {
-	    gfx_driver->move_mouse(mx=_mouse_x, my=_mouse_y);
+      // local edit. this seems to always reset the cursor ...
+	   // gfx_driver->move_mouse(mx=_mouse_x, my=_mouse_y);
 	    mon = TRUE;
 	 }
 	 else {
-	    gfx_driver->move_mouse(mx=MOUSE_OFFSCREEN, my=MOUSE_OFFSCREEN);
+      // local edit
+	   //  gfx_driver->move_mouse(mx=MOUSE_OFFSCREEN, my=MOUSE_OFFSCREEN);
 	    mon = FALSE;
 	 }
       }
@@ -500,6 +502,8 @@ void select_mouse_cursor(int cursor)
    ASSERT(cursor < AL_NUM_MOUSE_CURSORS);
 
    current_cursor = cursor;
+   if (current_cursor == MOUSE_CURSOR_ALLEGRO)
+      use_system_cursor = FALSE;
 }
 
 
@@ -834,7 +838,6 @@ void position_mouse_z(int z)
       return;
 
    _mouse_z = z;
-   // local edit
    al_set_mouse_z(z);
    update_mouse();
 }
@@ -850,6 +853,7 @@ void position_mouse_w(int w)
       return;
 
    _mouse_w = w;
+   al_set_mouse_w(w);
    update_mouse();
 }
 

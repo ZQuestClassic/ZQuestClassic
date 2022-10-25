@@ -56,7 +56,6 @@
 #include "jwin.h"
 #include "base/jwinfsel.h"
 #include "base/zsys.h"
-#include "zc_malloc.h"
 
 extern FONT *lfont_l;
 
@@ -488,7 +487,7 @@ Next:
     if((flist->size < FLIST_SIZE) && ((ugetc(s) != '.') || (ugetat(s, 1))))
     {
         int32_t size = ustrsizez(s) + ((attrib & FA_DIREC) ? ucwidth(OTHER_PATH_SEPARATOR) : 0);
-        name = (char *) zc_malloc(size);
+        name = (char *) malloc(size);
         
         if(!name)
             return -1;
@@ -579,7 +578,7 @@ static int32_t fs_flist_proc(int32_t msg, DIALOG *d, int32_t c)
     {
         if(!flist)
         {
-            flist = (FLIST *) zc_malloc(sizeof(FLIST));
+            flist = (FLIST *) malloc(sizeof(FLIST));
             
             if(!flist)
             {
@@ -591,7 +590,7 @@ static int32_t fs_flist_proc(int32_t msg, DIALOG *d, int32_t c)
         {
             for(i=0; i<flist->size; i++)
                 if(flist->name[i])
-                    zc_free(flist->name[i]);
+                    free(flist->name[i]);
         }
         
         flist->size = 0;
@@ -623,9 +622,9 @@ static int32_t fs_flist_proc(int32_t msg, DIALOG *d, int32_t c)
         {
             for(i=0; i<flist->size; i++)
                 if(flist->name[i])
-                    zc_free(flist->name[i]);
+                    free(flist->name[i]);
                     
-            zc_free(flist);
+            free(flist);
             flist = NULL;
         }
     }
@@ -992,6 +991,7 @@ int32_t jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *e
     
     do
     {
+        rest(1);
     }
     while(gui_mouse_b());
     
@@ -1002,7 +1002,7 @@ int32_t jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *e
     
     if(fext)
     {
-        zc_free(fext);
+        free(fext);
         fext = NULL;
     }
     
@@ -1185,6 +1185,7 @@ int32_t jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *
     
     do
     {
+        rest(1);
     }
     while(gui_mouse_b());
     
@@ -1194,7 +1195,7 @@ int32_t jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *
     
     if(fext)
     {
-        zc_free(fext);
+        free(fext);
         fext = NULL;
     }
     
@@ -1251,6 +1252,16 @@ void relativize_path(char* dest, char const* src_path)
 	char rootpath[PATH_MAX] = {0};
 	get_root_path(rootpath, PATH_MAX);
     strcpy(dest, std::filesystem::relative(src_path, rootpath).string().c_str());
+}
+
+/* relativize_path:
+  *  Takes a path, and returns it's relative path from the root directory.
+  */
+std::string relativize_path(std::string src_path)
+{
+	char rootpath[PATH_MAX] = {0};
+	get_root_path(rootpath, PATH_MAX);
+    return std::filesystem::relative(src_path, rootpath).string();
 }
 
 /* derelativize_path:
@@ -1329,6 +1340,7 @@ int32_t jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, 
     
     do
     {
+        rest(1);
     }
     while(gui_mouse_b());
     
@@ -1338,7 +1350,7 @@ int32_t jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, 
     
     if(fext)
     {
-        zc_free(fext);
+        free(fext);
         fext = NULL;
     }
     
@@ -1375,7 +1387,7 @@ void FLIST::load(const char* path)
 	char tmp[32];
 	for(int32_t i=0; i<size; i++)
 		if(name[i])
-			zc_free(name[i]);
+			free(name[i]);
 
 	size = 0;
 
@@ -1415,7 +1427,7 @@ void FLIST::clear()
 {
 	for(int32_t i=0; i<size; i++)
 		if(name[i])
-			zc_free(name[i]);
+			free(name[i]);
 	
 	size = 0;
 }

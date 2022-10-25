@@ -250,7 +250,7 @@ void RegistrationVisitor::caseImportCondDecl(ASTImportCondDecl& host, void* para
 {
 	visit(*host.cond, param);
 	if(!registered(*host.cond)) return; //Not registered yet
-	optional<int32_t> val = host.cond->getCompileTimeValue(this, scope);
+	std::optional<int32_t> val = host.cond->getCompileTimeValue(this, scope);
 	if(val && (*val != 0))
 	{
 		if(!host.preprocessed)
@@ -418,7 +418,7 @@ void RegistrationVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 		{
 			visit(init);
 			if(!registered(init)) return;
-			if(optional<int32_t> v = init->getCompileTimeValue(this, scope))
+			if(std::optional<int32_t> v = init->getCompileTimeValue(this, scope))
 			{
 				int32_t val = *v;
 				ipart = val/10000;
@@ -489,7 +489,7 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 		}
 
 		// Inline the constant if possible.
-		isConstant = host.getInitializer()->getCompileTimeValue(this, scope);
+		isConstant = host.getInitializer()->getCompileTimeValue(this, scope).has_value();
 		//The dataType is constant, but the initializer is not. This is not allowed in Global or Script scopes, as it causes crashes. -V
 		if(!isConstant && (scope->isGlobal() || scope->isScript()))
 		{
@@ -549,7 +549,7 @@ void RegistrationVisitor::caseDataDeclExtraArray(ASTDataDeclExtraArray& host, vo
 			return;
 		}
 		
-		if(optional<int32_t> theSize = size.getCompileTimeValue(this, scope))
+		if(std::optional<int32_t> theSize = size.getCompileTimeValue(this, scope))
 		{
 			if(*theSize % 10000)
 			{
@@ -658,7 +658,7 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		if(!getType) return;
 		checkCast(*getType, *paramTypes[parcnt], &host);
 		if(breakRecursion(host)) {scope = oldScope; return;}
-		optional<int32_t> optVal = (*it)->getCompileTimeValue(this, scope);
+		std::optional<int32_t> optVal = (*it)->getCompileTimeValue(this, scope);
 		assert(optVal);
 		host.optvals.push_back(*optVal);
 	}

@@ -179,6 +179,7 @@ void Widget::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 	contW -= leftMargin+rightMargin+leftPadding+rightPadding;
 	contY += topMargin+topPadding;
 	contH -= topMargin+bottomMargin+topPadding+bottomPadding;
+	auto origw = contW, origh = contH;
 	if(maxwidth > -1 && contW > maxwidth)
 		contW = maxwidth;
 	if(maxheight > -1 && contH > maxheight)
@@ -206,10 +207,16 @@ void Widget::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 		width = contW;
 	if(height > contH)
 		height = contH;
-
-	auto hExcess = contW-width;
+	
+	if(isTopLevel())
+	{
+		origw = contW;
+		origh = contH;
+	}
+	
+	auto hExcess = origw-width;
 	x = contX+hExcess*hAlign;
-	auto vExcess = contH-height;
+	auto vExcess = origh-height;
 	y = contY+vExcess*vAlign;
 	if(frameDialog)
 	{

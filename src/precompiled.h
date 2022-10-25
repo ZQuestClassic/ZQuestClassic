@@ -19,7 +19,6 @@
 
 //Boost
 #include <boost/make_shared.hpp>
-#include <boost/optional.hpp>
 #include <boost/smart_ptr.hpp>
 #include <boost/move/make_unique.hpp>
 
@@ -41,10 +40,6 @@
 
 //allegro
 #include "base/zc_alleg.h"
-
-//zc
-#include "zc_malloc.h"
-#include "mem_debug.h"
 
 #endif // ZC_PCH
 #endif // !PRECOMPILED_H

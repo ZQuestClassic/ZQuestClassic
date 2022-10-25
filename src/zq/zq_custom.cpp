@@ -31,12 +31,12 @@
 #include "sfx.h"
 #include "init.h"
 #include "defdata.h"
-#include "zc_malloc.h"
 #include "ffscript.h"
 #include "dialog/itemeditor.h"
 #include "dialog/misc_sfx.h"
 #include "dialog/misc_sprs.h"
 #include "dialog/info.h"
+#include "dialog/spritedata.h"
 extern FFScript FFCore;
 
 extern int32_t ex;
@@ -84,7 +84,9 @@ int32_t d_cstile_proc(int32_t msg,DIALOG *d,int32_t c)
 		int32_t t = d->d1;
 		int32_t cs = d->d2;
 		
-		if(select_tile(t,f,1,cs,true))
+		if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+			? select_tile_2(t,f,1,cs,true)
+			: select_tile(t,f,1,cs,true))
 		{
 			d->d1 = t;
 			d->d2 = cs;
@@ -256,7 +258,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 /******  onCustomItems  ******/
 /*****************************/
 
-static ListData weapon_list(weaponlist, &pfont);
+static ListData weapon_list(weaponlist_num, &pfont);
 
 const char *defenselist(int32_t index, int32_t *list_size)
 {
@@ -1576,9 +1578,11 @@ static DIALOG wpndata_dlg[] =
 
 
 
-
 void edit_weapondata(int32_t index)
 {
+	call_sprite_dlg(index); return;
+	//OLD CODE
+	/*
 	char frm[8], spd[8], fcs[8], typ[8];
 	char name[64];
 	char wpnnumstr[75];
@@ -1586,7 +1590,7 @@ void edit_weapondata(int32_t index)
 	sprintf(wpnnumstr, "Sprite %d: %s", index, weapon_string[index]);
 	wpndata_dlg[0].dp  = wpnnumstr;
 	wpndata_dlg[0].dp2 = lfont;
-	wpndata_dlg[2].d1  = wpnsbuf[index].newtile;
+	wpndata_dlg[2].d1  = wpnsbuf[index].tile;
 	wpndata_dlg[2].d2  = wpnsbuf[index].csets&15;
 	
 	for(int32_t i=0; i<4; i++)
@@ -1617,7 +1621,7 @@ void edit_weapondata(int32_t index)
 	{
 		ret = zc_popup_dialog(wpndata_dlg,3);
 		
-		test.newtile  = wpndata_dlg[2].d1;
+		test.tile  = wpndata_dlg[2].d1;
 		test.csets = wpndata_dlg[2].d2;
 		
 		test.misc  = 0;
@@ -1641,7 +1645,8 @@ void edit_weapondata(int32_t index)
 		strcpy(weapon_string[index],name);
 		wpnsbuf[index] = test;
 		saved = false;
-	}
+	}*/
+	
 }
 
 int32_t onCustomWpns()
@@ -4682,7 +4687,9 @@ int32_t d_ecstile_proc(int32_t msg,DIALOG *d,int32_t c)
 		int32_t t = d->d1;
 		int32_t cs = d->d2;
 		
-		if(select_tile(t,f,1,cs,true))
+		if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+			? select_tile_2(t,f,1,cs,true)
+			: select_tile(t,f,1,cs,true))
 		{
 			d->d1 = t;
 			enedata_dlg[247].d2 = cs;
@@ -6647,1305 +6654,7 @@ int32_t onCustomGuys()
 	return D_O_K;
 }
 
-int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-	//these are here to bypass compiler warnings about unused arguments
-	c=c;
-	
-	//d1=dir
-	//d2=type (determines how to animate)
-	//fg=cset (6)
-	enum {lt_clock, lt_tile, lt_flip, lt_extend};
-	static int32_t bg=makecol(0, 0, 0);
-	int32_t *p=(int32_t*)d->dp3;
-	int32_t oldtile=0;
-	int32_t oldflip=0;
-	
-	switch(msg)
-	{
-	case MSG_START:
-	{
-		d->dp3=(int32_t*)zc_malloc(sizeof(int32_t)*4);
-		p=(int32_t*)d->dp3;
-		p[lt_clock]=0;
-		p[lt_tile]=0;
-		p[lt_flip]=0;
-		p[lt_extend]=0;
-		herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.heroAnimationStyle);
-		break;
-	}
-	
-	case MSG_CLICK:
-	{
-		int32_t t;
-		int32_t f;
-		int32_t extend;
-		int32_t cs = 6;
-		herotile(&t, &f, &extend, d->d2, d->d1, zinit.heroAnimationStyle);
-		
-		switch(extend)
-		{
-		case 0:
-			if(!isinRect(gui_mouse_x(),gui_mouse_y(),d->x+2+8, d->y+2+4, d->x+(16*(is_large+1))+8+2, d->y+(16+16*(is_large+1))+2))
-			{
-				return D_O_K;
-			}
-			
-			break;
-			
-		case 1:
-			if(!isinRect(gui_mouse_x(),gui_mouse_y(),d->x+2+8, d->y+2+4, d->x+(16*(is_large+1))+8+2, d->y+(4+32*(is_large+1))+2))
-			{
-				return D_O_K;
-			}
-			
-			break;
-			
-		case 2:
-			if(!isinRect(gui_mouse_x(),gui_mouse_y(),d->x+2+8, d->y+4, d->x+(32*(is_large+1))+8+2, d->y+(4+32*(is_large+1))+2))
-			{
-				return D_O_K;
-			}
-			
-			break;
-		}
-		
-		if(select_tile(t,f,2,cs,false,extend, true))
-		{
-			extend=ex;
-			setherotile(t,f,extend,d->d2,d->d1);
-			return D_REDRAW;
-		}
-	}
-	break;
-	
-	case MSG_VSYNC:
-		oldtile=p[lt_tile];
-		oldflip=p[lt_flip];
-		p[lt_clock]++;
-		
-		switch(zinit.heroAnimationStyle)
-		{
-		case las_original:                                             //2-frame
-			switch(d->d2)
-			{
-			case ls_charge:
-			case ls_walk:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.heroAnimationStyle);
-				
-				if(p[lt_clock]>=6)
-				{
-					if(d->d1==up&&d->d2==ls_walk)
-					{
-						p[lt_flip]=1;                //h flip
-					}
-					else
-					{
-						p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;               //tile++
-					}
-				};
-				
-				if(p[lt_clock]>=11)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-				
-			case ls_sideswim:
-			case ls_sideswimcharge:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.heroAnimationStyle);
-				
-				if(p[lt_clock]>=6)
-				{
-					if(d->d1==up&&d->d2==ls_sideswim)
-					{
-						p[lt_flip]=1;				//h flip
-					}
-					else
-					{
-						p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;			   //tile++
-					}
-				};
-				
-				if(p[lt_clock]>=11)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-		
-			case ls_sideswimslash:
-				if(p[lt_clock]<6)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_sideswimslash, d->d1, zinit.heroAnimationStyle);
-				}
-				else if(p[lt_clock]<12)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.heroAnimationStyle);
-				}
-				else if(p[lt_clock]<13)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.heroAnimationStyle);
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.heroAnimationStyle);
-					p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;				  //tile++
-					
-					if(p[lt_clock]>=16)
-					{
-						p[lt_clock]=-1;
-					}
-				};
-				
-				break;
-				
-			case ls_sideswimstab:
-				if(p[lt_clock]<12)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.heroAnimationStyle);
-				}
-				else if(p[lt_clock]<13)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.heroAnimationStyle);
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.heroAnimationStyle);
-					p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;				  //tile++
-					
-					if(p[lt_clock]>=16)
-					{
-						p[lt_clock]=-1;
-					}
-				};
-				
-				break;
-				
-			case ls_sideswimpound:
-				if(p[lt_clock]<12)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_sideswimpound, d->d1, zinit.heroAnimationStyle);
-				}
-				else if(p[lt_clock]<30)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.heroAnimationStyle);
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.heroAnimationStyle);
-					
-					if(p[lt_clock]>=31)
-					{
-						p[lt_clock]=-1;
-					}
-				};
-				
-				break;
-		
-			case ls_jump:
-				if(p[lt_clock]>=24)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
-					
-					if(p[lt_clock]>=36)
-					{
-						p[lt_clock]=-1;
-					}
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.heroAnimationStyle);
-					p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
-				}
-				
-				break;
-				
-			case ls_slash:
-				if(p[lt_clock]<6)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_slash, d->d1, zinit.heroAnimationStyle);
-				}
-				else if(p[lt_clock]<12)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_stab, d->d1, zinit.heroAnimationStyle);
-				}
-				else if(p[lt_clock]<13)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_walk, d->d1, zinit.heroAnimationStyle);
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
-					p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
-					
-					if(p[lt_clock]>=16)
-					{
-						p[lt_clock]=-1;
-					}
-				};
-				
-				break;
-				
-			case ls_revslash:
-				if(p[lt_clock]<6)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_revslash, d->d1, zinit.heroAnimationStyle);
-				}
-				else if(p[lt_clock]<12)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_stab, d->d1, zinit.heroAnimationStyle);
-				}
-				else if(p[lt_clock]<13)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_walk, d->d1, zinit.heroAnimationStyle);
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
-					p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
-					
-					if(p[lt_clock]>=16)
-					{
-						p[lt_clock]=-1;
-					}
-				};
-				
-				break;
-				
-			case ls_stab:
-				if(p[lt_clock]<12)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_stab, d->d1, zinit.heroAnimationStyle);
-				}
-				else if(p[lt_clock]<13)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_walk, d->d1, zinit.heroAnimationStyle);
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
-					p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
-					
-					if(p[lt_clock]>=16)
-					{
-						p[lt_clock]=-1;
-					}
-				};
-				
-				break;
-				
-			case ls_pound:
-				if(p[lt_clock]<12)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_pound, d->d1, zinit.heroAnimationStyle);
-				}
-				else if(p[lt_clock]<30)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_stab, d->d1, zinit.heroAnimationStyle);
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_walk, d->d1, zinit.heroAnimationStyle);
-					
-					if(p[lt_clock]>=31)
-					{
-						p[lt_clock]=-1;
-					}
-				};
-				
-				break;
-				
-			case ls_float:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
-				
-				if(p[lt_clock]>=12)
-				{
-					p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
-				};
-				
-				if(p[lt_clock]>=23)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-				
-			case ls_swim:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_swim, d->d1, zinit.heroAnimationStyle);
-				
-				if(p[lt_clock]>=12)
-				{
-					p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
-				};
-				
-				if(p[lt_clock]>=23)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-				
-			case ls_dive:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_dive, d->d1, zinit.heroAnimationStyle);
-				
-				if(p[lt_clock]>=50)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
-				};
-				
-				if((p[lt_clock]/12)&1)
-				{
-					p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
-				};
-				
-				if(p[lt_clock]>=81)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-				
-			case ls_drown:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_drown, d->d1, zinit.heroAnimationStyle);
-				
-				if(p[lt_clock]<=4)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
-				};
-				
-				if((p[lt_clock]/12)&1)
-				{
-					p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
-				};
-				
-				if(p[lt_clock]>=81)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-			case ls_sidedrown:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sidedrown, d->d1, zinit.heroAnimationStyle);
-				
-				
-				if((p[lt_clock]/12)&1)
-				{
-					p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
-				};
-				
-				if(p[lt_clock]>=81)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				if(p[lt_clock]<=4)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.heroAnimationStyle);
-					p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
-				};
-				break;
-		
-			case ls_lavadrown:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_lavadrown, d->d1, zinit.heroAnimationStyle);
-				
-				if(p[lt_clock]<=4)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
-				};
-				
-				if((p[lt_clock]/12)&1)
-				{
-					p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
-				};
-				
-				if(p[lt_clock]>=81)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-				
-			case ls_falling:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_falling, d->d1, zinit.heroAnimationStyle);
-				p[lt_tile] += ((p[lt_clock]%70)/10)*(p[lt_extend]==2 ? 2 : 1);
-				break;
-				
-			case ls_landhold1:
-				herotile(&p[lt_tile], &p[lt_flip], ls_landhold1, d->d1, zinit.heroAnimationStyle);
-				break;
-				
-			case ls_landhold2:
-				herotile(&p[lt_tile], &p[lt_flip], ls_landhold2, d->d1, zinit.heroAnimationStyle);
-				break;
-				
-			case ls_waterhold1:
-				herotile(&p[lt_tile], &p[lt_flip], ls_waterhold1, d->d1, zinit.heroAnimationStyle);
-				break;
-				
-			case ls_waterhold2:
-				herotile(&p[lt_tile], &p[lt_flip], ls_waterhold2, d->d1, zinit.heroAnimationStyle);
-				break;
-			
-			case ls_sidewaterhold1:
-				herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold1, d->d1, zinit.heroAnimationStyle);
-				break;
-				
-			case ls_sidewaterhold2:
-				herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold2, d->d1, zinit.heroAnimationStyle);
-				break;
-				
-			case ls_cast:
-				herotile(&p[lt_tile], &p[lt_flip], ls_cast, d->d1, zinit.heroAnimationStyle);
-				
-				if(p[lt_clock]<96)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_landhold2, d->d1, zinit.heroAnimationStyle);
-				};
-				
-				if(p[lt_clock]>=194)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-			
-			case ls_sideswimcast:
-				herotile(&p[lt_tile], &p[lt_flip], ls_sideswimcast, d->d1, zinit.heroAnimationStyle);
-				
-				if(p[lt_clock]<96)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold2, d->d1, zinit.heroAnimationStyle);
-				};
-				
-				if(p[lt_clock]>=194)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-				
-			default:
-				break;
-			}
-			
-			break;
-			
-		case las_bszelda:                                             //3-frame BS
-			switch(d->d2)
-			{
-			case ls_charge:
-			case ls_walk:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.heroAnimationStyle);
-				p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
-				
-				if(p[lt_clock]>=27)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-				
-			case ls_sideswim:
-			case ls_sideswimcharge:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.heroAnimationStyle);
-				p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
-				
-				if(p[lt_clock]>=27)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-				
-			case ls_sideswimslash:
-				if(p[lt_clock]<6)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_sideswimslash, d->d1, zinit.heroAnimationStyle);
-				}
-				else if(p[lt_clock]<12)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.heroAnimationStyle);
-				}
-				else if(p[lt_clock]<13)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.heroAnimationStyle);
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.heroAnimationStyle);
-					p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;				  //tile++
-					
-					if(p[lt_clock]>=16)
-					{
-						p[lt_clock]=-1;
-					}
-				};
-				
-				break;
-				
-			case ls_sideswimstab:
-				if(p[lt_clock]<12)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.heroAnimationStyle);
-				}
-				else if(p[lt_clock]<13)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.heroAnimationStyle);
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.heroAnimationStyle);
-					p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;				  //tile++
-					
-					if(p[lt_clock]>=16)
-					{
-						p[lt_clock]=-1;
-					}
-				};
-				
-				break;
-				
-			case ls_sideswimpound:
-				if(p[lt_clock]<12)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_sideswimpound, d->d1, zinit.heroAnimationStyle);
-				}
-				else if(p[lt_clock]<30)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.heroAnimationStyle);
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.heroAnimationStyle);
-					
-					if(p[lt_clock]>=31)
-					{
-						p[lt_clock]=-1;
-					}
-				};
-				
-				break;
-				
-			case ls_jump:
-				if(p[lt_clock]>=24)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
-					
-					if(p[lt_clock]>=36)
-					{
-						p[lt_clock]=-1;
-					}
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.heroAnimationStyle);
-					p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
-				}
-				
-				break;
-				
-			case ls_slash:
-				if(p[lt_clock]<6)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_slash, d->d1, zinit.heroAnimationStyle);
-				}
-				else if(p[lt_clock]<12)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_stab, d->d1, zinit.heroAnimationStyle);
-				}
-				else if(p[lt_clock]<13)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_walk, d->d1, zinit.heroAnimationStyle);
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
-					p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
-					
-					if(p[lt_clock]>=16)
-					{
-						p[lt_clock]=-1;
-					}
-				};
-				
-				break;
-				
-			case ls_revslash:
-				if(p[lt_clock]<6)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_revslash, d->d1, zinit.heroAnimationStyle);
-				}
-				else if(p[lt_clock]<12)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_stab, d->d1, zinit.heroAnimationStyle);
-				}
-				else if(p[lt_clock]<13)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_walk, d->d1, zinit.heroAnimationStyle);
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
-					p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
-					
-					if(p[lt_clock]>=16)
-					{
-						p[lt_clock]=-1;
-					}
-				};
-				
-				break;
-				
-			case ls_stab:
-				if(p[lt_clock]<12)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_stab, d->d1, zinit.heroAnimationStyle);
-				}
-				else if(p[lt_clock]<13)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_walk, d->d1, zinit.heroAnimationStyle);
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
-					p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
-					
-					if(p[lt_clock]>=16)
-					{
-						p[lt_clock]=-1;
-					}
-				};
-				
-				break;
-				
-			case ls_pound:
-				if(p[lt_clock]<12)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_pound, d->d1, zinit.heroAnimationStyle);
-				}
-				else if(p[lt_clock]<30)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_stab, d->d1, zinit.heroAnimationStyle);
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_walk, d->d1, zinit.heroAnimationStyle);
-					
-					if(p[lt_clock]>=31)
-					{
-						p[lt_clock]=-1;
-					}
-				};
-				
-				break;
-				
-			case ls_float:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
-				p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
-				
-				if(p[lt_clock]>=55)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-				
-			case ls_swim:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_swim, d->d1, zinit.heroAnimationStyle);
-				p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
-				
-				if(p[lt_clock]>=55)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-				
-			case ls_dive:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_dive, d->d1, zinit.heroAnimationStyle);
-				
-				if(p[lt_clock]>=50)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
-				};
-				
-				p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
-				
-				if(p[lt_clock]>=81)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-				
-			case ls_drown:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_drown, d->d1, zinit.heroAnimationStyle);
-				
-				if(p[lt_clock]<=4)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
-				};
-				
-				p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
-				
-				if(p[lt_clock]>=81)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-			
-			case ls_sidedrown:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sidedrown, d->d1, zinit.heroAnimationStyle);
-				p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
-				
-				if(p[lt_clock]<=4)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.heroAnimationStyle);
-					p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
-				};
-				
-				
-				if(p[lt_clock]>=81)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-				
-			case ls_lavadrown:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_lavadrown, d->d1, zinit.heroAnimationStyle);
-				
-				if(p[lt_clock]<=4)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
-				};
-				
-				p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
-				
-				if(p[lt_clock]>=81)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-				
-			case ls_falling:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_falling, d->d1, zinit.heroAnimationStyle);
-				p[lt_tile] += ((p[lt_clock]%70)/10)*(p[lt_extend]==2 ? 2 : 1);
-				break;
-				
-			case ls_landhold1:
-				herotile(&p[lt_tile], &p[lt_flip], ls_landhold1, d->d1, zinit.heroAnimationStyle);
-				break;
-				
-			case ls_landhold2:
-				herotile(&p[lt_tile], &p[lt_flip], ls_landhold2, d->d1, zinit.heroAnimationStyle);
-				break;
-				
-			case ls_waterhold1:
-				herotile(&p[lt_tile], &p[lt_flip], ls_waterhold1, d->d1, zinit.heroAnimationStyle);
-				break;
-				
-			case ls_waterhold2:
-				herotile(&p[lt_tile], &p[lt_flip], ls_waterhold2, d->d1, zinit.heroAnimationStyle);
-				break;
-			
-			case ls_sidewaterhold1:
-				herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold1, d->d1, zinit.heroAnimationStyle);
-				break;
-				
-			case ls_sidewaterhold2:
-				herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold2, d->d1, zinit.heroAnimationStyle);
-				break;
-				
-			case ls_cast:
-				herotile(&p[lt_tile], &p[lt_flip], ls_cast, d->d1, zinit.heroAnimationStyle);
-				
-				if(p[lt_clock]<96)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_landhold2, d->d1, zinit.heroAnimationStyle);
-				};
-				
-				if(p[lt_clock]>=194)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-			
-			case ls_sideswimcast:
-				herotile(&p[lt_tile], &p[lt_flip], ls_sideswimcast, d->d1, zinit.heroAnimationStyle);
-				
-				if(p[lt_clock]<96)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold2, d->d1, zinit.heroAnimationStyle);
-				};
-				
-				if(p[lt_clock]>=194)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-				
-			default:
-				break;
-			}
-			
-			break;
-			
-		case las_zelda3slow:                                         //multi-frame Zelda 3 (slow)
-		case las_zelda3:                                             //multi-frame Zelda 3
-			switch(d->d2)
-			{
-			case ls_charge:
-			case ls_walk:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.heroAnimationStyle);
-				
-				if(p[lt_clock]>=(64*(hero_animation_speed)))
-				{
-					p[lt_tile]+=(p[lt_extend]==2?2:1);
-					
-					int32_t l=((p[lt_clock]/hero_animation_speed)&15);
-					l-=((l>3)?1:0)+((l>12)?1:0);
-					p[lt_tile]+=(l/2)*(p[lt_extend]==2?2:1);
-					
-					//p[lt_tile]+=(((p[lt_clock]>>2)%8)*(p[lt_extend]==2?2:1));
-					if(p[lt_clock]>=255)
-					{
-						p[lt_clock]=-1;
-					}
-				}
-				
-				break;
-			case ls_sideswim:
-			case ls_sideswimcharge:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.heroAnimationStyle);
-				
-				if(p[lt_clock]>=(64*(hero_animation_speed)))
-				{
-					p[lt_tile]+=(p[lt_extend]==2?2:1);
-					
-					int32_t l=((p[lt_clock]/hero_animation_speed)&15);
-					l-=((l>3)?1:0)+((l>12)?1:0);
-					p[lt_tile]+=(l/2)*(p[lt_extend]==2?2:1);
-					
-					//p[lt_tile]+=(((p[lt_clock]>>2)%8)*(p[lt_extend]==2?2:1));
-					if(p[lt_clock]>=255)
-					{
-						p[lt_clock]=-1;
-					}
-				}
-				
-				break;
-			 
-			case ls_sideswimstab:
-				if(p[lt_clock]>35)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswimstab, d->d1, zinit.heroAnimationStyle);
-					p[lt_tile]+=(((p[lt_clock]>>2)%3)*(p[lt_extend]==2?2:1));
-					
-					if(p[lt_clock]>=47)
-					{
-						p[lt_clock]=-1;
-					}
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.heroAnimationStyle);
-				}
-				
-				break;
-				
-			case ls_sideswimslash:
-				if(p[lt_clock]>23)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswimslash, d->d1, zinit.heroAnimationStyle);
-					p[lt_tile]+=(((p[lt_clock]>>2)%6)*(p[lt_extend]==2?2:1));
-					
-					if(p[lt_clock]>=47)
-					{
-						p[lt_clock]=-1;
-					}
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.heroAnimationStyle);
-				}
-				
-				break;
-				
-			case ls_sideswimpound:
-				if(p[lt_clock]>35)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswimpound, d->d1, zinit.heroAnimationStyle);
-					p[lt_tile]+=(((p[lt_clock]>>2)%3)*(p[lt_extend]==2?2:1));
-					
-					if(p[lt_clock]>=47)
-					{
-						p[lt_clock]=-1;
-					}
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.heroAnimationStyle);
-				}
-				
-				break;
-				
-			case ls_jump:
-				if(p[lt_clock]>=24)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
-					
-					if(p[lt_clock]>=36)
-					{
-						p[lt_clock]=-1;
-					}
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.heroAnimationStyle);
-					p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
-				}
-				
-				break;
-				
-			case ls_slash:
-				if(p[lt_clock]>23) //24 frames, advances by one every 4 frames, 6 tiles total
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_slash, d->d1, zinit.heroAnimationStyle);
-					p[lt_tile]+=(((p[lt_clock]>>2)%6)*(p[lt_extend]==2?2:1));
-					
-					if(p[lt_clock]>=47)
-					{
-						p[lt_clock]=-1;
-					}
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
-				}
-				
-				break;
-				
-			case ls_revslash:
-				if(p[lt_clock]>23) //24 frames, advances by one every 4 frames, 6 tiles total
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_revslash, d->d1, zinit.heroAnimationStyle);
-					p[lt_tile]+=(((p[lt_clock]>>2)%6)*(p[lt_extend]==2?2:1));
-					
-					if(p[lt_clock]>=47)
-					{
-						p[lt_clock]=-1;
-					}
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
-				}
-				
-				break;
-				
-			case ls_stab: //12 frames, advances by one every 4 frames, 3 tiles total.
-				if(p[lt_clock]>35)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_stab, d->d1, zinit.heroAnimationStyle);
-					p[lt_tile]+=(((p[lt_clock]>>2)%3)*(p[lt_extend]==2?2:1));
-					
-					if(p[lt_clock]>=47)
-					{
-						p[lt_clock]=-1;
-					}
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
-				}
-				
-				break;
-				
-			case ls_pound:
-				if(p[lt_clock]>35)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_pound, d->d1, zinit.heroAnimationStyle);
-					p[lt_tile]+=(((p[lt_clock]>>2)%3)*(p[lt_extend]==2?2:1));
-					
-					if(p[lt_clock]>=47)
-					{
-						p[lt_clock]=-1;
-					}
-				}
-				else
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
-				}
-				
-				break;
-				
-			case ls_float:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
-				p[lt_tile]+=((p[lt_clock]/6)%4)<<(p[lt_extend]==2?1:0);
-				
-				if(p[lt_clock]>=23)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-				
-			case ls_swim:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_swim, d->d1, zinit.heroAnimationStyle);
-				p[lt_tile]+=((p[lt_clock]/12)%4)<<(p[lt_extend]==2?1:0);
-				
-				if(p[lt_clock]>=47)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-				
-			case ls_dive:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_dive, d->d1, zinit.heroAnimationStyle);
-				
-				if(p[lt_clock]>=50)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
-				};
-				
-				p[lt_tile]+=((p[lt_clock]/6)%4)<<(p[lt_extend]==2?1:0);
-				
-				if(p[lt_clock]>=81)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-				
-			case ls_drown:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_drown, d->d1, zinit.heroAnimationStyle);
-				
-				if(p[lt_clock]<=4)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
-				};
-				
-				p[lt_tile]+=((p[lt_clock]/6)%4)<<(p[lt_extend]==2?1:0);
-				
-				if(p[lt_clock]>=81)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-			
-			case ls_sidedrown:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sidedrown, d->d1, zinit.heroAnimationStyle);
-				p[lt_tile]+=((p[lt_clock]/6)%4)<<(p[lt_extend]==2?1:0);
-				
-				if(p[lt_clock]<=4)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.heroAnimationStyle);
-					p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
-				};
-				
-				
-				if(p[lt_clock]>=81)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-				
-			case ls_lavadrown:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_lavadrown, d->d1, zinit.heroAnimationStyle);
-				
-				if(p[lt_clock]<=4)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
-				};
-				
-				p[lt_tile]+=((p[lt_clock]/6)%4)<<(p[lt_extend]==2?1:0);
-				
-				if(p[lt_clock]>=81)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-				
-			case ls_falling:
-				herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_falling, d->d1, zinit.heroAnimationStyle);
-				p[lt_tile] += ((p[lt_clock]%70)/10)*(p[lt_extend]==2 ? 2 : 1);
-				break;
-				
-			case ls_landhold1:
-				herotile(&p[lt_tile], &p[lt_flip], ls_landhold1, d->d1, zinit.heroAnimationStyle);
-				break;
-				
-			case ls_landhold2:
-				herotile(&p[lt_tile], &p[lt_flip], ls_landhold2, d->d1, zinit.heroAnimationStyle);
-				break;
-				
-			case ls_waterhold1:
-				herotile(&p[lt_tile], &p[lt_flip], ls_waterhold1, d->d1, zinit.heroAnimationStyle);
-				break;
-				
-			case ls_waterhold2:
-				herotile(&p[lt_tile], &p[lt_flip], ls_waterhold2, d->d1, zinit.heroAnimationStyle);
-				break;
-			
-			case ls_sidewaterhold1:
-				herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold1, d->d1, zinit.heroAnimationStyle);
-				break;
-				
-			case ls_sidewaterhold2:
-				herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold2, d->d1, zinit.heroAnimationStyle);
-				break;
-				
-			case ls_cast:
-				herotile(&p[lt_tile], &p[lt_flip], ls_cast, d->d1, zinit.heroAnimationStyle);
-				
-				if(p[lt_clock]<96)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_landhold2, d->d1, zinit.heroAnimationStyle);
-				};
-				
-				if(p[lt_clock]>=194)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-			
-			case ls_sideswimcast:
-				herotile(&p[lt_tile], &p[lt_flip], ls_sideswimcast, d->d1, zinit.heroAnimationStyle);
-				
-				if(p[lt_clock]<96)
-				{
-					herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold2, d->d1, zinit.heroAnimationStyle);
-				};
-				
-				if(p[lt_clock]>=194)
-				{
-					p[lt_clock]=-1;
-				}
-				
-				break;
-				
-			default:
-				break;
-			}
-			
-			break;
-			
-		default:
-			break;
-		}
-		
-		if((p[lt_tile]!=oldtile)||(p[lt_flip]!=oldflip))
-		{
-			d->flags|=D_DIRTY;
-		}
-		
-		break;
-		
-	case MSG_DRAW:
-	{
-		BITMAP *buf=create_bitmap_ex(8,1,1);
-		BITMAP *buf2=buf;
-		int32_t dummy1, dummy2;
-		int32_t extend;
-		herotile(&dummy1, &dummy2, &extend, d->d2, d->d1, zinit.heroAnimationStyle);
-		int32_t w = 16;
-		int32_t h = 16;
-		
-		switch(extend)
-		{
-		case 0: //16x16
-			break;
-			
-		case 1: //16x32
-			w = 16;
-			h = 32;
-			break;
-			
-		case 2: //32x32
-			w = 32;
-			h = 32;
-			break;
-			
-		default:
-			break;
-		}
-		
-		buf = create_bitmap_ex(8,w,h);
-		
-		if(is_large)
-		{
-			w *= 2;
-			h *= 2;
-		}
-		
-		BITMAP *bigbmp = create_bitmap_ex(8,w+4,h+4);
-		
-		if(buf && bigbmp)
-		{
-			clear_to_color(buf, bg);
-			
-			switch(extend)
-			{
-			case 0:
-				overtile16(buf,p[lt_tile],0,0,6,p[lt_flip]);
-				stretch_blit(buf, bigbmp, 0,0, 16, 16, 2, 2, w, h);
-				jwin_draw_frame(bigbmp,0, 0, w+4, h+4, FR_DEEP);
-				blit(bigbmp,screen,0,0,d->x+8,d->y+4,w+4,h+4);
-				break;
-				
-			case 1:
-				overtile16(buf,p[lt_tile]-TILES_PER_ROW,0,0,6,p[lt_flip]);
-				overtile16(buf,p[lt_tile],0,16,6,p[lt_flip]);
-				stretch_blit(buf, bigbmp, 0,0, 16, 32, 2, 2, w, h);
-				jwin_draw_frame(bigbmp,0, 0, w+4, h+4, FR_DEEP);
-				blit(bigbmp,screen,0,0,d->x+8,d->y+4,w+4,h+4);
-				break;
-				
-			case 2:
-				overtile16(buf,p[lt_tile]-TILES_PER_ROW,8,0,6,p[lt_flip]); //top middle
-				overtile16(buf,p[lt_tile]-TILES_PER_ROW-(p[lt_flip]?-1:1),-8,0,6,p[lt_flip]); //top left
-				overtile16(buf,p[lt_tile]-TILES_PER_ROW+(p[lt_flip]?-1:1),8+16,0,6,p[lt_flip]); //top right
-				overtile16(buf,p[lt_tile]-(p[lt_flip]?-1:1),-8,16,6,p[lt_flip]); //bottom left
-				overtile16(buf,p[lt_tile]+(p[lt_flip]?-1:1),8+16,16,6,p[lt_flip]); //bottom right
-				overtile16(buf,p[lt_tile],8,16,6,p[lt_flip]);              //bottom middle
-				stretch_blit(buf, bigbmp, 0,0, 32, 32, 2, 2, w, h);
-				jwin_draw_frame(bigbmp,0, 0, w+4, h+4, FR_DEEP);
-				blit(bigbmp,screen,0,0,d->x+8,d->y+4,w+4,h+4);
-				break;
-				
-			default:
-				break;
-			}
-			
-			destroy_bitmap(bigbmp);
-			destroy_bitmap(buf);
-			destroy_bitmap(buf2);
-		}
-	}
-	break;
-	
-	case MSG_END:
-	{
-		zc_free(d->dp3);
-		break;
-	}
-	}
-	
-	return D_O_K;
-}
-
+int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t c);
 static int32_t herotile_land_walk_list[] =
 {
 	// dialog control number
@@ -7988,6 +6697,19 @@ static int32_t herotile_land_fall_list[] =
 	105, 106, 107, 108, 109, 110, 111, 112, -1
 };
 
+static int32_t herotile_land_liftwalk_list[] =
+{
+	// dialog control number
+	260, 261, 262, 263, 264, 265, 266, 267, -1
+};
+static int32_t herotile_land_lift_list[] =
+{
+	// dialog control number
+	268, 269, 270, 271, 272, 273, 274, 275,
+	276, 277, 278, 279, 280, 281, 282, 283,
+	284, 285, -1
+};
+
 static int32_t herotile_land_jump_list[] =
 {
 	// dialog control number
@@ -8019,6 +6741,8 @@ static TABPANEL herotile_land_tabs[] =
 	{ (char *)"Hold",          0,           herotile_land_hold_list, 0, NULL },
 	{ (char *)"Cast",          0,           herotile_land_cast_list, 0, NULL },
 	{ (char *)"Falling",       0,           herotile_land_fall_list, 0, NULL },
+	{ (char *)"Lifting",       0,           herotile_land_lift_list, 0, NULL },
+	{ (char *)"Lift+Walk",     0,           herotile_land_liftwalk_list, 0, NULL },
 	{ NULL,                    0,           NULL,                   0, NULL }
 };
 
@@ -8530,13 +7254,13 @@ static DIALOG herotile_dlg[] =
 	// 220 (sideswim pound sprite titles)
 	{  jwin_rtext_proc,                     33,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Up",                   NULL,   NULL                   },
 	{  jwin_rtext_proc,                    101,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Down",                 NULL,   NULL                   },
-	{  jwin_rtext_proc,                     33,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Left",                 NULL,   NULL                   },
-	{  jwin_rtext_proc,                    101,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Right",                NULL,   NULL                   },
+	{  jwin_rtext_proc,                     33,    142,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Left",                 NULL,   NULL                   },
+	{  jwin_rtext_proc,                    101,    142,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Right",                NULL,   NULL                   },
 	// 224 (sideswim pound sprites)
 	{  d_ltile_proc,                        36,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          up,         ls_sideswimpound,         NULL,                            NULL,   NULL                   },
 	{  d_ltile_proc,                       104,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          down,       ls_sideswimpound,         NULL,                            NULL,   NULL                   },
-	{  d_ltile_proc,                        36,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          left,       ls_sideswimpound,         NULL,                            NULL,   NULL                   },
-	{  d_ltile_proc,                       104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_sideswimpound,         NULL,                            NULL,   NULL                   },
+	{  d_ltile_proc,                        36,    128,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          left,       ls_sideswimpound,         NULL,                            NULL,   NULL                   },
+	{  d_ltile_proc,                       104,    128,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_sideswimpound,         NULL,                            NULL,   NULL                   },
 	// 228 (sideswim charge sprite titles)
 	{  jwin_rtext_proc,                     33,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Up",                   NULL,   NULL                   },
 	{  jwin_rtext_proc,                    101,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Down",                 NULL,   NULL                   },
@@ -8548,41 +7272,1615 @@ static DIALOG herotile_dlg[] =
 	{  d_ltile_proc,                        36,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          left,       ls_sideswimcharge,         NULL,                            NULL,   NULL                   },
 	{  d_ltile_proc,                       104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_sideswimcharge,         NULL,                            NULL,   NULL                   },
 	// 236 (swim hammer offset titles)
-	{  jwin_rtext_proc,                     40,     100,     64,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Hammer Ofs.",                   NULL,   NULL                   },
-	{  jwin_rtext_proc,                    108,     100,     64,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Hammer Ofs.",                 NULL,   NULL                   },
-	{  jwin_rtext_proc,                     40,    138,     64,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Hammer Ofs.",                 NULL,   NULL                   },
-	{  jwin_rtext_proc,                    108,    138,     64,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Hammer Ofs.",                NULL,   NULL                   },
+	{  jwin_rtext_proc,                     40,    116,     64,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Hammer Ofs.",                   NULL,   NULL                   },
+	{  jwin_rtext_proc,                    108,    116,     64,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Hammer Ofs.",                 NULL,   NULL                   },
+	{  jwin_rtext_proc,                     40,    170,     64,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Hammer Ofs.",                 NULL,   NULL                   },
+	{  jwin_rtext_proc,                    108,    170,     64,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Hammer Ofs.",                NULL,   NULL                   },
 	// 240 (swim hammer offset fields)
-	{  jwin_edit_proc,                     43,    97,     20,     16,    vc(12),                 vc(1),                   0,       0,           4,    0,  NULL,                                           NULL,   NULL                  },
-	{  jwin_edit_proc,                     111,    97,     20,     16,    vc(12),                 vc(1),                   0,       0,           4,    0,  NULL,                                           NULL,   NULL                  },
-	{  jwin_edit_proc,                     43,    135,     20,     16,    vc(12),                 vc(1),                   0,       0,           4,    0,  NULL,                                           NULL,   NULL                  },
-	{  jwin_edit_proc,                     111,    135,     20,     16,    vc(12),                 vc(1),                   0,       0,           4,    0,  NULL,                                           NULL,   NULL                  },
+	{  jwin_edit_proc,                     43,     113,     20,     16,    vc(12),                 vc(1),                   0,       0,           4,    0,  NULL,                                           NULL,   NULL                  },
+	{  jwin_edit_proc,                     111,    113,     20,     16,    vc(12),                 vc(1),                   0,       0,           4,    0,  NULL,                                           NULL,   NULL                  },
+	{  jwin_edit_proc,                     43,     167,     20,     16,    vc(12),                 vc(1),                   0,       0,           4,    0,  NULL,                                           NULL,   NULL                  },
+	{  jwin_edit_proc,                     111,    167,     20,     16,    vc(12),                 vc(1),                   0,       0,           4,    0,  NULL,                                           NULL,   NULL                  },
 	// 244 (hold sprite titles)
 	{  jwin_rtext_proc,                     33,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "1 Hand",             NULL,   NULL                   },
-        {  jwin_rtext_proc,                    101,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Casting",                 NULL,   NULL                   },
+    {  jwin_rtext_proc,                    101,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Casting",                 NULL,   NULL                   },
 	{  jwin_rtext_proc,                     33,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "2 Hands",            NULL,   NULL                   },
 	{  jwin_rtext_proc,                     101,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Drown",            NULL,   NULL                   },
-	// 247 (hold sprites)
+	// 248 (hold sprites)
 	{  d_ltile_proc,                        36,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          up,         ls_sidewaterhold1,   NULL,                            NULL,   NULL                   },
 	{  d_ltile_proc,                       104,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          up,         ls_sideswimcast,         NULL,                            NULL,   NULL                   },
 	{  d_ltile_proc,                        36,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          left,       ls_sidewaterhold2,   NULL,                            NULL,   NULL                   },
 	{  d_ltile_proc,                        104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          down,       ls_sidedrown,   NULL,                            NULL,   NULL                   },
-	// 251 (revslash sprite titles)
+	// 252 (revslash sprite titles)
 	{  jwin_rtext_proc,                     33,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Up",                   NULL,   NULL                   },
 	{  jwin_rtext_proc,                    101,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Down",                 NULL,   NULL                   },
 	{  jwin_rtext_proc,                     33,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Left",                 NULL,   NULL                   },
 	{  jwin_rtext_proc,                    101,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Right",                NULL,   NULL                   },
-	// 255 (revslash sprites)
+	// 256 (revslash sprites)
 	{  d_ltile_proc,                        36,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          up,         ls_revslash,         NULL,                            NULL,   NULL                   },
 	{  d_ltile_proc,                       104,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          down,       ls_revslash,         NULL,                            NULL,   NULL                   },
 	{  d_ltile_proc,                        36,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          left,       ls_revslash,         NULL,                            NULL,   NULL                   },
 	{  d_ltile_proc,                       104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_revslash,         NULL,                            NULL,   NULL                   },
+	// 260 (lifting)
+	{  jwin_rtext_proc,                     33,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Up",                   NULL,   NULL                   },
+	{  jwin_rtext_proc,                    101,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Down",                 NULL,   NULL                   },
+	{  jwin_rtext_proc,                     33,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Left",                 NULL,   NULL                   },
+	{  jwin_rtext_proc,                    101,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Right",                NULL,   NULL                   },
+	// 264 (lift sprites)
+	{  d_ltile_proc,                        36,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,             up,      ls_liftwalk,   NULL,                            NULL,   NULL                   },
+	{  d_ltile_proc,                       104,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,           down,      ls_liftwalk,   NULL,                            NULL,   NULL                   },
+	{  d_ltile_proc,                        36,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,           left,      ls_liftwalk,   NULL,                            NULL,   NULL                   },
+	{  d_ltile_proc,                       104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_liftwalk,   NULL,                            NULL,   NULL                   },
+	// 268 (lifting)
+	{  jwin_rtext_proc,                     33,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Up",                   NULL,   NULL                   },
+	{  jwin_rtext_proc,                    101,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Down",                 NULL,   NULL                   },
+	{  jwin_rtext_proc,                     33,    142,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Left",                 NULL,   NULL                   },
+	{  jwin_rtext_proc,                    101,    142,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Right",                NULL,   NULL                   },
+	// 272 (lift sprites)
+	{  d_ltile_proc,                        36,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,             up,      ls_lifting,   NULL,                            NULL,   NULL                   },
+	{  d_ltile_proc,                       104,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,           down,      ls_lifting,   NULL,                            NULL,   NULL                   },
+	{  d_ltile_proc,                        36,    128,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,           left,      ls_lifting,   NULL,                            NULL,   NULL                   },
+	{  d_ltile_proc,                       104,    128,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_lifting,   NULL,                            NULL,   NULL                   },
+	// 276 (lift frame count labels)
+	{  jwin_rtext_proc,                     40,    116,     64,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Num Frames",                   NULL,   NULL                   },
+	{  jwin_rtext_proc,                    108,    116,     64,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Num Frames",                 NULL,   NULL                   },
+	{  jwin_rtext_proc,                     40,    170,     64,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Num Frames",                 NULL,   NULL                   },
+	{  jwin_rtext_proc,                    108,    170,     64,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Num Frames",                NULL,   NULL                   },
+	// 280 (lift frame count fields)
+	{  jwin_edit_proc,                      43,    113,     20,     16,    vc(12),                 vc(1),                   0,       0,           4,    0,  NULL,                                           NULL,   NULL                  },
+	{  jwin_edit_proc,                     111,    113,     20,     16,    vc(12),                 vc(1),                   0,       0,           4,    0,  NULL,                                           NULL,   NULL                  },
+	{  jwin_edit_proc,                      43,    167,     20,     16,    vc(12),                 vc(1),                   0,       0,           4,    0,  NULL,                                           NULL,   NULL                  },
+	{  jwin_edit_proc,                     111,    167,     20,     16,    vc(12),                 vc(1),                   0,       0,           4,    0,  NULL,                                           NULL,   NULL                  },
+	// 284 (lift speed preview value)
+	{  jwin_rtext_proc,                     60,     58,     64,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Preview Speed",                NULL,   NULL                   },
+	{  jwin_edit_proc,                      63,     55,     20,     16,    vc(12),                 vc(1),                   0,       0,           4,    0,  NULL,                                           NULL,   NULL                  },
 	
 	{  NULL,                                 0,      0,      0,      0,    0,                      0,                       0,    0,          0,          0,               NULL,                            NULL,   NULL                   }    
 
 };
 
-
+static char liftspeed[4] = "4";
+int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
+{
+	//d1=dir
+	//d2=type (determines how to animate)
+	//fg=cset (6)
+	enum {lt_clock, lt_tile, lt_flip, lt_extend, lt_frames};
+	static int32_t bg=makecol(0, 0, 0);
+	int32_t *p=(int32_t*)d->dp3;
+	int32_t oldtile=0;
+	int32_t oldflip=0;
+	
+	switch(msg)
+	{
+		case MSG_START:
+		{
+			d->dp3=(int32_t*)malloc(sizeof(int32_t)*5);
+			p=(int32_t*)d->dp3;
+			p[lt_clock]=0;
+			p[lt_tile]=0;
+			p[lt_flip]=0;
+			p[lt_extend]=0;
+			p[lt_frames]=0;
+			herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.heroAnimationStyle);
+			if(d->d2 == ls_lifting)
+				p[lt_frames] = vbound(atoi((char*)herotile_dlg[280+d->d1].dp),1,255);
+			break;
+		}
+		
+		case MSG_CLICK:
+		{
+			int32_t t;
+			int32_t f;
+			int32_t extend;
+			int32_t cs = 6;
+			herotile(&t, &f, &extend, d->d2, d->d1, zinit.heroAnimationStyle);
+			
+			switch(extend)
+			{
+				case 0:
+					if(!isinRect(gui_mouse_x(),gui_mouse_y(),d->x+2+8, d->y+2+4, d->x+(16*(is_large+1))+8+2, d->y+(16+16*(is_large+1))+2))
+					{
+						return D_O_K;
+					}
+					
+					break;
+					
+				case 1:
+					if(!isinRect(gui_mouse_x(),gui_mouse_y(),d->x+2+8, d->y+2+4, d->x+(16*(is_large+1))+8+2, d->y+(4+32*(is_large+1))+2))
+					{
+						return D_O_K;
+					}
+					
+					break;
+					
+				case 2:
+					if(!isinRect(gui_mouse_x(),gui_mouse_y(),d->x+2+8, d->y+4, d->x+(32*(is_large+1))+8+2, d->y+(4+32*(is_large+1))+2))
+					{
+						return D_O_K;
+					}
+					
+					break;
+			}
+			
+			if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				? select_tile_2(t,f,2,cs,false,extend,true)
+				: select_tile(t,f,2,cs,false,extend,true))
+			{
+				extend=ex;
+				setherotile(t,f,extend,d->d2,d->d1);
+				return D_REDRAW;
+			}
+		}
+		break;
+		
+		case MSG_VSYNC:
+		{
+			oldtile=p[lt_tile];
+			oldflip=p[lt_flip];
+			p[lt_clock]++;
+			auto lspeed = vbound(atoi(liftspeed),1,255);
+			if(d->d2 == ls_lifting)
+				p[lt_frames] = vbound(atoi((char*)herotile_dlg[280+d->d1].dp),1,255);
+			
+			switch(zinit.heroAnimationStyle)
+			{
+				case las_original:                                             //2-frame
+					switch(d->d2)
+					{
+						case ls_charge:
+						case ls_walk:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.heroAnimationStyle);
+							
+							if(p[lt_clock]>=6)
+							{
+								if(d->d1==up&&d->d2==ls_walk)
+								{
+									p[lt_flip]=1;                //h flip
+								}
+								else
+								{
+									p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;               //tile++
+								}
+							};
+							
+							if(p[lt_clock]>=11)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+							
+						case ls_sideswim:
+						case ls_sideswimcharge:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.heroAnimationStyle);
+							
+							if(p[lt_clock]>=6)
+							{
+								if(d->d1==up&&d->d2==ls_sideswim)
+								{
+									p[lt_flip]=1;				//h flip
+								}
+								else
+								{
+									p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;			   //tile++
+								}
+							};
+							
+							if(p[lt_clock]>=11)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+					
+						case ls_sideswimslash:
+						{
+							if(p[lt_clock]<6)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_sideswimslash, d->d1, zinit.heroAnimationStyle);
+							}
+							else if(p[lt_clock]<12)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.heroAnimationStyle);
+							}
+							else if(p[lt_clock]<13)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.heroAnimationStyle);
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.heroAnimationStyle);
+								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;				  //tile++
+								
+								if(p[lt_clock]>=16)
+								{
+									p[lt_clock]=-1;
+								}
+							};
+							
+							break;
+						}
+							
+						case ls_sideswimstab:
+						{
+							if(p[lt_clock]<12)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.heroAnimationStyle);
+							}
+							else if(p[lt_clock]<13)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.heroAnimationStyle);
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.heroAnimationStyle);
+								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;				  //tile++
+								
+								if(p[lt_clock]>=16)
+								{
+									p[lt_clock]=-1;
+								}
+							};
+							
+							break;
+						}
+							
+						case ls_sideswimpound:
+						{
+							if(p[lt_clock]<12)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_sideswimpound, d->d1, zinit.heroAnimationStyle);
+							}
+							else if(p[lt_clock]<30)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.heroAnimationStyle);
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.heroAnimationStyle);
+								
+								if(p[lt_clock]>=31)
+								{
+									p[lt_clock]=-1;
+								}
+							};
+							
+							break;
+						}
+					
+						case ls_jump:
+						{
+							if(p[lt_clock]>=24)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
+								
+								if(p[lt_clock]>=36)
+								{
+									p[lt_clock]=-1;
+								}
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.heroAnimationStyle);
+								p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
+							}
+							
+							break;
+						}
+							
+						case ls_slash:
+						{
+							if(p[lt_clock]<6)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_slash, d->d1, zinit.heroAnimationStyle);
+							}
+							else if(p[lt_clock]<12)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_stab, d->d1, zinit.heroAnimationStyle);
+							}
+							else if(p[lt_clock]<13)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_walk, d->d1, zinit.heroAnimationStyle);
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
+								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
+								
+								if(p[lt_clock]>=16)
+								{
+									p[lt_clock]=-1;
+								}
+							};
+							
+							break;
+						}
+							
+						case ls_revslash:
+						{
+							if(p[lt_clock]<6)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_revslash, d->d1, zinit.heroAnimationStyle);
+							}
+							else if(p[lt_clock]<12)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_stab, d->d1, zinit.heroAnimationStyle);
+							}
+							else if(p[lt_clock]<13)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_walk, d->d1, zinit.heroAnimationStyle);
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
+								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
+								
+								if(p[lt_clock]>=16)
+								{
+									p[lt_clock]=-1;
+								}
+							};
+							
+							break;
+						}
+							
+						case ls_stab:
+						{
+							if(p[lt_clock]<12)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_stab, d->d1, zinit.heroAnimationStyle);
+							}
+							else if(p[lt_clock]<13)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_walk, d->d1, zinit.heroAnimationStyle);
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
+								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
+								
+								if(p[lt_clock]>=16)
+								{
+									p[lt_clock]=-1;
+								}
+							};
+							
+							break;
+						}
+							
+						case ls_pound:
+						{
+							if(p[lt_clock]<12)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_pound, d->d1, zinit.heroAnimationStyle);
+							}
+							else if(p[lt_clock]<30)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_stab, d->d1, zinit.heroAnimationStyle);
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_walk, d->d1, zinit.heroAnimationStyle);
+								
+								if(p[lt_clock]>=31)
+								{
+									p[lt_clock]=-1;
+								}
+							};
+							
+							break;
+						}
+							
+						case ls_float:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
+							
+							if(p[lt_clock]>=12)
+							{
+								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
+							};
+							
+							if(p[lt_clock]>=23)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+							
+						case ls_swim:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_swim, d->d1, zinit.heroAnimationStyle);
+							
+							if(p[lt_clock]>=12)
+							{
+								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
+							};
+							
+							if(p[lt_clock]>=23)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+							
+						case ls_dive:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_dive, d->d1, zinit.heroAnimationStyle);
+							
+							if(p[lt_clock]>=50)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
+							};
+							
+							if((p[lt_clock]/12)&1)
+							{
+								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
+							};
+							
+							if(p[lt_clock]>=81)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+						
+						case ls_drown:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_drown, d->d1, zinit.heroAnimationStyle);
+							
+							if(p[lt_clock]<=4)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
+							};
+							
+							if((p[lt_clock]/12)&1)
+							{
+								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
+							};
+							
+							if(p[lt_clock]>=81)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+						case ls_sidedrown:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sidedrown, d->d1, zinit.heroAnimationStyle);
+							
+							
+							if((p[lt_clock]/12)&1)
+							{
+								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
+							};
+							
+							if(p[lt_clock]>=81)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							if(p[lt_clock]<=4)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.heroAnimationStyle);
+								p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
+							};
+							break;
+						}
+					
+						case ls_lavadrown:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_lavadrown, d->d1, zinit.heroAnimationStyle);
+							
+							if(p[lt_clock]<=4)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
+							};
+							
+							if((p[lt_clock]/12)&1)
+							{
+								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
+							};
+							
+							if(p[lt_clock]>=81)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+							
+						case ls_falling:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_falling, d->d1, zinit.heroAnimationStyle);
+							p[lt_tile] += ((p[lt_clock]%70)/10)*(p[lt_extend]==2 ? 2 : 1);
+							break;
+						}
+							
+						case ls_landhold1:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_landhold1, d->d1, zinit.heroAnimationStyle);
+							break;
+						}
+							
+						case ls_landhold2:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_landhold2, d->d1, zinit.heroAnimationStyle);
+							break;
+						}
+							
+						case ls_waterhold1:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_waterhold1, d->d1, zinit.heroAnimationStyle);
+							break;
+						}
+							
+						case ls_waterhold2:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_waterhold2, d->d1, zinit.heroAnimationStyle);
+							break;
+						}
+						
+						case ls_sidewaterhold1:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold1, d->d1, zinit.heroAnimationStyle);
+							break;
+						}
+							
+						case ls_sidewaterhold2:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold2, d->d1, zinit.heroAnimationStyle);
+							break;
+						}
+							
+						case ls_cast:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_cast, d->d1, zinit.heroAnimationStyle);
+							
+							if(p[lt_clock]<96)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_landhold2, d->d1, zinit.heroAnimationStyle);
+							};
+							
+							if(p[lt_clock]>=194)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+						
+						case ls_sideswimcast:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_sideswimcast, d->d1, zinit.heroAnimationStyle);
+							
+							if(p[lt_clock]<96)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold2, d->d1, zinit.heroAnimationStyle);
+							};
+							
+							if(p[lt_clock]>=194)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+						
+						case ls_lifting:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_lifting, d->d1, zinit.heroAnimationStyle);
+							size_t fr = p[lt_clock] / lspeed;
+							if(fr >= p[lt_frames])
+							{
+								fr = 0;
+								p[lt_clock] = -1;
+							}
+							p[lt_tile] += fr*(p[lt_extend]==2?2:1);
+							break;
+						}
+						case ls_liftwalk:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_liftwalk, d->d1, zinit.heroAnimationStyle);
+							if(p[lt_clock]>=6)
+							{
+								if(d->d1==up)
+								{
+									p[lt_flip]=1;                //h flip
+								}
+								else
+								{
+									p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;               //tile++
+								}
+							};
+							
+							if(p[lt_clock]>=11)
+							{
+								p[lt_clock]=-1;
+							}
+							break;
+						}
+							
+						default:
+							break;
+					}
+					
+					break;
+				
+				case las_bszelda:                                             //3-frame BS
+					switch(d->d2)
+					{
+						case ls_charge:
+						case ls_walk:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.heroAnimationStyle);
+							p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
+							
+							if(p[lt_clock]>=27)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+						
+						case ls_sideswim:
+						case ls_sideswimcharge:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.heroAnimationStyle);
+							p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
+							
+							if(p[lt_clock]>=27)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+						
+						case ls_sideswimslash:
+						{
+							if(p[lt_clock]<6)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_sideswimslash, d->d1, zinit.heroAnimationStyle);
+							}
+							else if(p[lt_clock]<12)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.heroAnimationStyle);
+							}
+							else if(p[lt_clock]<13)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.heroAnimationStyle);
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.heroAnimationStyle);
+								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;				  //tile++
+								
+								if(p[lt_clock]>=16)
+								{
+									p[lt_clock]=-1;
+								}
+							};
+							
+							break;
+						}
+						
+						case ls_sideswimstab:
+						{
+							if(p[lt_clock]<12)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.heroAnimationStyle);
+							}
+							else if(p[lt_clock]<13)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.heroAnimationStyle);
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.heroAnimationStyle);
+								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;				  //tile++
+								
+								if(p[lt_clock]>=16)
+								{
+									p[lt_clock]=-1;
+								}
+							};
+							
+							break;
+						}
+						
+						case ls_sideswimpound:
+						{
+							if(p[lt_clock]<12)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_sideswimpound, d->d1, zinit.heroAnimationStyle);
+							}
+							else if(p[lt_clock]<30)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_sideswimstab, d->d1, zinit.heroAnimationStyle);
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.heroAnimationStyle);
+								
+								if(p[lt_clock]>=31)
+								{
+									p[lt_clock]=-1;
+								}
+							};
+							
+							break;
+						}
+						
+						case ls_jump:
+						{
+							if(p[lt_clock]>=24)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
+								
+								if(p[lt_clock]>=36)
+								{
+									p[lt_clock]=-1;
+								}
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.heroAnimationStyle);
+								p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
+							}
+							
+							break;
+						}
+						
+						case ls_slash:
+						{
+							if(p[lt_clock]<6)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_slash, d->d1, zinit.heroAnimationStyle);
+							}
+							else if(p[lt_clock]<12)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_stab, d->d1, zinit.heroAnimationStyle);
+							}
+							else if(p[lt_clock]<13)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_walk, d->d1, zinit.heroAnimationStyle);
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
+								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
+								
+								if(p[lt_clock]>=16)
+								{
+									p[lt_clock]=-1;
+								}
+							};
+							
+							break;
+						}
+						
+						case ls_revslash:
+						{
+							if(p[lt_clock]<6)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_revslash, d->d1, zinit.heroAnimationStyle);
+							}
+							else if(p[lt_clock]<12)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_stab, d->d1, zinit.heroAnimationStyle);
+							}
+							else if(p[lt_clock]<13)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_walk, d->d1, zinit.heroAnimationStyle);
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
+								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
+								
+								if(p[lt_clock]>=16)
+								{
+									p[lt_clock]=-1;
+								}
+							};
+							
+							break;
+						}
+						
+						case ls_stab:
+						{
+							if(p[lt_clock]<12)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_stab, d->d1, zinit.heroAnimationStyle);
+							}
+							else if(p[lt_clock]<13)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_walk, d->d1, zinit.heroAnimationStyle);
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
+								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
+								
+								if(p[lt_clock]>=16)
+								{
+									p[lt_clock]=-1;
+								}
+							};
+							
+							break;
+						}
+						
+						case ls_pound:
+						{
+							if(p[lt_clock]<12)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_pound, d->d1, zinit.heroAnimationStyle);
+							}
+							else if(p[lt_clock]<30)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_stab, d->d1, zinit.heroAnimationStyle);
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_walk, d->d1, zinit.heroAnimationStyle);
+								
+								if(p[lt_clock]>=31)
+								{
+									p[lt_clock]=-1;
+								}
+							};
+							
+							break;
+						}
+						
+						case ls_float:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
+							p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
+							
+							if(p[lt_clock]>=55)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+						
+						case ls_swim:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_swim, d->d1, zinit.heroAnimationStyle);
+							p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
+							
+							if(p[lt_clock]>=55)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+						
+						case ls_dive:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_dive, d->d1, zinit.heroAnimationStyle);
+							
+							if(p[lt_clock]>=50)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
+							};
+							
+							p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
+							
+							if(p[lt_clock]>=81)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+						
+						case ls_drown:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_drown, d->d1, zinit.heroAnimationStyle);
+							
+							if(p[lt_clock]<=4)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
+							};
+							
+							p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
+							
+							if(p[lt_clock]>=81)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+						
+						case ls_sidedrown:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sidedrown, d->d1, zinit.heroAnimationStyle);
+							p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
+							
+							if(p[lt_clock]<=4)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.heroAnimationStyle);
+								p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
+							};
+							
+							
+							if(p[lt_clock]>=81)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+						
+						case ls_lavadrown:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_lavadrown, d->d1, zinit.heroAnimationStyle);
+							
+							if(p[lt_clock]<=4)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
+							};
+							
+							p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
+							
+							if(p[lt_clock]>=81)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+						
+						case ls_falling:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_falling, d->d1, zinit.heroAnimationStyle);
+							p[lt_tile] += ((p[lt_clock]%70)/10)*(p[lt_extend]==2 ? 2 : 1);
+							break;
+						}
+						
+						case ls_landhold1:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_landhold1, d->d1, zinit.heroAnimationStyle);
+							break;
+						}
+						
+						case ls_landhold2:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_landhold2, d->d1, zinit.heroAnimationStyle);
+							break;
+						}
+						
+						case ls_waterhold1:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_waterhold1, d->d1, zinit.heroAnimationStyle);
+							break;
+						}
+						
+						case ls_waterhold2:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_waterhold2, d->d1, zinit.heroAnimationStyle);
+							break;
+						}
+						
+						case ls_sidewaterhold1:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold1, d->d1, zinit.heroAnimationStyle);
+							break;
+						}
+						
+						case ls_sidewaterhold2:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold2, d->d1, zinit.heroAnimationStyle);
+							break;
+						}
+						
+						case ls_cast:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_cast, d->d1, zinit.heroAnimationStyle);
+							
+							if(p[lt_clock]<96)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_landhold2, d->d1, zinit.heroAnimationStyle);
+							}
+							
+							if(p[lt_clock]>=194)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+						
+						case ls_sideswimcast:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_sideswimcast, d->d1, zinit.heroAnimationStyle);
+							
+							if(p[lt_clock]<96)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold2, d->d1, zinit.heroAnimationStyle);
+							};
+							
+							if(p[lt_clock]>=194)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+						
+						case ls_lifting:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_lifting, d->d1, zinit.heroAnimationStyle);
+							size_t fr = p[lt_clock] / lspeed;
+							if(fr >= p[lt_frames])
+							{
+								fr = 0;
+								p[lt_clock] = -1;
+							}
+							p[lt_tile] += fr*(p[lt_extend]==2?2:1);
+							break;
+						}
+						case ls_liftwalk:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_liftwalk, d->d1, zinit.heroAnimationStyle);
+							p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
+							
+							if(p[lt_clock]>=27)
+							{
+								p[lt_clock]=-1;
+							}
+							break;
+						}
+							
+						default:
+							break;
+					}
+					break;
+				
+				case las_zelda3slow:                                         //multi-frame Zelda 3 (slow)
+				case las_zelda3:                                             //multi-frame Zelda 3
+					switch(d->d2)
+					{
+						case ls_charge:
+						case ls_walk:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.heroAnimationStyle);
+							
+							if(p[lt_clock]>=(64*(hero_animation_speed)))
+							{
+								p[lt_tile]+=(p[lt_extend]==2?2:1);
+								
+								int32_t l=((p[lt_clock]/hero_animation_speed)&15);
+								l-=((l>3)?1:0)+((l>12)?1:0);
+								p[lt_tile]+=(l/2)*(p[lt_extend]==2?2:1);
+								
+								//p[lt_tile]+=(((p[lt_clock]>>2)%8)*(p[lt_extend]==2?2:1));
+								if(p[lt_clock]>=255)
+								{
+									p[lt_clock]=-1;
+								}
+							}
+							
+							break;
+						}
+						case ls_sideswim:
+						case ls_sideswimcharge:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.heroAnimationStyle);
+							
+							if(p[lt_clock]>=(64*(hero_animation_speed)))
+							{
+								p[lt_tile]+=(p[lt_extend]==2?2:1);
+								
+								int32_t l=((p[lt_clock]/hero_animation_speed)&15);
+								l-=((l>3)?1:0)+((l>12)?1:0);
+								p[lt_tile]+=(l/2)*(p[lt_extend]==2?2:1);
+								
+								//p[lt_tile]+=(((p[lt_clock]>>2)%8)*(p[lt_extend]==2?2:1));
+								if(p[lt_clock]>=255)
+								{
+									p[lt_clock]=-1;
+								}
+							}
+							
+							break;
+						 
+						case ls_sideswimstab:
+						{
+							if(p[lt_clock]>35)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswimstab, d->d1, zinit.heroAnimationStyle);
+								p[lt_tile]+=(((p[lt_clock]>>2)%3)*(p[lt_extend]==2?2:1));
+								
+								if(p[lt_clock]>=47)
+								{
+									p[lt_clock]=-1;
+								}
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.heroAnimationStyle);
+							}
+							
+							break;
+						}
+						
+						case ls_sideswimslash:
+						{
+							if(p[lt_clock]>23)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswimslash, d->d1, zinit.heroAnimationStyle);
+								p[lt_tile]+=(((p[lt_clock]>>2)%6)*(p[lt_extend]==2?2:1));
+								
+								if(p[lt_clock]>=47)
+								{
+									p[lt_clock]=-1;
+								}
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.heroAnimationStyle);
+							}
+							
+							break;
+						}
+						
+						case ls_sideswimpound:
+						{
+							if(p[lt_clock]>35)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswimpound, d->d1, zinit.heroAnimationStyle);
+								p[lt_tile]+=(((p[lt_clock]>>2)%3)*(p[lt_extend]==2?2:1));
+								
+								if(p[lt_clock]>=47)
+								{
+									p[lt_clock]=-1;
+								}
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.heroAnimationStyle);
+							}
+							
+							break;
+						}
+						
+						case ls_jump:
+						{
+							if(p[lt_clock]>=24)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
+								
+								if(p[lt_clock]>=36)
+								{
+									p[lt_clock]=-1;
+								}
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.heroAnimationStyle);
+								p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
+							}
+							
+							break;
+						}
+						
+						case ls_slash:
+						{
+							if(p[lt_clock]>23) //24 frames, advances by one every 4 frames, 6 tiles total
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_slash, d->d1, zinit.heroAnimationStyle);
+								p[lt_tile]+=(((p[lt_clock]>>2)%6)*(p[lt_extend]==2?2:1));
+								
+								if(p[lt_clock]>=47)
+								{
+									p[lt_clock]=-1;
+								}
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
+							}
+							
+							break;
+						}
+						
+						case ls_revslash:
+						{
+							if(p[lt_clock]>23) //24 frames, advances by one every 4 frames, 6 tiles total
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_revslash, d->d1, zinit.heroAnimationStyle);
+								p[lt_tile]+=(((p[lt_clock]>>2)%6)*(p[lt_extend]==2?2:1));
+								
+								if(p[lt_clock]>=47)
+								{
+									p[lt_clock]=-1;
+								}
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
+							}
+							
+							break;
+						}
+						
+						case ls_stab: //12 frames, advances by one every 4 frames, 3 tiles total.
+							if(p[lt_clock]>35)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_stab, d->d1, zinit.heroAnimationStyle);
+								p[lt_tile]+=(((p[lt_clock]>>2)%3)*(p[lt_extend]==2?2:1));
+								
+								if(p[lt_clock]>=47)
+								{
+									p[lt_clock]=-1;
+								}
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
+							}
+							
+							break;
+						}
+						
+						case ls_pound:
+						{
+							if(p[lt_clock]>35)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_pound, d->d1, zinit.heroAnimationStyle);
+								p[lt_tile]+=(((p[lt_clock]>>2)%3)*(p[lt_extend]==2?2:1));
+								
+								if(p[lt_clock]>=47)
+								{
+									p[lt_clock]=-1;
+								}
+							}
+							else
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
+							}
+							
+							break;
+						}
+						
+						case ls_float:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
+							p[lt_tile]+=((p[lt_clock]/6)%4)<<(p[lt_extend]==2?1:0);
+							
+							if(p[lt_clock]>=23)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+						
+						case ls_swim:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_swim, d->d1, zinit.heroAnimationStyle);
+							p[lt_tile]+=((p[lt_clock]/12)%4)<<(p[lt_extend]==2?1:0);
+							
+							if(p[lt_clock]>=47)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+						
+						case ls_dive:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_dive, d->d1, zinit.heroAnimationStyle);
+							
+							if(p[lt_clock]>=50)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
+							};
+							
+							p[lt_tile]+=((p[lt_clock]/6)%4)<<(p[lt_extend]==2?1:0);
+							
+							if(p[lt_clock]>=81)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+						
+						case ls_drown:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_drown, d->d1, zinit.heroAnimationStyle);
+							
+							if(p[lt_clock]<=4)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
+							};
+							
+							p[lt_tile]+=((p[lt_clock]/6)%4)<<(p[lt_extend]==2?1:0);
+							
+							if(p[lt_clock]>=81)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+						
+						case ls_sidedrown:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sidedrown, d->d1, zinit.heroAnimationStyle);
+							p[lt_tile]+=((p[lt_clock]/6)%4)<<(p[lt_extend]==2?1:0);
+							
+							if(p[lt_clock]<=4)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.heroAnimationStyle);
+								p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
+							};
+							
+							
+							if(p[lt_clock]>=81)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+						
+						case ls_lavadrown:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_lavadrown, d->d1, zinit.heroAnimationStyle);
+							
+							if(p[lt_clock]<=4)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
+							};
+							
+							p[lt_tile]+=((p[lt_clock]/6)%4)<<(p[lt_extend]==2?1:0);
+							
+							if(p[lt_clock]>=81)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+						
+						case ls_falling:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_falling, d->d1, zinit.heroAnimationStyle);
+							p[lt_tile] += ((p[lt_clock]%70)/10)*(p[lt_extend]==2 ? 2 : 1);
+							break;
+						}
+						
+						case ls_landhold1:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_landhold1, d->d1, zinit.heroAnimationStyle);
+							break;
+						}
+						
+						case ls_landhold2:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_landhold2, d->d1, zinit.heroAnimationStyle);
+							break;
+						}
+						
+						case ls_waterhold1:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_waterhold1, d->d1, zinit.heroAnimationStyle);
+							break;
+						}
+						
+						case ls_waterhold2:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_waterhold2, d->d1, zinit.heroAnimationStyle);
+							break;
+						}
+						
+						case ls_sidewaterhold1:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold1, d->d1, zinit.heroAnimationStyle);
+							break;
+						}
+						
+						case ls_sidewaterhold2:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold2, d->d1, zinit.heroAnimationStyle);
+							break;
+						}
+						
+						case ls_cast:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_cast, d->d1, zinit.heroAnimationStyle);
+							
+							if(p[lt_clock]<96)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_landhold2, d->d1, zinit.heroAnimationStyle);
+							};
+							
+							if(p[lt_clock]>=194)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+						
+						case ls_sideswimcast:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_sideswimcast, d->d1, zinit.heroAnimationStyle);
+							
+							if(p[lt_clock]<96)
+							{
+								herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold2, d->d1, zinit.heroAnimationStyle);
+							};
+							
+							if(p[lt_clock]>=194)
+							{
+								p[lt_clock]=-1;
+							}
+							
+							break;
+						}
+						
+						case ls_lifting:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_lifting, d->d1, zinit.heroAnimationStyle);
+							size_t fr = p[lt_clock] / lspeed;
+							if(fr >= p[lt_frames])
+							{
+								fr = 0;
+								p[lt_clock] = -1;
+							}
+							p[lt_tile] += fr*(p[lt_extend]==2?2:1);
+							break;
+						}
+						case ls_liftwalk:
+						{
+							herotile(&p[lt_tile], &p[lt_flip], ls_liftwalk, d->d1, zinit.heroAnimationStyle);
+							
+							if(p[lt_clock]>=(64*(hero_animation_speed)))
+							{
+								p[lt_tile]+=(p[lt_extend]==2?2:1);
+								
+								int32_t l=((p[lt_clock]/hero_animation_speed)&15);
+								l-=((l>3)?1:0)+((l>12)?1:0);
+								p[lt_tile]+=(l/2)*(p[lt_extend]==2?2:1);
+								
+								if(p[lt_clock]>=255)
+								{
+									p[lt_clock]=-1;
+								}
+							}
+							break;
+						}
+							
+						default:
+							break;
+					}
+					break;
+				
+				default:
+					break;
+			}
+			
+			if((p[lt_tile]!=oldtile)||(p[lt_flip]!=oldflip))
+			{
+				d->flags|=D_DIRTY;
+			}
+			
+			break;
+		}
+			
+		case MSG_DRAW:
+		{
+			BITMAP *buf=create_bitmap_ex(8,1,1);
+			BITMAP *buf2=buf;
+			int32_t dummy1, dummy2;
+			int32_t extend;
+			herotile(&dummy1, &dummy2, &extend, d->d2, d->d1, zinit.heroAnimationStyle);
+			int32_t w = 16;
+			int32_t h = 16;
+			
+			switch(extend)
+			{
+				case 0: //16x16
+					break;
+					
+				case 1: //16x32
+					w = 16;
+					h = 32;
+					break;
+					
+				case 2: //32x32
+					w = 32;
+					h = 32;
+					break;
+					
+				default:
+					break;
+			}
+			
+			buf = create_bitmap_ex(8,w,h);
+			
+			if(is_large)
+			{
+				w *= 2;
+				h *= 2;
+			}
+			
+			BITMAP *bigbmp = create_bitmap_ex(8,w+4,h+4);
+			
+			if(buf && bigbmp)
+			{
+				clear_to_color(buf, bg);
+				
+				switch(extend)
+				{
+					case 0:
+						overtile16(buf,p[lt_tile],0,0,6,p[lt_flip]);
+						stretch_blit(buf, bigbmp, 0,0, 16, 16, 2, 2, w, h);
+						jwin_draw_frame(bigbmp,0, 0, w+4, h+4, FR_DEEP);
+						blit(bigbmp,screen,0,0,d->x+8,d->y+4,w+4,h+4);
+						break;
+						
+					case 1:
+						overtile16(buf,p[lt_tile]-TILES_PER_ROW,0,0,6,p[lt_flip]);
+						overtile16(buf,p[lt_tile],0,16,6,p[lt_flip]);
+						stretch_blit(buf, bigbmp, 0,0, 16, 32, 2, 2, w, h);
+						jwin_draw_frame(bigbmp,0, 0, w+4, h+4, FR_DEEP);
+						blit(bigbmp,screen,0,0,d->x+8,d->y+4,w+4,h+4);
+						break;
+						
+					case 2:
+						overtile16(buf,p[lt_tile]-TILES_PER_ROW,8,0,6,p[lt_flip]); //top middle
+						overtile16(buf,p[lt_tile]-TILES_PER_ROW-(p[lt_flip]?-1:1),-8,0,6,p[lt_flip]); //top left
+						overtile16(buf,p[lt_tile]-TILES_PER_ROW+(p[lt_flip]?-1:1),8+16,0,6,p[lt_flip]); //top right
+						overtile16(buf,p[lt_tile]-(p[lt_flip]?-1:1),-8,16,6,p[lt_flip]); //bottom left
+						overtile16(buf,p[lt_tile]+(p[lt_flip]?-1:1),8+16,16,6,p[lt_flip]); //bottom right
+						overtile16(buf,p[lt_tile],8,16,6,p[lt_flip]);              //bottom middle
+						stretch_blit(buf, bigbmp, 0,0, 32, 32, 2, 2, w, h);
+						jwin_draw_frame(bigbmp,0, 0, w+4, h+4, FR_DEEP);
+						blit(bigbmp,screen,0,0,d->x+8,d->y+4,w+4,h+4);
+						break;
+						
+					default:
+						break;
+				}
+				
+				destroy_bitmap(bigbmp);
+				destroy_bitmap(buf);
+				destroy_bitmap(buf2);
+			}
+		}
+		break;
+		
+		case MSG_END:
+		{
+			free(d->dp3);
+			break;
+		}
+	}
+	
+	return D_O_K;
+}
 
 int32_t onCustomHero()
 {
@@ -8628,6 +8926,8 @@ int32_t onCustomHero()
 	int32_t oldSideSwimPoundSpr[4][3];
 	int32_t oldSideSwimChargeSpr[4][3];
 	int32_t oldSideSwimHoldSpr[3][3];
+	int32_t oldLiftingSpr[4][4];
+	int32_t oldLiftingWalkSpr[4][3];
 	char hmr1[8];
 	char hmr2[8];
 	char hmr3[8];
@@ -8640,6 +8940,19 @@ int32_t onCustomHero()
 	herotile_dlg[241].dp = hmr2;
 	herotile_dlg[242].dp = hmr3;
 	herotile_dlg[243].dp = hmr4;
+	char liftframes1[4];
+	char liftframes2[4];
+	char liftframes3[4];
+	char liftframes4[4];
+	sprintf(liftframes1,"%d",vbound(liftingspr[0][spr_frames],1,255));
+	sprintf(liftframes2,"%d",vbound(liftingspr[1][spr_frames],1,255));
+	sprintf(liftframes3,"%d",vbound(liftingspr[2][spr_frames],1,255));
+	sprintf(liftframes4,"%d",vbound(liftingspr[3][spr_frames],1,255));
+	herotile_dlg[280].dp = liftframes1;
+	herotile_dlg[281].dp = liftframes2;
+	herotile_dlg[282].dp = liftframes3;
+	herotile_dlg[283].dp = liftframes4;
+	herotile_dlg[285].dp = liftspeed;
 	memcpy(oldWalkSpr, walkspr, 4*3*sizeof(int32_t));
 	memcpy(oldStabSpr, stabspr, 4*3*sizeof(int32_t));
 	memcpy(oldSlashSpr, slashspr, 4*3*sizeof(int32_t));
@@ -8663,6 +8976,8 @@ int32_t onCustomHero()
 	memcpy(oldSideSwimPoundSpr, sideswimpoundspr, 4*3*sizeof(int32_t));
 	memcpy(oldSideSwimChargeSpr, sideswimchargespr, 4*3*sizeof(int32_t));
 	memcpy(oldSideSwimHoldSpr, sideswimholdspr, 3*3*sizeof(int32_t));
+	memcpy(oldLiftingSpr, liftingspr, 4*4*sizeof(int32_t));
+	memcpy(oldLiftingWalkSpr, liftingwalkspr, 4*3*sizeof(int32_t));
 	
 	//Populate Player defenses
 	for (int32_t i = 0; i < wMax - wEnemyWeapons - 1; i++)
@@ -8725,6 +9040,10 @@ int32_t onCustomHero()
 			hammeroffsets[1] = atoi(hmr2);
 			hammeroffsets[2] = atoi(hmr3);
 			hammeroffsets[3] = atoi(hmr4);
+			liftingspr[0][spr_frames] = vbound(atoi(liftframes1),1,255);
+			liftingspr[1][spr_frames] = vbound(atoi(liftframes2),1,255);
+			liftingspr[2][spr_frames] = vbound(atoi(liftframes3),1,255);
+			liftingspr[3][spr_frames] = vbound(atoi(liftframes4),1,255);
 		}
 		else if (ret == 168)
 		{
@@ -8762,6 +9081,8 @@ int32_t onCustomHero()
 			memcpy(sideswimpoundspr, oldSideSwimPoundSpr, 4 * 3 * sizeof(int32_t));
 			memcpy(sideswimchargespr, oldSideSwimChargeSpr, 4 * 3 * sizeof(int32_t));
 			memcpy(sideswimholdspr, oldSideSwimHoldSpr, 3* 3 * sizeof(int32_t));
+			memcpy(liftingspr, oldLiftingSpr, 4 * 4 * sizeof(int32_t));
+			memcpy(liftingwalkspr, oldLiftingWalkSpr, 4 * 3 * sizeof(int32_t));
 		}
 	} while (ret == 168);
 	

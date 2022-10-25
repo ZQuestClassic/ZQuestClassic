@@ -1,0 +1,43 @@
+diff --git a/addons/audio/sdl_audio.c b/addons/audio/sdl_audio.c
+index 777324259..636d7d381 100644
+--- a/addons/audio/sdl_audio.c
++++ b/addons/audio/sdl_audio.c
+@@ -76,8 +76,10 @@ static int sdl_allocate_voice(ALLEGRO_VOICE *voice)
+    want.freq = voice->frequency;
+    want.format = allegro_format_to_sdl(voice->depth);
+    want.channels = al_get_channel_count(voice->chan_conf);
++   // The a5 SDL audio system hardcodes a value for # samples that is too high. Until I can upstream a patch to make this
++   // configurable, just manually change it here!
+    // TODO: Should make this configurable somehow
+-   want.samples = 4096;
++   want.samples = 512;
+    want.callback = audio_callback;
+    want.userdata = sv;
+ 
+diff --git a/src/sdl/sdl_display.c b/src/sdl/sdl_display.c
+index 3a1939490..e0af6d1ad 100644
+--- a/src/sdl/sdl_display.c
++++ b/src/sdl/sdl_display.c
+@@ -409,7 +409,7 @@ static bool sdl_acknowledge_resize(ALLEGRO_DISPLAY *display)
+    _al_ogl_setup_gl(display);
+ 
+    if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
+-      display->default_shader = _al_create_default_shader(display->flags);
++      display->default_shader = _al_create_default_shader(display);
+       al_use_shader(display->default_shader);
+    }
+ 
+diff --git a/src/sdl/sdl_system.c b/src/sdl/sdl_system.c
+index 332c8b9d5..dd81f0e8f 100644
+--- a/src/sdl/sdl_system.c
++++ b/src/sdl/sdl_system.c
+@@ -132,7 +132,8 @@ static void sdl_heartbeat(void)
+ #ifdef __EMSCRIPTEN__
+    double t = al_get_time();
+    double interval = t - s->timer_time;
+-   _al_timer_thread_handle_tick(interval);
++   // This emscripten-specific timer code actually really messes up the framerate, making it go way too fast.
++   // _al_timer_thread_handle_tick(interval);
+    s->timer_time = t;
+ #endif
+    al_unlock_mutex(s->mutex);

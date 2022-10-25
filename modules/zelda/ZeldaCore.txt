@@ -17,7 +17,8 @@ src/init.cpp
 src/drawing.cpp
 src/zinfo.cpp
 src/zconfig.cpp
+src/zc/cheats.cpp
+src/zc/replay.cpp
 
 ## End of Zelda Core module
 )
-

@@ -35,6 +35,7 @@
 /*.dir/
 [Dd]ebugPublic/
 [Rr]elease/
+[Rr]elWithDebInfo/
 [Rr]eleases/
 x64/
 x86/
@@ -58,6 +59,8 @@ src - Copy (8)/
 src - Copy (9)/
 src - Copy (10)/
 build_emscripten
+node_modules
+/timidity/soundfont-pats
 
 CMakeFiles/
 
@@ -101,10 +104,10 @@ Win32/*
 makefile.inc
 
 # Allegro Files
-_deps/*
+_deps
+*.dir
+allegro-legacy/lib
 allegro-legacy/include/allegro/platform/alplatf.h
-allegro-legacy/allegro-legacy.dir/*
-allegro-legacy/lib/Debug/*
 
 # Generated CMake Files.
 /allegro/CMakeCache.txt
@@ -124,4 +127,10 @@ output/_auto/extrapack_log.txt
 output/_auto/extrapack
 output/_auto/zelda-classic-mac
 *.dmg
+output/_auto/buildpack_zq
+output/_auto/buildpack_lazy
 output/_auto/*.zip
+
+# Other
+*.zplay.roundtrip
+*.zplay.unexpected*

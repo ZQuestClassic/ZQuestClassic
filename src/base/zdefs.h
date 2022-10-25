@@ -260,14 +260,14 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_RULES           17
 #define V_STRINGS         10
 #define V_MISC            15
-#define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          33
+#define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
+#define V_COMBOS          35
 #define V_CSETS            5 //palette data
 #define V_MAPS            23
 #define V_DMAPS            17
 #define V_DOORS            1
 #define V_ITEMS           53
-#define V_WEAPONS          7
+#define V_WEAPONS          8
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
@@ -275,16 +275,16 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        28
+#define V_SAVEGAME        29
 #define V_COMBOALIASES     4
-#define V_HEROSPRITES      15
+#define V_HEROSPRITES      16
 #define V_SUBSCREEN        7
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         21
 #define V_SFX              8
 #define V_FAVORITES        1
 
-#define V_COMPATRULE       32
+#define V_COMPATRULE       33
 #define V_ZINFO            2
 
 //= V_SHOPS is under V_MISC
@@ -742,7 +742,7 @@ enum
 	//160
 	mfSWITCHHOOK, 	mfSIDEVIEWLADDER, mfSIDEVIEWPLATFORM, mfNOENEMYSPAWN, mfENEMYALL,
 	//165
-	mfSECRETSNEXT, mfNOMIRROR, mf167, mf168, mf169, mf170, mf171, mf172, mf173, mf174,
+	mfSECRETSNEXT, mfNOMIRROR, mfUNSAFEGROUND, mf168, mf169, mf170, mf171, mf172, mf173, mf174,
     mf175, mf176, mf177, mf178, mf179, mf180, mf181, mf182, mf183, mf184, mf185, mf186, mf187, 
     mf188, mf189, mf190, mf191, mf192, mf193, mf194, mf195, mf196, mf197, mf198, mf199, mf200,
     mf201, mf202, mf203, mf204, mf205, mf206, mf207, mf208, mf209, mf210, mf211, mf212, mf213,
@@ -1102,6 +1102,7 @@ enum
 	qr_OLD_LOCKBLOCK_COLLISION, qr_DECO_2_YOFFSET, qr_SCREENSTATE_80s_BUG, qr_AUTOCOMBO_ANY_LAYER,
 	//60
 	qr_GOHMA_UNDAMAGED_BUG, qr_FFCPRELOAD_BUGGED_LOAD, qr_SWITCHES_AFFECT_MOVINGBLOCKS, qr_BROKEN_GETPIXEL_VALUE,
+	qr_NO_LIFT_SPRITE,
 	//70
 	
 	//ZScript Parser //room for 20 of these
@@ -1404,9 +1405,11 @@ enum
 #define combotriggerAUTOGRABITEM   0x00400000
 #define combotriggerKILLENEMIES    0x00800000
 #define combotriggerSECRETSTR      0x01000000
+#define combotriggerTHROWN         0x02000000
 
 #define ctrigNONE        0x00
 #define ctrigIGNORE_SIGN 0x01
+#define ctrigSECRETS     0x02
 
 // weapon types in game engine
 enum
@@ -1941,6 +1944,8 @@ struct itemdata
 #define ITEM_SIDESWIM_DISABLED  0x02000000
 #define ITEM_BUNNY_ENABLED      0x04000000
 #define ITEM_VALIDATEONLY2      0x08000000
+#define ITEM_JINX_IMMUNE        0x10000000
+#define ITEM_FLIP_JINX          0x20000000
     word script;												// Which script the item is using
     char count;
     word amount;
@@ -2072,18 +2077,19 @@ struct itemdata
 
 struct wpndata
 {
-    word tile;
-    byte misc;                                                // 000bvhff (vh:flipping, f:flash (1:NES, 2:BSZ))
-    byte csets;                                               // ffffcccc (f:flash cset, c:cset)
-    byte frames;                                              // animation frame count
-    byte speed;                                               // animation speed
-    byte type;                                                // used by certain weapons
-//  byte wpn_type;
-    word script;
-	int32_t newtile; //copy tile to newtile at quest load and update all refs?
-//  byte exp;                                                 // not used
+	int32_t tile;
+	byte misc;                                                // 000bvhff (vh:flipping, f:flash (1:NES, 2:BSZ))
+	byte csets;                                               // ffffcccc (f:flash cset, c:cset)
+	byte frames;                                              // animation frame count
+	byte speed;                                               // animation speed
+	byte type;                                                // used by certain weapons
+	word script;
 };
 
+#define     WF_AUTOFLASH        0x01
+#define     WF_2PFLASH          0x02
+#define     WF_HFLIP            0x04
+#define     WF_VFLIP            0x08
 #define		WF_BEHIND			0x10	//Weapon renders behind other sprites
 
 struct quest_template
@@ -2934,6 +2940,34 @@ struct zasm_meta
 		memcpy(&author, &(other.author),33);
 		return *this;
 	}
+	bool operator==(zasm_meta const& other) const
+	{
+		if(zasm_v != other.zasm_v) return false;
+		if(meta_v != other.meta_v) return false;
+		if(ffscript_v != other.ffscript_v) return false;
+		if(script_type != other.script_type) return false;
+		if(flags != other.flags) return false;
+		if(compiler_v1 != other.compiler_v1) return false;
+		if(compiler_v2 != other.compiler_v2) return false;
+		if(compiler_v3 != other.compiler_v3) return false;
+		if(compiler_v4 != other.compiler_v4) return false;
+		for(auto q = 0; q < 8; ++q)
+		{
+			if(strcmp(run_idens[q], other.run_idens[q]))
+				return false;
+			if(run_types[q] != other.run_types[q])
+				return false;
+		}
+		if(strcmp(script_name, other.script_name))
+			return false;
+		if(strcmp(author, other.author))
+			return false;
+		return true;
+	}
+	bool operator!=(zasm_meta const& other) const
+	{
+		return !(*this == other);
+	}
 };
 
 struct ffscript
@@ -2991,6 +3025,56 @@ struct ffscript
 			strptr = nullptr;
 		}
 	}
+	void copy(ffscript& other)
+	{
+		other.clear();
+		other.command = command;
+		other.arg1 = arg1;
+		other.arg2 = arg2;
+		if(vecptr)
+		{
+			other.vecptr = new std::vector<int32_t>();
+			for(int32_t val : *vecptr)
+				other.vecptr->push_back(val);
+		}
+		if(strptr)
+		{
+			other.strptr = new std::string();
+			for(char c : *strptr)
+				other.strptr->push_back(c);
+		}
+	}
+	
+	bool operator==(ffscript const& other) const
+	{
+		//Compare primitive members
+		if(command != other.command) return false;
+		if(arg1 != other.arg1) return false;
+		if(arg2 != other.arg2) return false;
+		//Check for pointer existence differences
+		if((vecptr==nullptr)!=(other.vecptr==nullptr)) return false;
+		if((strptr==nullptr)!=(other.strptr==nullptr)) return false;
+		//If both have a pointer, compare pointer size/contents
+		if(vecptr)
+		{
+			if(vecptr->size() != other.vecptr->size())
+				return false;
+			if((*vecptr) != (*other.vecptr))
+				return false;
+		}
+		if(strptr)
+		{
+			if(strptr->size() != other.strptr->size())
+				return false;
+			if(strptr->compare(*other.strptr))
+				return false;
+		}
+		return true;
+	}
+	bool operator!=(ffscript const& other) const
+	{
+		return !(*this == other);
+	}
 };
 
 struct script_data
@@ -3037,7 +3121,10 @@ struct script_data
 		if(other.size())
 		{
             zasm = new ffscript[other.size()];
-			memcpy(zasm, other.zasm, sizeof(ffscript)*other.size());
+			for(size_t q = 0; q < other.size(); ++q)
+			{
+				other.zasm[q].copy(zasm[q]);
+			}
 		}
 		else
 		{
@@ -3078,6 +3165,8 @@ struct script_data
 	void transfer(script_data& other)
 	{
 		other.meta = meta;
+		if(other.zasm)
+			delete[] other.zasm;
 		other.zasm = zasm;
 		zasm = NULL;
 		null_script();
@@ -3087,6 +3176,30 @@ struct script_data
 	{
 		set(other);
 		return *this;
+	}
+	
+	bool equal_zasm(script_data const& other) const
+	{
+		if(valid() != other.valid()) return false;
+		auto sz = size();
+		auto othersz = other.size();
+		if(sz != othersz) return false;
+		for(auto q = 0; q < sz; ++q)
+		{
+			if(zasm[q] != other.zasm[q]) return false;
+		}
+		return true;
+	}
+	
+	bool operator==(script_data const& other) const
+	{
+		if(meta != other.meta) return false;
+		return equal_zasm(other);
+	}
+	
+	bool operator!=(script_data const& other) const
+	{
+		return !(*this == other);
 	}
 	
 };
@@ -3268,6 +3381,10 @@ struct newcombo
 	byte liftdmg;
 	int16_t liftbreaksprite;
 	byte liftbreaksfx;
+	byte lifthei, lifttime;
+	word prompt_cid;
+	byte prompt_cs;
+	int16_t prompt_x, prompt_y;
 	
 	char label[11];
 		//Only one of these per combo: Otherwise we would have 
@@ -3335,9 +3452,10 @@ struct newcombo
 		for(int32_t q = 0; q < 11; ++q)
 			label[q] = 0;
 		for(int32_t q = 0; q < 8; ++q)
-			attribytes[0] = 0;
-		for(int32_t q = 0; q < 8; ++q)
-			attrishorts[0] = 0;
+		{
+			attribytes[q] = 0;
+			attrishorts[q] = 0;
+		}
 		script = 0;
 		for(int32_t q = 0; q < 2; ++q)
 			initd[q] = 0;
@@ -3358,6 +3476,13 @@ struct newcombo
 		liftsfx = 0;
 		liftbreaksprite = -1;
 		liftbreaksfx = 0;
+		lifthei = 8;
+		lifttime = 16;
+		
+		prompt_cid = 0;
+		prompt_cs = 0;
+		prompt_x = 12;
+		prompt_y = -8;
 	}
 
 	bool is_blank(bool ignoreEff = false)
@@ -3427,6 +3552,12 @@ struct newcombo
 		if(liftsfx) return false;
 		if(liftbreaksprite != -1) return false;
 		if(liftbreaksfx) return false;
+		if(lifthei) return false;
+		if(lifttime) return false;
+		if(prompt_cid) return false;
+		if(prompt_cs) return false;
+		if(prompt_x != 12) return false;
+		if(prompt_y != -8) return false;
 		
 		return true;
 	}
@@ -3537,126 +3668,23 @@ struct zquestheader
 	bool external_zinfo;
 	
 	
-	bool is_legacy() const
-	{
-		return new_version_id_main < 2 || (new_version_id_main == 2 && new_version_id_second < 55);
-	}
-	int8_t getAlphaState() const
-	{
-		if(new_version_id_release) return 3;
-		else if(new_version_id_gamma) return 2;
-		else if(new_version_id_beta) return 1;
-		else if(new_version_id_alpha) return 0;
-		return -1;
-	}
-	char const* getAlphaStr(bool ignoreNightly = false) const
-	{
-		static char buf[40] = "";
-		char format[20] = "%s";
-		if(!ignoreNightly && new_version_is_nightly) strcpy(format, "Nightly (%s)");
-		if(new_version_id_release) sprintf(buf, format, "Release");
-		else if(new_version_id_gamma) sprintf(buf, format, "Gamma");
-		else if(new_version_id_beta) sprintf(buf, format, "Beta");
-		else if(new_version_id_alpha) sprintf(buf, format, "Alpha");
-		else sprintf(buf, format, "Unknown");
-		return buf;
-	}
-	int32_t getAlphaVer() const
-	{
-		if(new_version_id_release) return new_version_id_release;
-		else if(new_version_id_gamma) return new_version_id_gamma;
-		else if(new_version_id_beta) return new_version_id_beta;
-		else if(new_version_id_alpha) return new_version_id_alpha;
-		return 0;
-	}
-	char const* getAlphaVerStr() const
-	{
-		static char buf[40] = "";
-		if(new_version_is_nightly)
-		{
-			if(getAlphaVer() < 0)
-				sprintf(buf, "Nightly (%s ?\?)", getAlphaStr(true));
-			else sprintf(buf, "Nightly (%s %d/%d)", getAlphaStr(true), getAlphaVer()-1, getAlphaVer());
-		}
-		else
-		{
-			if(getAlphaVer() < 0)
-				sprintf(buf, "%s ?\?", getAlphaStr(true));
-			else sprintf(buf, "%s %d", getAlphaStr(true), getAlphaVer());
-		}
-		return buf;
-	}
-	char const* getVerStr() const
-	{
-		static char buf[80] = "";
-		if(is_legacy())
-		{
-			sprintf(buf, "Legacy %d.%d.%d", new_version_id_main, new_version_id_second, new_version_id_third);
-			if(getAlphaVer())
-			{
-				strcat(buf, " ");
-				strcat(buf, getAlphaVerStr());
-			}
-		}
-		else if(new_version_id_fourth > 0)
-			sprintf(buf, "%d.%d.%d.%d %s", new_version_id_main, new_version_id_second,
-				new_version_id_third, new_version_id_fourth, getAlphaVerStr());
-		else sprintf(buf, "%d.%d.%d %s", new_version_id_main, new_version_id_second,
-				new_version_id_third, getAlphaVerStr());
-		return buf;
-	}
-	int32_t compareDate() const
-	{
-		zprint2("Comparing dates: '%04d-%02d-%02d %02d:%02d', '%04d-%02d-%02d %02d:%02d'\n",
-			new_version_id_date_year, new_version_id_date_month, new_version_id_date_day,
-			new_version_id_date_hour, new_version_id_date_minute,
-			BUILDTM_YEAR, BUILDTM_MONTH, BUILDTM_DAY, BUILDTM_HOUR, BUILDTM_MINUTE);
-		//!TODO handle timezones (build_timezone, __TIMEZONE__)
-		if(new_version_id_date_year > BUILDTM_YEAR)
-			return 1;
-		if(new_version_id_date_year < BUILDTM_YEAR)
-			return -1;
-		if(new_version_id_date_month > BUILDTM_MONTH)
-			return 1;
-		if(new_version_id_date_month < BUILDTM_MONTH)
-			return -1;
-		if(new_version_id_date_day > BUILDTM_DAY)
-			return 1;
-		if(new_version_id_date_day < BUILDTM_DAY)
-			return -1;
-		#define BUILDTIME_FUZZ 10
-		int32_t time_minutes = (new_version_id_date_hour*60)+new_version_id_date_minute;
-		int32_t btm_minutes = (BUILDTM_HOUR*60)+BUILDTM_MINUTE;
-		if(time_minutes > btm_minutes+BUILDTIME_FUZZ)
-			return 1;
-		if(time_minutes < btm_minutes-BUILDTIME_FUZZ)
-			return -1;
-		return 0;
-	}
-	int32_t compareVer() const
-	{
-		if(new_version_id_main > V_ZC_FIRST)
-			return 1;
-		if(new_version_id_main < V_ZC_FIRST)
-			return -1;
-		if(new_version_id_second > V_ZC_SECOND)
-			return 1;
-		if(new_version_id_second < V_ZC_SECOND)
-			return -1;
-		if(new_version_id_third > V_ZC_THIRD)
-			return 1;
-		if(new_version_id_third < V_ZC_THIRD)
-			return -1;
-		if(new_version_id_fourth > V_ZC_FOURTH)
-			return 1;
-		if(new_version_id_fourth < V_ZC_FOURTH)
-			return -1;
-		return 0;
-	}
+	bool is_legacy() const;
+	int8_t getAlphaState() const;
+	char const* getAlphaStr(bool ignoreNightly = false) const;
+	int32_t getAlphaVer() const;
+	char const* getAlphaVerStr() const;
+	char const* getVerStr() const;
+	int32_t compareDate() const;
+	int32_t compareVer() const;
 };
+
+int8_t getProgramAlphaState();
+char const* getProgramAlphaVerStr();
+char const* getProgramVerStr();
 
 enum { msLINKED };
 
+#define MAX_SCC_ARG 65023
 /* Note: Printable ASCII begins at 32 and ends at 126, inclusive. */
 #define MSGC_COLOUR            1    // 2 args (cset,swatch)
 #define MSGC_SPEED             2    // 1 arg  (speed)
@@ -4542,6 +4570,8 @@ struct gamedata
 	uint32_t gen_eventstate[NUMSCRIPTSGENERIC];
 	
 	int32_t gswitch_timers[NUM_GSWITCHES];
+
+	std::string replay_file;
 	
 	// member functions
 	// public:
@@ -4883,7 +4913,8 @@ enum controls //Args for 'getInput()'
 	//control_state indeces
 	btnUp, btnDown, btnLeft, btnRight, btnA, btnB, btnS, btnL, btnR, btnP, btnEx1, btnEx2, btnEx3, btnEx4, btnAxisUp, btnAxisDown, btnAxisLeft, btnAxisRight,
 	//Other controls
-	btnM, btnF12, btnF11, btnF5, btnQ, btnI
+	btnM, btnF12, btnF11, btnF5, btnQ, btnI,
+	btnLast,
 };
 
 #define INT_BTN_A   0x01

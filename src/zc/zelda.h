@@ -29,12 +29,14 @@
 #include "zfix.h"
 #include "base/util.h"
 #include "base/fonts.h"
+#include "replay.h"
 
 class sprite;
 
 int32_t isFullScreen();
 int32_t onFullscreen();
 extern bool zqtesting_mode;
+extern bool use_testingst_start;
 
 #if DEVLEVEL > 0
 extern bool dev_logging;
@@ -236,6 +238,8 @@ void doGFXMonohue(int32_t _r, int32_t _g, int32_t _b, bool m);
 void doTint(int32_t _r, int32_t _g, int32_t _b);
 
 void runDrunkRNG();
+void load_replay_file_deferred(ReplayMode mode, std::string replay_file);
+void zc_game_srand(int seed, zc_randgen* rng = nullptr);
 
 //Save screen settings. 
 enum { 	SAVESC_BACKGROUND, 		SAVESC_TEXT, 			SAVESC_USETILE, 	
@@ -324,6 +328,7 @@ extern bool is_large;
 extern bool standalone_mode;
 extern char *standalone_quest;
 extern bool skip_title;
+extern bool disable_save_to_disk;
 
 extern int32_t draw_screen_clip_rect_x1; //Used by the ending, bu could be used to change the drawn screen size. 
 extern int32_t draw_screen_clip_rect_x2;
@@ -351,7 +356,7 @@ extern word     msgclk, msgstr, enqueued_str, msgpos, msgptr, msg_count, msgcolo
        msg_ypos,
        cursor_x,
        cursor_y;
-extern byte msg_margins[4];
+extern int16_t msg_margins[4];
 extern int32_t prt_tile;
 extern byte msgstr_layer;
 extern byte prt_cset, prt_x, prt_y, prt_tw, prt_th, msg_shdtype, msg_shdcol;
@@ -417,12 +422,13 @@ extern byte newconveyorclk;
 extern dword fps_secs;
 extern float avgfps;
 
-extern bool do_cheat_goto, do_cheat_light;
+extern bool cheats_execute_goto, cheats_execute_light;
 extern bool blockmoving;
 extern bool Throttlefps, MenuOpen, ClickToFreeze, Paused, Advance, ShowFPS, Showpal, Playing, FrameSkip, TransLayers, disableClickToFreeze;
 extern bool refreshpal,blockpath,__debug,loaded_guys,freeze_guys;
 extern bool loaded_enemies,drawguys,details,debug_enabled,watch;
-extern bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,Mdown,LBdown,RBdown,Pdown,Ex1down,Ex2down,Ex3down,Ex4down,AUdown,ADdown,ALdown,ARdown,F12,F11,F5,keyI, keyQ;
+extern bool down_control_states[controls::btnLast];
+extern bool F12,F11,F5,keyI, keyQ;
 extern bool SystemKeys,NESquit,volkeys,useCD,boughtsomething;
 extern bool fixed_door, darkroom,naturaldark,BSZ;            //,NEWSUBSCR;
 extern bool hookshot_used, hookshot_frozen, pull_hero, hs_fix, hs_switcher, cheat_superman, gofast, checkhero;
@@ -508,6 +514,8 @@ extern char *qstpath;
 extern char *qstdir;
 extern gamedata *saves;
 extern gamedata *game;
+
+extern std::string load_qstpath;
 
 extern volatile int32_t lastfps;
 extern volatile int32_t framecnt;

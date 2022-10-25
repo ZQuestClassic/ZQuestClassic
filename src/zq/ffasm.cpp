@@ -13,7 +13,6 @@
 #include "ffscript.h"
 #include "ffasm.h"
 
-#include "zc_malloc.h"
 #include "zquest.h"
 #include "base/zsys.h"
 #include "base/util.h"
@@ -2432,6 +2431,29 @@ script_variable variable_list[]=
 	{ "REGIONSCREENWIDTH", REGIONSCREENWIDTH, 0, 0 },
 	{ "REGIONSCREENHEIGHT", REGIONSCREENHEIGHT, 0, 0 },
 	
+	{ "COMBODTRIGGERCOOLDOWN", COMBODTRIGGERCOOLDOWN, 0, 0 },
+	{ "COMBODTRIGGERCOPYCAT", COMBODTRIGGERCOPYCAT, 0, 0 },
+	{ "COMBODTRIGITEMPICKUP", COMBODTRIGITEMPICKUP, 0, 0 },
+	{ "COMBODTRIGEXSTATE", COMBODTRIGEXSTATE, 0, 0 },
+	{ "COMBODTRIGSPAWNENEMY", COMBODTRIGSPAWNENEMY, 0, 0 },
+	{ "COMBODTRIGSPAWNITEM", COMBODTRIGSPAWNITEM, 0, 0 },
+	{ "COMBODTRIGCSETCHANGE", COMBODTRIGCSETCHANGE, 0, 0 },
+	{ "COMBODLIFTGFXCOMBO", COMBODLIFTGFXCOMBO, 0, 0 },
+	{ "COMBODLIFTGFXCCSET", COMBODLIFTGFXCCSET, 0, 0 },
+	{ "COMBODLIFTUNDERCMB", COMBODLIFTUNDERCMB, 0, 0 },
+	{ "COMBODLIFTUNDERCS", COMBODLIFTUNDERCS, 0, 0 },
+	{ "COMBODLIFTDAMAGE", COMBODLIFTDAMAGE, 0, 0 },
+	{ "COMBODLIFTLEVEL", COMBODLIFTLEVEL, 0, 0 },
+	{ "COMBODLIFTITEM", COMBODLIFTITEM, 0, 0 },
+	{ "COMBODLIFTFLAGS", COMBODLIFTFLAGS, 0, 0 },
+	{ "COMBODLIFTGFXTYPE", COMBODLIFTGFXTYPE, 0, 0 },
+	{ "COMBODLIFTGFXSPRITE", COMBODLIFTGFXSPRITE, 0, 0 },
+	{ "COMBODLIFTSFX", COMBODLIFTSFX, 0, 0 },
+	{ "COMBODLIFTBREAKSPRITE", COMBODLIFTBREAKSPRITE, 0, 0 },
+	{ "COMBODLIFTBREAKSFX", COMBODLIFTBREAKSFX, 0, 0 },
+	{ "COMBODLIFTHEIGHT", COMBODLIFTHEIGHT, 0, 0 },
+	{ "COMBODLIFTTIME", COMBODLIFTTIME, 0, 0 },
+	
 	{ " ",  -1, 0, 0 }
 };
 
@@ -2455,7 +2477,7 @@ int32_t ffparse(char *string)
 	
 	int32_t ret=0;
 	char *tempstring1;
-	tempstring1=(char *)zc_malloc(strlen(string)+5);
+	tempstring1=(char *)malloc(strlen(string)+5);
 	strcpy(tempstring1, string);
 	
 	for(int32_t i=0; i<4; ++i)
@@ -2477,7 +2499,7 @@ int32_t ffparse(char *string)
 	else ret+=atoi(ptr);
 	
 	if(tempstring1) //may be safer
-		zc_free(tempstring1);
+		free(tempstring1);
 	return ret;
 }
 bool ffcheck(char *arg)
@@ -2788,7 +2810,9 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 int32_t parse_script_file(script_data **script, const char *path, bool report_success)
 {
 	FILE *fscript = fopen(path,"rb");
-	return parse_script_file(script, fscript, report_success);
+	int32_t result = parse_script_file(script, fscript, report_success);
+	fclose(fscript);
+	return result;
 }
 int32_t parse_script_file(script_data **script, FILE* fscript, bool report_success)
 {
@@ -3287,7 +3311,6 @@ zasmfile_fail:
 	delete [] combuf;
 	delete [] arg1buf;
 	delete [] arg2buf;
-	fclose(fscript);
 	return success?D_O_K:D_CLOSE;
 }
 

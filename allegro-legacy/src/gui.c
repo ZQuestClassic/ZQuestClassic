@@ -1773,6 +1773,7 @@ int do_menu(MENU *menu, int x, int y)
    ret = shutdown_menu(player);
 
    do {
+      rest(1);
    } while (gui_mouse_b());
 
    return ret;

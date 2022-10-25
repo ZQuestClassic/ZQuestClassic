@@ -1,5 +1,6 @@
 #include "base/process_management.h"
 #include "base/util.h"
+#include <fmt/format.h>
 #ifndef _WIN32
 	#include <csignal>
 	#include <sys/types.h>
@@ -12,9 +13,7 @@ using namespace util;
 	{ \
 		if(pm) \
 			delete pm; \
-		char buf[2048] = {0}; \
-		sprintf(buf, "[PROCESS_LAUNCH: '%s' ERROR]: %s\n", file, str); \
-		safe_al_trace(buf); \
+		safe_al_trace(fmt::format("[PROCESS_LAUNCH: '{}' ERROR]: {}\n", file, str).c_str()); \
 		return NULL; \
 	} while(false)
 
@@ -35,36 +34,49 @@ void process_killer::kill(uint32_t exitcode)
 #endif
 }
 
-process_killer launch_process(char const* file, const char *argv[])
+static std::vector<char*> create_argv_unix(std::string file, const std::vector<std::string>& args)
+{
+	std::vector<char*> argv;
+	argv.reserve(args.size() + 2);
+	argv.push_back(strcpy(new char[file.length() + 1], file.c_str()));
+	std::transform(args.begin(), args.end(), std::back_inserter(argv), [](const std::string& s) {
+		char *pc = new char[s.size()+1];
+		std::strcpy(pc, s.c_str());
+		return pc; 
+	});
+	argv.push_back(nullptr);
+	return argv;
+}
+
+process_killer launch_process(std::string file, const std::vector<std::string>& args)
 {
 #ifdef _WIN32
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
 
 	char path_buf[2048];
-	sprintf(path_buf, "\"%s\"", file);
-	if(argv)
+	sprintf(path_buf, "\"%s\"", file.c_str());
+	for (auto q : args)
 	{
-		for(auto q = 0; argv[q]; ++q)
-		{
-			strcat(path_buf, " \"");
-			strcat(path_buf, argv[q]);
-			strcat(path_buf, "\"");
-		}
+		strcat(path_buf, " \"");
+		strcat(path_buf, q.c_str());
+		strcat(path_buf, "\"");
 	}
 
 	GetStartupInfo(&si);
 	CreateProcess(NULL,path_buf,NULL,NULL,FALSE,CREATE_NEW_CONSOLE,NULL,NULL,&si,&pi);
 	return process_killer(pi.hProcess);
 #else
-	int32_t pid, s;
-	s = posix_spawn(&pid, file, NULL, NULL, (char *const *)argv, NULL);
+	std::vector<char*> argv = create_argv_unix(file, args);
+	pid_t pid;
+	int s = posix_spawn(&pid, file.c_str(), NULL, NULL, argv.data(), NULL);
+	for (auto arg : argv) free(arg);
 	if (s != 0) ERR_EXIT("Failed posix_spawn", (process_manager*)0);
 	return process_killer(pid);
 #endif
 }
 
-process_manager* launch_piped_process(char const* file, const char *argv[])
+process_manager* launch_piped_process(std::string file, const std::vector<std::string>& args)
 {
 	process_manager* pm = new process_manager();
 #ifdef _WIN32
@@ -95,15 +107,12 @@ process_manager* launch_piped_process(char const* file, const char *argv[])
 	si.hStdInput = pm->wr_2;
 	si.dwFlags |= STARTF_USESTDHANDLES;
 	char path_buf[2048];
-	sprintf(path_buf, "\"%s\"", file);
-	if(argv)
+	sprintf(path_buf, "\"%s\"", file.c_str());
+	for (auto q : args)
 	{
-		for(auto q = 0; argv[q]; ++q)
-		{
-			strcat(path_buf, " \"");
-			strcat(path_buf, argv[q]);
-			strcat(path_buf, "\"");
-		}
+		strcat(path_buf, " \"");
+		strcat(path_buf, q.c_str());
+		strcat(path_buf, "\"");
 	}
 	bSuccess = CreateProcess(NULL, 
 		(LPSTR)path_buf, // command line 
@@ -137,8 +146,9 @@ process_manager* launch_piped_process(char const* file, const char *argv[])
 	posix_spawn_file_actions_addclose(&file_actions, pdes_w[0]);
 	posix_spawn_file_actions_addclose(&file_actions, pdes_w[1]);
 
+	std::vector<char*> argv = create_argv_unix(file, args);
 	pid_t child_pid;
-	s = posix_spawn(&child_pid, file, &file_actions, NULL, (char *const *)argv, NULL);
+	s = posix_spawn(&child_pid, file.c_str(), &file_actions, NULL, argv.data(), NULL);
 	if (s != 0) ERR_EXIT("Failed posix_spawn", pm);
 	
 	pm->read_handle = pdes_r[0];

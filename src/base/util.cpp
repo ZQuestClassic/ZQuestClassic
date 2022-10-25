@@ -178,7 +178,7 @@ namespace util
 		return q < 2048;
 	}
 
-	void reverse( char *s )
+	static void reverse( char *s )
 	{
 		if ( *s )
 		{
@@ -837,5 +837,3 @@ char const* get_snap_str()
 		return snap;
 	return nil;
 }
-
-

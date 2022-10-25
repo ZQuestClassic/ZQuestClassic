@@ -245,8 +245,8 @@ void SemanticAnalyzer::caseRange(ASTRange& host, void*)
 {
 	RecursiveVisitor::caseRange(host);
 	if(breakRecursion(host)) return;
-	optional<int32_t> start = (*host.start).getCompileTimeValue(this, scope);
-	optional<int32_t> end = (*host.end).getCompileTimeValue(this, scope);
+	std::optional<int32_t> start = (*host.start).getCompileTimeValue(this, scope);
+	std::optional<int32_t> end = (*host.end).getCompileTimeValue(this, scope);
 	//`start` and `end` must exist, as they are ASTConstExpr. -V
 	if(*start > *end)
 	{
@@ -302,7 +302,7 @@ void SemanticAnalyzer::caseStmtBreak(ASTStmtBreak& host, void*)
 
 	if(host.count.get())
 	{
-		if(optional<int32_t> v = host.count->getCompileTimeValue(this, scope))
+		if(std::optional<int32_t> v = host.count->getCompileTimeValue(this, scope))
 		{
 			int32_t val = *v;
 			if(val < 0)
@@ -322,7 +322,7 @@ void SemanticAnalyzer::caseStmtContinue(ASTStmtContinue &host, void *)
 
 	if(host.count.get())
 	{
-		if(optional<int32_t> v = host.count->getCompileTimeValue(this, scope))
+		if(std::optional<int32_t> v = host.count->getCompileTimeValue(this, scope))
 		{
 			int32_t val = *v;
 			if(val < 0)
@@ -493,7 +493,7 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 		ASTDataDecl* declaration = *it;
 		if(ASTExpr* init = declaration->getInitializer())
 		{
-			if(optional<int32_t> v = init->getCompileTimeValue(this, scope))
+			if(std::optional<int32_t> v = init->getCompileTimeValue(this, scope))
 			{
 				int32_t val = *v;
 				ipart = val/10000;
@@ -567,7 +567,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 			}
 
 			// Inline the constant if possible.
-			isConstant = host.getInitializer()->getCompileTimeValue(this, scope);
+			isConstant = host.getInitializer()->getCompileTimeValue(this, scope).has_value();
 			//The dataType is constant, but the initializer is not. This is not allowed in Global or Script scopes, as it causes crashes. -V
 			if(!isConstant && (scope->isGlobal() || scope->isScript()))
 			{
@@ -646,7 +646,7 @@ void SemanticAnalyzer::caseDataDeclExtraArray(
 			return;
 		}
 		
-		if(optional<int32_t> theSize = size.getCompileTimeValue(this, scope))
+		if(std::optional<int32_t> theSize = size.getCompileTimeValue(this, scope))
 		{
 			if(*theSize % 10000)
 			{
@@ -780,7 +780,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 		if(getType)
 			checkCast(*getType, *paramTypes[parcnt], &host);
 		if(breakRecursion(host)) {scope = oldScope; return;}
-		optional<int32_t> optVal = (*it)->getCompileTimeValue(this, scope);
+		std::optional<int32_t> optVal = (*it)->getCompileTimeValue(this, scope);
 		assert(optVal);
 		host.optvals.push_back(*optVal);
 	}
@@ -1132,7 +1132,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		else if (castCount == bestCastCount)
 			bestFunctions.push_back(&function);
 	}
-	// We may have failed, but let's check optional parameters first...
+	// We may have failed, but let's check std::optional parameters first...
 	if(bestFunctions.size() > 1)
 	{
 		auto targSize = parameterTypes.size();
@@ -1569,7 +1569,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 void SemanticAnalyzer::caseOptionValue(ASTOptionValue& host, void*)
 {
 	/* handled in `ASTOptionValue->getCompileTimeValue()` now
-	if (optional<int32_t> value = lookupOption(*scope, host.option))
+	if (std::optional<int32_t> value = lookupOption(*scope, host.option))
 		host.value = value;
 	else
 		handleError(CompileError::UnknownOption(&host, host.name));*/

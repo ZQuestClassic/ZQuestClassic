@@ -8,9 +8,11 @@
 #include "zquest.h"
 #endif //!IS_PARSER
 
+#define ZC_CONSOLE_INFO_CODE -9998
 #define ZC_CONSOLE_ERROR_CODE -9997
 #define ZC_CONSOLE_WARN_CODE -9996
-#define ZC_CONSOLE_INFO_CODE -9998
+#define ZC_CONSOLE_DB_CODE -9995
+#define ZC_CONSOLE_TERM_CODE -9994
 
 using std::map;
 using std::string;
@@ -46,10 +48,11 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 	stypes.clear();
 	scripts.clear();
 	size_t stypes_sz, scripts_sz;
-	size_t dummy;
+	uint32_t dummy;
 	ZScript::ScriptTypeID _id;
 	char buf[512] = {0};
-	char buf2[512] = {0};
+	char* buf2 = nullptr;
+	size_t buf2sz = 0;
 	
 	FILE *tempfile = fopen("tmp2","rb");
 			
@@ -73,6 +76,7 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 	for(size_t ind = 0; ind < scripts_sz; ++ind)
 	{
 		fread(&dummy, sizeof(size_t), 1, tempfile);
+
 		dummy = fread(buf, sizeof(char), dummy, tempfile);
 		buf[dummy] = 0;
 		
@@ -87,19 +91,37 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 		for(size_t ind2 = 0; ind2 < tmp; ++ind2)
 		{
 			fread(&dummy, sizeof(size_t), 1, tempfile);
+			if (buf2sz < dummy + 1)
+			{
+				if (buf2) free(buf2);
+				buf2sz = zc_max(dummy + 1, 1024);
+				buf2 = (char*)malloc(buf2sz);
+				if (!buf2)
+				{
+					buf2sz = 0;
+					goto read_compile_error;
+				}
+			}
 			dummy = fread(buf2, sizeof(char), dummy, tempfile);
+			if (dummy >= buf2sz)
+			{
+				dummy = buf2sz - 1; //This indicates an error, and shouldn't be reached...
+			}
 			buf2[dummy] = 0;
 			int32_t lbl;
 			fread(&lbl, sizeof(int32_t), 1, tempfile);
-			std::shared_ptr<ZScript::Opcode> oc = std::make_shared<ZScript::ArbitraryOpcode>(string(buf2));
+			std::shared_ptr<ZScript::Opcode> oc = std::make_shared<ZScript::ArbitraryOpcode>(buf2);
 			oc->setLabel(lbl);
 			dsd.second.push_back(oc);
 		}
 		
 		scripts[buf] = dsd;
 	}
+
+read_compile_error:
 	fclose(tempfile);
 	
+	if (buf2) free(buf2);
 	/*
 	reader->read(&stypes_sz, sizeof(size_t));
 	for(size_t ind = 0; ind < stypes_sz; ++ind)
@@ -246,10 +268,41 @@ void write_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, 
 
 CConsoleLoggerEx parser_console;
 
+static const int32_t DB_COLOR = CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY;
 static const int32_t WARN_COLOR = CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_GREEN;
 static const int32_t ERR_COLOR = CConsoleLoggerEx::COLOR_RED;
 static const int32_t INFO_COLOR = CConsoleLoggerEx::COLOR_WHITE;
 
+void zconsole_db2(const char *format,...)
+{
+	if (!DisableCompileConsole)
+	{
+		int32_t v = parser_console.cprintf( DB_COLOR, "[DEBUG] ");
+		if(v < 0) return; //Failed to print
+	}
+	//{
+	int32_t ret;
+	char tmp[1024];
+	
+	va_list argList;
+	va_start(argList, format);
+	#ifdef WIN32
+	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#else
+	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#endif
+	tmp[vbound(ret,0,1023)]=0;
+	
+	va_end(argList);
+	//}
+	al_trace("%s\n", tmp);
+	if (!DisableCompileConsole) parser_console.cprintf( DB_COLOR, "%s\n", tmp);
+	else
+	{
+		box_out(tmp);
+		box_eol();
+	}
+}
 void zconsole_warn2(const char *format,...)
 {
 	if (!DisableCompileConsole)
@@ -346,6 +399,7 @@ void ReadConsole(char buf[], int code)
 	//al_trace("%s\n", buf);
 	switch(code)
 	{
+		case ZC_CONSOLE_DB_CODE: zconsole_db2("%s", buf); break;
 		case ZC_CONSOLE_WARN_CODE: zconsole_warn2("%s", buf); break;
 		case ZC_CONSOLE_ERROR_CODE: zconsole_error2("%s", buf); break;
 		default: zconsole_info2("%s", buf); break;

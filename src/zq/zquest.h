@@ -787,10 +787,12 @@ void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int32_t x, int
 
 void build_bii_list(bool usenone);
 const char *itemlist(int32_t index, int32_t *list_size);
+const char *itemlist_num(int32_t index, int32_t *list_size);
 int32_t select_item(const char *prompt,int32_t item,bool is_editor,int32_t &exit_status);
 
 void build_biw_list();
 const char *weaponlist(int32_t index, int32_t *list_size);
+const char *weaponlist_num(int32_t index, int32_t *list_size);
 int32_t select_weapon(const char *prompt,int32_t weapon);
 
 //char *doors_string[8]={"wall","passage","locked","shutter","bombable","walk thru","1-way shutter","boss"};
@@ -1184,7 +1186,8 @@ void zprint2(const char * const format,...);
 int32_t get_currdmap();
 int32_t current_item(int32_t item_type);
 int32_t current_item_power(int32_t item_type);
-int32_t current_item_id(int32_t item_type, bool checkmagic);
+//int32_t current_item_id(int32_t item_type, bool checkmagic, bool jinx_check);
+
 bool can_use_item(int32_t item_type, int32_t item);
 bool has_item(int32_t item_type, int32_t it);
 int32_t get_bmaps(int32_t si);

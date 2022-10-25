@@ -18,8 +18,7 @@
 #include "base/zdefs.h"
 #include "base/zsys.h"
 #include "tiles.h"
-#include "mem_debug.h"
-#include "maps.h"
+#include "maps.h" // TODO z3 ! rm?
 
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table;
@@ -428,10 +427,10 @@ void clear_tile(tiledata *buf, word tile)
   buf[tile].format=tf4Bit;
   if (buf[tile].data!=NULL)
   {
-    zc_free(buf[tile].data);
+    free(buf[tile].data);
     buf[tile].data = NULL;
   }
-  buf[tile].data=(byte *)zc_malloc(tilesize(buf[tile].format));
+  buf[tile].data=(byte *)malloc(tilesize(buf[tile].format));
   if (buf[tile].data==NULL)
   {
     Z_error_fatal("Unable to initialize tile #%d.\n", tile);
@@ -447,10 +446,10 @@ void reset_tile(tiledata *buf, int32_t t, int32_t format=1)
     
     if(buf[t].data!=NULL)
     {
-        zc_free(buf[t].data);
+        free(buf[t].data);
     }
     
-    buf[t].data=(byte *)zc_malloc(tilesize(buf[t].format));
+    buf[t].data=(byte *)malloc(tilesize(buf[t].format));
     
     if(buf[t].data==NULL)
     {
@@ -547,7 +546,7 @@ bool copy_tile(tiledata *buf, int32_t src, int32_t dest, bool swap)
     }
     
     int32_t tempformat=buf[dest].format;
-    byte *temptiledata=(byte *)zc_malloc(tilesize(tempformat));
+    byte *temptiledata=(byte *)malloc(tilesize(tempformat));
     
     if(swap)
     {
@@ -577,7 +576,7 @@ bool copy_tile(tiledata *buf, int32_t src, int32_t dest, bool swap)
 	blank_tile_table[dest] = blank_tile_table[src];
 	if(swap) blank_tile_table[src] = t;
     
-    zc_free(temptiledata);
+    free(temptiledata);
     
     return true;
 }
@@ -2870,27 +2869,27 @@ bool is_valid_format(byte format)
 
 int32_t tilesize(byte format)
 {
-    switch(format)
-    {
-    case tf32Bit:
-        return 1024;
-        
-    case tf24Bit:
-        return 768;
-        
-    case tf16Bit:
-    case tf8Bit:
-    case tf4Bit:
-        return (64<<format);
-    }
-    
-    al_trace("Invalid tile format encountered.\n");
-    
-    // BUG: This is triggered by the 'grab' option, and certainly others as well.
-    // if at any point a selected tile is 'blank' (newtilebuf[0] for example), then we have might a problem.
-    // These should probably be dealt with where they really occur, however simply returning a
-    // sane amount right now should fix any crashes associated with this. -Gleeok
-    return 256;
+	switch(format)
+	{
+		case tf32Bit:
+			return 1024;
+			
+		case tf24Bit:
+			return 768;
+			
+		case tf16Bit:
+		case tf8Bit:
+		case tf4Bit:
+			return (64<<format);
+	}
+	
+	al_trace("Invalid tile format encountered.\n");
+	
+	// BUG: This is triggered by the 'grab' option, and certainly others as well.
+	// if at any point a selected tile is 'blank' (newtilebuf[0] for example), then we have might a problem.
+	// These should probably be dealt with where they really occur, however simply returning a
+	// sane amount right now should fix any crashes associated with this. -Gleeok
+	return 256;
 }
 
 int32_t comboa_lmasktotal(byte layermask)

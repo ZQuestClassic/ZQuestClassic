@@ -74,6 +74,7 @@ int32_t jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *
 
 void get_root_path(char* path, int32_t size);
 void relativize_path(char* dest, char const* path);
+std::string relativize_path(std::string src_path);
 void derelativize_path(char* dest, char const* path);
 
 typedef struct EXT_LIST

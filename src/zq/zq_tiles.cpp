@@ -32,9 +32,9 @@
 #include "zqscale.h"
 #include "zc_custom.h"
 #include "questReport.h"
-#include "mem_debug.h"
 #include "dialog/info.h"
 #include "dialog/scaletile.h"
+#include "dialog/alert.h"
 
 extern zcmodule moduledata;
 
@@ -497,10 +497,10 @@ void go_tiles()
 		
 		if(newundotilebuf[i].data!=NULL)
 		{
-			zc_free(newundotilebuf[i].data);
+			free(newundotilebuf[i].data);
 		}
 		
-		newundotilebuf[i].data=(byte *)zc_malloc(tilesize(newundotilebuf[i].format));
+		newundotilebuf[i].data=(byte *)malloc(tilesize(newundotilebuf[i].format));
 		
 		if(newundotilebuf[i].data==NULL)
 		{
@@ -530,10 +530,10 @@ void go_slide_tiles(int32_t columns, int32_t rows, int32_t top, int32_t left)
 			
 			if(newundotilebuf[t].data!=NULL)
 			{
-				zc_free(newundotilebuf[t].data);
+				free(newundotilebuf[t].data);
 			}
 			
-			newundotilebuf[t].data=(byte *)zc_malloc(tilesize(newundotilebuf[t].format));
+			newundotilebuf[t].data=(byte *)malloc(tilesize(newundotilebuf[t].format));
 			
 			if(newundotilebuf[t].data==NULL)
 			{
@@ -564,10 +564,10 @@ void comeback_tiles()
 		
 		if(newtilebuf[i].data!=NULL)
 		{
-			zc_free(newtilebuf[i].data);
+			free(newtilebuf[i].data);
 		}
 		
-		newtilebuf[i].data=(byte *)zc_malloc(tilesize(newtilebuf[i].format));
+		newtilebuf[i].data=(byte *)malloc(tilesize(newtilebuf[i].format));
 		
 		if(newtilebuf[i].data==NULL)
 		{
@@ -905,7 +905,7 @@ bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *t
 				update_hw_screen();
 			}
 		}
-		
+		rest(1);
 	}
 	
 	if(over)
@@ -1880,6 +1880,11 @@ void shift_selection_grid(int32_t xoffs, int32_t yoffs)
 void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 {
 	go();
+	if (zc_get_config("zquest","hw_cursor",0) == 1)
+	{
+		select_mouse_cursor(MOUSE_CURSOR_ALLEGRO);
+		disable_hardware_cursor();
+	}
 	undocount = tilesize(newtilebuf[tile].format);
 	clear_selection_grid();
 	selecting_x1=selecting_x2=selecting_y1=selecting_y2=-1;
@@ -1942,6 +1947,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+		rest(1);
 	}
 	
 	int32_t move_origin_x=-1, move_origin_y=-1;
@@ -3139,6 +3145,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+		rest(1);
 	}
 	
 	if(done==1)
@@ -3186,6 +3193,11 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	destroy_bitmap(selection_pattern);
 	destroy_bitmap(selecting_pattern);
 	destroy_bitmap(intersection_pattern);
+	if (zc_get_config("zquest","hw_cursor",0) == 1)
+	{
+		select_mouse_cursor(MOUSE_CURSOR_ARROW);
+		enable_hardware_cursor();
+	}
 }
 
 /*  Grab Tile Code  */
@@ -3681,7 +3693,7 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	if(is_valid_format(newtilebuf[0].format))
 	{
 		hold.format = newtilebuf[0].format;
-		hold.data = (byte *)zc_malloc(tilesize(hold.format));
+		hold.data = (byte *)malloc(tilesize(hold.format));
 		memcpy(hold.data, newtilebuf[0].data, tilesize(hold.format));
 	}
 	else
@@ -3694,12 +3706,12 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	
 	if(newtilebuf[0].data!=NULL)
 	{
-		zc_free(newtilebuf[0].data);
+		free(newtilebuf[0].data);
 	}
 	
 	if(is_valid_format(newtilebuf[0].format))
 	{
-		newtilebuf[0].data = (byte *)zc_malloc(tilesize(newtilebuf[0].format));
+		newtilebuf[0].data = (byte *)malloc(tilesize(newtilebuf[0].format));
 		
 		for(int32_t i=0; i<tilesize(newtilebuf[0].format); i++)
 		{
@@ -3717,12 +3729,12 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	
 	if(newtilebuf[0].data!=NULL)
 	{
-		zc_free(newtilebuf[0].data);
+		free(newtilebuf[0].data);
 	}
 	
 	if(is_valid_format(newtilebuf[0].format))
 	{
-		newtilebuf[0].data = (byte *)zc_malloc(tilesize(newtilebuf[0].format));
+		newtilebuf[0].data = (byte *)malloc(tilesize(newtilebuf[0].format));
 		
 		for(int32_t i=0; i<newtilebuf[0].format*128; i++)
 		{
@@ -3736,7 +3748,7 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	
 	if(hold.data!=NULL)
 	{
-		zc_free(hold.data);
+		free(hold.data);
 	}
 	
 	puttile16(screen2,tile,208,192+yofs,cs,0);
@@ -3895,7 +3907,7 @@ void load_imagebuf()
 			break;
 			
 		case ftBIN:
-			zc_free(imagebuf);
+			free(imagebuf);
 			break;
 		}
 		
@@ -3936,11 +3948,11 @@ void load_imagebuf()
 		
 		if(imagesize)
 		{
-			imagebuf = zc_malloc(imagesize);
+			imagebuf = malloc(imagesize);
 			
 			if(!readfile(imagepath,imagebuf,imagesize))
 			{
-				zc_free(imagebuf);
+				free(imagebuf);
 				imagesize=0;
 				imagetype=0;
 			}
@@ -4538,10 +4550,10 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 			
 			if(dest[currtile].data!=NULL)
 			{
-				zc_free(dest[currtile].data);
+				free(dest[currtile].data);
 			}
 			
-			dest[currtile].data=(byte *)zc_malloc(tilesize(dest[currtile].format));
+			dest[currtile].data=(byte *)malloc(tilesize(dest[currtile].format));
 			
 			if(dest[currtile].data==NULL)
 			{
@@ -4882,6 +4894,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+		rest(1);
 	}
 	
 	do
@@ -5283,6 +5296,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 			while(key[KEY_ESC])
 			{
 				/* do nothing */
+				rest(1);
 			}
 			
 			clear_keybuf();
@@ -5301,6 +5315,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 				while(key[KEY_ESC])
 				{
 					/* do nothing */
+					rest(1);
 				}
 				
 				clear_keybuf();
@@ -5408,10 +5423,10 @@ void grab_tile(int32_t tile,int32_t &cs)
 				int32_t format=(bp==8) ? tf8Bit : tf4Bit;
 				
 				if(newtilebuf[temptile].data!=NULL)
-					zc_free(newtilebuf[temptile].data);
+					free(newtilebuf[temptile].data);
 				
 				newtilebuf[temptile].format=format;
-				newtilebuf[temptile].data=(byte *)zc_malloc(tilesize(format));
+				newtilebuf[temptile].data=(byte *)malloc(tilesize(format));
 				
 				//newtilebuf[temptile].format=newformat[(TILES_PER_ROW*y)+x];
 				
@@ -5768,9 +5783,9 @@ void reset_tile(tiledata *buf, int32_t t, int32_t format=1)
   buf[t].format=format;
   if (buf[t].data!=NULL)
   {
-	zc_free(buf[t].data);
+	free(buf[t].data);
   }
-  buf[t].data=(byte *)zc_malloc(tilesize(buf[t].format));
+  buf[t].data=(byte *)malloc(tilesize(buf[t].format));
   if (buf[t].data==NULL)
   {
 	Z_error_fatal("Unable to initialize tile #%d.\n", t);
@@ -5831,6 +5846,7 @@ static MENU select_tile_rc_menu[] =
 	{ (char *)"H-Flip",  NULL,  NULL, 0, NULL },
 	{ (char *)"V-Flip",  NULL,  NULL, 0, NULL },
 	{ (char *)"Create Combos",  NULL,  NULL, 0, NULL },
+	{ (char *)"Insert",  NULL,  NULL, 0, NULL },
 	{ NULL,              NULL,  NULL, 0, NULL }
 };
 
@@ -5858,7 +5874,7 @@ int32_t tile_page_row(int32_t tile)
 enum {ti_none, ti_encompass, ti_broken};
 
 //striped check and striped selection
-int32_t move_intersection_ss(newcombo &cmb, int32_t selection_first, int32_t selection_last)
+int32_t move_intersection_ss(newcombo &cmb, int32_t selection_first, int32_t selection_last, int32_t offset = 0)
 {
 	int32_t cmb_first = cmb.o_tile;
 	int32_t cmb_last = cmb.o_tile;
@@ -5869,6 +5885,8 @@ int32_t move_intersection_ss(newcombo &cmb, int32_t selection_first, int32_t sel
 	}
 	while(cmb.tile != cmb.o_tile);
 	reset_combo_animation(cmb);
+	cmb_first += offset;
+	cmb_last += offset;
 	
 	if(cmb_first > selection_last || cmb_last < selection_first)
 		return ti_none;
@@ -5877,7 +5895,7 @@ int32_t move_intersection_ss(newcombo &cmb, int32_t selection_first, int32_t sel
 	
 	do
 	{
-		if(cmb.tile >= selection_first && cmb.tile <= selection_last)
+		if(cmb.tile+offset >= selection_first && cmb.tile+offset <= selection_last)
 		{
 			reset_combo_animation(cmb);
 			return ti_broken; //contained, but non-encompassing.
@@ -5945,7 +5963,7 @@ int32_t move_intersection_rs(int32_t check_left, int32_t check_top, int32_t chec
 
 
 //striped check and rectangular selection
-int32_t move_intersection_sr(newcombo &cmb, int32_t selection_left, int32_t selection_top, int32_t selection_width, int32_t selection_height)
+int32_t move_intersection_sr(newcombo &cmb, int32_t selection_left, int32_t selection_top, int32_t selection_width, int32_t selection_height, int32_t offset = 0)
 {
 	if(selection_width < TILES_PER_ROW)
 	{
@@ -5958,6 +5976,8 @@ int32_t move_intersection_sr(newcombo &cmb, int32_t selection_left, int32_t sele
 		}
 		while(cmb.tile != cmb.o_tile);
 		reset_combo_animation(cmb);
+		cmb_first += offset;
+		cmb_last += offset;
 		
 		if((TILEROW(cmb_first)>=selection_top) &&
 				(TILEROW(cmb_last)<=selection_top+selection_height-1) &&
@@ -6034,7 +6054,7 @@ int32_t move_intersection_sr(newcombo &cmb, int32_t selection_left, int32_t sele
 		}
 	}
 	
-	return move_intersection_ss(cmb, selection_top*TILES_PER_ROW+selection_left, (selection_top+selection_height-1)*TILES_PER_ROW+selection_left+selection_width-1);
+	return move_intersection_ss(cmb, selection_top*TILES_PER_ROW+selection_left, (selection_top+selection_height-1)*TILES_PER_ROW+selection_left+selection_width-1, offset);
 }
 int32_t move_intersection_sr(int32_t check_first, int32_t check_last, int32_t selection_left, int32_t selection_top, int32_t selection_width, int32_t selection_height)
 {
@@ -6165,49 +6185,173 @@ move_tiles_item dmap_map_items[4]=
 	{ "Large Map (Filled)",     0, -1,  5 },
 };
 
-move_tiles_item hero_sprite_items[41]=
+enum
 {
+	//0
+	hspr_walk_up, hspr_walk_down, hspr_walk_left, hspr_walk_right,
+	//4
+	hspr_slash_up, hspr_slash_down, hspr_slash_left, hspr_slash_right,
+	//8
+	hspr_stab_up, hspr_stab_down, hspr_stab_left, hspr_stab_right,
+	//12
+	hspr_pound_up, hspr_pound_down, hspr_pound_left, hspr_pound_right,
+	//16
+	hspr_holdland_1, hspr_holdland_2,
+	hspr_casting,
+	//19
+	hspr_float_up, hspr_float_down, hspr_float_left, hspr_float_right,
+	//23
+	hspr_swim_up, hspr_swim_down, hspr_swim_left, hspr_swim_right,
+	//27
+	hspr_dive_up, hspr_dive_down, hspr_dive_left, hspr_dive_right,
+	//31
+	hspr_holdwater_1, hspr_holdwater_2,
+	//33
+	hspr_jump_up, hspr_jump_down, hspr_jump_left, hspr_jump_right,
+	//37
+	hspr_charge_up, hspr_charge_down, hspr_charge_left, hspr_charge_right,
+	//41
+	hspr_slash_2_up, hspr_slash_2_down, hspr_slash_2_left, hspr_slash_2_right,
+	//45
+	hspr_falling_up, hspr_falling_down, hspr_falling_left, hspr_falling_right,
+	//49
+	hspr_lifting_up, hspr_lifting_down, hspr_lifting_left, hspr_lifting_right,
+	//53
+	hspr_liftwalk_up, hspr_liftwalk_down, hspr_liftwalk_left, hspr_liftwalk_right,
+	//57
+	hspr_drown_up, hspr_drown_down, hspr_drown_left, hspr_drown_right,
+	//61
+	hspr_lavadrown_up, hspr_lavadrown_down, hspr_lavadrown_left, hspr_lavadrown_right,
+	//65
+	hspr_sideswim_up, hspr_sideswim_down, hspr_sideswim_left, hspr_sideswim_right,
+	//69
+	hspr_sideslash_up, hspr_sideslash_down, hspr_sideslash_left, hspr_sideslash_right,
+	//73
+	hspr_sidestab_up, hspr_sidestab_down, hspr_sidestab_left, hspr_sidestab_right,
+	//77
+	hspr_sidepound_up, hspr_sidepound_down, hspr_sidepound_left, hspr_sidepound_right,
+	//81
+	hspr_sidecharge_up, hspr_sidecharge_down, hspr_sidecharge_left, hspr_sidecharge_right,
+	//85
+	hspr_holdsidewater_1, hspr_holdsidewater_2,
+	hspr_sideswimcasting, hspr_sidedrowning,
+	num_hspr
+};
+
+move_tiles_item hero_sprite_items[num_hspr]=
+{
+	//0
 	{ "Walk (Up)",                0,  0,  0 },
 	{ "Walk (Down)",              0,  0,  0 },
 	{ "Walk (Left)",              0,  0,  0 },
 	{ "Walk (Right)",             0,  0,  0 },
+	//4
 	{ "Slash (Up)",               0,  0,  0 },
 	{ "Slash (Down)",             0,  0,  0 },
 	{ "Slash (Left)",             0,  0,  0 },
 	{ "Slash (Right)",            0,  0,  0 },
+	//8
 	{ "Stab (Up)",                0,  0,  0 },
 	{ "Stab (Down)",              0,  0,  0 },
 	{ "Stab (Left)",              0,  0,  0 },
 	{ "Stab (Right)",             0,  0,  0 },
+	//12
 	{ "Pound (Up)",               0,  0,  0 },
 	{ "Pound (Down)",             0,  0,  0 },
 	{ "Pound (Left)",             0,  0,  0 },
 	{ "Pound (Right)",            0,  0,  0 },
+	//16
 	{ "Hold (Land, One Hand)",    0,  0,  0 },
 	{ "Hold (Land, Two Hands)",   0,  0,  0 },
 	{ "Cast",                     0,  0,  0 },
+	//19
 	{ "Float (Up)",               0,  0,  0 },
 	{ "Float (Down)",             0,  0,  0 },
 	{ "Float (Left)",             0,  0,  0 },
 	{ "Float (Right)",            0,  0,  0 },
+	//23
 	{ "Swim (Up)",                0,  0,  0 },
 	{ "Swim (Down)",              0,  0,  0 },
 	{ "Swim (Left)",              0,  0,  0 },
 	{ "Swim (Right)",             0,  0,  0 },
+	//27
 	{ "Dive (Up)",                0,  0,  0 },
 	{ "Dive (Down)",              0,  0,  0 },
 	{ "Dive (Left)",              0,  0,  0 },
 	{ "Dive (Right)",             0,  0,  0 },
+	//31
 	{ "Hold (Water, One Hand)",   0,  0,  0 },
 	{ "Hold (Water, Two Hands)",  0,  0,  0 },
+	//33
 	{ "Jump (Up)",                0,  0,  0 },
 	{ "Jump (Down)",              0,  0,  0 },
 	{ "Jump (Left)",              0,  0,  0 },
 	{ "Jump (Right)",             0,  0,  0 },
+	//37
 	{ "Charge (Up)",              0,  0,  0 },
 	{ "Charge (Down)",            0,  0,  0 },
 	{ "Charge (Left)",            0,  0,  0 },
 	{ "Charge (Right)",           0,  0,  0 },
+	//41
+	{ "Slash 2 (Up)",             0,  0,  0 },
+	{ "Slash 2 (Down)",           0,  0,  0 },
+	{ "Slash 2 (Left)",           0,  0,  0 },
+	{ "Slash 2 (Right)",          0,  0,  0 },
+	//45
+	{ "Falling (Up)",             0,  0,  0 },
+	{ "Falling (Down)",           0,  0,  0 },
+	{ "Falling (Left)",           0,  0,  0 },
+	{ "Falling (Right)",          0,  0,  0 },
+	//49
+	{ "Lifting (Up)",             0,  0,  0 },
+	{ "Lifting (Down)",           0,  0,  0 },
+	{ "Lifting (Left)",           0,  0,  0 },
+	{ "Lifting (Right)",          0,  0,  0 },
+	//53
+	{ "LiftWalk (Up)",            0,  0,  0 },
+	{ "LiftWalk (Down)",          0,  0,  0 },
+	{ "LiftWalk (Left)",          0,  0,  0 },
+	{ "LiftWalk (Right)",         0,  0,  0 },
+	//57
+	{ "Drown (Up)",               0,  0,  0 },
+	{ "Drown (Down)",             0,  0,  0 },
+	{ "Drown (Left)",             0,  0,  0 },
+	{ "Drown (Right)",            0,  0,  0 },
+	//61
+	{ "LavaDrown (Up)",           0,  0,  0 },
+	{ "LavaDrown (Down)",         0,  0,  0 },
+	{ "LavaDrown (Left)",         0,  0,  0 },
+	{ "LavaDrown (Right)",        0,  0,  0 },
+	//65
+	{ "SideSwim (Up)",            0,  0,  0 },
+	{ "SideSwim (Down)",          0,  0,  0 },
+	{ "SideSwim (Left)",          0,  0,  0 },
+	{ "SideSwim (Right)",         0,  0,  0 },
+	//69
+	{ "SideSlash (Up)",           0,  0,  0 },
+	{ "SideSlash (Down)",         0,  0,  0 },
+	{ "SideSlash (Left)",         0,  0,  0 },
+	{ "SideSlash (Right)",        0,  0,  0 },
+	//73
+	{ "SideStab (Up)",            0,  0,  0 },
+	{ "SideStab (Down)",          0,  0,  0 },
+	{ "SideStab (Left)",          0,  0,  0 },
+	{ "SideStab (Right)",         0,  0,  0 },
+	//77
+	{ "SidePound (Up)",           0,  0,  0 },
+	{ "SidePound (Down)",         0,  0,  0 },
+	{ "SidePound (Left)",         0,  0,  0 },
+	{ "SidePound (Right)",        0,  0,  0 },
+	//81
+	{ "SideCharge (Up)",          0,  0,  0 },
+	{ "SideCharge (Down)",        0,  0,  0 },
+	{ "SideCharge (Left)",        0,  0,  0 },
+	{ "SideCharge (Right)",       0,  0,  0 },
+	//85
+	{ "Hold (SideWater, One Hand)",   0,  0,  0 },
+	{ "Hold (SideWater, Two Hands)",  0,  0,  0 },
+	{ "SideSwim Casting",             0,  0,  0 },
+	{ "SideDrown",                    0,  0,  0 },
 };
 
 int32_t quick_select_3(int32_t a, int32_t b, int32_t c, int32_t d)
@@ -6299,6 +6443,89 @@ void setup_hero_sprite_items()
 		hero_sprite_items[37+i].width=(chargespr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 2, 3, 9) + (chargespr[i][spr_extend]<2?0:1);
 		hero_sprite_items[37+i].height=chargespr[i][spr_extend]<2?1:2;
 	}
+	for(int32_t i=0; i<4; ++i)
+	{
+		hero_sprite_items[41+i].tile=revslashspr[i][spr_tile]-(revslashspr[i][spr_extend]<2?0:1)-(revslashspr[i][spr_extend]<1?0:TILES_PER_ROW);
+		hero_sprite_items[41+i].width=(revslashspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 1, 1, 6) + (revslashspr[i][spr_extend]<2?0:1);;
+		hero_sprite_items[41+i].height=revslashspr[i][spr_extend]<2?1:2;
+	}
+	for(int32_t i=0; i<4; ++i)
+	{
+		hero_sprite_items[45+i].tile=fallingspr[i][spr_tile]-(fallingspr[i][spr_extend]<2?0:1)-(fallingspr[i][spr_extend]<1?0:TILES_PER_ROW);
+		hero_sprite_items[45+i].width=(fallingspr[i][spr_extend]<2?1:2) * 7;
+		hero_sprite_items[45+i].height=fallingspr[i][spr_extend]<2?1:2;
+	}
+	for(int32_t i=0; i<4; ++i)
+	{
+		hero_sprite_items[49+i].tile=liftingspr[i][spr_tile]-(liftingspr[i][spr_extend]<2?0:1)-(liftingspr[i][spr_extend]<1?0:TILES_PER_ROW);
+		hero_sprite_items[49+i].width=(liftingspr[i][spr_extend]<2?1:2) * liftingspr[i][spr_frames] + (liftingspr[i][spr_extend]<2?0:1);
+		hero_sprite_items[49+i].height=liftingspr[i][spr_extend]<2?1:2;
+	}
+	for(int32_t i=0; i<4; ++i)
+	{
+		hero_sprite_items[53+i].tile=liftingwalkspr[i][spr_tile]-(liftingwalkspr[i][spr_extend]<2?0:1)-(liftingwalkspr[i][spr_extend]<1?0:TILES_PER_ROW);
+		hero_sprite_items[53+i].width=(liftingwalkspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, (i==0?1:2), 3, 9) + (liftingwalkspr[i][spr_extend]<2?0:1);
+		hero_sprite_items[53+i].height=liftingwalkspr[i][spr_extend]<2?1:2;
+	}
+	for(int32_t i=0; i<4; ++i)
+	{
+		hero_sprite_items[57+i].tile=drowningspr[i][spr_tile]-(drowningspr[i][spr_extend]<2?0:1)-(drowningspr[i][spr_extend]<1?0:TILES_PER_ROW);
+		hero_sprite_items[57+i].width=(drowningspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 2, 3, 3);
+		hero_sprite_items[57+i].height=drowningspr[i][spr_extend]<2?1:2;
+	}
+	for(int32_t i=0; i<4; ++i)
+	{
+		hero_sprite_items[61+i].tile=drowning_lavaspr[i][spr_tile]-(drowning_lavaspr[i][spr_extend]<2?0:1)-(drowning_lavaspr[i][spr_extend]<1?0:TILES_PER_ROW);
+		hero_sprite_items[61+i].width=(drowning_lavaspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 2, 3, 3);
+		hero_sprite_items[61+i].height=drowning_lavaspr[i][spr_extend]<2?1:2;
+	}
+	for(int32_t i=0; i<4; ++i)
+	{
+		hero_sprite_items[61+i].tile=sideswimspr[i][spr_tile]-(sideswimspr[i][spr_extend]<2?0:1)-(sideswimspr[i][spr_extend]<1?0:TILES_PER_ROW);
+		hero_sprite_items[61+i].width=(sideswimspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 2, 3, 3);
+		hero_sprite_items[61+i].height=sideswimspr[i][spr_extend]<2?1:2;
+	}
+	//69
+	for(int32_t i=0; i<4; ++i)
+	{
+		hero_sprite_items[69+i].tile=sideswimslashspr[i][spr_tile]-(sideswimslashspr[i][spr_extend]<2?0:1)-(sideswimslashspr[i][spr_extend]<1?0:TILES_PER_ROW);
+		hero_sprite_items[69+i].width=(sideswimslashspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 1, 1, 6) + (sideswimslashspr[i][spr_extend]<2?0:1);;
+		hero_sprite_items[69+i].height=sideswimslashspr[i][spr_extend]<2?1:2;
+	}
+	//73
+	for(int32_t i=0; i<4; ++i)
+	{
+		hero_sprite_items[73+i].tile=sideswimstabspr[i][spr_tile]-(sideswimstabspr[i][spr_extend]<2?0:1)-(sideswimstabspr[i][spr_extend]<1?0:TILES_PER_ROW);
+		hero_sprite_items[73+i].width=(sideswimstabspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 1, 1, 3) + (sideswimstabspr[i][spr_extend]<2?0:1);;
+		hero_sprite_items[73+i].height=sideswimstabspr[i][spr_extend]<2?1:2;
+	}
+	//77
+	for(int32_t i=0; i<4; ++i)
+	{
+		hero_sprite_items[77+i].tile=sideswimpoundspr[i][spr_tile]-(sideswimpoundspr[i][spr_extend]<2?0:1)-(sideswimpoundspr[i][spr_extend]<1?0:TILES_PER_ROW);
+		hero_sprite_items[77+i].width=(sideswimpoundspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 1, 1, 3) + (sideswimpoundspr[i][spr_extend]<2?0:1);;
+		hero_sprite_items[77+i].height=sideswimpoundspr[i][spr_extend]<2?1:2;
+	}
+	//81
+	for(int32_t i=0; i<4; ++i)
+	{
+		hero_sprite_items[81+i].tile=sideswimchargespr[i][spr_tile]-(sideswimchargespr[i][spr_extend]<2?0:1)-(sideswimchargespr[i][spr_extend]<1?0:TILES_PER_ROW);
+		hero_sprite_items[81+i].width=(sideswimchargespr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 2, 3, 9) + (sideswimchargespr[i][spr_extend]<2?0:1);
+		hero_sprite_items[81+i].height=sideswimchargespr[i][spr_extend]<2?1:2;
+	}
+	//85
+	hero_sprite_items[85].tile=sideswimholdspr[spr_hold1][spr_tile]-(sideswimholdspr[spr_hold1][spr_extend]<2?0:1)-(sideswimholdspr[spr_hold1][spr_extend]<1?0:TILES_PER_ROW);
+	hero_sprite_items[85].width=sideswimholdspr[spr_hold1][spr_extend]<2?1:2;
+	hero_sprite_items[85].height=sideswimholdspr[spr_hold1][spr_extend]<2?1:2;
+	hero_sprite_items[86].tile=sideswimholdspr[spr_hold2][spr_tile]-(sideswimholdspr[spr_hold2][spr_extend]<2?0:1)-(sideswimholdspr[spr_hold2][spr_extend]<1?0:TILES_PER_ROW);
+	hero_sprite_items[86].width=sideswimholdspr[spr_hold2][spr_extend]<2?1:2;
+	hero_sprite_items[86].height=sideswimholdspr[spr_hold2][spr_extend]<2?1:2;
+	hero_sprite_items[87].tile=sideswimcastingspr[spr_tile]-(sideswimcastingspr[spr_extend]<2?0:1)-(sideswimcastingspr[spr_extend]<1?0:TILES_PER_ROW);
+	hero_sprite_items[87].width=(sideswimcastingspr[spr_extend]<2?1:2) + (sideswimcastingspr[spr_extend]<2?0:1);;
+	hero_sprite_items[87].height=sideswimcastingspr[spr_extend]<2?1:2;
+	hero_sprite_items[88].tile=sidedrowningspr[down][spr_tile]-(sidedrowningspr[down][spr_extend]<2?0:1)-(sidedrowningspr[down][spr_extend]<1?0:TILES_PER_ROW);
+	hero_sprite_items[88].width=(sidedrowningspr[down][spr_extend]<2?1:2) * quick_select_3(a_style, 2, 3, 3);
+	hero_sprite_items[88].height=sidedrowningspr[down][spr_extend]<2?1:2;
 }
 
 void register_used_tiles()
@@ -6423,7 +6650,7 @@ void register_used_tiles()
 			break;
 		}
 		
-		for(int32_t t=zc_max(wpnsbuf[u].newtile,0); t<zc_min(wpnsbuf[u].newtile+zc_max((ignore_frames?0:wpnsbuf[u].frames),1)+m,NEWMAXTILES); ++t)
+		for(int32_t t=zc_max(wpnsbuf[u].tile,0); t<zc_min(wpnsbuf[u].tile+zc_max((ignore_frames?0:wpnsbuf[u].frames),1)+m,NEWMAXTILES); ++t)
 		{
 			used_tile_table[t]=true;
 		}
@@ -6435,7 +6662,7 @@ void register_used_tiles()
 	setup_hero_sprite_items();
 	
 //  i=move_intersection_rs(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, selection_first, selection_last);
-	for(int32_t u=0; u<41; u++)
+	for(int32_t u=0; u<num_hspr; u++)
 	{
 		for(int32_t r=zc_max(TILEROW(hero_sprite_items[u].tile),0); r<zc_min(TILEROW(hero_sprite_items[u].tile)+zc_max(hero_sprite_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
 		{
@@ -6689,6 +6916,128 @@ bool overlay_tiles_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copy
 	return copied;
 }
 
+void handle_hero_sprite_move(bool* move_hero_sprites_list, int32_t diff)
+{
+	for(size_t u=0; u<num_hspr; ++u)
+	{
+		if(move_hero_sprites_list[u])
+		{
+			switch(u)
+			{
+				case hspr_walk_up: case hspr_walk_down:
+				case hspr_walk_left: case hspr_walk_right:
+					walkspr[u][spr_tile]+=diff;
+					break;
+					
+				case hspr_slash_up: case hspr_slash_down:
+				case hspr_slash_left: case hspr_slash_right:
+					slashspr[u-hspr_slash_up][spr_tile]+=diff;
+					break;
+					
+				case hspr_stab_up: case hspr_stab_down:
+				case hspr_stab_left: case hspr_stab_right:
+					stabspr[u-hspr_stab_up][spr_tile]+=diff;
+					break;
+					
+				case hspr_pound_up: case hspr_pound_down:
+				case hspr_pound_left: case hspr_pound_right:
+					poundspr[u-hspr_pound_up][spr_tile]+=diff;
+					break;
+					
+				case hspr_holdland_1: case hspr_holdland_2:
+					holdspr[0][u-hspr_holdland_1][spr_tile]+=diff;
+					break;
+					
+				case hspr_casting:
+					castingspr[spr_tile]+=diff;
+					break;
+					
+				case hspr_float_up: case hspr_float_down:
+				case hspr_float_left: case hspr_float_right:
+					floatspr[u-hspr_float_up][spr_tile]+=diff;
+					break;
+					
+				case hspr_swim_up: case hspr_swim_down:
+				case hspr_swim_left: case hspr_swim_right: 
+					swimspr[u-hspr_swim_up][spr_tile]+=diff;
+					break;
+					
+				case hspr_dive_up: case hspr_dive_down:
+				case hspr_dive_left: case hspr_dive_right:
+					divespr[u-hspr_dive_up][spr_tile]+=diff;
+					break;
+					
+				case hspr_holdwater_1: case hspr_holdwater_2:
+					holdspr[1][u-hspr_holdwater_1][spr_tile]+=diff;
+					break;
+					
+				case hspr_jump_up: case hspr_jump_down:
+				case hspr_jump_left: case hspr_jump_right:
+					jumpspr[u-hspr_jump_up][spr_tile]+=diff;
+					break;
+					
+				case hspr_charge_up: case hspr_charge_down:
+				case hspr_charge_left: case hspr_charge_right:
+					chargespr[u-hspr_charge_up][spr_tile]+=diff;
+					break;
+				case hspr_slash_2_up: case hspr_slash_2_down:
+				case hspr_slash_2_left: case hspr_slash_2_right:
+					revslashspr[u-hspr_slash_2_up][spr_tile]+=diff;
+					break;
+				case hspr_falling_up: case hspr_falling_down:
+				case hspr_falling_left: case hspr_falling_right:
+					fallingspr[u-hspr_falling_up][spr_tile]+=diff;
+					break;
+				case hspr_lifting_up: case hspr_lifting_down:
+				case hspr_lifting_left: case hspr_lifting_right:
+					liftingspr[u-hspr_lifting_up][spr_tile]+=diff;
+					break;
+				case hspr_liftwalk_up: case hspr_liftwalk_down:
+				case hspr_liftwalk_left: case hspr_liftwalk_right:
+					liftingwalkspr[u-hspr_liftwalk_up][spr_tile]+=diff;
+					break;
+				case hspr_drown_up: case hspr_drown_down:
+				case hspr_drown_left: case hspr_drown_right:
+					drowningspr[u-hspr_drown_up][spr_tile]+=diff;
+					break;
+				case hspr_lavadrown_up: case hspr_lavadrown_down:
+				case hspr_lavadrown_left: case hspr_lavadrown_right:
+					drowning_lavaspr[u-hspr_lavadrown_up][spr_tile]+=diff;
+					break;
+				case hspr_sideswim_up: case hspr_sideswim_down:
+				case hspr_sideswim_left: case hspr_sideswim_right:
+					sideswimspr[u-hspr_sideswim_up][spr_tile]+=diff;
+					break;
+				case hspr_sideslash_up: case hspr_sideslash_down:
+				case hspr_sideslash_left: case hspr_sideslash_right:
+					sideswimslashspr[u-hspr_sideslash_up][spr_tile]+=diff;
+					break;
+				case hspr_sidestab_up: case hspr_sidestab_down:
+				case hspr_sidestab_left: case hspr_sidestab_right:
+					sideswimstabspr[u-hspr_sidestab_up][spr_tile]+=diff;
+					break;
+				case hspr_sidepound_up: case hspr_sidepound_down:
+				case hspr_sidepound_left: case hspr_sidepound_right:
+					sideswimpoundspr[u-hspr_sidepound_up][spr_tile]+=diff;
+					break;
+				case hspr_sidecharge_up: case hspr_sidecharge_down:
+				case hspr_sidecharge_left: case hspr_sidecharge_right:
+					sideswimchargespr[u-hspr_sidecharge_up][spr_tile]+=diff;
+					break;
+				case hspr_holdsidewater_1: case hspr_holdsidewater_2: 
+					sideswimholdspr[u-hspr_holdsidewater_1][spr_tile]+=diff;
+					break;
+				case hspr_sideswimcasting:
+					sideswimcastingspr[spr_tile]+=diff;
+					break;
+				case hspr_sidedrowning: 
+					sidedrowningspr[down][spr_tile]+=diff;
+					break;
+			}
+		}
+	}
+}
+
 bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect, bool move, int32_t cs, bool backwards)
 {
 	bool alt=(key[KEY_ALT]||key[KEY_ALTGR]);
@@ -6903,7 +7252,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 	bool *move_combo_list = new bool[MAXCOMBOS];
 	bool *move_items_list = new bool[iMax];
 	bool *move_weapons_list = new bool[wMAX];
-	bool move_hero_sprites_list[41];
+	bool move_hero_sprites_list[num_hspr];
 	bool move_mapstyles_list[6];
 	//bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
 	bool move_game_icons_list[4];
@@ -7327,7 +7676,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				flood=false;
 				setup_hero_sprite_items();
 				
-				for(int32_t u=0; u<41; u++)
+				for(int32_t u=0; u<num_hspr; u++)
 				{
 					move_hero_sprites_list[u]=false;
 					
@@ -8153,91 +8502,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				}
 			}
 			
-			for(int32_t u=0; u<41; u++)
-			{
-				if(move_hero_sprites_list[u])
-				{
-					switch(u)
-					{
-					case 0:
-					case 1:
-					case 2:
-					case 3:
-						walkspr[u][spr_tile]+=diff;
-						break;
-						
-					case 4:
-					case 5:
-					case 6:
-					case 7:
-						slashspr[u-4][spr_tile]+=diff;
-						break;
-						
-					case 8:
-					case 9:
-					case 10:
-					case 11:
-						stabspr[u-8][spr_tile]+=diff;
-						break;
-						
-					case 12:
-					case 13:
-					case 14:
-					case 15:
-						poundspr[u-12][spr_tile]+=diff;
-						break;
-						
-					case 16:
-					case 17:
-						holdspr[0][u-16][spr_tile]+=diff;
-						break;
-						
-					case 18:
-						castingspr[spr_tile]+=diff;
-						break;
-						
-					case 19:
-					case 20:
-					case 21:
-					case 22:
-						floatspr[u-19][spr_tile]+=diff;
-						break;
-						
-					case 23:
-					case 24:
-					case 25:
-					case 26:
-						swimspr[u-23][spr_tile]+=diff;
-						break;
-						
-					case 27:
-					case 28:
-					case 29:
-					case 30:
-						divespr[u-27][spr_tile]+=diff;
-						break;
-						
-					case 31:
-					case 32:
-						holdspr[1][u-31][spr_tile]+=diff;
-						break;
-						
-					case 33:
-					case 34:
-					case 35:
-					case 36:
-						jumpspr[u-33][spr_tile]+=diff;
-						break;
-						
-					case 37:
-					case 38:
-					case 39:
-					case 40:
-						chargespr[u-37][spr_tile]+=diff;
-						break;
-					}
-				}
-			}
+			handle_hero_sprite_move(move_hero_sprites_list,diff);
 			
 			for(int32_t u=0; u<6; u++)
 			{
@@ -8542,7 +8807,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 	bool *move_combo_list = new bool[MAXCOMBOS];
 	bool *move_items_list = new bool[iMax];
 	bool *move_weapons_list = new bool[wMAX];
-	bool move_hero_sprites_list[41];
+	bool move_hero_sprites_list[num_hspr];
 	bool move_mapstyles_list[6];
 	//bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
 	bool move_game_icons_list[4];
@@ -8966,7 +9231,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				flood=false;
 				setup_hero_sprite_items();
 				
-				for(int32_t u=0; u<41; u++)
+				for(int32_t u=0; u<num_hspr; u++)
 				{
 					move_hero_sprites_list[u]=false;
 					
@@ -9792,91 +10057,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				}
 			}
 			
-			for(int32_t u=0; u<41; u++)
-			{
-				if(move_hero_sprites_list[u])
-				{
-					switch(u)
-					{
-					case 0:
-					case 1:
-					case 2:
-					case 3:
-						walkspr[u][spr_tile]+=diff;
-						break;
-						
-					case 4:
-					case 5:
-					case 6:
-					case 7:
-						slashspr[u-4][spr_tile]+=diff;
-						break;
-						
-					case 8:
-					case 9:
-					case 10:
-					case 11:
-						stabspr[u-8][spr_tile]+=diff;
-						break;
-						
-					case 12:
-					case 13:
-					case 14:
-					case 15:
-						poundspr[u-12][spr_tile]+=diff;
-						break;
-						
-					case 16:
-					case 17:
-						holdspr[0][u-16][spr_tile]+=diff;
-						break;
-						
-					case 18:
-						castingspr[spr_tile]+=diff;
-						break;
-						
-					case 19:
-					case 20:
-					case 21:
-					case 22:
-						floatspr[u-19][spr_tile]+=diff;
-						break;
-						
-					case 23:
-					case 24:
-					case 25:
-					case 26:
-						swimspr[u-23][spr_tile]+=diff;
-						break;
-						
-					case 27:
-					case 28:
-					case 29:
-					case 30:
-						divespr[u-27][spr_tile]+=diff;
-						break;
-						
-					case 31:
-					case 32:
-						holdspr[1][u-31][spr_tile]+=diff;
-						break;
-						
-					case 33:
-					case 34:
-					case 35:
-					case 36:
-						jumpspr[u-33][spr_tile]+=diff;
-						break;
-						
-					case 37:
-					case 38:
-					case 39:
-					case 40:
-						chargespr[u-37][spr_tile]+=diff;
-						break;
-					}
-				}
-			}
+			handle_hero_sprite_move(move_hero_sprites_list,diff);
 			
 			for(int32_t u=0; u<6; u++)
 			{
@@ -10003,7 +10184,8 @@ bool do_movetile_united(tile_move_data const& tmd)
 	bool *move_combo_list = new bool[MAXCOMBOS];
 	bool *move_items_list = new bool[iMax];
 	bool *move_weapons_list = new bool[wMAX];
-	bool move_hero_sprites_list[41];
+	bool *move_enemy_list = new bool[eMAXGUYS];
+	bool move_hero_sprites_list[num_hspr];
 	bool move_mapstyles_list[6];
 	//bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
 	bool move_game_icons_list[4];
@@ -10014,32 +10196,34 @@ bool do_movetile_united(tile_move_data const& tmd)
 	// if delete erases other defined tiles
 	int32_t selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
 	bool done = false;
-	
-	for(int32_t q=0; q<2 && !done; ++q)
+	bool first = true;
+	bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
+	int32_t diff = 0;
+	for(int32_t q=tmd.move?1:0; q>=0 && !done; --q)
 	{
-	
 		switch(q)
 		{
-		case 0:
-			selection_first=tmd.dest_first;
-			selection_last=tmd.dest_last;
-			selection_left=tmd.dest_left;
-			selection_top=tmd.dest_top;
-			selection_width=tmd.dest_width;
-			selection_height=tmd.dest_height;
-			break;
-			
-		case 1:
-			selection_first=tmd.src_first;
-			selection_last=tmd.src_last;
-			selection_left=tmd.src_left;
-			selection_top=tmd.src_top;
-			selection_width=tmd.src_width;
-			selection_height=tmd.src_height;
-			break;
+			case 0:
+				if(tmd.move)
+					diff = tmd.dest_first-tmd.src_first;
+				selection_first=tmd.dest_first;
+				selection_last=tmd.dest_last;
+				selection_left=tmd.dest_left;
+				selection_top=tmd.dest_top;
+				selection_width=tmd.dest_width;
+				selection_height=tmd.dest_height;
+				break;
+				
+			case 1: case 2:
+				selection_first=tmd.src_first;
+				selection_last=tmd.src_last;
+				selection_left=tmd.src_left;
+				selection_top=tmd.src_top;
+				selection_width=tmd.src_width;
+				selection_height=tmd.src_height;
+				break;
 		}
 		
-		if(tmd.move||q==0)
 		{
 			//check combos
 			if(!done)
@@ -10051,7 +10235,8 @@ bool do_movetile_united(tile_move_data const& tmd)
 				
 				for(int32_t u=0; u<MAXCOMBOS; u++)
 				{
-					move_combo_list[u]=false;
+					if(first) move_combo_list[u]=false;
+					else if(move_combo_list[u]) continue;
 					
 					if(tmd.rect)
 					{
@@ -10083,9 +10268,9 @@ bool do_movetile_united(tile_move_data const& tmd)
 							
 							found=true;
 						}
-						else if(i==ti_encompass)
+						else if (i == ti_encompass)
 						{
-							move_combo_list[u]=true;
+							move_combo_list[u] = true;
 						}
 					}
 				}
@@ -10096,7 +10281,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					if(tmd.move)
 					{
-						sprintf(buf3, "will be partially cleared by the tmd.move.");
+						sprintf(buf3, "will be partially cleared by the move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -10138,7 +10323,8 @@ bool do_movetile_united(tile_move_data const& tmd)
 				
 				for(int32_t u=0; u<iMax; u++)
 				{
-					move_items_list[u]=false;
+					if(first) move_items_list[u]=false;
+					else if(move_items_list[u]) continue;
 					
 					if(tmd.rect)
 					{
@@ -10183,7 +10369,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					if(tmd.move)
 					{
-						sprintf(buf3, "will be partially cleared by the tmd.move.");
+						sprintf(buf3, "will be partially cleared by the move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -10227,7 +10413,9 @@ bool do_movetile_united(tile_move_data const& tmd)
 				for(int32_t u=0; u<wMAX; u++)
 				{
 					ignore_frames=false;
-					move_weapons_list[u]=false;
+					if(first) move_weapons_list[u]=false;
+					else if(move_weapons_list[u]) continue;
+					
 					int32_t m=0;
 					
 					switch(biw[u].i)
@@ -10314,14 +10502,14 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					if(tmd.rect)
 					{
-						i=move_intersection_sr(wpnsbuf[biw[u].i].newtile, wpnsbuf[biw[u].i].newtile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_left, selection_top, selection_width, selection_height);
+						i=move_intersection_sr(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_left, selection_top, selection_width, selection_height);
 					}
 					else
 					{
-						i=move_intersection_ss(wpnsbuf[biw[u].i].newtile, wpnsbuf[biw[u].i].newtile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_first, selection_last);
+						i=move_intersection_ss(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_first, selection_last);
 					}
 					
-					if((i!=ti_none)&&(wpnsbuf[biw[u].i].newtile!=0))
+					if((i!=ti_none)&&(wpnsbuf[biw[u].i].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
@@ -10387,7 +10575,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					if(tmd.move)
 					{
-						sprintf(buf3, "will be partially cleared by the tmd.move.");
+						sprintf(buf3, "will be partially cleared by the move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -10427,9 +10615,10 @@ bool do_movetile_united(tile_move_data const& tmd)
 				flood=false;
 				setup_hero_sprite_items();
 				
-				for(int32_t u=0; u<41; u++)
+				for(int32_t u=0; u<num_hspr; u++)
 				{
-					move_hero_sprites_list[u]=false;
+					if(first) move_hero_sprites_list[u]=false;
+					else if(move_hero_sprites_list[u]) continue;
 					
 					if(tmd.rect)
 					{
@@ -10474,7 +10663,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					if(tmd.move)
 					{
-						sprintf(buf3, "will be partially cleared by the tmd.move.");
+						sprintf(buf3, "will be partially cleared by the move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -10542,7 +10731,8 @@ bool do_movetile_united(tile_move_data const& tmd)
 				
 				for(int32_t u=0; u<6; u++)
 				{
-					move_mapstyles_list[u]=false;
+					if(first) move_mapstyles_list[u]=false;
+					else if(move_mapstyles_list[u]) continue;
 					
 					if(tmd.rect)
 					{
@@ -10587,7 +10777,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					if(tmd.move)
 					{
-						sprintf(buf3, "items will be partially cleared by the tmd.move.");
+						sprintf(buf3, "items will be partially cleared by the move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -10632,7 +10822,8 @@ bool do_movetile_united(tile_move_data const& tmd)
 				
 				for(int32_t u=0; u<4; u++)
 				{
-					move_game_icons_list[u]=false;
+					if(first) move_game_icons_list[u]=false;
+					else if(move_game_icons_list[u]) continue;
 					
 					if(tmd.rect)
 					{
@@ -10706,7 +10897,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					if(tmd.move)
 					{
-						sprintf(buf3, "will be partially cleared by the tmd.move.");
+						sprintf(buf3, "will be partially cleared by the move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -10757,7 +10948,8 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					for(int32_t u=0; u<4; u++)
 					{
-						move_dmap_maps_list[t][u]=false;
+						if(first) move_dmap_maps_list[t][u]=false;
+						else if(move_dmap_maps_list[t][u]) continue;
 						
 						if(tmd.rect)
 						{
@@ -10803,7 +10995,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					if(tmd.move)
 					{
-						sprintf(buf3, "subscreen maps will be partially cleared by the tmd.move.");
+						sprintf(buf3, "subscreen maps will be partially cleared by the move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -10842,11 +11034,12 @@ bool do_movetile_united(tile_move_data const& tmd)
 				found=false;
 				flood=false;
 				build_bie_list(false);
-				bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
 				int32_t u;
 				
 				for(u=0; u<eMAXGUYS; u++)
 				{
+					if(first) move_enemy_list[u] = false;
+					else if(move_enemy_list[u]) continue;
 					const guydata& enemy=guysbuf[bie[u].i];
 					bool darknut=false;
 					int32_t gleeok=0;
@@ -10920,9 +11113,13 @@ bool do_movetile_united(tile_move_data const& tmd)
 							
 							found=true;
 						}
+						else if(i == ti_encompass)
+							move_enemy_list[u] = true;
 						
 						if(darknut)
 						{
+							bool did_move = move_enemy_list[u];
+							if(first) move_enemy_list[u] = false;
 							if(tmd.rect)
 							{
 								i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile+120), TILEROW(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
@@ -10951,9 +11148,13 @@ bool do_movetile_united(tile_move_data const& tmd)
 								
 								found=true;
 							}
+							else if(i == ti_encompass && did_move)
+								move_enemy_list[u] = true;
 						}
-						else if(enemy.family==eeGANON && i==ti_none)
+						else if(enemy.family==eeGANON && i!=ti_broken)
 						{
+							bool did_move = move_enemy_list[u];
+							if(first) move_enemy_list[u] = false;
 							if(tmd.rect)
 							{
 								i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_left, selection_top, selection_width, selection_height);
@@ -10982,9 +11183,13 @@ bool do_movetile_united(tile_move_data const& tmd)
 								
 								found=true;
 							}
+							else if(i == ti_encompass && did_move)
+								move_enemy_list[u] = true;
 						}
-						else if(gleeok && i==ti_none)
+						else if(gleeok && i!=ti_broken)
 						{
+							bool did_move = move_enemy_list[u];
+							if(first) move_enemy_list[u] = false;
 							for(int32_t j=0; j<4 && i==ti_none; ++j)
 							{
 								if(tmd.rect)
@@ -11043,6 +11248,8 @@ bool do_movetile_united(tile_move_data const& tmd)
 								
 								found=true;
 							}
+							else if(i == ti_encompass && did_move)
+								move_enemy_list[u] = true;
 						}
 					}
 					else
@@ -11093,9 +11300,13 @@ bool do_movetile_united(tile_move_data const& tmd)
 							
 							found=true;
 						}
+						else if(i == ti_encompass)
+							move_enemy_list[u] = true;
 						
 						if(guysbuf[bie[u].i].s_tile!=0)
 						{
+							bool did_move = move_enemy_list[u];
+							if(first) move_enemy_list[u] = false;
 							if(guysbuf[bie[u].i].s_height==0)
 							{
 								if(tmd.rect)
@@ -11138,6 +11349,8 @@ bool do_movetile_united(tile_move_data const& tmd)
 								
 								found=true;
 							}
+							else if(i == ti_encompass && did_move)
+								move_enemy_list[u] = true;
 						}
 					}
 				}
@@ -11148,7 +11361,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					if(tmd.move)
 					{
-						sprintf(buf3, "will be partially cleared by the tmd.move.");
+						sprintf(buf3, "will be partially cleared by the move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -11179,6 +11392,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 				}
 			}
 		}
+		first = false;
 	}
 	
 	//
@@ -11279,95 +11493,11 @@ bool do_movetile_united(tile_move_data const& tmd)
 			{
 				if(move_weapons_list[u])
 				{
-					wpnsbuf[biw[u].i].newtile+=diff;
+					wpnsbuf[biw[u].i].tile+=diff;
 				}
 			}
 			
-			for(int32_t u=0; u<41; u++)
-			{
-				if(move_hero_sprites_list[u])
-				{
-					switch(u)
-					{
-					case 0:
-					case 1:
-					case 2:
-					case 3:
-						walkspr[u][spr_tile]+=diff;
-						break;
-						
-					case 4:
-					case 5:
-					case 6:
-					case 7:
-						slashspr[u-4][spr_tile]+=diff;
-						break;
-						
-					case 8:
-					case 9:
-					case 10:
-					case 11:
-						stabspr[u-8][spr_tile]+=diff;
-						break;
-						
-					case 12:
-					case 13:
-					case 14:
-					case 15:
-						poundspr[u-12][spr_tile]+=diff;
-						break;
-						
-					case 16:
-					case 17:
-						holdspr[0][u-16][spr_tile]+=diff;
-						break;
-						
-					case 18:
-						castingspr[spr_tile]+=diff;
-						break;
-						
-					case 19:
-					case 20:
-					case 21:
-					case 22:
-						floatspr[u-19][spr_tile]+=diff;
-						break;
-						
-					case 23:
-					case 24:
-					case 25:
-					case 26:
-						swimspr[u-23][spr_tile]+=diff;
-						break;
-						
-					case 27:
-					case 28:
-					case 29:
-					case 30:
-						divespr[u-27][spr_tile]+=diff;
-						break;
-						
-					case 31:
-					case 32:
-						holdspr[1][u-31][spr_tile]+=diff;
-						break;
-						
-					case 33:
-					case 34:
-					case 35:
-					case 36:
-						jumpspr[u-33][spr_tile]+=diff;
-						break;
-						
-					case 37:
-					case 38:
-					case 39:
-					case 40:
-						chargespr[u-37][spr_tile]+=diff;
-						break;
-					}
-				}
-			}
+			handle_hero_sprite_move(move_hero_sprites_list,diff);
 			
 			for(int32_t u=0; u<6; u++)
 			{
@@ -11439,6 +11569,22 @@ bool do_movetile_united(tile_move_data const& tmd)
 					}
 				}
 			}
+		
+			for(int32_t u=0; u<eMAXGUYS; u++)
+			{
+				if(move_enemy_list[u])
+				{
+					guydata& enemy=guysbuf[bie[u].i];
+					if(newtiles)
+						enemy.e_tile += diff;
+					else
+					{
+						enemy.tile += diff;
+						if(enemy.s_tile)
+							enemy.s_tile += diff;
+					}
+				}
+			}
 		}
 	}
 	
@@ -11450,6 +11596,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 	delete[] move_combo_list;
 	delete[] move_items_list;
 	delete[] move_weapons_list;
+	delete[] move_enemy_list;
 	
 	if(done)
 		return false;
@@ -11730,7 +11877,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	bool *move_combo_list = new bool[MAXCOMBOS];
 	bool *move_items_list = new bool[iMax];
 	bool *move_weapons_list = new bool[wMAX];
-	bool move_hero_sprites_list[41];
+	bool move_hero_sprites_list[num_hspr];
 	bool move_mapstyles_list[6];
 	//bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
 	bool move_game_icons_list[4];
@@ -12154,7 +12301,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				flood=false;
 				setup_hero_sprite_items();
 				
-				for(int32_t u=0; u<41; u++)
+				for(int32_t u=0; u<num_hspr; u++)
 				{
 					move_hero_sprites_list[u]=false;
 					
@@ -13294,9 +13441,9 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 				break;
 			}
 			
-			i=move_intersection_sr(wpnsbuf[biw[u].i].newtile, wpnsbuf[biw[u].i].newtile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, dest_left, dest_top, dest_width, dest_height);
+			i=move_intersection_sr(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, dest_left, dest_top, dest_width, dest_height);
 			
-			if((i!=ti_none)&&(wpnsbuf[biw[u].i].newtile!=0))
+			if((i!=ti_none)&&(wpnsbuf[biw[u].i].tile!=0))
 			{
 				sprintf(temptext, "%s\n", biw[u].s);
 					
@@ -13379,7 +13526,7 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		flood=false;
 		setup_hero_sprite_items();
 		
-		for(int32_t u=0; u<41; u++)
+		for(int32_t u=0; u<num_hspr; u++)
 		{
 			i=move_intersection_rr(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, dest_left, dest_top, dest_width, dest_height);
 			
@@ -14138,11 +14285,33 @@ void do_movecombo(combo_move_data const& cmd)
 	
 	for(int32_t i=0; i<MAXCOMBOS; i++)
 	{
-		if((combobuf[i].nextcombo>=cmd.copy1)&&(combobuf[i].nextcombo<cmd.copy1+cmd.copycnt))
+		newcombo& cmb = combobuf[i];
+		if(cmb.nextcombo && (cmb.nextcombo>=cmd.copy1)&&(cmb.nextcombo<cmd.copy1+cmd.copycnt))
 		{
-			//since next combo 0 represents "no next combo," do not move it away from 0 -DD
-			if(combobuf[i].nextcombo != 0)
-				combobuf[i].nextcombo += diff;
+			cmb.nextcombo += diff;
+		}
+		if(cmb.liftcmb && (cmb.liftcmb>=cmd.copy1)&&(cmb.liftcmb<cmd.copy1+cmd.copycnt))
+		{
+			cmb.liftcmb += diff;
+		}
+		if(cmb.liftundercmb && (cmb.liftundercmb>=cmd.copy1)&&(cmb.liftundercmb<cmd.copy1+cmd.copycnt))
+		{
+			cmb.liftundercmb += diff;
+		}
+		if(cmb.prompt_cid && (cmb.prompt_cid>=cmd.copy1)&&(cmb.prompt_cid<cmd.copy1+cmd.copycnt))
+		{
+			cmb.prompt_cid += diff;
+		}
+	}
+	for(auto q = 0; q < MAXCOMBOPOOLS; ++q)
+	{
+		combo_pool& pool = combo_pools[q];
+		for(cpool_entry& cp : pool.combos)
+		{
+			if(cp.cid && (cp.cid >= cmd.copy1) && (cp.cid < cmd.copy1+cmd.copycnt))
+			{
+				cp.cid += diff;
+			}
 		}
 	}
 	
@@ -14209,6 +14378,26 @@ void move_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt)
 	tile2=tile;
 }
 
+void do_delete_tiles(int32_t firsttile, int32_t lasttile, bool rect_sel)
+{
+	if(firsttile > lasttile)
+		zc_swap(firsttile,lasttile);
+	int32_t coldiff = 0;
+	if(rect_sel && TILECOL(firsttile)>TILECOL(lasttile))
+	{
+		coldiff=TILECOL(firsttile)-TILECOL(lasttile);
+		firsttile-=coldiff;
+		lasttile+=coldiff;
+	}
+	for(int32_t t=firsttile; t<=lasttile; ++t)
+		if(!rect_sel ||
+				((TILECOL(t)>=TILECOL(firsttile)) &&
+				 (TILECOL(t)<=TILECOL(lasttile))))
+			reset_tile(newtilebuf, t, tf4Bit);
+	saved=false;
+	register_blank_tiles();
+}
+
 void delete_tiles(int32_t &tile,int32_t &tile2,bool rect_sel)
 {
 	char buf[40];
@@ -14226,22 +14415,11 @@ void delete_tiles(int32_t &tile,int32_t &tile2,bool rect_sel)
 	{
 		int32_t firsttile=zc_min(tile,tile2), lasttile=zc_max(tile,tile2), coldiff=0;
 		
-		if(rect_sel && TILECOL(firsttile)>TILECOL(lasttile))
-		{
-			coldiff=TILECOL(firsttile)-TILECOL(lasttile);
-			firsttile-=coldiff;
-			lasttile+=coldiff;
-		}
-		
 		go_tiles();
 		
 		//if copying to an earlier tile, copy from left to right
 		//otherwise, copy from right to left
-		for(int32_t t=firsttile; t<=lasttile; t++)
-			if(!rect_sel ||
-					((TILECOL(t)>=TILECOL(firsttile)) &&
-					 (TILECOL(t)<=TILECOL(lasttile))))
-				reset_tile(newtilebuf, t, tf4Bit);
+		do_delete_tiles(firsttile, lasttile, rect_sel);
 				
 		tile=tile2=zc_min(tile,tile2);
 		saved=false;
@@ -14918,6 +15096,7 @@ int32_t writetilefile(PACKFILE *f, int32_t index, int32_t count)
 	
 }
 
+static int32_t _selected_tile=-1, _selected_tcset=-1;
 int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs,int32_t exnow, bool always_use_flip)
 {
 	reset_combo_animations();
@@ -14980,6 +15159,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+		rest(1);
 	}
 	
 	bool bdown=false;
@@ -15788,15 +15968,82 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					hide_8bit_marker();
 					break;
 				
-				case KEY_M:
-					//al_trace("mass combo key pressed, type == %d\n",type);
+				case KEY_I: //insert tiles
 					if(type==0)
 					{
-						//al_trace("mass combo key pressed, copy == %d\n",copy);
+						bool warn = (rect_sel
+							&& ((tile/20)!=(tile2/20))
+							&& !(tile%20==0&&tile2%20==19));
+						int32_t z=zc_min(tile,tile2);
+						int32_t count = abs(tile-tile2) + 1;
+						tile=z;
+						tile2=NEWMAXTILES;
+						copy = tile + count;
+						copycnt = NEWMAXTILES-copy;
+						
+						if(key[KEY_LSHIFT]||key[KEY_RSHIFT]) //Remove
+						{
+							char buf[64];
+							
+							if(count>1)
+								sprintf(buf,"Remove tiles %d - %d?",tile, copy-1);
+							else
+								sprintf(buf,"Remove tile %d?",tile);
+								
+							AlertDialog("Remove Tiles", std::string(buf)
+								+"\nThis will offset the tiles that follow!"
+								+(warn?"\nRemoving tiles ignores rectangular selections!":""),
+								[&](bool ret,bool)
+								{
+									if(ret)
+									{
+										go_tiles();
+										if(copy_tiles(tile,tile2,copy,copycnt,false,true))
+										{
+											redraw=true;
+											saved=false;
+										}
+									}
+								}).show();
+						}
+						else
+						{
+							char buf[64];
+							
+							if(count>1)
+								sprintf(buf,"Insert %d blank tiles?",count);
+							else
+								sprintf(buf,"Insert a blank tile?");
+								
+							AlertDialog("Insert Tiles", std::string(buf)
+								+"\nThis will offset the tiles that follow!"
+								+(warn?"\nInserting tiles ignores rectangular selections!":""),
+								[&](bool ret,bool)
+								{
+									if(ret)
+									{
+										go_tiles();
+										if(copy_tiles(copy,tile2,tile,copycnt,false,true))
+										{
+											redraw=true;
+											saved=false;
+										}
+									}
+								}).show();
+						}
+						
+						copy=-1;
+						tile2=tile=z;
+					}
+					break;
+				case KEY_M:
+					if(type==0)
+					{
 						if((copy!=-1)&&(copy!=zc_min(tile,tile2)))
 						{
 							go_tiles();
-							saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,true);
+							if(copy_tiles(tile,tile2,copy,copycnt,rect_sel,true))
+								saved=false;
 						}
 						else if(copy==-1)
 						{
@@ -15878,13 +16125,12 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 							}
 						}
 					}
+					register_blank_tiles();
+					register_used_tiles();
+					redraw=true;
+					saved=false;
+					break;
 				}
-				
-				register_blank_tiles();
-				register_used_tiles();
-				redraw=true;
-				saved=false;
-				break;
 				
 				case KEY_B:
 				{
@@ -15942,6 +16188,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					while(gui_mouse_b())
 					{
 						/* do nothing */
+						rest(1);
 					}
 					
 					if(((y>>(4+is_large))*TILES_PER_ROW + (x>>(4+is_large)) + first)!=t)
@@ -16174,6 +16421,7 @@ REDRAW:
 			select_tile_view_menu[1].flags = HIDE_UNUSED ? D_SELECTED : 0;
 			select_tile_view_menu[2].flags = HIDE_BLANK ? D_SELECTED : 0;
 			select_tile_view_menu[3].flags = HIDE_8BIT_MARKER ? D_SELECTED : 0;
+			select_tile_view_menu[7].flags = (type!=0) ? D_DISABLED : 0;
 			int32_t m = popup_menu(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
 			redraw=true;
 			
@@ -16297,6 +16545,75 @@ REDRAW:
 					}
 				}
 				break;
+				
+				case 17:
+					if(type==0)
+					{
+						bool warn = (rect_sel
+							&& ((tile/20)!=(tile2/20))
+							&& !(tile%20==0&&tile2%20==19));
+						int32_t z=zc_min(tile,tile2);
+						int32_t count = abs(tile-tile2) + 1;
+						tile=z;
+						tile2=NEWMAXTILES;
+						copy = tile + count;
+						copycnt = NEWMAXTILES-copy;
+						
+						if(key[KEY_LSHIFT]||key[KEY_RSHIFT]) //Remove
+						{
+							char buf[64];
+							
+							if(count>1)
+								sprintf(buf,"Remove tiles %d - %d?",tile, copy-1);
+							else
+								sprintf(buf,"Remove tile %d?",tile);
+								
+							AlertDialog("Remove Tiles", std::string(buf)
+								+"\nThis will offset the tiles that follow!"
+								+(warn?"\nRemoving tiles ignores rectangular selections!":""),
+								[&](bool ret,bool)
+								{
+									if(ret)
+									{
+										go_tiles();
+										if(copy_tiles(tile,tile2,copy,copycnt,false,true))
+										{
+											redraw=true;
+											saved=false;
+										}
+									}
+								}).show();
+						}
+						else
+						{
+							char buf[64];
+							
+							if(count>1)
+								sprintf(buf,"Insert %d blank tiles?",count);
+							else
+								sprintf(buf,"Insert a blank tile?");
+								
+							AlertDialog("Insert Tiles", std::string(buf)
+								+"\nThis will offset the tiles that follow!"
+								+(warn?"\nInserting tiles ignores rectangular selections!":""),
+								[&](bool ret,bool)
+								{
+									if(ret)
+									{
+										go_tiles();
+										if(copy_tiles(copy,tile2,tile,copycnt,false,true))
+										{
+											redraw=true;
+											saved=false;
+										}
+									}
+								}).show();
+						}
+						
+						copy=-1;
+						tile2=tile=z;
+					}
+					break;
 					
 				default:
 					redraw=false;
@@ -16313,6 +16630,7 @@ REDRAW:
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+		rest(1);
 	}
 	
 	comeback();
@@ -16320,7 +16638,28 @@ REDRAW:
 	register_used_tiles();
 	setup_combo_animations();
 	setup_combo_animations2();
-	return done-1;
+	int32_t ret = done-1;
+	if(ret)
+	{
+		_selected_tile = tile;
+		_selected_tcset = cs;
+	}
+	return ret;
+}
+int32_t select_tile_2(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs,int32_t exnow, bool always_use_flip)
+{
+	if(_selected_tile > -1)
+	{
+		tile = _selected_tile;
+		cs = _selected_tcset;
+	}
+	int32_t ret = select_tile(tile,flip,type,cs,edit_cs,exnow,always_use_flip);
+	if(_selected_tile < 0)
+	{
+		_selected_tile = tile;
+		_selected_tcset = cs;
+	}
+	return ret;
 }
 
 int32_t onTiles()
@@ -16700,6 +17039,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+		rest(1);
 	}
 	
 	bool bdown=false;
@@ -17021,6 +17361,7 @@ down:
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+		rest(1);
 	}
 	
 	comeback();
@@ -17211,6 +17552,8 @@ int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 			combobuf[i].liftsfx = combo.liftsfx;
 			combobuf[i].liftbreaksprite = combo.liftbreaksprite;
 			combobuf[i].liftbreaksfx = combo.liftbreaksfx;
+			combobuf[i].lifthei = combo.lifthei;
+			combobuf[i].lifttime = combo.lifttime;
 		}
 	}
 	
@@ -17612,10 +17955,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				
 				copy=-1;
 				tile2=tile=z;
-				
-				//thse next 2 lines are handled by the move_combos function now
-				//setup_combo_animations();
-				//setup_combo_animations2();
 			}
 			break;
 			
@@ -17705,6 +18044,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					while(gui_mouse_b())
 					{
 						/* do nothing */
+						rest(1);
 					}
 					
 					if(!combo_cols)
@@ -18029,8 +18369,8 @@ REDRAW:
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+		rest(1);
 	}
-	
 	comeback();
 	setup_combo_animations();
 	setup_combo_animations2();
@@ -19672,6 +20012,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+		rest(1);
 	}
 	
 	bool bdown=false;
@@ -20861,6 +21202,7 @@ REDRAW_DMAP_SELTILE:
 			select_tile_view_menu[1].flags = HIDE_UNUSED ? D_SELECTED : 0;
 			select_tile_view_menu[2].flags = HIDE_BLANK ? D_SELECTED : 0;
 			select_tile_view_menu[3].flags = HIDE_8BIT_MARKER ? D_SELECTED : 0;
+			select_tile_rc_menu[7].flags = (type!=0) ? D_DISABLED : 0;
 			int32_t m = popup_menu(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
 			redraw=true;
 			
@@ -20958,11 +21300,11 @@ REDRAW_DMAP_SELTILE:
 		  }
 			
 		
-		case 16: //mass combo
-		{
-		if(type==0)
+			case 16: //mass combo
+			{
+				if(type==0)
 				{
-			 //al_trace("mass combo key pressed, copy == %d\n",copy);
+					//al_trace("mass combo key pressed, copy == %d\n",copy);
 					if((copy!=-1)&&(copy!=zc_min(tile,tile2)))
 					{
 						go_tiles();
@@ -20973,20 +21315,87 @@ REDRAW_DMAP_SELTILE:
 						// I don't know what this was supposed to be doing before.
 						// It didn't work in anything like a sensible way.
 						if(rect_sel)
-			{
+						{
 							make_combos_rect(top, left, rows, columns, cs);
-			}
+						}
 						else
-			{
+						{
 							make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
-			}
+						}
 					}
-					
 					redraw=true;
 				}
-			
-		}
+			}
 			break;
+				
+			case 17:
+				if(type==0)
+				{
+					bool warn = (rect_sel
+						&& ((tile/20)!=(tile2/20))
+						&& !(tile%20==0&&tile2%20==19));
+					int32_t z=zc_min(tile,tile2);
+					int32_t count = abs(tile-tile2) + 1;
+					tile=z;
+					tile2=NEWMAXTILES;
+					copy = tile + count;
+					copycnt = NEWMAXTILES-copy;
+					
+					if(key[KEY_LSHIFT]||key[KEY_RSHIFT]) //Remove
+					{
+						char buf[64];
+						
+						if(count>1)
+							sprintf(buf,"Remove tiles %d - %d?",tile, copy-1);
+						else
+							sprintf(buf,"Remove tile %d?",tile);
+							
+						AlertDialog("Remove Tiles", std::string(buf)
+							+"\nThis will offset the tiles that follow!"
+							+(warn?"\nRemoving tiles ignores rectangular selections!":""),
+							[&](bool ret,bool)
+							{
+								if(ret)
+								{
+									go_tiles();
+									if(copy_tiles(tile,tile2,copy,copycnt,false,true))
+									{
+										redraw=true;
+										saved=false;
+									}
+								}
+							}).show();
+					}
+					else
+					{
+						char buf[64];
+						
+						if(count>1)
+							sprintf(buf,"Insert %d blank tiles?",count);
+						else
+							sprintf(buf,"Insert a blank tile?");
+							
+						AlertDialog("Insert Tiles", std::string(buf)
+							+"\nThis will offset the tiles that follow!"
+							+(warn?"\nInserting tiles ignores rectangular selections!":""),
+							[&](bool ret,bool)
+							{
+								if(ret)
+								{
+									go_tiles();
+									if(copy_tiles(copy,tile2,tile,copycnt,false,true))
+									{
+										redraw=true;
+										saved=false;
+									}
+								}
+							}).show();
+					}
+					
+					copy=-1;
+					tile2=tile=z;
+				}
+				break;
 				
 			default:
 				redraw=false;
@@ -21003,6 +21412,7 @@ REDRAW_DMAP_SELTILE:
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+		rest(1);
 	}
 	
 	comeback();

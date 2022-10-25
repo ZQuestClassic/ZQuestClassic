@@ -1,5 +1,4 @@
 #include "list_data.h"
-#include <boost/format.hpp>
 #include <map>
 
 using std::map, std::string, std::set, std::function, std::move;

@@ -33,9 +33,9 @@
 #include "jwin.h"
 #include "editbox.h"
 #include <iostream>
+#include <sstream>
 #include "base/zsys.h"
 #include <stdio.h>
-#include "mem_debug.h"
 #include "base/util.h"
 #include "pal.h"
 #include "gui/tabpanel.h"
@@ -552,6 +552,7 @@ static int32_t jwin_do_x_button(BITMAP *dest, int32_t x, int32_t y)
         
         /* let other objects continue to animate */
         broadcast_dialog_message(MSG_IDLE, 0);
+        rest(1);
     }
     
     if(down)
@@ -958,6 +959,16 @@ int32_t jwin_rtext_proc(int32_t msg, DIALOG *d, int32_t c)
     return D_O_K;
 }
 
+int32_t d_ctext2_proc(int32_t msg, DIALOG *d, int32_t c)
+{
+	if(msg == MSG_DRAW)
+		scare_mouse();
+	auto ret = d_ctext_proc(msg, d, c);
+	if(msg == MSG_DRAW)
+		unscare_mouse();
+	return ret;
+}
+
 int32_t new_text_proc(int32_t msg, DIALOG *d, int32_t c)
 {
 	BITMAP* oldscreen = screen;
@@ -1299,10 +1310,17 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 	s = (char*)d->dp;
 	l = (int32_t)strlen(s);
 	
-    if (d->d2 > l)
-        d->d2 = l;
-    else if (d->d2 < 0)
-        d->d2 = 0;
+	int16_t cursor_start = d->d2 & 0x0000FFFF;
+	int16_t cursor_end = int16_t((d->d2 & 0xFFFF0000) >> 16);
+	
+	if(cursor_start > l)
+		cursor_start = l;
+	if(cursor_end > l)
+		cursor_end = l;
+	auto low_cursor = zc_min(cursor_start,cursor_end);
+	auto high_cursor = zc_max(cursor_start,cursor_end);
+	bool multiselect = cursor_end > -1;
+	
 	FONT *oldfont = font;
 	if(d->dp2)
 		font = (FONT*)d->dp2;
@@ -1323,7 +1341,8 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 	}
 	size_t half_width = (maxlines-1)/2;
 	size_t line_scroll = 0;
-    size_t focused_line = size_t(-1);
+	size_t focused_line = size_t(-1);
+	size_t focused_line2 = size_t(-1);
 	switch(msg)
 	{
 		//Only these messages need these calculations, so save processing.
@@ -1358,14 +1377,28 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				lines.push_back(l+1);
 			for(size_t line = 0; line < lines.size(); ++line)
 			{
-				if(size_t(d->d2) < lines[line]) //should ALWAYS execute once
+				if(size_t(multiselect ? cursor_end : cursor_start) < lines[line]) //should ALWAYS execute once
 				{
 					focused_line = line;
 					break;
 				}
 			}
-            if (focused_line >= lines.size())
-                focused_line = lines.size() - 1;
+			if(!multiselect)
+			{
+				focused_line2 = -1;
+			}
+			else for(size_t line = 0; line < lines.size(); ++line)
+			{
+				if(size_t(cursor_start) < lines[line]) //should ALWAYS execute once
+				{
+					focused_line2 = line;
+					break;
+				}
+			}
+			if (focused_line >= lines.size())
+				focused_line = lines.size() - 1;
+			if (focused_line2 >= lines.size())
+				focused_line2 = lines.size() - 1;
 			if(maxlines >= lines.size() || focused_line <= half_width)
 				line_scroll = 0;
 			else if(lines.size()-maxlines+half_width < focused_line)
@@ -1378,7 +1411,9 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 	switch(msg)
 	{
 		case MSG_START:
-			d->d2 = (int32_t)strlen((char*)d->dp);
+			cursor_start = (int32_t)strlen((char*)d->dp);
+			cursor_end = -1;
+			d->d2 = cursor_start | ((cursor_end & 0xFFFF) << 16);
 			break;
 			
 		case MSG_DRAW:
@@ -1414,7 +1449,10 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				{
 					char c = s[ind] ? s[ind] : ' ';
 					w = char_length(font, c);
-					f = ((ind == d->d2) && (d->flags & D_GOTFOCUS));
+					bool focused = multiselect
+						? (ind >= low_cursor && ind <= high_cursor)
+						: (ind == cursor_start);
+					f = (focused && (d->flags & D_GOTFOCUS));
 					buf[0] = c;
 					textout_ex(screen, font, buf, d->x+x, y, f ? bg : fg,f ? fg : bg);
 					x += w;
@@ -1442,7 +1480,13 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				{
 					if(x >= gui_mouse_x())
 					{
-						d->d2 = ind;
+						if(key_shifts&KB_SHIFT_FLAG)
+							cursor_end = ind;
+						else
+						{
+							cursor_start = ind;
+							cursor_end = -1;
+						}
 						found = true;
 						break;
 					}
@@ -1451,7 +1495,17 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				break;
 			}
 			if(!found)
-				d->d2 = l;
+			{
+				if(key_shifts&KB_SHIFT_FLAG)
+					cursor_end = l;
+				else
+				{
+					cursor_start = l;
+					cursor_end = -1;
+				}
+			}
+			if(cursor_end == cursor_start) cursor_end = -1;
+			d->d2 = cursor_start | ((cursor_end&0xFFFF) << 16);
 			
 			scare_mouse();
 			object_message(d, MSG_DRAW, 0);
@@ -1471,87 +1525,219 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 		{
 			if(d->flags & (D_DISABLED|D_READONLY))
 				break;
-			char c2 = c>>8;
-			if(c2 == KEY_LEFT)
+			bool shifted = key_shifts & KB_SHIFT_FLAG;
+			bool ctrl = key_shifts & KB_CTRL_FLAG;
+			bool change_cursor = true;
+			int16_t scursor = cursor_start, ecursor = cursor_end;
+			char upper_c = c>>8;
+			char lower_c = c&255;
+			if(shifted)
 			{
-				if(d->d2 > 0) d->d2--;
+				if(ecursor < 0)
+				{
+					ecursor = scursor;
+					focused_line2 = focused_line;
+				}
 			}
-			else if(c2 == KEY_RIGHT)
+			if(upper_c == KEY_LEFT)
 			{
-				if(d->d2 < l) d->d2++;
-			}
-			else if(c2 == KEY_UP || c2 == KEY_DOWN)
-			{
-				size_t line = focused_line + (c2 == KEY_UP ? -1 : 1);
-				if(!focused_line && c2 == KEY_UP)
-					d->d2 = 0;
-				else if(line >= lines.size())
-					d->d2 = l;
+				if(shifted)
+				{
+					if(ecursor>0)
+						--ecursor;
+				}
 				else
 				{
-					if(d->dp2)
-						font = (FONT*)d->dp2;
-                    x = d->x + 3;
-					for(ind = focused_line ? lines[focused_line-1] : 0; ind < lines[focused_line]; ++ind)
+					ecursor = -1;
+					if(scursor > 0)
+						--scursor;
+				}
+			}
+			else if(upper_c == KEY_RIGHT)
+			{
+				if(shifted)
+				{
+					if(ecursor < l)
+						++ecursor;
+				}
+				else
+				{
+					ecursor = -1;
+					if(scursor < l)
+						++scursor;
+				}
+			}
+			else if(upper_c == KEY_UP || upper_c == KEY_DOWN)
+			{
+				if(shifted)
+				{
+					size_t line = focused_line2 + (upper_c == KEY_UP ? -1 : 1);
+					if(!focused_line2 && upper_c == KEY_UP)
+						ecursor = 0;
+					else if(line >= lines.size())
+						ecursor = l;
+					else
 					{
-						w = char_length(font, s[ind]);
-						if(ind < size_t(d->d2))
-							x += w;
-						else
+						if(d->dp2)
+							font = (FONT*)d->dp2;
+						x = d->x + 3;
+						for(ind = focused_line2 ? lines[focused_line2-1] : 0; ind < lines[focused_line2]; ++ind)
 						{
-							x += w / 2;
+							w = char_length(font, s[ind]);
+							if(ind < size_t(ecursor))
+								x += w;
+							else
+							{
+								x += w / 2;
+								break;
+							}
+						}
+						
+						int32_t tx = d->x+3;
+						bool done = false;
+						for(ind = line ? lines[line-1] : 0; ind < lines[line]; ++ind)
+						{
+							tx += char_length(font, s[ind] ? s[ind] : ' ');
+							if(tx < x)
+								continue;
+							ecursor = ind;
+							done = true;
 							break;
 						}
+						font = oldfont;
+						if(!done)
+						{
+							ecursor = (upper_c == KEY_UP) ? 0 : lines[line]-1;
+						}
 					}
-					
-					int32_t tx = d->x+3;
-					bool done = false;
-					for(ind = line ? lines[line-1] : 0; ind < lines[line]; ++ind)
+				}
+				else
+				{
+					ecursor = -1;
+					if(multiselect)
 					{
-						tx += char_length(font, s[ind] ? s[ind] : ' ');
-						if(tx < x)
-							continue;
-						d->d2 = ind;
-						done = true;
-						break;
+						focused_line = focused_line2;
+						scursor = ecursor;
 					}
-					font = oldfont;
-					if(!done)
+					size_t line = focused_line + (upper_c == KEY_UP ? -1 : 1);
+					if(!focused_line && upper_c == KEY_UP)
+						scursor = 0;
+					else if(line >= lines.size())
+						scursor = l;
+					else
 					{
-						d->d2 = (c2 == KEY_UP) ? 0 : lines[line]-1;
+						if(d->dp2)
+							font = (FONT*)d->dp2;
+						x = d->x + 3;
+						for(ind = focused_line ? lines[focused_line-1] : 0; ind < lines[focused_line]; ++ind)
+						{
+							w = char_length(font, s[ind]);
+							if(ind < size_t(scursor))
+								x += w;
+							else
+							{
+								x += w / 2;
+								break;
+							}
+						}
+						
+						int32_t tx = d->x+3;
+						bool done = false;
+						for(ind = line ? lines[line-1] : 0; ind < lines[line]; ++ind)
+						{
+							tx += char_length(font, s[ind] ? s[ind] : ' ');
+							if(tx < x)
+								continue;
+							scursor = ind;
+							done = true;
+							break;
+						}
+						font = oldfont;
+						if(!done)
+						{
+							scursor = (upper_c == KEY_UP) ? 0 : lines[line]-1;
+						}
 					}
 				}
 			}
-			else if(c2 == KEY_HOME)
+			else if(upper_c == KEY_HOME)
 			{
-				d->d2 = 0;
-			}
-			else if(c2 == KEY_END)
-			{
-				d->d2 = l;
-			}
-			else if(c2 == KEY_DEL)
-			{
-				if(d->d2 < l)
+				if(shifted)
+					ecursor = 0;
+				else
 				{
-					for(p=d->d2; s[p]; p++)
+					ecursor = -1;
+					scursor = 0;
+				}
+			}
+			else if(upper_c == KEY_END)
+			{
+				if(shifted)
+					ecursor = l;
+				else
+				{
+					ecursor = -1;
+					scursor = l;
+				}
+			}
+			else if(upper_c == KEY_DEL)
+			{
+				if(ctrl)
+				{
+					s[0] = 0;
+					scursor = 0;
+					ecursor = -1;
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+				else if(multiselect)
+				{
+					ecursor = -1;
+					scursor = low_cursor;
+					size_t ind = low_cursor, ind2 = high_cursor+1;
+					while(s[ind2])
+						s[ind++] = s[ind2++];
+					while(s[ind])
+						s[ind++] = 0;
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+				else if(scursor < l)
+				{
+					for(p=scursor; s[p]; p++)
 						s[p] = s[p+1];
 					GUI_EVENT(d, geCHANGE_VALUE);
 				}
 			}
-			else if(c2 == KEY_BACKSPACE)
+			else if(upper_c == KEY_BACKSPACE)
 			{
-				if(d->d2 > 0)
+				if(ctrl)
 				{
-					d->d2--;
-					
-					for(p=d->d2; s[p]; p++)
+					s[0] = 0;
+					scursor = 0;
+					ecursor = -1;
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+				else if(multiselect)
+				{
+					ecursor = -1;
+					scursor = low_cursor;
+					size_t ind = low_cursor, ind2 = high_cursor+1;
+					while(s[ind2])
+						s[ind++] = s[ind2++];
+					while(s[ind])
+						s[ind++] = 0;
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+				else if(scursor > 0)
+				{
+					--scursor;
+					for(p=scursor; s[p]; p++)
 						s[p] = s[p+1];
 					GUI_EVENT(d, geCHANGE_VALUE);
 				}
 			}
-			else if(c2 == KEY_ENTER)
+			else if(upper_c == KEY_ENTER)
 			{
+				change_cursor = false;
 				GUI_EVENT(d, geENTER);
 				if(d->flags & D_EXIT)
 				{
@@ -1563,32 +1749,127 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				else
 					return D_O_K;
 			}
-			else if(c2 == KEY_TAB)
+			else if(upper_c == KEY_TAB)
 			{
+				change_cursor = false;
 				return D_O_K;
 			}
-			else if(!(d->flags & D_READONLY))
+			else if(ctrl && (lower_c=='c' || lower_c=='C'))
 			{
-				c &= 0xFF;
-				
-				if((c >= 32) && (c <= 255))
+				change_cursor = false;
+				std::ostringstream oss;
+				if(multiselect)
 				{
-					if(l < d->d1)
+					for(size_t ind = low_cursor; ind <= high_cursor; ++ind)
 					{
-						while(l >= d->d2)
-						{
-							s[l+1] = s[l];
-							l--;
-						}
-						
-						s[d->d2] = c;
-						d->d2++;
-
-						GUI_EVENT(d, geCHANGE_VALUE);
+						if(s[ind])
+							oss << s[ind];
 					}
 				}
 				else
-					return D_O_K;
+				{
+					if(s[scursor])
+						oss << s[scursor];
+				}
+				set_al_clipboard(oss.str());
+			}
+			else if(clipboard_has_text() && ctrl && (lower_c=='v' || lower_c=='V'))
+			{
+				std::string cb;
+				if(get_al_clipboard(cb))
+				{
+					int ind = low_cursor, ind2 = high_cursor + 1;
+					if (multiselect)
+					{
+						//Delete selected text
+						ecursor = -1;
+						scursor = low_cursor;
+						while (s[ind2] && ind2 < l)
+							s[ind++] = s[ind2++];
+						while (s[ind])
+							s[ind++] = 0;
+						l = (int32_t)strlen(s);
+					}
+					//Move the text out of the way of the pasting
+					int paste_len = cb.size();
+					int paste_start = scursor;
+					int paste_end = paste_start+paste_len;
+					ind = paste_end-1;
+					ind2 = paste_end+paste_len-1;
+					while(ind2 >= d->d1)
+					{
+						if(ind <= l) //need the space, shorten paste
+						{
+							--paste_len;
+							--paste_end;
+							--ind;
+							ind2-=2;
+						}
+						else //the space can be spared
+						{
+							--ind; --ind2;
+						}
+					}
+					size_t new_l = ind2+1;
+					while(ind >= paste_start)
+					{
+						if(s[ind] || (ind&&s[ind-1]))
+						{
+							s[ind2] = s[ind];
+						}
+						--ind2; --ind;
+					}
+					for(auto q = 0; q < paste_len; ++q)
+					{
+						s[paste_start+q] = cb.at(q);
+					}
+					s[new_l] = 0;
+					scursor = paste_start + paste_len;
+					ecursor = -1;
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+			}
+			else if((lower_c >= 32) && (lower_c <= 255))
+			{
+				if(multiselect)
+				{
+					//Delete selected text
+					ecursor = -1;
+					scursor = low_cursor;
+					size_t ind = low_cursor, ind2 = high_cursor+1;
+					while(s[ind2] && ind2 < l)
+						s[ind++] = s[ind2++];
+					while(s[ind])
+						s[ind++] = 0;
+					l = (int32_t)strlen(s);
+					//Type the character in its' place
+					//(fallthrough)
+				}
+				if(l < d->d1)
+				{
+					ecursor = -1;
+					s[l+1] = 0;
+					size_t ind = l;
+					while(ind >= scursor)
+					{
+						s[ind+1] = s[ind];
+						if (!ind) break;
+						--ind;
+					}
+					
+					s[scursor++] = lower_c;
+					
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+			}
+			else
+				return D_O_K;
+			
+			if(change_cursor)
+			{
+				cursor_end = ecursor; cursor_start = scursor;
+				if (cursor_end == cursor_start) cursor_end = -1;
+				d->d2 = cursor_start | ((cursor_end&0xFFFF) << 16);
 			}
 			
 			/* if we changed something, better redraw... */
@@ -1621,262 +1902,457 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 	}
 	if(d->h >= 2+((text_height(d->dp2 ? (FONT*)d->dp2 : font)+2)*2))
 		return jwin_vedit_proc(msg, d, c);
-    int32_t f, l, p, w, x, y, fg, bg;
-    int32_t b;
-    int32_t scroll;
-    char *s;
-    char buf[2];
-    static char nullbuf[2];
-    sprintf(nullbuf, " ");
-    
-    if(d->dp==NULL)
-    {
-        d->dp=(void *)nullbuf;
-    }
-    
-    s = (char*)d->dp;
-    l = (int32_t)strlen(s);
-    
-    if(d->d2 > l)
-        d->d2 = l;
-        
-    /* calculate maximal number of displayable characters */
-    b = x = 0;
-    
-    if(d->d2 == l)
-    {
-        buf[0] = ' ';
-        buf[1] = 0;
-        
-        if(d->dp2)
-            x = text_length((FONT*)d->dp2, buf);
-        else
-            x = text_length(font, buf);
-    }
-    
-    buf[1] = 0;
-    
-    for(p=d->d2; p>=0; p--)
-    {
-        buf[0] = s[p];
-        b++;
-        
-        if(d->dp2)
-            x += text_length((FONT*)d->dp2, buf);
-        else
-            x += text_length(font, buf);
-            
-        if(x > d->w-6)
-            break;
-    }
-    
-    if(x <= d->w-6)
-    {
-        b = l;
-        scroll = FALSE;
-    }
-    else
-    {
-        b--;
-        scroll = TRUE;
-    }
-    
-    FONT *oldfont = font;
-    
-    switch(msg)
-    {
-    
-    case MSG_START:
-        d->d2 = (int32_t)strlen((char*)d->dp);;
-        break;
-        
-    case MSG_DRAW:
-        if(d->dp2)
-        {
-            font = (FONT*)d->dp2;
-        }
-        if(d->flags & D_DISABLED)
-		{
-			fg = scheme[jcDISABLED_FG];
-			bg = scheme[jcDISABLED_BG];
-		}
-		else if(d->flags & D_READONLY)
-		{
-			fg = scheme[jcALT_TEXTFG];
-			bg = scheme[jcALT_TEXTBG];
-		}
-		else
-		{
-			fg = scheme[jcTEXTFG];
-			bg = scheme[jcTEXTBG];
-		}
+	int32_t f, l, p, w, x, y, fg, bg;
+	int32_t b;
+	int32_t scroll;
+	char *s;
+	char buf[2];
+	static char nullbuf[2];
+	sprintf(nullbuf, " ");
+	
+	if(d->dp==NULL)
+	{
+		d->dp=(void *)nullbuf;
+	}
+	
+	s = (char*)d->dp;
+	l = (int32_t)strlen(s);
+	
+	int16_t cursor_start = d->d2 & 0x0000FFFF;
+	int16_t cursor_end = int16_t((d->d2 & 0xFFFF0000) >> 16);
+	
+	if(cursor_start > l)
+		cursor_start = l;
+	if(cursor_end > l)
+		cursor_end = l;
+	auto low_cursor = zc_min(cursor_start,cursor_end);
+	auto high_cursor = zc_max(cursor_start,cursor_end);
 		
-        x = 3;
-        y = (d->h - text_height(font)) / 2 + d->y;
-        
-        /* first fill in the edges */
-        
-        if(y > d->y+2)
-            rectfill(screen, d->x+2, d->y+2, d->x+d->w-3, y-1, bg);
-            
-        if(y+text_height(font)-1 < d->y+d->h-2)
-            rectfill(screen, d->x+2, y+text_height(font)-1, d->x+d->w-3, d->y+d->h-3, bg);
-            
-        _allegro_vline(screen, d->x+2, d->y+2, d->y+d->h-3, bg);
-        
-        /* now the text */
-        
-        if(scroll)
-        {
-            p = d->d2-b+1;
-            b = d->d2;
-        }
-        else
-            p = 0;
-            
-        for(; p<=b; p++)
-        {
-            buf[0] = s[p] ? s[p] : ' ';
-            w = text_length(font, buf);
-            
-            if(x+w > d->w)
-                break;
-                
-            f = ((p == d->d2) && (d->flags & D_GOTFOCUS));
-            textout_ex(screen, font, buf, d->x+x, y, f ? bg : fg,f ? fg : bg);
-            x += w;
-        }
-        
-        if(x < d->w-2)
-            rectfill(screen, d->x+x, y, d->x+d->w-3, y+text_height(font)-1, bg);
-            
-        jwin_draw_frame(screen, d->x, d->y, d->w, d->h, FR_DEEP);
-        font = oldfont;
-        break;
-        
-    case MSG_CLICK:
-		if(d->flags & (D_DISABLED|D_READONLY))
+	/* calculate maximal number of displayable characters */
+	b = x = 0;
+	
+	if(cursor_start == l)
+	{
+		buf[0] = ' ';
+		buf[1] = 0;
+		
+		if(d->dp2)
+			x = text_length((FONT*)d->dp2, buf);
+		else
+			x = text_length(font, buf);
+	}
+	
+	buf[1] = 0;
+	
+	for(p=cursor_start; p>=0; p--)
+	{
+		buf[0] = s[p];
+		b++;
+		
+		if(d->dp2)
+			x += text_length((FONT*)d->dp2, buf);
+		else
+			x += text_length(font, buf);
+			
+		if(x > d->w-6)
 			break;
-        x = d->x+3;
-        
-        if(scroll)
-        {
-            p = d->d2-b+1;
-            b = d->d2;
-        }
-        else
-            p = 0;
-            
-        for(; p<b; p++)
-        {
-            buf[0] = s[p];
-            x += text_length((d->dp2) ? (FONT*)d->dp2 : font, buf);
-            
-            if(x > gui_mouse_x())
-                break;
-        }
-        
-        d->d2 = MID(0, p, l);
-        scare_mouse();
-        object_message(d, MSG_DRAW, 0);
-        unscare_mouse();
-        break;
-        
-    case MSG_WANTFOCUS:
-    case MSG_LOSTFOCUS:
-    case MSG_KEY:
-		if(d->flags & (D_DISABLED|D_READONLY))
+	}
+	
+	if(x <= d->w-6)
+	{
+		b = l;
+		scroll = FALSE;
+	}
+	else
+	{
+		b--;
+		scroll = TRUE;
+	}
+	
+	FONT *oldfont = font;
+	
+	switch(msg)
+	{
+		case MSG_START:
+			cursor_start = (int32_t)strlen((char*)d->dp);
+			cursor_end = -1;
+			d->d2 = cursor_start | ((cursor_end & 0xFFFF) << 16);
 			break;
-        return D_WANTFOCUS;
-        
-    case MSG_CHAR:
-		if(d->flags & (D_DISABLED|D_READONLY))
+			
+		case MSG_DRAW:
+		{
+			if(d->dp2)
+			{
+				font = (FONT*)d->dp2;
+			}
+			if(d->flags & D_DISABLED)
+			{
+				fg = scheme[jcDISABLED_FG];
+				bg = scheme[jcDISABLED_BG];
+			}
+			else if(d->flags & D_READONLY)
+			{
+				fg = scheme[jcALT_TEXTFG];
+				bg = scheme[jcALT_TEXTBG];
+			}
+			else
+			{
+				fg = scheme[jcTEXTFG];
+				bg = scheme[jcTEXTBG];
+			}
+			
+			x = 3;
+			y = (d->h - text_height(font)) / 2 + d->y;
+			
+			/* first fill in the edges */
+			
+			if(y > d->y+2)
+				rectfill(screen, d->x+2, d->y+2, d->x+d->w-3, y-1, bg);
+				
+			if(y+text_height(font)-1 < d->y+d->h-2)
+				rectfill(screen, d->x+2, y+text_height(font)-1, d->x+d->w-3, d->y+d->h-3, bg);
+				
+			_allegro_vline(screen, d->x+2, d->y+2, d->y+d->h-3, bg);
+			
+			/* now the text */
+			
+			if(scroll)
+			{
+				p = cursor_start-b+1;
+				b = cursor_start;
+			}
+			else
+				p = 0;
+			for(; p<=b; p++)
+			{
+				buf[0] = s[p] ? s[p] : ' ';
+				w = text_length(font, buf);
+				
+				if(x+w > d->w)
+					break;
+				bool focused = (cursor_end>-1)
+					? (p >= low_cursor && p <= high_cursor)
+					: (p == cursor_start);
+				f = (focused && (d->flags & D_GOTFOCUS));
+				textout_ex(screen, font, buf, d->x+x, y, f ? bg : fg,f ? fg : bg);
+				x += w;
+			}
+			
+			if(x < d->w-2)
+				rectfill(screen, d->x+x, y, d->x+d->w-3, y+text_height(font)-1, bg);
+				
+			jwin_draw_frame(screen, d->x, d->y, d->w, d->h, FR_DEEP);
+			font = oldfont;
 			break;
-        if((c >> 8) == KEY_LEFT)
-        {
-            if(d->d2 > 0) d->d2--;
-        }
-        else if((c >> 8) == KEY_RIGHT)
-        {
-            if(d->d2 < l) d->d2++;
-        }
-        else if((c >> 8) == KEY_HOME)
-        {
-            d->d2 = 0;
-        }
-        else if((c >> 8) == KEY_END)
-        {
-            d->d2 = l;
-        }
-        else if((c >> 8) == KEY_DEL)
-        {
-            if(d->d2 < l)
-            {
-                for(p=d->d2; s[p]; p++)
-                    s[p] = s[p+1];
-                GUI_EVENT(d, geCHANGE_VALUE);
-            }
-        }
-        else if((c >> 8) == KEY_BACKSPACE)
-        {
-            if(d->d2 > 0)
-            {
-                d->d2--;
-                
-                for(p=d->d2; s[p]; p++)
-                    s[p] = s[p+1];
-                GUI_EVENT(d, geCHANGE_VALUE);
-            }
-        }
-        else if((c >> 8) == KEY_ENTER)
-        {
-            GUI_EVENT(d, geENTER);
-            if(d->flags & D_EXIT)
-            {
-                scare_mouse();
-                object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
-                return D_CLOSE;
-            }
-            else
-                return D_O_K;
-        }
-        else if((c >> 8) == KEY_TAB)
-        {
-            return D_O_K;
-        }
-        else if(!(d->flags & D_READONLY))
-        {
-            c &= 0xFF;
-            
-            if((c >= 32) && (c <= 255))
-            {
-                if(l < d->d1)
-                {
-                    while(l >= d->d2)
-                    {
-                        s[l+1] = s[l];
-                        l--;
-                    }
-                    
-                    s[d->d2] = c;
-                    d->d2++;
+		}
+			
+		case MSG_CLICK:
+		{
+			if(d->flags & (D_DISABLED|D_READONLY))
+				break;
+			x = d->x+3;
+			
+			if(scroll)
+			{
+				p = cursor_start-b+1;
+				b = cursor_start;
+			}
+			else
+				p = 0;
+				
+			for(; p<b; p++)
+			{
+				buf[0] = s[p];
+				x += text_length((d->dp2) ? (FONT*)d->dp2 : font, buf);
+				
+				if(x > gui_mouse_x())
+					break;
+			}
+			
+			if(key_shifts&KB_SHIFT_FLAG)
+				cursor_end = MID(0, p, l);
+			else
+			{
+				cursor_end = -1;
+				cursor_start = MID(0, p, l);
+			}
+			if(cursor_end == cursor_start) cursor_end = -1;
+			d->d2 = cursor_start | ((cursor_end&0xFFFF) << 16);
+			scare_mouse();
+			object_message(d, MSG_DRAW, 0);
+			unscare_mouse();
+			break;
+		}
+			
+		case MSG_WANTFOCUS:
+		case MSG_LOSTFOCUS:
+		case MSG_KEY:
+			if(d->flags & (D_DISABLED|D_READONLY))
+				break;
+			return D_WANTFOCUS;
+			
+		case MSG_CHAR:
+		{
+			if(d->flags & (D_DISABLED|D_READONLY))
+				break;
+			bool shifted = key_shifts & KB_SHIFT_FLAG;
+			bool ctrl = key_shifts & KB_CTRL_FLAG;
+			bool change_cursor = true;
+			int16_t scursor = cursor_start, ecursor = cursor_end;
+			bool multiselect = cursor_end > -1;
+			auto upper_c = c>>8;
+			auto lower_c = c&0xFF;
+			if(shifted)
+			{
+				if(ecursor < 0)
+					ecursor = scursor;
+			}
+			if(upper_c == KEY_LEFT)
+			{
+				if(shifted)
+				{
+					if(ecursor>0)
+						--ecursor;
+				}
+				else
+				{
+					ecursor = -1;
+					if(scursor > 0)
+						--scursor;
+				}
+			}
+			else if(upper_c == KEY_RIGHT)
+			{
+				if(shifted)
+				{
+					if(ecursor < l)
+						++ecursor;
+				}
+				else
+				{
+					ecursor = -1;
+					if(scursor < l)
+						++scursor;
+				}
+			}
+			else if(upper_c == KEY_HOME)
+			{
+				if(shifted)
+					ecursor = 0;
+				else
+				{
+					ecursor = -1;
+					scursor = 0;
+				}
+			}
+			else if(upper_c == KEY_END)
+			{
+				if(shifted)
+					ecursor = l;
+				else
+				{
+					ecursor = -1;
+					scursor = l;
+				}
+			}
+			else if(upper_c == KEY_DEL)
+			{
+				if(ctrl)
+				{
+					s[0] = 0;
+					scursor = 0;
+					ecursor = -1;
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+				else if(multiselect)
+				{
+					ecursor = -1;
+					scursor = low_cursor;
+					size_t ind = low_cursor, ind2 = high_cursor+1;
+					while(s[ind2])
+						s[ind++] = s[ind2++];
+					while(s[ind])
+						s[ind++] = 0;
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+				else if(scursor < l)
+				{
+					for(p=scursor; s[p]; p++)
+						s[p] = s[p+1];
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+			}
+			else if(upper_c == KEY_BACKSPACE)
+			{
+				if(ctrl)
+				{
+					s[0] = 0;
+					scursor = 0;
+					ecursor = -1;
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+				else if(multiselect)
+				{
+					ecursor = -1;
+					scursor = low_cursor;
+					size_t ind = low_cursor, ind2 = high_cursor+1;
+					while(s[ind2])
+						s[ind++] = s[ind2++];
+					while(s[ind])
+						s[ind++] = 0;
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+				else if(scursor > 0)
+				{
+					--scursor;
+					for(p=scursor; s[p]; p++)
+						s[p] = s[p+1];
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+			}
+			else if(upper_c == KEY_ENTER)
+			{
+				change_cursor = false;
+				GUI_EVENT(d, geENTER);
+				if(d->flags & D_EXIT)
+				{
+					scare_mouse();
+					object_message(d, MSG_DRAW, 0);
+					unscare_mouse();
+					return D_CLOSE;
+				}
+				else
+					return D_O_K;
+			}
+			else if(upper_c == KEY_TAB)
+			{
+				change_cursor = false;
+				return D_O_K;
+			}
+			else if(ctrl && (lower_c=='c' || lower_c=='C'))
+			{
+				change_cursor = false;
+				std::ostringstream oss;
+				if(multiselect)
+				{
+					for(size_t ind = low_cursor; ind <= high_cursor; ++ind)
+					{
+						if(s[ind])
+							oss << s[ind];
+					}
+				}
+				else
+				{
+					if(s[scursor])
+						oss << s[scursor];
+				}
+				set_al_clipboard(oss.str());
+			}
+			else if(clipboard_has_text() && ctrl && (lower_c=='v' || lower_c=='V'))
+			{
+				std::string cb;
+				if(get_al_clipboard(cb))
+				{
+					int ind = low_cursor, ind2 = high_cursor + 1;
+					if (multiselect)
+					{
+						//Delete selected text
+						ecursor = -1;
+						scursor = low_cursor;
+						while (s[ind2] && ind2 < l)
+							s[ind++] = s[ind2++];
+						while (s[ind])
+							s[ind++] = 0;
+						l = (int32_t)strlen(s);
+					}
+					//Move the text out of the way of the pasting
+					int paste_len = cb.size();
+					int paste_start = scursor;
+					int paste_end = paste_start+paste_len;
+					ind = paste_end-1;
+					ind2 = paste_end+paste_len-1;
+					while(ind2 >= d->d1)
+					{
+						if(ind <= l) //need the space, shorten paste
+						{
+							--paste_len;
+							--paste_end;
+							--ind;
+							ind2-=2;
+						}
+						else //the space can be spared
+						{
+							--ind; --ind2;
+						}
+					}
+					size_t new_l = ind2+1;
+					while(ind >= paste_start)
+					{
+						if(s[ind] || (ind&&s[ind-1]))
+						{
+							s[ind2] = s[ind];
+						}
+						--ind2; --ind;
+					}
+					for(auto q = 0; q < paste_len; ++q)
+					{
+						s[paste_start+q] = cb.at(q);
+					}
+					s[new_l] = 0;
+					scursor = paste_start + paste_len;
+					ecursor = -1;
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+			}
+			else if((lower_c >= 32) && (lower_c <= 255))
+			{
+				if(multiselect)
+				{
+					//Delete selected text
+					ecursor = -1;
+					scursor = low_cursor;
+					size_t ind = low_cursor, ind2 = high_cursor+1;
+					while(s[ind2] && ind2 < l)
+						s[ind++] = s[ind2++];
+					while(s[ind])
+						s[ind++] = 0;
+					l = (int32_t)strlen(s);
+					//Type the character in its' place
+					//(fallthrough)
+				}
+				if(l < d->d1)
+				{
+					ecursor = -1;
+					s[l+1] = 0;
+					size_t ind = l;
+					while(ind >= scursor)
+					{
+						s[ind+1] = s[ind];
+						if (!ind) break;
+						--ind;
+					}
+					
+					s[scursor++] = lower_c;
 
-                    GUI_EVENT(d, geCHANGE_VALUE);
-                }
-            }
-            else
-                return D_O_K;
-        }
-        
-        /* if we changed something, better redraw... */
-        scare_mouse();
-        object_message(d, MSG_DRAW, 0);
-        unscare_mouse();
-        return D_USED_CHAR;
-    }
-    
-    return D_O_K;
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+			}
+			else
+				return D_O_K;
+			if(change_cursor)
+			{
+				cursor_end = ecursor; cursor_start = scursor;
+				if (cursor_end == cursor_start) cursor_end = -1;
+				d->d2 = cursor_start | ((cursor_end&0xFFFF) << 16);
+			}
+			/* if we changed something, better redraw... */
+			scare_mouse();
+			object_message(d, MSG_DRAW, 0);
+			unscare_mouse();
+			return D_USED_CHAR;
+		}
+	}
+	return D_O_K;
 }
 
 int32_t jwin_hexedit_proc_old(int32_t msg,DIALOG *d,int32_t c)
@@ -1888,15 +2364,7 @@ int32_t jwin_hexedit_proc_old(int32_t msg,DIALOG *d,int32_t c)
     return jwin_edit_proc(msg,d,isalpha(c&255)?c&0xDF:c);
 }
 
-int32_t jwin_hexedit_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-    if(msg==MSG_CHAR)
-        if((isalpha(c&255) && !isxdigit(c&255)) || ispunct(c&255))
-            return D_O_K;
-            
-    return jwin_edit_proc(msg,d,c);
-}
- bool editproc_special_key(int32_t c)
+bool editproc_special_key(int32_t c)
 {
 	switch(c>>8)
 	{
@@ -1906,12 +2374,108 @@ int32_t jwin_hexedit_proc(int32_t msg,DIALOG *d,int32_t c)
 		case KEY_ENTER: case KEY_TAB:
 			return true;
 	}
+	if(key_shifts & KB_CTRL_FLAG)
+		switch(c&255)
+		{
+			case 'c': case 'C':
+				return true;
+			case 'v': case 'V':
+				return clipboard_has_text();
+		}
 	return false;
+}
+bool editproc_combined_key(int32_t c)
+{
+	if(key_shifts & KB_CTRL_FLAG)
+		switch(c&255)
+		{
+			case 'c': case 'C':
+				return true;
+			case 'v': case 'V':
+				return clipboard_has_text();
+		}
+	return false;
+}
+int32_t jwin_hexedit_proc(int32_t msg,DIALOG *d,int32_t c)
+{
+	bool caps_paste = false;
+	if(msg==MSG_CHAR)
+	{
+		if(key_shifts & KB_CTRL_FLAG)
+		{
+			if(clipboard_has_text() && ((c&255)=='v' || (c&255)=='V'))
+			{
+				std::string cb;
+				if(get_al_clipboard(cb))
+				{
+					if(cb.find_first_not_of("-.0123456789ABCDEFabcdef") != std::string::npos)
+						return D_USED_CHAR;
+					if(cb.find_first_of("abcdef") != std::string::npos)
+						caps_paste = true;
+				}
+				else return D_USED_CHAR;
+			}
+		}
+		switch(c&255)
+		{
+			case '-': case '.':
+			case '0': case '1': case '2': case '3': case '4':
+			case '5': case '6': case '7': case '8': case '9':
+			case 'A': case 'B': case 'C':
+			case 'D': case 'E': case 'F':
+				break;
+			case 'a': case 'b': case 'c':
+			case 'd': case 'e': case 'f':
+				c = (c&~255)|toupper(c&255);
+				break;
+			default:
+				if(!editproc_special_key(c))
+					return D_O_K;
+				else if(!editproc_combined_key(c))
+					c&=~255;
+		}
+	}
+	
+	auto ret = jwin_edit_proc(msg,d,c);
+	if(caps_paste)
+	{
+		char* s = (char*)d->dp;
+		caps_paste = false;
+		for(auto q = strlen(s)-1; q >= 0; --q)
+		{
+			switch(s[q])
+			{
+				case 'a': case 'b': case 'c':
+				case 'd': case 'e': case 'f':
+					s[q] = toupper(s[q]);
+					caps_paste = true;
+					break;
+			}
+		}
+		if(caps_paste)
+		{
+			jwin_edit_proc(MSG_DRAW,d,0);
+		}
+	}
+	return ret;
 }
 int32_t jwin_numedit_proc(int32_t msg,DIALOG *d,int32_t c)
 {
 	if(msg==MSG_CHAR)
 	{
+		if(key_shifts & KB_CTRL_FLAG)
+		{
+			if(clipboard_has_text() && ((c&255)=='v' || (c&255)=='V'))
+			{
+				std::string cb;
+				if(get_al_clipboard(cb))
+				{
+					if(cb.find_first_not_of("-.0123456789") != std::string::npos)
+						return D_USED_CHAR;
+				}
+				else return D_USED_CHAR;
+			}
+		}
 		switch(c&255)
 		{
 			case '-': case '.':
@@ -1921,7 +2485,8 @@ int32_t jwin_numedit_proc(int32_t msg,DIALOG *d,int32_t c)
 			default:
 				if(!editproc_special_key(c))
 					return D_O_K;
-				else c&=~255;
+				else if(!editproc_combined_key(c))
+					c&=~255;
 		}
 	}
 			
@@ -2134,8 +2699,28 @@ int32_t jwin_numedit_swap_byte_proc(int32_t msg, DIALOG *d, int32_t c)
 	
 	return ret;
 }
+#define INC_TF_CURSORS(val,inc,max) \
+do \
+{ \
+	int32_t scursor = (val & 0xFFFF)+inc; \
+	int32_t ecursor = (val & 0xFFFF0000) >> 16; \
+	bool valid_ecursor = ecursor != 0xFFFF; \
+	if(valid_ecursor) ecursor += inc; \
+	if(inc < 0) \
+	{ \
+		if(scursor < 0) scursor = 0; \
+		if(valid_ecursor && ecursor < 0) ecursor = 0; \
+	} \
+	else \
+	{ \
+		if(scursor > max) scursor = max; \
+		if(valid_ecursor && ecursor > max) ecursor = max; \
+	} \
+	val = scursor | (ecursor<<16); \
+} while(false)
 int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 {
+	const size_t maxlen = 7;
 	DIALOG* swapbtn;
 	if(d->flags&D_NEW_GUI)
 	{
@@ -2186,7 +2771,7 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 					char buf[16] = {0};
 					strcpy(buf, str);
 					sprintf(str, "-%s", buf);
-					++d->d2;
+					INC_TF_CURSORS(d->d2,1,strlen(str));
 				}
 			}
 			else if(str[0] == '-')
@@ -2194,7 +2779,7 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 				char buf[16] = {0};
 				strcpy(buf, str);
 				sprintf(str, "%s", buf+1);
-				if(d->d2) --d->d2;
+				INC_TF_CURSORS(d->d2,-1,strlen(str));
 			}
 			if(msg != MSG_DRAW) ret |= D_REDRAWME;
 		}
@@ -2217,7 +2802,7 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 				char buf[16] = {0};
 				strcpy(buf, str);
 				sprintf(str, "-%s", buf);
-				++d->d2;
+				INC_TF_CURSORS(d->d2,1,strlen(str));
 			}
 		}
 		else if(!b && str[0] == '-')
@@ -2225,7 +2810,7 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 			char buf[16] = {0};
 			strcpy(buf, str);
 			sprintf(str, "%s", buf+1);
-			if(d->d2) --d->d2;
+			INC_TF_CURSORS(d->d2,-1,strlen(str));
 		}
 		if(msg != MSG_DRAW) ret |= D_REDRAWME;
 	}
@@ -2242,7 +2827,7 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 				else sprintf(str, "%X", b);
 				break;
 		}
-		d->d2 = strlen(str);
+		d->d2 = 0xFFFF0000|strlen(str);
 		if(msg != MSG_DRAW) ret |= D_REDRAWME;
 	}
 	
@@ -2251,9 +2836,20 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 		d->fg = b; //Store numeric data
 		GUI_EVENT(d, geUPDATE_SWAP);
 	}
-	int32_t t = d->d2;
-	if(msg == MSG_CHAR && queued_neg && !t)
-		++d->d2;
+	bool rev_d2 = false;
+	int32_t old_d2 = d->d2;
+	int32_t ref_d2;
+	if(msg == MSG_CHAR && queued_neg)
+	{
+		auto scursor = d->d2 & 0xFFFF;
+		auto ecursor = (d->d2 & 0xFFFF0000) >> 16;
+		if(!scursor)
+		{
+			rev_d2 = true;
+			INC_TF_CURSORS(d->d2,1,strlen(str));
+			ref_d2 = d->d2;
+		}
+	}
 	switch(ntype)
 	{
 		case typeDEC:
@@ -2262,13 +2858,15 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 			break;
 		case typeHEX:
 			d->d1 = 5; //5 digits max (incl '-')
-			if(msg == MSG_CHAR && isalpha(c&255)) //always capitalize
+			if(msg == MSG_CHAR && !editproc_special_key(c) && isalpha(c&255)) //always capitalize
 				c = (c&~255) | (toupper(c&255));
 			ret |= jwin_hexedit_proc(msg, d, c);
 			break;
 	}
-	if(msg == MSG_CHAR && queued_neg && !t)
-		if(d->d2-1 == t) --d->d2;
+	if(rev_d2 && ref_d2 == d->d2)
+	{
+		d->d2 = old_d2;
+	}
 	
 	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
 	
@@ -2276,6 +2874,7 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 }
 int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 {
+	const size_t maxlen = 13;
 	DIALOG* swapbtn;
 	if(d->flags&D_NEW_GUI)
 	{
@@ -2370,7 +2969,7 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 					char buf[16] = {0};
 					strcpy(buf, str);
 					sprintf(str, "-%s", buf);
-					++d->d2;
+					INC_TF_CURSORS(d->d2,1,strlen(str));
 				}
 			}
 			else if(str[0] == '-')
@@ -2378,7 +2977,7 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 				char buf[16] = {0};
 				strcpy(buf, str);
 				sprintf(str, "%s", buf+1);
-				if(d->d2) --d->d2;
+				INC_TF_CURSORS(d->d2,-1,strlen(str));
 			}
 			if(msg != MSG_DRAW) ret |= D_REDRAWME;
 		}
@@ -2401,7 +3000,7 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 				char buf[16] = {0};
 				strcpy(buf, str);
 				sprintf(str, "-%s", buf);
-				++d->d2;
+				INC_TF_CURSORS(d->d2,1,strlen(str));
 			}
 		}
 		else if(!b && str[0] == '-')
@@ -2409,7 +3008,7 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 			char buf[16] = {0};
 			strcpy(buf, str);
 			sprintf(str, "%s", buf+1);
-			if(d->d2) --d->d2;
+			INC_TF_CURSORS(d->d2,-1,strlen(str));
 		}
 		if(msg != MSG_DRAW) ret |= D_REDRAWME;
 	}
@@ -2438,7 +3037,7 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 				else sprintf(str, "%X", b);
 				break;
 		}
-		d->d2 = strlen(str);
+		d->d2 = 0xFFFF0000|strlen(str);
 		if(msg != MSG_DRAW) ret |= D_REDRAWME;
 	}
 	if(d->fg != b)
@@ -2462,21 +3061,33 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 		}
 	}
-	int32_t t = d->d2;
-	if(msg == MSG_CHAR && queued_neg && !t)
-		++d->d2;
+	bool rev_d2 = false;
+	int32_t old_d2 = d->d2;
+	int32_t ref_d2;
+	if(msg == MSG_CHAR && queued_neg)
+	{
+		auto scursor = d->d2 & 0xFFFF;
+		auto ecursor = (d->d2 & 0xFFFF0000) >> 16;
+		if(!scursor)
+		{
+			rev_d2 = true;
+			INC_TF_CURSORS(d->d2,1,strlen(str));
+			ref_d2 = d->d2;
+		}
+	}
+	bool areaselect = (d->d2 & 0xFFFF0000) != 0xFFFF0000;
 	switch(ntype)
 	{
 		case typeDEC:
 			d->d1 = 12; //12 digits max (incl '-', '.')
-			if(msg==MSG_CHAR && (c&255))
+			if(msg==MSG_CHAR && !editproc_special_key(c) && !areaselect)
 			{
 				int32_t p = 0;
 				for(int32_t q = 0; str[q]; ++q)
 				{
 					if(str[q]=='.')
 					{
-						if(d->d2 <= q)
+						if((d->d2&0x0000FFFF) <= q)
 							break; //typing before the '.'
 						++p;
 					}
@@ -2489,12 +3100,12 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 			break;
 		case typeHEX:
 			d->d1 = 11; //11 digits max (incl '-', '.')
-			if(msg==MSG_CHAR)
+			if(msg==MSG_CHAR && !editproc_special_key(c))
 			{
 				if(!((c&255)=='.'||isxdigit(c&255)))
 					c&=~255;
 				else if(isxdigit(c&255) && !isdigit(c&255))
-					for(int32_t q = 0; q < d->d2 && str[q]; ++q)
+					for(int32_t q = 0; q < (d->d2&0x0000FFFF) && str[q]; ++q)
 					{
 						if(str[q] == '.') //No hex digits to the right of the '.'
 						{
@@ -2502,14 +3113,14 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 							break;
 						}
 					}
-				if(c&255)
+				if((c&255) && !areaselect)
 				{
 					int32_t p = 0;
 					for(int32_t q = 0; str[q]; ++q)
 					{
 						if(str[q]=='.')
 						{
-							if(d->d2 <= q)
+							if((d->d2&0x0000FFFF) <= q)
 								break; //typing before the '.'
 							++p;
 						}
@@ -2521,7 +3132,7 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 				if(isalpha(c&255)) //always capitalize
 					c = (c&~255) | (toupper(c&255));
 			}
-			ret |= jwin_edit_proc(msg, d, c);
+			ret |= jwin_hexedit_proc(msg, d, c);
 			break;
 		case typeLDEC:
 			d->d1 = 11; //11 digits max (incl '-')
@@ -2529,13 +3140,15 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 			break;
 		case typeLHEX:
 			d->d1 = 9; //9 digits max (incl '-')
-			if(msg == MSG_CHAR && isalpha(c&255)) //always capitalize
+			if(msg == MSG_CHAR && !editproc_special_key(c) && isalpha(c&255)) //always capitalize
 				c = (c&~255) | (toupper(c&255));
 			ret |= jwin_hexedit_proc(msg, d, c);
 			break;
 	}
-	if(msg == MSG_CHAR && queued_neg && !t)
-		if(d->d2-1 == t) --d->d2;
+	if(rev_d2 && ref_d2 == d->d2)
+	{
+		d->d2 = old_d2;
+	}
 	
 	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
 	
@@ -4859,6 +5472,7 @@ int32_t jwin_do_menu(MENU *menu, int32_t x, int32_t y)
     
     do
     {
+        rest(1);
     }
     while(gui_mouse_b());
     
@@ -4918,6 +5532,7 @@ int32_t jwin_menu_proc(int32_t msg, DIALOG *d, int32_t c)
         
         do
         {
+            rest(1);
         }
         while(gui_mouse_b());
         
@@ -5197,9 +5812,9 @@ static DIALOG alert_dialog[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)   (dp2)  (dp3) */
     { jwin_win_proc,     0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
-    { d_ctext_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
-    { d_ctext_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
-    { d_ctext_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
+    { d_ctext2_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
+    { d_ctext2_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
+    { d_ctext2_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL },
     { jwin_button_proc,  0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL,  NULL,  NULL },
     { jwin_button_proc,  0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL,  NULL,  NULL },
     { jwin_button_proc,  0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL,  NULL,  NULL },
@@ -5331,6 +5946,7 @@ int32_t jwin_alert3(const char *title, const char *s1, const char *s2, const cha
     
     do
     {
+        rest(1);
     }
     while(gui_mouse_b());
     
@@ -5584,6 +6200,7 @@ int32_t jwin_auto_alert3(const char *title, const char *s1, int32_t lenlim, int3
     
     do
     {
+        rest(1);
     }
     while(gui_mouse_b());
     
@@ -5782,8 +6399,10 @@ dropit:
     object_message(d, MSG_DRAW, 0);
     unscare_mouse();
     
-    while(gui_mouse_b())
+    while(gui_mouse_b()) {
         clear_keybuf();
+        rest(1);
+    }
 
     if(d1!=d->d1)
         GUI_EVENT(d, geCHANGE_SELECTION);
@@ -5835,6 +6454,8 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 				if(!abc_keypresses[q]) break;
 				if(!isdigit(abc_keypresses[q]))
 				{
+					if(q == 0 && abc_keypresses[q] == '-')
+						continue;
 					numsearch = false;
 					break; 
 				}
@@ -5846,12 +6467,13 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 				if(!foundmatch)
 				{
 					char buf[6];
-					sprintf(buf, "(%03d)", num);
+					if(num < 0) sprintf(buf, "(%04d)", num);
+					else sprintf(buf, "(%03d)", num);
 					std::string cmp = buf;
 					for(int32_t listpos = 0; listpos < max; ++listpos)
 					{
 						std::string str((data->listFunc(listpos,&dummy)));
-						size_t trimpos = str.find_last_not_of("(0123456789)");
+						size_t trimpos = str.find_last_not_of("-(0123456789)");
 						if(trimpos != std::string::npos) ++trimpos;
 						str.erase(0, trimpos);
 						zprint2("checking '%s'\n", str.c_str());
@@ -7213,7 +7835,12 @@ int32_t displayed_tabs_width(GUI::TabPanel *panel, int32_t first_tab, int32_t ma
     
     return w+1;
 }
-INLINE int32_t is_in_rect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int32_t ry2);
+
+INLINE int32_t is_in_rect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int32_t ry2)
+{
+    return x>=rx1 && x<=rx2 && y>=ry1 && y<=ry2;
+}
+
 int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 {
 	assert(d->flags&D_NEW_GUI);

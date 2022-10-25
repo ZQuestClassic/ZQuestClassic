@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <boost/type_traits.hpp>
 #include "CompilerUtils.h"
 #include "parserDefs.h"
 
@@ -33,9 +34,9 @@ namespace ZScript
 
 		// Types
 		DataType const* getType(DataTypeId typeId) const;
-		optional<DataTypeId> getTypeId(DataType const& type) const;
-		optional<DataTypeId> assignTypeId(DataType const& type);
-		optional<DataTypeId> getOrAssignTypeId(DataType const& type);
+		std::optional<DataTypeId> getTypeId(DataType const& type) const;
+		std::optional<DataTypeId> assignTypeId(DataType const& type);
+		std::optional<DataTypeId> getOrAssignTypeId(DataType const& type);
 
 		template <typename Type>
 		Type const* getCanonicalType(Type const& type)

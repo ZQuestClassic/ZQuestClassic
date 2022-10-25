@@ -1415,19 +1415,41 @@
 #define GAMEEVENTDATA           1332
 #define ITEMDROPPEDBY           1333
 #define GAMEGSWITCH             1334
-#define REGIONID                1335 // region_max_rpos of these
-#define REGIONTD                1336 // region_max_rpos of these
-#define REGIONSD                1337 // region_max_rpos of these
-#define REGIONED                1338 // region_max_rpos of these
-#define REGIONDD                1339 // region_max_rpos of these
-#define REGIONCD                1340 // region_max_rpos of these
-#define REGIONFD                1341 // region_max_rpos of these
-#define REGIONWORLDWIDTH        1342
-#define REGIONWORLDHEIGHT       1343
-#define REGIONSCREENWIDTH       1344
-#define REGIONSCREENHEIGHT      1345
+#define COMBODTRIGGERCOOLDOWN   1335
+#define COMBODTRIGGERCOPYCAT    1336
+#define COMBODTRIGITEMPICKUP    1337
+#define COMBODTRIGEXSTATE       1338
+#define COMBODTRIGSPAWNENEMY    1339
+#define COMBODTRIGSPAWNITEM     1340
+#define COMBODTRIGCSETCHANGE    1341
+#define COMBODLIFTGFXCOMBO      1342
+#define COMBODLIFTGFXCCSET      1343
+#define COMBODLIFTUNDERCMB      1344
+#define COMBODLIFTUNDERCS       1345
+#define COMBODLIFTDAMAGE        1346
+#define COMBODLIFTLEVEL         1347
+#define COMBODLIFTITEM          1348
+#define COMBODLIFTFLAGS         1349
+#define COMBODLIFTGFXTYPE       1350
+#define COMBODLIFTGFXSPRITE     1351
+#define COMBODLIFTSFX           1352
+#define COMBODLIFTBREAKSPRITE   1353
+#define COMBODLIFTBREAKSFX      1354
+#define COMBODLIFTHEIGHT        1355
+#define COMBODLIFTTIME          1356
+#define REGIONID                1357 // region_max_rpos of these
+#define REGIONTD                1358 // region_max_rpos of these
+#define REGIONSD                1359 // region_max_rpos of these
+#define REGIONED                1360 // region_max_rpos of these
+#define REGIONDD                1361 // region_max_rpos of these
+#define REGIONCD                1362 // region_max_rpos of these
+#define REGIONFD                1363 // region_max_rpos of these
+#define REGIONWORLDWIDTH        1364
+#define REGIONWORLDHEIGHT       1365
+#define REGIONSCREENWIDTH       1366
+#define REGIONSCREENHEIGHT      1367
 
-#define LAST_BYTECODE           1346
+#define LAST_BYTECODE           1368
 
 //} END OF BYTECODE
 

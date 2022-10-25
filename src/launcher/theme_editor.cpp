@@ -3,7 +3,6 @@
 #include "dialog/alert.h"
 #include "base/jwinfsel.h"
 #include <gui/builder.h>
-#include <boost/format.hpp>
 #include "launcher/launcher.h"
 
 extern int32_t zq_screen_w, zq_screen_h;

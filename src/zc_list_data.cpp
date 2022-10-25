@@ -8,6 +8,15 @@ extern char *sfx_string[];
 extern char *item_string[];
 extern miscQdata QMisc;
 
+#ifndef IS_PARSER
+#ifndef IS_ZQUEST
+#define customtunes tunes
+extern zctune tunes[MAXMIDIS];
+#else
+extern zctune *customtunes;
+#endif
+#endif
+
 const char *msgfont_str[font_max] =
 {
 	"Zelda NES", "Link to the Past", "LttP Small", "Allegro Default", "GUI Font Bold", "GUI Font", "GUI Font Narrow", "Zelda NES (Matrix)", "BS Time (Incomplete)", "Small", "Small 2",
@@ -376,14 +385,19 @@ GUI::ListData GUI::ZCListData::counters(bool numbered, bool skipNone)
 	return ls;
 }
 
-GUI::ListData GUI::ZCListData::miscsprites(bool skipNone, bool inclNegSpecialVals)
+GUI::ListData GUI::ZCListData::miscsprites(bool skipNone, bool inclNegSpecialVals, bool numbered)
 {
 	std::map<std::string, int32_t> ids;
 	std::set<std::string> sprnames;
 	
 	for(int32_t i=0; i<wMAX; ++i)
 	{
-		std::string sname(weapon_string[i]);
+		char buf[512];
+		char* ptr = buf;
+		if(numbered)
+			sprintf(buf, "%s (%03d)", weapon_string[i], i);
+		else ptr = weapon_string[i];
+		std::string sname(ptr);
 		
 		ids[sname] = i;
 		sprnames.insert(sname);
@@ -392,9 +406,18 @@ GUI::ListData GUI::ZCListData::miscsprites(bool skipNone, bool inclNegSpecialVal
 	GUI::ListData ls;
 	if(inclNegSpecialVals)
 	{
-		ls.add("Grass Clippings", -4);
-		ls.add("Flower Clippings", -3);
-		ls.add("Bush Leaves", -2);
+		if(numbered)
+		{
+			ls.add("Grass Clippings (-004)", -4);
+			ls.add("Flower Clippings (-003)", -3);
+			ls.add("Bush Leaves (-002)", -2);
+		}
+		else
+		{
+			ls.add("Grass Clippings", -4);
+			ls.add("Flower Clippings", -3);
+			ls.add("Bush Leaves", -2);
+		}
 	}
 	if(!skipNone)
 		ls.add("(None)", -1);
@@ -462,6 +485,25 @@ GUI::ListData GUI::ZCListData::sfxnames(bool numbered)
 			sprintf(name, "%s (%03d)", sfx_name, i);
 		else strcpy(name, sfx_name);
 		ls.add(name, i);
+		delete[] name;
+	}
+	
+	return ls;
+}
+GUI::ListData GUI::ZCListData::midinames(bool numbered)
+{
+	std::map<std::string, int32_t> vals;
+	
+	GUI::ListData ls;
+	ls.add("(None)", 0);
+	for(int32_t i=0; i<MAXCUSTOMTUNES; ++i)
+	{
+		char const* midi_name = customtunes[i].title;
+		char* name = new char[strlen(midi_name) + 7];
+		if(numbered)
+			sprintf(name, "%s (%03d)", midi_name, i+1);
+		else strcpy(name, midi_name);
+		ls.add(name, i+1);
 		delete[] name;
 	}
 	
@@ -607,3 +649,45 @@ GUI::ListData const& GUI::ZCListData::deftypes()
 {
 	return defense_types;
 }
+
+static const GUI::ListData warp_effects
+{
+	{ "None", 0 },
+	{ "Zap", 1 },
+	{ "Wave", 2 },
+	{ "Instant", 3 },
+	{ "Open", 4 }
+};
+
+GUI::ListData const& GUI::ZCListData::warpeffects()
+{
+	return warp_effects;
+}
+
+static const GUI::ListData screen_state
+{
+	{ "Door Up", 0 },
+	{ "Door Down", 1 },
+	{ "Door Left", 2 },
+	{ "Door Right", 3 },
+	{ "Screen Item", 4 },
+	{ "Special Item", 5 },
+	{ "Enemies Never Return", 6 },
+	{ "Enemies Temp No Return", 7 },
+	{ "Lockblock", 8 },
+	{ "Boss Lockblock", 9 },
+	{ "Chest", 10 },
+	{ "Locked Chest", 11 },
+	{ "Boss Chest", 12 },
+	{ "Secrets", 13 },
+	{ "Visited", 14 },
+	{ "Light Triggers", 15 }
+};
+
+GUI::ListData const& GUI::ZCListData::screenstate()
+{
+	return screen_state;
+}
+
+
+

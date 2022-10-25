@@ -69,7 +69,7 @@ namespace ZScript
 		CompileError& operator=(CompileError const&);
 
 		// Get id if a valid instance.
-		optional<Id> getId() const;
+		std::optional<Id> getId() const;
 		// Get if strict (an error), or not (a warning).
 		bool isStrict() const;
 		std::string toString() const;

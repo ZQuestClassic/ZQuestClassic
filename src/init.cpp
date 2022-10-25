@@ -28,7 +28,6 @@
 #include "base/gui.h"
 #include "init.h"
 #include "zelda.h"
-#include "mem_debug.h"
 //extern ZModule zcm;
 extern zcmodule moduledata;
 
@@ -1092,8 +1091,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     {
         if(zinit2->items[i] && (itemsbuf[i].flags & ITEM_GAMEDATA))
         {
-            if(!game2->get_item(i))
-                getitem(i,true,false);
+            getitem(i,true,false);
         }
         else
             game2->set_item_no_flush(i,false);
@@ -1163,7 +1161,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     
     game2->set_magic(zc_min(zinit2->magic,zinit2->max_magic));
     game2->set_magicdrainrate(zinit2->magicdrainrate);
-	zprint2("gd2: %d, zi2: %d\n", game2->get_magicdrainrate(), zinit2->magicdrainrate);
+	//zprint2("gd2: %d, zi2: %d\n", game2->get_magicdrainrate(), zinit2->magicdrainrate);
     game2->set_canslash(get_bit(zinit2->misc,idM_CANSLASH)?1:0);
     
     game2->set_arrows(zinit2->arrows);

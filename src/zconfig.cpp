@@ -5,10 +5,16 @@
 char const* zc_get_standard_config_name()
 {
 	switch (get_app_id()) {
+#ifdef __EMSCRIPTEN__
+		case App::zelda: return "local/zc.cfg";
+		case App::zquest: return "local/zquest.cfg";
+		case App::zscript: return "local/zscript.cfg";
+#else
 		case App::zelda: return "zc.cfg";
 		case App::zquest: return "zquest.cfg";
-		case App::launcher: return "zcl.cfg";
 		case App::zscript: return "zscript.cfg";
+#endif
+		case App::launcher: return "zcl.cfg";
 		default: exit(1);
 	}
 }

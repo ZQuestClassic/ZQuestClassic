@@ -43,11 +43,15 @@
 #include "subscr.h"
 #include "zq_strings.h"
 #include "zq_subscr.h"
-#include "mem_debug.h"
 #include "ffscript.h"
 #include "base/util.h"
 #include "zq_files.h"
 #include "dialog/alert.h"
+
+#ifdef __EMSCRIPTEN__
+#include "base/emscripten_utils.h"
+#endif
+
 using namespace util;
 extern FFScript FFCore;
 
@@ -230,7 +234,7 @@ bool zmap::reset_templates(bool validate)
         return false;
     }
     
-    char *deletefilename=(char *)zc_malloc(1);
+    char *deletefilename=(char *)malloc(1);
     ASSERT(deletefilename);
     deletefilename[0]=0;
     
@@ -6657,7 +6661,11 @@ int32_t reverse_string(char* str)
 
 int32_t quest_access(const char *filename, zquestheader *hdr, bool compressed)
 {
-    return 1; // TODO z3 remove
+	return 1; // TODO z3 ! remove
+#ifdef __EMSCRIPTEN__
+    return 1;
+#endif
+
     //Protection against compiling a release version with password protection off.
     static bool passguard = false;
     
@@ -9032,12 +9040,7 @@ int32_t writeweapons(PACKFILE *f, zquestheader *Header)
         }
         
         for(int32_t i=0; i<wMAX; i++)
-        {
-            if(!p_iputw(wpnsbuf[i].tile,f))
-            {
-                new_return(6);
-            }
-            
+        {            
             if(!p_putc(wpnsbuf[i].misc,f))
             {
                 new_return(7);
@@ -9063,12 +9066,12 @@ int32_t writeweapons(PACKFILE *f, zquestheader *Header)
                 new_return(11);
             }
 	    
-	    if(!p_iputw(wpnsbuf[i].script,f))
+	        if(!p_iputw(wpnsbuf[i].script,f))
             {
                 new_return(12);
             }
 	    
-	    if(!p_iputl(wpnsbuf[i].newtile,f))
+	        if(!p_iputl(wpnsbuf[i].tile,f))
             {
                 new_return(12);
             }
@@ -9096,6 +9099,7 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		return qe_invalid;
 	
 	mapscr& screen=TheMaps.at(i*MAPSCRS+j);
+	bool is_0x80_screen = j >= 0x80;
 	
 	if(!p_putc(screen.valid,f))
 		return qe_invalid;
@@ -9106,7 +9110,7 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 	if(screen.guy || screen.str
 		|| screen.room || screen.catchall)
 		scr_has_flags |= SCRHAS_ROOMDATA;
-	if(screen.hasitem)
+	if(screen.hasitem || (is_0x80_screen && (screen.itemx||screen.itemy)))
 		scr_has_flags |= SCRHAS_ITEM;
 	if((screen.warpreturnc&0x00FF) || screen.tilewarpoverlayflags)
 		scr_has_flags |= SCRHAS_TWARP;
@@ -9707,7 +9711,9 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		|| tmp_cmb.triglbeam || tmp_cmb.trigcschange
 		|| tmp_cmb.spawnitem || tmp_cmb.spawnenemy
 		|| tmp_cmb.exstate > -1 || tmp_cmb.spawnip
-		|| tmp_cmb.trigcopycat || tmp_cmb.trigcooldown)
+		|| tmp_cmb.trigcopycat || tmp_cmb.trigcooldown
+		|| tmp_cmb.prompt_cid || tmp_cmb.prompt_cs
+		|| tmp_cmb.prompt_x != 12 || tmp_cmb.prompt_y != -8)
 		combo_has_flags |= CHAS_TRIG;
 	if(tmp_cmb.usrflags || tmp_cmb.genflags)
 		combo_has_flags |= CHAS_FLAG;
@@ -9725,7 +9731,8 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		|| tmp_cmb.liftlvl || tmp_cmb.liftitm || tmp_cmb.liftflags
 		|| tmp_cmb.liftgfx || tmp_cmb.liftsprite || tmp_cmb.liftsfx
 		|| tmp_cmb.liftundercmb || tmp_cmb.liftundercs
-		|| tmp_cmb.liftbreaksprite!=-1 || tmp_cmb.liftbreaksfx)
+		|| tmp_cmb.liftbreaksprite!=-1 || tmp_cmb.liftbreaksfx
+		|| tmp_cmb.lifthei!=8 || tmp_cmb.lifttime!=16)
 		combo_has_flags |= CHAS_LIFT;
 	
 	if(!p_putc(combo_has_flags,f))
@@ -9937,6 +9944,22 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		{
 			return 49;
 		}
+		if(!p_iputw(tmp_cmb.prompt_cid,f))
+		{
+			return 50;
+		}
+		if(!p_putc(tmp_cmb.prompt_cs,f))
+		{
+			return 51;
+		}
+		if(!p_iputw(tmp_cmb.prompt_x,f))
+		{
+			return 52;
+		}
+		if(!p_iputw(tmp_cmb.prompt_y,f))
+		{
+			return 53;
+		}
 	}
 	if(combo_has_flags&CHAS_LIFT)
 	{
@@ -9991,6 +10014,14 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		if(!p_putc(tmp_cmb.liftbreaksfx,f))
 		{
 			return 63;
+		}
+		if(!p_putc(tmp_cmb.lifthei,f))
+		{
+			return 64;
+		}
+		if(!p_putc(tmp_cmb.lifttime,f))
+		{
+			return 65;
 		}
 	}
 	return 0;
@@ -10589,7 +10620,7 @@ int32_t writestrings_text(PACKFILE *f)
     new_return(0);
 }
 
-
+bool isblanktile(tiledata *buf, int32_t i);
 int32_t writetiles(PACKFILE *f, word version, word build, int32_t start_tile, int32_t max_tiles)
 {
     //these are here to bypass compiler warnings about unused arguments
@@ -10647,28 +10678,24 @@ int32_t writetiles(PACKFILE *f, word version, word build, int32_t start_tile, in
         }
         
         for(int32_t i=0; i<tiles_used; ++i)
-        //for(int32_t i=0; i<NEWMAXTILES; ++i)
         {
-            if(!p_putc(newtilebuf[start_tile+i].format,f))
-            {
-                new_return(6);
-            }
-            
-            if(!pfwrite(newtilebuf[start_tile+i].data,tilesize(newtilebuf[start_tile+i].format),f))
-            {
-                new_return(7);
-            }
-	    /*
-            if(!p_putc(newtilebuf[start_tile+i].format,f))
-            {
-                new_return(6);
-            }
-            
-            if(!pfwrite(newtilebuf[start_tile+i].data,tilesize(newtilebuf[start_tile+i].format),f))
-            {
-                new_return(7);
-            }
-	    */
+			if(isblanktile(newtilebuf, start_tile+i))
+			{
+				if(!p_putc(0,f))
+					new_return(8);
+			}
+			else
+			{
+				if(!p_putc(newtilebuf[start_tile+i].format,f))
+				{
+					new_return(6);
+				}
+				
+				if(!pfwrite(newtilebuf[start_tile+i].data,tilesize(newtilebuf[start_tile+i].format),f))
+				{
+					new_return(7);
+				}
+			}
         }
         
         if(writecycle==0)
@@ -11761,14 +11788,16 @@ int32_t writeherosprites(PACKFILE *f, zquestheader *Header)
 				new_return(15);
 			if(!p_putc((byte)liftingspr[q][spr_extend],f))
 				new_return(15);
+			if(!p_putc((byte)liftingspr[q][spr_frames],f))
+				new_return(15);
 		}
 		for(int32_t q = 0; q < 4; ++q)
 		{
-			if(!p_iputl(liftingheavyspr[q][spr_tile],f))
+			if(!p_iputl(liftingwalkspr[q][spr_tile],f))
 				new_return(15);
-			if(!p_putc((byte)liftingheavyspr[q][spr_flip],f))
+			if(!p_putc((byte)liftingwalkspr[q][spr_flip],f))
 				new_return(15);
-			if(!p_putc((byte)liftingheavyspr[q][spr_extend],f))
+			if(!p_putc((byte)liftingwalkspr[q][spr_extend],f))
 				new_return(15);
 		}
 		for(int32_t q = 0; q < 4; ++q)
@@ -14334,6 +14363,10 @@ int32_t save_quest(const char *filename, bool timed_save)
 		
 		delete_file(tmpfilename);
 	}
+
+#ifdef __EMSCRIPTEN__
+	em_sync_fs();
+#endif
 	
 	return ret;
 }

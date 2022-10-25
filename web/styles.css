@@ -1,0 +1,225 @@
+body {
+  margin: 0;
+  background-color: black;
+  color: whitesmoke;
+  font-size: 18px;
+  font-family: monospace;
+}
+
+body.canvas-focus {
+  overscroll-behavior: none;
+  overflow-y: hidden;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.flex {
+  display: flex;
+}
+
+.justify-evenly {
+  justify-content: space-evenly;
+}
+
+.m5 {
+  margin: 5px;
+}
+
+a {
+  color: whitesmoke;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px;
+  position: sticky;
+  background-color: black;
+}
+
+progress {
+  margin-right: 5px;
+}
+
+button {
+  font-size: 18px;
+  background: none;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button.active {
+  color: gold;
+}
+
+button:active {
+  transform: translate(1px, 1px);
+}
+
+.button--testmode {
+  color: #36d23f;
+}
+
+.about, .settings {
+  margin: 0 5vw;
+}
+
+.quest-list {
+  display: grid;
+  grid-template-columns: 25vw 75vw;
+  height: 100vh;
+  overflow-y: scroll;
+}
+
+.quest-list__entries {
+  overflow-y: scroll;
+}
+
+.quest-list__sort {
+  display: flex;
+}
+
+.quest-list__sort-option {
+  cursor: pointer;
+  margin: 0 10px;
+}
+
+.quest-list__entry {
+  max-width: 20vw;
+  margin: 5px;
+  font-size: 16px;
+  user-select: none;
+  cursor: pointer;
+}
+
+.quest-list__current {
+  margin: 10px;
+}
+
+.top-section {
+  display: flex;
+  justify-content: space-between;
+}
+
+.quest-list__entry:hover {
+  background-color: #2a3333;
+}
+
+.quest-list__entry.selected {
+  padding-left: 5px;
+  color: gold;
+}
+
+.link-group {
+  display: flex;
+  flex-direction: column;
+  margin: 15px;
+  text-align: end;
+}
+
+.play-link {
+  font-size: 30px;
+}
+
+.emscripten {
+  display: flex;
+  align-items: center;
+
+  position: fixed;
+  margin: 3px;
+  right: 0;
+  top: 0;
+  z-index: 10000;
+}
+
+.content {
+  display: flex;
+  justify-content: center;
+}
+
+canvas {
+  border: 0 none;
+}
+
+.touch-inputs {
+  display: none;
+  margin: 15vh 5vh;
+  flex-grow: 1;
+  align-items: end;
+  justify-content: center;
+}
+
+@media only screen and (hover: none) {
+  .touch-inputs {
+    display: flex;
+  }
+}
+
+.touch-input {
+  color: white;
+  font-weight: bold;
+  padding: 15px 4px;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  pointer-events: all;
+  text-align: center;
+}
+
+.touch-input.pressed {
+  transform: translate(2px, 2px);
+}
+
+.dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.dpad .touch-input {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  width: 5vw;
+  height: 5vw;
+}
+
+.settings__browser-files {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 5px;
+  justify-items: center;
+}
+.file {
+  display: contents;
+  cursor: pointer;
+  user-select: none;
+  padding: 5px;
+}
+.file:hover {
+  color: gold;
+}
+
+.permission {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 15vw;
+}
+
+.images {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+.images img {
+  width: 12vw;
+}
+.current-image img {
+  height: max(40vh, 300px);
+}

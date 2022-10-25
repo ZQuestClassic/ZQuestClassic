@@ -31,8 +31,11 @@
 #include "title.h"
 #include "gamedata.h"
 #include "hero.h"
-#include "mem_debug.h"
 #include "ffscript.h"
+
+#ifdef __EMSCRIPTEN__
+#include "base/emscripten_utils.h"
+#endif
 
 #ifdef _MSC_VER
 #define strupr _strupr
@@ -1176,7 +1179,6 @@ static void v25_titlescreen()
 	trstr=0;
 	set_palette(black_palette);
 	
-	try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
 	clear_to_color(screen,BLACK);
 	clear_bitmap(framebuf);
 	init_NES_mode();
@@ -1185,6 +1187,7 @@ static void v25_titlescreen()
 	CSET_SHFT=2;
 	ALLOFF();
 	clear_keybuf();
+	try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
 	
 	do
 	{
@@ -2115,6 +2118,27 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 		{
 			std::fill(savedata[i].gswitch_timers, savedata[i].gswitch_timers+NUM_GSWITCHES, 0);
 		}
+		if(section_version >= 29)
+		{
+			word replay_path_len;
+			if(!p_igetw(&replay_path_len, f, true))
+				return 80;
+
+			auto buf = std::make_unique<char[]>(replay_path_len + 1);
+			buf[replay_path_len] = '\0';
+			if (!pfread(buf.get(), replay_path_len, f, true))
+				return 81;
+			savedata[i].replay_file = buf.get();
+
+			// TODO why doesn't this work?
+			// savedata[i].replay_file.reserve(replay_path_len + 1);
+			// if (!pfread(savedata[i].replay_file.data(), replay_path_len, f, true))
+			// 	return 81;
+		}
+		else
+		{
+			savedata[i].replay_file = "";
+		}
 	}
 	
 	
@@ -2126,7 +2150,7 @@ void set_up_standalone_save()
 	char *fn=get_filename(standalone_quest);
 	saves[0].set_name(fn);
 	
-	qstpath=(char*)zc_malloc(2048);
+	qstpath=(char*)malloc(2048);
 	strncpy(qstpath, standalone_quest, 2047);
 	qstpath[2047]='\0';
 	chosecustomquest=true;
@@ -2191,7 +2215,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	*/
 	FFCore.skip_ending_credits = 0;
 	char *fname = SAVE_FILE;
-	char *iname = (char *)zc_malloc(2048);
+	char *iname = (char *)malloc(2048);
 	int32_t ret;
 	PACKFILE *f=NULL;
 	FILE *f2=NULL;
@@ -2270,7 +2294,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	for(int32_t i=0; i<MAXSAVES; i++)
 	{
 		byte showmetadata = get_config_int("zeldadx","print_metadata_for_each_save_slot",0);
-		zprint2("Reading Save Slot %d\n", i);
+		//zprint2("Reading Save Slot %d\n", i);
 		
 		if(strlen(saves[i].qstpath))
 		{
@@ -2316,7 +2340,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	
 	pack_fclose(f);
 	delete_file(tmpfilename);
-	zc_free(iname);
+	free(iname);
 	return 0;
 	
 newdata:
@@ -2324,7 +2348,11 @@ newdata:
 	
 	if(standalone_mode)
 		goto init;
-		
+
+	#ifdef __EMSCRIPTEN__
+		goto init;
+	#endif
+
 	if(jwin_alert("Can't Find Saved Game File",
 				  "The save file could not be found.",
 				  "Create a new file from scratch?",
@@ -2381,7 +2409,7 @@ init:
 	if(standalone_mode)
 		set_up_standalone_save();
 		
-	zc_free(iname);
+	free(iname);
 	return 0;
 	
 }
@@ -2730,6 +2758,10 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 		{
 			return 80;
 		}
+		if (!p_iputw(savedata[i].replay_file.length(), f))
+			return 81;
+		if (!pfwrite((void*)savedata[i].replay_file.c_str(), savedata[i].replay_file.length(), f))
+			return 82;
 	}
 	
 	return 0;
@@ -2737,7 +2769,7 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 
 int32_t save_savedgames()
 {
-	if(zqtesting_mode||saves==NULL)
+	if (disable_save_to_disk || saves==NULL)
 		return 1;
 	
 	// Not sure why this happens, but apparently it does...
@@ -2776,7 +2808,7 @@ int32_t save_savedgames()
 	delete_file(tmpfilename);
 	
 	FILE *f2=NULL;
-	char *iname = (char *)zc_malloc(2048);
+	char *iname = (char *)malloc(2048);
 	strcpy(iname, SAVE_FILE);
 	
 	for(int32_t i=0; iname[i]!='\0'; iname[i]=='.'?iname[i]='\0':i++)
@@ -2793,7 +2825,12 @@ int32_t save_savedgames()
 		fputc(*(di2++),f2);
 		
 	fclose(f2);
-	zc_free(iname);
+	free(iname);
+
+#ifdef __EMSCRIPTEN__
+	em_sync_fs();
+#endif
+
 	return ret;
 }
 
@@ -3011,7 +3048,7 @@ static void list_save(int32_t save_num, int32_t ypos)
 		game->set_life(saves[save_num].get_maxlife());
 		game->set_hp_per_heart(saves[save_num].get_hp_per_heart());
 		
-		//wpnsbuf[iwQuarterHearts].newtile = moduledata.select_screen_tiles[sels_heart_tile];
+		//wpnsbuf[iwQuarterHearts].tile = moduledata.select_screen_tiles[sels_heart_tile];
 		//Setting the cset does nothing, because it lifemeter() uses overtile8()
 		//Modules should set the cset manually. 
 		//wpnsbuf[iwQuarterHearts].csets = moduledata.select_screen_tile_csets[sels_heart_tilettile_cset];
@@ -3233,6 +3270,15 @@ static bool register_name()
 	refreshpal=true;
 	bool done=false;
 	bool cancel=false;
+
+	if (!load_qstpath.empty()) {
+		std::string filename = get_filename(load_qstpath.c_str());
+		filename.erase(remove(filename.begin(), filename.end(), ' '), filename.end());
+		auto len = filename.find(".qst", 0);
+		len = zc_min(len, 8);
+		strcpy(name, filename.substr(0, len).c_str());
+		x = strlen(name);
+	}
 	
 	int32_t letter_grid_x=(NameEntryMode2==2)?34:44;
 	int32_t letter_grid_y=120;
@@ -3419,6 +3465,17 @@ static bool register_name()
 		}
 		else
 		{
+#ifdef __EMSCRIPTEN__
+			// Allow gamepad to submit name.
+			poll_joystick();
+			load_control_state();
+			if(rSbtn())
+			{
+				done = true;
+				break;
+			}
+#endif
+
 			if(keypressed())
 			{
 				int32_t k=readkey();
@@ -3516,6 +3573,7 @@ static bool register_name()
 						while(key[KEY_ESC])
 						{
 							/* do nothing */
+							rest(1);
 						}
 						
 						break;
@@ -4154,6 +4212,24 @@ static void select_game(bool skip = false)
 		draw_cursor(pos,mode);
 		advanceframe(true);
 		saveslot = pos + listpos;
+
+		if(!load_qstpath.empty())
+		{
+			if (register_name())
+			{
+				currgame = savecnt - 1;
+				loadlast = currgame + 1;
+				strcpy(qstpath, load_qstpath.c_str());
+				chosecustomquest = true;
+				load_custom_game(currgame);
+				save_savedgames();
+				break;
+			}
+			else
+			{
+				load_qstpath = "";
+			}
+		}
 		
 		if(popup_choose_quest)
 		{
@@ -4343,6 +4419,8 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 		cont_game();
 		return;
 	}
+
+	if (replay_get_mode() == ReplayMode::Record) replay_stop();
 	
 	if(q==qRESET && !skip_title)
 	{
@@ -4415,7 +4493,6 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 
 void game_over(int32_t type)
 {
-
 	FFCore.kb_typing_mode = false; 
 	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	/*
@@ -4482,8 +4559,9 @@ void game_over(int32_t type)
 	int32_t curcset = SaveScreenSettings[SAVESC_CURSOR_CSET];
 	bool done=false;
 	
-	do load_control_state();
-	
+	do {
+		load_control_state();
+	}
 	while(getInput(btnS, true, false, true));//rSbtn
 	
 	do
@@ -4559,6 +4637,9 @@ void game_over(int32_t type)
 		advanceframe(true);
 	}
 	while(!Quit && !done);
+
+	if (replay_is_debug())
+		replay_step_comment("game_over selection made");
 	
 	reset_combo_animations();
 	reset_combo_animations2();
@@ -4567,6 +4648,11 @@ void game_over(int32_t type)
 	
 	if(done)
 	{
+		// This is always the last step before a game save replay is stopped. On replay_continue,
+		// the frame_count is set to this step's frame + 1 to continue the recording–so this comment
+		// is super important.
+		replay_step_comment("game_over");
+
 		if(pos)
 		{
 			if(standalone_mode && !skip_title)
@@ -4608,6 +4694,7 @@ void game_over(int32_t type)
 			load_game_icon(saves+currgame,false,currgame);
 			show_saving(screen);
 			save_savedgames();
+			if (replay_get_mode() == ReplayMode::Record) replay_save();
 		}
 	}
 }
@@ -4643,6 +4730,7 @@ void save_game(bool savepoint)
 	load_game_icon(saves+currgame,false,currgame);
 	show_saving(screen);
 	save_savedgames();
+	if (replay_get_mode() == ReplayMode::Record) replay_save();
 }
 
 bool save_game(bool savepoint, int32_t type)
@@ -4683,6 +4771,7 @@ bool save_game(bool savepoint, int32_t type)
 		textout_ex(framebuf,zfont,SaveScreenText[SAVESC_DONTSAVE],88,96,( SaveScreenSettings[SAVESC_TEXT_DONTSAVE_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_DONTSAVE_COLOUR] : QMisc.colors.msgtext),-1);
 		textout_ex(framebuf,zfont,SaveScreenText[SAVESC_QUIT],88,120,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);
 		
+		rUp(); rDown(); rSbtn(); //eat inputs
 		do
 		{
 			load_control_state();
@@ -4784,6 +4873,7 @@ bool save_game(bool savepoint, int32_t type)
 				load_game_icon(saves+currgame,false,currgame);
 				show_saving(screen);
 				save_savedgames();
+				if (replay_get_mode() == ReplayMode::Record) replay_save();
 				didsaved=true;
 				
 				if(type)
@@ -4805,6 +4895,7 @@ bool save_game(bool savepoint, int32_t type)
 				int32_t g=-1;
 				bool done3=false;
 				
+				rUp(); rDown(); rSbtn(); //eat inputs
 				do
 				{
 					load_control_state();

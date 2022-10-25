@@ -27,6 +27,7 @@ class Widget: public std::enable_shared_from_this<Widget>
 public:
 	Widget() noexcept;
 	virtual ~Widget() {}
+	virtual bool isTopLevel() const {return false;}
 
 	/* Set the widget's width, overriding its preferred size.
 	 * This should not be used by widgets.

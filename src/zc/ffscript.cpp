@@ -20,7 +20,7 @@
 #include "zc_sys.h"
 extern byte use_dwm_flush;
 uint8_t using_SRAM = 0;
-#include "zc_math.h"
+#include "base/zc_math.h"
 #include "base/zc_array.h"
 #include "ffscript.h"
 #include "zc_subscr.h"
@@ -28,7 +28,6 @@ uint8_t using_SRAM = 0;
 #include "script_drawing.h"
 #include "base/util.h"
 #include "ending.h"
-#include "zc_malloc.h"
 #include "base/module.h"
 #include "combos.h"
 #include "drawing.h"
@@ -79,7 +78,6 @@ extern byte monochrome_console;
 
 CScriptDrawingCommands scriptdraws;
 FFScript FFCore;
-zquestheader ZCheader;
 ZModule zcm;
 zcmodule moduledata;
 script_bitmaps scb;
@@ -113,7 +111,7 @@ void user_dir::clear()
 	if(list)
 	{
 		list->clear();
-		zc_free(list);
+		free(list);
 		list = NULL;
 	}
 }
@@ -121,7 +119,7 @@ void user_dir::setPath(const char* buf)
 {
 	if(!list)
 	{
-		list = (FLIST *) zc_malloc(sizeof(FLIST));
+		list = (FLIST *) malloc(sizeof(FLIST));
 	}
 	reserved = true;
 	filepath = std::string(buf) + "/";
@@ -481,12 +479,10 @@ extern int32_t directItemY;
 #include "zc_init.h"
 #include "base/zsys.h"
 #include "title.h"
-#include "mem_debug.h"
 #include "zscriptversion.h"
 
 #include "pal.h"
 #include "base/zdefs.h"
-#include "zc_malloc.h"
 #include "rendertarget.h" //Needed for LoadBitmap
 
 #include "zc_custom.h"
@@ -1510,93 +1506,131 @@ public:
 };
 
 byte flagpos;
-int32_t ornextflag(bool flag)
+int32_t flagval;
+void clear_ornextflag()
 {
-	int32_t f = (flag?1:0)<<flagpos;
-	flagpos++;
-	return f;
+	flagpos = 0;
+	flagval = 0;
+}
+void ornextflag(bool flag)
+{
+	if(flag) flagval |= 1<<flagpos;
+	++flagpos;
 }
 
 int32_t get_screenflags(mapscr *m, int32_t flagset)
 {
-	int32_t f=0;
-	flagpos = 0;
+	clear_ornextflag();
 	
 	switch(flagset)
 	{
-	case 0: // Room Type
-		f = ornextflag(m->flags6&1)  | ornextflag(m->flags6&2) | ornextflag(m->flags7&8);
-		break;
-		
-	case 1: // View
-		f = ornextflag(m->flags3&8)  | ornextflag(m->flags7&16) | ornextflag(m->flags3&16)
-			| ornextflag(m->flags3&64) | ornextflag(m->flags7&2)  | ornextflag(m->flags7&1)
-			| ornextflag(m->flags&fDARK) | ornextflag(m->flags9&fDARK_DITHER) | ornextflag(m->flags9&fDARK_TRANS);
-		break;
-		
-	case 2: // Secrets
-		f = ornextflag(m->flags&1)   | ornextflag(m->flags5&16) | ornextflag(m->flags6&4)
-			| ornextflag(m->flags6&32);
-		break;
-		
-	case 3: // Warp
-		f = ornextflag(m->flags5&4)  | ornextflag(m->flags5&8)  | ornextflag(m->flags&64)
-			| ornextflag(m->flags8&64) | ornextflag(m->flags3&32) | ornextflag(m->flags9&fDISABLE_MIRROR);
-		break;
-		
-	case 4: // Item
-		f = ornextflag(m->flags3&1)  | ornextflag(m->flags7&4)  | ornextflag(m->flags8&0x40)  | ornextflag(m->flags8&0x80)  | ornextflag(m->flags9&0x01)  | ornextflag(m->flags9&0x02)  | ornextflag(m->flags9&0x04);
-		break;
-		
-	case 5: // Combo
-		f = ornextflag((m->flags2>>4)&2)| ornextflag(m->flags3&2)| ornextflag(m->flags5&2)
-			| ornextflag(m->flags6&64);
-		break;
-		
-	case 6: // Save
-		f = ornextflag(m->flags4&64) | ornextflag(m->flags4&128) | ornextflag(m->flags6&8)
-			| ornextflag(m->flags6&16);
-		break;
-		
-	case 7: // FFC
-		f = ornextflag(m->flags6&128)| ornextflag(m->flags5&128);
-		break;
-		
-	case 8: // Whistle
-		f = ornextflag(m->flags&16)  | ornextflag(m->flags7&64)  | ornextflag(m->flags7&128);
-		break;
-		
-	case 9: // Misc
-		f = ornextflag(m->flags&32)  | ornextflag(m->flags5&64)  | m->flags8<<2;
-		break;
+		case 0: // Room Type
+			ornextflag(m->flags6&1);
+			ornextflag(m->flags6&2);
+			ornextflag(m->flags7&8);
+			break;
+			
+		case 1: // View
+			ornextflag(m->flags3&8);
+			ornextflag(m->flags7&16);
+			ornextflag(m->flags3&16);
+			ornextflag(m->flags3&64);
+			ornextflag(m->flags7&2);
+			ornextflag(m->flags7&1);
+			ornextflag(m->flags&fDARK);
+			ornextflag(m->flags9&fDARK_DITHER);
+			ornextflag(m->flags9&fDARK_TRANS);
+			break;
+			
+		case 2: // Secrets
+			ornextflag(m->flags&1);
+			ornextflag(m->flags5&16);
+			ornextflag(m->flags6&4);
+			ornextflag(m->flags6&32);
+			break;
+			
+		case 3: // Warp
+			ornextflag(m->flags5&4);
+			ornextflag(m->flags5&8);
+			ornextflag(m->flags&64);
+			ornextflag(m->flags8&64);
+			ornextflag(m->flags3&32);
+			ornextflag(m->flags9&fDISABLE_MIRROR);
+			break;
+			
+		case 4: // Item
+			ornextflag(m->flags3&1);
+			ornextflag(m->flags7&4);
+			ornextflag(m->flags8&0x40);
+			ornextflag(m->flags8&0x80);
+			ornextflag(m->flags9&0x01);
+			ornextflag(m->flags9&0x02);
+			ornextflag(m->flags9&0x04);
+			break;
+			
+		case 5: // Combo
+			ornextflag((m->flags2>>4)&2);
+			ornextflag(m->flags3&2);
+			ornextflag(m->flags5&2);
+			ornextflag(m->flags6&64);
+			break;
+			
+		case 6: // Save
+			ornextflag(m->flags4&64);
+			ornextflag(m->flags4&128);
+			ornextflag(m->flags6&8);
+			ornextflag(m->flags6&16);
+			break;
+			
+		case 7: // FFC
+			ornextflag(m->flags6&128);
+			ornextflag(m->flags5&128);
+			break;
+			
+		case 8: // Whistle
+			ornextflag(m->flags&16);
+			ornextflag(m->flags7&64);
+			ornextflag(m->flags7&128);
+			break;
+			
+		case 9: // Misc
+			ornextflag(m->flags&32);
+			ornextflag(m->flags5&64);
+			flagval |= m->flags8<<2;
+			break;
 	}
 	
-	return f*10000;
+	return flagval*10000;
 }
 
 int32_t get_screeneflags(mapscr *m, int32_t flagset)
 {
-	int32_t f=0;
-	flagpos = 0;
+	clear_ornextflag();
 	
 	switch(flagset)
 	{
-	case 0:
-		f = m->enemyflags&0x1F;
-		break;
-		
-	case 1:
-		f = ornextflag(m->enemyflags&32) | ornextflag(m->enemyflags&64) | ornextflag(m->flags3&4)
-			| ornextflag(m->enemyflags&128)| ornextflag((m->flags2>>4)&4);
-		break;
-		
-	case 2:
-		f = ornextflag(m->flags3&128)    | ornextflag(m->flags&2)       | ornextflag((m->flags2>>4)&8)
-			| ornextflag(m->flags4&16) | ornextflag(m->flags9&fENEMY_WAVES);
-		break;
+		case 0:
+			flagval |= m->enemyflags&0x1F;
+			break;
+			
+		case 1:
+			ornextflag(m->enemyflags&32);
+			ornextflag(m->enemyflags&64);
+			ornextflag(m->flags3&4);
+			ornextflag(m->enemyflags&128);
+			ornextflag((m->flags2>>4)&4);
+			break;
+			
+		case 2:
+			ornextflag(m->flags3&128);
+			ornextflag(m->flags&2);
+			ornextflag((m->flags2>>4)&8);
+			ornextflag(m->flags4&16);
+			ornextflag(m->flags9&fENEMY_WAVES);
+			break;
 	}
 	
-	return f*10000;
+	return flagval*10000;
 }
 
 int32_t get_mi(int32_t ref)
@@ -1897,18 +1931,19 @@ public:
 	
 	static int32_t getMFlags()
 	{
+		clear_ornextflag();
 		flagpos = 5;
 		// Must be in the same order as in the Enemy Editor pane
-		return (tempenemy->flags&0x1F)
-				| ornextflag(tempenemy->flags&(lens_only))
-				| ornextflag(tempenemy->flags2&(guy_flashing))
-				| ornextflag(tempenemy->flags2&(guy_blinking))
-				| ornextflag(tempenemy->flags2&(guy_transparent))
-				| ornextflag(tempenemy->flags&(inv_front))
-				| ornextflag(tempenemy->flags&(inv_left))
-				| ornextflag(tempenemy->flags&(inv_right))
-				| ornextflag(tempenemy->flags&(inv_back))
-				| ornextflag(tempenemy->flags&(guy_bkshield));
+		ornextflag(tempenemy->flags&(lens_only));
+		ornextflag(tempenemy->flags2&(guy_flashing));
+		ornextflag(tempenemy->flags2&(guy_blinking));
+		ornextflag(tempenemy->flags2&(guy_transparent));
+		ornextflag(tempenemy->flags&(inv_front));
+		ornextflag(tempenemy->flags&(inv_left));
+		ornextflag(tempenemy->flags&(inv_right));
+		ornextflag(tempenemy->flags&(inv_back));
+		ornextflag(tempenemy->flags&(guy_bkshield));
+		return (tempenemy->flags&0x1F) | flagval;
 	}
 	
 	static INLINE void clearTemp()
@@ -2649,7 +2684,12 @@ item *checkItem(int32_t iid)
 weapon *checkLWpn(int32_t eid, const char *what)
 {
 	weapon *s = (weapon *)Lwpns.getByUID(eid);
-	
+	if(s == NULL) //check lifted weapon
+	{
+		weapon* lw = Hero.lift_wpn;
+		if(lw && lw->getUID() == eid)
+			s = lw;
+	}
 	if(s == NULL)
 	{
 	
@@ -2937,7 +2977,7 @@ int32_t get_register(const int32_t arg)
 			ret = 0;
 			break;
 		case DEBUGTESTING:
-			ret = zqtesting_mode ? 10000 : 0;
+			ret = use_testingst_start ? 10000 : 0;
 			break;
 		
 		//debug ri->d[]
@@ -3627,7 +3667,7 @@ int32_t get_register(const int32_t arg)
 		
 		case INPUTMOUSEY:
 		{
-			int32_t mousequakeoffset = 56+((int32_t)(sin((double)(quakeclk*int64_t(2)-frame))*4));
+			int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
 			int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 			int32_t topOffset=(resy/2)-((112-tempoffset)*screen_scale);
 			ret=((gui_mouse_y()-topOffset)/screen_scale)*10000;
@@ -3849,7 +3889,7 @@ int32_t get_register(const int32_t arg)
 				}
 				case 1: //MouseY
 				{
-					int32_t mousequakeoffset = 56+((int32_t)(sin((double)(quakeclk*int64_t(2)-frame))*4));
+					int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
 					int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 					int32_t topOffset=(resy/2)-((112-tempoffset)*screen_scale);
 					rv=((gui_mouse_y()-topOffset)/screen_scale)*10000;
@@ -6163,7 +6203,7 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkLWpn(ri->lwpn,"Vx")))
 			{
 				if (((weapon*)(s))->angular)
-					ret = int32_t(cos(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
+					ret = int32_t(zc::math::Cos(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
 				else
 				{
 					switch(NORMAL_DIR(((weapon*)(s))->dir))
@@ -6193,7 +6233,7 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkLWpn(ri->lwpn,"Vy")))
 			{
 				if (((weapon*)(s))->angular)
-					ret = int32_t(sin(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
+					ret = int32_t(zc::math::Sin(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
 				else
 				{
 					switch(NORMAL_DIR(((weapon*)(s))->dir))
@@ -6742,7 +6782,7 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkEWpn(ri->ewpn,"Vx")))
 			{
 				if (((weapon*)(s))->angular)
-					ret = int32_t(cos(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
+					ret = int32_t(zc::math::Cos(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
 				else
 				{
 					switch(NORMAL_DIR(((weapon*)(s))->dir))
@@ -6771,7 +6811,7 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkEWpn(ri->ewpn,"Vy")))
 			{
 				if (((weapon*)(s))->angular)
-					ret = int32_t(sin(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
+					ret = int32_t(zc::math::Sin(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
 				else
 				{
 					switch(NORMAL_DIR(((weapon*)(s))->dir))
@@ -9007,7 +9047,7 @@ int32_t get_register(const int32_t arg)
 		///----------------------------------------------------------------------------------------------------//
 		//spritedata sp-> Variables
 			
-		case SPRITEDATATILE: GET_SPRITEDATA_VAR_INT(newtile, "Tile") break;
+		case SPRITEDATATILE: GET_SPRITEDATA_VAR_INT(tile, "Tile") break;
 		case SPRITEDATAMISC: GET_SPRITEDATA_VAR_INT(misc, "Misc") break;
 		case SPRITEDATACSETS: GET_SPRITEDATA_VAR_INT(csets, "CSet") break;
 		case SPRITEDATAFRAMES: GET_SPRITEDATA_VAR_INT(frames, "Frames") break;
@@ -11215,6 +11255,234 @@ int32_t get_register(const int32_t arg)
 			else ret = (combobuf[ri->combosref].trigctramnt) * 10000;
 			break;
 		}
+		case COMBODTRIGGERCOOLDOWN:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TriggerCooldown: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].trigcooldown) * 10000;
+			break;
+		}
+		case COMBODTRIGGERCOPYCAT:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TriggerCopycat: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].trigcopycat) * 10000;
+			break;
+		}
+		case COMBODTRIGITEMPICKUP:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TriggerSpawnItemPickup: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].spawnip) * 10000;
+			break;
+		}
+		case COMBODTRIGEXSTATE:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigExState: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].exstate) * 10000;
+			break;
+		}
+		case COMBODTRIGSPAWNENEMY:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigSpawnEnemy: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].spawnenemy) * 10000;
+			break;
+		}
+		case COMBODTRIGSPAWNITEM:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigSpawnItem: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].spawnitem) * 10000;
+			break;
+		}
+		case COMBODTRIGCSETCHANGE:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigCSetChange: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].trigcschange) * 10000;
+			break;
+		}
+		case COMBODLIFTGFXCOMBO:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftGFXCombo: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].liftcmb) * 10000;
+			break;
+		}
+		case COMBODLIFTGFXCCSET:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftGFXCSet: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].liftcs) * 10000;
+			break;
+		}
+		case COMBODLIFTUNDERCMB:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftUnderCombo: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].liftundercmb) * 10000;
+			break;
+		}
+		case COMBODLIFTUNDERCS:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftUnderCSet: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].liftundercs) * 10000;
+			break;
+		}
+		case COMBODLIFTDAMAGE:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftDamage: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].liftdmg) * 10000;
+			break;
+		}
+		case COMBODLIFTLEVEL:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftLevel: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].liftlvl) * 10000;
+			break;
+		}
+		case COMBODLIFTITEM:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftItem: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].liftitm) * 10000;
+			break;
+		}
+		case COMBODLIFTFLAGS:
+		{
+			ret = -10000;
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftFlags[]: %d\n", (ri->combosref*10000));
+				break;
+			}
+			if ( unsigned(indx) > 7 ) 
+			{
+				Z_scripterrlog("Invalid index supplied to combodata->LiftFlags[]: %d\n", indx);
+				break;
+			}
+			ret = (combobuf[ri->combosref].liftflags & (1<<indx)) ? 10000 : 0;
+			break;
+		}
+		case COMBODLIFTGFXTYPE:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftGFXType: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].liftgfx) * 10000;
+			break;
+		}
+		case COMBODLIFTGFXSPRITE:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftGFXSprite: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].liftsprite) * 10000;
+			break;
+		}
+		case COMBODLIFTSFX:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftSFX: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].liftsfx) * 10000;
+			break;
+		}
+		case COMBODLIFTBREAKSPRITE:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftBreakSprite: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].liftbreaksprite) * 10000;
+			break;
+		}
+		case COMBODLIFTBREAKSFX:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftBreakSFX: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].liftbreaksfx) * 10000;
+			break;
+		}
+		case COMBODLIFTHEIGHT:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftHeight: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].lifthei) * 10000;
+			break;
+		}
+		case COMBODLIFTTIME:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftTime: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].lifttime) * 10000;
+			break;
+		}
+		
 		case COMBODTRIGGERLEVEL:	GET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
 		case COMBODATAID: 		ret = (ri->combosref*10000); break;
 		//COMBOCLASS STRUCT
@@ -13302,7 +13570,7 @@ void set_register(const int32_t arg, const int32_t value)
 		
 		case INPUTMOUSEY:
 		{
-			int32_t mousequakeoffset = 56+((int32_t)(sin((double)(quakeclk*int64_t(2)-frame))*4));
+			int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
 			int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 			int32_t topOffset=(resy/2)-((112-tempoffset)*screen_scale);
 			position_mouse(gui_mouse_x(), (value/10000)*screen_scale+topOffset);
@@ -13458,7 +13726,7 @@ void set_register(const int32_t arg, const int32_t value)
 				}
 				case 1: //MouseY
 				{
-					int32_t mousequakeoffset = 56+((int32_t)(sin((double)(quakeclk*int64_t(2)-frame))*4));
+					int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
 					int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset :(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 					int32_t topOffset=(resy/2)-((112-tempoffset)*screen_scale);
 					position_mouse(gui_mouse_x(), (value/10000)*screen_scale+topOffset);
@@ -15019,7 +15287,7 @@ void set_register(const int32_t arg, const int32_t value)
 				double vy;
 				double vx = (value / 10000.0);
 				if (((weapon*)(s))->angular)
-					vy = sin(((weapon*)s)->angle)*((weapon*)s)->step;
+					vy = zc::math::Sin(((weapon*)s)->angle)*((weapon*)s)->step;
 				else
 				{
 					switch(NORMAL_DIR(((weapon*)(s))->dir))
@@ -15054,7 +15322,7 @@ void set_register(const int32_t arg, const int32_t value)
 				double vx;
 				double vy = (value / 10000.0);
 				if (((weapon*)(s))->angular)
-					vx = cos(((weapon*)s)->angle)*((weapon*)s)->step;
+					vx = zc::math::Cos(((weapon*)s)->angle)*((weapon*)s)->step;
 				else
 				{
 					switch(NORMAL_DIR(((weapon*)(s))->dir))
@@ -15126,8 +15394,11 @@ void set_register(const int32_t arg, const int32_t value)
 		*/        
 		case LWPNDEAD:
 			if(0!=(s=checkLWpn(ri->lwpn,"DeadState")))
-				((weapon*)s)->dead=(value/10000);
-				
+			{
+				auto dead = value/10000;
+				((weapon*)s)->dead=dead;
+				if(dead != 0) ((weapon*)s)->weapon_dying_frame = false;
+			}
 			break;
 			
 		case LWPNID:
@@ -15616,7 +15887,7 @@ void set_register(const int32_t arg, const int32_t value)
 				double vy;
 				double vx = (value / 10000.0);
 				if (((weapon*)(s))->angular)
-					vy = sin(((weapon*)s)->angle)*((weapon*)s)->step;
+					vy = zc::math::Sin(((weapon*)s)->angle)*((weapon*)s)->step;
 				else
 				{
 					switch(NORMAL_DIR(((weapon*)(s))->dir))
@@ -15651,7 +15922,7 @@ void set_register(const int32_t arg, const int32_t value)
 				double vx;
 				double vy = (value / 10000.0);
 				if (((weapon*)(s))->angular)
-					vx = cos(((weapon*)s)->angle)*((weapon*)s)->step;
+					vx = zc::math::Cos(((weapon*)s)->angle)*((weapon*)s)->step;
 				else
 				{
 					switch(NORMAL_DIR(((weapon*)(s))->dir))
@@ -15718,7 +15989,11 @@ void set_register(const int32_t arg, const int32_t value)
 			
 		case EWPNDEAD:
 			if(0!=(s=checkEWpn(ri->ewpn,"DeadState")))
-				((weapon*)s)->dead=(value/10000);
+			{
+				auto dead = value/10000;
+				((weapon*)s)->dead=dead;
+				if(dead != 0) ((weapon*)s)->weapon_dying_frame = false;
+			}
 				
 			break;
 			
@@ -18776,7 +19051,7 @@ void set_register(const int32_t arg, const int32_t value)
 		
 	///----------------------------------------------------------------------------------------------------//
 	//spritedata sp-> Variables
-		case SPRITEDATATILE: SET_SPRITEDATA_VAR_INT(newtile, "Tile"); break;
+		case SPRITEDATATILE: SET_SPRITEDATA_VAR_INT(tile, "Tile"); break;
 		case SPRITEDATAMISC: SET_SPRITEDATA_VAR_BYTE(misc, "Misc"); break;
 		case SPRITEDATACSETS: SET_SPRITEDATA_VAR_BYTE(csets, "CSet"); break;
 		case SPRITEDATAFRAMES: SET_SPRITEDATA_VAR_BYTE(frames, "Frames"); break;
@@ -22145,15 +22420,15 @@ void do_trig(const bool v, const byte type)
 	switch(type)
 	{
 		case 0:
-			set_register(sarg1, int32_t(sin(rangle) * 10000.0));
+			set_register(sarg1, int32_t(zc::math::Sin(rangle) * 10000.0));
 			break;
 			
 		case 1:
-			set_register(sarg1, int32_t(cos(rangle) * 10000.0));
+			set_register(sarg1, int32_t(zc::math::Cos(rangle) * 10000.0));
 			break;
 			
 		case 2:
-			set_register(sarg1, int32_t(tan(rangle) * 10000.0));
+			set_register(sarg1, int32_t(zc::math::Tan(rangle) * 10000.0));
 			break;
 	}
 }
@@ -22280,7 +22555,7 @@ void do_rnd(const bool v)
 void do_srnd(const bool v)
 {
 	uint32_t seed = SH::get_arg(sarg1, v); //Do not `/10000`- allow the decimal portion to be used! -V
-	zc_srand(seed);
+	zc_game_srand(seed);
 }
 
 void do_srndrnd()
@@ -22288,7 +22563,7 @@ void do_srndrnd()
 	//Randomize the seed to the current system time, + or - the product of 2 random numbers.
 	int32_t seed = time(0) + ((zc_rand() * int64_t(zc_rand())) * (zc_rand(1) ? 1 : -1));
 	set_register(sarg1, seed);
-	zc_srand(seed);
+	zc_game_srand(seed);
 }
 
 //Returns the system Real-Time-Clock value for a specific type. 
@@ -25299,8 +25574,15 @@ void FFScript::AlloffLimited(int32_t flagset)
 	
 	lensclk = 0;
 	lensid=-1;
-	drawguys=Udown=Ddown=Ldown=Rdown=Adown=Bdown=Sdown=true;
-	
+	drawguys=true;
+	down_control_states[btnUp] =
+		down_control_states[btnDown] =
+			down_control_states[btnLeft] =
+				down_control_states[btnRight] =
+					down_control_states[btnA] =
+						down_control_states[btnB] =
+							down_control_states[btnS] = true;
+
 	if(watch && !cheat_superman)
 	{
 		Hero.setClock(false);
@@ -27040,10 +27322,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			//Halt on new script if set to advance to next script
 			FFCore.zasm_break_mode = ZASM_BREAK_HALT;
 			FFCore.TraceScriptIDs(true);
-			#ifdef _WIN32
 			coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | 
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Breaking for script start\n");
-			#endif
 		}
 		else FFCore.zasm_break_mode = ZASM_BREAK_NONE;
 	}
@@ -27051,10 +27331,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 	{
 		//Print new script metadata when starting script
 		FFCore.TraceScriptIDs(true);
-		#ifdef _WIN32
 		coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Start of script\n");
-		#endif
 	}
 	
 	while(scommand != 0xFFFF && scommand != WAITFRAME
@@ -31005,6 +31283,7 @@ void FFScript::user_rng_init()
 {
 	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
 	{
+		replay_register_rng(&script_rnggens[q]);
 		script_rngs[q].set_gen(&script_rnggens[q]);
 	}
 }
@@ -31967,15 +32246,15 @@ int32_t FFScript::get_screenHeight(mapscr *m)
 
 int32_t FFScript::GetQuestVersion()
 {
-	return ZCheader.zelda_version;
+	return QHeader.zelda_version;
 }
 int32_t FFScript::GetQuestBuild()
 {
-	return ZCheader.build;
+	return QHeader.build;
 }
 int32_t FFScript::GetQuestSectionVersion(int32_t section)
 {
-	return ZCheader.zelda_version;
+	return QHeader.zelda_version;
 }
 
 int32_t FFScript::GetDefaultWeaponSprite(int32_t wpn_id)
@@ -34248,7 +34527,12 @@ void FFScript::do_lweapon_delete()
 {
 	if(0!=(s=checkLWpn(ri->lwpn,"Remove()")))
 	{
-		Lwpns.del(LwpnH::getLWeaponIndex(ri->lwpn));
+		if(s==Hero.lift_wpn)
+		{
+			delete s;
+			Hero.lift_wpn = nullptr;
+		}
+		else Lwpns.del(LwpnH::getLWeaponIndex(ri->lwpn));
 	}
 }
 
@@ -34307,8 +34591,9 @@ void FFScript::updateIncludePaths()
 void FFScript::initRunString()
 {
 	memset(scriptRunString,0,sizeof(scriptRunString));
-	strcpy(scriptRunString,get_config_string("Compiler","run_string","run"));
-	al_trace("Run is set to: %s \n",scriptRunString);
+	set_config_file("zscript.cfg");
+	strcpy(scriptRunString,zc_get_config("Compiler","run_string","run"));
+	zc_set_config_standard();
 }
 
 void FFScript::initIncludePaths()
@@ -38259,6 +38544,29 @@ script_variable ZASMVars[]=
 	{ "REGIONSCREENWIDTH", REGIONSCREENWIDTH, 0, 0 },
 	{ "REGIONSCREENHEIGHT", REGIONSCREENHEIGHT, 0, 0 },
 	
+	{ "COMBODTRIGGERCOOLDOWN", COMBODTRIGGERCOOLDOWN, 0, 0 },
+	{ "COMBODTRIGGERCOPYCAT", COMBODTRIGGERCOPYCAT, 0, 0 },
+	{ "COMBODTRIGITEMPICKUP", COMBODTRIGITEMPICKUP, 0, 0 },
+	{ "COMBODTRIGEXSTATE", COMBODTRIGEXSTATE, 0, 0 },
+	{ "COMBODTRIGSPAWNENEMY", COMBODTRIGSPAWNENEMY, 0, 0 },
+	{ "COMBODTRIGSPAWNITEM", COMBODTRIGSPAWNITEM, 0, 0 },
+	{ "COMBODTRIGCSETCHANGE", COMBODTRIGCSETCHANGE, 0, 0 },
+	{ "COMBODLIFTGFXCOMBO", COMBODLIFTGFXCOMBO, 0, 0 },
+	{ "COMBODLIFTGFXCCSET", COMBODLIFTGFXCCSET, 0, 0 },
+	{ "COMBODLIFTUNDERCMB", COMBODLIFTUNDERCMB, 0, 0 },
+	{ "COMBODLIFTUNDERCS", COMBODLIFTUNDERCS, 0, 0 },
+	{ "COMBODLIFTDAMAGE", COMBODLIFTDAMAGE, 0, 0 },
+	{ "COMBODLIFTLEVEL", COMBODLIFTLEVEL, 0, 0 },
+	{ "COMBODLIFTITEM", COMBODLIFTITEM, 0, 0 },
+	{ "COMBODLIFTFLAGS", COMBODLIFTFLAGS, 0, 0 },
+	{ "COMBODLIFTGFXTYPE", COMBODLIFTGFXTYPE, 0, 0 },
+	{ "COMBODLIFTGFXSPRITE", COMBODLIFTGFXSPRITE, 0, 0 },
+	{ "COMBODLIFTSFX", COMBODLIFTSFX, 0, 0 },
+	{ "COMBODLIFTBREAKSPRITE", COMBODLIFTBREAKSPRITE, 0, 0 },
+	{ "COMBODLIFTBREAKSFX", COMBODLIFTBREAKSFX, 0, 0 },
+	{ "COMBODLIFTHEIGHT", COMBODLIFTHEIGHT, 0, 0 },
+	{ "COMBODLIFTTIME", COMBODLIFTTIME, 0, 0 },
+	
 	{ " ", -1, 0, 0 }
 };
 
@@ -38269,7 +38577,6 @@ script_variable ZASMVars[]=
 
 void FFScript::ZScriptConsole(int32_t attributes,const char *format,...)
 {
-	#ifdef _WIN32
 	//if ( open )
 	{
 		zscript_coloured_console.Create("ZQuest Creator Logging Console", 600, 200, NULL, NULL);
@@ -38285,7 +38592,6 @@ void FFScript::ZScriptConsole(int32_t attributes,const char *format,...)
 		//close
 	//	zscript_coloured_console.Close();
 	//}
-	#endif	
 }
 
 void clearConsole()
@@ -38305,23 +38611,44 @@ void clearConsole()
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"      /____/\\___\\_\\__,_/\\___/____/\\__/\n\n");
 
 	zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
-	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Data Logging & ZScript Debug Console\n");
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Data Logging & ZScript Debug Console\n");
 	
+	zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Running: %s\n", getProgramVerStr());
 	if ( FFCore.getQuestHeaderInfo(vZelda) > 0 )
 	{
-		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Made in ZC Version %x, Build %d\n", FFCore.getQuestHeaderInfo(vZelda), FFCore.getQuestHeaderInfo(vBuild));
-	}
-	else
-	{
-		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%s, Version %s\n", ZC_PLAYER_NAME, ZC_PLAYER_V);
+		char const* verstr = QHeader.getVerStr();
+		if(verstr[0])
+		{
+			auto vercmp = QHeader.compareVer();
+			auto astatecmp = compare(int32_t(QHeader.getAlphaState()), ALPHA_STATE);
+			auto avercmp = compare(QHeader.getAlphaVer(), ALPHA_VER);
+			auto timecmp = QHeader.compareDate();
+			if(!(vercmp || astatecmp || avercmp))
+			{
+				if(!timecmp || !QHeader.new_version_is_nightly)
+					zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
+						CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Made in this build\n", verstr);
+				else if(timecmp < 0)
+				{
+					zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
+						CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Made in an earlier nightly of the same build\n", verstr);
+				}
+				else
+				{
+					zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
+						CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Made in an LATER nightly of the same build!\n"
+							"This may be unsafe to play in this version!\n", verstr);
+				}
+			}
+			else zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Made in: %s\n", verstr);
+		}
 	}
 }
 void FFScript::ZScriptConsole(bool open)
 {
 	al_trace("Opening ZScript Console");
-	#ifdef _WIN32
 	if ( open )
 	{
 		zscript_coloured_console.Create("ZScript Debug Console", 600, 200, NULL, NULL);
@@ -38336,24 +38663,18 @@ void FFScript::ZScriptConsole(bool open)
 		zscript_coloured_console.Close();
 		zscript_debugger = 0;
 	}
-	#endif	
 }
-
 
 void FFScript::ZScriptConsolePrint(int32_t attributes,const char *format,...)
 {
-	#ifdef _WIN32
-	
 	coloured_console.cprintf( attributes,format);
 	//coloured_console.print();
-	#endif	
 }
 
 void FFScript::ZASMPrint(bool open)
 {
 	if(SKIPZASMPRINT()) return;
 	zprint("%s ZASM Console\n", open ? "Opening" : "Closing");
-	#ifdef _WIN32
 	if ( open )
 	{
 		coloured_console.Create("ZASM Debugger", 600, 200, NULL, NULL);
@@ -38371,7 +38692,6 @@ void FFScript::ZASMPrint(bool open)
 		coloured_console.Close();
 		zasm_debugger = 0;
 	}
-	#endif	
 }
 
 std::string ZASMVarToString(int32_t arg)
@@ -38404,7 +38724,6 @@ std::string ZASMVarToString(int32_t arg)
 void FFScript::ZASMPrintCommand(const word scommand)
 {
 	if(SKIPZASMPRINT()) return;
-	#ifdef _WIN32
 	//if ( !zasm_debugger ) return;
 	
 	script_command s_c = ZASMcommands[scommand];
@@ -38462,13 +38781,11 @@ void FFScript::ZASMPrintCommand(const word scommand)
 	//s_c.name is the string with the instruction
 	
 	//coloured_console.print();
-	#endif	
 }
 
 void FFScript::ZASMPrintVarSet(const int32_t arg, int32_t argval)
 {
 	if(SKIPZASMPRINT()) return;
-	#ifdef _WIN32
 	//if ( !zasm_debugger ) return;
 	// script_variable s_v = ZASMVars[arg];
 	//s_v.name is the string with the instruction
@@ -38477,13 +38794,11 @@ void FFScript::ZASMPrintVarSet(const int32_t arg, int32_t argval)
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%d\n",argval);
 	//coloured_console.print();
-	#endif	
 }
 
 void FFScript::ZASMPrintVarGet(const int32_t arg, int32_t argval)
 {
 	if(SKIPZASMPRINT()) return;
-	#ifdef _WIN32
 	//if ( !zasm_debugger ) return;
 	// script_variable s_v = ZASMVars[arg];
 	//s_v.name is the string with the instruction
@@ -38492,7 +38807,6 @@ void FFScript::ZASMPrintVarGet(const int32_t arg, int32_t argval)
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%d\n",argval);
 	//coloured_console.print();
-	#endif	
 }
 
 
@@ -38515,13 +38829,8 @@ void FFScript::do_trace(bool v)
 		printf("%s\n", s2.c_str());
 	if ( zscript_debugger ) 
 	{
-		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", s2.c_str());
-		#else //Unix
-			std::cout << "Z_scripterrlog Test\n" << std::endl;
-			printf("%s\n", s2.c_str());	
-		#endif
 	}
 }
 
@@ -38536,13 +38845,8 @@ void FFScript::do_tracebool(const bool v)
 	
 	if ( zscript_debugger ) 
 	{
-		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", temp ? "true": "false");
-		#else //Unix
-			std::cout << "Z_scripterrlog Test\n" << std::endl;
-			printf("%s\n", temp ? "true": "false");	
-		#endif
 	}
 }
 
@@ -38556,14 +38860,8 @@ void traceStr(string const& str)
 	
 	if ( zscript_debugger ) 
 	{
-		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s", str.c_str());
-
-		#else //Unix
-			std::cout << "Z_scripterrlog Test\n" << std::endl;
-			printf("%s", str.c_str());	
-		#endif
 	}
 }
 
@@ -38830,25 +39128,14 @@ void FFScript::do_breakpoint()
 	
 	if ( zscript_debugger ) 
 	{
-		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | 
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", str.c_str());
-
-		#else //Unix
-			std::cout << "Z_scripterrlog Test\n" << std::endl;
-			printf("%s", str.c_str());	
-		#endif
 	}
 	if( zasm_debugger )
 	{
 		FFCore.zasm_break_mode = ZASM_BREAK_HALT; //Halt ZASM debugger; break execution
-		#ifdef _WIN32
 		coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", str.c_str());
-		#else //Unix
-			std::cout << "Z_scripterrlog Test\n" << std::endl;
-			printf("%s", str.c_str());	
-		#endif
 	}
 }
 
@@ -38860,13 +39147,8 @@ void FFScript::do_tracenl()
 		printf("\n");
 		if ( zscript_debugger ) 
 	{
-		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"\n");
-		#else //Unix
-			std::cout << "Z_scripterrlog Test\n" << std::endl;
-			printf("\n");	
-		#endif
 	}
 }
 
@@ -38876,9 +39158,7 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 	if(DEVTIMESTAMP)
 	{
 		if(!zasm_debugger && zasm_console) return;
-		#ifdef _WIN32
 		CConsoleLoggerEx console = (zasm_console ? coloured_console : zscript_coloured_console);
-		#endif
 		bool cond = (zasm_console ? zasm_debugger : zscript_debugger);
 		
 		char buf[256] = {0};
@@ -38892,100 +39172,58 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 		//
 		
 		al_trace("%s", buf);
-		#ifdef _WIN32
 		if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),buf); }
-		#else //Unix
-			std::cout << "Z_scripterrlog Test\n" << std::endl;
-			printf("%s", buf);
-		#endif
 	}
 	if(get_bit(quest_rules,qr_TRACESCRIPTIDS) || DEVLOGGING )
 	{
 		if(!zasm_debugger && zasm_console) return;
-		#ifdef _WIN32
 		CConsoleLoggerEx console = (zasm_console ? coloured_console : zscript_coloured_console);
-		#endif
 		bool cond = (zasm_console ? zasm_debugger : zscript_debugger);
 		switch(curScriptType)
 		{
 			case SCRIPT_GLOBAL:
 				al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].scriptname.c_str());
-				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Global script %u (%s): ", 
 					curScriptNum+1, globalmap[curScriptNum].scriptname.c_str()); }
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].scriptname.c_str());	
-				#endif
 				break;
 			
 			case SCRIPT_PLAYER:
 				al_trace("Player script %u (%s): ", curScriptNum, playermap[curScriptNum-1].scriptname.c_str());
-				#ifdef _WIN32
 				if ( cond ) { console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Player script %u (%s): ", curScriptNum, playermap[curScriptNum-1].scriptname.c_str()); }
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("Player script %u (%s): ", curScriptNum, playermap[curScriptNum-1].scriptname.c_str());	
-				#endif    
 			break;
 			
 			case SCRIPT_LWPN:
 				al_trace("LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());
-				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());}
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());	
-				#endif      
 			break;
 			
 			case SCRIPT_EWPN:
 				al_trace("EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());
-				#ifdef _WIN32
 				if ( cond ) { console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());}
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());	
-				#endif      
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());} 
 			break;
 			
 			case SCRIPT_NPC:
 				al_trace("NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());
-				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());}
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());
-				#endif         
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());}     
 			break;
 				
 			case SCRIPT_FFC:
 				al_trace("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());
 				
-				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());}
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());
-				#endif   
 			break;
 				
 			case SCRIPT_ITEM:
 				al_trace("Itemdata script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());
-				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Itemdata script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());}
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("Itemdata script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());
-				#endif   
 			break;
 			
 			case SCRIPT_ONMAP:
@@ -38994,74 +39232,42 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 			case SCRIPT_DMAP:
 				al_trace("DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());
 				
-				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());}
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());
-				#endif   
 			break;
 			
 			case SCRIPT_ITEMSPRITE:
 				al_trace("itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());
-				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());}
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());
-				#endif   
 			break;
 			
 			case SCRIPT_SCREEN:
 				al_trace("Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());
-				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());}
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());
-				#endif   
 			break;
 			
 			//case SCRIPT_SUBSCREEN:
 			//	al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());
-			//	#ifdef _WIN32
 			//	if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			//		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());}
-			//	#endif
 			//break;
 			
 			case SCRIPT_COMBO:
 				al_trace("combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
-				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());}
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
-				#endif  
 			break;
 			case SCRIPT_GENERIC:
 				al_trace("Generic Script %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());
-				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Generic Script %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());}
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("Generic Script %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());
-				#endif  
 				break;
 			case SCRIPT_GENERIC_FROZEN:
 				al_trace("Generic Script (FRZ) %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());
-				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Generic Script (FRZ) %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());}
-				#else //Unix
-					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("Generic Script (FRZ) %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());
-				#endif  
 				break;
 		}
 	}
@@ -39134,13 +39340,8 @@ void FFScript::do_tracetobase()
 	
 	if ( zscript_debugger ) 
 	{
-		#ifdef _WIN32
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", s2.c_str());
-		#else //Unix
-			std::cout << "Z_scripterrlog Test\n" << std::endl;
-			printf("%s\n", s2.c_str());
-		#endif 
 	}
 }
 
@@ -39812,93 +40013,94 @@ void FFScript::write_combos(PACKFILE *f, int32_t version_id)
 }
 void FFScript::read_weaponsprtites(PACKFILE *f, int32_t vers_id)
 {   
-		for(int32_t i=0; i<wMAX; i++)
+	for(int32_t i=0; i<wMAX; i++)
+	{
+		word oldtile = 0;
+		if(!p_igetw(&oldtile,f,true))
 		{
-			if(!p_igetw(&wpnsbuf[i].tile,f,true))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",6);
-			}
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",6);
+		}
 			
-			if(!p_getc(&wpnsbuf[i].misc,f,true))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",7);
-			}
+		if(!p_getc(&wpnsbuf[i].misc,f,true))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",7);
+		}
 			
-			if(!p_getc(&wpnsbuf[i].csets,f,true))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",8);
-			}
+		if(!p_getc(&wpnsbuf[i].csets,f,true))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",8);
+		}
 			
-			if(!p_getc(&wpnsbuf[i].frames,f,true))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",9);
-			}
+		if(!p_getc(&wpnsbuf[i].frames,f,true))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",9);
+		}
 			
-			if(!p_getc(&wpnsbuf[i].speed,f,true))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",10);
-			}
+		if(!p_getc(&wpnsbuf[i].speed,f,true))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",10);
+		}
 			
-			if(!p_getc(&wpnsbuf[i].type,f,true))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",11);
-			}
+		if(!p_getc(&wpnsbuf[i].type,f,true))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",11);
+		}
 		
 		if(!p_igetw(&wpnsbuf[i].script,f,true))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
-			}
-		
-		if(!p_igetl(&wpnsbuf[i].newtile,f,true))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
-			}
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
 		}
+
+		if(!p_igetl(&wpnsbuf[i].tile,f,true))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
+		}
+	}
 }
 void FFScript::write_weaponsprtites(PACKFILE *f, int32_t vers_id)
 {   
-		for(int32_t i=0; i<wMAX; i++)
+	for(int32_t i=0; i<wMAX; i++)
+	{
+		if(!p_iputw(wpnsbuf[i].tile,f))
 		{
-			if(!p_iputw(wpnsbuf[i].tile,f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",6);
-			}
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",6);
+		}
 			
-			if(!p_putc(wpnsbuf[i].misc,f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",7);
-			}
+		if(!p_putc(wpnsbuf[i].misc,f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",7);
+		}
 			
-			if(!p_putc(wpnsbuf[i].csets,f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",8);
-			}
+		if(!p_putc(wpnsbuf[i].csets,f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",8);
+		}
 			
-			if(!p_putc(wpnsbuf[i].frames,f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",9);
-			}
+		if(!p_putc(wpnsbuf[i].frames,f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",9);
+		}
 			
-			if(!p_putc(wpnsbuf[i].speed,f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",10);
-			}
+		if(!p_putc(wpnsbuf[i].speed,f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",10);
+		}
 			
-			if(!p_putc(wpnsbuf[i].type,f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",11);
-			}
+		if(!p_putc(wpnsbuf[i].type,f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",11);
+		}
 		
 		if(!p_iputw(wpnsbuf[i].script,f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
-			}
-		
-		if(!p_iputl(wpnsbuf[i].newtile,f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
-			}
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
 		}
+		
+		if(!p_iputl(wpnsbuf[i].tile,f))
+		{
+			Z_scripterrlog("do_savegamestructs FAILED to read WPNSPRITE NODE: %d",12);
+		}
+	}
 }
 
 

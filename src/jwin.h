@@ -213,6 +213,7 @@ int32_t jwin_func_button_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_text_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_ctext_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_rtext_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t d_ctext2_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t new_text_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_hexedit_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to hex. numbers */

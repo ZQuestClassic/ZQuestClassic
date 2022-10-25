@@ -28,11 +28,11 @@
 #include "tiles.h"
 #include "pal.h"
 #include "hero.h"
-#include "mem_debug.h"
 #include "ffscript.h"
 #include "decorations.h"
 #include "drawing.h"
 #include "combos.h"
+#include "base/zc_math.h"
 
 extern HeroClass Hero;
 extern zinitdata zinit;
@@ -356,13 +356,13 @@ static bool CanComboTrigger(weapon *w)
 		case wScript6: case wScript7: case wScript8: case wScript9: case wScript10:
 		case ewFireball: case ewFireball2: case ewArrow: case ewBrang: case ewSword: case ewRock:
 		case ewMagic: case ewBomb: case ewSBomb: case ewLitBomb: case ewLitSBomb: case ewFireTrail:
-		case ewFlame: case ewWind: case ewFlame2:
+		case ewFlame: case ewWind: case ewFlame2: case wThrown:
 			return true;
 	}
 	return false;
 }
 
-static int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid)
+int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid)
 {
 	if(screenIsScrolling()) return 0;
 	int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
@@ -394,6 +394,7 @@ static int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid)
 		case wCByrna: trig = (cmb.triggerflags[1]&combotriggerBYRNA); break;
 		case wRefBeam: trig = (cmb.triggerflags[1]&combotriggerREFBEAM); break;
 		case wStomp: trig = (cmb.triggerflags[1]&combotriggerSTOMP); break;
+		case wThrown: trig = (cmb.triggerflags[2]&combotriggerTHROWN); break;
 		case wScript1: trig = w->isLWeapon ? (cmb.triggerflags[1]&combotriggerSCRIPT01) : (cmb.triggerflags[2]&combotriggerEWSCRIPT01); break;
 		case wScript2: trig = w->isLWeapon ? (cmb.triggerflags[1]&combotriggerSCRIPT02) : (cmb.triggerflags[2]&combotriggerEWSCRIPT02); break;
 		case wScript3: trig = w->isLWeapon ? (cmb.triggerflags[1]&combotriggerSCRIPT03) : (cmb.triggerflags[2]&combotriggerEWSCRIPT03); break;
@@ -3205,9 +3206,9 @@ void weapon::LOADGFX(int32_t wpn)
         
     wid = wpn;
     flash = wpnsbuf[wid].misc&3;
-    tile  = wpnsbuf[wid].newtile;
+    tile  = wpnsbuf[wid].tile;
     cs = wpnsbuf[wid].csets&15;
-    o_tile = wpnsbuf[wid].newtile;
+    o_tile = wpnsbuf[wid].tile;
     tile = o_tile;
     ref_o_tile = o_tile;
     o_cset = wpnsbuf[wid].csets;
@@ -3215,7 +3216,7 @@ void weapon::LOADGFX(int32_t wpn)
     o_speed = wpnsbuf[wid].speed;
     o_type = wpnsbuf[wid].type;
     frames = wpnsbuf[wid].frames;
-    temp1 = wpnsbuf[wFIRE].newtile;
+    temp1 = wpnsbuf[wFIRE].tile;
     behind = (wpnsbuf[wid].misc&WF_BEHIND)!=0;
 }
 void weapon::LOADGFX_CMB(int32_t cid, int32_t cset)
@@ -3449,7 +3450,7 @@ bool weapon::animate(int32_t index)
 		int32_t fr = spr.frames ? spr.frames : 1;
 		int32_t spd = spr.speed ? spr.speed : 1;
 		int32_t animclk = (PITFALL_FALL_FRAMES-fallclk);
-		tile = spr.newtile + zc_min(animclk / spd, fr-1);
+		tile = spr.tile + zc_min(animclk / spd, fr-1);
 		
 		if(isLWeapon)
 			run_script(MODE_NORMAL);
@@ -3487,7 +3488,7 @@ bool weapon::animate(int32_t index)
 			int32_t fr = spr.frames ? spr.frames : 1;
 			int32_t spd = spr.speed ? spr.speed : 1;
 			int32_t animclk = (WATER_DROWN_FRAMES-drownclk);
-			tile = spr.newtile + zc_min(animclk / spd, fr-1);
+			tile = spr.tile + zc_min(animclk / spd, fr-1);
 		}
 		else 
 		{
@@ -3496,7 +3497,7 @@ bool weapon::animate(int32_t index)
 			int32_t fr = spr.frames ? spr.frames : 1;
 			int32_t spd = spr.speed ? spr.speed : 1;
 			int32_t animclk = (WATER_DROWN_FRAMES-drownclk);
-			tile = spr.newtile + zc_min(animclk / spd, fr-1);
+			tile = spr.tile + zc_min(animclk / spd, fr-1);
 		}
 		
 		if(isLWeapon)
@@ -3648,6 +3649,23 @@ bool weapon::animate(int32_t index)
 		}
 		
 		}*/
+		byte temp_screengrid[22];
+		byte temp_screengrid_layer[2][22];
+		byte temp_ffcgrid[4];
+		memcpy(temp_screengrid, screengrid, sizeof(screengrid));
+		memcpy(temp_screengrid_layer[0], screengrid_layer[0], sizeof(screengrid_layer[0]));
+		memcpy(temp_screengrid_layer[1], screengrid_layer[1], sizeof(screengrid_layer[1]));
+		memcpy(temp_ffcgrid, ffcgrid, sizeof(ffcgrid));
+		
+		for(int32_t q=0; q<22; q++)
+		{
+			screengrid[q] = 0;
+			screengrid_layer[0][q] = 0;
+			screengrid_layer[1][q] = 0;
+		}
+		
+		for(int32_t q=0; q<4; q++)
+			ffcgrid[q] = 0;
 		
 		for(int32_t dx = 0; dx < hxsz; dx += 16)
 		{
@@ -3705,6 +3723,11 @@ bool weapon::animate(int32_t index)
 		
 		//Hero.check_wand_block(this);
 		//Hero.check_pound_block(this);
+		
+		memcpy(screengrid, temp_screengrid, sizeof(screengrid));
+		memcpy(screengrid_layer[0], temp_screengrid_layer[0], sizeof(screengrid_layer[0]));
+		memcpy(screengrid_layer[1], temp_screengrid_layer[1], sizeof(screengrid_layer[1]));
+		memcpy(ffcgrid, temp_ffcgrid, sizeof(ffcgrid));
 	}
 	else findcombotriggers();
 	
@@ -3911,8 +3934,8 @@ bool weapon::animate(int32_t index)
 			
 			int32_t speed = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc1,1) : 1;
 			int32_t radius = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc2,8) : 8;
-			double xdiff = -(sin((double)clk/speed) * radius);
-			double ydiff = (cos((double)clk/speed) * radius);
+			double xdiff = -(zc::math::Sin((double)clk/speed) * radius);
+			double ydiff = (zc::math::Cos((double)clk/speed) * radius);
 			
 			double ddir=atan2(double(ydiff),double(xdiff));
 			
@@ -7556,7 +7579,7 @@ void weapon::draw(BITMAP *dest)
 					break;
 				}
 				
-				tile = wpnsbuf[id2].newtile;
+				tile = wpnsbuf[id2].tile;
 				cs = wpnsbuf[id2].csets&15;
 				boomframes = wpnsbuf[id2].frames;
 				
@@ -7798,7 +7821,7 @@ void weapon::draw(BITMAP *dest)
 	
 	if (has_shadow && (z > 0||fakez > 0) && get_bit(quest_rules, qr_WEAPONSHADOWS) )
 	{
-		shadowtile = wpnsbuf[spr_shadow].newtile+aframe;
+		shadowtile = wpnsbuf[spr_shadow].tile+aframe;
 		sprite::drawshadow(dest,get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
 	}
 	sprite::draw(dest);

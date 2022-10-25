@@ -19,7 +19,6 @@
 #include "SemanticAnalyzer.h"
 #include "BuildVisitors.h"
 #include "RegistrationVisitor.h"
-#include "mem_debug.h"
 #include "ZScript.h"
 using std::unique_ptr;
 using std::shared_ptr;
@@ -155,13 +154,17 @@ string* ScriptParser::checkIncludes(string& includePath, string const& importnam
 	return NULL;
 }
 
-bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int32_t reclimit)
+bool ScriptParser::valid_include(ASTImportDecl& decl, string& ret_fname)
 {
-	// Parse the imported file.
+	if(decl.wasValidated())
+	{
+		ret_fname = decl.getFilename();
+		return true;
+	}
 	string* fname = NULL;
 	string includePath;
-	string importname = prepareFilename(importDecl.getFilename());
-	if(!importDecl.isInclude()) //Check root dir first for imports
+	string importname = prepareFilename(decl.getFilename());
+	if(!decl.isInclude()) //Check root dir first for imports
 	{
 		FILE* f = fopen(importname.c_str(), "r");
 		if(f)
@@ -186,14 +189,24 @@ bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int32_t reclimit)
 			}
 		}
 	}
-	//
 	string filename = fname ? *fname : prepareFilename(importname); //Check root dir last, if nothing has been found yet.
+	ret_fname = filename;
 	FILE* f = fopen(filename.c_str(), "r");
 	if(f)
 	{
 		fclose(f);
+		//zconsole_db("Importing filename '%s' successfully", filename.c_str());
+		decl.setFilename(filename);
+		decl.validate();
+		return true;
 	}
-	else
+	else return false;
+}
+
+bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int32_t reclimit)
+{
+	string filename;
+	if(!valid_include(importDecl, filename))
 	{
 		log_error(CompileError::CantOpenImport(&importDecl, filename));
 		return false;
@@ -712,7 +725,7 @@ ScriptsData::ScriptsData(Program& program)
 			for(vector<DataType const*>::const_iterator it = run->paramTypes.begin();
 				it != run->paramTypes.end(); ++it)
 			{
-				optional<DataTypeId> id = program.getTypeStore().getTypeId(**it);
+				std::optional<DataTypeId> id = program.getTypeStore().getTypeId(**it);
 				meta.run_types[ind++] = id ? *id : ZVARTYPEID_VOID;
 			}
 		}

@@ -66,7 +66,7 @@ include(FetchContent)
 FetchContent_Declare(
   allegro5
   GIT_REPOSITORY https://github.com/connorjclark/allegro5.git
-  GIT_TAG        f982afaad0bd45da1305caca8ac0ce1e6b4104e8
+  GIT_TAG        cf819df50e1554e4cdef2d28fa41ad96dcdfd5ba
 )
 FetchContent_GetProperties(allegro5)
 if(NOT allegro5_POPULATED)
@@ -112,21 +112,33 @@ add_subdirectory(allegro-legacy EXCLUDE_FROM_ALL)
 add_library(allegro_with_legacy INTERFACE)
 target_include_directories(allegro_with_legacy INTERFACE ${allegro5_SOURCE_DIR}/include ${allegro5_BINARY_DIR}/include)
 target_include_directories(allegro_with_legacy INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/allegro-legacy/include ${CMAKE_CURRENT_BINARY_DIR}/allegro-legacy/include)
-target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primitives allegro_image allegro_dialog allegro_main)
+target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primitives allegro_image allegro_main)
+
+if (NOT EMSCRIPTEN)
+	target_link_libraries(allegro_with_legacy INTERFACE allegro_dialog)
+endif()
 
 #############################################################
 # Header and source file lists
 #############################################################
 
 include_directories(./include/zlib123)
+include_directories(./include/xxhash)
 include_directories(./src)
 # TODO: remove
 include_directories(./src/zc)
 
-set(ZCSOUNDSOURCES
-	src/zcmusic.cpp
-	src/zcmusicd.cpp
-)
+if (EMSCRIPTEN)
+	set(ZCSOUNDSOURCES
+		src/zcmusic_sdl.cpp
+		src/zcmusicd.cpp
+	)
+else()
+	set(ZCSOUNDSOURCES
+		src/zcmusic.cpp
+		src/zcmusicd.cpp
+	)
+endif()
 
 set(ZELDA_MODULES
 	${CMAKE_SOURCE_DIR}/modules/zelda/ZeldaCore.txt
@@ -205,8 +217,6 @@ if(MSVC)
 	# Turn off warnings for all targets that aren't ours (set later in Misc. section)
 	add_compile_options(/W0)
 
-	# REQUIRED or else MSVC throws internal compiler error(!)
-	add_compile_options("$<$<CONFIG:RELEASE>:/fp:fast>")
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	
 	if(MSVC_VERSION GREATER 1600)
@@ -227,7 +237,19 @@ if(MSVC)
 		list(APPEND ZQUESTEXTRASOURCES src/precompiledzq.cpp)
 	endif()
 
-# Linux
+elseif(EMSCRIPTEN)
+	# link_directories(/usr/lib/i386-linux-gnu)
+	add_definitions(-DALLEGRO_LINUX) # Mistakenly used in the source.
+
+	# TODO: figure out media libraries. probably replace this with w/e SDL offers.
+	# set(IMAGELIBS algif ldpng jpgal png z)
+	# set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
+	# set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm dl)
+
+	add_compile_options("-m32")
+	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32 -static-libgcc -export-dynamic")
+	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32 -static-libgcc")
+
 elseif(LINUX)
 	link_directories(/usr/lib/i386-linux-gnu)
 	link_directories(./libs/linux)
@@ -237,9 +259,15 @@ elseif(LINUX)
 	set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
 	set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm dl)
 
-	add_compile_options("-m32")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32 -static-libgcc -export-dynamic")
 	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32 -static-libgcc")
+endif()
+
+if(MSVC)
+	# REQUIRED or else MSVC throws internal compiler error(!)
+	add_compile_options("/fp:fast")
+else(UNIX)
+	add_compile_options("-ffp-model=fast")
 endif()
 
 #############################################################
@@ -271,7 +299,13 @@ list(APPEND IMAGELIBS al5img)
 # Common libraries
 #############################################################
 
-add_library(zcbase STATIC
+# Remove once generally available in all compilers for c++ 20.
+add_library(fmt STATIC
+	src/fmt/format.cc
+)
+target_include_directories(fmt PUBLIC include/fmt)
+
+set(zcbase_sources
 	src/base/alleg_compat.cpp
 	src/base/colors.cpp
 	src/base/fonts.cpp
@@ -280,13 +314,18 @@ add_library(zcbase STATIC
 	src/base/module.cpp
 	src/base/process_management.cpp
 	src/base/random.cpp
+	src/base/sin1.cpp
 	src/base/util.cpp
 	src/base/win32.cpp
 	src/base/zapp.cpp
 	src/base/zdefs.cpp
 	src/base/zsys.cpp
 )
-target_link_libraries(zcbase PUBLIC allegro_with_legacy)
+if (EMSCRIPTEN)
+	list(APPEND zcbase_sources src/base/emscripten_utils.cpp)
+endif()
+add_library(zcbase STATIC ${zcbase_sources})
+target_link_libraries(zcbase PUBLIC allegro_with_legacy fmt)
 target_include_directories(zcbase PUBLIC include/check)
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	target_link_options(zcbase PRIVATE "/WHOLEARCHIVE")
@@ -341,7 +380,7 @@ target_link_libraries(zconsolelogger PUBLIC allegro_with_legacy zcbase)
 # Sound Library
 #############################################################
 
-if(LINUX)
+if(LINUX OR EMSCRIPTEN)
 	# TODO: Build sound deps from source on linux.
 	set(BUILD_SOUND_LIBS_FROM_SOURCE OFF)
 else()
@@ -472,6 +511,8 @@ if(UNITY_BUILD)
 endif()
 
 add_executable(zelda ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE_SOURCES} ${ZELDA_SUBSCREEN_SOURCES} ${ZELDA_SCRIPTING_SOURCES} ${ZELDAEXTRASOURCES} ${ZELDA_MODULES})
+target_compile_definitions(zelda PRIVATE IS_PLAYER)
+set_property(TARGET zelda PROPERTY VS_DPI_AWARE "OFF")
 target_include_directories(zelda PRIVATE src/zc)
 target_link_libraries(zelda PRIVATE allegro_with_legacy)
 
@@ -482,7 +523,6 @@ elseif(LINUX)
 elseif(APPLE)
 	target_link_libraries(zelda PRIVATE zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
 endif()
-target_link_libraries(zelda PRIVATE allegro_with_legacy)
 
 if(MSVC AND USE_PCH)
 	set_target_properties(zelda PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZCPrecompiledBinary}\"" OBJECT_DEPENDS "${ZCPrecompiledBinary}")
@@ -517,6 +557,7 @@ if(Boost_FOUND)
 	include_directories(${Boost_INCLUDE_DIRS})
 	add_definitions(-DHAS_BOOST)
 	add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZQUEST_MODULES})
+	set_property(TARGET zquest PROPERTY VS_DPI_AWARE "OFF")
 
 	target_link_libraries(zquest PUBLIC allegro_with_legacy zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
 	target_include_directories(zquest PRIVATE src/zq)
@@ -572,6 +613,8 @@ elseif(LINUX)
 endif()
 
 add_executable(zlauncher ${LAUNCHER_SOURCES} ${LAUNCHER_GUI_SOURCES} ${LAUNCHEREXTRASOURCES})
+target_compile_definitions(zlauncher PRIVATE IS_LAUNCHER)
+set_property(TARGET zlauncher PROPERTY VS_DPI_AWARE "OFF")
 target_include_directories(zlauncher PRIVATE src/launcher)
 target_link_libraries(zlauncher PRIVATE allegro_with_legacy zcbase zcgui zconsolelogger ${LAUNCHERLIBSEXTRA})
 
@@ -585,6 +628,17 @@ target_include_directories(al5_example PUBLIC ${allegro5_BINARY_DIR}/include)
 target_link_libraries(al5_example PRIVATE allegro_with_legacy allegro_font allegro_primitives)
 
 #############################################################
+# Emscripten
+#############################################################
+
+if (EMSCRIPTEN)
+	target_link_options(zelda PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_create_synthetic_key_event")
+	target_link_options(zquest PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_create_synthetic_key_event,_open_test_mode")
+	target_link_options(zscript PRIVATE "SHELL:-s PTHREAD_POOL_SIZE=1" "SHELL:-s EXTRA_EXPORTED_RUNTIME_METHODS=['FS','PROXYFS']")
+	set_target_properties(zscript PROPERTIES SUFFIX ".mjs")
+endif()
+
+#############################################################
 # Misc.
 #############################################################
 
@@ -592,6 +646,7 @@ set(zc_targets zquest zelda zlauncher zcbase zcgui zcsound zscript zconsolelogge
 set(zc_apps zquest zelda zlauncher)
 set(zc_warnings
 	-Werror=format
+	-Werror=inconsistent-missing-override
 )
 
 foreach(target IN LISTS zc_targets)
@@ -641,7 +696,7 @@ endif()
 # Visual Studio
 #############################################################
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	# "Edit and Continue" functionality
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /ZI")
 	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /SAFESEH:NO")

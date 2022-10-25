@@ -260,10 +260,9 @@ static void a5_timer_remove_param_int(void (*proc)(void * data), void * param)
 static void a5_timer_rest(unsigned int time, void (*callback)(void))
 {
     double start_time = al_get_time();
-    double current_time = start_time;
     if(callback)
     {
-        while(current_time - start_time < (double)time / 1000.0)
+        while(al_get_time() - start_time < (double)time / 1000.0)
         {
             callback();
         }

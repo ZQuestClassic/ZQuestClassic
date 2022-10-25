@@ -23,9 +23,9 @@
 #include "ffscript.h"
 #include "gamedata.h"
 #include "defdata.h"
-#include "mem_debug.h"
 #include "zscriptversion.h"
 #include "particles.h"
+#include "base/zc_math.h"
 
 extern particle_list particles;
 
@@ -3092,7 +3092,7 @@ bool enemy::moveDir(int32_t dir, zfix px, int32_t special, bool kb)
 bool enemy::moveAtAngle(zfix degrees, zfix px, int32_t special, bool kb)
 {
 	double v = degrees.getFloat() * PI / 180.0;
-	zfix dx = cos(v)*px, dy = sin(v)*px;
+	zfix dx = zc::math::Cos(v)*px, dy = zc::math::Sin(v)*px;
 	return movexy(dx, dy, special, kb);
 }
 
@@ -3155,7 +3155,7 @@ bool enemy::do_falling(int32_t index)
 		int32_t fr = spr.frames ? spr.frames : 1;
 		int32_t spd = spr.speed ? spr.speed : 1;
 		int32_t animclk = (PITFALL_FALL_FRAMES-fallclk);
-		tile = spr.newtile + zc_min(animclk / spd, fr-1);
+		tile = spr.tile + zc_min(animclk / spd, fr-1);
 	}
 	return false;
 }
@@ -3197,7 +3197,7 @@ bool enemy::do_drowning(int32_t index)
 			int32_t fr = spr.frames ? spr.frames : 1;
 			int32_t spd = spr.speed ? spr.speed : 1;
 			int32_t animclk = (WATER_DROWN_FRAMES-drownclk);
-			tile = spr.newtile + zc_min((animclk % (spd*fr))/spd, fr-1);
+			tile = spr.tile + zc_min((animclk % (spd*fr))/spd, fr-1);
 		}
 		else 
 		{
@@ -3206,7 +3206,7 @@ bool enemy::do_drowning(int32_t index)
 			int32_t fr = spr.frames ? spr.frames : 1;
 			int32_t spd = spr.speed ? spr.speed : 1;
 			int32_t animclk = (WATER_DROWN_FRAMES-drownclk);
-			tile = spr.newtile + zc_min((animclk % (spd*fr))/spd, fr-1);
+			tile = spr.tile + zc_min((animclk % (spd*fr))/spd, fr-1);
 		}
 	}
 	return false;
@@ -6209,7 +6209,7 @@ void enemy::draw(BITMAP *dest)
 		}
 		
 		flip = 0;
-		tile = wpnsbuf[spr_death].newtile;
+		tile = wpnsbuf[spr_death].tile;
 		if ( do_animation ) 
 		{
 			int32_t offs = 0;
@@ -6306,7 +6306,7 @@ void enemy::drawzcboss(BITMAP *dest)
 		}
 		
 		flip = 0;
-		tile = wpnsbuf[spr_death].newtile;
+		tile = wpnsbuf[spr_death].tile;
 		
 		if ( do_animation ) 
 		{
@@ -6469,10 +6469,10 @@ void enemy::drawshadow(BITMAP *dest, bool translucent)
 	}
 	else
 	{
-		if(enemycanfall(id) && shadowtile == 0)
-			shadowtile = wpnsbuf[spr_shadow].newtile;
+		if(enemycanfall(id, false) && shadowtile == 0)
+			shadowtile = wpnsbuf[spr_shadow].tile;
 			
-		if(z>0 || fakez>0 || !enemycanfall(id))
+		if(z>0 || fakez>0 || !enemycanfall(id, false))
 		{
 			if(!shadow_overpit(this))
 			sprite::drawshadow(dest,translucent);
@@ -10755,7 +10755,7 @@ void eTektite::drawshadow(BITMAP *dest,bool translucent)
 	int32_t f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
 		   efrate:((clk>=(frate>>1))?1:0);
 	flip = 0;
-	shadowtile = wpnsbuf[spr_shadow].newtile;
+	shadowtile = wpnsbuf[spr_shadow].tile;
 	
 	if(get_bit(quest_rules,qr_NEWENEMYTILES))
 	{
@@ -10931,7 +10931,7 @@ void ePeahat::drawshadow(BITMAP *dest, bool translucent)
 {
 	int32_t tempy=yofs;
 	flip = 0;
-	shadowtile = wpnsbuf[spr_shadow].newtile+posframe;
+	shadowtile = wpnsbuf[spr_shadow].tile+posframe;
 	
 	if(!get_bit(quest_rules,qr_ENEMIESZAXIS))
 	{
@@ -12122,7 +12122,7 @@ void eRock::drawshadow(BITMAP *dest, bool translucent)
 		int32_t efrate = fdiv == 0 ? 0 : clk/fdiv;
 		int32_t f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
 			   efrate:((clk>=(frate>>1))?1:0);
-		shadowtile = wpnsbuf[spr_shadow].newtile+f2;
+		shadowtile = wpnsbuf[spr_shadow].tile+f2;
 		
 		yofs+=8;
 		yofs+=zc_max(0,zc_min(29-clk3,clk3));
@@ -12261,7 +12261,7 @@ void eBoulder::drawshadow(BITMAP *dest, bool translucent)
 		int32_t tempy=yofs;
 		flip = 0;
 		int32_t f2=((clk<<2)/frate)<<1;
-		shadowtile = wpnsbuf[spr_shadow].newtile+f2;
+		shadowtile = wpnsbuf[spr_shadow].tile+f2;
 		yofs+=zc_max(0,zc_min(29-clk3,clk3));
 		
 		yofs+=8;
@@ -12453,7 +12453,7 @@ void eTrigger::death_sfx()
 
 eNPC::eNPC(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
-	o_tile+=wpnsbuf[iwNPCs].newtile;
+	o_tile+=wpnsbuf[iwNPCs].tile;
 	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
@@ -12673,7 +12673,7 @@ void eSpinTile::draw(BITMAP *dest)
 void eSpinTile::drawshadow(BITMAP *dest, bool translucent)
 {
 	flip = 0;
-	shadowtile = wpnsbuf[spr_shadow].newtile+(clk%4);
+	shadowtile = wpnsbuf[spr_shadow].tile+(clk%4);
 	yofs+=4;
 	if(!shadow_overpit(this))
 		enemy::drawshadow(dest, translucent);
@@ -13610,7 +13610,7 @@ void eStalfos::drawshadow(BITMAP *dest, bool translucent)
 		
 		int32_t f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
 			   efrate:((clk>=(frate>>1))?1:0);
-		shadowtile = wpnsbuf[spr_shadow].newtile;
+		shadowtile = wpnsbuf[spr_shadow].tile;
 		
 		if(get_bit(quest_rules,qr_NEWENEMYTILES))
 		{
@@ -13632,7 +13632,7 @@ void eStalfos::drawshadow(BITMAP *dest, bool translucent)
 		
 		int32_t f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
 			   efrate:((clk>=(frate>>1))?1:0);
-		shadowtile = wpnsbuf[spr_shadow].newtile;
+		shadowtile = wpnsbuf[spr_shadow].tile;
 		
 		if(get_bit(quest_rules,qr_NEWENEMYTILES))
 		{
@@ -14035,7 +14035,7 @@ void eKeese::drawshadow(BITMAP *dest, bool translucent)
 {
 	int32_t tempy=yofs;
 	flip = 0;
-	shadowtile = wpnsbuf[spr_shadow].newtile+posframe;
+	shadowtile = wpnsbuf[spr_shadow].tile+posframe;
 	
 	yofs+=zc_min(int32_t(step/zslongToFix(dstep*10)), 8);
 	if(!get_bit(quest_rules,qr_ENEMIESZAXIS))
@@ -18321,13 +18321,13 @@ bool ePatra::animate(int32_t index)
 				//maybe playing_field_offset here?
 				if(loopcnt>0)
 				{
-					guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc31) - sin(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*((int64_t)abs(dmisc31)-abs(dmisc29));
-					guys.spr(i)->y = -sin(a2+PI/2)*abs(dmisc31) + cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*((int64_t)abs(dmisc31)-abs(dmisc29));
+					guys.spr(i)->x =  zc::math::Cos(a2+PI/2)*abs(dmisc31) - zc::math::Sin(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*((int64_t)abs(dmisc31)-abs(dmisc29));
+					guys.spr(i)->y = -zc::math::Sin(a2+PI/2)*abs(dmisc31) + zc::math::Cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*((int64_t)abs(dmisc31)-abs(dmisc29));
 				}
 				else
 				{
-					guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc29);
-					guys.spr(i)->y = -sin(a2+PI/2)*abs(dmisc29);
+					guys.spr(i)->x =  zc::math::Cos(a2+PI/2)*abs(dmisc29);
+					guys.spr(i)->y = -zc::math::Sin(a2+PI/2)*abs(dmisc29);
 				}
 				
 				temp_x=guys.spr(i)->x;
@@ -18335,13 +18335,13 @@ bool ePatra::animate(int32_t index)
 			}
 			else //Oval
 			{
-				circle_x =  cos(a2+PI/2)*abs(dmisc29);
-				circle_y = -sin(a2+PI/2)*abs(dmisc29);
+				circle_x =  zc::math::Cos(a2+PI/2)*abs(dmisc29);
+				circle_y = -zc::math::Sin(a2+PI/2)*abs(dmisc29);
 				
 				if(loopcnt>0)
 				{
-					guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc29);
-					guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1)))*abs(dmisc31);
+					guys.spr(i)->x =  zc::math::Cos(a2+PI/2)*abs(dmisc29);
+					guys.spr(i)->y = (-zc::math::Sin(a2+PI/2)-zc::math::Cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1)))*abs(dmisc31);
 				}
 				else
 				{
@@ -18577,13 +18577,13 @@ bool ePatra::animate(int32_t index)
 				{
 					if(loopcnt>0)
 					{
-						guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc32) - sin(pos2*PI*2/(dmisc2==0?1:dmisc2))*((int64_t)abs(dmisc32)-abs(dmisc30));
-						guys.spr(i)->y = -sin(a2+PI/2)*abs(dmisc32) + cos(pos2*PI*2/(dmisc2==0?1:dmisc2))*((int64_t)abs(dmisc32)-abs(dmisc30));
+						guys.spr(i)->x =  zc::math::Cos(a2+PI/2)*abs(dmisc32) - zc::math::Sin(pos2*PI*2/(dmisc2==0?1:dmisc2))*((int64_t)abs(dmisc32)-abs(dmisc30));
+						guys.spr(i)->y = -zc::math::Sin(a2+PI/2)*abs(dmisc32) + zc::math::Cos(pos2*PI*2/(dmisc2==0?1:dmisc2))*((int64_t)abs(dmisc32)-abs(dmisc30));
 					}
 					else
 					{
-						guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc30);
-						guys.spr(i)->y = -sin(a2+PI/2)*abs(dmisc30);
+						guys.spr(i)->x =  zc::math::Cos(a2+PI/2)*abs(dmisc30);
+						guys.spr(i)->y = -zc::math::Sin(a2+PI/2)*abs(dmisc30);
 					}
 					
 					temp_x=guys.spr(i)->x;
@@ -18591,13 +18591,13 @@ bool ePatra::animate(int32_t index)
 				}
 				else
 				{
-					circle_x =  cos(a2+PI/2)*abs(dmisc30);
-					circle_y = -sin(a2+PI/2)*abs(dmisc30);
+					circle_x =  zc::math::Cos(a2+PI/2)*abs(dmisc30);
+					circle_y = -zc::math::Sin(a2+PI/2)*abs(dmisc30);
 					
 					if(loopcnt>0)
 					{
-						guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc30);
-						guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc2 == 0 ? 1 : dmisc2)))*abs(dmisc32);
+						guys.spr(i)->x =  zc::math::Cos(a2+PI/2)*abs(dmisc30);
+						guys.spr(i)->y = (-zc::math::Sin(a2+PI/2)-zc::math::Cos(pos2*PI*2/(dmisc2 == 0 ? 1 : dmisc2)))*abs(dmisc32);
 					}
 					else
 					{
@@ -19164,13 +19164,13 @@ bool ePatraBS::animate(int32_t index)
 		{
 			int32_t pos2 = ((enemy*)guys.spr(i))->misc;
 			double a2 = ((int64_t)clk2-pos2*90/(dmisc1==0?1:dmisc1))*PI/45;
-			temp_x =  cos(a2+PI/2)*45;
-			temp_y = -sin(a2+PI/2)*45;
+			temp_x =  zc::math::Cos(a2+PI/2)*45;
+			temp_y = -zc::math::Sin(a2+PI/2)*45;
 			
 			if(loopcnt>0)
 			{
-				guys.spr(i)->x =  cos(a2+PI/2)*45;
-				guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc1==0?1:dmisc1)))*22.5;
+				guys.spr(i)->x =  zc::math::Cos(a2+PI/2)*45;
+				guys.spr(i)->y = (-zc::math::Sin(a2+PI/2)-zc::math::Cos(pos2*PI*2/(dmisc1==0?1:dmisc1)))*22.5;
 			}
 			else
 			{
@@ -20736,7 +20736,7 @@ bool canfall(int32_t id)
 	return !never_in_air(id) && !isflier(id) && !isjumper(id);
 }
 
-bool enemy::enemycanfall(int32_t id)
+bool enemy::enemycanfall(int32_t id, bool checkgrav)
 {
 	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
 	{
@@ -20778,15 +20778,18 @@ bool enemy::enemycanfall(int32_t id)
 		}
 	}
 	
-	if ( isflier(id) || isjumper(id) || never_in_air(id) )
-	{
-		if ( moveflags & FLAG_OBEYS_GRAV ) return true;
-		else return false;
-	}
-	else
-	{
-		return (moveflags & FLAG_OBEYS_GRAV);    
-	}
+	if(!checkgrav) return true;
+	return (moveflags & FLAG_OBEYS_GRAV);
+	
+	// if ( isflier(id) || isjumper(id) || never_in_air(id) )
+	// {
+		// if ( moveflags & FLAG_OBEYS_GRAV ) return true;
+		// else return false;
+	// }
+	// else
+	// {
+		// return (moveflags & FLAG_OBEYS_GRAV);    
+	// }
 	//return !never_in_air(id) && !isflier(id) && !isjumper(id);
 }
 
@@ -22515,6 +22518,12 @@ bool runMenuCursor()
 	//false if pos changed this frame; no confirming while moving the cursor!
 }
 
+bool bottom_margin_clip()
+{
+	return !get_bit(quest_rules, qr_OLD_STRING_EDITOR_MARGINS)
+		&& cursor_y >= (msg_h + (get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)?16:0) - msg_margins[down]);
+}
+
 bool parsemsgcode()
 {
 	if(msgptr>=MsgStrings[msgstr].s.size()) return false;
@@ -22527,7 +22536,7 @@ bool parsemsgcode()
 			ssc_tile_hei = ssc_tile_hei_buf;
 			ssc_tile_hei_buf = -1;
 			cursor_y += thei + MsgStrings[msgstr].vspace;
-			cursor_x=(get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0 ? 0 : msg_margins[left]);
+			cursor_x=msg_margins[left];
 			return true;
 		}	
 		
@@ -22623,6 +22632,8 @@ bool parsemsgcode()
 			int32_t    dy =  grab_next_argument();
 			int32_t    wfx =  grab_next_argument();
 			int32_t    sfx =  grab_next_argument();
+			if(dx >= MAX_SCC_ARG) dx = -1;
+			if(dy >= MAX_SCC_ARG) dy = -1;
 			FFCore.warp_player(wtIWARP, dmap, scrn, dx, dy, wfx, sfx, warpFlagDONTKILLMUSIC, 0);
 			return true;
 		}
@@ -22704,7 +22715,7 @@ bool parsemsgcode()
 				ssc_tile_hei = ssc_tile_hei_buf;
 				ssc_tile_hei_buf = -1;
 				cursor_y += thei + MsgStrings[msgstr].vspace;
-				if(cursor_y >= (msg_h - msg_margins[down])) break;
+				if(bottom_margin_clip()) return true;
 				cursor_x=msg_margins[left];
 			}
 			
@@ -22718,7 +22729,7 @@ bool parsemsgcode()
 		{
 			int32_t odds = (int32_t)(grab_next_argument());
 			
-			if(!((zc_oldrand()%(2*odds))/odds))
+			if(!odds || !(zc_oldrand()%odds))
 				goto switched;
 				
 			(void)grab_next_argument();
@@ -22763,7 +22774,7 @@ bool parsemsgcode()
 		{
 			int32_t it = (int32_t)grab_next_argument();
 			
-			if(it<MAXITEMS && game->item[it])
+			if(unsigned(it)<MAXITEMS && game->item[it])
 				goto switched;
 				
 			(void)grab_next_argument();
@@ -22823,21 +22834,21 @@ bool parsemsgcode()
 		
 		case MSGC_MENUCHOICE:
 		{
+			int32_t pos = grab_next_argument();
+			int32_t upos = grab_next_argument();
+			int32_t dpos = grab_next_argument();
+			int32_t lpos = grab_next_argument();
+			int32_t rpos = grab_next_argument();
 			if(cursor_x+MsgStrings[msgstr].hspace + msg_menu_data[MNU_CURSOR_WID] > msg_w-msg_margins[right])
 			{
 				int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
 				ssc_tile_hei = ssc_tile_hei_buf;
 				ssc_tile_hei_buf = -1;
 				cursor_y += thei + MsgStrings[msgstr].vspace;
-				// if(cursor_y >= (msg_h - msg_margins[down])) break;
+				if(bottom_margin_clip()) break;
 				cursor_x=msg_margins[left];
 			}
 			
-			int32_t pos = grab_next_argument();
-			int32_t upos = grab_next_argument();
-			int32_t dpos = grab_next_argument();
-			int32_t lpos = grab_next_argument();
-			int32_t rpos = grab_next_argument();
 			menu_options[pos] = menu_choice(cursor_x, cursor_y, pos,
 				upos, dpos, lpos, rpos);
 			
@@ -23001,7 +23012,7 @@ bool atend(char const* str)
 
 void putmsg()
 {
-	bool oldmargin = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0;
+	bool oldmargin = get_bit(quest_rules, qr_OLD_STRING_EDITOR_MARGINS)!=0;
 	if(!msgorig) msgorig=msgstr;
 	
 	if(wait_advance && linkedmsgclk < 1)
@@ -23049,7 +23060,7 @@ void putmsg()
 	}
 	if(wait_advance) return; //Waiting for buttonpress
 	
-	if(!do_run_menu && (!msgstr || msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || cursor_y >= msg_h-(oldmargin?0:msg_margins[down])))
+	if(!do_run_menu && (!msgstr || msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || bottom_margin_clip()))
 	{
 		if(!msgstr)
 			msgorig=0;
@@ -23073,7 +23084,7 @@ void putmsg()
 				goto breakout; // break out if message speed was changed to non-zero
 			else if(!do_run_menu && !doing_name_insert && !parsemsgcode())
 			{
-				if(cursor_y >= msg_h-(oldmargin?0:msg_margins[down]))
+				if(bottom_margin_clip())
 					break;
 					
 				wrapmsgstr(s3);
@@ -23082,36 +23093,38 @@ void putmsg()
 				{
 					tlength = msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]) + MsgStrings[msgstr].hspace;
 					
-					if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
-					   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
+					if(cursor_x+tlength > (msg_w-msg_margins[right])
+					   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 							? true : strcmp(s3," ")!=0))
 					{
 						int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
 						ssc_tile_hei = ssc_tile_hei_buf;
 						ssc_tile_hei_buf = -1;
 						cursor_y += thei + MsgStrings[msgstr].vspace;
-						cursor_x=oldmargin ? 0 : msg_margins[left];
+						if(bottom_margin_clip()) break;
+						cursor_x=msg_margins[left];
 					}
 					
 					char buf[2] = {0};
 					sprintf(buf,"%c",MsgStrings[msgstr].s[msgptr]);
 					
-					textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
+					textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x,cursor_y,msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
 					
 					cursor_x+=tlength;
 				}
 				else
 				{
 					tlength = text_length(msgfont, s3) + ((int32_t)strlen(s3)*MsgStrings[msgstr].hspace);
-					if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
-					   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
+					if(cursor_x+tlength > (msg_w-msg_margins[right])
+					   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 							? true : strcmp(s3," ")!=0))
 					{
 						int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
 						ssc_tile_hei = ssc_tile_hei_buf;
 						ssc_tile_hei_buf = -1;
 						cursor_y += thei + MsgStrings[msgstr].vspace;
-						cursor_x=oldmargin ? 0 : msg_margins[left];
+						if(bottom_margin_clip()) break;
+						cursor_x=msg_margins[left];
 					}
 					
 					sfx(MsgStrings[msgstr].sfx);
@@ -23119,7 +23132,7 @@ void putmsg()
 					char buf[2] = {0};
 					sprintf(buf,"%c",MsgStrings[msgstr].s[msgptr]);
 					
-					textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
+					textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x,cursor_y,msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
 					
 					cursor_x += msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]);
 					cursor_x += MsgStrings[msgstr].hspace;
@@ -23139,7 +23152,7 @@ void putmsg()
 			{
 				if(*nameptr)
 				{
-					if(cursor_y >= msg_h-(oldmargin?0:msg_margins[down]))
+					if(bottom_margin_clip())
 						break;
 					
 					char s3[9] = {0};
@@ -23156,15 +23169,16 @@ void putmsg()
 					
 					tlength = text_length(msgfont, s3) + ((int32_t)strlen(s3)*MsgStrings[msgstr].hspace);
 					
-					if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
-					   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
+					if(cursor_x+tlength > (msg_w-msg_margins[right])
+					   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 							? true : strcmp(s3," ")!=0))
 					{
 						int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
 						ssc_tile_hei = ssc_tile_hei_buf;
 						ssc_tile_hei_buf = -1;
 						cursor_y += thei + MsgStrings[msgstr].vspace;
-						cursor_x=oldmargin ? 0 : msg_margins[left];
+						if(bottom_margin_clip()) break;
+						cursor_x=msg_margins[left];
 					}
 					
 					sfx(MsgStrings[msgstr].sfx);
@@ -23172,7 +23186,7 @@ void putmsg()
 					char buf[2] = {0};
 					sprintf(buf,"%c",*nameptr);
 					
-					textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
+					textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x,cursor_y,msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
 					
 					cursor_x += msgfont->vtable->char_length(msgfont, *nameptr);
 					cursor_x += MsgStrings[msgstr].hspace;
@@ -23200,8 +23214,11 @@ void putmsg()
 			}
 		}
 		
-		msgclk=72;
-		msgpos=10000;
+		if (!do_run_menu)
+		{
+			msgclk = 72;
+			msgpos = 10000;
+		}
 	}
 	else
 	{
@@ -23218,15 +23235,16 @@ breakout:
 		{
 			tlength = msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]) + MsgStrings[msgstr].hspace;
 			
-			if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
-			   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
+			if(cursor_x+tlength > (msg_w-msg_margins[right])
+			   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 					? 1 : strcmp(s3," ")!=0))
 			{
 				int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
 				ssc_tile_hei = ssc_tile_hei_buf;
 				ssc_tile_hei_buf = -1;
 				cursor_y += thei + MsgStrings[msgstr].vspace;
-				cursor_x=oldmargin ? 0 : msg_margins[left];
+				if(bottom_margin_clip()) break;
+				cursor_x=msg_margins[left];
 			}
 			
 			cursor_x+=tlength;
@@ -23251,7 +23269,7 @@ breakout:
 	
 reparsesinglechar:
 	// Continue printing the string!
-	if(!atend(MsgStrings[msgstr].s.c_str()+msgptr) && cursor_y < msg_h-(oldmargin?0:msg_margins[down]))
+	if(!atend(MsgStrings[msgstr].s.c_str()+msgptr) && !bottom_margin_clip())
 	{
 		if(!do_run_menu && !doing_name_insert && !parsemsgcode())
 		{
@@ -23259,15 +23277,16 @@ reparsesinglechar:
 			
 			tlength = text_length(msgfont, s3) + ((int32_t)strlen(s3)*MsgStrings[msgstr].hspace);
 			
-			if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
-			   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
+			if(cursor_x+tlength > (msg_w-msg_margins[right])
+			   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 					? true : strcmp(s3," ")!=0))
 			{
 				int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
 				ssc_tile_hei = ssc_tile_hei_buf;
 				ssc_tile_hei_buf = -1;
 				cursor_y += thei + MsgStrings[msgstr].vspace;
-				cursor_x=oldmargin ? 0 : msg_margins[left];
+				if(bottom_margin_clip()) goto strendcheck;
+				cursor_x=msg_margins[left];
 				//if(space) s3[0]=0;
 			}
 			
@@ -23276,7 +23295,7 @@ reparsesinglechar:
 			char buf[2] = {0};
 			sprintf(buf,"%c",MsgStrings[msgstr].s[msgptr]);
 			
-			textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
+			textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x,cursor_y,msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
 			
 			cursor_x += msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]);
 			cursor_x += MsgStrings[msgstr].hspace;
@@ -23314,15 +23333,16 @@ reparsesinglechar:
 			
 			tlength = text_length(msgfont, s3) + ((int32_t)strlen(s3)*MsgStrings[msgstr].hspace);
 			
-			if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
-			   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
+			if(cursor_x+tlength > (msg_w-msg_margins[right])
+			   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 					? true : strcmp(s3," ")!=0))
 			{
 				int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
 				ssc_tile_hei = ssc_tile_hei_buf;
 				ssc_tile_hei_buf = -1;
 				cursor_y += thei + MsgStrings[msgstr].vspace;
-				cursor_x=oldmargin ? 0 : msg_margins[left];
+				if(bottom_margin_clip()) goto strendcheck;
+				cursor_x=msg_margins[left];
 			}
 			
 			sfx(MsgStrings[msgstr].sfx);
@@ -23330,7 +23350,7 @@ reparsesinglechar:
 			char buf[2] = {0};
 			sprintf(buf,"%c",*nameptr);
 			
-			textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
+			textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x,cursor_y,msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
 			
 			cursor_x += msgfont->vtable->char_length(msgfont, *nameptr);
 			cursor_x += MsgStrings[msgstr].hspace;
@@ -23360,17 +23380,19 @@ reparsesinglechar:
 			{
 				while(MsgStrings[msgstr].s[msgptr]==' ')
 				{
+					msgspace = true;
 					tlength = msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]) + MsgStrings[msgstr].hspace;
 					
-					if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
-					   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
+					if(cursor_x+tlength > (msg_w-msg_margins[right])
+					   && ((cursor_x > (msg_w-msg_margins[right]) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 							? true : strcmp(s3," ")!=0))
 					{
 						int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
 						ssc_tile_hei = ssc_tile_hei_buf;
 						ssc_tile_hei_buf = -1;
 						cursor_y += thei + MsgStrings[msgstr].vspace;
-						cursor_x=oldmargin ? 0 : msg_margins[left];
+						if(bottom_margin_clip()) break;
+						cursor_x=msg_margins[left];
 					}
 					
 					cursor_x+=tlength;
@@ -23395,7 +23417,7 @@ reparsesinglechar:
 	}
 strendcheck:
 	// Done printing the string
-	if(do_end_str || !doing_name_insert && !do_run_menu && (msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || cursor_y >= msg_h-(oldmargin?0:msg_margins[down]) || atend(MsgStrings[msgstr].s.c_str()+msgptr)) && !linkedmsgclk)
+	if(do_end_str || !doing_name_insert && !do_run_menu && (msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || bottom_margin_clip() || atend(MsgStrings[msgstr].s.c_str()+msgptr)) && !linkedmsgclk)
 	{
 		if(!do_end_str)
 			while(parsemsgcode()); // Finish remaining control codes
