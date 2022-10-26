@@ -607,21 +607,38 @@ void cflag_help(int32_t id)
 void ComboEditorDialog::refreshScript()
 {
 	loadComboType();
+	string l_initd[2];
+	int32_t sw_initd[2];
+	for(auto q = 0; q < 2; ++q)
+	{
+		l_initd[q] = "InitD["+to_string(q)+"]:";
+		h_initd[q].clear();
+		sw_initd[q] = -1;
+	}
 	if(local_comboref.script)
 	{
 		zasm_meta const& meta = comboscripts[local_comboref.script]->meta;
 		for(auto q = 0; q < 2; ++q)
 		{
 			if(unsigned(meta.initd_type[q]) < nswapMAX)
-				tf_initd[q]->setSwapType(meta.initd_type[q]);
+				sw_initd[q] = meta.initd_type[q];
+			if(meta.initd[q].size())
+				l_initd[q] = meta.initd[q];
+			if(meta.initd_help[q].size())
+				h_initd[q] = meta.initd_help[q];
 		}
 	}
 	else
 	{
-		for(auto q = 0; q < 2; ++q)
-		{
-			tf_initd[q]->setSwapType(nswapDEC);
-		}
+		sw_initd[0] = nswapDEC;
+		sw_initd[1] = nswapDEC;
+	}
+	for(auto q = 0; q < 2; ++q)
+	{
+		ib_initds[q]->setDisabled(h_initd[q].empty());
+		l_initds[q]->setText(l_initd[q]);
+		if(sw_initd[q] > -1)
+			tf_initd[q]->setSwapType(sw_initd[q]);
 	}
 }
 void ComboEditorDialog::loadComboType()
@@ -631,7 +648,6 @@ void ComboEditorDialog::loadComboType()
 	string l_attribyte[8];
 	string l_attrishort[8];
 	string l_attribute[4];
-	string l_initd[2];
 	#define FL(fl) (local_comboref.usrflags & (fl))
 	for(size_t q = 0; q < 16; ++q)
 	{
@@ -645,9 +661,6 @@ void ComboEditorDialog::loadComboType()
 		if(q > 3) continue;
 		l_attribute[q] = "Attributes["+to_string(q)+"]:";
 		h_attribute[q].clear();
-		if(q > 1) continue;
-		l_initd[q] = "InitD["+to_string(q)+"]:";
-		h_initd[q].clear();
 	}
 	switch(local_comboref.type) //Label names
 	{
@@ -1863,11 +1876,6 @@ void ComboEditorDialog::loadComboType()
 				l_attribute[q] = meta.attributes[q];
 			if(meta.attributes_help[q].size())
 				h_attribute[q] = meta.attributes_help[q];
-			if(q > 1) continue;
-			if(meta.initd[q].size())
-				l_initd[q] = meta.initd[q];
-			if(meta.initd_help[q].size())
-				h_initd[q] = meta.initd_help[q];
 		}
 	}
 	for(size_t q = 0; q < 16; ++q)
@@ -1882,9 +1890,6 @@ void ComboEditorDialog::loadComboType()
 		if(q > 3) continue;
 		ib_attributes[q]->setDisabled(h_attribute[q].empty());
 		l_attributes[q]->setText(l_attribute[q]);
-		if(q > 1) continue;
-		ib_initds[q]->setDisabled(h_initd[q].empty());
-		l_initds[q]->setText(l_initd[q]);
 	}
 	cteff_tflag->setDisabled(!hasCTypeEffects(local_comboref.type));
 	pendDraw();
