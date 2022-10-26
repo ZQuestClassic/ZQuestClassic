@@ -6,6 +6,8 @@
 #include <gui/text_field.h>
 #include <gui/selcombo_swatch.h>
 #include <gui/label.h>
+#include <gui/button.h>
+#include <gui/window.h>
 #include <gui/list_data.h>
 #include <functional>
 #include <string_view>
@@ -50,8 +52,16 @@ public:
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
+	std::shared_ptr<GUI::Widget> FFC_INITD(int index);
+	void refreshScript();
+	
+	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::SelComboSwatch> cmbsw;
-
+	
+	std::string h_initd[8];
+	std::shared_ptr<GUI::Button> ib_initds[8];
+	std::shared_ptr<GUI::Label> l_initds[8];
+	
 	ffdata ffc;
 	mapscr* thescr;
 	int32_t ffind;

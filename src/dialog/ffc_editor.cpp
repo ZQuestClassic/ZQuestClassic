@@ -6,6 +6,7 @@
 #include "alert.h"
 #include "zc_list_data.h"
  
+extern script_data *ffscripts[NUMSCRIPTFFC];
 extern int32_t Combo, CSet;
 static int32_t tCSet;
 static bool edited = false;
@@ -190,6 +191,56 @@ Row( \
 )
 //}
 
+std::shared_ptr<GUI::Widget> FFCDialog::FFC_INITD(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(padding = 0_px,
+		l_initds[index] = Label(minwidth = 12_em, textAlign = 2),
+		ib_initds[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("InitD Info",h_initd[index]).show();
+			}),
+		TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_ZSINT,
+			val = ffc.initd[index],
+			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				ffc.initd[index] = val;
+			})
+	);
+}
+
+void FFCDialog::refreshScript()
+{
+	std::string label[8], help[8];
+	for(auto q = 0; q < 8; ++q)
+	{
+		label[q] = "InitD["+std::to_string(q)+"]";
+	}
+	if(ffc.script)
+	{
+		zasm_meta const& meta = ffscripts[ffc.script]->meta;
+		for(size_t q = 0; q < 8; ++q)
+		{
+			if(meta.initd[q].size())
+				label[q] = meta.initd[q];
+			if(meta.initd_help[q].size())
+				help[q] = meta.initd_help[q];
+		}
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		l_initds[q]->setText(label[q]);
+		h_initd[q] = help[q];
+		ib_initds[q]->setDisabled(help[q].empty());
+	}
+}
+
 static size_t ffctab = 0;
 std::shared_ptr<GUI::Widget> FFCDialog::view()
 {
@@ -197,7 +248,7 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 	using namespace GUI::Props;
 	using namespace GUI::Key;
 	
-	return Window(
+	window = Window(
 		title = "FFC Editor ("+std::to_string(ffind+1)+")",
 		info = "Edit an FFC, setting up its' combo, flags, and script data.\n"
 			"Hotkeys: -/+: Change CSet",
@@ -308,19 +359,19 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 				)),
 				TabRef(name = "Script", Row(
 					Column(
-						INITD_ROW2(0, ffc.initd),
-						INITD_ROW2(1, ffc.initd),
-						INITD_ROW2(2, ffc.initd),
-						INITD_ROW2(3, ffc.initd),
-						INITD_ROW2(4, ffc.initd),
-						INITD_ROW2(5, ffc.initd),
-						INITD_ROW2(6, ffc.initd),
-						INITD_ROW2(7, ffc.initd)
+						FFC_INITD(0),
+						FFC_INITD(1),
+						FFC_INITD(2),
+						FFC_INITD(3),
+						FFC_INITD(4),
+						FFC_INITD(5),
+						FFC_INITD(6),
+						FFC_INITD(7)
 					),
 					Column(
 						padding = 0_px, fitParent = true,
 						Rows<2>(vAlign = 0.0,
-							SCRIPT_LIST("Action Script:", list_ffcscript, ffc.script)
+							SCRIPT_LIST_PROC("Action Script:", list_ffcscript, ffc.script, refreshScript)
 						),
 						Rows<2>(hAlign = 1.0,
 							Label(text = "A1:"),
@@ -363,6 +414,8 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 			)
 		)
 	);
+	refreshScript();
+	return window;
 }
 
 bool FFCDialog::handleMessage(const GUI::DialogMessage<message>& msg)

@@ -1985,19 +1985,6 @@ Checkbox(text = str, \
 		} \
 	)
 
-#define COMBO_SCRIPT_LIST(name, list, mem) \
-Label(minwidth = 6.5_em, text = name, textAlign = 2), \
-DropDownList( \
-	fitParent = true, \
-	data = list, \
-	selectedValue = mem, \
-	onSelectFunc = [&](int32_t val) \
-	{ \
-		mem = val; \
-		loadComboType(); \
-	} \
-)
-
 std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRIBYTE(int index)
 {
 	using namespace GUI::Builder;
@@ -3182,7 +3169,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						CMB_INITD(1),
 						Row(
 							padding = 0_px,
-							COMBO_SCRIPT_LIST("Combo Script:", list_combscript, local_comboref.script)
+							SCRIPT_LIST_PROC("Combo Script:", list_combscript, local_comboref.script, loadComboType)
 						),
 						Checkbox(text = "Show Script Attrib Metadata",
 							checked = combo_use_script_data,
@@ -4258,7 +4245,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						CMB_INITD(1),
 						Row(
 							padding = 0_px,
-							COMBO_SCRIPT_LIST("Combo Script:", list_combscript, local_comboref.script)
+							SCRIPT_LIST_PROC("Combo Script:", list_combscript, local_comboref.script, loadComboType)
 						),
 						Checkbox(text = "Show Script Attrib Metadata",
 							checked = combo_use_script_data,
