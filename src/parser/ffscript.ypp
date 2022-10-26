@@ -37,6 +37,16 @@ std::string curfilename;
 extern YYLTYPE noloc;
 
 #define push_front(v, elem) (v).insert((v).begin(), elem)
+#define trunc_str(str, sz, header) \
+do \
+{ \
+	if(str.size() > sz) \
+	{ \
+		yymsg(string(header)+": String value '" + string(str) + "' is too long. Max '"+std::to_string(sz)+"' characters."); \
+		str = str.substr(0,sz); \
+	} \
+} \
+while(false)
 
 // Since c macros can't directly contain bison macros, they need to be passed
 // in where they're invoked. The following arguments are named so that 'd'
@@ -804,17 +814,18 @@ Annotated_Script :
 		ASTAnnotationList* list = (ASTAnnotationList*)$1;
 		owning_vector<ASTAnnotation>& set = list->set;
 		ASTScript* script = (ASTScript*)$2;
+		std::string warnstr = "WARNING: Bad Annotation Value";
 		for(size_t q = 0; q < set.size(); ++q)
 		{
 			ASTAnnotation* a = set[q];
 			std::string key = a->first->getValue();
 			std::string val = a->second->getValue();
 			std::string errval = val;
-			std::string escaped_val = util::escape_characters(val);
-			std::string unescaped_val = util::disallow_escapes(escaped_val);
+			std::string unescaped_val = util::disallow_escapes(util::escape_characters(val));
 			bool valid;
 			if(key == "Author")
 			{
+				trunc_str(unescaped_val, 255, warnstr);
 				script->metadata.author = unescaped_val;
 				continue;
 			}
@@ -825,6 +836,7 @@ Annotated_Script :
 					c = (c*10)+key[5]-'0';
 				if(c < 16)
 				{
+					trunc_str(unescaped_val, 255, warnstr);
 					script->metadata.usrflags[c] = unescaped_val;
 					continue;
 				}
@@ -836,6 +848,7 @@ Annotated_Script :
 					c = (c*10)+key[9]-'0';
 				if(c < 16)
 				{
+					trunc_str(val, 65535, warnstr);
 					script->metadata.usrflags_help[c] = val;
 					continue;
 				}
@@ -845,6 +858,7 @@ Annotated_Script :
 				byte c = key[5]-'0';
 				if(c < 8)
 				{
+					trunc_str(unescaped_val, 255, warnstr);
 					script->metadata.initd[c] = unescaped_val;
 					continue;
 				}
@@ -886,12 +900,18 @@ Annotated_Script :
 							script->metadata.initd_type[c] = v;
 							continue;
 						}
+						else
+						{
+							yymsg("WARNING: Bad Annotation Value: '" + errval + "' must be"
+								" exactly 'D','H','LD','LH', or 'B'.");
+						}
 					}
 				}
 				else if(!key.compare(0,9,"InitDHelp"))
 				{
 					if(c < 8)
 					{
+						trunc_str(val, 65535, warnstr);
 						script->metadata.initd_help[c] = val;
 						continue;
 					}
@@ -900,6 +920,7 @@ Annotated_Script :
 				{
 					if(c < 4)
 					{
+						trunc_str(unescaped_val, 255, warnstr);
 						script->metadata.attributes[c] = unescaped_val;
 						continue;
 					}
@@ -908,6 +929,7 @@ Annotated_Script :
 				{
 					if(c < 8)
 					{
+						trunc_str(unescaped_val, 255, warnstr);
 						script->metadata.attribytes[c] = unescaped_val;
 						continue;
 					}
@@ -918,6 +940,7 @@ Annotated_Script :
 				byte c = key[10]-'0';
 				if(c < 8)
 				{
+					trunc_str(unescaped_val, 255, warnstr);
 					script->metadata.attrishorts[c] = unescaped_val;
 					continue;
 				}
@@ -929,6 +952,7 @@ Annotated_Script :
 					byte c = key[13]-'0';
 					if(c < 4)
 					{
+						trunc_str(val, 65535, warnstr);
 						script->metadata.attributes_help[c] = val;
 						continue;
 					}
@@ -938,6 +962,7 @@ Annotated_Script :
 					byte c = key[13]-'0';
 					if(c < 8)
 					{
+						trunc_str(val, 65535, warnstr);
 						script->metadata.attribytes_help[c] = val;
 						continue;
 					}
@@ -948,13 +973,14 @@ Annotated_Script :
 				byte c = key[14]-'0';
 				if(c < 8)
 				{
+					trunc_str(val, 65535, warnstr);
 					script->metadata.attrishorts_help[c] = val;
 					continue;
 				}
 			}
 			
 			//continue before here for valid annotation
-			yymsg("WARNING: Bad Annotation: '" + key + "(\"" + errval + "\")'");
+			yymsg("WARNING: Bad Annotation Key: '" + key + "(\"" + errval + "\")'");
 		}
 		delete list;
 		$$ = script;}
