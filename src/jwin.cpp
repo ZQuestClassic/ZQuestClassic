@@ -2576,7 +2576,7 @@ int32_t jwin_numedit_sbyte_proc(int32_t msg,DIALOG *d,int32_t c)
 
 // Special numedit procs
 
-void trim_trailing_0s(char* str)
+void trim_trailing_0s(char* str, bool leaveDec = false)
 {
 	bool foundDec = false;
 	for(int32_t q = 0; str[q]; ++q)
@@ -2590,9 +2590,14 @@ void trim_trailing_0s(char* str)
 	if(!foundDec) return; //No decimal place, thus no trailing 0's.
 	for(int32_t q = strlen(str)-1; q > 0; --q)
 	{
-		if(str[q] == '0' && str[q-1] != '.')
+		if(str[q] == '0' && (!leaveDec || str[q-1] != '.'))
 		{
 			str[q] = 0;
+		}
+		else if(str[q] == '.')
+		{
+			str[q] = 0;
+			return;
 		}
 		else return;
 	}

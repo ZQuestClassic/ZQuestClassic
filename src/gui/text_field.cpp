@@ -75,7 +75,14 @@ void TextField::setVal(int32_t val)
 		case type::SWAP_ZSINT:
 		case type::SWAP_ZSINT2:
 			startVal = val;
-			sprintf(buf, "%d.%04d", startVal/10000, startVal%10000);
+			if(!(startVal%10000))
+				sprintf(buf, "%d", startVal/10000);
+			else
+			{
+				sprintf(buf, "%d.%04d", startVal/10000, startVal%10000);
+				for(auto q = strlen(buf)-1; buf[q] == '0'; --q)
+					buf[q] = 0;
+			}
 			break;
 		case type::FIXED_DECIMAL:
 		{
