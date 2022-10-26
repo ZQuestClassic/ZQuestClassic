@@ -507,6 +507,10 @@ int32_t TextField::onEvent(int32_t event, MessageDispatcher& sendMessage)
 			{
 				message = onValueChangedMsg;
 				if (onValChanged) onValChanged(tfType, getText(), getVal());
+				if(swap_cb && getSwapType() != 4)
+				{
+					swap_cb->setChecked(getVal()!=0);
+				}
 			}
 			break;
 		
