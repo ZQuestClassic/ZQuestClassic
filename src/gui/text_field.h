@@ -3,6 +3,7 @@
 
 #include "widget.h"
 #include "dialog_ref.h"
+#include "checkbox.h"
 #include <memory>
 #include <string_view>
 
@@ -14,7 +15,8 @@ class TextField: public Widget
 public:
 	enum class type
 	{
-		TEXT, INT_DECIMAL, INT_HEX, SWAP_BYTE, SWAP_SSHORT, SWAP_ZSINT, FIXED_DECIMAL
+		TEXT, INT_DECIMAL, INT_HEX, SWAP_BYTE, SWAP_SSHORT,
+		SWAP_ZSINT, FIXED_DECIMAL, SWAP_ZSINT2
 	};
 	
 	TextField();
@@ -22,10 +24,7 @@ public:
 	/* Set the text field's input type. This determines how the text
 	 * will be interpreted when a message is sent.
 	 */
-	inline void setType(type newType)
-	{
-		tfType = newType;
-	}
+	void setType(type newType);
 	
 	bool isSwapType()
 	{
@@ -34,6 +33,7 @@ public:
 			case type::SWAP_BYTE:
 			case type::SWAP_SSHORT:
 			case type::SWAP_ZSINT:
+			case type::SWAP_ZSINT2:
 				return true;
 			default:
 				return false;
@@ -93,8 +93,10 @@ public:
 	
 	void setFixedPlaces(size_t places);
 	void setSwapType(int32_t newtype);
+	int32_t getSwapType();
 	
 	size_t get_str_pos();
+	void refresh_cb_swap();
 private:
 	std::unique_ptr<char[]> buffer;
 	int32_t startVal;
@@ -104,8 +106,10 @@ private:
 	int32_t swap_type_start;
 	size_t maxLength;
 	bool forced_length;
+	bool last_applied_vis;
 	DialogRef alDialog;
 	DialogRef swapBtnDialog;
+	std::shared_ptr<GUI::Checkbox> swap_cb;
 	int32_t onEnterMsg, onValueChangedMsg;
 	bool valSet;
 	std::function<void(type,std::string_view,int32_t)> onValChanged;

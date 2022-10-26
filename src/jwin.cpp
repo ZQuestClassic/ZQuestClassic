@@ -39,6 +39,7 @@
 #include "base/util.h"
 #include "pal.h"
 #include "gui/tabpanel.h"
+#include "gui/text_field.h"
 #include "dialog/info.h"
 using namespace util;
 
@@ -2575,7 +2576,7 @@ int32_t jwin_numedit_sbyte_proc(int32_t msg,DIALOG *d,int32_t c)
 
 // Special numedit procs
 
-enum {typeDEC, typeHEX, typeLDEC, typeLHEX, typeMAX};
+enum {typeDEC, typeHEX, typeLDEC, typeLHEX, typeBOOL, typeMAX};
 void trim_trailing_0s(char* str)
 {
 	bool foundDec = false;
@@ -2599,18 +2600,21 @@ void trim_trailing_0s(char* str)
 }
 int32_t jwin_swapbtn_proc(int32_t msg, DIALOG* d, int32_t c)
 {
-	static char* swp[typeMAX] = {"D", "H", "LD", "LH"};
+	static char* swp[typeMAX] = {"D", "H", "LD", "LH", "B"};
 	d->dp = swp[d->d1&0xF];
 	//d1 is (0xF0 = old val, 0x0F = new val)
 	//d2 is max val
 	if(d->d2 < 2 || d->d2 > typeMAX) return D_O_K; //Not setup yet, or bad value
 	DIALOG* relproc = (DIALOG*)d->dp3;
+	GUI::TextField *tf_obj = nullptr;
+	if(d->d2 > typeBOOL) tf_obj = (GUI::TextField*)relproc->dp3;
 	int32_t ret = jwin_button_proc(msg, d, c);
 	if(d->flags & D_SELECTED) //On selection
 	{
 		d->d1 = ((d->d1&0x0F)<<4) | (((d->d1&0x0F)+1)%d->d2);
 		d->dp = swp[d->d1&0xF];
 		d->flags &= ~D_SELECTED;
+		if(tf_obj) tf_obj->refresh_cb_swap();
 		if(relproc)
 		{
 			object_message(relproc, MSG_DRAW, 0);
@@ -2624,7 +2628,7 @@ int32_t jwin_numedit_swap_byte_proc(int32_t msg, DIALOG *d, int32_t c)
 	DIALOG* swapbtn;
 	if(d->flags&D_NEW_GUI)
 	{
-		swapbtn = d+(int64_t)(d->dp3);
+		swapbtn = d+1;
 	}
 	else swapbtn = (DIALOG*)d->dp3;
 	if(!swapbtn) return D_O_K;
@@ -2724,7 +2728,7 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 	DIALOG* swapbtn;
 	if(d->flags&D_NEW_GUI)
 	{
-		swapbtn = d+(int64_t)(d->dp3);
+		swapbtn = d+1;
 	}
 	else swapbtn = (DIALOG*)d->dp3;
 	if(!swapbtn) return D_O_K;
@@ -2878,7 +2882,7 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 	DIALOG* swapbtn;
 	if(d->flags&D_NEW_GUI)
 	{
-		swapbtn = d+(int64_t)(d->dp3);
+		swapbtn = d+1;
 	}
 	else swapbtn = (DIALOG*)d->dp3;
 	if(!swapbtn) return D_O_K;
@@ -2945,6 +2949,302 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 			break;
 		case typeLHEX:
 			v = zc_xtoi64(str);
+			break;
+	}
+	int32_t b;
+	if ( v > 2147483647 )
+		b=2147483647;
+	else if ( v < INT_MIN )
+		b=INT_MIN;
+	else b = (int32_t)v;
+	bool queued_neg = d->bg;
+	if(msg==MSG_CHAR && ((c&255)=='-'))
+	{
+		if(b)
+		{
+			if(b==INT_MIN)
+				++b;
+			b = -b;
+			v = b;
+			if(b<0)
+			{
+				if(str[0] != '-')
+				{
+					char buf[16] = {0};
+					strcpy(buf, str);
+					sprintf(str, "-%s", buf);
+					INC_TF_CURSORS(d->d2,1,strlen(str));
+				}
+			}
+			else if(str[0] == '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "%s", buf+1);
+				INC_TF_CURSORS(d->d2,-1,strlen(str));
+			}
+			if(msg != MSG_DRAW) ret |= D_REDRAWME;
+		}
+		else queued_neg = !queued_neg; //queue negative
+		c &= ~255;
+		ret |= D_USED_CHAR;
+	}
+	if(b && queued_neg)
+	{
+		//b = -b; //actually, 'atoi' handles it for us.....
+		queued_neg = false;
+	}
+	if(bool(d->bg) != queued_neg)
+	{
+		d->bg = queued_neg;
+		if(queued_neg)
+		{
+			if(str[0] != '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "-%s", buf);
+				INC_TF_CURSORS(d->d2,1,strlen(str));
+			}
+		}
+		else if(!b && str[0] == '-')
+		{
+			char buf[16] = {0};
+			strcpy(buf, str);
+			sprintf(str, "%s", buf+1);
+			INC_TF_CURSORS(d->d2,-1,strlen(str));
+		}
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	if(v != b || otype != ntype || msg == MSG_START)
+	{
+		switch(ntype)
+		{
+			case typeDEC:
+				if(b < 0)
+					sprintf(str, "-%ld.%04ld", abs(b/10000L), abs(b%10000L));
+				else sprintf(str, "%ld.%04ld", b/10000L, b%10000L);
+				trim_trailing_0s(str);
+				break;
+			case typeHEX:
+				if(b<0)
+					sprintf(str, "-%lX.%04ld", abs(b/10000L), abs(b%10000L));
+				else sprintf(str, "%lX.%04ld", b/10000L, abs(b%10000L));
+				trim_trailing_0s(str);
+				break;
+			case typeLDEC:
+				sprintf(str, "%d", b);
+				break;
+			case typeLHEX:
+				if(b<0)
+					sprintf(str, "-%X", -b);
+				else sprintf(str, "%X", b);
+				break;
+		}
+		d->d2 = 0xFFFF0000|strlen(str);
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	if(d->fg != b)
+	{
+		d->fg = b; //Store numeric data
+		GUI_EVENT(d, geUPDATE_SWAP);
+	}
+	if(msg==MSG_CHAR && ((c&255)=='.'))
+	{
+		if(ntype >= typeLDEC) //No '.' in int32_t modes
+			c&=~255;
+		else
+		{
+			for(int32_t q = 0; str[q]; ++q)
+			{
+				if(str[q] == '.') //Only one '.'
+				{
+					c&=~255;
+					break;
+				}
+			}
+		}
+	}
+	bool rev_d2 = false;
+	int32_t old_d2 = d->d2;
+	int32_t ref_d2;
+	if(msg == MSG_CHAR && queued_neg)
+	{
+		auto scursor = d->d2 & 0xFFFF;
+		auto ecursor = (d->d2 & 0xFFFF0000) >> 16;
+		if(!scursor)
+		{
+			rev_d2 = true;
+			INC_TF_CURSORS(d->d2,1,strlen(str));
+			ref_d2 = d->d2;
+		}
+	}
+	bool areaselect = (d->d2 & 0xFFFF0000) != 0xFFFF0000;
+	switch(ntype)
+	{
+		case typeDEC:
+			d->d1 = 12; //12 digits max (incl '-', '.')
+			if(msg==MSG_CHAR && !editproc_special_key(c) && !areaselect)
+			{
+				int32_t p = 0;
+				for(int32_t q = 0; str[q]; ++q)
+				{
+					if(str[q]=='.')
+					{
+						if((d->d2&0x0000FFFF) <= q)
+							break; //typing before the '.'
+						++p;
+					}
+					else if(p) ++p;
+				}
+				if(p>=5) //too many chars after '.'
+					c&=~255;
+			}
+			ret |= jwin_numedit_proc(msg, d, c);
+			break;
+		case typeHEX:
+			d->d1 = 11; //11 digits max (incl '-', '.')
+			if(msg==MSG_CHAR && !editproc_special_key(c))
+			{
+				if(!((c&255)=='.'||isxdigit(c&255)))
+					c&=~255;
+				else if(isxdigit(c&255) && !isdigit(c&255))
+					for(int32_t q = 0; q < (d->d2&0x0000FFFF) && str[q]; ++q)
+					{
+						if(str[q] == '.') //No hex digits to the right of the '.'
+						{
+							c&=~255;
+							break;
+						}
+					}
+				if((c&255) && !areaselect)
+				{
+					int32_t p = 0;
+					for(int32_t q = 0; str[q]; ++q)
+					{
+						if(str[q]=='.')
+						{
+							if((d->d2&0x0000FFFF) <= q)
+								break; //typing before the '.'
+							++p;
+						}
+						else if(p) ++p;
+					}
+					if(p>=5) //too many chars after '.'
+						c&=~255;
+				}
+				if(isalpha(c&255)) //always capitalize
+					c = (c&~255) | (toupper(c&255));
+			}
+			ret |= jwin_hexedit_proc(msg, d, c);
+			break;
+		case typeLDEC:
+			d->d1 = 11; //11 digits max (incl '-')
+			ret |= jwin_numedit_proc(msg, d, c);
+			break;
+		case typeLHEX:
+			d->d1 = 9; //9 digits max (incl '-')
+			if(msg == MSG_CHAR && !editproc_special_key(c) && isalpha(c&255)) //always capitalize
+				c = (c&~255) | (toupper(c&255));
+			ret |= jwin_hexedit_proc(msg, d, c);
+			break;
+	}
+	if(rev_d2 && ref_d2 == d->d2)
+	{
+		d->d2 = old_d2;
+	}
+	
+	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
+	
+	return ret;
+}
+int32_t jwin_numedit_swap_zsint2_proc(int32_t msg, DIALOG *d, int32_t c)
+{
+	const size_t maxlen = 13;
+	DIALOG* swapbtn;
+	ASSERT(d->flags&D_NEW_GUI);
+	swapbtn = d+1;
+	if(!swapbtn) return D_O_K;
+	GUI::TextField *tf_obj = (GUI::TextField*)d->dp3;
+	if(!tf_obj) return D_O_K;
+	if(msg==MSG_START) //Setup the swapbtn
+	{
+		d->bg = 0;
+		swapbtn->d2 = 5; //Max states
+		swapbtn->dp3 = (void*)d;
+	}
+	int32_t ret = D_O_K;
+	int32_t ntype = swapbtn->d1&0xF,
+	    otype = swapbtn->d1>>4;
+    if(otype==typeBOOL || ntype == typeBOOL)
+	{
+		if(otype != ntype)
+		{
+			tf_obj->refresh_cb_swap();
+		}
+		if(ntype == typeBOOL)
+		{
+			swapbtn->d1 = (ntype<<4)|ntype;
+			return D_O_K;
+		}
+	}
+	
+	char* str = (char*)d->dp;
+	int64_t v = 0;
+	if(msg == MSG_START)
+		v = d->fg;
+	else switch(otype)
+	{
+		case typeDEC:
+			if(char *ptr = strchr(str, '.'))
+			{
+				char tempstr[32] = {0};
+				strcpy(tempstr, str);
+				for(int32_t q = 0; q < 4; ++q)
+					tempstr[strlen(str)+q]='0';
+				ptr = strchr(tempstr, '.');
+				*ptr=0;++ptr;*(ptr+4)=0; //Nullchar at 2 positions to limit strings
+				v = atoi(tempstr);
+				v *= 10000;
+				if(tempstr[0] == '-')
+					v -= atoi(ptr);
+				else v += atoi(ptr);
+			}
+			else
+			{
+				v = atoi(str);
+				v *= 10000;
+			}
+			break;
+		case typeHEX:
+			if(char *ptr = strchr(str, '.'))
+			{
+				char tempstr[32] = {0};
+				strcpy(tempstr, str);
+				for(int32_t q = 0; q < 4; ++q)
+					tempstr[strlen(str)+q]='0';
+				ptr = strchr(tempstr, '.');
+				*ptr=0;++ptr;*(ptr+4)=0; //Nullchar at 2 positions to limit strings
+				v = zc_xtoi(tempstr);
+				v *= 10000;
+				if(tempstr[0] == '-')
+					v -= atoi(ptr);
+				else v += atoi(ptr);
+			}
+			else
+			{
+				v = zc_xtoi(str);
+				v *= 10000;
+			}
+			break;
+		case typeLDEC:
+			v = zc_atoi64(str);
+			break;
+		case typeLHEX:
+			v = zc_xtoi64(str);
+			break;
+		case typeBOOL:
+			v = d->fg;
 			break;
 	}
 	int32_t b;

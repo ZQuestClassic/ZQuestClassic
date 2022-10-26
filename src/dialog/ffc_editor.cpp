@@ -206,7 +206,7 @@ std::shared_ptr<GUI::Widget> FFCDialog::FFC_INITD(int index)
 			}),
 		TextField(
 			fitParent = true, minwidth = 8_em,
-			type = GUI::TextField::type::SWAP_ZSINT,
+			type = GUI::TextField::type::SWAP_ZSINT2,
 			val = ffc.initd[index],
 			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
 			{
