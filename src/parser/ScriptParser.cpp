@@ -50,15 +50,18 @@ void ScriptParser::initialize()
 }
 extern uint32_t zscript_failcode;
 extern bool zscript_had_warn_err;
+extern bool zscript_error_out;
 unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 {
 	zscript_failcode = 0;
 	zscript_had_warn_err = false;
+	zscript_error_out = false;
 	ScriptParser::initialize();
 	
 	zconsole_info("%s", "Pass 1: Parsing");
 
 	unique_ptr<ASTFile> root(parseFile(filename, true));
+	if(zscript_error_out) return nullptr;
 	if (!root.get())
 	{
 		log_error(CompileError::CantOpenSource(NULL));
@@ -69,24 +72,29 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 
 	if (!ScriptParser::preprocess(root.get(), ScriptParser::recursionLimit))
 		return nullptr;
+	if(zscript_error_out) return nullptr;
 
 	SimpleCompileErrorHandler handler;
 	Program program(*root, &handler);
 	if (handler.hasError())
 		return nullptr;
+	if(zscript_error_out) return nullptr;
 
 	zconsole_info("%s", "Pass 3: Registration");
 
 	RegistrationVisitor regVisitor(program);
 	if(regVisitor.hasFailed()) return nullptr;
+	if(zscript_error_out) return nullptr;
 
 	zconsole_info("%s", "Pass 4: Analyzing Code");
 
 	SemanticAnalyzer semanticAnalyzer(program);
 	if (semanticAnalyzer.hasFailed() || regVisitor.hasFailed())
 		return nullptr;
+	if(zscript_error_out) return nullptr;
 
 	FunctionData fd(program);
+	if(zscript_error_out) return nullptr;
 	if (fd.globalVariables.size() > MAX_SCRIPT_REGISTERS)
 	{
 		log_error(CompileError::TooManyGlobal(NULL));
@@ -98,12 +106,14 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 	unique_ptr<IntermediateData> id(ScriptParser::generateOCode(fd));
 	if (!id.get())
 		return nullptr;
+	if(zscript_error_out) return nullptr;
 	
 	zconsole_info("%s", "Pass 6: Assembling");
 
 	ScriptParser::assemble(id.get());
 
 	unique_ptr<ScriptsData> result(new ScriptsData(program));
+	if(zscript_error_out) return nullptr;
 
 	zconsole_info("%s", "Success!");
 

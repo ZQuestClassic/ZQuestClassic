@@ -32,6 +32,8 @@ void zconsole_db(const char *format,...);
 void zconsole_warn(const char *format,...);
 void zconsole_error(const char *format,...);
 void zconsole_info(const char *format,...);
+bool zparser_errored_out();
+void zparser_error_out();
 
 #endif
 

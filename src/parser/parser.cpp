@@ -20,6 +20,7 @@ io_manager* ConsoleWrite;
 
 extern uint32_t zscript_failcode;
 extern bool zscript_had_warn_err;
+extern bool zscript_error_out;
 
 int32_t get_bit(byte const* bitstr,int32_t bit)
 {
@@ -35,6 +36,15 @@ int32_t used_switch(int32_t argc, char* argv[], const char* s)
 			return i;
 
 	return 0;
+}
+
+bool zparser_errored_out()
+{
+	return zscript_error_out;
+}
+void zparser_error_out()
+{
+	zscript_error_out = true;
 }
 
 static const int32_t WARN_COLOR = CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_GREEN;
@@ -346,7 +356,8 @@ int32_t main(int32_t argc, char **argv)
 			--q;
 	} //*/
 	unique_ptr<ZScript::ScriptsData> result(compile(script_path));
-	
+	if(!result)
+		zconsole_info("%s", "Failure!");
 	int32_t res = (result ? 0 : (zscript_failcode ? zscript_failcode : -1));
 	
 	if(linked)
