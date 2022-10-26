@@ -1120,7 +1120,7 @@ static MENU paste_item_menu[] =
 static MENU edit_menu[] =
 {
     { (char *)"&Undo\tU",                   onUndo,                    NULL,                     0,            NULL   },
-    { (char *)"&Redo\tY",                   onRedo,                    NULL,                     0,            NULL   },
+    { (char *)"&Redo\tCtrl+Y",              onRedo,                    NULL,                     0,            NULL   },
     { (char *)"&Copy\tC",                   onCopy,                    NULL,                     0,            NULL   },
     { (char *)"&Paste\tV",                  onPaste,                   NULL,                     0,            NULL   },
     { (char *)"Paste A&ll",                 onPasteAll,                NULL,                     0,            NULL   },
