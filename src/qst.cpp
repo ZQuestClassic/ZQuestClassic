@@ -13214,6 +13214,21 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , 
 					return qe_invalid;
 			}
 		}
+		if(zmeta_version > 3)
+		{
+			for(auto q = 0; q < 8; ++q)
+			{
+				if(!p_getcstr(&temp_meta.initd[q],f,true))
+					return qe_invalid;
+				if(!p_getwstr(&temp_meta.initd_help[q],f,true))
+					return qe_invalid;
+			}
+		}
+		else
+		{
+			for(auto q = 0; q < 8; ++q)
+				temp_meta.initd[q] = temp_meta.run_idens[q];
+		}
 		
 		if(keepdata)
 			(*script)->meta = temp_meta;

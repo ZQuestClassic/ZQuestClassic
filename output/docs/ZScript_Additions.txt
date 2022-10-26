@@ -2569,17 +2569,19 @@ Available annotations:
 	@Author -
 		Valid on: Scripts
 		Function: Sets the author name metadata field
-	@Attribute1 - @Attribute4
-	@Attribyte1 - @Attribyte8
-	@Attrishort1 - @Attrishort8
-	@Flag1 - @Flag16
+	@Attribute0 - @Attribute3
+	@Attribyte0 - @Attribyte7
+	@Attrishort0 - @Attrishort7
+	@Flag0 - @Flag15
+	@InitD0 - @InitD7
 		Valid on: Scripts
 		Function: Sets attribute metadata for the script.
 		Used by combo scripts for special behavior.
-	@AttributeHelp1 - @AttributeHelp4
-	@AttribyteHelp1 - @AttribyteHelp8
-	@AttrishortHelp1 - @AttrishortHelp8
-	@FlagHelp1 - @FlagHelp16
+	@AttributeHelp0 - @AttributeHelp3
+	@AttribyteHelp0 - @AttribyteHelp7
+	@AttrishortHelp0 - @AttrishortHelp7
+	@FlagHelp0 - @FlagHelp15
+	@InitDHelp0 - @InitDHelp7
 		Valid on: Scripts
 		Function: Sets attribute help text metadata for the script.
 		Used by combo scripts for special behavior.

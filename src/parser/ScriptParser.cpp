@@ -713,7 +713,10 @@ ScriptsData::ScriptsData(Program& program)
 			for(vector<string const*>::const_iterator it = run->paramNames.begin();
 				it != run->paramNames.end(); ++it)
 			{
-				meta.run_idens[ind++] = (**it);
+				meta.run_idens[ind] = (**it);
+				if(!meta.initd[ind].size())
+					meta.initd[ind] = meta.run_idens[ind];
+				++ind;
 			}
 			ind = 0;
 			for(vector<DataType const*>::const_iterator it = run->paramTypes.begin();

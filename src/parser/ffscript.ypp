@@ -16,6 +16,7 @@
 #include "ASTVisitors.h"
 #include "CompileOption.h"
 #include "../zsyssimple.h"
+#include "base/util.h"
 
 using std::string;
 using std::ostringstream;
@@ -808,10 +809,12 @@ Annotated_Script :
 			ASTAnnotation* a = set[q];
 			std::string key = a->first->getValue();
 			std::string val = a->second->getValue();
+			std::string escaped_val = util::escape_characters(val);
+			std::string unescaped_val = util::disallow_escapes(escaped_val);
 			bool valid;
 			if(key == "Author")
 			{
-				script->metadata.author = val;
+				script->metadata.author = unescaped_val;
 				continue;
 			}
 			else if((key.size() == 5 || key.size() == 6) && !key.compare(0,4,"Flag"))
@@ -819,9 +822,9 @@ Annotated_Script :
 				byte c = key[4]-'0';
 				if(key.size() == 6)
 					c = (c*10)+key[5]-'0';
-				if(--c < 16)
+				if(c < 16)
 				{
-					script->metadata.usrflags[c] = val;
+					script->metadata.usrflags[c] = unescaped_val;
 					continue;
 				}
 			}
@@ -830,9 +833,27 @@ Annotated_Script :
 				byte c = key[8]-'0';
 				if(key.size() == 10)
 					c = (c*10)+key[9]-'0';
-				if(--c < 16)
+				if(c < 16)
 				{
 					script->metadata.usrflags_help[c] = val;
+					continue;
+				}
+			}
+			else if(key.size() == 6 && !key.compare(0,5,"InitD"))
+			{
+				byte c = key[5]-'0';
+				if(c < 8)
+				{
+					script->metadata.initd[c] = unescaped_val;
+					continue;
+				}
+			}
+			else if(key.size() == 10 && !key.compare(0,9,"InitDHelp"))
+			{
+				byte c = key[9]-'0';
+				if(c < 8)
+				{
+					script->metadata.initd_help[c] = val;
 					continue;
 				}
 			}
@@ -840,29 +861,29 @@ Annotated_Script :
 			{
 				if(!key.compare(0,9,"Attribute"))
 				{
-					char c = key[9]-'1';
-					if(unsigned(c) < 4)
+					byte c = key[9]-'0';
+					if(c < 4)
 					{
-						script->metadata.attributes[c] = val;
+						script->metadata.attributes[c] = unescaped_val;
 						continue;
 					}
 				}
 				else if(!key.compare(0,9,"Attribyte"))
 				{
-					char c = key[9]-'1';
-					if(unsigned(c) < 8)
+					byte c = key[9]-'0';
+					if(c < 8)
 					{
-						script->metadata.attribytes[c] = val;
+						script->metadata.attribytes[c] = unescaped_val;
 						continue;
 					}
 				}
 			}
 			else if(key.size() == 11 && !key.compare(0,10,"Attrishort"))
 			{
-				char c = key[10]-'1';
-				if(unsigned(c) < 8)
+				byte c = key[10]-'0';
+				if(c < 8)
 				{
-					script->metadata.attrishorts[c] = val;
+					script->metadata.attrishorts[c] = unescaped_val;
 					continue;
 				}
 			}
@@ -870,8 +891,8 @@ Annotated_Script :
 			{
 				if(!key.compare(0,13,"AttributeHelp"))
 				{
-					char c = key[13]-'1';
-					if(unsigned(c) < 4)
+					byte c = key[13]-'0';
+					if(c < 4)
 					{
 						script->metadata.attributes_help[c] = val;
 						continue;
@@ -879,8 +900,8 @@ Annotated_Script :
 				}
 				else if(!key.compare(0,13,"AttribyteHelp"))
 				{
-					char c = key[13]-'1';
-					if(unsigned(c) < 8)
+					byte c = key[13]-'0';
+					if(c < 8)
 					{
 						script->metadata.attribytes_help[c] = val;
 						continue;
@@ -889,8 +910,8 @@ Annotated_Script :
 			}
 			else if(key.size() == 15 && !key.compare(0,14,"AttrishortHelp"))
 			{
-				char c = key[14]-'1';
-				if(unsigned(c) < 8)
+				byte c = key[14]-'0';
+				if(c < 8)
 				{
 					script->metadata.attrishorts_help[c] = val;
 					continue;

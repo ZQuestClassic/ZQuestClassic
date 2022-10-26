@@ -1070,7 +1070,6 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "",                    0,   0,   0,   0}
 };
 
-
 script_variable variable_list[]=
 {
 	//name                id                maxcount       multiple
@@ -2617,36 +2616,48 @@ string get_meta(zasm_meta const& meta)
 	{
 		if(!meta.run_idens[q].size())
 			continue;
-		oss << "\n#PARAM_TYPE_" << (q+1) << " = " << ZScript::getTypeName(meta.run_types[q])
-			<< "\n#PARAM_NAME_" << (q+1) << " = " << meta.run_idens[q];
+		oss << "\n#PARAM_TYPE_" << q << " = " << ZScript::getTypeName(meta.run_types[q])
+			<< "\n#PARAM_NAME_" << q << " = " << meta.run_idens[q];
 	}
 	for(auto q = 0; q < 4; ++q)
 	{
 		if(meta.attributes[q].size())
-			oss << "\n#ATTRIBUTE_" << (q+1) << " = " << meta.attributes[q];
+			oss << "\n#ATTRIBUTE_" << q << " = " << meta.attributes[q];
 		if(meta.attributes_help[q].size())
-			oss << "\n#ATTRIBUTE_HELP_" << (q+1) << " = " << meta.attributes_help[q];
+			oss << "\n#ATTRIBUTE_HELP_" << q << " = "
+				<< util::escape_characters(meta.attributes_help[q]);
 	}
 	for(auto q = 0; q < 8; ++q)
 	{
 		if(meta.attribytes[q].size())
-			oss << "\n#ATTRIBYTE_" << (q+1) << " = " << meta.attribytes[q];
+			oss << "\n#ATTRIBYTE_" << q << " = " << meta.attribytes[q];
 		if(meta.attribytes_help[q].size())
-			oss << "\n#ATTRIBYTE_HELP_" << (q+1) << " = " << meta.attribytes_help[q];
+			oss << "\n#ATTRIBYTE_HELP_" << q << " = "
+				<< util::escape_characters(meta.attribytes_help[q]);
 	}
 	for(auto q = 0; q < 8; ++q)
 	{
 		if(meta.attrishorts[q].size())
-			oss << "\n#ATTRISHORT_" << (q+1) << " = " << meta.attrishorts[q];
+			oss << "\n#ATTRISHORT_" << q << " = " << meta.attrishorts[q];
 		if(meta.attrishorts_help[q].size())
-			oss << "\n#ATTRISHORT_HELP_" << (q+1) << " = " << meta.attrishorts_help[q];
+			oss << "\n#ATTRISHORT_HELP_" << q << " = "
+				<< util::escape_characters(meta.attrishorts_help[q]);
 	}
 	for(auto q = 0; q < 16; ++q)
 	{
 		if(meta.usrflags[q].size())
-			oss << "\n#FLAG_" << (q+1) << " = " << meta.usrflags[q];
+			oss << "\n#FLAG_" << q << " = " << meta.usrflags[q];
 		if(meta.usrflags_help[q].size())
-			oss << "\n#FLAG_HELP_" << (q+1) << " = " << meta.usrflags_help[q];
+			oss << "\n#FLAG_HELP_" << q << " = "
+				<< util::escape_characters(meta.usrflags_help[q]);
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(meta.initd[q].size())
+			oss << "\n#INITD_" << q << " = " << meta.initd[q];
+		if(meta.initd_help[q].size())
+			oss << "\n#INITD_HELP_" << q << " = "
+				<< util::escape_characters(meta.initd_help[q]);
 	}
 	oss << "\n";
 	return oss.str();
@@ -2666,11 +2677,6 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 	size_t endpos = val.find_last_not_of(" \t\r\n\0");
 	if(endpos != string::npos) ++endpos;
 	val = val.substr(0, endpos); //trim trailing whitespace
-	
-	if(val.size() > 32)
-	{
-		val = val.substr(0,32); //Limit to 32 chars, so doesn't overflow
-	}
 	
 	if(cmd == "#ZASM_VERSION")
 	{
@@ -2752,7 +2758,7 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 	}
 	else if (cmd.size() == 12 && !cmd.compare(0, 11, "#ATTRIBUTE_"))
 	{
-		byte ind = cmd.at(11) - '1';
+		byte ind = cmd.at(11) - '0';
 		if (ind < 4)
 		{
 			meta.attributes[ind] = val;
@@ -2761,16 +2767,16 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 	}
 	else if (cmd.size() == 17 && !cmd.compare(0, 16, "#ATTRIBUTE_HELP_"))
 	{
-		byte ind = cmd.at(16) - '1';
+		byte ind = cmd.at(16) - '0';
 		if (ind < 4)
 		{
-			meta.attributes_help[ind] = val;
+			meta.attributes_help[ind] = util::unescape_characters(val);
 		}
 		else return false;
 	}
 	else if (cmd.size() == 12 && !cmd.compare(0, 11, "#ATTRIBYTE_"))
 	{
-		byte ind = cmd.at(11) - '1';
+		byte ind = cmd.at(11) - '0';
 		if (ind < 8)
 		{
 			meta.attribytes[ind] = val;
@@ -2779,16 +2785,16 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 	}
 	else if (cmd.size() == 17 && !cmd.compare(0, 16, "#ATTRIBYTE_HELP_"))
 	{
-		byte ind = cmd.at(16) - '1';
+		byte ind = cmd.at(16) - '0';
 		if (ind < 8)
 		{
-			meta.attribytes_help[ind] = val;
+			meta.attribytes_help[ind] = util::unescape_characters(val);
 		}
 		else return false;
 	}
 	else if (cmd.size() == 13 && !cmd.compare(0, 12, "#ATTRISHORT_"))
 	{
-		byte ind = cmd.at(12) - '1';
+		byte ind = cmd.at(12) - '0';
 		if (ind < 8)
 		{
 			meta.attrishorts[ind] = val;
@@ -2797,10 +2803,10 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 	}
 	else if (cmd.size() == 18 && !cmd.compare(0, 17, "#ATTRISHORT_HELP_"))
 	{
-		byte ind = cmd.at(17) - '1';
+		byte ind = cmd.at(17) - '0';
 		if (ind < 8)
 		{
-			meta.attrishorts_help[ind] = val;
+			meta.attrishorts_help[ind] = util::unescape_characters(val);
 		}
 		else return false;
 	}
@@ -2809,7 +2815,7 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 		byte ind = cmd.at(6) - '0';
 		if (cmd.size() == 8)
 			ind = (ind * 10) + cmd.at(7) - '0';
-		if (--ind < 16)
+		if (ind < 16)
 		{
 			meta.usrflags[ind] = val;
 		}
@@ -2817,12 +2823,30 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 	}
 	else if ((cmd.size() == 12 || cmd.size() == 13) && !cmd.compare(0, 11, "#FLAG_HELP_"))
 	{
-		byte ind = cmd.at(11) - '1';
+		byte ind = cmd.at(11) - '0';
 		if (cmd.size() == 13)
 			ind = (ind * 10) + cmd.at(12) - '0';
-		if (--ind < 16)
+		if (ind < 16)
 		{
-			meta.usrflags_help[ind] = val;
+			meta.usrflags_help[ind] = util::unescape_characters(val);
+		}
+		else return false;
+	}
+	else if (cmd.size() == 8 && !cmd.compare(0, 7, "#INITD_"))
+	{
+		byte ind = cmd.at(7) - '0';
+		if (ind < 8)
+		{
+			meta.initd[ind] = val;
+		}
+		else return false;
+	}
+	else if (cmd.size() == 13 && !cmd.compare(0, 12, "#INITD_HELP_"))
+	{
+		byte ind = cmd.at(12) - '0';
+		if (ind < 8)
+		{
+			meta.initd_help[ind] = util::unescape_characters(val);
 		}
 		else return false;
 	}

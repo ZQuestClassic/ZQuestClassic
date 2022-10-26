@@ -611,6 +611,7 @@ void ComboEditorDialog::loadComboType()
 	string l_attribyte[8];
 	string l_attrishort[8];
 	string l_attribute[4];
+	string l_initd[2];
 	#define FL(fl) (local_comboref.usrflags & (fl))
 	for(size_t q = 0; q < 16; ++q)
 	{
@@ -624,6 +625,9 @@ void ComboEditorDialog::loadComboType()
 		if(q > 3) continue;
 		l_attribute[q] = "Attributes["+to_string(q)+"]:";
 		h_attribute[q].clear();
+		if(q > 1) continue;
+		l_initd[q] = "InitD["+to_string(q)+"]:";
+		h_initd[q].clear();
 	}
 	switch(local_comboref.type) //Label names
 	{
@@ -1839,6 +1843,11 @@ void ComboEditorDialog::loadComboType()
 				l_attribute[q] = meta.attributes[q];
 			if(meta.attributes_help[q].size())
 				h_attribute[q] = meta.attributes_help[q];
+			if(q > 1) continue;
+			if(meta.initd[q].size())
+				l_initd[q] = meta.initd[q];
+			if(meta.initd_help[q].size())
+				h_initd[q] = meta.initd_help[q];
 		}
 	}
 	for(size_t q = 0; q < 16; ++q)
@@ -1853,6 +1862,9 @@ void ComboEditorDialog::loadComboType()
 		if(q > 3) continue;
 		ib_attributes[q]->setDisabled(h_attribute[q].empty());
 		l_attributes[q]->setText(l_attribute[q]);
+		if(q > 1) continue;
+		ib_initds[q]->setDisabled(h_initd[q].empty());
+		l_initds[q]->setText(l_initd[q]);
 	}
 	cteff_tflag->setDisabled(!hasCTypeEffects(local_comboref.type));
 	pendDraw();
@@ -2054,6 +2066,30 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRIBUTE(int index)
 			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
 			{
 				local_comboref.attributes[index] = val;
+			})
+	);
+}
+
+std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_INITD(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(padding = 0_px,
+		l_initds[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
+		ib_initds[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("InitD Info",h_initd[index]).show();
+			}),
+		TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_ZSINT,
+			val = local_comboref.initd[index],
+			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_comboref.initd[index] = val;
 			})
 	);
 }
@@ -3142,8 +3178,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						)
 					)),
 					TabRef(name = "Script", Column(
-						INITD_ROW2(0, local_comboref.initd),
-						INITD_ROW2(1, local_comboref.initd),
+						CMB_INITD(0),
+						CMB_INITD(1),
 						Row(
 							padding = 0_px,
 							COMBO_SCRIPT_LIST("Combo Script:", list_combscript, local_comboref.script)
@@ -4218,8 +4254,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						)
 					))),
 					TabRef(name = "Script", Column(
-						INITD_ROW2(0, local_comboref.initd),
-						INITD_ROW2(1, local_comboref.initd),
+						CMB_INITD(0),
+						CMB_INITD(1),
 						Row(
 							padding = 0_px,
 							COMBO_SCRIPT_LIST("Combo Script:", list_combscript, local_comboref.script)

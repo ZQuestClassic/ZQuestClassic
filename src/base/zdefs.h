@@ -2836,7 +2836,7 @@ struct mapscr
 #define SCRIPT_FORMAT_DISASSEMBLED	2
 #define SCRIPT_FORMAT_ZASM			3
 
-#define METADATA_V			3
+#define METADATA_V			4
 #define V_COMPILER_FIRST	BUILDTM_YEAR
 #define V_COMPILER_SECOND	BUILDTM_MONTH
 #define V_COMPILER_THIRD	BUILDTM_DAY
@@ -2862,6 +2862,8 @@ struct zasm_meta
 	std::string attribytes_help[8];
 	std::string attrishorts_help[8];
 	std::string usrflags_help[16];
+	std::string initd[8];
+	std::string initd_help[8];
 	
 	void setFlag(byte flag)
 	{
@@ -2899,6 +2901,8 @@ struct zasm_meta
 			usrflags[q].clear();
 			usrflags_help[q].clear();
 			if(q > 7) continue;
+			initd[q].clear();
+			initd_help[q].clear();
 			run_idens[q].clear();
 			run_types[q] = ZMETA_NULL_TYPE;
 			attribytes[q].clear();
@@ -2943,6 +2947,8 @@ struct zasm_meta
 			usrflags[q] = other.usrflags[q];
 			usrflags_help[q] = other.usrflags_help[q];
 			if(q > 7) continue;
+			initd[q] = other.initd[q];
+			initd_help[q] = other.initd_help[q];
 			run_idens[q] = other.run_idens[q];
 			run_types[q] = other.run_types[q];
 			attribytes[q] = other.attribytes[q];
@@ -2980,6 +2986,10 @@ struct zasm_meta
 			if(usrflags_help[q].compare(other.usrflags_help[q]))
 				return false;
 			if(q > 7) continue;
+			if(initd[q].compare(other.initd[q]))
+				return false;
+			if(initd_help[q].compare(other.initd_help[q]))
+				return false;
 			if(run_idens[q].compare(other.run_idens[q]))
 				return false;
 			if(run_types[q] != other.run_types[q])
