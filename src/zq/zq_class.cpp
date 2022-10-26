@@ -13101,6 +13101,11 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_
 		if(!p_putwstr(tmeta.initd_help[q],f))
 			new_return(36);
 	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(!p_putc(tmeta.initd_type[q],f))
+			new_return(37);
+	}
 	
     for(int32_t j=0; j<num_commands; j++)
     {

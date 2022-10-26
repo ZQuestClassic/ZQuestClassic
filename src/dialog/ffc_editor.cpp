@@ -204,7 +204,7 @@ std::shared_ptr<GUI::Widget> FFCDialog::FFC_INITD(int index)
 			{
 				InfoDialog("InitD Info",h_initd[index]).show();
 			}),
-		TextField(
+		tf_initd[index] = TextField(
 			fitParent = true, minwidth = 8_em,
 			type = GUI::TextField::type::SWAP_ZSINT2,
 			val = ffc.initd[index],
@@ -231,6 +231,19 @@ void FFCDialog::refreshScript()
 				label[q] = meta.initd[q];
 			if(meta.initd_help[q].size())
 				help[q] = meta.initd_help[q];
+		}
+		
+		for(auto q = 0; q < 8; ++q)
+		{
+			if(unsigned(meta.initd_type[q]) < nswapMAX)
+				tf_initd[q]->setSwapType(meta.initd_type[q]);
+		}
+	}
+	else
+	{
+		for(auto q = 0; q < 8; ++q)
+		{
+			tf_initd[q]->setSwapType(nswapDEC);
 		}
 	}
 	for(auto q = 0; q < 8; ++q)

@@ -116,6 +116,8 @@ void write_meta(zasm_meta const& meta, FILE* f)
 		write_str(meta.initd[q], f);
 	for(auto q = 0; q < 8; ++q)
 		write_str(meta.initd_help[q], f);
+	for(auto q = 0; q < 8; ++q)
+		write_b(meta.initd_type[q], f);
 }
 
 void read_meta(zasm_meta& meta, FILE* f)
@@ -155,6 +157,8 @@ void read_meta(zasm_meta& meta, FILE* f)
 		read_str(meta.initd[q], f);
 	for(auto q = 0; q < 8; ++q)
 		read_str(meta.initd_help[q], f);
+	for(auto q = 0; q < 8; ++q)
+		read_b((byte&)meta.initd_type[q], f);
 }
 
 void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, disassembled_script_data>& scripts)

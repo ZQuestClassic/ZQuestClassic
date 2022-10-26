@@ -809,6 +809,7 @@ Annotated_Script :
 			ASTAnnotation* a = set[q];
 			std::string key = a->first->getValue();
 			std::string val = a->second->getValue();
+			std::string errval = val;
 			std::string escaped_val = util::escape_characters(val);
 			std::string unescaped_val = util::disallow_escapes(escaped_val);
 			bool valid;
@@ -848,20 +849,55 @@ Annotated_Script :
 					continue;
 				}
 			}
-			else if(key.size() == 10 && !key.compare(0,9,"InitDHelp"))
-			{
-				byte c = key[9]-'0';
-				if(c < 8)
-				{
-					script->metadata.initd_help[c] = val;
-					continue;
-				}
-			}
 			else if(key.size() == 10)
 			{
-				if(!key.compare(0,9,"Attribute"))
+				byte c = key[9]-'0';
+				if(!key.compare(0,9,"InitDType"))
 				{
-					byte c = key[9]-'0';
+					if(c < 8)
+					{
+						int8_t v = -1;
+						upperstr(val);
+						if(val.size() == 2 && val[0] == 'L')
+						{
+							switch(val[1])
+							{
+								case 'D': v = nswapLDEC; break;
+								case 'H': v = nswapLHEX; break;
+							}
+						}
+						else if(val.size() == 1)
+						{
+							switch(val[0])
+							{
+								case 'D': v = nswapDEC; break;
+								case 'H': v = nswapHEX; break;
+								case 'B': v = nswapBOOL; break;
+							}
+						}
+						if(v < 0 && val.size() && val[0] >= '0' && val[0] <= '9')
+						{
+							v = atoi(val.c_str());
+							if(unsigned(v) >= nswapMAX)
+								v = -1;
+						}
+						if(unsigned(v) < nswapMAX)
+						{
+							script->metadata.initd_type[c] = v;
+							continue;
+						}
+					}
+				}
+				else if(!key.compare(0,9,"InitDHelp"))
+				{
+					if(c < 8)
+					{
+						script->metadata.initd_help[c] = val;
+						continue;
+					}
+				}
+				else if(!key.compare(0,9,"Attribute"))
+				{
 					if(c < 4)
 					{
 						script->metadata.attributes[c] = unescaped_val;
@@ -870,7 +906,6 @@ Annotated_Script :
 				}
 				else if(!key.compare(0,9,"Attribyte"))
 				{
-					byte c = key[9]-'0';
 					if(c < 8)
 					{
 						script->metadata.attribytes[c] = unescaped_val;
@@ -919,7 +954,7 @@ Annotated_Script :
 			}
 			
 			//continue before here for valid annotation
-			yymsg("WARNING: Bad Annotation: \"" + key + "\"");
+			yymsg("WARNING: Bad Annotation: '" + key + "(\"" + errval + "\")'");
 		}
 		delete list;
 		$$ = script;}

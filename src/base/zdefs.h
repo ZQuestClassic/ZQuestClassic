@@ -2864,6 +2864,7 @@ struct zasm_meta
 	std::string usrflags_help[16];
 	std::string initd[8];
 	std::string initd_help[8];
+	int8_t initd_type[8];
 	
 	void setFlag(byte flag)
 	{
@@ -2903,6 +2904,7 @@ struct zasm_meta
 			if(q > 7) continue;
 			initd[q].clear();
 			initd_help[q].clear();
+			initd_type[q] = -1;
 			run_idens[q].clear();
 			run_types[q] = ZMETA_NULL_TYPE;
 			attribytes[q].clear();
@@ -2949,6 +2951,7 @@ struct zasm_meta
 			if(q > 7) continue;
 			initd[q] = other.initd[q];
 			initd_help[q] = other.initd_help[q];
+			initd_type[q] = other.initd_type[q];
 			run_idens[q] = other.run_idens[q];
 			run_types[q] = other.run_types[q];
 			attribytes[q] = other.attribytes[q];
@@ -2989,6 +2992,8 @@ struct zasm_meta
 			if(initd[q].compare(other.initd[q]))
 				return false;
 			if(initd_help[q].compare(other.initd_help[q]))
+				return false;
+			if(initd_type[q] != other.initd_type[q])
 				return false;
 			if(run_idens[q].compare(other.run_idens[q]))
 				return false;
@@ -5796,6 +5801,8 @@ std::string generate_zq_about();
 
 void enter_sys_pal();
 void exit_sys_pal();
+
+enum {nswapDEC, nswapHEX, nswapLDEC, nswapLHEX, nswapBOOL, nswapMAX};
 
 #define SMART_WRAP(x, mod) (x < 0 ? ((mod-(-x%mod))%mod) : (x%mod))
 

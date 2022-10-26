@@ -59,6 +59,7 @@ private:
 	std::shared_ptr<GUI::SelComboSwatch> cmbsw;
 	
 	std::string h_initd[8];
+	std::shared_ptr<GUI::TextField> tf_initd[8];
 	std::shared_ptr<GUI::Button> ib_initds[8];
 	std::shared_ptr<GUI::Label> l_initds[8];
 	

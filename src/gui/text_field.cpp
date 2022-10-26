@@ -244,6 +244,8 @@ void TextField::setSwapType(int32_t newtype)
 		{
 			swapBtnDialog->d1 = ((d & 0xF)<<4) | swap_type_start;
 		}
+		refresh_cb_swap();
+		pendDraw();
 	}
 }
 
@@ -460,7 +462,7 @@ void TextField::applyVisibility(bool visible)
 	Widget::applyVisibility(visible);
 	if(swap_cb)
 	{
-		sw4 = getSwapType() == 4;
+		sw4 = getSwapType() == nswapBOOL;
 		swap_cb->applyVisibility(sw4 && visible);
 	}
 	if(alDialog) alDialog.applyVisibility(!sw4 && visible);
@@ -507,7 +509,7 @@ int32_t TextField::onEvent(int32_t event, MessageDispatcher& sendMessage)
 			{
 				message = onValueChangedMsg;
 				if (onValChanged) onValChanged(tfType, getText(), getVal());
-				if(swap_cb && getSwapType() != 4)
+				if(swap_cb && getSwapType() != nswapBOOL)
 				{
 					swap_cb->setChecked(getVal()!=0);
 				}

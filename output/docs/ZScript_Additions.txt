@@ -2569,22 +2569,43 @@ Available annotations:
 	@Author -
 		Valid on: Scripts
 		Function: Sets the author name metadata field
+		Value: String (limit 255 chars)
+	
 	@Attribute0 - @Attribute3
 	@Attribyte0 - @Attribyte7
 	@Attrishort0 - @Attrishort7
 	@Flag0 - @Flag15
-	@InitD0 - @InitD7
 		Valid on: Scripts
 		Function: Sets attribute metadata for the script.
-		Used by combo scripts for special behavior.
+		Editor effect: Combo editor label text
+		Value: String (limit 255 chars)
+	
 	@AttributeHelp0 - @AttributeHelp3
 	@AttribyteHelp0 - @AttribyteHelp7
 	@AttrishortHelp0 - @AttrishortHelp7
 	@FlagHelp0 - @FlagHelp15
-	@InitDHelp0 - @InitDHelp7
 		Valid on: Scripts
 		Function: Sets attribute help text metadata for the script.
-		Used by combo scripts for special behavior.
+		Editor effect: Combo editor help text
+		Value: String (limit 65535 chars)
+	
+	@InitD0 - @InitD7
+		Valid on: Scripts
+		Function: Set InitD label info.
+		Editor effect: Combo & FFC editors
+		Value: String (limit 255 chars)
+	
+	@InitDHelp0 - @InitDHelp7
+		Valid on: Scripts
+		Function: Set InitD help text.
+		Editor effect: Combo & FFC editors
+		Value: String (limit 65535 chars)
+	
+	@InitDType0 - @InitDType7
+		Valid on: Scripts
+		Function: Set InitD field type.
+		Editor effect: Combo & FFC editors
+		Value: "D","H","LD","LH", or "B"
 
 /////////////////////////////
 ///  Registration System  ///

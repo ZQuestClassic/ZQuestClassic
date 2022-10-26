@@ -2658,6 +2658,9 @@ string get_meta(zasm_meta const& meta)
 		if(meta.initd_help[q].size())
 			oss << "\n#INITD_HELP_" << q << " = "
 				<< util::escape_characters(meta.initd_help[q]);
+		if(meta.initd_type[q] > -1)
+			oss << "\n#INITD_TYPE_" << q << " = "
+				<< to_string(int32_t(meta.initd_type[q]));
 	}
 	oss << "\n";
 	return oss.str();
@@ -2847,6 +2850,15 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 		if (ind < 8)
 		{
 			meta.initd_help[ind] = util::unescape_characters(val);
+		}
+		else return false;
+	}
+	else if (cmd.size() == 13 && !cmd.compare(0, 12, "#INITD_TYPE_"))
+	{
+		byte ind = cmd.at(12) - '0';
+		if (ind < 8)
+		{
+			meta.initd_type[ind] = atoi(val.c_str());
 		}
 		else return false;
 	}

@@ -2576,7 +2576,6 @@ int32_t jwin_numedit_sbyte_proc(int32_t msg,DIALOG *d,int32_t c)
 
 // Special numedit procs
 
-enum {typeDEC, typeHEX, typeLDEC, typeLHEX, typeBOOL, typeMAX};
 void trim_trailing_0s(char* str)
 {
 	bool foundDec = false;
@@ -2600,14 +2599,14 @@ void trim_trailing_0s(char* str)
 }
 int32_t jwin_swapbtn_proc(int32_t msg, DIALOG* d, int32_t c)
 {
-	static char* swp[typeMAX] = {"D", "H", "LD", "LH", "B"};
+	static char* swp[nswapMAX] = {"D", "H", "LD", "LH", "B"};
 	d->dp = swp[d->d1&0xF];
 	//d1 is (0xF0 = old val, 0x0F = new val)
 	//d2 is max val
-	if(d->d2 < 2 || d->d2 > typeMAX) return D_O_K; //Not setup yet, or bad value
+	if(d->d2 < 2 || d->d2 > nswapMAX) return D_O_K; //Not setup yet, or bad value
 	DIALOG* relproc = (DIALOG*)d->dp3;
 	GUI::TextField *tf_obj = nullptr;
-	if(d->d2 > typeBOOL) tf_obj = (GUI::TextField*)relproc->dp3;
+	if(d->d2 > nswapBOOL) tf_obj = (GUI::TextField*)relproc->dp3;
 	int32_t ret = jwin_button_proc(msg, d, c);
 	if(d->flags & D_SELECTED) //On selection
 	{
@@ -2648,10 +2647,10 @@ int32_t jwin_numedit_swap_byte_proc(int32_t msg, DIALOG *d, int32_t c)
 		v = d->fg;
 	else switch(otype)
 	{
-		case typeDEC:
+		case nswapDEC:
 			v = atoi(str);
 			break;
-		case typeHEX:
+		case nswapHEX:
 			v = zc_xtoi(str);
 			break;
 	}
@@ -2670,10 +2669,10 @@ int32_t jwin_numedit_swap_byte_proc(int32_t msg, DIALOG *d, int32_t c)
 	{
 		switch(ntype)
 		{
-			case typeDEC:
+			case nswapDEC:
 				sprintf(str, "%d", b);
 				break;
-			case typeHEX:
+			case nswapHEX:
 				sprintf(str, "%X", b);
 				break;
 		}
@@ -2687,11 +2686,11 @@ int32_t jwin_numedit_swap_byte_proc(int32_t msg, DIALOG *d, int32_t c)
 	}
 	switch(ntype)
 	{
-		case typeDEC:
+		case nswapDEC:
 			d->d1 = 3; //3 digits max
 			ret |= jwin_numedit_proc(msg, d, c);
 			break;
-		case typeHEX:
+		case nswapHEX:
 			d->d1 = 2; //2 digits max
 			if(msg == MSG_CHAR && isalpha(c&255)) //always capitalize
 				c = (c&~255) | (toupper(c&255));
@@ -2748,10 +2747,10 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 		v = d->fg;
 	else switch(otype)
 	{
-		case typeDEC:
+		case nswapDEC:
 			v = atoi(str);
 			break;
-		case typeHEX:
+		case nswapHEX:
 			v = zc_xtoi(str);
 			break;
 	}
@@ -2822,10 +2821,10 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 	{
 		switch(ntype)
 		{
-			case typeDEC:
+			case nswapDEC:
 				sprintf(str, "%d", b);
 				break;
-			case typeHEX:
+			case nswapHEX:
 				if(b<0)
 					sprintf(str, "-%X", -b);
 				else sprintf(str, "%X", b);
@@ -2856,11 +2855,11 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 	}
 	switch(ntype)
 	{
-		case typeDEC:
+		case nswapDEC:
 			d->d1 = 6; //6 digits max (incl '-')
 			ret |= jwin_numedit_proc(msg, d, c);
 			break;
-		case typeHEX:
+		case nswapHEX:
 			d->d1 = 5; //5 digits max (incl '-')
 			if(msg == MSG_CHAR && !editproc_special_key(c) && isalpha(c&255)) //always capitalize
 				c = (c&~255) | (toupper(c&255));
@@ -2902,7 +2901,7 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 		v = d->fg;
 	else switch(otype)
 	{
-		case typeDEC:
+		case nswapDEC:
 			if(char *ptr = strchr(str, '.'))
 			{
 				char tempstr[32] = {0};
@@ -2923,7 +2922,7 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 				v *= 10000;
 			}
 			break;
-		case typeHEX:
+		case nswapHEX:
 			if(char *ptr = strchr(str, '.'))
 			{
 				char tempstr[32] = {0};
@@ -2944,10 +2943,10 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 				v *= 10000;
 			}
 			break;
-		case typeLDEC:
+		case nswapLDEC:
 			v = zc_atoi64(str);
 			break;
-		case typeLHEX:
+		case nswapLHEX:
 			v = zc_xtoi64(str);
 			break;
 	}
@@ -3020,22 +3019,22 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 	{
 		switch(ntype)
 		{
-			case typeDEC:
+			case nswapDEC:
 				if(b < 0)
 					sprintf(str, "-%ld.%04ld", abs(b/10000L), abs(b%10000L));
 				else sprintf(str, "%ld.%04ld", b/10000L, b%10000L);
 				trim_trailing_0s(str);
 				break;
-			case typeHEX:
+			case nswapHEX:
 				if(b<0)
 					sprintf(str, "-%lX.%04ld", abs(b/10000L), abs(b%10000L));
 				else sprintf(str, "%lX.%04ld", b/10000L, abs(b%10000L));
 				trim_trailing_0s(str);
 				break;
-			case typeLDEC:
+			case nswapLDEC:
 				sprintf(str, "%d", b);
 				break;
-			case typeLHEX:
+			case nswapLHEX:
 				if(b<0)
 					sprintf(str, "-%X", -b);
 				else sprintf(str, "%X", b);
@@ -3051,7 +3050,7 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 	}
 	if(msg==MSG_CHAR && ((c&255)=='.'))
 	{
-		if(ntype >= typeLDEC) //No '.' in int32_t modes
+		if(ntype >= nswapLDEC) //No '.' in int32_t modes
 			c&=~255;
 		else
 		{
@@ -3082,7 +3081,7 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 	bool areaselect = (d->d2 & 0xFFFF0000) != 0xFFFF0000;
 	switch(ntype)
 	{
-		case typeDEC:
+		case nswapDEC:
 			d->d1 = 12; //12 digits max (incl '-', '.')
 			if(msg==MSG_CHAR && !editproc_special_key(c) && !areaselect)
 			{
@@ -3102,7 +3101,7 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			ret |= jwin_numedit_proc(msg, d, c);
 			break;
-		case typeHEX:
+		case nswapHEX:
 			d->d1 = 11; //11 digits max (incl '-', '.')
 			if(msg==MSG_CHAR && !editproc_special_key(c))
 			{
@@ -3138,11 +3137,11 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			ret |= jwin_hexedit_proc(msg, d, c);
 			break;
-		case typeLDEC:
+		case nswapLDEC:
 			d->d1 = 11; //11 digits max (incl '-')
 			ret |= jwin_numedit_proc(msg, d, c);
 			break;
-		case typeLHEX:
+		case nswapLHEX:
 			d->d1 = 9; //9 digits max (incl '-')
 			if(msg == MSG_CHAR && !editproc_special_key(c) && isalpha(c&255)) //always capitalize
 				c = (c&~255) | (toupper(c&255));
@@ -3176,13 +3175,13 @@ int32_t jwin_numedit_swap_zsint2_proc(int32_t msg, DIALOG *d, int32_t c)
 	int32_t ret = D_O_K;
 	int32_t ntype = swapbtn->d1&0xF,
 	    otype = swapbtn->d1>>4;
-    if(otype==typeBOOL || ntype == typeBOOL)
+    if(otype==nswapBOOL || ntype == nswapBOOL)
 	{
 		if(otype != ntype)
 		{
 			tf_obj->refresh_cb_swap();
 		}
-		if(ntype == typeBOOL)
+		if(ntype == nswapBOOL)
 		{
 			swapbtn->d1 = (ntype<<4)|ntype;
 			return D_O_K;
@@ -3195,7 +3194,7 @@ int32_t jwin_numedit_swap_zsint2_proc(int32_t msg, DIALOG *d, int32_t c)
 		v = d->fg;
 	else switch(otype)
 	{
-		case typeDEC:
+		case nswapDEC:
 			if(char *ptr = strchr(str, '.'))
 			{
 				char tempstr[32] = {0};
@@ -3216,7 +3215,7 @@ int32_t jwin_numedit_swap_zsint2_proc(int32_t msg, DIALOG *d, int32_t c)
 				v *= 10000;
 			}
 			break;
-		case typeHEX:
+		case nswapHEX:
 			if(char *ptr = strchr(str, '.'))
 			{
 				char tempstr[32] = {0};
@@ -3237,13 +3236,13 @@ int32_t jwin_numedit_swap_zsint2_proc(int32_t msg, DIALOG *d, int32_t c)
 				v *= 10000;
 			}
 			break;
-		case typeLDEC:
+		case nswapLDEC:
 			v = zc_atoi64(str);
 			break;
-		case typeLHEX:
+		case nswapLHEX:
 			v = zc_xtoi64(str);
 			break;
-		case typeBOOL:
+		case nswapBOOL:
 			v = d->fg;
 			break;
 	}
@@ -3316,22 +3315,22 @@ int32_t jwin_numedit_swap_zsint2_proc(int32_t msg, DIALOG *d, int32_t c)
 	{
 		switch(ntype)
 		{
-			case typeDEC:
+			case nswapDEC:
 				if(b < 0)
 					sprintf(str, "-%ld.%04ld", abs(b/10000L), abs(b%10000L));
 				else sprintf(str, "%ld.%04ld", b/10000L, b%10000L);
 				trim_trailing_0s(str);
 				break;
-			case typeHEX:
+			case nswapHEX:
 				if(b<0)
 					sprintf(str, "-%lX.%04ld", abs(b/10000L), abs(b%10000L));
 				else sprintf(str, "%lX.%04ld", b/10000L, abs(b%10000L));
 				trim_trailing_0s(str);
 				break;
-			case typeLDEC:
+			case nswapLDEC:
 				sprintf(str, "%d", b);
 				break;
-			case typeLHEX:
+			case nswapLHEX:
 				if(b<0)
 					sprintf(str, "-%X", -b);
 				else sprintf(str, "%X", b);
@@ -3347,7 +3346,7 @@ int32_t jwin_numedit_swap_zsint2_proc(int32_t msg, DIALOG *d, int32_t c)
 	}
 	if(msg==MSG_CHAR && ((c&255)=='.'))
 	{
-		if(ntype >= typeLDEC) //No '.' in int32_t modes
+		if(ntype >= nswapLDEC) //No '.' in int32_t modes
 			c&=~255;
 		else
 		{
@@ -3378,7 +3377,7 @@ int32_t jwin_numedit_swap_zsint2_proc(int32_t msg, DIALOG *d, int32_t c)
 	bool areaselect = (d->d2 & 0xFFFF0000) != 0xFFFF0000;
 	switch(ntype)
 	{
-		case typeDEC:
+		case nswapDEC:
 			d->d1 = 12; //12 digits max (incl '-', '.')
 			if(msg==MSG_CHAR && !editproc_special_key(c) && !areaselect)
 			{
@@ -3398,7 +3397,7 @@ int32_t jwin_numedit_swap_zsint2_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			ret |= jwin_numedit_proc(msg, d, c);
 			break;
-		case typeHEX:
+		case nswapHEX:
 			d->d1 = 11; //11 digits max (incl '-', '.')
 			if(msg==MSG_CHAR && !editproc_special_key(c))
 			{
@@ -3434,11 +3433,11 @@ int32_t jwin_numedit_swap_zsint2_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			ret |= jwin_hexedit_proc(msg, d, c);
 			break;
-		case typeLDEC:
+		case nswapLDEC:
 			d->d1 = 11; //11 digits max (incl '-')
 			ret |= jwin_numedit_proc(msg, d, c);
 			break;
-		case typeLHEX:
+		case nswapLHEX:
 			d->d1 = 9; //9 digits max (incl '-')
 			if(msg == MSG_CHAR && !editproc_special_key(c) && isalpha(c&255)) //always capitalize
 				c = (c&~255) | (toupper(c&255));

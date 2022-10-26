@@ -31,11 +31,13 @@ public:
 private:
 	ComboEditorDialog(newcombo const& ref, int32_t index, bool clrd = false);
 	ComboEditorDialog(int32_t index, bool clrd = false);
+	void refreshScript();
 	void loadComboType();
 	void loadComboFlag();
 	void updateCSet();
 	void updateAnimation();
 	std::shared_ptr<GUI::Window> window;
+	std::shared_ptr<GUI::TextField> tf_initd[2];
 	std::shared_ptr<GUI::Label> l_initds[2];
 	std::shared_ptr<GUI::Label> l_attributes[4];
 	std::shared_ptr<GUI::Label> l_attribytes[8];

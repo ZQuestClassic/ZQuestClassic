@@ -604,6 +604,26 @@ void cflag_help(int32_t id)
 	InfoDialog(ZI.getMapFlagName(id),ZI.getMapFlagHelp(id)).show();
 }
 //Load all the info for the combo type and checked flags
+void ComboEditorDialog::refreshScript()
+{
+	loadComboType();
+	if(local_comboref.script)
+	{
+		zasm_meta const& meta = comboscripts[local_comboref.script]->meta;
+		for(auto q = 0; q < 2; ++q)
+		{
+			if(unsigned(meta.initd_type[q]) < nswapMAX)
+				tf_initd[q]->setSwapType(meta.initd_type[q]);
+		}
+	}
+	else
+	{
+		for(auto q = 0; q < 2; ++q)
+		{
+			tf_initd[q]->setSwapType(nswapDEC);
+		}
+	}
+}
 void ComboEditorDialog::loadComboType()
 {
 	static std::string dirstr[] = {"up","down","left","right"};
@@ -2070,9 +2090,9 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_INITD(int index)
 			{
 				InfoDialog("InitD Info",h_initd[index]).show();
 			}),
-		TextField(
+		tf_initd[index] = TextField(
 			fitParent = true, minwidth = 8_em,
-			type = GUI::TextField::type::SWAP_ZSINT,
+			type = GUI::TextField::type::SWAP_ZSINT2,
 			val = local_comboref.initd[index],
 			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
 			{
@@ -3169,7 +3189,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						CMB_INITD(1),
 						Row(
 							padding = 0_px,
-							SCRIPT_LIST_PROC("Combo Script:", list_combscript, local_comboref.script, loadComboType)
+							SCRIPT_LIST_PROC("Combo Script:", list_combscript, local_comboref.script, refreshScript)
 						),
 						Checkbox(text = "Show Script Attrib Metadata",
 							checked = combo_use_script_data,
@@ -4245,7 +4265,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						CMB_INITD(1),
 						Row(
 							padding = 0_px,
-							SCRIPT_LIST_PROC("Combo Script:", list_combscript, local_comboref.script, loadComboType)
+							SCRIPT_LIST_PROC("Combo Script:", list_combscript, local_comboref.script, refreshScript)
 						),
 						Checkbox(text = "Show Script Attrib Metadata",
 							checked = combo_use_script_data,
@@ -4278,7 +4298,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 	}
 	l_minmax_trig->setText((local_comboref.triggerflags[0] & (combotriggerINVERTMINMAX))
 		? maxstr : minstr);
-	loadComboType();
+	refreshScript();
 	return window;
 }
 
