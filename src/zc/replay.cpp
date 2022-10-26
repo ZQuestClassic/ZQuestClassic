@@ -1119,7 +1119,7 @@ void replay_set_sync_rng(bool enable)
 
 bool replay_is_replaying()
 {
-    return mode == ReplayMode::Replay || mode == ReplayMode::Assert || mode == ReplayMode::Update;
+    return mode == ReplayMode::Replay || mode == ReplayMode::Snapshot || mode == ReplayMode::Assert || mode == ReplayMode::Update;
 }
 
 void replay_set_frame_arg(int frame)
