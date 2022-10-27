@@ -74,7 +74,7 @@ void zconsole_db(const char *format,...)
 		if(ConsoleWrite)
 			fprintf(console, "%s", tmp);
 		else
-			fprintf(console, "%s\r\n", tmp);
+			fprintf(console, "%s\n", tmp);
 		fclose(console);
 	}
 	if(ConsoleWrite)
@@ -108,7 +108,7 @@ void zconsole_warn(const char *format,...)
 		if(ConsoleWrite)
 			fprintf(console, "%s", tmp);
 		else
-			fprintf(console, "%s\r\n", tmp);
+			fprintf(console, "%s\n", tmp);
 		fclose(console);
 	}
 	if(ConsoleWrite)
@@ -143,7 +143,7 @@ void zconsole_error(const char *format,...)
 		if(ConsoleWrite)
 			fprintf(console, "%s", tmp);
 		else
-			fprintf(console, "%s\r\n", tmp);
+			fprintf(console, "%s\n", tmp);
 		fclose(console);
 	}
 	if(ConsoleWrite)
@@ -177,7 +177,7 @@ void zconsole_info(const char *format,...)
 		if(ConsoleWrite)
 			fprintf(console, "%s", tmp);
 		else
-			fprintf(console, "%s\r\n", tmp);
+			fprintf(console, "%s\n", tmp);
 		fclose(console);
 	}
 	if(ConsoleWrite)
