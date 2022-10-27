@@ -2602,6 +2602,7 @@ Available annotations:
 		Function: Set InitD label info.
 		Editor effect: Combo, FFC, Item, LWeapon scripts
 		Value: String (limit 255 chars)
+		Default value: void run() parameter name
 	
 	@InitDHelp0 - @InitDHelp7
 		Valid on: Scripts
@@ -2614,6 +2615,11 @@ Available annotations:
 		Function: Set InitD field type.
 		Editor effect: Combo, FFC, Item, LWeapon scripts
 		Value: "D","H","LD","LH","B", or "-1"
+		Default value: Based on void run() parameter type-
+			int, float, untyped: "D"
+			long: "LD"
+			bool: "B"
+			otherwise: "-1"
 
 /////////////////////////////
 ///  Registration System  ///
