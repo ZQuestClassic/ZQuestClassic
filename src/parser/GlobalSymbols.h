@@ -651,6 +651,20 @@ private:
     void generateCode();
 };
 
+class PalDataSymbols : public LibrarySymbols
+{
+public:
+    static PalDataSymbols& getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static PalDataSymbols singleton;
+    PalDataSymbols();
+    void generateCode();
+};
+
 class ModuleSymbols : public LibrarySymbols
 {
 public:

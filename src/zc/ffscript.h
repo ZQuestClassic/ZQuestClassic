@@ -376,8 +376,32 @@ struct script_palettes
 #define MAX_USER_RGB 256
 struct user_rgb
 {
-	RGB usr_rgb[256][MAX_USER_RGB];
-	int32_t current_active;
+	bool reserved;
+
+	int32_t owned_type, owned_i;
+
+	void clear()
+	{
+		reserved = false;
+		owned_type = -1;
+		owned_i = 0;
+	}
+
+	void own(int32_t type, int32_t i)
+	{
+		owned_type = type;
+		owned_i = i;
+	}
+	void own_clear(int32_t type, int32_t i)
+	{
+		if (owned_type == type && owned_i == i)
+			clear();
+	}
+	void own_clear_any()
+	{
+		if (owned_type != -1 || owned_i != 0)
+			clear();
+	}
 };
 
 #define MAX_USER_FILES 256
@@ -638,6 +662,71 @@ struct user_rng
 	void own_clear_any()
 	{
 		if(owned_type != -1 || owned_i != 0)
+			clear();
+	}
+};
+
+#define MAX_USER_PALDATAS 256
+struct user_paldata
+{
+	bool reserved;
+
+	byte colors[240][3];
+	bool colors_used[240];
+
+	int32_t owned_type, owned_i;
+
+	enum { CSPACE_RGB, CSPACE_HSV, CSPACE_HSV_CW, CSPACE_HSV_CCW, CSPACE_HSL, CSPACE_HSL_CW, CSPACE_HSL_CCW, CSPACE_LAB, CSPACE_LCH, CSPACE_LCH_CW, CSPACE_LCH_CCW };
+
+	void clear()
+	{
+		for(int32_t q = 0; q < 240; ++q)
+			colors_used[q] = false;
+		reserved = false;
+		owned_type = -1;
+		owned_i = 0;
+	}
+	
+	//Sets a color index on the paldata
+	void set_color(int32_t ind, int32_t *rgb)
+	{
+		for (int32_t q = 0; q < 3; ++q)
+		{
+			if ( unsigned(rgb[q]) > 63)
+			{
+				Z_scripterrlog("PalData color arrays must use RGB values 0-63.\n");
+				rgb[q] = vbound(rgb[q], 0, 63);
+			}
+			colors[ind][q] = byte(rgb[q]);
+		}
+		colors_used[ind] = true;
+	}
+
+	void load_cset(int32_t cset, int32_t dataset);
+	void write_cset(int32_t cset, int32_t dataset);
+	bool check_cset(int32_t cset, int32_t dataset);
+	void load_cset_main(int32_t cset);
+	void write_cset_main(int32_t cset);
+	bool check_cset_main(int32_t cset);
+	static RGB mix_color(RGB start, RGB end, double percent, int32_t color_space = CSPACE_RGB);
+	static void RGBTo(RGB c, double arr[], int32_t color_space);
+	static RGB RGBFrom(double arr[], int32_t color_space);
+	static double HueToRGB(double v1, double v2, double vH);
+	void mix(user_paldata *pal_start, user_paldata *pal_end, double percent, int32_t color_space = CSPACE_RGB, int32_t start_color = 0, int32_t end_color = 240);
+
+	void own(int32_t type, int32_t i)
+	{
+		owned_type = type;
+		owned_i = i;
+	}
+	void own_clear(int32_t type, int32_t i)
+	{
+		if (owned_type == type && owned_i == i)
+			clear();
+	}
+	void own_clear_any()
+	{
+		if (owned_type != -1 || owned_i != 0)
 			clear();
 	}
 };
@@ -1066,10 +1155,12 @@ void user_files_init();
 void user_dirs_init();
 void user_stacks_init();
 void user_rng_init();
+void user_paldata_init();
 int32_t get_free_file(bool skipError = false);
 int32_t get_free_directory(bool skipError = false);
 int32_t get_free_stack(bool skipError = false);
 int32_t get_free_rng(bool skipError = false);
+int32_t get_free_paldata(bool skipError = false);
 
 bool get_scriptfile_path(char* buf, const char* path);
 
@@ -1100,6 +1191,24 @@ void do_file_geterr();
 void do_loaddirectory();
 void do_loadstack();
 void do_loadrng();
+void do_create_paldata();
+void do_create_paldata_clr();
+void do_mix_clr();
+void do_paldata_load_level();
+void do_paldata_load_sprite();
+void do_paldata_load_main();
+void do_paldata_write_level();
+void do_paldata_write_levelcset();
+void do_paldata_write_sprite();
+void do_paldata_write_spritecset();
+void do_paldata_write_main();
+void do_paldata_write_maincset();
+void do_paldata_getcolor();
+void do_paldata_setcolor();
+void do_paldata_clearcolor();
+void do_paldata_mix();
+void do_paldata_mixcset();
+void do_paldata_copy();
 void do_directory_get();
 void do_directory_reload();
 void do_directory_free();
@@ -3276,6 +3385,27 @@ enum ASM_DEFINE
 	WRITEPODSTRING,
 	WRITEPODARRAY,
 	
+	CREATEPALDATA,
+	CREATEPALDATACLR,
+	MIXCLR,
+	PALDATALOADLEVEL,
+	PALDATALOADSPRITE,
+	PALDATALOADMAIN,
+	PALDATAWRITELEVEL,
+	PALDATAWRITELEVELCS,
+	PALDATAWRITESPRITE,
+	PALDATAWRITESPRITECS,
+	PALDATAWRITEMAIN,
+	PALDATAWRITEMAINCS,
+	PALDATAGETCLR,
+	PALDATASETCLR,
+	PALDATACLEARCLR,
+	PALDATAMIX,
+	PALDATAMIXCS,
+	PALDATACOPY,
+	PALDATAFREE,
+	PALDATAOWN,
+	
 	NUMCOMMANDS           //0x01DA
 };
 
@@ -4799,7 +4929,9 @@ enum ASM_DEFINE
 #define COMBODLIFTHEIGHT        0x1481
 #define COMBODLIFTTIME          0x1482
 
-#define NUMVARIABLES         	0x1483
+#define REFPALDATA 			    0x1483
+
+#define NUMVARIABLES         	0x1484
 
 //} End variables
 

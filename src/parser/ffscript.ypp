@@ -166,6 +166,7 @@ extern YYLTYPE noloc;
 %token GENERICDATA
 %token PARTICLE
 %token DECORATION
+%token PALDATA
 
  // Syntax
 %token COMMA
@@ -568,6 +569,7 @@ DataType : ZCONST DataType {
 	| SUBSCREENDATA {$$ = new ASTDataType(DataType::SUBSCREENDATA, @$);}
 	| TUNE {$$ = new ASTDataType(DataType::TUNES, @$);}
 	| WARPRING	{$$ = new ASTDataType(DataType::WARPRING, @$);}
+	| PALDATA {$$ = new ASTDataType(DataType::PALDATA, @$);}
 	//Typedef types
 	| Identifier_List {
 			ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;

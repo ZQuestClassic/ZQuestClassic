@@ -3828,15 +3828,10 @@ void updatescr(bool allowwavy)
 
 	if (replay_is_debug() && replay_get_mode() != ReplayMode::Replay)
 	{
-		static long prev_hash = 0;
 		int depth = bitmap_color_depth(framebuf);
 		size_t len = framebuf->w * framebuf->h * BYTES_PER_PIXEL(depth);
 		uint32_t hash = XXH32(framebuf->dat, len, 0);
-		if (hash != prev_hash)
-		{
-			replay_step_comment(fmt::format("gfx {:x}", hash));
-			prev_hash = hash;
-		}
+		replay_step_gfx(hash);
 	}
 
 	if(black_opening_count==0&&black_opening_shape==bosFADEBLACK)
@@ -9714,9 +9709,14 @@ void load_control_state()
 	replay_poll();
 	locking_keys = false;
 
+	// Some test replay files were made before a serious input bug was fixed, so instead
+	// of re-doing them or tossing them out, just check for that zplay version.
+	bool botched_input = replay_is_replaying() && replay_get_meta_int("version", 1) == 1;
 	for (int i = 0; i < ZC_CONTROL_STATES; i++)
 	{
 		control_state[i] = raw_control_state[i];
+		if(!botched_input && !control_state[i])
+			down_control_states[i] = false;
 	}
 	
 	button_press[0]=rButton(control_state[0],button_hold[0]);

@@ -380,7 +380,7 @@ int32_t js_stick_2_x_stick = 0, js_stick_2_x_axis = 0, js_stick_2_x_offset = 0;
 int32_t js_stick_2_y_stick = 0, js_stick_2_y_axis = 0, js_stick_2_y_offset = 0;
 int32_t DUkey = 0, DDkey = 0, DLkey = 0, DRkey = 0, DUbtn = 0, DDbtn = 0, DLbtn = 0, DRbtn = 0, ss_after = 0, ss_speed = 0, ss_density = 0, ss_enable = 0;
 int32_t hs_startx = 0, hs_starty = 0, hs_xdist = 0, hs_ydist = 0, clockclk = 0, clock_zoras[eMAXGUYS]={0};
-int32_t cheat_goto_dmap=0, cheat_goto_screen=0, currcset = 0;
+int32_t cheat_goto_dmap=0, cheat_goto_screen=0, currcset = 0, currspal6 = -1, currspal14 = -1;
 int32_t gfc = 0, gfc2 = 0, pitx = 0, pity = 0, refill_what = 0, refill_why = 0, heart_beep_timer=0, new_enemy_tile_start=1580;
 int32_t nets=1580, magicitem=-1,nayruitem=-1, title_version = 0, magiccastclk = 0, quakeclk=0, wavy=0, castx = 0, casty = 0, df_x = 0, df_y = 0, nl1_x = 0, nl1_y = 0, nl2_x = 0, nl2_y = 0;
 int32_t magicdrainclk=0, conveyclk=3, memrequested=0;
@@ -5652,6 +5652,8 @@ int main(int argc, char **argv)
 #endif
 	
 reload_for_replay_file:
+	int replay_debug_last_x = -1;
+	int replay_debug_last_y = -1;
 	if (load_replay_file_deffered_called)
 	{
 		load_replay_file(load_replay_file_mode, load_replay_file_filename);
@@ -5740,7 +5742,16 @@ reload_for_replay_file:
 #endif
 			game_loop();
 			if (replay_is_debug() && !Quit)
-				replay_step_comment(fmt::format("frame {} hero {} {}", frame, HeroX().getInt(), HeroY().getInt()));
+			{
+				int x = HeroX().getInt();
+				int y = HeroY().getInt();
+				if (x != replay_debug_last_x || y != replay_debug_last_y)
+				{
+					replay_step_comment(fmt::format("h {:x} {:x}", x, y));
+					replay_debug_last_x = x;
+					replay_debug_last_y = y;
+				}
+			}
 
 			FFCore.newScriptEngine();
 			

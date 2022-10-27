@@ -31,6 +31,8 @@ uint8_t using_SRAM = 0;
 #include "base/module.h"
 #include "combos.h"
 #include "drawing.h"
+#include "base/colors.h"
+#include "pal.h"
 using namespace util;
 #include <sstream>
 using std::ostringstream;
@@ -87,6 +89,7 @@ user_stack script_stacks[MAX_USER_STACKS];
 user_rng nulrng;
 user_rng script_rngs[MAX_USER_RNGS];
 zc_randgen script_rnggens[MAX_USER_RNGS];
+user_paldata script_paldatas[MAX_USER_PALDATAS];
 
 FONT *get_zc_font(int32_t index);
 
@@ -2575,6 +2578,10 @@ void FFScript::deallocateAllArrays(const byte scriptType, const int32_t UID, boo
 	{
 		script_rngs[q].own_clear(scriptType, UID);
 	}
+	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
+	{
+		script_paldatas[q].own_clear(scriptType, UID);
+	}
 	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
 	{
 		script_files[q].own_clear(scriptType, UID);
@@ -2619,6 +2626,10 @@ void FFScript::deallocateAllArrays()
 	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
 	{
 		script_rngs[q].own_clear_any();
+	}
+	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
+	{
+		script_paldatas[q].own_clear_any();
 	}
 	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
 	{
@@ -2797,6 +2808,22 @@ user_rng *checkRNG(int32_t ref, const char *what, bool skipError = false)
 	if(skipError) return NULL;
 	Z_scripterrlog("Script attempted to reference a nonexistent RNG!\n");
 	Z_scripterrlog("You were trying to reference the '%s' of a RNG with UID = %ld\n", what, ref);
+	return NULL;
+}
+
+user_paldata* checkPalData(int32_t ref, const char* what, bool skipError = false)
+{
+	if (ref > 0 && ref <= MAX_USER_PALDATAS)
+	{
+		user_paldata* pd = &script_paldatas[ref - 1];
+		if (pd->reserved)
+		{
+			return pd;
+		}
+	}
+	if (skipError) return NULL;
+	Z_scripterrlog("Script attempted to reference a nonexistent paldata!\n");
+	Z_scripterrlog("You were trying to reference the '%s' of a paldata with UID = %ld\n", what, ref);
 	return NULL;
 }
 
@@ -11886,7 +11913,7 @@ int32_t get_register(const int32_t arg)
 			ret = select_dropitem(ri->dropsetref) * 10000;
 			break;
 		}
-		
+			
 		///----------------------------------------------------------------------------------------------------//
 		//Audio Variables
 
@@ -12119,6 +12146,7 @@ int32_t get_register(const int32_t arg)
 		case REFSTACK: ret = ri->stackref; break;
 		case REFSUBSCREEN: ret = ri->subscreenref; break;
 		case REFRNG: ret = ri->rngref; break;
+		case REFPALDATA: ret = ri->paldataref; break;
 		
 			
 		case SP:
@@ -21618,6 +21646,7 @@ void set_register(const int32_t arg, const int32_t value)
 		case REFSTACK: ri->stackref = value; break;
 		case REFSUBSCREEN: ri->subscreenref = value; break;
 		case REFRNG: ri->rngref = value; break;
+		case REFPALDATA: ri->paldataref = value; break;
 		
 		case GENDATARUNNING:
 		{
@@ -23977,6 +24006,1244 @@ void FFScript::do_loadgenericdata(const bool v)
 		ri->genericdataref = 0;
 	}
 	else ri->genericdataref = ID;
+}
+
+void FFScript::do_create_paldata()
+{
+	ri->paldataref = get_free_paldata();
+	user_paldata* pd = &script_paldatas[ri->paldataref-1];
+	for (int32_t q = 0; q < 240; ++q)
+		pd->colors_used[q] = false;
+	ri->d[rEXP1] = ri->paldataref;
+	zprint("paldataref: %d\n", ri->paldataref);
+}
+
+void FFScript::do_create_paldata_clr()
+{
+	ri->paldataref = get_free_paldata();
+	user_paldata* pd = &script_paldatas[ri->paldataref - 1];
+	int32_t arrayptr = get_register(sarg1) / 10000;
+	ZScriptArray& a = getArray(arrayptr);
+	if(&a == &INVALIDARRAY)
+	{
+		Z_scripterrlog("Invalid array pointer (%d) passed to paldata->CreatePalette(). Aborting.\n", arrayptr);
+		return;
+	}
+	if(a.Size() != 3)
+	{
+		Z_scripterrlog("Array (%d) in paldata->CreatePalette() must be size 3. Aborting.\n", arrayptr);
+		return;
+	}
+	int32_t arr[3];
+	getValues(arrayptr, arr, 3);
+	for(int32_t q = 0; q < 240; ++q)
+		pd->set_color(q, arr);
+	ri->d[rEXP1] = ri->paldataref;
+	zprint("paldataref: %d\n", ri->paldataref);
+}
+
+void FFScript::do_mix_clr()
+{
+	int32_t src_ptr = SH::read_stack(ri->sp + 4) / 10000;
+	int32_t ref_ptr1 = SH::read_stack(ri->sp + 3) / 10000;
+	int32_t ref_ptr2 = SH::read_stack(ri->sp + 2) / 10000;
+	float percent = SH::read_stack(ri->sp + 1) / 10000.0;
+	int32_t color_space = SH::read_stack(ri->sp + 0) / 10000;
+
+	ZScriptArray& src = getArray(src_ptr);
+	ZScriptArray& ref1 = getArray(ref_ptr1);
+	ZScriptArray& ref2 = getArray(ref_ptr2);
+	{
+		if (&src == &INVALIDARRAY)
+		{
+			Z_scripterrlog("Invalid clr_buf array pointer (%d) passed to Game->MixColor(). Aborting.\n", src);
+			return;
+		}
+		if (src.Size() != 3)
+		{
+			Z_scripterrlog("Array clr_buf (%d) in Game->MixColor() must be size 3. Aborting.\n", src);
+			return;
+		}
+		if (&ref1 == &INVALIDARRAY)
+		{
+			Z_scripterrlog("Invalid clr_start array pointer (%d) passed to Game->MixColor(). Aborting.\n", ref1);
+			return;
+		}
+		if (ref1.Size() != 3)
+		{
+			Z_scripterrlog("Array clr_start (%d) in Game->MixColor() must be size 3. Aborting.\n", ref1);
+			return;
+		}
+		if (&ref2 == &INVALIDARRAY)
+		{
+			Z_scripterrlog("Invalid clr_end array pointer (%d) passed to Game->MixColor(). Aborting.\n", ref2);
+			return;
+		}
+		if (ref2.Size() != 3)
+		{
+			Z_scripterrlog("Array clr_end (%d) in Game->MixColor() must be size 3. Aborting.\n", ref2);
+			return;
+		}
+	}
+	RGB ref1c = _RGB(ref1[0] / 10000, ref1[1] / 10000, ref1[2] / 10000);
+	RGB ref2c = _RGB(ref2[0] / 10000, ref2[1] / 10000, ref2[2] / 10000);
+	RGB outputc = user_paldata::mix_color(ref1c, ref2c, percent, color_space);
+	src[0] = vbound(outputc.r, 0, 63) * 10000;
+	src[1] = vbound(outputc.g, 0, 63) * 10000;
+	src[2] = vbound(outputc.b, 0, 63) * 10000;
+}
+
+void FFScript::do_paldata_load_level()
+{
+	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->LoadLevelPalette()"))
+	{
+		int32_t lvl = get_register(sarg1) / 10000;
+		//Load CSets 2-4
+		pd->load_cset(2, lvl * pdLEVEL + poLEVEL + 0);
+		pd->load_cset(3, lvl * pdLEVEL + poLEVEL + 1);
+		pd->load_cset(4, lvl * pdLEVEL + poLEVEL + 2);
+		//Load CSet 9
+		pd->load_cset(9, lvl * pdLEVEL + poLEVEL + 3);
+		//Load 1, 5, 7, 8 if the appropriate rules are set
+		if (get_bit(quest_rules, qr_CSET1_LEVEL))
+			pd->load_cset(1, lvl * pdLEVEL + poNEWCSETS);
+		if (get_bit(quest_rules, qr_CSET5_LEVEL))
+			pd->load_cset(5, lvl * pdLEVEL + poNEWCSETS + 1);
+		if (get_bit(quest_rules, qr_CSET7_LEVEL))
+			pd->load_cset(7, lvl * pdLEVEL + poNEWCSETS + 2);
+		if (get_bit(quest_rules, qr_CSET8_LEVEL))
+			pd->load_cset(8, lvl * pdLEVEL + poNEWCSETS + 3);
+	}
+	return;
+}
+
+void FFScript::do_paldata_load_sprite()
+{
+	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->LoadSpritePalette()"))
+	{
+		int32_t page = get_register(sarg1) / 10000;
+
+		int32_t pageoffset = 0;
+		switch (page)
+		{
+		case 0: pageoffset += 0;  break;
+		case 1: pageoffset += 15; break;
+		default:
+			Z_scripterrlog("Invalid page (%d) passed to paldata->LoadSpritePalette(). Valid pages are 0 or 1. Aborting.\n", page);
+			return;
+		}
+		for (int32_t q = 0; q < 15; ++q)
+		{
+			pd->load_cset(q, poSPRITE255 + pageoffset + q);
+		}
+	}
+	return;
+}
+
+void FFScript::do_paldata_load_main()
+{
+	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->LoadMainPalette()"))
+	{
+		for (int32_t q = 0; q < 15; ++q)
+		{
+			pd->load_cset_main(q);
+		}
+	}
+	return;
+}
+
+
+void FFScript::do_paldata_write_level()
+{
+	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->WriteLevelPalette()"))
+	{
+		int32_t lvl = get_register(sarg1) / 10000;
+		bool changed = false;
+		//Write CSets 2-4
+		if (pd->check_cset(2, lvl * pdLEVEL + poLEVEL + 0))
+		{
+			pd->write_cset(2, lvl * pdLEVEL + poLEVEL + 0);
+			changed = true;
+		}
+		if (pd->check_cset(3, lvl * pdLEVEL + poLEVEL + 1))
+		{
+			pd->write_cset(3, lvl * pdLEVEL + poLEVEL + 1);
+			changed = true;
+		}
+		if (pd->check_cset(4, lvl * pdLEVEL + poLEVEL + 2))
+		{
+			pd->write_cset(4, lvl * pdLEVEL + poLEVEL + 2);
+			changed = true;
+		}
+		//Write CSet 9
+		if (pd->check_cset(9, lvl * pdLEVEL + poLEVEL + 3))
+		{
+			pd->write_cset(9, lvl * pdLEVEL + poLEVEL + 3);
+			changed = true;
+		}
+		//Write 1, 5, 7, 8
+		if (pd->check_cset(1, lvl * pdLEVEL + poNEWCSETS + 0))
+		{
+			pd->write_cset(1, lvl * pdLEVEL + poNEWCSETS + 0);
+			changed = true;
+		}
+		if (pd->check_cset(5, lvl * pdLEVEL + poNEWCSETS + 1))
+		{
+			pd->write_cset(5, lvl * pdLEVEL + poNEWCSETS + 1);
+			changed = true;
+		}
+		if (pd->check_cset(7, lvl * pdLEVEL + poNEWCSETS + 2))
+		{
+			pd->write_cset(7, lvl * pdLEVEL + poNEWCSETS + 2);
+			changed = true;
+		}
+		if (pd->check_cset(8, lvl * pdLEVEL + poNEWCSETS + 3))
+		{
+			pd->write_cset(8, lvl * pdLEVEL + poNEWCSETS + 3);
+			changed = true;
+		}
+
+		if (changed && DMaps[currdmap].color == lvl)
+		{
+			loadlvlpal(lvl);
+			currcset = lvl;
+		}
+	}
+	return;
+}
+
+void FFScript::do_paldata_write_levelcset()
+{
+	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->WriteLevelCSet()"))
+	{
+		int32_t lvl = get_register(sarg1) / 10000;
+		int32_t cs = get_register(sarg2) / 10000;
+
+		bool changed = false;
+
+		switch (cs)
+		{
+		case 1:
+			if (pd->check_cset(1, lvl * pdLEVEL + poNEWCSETS + 0))
+			{
+				pd->write_cset(1, lvl * pdLEVEL + poNEWCSETS + 0);
+				changed = true;
+			}
+		case 2:
+			if (pd->check_cset(2, lvl * pdLEVEL + poLEVEL + 0))
+			{
+				pd->write_cset(2, lvl * pdLEVEL + poLEVEL + 0);
+				changed = true;
+			}
+			break;
+		case 3:
+			if (pd->check_cset(3, lvl * pdLEVEL + poLEVEL + 1))
+			{
+				pd->write_cset(3, lvl * pdLEVEL + poLEVEL + 1);
+				changed = true;
+			}
+			break;
+		case 4:
+			if (pd->check_cset(4, lvl * pdLEVEL + poLEVEL + 2))
+			{
+				pd->write_cset(4, lvl * pdLEVEL + poLEVEL + 2);
+				changed = true;
+			}
+			break;
+		case 5:
+			if (pd->check_cset(5, lvl * pdLEVEL + poNEWCSETS + 1))
+			{
+				pd->write_cset(5, lvl * pdLEVEL + poNEWCSETS + 1);
+				changed = true;
+			}
+			break;
+		case 7:
+			if (pd->check_cset(7, lvl * pdLEVEL + poNEWCSETS + 2))
+			{
+				pd->write_cset(7, lvl * pdLEVEL + poNEWCSETS + 2);
+				changed = true;
+			}
+			break;
+		case 8:
+			if (pd->check_cset(8, lvl * pdLEVEL + poNEWCSETS + 3))
+			{
+				pd->write_cset(8, lvl * pdLEVEL + poNEWCSETS + 3);
+				changed = true;
+			}
+			break;
+		case 9:
+			if (pd->check_cset(9, lvl * pdLEVEL + poLEVEL + 3))
+			{
+				pd->write_cset(9, lvl * pdLEVEL + poLEVEL + 3);
+				changed = true;
+			}
+			break;
+		default:
+			Z_scripterrlog("Invalid CSet (%d) passed to 'paldata->WriteLevelCSet()'. Level palettes can use CSets 1, 2, 3, 4, 5, 7, 8, 9.\n");
+			return;
+		}
+	
+		if (changed && DMaps[currdmap].color == lvl)
+		{
+			loadlvlpal(lvl);
+			currcset = lvl;
+		}
+	}
+}
+
+void FFScript::do_paldata_write_sprite()
+{
+	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->WriteSpritePalette()"))
+	{
+		int32_t page = get_register(sarg1) / 10000;
+
+		int32_t pageoffset = 0;
+		switch (page)
+		{
+		case 0: pageoffset += 0;  break;
+		case 1: pageoffset += 15; break;
+		default:
+			Z_scripterrlog("Invalid page (%d) passed to paldata->WriteSpritePalette(). Valid pages are 0 or 1. Aborting.\n", page);
+			return;
+		}
+		bool changed6 = false;
+		bool changed14 = false;
+		for (int32_t q = 0; q < 15; ++q)
+		{
+			if (pd->check_cset(q, poSPRITE255 + pageoffset + q))
+			{
+				pd->write_cset(q, poSPRITE255 + pageoffset + q);
+				if (pageoffset + q == currspal6)
+				{
+					changed6 = true;
+				}
+				if (pageoffset + q == currspal14)
+				{
+					changed14 = true;
+				}
+			}
+		}
+
+		//If either sprite palette has been changed, update the main palette
+		if (changed6 || changed14)
+		{
+			if (changed6) 
+			{
+				loadpalset(6, poSPRITE255 + currspal6, false);
+			}
+			if (changed14)
+			{
+				loadpalset(14, poSPRITE255 + currspal14, false);
+			}
+
+			if (isMonochrome()) {
+				if (lastMonoPreset) {
+					restoreMonoPreset();
+				}
+				else {
+					setMonochrome(false);
+					setMonochrome(true);
+				}
+			}
+
+			if (isUserTinted()) {
+				restoreTint();
+			}
+		}
+	}
+	return;
+}
+
+void FFScript::do_paldata_write_spritecset()
+{
+	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->WriteSpritePalette()"))
+	{
+		int32_t page = get_register(sarg1) / 10000;
+		int32_t cs = get_register(sarg2) / 10000;
+
+		int32_t pageoffset = 0;
+		switch (page)
+		{
+		case 0: pageoffset += 0;  break;
+		case 1: pageoffset += 15; break;
+		default:
+			Z_scripterrlog("Invalid page (%d) passed to paldata->WriteSpriteCSet(). Valid pages are 0 or 1. Aborting.\n", page);
+			return;
+		}
+		bool changed6 = false;
+		bool changed14 = false;
+		if (unsigned(cs) >= pdSPRITE)
+		{
+			Z_scripterrlog("Invalid CSet (%d) passed to paldata->WriteSpriteCSet(). Valid CSets are 0-14. Aborting.\n", cs);
+			return;
+		}
+		if (pd->check_cset(cs, poSPRITE255 + pageoffset + cs))
+		{
+			pd->write_cset(cs, poSPRITE255 + pageoffset + cs);
+			if (pageoffset + cs == currspal6)
+			{
+				changed6 = true;
+			}
+			if (pageoffset + cs == currspal14)
+			{
+				changed14 = true;
+			}
+		}
+
+		//If either sprite palette has been changed, update the main palette
+		if (changed6 || changed14)
+		{
+			if (changed6)
+			{
+				loadpalset(6, poSPRITE255 + currspal6, false);
+			}
+			if (changed14)
+			{
+				loadpalset(14, poSPRITE255 + currspal14, false);
+			}
+
+			if (isMonochrome()) {
+				if (lastMonoPreset) {
+					restoreMonoPreset();
+				}
+				else {
+					setMonochrome(false);
+					setMonochrome(true);
+				}
+			}
+
+			if (isUserTinted()) {
+				restoreTint();
+			}
+		}
+	}
+	return;
+}
+
+void FFScript::do_paldata_write_main()
+{
+	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->WriteMainPalette()"))
+	{
+		bool changed = false;
+		//Write CSet 0
+		if (pd->check_cset_main(0))
+		{
+			pd->write_cset_main(0);
+			changed = true;
+		}
+		//Write CSet 1
+		if (!(get_bit(quest_rules, qr_CSET1_LEVEL)) && pd->check_cset_main(1))
+		{
+			pd->write_cset_main(1);
+			changed = true;
+		}
+		//Write CSet 5
+		if (!(get_bit(quest_rules, qr_CSET5_LEVEL)) && pd->check_cset_main(5))
+		{
+			pd->write_cset_main(5);
+			changed = true;
+		}
+		//Write CSet 6
+		if (currspal6 == -1 && pd->check_cset_main(6))
+		{
+			pd->write_cset_main(6);
+			changed = true;
+		}
+		//Write CSet 7
+		if (!(get_bit(quest_rules, qr_CSET7_LEVEL)) && pd->check_cset_main(7))
+		{
+			pd->write_cset_main(7);
+			changed = true;
+		}
+		//Write CSet 8
+		if (!(get_bit(quest_rules, qr_CSET8_LEVEL)) && pd->check_cset_main(8))
+		{
+			pd->write_cset_main(8);
+			changed = true;
+		}
+		//Write CSet 10
+		if (pd->check_cset_main(10))
+		{
+			pd->write_cset_main(10);
+			changed = true;
+		}
+		//Write CSet 11
+		if (pd->check_cset_main(11))
+		{
+			pd->write_cset_main(11);
+			changed = true;
+		}
+
+		if (changed)
+		{
+			if (isMonochrome()) {
+				if (lastMonoPreset) {
+					restoreMonoPreset();
+				}
+				else {
+					setMonochrome(false);
+					setMonochrome(true);
+				}
+			}
+
+			if (isUserTinted()) {
+				restoreTint();
+			}
+		}
+	}
+	return;
+}
+
+void FFScript::do_paldata_write_maincset()
+{
+	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->WriteMainCSet()"))
+	{
+		int32_t cs = get_register(sarg1) / 10000;
+
+		bool changed = false;
+
+		switch (cs)
+		{
+		case 0:
+		case 10:
+		case 11:
+			if (pd->check_cset_main(cs))
+			{
+				pd->write_cset_main(cs);
+				changed = true;
+			}
+			break;
+		case 1:
+			if (!(get_bit(quest_rules, qr_CSET1_LEVEL)) && pd->check_cset_main(1))
+			{
+				pd->write_cset_main(1);
+				changed = true;
+			}
+			break;
+		case 5:
+			if (!(get_bit(quest_rules, qr_CSET5_LEVEL)) && pd->check_cset_main(5))
+			{
+				pd->write_cset_main(5);
+				changed = true;
+			}
+			break;
+		case 6:
+			if (currspal6 == -1 && pd->check_cset_main(6))
+			{
+				pd->write_cset_main(6);
+				changed = true;
+			}
+			break;
+		case 7:
+			if (!(get_bit(quest_rules, qr_CSET7_LEVEL)) && pd->check_cset_main(7))
+			{
+				pd->write_cset_main(7);
+				changed = true;
+			}
+			break;
+		case 8:
+			if (!(get_bit(quest_rules, qr_CSET8_LEVEL)) && pd->check_cset_main(8))
+			{
+				pd->write_cset_main(8);
+				changed = true;
+			}
+			break;
+		default:
+			Z_scripterrlog("Invalid CSet (%d) passed to 'paldata->WriteMainCSet()'.\n");
+			return;
+		}
+
+		if (changed)
+		{
+			if (isMonochrome()) {
+				if (lastMonoPreset) {
+					restoreMonoPreset();
+				}
+				else {
+					setMonochrome(false);
+					setMonochrome(true);
+				}
+			}
+
+			if (isUserTinted()) {
+				restoreTint();
+			}
+		}
+	}
+}
+
+void FFScript::do_paldata_getcolor()
+{
+	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->GetColor()"))
+	{
+		int32_t ind = get_register(sarg1) / 10000;
+		if (unsigned(ind) >= 240)
+		{
+			Z_scripterrlog("Invalid color index (%d) passed to paldata->GetColor(). Valid indices are 0-239. Aborting.\n", ind);
+			return;
+		}
+		int32_t arrayptr = get_register(sarg2) / 10000;
+		ZScriptArray& a = getArray(arrayptr);
+		if (&a == &INVALIDARRAY)
+		{
+			Z_scripterrlog("Invalid array pointer (%d) passed to paldata->GetColor(). Aborting.\n", arrayptr);
+			return;
+		}
+		if (a.Size() != 3)
+		{
+			Z_scripterrlog("Array (%d) in paldata->GetColor() must be size 3. Aborting.\n", arrayptr);
+			return;
+		}
+
+		if (pd->colors_used[ind])
+		{
+			a[0] = pd->colors[ind][0] * 10000;
+			a[1] = pd->colors[ind][1] * 10000;
+			a[2] = pd->colors[ind][2] * 10000;
+		}
+		else
+		{
+			a[0] = -10000;
+			a[1] = -10000;
+			a[2] = -10000;
+		}
+	}
+}
+
+void FFScript::do_paldata_setcolor()
+{
+	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->SetColor()"))
+	{
+		int32_t ind = get_register(sarg1) / 10000;
+		if (unsigned(ind) >= 240)
+		{
+			Z_scripterrlog("Invalid color index (%d) passed to paldata->GetColor(). Valid indices are 0-239. Aborting.\n", ind);
+			return;
+		}
+		int32_t arrayptr = get_register(sarg2) / 10000;
+		ZScriptArray& a = getArray(arrayptr);
+		if (&a == &INVALIDARRAY)
+		{
+			Z_scripterrlog("Invalid array pointer (%d) passed to paldata->SetColor(). Aborting.\n", arrayptr);
+			return;
+		}
+		if (a.Size() != 3)
+		{
+			Z_scripterrlog("Array (%d) in paldata->SetColor() must be size 3. Aborting.\n", arrayptr);
+			return;
+		}
+
+		int32_t arr[3];
+		getValues(arrayptr, arr, 3);
+		pd->set_color(ind, arr);
+	}
+}
+
+void FFScript::do_paldata_clearcolor()
+{
+	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->SetColor()"))
+	{
+		int32_t ind = get_register(sarg1) / 10000;
+		if (unsigned(ind) >= 240)
+		{
+			Z_scripterrlog("Invalid color index (%d) passed to paldata->ClearColor(). Valid indices are 0-239. Aborting.\n", ind);
+			return;
+		}
+		pd->colors_used[ind] = false;
+	}
+}
+
+void FFScript::do_paldata_mix()
+{
+	int32_t ref = SH::read_stack(ri->sp + 4);
+	if (user_paldata* pd = checkPalData(ref, "paldata->Mix()"))
+	{
+		int32_t ref1 = SH::read_stack(ri->sp + 3);
+		int32_t ref2 = SH::read_stack(ri->sp + 2);
+		double percent = SH::read_stack(ri->sp + 1)/10000.0;
+		int32_t color_space = SH::read_stack(ri->sp + 0)/10000;
+		if (user_paldata* pd_start = checkPalData(ref1, "paldata->Mix()"))
+		{
+			if (user_paldata* pd_end = checkPalData(ref2, "paldata->Mix()"))
+			{
+				pd->mix(pd_start, pd_end, percent, color_space);
+			}
+		}
+	}
+}
+
+void FFScript::do_paldata_mixcset()
+{
+	int32_t ref = SH::read_stack(ri->sp + 5);
+	if (user_paldata* pd = checkPalData(ref, "paldata->MixCSet()"))
+	{
+		int32_t ref1 = SH::read_stack(ri->sp + 4);
+		int32_t ref2 = SH::read_stack(ri->sp + 3);
+		int32_t cset = SH::read_stack(ri->sp + 2) / 10000;
+		double percent = SH::read_stack(ri->sp + 1) / 10000.0;
+		int32_t color_space = SH::read_stack(ri->sp + 0) / 10000;
+		if (user_paldata* pd_start = checkPalData(ref1, "paldata->MixCSet()"))
+		{
+			if (user_paldata* pd_end = checkPalData(ref2, "paldata->MixCSet()"))
+			{
+				if (cset < 0 || cset>14)
+				{
+					Z_scripterrlog("CSet passed to 'paldata->MixCSet()' out of range. Valid CSets are 0-14\n");
+					return;
+				}
+				pd->mix(pd_start, pd_end, percent, color_space, cset * 16, cset * 16 + 16);
+			}
+		}
+	}
+}
+
+void FFScript::do_paldata_copy()
+{
+	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->Copy()"))
+	{
+		int32_t ref_dest = get_register(sarg1);
+		if (user_paldata* pd_dest = checkPalData(ref_dest, "paldata->Copy()"))
+		{
+			for (int32_t q = 0; q < 240; ++q)
+			{
+				pd_dest->colors[q][0] = pd->colors[q][0];
+				pd_dest->colors[q][1] = pd->colors[q][1];
+				pd_dest->colors[q][2] = pd->colors[q][2];
+				pd_dest->colors_used[q] = pd->colors_used[q];
+			}
+		}
+	}
+}
+
+//Loads a cset to paldata from memory
+void user_paldata::load_cset(int32_t cset, int32_t dataset)
+{
+	byte* si = colordata + CSET(dataset) * 3;
+	//zprint("load_cset(%d, %d)\n", cset, dataset);
+	for (int32_t q = 0; q < 16; ++q)
+	{
+		int32_t ind = CSET(cset) + q;
+		colors[ind][0] = si[0];
+		colors[ind][1] = si[1];
+		colors[ind][2] = si[2];
+		colors_used[ind] = true;
+		//zprint("%d, %d, %d\n", colors[ind][0], colors[ind][1], colors[ind][2]);
+		si += 3;
+	}
+}
+
+//Loads a cset to paldata from the main palette
+void user_paldata::load_cset_main(int32_t cset)
+{
+	//zprint("load_cset(%d, %d)\n", cset, dataset);
+	for (int32_t q = 0; q < 16; ++q)
+	{
+		int32_t ind = CSET(cset) + q;
+		colors[ind][0] = tempgreypal[ind].r;
+		colors[ind][1] = tempgreypal[ind].g;
+		colors[ind][2] = tempgreypal[ind].b;
+		colors_used[ind] = true;
+		//zprint("%d, %d, %d\n", colors[ind][0], colors[ind][1], colors[ind][2]);
+	}
+}
+
+//Writes to a memory cset from paldata
+void user_paldata::write_cset(int32_t cset, int32_t dataset)
+{
+	byte* si = colordata + CSET(dataset) * 3;
+	//zprint("write_cset(%d, %d)\n", cset, dataset);
+	for (int32_t q = 0; q < 16; ++q)
+	{
+		int32_t ind = CSET(cset) + q;
+		if (colors_used[ind])
+		{
+			//zprint("BEFORE %d, %d, %d\n", si[0], si[1], si[2]);
+			si[0] = colors[ind][0];
+			si[1] = colors[ind][1];
+			si[2] = colors[ind][2];
+			//zprint("AFTER %d, %d, %d\n", colors[ind][0], colors[ind][1], colors[ind][2]);
+		}
+		//zprint("%d, %d, %d\n", si[0], si[1], si[2]);
+		si += 3;
+	}
+}
+
+//Writes to a main palette cset from paldata
+void user_paldata::write_cset_main(int32_t cset)
+{
+	//zprint("write_cset(%d, %d)\n", cset, dataset);
+	for (int32_t q = 0; q < 16; ++q)
+	{
+		int32_t ind = CSET(cset) + q;
+		if (colors_used[ind])
+		{
+			//zprint("BEFORE %d, %d, %d\n", si[0], si[1], si[2]);
+			tempgreypal[ind] = _RGB(colors[ind][0], colors[ind][1], colors[ind][2]);
+			RAMpal[ind] = tempgreypal[ind];
+			//zprint("AFTER %d, %d, %d\n", colors[ind][0], colors[ind][1], colors[ind][2]);
+		}
+		//zprint("%d, %d, %d\n", si[0], si[1], si[2]);
+	}
+}
+
+
+//Checks a memory cset from paldata
+bool user_paldata::check_cset(int32_t cset, int32_t dataset)
+{
+	byte* si = colordata + CSET(dataset) * 3;
+	//zprint("write_cset(%d, %d)\n", cset, dataset);
+	for (int32_t q = 0; q < 16; ++q)
+	{
+		int32_t ind = CSET(cset) + q;
+		if (colors_used[ind])
+		{
+			if (si[0] != colors[ind][0])
+				return true;
+			if (si[1] != colors[ind][1])
+				return true;
+			if (si[2] != colors[ind][2])
+				return true;
+		}
+		//zprint("%d, %d, %d\n", si[0], si[1], si[2]);
+		si += 3;
+	}
+	return false;
+}
+
+//Checks a memory cset from the main palette
+bool user_paldata::check_cset_main(int32_t cset)
+{
+	//zprint("write_cset(%d, %d)\n", cset, dataset);
+	for (int32_t q = 0; q < 16; ++q)
+	{
+		int32_t ind = CSET(cset) + q;
+		if (colors_used[ind])
+		{
+			if (tempgreypal[ind].r != colors[ind][0])
+				return true;
+			if (tempgreypal[ind].g != colors[ind][1])
+				return true;
+			if (tempgreypal[ind].b != colors[ind][2])
+				return true;
+		}
+		//zprint("%d, %d, %d\n", si[0], si[1], si[2]);
+	}
+	return false;
+}
+
+//Mixes a color between two paldatas
+RGB user_paldata::mix_color(RGB start, RGB end, double percent, int32_t color_space)
+{
+	switch (color_space)
+	{
+	case CSPACE_RGB:
+		return _RGB(byte(vbound(double(zc::math::Lerp(start.r, end.r, percent)), 0.0, 63.0)),
+			byte(vbound(double(zc::math::Lerp(start.g, end.g, percent)), 0.0, 63.0)),
+			byte(vbound(double(zc::math::Lerp(start.b, end.b, percent)), 0.0, 63.0)));
+	case CSPACE_HSV_CW:
+	case CSPACE_HSV_CCW:
+	case CSPACE_HSV:
+	{
+		double convert_start[3];
+		double convert_end[3];
+		double convert_result[3];
+		RGBTo(start, convert_start, color_space);
+		RGBTo(end, convert_end, color_space);
+		for (int32_t q = 0; q < 3; ++q)
+		{
+			convert_result[q] = zc::math::Lerp(convert_start[q], convert_end[q], percent);
+		}
+		return RGBFrom(convert_result, color_space);
+	}
+	case CSPACE_HSL_CW:
+	case CSPACE_HSL_CCW:
+	case CSPACE_HSL:
+	{
+		double convert_start[3];
+		double convert_end[3];
+		double convert_result[3];
+		RGBTo(start, convert_start, color_space);
+		RGBTo(end, convert_end, color_space);
+		for (int32_t q = 0; q < 3; ++q)
+		{
+			convert_result[q] = zc::math::Lerp(convert_start[q], convert_end[q], percent);
+		}
+		return RGBFrom(convert_result, color_space);
+	}
+	case CSPACE_LAB:
+	{
+		double convert_start[3];
+		double convert_end[3];
+		double convert_result[3];
+		RGBTo(start, convert_start, color_space);
+		RGBTo(end, convert_end, color_space);
+		for (int32_t q = 0; q < 3; ++q)
+		{
+			convert_result[q] = zc::math::Lerp(convert_start[q], convert_end[q], percent);
+		}
+		return RGBFrom(convert_result, color_space);
+	}
+	case CSPACE_LCH_CW:
+	case CSPACE_LCH_CCW:
+	case CSPACE_LCH:
+	{
+		double convert_start[3];
+		double convert_end[3];
+		double convert_result[3];
+		RGBTo(start, convert_start, color_space);
+		RGBTo(end, convert_end, color_space);
+		for (int32_t q = 0; q < 3; ++q)
+		{
+			convert_result[q] = zc::math::Lerp(convert_start[q], convert_end[q], percent);
+		}
+		return RGBFrom(convert_result, color_space);
+	}
+	}
+	return start;
+}
+
+void user_paldata::RGBTo(RGB c, double arr[], int32_t color_space)
+{
+	double r = c.r / 63.0;
+	double g = c.g / 63.0;
+	double b = c.b / 63.0;
+	switch (color_space)
+	{
+	case CSPACE_HSV_CW:
+	case CSPACE_HSV_CCW:
+	case CSPACE_HSV:
+	{
+		double min_val = std::min(std::min(r, g), b);
+		double max_val = std::max(std::max(r, g), b);
+		double del_max = max_val - min_val;
+
+		double h = 0;
+		double s = 0;
+		double v = max_val;
+
+		if (del_max != 0) //Set chroma if not gray
+		{
+			s = del_max / max_val;
+
+			double del_r = (((max_val - r) / 6) + (del_max / 2)) / del_max;
+			double del_g = (((max_val - g) / 6) + (del_max / 2)) / del_max;
+			double del_b = (((max_val - b) / 6) + (del_max / 2)) / del_max;
+
+			if (r == max_val) h = del_b - del_g;
+			else if (g == max_val) h = (1.0 / 3.0) + del_r - del_b;
+			else if (b == max_val) h = (2.0 / 3.0) + del_g - del_r;
+
+			if (h < 0) ++h;
+			if (h > 1) --h;
+		}
+
+		arr[0] = h;
+		arr[1] = s;
+		arr[2] = v;
+	}
+	case CSPACE_HSL_CW:
+	case CSPACE_HSL_CCW:
+	case CSPACE_HSL:
+	{
+		double min_val = std::min(std::min(r, g), b);
+		double max_val = std::max(std::max(r, g), b);
+		double del_max = max_val - min_val;
+
+		double h = 0;
+		double s = 0;
+		double l = (max_val + min_val) / 2.0;
+
+		if (del_max != 0) //Set chroma if not gray
+		{
+			if (l < 0.5) s = del_max / (max_val + min_val);
+			else s = del_max / (2 - max_val - min_val);
+
+			double del_r = (((max_val - r) / 6) + (del_max / 2)) / del_max;
+			double del_g = (((max_val - g) / 6) + (del_max / 2)) / del_max;
+			double del_b = (((max_val - b) / 6) + (del_max / 2)) / del_max;
+
+			if (r == max_val) h = del_b - del_g;
+			else if (g == max_val) h = (1.0 / 3.0) + del_r - del_b;
+			else if (b == max_val) h = (2.0 / 3.0) + del_g - del_r;
+
+			if (h < 0) ++h;
+			if (h > 1) --h;
+		}
+
+		arr[0] = h;
+		arr[1] = s;
+		arr[2] = l;
+		break;
+	}
+	case CSPACE_LAB:
+	{
+		if (r > 0.04045) r = pow(((r + 0.055) / 1.055), 2.4);
+		else r /= 12.92;
+		if (g > 0.04045) g = pow(((g + 0.055) / 1.055), 2.4);
+		else g /= 12.92;
+		if (b > 0.04045) b = pow(((b + 0.055) / 1.055), 2.4);
+		else b /= 12.92;
+
+		double x = r * 0.4124 + g * 0.3576 + b * 0.1805;
+		double y = r * 0.2126 + g * 0.7152 + b * 0.0722;
+		double z = r * 0.0193 + g * 0.1192 + b * 0.9505;
+
+		if (x > 0.008856) x = pow(x, 1.0 / 3.0);
+		else x = (7.787 * x) + (16.0 / 116.0);
+		if (y > 0.008856) y = pow(y, 1.0 / 3.0);
+		else y = (7.787 * y) + (16.0 / 116.0);
+		if (z > 0.008856) z = pow(z, 1.0 / 3.0);
+		else z = (7.787 * z) + (16.0 / 116.0);
+
+		double CIEL = (116 * y) - 16;
+		double CIEa = 500 * (x - y);
+		double CIEb = 200 * (y - z);
+
+		arr[0] = CIEL;
+		arr[1] = CIEa;
+		arr[2] = CIEb;
+	}
+	case CSPACE_LCH_CW:
+	case CSPACE_LCH_CCW:
+	case CSPACE_LCH:
+	{
+		if (r > 0.04045) r = pow(((r + 0.055) / 1.055), 2.4);
+		else r /= 12.92;
+		if (g > 0.04045) g = pow(((g + 0.055) / 1.055), 2.4);
+		else g /= 12.92;
+		if (b > 0.04045) b = pow(((b + 0.055) / 1.055), 2.4);
+		else b /= 12.92;
+
+		double x = r * 0.4124 + g * 0.3576 + b * 0.1805;
+		double y = r * 0.2126 + g * 0.7152 + b * 0.0722;
+		double z = r * 0.0193 + g * 0.1192 + b * 0.9505;
+
+		if (x > 0.008856) x = pow(x, 1.0 / 3.0);
+		else x = (7.787 * x) + (16.0 / 116.0);
+		if (y > 0.008856) y = pow(y, 1.0 / 3.0);
+		else y = (7.787 * y) + (16.0 / 116.0);
+		if (z > 0.008856) z = pow(z, 1.0 / 3.0);
+		else z = (7.787 * z) + (16.0 / 116.0);
+
+		double CIEL = (116 * y) - 16;
+		double CIEa = 500 * (x - y);
+		double CIEb = 200 * (y - z);
+
+		double h = atan2(CIEb, CIEa);
+		if (h > 0) h = (h / PI) * 180;
+		else h = 360 - (abs(h) / PI) * 180;
+
+		double CIEC = sqrt(pow(CIEa, 2) + pow(CIEb, 2));
+
+		arr[0] = CIEL;
+		arr[1] = CIEC;
+		arr[2] = h;
+	}
+	}
+
+}
+
+RGB user_paldata::RGBFrom(double arr[], int32_t color_space)
+{
+	double r;
+	double g;
+	double b;
+	switch (color_space)
+	{
+	case CSPACE_HSV_CW:
+	case CSPACE_HSV_CCW:
+	case CSPACE_HSV:
+	{
+		double h = arr[0];
+		double s = arr[1];
+		double v = arr[2];
+
+		if (s == 0)
+		{
+			r = v;
+			g = v;
+			b = v;
+		}
+		else
+		{
+			double var_h = h * 6;
+			if (var_h == 6) var_h = 0;
+			int32_t var_i = floor(var_h);
+			double var_1 = v * (1 - s);
+			double var_2 = v * (1 - s * (var_h - var_i));
+			double var_3 = v * (1 - s * (1 - (var_h - var_i)));
+
+			switch (var_i)
+			{
+			case 0:
+				r = v;
+				g = var_3;
+				b = var_1;
+				break;
+			case 1:
+				r = var_2;
+				g = v;
+				b = var_1;
+				break;
+			case 2:
+				r = var_1;
+				g = v;
+				b = var_3;
+				break;
+			case 3:
+				r = var_1;
+				g = var_2;
+				b = v;
+				break;
+			case 4:
+				r = var_3;
+				g = var_1;
+				b = v;
+				break;
+			defualt:
+				r = v;
+				g = var_1;
+				b = var_2;
+			}
+		}
+
+		r = vbound(r * 63.0, 0.0, 63.0);
+		g = vbound(g * 63.0, 0.0, 63.0);
+		b = vbound(b * 63.0, 0.0, 63.0);
+
+		return _RGB(r, g, b);
+	}
+	case CSPACE_HSL_CW:
+	case CSPACE_HSL_CCW:
+	case CSPACE_HSL:
+	{
+		double h = arr[0];
+		double s = arr[1];
+		double l = arr[2];
+
+		if (s == 0)
+		{
+			r = l;
+			g = l;
+			b = l;
+		}
+		else
+		{
+			double var_1;
+			double var_2;
+			if (l < 0.5)var_2 = l * (1 + s);
+			else var_2 = (l + s) - (s * l);
+
+			var_1 = 2 * l - var_2;
+
+			r = HueToRGB(var_1, var_2, h + (1.0 / 3.0));
+			g = HueToRGB(var_1, var_2, h);
+			b = HueToRGB(var_1, var_2, h - (1.0 / 3.0));
+		}
+
+		r = vbound(r * 63.0, 0.0, 63.0);
+		g = vbound(g * 63.0, 0.0, 63.0);
+		b = vbound(b * 63.0, 0.0, 63.0);
+
+		return _RGB(r, g, b);
+	}
+	case CSPACE_LAB:
+	{
+		double CIEL = arr[0];
+		double CIEa = arr[1];
+		double CIEb = arr[2];
+
+		double var_y = (CIEL + 16) / 116.0;
+		double var_x = CIEa / 500.0 + var_y;
+		double var_z = var_y - CIEb / 200.0;
+
+		if (pow(var_y, 3) > 0.008856) var_y = pow(var_y, 3);
+		else var_y = (var_y - 16.0 / 116.0) / 7.787;
+		if (pow(var_x, 3) > 0.008856) var_x = pow(var_x, 3);
+		else var_x = (var_x - 16.0 / 116.0) / 7.787;
+		if (pow(var_z, 3) > 0.008856) var_z = pow(var_z, 3);
+		else var_z = (var_z - 16.0 / 116.0) / 7.787;
+
+		r = var_x * 3.2406 + var_y * -1.5372 + var_z * -0.4986;
+		g = var_x * -0.9689 + var_y * 1.8758 + var_z * 0.0415;
+		b = var_x * 0.0557 + var_y * -0.2040 + var_z * 1.0570;
+
+		if (r > 0.0031308) r = 1.055 * pow(r, (1 / 2.4)) - 0.055;
+		else r = 12.92 * r;
+		if (g > 0.0031308) g = 1.055 * pow(g, (1 / 2.4)) - 0.055;
+		else g = 12.92 * g;
+		if (b > 0.0031308) b = 1.055 * pow(b, (1 / 2.4)) - 0.055;
+		else b = 12.92 * b;
+
+		r = vbound(r * 63.0, 0.0, 63.0);
+		g = vbound(g * 63.0, 0.0, 63.0);
+		b = vbound(b * 63.0, 0.0, 63.0);
+
+		return _RGB(r, g, b);
+	}
+	case CSPACE_LCH_CW:
+	case CSPACE_LCH_CCW:
+	case CSPACE_LCH:
+	{
+		double CIEL = arr[0];
+		double CIEa = cos((arr[2] * PI) / 180.0) * arr[1];
+		double CIEb = sin((arr[2] * PI) / 180.0) * arr[1];
+
+		double var_y = (CIEL + 16) / 116.0;
+		double var_x = CIEa / 500.0 + var_y;
+		double var_z = var_y - CIEb / 200.0;
+
+		if (pow(var_y, 3) > 0.008856) var_y = pow(var_y, 3);
+		else var_y = (var_y - 16.0 / 116.0) / 7.787;
+		if (pow(var_x, 3) > 0.008856) var_x = pow(var_x, 3);
+		else var_x = (var_x - 16.0 / 116.0) / 7.787;
+		if (pow(var_z, 3) > 0.008856) var_z = pow(var_z, 3);
+		else var_z = (var_z - 16.0 / 116.0) / 7.787;
+
+		r = var_x * 3.2406 + var_y * -1.5372 + var_z * -0.4986;
+		g = var_x * -0.9689 + var_y * 1.8758 + var_z * 0.0415;
+		b = var_x * 0.0557 + var_y * -0.2040 + var_z * 1.0570;
+
+		if (r > 0.0031308) r = 1.055 * pow(r, (1 / 2.4)) - 0.055;
+		else r = 12.92 * r;
+		if (g > 0.0031308) g = 1.055 * pow(g, (1 / 2.4)) - 0.055;
+		else g = 12.92 * g;
+		if (b > 0.0031308) b = 1.055 * pow(b, (1 / 2.4)) - 0.055;
+		else b = 12.92 * b;
+
+		r = vbound(r * 63.0, 0.0, 63.0);
+		g = vbound(g * 63.0, 0.0, 63.0);
+		b = vbound(b * 63.0, 0.0, 63.0);
+
+		return _RGB(r, g, b);
+	}
+	}
+	return _RGB(0, 0, 0);
+}
+double user_paldata::HueToRGB(double v1, double v2, double vH)
+{
+	if (vH < 0) vH += 1;
+	if (vH > 1) vH -= 1;
+	if ((6 * vH) < 1) return (v1 + (v2 - v1) * 6 * vH);
+	if ((2 * vH) < 1) return (v2);
+	if ((3 * vH) < 2) return (v1 + (v2 - v1) * ((2.0 / 3.0) - vH) * 6);
+	return (v1);
+}
+
+//Mixes an entire palette given two paldatas
+void user_paldata::mix(user_paldata *pal_start, user_paldata *pal_end, double percent, int32_t color_space, int32_t start_color, int32_t end_color)
+{
+	for (int32_t q = start_color; q < end_color; ++q)
+	{
+		if (pal_start->colors_used[q] && pal_end->colors_used[q]) {
+			RGB start = _RGB(pal_start->colors[q][0], pal_start->colors[q][1], pal_start->colors[q][2]);
+			RGB end = _RGB(pal_end->colors[q][0], pal_end->colors[q][1], pal_end->colors[q][2]);
+			RGB result = mix_color(start, end, percent, color_space);
+			colors[q][0] = result.r;
+			colors[q][1] = result.g;
+			colors[q][2] = result.b;
+		}
+	}
 }
 
 void FFScript::do_getDMapData_dmapname(const bool v)
@@ -28439,6 +29706,54 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				FFCore.do_loaddirectory(); break;
 			case LOADSTACK:
 				FFCore.do_loadstack(); break;
+			case CREATEPALDATA:
+				FFCore.do_create_paldata(); break;
+			case CREATEPALDATACLR:
+				FFCore.do_create_paldata_clr(); break;
+			case MIXCLR:
+				FFCore.do_mix_clr(); break;
+			case PALDATALOADLEVEL:
+				FFCore.do_paldata_load_level(); break;
+			case PALDATALOADSPRITE:
+				FFCore.do_paldata_load_sprite(); break;
+			case PALDATALOADMAIN:
+				FFCore.do_paldata_load_main(); break;
+			case PALDATAWRITELEVEL:
+				FFCore.do_paldata_write_level(); break;
+			case PALDATAWRITELEVELCS:
+				FFCore.do_paldata_write_levelcset(); break;
+			case PALDATAWRITESPRITE:
+				FFCore.do_paldata_write_sprite(); break;
+			case PALDATAWRITESPRITECS:
+				FFCore.do_paldata_write_spritecset(); break;
+			case PALDATAWRITEMAIN:
+				FFCore.do_paldata_write_main(); break;
+			case PALDATAWRITEMAINCS:
+				FFCore.do_paldata_write_maincset(); break;
+			case PALDATAGETCLR:
+				FFCore.do_paldata_getcolor(); break;
+			case PALDATASETCLR:
+				FFCore.do_paldata_setcolor(); break;
+			case PALDATACLEARCLR:
+				FFCore.do_paldata_clearcolor(); break;
+			case PALDATAMIX:
+				FFCore.do_paldata_mix(); break;
+			case PALDATAMIXCS:
+				FFCore.do_paldata_mixcset(); break;
+			case PALDATACOPY:
+				FFCore.do_paldata_copy(); break;
+			case PALDATAFREE:
+				if (user_paldata* pd = checkPalData(ri->paldataref, "Free()", true))
+				{
+					pd->clear();
+				}
+				break;
+			case PALDATAOWN:
+				if (user_paldata* pd = checkPalData(ri->paldataref, "Own()", false))
+				{
+					pd->own(type, i);
+				}
+				break;
 			case LOADDROPSETR: //command
 				FFCore.do_loaddropset(false); break;
 			case LOADRNG: //command
@@ -30988,6 +32303,14 @@ void FFScript::user_rng_init()
 	}
 }
 
+void FFScript::user_paldata_init()
+{
+	for (int32_t q = 0; q < MAX_USER_STACKS; ++q)
+	{
+		script_paldatas[q].clear();
+	}
+}
+
 int32_t FFScript::get_free_file(bool skipError)
 {
 	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
@@ -31027,6 +32350,20 @@ int32_t FFScript::get_free_rng(bool skipError)
 		}
 	}
 	if(!skipError) Z_scripterrlog("get_free_rng() could not find a valid free rng pointer!\n");
+	return 0;
+}
+
+int32_t FFScript::get_free_paldata(bool skipError)
+{
+	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
+	{
+		if (!script_paldatas[q].reserved)
+		{
+			script_paldatas[q].reserved = true;
+			return q+1; //1-indexed; 0 is null value
+		}
+	}
+	if (!skipError) Z_scripterrlog("get_free_paldata() could not find a valid free paldata pointer!\n");
 	return 0;
 }
 
@@ -36900,6 +38237,26 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "GRAPHICSCOUNTCOLOR",			   1,   0,   0,   0},
 	{ "WRITEPODSTRING",           1,   0,   0,   1},
 	{ "WRITEPODARRAY",           1,   0,   0,   2},
+	{ "CREATEPALDATA",           0,   0,   0,   0 },
+	{ "CREATEPALDATACLR",           1,   0,   0,   0 },
+	{ "MIXCLR",           0,   0,   0,   0 },
+	{ "PALDATALOADLEVEL",           1,   0,   0,   0 },
+	{ "PALDATALOADSPRITE",           1,   0,   0,   0 },
+	{ "PALDATALOADMAIN",           0,   0,   0,   0 },
+	{ "PALDATAWRITELEVEL",           1,   0,   0,   0 },
+	{ "PALDATAWRITELEVELCS",           2,   0,   0,   0 },
+	{ "PALDATAWRITESPRITE",           1,   0,   0,   0 },
+	{ "PALDATAWRITESPRITECS",           2,   0,   0,   0 },
+	{ "PALDATAWRITEMAIN",           0,   0,   0,   0 },
+	{ "PALDATAWRITEMAINCS",           1,   0,   0,   0 },
+	{ "PALDATAGETCLR",           2,   0,   0,   0 },
+	{ "PALDATASETCLR",           2,   0,   0,   0 },
+	{ "PALDATACLEARCLR",           1,   0,   0,   0 },
+	{ "PALDATAMIX",           0,   0,   0,   0 },
+	{ "PALDATAMIXCS",           0,   0,   0,   0 },
+	{ "PALDATACOPY",           1,   0,   0,   0 },
+	{ "PALDATAFREE",           0,   0,   0,   0 },
+	{ "PALDATAOWN",           0,   0,   0,   0 },
 	{ "",                    0,   0,   0,   0}
 };
 

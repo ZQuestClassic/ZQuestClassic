@@ -31831,6 +31831,13 @@ int32_t main(int32_t argc,char **argv)
 		select_mouse_cursor(MOUSE_CURSOR_ARROW);
 		show_mouse(screen);
 	}
+	else
+	{
+#ifdef _WIN32
+		while (!all_get_display()) rest(1);
+		al_hide_mouse_cursor(all_get_display());
+#endif
+	}
 
 	//check and log RTC date and time
 	for (int32_t q = 0; q < curTimeLAST; q++) 
