@@ -44,7 +44,7 @@ void fix_menu();
 int32_t onFullscreenMenu();
 void f_Quit(int32_t type);
 void advanceframe(bool allowwavy, bool sfxcleaup = true, bool allowF6Script = true);
-void updatescr(bool allowwavy);
+void updatescr(bool allowwavy, bool record_gfx = false);
 void syskeys();
 void checkQuitKeys();
 bool CheatModifierKeys();
