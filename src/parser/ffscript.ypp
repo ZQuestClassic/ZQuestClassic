@@ -901,21 +901,20 @@ Annotated_Script :
 								case 'B': v = nswapBOOL; break;
 							}
 						}
-						if(v < 0 && val.size() && val[0] >= '0' && val[0] <= '9')
-						{
-							v = atoi(val.c_str());
-							if(unsigned(v) >= nswapMAX)
-								v = -1;
-						}
 						if(unsigned(v) < nswapMAX)
 						{
 							script->metadata.initd_type[c] = v;
 							continue;
 						}
+						else if(val == "-1")
+						{
+							script->metadata.initd_type[c] = -1;
+							continue;
+						}
 						else
 						{
 							yyerrmsg("ERROR: Bad Annotation Value: '@" + key + "' must be"
-								" exactly 'D','H','LD','LH', or 'B', NOT '" + oldval + "'.",
+								" exactly 'D','H','LD','LH','B', or '-1' NOT '" + oldval + "'.",
 								err_row, err_col, err_txt);
 						}
 					}
@@ -932,7 +931,7 @@ Annotated_Script :
 				}
 				else if(!key.compare(0,9,"Attribute"))
 				{
-					if(c < 4)
+					if(c < 10)
 					{
 						goodKey = true;
 						trunc_str(unescaped_val, 255, errheader, err_row, err_col, err_txt);
@@ -967,7 +966,7 @@ Annotated_Script :
 				if(!key.compare(0,13,"AttributeHelp"))
 				{
 					byte c = key[13]-'0';
-					if(c < 4)
+					if(c < 10)
 					{
 						goodKey = true;
 						trunc_str(val, 65535, errheader, err_row, err_col, err_txt);

@@ -2571,19 +2571,27 @@ Available annotations:
 		Function: Sets the author name metadata field
 		Value: String (limit 255 chars)
 	
-	@Attribute0 - @Attribute3
+	@Attribute0 - @Attribute9
+	@Flag0 - @Flag15
+		Valid on: Scripts
+		Function: Sets attribute metadata for the script.
+		Editor effect: Combo and Item editor label text
+		Value: String (limit 255 chars)
 	@Attribyte0 - @Attribyte7
 	@Attrishort0 - @Attrishort7
-	@Flag0 - @Flag15
 		Valid on: Scripts
 		Function: Sets attribute metadata for the script.
 		Editor effect: Combo editor label text
 		Value: String (limit 255 chars)
 	
-	@AttributeHelp0 - @AttributeHelp3
+	@AttributeHelp0 - @AttributeHelp9
+	@FlagHelp0 - @FlagHelp15
+		Valid on: Scripts
+		Function: Sets attribute help text metadata for the script.
+		Editor effect: Combo and Item editor help text
+		Value: String (limit 65535 chars)
 	@AttribyteHelp0 - @AttribyteHelp7
 	@AttrishortHelp0 - @AttrishortHelp7
-	@FlagHelp0 - @FlagHelp15
 		Valid on: Scripts
 		Function: Sets attribute help text metadata for the script.
 		Editor effect: Combo editor help text
@@ -2592,20 +2600,20 @@ Available annotations:
 	@InitD0 - @InitD7
 		Valid on: Scripts
 		Function: Set InitD label info.
-		Editor effect: Combo & FFC editors
+		Editor effect: Combo, FFC, Item, LWeapon scripts
 		Value: String (limit 255 chars)
 	
 	@InitDHelp0 - @InitDHelp7
 		Valid on: Scripts
 		Function: Set InitD help text.
-		Editor effect: Combo & FFC editors
+		Editor effect: Combo, FFC, Item, LWeapon scripts
 		Value: String (limit 65535 chars)
 	
 	@InitDType0 - @InitDType7
 		Valid on: Scripts
 		Function: Set InitD field type.
-		Editor effect: Combo & FFC editors
-		Value: "D","H","LD","LH", or "B"
+		Editor effect: Combo, FFC, Item, LWeapon scripts
+		Value: "D","H","LD","LH","B", or "-1"
 
 /////////////////////////////
 ///  Registration System  ///

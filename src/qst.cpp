@@ -13185,7 +13185,8 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , 
 				return qe_invalid;
 			if(!p_getcstr(&temp_meta.author,f,true))
 				return qe_invalid;
-			for(auto q = 0; q < 4; ++q)
+			auto num_meta_attrib = (zmeta_version < 5 ? 4 : 10);
+			for(auto q = 0; q < num_meta_attrib; ++q)
 			{
 				if(!p_getcstr(&temp_meta.attributes[q],f,true))
 					return qe_invalid;

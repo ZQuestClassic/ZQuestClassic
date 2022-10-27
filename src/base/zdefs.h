@@ -2836,7 +2836,7 @@ struct mapscr
 #define SCRIPT_FORMAT_DISASSEMBLED	2
 #define SCRIPT_FORMAT_ZASM			3
 
-#define METADATA_V			4
+#define METADATA_V			5
 #define V_COMPILER_FIRST	BUILDTM_YEAR
 #define V_COMPILER_SECOND	BUILDTM_MONTH
 #define V_COMPILER_THIRD	BUILDTM_DAY
@@ -2854,11 +2854,11 @@ struct zasm_meta
 	word compiler_v1, compiler_v2, compiler_v3, compiler_v4;
 	std::string script_name;
 	std::string author;
-	std::string attributes[4];
+	std::string attributes[10];
 	std::string attribytes[8];
 	std::string attrishorts[8];
 	std::string usrflags[16];
-	std::string attributes_help[4];
+	std::string attributes_help[10];
 	std::string attribytes_help[8];
 	std::string attrishorts_help[8];
 	std::string usrflags_help[16];
@@ -2901,6 +2901,9 @@ struct zasm_meta
 		{
 			usrflags[q].clear();
 			usrflags_help[q].clear();
+			if(q > 9) continue;
+			attributes[q].clear();
+			attributes_help[q].clear();
 			if(q > 7) continue;
 			initd[q].clear();
 			initd_help[q].clear();
@@ -2911,9 +2914,6 @@ struct zasm_meta
 			attribytes_help[q].clear();
 			attrishorts[q].clear();
 			attrishorts_help[q].clear();
-			if(q > 3) continue;
-			attributes[q].clear();
-			attributes_help[q].clear();
 		}
 		script_name.clear();
 		author.clear();
@@ -2948,6 +2948,9 @@ struct zasm_meta
 		{
 			usrflags[q] = other.usrflags[q];
 			usrflags_help[q] = other.usrflags_help[q];
+			if(q > 9) continue;
+			attributes[q] = other.attributes[q];
+			attributes_help[q] = other.attributes_help[q];
 			if(q > 7) continue;
 			initd[q] = other.initd[q];
 			initd_help[q] = other.initd_help[q];
@@ -2959,8 +2962,6 @@ struct zasm_meta
 			attrishorts[q] = other.attrishorts[q];
 			attrishorts_help[q] = other.attrishorts_help[q];
 			if(q > 3) continue;
-			attributes[q] = other.attributes[q];
-			attributes_help[q] = other.attributes_help[q];
 		}
 		flags = other.flags;
 		compiler_v1 = other.compiler_v1;
@@ -2988,6 +2989,11 @@ struct zasm_meta
 				return false;
 			if(usrflags_help[q].compare(other.usrflags_help[q]))
 				return false;
+			if(q > 9) continue;
+			if(attributes[q].compare(other.attributes[q]))
+				return false;
+			if(attributes_help[q].compare(other.attributes_help[q]))
+				return false;
 			if(q > 7) continue;
 			if(initd[q].compare(other.initd[q]))
 				return false;
@@ -3006,11 +3012,6 @@ struct zasm_meta
 			if(attrishorts[q].compare(other.attrishorts[q]))
 				return false;
 			if(attrishorts_help[q].compare(other.attrishorts_help[q]))
-				return false;
-			if(q > 3) continue;
-			if(attributes[q].compare(other.attributes[q]))
-				return false;
-			if(attributes_help[q].compare(other.attributes_help[q]))
 				return false;
 		}
 		if(script_name.compare(other.script_name))

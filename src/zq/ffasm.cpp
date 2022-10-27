@@ -2619,7 +2619,7 @@ string get_meta(zasm_meta const& meta)
 		oss << "\n#PARAM_TYPE_" << q << " = " << ZScript::getTypeName(meta.run_types[q])
 			<< "\n#PARAM_NAME_" << q << " = " << meta.run_idens[q];
 	}
-	for(auto q = 0; q < 4; ++q)
+	for(auto q = 0; q < 10; ++q)
 	{
 		if(meta.attributes[q].size())
 			oss << "\n#ATTRIBUTE_" << q << " = " << meta.attributes[q];
@@ -2762,7 +2762,7 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 	else if (cmd.size() == 12 && !cmd.compare(0, 11, "#ATTRIBUTE_"))
 	{
 		byte ind = cmd.at(11) - '0';
-		if (ind < 4)
+		if (ind < 10)
 		{
 			meta.attributes[ind] = val;
 		}
@@ -2771,7 +2771,7 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 	else if (cmd.size() == 17 && !cmd.compare(0, 16, "#ATTRIBUTE_HELP_"))
 	{
 		byte ind = cmd.at(16) - '0';
-		if (ind < 4)
+		if (ind < 10)
 		{
 			meta.attributes_help[ind] = util::unescape_characters(val);
 		}
