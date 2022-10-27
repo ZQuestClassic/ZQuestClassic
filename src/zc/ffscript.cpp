@@ -178,7 +178,7 @@ void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
 	
 	syskeys();
 	// Someday... maybe install a Turbo button here?
-	updatescr(allowwavy);
+	updatescr(allowwavy, true);
 	throttleFPS();
 	
 #ifdef _WIN32

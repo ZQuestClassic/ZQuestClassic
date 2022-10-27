@@ -3810,7 +3810,7 @@ void draw_fuzzy(int32_t fuzz)
 	}
 }
 
-void updatescr(bool allowwavy)
+void updatescr(bool allowwavy, bool record_gfx)
 {
 	static BITMAP *wavybuf = create_bitmap_ex(8,256,224);
 	static BITMAP *panorama = create_bitmap_ex(8,256,224);
@@ -3845,7 +3845,7 @@ void updatescr(bool allowwavy)
 		}
 	}
 
-	if (replay_is_debug() && replay_get_mode() != ReplayMode::Replay)
+	if (record_gfx && replay_is_debug() && replay_get_mode() != ReplayMode::Replay)
 	{
 		int depth = bitmap_color_depth(framebuf);
 		size_t len = framebuf->w * framebuf->h * BYTES_PER_PIXEL(depth);
@@ -5058,7 +5058,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		FFCore.runF6Engine();
 	}
 	// Someday... maybe install a Turbo button here?
-	updatescr(allowwavy);
+	updatescr(allowwavy, true);
 	throttleFPS();
 	
 #ifdef _WIN32
