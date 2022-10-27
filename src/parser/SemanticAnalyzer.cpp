@@ -52,10 +52,37 @@ SemanticAnalyzer::SemanticAnalyzer(Program& program)
 			analyzeFunctionInternals(**it);
 		scope = scope->getParent();
 	}
+	
+	for (vector<UserClass*>::iterator it = program.classes.begin();
+		 it != program.classes.end(); ++it)
+	{
+		UserClass& user_class = **it;
+		ClassScope* cscope = &user_class.getScope();
+		scope = cscope;
+
+		functions = cscope->getConstructors();
+		for (vector<Function*>::iterator it = functions.begin();
+		     it != functions.end(); ++it)
+			analyzeFunctionInternals(**it);
+		
+		functions = scope->getLocalFunctions();
+		for (vector<Function*>::iterator it = functions.begin();
+		     it != functions.end(); ++it)
+			analyzeFunctionInternals(**it);
+		
+		functions = cscope->getDestructor();
+		for (vector<Function*>::iterator it = functions.begin();
+		     it != functions.end(); ++it)
+			analyzeFunctionInternals(**it);
+		
+		scope = scope->getParent();
+	}
 }
 
 void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 {
+	if(!function.isInternal())
+		zconsole_db("Analyzing internals for: %s", function.getSignature().asString().c_str());
 	if(function.prototype) return; //Prototype functions have no internals to analyze!
 	failure_temp = false;
 	ASTFuncDecl* functionDecl = function.node;
@@ -860,21 +887,7 @@ void SemanticAnalyzer::caseClass(ASTClass& host, void* param)
 
 	// Recurse on user_class elements with its scope.
 	scope = &user_class.getScope();
-	parsing_user_class = true;
-	block_visit(host, host.options, param);
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_visit(host, host.use, param);
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_visit(host, host.types, param);
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_visit(host, host.variables, param);
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_visit(host, host.functions, param);
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_visit(host, host.constructors, param);
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	visit(host.destructor.get(), param);
-	parsing_user_class = false;
+	RecursiveVisitor::caseClass(host,param);
 	scope = scope->getParent();
 	if (breakRecursion(host)) return;
 	//
@@ -889,6 +902,13 @@ void SemanticAnalyzer::caseClass(ASTClass& host, void* param)
 			handleError(CompileError::NameMismatchC(&host, func->name.c_str(), name.c_str()));
 			return;
 		}
+	}
+	for (auto it = host.functions.cbegin(); //!TODOUSERCLASS debug remove
+		 it != host.functions.cend(); ++it)
+	{
+		ASTFuncDecl const* func = *it;
+		if(func->func)
+			zconsole_db("[Fun] %s", func->func->getSignature().asString().c_str());
 	}
 	if(ASTFuncDecl const* func = host.destructor.get())
 	{

@@ -340,8 +340,9 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 		}
 		scope = function.internalScope;
 		
-		if(function.getFlag(FUNCFLAG_CLASSFUNC))
+		if(function.getFlag(FUNCFLAG_CLASSFUNC) && !function.getFlag(FUNCFLAG_STATIC))
 		{
+			zconsole_db("[skip] %s", function.getSignature().asString().c_str());
 			//!TODOUSERCLASS
 			continue;
 			

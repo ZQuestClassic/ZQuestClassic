@@ -1519,6 +1519,17 @@ ClassScope::ClassScope(Scope* parent, FileScope* parentFile, UserClass& user_cla
 	: BasicScope(parent, parentFile, user_class.getName()), user_class(user_class), destructor_(nullptr)
 {}
 
+std::vector<Function*> ClassScope::getConstructors() const
+{
+	return getSeconds<Function*>(constructorsBySignature_);
+}
+std::vector<Function*> ClassScope::getDestructor() const
+{
+	std::vector<Function*> v;
+	if(destructor_) v.push_back(destructor_);
+	return v;
+}
+
 Function* ClassScope::addFunction(
 		DataType const* returnType, string const& name,
 		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler)

@@ -530,6 +530,8 @@ namespace ZScript
 		virtual bool isClass() const {return true;}
 		UserClass& user_class;
 		
+		std::vector<Function*> getConstructors() const;
+		std::vector<Function*> getDestructor() const;
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
