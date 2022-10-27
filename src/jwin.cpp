@@ -1318,7 +1318,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 		cursor_start = l;
 	if(cursor_end > l)
 		cursor_end = l;
-	auto low_cursor = zc_min(cursor_start,cursor_end);
+	auto low_cursor = cursor_start<0 ? cursor_end : (cursor_end<0 ? cursor_start : (zc_min(cursor_start, cursor_end)));
 	auto high_cursor = zc_max(cursor_start,cursor_end);
 	bool multiselect = cursor_end > -1;
 	
@@ -1795,21 +1795,14 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 					int paste_len = cb.size();
 					int paste_start = scursor;
 					int paste_end = paste_start+paste_len;
-					ind = paste_end-1;
-					ind2 = paste_end+paste_len-1;
+					ind = strlen(s);
+					ind2 = ind+paste_len;
 					while(ind2 >= d->d1)
 					{
-						if(ind <= l) //need the space, shorten paste
-						{
-							--paste_len;
-							--paste_end;
-							--ind;
-							ind2-=2;
-						}
-						else //the space can be spared
-						{
-							--ind; --ind2;
-						}
+						--paste_len;
+						--paste_end;
+						--ind;
+						--ind2;
 					}
 					size_t new_l = ind2+1;
 					while(ind >= paste_start)
@@ -1926,7 +1919,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 		cursor_start = l;
 	if(cursor_end > l)
 		cursor_end = l;
-	auto low_cursor = zc_min(cursor_start,cursor_end);
+	auto low_cursor = cursor_start<0 ? cursor_end : (cursor_end<0 ? cursor_start : (zc_min(cursor_start, cursor_end)));
 	auto high_cursor = zc_max(cursor_start,cursor_end);
 		
 	/* calculate maximal number of displayable characters */
@@ -2270,21 +2263,14 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 					int paste_len = cb.size();
 					int paste_start = scursor;
 					int paste_end = paste_start+paste_len;
-					ind = paste_end-1;
-					ind2 = paste_end+paste_len-1;
+					ind = strlen(s);
+					ind2 = ind+paste_len;
 					while(ind2 >= d->d1)
 					{
-						if(ind <= l) //need the space, shorten paste
-						{
-							--paste_len;
-							--paste_end;
-							--ind;
-							ind2-=2;
-						}
-						else //the space can be spared
-						{
-							--ind; --ind2;
-						}
+						--paste_len;
+						--paste_end;
+						--ind;
+						--ind2;
 					}
 					size_t new_l = ind2+1;
 					while(ind >= paste_start)
