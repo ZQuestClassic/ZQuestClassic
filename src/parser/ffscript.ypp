@@ -715,19 +715,6 @@ Function :
 		else func->setFlag(FUNCFLAG_INLINE);
 		$$ = func;
 	}
-	| DataType Identifier_List LPAREN Function_Parameters_List RPAREN
-		Statement_Block
-	{
-		ASTDataType* returnType = (ASTDataType*)$1;
-		ASTExprIdentifier* iden = (ASTExprIdentifier*)$2;
-		ASTFuncDecl* func = (ASTFuncDecl*)$4;
-		ASTBlock* block = (ASTBlock*)$6;
-		func->returnType = returnType;
-		func->iden = iden;
-		func->name = iden->components.back();
-		func->block = block;
-		func->location = @$;
-		$$ = func;}
 	| DataType Function_Typeless {
 		ASTDataType* returnType = (ASTDataType*)$1;
 		ASTFuncDecl* func = (ASTFuncDecl*)$2;
@@ -736,7 +723,18 @@ Function :
 	;
 
 Function_Typeless :
-	Identifier_List LPAREN RPAREN Statement_Block {
+	Identifier_List LPAREN Function_Parameters_List RPAREN
+		Statement_Block
+	{
+		ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;
+		ASTFuncDecl* func = (ASTFuncDecl*)$3;
+		ASTBlock* block = (ASTBlock*)$5;
+		func->iden = iden;
+		func->name = iden->components.back();
+		func->block = block;
+		func->location = @$;
+		$$ = func;}
+	| Identifier_List LPAREN RPAREN Statement_Block {
 		ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;
 		ASTBlock* block = (ASTBlock*)$4;
 		ASTFuncDecl* func = new ASTFuncDecl(@$);
