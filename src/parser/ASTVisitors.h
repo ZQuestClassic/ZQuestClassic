@@ -58,6 +58,8 @@ namespace ZScript
 		// Declarations
 		virtual void caseScript(ASTScript& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseClass(ASTClass& host, void* param = NULL) {
+			caseDefault(host, param);}
 		virtual void caseNamespace(ASTNamespace& host, void* param = NULL){
 			caseDefault(host, param);}
 		virtual void caseImportDecl(ASTImportDecl& host, void* param = NULL) {
@@ -215,7 +217,8 @@ namespace ZScript
 		// Used as a parameter to signal that both lval and rval are needed.
 		static void* const paramReadWrite;
 		
-		RecursiveVisitor() : failure(false), failure_halt(false), failure_temp(false), breakNode(NULL) {}
+		RecursiveVisitor() : failure(false), failure_halt(false),
+			failure_temp(false), parsing_user_class(false), breakNode(NULL) {}
 	
 		// Mark as having failed.
 		void fail() {failure = true;}
@@ -278,6 +281,7 @@ namespace ZScript
 				ASTStmtReturnVal& host, void* param = NULL);
 		// Declarations
 		virtual void caseScript(ASTScript& host, void* param = NULL);
+		virtual void caseClass(ASTClass& host, void* param = NULL);
 		virtual void caseNamespace(ASTNamespace& host, void* param = NULL);
 		virtual void caseImportDecl(ASTImportDecl& host, void* param = NULL);
 		virtual void caseIncludePath(ASTIncludePath& host, void* param = NULL);
@@ -348,6 +352,7 @@ namespace ZScript
 		               AST* node = NULL,
 		               bool twoWay = false);
 		
+		bool parsing_user_class;
 	protected:
 		// Returns true if we have failed or for some other reason must break out
 		// of recursion. Should be called with the current node and param between

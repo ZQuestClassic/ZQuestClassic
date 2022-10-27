@@ -339,138 +339,185 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			scriptname = functionScript->getName();
 		}
 		scope = function.internalScope;
-
-		vector<std::shared_ptr<Opcode>> funccode;
-
-		int32_t stackSize = getStackSize(function);
-
-		// Start of the function.
-		std::shared_ptr<Opcode> first(new OSetImmediate(new VarArgument(EXP1),
-		                                  new LiteralArgument(0)));
-		first->setLabel(function.getLabel());
-		funccode.push_back(std::move(first));
-
-		// Push on the this, if a script
-		if (isRun)
+		
+		if(function.getFlag(FUNCFLAG_CLASSFUNC))
 		{
-			ScriptType type = program.getScript(scriptname)->getType();
-
-			if (type == ScriptType::ffc )
+			//!TODOUSERCLASS
+			continue;
+			
+			vector<std::shared_ptr<Opcode>> funccode;
+			int32_t stackSize = getStackSize(function);
+			// Start of the function.
+			std::shared_ptr<Opcode> first(new OSetImmediate(new VarArgument(EXP1),
+											  new LiteralArgument(0)));
+			first->setLabel(function.getLabel());
+			funccode.push_back(std::move(first));
+			
+			// Push 0s for the local variables.
+			for (int32_t i = stackSize - getParameterCount(function); i > 0; --i)
+				addOpcode2(funccode, new OPushRegister(new VarArgument(EXP1)));
+			
+			// Set up the stack frame register
+			addOpcode2(funccode, new OSetRegister(new VarArgument(SFRAME),
+												new VarArgument(SP)));
+			OpcodeContext oc(typeStore);
+			BuildOpcodes bo(scope);
+			bo.parsing_user_class = true;
+			node.execute(bo, &oc);
+			
+			if (bo.hasError()) failure = true;
+			
+			appendElements(funccode, bo.getResult());
+			
+			// Add appendix code.
+			std::shared_ptr<Opcode> next(new OSetImmediate(new VarArgument(EXP2),
+													  new LiteralArgument(0)));
+			next->setLabel(bo.getReturnLabelID());
+			funccode.push_back(std::move(next));
+			
+			// Pop off everything.
+			for (int32_t i = 0; i < stackSize; ++i)
 			{
-				addOpcode2(funccode, 
-					new OSetRegister(new VarArgument(EXP2),
-							 new VarArgument(REFFFC)));
-
-
-			}
-			else if (type == ScriptType::item )
-			{
-				addOpcode2(funccode,
-					new OSetRegister(new VarArgument(EXP2),
-							 new VarArgument(REFITEMCLASS)));
-
-			}
-			else if (type == ScriptType::npc )
-			{
-				addOpcode2(funccode,
-					new OSetRegister(new VarArgument(EXP2),
-							 new VarArgument(REFNPC)));
-
-			}
-			else if (type == ScriptType::lweapon )
-			{
-				addOpcode2(funccode,
-					new OSetRegister(new VarArgument(EXP2),
-							 new VarArgument(REFLWPN)));
-			}
-			else if (type == ScriptType::eweapon )
-			{
-				addOpcode2(funccode,
-					new OSetRegister(new VarArgument(EXP2),
-							 new VarArgument(REFEWPN)));
-
-			}
-			else if (type == ScriptType::dmapdata )
-			{
-				addOpcode2(funccode,
-					new OSetRegister(new VarArgument(EXP2),
-							 new VarArgument(REFDMAPDATA)));
-
-			}
-			else if (type == ScriptType::itemsprite)
-			{
-				addOpcode2(funccode,
-					new OSetRegister(new VarArgument(EXP2),
-							new VarArgument(REFITEM)));
-			}
-			else if (type == ScriptType::subscreendata)
-			{
-				addOpcode2(funccode,
-					new OSetRegister(new VarArgument(EXP2),
-							new VarArgument(REFSUBSCREEN)));
-			}
-			else if (type == ScriptType::combodata)
-			{
-				addOpcode2(funccode,
-					new OSetRegister(new VarArgument(EXP2),
-							new VarArgument(REFCOMBODATA)));
-			}
-			else if (type == ScriptType::genericscr)
-			{
-				addOpcode2(funccode,
-					new OSetRegister(new VarArgument(EXP2),
-							new VarArgument(REFGENERICDATA)));
+				addOpcode2(funccode, new OPopRegister(new VarArgument(EXP2)));
 			}
 			
-			addOpcode2(funccode, new OPushRegister(new VarArgument(EXP2)));
-		}
-
-		// Push 0s for the local variables.
-		for (int32_t i = stackSize - getParameterCount(function); i > 0; --i)
-			addOpcode2(funccode, new OPushRegister(new VarArgument(EXP1)));
-
-		// Set up the stack frame register
-		addOpcode2(funccode, new OSetRegister(new VarArgument(SFRAME),
-		                                    new VarArgument(SP)));
-		OpcodeContext oc(typeStore);
-		BuildOpcodes bo(scope);
-		node.execute(bo, &oc);
-
-		if (bo.hasError()) failure = true;
-
-		appendElements(funccode, bo.getResult());
-
-		// Add appendix code.
-		std::shared_ptr<Opcode> next(new OSetImmediate(new VarArgument(EXP2),
-												  new LiteralArgument(0)));
-		next->setLabel(bo.getReturnLabelID());
-		funccode.push_back(std::move(next));
-
-		// Pop off everything.
-		for (int32_t i = 0; i < stackSize; ++i)
-		{
-			addOpcode2(funccode, new OPopRegister(new VarArgument(EXP2)));
-		}
-
-		//if it's a main script, quit.
-		if (isRun)
-		{
-			// Note: the stack still contains the "this" pointer
-			// But since the script is about to terminate, we don't
-			// care about popping it off.
-			addOpcode2(funccode, new OQuit());
+			addOpcode2(funccode, new OReturn());
+			function.giveCode(funccode);
 		}
 		else
 		{
-			// Not a script's run method, so no "this" pointer to
-			// pop off. The top of the stack is now the function
-			// return address (pushed on by the caller).
-			//pop off the return address
-			//and return
-			addOpcode2(funccode, new OReturn());
-		}
+			vector<std::shared_ptr<Opcode>> funccode;
+			
+			int32_t stackSize = getStackSize(function);
+			
+			// Start of the function.
+			std::shared_ptr<Opcode> first(new OSetImmediate(new VarArgument(EXP1),
+											  new LiteralArgument(0)));
+			first->setLabel(function.getLabel());
+			funccode.push_back(std::move(first));
+			
+			// Push on the this, if a script
+			if (isRun)
+			{
+				ScriptType type = program.getScript(scriptname)->getType();
 
-		function.giveCode(funccode);
+				if (type == ScriptType::ffc )
+				{
+					addOpcode2(funccode, 
+						new OSetRegister(new VarArgument(EXP2),
+								 new VarArgument(REFFFC)));
+
+
+				}
+				else if (type == ScriptType::item )
+				{
+					addOpcode2(funccode,
+						new OSetRegister(new VarArgument(EXP2),
+								 new VarArgument(REFITEMCLASS)));
+
+				}
+				else if (type == ScriptType::npc )
+				{
+					addOpcode2(funccode,
+						new OSetRegister(new VarArgument(EXP2),
+								 new VarArgument(REFNPC)));
+
+				}
+				else if (type == ScriptType::lweapon )
+				{
+					addOpcode2(funccode,
+						new OSetRegister(new VarArgument(EXP2),
+								 new VarArgument(REFLWPN)));
+				}
+				else if (type == ScriptType::eweapon )
+				{
+					addOpcode2(funccode,
+						new OSetRegister(new VarArgument(EXP2),
+								 new VarArgument(REFEWPN)));
+
+				}
+				else if (type == ScriptType::dmapdata )
+				{
+					addOpcode2(funccode,
+						new OSetRegister(new VarArgument(EXP2),
+								 new VarArgument(REFDMAPDATA)));
+
+				}
+				else if (type == ScriptType::itemsprite)
+				{
+					addOpcode2(funccode,
+						new OSetRegister(new VarArgument(EXP2),
+								new VarArgument(REFITEM)));
+				}
+				else if (type == ScriptType::subscreendata)
+				{
+					addOpcode2(funccode,
+						new OSetRegister(new VarArgument(EXP2),
+								new VarArgument(REFSUBSCREEN)));
+				}
+				else if (type == ScriptType::combodata)
+				{
+					addOpcode2(funccode,
+						new OSetRegister(new VarArgument(EXP2),
+								new VarArgument(REFCOMBODATA)));
+				}
+				else if (type == ScriptType::genericscr)
+				{
+					addOpcode2(funccode,
+						new OSetRegister(new VarArgument(EXP2),
+								new VarArgument(REFGENERICDATA)));
+				}
+				
+				addOpcode2(funccode, new OPushRegister(new VarArgument(EXP2)));
+			}
+			
+			// Push 0s for the local variables.
+			for (int32_t i = stackSize - getParameterCount(function); i > 0; --i)
+				addOpcode2(funccode, new OPushRegister(new VarArgument(EXP1)));
+			
+			// Set up the stack frame register
+			addOpcode2(funccode, new OSetRegister(new VarArgument(SFRAME),
+												new VarArgument(SP)));
+			OpcodeContext oc(typeStore);
+			BuildOpcodes bo(scope);
+			node.execute(bo, &oc);
+			
+			if (bo.hasError()) failure = true;
+			
+			appendElements(funccode, bo.getResult());
+			
+			// Add appendix code.
+			std::shared_ptr<Opcode> next(new OSetImmediate(new VarArgument(EXP2),
+													  new LiteralArgument(0)));
+			next->setLabel(bo.getReturnLabelID());
+			funccode.push_back(std::move(next));
+			
+			// Pop off everything.
+			for (int32_t i = 0; i < stackSize; ++i)
+			{
+				addOpcode2(funccode, new OPopRegister(new VarArgument(EXP2)));
+			}
+			
+			//if it's a main script, quit.
+			if (isRun)
+			{
+				// Note: the stack still contains the "this" pointer
+				// But since the script is about to terminate, we don't
+				// care about popping it off.
+				addOpcode2(funccode, new OQuit());
+			}
+			else
+			{
+				// Not a script's run method, so no "this" pointer to
+				// pop off. The top of the stack is now the function
+				// return address (pushed on by the caller).
+				//pop off the return address
+				//and return
+				addOpcode2(funccode, new OReturn());
+			}
+			
+			function.giveCode(funccode);
+		}
 	}
 
 	if (failure)

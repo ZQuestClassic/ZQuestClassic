@@ -62,6 +62,27 @@ Script* Program::addScript(
 	return script;
 }
 
+UserClass* Program::getClass(string const& name) const
+{
+	return find<UserClass*>(classesByName_, name).value_or(boost::add_pointer<UserClass>::type());
+}
+
+UserClass* Program::getClass(ASTClass* node) const
+{
+	return find<UserClass*>(classesByNode_, node).value_or(boost::add_pointer<UserClass>::type());
+}
+UserClass* Program::addClass(
+		ASTClass& node, Scope& parentScope, CompileErrorHandler* handler)
+{
+	UserClass* user_class = createClass(*this, parentScope, node, handler);
+	if (!user_class) return NULL;
+
+	classes.push_back(user_class);
+	classesByName_[user_class->getName()] = user_class;
+	classesByNode_[&node] = user_class;
+	return user_class;
+}
+
 Namespace* Program::addNamespace(ASTNamespace& node, Scope& parentScope, CompileErrorHandler* handler)
 {
 	Namespace* namesp = createNamespace(*this, parentScope, node, handler);
@@ -118,6 +139,36 @@ vector<Function*> ZScript::getFunctions(Program const& program)
 	vector<Function*> functions = getFunctionsInBranch(program.getScope());
 	appendElements(functions, getClassFunctions(program.getTypeStore()));
 	return functions;
+}
+
+////////////////////////////////////////////////////////////////
+// ZScript::UserClass
+
+UserClass::UserClass(Program& program, ASTClass& user_class)
+	: program(program), node(user_class)
+{}
+
+UserClass::~UserClass()
+{}
+
+UserClass* ZScript::createClass(
+		Program& program, Scope& parentScope, ASTClass& node,
+		CompileErrorHandler* errorHandler)
+{
+	UserClass* user_class = new UserClass(program, node);
+
+	ClassScope* scope = parentScope.makeClassChild(*user_class);
+	if (!scope)
+	{
+		if (errorHandler)
+			errorHandler->handleError(
+				CompileError::ClassRedef(&node, user_class->getName().c_str()));
+		delete user_class;
+		return NULL;
+	}
+	user_class->scope = scope;
+	
+	return user_class;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -474,6 +525,16 @@ Script* Function::getScript() const
 	ScriptScope* scriptScope =
 		dynamic_cast<ScriptScope*>(parentScope);
 	return &scriptScope->script;
+}
+UserClass* Function::getClass() const
+{
+	if (!internalScope) return NULL;
+	Scope* parentScope = internalScope->getParent();
+	if (!parentScope) return NULL;
+	if (!parentScope->isClass()) return NULL;
+	ClassScope* classScope =
+		dynamic_cast<ClassScope*>(parentScope);
+	return &classScope->user_class;
 }
 
 int32_t Function::getLabel() const

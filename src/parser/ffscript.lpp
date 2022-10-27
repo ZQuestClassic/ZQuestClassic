@@ -71,6 +71,7 @@ return 0
 
  /* Keywords */
 script		TOKEN( SCRIPT );
+class		TOKEN( ZCLASS );
 for		TOKEN( FOR );
 if		TOKEN( IF );
 else		TOKEN( ELSE );
@@ -108,6 +109,7 @@ until			TOKEN( UNTIL );
 unless			TOKEN( UNLESS );
 repeat			TOKEN( REPEAT );
 inline			TOKEN( INLINE );
+static			TOKEN( STATIC );
 CONST_ASSERT	TOKEN( CASSERT );
 
  /* Types */

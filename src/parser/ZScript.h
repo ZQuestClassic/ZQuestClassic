@@ -18,6 +18,7 @@ namespace ZScript
 	class TypeStore;
 	class Program;
 	class Script;
+	class UserClass;
 	class Namespace;
 	class Variable;
 	class BuiltinVariable;
@@ -44,10 +45,14 @@ namespace ZScript
 		RootScope& getScope() const {return *rootScope_;}
 
 		std::vector<Script*> scripts;
+		std::vector<UserClass*> classes;
 		std::vector<Namespace*> namespaces;
 		Script* getScript(std::string const& name) const;
 		Script* getScript(ASTScript* node) const;
 		Script* addScript(ASTScript& node, Scope& parentScope, CompileErrorHandler* handler);
+		UserClass* getClass(std::string const& name) const;
+		UserClass* getClass(ASTClass* node) const;
+		UserClass* addClass(ASTClass& node, Scope& parentScope, CompileErrorHandler* handler);
 		Namespace* addNamespace(
 			ASTNamespace& node, Scope& parentScope, CompileErrorHandler* handler);
 
@@ -67,6 +72,8 @@ namespace ZScript
 	private:
 		std::map<std::string, Script*> scriptsByName_;
 		std::map<ASTScript*, Script*> scriptsByNode_;
+		std::map<std::string, UserClass*> classesByName_;
+		std::map<ASTClass*, UserClass*> classesByNode_;
 
 		TypeStore typeStore_;
 		RootScope* rootScope_;
@@ -166,6 +173,32 @@ namespace ZScript
 			CompileErrorHandler* = NULL);
 	
 	std::optional<int32_t> getLabel(Script const&);
+
+	////////////////////////////////////////////////////////////////
+	// UserClass
+
+	class UserClass
+	{
+		friend UserClass* createClass(
+			Program&, Scope&, ASTClass&, CompileErrorHandler*);
+	public:
+		~UserClass();
+
+		std::string const& getName() const {return node.name;}
+		ASTClass* getNode() const {return &node;}
+		ClassScope& getScope() {return *scope;}
+		ClassScope const& getScope() const {return *scope;}
+
+	protected:
+		UserClass(Program& program, ASTClass& user_class);
+
+	private:
+		Program& program;
+		ASTClass& node;
+		ClassScope* scope;
+	};
+
+	UserClass* createClass(Program&, Scope&, ASTClass&, CompileErrorHandler* = NULL);
 
 	
 	////////////////////////////////////////////////////////////////
@@ -390,6 +423,7 @@ namespace ZScript
 		
 		// If this is a script level function, return that script.
 		Script* getScript() const;
+		UserClass* getClass() const;
 
 		int32_t numParams() const {return paramTypes.size();}
 		int32_t getLabel() const;

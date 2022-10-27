@@ -201,6 +201,43 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 	script.setRun(possibleRuns[0]);
 }
 
+void RegistrationVisitor::caseClass(ASTClass& host, void* param)
+{
+	UserClass& user_class = host.user_class ? *host.user_class : *(host.user_class = program.addClass(host, *scope, this));
+	if (breakRecursion(host)) return;
+	
+	string name = user_class.getName();
+
+	// Recurse on user_class elements with its scope.
+	scope = &user_class.getScope();
+	parsing_user_class = true;
+	block_regvisit(host, host.options, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	block_regvisit(host, host.use, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	block_regvisit(host, host.types, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	block_regvisit(host, host.variables, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	block_regvisit(host, host.functions, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	block_regvisit(host, host.constructors, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	visit(host.destructor.get(), param);
+	parsing_user_class = false;
+	scope = scope->getParent();
+	if (breakRecursion(host)) return;
+	//
+	if(!(registered(host, host.options) && registered(host, host.use) && registered(host, host.types)
+		&& registered(host, host.variables) && registered(host, host.functions)
+		&& registered(host, host.constructors) && registered(*host.destructor)))
+	{
+		return;
+	}
+	
+	doRegister(host);
+}
+
 void RegistrationVisitor::caseNamespace(ASTNamespace& host, void* param)
 {
 	Namespace& namesp = host.namesp ? *host.namesp : (*(host.namesp = program.addNamespace(host, *scope, this)));
@@ -491,9 +528,17 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 		// Inline the constant if possible.
 		isConstant = host.getInitializer()->getCompileTimeValue(this, scope).has_value();
 		//The dataType is constant, but the initializer is not. This is not allowed in Global or Script scopes, as it causes crashes. -V
-		if(!isConstant && (scope->isGlobal() || scope->isScript()))
+		if(!isConstant && (scope->isGlobal() || scope->isScript() || scope->isClass()))
 		{
 			handleError(CompileError::ConstNotConstant(&host, host.name));
+			return;
+		}
+	}
+	else if(parsing_user_class)
+	{
+		if(host.getInitializer())
+		{
+			handleError(CompileError::ClassNoInits(&host, host.name));
 			return;
 		}
 	}
@@ -672,6 +717,7 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	host.func = function;
 	
 	scope = oldScope;
+	if(breakRecursion(host)) return;
 	// If adding it failed, it means this scope already has a function with
 	// that name.
 	if (function == NULL)

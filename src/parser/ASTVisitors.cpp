@@ -136,6 +136,8 @@ void RecursiveVisitor::caseFile(ASTFile& host, void* param)
 	if (breakRecursion(host, param)) return;
 	block_visit(host, host.scripts, param);
 	if (breakRecursion(host, param)) return;
+	block_visit(host, host.classes, param);
+	if (breakRecursion(host, param)) return;
 	block_visit(host, host.asserts, param);
 }
 
@@ -270,6 +272,20 @@ void RecursiveVisitor::caseScript(ASTScript& host, void* param)
 	if (breakRecursion(host, param)) return;
 	block_visit(host, host.asserts, param);
 }
+void RecursiveVisitor::caseClass(ASTClass& host, void* param)
+{
+	block_visit(host, host.options, param);
+	if (breakRecursion(host, param)) return;
+	block_visit(host, host.use, param);
+	if (breakRecursion(host, param)) return;
+	block_visit(host, host.types, param);
+	if (breakRecursion(host, param)) return;
+	block_visit(host, host.variables, param);
+	if (breakRecursion(host, param)) return;
+	block_visit(host, host.functions, param);
+	if (breakRecursion(host, param)) return;
+	block_visit(host, host.asserts, param);
+}
 
 void RecursiveVisitor::caseNamespace(ASTNamespace& host, void* param)
 {
@@ -288,6 +304,8 @@ void RecursiveVisitor::caseNamespace(ASTNamespace& host, void* param)
 	block_visit(host, host.namespaces, param);
 	if (breakRecursion(host, param)) return;
 	block_visit(host, host.scripts, param);
+	if (breakRecursion(host, param)) return;
+	block_visit(host, host.classes, param);
 	if (breakRecursion(host, param)) return;
 	block_visit(host, host.asserts, param);
 }

@@ -41,6 +41,7 @@ namespace ZScript
 	class Datum;
 	class Literal;
 	class Function;
+	class UserClass;
 
 	// Local
 	class AST; // virtual
@@ -71,6 +72,7 @@ namespace ZScript
 	// Declarations
 	class ASTDecl; // virtual
 	class ASTScript;
+	class ASTClass;
 	class ASTNamespace;
 	class ASTImportDecl;
 	class ASTImportCondDecl;
@@ -289,6 +291,7 @@ namespace ZScript
 		owning_vector<ASTDataTypeDef> dataTypes;
 		owning_vector<ASTScriptTypeDef> scriptTypes;
 		owning_vector<ASTScript> scripts;
+		owning_vector<ASTClass> classes;
 		owning_vector<ASTNamespace> namespaces;
 		owning_vector<ASTUsingDecl> use;
 		owning_vector<ASTAssert> asserts;
@@ -659,7 +662,8 @@ namespace ZScript
 			TYPE_USING,
 			TYPE_ASSERT,
 			TYPE_IMPORT_COND,
-			TYPE_INCLUDE_PATH
+			TYPE_INCLUDE_PATH,
+			TYPE_CLASS
 		};
 
 		ASTDecl(LocationData const& location = LOC_NONE);
@@ -694,6 +698,31 @@ namespace ZScript
 		
 		Script* script;
 	};
+	class ASTClass : public ASTDecl
+	{
+	public:
+		ASTClass(LocationData const& location = LOC_NONE);
+		ASTClass* clone() const /*override*/ {return new ASTClass(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL) /*override*/;
+
+		Type getDeclarationType() const /*override*/ {return TYPE_CLASS;}
+    
+		// Adds a declaration to the proper vector.
+		void addDeclaration(ASTDecl& declaration);
+
+		std::string name;
+		owning_vector<ASTSetOption> options;
+		owning_vector<ASTDataDeclList> variables;
+		owning_vector<ASTFuncDecl> functions;
+		owning_vector<ASTDataTypeDef> types;
+		owning_vector<ASTUsingDecl> use;
+		owning_vector<ASTAssert> asserts;
+		owning_vector<ASTFuncDecl> constructors;
+		owning_ptr<ASTFuncDecl> destructor;
+		
+		UserClass* user_class;
+	};
 
 	class ASTNamespace : public ASTDecl
 	{
@@ -716,6 +745,7 @@ namespace ZScript
 		owning_vector<ASTDataTypeDef> dataTypes;
 		owning_vector<ASTScriptTypeDef> scriptTypes;
 		owning_vector<ASTScript> scripts;
+		owning_vector<ASTClass> classes;
 		owning_vector<ASTNamespace> namespaces;
 		owning_vector<ASTUsingDecl> use;
 		owning_vector<ASTAssert> asserts;

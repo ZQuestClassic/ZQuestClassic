@@ -569,9 +569,17 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 			// Inline the constant if possible.
 			isConstant = host.getInitializer()->getCompileTimeValue(this, scope).has_value();
 			//The dataType is constant, but the initializer is not. This is not allowed in Global or Script scopes, as it causes crashes. -V
-			if(!isConstant && (scope->isGlobal() || scope->isScript()))
+			if(!isConstant && (scope->isGlobal() || scope->isScript() || scope->isClass()))
 			{
 				handleError(CompileError::ConstNotConstant(&host, host.name));
+				return;
+			}
+		}
+		else if(parsing_user_class)
+		{
+			if(host.getInitializer())
+			{
+				handleError(CompileError::ClassNoInits(&host, host.name));
 				return;
 			}
 		}
@@ -792,6 +800,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 	host.func = function;
 
 	scope = oldScope;
+	if(breakRecursion(host)) return;
 	// If adding it failed, it means this scope already has a function with
 	// that name.
 	if (function == NULL)
@@ -805,7 +814,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 }
 #include "ffscript.h"
 extern FFScript FFCore;
-void SemanticAnalyzer::caseScript(ASTScript& host, void*)
+void SemanticAnalyzer::caseScript(ASTScript& host, void* param)
 {
 	if(!host.script)
 	{
@@ -815,7 +824,7 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 	Script& script = *host.script;
 	string name = script.getName();
 	scope = &script.getScope();
-	RecursiveVisitor::caseScript(host);
+	RecursiveVisitor::caseScript(host, param);
 	scope = scope->getParent();
 	if(script.getType() == ScriptType::untyped) return;
 	
@@ -840,6 +849,62 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 		if (breakRecursion(host)) return;
 	}
 	script.setRun(possibleRuns[0]);
+}
+
+void SemanticAnalyzer::caseClass(ASTClass& host, void* param)
+{
+	UserClass& user_class = host.user_class ? *host.user_class : *(host.user_class = program.addClass(host, *scope, this));
+	if (breakRecursion(host)) return;
+	
+	string name = user_class.getName();
+
+	// Recurse on user_class elements with its scope.
+	scope = &user_class.getScope();
+	parsing_user_class = true;
+	block_visit(host, host.options, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	block_visit(host, host.use, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	block_visit(host, host.types, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	block_visit(host, host.variables, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	block_visit(host, host.functions, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	block_visit(host, host.constructors, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	visit(host.destructor.get(), param);
+	parsing_user_class = false;
+	scope = scope->getParent();
+	if (breakRecursion(host)) return;
+	//
+	for (auto it = host.constructors.cbegin();
+		 it != host.constructors.cend(); ++it)
+	{
+		ASTFuncDecl const* func = *it;
+		if(func->func)
+			zconsole_db("[Con] %s", func->func->getSignature().asString().c_str());
+		if(func->name.compare(name)) //mismatch name
+		{
+			handleError(CompileError::NameMismatchC(&host, func->name.c_str(), name.c_str()));
+			return;
+		}
+	}
+	if(ASTFuncDecl const* func = host.destructor.get())
+	{
+		if(func->func)
+			zconsole_db("[Des] %s", func->func->getSignature().asString().c_str());
+		if(func->name.compare(name)) //mismatch name
+		{
+			handleError(CompileError::NameMismatchD(&host, func->name.c_str(), name.c_str()));
+			return;
+		}
+		if(func->parameters.size()) //Destructor must have no params
+		{
+			handleError(CompileError::DestructorParam(&host, name.c_str()));
+			return;
+		}
+	}
 }
 
 void SemanticAnalyzer::caseNamespace(ASTNamespace& host, void*)

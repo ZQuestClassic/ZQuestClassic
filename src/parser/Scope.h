@@ -31,6 +31,7 @@ namespace ZScript
 
 	// ZScript.h
 	class Script;
+	class UserClass;
 	class Datum;
 	class Namespace;
 	class Function;
@@ -41,6 +42,7 @@ namespace ZScript
 	class RootScope;
 	class FileScope;
 	class ScriptScope;
+	class ClassScope;
 	class FunctionScope;
 	class NamespaceScope;
 
@@ -62,6 +64,7 @@ namespace ZScript
 		virtual bool isGlobal() const {return false;}
 		virtual bool isRoot() const {return false;}
 		virtual bool isScript() const {return false;}
+		virtual bool isClass() const {return false;}
 		virtual bool isFunction() const {return false;}
 		virtual bool isNamespace() const {return false;}
 		virtual bool isFile() const {return false;}
@@ -79,6 +82,7 @@ namespace ZScript
 		virtual std::vector<Scope*> getChildren() const = 0;
 		virtual FileScope* getFile() const = 0;
 		virtual ScriptScope* getScript() = 0;
+		virtual ClassScope* getClass() = 0;
 		virtual int32_t useNamespace(std::string name, bool noUsing) = 0;
 		virtual int32_t useNamespace(std::vector<std::string> names, std::vector<std::string> delimiters, bool noUsing) = 0;
 	
@@ -112,6 +116,7 @@ namespace ZScript
 		virtual Scope* makeChild(std::string const& name) = 0;
 		virtual FileScope* makeFileChild(std::string const& filename) = 0;
 		virtual ScriptScope* makeScriptChild(Script& script) = 0;
+		virtual ClassScope* makeClassChild(UserClass& user_class) = 0;
 		virtual NamespaceScope* makeNamespaceChild(ASTNamespace& node) = 0;
 		virtual FunctionScope* makeFunctionChild(Function& function) = 0;
 		virtual DataType const* addDataType(
@@ -301,6 +306,7 @@ namespace ZScript
 		virtual std::vector<Scope*> getChildren() const;
 		virtual FileScope* getFile() const {return parentFile_;}
 		virtual ScriptScope* getScript();
+		virtual ClassScope* getClass();
 		virtual int32_t useNamespace(std::string name, bool noUsing);
 		virtual int32_t useNamespace(std::vector<std::string> names, std::vector<std::string> delimiters, bool noUsing);
 	
@@ -333,6 +339,7 @@ namespace ZScript
 		virtual Scope* makeChild(std::string const& name);
 		virtual FileScope* makeFileChild(std::string const& filename);
 		virtual ScriptScope* makeScriptChild(Script& script);
+		virtual ClassScope* makeClassChild(UserClass& user_class);
 		virtual NamespaceScope* makeNamespaceChild(ASTNamespace& node);
 		virtual FunctionScope* makeFunctionChild(Function& function);
 		virtual DataType const* addDataType(
@@ -409,6 +416,7 @@ namespace ZScript
 		// present there as well.
 		virtual Scope* makeChild(std::string const& name);
 		virtual ScriptScope* makeScriptChild(Script& script);
+		virtual ClassScope* makeClassChild(UserClass& user_class);
 		virtual NamespaceScope* makeNamespaceChild(ASTNamespace& node);
 		virtual DataType const* addDataType(
 				std::string const& name, DataType const* type,
@@ -514,6 +522,21 @@ namespace ZScript
 		ScriptScope(Scope* parent, FileScope* parentFile, Script& script);
 		virtual bool isScript() const {return true;}
 		Script& script;
+	};
+	class ClassScope : public BasicScope
+	{
+	public:
+		ClassScope(Scope* parent, FileScope* parentFile, UserClass& user_class);
+		virtual bool isClass() const {return true;}
+		UserClass& user_class;
+		
+		virtual Function* addFunction(
+				DataType const* returnType, std::string const& name,
+				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
+				int32_t flags = 0, ASTFuncDecl* node = NULL, CompileErrorHandler* handler = NULL);
+	private:
+		std::map<FunctionSignature, Function*> constructorsBySignature_;
+		Function* destructor_;
 	};
 
 	class FunctionScope : public BasicScope

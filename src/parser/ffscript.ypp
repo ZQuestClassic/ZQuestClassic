@@ -98,6 +98,7 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 
  // Keywords
 %token SCRIPT
+%token ZCLASS
 %token FOR
 %token IF
 %token ELSE
@@ -131,6 +132,7 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 %token UNLESS
 %token REPEAT
 %token INLINE
+%token STATIC
 %token CASSERT
 
  // Types
@@ -283,6 +285,7 @@ Global_Statement :
 	| Function {$$ = $1;}
 	| Script {$$ = $1;}
 	| Annotated_Script {$$ = $1;}
+	| Class {$$ = $1;}
 	| DataEnum SEMICOLON {$$ = $1;}
 	| Using SEMICOLON {$$ = $1;}
 	| AlwaysUsing SEMICOLON {$$ = $1;}
@@ -398,6 +401,7 @@ Namespace_Statement :
 	| Function {$$ = $1;}
 	| Script {$$ = $1;}
 	| Annotated_Script {$$ = $1;}
+	| Class {$$ = $1;}
 	| DataEnum SEMICOLON {$$ = $1;}
 	| Using SEMICOLON {$$ = $1;}
 	| Statement_Assert SEMICOLON {$$ = $1;}
@@ -684,7 +688,23 @@ Data_Element_Array_Element_Size_List :
 // Function Declaration
 
 Function :
-	INLINE Function
+	STATIC Function
+	{
+		ASTFuncDecl* func = (ASTFuncDecl*)$2;
+		if(func->getFlag(FUNCFLAG_STATIC))
+		{
+			func->setFlag(FUNCFLAG_INVALID);
+			func->invalidMsg += " Duplicate `static`.";
+		}
+		else if(func->getFlag(FUNCFLAG_DESTRUCTOR|FUNCFLAG_CONSTRUCTOR))
+		{
+			func->setFlag(FUNCFLAG_INVALID);
+			func->invalidMsg += " Constructors and destructors cannot be static.";
+		}
+		else func->setFlag(FUNCFLAG_STATIC);
+		$$ = func;
+	}
+	| INLINE Function
 	{
 		ASTFuncDecl* func = (ASTFuncDecl*)$2;
 		if(func->getFlag(FUNCFLAG_INLINE))
@@ -708,59 +728,57 @@ Function :
 		func->block = block;
 		func->location = @$;
 		$$ = func;}
-	| DataType Identifier_List LPAREN RPAREN Statement_Block {
+	| DataType Function_Typeless {
 		ASTDataType* returnType = (ASTDataType*)$1;
-		ASTExprIdentifier* iden = (ASTExprIdentifier*)$2;
-		ASTBlock* block = (ASTBlock*)$5;
-		ASTFuncDecl* func = new ASTFuncDecl(@$);
+		ASTFuncDecl* func = (ASTFuncDecl*)$2;
 		func->returnType = returnType;
+		$$ = func;}
+	;
+
+Function_Typeless :
+	Identifier_List LPAREN RPAREN Statement_Block {
+		ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;
+		ASTBlock* block = (ASTBlock*)$4;
+		ASTFuncDecl* func = new ASTFuncDecl(@$);
 		func->iden = iden;
 		func->name = iden->components.back();
 		func->block = block;
 		$$ = func;}
-	| DataType Identifier_List LPAREN Function_Parameters_List RPAREN SEMICOLON {
-		ASTDataType* returnType = (ASTDataType*)$1;
-		ASTExprIdentifier* iden = (ASTExprIdentifier*)$2;
-		ASTFuncDecl* func = (ASTFuncDecl*)$4;
-		ASTBlock* block = (ASTBlock*)$6;
-		func->returnType = returnType;
+	| Identifier_List LPAREN Function_Parameters_List RPAREN SEMICOLON {
+		ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;
+		ASTFuncDecl* func = (ASTFuncDecl*)$3;
+		ASTBlock* block = (ASTBlock*)$5;
 		func->iden = iden;
 		func->name = iden->components.back();
 		func->prototype = true;
 		func->defaultReturn = new ASTExprConst(new ASTExprCast(new ASTDataType(DataType::CUNTYPED, @$), new ASTNumberLiteral(new ASTFloat(0, 0, @$), @$), @$), @$);
 		func->location = @$;
 		$$ = func;}
-	| DataType Identifier_List LPAREN RPAREN SEMICOLON {
-		ASTDataType* returnType = (ASTDataType*)$1;
-		ASTExprIdentifier* iden = (ASTExprIdentifier*)$2;
+	| Identifier_List LPAREN RPAREN SEMICOLON {
+		ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;
 		ASTFuncDecl* func = new ASTFuncDecl(@$);
-		func->returnType = returnType;
 		func->iden = iden;
 		func->name = iden->components.back();
 		func->prototype = true;
 		func->defaultReturn = new ASTExprConst(new ASTExprCast(new ASTDataType(DataType::CUNTYPED, @$), new ASTNumberLiteral(new ASTFloat(0, 0, @$), @$), @$), @$);
 		$$ = func;}
-	| DataType Identifier_List LPAREN Function_Parameters_List RPAREN COLON DEFAULT Expression_Constant SEMICOLON {
-		ASTDataType* returnType = (ASTDataType*)$1;
-		ASTExprIdentifier* iden = (ASTExprIdentifier*)$2;
-		ASTFuncDecl* func = (ASTFuncDecl*)$4;
-		ASTBlock* block = (ASTBlock*)$6;
-		func->returnType = returnType;
-		func->iden = iden;
-		func->name = iden->components.back();
-		func->prototype = true;
-		func->defaultReturn = (ASTExprConst*)$8;
-		func->location = @$;
-		$$ = func;}
-	| DataType Identifier_List LPAREN RPAREN COLON DEFAULT Expression_Constant SEMICOLON {
-		ASTDataType* returnType = (ASTDataType*)$1;
-		ASTExprIdentifier* iden = (ASTExprIdentifier*)$2;
-		ASTFuncDecl* func = new ASTFuncDecl(@$);
-		func->returnType = returnType;
+	| Identifier_List LPAREN Function_Parameters_List RPAREN COLON DEFAULT Expression_Constant SEMICOLON {
+		ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;
+		ASTFuncDecl* func = (ASTFuncDecl*)$3;
+		ASTBlock* block = (ASTBlock*)$5;
 		func->iden = iden;
 		func->name = iden->components.back();
 		func->prototype = true;
 		func->defaultReturn = (ASTExprConst*)$7;
+		func->location = @$;
+		$$ = func;}
+	| Identifier_List LPAREN RPAREN COLON DEFAULT Expression_Constant SEMICOLON {
+		ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;
+		ASTFuncDecl* func = new ASTFuncDecl(@$);
+		func->iden = iden;
+		func->name = iden->components.back();
+		func->prototype = true;
+		func->defaultReturn = (ASTExprConst*)$6;
 		$$ = func;}
 	;
 
@@ -806,6 +824,128 @@ Function_OptParams_List :
 			push_front(func->parameters, param);
 			push_front(func->optparams, cval);
 			$$ = func;}
+	;
+
+////////////////////////////////////////////////////////////////
+// Class Declaration
+Class :
+	ZCLASS IDENTIFIER Class_Block {
+		ASTString* name = (ASTString*)$2;
+		ASTClass* user_class = (ASTClass*)$3;
+		user_class->name = name->getValue();
+		user_class->location = @$;
+		$$ = user_class;
+		delete name;}
+	;
+
+Class_Block :
+	LBRACE Class_Block_List RBRACE {$$ = $2;}
+	| LBRACE RBRACE {$$ = new ASTClass(@$);}
+	;
+
+Class_Block_List :
+	Class_Block_List Class_Block_Element {
+		ASTClass* user_class = (ASTClass*)$1;
+		ASTDecl* declaration = (ASTDecl*)$2;
+		user_class->addDeclaration(*declaration);
+		user_class->location = @$;
+		$$ = user_class;}
+	| Class_Block_List Option {
+		ASTClass* user_class = (ASTClass*)$1;
+		ASTSetOption* option = (ASTSetOption*)$2;
+		user_class->options.push_back(option);
+		user_class->location = @$;
+		$$ = user_class;
+		if (!user_class->variables.empty()
+		    || !user_class->functions.empty()
+		    || !user_class->types.empty()) {
+			yywarn("WARNING: Options should come before everything else.");}}
+	| Class_Block_List Class_Constructor {
+		ASTClass* user_class = (ASTClass*)$1;
+		ASTFuncDecl* func = (ASTFuncDecl*)$2;
+		user_class->constructors.push_back(func);
+		$$ = user_class;}
+	| Class_Block_List Class_Destructor {
+		ASTClass* user_class = (ASTClass*)$1;
+		ASTFuncDecl* func = (ASTFuncDecl*)$2;
+		if(user_class->destructor)
+		{
+			auto const& loc = func->location;
+			yyerrmsg("Class can only have one destructor!",loc.first_line,loc.first_column,func->name.c_str());
+			delete func;
+		}
+		else user_class->destructor = func;
+		$$ = user_class;}
+	| Class_Block_Element {
+		ASTClass* user_class = new ASTClass(@$);
+		ASTDecl* declaration = (ASTDecl*)$1;
+		user_class->addDeclaration(*declaration);
+		$$ = user_class;}
+	| Option {
+		ASTClass* user_class = new ASTClass(@$);
+		ASTSetOption* option = (ASTSetOption*)$1;
+		user_class->options.push_back(option);
+		$$ = user_class;}
+	| Class_Constructor {
+		ASTClass* user_class = new ASTClass(@$);
+		ASTFuncDecl* func = (ASTFuncDecl*)$1;
+		user_class->constructors.push_back(func);
+		$$ = user_class;}
+	| Class_Destructor {
+		ASTClass* user_class = new ASTClass(@$);
+		ASTFuncDecl* func = (ASTFuncDecl*)$1;
+		if(user_class->destructor)
+		{
+			auto const& loc = func->location;
+			yyerrmsg("Class can only have one destructor!",loc.first_line,loc.first_column,func->name.c_str());
+			delete func;
+		}
+		else user_class->destructor = func;
+		$$ = user_class;}
+	;
+
+Class_Constructor :
+	Function_Typeless {
+		ASTFuncDecl* func = (ASTFuncDecl*)$1;
+		ASTDataType* returnType = new ASTDataType(DataType::ZVOID, @$);
+		func->returnType = returnType;
+		func->setFlag(FUNCFLAG_CONSTRUCTOR|FUNCFLAG_CLASSFUNC);
+		if(func->getFlag(FUNCFLAG_STATIC))
+		{
+			func->setFlag(FUNCFLAG_INVALID);
+			func->invalidMsg += " Constructors and destructors cannot be static.";
+		}
+		$$ = func;}
+	;
+Class_Destructor :
+	BITNOT Function_Typeless {
+		ASTFuncDecl* func = (ASTFuncDecl*)$2;
+		ASTDataType* returnType = new ASTDataType(DataType::ZVOID, @$);
+		func->returnType = returnType;
+		func->setFlag(FUNCFLAG_DESTRUCTOR|FUNCFLAG_CLASSFUNC);
+		if(func->getFlag(FUNCFLAG_STATIC))
+		{
+			func->setFlag(FUNCFLAG_INVALID);
+			func->invalidMsg += " Constructors and destructors cannot be static.";
+		}
+		$$ = func;}
+	;
+
+Class_Block_Element :
+	Data SEMICOLON {$$ = $1;}
+	| Function {
+		ASTFuncDecl* func = (ASTFuncDecl*)$1;
+		func->setFlag(FUNCFLAG_CLASSFUNC);
+		$$ = func;}
+	| DataTypeDef SEMICOLON {$$ = $1;}
+	| DataEnum SEMICOLON {$$ = $1;}
+	| Using SEMICOLON {$$ = $1;}
+	| Statement_Assert SEMICOLON {$$ = $1;}
+	| EXPECTERROR LPAREN Expression_Constant RPAREN Class_Block_Element {
+		ASTExprConst* errorId = (ASTExprConst*)$3;
+		ASTDecl* declaration = (ASTDecl*)$5;
+		declaration->compileErrorCatches.push_back(errorId);
+		$$ = declaration;}
 	;
 
 ////////////////////////////////////////////////////////////////

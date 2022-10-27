@@ -27,6 +27,7 @@ namespace ZScript
 		void caseSetOption(ASTSetOption& host, void* param = NULL);
 		// Declarations
 		void caseScript(ASTScript& host, void* param = NULL);
+		void caseClass(ASTClass& host, void* param = NULL);
 		void caseNamespace(ASTNamespace& host, void* param = NULL);
 		void caseImportDecl(ASTImportDecl& host, void* param = NULL);
 		void caseIncludePath(ASTIncludePath& host, void* param = NULL);
