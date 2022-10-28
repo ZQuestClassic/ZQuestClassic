@@ -684,8 +684,7 @@ namespace ZScript
 		void addDeclaration(ASTDecl& declaration);
 
 		owning_ptr<ASTScriptType> type;
-		std::string name;
-		std::string author;
+		zasm_meta metadata;
 		owning_vector<ASTSetOption> options;
 		owning_vector<ASTDataDeclList> variables;
 		owning_vector<ASTFuncDecl> functions;
@@ -746,10 +745,13 @@ namespace ZScript
 		bool isInclude() const {return include_;}
 		bool wasChecked() const {return checked;}
 		void check() {checked = true;}
+		bool wasValidated() const {return validated;}
+		void validate() {validated = true;}
 	
 	private:
 		std::string filename_;
 		bool checked;
+		bool validated;
 		bool include_;
 		owning_ptr<ASTFile> tree_;
 	};

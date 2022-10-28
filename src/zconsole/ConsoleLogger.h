@@ -3,7 +3,10 @@
 
 #include "base/zdefs.h"
 #include "base/process_management.h"
+
+#ifndef __EMSCRIPTEN__
 #include <allegro5/allegro_native_dialog.h>
+#endif
 
 #if !defined(AFX_CONSOLELOGGER_H__294FDF9B_F91E_4F6A_A953_700181DD1996__INCLUDED_)
 #define AFX_CONSOLELOGGER_H__294FDF9B_F91E_4F6A_A953_700181DD1996__INCLUDED_
@@ -273,7 +276,9 @@ public:
 
 protected:
 	char	m_name[64];
+#ifndef __EMSCRIPTEN__
 	ALLEGRO_TEXTLOG* m_textlog;
+#endif
 	bool kill_on_close;
 
 	// you can extend this class by overriding the function

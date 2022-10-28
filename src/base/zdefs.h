@@ -2836,7 +2836,7 @@ struct mapscr
 #define SCRIPT_FORMAT_DISASSEMBLED	2
 #define SCRIPT_FORMAT_ZASM			3
 
-#define METADATA_V			2
+#define METADATA_V			5
 #define V_COMPILER_FIRST	BUILDTM_YEAR
 #define V_COMPILER_SECOND	BUILDTM_MONTH
 #define V_COMPILER_THIRD	BUILDTM_DAY
@@ -2848,12 +2848,23 @@ struct zasm_meta
 	word meta_v;
 	word ffscript_v;
 	byte script_type;
-	char run_idens[8][33];
+	std::string run_idens[8];
 	byte run_types[8];
 	byte flags;
 	word compiler_v1, compiler_v2, compiler_v3, compiler_v4;
-	char script_name[33];
-	char author[33];
+	std::string script_name;
+	std::string author;
+	std::string attributes[10];
+	std::string attribytes[8];
+	std::string attrishorts[8];
+	std::string usrflags[16];
+	std::string attributes_help[10];
+	std::string attribytes_help[8];
+	std::string attrishorts_help[8];
+	std::string usrflags_help[16];
+	std::string initd[8];
+	std::string initd_help[8];
+	int8_t initd_type[8];
 	
 	void setFlag(byte flag)
 	{
@@ -2886,16 +2897,30 @@ struct zasm_meta
 		compiler_v2 = 0;
 		compiler_v3 = 0;
 		compiler_v4 = 0;
-		for(int32_t q = 0; q < 8; ++q)
+		for(int32_t q = 0; q < 16; ++q)
 		{
-			memset(&run_idens[q], 0, 33);
+			usrflags[q].clear();
+			usrflags_help[q].clear();
+			if(q > 9) continue;
+			attributes[q].clear();
+			attributes_help[q].clear();
+			if(q > 7) continue;
+			initd[q].clear();
+			initd_help[q].clear();
+			initd_type[q] = -1;
+			run_idens[q].clear();
 			run_types[q] = ZMETA_NULL_TYPE;
+			attribytes[q].clear();
+			attribytes_help[q].clear();
+			attrishorts[q].clear();
+			attrishorts_help[q].clear();
 		}
-		memset(&script_name, 0, 33);
-		memset(&author, 0, 33);
+		script_name.clear();
+		author.clear();
 	}
-	void autogen()
+	void autogen(bool clears = true)
 	{
+		if(clears) zero();
 		zasm_v = ZASM_VERSION;
 		meta_v = METADATA_V;
 		ffscript_v = V_FFSCRIPT;
@@ -2909,24 +2934,42 @@ struct zasm_meta
 	{
 		zero();
 	}
+	~zasm_meta()
+	{
+		
+	}
 	zasm_meta& operator=(zasm_meta const& other)
 	{
 		zasm_v = other.zasm_v;
 		meta_v = other.meta_v;
 		ffscript_v = other.ffscript_v;
 		script_type = other.script_type;
-		for(int32_t q = 0; q < 8; ++q)
+		for(auto q = 0; q < 16; ++q)
 		{
-			memcpy(&run_idens[q], &(other.run_idens[q]), 33);
+			usrflags[q] = other.usrflags[q];
+			usrflags_help[q] = other.usrflags_help[q];
+			if(q > 9) continue;
+			attributes[q] = other.attributes[q];
+			attributes_help[q] = other.attributes_help[q];
+			if(q > 7) continue;
+			initd[q] = other.initd[q];
+			initd_help[q] = other.initd_help[q];
+			initd_type[q] = other.initd_type[q];
+			run_idens[q] = other.run_idens[q];
 			run_types[q] = other.run_types[q];
+			attribytes[q] = other.attribytes[q];
+			attribytes_help[q] = other.attribytes_help[q];
+			attrishorts[q] = other.attrishorts[q];
+			attrishorts_help[q] = other.attrishorts_help[q];
+			if(q > 3) continue;
 		}
 		flags = other.flags;
 		compiler_v1 = other.compiler_v1;
 		compiler_v2 = other.compiler_v2;
 		compiler_v3 = other.compiler_v3;
 		compiler_v4 = other.compiler_v4;
-		memcpy(&script_name, &(other.script_name),33);
-		memcpy(&author, &(other.author),33);
+		script_name = other.script_name;
+		author = other.author;
 		return *this;
 	}
 	bool operator==(zasm_meta const& other) const
@@ -2940,16 +2983,40 @@ struct zasm_meta
 		if(compiler_v2 != other.compiler_v2) return false;
 		if(compiler_v3 != other.compiler_v3) return false;
 		if(compiler_v4 != other.compiler_v4) return false;
-		for(auto q = 0; q < 8; ++q)
+		for(auto q = 0; q < 16; ++q)
 		{
-			if(strcmp(run_idens[q], other.run_idens[q]))
+			if(usrflags[q].compare(other.usrflags[q]))
+				return false;
+			if(usrflags_help[q].compare(other.usrflags_help[q]))
+				return false;
+			if(q > 9) continue;
+			if(attributes[q].compare(other.attributes[q]))
+				return false;
+			if(attributes_help[q].compare(other.attributes_help[q]))
+				return false;
+			if(q > 7) continue;
+			if(initd[q].compare(other.initd[q]))
+				return false;
+			if(initd_help[q].compare(other.initd_help[q]))
+				return false;
+			if(initd_type[q] != other.initd_type[q])
+				return false;
+			if(run_idens[q].compare(other.run_idens[q]))
 				return false;
 			if(run_types[q] != other.run_types[q])
 				return false;
+			if(attribytes[q].compare(other.attribytes[q]))
+				return false;
+			if(attribytes_help[q].compare(other.attribytes_help[q]))
+				return false;
+			if(attrishorts[q].compare(other.attrishorts[q]))
+				return false;
+			if(attrishorts_help[q].compare(other.attrishorts_help[q]))
+				return false;
 		}
-		if(strcmp(script_name, other.script_name))
+		if(script_name.compare(other.script_name))
 			return false;
-		if(strcmp(author, other.author))
+		if(author.compare(other.author))
 			return false;
 		return true;
 	}
@@ -5515,6 +5582,77 @@ INLINE bool p_mputl(int32_t c,PACKFILE *f)
     return success;
 }
 
+INLINE bool p_getcstr(std::string *str, PACKFILE *f, bool keepdata)
+{
+	if(keepdata)
+		str->clear();
+	byte sz = 0;
+	if(!p_getc(&sz,f,keepdata))
+		return false;
+	if(sz) //string found
+	{
+		char dummy;
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!p_getc(&dummy,f,keepdata))
+				return false;
+			if(keepdata)
+				str->push_back(dummy);
+		}
+	}
+	return true;
+}
+INLINE bool p_putcstr(std::string const& str, PACKFILE *f)
+{
+	byte sz = byte(zc_min(255,str.size()));
+	if(!p_putc(sz,f))
+		return false;
+	if(sz)
+	{
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!p_putc(str.at(q),f))
+				return false;
+		}
+	}
+	return true;
+}
+INLINE bool p_getwstr(std::string *str, PACKFILE *f, bool keepdata)
+{
+	if(keepdata)
+		str->clear();
+	word sz = 0;
+	if(!p_igetw(&sz,f,keepdata))
+		return false;
+	if(sz) //string found
+	{
+		char dummy;
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!p_getc(&dummy,f,keepdata))
+				return false;
+			if(keepdata)
+				str->push_back(dummy);
+		}
+	}
+	return true;
+}
+INLINE bool p_putwstr(std::string const& str, PACKFILE *f)
+{
+	word sz = word(zc_min(65535,str.size()));
+	if(!p_iputw(sz,f))
+		return false;
+	if(sz)
+	{
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!p_putc(str.at(q),f))
+				return false;
+		}
+	}
+	return true;
+}
+
 INLINE bool isinRect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int32_t ry2)
 {
     return x>=rx1 && x<=rx2 && y>=ry1 && y<=ry2;
@@ -5664,6 +5802,8 @@ std::string generate_zq_about();
 
 void enter_sys_pal();
 void exit_sys_pal();
+
+enum {nswapDEC, nswapHEX, nswapLDEC, nswapLHEX, nswapBOOL, nswapMAX};
 
 #define SMART_WRAP(x, mod) (x < 0 ? ((mod-(-x%mod))%mod) : (x%mod))
 

@@ -119,6 +119,9 @@ set(ALLEGRO_LEGACY_SRC_A5_FILES
         src/a5/a5_system.c
         src/a5/a5_system_driver.c
         )
+if(NOT EMSCRIPTEN)
+        list(APPEND ALLEGRO_LEGACY_SRC_A5_FILES src/a5/a5_midi.c)
+endif()
 
 set(ALLEGRO_LEGACY_SRC_MIDIA5_FILES
         src/a5/midia5/midia5.c
@@ -130,7 +133,7 @@ set(ALLEGRO_LEGACY_SRC_MIDIA5_UNIX_FILES
 
 # local edit
 set(ALLEGRO_LEGACY_SRC_MIDIA5_SDL_FILES
-        src/a5/midia5/sdl/sdl_audio.c
+        src/a5/midia5/sdl/sdl_midi.c
 )
 
 set(ALLEGRO_LEGACY_SRC_MIDIA5_MACOS_FILES

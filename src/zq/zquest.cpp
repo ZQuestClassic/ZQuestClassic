@@ -69,6 +69,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "qst.h"
 #include "base/zsys.h"
 #include "base/zapp.h"
+#include "play_midi.h"
 #include "zcmusic.h"
 
 #include "midi.h"
@@ -98,6 +99,10 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include <stdio.h>
 #include <psapi.h>
 #pragma comment(lib, "psapi.lib") // Needed to avoid linker issues. -Z
+#endif
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
 #endif
 
 //SDL_Surface *sdl_screen;
@@ -168,6 +173,11 @@ uint8_t __isZQuest = 1; //Shared functionscan reference this. -Z
 
 #include "zqscale.h"
 #include "base/util.h"
+
+#ifdef __EMSCRIPTEN__
+#include "base/emscripten_utils.h"
+#endif
+
 using namespace util;
 
 using std::vector;
@@ -935,8 +945,10 @@ static MENU file_menu[] =
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&Import\t ",                 NULL,                      import_menu,              0,            NULL   },
 	{ (char *)"&Export\t ",                 NULL,                      export_menu,              0,            NULL   },
+#ifndef __EMSCRIPTEN__
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"E&xit\tESC",                 onExit,                    NULL,                     0,            NULL   },
+#endif
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -1108,7 +1120,7 @@ static MENU paste_item_menu[] =
 static MENU edit_menu[] =
 {
     { (char *)"&Undo\tU",                   onUndo,                    NULL,                     0,            NULL   },
-    { (char *)"&Redo\tY",                   onRedo,                    NULL,                     0,            NULL   },
+    { (char *)"&Redo\tCtrl+Y",              onRedo,                    NULL,                     0,            NULL   },
     { (char *)"&Copy\tC",                   onCopy,                    NULL,                     0,            NULL   },
     { (char *)"&Paste\tV",                  onPaste,                   NULL,                     0,            NULL   },
     { (char *)"Paste A&ll",                 onPasteAll,                NULL,                     0,            NULL   },
@@ -4374,7 +4386,8 @@ const char *tracknumlist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,255);
-        sprintf(track_number_str_buf,"%02d",index+1);
+        std::string name = zcmusic_get_track_name(zcmusic, index);
+        sprintf(track_number_str_buf,"%02d %s",index+1, name.c_str());
         return track_number_str_buf;
     }
     
@@ -4452,7 +4465,7 @@ int32_t playMusic()
             return D_O_K;
         }
         
-        stop_midi();
+        zc_stop_midi();
         
         if(zcmusic != NULL)
         {
@@ -4466,7 +4479,7 @@ int32_t playMusic()
             packfile_password("");
             if((song=load_midi(midipath))!=NULL)
             {
-                if(play_midi(song,true)==0)
+                if(zc_play_midi(song,true)==0)
                 {
                     etc_menu[8].flags =
                         commands[cmdPlayTune].flags = 0;
@@ -4583,7 +4596,7 @@ int32_t playTune19()
 
 int32_t playTune(int32_t pos)
 {
-    stop_midi();
+    zc_stop_midi();
     
     if(zcmusic != NULL)
     {
@@ -4592,9 +4605,9 @@ int32_t playTune(int32_t pos)
         zcmusic = NULL;
     }
     
-    if(play_midi((MIDI*)zcdata[THETRAVELSOFLINK_MID].dat,true)==0)
+    if(zc_play_midi((MIDI*)zcdata[THETRAVELSOFLINK_MID].dat,true)==0)
     {
-        midi_seek(pos);
+        zc_midi_seek(pos);
         
         etc_menu[8].flags = D_SELECTED;
         commands[cmdPlayTune].flags = 0;
@@ -4611,7 +4624,7 @@ int32_t playTune(int32_t pos)
 
 int32_t stopMusic()
 {
-    stop_midi();
+    zc_stop_midi();
     
     if(zcmusic != NULL)
     {
@@ -7620,6 +7633,9 @@ void refresh(int32_t flags)
     
     unscare_mouse();
     SCRFIX();
+#ifdef __EMSCRIPTEN__
+    all_render_screen();
+#endif
 }
 
 void select_scr()
@@ -8331,8 +8347,20 @@ void draw(bool justcset)
             }
         }
         
-        do_animations();
-        refresh(rALL);
+#ifdef __EMSCRIPTEN__
+		// TODO: fix this!
+		// For some reason this loop (even if a rest(1) is added) prevents the
+		// mouse thread from consuming events (or maybe it prevents SDL on the main
+		// thread from creating mouse events?). Breaking after a single iteration prevents
+		// this from locking up.
+		// This drawing code functions similarly like this, except click-and-drag
+		// will create multiple separate single edits in the undo history, rather than
+		// combining all of them.
+		break;
+#else
+		do_animations();
+		refresh(rALL);
+#endif
     }
 
     Map.FinishListCommand();
@@ -8684,6 +8712,7 @@ finished:
     while(gui_mouse_b())
     {
         /* do nothing */
+        rest(1);
     }
     
     showxypos_x=-1000;
@@ -8909,6 +8938,7 @@ finished:
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+        rest(1);
 	}
 }
 
@@ -12123,6 +12153,7 @@ int32_t d_scombo_proc(int32_t msg,DIALOG *d,int32_t c)
             while(gui_mouse_b())
             {
                 /* do nothing */
+                rest(1);
             }
             
             if(select_flag(f))
@@ -15850,6 +15881,7 @@ int32_t d_title_edit_proc(int32_t msg,DIALOG *d,int32_t c)
         while(gui_mouse_b())
         {
             /* do nothing */
+            rest(1);
         }
         
         break;
@@ -15994,6 +16026,7 @@ int32_t d_intro_edit_proc(int32_t msg,DIALOG *d,int32_t c)
         while(gui_mouse_b())
         {
             /* do nothing */
+            rest(1);
         }
         
         break;
@@ -18365,7 +18398,7 @@ void edit_tune(int32_t i)
         case 9:
             if(getname("Load tune","mid;nsf",NULL,temppath,true))
             {
-                stop_midi();
+                zc_stop_midi();
                 
                 if(data!=NULL && data!=customtunes[i].data)
                 {
@@ -18397,18 +18430,18 @@ void edit_tune(int32_t i)
             break;
             
         case 10:
-            stop_midi();
+            zc_stop_midi();
             break;
             
         case 12:
             if(midi_pos>0)
             {
                 int32_t pos=midi_pos;
-                stop_midi();
+                zc_stop_midi();
                 midi_loop_start = -1;
                 midi_loop_end = -1;
-                play_midi((MIDI*)data,loop);
-                set_volume(-1,volume);
+                zc_play_midi((MIDI*)data,loop);
+                zc_set_volume(-1,volume);
                 midi_loop_start = loop_start;
                 midi_loop_end = loop_end;
                 
@@ -18423,7 +18456,7 @@ void edit_tune(int32_t i)
                 
                 if(pos>0)
                 {
-                    midi_seek(pos);
+                    zc_midi_seek(pos);
                 }
                 
                 break;
@@ -18435,11 +18468,11 @@ void edit_tune(int32_t i)
             if(midi_pos>0)
             {
                 int32_t pos=midi_pos;
-                stop_midi();
+                zc_stop_midi();
                 midi_loop_end = -1;
                 midi_loop_start = -1;
-                play_midi((MIDI*)data,loop);
-                set_volume(-1,volume);
+                zc_play_midi((MIDI*)data,loop);
+                zc_set_volume(-1,volume);
                 midi_loop_end = loop_end;
                 midi_loop_start = loop_start;
                 
@@ -18455,7 +18488,7 @@ void edit_tune(int32_t i)
                 
                 if(pos>0)
                 {
-                    midi_seek(pos);
+                    zc_midi_seek(pos);
                 }
                 
                 break;
@@ -18466,12 +18499,12 @@ void edit_tune(int32_t i)
         case 11:
         {
             int32_t pos=midi_pos;
-            stop_midi();
+            zc_stop_midi();
             midi_loop_start = -1;
             midi_loop_end = -1;
-            play_midi((MIDI*)data,loop);
-            set_volume(-1,volume);
-            midi_seek(pos<0?start:pos);
+            zc_play_midi((MIDI*)data,loop);
+            zc_set_volume(-1,volume);
+            zc_midi_seek(pos<0?start:pos);
             midi_loop_start = loop_start;
             midi_loop_end = loop_end;
         }
@@ -18480,7 +18513,7 @@ void edit_tune(int32_t i)
     }
     while(ret<26&&ret!=0);
     
-    stop_midi();
+    zc_stop_midi();
     
     if(ret==27)
     {
@@ -19242,6 +19275,7 @@ int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c)
         while(gui_mouse_b())
         {
             /* do nothing */
+            rest(1);
         }
     }
     break;
@@ -22260,6 +22294,7 @@ int32_t d_comboa_proc(int32_t msg,DIALOG *d,int32_t c)
             while(gui_mouse_b())
             {
                 /* do nothing */
+                rest(1);
             }
             
             return D_REDRAW;
@@ -24760,24 +24795,51 @@ int32_t jwin_zmeta_proc(int32_t msg, DIALOG *d, int32_t )
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
 				memset(buf, 0, sizeof(buf));
-				sprintf(buf, "Script Name: %s", meta.script_name);
+				sprintf(buf, "Script Name: %s", meta.script_name.c_str());
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
 				memset(buf, 0, sizeof(buf));
-				sprintf(buf, "Author: %s", meta.author);
+				sprintf(buf, "Author: %s", meta.author.c_str());
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
 				memset(buf, 0, sizeof(buf));
 				sprintf(buf, "Script Type: %s", get_script_name(meta.script_type).c_str());
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
+				for(auto q = 0; q < 4; ++q)
+				{
+					if(!meta.attributes[q].size())
+						continue;
+					memset(buf, 0, sizeof(buf));
+					sprintf(buf, "Attributes[%d]: %s", q, meta.attributes[q].c_str());
+					t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
+					d->w = zc_max(d->w, t_w);
+				}
+				for(auto q = 0; q < 8; ++q)
+				{
+					if(!meta.attribytes[q].size())
+						continue;
+					memset(buf, 0, sizeof(buf));
+					sprintf(buf, "Attribytes[%d]: %s", q, meta.attribytes[q].c_str());
+					t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
+					d->w = zc_max(d->w, t_w);
+				}
+				for(auto q = 0; q < 8; ++q)
+				{
+					if(!meta.attrishorts[q].size())
+						continue;
+					memset(buf, 0, sizeof(buf));
+					sprintf(buf, "Attrishorts[%d]: %s", q, meta.attrishorts[q].c_str());
+					t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
+					d->w = zc_max(d->w, t_w);
+				}
 				bool indentrun = false;
 				int32_t run_indent = txtout(NULL, "void run(", 0, 0, false);
 				std::ostringstream oss;
 				oss << "void run(";
 				for(int32_t q = 0; q < 8; ++q)
 				{
-					if(meta.run_idens[q][0] == 0 || meta.run_types[q] == ZMETA_NULL_TYPE) continue;
+					if(!meta.run_idens[q].size() || meta.run_types[q] == ZMETA_NULL_TYPE) continue;
 					if(q > 0)
 						oss << ", ";
 					string type_name = ZScript::getTypeName(meta.run_types[q]);
@@ -25408,6 +25470,7 @@ int32_t onCompileScript()
 {
 	compile_dlg[0].dp2 = lfont;
 	int32_t memuse = 0;
+    bool hasWarnErr = false;
 	#ifdef _WIN32
 	PROCESS_MEMORY_COUNTERS memCounter;
 	BOOL memresult = false;
@@ -25544,6 +25607,11 @@ int32_t onCompileScript()
 				map<string, ZScript::ScriptTypeID> stypes;
 				map<string, disassembled_script_data> scripts;
 				
+                std::string quest_rules_hex = get_qr_hexstr();
+                clock_t start_compile_time = clock();
+#ifdef __EMSCRIPTEN__
+                int32_t code = em_compile_zscript(tmpfilename, consolefilename, quest_rules_hex.c_str());
+#else
 				int32_t code = -9999;
 				if(!fileexists(ZSCRIPT_FILE))
 				{
@@ -25563,9 +25631,6 @@ int32_t onCompileScript()
 					box_start(1, "Compile Progress", lfont, sfont,true, 512, 280);
 				}
 
-				std::string quest_rules_hex = get_qr_hexstr();
-
-				clock_t start_compile_time = clock();
 				std::vector<std::string> args = {
 					"-input", tmpfilename,
 					"-console", consolefilename,
@@ -25588,30 +25653,42 @@ int32_t onCompileScript()
 				FILE *console = fopen(consolefilename, "r");
 				char buf4[512];
 				bool hasWarnErr = false;
+				bool running = true;
 				if (console) 
 				{
-					for(;;) //while (true)
+					while(running)
 					{
 						pm->read(&code, sizeof(int32_t));
-						if (code != ZC_CONSOLE_INFO_CODE && code != ZC_CONSOLE_ERROR_CODE && code != ZC_CONSOLE_WARN_CODE) break;
-						else
+						switch(code)
 						{
-							if(code != ZC_CONSOLE_INFO_CODE) hasWarnErr = true;
-							fseek(console, 0, SEEK_END);
-							current = ftell(console);
-							if (current != last) {
-								int amount = (current-last);
-								fseek(console, last, SEEK_SET);
-								last = current;
-								int end = fread(&buf4, sizeof(char), amount, console);
-								buf4[end] = 0;
-								ReadConsole(buf4, code);
-							}
-							pm->write(&code, sizeof(int32_t));
+							case ZC_CONSOLE_DB_CODE:
+							case ZC_CONSOLE_ERROR_CODE:
+							case ZC_CONSOLE_WARN_CODE:
+								hasWarnErr = true;
+								[[fallthrough]];
+							case ZC_CONSOLE_INFO_CODE:
+								fseek(console, 0, SEEK_END);
+								current = ftell(console);
+								if (current != last)
+								{
+									int amount = (current-last);
+									fseek(console, last, SEEK_SET);
+									last = current;
+									int end = fread(&buf4, sizeof(char), amount, console);
+									buf4[end] = 0;
+									ReadConsole(buf4, code);
+								}
+								pm->write(&code, sizeof(int32_t));
+								break;
+							default:
+								running = false;
+								break;
 						}
 					}
 				}
 				pm->read(&code, sizeof(int32_t));
+                delete pm;
+#endif
 				clock_t end_compile_time = clock();
 				
 				
@@ -25626,7 +25703,7 @@ int32_t onCompileScript()
 				sprintf(buf, "ZScript compilation: Returned code '%d' (%s)\n"
 					"Compile took %s seconds (%ld cycles)%s",
 					code, code ? "failure" : "success",
-					tmp, end_compile_time - start_compile_time,
+					tmp, (long)end_compile_time - start_compile_time,
 					code ? (!DisableCompileConsole?"\nCompilation failed. See console for details.":"\nCompilation failed.") : "");
 				
 				if(!code)
@@ -25640,7 +25717,7 @@ int32_t onCompileScript()
 				else if (DisableCompileConsole)
 				{
 					char buf3[256] = {0};
-					sprintf(buf3, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),end_compile_time - start_compile_time);
+					sprintf(buf3, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),(long)end_compile_time - start_compile_time);
 					box_out(buf3);
 					box_eol();
 					box_out("Compilation failed.");
@@ -25648,8 +25725,6 @@ int32_t onCompileScript()
 				}
 				compile_sfx(!code);
 				if (DisableCompileConsole) box_end(true);
-				
-				delete pm;
 				
 				bool cancel = code;
 				if (!DisableCompileConsole) 
@@ -26872,9 +26947,6 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 			case 0:
 			case 2:
 				//Cancel
-				if(tempfile!=NULL) fclose(tempfile);
-				
-				//return false;
 				goto exit_do_slots;
 				
 			case 3:
@@ -27440,10 +27512,10 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				}
 
 				clock_t end_assign_time = clock();
-				al_trace("Assign Slots took %lf seconds (%ld cycles)\n", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,end_assign_time-start_assign_time);
+				al_trace("Assign Slots took %lf seconds (%ld cycles)\n", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,(long)end_assign_time-start_assign_time);
 				char buf[256] = {0};
 				sprintf(buf, "ZScripts successfully loaded into script slots"
-					"\nAssign Slots took %lf seconds (%ld cycles)", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,end_assign_time-start_assign_time);
+					"\nAssign Slots took %lf seconds (%ld cycles)", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,(long)end_assign_time-start_assign_time);
 				//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
 				compile_finish_sample = vbound(zc_get_config("Compiler","compile_finish_sample",34),0,255);
 				compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",200),0,255);
@@ -27453,7 +27525,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 					sfx_voice[compile_finish_sample]=allocate_voice((SAMPLE*)sfxdata[compile_finish_sample].dat);
 					else sfx_voice[compile_finish_sample]=allocate_voice(&customsfxdata[compile_finish_sample]);
 					voice_set_volume(sfx_voice[compile_finish_sample], compile_audio_volume);
-					//set_volume(255,-1);
+					//zc_set_volume(255,-1);
 					//kill_sfx();
 					voice_start(sfx_voice[compile_finish_sample]);
 				}
@@ -27468,8 +27540,6 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				}
 				build_biffs_list();
 				build_biitems_list();
-				if(tempfile!=NULL) fclose(tempfile);
-				//return true;
 				retval = true;
 				goto exit_do_slots;
 			}
@@ -28355,15 +28425,18 @@ int32_t onImportZASM()
 	script_data *temp_slot = new script_data();
 	if(parse_script_file(&temp_slot, zasm_import_file, false) == D_CLOSE)
 	{
+		fclose(zasm_import_file);
 		jwin_alert("Error","Failed to parse specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
 		delete temp_slot;
 		return D_O_K;
 	}
-	char namebuf[33] = {0};
+	fclose(zasm_import_file);
+
+    std::string namebuf;
 	if(temp_slot->meta.valid()) //Found metadata
 	{
 		importzasm_dlg[3].d1 = getType(temp_slot->meta.script_type);
-		strcpy(namebuf, temp_slot->meta.script_name);
+		namebuf = temp_slot->meta.script_name;
 		switch(importzasm_dlg[3].d1)
 		{
 			default: //Shouldn't occur, but to be safe
@@ -28409,7 +28482,7 @@ int32_t onImportZASM()
 		importzasm_dlg[4].dp = (void*)&ffscript_list;
 		importzasm_dlg[4].d1 = 0;
 	}
-	importzasm_dlg[8].dp = (void*)namebuf;
+	importzasm_dlg[8].dp = (void*)namebuf.c_str();
 	bool confirmed = false;
 	int32_t indx = 1;
 	while(!confirmed)
@@ -28920,8 +28993,8 @@ bool saveWAV(int32_t slot, const char *filename)
 int32_t onEditSFX(int32_t index)
 {
 	kill_sfx();
-	stop_midi();
-	set_volume(255,-1);
+	zc_stop_midi();
+	zc_set_volume(255,-1);
 	int32_t ret;
 	sfx_edit_dlg[0].dp2=lfont;
 	uint8_t tempflag;
@@ -30213,6 +30286,9 @@ void custom_vsync()
     while(!myvsync) rest(1);
     
     all_mark_screen_dirty();
+#ifdef __EMSCRIPTEN__
+    all_render_screen();
+#endif
     
     myvsync=0;
     
@@ -30225,7 +30301,7 @@ void custom_vsync()
 void switch_out()
 {
     zcmusic_pause(zcmusic, ZCM_PAUSE);
-    midi_pause();
+    zc_midi_pause();
 }
 
 void switch_in()
@@ -30248,7 +30324,7 @@ void switch_in()
     
     screen=ts;
     zcmusic_pause(zcmusic, ZCM_RESUME);
-    midi_resume();
+    zc_midi_resume();
 }
 
 void Z_eventlog(const char *format,...)
@@ -30529,10 +30605,18 @@ int32_t main(int32_t argc,char **argv)
 	
 	
 	set_uformat(U_ASCII);
+
 	Z_message("Initializing Allegro... ");
-	
-	allegro_init();
-	three_finger_flag=false;
+	if(!al_init())
+	{
+		Z_error_fatal("Failed Init!");
+		quit_game();
+	}
+	if(allegro_init() != 0)
+	{
+		Z_error_fatal("Failed Init!");
+		quit_game();
+	}
 
 	// Merge old a4 config into a5 system config.
 	ALLEGRO_CONFIG *tempcfg = al_load_config_file(zc_get_standard_config_name());
@@ -30541,6 +30625,7 @@ int32_t main(int32_t argc,char **argv)
 		al_destroy_config(tempcfg);
 	}
 
+	three_finger_flag=false;
 	if(!al_init_image_addon())
 	{
 		Z_error_fatal("Failed al_init_image_addon");
@@ -30548,11 +30633,21 @@ int32_t main(int32_t argc,char **argv)
 	}
 
 	al5img_init();
+
+#ifdef __EMSCRIPTEN__
+	em_mark_initializing_status();
+	all_disable_threaded_display();
+	em_init_fs();
+#endif
 	
 	//set_config_file("ag.cfg");
 	zc_set_config_standard();
+
+#ifdef __EMSCRIPTEN__
 	if(zc_get_config("zquest","open_debug_console",0) || DEVLEVEL)
 		initConsole();
+#endif
+
 	if(install_timer() < 0)
 	{
 		Z_error_fatal(allegro_error);
@@ -31706,7 +31801,9 @@ int32_t main(int32_t argc,char **argv)
 		allegro_init();
 		three_finger_flag=false;
 
+#ifndef __EMSCRIPTEN__
 		al5img_init();
+#endif
 		
 		//set_config_file("ag.cfg");
 		zc_set_config_standard();
@@ -31830,6 +31927,13 @@ int32_t main(int32_t argc,char **argv)
 		enable_hardware_cursor();
 		select_mouse_cursor(MOUSE_CURSOR_ARROW);
 		show_mouse(screen);
+	}
+	else
+	{
+#ifdef _WIN32
+		while (!all_get_display()) rest(1);
+		al_hide_mouse_cursor(all_get_display());
+#endif
 	}
 
 	//check and log RTC date and time
@@ -31991,6 +32095,13 @@ int32_t main(int32_t argc,char **argv)
 	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
 	show_mouse(screen);
 	//Display annoying beta warning message
+
+#ifdef __EMSCRIPTEN__
+	em_mark_ready_status();
+#endif
+
+#ifndef __EMSCRIPTEN__
+
 #if V_ZC_ALPHA
 	char *curcontrol = getBetaControlString();
 	const char *oldcontrol = zc_get_config("zquest", "beta_warning", "");
@@ -32022,6 +32133,8 @@ int32_t main(int32_t argc,char **argv)
 
 	
 	delete[] curcontrol;
+#endif
+
 #endif
 	
 	// A bit of festivity
@@ -32129,9 +32242,24 @@ int32_t main(int32_t argc,char **argv)
 	get_palette(RAMpal);
 	
 	rgb_map = &zq_rgb_table;
-	
+
 	Map.setCurrMap(zinit.last_map);
 	Map.setCurrScr(zinit.last_screen);
+#ifdef __EMSCRIPTEN__
+	{
+		int qs_map = EM_ASM_INT({
+			return new URL(location.href).searchParams.get('map') ?? -1;
+		});
+		int qs_screen = EM_ASM_INT({
+			return new URL(location.href).searchParams.get('screen') ?? -1;
+		});
+		if (qs_map != -1 && qs_screen != -1) {
+			Map.setCurrMap(qs_map);
+			Map.setCurrScr(qs_screen);
+		}
+	}
+#endif
+
 	//  setup_combo_animations();
 	refresh(rALL);
 	brush_width_menu[0].flags=D_SELECTED;
@@ -32405,7 +32533,7 @@ void quit_game()
     last_timed_save[0]=0;
     save_config_file();
     set_palette(black_palette);
-    stop_midi();
+    zc_stop_midi();
     
     remove_locked_params_on_exit();
     
@@ -32588,7 +32716,7 @@ void quit_game2()
     last_timed_save[0]=0;
     save_config_file();
     set_palette(black_palette);
-    stop_midi();
+    zc_stop_midi();
     
     remove_locked_params_on_exit();
     
@@ -33112,6 +33240,7 @@ finished:
     while(gui_mouse_b())
     {
         /* do nothing */
+        rest(1);
     }
 }
 
@@ -33279,6 +33408,9 @@ int32_t save_config_file()
     
     
     flush_config_file();
+#ifdef __EMSCRIPTEN__
+    em_sync_fs();
+#endif
     free(datapath2);
     free(midipath2);
     free(imagepath2);
@@ -34149,6 +34281,9 @@ void update_hw_screen(bool force)
 		}
 		myvsync=0;
 		all_mark_screen_dirty();
+#ifdef __EMSCRIPTEN__
+		all_render_screen();
+#endif
 	}
 }
 
@@ -34221,4 +34356,36 @@ void enter_sys_pal(){}
 void exit_sys_pal(){}
 
 void replay_step_comment(std::string comment) {}
+bool replay_is_active() {return false;}
 bool replay_is_debug() {return false;}
+
+#ifdef __EMSCRIPTEN__
+extern "C" void open_test_mode()
+{
+	int dmap = -1;
+	int32_t pal = Map.getcolor();
+	for(auto q = 0; q < MAXDMAPS; ++q)
+	{
+		if(DMaps[q].map == Map.getCurrMap())
+		{
+			if(pal == DMaps[q].color)
+			{
+				dmap = q;
+				break;
+			}
+			if(dmap < 0)
+				dmap = q;
+		}
+	}
+	if(dmap < 0) dmap = 0;
+
+	em_open_test_mode(filepath, dmap, Map.getCurrScr(), -1);
+}
+
+extern "C" void get_shareable_url()
+{
+	EM_ASM({
+        ZC.setShareableUrl({quest: UTF8ToString($0), map: $1, screen: $2});
+	}, filepath, Map.getCurrMap(), Map.getCurrScr());
+}
+#endif

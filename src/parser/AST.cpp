@@ -705,7 +705,10 @@ ASTDecl::ASTDecl(LocationData const& location)
 // ASTScript
 
 ASTScript::ASTScript(LocationData const& location)
-	: ASTDecl(location), type(NULL), name(""), author(""), script(NULL) {}
+	: ASTDecl(location), type(NULL), script(NULL)
+{
+	metadata.autogen();
+}
 
 void ASTScript::execute(ASTVisitor& visitor, void* param)
 {
@@ -780,7 +783,8 @@ void ASTNamespace::execute(ASTVisitor& visitor, void* param)
 
 ASTImportDecl::ASTImportDecl(
 		string const& filename, LocationData const& location, bool isInclude)
-	: ASTDecl(location), filename_(filename), include_(isInclude), checked(false)
+	: ASTDecl(location), filename_(filename), include_(isInclude), checked(false),
+	validated(false)
 {}
 
 void ASTImportDecl::execute(ASTVisitor& visitor, void* param)

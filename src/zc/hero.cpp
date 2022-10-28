@@ -33,6 +33,7 @@
 #include "ffscript.h"
 #include "drawing.h"
 #include "combos.h"
+#include "base/zc_math.h"
 extern FFScript FFCore;
 extern word combo_doscript[176];
 extern byte itemscriptInitialised[256];
@@ -606,6 +607,7 @@ void HeroClass::Drown(int32_t state)
 	if(ladderx+laddery)
 		return;
 	
+	drop_liftwpn();
 	switch(state)
 	{
 		case 1:
@@ -2922,8 +2924,8 @@ attack:
 			ny=y;
 		}
 		
-		double tx = cos(a2)*53  +nx;
-		double ty = -sin(a2)*53 +ny+playing_field_offset;
+		double tx = zc::math::Cos(a2)*53  +nx;
+		double ty = -zc::math::Sin(a2)*53 +ny+playing_field_offset;
 		overtile8(dest,htile,int32_t(tx),int32_t(ty),1,0);
 		a2-=PI/4;
 		++hearts;
@@ -8986,6 +8988,7 @@ bool HeroClass::animate(int32_t)
 		//!DROWN
 		// Helpful comment to find drowning -Dimi
 		
+		drop_liftwpn();
 		if(--drownclk==0)
 		{
 			action=none; FFCore.setHeroAction(none);
@@ -9917,6 +9920,30 @@ bool HeroClass::do_jump(int32_t jumpid, bool passive)
 	if(passive) did_passive_jump = true;
 	return true;
 }
+void HeroClass::drop_liftwpn()
+{
+	if(!lift_wpn) return;
+	
+	handle_lift(false); //sets position properly, accounting for large weapons
+	auto liftid = current_item_id(itype_liftglove,true,true);
+	itemdata const& glove = itemsbuf[liftid];
+	if(glove.flags & ITEM_FLAG1)
+	{
+		lift_wpn->z = 0;
+		lift_wpn->fakez = liftheight;
+	}
+	else lift_wpn->z = liftheight;
+	lift_wpn->dir = dir;
+	lift_wpn->step = 0;
+	lift_wpn->fakefall = 0;
+	lift_wpn->fall = 0;
+	if(glove.flags & ITEM_FLAG1)
+		lift_wpn->moveflags |= FLAG_NO_REAL_Z;
+	else
+		lift_wpn->moveflags |= FLAG_NO_FAKE_Z;
+	Lwpns.add(lift_wpn);
+	lift_wpn = nullptr;
+}
 void HeroClass::do_liftglove(int32_t liftid, bool passive)
 {
 	if(liftid < 0)
@@ -10111,7 +10138,10 @@ void HeroClass::handle_lift(bool dec)
 			}
 			lift_wpn->z = liftheight;
 		}
-		if(!dec) {action = none; FFCore.setHeroAction(none);}
+		if(action == lifting)
+		{
+			action = none; FFCore.setHeroAction(none);
+		}
 		return;
 	}
 	if(dec) --liftclk;
@@ -12853,6 +12883,7 @@ void HeroClass::pitfall()
 {
 	if(fallclk)
 	{
+		drop_liftwpn();
 		if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
 		//Handle falling
 		if(!--fallclk)
@@ -12907,6 +12938,7 @@ void HeroClass::pitfall()
 			action=falling; FFCore.setHeroAction(falling);
 			spins = 0;
 			charging = 0;
+			drop_liftwpn();
 		}
 	}
 }
@@ -25079,7 +25111,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// 2) When scrolling between DMaps of different colours.
 	if(destdmap != -1 && DMaps[destdmap].color != currcset)
 	{
-		fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : DMaps[destdmap].color, true, false);
+		fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, false);
 		darkroom = true;
 	}
 	else if(!darkroom)

@@ -23,6 +23,7 @@ enum ReplayMode
     Assert,
     Update,
     ManualTakeover,
+    Snapshot,
 };
 
 void replay_start(ReplayMode mode_, std::string filename_);
@@ -38,6 +39,7 @@ void replay_save(std::string filename);
 void replay_stop_manual_takeover();
 
 void replay_step_comment(std::string comment);
+void replay_step_gfx(uint32_t gfx_hash);
 void replay_step_quit(int quit_state);
 void replay_step_cheat(Cheat cheat, int arg1 = -1, int arg2 = -1);
 
@@ -46,6 +48,7 @@ void replay_set_meta(std::string key, int value);
 void replay_set_meta_bool(std::string key, bool value);
 std::string replay_get_meta_str(std::string key);
 int replay_get_meta_int(std::string key);
+int replay_get_meta_int(std::string key, int defaultValue);
 bool replay_get_meta_bool(std::string key);
 
 ReplayMode replay_get_mode();

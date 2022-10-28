@@ -44,6 +44,7 @@ AL_LEGACY_FUNC(int, all_get_display_flags, (void));
 AL_LEGACY_FUNC(void, all_lock_screen, (void));
 AL_LEGACY_FUNC(void, all_unlock_screen, (void));
 AL_LEGACY_FUNC(void, all_mouse_is_ready, (bool));
+AL_LEGACY_FUNC(void, all_keyboard_queue_register_event_source, (ALLEGRO_EVENT_SOURCE *));
 
 #ifdef __cplusplus
 }

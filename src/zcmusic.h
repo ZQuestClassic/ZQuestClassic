@@ -14,10 +14,10 @@
 #define ZCM_EXTERN extern
 #endif
 #include <cstdint>
+#include <string>
 
-#ifdef __cplusplus
-extern "C"
-{
+#ifdef __EMSCRIPTEN__
+#include <SDL2/SDL_mixer.h>
 #endif
 
 #define ZCMF_DUH      0x00000001
@@ -44,6 +44,9 @@ typedef struct
     int32_t position;                                           // Only needed to sync Triforce jingle
     char filename[256];
     int32_t track;
+#ifdef __EMSCRIPTEN__
+    Mix_Music* mus;
+#endif
 } ZCMUSIC;
 
 ZCM_EXTERN ZCMUSIC* zcmusic_load_for_quest(char* filename, char* quest_path);
@@ -60,13 +63,10 @@ ZCM_EXTERN bool zcmusic_stop(ZCMUSIC* zcm);
 ZCM_EXTERN void zcmusic_unload_file(ZCMUSIC* &zcm);
 ZCM_EXTERN int32_t zcmusic_get_tracks(ZCMUSIC* zcm);
 ZCM_EXTERN int32_t zcmusic_change_track(ZCMUSIC* zcm, int32_t tracknum);
+ZCM_EXTERN std::string zcmusic_get_track_name(ZCMUSIC* zcm, int32_t tracknum);
 ZCM_EXTERN int32_t zcmusic_get_curpos(ZCMUSIC* zcm);
 ZCM_EXTERN void zcmusic_set_curpos(ZCMUSIC* zcm, int32_t value);
 ZCM_EXTERN void zcmusic_set_speed(ZCMUSIC* zcm, int32_t value);
-
-#ifdef __cplusplus
-}                                                           // extern "C"
-#endif
 
 #undef ZCM_EXTERN
 #endif

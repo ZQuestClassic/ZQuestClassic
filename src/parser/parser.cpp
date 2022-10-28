@@ -20,6 +20,7 @@ io_manager* ConsoleWrite;
 
 extern uint32_t zscript_failcode;
 extern bool zscript_had_warn_err;
+extern bool zscript_error_out;
 
 int32_t get_bit(byte const* bitstr,int32_t bit)
 {
@@ -37,10 +38,53 @@ int32_t used_switch(int32_t argc, char* argv[], const char* s)
 	return 0;
 }
 
+bool zparser_errored_out()
+{
+	return zscript_error_out;
+}
+void zparser_error_out()
+{
+	zscript_error_out = true;
+}
+
 static const int32_t WARN_COLOR = CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_GREEN;
 static const int32_t ERR_COLOR = CConsoleLoggerEx::COLOR_RED;
 static const int32_t INFO_COLOR = CConsoleLoggerEx::COLOR_WHITE;
 
+void zconsole_db(const char *format,...)
+{
+	zscript_had_warn_err = true;
+	//{
+	int32_t ret;
+	char tmp[1024];
+	
+	va_list argList;
+	va_start(argList, format);
+	#ifdef WIN32
+	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#else
+	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#endif
+	tmp[vbound(ret,0,1023)]=0;
+	
+	va_end(argList);
+	if(console_path.size())
+	{
+		FILE *console=fopen(console_path.c_str(), "a");
+		if(ConsoleWrite)
+			fprintf(console, "%s", tmp);
+		else
+			fprintf(console, "%s\r\n", tmp);
+		fclose(console);
+	}
+	if(ConsoleWrite)
+	{
+		int32_t errorcode = ZC_CONSOLE_DB_CODE;
+		ConsoleWrite->write(&errorcode, sizeof(int32_t));
+		ConsoleWrite->read(&errorcode, sizeof(int32_t));
+	}
+	else printf("%s\n", tmp);
+}
 void zconsole_warn(const char *format,...)
 {
 	zscript_had_warn_err = true;
@@ -312,7 +356,8 @@ int32_t main(int32_t argc, char **argv)
 			--q;
 	} //*/
 	unique_ptr<ZScript::ScriptsData> result(compile(script_path));
-	
+	if(!result)
+		zconsole_info("%s", "Failure!");
 	int32_t res = (result ? 0 : (zscript_failcode ? zscript_failcode : -1));
 	
 	if(linked)
@@ -321,7 +366,7 @@ int32_t main(int32_t argc, char **argv)
 		{
 			write_compile_data(result->scriptTypes, result->theScripts);
 		}
-		int32_t errorcode = -9995;
+		int32_t errorcode = ZC_CONSOLE_TERM_CODE;
 		cph->write(&errorcode, sizeof(int32_t));
 		cph->write(&res, sizeof(int32_t));
 		/*

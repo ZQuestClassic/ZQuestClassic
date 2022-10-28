@@ -914,6 +914,7 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
    clear_keybuf();
 
    do {
+      rest(1);
    } while (gui_mouse_b());
 
    stretch_dialog(file_selector, width, height);

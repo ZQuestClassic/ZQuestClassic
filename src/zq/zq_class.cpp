@@ -47,6 +47,11 @@
 #include "base/util.h"
 #include "zq_files.h"
 #include "dialog/alert.h"
+
+#ifdef __EMSCRIPTEN__
+#include "base/emscripten_utils.h"
+#endif
+
 using namespace util;
 extern FFScript FFCore;
 
@@ -6656,6 +6661,10 @@ int32_t reverse_string(char* str)
 
 int32_t quest_access(const char *filename, zquestheader *hdr, bool compressed)
 {
+#ifdef __EMSCRIPTEN__
+    return 1;
+#endif
+
     //Protection against compiling a release version with password protection off.
     static bool passguard = false;
     
@@ -12993,84 +13002,109 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_
     }
 	
 	//Metadata
-	if(!p_iputw((*script)->meta.zasm_v,f))
+	zasm_meta const& tmeta = (*script)->meta;
+	if(!p_iputw(tmeta.zasm_v,f))
 	{
 		new_return(7);
 	}
 	
-	if(!p_iputw((*script)->meta.meta_v,f))
+	if(!p_iputw(tmeta.meta_v,f))
 	{
 		new_return(8);
 	}
 	
-	if(!p_iputw((*script)->meta.ffscript_v,f))
+	if(!p_iputw(tmeta.ffscript_v,f))
 	{
 		new_return(9);
 	}
 	
-	if(!p_putc((*script)->meta.script_type,f))
+	if(!p_putc(tmeta.script_type,f))
 	{
 		new_return(10);
 	}
 	
 	for(int32_t q = 0; q < 8; ++q)
 	{
-		for(int32_t c = 0; c < 33; ++c)
-		{
-			if(!p_putc((*script)->meta.run_idens[q][c],f))
-			{
-				new_return(11);
-			}
-		}
+		if(!p_putcstr(tmeta.run_idens[q],f))
+			new_return(11);
 	}
 	
 	for(int32_t q = 0; q < 8; ++q)
 	{
-		if(!p_putc((*script)->meta.run_types[q],f))
+		if(!p_putc(tmeta.run_types[q],f))
 		{
 			new_return(12);
 		}
 	}
 	
-	if(!p_putc((*script)->meta.flags,f))
+	if(!p_putc(tmeta.flags,f))
 	{
 		new_return(13);
 	}
 	
-	if(!p_iputw((*script)->meta.compiler_v1,f))
+	if(!p_iputw(tmeta.compiler_v1,f))
 	{
 		new_return(14);
 	}
 	
-	if(!p_iputw((*script)->meta.compiler_v2,f))
+	if(!p_iputw(tmeta.compiler_v2,f))
 	{
 		new_return(15);
 	}
 	
-	if(!p_iputw((*script)->meta.compiler_v3,f))
+	if(!p_iputw(tmeta.compiler_v3,f))
 	{
 		new_return(16);
 	}
 	
-	if(!p_iputw((*script)->meta.compiler_v4,f))
+	if(!p_iputw(tmeta.compiler_v4,f))
 	{
 		new_return(17);
 	}
 	
-	for(int32_t c = 0; c < 33; ++c)
+	if(!p_putcstr(tmeta.script_name,f))
+		new_return(18);
+	if(!p_putcstr(tmeta.author,f))
+		new_return(19);
+	for(auto q = 0; q < 10; ++q)
 	{
-		if(!p_putc((*script)->meta.script_name[c],f))
-		{
-			new_return(18);
-		}
+		if(!p_putcstr(tmeta.attributes[q],f))
+			new_return(27);
+		if(!p_putwstr(tmeta.attributes_help[q],f))
+			new_return(28);
 	}
-	
-	for(int32_t c = 0; c < 33; ++c)
+	for(auto q = 0; q < 8; ++q)
 	{
-		if(!p_putc((*script)->meta.author[c],f))
-		{
-			new_return(19);
-		}
+		if(!p_putcstr(tmeta.attribytes[q],f))
+			new_return(29);
+		if(!p_putwstr(tmeta.attribytes_help[q],f))
+			new_return(30);
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(!p_putcstr(tmeta.attrishorts[q],f))
+			new_return(31);
+		if(!p_putwstr(tmeta.attrishorts_help[q],f))
+			new_return(32);
+	}
+	for(auto q = 0; q < 16; ++q)
+	{
+		if(!p_putcstr(tmeta.usrflags[q],f))
+			new_return(33);
+		if(!p_putwstr(tmeta.usrflags_help[q],f))
+			new_return(34);
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(!p_putcstr(tmeta.initd[q],f))
+			new_return(35);
+		if(!p_putwstr(tmeta.initd_help[q],f))
+			new_return(36);
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(!p_putc(tmeta.initd_type[q],f))
+			new_return(37);
 	}
 	
     for(int32_t j=0; j<num_commands; j++)
@@ -13127,7 +13161,7 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_
 				{
 					if(!p_iputl(zas.vecptr->at(q),f))
 					{
-						return qe_invalid;
+						new_return(26);
 					}
 				}
 			}
@@ -14342,6 +14376,10 @@ int32_t save_quest(const char *filename, bool timed_save)
 		
 		delete_file(tmpfilename);
 	}
+
+#ifdef __EMSCRIPTEN__
+	em_sync_fs();
+#endif
 	
 	return ret;
 }

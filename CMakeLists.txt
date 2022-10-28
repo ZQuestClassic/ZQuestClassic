@@ -112,7 +112,11 @@ add_subdirectory(allegro-legacy EXCLUDE_FROM_ALL)
 add_library(allegro_with_legacy INTERFACE)
 target_include_directories(allegro_with_legacy INTERFACE ${allegro5_SOURCE_DIR}/include ${allegro5_BINARY_DIR}/include)
 target_include_directories(allegro_with_legacy INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/allegro-legacy/include ${CMAKE_CURRENT_BINARY_DIR}/allegro-legacy/include)
-target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primitives allegro_image allegro_dialog allegro_main)
+target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primitives allegro_image allegro_main)
+
+if (NOT EMSCRIPTEN)
+	target_link_libraries(allegro_with_legacy INTERFACE allegro_dialog)
+endif()
 
 #############################################################
 # Header and source file lists
@@ -124,10 +128,17 @@ include_directories(./src)
 # TODO: remove
 include_directories(./src/zc)
 
-set(ZCSOUNDSOURCES
-	src/zcmusic.cpp
-	src/zcmusicd.cpp
-)
+if (EMSCRIPTEN)
+	set(ZCSOUNDSOURCES
+		src/zcmusic_sdl.cpp
+		src/zcmusicd.cpp
+	)
+else()
+	set(ZCSOUNDSOURCES
+		src/zcmusic.cpp
+		src/zcmusicd.cpp
+	)
+endif()
 
 set(ZELDA_MODULES
 	${CMAKE_SOURCE_DIR}/modules/zelda/ZeldaCore.txt
@@ -206,8 +217,6 @@ if(MSVC)
 	# Turn off warnings for all targets that aren't ours (set later in Misc. section)
 	add_compile_options(/W0)
 
-	# REQUIRED or else MSVC throws internal compiler error(!)
-	add_compile_options("$<$<CONFIG:RELEASE>:/fp:fast>")
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	
 	if(MSVC_VERSION GREATER 1600)
@@ -228,7 +237,19 @@ if(MSVC)
 		list(APPEND ZQUESTEXTRASOURCES src/precompiledzq.cpp)
 	endif()
 
-# Linux
+elseif(EMSCRIPTEN)
+	# link_directories(/usr/lib/i386-linux-gnu)
+	add_definitions(-DALLEGRO_LINUX) # Mistakenly used in the source.
+
+	# TODO: figure out media libraries. probably replace this with w/e SDL offers.
+	# set(IMAGELIBS algif ldpng jpgal png z)
+	# set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
+	# set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm dl)
+
+	add_compile_options("-m32")
+	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32 -static-libgcc -export-dynamic")
+	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32 -static-libgcc")
+
 elseif(LINUX)
 	link_directories(/usr/lib/i386-linux-gnu)
 	link_directories(./libs/linux)
@@ -238,9 +259,15 @@ elseif(LINUX)
 	set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
 	set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm dl)
 
-	add_compile_options("-m32")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32 -static-libgcc -export-dynamic")
 	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32 -static-libgcc")
+endif()
+
+if(MSVC)
+	# REQUIRED or else MSVC throws internal compiler error(!)
+	add_compile_options("/fp:fast")
+else(UNIX)
+	add_compile_options("-ffp-model=fast")
 endif()
 
 #############################################################
@@ -278,7 +305,7 @@ add_library(fmt STATIC
 )
 target_include_directories(fmt PUBLIC include/fmt)
 
-add_library(zcbase STATIC
+set(zcbase_sources
 	src/base/alleg_compat.cpp
 	src/base/colors.cpp
 	src/base/fonts.cpp
@@ -287,12 +314,17 @@ add_library(zcbase STATIC
 	src/base/module.cpp
 	src/base/process_management.cpp
 	src/base/random.cpp
+	src/base/sin1.cpp
 	src/base/util.cpp
 	src/base/win32.cpp
 	src/base/zapp.cpp
 	src/base/zdefs.cpp
 	src/base/zsys.cpp
 )
+if (EMSCRIPTEN)
+    list(APPEND zcbase_sources src/base/emscripten_utils.cpp)
+endif()
+add_library(zcbase STATIC ${zcbase_sources})
 target_link_libraries(zcbase PUBLIC allegro_with_legacy fmt)
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	target_link_options(zcbase PRIVATE "/WHOLEARCHIVE")
@@ -347,7 +379,7 @@ target_link_libraries(zconsolelogger PUBLIC allegro_with_legacy zcbase)
 # Sound Library
 #############################################################
 
-if(LINUX)
+if(LINUX OR EMSCRIPTEN)
 	# TODO: Build sound deps from source on linux.
 	set(BUILD_SOUND_LIBS_FROM_SOURCE OFF)
 else()
@@ -595,6 +627,17 @@ target_include_directories(al5_example PUBLIC ${allegro5_BINARY_DIR}/include)
 target_link_libraries(al5_example PRIVATE allegro_with_legacy allegro_font allegro_primitives)
 
 #############################################################
+# Emscripten
+#############################################################
+
+if (EMSCRIPTEN)
+	target_link_options(zelda PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_create_synthetic_key_event")
+	target_link_options(zquest PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_create_synthetic_key_event,_open_test_mode")
+	target_link_options(zscript PRIVATE "SHELL:-s PTHREAD_POOL_SIZE=1" "SHELL:-s EXTRA_EXPORTED_RUNTIME_METHODS=['FS','PROXYFS']")
+	set_target_properties(zscript PROPERTIES SUFFIX ".mjs")
+endif()
+
+#############################################################
 # Misc.
 #############################################################
 
@@ -651,7 +694,7 @@ endif()
 # Visual Studio
 #############################################################
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	# "Edit and Continue" functionality
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /ZI")
 	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /SAFESEH:NO")

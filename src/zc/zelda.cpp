@@ -39,6 +39,7 @@
 #include "aglogo.h"
 #include "base/zsys.h"
 #include "base/zapp.h"
+#include "play_midi.h"
 #include "qst.h"
 #include "matrix.h"
 #include "jwin.h"
@@ -54,6 +55,7 @@
 #include "dialog/info.h"
 #include "replay.h"
 #include "cheats.h"
+#include "base/zc_math.h"
 #include <fmt/format.h>
 #include <fmt/std.h>
 
@@ -113,6 +115,10 @@ static zc_randgen drunk_rng;
 #include <crtdbg.h>
 #define stricmp _stricmp
 #define getcwd _getcwd
+#endif
+
+#ifdef __EMSCRIPTEN__
+#include "base/emscripten_utils.h"
 #endif
 
 // MSVC fix
@@ -213,7 +219,7 @@ void throttleFPS()
 #ifdef _WIN32           // TEMPORARY!! -Trying to narrow down a win10 bug that affects performance.
     timeBeginPeriod(1); // Basically, jist is that other programs can affect the FPS of ZC in weird ways. (making it better for example... go figure)
 #endif
-    
+
     if( (Throttlefps ^ (zc_getkey(KEY_TILDE)!=0)) || get_bit(quest_rules, qr_NOFASTMODE) )
     {
         if(zc_vsync == FALSE)
@@ -370,7 +376,7 @@ byte use_debug_console=0, console_on_top = 0, use_win32_proc=1, zasm_debugger = 
 int32_t homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0;
 int32_t newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
 int32_t lastentrance=0,lastentrance_dmap=0,prices[3]= {0},loadside = 0, Bwpn = 0, Awpn = 0, Xwpn = 0, Ywpn = 0;
-int32_t digi_volume = 0,midi_volume = 0,sfx_volume = 0,emusic_volume = 0,currmidi = 0,hasitem = 0,whistleclk = 0,pan_style = 0;
+int32_t digi_volume = 0,midi_volume = 0,sfx_volume = 0,emusic_volume = 0,currmidi = -1,hasitem = 0,whistleclk = 0,pan_style = 0;
 bool analog_movement=true;
 int32_t joystick_index=0,Akey = 0,Bkey = 0,Skey = 0,Lkey = 0,Rkey = 0,Pkey = 0,Exkey1 = 0,Exkey2 = 0,Exkey3 = 0,Exkey4 = 0,Abtn = 0,Bbtn = 0,Sbtn = 0,Mbtn = 0,Lbtn = 0,Rbtn = 0,Pbtn = 0,Exbtn1 = 0,Exbtn2 = 0,Exbtn3 = 0,Exbtn4 = 0,Quit=0;
 uint32_t GameFlags=0;
@@ -614,6 +620,9 @@ char     *qstpath=NULL;
 char     *qstdir=NULL;
 gamedata *saves=NULL;
 
+// if set, the titlescreen will automatically create a new save with this quest.
+std::string load_qstpath;
+
 volatile int32_t lastfps=0;
 volatile int32_t framecnt=0;
 volatile int32_t myvsync=0;
@@ -634,6 +643,9 @@ void update_hw_screen(bool force)
 		}
 		myvsync=0;
 		all_mark_screen_dirty();
+#ifdef __EMSCRIPTEN__
+		all_render_screen();
+#endif
 	}
 }
 
@@ -2332,8 +2344,16 @@ int32_t init_game()
 		&& currscr == testingqst_screen
 		&& currdmap == testingqst_dmap)
 	{
-		Hero.setX(tmpscr->warpreturnx[testingqst_retsqr]);
-		Hero.setY(tmpscr->warpreturny[testingqst_retsqr]);
+		if (tmpscr->warpreturnx[testingqst_retsqr] != 0 || tmpscr->warpreturny[testingqst_retsqr] != 0)
+		{
+			Hero.setX(tmpscr->warpreturnx[testingqst_retsqr]);
+			Hero.setY(tmpscr->warpreturny[testingqst_retsqr]);
+		}
+		else
+		{
+			Hero.setX(16 * 8);
+			Hero.setY(16 * 5);
+		}
 	}
 	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
 	{
@@ -3521,19 +3541,19 @@ void game_loop()
 		genscript_timing = SCR_TIMING_START_FRAME;
 		if((pause_in_background && callback_switchin && midi_patch_fix))
 		{
-			if(currmidi!=0)
+			if(currmidi>=0)
 			{
 				if(callback_switchin == 2) 
 				{
-					if ( currmidi != 0 )
+					if ( currmidi >= 0 )
 					{
 						int32_t digi_vol, midi_vol;
 					
 						get_volume(&digi_vol, &midi_vol);
-						stop_midi();
+						zc_stop_midi();
 						jukebox(currmidi);
-						set_volume(digi_vol, midi_vol);
-						midi_seek(paused_midi_pos);
+						zc_set_volume(digi_vol, midi_vol);
+						zc_midi_seek(paused_midi_pos);
 					}
 					midi_paused=false;
 					midi_suspended = midissuspNONE;
@@ -3543,7 +3563,7 @@ void game_loop()
 				{
 					paused_midi_pos = midi_pos;
 					midi_paused=true;
-					stop_midi();
+					zc_stop_midi();
 					++callback_switchin;
 				}
 			}
@@ -3554,15 +3574,15 @@ void game_loop()
 		}
 		else if(midi_suspended==midissuspRESUME )
 		{
-			if ( currmidi != 0 )
+			if ( currmidi >= 0 )
 			{
 				int32_t digi_vol, midi_vol;
 			
 				get_volume(&digi_vol, &midi_vol);
-				stop_midi();
+				zc_stop_midi();
 				jukebox(currmidi);
-				set_volume(digi_vol, midi_vol);
-				midi_seek(paused_midi_pos);
+				zc_set_volume(digi_vol, midi_vol);
+				zc_midi_seek(paused_midi_pos);
 			}
 			midi_paused=false;
 			midi_suspended = midissuspNONE;
@@ -4080,7 +4100,7 @@ void game_loop()
 			// Earthquake!
 			if(quakeclk>0 && !FFCore.system_suspend[susptQUAKE] )
 			{
-				playing_field_offset=56+((int32_t)(sin((double)(--quakeclk*2-frame))*4));
+				playing_field_offset=56+((int32_t)(zc::math::Sin((double)(--quakeclk*2-frame))*4));
 			}
 			else
 			{
@@ -4555,7 +4575,7 @@ int32_t onFullscreen()
 static bool current_session_is_replay = false;
 static void load_replay_file(ReplayMode mode, std::string replay_file)
 {
-	ASSERT(mode == ReplayMode::Replay || mode == ReplayMode::Assert || mode == ReplayMode::Update);
+	ASSERT(mode == ReplayMode::Replay || mode == ReplayMode::Snapshot || mode == ReplayMode::Assert || mode == ReplayMode::Update);
 	replay_start(mode, replay_file);
 	strcpy(testingqst_name, replay_get_meta_str("qst").c_str());
 	if (replay_get_meta_bool("test_mode"))
@@ -4686,6 +4706,11 @@ int main(int argc, char **argv)
 	}
 	
 	Z_message("Initializing Allegro... ");
+	if(!al_init())
+	{
+		Z_error_fatal("Failed Init!");
+		quit_game();
+	}
 	if(allegro_init() != 0)
 	{
 		Z_error_fatal("Failed Init!");
@@ -4698,22 +4723,34 @@ int main(int argc, char **argv)
 		al_merge_config_into(al_get_system_config(), tempcfg);
 		al_destroy_config(tempcfg);
 	}
+
+
+#ifdef __EMSCRIPTEN__
+	em_mark_initializing_status();
+	all_disable_threaded_display();
+	em_init_fs();
+#endif
 	
 	if(!al_init_image_addon())
 	{
 		Z_error_fatal("Failed al_init_image_addon");
 		quit_game();
 	}
-	
-	three_finger_flag=false;
-	
+
 	al5img_init();
+
+	three_finger_flag=false;
 	
 	// set and load game configurations
 	zc_set_config_standard();
 
 	for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
 	strcpy(save_file_name,get_config_string("SAVEFILE","save_filename","zc.sav"));
+#ifdef __EMSCRIPTEN__
+	// There was a bug that causes browser zc.cfg files to use the wrong value for the save file.
+	if (strcmp(save_file_name, "zc.sav") == 0)
+		strcpy(save_file_name, "/local/zc.sav");
+#endif
 	SAVE_FILE = (char *)save_file_name;
 	
 	if(!zc_config_standard_exists())
@@ -4727,13 +4764,13 @@ int main(int argc, char **argv)
 	}
 	
 #ifndef __APPLE__ // Should be done on Mac, too, but I haven't gotten that working
-	if(!is_only_instance("zc.lck"))
-	{
-		if(used_switch(argc, argv, "-multiple") || zc_get_config("zeldadx","multiple_instances",0))
-			onlyInstance=false;
-		else
-			exit(1);
-	}
+	// if(!is_only_instance("zc.lck"))
+	// {
+	// 	if(used_switch(argc, argv, "-multiple") || zc_get_config("zeldadx","multiple_instances",0))
+	// 		onlyInstance=false;
+	// 	else
+	// 		exit(1);
+	// }
 #endif
 	
 	//Set up MODULES: This must occur before trying to load the default quests, as the 
@@ -4868,10 +4905,14 @@ int main(int argc, char **argv)
 	}
 	
 	//set_keyboard_rate(1000,160);
-	
+
 	LOCK_VARIABLE(logic_counter);
 	LOCK_FUNCTION(update_logic_counter);
-	install_int_ex(update_logic_counter, BPS_TO_TIMER(60));
+	if (install_int_ex(update_logic_counter, BPS_TO_TIMER(60)) < 0)
+	{
+		Z_error_fatal("Could not install timer.\n");
+		quit_game();
+	}
 	
 #ifdef _SCRIPT_COUNTER
 	LOCK_VARIABLE(script_counter);
@@ -5448,6 +5489,7 @@ int main(int argc, char **argv)
 		show_mouse(screen);
 	}
 
+#ifndef __EMSCRIPTEN__
 	if (!all_get_fullscreen_flag()) {
 		// Just in case.
 		while (!all_get_display()) {
@@ -5463,6 +5505,7 @@ int main(int argc, char **argv)
 		al_resize_display(all_get_display(), window_width, window_height);
 		al_set_window_position(all_get_display(), center_x - window_width / 2, center_y - window_height / 2);
 	}
+#endif
 	
 	sbig = (screen_scale > 1);
 	switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
@@ -5501,6 +5544,10 @@ int main(int argc, char **argv)
 			return 0;
 		}
 	}
+
+#ifdef __EMSCRIPTEN__
+	checked_epilepsy = true;
+#endif
 	
 	//set switching/focus mode -Z
 	set_display_switch_mode(is_windowed_mode()?(pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND):SWITCH_BACKAMNESIA);
@@ -5554,6 +5601,7 @@ int main(int argc, char **argv)
 	}
 
 	int replay_arg = used_switch(argc, argv, "-replay");
+	int snapshot_arg = used_switch(argc, argv, "-snapshot");
 	int record_arg = used_switch(argc, argv, "-record");
 	int assert_arg = used_switch(argc, argv, "-assert");
 	int update_arg = used_switch(argc, argv, "-update");
@@ -5562,6 +5610,11 @@ int main(int argc, char **argv)
 	if (replay_arg > 0)
 	{
 		load_replay_file(ReplayMode::Replay, argv[replay_arg + 1]);
+	}
+	else if (snapshot_arg > 0)
+	{
+		ASSERT(frame_arg > 0);
+		load_replay_file(ReplayMode::Snapshot, argv[snapshot_arg + 1]);
 	}
 	else if (assert_arg > 0)
 	{
@@ -5611,13 +5664,53 @@ int main(int argc, char **argv)
 
 	init_saves();
 
+#ifdef __EMSCRIPTEN__
+	QueryParams params = get_query_params();
+
+	// This will either quick load the first save file for this quest,
+	// or if that doesn't exist prompt the player for a save file name
+	// and then load the quest.
+	if (!params.quest.empty())
+	{
+		std::string qstpath_to_load = std::string("_quests/").append(params.quest);
+
+		if (load_savedgames() != 0)
+		{
+			Z_error_fatal("Insufficient memory");
+			quit_game();
+		}
+
+		int save_index = -1;
+		for (int i = 0; i < MAXSAVES; i++)
+		{
+			if (!saves[i].get_quest()) continue;
+
+			if (qstpath_to_load == saves[i].qstpath)
+			{
+				save_index = i;
+				break;
+			}
+		}
+
+		if (save_index == -1)
+		{
+			load_qstpath = qstpath_to_load;
+		}
+		else
+		{
+			load_save = save_index + 1;
+		}
+		fast_start = true;
+	}
+#endif
+
 	set_display_switch_callback(SWITCH_IN,switch_in_callback);
 	set_display_switch_callback(SWITCH_OUT,switch_out_callback);
 	
 	// AG logo
 	if(!(zqtesting_mode||replay_is_active()||fast_start||zc_get_config("zeldadx","skip_logo",1)))
 	{
-		set_volume(240,-1);
+		zc_set_volume(240,-1);
 		aglogo(tmp_scr, scrollbuf, resx, resy);
 		master_volume(digi_volume,midi_volume);
 	}
@@ -5650,8 +5743,14 @@ int main(int argc, char **argv)
 	}
 	
 #endif
+
+#ifdef __EMSCRIPTEN__
+	em_mark_ready_status();
+#endif
 	
 reload_for_replay_file:
+	int replay_debug_last_x = -1;
+	int replay_debug_last_y = -1;
 	if (load_replay_file_deffered_called)
 	{
 		load_replay_file(load_replay_file_mode, load_replay_file_filename);
@@ -5693,7 +5792,7 @@ reload_for_replay_file:
 		if (use_testingst_start)
 			Z_message("Test mode: \"%s\", %d, %d\n", testingqst_name, testingqst_dmap, testingqst_screen);
 		if (replay_is_active())
-			Z_message("Replay is active\n");
+			printf("Replay is active\n");
 	}
 	
 	while(Quit!=qEXIT)
@@ -5725,6 +5824,7 @@ reload_for_replay_file:
 		clearConsole();
 		callback_switchin = 0;
 		load_save=0;
+		load_qstpath="";
 		setup_combo_animations();
 		setup_combo_animations2();
 		
@@ -5740,7 +5840,16 @@ reload_for_replay_file:
 #endif
 			game_loop();
 			if (replay_is_debug() && !Quit)
-				replay_step_comment(fmt::format("frame {} hero {} {}", frame, HeroX().getInt(), HeroY().getInt()));
+			{
+				int x = HeroX().getInt();
+				int y = HeroY().getInt();
+				if (x != replay_debug_last_x || y != replay_debug_last_y)
+				{
+					replay_step_comment(fmt::format("h {:x} {:x}", x, y));
+					replay_debug_last_x = x;
+					replay_debug_last_y = y;
+				}
+			}
 
 			FFCore.newScriptEngine();
 			
@@ -6216,6 +6325,14 @@ void __zc_always_assert(bool e, const char* expression, const char* file, int32_
     }
 }
 
+#ifdef __EMSCRIPTEN__
+extern "C" void get_shareable_url()
+{
+	EM_ASM({
+		ZC.setShareableUrl({quest: UTF8ToString($0), dmap: $1, screen: $2});
+	}, qstpath, currdmap, currscr);
+}
+#endif
 
 bool checkCost(int32_t ctr, int32_t amnt)
 {

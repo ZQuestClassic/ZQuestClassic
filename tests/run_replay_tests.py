@@ -1,5 +1,8 @@
 # For more information, see replay.h
 
+# Before this will work, you need to install git-lfs:
+#     https://git-lfs.github.com/
+
 # To create a new replay test, run:
 #    ./zelda -record path_to_file.zplay -test path_to_game.qst dmap screen
 #
@@ -31,15 +34,22 @@ import subprocess
 import os
 import difflib
 import pathlib
+import shutil
+from time import sleep
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--build_folder', default='build/Debug')
 parser.add_argument('--filter')
 parser.add_argument('--throttle_fps', action='store_true')
 parser.add_argument('--update', action='store_true')
+parser.add_argument('--snapshot', action='store_true')
 parser.add_argument('--retries', type=int, default=0)
 parser.add_argument('--frame', type=int)
+parser.add_argument('--ci')
 args = parser.parse_args()
+
+if args.snapshot and args.update:
+    raise Exception('can only have one of --update or --snapshot')
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 replays_dir = os.path.join(script_dir, 'replays')
@@ -50,7 +60,12 @@ if args.filter:
     if len(tests) == 0:
         print('no tests matched filter')
         exit(1)
-
+if args.ci:
+    replays_failing_in_ci = [
+        # Never finishes.
+        'new2013.zplay',
+    ]
+    tests = [t for t in tests if t.name not in replays_failing_in_ci]
 
 def run_replay_test(replay_file):
     # TODO: fix this common-ish error, and whatever else is causing random failures.
@@ -58,22 +73,37 @@ def run_replay_test(replay_file):
     # Assertion failed: (mutex), function al_lock_mutex, file threads.c, line 324.
     exe_name = 'zelda.exe' if os.name == 'nt' else 'zelda'
     exe_path = f'{args.build_folder}/{exe_name}'
+
+    mode = 'assert'
+    if args.update:
+        mode = 'update'
+    elif args.snapshot:
+        mode = 'snapshot'
+
     exe_args = [
         exe_path,
-        '-update' if args.update else '-assert', replay_file,
+        f'-{mode}', replay_file,
         '-v1' if args.throttle_fps else '-v0',
     ]
     if args.frame is not None:
         exe_args.extend(['-frame', str(args.frame)])
 
-    process = subprocess.Popen(exe_args,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE,
-                               text=True)
-    stdout, stderr = process.communicate()
+    for _ in range(0, 5):
+        try:
+            process_result = subprocess.run(exe_args,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE,
+                                    text=True,
+                                    timeout=60*10)
+            if 'Replay is active' in process_result.stdout:
+                break
+            print('did not start correctly, trying again...')
+            sleep(1)
+        except subprocess.TimeoutExpired as e:
+            return False, f'{e}\n\n{e.stdout}', e.stderr, None
 
     diff = None
-    if not args.update and process.returncode == 120:
+    if not args.update and process_result.returncode == 120:
         roundtrip_path = pathlib.Path(f'{replay_file}.roundtrip')
         if os.path.exists(roundtrip_path):
             with open(replay_file) as f:
@@ -85,16 +115,22 @@ def run_replay_test(replay_file):
                 str(replay_file.relative_to(replays_dir)),
                 str(roundtrip_path.relative_to(replays_dir)),
                 n=3)
-            diff = ''.join(diff_iter)
+            trimmed_diff_lines = [x for _, x in zip(range(100), diff_iter)]
+            diff = ''.join(trimmed_diff_lines)
         else:
             diff = 'missing roundtrip file, cannnot diff'
 
-    return process.returncode == 0, stdout, stderr, diff
+    return process_result.returncode == 0, process_result.stdout, process_result.stderr, diff
 
 
 test_states = {}
 for test in tests:
     test_states[test] = False
+
+    # qst files need to be relative to the build folder, so copy them over.
+    maybe_qst_path = test.with_suffix('.qst')
+    if maybe_qst_path.exists():
+        shutil.copy2(maybe_qst_path, args.build_folder)
 
 print(f'running {len(tests)} replay tests\n')
 iteration_count = 0

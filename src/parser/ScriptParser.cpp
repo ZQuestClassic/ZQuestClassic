@@ -50,15 +50,18 @@ void ScriptParser::initialize()
 }
 extern uint32_t zscript_failcode;
 extern bool zscript_had_warn_err;
+extern bool zscript_error_out;
 unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 {
 	zscript_failcode = 0;
 	zscript_had_warn_err = false;
+	zscript_error_out = false;
 	ScriptParser::initialize();
 	
 	zconsole_info("%s", "Pass 1: Parsing");
 
 	unique_ptr<ASTFile> root(parseFile(filename, true));
+	if(zscript_error_out) return nullptr;
 	if (!root.get())
 	{
 		log_error(CompileError::CantOpenSource(NULL));
@@ -69,24 +72,29 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 
 	if (!ScriptParser::preprocess(root.get(), ScriptParser::recursionLimit))
 		return nullptr;
+	if(zscript_error_out) return nullptr;
 
 	SimpleCompileErrorHandler handler;
 	Program program(*root, &handler);
 	if (handler.hasError())
 		return nullptr;
+	if(zscript_error_out) return nullptr;
 
 	zconsole_info("%s", "Pass 3: Registration");
 
 	RegistrationVisitor regVisitor(program);
 	if(regVisitor.hasFailed()) return nullptr;
+	if(zscript_error_out) return nullptr;
 
 	zconsole_info("%s", "Pass 4: Analyzing Code");
 
 	SemanticAnalyzer semanticAnalyzer(program);
 	if (semanticAnalyzer.hasFailed() || regVisitor.hasFailed())
 		return nullptr;
+	if(zscript_error_out) return nullptr;
 
 	FunctionData fd(program);
+	if(zscript_error_out) return nullptr;
 	if (fd.globalVariables.size() > MAX_SCRIPT_REGISTERS)
 	{
 		log_error(CompileError::TooManyGlobal(NULL));
@@ -98,12 +106,14 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 	unique_ptr<IntermediateData> id(ScriptParser::generateOCode(fd));
 	if (!id.get())
 		return nullptr;
+	if(zscript_error_out) return nullptr;
 	
 	zconsole_info("%s", "Pass 6: Assembling");
 
 	ScriptParser::assemble(id.get());
 
 	unique_ptr<ScriptsData> result(new ScriptsData(program));
+	if(zscript_error_out) return nullptr;
 
 	zconsole_info("%s", "Success!");
 
@@ -154,13 +164,17 @@ string* ScriptParser::checkIncludes(string& includePath, string const& importnam
 	return NULL;
 }
 
-bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int32_t reclimit)
+bool ScriptParser::valid_include(ASTImportDecl& decl, string& ret_fname)
 {
-	// Parse the imported file.
+	if(decl.wasValidated())
+	{
+		ret_fname = decl.getFilename();
+		return true;
+	}
 	string* fname = NULL;
 	string includePath;
-	string importname = prepareFilename(importDecl.getFilename());
-	if(!importDecl.isInclude()) //Check root dir first for imports
+	string importname = prepareFilename(decl.getFilename());
+	if(!decl.isInclude()) //Check root dir first for imports
 	{
 		FILE* f = fopen(importname.c_str(), "r");
 		if(f)
@@ -185,14 +199,24 @@ bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int32_t reclimit)
 			}
 		}
 	}
-	//
 	string filename = fname ? *fname : prepareFilename(importname); //Check root dir last, if nothing has been found yet.
+	ret_fname = filename;
 	FILE* f = fopen(filename.c_str(), "r");
 	if(f)
 	{
 		fclose(f);
+		//zconsole_db("Importing filename '%s' successfully", filename.c_str());
+		decl.setFilename(filename);
+		decl.validate();
+		return true;
 	}
-	else
+	else return false;
+}
+
+bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int32_t reclimit)
+{
+	string filename;
+	if(!valid_include(importDecl, filename))
 	{
 		log_error(CompileError::CantOpenImport(&importDecl, filename));
 		return false;
@@ -689,30 +713,44 @@ ScriptsData::ScriptsData(Program& program)
 		string const& name = script.getName();
 		zasm_meta& meta = theScripts[name].first;
 		theScripts[name].second = script.code;
-		meta.autogen();
+		meta = script.getMetadata();
 		meta.script_type = script.getType().getTrueId();
-		string const& author = script.getAuthor();
-		strcpy(meta.script_name, name.substr(0,32).c_str());
-		strcpy(meta.author, author.substr(0,32).c_str());
-		// al_trace(meta.script_name);
-		// al_trace(meta.author);
-		// safe_al_trace(name.c_str());
-		// safe_al_trace(author.c_str());
+		meta.script_name = name;
+		meta.author = script.getAuthor();
 		if(Function* run = script.getRun())
 		{
 			int32_t ind = 0;
 			for(vector<string const*>::const_iterator it = run->paramNames.begin();
 				it != run->paramNames.end(); ++it)
 			{
-				char* dest = meta.run_idens[ind++];
-				strcpy(dest, (**it).c_str());
+				meta.run_idens[ind] = (**it);
+				if(!meta.initd[ind].size())
+					meta.initd[ind] = meta.run_idens[ind];
+				++ind;
 			}
 			ind = 0;
 			for(vector<DataType const*>::const_iterator it = run->paramTypes.begin();
 				it != run->paramTypes.end(); ++it)
 			{
 				std::optional<DataTypeId> id = program.getTypeStore().getTypeId(**it);
-				meta.run_types[ind++] = id ? *id : ZVARTYPEID_VOID;
+				meta.run_types[ind] = id ? *id : ZVARTYPEID_VOID;
+				int8_t ty = -1;
+				if(id) switch(*id)
+				{
+					case ZVARTYPEID_BOOL:
+						ty = nswapBOOL;
+						break;
+					case ZVARTYPEID_LONG:
+						ty = nswapLDEC;
+						break;
+					case ZVARTYPEID_FLOAT:
+					case ZVARTYPEID_UNTYPED:
+						ty = nswapDEC;
+						break;
+				}
+				if(meta.initd_type[ind] < 0)
+					meta.initd_type[ind] = ty;
+				++ind;
 			}
 		}
 

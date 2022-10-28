@@ -1274,16 +1274,32 @@ catchalltypes GetCatchallType(mapdata m)
 	}
 }
 
-//Returns the item ID of the item equipped to Link's A button
+//Returns the item ID of the item equipped to the A button
 int GetEquipmentA() 
 {
-	return (Link->Equipment&0xFF);
+	return Hero->ItemA;
+	//return (Hero->Equipment&0xFF);
 }
 
-//Returns the item ID of the item equipped to Link's B button
+//Returns the item ID of the item equipped to the B button
 int GetEquipmentB() 
 {
-	return ((Link->Equipment&0xFF00)>>8);
+	return Hero->ItemB;
+	//return ((Hero->Equipment&0xFF00)>>8);
+}
+
+//Returns the item ID of the item equipped to the X button
+int GetEquipmentX() 
+{
+	return Hero->ItemX;
+	//return ((Hero->Equipment&0xFF00)>>8);
+}
+
+//Returns the item ID of the item equipped to the Y button
+int GetEquipmentY() 
+{
+	return Hero->ItemY;
+	//return ((Hero->Equipment&0xFF00)>>8);
 }
 
 //Returns true if DMap Flag 'flag' is set on dmap 'dmap'
@@ -4142,10 +4158,13 @@ float TurnTowards( int X, int Y, int targetX, int targetY, float radian_angle, f
 
 //U
 
-//Returns true if Link is using item 'id'
+//Returns true if Hero is using item 'id'
 bool UsingItem(int id)
 {
-	return (GetEquipmentA() == id && Link->InputA) || (GetEquipmentB() == id && Link->InputB);
+	return (GetEquipmentA() == id && Hero->InputA)
+		|| (GetEquipmentB() == id && Hero->InputB)
+		|| (GetEquipmentX() == id && Hero->InputEx1)
+		|| (GetEquipmentY() == id && Hero->InputEx2);
 }
 
 //V

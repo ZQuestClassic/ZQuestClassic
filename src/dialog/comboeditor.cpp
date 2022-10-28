@@ -12,6 +12,7 @@ extern newcombo *combobuf;
 extern comboclass *combo_class_buf;
 extern int32_t CSet;
 extern int32_t numericalFlags;
+extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 char *ordinal(int32_t num);
 using std::string;
 using std::to_string;
@@ -19,6 +20,7 @@ using std::to_string;
 static size_t cmb_tab1 = 0, cmb_tab2 = 0, cmb_tab3 = 0;
 static int32_t scroll_pos1 = 0, scroll_pos2 = 0, scroll_pos3 = 0, scroll_pos4 = 0,
 	scroll_pos5 = 0, scroll_pos6 = 0, scroll_pos7 = 0, scroll_pos8 = 0;
+static bool combo_use_script_data = true;
 
 bool hasCTypeEffects(int32_t type)
 {
@@ -54,6 +56,7 @@ bool hasCTypeEffects(int32_t type)
 static bool edited = false, cleared = false;
 bool call_combo_editor(int32_t index)
 {
+	combo_use_script_data = zc_get_config("zquest","show_comboscript_meta_attribs",1)?true:false;
 	int32_t cs = CSet;
 	edited = false; cleared = false;
 	ComboEditorDialog(index).show();
@@ -63,6 +66,7 @@ bool call_combo_editor(int32_t index)
 		ComboEditorDialog(index, true).show();
 	}
 	if(!edited) CSet = cs;
+	zc_set_config("zquest","show_comboscript_meta_attribs",combo_use_script_data?1:0);
 	return edited;
 }
 
@@ -600,6 +604,43 @@ void cflag_help(int32_t id)
 	InfoDialog(ZI.getMapFlagName(id),ZI.getMapFlagHelp(id)).show();
 }
 //Load all the info for the combo type and checked flags
+void ComboEditorDialog::refreshScript()
+{
+	loadComboType();
+	string l_initd[2];
+	int32_t sw_initd[2];
+	for(auto q = 0; q < 2; ++q)
+	{
+		l_initd[q] = "InitD["+to_string(q)+"]:";
+		h_initd[q].clear();
+		sw_initd[q] = -1;
+	}
+	if(local_comboref.script)
+	{
+		zasm_meta const& meta = comboscripts[local_comboref.script]->meta;
+		for(auto q = 0; q < 2; ++q)
+		{
+			if(unsigned(meta.initd_type[q]) < nswapMAX)
+				sw_initd[q] = meta.initd_type[q];
+			if(meta.initd[q].size())
+				l_initd[q] = meta.initd[q];
+			if(meta.initd_help[q].size())
+				h_initd[q] = meta.initd_help[q];
+		}
+	}
+	else
+	{
+		sw_initd[0] = nswapDEC;
+		sw_initd[1] = nswapDEC;
+	}
+	for(auto q = 0; q < 2; ++q)
+	{
+		ib_initds[q]->setDisabled(h_initd[q].empty());
+		l_initds[q]->setText(l_initd[q]);
+		if(sw_initd[q] > -1)
+			tf_initd[q]->setSwapType(sw_initd[q]);
+	}
+}
 void ComboEditorDialog::loadComboType()
 {
 	static std::string dirstr[] = {"up","down","left","right"};
@@ -1638,9 +1679,9 @@ void ComboEditorDialog::loadComboType()
 			h_attribute[1] = "Value to add to the cset when triggered";
 			l_attribyte[1] = "SFX:";
 			h_attribyte[1] = "SFX to play when triggered";
-			l_flag[9] = "Global State";
-			h_flag[9] = "Use a global state instead of a level-based state.";
-			if(FL(cflag10)) //Global State
+			l_flag[10] = "Global State";
+			h_flag[10] = "Use a global state instead of a level-based state.";
+			if(FL(cflag11)) //Global State
 			{
 				l_attribyte[0] = "State Num:";
 				h_attribyte[0] = "Range 0-255 inclusive, which of the global switch states to trigger from";
@@ -1690,9 +1731,9 @@ void ComboEditorDialog::loadComboType()
 				h_attribute[3] = "The Z amount below the block's Z-height that you can jump atop it from. This allows"
 					" for 'walking up stairs' type effects.";
 			}
-			l_flag[9] = "Global State";
-			h_flag[9] = "Use a global state instead of a level-based state.";
-			if(FL(cflag10)) //Global State
+			l_flag[10] = "Global State";
+			h_flag[10] = "Use a global state instead of a level-based state.";
+			if(FL(cflag11)) //Global State
 			{
 				l_attribyte[0] = "State Num:";
 				h_attribyte[0] = "Range 0-255 inclusive, which of the global switch states to trigger from";
@@ -1810,6 +1851,31 @@ void ComboEditorDialog::loadComboType()
 				h_attribyte[1] = "Restore magic up to this percentage, if it is lower.";
 			}
 			break;
+		}
+	}
+	if(local_comboref.script && combo_use_script_data)
+	{
+		zasm_meta const& meta = comboscripts[local_comboref.script]->meta;
+		for(size_t q = 0; q < 16; ++q)
+		{
+			if(meta.usrflags[q].size())
+				l_flag[q] = meta.usrflags[q];
+			if(meta.usrflags_help[q].size())
+				h_flag[q] = meta.usrflags_help[q];
+			if(q > 7) continue;
+			if(meta.attribytes[q].size())
+				l_attribyte[q] = meta.attribytes[q];
+			if(meta.attribytes_help[q].size())
+				h_attribyte[q] = meta.attribytes_help[q];
+			if(meta.attrishorts[q].size())
+				l_attrishort[q] = meta.attrishorts[q];
+			if(meta.attrishorts_help[q].size())
+				h_attrishort[q] = meta.attrishorts_help[q];
+			if(q > 3) continue;
+			if(meta.attributes[q].size())
+				l_attribute[q] = meta.attributes[q];
+			if(meta.attributes_help[q].size())
+				h_attribute[q] = meta.attributes_help[q];
 		}
 	}
 	for(size_t q = 0; q < 16; ++q)
@@ -2016,6 +2082,30 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRIBUTE(int index)
 	);
 }
 
+std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_INITD(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(padding = 0_px,
+		l_initds[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
+		ib_initds[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("InitD Info",h_initd[index]).show();
+			}),
+		tf_initd[index] = TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_ZSINT2,
+			val = local_comboref.initd[index],
+			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_comboref.initd[index] = val;
+			})
+	);
+}
+
 std::shared_ptr<GUI::Checkbox> ComboEditorDialog::TRIGFLAG(int index, const char* str)
 {
 	using namespace GUI::Builder;
@@ -2056,7 +2146,12 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	using namespace GUI::Key;
-	
+
+	// Too many locals error in low-optimization mode for emscripten.
+#ifdef EMSCRIPTEN_DEBUG
+	return std::shared_ptr<GUI::Widget>(nullptr);
+#endif
+ 	
 	char titlebuf[256];
 	sprintf(titlebuf, "Combo Editor (%d)", index);
 	if(is_large)
@@ -3095,12 +3190,19 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						)
 					)),
 					TabRef(name = "Script", Column(
-						INITD_ROW2(0, local_comboref.initd),
-						INITD_ROW2(1, local_comboref.initd),
+						CMB_INITD(0),
+						CMB_INITD(1),
 						Row(
 							padding = 0_px,
-							SCRIPT_LIST("Combo Script:", list_combscript, local_comboref.script)
-						)
+							SCRIPT_LIST_PROC("Combo Script:", list_combscript, local_comboref.script, refreshScript)
+						),
+						Checkbox(text = "Show Script Attrib Metadata",
+							checked = combo_use_script_data,
+							onToggleFunc = [&](bool state)
+							{
+								combo_use_script_data = state;
+								loadComboType();
+							})
 					))
 				),
 				Row(
@@ -4164,12 +4266,19 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						)
 					))),
 					TabRef(name = "Script", Column(
-						INITD_ROW2(0, local_comboref.initd),
-						INITD_ROW2(1, local_comboref.initd),
+						CMB_INITD(0),
+						CMB_INITD(1),
 						Row(
 							padding = 0_px,
-							SCRIPT_LIST("Combo Script:", list_combscript, local_comboref.script)
-						)
+							SCRIPT_LIST_PROC("Combo Script:", list_combscript, local_comboref.script, refreshScript)
+						),
+						Checkbox(text = "Show Script Attrib Metadata",
+							checked = combo_use_script_data,
+							onToggleFunc = [&](bool state)
+							{
+								combo_use_script_data = state;
+								loadComboType();
+							})
 					))
 				),
 				Row(
@@ -4194,7 +4303,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 	}
 	l_minmax_trig->setText((local_comboref.triggerflags[0] & (combotriggerINVERTMINMAX))
 		? maxstr : minstr);
-	loadComboType();
+	refreshScript();
 	return window;
 }
 

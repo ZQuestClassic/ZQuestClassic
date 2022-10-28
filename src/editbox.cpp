@@ -326,6 +326,7 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 				object_message(d, MSG_DRAW, 0);
 				unscare_mouse();
 			}
+			rest(1);
 		}
 		
 		model->getView()->mouseRelease(gui_mouse_x(), gui_mouse_y());

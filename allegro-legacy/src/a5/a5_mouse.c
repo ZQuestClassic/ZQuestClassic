@@ -29,6 +29,7 @@ static int prevx = -1;
 static int prevy = -1;
 static int prevz = -1;
 static bool mouse_hidden = false;
+static bool have_touch_input = false;
 
 // local edit
 static bool mouse_is_ready = false;
@@ -49,6 +50,8 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
         return NULL;
     }
     al_register_event_source(queue, al_get_mouse_event_source());
+    if (have_touch_input)
+        al_register_event_source(queue, al_get_touch_input_event_source());
     while(!al_get_thread_should_stop(thread))
     {
         al_init_timeout(&timeout, 0.1);
@@ -77,6 +80,7 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
                     // local edit
                     // all of this complexity is because ZC is not coded to be resolution-independent
                     // re: it's UI
+#ifndef __EMSCRIPTEN__
                     int native_width, native_height, display_width, display_height, offset_x, offset_y;
                     double scale;
                     all_get_display_transform(&native_width, &native_height, &display_width, &display_height, &offset_x, &offset_y, &scale);
@@ -97,6 +101,7 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
                         _mouse_x = native_width * ((double)_mouse_x - offset_x) / ((double)display_width - offset_x * 2);
                         _mouse_y = native_height * ((double)_mouse_y - offset_y) / ((double)display_height - offset_y * 2);
                     }
+#endif
 
                     if (prevx != _mouse_x || prevy != _mouse_y || prevz != _mouse_z) {
                         all_mark_screen_dirty();
@@ -116,6 +121,28 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
                     _mouse_b &= ~(1 << (event.mouse.button - 1));
                     break;
                 }
+
+                // local edit
+                // emulate mouse click on touch.
+                case ALLEGRO_EVENT_TOUCH_BEGIN:
+                case ALLEGRO_EVENT_TOUCH_MOVE:
+                case ALLEGRO_EVENT_TOUCH_END:
+                {
+                    if (event.touch.primary)
+                    {
+                        _mouse_x = event.touch.x;
+                        _mouse_y = event.touch.y;
+                        if (event.type == ALLEGRO_EVENT_TOUCH_BEGIN)
+                        {
+                            _mouse_b |= 1;
+                        }
+                        else if (event.type == ALLEGRO_EVENT_TOUCH_END)
+                        {
+                            _mouse_b &= ~1;
+                        }
+                    }
+                    break;
+                }
             }
             _handle_mouse_input();
         }
@@ -130,6 +157,8 @@ static int a5_mouse_init(void)
     {
         return -1;
     }
+    have_touch_input = al_install_touch_input();
+
     if(_a5_display)
     {
         al_hide_mouse_cursor(_a5_display);

@@ -905,7 +905,7 @@ bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *t
 				update_hw_screen();
 			}
 		}
-		
+		rest(1);
 	}
 	
 	if(over)
@@ -1947,6 +1947,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+		rest(1);
 	}
 	
 	int32_t move_origin_x=-1, move_origin_y=-1;
@@ -3144,6 +3145,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+		rest(1);
 	}
 	
 	if(done==1)
@@ -4892,6 +4894,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+		rest(1);
 	}
 	
 	do
@@ -5293,6 +5296,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 			while(key[KEY_ESC])
 			{
 				/* do nothing */
+				rest(1);
 			}
 			
 			clear_keybuf();
@@ -5311,6 +5315,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 				while(key[KEY_ESC])
 				{
 					/* do nothing */
+					rest(1);
 				}
 				
 				clear_keybuf();
@@ -15154,6 +15159,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+		rest(1);
 	}
 	
 	bool bdown=false;
@@ -16182,6 +16188,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					while(gui_mouse_b())
 					{
 						/* do nothing */
+						rest(1);
 					}
 					
 					if(((y>>(4+is_large))*TILES_PER_ROW + (x>>(4+is_large)) + first)!=t)
@@ -16623,6 +16630,7 @@ REDRAW:
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+		rest(1);
 	}
 	
 	comeback();
@@ -17031,6 +17039,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+		rest(1);
 	}
 	
 	bool bdown=false;
@@ -17352,6 +17361,7 @@ down:
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+		rest(1);
 	}
 	
 	comeback();
@@ -18034,6 +18044,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					while(gui_mouse_b())
 					{
 						/* do nothing */
+						rest(1);
 					}
 					
 					if(!combo_cols)
@@ -18358,8 +18369,8 @@ REDRAW:
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+		rest(1);
 	}
-	
 	comeback();
 	setup_combo_animations();
 	setup_combo_animations2();
@@ -20001,6 +20012,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+		rest(1);
 	}
 	
 	bool bdown=false;
@@ -21400,6 +21412,7 @@ REDRAW_DMAP_SELTILE:
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+		rest(1);
 	}
 	
 	comeback();

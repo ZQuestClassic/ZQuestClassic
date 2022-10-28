@@ -20,6 +20,7 @@ void* const RecursiveVisitor::paramReadWrite = new tag();
 
 uint32_t zscript_failcode = 0;
 bool zscript_had_warn_err = false;
+bool zscript_error_out = false;
 
 ////////////////////////////////////////////////////////////////
 // RecursiveVisitor

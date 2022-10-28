@@ -22,4 +22,3 @@ src/zc/replay.cpp
 
 ## End of Zelda Core module
 )
-

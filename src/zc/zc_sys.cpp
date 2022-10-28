@@ -30,6 +30,7 @@
 #include "init.h"
 #include "replay.h"
 #include "cheats.h"
+#include "base/zc_math.h"
 
 #ifdef ALLEGRO_DOS
 #include <unistd.h>
@@ -43,6 +44,7 @@
 #include "base/zsys.h"
 #include "qst.h"
 #include "zc_sys.h"
+#include "play_midi.h"
 #include "debug.h"
 #include "jwin.h"
 #include "base/jwinfsel.h"
@@ -64,6 +66,10 @@
 #define XXH_STATIC_LINKING_ONLY
 #define XXH_IMPLEMENTATION
 #include <xxhash.h>
+
+#ifdef __EMSCRIPTEN__
+#include "base/emscripten_utils.h"
+#endif
 
 extern FFScript FFCore;
 extern bool Playing;
@@ -336,7 +342,7 @@ void load_game_configs()
 	DRbtn = zc_get_config(cfg_sect,"btn_right",16);
 	
 	epilepsyFlashReduction = zc_get_config(cfg_sect,"epilepsy_flash_reduction",0);
-   
+
 	digi_volume = zc_get_config(cfg_sect,"digi",248);
 	midi_volume = zc_get_config(cfg_sect,"midi",255);
 	sfx_volume = zc_get_config(cfg_sect,"sfx",248);
@@ -350,6 +356,9 @@ void load_game_configs()
 	TransLayers = zc_get_config(cfg_sect,"translayers",1)!=0;
 	SnapshotFormat = zc_get_config(cfg_sect,"snapshot_format",3);
 	NameEntryMode = zc_get_config(cfg_sect,"name_entry_mode",0);
+#ifdef __EMSCRIPTEN__
+	if (em_is_mobile()) NameEntryMode = 2;
+#endif
 	ShowFPS = zc_get_config(cfg_sect,"showfps",0)!=0;
 	NESquit = zc_get_config(cfg_sect,"fastquit",0)!=0;
 	ClickToFreeze = zc_get_config(cfg_sect,"clicktofreeze",1)!=0;
@@ -569,6 +578,9 @@ void save_game_configs()
 	set_config_int(cfg_sect,"zc_192b163_warp_compatibility",zc_192b163_warp_compatibility);
    
 	flush_config_file();
+#ifdef __EMSCRIPTEN__
+	em_sync_fs();
+#endif
 }
 
 //----------------------------------------------------------------
@@ -802,6 +814,13 @@ void null_quest()
 	char qstdat_string[2048];
 	strcpy(qstdat_string,moduledata.datafiles[qst_dat]);
 	strcat(qstdat_string,"#NESQST_NEW_QST");
+
+#ifdef __EMSCRIPTEN__
+    // The quest template data file is not included because it's really big and isn't really needed
+    // for the player, except to initialize some graphics. Those same graphics exist in this quest file,
+    // which is much smaller.
+    strcpy(qstdat_string, "modules/classic/title_gfx.dat");
+#endif
 	
 	byte skip_flags[4] = { 0 };
 	
@@ -1903,9 +1922,9 @@ void black_opening(BITMAP *dest,int32_t x,int32_t y,int32_t a,int32_t max_a)
 		double a0=angle;
 		double a2=angle+P23;
 		double a4=angle+P43;
-		triangle(tmp_scr, x+int32_t(cos(a0)*r), y-int32_t(sin(a0)*r),
-				 x+int32_t(cos(a2)*r), y-int32_t(sin(a2)*r),
-				 x+int32_t(cos(a4)*r), y-int32_t(sin(a4)*r),
+		triangle(tmp_scr, x+int32_t(zc::math::Cos(a0)*r), y-int32_t(zc::math::Sin(a0)*r),
+				 x+int32_t(zc::math::Cos(a2)*r), y-int32_t(zc::math::Sin(a2)*r),
+				 x+int32_t(zc::math::Cos(a4)*r), y-int32_t(zc::math::Sin(a4)*r),
 				 0);
 		break;
 	}
@@ -3712,11 +3731,11 @@ void draw_wavy(BITMAP *source, BITMAP *target, int32_t amplitude, bool interpol)
 		if(j&1 && interpol)
 		{
 			// Add 288*2048 to ensure it's never negative. It'll get modded out.
-			ofs=288*2048+int32_t(sin((double(i+j)*2*PI/amp2))*amplitude);
+			ofs=288*2048+int32_t(zc::math::Sin((double(i+j)*2*PI/amp2))*amplitude);
 		}
 		else
 		{
-			ofs=288*2048-int32_t(sin((double(i+j)*2*PI/amp2))*amplitude);
+			ofs=288*2048-int32_t(zc::math::Sin((double(i+j)*2*PI/amp2))*amplitude);
 		}
 		
 		if(ofs)
@@ -3828,15 +3847,10 @@ void updatescr(bool allowwavy)
 
 	if (replay_is_debug() && replay_get_mode() != ReplayMode::Replay)
 	{
-		static long prev_hash = 0;
 		int depth = bitmap_color_depth(framebuf);
 		size_t len = framebuf->w * framebuf->h * BYTES_PER_PIXEL(depth);
 		uint32_t hash = XXH32(framebuf->dat, len, 0);
-		if (hash != prev_hash)
-		{
-			replay_step_comment(fmt::format("gfx {:x}", hash));
-			prev_hash = hash;
-		}
+		replay_step_gfx(hash);
 	}
 
 	if(black_opening_count==0&&black_opening_shape==bosFADEBLACK)
@@ -5155,7 +5169,7 @@ void wavyout(bool showhero)
 				
 				if((j<i)&&(j&1))
 				{
-					ofs=int32_t(sin((double(i+j)*2*PI/168.0))*amplitude);
+					ofs=int32_t(zc::math::Sin((double(i+j)*2*PI/168.0))*amplitude);
 				}
 				
 				framebuf->line[j+playing_field_offset][k]=wavebuf->line[j+playing_field_offset][k+ofs+16];
@@ -5228,7 +5242,7 @@ void wavyin()
 				
 				if((j<(167-i))&&(j&1))
 				{
-					ofs=int32_t(sin((double(i+j)*2*PI/168.0))*amplitude);
+					ofs=int32_t(zc::math::Sin((double(i+j)*2*PI/168.0))*amplitude);
 				}
 				
 				framebuf->line[j+playing_field_offset][k]=wavebuf->line[j+playing_field_offset][k+ofs+16];
@@ -5431,12 +5445,14 @@ int32_t onEsc() // Unused?? -L
 int32_t onVsync()
 {
 	Throttlefps = !Throttlefps;
+	save_game_configs();
 	return D_O_K;
 }
 
 int32_t onClickToFreeze()
 {
 	ClickToFreeze = !ClickToFreeze;
+	save_game_configs();
 	return D_O_K;
 }
 
@@ -5480,7 +5496,10 @@ int32_t OnnClearQuestDir()
 		flush_config_file();
 		strcpy(qstdir,get_config_string("zeldadx","win_qst_dir",""));
 		//strcpy(filepath,get_config_string("zeldadx","win_qst_dir",""));
-		//save_game_configs();
+		save_game_configs();
+#ifdef __EMSCRIPTEN__
+		em_sync_fs();
+#endif
 		return D_O_K;
 	}
 	else return D_O_K;
@@ -5561,18 +5580,21 @@ int32_t onFrameSkip()
 int32_t onTransLayers()
 {
 	TransLayers = !TransLayers;
+	save_game_configs();
 	return D_O_K;
 }
 
 int32_t onNESquit()
 {
 	NESquit = !NESquit;
+	save_game_configs();
 	return D_O_K;
 }
 
 int32_t onVolKeys()
 {
 	volkeys = !volkeys;
+	save_game_configs();
 	return D_O_K;
 }
 
@@ -5593,6 +5615,7 @@ int32_t onShowFPS()
 		show_paused(screen);
 		
 	unscare_mouse();
+	save_game_configs();
 	return D_O_K;
 }
 
@@ -5719,7 +5742,10 @@ int32_t d_j_clearbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 		kb_clearjoystick(d);
 		
 		while(gui_mouse_b())
+		{
 			clear_keybuf();
+			rest(1);
+		}
 			
 		return D_REDRAW;
 	}
@@ -5733,15 +5759,17 @@ int32_t d_kbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 	{
 	case MSG_KEY:
 	case MSG_CLICK:
-	
+
 		kb_getkey(d);
 		
-		while(gui_mouse_b())
+		while(gui_mouse_b()) {
 			clear_keybuf();
+			rest(1);
+		}
 			
 		return D_REDRAW;
 	}
-	
+
 	return jwin_button_proc(msg,d,c);
 }
 
@@ -5752,15 +5780,17 @@ int32_t d_k_clearbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 	{
 	case MSG_KEY:
 	case MSG_CLICK:
-	
+
 		kb_clearkey(d);
 		
-		while(gui_mouse_b())
+		while(gui_mouse_b()) {
 			clear_keybuf();
+			rest(1);
+		}
 			
 		return D_REDRAW;
 	}
-	
+
 	return jwin_button_proc(msg,d,c);
 }
 
@@ -5798,15 +5828,17 @@ int32_t d_jbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 	{
 	case MSG_KEY:
 	case MSG_CLICK:
-	
+
 		j_getbtn(d);
 		
-		while(gui_mouse_b())
+		while(gui_mouse_b()) {
+			rest(1);
 			clear_keybuf();
+		}
 			
 		return D_REDRAW;
 	}
-	
+
 	return jwin_button_proc(msg,d,c);
 }
 
@@ -6841,6 +6873,9 @@ int32_t onCredits()
 	while(update_dialog(p))
 	{
 		throttleFPS();
+#ifdef __EMSCRIPTEN__
+		all_render_screen();
+#endif
 		++c;
 		l = zc_max((c>>1)-30,0);
 		
@@ -7387,6 +7422,8 @@ int32_t onKeyboard()
 
 			done=true;
 		}
+
+        rest(1);
 	}
 	
 	save_game_configs();
@@ -7449,9 +7486,6 @@ int32_t onGamepad()
 
 int32_t onSound()
 {
-	//if out of beta, we cmight want to clear the settings from scripts:
-	//#ifndef IS_BETA
-	
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	{
 		master_volume(-1,((int32_t)FFCore.usr_midi_volume));
@@ -7472,7 +7506,7 @@ int32_t onSound()
 	{
 		pan_style = (int32_t)FFCore.usr_panstyle;
 	}
-	//#endif
+
 	int32_t m = midi_volume;
 	int32_t d = digi_volume;
 	int32_t e = emusic_volume;
@@ -7528,6 +7562,7 @@ int32_t onSound()
 		pan_style	 = p;
 	}
 	
+	save_game_configs();
 	return D_O_K;
 }
 
@@ -7648,19 +7683,21 @@ int32_t onDebug()
 {
 	if(debug_enabled)
 		set_debug(!get_debug());
-		
+	save_game_configs();	
 	return D_O_K;
 }
 
 int32_t onHeartBeep()
 {
 	heart_beep=!heart_beep;
+	save_game_configs();
 	return D_O_K;
 }
 
 int32_t onSaveIndicator()
 {
 	use_save_indicator=!use_save_indicator;
+	save_game_configs();
 	return D_O_K;
 }
 
@@ -7967,12 +8004,14 @@ static MENU game_menu[] =
 	{ (char *)"L&oad Quest...",			onCustomGame,			 NULL,					  0, NULL },
 	{ (char *)"&End Game\tF6",			 onTryQuitMenu,				NULL,					  0, NULL },
 	{ (char *)"",						  NULL,					 NULL,					  0, NULL },
-#ifndef ALLEGRO_MACOSX
-	{ (char *)"&Reset\tF9",				onReset,				  NULL,					  0, NULL },
-	{ (char *)"&Quit\tF10",				onExit,				   NULL,					  0, NULL },
-#else
+#ifdef __EMSCRIPTEN__
+	{ (char *)"&Reset\tF7",             onReset,                  NULL,                      0, NULL },
+#elif defined(ALLEGRO_MACOSX)
 	{ (char *)"&Reset\tF7",				onReset,				  NULL,					  0, NULL },
 	{ (char *)"&Quit\tF8",				onExit,				   NULL,					  0, NULL },
+#else
+	{ (char *)"&Reset\tF9",				onReset,				  NULL,					  0, NULL },
+	{ (char *)"&Quit\tF10",				onExit,				   NULL,					  0, NULL },
 #endif
 	{ NULL,								NULL,					 NULL,					  0, NULL }
 };
@@ -8717,12 +8756,12 @@ void switch_out_callback()
 	}
 
 #ifdef _WIN32
-	if(midi_patch_fix==0 || currmidi==0)
+	if(midi_patch_fix==0 || currmidi==-1)
 		return;
 
 	
 	paused_midi_pos = midi_pos;
-	stop_midi();
+	zc_stop_midi();
 	midi_paused=true;
 	midi_suspended = midissuspHALTED;
 #endif
@@ -8736,7 +8775,7 @@ void switch_in_callback()
 	}
 
 #ifdef _WIN32
-	if(midi_patch_fix==0 || currmidi==0)
+	if(midi_patch_fix==0 || currmidi==-1)
 		return;
 	
 	else
@@ -8762,7 +8801,7 @@ void music_pause()
 {
 	//al_pause_duh(tmplayer);
 	zcmusic_pause(zcmusic, ZCM_PAUSE);
-	midi_pause();
+	zc_midi_pause();
 	midi_paused=true;
 }
 
@@ -8770,7 +8809,7 @@ void music_resume()
 {
 	//al_resume_duh(tmplayer);
 	zcmusic_pause(zcmusic, ZCM_RESUME);
-	midi_resume();
+	zc_midi_resume();
 	midi_paused=false;
 }
 
@@ -8782,9 +8821,9 @@ void music_stop()
 	//tmplayer=NULL;
 	zcmusic_stop(zcmusic);
 	zcmusic_unload_file(zcmusic);
-	stop_midi();
+	zc_stop_midi();
 	midi_paused=false;
-	currmidi=0;
+	currmidi=-1;
 }
 
 void System()
@@ -9026,7 +9065,7 @@ bool try_zcmusic(char *filename, int32_t track, int32_t midi)
 	{
 		zcmusic_stop(zcmusic);
 		zcmusic_unload_file(zcmusic);
-		stop_midi();
+		zc_stop_midi();
 		
 		zcmusic=newzcmusic;
 		zcmusic_play(zcmusic, emusic_volume);
@@ -9052,7 +9091,7 @@ bool try_zcmusic_ex(char *filename, int32_t track, int32_t midi)
 	{
 		zcmusic_stop(zcmusic);
 		zcmusic_unload_file(zcmusic);
-		stop_midi();
+		zc_stop_midi();
 		
 		zcmusic=newzcmusic;
 		zcmusic_play(zcmusic, emusic_volume);
@@ -9101,13 +9140,13 @@ void jukebox(int32_t index,int32_t loop)
 	// Allegro's DIGMID driver (the one normally used on on Linux) gets
 	// stuck notes when a song stops. This fixes it.
 	if(strcmp(midi_driver->name, "DIGMID")==0)
-		set_volume(0, 0);
+		zc_set_volume(0, 0);
 		
-	set_volume(-1, mixvol(tunes[index].volume,midi_volume>>1));
-	play_midi((MIDI*)tunes[index].data,loop);
+	zc_set_volume(-1, mixvol(tunes[index].volume,midi_volume>>1));
+	zc_play_midi((MIDI*)tunes[index].data,loop);
 	
 	if(tunes[index].start>0)
-		midi_seek(tunes[index].start);
+		zc_midi_seek(tunes[index].start);
 		
 	midi_loop_start = tunes[index].loop_start;
 	midi_loop_end = tunes[index].loop_end;
@@ -9156,7 +9195,7 @@ void play_DmapMusic()
 			
 			if(zcmusic!=NULL)
 			{
-				stop_midi();
+				zc_stop_midi();
 				strcpy(tfile,DMaps[currdmap].tmusic);
 				zcmusic_play(zcmusic, emusic_volume);
 				int32_t temptracks=0;
@@ -9245,7 +9284,7 @@ void master_volume(int32_t dv,int32_t mv)
 	if(mv>=0) midi_volume=zc_max(zc_min(mv,255),0);
 	
 	int32_t i = zc_min(zc_max(currmidi,0),MAXMIDIS-1);
-	set_volume(digi_volume,mixvol(tunes[i].volume,midi_volume));
+	zc_set_volume(digi_volume,mixvol(tunes[i].volume,midi_volume));
 }
 
 /*****************/
@@ -9484,7 +9523,7 @@ const char* joybtn_name(int32_t b)
 int32_t next_press_key()
 {
 	char k[127];
-	
+
 	for(int32_t i=0; i<127; i++)
 		k[i]=key[i];
 		
@@ -9493,8 +9532,9 @@ int32_t next_press_key()
 		for(int32_t i=0; i<127; i++)
 			if(key[i]!=k[i])
 				return i;
+		rest(1);
 	}
-	
+
 	//	return (readkey()>>8);
 }
 
@@ -9502,7 +9542,7 @@ int32_t next_press_btn()
 {
 	clear_keybuf();
 	/*bool b[joy[joystick_index].num_buttons+1];
-	
+
 	for(int32_t i=1; i<=joy[joystick_index].num_buttons; i++)
 		b[i]=joybtn(i);*/
 		
@@ -9530,8 +9570,9 @@ int32_t next_press_btn()
 		}
 		
 		if(done) break;
+		rest(1);
 	}
-	
+
 	//now, we need to wait for them to press any button
 	for(;;)
 	{
@@ -9553,6 +9594,7 @@ int32_t next_press_btn()
 		{
 			if(joybtn(i)) return i;
 		}
+		rest(1);
 	}
 }
 
@@ -9714,9 +9756,14 @@ void load_control_state()
 	replay_poll();
 	locking_keys = false;
 
+	// Some test replay files were made before a serious input bug was fixed, so instead
+	// of re-doing them or tossing them out, just check for that zplay version.
+	bool botched_input = replay_is_replaying() && replay_get_meta_int("version", 1) == 1;
 	for (int i = 0; i < ZC_CONTROL_STATES; i++)
 	{
 		control_state[i] = raw_control_state[i];
+		if(!botched_input && !control_state[i])
+			down_control_states[i] = false;
 	}
 	
 	button_press[0]=rButton(control_state[0],button_hold[0]);

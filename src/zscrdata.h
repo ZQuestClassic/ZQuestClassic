@@ -8,9 +8,11 @@
 #include "zquest.h"
 #endif //!IS_PARSER
 
+#define ZC_CONSOLE_INFO_CODE -9998
 #define ZC_CONSOLE_ERROR_CODE -9997
 #define ZC_CONSOLE_WARN_CODE -9996
-#define ZC_CONSOLE_INFO_CODE -9998
+#define ZC_CONSOLE_DB_CODE -9995
+#define ZC_CONSOLE_TERM_CODE -9994
 
 using std::map;
 using std::string;
@@ -39,6 +41,124 @@ namespace ZScript
 		
 		scrTypeIdEnd
 	};
+}
+
+void write_str(std::string const& str, FILE* f)
+{
+	size_t sz = str.size();
+	fwrite(&sz, sizeof(size_t), 1, f);
+	for(size_t q = 0; q < sz; ++q)
+	{
+		fputc(str.at(q), f);
+	}
+}
+void read_str(std::string& str, FILE* f)
+{
+	size_t sz;
+	fread(&sz, sizeof(size_t), 1, f);
+	str.clear();
+	for(size_t q = 0; q < sz; ++q)
+	{
+		str.push_back(fgetc(f));
+	}
+}
+void write_w(word val, FILE* f)
+{
+	fwrite(&val, sizeof(word), 1, f);
+}
+void read_w(word &val, FILE* f)
+{
+	fread(&val, sizeof(word), 1, f);
+}
+void write_b(byte val, FILE* f)
+{
+	fwrite(&val, sizeof(byte), 1, f);
+}
+void read_b(byte &val, FILE* f)
+{
+	fread(&val, sizeof(byte), 1, f);
+}
+
+void write_meta(zasm_meta const& meta, FILE* f)
+{
+	write_w(meta.zasm_v, f);
+	write_w(meta.meta_v, f);
+	write_w(meta.ffscript_v, f);
+	write_b(meta.script_type, f);
+	for(auto q = 0; q < 8; ++q)
+		write_str(meta.run_idens[q], f);
+	for(auto q = 0; q < 8; ++q)
+		write_b(meta.run_types[q], f);
+	write_b(meta.flags, f);
+	write_w(meta.compiler_v1, f);
+	write_w(meta.compiler_v2, f);
+	write_w(meta.compiler_v3, f);
+	write_w(meta.compiler_v4, f);
+	write_str(meta.script_name, f);
+	write_str(meta.author, f);
+	for(auto q = 0; q < 10; ++q)
+		write_str(meta.attributes[q], f);
+	for(auto q = 0; q < 8; ++q)
+		write_str(meta.attribytes[q], f);
+	for(auto q = 0; q < 8; ++q)
+		write_str(meta.attrishorts[q], f);
+	for(auto q = 0; q < 16; ++q)
+		write_str(meta.usrflags[q], f);
+	for(auto q = 0; q < 10; ++q)
+		write_str(meta.attributes_help[q], f);
+	for(auto q = 0; q < 8; ++q)
+		write_str(meta.attribytes_help[q], f);
+	for(auto q = 0; q < 8; ++q)
+		write_str(meta.attrishorts_help[q], f);
+	for(auto q = 0; q < 16; ++q)
+		write_str(meta.usrflags_help[q], f);
+	for(auto q = 0; q < 8; ++q)
+		write_str(meta.initd[q], f);
+	for(auto q = 0; q < 8; ++q)
+		write_str(meta.initd_help[q], f);
+	for(auto q = 0; q < 8; ++q)
+		write_b(meta.initd_type[q], f);
+}
+
+void read_meta(zasm_meta& meta, FILE* f)
+{
+	read_w(meta.zasm_v, f);
+	read_w(meta.meta_v, f);
+	read_w(meta.ffscript_v, f);
+	read_b(meta.script_type, f);
+	for(auto q = 0; q < 8; ++q)
+		read_str(meta.run_idens[q], f);
+	for(auto q = 0; q < 8; ++q)
+		read_b(meta.run_types[q], f);
+	read_b(meta.flags, f);
+	read_w(meta.compiler_v1, f);
+	read_w(meta.compiler_v2, f);
+	read_w(meta.compiler_v3, f);
+	read_w(meta.compiler_v4, f);
+	read_str(meta.script_name, f);
+	read_str(meta.author, f);
+	for(auto q = 0; q < 10; ++q)
+		read_str(meta.attributes[q], f);
+	for(auto q = 0; q < 8; ++q)
+		read_str(meta.attribytes[q], f);
+	for(auto q = 0; q < 8; ++q)
+		read_str(meta.attrishorts[q], f);
+	for(auto q = 0; q < 16; ++q)
+		read_str(meta.usrflags[q], f);
+	for(auto q = 0; q < 10; ++q)
+		read_str(meta.attributes_help[q], f);
+	for(auto q = 0; q < 8; ++q)
+		read_str(meta.attribytes_help[q], f);
+	for(auto q = 0; q < 8; ++q)
+		read_str(meta.attrishorts_help[q], f);
+	for(auto q = 0; q < 16; ++q)
+		read_str(meta.usrflags_help[q], f);
+	for(auto q = 0; q < 8; ++q)
+		read_str(meta.initd[q], f);
+	for(auto q = 0; q < 8; ++q)
+		read_str(meta.initd_help[q], f);
+	for(auto q = 0; q < 8; ++q)
+		read_b((byte&)meta.initd_type[q], f);
 }
 
 void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, disassembled_script_data>& scripts)
@@ -80,7 +200,7 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 		
 		disassembled_script_data dsd;
 		
-		fread(&(dsd.first), sizeof(zasm_meta), 1, tempfile);
+		read_meta(dsd.first, tempfile);
 		
 		fread(&(dsd.format), sizeof(byte), 1, tempfile);
 		
@@ -120,47 +240,6 @@ read_compile_error:
 	fclose(tempfile);
 	
 	if (buf2) free(buf2);
-	/*
-	reader->read(&stypes_sz, sizeof(size_t));
-	for(size_t ind = 0; ind < stypes_sz; ++ind)
-	{
-		reader->read(&dummy, sizeof(size_t));
-		reader->read(buf, dummy, &dummy);
-		buf[dummy] = 0;
-		reader->read(&_id, sizeof(ZScript::ScriptTypeID));
-		stypes[buf] = _id;
-	}
-	
-	reader->read(&scripts_sz, sizeof(size_t));
-	for(size_t ind = 0; ind < scripts_sz; ++ind)
-	{
-		reader->read(&dummy, sizeof(size_t));
-		reader->read(buf, dummy, &dummy);
-		buf[dummy] = 0;
-		
-		disassembled_script_data dsd;
-		
-		reader->read(&(dsd.first), sizeof(zasm_meta));
-		
-		reader->read(&(dsd.format), sizeof(byte));
-		
-		size_t tmp;
-		reader->read(&tmp, sizeof(size_t));
-		for(size_t ind2 = 0; ind2 < tmp; ++ind2)
-		{
-			reader->read(&dummy, sizeof(size_t));
-			reader->read(buf2, dummy, &dummy);
-			buf2[dummy] = 0;
-			int32_t lbl;
-			reader->read(&lbl, sizeof(int32_t));
-			std::shared_ptr<ZScript::Opcode> oc = std::make_shared<ZScript::ArbitraryOpcode>(string(buf2));
-			oc->setLabel(lbl);
-			dsd.second.push_back(oc);
-		}
-		
-		scripts[buf] = dsd;
-	}
-	*/
 }
 
 void write_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, disassembled_script_data>& scripts)
@@ -195,7 +274,7 @@ void write_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, 
 		fwrite(&dummy, sizeof(size_t), 1, tempfile);
 		fwrite((void*)str.c_str(), sizeof(char), dummy, tempfile);
 		
-		fwrite(&(v.first), sizeof(zasm_meta), 1, tempfile);
+		write_meta(v.first, tempfile);
 		
 		fwrite(&(v.format), sizeof(byte), 1, tempfile);
 		
@@ -217,59 +296,47 @@ void write_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, 
 	
 	//fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
 	fclose(tempfile);
-	/*
-	
-	writer->write(&dummy, sizeof(size_t));
-	for(auto it = stypes.begin(); it != stypes.end(); ++it)
-	{
-		string const& str = it->first;
-		ZScript::ScriptTypeID v = it->second;
-		dummy = str.size();
-		writer->write(&dummy, sizeof(size_t));
-		writer->write((void*)str.c_str(), dummy);
-		writer->write(&v, sizeof(ZScript::ScriptTypeID));
-	}
-	
-	dummy = scripts.size();
-	writer->write(&dummy, sizeof(size_t));
-	for(auto it = scripts.begin(); it != scripts.end(); ++it)
-	{
-		string const& str = it->first;
-		disassembled_script_data& v = it->second;
-		dummy = str.size();
-		writer->write(&dummy, sizeof(size_t));
-		writer->write((void*)str.c_str(), dummy);
-		
-		writer->write(&(v.first), sizeof(zasm_meta));
-		
-		writer->write(&(v.format), sizeof(byte));
-		
-		dummy = v.second.size();
-		writer->write(&dummy, sizeof(size_t));
-		
-		for(auto it = v.second.begin(); it != v.second.end(); ++it)
-		{
-			string opstr = (*it)->toString();
-			int32_t lbl = (*it)->getLabel();
-			
-			dummy = opstr.size();
-			writer->write(&dummy, sizeof(size_t));
-			writer->write((void*)opstr.c_str(), dummy);
-			
-			writer->write(&lbl, sizeof(int32_t));
-		}
-	}
-	*/
 }
 
 #ifndef IS_PARSER
 
 CConsoleLoggerEx parser_console;
 
+static const int32_t DB_COLOR = CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY;
 static const int32_t WARN_COLOR = CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_GREEN;
 static const int32_t ERR_COLOR = CConsoleLoggerEx::COLOR_RED;
 static const int32_t INFO_COLOR = CConsoleLoggerEx::COLOR_WHITE;
 
+void zconsole_db2(const char *format,...)
+{
+	if (!DisableCompileConsole)
+	{
+		int32_t v = parser_console.cprintf( DB_COLOR, "[DEBUG] ");
+		if(v < 0) return; //Failed to print
+	}
+	//{
+	int32_t ret;
+	char tmp[1024];
+	
+	va_list argList;
+	va_start(argList, format);
+	#ifdef WIN32
+	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#else
+	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#endif
+	tmp[vbound(ret,0,1023)]=0;
+	
+	va_end(argList);
+	//}
+	al_trace("%s\n", tmp);
+	if (!DisableCompileConsole) parser_console.cprintf( DB_COLOR, "%s\n", tmp);
+	else
+	{
+		box_out(tmp);
+		box_eol();
+	}
+}
 void zconsole_warn2(const char *format,...)
 {
 	if (!DisableCompileConsole)
@@ -366,6 +433,7 @@ void ReadConsole(char buf[], int code)
 	//al_trace("%s\n", buf);
 	switch(code)
 	{
+		case ZC_CONSOLE_DB_CODE: zconsole_db2("%s", buf); break;
 		case ZC_CONSOLE_WARN_CODE: zconsole_warn2("%s", buf); break;
 		case ZC_CONSOLE_ERROR_CODE: zconsole_error2("%s", buf); break;
 		default: zconsole_info2("%s", buf); break;

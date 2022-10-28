@@ -20,7 +20,7 @@
 #include "zc_sys.h"
 extern byte use_dwm_flush;
 uint8_t using_SRAM = 0;
-#include "zc_math.h"
+#include "base/zc_math.h"
 #include "base/zc_array.h"
 #include "ffscript.h"
 #include "zc_subscr.h"
@@ -3678,7 +3678,7 @@ int32_t get_register(const int32_t arg)
 		
 		case INPUTMOUSEY:
 		{
-			int32_t mousequakeoffset = 56+((int32_t)(sin((double)(quakeclk*int64_t(2)-frame))*4));
+			int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
 			int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 			int32_t topOffset=(resy/2)-((112-tempoffset)*screen_scale);
 			ret=((gui_mouse_y()-topOffset)/screen_scale)*10000;
@@ -3900,7 +3900,7 @@ int32_t get_register(const int32_t arg)
 				}
 				case 1: //MouseY
 				{
-					int32_t mousequakeoffset = 56+((int32_t)(sin((double)(quakeclk*int64_t(2)-frame))*4));
+					int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
 					int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 					int32_t topOffset=(resy/2)-((112-tempoffset)*screen_scale);
 					rv=((gui_mouse_y()-topOffset)/screen_scale)*10000;
@@ -6214,7 +6214,7 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkLWpn(ri->lwpn,"Vx")))
 			{
 				if (((weapon*)(s))->angular)
-					ret = int32_t(cos(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
+					ret = int32_t(zc::math::Cos(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
 				else
 				{
 					switch(NORMAL_DIR(((weapon*)(s))->dir))
@@ -6244,7 +6244,7 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkLWpn(ri->lwpn,"Vy")))
 			{
 				if (((weapon*)(s))->angular)
-					ret = int32_t(sin(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
+					ret = int32_t(zc::math::Sin(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
 				else
 				{
 					switch(NORMAL_DIR(((weapon*)(s))->dir))
@@ -6793,7 +6793,7 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkEWpn(ri->ewpn,"Vx")))
 			{
 				if (((weapon*)(s))->angular)
-					ret = int32_t(cos(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
+					ret = int32_t(zc::math::Cos(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
 				else
 				{
 					switch(NORMAL_DIR(((weapon*)(s))->dir))
@@ -6822,7 +6822,7 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkEWpn(ri->ewpn,"Vy")))
 			{
 				if (((weapon*)(s))->angular)
-					ret = int32_t(sin(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
+					ret = int32_t(zc::math::Sin(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
 				else
 				{
 					switch(NORMAL_DIR(((weapon*)(s))->dir))
@@ -13493,7 +13493,7 @@ void set_register(const int32_t arg, const int32_t value)
 		
 		case INPUTMOUSEY:
 		{
-			int32_t mousequakeoffset = 56+((int32_t)(sin((double)(quakeclk*int64_t(2)-frame))*4));
+			int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
 			int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 			int32_t topOffset=(resy/2)-((112-tempoffset)*screen_scale);
 			position_mouse(gui_mouse_x(), (value/10000)*screen_scale+topOffset);
@@ -13649,7 +13649,7 @@ void set_register(const int32_t arg, const int32_t value)
 				}
 				case 1: //MouseY
 				{
-					int32_t mousequakeoffset = 56+((int32_t)(sin((double)(quakeclk*int64_t(2)-frame))*4));
+					int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
 					int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset :(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 					int32_t topOffset=(resy/2)-((112-tempoffset)*screen_scale);
 					position_mouse(gui_mouse_x(), (value/10000)*screen_scale+topOffset);
@@ -15210,7 +15210,7 @@ void set_register(const int32_t arg, const int32_t value)
 				double vy;
 				double vx = (value / 10000.0);
 				if (((weapon*)(s))->angular)
-					vy = sin(((weapon*)s)->angle)*((weapon*)s)->step;
+					vy = zc::math::Sin(((weapon*)s)->angle)*((weapon*)s)->step;
 				else
 				{
 					switch(NORMAL_DIR(((weapon*)(s))->dir))
@@ -15245,7 +15245,7 @@ void set_register(const int32_t arg, const int32_t value)
 				double vx;
 				double vy = (value / 10000.0);
 				if (((weapon*)(s))->angular)
-					vx = cos(((weapon*)s)->angle)*((weapon*)s)->step;
+					vx = zc::math::Cos(((weapon*)s)->angle)*((weapon*)s)->step;
 				else
 				{
 					switch(NORMAL_DIR(((weapon*)(s))->dir))
@@ -15810,7 +15810,7 @@ void set_register(const int32_t arg, const int32_t value)
 				double vy;
 				double vx = (value / 10000.0);
 				if (((weapon*)(s))->angular)
-					vy = sin(((weapon*)s)->angle)*((weapon*)s)->step;
+					vy = zc::math::Sin(((weapon*)s)->angle)*((weapon*)s)->step;
 				else
 				{
 					switch(NORMAL_DIR(((weapon*)(s))->dir))
@@ -15845,7 +15845,7 @@ void set_register(const int32_t arg, const int32_t value)
 				double vx;
 				double vy = (value / 10000.0);
 				if (((weapon*)(s))->angular)
-					vx = cos(((weapon*)s)->angle)*((weapon*)s)->step;
+					vx = zc::math::Cos(((weapon*)s)->angle)*((weapon*)s)->step;
 				else
 				{
 					switch(NORMAL_DIR(((weapon*)(s))->dir))
@@ -22167,15 +22167,15 @@ void do_trig(const bool v, const byte type)
 	switch(type)
 	{
 		case 0:
-			set_register(sarg1, int32_t(sin(rangle) * 10000.0));
+			set_register(sarg1, int32_t(zc::math::Sin(rangle) * 10000.0));
 			break;
 			
 		case 1:
-			set_register(sarg1, int32_t(cos(rangle) * 10000.0));
+			set_register(sarg1, int32_t(zc::math::Cos(rangle) * 10000.0));
 			break;
 			
 		case 2:
-			set_register(sarg1, int32_t(tan(rangle) * 10000.0));
+			set_register(sarg1, int32_t(zc::math::Tan(rangle) * 10000.0));
 			break;
 	}
 }

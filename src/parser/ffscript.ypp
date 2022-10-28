@@ -16,6 +16,7 @@
 #include "ASTVisitors.h"
 #include "CompileOption.h"
 #include "../zsyssimple.h"
+#include "base/util.h"
 
 using std::string;
 using std::ostringstream;
@@ -31,11 +32,23 @@ extern int32_t yylex(void);
 extern FILE *yyin;
 extern void resetLexer();
 void yyerror(std::unique_ptr<ASTFile>& root, const char* s);
-void yymsg(string const& message, int32_t row = yyrow, int32_t col = yycol);
+void yymsg(string const& message, int32_t row = yyrow, int32_t col = yycol, char const* txt = yytext);
+void yywarn(string const& message, int32_t row = yyrow, int32_t col = yycol, char const* txt = yytext);
+void yyerrmsg(string const& message, int32_t row = yyrow, int32_t col = yycol, char const* txt = yytext);
+void yydb(string const& message, int32_t row = yyrow, int32_t col = yycol, char const* txt = yytext);
 std::string curfilename;
 extern YYLTYPE noloc;
 
 #define push_front(v, elem) (v).insert((v).begin(), elem)
+void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t row = yyrow,
+	int32_t col = yycol, char const* txt = yytext)
+{
+	if(str.size() > sz)
+	{
+		yyerrmsg(header+": String value '" + str + "' is too long. Max '"+std::to_string(sz)+"' characters.", row, col, txt);
+		str = str.substr(0,sz);
+	}
+}
 
 // Since c macros can't directly contain bison macros, they need to be passed
 // in where they're invoked. The following arguments are named so that 'd'
@@ -257,7 +270,7 @@ Global_List :
 		ASTSetOption* option = (ASTSetOption*)$2;
 		root->options.push_back(option);
 		if (root->hasDeclarations())
-			yymsg("WARNING: Options should come before everything else.");}
+			yywarn("WARNING: Options should come before everything else.");}
 	| {root.reset(new ASTFile(noloc));}
 	;
 
@@ -365,7 +378,7 @@ Namespace_Block_List :
 		    || !namesp->functions.empty()
 		    || !namesp->dataTypes.empty()
 		    || !namesp->scriptTypes.empty()) {
-			yymsg("WARNING: Options should come before everything else.");}}
+			yywarn("WARNING: Options should come before everything else.");}}
 	| Namespace_Statement {
 		ASTNamespace* namesp = new ASTNamespace(@$);
 		ASTDecl* declaration = (ASTDecl*)$1;
@@ -805,19 +818,191 @@ Annotated_Script :
 		ASTAnnotationList* list = (ASTAnnotationList*)$1;
 		owning_vector<ASTAnnotation>& set = list->set;
 		ASTScript* script = (ASTScript*)$2;
+		std::string errheader = "ERROR: Bad Annotation Value";
+		int32_t err_row, err_col;
+		err_row = list->location.first_line;
+		err_col = list->location.first_column;
 		for(size_t q = 0; q < set.size(); ++q)
 		{
 			ASTAnnotation* a = set[q];
 			std::string key = a->first->getValue();
 			std::string val = a->second->getValue();
+			std::string oldval = val;
+			std::string annot_str = "@" + key + "(" + val + ")";
+			char const* err_txt = annot_str.c_str();
+			std::string unescaped_val = util::disallow_escapes(util::escape_characters(val));
+			bool goodKey = false;
 			if(key == "Author")
 			{
-				script->author = val;
+				trunc_str(unescaped_val, 255, errheader, err_row, err_col, err_txt);
+				script->metadata.author = unescaped_val;
+				goodKey = true;
+				continue;
 			}
-			else
+			else if((key.size() == 5 || key.size() == 6) && !key.compare(0,4,"Flag"))
 			{
-				yymsg("WARNING: Bad Annotation: \"" + key + "\"");
+				byte c = key[4]-'0';
+				if(key.size() == 6)
+					c = (c*10)+key[5]-'0';
+				if(c < 16)
+				{
+					goodKey = true;
+					trunc_str(unescaped_val, 255, errheader, err_row, err_col, err_txt);
+					script->metadata.usrflags[c] = unescaped_val;
+					continue;
+				}
 			}
+			else if((key.size() == 9 || key.size() == 10) && !key.compare(0,8,"FlagHelp"))
+			{
+				byte c = key[8]-'0';
+				if(key.size() == 10)
+					c = (c*10)+key[9]-'0';
+				if(c < 16)
+				{
+					goodKey = true;
+					trunc_str(val, 65535, errheader, err_row, err_col, err_txt);
+					script->metadata.usrflags_help[c] = val;
+					continue;
+				}
+			}
+			else if(key.size() == 6 && !key.compare(0,5,"InitD"))
+			{
+				byte c = key[5]-'0';
+				if(c < 8)
+				{
+					goodKey = true;
+					trunc_str(unescaped_val, 255, errheader, err_row, err_col, err_txt);
+					script->metadata.initd[c] = unescaped_val;
+					continue;
+				}
+			}
+			else if(key.size() == 10)
+			{
+				byte c = key[9]-'0';
+				if(!key.compare(0,9,"InitDType"))
+				{
+					if(c < 8)
+					{
+						goodKey = true;
+						int8_t v = -1;
+						upperstr(val);
+						if(val.size() == 2 && val[0] == 'L')
+						{
+							switch(val[1])
+							{
+								case 'D': v = nswapLDEC; break;
+								case 'H': v = nswapLHEX; break;
+							}
+						}
+						else if(val.size() == 1)
+						{
+							switch(val[0])
+							{
+								case 'D': v = nswapDEC; break;
+								case 'H': v = nswapHEX; break;
+								case 'B': v = nswapBOOL; break;
+							}
+						}
+						if(unsigned(v) < nswapMAX)
+						{
+							script->metadata.initd_type[c] = v;
+							continue;
+						}
+						else if(val == "-1")
+						{
+							script->metadata.initd_type[c] = -1;
+							continue;
+						}
+						else
+						{
+							yyerrmsg("ERROR: Bad Annotation Value: '@" + key + "' must be"
+								" exactly 'D','H','LD','LH','B', or '-1' NOT '" + oldval + "'.",
+								err_row, err_col, err_txt);
+						}
+					}
+				}
+				else if(!key.compare(0,9,"InitDHelp"))
+				{
+					if(c < 8)
+					{
+						goodKey = true;
+						trunc_str(val, 65535, errheader, err_row, err_col, err_txt);
+						script->metadata.initd_help[c] = val;
+						continue;
+					}
+				}
+				else if(!key.compare(0,9,"Attribute"))
+				{
+					if(c < 10)
+					{
+						goodKey = true;
+						trunc_str(unescaped_val, 255, errheader, err_row, err_col, err_txt);
+						script->metadata.attributes[c] = unescaped_val;
+						continue;
+					}
+				}
+				else if(!key.compare(0,9,"Attribyte"))
+				{
+					if(c < 8)
+					{
+						goodKey = true;
+						trunc_str(unescaped_val, 255, errheader, err_row, err_col, err_txt);
+						script->metadata.attribytes[c] = unescaped_val;
+						continue;
+					}
+				}
+			}
+			else if(key.size() == 11 && !key.compare(0,10,"Attrishort"))
+			{
+				byte c = key[10]-'0';
+				if(c < 8)
+				{
+					goodKey = true;
+					trunc_str(unescaped_val, 255, errheader, err_row, err_col, err_txt);
+					script->metadata.attrishorts[c] = unescaped_val;
+					continue;
+				}
+			}
+			else if(key.size() == 14)
+			{
+				if(!key.compare(0,13,"AttributeHelp"))
+				{
+					byte c = key[13]-'0';
+					if(c < 10)
+					{
+						goodKey = true;
+						trunc_str(val, 65535, errheader, err_row, err_col, err_txt);
+						script->metadata.attributes_help[c] = val;
+						continue;
+					}
+				}
+				else if(!key.compare(0,13,"AttribyteHelp"))
+				{
+					byte c = key[13]-'0';
+					if(c < 8)
+					{
+						goodKey = true;
+						trunc_str(val, 65535, errheader, err_row, err_col, err_txt);
+						script->metadata.attribytes_help[c] = val;
+						continue;
+					}
+				}
+			}
+			else if(key.size() == 15 && !key.compare(0,14,"AttrishortHelp"))
+			{
+				byte c = key[14]-'0';
+				if(c < 8)
+				{
+					goodKey = true;
+					trunc_str(val, 65535, errheader, err_row, err_col, err_txt);
+					script->metadata.attrishorts_help[c] = val;
+					continue;
+				}
+			}
+			
+			//continue before here for valid annotation
+			if(!goodKey)
+				yyerrmsg("ERROR: Bad Annotation Key: '"+annot_str+"'", err_row, err_col, err_txt);
 		}
 		delete list;
 		$$ = script;}
@@ -829,7 +1014,7 @@ Script :
 		ASTString* name = (ASTString*)$3;
 		ASTScript* script = (ASTScript*)$4;
 		script->type = type;
-		script->name = name->getValue();
+		script->metadata.script_name = name->getValue();
 		script->location = @$;
 		$$ = script;
 		delete name;}
@@ -839,7 +1024,7 @@ Script :
 		ASTString* name = (ASTString*)$2;
 		ASTScript* script = (ASTScript*)$3;
 		script->type = type;
-		script->name = name->getValue();
+		script->metadata.script_name = name->getValue();
 		script->location = @$;
 		$$ = script;
 		delete name;}
@@ -888,7 +1073,7 @@ Script_Block_List :
 		if (!script->variables.empty()
 		    || !script->functions.empty()
 		    || !script->types.empty()) {
-			yymsg("WARNING: Options should come before everything else.");}}
+			yywarn("WARNING: Options should come before everything else.");}}
 	| Script_Block_Element {
 		ASTScript* script = new ASTScript(@$);
 		ASTDecl* declaration = (ASTDecl*)$1;
@@ -1033,7 +1218,7 @@ Statement_Block_List :
 		block->options.push_back(option);
 		$$ = block;
 		if (!block->statements.empty()) {
-			yymsg("WARNING: Options should come before everything else.");}}
+			yywarn("WARNING: Options should come before everything else.");}}
 	| Statement {
 		ASTStmt* stmt = (ASTStmt*)$1;
 		ASTBlock* block = new ASTBlock(@$);
@@ -1709,26 +1894,42 @@ Literal_Array_Body :
 /*        programs */
 
 static bool is_buffer_file = false;
-void yymsg(string const& message, int32_t row, int32_t col)
+std::string yyerrstr(string const& msg, int32_t row, int32_t col, char const* txt)
 {
 	ostringstream out;
-	out << message << " [";
+	out << msg << " [";
 	if (is_buffer_file)
 		out << "ZQ_BUFFER ";
 	else
 		out << curfilename << " ";
-	out << "Line " << yyrow << " "
-	    << "Column " << yycol;
+	out << "Line " << row << " "
+	    << "Column " << col;
 	if (yyleng)
-	    out << " '" << yytext << "'";
+	    out << " '" << txt << "'";
 	out << "]";
-	zconsole_error(out.str().c_str());
+	return out.str();
+}
+void yymsg(string const& message, int32_t row, int32_t col, char const* txt)
+{
+	zconsole_info(yyerrstr(message,row,col,txt).c_str());
+}
+void yywarn(string const& message, int32_t row, int32_t col, char const* txt)
+{
+	zconsole_warn(yyerrstr(message,row,col,txt).c_str());
+}
+void yyerrmsg(string const& message, int32_t row, int32_t col, char const* txt)
+{
+	zparser_error_out();
+	zconsole_error(yyerrstr(message,row,col,txt).c_str());
+}
+void yydb(string const& message, int32_t row, int32_t col, char const* txt)
+{
+	zconsole_db(yyerrstr(message,row,col,txt).c_str());
 }
 
-extern bool zscript_had_warn_err;
-void yyerror(std::unique_ptr<ASTFile>&, const char *s) {
-	zscript_had_warn_err = true;
-	yymsg(s);
+void yyerror(std::unique_ptr<ASTFile>&, const char *s)
+{
+	yyerrmsg(s);
 }
 
 namespace ZScript

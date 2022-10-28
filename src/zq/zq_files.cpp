@@ -29,6 +29,10 @@
 #include "zq_tiles.h"
 #include "zq_custom.h"
 
+#ifdef __EMSCRIPTEN__
+#include "base/emscripten_utils.h"
+#endif
+
 #ifdef _MSC_VER
 #define getcwd _getcwd
 #define stricmp _stricmp
@@ -896,9 +900,13 @@ int32_t onSaveAs()
         jwin_alert("ZQuest","Saving is","disabled in this version.",NULL,"O&K",NULL,'k',0,lfont);
         return D_O_K;
     }
-    
-    if(!getname("Save Quest As (.qst)","qst",NULL,filepath,true))
+#ifdef __EMSCRIPTEN__
+		if(!getname("Save Quest As (.qst)","qst",NULL,get_initial_file_dialog_folder().c_str(),true))
         return D_O_K;
+#else
+		if(!getname("Save Quest As (.qst)","qst",NULL,filepath,true))
+        return D_O_K;
+#endif
         
     if(exists(temppath))
     {
@@ -1033,8 +1041,13 @@ int32_t onOpen()
 		{ NULL,                                                  NULL                                              }
 	};
 	
-	if(!getname("Load File",NULL,list,filepath,true))
-		return D_O_K;
+#ifdef __EMSCRIPTEN__
+		if(!getname("Load File",NULL,list,get_initial_file_dialog_folder().c_str(),true))
+			return D_O_K;
+#else
+		if(!getname("Load File",NULL,list,filepath,true))
+			return D_O_K;
+#endif
 	
 	open_quest(temppath);
 	return D_O_K;

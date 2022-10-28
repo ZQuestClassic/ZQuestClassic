@@ -5089,7 +5089,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 			auto oscr = homescr;
 			homescr = scr;
 			hidden_entrance(tmp,false,false,-3);
-			scr = oscr;
+			homescr = oscr;
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
 		{
@@ -6000,7 +6000,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t)
 		for(int32_t pos = 0; pos < 176; ++pos)
 		{
 			newcombo const& cmb = combobuf[scr->data[pos]];
-			if(cmb.usrflags & cflag10) //global state
+			if(cmb.usrflags & cflag11) //global state
 				continue;
 			if((cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && cmb.attribytes[0] < 32)
 			{
@@ -6043,7 +6043,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t)
 						if(!scr_2->data[pos]) //Don't increment empty space
 							continue;
 						newcombo const& cmb_2 = combobuf[scr_2->data[pos]];
-						if(lyr2 > lyr && (cmb_2.type == cCSWITCH || cmb_2.type == cCSWITCHBLOCK) && !(cmb.usrflags & cflag10)
+						if(lyr2 > lyr && (cmb_2.type == cCSWITCH || cmb_2.type == cCSWITCHBLOCK) && !(cmb.usrflags & cflag11)
 								&& cmb_2.attribytes[0] < 32 && (flags&(1<<cmb_2.attribytes[0])))
 							continue; //This is a switch/block that will be hit later in the loop!
 						set<int32_t> oldData2;
@@ -6079,7 +6079,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t)
 	if(get_bit(quest_rules, qr_SWITCHES_AFFECT_MOVINGBLOCKS) && mblock2.clk)
 	{
 		newcombo const& cmb = combobuf[mblock2.bcombo];
-		if(!(cmb.usrflags & cflag10) && (cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && cmb.attribytes[0] < 32)
+		if(!(cmb.usrflags & cflag11) && (cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && cmb.attribytes[0] < 32)
 		{
 			if(flags&(1<<cmb.attribytes[0]))
 			{
@@ -6120,7 +6120,7 @@ void toggle_gswitches(bool* states, bool entry, mapscr* m, mapscr* t)
 		for(int32_t pos = 0; pos < 176; ++pos)
 		{
 			newcombo const& cmb = combobuf[scr->data[pos]];
-			if(!(cmb.usrflags & cflag10)) //not global state
+			if(!(cmb.usrflags & cflag11)) //not global state
 				continue;
 			if(cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK)
 			{
@@ -6164,7 +6164,7 @@ void toggle_gswitches(bool* states, bool entry, mapscr* m, mapscr* t)
 							continue;
 						newcombo const& cmb_2 = combobuf[scr_2->data[pos]];
 						if(lyr2 > lyr && (cmb_2.type == cCSWITCH || cmb_2.type == cCSWITCHBLOCK)
-							&& (cmb_2.usrflags & cflag10) && (states[cmb_2.attribytes[0]]))
+							&& (cmb_2.usrflags & cflag11) && (states[cmb_2.attribytes[0]]))
 							continue; //This is a switch/block that will be hit later in the loop!
 						set<int32_t> oldData2;
 						//Increment the combo/cset by the original cmb's attributes
@@ -6200,7 +6200,7 @@ void toggle_gswitches(bool* states, bool entry, mapscr* m, mapscr* t)
 	if(get_bit(quest_rules, qr_SWITCHES_AFFECT_MOVINGBLOCKS) && mblock2.clk)
 	{
 		newcombo const& cmb = combobuf[mblock2.bcombo];
-		if((cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && (cmb.usrflags & cflag10))
+		if((cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && (cmb.usrflags & cflag11))
 		{
 			if(states[cmb.attribytes[0]])
 			{

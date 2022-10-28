@@ -34,6 +34,10 @@ using std::getline;
 #include "jwin.h"
 #include "zconsole/ConsoleLogger.h"
 
+#ifdef __EMSCRIPTEN__
+#include "emscripten_utils.h"
+#endif
+
 #ifdef _MSC_VER
 #define stricmp _stricmp
 #endif
@@ -646,6 +650,13 @@ int32_t decode_file_007(const char *srcfile, const char *destfile, const char *h
     int32_t tog = 0, c, r=0, err;
     int32_t size, i;
     int16_t c1 = 0, c2 = 0, check1, check2;
+
+#ifdef __EMSCRIPTEN__
+    if (em_is_lazy_file(srcfile))
+    {
+        em_fetch_file(srcfile);
+    }
+#endif
     
     // open files
     size = file_size_ex_password(srcfile, password);
@@ -1244,28 +1255,28 @@ void box_end(bool pause)
     {
         if(pause)
         {
-	    //set_volume(255,-1);
-	    //kill_sfx();
-	    //sfx(20,128, false,true);
+	    //zc_set_volume(255,-1);
+	    // kill_sfx();
+	    // sfx(20,128, false,true);
 	
             box_eol();
             box_out("-- press a key --");
             
             do
             {
-                //        poll_mouse();
+                rest(1);
             }
             while(gui_mouse_b());
             
             do
             {
-                //        poll_mouse();
+                rest(1);
             }
             while((!keypressed()) && (!gui_mouse_b()));
             
             do
             {
-                //        poll_mouse();
+                rest(1);
             }
             while(gui_mouse_b());
             
@@ -2453,6 +2464,7 @@ FILE * trace_file;
 
 int32_t zc_trace_handler(const char * msg)
 {
+    // printf("%s", msg);
     if(trace_file == 0)
     {
         trace_file = fopen("allegro.log", "a+");

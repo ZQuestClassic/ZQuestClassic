@@ -171,7 +171,7 @@ UserScript* ZScript::createScript(
 	{
 		if (errorHandler)
 			errorHandler->handleError(
-				CompileError::ScriptRedef(&node, node.name));
+				CompileError::ScriptRedef(&node, script->getName().c_str()));
 		delete script;
 		return NULL;
 	}
@@ -181,7 +181,7 @@ UserScript* ZScript::createScript(
 	{
 		if (errorHandler)
 			errorHandler->handleError(
-				CompileError::ScriptBadType(&node, node.name));
+				CompileError::ScriptBadType(&node, script->getName().c_str()));
 		delete script;
 		return NULL;
 	}

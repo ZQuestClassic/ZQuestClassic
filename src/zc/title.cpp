@@ -33,6 +33,10 @@
 #include "hero.h"
 #include "ffscript.h"
 
+#ifdef __EMSCRIPTEN__
+#include "base/emscripten_utils.h"
+#endif
+
 #ifdef _MSC_VER
 #define strupr _strupr
 #define stricmp _stricmp
@@ -1175,7 +1179,6 @@ static void v25_titlescreen()
 	trstr=0;
 	set_palette(black_palette);
 	
-	try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
 	clear_to_color(screen,BLACK);
 	clear_bitmap(framebuf);
 	init_NES_mode();
@@ -1184,6 +1187,7 @@ static void v25_titlescreen()
 	CSET_SHFT=2;
 	ALLOFF();
 	clear_keybuf();
+	try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
 	
 	do
 	{
@@ -2344,7 +2348,11 @@ newdata:
 	
 	if(standalone_mode)
 		goto init;
-		
+
+	#ifdef __EMSCRIPTEN__
+		goto init;
+	#endif
+
 	if(jwin_alert("Can't Find Saved Game File",
 				  "The save file could not be found.",
 				  "Create a new file from scratch?",
@@ -2818,6 +2826,11 @@ int32_t save_savedgames()
 		
 	fclose(f2);
 	free(iname);
+
+#ifdef __EMSCRIPTEN__
+	em_sync_fs();
+#endif
+
 	return ret;
 }
 
@@ -3257,6 +3270,15 @@ static bool register_name()
 	refreshpal=true;
 	bool done=false;
 	bool cancel=false;
+
+	if (!load_qstpath.empty()) {
+		std::string filename = get_filename(load_qstpath.c_str());
+		filename.erase(remove(filename.begin(), filename.end(), ' '), filename.end());
+		auto len = filename.find(".qst", 0);
+		len = zc_min(len, 8);
+		strcpy(name, filename.substr(0, len).c_str());
+		x = strlen(name);
+	}
 	
 	int32_t letter_grid_x=(NameEntryMode2==2)?34:44;
 	int32_t letter_grid_y=120;
@@ -3443,6 +3465,17 @@ static bool register_name()
 		}
 		else
 		{
+#ifdef __EMSCRIPTEN__
+			// Allow gamepad to submit name.
+			poll_joystick();
+			load_control_state();
+			if(rSbtn())
+			{
+				done = true;
+				break;
+			}
+#endif
+
 			if(keypressed())
 			{
 				int32_t k=readkey();
@@ -3540,6 +3573,7 @@ static bool register_name()
 						while(key[KEY_ESC])
 						{
 							/* do nothing */
+							rest(1);
 						}
 						
 						break;
@@ -4178,6 +4212,24 @@ static void select_game(bool skip = false)
 		draw_cursor(pos,mode);
 		advanceframe(true);
 		saveslot = pos + listpos;
+
+		if(!load_qstpath.empty())
+		{
+			if (register_name())
+			{
+				currgame = savecnt - 1;
+				loadlast = currgame + 1;
+				strcpy(qstpath, load_qstpath.c_str());
+				chosecustomquest = true;
+				load_custom_game(currgame);
+				save_savedgames();
+				break;
+			}
+			else
+			{
+				load_qstpath = "";
+			}
+		}
 		
 		if(popup_choose_quest)
 		{

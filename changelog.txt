@@ -1,5 +1,52 @@
 // 2.55 Change Log
-// Updated 12th Oct, 2022
+// Updated 23rd Oct, 2022
+
+// Alpha 111
+
+Fix shadows not drawing on enemies that do not 'Obey Gravity'.
+	( EmilyV, 23rd Oct, 2022 )
+
+Add 'GetEquipmentX()'/'GetEquipmentY()' to std_functions.zh
+Update 'UsingItem()' in 'std_functions.zh' to check x/y buttons
+	( EmilyV, 22nd Oct, 2022 )
+
+Change the 'Global State' flag on switches/switch blocks
+	to 'Flags[10]' instead of 'Flags[9]', because
+	it was overlapping with another flag...
+	(this might break quests that were using this, sorry!)
+	( EmilyV, 19th Oct, 2022 )
+
+Fix scroll warp color change timing bug
+	( EmilyV, 19th Oct, 2022 )
+
+Fix duplicate cursor displaying
+	( connorjclark, 19th Oct, 2022 )
+
+Fix some buttons not working properly
+Fix lifting an item with a lift glove allowing you to swim
+Fix: Now when drowning / falling in a pit with a combo lifted,
+	you will drop the combo.
+	( EmilyV, 18th Oct, 2022 )
+
+Fix item position not saving properly on screen 0x80+
+	( EmilyV, 17th Oct, 2022 )
+
+Allegro mouse fixes
+	( connorjclark, 16th Oct, 2022 )
+
+Fix negative item pickup amounts
+Fix the mouse clipping through some dialog text
+	( EmilyV, 15th Oct, 2022 )
+
+replay fixes
+	( connorjclark, 14th-22nd Oct, 2022 )
+
+Fix '^' characters in control settings dialog
+	( EmilyV, 14th Oct, 2022 )
+
+Add 'Unsafe Ground' flag, for new pit/drowning respawn
+	to mark positions as 'not safe to respawn on'.
+	( EmilyV, 13th Oct, 2022 )
 
 // Alpha 110
 

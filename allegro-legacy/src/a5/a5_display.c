@@ -22,8 +22,6 @@
 // local edit
 #include "a5alleg.h"
 
-void all_render_screen(void);
-
 #define ALLEGRO_LEGACY_PIXEL_FORMAT_8888  0
 #define ALLEGRO_LEGACY_PIXEL_FORMAT_OTHER 1
 
@@ -78,7 +76,9 @@ static bool _a5_setup_screen(int w, int h)
 #else
   if (_a5_display_fullscreen) flags |= ALLEGRO_FULLSCREEN;
 #endif
+#ifndef __EMSCRIPTEN__
   else flags |= ALLEGRO_RESIZABLE;
+#endif
 
   al_set_new_display_flags(flags);
 
@@ -271,7 +271,7 @@ static BITMAP * a5_display_init(int w, int h, int vw, int vh, int color_depth)
         _a5_display_height = h;
         _a5_screen_thread = al_create_thread(_a5_display_thread, NULL);
         al_start_thread(_a5_screen_thread);
-
+        // local edit
         while(!_a5_display_creation_done) rest(1);
       }
       else
@@ -622,6 +622,7 @@ void all_render_screen(void)
     all_unlock_screen();
 
     // local edit
+#ifndef __EMSCRIPTEN__
     int offset_x, offset_y;
     double scale;
     all_get_display_transform(NULL, NULL, NULL, NULL, &offset_x, &offset_y, &scale);
@@ -629,6 +630,7 @@ void all_render_screen(void)
     al_build_transform(&transform, offset_x, offset_y, scale, scale, 0);
     al_use_transform(&transform);
     al_clear_to_color(al_map_rgb(0, 0, 0));
+#endif
 
     al_draw_bitmap(_a5_screen, 0, 0, 0);
     al_flip_display();

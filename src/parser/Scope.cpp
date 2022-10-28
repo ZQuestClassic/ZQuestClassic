@@ -1435,8 +1435,8 @@ bool RootScope::checkImport(ASTImportDecl* node, int32_t headerGuard, CompileErr
 	if(node->wasChecked()) return true;
 	node->check();
 	if(headerGuard == OPT_OFF) return true; //Don't check anything, behave as usual.
-	string fname = cropPath(node->getFilename());
-	lowerstr(fname);
+	string fname = node->getFilename();
+	//lowerstr(fname);
 	if(ASTImportDecl* first = find<ASTImportDecl*>(importsByName_, fname).value_or(boost::add_pointer<ASTImportDecl>::type()))
 	{
 		node->disable(); //Disable node.
@@ -1461,6 +1461,7 @@ bool RootScope::checkImport(ASTImportDecl* node, int32_t headerGuard, CompileErr
 
 		}
 	}
+	//zconsole_db("Import '%s' checked and registered successfully", fname.c_str());
 	importsByName_[fname] = node;
 	return true; //Allow import
 }
