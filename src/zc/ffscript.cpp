@@ -26662,7 +26662,7 @@ void do_readclass()
 	dword objref = get_register(sarg1);
 	ri->d[rEXP1] = 0;
 	int32_t ind = sarg2;
-	if(user_object* obj = checkObject(objref, true))
+	if(user_object* obj = checkObject(objref))
 	{
 		if(unsigned(ind) >= obj->data.size())
 		{
@@ -26678,7 +26678,7 @@ void do_writeclass()
 {
 	dword objref = get_register(sarg1);
 	int32_t ind = sarg2;
-	if(user_object* obj = checkObject(objref, true))
+	if(user_object* obj = checkObject(objref))
 	{
 		if(unsigned(ind) >= obj->data.size())
 		{
@@ -26689,6 +26689,15 @@ void do_writeclass()
 			obj->data[ind] = ri->d[rEXP1];
 		}
 	}
+}
+void do_freeclass()
+{
+	dword objref = get_register(sarg1);
+	if(user_object* obj = checkObject(objref, true))
+	{
+		obj->clear();
+	}
+	ri->d[rEXP1] = 0;
 }
 
 bool zasm_advance()
@@ -27582,6 +27591,11 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			case ZCLASS_WRITE:
 			{
 				do_writeclass();
+				break;
+			}
+			case ZCLASS_FREE:
+			{
+				do_freeclass();
 				break;
 			}
 				
@@ -37021,7 +37035,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "ZCLASS_CONSTRUCT",           1,   0,   0,   2},
 	{ "ZCLASS_READ",   2,   0,   1,   0},
 	{ "ZCLASS_WRITE",   2,   0,   1,   0},
-	{ "RESRVD_OP_EMILY03",   0,   0,   0,   0},
+	{ "ZCLASS_FREE",   1,   0,   0,   0},
 	{ "RESRVD_OP_EMILY04",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY05",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY06",   0,   0,   0,   0},

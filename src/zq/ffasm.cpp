@@ -1070,7 +1070,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "ZCLASS_CONSTRUCT",           1,   0,   0,   2},
 	{ "ZCLASS_READ",   2,   0,   1,   0},
 	{ "ZCLASS_WRITE",   2,   0,   1,   0},
-	{ "RESRVD_OP_EMILY03",   0,   0,   0,   0},
+	{ "ZCLASS_FREE",   1,   0,   0,   0},
 	{ "RESRVD_OP_EMILY04",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY05",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY06",   0,   0,   0,   0},

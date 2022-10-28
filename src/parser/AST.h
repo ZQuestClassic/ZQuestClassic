@@ -1269,7 +1269,24 @@ namespace ZScript
 		
 		owning_ptr<ASTExpr> operand;
 	};
+	
+	class ASTExprDelete : public ASTUnaryExpr
+	{
+	public:
+		ASTExprDelete(LocationData const& location = LOC_NONE);
+		ASTExprDelete* clone() const {return new ASTExprDelete(*this);}
 
+		void execute(ASTVisitor& visitor, void* param = NULL);
+
+		std::optional<int32_t> getCompileTimeValue(CompileErrorHandler* errorHandler,
+			Scope* scope) {return std::nullopt;}
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+		{
+			return &DataType::UNTYPED;
+		}
+		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler) {return NULL;}
+	};
+	
 	class ASTExprNegate : public ASTUnaryExpr
 	{
 	public:

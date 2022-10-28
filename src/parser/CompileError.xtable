@@ -118,6 +118,7 @@ X(	NameMismatchC,			S,	A,	E,	STR,	STR,	"Constructor name '%s' must match class n
 X(	NameMismatchD,			S,	A,	E,	STR,	STR,	"Destructor name '%s' must match class name '%s'."				)
 X(	DestructorParam,			S,	A,	E,	STR,	VOID,	"Destructor '~%s' must take no parameters."				)
 X(	NoClass,			S,	A,	E,	STR,	VOID,	"The class '%s' was not found to construct."				)
+X(	BadDelete,			T,	A,	E,	VOID,	VOID,	"'delete' may only be used on objects of classes."								)
 
 
 #undef STR

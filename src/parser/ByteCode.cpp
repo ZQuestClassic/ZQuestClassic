@@ -2347,9 +2347,9 @@ string OWriteObject::toString()
 {
 	return "ZCLASS_WRITE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
-string OReservedEmily03::toString()
+string OFreeObject::toString()
 {
-	return "RESRVD_OP_EMILY03 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "ZCLASS_FREE " + getArgument()->toString();
 }
 string OReservedEmily04::toString()
 {

@@ -1891,14 +1891,14 @@ namespace ZScript
 			return new OWriteObject(a->clone(),b->clone());
 		}
 	};
-	class OReservedEmily03 : public BinaryOpcode
+	class OFreeObject : public UnaryOpcode
 	{
 	public:
-		OReservedEmily03(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OFreeObject(Argument *A) : UnaryOpcode(A) {}
 		std::string toString();
 		Opcode *clone()
 		{
-			return new OReservedEmily03(a->clone(),b->clone());
+			return new OFreeObject(a->clone());
 		}
 	};
 	class OReservedEmily04 : public BinaryOpcode

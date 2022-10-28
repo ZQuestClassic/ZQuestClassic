@@ -1471,6 +1471,17 @@ void SemanticAnalyzer::caseExprNegate(ASTExprNegate& host, void*)
 	}
 	analyzeUnaryExpr(host, DataType::FLOAT);
 }
+void SemanticAnalyzer::caseExprDelete(ASTExprDelete& host, void*)
+{
+	visit(host.operand.get());
+	if (breakRecursion(host)) return;
+	
+	DataType const* optype = host.operand->getReadType(scope, this);
+	if(!optype->isUsrClass())
+	{
+		handleError(CompileError::BadDelete(&host));
+	}
+}
 
 void SemanticAnalyzer::caseExprNot(ASTExprNot& host, void*)
 {

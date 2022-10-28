@@ -1349,6 +1349,17 @@ ASTUnaryExpr::ASTUnaryExpr(LocationData const& location)
 	: ASTExpr(location)
 {}
 
+// ASTExprDelete
+
+ASTExprDelete::ASTExprDelete(LocationData const& location)
+	: ASTUnaryExpr(location)
+{}
+
+void ASTExprDelete::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprDelete(*this, param);
+}
+
 // ASTExprNegate
 
 ASTExprNegate::ASTExprNegate(LocationData const& location)

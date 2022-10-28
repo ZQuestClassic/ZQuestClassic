@@ -113,6 +113,8 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseExprNegate(ASTExprNegate& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseExprDelete(ASTExprDelete& host, void* param = NULL) {
+			caseDefault(host, param);}
 		virtual void caseExprNot(ASTExprNot& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseExprBitNot(ASTExprBitNot& host, void* param = NULL) {
@@ -310,6 +312,7 @@ namespace ZScript
 		virtual void caseExprIndex(ASTExprIndex& host, void* param = NULL);
 		virtual void caseExprCall(ASTExprCall& host, void* param = NULL);
 		virtual void caseExprNegate(ASTExprNegate& host, void* param = NULL);
+		virtual void caseExprDelete(ASTExprDelete& host, void* param = NULL);
 		virtual void caseExprNot(ASTExprNot& host, void* param = NULL);
 		virtual void caseExprBitNot(ASTExprBitNot& host, void* param = NULL);
 		virtual void caseExprIncrement(

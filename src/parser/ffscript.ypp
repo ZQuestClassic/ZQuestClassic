@@ -134,7 +134,7 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 %token INLINE
 %token STATIC
 %left NEW
-%token DELETE
+%left DELETE
 %token CASSERT
 
  // Types
@@ -1772,11 +1772,11 @@ Expr_Arrow :
 	;
 
 Expr_3 : Expr_2 {$$ = $1;}
-  // Post Increment
+	// Post Increment
 	| Expr_3 INCREMENT {POSTFIX(ASTExprIncrement, $$, $1, @$)}
-  // Post Decrement
+	// Post Decrement
 	| Expr_3 DECREMENT {POSTFIX(ASTExprDecrement, $$, $1, @$)}
-  // Function Call
+	// Function Call
 	| Function_Call {$$ = $1;}
 	// Subscript
 	| Expr_3 LBRACKET Expression RBRACKET {
@@ -1885,27 +1885,35 @@ Expr_16 : Expr_15 {$$ = $1;}
 	;
 
 Expr_17 : Expr_16 {$$ = $1;}
+	| DELETE Expr_17 {
+		ASTExprDelete* del = new ASTExprDelete(@$);
+		ASTExpr* operand = (ASTExpr*)$2;
+		del->operand = operand;
+		$$ = del;}
+	;
+
+Expr_18 : Expr_17 {$$ = $1;}
 	// Assignment
-	| Expr_16 ASSIGN Expr_17 {BINARY(ASTExprAssign, $$, $1, $3, @$)}
+	| Expr_17 ASSIGN Expr_18 {BINARY(ASTExprAssign, $$, $1, $3, @$)}
 	// Addition Assignment
-	| Expr_16 PLUSASSIGN Expr_17 {SHORTCUT(ASTExprPlus, $$, $1, $3, @$, @3)}
+	| Expr_17 PLUSASSIGN Expr_18 {SHORTCUT(ASTExprPlus, $$, $1, $3, @$, @3)}
 	// Subtraction Assignment
-	| Expr_16 MINUSASSIGN Expr_17 {SHORTCUT(ASTExprMinus, $$, $1, $3, @$, @3)}
+	| Expr_17 MINUSASSIGN Expr_18 {SHORTCUT(ASTExprMinus, $$, $1, $3, @$, @3)}
 	// Multiplication Assignment
-	| Expr_16 TIMESASSIGN Expr_17 {SHORTCUT(ASTExprTimes, $$, $1, $3, @$, @3)}
+	| Expr_17 TIMESASSIGN Expr_18 {SHORTCUT(ASTExprTimes, $$, $1, $3, @$, @3)}
 	// Division Assignment
-	| Expr_16 DIVIDEASSIGN Expr_17 {SHORTCUT(ASTExprDivide, $$, $1, $3, @$, @3)}
+	| Expr_17 DIVIDEASSIGN Expr_18 {SHORTCUT(ASTExprDivide, $$, $1, $3, @$, @3)}
 	// Modulus Assignment
-	| Expr_16 MODULOASSIGN Expr_17 {SHORTCUT(ASTExprModulo, $$, $1, $3, @$, @3)}
+	| Expr_17 MODULOASSIGN Expr_18 {SHORTCUT(ASTExprModulo, $$, $1, $3, @$, @3)}
 	// Left Shift Assignment
-	| Expr_16 LSHIFTASSIGN Expr_17 {SHORTCUT(ASTExprLShift, $$, $1, $3, @$, @3)}
+	| Expr_17 LSHIFTASSIGN Expr_18 {SHORTCUT(ASTExprLShift, $$, $1, $3, @$, @3)}
 	// Right Shift Assignment
-	| Expr_16 RSHIFTASSIGN Expr_17 {SHORTCUT(ASTExprRShift, $$, $1, $3, @$, @3)}
+	| Expr_17 RSHIFTASSIGN Expr_18 {SHORTCUT(ASTExprRShift, $$, $1, $3, @$, @3)}
 	// Bitwise And Assignment
-	| Expr_16 BITANDASSIGN Expr_17 {SHORTCUT(ASTExprBitAnd, $$, $1, $3, @$, @3)}
+	| Expr_17 BITANDASSIGN Expr_18 {SHORTCUT(ASTExprBitAnd, $$, $1, $3, @$, @3)}
 	// BitNot Assignment
 	// `a ~= b` == `a &= ~b` == `a = a & ~b`
-	| Expr_16 BITNOTASSIGN Expr_17 {
+	| Expr_17 BITNOTASSIGN Expr_18 {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExpr* right = (ASTExpr*)$3;
 		ASTExprBitNot* bitnot = new ASTExprBitNot(@$);
@@ -1913,16 +1921,16 @@ Expr_17 : Expr_16 {$$ = $1;}
 		ASTExprBitAnd* rval = new ASTExprBitAnd(left->clone(), bitnot, @3);
 		$$ = new ASTExprAssign(left, rval, @$);}
 	// Bitwise Xor Assignment
-	| Expr_16 BITXORASSIGN Expr_17 {SHORTCUT(ASTExprBitXor, $$, $1, $3, @$, @3)}
+	| Expr_17 BITXORASSIGN Expr_18 {SHORTCUT(ASTExprBitXor, $$, $1, $3, @$, @3)}
 	// Bitwise Or Assignment
-	| Expr_16 BITORASSIGN Expr_17 {SHORTCUT(ASTExprBitOr, $$, $1, $3, @$, @3)}
+	| Expr_17 BITORASSIGN Expr_18 {SHORTCUT(ASTExprBitOr, $$, $1, $3, @$, @3)}
 	// Logical And Assignment
-	| Expr_16 ANDASSIGN Expr_17 {SHORTCUT(ASTExprAnd, $$, $1, $3, @$, @3)}
+	| Expr_17 ANDASSIGN Expr_18 {SHORTCUT(ASTExprAnd, $$, $1, $3, @$, @3)}
 	// Logical Or Assignment
-	| Expr_16 ORASSIGN Expr_17 {SHORTCUT(ASTExprOr, $$, $1, $3, @$, @3)}
+	| Expr_17 ORASSIGN Expr_18 {SHORTCUT(ASTExprOr, $$, $1, $3, @$, @3)}
 		 ;
 
-Expression : Expr_17 {$$ = $1;};
+Expression : Expr_18 {$$ = $1;};
 
 Expression_Constant :
 	Expression {

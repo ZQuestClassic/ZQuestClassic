@@ -76,7 +76,7 @@ namespace ZScript
 		std::map<ASTScript*, Script*> scriptsByNode_;
 		std::map<std::string, UserClass*> classesByName_;
 		std::map<ASTClass*, UserClass*> classesByNode_;
-
+		
 		TypeStore typeStore_;
 		RootScope* rootScope_;
 		ASTFile& root_;

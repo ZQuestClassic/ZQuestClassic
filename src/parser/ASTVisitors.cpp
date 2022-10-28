@@ -449,6 +449,11 @@ void RecursiveVisitor::caseExprCall(ASTExprCall& host, void* param)
 	visit(host, host.parameters, param);
 }
 
+void RecursiveVisitor::caseExprDelete(ASTExprDelete& host, void* param)
+{
+	visit(host.operand.get(), param);
+}
+
 void RecursiveVisitor::caseExprNegate(ASTExprNegate& host, void* param)
 {
 	visit(host.operand.get(), param);

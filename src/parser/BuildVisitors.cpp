@@ -1231,7 +1231,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	{
 		int32_t funclabel = func.getLabel();
 		//push the stack frame pointer
-		bool store_this = host.left->isTypeArrow() || func.getFlag(FUNCFLAG_DESTRUCTOR);
+		bool store_this = host.left->isTypeArrow();
 		if(store_this)
 			addOpcode(new OPushRegister(new VarArgument(CLASS_THISKEY)));
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
@@ -1240,9 +1240,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		int32_t startRefCount = arrayRefs.size(); //Store ref count
 		addOpcode(new OPushImmediate(new LabelArgument(returnaddr)));
 		
-		
-		// user class pointer functions
-		if (host.left->isTypeArrow())
+		if (store_this)
 		{
 			//load the value of the left-hand of the arrow into EXP1
 			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
@@ -1376,6 +1374,41 @@ void BuildOpcodes::caseExprNegate(ASTExprNegate& host, void* param)
 
 	visit(host.operand.get(), param);
 	addOpcode(new OSubImmediate2(new LiteralArgument(0), new VarArgument(EXP1)));
+}
+
+void BuildOpcodes::caseExprDelete(ASTExprDelete& host, void* param)
+{
+	DataType const* optype = host.operand->getReadType(scope, this);
+	if(UserClass* user_class = optype->getUsrClass())
+	{
+		auto& vec = user_class->getScope().getDestructor();
+		if(vec.size() == 1)
+		{
+			Function* func = vec.at(0);
+			
+			addOpcode(new OPushRegister(new VarArgument(CLASS_THISKEY)));
+			visit(host.operand.get(), param);
+			addOpcode(new OSetRegister(new VarArgument(CLASS_THISKEY), new VarArgument(EXP1)));
+			//Call the destructor
+			
+			int32_t funclabel = func->getLabel();
+			addOpcode(new OPushRegister(new VarArgument(SFRAME)));
+			int32_t returnaddr = ScriptParser::getUniqueLabelID();
+			addOpcode(new OPushImmediate(new LabelArgument(returnaddr)));
+			addOpcode(new OGotoImmediate(new LabelArgument(funclabel)));
+			Opcode *next = new OPopRegister(new VarArgument(SFRAME));
+			next->setLabel(returnaddr);
+			addOpcode(next);
+			
+			//End destructor
+			addOpcode(new OFreeObject(new VarArgument(CLASS_THISKEY)));
+			addOpcode(new OPopRegister(new VarArgument(CLASS_THISKEY)));
+			return;
+		}
+	}
+	
+	visit(host.operand.get(), param);
+	addOpcode(new OFreeObject(new VarArgument(EXP1)));
 }
 
 void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)

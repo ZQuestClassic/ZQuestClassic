@@ -968,6 +968,10 @@ void RegistrationVisitor::caseExprNegate(ASTExprNegate& host, void* param)
 	}
 	analyzeUnaryExpr(host);
 }
+void RegistrationVisitor::caseExprDelete(ASTExprDelete& host, void* param)
+{
+	analyzeUnaryExpr(host);
+}
 
 void RegistrationVisitor::caseExprNot(ASTExprNot& host, void* param)
 {
