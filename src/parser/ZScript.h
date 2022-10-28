@@ -63,8 +63,8 @@ namespace ZScript
 		std::vector<Function*> getUserFunctions() const;
 		// Gets all non-user-defined functions
 		std::vector<Function*> getInternalFunctions() const;
-		std::vector<Function*> Program::getUserClassConstructors() const;
-		std::vector<Function*> Program::getUserClassDestructors() const;
+		std::vector<Function*> getUserClassConstructors() const;
+		std::vector<Function*> getUserClassDestructors() const;
 
 		// Return a list of all errors in the script declaration.
 		std::vector<CompileError const*> getErrors() const;
