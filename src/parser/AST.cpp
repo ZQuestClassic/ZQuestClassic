@@ -1322,7 +1322,7 @@ DataType const* ASTExprIndex::getWriteType(Scope* scope, CompileErrorHandler* er
 // ASTExprCall
 
 ASTExprCall::ASTExprCall(LocationData const& location)
-	: ASTExpr(location), binding(NULL)
+	: ASTExpr(location), binding(NULL), _constructor(false)
 {}
 
 void ASTExprCall::execute(ASTVisitor& visitor, void* param)

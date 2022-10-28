@@ -384,6 +384,7 @@ namespace ZScript
 		virtual bool isUntyped() const {return false;}
 		virtual bool isVoid() const {return false;}
 		virtual bool isCustom() const {return false;}
+		virtual bool isUsrClass() const {return false;}
 		virtual bool isLong() const {return false;}
 
 		// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
@@ -635,15 +636,16 @@ namespace ZScript
 	class DataTypeCustom : public DataType
 	{
 	public:
-		DataTypeCustom(std::string name, DataType* constType, int32_t id = getUniqueCustomId())
-			: DataType(constType), name(name), id(id)
+		DataTypeCustom(std::string name, DataType* constType, bool is_class = false, int32_t id = getUniqueCustomId())
+			: DataType(constType), name(name), id(id), _classty(is_class)
 		{}
 		DataTypeCustom* clone() const {return new DataTypeCustom(*this);}
 		
 		virtual DataTypeCustom* resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler) {return this;}
 		
 		virtual bool isConstant() const {return false;}
-		virtual bool isCustom() const {return false;}
+		virtual bool isCustom() const {return true;}
+		virtual bool isUsrClass() const {return _classty;}
 		virtual bool canBeGlobal() const {return true;}
 		virtual std::string getName() const {return name;}
 		virtual bool canCastTo(DataType const& target) const;
@@ -652,6 +654,7 @@ namespace ZScript
 	protected:
 		int32_t id;
 		std::string name;
+		bool _classty;
 
 		int32_t selfCompare(DataType const& other) const;
 	};
@@ -659,8 +662,8 @@ namespace ZScript
 	class DataTypeCustomConst : public DataTypeCustom
 	{
 	public:
-		DataTypeCustomConst(std::string name)
-			: DataTypeCustom(name, NULL)
+		DataTypeCustomConst(std::string name, bool is_class = false)
+			: DataTypeCustom(name, NULL, is_class)
 		{}
 		DataTypeCustomConst* clone() const {return new DataTypeCustomConst(*this);}
 		

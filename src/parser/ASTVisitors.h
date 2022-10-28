@@ -4,6 +4,10 @@
 #include "AST.h"
 #include "CompileError.h"
 
+enum
+{
+	puc_none, puc_vars, puc_funcs, puc_construct, puc_destruct, puc_max
+};
 namespace ZScript
 {
 	////////////////////////////////////////////////////////////////
@@ -218,7 +222,7 @@ namespace ZScript
 		static void* const paramReadWrite;
 		
 		RecursiveVisitor() : failure(false), failure_halt(false),
-			failure_temp(false), parsing_user_class(false), breakNode(NULL) {}
+			failure_temp(false), parsing_user_class(puc_none), breakNode(NULL) {}
 	
 		// Mark as having failed.
 		void fail() {failure = true;}
@@ -352,7 +356,7 @@ namespace ZScript
 		               AST* node = NULL,
 		               bool twoWay = false);
 		
-		bool parsing_user_class;
+		int parsing_user_class;
 	protected:
 		// Returns true if we have failed or for some other reason must break out
 		// of recursion. Should be called with the current node and param between

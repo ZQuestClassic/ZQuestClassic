@@ -323,6 +323,8 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 
 	//globals have been initialized, now we repeat for the functions
 	vector<Function*> funs = program.getUserFunctions();
+	appendElements(funs, program.getUserClassConstructors());
+	appendElements(funs, program.getUserClassDestructors());
 	for (vector<Function*>::iterator it = funs.begin();
 	     it != funs.end(); ++it)
 	{
@@ -342,10 +344,21 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 		
 		if(function.getFlag(FUNCFLAG_CLASSFUNC) && !function.getFlag(FUNCFLAG_STATIC))
 		{
-			zconsole_db("[skip] %s", function.getSignature().asString().c_str());
+			zconsole_db("[ClassCode] %s", function.getSignature().asString().c_str());
 			//!TODOUSERCLASS
-			continue;
-			
+			//continue;
+			int puc = puc_funcs;
+			if(function.getFlag(FUNCFLAG_CONSTRUCTOR))
+			{
+				//Create object pointer, load into 'this'
+				//Just before return, set EXP1 to 'this' value
+				puc = puc_construct;
+			}
+			else if(function.getFlag(FUNCFLAG_DESTRUCTOR))
+			{
+				
+				puc = puc_destruct;
+			}
 			vector<std::shared_ptr<Opcode>> funccode;
 			int32_t stackSize = getStackSize(function);
 			// Start of the function.
@@ -363,7 +376,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 												new VarArgument(SP)));
 			OpcodeContext oc(typeStore);
 			BuildOpcodes bo(scope);
-			bo.parsing_user_class = true;
+			bo.parsing_user_class = puc;
 			node.execute(bo, &oc);
 			
 			if (bo.hasError()) failure = true;
@@ -592,6 +605,8 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 
 	// Generate a map of labels to functions.
 	vector<Function*> allFunctions = getFunctions(program);
+	appendElements(allFunctions, program.getUserClassConstructors());
+	appendElements(allFunctions, program.getUserClassDestructors());
 	map<int32_t, Function*> functionsByLabel;
 	for (vector<Function*>::iterator it = allFunctions.begin();
 	     it != allFunctions.end(); ++it)

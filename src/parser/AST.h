@@ -718,8 +718,11 @@ namespace ZScript
 		owning_vector<ASTDataTypeDef> types;
 		owning_vector<ASTUsingDecl> use;
 		owning_vector<ASTAssert> asserts;
+		
 		owning_vector<ASTFuncDecl> constructors;
 		owning_ptr<ASTFuncDecl> destructor;
+		
+		owning_ptr<ASTDataType> type;
 		
 		UserClass* user_class;
 	};
@@ -1235,12 +1238,15 @@ namespace ZScript
 
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler);
-	
+		void setConstructor(bool _c) {_constructor = _c;}
+		bool isConstructor() const {return _constructor;}
+		
 		owning_ptr<ASTExpr> left;
 		owning_vector<ASTExpr> parameters;
 		owning_ptr<ASTBlock> inlineBlock;
 		owning_vector<ASTDataDecl> inlineParams;
-
+		bool _constructor;
+		
 		Function* binding;
 	};
 

@@ -396,6 +396,98 @@ vector<Function*> ZScript::lookupFunctions(
 	return functions;
 }
 
+UserClass* ZScript::lookupClass(Scope& scope, string const& name, bool noUsing)
+{
+	set<Function*> functions;
+	Scope const* current = &scope;
+	bool foundFile = false;
+	ClassScope* cscope = nullptr;
+	Scope* tscope = nullptr;
+	//Standard lookup loop
+	for (; current; current = current->getParent())
+	{
+		tscope = current->getChild(name);
+		if(tscope && tscope->isClass())
+		{
+			cscope = static_cast<ClassScope*>(tscope);
+			return &cscope->user_class;
+		}
+	}
+	if(!noUsing)
+	{
+		vector<NamespaceScope*> namespaces = lookupUsingNamespaces(scope);
+		for(vector<NamespaceScope*>::iterator it = namespaces.begin();
+			it != namespaces.end(); ++it)
+		{
+			NamespaceScope* nsscope = *it;
+			tscope = nsscope->getChild(name);
+			if(tscope && tscope->isClass())
+			{
+				cscope = static_cast<ClassScope*>(tscope);
+				return &cscope->user_class;
+			}
+		}
+		current = &scope;
+	}
+	return nullptr;
+}
+
+UserClass* ZScript::lookupClass(Scope& scope, vector<string> const& names,
+	vector<string> const& delimiters, bool noUsing)
+{
+	if (names.size() == 0)
+		return nullptr;
+	else if (names.size() == 1)
+		return lookupClass(scope, names[0], noUsing);
+	
+	string const& name = names.back();
+	vector<string> ancestry(names.begin(), --names.end());
+	vector<Scope*> scopes = lookupScopes(scope, ancestry, delimiters, true); //Don't include using scopes
+	vector<Scope*> usingScopes = lookupUsingScopes(scope, ancestry, delimiters); //get ONLY using scopes
+	//Check all non-using scopes for valid function matches
+	bool foundFile = false;
+	ClassScope* cscope = nullptr;
+	Scope* tscope = nullptr;
+	for (vector<Scope*>::const_iterator it = scopes.begin();
+	     it != scopes.end(); ++it)
+	{
+		Scope& current = **it;
+		
+		tscope = current.getChild(name);
+		if(tscope && tscope->isClass())
+		{
+			cscope = static_cast<ClassScope*>(tscope);
+			return &cscope->user_class;
+		}
+	}
+	if(!noUsing)
+	{
+		//Check using functions
+		for (vector<Scope*>::const_iterator it = usingScopes.begin();
+			 it != usingScopes.end(); ++it)
+		{
+			Scope& current = **it;
+			
+			tscope = current.getChild(name);
+			if(tscope && tscope->isClass())
+			{
+				cscope = static_cast<ClassScope*>(tscope);
+				return &cscope->user_class;
+			}
+		}
+	}
+
+	return nullptr;
+}
+
+vector<Function*> ZScript::lookupConstructors(UserClass const& user_class, vector<DataType const*> const& parameterTypes)
+{
+	vector<Function*> functions = user_class.getScope().getConstructors();
+	trimBadFunctions(functions, parameterTypes);
+	return functions;
+}
+
+
 inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes)
 {
 	// Filter out invalid functions.

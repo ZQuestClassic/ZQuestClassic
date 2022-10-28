@@ -133,6 +133,8 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 %token REPEAT
 %token INLINE
 %token STATIC
+%left NEW
+%token DELETE
 %token CASSERT
 
  // Types
@@ -1692,14 +1694,28 @@ Func_Left :
 	| Identifier_List {$$ = $1;}
 	;
 
-Expr_3_Call :
-	Func_Left LPAREN RPAREN {
+Function_Call :
+	NEW Identifier_List LPAREN RPAREN {
+		ASTExprCall* call = new ASTExprCall(@$);
+		call->setConstructor(true);
+		ASTExpr* left = (ASTExpr*)$2;
+		call->left = left;
+		call->location = @$;
+		$$ = call;}
+	| NEW Identifier_List LPAREN Function_Call_Parameters RPAREN {
+		ASTExprCall* call = (ASTExprCall*)$4;
+		call->setConstructor(true);
+		ASTExpr* left = (ASTExpr*)$2;
+		call->left = left;
+		call->location = @$;
+		$$ = call;}
+	| Func_Left LPAREN RPAREN {
 		ASTExprCall* call = new ASTExprCall(@$);
 		ASTExpr* left = (ASTExpr*)$1;
 		call->left = left;
 		call->location = @$;
 		$$ = call;}
-	| Func_Left LPAREN Expr_3_Call_Parameters RPAREN {
+	| Func_Left LPAREN Function_Call_Parameters RPAREN {
 		ASTExpr* left = (ASTExpr*)$1;
 		ASTExprCall* call = (ASTExprCall*)$3;
 		call->left = left;
@@ -1707,8 +1723,8 @@ Expr_3_Call :
 		$$ = call;}
 	;
 
-Expr_3_Call_Parameters :
-	Expr_3_Call_Parameters COMMA Expression {
+Function_Call_Parameters :
+	Function_Call_Parameters COMMA Expression {
 		ASTExprCall* call = (ASTExprCall*)$1;
 		ASTExpr* e = (ASTExpr*)$3;
 		call->parameters.push_back(e);
@@ -1761,7 +1777,7 @@ Expr_3 : Expr_2 {$$ = $1;}
   // Post Decrement
 	| Expr_3 DECREMENT {POSTFIX(ASTExprDecrement, $$, $1, @$)}
   // Function Call
-	| Expr_3_Call {$$ = $1;}
+	| Function_Call {$$ = $1;}
 	// Subscript
 	| Expr_3 LBRACKET Expression RBRACKET {
 		BINARY(ASTExprIndex, $$, $1, $3, @$);}

@@ -134,6 +134,27 @@ vector<Function*> Program::getInternalFunctions() const
 	return functions;
 }
 
+vector<Function*> Program::getUserClassConstructors() const
+{
+	vector<Function*> functions;
+	for(auto it = classes.begin(); it != classes.end(); ++it)
+	{
+		UserClass* user_class = *it;
+		appendElements(functions, user_class->getScope().getConstructors());
+	}
+	return functions;
+}
+vector<Function*> Program::getUserClassDestructors() const
+{
+	vector<Function*> functions;
+	for(auto it = classes.begin(); it != classes.end(); ++it)
+	{
+		UserClass* user_class = *it;
+		appendElements(functions, user_class->getScope().getDestructor());
+	}
+	return functions;
+}
+
 vector<Function*> ZScript::getFunctions(Program const& program)
 {
 	vector<Function*> functions = getFunctionsInBranch(program.getScope());

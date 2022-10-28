@@ -410,7 +410,7 @@ void SemanticAnalyzer::caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void*)
 		//Construct a new constant type
 		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name);
 		//Construct the base type
-		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, newConstType->getCustomId());
+		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, false, newConstType->getCustomId());
 		
 		//Set the type to the base type
 		host.type.reset(new ASTDataType(newBaseType, host.location));
@@ -602,7 +602,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 				return;
 			}
 		}
-		else if(parsing_user_class)
+		else if(parsing_user_class == puc_vars) //class variables
 		{
 			if(host.getInitializer())
 			{
@@ -625,12 +625,14 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 		
 		else
 		{
+			//!TODOUSERCLASS Needs to do weird shit if 'parsing_user_class == puc_vars'
+			//! UserClass-> function that creates a special variable/array inside it?
 			if (scope->getLocalDatum(host.name))
 			{
 				handleError(CompileError::VarRedef(&host, host.name));
 				return;
 			}
-
+			
 			Variable::create(*scope, host, type, this);
 		}
 	}
@@ -882,8 +884,44 @@ void SemanticAnalyzer::caseClass(ASTClass& host, void* param)
 {
 	UserClass& user_class = host.user_class ? *host.user_class : *(host.user_class = program.addClass(host, *scope, this));
 	if (breakRecursion(host)) return;
-	
 	string name = user_class.getName();
+	
+	if(!host.type)
+	{
+		//Don't allow use of a name that already exists
+		unique_ptr<ASTExprIdentifier> temp(new ASTExprIdentifier(name, host.location));
+		if(DataType const* existingType = lookupDataType(*scope, *temp, this, true))
+		{
+			handleError(
+				CompileError::RedefDataType(
+					&host, host.name));
+			temp.reset();
+			return;
+		}
+		temp.reset();
+		
+		//Construct a new constant type
+		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name, true);
+		//Construct the base type
+		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, true, newConstType->getCustomId());
+		
+		//Set the type to the base type
+		host.type.reset(new ASTDataType(newBaseType, host.location));
+		
+		DataType::addCustom(newBaseType);
+		
+		//This call should never fail, because of the error check above.
+		scope->addDataType(host.name, newBaseType, &host);
+		if (breakRecursion(*host.type.get())) return;
+		
+		for (auto it = host.constructors.begin();
+			 it != host.constructors.end(); ++it)
+		{
+			ASTFuncDecl* func = *it;
+			func->returnType.reset(new ASTDataType(newBaseType, func->location));
+		}
+	}
+	
 
 	// Recurse on user_class elements with its scope.
 	scope = &user_class.getScope();
@@ -1183,10 +1221,24 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		parameterTypes.push_back((*it)->getReadType(scope, this));
 
 	// Grab functions with the proper name, and matching parameter types
-	vector<Function*> functions =
-		identifier
-		? lookupFunctions(*scope, identifier->components, identifier->delimiters, parameterTypes, identifier->noUsing)
-		: lookupFunctions(*arrow->leftClass, arrow->right, parameterTypes, true); //Never `using` arrow functions
+	vector<Function*> functions;
+	UserClass* user_class = nullptr;
+	if(identifier)
+	{
+		if(host.isConstructor())
+		{
+			user_class = lookupClass(*scope, identifier->components, identifier->delimiters, identifier->noUsing);
+			if(!user_class)
+			{
+				handleError(CompileError::NoClass(&host, identifier->asString()));
+				return;
+			}
+			functions = lookupConstructors(*user_class, parameterTypes);
+			//!TODOUSERCLASS ensure there's always a default constructor
+		}
+		else functions = lookupFunctions(*scope, identifier->components, identifier->delimiters, parameterTypes, identifier->noUsing);
+	}
+	else functions = lookupFunctions(*arrow->leftClass, arrow->right, parameterTypes, true); //Never `using` arrow functions
 
 	// Find function with least number of casts.
 	vector<Function*> bestFunctions;
@@ -1344,7 +1396,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		}
 		return;
 	}
-
+	
 	// Is this a call to a disabled tracing function?
 	if (*lookupOption(*scope, CompileOption::OPT_NO_LOGGING)
 	    && bestFunctions.front()->isTracing())
@@ -1352,46 +1404,8 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		host.disable();
 		return;
 	}
-		
-	host.binding = bestFunctions.front();
 	
-	if(host.binding->getFlag(FUNCFLAG_INLINE))
-	{
-		/* This section has issues, and a totally new system for parameters must be devised. For now, just disabling inlining of user functions altogether. -V
-		if(!host.binding->isInternal())
-		{
-			//Check for recursion. Inline functions cannot be recursive, so if this is recursive, make it no longer inline.
-			for(vector<Function*>::reverse_iterator it = inlineStack.rbegin();
-				it != inlineStack.rend(); ++it)
-			{
-				if(*it == host.binding)
-				{
-					host.binding->setFlag(FUNCFLAG_INLINE, false);
-					return;
-				}
-				if(!(*it)->getFlag(FUNCFLAG_INLINE)) break;
-			}
-			inlineStack.push_back(host.binding);
-			scope = scope->makeChild();
-			DataType const* oldReturnType = returnType;
-			returnType = host.binding->returnType;
-			
-			host.inlineBlock = host.binding->node->block->clone();
-			host.inlineParams = host.binding->node->parameters;
-			int32_t sz = host.parameters.size();
-			for(int32_t q = 0; q < sz; ++q)
-			{
-				ASTExpr* init = host.parameters[q];
-				host.inlineParams[q]->setInitializer(init->clone());
-			}
-			visit(host, host.inlineParams, param);
-			RecursiveVisitor::caseBlock(*host.inlineBlock, param);
-			
-			scope = scope->getParent();
-			inlineStack.pop_back();
-			returnType = oldReturnType;
-		}*/
-	}
+	host.binding = bestFunctions.front();
 }
 
 void SemanticAnalyzer::caseExprNegate(ASTExprNegate& host, void*)

@@ -205,26 +205,68 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 {
 	UserClass& user_class = host.user_class ? *host.user_class : *(host.user_class = program.addClass(host, *scope, this));
 	if (breakRecursion(host)) return;
-	
 	string name = user_class.getName();
+	
+	if(!host.type)
+	{
+		//Don't allow use of a name that already exists
+		unique_ptr<ASTExprIdentifier> temp(new ASTExprIdentifier(name, host.location));
+		if(DataType const* existingType = lookupDataType(*scope, *temp, this, true))
+		{
+			handleError(
+				CompileError::RedefDataType(
+					&host, host.name));
+			temp.reset();
+			doRegister(host);
+			return;
+		}
+		temp.reset();
+		
+		//Construct a new constant type
+		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name, true);
+		//Construct the base type
+		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, true, newConstType->getCustomId());
+		
+		//Set the type to the base type
+		host.type.reset(new ASTDataType(newBaseType, host.location));
+		
+		DataType::addCustom(newBaseType);
+		
+		//This call should never fail, because of the error check above.
+		scope->addDataType(host.name, newBaseType, &host);
+		if (breakRecursion(*host.type.get())) return;
+		
+		for (auto it = host.constructors.begin();
+			 it != host.constructors.end(); ++it)
+		{
+			ASTFuncDecl* func = *it;
+			func->returnType.reset(new ASTDataType(newBaseType, func->location));
+		}
+	}
 
 	// Recurse on user_class elements with its scope.
 	scope = &user_class.getScope();
-	parsing_user_class = true;
 	block_regvisit(host, host.options, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
 	block_regvisit(host, host.use, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
 	block_regvisit(host, host.types, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	parsing_user_class = puc_vars;
 	block_regvisit(host, host.variables, param);
+	parsing_user_class = puc_none;
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	parsing_user_class = puc_funcs;
 	block_regvisit(host, host.functions, param);
+	parsing_user_class = puc_none;
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	parsing_user_class = puc_construct;
 	block_regvisit(host, host.constructors, param);
+	parsing_user_class = puc_none;
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	parsing_user_class = puc_destruct;
 	visit(host.destructor.get(), param);
-	parsing_user_class = false;
+	parsing_user_class = puc_none;
 	scope = scope->getParent();
 	if (breakRecursion(host)) return;
 	//
@@ -356,7 +398,7 @@ void RegistrationVisitor::caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void
 		//Construct a new constant type
 		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name);
 		//Construct the base type
-		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, newConstType->getCustomId());
+		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, false, newConstType->getCustomId());
 		
 		//Set the type to the base type
 		host.type.reset(new ASTDataType(newBaseType, host.location));
@@ -534,7 +576,7 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 			return;
 		}
 	}
-	else if(parsing_user_class)
+	else if(parsing_user_class == puc_vars) //class variables
 	{
 		if(host.getInitializer())
 		{
