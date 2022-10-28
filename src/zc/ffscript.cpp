@@ -26632,15 +26632,6 @@ void do_constructclass(int32_t type, int32_t i)
 {
 	if(!sargvec) return;
 	
-	zprint2("Construct class: {");
-	for(auto it = sargvec->begin(); it != sargvec->end();)
-	{
-		zprint2("%d", *it);
-		if(++it != sargvec->end())
-			zprint2(",");
-	}
-	zprint2("}\n");
-	//!TODOUSERCLASS
 	size_t num_vars = sargvec->at(0);
 	size_t total_vars = num_vars + sargvec->size()-1;
 	
@@ -26680,8 +26671,6 @@ void do_readclass()
 		else
 		{
 			ri->d[rEXP1] = obj->data.at(ind);
-			zprint2("Read '%d.%04d' from %d[%d]\n", ri->d[rEXP1]/10000,
-				ri->d[rEXP1]%10000, objref, ind);
 		}
 	}
 }
@@ -26698,8 +26687,6 @@ void do_writeclass()
 		else
 		{
 			obj->data[ind] = ri->d[rEXP1];
-			zprint2("Write '%d.%04d' to %d[%d]\n", ri->d[rEXP1]/10000,
-				ri->d[rEXP1]%10000, objref, ind);
 		}
 	}
 }
