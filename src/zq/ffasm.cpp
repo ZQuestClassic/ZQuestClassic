@@ -1067,6 +1067,26 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "GRAPHICSCOUNTCOLOR",         1,   0,   0,   0},
 	{ "WRITEPODSTRING",           1,   0,   0,   1},
 	{ "WRITEPODARRAY",           1,   0,   0,   2},
+	{ "CREATEPALDATA",           0,   0,   0,   0 },
+	{ "CREATEPALDATACLR",           1,   0,   0,   0 },
+	{ "MIXCLR",           0,   0,   0,   0 },
+	{ "PALDATALOADLEVEL",           1,   0,   0,   0 },
+	{ "PALDATALOADSPRITE",           1,   0,   0,   0 },
+	{ "PALDATALOADMAIN",           0,   0,   0,   0 },
+	{ "PALDATAWRITELEVEL",           1,   0,   0,   0 },
+	{ "PALDATAWRITELEVELCS",           2,   0,   0,   0 },
+	{ "PALDATAWRITESPRITE",           1,   0,   0,   0 },
+	{ "PALDATAWRITESPRITECS",           2,   0,   0,   0 },
+	{ "PALDATAWRITEMAIN",           0,   0,   0,   0 },
+	{ "PALDATAWRITEMAINCS",           1,   0,   0,   0 },
+	{ "PALDATAGETCLR",           2,   0,   0,   0 },
+	{ "PALDATASETCLR",           2,   0,   0,   0 },
+	{ "PALDATACLEARCLR",           1,   0,   0,   0 },
+	{ "PALDATAMIX",           0,   0,   0,   0 },
+	{ "PALDATAMIXCS",           0,   0,   0,   0 },
+	{ "PALDATACOPY",           1,   0,   0,   0 },
+	{ "PALDATAFREE",           0,   0,   0,   0 },
+	{ "PALDATAOWN",           0,   0,   0,   0 },
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -2441,6 +2461,8 @@ script_variable variable_list[]=
 	{ "COMBODLIFTBREAKSFX", COMBODLIFTBREAKSFX, 0, 0 },
 	{ "COMBODLIFTHEIGHT", COMBODLIFTHEIGHT, 0, 0 },
 	{ "COMBODLIFTTIME", COMBODLIFTTIME, 0, 0 },
+	
+	{ "REFPALDATA", REFPALDATA, 0, 0 },
 	
 	{ " ",  -1, 0, 0 }
 };

@@ -2146,6 +2146,8 @@ string ZScript::VarToString(int32_t ID)
 	case EWPNFAKEJUMP: return "EWPNFAKEJUMP";
 	case HEROFAKEJUMP: return "HEROFAKEJUMP";
 	
+	case REFPALDATA: return "REFPALDATA";
+	
 	default:
 	{
 		sprintf(temp, "d%d", ID);
@@ -2973,6 +2975,105 @@ string OLoadDirectoryRegister::toString()
 string OLoadRNG::toString()
 {
     return "LOADRNG";
+}
+
+string OCreatePalData::toString()
+{
+    return "CREATEPALDATA";
+}
+
+string OCreatePalDataClr::toString()
+{
+	return "CREATEPALDATACLR " + getArgument()->toString();
+}
+
+string OMixColorArray::toString()
+{
+	return "MIXCLR";
+}
+string OLoadLevelPalette::toString()
+{
+    return "PALDATALOADLEVEL " + getArgument()->toString();
+}
+
+string OLoadSpritePalette::toString()
+{
+    return "PALDATALOADSPRITE " + getArgument()->toString();
+}
+
+string OLoadMainPalette::toString()
+{
+    return "PALDATALOADMAIN";
+}
+
+string OWriteLevelPalette::toString()
+{
+    return "PALDATAWRITELEVEL " + getArgument()->toString();
+}
+
+string OWriteLevelCSet::toString()
+{
+    return "PALDATAWRITELEVELCS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OWriteSpritePalette::toString()
+{
+    return "PALDATAWRITESPRITE " + getArgument()->toString();
+}
+
+string OWriteSpriteCSet::toString()
+{
+    return "PALDATAWRITESPRITECS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OWriteMainPalette::toString()
+{
+    return "PALDATAWRITEMAIN";
+}
+
+string OWriteMainCSet::toString()
+{
+    return "PALDATAWRITEMAINCS " + getArgument()->toString();
+}
+
+string OPalDataGetColor::toString()
+{
+    return "PALDATAGETCLR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OPalDataSetColor::toString()
+{
+    return "PALDATASETCLR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OPalDataClearColor::toString()
+{
+    return "PALDATACLEARCLR " + getArgument()->toString();
+}
+
+string OPalDataMix::toString()
+{
+    return "PALDATAMIX";
+}
+
+string OPalDataMixCSet::toString()
+{
+    return "PALDATAMIXCS";
+}
+
+string OPalDataCopy::toString()
+{
+	return "PALDATACOPY " + getArgument()->toString();
+}
+
+string OPalDataFree::toString()
+{
+	return "PALDATAFREE";
+}
+
+string OPalDataOwn::toString()
+{
+	return "PALDATAOWN";
 }
 
 string OLoadDropsetRegister	::toString()

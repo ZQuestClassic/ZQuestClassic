@@ -1439,7 +1439,9 @@
 #define COMBODLIFTHEIGHT        1355
 #define COMBODLIFTTIME          1356
 
-#define LAST_BYTECODE           1357
+#define REFPALDATA              1357
+
+#define LAST_BYTECODE           1358
 
 //} END OF BYTECODE
 
@@ -3299,7 +3301,204 @@ namespace ZScript
 		}
 	};
 
+	class OCreatePalData : public Opcode
+	{
+	public:
+		OCreatePalData() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OCreatePalData();
+		}
+	};
+	
+	class OCreatePalDataClr : public UnaryOpcode
+	{
+	public:
+		OCreatePalDataClr(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OCreatePalDataClr(a->clone());
+		}
+	};
+	
+	class OMixColorArray : public Opcode
+	{
+	public:
+		OMixColorArray() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OMixColorArray();
+		}
+	};
+	
+	class OLoadLevelPalette : public UnaryOpcode
+	{
+	public:
+		OLoadLevelPalette(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLoadLevelPalette(a->clone());
+		}
+	};
 
+	class OLoadSpritePalette : public UnaryOpcode
+	{
+	public:
+		OLoadSpritePalette(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLoadSpritePalette(a->clone());
+		}
+	};
+
+	class OLoadMainPalette : public Opcode
+	{
+	public:
+		OLoadMainPalette() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLoadMainPalette();
+		}
+	};
+	
+	class OWriteLevelPalette : public UnaryOpcode
+	{
+	public:
+		OWriteLevelPalette(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OWriteLevelPalette(a->clone());
+		}
+	};
+	
+	class OWriteLevelCSet : public BinaryOpcode
+	{
+	public:
+		OWriteLevelCSet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OWriteLevelCSet(a->clone(), b->clone());
+		}
+	};
+	
+	class OWriteSpritePalette : public UnaryOpcode
+	{
+	public:
+		OWriteSpritePalette(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OWriteSpritePalette(a->clone());
+		}
+	};
+	
+	class OWriteSpriteCSet : public BinaryOpcode
+	{
+	public:
+		OWriteSpriteCSet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OWriteSpriteCSet(a->clone(), b->clone());
+		}
+	};
+	
+	class OWriteMainPalette : public Opcode
+	{
+	public:
+		OWriteMainPalette() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OWriteMainPalette();
+		}
+	};
+	
+	class OWriteMainCSet : public UnaryOpcode
+	{
+	public:
+		OWriteMainCSet(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OWriteMainCSet(a->clone());
+		}
+	};
+	
+	class OPalDataGetColor : public BinaryOpcode
+	{
+	public:
+		OPalDataGetColor(Argument* A, Argument* B) : BinaryOpcode(A, B) {}
+		std::string toString();
+		Opcode* clone()
+		{
+			return new OPalDataGetColor(a->clone(), b->clone());
+		}
+	};
+	
+	class OPalDataSetColor : public BinaryOpcode
+	{
+	public:
+		OPalDataSetColor(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OPalDataSetColor(a->clone(), b->clone());
+		}
+	};
+	
+	class OPalDataClearColor : public UnaryOpcode
+	{
+	public:
+		OPalDataClearColor(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OPalDataClearColor(a->clone());
+		}
+	};
+	
+	class OPalDataMix : public Opcode
+	{
+	public:
+		OPalDataMix() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OPalDataMix();
+		}
+	};
+	
+	class OPalDataMixCSet : public Opcode
+	{
+	public:
+		OPalDataMixCSet() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OPalDataMixCSet();
+		}
+	};
+	
+	class OPalDataCopy : public UnaryOpcode
+	{
+	public:
+		OPalDataCopy(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OPalDataCopy(a->clone());
+		}
+	};
+	
 	class OLoadDropsetRegister : public UnaryOpcode
 	{
 	public:
@@ -10371,6 +10570,24 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new ORunGenericFrozenScript(a->clone());
+		}
+	};
+	class OPalDataFree : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OPalDataFree();
+		}
+	};
+	class OPalDataOwn : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OPalDataOwn();
 		}
 	};
 }

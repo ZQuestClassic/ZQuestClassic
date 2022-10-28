@@ -126,6 +126,7 @@ namespace ZScript
 		ZVARTYPEID_BOTTLESHOP,
 		ZVARTYPEID_GENERICDATA,
 		ZVARTYPEID_STACK,
+		ZVARTYPEID_PALDATA,
 		ZVARTYPEID_CLASS_END,
 
 		ZVARTYPEID_END = ZVARTYPEID_CLASS_END
@@ -225,6 +226,8 @@ namespace ZScript
 				return "STACK";
 			case ZVARTYPEID_RNG:
 				return "RNG";
+			case ZVARTYPEID_PALDATA:
+				return "PALDATA";
 			case ZVARTYPEID_BOTTLETYPE:
 				return "BOTTLETYPE";
 			case ZVARTYPEID_BOTTLESHOP:
@@ -338,6 +341,8 @@ namespace ZScript
 			return ZVARTYPEID_MODULE;
 		else if(name == "RNG")
 			return ZVARTYPEID_RNG;
+		else if(name == "PALDATA")
+			return ZVARTYPEID_PALDATA;
 		else if(name == "BOTTLETYPE")
 			return ZVARTYPEID_BOTTLETYPE;
 		else if(name == "BOTTLESHOP")
@@ -464,6 +469,7 @@ namespace ZScript
 		static DataTypeClassConst CDIRECTORY;
 		static DataTypeClassConst CSTACK;
 		static DataTypeClassConst CRNG;
+		static DataTypeClassConst CPALDATA;
 		static DataTypeClassConst CBOTTLETYPE;
 		static DataTypeClassConst CBOTTLESHOP;
 		static DataTypeClassConst CGENERICDATA;
@@ -498,6 +504,7 @@ namespace ZScript
 		static DataTypeClass DIRECTORY;
 		static DataTypeClass STACK;
 		static DataTypeClass RNG;
+		static DataTypeClass PALDATA;
 		static DataTypeClass BOTTLETYPE;
 		static DataTypeClass BOTTLESHOP;
 		static DataTypeClass GENERICDATA;

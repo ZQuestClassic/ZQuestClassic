@@ -149,6 +149,7 @@ file	TOKEN( FILE );
 directory	TOKEN( DIRECTORY );
 stack	TOKEN( STACK );
 randgen	TOKEN( RANDGEN );
+paldata TOKEN( PALDATA );
 bottledata	TOKEN( BOTTLEDATA );
 bottleshopdata	TOKEN( BOTTLESHOPDATA );
 subscreendata	TOKEN( SUBSCREENDATA );
