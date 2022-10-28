@@ -190,7 +190,8 @@ namespace ZScript
 		ASTClass* getNode() const {return &node;}
 		ClassScope& getScope() {return *scope;}
 		ClassScope const& getScope() const {return *scope;}
-
+		
+		std::vector<int32_t> members;
 	protected:
 		UserClass(Program& program, ASTClass& user_class);
 
@@ -301,6 +302,26 @@ namespace ZScript
 
 		ASTDataDecl& node;
 		std::optional<int32_t> globalId;
+	};
+	
+	//A UserClass variable
+	class UserClassVar : public Datum
+	{
+	public:
+		static UserClassVar* create(
+				Scope&, ASTDataDecl&, DataType const&,
+				CompileErrorHandler* = NULL);
+
+		std::optional<std::string> getName() const {return node.name;}
+		ASTDataDecl* getNode() const {return &node;}
+		UserClass* getClass() const {return &(scope.getClass()->user_class);}
+		int32_t getIndex() const {return _index;}
+		void setIndex(int32_t ind) {_index = ind;}
+	private:
+		UserClassVar(Scope& scope, ASTDataDecl& node, DataType const& type);
+		
+		int32_t _index;
+		ASTDataDecl& node;
 	};
 
 	// A compiler generated variable.

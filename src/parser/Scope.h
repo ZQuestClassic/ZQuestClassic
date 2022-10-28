@@ -33,6 +33,7 @@ namespace ZScript
 	class Script;
 	class UserClass;
 	class Datum;
+	class UserClassVar;
 	class Namespace;
 	class Function;
 	class FunctionSignature;
@@ -221,6 +222,7 @@ namespace ZScript
 	// Attempt to resolve name to a variable under scope.
 	Datum* lookupDatum(Scope &, std::string const& name, ASTExprIdentifier& host, CompileErrorHandler* errorHandler, bool forceSkipUsing = false);
 	Datum* lookupDatum(Scope &, ASTExprIdentifier& host, CompileErrorHandler* errorHandler);
+	UserClassVar* lookupClassVars(Scope& scope, ASTExprIdentifier& host, CompileErrorHandler* errorHandler);
 	
 	// Attempt to resolve name to a getter under scope.
 	Function* lookupGetter(Scope const&, std::string const& name);
@@ -233,15 +235,15 @@ namespace ZScript
 	
 	// Attempt to resolve name to possible functions under scope.
 	std::vector<Function*> lookupFunctions(
-			Scope&, std::string const& name, std::vector<DataType const*> const& parameterTypes, bool noUsing);
+			Scope&, std::string const& name, std::vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass = false);
 	std::vector<Function*> lookupFunctions(
-			Scope&, std::vector<std::string> const& name, std::vector<std::string> const& delimiters, std::vector<DataType const*> const& parameterTypes, bool noUsing);
+			Scope&, std::vector<std::string> const& name, std::vector<std::string> const& delimiters, std::vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass = false);
 	
 	UserClass* lookupClass(Scope& scope, std::string const& name, bool noUsing);
 	UserClass* lookupClass(Scope& scope, std::vector<std::string> const& names,
 		std::vector<std::string> const& delimiters, bool noUsing);
 	std::vector<Function*> lookupConstructors(UserClass const& user_class, std::vector<DataType const*> const& parameterTypes);
-	inline void trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes);
+	inline void trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes, bool trimClasses = true);
 
 	// Resolve an option value under the scope. Will only return empty if
 	// the provided option is invalid. If the option is valid but not set,
@@ -372,7 +374,8 @@ namespace ZScript
 		// Stack
 		virtual int32_t getLocalStackDepth() const {return stackDepth_;}
 		virtual std::optional<int32_t> getLocalStackOffset(Datum const& datum) const;
-		
+
+		int32_t stackDepth_;
 	protected:
 		Scope* parent_;
 		FileScope* parentFile_;
@@ -384,7 +387,6 @@ namespace ZScript
 		std::vector<Datum*> anonymousData_;
 		std::map<std::string, Datum*> namedData_;
 		std::map<Datum*, int32_t> stackOffsets_;
-		int32_t stackDepth_;
 		std::map<std::string, Function*> getters_;
 		std::map<std::string, Function*> setters_;
 		std::map<std::string, std::vector<Function*> > functionsByName_;
@@ -536,6 +538,9 @@ namespace ZScript
 		
 		std::vector<Function*> getConstructors() const;
 		std::vector<Function*> getDestructor() const;
+		bool add(Datum& datum, CompileErrorHandler* errorHandler);
+		void parse_ucv();
+		UserClassVar* getClassVar(std::string const& name);
 		virtual Function* addFunction(
 				DataType const* returnType, std::string const& name,
 				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
@@ -543,6 +548,7 @@ namespace ZScript
 	private:
 		std::map<FunctionSignature, Function*> constructorsBySignature_;
 		Function* destructor_;
+		std::map<std::string, UserClassVar*> classData_;
 	};
 
 	class FunctionScope : public BasicScope

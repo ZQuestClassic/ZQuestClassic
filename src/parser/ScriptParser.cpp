@@ -320,7 +320,13 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 	for (int32_t i = 0; i < globalStackSize; ++i)
 		rval->globalsInit.push_back(
 				new OPopRegister(new VarArgument(EXP2)));*/
-
+	
+	//Parse the indexes for class variables
+	for(UserClass* user_class : program.classes)
+	{
+		user_class->getScope().parse_ucv();
+	}
+	
 	//globals have been initialized, now we repeat for the functions
 	vector<Function*> funs = program.getUserFunctions();
 	appendElements(funs, program.getUserClassConstructors());
@@ -344,32 +350,34 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 		
 		if(function.getFlag(FUNCFLAG_CLASSFUNC) && !function.getFlag(FUNCFLAG_STATIC))
 		{
-			zconsole_db("[ClassCode] %s", function.getSignature().asString().c_str());
-			//!TODOUSERCLASS
-			//continue;
+			UserClass& user_class = scope->getClass()->user_class;
+			
 			int puc = puc_funcs;
-			if(function.getFlag(FUNCFLAG_CONSTRUCTOR))
-			{
-				//Create object pointer, load into 'this'
-				//Just before return, set EXP1 to 'this' value
-				puc = puc_construct;
-			}
-			else if(function.getFlag(FUNCFLAG_DESTRUCTOR))
-			{
-				
-				puc = puc_destruct;
-			}
 			vector<std::shared_ptr<Opcode>> funccode;
+			if(function.getFlag(FUNCFLAG_CONSTRUCTOR))
+				puc = puc_construct;
+			else if(function.getFlag(FUNCFLAG_DESTRUCTOR))
+				puc = puc_destruct;
+			
 			int32_t stackSize = getStackSize(function);
 			// Start of the function.
-			std::shared_ptr<Opcode> first(new OSetImmediate(new VarArgument(EXP1),
-											  new LiteralArgument(0)));
-			first->setLabel(function.getLabel());
-			funccode.push_back(std::move(first));
-			
+			if (puc == puc_construct)
+			{
+				std::shared_ptr<Opcode> first(new OConstructClass(new VarArgument(CLASS_THISKEY),
+					new VectorArgument(user_class.members)));
+				first->setLabel(function.getLabel());
+				funccode.push_back(std::move(first));
+			}
+			else
+			{
+				std::shared_ptr<Opcode> first(new OSetImmediate(new VarArgument(EXP1),
+					new LiteralArgument(0)));
+				first->setLabel(function.getLabel());
+				funccode.push_back(std::move(first));
+			}
 			// Push 0s for the local variables.
 			for (int32_t i = stackSize - getParameterCount(function); i > 0; --i)
-				addOpcode2(funccode, new OPushRegister(new VarArgument(EXP1)));
+				addOpcode2(funccode, new OPushImmediate(new LiteralArgument(0)));
 			
 			// Set up the stack frame register
 			addOpcode2(funccode, new OSetRegister(new VarArgument(SFRAME),
@@ -383,18 +391,13 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			
 			appendElements(funccode, bo.getResult());
 			
-			// Add appendix code.
-			std::shared_ptr<Opcode> next(new OSetImmediate(new VarArgument(EXP2),
-													  new LiteralArgument(0)));
+			// Pop off everything
+			std::shared_ptr<Opcode> next(new OPopArgsRegister(new VarArgument(NUL),
+				new LiteralArgument(stackSize)));
 			next->setLabel(bo.getReturnLabelID());
 			funccode.push_back(std::move(next));
-			
-			// Pop off everything.
-			for (int32_t i = 0; i < stackSize; ++i)
-			{
-				addOpcode2(funccode, new OPopRegister(new VarArgument(EXP2)));
-			}
-			
+			if (puc == puc_construct) //return val
+				addOpcode2(funccode, new OSetRegister(new VarArgument(EXP1), new VarArgument(CLASS_THISKEY)));
 			addOpcode2(funccode, new OReturn());
 			function.giveCode(funccode);
 		}

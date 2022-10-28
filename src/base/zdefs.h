@@ -2333,6 +2333,7 @@ public:
 	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
 	
 	int32_t switchkey; //used for switch statements
+	dword thiskey; //used for user class 'this' pointers
 	
 	void Clear()
 	{
@@ -2349,6 +2350,7 @@ public:
 		memset(d, 0, 8 * sizeof(int32_t));
 		a[0] = a[1] = 0;
 		switchkey = 0;
+		thiskey = 0;
 	}
 	
 	refInfo()
@@ -2379,6 +2381,7 @@ public:
 		memcpy(d, rhs.d, 8 * sizeof(int32_t));
 		memcpy(a, rhs.a, 2 * sizeof(int32_t));
 		switchkey = rhs.switchkey;
+		thiskey = rhs.thiskey;
 		return *this;
 	}
 };

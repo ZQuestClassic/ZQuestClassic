@@ -1438,8 +1438,39 @@
 #define COMBODLIFTBREAKSFX      1354
 #define COMBODLIFTHEIGHT        1355
 #define COMBODLIFTTIME          1356
+#define CLASS_THISKEY           1357
+#define RESRVD_VAR_EMILY01      1358
+#define RESRVD_VAR_EMILY02      1359
+#define RESRVD_VAR_EMILY03      1360
+#define RESRVD_VAR_EMILY04      1361
+#define RESRVD_VAR_EMILY05      1362
+#define RESRVD_VAR_EMILY06      1363
+#define RESRVD_VAR_EMILY07      1364
+#define RESRVD_VAR_EMILY08      1365
+#define RESRVD_VAR_EMILY09      1366
+#define RESRVD_VAR_EMILY10      1367
+#define RESRVD_VAR_EMILY11      1368
+#define RESRVD_VAR_EMILY12      1369
+#define RESRVD_VAR_EMILY13      1370
+#define RESRVD_VAR_EMILY14      1371
+#define RESRVD_VAR_EMILY15      1372
+#define RESRVD_VAR_EMILY16      1373
+#define RESRVD_VAR_EMILY17      1374
+#define RESRVD_VAR_EMILY18      1375
+#define RESRVD_VAR_EMILY19      1376
+#define RESRVD_VAR_EMILY20      1377
+#define RESRVD_VAR_EMILY21      1378
+#define RESRVD_VAR_EMILY22      1379
+#define RESRVD_VAR_EMILY23      1380
+#define RESRVD_VAR_EMILY24      1381
+#define RESRVD_VAR_EMILY25      1382
+#define RESRVD_VAR_EMILY26      1383
+#define RESRVD_VAR_EMILY27      1384
+#define RESRVD_VAR_EMILY28      1385
+#define RESRVD_VAR_EMILY29      1386
+#define RESRVD_VAR_EMILY30      1387
 
-#define LAST_BYTECODE           1357
+#define LAST_BYTECODE           1388
 
 //} END OF BYTECODE
 
@@ -1830,6 +1861,317 @@ namespace ZScript
 			return new OWritePODArray(a->clone(),b->clone());
 		}
 	};
+	class OConstructClass : public BinaryOpcode
+	{
+	public:
+		OConstructClass(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OConstructClass(a->clone(),b->clone());
+		}
+	};
+	class OReadObject : public BinaryOpcode
+	{
+	public:
+		OReadObject(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReadObject(a->clone(),b->clone());
+		}
+	};
+	class OWriteObject : public BinaryOpcode
+	{
+	public:
+		OWriteObject(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OWriteObject(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily03 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily03(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily03(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily04 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily04(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily04(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily05 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily05(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily05(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily06 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily06(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily06(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily07 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily07(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily07(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily08 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily08(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily08(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily09 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily09(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily09(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily10 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily10(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily10(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily11 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily11(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily11(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily12 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily12(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily12(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily13 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily13(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily13(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily14 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily14(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily14(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily15 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily15(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily15(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily16 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily16(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily16(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily17 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily17(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily17(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily18 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily18(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily18(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily19 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily19(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily19(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily20 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily20(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily20(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily21 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily21(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily21(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily22 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily22(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily22(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily23 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily23(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily23(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily24 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily24(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily24(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily25 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily25(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily25(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily26 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily26(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily26(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily27 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily27(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily27(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily28 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily28(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily28(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily29 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily29(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily29(a->clone(),b->clone());
+		}
+	};
+	class OReservedEmily30 : public BinaryOpcode
+	{
+	public:
+		OReservedEmily30(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OReservedEmily30(a->clone(),b->clone());
+		}
+	};
+
 
 	class OAddImmediate : public BinaryOpcode
 	{

@@ -287,6 +287,16 @@ Datum* ZScript::lookupDatum(Scope& scope, ASTExprIdentifier& host, CompileErrorH
 	return NULL;
 }
 
+UserClassVar* ZScript::lookupClassVars(Scope& scope, ASTExprIdentifier& host, CompileErrorHandler* errorHandler)
+{
+	vector<string> names = host.components;
+	if (names.size() != 1)
+		return nullptr;
+	ClassScope* cscope = scope.getClass();
+	if(!cscope) return nullptr;
+	return cscope->getClassVar(names[0]);
+}
+
 Function* ZScript::lookupGetter(Scope const& scope, string const& name)
 {
 	for (Scope const* current = &scope;
@@ -316,7 +326,7 @@ Function* ZScript::lookupFunction(Scope const& scope,
 	return NULL;
 }*/
 
-vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vector<DataType const*> const& parameterTypes, bool noUsing)
+vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass)
 {
 	set<Function*> functions;
 	Scope const* current = &scope;
@@ -330,7 +340,7 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vec
 		}
 		if(current->isFile()) foundFile = true;
 		vector<Function*> currentFunctions = current->getLocalFunctions(name);
-		trimBadFunctions(currentFunctions, parameterTypes);
+		trimBadFunctions(currentFunctions, parameterTypes, !isClass);
 		functions.insert(currentFunctions.begin(), currentFunctions.end());
 	}
 	if(!noUsing)
@@ -341,7 +351,7 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vec
 		{
 			NamespaceScope* nsscope = *it;
 			vector<Function*> currentFunctions = nsscope->getLocalFunctions(name);
-			trimBadFunctions(currentFunctions, parameterTypes);
+			trimBadFunctions(currentFunctions, parameterTypes, !isClass);
 			functions.insert(currentFunctions.begin(), currentFunctions.end());
 		}
 		current = &scope;
@@ -350,12 +360,12 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vec
 }
 
 vector<Function*> ZScript::lookupFunctions(
-		Scope& scope, vector<string> const& names, vector<string> const& delimiters, vector<DataType const*> const& parameterTypes, bool noUsing)
+		Scope& scope, vector<string> const& names, vector<string> const& delimiters, vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass)
 {
 	if (names.size() == 0)
 		return vector<Function*>();
 	else if (names.size() == 1)
-		return lookupFunctions(scope, names[0], parameterTypes, noUsing);
+		return lookupFunctions(scope, names[0], parameterTypes, noUsing, isClass);
 
 	vector<Function*> functions;
 	string const& name = names.back();
@@ -375,7 +385,7 @@ vector<Function*> ZScript::lookupFunctions(
 		}
 		if(current.isFile()) foundFile = true;
 		vector<Function*> currentFunctions = current.getLocalFunctions(name);
-		trimBadFunctions(currentFunctions, parameterTypes);
+		trimBadFunctions(currentFunctions, parameterTypes, !isClass);
 		functions.insert(functions.end(),
 		                 currentFunctions.begin(), currentFunctions.end());
 	}
@@ -387,7 +397,7 @@ vector<Function*> ZScript::lookupFunctions(
 		{
 			Scope& current = **it;
 			vector<Function*> currentFunctions = current.getLocalFunctions(name);
-			trimBadFunctions(currentFunctions, parameterTypes);
+			trimBadFunctions(currentFunctions, parameterTypes, !isClass);
 			functions.insert(functions.end(),
 							 currentFunctions.begin(), currentFunctions.end());
 		}
@@ -483,18 +493,23 @@ UserClass* ZScript::lookupClass(Scope& scope, vector<string> const& names,
 vector<Function*> ZScript::lookupConstructors(UserClass const& user_class, vector<DataType const*> const& parameterTypes)
 {
 	vector<Function*> functions = user_class.getScope().getConstructors();
-	trimBadFunctions(functions, parameterTypes);
+	trimBadFunctions(functions, parameterTypes, false);
 	return functions;
 }
 
 
-inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes)
+inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes, bool trimClasses)
 {
 	// Filter out invalid functions.
 	for (vector<Function*>::iterator it = functions.begin();
 		 it != functions.end();)
 	{
 		Function& function = **it;
+		if(trimClasses && function.internalScope->getClass() && !function.getFlag(FUNCFLAG_STATIC))
+		{
+			it = functions.erase(it);
+			continue;
+		}
 		
 		auto targetSize = parameterTypes.size();
 		auto maxSize = function.paramTypes.size();
@@ -1610,6 +1625,58 @@ ScriptScope::ScriptScope(Scope* parent, FileScope* parentFile, Script& script)
 ClassScope::ClassScope(Scope* parent, FileScope* parentFile, UserClass& user_class)
 	: BasicScope(parent, parentFile, user_class.getName()), user_class(user_class), destructor_(nullptr)
 {}
+
+bool ClassScope::add(Datum& datum, CompileErrorHandler* errorHandler)
+{
+	if(UserClassVar* ucv = dynamic_cast<UserClassVar*>(&datum))
+	{
+		if (std::optional<string> name = ucv->getName())
+		{
+			if (find<UserClassVar*>(classData_, *name))
+			{
+				if (errorHandler)
+					errorHandler->handleError(
+							CompileError::VarRedef(ucv->getNode(),
+												   name->c_str()));
+				return false;
+			}
+			classData_[*name] = ucv;
+			if (!ZScript::isGlobal(datum))
+			{
+				stackOffsets_[&datum] = stackDepth_++;
+				invalidateStackSize();
+			}
+			return true;
+		}
+		return false;
+	}
+	else return BasicScope::add(datum, errorHandler);
+}
+
+void ClassScope::parse_ucv()
+{
+	std::vector<UserClassVar*> ucvs = getSeconds<UserClassVar*>(classData_);
+	int32_t ind = 0;
+	for(auto ucv : ucvs)
+	{
+		if(ucv->type.isArray()) continue;
+		ucv->setIndex(ind++);
+	}
+	for(auto ucv : ucvs)
+	{
+		if(!ucv->type.isArray()) continue;
+		ucv->setIndex(ind++);
+	}
+}
+
+UserClassVar* ClassScope::getClassVar(std::string const& name)
+{
+	if (std::optional<UserClassVar*> var = find<UserClassVar*>(classData_, name))
+	{
+		return *var;
+	}
+	return nullptr;
+}
 
 std::vector<Function*> ClassScope::getConstructors() const
 {

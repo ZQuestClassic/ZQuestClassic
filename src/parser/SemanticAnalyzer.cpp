@@ -59,21 +59,48 @@ SemanticAnalyzer::SemanticAnalyzer(Program& program)
 		UserClass& user_class = **it;
 		ClassScope* cscope = &user_class.getScope();
 		scope = cscope;
+		
+		DataType const* thisType = &cscope->user_class.getNode()->type->resolve(*cscope,this);
+		DataType const* constType = thisType->getConstType();
 
 		functions = cscope->getConstructors();
+		parsing_user_class = puc_construct;
 		for (vector<Function*>::iterator it = functions.begin();
 		     it != functions.end(); ++it)
-			analyzeFunctionInternals(**it);
+		{
+			Function* func = *it;
+			BuiltinVariable::create(*func->internalScope, *constType, "this", this);
+			func->internalScope->stackDepth_--;
+			analyzeFunctionInternals(*func);
+		}
 		
 		functions = scope->getLocalFunctions();
 		for (vector<Function*>::iterator it = functions.begin();
 		     it != functions.end(); ++it)
-			analyzeFunctionInternals(**it);
+		{
+			Function* func = *it;
+			if(func->getFlag(FUNCFLAG_STATIC))
+				parsing_user_class = puc_none;
+			else
+			{
+				parsing_user_class = puc_funcs;
+				BuiltinVariable::create(*func->internalScope, *constType, "this", this);
+				func->internalScope->stackDepth_--;
+			}
+			analyzeFunctionInternals(*func);
+		}
 		
 		functions = cscope->getDestructor();
+		parsing_user_class = puc_destruct;
 		for (vector<Function*>::iterator it = functions.begin();
 		     it != functions.end(); ++it)
-			analyzeFunctionInternals(**it);
+		{
+			Function* func = *it;
+			BuiltinVariable::create(*func->internalScope, *constType, "this", this);
+			func->internalScope->stackDepth_--;
+			analyzeFunctionInternals(*func);
+		}
+		parsing_user_class = puc_none;
 		
 		scope = scope->getParent();
 	}
@@ -81,8 +108,6 @@ SemanticAnalyzer::SemanticAnalyzer(Program& program)
 
 void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 {
-	if(!function.isInternal())
-		zconsole_db("Analyzing internals for: %s", function.getSignature().asString().c_str());
 	if(function.prototype) return; //Prototype functions have no internals to analyze!
 	failure_temp = false;
 	ASTFuncDecl* functionDecl = function.node;
@@ -622,23 +647,26 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 			int32_t value = *host.getInitializer()->getCompileTimeValue(this, scope);
 			Constant::create(*scope, host, type, value, this);
 		}
-		
 		else
 		{
-			//!TODOUSERCLASS Needs to do weird shit if 'parsing_user_class == puc_vars'
-			//! UserClass-> function that creates a special variable/array inside it?
-			if (scope->getLocalDatum(host.name))
+			if(parsing_user_class == puc_vars)
 			{
-				handleError(CompileError::VarRedef(&host, host.name));
-				return;
+				UserClassVar::create(*scope, host, type, this);
 			}
-			
-			Variable::create(*scope, host, type, this);
+			else
+			{
+				if (scope->getLocalDatum(host.name))
+				{
+					handleError(CompileError::VarRedef(&host, host.name));
+					return;
+				}
+
+				Variable::create(*scope, host, type, this);
+			}
 		}
 	}
 	
 	//Handle typechecking regardless of registration
-	
 	// Check the initializer.
 	if (host.getInitializer())
 	{
@@ -933,25 +961,14 @@ void SemanticAnalyzer::caseClass(ASTClass& host, void* param)
 		 it != host.constructors.cend(); ++it)
 	{
 		ASTFuncDecl const* func = *it;
-		if(func->func)
-			zconsole_db("[Con] %s", func->func->getSignature().asString().c_str());
 		if(func->name.compare(name)) //mismatch name
 		{
 			handleError(CompileError::NameMismatchC(&host, func->name.c_str(), name.c_str()));
 			return;
 		}
 	}
-	for (auto it = host.functions.cbegin(); //!TODOUSERCLASS debug remove
-		 it != host.functions.cend(); ++it)
-	{
-		ASTFuncDecl const* func = *it;
-		if(func->func)
-			zconsole_db("[Fun] %s", func->func->getSignature().asString().c_str());
-	}
 	if(ASTFuncDecl const* func = host.destructor.get())
 	{
-		if(func->func)
-			zconsole_db("[Des] %s", func->func->getSignature().asString().c_str());
 		if(func->name.compare(name)) //mismatch name
 		{
 			handleError(CompileError::NameMismatchD(&host, func->name.c_str(), name.c_str()));
@@ -1074,7 +1091,10 @@ void SemanticAnalyzer::caseExprIdentifier(
 {
 	if(host.binding) return; //Skip if already handled
 	// Bind to named variable.
-	host.binding = lookupDatum(*scope, host, this);
+	if(parsing_user_class > puc_vars)
+		host.binding = lookupClassVars(*scope, host, this);
+	if(!host.binding)
+		host.binding = lookupDatum(*scope, host, this);
 	if (!host.binding)
 	{
 		handleError(CompileError::VarUndeclared(&host, host.asString()));
@@ -1236,7 +1256,15 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 			functions = lookupConstructors(*user_class, parameterTypes);
 			//!TODOUSERCLASS ensure there's always a default constructor
 		}
-		else functions = lookupFunctions(*scope, identifier->components, identifier->delimiters, parameterTypes, identifier->noUsing);
+		else
+		{
+			if(identifier->components.size() == 1 && parsing_user_class > puc_vars)
+			{
+				functions = lookupFunctions(*scope, identifier->components[0], parameterTypes, identifier->noUsing, true);
+			}
+			if(!functions.size())
+				functions = lookupFunctions(*scope, identifier->components, identifier->delimiters, parameterTypes, identifier->noUsing);
+		}
 	}
 	else functions = lookupFunctions(*arrow->leftClass, arrow->right, parameterTypes, true); //Never `using` arrow functions
 

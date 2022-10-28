@@ -598,13 +598,20 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 	}
 	else
 	{
-		if (scope->getLocalDatum(host.name))
+		if(parsing_user_class == puc_vars)
 		{
-			handleError(CompileError::VarRedef(&host, host.name));
-			return;
+			UserClassVar::create(*scope, host, type, this);
 		}
+		else
+		{
+			if (scope->getLocalDatum(host.name))
+			{
+				handleError(CompileError::VarRedef(&host, host.name));
+				return;
+			}
 
-		Variable::create(*scope, host, type, this);
+			Variable::create(*scope, host, type, this);
+		}
 	}
 }
 

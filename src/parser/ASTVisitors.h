@@ -15,6 +15,8 @@ namespace ZScript
 	class ASTVisitor
 	{
 	public:
+		ASTVisitor() : parsing_user_class(puc_none), scope(nullptr) {}
+		
 		virtual void caseDefault(AST& host, void* param = NULL) {}
 		// AST Subclasses
 		virtual void caseFile(ASTFile& host, void* param = NULL) {
@@ -200,7 +202,8 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseDataType(ASTDataType& host, void* param = NULL) {
 			caseDefault(host, param);}
-			
+
+		int parsing_user_class;
 	protected:
 		//Current scope
 		ZScript::Scope* scope;
@@ -222,7 +225,7 @@ namespace ZScript
 		static void* const paramReadWrite;
 		
 		RecursiveVisitor() : failure(false), failure_halt(false),
-			failure_temp(false), parsing_user_class(puc_none), breakNode(NULL) {}
+			failure_temp(false), breakNode(NULL) {}
 	
 		// Mark as having failed.
 		void fail() {failure = true;}
@@ -355,8 +358,6 @@ namespace ZScript
 		               ZScript::DataType const& targetType,
 		               AST* node = NULL,
 		               bool twoWay = false);
-		
-		int parsing_user_class;
 	protected:
 		// Returns true if we have failed or for some other reason must break out
 		// of recursion. Should be called with the current node and param between

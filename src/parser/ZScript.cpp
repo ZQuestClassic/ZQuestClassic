@@ -167,7 +167,9 @@ vector<Function*> ZScript::getFunctions(Program const& program)
 
 UserClass::UserClass(Program& program, ASTClass& user_class)
 	: program(program), node(user_class)
-{}
+{
+	members.push_back(0);
+}
 
 UserClass::~UserClass()
 {}
@@ -385,6 +387,41 @@ std::optional<int32_t> Variable::getCompileTimeValue(bool getinitvalue) const
 		return init ? init->value : std::nullopt;
 	}
 	return std::nullopt;
+}
+
+// ZScript::UserClassVar
+
+UserClassVar* UserClassVar::create(
+		Scope& scope, ASTDataDecl& node, DataType const& type,
+		CompileErrorHandler* errorHandler)
+{
+	UserClassVar* ucv = new UserClassVar(scope, node, type);
+	if (ucv->tryAddToScope(errorHandler))
+	{
+		ClassScope* cscope = scope.getClass();
+		UserClass& user_class = cscope->user_class;
+		if(type.isArray())
+		{
+			int32_t totalSize = -1;
+			if (std::optional<int32_t> size = node.extraArrays[0]->getCompileTimeSize(errorHandler, &scope))
+				totalSize = *size;
+			user_class.members.push_back(totalSize);
+		}
+		else
+		{
+			user_class.members[0]++;
+		}
+		return ucv;
+	}
+	delete ucv;
+	return NULL;
+}
+UserClassVar::UserClassVar(
+		Scope& scope, ASTDataDecl& node, DataType const& type)
+	: Datum(scope, type), _index(0),
+	  node(node)
+{
+	node.manager = this;
 }
 
 // ZScript::BuiltinVariable

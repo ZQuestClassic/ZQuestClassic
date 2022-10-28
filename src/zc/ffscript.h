@@ -490,6 +490,41 @@ struct user_dir
 	}
 };
 
+#define MAX_USER_OBJECTS 214748
+struct user_object
+{
+	bool reserved;
+	int32_t owned_type, owned_i;
+	std::vector<int32_t> data;
+	
+	user_object() : reserved(false), owned_type(-1), owned_i(0)
+	{}
+	
+	void clear()
+	{
+		data.clear();
+		reserved = false;
+		owned_type = -1;
+		owned_i = 0;
+	}
+	
+	void own(int32_t type, int32_t i)
+	{
+		owned_type = type;
+		owned_i = i;
+	}
+	void own_clear(int32_t type, int32_t i)
+	{
+		if(owned_type == type && owned_i == i)
+			clear();
+	}
+	void own_clear_any()
+	{
+		if(owned_type != -1 || owned_i != 0)
+			clear();
+	}
+};
+
 #define MAX_USER_STACKS 256
 #define USERSTACK_MAX_SIZE 2147483647
 struct user_stack
@@ -1068,6 +1103,7 @@ void user_stacks_init();
 void user_rng_init();
 int32_t get_free_file(bool skipError = false);
 int32_t get_free_directory(bool skipError = false);
+int32_t get_free_object(bool skipError = false);
 int32_t get_free_stack(bool skipError = false);
 int32_t get_free_rng(bool skipError = false);
 
@@ -3275,8 +3311,40 @@ enum ASM_DEFINE
 	GRAPHICSCOUNTCOLOR,
 	WRITEPODSTRING,
 	WRITEPODARRAY,
+	ZCLASS_CONSTRUCT,
+	ZCLASS_READ,
+	ZCLASS_WRITE,
+	RESRVD_OP_EMILY03,
+	RESRVD_OP_EMILY04,
+	RESRVD_OP_EMILY05,
+	RESRVD_OP_EMILY06,
+	RESRVD_OP_EMILY07,
+	RESRVD_OP_EMILY08,
+	RESRVD_OP_EMILY09,
+	RESRVD_OP_EMILY10,
+	RESRVD_OP_EMILY11,
+	RESRVD_OP_EMILY12,
+	RESRVD_OP_EMILY13,
+	RESRVD_OP_EMILY14,
+	RESRVD_OP_EMILY15,
+	RESRVD_OP_EMILY16,
+	RESRVD_OP_EMILY17,
+	RESRVD_OP_EMILY18,
+	RESRVD_OP_EMILY19,
+	RESRVD_OP_EMILY20,
+	RESRVD_OP_EMILY21,
+	RESRVD_OP_EMILY22,
+	RESRVD_OP_EMILY23,
+	RESRVD_OP_EMILY24,
+	RESRVD_OP_EMILY25,
+	RESRVD_OP_EMILY26,
+	RESRVD_OP_EMILY27,
+	RESRVD_OP_EMILY28,
+	RESRVD_OP_EMILY29,
+	RESRVD_OP_EMILY30,
 	
-	NUMCOMMANDS           //0x01DA
+	
+	NUMCOMMANDS           //0x01DB
 };
 
 
@@ -4798,8 +4866,39 @@ enum ASM_DEFINE
 #define COMBODLIFTBREAKSFX      0x1480
 #define COMBODLIFTHEIGHT        0x1481
 #define COMBODLIFTTIME          0x1482
+#define CLASS_THISKEY           0x1483
+#define RESRVD_VAR_EMILY01      0x1484
+#define RESRVD_VAR_EMILY02      0x1485
+#define RESRVD_VAR_EMILY03      0x1486
+#define RESRVD_VAR_EMILY04      0x1487
+#define RESRVD_VAR_EMILY05      0x1488
+#define RESRVD_VAR_EMILY06      0x1489
+#define RESRVD_VAR_EMILY07      0x148A
+#define RESRVD_VAR_EMILY08      0x148B
+#define RESRVD_VAR_EMILY09      0x148C
+#define RESRVD_VAR_EMILY10      0x148D
+#define RESRVD_VAR_EMILY11      0x148E
+#define RESRVD_VAR_EMILY12      0x148F
+#define RESRVD_VAR_EMILY13      0x1490
+#define RESRVD_VAR_EMILY14      0x1491
+#define RESRVD_VAR_EMILY15      0x1492
+#define RESRVD_VAR_EMILY16      0x1493
+#define RESRVD_VAR_EMILY17      0x1494
+#define RESRVD_VAR_EMILY18      0x1495
+#define RESRVD_VAR_EMILY19      0x1496
+#define RESRVD_VAR_EMILY20      0x1497
+#define RESRVD_VAR_EMILY21      0x1498
+#define RESRVD_VAR_EMILY22      0x1499
+#define RESRVD_VAR_EMILY23      0x149A
+#define RESRVD_VAR_EMILY24      0x149B
+#define RESRVD_VAR_EMILY25      0x149C
+#define RESRVD_VAR_EMILY26      0x149D
+#define RESRVD_VAR_EMILY27      0x149E
+#define RESRVD_VAR_EMILY28      0x149F
+#define RESRVD_VAR_EMILY29      0x14A0
+#define RESRVD_VAR_EMILY30      0x14A1
 
-#define NUMVARIABLES         	0x1483
+#define NUMVARIABLES         	0x14A2
 
 //} End variables
 

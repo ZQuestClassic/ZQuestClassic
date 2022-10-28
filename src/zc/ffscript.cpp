@@ -83,6 +83,7 @@ zcmodule moduledata;
 script_bitmaps scb;
 user_file script_files[MAX_USER_FILES];
 user_dir script_dirs[MAX_USER_DIRS];
+user_object script_objects[MAX_USER_OBJECTS];
 user_stack script_stacks[MAX_USER_STACKS];
 user_rng nulrng;
 user_rng script_rngs[MAX_USER_RNGS];
@@ -2587,6 +2588,10 @@ void FFScript::deallocateAllArrays(const byte scriptType, const int32_t UID, boo
 	{
 		script_stacks[q].own_clear(scriptType, UID);
 	}
+	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
+	{
+		script_objects[q].own_clear(scriptType, UID);
+	}
 	if(requireAlways && !get_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS))
 	{
 		//Keep 2.50.2 behavior if QR unchecked.
@@ -2631,6 +2636,10 @@ void FFScript::deallocateAllArrays()
 	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
 	{
 		script_stacks[q].own_clear_any();
+	}
+	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
+	{
+		script_objects[q].own_clear_any();
 	}
 	//No QR check here- always deallocate on quest exit.
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
@@ -2735,6 +2744,22 @@ user_file *checkFile(int32_t ref, const char *what, bool req_file = false, bool 
 	if(skipError) return NULL;
 	Z_scripterrlog("Script attempted to reference a nonexistent File!\n");
 	Z_scripterrlog("You were trying to reference the '%s' of a File with UID = %ld\n", what, ref);
+	return NULL;
+}
+
+user_object *checkObject(int32_t ref, bool skipError = false)
+{
+	if(ref > 0 && ref <= MAX_USER_FILES)
+	{
+		user_object* obj = &script_objects[ref-1];
+		if(obj->reserved)
+		{
+			return obj;
+		}
+	}
+	if(skipError) return NULL;
+	Z_scripterrlog("Script attempted to reference a nonexistent object!\n");
+	Z_scripterrlog("You were trying to reference an object with UID = %ld\n", ref);
 	return NULL;
 }
 
@@ -12119,6 +12144,7 @@ int32_t get_register(const int32_t arg)
 		case REFSTACK: ret = ri->stackref; break;
 		case REFSUBSCREEN: ret = ri->subscreenref; break;
 		case REFRNG: ret = ri->rngref; break;
+		case CLASS_THISKEY: ret = ri->thiskey; break;
 		
 			
 		case SP:
@@ -21618,6 +21644,7 @@ void set_register(const int32_t arg, const int32_t value)
 		case REFSTACK: ri->stackref = value; break;
 		case REFSUBSCREEN: ri->subscreenref = value; break;
 		case REFRNG: ri->rngref = value; break;
+		case CLASS_THISKEY: ri->thiskey = value; break;
 		
 		case GENDATARUNNING:
 		{
@@ -26601,6 +26628,81 @@ void do_writepod(const bool v1, const bool v2)
 	int32_t val = SH::get_arg(sarg2, v2);
 	ArrayH::setElement(ri->d[rINDEX] / 10000, indx, val);
 }
+void do_constructclass(int32_t type, int32_t i)
+{
+	if(!sargvec) return;
+	
+	zprint2("Construct class: {");
+	for(auto it = sargvec->begin(); it != sargvec->end();)
+	{
+		zprint2("%d", *it);
+		if(++it != sargvec->end())
+			zprint2(",");
+	}
+	zprint2("}\n");
+	//!TODOUSERCLASS
+	size_t num_vars = sargvec->at(0);
+	size_t total_vars = num_vars + sargvec->size()-1;
+	
+	dword objref = FFCore.get_free_object(false);
+	int32_t val = 0;
+	if(user_object* obj = checkObject(objref, true))
+	{
+		obj->own(type, i);
+		for(size_t q = 0; q < total_vars; ++q)
+		{
+			if(q < num_vars)
+			{
+				obj->data.push_back(0);
+			}
+			else
+			{
+				obj->data.push_back(-signed(q-num_vars+1));
+				//!TODOUSERCLASS placeholder for arrays
+			}
+		}
+		val = objref;
+	}
+	set_register(sarg1, val);
+}
+
+void do_readclass()
+{
+	dword objref = get_register(sarg1);
+	ri->d[rEXP1] = 0;
+	int32_t ind = sarg2;
+	if(user_object* obj = checkObject(objref, true))
+	{
+		if(unsigned(ind) >= obj->data.size())
+		{
+			Z_scripterrlog("Script tried to read position '%d' out of bounds on a '%d' size object (%d).", ind, obj->data.size(), objref);
+		}
+		else
+		{
+			ri->d[rEXP1] = obj->data.at(ind);
+			zprint2("Read '%d.%04d' from %d[%d]\n", ri->d[rEXP1]/10000,
+				ri->d[rEXP1]%10000, objref, ind);
+		}
+	}
+}
+void do_writeclass()
+{
+	dword objref = get_register(sarg1);
+	int32_t ind = sarg2;
+	if(user_object* obj = checkObject(objref, true))
+	{
+		if(unsigned(ind) >= obj->data.size())
+		{
+			Z_scripterrlog("Script tried to write position '%d' out of bounds on a '%d' size object (%d).", ind, obj->data.size(), objref);
+		}
+		else
+		{
+			obj->data[ind] = ri->d[rEXP1];
+			zprint2("Write '%d.%04d' to %d[%d]\n", ri->d[rEXP1]/10000,
+				ri->d[rEXP1]%10000, objref, ind);
+		}
+	}
+}
 
 bool zasm_advance()
 {
@@ -27478,6 +27580,21 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			case WRITEPODARRAY:
 			{
 				do_writepodarr();
+				break;
+			}
+			case ZCLASS_CONSTRUCT:
+			{
+				do_constructclass(type,i);
+				break;
+			}
+			case ZCLASS_READ:
+			{
+				do_readclass();
+				break;
+			}
+			case ZCLASS_WRITE:
+			{
+				do_writeclass();
 				break;
 			}
 				
@@ -30999,6 +31116,20 @@ int32_t FFScript::get_free_file(bool skipError)
 		}
 	}
 	if(!skipError) Z_scripterrlog("get_free_file() could not find a valid free file pointer!\n");
+	return 0;
+}
+
+int32_t FFScript::get_free_object(bool skipError)
+{
+	for(int32_t q = 0; q < MAX_USER_OBJECTS; ++q)
+	{
+		if(!script_objects[q].reserved)
+		{
+			script_objects[q].reserved = true;
+			return q+1; //1-indexed; 0 is null value
+		}
+	}
+	if(!skipError) Z_scripterrlog("get_free_object() could not find a valid free object pointer!\n");
 	return 0;
 }
 
@@ -36900,6 +37031,37 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "GRAPHICSCOUNTCOLOR",			   1,   0,   0,   0},
 	{ "WRITEPODSTRING",           1,   0,   0,   1},
 	{ "WRITEPODARRAY",           1,   0,   0,   2},
+	{ "ZCLASS_CONSTRUCT",           1,   0,   0,   2},
+	{ "ZCLASS_READ",   2,   0,   1,   0},
+	{ "ZCLASS_WRITE",   2,   0,   1,   0},
+	{ "RESRVD_OP_EMILY03",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY04",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY05",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY06",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY07",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY08",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY09",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY10",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY11",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY12",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY13",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY14",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY15",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY16",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY17",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY18",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY19",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY20",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY21",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY22",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY23",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY24",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY25",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY26",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY27",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY28",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY29",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY30",   0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -38262,6 +38424,37 @@ script_variable ZASMVars[]=
 	{ "COMBODLIFTBREAKSFX", COMBODLIFTBREAKSFX, 0, 0 },
 	{ "COMBODLIFTHEIGHT", COMBODLIFTHEIGHT, 0, 0 },
 	{ "COMBODLIFTTIME", COMBODLIFTTIME, 0, 0 },
+	{ "CLASS_THISKEY", CLASS_THISKEY, 0, 0 },
+	{ "RESRVD_VAR_EMILY01", RESRVD_VAR_EMILY01, 0, 0 },
+	{ "RESRVD_VAR_EMILY02", RESRVD_VAR_EMILY02, 0, 0 },
+	{ "RESRVD_VAR_EMILY03", RESRVD_VAR_EMILY03, 0, 0 },
+	{ "RESRVD_VAR_EMILY04", RESRVD_VAR_EMILY04, 0, 0 },
+	{ "RESRVD_VAR_EMILY05", RESRVD_VAR_EMILY05, 0, 0 },
+	{ "RESRVD_VAR_EMILY06", RESRVD_VAR_EMILY06, 0, 0 },
+	{ "RESRVD_VAR_EMILY07", RESRVD_VAR_EMILY07, 0, 0 },
+	{ "RESRVD_VAR_EMILY08", RESRVD_VAR_EMILY08, 0, 0 },
+	{ "RESRVD_VAR_EMILY09", RESRVD_VAR_EMILY09, 0, 0 },
+	{ "RESRVD_VAR_EMILY10", RESRVD_VAR_EMILY10, 0, 0 },
+	{ "RESRVD_VAR_EMILY11", RESRVD_VAR_EMILY11, 0, 0 },
+	{ "RESRVD_VAR_EMILY12", RESRVD_VAR_EMILY12, 0, 0 },
+	{ "RESRVD_VAR_EMILY13", RESRVD_VAR_EMILY13, 0, 0 },
+	{ "RESRVD_VAR_EMILY14", RESRVD_VAR_EMILY14, 0, 0 },
+	{ "RESRVD_VAR_EMILY15", RESRVD_VAR_EMILY15, 0, 0 },
+	{ "RESRVD_VAR_EMILY16", RESRVD_VAR_EMILY16, 0, 0 },
+	{ "RESRVD_VAR_EMILY17", RESRVD_VAR_EMILY17, 0, 0 },
+	{ "RESRVD_VAR_EMILY18", RESRVD_VAR_EMILY18, 0, 0 },
+	{ "RESRVD_VAR_EMILY19", RESRVD_VAR_EMILY19, 0, 0 },
+	{ "RESRVD_VAR_EMILY20", RESRVD_VAR_EMILY20, 0, 0 },
+	{ "RESRVD_VAR_EMILY21", RESRVD_VAR_EMILY21, 0, 0 },
+	{ "RESRVD_VAR_EMILY22", RESRVD_VAR_EMILY22, 0, 0 },
+	{ "RESRVD_VAR_EMILY23", RESRVD_VAR_EMILY23, 0, 0 },
+	{ "RESRVD_VAR_EMILY24", RESRVD_VAR_EMILY24, 0, 0 },
+	{ "RESRVD_VAR_EMILY25", RESRVD_VAR_EMILY25, 0, 0 },
+	{ "RESRVD_VAR_EMILY26", RESRVD_VAR_EMILY26, 0, 0 },
+	{ "RESRVD_VAR_EMILY27", RESRVD_VAR_EMILY27, 0, 0 },
+	{ "RESRVD_VAR_EMILY28", RESRVD_VAR_EMILY28, 0, 0 },
+	{ "RESRVD_VAR_EMILY29", RESRVD_VAR_EMILY29, 0, 0 },
+	{ "RESRVD_VAR_EMILY30", RESRVD_VAR_EMILY30, 0, 0 },
 	
 	{ " ", -1, 0, 0 }
 };
