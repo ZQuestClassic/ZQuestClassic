@@ -1980,6 +1980,7 @@ int32_t init_game()
 	FFCore.user_bitmaps_init();
 	FFCore.user_files_init();
 	FFCore.user_dirs_init();
+	FFCore.user_objects_init();
 	FFCore.user_stacks_init();
 	cheat=0;
 	wavy=quakeclk=0;
@@ -5996,6 +5997,7 @@ reload_for_replay_file:
 			FFCore.user_dirs_init(); //Clear open FLIST*!
 			FFCore.user_bitmaps_init(); //Clear open bitmaps
 			FFCore.user_stacks_init(); //Clear open stacks
+			FFCore.user_objects_init(); //Clear open stacks
 		}
 		//Deallocate ALL ZScript arrays on ANY exit.
 		FFCore.deallocateAllArrays();

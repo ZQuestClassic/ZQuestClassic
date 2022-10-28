@@ -363,10 +363,20 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			// Start of the function.
 			if (puc == puc_construct)
 			{
-				std::shared_ptr<Opcode> first(new OConstructClass(new VarArgument(CLASS_THISKEY),
-					new VectorArgument(user_class.members)));
+				vector<Function*> destr = user_class.getScope().getDestructor();
+				std::shared_ptr<Opcode> first;
+				if(destr.size() == 1)
+				{
+					Function* destructor = destr[0];
+					first.reset(new OSetImmediate(new VarArgument(EXP1),
+						new LabelArgument(destructor->getLabel())));
+				}
+				else first.reset(new OSetImmediate(new VarArgument(EXP1),
+					new LiteralArgument(0)));
 				first->setLabel(function.getLabel());
 				funccode.push_back(std::move(first));
+				addOpcode2(funccode, new OConstructClass(new VarArgument(CLASS_THISKEY),
+					new VectorArgument(user_class.members)));
 			}
 			else
 			{

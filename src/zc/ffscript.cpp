@@ -537,6 +537,7 @@ byte ScriptDrawingRules[SCRIPT_DRAWING_RULES];
 int32_t FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and similar to override system defaults. 
 	
 miscQdata *misc;
+int32_t run_script_int(const byte type, const word script, const int32_t i, bool funcrun = false);
 
 //We gain some speed by not passing as arguments
 int32_t sarg1 = 0;
@@ -573,6 +574,41 @@ void pop_ri()
 	ri = ricache.back(); ricache.pop_back();
 	curscript = sdcache.back(); sdcache.pop_back();
 	stack = stackcache.back(); stackcache.pop_back();
+}
+
+void scr_func_exec::clear()
+{
+	pc = type = i = 0;
+	script = 0;
+	sari.Clear();
+	sc_data = nullptr;
+}
+void scr_func_exec::execute()
+{
+	static int32_t static_stack[MAX_SCRIPT_REGISTERS];
+	if(!pc || !sc_data || !sc_data->valid())
+		return;
+	
+	push_ri();
+	ri = &sari;
+	ri->pc = pc;
+	curscript = sc_data;
+	stack = &static_stack;
+	memset(static_stack, 0, sizeof(int32_t)*MAX_SCRIPT_REGISTERS);
+	//
+	run_script_int(type,script,i,true);
+	//
+	pop_ri();
+}
+
+void user_object::prep(dword pc, int32_t type, word script, int32_t i)
+{
+	destruct.pc = pc;
+	destruct.type = type;
+	destruct.script = script;
+	destruct.i = i;
+	destruct.sari = *ri;
+	destruct.sc_data = curscript;
 }
 
 
@@ -2588,7 +2624,7 @@ void FFScript::deallocateAllArrays(const byte scriptType, const int32_t UID, boo
 	{
 		script_stacks[q].own_clear(scriptType, UID);
 	}
-	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
+	for(int32_t q = 0; q < MAX_USER_OBJECTS; ++q)
 	{
 		script_objects[q].own_clear(scriptType, UID);
 	}
@@ -2637,7 +2673,7 @@ void FFScript::deallocateAllArrays()
 	{
 		script_stacks[q].own_clear_any();
 	}
-	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
+	for(int32_t q = 0; q < MAX_USER_OBJECTS; ++q)
 	{
 		script_objects[q].own_clear_any();
 	}
@@ -26628,7 +26664,7 @@ void do_writepod(const bool v1, const bool v2)
 	int32_t val = SH::get_arg(sarg2, v2);
 	ArrayH::setElement(ri->d[rINDEX] / 10000, indx, val);
 }
-void do_constructclass(int32_t type, int32_t i)
+void do_constructclass(int32_t type, word script, int32_t i)
 {
 	if(!sargvec) return;
 	
@@ -26636,7 +26672,7 @@ void do_constructclass(int32_t type, int32_t i)
 	size_t total_vars = num_vars + sargvec->size()-1;
 	
 	dword objref = FFCore.get_free_object(false);
-	int32_t val = 0;
+	
 	if(user_object* obj = checkObject(objref, true))
 	{
 		obj->own(type, i);
@@ -26652,9 +26688,11 @@ void do_constructclass(int32_t type, int32_t i)
 				//!TODOUSERCLASS placeholder for arrays
 			}
 		}
-		val = objref;
+		set_register(sarg1, objref);
+		ri->thiskey = objref;
+		obj->prep(ri->d[rEXP1],type,script,i);
 	}
-	set_register(sarg1, val);
+	else set_register(sarg1, 0);
 }
 
 void do_readclass()
@@ -26739,7 +26777,7 @@ bool zasm_advance()
 //                                       Run the script                                                //
 ///----------------------------------------------------------------------------------------------------//
 
-// Let's do this
+
 int32_t run_script(const byte type, const word script, const int32_t i)
 {
 	if(Quit==qRESET || Quit==qEXIT) // In case an earlier script hung
@@ -27082,7 +27120,10 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		}
 	}
 	
-	//dword pc = ri->pc; //this is (marginally) quicker than dereferencing ri each time
+	return run_script_int(type,script,i);
+}
+int32_t run_script_int(const byte type, const word script, const int32_t i, bool funcrun)
+{
 	word scommand = curscript->zasm[ri->pc].command;
 	sarg1 = curscript->zasm[ri->pc].arg1;
 	sarg2 = curscript->zasm[ri->pc].arg2;
@@ -27580,7 +27621,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			}
 			case ZCLASS_CONSTRUCT:
 			{
-				do_constructclass(type,i);
+				do_constructclass(type,script,i);
 				break;
 			}
 			case ZCLASS_READ:
@@ -30578,7 +30619,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				break;
 			}
 		}
-		
+		if(funcrun && ri->pc == dword(-1))
+			return RUNSCRIPT_OK;
 #ifdef _SCRIPT_COUNTER
 		end_time = script_counter;
 		script_timer[*command] += end_time - start_time;
@@ -30639,6 +30681,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		}
 		if(scommand == WAITDRAW)
 		{
+			if(funcrun) scommand = NOP;
 			switch(type)
 			{
 				case SCRIPT_GENERIC:
@@ -30650,6 +30693,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		}
 		else if(scommand == WAITTO)
 		{
+			if(funcrun) scommand = NOP;
 			switch(type)
 			{
 				case SCRIPT_GENERIC_FROZEN:
@@ -30686,6 +30730,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		}
 		else if(scommand == WAITEVENT)
 		{
+			if(funcrun) scommand = NOP;
 			switch(type)
 			{
 				case SCRIPT_GENERIC_FROZEN:
@@ -30706,6 +30751,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		}
 		else if(scommand == WAITFRAME)
 		{
+			if(funcrun) scommand = NOP;
 			switch(type)
 			{
 				case SCRIPT_GENERIC:
@@ -30715,6 +30761,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			}
 		}
 	}
+	if(funcrun) return RUNSCRIPT_OK;
 	
 	if(!scriptCanSave)
 		scriptCanSave=true;
@@ -31086,6 +31133,13 @@ void FFScript::user_dirs_init()
 	for(int32_t q = 0; q < MAX_USER_DIRS; ++q)
 	{
 		script_dirs[q].clear();
+	}
+}
+void FFScript::user_objects_init()
+{
+	for(int32_t q = 0; q < MAX_USER_OBJECTS; ++q)
+	{
+		script_objects[q].clear(false);
 	}
 }
 

@@ -490,18 +490,37 @@ struct user_dir
 	}
 };
 
+struct scr_func_exec
+{
+	dword pc;
+	int32_t type, i;
+	word script;
+	
+	refInfo sari;
+	script_data* sc_data;
+	
+	scr_func_exec(){clear();}
+	void clear();
+	void execute();
+};
+
 #define MAX_USER_OBJECTS 214748
 struct user_object
 {
 	bool reserved;
 	int32_t owned_type, owned_i;
 	std::vector<int32_t> data;
+	scr_func_exec destruct;
 	
 	user_object() : reserved(false), owned_type(-1), owned_i(0)
 	{}
 	
-	void clear()
+	void prep(dword pc, int32_t type, word script, int32_t i);
+	
+	void clear(bool destructor = true)
 	{
+		if(destructor)
+			destruct.execute();
 		data.clear();
 		reserved = false;
 		owned_type = -1;
@@ -1099,6 +1118,7 @@ bool warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int32_t warpDe
 
 void user_files_init();
 void user_dirs_init();
+void user_objects_init();
 void user_stacks_init();
 void user_rng_init();
 int32_t get_free_file(bool skipError = false);

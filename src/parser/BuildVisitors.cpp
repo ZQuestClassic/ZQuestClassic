@@ -1378,35 +1378,6 @@ void BuildOpcodes::caseExprNegate(ASTExprNegate& host, void* param)
 
 void BuildOpcodes::caseExprDelete(ASTExprDelete& host, void* param)
 {
-	DataType const* optype = host.operand->getReadType(scope, this);
-	if(UserClass* user_class = optype->getUsrClass())
-	{
-		auto& vec = user_class->getScope().getDestructor();
-		if(vec.size() == 1)
-		{
-			Function* func = vec.at(0);
-			
-			addOpcode(new OPushRegister(new VarArgument(CLASS_THISKEY)));
-			visit(host.operand.get(), param);
-			addOpcode(new OSetRegister(new VarArgument(CLASS_THISKEY), new VarArgument(EXP1)));
-			//Call the destructor
-			
-			int32_t funclabel = func->getLabel();
-			addOpcode(new OPushRegister(new VarArgument(SFRAME)));
-			int32_t returnaddr = ScriptParser::getUniqueLabelID();
-			addOpcode(new OPushImmediate(new LabelArgument(returnaddr)));
-			addOpcode(new OGotoImmediate(new LabelArgument(funclabel)));
-			Opcode *next = new OPopRegister(new VarArgument(SFRAME));
-			next->setLabel(returnaddr);
-			addOpcode(next);
-			
-			//End destructor
-			addOpcode(new OFreeObject(new VarArgument(CLASS_THISKEY)));
-			addOpcode(new OPopRegister(new VarArgument(CLASS_THISKEY)));
-			return;
-		}
-	}
-	
 	visit(host.operand.get(), param);
 	addOpcode(new OFreeObject(new VarArgument(EXP1)));
 }
