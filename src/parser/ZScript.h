@@ -317,6 +317,8 @@ namespace ZScript
 		UserClass* getClass() const {return &(scope.getClass()->user_class);}
 		int32_t getIndex() const {return _index;}
 		void setIndex(int32_t ind) {_index = ind;}
+		
+		bool is_arr;
 	private:
 		UserClassVar(Scope& scope, ASTDataDecl& node, DataType const& type);
 		

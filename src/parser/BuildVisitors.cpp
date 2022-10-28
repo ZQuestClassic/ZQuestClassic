@@ -1045,6 +1045,12 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 
 void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 {
+	if(UserClassVar* ucv = host.u_datum)
+	{
+		visit(host.left.get(), param);
+		addOpcode(new OReadObject(new VarArgument(EXP1), new LiteralArgument(ucv->getIndex())));
+		return;
+	}
 	OpcodeContext *c = (OpcodeContext *)param;
 	int32_t isIndexed = (host.index != NULL);
 	assert(host.readFunction->isInternal());
@@ -1221,7 +1227,65 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		while ((int32_t)arrayRefs.size() > startRefCount)
 			arrayRefs.pop_back();
 	}
-	else //Non-inline function
+	else if(func.getFlag(FUNCFLAG_CLASSFUNC) && !func.getFlag(FUNCFLAG_STATIC))
+	{
+		int32_t funclabel = func.getLabel();
+		//push the stack frame pointer
+		bool store_this = host.left->isTypeArrow() || func.getFlag(FUNCFLAG_DESTRUCTOR);
+		if(store_this)
+			addOpcode(new OPushRegister(new VarArgument(CLASS_THISKEY)));
+		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
+		//push the return address
+		int32_t returnaddr = ScriptParser::getUniqueLabelID();
+		int32_t startRefCount = arrayRefs.size(); //Store ref count
+		addOpcode(new OPushImmediate(new LabelArgument(returnaddr)));
+		
+		
+		// user class pointer functions
+		if (host.left->isTypeArrow())
+		{
+			//load the value of the left-hand of the arrow into EXP1
+			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
+			addOpcode(new OSetRegister(new VarArgument(CLASS_THISKEY), new VarArgument(EXP1)));
+		}
+
+		//push the parameters, in forward order
+		for (auto it = host.parameters.begin();
+			it != host.parameters.end(); ++it)
+		{
+			//Compile-time constants can be optimized slightly...
+			if(std::optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
+				addOpcode(new OPushImmediate(new LiteralArgument(*val)));
+			else
+			{
+				visit(*it, param);
+				addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			}
+		}
+		//push any std::optional parameter values
+		auto num_actual_params = func.paramTypes.size();
+		auto used_opt_params = num_actual_params - host.parameters.size();
+		auto opt_param_count = func.opt_vals.size();
+		auto skipped_optional_params = opt_param_count - used_opt_params;
+		for(auto q = skipped_optional_params; q < opt_param_count; ++q)
+		{
+			addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
+		}
+		//goto
+		addOpcode(new OGotoImmediate(new LabelArgument(funclabel)));
+		//pop the stack frame pointer
+		Opcode *next = new OPopRegister(new VarArgument(SFRAME));
+		next->setLabel(returnaddr);
+		addOpcode(next);
+		if(store_this)
+			addOpcode(new OPopRegister(new VarArgument(CLASS_THISKEY)));
+		
+		//Deallocate string/array literals from within the parameters
+		deallocateRefsUntilCount(startRefCount);
+		while ((int32_t)arrayRefs.size() > startRefCount)
+		arrayRefs.pop_back();
+	}
+	else
 	{
 		int32_t funclabel = func.getLabel();
 		//push the stack frame pointer
@@ -2790,6 +2854,23 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 
 void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 {
+	if(UserClassVar* ucv = host.u_datum)
+	{
+		BuildOpcodes oc(scope);
+		if(ucv->is_arr)
+		{
+			oc.visit(host.left.get(), param); //incase side effects
+			addOpcodes(oc.getResult());
+			return; //No overwriting object arrays!
+		}
+		addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		oc.visit(host.left.get(), param);
+		addOpcodes(oc.getResult());
+		addOpcode(new OSetRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
+		addOpcode(new OPopRegister(new VarArgument(EXP1)));
+		addOpcode(new OWriteObject(new VarArgument(EXP2), new LiteralArgument(ucv->getIndex())));
+		return;
+	}
 	OpcodeContext *c = (OpcodeContext *)param;
 	int32_t isIndexed = (host.index != NULL);
 	assert(host.writeFunction->isInternal());

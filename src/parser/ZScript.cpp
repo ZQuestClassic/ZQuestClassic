@@ -402,6 +402,7 @@ UserClassVar* UserClassVar::create(
 		UserClass& user_class = cscope->user_class;
 		if(type.isArray())
 		{
+			ucv->is_arr = true;
 			int32_t totalSize = -1;
 			if (std::optional<int32_t> size = node.extraArrays[0]->getCompileTimeSize(errorHandler, &scope))
 				totalSize = *size;
@@ -419,7 +420,7 @@ UserClassVar* UserClassVar::create(
 UserClassVar::UserClassVar(
 		Scope& scope, ASTDataDecl& node, DataType const& type)
 	: Datum(scope, type), _index(0),
-	  node(node)
+	  node(node), is_arr(false)
 {
 	node.manager = this;
 }

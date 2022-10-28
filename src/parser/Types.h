@@ -15,6 +15,7 @@ namespace ZScript
 	////////////////////////////////////////////////////////////////
 	// Forward Declarations
 	class Function;
+	class UserClass;
 	class Scope;
 	class ZClass;
 	class DataType;
@@ -386,6 +387,7 @@ namespace ZScript
 		virtual bool isCustom() const {return false;}
 		virtual bool isUsrClass() const {return false;}
 		virtual bool isLong() const {return false;}
+		virtual UserClass* getUsrClass() const {return nullptr;}
 
 		// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
 		int32_t compare(DataType const& rhs) const;
@@ -636,8 +638,8 @@ namespace ZScript
 	class DataTypeCustom : public DataType
 	{
 	public:
-		DataTypeCustom(std::string name, DataType* constType, bool is_class = false, int32_t id = getUniqueCustomId())
-			: DataType(constType), name(name), id(id), _classty(is_class)
+		DataTypeCustom(std::string name, DataType* constType, UserClass* usrclass = nullptr, int32_t id = getUniqueCustomId())
+			: DataType(constType), name(name), id(id), user_class(usrclass)
 		{}
 		DataTypeCustom* clone() const {return new DataTypeCustom(*this);}
 		
@@ -645,8 +647,9 @@ namespace ZScript
 		
 		virtual bool isConstant() const {return false;}
 		virtual bool isCustom() const {return true;}
-		virtual bool isUsrClass() const {return _classty;}
+		virtual bool isUsrClass() const {return user_class != nullptr;}
 		virtual bool canBeGlobal() const {return true;}
+		virtual UserClass* getUsrClass() const {return user_class;}
 		virtual std::string getName() const {return name;}
 		virtual bool canCastTo(DataType const& target) const;
 		int32_t getCustomId() const {return id;}
@@ -654,7 +657,7 @@ namespace ZScript
 	protected:
 		int32_t id;
 		std::string name;
-		bool _classty;
+		UserClass* user_class;
 
 		int32_t selfCompare(DataType const& other) const;
 	};
@@ -662,8 +665,8 @@ namespace ZScript
 	class DataTypeCustomConst : public DataTypeCustom
 	{
 	public:
-		DataTypeCustomConst(std::string name, bool is_class = false)
-			: DataTypeCustom(name, NULL, is_class)
+		DataTypeCustomConst(std::string name, UserClass* user_class = nullptr)
+			: DataTypeCustom(name, NULL, user_class)
 		{}
 		DataTypeCustomConst* clone() const {return new DataTypeCustomConst(*this);}
 		

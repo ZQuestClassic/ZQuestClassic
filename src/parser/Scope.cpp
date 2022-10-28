@@ -496,7 +496,23 @@ vector<Function*> ZScript::lookupConstructors(UserClass const& user_class, vecto
 	trimBadFunctions(functions, parameterTypes, false);
 	return functions;
 }
-
+vector<Function*> ZScript::lookupClassFuncs(UserClass const& user_class, vector<DataType const*> const& parameterTypes)
+{
+	vector<Function*> functions = user_class.getScope().getLocalFunctions();
+	trimBadFunctions(functions, parameterTypes, false);
+	for (vector<Function*>::iterator it = functions.begin();
+		 it != functions.end();)
+	{
+		Function& function = **it;
+		if(function.getFlag(FUNCFLAG_STATIC))
+		{
+			it = functions.erase(it);
+			continue;
+		}
+		else ++it;
+	}
+	return functions;
+}
 
 inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes, bool trimClasses)
 {

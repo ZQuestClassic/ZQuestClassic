@@ -1190,6 +1190,7 @@ namespace ZScript
 
 		bool isConstant() const {return false;}
 		bool isLiteral() const {return false;}
+		bool isUsrClass() const {return u_datum;}
 
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler);
@@ -1201,6 +1202,9 @@ namespace ZScript
 		ZClass* leftClass;
 		Function* readFunction;
 		Function* writeFunction;
+		DataType const* rtype;
+		DataType const* wtype;
+		UserClassVar* u_datum;
 	};
 
 	class ASTExprIndex : public ASTExpr

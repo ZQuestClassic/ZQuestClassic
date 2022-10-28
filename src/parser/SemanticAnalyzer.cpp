@@ -929,9 +929,9 @@ void SemanticAnalyzer::caseClass(ASTClass& host, void* param)
 		temp.reset();
 		
 		//Construct a new constant type
-		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name, true);
+		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name, &user_class);
 		//Construct the base type
-		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, true, newConstType->getCustomId());
+		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, &user_class, newConstType->getCustomId());
 		
 		//Set the type to the base type
 		host.type.reset(new ASTDataType(newBaseType, host.location));
@@ -1119,8 +1119,21 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
     if (breakRecursion(host)) return;
 
 	// Grab the left side's class.
-    DataTypeClass const* leftType = dynamic_cast<DataTypeClass const*>(
-		    &getNaiveType(*host.left->getReadType(scope, this), scope));
+	DataType const& base_ltype = *host.left->getReadType(scope, this);
+	if(UserClass* user_class = base_ltype.getUsrClass())
+	{
+		ClassScope* cscope = &user_class->getScope();
+		if(UserClassVar* dat = cscope->getClassVar(host.right))
+		{
+			host.rtype = &dat->type;
+			if(!dat->type.isConstant())
+				host.wtype = &dat->type;
+			host.u_datum = dat;
+		}
+		return;
+	}
+    DataTypeClass const* leftType =
+		dynamic_cast<DataTypeClass const*>(&getNaiveType(base_ltype, scope));
     if (!leftType)
 	{
 		handleError(CompileError::ArrowNotPointer(&host));
@@ -1233,16 +1246,22 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	visit(host, host.parameters);
 	if (breakRecursion(host)) return;
 
+	UserClass* user_class = nullptr;
 	// Gather parameter types.
 	vector<DataType const*> parameterTypes;
-	if (arrow) parameterTypes.push_back(arrow->left->getReadType(scope, this));
+	if (arrow)
+	{
+		DataType const* arrtype = arrow->left->getReadType(scope, this);
+		if(user_class = arrtype->getUsrClass())
+			;
+		else parameterTypes.push_back(arrtype);
+	}
 	for (vector<ASTExpr*>::const_iterator it = host.parameters.begin();
 		 it != host.parameters.end(); ++it)
 		parameterTypes.push_back((*it)->getReadType(scope, this));
 
 	// Grab functions with the proper name, and matching parameter types
 	vector<Function*> functions;
-	UserClass* user_class = nullptr;
 	if(identifier)
 	{
 		if(host.isConstructor())
@@ -1265,6 +1284,10 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 			if(!functions.size())
 				functions = lookupFunctions(*scope, identifier->components, identifier->delimiters, parameterTypes, identifier->noUsing);
 		}
+	}
+	else if(user_class)
+	{
+		functions = lookupClassFuncs(*user_class, parameterTypes);
 	}
 	else functions = lookupFunctions(*arrow->leftClass, arrow->right, parameterTypes, true); //Never `using` arrow functions
 

@@ -223,9 +223,9 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 		temp.reset();
 		
 		//Construct a new constant type
-		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name, true);
+		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name, &user_class);
 		//Construct the base type
-		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, true, newConstType->getCustomId());
+		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, &user_class, newConstType->getCustomId());
 		
 		//Set the type to the base type
 		host.type.reset(new ASTDataType(newBaseType, host.location));
@@ -849,8 +849,21 @@ void RegistrationVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 	if(!registered(host.left.get())) return;
 
 	// Grab the left side's class.
-	DataTypeClass const* leftType = dynamic_cast<DataTypeClass const*>(
-			&getNaiveType(*host.left->getReadType(scope, this), scope));
+	DataType const& base_ltype = *host.left->getReadType(scope, this);
+	if(UserClass* user_class = base_ltype.getUsrClass())
+	{
+		ClassScope* cscope = &user_class->getScope();
+		if(UserClassVar* dat = cscope->getClassVar(host.right))
+		{
+			host.rtype = &dat->type;
+			if(!dat->type.isConstant())
+				host.wtype = &dat->type;
+			host.u_datum = dat;
+		}
+		return;
+	}
+    DataTypeClass const* leftType =
+		dynamic_cast<DataTypeClass const*>(&getNaiveType(base_ltype, scope));
 	if(!host.leftClass)
 	{
 		if (!leftType)
