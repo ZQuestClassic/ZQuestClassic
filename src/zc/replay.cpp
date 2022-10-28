@@ -787,6 +787,7 @@ void replay_forget_input()
         previous_control_state[i] = raw_control_state[i] = false;
 }
 
+static bool saved_image = false;
 void replay_stop()
 {
     if (mode == ReplayMode::Off)
@@ -820,6 +821,8 @@ void replay_stop()
 
     if (mode == ReplayMode::Snapshot)
     {
+        if (saved_image)
+            exit(0);
         fmt::print(stderr, "Missed expected snapshot frame: {}\n", frame_arg);
         exit(1);
     }
@@ -969,13 +972,16 @@ void replay_step_gfx(uint32_t gfx_hash)
     {
         if (frame_arg == frame_count)
         {
-            std::string img_filename = fmt::format("{}.{}.bmp", filename, frame_count);
+            size_t step_index = record_log.size() - 1;
+            std::string img_filename = fmt::format("{}.{}-{}.bmp", filename, frame_count, step_index);
             fmt::print("Saving requested bitmap: {}\n", img_filename);
             save_bitmap(img_filename.c_str(), framebuf, RAMpal);
-            exit(0);
+            saved_image = true;
         }
         else if (frame_arg < frame_count)
         {
+            if (saved_image)
+                exit(0);
             fmt::print(stderr, "Missed expected snapshot frame: {}\n", frame_arg);
             exit(1);
         }
@@ -984,15 +990,15 @@ void replay_step_gfx(uint32_t gfx_hash)
 	if (mode == ReplayMode::Assert && has_assert_failed)
 	{
 		size_t step_index = record_log.size() - 1;
-		// Only save one bmp per replay.
-		if (assert_current_index == step_index)
+		int frame_failed = replay_log[assert_current_index]->frame;
+		if (frame_failed == frame_count)
 		{
 			bool gfx_matches =
 				replay_log.size() > step_index &&
 				steps_are_equal(record_log.back().get(), replay_log.at(step_index).get());
 			if (!gfx_matches)
 			{
-				std::string img_filename = fmt::format("{}.unexpected-{}.bmp", filename, frame_count);
+				std::string img_filename = fmt::format("{}.unexpected-{}-{}.bmp", filename, frame_count, step_index);
 				fmt::print(stderr, "Saving unexpected bitmap: {}\n", img_filename);
 				save_bitmap(img_filename.c_str(), framebuf, RAMpal);
 			}
