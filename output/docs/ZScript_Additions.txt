@@ -3119,6 +3119,15 @@ void DestroyArray(untyped[] arr);
  * Immediately deallocates the specified array, if it is a local array.
  * If the array is a global array, does nothing.
 
+void OwnObject([Object] obj);
+ * Takes an object (see 'Classes and Objects' above)
+ * Transfers ownership of the object to the current script.
+
+void GlobalObject([Object] obj);
+ * Takes an object (see 'Classes and Objects' above)
+ * Transfers ownership of the object to the global scope.
+ * Objects owned by the global scope are saved to the save file.
+
 void Trace(untyped)
  * The Trace() instruction now supports all datatypes.
 
