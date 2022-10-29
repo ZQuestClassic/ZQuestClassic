@@ -39053,96 +39053,119 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 		if(!zasm_debugger && zasm_console) return;
 		CConsoleLoggerEx console = (zasm_console ? coloured_console : zscript_coloured_console);
 		bool cond = (zasm_console ? zasm_debugger : zscript_debugger);
+		char buf[256] = {0};
 		switch(curScriptType)
 		{
 			case SCRIPT_GLOBAL:
-				al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].scriptname.c_str());
-				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Global script %u (%s): ", 
-					curScriptNum+1, globalmap[curScriptNum].scriptname.c_str()); }
+			{
+				switch(curScriptNum)
+				{
+					case GLOBAL_SCRIPT_INIT:
+						sprintf(buf, "Global Init(%s): ", globalmap[curScriptNum].scriptname.c_str());
+						break;
+					case GLOBAL_SCRIPT_GAME:
+						sprintf(buf, "Global Active(%s): ", globalmap[curScriptNum].scriptname.c_str());
+						break;
+					case GLOBAL_SCRIPT_END:
+						sprintf(buf, "Global Exit(%s): ", globalmap[curScriptNum].scriptname.c_str());
+						break;
+					case GLOBAL_SCRIPT_ONSAVELOAD:
+						sprintf(buf, "Global SaveLoad(%s): ", globalmap[curScriptNum].scriptname.c_str());
+						break;
+					case GLOBAL_SCRIPT_ONLAUNCH:
+						sprintf(buf, "Global Launch(%s): ", globalmap[curScriptNum].scriptname.c_str());
+						break;
+					case GLOBAL_SCRIPT_ONCONTGAME:
+						sprintf(buf, "Global ContGame(%s): ", globalmap[curScriptNum].scriptname.c_str());
+						break;
+					case GLOBAL_SCRIPT_F6:
+						sprintf(buf, "Global F6Menu(%s): ", globalmap[curScriptNum].scriptname.c_str());
+						break;
+					case GLOBAL_SCRIPT_ONSAVE:
+						sprintf(buf, "Global Save(%s): ", globalmap[curScriptNum].scriptname.c_str());
+						break;
+				}
 				break;
+			}
 			
 			case SCRIPT_PLAYER:
-				al_trace("Player script %u (%s): ", curScriptNum, playermap[curScriptNum-1].scriptname.c_str());
-				if ( cond ) { console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Player script %u (%s): ", curScriptNum, playermap[curScriptNum-1].scriptname.c_str()); }
-			break;
+			{
+				switch(curScriptNum)
+				{
+					case SCRIPT_PLAYER_INIT:
+						sprintf(buf, "Player Init(%s): ", playermap[curScriptNum-1].scriptname.c_str());
+						break;
+					case SCRIPT_PLAYER_ACTIVE:
+						sprintf(buf, "Player Active(%s): ", playermap[curScriptNum-1].scriptname.c_str());
+						break;
+					case SCRIPT_PLAYER_DEATH:
+						sprintf(buf, "Player Death(%s): ", playermap[curScriptNum-1].scriptname.c_str());
+						break;
+					case SCRIPT_PLAYER_WIN:
+						sprintf(buf, "Player Win(%s): ", playermap[curScriptNum-1].scriptname.c_str());
+						break;
+				}
+				break;
+			}
 			
 			case SCRIPT_LWPN:
-				al_trace("LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());
-				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());}
-			break;
+				sprintf(buf, "LWeapon(%u, %s): ", curScriptNum,lwpnmap[curScriptNum-1].scriptname.c_str());
+				break;
 			
 			case SCRIPT_EWPN:
-				al_trace("EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());
-				if ( cond ) { console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());} 
-			break;
+				sprintf(buf, "EWeapon(%u, %s): ", curScriptNum,ewpnmap[curScriptNum-1].scriptname.c_str());
+				break;
 			
 			case SCRIPT_NPC:
-				al_trace("NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());
-				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());}     
-			break;
+				sprintf(buf, "NPC(%u, %s): ", curScriptNum,npcmap[curScriptNum-1].scriptname.c_str());
+				break;
 				
 			case SCRIPT_FFC:
-				al_trace("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());
-				
-				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());}
-			break;
+				sprintf(buf, "FFC(%u, %s): ", curScriptNum,ffcmap[curScriptNum-1].scriptname.c_str());
+				break;
 				
 			case SCRIPT_ITEM:
-				al_trace("Itemdata script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());
-				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Itemdata script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());}
-			break;
+				sprintf(buf, "Item(%u, %s): ", curScriptNum,itemmap[curScriptNum-1].scriptname.c_str());
+				break;
 			
 			case SCRIPT_ONMAP:
+				sprintf(buf, "DMapMap(%u, %s): ", curScriptNum,dmapmap[curScriptNum-1].scriptname.c_str());
+				break;
 			case SCRIPT_ACTIVESUBSCREEN:
+				sprintf(buf, "DMapASub(%u, %s): ", curScriptNum,dmapmap[curScriptNum-1].scriptname.c_str());
+				break;
 			case SCRIPT_PASSIVESUBSCREEN:
+				sprintf(buf, "DMapPSub(%u, %s): ", curScriptNum,dmapmap[curScriptNum-1].scriptname.c_str());
+				break;
 			case SCRIPT_DMAP:
-				al_trace("DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());
-				
-				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());}
-			break;
+				sprintf(buf, "DMap(%u, %s): ", curScriptNum,dmapmap[curScriptNum-1].scriptname.c_str());
+				break;
 			
 			case SCRIPT_ITEMSPRITE:
-				al_trace("itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());
-				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());}
-			break;
+				sprintf(buf, "ItemSprite(%u, %s): ", curScriptNum,itemspritemap[curScriptNum-1].scriptname.c_str());
+				break;
 			
 			case SCRIPT_SCREEN:
-				al_trace("Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());
-				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());}
-			break;
-			
-			//case SCRIPT_SUBSCREEN:
-			//	al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());
-			//	if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-			//		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());}
-			//break;
+				sprintf(buf, "Screen(%u, %s): ", curScriptNum,screenmap[curScriptNum-1].scriptname.c_str());
+				break;
 			
 			case SCRIPT_COMBO:
-				al_trace("combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
-				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());}
-			break;
-			case SCRIPT_GENERIC:
-				al_trace("Generic Script %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());
-				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Generic Script %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());}
+				sprintf(buf, "Combo(%u, %s): ", curScriptNum,comboscriptmap[curScriptNum-1].scriptname.c_str());
 				break;
+				
+			case SCRIPT_GENERIC:
+				sprintf(buf, "Generic(%u, %s): ", curScriptNum,genericmap[curScriptNum-1].scriptname.c_str());
+				break;
+				
 			case SCRIPT_GENERIC_FROZEN:
-				al_trace("Generic Script (FRZ) %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());
-				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Generic Script (FRZ) %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());}
+				sprintf(buf, "GenericFRZ(%u, %s): ", curScriptNum,genericmap[curScriptNum-1].scriptname.c_str());
 				break;
 		}
+		
+		al_trace("%s", buf);
+		if ( cond )
+			console.cprintf((CConsoleLoggerEx::COLOR_GREEN|CConsoleLoggerEx::COLOR_INTENSITY|
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s", buf);
 	}
 }
 
