@@ -2,7 +2,7 @@
 #define ZC_USER_OBJECT
 
 #include <map>
-#include "zc_array.h"
+#include "base/zc_array.h"
 typedef ZCArray<int32_t> ZScriptArray;
 
 #define MAX_USER_OBJECTS 214748
