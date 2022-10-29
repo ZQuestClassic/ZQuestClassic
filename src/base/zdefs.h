@@ -2306,6 +2306,7 @@ struct guydata
 #define FLAG_IGNORE_SCREENEDGE        0x2000
 #define FLAG_USE_NEW_MOVEMENT         0x4000
 
+#define MAX_PC dword(-1)
 class refInfo
 {
 public:

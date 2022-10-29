@@ -435,7 +435,7 @@ void SemanticAnalyzer::caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void*)
 		//Construct a new constant type
 		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name);
 		//Construct the base type
-		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, false, newConstType->getCustomId());
+		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, nullptr, newConstType->getCustomId());
 		
 		//Set the type to the base type
 		host.type.reset(new ASTDataType(newBaseType, host.location));

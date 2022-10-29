@@ -30619,7 +30619,7 @@ int32_t run_script_int(const byte type, const word script, const int32_t i, bool
 				break;
 			}
 		}
-		if(funcrun && ri->pc == dword(-1))
+		if(funcrun && ri->pc == MAX_PC)
 			return RUNSCRIPT_OK;
 #ifdef _SCRIPT_COUNTER
 		end_time = script_counter;
@@ -30637,39 +30637,11 @@ int32_t run_script_int(const byte type, const word script, const int32_t i, bool
 		}
 		if(increment)	ri->pc++;
 		else			increment = true;
-		if ( ri->pc < 0 ) //rolled over from overflow
+		if ( ri->pc == MAX_PC ) //rolled over from overflow?
 		{
-			switch(type)
-			{
-			
-				case SCRIPT_FFC:
-						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], ffcmap[i].scriptname.c_str()); break;
-					case SCRIPT_NPC:
-						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], npcmap[i].scriptname.c_str()); break;
-					case SCRIPT_LWPN:
-						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], lwpnmap[i].scriptname.c_str()); break;
-					case SCRIPT_EWPN:
-						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], ewpnmap[i].scriptname.c_str()); break;
-					case SCRIPT_ITEMSPRITE:
-						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], itemspritemap[i].scriptname.c_str()); break;
-					case SCRIPT_ITEM:
-						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], itemmap[i].scriptname.c_str()); break;
-					case SCRIPT_GLOBAL:
-						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], globalmap[i].scriptname.c_str()); break;
-					case SCRIPT_PLAYER:
-						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], playermap[i].scriptname.c_str()); break;
-					case SCRIPT_SCREEN:
-						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], screenmap[i].scriptname.c_str()); break;
-					case SCRIPT_ONMAP:
-					case SCRIPT_DMAP:
-					case SCRIPT_ACTIVESUBSCREEN:
-					case SCRIPT_PASSIVESUBSCREEN:
-						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], dmapmap[i].scriptname.c_str()); break;
-					case SCRIPT_COMBO: Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], comboscriptmap[i].scriptname.c_str()); break;
-					default:
-						ri->pc = 1; scommand = 0xFFFF; break;
-				
-			}
+			Z_scripterrlog("Script PC overflow! Too many ZASM lines?\n");
+			ri->pc = 0;
+			scommand = 0xFFFF;
 		}
 		if(scommand != 0xFFFF)
 		{
@@ -30678,86 +30650,86 @@ int32_t run_script_int(const byte type, const word script, const int32_t i, bool
 			sarg2 = curscript->zasm[ri->pc].arg2;
 			sargstr = curscript->zasm[ri->pc].strptr;
 			sargvec = curscript->zasm[ri->pc].vecptr;
-		}
-		if(scommand == WAITDRAW)
-		{
-			if(funcrun) scommand = NOP;
-			switch(type)
+			if(scommand == WAITDRAW)
 			{
-				case SCRIPT_GENERIC:
-				case SCRIPT_GENERIC_FROZEN: //ignore waitdraws
-					Z_scripterrlog("'Waitdraw()' is invalid in generic scripts, will be ignored\n");
-					scommand = NOP;
-					break;
-			}
-		}
-		else if(scommand == WAITTO)
-		{
-			if(funcrun) scommand = NOP;
-			switch(type)
-			{
-				case SCRIPT_GENERIC_FROZEN:
-					//ignore, no warn/error
-					scommand = NOP;
-					break;
-				case SCRIPT_GENERIC:
+				if(funcrun) scommand = NOP;
+				switch(type)
 				{
-					user_genscript& scr = user_scripts[script];
-					int32_t target = get_register(sarg1)/10000L;
-					bool atleast = get_register(sarg2)!=0;
-					if(unsigned(target) > SCR_TIMING_END_FRAME)
-					{
-						Z_scripterrlog("Invalid value '%d' provided to 'WaitTo()'\n", target);
+					case SCRIPT_GENERIC:
+					case SCRIPT_GENERIC_FROZEN: //ignore waitdraws
+						Z_scripterrlog("'Waitdraw()' is invalid in generic scripts, will be ignored\n");
 						scommand = NOP;
 						break;
-					}
-					if(genscript_timing == target ||
-						(atleast && genscript_timing < target))
-					{
-						//Already that time, skip the command
+				}
+			}
+			else if(scommand == WAITTO)
+			{
+				if(funcrun) scommand = NOP;
+				switch(type)
+				{
+					case SCRIPT_GENERIC_FROZEN:
+						//ignore, no warn/error
 						scommand = NOP;
 						break;
+					case SCRIPT_GENERIC:
+					{
+						user_genscript& scr = user_scripts[script];
+						int32_t target = get_register(sarg1)/10000L;
+						bool atleast = get_register(sarg2)!=0;
+						if(unsigned(target) > SCR_TIMING_END_FRAME)
+						{
+							Z_scripterrlog("Invalid value '%d' provided to 'WaitTo()'\n", target);
+							scommand = NOP;
+							break;
+						}
+						if(genscript_timing == target ||
+							(atleast && genscript_timing < target))
+						{
+							//Already that time, skip the command
+							scommand = NOP;
+							break;
+						}
+						scr.waituntil = scr_timing(target);
+						scr.wait_atleast = atleast;
+						break;
 					}
-					scr.waituntil = scr_timing(target);
-					scr.wait_atleast = atleast;
-					break;
+					default:
+						Z_scripterrlog("'WaitTo()' is only valid in 'generic' scripts!\n");
+						scommand = NOP;
+						break;
 				}
-				default:
-					Z_scripterrlog("'WaitTo()' is only valid in 'generic' scripts!\n");
-					scommand = NOP;
-					break;
 			}
-		}
-		else if(scommand == WAITEVENT)
-		{
-			if(funcrun) scommand = NOP;
-			switch(type)
+			else if(scommand == WAITEVENT)
 			{
-				case SCRIPT_GENERIC_FROZEN:
-					scommand = WAITFRAME;
-					ri->d[0] = GENSCR_EVENT_NIL*10000; //no event
-					break;
-				case SCRIPT_GENERIC:
+				if(funcrun) scommand = NOP;
+				switch(type)
 				{
-					user_genscript& scr = user_scripts[script];
-					scr.waitevent = true;
-					break;
+					case SCRIPT_GENERIC_FROZEN:
+						scommand = WAITFRAME;
+						ri->d[0] = GENSCR_EVENT_NIL*10000; //no event
+						break;
+					case SCRIPT_GENERIC:
+					{
+						user_genscript& scr = user_scripts[script];
+						scr.waitevent = true;
+						break;
+					}
+					default:
+						Z_scripterrlog("'WaitEvent()' is only valid in 'generic' scripts!\n");
+						scommand = NOP;
+						break;
 				}
-				default:
-					Z_scripterrlog("'WaitEvent()' is only valid in 'generic' scripts!\n");
-					scommand = NOP;
-					break;
 			}
-		}
-		else if(scommand == WAITFRAME)
-		{
-			if(funcrun) scommand = NOP;
-			switch(type)
+			else if(scommand == WAITFRAME)
 			{
-				case SCRIPT_GENERIC:
-					user_scripts[script].waituntil = SCR_TIMING_START_FRAME;
-					user_scripts[script].wait_atleast = false;
-					break;
+				if(funcrun) scommand = NOP;
+				switch(type)
+				{
+					case SCRIPT_GENERIC:
+						user_scripts[script].waituntil = SCR_TIMING_START_FRAME;
+						user_scripts[script].wait_atleast = false;
+						break;
+				}
 			}
 		}
 	}
@@ -30766,47 +30738,6 @@ int32_t run_script_int(const byte type, const word script, const int32_t i, bool
 	if(!scriptCanSave)
 		scriptCanSave=true;
 	
-	//Decide if item scripts called from idata->RunScript should still run:
-	/*
-	for ( int32_t q = 0; q < 256; q++ )
-	{
-	switch(runningItemScripts[q])
-	{
-		case 2: //stop running
-		{
-			item_doscript[i] = 0;
-			
-			itemScriptData[i].Clear();
-			memset(item_stack[i], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-			
-			break; 
-		}
-		case 3: //keep running
-			break;
-	}
-		
-	}
-	*/
-	/* NOT NEEDED
-	if(scommand == WAITFRAME)
-	{
-		switch(type)
-		{
-		case SCRIPT_ITEM:
-		{
-			if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-			{
-				scommand = QUIT;
-				item_doscript[i] = 0;
-				itemScriptData[i].Clear();
-				memset(item_stack[i], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-				break;
-			}
-		}
-		default: break;
-	}
-	}
-	*/
 	if(scommand == WAITDRAW)
 	{
 		switch(type)
@@ -31055,8 +30986,6 @@ int32_t run_script_int(const byte type, const word script, const int32_t i, bool
 	}
 	else
 		ri->pc++;
-		
-	//ri->pc = pc; //Put it back where we got it from
 	
 #ifdef _SCRIPT_COUNTER
 	
