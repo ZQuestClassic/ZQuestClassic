@@ -1028,6 +1028,8 @@ DataType const* ASTDataDecl::resolveType(ZScript::Scope* scope, CompileErrorHand
 		errorDisabled = true;
 		return type;
 	}
+	if (!type->isResolved())
+		return type;
 
 	// If we have any arrays, tack them onto the base type.
 	for (vector<ASTDataDeclExtraArray*>::const_iterator it = extraArrays.begin();

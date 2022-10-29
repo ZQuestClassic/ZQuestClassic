@@ -42,8 +42,11 @@ namespace ZScript
 		template <typename Type>
 		Type const* getCanonicalType(Type const& type)
 		{
+			auto& opt = getOrAssignTypeId(type);
+			if (!opt)
+				return nullptr;
 			return static_cast<Type const*>(
-					ownedTypes[*getOrAssignTypeId(type)]);
+					ownedTypes[*opt]);
 		}
 	
 		// Classes
@@ -626,6 +629,7 @@ namespace ZScript
 		virtual bool canCastTo(DataType const& target) const;
 		virtual bool canBeGlobal() const {return true;}
 		virtual bool isArray() const {return true;}
+		virtual bool isResolved() const {return elementType.isResolved();}
 
 		DataType const& getElementType() const {return elementType;}
 

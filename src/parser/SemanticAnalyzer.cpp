@@ -1312,7 +1312,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	}
 	else if(user_class)
 	{
-		functions = lookupClassFuncs(*user_class, parameterTypes);
+		functions = lookupClassFuncs(*user_class, arrow->right, parameterTypes);
 	}
 	else functions = lookupFunctions(*arrow->leftClass, arrow->right, parameterTypes, true); //Never `using` arrow functions
 
