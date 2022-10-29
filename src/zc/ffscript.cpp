@@ -537,7 +537,7 @@ byte ScriptDrawingRules[SCRIPT_DRAWING_RULES];
 int32_t FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and similar to override system defaults. 
 	
 miscQdata *misc;
-int32_t run_script_int(const byte type, const word script, const int32_t i, bool funcrun = false);
+int32_t run_script_int(const byte type, const word script, const int32_t i);
 
 //We gain some speed by not passing as arguments
 int32_t sarg1 = 0;
@@ -547,6 +547,10 @@ std::string *sargstr;
 refInfo *ri = NULL;
 script_data *curscript = NULL;
 int32_t(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
+byte curScriptType;
+word curScriptNum;
+bool script_funcrun = false;
+std::string* destructstr = nullptr;
 
 static std::vector<int32_t> sarg1cache;
 static std::vector<int32_t> sarg2cache;
@@ -575,47 +579,99 @@ void pop_ri()
 	curscript = sdcache.back(); sdcache.pop_back();
 	stack = stackcache.back(); stackcache.pop_back();
 }
+script_data* load_scrdata(int32_t type, word script, int32_t i);
 
 void scr_func_exec::clear()
 {
 	pc = type = i = 0;
-	script = 0;
-	sari.Clear();
-	sc_data = nullptr;
+	script = 0; thiskey = 0;
+	name.clear();
 }
 void scr_func_exec::execute()
 {
 	static int32_t static_stack[MAX_SCRIPT_REGISTERS];
+	script_data* sc_data = load_scrdata(type,script,i);
 	if(!pc || !sc_data || !sc_data->valid())
 		return;
 	
-	push_ri();
-	ri = &sari;
-	ri->pc = pc;
-	curscript = sc_data;
-	stack = &static_stack;
-	memset(static_stack, 0, sizeof(int32_t)*MAX_SCRIPT_REGISTERS);
-	//
-	run_script_int(type,script,i,true);
-	//
-	pop_ri();
+	ffscript *zas = &sc_data->zasm[pc-1];
+	if(!(zas->command == STARTDESTRUCTOR && zas->strptr && name == *(zas->strptr)))
+	{
+		if(validate())
+			zas = &sc_data->zasm[pc-1];
+		else return;
+	}
+	
+	if(zas->command == STARTDESTRUCTOR && zas->strptr && name == *(zas->strptr))
+	{
+		push_ri();
+		refInfo newRI;
+		ri = &newRI;
+		ri->pc = pc;
+		ri->thiskey = thiskey;
+		ri->sp--;
+		
+		curscript = sc_data;
+		stack = &static_stack;
+		curScriptType = type;
+		curScriptNum = script;
+		memset(static_stack, 0, sizeof(int32_t)*MAX_SCRIPT_REGISTERS);
+		//
+		std::string* oldstr = destructstr;
+		destructstr = &name;
+		script_funcrun = true;
+		run_script_int(type,script,i);
+		script_funcrun = false;
+		destructstr = oldstr;
+		//
+		pop_ri();
+	}
 }
-
+bool scr_func_exec::validate()
+{
+	script_data* sc_data = load_scrdata(type,script,i);
+	if(!pc || !sc_data || !sc_data->valid())
+		return false;
+	
+	ffscript &zas = sc_data->zasm[pc-1];
+	if(zas.command == STARTDESTRUCTOR && zas.strptr && name == *(zas.strptr))
+		return true; //validated!
+	dword q = 0;
+	while(true)
+	{
+		ffscript& zas = sc_data->zasm[q];
+		if(zas.command == 0xFFFF)
+		{
+			zprint2("Destructor for class '%s' expected, but not found!\n", name.c_str());
+			return false;
+		}
+		else if(zas.command == STARTDESTRUCTOR
+			&& zas.strptr && name == *(zas.strptr))
+		{
+			pc = q+1;
+			return true; //validated!
+		}
+	}
+}
 void user_object::prep(dword pc, int32_t type, word script, int32_t i)
 {
-	destruct.pc = pc;
-	destruct.type = type;
-	destruct.script = script;
-	destruct.i = i;
-	destruct.sari = *ri;
-	destruct.sc_data = curscript;
+	if(!pc) return;
+	ffscript &zas = curscript->zasm[pc-1];
+	if(zas.command == STARTDESTRUCTOR && zas.strptr)
+	{
+		destruct.pc = pc;
+		destruct.type = type;
+		destruct.script = script;
+		destruct.i = i;
+		destruct.thiskey = ri->thiskey;
+		destruct.name = *zas.strptr;
+	}
+	else zprint2("Destructor for object not found?\n");
 }
 
 
 static int32_t numInstructions = 0; // Used to detect hangs
 static bool scriptCanSave = true;
-byte curScriptType;
-word curScriptNum;
 
 std::vector<refInfo*> genericActiveData;
 std::vector<int32_t(*)[MAX_SCRIPT_REGISTERS]> generic_active_stack;
@@ -2332,10 +2388,18 @@ public:
 	//Returns a reference to the correct array based on pointer passed
 	static ZScriptArray& getArray(const int32_t ptr)
 	{
-		if(ptr <= 0)
+		if(ptr == 0)
 			return InvalidError(ptr);
 			
-		if(ptr >= NUM_ZSCRIPT_ARRAYS) //Then it's a global
+		if(ptr < 0) //An object array?
+		{
+			int32_t objptr = -ptr;
+			auto it = objectRAM.find(objptr);
+			if(it == objectRAM.end())
+				return InvalidError(ptr);
+			return it->second;
+		}
+        else if(ptr >= NUM_ZSCRIPT_ARRAYS) //Then it's a global
 		{
 			dword gptr = ptr - NUM_ZSCRIPT_ARRAYS;
 			
@@ -2580,8 +2644,10 @@ public:
 void deallocateArray(const int32_t ptrval)
 {
 	if(ptrval == 0) return;
-	if(ptrval<=0 || ptrval >= NUM_ZSCRIPT_ARRAYS)
+	if(ptrval==0 || ptrval >= NUM_ZSCRIPT_ARRAYS)
 		Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
+	else if(ptrval<0)
+		Z_scripterrlog("Script tried to deallocate memory at object-based address %ld\n", ptrval);
 	else
 	{
 		if(arrayOwner[ptrval].specOwned) return; //ignore this deallocation
@@ -2677,6 +2743,7 @@ void FFScript::deallocateAllArrays()
 	{
 		script_objects[q].own_clear_any();
 	}
+	objectRAM.clear();
 	//No QR check here- always deallocate on quest exit.
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
@@ -21967,16 +22034,21 @@ void do_own_array(const byte scriptType, const int32_t UID)
 	
 	ZScriptArray &a = ArrayH::getArray(arrindx);
 	
-	if(a != INVALIDARRAY && arrindx > 0 && arrindx < NUM_ZSCRIPT_ARRAYS)
-	{
-		arrayOwner[arrindx].scriptType = scriptType;
-		arrayOwner[arrindx].ownerUID = UID;
-		arrayOwner[arrindx].specOwned = true;
-		arrayOwner[arrindx].specCleared = false;
-	}
-	else if(arrindx >= NUM_ZSCRIPT_ARRAYS && arrindx < NUM_ZSCRIPT_ARRAYS*2)
+	if(arrindx >= NUM_ZSCRIPT_ARRAYS && arrindx < NUM_ZSCRIPT_ARRAYS*2)
 	{
 		//ignore global arrays
+	}
+	else if(a != INVALIDARRAY)
+	{
+		if(arrindx > 0 && arrindx < NUM_ZSCRIPT_ARRAYS)
+		{
+			arrayOwner[arrindx].scriptType = scriptType;
+			arrayOwner[arrindx].ownerUID = UID;
+			arrayOwner[arrindx].specOwned = true;
+			arrayOwner[arrindx].specCleared = false;
+		}
+		else if(arrindx < 0) //object array
+			Z_scripterrlog("Cannot 'OwnArray()' an object-based array '%d'\n", arrindx);
 	}
 	else Z_scripterrlog("Tried to 'OwnArray()' an invalid array '%d'\n", arrindx);
 }
@@ -21986,21 +22058,26 @@ void do_destroy_array()
 	
 	ZScriptArray &a = ArrayH::getArray(arrindx);
 	
-	if(a != INVALIDARRAY && arrindx > 0 && arrindx < NUM_ZSCRIPT_ARRAYS)
-	{
-		arrayOwner[arrindx].clear();
-		
-		if(localRAM[arrindx].Size() == 0)
-			;
-		else
-		{
-			localRAM[arrindx].Clear();
-		}
-		arrayOwner[arrindx].specCleared = true;
-	}
-	else if(arrindx >= NUM_ZSCRIPT_ARRAYS && arrindx < NUM_ZSCRIPT_ARRAYS*2)
+	if(arrindx >= NUM_ZSCRIPT_ARRAYS && arrindx < NUM_ZSCRIPT_ARRAYS*2)
 	{
 		//ignore global arrays
+	}
+	else if(a != INVALIDARRAY)
+	{
+		if(arrindx > 0 && arrindx < NUM_ZSCRIPT_ARRAYS)
+		{
+			arrayOwner[arrindx].clear();
+			
+			if(localRAM[arrindx].Size() == 0)
+				;
+			else
+			{
+				localRAM[arrindx].Clear();
+			}
+			arrayOwner[arrindx].specCleared = true;
+		}
+		else if(arrindx < 0) //object array
+			Z_scripterrlog("Cannot 'DestroyArray()' an object-based array '%d'\n", arrindx);
 	}
 	else Z_scripterrlog("Tried to 'DestroyArray()' an invalid array '%d'\n", arrindx);
 }
@@ -23559,25 +23636,28 @@ void do_isvalidarray()
 {
 	int32_t ptr = get_register(sarg1)/10000;
 	
+	set_register(sarg1,0);
 	
-	if(ptr <= 0) //invalid pointer
+	if(!ptr) return;
+	
+	if(ptr < 0) //An object array?
 	{
-			set_register(sarg1,0); return;
+		int32_t objptr = -ptr;
+		auto it = objectRAM.find(objptr);
+		if(it == objectRAM.end())
+			return;
+		set_register(sarg1,10000);
 	}
-			
-		if(ptr >= NUM_ZSCRIPT_ARRAYS) //check global
-		{
-			dword gptr = ptr - NUM_ZSCRIPT_ARRAYS;
-			
-			if(gptr > game->globalRAM.size())
-		{
-			set_register(sarg1,0); return;
-		}
+	else if(ptr >= NUM_ZSCRIPT_ARRAYS) //check global
+	{
+		dword gptr = ptr - NUM_ZSCRIPT_ARRAYS;
+		
+		if(gptr > game->globalRAM.size())
+			return;
 		else set_register(sarg1,(game->globalRAM[gptr].Size() == 0) ? 0 : 10000); return;
 	}
-		
-		else
-		{
+	else
+	{
 		set_register(sarg1,(localRAM[ptr].Size() == 0) ? 0 : 10000); 
 	}
 }
@@ -26664,18 +26744,53 @@ void do_writepod(const bool v1, const bool v2)
 	int32_t val = SH::get_arg(sarg2, v2);
 	ArrayH::setElement(ri->d[rINDEX] / 10000, indx, val);
 }
+int32_t get_object_arr(size_t sz)
+{
+	if(!sz || sz > 214748) return 0;
+	int32_t free_ptr = 1;
+	auto it = objectRAM.begin();
+	if(it != objectRAM.end())
+	{
+		if(it->first == 1)
+		{
+			for(free_ptr = 2; ; ++free_ptr)
+			{
+				if(objectRAM.find(free_ptr) == objectRAM.end())
+					break;
+			}
+		}
+	}
+	ZScriptArray arr;
+	arr.Resize(sz);
+	objectRAM[free_ptr] = arr;
+	// auto res = objectRAM.emplace(free_ptr);
+	// ZScriptArray& arr = res.first->second;
+	// arr.Resize(sz);
+	
+	return -free_ptr;
+}
+void destroy_object_arr(int32_t ptr)
+{
+	if(ptr < 0)
+	{
+		auto it = objectRAM.find(-ptr);
+		if(it != objectRAM.end())
+			objectRAM.erase(it);
+	}
+}
 void do_constructclass(int32_t type, word script, int32_t i)
 {
 	if(!sargvec) return;
 	
 	size_t num_vars = sargvec->at(0);
 	size_t total_vars = num_vars + sargvec->size()-1;
-	
+	auto destr_pc = ri->d[rEXP1];
 	dword objref = FFCore.get_free_object(false);
 	
 	if(user_object* obj = checkObject(objref, true))
 	{
 		obj->own(type, i);
+		obj->owned_vars = num_vars;
 		for(size_t q = 0; q < total_vars; ++q)
 		{
 			if(q < num_vars)
@@ -26684,13 +26799,15 @@ void do_constructclass(int32_t type, word script, int32_t i)
 			}
 			else
 			{
-				obj->data.push_back(-signed(q-num_vars+1));
-				//!TODOUSERCLASS placeholder for arrays
+				size_t sz = sargvec->at(q-num_vars+1);
+				if(auto id = get_object_arr(sz))
+					obj->data.push_back(10000*id);
+				else obj->data.push_back(0); //nullptr
 			}
 		}
 		set_register(sarg1, objref);
 		ri->thiskey = objref;
-		obj->prep(ri->d[rEXP1],type,script,i);
+		obj->prep(destr_pc,type,script,i);
 	}
 	else set_register(sarg1, 0);
 }
@@ -27077,6 +27194,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		{
 			ri = &(screenScriptData);
 			curscript = screenscripts[script];
+			curscript = comboscripts[script];
 			stack = &(screen_stack);
 			if ( !tmpscr->screendatascriptInitialised )
 			{
@@ -27120,9 +27238,10 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		}
 	}
 	
+	script_funcrun = false;
 	return run_script_int(type,script,i);
 }
-int32_t run_script_int(const byte type, const word script, const int32_t i, bool funcrun)
+int32_t run_script_int(const byte type, const word script, const int32_t i)
 {
 	word scommand = curscript->zasm[ri->pc].command;
 	sarg1 = curscript->zasm[ri->pc].arg1;
@@ -27637,6 +27756,21 @@ int32_t run_script_int(const byte type, const word script, const int32_t i, bool
 			case ZCLASS_FREE:
 			{
 				do_freeclass();
+				break;
+			}
+			case ZCLASS_OWN:
+			{
+				if(user_object* obj = checkObject(get_register(sarg1), true))
+				{
+					obj->own(type,i);
+				}
+				break;
+			}
+			case STARTDESTRUCTOR:
+			{
+				zprint2("STARTDESTRUCTOR: %s\n", sargstr->c_str());
+				//This opcode's EXISTENCE indicates the first opcode
+				//of a user_object destructor function.
 				break;
 			}
 				
@@ -30619,7 +30753,7 @@ int32_t run_script_int(const byte type, const word script, const int32_t i, bool
 				break;
 			}
 		}
-		if(funcrun && ri->pc == MAX_PC)
+		if(script_funcrun && ri->pc == MAX_PC)
 			return RUNSCRIPT_OK;
 #ifdef _SCRIPT_COUNTER
 		end_time = script_counter;
@@ -30652,7 +30786,7 @@ int32_t run_script_int(const byte type, const word script, const int32_t i, bool
 			sargvec = curscript->zasm[ri->pc].vecptr;
 			if(scommand == WAITDRAW)
 			{
-				if(funcrun) scommand = NOP;
+				if(script_funcrun) scommand = NOP;
 				switch(type)
 				{
 					case SCRIPT_GENERIC:
@@ -30664,7 +30798,7 @@ int32_t run_script_int(const byte type, const word script, const int32_t i, bool
 			}
 			else if(scommand == WAITTO)
 			{
-				if(funcrun) scommand = NOP;
+				if(script_funcrun) scommand = NOP;
 				switch(type)
 				{
 					case SCRIPT_GENERIC_FROZEN:
@@ -30701,7 +30835,7 @@ int32_t run_script_int(const byte type, const word script, const int32_t i, bool
 			}
 			else if(scommand == WAITEVENT)
 			{
-				if(funcrun) scommand = NOP;
+				if(script_funcrun) scommand = NOP;
 				switch(type)
 				{
 					case SCRIPT_GENERIC_FROZEN:
@@ -30722,7 +30856,7 @@ int32_t run_script_int(const byte type, const word script, const int32_t i, bool
 			}
 			else if(scommand == WAITFRAME)
 			{
-				if(funcrun) scommand = NOP;
+				if(script_funcrun) scommand = NOP;
 				switch(type)
 				{
 					case SCRIPT_GENERIC:
@@ -30733,7 +30867,7 @@ int32_t run_script_int(const byte type, const word script, const int32_t i, bool
 			}
 		}
 	}
-	if(funcrun) return RUNSCRIPT_OK;
+	if(script_funcrun) return RUNSCRIPT_OK;
 	
 	if(!scriptCanSave)
 		scriptCanSave=true;
@@ -31001,6 +31135,43 @@ int32_t run_script_int(const byte type, const word script, const int32_t i, bool
 	
 	
 	return RUNSCRIPT_OK;
+}
+
+script_data* load_scrdata(int32_t type, word script, int32_t i)
+{
+	switch(type)
+	{
+		case SCRIPT_FFC:
+			return ffscripts[script];
+		case SCRIPT_NPC:
+			return guyscripts[guys.spr(GuyH::getNPCIndex(i))->script];
+		case SCRIPT_LWPN:
+			return lwpnscripts[Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript];
+		case SCRIPT_EWPN:
+			return ewpnscripts[Ewpns.spr(EwpnH::getEWeaponIndex(i))->weaponscript];
+		case SCRIPT_ITEMSPRITE:
+			return itemspritescripts[items.spr(ItemH::getItemIndex(i))->script];
+		case SCRIPT_ITEM:
+			return itemscripts[script];
+		case SCRIPT_GLOBAL:
+			return globalscripts[script];
+		case SCRIPT_GENERIC:
+		case SCRIPT_GENERIC_FROZEN:
+			return genericscripts[script];
+		case SCRIPT_PLAYER:
+			return playerscripts[script];
+		case SCRIPT_DMAP:
+			return dmapscripts[script];
+		case SCRIPT_ONMAP:
+		case SCRIPT_ACTIVESUBSCREEN:
+		case SCRIPT_PASSIVESUBSCREEN:
+			return dmapscripts[script];
+		case SCRIPT_SCREEN:
+			return screenscripts[script];
+		case SCRIPT_COMBO:
+			return comboscripts[script];
+	}
+	return nullptr;
 }
 
 //This keeps ffc scripts running beyond the first frame. 
@@ -32241,8 +32412,10 @@ int32_t FFScript::loadMapData()
 void FFScript::deallocateZScriptArray(const int32_t ptrval)
 {
 	if(ptrval == 0) return;
-	if(ptrval<=0 || ptrval >= NUM_ZSCRIPT_ARRAYS)
+	if(ptrval==0 || ptrval >= NUM_ZSCRIPT_ARRAYS)
 		Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
+	else if(ptrval<0)
+		Z_scripterrlog("Script tried to deallocate memory at object-based address %ld\n", ptrval);
 	else
 	{
 		if(arrayOwner[ptrval].specOwned) return; //ignore this deallocation
@@ -37019,8 +37192,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "ZCLASS_READ",   2,   0,   1,   0},
 	{ "ZCLASS_WRITE",   2,   0,   1,   0},
 	{ "ZCLASS_FREE",   1,   0,   0,   0},
-	{ "RESRVD_OP_EMILY04",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY05",   0,   0,   0,   0},
+	{ "ZCLASS_OWN",   1,   0,   0,   0},
+	{ "STARTDESTRUCTOR",   0,   0,   0,   1},
 	{ "RESRVD_OP_EMILY06",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY07",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY08",   0,   0,   0,   0},
@@ -39054,7 +39227,11 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 		CConsoleLoggerEx console = (zasm_console ? coloured_console : zscript_coloured_console);
 		bool cond = (zasm_console ? zasm_debugger : zscript_debugger);
 		char buf[256] = {0};
-		switch(curScriptType)
+		if(script_funcrun)
+		{
+			sprintf(buf, "Destructor(%d,%s): ", ri->thiskey, destructstr?destructstr->c_str():"UNKNOWN");
+		}
+		else switch(curScriptType)
 		{
 			case SCRIPT_GLOBAL:
 			{

@@ -16,6 +16,7 @@
 /*********************************/
 
 #include <vector>
+#include <map>
 #include "base/zdefs.h"
 #include "base/zc_array.h"
 #include "zc_sys.h"
@@ -480,6 +481,7 @@ struct ScriptOwner
 #define NUM_ZSCRIPT_ARRAYS	4096
 typedef ZCArray<int32_t> ZScriptArray;
 extern ZScriptArray localRAM[NUM_ZSCRIPT_ARRAYS];
+extern std::map<int32_t,ZScriptArray> objectRAM;
 extern ScriptOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
 
 dword getNumGlobalArrays();

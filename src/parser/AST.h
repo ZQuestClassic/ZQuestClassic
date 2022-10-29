@@ -252,6 +252,7 @@ namespace ZScript
 	
 		// Subclass Predicates (replacing typeof and such).
 		virtual bool isTypeArrow() const {return false;}
+		virtual bool isTypeArrowUsrClass() const {return false;}
 		virtual bool isTypeIndex() const {return false;}
 		virtual bool isTypeIdentifier() const {return false;}
 		virtual bool isTypeVarDecl() const {return false;}
@@ -1187,6 +1188,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		std::string asString() const;
 		bool isTypeArrow() const {return true;}
+		bool isTypeArrowUsrClass() const {return isUsrClass();}
 
 		bool isConstant() const {return false;}
 		bool isLiteral() const {return false;}

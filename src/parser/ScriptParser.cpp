@@ -335,8 +335,18 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 	     it != funs.end(); ++it)
 	{
 		Function& function = **it;
+		bool classfunc = function.getFlag(FUNCFLAG_CLASSFUNC) && !function.getFlag(FUNCFLAG_STATIC);
+		int puc = 0;
+		if(classfunc)
+		{
+			if(function.getFlag(FUNCFLAG_CONSTRUCTOR))
+				puc = puc_construct;
+			else if(function.getFlag(FUNCFLAG_DESTRUCTOR))
+				puc = puc_destruct;
+			else puc = puc_funcs;
+		}
 		if(function.getFlag(FUNCFLAG_INLINE)) continue; //Skip inline func decls, they are handled at call location -V
-		if(function.prototype) continue; //Skip prototype func decls, they are ALSO handled at the call location -V
+		if(puc != puc_construct && function.prototype) continue; //Skip prototype func decls, they are ALSO handled at the call location -V
 		ASTFuncDecl& node = *function.node;
 
 		bool isRun = ZScript::isRun(function);
@@ -348,16 +358,11 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 		}
 		scope = function.internalScope;
 		
-		if(function.getFlag(FUNCFLAG_CLASSFUNC) && !function.getFlag(FUNCFLAG_STATIC))
+		if(classfunc)
 		{
 			UserClass& user_class = scope->getClass()->user_class;
 			
-			int puc = puc_funcs;
 			vector<std::shared_ptr<Opcode>> funccode;
-			if(function.getFlag(FUNCFLAG_CONSTRUCTOR))
-				puc = puc_construct;
-			else if(function.getFlag(FUNCFLAG_DESTRUCTOR))
-				puc = puc_destruct;
 			
 			int32_t stackSize = getStackSize(function);
 			// Start of the function.
@@ -365,7 +370,8 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			{
 				vector<Function*> destr = user_class.getScope().getDestructor();
 				std::shared_ptr<Opcode> first;
-				if(destr.size() == 1)
+				Function* destructor = destr.size() == 1 ? destr.at(0) : nullptr;
+				if(destructor && !destructor->prototype)
 				{
 					Function* destructor = destr[0];
 					first.reset(new OSetImmediate(new VarArgument(EXP1),
@@ -377,6 +383,12 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				funccode.push_back(std::move(first));
 				addOpcode2(funccode, new OConstructClass(new VarArgument(CLASS_THISKEY),
 					new VectorArgument(user_class.members)));
+			}
+			else if(puc == puc_destruct)
+			{
+				std::shared_ptr<Opcode> first(new ODestructor(new StringArgument(user_class.getName())));
+				first->setLabel(function.getLabel());
+				funccode.push_back(std::move(first));
 			}
 			else
 			{

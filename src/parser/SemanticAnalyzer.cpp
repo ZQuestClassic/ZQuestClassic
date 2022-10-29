@@ -937,6 +937,7 @@ void SemanticAnalyzer::caseClass(ASTClass& host, void* param)
 		host.type.reset(new ASTDataType(newBaseType, host.location));
 		
 		DataType::addCustom(newBaseType);
+		user_class.setType(newBaseType);
 		
 		//This call should never fail, because of the error check above.
 		scope->addDataType(host.name, newBaseType, &host);
@@ -957,7 +958,28 @@ void SemanticAnalyzer::caseClass(ASTClass& host, void* param)
 	scope = scope->getParent();
 	if (breakRecursion(host)) return;
 	//
-	for (auto it = host.constructors.cbegin();
+	if(!host.constructors.size())
+	{
+		ASTFuncDecl* defcon = new ASTFuncDecl(host.location);
+		ASTExprIdentifier* iden = new ASTExprIdentifier(name, host.location);
+		defcon->iden = iden;
+		defcon->name = name;
+		defcon->prototype = true;
+		defcon->defaultReturn = new ASTExprConst(new ASTExprCast(
+				new ASTDataType(DataType::CUNTYPED, host.location),
+				new ASTNumberLiteral(new ASTFloat(0, 0, host.location), host.location), host.location
+			), host.location);
+		defcon->returnType.reset(new ASTDataType(user_class.getType(), host.location));
+		defcon->setFlag(FUNCFLAG_CONSTRUCTOR|FUNCFLAG_CLASSFUNC);
+		host.constructors.push_back(defcon);
+		//Re-visit the constructors now
+		parsing_user_class = puc_construct;
+		scope = &user_class.getScope();
+		block_visit(host, host.constructors, param);
+		scope = scope->getParent();
+		parsing_user_class = puc_none;
+	}
+	else for (auto it = host.constructors.cbegin();
 		 it != host.constructors.cend(); ++it)
 	{
 		ASTFuncDecl const* func = *it;
@@ -1206,7 +1228,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
 {
 	// Arrow handles its own indexing.
-	if (host.array->isTypeArrow())
+	if (host.array->isTypeArrow() && !host.array->isTypeArrowUsrClass())
 	{
 		static_cast<ASTExprArrow&>(*host.array).index = host.index;
 		visit(host.array.get(), param);
@@ -1273,7 +1295,6 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 				return;
 			}
 			functions = lookupConstructors(*user_class, parameterTypes);
-			//!TODOUSERCLASS ensure there's always a default constructor
 		}
 		else
 		{

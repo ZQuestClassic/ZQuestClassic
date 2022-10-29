@@ -1114,7 +1114,7 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 {
 	// If the left hand side is an arrow, then we'll let it run instead.
-	if (host.array->isTypeArrow())
+	if (host.array->isTypeArrow() && !host.array->isTypeArrowUsrClass())
 	{
 		caseExprArrow(static_cast<ASTExprArrow&>(*host.array), param);
 		return;
@@ -1147,6 +1147,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	if (host.isDisabled()) return;
 	OpcodeContext* c = (OpcodeContext*)param;
 	auto& func = *host.binding;
+	bool classfunc = func.getFlag(FUNCFLAG_CLASSFUNC) && !func.getFlag(FUNCFLAG_STATIC);
 	if(func.prototype) //Prototype function
 	{
 		int32_t startRefCount = arrayRefs.size(); //Store ref count
@@ -1158,12 +1159,32 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		}
 		
 		//Set the return to the default value
-		DataType const& retType = *func.returnType;
-		if(retType != DataType::ZVOID)
+		if(classfunc && func.getFlag(FUNCFLAG_CONSTRUCTOR))
 		{
-			if (std::optional<int32_t> val = func.defaultReturn->getCompileTimeValue(NULL, scope))
+			ClassScope* cscope = func.internalScope->getClass();
+			UserClass& user_class = cscope->user_class;
+			vector<Function*> destr = cscope->getDestructor();
+			Function* destructor = destr.size() == 1 ? destr.at(0) : nullptr;
+			if(destructor && !destructor->prototype)
 			{
-				addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*val)));
+				Function* destructor = destr[0];
+				addOpcode(new OSetImmediate(new VarArgument(EXP1),
+					new LabelArgument(destructor->getLabel())));
+			}
+			else addOpcode(new OSetImmediate(new VarArgument(EXP1),
+				new LiteralArgument(0)));
+			addOpcode(new OConstructClass(new VarArgument(EXP1),
+				new VectorArgument(user_class.members)));
+		}
+		else
+		{
+			DataType const& retType = *func.returnType;
+			if(retType != DataType::ZVOID)
+			{
+				if (std::optional<int32_t> val = func.defaultReturn->getCompileTimeValue(NULL, scope))
+				{
+					addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*val)));
+				}
 			}
 		}
 
@@ -1227,7 +1248,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		while ((int32_t)arrayRefs.size() > startRefCount)
 			arrayRefs.pop_back();
 	}
-	else if(func.getFlag(FUNCFLAG_CLASSFUNC) && !func.getFlag(FUNCFLAG_STATIC))
+	else if(classfunc)
 	{
 		int32_t funclabel = func.getLabel();
 		//push the stack frame pointer
@@ -2972,7 +2993,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 {
 	// Arrows just fall back on the arrow implementation.
-	if (host.array->isTypeArrow())
+	if (host.array->isTypeArrow() && !host.array->isTypeArrowUsrClass())
 	{
 		caseExprArrow(static_cast<ASTExprArrow&>(*host.array), param);
 		return;

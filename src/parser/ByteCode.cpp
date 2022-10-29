@@ -2351,13 +2351,13 @@ string OFreeObject::toString()
 {
 	return "ZCLASS_FREE " + getArgument()->toString();
 }
-string OReservedEmily04::toString()
+string OOwnObject::toString()
 {
-	return "RESRVD_OP_EMILY04 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "ZCLASS_OWN " + getArgument()->toString();
 }
-string OReservedEmily05::toString()
+string ODestructor::toString()
 {
-	return "RESRVD_OP_EMILY05 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "STARTDESTRUCTOR " + getArgument()->toString();
 }
 string OReservedEmily06::toString()
 {

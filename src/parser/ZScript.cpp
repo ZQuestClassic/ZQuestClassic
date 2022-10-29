@@ -166,7 +166,7 @@ vector<Function*> ZScript::getFunctions(Program const& program)
 // ZScript::UserClass
 
 UserClass::UserClass(Program& program, ASTClass& user_class)
-	: program(program), node(user_class)
+	: program(program), node(user_class), classType(nullptr)
 {
 	members.push_back(0);
 }

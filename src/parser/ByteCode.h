@@ -1901,24 +1901,24 @@ namespace ZScript
 			return new OFreeObject(a->clone());
 		}
 	};
-	class OReservedEmily04 : public BinaryOpcode
+	class OOwnObject : public UnaryOpcode
 	{
 	public:
-		OReservedEmily04(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OOwnObject(Argument *A) : UnaryOpcode(A) {}
 		std::string toString();
 		Opcode *clone()
 		{
-			return new OReservedEmily04(a->clone(),b->clone());
+			return new OOwnObject(a->clone());
 		}
 	};
-	class OReservedEmily05 : public BinaryOpcode
+	class ODestructor : public UnaryOpcode
 	{
 	public:
-		OReservedEmily05(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		ODestructor(Argument *A) : UnaryOpcode(A) {}
 		std::string toString();
 		Opcode *clone()
 		{
-			return new OReservedEmily05(a->clone(),b->clone());
+			return new ODestructor(a->clone());
 		}
 	};
 	class OReservedEmily06 : public BinaryOpcode

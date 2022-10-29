@@ -190,10 +190,13 @@ namespace ZScript
 		ASTClass* getNode() const {return &node;}
 		ClassScope& getScope() {return *scope;}
 		ClassScope const& getScope() const {return *scope;}
+		DataType* getType() {return classType;}
+		void setType(DataType* t) {classType = t;}
 		
 		std::vector<int32_t> members;
 	protected:
 		UserClass(Program& program, ASTClass& user_class);
+		DataType* classType;
 
 	private:
 		Program& program;

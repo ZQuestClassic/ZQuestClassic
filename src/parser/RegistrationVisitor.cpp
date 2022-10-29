@@ -101,10 +101,12 @@ void RegistrationVisitor::caseFile(ASTFile& host, void* param)
 	block_regvisit(host, host.namespaces, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
 	block_regvisit(host, host.scripts, param);
+	if (breakRecursion(host, param)) return;
+	block_regvisit(host, host.classes, param);
 	if(registered(host, host.options) && registered(host, host.use) && registered(host, host.dataTypes)
 		&& registered(host, host.scriptTypes) && registered(host, host.imports) && registered(host, host.variables)
 		&& registered(host, host.functions) && registered(host, host.namespaces) && registered(host, host.scripts)
-		&& registered(host, host.condimports))
+		&& registered(host, host.condimports) && registered(host, host.classes))
 	{
 		doRegister(host);
 	}
@@ -231,6 +233,7 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 		host.type.reset(new ASTDataType(newBaseType, host.location));
 		
 		DataType::addCustom(newBaseType);
+		user_class.setType(newBaseType);
 		
 		//This call should never fail, because of the error check above.
 		scope->addDataType(host.name, newBaseType, &host);

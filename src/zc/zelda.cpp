@@ -486,6 +486,7 @@ void ScriptOwner::clear()
 //ZScript array storage
 std::vector<ZScriptArray> globalRAM;
 ZScriptArray localRAM[NUM_ZSCRIPT_ARRAYS];
+std::map<int32_t,ZScriptArray> objectRAM;
 ScriptOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
 
 //script bitmap drawing
@@ -507,6 +508,7 @@ void initZScriptArrayRAM(bool firstplay)
         localRAM[i].Clear();
         arrayOwner[i].clear();
     }
+	objectRAM.clear();
     
     if(game->globalRAM.size() != 0)
         game->globalRAM.clear();
