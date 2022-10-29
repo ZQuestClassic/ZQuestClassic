@@ -25495,6 +25495,7 @@ int32_t onCompileScript()
 		sprintf(zScriptBytes, "%d Bytes in Buffer", (int32_t)(zScript.size()));
 		sprintf(zLastVer, "Last Compiled Using ZScript: v.%d",(FFCore.quest_format[vLastCompile]));
 		int32_t ret = zc_popup_dialog(compile_dlg,5);
+		bool ctrl = key_shifts & KB_CTRL_FLAG;
 		try_recovering_missing_scripts = (compile_dlg[9].flags & D_SELECTED) ? 1 : 0;
 		switch(ret)
 		{
@@ -25639,6 +25640,10 @@ int32_t onCompileScript()
 				};
 				if(zc_get_config("Compiler","noclose_compile_console",0))
 					args.push_back("-noclose");
+				#ifdef _DEBUG
+				if(ctrl)
+					args.push_back("-delay");
+				#endif
 				process_manager* pm = launch_piped_process(ZSCRIPT_FILE, args);
 				if(!pm)
 				{

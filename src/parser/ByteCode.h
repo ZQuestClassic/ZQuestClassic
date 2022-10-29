@@ -1921,14 +1921,14 @@ namespace ZScript
 			return new ODestructor(a->clone());
 		}
 	};
-	class OReservedEmily06 : public BinaryOpcode
+	class OGlobalObject : public UnaryOpcode
 	{
 	public:
-		OReservedEmily06(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OGlobalObject(Argument *A) : UnaryOpcode(A) {}
 		std::string toString();
 		Opcode *clone()
 		{
-			return new OReservedEmily06(a->clone(),b->clone());
+			return new OGlobalObject(a->clone());
 		}
 	};
 	class OReservedEmily07 : public BinaryOpcode

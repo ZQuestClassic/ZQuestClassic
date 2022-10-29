@@ -490,83 +490,6 @@ struct user_dir
 	}
 };
 
-struct scr_func_exec
-{
-	dword pc;
-	int32_t type, i;
-	word script;
-	std::string name;
-	
-	dword thiskey;
-	
-	scr_func_exec(){clear();}
-	void clear();
-	void execute();
-	bool validate();
-};
-
-void destroy_object_arr(int32_t ptr);
-#define MAX_USER_OBJECTS 214748
-struct user_object
-{
-	bool reserved;
-	int32_t owned_type, owned_i;
-	std::vector<int32_t> data;
-	size_t owned_vars;
-	scr_func_exec destruct;
-	
-	user_object() : reserved(false), owned_type(-1), owned_i(0),
-		owned_vars(0)
-	{}
-	
-	void prep(dword pc, int32_t type, word script, int32_t i);
-	
-	void clear(bool destructor = true)
-	{
-		if(destructor)
-			destruct.execute();
-		if(data.size() > owned_vars) //owns arrays!
-		{
-			for(auto ind = owned_vars; ind < data.size(); ++ind)
-			{
-				auto arrptr = data.at(ind)/10000;
-				destroy_object_arr(arrptr);
-			}
-		}
-		data.clear();
-		reserved = false;
-		owned_type = -1;
-		owned_i = 0;
-		owned_vars = 0;
-	}
-	
-	void disown()
-	{
-		owned_type = -1;
-		owned_i = 0;
-	}
-	bool isGlobal() const
-	{
-		//!TODOUSERCLASS
-		return owned_type == -1 && owned_i == 0;
-	}
-	
-	void own(int32_t type, int32_t i)
-	{
-		owned_type = type;
-		owned_i = i;
-	}
-	void own_clear(int32_t type, int32_t i)
-	{
-		if(owned_type == type && owned_i == i)
-			clear();
-	}
-	void own_clear_any()
-	{
-		if(owned_type != -1 || owned_i != 0)
-			clear();
-	}
-};
 
 #define MAX_USER_STACKS 256
 #define USERSTACK_MAX_SIZE 2147483647
@@ -3369,7 +3292,7 @@ enum ASM_DEFINE
 	ZCLASS_FREE,
 	ZCLASS_OWN,
 	STARTDESTRUCTOR,
-	RESRVD_OP_EMILY06,
+	ZCLASS_GLOBALIZE,
 	RESRVD_OP_EMILY07,
 	RESRVD_OP_EMILY08,
 	RESRVD_OP_EMILY09,

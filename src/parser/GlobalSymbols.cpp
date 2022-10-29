@@ -645,6 +645,7 @@ static AccessorTable GlobalTable[] =
 	{ "OwnArray",               ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "DestroyArray",           ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "OwnObject",              ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "GlobalObject",           ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "SizeOfArrayBool",        ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           { ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "SizeOfArrayFFC",         ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           { ZVARTYPEID_FFC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "SizeOfArrayItem",        ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           { ZVARTYPEID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -1478,6 +1479,17 @@ void GlobalSymbols::generateCode()
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
         LABELBACK(label);
         addOpcode2 (code, new OOwnObject(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+    }
+    //void GlobalObject(untyped ptr)
+    {
+	    Function* function = getFunction("GlobalObject", 1);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        addOpcode2 (code, new OGlobalObject(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
     }

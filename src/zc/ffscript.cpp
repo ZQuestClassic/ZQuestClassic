@@ -579,96 +579,6 @@ void pop_ri()
 	curscript = sdcache.back(); sdcache.pop_back();
 	stack = stackcache.back(); stackcache.pop_back();
 }
-script_data* load_scrdata(int32_t type, word script, int32_t i);
-
-void scr_func_exec::clear()
-{
-	pc = type = i = 0;
-	script = 0; thiskey = 0;
-	name.clear();
-}
-void scr_func_exec::execute()
-{
-	static int32_t static_stack[MAX_SCRIPT_REGISTERS];
-	script_data* sc_data = load_scrdata(type,script,i);
-	if(!pc || !sc_data || !sc_data->valid())
-		return;
-	
-	ffscript *zas = &sc_data->zasm[pc-1];
-	if(!(zas->command == STARTDESTRUCTOR && zas->strptr && name == *(zas->strptr)))
-	{
-		if(validate())
-			zas = &sc_data->zasm[pc-1];
-		else return;
-	}
-	
-	if(zas->command == STARTDESTRUCTOR && zas->strptr && name == *(zas->strptr))
-	{
-		push_ri();
-		refInfo newRI;
-		ri = &newRI;
-		ri->pc = pc;
-		ri->thiskey = thiskey;
-		ri->sp--;
-		
-		curscript = sc_data;
-		stack = &static_stack;
-		curScriptType = type;
-		curScriptNum = script;
-		memset(static_stack, 0, sizeof(int32_t)*MAX_SCRIPT_REGISTERS);
-		//
-		std::string* oldstr = destructstr;
-		destructstr = &name;
-		script_funcrun = true;
-		run_script_int(type,script,i);
-		script_funcrun = false;
-		destructstr = oldstr;
-		//
-		pop_ri();
-	}
-}
-bool scr_func_exec::validate()
-{
-	script_data* sc_data = load_scrdata(type,script,i);
-	if(!pc || !sc_data || !sc_data->valid())
-		return false;
-	
-	ffscript &zas = sc_data->zasm[pc-1];
-	if(zas.command == STARTDESTRUCTOR && zas.strptr && name == *(zas.strptr))
-		return true; //validated!
-	dword q = 0;
-	while(true)
-	{
-		ffscript& zas = sc_data->zasm[q];
-		if(zas.command == 0xFFFF)
-		{
-			zprint2("Destructor for class '%s' expected, but not found!\n", name.c_str());
-			return false;
-		}
-		else if(zas.command == STARTDESTRUCTOR
-			&& zas.strptr && name == *(zas.strptr))
-		{
-			pc = q+1;
-			return true; //validated!
-		}
-	}
-}
-void user_object::prep(dword pc, int32_t type, word script, int32_t i)
-{
-	if(!pc) return;
-	ffscript &zas = curscript->zasm[pc-1];
-	if(zas.command == STARTDESTRUCTOR && zas.strptr)
-	{
-		destruct.pc = pc;
-		destruct.type = type;
-		destruct.script = script;
-		destruct.i = i;
-		destruct.thiskey = ri->thiskey;
-		destruct.name = *zas.strptr;
-	}
-	else zprint2("Destructor for object not found?\n");
-}
-
 
 static int32_t numInstructions = 0; // Used to detect hangs
 static bool scriptCanSave = true;
@@ -27773,7 +27683,15 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 				//of a user_object destructor function.
 				break;
 			}
-				
+			case ZCLASS_GLOBALIZE:
+			{
+				if(user_object* obj = checkObject(get_register(sarg1), true))
+				{
+					obj->disown();
+				}
+				break;
+			}
+			
 			case NOT:
 				do_not(false);
 				break;
@@ -37194,7 +37112,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "ZCLASS_FREE",   1,   0,   0,   0},
 	{ "ZCLASS_OWN",   1,   0,   0,   0},
 	{ "STARTDESTRUCTOR",   0,   0,   0,   1},
-	{ "RESRVD_OP_EMILY06",   0,   0,   0,   0},
+	{ "ZCLASS_GLOBALIZE",   1,   0,   0,   0},
 	{ "RESRVD_OP_EMILY07",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY08",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY09",   0,   0,   0,   0},

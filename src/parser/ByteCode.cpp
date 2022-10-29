@@ -2359,9 +2359,9 @@ string ODestructor::toString()
 {
 	return "STARTDESTRUCTOR " + getArgument()->toString();
 }
-string OReservedEmily06::toString()
+string OGlobalObject::toString()
 {
-	return "RESRVD_OP_EMILY06 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "ZCLASS_GLOBALIZE " + getArgument()->toString();
 }
 string OReservedEmily07::toString()
 {

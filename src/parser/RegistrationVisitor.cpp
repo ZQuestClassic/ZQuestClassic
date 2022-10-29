@@ -275,7 +275,7 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 	//
 	if(!(registered(host, host.options) && registered(host, host.use) && registered(host, host.types)
 		&& registered(host, host.variables) && registered(host, host.functions)
-		&& registered(host, host.constructors) && registered(*host.destructor)))
+		&& registered(host, host.constructors) && registered(host.destructor.get())))
 	{
 		return;
 	}

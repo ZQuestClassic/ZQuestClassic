@@ -136,6 +136,12 @@
 #include "base/process_management.h"
 #include "zconfig.h"
 
+typedef uint8_t  byte;  //0-255  ( 8 bits)
+typedef uint16_t word;  //0-65,535  (16 bits)
+typedef uint32_t dword; //0-4,294,967,295  (32 bits)
+typedef uint64_t qword; //0-18,446,744,073,709,551,616  (64 bits)
+#include "user_object.h"
+
 
 
 #define ZELDA_VERSION       0x0255                         //version of the program
@@ -267,7 +273,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        29
+#define V_SAVEGAME        30
 #define V_COMBOALIASES     4
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        7
@@ -349,11 +355,6 @@ extern int32_t passive_subscreen_offset;
 
 extern int32_t CSET_SIZE;
 extern int32_t CSET_SHFT;
-
-typedef uint8_t  byte;  //0-255  ( 8 bits)
-typedef uint16_t word;  //0-65,535  (16 bits)
-typedef uint32_t dword; //0-4,294,967,295  (32 bits)
-typedef uint64_t qword; //0-18,446,744,073,709,551,616  (64 bits)
 
 extern int32_t readsize, writesize;
 extern bool fake_pack_writing;
@@ -4547,6 +4548,7 @@ enum
 	crCUSTOM19, crCUSTOM20, crCUSTOM21, crCUSTOM22, crCUSTOM23,
 	crCUSTOM24, crCUSTOM25, MAX_COUNTERS
 };
+
 #define DIDCHEAT_BIT 0x80
 #define NUM_GSWITCHES 256
 struct gamedata
@@ -4636,6 +4638,8 @@ struct gamedata
 	int32_t gswitch_timers[NUM_GSWITCHES];
 
 	std::string replay_file;
+	std::vector<saved_user_object> user_objects;
+	
 	
 	// member functions
 	// public:
@@ -4657,6 +4661,9 @@ struct gamedata
 		this->globalRAM=data.globalRAM;
 		return *this;
 	}
+	
+	void save_user_objects();
+	void load_user_objects();
 	
 	char *get_name();
 	void set_name(char *n);

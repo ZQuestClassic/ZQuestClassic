@@ -508,7 +508,6 @@ void initZScriptArrayRAM(bool firstplay)
         localRAM[i].Clear();
         arrayOwner[i].clear();
     }
-	objectRAM.clear();
     
     if(game->globalRAM.size() != 0)
         game->globalRAM.clear();
@@ -1880,8 +1879,10 @@ int32_t init_game()
 	// as a non-zero number for the recording, but is 0 during replay).
     frame = 0;
 
+	FFCore.user_objects_init();
 	//Copy saved data to RAM data (but not global arrays)
 	game->Copy(saves[currgame]);
+	game->load_user_objects();
 	bool firstplay = (game->get_hasplayed() == 0);
 
 	// The following code is the setup for recording a save file, enabled via "replay_new_saves" config.
@@ -1982,7 +1983,6 @@ int32_t init_game()
 	FFCore.user_bitmaps_init();
 	FFCore.user_files_init();
 	FFCore.user_dirs_init();
-	FFCore.user_objects_init();
 	FFCore.user_stacks_init();
 	cheat=0;
 	wavy=quakeclk=0;

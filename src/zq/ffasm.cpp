@@ -1073,7 +1073,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "ZCLASS_FREE",   1,   0,   0,   0},
 	{ "ZCLASS_OWN",   1,   0,   0,   0},
 	{ "STARTDESTRUCTOR",   0,   0,   0,   1},
-	{ "RESRVD_OP_EMILY06",   0,   0,   0,   0},
+	{ "ZCLASS_GLOBALIZE",   1,   0,   0,   0},
 	{ "RESRVD_OP_EMILY07",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY08",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY09",   0,   0,   0,   0},

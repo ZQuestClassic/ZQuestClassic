@@ -288,6 +288,14 @@ public:
     {
         return _ptr[i];
     }
+	
+	std::vector<T> getVec() const
+	{
+		std::vector<T> vec;
+		for(auto q = 0; q < _size; ++q)
+			vec.push_back(_ptr[q]);
+		return vec;
+	}
     
     reference At(size_type _X)
     {
