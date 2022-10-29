@@ -34,6 +34,7 @@
 #include "drawing.h"
 #include "combos.h"
 #include "base/zc_math.h"
+#include "user_object.h"
 extern FFScript FFCore;
 extern word combo_doscript[176];
 extern byte itemscriptInitialised[256];

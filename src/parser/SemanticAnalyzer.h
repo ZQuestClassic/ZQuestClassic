@@ -40,6 +40,7 @@ namespace ZScript
 		void caseDataDeclExtraArray(ASTDataDeclExtraArray& host, void* = NULL);
 		void caseFuncDecl(ASTFuncDecl& host, void* = NULL);
 		void caseScript(ASTScript& host, void* = NULL);
+		void caseClass(ASTClass& host, void* = NULL);
 		void caseNamespace(ASTNamespace& host, void* = NULL);
 		void caseImportDecl(ASTImportDecl& host, void* = NULL);
 		void caseIncludePath(ASTIncludePath& host, void* = NULL);
@@ -54,6 +55,7 @@ namespace ZScript
 		void caseExprIndex(ASTExprIndex& host, void* = NULL);
 		void caseExprCall(ASTExprCall& host, void* = NULL);
 		void caseExprNegate(ASTExprNegate& host, void* = NULL);
+		void caseExprDelete(ASTExprDelete& host, void* = NULL);
 		void caseExprNot(ASTExprNot& host, void* = NULL);
 		void caseExprBitNot(ASTExprBitNot& host, void* = NULL);
 		void caseExprIncrement(ASTExprIncrement& host, void* = NULL);

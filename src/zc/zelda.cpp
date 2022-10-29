@@ -486,6 +486,7 @@ void ScriptOwner::clear()
 //ZScript array storage
 std::vector<ZScriptArray> globalRAM;
 ZScriptArray localRAM[NUM_ZSCRIPT_ARRAYS];
+std::map<int32_t,ZScriptArray> objectRAM;
 ScriptOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
 
 //script bitmap drawing
@@ -1214,95 +1215,8 @@ void Z_scripterrlog(const char * const format,...)
 {
     if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0)
     {
-        switch(curScriptType)
-        {
-			case SCRIPT_GLOBAL:
-				al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Global script %u (%s): \n", 
-					curScriptNum+1, globalmap[curScriptNum].scriptname.c_str()); }
-				break;
-			case SCRIPT_GENERIC:
-				al_trace("Generic Script %u (%s): ", curScriptNum+1, genericmap[curScriptNum].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Generic Script %u (%s): \n", 
-					curScriptNum+1, genericmap[curScriptNum].scriptname.c_str()); }
-				break;
-			case SCRIPT_GENERIC_FROZEN:
-				al_trace("Generic Script (FRZ) %u (%s): ", curScriptNum+1, genericmap[curScriptNum].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Generic Script (FRZ) %u (%s): \n", 
-					curScriptNum+1, genericmap[curScriptNum].scriptname.c_str()); }
-				break;
-	
-			case SCRIPT_PLAYER:
-				al_trace("Hero script %u (%s): ", curScriptNum, playermap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Player script %u (%s): \n", curScriptNum, playermap[curScriptNum-1].scriptname.c_str()); }
-				break;
-			
-			case SCRIPT_LWPN:
-				al_trace("LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"LWeapon script %u (%s): \n", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());}
-				break;
-			
-			case SCRIPT_EWPN:
-				al_trace("EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"EWeapon script %u (%s): \n", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());}     
-				break;
-			
-			case SCRIPT_NPC:
-				al_trace("NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"NPC script %u (%s): \n", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());}     
-				break;
-            
-			case SCRIPT_FFC:
-				al_trace("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());}
-				break;
-            
-			case SCRIPT_ITEM:
-				al_trace("Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Itemdata script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());}  
-				break;
-			
-			case SCRIPT_DMAP:
-				al_trace("DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());} 
-				break;
-			
-			case SCRIPT_ITEMSPRITE:
-				al_trace("itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());} 
-				break;
-			
-			case SCRIPT_SCREEN:
-				al_trace("Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());
-				
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());} 
-				break;
-			
-			case SCRIPT_SUBSCREEN:
-				al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());} 
-				break;
-			
-			case SCRIPT_COMBO:
-				al_trace("Combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Combo script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());}
-				break;
-        }
-        
+        FFCore.TraceScriptIDs();
+		
         char buf[2048];
         
         va_list ap;
@@ -1878,8 +1792,10 @@ int32_t init_game()
 	// as a non-zero number for the recording, but is 0 during replay).
     frame = 0;
 
+	FFCore.user_objects_init();
 	//Copy saved data to RAM data (but not global arrays)
 	game->Copy(saves[currgame]);
+	game->load_user_objects();
 	bool firstplay = (game->get_hasplayed() == 0);
 
 	// The following code is the setup for recording a save file, enabled via "replay_new_saves" config.
@@ -5996,6 +5912,7 @@ reload_for_replay_file:
 			FFCore.user_dirs_init(); //Clear open FLIST*!
 			FFCore.user_bitmaps_init(); //Clear open bitmaps
 			FFCore.user_stacks_init(); //Clear open stacks
+			FFCore.user_objects_init(); //Clear open stacks
 		}
 		//Deallocate ALL ZScript arrays on ANY exit.
 		FFCore.deallocateAllArrays();

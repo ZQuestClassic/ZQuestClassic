@@ -320,15 +320,33 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 	for (int32_t i = 0; i < globalStackSize; ++i)
 		rval->globalsInit.push_back(
 				new OPopRegister(new VarArgument(EXP2)));*/
-
+	
+	//Parse the indexes for class variables
+	for(UserClass* user_class : program.classes)
+	{
+		user_class->getScope().parse_ucv();
+	}
+	
 	//globals have been initialized, now we repeat for the functions
 	vector<Function*> funs = program.getUserFunctions();
+	appendElements(funs, program.getUserClassConstructors());
+	appendElements(funs, program.getUserClassDestructors());
 	for (vector<Function*>::iterator it = funs.begin();
 	     it != funs.end(); ++it)
 	{
 		Function& function = **it;
+		bool classfunc = function.getFlag(FUNCFLAG_CLASSFUNC) && !function.getFlag(FUNCFLAG_STATIC);
+		int puc = 0;
+		if(classfunc)
+		{
+			if(function.getFlag(FUNCFLAG_CONSTRUCTOR))
+				puc = puc_construct;
+			else if(function.getFlag(FUNCFLAG_DESTRUCTOR))
+				puc = puc_destruct;
+			else puc = puc_funcs;
+		}
 		if(function.getFlag(FUNCFLAG_INLINE)) continue; //Skip inline func decls, they are handled at call location -V
-		if(function.prototype) continue; //Skip prototype func decls, they are ALSO handled at the call location -V
+		if(puc != puc_construct && function.prototype) continue; //Skip prototype func decls, they are ALSO handled at the call location -V
 		ASTFuncDecl& node = *function.node;
 
 		bool isRun = ZScript::isRun(function);
@@ -339,138 +357,209 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			scriptname = functionScript->getName();
 		}
 		scope = function.internalScope;
-
-		vector<std::shared_ptr<Opcode>> funccode;
-
-		int32_t stackSize = getStackSize(function);
-
-		// Start of the function.
-		std::shared_ptr<Opcode> first(new OSetImmediate(new VarArgument(EXP1),
-		                                  new LiteralArgument(0)));
-		first->setLabel(function.getLabel());
-		funccode.push_back(std::move(first));
-
-		// Push on the this, if a script
-		if (isRun)
+		
+		if(classfunc)
 		{
-			ScriptType type = program.getScript(scriptname)->getType();
-
-			if (type == ScriptType::ffc )
-			{
-				addOpcode2(funccode, 
-					new OSetRegister(new VarArgument(EXP2),
-							 new VarArgument(REFFFC)));
-
-
-			}
-			else if (type == ScriptType::item )
-			{
-				addOpcode2(funccode,
-					new OSetRegister(new VarArgument(EXP2),
-							 new VarArgument(REFITEMCLASS)));
-
-			}
-			else if (type == ScriptType::npc )
-			{
-				addOpcode2(funccode,
-					new OSetRegister(new VarArgument(EXP2),
-							 new VarArgument(REFNPC)));
-
-			}
-			else if (type == ScriptType::lweapon )
-			{
-				addOpcode2(funccode,
-					new OSetRegister(new VarArgument(EXP2),
-							 new VarArgument(REFLWPN)));
-			}
-			else if (type == ScriptType::eweapon )
-			{
-				addOpcode2(funccode,
-					new OSetRegister(new VarArgument(EXP2),
-							 new VarArgument(REFEWPN)));
-
-			}
-			else if (type == ScriptType::dmapdata )
-			{
-				addOpcode2(funccode,
-					new OSetRegister(new VarArgument(EXP2),
-							 new VarArgument(REFDMAPDATA)));
-
-			}
-			else if (type == ScriptType::itemsprite)
-			{
-				addOpcode2(funccode,
-					new OSetRegister(new VarArgument(EXP2),
-							new VarArgument(REFITEM)));
-			}
-			else if (type == ScriptType::subscreendata)
-			{
-				addOpcode2(funccode,
-					new OSetRegister(new VarArgument(EXP2),
-							new VarArgument(REFSUBSCREEN)));
-			}
-			else if (type == ScriptType::combodata)
-			{
-				addOpcode2(funccode,
-					new OSetRegister(new VarArgument(EXP2),
-							new VarArgument(REFCOMBODATA)));
-			}
-			else if (type == ScriptType::genericscr)
-			{
-				addOpcode2(funccode,
-					new OSetRegister(new VarArgument(EXP2),
-							new VarArgument(REFGENERICDATA)));
-			}
+			UserClass& user_class = scope->getClass()->user_class;
 			
-			addOpcode2(funccode, new OPushRegister(new VarArgument(EXP2)));
-		}
-
-		// Push 0s for the local variables.
-		for (int32_t i = stackSize - getParameterCount(function); i > 0; --i)
-			addOpcode2(funccode, new OPushRegister(new VarArgument(EXP1)));
-
-		// Set up the stack frame register
-		addOpcode2(funccode, new OSetRegister(new VarArgument(SFRAME),
-		                                    new VarArgument(SP)));
-		OpcodeContext oc(typeStore);
-		BuildOpcodes bo(scope);
-		node.execute(bo, &oc);
-
-		if (bo.hasError()) failure = true;
-
-		appendElements(funccode, bo.getResult());
-
-		// Add appendix code.
-		std::shared_ptr<Opcode> next(new OSetImmediate(new VarArgument(EXP2),
-												  new LiteralArgument(0)));
-		next->setLabel(bo.getReturnLabelID());
-		funccode.push_back(std::move(next));
-
-		// Pop off everything.
-		for (int32_t i = 0; i < stackSize; ++i)
-		{
-			addOpcode2(funccode, new OPopRegister(new VarArgument(EXP2)));
-		}
-
-		//if it's a main script, quit.
-		if (isRun)
-		{
-			// Note: the stack still contains the "this" pointer
-			// But since the script is about to terminate, we don't
-			// care about popping it off.
-			addOpcode2(funccode, new OQuit());
+			vector<std::shared_ptr<Opcode>> funccode;
+			
+			int32_t stackSize = getStackSize(function);
+			// Start of the function.
+			if (puc == puc_construct)
+			{
+				vector<Function*> destr = user_class.getScope().getDestructor();
+				std::shared_ptr<Opcode> first;
+				Function* destructor = destr.size() == 1 ? destr.at(0) : nullptr;
+				if(destructor && !destructor->prototype)
+				{
+					Function* destructor = destr[0];
+					first.reset(new OSetImmediate(new VarArgument(EXP1),
+						new LabelArgument(destructor->getLabel())));
+				}
+				else first.reset(new OSetImmediate(new VarArgument(EXP1),
+					new LiteralArgument(0)));
+				first->setLabel(function.getLabel());
+				funccode.push_back(std::move(first));
+				addOpcode2(funccode, new OConstructClass(new VarArgument(CLASS_THISKEY),
+					new VectorArgument(user_class.members)));
+				std::shared_ptr<Opcode> alt(new ONoOp());
+				alt->setLabel(function.getAltLabel());
+				funccode.push_back(std::move(alt));
+			}
+			else if(puc == puc_destruct)
+			{
+				std::shared_ptr<Opcode> first(new ODestructor(new StringArgument(user_class.getName())));
+				first->setLabel(function.getLabel());
+				funccode.push_back(std::move(first));
+			}
+			else
+			{
+				std::shared_ptr<Opcode> first(new OSetImmediate(new VarArgument(EXP1),
+					new LiteralArgument(0)));
+				first->setLabel(function.getLabel());
+				funccode.push_back(std::move(first));
+			}
+			// Push 0s for the local variables.
+			for (int32_t i = stackSize - getParameterCount(function); i > 0; --i)
+				addOpcode2(funccode, new OPushImmediate(new LiteralArgument(0)));
+			
+			// Set up the stack frame register
+			addOpcode2(funccode, new OSetRegister(new VarArgument(SFRAME),
+												new VarArgument(SP)));
+			OpcodeContext oc(typeStore);
+			BuildOpcodes bo(scope);
+			bo.parsing_user_class = puc;
+			node.execute(bo, &oc);
+			
+			if (bo.hasError()) failure = true;
+			
+			appendElements(funccode, bo.getResult());
+			
+			// Pop off everything
+			std::shared_ptr<Opcode> next(new OPopArgsRegister(new VarArgument(NUL),
+				new LiteralArgument(stackSize)));
+			next->setLabel(bo.getReturnLabelID());
+			funccode.push_back(std::move(next));
+			if (puc == puc_construct) //return val
+				addOpcode2(funccode, new OSetRegister(new VarArgument(EXP1), new VarArgument(CLASS_THISKEY)));
+			addOpcode2(funccode, new OReturn());
+			function.giveCode(funccode);
 		}
 		else
 		{
-			// Not a script's run method, so no "this" pointer to
-			// pop off. The top of the stack is now the function
-			// return address (pushed on by the caller).
-			//pop off the return address
-			//and return
-			addOpcode2(funccode, new OReturn());
-		}
+			vector<std::shared_ptr<Opcode>> funccode;
+			
+			int32_t stackSize = getStackSize(function);
+			
+			// Start of the function.
+			std::shared_ptr<Opcode> first(new OSetImmediate(new VarArgument(EXP1),
+											  new LiteralArgument(0)));
+			first->setLabel(function.getLabel());
+			funccode.push_back(std::move(first));
+			
+			// Push on the this, if a script
+			if (isRun)
+			{
+				ScriptType type = program.getScript(scriptname)->getType();
 
-		function.giveCode(funccode);
+				if (type == ScriptType::ffc )
+				{
+					addOpcode2(funccode, 
+						new OSetRegister(new VarArgument(EXP2),
+								 new VarArgument(REFFFC)));
+
+
+				}
+				else if (type == ScriptType::item )
+				{
+					addOpcode2(funccode,
+						new OSetRegister(new VarArgument(EXP2),
+								 new VarArgument(REFITEMCLASS)));
+
+				}
+				else if (type == ScriptType::npc )
+				{
+					addOpcode2(funccode,
+						new OSetRegister(new VarArgument(EXP2),
+								 new VarArgument(REFNPC)));
+
+				}
+				else if (type == ScriptType::lweapon )
+				{
+					addOpcode2(funccode,
+						new OSetRegister(new VarArgument(EXP2),
+								 new VarArgument(REFLWPN)));
+				}
+				else if (type == ScriptType::eweapon )
+				{
+					addOpcode2(funccode,
+						new OSetRegister(new VarArgument(EXP2),
+								 new VarArgument(REFEWPN)));
+
+				}
+				else if (type == ScriptType::dmapdata )
+				{
+					addOpcode2(funccode,
+						new OSetRegister(new VarArgument(EXP2),
+								 new VarArgument(REFDMAPDATA)));
+
+				}
+				else if (type == ScriptType::itemsprite)
+				{
+					addOpcode2(funccode,
+						new OSetRegister(new VarArgument(EXP2),
+								new VarArgument(REFITEM)));
+				}
+				else if (type == ScriptType::subscreendata)
+				{
+					addOpcode2(funccode,
+						new OSetRegister(new VarArgument(EXP2),
+								new VarArgument(REFSUBSCREEN)));
+				}
+				else if (type == ScriptType::combodata)
+				{
+					addOpcode2(funccode,
+						new OSetRegister(new VarArgument(EXP2),
+								new VarArgument(REFCOMBODATA)));
+				}
+				else if (type == ScriptType::genericscr)
+				{
+					addOpcode2(funccode,
+						new OSetRegister(new VarArgument(EXP2),
+								new VarArgument(REFGENERICDATA)));
+				}
+				
+				addOpcode2(funccode, new OPushRegister(new VarArgument(EXP2)));
+			}
+			
+			// Push 0s for the local variables.
+			for (int32_t i = stackSize - getParameterCount(function); i > 0; --i)
+				addOpcode2(funccode, new OPushRegister(new VarArgument(EXP1)));
+			
+			// Set up the stack frame register
+			addOpcode2(funccode, new OSetRegister(new VarArgument(SFRAME),
+												new VarArgument(SP)));
+			OpcodeContext oc(typeStore);
+			BuildOpcodes bo(scope);
+			node.execute(bo, &oc);
+			
+			if (bo.hasError()) failure = true;
+			
+			appendElements(funccode, bo.getResult());
+			
+			// Add appendix code.
+			std::shared_ptr<Opcode> next(new OSetImmediate(new VarArgument(EXP2),
+													  new LiteralArgument(0)));
+			next->setLabel(bo.getReturnLabelID());
+			funccode.push_back(std::move(next));
+			
+			// Pop off everything.
+			for (int32_t i = 0; i < stackSize; ++i)
+			{
+				addOpcode2(funccode, new OPopRegister(new VarArgument(EXP2)));
+			}
+			
+			//if it's a main script, quit.
+			if (isRun)
+			{
+				// Note: the stack still contains the "this" pointer
+				// But since the script is about to terminate, we don't
+				// care about popping it off.
+				addOpcode2(funccode, new OQuit());
+			}
+			else
+			{
+				// Not a script's run method, so no "this" pointer to
+				// pop off. The top of the stack is now the function
+				// return address (pushed on by the caller).
+				//pop off the return address
+				//and return
+				addOpcode2(funccode, new OReturn());
+			}
+			
+			function.giveCode(funccode);
+		}
 	}
 
 	if (failure)
@@ -544,12 +633,16 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 
 	// Generate a map of labels to functions.
 	vector<Function*> allFunctions = getFunctions(program);
+	appendElements(allFunctions, program.getUserClassConstructors());
+	appendElements(allFunctions, program.getUserClassDestructors());
 	map<int32_t, Function*> functionsByLabel;
 	for (vector<Function*>::iterator it = allFunctions.begin();
 	     it != allFunctions.end(); ++it)
 	{
 		Function& function = **it;
 		functionsByLabel[function.getLabel()] = &function;
+		if(function.getFlag(FUNCFLAG_CONSTRUCTOR))
+			functionsByLabel[function.getAltLabel()] = &function;
 	}
 
 	// Grab all labels directly jumped to.

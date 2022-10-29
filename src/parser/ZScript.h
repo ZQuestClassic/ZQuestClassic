@@ -18,6 +18,7 @@ namespace ZScript
 	class TypeStore;
 	class Program;
 	class Script;
+	class UserClass;
 	class Namespace;
 	class Variable;
 	class BuiltinVariable;
@@ -44,10 +45,14 @@ namespace ZScript
 		RootScope& getScope() const {return *rootScope_;}
 
 		std::vector<Script*> scripts;
+		std::vector<UserClass*> classes;
 		std::vector<Namespace*> namespaces;
 		Script* getScript(std::string const& name) const;
 		Script* getScript(ASTScript* node) const;
 		Script* addScript(ASTScript& node, Scope& parentScope, CompileErrorHandler* handler);
+		UserClass* getClass(std::string const& name) const;
+		UserClass* getClass(ASTClass* node) const;
+		UserClass* addClass(ASTClass& node, Scope& parentScope, CompileErrorHandler* handler);
 		Namespace* addNamespace(
 			ASTNamespace& node, Scope& parentScope, CompileErrorHandler* handler);
 
@@ -58,6 +63,8 @@ namespace ZScript
 		std::vector<Function*> getUserFunctions() const;
 		// Gets all non-user-defined functions
 		std::vector<Function*> getInternalFunctions() const;
+		std::vector<Function*> getUserClassConstructors() const;
+		std::vector<Function*> getUserClassDestructors() const;
 
 		// Return a list of all errors in the script declaration.
 		std::vector<CompileError const*> getErrors() const;
@@ -67,7 +74,9 @@ namespace ZScript
 	private:
 		std::map<std::string, Script*> scriptsByName_;
 		std::map<ASTScript*, Script*> scriptsByNode_;
-
+		std::map<std::string, UserClass*> classesByName_;
+		std::map<ASTClass*, UserClass*> classesByNode_;
+		
 		TypeStore typeStore_;
 		RootScope* rootScope_;
 		ASTFile& root_;
@@ -166,6 +175,36 @@ namespace ZScript
 			CompileErrorHandler* = NULL);
 	
 	std::optional<int32_t> getLabel(Script const&);
+
+	////////////////////////////////////////////////////////////////
+	// UserClass
+
+	class UserClass
+	{
+		friend UserClass* createClass(
+			Program&, Scope&, ASTClass&, CompileErrorHandler*);
+	public:
+		~UserClass();
+
+		std::string const& getName() const {return node.name;}
+		ASTClass* getNode() const {return &node;}
+		ClassScope& getScope() {return *scope;}
+		ClassScope const& getScope() const {return *scope;}
+		DataType* getType() {return classType;}
+		void setType(DataType* t) {classType = t;}
+		
+		std::vector<int32_t> members;
+	protected:
+		UserClass(Program& program, ASTClass& user_class);
+		DataType* classType;
+
+	private:
+		Program& program;
+		ASTClass& node;
+		ClassScope* scope;
+	};
+
+	UserClass* createClass(Program&, Scope&, ASTClass&, CompileErrorHandler* = NULL);
 
 	
 	////////////////////////////////////////////////////////////////
@@ -266,6 +305,28 @@ namespace ZScript
 
 		ASTDataDecl& node;
 		std::optional<int32_t> globalId;
+	};
+	
+	//A UserClass variable
+	class UserClassVar : public Datum
+	{
+	public:
+		static UserClassVar* create(
+				Scope&, ASTDataDecl&, DataType const&,
+				CompileErrorHandler* = NULL);
+
+		std::optional<std::string> getName() const {return node.name;}
+		ASTDataDecl* getNode() const {return &node;}
+		UserClass* getClass() const {return &(scope.getClass()->user_class);}
+		int32_t getIndex() const {return _index;}
+		void setIndex(int32_t ind) {_index = ind;}
+		
+		bool is_arr;
+	private:
+		UserClassVar(Scope& scope, ASTDataDecl& node, DataType const& type);
+		
+		int32_t _index;
+		ASTDataDecl& node;
 	};
 
 	// A compiler generated variable.
@@ -390,9 +451,11 @@ namespace ZScript
 		
 		// If this is a script level function, return that script.
 		Script* getScript() const;
+		UserClass* getClass() const;
 
 		int32_t numParams() const {return paramTypes.size();}
 		int32_t getLabel() const;
+		int32_t getAltLabel() const;
 		void setFlag(int32_t flag, bool state = true)
 		{
 			if(node) state ? node->flags |= flag : node->flags &= ~flag;
@@ -410,6 +473,7 @@ namespace ZScript
 		
 	private:
 		mutable std::optional<int32_t> label;
+		mutable std::optional<int32_t> altlabel;
 		int32_t flags;
 
 		// Code implementing this function.

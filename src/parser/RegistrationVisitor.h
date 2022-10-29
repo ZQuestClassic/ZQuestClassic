@@ -27,6 +27,7 @@ namespace ZScript
 		void caseSetOption(ASTSetOption& host, void* param = NULL);
 		// Declarations
 		void caseScript(ASTScript& host, void* param = NULL);
+		void caseClass(ASTClass& host, void* param = NULL);
 		void caseNamespace(ASTNamespace& host, void* param = NULL);
 		void caseImportDecl(ASTImportDecl& host, void* param = NULL);
 		void caseIncludePath(ASTIncludePath& host, void* param = NULL);
@@ -49,6 +50,7 @@ namespace ZScript
 		void caseExprIndex(ASTExprIndex& host, void* param = NULL);
 		void caseExprCall(ASTExprCall& host, void* param = NULL);
 		void caseExprNegate(ASTExprNegate& host, void* param = NULL);
+		void caseExprDelete(ASTExprDelete& host, void* param = NULL);
 		void caseExprNot(ASTExprNot& host, void* param = NULL);
 		void caseExprBitNot(ASTExprBitNot& host, void* param = NULL);
 		void caseExprIncrement(ASTExprIncrement& host, void* param = NULL);

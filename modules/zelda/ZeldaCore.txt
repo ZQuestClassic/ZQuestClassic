@@ -19,6 +19,7 @@ src/zinfo.cpp
 src/zconfig.cpp
 src/zc/cheats.cpp
 src/zc/replay.cpp
+src/user_object.cpp
 
 ## End of Zelda Core module
 )

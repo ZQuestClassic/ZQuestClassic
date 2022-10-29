@@ -635,6 +635,7 @@ void ending()
 	//  setPackfilePassword(datapwd);
 	load_quest(game);
 	//  setPackfilePassword(NULL);
+	game->save_user_objects();
 	saves[currgame] = *game;
 	int32_t ring=0;
 	flushItemCache();
@@ -759,6 +760,7 @@ void ending_scripted()
 	load_quest(game);
 	strcpy(game->title,QHeader.title);
 	//  setPackfilePassword(NULL);
+	game->save_user_objects();
 	saves[currgame] = *game;
 	int32_t ring=0;
 	flushItemCache();

@@ -73,6 +73,9 @@ void ASTFile::addDeclaration(ASTDecl* declaration)
 	case ASTDecl::TYPE_SCRIPT:
 		scripts.push_back(static_cast<ASTScript*>(declaration));
 		break;
+	case ASTDecl::TYPE_CLASS:
+		classes.push_back(static_cast<ASTClass*>(declaration));
+		break;
 	case ASTDecl::TYPE_IMPORT:
 		imports.push_back(static_cast<ASTImportDecl*>(declaration));
 		break;
@@ -737,6 +740,39 @@ void ASTScript::addDeclaration(ASTDecl& declaration)
 	}
 }
 
+// ASTClass
+
+ASTClass::ASTClass(LocationData const& location)
+	: ASTDecl(location), name(""), user_class(NULL)
+{}
+
+void ASTClass::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseClass(*this, param);
+}
+
+void ASTClass::addDeclaration(ASTDecl& declaration)
+{
+	switch (declaration.getDeclarationType())
+    {
+	case ASTDecl::TYPE_FUNCTION:
+		functions.push_back(static_cast<ASTFuncDecl*>(&declaration));
+		break;
+	case ASTDecl::TYPE_DATALIST:
+		variables.push_back(static_cast<ASTDataDeclList*>(&declaration));
+		break;
+	case ASTDecl::TYPE_DATATYPE:
+		types.push_back(static_cast<ASTDataTypeDef*>(&declaration));
+		break;
+	case ASTDecl::TYPE_USING:
+		use.push_back(static_cast<ASTUsingDecl*>(&declaration));
+		break;
+	case ASTDecl::TYPE_ASSERT:
+		asserts.push_back(static_cast<ASTAssert*>(&declaration));
+		break;
+	}
+}
+
 // ASTNamespace
 
 ASTNamespace::ASTNamespace(LocationData const& location, std::string name)
@@ -749,6 +785,9 @@ void ASTNamespace::addDeclaration(ASTDecl& declaration)
 	{
 	case ASTDecl::TYPE_SCRIPT:
 		scripts.push_back(static_cast<ASTScript*>(&declaration));
+		break;
+	case ASTDecl::TYPE_CLASS:
+		classes.push_back(static_cast<ASTClass*>(&declaration));
 		break;
 	case ASTDecl::TYPE_FUNCTION:
 		functions.push_back(static_cast<ASTFuncDecl*>(&declaration));
@@ -829,25 +868,14 @@ void ASTFuncDecl::execute(ASTVisitor& visitor, void* param)
 
 void ASTFuncDecl::setFlag(int32_t flag, bool state)
 {
-	switch(flag)
-	{
-		case FUNCFLAG_INLINE:
-			if(state)
-			{
-				setFlag(FUNCFLAG_INVALID);
-				invalidMsg += " Only internal functions may be inline at this time.";
-				return;
-			}
-			/*if(state && isRun())
-			{
-				setFlag(FUNCFLAG_INVALID);
-				ostringstream oss;
-				string runstr(FFCore.scriptRunString);
-				oss << " void " << runstr << "() functions cannot be `inline`!";
-				invalidMsg += oss.str();
-				return;
-			}*/
-	}
+	if(flag&FUNCFLAG_INLINE)
+		if(state)
+		{
+			setFlag(FUNCFLAG_INVALID);
+			invalidMsg += " Only internal functions may be inline at this time.";
+			return;
+		}
+	
 	if(func) state ? func->flags |= flag : func->flags &= ~flag;
 	state ? flags |= flag : flags &= ~flag;
 }
@@ -1000,6 +1028,8 @@ DataType const* ASTDataDecl::resolveType(ZScript::Scope* scope, CompileErrorHand
 		errorDisabled = true;
 		return type;
 	}
+	if (!type->isResolved())
+		return type;
 
 	// If we have any arrays, tack them onto the base type.
 	for (vector<ASTDataDeclExtraArray*>::const_iterator it = extraArrays.begin();
@@ -1226,7 +1256,8 @@ DataType const* ASTExprIdentifier::getWriteType(Scope* scope, CompileErrorHandle
 ASTExprArrow::ASTExprArrow(ASTExpr* left, string const& right,
 						   LocationData const& location)
 	: ASTExpr(location), left(left), right(right), index(NULL),
-	  readFunction(NULL), writeFunction(NULL), leftClass(NULL)
+	  readFunction(NULL), writeFunction(NULL), leftClass(NULL),
+	  rtype(NULL), wtype(NULL), u_datum(NULL)
 {}
 
 void ASTExprArrow::execute(ASTVisitor& visitor, void* param)
@@ -1243,11 +1274,13 @@ string ASTExprArrow::asString() const
 
 DataType const* ASTExprArrow::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
+	if(rtype) return rtype;
 	return readFunction ? readFunction->returnType : NULL;
 }
 
 DataType const* ASTExprArrow::getWriteType(Scope* scope, CompileErrorHandler* errorHandler)
 {
+	if(wtype) return wtype;
 	return writeFunction ? writeFunction->paramTypes.back() : NULL;
 }
 
@@ -1294,7 +1327,7 @@ DataType const* ASTExprIndex::getWriteType(Scope* scope, CompileErrorHandler* er
 // ASTExprCall
 
 ASTExprCall::ASTExprCall(LocationData const& location)
-	: ASTExpr(location), binding(NULL)
+	: ASTExpr(location), binding(NULL), _constructor(false)
 {}
 
 void ASTExprCall::execute(ASTVisitor& visitor, void* param)
@@ -1317,6 +1350,17 @@ DataType const* ASTExprCall::getWriteType(Scope* scope, CompileErrorHandler* err
 ASTUnaryExpr::ASTUnaryExpr(LocationData const& location)
 	: ASTExpr(location)
 {}
+
+// ASTExprDelete
+
+ASTExprDelete::ASTExprDelete(LocationData const& location)
+	: ASTUnaryExpr(location)
+{}
+
+void ASTExprDelete::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprDelete(*this, param);
+}
 
 // ASTExprNegate
 
