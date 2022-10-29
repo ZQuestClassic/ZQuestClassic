@@ -42,7 +42,7 @@ namespace ZScript
 		template <typename Type>
 		Type const* getCanonicalType(Type const& type)
 		{
-			auto& opt = getOrAssignTypeId(type);
+			std::optional<DataTypeId> opt = getOrAssignTypeId(type);
 			if (!opt)
 				return nullptr;
 			return static_cast<Type const*>(
