@@ -601,6 +601,11 @@ int32_t Function::getLabel() const
 	if (!label) label = ScriptParser::getUniqueLabelID();
 	return *label;
 }
+int32_t Function::getAltLabel() const
+{
+	if (!altlabel) altlabel = ScriptParser::getUniqueLabelID();
+	return *altlabel;
+}
 
 bool Function::isTracing() const
 {

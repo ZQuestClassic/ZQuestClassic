@@ -383,6 +383,9 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				funccode.push_back(std::move(first));
 				addOpcode2(funccode, new OConstructClass(new VarArgument(CLASS_THISKEY),
 					new VectorArgument(user_class.members)));
+				std::shared_ptr<Opcode> alt(new ONoOp());
+				alt->setLabel(function.getAltLabel());
+				funccode.push_back(std::move(alt));
 			}
 			else if(puc == puc_destruct)
 			{
@@ -638,6 +641,8 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 	{
 		Function& function = **it;
 		functionsByLabel[function.getLabel()] = &function;
+		if(function.getFlag(FUNCFLAG_CONSTRUCTOR))
+			functionsByLabel[function.getAltLabel()] = &function;
 	}
 
 	// Grab all labels directly jumped to.

@@ -1159,7 +1159,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		}
 		
 		//Set the return to the default value
-		if(classfunc && func.getFlag(FUNCFLAG_CONSTRUCTOR))
+		if(classfunc && func.getFlag(FUNCFLAG_CONSTRUCTOR) && parsing_user_class <= puc_vars)
 		{
 			ClassScope* cscope = func.internalScope->getClass();
 			UserClass& user_class = cscope->user_class;
@@ -1291,7 +1291,14 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
 		}
 		//goto
-		addOpcode(new OGotoImmediate(new LabelArgument(funclabel)));
+		if(parsing_user_class == puc_construct && func.getFlag(FUNCFLAG_CONSTRUCTOR)
+			&& !host.isConstructor())
+		{
+			//A constructor calling another constructor to inherit it's code
+			//Use the alt label of the constructor, which is after the constructy bits
+			addOpcode(new OGotoImmediate(new LabelArgument(func.getAltLabel())));
+		}
+		else addOpcode(new OGotoImmediate(new LabelArgument(funclabel)));
 		//pop the stack frame pointer
 		Opcode *next = new OPopRegister(new VarArgument(SFRAME));
 		next->setLabel(returnaddr);

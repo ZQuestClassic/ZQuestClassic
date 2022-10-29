@@ -455,6 +455,7 @@ namespace ZScript
 
 		int32_t numParams() const {return paramTypes.size();}
 		int32_t getLabel() const;
+		int32_t getAltLabel() const;
 		void setFlag(int32_t flag, bool state = true)
 		{
 			if(node) state ? node->flags |= flag : node->flags &= ~flag;
@@ -472,6 +473,7 @@ namespace ZScript
 		
 	private:
 		mutable std::optional<int32_t> label;
+		mutable std::optional<int32_t> altlabel;
 		int32_t flags;
 
 		// Code implementing this function.
