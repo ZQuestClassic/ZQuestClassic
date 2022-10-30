@@ -1016,7 +1016,6 @@ void replay_step_gfx(uint32_t gfx_hash)
 
     if (mode == ReplayMode::Snapshot && frame_arg != -1)
     {
-        static bool saved_image = false;
         if (frame_arg == frame_count)
         {
             size_t step_index = record_log.size() - 1;

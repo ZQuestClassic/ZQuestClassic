@@ -21487,7 +21487,7 @@ void side_load_enemies()
 		sle_pattern = tmpscr.pattern;
 		sle_cnt = 0;
 		int32_t guycnt = 0;
-		int16_t s = (currmap<<7)+currscr;
+		int16_t s = (currmap<<7)+z3_get_origin_scr();
 		bool beenhere=false;
 		bool reload=true;
 		bool unbeatablereload = true;
@@ -21935,8 +21935,7 @@ void loadenemies()
 	}
 
 	// check if it's been long enough to reload all enemies
-	int32_t loadcnt = 10;
-	int16_t s = (currmap<<7)+currscr;
+	int16_t s = (currmap<<7)+z3_get_origin_scr();
 	bool beenhere = false;
 	bool reload = true;
 	bool unbeatablereload = true;
@@ -21944,17 +21943,6 @@ void loadenemies()
 	for(int32_t i=0; i<6; i++)
 		if(visited[i]==s)
 			beenhere = true;
-			
-	if(!beenhere) //Okay so this basically checks the last 6 unique screen's you've been in and checks if the current screen is one of them.
-	{
-		visited[vhead]=s; //If not, it adds it to the array,
-		vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
-	}
-	else if(game->guys[s]==0) //Then, if you have been here, and the number of enemies left on the screen is 0,
-	{
-		loadcnt = 0; //It will tell it not to load any enemies,
-		reload  = false; //both by setting loadcnt to 0 and making the reload if statement not run.
-	}
 	
 	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
 		// do enemies that are always loaded
@@ -21964,6 +21952,17 @@ void loadenemies()
 		// check if it's been long enough to reload all enemies
 		int32_t loadcnt = 10;
 		int16_t s = (currmap<<7)+screen_index;
+		
+		if(!beenhere) //Okay so this basically checks the last 6 unique screen's you've been in and checks if the current screen is one of them.
+		{
+			visited[vhead]=s; //If not, it adds it to the array,
+			vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
+		}
+		else if(game->guys[s]==0) //Then, if you have been here, and the number of enemies left on the screen is 0,
+		{
+			loadcnt = 0; //It will tell it not to load any enemies,
+			reload  = false; //both by setting loadcnt to 0 and making the reload if statement not run.
+		}
 
 		// TODO z3
 		if (screen_index != currscr) return;
@@ -21997,7 +21996,6 @@ void loadenemies()
 		int32_t pos=zc_oldrand()%9; //This sets up a variable for spawnEnemy to edit  so as to spawn the enemies pseudo-randomly.
 		int32_t clk=-15,x=0,y=0,fastguys=0; //clk being negative means the enemy is in it's spawn poof.
 		int32_t i=0,guycnt=0; //Lastly, resets guycnt to 0 so spawnEnemy can increment it manually per-enemy.
-		
 		for(; i<loadcnt && screen->enemy[i]>0; i++)
 		{
 			spawnEnemy(screen, pos, clk, z3_scr_dx*256, z3_scr_dy*176, fastguys, i, guycnt, loadcnt);

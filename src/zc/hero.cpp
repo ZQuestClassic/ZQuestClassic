@@ -2027,7 +2027,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
       wy+=2;
     }*/
     w->x = x+wx;
-    w->y = y+wy-(original_playing_field_offset-(yofs+slashyofs))-fakez;
+    w->y = y+wy-(original_playing_field_offset-2-(yofs+slashyofs))-fakez;
     w->z = (z+zofs);
     w->tile = t;
     w->flip = f;
@@ -22038,6 +22038,9 @@ const char *roomtype_string[rMAX] =
 
 bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 {
+	if (currscr == 34) {
+		int lol = 1;
+	}
 	byte reposition_sword_postwarp = 0;
 	if(index<0)
 	{
@@ -22204,6 +22207,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			specialcave = ITEMCELLAR;
 			map_bkgsfx(false);
 			kill_enemy_sfx();
+			// TODO z3 !!! replay differs classic 1st ?
 			draw_screen(false);
 			
 			//unless the room is already dark, fade to black
@@ -24066,14 +24070,10 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 	return false;
 }
 
-void HeroClass::check_scroll_direction(direction dir)
+void HeroClass::do_scroll_direction(direction dir)
 {
 	bool should_scroll = true;
 
-	if (dir == left)  x = 0;
-	if (dir == right) x = world_w - 16;
-	if (dir == up)    y = 0;
-	if (dir == down)  y = world_h - 16;
 	z3_update_currscr();
 
 	if((z > 0 || fakez > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
@@ -24233,10 +24233,26 @@ void HeroClass::checkscroll()
 	}
 	scrolling_maze_state = 0;
 
-	if (x > world_w-16) check_scroll_direction(right);
-	if (x < 0)          check_scroll_direction(left);
-	if (y > world_h-16)	check_scroll_direction(down);
-	if (y < 0)          check_scroll_direction(up);
+	if (x > world_w-16)
+	{
+		x = world_w-16;
+		do_scroll_direction(right);
+	}
+	if (x < 0)
+	{
+		x = 0;
+		do_scroll_direction(left);
+	}
+	if (y > world_h-16)
+	{
+		y = world_h-16;
+		do_scroll_direction(down);
+	}
+	if (y < 0)
+	{
+		y = 0;
+		do_scroll_direction(up);
+	}
 }
 
 // assumes current direction is in lastdir[3]
@@ -25061,7 +25077,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	int old_y = y.getInt();
 	viewport_t old_viewport = viewport;
 
-	loadscr(destdmap == -1 ? currdmap : destdmap, destscr, scrolldir, overlay);
+	loadscr(destdmap, destscr, scrolldir, overlay);
 	mapscr* newscr = get_scr(destmap, destscr);
 	
 	// Determine what the player position will be after scrolling (within the new screen's coordinate system),
@@ -25887,7 +25903,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 {
-	static bool use_new_code = true;
+	// TODO z3 !!
+	static bool use_new_code = false;
 
 	if (action==freeze||action==sideswimfreeze)
 	{

@@ -26,6 +26,7 @@ int32_t COMBOX(int32_t pos);
 int32_t COMBOY(int32_t pos);
 
 rpos_t COMBOPOS_REGION(int32_t x, int32_t y);
+rpos_t COMBOPOS_REGION_CHECK_BOUNDS(int32_t x, int32_t y);
 int32_t RPOS_TO_POS(rpos_t rpos);
 rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy);
 rpos_t POS_TO_RPOS(int32_t pos, int32_t scr);

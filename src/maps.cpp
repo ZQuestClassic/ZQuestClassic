@@ -544,6 +544,16 @@ rpos_t COMBOPOS_REGION(int32_t x, int32_t y)
 	int pos = COMBOPOS(x%256, y%176);
 	return static_cast<rpos_t>((scr_dx + scr_dy * region_scr_width)*176 + pos);
 }
+rpos_t COMBOPOS_REGION_CHECK_BOUNDS(int32_t x, int32_t y)
+{
+	if (x < 0 || y < 0 || x >= region_scr_width*256 || y >= region_scr_height*176)
+		return rpos_t::NONE;
+
+	int scr_dx = x / (16*16);
+	int scr_dy = y / (11*16);
+	int pos = COMBOPOS(x, y);
+	return static_cast<rpos_t>((scr_dx + scr_dy * region_scr_width)*176 + pos);
+}
 int32_t RPOS_TO_POS(rpos_t rpos)
 {
 	return static_cast<int32_t>(rpos)%176;
@@ -2400,7 +2410,7 @@ void trigger_secrets_for_screen(int32_t screen, bool high16only, int32_t single)
 void hidden_entrance(int32_t tmp, bool refresh, bool high16only, int32_t single) //Perhaps better known as 'Trigger Secrets'
 {
 	//There are no calls to 'hidden_entrance' in the code where tmp != 0
-	DCHECK(tmp == 0);
+	//DCHECK(tmp == 0);
 	Z_eventlog("%sScreen Secrets triggered%s.\n",
 			   single>-1? "Restricted ":"",
 			   single==-2? " by the 'Enemies->Secret' screen flag":
@@ -3557,38 +3567,41 @@ void draw_cmb_pos(BITMAP* dest, int32_t x, int32_t y, rpos_t rpos, int32_t cid,
 
 	if (!screenscrolling)
 	{
-		rpos_t plrpos = COMBOPOS_REGION(Hero.x+8, Hero.y+8);
-		bool dosw = false;
-		if(rpos == hooked_comborpos && (hooked_layerbits & (1<<layer)))
+		rpos_t plrpos = COMBOPOS_REGION_CHECK_BOUNDS(Hero.x+8, Hero.y+8);
+		if (plrpos != rpos_t::NONE)
 		{
-			if(hooked_undercombos[layer] > -1)
+			bool dosw = false;
+			if(rpos == hooked_comborpos && (hooked_layerbits & (1<<layer)))
 			{
-				draw_cmb(dest, COMBOX(pos)+x, COMBOY(pos)+y,
-					hooked_undercombos[layer], hooked_undercombos[layer+7], over, transp);
-			}
-			dosw = true;
-		}
-		else if(rpos == plrpos && (hooked_layerbits & (1<<(layer+8))))
-		{
-			dosw = true;
-		}
-		if(dosw)
-		{
-			switch(Hero.switchhookstyle)
-			{
-				default: case swPOOF:
-					break; //Nothing special here
-				case swFLICKER:
+				if(hooked_undercombos[layer] > -1)
 				{
-					if(abs(Hero.switchhookclk-33)&0b1000)
-						break; //Drawn this frame
-					return; //Not drawn this frame
+					draw_cmb(dest, COMBOX(pos)+x, COMBOY(pos)+y,
+						hooked_undercombos[layer], hooked_undercombos[layer+7], over, transp);
 				}
-				case swRISE:
+				dosw = true;
+			}
+			else if(rpos == plrpos && (hooked_layerbits & (1<<(layer+8))))
+			{
+				dosw = true;
+			}
+			if(dosw)
+			{
+				switch(Hero.switchhookstyle)
 				{
-					//Draw rising up
-					y -= 8-(abs(Hero.switchhookclk-32)/4);
-					break;
+					default: case swPOOF:
+						break; //Nothing special here
+					case swFLICKER:
+					{
+						if(abs(Hero.switchhookclk-33)&0b1000)
+							break; //Drawn this frame
+						return; //Not drawn this frame
+					}
+					case swRISE:
+					{
+						//Draw rising up
+						y -= 8-(abs(Hero.switchhookclk-32)/4);
+						break;
+					}
 				}
 			}
 		}
@@ -4708,8 +4721,9 @@ void draw_screen(bool showhero, bool runGeneric)
 		}
 	});
 
-	if (!global_z3_scrolling_extended_height_mode)
+	if (!global_z3_scrolling_extended_height_mode && is_z3_scrolling_mode())
 	{
+		// TODO z3 ! sprites are drawn one pixel on top of subscreen. bug? rm is_z3_scrolling_mode() if so
 		rectfill(temp_buf, 0, 0, 256, playing_field_offset - 1, 0);
 	}
 	
@@ -5563,29 +5577,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 // the new screen has a 0 combo).
 void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_x80_dir)
 {
-	if (replay_is_active())
-	{
-		if (replay_get_mode() == ReplayMode::ManualTakeover)
-			replay_stop_manual_takeover();
-
-		if (destdmap != -1)
-		{
-			if (strlen(DMaps[destdmap].name) > 0)
-			{
-				replay_step_comment(fmt::format("dmap={} {}", destdmap, DMaps[destdmap].name));
-			}
-			else
-			{
-				replay_step_comment(fmt::format("dmap={}", destdmap));
-			}
-		}
-		replay_step_comment(fmt::format("scr={}", scr));
-
-		// Reset the rngs and frame count so that recording steps can be modified without impacting
-		// behavior of later screens.
-		replay_sync_rng();
-	}
-
+	int32_t orig_destdmap = destdmap;
 	if (destdmap < 0) destdmap = currdmap;
 
 	triggered_screen_secrets = false;
@@ -5604,14 +5596,14 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	if (scr >= 0x80)
 	{
 		homescr = previous_currscr;
-		loadscr_old(1, destdmap, homescr, no_x80_dir ? -1 : ldir, overlay, false);
+		loadscr_old(1, orig_destdmap, homescr, no_x80_dir ? -1 : ldir, overlay, false);
 	}
 	else
 	{
 		homescr = scr;
 	}
 
-	loadscr_old(0, destdmap, scr, ldir, overlay, false);
+	loadscr_old(0, orig_destdmap, scr, ldir, overlay, false);
 
 	if (is_z3_scrolling_mode())
 	{
@@ -5637,6 +5629,29 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 //    - delete old scrollscr code
 void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay,bool do_setups)
 {
+	if (replay_is_active() && tmp == 0)
+	{
+		if (replay_get_mode() == ReplayMode::ManualTakeover)
+			replay_stop_manual_takeover();
+
+		if (destdmap != -1)
+		{
+			if (strlen(DMaps[destdmap].name) > 0)
+			{
+				replay_step_comment(fmt::format("dmap={} {}", destdmap, DMaps[destdmap].name));
+			}
+			else
+			{
+				replay_step_comment(fmt::format("dmap={}", destdmap));
+			}
+		}
+		replay_step_comment(fmt::format("scr={}", scr));
+
+		// Reset the rngs and frame count so that recording steps can be modified without impacting
+		// behavior of later screens.
+		replay_sync_rng();
+	}
+
 	bool is_setting_special_warp_return_screen = tmp == 1;
 	int32_t destlvl = DMaps[destdmap < 0 ? currdmap : destdmap].level;
 
@@ -5899,6 +5914,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	}
 	
 	toggle_switches(game->lvlswitches[destlvl], true, tmp == 0 ? &tmpscr : &special_warp_return_screen, tmp == 0 ? initial_region_scr : homescr);
+	// TODO z3 ?! replay
 	toggle_gswitches_load(tmp == 0 ? &tmpscr : &special_warp_return_screen, tmp == 0 ? initial_region_scr : homescr);
 	
 	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKBLOCK)			  // if special stuff done before
