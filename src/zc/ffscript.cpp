@@ -24595,11 +24595,11 @@ void FFScript::do_paldata_getcolor()
 			return;
 		}
 
-		if (pd->colors_used[ind])
+		if (get_bit(pd->colors_used, ind))
 		{
-			a[0] = pd->colors[ind][0] * 10000;
-			a[1] = pd->colors[ind][1] * 10000;
-			a[2] = pd->colors[ind][2] * 10000;
+			a[0] = pd->colors[ind].r * 10000;
+			a[1] = pd->colors[ind].g * 10000;
+			a[2] = pd->colors[ind].b * 10000;
 		}
 		else
 		{
@@ -24649,7 +24649,7 @@ void FFScript::do_paldata_clearcolor()
 			Z_scripterrlog("Invalid color index (%d) passed to paldata->ClearColor(). Valid indices are 0-239. Aborting.\n", ind);
 			return;
 		}
-		pd->colors_used[ind] = false;
+		set_bit(pd->colors_used, ind, false);
 	}
 }
 
@@ -24706,9 +24706,10 @@ void FFScript::do_paldata_copy()
 		{
 			for (int32_t q = 0; q < 240; ++q)
 			{
-				pd_dest->colors[q][0] = pd->colors[q][0];
-				pd_dest->colors[q][1] = pd->colors[q][1];
-				pd_dest->colors[q][2] = pd->colors[q][2];
+				pd_dest->colors[q] = pd->colors[q];
+			}
+			for (int32_t q = 0; q < 30; ++q)
+			{
 				pd_dest->colors_used[q] = pd->colors_used[q];
 			}
 		}
@@ -24723,10 +24724,10 @@ void user_paldata::load_cset(int32_t cset, int32_t dataset)
 	for (int32_t q = 0; q < 16; ++q)
 	{
 		int32_t ind = CSET(cset) + q;
-		colors[ind][0] = si[0];
-		colors[ind][1] = si[1];
-		colors[ind][2] = si[2];
-		colors_used[ind] = true;
+		colors[ind].r = si[0];
+		colors[ind].g = si[1];
+		colors[ind].b = si[2];
+		set_bit(colors_used, ind, true);
 		//zprint("%d, %d, %d\n", colors[ind][0], colors[ind][1], colors[ind][2]);
 		si += 3;
 	}
@@ -24739,10 +24740,10 @@ void user_paldata::load_cset_main(int32_t cset)
 	for (int32_t q = 0; q < 16; ++q)
 	{
 		int32_t ind = CSET(cset) + q;
-		colors[ind][0] = tempgreypal[ind].r;
-		colors[ind][1] = tempgreypal[ind].g;
-		colors[ind][2] = tempgreypal[ind].b;
-		colors_used[ind] = true;
+		colors[ind].r = tempgreypal[ind].r;
+		colors[ind].g = tempgreypal[ind].g;
+		colors[ind].b = tempgreypal[ind].b;
+		set_bit(colors_used, ind, true);
 		//zprint("%d, %d, %d\n", colors[ind][0], colors[ind][1], colors[ind][2]);
 	}
 }
@@ -24755,12 +24756,12 @@ void user_paldata::write_cset(int32_t cset, int32_t dataset)
 	for (int32_t q = 0; q < 16; ++q)
 	{
 		int32_t ind = CSET(cset) + q;
-		if (colors_used[ind])
+		if (get_bit(colors_used, ind))
 		{
 			//zprint("BEFORE %d, %d, %d\n", si[0], si[1], si[2]);
-			si[0] = colors[ind][0];
-			si[1] = colors[ind][1];
-			si[2] = colors[ind][2];
+			si[0] = colors[ind].r;
+			si[1] = colors[ind].g;
+			si[2] = colors[ind].b;
 			//zprint("AFTER %d, %d, %d\n", colors[ind][0], colors[ind][1], colors[ind][2]);
 		}
 		//zprint("%d, %d, %d\n", si[0], si[1], si[2]);
@@ -24775,10 +24776,10 @@ void user_paldata::write_cset_main(int32_t cset)
 	for (int32_t q = 0; q < 16; ++q)
 	{
 		int32_t ind = CSET(cset) + q;
-		if (colors_used[ind])
+		if (get_bit(colors_used, ind))
 		{
 			//zprint("BEFORE %d, %d, %d\n", si[0], si[1], si[2]);
-			tempgreypal[ind] = _RGB(colors[ind][0], colors[ind][1], colors[ind][2]);
+			tempgreypal[ind] = colors[ind];
 			RAMpal[ind] = tempgreypal[ind];
 			//zprint("AFTER %d, %d, %d\n", colors[ind][0], colors[ind][1], colors[ind][2]);
 		}
@@ -24795,13 +24796,13 @@ bool user_paldata::check_cset(int32_t cset, int32_t dataset)
 	for (int32_t q = 0; q < 16; ++q)
 	{
 		int32_t ind = CSET(cset) + q;
-		if (colors_used[ind])
+		if (get_bit(colors_used, ind))
 		{
-			if (si[0] != colors[ind][0])
+			if (si[0] != colors[ind].r)
 				return true;
-			if (si[1] != colors[ind][1])
+			if (si[1] != colors[ind].g)
 				return true;
-			if (si[2] != colors[ind][2])
+			if (si[2] != colors[ind].b)
 				return true;
 		}
 		//zprint("%d, %d, %d\n", si[0], si[1], si[2]);
@@ -24817,13 +24818,13 @@ bool user_paldata::check_cset_main(int32_t cset)
 	for (int32_t q = 0; q < 16; ++q)
 	{
 		int32_t ind = CSET(cset) + q;
-		if (colors_used[ind])
+		if (get_bit(colors_used, ind))
 		{
-			if (tempgreypal[ind].r != colors[ind][0])
+			if (tempgreypal[ind].r != colors[ind].r)
 				return true;
-			if (tempgreypal[ind].g != colors[ind][1])
+			if (tempgreypal[ind].g != colors[ind].g)
 				return true;
-			if (tempgreypal[ind].b != colors[ind][2])
+			if (tempgreypal[ind].b != colors[ind].b)
 				return true;
 		}
 		//zprint("%d, %d, %d\n", si[0], si[1], si[2]);
@@ -24834,14 +24835,34 @@ bool user_paldata::check_cset_main(int32_t cset)
 //Mixes a color between two paldatas
 RGB user_paldata::mix_color(RGB start, RGB end, double percent, int32_t color_space)
 {
+	int32_t direction = 0;
 	switch (color_space)
 	{
 	case CSPACE_RGB:
 		return _RGB(byte(vbound(double(zc::math::Lerp(start.r, end.r, percent)), 0.0, 63.0)),
 			byte(vbound(double(zc::math::Lerp(start.g, end.g, percent)), 0.0, 63.0)),
 			byte(vbound(double(zc::math::Lerp(start.b, end.b, percent)), 0.0, 63.0)));
+	case CSPACE_CMYK:
+	{
+		double convert_start[4];
+		double convert_end[4];
+		double convert_result[4];
+		RGBTo(start, convert_start, color_space);
+		RGBTo(end, convert_end, color_space);
+		convert_result[0] = zc::math::Lerp(convert_start[0], convert_end[0], percent);
+		convert_result[1] = zc::math::Lerp(convert_start[1], convert_end[1], percent);
+		convert_result[2] = zc::math::Lerp(convert_start[2], convert_end[2], percent);
+		convert_result[3] = zc::math::Lerp(convert_start[3], convert_end[3], percent);
+		return RGBFrom(convert_result, color_space);
+	}
 	case CSPACE_HSV_CW:
+		if (color_space == CSPACE_HSV_CW)
+			direction = 1;
+		[[fallthrough]];
 	case CSPACE_HSV_CCW:
+		if (color_space == CSPACE_HSV_CCW)
+			direction = -1;
+		[[fallthrough]];
 	case CSPACE_HSV:
 	{
 		double convert_start[3];
@@ -24849,14 +24870,20 @@ RGB user_paldata::mix_color(RGB start, RGB end, double percent, int32_t color_sp
 		double convert_result[3];
 		RGBTo(start, convert_start, color_space);
 		RGBTo(end, convert_end, color_space);
-		for (int32_t q = 0; q < 3; ++q)
-		{
-			convert_result[q] = zc::math::Lerp(convert_start[q], convert_end[q], percent);
-		}
+		convert_result[0] = WrapLerp(convert_start[0], convert_end[0], percent, 0.0, 1.0, direction);
+		convert_result[1] = zc::math::Lerp(convert_start[1], convert_end[1], percent);
+		convert_result[2] = zc::math::Lerp(convert_start[2], convert_end[2], percent);
+		//zprint("HSV %f, %f -> %f\n", convert_result[0], convert_start[0], convert_end[0]);
 		return RGBFrom(convert_result, color_space);
 	}
 	case CSPACE_HSL_CW:
+		if (color_space == CSPACE_HSL_CW)
+			direction = 1;
+		[[fallthrough]];
 	case CSPACE_HSL_CCW:
+		if (color_space == CSPACE_HSL_CCW)
+			direction = -1;
+		[[fallthrough]];
 	case CSPACE_HSL:
 	{
 		double convert_start[3];
@@ -24864,10 +24891,10 @@ RGB user_paldata::mix_color(RGB start, RGB end, double percent, int32_t color_sp
 		double convert_result[3];
 		RGBTo(start, convert_start, color_space);
 		RGBTo(end, convert_end, color_space);
-		for (int32_t q = 0; q < 3; ++q)
-		{
-			convert_result[q] = zc::math::Lerp(convert_start[q], convert_end[q], percent);
-		}
+		convert_result[0] = WrapLerp(convert_start[0], convert_end[0], percent, 0.0, 1.0, direction);
+		convert_result[1] = zc::math::Lerp(convert_start[1], convert_end[1], percent);
+		convert_result[2] = zc::math::Lerp(convert_start[2], convert_end[2], percent);
+		//zprint("HSL %f, %f -> %f\n", convert_result[0], convert_start[0], convert_end[0]);
 		return RGBFrom(convert_result, color_space);
 	}
 	case CSPACE_LAB:
@@ -24877,14 +24904,19 @@ RGB user_paldata::mix_color(RGB start, RGB end, double percent, int32_t color_sp
 		double convert_result[3];
 		RGBTo(start, convert_start, color_space);
 		RGBTo(end, convert_end, color_space);
-		for (int32_t q = 0; q < 3; ++q)
-		{
-			convert_result[q] = zc::math::Lerp(convert_start[q], convert_end[q], percent);
-		}
+		convert_result[0] = zc::math::Lerp(convert_start[0], convert_end[0], percent);
+		convert_result[1] = zc::math::Lerp(convert_start[1], convert_end[1], percent);
+		convert_result[2] = zc::math::Lerp(convert_start[2], convert_end[2], percent);
 		return RGBFrom(convert_result, color_space);
 	}
 	case CSPACE_LCH_CW:
+		if (color_space == CSPACE_LCH_CW)
+			direction = 1;
+		[[fallthrough]];
 	case CSPACE_LCH_CCW:
+		if (color_space == CSPACE_LCH_CCW)
+			direction = -1;
+		[[fallthrough]];
 	case CSPACE_LCH:
 	{
 		double convert_start[3];
@@ -24892,10 +24924,10 @@ RGB user_paldata::mix_color(RGB start, RGB end, double percent, int32_t color_sp
 		double convert_result[3];
 		RGBTo(start, convert_start, color_space);
 		RGBTo(end, convert_end, color_space);
-		for (int32_t q = 0; q < 3; ++q)
-		{
-			convert_result[q] = zc::math::Lerp(convert_start[q], convert_end[q], percent);
-		}
+		convert_result[0] = zc::math::Lerp(convert_start[0], convert_end[0], percent);
+		convert_result[1] = zc::math::Lerp(convert_start[1], convert_end[1], percent);
+		convert_result[2] = WrapLerp(convert_start[2], convert_end[2], percent, 0.0, 360.0, direction);
+		//zprint("LCH %f, %f -> %f\n", convert_result[2], convert_start[2], convert_end[2]);
 		return RGBFrom(convert_result, color_space);
 	}
 	}
@@ -24904,11 +24936,41 @@ RGB user_paldata::mix_color(RGB start, RGB end, double percent, int32_t color_sp
 
 void user_paldata::RGBTo(RGB c, double arr[], int32_t color_space)
 {
-	double r = c.r / 63.0;
-	double g = c.g / 63.0;
-	double b = c.b / 63.0;
+	//From easyrgb.com/en/math.php
+	double r = vbound(c.r / 63.0, 0.0, 1.0);
+	double g = vbound(c.g / 63.0, 0.0, 1.0);
+	double b = vbound(c.b / 63.0, 0.0, 1.0);
 	switch (color_space)
 	{
+	case CSPACE_CMYK:
+	{
+		double c = 1.0 - r;
+		double m = 1.0 - g;
+		double y = 1.0 - b;
+
+		double k = 1.0;
+
+		if (c < k) k = c;
+		if (m < k) k = m;
+		if (y < k) k = y;
+		if (k == 1)
+		{
+			c = 0.0;
+			m = 0.0;
+			y = 0.0;
+		}
+		else
+		{
+			c = (c - k) / (1.0 - k);
+			m = (m - k) / (1.0 - k);
+			y = (y - k) / (1.0 - k);
+		}
+		arr[0] = c;
+		arr[1] = m;
+		arr[2] = y;
+		arr[3] = k;
+		break;
+	}
 	case CSPACE_HSV_CW:
 	case CSPACE_HSV_CCW:
 	case CSPACE_HSV:
@@ -24925,9 +24987,9 @@ void user_paldata::RGBTo(RGB c, double arr[], int32_t color_space)
 		{
 			s = del_max / max_val;
 
-			double del_r = (((max_val - r) / 6) + (del_max / 2)) / del_max;
-			double del_g = (((max_val - g) / 6) + (del_max / 2)) / del_max;
-			double del_b = (((max_val - b) / 6) + (del_max / 2)) / del_max;
+			double del_r = (((max_val - r) / 6.0) + (del_max / 2.0)) / del_max;
+			double del_g = (((max_val - g) / 6.0) + (del_max / 2.0)) / del_max;
+			double del_b = (((max_val - b) / 6.0) + (del_max / 2.0)) / del_max;
 
 			if (r == max_val) h = del_b - del_g;
 			else if (g == max_val) h = (1.0 / 3.0) + del_r - del_b;
@@ -24940,6 +25002,7 @@ void user_paldata::RGBTo(RGB c, double arr[], int32_t color_space)
 		arr[0] = h;
 		arr[1] = s;
 		arr[2] = v;
+		break;
 	}
 	case CSPACE_HSL_CW:
 	case CSPACE_HSL_CCW:
@@ -24958,9 +25021,9 @@ void user_paldata::RGBTo(RGB c, double arr[], int32_t color_space)
 			if (l < 0.5) s = del_max / (max_val + min_val);
 			else s = del_max / (2 - max_val - min_val);
 
-			double del_r = (((max_val - r) / 6) + (del_max / 2)) / del_max;
-			double del_g = (((max_val - g) / 6) + (del_max / 2)) / del_max;
-			double del_b = (((max_val - b) / 6) + (del_max / 2)) / del_max;
+			double del_r = (((max_val - r) / 6.0) + (del_max / 2.0)) / del_max;
+			double del_g = (((max_val - g) / 6.0) + (del_max / 2.0)) / del_max;
+			double del_b = (((max_val - b) / 6.0) + (del_max / 2.0)) / del_max;
 
 			if (r == max_val) h = del_b - del_g;
 			else if (g == max_val) h = (1.0 / 3.0) + del_r - del_b;
@@ -25002,6 +25065,7 @@ void user_paldata::RGBTo(RGB c, double arr[], int32_t color_space)
 		arr[0] = CIEL;
 		arr[1] = CIEa;
 		arr[2] = CIEb;
+		break;
 	}
 	case CSPACE_LCH_CW:
 	case CSPACE_LCH_CCW:
@@ -25038,6 +25102,7 @@ void user_paldata::RGBTo(RGB c, double arr[], int32_t color_space)
 		arr[0] = CIEL;
 		arr[1] = CIEC;
 		arr[2] = h;
+		break;
 	}
 	}
 
@@ -25045,11 +25110,23 @@ void user_paldata::RGBTo(RGB c, double arr[], int32_t color_space)
 
 RGB user_paldata::RGBFrom(double arr[], int32_t color_space)
 {
-	double r;
-	double g;
-	double b;
+	double r = 0.0;
+	double g = 0.0;
+	double b = 0.0;
 	switch (color_space)
 	{
+	case CSPACE_CMYK:
+	{
+		double c = (arr[0] * (1 - arr[3]) + arr[3]);
+		double m = (arr[1] * (1 - arr[3]) + arr[3]);
+		double y = (arr[2] * (1 - arr[3]) + arr[3]);
+
+		r = vbound((1 - c) * 63.0, 0.0, 63.0);
+		g = vbound((1 - m) * 63.0, 0.0, 63.0);
+		b = vbound((1 - y) * 63.0, 0.0, 63.0);
+		return _RGB(r, g, b);
+		break;
+	}
 	case CSPACE_HSV_CW:
 	case CSPACE_HSV_CCW:
 	case CSPACE_HSV:
@@ -25067,7 +25144,7 @@ RGB user_paldata::RGBFrom(double arr[], int32_t color_space)
 		else
 		{
 			double var_h = h * 6;
-			if (var_h == 6) var_h = 0;
+			if (var_h >= 6) var_h = 0;
 			int32_t var_i = floor(var_h);
 			double var_1 = v * (1 - s);
 			double var_2 = v * (1 - s * (var_h - var_i));
@@ -25100,7 +25177,7 @@ RGB user_paldata::RGBFrom(double arr[], int32_t color_space)
 				g = var_1;
 				b = v;
 				break;
-			defualt:
+			default:
 				r = v;
 				g = var_1;
 				b = var_2;
@@ -25157,10 +25234,10 @@ RGB user_paldata::RGBFrom(double arr[], int32_t color_space)
 		double var_x = CIEa / 500.0 + var_y;
 		double var_z = var_y - CIEb / 200.0;
 
-		if (pow(var_y, 3) > 0.008856) var_y = pow(var_y, 3);
-		else var_y = (var_y - 16.0 / 116.0) / 7.787;
 		if (pow(var_x, 3) > 0.008856) var_x = pow(var_x, 3);
 		else var_x = (var_x - 16.0 / 116.0) / 7.787;
+		if (pow(var_y, 3) > 0.008856) var_y = pow(var_y, 3);
+		else var_y = (var_y - 16.0 / 116.0) / 7.787;
 		if (pow(var_z, 3) > 0.008856) var_z = pow(var_z, 3);
 		else var_z = (var_z - 16.0 / 116.0) / 7.787;
 
@@ -25230,18 +25307,49 @@ double user_paldata::HueToRGB(double v1, double v2, double vH)
 	return (v1);
 }
 
+double user_paldata::WrapLerp(double a, double b, double t, double min, double max, int32_t direction)
+{
+	double dif = abs(a - b);
+	double range = abs(max - min);
+
+	switch (direction)
+	{
+	case 0:
+		if (dif > range * 0.5)
+			dif = range - dif;
+		if (a + dif == b)
+			direction = 1;
+		else
+			direction = -1;
+		break;
+	case 1:
+		if (b < a)
+			dif = range - dif;
+		break;
+	case -1:
+		if (b > a)
+			dif = range - dif;
+		break;
+	}
+
+	double ret = zc::math::Lerp(a, a + dif * direction, t);
+
+	if (ret <= min)
+		ret += range;
+	else if (ret >= max)
+		ret -= range;
+	return ret;
+}
+
 //Mixes an entire palette given two paldatas
 void user_paldata::mix(user_paldata *pal_start, user_paldata *pal_end, double percent, int32_t color_space, int32_t start_color, int32_t end_color)
 {
 	for (int32_t q = start_color; q < end_color; ++q)
 	{
-		if (pal_start->colors_used[q] && pal_end->colors_used[q]) {
-			RGB start = _RGB(pal_start->colors[q][0], pal_start->colors[q][1], pal_start->colors[q][2]);
-			RGB end = _RGB(pal_end->colors[q][0], pal_end->colors[q][1], pal_end->colors[q][2]);
-			RGB result = mix_color(start, end, percent, color_space);
-			colors[q][0] = result.r;
-			colors[q][1] = result.g;
-			colors[q][2] = result.b;
+		if (get_bit(pal_start->colors_used, q) && get_bit(pal_end->colors_used, q)) {
+			RGB start = pal_start->colors[q];
+			RGB end = pal_end->colors[q];
+			colors[q] = mix_color(start, end, percent, color_space);
 		}
 	}
 }

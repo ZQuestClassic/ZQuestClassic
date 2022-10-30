@@ -671,17 +671,17 @@ struct user_paldata
 {
 	bool reserved;
 
-	byte colors[240][3];
-	bool colors_used[240];
+	RGB colors[240];
+	byte colors_used[30]; //A set of 240 bitflags
 
 	int32_t owned_type, owned_i;
 
-	enum { CSPACE_RGB, CSPACE_HSV, CSPACE_HSV_CW, CSPACE_HSV_CCW, CSPACE_HSL, CSPACE_HSL_CW, CSPACE_HSL_CCW, CSPACE_LAB, CSPACE_LCH, CSPACE_LCH_CW, CSPACE_LCH_CCW };
+	enum { CSPACE_RGB, CSPACE_CMYK, CSPACE_HSV, CSPACE_HSV_CW, CSPACE_HSV_CCW, CSPACE_HSL, CSPACE_HSL_CW, CSPACE_HSL_CCW, CSPACE_LAB, CSPACE_LCH, CSPACE_LCH_CW, CSPACE_LCH_CCW };
 
 	void clear()
 	{
-		for(int32_t q = 0; q < 240; ++q)
-			colors_used[q] = false;
+		for(int32_t q = 0; q < 30; ++q)
+			colors_used[q] = 0;
 		reserved = false;
 		owned_type = -1;
 		owned_i = 0;
@@ -697,9 +697,9 @@ struct user_paldata
 				Z_scripterrlog("PalData color arrays must use RGB values 0-63.\n");
 				rgb[q] = vbound(rgb[q], 0, 63);
 			}
-			colors[ind][q] = byte(rgb[q]);
 		}
-		colors_used[ind] = true;
+		colors[ind] = _RGB(byte(rgb[0]), byte(rgb[1]), byte(rgb[2]));
+		set_bit(colors_used, ind, true);
 	}
 
 	void load_cset(int32_t cset, int32_t dataset);
@@ -712,6 +712,7 @@ struct user_paldata
 	static void RGBTo(RGB c, double arr[], int32_t color_space);
 	static RGB RGBFrom(double arr[], int32_t color_space);
 	static double HueToRGB(double v1, double v2, double vH);
+	static double WrapLerp(double a, double b, double t, double min, double max, int32_t direction);
 	void mix(user_paldata *pal_start, user_paldata *pal_end, double percent, int32_t color_space = CSPACE_RGB, int32_t start_color = 0, int32_t end_color = 240);
 
 	void own(int32_t type, int32_t i)
