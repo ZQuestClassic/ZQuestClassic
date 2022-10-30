@@ -5665,8 +5665,6 @@ int main(int argc, char **argv)
 #endif
 	
 reload_for_replay_file:
-	int replay_debug_last_x = -1;
-	int replay_debug_last_y = -1;
 	if (load_replay_file_deffered_called)
 	{
 		load_replay_file(load_replay_file_mode, load_replay_file_filename);
@@ -5755,20 +5753,7 @@ reload_for_replay_file:
 			
 #endif
 			game_loop();
-			if (replay_is_debug() && !Quit)
-			{
-				int x = HeroX().getInt();
-				int y = HeroY().getInt();
-				if (x != replay_debug_last_x || y != replay_debug_last_y)
-				{
-					replay_step_comment(fmt::format("h {:x} {:x}", x, y));
-					replay_debug_last_x = x;
-					replay_debug_last_y = y;
-				}
-			}
-
-			FFCore.newScriptEngine();
-			
+			advanceframe(true);
 			FFCore.runF6Engine();
 		
 			//clear Hero's last hits 

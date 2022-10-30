@@ -23480,7 +23480,6 @@ void HeroClass::walkdown(bool opening) //entering cave
     Lwpns.clear();
     Ewpns.clear();
     items.clear();
-    
     for(int32_t i=0; i<64; i++)
     {
         herostep();
@@ -25129,9 +25128,12 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	currdmap = newdmap;
 	for(word i = 0; cx >= 0 && delay != 0; i++, cx--) //Go!
 	{
-		locking_keys = true;
-		replay_poll();
-		locking_keys = false;
+		if (replay_is_active() && replay_get_version() < 3)
+		{
+			locking_keys = true;
+			replay_poll();
+			locking_keys = false;
+		}
 		if(Quit)
 		{
 			screenscrolling = false;

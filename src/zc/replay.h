@@ -30,6 +30,7 @@ void replay_start(ReplayMode mode_, std::string filename_);
 void replay_continue(std::string filename_);
 void replay_poll();
 void replay_peek_quit();
+void replay_peek_input();
 bool replay_is_assert_done();
 void replay_forget_input();
 void replay_stop();
@@ -52,6 +53,7 @@ int replay_get_meta_int(std::string key, int defaultValue);
 bool replay_get_meta_bool(std::string key);
 
 ReplayMode replay_get_mode();
+int replay_get_version();
 std::string replay_get_filename();
 std::string replay_get_buttons_string();
 bool replay_is_active();
@@ -59,6 +61,7 @@ void replay_set_debug(bool enable_debug);
 bool replay_is_debug();
 void replay_set_sync_rng(bool enable);
 bool replay_is_replaying();
+bool replay_is_recording();
 void replay_set_frame_arg(int frame);
 
 size_t replay_register_rng(zc_randgen *rng);

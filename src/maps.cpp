@@ -4654,8 +4654,6 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 
 		// Reset the rngs and frame count so that recording steps can be modified without impacting
 		// behavior of later screens.
-		// Does nothing if replay file is associated with a real save file. This is only wanted for
-		// replay tests.
 		replay_sync_rng();
 	}
 	if(!tmp)
