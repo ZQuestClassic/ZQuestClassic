@@ -13199,7 +13199,8 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , 
 				return qe_invalid;
 			if(!p_getcstr(&temp_meta.author,f,true))
 				return qe_invalid;
-			for(auto q = 0; q < 4; ++q)
+			auto num_meta_attrib = (zmeta_version < 5 ? 4 : 10);
+			for(auto q = 0; q < num_meta_attrib; ++q)
 			{
 				if(!p_getcstr(&temp_meta.attributes[q],f,true))
 					return qe_invalid;
@@ -13226,6 +13227,28 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , 
 					return qe_invalid;
 				if(!p_getwstr(&temp_meta.usrflags_help[q],f,true))
 					return qe_invalid;
+			}
+		}
+		if(zmeta_version > 3)
+		{
+			for(auto q = 0; q < 8; ++q)
+			{
+				if(!p_getcstr(&temp_meta.initd[q],f,true))
+					return qe_invalid;
+				if(!p_getwstr(&temp_meta.initd_help[q],f,true))
+					return qe_invalid;
+			}
+			for(auto q = 0; q < 8; ++q)
+			{
+				if(!p_getc(&temp_meta.initd_type[q],f,true))
+					return qe_invalid;
+			}
+		}
+		else
+		{
+			for(auto q = 0; q < 8; ++q)
+			{
+				temp_meta.initd[q] = temp_meta.run_idens[q];
 			}
 		}
 		

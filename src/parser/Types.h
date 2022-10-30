@@ -15,6 +15,7 @@ namespace ZScript
 	////////////////////////////////////////////////////////////////
 	// Forward Declarations
 	class Function;
+	class UserClass;
 	class Scope;
 	class ZClass;
 	class DataType;
@@ -41,8 +42,11 @@ namespace ZScript
 		template <typename Type>
 		Type const* getCanonicalType(Type const& type)
 		{
+			std::optional<DataTypeId> opt = getOrAssignTypeId(type);
+			if (!opt)
+				return nullptr;
 			return static_cast<Type const*>(
-					ownedTypes[*getOrAssignTypeId(type)]);
+					ownedTypes[*opt]);
 		}
 	
 		// Classes
@@ -389,7 +393,9 @@ namespace ZScript
 		virtual bool isUntyped() const {return false;}
 		virtual bool isVoid() const {return false;}
 		virtual bool isCustom() const {return false;}
+		virtual bool isUsrClass() const {return false;}
 		virtual bool isLong() const {return false;}
+		virtual UserClass* getUsrClass() const {return nullptr;}
 
 		// Returns <0 if <rhs, 0, if ==rhs, and >0 if >rhs.
 		int32_t compare(DataType const& rhs) const;
@@ -629,6 +635,7 @@ namespace ZScript
 		virtual bool canCastTo(DataType const& target) const;
 		virtual bool canBeGlobal() const {return true;}
 		virtual bool isArray() const {return true;}
+		virtual bool isResolved() const {return elementType.isResolved();}
 
 		DataType const& getElementType() const {return elementType;}
 
@@ -641,16 +648,18 @@ namespace ZScript
 	class DataTypeCustom : public DataType
 	{
 	public:
-		DataTypeCustom(std::string name, DataType* constType, int32_t id = getUniqueCustomId())
-			: DataType(constType), name(name), id(id)
+		DataTypeCustom(std::string name, DataType* constType, UserClass* usrclass = nullptr, int32_t id = getUniqueCustomId())
+			: DataType(constType), name(name), id(id), user_class(usrclass)
 		{}
 		DataTypeCustom* clone() const {return new DataTypeCustom(*this);}
 		
 		virtual DataTypeCustom* resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler) {return this;}
 		
 		virtual bool isConstant() const {return false;}
-		virtual bool isCustom() const {return false;}
+		virtual bool isCustom() const {return true;}
+		virtual bool isUsrClass() const {return user_class != nullptr;}
 		virtual bool canBeGlobal() const {return true;}
+		virtual UserClass* getUsrClass() const {return user_class;}
 		virtual std::string getName() const {return name;}
 		virtual bool canCastTo(DataType const& target) const;
 		int32_t getCustomId() const {return id;}
@@ -658,6 +667,7 @@ namespace ZScript
 	protected:
 		int32_t id;
 		std::string name;
+		UserClass* user_class;
 
 		int32_t selfCompare(DataType const& other) const;
 	};
@@ -665,8 +675,8 @@ namespace ZScript
 	class DataTypeCustomConst : public DataTypeCustom
 	{
 	public:
-		DataTypeCustomConst(std::string name)
-			: DataTypeCustom(name, NULL)
+		DataTypeCustomConst(std::string name, UserClass* user_class = nullptr)
+			: DataTypeCustom(name, NULL, user_class)
 		{}
 		DataTypeCustomConst* clone() const {return new DataTypeCustomConst(*this);}
 		

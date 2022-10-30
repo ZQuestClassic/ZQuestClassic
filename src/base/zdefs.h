@@ -140,6 +140,12 @@
 #include "dcheck.h"
 #include "notreached.h"
 
+typedef uint8_t  byte;  //0-255  ( 8 bits)
+typedef uint16_t word;  //0-65,535  (16 bits)
+typedef uint32_t dword; //0-4,294,967,295  (32 bits)
+typedef uint64_t qword; //0-18,446,744,073,709,551,616  (64 bits)
+#include "user_object.h"
+
 
 #define ZELDA_VERSION       0x0255                         //version of the program
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
@@ -275,7 +281,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        29
+#define V_SAVEGAME        30
 #define V_COMBOALIASES     4
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        7
@@ -356,11 +362,6 @@ extern int32_t passive_subscreen_offset;
 
 extern int32_t CSET_SIZE;
 extern int32_t CSET_SHFT;
-
-typedef uint8_t  byte;  //0-255  ( 8 bits)
-typedef uint16_t word;  //0-65,535  (16 bits)
-typedef uint32_t dword; //0-4,294,967,295  (32 bits)
-typedef uint64_t qword; //0-18,446,744,073,709,551,616  (64 bits)
 
 extern int32_t readsize, writesize;
 extern bool fake_pack_writing;
@@ -2315,6 +2316,7 @@ struct guydata
 #define FLAG_IGNORE_SCREENEDGE        0x2000
 #define FLAG_USE_NEW_MOVEMENT         0x4000
 
+#define MAX_PC dword(-1)
 class refInfo
 {
 public:
@@ -2342,6 +2344,7 @@ public:
 	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
 	
 	int32_t switchkey; //used for switch statements
+	dword thiskey; //used for user class 'this' pointers
 	
 	void Clear()
 	{
@@ -2358,6 +2361,7 @@ public:
 		memset(d, 0, 8 * sizeof(int32_t));
 		a[0] = a[1] = 0;
 		switchkey = 0;
+		thiskey = 0;
 	}
 	
 	refInfo()
@@ -2388,6 +2392,7 @@ public:
 		memcpy(d, rhs.d, 8 * sizeof(int32_t));
 		memcpy(a, rhs.a, 2 * sizeof(int32_t));
 		switchkey = rhs.switchkey;
+		thiskey = rhs.thiskey;
 		return *this;
 	}
 };
@@ -2847,7 +2852,7 @@ struct mapscr
 #define SCRIPT_FORMAT_DISASSEMBLED	2
 #define SCRIPT_FORMAT_ZASM			3
 
-#define METADATA_V			3
+#define METADATA_V			5
 #define V_COMPILER_FIRST	BUILDTM_YEAR
 #define V_COMPILER_SECOND	BUILDTM_MONTH
 #define V_COMPILER_THIRD	BUILDTM_DAY
@@ -2865,14 +2870,17 @@ struct zasm_meta
 	word compiler_v1, compiler_v2, compiler_v3, compiler_v4;
 	std::string script_name;
 	std::string author;
-	std::string attributes[4];
+	std::string attributes[10];
 	std::string attribytes[8];
 	std::string attrishorts[8];
 	std::string usrflags[16];
-	std::string attributes_help[4];
+	std::string attributes_help[10];
 	std::string attribytes_help[8];
 	std::string attrishorts_help[8];
 	std::string usrflags_help[16];
+	std::string initd[8];
+	std::string initd_help[8];
+	int8_t initd_type[8];
 	
 	void setFlag(byte flag)
 	{
@@ -2909,16 +2917,19 @@ struct zasm_meta
 		{
 			usrflags[q].clear();
 			usrflags_help[q].clear();
+			if(q > 9) continue;
+			attributes[q].clear();
+			attributes_help[q].clear();
 			if(q > 7) continue;
+			initd[q].clear();
+			initd_help[q].clear();
+			initd_type[q] = -1;
 			run_idens[q].clear();
 			run_types[q] = ZMETA_NULL_TYPE;
 			attribytes[q].clear();
 			attribytes_help[q].clear();
 			attrishorts[q].clear();
 			attrishorts_help[q].clear();
-			if(q > 3) continue;
-			attributes[q].clear();
-			attributes_help[q].clear();
 		}
 		script_name.clear();
 		author.clear();
@@ -2953,7 +2964,13 @@ struct zasm_meta
 		{
 			usrflags[q] = other.usrflags[q];
 			usrflags_help[q] = other.usrflags_help[q];
+			if(q > 9) continue;
+			attributes[q] = other.attributes[q];
+			attributes_help[q] = other.attributes_help[q];
 			if(q > 7) continue;
+			initd[q] = other.initd[q];
+			initd_help[q] = other.initd_help[q];
+			initd_type[q] = other.initd_type[q];
 			run_idens[q] = other.run_idens[q];
 			run_types[q] = other.run_types[q];
 			attribytes[q] = other.attribytes[q];
@@ -2961,8 +2978,6 @@ struct zasm_meta
 			attrishorts[q] = other.attrishorts[q];
 			attrishorts_help[q] = other.attrishorts_help[q];
 			if(q > 3) continue;
-			attributes[q] = other.attributes[q];
-			attributes_help[q] = other.attributes_help[q];
 		}
 		flags = other.flags;
 		compiler_v1 = other.compiler_v1;
@@ -2990,7 +3005,18 @@ struct zasm_meta
 				return false;
 			if(usrflags_help[q].compare(other.usrflags_help[q]))
 				return false;
+			if(q > 9) continue;
+			if(attributes[q].compare(other.attributes[q]))
+				return false;
+			if(attributes_help[q].compare(other.attributes_help[q]))
+				return false;
 			if(q > 7) continue;
+			if(initd[q].compare(other.initd[q]))
+				return false;
+			if(initd_help[q].compare(other.initd_help[q]))
+				return false;
+			if(initd_type[q] != other.initd_type[q])
+				return false;
 			if(run_idens[q].compare(other.run_idens[q]))
 				return false;
 			if(run_types[q] != other.run_types[q])
@@ -3002,11 +3028,6 @@ struct zasm_meta
 			if(attrishorts[q].compare(other.attrishorts[q]))
 				return false;
 			if(attrishorts_help[q].compare(other.attrishorts_help[q]))
-				return false;
-			if(q > 3) continue;
-			if(attributes[q].compare(other.attributes[q]))
-				return false;
-			if(attributes_help[q].compare(other.attributes_help[q]))
 				return false;
 		}
 		if(script_name.compare(other.script_name))
@@ -4534,6 +4555,7 @@ enum
 	crCUSTOM19, crCUSTOM20, crCUSTOM21, crCUSTOM22, crCUSTOM23,
 	crCUSTOM24, crCUSTOM25, MAX_COUNTERS
 };
+
 #define DIDCHEAT_BIT 0x80
 #define NUM_GSWITCHES 256
 struct gamedata
@@ -4623,6 +4645,8 @@ struct gamedata
 	int32_t gswitch_timers[NUM_GSWITCHES];
 
 	std::string replay_file;
+	std::vector<saved_user_object> user_objects;
+	
 	
 	// member functions
 	// public:
@@ -4644,6 +4668,9 @@ struct gamedata
 		this->globalRAM=data.globalRAM;
 		return *this;
 	}
+	
+	void save_user_objects();
+	void load_user_objects();
 	
 	char *get_name();
 	void set_name(char *n);
@@ -5819,6 +5846,8 @@ void exit_sys_pal();
 extern bool global_z3_scrolling_extended_height_mode;
 extern viewport_t viewport;
 extern int32_t global_z3_cur_scr_drawing;
+
+enum {nswapDEC, nswapHEX, nswapLDEC, nswapLHEX, nswapBOOL, nswapMAX};
 
 #define SMART_WRAP(x, mod) (x < 0 ? ((mod-(-x%mod))%mod) : (x%mod))
 

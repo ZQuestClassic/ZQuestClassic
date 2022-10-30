@@ -17,6 +17,10 @@ namespace util
 	void upperstr(std::string& str);
 	void lowerstr(std::string& str);
 	std::string cropPath(std::string filepath);
+	void replstr(std::string& str, std::string const& from, std::string const& to);
+	std::string escape_characters(std::string const& str);
+	std::string disallow_escapes(std::string const& str);
+	std::string unescape_characters(std::string const& str);
 	void replchar(std::string& str, char from, char to);
 	void replchar(char* buf, char from, char to);
 	void removechar(std::string& str, char to_delete);

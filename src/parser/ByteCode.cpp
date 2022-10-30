@@ -1991,6 +1991,39 @@ string ZScript::VarToString(int32_t ID)
 	case REFSTACK: return "REFSTACK";
 	case REFSUBSCREEN: return "REFSUBSCREEN";
 	case REFRNG: return "REFRNG";
+	
+	case CLASS_THISKEY: return "CLASS_THISKEY";
+	case RESRVD_VAR_EMILY01: return "RESRVD_VAR_EMILY01";
+	case RESRVD_VAR_EMILY02: return "RESRVD_VAR_EMILY02";
+	case RESRVD_VAR_EMILY03: return "RESRVD_VAR_EMILY03";
+	case RESRVD_VAR_EMILY04: return "RESRVD_VAR_EMILY04";
+	case RESRVD_VAR_EMILY05: return "RESRVD_VAR_EMILY05";
+	case RESRVD_VAR_EMILY06: return "RESRVD_VAR_EMILY06";
+	case RESRVD_VAR_EMILY07: return "RESRVD_VAR_EMILY07";
+	case RESRVD_VAR_EMILY08: return "RESRVD_VAR_EMILY08";
+	case RESRVD_VAR_EMILY09: return "RESRVD_VAR_EMILY09";
+	case RESRVD_VAR_EMILY10: return "RESRVD_VAR_EMILY10";
+	case RESRVD_VAR_EMILY11: return "RESRVD_VAR_EMILY11";
+	case RESRVD_VAR_EMILY12: return "RESRVD_VAR_EMILY12";
+	case RESRVD_VAR_EMILY13: return "RESRVD_VAR_EMILY13";
+	case RESRVD_VAR_EMILY14: return "RESRVD_VAR_EMILY14";
+	case RESRVD_VAR_EMILY15: return "RESRVD_VAR_EMILY15";
+	case RESRVD_VAR_EMILY16: return "RESRVD_VAR_EMILY16";
+	case RESRVD_VAR_EMILY17: return "RESRVD_VAR_EMILY17";
+	case RESRVD_VAR_EMILY18: return "RESRVD_VAR_EMILY18";
+	case RESRVD_VAR_EMILY19: return "RESRVD_VAR_EMILY19";
+	case RESRVD_VAR_EMILY20: return "RESRVD_VAR_EMILY20";
+	case RESRVD_VAR_EMILY21: return "RESRVD_VAR_EMILY21";
+	case RESRVD_VAR_EMILY22: return "RESRVD_VAR_EMILY22";
+	case RESRVD_VAR_EMILY23: return "RESRVD_VAR_EMILY23";
+	case RESRVD_VAR_EMILY24: return "RESRVD_VAR_EMILY24";
+	case RESRVD_VAR_EMILY25: return "RESRVD_VAR_EMILY25";
+	case RESRVD_VAR_EMILY26: return "RESRVD_VAR_EMILY26";
+	case RESRVD_VAR_EMILY27: return "RESRVD_VAR_EMILY27";
+	case RESRVD_VAR_EMILY28: return "RESRVD_VAR_EMILY28";
+	case RESRVD_VAR_EMILY29: return "RESRVD_VAR_EMILY29";
+	case RESRVD_VAR_EMILY30: return "RESRVD_VAR_EMILY30";
+	
 	case LINKCLIMBING: return "LINKCLIMBING";
 	case NPCIMMORTAL: return "NPCIMMORTAL";
 	case NPCNOSLIDE: return "NPCNOSLIDE";
@@ -2345,6 +2378,131 @@ string OWritePODArray::toString()
 {
 	return "WRITEPODARRAY " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
+string OConstructClass::toString()
+{
+	return "ZCLASS_CONSTRUCT " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReadObject::toString()
+{
+	return "ZCLASS_READ " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OWriteObject::toString()
+{
+	return "ZCLASS_WRITE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OFreeObject::toString()
+{
+	return "ZCLASS_FREE " + getArgument()->toString();
+}
+string OOwnObject::toString()
+{
+	return "ZCLASS_OWN " + getArgument()->toString();
+}
+string ODestructor::toString()
+{
+	return "STARTDESTRUCTOR " + getArgument()->toString();
+}
+string OGlobalObject::toString()
+{
+	return "ZCLASS_GLOBALIZE " + getArgument()->toString();
+}
+string OReservedEmily07::toString()
+{
+	return "RESRVD_OP_EMILY07 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily08::toString()
+{
+	return "RESRVD_OP_EMILY08 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily09::toString()
+{
+	return "RESRVD_OP_EMILY09 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily10::toString()
+{
+	return "RESRVD_OP_EMILY10 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily11::toString()
+{
+	return "RESRVD_OP_EMILY11 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily12::toString()
+{
+	return "RESRVD_OP_EMILY12 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily13::toString()
+{
+	return "RESRVD_OP_EMILY13 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily14::toString()
+{
+	return "RESRVD_OP_EMILY14 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily15::toString()
+{
+	return "RESRVD_OP_EMILY15 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily16::toString()
+{
+	return "RESRVD_OP_EMILY16 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily17::toString()
+{
+	return "RESRVD_OP_EMILY17 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily18::toString()
+{
+	return "RESRVD_OP_EMILY18 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily19::toString()
+{
+	return "RESRVD_OP_EMILY19 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily20::toString()
+{
+	return "RESRVD_OP_EMILY20 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily21::toString()
+{
+	return "RESRVD_OP_EMILY21 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily22::toString()
+{
+	return "RESRVD_OP_EMILY22 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily23::toString()
+{
+	return "RESRVD_OP_EMILY23 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily24::toString()
+{
+	return "RESRVD_OP_EMILY24 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily25::toString()
+{
+	return "RESRVD_OP_EMILY25 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily26::toString()
+{
+	return "RESRVD_OP_EMILY26 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily27::toString()
+{
+	return "RESRVD_OP_EMILY27 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily28::toString()
+{
+	return "RESRVD_OP_EMILY28 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily29::toString()
+{
+	return "RESRVD_OP_EMILY29 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedEmily30::toString()
+{
+	return "RESRVD_OP_EMILY30 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 
 string OAddImmediate::toString()
 {

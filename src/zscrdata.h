@@ -96,7 +96,7 @@ void write_meta(zasm_meta const& meta, FILE* f)
 	write_w(meta.compiler_v4, f);
 	write_str(meta.script_name, f);
 	write_str(meta.author, f);
-	for(auto q = 0; q < 4; ++q)
+	for(auto q = 0; q < 10; ++q)
 		write_str(meta.attributes[q], f);
 	for(auto q = 0; q < 8; ++q)
 		write_str(meta.attribytes[q], f);
@@ -104,7 +104,7 @@ void write_meta(zasm_meta const& meta, FILE* f)
 		write_str(meta.attrishorts[q], f);
 	for(auto q = 0; q < 16; ++q)
 		write_str(meta.usrflags[q], f);
-	for(auto q = 0; q < 4; ++q)
+	for(auto q = 0; q < 10; ++q)
 		write_str(meta.attributes_help[q], f);
 	for(auto q = 0; q < 8; ++q)
 		write_str(meta.attribytes_help[q], f);
@@ -112,6 +112,12 @@ void write_meta(zasm_meta const& meta, FILE* f)
 		write_str(meta.attrishorts_help[q], f);
 	for(auto q = 0; q < 16; ++q)
 		write_str(meta.usrflags_help[q], f);
+	for(auto q = 0; q < 8; ++q)
+		write_str(meta.initd[q], f);
+	for(auto q = 0; q < 8; ++q)
+		write_str(meta.initd_help[q], f);
+	for(auto q = 0; q < 8; ++q)
+		write_b(meta.initd_type[q], f);
 }
 
 void read_meta(zasm_meta& meta, FILE* f)
@@ -131,7 +137,7 @@ void read_meta(zasm_meta& meta, FILE* f)
 	read_w(meta.compiler_v4, f);
 	read_str(meta.script_name, f);
 	read_str(meta.author, f);
-	for(auto q = 0; q < 4; ++q)
+	for(auto q = 0; q < 10; ++q)
 		read_str(meta.attributes[q], f);
 	for(auto q = 0; q < 8; ++q)
 		read_str(meta.attribytes[q], f);
@@ -139,7 +145,7 @@ void read_meta(zasm_meta& meta, FILE* f)
 		read_str(meta.attrishorts[q], f);
 	for(auto q = 0; q < 16; ++q)
 		read_str(meta.usrflags[q], f);
-	for(auto q = 0; q < 4; ++q)
+	for(auto q = 0; q < 10; ++q)
 		read_str(meta.attributes_help[q], f);
 	for(auto q = 0; q < 8; ++q)
 		read_str(meta.attribytes_help[q], f);
@@ -147,6 +153,12 @@ void read_meta(zasm_meta& meta, FILE* f)
 		read_str(meta.attrishorts_help[q], f);
 	for(auto q = 0; q < 16; ++q)
 		read_str(meta.usrflags_help[q], f);
+	for(auto q = 0; q < 8; ++q)
+		read_str(meta.initd[q], f);
+	for(auto q = 0; q < 8; ++q)
+		read_str(meta.initd_help[q], f);
+	for(auto q = 0; q < 8; ++q)
+		read_b((byte&)meta.initd_type[q], f);
 }
 
 void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, disassembled_script_data>& scripts)

@@ -1067,10 +1067,41 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "GRAPHICSCOUNTCOLOR",         1,   0,   0,   0},
 	{ "WRITEPODSTRING",           1,   0,   0,   1},
 	{ "WRITEPODARRAY",           1,   0,   0,   2},
+	{ "ZCLASS_CONSTRUCT",           1,   0,   0,   2},
+	{ "ZCLASS_READ",   2,   0,   1,   0},
+	{ "ZCLASS_WRITE",   2,   0,   1,   0},
+	{ "ZCLASS_FREE",   1,   0,   0,   0},
+	{ "ZCLASS_OWN",   1,   0,   0,   0},
+	{ "STARTDESTRUCTOR",   0,   0,   0,   1},
+	{ "ZCLASS_GLOBALIZE",   1,   0,   0,   0},
+	{ "RESRVD_OP_EMILY07",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY08",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY09",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY10",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY11",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY12",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY13",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY14",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY15",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY16",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY17",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY18",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY19",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY20",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY21",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY22",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY23",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY24",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY25",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY26",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY27",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY28",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY29",   0,   0,   0,   0},
+	{ "RESRVD_OP_EMILY30",   0,   0,   0,   0},
 	{ "GETSCREENINDEXFORRPOS",     1,   0,   0,   0},
+
 	{ "",                    0,   0,   0,   0}
 };
-
 
 script_variable variable_list[]=
 {
@@ -2453,6 +2484,37 @@ script_variable variable_list[]=
 	{ "COMBODLIFTBREAKSFX", COMBODLIFTBREAKSFX, 0, 0 },
 	{ "COMBODLIFTHEIGHT", COMBODLIFTHEIGHT, 0, 0 },
 	{ "COMBODLIFTTIME", COMBODLIFTTIME, 0, 0 },
+	{ "CLASS_THISKEY", CLASS_THISKEY, 0, 0 },
+	{ "RESRVD_VAR_EMILY01", RESRVD_VAR_EMILY01, 0, 0 },
+	{ "RESRVD_VAR_EMILY02", RESRVD_VAR_EMILY02, 0, 0 },
+	{ "RESRVD_VAR_EMILY03", RESRVD_VAR_EMILY03, 0, 0 },
+	{ "RESRVD_VAR_EMILY04", RESRVD_VAR_EMILY04, 0, 0 },
+	{ "RESRVD_VAR_EMILY05", RESRVD_VAR_EMILY05, 0, 0 },
+	{ "RESRVD_VAR_EMILY06", RESRVD_VAR_EMILY06, 0, 0 },
+	{ "RESRVD_VAR_EMILY07", RESRVD_VAR_EMILY07, 0, 0 },
+	{ "RESRVD_VAR_EMILY08", RESRVD_VAR_EMILY08, 0, 0 },
+	{ "RESRVD_VAR_EMILY09", RESRVD_VAR_EMILY09, 0, 0 },
+	{ "RESRVD_VAR_EMILY10", RESRVD_VAR_EMILY10, 0, 0 },
+	{ "RESRVD_VAR_EMILY11", RESRVD_VAR_EMILY11, 0, 0 },
+	{ "RESRVD_VAR_EMILY12", RESRVD_VAR_EMILY12, 0, 0 },
+	{ "RESRVD_VAR_EMILY13", RESRVD_VAR_EMILY13, 0, 0 },
+	{ "RESRVD_VAR_EMILY14", RESRVD_VAR_EMILY14, 0, 0 },
+	{ "RESRVD_VAR_EMILY15", RESRVD_VAR_EMILY15, 0, 0 },
+	{ "RESRVD_VAR_EMILY16", RESRVD_VAR_EMILY16, 0, 0 },
+	{ "RESRVD_VAR_EMILY17", RESRVD_VAR_EMILY17, 0, 0 },
+	{ "RESRVD_VAR_EMILY18", RESRVD_VAR_EMILY18, 0, 0 },
+	{ "RESRVD_VAR_EMILY19", RESRVD_VAR_EMILY19, 0, 0 },
+	{ "RESRVD_VAR_EMILY20", RESRVD_VAR_EMILY20, 0, 0 },
+	{ "RESRVD_VAR_EMILY21", RESRVD_VAR_EMILY21, 0, 0 },
+	{ "RESRVD_VAR_EMILY22", RESRVD_VAR_EMILY22, 0, 0 },
+	{ "RESRVD_VAR_EMILY23", RESRVD_VAR_EMILY23, 0, 0 },
+	{ "RESRVD_VAR_EMILY24", RESRVD_VAR_EMILY24, 0, 0 },
+	{ "RESRVD_VAR_EMILY25", RESRVD_VAR_EMILY25, 0, 0 },
+	{ "RESRVD_VAR_EMILY26", RESRVD_VAR_EMILY26, 0, 0 },
+	{ "RESRVD_VAR_EMILY27", RESRVD_VAR_EMILY27, 0, 0 },
+	{ "RESRVD_VAR_EMILY28", RESRVD_VAR_EMILY28, 0, 0 },
+	{ "RESRVD_VAR_EMILY29", RESRVD_VAR_EMILY29, 0, 0 },
+	{ "RESRVD_VAR_EMILY30", RESRVD_VAR_EMILY30, 0, 0 },
 	
 	{ " ",  -1, 0, 0 }
 };
@@ -2629,36 +2691,51 @@ string get_meta(zasm_meta const& meta)
 	{
 		if(!meta.run_idens[q].size())
 			continue;
-		oss << "\n#PARAM_TYPE_" << (q+1) << " = " << ZScript::getTypeName(meta.run_types[q])
-			<< "\n#PARAM_NAME_" << (q+1) << " = " << meta.run_idens[q];
+		oss << "\n#PARAM_TYPE_" << q << " = " << ZScript::getTypeName(meta.run_types[q])
+			<< "\n#PARAM_NAME_" << q << " = " << meta.run_idens[q];
 	}
-	for(auto q = 0; q < 4; ++q)
+	for(auto q = 0; q < 10; ++q)
 	{
 		if(meta.attributes[q].size())
-			oss << "\n#ATTRIBUTE_" << (q+1) << " = " << meta.attributes[q];
+			oss << "\n#ATTRIBUTE_" << q << " = " << meta.attributes[q];
 		if(meta.attributes_help[q].size())
-			oss << "\n#ATTRIBUTE_HELP_" << (q+1) << " = " << meta.attributes_help[q];
+			oss << "\n#ATTRIBUTE_HELP_" << q << " = "
+				<< util::escape_characters(meta.attributes_help[q]);
 	}
 	for(auto q = 0; q < 8; ++q)
 	{
 		if(meta.attribytes[q].size())
-			oss << "\n#ATTRIBYTE_" << (q+1) << " = " << meta.attribytes[q];
+			oss << "\n#ATTRIBYTE_" << q << " = " << meta.attribytes[q];
 		if(meta.attribytes_help[q].size())
-			oss << "\n#ATTRIBYTE_HELP_" << (q+1) << " = " << meta.attribytes_help[q];
+			oss << "\n#ATTRIBYTE_HELP_" << q << " = "
+				<< util::escape_characters(meta.attribytes_help[q]);
 	}
 	for(auto q = 0; q < 8; ++q)
 	{
 		if(meta.attrishorts[q].size())
-			oss << "\n#ATTRISHORT_" << (q+1) << " = " << meta.attrishorts[q];
+			oss << "\n#ATTRISHORT_" << q << " = " << meta.attrishorts[q];
 		if(meta.attrishorts_help[q].size())
-			oss << "\n#ATTRISHORT_HELP_" << (q+1) << " = " << meta.attrishorts_help[q];
+			oss << "\n#ATTRISHORT_HELP_" << q << " = "
+				<< util::escape_characters(meta.attrishorts_help[q]);
 	}
 	for(auto q = 0; q < 16; ++q)
 	{
 		if(meta.usrflags[q].size())
-			oss << "\n#FLAG_" << (q+1) << " = " << meta.usrflags[q];
+			oss << "\n#FLAG_" << q << " = " << meta.usrflags[q];
 		if(meta.usrflags_help[q].size())
-			oss << "\n#FLAG_HELP_" << (q+1) << " = " << meta.usrflags_help[q];
+			oss << "\n#FLAG_HELP_" << q << " = "
+				<< util::escape_characters(meta.usrflags_help[q]);
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(meta.initd[q].size())
+			oss << "\n#INITD_" << q << " = " << meta.initd[q];
+		if(meta.initd_help[q].size())
+			oss << "\n#INITD_HELP_" << q << " = "
+				<< util::escape_characters(meta.initd_help[q]);
+		if(meta.initd_type[q] > -1)
+			oss << "\n#INITD_TYPE_" << q << " = "
+				<< to_string(int32_t(meta.initd_type[q]));
 	}
 	oss << "\n";
 	return oss.str();
@@ -2678,11 +2755,6 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 	size_t endpos = val.find_last_not_of(" \t\r\n\0");
 	if(endpos != string::npos) ++endpos;
 	val = val.substr(0, endpos); //trim trailing whitespace
-	
-	if(val.size() > 32)
-	{
-		val = val.substr(0,32); //Limit to 32 chars, so doesn't overflow
-	}
 	
 	if(cmd == "#ZASM_VERSION")
 	{
@@ -2764,8 +2836,8 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 	}
 	else if (cmd.size() == 12 && !cmd.compare(0, 11, "#ATTRIBUTE_"))
 	{
-		byte ind = cmd.at(11) - '1';
-		if (ind < 4)
+		byte ind = cmd.at(11) - '0';
+		if (ind < 10)
 		{
 			meta.attributes[ind] = val;
 		}
@@ -2773,16 +2845,16 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 	}
 	else if (cmd.size() == 17 && !cmd.compare(0, 16, "#ATTRIBUTE_HELP_"))
 	{
-		byte ind = cmd.at(16) - '1';
-		if (ind < 4)
+		byte ind = cmd.at(16) - '0';
+		if (ind < 10)
 		{
-			meta.attributes_help[ind] = val;
+			meta.attributes_help[ind] = util::unescape_characters(val);
 		}
 		else return false;
 	}
 	else if (cmd.size() == 12 && !cmd.compare(0, 11, "#ATTRIBYTE_"))
 	{
-		byte ind = cmd.at(11) - '1';
+		byte ind = cmd.at(11) - '0';
 		if (ind < 8)
 		{
 			meta.attribytes[ind] = val;
@@ -2791,16 +2863,16 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 	}
 	else if (cmd.size() == 17 && !cmd.compare(0, 16, "#ATTRIBYTE_HELP_"))
 	{
-		byte ind = cmd.at(16) - '1';
+		byte ind = cmd.at(16) - '0';
 		if (ind < 8)
 		{
-			meta.attribytes_help[ind] = val;
+			meta.attribytes_help[ind] = util::unescape_characters(val);
 		}
 		else return false;
 	}
 	else if (cmd.size() == 13 && !cmd.compare(0, 12, "#ATTRISHORT_"))
 	{
-		byte ind = cmd.at(12) - '1';
+		byte ind = cmd.at(12) - '0';
 		if (ind < 8)
 		{
 			meta.attrishorts[ind] = val;
@@ -2809,10 +2881,10 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 	}
 	else if (cmd.size() == 18 && !cmd.compare(0, 17, "#ATTRISHORT_HELP_"))
 	{
-		byte ind = cmd.at(17) - '1';
+		byte ind = cmd.at(17) - '0';
 		if (ind < 8)
 		{
-			meta.attrishorts_help[ind] = val;
+			meta.attrishorts_help[ind] = util::unescape_characters(val);
 		}
 		else return false;
 	}
@@ -2821,7 +2893,7 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 		byte ind = cmd.at(6) - '0';
 		if (cmd.size() == 8)
 			ind = (ind * 10) + cmd.at(7) - '0';
-		if (--ind < 16)
+		if (ind < 16)
 		{
 			meta.usrflags[ind] = val;
 		}
@@ -2829,12 +2901,39 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 	}
 	else if ((cmd.size() == 12 || cmd.size() == 13) && !cmd.compare(0, 11, "#FLAG_HELP_"))
 	{
-		byte ind = cmd.at(11) - '1';
+		byte ind = cmd.at(11) - '0';
 		if (cmd.size() == 13)
 			ind = (ind * 10) + cmd.at(12) - '0';
-		if (--ind < 16)
+		if (ind < 16)
 		{
-			meta.usrflags_help[ind] = val;
+			meta.usrflags_help[ind] = util::unescape_characters(val);
+		}
+		else return false;
+	}
+	else if (cmd.size() == 8 && !cmd.compare(0, 7, "#INITD_"))
+	{
+		byte ind = cmd.at(7) - '0';
+		if (ind < 8)
+		{
+			meta.initd[ind] = val;
+		}
+		else return false;
+	}
+	else if (cmd.size() == 13 && !cmd.compare(0, 12, "#INITD_HELP_"))
+	{
+		byte ind = cmd.at(12) - '0';
+		if (ind < 8)
+		{
+			meta.initd_help[ind] = util::unescape_characters(val);
+		}
+		else return false;
+	}
+	else if (cmd.size() == 13 && !cmd.compare(0, 12, "#INITD_TYPE_"))
+	{
+		byte ind = cmd.at(12) - '0';
+		if (ind < 8)
+		{
+			meta.initd_type[ind] = atoi(val.c_str());
 		}
 		else return false;
 	}

@@ -13078,7 +13078,7 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_
 		new_return(18);
 	if(!p_putcstr(tmeta.author,f))
 		new_return(19);
-	for(auto q = 0; q < 4; ++q)
+	for(auto q = 0; q < 10; ++q)
 	{
 		if(!p_putcstr(tmeta.attributes[q],f))
 			new_return(27);
@@ -13105,6 +13105,18 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_
 			new_return(33);
 		if(!p_putwstr(tmeta.usrflags_help[q],f))
 			new_return(34);
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(!p_putcstr(tmeta.initd[q],f))
+			new_return(35);
+		if(!p_putwstr(tmeta.initd_help[q],f))
+			new_return(36);
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(!p_putc(tmeta.initd_type[q],f))
+			new_return(37);
 	}
 	
     for(int32_t j=0; j<num_commands; j++)

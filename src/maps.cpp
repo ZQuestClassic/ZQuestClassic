@@ -5583,8 +5583,6 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 
 		// Reset the rngs and frame count so that recording steps can be modified without impacting
 		// behavior of later screens.
-		// Does nothing if replay file is associated with a real save file. This is only wanted for
-		// replay tests.
 		replay_sync_rng();
 	}
 
@@ -6084,7 +6082,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 			auto oscr = homescr;
 			homescr = scr;
 			hidden_entrance(tmp,false,false,-3);
-			scr = oscr;
+			homescr = oscr;
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
 		{

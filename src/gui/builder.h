@@ -601,6 +601,19 @@ DropDownList( \
 	} \
 )
 
+#define SCRIPT_LIST_PROC(name, list, mem, proc) \
+Label(minwidth = 6.5_em, text = name, textAlign = 2), \
+DropDownList( \
+	fitParent = true, \
+	data = list, \
+	selectedValue = mem, \
+	onSelectFunc = [&](int32_t val) \
+	{ \
+		mem = val; \
+		proc(); \
+	} \
+)
+
 #define DINFOBTN() \
 Button(forceFitH = true, text = "?", \
 	disabled = true)

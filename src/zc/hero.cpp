@@ -34,6 +34,7 @@
 #include "drawing.h"
 #include "combos.h"
 #include "base/zc_math.h"
+#include "user_object.h"
 extern FFScript FFCore;
 extern word combo_doscript[176];
 extern byte itemscriptInitialised[256];
@@ -26326,9 +26327,12 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	currdmap = newdmap;
 	for(word i = 0; cx >= 0 && delay != 0; i++, cx--) //Go!
 	{
-		locking_keys = true;
-		replay_poll();
-		locking_keys = false;
+		if (replay_is_active() && replay_get_version() < 3)
+		{
+			locking_keys = true;
+			replay_poll();
+			locking_keys = false;
+		}
 		if(Quit)
 		{
 			screenscrolling = false;

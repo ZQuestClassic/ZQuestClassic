@@ -63,10 +63,6 @@
 #include "dialog/alert.h"
 #include <fmt/format.h>
 
-#define XXH_STATIC_LINKING_ONLY
-#define XXH_IMPLEMENTATION
-#include <xxhash.h>
-
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
 #endif
@@ -3847,14 +3843,6 @@ void updatescr(bool allowwavy, bool record_gfx)
 		}
 	}
 
-	if (record_gfx && replay_is_debug() && replay_get_mode() != ReplayMode::Replay)
-	{
-		int depth = bitmap_color_depth(framebuf);
-		size_t len = framebuf->w * framebuf->h * BYTES_PER_PIXEL(depth);
-		uint32_t hash = XXH32(framebuf->dat, len, 0);
-		replay_step_gfx(hash);
-	}
-
 	if(black_opening_count==0&&black_opening_shape==bosFADEBLACK)
 	{
 		black_opening_shape = bosCIRCLE;
@@ -5040,6 +5028,8 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	Advance=false;
 
 	locking_keys = true;
+	if (replay_is_active() && replay_get_version() >= 3)
+		replay_poll();
 	++frame;
 	update_keys(); //Update ZScript key arrays
 	locking_keys = false;
@@ -9754,12 +9744,18 @@ void load_control_state()
 			// zprint2("Detected 0 joysticks... clearing inputaxis values.\n");
 		}
 	}
-	replay_poll();
+	if (replay_is_active())
+	{
+		if (replay_get_version() < 3)
+			replay_poll();
+		else if (replay_is_replaying())
+			replay_peek_input();
+	}
 	locking_keys = false;
 
 	// Some test replay files were made before a serious input bug was fixed, so instead
 	// of re-doing them or tossing them out, just check for that zplay version.
-	bool botched_input = replay_is_replaying() && replay_get_meta_int("version", 1) == 1;
+	bool botched_input = replay_is_replaying() && replay_get_version() == 1;
 	for (int i = 0; i < ZC_CONTROL_STATES; i++)
 	{
 		control_state[i] = raw_control_state[i];

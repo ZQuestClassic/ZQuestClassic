@@ -19,9 +19,10 @@
 #include "items.h"
 #include "pal.h"
 #include "base/util.h"
+#include "ffscript.h"
 
 using namespace util;
-
+extern FFScript FFCore;
 #ifndef IS_ZQUEST
 extern portal* mirror_portal;
 #endif
@@ -89,6 +90,7 @@ void gamedata::Clear()
 	
 	clear_genscript();
     std::fill(gswitch_timers, gswitch_timers+256, 0);
+	user_objects.clear();
     isclearing=false;
 }
 
@@ -203,11 +205,43 @@ void gamedata::Copy(const gamedata& g)
 		gen_data[q].resize(g.gen_data[q].size());
 		gen_data[q] = g.gen_data[q];
 	}
-	
 	for(size_t q = 0; q < 256; ++q)
 	{
 		gswitch_timers[q] = g.gswitch_timers[q];
 	}
+#ifndef IS_ZQUEST
+	user_objects = g.user_objects;
+#endif
+}
+
+void gamedata::save_user_objects()
+{
+	user_objects.clear();
+#ifndef IS_ZQUEST
+	for(int32_t q = 0; q < MAX_USER_OBJECTS; ++q)
+	{
+		user_object& obj = script_objects[q];
+		if(obj.reserved && obj.isGlobal())
+		{
+			saved_user_object& save_obj = user_objects.emplace_back();
+			save_obj.obj = obj;
+			save_obj.object_index = q;
+			obj.save_arrays(save_obj.held_arrays);
+		}
+	}
+#endif
+}
+void gamedata::load_user_objects()
+{
+#ifndef IS_ZQUEST
+	FFCore.user_objects_init();
+	for(saved_user_object& obj : user_objects)
+	{
+		auto ind = obj.object_index;
+		script_objects[ind] = obj.obj;
+		script_objects[ind].load_arrays(obj.held_arrays);
+	}
+#endif
 }
 
 void gamedata::clear_genscript()

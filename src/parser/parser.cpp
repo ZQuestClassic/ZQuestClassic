@@ -20,6 +20,7 @@ io_manager* ConsoleWrite;
 
 extern uint32_t zscript_failcode;
 extern bool zscript_had_warn_err;
+extern bool zscript_error_out;
 
 int32_t get_bit(byte const* bitstr,int32_t bit)
 {
@@ -35,6 +36,15 @@ int32_t used_switch(int32_t argc, char* argv[], const char* s)
 			return i;
 
 	return 0;
+}
+
+bool zparser_errored_out()
+{
+	return zscript_error_out;
+}
+void zparser_error_out()
+{
+	zscript_error_out = true;
 }
 
 static const int32_t WARN_COLOR = CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_GREEN;
@@ -64,7 +74,7 @@ void zconsole_db(const char *format,...)
 		if(ConsoleWrite)
 			fprintf(console, "%s", tmp);
 		else
-			fprintf(console, "%s\r\n", tmp);
+			fprintf(console, "%s\n", tmp);
 		fclose(console);
 	}
 	if(ConsoleWrite)
@@ -98,7 +108,7 @@ void zconsole_warn(const char *format,...)
 		if(ConsoleWrite)
 			fprintf(console, "%s", tmp);
 		else
-			fprintf(console, "%s\r\n", tmp);
+			fprintf(console, "%s\n", tmp);
 		fclose(console);
 	}
 	if(ConsoleWrite)
@@ -133,7 +143,7 @@ void zconsole_error(const char *format,...)
 		if(ConsoleWrite)
 			fprintf(console, "%s", tmp);
 		else
-			fprintf(console, "%s\r\n", tmp);
+			fprintf(console, "%s\n", tmp);
 		fclose(console);
 	}
 	if(ConsoleWrite)
@@ -167,7 +177,7 @@ void zconsole_info(const char *format,...)
 		if(ConsoleWrite)
 			fprintf(console, "%s", tmp);
 		else
-			fprintf(console, "%s\r\n", tmp);
+			fprintf(console, "%s\n", tmp);
 		fclose(console);
 	}
 	if(ConsoleWrite)
@@ -339,14 +349,19 @@ int32_t main(int32_t argc, char **argv)
 	strcpy(FFCore.scriptRunString, runstr);
 	updateIncludePaths();
 	// Any errors will be printed to stdout.
-	/*
-	for(auto q = 0; q < 2147483647; ++q)
+	#ifdef _DEBUG
+	if(used_switch(argc, argv, "-delay"))
 	{
-		if(!(rand()%10))
-			--q;
-	} //*/
+		for(auto q = 0; q < 2147483647; ++q)
+		{
+			if(!(rand()%10))
+				--q;
+		}
+	}
+	#endif
 	unique_ptr<ZScript::ScriptsData> result(compile(script_path));
-	
+	if(!result)
+		zconsole_info("%s", "Failure!");
 	int32_t res = (result ? 0 : (zscript_failcode ? zscript_failcode : -1));
 	
 	if(linked)
