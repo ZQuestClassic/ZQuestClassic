@@ -1258,6 +1258,7 @@ void replay_sync_rng()
     // Only reset the rngs that haven't been updated this frame.
     size_t first_step_index_for_frame = 0;
     bool found_first_step = false;
+    if (!record_log.empty())
     {
         size_t i = record_log.size() - 1;
         while (i > 0 && record_log[i]->frame == frame_count)
