@@ -1743,6 +1743,11 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 	}
 	if(ret && report)
 	{
+		if(replay_is_active())
+		{
+			exit(1);
+		}
+
 		system_pal();
 		std::ostringstream oss;
 		if(ret == qe_no_qst)
