@@ -45,6 +45,7 @@ static std::vector<zc_randgen *> rngs;
 static uint32_t prev_gfx_hash;
 static int prev_debug_x;
 static int prev_debug_y;
+static bool saved_image;
 
 struct ReplayStep
 {
@@ -630,6 +631,29 @@ static void start_manual_takeover()
     Paused = true;
 }
 
+static void do_snapshot()
+{
+    if (mode == ReplayMode::Snapshot && frame_arg != -1)
+    {
+        if (frame_arg == frame_count)
+        {
+            int line_number = replay_log_current_index + meta_map.size() + 1;
+            if (debug) line_number += 1;
+            std::string img_filename = fmt::format("{}.{}-{}.bmp", filename, frame_count, line_number);
+            fmt::print("Saving requested bitmap: {}\n", img_filename);
+            save_bitmap(img_filename.c_str(), framebuf, RAMpal);
+            saved_image = true;
+        }
+        else if (frame_arg < frame_count)
+        {
+            if (saved_image)
+                exit(0);
+            fmt::print(stderr, "Missed expected snapshot frame: {}\n", frame_arg);
+            exit(1);
+        }
+    }
+}
+
 void replay_start(ReplayMode mode_, std::string filename_)
 {
     ASSERT(mode == ReplayMode::Off);
@@ -644,6 +668,7 @@ void replay_start(ReplayMode mode_, std::string filename_)
     frame_arg = -1;
     prev_gfx_hash = 0;
     prev_debug_x = prev_debug_y = -1;
+    saved_image = false;
     ButtonReplayStep::load_keys();
 
     switch (mode)
@@ -733,12 +758,19 @@ void replay_poll()
             down_control_states[i] = down_states[i];
     }
 
-    if (frame_arg != -1 && frame_arg == frame_count)
+    if (frame_arg != -1 && frame_arg <= frame_count)
     {
+        if (mode == ReplayMode::Snapshot)
+            do_snapshot();
+
         if (mode == ReplayMode::Update)
         {
             start_manual_takeover();
             jwin_alert("Recording", "Re-recording until new screen is loaded", NULL, NULL, "OK", NULL, 13, 27, lfont);
+        }
+        else if (mode == ReplayMode::Snapshot && frame_arg == frame_count)
+        {
+            // Let it go on for one more frame.
         }
         else
         {
@@ -833,7 +865,6 @@ void replay_forget_input()
         previous_control_state[i] = raw_control_state[i] = false;
 }
 
-static bool saved_image = false;
 void replay_stop()
 {
     if (mode == ReplayMode::Off)
@@ -1001,6 +1032,8 @@ std::string int_to_basE91(T value)
 
 void replay_step_gfx(uint32_t gfx_hash)
 {
+    do_snapshot();
+
     // Skip if last invocation was the same value.
     if (gfx_hash == prev_gfx_hash)
         return;
@@ -1013,25 +1046,6 @@ void replay_step_gfx(uint32_t gfx_hash)
     // Note: I tried a simple queue cache to remember the last N hashes and use shorthand
     // for repeats (ex: gfx ^2), but even with a huge memory of 16777216 hashes the
     // savings was never more than 2%, so not worth it.
-
-    if (mode == ReplayMode::Snapshot && frame_arg != -1)
-    {
-        if (frame_arg == frame_count)
-        {
-            size_t step_index = record_log.size() - 1;
-            std::string img_filename = fmt::format("{}.{}-{}.bmp", filename, frame_count, step_index);
-            fmt::print("Saving requested bitmap: {}\n", img_filename);
-            save_bitmap(img_filename.c_str(), framebuf, RAMpal);
-            saved_image = true;
-        }
-        else if (frame_arg < frame_count)
-        {
-            if (saved_image)
-                exit(0);
-            fmt::print(stderr, "Missed expected snapshot frame: {}\n", frame_arg);
-            exit(1);
-        }
-    }
 
 	if (mode == ReplayMode::Assert && has_assert_failed)
 	{
