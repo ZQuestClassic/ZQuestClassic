@@ -20856,7 +20856,7 @@ void loadguys()
 			guys.spr(0)->hxofs=1000;
 			addenemy(dx+128,dy+96,eFIRE,-15);
 			addenemy(dx+112,dy+96,eFIRE,-15);
-			addenemy(dx+96,dy+20,eFIRE,-15);
+			addenemy(dx+96,dy+120,eFIRE,-15);
 			addenemy(dx+144,dy+120,eFIRE,-15);
 			return;
 		}

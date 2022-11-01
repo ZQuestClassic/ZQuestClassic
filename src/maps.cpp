@@ -441,13 +441,14 @@ mapscr* get_scr(int map, int screen)
 {
 	DCHECK_RANGE_INCLUSIVE(screen, 0, 135);
 	if (screen == initial_region_scr && map == currmap) return &tmpscr;
+	if (screen == homescr && map == currmap) return &special_warp_return_screen;
 
 	if (map == currmap)
 	{
 		int index = screen*7;
 		if (!temporary_screens_currmap[index])
 		{
-			// Only needed during screen scrolling, and loadscr_old(1) ...
+			// Only needed during screen scrolling / dowarp
 			load_a_screen_and_layers(currdmap, map, screen, -1);
 		}
 		return temporary_screens_currmap[index];
@@ -466,13 +467,14 @@ mapscr* get_layer_scr(int map, int screen, int layer)
 	DCHECK_LAYER_NEG1_INDEX(layer);
 	if (layer == -1) return get_scr(map, screen);
 	if (screen == initial_region_scr && map == currmap) return &tmpscr2[layer];
+	if (screen == homescr && map == currmap) return &tmpscr3[layer];
 
 	if (map == currmap)
 	{
 		int index = screen*7;
 		if (!temporary_screens_currmap[index])
 		{
-			// Only needed during screen scrolling, and loadscr_old(1) ...
+			// Only needed during screen scrolling / dowarp
 			load_a_screen_and_layers(currdmap, map, screen, -1);
 		}
 		return temporary_screens_currmap[index+layer+1];
@@ -5589,21 +5591,13 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
 	clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
 
-	int previous_currscr = currscr;
+	homescr = scr >= 0x80 ? currscr : scr;
 	currscr = scr;
 	z3_load_region(destdmap);
 
-	if (scr >= 0x80)
-	{
-		homescr = previous_currscr;
-		loadscr_old(1, orig_destdmap, homescr, no_x80_dir ? -1 : ldir, overlay, false);
-	}
-	else
-	{
-		homescr = scr;
-	}
-
 	loadscr_old(0, orig_destdmap, scr, ldir, overlay, false);
+	if (scr >= 0x80)
+		loadscr_old(1, orig_destdmap, homescr, no_x80_dir ? -1 : ldir, overlay, false);
 
 	if (is_z3_scrolling_mode())
 	{
@@ -5655,14 +5649,15 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	bool is_setting_special_warp_return_screen = tmp == 1;
 	int32_t destlvl = DMaps[destdmap < 0 ? currdmap : destdmap].level;
 
+	if (!is_setting_special_warp_return_screen)
+	{
+		triggered_screen_secrets = false; //Reset var
+		init_combo_timers();
+		timeExitAllGenscript(GENSCR_ST_CHANGE_SCREEN);
+	}
+
 	if (do_setups)
 	{
-		if(!is_setting_special_warp_return_screen)
-		{
-			triggered_screen_secrets = false; //Reset var
-			init_combo_timers();
-			timeExitAllGenscript(GENSCR_ST_CHANGE_SCREEN);
-		}
 		clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
 		clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
 		clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
