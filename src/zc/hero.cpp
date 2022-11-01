@@ -22207,7 +22207,17 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			specialcave = ITEMCELLAR;
 			map_bkgsfx(false);
 			kill_enemy_sfx();
-			// TODO z3 !!! replay differs classic 1st ?
+
+			int32_t prev_homescr = homescr;
+			int32_t prev_currscr = currscr;
+			// some draw_screen code (like passive subscreen compass dot) depends
+			// on these variables. Without this the compass dot would remain drawn while
+			// warping. This actually seems better, but for now this code keeps the rendering
+			// equivalent to before z3 loadscr refactor.
+			// demosp253.zplay showcases this behavior.
+			// TODO z3: remove this, but when we have more replay coverage.
+			homescr = currscr;
+			currscr = 0x80;
 			draw_screen(false);
 			
 			//unless the room is already dark, fade to black
@@ -22218,6 +22228,9 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			}
 			
 			blackscr(30,true);
+			homescr = prev_homescr; // see above comment.
+			currscr = prev_currscr;
+
 			bool no_x80_dir = true; // TODO: is this necessary?
 			loadscr(wdmap, 0x80, down, false, no_x80_dir);
 			if ( dontdraw < 2 ) {  dontdraw=1; }
