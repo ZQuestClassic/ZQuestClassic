@@ -25334,6 +25334,13 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	
 	for(word i = 0; (scroll_counter >= 0 && delay != 0) || align_counter; i++, scroll_counter--) //Go!
 	{
+		if (replay_is_active() && replay_get_version() < 3)
+		{
+			locking_keys = true;
+			replay_poll();
+			locking_keys = false;
+		}
+
 		if(Quit)
 		{
 			screenscrolling = false;

@@ -4723,9 +4723,8 @@ void draw_screen(bool showhero, bool runGeneric)
 		}
 	});
 
-	if (!global_z3_scrolling_extended_height_mode && is_z3_scrolling_mode())
+	if (!global_z3_scrolling_extended_height_mode && is_z3_scrolling_mode() && !get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
 	{
-		// TODO z3 ! sprites are drawn one pixel on top of subscreen. bug? rm is_z3_scrolling_mode() if so
 		rectfill(temp_buf, 0, 0, 256, playing_field_offset - 1, 0);
 	}
 	
