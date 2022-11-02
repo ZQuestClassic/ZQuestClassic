@@ -30305,31 +30305,34 @@ void custom_vsync()
 
 void switch_out()
 {
-    zcmusic_pause(zcmusic, ZCM_PAUSE);
-    zc_midi_pause();
+	zcmusic_pause(zcmusic, ZCM_PAUSE);
+	zc_midi_pause();
 }
 
 void switch_in()
 {
-    if(quit)
-        return;
-        
-    BITMAP *ts=screen;
-    screen=menu1;
-    
-    /*
-    if (!is_large) 
+	if(quit)
+		return;
+	acquire_screen();
+	BITMAP *ts=screen;
+	screen=menu1;
+	acquire_screen();
+	
+	/*
+	if (!is_large) 
 	{
 		dialogs[0].dp = (void *) the_menu;
 	}
 	else dialogs[0].dp = (void *) the_menu_large;
-    */
-    //dialogs[0].dp2 = z3font;
-    jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
-    
-    screen=ts;
-    zcmusic_pause(zcmusic, ZCM_RESUME);
-    zc_midi_resume();
+	*/
+	//dialogs[0].dp2 = z3font;
+	jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
+	
+	release_screen();
+	screen=ts;
+	release_screen();
+	zcmusic_pause(zcmusic, ZCM_RESUME);
+	zc_midi_resume();
 }
 
 void Z_eventlog(const char *format,...)
