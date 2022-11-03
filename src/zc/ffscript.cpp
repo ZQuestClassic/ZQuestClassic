@@ -27104,7 +27104,6 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		{
 			ri = &(screenScriptData);
 			curscript = screenscripts[script];
-			curscript = comboscripts[script];
 			stack = &(screen_stack);
 			if ( !tmpscr->screendatascriptInitialised )
 			{
@@ -27151,6 +27150,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 	script_funcrun = false;
 	return run_script_int(type,script,i);
 }
+
 int32_t run_script_int(const byte type, const word script, const int32_t i)
 {
 	word scommand = curscript->zasm[ri->pc].command;
