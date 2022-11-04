@@ -381,7 +381,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(misc[0], "Extra Jumps:", "The number of times this item can be used in mid-air"
 				" without landing.");
 			_SET(misc[1], "Button", "If 0, the item must be equipped to a button to use it.\n"
-				"Otherwise, any of the specified buttons will activate the glove, even when not equipped to a button.\n"
+				"Otherwise, any of the specified buttons will jump, even when not equipped to a button.\n"
 				"Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)");
 			if(FLAG(1))
 				_SET(power, "Jump Power:", "The player will jump with a force of 'power'");
