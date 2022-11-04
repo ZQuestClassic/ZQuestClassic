@@ -1629,12 +1629,15 @@ bool HeroClass::agonyflag(int32_t flag)
 
 // Find the attack power of the current melee weapon.
 // The Whimsical Ring is applied on a target-by-target basis.
-int32_t HeroClass::weaponattackpower()
+int32_t HeroClass::weaponattackpower(int32_t itid)
 {
-	auto itid = current_item_id(attack==wCByrna ? itype_cbyrna
-		: attack==wWand ? itype_wand
-		: attack==wHammer ? itype_hammer
-		: itype_sword);
+	if(itid < 0)
+	{
+		itid = current_item_id(attack==wCByrna ? itype_cbyrna
+			: attack==wWand ? itype_wand
+			: attack==wHammer ? itype_hammer
+			: itype_sword);
+	}
     int32_t power = attack==wCByrna ? itemsbuf[itid].misc4 : itemsbuf[itid].power;
     
     // Multiply it by the power of the spin attack/quake hammer, if applicable.
@@ -2030,7 +2033,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
     w->z = (z+zofs);
     w->tile = t;
     w->flip = f;
-    w->power = weaponattackpower();
+    w->power = weaponattackpower(itemid);
     w->dir = dir;
     w->doAutoRotate(true);
 }
@@ -2415,7 +2418,7 @@ attack:
 				w->hyofs=4;
 			}
 			
-			w->power = weaponattackpower();
+			w->power = weaponattackpower(itemid);
 			
 			if(attackclk==15 && z==0 && fakez==0 && (sideviewhammerpound() || !isSideViewHero()))
 			{
@@ -3244,7 +3247,7 @@ bool HeroClass::checkstab()
 			
 			int32_t whimsyid = current_item_id(itype_whimsicalring);
 			
-			int32_t dmg = weaponattackpower();
+			int32_t dmg = weaponattackpower(itemid);
 			if(whimsyid>-1)
 			{
 				if(!(zc_oldrand()%zc_max(itemsbuf[whimsyid].misc1,1)))
