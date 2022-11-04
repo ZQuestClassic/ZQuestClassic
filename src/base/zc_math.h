@@ -87,6 +87,7 @@ inline double Sin(double x)
 	{
 		// x needs to be converted from radians -> angles -> sin1 domain
 		x = x * (180/PI * 32768.0/360.0);
+		x = (long)x % 0x8000;
 		return sin1(x) * Q15;
 	}
 	else
@@ -98,6 +99,7 @@ inline double Cos(double x)
 	if (replay_is_active())
 	{
 		x = x * (180/PI * 32768.0/360.0);
+		x = (long)x % 0x8000;
 		return cos1(x) * Q15;
 	}
 	else
@@ -109,6 +111,7 @@ inline double Tan(double x)
 	if (replay_is_active())
 	{
 		x = x * (180/PI * 32768.0/360.0);
+		x = (long)x % 0x8000;
 		return (sin1(x) * Q15) / (cos1(x) * Q15);
 	}
 	else
