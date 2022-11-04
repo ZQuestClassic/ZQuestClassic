@@ -1840,6 +1840,7 @@ int32_t init_game()
 				replay_set_debug(replay_debug_arg);
 				replay_set_sync_rng(true);
 				replay_set_meta("qst", relativize_path(game->qstpath));
+				replay_set_meta("name", game->get_name());
 				replay_save();
 			}
 			exit_sys_pal();
@@ -5709,7 +5710,15 @@ reload_for_replay_file:
 		}
 		strcpy(saves[0].qstpath, testingqst_name);
 		saves[0].set_quest(0xFF);
-		saves[0].set_name("Hero");
+		if (replay_is_active())
+		{
+			std::string replay_name = replay_get_meta_str("name", "Hero");
+			saves[0].set_name(replay_name.c_str());
+		}
+		else
+		{
+			saves[0].set_name("Hero");
+		}
 		clearConsole();
 		if (use_testingst_start)
 			Z_message("Test mode: \"%s\", %d, %d\n", testingqst_name, testingqst_dmap, testingqst_screen);

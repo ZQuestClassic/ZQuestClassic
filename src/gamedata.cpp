@@ -263,7 +263,7 @@ char *gamedata::get_name()
 {
     return _name;
 }
-void gamedata::set_name(char *n)
+void gamedata::set_name(const char *n)
 {
     strncpy(_name, n, 8);
     _name[8]='\0';

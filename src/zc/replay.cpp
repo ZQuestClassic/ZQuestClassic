@@ -1108,6 +1108,13 @@ std::string replay_get_meta_str(std::string key)
     return get_meta_raw_value(key);
 }
 
+std::string replay_get_meta_str(std::string key, std::string defaultValue)
+{
+	std::string raw = get_meta_raw_value(key);
+	if (raw.empty()) return defaultValue;
+	return raw;
+}
+
 int replay_get_meta_int(std::string key)
 {
     return std::stoi(get_meta_raw_value(key).c_str());

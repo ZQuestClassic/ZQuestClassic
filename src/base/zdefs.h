@@ -4666,7 +4666,7 @@ struct gamedata
 	void load_user_objects();
 	
 	char *get_name();
-	void set_name(char *n);
+	void set_name(const char *n);
 	
 	byte get_quest();
 	void set_quest(byte q);
