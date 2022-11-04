@@ -38,6 +38,7 @@ static int _a5_display_height = 0;
 static int _a5_display_scale = 1;
 static bool _a5_display_fullscreen = false;
 static int _a5_display_flags = 0;
+static int _a5_bitmap_flags = ALLEGRO_NO_PRESERVE_TEXTURE;
 static volatile int _a5_display_creation_done = 0;
 static ALLEGRO_EVENT_QUEUE * _a5_display_thread_event_queue = NULL;
 static ALLEGRO_TIMER * _a5_display_thread_timer = NULL;
@@ -88,7 +89,7 @@ static bool _a5_setup_screen(int w, int h)
     goto fail;
   }
   al_store_state(&old_state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
-  al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE);
+  al_set_new_bitmap_flags(_a5_bitmap_flags);
 
   _a5_screen = al_create_bitmap(w, h);
   al_restore_state(&old_state);
@@ -650,6 +651,16 @@ int all_get_display_flags()
 void all_set_display_flags(int flags)
 {
   _a5_display_flags = flags;
+}
+
+int all_get_bitmap_flags()
+{
+  return _a5_bitmap_flags;
+}
+
+void all_set_bitmap_flags(int flags)
+{
+  _a5_bitmap_flags = flags;
 }
 
 // local edit

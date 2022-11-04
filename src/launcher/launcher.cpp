@@ -196,6 +196,9 @@ int32_t main(int32_t argc, char* argv[])
 #endif
 	}
 
+	if (strcmp(zc_get_config("ZLAUNCH", "scaling_mode", "linear"), "linear") == 0)
+		all_set_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR);
+
 	int32_t videofail = set_gfx_mode(GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
 	
 	if(videofail)

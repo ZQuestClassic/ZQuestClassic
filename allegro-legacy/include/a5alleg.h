@@ -39,6 +39,8 @@ AL_LEGACY_FUNC(void, all_set_fullscreen_flag, (bool fullscreen));
 AL_LEGACY_FUNC(bool, all_get_fullscreen_flag, (void));
 AL_LEGACY_FUNC(void, all_set_display_flags, (int flags));
 AL_LEGACY_FUNC(int, all_get_display_flags, (void));
+AL_LEGACY_FUNC(void, all_set_bitmap_flags, (int flags));
+AL_LEGACY_FUNC(int, all_get_bitmap_flags, (void));
 
 // local edit
 AL_LEGACY_FUNC(void, all_lock_screen, (void));

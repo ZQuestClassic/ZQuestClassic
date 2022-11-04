@@ -5345,6 +5345,9 @@ int main(int argc, char **argv)
 	resy = 240*2;
 	screen_scale = 2;
 	
+	if (strcmp(zc_get_config("zeldadx", "scaling_mode", "linear"), "linear") == 0)
+		all_set_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR);
+	
 	if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
 	{
 		//what we need here is not rightousness but madness!!!
