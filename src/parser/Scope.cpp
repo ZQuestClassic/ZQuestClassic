@@ -1207,8 +1207,8 @@ RootScope::RootScope(TypeStore& typeStore)
 	BuiltinConstant::create(*this, DataType::WARPRING, "WarpRing", 1);
 	BuiltinConstant::create(*this, DataType::DOORSET, "DoorSet", 1);
 	BuiltinConstant::create(*this, DataType::ZUICOLOURS, "MiscColors", 1);
-	BuiltinConstant::create(*this, DataType::RGBDATA, "RGBData", 1);
-	BuiltinConstant::create(*this, DataType::PALETTE, "Palette", 1);
+	//BuiltinConstant::create(*this, DataType::RGBDATA, "RGBData", 1);
+	//BuiltinConstant::create(*this, DataType::PALETTE, "Palette", 1);
 	BuiltinConstant::create(*this, DataType::TUNES, "MusicTrack", 1);
 	BuiltinConstant::create(*this, DataType::PALCYCLE, "PalCycle", 1);
 	BuiltinConstant::create(*this, DataType::GAMEDATA, "GameData", 1);

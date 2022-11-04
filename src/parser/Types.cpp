@@ -132,12 +132,14 @@ DataTypeSimpleConst DataType::CFLOAT(ZVARTYPEID_FLOAT, "const float");
 DataTypeSimpleConst DataType::CCHAR(ZVARTYPEID_CHAR, "const char32");
 DataTypeSimpleConst DataType::CLONG(ZVARTYPEID_LONG, "const int32_t");
 DataTypeSimpleConst DataType::CBOOL(ZVARTYPEID_BOOL, "const bool");
+DataTypeSimpleConst DataType::CRGBDATA(ZVARTYPEID_RGBDATA, "const rgb");
 DataTypeSimple DataType::UNTYPED(ZVARTYPEID_UNTYPED, "untyped", &CUNTYPED);
 DataTypeSimple DataType::ZVOID(ZVARTYPEID_VOID, "void", NULL);
 DataTypeSimple DataType::FLOAT(ZVARTYPEID_FLOAT, "float", &CFLOAT);
 DataTypeSimple DataType::CHAR(ZVARTYPEID_CHAR, "char32", &CCHAR);
 DataTypeSimple DataType::LONG(ZVARTYPEID_LONG, "int32_t", &CLONG);
 DataTypeSimple DataType::BOOL(ZVARTYPEID_BOOL, "bool", &CBOOL);
+DataTypeSimple DataType::RGBDATA(ZVARTYPEID_RGBDATA, "rgb", &CRGBDATA);
 DataTypeArray DataType::STRING(CHAR);
 //Classes: Global Pointer
 DataTypeClassConst DataType::GAME(ZCLASSID_GAME, "Game");
@@ -169,9 +171,9 @@ DataTypeClassConst DataType::CZUICOLOURS(ZCLASSID_ZUICOLOURS, "const ZuiColours"
 DataTypeClassConst DataType::CNPC(ZCLASSID_NPC, "const NPC");
 DataTypeClassConst DataType::CNPCDATA(ZCLASSID_NPCDATA, "const NPCData");
 DataTypeClassConst DataType::CPALCYCLE(ZCLASSID_PALCYCLE, "const PalCycle");
-DataTypeClassConst DataType::CPALETTE(ZCLASSID_PALETTE, "const Palette");
+DataTypeClassConst DataType::CPALETTEOLD(ZVARTYPEID_PALETTEOLD, "const paletteold");
 DataTypeClassConst DataType::CPONDS(ZCLASSID_PONDS, "const Ponds");
-DataTypeClassConst DataType::CRGBDATA(ZCLASSID_RGBDATA, "const RgbData");
+DataTypeClassConst DataType::CRGBDATAOLD(ZVARTYPEID_RGBDATAOLD, "const rgbdataold");
 DataTypeClassConst DataType::CSHOPDATA(ZCLASSID_SHOPDATA, "const ShopData");
 DataTypeClassConst DataType::CSPRITEDATA(ZCLASSID_SPRITEDATA, "const SpriteData");
 DataTypeClassConst DataType::CTUNES(ZCLASSID_TUNES, "const Tunes");
@@ -204,9 +206,9 @@ DataTypeClass DataType::ZUICOLOURS(ZCLASSID_ZUICOLOURS, "ZuiColours", &CZUICOLOU
 DataTypeClass DataType::NPC(ZCLASSID_NPC, "NPC", &CNPC);
 DataTypeClass DataType::NPCDATA(ZCLASSID_NPCDATA, "NPCData", &CNPCDATA);
 DataTypeClass DataType::PALCYCLE(ZCLASSID_PALCYCLE, "PalCycle", &CPALCYCLE);
-DataTypeClass DataType::PALETTE(ZCLASSID_PALETTE, "Palette", &CPALETTE);
+DataTypeClass DataType::PALETTEOLD(ZCLASSID_PALETTE, "paletteold", &CPALETTEOLD);
 DataTypeClass DataType::PONDS(ZCLASSID_PONDS, "Ponds", &CPONDS);
-DataTypeClass DataType::RGBDATA(ZCLASSID_RGBDATA, "RgbData", &CRGBDATA);
+DataTypeClass DataType::RGBDATAOLD(ZCLASSID_RGBDATA, "rgbdataold", &CRGBDATAOLD);
 DataTypeClass DataType::SHOPDATA(ZCLASSID_SHOPDATA, "ShopData", &CSHOPDATA);
 DataTypeClass DataType::SPRITEDATA(ZCLASSID_SPRITEDATA, "SpriteData", &CSPRITEDATA);
 DataTypeClass DataType::TUNES(ZCLASSID_TUNES, "Tunes", &CTUNES);
@@ -243,6 +245,7 @@ DataType const* DataType::get(DataTypeId id)
 		case ZVARTYPEID_CHAR: return &CHAR;
 		case ZVARTYPEID_LONG: return &LONG;
 		case ZVARTYPEID_BOOL: return &BOOL;
+		case ZVARTYPEID_RGBDATA: return &RGBDATA;
 		case ZVARTYPEID_GAME: return &GAME;
 		case ZVARTYPEID_PLAYER: return &PLAYER;
 		case ZVARTYPEID_SCREEN: return &SCREEN;
@@ -279,8 +282,8 @@ DataType const* DataType::get(DataTypeId id)
 		case ZVARTYPEID_WARPRING: return &WARPRING;
 		case ZVARTYPEID_DOORSET: return &DOORSET;
 		case ZVARTYPEID_ZUICOLOURS: return &ZUICOLOURS;
-		case ZVARTYPEID_RGBDATA: return &RGBDATA;
-		case ZVARTYPEID_PALETTE: return &PALETTE;
+		case ZVARTYPEID_RGBDATAOLD: return &RGBDATAOLD;
+		case ZVARTYPEID_PALETTEOLD: return &PALETTEOLD;
 		case ZVARTYPEID_TUNES: return &TUNES;
 		case ZVARTYPEID_PALCYCLE: return &PALCYCLE;
 		case ZVARTYPEID_GAMEDATA: return &GAMEDATA;
@@ -331,8 +334,8 @@ DataTypeClass const* DataType::getClass(int32_t classId)
 		case ZCLASSID_WARPRING: return &WARPRING;
 		case ZCLASSID_DOORSET: return &DOORSET;
 		case ZCLASSID_ZUICOLOURS: return &ZUICOLOURS;
-		case ZCLASSID_RGBDATA: return &RGBDATA;
-		case ZCLASSID_PALETTE: return &PALETTE;
+		// case ZCLASSID_RGBDATA: return &RGBDATA;
+		// case ZCLASSID_PALETTE: return &PALETTE;
 		case ZCLASSID_TUNES: return &TUNES;
 		case ZCLASSID_PALCYCLE: return &PALCYCLE;
 		case ZCLASSID_GAMEDATA: return &GAMEDATA;

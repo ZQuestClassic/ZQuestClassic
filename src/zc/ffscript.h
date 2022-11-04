@@ -358,51 +358,51 @@ struct script_bitmaps
 	}
 };
 
-#define MAX_USER_PALETTES 256
+// #define MAX_USER_PALETTES 256
 
-struct user_palette
-{
-	PALETTE* u_pal;
-	byte colours[256];
-	int32_t current_id;
-};
+// struct user_palette
+// {
+	// PALETTE* u_pal;
+	// byte colours[256];
+	// int32_t current_id;
+// };
 
-struct script_palettes
-{
-	int32_t num_active;
-	user_palette script_created_palettes[MAX_USER_PALETTES];
-};
+// struct script_palettes
+// {
+	// int32_t num_active;
+	// user_palette script_created_palettes[MAX_USER_PALETTES];
+// };
 
-#define MAX_USER_RGB 256
-struct user_rgb
-{
-	bool reserved;
+// #define MAX_USER_RGB 256
+// struct user_rgb
+// {
+	// bool reserved;
 
-	int32_t owned_type, owned_i;
+	// int32_t owned_type, owned_i;
 
-	void clear()
-	{
-		reserved = false;
-		owned_type = -1;
-		owned_i = 0;
-	}
+	// void clear()
+	// {
+		// reserved = false;
+		// owned_type = -1;
+		// owned_i = 0;
+	// }
 
-	void own(int32_t type, int32_t i)
-	{
-		owned_type = type;
-		owned_i = i;
-	}
-	void own_clear(int32_t type, int32_t i)
-	{
-		if (owned_type == type && owned_i == i)
-			clear();
-	}
-	void own_clear_any()
-	{
-		if (owned_type != -1 || owned_i != 0)
-			clear();
-	}
-};
+	// void own(int32_t type, int32_t i)
+	// {
+		// owned_type = type;
+		// owned_i = i;
+	// }
+	// void own_clear(int32_t type, int32_t i)
+	// {
+		// if (owned_type == type && owned_i == i)
+			// clear();
+	// }
+	// void own_clear_any()
+	// {
+		// if (owned_type != -1 || owned_i != 0)
+			// clear();
+	// }
+// };
 
 #define MAX_USER_FILES 256
 struct user_file
@@ -667,12 +667,14 @@ struct user_rng
 };
 
 #define MAX_USER_PALDATAS 256
+#define PALDATA_NUM_COLORS 256
+#define PALDATA_BITSTREAM_SIZE 32
 struct user_paldata
 {
 	bool reserved;
 
-	RGB colors[240];
-	byte colors_used[30]; //A set of 240 bitflags
+	RGB colors[PALDATA_NUM_COLORS];
+	byte colors_used[PALDATA_BITSTREAM_SIZE]; //A set of 256 bitflags
 
 	int32_t owned_type, owned_i;
 
@@ -680,7 +682,7 @@ struct user_paldata
 
 	void clear()
 	{
-		for(int32_t q = 0; q < 30; ++q)
+		for(int32_t q = 0; q < 32; ++q)
 			colors_used[q] = 0;
 		reserved = false;
 		owned_type = -1;
@@ -688,17 +690,12 @@ struct user_paldata
 	}
 	
 	//Sets a color index on the paldata
-	void set_color(int32_t ind, int32_t *rgb)
+	void set_color(int32_t ind, RGB c)
 	{
-		for (int32_t q = 0; q < 3; ++q)
-		{
-			if ( unsigned(rgb[q]) > 63)
-			{
-				Z_scripterrlog("PalData color arrays must use RGB values 0-63.\n");
-				rgb[q] = vbound(rgb[q], 0, 63);
-			}
-		}
-		colors[ind] = _RGB(byte(rgb[0]), byte(rgb[1]), byte(rgb[2]));
+		c.r = vbound(c.r, 0, 63);
+		c.g = vbound(c.g, 0, 63);
+		c.b = vbound(c.b, 0, 63);
+		colors[ind] = c;
 		set_bit(colors_used, ind, true);
 	}
 
@@ -1195,15 +1192,20 @@ void do_loadrng();
 void do_create_paldata();
 void do_create_paldata_clr();
 void do_mix_clr();
+void do_create_rgb_hex();
+void do_create_rgb();
 void do_paldata_load_level();
 void do_paldata_load_sprite();
 void do_paldata_load_main();
+void do_paldata_load_cycle();
 void do_paldata_write_level();
 void do_paldata_write_levelcset();
 void do_paldata_write_sprite();
 void do_paldata_write_spritecset();
 void do_paldata_write_main();
 void do_paldata_write_maincset();
+void do_paldata_write_cycle();
+void do_paldata_write_cyclecset();
 void do_paldata_getcolor();
 void do_paldata_setcolor();
 void do_paldata_clearcolor();
@@ -3389,15 +3391,20 @@ enum ASM_DEFINE
 	CREATEPALDATA,
 	CREATEPALDATACLR,
 	MIXCLR,
+	CREATERGBHEX,
+	CREATERGB,
 	PALDATALOADLEVEL,
 	PALDATALOADSPRITE,
 	PALDATALOADMAIN,
+	PALDATALOADCYCLE,
 	PALDATAWRITELEVEL,
 	PALDATAWRITELEVELCS,
 	PALDATAWRITESPRITE,
 	PALDATAWRITESPRITECS,
 	PALDATAWRITEMAIN,
 	PALDATAWRITEMAINCS,
+	PALDATAWRITECYCLE,
+	PALDATAWRITECYCLECS,
 	PALDATAGETCLR,
 	PALDATASETCLR,
 	PALDATACLEARCLR,

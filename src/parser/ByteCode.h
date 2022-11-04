@@ -3322,6 +3322,28 @@ namespace ZScript
 			return new OCreatePalDataClr(a->clone());
 		}
 	};
+
+	class OCreateRGBHex : public UnaryOpcode
+	{
+	public:
+		OCreateRGBHex(Argument* A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode* clone()
+		{
+			return new OCreateRGBHex(a->clone());
+		}
+	};
+
+	class OCreateRGB : public Opcode
+	{
+	public:
+		OCreateRGB() : Opcode() {}
+		std::string toString();
+		Opcode* clone()
+		{
+			return new OCreateRGB();
+		}
+	};
 	
 	class OMixColorArray : public Opcode
 	{
@@ -3364,6 +3386,17 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OLoadMainPalette();
+		}
+	};
+
+	class OLoadCyclePalette : public UnaryOpcode
+	{
+	public:
+		OLoadCyclePalette(Argument* A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode* clone()
+		{
+			return new OLoadCyclePalette(a->clone());
 		}
 	};
 	
@@ -3432,15 +3465,37 @@ namespace ZScript
 			return new OWriteMainCSet(a->clone());
 		}
 	};
-	
-	class OPalDataGetColor : public BinaryOpcode
+
+	class OWriteCyclePalette : public UnaryOpcode
 	{
 	public:
-		OPalDataGetColor(Argument* A, Argument* B) : BinaryOpcode(A, B) {}
+		OWriteCyclePalette(Argument *A) : UnaryOpcode(A) {}
 		std::string toString();
 		Opcode* clone()
 		{
-			return new OPalDataGetColor(a->clone(), b->clone());
+			return new OWriteCyclePalette(a->clone());
+		}
+	};
+
+	class OWriteCycleCSet : public BinaryOpcode
+	{
+	public:
+		OWriteCycleCSet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode* clone()
+		{
+			return new OWriteCycleCSet(a->clone(), b->clone());
+		}
+	};
+	
+	class OPalDataGetColor : public UnaryOpcode
+	{
+	public:
+		OPalDataGetColor(Argument* A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode* clone()
+		{
+			return new OPalDataGetColor(a->clone());
 		}
 	};
 	

@@ -80,6 +80,7 @@ namespace ZScript
 		ZVARTYPEID_CHAR,
 		ZVARTYPEID_BOOL,
 		ZVARTYPEID_LONG,
+		ZVARTYPEID_RGBDATA,
 		ZVARTYPEID_PRIMITIVE_END,
 
 		ZVARTYPEID_CLASS_START = ZVARTYPEID_PRIMITIVE_END,
@@ -110,8 +111,8 @@ namespace ZScript
 		ZVARTYPEID_WARPRING,
 		ZVARTYPEID_DOORSET,
 		ZVARTYPEID_ZUICOLOURS,
-		ZVARTYPEID_RGBDATA,
-		ZVARTYPEID_PALETTE,
+		ZVARTYPEID_RGBDATAOLD, // ZVARTYPEID_RGBDATA,
+		ZVARTYPEID_PALETTEOLD, // ZVARTYPEID_PALETTE
 		ZVARTYPEID_TUNES,
 		ZVARTYPEID_PALCYCLE,
 		ZVARTYPEID_GAMEDATA,
@@ -148,6 +149,8 @@ namespace ZScript
 				return "LONG";
 			case ZVARTYPEID_BOOL:
 				return "BOOL";
+			case ZVARTYPEID_RGBDATA:
+				return "RGB";
 			case ZVARTYPEID_GAME:
 				return "GAME";
 			case ZVARTYPEID_PLAYER:
@@ -202,10 +205,6 @@ namespace ZScript
 				return "DOORSET";
 			case ZVARTYPEID_ZUICOLOURS:
 				return "ZUICOLOURS";
-			case ZVARTYPEID_RGBDATA:
-				return "RGBDATA";
-			case ZVARTYPEID_PALETTE:
-				return "PALETTE";
 			case ZVARTYPEID_TUNES:
 				return "TUNES";
 			case ZVARTYPEID_PALCYCLE:
@@ -261,6 +260,8 @@ namespace ZScript
 			return ZVARTYPEID_LONG;
 		else if(name == "BOOL")
 			return ZVARTYPEID_BOOL;
+		else if (name == "RGB")
+			return ZVARTYPEID_RGBDATA;
 		else if(name == "GAME")
 			return ZVARTYPEID_GAME;
 		else if(name == "PLAYER")
@@ -315,10 +316,10 @@ namespace ZScript
 			return ZVARTYPEID_DOORSET;
 		else if(name == "ZUICOLOURS")
 			return ZVARTYPEID_ZUICOLOURS;
-		else if(name == "RGBDATA")
-			return ZVARTYPEID_RGBDATA;
-		else if(name == "PALETTE")
-			return ZVARTYPEID_PALETTE;
+		// else if(name == "RGBDATA")
+		// 	return ZVARTYPEID_RGBDATA;
+		// else if(name == "PALETTE")
+		// 	return ZVARTYPEID_PALETTE;
 		else if(name == "TUNES")
 			return ZVARTYPEID_TUNES;
 		else if(name == "PALCYCLE")
@@ -420,12 +421,14 @@ namespace ZScript
 		static DataTypeSimpleConst CCHAR;
 		static DataTypeSimpleConst CLONG;
 		static DataTypeSimpleConst CBOOL;
+		static DataTypeSimpleConst CRGBDATA;
 		static DataTypeSimple UNTYPED;
 		static DataTypeSimple ZVOID;
 		static DataTypeSimple FLOAT;
 		static DataTypeSimple CHAR;
 		static DataTypeSimple LONG;
 		static DataTypeSimple BOOL;
+		static DataTypeSimple RGBDATA;
 		static DataTypeArray STRING;
 		//Classes: Global Pointer
 		static DataTypeClassConst GAME;
@@ -457,9 +460,9 @@ namespace ZScript
 		static DataTypeClassConst CNPC;
 		static DataTypeClassConst CNPCDATA;
 		static DataTypeClassConst CPALCYCLE;
-		static DataTypeClassConst CPALETTE;
+		static DataTypeClassConst CPALETTEOLD; //unused
 		static DataTypeClassConst CPONDS;
-		static DataTypeClassConst CRGBDATA;
+		static DataTypeClassConst CRGBDATAOLD; //unused
 		static DataTypeClassConst CSHOPDATA;
 		static DataTypeClassConst CSPRITEDATA;
 		static DataTypeClassConst CTUNES;
@@ -492,9 +495,9 @@ namespace ZScript
 		static DataTypeClass NPC;
 		static DataTypeClass NPCDATA;
 		static DataTypeClass PALCYCLE;
-		static DataTypeClass PALETTE;
+		static DataTypeClass PALETTEOLD; //unused
 		static DataTypeClass PONDS;
-		static DataTypeClass RGBDATA;
+		static DataTypeClass RGBDATAOLD; //unused
 		static DataTypeClass SHOPDATA;
 		static DataTypeClass SPRITEDATA;
 		static DataTypeClass TUNES;

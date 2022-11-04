@@ -2991,6 +2991,14 @@ string OMixColorArray::toString()
 {
 	return "MIXCLR";
 }
+string OCreateRGBHex::toString()
+{
+	return "CREATERGBHEX " + getArgument()->toString();
+}
+string OCreateRGB::toString()
+{
+	return "CREATERGB";
+}
 string OLoadLevelPalette::toString()
 {
     return "PALDATALOADLEVEL " + getArgument()->toString();
@@ -3004,6 +3012,11 @@ string OLoadSpritePalette::toString()
 string OLoadMainPalette::toString()
 {
     return "PALDATALOADMAIN";
+}
+
+string OLoadCyclePalette::toString()
+{
+	return "PALDATALOADCYCLE " + getArgument()->toString();
 }
 
 string OWriteLevelPalette::toString()
@@ -3036,9 +3049,19 @@ string OWriteMainCSet::toString()
     return "PALDATAWRITEMAINCS " + getArgument()->toString();
 }
 
+string OWriteCyclePalette::toString()
+{
+	return "PALDATAWRITECYCLE " + getArgument()->toString();
+}
+
+string OWriteCycleCSet::toString()
+{
+	return "PALDATAWRITECYCLECS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 string OPalDataGetColor::toString()
 {
-    return "PALDATAGETCLR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+    return "PALDATAGETCLR " + getArgument()->toString();
 }
 
 string OPalDataSetColor::toString()

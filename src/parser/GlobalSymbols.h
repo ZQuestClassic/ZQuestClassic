@@ -492,32 +492,32 @@ private:
 };
 
 //rgbdata
-class RGBSymbols : public LibrarySymbols
+class RGBSymbolsOld : public LibrarySymbols
 {
 public:
-    static RGBSymbols &getInst()
+    static RGBSymbolsOld &getInst()
     {
         return singleton;
     }
 protected:
 private:
-    static RGBSymbols singleton;
-    RGBSymbols();
+    static RGBSymbolsOld singleton;
+    RGBSymbolsOld();
     void generateCode();
 };
 
 //palettedata
-class PaletteSymbols : public LibrarySymbols
+class PaletteSymbolsOld : public LibrarySymbols
 {
 public:
-    static PaletteSymbols &getInst()
+    static PaletteSymbolsOld &getInst()
     {
         return singleton;
     }
 protected:
 private:
-    static PaletteSymbols singleton;
-    PaletteSymbols();
+    static PaletteSymbolsOld singleton;
+    PaletteSymbolsOld();
     void generateCode();
 };
 

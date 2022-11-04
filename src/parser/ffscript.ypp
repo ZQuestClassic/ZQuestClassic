@@ -140,6 +140,7 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 %token ZFLOAT
 %token ZCHAR
 %token ZLONG
+%token ZRGB
 %token BITMAP
 %token CHEAT
 %token COMBO
@@ -158,9 +159,9 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 %token NPC
 %token NPCDATA
 %token PALCYCLE
-%token PALETTE
+// %token PALETTE
 %token POND
-%token RGB
+// %token RGB
 %token SHOP
 %token SPRITE
 %token TUNE
@@ -549,6 +550,7 @@ DataType : ZCONST DataType {
 	| ZFLOAT {$$ = new ASTDataType(DataType::FLOAT, @$);}
 	| ZCHAR {$$ = new ASTDataType(DataType::CHAR, @$);}
 	| ZLONG {$$ = new ASTDataType(DataType::LONG, @$);}
+	| ZRGB {$$ = new ASTDataType(DataType::RGBDATA, @$);}
 	| BITMAP {$$ = new ASTDataType(DataType::BITMAP, @$);}
 	| CHEAT {$$ = new ASTDataType(DataType::CHEATS, @$);}
 	| COMBO {$$ = new ASTDataType(DataType::COMBOS, @$);}
@@ -567,9 +569,9 @@ DataType : ZCONST DataType {
 	| NPC {$$ = new ASTDataType(DataType::NPC, @$);}
 	| NPCDATA {$$ = new ASTDataType(DataType::NPCDATA, @$);}
 	| PALCYCLE {$$ = new ASTDataType(DataType::PALCYCLE, @$);}
-	| PALETTE {$$ = new ASTDataType(DataType::PALETTE, @$);}
+	// | PALETTE {$$ = new ASTDataType(DataType::PALETTE, @$);}
 	| POND {$$ = new ASTDataType(DataType::PONDS, @$);}
-	| RGB {$$ = new ASTDataType(DataType::RGBDATA, @$);}
+	// | RGB {$$ = new ASTDataType(DataType::RGBDATA, @$);}
 	| SHOP {$$ = new ASTDataType(DataType::SHOPDATA, @$);}
 	| SPRITE {$$ = new ASTDataType(DataType::SPRITEDATA, @$);}
 	| FILE {$$ = new ASTDataType(DataType::FILE, @$);}
