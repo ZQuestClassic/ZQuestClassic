@@ -15,7 +15,7 @@
 struct ReplayStep;
 
 static const int ASSERT_FAILED_EXIT_CODE = 120;
-static const int VERSION = 3;
+static const int VERSION = 4;
 
 static const char TypeMeta = 'M';
 static const char TypeButtonDown = 'D';

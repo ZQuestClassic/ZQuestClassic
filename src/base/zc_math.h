@@ -88,7 +88,12 @@ inline double Sin(double x)
 		// x needs to be converted from radians -> angles -> sin1 domain
 		x = x * (180/PI * 32768.0/360.0);
 		x = (long)x % 0x8000;
-		return sin1(x) * Q15;
+		double r = sin1(x) * Q15;
+		// round to 4 decimal places, otherwise some "critical" values
+		// will be slightly off (ex: Cos(0) == 0.99996, instead of 1)
+		if (replay_get_version() >= 4)
+			return std::round(r * 10000.0) / 10000.0;
+		return r;
 	}
 	else
 		return std::sin(x);
@@ -100,7 +105,10 @@ inline double Cos(double x)
 	{
 		x = x * (180/PI * 32768.0/360.0);
 		x = (long)x % 0x8000;
-		return cos1(x) * Q15;
+		double r = cos1(x) * Q15;
+		if (replay_get_version() >= 4)
+			return std::round(r * 10000.0) / 10000.0;
+		return r;
 	}
 	else
 		return std::cos(x);
@@ -112,7 +120,10 @@ inline double Tan(double x)
 	{
 		x = x * (180/PI * 32768.0/360.0);
 		x = (long)x % 0x8000;
-		return (sin1(x) * Q15) / (cos1(x) * Q15);
+		double r = (sin1(x) * Q15) / (cos1(x) * Q15);
+		if (replay_get_version() >= 4)
+			return std::round(r * 10000.0) / 10000.0;
+		return r;
 	}
 	else
 		return std::tan(x);
