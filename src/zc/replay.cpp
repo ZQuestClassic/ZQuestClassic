@@ -758,7 +758,7 @@ void replay_poll()
             down_control_states[i] = down_states[i];
     }
 
-    if (frame_arg != -1 && frame_arg <= frame_count)
+    if (frame_arg != -1 && frame_arg <= frame_count && replay_is_replaying())
     {
         if (mode == ReplayMode::Snapshot)
             do_snapshot();
