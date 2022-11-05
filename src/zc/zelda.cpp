@@ -28,6 +28,7 @@
 #include <stdlib.h>
 
 #include <al5img.h>
+#include <loadpng.h>
 
 #include "zscriptversion.h"
 #include "zcmusic.h"
@@ -4660,6 +4661,7 @@ int main(int argc, char **argv)
 	}
 
 	al5img_init();
+	register_png_file_type();
 
 	three_finger_flag=false;
 	

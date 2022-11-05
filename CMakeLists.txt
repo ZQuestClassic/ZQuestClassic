@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.15)
 set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo CACHE STRING INTERNAL FORCE)
 project (ZeldaClassic)
 
+include(FetchContent)
+
 set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
 set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
 set(WANT_SENTRY FALSE CACHE BOOL "Include Sentry for crash dump handling")
@@ -46,6 +48,45 @@ function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
 endfunction(enable_unity_build)
 
 #############################################################
+# zlib/libpng
+#############################################################
+
+if(NOT EMSCRIPTEN)
+	FetchContent_Declare(
+		zlib
+		GIT_REPOSITORY
+			https://github.com/Mizux/zlib.git
+		GIT_TAG
+			19d7d6b32ee3af4ed4bdec415f42f518c93b5025
+		FIND_PACKAGE_ARGS NAMES ZLIB
+	)
+	FetchContent_MakeAvailable(zlib)
+
+	if(NOT ZLIB_LIBRARIES)
+		set(ZLIB_INCLUDE_DIR ${zlib_SOURCE_DIR} ${zlib_BINARY_DIR})
+		set(ZLIB_LIBRARY ZLIB::ZLIB)
+		set(ZLIB_LIBRARIES ZLIB::ZLIB)
+	endif()
+
+	set(PNG_BUILD_ZLIB ON CACHE BOOL "")
+	set(PNG_STATIC OFF CACHE BOOL "")
+	FetchContent_Declare(
+		png
+		GIT_REPOSITORY
+			https://github.com/glennrp/libpng.git
+		GIT_TAG
+			v1.6.37
+		FIND_PACKAGE_ARGS NAMES PNG
+	)
+	FetchContent_MakeAvailable(png)
+
+	if(NOT PNG_LIBRARIES)
+		set(PNG_LIBRARIES png)
+		set(PNG_INCLUDE_DIRS "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
+	endif()
+endif()
+
+#############################################################
 # Allegro
 #############################################################
 
@@ -62,7 +103,6 @@ add_definitions(-DALLEGRO_KCM_AUDIO_SRC)
 add_definitions(-DALLEGRO_UNSTABLE)
 option(SHARED "" ON)
 
-include(FetchContent)
 FetchContent_Declare(
   allegro5
   GIT_REPOSITORY https://github.com/connorjclark/allegro5.git
@@ -122,7 +162,6 @@ endif()
 # Header and source file lists
 #############################################################
 
-include_directories(./include/zlib123)
 include_directories(./include/xxhash)
 include_directories(./src)
 # TODO: remove
@@ -207,13 +246,6 @@ if(WIN32)
 endif()
 
 if(MSVC)
-	if("${vs_platform}" STREQUAL "win32")
-		set(IMAGELIBS "$<$<CONFIG:DEBUG>:$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib>"
-					  "$<$<CONFIG:RELEASE>:$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib>")
-	endif()
-
-	add_compile_options("$<$<CONFIG:DEBUG>:/MTd>")
-	add_compile_options("$<$<CONFIG:RELEASE>:/MT>")
 	# Turn off warnings for all targets that aren't ours (set later in Misc. section)
 	add_compile_options(/W0)
 
@@ -273,6 +305,23 @@ endif()
 #############################################################
 # Allegro Graphics Addons
 #############################################################
+
+add_library(alpng ${SOUND_LIB_SHARED}
+	allegro-addons/loadpng/loadpng.c
+	allegro-addons/loadpng/regpng.c
+	allegro-addons/loadpng/savepng.c
+)
+target_link_libraries(alpng PUBLIC
+	allegro_with_legacy
+	${PNG_LIBRARIES}
+)
+target_include_directories(alpng PUBLIC
+	allegro-addons/loadpng
+)
+target_include_directories(alpng PRIVATE
+	${PNG_INCLUDE_DIRS}
+)
+list(APPEND IMAGELIBS alpng)
 
 add_library(algif5 STATIC
 	allegro-addons/algif5/src/algif.c
@@ -392,6 +441,7 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	else()
 		set(SOUND_LIB_SHARED SHARED)
 	endif()
+
 	add_library(almp3 ${SOUND_LIB_SHARED}
 		allegro-addons/almp3/src/almp3.c
 		allegro-addons/almp3/decoder/common.c
@@ -454,6 +504,7 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	FetchContent_MakeAvailable(gme_external)
 	add_library(gme_headers INTERFACE)
 	target_include_directories(gme_headers INTERFACE ${gme_external_SOURCE_DIR}/gme)
+	target_link_libraries(gme_headers INTERFACE ${ZLIB_LIBRARIES})
 	target_compile_definitions(gme_headers INTERFACE -DVGM_YM2612_NUKED)
 
 	option(BUILD_EXAMPLES "" OFF)
@@ -469,7 +520,7 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	add_library(dumb_headers INTERFACE)
 	target_include_directories(dumb_headers INTERFACE ${dumb_external_SOURCE_DIR}/include)
 
-	set(SOUNDLIBS almp3 alogg gme gme_headers aldmb dumb dumb_headers)
+	set(SOUNDLIBS alpng almp3 alogg gme gme_headers aldmb dumb dumb_headers)
 endif()
 
 if(MSVC AND (MSVC_VERSION GREATER 1600))

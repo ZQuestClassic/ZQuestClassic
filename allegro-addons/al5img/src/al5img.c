@@ -160,6 +160,5 @@ void al5img_init()
     register_bitmap_file_type("jpg", load_al4_bitmap_through_al5, save_al4_bitmap_through_al5);
     register_bitmap_file_type("jpeg", load_al4_bitmap_through_al5, save_al4_bitmap_through_al5);
     register_bitmap_file_type("bmp", load_bmp_al5, save_bmp);
-    register_bitmap_file_type("png", load_al4_bitmap_through_al5, save_al4_bitmap_through_al5);
     register_bitmap_file_type("gif", load_gif, save_al4_bitmap_through_al5);
 }

@@ -42,6 +42,7 @@ particle_list particles;
 void setZScriptVersion(int32_t) { } //bleh...
 
 #include <al5img.h>
+#include <loadpng.h>
 
 #include "dialog/cheat_codes.h"
 #include "dialog/room.h"
@@ -30641,6 +30642,7 @@ int32_t main(int32_t argc,char **argv)
 	}
 
 	al5img_init();
+	register_png_file_type();
 
 #ifdef __EMSCRIPTEN__
 	em_mark_initializing_status();
