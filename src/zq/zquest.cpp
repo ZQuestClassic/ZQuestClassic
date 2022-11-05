@@ -31809,12 +31809,7 @@ int32_t main(int32_t argc,char **argv)
 
 	if(videofail!=0)
 	{
-		allegro_init();
 		three_finger_flag=false;
-
-#ifndef __EMSCRIPTEN__
-		al5img_init();
-#endif
 		
 		//set_config_file("ag.cfg");
 		zc_set_config_standard();
