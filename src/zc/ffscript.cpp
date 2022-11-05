@@ -31174,6 +31174,7 @@ void FFScript::user_rng_init()
 	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
 	{
 		replay_register_rng(&script_rnggens[q]);
+		script_rngs[q].clear();
 		script_rngs[q].set_gen(&script_rnggens[q]);
 	}
 }
