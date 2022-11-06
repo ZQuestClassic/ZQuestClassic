@@ -651,6 +651,7 @@ refInfo ffcScriptData[32];
 user_genscript user_scripts[NUMSCRIPTSGENERIC];
 int32_t genscript_timing = SCR_TIMING_START_FRAME;
 static word max_valid_genscript;
+static dword max_valid_object;
 
 void user_genscript::quit()
 {
@@ -668,6 +669,15 @@ void countGenScripts()
 	{
 		if(genericscripts[q] && genericscripts[q]->valid())
 			max_valid_genscript = q;
+	}
+}
+void countObjects()
+{
+	max_valid_object = 0;
+	for(auto q = 0; q < MAX_USER_OBJECTS; ++q)
+	{
+		if(script_objects[q].reserved)
+			max_valid_object = q+1;
 	}
 }
 void timeExitAllGenscript(byte exState)
@@ -2600,7 +2610,7 @@ void FFScript::deallocateAllArrays(const byte scriptType, const int32_t UID, boo
 	{
 		script_stacks[q].own_clear(scriptType, UID);
 	}
-	for(int32_t q = 0; q < MAX_USER_OBJECTS; ++q)
+	for(int32_t q = 0; q < max_valid_object; ++q)
 	{
 		script_objects[q].own_clear(scriptType, UID);
 	}
@@ -2649,7 +2659,7 @@ void FFScript::deallocateAllArrays()
 	{
 		script_stacks[q].own_clear_any();
 	}
-	for(int32_t q = 0; q < MAX_USER_OBJECTS; ++q)
+	for(int32_t q = 0; q < max_valid_object; ++q)
 	{
 		script_objects[q].own_clear_any();
 	}
@@ -31159,6 +31169,7 @@ void FFScript::user_objects_init()
 	{
 		script_objects[q].clear(false);
 	}
+	max_valid_object = 0;
 }
 
 void FFScript::user_stacks_init()
@@ -31200,6 +31211,8 @@ int32_t FFScript::get_free_object(bool skipError)
 		if(!script_objects[q].reserved)
 		{
 			script_objects[q].reserved = true;
+			if(q >= max_valid_object)
+				max_valid_object = q+1;
 			return q+1; //1-indexed; 0 is null value
 		}
 	}
@@ -33350,6 +33363,7 @@ void FFScript::init()
 {
 	eventData.clear();
 	countGenScripts();
+	countObjects();
 	for ( int32_t q = 0; q < wexLast; q++ ) warpex[q] = 0;
 	print_ZASM = zasm_debugger;
 	if ( zasm_debugger )
