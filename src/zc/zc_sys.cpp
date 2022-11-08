@@ -62,6 +62,7 @@
 #include "dialog/info.h"
 #include "dialog/alert.h"
 #include <fmt/format.h>
+#include "WindowsScaling.h"
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
@@ -365,6 +366,7 @@ void load_game_configs()
 	//default - scale x2, 640 x 480
 	window_width = resx = zc_get_config(cfg_sect,"resx",640);
 	window_height = resy = zc_get_config(cfg_sect,"resy",480);
+	SaveDragResize = zc_get_config(cfg_sect,"save_drag_resize",0)!=0;
 	//screen_scale = zc_get_config(cfg_sect,"screen_scale",2);
    
 	scanlines = zc_get_config(cfg_sect,"scanlines",0)!=0;
@@ -520,13 +522,18 @@ void save_game_configs()
 	set_config_int(cfg_sect,"snapshot_format",SnapshotFormat);
 	set_config_int(cfg_sect,"name_entry_mode",NameEntryMode);
 	set_config_int(cfg_sect,"showfps",(int32_t)ShowFPS);
+	set_config_int(cfg_sect,"save_drag_resize",(int32_t)SaveDragResize);
 	set_config_int(cfg_sect,"fastquit",(int32_t)NESquit);
 	set_config_int(cfg_sect,"clicktofreeze", (int32_t)ClickToFreeze);
 	set_config_int(cfg_sect,"title",title_version);
 	//set_config_int(cfg_sect,"lister_pattern_matching",abc_patternmatch);  //Enable once there is a GUI way to toggle this. 
    
+	if (all_get_display() && SaveDragResize)
+	{
+		window_width = al_get_display_width(all_get_display()) / gethorizontalscale();
+		window_height = al_get_display_height(all_get_display()) / getverticalscale();
+	}
 	
-   
 	set_config_int(cfg_sect,"resx",window_width);
 	set_config_int(cfg_sect,"resy",window_height);
    
@@ -5567,6 +5574,12 @@ int32_t onFrameSkip()
 	return D_O_K;
 }
 
+int32_t onSaveDragResize()
+{
+	SaveDragResize = !SaveDragResize;
+	return D_O_K;
+}
+
 int32_t onTransLayers()
 {
 	TransLayers = !TransLayers;
@@ -8057,6 +8070,7 @@ static MENU settings_menu[] =
 	{ (char *)"Show Trans. &Layers",		onTransLayers,		   NULL,					  0, NULL },
 	{ (char *)"Up+A+B To &Quit",			onNESquit,			   NULL,					  0, NULL },
 	{ (char *)"Click to Freeze",			onClickToFreeze,		 NULL,					  0, NULL },
+	{ (char *)"Autosave Window Size Changes",			onSaveDragResize,		 NULL,					  0, NULL },
 	{ (char *)"Volume &Keys",			   onVolKeys,			   NULL,					  0, NULL },
 	{ (char *)"Cont. &Heart Beep",		  onHeartBeep,			 NULL,					  0, NULL },
 	{ (char *)"Sa&ve Indicator",			onSaveIndicator,		 NULL,					  0, NULL },
@@ -8282,7 +8296,7 @@ int32_t onFullscreenMenu()
 void fix_menu()
 {
 	if(!debug_enabled)
-		settings_menu[15].text = NULL;
+		settings_menu[16].text = NULL;
 }
 
 static DIALOG system_dlg[] =
@@ -8871,9 +8885,10 @@ void System()
 		settings_menu[7].flags = TransLayers?D_SELECTED:0;
 		settings_menu[8].flags = NESquit?D_SELECTED:0;
 		settings_menu[9].flags = ClickToFreeze?D_SELECTED:0;
-		settings_menu[10].flags = volkeys?D_SELECTED:0;
+		settings_menu[10].flags = SaveDragResize?D_SELECTED:0;
+		settings_menu[11].flags = volkeys?D_SELECTED:0;
 		//Epilepsy Prevention
-		settings_menu[13].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
+		settings_menu[14].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
 		
 		name_entry_mode_menu[0].flags = (NameEntryMode==0)?D_SELECTED:0;
 		name_entry_mode_menu[1].flags = (NameEntryMode==1)?D_SELECTED:0;
@@ -8911,8 +8926,8 @@ void System()
 		show_menu[14].flags = show_hitboxes ? D_SELECTED : 0;
 		show_menu[15].flags = show_effectflags ? D_SELECTED : 0;
 		
-		settings_menu[11].flags = heart_beep ? D_SELECTED : 0;
-		settings_menu[12].flags = use_save_indicator ? D_SELECTED : 0;
+		settings_menu[12].flags = heart_beep ? D_SELECTED : 0;
+		settings_menu[13].flags = use_save_indicator ? D_SELECTED : 0;
 
 		replay_menu[0].text = zc_get_config("zeldadx", "replay_new_saves", false) ?
 			(char *)"Disable recording new saves" :
@@ -8928,7 +8943,7 @@ void System()
 		
 		if(debug_enabled)
 		{
-			settings_menu[16].flags = get_debug() ? D_SELECTED : 0;
+			settings_menu[17].flags = get_debug() ? D_SELECTED : 0;
 		}
 		
 		if(gui_mouse_b() && !mouse_down)

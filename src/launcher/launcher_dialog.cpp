@@ -398,7 +398,12 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 	using namespace GUI::Props;
 	using namespace GUI::Lists;
 	queue_revert = 0;
-	
+	int32_t scale = zc_get_config("zquest","scale",3);
+	int32_t scale_large = zc_get_config("zquest","scale_large",1);
+	int32_t def_large_w = 800*scale_large;
+	int32_t def_large_h = 600*scale_large;
+	int32_t def_small_w = 320*scale;
+	int32_t def_small_h = 240*scale;
 	window = Window(
 		title = "",
 		width = 0_px + zq_screen_w,
@@ -425,6 +430,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Allow Multiple Instances","zc.cfg","zeldadx","multiple_instances",0,"This can cause issues including but not limited to save file deletion."),
 						CONFIG_CHECKBOX("Click to Freeze","zc.cfg","zeldadx","clicktofreeze",1),
 						CONFIG_CHECKBOX_I("Quickload Last Quest","zc.cfg","zeldadx","quickload_last",0,"Unless 'Quickload Slot' is set, this will load the last quest played immediately upon launching."),
+						CONFIG_CHECKBOX_I("Autosave Window Size Changes","zc.cfg","zeldadx","save_drag_resize",0,"Makes any changes to the window size by dragging get saved for whenever you open the program next."),
 						CONFIG_CHECKBOX_I("Monochrome Debuggers","zc.cfg","CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text."),
 						CONFIG_CHECKBOX_I("Text Readability","zc.cfg","gui","bolder_font",0,"Attempts to make text more readable in some areas (ex. larger, bolder)")
 					),
@@ -435,6 +441,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_DROPDOWN_I("Screenshot Output:", "zc.cfg","zeldadx","snapshot_format",3,screenshotOutputList,"The output format of screenshots"),
 						CONFIG_DROPDOWN_I("Name Entry Mode:", "zc.cfg","zeldadx","name_entry_mode",0,nameEntryList,"The entry method of save file names."),
 						CONFIG_DROPDOWN_I("Title Screen:", "zc.cfg","zeldadx","title",0,titleScreenList,"Which title screen will be displayed."),
+						CONFIG_TEXTFIELD_I("Window Width:","zc.cfg","zeldadx","resx", 640, 256, 3000, "The width of the ZC window"),
+						CONFIG_TEXTFIELD_I("Window Height:","zc.cfg","zeldadx","resy", 480, 240, 2250, "The height of the ZC window"),
 #ifndef _WIN32
 						// TODO: wgl crashes zc on al_resize_display, so no point in offering this configuration option yet.
 						GFXCARD_DROPDOWN("Graphics Driver:", "zc.cfg", "graphics", "driver", 0, gfxDriverList),
@@ -525,7 +533,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Warn on Init Script Change","zquest.cfg","zquest","warn_initscript_changes",1,"When compiling ZScript, receive a warning when the global init script changes (which may break existing save files for the quest)"),
 						CONFIG_CHECKBOX_I("Monochrome Debuggers","zquest.cfg","CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text."),
 						CONFIG_CHECKBOX_I("Text Readability","zquest.cfg","gui","bolder_font",0,"Attempts to make text more readable in some areas (ex. larger, bolder)"),
-						CONFIG_CHECKBOX_I("Disable Level Palette Shortcuts","zquest.cfg","zquest","dis_lpal_shortcut",0,"If enabled, keyboard shortcuts that change the screen's palette are disabled.")
+						CONFIG_CHECKBOX_I("Disable Level Palette Shortcuts","zquest.cfg","zquest","dis_lpal_shortcut",1,"If enabled, keyboard shortcuts that change the screen's palette are disabled."),
+						CONFIG_CHECKBOX_I("Autosave Window Size Changes","zquest.cfg","zquest","save_drag_resize",0,"Makes any changes to the window size by dragging get saved for whenever you open the program next.")
 					),
 					Rows<3>(fitParent = true,
 						CONFIG_TEXTFIELD_FL("Cursor Scale (small):", "zquest.cfg","zquest","cursor_scale_small",1.0,1.0,5.0, 4),
@@ -534,8 +543,12 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_DROPDOWN_I("Auto-Backup Retention:", "zquest.cfg","zquest","auto_backup_retention",0,autoBackupCopiesList,"The number of auto-backups to keep"),
 						CONFIG_DROPDOWN_I("Auto-Save Retention:", "zquest.cfg","zquest","auto_save_retention",9,autoSaveCopiesList,"The number of auto-saves to keep"),
 						CONFIG_TEXTFIELD_I("Auto-Save Interval:", "zquest.cfg", "zquest", "auto_save_interval", 5, 0, 300, "Frequency of auto saves, in minutes. Valid range is 0-300, where '0' disables autosaves alltogether."),
-						CONFIG_DROPDOWN_I("Scale (Small Mode):", "zquest.cfg","zquest","scale",3,scaleList,"The scale multiplier for the default small mode resolution (320x240). If this scales larger than your monitor resolution, ZQ will fail to launch."),
-						CONFIG_DROPDOWN_I("Scale (Large Mode):", "zquest.cfg","zquest","scale_large",1,scaleList,"The scale multiplier for the default large mode resolution (800x600). If this scales larger than your monitor resolution, ZQ will fail to launch."),
+						//CONFIG_DROPDOWN_I("Scale (Small Mode):", "zquest.cfg","zquest","scale",3,scaleList,"The scale multiplier for the default small mode resolution (320x240). If this scales larger than your monitor resolution, ZQ will fail to launch."),
+						//CONFIG_DROPDOWN_I("Scale (Large Mode):", "zquest.cfg","zquest","scale_large",1,scaleList,"The scale multiplier for the default large mode resolution (800x600). If this scales larger than your monitor resolution, ZQ will fail to launch."),
+						CONFIG_TEXTFIELD_I("Window Width (Large Mode):","zquest.cfg","zquest","large_window_width", def_large_w, 200, 3000, "The width of the ZQuest window in large mode"),
+						CONFIG_TEXTFIELD_I("Window Height (Large Mode):","zquest.cfg","zquest","large_window_height", def_large_h, 150, 2250, "The height of the ZQuest window in large mode"),
+						CONFIG_TEXTFIELD_I("Window Width (Small Mode):","zquest.cfg","zquest","small_window_width", def_small_w, 200, 3000, "The width of the ZQuest window in small mode"),
+						CONFIG_TEXTFIELD_I("Window Height (Small Mode):","zquest.cfg","zquest","small_window_height", def_small_h, 150, 2250, "The height of the ZQuest window in small mode"),
 						GFXCARD_DROPDOWN("Graphics Driver:", "zquest.cfg", "graphics", "driver", 0, gfxDriverList),
 						Button(hAlign = 1.0, forceFitH = true,
 							text = "Browse Module", onPressFunc = [&]()

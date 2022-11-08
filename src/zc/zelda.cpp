@@ -408,7 +408,7 @@ bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true,
      show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false, show_effectflags = false;
 
 
-bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false;
+bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false, SaveDragResize=false;
 bool Playing, FrameSkip=false, TransLayers = true;
 bool __debug=false,debug_enabled = false;
 bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
@@ -5428,10 +5428,8 @@ int main(int argc, char **argv)
 		int o_window_h = al_get_display_height(all_get_display());
 		int center_x = o_window_x + o_window_w / 2;
 		int center_y = o_window_y + o_window_h / 2;
-		double vscale =  getverticalscale(); 
-		double hscale =  gethorizontalscale(); 
-		al_trace("%f\n", vscale);
-		al_trace("%f\n", hscale);
+		double vscale = getverticalscale(); 
+		double hscale = gethorizontalscale(); 
 		int window_width_temp = window_width*hscale;
 		int window_height_temp = window_height*vscale;
 		al_resize_display(all_get_display(), window_width_temp, window_height_temp);
@@ -5774,7 +5772,6 @@ reload_for_replay_file:
 			{
 				win32data.Update(0);
 			}
-			
 #endif
 			game_loop();
 			advanceframe(true);

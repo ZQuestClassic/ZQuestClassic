@@ -11,29 +11,11 @@
 double gethorizontalscale()
 {
 #ifdef _WIN32
-	auto activeWindow = GetActiveWindow();
-	HMONITOR hMonitor = MonitorFromWindow(activeWindow, MONITOR_DEFAULTTONEAREST);
-	DEVICE_SCALE_FACTOR devScaleFactor;
-	HMODULE shcore_dll = _al_win_safe_load_library("shcore.dll");
-	if (shcore_dll) {
-		typedef HRESULT (WINAPI *GetScaleFactorForMonitorPROC)(HMONITOR, DEVICE_SCALE_FACTOR*);
-		GetScaleFactorForMonitorPROC imp_GetScaleFactorForMonitor =
-			(GetScaleFactorForMonitorPROC)GetProcAddress(shcore_dll, "GetScaleFactorForMonitor");
-		if (imp_GetScaleFactorForMonitor) {
-			/* Try setting the per-monitor awareness first. It might fail on Win 8.1. */
-			imp_GetScaleFactorForMonitor(hMonitor, &devScaleFactor);
-		}
-		else return 1.0;
-		FreeLibrary(shcore_dll);
-	}
-	else return 1.0;
-
-	// Calculate the scaling factor
-	auto horizontalScale = devScaleFactor/100.0;
-	
-	//al_trace(horizontalScale);
-
-	return horizontalScale;
+	HDC screen = GetDC(NULL);
+	int32_t dpiX = GetDeviceCaps (screen, LOGPIXELSX);
+	ReleaseDC(NULL, GetActiveWindow());
+	double scalingFactor = dpiX / 96.0;
+	return scalingFactor;
 #else
 	return 1.0;
 #endif
@@ -42,30 +24,11 @@ double gethorizontalscale()
 double getverticalscale()
 {
 #ifdef _WIN32
-	auto activeWindow = GetActiveWindow();
-	HMONITOR hMonitor = MonitorFromWindow(activeWindow, MONITOR_DEFAULTTONEAREST);
-	DEVICE_SCALE_FACTOR devScaleFactor;
-	HMODULE shcore_dll = _al_win_safe_load_library("shcore.dll");
-	if (shcore_dll) {
-		typedef HRESULT (WINAPI *GetScaleFactorForMonitorPROC)(HMONITOR, DEVICE_SCALE_FACTOR*);
-		GetScaleFactorForMonitorPROC imp_GetScaleFactorForMonitor =
-			(GetScaleFactorForMonitorPROC)GetProcAddress(shcore_dll, "GetScaleFactorForMonitor");
-		if (imp_GetScaleFactorForMonitor) {
-			/* Try setting the per-monitor awareness first. It might fail on Win 8.1. */
-			imp_GetScaleFactorForMonitor(hMonitor, &devScaleFactor);
-		}
-		else return 1.0;
-		FreeLibrary(shcore_dll);
-	}
-	else return 1.0;
-
-
-	// Calculate the scaling factor
-	auto verticalScale = devScaleFactor/100.0;
-	
-	//al_trace(horizontalScale);
-
-	return verticalScale;
+	HDC screen = GetDC(NULL);
+	int32_t dpiY = GetDeviceCaps (screen, LOGPIXELSY);
+	ReleaseDC(NULL, GetActiveWindow());
+	double scalingFactor = dpiY / 96.0;
+	return scalingFactor;
 #else
 	return 1.0;
 #endif
