@@ -31,7 +31,6 @@
 #include "sfx.h"
 #include "init.h"
 #include "defdata.h"
-#include "zc_malloc.h"
 #include "ffscript.h"
 #include "dialog/itemeditor.h"
 #include "dialog/misc_sfx.h"
@@ -7356,7 +7355,7 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 	{
 		case MSG_START:
 		{
-			d->dp3=(int32_t*)zc_malloc(sizeof(int32_t)*5);
+			d->dp3=(int32_t*)malloc(sizeof(int32_t)*5);
 			p=(int32_t*)d->dp3;
 			p[lt_clock]=0;
 			p[lt_tile]=0;
@@ -8875,7 +8874,7 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 		
 		case MSG_END:
 		{
-			zc_free(d->dp3);
+			free(d->dp3);
 			break;
 		}
 	}

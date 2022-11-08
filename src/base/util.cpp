@@ -32,6 +32,64 @@ namespace util
 		return filepath;
 	}
 	
+	void replstr(std::string& str, std::string const& from, std::string const& to)
+	{
+		for(int32_t q = str.size() - from.size(); q >= 0; --q)
+		{
+			if(!str.compare(q,from.size(),from))
+			{
+				str = str.replace(q,from.size(),to);
+				q -= from.size()-1;
+			}
+		}
+	}
+	
+	std::string escape_characters(std::string const& str)
+	{
+		std::string temp = str;
+		replstr(temp, "\\", "\\\\");
+		replstr(temp, "\"", "\\\"");
+		replstr(temp, "'", "\\'");
+		replstr(temp, "\a", "\\a");
+		replstr(temp, "\b", "\\b");
+		replstr(temp, "\f", "\\f");
+		replstr(temp, "\n", "\\n");
+		replstr(temp, "\r", "\\r");
+		replstr(temp, "\t", "\\t");
+		replstr(temp, "\v", "\\v");
+		return temp;
+	}
+	std::string disallow_escapes(std::string const& str)
+	{
+		std::string temp = str;
+		replstr(temp, "\\\\", "\\");
+		replstr(temp, "\\\"", "\"");
+		replstr(temp, "\\'", "'");
+		replstr(temp, "\\a", "");
+		replstr(temp, "\\b", "");
+		replstr(temp, "\\f", "");
+		replstr(temp, "\\n", "");
+		replstr(temp, "\\r", "");
+		replstr(temp, "\\t", "");
+		replstr(temp, "\\v", "");
+		return temp;
+	}
+	std::string unescape_characters(std::string const& str)
+	{
+		std::string temp = str;
+		replstr(temp, "\\\\", "\\");
+		replstr(temp, "\\\"", "\"");
+		replstr(temp, "\\'", "'");
+		replstr(temp, "\\a", "\a");
+		replstr(temp, "\\b", "\b");
+		replstr(temp, "\\f", "\f");
+		replstr(temp, "\\n", "\n");
+		replstr(temp, "\\r", "\r");
+		replstr(temp, "\\t", "\t");
+		replstr(temp, "\\v", "\v");
+		return temp;
+	}
+	
 	void replchar(std::string& str, char from, char to)
 	{
 		for(int32_t q = str.size() - 1; q >= 0; --q)

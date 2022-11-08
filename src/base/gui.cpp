@@ -35,7 +35,6 @@
 #include "jwin.h"
 #include "base/jwinfsel.h"
 #include "base/gui.h"
-#include "mem_debug.h"
 
 extern int32_t zq_screen_w, zq_screen_h;
 
@@ -131,6 +130,7 @@ int32_t PopUp_dialog(DIALOG *d,int32_t f)
 	while(update_dialog(player))
 	{
 		/* do nothing */
+		rest(1);
 	}
 	
 	int32_t ret = shutdown_dialog(player);
@@ -182,6 +182,7 @@ int32_t PopUp_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int32_t f)
 	while(update_dialog_through_bitmap(buffer,player))
 	{
 		/* do nothing */
+		rest(1);
 	}
 	
 	int32_t ret = shutdown_dialog(player);
@@ -284,13 +285,13 @@ void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& r
 {
 	running=true;
 	int32_t ret=0;
-	acquire_screen();
 	scare_mouse();
+	acquire_screen();
 	broadcast_dialog_message(dialog, MSG_START, 0);
 	popup_zqdialog_draw();
 	broadcast_dialog_message(dialog, MSG_DRAW, 0);
-	unscare_mouse();
 	release_screen();
+	unscare_mouse();
 	while(!done && ret>=0)
 		ret=do_zqdialog(dialog, focus_obj);
 	running=false;

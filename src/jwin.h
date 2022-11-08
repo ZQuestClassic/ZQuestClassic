@@ -213,6 +213,7 @@ int32_t jwin_func_button_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_text_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_ctext_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_rtext_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t d_ctext2_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t new_text_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_hexedit_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to hex. numbers */
@@ -227,6 +228,7 @@ int32_t jwin_swapbtn_proc(int32_t msg,DIALOG *d,int32_t c); //Button to swap num
 int32_t jwin_numedit_swap_byte_proc(int32_t msg,DIALOG *d,int32_t c); //Bound to unsigned byte, dec and hex modes
 int32_t jwin_numedit_swap_sshort_proc(int32_t msg,DIALOG *d,int32_t c); //Bound to int16_t, dec and hex modes
 int32_t jwin_numedit_swap_zsint_proc(int32_t msg,DIALOG *d,int32_t c); //Bound to int32_t, dec and hex modes, 4 dec places, int32_t modes
+int32_t jwin_numedit_swap_zsint2_proc(int32_t msg,DIALOG *d,int32_t c); //Bound to int32_t, dec and hex modes, 4 dec places, int32_t modes, bool mode
 //
 int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_textbox_proc(int32_t msg, DIALOG *d, int32_t c);

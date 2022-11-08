@@ -20,6 +20,7 @@ void* const RecursiveVisitor::paramReadWrite = new tag();
 
 uint32_t zscript_failcode = 0;
 bool zscript_had_warn_err = false;
+bool zscript_error_out = false;
 
 ////////////////////////////////////////////////////////////////
 // RecursiveVisitor
@@ -47,7 +48,7 @@ void RecursiveVisitor::handleError(CompileError const& error)
 			 it != ancestor.compileErrorCatches.end(); ++it)
 		{
 			ASTExprConst& idNode = **it;
-			optional<int32_t> errorId = idNode.getCompileTimeValue(this, scope);
+			std::optional<int32_t> errorId = idNode.getCompileTimeValue(this, scope);
 			assert(errorId);
 			// If we've found a handler, remove that handler from the node's
 			// list of handlers and disable the current node (if not a
@@ -135,6 +136,8 @@ void RecursiveVisitor::caseFile(ASTFile& host, void* param)
 	if (breakRecursion(host, param)) return;
 	block_visit(host, host.scripts, param);
 	if (breakRecursion(host, param)) return;
+	block_visit(host, host.classes, param);
+	if (breakRecursion(host, param)) return;
 	block_visit(host, host.asserts, param);
 }
 
@@ -220,7 +223,7 @@ void RecursiveVisitor::caseStmtRepeat(ASTStmtRepeat& host, void* param)
 {
 	visit(*host.iter, param);
 	if(breakRecursion(host, param)) return;
-	optional<int32_t> repeats = (*host.iter).getCompileTimeValue(this, scope);
+	std::optional<int32_t> repeats = (*host.iter).getCompileTimeValue(this, scope);
 	if(host.bodies.size() == 0)
 	{
 		if(repeats)
@@ -269,6 +272,32 @@ void RecursiveVisitor::caseScript(ASTScript& host, void* param)
 	if (breakRecursion(host, param)) return;
 	block_visit(host, host.asserts, param);
 }
+void RecursiveVisitor::caseClass(ASTClass& host, void* param)
+{
+	block_visit(host, host.options, param);
+	if (breakRecursion(host, param)) return;
+	block_visit(host, host.use, param);
+	if (breakRecursion(host, param)) return;
+	block_visit(host, host.types, param);
+	if (breakRecursion(host, param)) return;
+	parsing_user_class = puc_vars;
+	block_visit(host, host.variables, param);
+	parsing_user_class = puc_none;
+	if (breakRecursion(host, param)) return;
+	parsing_user_class = puc_funcs;
+	block_visit(host, host.functions, param);
+	parsing_user_class = puc_none;
+	if (breakRecursion(host, param)) return;
+	block_visit(host, host.asserts, param);
+	if (breakRecursion(host, param)) return;
+	parsing_user_class = puc_construct;
+	block_visit(host, host.constructors, param);
+	parsing_user_class = puc_none;
+	if (breakRecursion(host, param)) return;
+	parsing_user_class = puc_destruct;
+	visit(host.destructor.get(), param);
+	parsing_user_class = puc_none;
+}
 
 void RecursiveVisitor::caseNamespace(ASTNamespace& host, void* param)
 {
@@ -288,6 +317,8 @@ void RecursiveVisitor::caseNamespace(ASTNamespace& host, void* param)
 	if (breakRecursion(host, param)) return;
 	block_visit(host, host.scripts, param);
 	if (breakRecursion(host, param)) return;
+	block_visit(host, host.classes, param);
+	if (breakRecursion(host, param)) return;
 	block_visit(host, host.asserts, param);
 }
 
@@ -302,7 +333,7 @@ void RecursiveVisitor::caseImportCondDecl(ASTImportCondDecl& host, void* param)
 {
 	visit(*host.cond, param);
 	if(breakRecursion(host, param)) return;
-	optional<int32_t> val = host.cond->getCompileTimeValue(this, scope);
+	std::optional<int32_t> val = host.cond->getCompileTimeValue(this, scope);
 	if(val && (*val != 0))
 	{
 		if(!host.preprocessed)
@@ -416,6 +447,11 @@ void RecursiveVisitor::caseExprCall(ASTExprCall& host, void* param)
 	//visit(host.left, param);
 	//if (breakRecursion(host, param)) return;
 	visit(host, host.parameters, param);
+}
+
+void RecursiveVisitor::caseExprDelete(ASTExprDelete& host, void* param)
+{
+	visit(host.operand.get(), param);
 }
 
 void RecursiveVisitor::caseExprNegate(ASTExprNegate& host, void* param)

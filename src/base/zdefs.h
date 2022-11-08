@@ -136,6 +136,12 @@
 #include "base/process_management.h"
 #include "zconfig.h"
 
+typedef uint8_t  byte;  //0-255  ( 8 bits)
+typedef uint16_t word;  //0-65,535  (16 bits)
+typedef uint32_t dword; //0-4,294,967,295  (32 bits)
+typedef uint64_t qword; //0-18,446,744,073,709,551,616  (64 bits)
+#include "user_object.h"
+
 
 
 #define ZELDA_VERSION       0x0255                         //version of the program
@@ -267,7 +273,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        29
+#define V_SAVEGAME        30
 #define V_COMBOALIASES     4
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        7
@@ -349,11 +355,6 @@ extern int32_t passive_subscreen_offset;
 
 extern int32_t CSET_SIZE;
 extern int32_t CSET_SHFT;
-
-typedef uint8_t  byte;  //0-255  ( 8 bits)
-typedef uint16_t word;  //0-65,535  (16 bits)
-typedef uint32_t dword; //0-4,294,967,295  (32 bits)
-typedef uint64_t qword; //0-18,446,744,073,709,551,616  (64 bits)
 
 extern int32_t readsize, writesize;
 extern bool fake_pack_writing;
@@ -734,7 +735,7 @@ enum
 	//160
 	mfSWITCHHOOK, 	mfSIDEVIEWLADDER, mfSIDEVIEWPLATFORM, mfNOENEMYSPAWN, mfENEMYALL,
 	//165
-	mfSECRETSNEXT, mfNOMIRROR, mf167, mf168, mf169, mf170, mf171, mf172, mf173, mf174,
+	mfSECRETSNEXT, mfNOMIRROR, mfUNSAFEGROUND, mf168, mf169, mf170, mf171, mf172, mf173, mf174,
     mf175, mf176, mf177, mf178, mf179, mf180, mf181, mf182, mf183, mf184, mf185, mf186, mf187, 
     mf188, mf189, mf190, mf191, mf192, mf193, mf194, mf195, mf196, mf197, mf198, mf199, mf200,
     mf201, mf202, mf203, mf204, mf205, mf206, mf207, mf208, mf209, mf210, mf211, mf212, mf213,
@@ -2306,6 +2307,7 @@ struct guydata
 #define FLAG_IGNORE_SCREENEDGE        0x2000
 #define FLAG_USE_NEW_MOVEMENT         0x4000
 
+#define MAX_PC dword(-1)
 class refInfo
 {
 public:
@@ -2333,6 +2335,7 @@ public:
 	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
 	
 	int32_t switchkey; //used for switch statements
+	dword thiskey; //used for user class 'this' pointers
 	
 	void Clear()
 	{
@@ -2349,6 +2352,7 @@ public:
 		memset(d, 0, 8 * sizeof(int32_t));
 		a[0] = a[1] = 0;
 		switchkey = 0;
+		thiskey = 0;
 	}
 	
 	refInfo()
@@ -2379,6 +2383,7 @@ public:
 		memcpy(d, rhs.d, 8 * sizeof(int32_t));
 		memcpy(a, rhs.a, 2 * sizeof(int32_t));
 		switchkey = rhs.switchkey;
+		thiskey = rhs.thiskey;
 		return *this;
 	}
 };
@@ -2836,7 +2841,7 @@ struct mapscr
 #define SCRIPT_FORMAT_DISASSEMBLED	2
 #define SCRIPT_FORMAT_ZASM			3
 
-#define METADATA_V			2
+#define METADATA_V			5
 #define V_COMPILER_FIRST	BUILDTM_YEAR
 #define V_COMPILER_SECOND	BUILDTM_MONTH
 #define V_COMPILER_THIRD	BUILDTM_DAY
@@ -2848,12 +2853,23 @@ struct zasm_meta
 	word meta_v;
 	word ffscript_v;
 	byte script_type;
-	char run_idens[8][33];
+	std::string run_idens[8];
 	byte run_types[8];
 	byte flags;
 	word compiler_v1, compiler_v2, compiler_v3, compiler_v4;
-	char script_name[33];
-	char author[33];
+	std::string script_name;
+	std::string author;
+	std::string attributes[10];
+	std::string attribytes[8];
+	std::string attrishorts[8];
+	std::string usrflags[16];
+	std::string attributes_help[10];
+	std::string attribytes_help[8];
+	std::string attrishorts_help[8];
+	std::string usrflags_help[16];
+	std::string initd[8];
+	std::string initd_help[8];
+	int8_t initd_type[8];
 	
 	void setFlag(byte flag)
 	{
@@ -2886,16 +2902,30 @@ struct zasm_meta
 		compiler_v2 = 0;
 		compiler_v3 = 0;
 		compiler_v4 = 0;
-		for(int32_t q = 0; q < 8; ++q)
+		for(int32_t q = 0; q < 16; ++q)
 		{
-			memset(&run_idens[q], 0, 33);
+			usrflags[q].clear();
+			usrflags_help[q].clear();
+			if(q > 9) continue;
+			attributes[q].clear();
+			attributes_help[q].clear();
+			if(q > 7) continue;
+			initd[q].clear();
+			initd_help[q].clear();
+			initd_type[q] = -1;
+			run_idens[q].clear();
 			run_types[q] = ZMETA_NULL_TYPE;
+			attribytes[q].clear();
+			attribytes_help[q].clear();
+			attrishorts[q].clear();
+			attrishorts_help[q].clear();
 		}
-		memset(&script_name, 0, 33);
-		memset(&author, 0, 33);
+		script_name.clear();
+		author.clear();
 	}
-	void autogen()
+	void autogen(bool clears = true)
 	{
+		if(clears) zero();
 		zasm_v = ZASM_VERSION;
 		meta_v = METADATA_V;
 		ffscript_v = V_FFSCRIPT;
@@ -2909,24 +2939,42 @@ struct zasm_meta
 	{
 		zero();
 	}
+	~zasm_meta()
+	{
+		
+	}
 	zasm_meta& operator=(zasm_meta const& other)
 	{
 		zasm_v = other.zasm_v;
 		meta_v = other.meta_v;
 		ffscript_v = other.ffscript_v;
 		script_type = other.script_type;
-		for(int32_t q = 0; q < 8; ++q)
+		for(auto q = 0; q < 16; ++q)
 		{
-			memcpy(&run_idens[q], &(other.run_idens[q]), 33);
+			usrflags[q] = other.usrflags[q];
+			usrflags_help[q] = other.usrflags_help[q];
+			if(q > 9) continue;
+			attributes[q] = other.attributes[q];
+			attributes_help[q] = other.attributes_help[q];
+			if(q > 7) continue;
+			initd[q] = other.initd[q];
+			initd_help[q] = other.initd_help[q];
+			initd_type[q] = other.initd_type[q];
+			run_idens[q] = other.run_idens[q];
 			run_types[q] = other.run_types[q];
+			attribytes[q] = other.attribytes[q];
+			attribytes_help[q] = other.attribytes_help[q];
+			attrishorts[q] = other.attrishorts[q];
+			attrishorts_help[q] = other.attrishorts_help[q];
+			if(q > 3) continue;
 		}
 		flags = other.flags;
 		compiler_v1 = other.compiler_v1;
 		compiler_v2 = other.compiler_v2;
 		compiler_v3 = other.compiler_v3;
 		compiler_v4 = other.compiler_v4;
-		memcpy(&script_name, &(other.script_name),33);
-		memcpy(&author, &(other.author),33);
+		script_name = other.script_name;
+		author = other.author;
 		return *this;
 	}
 	bool operator==(zasm_meta const& other) const
@@ -2940,16 +2988,40 @@ struct zasm_meta
 		if(compiler_v2 != other.compiler_v2) return false;
 		if(compiler_v3 != other.compiler_v3) return false;
 		if(compiler_v4 != other.compiler_v4) return false;
-		for(auto q = 0; q < 8; ++q)
+		for(auto q = 0; q < 16; ++q)
 		{
-			if(strcmp(run_idens[q], other.run_idens[q]))
+			if(usrflags[q].compare(other.usrflags[q]))
+				return false;
+			if(usrflags_help[q].compare(other.usrflags_help[q]))
+				return false;
+			if(q > 9) continue;
+			if(attributes[q].compare(other.attributes[q]))
+				return false;
+			if(attributes_help[q].compare(other.attributes_help[q]))
+				return false;
+			if(q > 7) continue;
+			if(initd[q].compare(other.initd[q]))
+				return false;
+			if(initd_help[q].compare(other.initd_help[q]))
+				return false;
+			if(initd_type[q] != other.initd_type[q])
+				return false;
+			if(run_idens[q].compare(other.run_idens[q]))
 				return false;
 			if(run_types[q] != other.run_types[q])
 				return false;
+			if(attribytes[q].compare(other.attribytes[q]))
+				return false;
+			if(attribytes_help[q].compare(other.attribytes_help[q]))
+				return false;
+			if(attrishorts[q].compare(other.attrishorts[q]))
+				return false;
+			if(attrishorts_help[q].compare(other.attrishorts_help[q]))
+				return false;
 		}
-		if(strcmp(script_name, other.script_name))
+		if(script_name.compare(other.script_name))
 			return false;
-		if(strcmp(author, other.author))
+		if(author.compare(other.author))
 			return false;
 		return true;
 	}
@@ -3657,123 +3729,19 @@ struct zquestheader
 	bool external_zinfo;
 	
 	
-	bool is_legacy() const
-	{
-		return new_version_id_main < 2 || (new_version_id_main == 2 && new_version_id_second < 55);
-	}
-	int8_t getAlphaState() const
-	{
-		if(new_version_id_release) return 3;
-		else if(new_version_id_gamma) return 2;
-		else if(new_version_id_beta) return 1;
-		else if(new_version_id_alpha) return 0;
-		return -1;
-	}
-	char const* getAlphaStr(bool ignoreNightly = false) const
-	{
-		static char buf[40] = "";
-		char format[20] = "%s";
-		if(!ignoreNightly && new_version_is_nightly) strcpy(format, "Nightly (%s)");
-		if(new_version_id_release) sprintf(buf, format, "Release");
-		else if(new_version_id_gamma) sprintf(buf, format, "Gamma");
-		else if(new_version_id_beta) sprintf(buf, format, "Beta");
-		else if(new_version_id_alpha) sprintf(buf, format, "Alpha");
-		else sprintf(buf, format, "Unknown");
-		return buf;
-	}
-	int32_t getAlphaVer() const
-	{
-		if(new_version_id_release) return new_version_id_release;
-		else if(new_version_id_gamma) return new_version_id_gamma;
-		else if(new_version_id_beta) return new_version_id_beta;
-		else if(new_version_id_alpha) return new_version_id_alpha;
-		return 0;
-	}
-	char const* getAlphaVerStr() const
-	{
-		static char buf[40] = "";
-		if(new_version_is_nightly)
-		{
-			if(getAlphaVer() < 0)
-				sprintf(buf, "Nightly (%s ?\?)", getAlphaStr(true));
-			else sprintf(buf, "Nightly (%s %d/%d)", getAlphaStr(true), getAlphaVer()-1, getAlphaVer());
-		}
-		else
-		{
-			if(getAlphaVer() < 0)
-				sprintf(buf, "%s ?\?", getAlphaStr(true));
-			else sprintf(buf, "%s %d", getAlphaStr(true), getAlphaVer());
-		}
-		return buf;
-	}
-	char const* getVerStr() const
-	{
-		static char buf[80] = "";
-		if(is_legacy())
-		{
-			sprintf(buf, "Legacy %d.%d.%d", new_version_id_main, new_version_id_second, new_version_id_third);
-			if(getAlphaVer())
-			{
-				strcat(buf, " ");
-				strcat(buf, getAlphaVerStr());
-			}
-		}
-		else if(new_version_id_fourth > 0)
-			sprintf(buf, "%d.%d.%d.%d %s", new_version_id_main, new_version_id_second,
-				new_version_id_third, new_version_id_fourth, getAlphaVerStr());
-		else sprintf(buf, "%d.%d.%d %s", new_version_id_main, new_version_id_second,
-				new_version_id_third, getAlphaVerStr());
-		return buf;
-	}
-	int32_t compareDate() const
-	{
-		zprint2("Comparing dates: '%04d-%02d-%02d %02d:%02d', '%04d-%02d-%02d %02d:%02d'\n",
-			new_version_id_date_year, new_version_id_date_month, new_version_id_date_day,
-			new_version_id_date_hour, new_version_id_date_minute,
-			BUILDTM_YEAR, BUILDTM_MONTH, BUILDTM_DAY, BUILDTM_HOUR, BUILDTM_MINUTE);
-		//!TODO handle timezones (build_timezone, __TIMEZONE__)
-		if(new_version_id_date_year > BUILDTM_YEAR)
-			return 1;
-		if(new_version_id_date_year < BUILDTM_YEAR)
-			return -1;
-		if(new_version_id_date_month > BUILDTM_MONTH)
-			return 1;
-		if(new_version_id_date_month < BUILDTM_MONTH)
-			return -1;
-		if(new_version_id_date_day > BUILDTM_DAY)
-			return 1;
-		if(new_version_id_date_day < BUILDTM_DAY)
-			return -1;
-		#define BUILDTIME_FUZZ 10
-		int32_t time_minutes = (new_version_id_date_hour*60)+new_version_id_date_minute;
-		int32_t btm_minutes = (BUILDTM_HOUR*60)+BUILDTM_MINUTE;
-		if(time_minutes > btm_minutes+BUILDTIME_FUZZ)
-			return 1;
-		if(time_minutes < btm_minutes-BUILDTIME_FUZZ)
-			return -1;
-		return 0;
-	}
-	int32_t compareVer() const
-	{
-		if(new_version_id_main > V_ZC_FIRST)
-			return 1;
-		if(new_version_id_main < V_ZC_FIRST)
-			return -1;
-		if(new_version_id_second > V_ZC_SECOND)
-			return 1;
-		if(new_version_id_second < V_ZC_SECOND)
-			return -1;
-		if(new_version_id_third > V_ZC_THIRD)
-			return 1;
-		if(new_version_id_third < V_ZC_THIRD)
-			return -1;
-		if(new_version_id_fourth > V_ZC_FOURTH)
-			return 1;
-		if(new_version_id_fourth < V_ZC_FOURTH)
-			return -1;
-		return 0;
-	}
+	bool is_legacy() const;
+	int8_t getAlphaState() const;
+	char const* getAlphaStr(bool ignoreNightly = false) const;
+	int32_t getAlphaVer() const;
+	char const* getAlphaVerStr() const;
+	char const* getVerStr() const;
+	int32_t compareDate() const;
+	int32_t compareVer() const;
 };
+
+int8_t getProgramAlphaState();
+char const* getProgramAlphaVerStr();
+char const* getProgramVerStr();
 
 enum { msLINKED };
 
@@ -4580,6 +4548,7 @@ enum
 	crCUSTOM19, crCUSTOM20, crCUSTOM21, crCUSTOM22, crCUSTOM23,
 	crCUSTOM24, crCUSTOM25, MAX_COUNTERS
 };
+
 #define DIDCHEAT_BIT 0x80
 #define NUM_GSWITCHES 256
 struct gamedata
@@ -4669,6 +4638,8 @@ struct gamedata
 	int32_t gswitch_timers[NUM_GSWITCHES];
 
 	std::string replay_file;
+	std::vector<saved_user_object> user_objects;
+	
 	
 	// member functions
 	// public:
@@ -4691,8 +4662,11 @@ struct gamedata
 		return *this;
 	}
 	
+	void save_user_objects();
+	void load_user_objects();
+	
 	char *get_name();
-	void set_name(char *n);
+	void set_name(const char *n);
 	
 	byte get_quest();
 	void set_quest(byte q);
@@ -5619,6 +5593,77 @@ INLINE bool p_mputl(int32_t c,PACKFILE *f)
     return success;
 }
 
+INLINE bool p_getcstr(std::string *str, PACKFILE *f, bool keepdata)
+{
+	if(keepdata)
+		str->clear();
+	byte sz = 0;
+	if(!p_getc(&sz,f,keepdata))
+		return false;
+	if(sz) //string found
+	{
+		char dummy;
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!p_getc(&dummy,f,keepdata))
+				return false;
+			if(keepdata)
+				str->push_back(dummy);
+		}
+	}
+	return true;
+}
+INLINE bool p_putcstr(std::string const& str, PACKFILE *f)
+{
+	byte sz = byte(zc_min(255,str.size()));
+	if(!p_putc(sz,f))
+		return false;
+	if(sz)
+	{
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!p_putc(str.at(q),f))
+				return false;
+		}
+	}
+	return true;
+}
+INLINE bool p_getwstr(std::string *str, PACKFILE *f, bool keepdata)
+{
+	if(keepdata)
+		str->clear();
+	word sz = 0;
+	if(!p_igetw(&sz,f,keepdata))
+		return false;
+	if(sz) //string found
+	{
+		char dummy;
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!p_getc(&dummy,f,keepdata))
+				return false;
+			if(keepdata)
+				str->push_back(dummy);
+		}
+	}
+	return true;
+}
+INLINE bool p_putwstr(std::string const& str, PACKFILE *f)
+{
+	word sz = word(zc_min(65535,str.size()));
+	if(!p_iputw(sz,f))
+		return false;
+	if(sz)
+	{
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!p_putc(str.at(q),f))
+				return false;
+		}
+	}
+	return true;
+}
+
 INLINE bool isinRect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int32_t ry2)
 {
     return x>=rx1 && x<=rx2 && y>=ry1 && y<=ry2;
@@ -5768,6 +5813,8 @@ std::string generate_zq_about();
 
 void enter_sys_pal();
 void exit_sys_pal();
+
+enum {nswapDEC, nswapHEX, nswapLDEC, nswapLHEX, nswapBOOL, nswapMAX};
 
 #define SMART_WRAP(x, mod) (x < 0 ? ((mod-(-x%mod))%mod) : (x%mod))
 

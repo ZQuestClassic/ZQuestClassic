@@ -6,7 +6,6 @@
 #include "qst.h"
 #include "tiles.h"
 #include "base/zc_alleg.h"
-#include "zc_malloc.h"
 #include "base/zdefs.h"
 #include "zq_custom.h"
 #include "zq_misc.h"
@@ -195,7 +194,7 @@ void strlist_rclick_func(int32_t index, int32_t x, int32_t y)
 char *strip_extra_spaces(char *string)
 {
 	int32_t len=(int32_t)strlen(string);
-	char *src=(char *)zc_malloc(len+1);
+	char *src=(char *)malloc(len+1);
 	char *tmpsrc=src;
 	memcpy(src,string,len+1);
 	memset(src,0,len+1);
@@ -230,7 +229,7 @@ char *strip_extra_spaces(char *string)
 	*tmpsrc=0;
 	//  memcpy(string,src,len);
 	strcpy(string,src);
-	zc_free(src);
+	free(src);
 	return string;
 }
 

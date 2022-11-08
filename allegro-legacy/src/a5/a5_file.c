@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
@@ -258,6 +259,7 @@ typedef struct
     char pattern[FF_MAXPATHLEN];
     int attrib;
     uint64_t size;
+    int stage;
 } FF_DATA;
 
 
@@ -389,6 +391,8 @@ int al_findnext(struct al_ffblk * info)
     char filename[FF_MAXPATHLEN];
     ALLEGRO_FS_ENTRY * entry;
     FF_DATA * ff_data = (FF_DATA *)info->ff_data;
+    const char* entry_name;
+    bool read_fake_entry;
 
     ASSERT(ff_data);
 
@@ -400,23 +404,34 @@ int al_findnext(struct al_ffblk * info)
 
     while(1)
     {
-        /* read directory entry */
-        entry = al_read_directory(ff_data->root_entry);
-        if(!entry)
-        {
-            *allegro_errno = (errno ? errno : ENOENT);
-            return -1;
+        if (ff_data->stage < 2) {
+            // Allegro5 explictly ignores ".." and ".", but allegro4 didn't.
+            // see https://github.com/liballeg/allegro5/blob/4aa54e6c994af21bc63d8b593673ab3df62390f8/src/fshook_stdio.c#L421
+            if (ff_data->stage == 0) entry_name = "..";
+            else entry_name = ".";
+            ff_data->stage++;
+            read_fake_entry = true;
+        } else {
+            /* read directory entry */
+            entry = al_read_directory(ff_data->root_entry);
+            if(!entry)
+            {
+                *allegro_errno = (errno ? errno : ENOENT);
+                return -1;
+            }
+            entry_name = al_get_fs_entry_name(entry);
+            read_fake_entry = false;
         }
 
         /* try to match file name with pattern */
         tempname[0] = 0;
-        if(strlen(al_get_fs_entry_name(entry)) >= sizeof(tempname))
+        if(strlen(entry_name) >= sizeof(tempname))
         {
-            strncat(tempname, al_get_fs_entry_name(entry), sizeof(tempname) - 1);
+            strncat(tempname, entry_name, sizeof(tempname) - 1);
         }
         else
         {
-            strncat(tempname, al_get_fs_entry_name(entry), strlen(al_get_fs_entry_name(entry)));
+            strncat(tempname, entry_name, strlen(entry_name));
         }
 
         // local edit
@@ -437,20 +452,27 @@ int al_findnext(struct al_ffblk * info)
     }
 
     // local edit
-    if(al_get_fs_entry_mode(entry) & ALLEGRO_FILEMODE_ISDIR)
+    if(read_fake_entry)
     {
         info->attrib = FA_DIREC;
+        do_uconvert(entry_name, U_UTF8, info->name, U_CURRENT, sizeof(info->name));
     }
     else
     {
-        info->attrib = 0;
+        if(al_get_fs_entry_mode(entry) & ALLEGRO_FILEMODE_ISDIR)
+        {
+            info->attrib = FA_DIREC;
+        }
+        else
+        {
+            info->attrib = 0;
+        }
+        info->time = al_get_fs_entry_mtime(entry);
+        info->size = al_get_fs_entry_size(entry); /* overflows at 2GB */
+        ff_data->size = al_get_fs_entry_size(entry);
+        do_uconvert(tempname, U_UTF8, info->name, U_CURRENT, sizeof(info->name));
+        al_destroy_fs_entry(entry);
     }
-    info->time = al_get_fs_entry_mtime(entry);
-    info->size = al_get_fs_entry_size(entry); /* overflows at 2GB */
-    ff_data->size = al_get_fs_entry_size(entry);
-
-    do_uconvert(tempname, U_UTF8, info->name, U_CURRENT, sizeof(info->name));
-    al_destroy_fs_entry(entry);
 
     return 0;
 }

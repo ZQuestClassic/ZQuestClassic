@@ -25,7 +25,6 @@
 #include "metadata/sigs/devsig.h.sig"
 #include "metadata/sigs/compilersig.h.sig"
 #include "metadata/versionsig.h"
-#include "mem_debug.h"
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
 #include "base/colors.h"
@@ -849,7 +848,7 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
 	strcat(qstdat_string,"#NESQST_NEW_QST");
     if(Header->templatepath[0]==0)
     {
-        filename=(char *)zc_malloc(2048);
+        filename=(char *)malloc(2048);
         //strcpy(filename, "qst.dat#NESQST_NEW_QST");
         strcpy(filename, qstdat_string);
     }
@@ -862,7 +861,7 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
     
     if(Header->templatepath[0]==0)
     {
-        zc_free(filename);
+        free(filename);
     }
     
     if(!f)
@@ -1214,7 +1213,7 @@ int32_t get_qst_buffers()
     memrequested+=(sizeof(zcmap)*MAXMAPS2);
     Z_message("Allocating combo buffer (%s)... ", byte_conversion2(sizeof(zcmap)*MAXMAPS2,memrequested,-1,-1));
     
-    if((ZCMaps=(zcmap*)zc_malloc(sizeof(zcmap)*MAXMAPS2))==NULL)
+    if((ZCMaps=(zcmap*)malloc(sizeof(zcmap)*MAXMAPS2))==NULL)
         return 0;
         
     Z_message("OK\n");
@@ -1244,7 +1243,7 @@ int32_t get_qst_buffers()
     memrequested+=(sizeof(DoorComboSet)*MAXDOORCOMBOSETS);
     Z_message("Allocating door combo buffer (%s)... ", byte_conversion2(sizeof(DoorComboSet)*MAXDOORCOMBOSETS,memrequested,-1,-1));
     
-    if((DoorComboSets=(DoorComboSet*)zc_malloc(sizeof(DoorComboSet)*MAXDOORCOMBOSETS))==NULL)
+    if((DoorComboSets=(DoorComboSet*)malloc(sizeof(DoorComboSet)*MAXDOORCOMBOSETS))==NULL)
         return 0;
         
     Z_message("OK\n");                                        // Allocating door combo buffer...
@@ -1252,7 +1251,7 @@ int32_t get_qst_buffers()
     memrequested+=(sizeof(dmap)*MAXDMAPS);
     Z_message("Allocating dmap buffer (%s)... ", byte_conversion2(sizeof(dmap)*MAXDMAPS,memrequested,-1,-1));
     
-    if((DMaps=(dmap*)zc_malloc(sizeof(dmap)*MAXDMAPS))==NULL)
+    if((DMaps=(dmap*)malloc(sizeof(dmap)*MAXDMAPS))==NULL)
         return 0;
         
     memset(DMaps, 0, sizeof(dmap)*MAXDMAPS);
@@ -1261,7 +1260,7 @@ int32_t get_qst_buffers()
     memrequested+=(sizeof(newcombo)*MAXCOMBOS);
     Z_message("Allocating combo buffer (%s)... ", byte_conversion2(sizeof(newcombo)*MAXCOMBOS,memrequested,-1,-1));
     
-    if((combobuf=(newcombo*)zc_malloc(sizeof(newcombo)*MAXCOMBOS))==NULL)
+    if((combobuf=(newcombo*)malloc(sizeof(newcombo)*MAXCOMBOS))==NULL)
         return 0;
         
     memset(combobuf, 0, sizeof(newcombo)*MAXCOMBOS);
@@ -1270,7 +1269,7 @@ int32_t get_qst_buffers()
     memrequested+=(psTOTAL255);
     Z_message("Allocating color data buffer (%s)... ", byte_conversion2(psTOTAL255,memrequested,-1,-1));
     
-    if((colordata=(byte*)zc_malloc(psTOTAL255))==NULL)
+    if((colordata=(byte*)malloc(psTOTAL255))==NULL)
         return 0;
         
     Z_message("OK\n");                                        // Allocating color data buffer...
@@ -1279,7 +1278,7 @@ int32_t get_qst_buffers()
     Z_message("Allocating tile buffer (%s)... ", byte_conversion2(NEWMAXTILES*(sizeof(tiledata)+tilesize(tf4Bit)),memrequested,-1,-1));
     
     free_newtilebuf();
-    if((newtilebuf=(tiledata*)zc_malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
+    if((newtilebuf=(tiledata*)malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
         return 0;
         
     memset(newtilebuf, 0, NEWMAXTILES*sizeof(tiledata));
@@ -1293,7 +1292,7 @@ int32_t get_qst_buffers()
         memrequested+=(NEWMAXTILES*(sizeof(tiledata)+tilesize(tf4Bit)));
         Z_message("Allocating tile grab buffer (%s)... ", byte_conversion2(NEWMAXTILES*sizeof(tiledata),memrequested,-1,-1));
         
-        if((grabtilebuf=(tiledata*)zc_malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
+        if((grabtilebuf=(tiledata*)malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
             return 0;
             
         memset(grabtilebuf, 0, NEWMAXTILES*sizeof(tiledata));
@@ -1304,7 +1303,7 @@ int32_t get_qst_buffers()
     memrequested+=(100000);
     Z_message("Allocating trash buffer (%s)... ", byte_conversion2(100000,memrequested,-1,-1));
     
-    if((trashbuf=(byte*)zc_malloc(100000))==NULL)
+    if((trashbuf=(byte*)malloc(100000))==NULL)
         return 0;
         
     Z_message("OK\n");                                        // Allocating trash buffer...
@@ -1317,7 +1316,7 @@ int32_t get_qst_buffers()
     memrequested+=(sizeof(itemdata)*(MAXITEMS+1));
     Z_message("Allocating item buffer (%s)... ", byte_conversion2(sizeof(itemdata)*(MAXITEMS+1),memrequested,-1,-1));
     
-    if((itemsbuf=(itemdata*)zc_malloc(sizeof(itemdata)*(MAXITEMS+1)))==NULL)
+    if((itemsbuf=(itemdata*)malloc(sizeof(itemdata)*(MAXITEMS+1)))==NULL)
         return 0;
         
     memset(itemsbuf,0,sizeof(itemdata)*(MAXITEMS+1));
@@ -1327,7 +1326,7 @@ int32_t get_qst_buffers()
     memrequested+=(sizeof(wpndata)*MAXWPNS);
     Z_message("Allocating weapon buffer (%s)... ", byte_conversion2(sizeof(wpndata)*MAXWPNS,memrequested,-1,-1));
     
-    if((wpnsbuf=(wpndata*)zc_malloc(sizeof(wpndata)*MAXWPNS))==NULL)
+    if((wpnsbuf=(wpndata*)malloc(sizeof(wpndata)*MAXWPNS))==NULL)
         return 0;
         
     memset(wpnsbuf,0,sizeof(wpndata)*MAXWPNS);
@@ -1336,7 +1335,7 @@ int32_t get_qst_buffers()
     memrequested+=(sizeof(guydata)*MAXGUYS);
     Z_message("Allocating guy buffer (%s)... ", byte_conversion2(sizeof(guydata)*MAXGUYS,memrequested,-1,-1));
     
-    if((guysbuf=(guydata*)zc_malloc(sizeof(guydata)*MAXGUYS))==NULL)
+    if((guysbuf=(guydata*)malloc(sizeof(guydata)*MAXGUYS))==NULL)
         return 0;
         
     memset(guysbuf,0,sizeof(guydata)*MAXGUYS);
@@ -1345,7 +1344,7 @@ int32_t get_qst_buffers()
     memrequested+=(sizeof(comboclass)*cMAX);
     Z_message("Allocating combo class buffer (%s)... ", byte_conversion2(sizeof(comboclass)*cMAX,memrequested,-1,-1));
     
-    if((combo_class_buf=(comboclass*)zc_malloc(sizeof(comboclass)*cMAX))==NULL)
+    if((combo_class_buf=(comboclass*)malloc(sizeof(comboclass)*cMAX))==NULL)
         return 0;
         
     Z_message("OK\n");										// Allocating combo class buffer...
@@ -1360,9 +1359,9 @@ void free_newtilebuf()
     {
         for(int32_t i=0; i<NEWMAXTILES; i++)
             if(newtilebuf[i].data)
-                zc_free(newtilebuf[i].data);
+                free(newtilebuf[i].data);
                 
-        zc_free(newtilebuf);
+        free(newtilebuf);
 	newtilebuf = 0;
     }
 }
@@ -1374,9 +1373,9 @@ void free_grabtilebuf()
         if(grabtilebuf)
         {
             for(int32_t i=0; i<NEWMAXTILES; i++)
-                if(grabtilebuf[i].data) zc_free(grabtilebuf[i].data);
+                if(grabtilebuf[i].data) free(grabtilebuf[i].data);
                 
-            zc_free(grabtilebuf);
+            free(grabtilebuf);
 	    grabtilebuf = 0;
         }
     }
@@ -1386,17 +1385,17 @@ void del_qst_buffers()
 {
     al_trace("Cleaning maps. \n");
     
-    if(ZCMaps) zc_free(ZCMaps);
+    if(ZCMaps) free(ZCMaps);
     
     if(MsgStrings) delete[] MsgStrings;
     
-    if(DoorComboSets) zc_free(DoorComboSets);
+    if(DoorComboSets) free(DoorComboSets);
     
-    if(DMaps) zc_free(DMaps);
+    if(DMaps) free(DMaps);
     
-    if(combobuf) zc_free(combobuf);
+    if(combobuf) free(combobuf);
     
-    if(colordata) zc_free(colordata);
+    if(colordata) free(colordata);
     
     al_trace("Cleaning tile buffers. \n");
     free_newtilebuf();
@@ -1404,20 +1403,20 @@ void del_qst_buffers()
     
     al_trace("Cleaning misc. \n");
     
-    if(trashbuf) zc_free(trashbuf);
+    if(trashbuf) free(trashbuf);
     
     // See get_qst_buffers
     if(itemsbuf)
     {
         itemsbuf--;
-        zc_free(itemsbuf);
+        free(itemsbuf);
     }
     
-    if(wpnsbuf) zc_free(wpnsbuf);
+    if(wpnsbuf) free(wpnsbuf);
     
-    if(guysbuf) zc_free(guysbuf);
+    if(guysbuf) free(guysbuf);
     
-    if(combo_class_buf) zc_free(combo_class_buf);
+    if(combo_class_buf) free(combo_class_buf);
 }
 
 bool init_palnames()
@@ -2856,9 +2855,9 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 	int32_t vercmp = tempheader.compareVer();
 	int32_t astatecmp = compare(int32_t(tempheader.getAlphaState()), ALPHA_STATE);
 	int32_t avercmp = compare(tempheader.getAlphaVer(), ALPHA_VER);
-	if(vercmp > 1 || (!vercmp &&
-		(astatecmp > 1 || (!astatecmp &&
-			avercmp > 1))))
+	if(vercmp > 0 || (!vercmp &&
+		(astatecmp > 0 || (!astatecmp &&
+			avercmp > 0))))
 	{
 		bool r = true;
 		if(loadquest_report)
@@ -3674,7 +3673,7 @@ void init_msgstr(MsgStr *str)
 	str->margins[up] = 8;
 	str->margins[down] = 0;
 	str->margins[left] = 8;
-	str->margins[right] = 8;
+	str->margins[right] = 0;
 	str->portrait_tile = 0;
 	str->portrait_cset = 0;
 	str->portrait_x = 0;
@@ -11332,11 +11331,10 @@ int32_t readsubscreens(PACKFILE *f, zquestheader *Header, bool keepdata)
 
 int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i, word s_version, word)
 {
-    GarbageCollector gc;
-    
     int32_t numsub=0;
     byte temp_ss=0;
-    subscreen_object *temp_sub = gc(new subscreen_object);
+	subscreen_object temp_sub_stack;
+    subscreen_object *temp_sub = &temp_sub_stack;
     
     char tempname[64];
     
@@ -11941,7 +11939,6 @@ int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i
         }
     }
     
-    //delete temp_sub; //wtf
     return 0;
 }
 
@@ -13064,6 +13061,8 @@ extern script_command command_list[];
 int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , word s_version, word , script_data **script, word zmeta_version)
 {
 	//Please also update loadquest() when modifying this method -DD
+	char b33[34] = {0};
+	b33[33] = 0;
 	ffscript temp_script;
 	int32_t num_commands=1000;
 	
@@ -13107,9 +13106,20 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , 
 		
 		for(int32_t q = 0; q < 8; ++q)
 		{
-			for(int32_t c = 0; c < 33; ++c)
+			if(zmeta_version < 3)
 			{
-				if(!p_getc(&(temp_meta.run_idens[q][c]),f,true))
+				for(int32_t c = 0; c < 33; ++c)
+				{
+					if(!p_getc(&(b33[c]),f,true))
+					{
+						return qe_invalid;
+					}
+				}
+				temp_meta.run_idens[q].assign(b33);
+			}
+			else
+			{
+				if(!p_getcstr(&temp_meta.run_idens[q],f,true))
 				{
 					return qe_invalid;
 				}
@@ -13149,22 +13159,82 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , 
 			return qe_invalid;
 		}
 		
-		if(zmeta_version >= 2)
+		if(zmeta_version == 2)
 		{
 			for(int32_t c = 0; c < 33; ++c)
 			{
-				if(!p_getc(&(temp_meta.script_name[c]),f,true))
+				if(!p_getc(&b33[c],f,true))
 				{
 					return qe_invalid;
 				}
 			}
+			temp_meta.script_name.assign(b33);
 			
 			for(int32_t c = 0; c < 33; ++c)
 			{
-				if(!p_getc(&(temp_meta.author[c]),f,true))
+				if(!p_getc(&b33[c],f,true))
 				{
 					return qe_invalid;
 				}
+			}
+			temp_meta.author.assign(b33);
+		}
+		else if(zmeta_version > 2)
+		{
+			if(!p_getcstr(&temp_meta.script_name,f,true))
+				return qe_invalid;
+			if(!p_getcstr(&temp_meta.author,f,true))
+				return qe_invalid;
+			auto num_meta_attrib = (zmeta_version < 5 ? 4 : 10);
+			for(auto q = 0; q < num_meta_attrib; ++q)
+			{
+				if(!p_getcstr(&temp_meta.attributes[q],f,true))
+					return qe_invalid;
+				if(!p_getwstr(&temp_meta.attributes_help[q],f,true))
+					return qe_invalid;
+			}
+			for(auto q = 0; q < 8; ++q)
+			{
+				if(!p_getcstr(&temp_meta.attribytes[q],f,true))
+					return qe_invalid;
+				if(!p_getwstr(&temp_meta.attribytes_help[q],f,true))
+					return qe_invalid;
+			}
+			for(auto q = 0; q < 8; ++q)
+			{
+				if(!p_getcstr(&temp_meta.attrishorts[q],f,true))
+					return qe_invalid;
+				if(!p_getwstr(&temp_meta.attrishorts_help[q],f,true))
+					return qe_invalid;
+			}
+			for(auto q = 0; q < 16; ++q)
+			{
+				if(!p_getcstr(&temp_meta.usrflags[q],f,true))
+					return qe_invalid;
+				if(!p_getwstr(&temp_meta.usrflags_help[q],f,true))
+					return qe_invalid;
+			}
+		}
+		if(zmeta_version > 3)
+		{
+			for(auto q = 0; q < 8; ++q)
+			{
+				if(!p_getcstr(&temp_meta.initd[q],f,true))
+					return qe_invalid;
+				if(!p_getwstr(&temp_meta.initd_help[q],f,true))
+					return qe_invalid;
+			}
+			for(auto q = 0; q < 8; ++q)
+			{
+				if(!p_getc(&temp_meta.initd_type[q],f,true))
+					return qe_invalid;
+			}
+		}
+		else
+		{
+			for(auto q = 0; q < 8; ++q)
+			{
+				temp_meta.initd[q] = temp_meta.run_idens[q];
 			}
 		}
 		
@@ -13493,7 +13563,7 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 			if(customsfxdata[i].data!=NULL)
 			{
 				// delete [] customsfxdata[i].data;
-				zc_free(customsfxdata[i].data);
+				free(customsfxdata[i].data);
 			}
 			
 			// customsfxdata[i].data = new byte[(temp_sample.bits==8?1:2)*temp_sample.len];
@@ -13518,7 +13588,7 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 			memcpy(customsfxdata[i].data,temp_sample.data,cpylen);
 		}
 		
-		zc_free(temp_sample.data);
+		free(temp_sample.data);
 	}
 	
 	if(keepdata)
@@ -13553,7 +13623,7 @@ void setupsfx()
         if(customsfxdata[j].data!=NULL)
         {
 //    delete [] customsfxdata[j].data;
-            zc_free(customsfxdata[j].data);
+            free(customsfxdata[j].data);
         }
         
 //    customsfxdata[j].data = new byte[(temp_sample->bits==8?1:2)*temp_sample->len];
@@ -19180,11 +19250,11 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
                 
                 if(buf[start_tile+i].data)
                 {
-                    zc_free(buf[start_tile+i].data);
+                    free(buf[start_tile+i].data);
                     buf[start_tile+i].data=NULL;
                 }
                 
-                buf[start_tile+i].data=(byte *)zc_malloc(tilesize(buf[start_tile+i].format));
+                buf[start_tile+i].data=(byte *)malloc(tilesize(buf[start_tile+i].format));
                 memcpy(buf[start_tile+i].data,temp_tile,tilesize(buf[start_tile+i].format));
             }
         }

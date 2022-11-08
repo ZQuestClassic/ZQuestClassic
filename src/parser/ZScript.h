@@ -7,7 +7,6 @@
 #include "CompilerUtils.h"
 #include "Types.h"
 
-#include "mem_debug.h"
 
 #define BITS_SP	10
 #define MAX_SCRIPT_REGISTERS	(1<<BITS_SP)
@@ -19,6 +18,7 @@ namespace ZScript
 	class TypeStore;
 	class Program;
 	class Script;
+	class UserClass;
 	class Namespace;
 	class Variable;
 	class BuiltinVariable;
@@ -45,10 +45,14 @@ namespace ZScript
 		RootScope& getScope() const {return *rootScope_;}
 
 		std::vector<Script*> scripts;
+		std::vector<UserClass*> classes;
 		std::vector<Namespace*> namespaces;
 		Script* getScript(std::string const& name) const;
 		Script* getScript(ASTScript* node) const;
 		Script* addScript(ASTScript& node, Scope& parentScope, CompileErrorHandler* handler);
+		UserClass* getClass(std::string const& name) const;
+		UserClass* getClass(ASTClass* node) const;
+		UserClass* addClass(ASTClass& node, Scope& parentScope, CompileErrorHandler* handler);
 		Namespace* addNamespace(
 			ASTNamespace& node, Scope& parentScope, CompileErrorHandler* handler);
 
@@ -59,6 +63,8 @@ namespace ZScript
 		std::vector<Function*> getUserFunctions() const;
 		// Gets all non-user-defined functions
 		std::vector<Function*> getInternalFunctions() const;
+		std::vector<Function*> getUserClassConstructors() const;
+		std::vector<Function*> getUserClassDestructors() const;
 
 		// Return a list of all errors in the script declaration.
 		std::vector<CompileError const*> getErrors() const;
@@ -68,7 +74,9 @@ namespace ZScript
 	private:
 		std::map<std::string, Script*> scriptsByName_;
 		std::map<ASTScript*, Script*> scriptsByNode_;
-
+		std::map<std::string, UserClass*> classesByName_;
+		std::map<ASTClass*, UserClass*> classesByNode_;
+		
 		TypeStore typeStore_;
 		RootScope* rootScope_;
 		ASTFile& root_;
@@ -91,6 +99,7 @@ namespace ZScript
 		virtual ScriptType getType() const = 0;
 		virtual std::string const& getName() const = 0;
 		virtual std::string const& getAuthor() const = 0;
+		virtual zasm_meta const& getMetadata() const = 0;
 		virtual ASTScript* getNode() const = 0;
 		virtual ScriptScope& getScope() = 0;
 		virtual ScriptScope const& getScope() const = 0;
@@ -117,8 +126,9 @@ namespace ZScript
 
 	public:
 		ScriptType getType() const /*override*/;
-		std::string const& getName() const /*override*/ {return node.name;};
-		std::string const& getAuthor() const /*override*/ {return node.author;};
+		std::string const& getName() const /*override*/ {return node.metadata.script_name;};
+		std::string const& getAuthor() const /*override*/ {return node.metadata.author;};
+		zasm_meta const& getMetadata() const /*override*/ {return node.metadata;};
 		ASTScript* getNode() const /*override*/ {return &node;};
 		ScriptScope& getScope() /*override*/ {return *scope;}
 		ScriptScope const& getScope() const /*override*/ {return *scope;}
@@ -135,11 +145,16 @@ namespace ZScript
 		friend BuiltinScript* createScript(
 				Program&, Scope&, ScriptType, std::string const& name,
 				CompileErrorHandler*);
-
 	public:
 		ScriptType getType() const /*override*/ {return type;}
 		std::string const& getName() const /*override*/ {return name;};
 		std::string const& getAuthor() const /*override*/ {return builtin_author;};
+		zasm_meta const& getMetadata() const /*override*/
+		{
+			static zasm_meta builtin_meta;
+			builtin_meta.autogen();
+			return builtin_meta;
+		};
 		ASTScript* getNode() const /*override*/ {return NULL;};
 		ScriptScope& getScope() /*override*/ {return *scope;}
 		ScriptScope const& getScope() const /*override*/ {return *scope;}
@@ -159,7 +174,37 @@ namespace ZScript
 			Program&, Scope&, ScriptType, std::string const& name,
 			CompileErrorHandler* = NULL);
 	
-	optional<int32_t> getLabel(Script const&);
+	std::optional<int32_t> getLabel(Script const&);
+
+	////////////////////////////////////////////////////////////////
+	// UserClass
+
+	class UserClass
+	{
+		friend UserClass* createClass(
+			Program&, Scope&, ASTClass&, CompileErrorHandler*);
+	public:
+		~UserClass();
+
+		std::string const& getName() const {return node.name;}
+		ASTClass* getNode() const {return &node;}
+		ClassScope& getScope() {return *scope;}
+		ClassScope const& getScope() const {return *scope;}
+		DataType* getType() {return classType;}
+		void setType(DataType* t) {classType = t;}
+		
+		std::vector<int32_t> members;
+	protected:
+		UserClass(Program& program, ASTClass& user_class);
+		DataType* classType;
+
+	private:
+		Program& program;
+		ASTClass& node;
+		ClassScope* scope;
+	};
+
+	UserClass* createClass(Program&, Scope&, ASTClass&, CompileErrorHandler* = NULL);
 
 	
 	////////////////////////////////////////////////////////////////
@@ -201,16 +246,16 @@ namespace ZScript
 		int32_t const id;
 
 		// Get the data's name.
-		virtual optional<std::string> getName() const {return nullopt;}
+		virtual std::optional<std::string> getName() const {return std::nullopt;}
 		
 		// Get the value at compile time.
-		virtual optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return nullopt;}
+		virtual std::optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return std::nullopt;}
 
 		// Get the declaring node.
 		virtual AST* getNode() const {return NULL;}
 		
 		// Get the global register this uses.
-		virtual optional<int32_t> getGlobalId() const {return nullopt;}
+		virtual std::optional<int32_t> getGlobalId() const {return std::nullopt;}
 		
 		virtual bool isBuiltIn() const {return false;}
 		
@@ -225,7 +270,7 @@ namespace ZScript
 	bool isGlobal(Datum const& data);
 
 	// Return the stack offset of the value.
-	optional<int32_t> getStackOffset(Datum const&);
+	std::optional<int32_t> getStackOffset(Datum const&);
 
 	// A literal value that requires memory management.
 	class Literal : public Datum
@@ -251,15 +296,37 @@ namespace ZScript
 				Scope&, ASTDataDecl&, DataType const&,
 				CompileErrorHandler* = NULL);
 
-		optional<std::string> getName() const {return node.name;}
+		std::optional<std::string> getName() const {return node.name;}
 		ASTDataDecl* getNode() const {return &node;}
-		optional<int32_t> getGlobalId() const {return globalId;}
-		optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const;
+		std::optional<int32_t> getGlobalId() const {return globalId;}
+		std::optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const;
 	private:
 		Variable(Scope& scope, ASTDataDecl& node, DataType const& type);
 
 		ASTDataDecl& node;
-		optional<int32_t> globalId;
+		std::optional<int32_t> globalId;
+	};
+	
+	//A UserClass variable
+	class UserClassVar : public Datum
+	{
+	public:
+		static UserClassVar* create(
+				Scope&, ASTDataDecl&, DataType const&,
+				CompileErrorHandler* = NULL);
+
+		std::optional<std::string> getName() const {return node.name;}
+		ASTDataDecl* getNode() const {return &node;}
+		UserClass* getClass() const {return &(scope.getClass()->user_class);}
+		int32_t getIndex() const {return _index;}
+		void setIndex(int32_t ind) {_index = ind;}
+		
+		bool is_arr;
+	private:
+		UserClassVar(Scope& scope, ASTDataDecl& node, DataType const& type);
+		
+		int32_t _index;
+		ASTDataDecl& node;
 	};
 
 	// A compiler generated variable.
@@ -270,8 +337,8 @@ namespace ZScript
 				Scope&, DataType const&, std::string const& name,
 				CompileErrorHandler* = NULL);
 
-		optional<std::string> getName() const {return name;}
-		optional<int32_t> getGlobalId() const {return globalId;}
+		std::optional<std::string> getName() const {return name;}
+		std::optional<int32_t> getGlobalId() const {return globalId;}
 
 		virtual bool isBuiltIn() const {return true;}
 		
@@ -279,7 +346,7 @@ namespace ZScript
 		BuiltinVariable(Scope&, DataType const&, std::string const& name);
 
 		std::string const name;
-		optional<int32_t> globalId;
+		std::optional<int32_t> globalId;
 	};
 
 	// An inlined constant.
@@ -290,9 +357,9 @@ namespace ZScript
 				Scope&, ASTDataDecl&, DataType const&, int32_t value,
 				CompileErrorHandler* = NULL);
 
-		optional<std::string> getName() const;
+		std::optional<std::string> getName() const;
 
-		optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return value;}
+		std::optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return value;}
 
 		ASTDataDecl* getNode() const {return &node;}
 	
@@ -311,8 +378,8 @@ namespace ZScript
 				Scope&, DataType const&, std::string const& name, int32_t value,
 				CompileErrorHandler* = NULL);
 
-		optional<std::string> getName() const {return name;}
-		optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return value;}
+		std::optional<std::string> getName() const {return name;}
+		std::optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return value;}
 
 		virtual bool isBuiltIn() const {return true;}
 		
@@ -384,9 +451,11 @@ namespace ZScript
 		
 		// If this is a script level function, return that script.
 		Script* getScript() const;
+		UserClass* getClass() const;
 
 		int32_t numParams() const {return paramTypes.size();}
 		int32_t getLabel() const;
+		int32_t getAltLabel() const;
 		void setFlag(int32_t flag, bool state = true)
 		{
 			if(node) state ? node->flags |= flag : node->flags &= ~flag;
@@ -403,7 +472,8 @@ namespace ZScript
 		ASTExprConst* defaultReturn;
 		
 	private:
-		mutable optional<int32_t> label;
+		mutable std::optional<int32_t> label;
+		mutable std::optional<int32_t> altlabel;
 		int32_t flags;
 
 		// Code implementing this function.

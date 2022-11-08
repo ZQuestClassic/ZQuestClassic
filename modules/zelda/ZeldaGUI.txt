@@ -5,6 +5,7 @@ set(ZELDA_GUI_SOURCES
 # Add or remove files here
 ################################
 src/WindowsScaling.cpp
+src/play_midi.cpp
 src/zc/aglogo.cpp
 src/debug.cpp
 src/zc/decorations.cpp

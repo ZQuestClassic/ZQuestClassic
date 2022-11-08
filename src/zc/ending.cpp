@@ -20,6 +20,7 @@
 #include "ending.h"
 #include "zelda.h"
 #include "base/zsys.h"
+#include "play_midi.h"
 #include "sprite.h"
 #include "items.h"
 #include "pal.h"
@@ -598,7 +599,7 @@ void ending()
 	
 	
 	
-	stop_midi();
+	zc_stop_midi();
 	//restore user volume if it was changed by script
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	{
@@ -634,6 +635,7 @@ void ending()
 	//  setPackfilePassword(datapwd);
 	load_quest(game);
 	//  setPackfilePassword(NULL);
+	game->save_user_objects();
 	saves[currgame] = *game;
 	int32_t ring=0;
 	flushItemCache();
@@ -721,7 +723,7 @@ void ending_scripted()
         }
         
         ringcolor(false);
-	stop_midi();
+	zc_stop_midi();
 	//restore user volume if it was changed by script
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	{
@@ -758,6 +760,7 @@ void ending_scripted()
 	load_quest(game);
 	strcpy(game->title,QHeader.title);
 	//  setPackfilePassword(NULL);
+	game->save_user_objects();
 	saves[currgame] = *game;
 	int32_t ring=0;
 	flushItemCache();

@@ -4,6 +4,12 @@
 #include "zq_class.h"
 #include "gui/builder.h"
 #include "zc_list_data.h"
+#include <fmt/format.h>
+#include <filesystem>
+
+#ifdef __EMSCRIPTEN__
+#include "base/emscripten_utils.h"
+#endif
 
 int32_t onSave();
 int32_t onSaveAs();
@@ -147,6 +153,9 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	{
 		case message::OK:
 		{
+#ifdef __EMSCRIPTEN__
+			em_open_test_mode(filepath, test_start_dmap, test_start_screen, test_ret_sqr);
+#else
 			if(!fileexists(ZELDA_FILE))
 			{
 				InfoDialog("Error", ZELDA_FILE " not found!").show();
@@ -154,25 +163,26 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			}
 			test_killer.kill();
 
-			char arg2[5];
-			sprintf(arg2, "%d", test_start_dmap);
-			char arg3[5];
-			sprintf(arg3, "%d", test_start_screen);
-			char arg4[5];
-			sprintf(arg4, "%d", test_ret_sqr);
-			const char* argv[] = {
-#ifndef _WIN32
-				ZELDA_FILE,
-#endif
+			// TODO: this should be a GUI checkbox.
+			bool should_record = zc_get_config("zquest", "test_mode_record", false);
+			std::filesystem::path replay_file_dir = zc_get_config("zquest", "replay_file_dir", "replays/");
+			std::filesystem::create_directory(replay_file_dir);
+			auto replay_path = (replay_file_dir / "latest_test_replay.zplay");
+
+			std::vector<std::string> args = {
 				"-test",
 				filepath,
-				arg2,
-				arg3,
-				arg4,
-				NULL
+				fmt::format("{}", test_start_dmap),
+				fmt::format("{}", test_start_screen),
+				fmt::format("{}", test_ret_sqr),
 			};
-
-			test_killer = launch_process(ZELDA_FILE, argv);
+			if (should_record)
+			{
+				args.push_back("-record");
+				args.push_back(replay_path.string().c_str());
+			}
+			test_killer = launch_process(ZELDA_FILE, args);
+#endif
 		}
 		return true;
 		

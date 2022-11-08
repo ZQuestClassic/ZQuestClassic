@@ -185,7 +185,7 @@ public:
 	bool canmove(int32_t ndir,zfix s,int32_t special, bool kb);
 	bool canmove(int32_t ndir,int32_t special, bool kb);
 	bool canmove(int32_t ndir, bool kb);
-	bool enemycanfall(int32_t id);
+	bool enemycanfall(int32_t id, bool checkgrav = true);
 	// 8-directional
 	void newdir_8_old(int32_t rate,int32_t homing, int32_t special,int32_t dx1,int32_t dy1,int32_t dx2,int32_t dy2);
 	void newdir_8(int32_t rate,int32_t homing, int32_t special,int32_t dx1,int32_t dy1,int32_t dx2,int32_t dy2);

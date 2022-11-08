@@ -6,7 +6,7 @@
 
 namespace GUI
 {
-
+class TextField;
 class Checkbox: public Widget
 {
 public:
@@ -52,6 +52,7 @@ private:
 	void calculateSize() override;
 	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
 	void applyFont(FONT* newFont) override;
+	friend class TextField;
 };
 
 }

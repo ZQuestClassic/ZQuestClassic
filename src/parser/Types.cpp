@@ -45,20 +45,20 @@ DataType const* TypeStore::getType(DataTypeId typeId) const
 	return ownedTypes[typeId];
 }
 
-optional<DataTypeId> TypeStore::getTypeId(DataType const& type) const
+std::optional<DataTypeId> TypeStore::getTypeId(DataType const& type) const
 {
 	return find<DataTypeId>(typeIdMap, &type);
 }
 
-optional<DataTypeId> TypeStore::assignTypeId(DataType const& type)
+std::optional<DataTypeId> TypeStore::assignTypeId(DataType const& type)
 {
 	if (!type.isResolved())
 	{
 		log_error(CompileError::UnresolvedType(NULL, type.getName()));
-		return nullopt;
+		return std::nullopt;
 	}
 
-	if (find<DataTypeId>(typeIdMap, &type)) return nullopt;
+	if (find<DataTypeId>(typeIdMap, &type)) return std::nullopt;
 
 	DataTypeId id = ownedTypes.size();
 	DataType const* storedType = type.clone();
@@ -67,15 +67,15 @@ optional<DataTypeId> TypeStore::assignTypeId(DataType const& type)
 	return id;
 }
 
-optional<DataTypeId> TypeStore::getOrAssignTypeId(DataType const& type)
+std::optional<DataTypeId> TypeStore::getOrAssignTypeId(DataType const& type)
 {
 	if (!type.isResolved())
 	{
 		log_error(CompileError::UnresolvedType(NULL, type.getName()));
-		return nullopt;
+		return std::nullopt;
 	}
 
-	if (optional<DataTypeId> typeId = find<DataTypeId>(typeIdMap, &type))
+	if (std::optional<DataTypeId> typeId = find<DataTypeId>(typeIdMap, &type))
 		return typeId;
 	
 	DataTypeId id = ownedTypes.size();
@@ -614,22 +614,26 @@ bool DataTypeCustom::canCastTo(DataType const& target) const
 	if (DataTypeArray const* t =
 			dynamic_cast<DataTypeArray const*>(&target))
 		return canCastTo(getBaseType(*t));
-
-	if (DataTypeSimple const* t =
-			dynamic_cast<DataTypeSimple const*>(&target))
+	
+	if(!isClass())
 	{
-		//Enum-declared types can be cast to any non-void simple
-		return(t->getId() == ZVARTYPEID_UNTYPED
-			|| t->getId() == ZVARTYPEID_BOOL
-			|| t->getId() == ZVARTYPEID_FLOAT
-			|| t->getId() == ZVARTYPEID_LONG
-			|| t->getId() == ZVARTYPEID_CHAR);
+		if (DataTypeSimple const* t =
+				dynamic_cast<DataTypeSimple const*>(&target))
+		{
+			//Enum-declared types can be cast to any non-void simple
+			return(t->getId() == ZVARTYPEID_UNTYPED
+				|| t->getId() == ZVARTYPEID_BOOL
+				|| t->getId() == ZVARTYPEID_FLOAT
+				|| t->getId() == ZVARTYPEID_LONG
+				|| t->getId() == ZVARTYPEID_CHAR);
+		}
 	}
 	
 	if (DataTypeCustom const* t =
 			dynamic_cast<DataTypeCustom const*>(&target))
 	{
-		//Enum-declared types cannot cast to each other, only within themselves, or to simple
+		//Enum-declared types and class types cannot cast to each other,
+		//only within themselves
 		return id == t->id;
 	}
 	

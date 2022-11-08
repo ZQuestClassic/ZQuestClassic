@@ -16,6 +16,7 @@
 /*********************************/
 
 #include <vector>
+#include <map>
 #include "base/zdefs.h"
 #include "base/zc_array.h"
 #include "zc_sys.h"
@@ -238,7 +239,7 @@ void doGFXMonohue(int32_t _r, int32_t _g, int32_t _b, bool m);
 void doTint(int32_t _r, int32_t _g, int32_t _b);
 
 void runDrunkRNG();
-void load_replay_file(ReplayMode mode, std::string replay_file);
+void load_replay_file_deferred(ReplayMode mode, std::string replay_file);
 void zc_game_srand(int seed, zc_randgen* rng = nullptr);
 
 //Save screen settings. 
@@ -480,6 +481,7 @@ struct ScriptOwner
 #define NUM_ZSCRIPT_ARRAYS	4096
 typedef ZCArray<int32_t> ZScriptArray;
 extern ZScriptArray localRAM[NUM_ZSCRIPT_ARRAYS];
+extern std::map<int32_t,ZScriptArray> objectRAM;
 extern ScriptOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
 
 dword getNumGlobalArrays();
@@ -503,6 +505,8 @@ extern char *qstpath;
 extern char *qstdir;
 extern gamedata *saves;
 extern gamedata *game;
+
+extern std::string load_qstpath;
 
 extern volatile int32_t lastfps;
 extern volatile int32_t framecnt;

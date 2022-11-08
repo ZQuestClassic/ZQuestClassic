@@ -93,7 +93,7 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 	if (!helper_executable) {
 		// TODO: should remove this option now.
 		// helper_executable=
-		// 	( zc_get_config("zc.cfg","CONSOLE","console_on_top",0) ) 
+		// 	( zc_get_config(STANDARD_CFG,"CONSOLE","console_on_top",0) ) 
 		// 	? "ZConsole_OnTop.exe"
 		// 	: "ZConsole.exe"; //DEFAULT_HELPER_EXE
 		helper_executable = DEFAULT_HELPER_EXE;
@@ -476,6 +476,8 @@ int32_t CConsoleLoggerEx::_cprint(int32_t attributes,const char *lpszText,int32_
 }
 //}
 #else
+
+#include <cstdio>
 //{Unix
 
 //////////////////////////////////////////////////////////////////////
@@ -507,20 +509,26 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 							const char	*logger_name/*=NULL*/,
 							const char	*helper_executable/*=NULL*/)
 {
+#ifdef __EMSCRIPTEN__
+	return 0;
+#else
 	if (m_textlog) {
 		kill();
 	}
 
 	m_textlog = al_open_native_text_log("ZScript", ALLEGRO_TEXTLOG_MONOSPACE);
 	return m_textlog == nullptr ? 1 : 0;
+#endif
 }
 
 void CConsoleLogger::kill()
 {
+#ifndef __EMSCRIPTEN__
 	if (m_textlog) {
 		al_close_native_text_log(m_textlog);
 		m_textlog = NULL;
 	}
+#endif
 }
 
 // Close and disconnect
@@ -538,13 +546,21 @@ int32_t CConsoleLogger::Close(void)
 //////////////////////////////////////////////////////////////////////////
 inline int32_t CConsoleLogger::print(const char *lpszText,int32_t iSize/*=-1*/)
 {
+#ifdef __EMSCRIPTEN__
+	::printf("%s", lpszText);
+#else
 	al_append_native_text_log(m_textlog, "%s", lpszText);
+#endif
 	return 0;
 }
 
 bool CConsoleLogger::valid()
 {
+#ifdef __EMSCRIPTEN__
+	return 1;
+#else
 	return m_textlog != NULL;
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -562,7 +578,11 @@ int32_t CConsoleLogger::printf(const char *format,...)
 	
 	va_end(argList);
 	
+#ifdef __EMSCRIPTEN__
+	::printf("%s", tmp);
+#else
 	al_append_native_text_log(m_textlog, "%s", tmp);
+#endif
 	return ret;
 }
 
@@ -664,8 +684,12 @@ int32_t CConsoleLoggerEx::cprintf(int32_t attributes,const char *format,...)
 	tmp[vbound(ret,0,1023)]=0;
 	
 	va_end(argList);
-	
+
+#ifdef __EMSCRIPTEN__
+	::printf("%s", tmp);
+#else
 	al_append_native_text_log(m_textlog, "%s", tmp);
+#endif
 	return ret;
 }
 
@@ -684,7 +708,11 @@ int32_t CConsoleLoggerEx::cprintf(const char *format,...)
 	
 	va_end(argList);
 	
+#ifdef __EMSCRIPTEN__
+	::printf("%s", tmp);
+#else
 	al_append_native_text_log(m_textlog, "%s", tmp);
+#endif
 	return ret;
 }
 

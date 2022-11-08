@@ -207,7 +207,13 @@ void Widget::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 		width = contW;
 	if(height > contH)
 		height = contH;
-
+	
+	if(isTopLevel())
+	{
+		origw = contW;
+		origh = contH;
+	}
+	
 	auto hExcess = origw-width;
 	x = contX+hExcess*hAlign;
 	auto vExcess = origh-height;

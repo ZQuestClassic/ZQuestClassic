@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 108
-Document Revision: 12th Jun, 2022
+Document for: 2.55, Alpha 111/112
+Document Revision: 29th Oct, 2022
 
 
  __           _   _                 
@@ -137,6 +137,10 @@ and_equal 	: 	Equivalent to 	&=
 ~=		:	Equivalent to &= ~
 bitnot_eq	:	Equivalent to &= ~
 bitnot_equal	:	Equivalent to &= ~
+
+^^^			:	Power (ex. 3 ^^^ 3 == 27)
+new			:	Used for function constructors
+delete		:	Used for function destructors
 
 Notes: Xor abd Logical Xor alternative Tokens
 	C lacks logical xor (^^), and thus the alternate token 
@@ -305,7 +309,154 @@ Another example:
 	In this example, 'foo::foo()' will be called. 'using' namespaces only apply if
 	there is no local match. In this case, since 'example3()' is in 'namespace foo',
 	functions also in 'namespace foo' are considered local, and prioritiezed over 'using'.
+
+/////////////////////////
+// Classes and Objects //
+///////////////////////// //class //object
+
+For those familiar with C++ style programming, most of this section will be familiar.
+An 'Object' is a collection of functions and variables created by constructing it
+	from a 'Class' which is like a template.
+Here's an example, labelled in comments:
+[example--
+class Rect
+{
+	//These are all variables.
+	//Unlike script variables, *each object* gets its' OWN of all of these!
+	int x,y;
+	int w,h;
+	int color;
+	bool fill;
 	
+	//These are constructors. They are used with the 'new' keyword to create objects.
+	Rect()
+	{
+		//Default some values
+		w = 16;
+		h = 16;
+		color = 0x01;
+		fill = true;
+		//Values default to '0' if not set!
+	}
+	Rect(int tx, int ty)
+	{
+		Rect(); //This calls the constructor above this one to use its' code!
+		//Set the object's variables to the parameters
+		x = tx; y = ty;
+	}
+	~Rect()
+	{
+		//This is a destructor. It runs when the object is destroyed.
+		//...there's not really much use for a destructor for a rectangle, sooo
+		//just gonna trace something?
+		printf("Rectangle (%d,%d) %dx%d destroyed!\n",x,y,w,h);
+	}
+	//This is just a normal function.
+	//It can be called from the object with an '->' operator.
+	void draw()
+	{
+		//This just draws a rectangle using the parameters of the object
+		Screen->Rectangle(7,x,y,x+w-1,y+h-1,color,1,0,0,0,true,OP_OPAQUE);
+	}
+}
+//Now we're outside the class, let's USE IT!
+void some_other_func()
+{
+	//Construct a Rect using the basic constructor
+	Rect a = new Rect();
+	//Set a variable of the object
+	a->color = 0x0F;
+	//Use the other constructor
+	Rect b = new Rect(16,0);
+	b->color = 0x01;
+	
+	//Draw them.
+	a->draw();
+	b->draw();
+	
+	//Delete them if you're done
+	delete a;
+	delete b;
+}
+//Or you can even set up loops or such.
+Rect arr[176]; //global arrays of objects work fine
+void generate_arr()
+{
+	for(int q = 0; q < 176; ++q)
+	{
+		Rect r = new Rect(ComboX(q),ComboY(q));
+		r->color = 0xE0+((q+Div(q,16))%16);
+		arr[q] = r;
+	}
+}
+void draw_arr()
+{
+	//then to draw, just...
+	for(int q = 0; q < 176; ++q)
+		arr[q]->draw();
+}
+--end example]
+
+Some misc notes:
+When an object is created, it will be "Owned" by the script that created it.
+Ownership can be changed by having another script call "OwnObject()" on the object,
+	or ownership can be revoked by calling "GlobalObject()".
+When a script terminates, any objects it owns will be deleted, calling their
+	destructors immediately.
+When a quest exits, ALL owned objects are deleted. If the quest is saved,
+	however, objects made global with "GlobalObject" will be *saved to the save file*,
+	and will still be valid on reloading the save. This includes all variables and arrays.
+Note that inside the class, the functions do not use an '->' of any kind to access the
+	variables or functions. They actually are using 'this->', but they are able to do so
+	automatically because they are smart. (using 'this->' manually still works).
+Functions in a class may be declared as "static". This effectively removes them from objects,
+	making them a 'global function' in the class's name.
+[example--
+class foo
+{
+	static void print(){}
+	foo()
+	{
+		print(); //valid, as the function is still in the class scope
+		this->print(); //ERROR: function 'print' has not been declared
+		foo.print(); //valid
+	}
+}
+void testfunc()
+{
+	foo.print(); //Valid, even with no object to call the function from.
+	foo f = new foo();
+	f->print(); //ERROR: function 'print' has not been declared
+}
+--end example]
+So, static functions can only be called either from within the class directly,
+	or by using 'classname.funcname()', but NOT from an arrow.
+Also noteworthy is that static functions do NOT have access to the class's 'this' pointer.
+	(ALL non-static class functions, including constructor/destructor, have 'this')
+The max number of objects that can exist at once is 214747, so, *a lot*.
+
+You can also declare arrays within objects, though these behave specially.
+[example--
+class foo
+{
+	int arr[5];
+	foo()
+	{
+		strcpy(arr,"Test"); //Works fine
+		arr = 2; //Fails; 'arr' cannot be overwritten.
+		arr[0] = 'B'; //Succeeds (string reads 'Best')
+	}
+}
+--end example]
+These arrays cannot be destroyed with 'DestroyArray', or owned with 'OwnArray'. They are
+	always in effect "owned" by their object, and will be destroyed by the object's
+	destructor. They will be saved with the object in the save file.
+That said, they *have* normal array pointers, and as such can be used by basically anything
+	(except the listed exceptions) that uses normal arrays.
+
+(Any further questions about classes can be directed to @EmilyV in the development discord)
+(Any ideas on better/further documentation for this are much welcome)
+
 
   ________.__        ___.          .__    __________      .__        __                       
  /  _____/|  |   ____\_ |__ _____  |  |   \______   \____ |__| _____/  |_  ___________  ______
@@ -2569,6 +2720,57 @@ Available annotations:
 	@Author -
 		Valid on: Scripts
 		Function: Sets the author name metadata field
+		Value: String (limit 255 chars)
+	
+	@Attribute0 - @Attribute9
+	@Flag0 - @Flag15
+		Valid on: Scripts
+		Function: Sets attribute metadata for the script.
+		Editor effect: Combo and Item editor label text
+		Value: String (limit 255 chars)
+	@Attribyte0 - @Attribyte7
+	@Attrishort0 - @Attrishort7
+		Valid on: Scripts
+		Function: Sets attribute metadata for the script.
+		Editor effect: Combo editor label text
+		Value: String (limit 255 chars)
+	
+	@AttributeHelp0 - @AttributeHelp9
+	@FlagHelp0 - @FlagHelp15
+		Valid on: Scripts
+		Function: Sets attribute help text metadata for the script.
+		Editor effect: Combo and Item editor help text
+		Value: String (limit 65535 chars)
+	@AttribyteHelp0 - @AttribyteHelp7
+	@AttrishortHelp0 - @AttrishortHelp7
+		Valid on: Scripts
+		Function: Sets attribute help text metadata for the script.
+		Editor effect: Combo editor help text
+		Value: String (limit 65535 chars)
+	
+	@InitD0 - @InitD7
+		Valid on: Scripts
+		Function: Set InitD label info.
+		Editor effect: Combo, FFC, Item, LWeapon scripts
+		Value: String (limit 255 chars)
+		Default value: void run() parameter name
+	
+	@InitDHelp0 - @InitDHelp7
+		Valid on: Scripts
+		Function: Set InitD help text.
+		Editor effect: Combo, FFC, Item, LWeapon scripts
+		Value: String (limit 65535 chars)
+	
+	@InitDType0 - @InitDType7
+		Valid on: Scripts
+		Function: Set InitD field type.
+		Editor effect: Combo, FFC, Item, LWeapon scripts
+		Value: "D","H","LD","LH","B", or "-1"
+		Default value: Based on void run() parameter type-
+			int, float, untyped: "D"
+			long: "LD"
+			bool: "B"
+			otherwise: "-1"
 
 /////////////////////////////
 ///  Registration System  ///
@@ -2916,6 +3118,15 @@ void OwnArray(untyped[] arr);
 void DestroyArray(untyped[] arr);
  * Immediately deallocates the specified array, if it is a local array.
  * If the array is a global array, does nothing.
+
+void OwnObject([Object] obj);
+ * Takes an object (see 'Classes and Objects' above)
+ * Transfers ownership of the object to the current script.
+
+void GlobalObject([Object] obj);
+ * Takes an object (see 'Classes and Objects' above)
+ * Transfers ownership of the object to the global scope.
+ * Objects owned by the global scope are saved to the save file.
 
 void Trace(untyped)
  * The Trace() instruction now supports all datatypes.

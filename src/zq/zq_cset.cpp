@@ -697,7 +697,9 @@ bool edit_dataset(int32_t dataset)
 	char bufhex[7] = "000000";
 	edit_cset_dlg[21].dp = (void*)bufhex;
 	
-	while(gui_mouse_b()) {} //Do nothing
+	while(gui_mouse_b()) {
+		rest(1);
+	} //Do nothing
 	edit_cset_dlg[0].dp2 = lfont;
 	int32_t ret = zc_popup_dialog(edit_cset_dlg,3);
 	//al_trace("DLG RETURN VAL -------------------------- %d", ret);
@@ -715,7 +717,9 @@ bool edit_dataset(int32_t dataset)
 	
 	set_palette(RAMpal);
 	rectfill(screen, 0, 0, screen->w, screen->h, BLACK);
-	while(gui_mouse_b()) {} //Do nothing
+	while(gui_mouse_b()) {
+		rest(1);
+	} //Do nothing
 	font = old;
 	return ret==4;
 }
@@ -967,6 +971,7 @@ bool grab_dataset(int32_t dataset)
     while(gui_mouse_b())
     {
         /* do nothing */
+				rest(1);
     }
     
     scare_mouse();
@@ -1391,6 +1396,11 @@ static DIALOG colors_dlg[] =
 
 int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 {
+	if (zc_get_config("zquest","hw_cursor",0) == 1)
+	{
+		select_mouse_cursor(MOUSE_CURSOR_ALLEGRO);
+		disable_hardware_cursor();
+	}
 
     char tempstuff[17];
     cset_first=first;
@@ -1582,6 +1592,7 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
     while(gui_mouse_b())
     {
         /* do nothing */
+				rest(1);
     }
     
     clear_to_color(screen,vc(0));
@@ -1602,6 +1613,11 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
     comeback();
     destroy_bitmap(bmp);
     //delete[] buf;
+	if (zc_get_config("zquest","hw_cursor",0) == 1)
+	{
+		select_mouse_cursor(MOUSE_CURSOR_ARROW);
+		enable_hardware_cursor();
+	}
     return int32_t(ret==23);
 }
 

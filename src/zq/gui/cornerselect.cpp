@@ -20,6 +20,7 @@ int32_t newg_cornersel_proc(int32_t msg,DIALOG *d,int32_t)
 			while(gui_mouse_b())
 			{
 				/*Do nothing*/
+				rest(1);
 			}
 			int32_t bit = 0;
 			if(mouse_in_rect(d->x+2,d->y+2,bw,bh))

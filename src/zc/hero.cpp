@@ -33,6 +33,8 @@
 #include "ffscript.h"
 #include "drawing.h"
 #include "combos.h"
+#include "base/zc_math.h"
+#include "user_object.h"
 extern FFScript FFCore;
 extern word combo_doscript[176];
 extern byte itemscriptInitialised[256];
@@ -40,9 +42,9 @@ extern HeroClass Hero;
 extern ZModule zcm;
 extern zcmodule moduledata;
 extern refInfo playerScriptData;
-#include "mem_debug.h"
 #include "zscriptversion.h"
 #include "particles.h"
+#include <fmt/format.h>
 
 extern refInfo itemScriptData[256];
 extern refInfo itemCollectScriptData[256];
@@ -291,6 +293,18 @@ void HeroClass::set_respawn_point(bool setwarp)
 				return;
 			}
 		} //End check water
+		
+		int poses[4] = {
+			COMBOPOS(x,y+(bigHitbox?0:8)),
+			COMBOPOS(x,y+15),
+			COMBOPOS(x+15,y+(bigHitbox?0:8)),
+			COMBOPOS(x+15,y+15)
+			};
+		for(auto pos : poses)
+		{
+			if(HASFLAG_ANY(mfUNSAFEGROUND, pos)) //"Unsafe Ground" flag touching the player
+				return;
+		}
 	}
 	respawn_x = x;
 	respawn_y = y;
@@ -594,6 +608,7 @@ void HeroClass::Drown(int32_t state)
 	if(ladderx+laddery)
 		return;
 	
+	drop_liftwpn();
 	switch(state)
 	{
 		case 1:
@@ -1614,12 +1629,15 @@ bool HeroClass::agonyflag(int32_t flag)
 
 // Find the attack power of the current melee weapon.
 // The Whimsical Ring is applied on a target-by-target basis.
-int32_t HeroClass::weaponattackpower()
+int32_t HeroClass::weaponattackpower(int32_t itid)
 {
-	auto itid = current_item_id(attack==wCByrna ? itype_cbyrna
-		: attack==wWand ? itype_wand
-		: attack==wHammer ? itype_hammer
-		: itype_sword);
+	if(itid < 0)
+	{
+		itid = current_item_id(attack==wCByrna ? itype_cbyrna
+			: attack==wWand ? itype_wand
+			: attack==wHammer ? itype_hammer
+			: itype_sword);
+	}
     int32_t power = attack==wCByrna ? itemsbuf[itid].misc4 : itemsbuf[itid].power;
     
     // Multiply it by the power of the spin attack/quake hammer, if applicable.
@@ -2015,7 +2033,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
     w->z = (z+zofs);
     w->tile = t;
     w->flip = f;
-    w->power = weaponattackpower();
+    w->power = weaponattackpower(itemid);
     w->dir = dir;
     w->doAutoRotate(true);
 }
@@ -2400,7 +2418,7 @@ attack:
 				w->hyofs=4;
 			}
 			
-			w->power = weaponattackpower();
+			w->power = weaponattackpower(itemid);
 			
 			if(attackclk==15 && z==0 && fakez==0 && (sideviewhammerpound() || !isSideViewHero()))
 			{
@@ -2910,8 +2928,8 @@ attack:
 			ny=y;
 		}
 		
-		double tx = cos(a2)*53  +nx;
-		double ty = -sin(a2)*53 +ny+playing_field_offset;
+		double tx = zc::math::Cos(a2)*53  +nx;
+		double ty = -zc::math::Sin(a2)*53 +ny+playing_field_offset;
 		overtile8(dest,htile,int32_t(tx),int32_t(ty),1,0);
 		a2-=PI/4;
 		++hearts;
@@ -3229,7 +3247,7 @@ bool HeroClass::checkstab()
 			
 			int32_t whimsyid = current_item_id(itype_whimsicalring);
 			
-			int32_t dmg = weaponattackpower();
+			int32_t dmg = weaponattackpower(itemid);
 			if(whimsyid>-1)
 			{
 				if(!(zc_oldrand()%zc_max(itemsbuf[whimsyid].misc1,1)))
@@ -8974,6 +8992,7 @@ bool HeroClass::animate(int32_t)
 		//!DROWN
 		// Helpful comment to find drowning -Dimi
 		
+		drop_liftwpn();
 		if(--drownclk==0)
 		{
 			action=none; FFCore.setHeroAction(none);
@@ -9905,6 +9924,30 @@ bool HeroClass::do_jump(int32_t jumpid, bool passive)
 	if(passive) did_passive_jump = true;
 	return true;
 }
+void HeroClass::drop_liftwpn()
+{
+	if(!lift_wpn) return;
+	
+	handle_lift(false); //sets position properly, accounting for large weapons
+	auto liftid = current_item_id(itype_liftglove,true,true);
+	itemdata const& glove = itemsbuf[liftid];
+	if(glove.flags & ITEM_FLAG1)
+	{
+		lift_wpn->z = 0;
+		lift_wpn->fakez = liftheight;
+	}
+	else lift_wpn->z = liftheight;
+	lift_wpn->dir = dir;
+	lift_wpn->step = 0;
+	lift_wpn->fakefall = 0;
+	lift_wpn->fall = 0;
+	if(glove.flags & ITEM_FLAG1)
+		lift_wpn->moveflags |= FLAG_NO_REAL_Z;
+	else
+		lift_wpn->moveflags |= FLAG_NO_FAKE_Z;
+	Lwpns.add(lift_wpn);
+	lift_wpn = nullptr;
+}
 void HeroClass::do_liftglove(int32_t liftid, bool passive)
 {
 	if(liftid < 0)
@@ -10099,7 +10142,10 @@ void HeroClass::handle_lift(bool dec)
 			}
 			lift_wpn->z = liftheight;
 		}
-		if(!dec) {action = none; FFCore.setHeroAction(none);}
+		if(action == lifting)
+		{
+			action = none; FFCore.setHeroAction(none);
+		}
 		return;
 	}
 	if(dec) --liftclk;
@@ -10646,9 +10692,11 @@ bool HeroClass::startwpn(int32_t itemid)
 				++blowcnt;
 			else
 				--blowcnt;
-				
-			while(sfx_allocated(itm.usesound))
+			
+			int sfx_count = 0;
+			while ((!replay_is_active() && sfx_allocated(itm.usesound)) || (replay_is_active() && sfx_count < 180))
 			{
+				sfx_count += 1;
 				advanceframe(true);
 				
 				if(Quit)
@@ -12839,6 +12887,7 @@ void HeroClass::pitfall()
 {
 	if(fallclk)
 	{
+		drop_liftwpn();
 		if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
 		//Handle falling
 		if(!--fallclk)
@@ -12893,6 +12942,7 @@ void HeroClass::pitfall()
 			action=falling; FFCore.setHeroAction(falling);
 			spins = 0;
 			charging = 0;
+			drop_liftwpn();
 		}
 	}
 }
@@ -21308,6 +21358,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 			if(!(ladderx+laddery)) drownCombo = water;
 			if (combobuf[water].usrflags&cflag1) Drown(1);
 			else Drown();
+			if(byte drown_sfx = combobuf[water].attribytes[4])
+				sfx(drown_sfx, pan(int32_t(x)));
 		}
 		else if (!isSwimming())
 		{
@@ -23431,7 +23483,6 @@ void HeroClass::walkdown(bool opening) //entering cave
     Lwpns.clear();
     Ewpns.clear();
     items.clear();
-    
     for(int32_t i=0; i<64; i++)
     {
         herostep();
@@ -25063,7 +25114,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// 2) When scrolling between DMaps of different colours.
 	if(destdmap != -1 && DMaps[destdmap].color != currcset)
 	{
-		fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : DMaps[destdmap].color, true, false);
+		fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, false);
 		darkroom = true;
 	}
 	else if(!darkroom)
@@ -25080,9 +25131,12 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	currdmap = newdmap;
 	for(word i = 0; cx >= 0 && delay != 0; i++, cx--) //Go!
 	{
-		locking_keys = true;
-		replay_poll();
-		locking_keys = false;
+		if (replay_is_active() && replay_get_version() < 3)
+		{
+			locking_keys = true;
+			replay_poll();
+			locking_keys = false;
+		}
 		if(Quit)
 		{
 			screenscrolling = false;
@@ -26615,7 +26669,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 	}
 
 	if (replay_is_active())
-		replay_step_comment(string_format("getitem %s", item_string[id]));
+		replay_step_comment(fmt::format("getitem {}", item_string[id]));
 	
 	if(get_bit(quest_rules,qr_SCC_ITEM_COMBINES_ITEMS))
 	{

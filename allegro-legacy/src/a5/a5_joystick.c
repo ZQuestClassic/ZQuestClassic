@@ -36,6 +36,43 @@ static int a5_get_joystick(ALLEGRO_JOYSTICK * joystick)
     return -1;
 }
 
+static void a5_reconfigure_joysticks()
+{
+    ALLEGRO_JOYSTICK * joystick;
+    int i, j, k;
+
+    num_joysticks = al_get_num_joysticks();
+    for(i = 0; i < num_joysticks; i++)
+    {
+        joystick = al_get_joystick(i);
+        if(joystick)
+        {
+            /* top level */
+            joy[i].flags = JOYFLAG_DIGITAL | JOYFLAG_ANALOGUE;
+
+            /* buttons */
+            joy[i].num_buttons = al_get_joystick_num_buttons(joystick);
+            for(j = 0; j < joy[i].num_buttons; j++)
+            {
+                joy[i].button[j].name = al_get_joystick_button_name(joystick, j);
+            }
+
+            /* sticks */
+            joy[i].num_sticks = al_get_joystick_num_sticks(joystick);
+            for(j = 0; j < joy[i].num_sticks; j++)
+            {
+                joy[i].stick[j].name = al_get_joystick_stick_name(joystick, j);
+                joy[i].stick[j].flags = JOYFLAG_DIGITAL | JOYFLAG_ANALOGUE | JOYFLAG_SIGNED;
+                joy[i].stick[j].num_axis = al_get_joystick_num_axes(joystick, j);
+                for(k = 0; k < joy[i].stick[j].num_axis; k++)
+                {
+                    joy[i].stick[j].axis[k].name = al_get_joystick_axis_name(joystick, j, k);
+                }
+            }
+        }
+    }
+}
+
 static void * a5_joystick_thread_proc(ALLEGRO_THREAD * thread, void * data)
 {
     ALLEGRO_EVENT_QUEUE * queue;
@@ -99,6 +136,13 @@ static void * a5_joystick_thread_proc(ALLEGRO_THREAD * thread, void * data)
                     }
                     break;
                 }
+                // local edit
+                case ALLEGRO_EVENT_JOYSTICK_CONFIGURATION:
+                {
+                    al_reconfigure_joysticks();
+                    a5_reconfigure_joysticks();
+                    break;
+                }
             }
         }
     }
@@ -108,9 +152,6 @@ static void * a5_joystick_thread_proc(ALLEGRO_THREAD * thread, void * data)
 
 static int a5_joystick_init(void)
 {
-    ALLEGRO_JOYSTICK * joystick;
-    int i, j, k;
-
     if(!al_install_joystick())
     {
         return -1;
@@ -121,36 +162,7 @@ static int a5_joystick_init(void)
         al_uninstall_joystick();
         return -1;
     }
-    num_joysticks = al_get_num_joysticks();
-    for(i = 0; i < num_joysticks; i++)
-    {
-        joystick = al_get_joystick(i);
-        if(joystick)
-        {
-            /* top level */
-            joy[i].flags = JOYFLAG_DIGITAL | JOYFLAG_ANALOGUE;
-
-            /* buttons */
-            joy[i].num_buttons = al_get_joystick_num_buttons(joystick);
-            for(j = 0; j < joy[i].num_buttons; j++)
-            {
-                joy[i].button[j].name = al_get_joystick_button_name(joystick, j);
-            }
-
-            /* sticks */
-            joy[i].num_sticks = al_get_joystick_num_sticks(joystick);
-            for(j = 0; j < joy[i].num_sticks; j++)
-            {
-                joy[i].stick[j].name = al_get_joystick_stick_name(joystick, j);
-                joy[i].stick[j].flags = JOYFLAG_DIGITAL | JOYFLAG_ANALOGUE | JOYFLAG_SIGNED;
-                joy[i].stick[j].num_axis = al_get_joystick_num_axes(joystick, j);
-                for(k = 0; k < joy[i].stick[j].num_axis; k++)
-                {
-                    joy[i].stick[j].axis[k].name = al_get_joystick_axis_name(joystick, j, k);
-                }
-            }
-        }
-    }
+    a5_reconfigure_joysticks();
     al_start_thread(a5_joystick_thread);
     return 0;
 }

@@ -101,10 +101,12 @@ void RegistrationVisitor::caseFile(ASTFile& host, void* param)
 	block_regvisit(host, host.namespaces, param);
 	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
 	block_regvisit(host, host.scripts, param);
+	if (breakRecursion(host, param)) return;
+	block_regvisit(host, host.classes, param);
 	if(registered(host, host.options) && registered(host, host.use) && registered(host, host.dataTypes)
 		&& registered(host, host.scriptTypes) && registered(host, host.imports) && registered(host, host.variables)
 		&& registered(host, host.functions) && registered(host, host.namespaces) && registered(host, host.scripts)
-		&& registered(host, host.condimports))
+		&& registered(host, host.condimports) && registered(host, host.classes))
 	{
 		doRegister(host);
 	}
@@ -201,6 +203,86 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 	script.setRun(possibleRuns[0]);
 }
 
+void RegistrationVisitor::caseClass(ASTClass& host, void* param)
+{
+	UserClass& user_class = host.user_class ? *host.user_class : *(host.user_class = program.addClass(host, *scope, this));
+	if (breakRecursion(host)) return;
+	string name = user_class.getName();
+	
+	if(!host.type)
+	{
+		//Don't allow use of a name that already exists
+		unique_ptr<ASTExprIdentifier> temp(new ASTExprIdentifier(name, host.location));
+		if(DataType const* existingType = lookupDataType(*scope, *temp, this, true))
+		{
+			handleError(
+				CompileError::RedefDataType(
+					&host, host.name));
+			temp.reset();
+			doRegister(host);
+			return;
+		}
+		temp.reset();
+		
+		//Construct a new constant type
+		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name, &user_class);
+		//Construct the base type
+		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, &user_class, newConstType->getCustomId());
+		
+		//Set the type to the base type
+		host.type.reset(new ASTDataType(newBaseType, host.location));
+		
+		DataType::addCustom(newBaseType);
+		user_class.setType(newBaseType);
+		
+		//This call should never fail, because of the error check above.
+		scope->addDataType(host.name, newBaseType, &host);
+		if (breakRecursion(*host.type.get())) return;
+		
+		for (auto it = host.constructors.begin();
+			 it != host.constructors.end(); ++it)
+		{
+			ASTFuncDecl* func = *it;
+			func->returnType.reset(new ASTDataType(newBaseType, func->location));
+		}
+	}
+
+	// Recurse on user_class elements with its scope.
+	scope = &user_class.getScope();
+	block_regvisit(host, host.options, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	block_regvisit(host, host.use, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	block_regvisit(host, host.types, param);
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	parsing_user_class = puc_vars;
+	block_regvisit(host, host.variables, param);
+	parsing_user_class = puc_none;
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	parsing_user_class = puc_funcs;
+	block_regvisit(host, host.functions, param);
+	parsing_user_class = puc_none;
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	parsing_user_class = puc_construct;
+	block_regvisit(host, host.constructors, param);
+	parsing_user_class = puc_none;
+	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	parsing_user_class = puc_destruct;
+	visit(host.destructor.get(), param);
+	parsing_user_class = puc_none;
+	scope = scope->getParent();
+	if (breakRecursion(host)) return;
+	//
+	if(!(registered(host, host.options) && registered(host, host.use) && registered(host, host.types)
+		&& registered(host, host.variables) && registered(host, host.functions)
+		&& registered(host, host.constructors) && registered(host.destructor.get())))
+	{
+		return;
+	}
+	
+	doRegister(host);
+}
+
 void RegistrationVisitor::caseNamespace(ASTNamespace& host, void* param)
 {
 	Namespace& namesp = host.namesp ? *host.namesp : (*(host.namesp = program.addNamespace(host, *scope, this)));
@@ -250,7 +332,7 @@ void RegistrationVisitor::caseImportCondDecl(ASTImportCondDecl& host, void* para
 {
 	visit(*host.cond, param);
 	if(!registered(*host.cond)) return; //Not registered yet
-	optional<int32_t> val = host.cond->getCompileTimeValue(this, scope);
+	std::optional<int32_t> val = host.cond->getCompileTimeValue(this, scope);
 	if(val && (*val != 0))
 	{
 		if(!host.preprocessed)
@@ -319,7 +401,7 @@ void RegistrationVisitor::caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void
 		//Construct a new constant type
 		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name);
 		//Construct the base type
-		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, newConstType->getCustomId());
+		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, nullptr, newConstType->getCustomId());
 		
 		//Set the type to the base type
 		host.type.reset(new ASTDataType(newBaseType, host.location));
@@ -418,7 +500,7 @@ void RegistrationVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 		{
 			visit(init);
 			if(!registered(init)) return;
-			if(optional<int32_t> v = init->getCompileTimeValue(this, scope))
+			if(std::optional<int32_t> v = init->getCompileTimeValue(this, scope))
 			{
 				int32_t val = *v;
 				ipart = val/10000;
@@ -489,11 +571,19 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 		}
 
 		// Inline the constant if possible.
-		isConstant = host.getInitializer()->getCompileTimeValue(this, scope);
+		isConstant = host.getInitializer()->getCompileTimeValue(this, scope).has_value();
 		//The dataType is constant, but the initializer is not. This is not allowed in Global or Script scopes, as it causes crashes. -V
-		if(!isConstant && (scope->isGlobal() || scope->isScript()))
+		if(!isConstant && (scope->isGlobal() || scope->isScript() || scope->isClass()))
 		{
 			handleError(CompileError::ConstNotConstant(&host, host.name));
+			return;
+		}
+	}
+	else if(parsing_user_class == puc_vars) //class variables
+	{
+		if(host.getInitializer())
+		{
+			handleError(CompileError::ClassNoInits(&host, host.name));
 			return;
 		}
 	}
@@ -511,13 +601,20 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 	}
 	else
 	{
-		if (scope->getLocalDatum(host.name))
+		if(parsing_user_class == puc_vars)
 		{
-			handleError(CompileError::VarRedef(&host, host.name));
-			return;
+			UserClassVar::create(*scope, host, type, this);
 		}
+		else
+		{
+			if (scope->getLocalDatum(host.name))
+			{
+				handleError(CompileError::VarRedef(&host, host.name));
+				return;
+			}
 
-		Variable::create(*scope, host, type, this);
+			Variable::create(*scope, host, type, this);
+		}
 	}
 }
 
@@ -549,7 +646,7 @@ void RegistrationVisitor::caseDataDeclExtraArray(ASTDataDeclExtraArray& host, vo
 			return;
 		}
 		
-		if(optional<int32_t> theSize = size.getCompileTimeValue(this, scope))
+		if(std::optional<int32_t> theSize = size.getCompileTimeValue(this, scope))
 		{
 			if(*theSize % 10000)
 			{
@@ -658,7 +755,7 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		if(!getType) return;
 		checkCast(*getType, *paramTypes[parcnt], &host);
 		if(breakRecursion(host)) {scope = oldScope; return;}
-		optional<int32_t> optVal = (*it)->getCompileTimeValue(this, scope);
+		std::optional<int32_t> optVal = (*it)->getCompileTimeValue(this, scope);
 		assert(optVal);
 		host.optvals.push_back(*optVal);
 	}
@@ -672,6 +769,7 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	host.func = function;
 	
 	scope = oldScope;
+	if(breakRecursion(host)) return;
 	// If adding it failed, it means this scope already has a function with
 	// that name.
 	if (function == NULL)
@@ -754,8 +852,21 @@ void RegistrationVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 	if(!registered(host.left.get())) return;
 
 	// Grab the left side's class.
-	DataTypeClass const* leftType = dynamic_cast<DataTypeClass const*>(
-			&getNaiveType(*host.left->getReadType(scope, this), scope));
+	DataType const& base_ltype = *host.left->getReadType(scope, this);
+	if(UserClass* user_class = base_ltype.getUsrClass())
+	{
+		ClassScope* cscope = &user_class->getScope();
+		if(UserClassVar* dat = cscope->getClassVar(host.right))
+		{
+			host.rtype = &dat->type;
+			if(!dat->type.isConstant())
+				host.wtype = &dat->type;
+			host.u_datum = dat;
+		}
+		return;
+	}
+    DataTypeClass const* leftType =
+		dynamic_cast<DataTypeClass const*>(&getNaiveType(base_ltype, scope));
 	if(!host.leftClass)
 	{
 		if (!leftType)
@@ -858,6 +969,10 @@ void RegistrationVisitor::caseExprNegate(ASTExprNegate& host, void* param)
 			}
 		}
 	}
+	analyzeUnaryExpr(host);
+}
+void RegistrationVisitor::caseExprDelete(ASTExprDelete& host, void* param)
+{
 	analyzeUnaryExpr(host);
 }
 

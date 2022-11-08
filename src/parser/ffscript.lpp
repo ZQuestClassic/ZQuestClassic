@@ -26,7 +26,10 @@ enum {st_none, st_case};
 int32_t special_state = st_none;
 
 // Defined in ffscript.ypp.
-void yymsg(std::string const& message, int32_t row = yyrow, int32_t col = yycol);
+void yymsg(std::string const& message, int32_t row = yyrow, int32_t col = yycol, char const* txt = yytext);
+void yywarn(std::string const& message, int32_t row = yyrow, int32_t col = yycol, char const* txt = yytext);
+void yyerrmsg(std::string const& message, int32_t row = yyrow, int32_t col = yycol, char const* txt = yytext);
+void yydb(std::string const& message, int32_t row = yyrow, int32_t col = yycol, char const* txt = yytext);
 %}
 
 %%
@@ -68,6 +71,7 @@ return 0
 
  /* Keywords */
 script		TOKEN( SCRIPT );
+class		TOKEN( ZCLASS );
 for		TOKEN( FOR );
 if		TOKEN( IF );
 else		TOKEN( ELSE );
@@ -105,6 +109,9 @@ until			TOKEN( UNTIL );
 unless			TOKEN( UNLESS );
 repeat			TOKEN( REPEAT );
 inline			TOKEN( INLINE );
+static			TOKEN( STATIC );
+new			TOKEN( NEW );
+delete			TOKEN( DELETE );
 CONST_ASSERT	TOKEN( CASSERT );
 
  /* Types */
@@ -286,7 +293,7 @@ appx_equal	TOKEN( APPXEQUAL );
 	"*"+[^*/\n]*\n		NEWLINE;
 	"*"+"/"			ADVANCE; BEGIN( INITIAL );
 	<<EOF>>			{
-		yymsg("WARNING: Comment does not end.", srow, scol);
+		yyerrmsg("ERROR: Comment does not end.", srow, scol);
 		TERMINATE;
 	}
 }
@@ -327,7 +334,7 @@ appx_equal	TOKEN( APPXEQUAL );
 }
 <STRING>{
 	<<EOF>>			{
-		yymsg("ERROR: String does not end.", srow, scol);
+		yyerrmsg("ERROR: String does not end.", srow, scol);
 		TERMINATE;
 	}
 	[^\"\n\\]*		ADVANCE; qstr << yytext;
@@ -357,7 +364,7 @@ appx_equal	TOKEN( APPXEQUAL );
 					escstr << ((char)ch);
 				else
 				{
-					yymsg("ERROR: Hex-insert escape code '\\x' has no value.", srow, scol);
+					yyerrmsg("ERROR: Hex-insert escape code '\\x' has no value.", srow, scol);
 					TERMINATE;
 				}
 				ch = yyinput();
@@ -376,7 +383,7 @@ appx_equal	TOKEN( APPXEQUAL );
 				ESC_CHAR((char)temp);
 			}
 			case EOF:
-				yymsg("ERROR: String does not end.", srow, scol);
+				yyerrmsg("ERROR: String does not end.", srow, scol);
 				TERMINATE;
 			case '\'':
 			case '\\':
@@ -384,7 +391,7 @@ appx_equal	TOKEN( APPXEQUAL );
 			case '\?':
 				ESC_CHAR((char)c);
 			default:
-				yymsg("ERROR: Unknown escape character.", srow, scol);
+				yyerrmsg("ERROR: Unknown escape character.", srow, scol);
 				TERMINATE;
 		}
 	}
@@ -406,11 +413,11 @@ appx_equal	TOKEN( APPXEQUAL );
  /* Import String */
  <IMPORTING>{
 	<<EOF>>			{
-		yymsg("ERROR: Import/include without string", srow, scol);
+		yyerrmsg("ERROR: Import/include without string", srow, scol);
 		TERMINATE;
 	}
 	[^\"\n]*\n]		{ //newline, without open quotation
-		yymsg("ERROR: Import/include without string", srow, scol);
+		yyerrmsg("ERROR: Import/include without string", srow, scol);
 		TERMINATE;
 	}
 	\" {
@@ -424,7 +431,7 @@ appx_equal	TOKEN( APPXEQUAL );
  
  <IMPORTSTR>{
 	<<EOF>>			{
-		yymsg("ERROR: String does not end.", srow, scol);
+		yyerrmsg("ERROR: String does not end.", srow, scol);
 		TERMINATE;
 	}
 	[^\"\n]*		ADVANCE; qstr << yytext;
@@ -528,7 +535,7 @@ appx_equal	TOKEN( APPXEQUAL );
 			yytext[yyleng-3] = yytext[yyleng-2];
 			break;
 		default:
-			yymsg("ERROR: Unknown escape character.", srow, scol);
+			yyerrmsg("ERROR: Unknown escape character.", srow, scol);
 			TERMINATE;
 	}
 	yytext[yyleng-2] = yytext[yyleng-1];
@@ -561,7 +568,7 @@ appx_equal	TOKEN( APPXEQUAL );
 
  /* Error */
  .		{
-	yymsg("WARNING: Unknown Character");
+	yyerrmsg("ERROR: Unknown Character");
 	TERMINATE;
 }
 

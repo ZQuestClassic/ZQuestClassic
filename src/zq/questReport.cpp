@@ -8,7 +8,6 @@
 #include "EditboxNew.h"
 #include "base/gui.h"
 #include "jwin.h"
-#include "mem_debug.h"
 #include "tiles.h"
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
@@ -194,7 +193,7 @@ void TileWarpsReport()
     bool type_found=false;
     
     int32_t *warp_check;
-    warp_check=(int32_t *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int32_t));
+    warp_check=(int32_t *)malloc(Map.getMapCount()*MAPSCRS*sizeof(int32_t));
     
     for(int32_t i=0; i<Map.getMapCount()*MAPSCRS; ++i)
     {
@@ -249,7 +248,7 @@ void TileWarpsReport()
         quest_report_str += '\n';
     }
     
-    zc_free(warp_check);
+    free(warp_check);
 }
 
 void SideWarpsReport()
@@ -260,7 +259,7 @@ void SideWarpsReport()
     bool type_found=false;
     
     int32_t *warp_check;
-    warp_check=(int32_t *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int32_t));
+    warp_check=(int32_t *)malloc(Map.getMapCount()*MAPSCRS*sizeof(int32_t));
     
     for(int32_t i=0; i<Map.getMapCount()*MAPSCRS; ++i)
     {
@@ -315,7 +314,7 @@ void SideWarpsReport()
         quest_report_str += '\n';
     }
     
-    zc_free(warp_check);
+    free(warp_check);
 }
 
 void LayersReport()
@@ -326,7 +325,7 @@ void LayersReport()
     bool type_found=false;
     
     int32_t *layer_check;
-    layer_check =(int32_t *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int32_t));
+    layer_check =(int32_t *)malloc(Map.getMapCount()*MAPSCRS*sizeof(int32_t));
     
     for(int32_t i=0; i<Map.getMapCount()*MAPSCRS; ++i)
     {
@@ -378,7 +377,7 @@ void LayersReport()
         quest_report_str += '\n';
     }
     
-    zc_free(layer_check);
+    free(layer_check);
 }
 
 
@@ -583,7 +582,7 @@ void integrityCheckTileWarpDestSquare()
     
     int32_t *warp_check;
     mapscr *wscr;
-    warp_check=(int32_t *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int32_t));
+    warp_check=(int32_t *)malloc(Map.getMapCount()*MAPSCRS*sizeof(int32_t));
     
     for(int32_t i=0; i<Map.getMapCount()*MAPSCRS; ++i)
     {
@@ -653,7 +652,7 @@ void integrityCheckTileWarpDestSquare()
         quest_report_str += '\n';
     }
     
-    zc_free(warp_check);
+    free(warp_check);
 }
 
 // does not check cycling combos
@@ -1384,7 +1383,7 @@ void integrityCheckTileWarpDestSquareWalkability()
     
     int32_t *warp_check;
     mapscr *wscr;
-    warp_check=(int32_t *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int32_t));
+    warp_check=(int32_t *)malloc(Map.getMapCount()*MAPSCRS*sizeof(int32_t));
     
     for(int32_t i=0; i<Map.getMapCount()*MAPSCRS; ++i)
     {
@@ -1443,7 +1442,7 @@ void integrityCheckTileWarpDestSquareWalkability()
         quest_report_str += '\n';
     }
     
-    zc_free(warp_check);
+    free(warp_check);
 }
 
 void integrityCheckTileWarpDestScreenInvalid()
@@ -1455,7 +1454,7 @@ void integrityCheckTileWarpDestScreenInvalid()
     
     int32_t *warp_check;
     mapscr *wscr;
-    warp_check=(int32_t *)zc_malloc(Map.getMapCount()*MAPSCRS*sizeof(int32_t));
+    warp_check=(int32_t *)malloc(Map.getMapCount()*MAPSCRS*sizeof(int32_t));
     
     for(int32_t i=0; i<Map.getMapCount()*MAPSCRS; ++i)
     {
@@ -1496,7 +1495,7 @@ void integrityCheckTileWarpDestScreenInvalid()
         quest_report_str += '\n';
     }
     
-    zc_free(warp_check);
+    free(warp_check);
 }
 
 int32_t onIntegrityCheckSpecialItem()
@@ -1744,7 +1743,7 @@ void itemLocationReport()
                 }
                 
                 //make a new node
-                newnode=(item_location_node*)zc_malloc(sizeof(item_location_node));
+                newnode=(item_location_node*)malloc(sizeof(item_location_node));
                 //insert the map and screen data
                 newnode->map=m+1;
                 newnode->screen=s;
@@ -1768,7 +1767,7 @@ void itemLocationReport()
                 }
                 
                 //make a new node
-                newnode=(item_location_node*)zc_malloc(sizeof(item_location_node));
+                newnode=(item_location_node*)malloc(sizeof(item_location_node));
                 //insert the map and screen data
                 newnode->map=m+1;
                 newnode->screen=s;
@@ -1792,7 +1791,7 @@ void itemLocationReport()
                 }
                 
                 //make a new node
-                newnode=(item_location_node*)zc_malloc(sizeof(item_location_node));
+                newnode=(item_location_node*)malloc(sizeof(item_location_node));
                 //insert the map and screen data
                 newnode->map=m+1;
                 newnode->screen=s;
@@ -1812,7 +1811,7 @@ void itemLocationReport()
                 }
                 
                 //make a new node
-                newnode=(item_location_node*)zc_malloc(sizeof(item_location_node));
+                newnode=(item_location_node*)malloc(sizeof(item_location_node));
                 //insert the map and screen data
                 newnode->map=m+1;
                 newnode->screen=s;
@@ -1841,7 +1840,7 @@ void itemLocationReport()
                         }
                         
                         //make a new node
-                        newnode=(item_location_node*)zc_malloc(sizeof(item_location_node));
+                        newnode=(item_location_node*)malloc(sizeof(item_location_node));
                         //insert the map and screen data
                         newnode->map=m+1;
                         newnode->screen=s;
@@ -1941,13 +1940,13 @@ void itemLocationReport()
                 while(tempnode!=NULL)
                 {
                     tempnode2=tempnode->next;
-                    zc_free(tempnode);
+                    free(tempnode);
                     tempnode=tempnode2;
                 }
             }
         }
         
-        //don't forget to zc_free this too -DD
+        //don't forget to free this too -DD
         delete[] item_location_grid[i];
     }
     
@@ -2052,7 +2051,7 @@ void enemyLocationReport()
                 }
                 
                 //make a new node
-                newnode=(enemy_location_node*)zc_malloc(sizeof(enemy_location_node));
+                newnode=(enemy_location_node*)malloc(sizeof(enemy_location_node));
                 //insert the map and screen data
                 newnode->map=m+1;
                 newnode->screen=s;
@@ -2118,7 +2117,7 @@ void enemyLocationReport()
             while(tempnode!=NULL)
             {
                 tempnode2=tempnode->next;
-                zc_free(tempnode);
+                free(tempnode);
                 tempnode=tempnode2;
             }
         }
@@ -2210,7 +2209,7 @@ void scriptLocationReport()
                 }
                 
                 //make a new node
-                newnode=(script_location_node*)zc_malloc(sizeof(script_location_node));
+                newnode=(script_location_node*)malloc(sizeof(script_location_node));
                 //insert the map and screen data
                 newnode->map=m+1;
                 newnode->screen=s;
@@ -2270,7 +2269,7 @@ void scriptLocationReport()
             while(tempnode!=NULL)
             {
                 tempnode2=tempnode->next;
-                zc_free(tempnode);
+                free(tempnode);
                 tempnode=tempnode2;
             }
         }
@@ -2531,7 +2530,7 @@ void ComboTypeLocationReport()
                     }
                     
                     //make a new node
-                    newnode=(combotype_location_node*)zc_malloc(sizeof(combotype_location_node));
+                    newnode=(combotype_location_node*)malloc(sizeof(combotype_location_node));
                     //insert the map and screen data
                     newnode->map=m+1;
                     newnode->screen=s;
@@ -2607,7 +2606,7 @@ void ComboTypeLocationReport()
             while(tempnode!=NULL)
             {
                 tempnode2=tempnode->next;
-                zc_free(tempnode);
+                free(tempnode);
                 tempnode=tempnode2;
             }
         }

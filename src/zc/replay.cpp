@@ -6,10 +6,16 @@
 #include <map>
 #include <fstream>
 #include <sstream>
+#include <fmt/format.h>
+
+#define XXH_STATIC_LINKING_ONLY
+#define XXH_IMPLEMENTATION
+#include <xxhash.h>
 
 struct ReplayStep;
 
 static const int ASSERT_FAILED_EXIT_CODE = 120;
+static const int VERSION = 4;
 
 static const char TypeMeta = 'M';
 static const char TypeButtonDown = 'D';
@@ -20,6 +26,7 @@ static const char TypeCheat = 'X';
 static const char TypeRng = 'R';
 
 static ReplayMode mode = ReplayMode::Off;
+static int version;
 static bool debug;
 static bool sync_rng;
 static int frame_arg;
@@ -35,6 +42,10 @@ static bool did_attempt_input_during_replay;
 static int frame_count;
 static bool previous_control_state[ZC_CONTROL_STATES];
 static std::vector<zc_randgen *> rngs;
+static uint32_t prev_gfx_hash;
+static int prev_debug_x;
+static int prev_debug_y;
+static bool saved_image;
 
 struct ReplayStep
 {
@@ -129,7 +140,7 @@ struct ButtonReplayStep : public ReplayStep
 
     std::string print()
     {
-        return string_format("%c %d %s", type, frame, button_names[button_index]);
+        return fmt::format("{} {} {}", type, frame, button_names[button_index]);
     }
 };
 
@@ -147,7 +158,7 @@ struct CommentReplayStep : ReplayStep
 
     std::string print()
     {
-        return string_format("%c %d %s", type, frame, comment.c_str());
+        return fmt::format("{} {} {}", type, frame, comment);
     }
 };
 
@@ -167,7 +178,7 @@ struct QuitReplayStep : ReplayStep
 
     std::string print()
     {
-        return string_format("%c %d %d", type, frame, quit_state);
+        return fmt::format("{} {} {}", type, frame, quit_state);
     }
 };
 
@@ -189,11 +200,11 @@ struct CheatReplayStep : ReplayStep
     {
         std::string cheat_name = cheat_to_string(cheat);
         if (arg1 == -1)
-            return string_format("%c %d %s", type, frame, cheat_name.c_str());
+            return fmt::format("{} {} {}", type, frame, cheat_name);
         else if (arg2 == -1)
-            return string_format("%c %d %s %d", type, frame, cheat_name.c_str(), arg1);
+            return fmt::format("{} {} {} {}", type, frame, cheat_name, arg1);
         else
-            return string_format("%c %d %s %d %d", type, frame, cheat_name.c_str(), arg1, arg2);
+            return fmt::format("{} {} {} {} {}", type, frame, cheat_name, arg1, arg2);
     }
 };
 
@@ -214,7 +225,7 @@ struct RngReplayStep : ReplayStep
 
     std::string print()
     {
-        return string_format("%c %d %d %d %d", type, frame, start_index, end_index, seed);
+        return fmt::format("{} {} {} {} {}", type, frame, start_index, end_index, seed);
     }
 };
 
@@ -244,6 +255,65 @@ static RngReplayStep *find_rng_step(int rng_index, size_t starting_step_index, c
     }
 
     return result;
+}
+
+static bool steps_are_equal(const ReplayStep* step1, const ReplayStep* step2)
+{
+	bool are_equal = false;
+
+	if (step1 == nullptr && step2 == nullptr)
+	{
+		are_equal = true;
+	}
+	else if (step1 == nullptr || step2 == nullptr || step1->frame != step2->frame || step1->type != step2->type)
+	{
+		are_equal = false;
+	}
+	else
+		switch (step2->type)
+		{
+		case TypeComment:
+		{
+			auto comment_replay_step = static_cast<const CommentReplayStep *>(step1);
+			auto comment_record_step = static_cast<const CommentReplayStep *>(step2);
+			are_equal = comment_replay_step->comment == comment_record_step->comment;
+		}
+		break;
+		case TypeButtonUp:
+		case TypeButtonDown:
+		{
+			auto button_replay_step = static_cast<const ButtonReplayStep *>(step1);
+			auto button_record_step = static_cast<const ButtonReplayStep *>(step2);
+			are_equal = button_replay_step->button_index == button_record_step->button_index;
+		}
+		break;
+		case TypeQuit:
+		{
+			auto quit_replay_step = static_cast<const QuitReplayStep *>(step1);
+			auto quit_record_step = static_cast<const QuitReplayStep *>(step2);
+			are_equal = quit_replay_step->quit_state == quit_record_step->quit_state;
+		}
+		break;
+		case TypeCheat:
+		{
+			auto cheat_replay_step = static_cast<const CheatReplayStep *>(step1);
+			auto cheat_record_step = static_cast<const CheatReplayStep *>(step2);
+			are_equal = cheat_replay_step->cheat == cheat_record_step->cheat;
+		}
+		break;
+		case TypeRng:
+		{
+			auto rng_replay_step = static_cast<const RngReplayStep *>(step1);
+			auto rng_record_step = static_cast<const RngReplayStep *>(step2);
+			are_equal =
+				rng_replay_step->seed == rng_record_step->seed &&
+				rng_replay_step->start_index == rng_record_step->start_index &&
+				rng_replay_step->end_index == rng_record_step->end_index;
+		}
+		break;
+		}
+
+	return are_equal;
 }
 
 static bool is_Fkey(int k)
@@ -287,6 +357,29 @@ static void start_recording()
 
 static void do_recording_poll()
 {
+	if (debug && !Quit)
+	{
+		if (!screenscrolling)
+		{
+			int x = HeroX().getInt();
+			int y = HeroY().getInt();
+			if (x != prev_debug_x || y != prev_debug_y)
+			{
+				replay_step_comment(fmt::format("h {:x} {:x}", x, y));
+				prev_debug_x = x;
+				prev_debug_y = y;
+			}
+		}
+
+		if (mode != ReplayMode::Replay)
+		{
+			int depth = bitmap_color_depth(framebuf);
+			size_t len = framebuf->w * framebuf->h * BYTES_PER_PIXEL(depth);
+			uint32_t hash = XXH32(framebuf->dat, len, 0);
+			replay_step_gfx(hash);
+		}
+	}
+
     for (int i = 0; i < ZC_CONTROL_STATES; i++)
     {
         bool state = raw_control_state[i];
@@ -433,6 +526,7 @@ static void load_replay(std::string filename)
 
     file.close();
     replay_log_current_index = 0;
+    version = replay_get_meta_int("version", 1);
     debug = replay_get_meta_bool("debug");
     sync_rng = replay_get_meta_bool("sync_rng");
 }
@@ -441,12 +535,13 @@ static void save_replay(std::string filename, const std::vector<std::shared_ptr<
 {
     std::time_t ct = std::time(0);
     replay_set_meta("time_updated", strtok(ctime(&ct), "\n"));
+    replay_set_meta("version", version);
 
     std::ofstream out(filename);
     for (auto it : meta_map)
-        out << string_format("%c %s %s", TypeMeta, it.first.c_str(), it.second.c_str()).c_str() << '\n';
+        out << fmt::format("{} {} {}", TypeMeta, it.first, it.second) << '\n';
     for (auto it : log)
-        out << it->print().c_str() << '\n';
+        out << it->print() << '\n';
     out.close();
 }
 
@@ -476,63 +571,12 @@ static void check_assert()
 
         auto replay_step = replay_log[assert_current_index];
         auto record_step = record_log[assert_current_index];
-        bool are_equal = true;
-
-        if (replay_step->frame != record_step->frame || replay_step->type != record_step->type)
-        {
-            are_equal = false;
-        }
-        else
-            switch (record_step->type)
-            {
-            case TypeComment:
-            {
-                auto comment_replay_step = static_cast<CommentReplayStep *>(replay_step.get());
-                auto comment_record_step = static_cast<CommentReplayStep *>(record_step.get());
-                are_equal = comment_replay_step->comment == comment_record_step->comment;
-            }
-            break;
-            case TypeButtonUp:
-            case TypeButtonDown:
-            {
-                auto button_replay_step = static_cast<ButtonReplayStep *>(replay_step.get());
-                auto button_record_step = static_cast<ButtonReplayStep *>(record_step.get());
-                are_equal = button_replay_step->button_index == button_record_step->button_index;
-            }
-            break;
-            case TypeQuit:
-            {
-                auto quit_replay_step = static_cast<QuitReplayStep *>(replay_step.get());
-                auto quit_record_step = static_cast<QuitReplayStep *>(record_step.get());
-                are_equal = quit_replay_step->quit_state == quit_record_step->quit_state;
-            }
-            break;
-            case TypeCheat:
-            {
-                auto cheat_replay_step = static_cast<CheatReplayStep *>(replay_step.get());
-                auto cheat_record_step = static_cast<CheatReplayStep *>(record_step.get());
-                are_equal = cheat_replay_step->cheat == cheat_record_step->cheat;
-            }
-            break;
-            case TypeRng:
-            {
-                auto rng_replay_step = static_cast<RngReplayStep *>(replay_step.get());
-                auto rng_record_step = static_cast<RngReplayStep *>(record_step.get());
-                are_equal =
-                    rng_replay_step->seed == rng_record_step->seed &&
-                    rng_replay_step->start_index == rng_record_step->start_index &&
-                    rng_replay_step->end_index == rng_record_step->end_index;
-            }
-            break;
-            }
-
-        if (!are_equal)
+        if (!steps_are_equal(replay_step.get(), record_step.get()))
         {
             has_assert_failed = true;
             int line_number = assert_current_index + meta_map.size() + 1;
-            std::string error = string_format("<%d> expected:\n\t%s\nbut got:\n\t%s", line_number,
-                                              replay_step->print().c_str(), record_step->print().c_str());
-            fprintf(stderr, "%s\n", error.c_str());
+            fmt::print(stderr, "<{}> expected:\n\t{}\nbut got:\n\t{}\n", line_number,
+                                              replay_step->print(), record_step->print());
             replay_save(filename + ".roundtrip");
             // Paused = true;
             break;
@@ -587,6 +631,29 @@ static void start_manual_takeover()
     Paused = true;
 }
 
+static void do_snapshot()
+{
+    if (mode == ReplayMode::Snapshot && frame_arg != -1)
+    {
+        if (frame_arg == frame_count)
+        {
+            int line_number = replay_log_current_index + meta_map.size() + 1;
+            if (debug) line_number += 1;
+            std::string img_filename = fmt::format("{}.{}-{}.bmp", filename, frame_count, line_number);
+            fmt::print("Saving requested bitmap: {}\n", img_filename);
+            save_bitmap(img_filename.c_str(), framebuf, RAMpal);
+            saved_image = true;
+        }
+        else if (frame_arg < frame_count)
+        {
+            if (saved_image)
+                exit(0);
+            fmt::print(stderr, "Missed expected snapshot frame: {}\n", frame_arg);
+            exit(1);
+        }
+    }
+}
+
 void replay_start(ReplayMode mode_, std::string filename_)
 {
     ASSERT(mode == ReplayMode::Off);
@@ -599,6 +666,9 @@ void replay_start(ReplayMode mode_, std::string filename_)
     filename = filename_;
     manual_takeover_start_index = assert_current_index = replay_log_current_index = frame_count = 0;
     frame_arg = -1;
+    prev_gfx_hash = 0;
+    prev_debug_x = prev_debug_y = -1;
+    saved_image = false;
     ButtonReplayStep::load_keys();
 
     switch (mode)
@@ -608,12 +678,14 @@ void replay_start(ReplayMode mode_, std::string filename_)
         return;
     case ReplayMode::Record:
     {
+        version = VERSION;
         std::time_t ct = std::time(0);
         replay_set_meta("time_created", strtok(ctime(&ct), "\n"));
         start_recording();
         break;
     }
     case ReplayMode::Replay:
+    case ReplayMode::Snapshot:
         load_replay(filename);
         break;
     case ReplayMode::Assert:
@@ -663,16 +735,19 @@ void replay_poll()
         }
         keyboard_callback = nullptr;
         locking_keys = false;
-
-        if (jwin_alert("Replay",
-                       "Would you like to halt the replay and",
-                       "take back control?",
-                       "",
-                       "Yes", "No", 'y', 'n', lfont) == 1)
-        {
-            replay_quit();
-            return;
-        }
+		
+		enter_sys_pal();
+		if (jwin_alert("Replay",
+					   "Would you like to halt the replay and",
+					   "take back control?",
+					   "",
+					   "Yes", "No", 'y', 'n', lfont) == 1)
+		{
+			replay_quit();
+			exit_sys_pal();
+			return;
+		}
+		exit_sys_pal();
 
         did_attempt_input_during_replay = false;
         locking_keys = true;
@@ -683,12 +758,19 @@ void replay_poll()
             down_control_states[i] = down_states[i];
     }
 
-    if (frame_arg != -1 && frame_arg == frame_count)
+    if (frame_arg != -1 && frame_arg <= frame_count && replay_is_replaying())
     {
+        if (mode == ReplayMode::Snapshot)
+            do_snapshot();
+
         if (mode == ReplayMode::Update)
         {
             start_manual_takeover();
             jwin_alert("Recording", "Re-recording until new screen is loaded", NULL, NULL, "OK", NULL, 13, 27, lfont);
+        }
+        else if (mode == ReplayMode::Snapshot && frame_arg == frame_count)
+        {
+            // Let it go on for one more frame.
         }
         else
         {
@@ -708,6 +790,7 @@ void replay_poll()
         do_recording_poll();
         break;
     case ReplayMode::Replay:
+    case ReplayMode::Snapshot:
         do_replaying_poll();
         if (replay_log_current_index == replay_log.size())
             replay_stop();
@@ -717,6 +800,8 @@ void replay_poll()
         do_recording_poll();
         check_assert();
         if (replay_log_current_index == replay_log.size() && assert_current_index == replay_log.size())
+            replay_stop();
+        if (has_assert_failed && frame_count - replay_log[assert_current_index]->frame > 60*60)
             replay_stop();
         break;
     case ReplayMode::Update:
@@ -746,6 +831,19 @@ void replay_peek_quit()
             else
                 Quit = quit_replay_step->quit_state;
             break;
+        }
+        i++;
+    }
+}
+
+void replay_peek_input()
+{
+    size_t i = replay_log_current_index;
+    while (i < replay_log.size() && replay_log[i]->frame == frame_count)
+    {
+        if (replay_log[i]->type == TypeButtonDown || replay_log[i]->type == TypeButtonUp)
+        {
+            replay_log[i]->run();
         }
         i++;
     }
@@ -796,6 +894,14 @@ void replay_stop()
     {
         replay_save();
         exit(0);
+    }
+
+    if (mode == ReplayMode::Snapshot)
+    {
+        if (saved_image)
+            exit(0);
+        fmt::print(stderr, "Missed expected snapshot frame: {}\n", frame_arg);
+        exit(1);
     }
 
     mode = ReplayMode::Off;
@@ -894,7 +1000,7 @@ void replay_stop_manual_takeover()
 
 void replay_step_comment(std::string comment)
 {
-    if (replay_is_active())
+    if (replay_is_recording())
     {
         record_log.push_back(std::make_shared<CommentReplayStep>(frame_count, comment));
         // Not necessary to call this here, but helps to halt the program exactly when an unexpected
@@ -902,6 +1008,62 @@ void replay_step_comment(std::string comment)
         if (mode == ReplayMode::Assert)
             check_assert();
     }
+}
+
+// https://base91.sourceforge.net/
+// The maximum number of digits this can generate:
+//     uint64_t = 10
+//     uint32_t = 5
+//     uint16_t = 3
+//     uint8_t  = 2
+template <typename T>
+std::string int_to_basE91(T value)
+{
+    const char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&()*+,./:;<=>?@[]^_`{|}~\"";
+    std::string result;
+    while (value > 0)
+    {
+        T remainder = value % 91;
+        value /= 91;
+        result.insert(result.begin(), alphabet[remainder]);
+    }
+    return result;
+}
+
+void replay_step_gfx(uint32_t gfx_hash)
+{
+    do_snapshot();
+
+    // Skip if last invocation was the same value.
+    if (gfx_hash == prev_gfx_hash)
+        return;
+
+    prev_gfx_hash = gfx_hash;
+    // 16 bits should be enough entropy to detect visual regressions.
+    // Using uint16_t reduces .zplay by ~7%.
+    replay_step_comment(fmt::format("g {}", int_to_basE91((uint16_t)gfx_hash)));
+
+    // Note: I tried a simple queue cache to remember the last N hashes and use shorthand
+    // for repeats (ex: gfx ^2), but even with a huge memory of 16777216 hashes the
+    // savings was never more than 2%, so not worth it.
+
+	if (mode == ReplayMode::Assert && has_assert_failed)
+	{
+		size_t step_index = record_log.size() - 1;
+		int frame_failed = replay_log[assert_current_index]->frame;
+		if (frame_failed == frame_count)
+		{
+			bool gfx_matches =
+				replay_log.size() > step_index &&
+				steps_are_equal(record_log.back().get(), replay_log.at(step_index).get());
+			if (!gfx_matches)
+			{
+				std::string img_filename = fmt::format("{}.unexpected-{}-{}.bmp", filename, frame_count, step_index);
+				fmt::print(stderr, "Saving unexpected bitmap: {}\n", img_filename);
+				save_bitmap(img_filename.c_str(), framebuf, RAMpal);
+			}
+		}
+	}
 }
 
 void replay_set_meta(std::string key, std::string value)
@@ -922,7 +1084,7 @@ void replay_set_meta(std::string key, std::string value)
 void replay_set_meta(std::string key, int value)
 {
     if (replay_is_active())
-        meta_map[key] = string_format("%d", value);
+        meta_map[key] = fmt::format("{}", value);
 }
 
 void replay_set_meta_bool(std::string key, bool value)
@@ -946,9 +1108,23 @@ std::string replay_get_meta_str(std::string key)
     return get_meta_raw_value(key);
 }
 
+std::string replay_get_meta_str(std::string key, std::string defaultValue)
+{
+	std::string raw = get_meta_raw_value(key);
+	if (raw.empty()) return defaultValue;
+	return raw;
+}
+
 int replay_get_meta_int(std::string key)
 {
     return std::stoi(get_meta_raw_value(key).c_str());
+}
+
+int replay_get_meta_int(std::string key, int defaultValue)
+{
+    std::string raw = get_meta_raw_value(key);
+    if (raw.empty()) return defaultValue;
+    return std::stoi(raw.c_str());
 }
 
 bool replay_get_meta_bool(std::string key)
@@ -958,17 +1134,24 @@ bool replay_get_meta_bool(std::string key)
 
 void replay_step_quit(int quit_state)
 {
-    record_log.push_back(std::make_shared<QuitReplayStep>(frame_count, quit_state));
+    if (replay_is_recording())
+        record_log.push_back(std::make_shared<QuitReplayStep>(frame_count, quit_state));
 }
 
 void replay_step_cheat(Cheat cheat, int arg1, int arg2)
 {
-    record_log.push_back(std::make_shared<CheatReplayStep>(frame_count, cheat, arg1, arg2));
+    if (replay_is_recording())
+        record_log.push_back(std::make_shared<CheatReplayStep>(frame_count, cheat, arg1, arg2));
 }
 
 ReplayMode replay_get_mode()
 {
     return mode;
+}
+
+int replay_get_version()
+{
+    return version;
 }
 
 std::string replay_get_filename()
@@ -979,6 +1162,7 @@ std::string replay_get_filename()
 std::string replay_get_buttons_string()
 {
     std::string text;
+    text += fmt::format("{} ", frame_count);
     for (int i = 0; i < ZC_CONTROL_STATES; i++)
     {
         if (raw_control_state[i])
@@ -1015,7 +1199,12 @@ void replay_set_sync_rng(bool enable)
 
 bool replay_is_replaying()
 {
-    return mode == ReplayMode::Replay || mode == ReplayMode::Assert || mode == ReplayMode::Update;
+    return mode == ReplayMode::Replay || mode == ReplayMode::Snapshot || mode == ReplayMode::Assert || mode == ReplayMode::Update;
+}
+
+bool replay_is_recording()
+{
+    return mode == ReplayMode::Record || mode == ReplayMode::Assert || mode == ReplayMode::Update;
 }
 
 void replay_set_frame_arg(int frame)
@@ -1045,32 +1234,39 @@ void replay_set_rng_seed(zc_randgen *rng, int seed)
     if (replay_is_replaying())
     {
         RngReplayStep *rng_step = find_rng_step(index, replay_log_current_index, replay_log);
-        // Only OK to be missing if in update mode.
-        if (mode != ReplayMode::Update || rng_step)
+        if (rng_step)
         {
-            if (!rng_step && mode == ReplayMode::Assert)
-            {
-                fprintf(stderr, "rng desync at step index %zu\n", replay_log_current_index);
-                replay_stop();
-            }
-            ASSERT(rng_step);
             seed = rng_step->seed;
         }
-    }
-
-    bool did_extend = false;
-    if (!record_log.empty() && record_log.back()->type == TypeRng && record_log.back()->frame == frame_count)
-    {
-        auto rng_step = static_cast<RngReplayStep *>(record_log.back().get());
-        if (rng_step->seed == seed && rng_step->end_index == index - 1)
+        // Only OK to be missing if in update mode.
+        else if (mode != ReplayMode::Update)
         {
-            rng_step->end_index = index;
-            did_extend = true;
+            int line_number = replay_log_current_index + meta_map.size() + 1;
+            fprintf(stderr, "<%d> rng desync\n", line_number);
+            if (mode == ReplayMode::Assert)
+            {
+                replay_stop();
+            }
+            ASSERT(false);
         }
     }
 
-    if (!did_extend)
-        record_log.push_back(std::make_shared<RngReplayStep>(frame_count, index, index, seed));
+    if (replay_is_recording())
+    {
+        bool did_extend = false;
+        if (!record_log.empty() && record_log.back()->type == TypeRng && record_log.back()->frame == frame_count)
+        {
+            auto rng_step = static_cast<RngReplayStep *>(record_log.back().get());
+            if (rng_step->seed == seed && rng_step->end_index == index - 1)
+            {
+                rng_step->end_index = index;
+                did_extend = true;
+            }
+        }
+
+        if (!did_extend)
+            record_log.push_back(std::make_shared<RngReplayStep>(frame_count, index, index, seed));
+    }
 
     rng->seed(seed);
 }

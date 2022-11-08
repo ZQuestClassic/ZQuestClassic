@@ -2,7 +2,6 @@
 #include "common.h"
 #include "info.h"
 #include <gui/builder.h>
-#include <boost/format.hpp>
 #include <sstream>
 #include "zc_list_data.h"
 #include "gui/use_size.h"

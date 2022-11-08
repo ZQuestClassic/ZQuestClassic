@@ -91,7 +91,16 @@ int32_t main(int32_t argc, char* argv[])
 	
 	
 	Z_message("Initializing Allegro... "); //{
-	allegro_init();
+	if(!al_init())
+	{
+		Z_error_fatal("Failed Init!");
+		QUIT_LAUNCHER();
+	}
+	if(allegro_init() != 0)
+	{
+		Z_error_fatal("Failed Init!");
+		QUIT_LAUNCHER();
+	}
 
 	// Merge old a4 config into a5 system config.
 	ALLEGRO_CONFIG *tempcfg = al_load_config_file(zc_get_standard_config_name());
@@ -110,7 +119,6 @@ int32_t main(int32_t argc, char* argv[])
 		QUIT_LAUNCHER();
 	}
 	
-	enable_hardware_cursor();
 	LOCK_VARIABLE(lastfps);
 	
 	LOCK_VARIABLE(framecnt);
@@ -188,12 +196,31 @@ int32_t main(int32_t argc, char* argv[])
 #endif
 	}
 
+	if (strcmp(zc_get_config("ZLAUNCH", "scaling_mode", "linear"), "linear") == 0)
+		all_set_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR);
+
 	int32_t videofail = set_gfx_mode(GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
 	
 	if(videofail)
 	{
 		Z_error_fatal(allegro_error);
 		QUIT_LAUNCHER();
+	}
+
+	if (zc_get_config("ZLAUNCH","hw_cursor",0) == 1)
+	{
+		// Must wait for the display thread to create the a5 display before the
+		// hardware cursor can be enabled.
+		while (!all_get_display()) rest(1);
+		enable_hardware_cursor();
+		select_mouse_cursor(MOUSE_CURSOR_ARROW);
+	}
+	else
+	{
+#ifdef _WIN32
+		while (!all_get_display()) rest(1);
+		al_hide_mouse_cursor(all_get_display());
+#endif
 	}
 	
 	Z_message("Loading bitmaps..."); //{

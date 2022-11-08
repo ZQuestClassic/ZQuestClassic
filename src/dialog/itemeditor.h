@@ -67,20 +67,31 @@ private:
 	ItemEditorDialog(itemdata const& ref, char const* str, int32_t index);
 	ItemEditorDialog(int32_t index);
 	void loadItemClass();
+	void refreshScripts();
+	std::shared_ptr<GUI::Widget> IT_INITD(int index);
+	std::shared_ptr<GUI::Widget> WP_INITD(int index);
 	std::shared_ptr<GUI::Window> window;
+	std::shared_ptr<GUI::TextField> tf_it_initd[8];
+	std::shared_ptr<GUI::TextField> tf_wp_initd[8];
 	std::shared_ptr<GUI::Label> l_attribs[10];
+	std::shared_ptr<GUI::Label> l_it_initds[8];
+	std::shared_ptr<GUI::Label> l_wp_initds[8];
 	std::shared_ptr<GUI::Label> l_spr[10];
 	std::shared_ptr<GUI::Checkbox> l_flags[16];
 	std::shared_ptr<GUI::Label> l_power;
 	std::shared_ptr<GUI::Label> l_sfx[2];
 	std::string h_attribs[10];
 	std::string h_spr[10];
+	std::string h_it_initds[8];
+	std::string h_wp_initds[8];
 	std::string h_flags[16];
 	std::string h_power;
 	std::string h_sfx[2];
 	std::shared_ptr<GUI::Button> ib_attribs[10];
 	std::shared_ptr<GUI::Button> ib_spr[10];
 	std::shared_ptr<GUI::Button> ib_flags[16];
+	std::shared_ptr<GUI::Button> ib_it_initds[8];
+	std::shared_ptr<GUI::Button> ib_wp_initds[8];
 	std::shared_ptr<GUI::Button> ib_power;
 	std::shared_ptr<GUI::Button> ib_sfx[2];
 	std::shared_ptr<GUI::TileFrame> animFrame;
@@ -91,6 +102,10 @@ private:
 	GUI::ListData list_items, list_counters, list_sprites,
 		list_itemdatscript, list_itemsprscript, list_weaponscript,
 		list_weaptype, list_deftypes, list_bottletypes;
+	std::shared_ptr<GUI::Widget> ATTRIB_FIELD_IMPL(int32_t* mem, int index);
+	std::shared_ptr<GUI::Widget> FLAG_CHECK(int index, int bit);
+	template <typename T>
+	std::shared_ptr<GUI::Widget> SPRITE_DROP_IMPL(T* mem, int index);
 	friend void call_item_editor(int32_t index);
 };
 

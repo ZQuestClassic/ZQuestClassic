@@ -12,6 +12,11 @@
 #include <allegro.h>
 #include <a5alleg.h>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#include <emscripten/html5.h>
+#endif
+
 void abort_example(char const *format, ...)
 {
   va_list args;
@@ -44,7 +49,7 @@ void log_printf(char const *format, ...)
   ALLEGRO_TRACE_CHANNEL_LEVEL("log", 1)
   ("%s", x);
 #else
-  vprintf(format, args);
+  vfprintf(stderr, format, args);
 #endif
   va_end(args);
 }
@@ -105,6 +110,7 @@ struct Example
   float zoom;
   float scroll_x, scroll_y;
   enum AddHole add_hole;
+  bool mdown;
 };
 
 static struct Example ex;
@@ -407,18 +413,182 @@ static void print_vertices(void)
   log_printf("\n");
 }
 
-int main(int argc, char **argv)
+int handle_event(ALLEGRO_EVENT *event)
+{
+  if (event->type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+  {
+    return 1;
+  }
+  if (event->type == ALLEGRO_EVENT_KEY_CHAR)
+  {
+    if (event->keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+    {
+      return 1;
+    }
+    switch (toupper(event->keyboard.unichar))
+    {
+    case ' ':
+      if (++ex.mode >= MODE_MAX)
+        ex.mode = 0;
+      break;
+    case 'J':
+      if (++ex.join_style > ALLEGRO_LINE_JOIN_MITER)
+        ex.join_style = ALLEGRO_LINE_JOIN_NONE;
+      break;
+    case 'C':
+      if (++ex.cap_style > ALLEGRO_LINE_CAP_CLOSED)
+        ex.cap_style = ALLEGRO_LINE_CAP_NONE;
+      break;
+    case '+':
+      ex.thickness += 0.25f;
+      break;
+    case '-':
+      ex.thickness -= 0.25f;
+      if (ex.thickness <= 0.0f)
+        ex.thickness = 0.0f;
+      break;
+    case '[':
+      ex.miter_limit -= 0.1f;
+      if (ex.miter_limit < 0.0f)
+        ex.miter_limit = 0.0f;
+      break;
+    case ']':
+      ex.miter_limit += 0.1f;
+      if (ex.miter_limit >= 10.0f)
+        ex.miter_limit = 10.0f;
+      break;
+    case 'S':
+      ex.software = !ex.software;
+      break;
+    case 'R':
+      reset();
+      break;
+    case 'P':
+      print_vertices();
+      break;
+    case 'H':
+      ex.add_hole = NEW_HOLE;
+      break;
+    }
+  }
+  if (event->type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
+  {
+    float x = event->mouse.x, y = event->mouse.y;
+    transform(&x, &y);
+    if (event->mouse.button == 1)
+      lclick(x, y);
+    if (event->mouse.button == 2)
+      rclick(x, y);
+    if (event->mouse.button == 3)
+      ex.mdown = true;
+  }
+  if (event->type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
+  {
+    ex.cur_vertex = -1;
+    if (event->mouse.button == 3)
+      ex.mdown = false;
+  }
+  if (event->type == ALLEGRO_EVENT_MOUSE_AXES)
+  {
+    float x = event->mouse.x, y = event->mouse.y;
+    transform(&x, &y);
+
+    if (ex.mdown)
+      scroll(event->mouse.dx, event->mouse.dy);
+    else
+      drag(x, y);
+
+    ex.zoom *= pow(0.9, event->mouse.dz);
+  }
+
+  return 0;
+}
+
+void draw()
+{
+  if (ex.software)
+  {
+    al_set_target_bitmap(ex.dbuf);
+    draw_all();
+    al_set_target_backbuffer(ex.display);
+    al_draw_bitmap(ex.dbuf, 0, 0, 0);
+  }
+  else
+  {
+    al_set_target_backbuffer(ex.display);
+    draw_all();
+  }
+  al_flip_display();
+}
+
+#ifdef __EMSCRIPTEN__
+void emscripten_main_loop()
 {
   ALLEGRO_EVENT event;
+
+  while (al_get_next_event(ex.queue, &event))
+  {
+    if (handle_event(&event) == 1)
+    {
+      emscripten_cancel_main_loop();
+    }
+  }
+  draw();
+}
+#endif
+
+void main_loop()
+{
+  ALLEGRO_EVENT event;
+
+  while (true)
+  {
+    if (al_is_event_queue_empty(ex.queue))
+      draw();
+    al_wait_for_event(ex.queue, &event);
+    if (handle_event(&event) == 1)
+      break;
+  }
+}
+
+int main(int argc, char **argv)
+{
+  // return 0;
+
   bool have_touch_input;
-  bool mdown = false;
 
   (void)argc;
   (void)argv;
 
+  // https://github.com/emscripten-core/emscripten/issues/7684#issuecomment-448446674
+  // EmscriptenWebGLContextAttributes attr;
+  // emscripten_webgl_init_context_attributes(&attr);
+  // attr.majorVersion = 2;
+  // attr.minorVersion = 0;
+  // EMSCRIPTEN_WEBGL_CONTEXT_HANDLE ctx = emscripten_webgl_create_context(0, &attr);
+  // emscripten_webgl_make_context_current(ctx);
+
   if (!al_init())
   {
     abort_example("Could not init Allegro.\n");
+  }
+
+  // Do a bunch of bogus allegro 4 stuff, just to confirm allegro-legacy linked correctly.
+  {
+    allegro_init();
+    packfile_password("");
+    int errrr = 0;
+    if (file_exists("", 0, &errrr)) {
+      log_printf("yes\n");
+    } else {
+      log_printf("no\n");
+    }
+    if (file_exists("zc.cfg", 0, &errrr)) {
+      log_printf("yes\n");
+    } else {
+      log_printf("no\n");
+    }
+    // all_render_screen();
   }
 
   open_log();
@@ -437,10 +607,6 @@ int main(int argc, char **argv)
   {
     abort_example("Error creating display\n");
   }
-
-  // just testing that allegro-legacy symbols are present.
-  all_get_display();
-  packfile_password("lol");
 
   ex.font = al_create_builtin_font();
   if (!ex.font)
@@ -471,108 +637,13 @@ int main(int argc, char **argv)
 
   reset();
 
-  for (;;)
-  {
-    if (al_is_event_queue_empty(ex.queue))
-    {
-      if (ex.software)
-      {
-        al_set_target_bitmap(ex.dbuf);
-        draw_all();
-        al_set_target_backbuffer(ex.display);
-        al_draw_bitmap(ex.dbuf, 0, 0, 0);
-      }
-      else
-      {
-        al_set_target_backbuffer(ex.display);
-        draw_all();
-      }
-      al_flip_display();
-    }
+  // all_render_screen();
 
-    al_wait_for_event(ex.queue, &event);
-    if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
-      break;
-    if (event.type == ALLEGRO_EVENT_KEY_CHAR)
-    {
-      if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
-        break;
-      switch (toupper(event.keyboard.unichar))
-      {
-      case ' ':
-        if (++ex.mode >= MODE_MAX)
-          ex.mode = 0;
-        break;
-      case 'J':
-        if (++ex.join_style > ALLEGRO_LINE_JOIN_MITER)
-          ex.join_style = ALLEGRO_LINE_JOIN_NONE;
-        break;
-      case 'C':
-        if (++ex.cap_style > ALLEGRO_LINE_CAP_CLOSED)
-          ex.cap_style = ALLEGRO_LINE_CAP_NONE;
-        break;
-      case '+':
-        ex.thickness += 0.25f;
-        break;
-      case '-':
-        ex.thickness -= 0.25f;
-        if (ex.thickness <= 0.0f)
-          ex.thickness = 0.0f;
-        break;
-      case '[':
-        ex.miter_limit -= 0.1f;
-        if (ex.miter_limit < 0.0f)
-          ex.miter_limit = 0.0f;
-        break;
-      case ']':
-        ex.miter_limit += 0.1f;
-        if (ex.miter_limit >= 10.0f)
-          ex.miter_limit = 10.0f;
-        break;
-      case 'S':
-        ex.software = !ex.software;
-        break;
-      case 'R':
-        reset();
-        break;
-      case 'P':
-        print_vertices();
-        break;
-      case 'H':
-        ex.add_hole = NEW_HOLE;
-        break;
-      }
-    }
-    if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
-    {
-      float x = event.mouse.x, y = event.mouse.y;
-      transform(&x, &y);
-      if (event.mouse.button == 1)
-        lclick(x, y);
-      if (event.mouse.button == 2)
-        rclick(x, y);
-      if (event.mouse.button == 3)
-        mdown = true;
-    }
-    if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
-    {
-      ex.cur_vertex = -1;
-      if (event.mouse.button == 3)
-        mdown = false;
-    }
-    if (event.type == ALLEGRO_EVENT_MOUSE_AXES)
-    {
-      float x = event.mouse.x, y = event.mouse.y;
-      transform(&x, &y);
-
-      if (mdown)
-        scroll(event.mouse.dx, event.mouse.dy);
-      else
-        drag(x, y);
-
-      ex.zoom *= pow(0.9, event.mouse.dz);
-    }
-  }
+#ifdef __EMSCRIPTEN__
+  emscripten_set_main_loop(emscripten_main_loop, 0, true);
+#else
+  main_loop();
+#endif
 
   al_destroy_display(ex.display);
   close_log(true);

@@ -872,7 +872,7 @@ static int do_play_fli(BITMAP *bmp, int loop, int (*callback)(void))
 
       while (fli_timer <= 0) {
 	 /* wait a bit */
-	 rest(0);
+	 rest(1);
       }
    }
 

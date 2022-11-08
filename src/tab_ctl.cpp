@@ -30,7 +30,6 @@
 #include "base/allegro_wrapper.h"
 #include "tab_ctl.h"
 #include "jwin.h"
-#include "zc_malloc.h"
 
 extern volatile int32_t myvsync;
 extern int32_t zqwin_scale;
@@ -111,11 +110,7 @@ int32_t vc2(int32_t x)
     return -1;
 }
 
-// TODO: why does this only work for win32?
-#if defined(_WIN32) && !defined(_WIN64)
-INLINE
-#endif
-int32_t is_in_rect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int32_t ry2)
+INLINE int32_t is_in_rect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int32_t ry2)
 {
     return x>=rx1 && x<=rx2 && y>=ry1 && y<=ry2;
 }
@@ -342,7 +337,7 @@ int32_t d_tab_proc(int32_t msg, DIALOG *d, int32_t c)
             //because the -1 is counted, drop back one
             (panel[i].objects)--;
             //allocate space to store the x and y coordinates for them
-            panel[i].xy=(int32_t*)zc_malloc(panel[i].objects*2*sizeof(int32_t));
+            panel[i].xy=(int32_t*)malloc(panel[i].objects*2*sizeof(int32_t));
             //what dialog is this tab control in (programmer must set manually)
             panel_dialog=(DIALOG *)d->dp3;
             

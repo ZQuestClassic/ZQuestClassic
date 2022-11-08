@@ -52,6 +52,58 @@ SemanticAnalyzer::SemanticAnalyzer(Program& program)
 			analyzeFunctionInternals(**it);
 		scope = scope->getParent();
 	}
+	
+	for (vector<UserClass*>::iterator it = program.classes.begin();
+		 it != program.classes.end(); ++it)
+	{
+		UserClass& user_class = **it;
+		ClassScope* cscope = &user_class.getScope();
+		scope = cscope;
+		
+		DataType const* thisType = &cscope->user_class.getNode()->type->resolve(*cscope,this);
+		DataType const* constType = thisType->getConstType();
+
+		functions = cscope->getConstructors();
+		parsing_user_class = puc_construct;
+		for (vector<Function*>::iterator it = functions.begin();
+		     it != functions.end(); ++it)
+		{
+			Function* func = *it;
+			BuiltinVariable::create(*func->internalScope, *constType, "this", this);
+			func->internalScope->stackDepth_--;
+			analyzeFunctionInternals(*func);
+		}
+		
+		functions = scope->getLocalFunctions();
+		for (vector<Function*>::iterator it = functions.begin();
+		     it != functions.end(); ++it)
+		{
+			Function* func = *it;
+			if(func->getFlag(FUNCFLAG_STATIC))
+				parsing_user_class = puc_none;
+			else
+			{
+				parsing_user_class = puc_funcs;
+				BuiltinVariable::create(*func->internalScope, *constType, "this", this);
+				func->internalScope->stackDepth_--;
+			}
+			analyzeFunctionInternals(*func);
+		}
+		
+		functions = cscope->getDestructor();
+		parsing_user_class = puc_destruct;
+		for (vector<Function*>::iterator it = functions.begin();
+		     it != functions.end(); ++it)
+		{
+			Function* func = *it;
+			BuiltinVariable::create(*func->internalScope, *constType, "this", this);
+			func->internalScope->stackDepth_--;
+			analyzeFunctionInternals(*func);
+		}
+		parsing_user_class = puc_none;
+		
+		scope = scope->getParent();
+	}
 }
 
 void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
@@ -245,8 +297,8 @@ void SemanticAnalyzer::caseRange(ASTRange& host, void*)
 {
 	RecursiveVisitor::caseRange(host);
 	if(breakRecursion(host)) return;
-	optional<int32_t> start = (*host.start).getCompileTimeValue(this, scope);
-	optional<int32_t> end = (*host.end).getCompileTimeValue(this, scope);
+	std::optional<int32_t> start = (*host.start).getCompileTimeValue(this, scope);
+	std::optional<int32_t> end = (*host.end).getCompileTimeValue(this, scope);
 	//`start` and `end` must exist, as they are ASTConstExpr. -V
 	if(*start > *end)
 	{
@@ -302,7 +354,7 @@ void SemanticAnalyzer::caseStmtBreak(ASTStmtBreak& host, void*)
 
 	if(host.count.get())
 	{
-		if(optional<int32_t> v = host.count->getCompileTimeValue(this, scope))
+		if(std::optional<int32_t> v = host.count->getCompileTimeValue(this, scope))
 		{
 			int32_t val = *v;
 			if(val < 0)
@@ -322,7 +374,7 @@ void SemanticAnalyzer::caseStmtContinue(ASTStmtContinue &host, void *)
 
 	if(host.count.get())
 	{
-		if(optional<int32_t> v = host.count->getCompileTimeValue(this, scope))
+		if(std::optional<int32_t> v = host.count->getCompileTimeValue(this, scope))
 		{
 			int32_t val = *v;
 			if(val < 0)
@@ -383,7 +435,7 @@ void SemanticAnalyzer::caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void*)
 		//Construct a new constant type
 		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name);
 		//Construct the base type
-		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, newConstType->getCustomId());
+		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, nullptr, newConstType->getCustomId());
 		
 		//Set the type to the base type
 		host.type.reset(new ASTDataType(newBaseType, host.location));
@@ -493,7 +545,7 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 		ASTDataDecl* declaration = *it;
 		if(ASTExpr* init = declaration->getInitializer())
 		{
-			if(optional<int32_t> v = init->getCompileTimeValue(this, scope))
+			if(std::optional<int32_t> v = init->getCompileTimeValue(this, scope))
 			{
 				int32_t val = *v;
 				ipart = val/10000;
@@ -567,11 +619,19 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 			}
 
 			// Inline the constant if possible.
-			isConstant = host.getInitializer()->getCompileTimeValue(this, scope);
+			isConstant = host.getInitializer()->getCompileTimeValue(this, scope).has_value();
 			//The dataType is constant, but the initializer is not. This is not allowed in Global or Script scopes, as it causes crashes. -V
-			if(!isConstant && (scope->isGlobal() || scope->isScript()))
+			if(!isConstant && (scope->isGlobal() || scope->isScript() || scope->isClass()))
 			{
 				handleError(CompileError::ConstNotConstant(&host, host.name));
+				return;
+			}
+		}
+		else if(parsing_user_class == puc_vars) //class variables
+		{
+			if(host.getInitializer())
+			{
+				handleError(CompileError::ClassNoInits(&host, host.name));
 				return;
 			}
 		}
@@ -587,21 +647,26 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 			int32_t value = *host.getInitializer()->getCompileTimeValue(this, scope);
 			Constant::create(*scope, host, type, value, this);
 		}
-		
 		else
 		{
-			if (scope->getLocalDatum(host.name))
+			if(parsing_user_class == puc_vars)
 			{
-				handleError(CompileError::VarRedef(&host, host.name));
-				return;
+				UserClassVar::create(*scope, host, type, this);
 			}
+			else
+			{
+				if (scope->getLocalDatum(host.name))
+				{
+					handleError(CompileError::VarRedef(&host, host.name));
+					return;
+				}
 
-			Variable::create(*scope, host, type, this);
+				Variable::create(*scope, host, type, this);
+			}
 		}
 	}
 	
 	//Handle typechecking regardless of registration
-	
 	// Check the initializer.
 	if (host.getInitializer())
 	{
@@ -646,7 +711,7 @@ void SemanticAnalyzer::caseDataDeclExtraArray(
 			return;
 		}
 		
-		if(optional<int32_t> theSize = size.getCompileTimeValue(this, scope))
+		if(std::optional<int32_t> theSize = size.getCompileTimeValue(this, scope))
 		{
 			if(*theSize % 10000)
 			{
@@ -780,7 +845,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 		if(getType)
 			checkCast(*getType, *paramTypes[parcnt], &host);
 		if(breakRecursion(host)) {scope = oldScope; return;}
-		optional<int32_t> optVal = (*it)->getCompileTimeValue(this, scope);
+		std::optional<int32_t> optVal = (*it)->getCompileTimeValue(this, scope);
 		assert(optVal);
 		host.optvals.push_back(*optVal);
 	}
@@ -792,6 +857,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 	host.func = function;
 
 	scope = oldScope;
+	if(breakRecursion(host)) return;
 	// If adding it failed, it means this scope already has a function with
 	// that name.
 	if (function == NULL)
@@ -805,7 +871,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 }
 #include "ffscript.h"
 extern FFScript FFCore;
-void SemanticAnalyzer::caseScript(ASTScript& host, void*)
+void SemanticAnalyzer::caseScript(ASTScript& host, void* param)
 {
 	if(!host.script)
 	{
@@ -815,7 +881,7 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 	Script& script = *host.script;
 	string name = script.getName();
 	scope = &script.getScope();
-	RecursiveVisitor::caseScript(host);
+	RecursiveVisitor::caseScript(host, param);
 	scope = scope->getParent();
 	if(script.getType() == ScriptType::untyped) return;
 	
@@ -840,6 +906,102 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 		if (breakRecursion(host)) return;
 	}
 	script.setRun(possibleRuns[0]);
+}
+
+void SemanticAnalyzer::caseClass(ASTClass& host, void* param)
+{
+	UserClass& user_class = host.user_class ? *host.user_class : *(host.user_class = program.addClass(host, *scope, this));
+	if (breakRecursion(host)) return;
+	string name = user_class.getName();
+	
+	if(!host.type)
+	{
+		//Don't allow use of a name that already exists
+		unique_ptr<ASTExprIdentifier> temp(new ASTExprIdentifier(name, host.location));
+		if(DataType const* existingType = lookupDataType(*scope, *temp, this, true))
+		{
+			handleError(
+				CompileError::RedefDataType(
+					&host, host.name));
+			temp.reset();
+			return;
+		}
+		temp.reset();
+		
+		//Construct a new constant type
+		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name, &user_class);
+		//Construct the base type
+		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, &user_class, newConstType->getCustomId());
+		
+		//Set the type to the base type
+		host.type.reset(new ASTDataType(newBaseType, host.location));
+		
+		DataType::addCustom(newBaseType);
+		user_class.setType(newBaseType);
+		
+		//This call should never fail, because of the error check above.
+		scope->addDataType(host.name, newBaseType, &host);
+		if (breakRecursion(*host.type.get())) return;
+		
+		for (auto it = host.constructors.begin();
+			 it != host.constructors.end(); ++it)
+		{
+			ASTFuncDecl* func = *it;
+			func->returnType.reset(new ASTDataType(newBaseType, func->location));
+		}
+	}
+	
+
+	// Recurse on user_class elements with its scope.
+	scope = &user_class.getScope();
+	RecursiveVisitor::caseClass(host,param);
+	scope = scope->getParent();
+	if (breakRecursion(host)) return;
+	//
+	if(!host.constructors.size())
+	{
+		ASTFuncDecl* defcon = new ASTFuncDecl(host.location);
+		ASTExprIdentifier* iden = new ASTExprIdentifier(name, host.location);
+		defcon->iden = iden;
+		defcon->name = name;
+		defcon->prototype = true;
+		defcon->defaultReturn = new ASTExprConst(new ASTExprCast(
+				new ASTDataType(DataType::CUNTYPED, host.location),
+				new ASTNumberLiteral(new ASTFloat(0, 0, host.location), host.location), host.location
+			), host.location);
+		defcon->returnType.reset(new ASTDataType(user_class.getType(), host.location));
+		defcon->setFlag(FUNCFLAG_CONSTRUCTOR|FUNCFLAG_CLASSFUNC);
+		host.constructors.push_back(defcon);
+		//Re-visit the constructors now
+		parsing_user_class = puc_construct;
+		scope = &user_class.getScope();
+		block_visit(host, host.constructors, param);
+		scope = scope->getParent();
+		parsing_user_class = puc_none;
+	}
+	else for (auto it = host.constructors.cbegin();
+		 it != host.constructors.cend(); ++it)
+	{
+		ASTFuncDecl const* func = *it;
+		if(func->name.compare(name)) //mismatch name
+		{
+			handleError(CompileError::NameMismatchC(&host, func->name.c_str(), name.c_str()));
+			return;
+		}
+	}
+	if(ASTFuncDecl const* func = host.destructor.get())
+	{
+		if(func->name.compare(name)) //mismatch name
+		{
+			handleError(CompileError::NameMismatchD(&host, func->name.c_str(), name.c_str()));
+			return;
+		}
+		if(func->parameters.size()) //Destructor must have no params
+		{
+			handleError(CompileError::DestructorParam(&host, name.c_str()));
+			return;
+		}
+	}
 }
 
 void SemanticAnalyzer::caseNamespace(ASTNamespace& host, void*)
@@ -951,7 +1113,10 @@ void SemanticAnalyzer::caseExprIdentifier(
 {
 	if(host.binding) return; //Skip if already handled
 	// Bind to named variable.
-	host.binding = lookupDatum(*scope, host, this);
+	if(parsing_user_class > puc_vars)
+		host.binding = lookupClassVars(*scope, host, this);
+	if(!host.binding)
+		host.binding = lookupDatum(*scope, host, this);
 	if (!host.binding)
 	{
 		handleError(CompileError::VarUndeclared(&host, host.asString()));
@@ -976,8 +1141,21 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
     if (breakRecursion(host)) return;
 
 	// Grab the left side's class.
-    DataTypeClass const* leftType = dynamic_cast<DataTypeClass const*>(
-		    &getNaiveType(*host.left->getReadType(scope, this), scope));
+	DataType const& base_ltype = *host.left->getReadType(scope, this);
+	if(UserClass* user_class = base_ltype.getUsrClass())
+	{
+		ClassScope* cscope = &user_class->getScope();
+		if(UserClassVar* dat = cscope->getClassVar(host.right))
+		{
+			host.rtype = &dat->type;
+			if(!dat->type.isConstant())
+				host.wtype = &dat->type;
+			host.u_datum = dat;
+		}
+		return;
+	}
+    DataTypeClass const* leftType =
+		dynamic_cast<DataTypeClass const*>(&getNaiveType(base_ltype, scope));
     if (!leftType)
 	{
 		handleError(CompileError::ArrowNotPointer(&host));
@@ -1050,7 +1228,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
 {
 	// Arrow handles its own indexing.
-	if (host.array->isTypeArrow())
+	if (host.array->isTypeArrow() && !host.array->isTypeArrowUsrClass())
 	{
 		static_cast<ASTExprArrow&>(*host.array).index = host.index;
 		visit(host.array.get(), param);
@@ -1090,18 +1268,53 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	visit(host, host.parameters);
 	if (breakRecursion(host)) return;
 
+	UserClass* user_class = nullptr;
 	// Gather parameter types.
 	vector<DataType const*> parameterTypes;
-	if (arrow) parameterTypes.push_back(arrow->left->getReadType(scope, this));
+	if (arrow)
+	{
+		DataType const* arrtype = arrow->left->getReadType(scope, this);
+		if(user_class = arrtype->getUsrClass())
+			;
+		else parameterTypes.push_back(arrtype);
+	}
 	for (vector<ASTExpr*>::const_iterator it = host.parameters.begin();
 		 it != host.parameters.end(); ++it)
 		parameterTypes.push_back((*it)->getReadType(scope, this));
 
 	// Grab functions with the proper name, and matching parameter types
-	vector<Function*> functions =
-		identifier
-		? lookupFunctions(*scope, identifier->components, identifier->delimiters, parameterTypes, identifier->noUsing)
-		: lookupFunctions(*arrow->leftClass, arrow->right, parameterTypes, true); //Never `using` arrow functions
+	vector<Function*> functions;
+	if(identifier)
+	{
+		if(host.isConstructor())
+		{
+			user_class = lookupClass(*scope, identifier->components, identifier->delimiters, identifier->noUsing);
+			if(!user_class)
+			{
+				handleError(CompileError::NoClass(&host, identifier->asString()));
+				return;
+			}
+			functions = lookupConstructors(*user_class, parameterTypes);
+		}
+		else
+		{
+			if(identifier->components.size() == 1 && parsing_user_class > puc_vars)
+			{
+				user_class = &scope->getClass()->user_class;
+				if(parsing_user_class == puc_construct)
+					functions = lookupConstructors(*user_class, parameterTypes);
+				if(!functions.size())
+					functions = lookupFunctions(*scope, identifier->components[0], parameterTypes, identifier->noUsing, true);
+			}
+			if(!functions.size())
+				functions = lookupFunctions(*scope, identifier->components, identifier->delimiters, parameterTypes, identifier->noUsing);
+		}
+	}
+	else if(user_class)
+	{
+		functions = lookupClassFuncs(*user_class, arrow->right, parameterTypes);
+	}
+	else functions = lookupFunctions(*arrow->leftClass, arrow->right, parameterTypes, true); //Never `using` arrow functions
 
 	// Find function with least number of casts.
 	vector<Function*> bestFunctions;
@@ -1132,7 +1345,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		else if (castCount == bestCastCount)
 			bestFunctions.push_back(&function);
 	}
-	// We may have failed, but let's check optional parameters first...
+	// We may have failed, but let's check std::optional parameters first...
 	if(bestFunctions.size() > 1)
 	{
 		auto targSize = parameterTypes.size();
@@ -1259,7 +1472,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		}
 		return;
 	}
-
+	
 	// Is this a call to a disabled tracing function?
 	if (*lookupOption(*scope, CompileOption::OPT_NO_LOGGING)
 	    && bestFunctions.front()->isTracing())
@@ -1267,46 +1480,8 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		host.disable();
 		return;
 	}
-		
-	host.binding = bestFunctions.front();
 	
-	if(host.binding->getFlag(FUNCFLAG_INLINE))
-	{
-		/* This section has issues, and a totally new system for parameters must be devised. For now, just disabling inlining of user functions altogether. -V
-		if(!host.binding->isInternal())
-		{
-			//Check for recursion. Inline functions cannot be recursive, so if this is recursive, make it no longer inline.
-			for(vector<Function*>::reverse_iterator it = inlineStack.rbegin();
-				it != inlineStack.rend(); ++it)
-			{
-				if(*it == host.binding)
-				{
-					host.binding->setFlag(FUNCFLAG_INLINE, false);
-					return;
-				}
-				if(!(*it)->getFlag(FUNCFLAG_INLINE)) break;
-			}
-			inlineStack.push_back(host.binding);
-			scope = scope->makeChild();
-			DataType const* oldReturnType = returnType;
-			returnType = host.binding->returnType;
-			
-			host.inlineBlock = host.binding->node->block->clone();
-			host.inlineParams = host.binding->node->parameters;
-			int32_t sz = host.parameters.size();
-			for(int32_t q = 0; q < sz; ++q)
-			{
-				ASTExpr* init = host.parameters[q];
-				host.inlineParams[q]->setInitializer(init->clone());
-			}
-			visit(host, host.inlineParams, param);
-			RecursiveVisitor::caseBlock(*host.inlineBlock, param);
-			
-			scope = scope->getParent();
-			inlineStack.pop_back();
-			returnType = oldReturnType;
-		}*/
-	}
+	host.binding = bestFunctions.front();
 }
 
 void SemanticAnalyzer::caseExprNegate(ASTExprNegate& host, void*)
@@ -1320,6 +1495,17 @@ void SemanticAnalyzer::caseExprNegate(ASTExprNegate& host, void*)
 		}
 	}
 	analyzeUnaryExpr(host, DataType::FLOAT);
+}
+void SemanticAnalyzer::caseExprDelete(ASTExprDelete& host, void*)
+{
+	visit(host.operand.get());
+	if (breakRecursion(host)) return;
+	
+	DataType const* optype = host.operand->getReadType(scope, this);
+	if(!optype->isUsrClass())
+	{
+		handleError(CompileError::BadDelete(&host));
+	}
 }
 
 void SemanticAnalyzer::caseExprNot(ASTExprNot& host, void*)
@@ -1569,7 +1755,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 void SemanticAnalyzer::caseOptionValue(ASTOptionValue& host, void*)
 {
 	/* handled in `ASTOptionValue->getCompileTimeValue()` now
-	if (optional<int32_t> value = lookupOption(*scope, host.option))
+	if (std::optional<int32_t> value = lookupOption(*scope, host.option))
 		host.value = value;
 	else
 		handleError(CompileError::UnknownOption(&host, host.name));*/

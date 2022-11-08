@@ -22,9 +22,9 @@
 #include "ffscript.h"
 #include "gamedata.h"
 #include "defdata.h"
-#include "mem_debug.h"
 #include "zscriptversion.h"
 #include "particles.h"
+#include "base/zc_math.h"
 extern particle_list particles;
 
 extern FFScript FFCore;
@@ -3068,7 +3068,7 @@ bool enemy::moveDir(int32_t dir, zfix px, int32_t special, bool kb)
 bool enemy::moveAtAngle(zfix degrees, zfix px, int32_t special, bool kb)
 {
 	double v = degrees.getFloat() * PI / 180.0;
-	zfix dx = cos(v)*px, dy = sin(v)*px;
+	zfix dx = zc::math::Cos(v)*px, dy = zc::math::Sin(v)*px;
 	return movexy(dx, dy, special, kb);
 }
 
@@ -6442,10 +6442,10 @@ void enemy::drawshadow(BITMAP *dest, bool translucent)
 	}
 	else
 	{
-		if(enemycanfall(id) && shadowtile == 0)
+		if(enemycanfall(id, false) && shadowtile == 0)
 			shadowtile = wpnsbuf[spr_shadow].tile;
 			
-		if(z>0 || fakez>0 || !enemycanfall(id))
+		if(z>0 || fakez>0 || !enemycanfall(id, false))
 		{
 			if(!shadow_overpit(this))
 			sprite::drawshadow(dest,translucent);
@@ -18281,13 +18281,13 @@ bool ePatra::animate(int32_t index)
 				//maybe playing_field_offset here?
 				if(loopcnt>0)
 				{
-					guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc31) - sin(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*((int64_t)abs(dmisc31)-abs(dmisc29));
-					guys.spr(i)->y = -sin(a2+PI/2)*abs(dmisc31) + cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*((int64_t)abs(dmisc31)-abs(dmisc29));
+					guys.spr(i)->x =  zc::math::Cos(a2+PI/2)*abs(dmisc31) - zc::math::Sin(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*((int64_t)abs(dmisc31)-abs(dmisc29));
+					guys.spr(i)->y = -zc::math::Sin(a2+PI/2)*abs(dmisc31) + zc::math::Cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*((int64_t)abs(dmisc31)-abs(dmisc29));
 				}
 				else
 				{
-					guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc29);
-					guys.spr(i)->y = -sin(a2+PI/2)*abs(dmisc29);
+					guys.spr(i)->x =  zc::math::Cos(a2+PI/2)*abs(dmisc29);
+					guys.spr(i)->y = -zc::math::Sin(a2+PI/2)*abs(dmisc29);
 				}
 				
 				temp_x=guys.spr(i)->x;
@@ -18295,13 +18295,13 @@ bool ePatra::animate(int32_t index)
 			}
 			else //Oval
 			{
-				circle_x =  cos(a2+PI/2)*abs(dmisc29);
-				circle_y = -sin(a2+PI/2)*abs(dmisc29);
+				circle_x =  zc::math::Cos(a2+PI/2)*abs(dmisc29);
+				circle_y = -zc::math::Sin(a2+PI/2)*abs(dmisc29);
 				
 				if(loopcnt>0)
 				{
-					guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc29);
-					guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1)))*abs(dmisc31);
+					guys.spr(i)->x =  zc::math::Cos(a2+PI/2)*abs(dmisc29);
+					guys.spr(i)->y = (-zc::math::Sin(a2+PI/2)-zc::math::Cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1)))*abs(dmisc31);
 				}
 				else
 				{
@@ -18537,13 +18537,13 @@ bool ePatra::animate(int32_t index)
 				{
 					if(loopcnt>0)
 					{
-						guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc32) - sin(pos2*PI*2/(dmisc2==0?1:dmisc2))*((int64_t)abs(dmisc32)-abs(dmisc30));
-						guys.spr(i)->y = -sin(a2+PI/2)*abs(dmisc32) + cos(pos2*PI*2/(dmisc2==0?1:dmisc2))*((int64_t)abs(dmisc32)-abs(dmisc30));
+						guys.spr(i)->x =  zc::math::Cos(a2+PI/2)*abs(dmisc32) - zc::math::Sin(pos2*PI*2/(dmisc2==0?1:dmisc2))*((int64_t)abs(dmisc32)-abs(dmisc30));
+						guys.spr(i)->y = -zc::math::Sin(a2+PI/2)*abs(dmisc32) + zc::math::Cos(pos2*PI*2/(dmisc2==0?1:dmisc2))*((int64_t)abs(dmisc32)-abs(dmisc30));
 					}
 					else
 					{
-						guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc30);
-						guys.spr(i)->y = -sin(a2+PI/2)*abs(dmisc30);
+						guys.spr(i)->x =  zc::math::Cos(a2+PI/2)*abs(dmisc30);
+						guys.spr(i)->y = -zc::math::Sin(a2+PI/2)*abs(dmisc30);
 					}
 					
 					temp_x=guys.spr(i)->x;
@@ -18551,13 +18551,13 @@ bool ePatra::animate(int32_t index)
 				}
 				else
 				{
-					circle_x =  cos(a2+PI/2)*abs(dmisc30);
-					circle_y = -sin(a2+PI/2)*abs(dmisc30);
+					circle_x =  zc::math::Cos(a2+PI/2)*abs(dmisc30);
+					circle_y = -zc::math::Sin(a2+PI/2)*abs(dmisc30);
 					
 					if(loopcnt>0)
 					{
-						guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc30);
-						guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc2 == 0 ? 1 : dmisc2)))*abs(dmisc32);
+						guys.spr(i)->x =  zc::math::Cos(a2+PI/2)*abs(dmisc30);
+						guys.spr(i)->y = (-zc::math::Sin(a2+PI/2)-zc::math::Cos(pos2*PI*2/(dmisc2 == 0 ? 1 : dmisc2)))*abs(dmisc32);
 					}
 					else
 					{
@@ -19124,13 +19124,13 @@ bool ePatraBS::animate(int32_t index)
 		{
 			int32_t pos2 = ((enemy*)guys.spr(i))->misc;
 			double a2 = ((int64_t)clk2-pos2*90/(dmisc1==0?1:dmisc1))*PI/45;
-			temp_x =  cos(a2+PI/2)*45;
-			temp_y = -sin(a2+PI/2)*45;
+			temp_x =  zc::math::Cos(a2+PI/2)*45;
+			temp_y = -zc::math::Sin(a2+PI/2)*45;
 			
 			if(loopcnt>0)
 			{
-				guys.spr(i)->x =  cos(a2+PI/2)*45;
-				guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc1==0?1:dmisc1)))*22.5;
+				guys.spr(i)->x =  zc::math::Cos(a2+PI/2)*45;
+				guys.spr(i)->y = (-zc::math::Sin(a2+PI/2)-zc::math::Cos(pos2*PI*2/(dmisc1==0?1:dmisc1)))*22.5;
 			}
 			else
 			{
@@ -20696,7 +20696,7 @@ bool canfall(int32_t id)
 	return !never_in_air(id) && !isflier(id) && !isjumper(id);
 }
 
-bool enemy::enemycanfall(int32_t id)
+bool enemy::enemycanfall(int32_t id, bool checkgrav)
 {
 	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
 	{
@@ -20738,15 +20738,18 @@ bool enemy::enemycanfall(int32_t id)
 		}
 	}
 	
-	if ( isflier(id) || isjumper(id) || never_in_air(id) )
-	{
-		if ( moveflags & FLAG_OBEYS_GRAV ) return true;
-		else return false;
-	}
-	else
-	{
-		return (moveflags & FLAG_OBEYS_GRAV);    
-	}
+	if(!checkgrav) return true;
+	return (moveflags & FLAG_OBEYS_GRAV);
+	
+	// if ( isflier(id) || isjumper(id) || never_in_air(id) )
+	// {
+		// if ( moveflags & FLAG_OBEYS_GRAV ) return true;
+		// else return false;
+	// }
+	// else
+	// {
+		// return (moveflags & FLAG_OBEYS_GRAV);    
+	// }
 	//return !never_in_air(id) && !isflier(id) && !isjumper(id);
 }
 
@@ -22414,6 +22417,12 @@ bool runMenuCursor()
 	//false if pos changed this frame; no confirming while moving the cursor!
 }
 
+bool bottom_margin_clip()
+{
+	return !get_bit(quest_rules, qr_OLD_STRING_EDITOR_MARGINS)
+		&& cursor_y >= (msg_h + (get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)?16:0) - msg_margins[down]);
+}
+
 bool parsemsgcode()
 {
 	if(msgptr>=MsgStrings[msgstr].s.size()) return false;
@@ -22605,7 +22614,7 @@ bool parsemsgcode()
 				ssc_tile_hei = ssc_tile_hei_buf;
 				ssc_tile_hei_buf = -1;
 				cursor_y += thei + MsgStrings[msgstr].vspace;
-				if(cursor_y >= (msg_h - msg_margins[down])) break;
+				if(bottom_margin_clip()) return true;
 				cursor_x=msg_margins[left];
 			}
 			
@@ -22724,21 +22733,21 @@ bool parsemsgcode()
 		
 		case MSGC_MENUCHOICE:
 		{
+			int32_t pos = grab_next_argument();
+			int32_t upos = grab_next_argument();
+			int32_t dpos = grab_next_argument();
+			int32_t lpos = grab_next_argument();
+			int32_t rpos = grab_next_argument();
 			if(cursor_x+MsgStrings[msgstr].hspace + msg_menu_data[MNU_CURSOR_WID] > msg_w-msg_margins[right])
 			{
 				int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
 				ssc_tile_hei = ssc_tile_hei_buf;
 				ssc_tile_hei_buf = -1;
 				cursor_y += thei + MsgStrings[msgstr].vspace;
-				// if(cursor_y >= (msg_h - msg_margins[down])) break;
+				if(bottom_margin_clip()) break;
 				cursor_x=msg_margins[left];
 			}
 			
-			int32_t pos = grab_next_argument();
-			int32_t upos = grab_next_argument();
-			int32_t dpos = grab_next_argument();
-			int32_t lpos = grab_next_argument();
-			int32_t rpos = grab_next_argument();
 			menu_options[pos] = menu_choice(cursor_x, cursor_y, pos,
 				upos, dpos, lpos, rpos);
 			
@@ -22901,6 +22910,7 @@ bool atend(char const* str)
 
 void putmsg()
 {
+	bool oldmargin = get_bit(quest_rules, qr_OLD_STRING_EDITOR_MARGINS)!=0;
 	if(!msgorig) msgorig=msgstr;
 	
 	if(wait_advance && linkedmsgclk < 1)
@@ -22948,7 +22958,7 @@ void putmsg()
 	}
 	if(wait_advance) return; //Waiting for buttonpress
 	
-	if(!do_run_menu && (!msgstr || msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || cursor_y >= msg_h-msg_margins[down]))
+	if(!do_run_menu && (!msgstr || msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || bottom_margin_clip()))
 	{
 		if(!msgstr)
 			msgorig=0;
@@ -22972,7 +22982,7 @@ void putmsg()
 				goto breakout; // break out if message speed was changed to non-zero
 			else if(!do_run_menu && !doing_name_insert && !parsemsgcode())
 			{
-				if(cursor_y >= msg_h-msg_margins[down])
+				if(bottom_margin_clip())
 					break;
 					
 				wrapmsgstr(s3);
@@ -22989,6 +22999,7 @@ void putmsg()
 						ssc_tile_hei = ssc_tile_hei_buf;
 						ssc_tile_hei_buf = -1;
 						cursor_y += thei + MsgStrings[msgstr].vspace;
+						if(bottom_margin_clip()) break;
 						cursor_x=msg_margins[left];
 					}
 					
@@ -23010,6 +23021,7 @@ void putmsg()
 						ssc_tile_hei = ssc_tile_hei_buf;
 						ssc_tile_hei_buf = -1;
 						cursor_y += thei + MsgStrings[msgstr].vspace;
+						if(bottom_margin_clip()) break;
 						cursor_x=msg_margins[left];
 					}
 					
@@ -23038,7 +23050,7 @@ void putmsg()
 			{
 				if(*nameptr)
 				{
-					if(cursor_y >= msg_h-msg_margins[down])
+					if(bottom_margin_clip())
 						break;
 					
 					char s3[9] = {0};
@@ -23063,6 +23075,7 @@ void putmsg()
 						ssc_tile_hei = ssc_tile_hei_buf;
 						ssc_tile_hei_buf = -1;
 						cursor_y += thei + MsgStrings[msgstr].vspace;
+						if(bottom_margin_clip()) break;
 						cursor_x=msg_margins[left];
 					}
 					
@@ -23128,6 +23141,7 @@ breakout:
 				ssc_tile_hei = ssc_tile_hei_buf;
 				ssc_tile_hei_buf = -1;
 				cursor_y += thei + MsgStrings[msgstr].vspace;
+				if(bottom_margin_clip()) break;
 				cursor_x=msg_margins[left];
 			}
 			
@@ -23153,7 +23167,7 @@ breakout:
 	
 reparsesinglechar:
 	// Continue printing the string!
-	if(!atend(MsgStrings[msgstr].s.c_str()+msgptr) && cursor_y < msg_h-msg_margins[down])
+	if(!atend(MsgStrings[msgstr].s.c_str()+msgptr) && !bottom_margin_clip())
 	{
 		if(!do_run_menu && !doing_name_insert && !parsemsgcode())
 		{
@@ -23169,6 +23183,7 @@ reparsesinglechar:
 				ssc_tile_hei = ssc_tile_hei_buf;
 				ssc_tile_hei_buf = -1;
 				cursor_y += thei + MsgStrings[msgstr].vspace;
+				if(bottom_margin_clip()) goto strendcheck;
 				cursor_x=msg_margins[left];
 				//if(space) s3[0]=0;
 			}
@@ -23224,6 +23239,7 @@ reparsesinglechar:
 				ssc_tile_hei = ssc_tile_hei_buf;
 				ssc_tile_hei_buf = -1;
 				cursor_y += thei + MsgStrings[msgstr].vspace;
+				if(bottom_margin_clip()) goto strendcheck;
 				cursor_x=msg_margins[left];
 			}
 			
@@ -23262,6 +23278,7 @@ reparsesinglechar:
 			{
 				while(MsgStrings[msgstr].s[msgptr]==' ')
 				{
+					msgspace = true;
 					tlength = msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]) + MsgStrings[msgstr].hspace;
 					
 					if(cursor_x+tlength > (msg_w-msg_margins[right])
@@ -23272,6 +23289,7 @@ reparsesinglechar:
 						ssc_tile_hei = ssc_tile_hei_buf;
 						ssc_tile_hei_buf = -1;
 						cursor_y += thei + MsgStrings[msgstr].vspace;
+						if(bottom_margin_clip()) break;
 						cursor_x=msg_margins[left];
 					}
 					
@@ -23297,7 +23315,7 @@ reparsesinglechar:
 	}
 strendcheck:
 	// Done printing the string
-	if(do_end_str || !doing_name_insert && !do_run_menu && (msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || cursor_y >= msg_h-msg_margins[down] || atend(MsgStrings[msgstr].s.c_str()+msgptr)) && !linkedmsgclk)
+	if(do_end_str || !doing_name_insert && !do_run_menu && (msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || bottom_margin_clip() || atend(MsgStrings[msgstr].s.c_str()+msgptr)) && !linkedmsgclk)
 	{
 		if(!do_end_str)
 			while(parsemsgcode()); // Finish remaining control codes

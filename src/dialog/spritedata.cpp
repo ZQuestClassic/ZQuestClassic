@@ -2,7 +2,6 @@
 #include "common.h"
 #include "info.h"
 #include <gui/builder.h>
-#include <boost/format.hpp>
 #include "zc_list_data.h"
 
 extern bool saved;
@@ -213,6 +212,7 @@ bool SpriteDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	{
 		case message::OK:
 			memcpy(&sourceSprite, &tempSprite, sizeof(tempSprite));
+			strcpy(weapon_string[index], localName);
 			saved = false;
 			return true;
 

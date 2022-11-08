@@ -28,7 +28,10 @@
 #include "tiles.h"
 #include "zq_tiles.h"
 #include "zq_custom.h"
-#include "zc_malloc.h"
+
+#ifdef __EMSCRIPTEN__
+#include "base/emscripten_utils.h"
+#endif
 
 #ifdef _MSC_VER
 #define getcwd _getcwd
@@ -234,7 +237,7 @@ int32_t ListQTs(bool edit)
 {
     qtlist_dlg[0].dp2=lfont;
     int32_t index=0;
-    quest_template *BackupQTs = (quest_template*)zc_malloc(sizeof(quest_template)*MAXQTS);
+    quest_template *BackupQTs = (quest_template*)malloc(sizeof(quest_template)*MAXQTS);
     
     memcpy(BackupQTs,QuestTemplates,sizeof(quest_template)*qt_count);
     
@@ -374,7 +377,7 @@ int32_t ListQTs(bool edit)
         }
     }
     
-    zc_free(BackupQTs);
+    free(BackupQTs);
     return index;
 }
 
@@ -897,9 +900,13 @@ int32_t onSaveAs()
         jwin_alert("ZQuest","Saving is","disabled in this version.",NULL,"O&K",NULL,'k',0,lfont);
         return D_O_K;
     }
-    
-    if(!getname("Save Quest As (.qst)","qst",NULL,filepath,true))
+#ifdef __EMSCRIPTEN__
+		if(!getname("Save Quest As (.qst)","qst",NULL,get_initial_file_dialog_folder().c_str(),true))
         return D_O_K;
+#else
+		if(!getname("Save Quest As (.qst)","qst",NULL,filepath,true))
+        return D_O_K;
+#endif
         
     if(exists(temppath))
     {
@@ -1034,8 +1041,13 @@ int32_t onOpen()
 		{ NULL,                                                  NULL                                              }
 	};
 	
-	if(!getname("Load File",NULL,list,filepath,true))
-		return D_O_K;
+#ifdef __EMSCRIPTEN__
+		if(!getname("Load File",NULL,list,get_initial_file_dialog_folder().c_str(),true))
+			return D_O_K;
+#else
+		if(!getname("Load File",NULL,list,filepath,true))
+			return D_O_K;
+#endif
 	
 	open_quest(temppath);
 	return D_O_K;

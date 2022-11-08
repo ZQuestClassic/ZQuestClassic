@@ -21,6 +21,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <sstream>
 
 #include "base/zc_alleg.h"
 
@@ -28,10 +29,8 @@
 
 #include <al5img.h>
 
-#include "zc_malloc.h"
-#include "WindowsScaling.h"
-#include "mem_debug.h"
 #include "zscriptversion.h"
+#include "WindowsScaling.h"
 #include "zcmusic.h"
 #include "base/zdefs.h"
 #include "zelda.h"
@@ -41,6 +40,7 @@
 #include "aglogo.h"
 #include "base/zsys.h"
 #include "base/zapp.h"
+#include "play_midi.h"
 #include "qst.h"
 #include "matrix.h"
 #include "jwin.h"
@@ -56,6 +56,9 @@
 #include "dialog/info.h"
 #include "replay.h"
 #include "cheats.h"
+#include "base/zc_math.h"
+#include <fmt/format.h>
+#include <fmt/std.h>
 
 using namespace util;
 extern FFScript FFCore; //the core script engine.
@@ -113,6 +116,10 @@ static zc_randgen drunk_rng;
 #include <crtdbg.h>
 #define stricmp _stricmp
 #define getcwd _getcwd
+#endif
+
+#ifdef __EMSCRIPTEN__
+#include "base/emscripten_utils.h"
 #endif
 
 // MSVC fix
@@ -213,7 +220,7 @@ void throttleFPS()
 #ifdef _WIN32           // TEMPORARY!! -Trying to narrow down a win10 bug that affects performance.
     timeBeginPeriod(1); // Basically, jist is that other programs can affect the FPS of ZC in weird ways. (making it better for example... go figure)
 #endif
-    
+
     if( (Throttlefps ^ (zc_getkey(KEY_TILDE)!=0)) || get_bit(quest_rules, qr_NOFASTMODE) )
     {
         if(zc_vsync == FALSE)
@@ -370,7 +377,7 @@ byte use_debug_console=0, console_on_top = 0, use_win32_proc=1, zasm_debugger = 
 int32_t homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0;
 int32_t newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
 int32_t lastentrance=0,lastentrance_dmap=0,prices[3]= {0},loadside = 0, Bwpn = 0, Awpn = 0, Xwpn = 0, Ywpn = 0;
-int32_t digi_volume = 0,midi_volume = 0,sfx_volume = 0,emusic_volume = 0,currmidi = 0,hasitem = 0,whistleclk = 0,pan_style = 0;
+int32_t digi_volume = 0,midi_volume = 0,sfx_volume = 0,emusic_volume = 0,currmidi = -1,hasitem = 0,whistleclk = 0,pan_style = 0;
 bool analog_movement=true;
 int32_t joystick_index=0,Akey = 0,Bkey = 0,Skey = 0,Lkey = 0,Rkey = 0,Pkey = 0,Exkey1 = 0,Exkey2 = 0,Exkey3 = 0,Exkey4 = 0,Abtn = 0,Bbtn = 0,Sbtn = 0,Mbtn = 0,Lbtn = 0,Rbtn = 0,Pbtn = 0,Exbtn1 = 0,Exbtn2 = 0,Exbtn3 = 0,Exbtn4 = 0,Quit=0;
 uint32_t GameFlags=0;
@@ -480,6 +487,7 @@ void ScriptOwner::clear()
 //ZScript array storage
 std::vector<ZScriptArray> globalRAM;
 ZScriptArray localRAM[NUM_ZSCRIPT_ARRAYS];
+std::map<int32_t,ZScriptArray> objectRAM;
 ScriptOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
 
 //script bitmap drawing
@@ -614,6 +622,9 @@ char     *qstpath=NULL;
 char     *qstdir=NULL;
 gamedata *saves=NULL;
 
+// if set, the titlescreen will automatically create a new save with this quest.
+std::string load_qstpath;
+
 volatile int32_t lastfps=0;
 volatile int32_t framecnt=0;
 volatile int32_t myvsync=0;
@@ -625,6 +636,7 @@ void update_hw_screen(bool force)
 	//if(!hw_screen) return;
 	if(force || (!is_sys_pal && !Throttlefps) || myvsync)
 	{
+		zc_process_mouse_events();
 		blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
 		if(update_hw_pal && hw_palette)
 		{
@@ -633,6 +645,9 @@ void update_hw_screen(bool force)
 		}
 		myvsync=0;
 		all_mark_screen_dirty();
+#ifdef __EMSCRIPTEN__
+		all_render_screen();
+#endif
 	}
 }
 
@@ -1094,7 +1109,7 @@ void donewmsg(int32_t str)
     msg_bg(MsgStrings[msgstr]);
     msg_prt();
     
-	int16_t old_margins[4] = {8,0,8,0};
+	int16_t old_margins[4] = {8,0,8,-8};
 	int16_t const* copy_from = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS) ? old_margins : MsgStrings[msgstr].margins;
 	for(auto q = 0; q < 4; ++q)
 		msg_margins[q] = copy_from[q];
@@ -1201,95 +1216,8 @@ void Z_scripterrlog(const char * const format,...)
 {
     if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0)
     {
-        switch(curScriptType)
-        {
-			case SCRIPT_GLOBAL:
-				al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Global script %u (%s): \n", 
-					curScriptNum+1, globalmap[curScriptNum].scriptname.c_str()); }
-				break;
-			case SCRIPT_GENERIC:
-				al_trace("Generic Script %u (%s): ", curScriptNum+1, genericmap[curScriptNum].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Generic Script %u (%s): \n", 
-					curScriptNum+1, genericmap[curScriptNum].scriptname.c_str()); }
-				break;
-			case SCRIPT_GENERIC_FROZEN:
-				al_trace("Generic Script (FRZ) %u (%s): ", curScriptNum+1, genericmap[curScriptNum].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Generic Script (FRZ) %u (%s): \n", 
-					curScriptNum+1, genericmap[curScriptNum].scriptname.c_str()); }
-				break;
-	
-			case SCRIPT_PLAYER:
-				al_trace("Hero script %u (%s): ", curScriptNum, playermap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Player script %u (%s): \n", curScriptNum, playermap[curScriptNum-1].scriptname.c_str()); }
-				break;
-			
-			case SCRIPT_LWPN:
-				al_trace("LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"LWeapon script %u (%s): \n", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());}
-				break;
-			
-			case SCRIPT_EWPN:
-				al_trace("EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"EWeapon script %u (%s): \n", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());}     
-				break;
-			
-			case SCRIPT_NPC:
-				al_trace("NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"NPC script %u (%s): \n", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());}     
-				break;
-            
-			case SCRIPT_FFC:
-				al_trace("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());}
-				break;
-            
-			case SCRIPT_ITEM:
-				al_trace("Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Itemdata script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());}  
-				break;
-			
-			case SCRIPT_DMAP:
-				al_trace("DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());} 
-				break;
-			
-			case SCRIPT_ITEMSPRITE:
-				al_trace("itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());} 
-				break;
-			
-			case SCRIPT_SCREEN:
-				al_trace("Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());
-				
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());} 
-				break;
-			
-			case SCRIPT_SUBSCREEN:
-				al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());} 
-				break;
-			
-			case SCRIPT_COMBO:
-				al_trace("Combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Combo script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());}
-				break;
-        }
-        
+        FFCore.TraceScriptIDs();
+		
         char buf[2048];
         
         va_list ap;
@@ -1624,7 +1552,7 @@ int8_t smart_vercmp(char const* a, char const* b)
 			continue;
 		return strcmp(a, b);
 	}
-	char *cpya = (char*)zc_malloc(strlen(a)+1), *cpyb = (char*)zc_malloc(strlen(b)+1);
+	char *cpya = (char*)malloc(strlen(a)+1), *cpyb = (char*)malloc(strlen(b)+1);
 	strcpy(cpya, a); strcpy(cpyb, b);
 	char *ptra = cpya, *ptrb = cpyb, *tmpa = cpya, *tmpb = cpyb;
 	std::vector<int32_t> avec, bvec;
@@ -1658,7 +1586,7 @@ int8_t smart_vercmp(char const* a, char const* b)
 			break;
 		}
 	}
-	zc_free(cpya); zc_free(cpyb);
+	free(cpya); free(cpyb);
 	while(avec.size() < bvec.size())
 		avec.push_back(0);
 	while(bvec.size() < avec.size())
@@ -1811,6 +1739,11 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 	}
 	if(ret && report)
 	{
+		if(replay_is_active())
+		{
+			exit(1);
+		}
+
 		system_pal();
 		std::ostringstream oss;
 		if(ret == qe_no_qst)
@@ -1857,14 +1790,18 @@ void init_dmap()
 
 int32_t init_game()
 {
+	current_subscreen_active = nullptr;
+
     // Various things use the frame counter to do random stuff (ex: runDrunkRNG).
 	// We only bother setting it to 0 here so that recordings will play back the
 	// same way, even if manually started in the ZC UI (in which case,` frame` starts
 	// as a non-zero number for the recording, but is 0 during replay).
     frame = 0;
 
+	FFCore.user_objects_init();
 	//Copy saved data to RAM data (but not global arrays)
 	game->Copy(saves[currgame]);
+	game->load_user_objects();
 	bool firstplay = (game->get_hasplayed() == 0);
 
 	// The following code is the setup for recording a save file, enabled via "replay_new_saves" config.
@@ -1879,20 +1816,23 @@ int32_t init_game()
 		if (firstplay && replay_new_saves)
 		{
 			// TODO: need to escape?
-			auto replay_path_prefix = replay_file_dir / string_format("%s-%s", saves[currgame].title, saves[currgame]._name);
-			std::string replay_path = string_format("%s.%s", replay_path_prefix.string().c_str(), REPLAY_EXTENSION.c_str());
+			std::string filename_prefix = fmt::format("{}-{}", saves[currgame].title, saves[currgame]._name);
+			filename_prefix.erase(0, filename_prefix.find_first_not_of("\t\n\v\f\r ")); // left trim
+			filename_prefix.erase(filename_prefix.find_last_not_of("\t\n\v\f\r ") + 1); // right trim
+			auto replay_path_prefix = replay_file_dir / filename_prefix;
+			std::string replay_path = fmt::format("{}.{}", replay_path_prefix.string(), REPLAY_EXTENSION);
 			if (std::filesystem::exists(replay_path))
 			{
 				int i = 1;
 				do {
 					i += 1;
-					replay_path = string_format("%s-%d.%s", replay_path_prefix.string().c_str(), i, REPLAY_EXTENSION.c_str());
+					replay_path = fmt::format("{}-{}.{}", replay_path_prefix.string(), i, REPLAY_EXTENSION);
 				} while (std::filesystem::exists(replay_path));
 			}
-
+			enter_sys_pal();
 			if (jwin_alert("Recording",
 				"You are about to create a new recording at:",
-				string_format("%s", relativize_path(replay_path).c_str()).c_str(),
+				relativize_path(replay_path).c_str(),
 				"Do you wish to record this save file?",
 				"Yes","No",13,27,lfont)!=0)
 			{
@@ -1901,16 +1841,20 @@ int32_t init_game()
 				replay_set_debug(replay_debug_arg);
 				replay_set_sync_rng(true);
 				replay_set_meta("qst", relativize_path(game->qstpath));
+				replay_set_meta("name", game->get_name());
 				replay_save();
 			}
+			exit_sys_pal();
 		}
 		else if (!firstplay && !saves[currgame].replay_file.empty())
 		{
 			if (!std::filesystem::exists(saves[currgame].replay_file))
 			{
-				std::string msg = string_format("Replay file %s does not exist. Cannot continue recording.",
-					saves[currgame].replay_file.c_str());
+				std::string msg = fmt::format("Replay file {} does not exist. Cannot continue recording.",
+					saves[currgame].replay_file);
+				enter_sys_pal();
 				jwin_alert("Recording",msg.c_str(),NULL,NULL,"OK",NULL,13,27,lfont);
+				exit_sys_pal();
 			}
 			else
 			{
@@ -1987,11 +1931,11 @@ int32_t init_game()
 	if(game != NULL)
 		delete game;
 		
-	char *dummy = (char *) zc_malloc((zc_oldrand()%(RAND_MAX/2))+32);
+	char *dummy = (char *) malloc((zc_oldrand()%(RAND_MAX/2))+32);
 	game = new gamedata;
 	game->Clear();
 	
-	zc_free(dummy);
+	free(dummy);
 	*/
 	
 
@@ -2323,8 +2267,16 @@ int32_t init_game()
 		&& currscr == testingqst_screen
 		&& currdmap == testingqst_dmap)
 	{
-		Hero.setX(tmpscr->warpreturnx[testingqst_retsqr]);
-		Hero.setY(tmpscr->warpreturny[testingqst_retsqr]);
+		if (tmpscr->warpreturnx[testingqst_retsqr] != 0 || tmpscr->warpreturny[testingqst_retsqr] != 0)
+		{
+			Hero.setX(tmpscr->warpreturnx[testingqst_retsqr]);
+			Hero.setY(tmpscr->warpreturny[testingqst_retsqr]);
+		}
+		else
+		{
+			Hero.setX(16 * 8);
+			Hero.setY(16 * 5);
+		}
 	}
 	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
 	{
@@ -3512,19 +3464,19 @@ void game_loop()
 		genscript_timing = SCR_TIMING_START_FRAME;
 		if((pause_in_background && callback_switchin && midi_patch_fix))
 		{
-			if(currmidi!=0)
+			if(currmidi>=0)
 			{
 				if(callback_switchin == 2) 
 				{
-					if ( currmidi != 0 )
+					if ( currmidi >= 0 )
 					{
 						int32_t digi_vol, midi_vol;
 					
 						get_volume(&digi_vol, &midi_vol);
-						stop_midi();
+						zc_stop_midi();
 						jukebox(currmidi);
-						set_volume(digi_vol, midi_vol);
-						midi_seek(paused_midi_pos);
+						zc_set_volume(digi_vol, midi_vol);
+						zc_midi_seek(paused_midi_pos);
 					}
 					midi_paused=false;
 					midi_suspended = midissuspNONE;
@@ -3534,7 +3486,7 @@ void game_loop()
 				{
 					paused_midi_pos = midi_pos;
 					midi_paused=true;
-					stop_midi();
+					zc_stop_midi();
 					++callback_switchin;
 				}
 			}
@@ -3545,15 +3497,15 @@ void game_loop()
 		}
 		else if(midi_suspended==midissuspRESUME )
 		{
-			if ( currmidi != 0 )
+			if ( currmidi >= 0 )
 			{
 				int32_t digi_vol, midi_vol;
 			
 				get_volume(&digi_vol, &midi_vol);
-				stop_midi();
+				zc_stop_midi();
 				jukebox(currmidi);
-				set_volume(digi_vol, midi_vol);
-				midi_seek(paused_midi_pos);
+				zc_set_volume(digi_vol, midi_vol);
+				zc_midi_seek(paused_midi_pos);
 			}
 			midi_paused=false;
 			midi_suspended = midissuspNONE;
@@ -4071,7 +4023,7 @@ void game_loop()
 			// Earthquake!
 			if(quakeclk>0 && !FFCore.system_suspend[susptQUAKE] )
 			{
-				playing_field_offset=56+((int32_t)(sin((double)(--quakeclk*2-frame))*4));
+				playing_field_offset=56+((int32_t)(zc::math::Sin((double)(--quakeclk*2-frame))*4));
 			}
 			else
 			{
@@ -4543,11 +4495,10 @@ int32_t onFullscreen()
     else return D_O_K;
 }
 
-static bool load_replay_file_called = false;
 static bool current_session_is_replay = false;
-void load_replay_file(ReplayMode mode, std::string replay_file)
+static void load_replay_file(ReplayMode mode, std::string replay_file)
 {
-	ASSERT(mode == ReplayMode::Replay || mode == ReplayMode::Assert || mode == ReplayMode::Update);
+	ASSERT(mode == ReplayMode::Replay || mode == ReplayMode::Snapshot || mode == ReplayMode::Assert || mode == ReplayMode::Update);
 	replay_start(mode, replay_file);
 	strcpy(testingqst_name, replay_get_meta_str("qst").c_str());
 	if (replay_get_meta_bool("test_mode"))
@@ -4561,7 +4512,20 @@ void load_replay_file(ReplayMode mode, std::string replay_file)
 	{
 		use_testingst_start = false;
 	}
-	load_replay_file_called = true;
+}
+
+static bool load_replay_file_deffered_called = false;
+static std::string load_replay_file_filename;
+static ReplayMode load_replay_file_mode;
+// Because using "Load Replay" GUI menu can happen while another replay is
+// within an inner game-loop (like scrollscr), which can bleed the old replay
+// into the new one if `replay_start` is called from the GUI control code.
+// Instead, save the information needed to call load_replay_file later.
+void load_replay_file_deferred(ReplayMode mode, std::string replay_file)
+{
+	load_replay_file_deffered_called = true;
+	load_replay_file_mode = mode;
+	load_replay_file_filename = replay_file;
 }
 
 void zc_game_srand(int seed, zc_randgen* rng)
@@ -4595,7 +4559,7 @@ int main(int argc, char **argv)
 	sprintf(zc_aboutstr,"%s (%s), Version %s", ZC_PLAYER_NAME, PROJECT_NAME, ZC_PLAYER_V);
 	
 
-	Z_title("%s, v.%s %s",ZC_PLAYER_NAME, ZC_PLAYER_V, ALPHA_VER_STR);
+	Z_title("ZC Launched: %s, v.%s %s",ZC_PLAYER_NAME, ZC_PLAYER_V, ALPHA_VER_STR);
 	
 	if(used_switch(argc, argv, "-standalone"))
 	{
@@ -4644,8 +4608,8 @@ int main(int argc, char **argv)
 #endif
 	memrequested += 4096;
 	Z_message("Allocating quest path buffers (%s)...", byte_conversion2(4096,memrequested,-1,-1));
-	qstdir = (char*)zc_malloc(2048);
-	qstpath = (char*)zc_malloc(2048);
+	qstdir = (char*)malloc(2048);
+	qstpath = (char*)malloc(2048);
 	
 	if(!qstdir || !qstpath)
 	{
@@ -4665,6 +4629,11 @@ int main(int argc, char **argv)
 	}
 	
 	Z_message("Initializing Allegro... ");
+	if(!al_init())
+	{
+		Z_error_fatal("Failed Init!");
+		quit_game();
+	}
 	if(allegro_init() != 0)
 	{
 		Z_error_fatal("Failed Init!");
@@ -4677,19 +4646,35 @@ int main(int argc, char **argv)
 		al_merge_config_into(al_get_system_config(), tempcfg);
 		al_destroy_config(tempcfg);
 	}
+
+
+#ifdef __EMSCRIPTEN__
+	em_mark_initializing_status();
+	all_disable_threaded_display();
+	em_init_fs();
+#endif
 	
 	if(!al_init_image_addon())
 	{
 		Z_error_fatal("Failed al_init_image_addon");
 		quit_game();
 	}
-	
-	three_finger_flag=false;
-	
+
 	al5img_init();
+
+	three_finger_flag=false;
 	
 	// set and load game configurations
 	zc_set_config_standard();
+
+	for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
+	strcpy(save_file_name,get_config_string("SAVEFILE","save_filename","zc.sav"));
+#ifdef __EMSCRIPTEN__
+	// There was a bug that causes browser zc.cfg files to use the wrong value for the save file.
+	if (strcmp(save_file_name, "zc.sav") == 0)
+		strcpy(save_file_name, "/local/zc.sav");
+#endif
+	SAVE_FILE = (char *)save_file_name;
 	
 	if(!zc_config_standard_exists())
 	{
@@ -4702,13 +4687,13 @@ int main(int argc, char **argv)
 	}
 	
 #ifndef __APPLE__ // Should be done on Mac, too, but I haven't gotten that working
-	if(!is_only_instance("zc.lck"))
-	{
-		if(used_switch(argc, argv, "-multiple") || zc_get_config("zeldadx","multiple_instances",0))
-			onlyInstance=false;
-		else
-			exit(1);
-	}
+	// if(!is_only_instance("zc.lck"))
+	// {
+	// 	if(used_switch(argc, argv, "-multiple") || zc_get_config("zeldadx","multiple_instances",0))
+	// 		onlyInstance=false;
+	// 	else
+	// 		exit(1);
+	// }
 #endif
 	
 	//Set up MODULES: This must occur before trying to load the default quests, as the 
@@ -4834,6 +4819,7 @@ int main(int argc, char **argv)
 		Z_error_fatal(allegro_error);
 		quit_game();
 	}
+	zc_install_mouse_event_handler();
 	
 	if(install_joystick(JOY_TYPE_AUTODETECT) < 0)
 	{
@@ -4842,10 +4828,14 @@ int main(int argc, char **argv)
 	}
 	
 	//set_keyboard_rate(1000,160);
-	
+
 	LOCK_VARIABLE(logic_counter);
 	LOCK_FUNCTION(update_logic_counter);
-	install_int_ex(update_logic_counter, BPS_TO_TIMER(60));
+	if (install_int_ex(update_logic_counter, BPS_TO_TIMER(60)) < 0)
+	{
+		Z_error_fatal("Could not install timer.\n");
+		quit_game();
+	}
 	
 #ifdef _SCRIPT_COUNTER
 	LOCK_VARIABLE(script_counter);
@@ -5059,7 +5049,7 @@ int main(int argc, char **argv)
 	
 	if(save_arg && (argc>(save_arg+1)))
 	{
-		SAVE_FILE = (char *)zc_malloc(2048);
+		SAVE_FILE = (char *)malloc(2048);
 		sprintf(SAVE_FILE, "%s", argv[save_arg+1]);
 		
 		regulate_path(SAVE_FILE);
@@ -5305,7 +5295,6 @@ int main(int argc, char **argv)
 		Z_message("Zelda Classic web site: http://www.zeldaclassic.com\n");
 		Z_message("Zelda Classic wiki: http://www.shardstorm.com/ZCwiki/\n");
 			
-		__zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debug_malloc_logging defined.
 		skipcont = 0;
 		if(forceExit) //fix for the allegro at_exit() hang.
 			exit(0);
@@ -5357,6 +5346,9 @@ int main(int argc, char **argv)
 	resx = 320*2;
 	resy = 240*2;
 	screen_scale = 2;
+	
+	if (strcmp(zc_get_config("zeldadx", "scaling_mode", "linear"), "linear") == 0)
+		all_set_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR);
 	
 	if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
 	{
@@ -5413,6 +5405,17 @@ int main(int argc, char **argv)
 		Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
 	}
 
+	if (zc_get_config("zeldadx","hw_cursor",0) == 1)
+	{
+		// Must wait for the display thread to create the a5 display before the
+		// hardware cursor can be enabled.
+		while (!all_get_display()) rest(1);
+		enable_hardware_cursor();
+		select_mouse_cursor(MOUSE_CURSOR_ARROW);
+		show_mouse(screen);
+	}
+
+#ifndef __EMSCRIPTEN__
 	if (!all_get_fullscreen_flag()) {
 		// Just in case.
 		while (!all_get_display()) {
@@ -5434,6 +5437,7 @@ int main(int argc, char **argv)
 		al_resize_display(all_get_display(), window_width_temp, window_height_temp);
 		al_set_window_position(all_get_display(), center_x - window_width_temp / 2, center_y - window_height_temp / 2);
 	}
+#endif
 	
 	sbig = (screen_scale > 1);
 	switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
@@ -5472,6 +5476,10 @@ int main(int argc, char **argv)
 			return 0;
 		}
 	}
+
+#ifdef __EMSCRIPTEN__
+	checked_epilepsy = true;
+#endif
 	
 	//set switching/focus mode -Z
 	set_display_switch_mode(is_windowed_mode()?(pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND):SWITCH_BACKAMNESIA);
@@ -5525,6 +5533,7 @@ int main(int argc, char **argv)
 	}
 
 	int replay_arg = used_switch(argc, argv, "-replay");
+	int snapshot_arg = used_switch(argc, argv, "-snapshot");
 	int record_arg = used_switch(argc, argv, "-record");
 	int assert_arg = used_switch(argc, argv, "-assert");
 	int update_arg = used_switch(argc, argv, "-update");
@@ -5533,6 +5542,11 @@ int main(int argc, char **argv)
 	if (replay_arg > 0)
 	{
 		load_replay_file(ReplayMode::Replay, argv[replay_arg + 1]);
+	}
+	else if (snapshot_arg > 0)
+	{
+		ASSERT(frame_arg > 0);
+		load_replay_file(ReplayMode::Snapshot, argv[snapshot_arg + 1]);
 	}
 	else if (assert_arg > 0)
 	{
@@ -5580,13 +5594,55 @@ int main(int argc, char **argv)
 		}
 	}
 
+	init_saves();
+
+#ifdef __EMSCRIPTEN__
+	QueryParams params = get_query_params();
+
+	// This will either quick load the first save file for this quest,
+	// or if that doesn't exist prompt the player for a save file name
+	// and then load the quest.
+	if (!params.quest.empty())
+	{
+		std::string qstpath_to_load = std::string("_quests/").append(params.quest);
+
+		if (load_savedgames() != 0)
+		{
+			Z_error_fatal("Insufficient memory");
+			quit_game();
+		}
+
+		int save_index = -1;
+		for (int i = 0; i < MAXSAVES; i++)
+		{
+			if (!saves[i].get_quest()) continue;
+
+			if (qstpath_to_load == saves[i].qstpath)
+			{
+				save_index = i;
+				break;
+			}
+		}
+
+		if (save_index == -1)
+		{
+			load_qstpath = qstpath_to_load;
+		}
+		else
+		{
+			load_save = save_index + 1;
+		}
+		fast_start = true;
+	}
+#endif
+
 	set_display_switch_callback(SWITCH_IN,switch_in_callback);
 	set_display_switch_callback(SWITCH_OUT,switch_out_callback);
 	
 	// AG logo
 	if(!(zqtesting_mode||replay_is_active()||fast_start||zc_get_config("zeldadx","skip_logo",1)))
 	{
-		set_volume(240,-1);
+		zc_set_volume(240,-1);
 		aglogo(tmp_scr, scrollbuf, resx, resy);
 		master_volume(digi_volume,midi_volume);
 	}
@@ -5619,13 +5675,21 @@ int main(int argc, char **argv)
 	}
 	
 #endif
+
+#ifdef __EMSCRIPTEN__
+	em_mark_ready_status();
+#endif
 	
 reload_for_replay_file:
-	load_replay_file_called = false;
+	if (load_replay_file_deffered_called)
+	{
+		load_replay_file(load_replay_file_mode, load_replay_file_filename);
+		load_replay_file_deffered_called = false;
+	}
+
 	current_session_is_replay = replay_is_active();
 	disable_save_to_disk = zqtesting_mode || replay_is_active();
 
-	init_saves();
 	if (!disable_save_to_disk)
 	{
 		// load saved games
@@ -5653,14 +5717,22 @@ reload_for_replay_file:
 		}
 		strcpy(saves[0].qstpath, testingqst_name);
 		saves[0].set_quest(0xFF);
-		saves[0].set_name("Hero");
+		if (replay_is_active())
+		{
+			std::string replay_name = replay_get_meta_str("name", "Hero");
+			saves[0].set_name(replay_name.c_str());
+		}
+		else
+		{
+			saves[0].set_name("Hero");
+		}
 		clearConsole();
 		if (use_testingst_start)
 			Z_message("Test mode: \"%s\", %d, %d\n", testingqst_name, testingqst_dmap, testingqst_screen);
 		if (replay_is_active())
-			Z_message("Replay is active");
+			printf("Replay is active\n");
 	}
-
+	
 	while(Quit!=qEXIT)
 	{
 		// this is here to continually fix the keyboard repeat
@@ -5679,12 +5751,18 @@ reload_for_replay_file:
 				//Failed initializing? Keep trying.
 				do Quit = 0; while(init_game());
 			}
-			Quit = 0;
+			// Unclear why Quit=0 is needed here for testing mode, but this breaks
+			// 'Load Replay' + quiting during init_game, so let's not do it when replaying.
+			// Seems totally safe to just delete this, but I don't want to test that right now.
+			if (!replay_is_replaying())
+				Quit = 0;
+			game_pal();
 		}
 		else titlescreen(load_save);
-		
+		clearConsole();
 		callback_switchin = 0;
 		load_save=0;
+		load_qstpath="";
 		setup_combo_animations();
 		setup_combo_animations2();
 		
@@ -5699,11 +5777,7 @@ reload_for_replay_file:
 			
 #endif
 			game_loop();
-			if (replay_is_debug() && !Quit)
-				replay_step_comment(string_format("frame %d hero %d %d", frame, HeroX().getInt(), HeroY().getInt()));
-
-			FFCore.newScriptEngine();
-			
+			advanceframe(true);
 			FFCore.runF6Engine();
 		
 			//clear Hero's last hits 
@@ -5712,7 +5786,7 @@ reload_for_replay_file:
 			//to read before or after waitdraw in scripts. 
 		}
 
-		if (Quit == qRESET && load_replay_file_called)
+		if (load_replay_file_deffered_called)
 		{
 			Quit = 0;
 			goto reload_for_replay_file;
@@ -5847,6 +5921,7 @@ reload_for_replay_file:
 			FFCore.user_dirs_init(); //Clear open FLIST*!
 			FFCore.user_bitmaps_init(); //Clear open bitmaps
 			FFCore.user_stacks_init(); //Clear open stacks
+			FFCore.user_objects_init(); //Clear open stacks
 		}
 		//Deallocate ALL ZScript arrays on ANY exit.
 		FFCore.deallocateAllArrays();
@@ -5927,7 +6002,6 @@ reload_for_replay_file:
 	Z_message("Zelda Classic web site: http://www.zeldaclassic.com\n");
 	Z_message("Zelda Classic wiki: http://www.shardstorm.com/ZCwiki/\n");
 	
-	__zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debug_malloc_logging defined.
 	skipcont = 0;
 	
 	zscript_coloured_console.kill();
@@ -6044,7 +6118,7 @@ void quit_game()
 		if(customsfxdata[i].data!=NULL)
 		{
 //      delete [] customsfxdata[i].data;
-			zc_free(customsfxdata[i].data);
+			free(customsfxdata[i].data);
 		}
 	}
 	
@@ -6136,12 +6210,12 @@ void quit_game()
 	al_trace("Deleting quest buffers... \n");
 	del_qst_buffers();
 	
-	if(qstdir) zc_free(qstdir);
+	if(qstdir) free(qstdir);
 	
-	if(qstpath) zc_free(qstpath);
+	if(qstpath) free(qstpath);
 	
-	//if(TheMaps != NULL) zc_free(TheMaps);
-	//if(ZCMaps != NULL) zc_free(ZCMaps);
+	//if(TheMaps != NULL) free(TheMaps);
+	//if(ZCMaps != NULL) free(ZCMaps);
 	//  dumb_exit();
 }
 
@@ -6162,117 +6236,6 @@ int32_t d_timer_proc(int32_t, DIALOG *, int32_t)
 }
 
 
-
-
-
-
-/////////////////////////////////////////////////
-// zc_malloc
-/////////////////////////////////////////////////
-
-//Want Logging:
-//Set this to 1 to allow zc_malloc/zc_free to track pointers and
-//write logging data to allegro.log
-#define ZC_DEBUG_MALLOC_WANT_LOGGING_INFO 0
-
-
-#include "vectorset.h"
-
-#if (defined(NDEBUG) || !defined(_DEBUG)) && (ZC_DEBUG_MALLOC_ENABLED) && (ZC_DEBUG_MALLOC_WANT_LOGGING_INFO) //this is not fun with debug
-#define ZC_WANT_DETAILED_MALLOC_LOGGING 1
-#endif
-
-
-#if ZC_WANT_DETAILED_MALLOC_LOGGING
-size_t totalBytesAllocated = 0;
-typedef vectorset<void*> debug_malloc_pool_type;
-debug_malloc_pool_type debug_zc_malloc_allocated_pool;
-#endif
-
-void* __zc_debug_malloc(size_t numBytes, const char* file, int32_t line)
-{
-#if ZC_WANT_DETAILED_MALLOC_LOGGING
-    static bool zcDbgMallocInit = false;
-    
-    if(!zcDbgMallocInit)
-    {
-        zcDbgMallocInit = true;
-        debug_zc_malloc_allocated_pool.reserve(1 << 17);
-        //yeah. completely ridiculous... there's no reason zc should ever need this many..
-        //BUT it does... go figure
-    }
-    
-    totalBytesAllocated += numBytes;
-    
-    //char buf[1024];
-    //sprintf(buf, "%i : %s, line %i, %u bytes allocated.\n", 0, file, line, numBytes);
-    //al_trace("%s", buf);
-    
-    al_trace("info: %i : %s, line %i, %u bytes, pool size %u, total %u,",
-             0,
-             file,
-             line,
-             numBytes,
-             debug_zc_malloc_allocated_pool.size(),
-             totalBytesAllocated / 1024
-            );
-#endif
-            
-    ZC_MALLOC_ALWAYS_ASSERT(numBytes != 0);
-    void* p = malloc(numBytes);
-    
-#if ZC_WANT_DETAILED_MALLOC_LOGGING
-    al_trace("at address %x\n", (int32_t)p);
-    
-    if(!p)
-        al_trace("____________ ERROR: __zc_debug_malloc: returned null. out of memory.\n");
-        
-    debug_malloc_pool_type::insert_iterator_type it = debug_zc_malloc_allocated_pool.insert(p);
-    
-    if(!it.second)
-        al_trace("____________ ERROR: malloc returned identical address to one in use... No way Jose!\n");
-        
-#endif
-        
-    return p;
-}
-
-
-void __zc_debug_free(void* p, const char* file, int32_t line)
-{
-    ZC_MALLOC_ALWAYS_ASSERT(p != 0);
-    
-#if ZC_WANT_DETAILED_MALLOC_LOGGING
-    al_trace("alloc info: %i : %s line %i, freeing memory at address %x\n", 0, file, line, (int32_t)p);
-    
-    size_t numErased = debug_zc_malloc_allocated_pool.erase(p);
-    
-    if(numErased == 0)
-        al_trace("____________ ERROR: __zc_debug_free: no known ptr to memory exists. ..attempting to free it anyways.\n");
-        
-#endif
-        
-    free(p);
-}
-
-
-void __zc_debug_malloc_free_print_memory_leaks()
-{
-#if ZC_WANT_DETAILED_MALLOC_LOGGING
-    al_trace("LOGGING INFO FROM debug_zc_malloc_allocated_pool:\n");
-    
-    for(debug_malloc_pool_type::iterator it = debug_zc_malloc_allocated_pool.begin();
-            it != debug_zc_malloc_allocated_pool.end();
-            ++it
-       )
-    {
-        al_trace("block at address %x.\n", (int32_t)*it);
-    }
-    
-#endif
-}
-
-
 void __zc_always_assert(bool e, const char* expression, const char* file, int32_t line)
 {
     if(!e)
@@ -6288,6 +6251,14 @@ void __zc_always_assert(bool e, const char* expression, const char* file, int32_
     }
 }
 
+#ifdef __EMSCRIPTEN__
+extern "C" void get_shareable_url()
+{
+	EM_ASM({
+		ZC.setShareableUrl({quest: UTF8ToString($0), dmap: $1, screen: $2});
+	}, qstpath, currdmap, currscr);
+}
+#endif
 
 bool checkCost(int32_t ctr, int32_t amnt)
 {

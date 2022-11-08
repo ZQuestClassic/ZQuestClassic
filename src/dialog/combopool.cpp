@@ -2,7 +2,6 @@
 #include "common.h"
 #include "info.h"
 #include <gui/builder.h>
-#include <boost/format.hpp>
 #include "zc_list_data.h"
 #include "gui/use_size.h"
 #include "zq_tiles.h"

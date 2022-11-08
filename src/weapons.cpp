@@ -28,11 +28,11 @@
 #include "tiles.h"
 #include "pal.h"
 #include "hero.h"
-#include "mem_debug.h"
 #include "ffscript.h"
 #include "decorations.h"
 #include "drawing.h"
 #include "combos.h"
+#include "base/zc_math.h"
 
 extern HeroClass Hero;
 extern zinitdata zinit;
@@ -3642,6 +3642,23 @@ bool weapon::animate(int32_t index)
 		}
 		
 		}*/
+		byte temp_screengrid[22];
+		byte temp_screengrid_layer[2][22];
+		byte temp_ffcgrid[4];
+		memcpy(temp_screengrid, screengrid, sizeof(screengrid));
+		memcpy(temp_screengrid_layer[0], screengrid_layer[0], sizeof(screengrid_layer[0]));
+		memcpy(temp_screengrid_layer[1], screengrid_layer[1], sizeof(screengrid_layer[1]));
+		memcpy(temp_ffcgrid, ffcgrid, sizeof(ffcgrid));
+		
+		for(int32_t q=0; q<22; q++)
+		{
+			screengrid[q] = 0;
+			screengrid_layer[0][q] = 0;
+			screengrid_layer[1][q] = 0;
+		}
+		
+		for(int32_t q=0; q<4; q++)
+			ffcgrid[q] = 0;
 		
 		for(int32_t dx = 0; dx < hxsz; dx += 16)
 		{
@@ -3699,6 +3716,11 @@ bool weapon::animate(int32_t index)
 		
 		//Hero.check_wand_block(this);
 		//Hero.check_pound_block(this);
+		
+		memcpy(screengrid, temp_screengrid, sizeof(screengrid));
+		memcpy(screengrid_layer[0], temp_screengrid_layer[0], sizeof(screengrid_layer[0]));
+		memcpy(screengrid_layer[1], temp_screengrid_layer[1], sizeof(screengrid_layer[1]));
+		memcpy(ffcgrid, temp_ffcgrid, sizeof(ffcgrid));
 	}
 	else findcombotriggers();
 	
@@ -3905,8 +3927,8 @@ bool weapon::animate(int32_t index)
 			
 			int32_t speed = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc1,1) : 1;
 			int32_t radius = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc2,8) : 8;
-			double xdiff = -(sin((double)clk/speed) * radius);
-			double ydiff = (cos((double)clk/speed) * radius);
+			double xdiff = -(zc::math::Sin((double)clk/speed) * radius);
+			double ydiff = (zc::math::Cos((double)clk/speed) * radius);
 			
 			double ddir=atan2(double(ydiff),double(xdiff));
 			

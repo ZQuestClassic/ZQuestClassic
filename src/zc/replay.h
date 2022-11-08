@@ -15,18 +15,6 @@
 
 const std::string REPLAY_EXTENSION = "zplay";
 
-// TODO C++20 std::format
-template <typename... Args>
-std::string string_format(const std::string &format, Args &&...args)
-{
-    auto size = std::snprintf(nullptr, 0, format.c_str(), std::forward<Args>(args)...);
-    std::string output(size + 1, '\0');
-    std::sprintf(&output[0], format.c_str(), std::forward<Args>(args)...);
-    // TODO: for some reason the above produces an extra \0 at the end... do this hack to trim it.
-    output = output.c_str();
-    return output;
-}
-
 enum ReplayMode
 {
     Off,
@@ -35,12 +23,14 @@ enum ReplayMode
     Assert,
     Update,
     ManualTakeover,
+    Snapshot,
 };
 
 void replay_start(ReplayMode mode_, std::string filename_);
 void replay_continue(std::string filename_);
 void replay_poll();
 void replay_peek_quit();
+void replay_peek_input();
 bool replay_is_assert_done();
 void replay_forget_input();
 void replay_stop();
@@ -50,6 +40,7 @@ void replay_save(std::string filename);
 void replay_stop_manual_takeover();
 
 void replay_step_comment(std::string comment);
+void replay_step_gfx(uint32_t gfx_hash);
 void replay_step_quit(int quit_state);
 void replay_step_cheat(Cheat cheat, int arg1 = -1, int arg2 = -1);
 
@@ -57,10 +48,13 @@ void replay_set_meta(std::string key, std::string value);
 void replay_set_meta(std::string key, int value);
 void replay_set_meta_bool(std::string key, bool value);
 std::string replay_get_meta_str(std::string key);
+std::string replay_get_meta_str(std::string key, std::string defaultValue);
 int replay_get_meta_int(std::string key);
+int replay_get_meta_int(std::string key, int defaultValue);
 bool replay_get_meta_bool(std::string key);
 
 ReplayMode replay_get_mode();
+int replay_get_version();
 std::string replay_get_filename();
 std::string replay_get_buttons_string();
 bool replay_is_active();
@@ -68,6 +62,7 @@ void replay_set_debug(bool enable_debug);
 bool replay_is_debug();
 void replay_set_sync_rng(bool enable);
 bool replay_is_replaying();
+bool replay_is_recording();
 void replay_set_frame_arg(int frame);
 
 size_t replay_register_rng(zc_randgen *rng);

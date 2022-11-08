@@ -35,7 +35,6 @@
 
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
-#include "mem_debug.h"
 #include "particles.h"
 #include "dialog/alert.h"
 #include "dialog/alertfunc.h"
@@ -70,6 +69,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "qst.h"
 #include "base/zsys.h"
 #include "base/zapp.h"
+#include "play_midi.h"
 #include "zcmusic.h"
 
 #include "midi.h"
@@ -99,6 +99,10 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include <stdio.h>
 #include <psapi.h>
 #pragma comment(lib, "psapi.lib") // Needed to avoid linker issues. -Z
+#endif
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
 #endif
 
 //SDL_Surface *sdl_screen;
@@ -169,6 +173,11 @@ uint8_t __isZQuest = 1; //Shared functionscan reference this. -Z
 
 #include "zqscale.h"
 #include "base/util.h"
+
+#ifdef __EMSCRIPTEN__
+#include "base/emscripten_utils.h"
+#endif
+
 using namespace util;
 
 using std::vector;
@@ -403,48 +412,6 @@ zinitdata zinit;
 
 int32_t onImport_ComboAlias();
 int32_t onExport_ComboAlias();
-
-
-static ALLEGRO_EVENT_QUEUE* evq = nullptr;
-void init_mouse_events()
-{
-	if(!evq)
-	{
-		evq = al_create_event_queue();
-		al_register_event_source(evq, al_get_mouse_event_source());
-	}
-}
-void update_mouse_events()
-{
-	if(evq)
-	{
-		ALLEGRO_EVENT event;
-		while(al_get_next_event(evq, &event))
-		{
-			switch(event.type)
-			{
-				case ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY:
-				{
-					show_mouse(screen);
-					break;
-				}
-				case ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY:
-				{
-					show_mouse(NULL);
-					break;
-				}
-			}
-		}
-	}
-}
-void destroy_mouse_events()
-{
-	if(evq)
-	{
-		al_destroy_event_queue(evq);
-		evq = nullptr;
-	}
-}
 
 void set_console_state();
 
@@ -978,8 +945,10 @@ static MENU file_menu[] =
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&Import\t ",                 NULL,                      import_menu,              0,            NULL   },
 	{ (char *)"&Export\t ",                 NULL,                      export_menu,              0,            NULL   },
+#ifndef __EMSCRIPTEN__
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"E&xit\tESC",                 onExit,                    NULL,                     0,            NULL   },
+#endif
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -1151,7 +1120,7 @@ static MENU paste_item_menu[] =
 static MENU edit_menu[] =
 {
     { (char *)"&Undo\tU",                   onUndo,                    NULL,                     0,            NULL   },
-    { (char *)"&Redo\tY",                   onRedo,                    NULL,                     0,            NULL   },
+    { (char *)"&Redo\tCtrl+Y",              onRedo,                    NULL,                     0,            NULL   },
     { (char *)"&Copy\tC",                   onCopy,                    NULL,                     0,            NULL   },
     { (char *)"&Paste\tV",                  onPaste,                   NULL,                     0,            NULL   },
     { (char *)"Paste A&ll",                 onPasteAll,                NULL,                     0,            NULL   },
@@ -4417,7 +4386,8 @@ const char *tracknumlist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,255);
-        sprintf(track_number_str_buf,"%02d",index+1);
+        std::string name = zcmusic_get_track_name(zcmusic, index);
+        sprintf(track_number_str_buf,"%02d %s",index+1, name.c_str());
         return track_number_str_buf;
     }
     
@@ -4495,7 +4465,7 @@ int32_t playMusic()
             return D_O_K;
         }
         
-        stop_midi();
+        zc_stop_midi();
         
         if(zcmusic != NULL)
         {
@@ -4509,7 +4479,7 @@ int32_t playMusic()
             packfile_password("");
             if((song=load_midi(midipath))!=NULL)
             {
-                if(play_midi(song,true)==0)
+                if(zc_play_midi(song,true)==0)
                 {
                     etc_menu[8].flags =
                         commands[cmdPlayTune].flags = 0;
@@ -4626,7 +4596,7 @@ int32_t playTune19()
 
 int32_t playTune(int32_t pos)
 {
-    stop_midi();
+    zc_stop_midi();
     
     if(zcmusic != NULL)
     {
@@ -4635,9 +4605,9 @@ int32_t playTune(int32_t pos)
         zcmusic = NULL;
     }
     
-    if(play_midi((MIDI*)zcdata[THETRAVELSOFLINK_MID].dat,true)==0)
+    if(zc_play_midi((MIDI*)zcdata[THETRAVELSOFLINK_MID].dat,true)==0)
     {
-        midi_seek(pos);
+        zc_midi_seek(pos);
         
         etc_menu[8].flags = D_SELECTED;
         commands[cmdPlayTune].flags = 0;
@@ -4654,7 +4624,7 @@ int32_t playTune(int32_t pos)
 
 int32_t stopMusic()
 {
-    stop_midi();
+    zc_stop_midi();
     
     if(zcmusic != NULL)
     {
@@ -7663,6 +7633,9 @@ void refresh(int32_t flags)
     
     unscare_mouse();
     SCRFIX();
+#ifdef __EMSCRIPTEN__
+    all_render_screen();
+#endif
 }
 
 void select_scr()
@@ -8374,8 +8347,20 @@ void draw(bool justcset)
             }
         }
         
-        do_animations();
-        refresh(rALL);
+#ifdef __EMSCRIPTEN__
+		// TODO: fix this!
+		// For some reason this loop (even if a rest(1) is added) prevents the
+		// mouse thread from consuming events (or maybe it prevents SDL on the main
+		// thread from creating mouse events?). Breaking after a single iteration prevents
+		// this from locking up.
+		// This drawing code functions similarly like this, except click-and-drag
+		// will create multiple separate single edits in the undo history, rather than
+		// combining all of them.
+		break;
+#else
+		do_animations();
+		refresh(rALL);
+#endif
     }
 
     Map.FinishListCommand();
@@ -8727,6 +8712,7 @@ finished:
     while(gui_mouse_b())
     {
         /* do nothing */
+        rest(1);
     }
     
     showxypos_x=-1000;
@@ -8748,6 +8734,11 @@ finished:
 
 void doflags()
 {
+	if (zc_get_config("zquest","hw_cursor",0) == 1)
+	{
+		select_mouse_cursor(MOUSE_CURSOR_ALLEGRO);
+		disable_hardware_cursor();
+	}
 	set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
 	int32_t of=Flags;
 	Flags=cFLAGS;
@@ -8931,16 +8922,23 @@ void doflags()
 		
 		do_animations();
 		refresh(rALL | rNOCURSOR);
+		zc_process_mouse_events();
 	}
 	
 finished:
 	Flags=of;
+	if (zc_get_config("zquest","hw_cursor",0) == 1)
+	{
+		select_mouse_cursor(MOUSE_CURSOR_ARROW);
+		enable_hardware_cursor();
+	}
 	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
 	refresh(rMAP+rMENU);
 	
 	while(gui_mouse_b())
 	{
 		/* do nothing */
+        rest(1);
 	}
 }
 
@@ -11892,7 +11890,7 @@ static DIALOG cpage_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
     { jwin_win_proc, 72,   20,   176+1,  212+1,  vc(14),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    { d_ctext_proc,      160,  28,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0, (void *) "Combo Page", NULL, NULL },
+    { d_ctext2_proc,      160,  28,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0, (void *) "Combo Page", NULL, NULL },
     { jwin_button_proc,     90,   182,  61,   21,   vc(14),  vc(1),  's',     D_EXIT,     0,             0, (void *) "&Set", NULL, NULL },
     { jwin_button_proc,     170,  182,  61,   21,   vc(14),  vc(1),  'c',     D_EXIT,     0,             0, (void *) "&Cancel", NULL, NULL },
     { jwin_button_proc,     90,   210,  61,   21,   vc(14),  vc(1),  'a',     D_EXIT,     0,             0, (void *) "Set &All", NULL, NULL },
@@ -12155,6 +12153,7 @@ int32_t d_scombo_proc(int32_t msg,DIALOG *d,int32_t c)
             while(gui_mouse_b())
             {
                 /* do nothing */
+                rest(1);
             }
             
             if(select_flag(f))
@@ -15356,13 +15355,13 @@ static DIALOG dmapmaps_dlg[] =
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { jwin_button_proc,     93,   208,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     168,  208,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { d_ctext_proc,      160,  38,    0,   8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Minimaps", NULL, NULL },
-    { d_ctext_proc,      112,  46,     0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Without Map", NULL, NULL },
-    { d_ctext_proc,      208,  46,     0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "With Map", NULL, NULL },
+    { d_ctext2_proc,      160,  38,    0,   8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Minimaps", NULL, NULL },
+    { d_ctext2_proc,      112,  46,     0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Without Map", NULL, NULL },
+    { d_ctext2_proc,      208,  46,     0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "With Map", NULL, NULL },
     
-    { d_ctext_proc,      162,  110,    0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Large Maps", NULL, NULL },
-    { d_ctext_proc,      80,   118,    0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Without Map", NULL, NULL },
-    { d_ctext_proc,      240,  118,    0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "With Map", NULL, NULL },
+    { d_ctext2_proc,      162,  110,    0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Large Maps", NULL, NULL },
+    { d_ctext2_proc,      80,   118,    0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Without Map", NULL, NULL },
+    { d_ctext2_proc,      240,  118,    0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "With Map", NULL, NULL },
     // 5
     { d_maptile_proc,    72,   54,   80,   48,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_maptile_proc,    168,  54,   80,   48,   0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
@@ -15882,6 +15881,7 @@ int32_t d_title_edit_proc(int32_t msg,DIALOG *d,int32_t c)
         while(gui_mouse_b())
         {
             /* do nothing */
+            rest(1);
         }
         
         break;
@@ -16026,6 +16026,7 @@ int32_t d_intro_edit_proc(int32_t msg,DIALOG *d,int32_t c)
         while(gui_mouse_b())
         {
             /* do nothing */
+            rest(1);
         }
         
         break;
@@ -16572,11 +16573,11 @@ static DIALOG editdmap_dlg[] =
 
 void editdmap(int32_t index)
 {
-    //DMapEditorLastMaptileUsed = 0;
-    char levelstr[4], compassstr[4], contstr[4], mirrordmapstr[4], tmusicstr[56], dmapnumstr[60];
-    char *tmfname;
-    byte gridstring[8];
-    static int32_t xy[2];
+	//DMapEditorLastMaptileUsed = 0;
+	char levelstr[4], compassstr[4], contstr[4], mirrordmapstr[4], tmusicstr[56], dmapnumstr[60];
+	char *tmfname;
+	byte gridstring[8];
+	static int32_t xy[2];
 	
 	char initdvals[8][13]; //script
 	char subinitdvals[8][13]; //script
@@ -16597,18 +16598,18 @@ void editdmap(int32_t index)
 		editdmap_dlg[148+q].dp = sub_initd_labels[q];
 		editdmap_dlg[169+q].dp = onmap_initd_labels[q];
 	}
-    
 	
 	
-    sprintf(levelstr,"%d",DMaps[index].level);
-    sprintf(dmapnumstr,"Edit DMap (%d)",index);
-    sprintf(compassstr,"%02X",DMaps[index].compass);
-    sprintf(contstr,"%02X",DMaps[index].cont);
-    sprintf(mirrordmapstr,"%d",DMaps[index].mirrorDMap);
-    sprintf(dmap_title,"%s",DMaps[index].title);
-    sprintf(dmap_name,"%s",DMaps[index].name);
-    sprintf(dmap_intro,"%s",DMaps[index].intro);
-    sprintf(tmusicstr,"%s",DMaps[index].tmusic);
+	
+	sprintf(levelstr,"%d",DMaps[index].level);
+	sprintf(dmapnumstr,"Edit DMap (%d)",index);
+	sprintf(compassstr,"%02X",DMaps[index].compass);
+	sprintf(contstr,"%02X",DMaps[index].cont);
+	sprintf(mirrordmapstr,"%d",DMaps[index].mirrorDMap);
+	sprintf(dmap_title,"%s",DMaps[index].title);
+	sprintf(dmap_name,"%s",DMaps[index].name);
+	sprintf(dmap_intro,"%s",DMaps[index].intro);
+	sprintf(tmusicstr,"%s",DMaps[index].tmusic);
 	
 	//dmap script
 	build_bidmaps_list(); //dmap scripts lister
@@ -16632,7 +16633,7 @@ void editdmap(int32_t index)
 			editdmap_dlg[186].d1 = j; 
 		}
 	}
-    
+	
 	for ( int32_t q = 0; q < 8; q++ )
 	{
 		editdmap_dlg[138+q].dp = initdvals[q];
@@ -16646,290 +16647,282 @@ void editdmap(int32_t index)
 		editdmap_dlg[177+q].dp3 = &(editdmap_dlg[203+q]);
 	}
 	
-    editdmap_dlg[0].dp=dmapnumstr;
-    editdmap_dlg[0].dp2=lfont;
-    editdmap_dlg[4].dp=dmap_name;
-    editdmap_dlg[9].d1 = DMaps[index].minimap_1_tile;
-    editdmap_dlg[9].fg = DMaps[index].minimap_1_cset;
-    editdmap_dlg[12].d1 = DMaps[index].largemap_1_tile;
-    editdmap_dlg[12].fg = DMaps[index].largemap_1_cset;
-    editdmap_dlg[15].d1 = DMaps[index].minimap_2_tile;
-    editdmap_dlg[15].fg = DMaps[index].minimap_2_cset;
-    editdmap_dlg[18].d1 = DMaps[index].largemap_2_tile;
-    editdmap_dlg[18].fg = DMaps[index].largemap_2_cset;
-    editdmap_dlg[20].d1=(DMaps[index].map>(map_count-1))?0:DMaps[index].map;
-    xy[0]=editdmap_dlg[20].x;
-    xy[1]=editdmap_dlg[20].y;
-    editdmap_dlg[21].dp3=xy;
-    xmapspecs[1]=DMaps[index].xoff;
-    editdmap_dlg[21].d2=DMaps[index].xoff+7;
-    editdmap_dlg[23].d1=(DMaps[index].type&dmfTYPE);
-    editdmap_dlg[25].dp=levelstr;
-    
-    editdmap_dlg[26].dp2=is_large?nfont:spfont;
-    editdmap_dlg[27].dp2=is_large?nfont:spfont;
-    
-    for(int32_t i=0; i<8; i++)
-    {
-        for(int32_t j=0; j<8; j++)
-        {
-            set_bit(gridstring,8*i+j,get_bit((byte *)(DMaps[index].grid+i),7-j));
-        }
-    }
-    
-    editdmap_dlg[58].dp=gridstring;
-    editdmap_dlg[60].dp=compassstr;
-    editdmap_dlg[62].dp=contstr;
-    editdmap_dlg[214].dp=mirrordmapstr;
-    editdmap_dlg[63].flags = (DMaps[index].type&dmfCONTINUE) ? D_SELECTED : 0;
-    editdmap_dlg[65].d1=DMaps[index].color;
-    editdmap_dlg[75].d1=DMaps[index].active_subscreen;
-    editdmap_dlg[77].d1=DMaps[index].passive_subscreen;
-    editdmap_dlg[83].d1=DMaps[index].midi;
-    editdmap_dlg[87].dp=tmusicstr;
-    dmap_tracks=0;
-    ZCMUSIC *tempdmapzcmusic = (ZCMUSIC*)zcmusic_load_file(tmusicstr);
-    
-    // Failed to load - try the quest directory
-    if(tempdmapzcmusic==NULL)
-    {
-        char musicpath[256];
-        replace_filename(musicpath, filepath, tmusicstr, 256);
-        tempdmapzcmusic = (ZCMUSIC*)zcmusic_load_file(musicpath);
-    }
-    
-    if(tempdmapzcmusic!=NULL)
-    {
-        dmap_tracks=zcmusic_get_tracks(tempdmapzcmusic);
-        dmap_tracks=(dmap_tracks<2)?0:dmap_tracks;
-    }
-    
-    zcmusic_unload_file(tempdmapzcmusic);
-    editdmap_dlg[89].flags=(dmap_tracks<2)?D_DISABLED:0;
-    editdmap_dlg[89].d1=vbound(DMaps[index].tmusictrack,0,dmap_tracks > 0 ? dmap_tracks-1 : 0);
-    
-    build_bii_list(false);
-    initDI(index);
-    ListData DI_list(DIlist, &font);
-    ListData item_list(itemlist_num, &font);
-    editdmap_dlg[101].dp = (void*)&DI_list;
-    editdmap_dlg[101].d1 = 0;
-    editdmap_dlg[102].dp = (void*)&item_list;
-    editdmap_dlg[102].d1 = 0;
-    
-    editdmap_dlg[110].flags = (DMaps[index].flags& dmfCAVES)? D_SELECTED : 0;
-    editdmap_dlg[111].flags = (DMaps[index].flags& dmf3STAIR)? D_SELECTED : 0;
-    editdmap_dlg[112].flags = (DMaps[index].flags& dmfWHIRLWIND)? D_SELECTED : 0;
-    editdmap_dlg[113].flags = (DMaps[index].flags& dmfGUYCAVES)? D_SELECTED : 0;
-    editdmap_dlg[114].flags = (DMaps[index].flags& dmfNOCOMPASS)? D_SELECTED : 0;
-    editdmap_dlg[115].flags = (DMaps[index].flags& dmfWAVY)? D_SELECTED : 0;
-    editdmap_dlg[116].flags = (DMaps[index].flags& dmfWHIRLWINDRET)? D_SELECTED : 0;
-    editdmap_dlg[117].flags = (DMaps[index].flags& dmfALWAYSMSG) ? D_SELECTED : 0;
-    editdmap_dlg[118].flags = (DMaps[index].flags& dmfVIEWMAP) ? D_SELECTED : 0;
-    editdmap_dlg[119].flags = (DMaps[index].flags& dmfDMAPMAP) ? D_SELECTED : 0;
-    editdmap_dlg[120].flags = (DMaps[index].flags& dmfMINIMAPCOLORFIX) ? D_SELECTED : 0;
-    
-    editdmap_dlg[121].flags = (DMaps[index].flags& dmfSCRIPT1) ? D_SELECTED : 0;
-    editdmap_dlg[122].flags = (DMaps[index].flags& dmfSCRIPT2) ? D_SELECTED : 0;
-    editdmap_dlg[123].flags = (DMaps[index].flags& dmfSCRIPT3) ? D_SELECTED : 0;
-    editdmap_dlg[124].flags = (DMaps[index].flags& dmfSCRIPT4) ? D_SELECTED : 0;
-    editdmap_dlg[125].flags = (DMaps[index].flags& dmfSCRIPT5) ? D_SELECTED : 0;
-    editdmap_dlg[127].flags = (DMaps[index].sideview) ? D_SELECTED : 0;
-    editdmap_dlg[128].flags = (DMaps[index].flags& dmfLAYER3BG) ? D_SELECTED : 0;
-    editdmap_dlg[129].flags = (DMaps[index].flags& dmfLAYER2BG) ? D_SELECTED : 0;
-    
-    editdmap_dlg[168].flags = (DMaps[index].flags& dmfNEWCELLARENEMIES)? D_SELECTED : 0;
-    editdmap_dlg[211].flags = (DMaps[index].flags& dmfBUNNYIFNOPEARL) ? D_SELECTED : 0;
-    editdmap_dlg[212].flags = (DMaps[index].flags& dmfMIRRORCONTINUE) ? D_SELECTED : 0;
-    
-    if(is_large)
-    {
-        if(!editdmap_dlg[0].d1)
-        {
-            xmapspecs[2]=int32_t(xmapspecs[2]*1.5);
-            xmapspecs[3]=int32_t(xmapspecs[3]*1.5);
-            editdmap_dlg[7].x+=4;
-            editdmap_dlg[13].x+=4;
-            editdmap_dlg[26].y-=12;
-            editdmap_dlg[27].y-=12;
-            editdmap_dlg[59].x+=10;
-            editdmap_dlg[61].x+=10;
-            editdmap_dlg[213].x+=10;
-        }
-        
-        large_dialog(editdmap_dlg);
-        xy[0]=editdmap_dlg[20].x;
-        xy[1]=editdmap_dlg[20].y;
-        int32_t dest[6] = { 11, 17, 14, 8, 67, 70 };
-        int32_t src[6] = { 12, 12, 9, 9, 68, 71 };
-        
-        for(int32_t i=0; i<6; i++)
-        {
-            editdmap_dlg[dest[i]].w = editdmap_dlg[src[i]].w+4;
-            editdmap_dlg[dest[i]].h = editdmap_dlg[src[i]].h+4;
-            editdmap_dlg[dest[i]].x = editdmap_dlg[src[i]].x-2;
-            editdmap_dlg[dest[i]].y = editdmap_dlg[src[i]].y-2;
-        }
-    }
-    
-    int32_t ret=-1;
-    
-    while(ret!=0&&ret!=1&&ret!=2)
-    {
-        ret=zc_popup_dialog(editdmap_dlg,-1);
-        
-        switch(ret)
-        {
-        case 90:                                              //grab a filename for tracker music
-        {
-            if(getname("Load DMap Music",(char*)zcmusic_types,NULL,tmusicpath,false))
-            {
-                strcpy(tmusicpath,temppath);
-                tmfname=get_filename(tmusicpath);
-                
-                if(strlen(tmfname)>55)
-                {
-                    jwin_alert("Error","Filename too long","(>55 characters",NULL,"O&K",NULL,'k',0,lfont);
-                    temppath[0]=0;
-                }
-                else
-                {
-                    sprintf(tmusicstr,"%s",tmfname);
-                    editdmap_dlg[87].dp=tmusicstr;
-                    dmap_tracks=0;
-                    tempdmapzcmusic = (ZCMUSIC*)zcmusic_load_file(tmusicstr);
-                    
-                    // Failed to load - try the quest directory
-                    if(tempdmapzcmusic==NULL)
-                    {
-                        char musicpath[256];
-                        replace_filename(musicpath, filepath, tmusicstr, 256);
-                        tempdmapzcmusic = (ZCMUSIC*)zcmusic_load_file(musicpath);
-                    }
-                    
-                    if(tempdmapzcmusic!=NULL)
-                    {
-                        dmap_tracks=zcmusic_get_tracks(tempdmapzcmusic);
-                        dmap_tracks=(dmap_tracks<2)?0:dmap_tracks;
-                    }
-                    
-                    zcmusic_unload_file(tempdmapzcmusic);
-                    editdmap_dlg[89].flags=(dmap_tracks<2)?D_DISABLED:0;
-                    editdmap_dlg[89].d1=0;
-                }
-            }
-        }
-        break;
-        
-        case 91:                                              //clear tracker music
-            memset(tmusicstr, 0, 56);
-            editdmap_dlg[89].flags=D_DISABLED;
-            editdmap_dlg[89].d1=0;
-            break;
-            
-        case 104: 											// item disable "->"
-            deleteDI(editdmap_dlg[101].d1, index);
-            break;
-            
-        case 105: 											// item disable "<-"
-        {
-            // 101 is the disabled list, 102 the item list
-            insertDI(editdmap_dlg[102].d1, index);
-        }
-        break;
-        }
-    }
-    
-    if(ret==1)
-    {
-        saved=false;
-        sprintf(DMaps[index].name,"%s",dmap_name);
-        DMaps[index].minimap_1_tile = editdmap_dlg[9].d1;
-        DMaps[index].minimap_1_cset = editdmap_dlg[9].fg;
-        DMaps[index].largemap_1_tile = editdmap_dlg[12].d1;
-        DMaps[index].largemap_1_cset = editdmap_dlg[12].fg;
-        DMaps[index].minimap_2_tile = editdmap_dlg[15].d1;
-        DMaps[index].minimap_2_cset = editdmap_dlg[15].fg;
-        DMaps[index].largemap_2_tile = editdmap_dlg[18].d1;
-        DMaps[index].largemap_2_cset = editdmap_dlg[18].fg;
-        DMaps[index].map = (editdmap_dlg[20].d1>(map_count-1))?0:editdmap_dlg[20].d1;
-        DMaps[index].xoff = xmapspecs[1];
-        DMaps[index].type=editdmap_dlg[23].d1|((editdmap_dlg[63].flags & D_SELECTED)?dmfCONTINUE:0);
-        
-        if((DMaps[index].type & dmfTYPE) == dmOVERW)
-            DMaps[index].xoff = 0;
-            
-        DMaps[index].level=vbound(atoi(levelstr),0,MAXLEVELS-1);
-        
-        for(int32_t i=0; i<8; i++)
-        {
-            for(int32_t j=0; j<8; j++)
-            {
-                set_bit((byte *)(DMaps[index].grid+i),7-j,get_bit(gridstring,8*i+j));
-            }
-        }
-        
-        DMaps[index].compass = zc_xtoi(compassstr);
-        DMaps[index].cont = vbound(zc_xtoi(contstr), -DMaps[index].xoff, 0x7F-DMaps[index].xoff);
-        DMaps[index].mirrorDMap = vbound(atoi(mirrordmapstr), -1, 511);
-        DMaps[index].color = editdmap_dlg[65].d1;
-        DMaps[index].active_subscreen=editdmap_dlg[75].d1;
-        DMaps[index].passive_subscreen=editdmap_dlg[77].d1;
-        DMaps[index].midi = editdmap_dlg[83].d1;
-        sprintf(DMaps[index].tmusic, "%s", tmusicstr);
-        sprintf(DMaps[index].title,"%s",dmap_title);
-        sprintf(DMaps[index].intro,"%s",dmap_intro);
-        DMaps[index].tmusictrack = editdmap_dlg[89].d1;
-        
-        int32_t f=0;
-        f |= editdmap_dlg[110].flags & D_SELECTED ? dmfCAVES:0;
-        f |= editdmap_dlg[111].flags & D_SELECTED ? dmf3STAIR:0;
-        f |= editdmap_dlg[112].flags & D_SELECTED ? dmfWHIRLWIND:0;
-        f |= editdmap_dlg[113].flags & D_SELECTED ? dmfGUYCAVES:0;
-        f |= editdmap_dlg[114].flags & D_SELECTED ? dmfNOCOMPASS:0;
-        f |= editdmap_dlg[115].flags & D_SELECTED ? dmfWAVY:0;
-        f |= editdmap_dlg[116].flags & D_SELECTED ? dmfWHIRLWINDRET:0;
-        f |= editdmap_dlg[117].flags & D_SELECTED ? dmfALWAYSMSG:0;
-        f |= editdmap_dlg[118].flags & D_SELECTED ? dmfVIEWMAP:0;
-        f |= editdmap_dlg[119].flags & D_SELECTED ? dmfDMAPMAP:0;
-        f |= editdmap_dlg[120].flags & D_SELECTED ? dmfMINIMAPCOLORFIX:0;
-        
-        f |= editdmap_dlg[121].flags & D_SELECTED ? dmfSCRIPT1:0;
-        f |= editdmap_dlg[122].flags & D_SELECTED ? dmfSCRIPT2:0;
-        f |= editdmap_dlg[123].flags & D_SELECTED ? dmfSCRIPT3:0;
-        f |= editdmap_dlg[124].flags & D_SELECTED ? dmfSCRIPT4:0;
-        f |= editdmap_dlg[125].flags & D_SELECTED ? dmfSCRIPT5:0;
-        f |= editdmap_dlg[128].flags & D_SELECTED ? dmfLAYER3BG:0;
-        f |= editdmap_dlg[129].flags & D_SELECTED ? dmfLAYER2BG:0;
-        f |= editdmap_dlg[168].flags & D_SELECTED ? dmfNEWCELLARENEMIES:0;
-        f |= editdmap_dlg[211].flags & D_SELECTED ? dmfBUNNYIFNOPEARL:0;
-        f |= editdmap_dlg[212].flags & D_SELECTED ? dmfMIRRORCONTINUE:0;
-        DMaps[index].flags = f;
+	editdmap_dlg[0].dp=dmapnumstr;
+	editdmap_dlg[0].dp2=lfont;
+	editdmap_dlg[4].dp=dmap_name;
+	editdmap_dlg[9].d1 = DMaps[index].minimap_1_tile;
+	editdmap_dlg[9].fg = DMaps[index].minimap_1_cset;
+	editdmap_dlg[12].d1 = DMaps[index].largemap_1_tile;
+	editdmap_dlg[12].fg = DMaps[index].largemap_1_cset;
+	editdmap_dlg[15].d1 = DMaps[index].minimap_2_tile;
+	editdmap_dlg[15].fg = DMaps[index].minimap_2_cset;
+	editdmap_dlg[18].d1 = DMaps[index].largemap_2_tile;
+	editdmap_dlg[18].fg = DMaps[index].largemap_2_cset;
+	editdmap_dlg[20].d1=(DMaps[index].map>(map_count-1))?0:DMaps[index].map;
+	xy[0]=editdmap_dlg[20].x;
+	xy[1]=editdmap_dlg[20].y;
+	editdmap_dlg[21].dp3=xy;
+	xmapspecs[1]=DMaps[index].xoff;
+	editdmap_dlg[21].d2=DMaps[index].xoff+7;
+	editdmap_dlg[23].d1=(DMaps[index].type&dmfTYPE);
+	editdmap_dlg[25].dp=levelstr;
 	
-	DMaps[index].sideview = editdmap_dlg[127].flags & D_SELECTED ? 1:0;
-	DMaps[index].script = bidmaps[editdmap_dlg[147].d1].second + 1;
-	DMaps[index].active_sub_script = bidmaps[editdmap_dlg[165].d1].second + 1;
-	DMaps[index].passive_sub_script = bidmaps[editdmap_dlg[167].d1].second + 1;
-	DMaps[index].onmap_script = bidmaps[editdmap_dlg[186].d1].second + 1;
+	editdmap_dlg[26].dp2=is_large?nfont:spfont;
+	editdmap_dlg[27].dp2=is_large?nfont:spfont;
 	
-	//for ( int32_t q = 0; q < 8; ++q )
-	//{
-	//	strcpy(initd_labels[q], editdmap_dlg[130+q].dp);
-	//}
-	
-	for ( int32_t q = 0; q < 8; q++ )
+	for(int32_t i=0; i<8; i++)
 	{
-		DMaps[index].initD[q] = editdmap_dlg[138+q].fg;
-		DMaps[index].sub_initD[q] = editdmap_dlg[156+q].fg;
-		DMaps[index].onmap_initD[q] = editdmap_dlg[177+q].fg;
-		////initd_labels
-		sprintf(DMaps[index].initD_label[q],"%s",initd_labels[q]);
-		sprintf(DMaps[index].sub_initD_label[q],"%s",sub_initd_labels[q]);
-		sprintf(DMaps[index].onmap_initD_label[q],"%s",onmap_initd_labels[q]);
-//		strcpy(DMaps[index].initD_label[q], initd_labels[q]);
-		//vbound(atoi(initdvals[q])*10000,-2147483647, 2147483647);
+		for(int32_t j=0; j<8; j++)
+		{
+			set_bit(gridstring,8*i+j,get_bit((byte *)(DMaps[index].grid+i),7-j));
+		}
 	}
-    }
+	
+	editdmap_dlg[58].dp=gridstring;
+	editdmap_dlg[60].dp=compassstr;
+	editdmap_dlg[62].dp=contstr;
+	editdmap_dlg[214].dp=mirrordmapstr;
+	editdmap_dlg[63].flags = (DMaps[index].type&dmfCONTINUE) ? D_SELECTED : 0;
+	editdmap_dlg[65].d1=DMaps[index].color;
+	editdmap_dlg[75].d1=DMaps[index].active_subscreen;
+	editdmap_dlg[77].d1=DMaps[index].passive_subscreen;
+	editdmap_dlg[83].d1=DMaps[index].midi;
+	editdmap_dlg[87].dp=tmusicstr;
+	dmap_tracks=0;
+	ZCMUSIC *tempdmapzcmusic = (ZCMUSIC*)zcmusic_load_file(tmusicstr);
+	
+	// Failed to load - try the quest directory
+	if(tempdmapzcmusic==NULL)
+	{
+		char musicpath[256];
+		replace_filename(musicpath, filepath, tmusicstr, 256);
+		tempdmapzcmusic = (ZCMUSIC*)zcmusic_load_file(musicpath);
+	}
+	
+	if(tempdmapzcmusic!=NULL)
+	{
+		dmap_tracks=zcmusic_get_tracks(tempdmapzcmusic);
+		dmap_tracks=(dmap_tracks<2)?0:dmap_tracks;
+	}
+	
+	zcmusic_unload_file(tempdmapzcmusic);
+	editdmap_dlg[89].flags=(dmap_tracks<2)?D_DISABLED:0;
+	editdmap_dlg[89].d1=vbound(DMaps[index].tmusictrack,0,dmap_tracks > 0 ? dmap_tracks-1 : 0);
+	
+	build_bii_list(false);
+	initDI(index);
+	ListData DI_list(DIlist, &font);
+	ListData item_list(itemlist_num, &font);
+	editdmap_dlg[101].dp = (void*)&DI_list;
+	editdmap_dlg[101].d1 = 0;
+	editdmap_dlg[102].dp = (void*)&item_list;
+	editdmap_dlg[102].d1 = 0;
+	
+	editdmap_dlg[110].flags = (DMaps[index].flags& dmfCAVES)? D_SELECTED : 0;
+	editdmap_dlg[111].flags = (DMaps[index].flags& dmf3STAIR)? D_SELECTED : 0;
+	editdmap_dlg[112].flags = (DMaps[index].flags& dmfWHIRLWIND)? D_SELECTED : 0;
+	editdmap_dlg[113].flags = (DMaps[index].flags& dmfGUYCAVES)? D_SELECTED : 0;
+	editdmap_dlg[114].flags = (DMaps[index].flags& dmfNOCOMPASS)? D_SELECTED : 0;
+	editdmap_dlg[115].flags = (DMaps[index].flags& dmfWAVY)? D_SELECTED : 0;
+	editdmap_dlg[116].flags = (DMaps[index].flags& dmfWHIRLWINDRET)? D_SELECTED : 0;
+	editdmap_dlg[117].flags = (DMaps[index].flags& dmfALWAYSMSG) ? D_SELECTED : 0;
+	editdmap_dlg[118].flags = (DMaps[index].flags& dmfVIEWMAP) ? D_SELECTED : 0;
+	editdmap_dlg[119].flags = (DMaps[index].flags& dmfDMAPMAP) ? D_SELECTED : 0;
+	editdmap_dlg[120].flags = (DMaps[index].flags& dmfMINIMAPCOLORFIX) ? D_SELECTED : 0;
+	
+	editdmap_dlg[121].flags = (DMaps[index].flags& dmfSCRIPT1) ? D_SELECTED : 0;
+	editdmap_dlg[122].flags = (DMaps[index].flags& dmfSCRIPT2) ? D_SELECTED : 0;
+	editdmap_dlg[123].flags = (DMaps[index].flags& dmfSCRIPT3) ? D_SELECTED : 0;
+	editdmap_dlg[124].flags = (DMaps[index].flags& dmfSCRIPT4) ? D_SELECTED : 0;
+	editdmap_dlg[125].flags = (DMaps[index].flags& dmfSCRIPT5) ? D_SELECTED : 0;
+	editdmap_dlg[127].flags = (DMaps[index].sideview) ? D_SELECTED : 0;
+	editdmap_dlg[128].flags = (DMaps[index].flags& dmfLAYER3BG) ? D_SELECTED : 0;
+	editdmap_dlg[129].flags = (DMaps[index].flags& dmfLAYER2BG) ? D_SELECTED : 0;
+	
+	editdmap_dlg[168].flags = (DMaps[index].flags& dmfNEWCELLARENEMIES)? D_SELECTED : 0;
+	editdmap_dlg[211].flags = (DMaps[index].flags& dmfBUNNYIFNOPEARL) ? D_SELECTED : 0;
+	editdmap_dlg[212].flags = (DMaps[index].flags& dmfMIRRORCONTINUE) ? D_SELECTED : 0;
+	
+	if(is_large)
+	{
+		if(!editdmap_dlg[0].d1)
+		{
+			xmapspecs[2]=int32_t(xmapspecs[2]*1.5);
+			xmapspecs[3]=int32_t(xmapspecs[3]*1.5);
+			editdmap_dlg[7].x+=4;
+			editdmap_dlg[13].x+=4;
+			editdmap_dlg[26].y-=12;
+			editdmap_dlg[27].y-=12;
+			editdmap_dlg[59].x+=10;
+			editdmap_dlg[61].x+=10;
+			editdmap_dlg[213].x+=10;
+		}
+		
+		large_dialog(editdmap_dlg);
+		xy[0]=editdmap_dlg[20].x;
+		xy[1]=editdmap_dlg[20].y;
+		int32_t dest[6] = { 11, 17, 14, 8, 67, 70 };
+		int32_t src[6] = { 12, 12, 9, 9, 68, 71 };
+		
+		for(int32_t i=0; i<6; i++)
+		{
+			editdmap_dlg[dest[i]].w = editdmap_dlg[src[i]].w+4;
+			editdmap_dlg[dest[i]].h = editdmap_dlg[src[i]].h+4;
+			editdmap_dlg[dest[i]].x = editdmap_dlg[src[i]].x-2;
+			editdmap_dlg[dest[i]].y = editdmap_dlg[src[i]].y-2;
+		}
+	}
+	
+	int32_t ret=-1;
+	
+	while(ret!=0&&ret!=1&&ret!=2)
+	{
+		ret=zc_popup_dialog(editdmap_dlg,-1);
+		
+		switch(ret)
+		{
+		case 90:											  //grab a filename for tracker music
+		{
+			if(getname("Load DMap Music",(char*)zcmusic_types,NULL,tmusicpath,false))
+			{
+				strcpy(tmusicpath,temppath);
+				tmfname=get_filename(tmusicpath);
+				
+				if(strlen(tmfname)>55)
+				{
+					jwin_alert("Error","Filename too long","(>55 characters",NULL,"O&K",NULL,'k',0,lfont);
+					temppath[0]=0;
+				}
+				else
+				{
+					sprintf(tmusicstr,"%s",tmfname);
+					editdmap_dlg[87].dp=tmusicstr;
+					dmap_tracks=0;
+					tempdmapzcmusic = zcmusic_load_for_quest(tmusicstr, filepath);
+					
+					if(tempdmapzcmusic!=NULL)
+					{
+						dmap_tracks=zcmusic_get_tracks(tempdmapzcmusic);
+						dmap_tracks=(dmap_tracks<2)?0:dmap_tracks;
+					}
+					
+					zcmusic_unload_file(tempdmapzcmusic);
+					editdmap_dlg[89].flags=(dmap_tracks<2)?D_DISABLED:0;
+					editdmap_dlg[89].d1=0;
+				}
+			}
+		}
+		break;
+		
+		case 91:											  //clear tracker music
+			memset(tmusicstr, 0, 56);
+			editdmap_dlg[89].flags=D_DISABLED;
+			editdmap_dlg[89].d1=0;
+			break;
+			
+		case 104: 											// item disable "->"
+			deleteDI(editdmap_dlg[101].d1, index);
+			break;
+			
+		case 105: 											// item disable "<-"
+		{
+			// 101 is the disabled list, 102 the item list
+			insertDI(editdmap_dlg[102].d1, index);
+		}
+		break;
+		}
+	}
+	
+	if(ret==1)
+	{
+		saved=false;
+		sprintf(DMaps[index].name,"%s",dmap_name);
+		DMaps[index].minimap_1_tile = editdmap_dlg[9].d1;
+		DMaps[index].minimap_1_cset = editdmap_dlg[9].fg;
+		DMaps[index].largemap_1_tile = editdmap_dlg[12].d1;
+		DMaps[index].largemap_1_cset = editdmap_dlg[12].fg;
+		DMaps[index].minimap_2_tile = editdmap_dlg[15].d1;
+		DMaps[index].minimap_2_cset = editdmap_dlg[15].fg;
+		DMaps[index].largemap_2_tile = editdmap_dlg[18].d1;
+		DMaps[index].largemap_2_cset = editdmap_dlg[18].fg;
+		DMaps[index].map = (editdmap_dlg[20].d1>(map_count-1))?0:editdmap_dlg[20].d1;
+		DMaps[index].xoff = xmapspecs[1];
+		DMaps[index].type=editdmap_dlg[23].d1|((editdmap_dlg[63].flags & D_SELECTED)?dmfCONTINUE:0);
+		
+		if((DMaps[index].type & dmfTYPE) == dmOVERW)
+			DMaps[index].xoff = 0;
+			
+		DMaps[index].level=vbound(atoi(levelstr),0,MAXLEVELS-1);
+		
+		for(int32_t i=0; i<8; i++)
+		{
+			for(int32_t j=0; j<8; j++)
+			{
+				set_bit((byte *)(DMaps[index].grid+i),7-j,get_bit(gridstring,8*i+j));
+			}
+		}
+		
+		DMaps[index].compass = zc_xtoi(compassstr);
+		DMaps[index].cont = vbound(zc_xtoi(contstr), -DMaps[index].xoff, 0x7F-DMaps[index].xoff);
+		DMaps[index].mirrorDMap = vbound(atoi(mirrordmapstr), -1, 511);
+		DMaps[index].color = editdmap_dlg[65].d1;
+		DMaps[index].active_subscreen=editdmap_dlg[75].d1;
+		DMaps[index].passive_subscreen=editdmap_dlg[77].d1;
+		DMaps[index].midi = editdmap_dlg[83].d1;
+		sprintf(DMaps[index].tmusic, "%s", tmusicstr);
+		sprintf(DMaps[index].title,"%s",dmap_title);
+		sprintf(DMaps[index].intro,"%s",dmap_intro);
+		DMaps[index].tmusictrack = editdmap_dlg[89].d1;
+		
+		int32_t f=0;
+		f |= editdmap_dlg[110].flags & D_SELECTED ? dmfCAVES:0;
+		f |= editdmap_dlg[111].flags & D_SELECTED ? dmf3STAIR:0;
+		f |= editdmap_dlg[112].flags & D_SELECTED ? dmfWHIRLWIND:0;
+		f |= editdmap_dlg[113].flags & D_SELECTED ? dmfGUYCAVES:0;
+		f |= editdmap_dlg[114].flags & D_SELECTED ? dmfNOCOMPASS:0;
+		f |= editdmap_dlg[115].flags & D_SELECTED ? dmfWAVY:0;
+		f |= editdmap_dlg[116].flags & D_SELECTED ? dmfWHIRLWINDRET:0;
+		f |= editdmap_dlg[117].flags & D_SELECTED ? dmfALWAYSMSG:0;
+		f |= editdmap_dlg[118].flags & D_SELECTED ? dmfVIEWMAP:0;
+		f |= editdmap_dlg[119].flags & D_SELECTED ? dmfDMAPMAP:0;
+		f |= editdmap_dlg[120].flags & D_SELECTED ? dmfMINIMAPCOLORFIX:0;
+		
+		f |= editdmap_dlg[121].flags & D_SELECTED ? dmfSCRIPT1:0;
+		f |= editdmap_dlg[122].flags & D_SELECTED ? dmfSCRIPT2:0;
+		f |= editdmap_dlg[123].flags & D_SELECTED ? dmfSCRIPT3:0;
+		f |= editdmap_dlg[124].flags & D_SELECTED ? dmfSCRIPT4:0;
+		f |= editdmap_dlg[125].flags & D_SELECTED ? dmfSCRIPT5:0;
+		f |= editdmap_dlg[128].flags & D_SELECTED ? dmfLAYER3BG:0;
+		f |= editdmap_dlg[129].flags & D_SELECTED ? dmfLAYER2BG:0;
+		f |= editdmap_dlg[168].flags & D_SELECTED ? dmfNEWCELLARENEMIES:0;
+		f |= editdmap_dlg[211].flags & D_SELECTED ? dmfBUNNYIFNOPEARL:0;
+		f |= editdmap_dlg[212].flags & D_SELECTED ? dmfMIRRORCONTINUE:0;
+		DMaps[index].flags = f;
+	
+		DMaps[index].sideview = editdmap_dlg[127].flags & D_SELECTED ? 1:0;
+		DMaps[index].script = bidmaps[editdmap_dlg[147].d1].second + 1;
+		DMaps[index].active_sub_script = bidmaps[editdmap_dlg[165].d1].second + 1;
+		DMaps[index].passive_sub_script = bidmaps[editdmap_dlg[167].d1].second + 1;
+		DMaps[index].onmap_script = bidmaps[editdmap_dlg[186].d1].second + 1;
+		
+		//for ( int32_t q = 0; q < 8; ++q )
+		//{
+		//	strcpy(initd_labels[q], editdmap_dlg[130+q].dp);
+		//}
+		
+		for ( int32_t q = 0; q < 8; q++ )
+		{
+			DMaps[index].initD[q] = editdmap_dlg[138+q].fg;
+			DMaps[index].sub_initD[q] = editdmap_dlg[156+q].fg;
+			DMaps[index].onmap_initD[q] = editdmap_dlg[177+q].fg;
+			////initd_labels
+			sprintf(DMaps[index].initD_label[q],"%s",initd_labels[q]);
+			sprintf(DMaps[index].sub_initD_label[q],"%s",sub_initd_labels[q]);
+			sprintf(DMaps[index].onmap_initD_label[q],"%s",onmap_initd_labels[q]);
+			//strcpy(DMaps[index].initD_label[q], initd_labels[q]);
+			//vbound(atoi(initdvals[q])*10000,-2147483647, 2147483647);
+		}
+	}
 }
 
 //int32_t selectdmapxy[6] = {90,142,164,150,164,160};
@@ -18405,7 +18398,7 @@ void edit_tune(int32_t i)
         case 9:
             if(getname("Load tune","mid;nsf",NULL,temppath,true))
             {
-                stop_midi();
+                zc_stop_midi();
                 
                 if(data!=NULL && data!=customtunes[i].data)
                 {
@@ -18437,18 +18430,18 @@ void edit_tune(int32_t i)
             break;
             
         case 10:
-            stop_midi();
+            zc_stop_midi();
             break;
             
         case 12:
             if(midi_pos>0)
             {
                 int32_t pos=midi_pos;
-                stop_midi();
+                zc_stop_midi();
                 midi_loop_start = -1;
                 midi_loop_end = -1;
-                play_midi((MIDI*)data,loop);
-                set_volume(-1,volume);
+                zc_play_midi((MIDI*)data,loop);
+                zc_set_volume(-1,volume);
                 midi_loop_start = loop_start;
                 midi_loop_end = loop_end;
                 
@@ -18463,7 +18456,7 @@ void edit_tune(int32_t i)
                 
                 if(pos>0)
                 {
-                    midi_seek(pos);
+                    zc_midi_seek(pos);
                 }
                 
                 break;
@@ -18475,11 +18468,11 @@ void edit_tune(int32_t i)
             if(midi_pos>0)
             {
                 int32_t pos=midi_pos;
-                stop_midi();
+                zc_stop_midi();
                 midi_loop_end = -1;
                 midi_loop_start = -1;
-                play_midi((MIDI*)data,loop);
-                set_volume(-1,volume);
+                zc_play_midi((MIDI*)data,loop);
+                zc_set_volume(-1,volume);
                 midi_loop_end = loop_end;
                 midi_loop_start = loop_start;
                 
@@ -18495,7 +18488,7 @@ void edit_tune(int32_t i)
                 
                 if(pos>0)
                 {
-                    midi_seek(pos);
+                    zc_midi_seek(pos);
                 }
                 
                 break;
@@ -18506,12 +18499,12 @@ void edit_tune(int32_t i)
         case 11:
         {
             int32_t pos=midi_pos;
-            stop_midi();
+            zc_stop_midi();
             midi_loop_start = -1;
             midi_loop_end = -1;
-            play_midi((MIDI*)data,loop);
-            set_volume(-1,volume);
-            midi_seek(pos<0?start:pos);
+            zc_play_midi((MIDI*)data,loop);
+            zc_set_volume(-1,volume);
+            zc_midi_seek(pos<0?start:pos);
             midi_loop_start = loop_start;
             midi_loop_end = loop_end;
         }
@@ -18520,7 +18513,7 @@ void edit_tune(int32_t i)
     }
     while(ret<26&&ret!=0);
     
-    stop_midi();
+    zc_stop_midi();
     
     if(ret==27)
     {
@@ -19282,6 +19275,7 @@ int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c)
         while(gui_mouse_b())
         {
             /* do nothing */
+            rest(1);
         }
     }
     break;
@@ -22300,6 +22294,7 @@ int32_t d_comboa_proc(int32_t msg,DIALOG *d,int32_t c)
             while(gui_mouse_b())
             {
                 /* do nothing */
+                rest(1);
             }
             
             return D_REDRAW;
@@ -23536,7 +23531,7 @@ static ListData ffscript_list(ffscriptlist, &font);
 char *strip_decimals(char *string)
 {
     int32_t len=(int32_t)strlen(string);
-    char *src=(char *)zc_malloc(len+1);
+    char *src=(char *)malloc(len+1);
     char *tmpsrc=src;
     memcpy(src,string,len+1);
     memset(src,0,len+1);
@@ -23557,7 +23552,7 @@ char *strip_decimals(char *string)
     }
     
     memcpy(string,src,len);
-    zc_free(src);
+    free(src);
     return string;
 }
 
@@ -23567,7 +23562,7 @@ char *clean_numeric_string(char *string)
     bool found_sign=false;
     bool found_decimal=false;
     int32_t len=(int32_t)strlen(string);
-    char *src=(char *)zc_malloc(len+1);
+    char *src=(char *)malloc(len+1);
     char *tmpsrc=src;
     memcpy(src,string,len+1);
     memset(src,0,len+1);
@@ -23589,7 +23584,7 @@ char *clean_numeric_string(char *string)
     }
     
     len=(int32_t)strlen(src);
-    char *src2=(char *)zc_malloc(len+1);
+    char *src2=(char *)malloc(len+1);
     tmpsrc=src2;
     memcpy(src,src2,len+1);
     memset(src2,0,len+1);
@@ -23629,8 +23624,8 @@ char *clean_numeric_string(char *string)
     }
     
     sprintf(string, "%s", src2);
-    zc_free(src);
-    zc_free(src2);
+    free(src);
+    free(src2);
     return string;
 }
 
@@ -24800,24 +24795,51 @@ int32_t jwin_zmeta_proc(int32_t msg, DIALOG *d, int32_t )
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
 				memset(buf, 0, sizeof(buf));
-				sprintf(buf, "Script Name: %s", meta.script_name);
+				sprintf(buf, "Script Name: %s", meta.script_name.c_str());
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
 				memset(buf, 0, sizeof(buf));
-				sprintf(buf, "Author: %s", meta.author);
+				sprintf(buf, "Author: %s", meta.author.c_str());
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
 				memset(buf, 0, sizeof(buf));
 				sprintf(buf, "Script Type: %s", get_script_name(meta.script_type).c_str());
 				t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
 				d->w = zc_max(d->w, t_w);
+				for(auto q = 0; q < 4; ++q)
+				{
+					if(!meta.attributes[q].size())
+						continue;
+					memset(buf, 0, sizeof(buf));
+					sprintf(buf, "Attributes[%d]: %s", q, meta.attributes[q].c_str());
+					t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
+					d->w = zc_max(d->w, t_w);
+				}
+				for(auto q = 0; q < 8; ++q)
+				{
+					if(!meta.attribytes[q].size())
+						continue;
+					memset(buf, 0, sizeof(buf));
+					sprintf(buf, "Attribytes[%d]: %s", q, meta.attribytes[q].c_str());
+					t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
+					d->w = zc_max(d->w, t_w);
+				}
+				for(auto q = 0; q < 8; ++q)
+				{
+					if(!meta.attrishorts[q].size())
+						continue;
+					memset(buf, 0, sizeof(buf));
+					sprintf(buf, "Attrishorts[%d]: %s", q, meta.attrishorts[q].c_str());
+					t_w = txtout(target, buf, d->x, d->y + ((++ind)*(text_height(font) + 3)), disabled);
+					d->w = zc_max(d->w, t_w);
+				}
 				bool indentrun = false;
 				int32_t run_indent = txtout(NULL, "void run(", 0, 0, false);
 				std::ostringstream oss;
 				oss << "void run(";
 				for(int32_t q = 0; q < 8; ++q)
 				{
-					if(meta.run_idens[q][0] == 0 || meta.run_types[q] == ZMETA_NULL_TYPE) continue;
+					if(!meta.run_idens[q].size() || meta.run_types[q] == ZMETA_NULL_TYPE) continue;
 					if(q > 0)
 						oss << ", ";
 					string type_name = ZScript::getTypeName(meta.run_types[q]);
@@ -25406,6 +25428,11 @@ void clear_map_states()
 	}
 }
 
+bool doCompileOpenHeaderDlg()
+{
+    call_header_dlg();
+    return false;
+}
 
 void compile_sfx(bool success)
 {
@@ -25443,6 +25470,7 @@ int32_t onCompileScript()
 {
 	compile_dlg[0].dp2 = lfont;
 	int32_t memuse = 0;
+    bool hasWarnErr = false;
 	#ifdef _WIN32
 	PROCESS_MEMORY_COUNTERS memCounter;
 	BOOL memresult = false;
@@ -25467,6 +25495,7 @@ int32_t onCompileScript()
 		sprintf(zScriptBytes, "%d Bytes in Buffer", (int32_t)(zScript.size()));
 		sprintf(zLastVer, "Last Compiled Using ZScript: v.%d",(FFCore.quest_format[vLastCompile]));
 		int32_t ret = zc_popup_dialog(compile_dlg,5);
+		bool ctrl = key_shifts & KB_CTRL_FLAG;
 		try_recovering_missing_scripts = (compile_dlg[9].flags & D_SELECTED) ? 1 : 0;
 		switch(ret)
 		{
@@ -25579,6 +25608,11 @@ int32_t onCompileScript()
 				map<string, ZScript::ScriptTypeID> stypes;
 				map<string, disassembled_script_data> scripts;
 				
+                std::string quest_rules_hex = get_qr_hexstr();
+                clock_t start_compile_time = clock();
+#ifdef __EMSCRIPTEN__
+                int32_t code = em_compile_zscript(tmpfilename, consolefilename, quest_rules_hex.c_str());
+#else
 				int32_t code = -9999;
 				if(!fileexists(ZSCRIPT_FILE))
 				{
@@ -25598,20 +25632,19 @@ int32_t onCompileScript()
 					box_start(1, "Compile Progress", lfont, sfont,true, 512, 280);
 				}
 
-				std::string quest_rules_hex = get_qr_hexstr();
-
-				clock_t start_compile_time = clock();
-				const char* argv[] = {
-				#ifndef _WIN32
-					ZSCRIPT_FILE,
-				#endif
+				std::vector<std::string> args = {
 					"-input", tmpfilename,
 					"-console", consolefilename,
 					"-qr", quest_rules_hex.c_str(),
-					"-linked", NULL, NULL};
+					"-linked",
+				};
 				if(zc_get_config("Compiler","noclose_compile_console",0))
-					argv[3] = "-noclose";
-				process_manager* pm = launch_piped_process(ZSCRIPT_FILE, argv);
+					args.push_back("-noclose");
+				#ifdef _DEBUG
+				if(ctrl)
+					args.push_back("-delay");
+				#endif
+				process_manager* pm = launch_piped_process(ZSCRIPT_FILE, args);
 				if(!pm)
 				{
 					InfoDialog("Parser","Failed to launch " ZSCRIPT_FILE).show();
@@ -25625,30 +25658,42 @@ int32_t onCompileScript()
 				FILE *console = fopen(consolefilename, "r");
 				char buf4[512];
 				bool hasWarnErr = false;
+				bool running = true;
 				if (console) 
 				{
-					for(;;) //while (true)
+					while(running)
 					{
 						pm->read(&code, sizeof(int32_t));
-						if (code != ZC_CONSOLE_INFO_CODE && code != ZC_CONSOLE_ERROR_CODE && code != ZC_CONSOLE_WARN_CODE) break;
-						else
+						switch(code)
 						{
-							if(code != ZC_CONSOLE_INFO_CODE) hasWarnErr = true;
-							fseek(console, 0, SEEK_END);
-							current = ftell(console);
-							if (current != last) {
-								int amount = (current-last);
-								fseek(console, last, SEEK_SET);
-								last = current;
-								int end = fread(&buf4, sizeof(char), amount, console);
-								buf4[end] = 0;
-								ReadConsole(buf4, code);
-							}
-							pm->write(&code, sizeof(int32_t));
+							case ZC_CONSOLE_DB_CODE:
+							case ZC_CONSOLE_ERROR_CODE:
+							case ZC_CONSOLE_WARN_CODE:
+								hasWarnErr = true;
+								[[fallthrough]];
+							case ZC_CONSOLE_INFO_CODE:
+								fseek(console, 0, SEEK_END);
+								current = ftell(console);
+								if (current != last)
+								{
+									int amount = (current-last);
+									fseek(console, last, SEEK_SET);
+									last = current;
+									int end = fread(&buf4, sizeof(char), amount, console);
+									buf4[end] = 0;
+									ReadConsole(buf4, code);
+								}
+								pm->write(&code, sizeof(int32_t));
+								break;
+							default:
+								running = false;
+								break;
 						}
 					}
 				}
 				pm->read(&code, sizeof(int32_t));
+                delete pm;
+#endif
 				clock_t end_compile_time = clock();
 				
 				
@@ -25663,7 +25708,7 @@ int32_t onCompileScript()
 				sprintf(buf, "ZScript compilation: Returned code '%d' (%s)\n"
 					"Compile took %s seconds (%ld cycles)%s",
 					code, code ? "failure" : "success",
-					tmp, end_compile_time - start_compile_time,
+					tmp, (long)end_compile_time - start_compile_time,
 					code ? (!DisableCompileConsole?"\nCompilation failed. See console for details.":"\nCompilation failed.") : "");
 				
 				if(!code)
@@ -25677,7 +25722,7 @@ int32_t onCompileScript()
 				else if (DisableCompileConsole)
 				{
 					char buf3[256] = {0};
-					sprintf(buf3, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),end_compile_time - start_compile_time);
+					sprintf(buf3, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),(long)end_compile_time - start_compile_time);
 					box_out(buf3);
 					box_eol();
 					box_out("Compilation failed.");
@@ -25685,8 +25730,6 @@ int32_t onCompileScript()
 				}
 				compile_sfx(!code);
 				if (DisableCompileConsole) box_end(true);
-				
-				delete pm;
 				
 				bool cancel = code;
 				if (!DisableCompileConsole) 
@@ -25828,7 +25871,7 @@ int32_t onCompileScript()
 							"Ensure that both versions are higher than \"Quest Ver\" was previously, "
 							"and that \"Quest Ver\" is the same or higher than \"Min. Ver\"",
 							2, 1, //2 buttons, where buttons[1] is focused
-							"Header", [&](){call_header_dlg(); return false;},
+							"Header", doCompileOpenHeaderDlg,
 							"OK", NULL
 						).show();
 					}
@@ -26909,9 +26952,6 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 			case 0:
 			case 2:
 				//Cancel
-				if(tempfile!=NULL) fclose(tempfile);
-				
-				//return false;
 				goto exit_do_slots;
 				
 			case 3:
@@ -27477,10 +27517,10 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				}
 
 				clock_t end_assign_time = clock();
-				al_trace("Assign Slots took %lf seconds (%ld cycles)\n", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,end_assign_time-start_assign_time);
+				al_trace("Assign Slots took %lf seconds (%ld cycles)\n", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,(long)end_assign_time-start_assign_time);
 				char buf[256] = {0};
 				sprintf(buf, "ZScripts successfully loaded into script slots"
-					"\nAssign Slots took %lf seconds (%ld cycles)", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,end_assign_time-start_assign_time);
+					"\nAssign Slots took %lf seconds (%ld cycles)", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,(long)end_assign_time-start_assign_time);
 				//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
 				compile_finish_sample = vbound(zc_get_config("Compiler","compile_finish_sample",34),0,255);
 				compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",200),0,255);
@@ -27490,7 +27530,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 					sfx_voice[compile_finish_sample]=allocate_voice((SAMPLE*)sfxdata[compile_finish_sample].dat);
 					else sfx_voice[compile_finish_sample]=allocate_voice(&customsfxdata[compile_finish_sample]);
 					voice_set_volume(sfx_voice[compile_finish_sample], compile_audio_volume);
-					//set_volume(255,-1);
+					//zc_set_volume(255,-1);
 					//kill_sfx();
 					voice_start(sfx_voice[compile_finish_sample]);
 				}
@@ -27505,8 +27545,6 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				}
 				build_biffs_list();
 				build_biitems_list();
-				if(tempfile!=NULL) fclose(tempfile);
-				//return true;
 				retval = true;
 				goto exit_do_slots;
 			}
@@ -28392,15 +28430,18 @@ int32_t onImportZASM()
 	script_data *temp_slot = new script_data();
 	if(parse_script_file(&temp_slot, zasm_import_file, false) == D_CLOSE)
 	{
+		fclose(zasm_import_file);
 		jwin_alert("Error","Failed to parse specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
 		delete temp_slot;
 		return D_O_K;
 	}
-	char namebuf[33] = {0};
+	fclose(zasm_import_file);
+
+    std::string namebuf;
 	if(temp_slot->meta.valid()) //Found metadata
 	{
 		importzasm_dlg[3].d1 = getType(temp_slot->meta.script_type);
-		strcpy(namebuf, temp_slot->meta.script_name);
+		namebuf = temp_slot->meta.script_name;
 		switch(importzasm_dlg[3].d1)
 		{
 			default: //Shouldn't occur, but to be safe
@@ -28446,7 +28487,7 @@ int32_t onImportZASM()
 		importzasm_dlg[4].dp = (void*)&ffscript_list;
 		importzasm_dlg[4].d1 = 0;
 	}
-	importzasm_dlg[8].dp = (void*)namebuf;
+	importzasm_dlg[8].dp = (void*)namebuf.c_str();
 	bool confirmed = false;
 	int32_t indx = 1;
 	while(!confirmed)
@@ -28844,7 +28885,7 @@ void change_sfx(SAMPLE *sfx1, SAMPLE *sfx2)
     
     if(sfx1->data != NULL)
     {
-        zc_free(sfx1->data);
+        free(sfx1->data);
     }
     
     if(sfx2->data == NULL)
@@ -28867,7 +28908,7 @@ void change_sfx(SAMPLE *sfx1, SAMPLE *sfx2)
             len = (sfx1->bits==8?1:2)*(sfx1->stereo == 0 ? 1 : 2)*sfx1->len;
         }
         
-        sfx1->data = zc_malloc(len);
+        sfx1->data = malloc(len);
         memcpy(sfx1->data, sfx2->data, len);
     }
 }
@@ -28957,8 +28998,8 @@ bool saveWAV(int32_t slot, const char *filename)
 int32_t onEditSFX(int32_t index)
 {
 	kill_sfx();
-	stop_midi();
-	set_volume(255,-1);
+	zc_stop_midi();
+	zc_set_volume(255,-1);
 	int32_t ret;
 	sfx_edit_dlg[0].dp2=lfont;
 	uint8_t tempflag;
@@ -28998,7 +29039,7 @@ int32_t onEditSFX(int32_t index)
 				{
 					if(templist[i].data != NULL)
 					{
-						zc_free(templist[i].data);
+						free(templist[i].data);
 						templist[i].data = NULL;
 					}
 				}
@@ -30250,6 +30291,9 @@ void custom_vsync()
     while(!myvsync) rest(1);
     
     all_mark_screen_dirty();
+#ifdef __EMSCRIPTEN__
+    all_render_screen();
+#endif
     
     myvsync=0;
     
@@ -30261,31 +30305,34 @@ void custom_vsync()
 
 void switch_out()
 {
-    zcmusic_pause(zcmusic, ZCM_PAUSE);
-    midi_pause();
+	zcmusic_pause(zcmusic, ZCM_PAUSE);
+	zc_midi_pause();
 }
 
 void switch_in()
 {
-    if(quit)
-        return;
-        
-    BITMAP *ts=screen;
-    screen=menu1;
-    
-    /*
-    if (!is_large) 
+	if(quit)
+		return;
+	acquire_screen();
+	BITMAP *ts=screen;
+	screen=menu1;
+	acquire_screen();
+	
+	/*
+	if (!is_large) 
 	{
 		dialogs[0].dp = (void *) the_menu;
 	}
 	else dialogs[0].dp = (void *) the_menu_large;
-    */
-    //dialogs[0].dp2 = z3font;
-    jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
-    
-    screen=ts;
-    zcmusic_pause(zcmusic, ZCM_RESUME);
-    midi_resume();
+	*/
+	//dialogs[0].dp2 = z3font;
+	jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
+	
+	release_screen();
+	screen=ts;
+	release_screen();
+	zcmusic_pause(zcmusic, ZCM_RESUME);
+	zc_midi_resume();
 }
 
 void Z_eventlog(const char *format,...)
@@ -30443,7 +30490,7 @@ int32_t main(int32_t argc,char **argv)
 	//FFScript::init();
 	memrequested+=sizeof(zctune)*MAXCUSTOMMIDIS_ZQ;
 	Z_message("Allocating tunes buffer (%s)... ", byte_conversion2(sizeof(zctune)*MAXCUSTOMMIDIS_ZQ,memrequested,-1,-1));
-	customtunes = (zctune*)zc_malloc(sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
+	customtunes = (zctune*)malloc(sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
 	memset(customtunes, 0, sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
 	
 	/*
@@ -30473,7 +30520,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	/*memrequested+=sizeof(emusic)*MAXMUSIC;
 	Z_message("Allocating Enhanced Music buffer (%s)... ", byte_conversion2(sizeof(emusic)*MAXMUSIC,memrequested,-1,-1));
-	enhancedMusic = (emusic*)zc_malloc(sizeof(emusic)*MAXMUSIC);
+	enhancedMusic = (emusic*)malloc(sizeof(emusic)*MAXMUSIC);
 	if(!enhancedMusic)
 	{
 	  Z_error_fatal("Error");
@@ -30497,7 +30544,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	memrequested+=sizeof(newcombo)*MAXCOMBOS;
 	Z_message("Allocating combo undo buffer (%s)... ", byte_conversion2(sizeof(newcombo)*MAXCOMBOS,memrequested,-1,-1));
-	undocombobuf = (newcombo*)zc_malloc(sizeof(newcombo)*MAXCOMBOS);
+	undocombobuf = (newcombo*)malloc(sizeof(newcombo)*MAXCOMBOS);
 	
 	if(!undocombobuf)
 	{
@@ -30518,7 +30565,7 @@ int32_t main(int32_t argc,char **argv)
 	memrequested+=(NEWMAXTILES*sizeof(tiledata));
 	Z_message("Allocating new tile undo buffer (%s)... ", byte_conversion2(NEWMAXTILES*sizeof(tiledata),memrequested,-1,-1));
 	
-	if((newundotilebuf=(tiledata*)zc_malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
+	if((newundotilebuf=(tiledata*)malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
 	{
 		Z_error_fatal("Error: no memory for tile undo buffer!");
 		quit_game();
@@ -30528,7 +30575,7 @@ int32_t main(int32_t argc,char **argv)
 	Z_message("OK\n");										// Allocating new tile buffer...
 	
 	Z_message("Resetting new tile buffer...");
-	newtilebuf = (tiledata*)zc_malloc(NEWMAXTILES*sizeof(tiledata));
+	newtilebuf = (tiledata*)malloc(NEWMAXTILES*sizeof(tiledata));
 	
 	for(int32_t j=0; j<NEWMAXTILES; j++)
 		newtilebuf[j].data=NULL;
@@ -30537,13 +30584,13 @@ int32_t main(int32_t argc,char **argv)
 	
 	memrequested+=(2048*5);
 	Z_message("Allocating file path buffers (%s)... ", byte_conversion2(2048*7,memrequested,-1,-1));
-	filepath=(char*)zc_malloc(2048);
-	temppath=(char*)zc_malloc(2048);
-	datapath=(char*)zc_malloc(2048);
-	midipath=(char*)zc_malloc(2048);
-	imagepath=(char*)zc_malloc(2048);
-	tmusicpath=(char*)zc_malloc(2048);
-	last_timed_save=(char*)zc_malloc(2048);
+	filepath=(char*)malloc(2048);
+	temppath=(char*)malloc(2048);
+	datapath=(char*)malloc(2048);
+	midipath=(char*)malloc(2048);
+	imagepath=(char*)malloc(2048);
+	tmusicpath=(char*)malloc(2048);
+	last_timed_save=(char*)malloc(2048);
 	
 	if(!filepath || !datapath || !temppath || !imagepath || !midipath || !tmusicpath || !last_timed_save)
 	{
@@ -30566,10 +30613,18 @@ int32_t main(int32_t argc,char **argv)
 	
 	
 	set_uformat(U_ASCII);
+
 	Z_message("Initializing Allegro... ");
-	
-	allegro_init();
-	three_finger_flag=false;
+	if(!al_init())
+	{
+		Z_error_fatal("Failed Init!");
+		quit_game();
+	}
+	if(allegro_init() != 0)
+	{
+		Z_error_fatal("Failed Init!");
+		quit_game();
+	}
 
 	// Merge old a4 config into a5 system config.
 	ALLEGRO_CONFIG *tempcfg = al_load_config_file(zc_get_standard_config_name());
@@ -30578,6 +30633,7 @@ int32_t main(int32_t argc,char **argv)
 		al_destroy_config(tempcfg);
 	}
 
+	three_finger_flag=false;
 	if(!al_init_image_addon())
 	{
 		Z_error_fatal("Failed al_init_image_addon");
@@ -30585,11 +30641,21 @@ int32_t main(int32_t argc,char **argv)
 	}
 
 	al5img_init();
+
+#ifdef __EMSCRIPTEN__
+	em_mark_initializing_status();
+	all_disable_threaded_display();
+	em_init_fs();
+#endif
 	
 	//set_config_file("ag.cfg");
 	zc_set_config_standard();
+
+#ifdef __EMSCRIPTEN__
 	if(zc_get_config("zquest","open_debug_console",0) || DEVLEVEL)
 		initConsole();
+#endif
+
 	if(install_timer() < 0)
 	{
 		Z_error_fatal(allegro_error);
@@ -30607,8 +30673,6 @@ int32_t main(int32_t argc,char **argv)
 		Z_error_fatal(allegro_error);
 		quit_game();
 	}
-	
-	enable_hardware_cursor();
 	
 	LOCK_VARIABLE(lastfps);
 	
@@ -30823,7 +30887,7 @@ int32_t main(int32_t argc,char **argv)
 	}
 	}
 	
-	helpbuf = (char*)zc_malloc(helpsize<65536?65536:helpsize*2+1);
+	helpbuf = (char*)malloc(helpsize<65536?65536:helpsize*2+1);
 	
 	if(!helpbuf)
 	{
@@ -30896,7 +30960,7 @@ int32_t main(int32_t argc,char **argv)
 	}
 	}
 	
-	shieldblockhelpbuf = (char*)zc_malloc(shieldblockhelpsize<65536?65536:shieldblockhelpsize*2+1);
+	shieldblockhelpbuf = (char*)malloc(shieldblockhelpsize<65536?65536:shieldblockhelpsize*2+1);
 	
 	if(!shieldblockhelpbuf)
 	{
@@ -30968,7 +31032,7 @@ int32_t main(int32_t argc,char **argv)
 	}
 	}
 	
-	zscripthelpbuf = (char*)zc_malloc(zscripthelpsz<65536?65536:zscripthelpsz*2+1);
+	zscripthelpbuf = (char*)malloc(zscripthelpsz<65536?65536:zscripthelpsz*2+1);
 	
 	if(!zscripthelpbuf)
 	{
@@ -31040,7 +31104,7 @@ int32_t main(int32_t argc,char **argv)
 	}
 	}
 	
-	zstringshelpbuf = (char*)zc_malloc(zstringshelpsz<65536?65536:zstringshelpsz*2+1);
+	zstringshelpbuf = (char*)malloc(zstringshelpsz<65536?65536:zstringshelpsz*2+1);
 	
 	if(!zstringshelpbuf)
 	{
@@ -31738,6 +31802,9 @@ int32_t main(int32_t argc,char **argv)
 	  zqwin_set_scale(scale_arg);
 	}*/
 
+	if (strcmp(zc_get_config("zquest", "scaling_mode", "linear"), "linear") == 0)
+		all_set_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR);
+
 	int32_t videofail = (set_gfx_mode(tempmode,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0));
 
 	if(videofail!=0)
@@ -31745,7 +31812,9 @@ int32_t main(int32_t argc,char **argv)
 		allegro_init();
 		three_finger_flag=false;
 
+#ifndef __EMSCRIPTEN__
 		al5img_init();
+#endif
 		
 		//set_config_file("ag.cfg");
 		zc_set_config_standard();
@@ -31795,8 +31864,7 @@ int32_t main(int32_t argc,char **argv)
 		Z_error_fatal(allegro_error);
 		quit_game();
 		}
-		
-		enable_hardware_cursor();
+		zc_install_mouse_event_handler();
 		
 		LOCK_VARIABLE(lastfps);
 		
@@ -31861,8 +31929,25 @@ int32_t main(int32_t argc,char **argv)
 				  tempmode, get_color_depth(), zq_screen_w*zqwin_scale, zq_screen_h*zqwin_scale);
 		//Z_message("OK\n");
 	}
+
+	if (zc_get_config("zquest","hw_cursor",0) == 1)
+	{
+		// Must wait for the display thread to create the a5 display before the
+		// hardware cursor can be enabled.
+		while (!all_get_display()) rest(1);
+		enable_hardware_cursor();
+		select_mouse_cursor(MOUSE_CURSOR_ARROW);
+		show_mouse(screen);
+	}
+	else
+	{
+#ifdef _WIN32
+		while (!all_get_display()) rest(1);
+		al_hide_mouse_cursor(all_get_display());
+#endif
+	}
+
 	//check and log RTC date and time
-	
 	for (int32_t q = 0; q < curTimeLAST; q++) 
 	{
 		int32_t t_time_v = FFCore.getTime(q);
@@ -31876,8 +31961,6 @@ int32_t main(int32_t argc,char **argv)
 	center_zq_subscreen_dialogs();
 	center_zq_tiles_dialogs();
 	center_zquest_dialogs();
-	
-	init_mouse_events();
 	
 	screen2 = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
 	tmp_scr = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
@@ -32023,6 +32106,13 @@ int32_t main(int32_t argc,char **argv)
 	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
 	show_mouse(screen);
 	//Display annoying beta warning message
+
+#ifdef __EMSCRIPTEN__
+	em_mark_ready_status();
+#endif
+
+#ifndef __EMSCRIPTEN__
+
 #if V_ZC_ALPHA
 	char *curcontrol = getBetaControlString();
 	const char *oldcontrol = zc_get_config("zquest", "beta_warning", "");
@@ -32054,6 +32144,8 @@ int32_t main(int32_t argc,char **argv)
 
 	
 	delete[] curcontrol;
+#endif
+
 #endif
 	
 	// A bit of festivity
@@ -32161,9 +32253,24 @@ int32_t main(int32_t argc,char **argv)
 	get_palette(RAMpal);
 	
 	rgb_map = &zq_rgb_table;
-	
+
 	Map.setCurrMap(zinit.last_map);
 	Map.setCurrScr(zinit.last_screen);
+#ifdef __EMSCRIPTEN__
+	{
+		int qs_map = EM_ASM_INT({
+			return new URL(location.href).searchParams.get('map') ?? -1;
+		});
+		int qs_screen = EM_ASM_INT({
+			return new URL(location.href).searchParams.get('screen') ?? -1;
+		});
+		if (qs_map != -1 && qs_screen != -1) {
+			Map.setCurrMap(qs_map);
+			Map.setCurrScr(qs_screen);
+		}
+	}
+#endif
+
 	//  setup_combo_animations();
 	refresh(rALL);
 	brush_width_menu[0].flags=D_SELECTED;
@@ -32340,7 +32447,7 @@ int32_t main(int32_t argc,char **argv)
 		maps_menu[2].flags=(Map.getCurrMap()>0)? 0 : D_DISABLED;
 		
 		etc_menu[4].flags=(isFullScreen()==1)?D_SELECTED:0;
-		update_mouse_events();
+		zc_process_mouse_events();
 		quit = !update_dialog(player2);
 		
 		//clear_keybuf();
@@ -32437,7 +32544,7 @@ void quit_game()
     last_timed_save[0]=0;
     save_config_file();
     set_palette(black_palette);
-    stop_midi();
+    zc_stop_midi();
     
     remove_locked_params_on_exit();
     
@@ -32492,7 +32599,7 @@ void quit_game()
         if(customsfxdata[i].data!=NULL)
         {
 //      delete [] customsfxdata[i].data;
-            zc_free(customsfxdata[i].data);
+            free(customsfxdata[i].data);
         }
         
         delete [] sfx_string[i];
@@ -32579,40 +32686,37 @@ void quit_game()
         for(int32_t i=0; i<MAXCUSTOMMIDIS_ZQ; i++)
             customtunes[i].reset();
             
-        zc_free(customtunes);
+        free(customtunes);
     }
     
     al_trace("Cleaning undotilebuf. \n");
     
-    if(undocombobuf) zc_free(undocombobuf);
+    if(undocombobuf) free(undocombobuf);
     
     if(newundotilebuf)
     {
         for(int32_t i=0; i<NEWMAXTILES; i++)
-            if(newundotilebuf[i].data) zc_free(newundotilebuf[i].data);
+            if(newundotilebuf[i].data) free(newundotilebuf[i].data);
             
-        zc_free(newundotilebuf);
+        free(newundotilebuf);
     }
     
-    if(filepath) zc_free(filepath);
+    if(filepath) free(filepath);
     
-    if(temppath) zc_free(temppath);
+    if(temppath) free(temppath);
     
-    if(datapath) zc_free(datapath);
+    if(datapath) free(datapath);
     
-    if(midipath) zc_free(midipath);
+    if(midipath) free(midipath);
     
-    if(imagepath) zc_free(imagepath);
+    if(imagepath) free(imagepath);
     
-    if(tmusicpath) zc_free(tmusicpath);
+    if(tmusicpath) free(tmusicpath);
     
-    if(last_timed_save) zc_free(last_timed_save);
+    if(last_timed_save) free(last_timed_save);
     
     cleanup_datafiles_on_exit();
-	destroy_mouse_events();
     destroy_bitmaps_on_exit();
-    __zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debugging for it defined.
-    
 }
 
 void quit_game2()
@@ -32623,7 +32727,7 @@ void quit_game2()
     last_timed_save[0]=0;
     save_config_file();
     set_palette(black_palette);
-    stop_midi();
+    zc_stop_midi();
     
     remove_locked_params_on_exit();
     
@@ -32678,7 +32782,7 @@ void quit_game2()
         if(customsfxdata[i].data!=NULL)
         {
 //      delete [] customsfxdata[i].data;
-            zc_free(customsfxdata[i].data);
+            free(customsfxdata[i].data);
         }
         
         delete [] sfx_string[i];
@@ -32765,39 +32869,37 @@ void quit_game2()
         for(int32_t i=0; i<MAXCUSTOMMIDIS_ZQ; i++)
             customtunes[i].reset();
             
-        zc_free(customtunes);
+        free(customtunes);
     }
     
     al_trace("Cleaning undotilebuf. \n");
     
-    if(undocombobuf) zc_free(undocombobuf);
+    if(undocombobuf) free(undocombobuf);
     
     if(newundotilebuf)
     {
         for(int32_t i=0; i<NEWMAXTILES; i++)
-            if(newundotilebuf[i].data) zc_free(newundotilebuf[i].data);
+            if(newundotilebuf[i].data) free(newundotilebuf[i].data);
             
-        zc_free(newundotilebuf);
+        free(newundotilebuf);
     }
     
-    if(filepath) zc_free(filepath);
+    if(filepath) free(filepath);
     
-    if(temppath) zc_free(temppath);
+    if(temppath) free(temppath);
     
-    if(datapath) zc_free(datapath);
+    if(datapath) free(datapath);
     
-    if(midipath) zc_free(midipath);
+    if(midipath) free(midipath);
     
-    if(imagepath) zc_free(imagepath);
+    if(imagepath) free(imagepath);
     
-    if(tmusicpath) zc_free(tmusicpath);
+    if(tmusicpath) free(tmusicpath);
     
-    if(last_timed_save) zc_free(last_timed_save);
+    if(last_timed_save) free(last_timed_save);
     
     cleanup_datafiles_on_exit();
     //destroy_bitmaps_on_exit();
-    __zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debugging for it defined.
-    
 }
 
 void center_zquest_dialogs()
@@ -33149,6 +33251,7 @@ finished:
     while(gui_mouse_b())
     {
         /* do nothing */
+        rest(1);
     }
 }
 
@@ -33186,10 +33289,10 @@ int32_t save_config_file()
     char cmdnametitle[20];
     char qtnametitle[20];
     char qtpathtitle[20];
-    char *datapath2=(char *)zc_malloc(2048);
-    char *midipath2=(char *)zc_malloc(2048);
-    char *imagepath2=(char *)zc_malloc(2048);
-    char *tmusicpath2=(char *)zc_malloc(2048);
+    char *datapath2=(char *)malloc(2048);
+    char *midipath2=(char *)malloc(2048);
+    char *imagepath2=(char *)malloc(2048);
+    char *tmusicpath2=(char *)malloc(2048);
     strcpy(datapath2, datapath);
     strcpy(midipath2, midipath);
     strcpy(imagepath2, imagepath);
@@ -33316,10 +33419,13 @@ int32_t save_config_file()
     
     
     flush_config_file();
-    zc_free(datapath2);
-    zc_free(midipath2);
-    zc_free(imagepath2);
-    zc_free(tmusicpath2);
+#ifdef __EMSCRIPTEN__
+    em_sync_fs();
+#endif
+    free(datapath2);
+    free(midipath2);
+    free(imagepath2);
+    free(tmusicpath2);
     return 0;
 }
 
@@ -33665,7 +33771,7 @@ int32_t get_longest_line_length(FONT *f, char *str)
         }
     }
     
-    //zc_free(kill);
+    //free(kill);
     return maxlen;
 }
 
@@ -33782,7 +33888,7 @@ void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, 
             }
         }
         
-        //zc_free(kill);
+        //free(kill);
     }
     
     return;
@@ -33802,113 +33908,6 @@ void ZQ_ClearQuestPath(){
 	
 	
 }
-
-
-
-/////////////////////////////////////////////////
-// zc_malloc
-/////////////////////////////////////////////////
-
-//Want Logging:
-//Set this to 1 to allow zc_malloc/zc_free to track pointers and
-//write logging data to allegro.log
-#define ZC_DEBUG_MALLOC_WANT_LOGGING_INFO 0
-
-
-#include <set>
-#include "vectorset.h"
-
-#if (defined(NDEBUG) || !defined(_DEBUG)) && (ZC_DEBUG_MALLOC_ENABLED) && (ZC_DEBUG_MALLOC_WANT_LOGGING_INFO) //this is not fun with debug
-#define ZC_WANT_DETAILED_MALLOC_LOGGING 1
-#endif
-
-#if ZC_WANT_DETAILED_MALLOC_LOGGING
-size_t totalBytesAllocated = 0;
-//typedef vectorset<void*> debug_malloc_pool_type; //to slow for zquest (size is huge)
-typedef std::set<void*> debug_malloc_pool_type;
-debug_malloc_pool_type debug_zc_malloc_allocated_pool;
-#endif
-
-void* __zc_debug_malloc(size_t numBytes, const char* file, int32_t line)
-{
-#ifdef ZC_WANT_DETAILED_MALLOC_LOGGING
-    static bool zcDbgMallocInit = false;
-    
-    if(!zcDbgMallocInit)
-    {
-        zcDbgMallocInit = true;
-        //debug_zc_malloc_allocated_pool.reserve(1 << 17);
-        //yeah. completely ridiculous... there's no reason zc should ever need this many..
-        //BUT it does... go figure
-    }
-    
-    totalBytesAllocated += numBytes;
-    
-    al_trace("INFO: %i : %s, line %i, %u bytes, pool size %u, total %u,",
-             0,
-             file,
-             line,
-             numBytes,
-             debug_zc_malloc_allocated_pool.size(),
-             totalBytesAllocated / 1024
-            );
-#endif
-            
-    ZC_MALLOC_ALWAYS_ASSERT(numBytes != 0);
-    void* p = malloc(numBytes);
-    
-#ifdef ZC_WANT_DETAILED_MALLOC_LOGGING
-    al_trace("at address %x\n", (int32_t)p);
-    
-    if(!p)
-        al_trace("____________ ERROR: __zc_debug_malloc: returned null. out of memory.\n");
-        
-    //debug_malloc_pool_type::insert_iterator_type it = debug_zc_malloc_allocated_pool.insert(p);
-    std::pair< std::set<void*>::iterator, bool > it = debug_zc_malloc_allocated_pool.insert(p);
-    
-    if(!it.second)
-        al_trace("____________ ERROR: malloc returned identical address to one in use... No way Jose!\n");
-        
-#endif
-        
-    return p;
-}
-
-
-void __zc_debug_free(void* p, const char* file, int32_t line)
-{
-    ZC_MALLOC_ALWAYS_ASSERT(p != 0);
-    
-#ifdef ZC_WANT_DETAILED_MALLOC_LOGGING
-    al_trace("INFO: %i : %s line %i, freeing memory at address %x\n", 0, file, line, (int32_t)p);
-    
-    size_t numErased = debug_zc_malloc_allocated_pool.erase(p);
-    
-    if(numErased == 0)
-        al_trace("____________ ERROR: __zc_debug_free: no known ptr to memory exists. ..attempting to free it anyways.\n");
-        
-#endif
-        
-    free(p);
-}
-
-
-void __zc_debug_malloc_free_print_memory_leaks()
-{
-#if ZC_WANT_DETAILED_MALLOC_LOGGING
-    al_trace("LOGGING INFO FROM debug_zc_malloc_allocated_pool:\n");
-    
-    for(debug_malloc_pool_type::iterator it = debug_zc_malloc_allocated_pool.begin();
-            it != debug_zc_malloc_allocated_pool.end();
-            ++it
-       )
-    {
-        al_trace("block at address %x.\n", (int32_t)*it);
-    }
-    
-#endif
-}
-
 
 void __zc_always_assert(bool e, const char* expression, const char* file, int32_t line)
 {
@@ -34159,6 +34158,7 @@ void FFScript::user_bitmaps_init()
 
 void FFScript::user_files_init(){}
 void FFScript::user_dirs_init(){}
+void FFScript::user_objects_init(){}
 void FFScript::user_stacks_init(){}
 
 void FFScript::deallocateAllArrays(const byte scriptType, const int32_t UID, bool requireAlways){}
@@ -34285,7 +34285,7 @@ void update_hw_screen(bool force)
 {
 	if(force || myvsync)
 	{
-		update_mouse_events();
+		zc_process_mouse_events();
 		if(update_hw_pal)
 		{
 			set_palette(RAMpal);
@@ -34293,6 +34293,9 @@ void update_hw_screen(bool force)
 		}
 		myvsync=0;
 		all_mark_screen_dirty();
+#ifdef __EMSCRIPTEN__
+		all_render_screen();
+#endif
 	}
 }
 
@@ -34365,4 +34368,37 @@ void enter_sys_pal(){}
 void exit_sys_pal(){}
 
 void replay_step_comment(std::string comment) {}
+bool replay_is_active() {return false;}
+int replay_get_version() {return 0;}
 bool replay_is_debug() {return false;}
+
+#ifdef __EMSCRIPTEN__
+extern "C" void open_test_mode()
+{
+	int dmap = -1;
+	int32_t pal = Map.getcolor();
+	for(auto q = 0; q < MAXDMAPS; ++q)
+	{
+		if(DMaps[q].map == Map.getCurrMap())
+		{
+			if(pal == DMaps[q].color)
+			{
+				dmap = q;
+				break;
+			}
+			if(dmap < 0)
+				dmap = q;
+		}
+	}
+	if(dmap < 0) dmap = 0;
+
+	em_open_test_mode(filepath, dmap, Map.getCurrScr(), -1);
+}
+
+extern "C" void get_shareable_url()
+{
+	EM_ASM({
+        ZC.setShareableUrl({quest: UTF8ToString($0), map: $1, screen: $2});
+	}, filepath, Map.getCurrMap(), Map.getCurrScr());
+}
+#endif

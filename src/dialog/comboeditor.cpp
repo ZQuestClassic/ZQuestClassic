@@ -12,6 +12,7 @@ extern newcombo *combobuf;
 extern comboclass *combo_class_buf;
 extern int32_t CSet;
 extern int32_t numericalFlags;
+extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 char *ordinal(int32_t num);
 using std::string;
 using std::to_string;
@@ -19,6 +20,7 @@ using std::to_string;
 static size_t cmb_tab1 = 0, cmb_tab2 = 0, cmb_tab3 = 0;
 static int32_t scroll_pos1 = 0, scroll_pos2 = 0, scroll_pos3 = 0, scroll_pos4 = 0,
 	scroll_pos5 = 0, scroll_pos6 = 0, scroll_pos7 = 0, scroll_pos8 = 0;
+static bool combo_use_script_data = true;
 
 bool hasCTypeEffects(int32_t type)
 {
@@ -54,6 +56,7 @@ bool hasCTypeEffects(int32_t type)
 static bool edited = false, cleared = false;
 bool call_combo_editor(int32_t index)
 {
+	combo_use_script_data = zc_get_config("zquest","show_comboscript_meta_attribs",1)?true:false;
 	int32_t cs = CSet;
 	edited = false; cleared = false;
 	ComboEditorDialog(index).show();
@@ -63,6 +66,7 @@ bool call_combo_editor(int32_t index)
 		ComboEditorDialog(index, true).show();
 	}
 	if(!edited) CSet = cs;
+	zc_set_config("zquest","show_comboscript_meta_attribs",combo_use_script_data?1:0);
 	return edited;
 }
 
@@ -583,6 +587,11 @@ std::string getMapFlagHelpText(int32_t id)
 			flaghelp = "While touching this flag, attempting to use a Mirror item will fail.";
 			break;
 		}
+		case mfUNSAFEGROUND:
+		{
+			flaghelp = "While touching this flag, the 'last safe position' will not be updated";
+			break;
+		}
 	}
 	return flaghelp;
 }
@@ -595,6 +604,43 @@ void cflag_help(int32_t id)
 	InfoDialog(ZI.getMapFlagName(id),ZI.getMapFlagHelp(id)).show();
 }
 //Load all the info for the combo type and checked flags
+void ComboEditorDialog::refreshScript()
+{
+	loadComboType();
+	string l_initd[2];
+	int32_t sw_initd[2];
+	for(auto q = 0; q < 2; ++q)
+	{
+		l_initd[q] = "InitD["+to_string(q)+"]:";
+		h_initd[q].clear();
+		sw_initd[q] = -1;
+	}
+	if(local_comboref.script)
+	{
+		zasm_meta const& meta = comboscripts[local_comboref.script]->meta;
+		for(auto q = 0; q < 2; ++q)
+		{
+			if(unsigned(meta.initd_type[q]) < nswapMAX)
+				sw_initd[q] = meta.initd_type[q];
+			if(meta.initd[q].size())
+				l_initd[q] = meta.initd[q];
+			if(meta.initd_help[q].size())
+				h_initd[q] = meta.initd_help[q];
+		}
+	}
+	else
+	{
+		sw_initd[0] = nswapDEC;
+		sw_initd[1] = nswapDEC;
+	}
+	for(auto q = 0; q < 2; ++q)
+	{
+		ib_initds[q]->setDisabled(h_initd[q].empty());
+		l_initds[q]->setText(l_initd[q]);
+		if(sw_initd[q] > -1)
+			tf_initd[q]->setSwapType(sw_initd[q]);
+	}
+}
 void ComboEditorDialog::loadComboType()
 {
 	static std::string dirstr[] = {"up","down","left","right"};
@@ -662,6 +708,8 @@ void ComboEditorDialog::loadComboType()
 			h_attribute[0] = "The amount of damage dealt when drowning, in HP points. If negative, drowning will heal the player.";
 			l_attribyte[0] = "Flipper Level:";
 			h_attribyte[0] = "The minimum level flippers required to swim in the water. Flippers of lower level will have no effect.";
+			l_attribyte[4] = "Drown SFX:";
+			h_attribyte[4] = "The SFX played when drowning";
 			if(FL(cflag2)) //Modify HP
 			{
 				l_flag[4] = "Rings affect HP Mod";
@@ -1631,9 +1679,9 @@ void ComboEditorDialog::loadComboType()
 			h_attribute[1] = "Value to add to the cset when triggered";
 			l_attribyte[1] = "SFX:";
 			h_attribyte[1] = "SFX to play when triggered";
-			l_flag[9] = "Global State";
-			h_flag[9] = "Use a global state instead of a level-based state.";
-			if(FL(cflag10)) //Global State
+			l_flag[10] = "Global State";
+			h_flag[10] = "Use a global state instead of a level-based state.";
+			if(FL(cflag11)) //Global State
 			{
 				l_attribyte[0] = "State Num:";
 				h_attribyte[0] = "Range 0-255 inclusive, which of the global switch states to trigger from";
@@ -1683,9 +1731,9 @@ void ComboEditorDialog::loadComboType()
 				h_attribute[3] = "The Z amount below the block's Z-height that you can jump atop it from. This allows"
 					" for 'walking up stairs' type effects.";
 			}
-			l_flag[9] = "Global State";
-			h_flag[9] = "Use a global state instead of a level-based state.";
-			if(FL(cflag10)) //Global State
+			l_flag[10] = "Global State";
+			h_flag[10] = "Use a global state instead of a level-based state.";
+			if(FL(cflag11)) //Global State
 			{
 				l_attribyte[0] = "State Num:";
 				h_attribyte[0] = "Range 0-255 inclusive, which of the global switch states to trigger from";
@@ -1805,6 +1853,31 @@ void ComboEditorDialog::loadComboType()
 			break;
 		}
 	}
+	if(local_comboref.script && combo_use_script_data)
+	{
+		zasm_meta const& meta = comboscripts[local_comboref.script]->meta;
+		for(size_t q = 0; q < 16; ++q)
+		{
+			if(meta.usrflags[q].size())
+				l_flag[q] = meta.usrflags[q];
+			if(meta.usrflags_help[q].size())
+				h_flag[q] = meta.usrflags_help[q];
+			if(q > 7) continue;
+			if(meta.attribytes[q].size())
+				l_attribyte[q] = meta.attribytes[q];
+			if(meta.attribytes_help[q].size())
+				h_attribyte[q] = meta.attribytes_help[q];
+			if(meta.attrishorts[q].size())
+				l_attrishort[q] = meta.attrishorts[q];
+			if(meta.attrishorts_help[q].size())
+				h_attrishort[q] = meta.attrishorts_help[q];
+			if(q > 3) continue;
+			if(meta.attributes[q].size())
+				l_attribute[q] = meta.attributes[q];
+			if(meta.attributes_help[q].size())
+				h_attribute[q] = meta.attributes_help[q];
+		}
+	}
 	for(size_t q = 0; q < 16; ++q)
 	{
 		l_flags[q]->setText(l_flag[q]);
@@ -1860,45 +1933,72 @@ static const GUI::ListData listdata_lift_gfx
 #define ACTION_FIELD_WID 6_em
 #define FLAGS_WID 16_em
 
-#define NUM_FIELD(member,_min,_max) \
-TextField( \
-	fitParent = true, \
-	type = GUI::TextField::type::INT_DECIMAL, \
-	low = _min, high = _max, val = local_comboref.member, \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		local_comboref.member = val; \
-	})
+static std::shared_ptr<GUI::Widget> NUM_FIELD_IMPL(word* data, word min, word max)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
 	
-#define ANIM_FIELD(member,_min,_max) \
-TextField( \
-	fitParent = true, \
-	type = GUI::TextField::type::INT_DECIMAL, \
-	low = _min, high = _max, val = local_comboref.member, \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		local_comboref.member = val; \
-		updateAnimation(); \
-	})
+	return TextField(
+		type = GUI::TextField::type::INT_DECIMAL,
+		maxLength = 5,
+		val = *data,
+		low = min,
+		high = max,
+		fitParent = true,
+		onValChangedFunc = [data](GUI::TextField::type,std::string_view,int32_t val)
+		{
+			*data = val;
+		}
+	);
+}
 
-#define CMB_FLAG(ind) \
-Row(padding = 0_px, \
-	ib_flags[ind] = Button(forceFitH = true, text = "?", \
-		disabled = true, \
-		onPressFunc = [&]() \
-		{ \
-			InfoDialog("Flag Info",h_flag[ind]).show(); \
-		}), \
-	l_flags[ind] = Checkbox( \
-		minwidth = FLAGS_WID, hAlign = 0.0, \
-		checked = local_comboref.usrflags & (1<<ind), fitParent = true, \
-		onToggleFunc = [&](bool state) \
-		{ \
-			SETFLAG(local_comboref.usrflags,(1<<ind),state); \
-			loadComboType(); \
-		} \
-	) \
-)
+#define NUM_FIELD(member,_min,_max) NUM_FIELD_IMPL(&local_comboref.member, _min, _max)
+
+std::shared_ptr<GUI::Widget> ComboEditorDialog::ANIM_FIELD_IMPL(byte* data, byte min, byte max)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return TextField(
+		type = GUI::TextField::type::INT_DECIMAL,
+		maxLength = 5,
+		val = *data,
+		low = min,
+		high = max,
+		fitParent = true,
+		onValChangedFunc = [&, data](GUI::TextField::type,std::string_view,int32_t val)
+		{
+			*data = val;
+			updateAnimation();
+		}
+	);
+}
+
+#define ANIM_FIELD(member, _min, _max) ANIM_FIELD_IMPL(&local_comboref.member, _min, _max)
+
+std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_FLAG(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(padding = 0_px, colSpan=2,
+		ib_flags[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("Flag Info",h_flag[index]).show();
+			}),
+		l_flags[index] = Checkbox(
+			minwidth = FLAGS_WID, hAlign = 0.0,
+			checked = local_comboref.usrflags & (1<<index), fitParent = true,
+			onToggleFunc = [&, index](bool state)
+			{
+				SETFLAG(local_comboref.usrflags,(1<<index),state);
+				loadComboType();
+			}
+		)
+	);
+}
 
 #define CMB_GEN_FLAG(ind,str) \
 Checkbox(text = str, \
@@ -1910,67 +2010,117 @@ Checkbox(text = str, \
 		} \
 	)
 
-#define CMB_ATTRIBYTE(ind) \
-l_attribytes[ind] = Label(minwidth = ATTR_LAB_WID, textAlign = 2), \
-ib_attribytes[ind] = Button(forceFitH = true, text = "?", \
-	disabled = true, \
-	onPressFunc = [&]() \
-	{ \
-		InfoDialog("Attribyte Info",h_attribyte[ind]).show(); \
-	}), \
-TextField( \
-	fitParent = true, minwidth = 8_em, \
-	type = GUI::TextField::type::SWAP_BYTE, \
-	low = 0, high = 255, val = local_comboref.attribytes[ind], \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		local_comboref.attribytes[ind] = val; \
-	})
+std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRIBYTE(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(padding = 0_px, colSpan = 3,
+		l_attribytes[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
+		ib_attribytes[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("Attribyte Info",h_attribyte[index]).show();
+			}),
+		TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_BYTE,
+			low = 0, high = 255, val = local_comboref.attribytes[index],
+			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_comboref.attribytes[index] = val;
+			})
+	);
+}
 
-#define CMB_ATTRISHORT(ind) \
-l_attrishorts[ind] = Label(minwidth = ATTR_LAB_WID, textAlign = 2), \
-ib_attrishorts[ind] = Button(forceFitH = true, text = "?", \
-	disabled = true, \
-	onPressFunc = [&]() \
-	{ \
-		InfoDialog("Attrishort Info",h_attrishort[ind]).show(); \
-	}), \
-TextField( \
-	fitParent = true, minwidth = 8_em, \
-	type = GUI::TextField::type::SWAP_SSHORT, \
-	low = -32768, high = 32767, val = local_comboref.attrishorts[ind], \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		local_comboref.attrishorts[ind] = val; \
-	})
+std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRISHORT(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(padding = 0_px, colSpan = 3,
+		l_attrishorts[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
+		ib_attrishorts[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("Attrishort Info",h_attrishort[index]).show();
+			}),
+		TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_SSHORT,
+			low = -32768, high = 32767, val = local_comboref.attrishorts[index],
+			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_comboref.attrishorts[index] = val;
+			})
+	);
+}
 
-#define CMB_ATTRIBUTE(ind) \
-l_attributes[ind] = Label(minwidth = ATTR_LAB_WID, textAlign = 2), \
-ib_attributes[ind] = Button(forceFitH = true, text = "?", \
-	disabled = true, \
-	onPressFunc = [&]() \
-	{ \
-		InfoDialog("Attribute Info",h_attribute[ind]).show(); \
-	}), \
-TextField( \
-	fitParent = true, minwidth = 8_em, \
-	type = GUI::TextField::type::SWAP_ZSINT, \
-	val = local_comboref.attributes[ind], \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		local_comboref.attributes[ind] = val; \
-	})
+std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRIBUTE(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(padding = 0_px, colSpan = 3,
+		l_attributes[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
+		ib_attributes[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("Attribute Info",h_attribute[index]).show();
+			}),
+		TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_ZSINT,
+			val = local_comboref.attributes[index],
+			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_comboref.attributes[index] = val;
+			})
+	);
+}
 
-#define TRIGFLAG(ind, str) \
-Checkbox( \
-	text = str, hAlign = 0.0, \
-	checked = (local_comboref.triggerflags[ind/32] & (1<<(ind%32))), \
-	fitParent = true, \
-	onToggleFunc = [&](bool state) \
-	{ \
-		SETFLAG(local_comboref.triggerflags[ind/32],(1<<(ind%32)),state); \
-	} \
-)
+std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_INITD(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(padding = 0_px,
+		l_initds[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
+		ib_initds[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("InitD Info",h_initd[index]).show();
+			}),
+		tf_initd[index] = TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_ZSINT2,
+			val = local_comboref.initd[index],
+			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_comboref.initd[index] = val;
+			})
+	);
+}
+
+std::shared_ptr<GUI::Checkbox> ComboEditorDialog::TRIGFLAG(int index, const char* str)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Checkbox(
+		text = str, hAlign = 0.0,
+		checked = (local_comboref.triggerflags[index/32] & (1<<(index%32))),
+		fitParent = true,
+		onToggleFunc = [&, index](bool state)
+		{
+			SETFLAG(local_comboref.triggerflags[index/32],(1<<(index%32)),state);
+		}
+	);
+}
 
 #define MISCFLAG(member, bit, str) \
 Checkbox( \
@@ -1996,7 +2146,12 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	using namespace GUI::Key;
-	
+
+	// Too many locals error in low-optimization mode for emscripten.
+#ifdef EMSCRIPTEN_DEBUG
+	return std::shared_ptr<GUI::Widget>(nullptr);
+#endif
+ 	
 	char titlebuf[256];
 	sprintf(titlebuf, "Combo Editor (%d)", index);
 	if(is_large)
@@ -3035,12 +3190,19 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						)
 					)),
 					TabRef(name = "Script", Column(
-						INITD_ROW2(0, local_comboref.initd),
-						INITD_ROW2(1, local_comboref.initd),
+						CMB_INITD(0),
+						CMB_INITD(1),
 						Row(
 							padding = 0_px,
-							SCRIPT_LIST("Combo Script:", list_combscript, local_comboref.script)
-						)
+							SCRIPT_LIST_PROC("Combo Script:", list_combscript, local_comboref.script, refreshScript)
+						),
+						Checkbox(text = "Show Script Attrib Metadata",
+							checked = combo_use_script_data,
+							onToggleFunc = [&](bool state)
+							{
+								combo_use_script_data = state;
+								loadComboType();
+							})
 					))
 				),
 				Row(
@@ -4104,12 +4266,19 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						)
 					))),
 					TabRef(name = "Script", Column(
-						INITD_ROW2(0, local_comboref.initd),
-						INITD_ROW2(1, local_comboref.initd),
+						CMB_INITD(0),
+						CMB_INITD(1),
 						Row(
 							padding = 0_px,
-							SCRIPT_LIST("Combo Script:", list_combscript, local_comboref.script)
-						)
+							SCRIPT_LIST_PROC("Combo Script:", list_combscript, local_comboref.script, refreshScript)
+						),
+						Checkbox(text = "Show Script Attrib Metadata",
+							checked = combo_use_script_data,
+							onToggleFunc = [&](bool state)
+							{
+								combo_use_script_data = state;
+								loadComboType();
+							})
 					))
 				),
 				Row(
@@ -4134,7 +4303,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 	}
 	l_minmax_trig->setText((local_comboref.triggerflags[0] & (combotriggerINVERTMINMAX))
 		? maxstr : minstr);
-	loadComboType();
+	refreshScript();
 	return window;
 }
 

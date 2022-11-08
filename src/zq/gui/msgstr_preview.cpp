@@ -18,6 +18,13 @@ void strip_trailing_spaces(std::string& str);
 word grab_next_argument(std::string const& s2, uint32_t* i);
 int32_t msg_code_operands(byte cc);
 
+bool bottom_margin_clip(int32_t cursor_y, int32_t msg_h, int32_t bottom_margin)
+{
+	return !get_bit(quest_rules, qr_OLD_STRING_EDITOR_MARGINS)
+		&& cursor_y >= (msg_h + (get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)?16:0) - bottom_margin);
+}
+#define BOTTOM_MARGIN_CLIP() bottom_margin_clip(cursor_y, h, msg_margins[down])
+
 void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t index = -1)
 {
 	int32_t ssc_tile_hei = -1;
@@ -26,7 +33,7 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 	int32_t nextstring = str->nextstring;
 	int16_t msg_margins[4];
 	
-	int16_t old_margins[4] = {8,0,8,0};
+	int16_t old_margins[4] = {8,0,8,-8};
 	int16_t const* copy_from = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS) ? old_margins : str->margins;
 	for(auto q = 0; q < 4; ++q)
 		msg_margins[q] = copy_from[q];
@@ -139,7 +146,7 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 				int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
 				ssc_tile_hei = -1;
 				cursor_y += thei + str->vspace;
-				if(cursor_y >= (h - msg_margins[down])) break;
+				if(BOTTOM_MARGIN_CLIP()) break;
 				cursor_x=msg_margins[left];
 			}
 			
@@ -156,7 +163,7 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 							int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
 							ssc_tile_hei = -1;
 							cursor_y += thei + str->vspace;
-							if(cursor_y >= (h - msg_margins[down])) done = true;
+							if(BOTTOM_MARGIN_CLIP()) done = true;
 							cursor_x=msg_margins[left];
 						}
 						
@@ -204,7 +211,7 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 								int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
 								ssc_tile_hei = -1;
 								cursor_y += thei + str->vspace;
-								if(cursor_y >= (h - msg_margins[down])) break;
+								if(BOTTOM_MARGIN_CLIP()) break;
 								cursor_x=msg_margins[left];
 							}
 							
@@ -233,7 +240,7 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 							int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
 							ssc_tile_hei = -1;
 							cursor_y += thei + str->vspace;
-							if(cursor_y >= (h - msg_margins[down])) break;
+							if(BOTTOM_MARGIN_CLIP()) break;
 							cursor_x=msg_margins[left];
 						}
 						
@@ -255,12 +262,17 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 					}
 					case MSGC_MENUCHOICE:
 					{
+						(void)grab_next_argument(s2, &i);
+						(void)grab_next_argument(s2, &i);
+						(void)grab_next_argument(s2, &i);
+						(void)grab_next_argument(s2, &i);
+						(void)grab_next_argument(s2, &i);
 						if(cursor_x+str->hspace + _menu_t_wid > w-msg_margins[right])
 						{
 							int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
 							ssc_tile_hei = -1;
 							cursor_y += thei + str->vspace;
-							if(cursor_y >= (h - msg_margins[down])) break;
+							if(BOTTOM_MARGIN_CLIP()) break;
 							cursor_x=msg_margins[left];
 						}
 						
@@ -268,11 +280,6 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 						if(_menu_t_hei > ssc_tile_hei)
 							ssc_tile_hei = _menu_t_hei;
 						cursor_x += str->hspace + _menu_t_wid;
-						(void)grab_next_argument(s2, &i);
-						(void)grab_next_argument(s2, &i);
-						(void)grab_next_argument(s2, &i);
-						(void)grab_next_argument(s2, &i);
-						(void)grab_next_argument(s2, &i);
 						break;
 					}
 					
@@ -301,7 +308,7 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 						break;
 				}
 			}
-			if(cursor_y >= (h - msg_margins[down])) break;
+			if(BOTTOM_MARGIN_CLIP()) break;
 		}
 		
 		if(nextstring && !visited[nextstring]

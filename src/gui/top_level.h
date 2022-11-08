@@ -18,6 +18,7 @@ class TopLevelWidget: public Widget
 {
 public:
 	virtual ~TopLevelWidget() {}
+	bool isTopLevel() const override {return true;}
 	
 	/* Add a keyboard shortcut. */
 	template<typename T>

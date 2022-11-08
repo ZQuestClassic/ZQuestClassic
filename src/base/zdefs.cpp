@@ -3,6 +3,7 @@
 #include "base/zapp.h"
 #include "dialog/info.h"
 #include <sstream>
+#include "zcmusic.h"
 
 extern byte quest_rules[QUESTRULES_NEW_SIZE];
 
@@ -961,5 +962,245 @@ cpool_entry* combo_pool::get(int32_t cid, int8_t cs)
 		}
 	}
 	return nullptr;
+}
+
+
+bool zquestheader::is_legacy() const
+{
+	return new_version_id_main < 2 || (new_version_id_main == 2 && new_version_id_second < 55);
+}
+
+int8_t zquestheader::getAlphaState() const
+{
+	if(new_version_id_release) return 3;
+	else if(new_version_id_gamma) return 2;
+	else if(new_version_id_beta) return 1;
+	else if(new_version_id_alpha) return 0;
+	return -1;
+}
+
+char const* zquestheader::getAlphaStr(bool ignoreNightly) const
+{
+	static char buf[40] = "";
+	char format[20] = "%s";
+	if(!ignoreNightly && new_version_is_nightly) strcpy(format, "Nightly (%s)");
+	if(new_version_id_release) sprintf(buf, format, "Release");
+	else if(new_version_id_gamma) sprintf(buf, format, "Gamma");
+	else if(new_version_id_beta) sprintf(buf, format, "Beta");
+	else if(new_version_id_alpha) sprintf(buf, format, "Alpha");
+	else sprintf(buf, format, "Unknown");
+	return buf;
+}
+
+int32_t zquestheader::getAlphaVer() const
+{
+	if(new_version_id_release) return new_version_id_release;
+	else if(new_version_id_gamma) return new_version_id_gamma;
+	else if(new_version_id_beta) return new_version_id_beta;
+	else if(new_version_id_alpha) return new_version_id_alpha;
+	return 0;
+}
+
+char const* zquestheader::getAlphaVerStr() const
+{
+	static char buf[40] = "";
+	if(new_version_is_nightly)
+	{
+		if(getAlphaVer() < 0)
+			sprintf(buf, "Nightly (%s ?\?)", getAlphaStr(true));
+		else sprintf(buf, "Nightly (%s %d/%d)", getAlphaStr(true), getAlphaVer()-1, getAlphaVer());
+	}
+	else
+	{
+		if(getAlphaVer() < 0)
+			sprintf(buf, "%s ?\?", getAlphaStr(true));
+		else sprintf(buf, "%s %d", getAlphaStr(true), getAlphaVer());
+	}
+	return buf;
+}
+
+char const* zquestheader::getVerStr() const
+{
+	static char buf[80] = "";
+	if(is_legacy())
+	{
+		switch(zelda_version)
+		{
+			case 0x254:
+				sprintf(buf, "2.54 Build %d", build);
+				break;
+			case 0x250:
+			{
+				switch(build)
+				{
+					case 19:
+						strcpy(buf, "2.50.0, Gamma 1"); break;
+					case 20:
+						strcpy(buf, "2.50.0, Gamma 2"); break;
+					case 21:
+						strcpy(buf, "2.50.0, Gamma 3"); break;
+					case 22:
+						strcpy(buf, "2.50.0, Gamma 4"); break;
+					case 23:
+						strcpy(buf, "2.50.0, Gamma 5"); break;
+					case 24:
+						strcpy(buf, "2.50.0, Release"); break;
+					case 25:
+						strcpy(buf, "2.50.1, Gamma 1"); break;
+					case 26:
+						strcpy(buf, "2.50.1, Gamma 2"); break;
+					case 27: 
+						strcpy(buf, "2.50.1, Gamma 3"); break;
+					case 28:
+						strcpy(buf, "2.50.1, Release"); break;
+					case 29:
+						strcpy(buf, "2.50.2, Release"); break;
+					case 30:
+						strcpy(buf, "2.50.3, Gamma 1"); break;
+					case 31:
+						strcpy(buf, "2.53.0, Prior to Gamma 3"); break;
+					case 32:
+						strcpy(buf, "2.53.0"); break;
+					case 33:
+						strcpy(buf, "2.53.1"); break;
+					default:
+						sprintf(buf, "?%x?, Build %d", zelda_version, build); break;
+				}
+				break;
+			}
+			case 0x211:
+				sprintf(buf, "2.11, Beta %d", build);
+				break;
+			case 0x210:
+			{
+				if(build)
+					sprintf(buf, "2.10.x Beta/Build %d", build);
+				else strcpy(buf, "2.10.x");
+				break;
+			}
+			case 0:
+				buf[0] = 0;
+				break;
+			default:
+				sprintf(buf, "Unknown version: '%X, build %d'", zelda_version, build);
+				break;
+		}
+	}
+	else if(new_version_id_fourth > 0)
+		sprintf(buf, "%d.%d.%d.%d %s", new_version_id_main, new_version_id_second,
+			new_version_id_third, new_version_id_fourth, getAlphaVerStr());
+	else sprintf(buf, "%d.%d.%d %s", new_version_id_main, new_version_id_second,
+			new_version_id_third, getAlphaVerStr());
+	return buf;
+}
+
+int32_t zquestheader::compareDate() const
+{
+	// zprint2("Comparing dates: '%04d-%02d-%02d %02d:%02d', '%04d-%02d-%02d %02d:%02d'\n",
+		// new_version_id_date_year, new_version_id_date_month, new_version_id_date_day,
+		// new_version_id_date_hour, new_version_id_date_minute,
+		// BUILDTM_YEAR, BUILDTM_MONTH, BUILDTM_DAY, BUILDTM_HOUR, BUILDTM_MINUTE);
+	//!TODO handle timezones (build_timezone, __TIMEZONE__)
+	if(new_version_id_date_year > BUILDTM_YEAR)
+		return 1;
+	if(new_version_id_date_year < BUILDTM_YEAR)
+		return -1;
+	if(new_version_id_date_month > BUILDTM_MONTH)
+		return 1;
+	if(new_version_id_date_month < BUILDTM_MONTH)
+		return -1;
+	if(new_version_id_date_day > BUILDTM_DAY)
+		return 1;
+	if(new_version_id_date_day < BUILDTM_DAY)
+		return -1;
+	#define BUILDTIME_FUZZ 15
+	int32_t time_minutes = (new_version_id_date_hour*60)+new_version_id_date_minute;
+	int32_t btm_minutes = (BUILDTM_HOUR*60)+BUILDTM_MINUTE;
+	if(time_minutes > btm_minutes+BUILDTIME_FUZZ)
+		return 1;
+	if(time_minutes < btm_minutes-BUILDTIME_FUZZ)
+		return -1;
+	return 0;
+}
+
+int32_t zquestheader::compareVer() const
+{
+	if(new_version_id_main > V_ZC_FIRST)
+		return 1;
+	if(new_version_id_main < V_ZC_FIRST)
+		return -1;
+	if(new_version_id_second > V_ZC_SECOND)
+		return 1;
+	if(new_version_id_second < V_ZC_SECOND)
+		return -1;
+	if(new_version_id_third > V_ZC_THIRD)
+		return 1;
+	if(new_version_id_third < V_ZC_THIRD)
+		return -1;
+	if(new_version_id_fourth > V_ZC_FOURTH)
+		return 1;
+	if(new_version_id_fourth < V_ZC_FOURTH)
+		return -1;
+	return 0;
+}
+
+int8_t getProgramAlphaState()
+{
+	if(V_ZC_RELEASE) return 3;
+	else if(V_ZC_GAMMA) return 2;
+	else if(V_ZC_BETA) return 1;
+	else if(V_ZC_ALPHA) return 0;
+	return -1;
+}
+
+int32_t getProgramAlphaVer()
+{
+	if(V_ZC_RELEASE) return V_ZC_RELEASE;
+	else if(V_ZC_GAMMA) return V_ZC_GAMMA;
+	else if(V_ZC_BETA) return V_ZC_BETA;
+	else if(V_ZC_ALPHA) return V_ZC_ALPHA;
+	return 0;
+}
+
+char const* getProgramAlphaStr(bool ignoreNightly = false)
+{
+	static char buf[40] = "";
+	char format[20] = "%s";
+	if(!ignoreNightly && ZC_IS_NIGHTLY) strcpy(format, "Nightly (%s)");
+	if(V_ZC_RELEASE) sprintf(buf, format, "Release");
+	else if(V_ZC_GAMMA) sprintf(buf, format, "Gamma");
+	else if(V_ZC_BETA) sprintf(buf, format, "Beta");
+	else if(V_ZC_ALPHA) sprintf(buf, format, "Alpha");
+	else sprintf(buf, format, "Unknown");
+	return buf;
+}
+
+char const* getProgramAlphaVerStr()
+{
+	static char buf[40] = "";
+	if(ZC_IS_NIGHTLY)
+	{
+		if(getProgramAlphaVer() < 0)
+			sprintf(buf, "Nightly (%s ?\?)", getProgramAlphaStr(true));
+		else sprintf(buf, "Nightly (%s %d/%d)", getProgramAlphaStr(true), getProgramAlphaVer()-1, getProgramAlphaVer());
+	}
+	else
+	{
+		if(getProgramAlphaVer() < 0)
+			sprintf(buf, "%s ?\?", getProgramAlphaStr(true));
+		else sprintf(buf, "%s %d", getProgramAlphaStr(true), getProgramAlphaVer());
+	}
+	return buf;
+}
+
+char const* getProgramVerStr()
+{
+	static char buf[80] = "";
+	if(V_ZC_FOURTH > 0)
+		sprintf(buf, "%d.%d.%d.%d %s", V_ZC_FIRST, V_ZC_SECOND,
+			V_ZC_THIRD, V_ZC_FOURTH, getProgramAlphaVerStr());
+	else sprintf(buf, "%d.%d.%d %s", V_ZC_FIRST, V_ZC_SECOND,
+			V_ZC_THIRD, getProgramAlphaVerStr());
+	return buf;
 }
 

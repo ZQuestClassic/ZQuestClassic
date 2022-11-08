@@ -909,9 +909,6 @@ int for_each_file_ex(AL_CONST char *name, int in_attrib, int out_attrib, int (*c
    if (!_al_file_isok(name))
       return 0;
 
-   (*callback)(".", FA_DIREC, param);
-   (*callback)("..", FA_DIREC, param);
-
    if (al_findfirst(name, &info, ~out_attrib) != 0) {
       /* no entry is not an error for for_each_file_ex() */
       if (*allegro_errno == ENOENT)

@@ -26,6 +26,8 @@
 #include "maps.h"
 #include "replay.h"
 #include "guys.h"
+#include "base/zc_math.h"
+#include <fmt/format.h>
 
 #ifndef IS_ZQUEST
 #include "hero.h"
@@ -1027,8 +1029,8 @@ void sprite::move(zfix s)
 {
     if(angular)
     {
-        x += cos(angle)*s;
-        y += sin(angle)*s;
+        x += zc::math::Cos(angle)*s;
+        y += zc::math::Sin(angle)*s;
 		return;
     }
     
@@ -2315,7 +2317,7 @@ void sprite_list::animate()
 				if (replay_is_active() && dynamic_cast<enemy*>(sprites[active_iterator]) != nullptr)
 				{
 					enemy* as_enemy = dynamic_cast<enemy*>(sprites[active_iterator]);
-					replay_step_comment(string_format("enemy died %s", guy_string[as_enemy->id]));
+					replay_step_comment(fmt::format("enemy died {}", guy_string[as_enemy->id&0xFFF]));
 				}
 #endif
 				del(active_iterator);

@@ -112,6 +112,13 @@ X(	CantOpenImport,			P,	A,	E,	STR,	VOID,	"Could not find included file '%s'. Ple
 X(  BadDefaultReturn,       S,  A,  E,  STR,    VOID,   "Function %s cannot have multiple differing default return values."	 					)
 X(	NoScopeFound,				P,	A,	E,	STR,	VOID,	"Scope '%s' was not found."				)
 X(	BreakBadCount,			G,	A,	W,	INT,	VOID,	"Value '%d' is invalid for 'break;'! Breaking '1' instead..."						)
+X(	ClassRedef,			S,	A,	E,	STR,	VOID,	"Duplicate class with name %s already exists."						)
+X(	ClassNoInits,			S,	A,	E,	STR,	VOID,	"Variable '%s' is in class, so cannot have an initializer."				)
+X(	NameMismatchC,			S,	A,	E,	STR,	STR,	"Constructor name '%s' must match class name '%s'."				)
+X(	NameMismatchD,			S,	A,	E,	STR,	STR,	"Destructor name '%s' must match class name '%s'."				)
+X(	DestructorParam,			S,	A,	E,	STR,	VOID,	"Destructor '~%s' must take no parameters."				)
+X(	NoClass,			S,	A,	E,	STR,	VOID,	"The class '%s' was not found to construct."				)
+X(	BadDelete,			T,	A,	E,	VOID,	VOID,	"'delete' may only be used on objects of classes."								)
 
 
 #undef STR

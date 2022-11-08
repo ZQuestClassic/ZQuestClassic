@@ -41,7 +41,7 @@ void BuildOpcodes::visit(AST& node, void* param)
 	for (auto it = node.compileErrorCatches.cbegin(); it != node.compileErrorCatches.cend(); ++it)
 	{
 		ASTExprConst& idNode = **it;
-		optional<int32_t> errorId = idNode.getCompileTimeValue(NULL, scope);
+		std::optional<int32_t> errorId = idNode.getCompileTimeValue(NULL, scope);
 		assert(errorId);
 		handleError(CompileError::MissingCompileError(&node, int32_t(*errorId / 10000L)));
 	}
@@ -152,7 +152,7 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 		scope = host.getScope();
 		int32_t startRefCount = arrayRefs.size();
 		
-		if(optional<int32_t> val = host.declaration->getInitializer()->getCompileTimeValue(this, scope))
+		if(std::optional<int32_t> val = host.declaration->getInitializer()->getCompileTimeValue(this, scope))
 		{
 			if((host.isInverted()) == (*val==0)) //True, so go straight to the 'then'
 			{
@@ -195,7 +195,7 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 	}
 	else
 	{
-		if(optional<int32_t> val = host.condition->getCompileTimeValue(this, scope))
+		if(std::optional<int32_t> val = host.condition->getCompileTimeValue(this, scope))
 		{
 			if((host.isInverted()) == (*val==0)) //True, so go straight to the 'then'
 			{
@@ -237,7 +237,7 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 		scope = host.getScope();
 		int32_t startRefCount = arrayRefs.size();
 		
-		if(optional<int32_t> val = host.declaration->getInitializer()->getCompileTimeValue(this, scope))
+		if(std::optional<int32_t> val = host.declaration->getInitializer()->getCompileTimeValue(this, scope))
 		{
 			if((host.isInverted()) == (*val==0)) //True, so go straight to the 'then'
 			{
@@ -304,7 +304,7 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 	}
 	else
 	{
-		if(optional<int32_t> val = host.condition->getCompileTimeValue(this, scope))
+		if(std::optional<int32_t> val = host.condition->getCompileTimeValue(this, scope))
 		{
 			if((host.isInverted()) == (*val==0)) //True, so go straight to the 'then'
 			{
@@ -364,7 +364,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 	breakRefCounts.push_back(arrayRefs.size());
 	
 	// Evaluate the key.
-	optional<int32_t> keyval = host.key->getCompileTimeValue(NULL, scope);
+	std::optional<int32_t> keyval = host.key->getCompileTimeValue(NULL, scope);
 	if(!keyval)
 	{
 		int32_t startRefCount = arrayRefs.size(); //Store ref count
@@ -401,7 +401,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 			for (auto it = cases->cases.begin(); !found && it != cases->cases.end(); ++it)
 			{
 				// Test this individual case.
-				if(optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
+				if(std::optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
 				{
 					if(*val == *keyval)
 						found = true;
@@ -411,8 +411,8 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 			{
 				ASTRange& range = **it;
 				//Test each full range
-				optional<int32_t> low_val = (*range.start).getCompileTimeValue(this, scope);
-				optional<int32_t> high_val = (*range.end).getCompileTimeValue(this, scope);
+				std::optional<int32_t> low_val = (*range.start).getCompileTimeValue(this, scope);
+				std::optional<int32_t> high_val = (*range.end).getCompileTimeValue(this, scope);
 				
 				if(low_val && high_val && (*low_val <= *keyval && *high_val >= *keyval))
 				{
@@ -452,7 +452,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 			for (auto it = cases->cases.begin(); it != cases->cases.end(); ++it)
 			{
 				// Test this individual case.
-				if(optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
+				if(std::optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
 				{
 					addOpcode2(result, new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*val)));
 				}
@@ -464,7 +464,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 				ASTRange& range = **it;
 				int32_t skipLabel = ScriptParser::getUniqueLabelID();
 				//Test each full range
-				if(optional<int32_t> val = (*range.start).getCompileTimeValue(this, scope))  //Compare key to lower bound
+				if(std::optional<int32_t> val = (*range.start).getCompileTimeValue(this, scope))  //Compare key to lower bound
 				{
 					addOpcode2(result, new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*val)));
 				}
@@ -477,7 +477,7 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 				addOpcode2(result, new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0))); //Compare if key is OUT of the bound
 				addOpcode2(result, new OGotoTrueImmediate(new LabelArgument(skipLabel))); //Skip if key is OUT of the bound
 				
-				if(optional<int32_t> val = (*range.end).getCompileTimeValue(this, scope))  //Compare key to upper bound
+				if(std::optional<int32_t> val = (*range.end).getCompileTimeValue(this, scope))  //Compare key to upper bound
 				{
 					addOpcode2(result, new OCompareImmediate(new VarArgument(SWITCHKEY), new LiteralArgument(*val)));
 				}
@@ -641,7 +641,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	while ((int32_t)arrayRefs.size() > setupRefCount)
 		arrayRefs.pop_back();
 	//Check for a constant FALSE condition
-	if(optional<int32_t> val = host.test->getCompileTimeValue(this, scope))
+	if(std::optional<int32_t> val = host.test->getCompileTimeValue(this, scope))
 	{
 		if(*val == 0) //False, so restore scope and exit
 		{
@@ -704,7 +704,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 
 void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 {
-	optional<int32_t> val = host.test->getCompileTimeValue(this, scope);
+	std::optional<int32_t> val = host.test->getCompileTimeValue(this, scope);
 	bool falsyval = val && !*val;
 	if(falsyval)
 		return; //never runs
@@ -756,7 +756,7 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 
 void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 {
-	optional<int32_t> val = host.test->getCompileTimeValue(this, scope);
+	std::optional<int32_t> val = host.test->getCompileTimeValue(this, scope);
 	bool truthyval = val && host.isInverted() == (*val==0);
 	bool deadloop = val && !truthyval;
 	int32_t startlabel;
@@ -882,6 +882,7 @@ void BuildOpcodes::caseFuncDecl(ASTFuncDecl &host, void *param)
 
 void BuildOpcodes::caseDataDecl(ASTDataDecl& host, void* param)
 {
+	if(parsing_user_class == puc_vars) return;
 	OpcodeContext& context = *(OpcodeContext*)param;
 	Datum& manager = *host.manager;
 	ASTExpr* init = host.getInitializer();
@@ -908,7 +909,7 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	visit(host.getInitializer(), &context);
 
 	// Set variable to EXP1 or 0, depending on the initializer.
-	if (optional<int32_t> globalId = manager.getGlobalId())
+	if (std::optional<int32_t> globalId = manager.getGlobalId())
 	{
 		if (host.getInitializer())
 			addOpcode(new OSetRegister(new GlobalArgument(*globalId),
@@ -950,7 +951,7 @@ void BuildOpcodes::buildArrayUninit(
 
 	// Get size of the array.
 	int32_t totalSize;
-	if (optional<int32_t> size = host.extraArrays[0]->getCompileTimeSize(this, scope))
+	if (std::optional<int32_t> size = host.extraArrays[0]->getCompileTimeSize(this, scope))
 		totalSize = *size * 10000L;
 	else
 	{
@@ -960,7 +961,7 @@ void BuildOpcodes::buildArrayUninit(
 	}
 
 	// Allocate the array.
-	if (optional<int32_t> globalId = manager.getGlobalId())
+	if (std::optional<int32_t> globalId = manager.getGlobalId())
 	{
 		addOpcode(new OAllocateGlobalMemImmediate(
 						  new VarArgument(EXP1),
@@ -992,16 +993,32 @@ void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
 	visit(host.right.get(), param);
 	//and store it
 	LValBOHelper helper(scope);
+	helper.parsing_user_class = parsing_user_class;
 	host.left->execute(helper, param);
 	addOpcodes(helper.getResult());
 }
 
 void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {
+	if(parsing_user_class > puc_vars)
+	{
+		if(host.asString() == "this")
+		{
+			addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(CLASS_THISKEY)));	
+			return;
+		}
+	}
 	OpcodeContext* c = (OpcodeContext*)param;
-
+	
+	if(UserClassVar* ucv = dynamic_cast<UserClassVar*>(host.binding))
+	{
+		UserClass& user_class = *ucv->getClass();
+		addOpcode(new OReadObject(new VarArgument(CLASS_THISKEY), new LiteralArgument(ucv->getIndex())));
+		return;
+	}
+	
 	// If a constant, just load its value.
-	if (optional<int32_t> value = host.binding->getCompileTimeValue(scope->isGlobal() || scope->isScript()))
+	if (std::optional<int32_t> value = host.binding->getCompileTimeValue(scope->isGlobal() || scope->isScript()))
 	{
 		addOpcode(new OSetImmediate(new VarArgument(EXP1),
 									new LiteralArgument(*value)));
@@ -1011,7 +1028,7 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 
 	int32_t vid = host.binding->id;
 
-	if (optional<int32_t> globalId = host.binding->getGlobalId())
+	if (std::optional<int32_t> globalId = host.binding->getGlobalId())
 	{
 		// Global variable, so just get its value.
 		addOpcode(new OSetRegister(new VarArgument(EXP1),
@@ -1028,6 +1045,12 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 
 void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 {
+	if(UserClassVar* ucv = host.u_datum)
+	{
+		visit(host.left.get(), param);
+		addOpcode(new OReadObject(new VarArgument(EXP1), new LiteralArgument(ucv->getIndex())));
+		return;
+	}
 	OpcodeContext *c = (OpcodeContext *)param;
 	int32_t isIndexed = (host.index != NULL);
 	assert(host.readFunction->isInternal());
@@ -1091,13 +1114,13 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 {
 	// If the left hand side is an arrow, then we'll let it run instead.
-	if (host.array->isTypeArrow())
+	if (host.array->isTypeArrow() && !host.array->isTypeArrowUsrClass())
 	{
 		caseExprArrow(static_cast<ASTExprArrow&>(*host.array), param);
 		return;
 	}
-	optional<int32_t> arrVal = host.array->getCompileTimeValue(this,scope);
-	optional<int32_t> indxVal = host.index->getCompileTimeValue(this,scope);
+	std::optional<int32_t> arrVal = host.array->getCompileTimeValue(this,scope);
+	std::optional<int32_t> indxVal = host.index->getCompileTimeValue(this,scope);
 	
 	if(!arrVal)
 	{
@@ -1123,7 +1146,9 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 {
 	if (host.isDisabled()) return;
 	OpcodeContext* c = (OpcodeContext*)param;
-	if(host.binding->prototype) //Prototype function
+	auto& func = *host.binding;
+	bool classfunc = func.getFlag(FUNCFLAG_CLASSFUNC) && !func.getFlag(FUNCFLAG_STATIC);
+	if(func.prototype) //Prototype function
 	{
 		int32_t startRefCount = arrayRefs.size(); //Store ref count
 		//Visit each parameter, in case there are side-effects; but don't push the results, as they are unneeded.
@@ -1134,12 +1159,32 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		}
 		
 		//Set the return to the default value
-		DataType const& retType = *host.binding->returnType;
-		if(retType != DataType::ZVOID)
+		if(classfunc && func.getFlag(FUNCFLAG_CONSTRUCTOR) && parsing_user_class <= puc_vars)
 		{
-			if (optional<int32_t> val = host.binding->defaultReturn->getCompileTimeValue(NULL, scope))
+			ClassScope* cscope = func.internalScope->getClass();
+			UserClass& user_class = cscope->user_class;
+			vector<Function*> destr = cscope->getDestructor();
+			Function* destructor = destr.size() == 1 ? destr.at(0) : nullptr;
+			if(destructor && !destructor->prototype)
 			{
-				addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*val)));
+				Function* destructor = destr[0];
+				addOpcode(new OSetImmediate(new VarArgument(EXP1),
+					new LabelArgument(destructor->getLabel())));
+			}
+			else addOpcode(new OSetImmediate(new VarArgument(EXP1),
+				new LiteralArgument(0)));
+			addOpcode(new OConstructClass(new VarArgument(EXP1),
+				new VectorArgument(user_class.members)));
+		}
+		else
+		{
+			DataType const& retType = *func.returnType;
+			if(retType != DataType::ZVOID)
+			{
+				if (std::optional<int32_t> val = func.defaultReturn->getCompileTimeValue(NULL, scope))
+				{
+					addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*val)));
+				}
 			}
 		}
 
@@ -1148,12 +1193,12 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		while ((int32_t)arrayRefs.size() > startRefCount)
 			arrayRefs.pop_back();
 	}
-	else if(host.binding->getFlag(FUNCFLAG_INLINE) && host.binding->isInternal()) //Inline function
+	else if(func.getFlag(FUNCFLAG_INLINE) && func.isInternal()) //Inline function
 	{
 		// User functions actually can't really benefit from any optimization like this... -Em
 		int32_t startRefCount = arrayRefs.size(); //Store ref count
 		
-		if (host.left->isTypeArrow() && !(host.binding->internal_flags & IFUNCFLAG_SKIPPOINTER))
+		if (host.left->isTypeArrow() && !(func.internal_flags & IFUNCFLAG_SKIPPOINTER))
 		{
 			//load the value of the left-hand of the arrow into EXP1
 			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
@@ -1169,7 +1214,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		}
 		
-		std::vector<std::shared_ptr<Opcode>> const& funcCode = host.binding->getCode();
+		std::vector<std::shared_ptr<Opcode>> const& funcCode = func.getCode();
 		for(auto it = funcCode.begin();
 			it != funcCode.end(); ++it)
 		{
@@ -1181,20 +1226,21 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			ASTExprArrow* arr = static_cast<ASTExprArrow*>(host.left.get());
 			if(arr->left->getWriteType(scope, this) && !arr->left->isConstant())
 			{
-				if(host.binding->internal_flags & IFUNCFLAG_REASSIGNPTR)
+				if(func.internal_flags & IFUNCFLAG_REASSIGNPTR)
 				{
-					bool isVoid = host.binding->returnType->isVoid();
+					bool isVoid = func.returnType->isVoid();
 					if(!isVoid) addOpcode(new OPushRegister(new VarArgument(EXP1)));
 					addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 					LValBOHelper helper(scope);
+					helper.parsing_user_class = parsing_user_class;
 					arr->left->execute(helper, param);
 					addOpcodes(helper.getResult());
 					if(!isVoid) addOpcode(new OPopRegister(new VarArgument(EXP1)));
 				}
 			}
-			else if(host.binding->internal_flags & IFUNCFLAG_REASSIGNPTR) //This is likely a mistake in the script... give the user a warning.
+			else if(func.internal_flags & IFUNCFLAG_REASSIGNPTR) //This is likely a mistake in the script... give the user a warning.
 			{
-				handleError(CompileError::BadReassignCall(&host, host.binding->getSignature().asString()));
+				handleError(CompileError::BadReassignCall(&host, func.getSignature().asString()));
 			}
 		}
 		//Deallocate string/array literals from within the parameters
@@ -1202,9 +1248,72 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		while ((int32_t)arrayRefs.size() > startRefCount)
 			arrayRefs.pop_back();
 	}
-	else //Non-inline function
+	else if(classfunc)
 	{
-		int32_t funclabel = host.binding->getLabel();
+		int32_t funclabel = func.getLabel();
+		//push the stack frame pointer
+		bool store_this = host.left->isTypeArrow();
+		if(store_this)
+			addOpcode(new OPushRegister(new VarArgument(CLASS_THISKEY)));
+		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
+		//push the return address
+		int32_t returnaddr = ScriptParser::getUniqueLabelID();
+		int32_t startRefCount = arrayRefs.size(); //Store ref count
+		addOpcode(new OPushImmediate(new LabelArgument(returnaddr)));
+		
+		if (store_this)
+		{
+			//load the value of the left-hand of the arrow into EXP1
+			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
+			addOpcode(new OSetRegister(new VarArgument(CLASS_THISKEY), new VarArgument(EXP1)));
+		}
+
+		//push the parameters, in forward order
+		for (auto it = host.parameters.begin();
+			it != host.parameters.end(); ++it)
+		{
+			//Compile-time constants can be optimized slightly...
+			if(std::optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
+				addOpcode(new OPushImmediate(new LiteralArgument(*val)));
+			else
+			{
+				visit(*it, param);
+				addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			}
+		}
+		//push any std::optional parameter values
+		auto num_actual_params = func.paramTypes.size();
+		auto used_opt_params = num_actual_params - host.parameters.size();
+		auto opt_param_count = func.opt_vals.size();
+		auto skipped_optional_params = opt_param_count - used_opt_params;
+		for(auto q = skipped_optional_params; q < opt_param_count; ++q)
+		{
+			addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
+		}
+		//goto
+		if(parsing_user_class == puc_construct && func.getFlag(FUNCFLAG_CONSTRUCTOR)
+			&& !host.isConstructor())
+		{
+			//A constructor calling another constructor to inherit it's code
+			//Use the alt label of the constructor, which is after the constructy bits
+			addOpcode(new OGotoImmediate(new LabelArgument(func.getAltLabel())));
+		}
+		else addOpcode(new OGotoImmediate(new LabelArgument(funclabel)));
+		//pop the stack frame pointer
+		Opcode *next = new OPopRegister(new VarArgument(SFRAME));
+		next->setLabel(returnaddr);
+		addOpcode(next);
+		if(store_this)
+			addOpcode(new OPopRegister(new VarArgument(CLASS_THISKEY)));
+		
+		//Deallocate string/array literals from within the parameters
+		deallocateRefsUntilCount(startRefCount);
+		while ((int32_t)arrayRefs.size() > startRefCount)
+		arrayRefs.pop_back();
+	}
+	else
+	{
+		int32_t funclabel = func.getLabel();
 		//push the stack frame pointer
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
 		//push the return address
@@ -1215,7 +1324,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		
 		// If the function is a pointer function (->func()) we need to push the
 		// left-hand-side.
-		if (host.left->isTypeArrow() && !(host.binding->internal_flags & IFUNCFLAG_SKIPPOINTER))
+		if (host.left->isTypeArrow() && !(func.internal_flags & IFUNCFLAG_SKIPPOINTER))
 		{
 			//load the value of the left-hand of the arrow into EXP1
 			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
@@ -1229,7 +1338,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			it != host.parameters.end(); ++it)
 		{
 			//Compile-time constants can be optimized slightly...
-			if(optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
+			if(std::optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
 				addOpcode(new OPushImmediate(new LiteralArgument(*val)));
 			else
 			{
@@ -1237,15 +1346,14 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			}
 		}
-		//push any optional parameter values
-		auto func = host.binding;
-		auto num_actual_params = func->paramTypes.size();
+		//push any std::optional parameter values
+		auto num_actual_params = func.paramTypes.size();
 		auto used_opt_params = num_actual_params - host.parameters.size();
-		auto opt_param_count = func->opt_vals.size();
+		auto opt_param_count = func.opt_vals.size();
 		auto skipped_optional_params = opt_param_count - used_opt_params;
 		for(auto q = skipped_optional_params; q < opt_param_count; ++q)
 		{
-			addOpcode(new OPushImmediate(new LiteralArgument(func->opt_vals[q])));
+			addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
 		}
 		//goto
 		addOpcode(new OGotoImmediate(new LabelArgument(funclabel)));
@@ -1259,20 +1367,21 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			ASTExprArrow* arr = static_cast<ASTExprArrow*>(host.left.get());
 			if(arr->left->getWriteType(scope, this) && !arr->left->isConstant())
 			{
-				if(host.binding->internal_flags & IFUNCFLAG_REASSIGNPTR)
+				if(func.internal_flags & IFUNCFLAG_REASSIGNPTR)
 				{
-					bool isVoid = host.binding->returnType->isVoid();
+					bool isVoid = func.returnType->isVoid();
 					if(!isVoid) addOpcode(new OPushRegister(new VarArgument(EXP1)));
 					addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 					LValBOHelper helper(scope);
+					helper.parsing_user_class = parsing_user_class;
 					arr->left->execute(helper, param);
 					addOpcodes(helper.getResult());
 					if(!isVoid) addOpcode(new OPopRegister(new VarArgument(EXP1)));
 				}
 			}
-			else if(host.binding->internal_flags & IFUNCFLAG_REASSIGNPTR) //This is likely a mistake in the script... give the user a warning.
+			else if(func.internal_flags & IFUNCFLAG_REASSIGNPTR) //This is likely a mistake in the script... give the user a warning.
 			{
-				handleError(CompileError::BadReassignCall(&host, host.binding->getSignature().asString()));
+				handleError(CompileError::BadReassignCall(&host, func.getSignature().asString()));
 			}
 		}
 		
@@ -1285,7 +1394,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 
 void BuildOpcodes::caseExprNegate(ASTExprNegate& host, void* param)
 {
-	if (optional<int32_t> val = host.getCompileTimeValue(NULL, scope))
+	if (std::optional<int32_t> val = host.getCompileTimeValue(NULL, scope))
 	{
 		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*val)));
 		return;
@@ -1293,6 +1402,12 @@ void BuildOpcodes::caseExprNegate(ASTExprNegate& host, void* param)
 
 	visit(host.operand.get(), param);
 	addOpcode(new OSubImmediate2(new LiteralArgument(0), new VarArgument(EXP1)));
+}
+
+void BuildOpcodes::caseExprDelete(ASTExprDelete& host, void* param)
+{
+	visit(host.operand.get(), param);
+	addOpcode(new OFreeObject(new VarArgument(EXP1)));
 }
 
 void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)
@@ -1342,6 +1457,7 @@ void BuildOpcodes::caseExprIncrement(ASTExprIncrement& host, void* param)
 	
 	// Store it
 	LValBOHelper helper(scope);
+	helper.parsing_user_class = parsing_user_class;
 	host.operand->execute(helper, param);
 	addOpcodes(helper.getResult());
 	
@@ -1361,6 +1477,7 @@ void BuildOpcodes::caseExprPreIncrement(ASTExprPreIncrement& host, void* param)
 
 	// Store it
 	LValBOHelper helper(scope);
+	helper.parsing_user_class = parsing_user_class;
 	host.operand->execute(helper, param);
 	addOpcodes(helper.getResult());
 }
@@ -1378,6 +1495,7 @@ void BuildOpcodes::caseExprPreDecrement(ASTExprPreDecrement& host, void* param)
 
 	// Store it.
 	LValBOHelper helper(scope);
+	helper.parsing_user_class = parsing_user_class;
 	host.operand->execute(helper, param);
 	addOpcodes(helper.getResult());
 }
@@ -1395,6 +1513,7 @@ void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
 								new LiteralArgument(10000)));
 	// Store it.
 	LValBOHelper helper(scope);
+	helper.parsing_user_class = parsing_user_class;
 	host.operand->execute(helper, param);
 	addOpcodes(helper.getResult());
 
@@ -1411,7 +1530,7 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 	}
 	bool decret = *lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL)!=0;
 	bool short_circuit = *lookupOption(*scope, CompileOption::OPT_SHORT_CIRCUIT) != 0;
-	if(optional<int32_t> val = host.left->getCompileTimeValue(NULL, scope))
+	if(std::optional<int32_t> val = host.left->getCompileTimeValue(NULL, scope))
 	{
 		if(*val)
 		{
@@ -1429,7 +1548,7 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 			return;
 		}
 	}
-	else if(optional<int32_t> val = host.right->getCompileTimeValue(NULL, scope))
+	else if(std::optional<int32_t> val = host.right->getCompileTimeValue(NULL, scope))
 	{
 		if(*val)
 		{
@@ -1492,7 +1611,7 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 	}
 	bool decret = *lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL)!=0;
 	bool short_circuit = *lookupOption(*scope, CompileOption::OPT_SHORT_CIRCUIT) != 0;
-	if(optional<int32_t> val = host.left->getCompileTimeValue(NULL, scope))
+	if(std::optional<int32_t> val = host.left->getCompileTimeValue(NULL, scope))
 	{
 		if(*val) //if short circuit were true, the top early return would have triggered.
 		{
@@ -1510,7 +1629,7 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 			return;
 		}
 	}
-	else if(optional<int32_t> val = host.right->getCompileTimeValue(NULL, scope))
+	else if(std::optional<int32_t> val = host.right->getCompileTimeValue(NULL, scope))
 	{
 		if(*val)
 		{
@@ -1681,8 +1800,8 @@ void BuildOpcodes::caseExprAppxEQ(ASTExprAppxEQ& host, void* param)
 		return;
 	}
 
-	optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
-	optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
 	if(lval)
 	{
 		visit(host.right.get(), param);
@@ -1734,8 +1853,8 @@ void BuildOpcodes::caseExprPlus(ASTExprPlus& host, void* param)
 		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
 		return;
 	}
-	optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
-	optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
 	if(lval)
 	{
 		visit(host.right.get(), param);
@@ -1768,8 +1887,8 @@ void BuildOpcodes::caseExprMinus(ASTExprMinus& host, void* param)
 		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
 		return;
 	}
-	optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
-	optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
 	if(lval)
 	{
 		visit(host.right.get(), param);
@@ -1801,8 +1920,8 @@ void BuildOpcodes::caseExprTimes(ASTExprTimes& host, void *param)
 		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
 		return;
 	}
-	optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
-	optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
 	if(lval)
 	{
 		visit(host.right.get(), param);
@@ -1836,8 +1955,8 @@ void BuildOpcodes::caseExprExpn(ASTExprExpn& host, void *param)
 		return;
 	}
 	bool do_long = host.left.get()->isLong(scope, this) || host.right.get()->isLong(scope, this);
-	optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
-	optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
 	if(do_long)
 	{
 		if(lval)
@@ -1912,8 +2031,8 @@ void BuildOpcodes::caseExprDivide(ASTExprDivide& host, void* param)
 		return;
 	}
 	
-	optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
-	optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
 	if(lval)
 	{
 		visit(host.right.get(), param);
@@ -1950,8 +2069,8 @@ void BuildOpcodes::caseExprModulo(ASTExprModulo& host, void* param)
 		return;
 	}
 	
-	optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
-	optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
 	if(lval)
 	{
 		visit(host.right.get(), param);
@@ -1988,8 +2107,8 @@ void BuildOpcodes::caseExprBitAnd(ASTExprBitAnd& host, void* param)
 	bool do_long = *lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
 		|| host.left.get()->isLong(scope, this) || host.right.get()->isLong(scope, this);
 	
-	optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
-	optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
 	if(lval)
 	{
 		visit(host.right.get(), param);
@@ -2030,8 +2149,8 @@ void BuildOpcodes::caseExprBitOr(ASTExprBitOr& host, void* param)
 	bool do_long = *lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
 		|| host.left.get()->isLong(scope, this) || host.right.get()->isLong(scope, this);
 	
-	optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
-	optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
 	if(lval)
 	{
 		visit(host.right.get(), param);
@@ -2072,8 +2191,8 @@ void BuildOpcodes::caseExprBitXor(ASTExprBitXor& host, void* param)
 	bool do_long = *lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
 		|| host.left.get()->isLong(scope, this) || host.right.get()->isLong(scope, this);
 	
-	optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
-	optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
 	if(lval)
 	{
 		visit(host.right.get(), param);
@@ -2114,8 +2233,8 @@ void BuildOpcodes::caseExprLShift(ASTExprLShift& host, void* param)
 	bool do_long = *lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
 		|| host.left.get()->isLong(scope, this);
 	
-	optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
-	optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
 	if(lval)
 	{
 		visit(host.right.get(), param);
@@ -2155,8 +2274,8 @@ void BuildOpcodes::caseExprRShift(ASTExprRShift& host, void* param)
 	bool do_long = *lookupOption(*scope, CompileOption::OPT_BINARY_32BIT)
 		|| host.left.get()->isLong(scope, this);
 	
-	optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
-	optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
 	if(lval)
 	{
 		visit(host.right.get(), param);
@@ -2193,7 +2312,7 @@ void BuildOpcodes::caseExprTernary(ASTTernaryExpr& host, void* param)
 		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*host.getCompileTimeValue(this, scope))));
 		return;
 	}
-	optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
 	if(lval)
 	{
 		if(*lval)
@@ -2202,8 +2321,8 @@ void BuildOpcodes::caseExprTernary(ASTTernaryExpr& host, void* param)
 	}
 	else
 	{
-		optional <int32_t> mval = host.middle->getCompileTimeValue(NULL, scope);
-		optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
+		std::optional <int32_t> mval = host.middle->getCompileTimeValue(NULL, scope);
+		std::optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
 		
 		visit(host.left.get(), param);
 		int32_t elseif = ScriptParser::getUniqueLabelID();
@@ -2233,7 +2352,7 @@ void BuildOpcodes::caseExprTernary(ASTTernaryExpr& host, void* param)
 
 void BuildOpcodes::caseNumberLiteral(ASTNumberLiteral& host, void*)
 {
-	if (optional<int32_t> cval = host.getCompileTimeValue(this, scope))
+	if (std::optional<int32_t> cval = host.getCompileTimeValue(this, scope))
 		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*cval)));
 	else
 	{
@@ -2248,7 +2367,7 @@ void BuildOpcodes::caseNumberLiteral(ASTNumberLiteral& host, void*)
 
 void BuildOpcodes::caseCharLiteral(ASTCharLiteral& host, void*)
 {
-	if (optional<int32_t> cval = host.getCompileTimeValue(this, scope))
+	if (std::optional<int32_t> cval = host.getCompileTimeValue(this, scope))
 		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*cval)));
 	else
 	{
@@ -2285,7 +2404,7 @@ void BuildOpcodes::stringLiteralDeclaration(
 	if (declaration.extraArrays.size() == 1)
 	{
 		ASTDataDeclExtraArray& extraArray = *declaration.extraArrays[0];
-		if (optional<int32_t> totalSize = extraArray.getCompileTimeSize(this, scope))
+		if (std::optional<int32_t> totalSize = extraArray.getCompileTimeSize(this, scope))
 			size = *totalSize;
 		else if (extraArray.hasSize())
 		{
@@ -2305,7 +2424,7 @@ void BuildOpcodes::stringLiteralDeclaration(
 	}
 
 	// Create the array and store its id.
-	if (optional<int32_t> globalId = manager.getGlobalId())
+	if (std::optional<int32_t> globalId = manager.getGlobalId())
 	{
 		addOpcode(new OAllocateGlobalMemImmediate(
 						  new VarArgument(EXP1),
@@ -2413,13 +2532,13 @@ void BuildOpcodes::arrayLiteralDeclaration(
 	int32_t size = -1;
 	// From this literal?
 	if (host.size)
-		if (optional<int32_t> s = host.size->getCompileTimeValue(this, scope))
+		if (std::optional<int32_t> s = host.size->getCompileTimeValue(this, scope))
 			size = *s / 10000L;
 	// From the declaration?
 	if (size == -1 && declaration.extraArrays.size() == 1)
 	{
 		ASTDataDeclExtraArray& extraArray = *declaration.extraArrays[0];
-		if (optional<int32_t> totalSize = extraArray.getCompileTimeSize(this, scope))
+		if (std::optional<int32_t> totalSize = extraArray.getCompileTimeSize(this, scope))
 			size = *totalSize;
 		else if (extraArray.hasSize())
 		{
@@ -2445,7 +2564,7 @@ void BuildOpcodes::arrayLiteralDeclaration(
 	}
 
 	// Create the array and store its id.
-	if (optional<int32_t> globalId = manager.getGlobalId())
+	if (std::optional<int32_t> globalId = manager.getGlobalId())
 	{
 		addOpcode(new OAllocateGlobalMemImmediate(
 						  new VarArgument(EXP1),
@@ -2471,7 +2590,7 @@ void BuildOpcodes::arrayLiteralDeclaration(
 	bool constelem = false;
 	for (auto it = host.elements.begin(); it != host.elements.end(); ++it)
 	{
-		if (optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
+		if (std::optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
 		{
 			constelements.push_back(*val);
 			constelem = true;
@@ -2513,7 +2632,7 @@ void BuildOpcodes::arrayLiteralFree(
 	// If there's an explicit size, grab it.
 	if (host.size)
 	{
-		if (optional<int32_t> s = host.size->getCompileTimeValue(this, scope))
+		if (std::optional<int32_t> s = host.size->getCompileTimeValue(this, scope))
 			size = *s / 10000L;
 		else
 		{
@@ -2558,7 +2677,7 @@ void BuildOpcodes::arrayLiteralFree(
 	bool varelem = false;
 	for (auto it = host.elements.begin(); it != host.elements.end(); ++it)
 	{
-		if (optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
+		if (std::optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
 		{
 			constelements.push_back(*val);
 			constelem = true;
@@ -2623,8 +2742,8 @@ void BuildOpcodes::caseIsIncluded(ASTIsIncluded& host, void*)
 //Helper functions
 void BuildOpcodes::parseExprs(ASTExpr* left, ASTExpr* right, void* param, bool orderMatters)
 {
-	optional <int32_t> lval = left->getCompileTimeValue(NULL, scope);
-	optional <int32_t> rval = right->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> lval = left->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> rval = right->getCompileTimeValue(NULL, scope);
 	if(lval)
 	{
 		visit(right, param);
@@ -2652,8 +2771,8 @@ void BuildOpcodes::parseExprs(ASTExpr* left, ASTExpr* right, void* param, bool o
 
 void BuildOpcodes::compareExprs(ASTExpr* left, ASTExpr* right, void* param, bool boolMode)
 {
-	optional <int32_t> lval = left->getCompileTimeValue(NULL, scope);
-	optional <int32_t> rval = right->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> lval = left->getCompileTimeValue(NULL, scope);
+	std::optional <int32_t> rval = right->getCompileTimeValue(NULL, scope);
 	if(lval)
 	{
 		visit(right, param);
@@ -2738,8 +2857,15 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {
 	OpcodeContext* c = (OpcodeContext*)param;
 	int32_t vid = host.binding->id;
+	
+	if(UserClassVar* ucv = dynamic_cast<UserClassVar*>(host.binding))
+	{
+		UserClass& user_class = *ucv->getClass();
+		addOpcode(new OWriteObject(new VarArgument(CLASS_THISKEY), new LiteralArgument(ucv->getIndex())));
+		return;
+	}
 
-	if (optional<int32_t> globalId = host.binding->getGlobalId())
+	if (std::optional<int32_t> globalId = host.binding->getGlobalId())
 	{
 		// Global variable.
 		addOpcode(new OSetRegister(new GlobalArgument(*globalId),
@@ -2760,6 +2886,23 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 
 void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 {
+	if(UserClassVar* ucv = host.u_datum)
+	{
+		BuildOpcodes oc(scope);
+		if(ucv->is_arr)
+		{
+			oc.visit(host.left.get(), param); //incase side effects
+			addOpcodes(oc.getResult());
+			return; //No overwriting object arrays!
+		}
+		addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		oc.visit(host.left.get(), param);
+		addOpcodes(oc.getResult());
+		addOpcode(new OSetRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
+		addOpcode(new OPopRegister(new VarArgument(EXP1)));
+		addOpcode(new OWriteObject(new VarArgument(EXP2), new LiteralArgument(ucv->getIndex())));
+		return;
+	}
 	OpcodeContext *c = (OpcodeContext *)param;
 	int32_t isIndexed = (host.index != NULL);
 	assert(host.writeFunction->isInternal());
@@ -2857,7 +3000,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 {
 	// Arrows just fall back on the arrow implementation.
-	if (host.array->isTypeArrow())
+	if (host.array->isTypeArrow() && !host.array->isTypeArrowUsrClass())
 	{
 		caseExprArrow(static_cast<ASTExprArrow&>(*host.array), param);
 		return;
@@ -2865,8 +3008,8 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 
 	vector<shared_ptr<Opcode>> opcodes;
 	BuildOpcodes bo(scope);
-	optional<int32_t> arrVal = host.array->getCompileTimeValue(&bo, scope);
-	optional<int32_t> indxVal = host.index->getCompileTimeValue(&bo, scope);
+	std::optional<int32_t> arrVal = host.array->getCompileTimeValue(&bo, scope);
+	std::optional<int32_t> indxVal = host.index->getCompileTimeValue(&bo, scope);
 	if(!arrVal || !indxVal)
 	{
 		// Push the value.

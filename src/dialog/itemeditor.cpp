@@ -15,8 +15,18 @@ extern zcmodule moduledata;
 static bool _reset_default, _reload_editor;
 static itemdata static_ref;
 static std::string reset_name;
+static int32_t item_use_script_data = 3;
+extern script_data *itemscripts[NUMSCRIPTITEM];
+extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
+extern script_data *lwpnscripts[NUMSCRIPTWEAPONS];
+#define ISCRDATA_NONE    0x00
+#define ISCRDATA_ACTION  0x01
+#define ISCRDATA_PICKUP  0x02
+#define ISCRDATA_SPRITE  0x04
+#define ISCRDATA_ALL     0x07
 void call_item_editor(int32_t index)
 {
+	item_use_script_data = zc_get_config("zquest","show_itemscript_meta_type",ISCRDATA_ALL)&ISCRDATA_ALL;
 	_reset_default = false;
 	ItemEditorDialog(index).show();
 	while(_reset_default || _reload_editor)
@@ -29,7 +39,20 @@ void call_item_editor(int32_t index)
 		_reload_editor = false;
 		ItemEditorDialog(static_ref, reset_name.c_str(), index).show();
 	}
+	zc_set_config("zquest","show_itemscript_meta_type",item_use_script_data);
 }
+
+static const GUI::ListData ScriptDataList
+{
+	{ "None", ISCRDATA_NONE },
+	{ "All", ISCRDATA_ALL },
+	{ "Action", ISCRDATA_ACTION },
+	{ "Pickup", ISCRDATA_PICKUP },
+	{ "Sprite", ISCRDATA_SPRITE },
+	{ "Action+Pickup", ISCRDATA_ACTION|ISCRDATA_PICKUP },
+	{ "Action+Sprite", ISCRDATA_ACTION|ISCRDATA_SPRITE },
+	{ "Pickup+Sprite", ISCRDATA_PICKUP|ISCRDATA_SPRITE }
+};
 
 static const GUI::ListData PFlagTypeList
 {
@@ -358,7 +381,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(misc[0], "Extra Jumps:", "The number of times this item can be used in mid-air"
 				" without landing.");
 			_SET(misc[1], "Button", "If 0, the item must be equipped to a button to use it.\n"
-				"Otherwise, any of the specified buttons will activate the glove, even when not equipped to a button.\n"
+				"Otherwise, any of the specified buttons will jump, even when not equipped to a button.\n"
 				"Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)");
 			if(FLAG(1))
 				_SET(power, "Jump Power:", "The player will jump with a force of 'power'");
@@ -906,40 +929,57 @@ TextField( \
 		local_itemref.member = val; \
 	})
 
-#define ATTRIB_FIELD(member, index) \
-l_attribs[index] = Label(textAlign = 2, width = ATTR_LAB_WID), \
-ib_attribs[index] = Button(forceFitH = true, text = "?", \
-	disabled = true, \
-	onPressFunc = [&]() \
-	{ \
-		InfoDialog("Attribute Info",h_attribs[index]).show(); \
-	}), \
-TextField(maxLength = 11, \
-	type = GUI::TextField::type::INT_DECIMAL, width = ATTR_WID, \
-	val = local_itemref.member, \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		local_itemref.member = val; \
-	})
+std::shared_ptr<GUI::Widget> ItemEditorDialog::ATTRIB_FIELD_IMPL(int32_t* mem, int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
 
-#define FLAG_CHECK(index, bit) \
-Row(padding = 0_px, \
-	ib_flags[index] = Button(forceFitH = true, text = "?", \
-		disabled = true, \
-		onPressFunc = [&]() \
-		{ \
-			InfoDialog("Flags Info",h_flags[index]).show(); \
-		}), \
-	l_flags[index] = Checkbox( \
-		width = FLAGS_WID, \
-		checked = (local_itemref.flags & bit), \
-		onToggleFunc = [&](bool state) \
-		{ \
-			SETFLAG(local_itemref.flags,bit,state); \
-			loadItemClass(); \
-		} \
-	) \
-)
+	return Row(
+		colSpan = 3,
+		l_attribs[index] = Label(textAlign = 2, width = ATTR_LAB_WID),
+		ib_attribs[index] = Button(forceFitH = true, text = "?",
+		disabled = true,
+		onPressFunc = [&, index]()
+		{
+			InfoDialog("Attribute Info",h_attribs[index]).show();
+		}),
+		TextField(maxLength = 11,
+			type = GUI::TextField::type::INT_DECIMAL, width = ATTR_WID,
+			val = *mem,
+			onValChangedFunc = [mem](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				*mem = val;
+			}
+		)
+	);
+}
+
+#define ATTRIB_FIELD(member, index) ATTRIB_FIELD_IMPL(&local_itemref.member, index)
+
+std::shared_ptr<GUI::Widget> ItemEditorDialog::FLAG_CHECK(int index, int bit)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(padding = 0_px,
+		ib_flags[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("Flags Info",h_flags[index]).show();
+			}),
+		l_flags[index] = Checkbox(
+			width = FLAGS_WID,
+			checked = (local_itemref.flags & bit),
+			onToggleFunc = [&, bit](bool state)
+			{
+				SETFLAG(local_itemref.flags,bit,state);
+				loadItemClass();
+			}
+		)
+	);
+}
+
 #define FLAG_CHECK_NOINFO(index, bit) \
 l_flags[index] = Checkbox( \
 	width = FLAGS_WID, \
@@ -950,25 +990,80 @@ l_flags[index] = Checkbox( \
 	} \
 ) \
 
-#define SPRITE_DROP(ind, mem) \
-Row(vPadding = 0_px, \
-	l_spr[ind] = Label(textAlign = 2, width = SPR_LAB_WID, topMargin = 1_px), \
-	ib_spr[ind] = Button(forceFitH = true, text = "?", \
-		disabled = true, \
-		onPressFunc = [&]() \
-		{ \
-			InfoDialog("Sprite Info",h_spr[ind]).show(); \
-		}), \
-	DropDownList( \
-		maxwidth = sized(18_em, 14_em), \
-		data = list_sprites, \
-		selectedValue = local_itemref.mem, \
-		onSelectFunc = [&](int32_t val) \
-		{ \
-			local_itemref.mem = val; \
-		} \
-	) \
-)
+template <typename T>
+std::shared_ptr<GUI::Widget> ItemEditorDialog::SPRITE_DROP_IMPL(T* mem, int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(vPadding = 0_px,
+		l_spr[index] = Label(textAlign = 2, width = SPR_LAB_WID, topMargin = 1_px),
+		ib_spr[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("Sprite Info",h_spr[index]).show();
+			}),
+		DropDownList(
+			maxwidth = sized(18_em, 14_em),
+			data = list_sprites,
+			selectedValue = *mem,
+			onSelectFunc = [mem](int32_t val)
+			{
+				*mem = val;
+			}
+		)
+	);
+}
+
+#define SPRITE_DROP(ind, mem) SPRITE_DROP_IMPL(&local_itemref.mem, ind)
+
+std::shared_ptr<GUI::Widget> ItemEditorDialog::IT_INITD(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(padding = 0_px,
+		l_it_initds[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
+		ib_it_initds[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("InitD Info",h_it_initds[index]).show();
+			}),
+		tf_it_initd[index] = TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_ZSINT2,
+			val = local_itemref.initiald[index],
+			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_itemref.initiald[index] = val;
+			})
+	);
+}
+std::shared_ptr<GUI::Widget> ItemEditorDialog::WP_INITD(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(padding = 0_px,
+		l_wp_initds[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
+		ib_wp_initds[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("InitD Info",h_wp_initds[index]).show();
+			}),
+		tf_wp_initd[index] = TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_ZSINT2,
+			val = local_itemref.weap_initiald[index],
+			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_itemref.weap_initiald[index] = val;
+			})
+	);
+}
 
 int32_t calcBottleTile(itemdata const& local_itemref, byte bottleVal)
 {
@@ -998,6 +1093,11 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
+
+	// Too many locals error in low-optimization mode for emscripten.
+#ifdef EMSCRIPTEN_DEBUG
+	return std::shared_ptr<GUI::Widget>(nullptr);
+#endif
 	
 	char titlebuf[256];
 	sprintf(titlebuf, "Item Editor (%d): %s", index, itemname.c_str());
@@ -1326,13 +1426,13 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								//
 								Label(text = "Increase By:", hAlign = 1.0),
 								TextField(
-									val = ((local_itemref.amount & 0x4000) ? -1 : 1)*(local_itemref.amount & 0x3FFF),
+									val = ((local_itemref.amount & 0x4000) ? -1 : 1)*signed(local_itemref.amount & 0x3FFF),
 									type = GUI::TextField::type::INT_DECIMAL,
 									fitParent = true, low = -9999, high = 16383,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.amount &= 0x8000;
-										local_itemref.amount |= ((val&0x3FFF)|(val<0?0x4000:0));
+										local_itemref.amount |= (abs(val)&0x3FFF)|(val<0?0x4000:0);
 									}
 								),
 								Checkbox(
@@ -2282,21 +2382,21 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 						ptr = &itmtabs[3],
 						TabRef(name = "Item", Row(
 							Column(
-								INITD_ROW(0, local_itemref.initiald, local_itemref.initD_label),
-								INITD_ROW(1, local_itemref.initiald, local_itemref.initD_label),
-								INITD_ROW(2, local_itemref.initiald, local_itemref.initD_label),
-								INITD_ROW(3, local_itemref.initiald, local_itemref.initD_label),
-								INITD_ROW(4, local_itemref.initiald, local_itemref.initD_label),
-								INITD_ROW(5, local_itemref.initiald, local_itemref.initD_label),
-								INITD_ROW(6, local_itemref.initiald, local_itemref.initD_label),
-								INITD_ROW(7, local_itemref.initiald, local_itemref.initD_label)
+								IT_INITD(0),
+								IT_INITD(1),
+								IT_INITD(2),
+								IT_INITD(3),
+								IT_INITD(4),
+								IT_INITD(5),
+								IT_INITD(6),
+								IT_INITD(7)
 							),
 							Column(
 								padding = 0_px, fitParent = true,
 								Rows<2>(vAlign = 0.0,
-									SCRIPT_LIST("Action Script:", list_itemdatscript, local_itemref.script),
-									SCRIPT_LIST("Pickup Script:", list_itemdatscript, local_itemref.collect_script),
-									SCRIPT_LIST("Sprite Script:", list_itemsprscript, local_itemref.sprite_script)
+									SCRIPT_LIST_PROC("Action Script:", list_itemdatscript, local_itemref.script, refreshScripts),
+									SCRIPT_LIST_PROC("Pickup Script:", list_itemdatscript, local_itemref.collect_script, refreshScripts),
+									SCRIPT_LIST_PROC("Sprite Script:", list_itemsprscript, local_itemref.sprite_script, refreshScripts)
 								),
 								Rows<2>(hAlign = 1.0,
 									Label(text = "A1:"),
@@ -2319,22 +2419,35 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 											local_itemref.initiala[1] = val;
 										}
 									)
+								),
+								Row(
+									Label(text = "Script Info:"),
+									DropDownList(
+										maxwidth = 10_em,
+										data = ScriptDataList,
+										selectedValue = item_use_script_data,
+										onSelectFunc = [&](int32_t val)
+										{
+											item_use_script_data = val;
+											refreshScripts();
+										}
+									)
 								)
 							)
 						)),
 						TabRef(name = "Weapon", Row(
 							Column(
-								INITD_ROW(0, local_itemref.weap_initiald, local_itemref.weapon_initD_label),
-								INITD_ROW(1, local_itemref.weap_initiald, local_itemref.weapon_initD_label),
-								INITD_ROW(2, local_itemref.weap_initiald, local_itemref.weapon_initD_label),
-								INITD_ROW(3, local_itemref.weap_initiald, local_itemref.weapon_initD_label),
-								INITD_ROW(4, local_itemref.weap_initiald, local_itemref.weapon_initD_label),
-								INITD_ROW(5, local_itemref.weap_initiald, local_itemref.weapon_initD_label),
-								INITD_ROW(6, local_itemref.weap_initiald, local_itemref.weapon_initD_label),
-								INITD_ROW(7, local_itemref.weap_initiald, local_itemref.weapon_initD_label)
+								WP_INITD(0),
+								WP_INITD(1),
+								WP_INITD(2),
+								WP_INITD(3),
+								WP_INITD(4),
+								WP_INITD(5),
+								WP_INITD(6),
+								WP_INITD(7)
 							),
 							Rows<2>(vAlign = 0.0,
-								SCRIPT_LIST("Weapon Script:", list_weaponscript, local_itemref.weaponscript)
+								SCRIPT_LIST_PROC("Weapon Script:", list_weaponscript, local_itemref.weaponscript, refreshScripts)
 							)
 						))
 					))
@@ -2685,13 +2798,13 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								//
 								Label(text = "Increase By:", hAlign = 1.0),
 								TextField(
-									val = ((local_itemref.amount & 0x4000) ? -1 : 1)*(local_itemref.amount & 0x3FFF),
+									val = ((local_itemref.amount & 0x4000) ? -1 : 1)*signed(local_itemref.amount & 0x3FFF),
 									type = GUI::TextField::type::INT_DECIMAL,
 									fitParent = true, low = -9999, high = 16383,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.amount &= 0x8000;
-										local_itemref.amount |= ((val&0x3FFF)|(val<0?0x4000:0));
+										local_itemref.amount |= (abs(val)&0x3FFF)|(val<0?0x4000:0);
 									}
 								),
 								Checkbox(
@@ -3597,21 +3710,21 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 						ptr = &itmtabs[3],
 						TabRef(name = "Item", Row(
 							Column(
-								INITD_ROW(0, local_itemref.initiald, local_itemref.initD_label),
-								INITD_ROW(1, local_itemref.initiald, local_itemref.initD_label),
-								INITD_ROW(2, local_itemref.initiald, local_itemref.initD_label),
-								INITD_ROW(3, local_itemref.initiald, local_itemref.initD_label),
-								INITD_ROW(4, local_itemref.initiald, local_itemref.initD_label),
-								INITD_ROW(5, local_itemref.initiald, local_itemref.initD_label),
-								INITD_ROW(6, local_itemref.initiald, local_itemref.initD_label),
-								INITD_ROW(7, local_itemref.initiald, local_itemref.initD_label)
+								IT_INITD(0),
+								IT_INITD(1),
+								IT_INITD(2),
+								IT_INITD(3),
+								IT_INITD(4),
+								IT_INITD(5),
+								IT_INITD(6),
+								IT_INITD(7)
 							),
 							Column(
 								padding = 0_px, fitParent = true,
 								Rows<2>(vAlign = 0.0,
-									SCRIPT_LIST("Action Script:", list_itemdatscript, local_itemref.script),
-									SCRIPT_LIST("Pickup Script:", list_itemdatscript, local_itemref.collect_script),
-									SCRIPT_LIST("Sprite Script:", list_itemsprscript, local_itemref.sprite_script)
+									SCRIPT_LIST_PROC("Action Script:", list_itemdatscript, local_itemref.script, refreshScripts),
+									SCRIPT_LIST_PROC("Pickup Script:", list_itemdatscript, local_itemref.collect_script, refreshScripts),
+									SCRIPT_LIST_PROC("Sprite Script:", list_itemsprscript, local_itemref.sprite_script, refreshScripts)
 								),
 								Rows<2>(hAlign = 1.0,
 									Label(text = "A1:"),
@@ -3634,22 +3747,35 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 											local_itemref.initiala[1] = val;
 										}
 									)
+								),
+								Row(
+									Label(text = "Script Info:"),
+									DropDownList(
+										maxwidth = 10_em,
+										data = ScriptDataList,
+										selectedValue = item_use_script_data,
+										onSelectFunc = [&](int32_t val)
+										{
+											item_use_script_data = val;
+											refreshScripts();
+										}
+									)
 								)
 							)
 						)),
 						TabRef(name = "Weapon", Row(
 							Column(
-								INITD_ROW(0, local_itemref.weap_initiald, local_itemref.weapon_initD_label),
-								INITD_ROW(1, local_itemref.weap_initiald, local_itemref.weapon_initD_label),
-								INITD_ROW(2, local_itemref.weap_initiald, local_itemref.weapon_initD_label),
-								INITD_ROW(3, local_itemref.weap_initiald, local_itemref.weapon_initD_label),
-								INITD_ROW(4, local_itemref.weap_initiald, local_itemref.weapon_initD_label),
-								INITD_ROW(5, local_itemref.weap_initiald, local_itemref.weapon_initD_label),
-								INITD_ROW(6, local_itemref.weap_initiald, local_itemref.weapon_initD_label),
-								INITD_ROW(7, local_itemref.weap_initiald, local_itemref.weapon_initD_label)
+								WP_INITD(0),
+								WP_INITD(1),
+								WP_INITD(2),
+								WP_INITD(3),
+								WP_INITD(4),
+								WP_INITD(5),
+								WP_INITD(6),
+								WP_INITD(7)
 							),
 							Rows<2>(vAlign = 0.0,
-								SCRIPT_LIST("Weapon Script:", list_weaponscript, local_itemref.weaponscript)
+								SCRIPT_LIST_PROC("Weapon Script:", list_weaponscript, local_itemref.weaponscript, refreshScripts)
 							)
 						))
 					))
@@ -3674,8 +3800,121 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 			)
 		);
 	}
-	loadItemClass();
+	refreshScripts();
 	return window;
+}
+
+void load_meta(ItemNameInfo& inf, zasm_meta const& meta)
+{
+	for(auto q = 0; q < 15; ++q)
+	{
+		if(meta.usrflags[q].size())
+			inf.flag[q] = meta.usrflags[q];
+		if(meta.usrflags_help[q].size())
+			inf.h_flag[q] = meta.usrflags_help[q];
+		if(q > 9) continue;
+		if(meta.attributes[q].size())
+			inf.misc[q] = meta.attributes[q];
+		if(meta.attributes_help[q].size())
+			inf.h_misc[q] = meta.attributes_help[q];
+	}
+}
+
+void ItemEditorDialog::refreshScripts()
+{
+	loadItemClass();
+	std::string it_initd[8];
+	std::string wp_initd[8];
+	int32_t ty_it_initd[8];
+	int32_t ty_wp_initd[8];
+	for(auto q = 0; q < 8; ++q)
+	{
+		it_initd[q] = "InitD[" + std::to_string(q) + "]";
+		h_it_initds[q].clear();
+		ty_it_initd[q] = -1;
+		wp_initd[q] = "InitD[" + std::to_string(q) + "]";
+		h_wp_initds[q].clear();
+		ty_wp_initd[q] = -1;
+	}
+	bool did_item_scr = false;
+	auto iscd = item_use_script_data;
+	if(!iscd) iscd = ISCRDATA_ALL;
+	if(local_itemref.sprite_script && (iscd & ISCRDATA_SPRITE))
+	{
+		did_item_scr = true;
+		zasm_meta const& meta = itemspritescripts[local_itemref.sprite_script]->meta;
+		for(auto q = 0; q < 8; ++q)
+		{
+			if(meta.initd[q].size())
+				it_initd[q] = meta.initd[q];
+			if(meta.initd_help[q].size())
+				h_it_initds[q] = meta.initd_help[q];
+			if(meta.initd_type[q] > -1)
+				ty_it_initd[q] = meta.initd_type[q];
+		}
+	}
+	if(local_itemref.collect_script && (iscd & ISCRDATA_PICKUP))
+	{
+		did_item_scr = true;
+		zasm_meta const& meta = itemscripts[local_itemref.collect_script]->meta;
+		for(auto q = 0; q < 8; ++q)
+		{
+			if(meta.initd[q].size())
+				it_initd[q] = meta.initd[q];
+			if(meta.initd_help[q].size())
+				h_it_initds[q] = meta.initd_help[q];
+			if(meta.initd_type[q] > -1)
+				ty_it_initd[q] = meta.initd_type[q];
+		}
+	}
+	if(local_itemref.script && (iscd & ISCRDATA_ACTION))
+	{
+		did_item_scr = true;
+		zasm_meta const& meta = itemscripts[local_itemref.script]->meta;
+		for(auto q = 0; q < 8; ++q)
+		{
+			if(meta.initd[q].size())
+				it_initd[q] = meta.initd[q];
+			if(meta.initd_help[q].size())
+				h_it_initds[q] = meta.initd_help[q];
+			if(meta.initd_type[q] > -1)
+				ty_it_initd[q] = meta.initd_type[q];
+		}
+	}
+	if(!did_item_scr)
+	{
+		for(auto q = 0; q < 8; ++q)
+			ty_it_initd[q] = nswapDEC;
+	}
+	if(local_itemref.weaponscript)
+	{
+		zasm_meta const& meta = lwpnscripts[local_itemref.weaponscript]->meta;
+		for(auto q = 0; q < 8; ++q)
+		{
+			if(meta.initd[q].size())
+				wp_initd[q] = meta.initd[q];
+			if(meta.initd_help[q].size())
+				h_wp_initds[q] = meta.initd_help[q];
+			if(meta.initd_type[q] > -1)
+				ty_wp_initd[q] = meta.initd_type[q];
+		}
+	}
+	else
+	{
+		for(auto q = 0; q < 8; ++q)
+			ty_wp_initd[q] = nswapDEC;
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(ty_it_initd[q] > -1)
+			tf_it_initd[q]->setSwapType(ty_it_initd[q]);
+		if(ty_wp_initd[q] > -1)
+			tf_wp_initd[q]->setSwapType(ty_wp_initd[q]);
+		l_it_initds[q]->setText(it_initd[q]);
+		l_wp_initds[q]->setText(wp_initd[q]);
+		ib_it_initds[q]->setDisabled(h_it_initds[q].empty());
+		ib_wp_initds[q]->setDisabled(h_wp_initds[q].empty());
+	}
 }
 
 void ItemEditorDialog::loadItemClass()
@@ -3685,6 +3924,25 @@ void ItemEditorDialog::loadItemClass()
 	
 	ItemNameInfo inf;
 	loadinfo(&inf, local_itemref);
+	
+	if(item_use_script_data)
+	{
+		if(local_itemref.sprite_script && (item_use_script_data & ISCRDATA_SPRITE))
+		{
+			zasm_meta const& meta = itemspritescripts[local_itemref.sprite_script]->meta;
+			load_meta(inf,meta);
+		}
+		if(local_itemref.collect_script && (item_use_script_data & ISCRDATA_PICKUP))
+		{
+			zasm_meta const& meta = itemscripts[local_itemref.collect_script]->meta;
+			load_meta(inf,meta);
+		}
+		if(local_itemref.script && (item_use_script_data & ISCRDATA_ACTION))
+		{
+			zasm_meta const& meta = itemscripts[local_itemref.script]->meta;
+			load_meta(inf,meta);
+		}
+	}
 	
 	#define __SET(obj, mem) \
 	l_##obj->setText(inf.mem.size() ? inf.mem : defInfo.mem); \

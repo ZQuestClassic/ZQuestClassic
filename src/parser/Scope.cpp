@@ -16,7 +16,7 @@ using std::unique_ptr;
 // Scope
 
 Scope::Scope(TypeStore& typeStore)
-	: typeStore_(typeStore), name_(nullopt)
+	: typeStore_(typeStore), name_(std::nullopt)
 {
 	id = ScopeID++;
 }
@@ -217,7 +217,7 @@ ScriptType ZScript::lookupScriptType(Scope const& scope, string const& name)
 {
 	for (Scope const* current = &scope;
 	     current; current = current->getParent())
-		if (optional<ScriptType> type = current->getLocalScriptType(name))
+		if (std::optional<ScriptType> type = current->getLocalScriptType(name))
 			return *type;
 	return ScriptType::invalid;
 }
@@ -287,6 +287,16 @@ Datum* ZScript::lookupDatum(Scope& scope, ASTExprIdentifier& host, CompileErrorH
 	return NULL;
 }
 
+UserClassVar* ZScript::lookupClassVars(Scope& scope, ASTExprIdentifier& host, CompileErrorHandler* errorHandler)
+{
+	vector<string> names = host.components;
+	if (names.size() != 1)
+		return nullptr;
+	ClassScope* cscope = scope.getClass();
+	if(!cscope) return nullptr;
+	return cscope->getClassVar(names[0]);
+}
+
 Function* ZScript::lookupGetter(Scope const& scope, string const& name)
 {
 	for (Scope const* current = &scope;
@@ -316,7 +326,7 @@ Function* ZScript::lookupFunction(Scope const& scope,
 	return NULL;
 }*/
 
-vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vector<DataType const*> const& parameterTypes, bool noUsing)
+vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass)
 {
 	set<Function*> functions;
 	Scope const* current = &scope;
@@ -330,7 +340,7 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vec
 		}
 		if(current->isFile()) foundFile = true;
 		vector<Function*> currentFunctions = current->getLocalFunctions(name);
-		trimBadFunctions(currentFunctions, parameterTypes);
+		trimBadFunctions(currentFunctions, parameterTypes, !isClass);
 		functions.insert(currentFunctions.begin(), currentFunctions.end());
 	}
 	if(!noUsing)
@@ -341,7 +351,7 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vec
 		{
 			NamespaceScope* nsscope = *it;
 			vector<Function*> currentFunctions = nsscope->getLocalFunctions(name);
-			trimBadFunctions(currentFunctions, parameterTypes);
+			trimBadFunctions(currentFunctions, parameterTypes, !isClass);
 			functions.insert(currentFunctions.begin(), currentFunctions.end());
 		}
 		current = &scope;
@@ -350,12 +360,12 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vec
 }
 
 vector<Function*> ZScript::lookupFunctions(
-		Scope& scope, vector<string> const& names, vector<string> const& delimiters, vector<DataType const*> const& parameterTypes, bool noUsing)
+		Scope& scope, vector<string> const& names, vector<string> const& delimiters, vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass)
 {
 	if (names.size() == 0)
 		return vector<Function*>();
 	else if (names.size() == 1)
-		return lookupFunctions(scope, names[0], parameterTypes, noUsing);
+		return lookupFunctions(scope, names[0], parameterTypes, noUsing, isClass);
 
 	vector<Function*> functions;
 	string const& name = names.back();
@@ -375,7 +385,7 @@ vector<Function*> ZScript::lookupFunctions(
 		}
 		if(current.isFile()) foundFile = true;
 		vector<Function*> currentFunctions = current.getLocalFunctions(name);
-		trimBadFunctions(currentFunctions, parameterTypes);
+		trimBadFunctions(currentFunctions, parameterTypes, !isClass);
 		functions.insert(functions.end(),
 		                 currentFunctions.begin(), currentFunctions.end());
 	}
@@ -387,7 +397,7 @@ vector<Function*> ZScript::lookupFunctions(
 		{
 			Scope& current = **it;
 			vector<Function*> currentFunctions = current.getLocalFunctions(name);
-			trimBadFunctions(currentFunctions, parameterTypes);
+			trimBadFunctions(currentFunctions, parameterTypes, !isClass);
 			functions.insert(functions.end(),
 							 currentFunctions.begin(), currentFunctions.end());
 		}
@@ -396,18 +406,132 @@ vector<Function*> ZScript::lookupFunctions(
 	return functions;
 }
 
-inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes)
+UserClass* ZScript::lookupClass(Scope& scope, string const& name, bool noUsing)
+{
+	set<Function*> functions;
+	Scope const* current = &scope;
+	bool foundFile = false;
+	ClassScope* cscope = nullptr;
+	Scope* tscope = nullptr;
+	//Standard lookup loop
+	for (; current; current = current->getParent())
+	{
+		tscope = current->getChild(name);
+		if(tscope && tscope->isClass())
+		{
+			cscope = static_cast<ClassScope*>(tscope);
+			return &cscope->user_class;
+		}
+	}
+	if(!noUsing)
+	{
+		vector<NamespaceScope*> namespaces = lookupUsingNamespaces(scope);
+		for(vector<NamespaceScope*>::iterator it = namespaces.begin();
+			it != namespaces.end(); ++it)
+		{
+			NamespaceScope* nsscope = *it;
+			tscope = nsscope->getChild(name);
+			if(tscope && tscope->isClass())
+			{
+				cscope = static_cast<ClassScope*>(tscope);
+				return &cscope->user_class;
+			}
+		}
+		current = &scope;
+	}
+	return nullptr;
+}
+
+UserClass* ZScript::lookupClass(Scope& scope, vector<string> const& names,
+	vector<string> const& delimiters, bool noUsing)
+{
+	if (names.size() == 0)
+		return nullptr;
+	else if (names.size() == 1)
+		return lookupClass(scope, names[0], noUsing);
+	
+	string const& name = names.back();
+	vector<string> ancestry(names.begin(), --names.end());
+	vector<Scope*> scopes = lookupScopes(scope, ancestry, delimiters, true); //Don't include using scopes
+	vector<Scope*> usingScopes = lookupUsingScopes(scope, ancestry, delimiters); //get ONLY using scopes
+	//Check all non-using scopes for valid function matches
+	bool foundFile = false;
+	ClassScope* cscope = nullptr;
+	Scope* tscope = nullptr;
+	for (vector<Scope*>::const_iterator it = scopes.begin();
+	     it != scopes.end(); ++it)
+	{
+		Scope& current = **it;
+		
+		tscope = current.getChild(name);
+		if(tscope && tscope->isClass())
+		{
+			cscope = static_cast<ClassScope*>(tscope);
+			return &cscope->user_class;
+		}
+	}
+	if(!noUsing)
+	{
+		//Check using functions
+		for (vector<Scope*>::const_iterator it = usingScopes.begin();
+			 it != usingScopes.end(); ++it)
+		{
+			Scope& current = **it;
+			
+			tscope = current.getChild(name);
+			if(tscope && tscope->isClass())
+			{
+				cscope = static_cast<ClassScope*>(tscope);
+				return &cscope->user_class;
+			}
+		}
+	}
+
+	return nullptr;
+}
+
+vector<Function*> ZScript::lookupConstructors(UserClass const& user_class, vector<DataType const*> const& parameterTypes)
+{
+	vector<Function*> functions = user_class.getScope().getConstructors();
+	trimBadFunctions(functions, parameterTypes, false);
+	return functions;
+}
+vector<Function*> ZScript::lookupClassFuncs(UserClass const& user_class,
+	std::string const& name, vector<DataType const*> const& parameterTypes)
+{
+	vector<Function*> functions = user_class.getScope().getLocalFunctions(name);
+	trimBadFunctions(functions, parameterTypes, false);
+	for (vector<Function*>::iterator it = functions.begin();
+		 it != functions.end();)
+	{
+		Function& function = **it;
+		if(function.getFlag(FUNCFLAG_STATIC))
+		{
+			it = functions.erase(it);
+			continue;
+		}
+		else ++it;
+	}
+	return functions;
+}
+
+inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes, bool trimClasses)
 {
 	// Filter out invalid functions.
 	for (vector<Function*>::iterator it = functions.begin();
 		 it != functions.end();)
 	{
 		Function& function = **it;
+		if(trimClasses && function.internalScope->getClass() && !function.getFlag(FUNCFLAG_STATIC))
+		{
+			it = functions.erase(it);
+			continue;
+		}
 		
 		auto targetSize = parameterTypes.size();
 		auto maxSize = function.paramTypes.size();
 		auto minSize = maxSize - function.opt_vals.size();
-		// Match against parameter count, including optional params.
+		// Match against parameter count, including std::optional params.
 		if (maxSize < targetSize || minSize > targetSize)
 		{
 			it = functions.erase(it);
@@ -435,9 +559,9 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 	}
 }
 
-optional<int32_t> ZScript::lookupOption(Scope const& scope, CompileOption option)
+std::optional<int32_t> ZScript::lookupOption(Scope const& scope, CompileOption option)
 {
-	if (!option.isValid()) return nullopt;
+	if (!option.isValid()) return std::nullopt;
 	for (Scope const* current = &scope;
 	     current; current = current->getParent())
 	{
@@ -483,46 +607,46 @@ vector<NamespaceScope*> ZScript::lookupUsingNamespaces(Scope const& scope)
 
 bool ZScript::isStackRoot(Scope const& scope)
 {
-	return scope.getRootStackSize();
+	return scope.getRootStackSize().has_value();
 }
 
-optional<int32_t> ZScript::lookupStackOffset(
+std::optional<int32_t> ZScript::lookupStackOffset(
 		Scope const& scope, Datum const& datum)
 {
 	Scope* s = const_cast<Scope*>(&scope);
 	while (s)
 	{
-		if (optional<int32_t> offset = s->getLocalStackOffset(datum))
+		if (std::optional<int32_t> offset = s->getLocalStackOffset(datum))
 			return offset;
 
-		if (isStackRoot(*s)) return nullopt;
+		if (isStackRoot(*s)) return std::nullopt;
 
 		s = s->getParent();
 	}
-	return nullopt;
+	return std::nullopt;
 }
 
-optional<int32_t> ZScript::lookupStackSize(Scope const& scope)
+std::optional<int32_t> ZScript::lookupStackSize(Scope const& scope)
 {
 	Scope* s = const_cast<Scope*>(&scope);
 	while (s)
 	{
-		if (optional<int32_t> size = s->getRootStackSize())
+		if (std::optional<int32_t> size = s->getRootStackSize())
 			return size;
 
 		s = s->getParent();
 	}
-	return nullopt;
+	return std::nullopt;
 }
 
-optional<int32_t> ZScript::lookupStackPosition(
+std::optional<int32_t> ZScript::lookupStackPosition(
 		Scope const& scope, Datum const& datum)
 {
-	optional<int32_t> offset = lookupStackOffset(scope, datum);
-	optional<int32_t> size = lookupStackSize(scope);
+	std::optional<int32_t> offset = lookupStackOffset(scope, datum);
+	std::optional<int32_t> size = lookupStackSize(scope);
 	if (offset && size)
 		return *size - 1 - *offset;
-	return nullopt;
+	return std::nullopt;
 }
 
 // Get all in branch
@@ -594,6 +718,20 @@ ScriptScope* BasicScope::getScript()
 	for(Scope* parent = getParent(); parent; parent = parent->getParent())
 	{
 		if(parent->isScript()) return dynamic_cast<ScriptScope*>(parent);
+	}
+	return NULL;
+}
+
+ClassScope* BasicScope::getClass()
+{
+	if(isClass())
+	{
+		Scope* temp = this;
+		return static_cast<ClassScope*>(temp);
+	}
+	for(Scope* parent = getParent(); parent; parent = parent->getParent())
+	{
+		if(parent->isClass()) return dynamic_cast<ClassScope*>(parent);
 	}
 	return NULL;
 }
@@ -692,7 +830,7 @@ DataType const* BasicScope::getLocalDataType(string const& name) const
 	return find<DataType const*>(dataTypes_, name).value_or(boost::add_pointer<DataType const>::type());
 }
 
-optional<ScriptType> BasicScope::getLocalScriptType(string const& name) const
+std::optional<ScriptType> BasicScope::getLocalScriptType(string const& name) const
 {
 	return find<ScriptType>(scriptTypes_, name);
 }
@@ -731,7 +869,7 @@ vector<Function*> BasicScope::getLocalFunctions(string const& name) const
 
 CompileOptionSetting BasicScope::getLocalOption(CompileOption option) const
 {
-	if (optional<CompileOptionSetting> setting =
+	if (std::optional<CompileOptionSetting> setting =
 	    	find<CompileOptionSetting>(options_, option))
 		return *setting;
 	return defaultOption_;
@@ -798,6 +936,15 @@ ScriptScope* BasicScope::makeScriptChild(Script& script)
 	string name = script.getName();
 	if (find<Scope*>(children_, name)) return NULL;
 	ScriptScope* child = new ScriptScope(this, getFile(), script);
+	children_[name] = child;
+	return child;
+}
+
+ClassScope* BasicScope::makeClassChild(UserClass& user_class)
+{
+	string name = user_class.getName();
+	if (find<Scope*>(children_, name)) return NULL;
+	ClassScope* child = new ClassScope(this, getFile(), user_class);
 	children_[name] = child;
 	return child;
 }
@@ -881,12 +1028,12 @@ Function* BasicScope::addFunction(
 	}
 	FunctionSignature signature(name, paramTypes);
 	Function* foundFunc = NULL;
-	optional<Function*> optFunc = find<Function*>(functionsBySignature_, signature);
+	std::optional<Function*> optFunc = find<Function*>(functionsBySignature_, signature);
 	if(optFunc)
 		foundFunc = *optFunc;
 	else if(isFile() || isRoot())
 	{
-		optional<Function*> rootFunc = getRoot(*this)->getDescFuncBySig(signature);
+		std::optional<Function*> rootFunc = getRoot(*this)->getDescFuncBySig(signature);
 		if(rootFunc)
 			foundFunc = *rootFunc;
 	}
@@ -897,8 +1044,8 @@ Function* BasicScope::addFunction(
 			if(prototype) //Another identical prototype being declared
 			{
 				//Check default returns
-				optional<int32_t> val = foundFunc->defaultReturn->getCompileTimeValue(handler, this);
-				optional<int32_t> val2 = node->defaultReturn.get()->getCompileTimeValue(handler, this);
+				std::optional<int32_t> val = foundFunc->defaultReturn->getCompileTimeValue(handler, this);
+				std::optional<int32_t> val2 = node->defaultReturn.get()->getCompileTimeValue(handler, this);
 				if(!val || !val2 || (*val != *val2)) //Different or erroring default returns
 				{
 					handler->handleError(CompileError::BadDefaultReturn(node, node->name));
@@ -947,7 +1094,7 @@ void BasicScope::removeFunction(Function* function)
 	FunctionSignature signature(function->name, function->paramTypes);
 	functionsBySignature_.erase(signature); //Erase from signature map
 	//Find in name map, and erase
-	optional<vector<Function*> > foundVector = find<vector<Function*> >(functionsByName_, function->name);
+	std::optional<vector<Function*> > foundVector = find<vector<Function*> >(functionsByName_, function->name);
 	if(!foundVector) return;
 	vector<Function*>& funcvector = *foundVector;
 	if(funcvector.size() == 1 && funcvector.back() == function)
@@ -979,7 +1126,7 @@ void BasicScope::setOption(CompileOption option, CompileOptionSetting value)
 
 bool BasicScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 {
-	if (optional<string> name = datum.getName())
+	if (std::optional<string> name = datum.getName())
 	{
 		if (find<Datum*>(namedData_, *name))
 		{
@@ -1004,7 +1151,7 @@ bool BasicScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 
 // Stack
 
-optional<int32_t> BasicScope::getLocalStackOffset(Datum const& datum) const
+std::optional<int32_t> BasicScope::getLocalStackOffset(Datum const& datum) const
 {
 	Datum* key = const_cast<Datum*>(&datum);
 	return find<int32_t>(stackOffsets_, key);
@@ -1033,6 +1180,15 @@ ScriptScope* FileScope::makeScriptChild(Script& script)
 	ScriptScope* result = BasicScope::makeScriptChild(script);
 	if (!result) return NULL;
 	if (!getRoot(*this)->registerChild(script.getName(), result))
+		result = NULL;
+	return result;
+}
+
+ClassScope* FileScope::makeClassChild(UserClass& user_class)
+{
+	ClassScope* result = BasicScope::makeClassChild(user_class);
+	if (!result) return NULL;
+	if (!getRoot(*this)->registerChild(user_class.getName(), result))
 		result = NULL;
 	return result;
 }
@@ -1133,7 +1289,7 @@ bool FileScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 		return false;
 
 	// Register in root scope if it's named.
-	if (optional<string> name = datum.getName())
+	if (std::optional<string> name = datum.getName())
 	{
 		if (!getRoot(*this)->registerDatum(*name, &datum))
 		{
@@ -1218,7 +1374,7 @@ RootScope::RootScope(TypeStore& typeStore)
 	BuiltinConstant::create(*this, DataType::CRNG, "RandGen", 0); //Nullptr is valid for engine RNG
 }
 
-optional<int32_t> RootScope::getRootStackSize() const
+std::optional<int32_t> RootScope::getRootStackSize() const
 {
 	if (!stackSize_)
 	{
@@ -1246,9 +1402,9 @@ DataType const* RootScope::getLocalDataType(string const& name) const
 	return result;
 }
 
-optional<ScriptType> RootScope::getLocalScriptType(string const& name) const
+std::optional<ScriptType> RootScope::getLocalScriptType(string const& name) const
 {
-	if (optional<ScriptType> result = BasicScope::getLocalScriptType(name))
+	if (std::optional<ScriptType> result = BasicScope::getLocalScriptType(name))
 		return result;
 	return find<ScriptType>(descScriptTypes_, name);
 }
@@ -1298,7 +1454,7 @@ Function* RootScope::getLocalFunction(
 vector<Function*> RootScope::getLocalFunctions(string const& name) const
 {
 	vector<Function*> results(BasicScope::getLocalFunctions(name));
-	if (optional<vector<Function*> > desc =
+	if (std::optional<vector<Function*> > desc =
 	    	find<vector<Function*> >(descFunctionsByName_, name))
 		appendElements(results, *desc);
 	return results;
@@ -1406,7 +1562,7 @@ void RootScope::removeFunction(Function* function)
 	FunctionSignature signature(function->name, function->paramTypes);
 	descFunctionsBySignature_.erase(signature); //Erase from signature map
 	//Find in name map, and erase
-	optional<vector<Function*> > foundVector = find<vector<Function*> >(descFunctionsByName_, function->name);
+	std::optional<vector<Function*> > foundVector = find<vector<Function*> >(descFunctionsByName_, function->name);
 	if(!foundVector) return;
 	vector<Function*>& funcvector = *foundVector;
 	if(funcvector.size() == 1 && funcvector.back() == function)
@@ -1425,7 +1581,7 @@ void RootScope::removeFunction(Function* function)
 	}
 }
 
-optional<Function*> RootScope::getDescFuncBySig(FunctionSignature& sig)
+std::optional<Function*> RootScope::getDescFuncBySig(FunctionSignature& sig)
 {
 	return find<Function*>(descFunctionsBySignature_, sig);
 }
@@ -1435,8 +1591,8 @@ bool RootScope::checkImport(ASTImportDecl* node, int32_t headerGuard, CompileErr
 	if(node->wasChecked()) return true;
 	node->check();
 	if(headerGuard == OPT_OFF) return true; //Don't check anything, behave as usual.
-	string fname = cropPath(node->getFilename());
-	lowerstr(fname);
+	string fname = node->getFilename();
+	//lowerstr(fname);
 	if(ASTImportDecl* first = find<ASTImportDecl*>(importsByName_, fname).value_or(boost::add_pointer<ASTImportDecl>::type()))
 	{
 		node->disable(); //Disable node.
@@ -1461,6 +1617,7 @@ bool RootScope::checkImport(ASTImportDecl* node, int32_t headerGuard, CompileErr
 
 		}
 	}
+	//zconsole_db("Import '%s' checked and registered successfully", fname.c_str());
 	importsByName_[fname] = node;
 	return true; //Allow import
 }
@@ -1480,6 +1637,175 @@ ScriptScope::ScriptScope(Scope* parent, FileScope* parentFile, Script& script)
 {}
 
 ////////////////////////////////////////////////////////////////
+// ClassScope
+
+ClassScope::ClassScope(Scope* parent, FileScope* parentFile, UserClass& user_class)
+	: BasicScope(parent, parentFile, user_class.getName()), user_class(user_class), destructor_(nullptr)
+{}
+
+bool ClassScope::add(Datum& datum, CompileErrorHandler* errorHandler)
+{
+	if(UserClassVar* ucv = dynamic_cast<UserClassVar*>(&datum))
+	{
+		if (std::optional<string> name = ucv->getName())
+		{
+			if (find<UserClassVar*>(classData_, *name))
+			{
+				if (errorHandler)
+					errorHandler->handleError(
+							CompileError::VarRedef(ucv->getNode(),
+												   name->c_str()));
+				return false;
+			}
+			classData_[*name] = ucv;
+			if (!ZScript::isGlobal(datum))
+			{
+				stackOffsets_[&datum] = stackDepth_++;
+				invalidateStackSize();
+			}
+			return true;
+		}
+		return false;
+	}
+	else return BasicScope::add(datum, errorHandler);
+}
+
+void ClassScope::parse_ucv()
+{
+	std::vector<UserClassVar*> ucvs = getSeconds<UserClassVar*>(classData_);
+	int32_t ind = 0;
+	for(auto ucv : ucvs)
+	{
+		if(ucv->type.isArray()) continue;
+		ucv->setIndex(ind++);
+	}
+	for(auto ucv : ucvs)
+	{
+		if(!ucv->type.isArray()) continue;
+		ucv->setIndex(ind++);
+	}
+}
+
+UserClassVar* ClassScope::getClassVar(std::string const& name)
+{
+	if (std::optional<UserClassVar*> var = find<UserClassVar*>(classData_, name))
+	{
+		return *var;
+	}
+	return nullptr;
+}
+
+std::vector<Function*> ClassScope::getConstructors() const
+{
+	return getSeconds<Function*>(constructorsBySignature_);
+}
+std::vector<Function*> ClassScope::getDestructor() const
+{
+	std::vector<Function*> v;
+	if(destructor_) v.push_back(destructor_);
+	return v;
+}
+
+Function* ClassScope::addFunction(
+		DataType const* returnType, string const& name,
+		vector<DataType const*> const& paramTypes, vector<string const*> const& paramNames, int32_t flags, ASTFuncDecl* node, CompileErrorHandler* handler)
+{
+	bool constructor = (flags&FUNCFLAG_CONSTRUCTOR);
+	bool destructor = (flags&FUNCFLAG_DESTRUCTOR);
+	bool condes = constructor||destructor;
+	bool prototype = false;
+	ASTExprConst* defRet = NULL;
+	if(condes && name.compare(user_class.getName()))
+	{
+		if(constructor)
+			handler->handleError(CompileError::NameMismatchC(node, name.c_str(), user_class.getName().c_str()));
+		else handler->handleError(CompileError::NameMismatchD(node, name.c_str(), user_class.getName().c_str()));
+		return NULL;
+	}
+	if(destructor && paramTypes.size())
+	{
+		handler->handleError(CompileError::DestructorParam(node, name.c_str()));
+		return NULL;
+	}
+	if(node)
+	{
+		prototype = node->prototype;
+		if(prototype)
+		{
+			defRet = node->defaultReturn.get();
+		}
+	}
+	FunctionSignature signature(name, paramTypes);
+	Function* foundFunc = NULL;
+	std::optional<Function*> optFunc;
+	if(constructor)
+		optFunc = find<Function*>(constructorsBySignature_, signature);
+	else if(destructor)
+		optFunc = destructor_ ? std::optional<Function*>(destructor_) : std::optional<Function*>(std::nullopt);
+	else
+		optFunc = find<Function*>(functionsBySignature_, signature);
+	
+	if(optFunc)
+		foundFunc = *optFunc;
+	if (foundFunc)
+	{
+		if(foundFunc->prototype) //Prototype function declared
+		{
+			if(prototype) //Another identical prototype being declared
+			{
+				//Check default returns
+				std::optional<int32_t> val = foundFunc->defaultReturn->getCompileTimeValue(handler, this);
+				std::optional<int32_t> val2 = node->defaultReturn.get()->getCompileTimeValue(handler, this);
+				if(!val || !val2 || (*val != *val2)) //Different or erroring default returns
+				{
+					handler->handleError(CompileError::BadDefaultReturn(node, node->name));
+					return NULL;
+				}
+				else //Same default return; disable duplicate prototype without error
+				{
+					node->disable();
+					return NULL; //NULL return gives no error if 'node->prototype'
+				}
+			}
+			else //Function can be replaced by the new implementation of the prototype definition
+			{
+				//Remove the unneeded prototype function
+				removeFunction(foundFunc);
+				//Disable the node which defined the prototype function, and nullify it's pointer to the Function
+				foundFunc->node->func = NULL;
+				foundFunc->node->disable();
+				//Delete the Function* to free memory
+				delete foundFunc;
+				//Continue to construct the new function
+			}
+		}
+		else return NULL; //NULL return gives no error if 'node->prototype'
+	}
+
+	Function* fun = new Function(
+			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags, 0, prototype, defRet);
+	fun->internalScope = makeFunctionChild(*fun);
+	if(node)
+	{
+		for(auto it = node->optvals.begin(); it != node->optvals.end(); ++it)
+		{
+			fun->opt_vals.push_back(*it);
+		}
+	}
+	
+	if(constructor)
+		constructorsBySignature_[signature] = fun;
+	else if(destructor)
+		destructor_ = fun;
+	else
+	{
+		functionsByName_[name].push_back(fun);
+		functionsBySignature_[signature] = fun;
+	}
+	return fun;
+}
+
+////////////////////////////////////////////////////////////////
 // FunctionScope
 
 FunctionScope::FunctionScope(Scope* parent, FileScope* parentFile, Function& function)
@@ -1489,7 +1815,7 @@ FunctionScope::FunctionScope(Scope* parent, FileScope* parentFile, Function& fun
 	stackDepth_ = 0;
 }
 
-optional<int32_t> FunctionScope::getRootStackSize() const
+std::optional<int32_t> FunctionScope::getRootStackSize() const
 {
 	if (!stackSize)
 	{

@@ -1,9 +1,110 @@
 // 2.55 Change Log
-// Updated 30th Sept, 2022
+// Updated 23rd Oct, 2022
 
-// Unreleased
+// Alpha 111
+
+Fix shadows not drawing on enemies that do not 'Obey Gravity'.
+	( EmilyV, 23rd Oct, 2022 )
+
+Add 'GetEquipmentX()'/'GetEquipmentY()' to std_functions.zh
+Update 'UsingItem()' in 'std_functions.zh' to check x/y buttons
+	( EmilyV, 22nd Oct, 2022 )
+
+Change the 'Global State' flag on switches/switch blocks
+	to 'Flags[10]' instead of 'Flags[9]', because
+	it was overlapping with another flag...
+	(this might break quests that were using this, sorry!)
+	( EmilyV, 19th Oct, 2022 )
+
+Fix scroll warp color change timing bug
+	( EmilyV, 19th Oct, 2022 )
+
+Fix duplicate cursor displaying
+	( connorjclark, 19th Oct, 2022 )
+
+Fix some buttons not working properly
+Fix lifting an item with a lift glove allowing you to swim
+Fix: Now when drowning / falling in a pit with a combo lifted,
+	you will drop the combo.
+	( EmilyV, 18th Oct, 2022 )
+
+Fix item position not saving properly on screen 0x80+
+	( EmilyV, 17th Oct, 2022 )
+
+Allegro mouse fixes
+	( connorjclark, 16th Oct, 2022 )
+
+Fix negative item pickup amounts
+Fix the mouse clipping through some dialog text
+	( EmilyV, 15th Oct, 2022 )
+
+replay fixes
+	( connorjclark, 14th-22nd Oct, 2022 )
+
+Fix '^' characters in control settings dialog
+	( EmilyV, 14th Oct, 2022 )
+
+Add 'Unsafe Ground' flag, for new pit/drowning respawn
+	to mark positions as 'not safe to respawn on'.
+	( EmilyV, 13th Oct, 2022 )
+
+// Alpha 110
+
+Actually fix string margin issues, for real this time, I swear.
+	( EmilyV, 12th Oct, 2022 )
+
+Enhanced music fixes for dmap music
+	( Deedee, 10th Oct, 2022 )
+
+Fix zc save file name config not working
+	( connorjclark, 10th Oct, 2022 )
+
+Fix computer-specific cursed bug relating to screen flag script access
+Fix version-info related issues
+ZScript Debug Console now clears on loading quest, and prints
+	version info for the current build and the quest on clear.
+Fix string compat issues
+Fix combo editor missing labels
+Fix cheats 'Player Data' window off-center
+	( EmilyV, 10th Oct, 2022 )
+
+Fix sprite data editor not saving changes to sprite name
+	( EmilyV, 8th Oct, 2022 )
+
+Reduce excess code generation (reduce .exe file size)
+	( connorjclark, 7th+8th Oct, 2022 )
+
+Attempt fix 'Windows scaling issues' bug
+	( Deedee, 6th Oct, 2022 )
+
+Fix ZScript 'Pow()' crashing
+Fix weird issue with bush combos on FFCs and script-spawned weapons
+	( EmilyV, 6th Oct, 2022 )
+
+Add script access to more lifting/trigger related
+	combodata variables.
+	( EmilyV, 4th Oct, 2022 )
 
 New replay/recording system. See `docs/replays.md` for instructions.
+	( connorjclark, 3rd Oct, 2022 )
+
+Fix string right margin
+	( connorjclark, 2nd Oct, 2022 )
+
+All textfields now support system clipboard copy+paste
+	with Ctrl+C, Ctrl+V
+All textfields now can be cleared with Ctrl+Del, Ctrl+Backspace
+Insert SCC dialog copy/paste to clipboard buttons
+	( EmilyV, 2nd Oct, 2022 )
+
+Blank tiles take up less space in quest file
+Upgrade sprite data editor
+	( EmilyV, 1st Oct, 2022 )
+
+Fix lift glove crash
+Fix compiler settings not saving properly
+Fix player sprite dialog issues
+	( EmilyV, 30th Sept, 2022 )
 
 // 30th Sept nightly
 

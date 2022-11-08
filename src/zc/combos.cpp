@@ -299,7 +299,7 @@ bool do_cswitch_combo(newcombo const& cmb, int32_t layer, int32_t cpos, weapon* 
 {
 	mapscr* scr = (layer ? &tmpscr2[layer] : tmpscr);
 	byte pair = cmb.attribytes[0];
-	if(cmb.usrflags & cflag10) //global state
+	if(cmb.usrflags & cflag11) //global state
 	{
 		int32_t tmr = cmb.attributes[2] / 10000;
 		bool oldstate = game->gswitch_timers[pair];

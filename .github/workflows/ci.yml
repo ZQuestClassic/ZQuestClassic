@@ -20,7 +20,7 @@ jobs:
         arch: ${{ matrix.arch }}
 
     - name: git clone
-      uses: actions/checkout@v2
+      uses: nschloe/action-cached-lfs-checkout@v1
 
     - name: Install Dependencies
       uses: crazy-max/ghaction-chocolatey@v1
@@ -47,20 +47,22 @@ jobs:
       working-directory: output/_auto/buildpack
     
     # Run replay tests.
-    - run: python3 -Xutf8 ${{ github.workspace }}/tests/run_replay_tests.py --build_folder=${{ github.workspace }}/Release --retries=3
+    - run: python3 -Xutf8 ${{ github.workspace }}/tests/run_replay_tests.py --build_folder=. --retries=1 --ci windows
       working-directory: output/_auto/buildpack
     - uses: actions/upload-artifact@v3
       if: failure()
       with:
         name: replays ${{ matrix.arch }}
-        path: ${{ github.workspace }}/tests/replays/
+        path: |
+          ${{ github.workspace }}/tests/replays/*.zplay.roundtrip
+          ${{ github.workspace }}/tests/replays/*.zplay.unexpected*
 
   compile-mac:
     runs-on: macos-12
 
     steps:
     - name: git clone
-      uses: actions/checkout@v2
+      uses: nschloe/action-cached-lfs-checkout@v1
     
     - run: brew install ninja dylibbundler create-dmg
     - name: Install Bison
@@ -85,10 +87,54 @@ jobs:
       working-directory: output/_auto/zelda-classic-mac/ZeldaClassic.app/Contents/Resources
     
     # Run replay tests.
-    - run: python3 ${{ github.workspace }}/tests/run_replay_tests.py --build_folder=${{ github.workspace }}/build/Release --retries=3
+    - run: python3 ${{ github.workspace }}/tests/run_replay_tests.py --build_folder=. --retries=1 --ci osx
       working-directory: output/_auto/zelda-classic-mac/ZeldaClassic.app/Contents/Resources
     - uses: actions/upload-artifact@v3
       if: failure()
       with:
         name: replays osx
-        path: ${{ github.workspace }}/tests/replays/
+        path: |
+          ${{ github.workspace }}/tests/replays/*.zplay.roundtrip
+          ${{ github.workspace }}/tests/replays/*.zplay.unexpected*
+
+  compile-web:
+    runs-on: macos-12
+
+    steps:
+      - name: git clone
+        uses: actions/checkout@v2
+
+      - uses: mymindstorm/setup-emsdk@v11
+        with:
+          version: '3.1.24'
+          actions-cache-folder: 'emsdk-cache'
+      - run: brew install ninja
+      - name: Install Bison
+        run: |
+          wget http://ftp.gnu.org/gnu/bison/bison-3.6.tar.gz
+          tar -zxvf bison-3.6.tar.gz
+          cd bison-3.6
+          ./configure
+          make
+          sudo make install
+      - name: Install Node.js 16.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+
+      - run: |
+          git clone https://github.com/psi29a/unsf.git
+          cd unsf
+          cmake -S . -B build .
+          cmake --build build
+          echo "UNSF=$PWD/build/unsf-static" >> $GITHUB_ENV
+
+      - run: cp src/metadata/*.h.sig src/metadata/sigs/
+      - run: bash build_emscripten.sh
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: emscripten cmake
+          path: |
+            ${{ github.workspace }}/build_emscripten/CMakeFiles/CMakeOutput.log
+            ${{ github.workspace }}/build_emscripten/CMakeFiles/CMakeError.log

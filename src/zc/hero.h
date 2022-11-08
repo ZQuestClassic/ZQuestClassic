@@ -375,6 +375,7 @@ public:
 	void doMirror(int32_t mirrorid);
 	void handle_passive_buttons();
 	bool do_jump(int32_t jumpid, bool passive);
+	void drop_liftwpn();
 	void do_liftglove(int32_t liftid, bool passive);
 	bool can_lift(int32_t gloveid);
 	void handle_lift(bool dec = true);
@@ -409,7 +410,7 @@ private:
 	void masked_draw(BITMAP *dest);
 	void prompt_draw(BITMAP *dest);
 	void getTriforce(int32_t id);
-	int32_t weaponattackpower();
+	int32_t weaponattackpower(int32_t itid = -1);
 	void positionNet(weapon* w,int32_t itemid);
 	void positionSword(weapon* w,int32_t itemid);
 	bool checkstab();

@@ -31,8 +31,11 @@
 #include "title.h"
 #include "gamedata.h"
 #include "hero.h"
-#include "mem_debug.h"
 #include "ffscript.h"
+
+#ifdef __EMSCRIPTEN__
+#include "base/emscripten_utils.h"
+#endif
 
 #ifdef _MSC_VER
 #define strupr _strupr
@@ -1176,7 +1179,6 @@ static void v25_titlescreen()
 	trstr=0;
 	set_palette(black_palette);
 	
-	try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
 	clear_to_color(screen,BLACK);
 	clear_bitmap(framebuf);
 	init_NES_mode();
@@ -1185,6 +1187,7 @@ static void v25_titlescreen()
 	CSET_SHFT=2;
 	ALLOFF();
 	clear_keybuf();
+	try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
 	
 	do
 	{
@@ -2136,6 +2139,73 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 		{
 			savedata[i].replay_file = "";
 		}
+		if(section_version >= 30)
+		{
+			uint32_t sz;
+			if(!p_igetl(&sz,f,true))
+				return 83;
+			for(uint32_t objind = 0; objind < sz; ++objind)
+			{
+				saved_user_object& s_ob = savedata[i].user_objects.emplace_back();
+				if(!p_igetl(&s_ob.object_index,f,true))
+					return 84;
+				//user_object
+				user_object& obj = s_ob.obj;
+				if(!p_getc(&tempbyte,f,true))
+					return 85;
+				obj.reserved = tempbyte!=0;
+				//Don't need to save owned_type,owned_i?
+				uint32_t datsz;
+				if(!p_igetl(&datsz,f,true))
+					return 86;
+				for(uint32_t q = 0; q < datsz; ++q)
+				{
+					if(!p_igetl(&templong,f,true))
+						return 87;
+					obj.data.push_back(templong);
+				}
+				if(!p_igetl(&obj.owned_vars,f,true))
+					return 88;
+				//scr_func_exec
+				scr_func_exec& exec = obj.destruct;
+				if(!p_igetl(&exec.pc,f,true))
+					return 89;
+				if(!p_igetl(&exec.thiskey,f,true))
+					return 90;
+				if(!p_igetl(&exec.type,f,true))
+					return 91;
+				if(!p_igetl(&exec.i,f,true))
+					return 92;
+				if(!p_igetw(&exec.script,f,true))
+					return 93;
+				if(!p_getwstr(&exec.name,f,true))
+					return 94;
+				//array data map
+				auto& map = s_ob.held_arrays;
+				uint32_t arrcount;
+				if(!p_igetl(&arrcount,f,true))
+					return 95;
+				for(uint32_t ind = 0; ind < arrcount; ++ind)
+				{
+					int32_t arr_index;
+					if(!p_igetl(&arr_index,f,true))
+						return 96;
+					
+					uint32_t arrsz;
+					if(!p_igetl(&arrsz,f,true))
+						return 97;
+					ZScriptArray zsarr;
+					zsarr.Resize(arrsz);
+					for(uint32_t q = 0; q < arrsz; ++q)
+					{
+						if(!p_igetl(&templong,f,true))
+							return 98;
+						zsarr[q] = templong;
+					}
+					map[arr_index] = zsarr;
+				}
+			}
+		}
 	}
 	
 	
@@ -2147,7 +2217,7 @@ void set_up_standalone_save()
 	char *fn=get_filename(standalone_quest);
 	saves[0].set_name(fn);
 	
-	qstpath=(char*)zc_malloc(2048);
+	qstpath=(char*)malloc(2048);
 	strncpy(qstpath, standalone_quest, 2047);
 	qstpath[2047]='\0';
 	chosecustomquest=true;
@@ -2212,7 +2282,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	*/
 	FFCore.skip_ending_credits = 0;
 	char *fname = SAVE_FILE;
-	char *iname = (char *)zc_malloc(2048);
+	char *iname = (char *)malloc(2048);
 	int32_t ret;
 	PACKFILE *f=NULL;
 	FILE *f2=NULL;
@@ -2291,7 +2361,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	for(int32_t i=0; i<MAXSAVES; i++)
 	{
 		byte showmetadata = get_config_int("zeldadx","print_metadata_for_each_save_slot",0);
-		zprint2("Reading Save Slot %d\n", i);
+		//zprint2("Reading Save Slot %d\n", i);
 		
 		if(strlen(saves[i].qstpath))
 		{
@@ -2337,7 +2407,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	
 	pack_fclose(f);
 	delete_file(tmpfilename);
-	zc_free(iname);
+	free(iname);
 	return 0;
 	
 newdata:
@@ -2345,7 +2415,11 @@ newdata:
 	
 	if(standalone_mode)
 		goto init;
-		
+
+	#ifdef __EMSCRIPTEN__
+		goto init;
+	#endif
+
 	if(jwin_alert("Can't Find Saved Game File",
 				  "The save file could not be found.",
 				  "Create a new file from scratch?",
@@ -2402,7 +2476,7 @@ init:
 	if(standalone_mode)
 		set_up_standalone_save();
 		
-	zc_free(iname);
+	free(iname);
 	return 0;
 	
 }
@@ -2755,6 +2829,60 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 			return 81;
 		if (!pfwrite((void*)savedata[i].replay_file.c_str(), savedata[i].replay_file.length(), f))
 			return 82;
+		uint32_t sz = savedata[i].user_objects.size();
+		if(!p_iputl(sz,f))
+			return 83;
+		for(saved_user_object const& s_ob : savedata[i].user_objects)
+		{
+			if(!p_iputl(s_ob.object_index,f))
+				return 84;
+			//user_object
+			user_object const& obj = s_ob.obj;
+			if(!p_putc(obj.reserved?1:0,f))
+				return 85;
+			//Don't need to save owned_type,owned_i?
+			uint32_t datsz = obj.data.size();
+			if(!p_iputl(datsz,f))
+				return 86;
+			for(uint32_t q = 0; q < datsz; ++q)
+				if(!p_iputl(obj.data.at(q),f))
+					return 87;
+			if(!p_iputl(obj.owned_vars,f))
+				return 88;
+			//scr_func_exec
+			scr_func_exec const& exec = obj.destruct;
+			if(!p_iputl(exec.pc,f))
+				return 89;
+			if(!p_iputl(exec.thiskey,f))
+				return 90;
+			if(!p_iputl(exec.type,f))
+				return 91;
+			if(!p_iputl(exec.i,f))
+				return 92;
+			if(!p_iputw(exec.script,f))
+				return 93;
+			if(!p_putwstr(exec.name,f))
+				return 94;
+			auto& map = s_ob.held_arrays;
+			uint32_t arrcount = map.size();
+			if(!p_iputl(arrcount,f))
+				return 95;
+			for(auto it = map.begin(); it != map.end(); ++it)
+			{
+				auto& pair = *it;
+				if(!p_iputl(pair.first,f))
+					return 96;
+				auto& zsarr = pair.second;
+				uint32_t arrsz = zsarr.Size();
+				if(!p_iputl(arrsz,f))
+					return 97;
+				for(uint32_t ind = 0; ind < arrsz; ++ind)
+				{
+					if(!p_iputl(zsarr[ind],f))
+						return 98;
+				}
+			}
+		}
 	}
 	
 	return 0;
@@ -2801,7 +2929,7 @@ int32_t save_savedgames()
 	delete_file(tmpfilename);
 	
 	FILE *f2=NULL;
-	char *iname = (char *)zc_malloc(2048);
+	char *iname = (char *)malloc(2048);
 	strcpy(iname, SAVE_FILE);
 	
 	for(int32_t i=0; iname[i]!='\0'; iname[i]=='.'?iname[i]='\0':i++)
@@ -2818,7 +2946,12 @@ int32_t save_savedgames()
 		fputc(*(di2++),f2);
 		
 	fclose(f2);
-	zc_free(iname);
+	free(iname);
+
+#ifdef __EMSCRIPTEN__
+	em_sync_fs();
+#endif
+
 	return ret;
 }
 
@@ -3258,6 +3391,15 @@ static bool register_name()
 	refreshpal=true;
 	bool done=false;
 	bool cancel=false;
+
+	if (!load_qstpath.empty()) {
+		std::string filename = get_filename(load_qstpath.c_str());
+		filename.erase(remove(filename.begin(), filename.end(), ' '), filename.end());
+		auto len = filename.find(".qst", 0);
+		len = zc_min(len, 8);
+		strcpy(name, filename.substr(0, len).c_str());
+		x = strlen(name);
+	}
 	
 	int32_t letter_grid_x=(NameEntryMode2==2)?34:44;
 	int32_t letter_grid_y=120;
@@ -3444,6 +3586,17 @@ static bool register_name()
 		}
 		else
 		{
+#ifdef __EMSCRIPTEN__
+			// Allow gamepad to submit name.
+			poll_joystick();
+			load_control_state();
+			if(rSbtn())
+			{
+				done = true;
+				break;
+			}
+#endif
+
 			if(keypressed())
 			{
 				int32_t k=readkey();
@@ -3541,6 +3694,7 @@ static bool register_name()
 						while(key[KEY_ESC])
 						{
 							/* do nothing */
+							rest(1);
 						}
 						
 						break;
@@ -4179,6 +4333,24 @@ static void select_game(bool skip = false)
 		draw_cursor(pos,mode);
 		advanceframe(true);
 		saveslot = pos + listpos;
+
+		if(!load_qstpath.empty())
+		{
+			if (register_name())
+			{
+				currgame = savecnt - 1;
+				loadlast = currgame + 1;
+				strcpy(qstpath, load_qstpath.c_str());
+				chosecustomquest = true;
+				load_custom_game(currgame);
+				save_savedgames();
+				break;
+			}
+			else
+			{
+				load_qstpath = "";
+			}
+		}
 		
 		if(popup_choose_quest)
 		{
@@ -4442,9 +4614,6 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 
 void game_over(int32_t type)
 {
-	if (replay_is_debug())
-		replay_step_comment("game_over");
-
 	FFCore.kb_typing_mode = false; 
 	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	/*
@@ -4600,8 +4769,10 @@ void game_over(int32_t type)
 	
 	if(done)
 	{
-		if (replay_is_debug())
-			replay_step_comment("game_over done");
+		// This is always the last step before a game save replay is stopped. On replay_continue,
+		// the frame_count is set to this step's frame + 1 to continue the recording–so this comment
+		// is super important.
+		replay_step_comment("game_over");
 
 		if(pos)
 		{
@@ -4627,6 +4798,7 @@ void game_over(int32_t type)
 			setMonochrome(false); //Clear monochrome before drawing the file select.
 			doClearTint();
 			
+			game->save_user_objects();
 			saves[currgame]=*game;
 			
 			int32_t ring=0;
@@ -4661,6 +4833,7 @@ void save_game(bool savepoint)
 		lastentrance = game->get_continue_scrn();
 	}
 	
+	game->save_user_objects();
 	saves[currgame]=*game;
 	
 	flushItemCache();
@@ -4807,6 +4980,7 @@ bool save_game(bool savepoint, int32_t type)
 					lastentrance = game->get_continue_scrn();
 				}
 				
+				game->save_user_objects();
 				saves[currgame]=*game;
 				
 				int32_t ring=0;
