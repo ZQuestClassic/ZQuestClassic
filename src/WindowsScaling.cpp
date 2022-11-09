@@ -13,7 +13,7 @@ double gethorizontalscale()
 #ifdef _WIN32
 	HDC screen = GetDC(NULL);
 	int32_t dpiX = GetDeviceCaps (screen, LOGPIXELSX);
-	ReleaseDC(NULL, GetActiveWindow());
+	ReleaseDC(NULL, screen);
 	double scalingFactor = dpiX / 96.0;
 	return scalingFactor;
 #else
@@ -26,7 +26,7 @@ double getverticalscale()
 #ifdef _WIN32
 	HDC screen = GetDC(NULL);
 	int32_t dpiY = GetDeviceCaps (screen, LOGPIXELSY);
-	ReleaseDC(NULL, GetActiveWindow());
+	ReleaseDC(NULL, screen);
 	double scalingFactor = dpiY / 96.0;
 	return scalingFactor;
 #else
