@@ -1,3 +1,4 @@
+#include "base/allegro_wrapper.h"
 #include "launcher_dialog.h"
 #include "dialog/common.h"
 #include "dialog/alert.h"
@@ -404,6 +405,18 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 	int32_t def_large_h = 600*scale_large;
 	int32_t def_small_w = 320*scale;
 	int32_t def_small_h = 240*scale;
+	RECT desktop;
+	// Get a handle to the desktop window
+	int rightmost;
+	int bottommost;
+	ALLEGRO_MONITOR_INFO info;
+
+	al_get_monitor_info(0, &info);
+	rightmost = info.x2 - info.x1;
+	bottommost = info.y2 - info.y1;
+	
+	rightmost=rightmost - 48;
+	bottommost=bottommost - 48;
 	window = Window(
 		title = "",
 		width = 0_px + zq_screen_w,
@@ -431,6 +444,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX("Click to Freeze","zc.cfg","zeldadx","clicktofreeze",1),
 						CONFIG_CHECKBOX_I("Quickload Last Quest","zc.cfg","zeldadx","quickload_last",0,"Unless 'Quickload Slot' is set, this will load the last quest played immediately upon launching."),
 						CONFIG_CHECKBOX_I("Autosave Window Size Changes","zc.cfg","zeldadx","save_drag_resize",0,"Makes any changes to the window size by dragging get saved for whenever you open the program next."),
+						CONFIG_CHECKBOX_I("Save Window Position","zc.cfg","zeldadx","save_window_position",0,"Remembers the last position of the ZC Window."),
 						CONFIG_CHECKBOX_I("Lock Aspect Ratio","zc.cfg","zeldadx","drag_aspect",0,"Makes any changes to the window size by dragging get snapped to ZC's default aspect ratio."),
 						CONFIG_CHECKBOX_I("Monochrome Debuggers","zc.cfg","CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text."),
 						CONFIG_CHECKBOX_I("Text Readability","zc.cfg","gui","bolder_font",0,"Attempts to make text more readable in some areas (ex. larger, bolder)")
@@ -444,6 +458,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_DROPDOWN_I("Title Screen:", "zc.cfg","zeldadx","title",0,titleScreenList,"Which title screen will be displayed."),
 						CONFIG_TEXTFIELD_I("Window Width:","zc.cfg","zeldadx","resx", 640, 256, 3000, "The width of the ZC window"),
 						CONFIG_TEXTFIELD_I("Window Height:","zc.cfg","zeldadx","resy", 480, 240, 2250, "The height of the ZC window"),
+						CONFIG_TEXTFIELD_I("Saved Window X:","zc.cfg","zeldadx","window_x", 0, 0, rightmost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
+						CONFIG_TEXTFIELD_I("Saved Window Y:","zc.cfg","zeldadx","window_y", 0, 0, bottommost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
 #ifndef _WIN32
 						// TODO: wgl crashes zc on al_resize_display, so no point in offering this configuration option yet.
 						GFXCARD_DROPDOWN("Graphics Driver:", "zc.cfg", "graphics", "driver", 0, gfxDriverList),
@@ -538,7 +554,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Text Readability","zquest.cfg","gui","bolder_font",0,"Attempts to make text more readable in some areas (ex. larger, bolder)"),
 						CONFIG_CHECKBOX_I("Disable Level Palette Shortcuts","zquest.cfg","zquest","dis_lpal_shortcut",1,"If enabled, keyboard shortcuts that change the screen's palette are disabled."),
 						CONFIG_CHECKBOX_I("Autosave Window Size Changes","zquest.cfg","zquest","save_drag_resize",0,"Makes any changes to the window size by dragging get saved for whenever you open the program next."),
-						CONFIG_CHECKBOX_I("Keep Aspect Ratio On Resize","zquest.cfg","zquest","drag_aspect",0,"Makes any changes to the window size by dragging get snapped to ZQuest's default aspect ratio.")
+						CONFIG_CHECKBOX_I("Keep Aspect Ratio On Resize","zquest.cfg","zquest","drag_aspect",0,"Makes any changes to the window size by dragging get snapped to ZQuest's default aspect ratio."),
+						CONFIG_CHECKBOX_I("Save Window Position","zquest.cfg","zquest","save_window_position",0,"Remembers the last position of the ZQuest Window.")
 					),
 					Rows<3>(fitParent = true,
 						CONFIG_TEXTFIELD_FL("Cursor Scale (small):", "zquest.cfg","zquest","cursor_scale_small",1.0,1.0,5.0, 4),
@@ -553,6 +570,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_TEXTFIELD_I("Window Height (Large Mode):","zquest.cfg","zquest","large_window_height", def_large_h, 150, 2250, "The height of the ZQuest window in large mode"),
 						CONFIG_TEXTFIELD_I("Window Width (Small Mode):","zquest.cfg","zquest","small_window_width", def_small_w, 200, 3000, "The width of the ZQuest window in small mode"),
 						CONFIG_TEXTFIELD_I("Window Height (Small Mode):","zquest.cfg","zquest","small_window_height", def_small_h, 150, 2250, "The height of the ZQuest window in small mode"),
+						CONFIG_TEXTFIELD_I("Saved Window X:","zquest.cfg","zquest","window_x", 0, 0, rightmost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
+						CONFIG_TEXTFIELD_I("Saved Window Y:","zquest.cfg","zquest","window_y", 0, 0, bottommost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
 						GFXCARD_DROPDOWN("Graphics Driver:", "zquest.cfg", "graphics", "driver", 0, gfxDriverList),
 						Button(hAlign = 1.0, forceFitH = true,
 							text = "Browse Module", onPressFunc = [&]()

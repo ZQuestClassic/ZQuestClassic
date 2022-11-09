@@ -140,7 +140,7 @@ extern int32_t  Flip,Combo,CSet,First[3];
 extern int32_t  Flags,Flag,menutype;
 extern int32_t MouseScroll, SavePaths, CycleOn, InvalidStatic, NoScreenPreview,WarnOnInitChanged,DisableLPalShortcuts,DisableCompileConsole,skipLayerWarning,numericalFlags;
 extern int32_t Frameskip, RequestedFPS, zqColorDepth, zqUseWin32Proc;
-extern bool Vsync, ShowFPS, SaveDragResize, DragAspect;
+extern bool Vsync, ShowFPS, SaveDragResize, DragAspect, SaveWinPos;
 extern int32_t ComboBrush;                                      //show the brush instead of the normal mouse
 extern int32_t ComboBrushPause;                                 //temporarily disable the combo brush
 extern int32_t BrushPosition;                                   //top left, middle, bottom right, etc.

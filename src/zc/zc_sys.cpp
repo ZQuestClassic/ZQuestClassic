@@ -368,6 +368,7 @@ void load_game_configs()
 	window_height = resy = zc_get_config(cfg_sect,"resy",480);
 	SaveDragResize = zc_get_config(cfg_sect,"save_drag_resize",0)!=0;
 	DragAspect = zc_get_config(cfg_sect,"drag_aspect",0)!=0;
+	SaveWinPos = zc_get_config(cfg_sect,"save_window_position",0)!=0;
 	//screen_scale = zc_get_config(cfg_sect,"screen_scale",2);
    
 	scanlines = zc_get_config(cfg_sect,"scanlines",0)!=0;
@@ -524,16 +525,25 @@ void save_game_configs()
 	set_config_int(cfg_sect,"name_entry_mode",NameEntryMode);
 	set_config_int(cfg_sect,"showfps",(int32_t)ShowFPS);
 	set_config_int(cfg_sect,"save_drag_resize",(int32_t)SaveDragResize);
+	set_config_int(cfg_sect,"save_window_position",(int32_t)SaveWinPos);
 	set_config_int(cfg_sect,"drag_aspect",(int32_t)DragAspect);
 	set_config_int(cfg_sect,"fastquit",(int32_t)NESquit);
 	set_config_int(cfg_sect,"clicktofreeze", (int32_t)ClickToFreeze);
 	set_config_int(cfg_sect,"title",title_version);
 	//set_config_int(cfg_sect,"lister_pattern_matching",abc_patternmatch);  //Enable once there is a GUI way to toggle this. 
    
-	if (all_get_display() && SaveDragResize)
+	if (all_get_display() && !all_get_fullscreen_flag() && SaveDragResize)
 	{
 		window_width = al_get_display_width(all_get_display()) / gethorizontalscale();
 		window_height = al_get_display_height(all_get_display()) / getverticalscale();
+	}
+	
+	if (all_get_display() && !all_get_fullscreen_flag()&& SaveWinPos)
+	{
+		int o_window_x, o_window_y;
+		al_get_window_position(all_get_display(), &o_window_x, &o_window_y);
+		set_config_int(cfg_sect,"window_x",o_window_x);
+		set_config_int(cfg_sect,"window_y",o_window_y);
 	}
 	
 	set_config_int(cfg_sect,"resx",window_width);
@@ -5448,6 +5458,12 @@ int32_t onVsync()
 	return D_O_K;
 }
 
+int32_t onWinPosSave()
+{
+	SaveWinPos = !SaveWinPos;
+	return D_O_K;
+}
+
 int32_t onClickToFreeze()
 {
 	ClickToFreeze = !ClickToFreeze;
@@ -8080,6 +8096,7 @@ static MENU settings_menu[] =
 	{ (char *)"Click to Freeze",			onClickToFreeze,		 NULL,					  0, NULL },
 	{ (char *)"Autosave Window Size Changes",			onSaveDragResize,		 NULL,					  0, NULL },
 	{ (char *)"Lock Aspect Ratio",			onDragAspect,		 NULL,					  0, NULL },
+	{ (char *)"Window Position Saving",		   onWinPosSave,					NULL,	  0, NULL },
 	{ (char *)"Volume &Keys",			   onVolKeys,			   NULL,					  0, NULL },
 	{ (char *)"Cont. &Heart Beep",		  onHeartBeep,			 NULL,					  0, NULL },
 	{ (char *)"Sa&ve Indicator",			onSaveIndicator,		 NULL,					  0, NULL },
@@ -8305,7 +8322,7 @@ int32_t onFullscreenMenu()
 void fix_menu()
 {
 	if(!debug_enabled)
-		settings_menu[17].text = NULL;
+		settings_menu[18].text = NULL;
 }
 
 static DIALOG system_dlg[] =
@@ -8896,9 +8913,10 @@ void System()
 		settings_menu[9].flags = ClickToFreeze?D_SELECTED:0;
 		settings_menu[10].flags = SaveDragResize?D_SELECTED:0;
 		settings_menu[11].flags = DragAspect?D_SELECTED:0;
-		settings_menu[12].flags = volkeys?D_SELECTED:0;
+		settings_menu[12].flags = SaveWinPos?D_SELECTED:0;
+		settings_menu[13].flags = volkeys?D_SELECTED:0;
 		//Epilepsy Prevention
-		settings_menu[15].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
+		settings_menu[16].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
 		
 		name_entry_mode_menu[0].flags = (NameEntryMode==0)?D_SELECTED:0;
 		name_entry_mode_menu[1].flags = (NameEntryMode==1)?D_SELECTED:0;
@@ -8936,8 +8954,8 @@ void System()
 		show_menu[14].flags = show_hitboxes ? D_SELECTED : 0;
 		show_menu[15].flags = show_effectflags ? D_SELECTED : 0;
 		
-		settings_menu[13].flags = heart_beep ? D_SELECTED : 0;
-		settings_menu[14].flags = use_save_indicator ? D_SELECTED : 0;
+		settings_menu[14].flags = heart_beep ? D_SELECTED : 0;
+		settings_menu[15].flags = use_save_indicator ? D_SELECTED : 0;
 
 		replay_menu[0].text = zc_get_config("zeldadx", "replay_new_saves", false) ?
 			(char *)"Disable recording new saves" :
@@ -8953,7 +8971,7 @@ void System()
 		
 		if(debug_enabled)
 		{
-			settings_menu[18].flags = get_debug() ? D_SELECTED : 0;
+			settings_menu[19].flags = get_debug() ? D_SELECTED : 0;
 		}
 		
 		if(gui_mouse_b() && !mouse_down)

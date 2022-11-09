@@ -499,7 +499,7 @@ int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0; 
 int32_t window_width, window_height;
-bool Vsync = false, ShowFPS = false, SaveDragResize = false, DragAspect = false;
+bool Vsync = false, ShowFPS = false, SaveDragResize = false, DragAspect = false, SaveWinPos=false;
 int32_t LastWidth = 0, LastHeight = 0;
 int32_t ComboBrush = 0;                                             //show the brush instead of the normal mouse
 int32_t ComboBrushPause = 0;                                        //temporarily disable the combo brush
@@ -31193,6 +31193,7 @@ int32_t main(int32_t argc,char **argv)
 	ShowFPS						= zc_get_config("zquest","showfps",0)!=0;
 	SaveDragResize						= zc_get_config("zquest","save_drag_resize",0)!=0;
 	DragAspect						= zc_get_config("zquest","drag_aspect",0)!=0;
+	SaveWinPos						= zc_get_config("zquest","save_window_position",0)!=0;
 	ComboBrush					 = zc_get_config("zquest","combo_brush",0);
 	BrushPosition				  = zc_get_config("zquest","brush_position",0);
 	FloatBrush					 = zc_get_config("zquest","float_brush",0);
@@ -31971,7 +31972,11 @@ int32_t main(int32_t argc,char **argv)
 		int window_width_temp = window_width*hscale;
 		int window_height_temp = window_height*vscale;
 		al_resize_display(all_get_display(), window_width_temp, window_height_temp);
-		al_set_window_position(all_get_display(), center_x - window_width_temp / 2, center_y - window_height_temp / 2);
+		
+		int new_x = zc_get_config("zquest","window_x",0);
+		int new_y = zc_get_config("zquest","window_y",0);
+		if (new_x > 0 && new_y > 0) al_set_window_position(all_get_display(), new_x, new_y);
+		else al_set_window_position(all_get_display(), center_x - window_width_temp / 2, center_y - window_height_temp / 2);
 	}
 #endif
 	LastWidth = al_get_display_width(all_get_display());
@@ -33363,6 +33368,7 @@ int32_t save_config_file()
     set_config_int("zquest","showfps",ShowFPS);
     set_config_int("zquest","save_drag_resize",SaveDragResize);
     set_config_int("zquest","drag_aspect",DragAspect);
+    set_config_int("zquest","save_window_position",SaveWinPos);
     set_config_int("zquest","combo_brush",ComboBrush);
     set_config_int("zquest","brush_position",BrushPosition);
     set_config_int("zquest","float_brush",FloatBrush);
@@ -33399,6 +33405,13 @@ int32_t save_config_file()
 		set_config_int("zquest","small_window_width",window_width);
 		set_config_int("zquest","small_window_height",window_height);
 	}
+    }
+    if (all_get_display() && !all_get_fullscreen_flag() && SaveWinPos)
+    {
+		int o_window_x, o_window_y;
+		al_get_window_position(all_get_display(), &o_window_x, &o_window_y);
+		set_config_int("zquest", "window_x", o_window_x);
+		set_config_int("zquest", "window_y", o_window_y);
     }
     
     set_config_int("zquest","keyboard_repeat_delay",KeyboardRepeatDelay);
