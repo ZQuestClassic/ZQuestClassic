@@ -4995,43 +4995,12 @@ bool CheatModifierKeys()
 //9000:00:00, the highest even-thousand hour fitting within 32b signed. This is 375 *DAYS*.
 #define MAXTIME	 1944000000
 
-void doAspectResize()
-{
-	if (DragAspect)
-	{
-		if (LastWidth == 0 || LastHeight == 0)
-		{
-			LastWidth = al_get_display_width(all_get_display());
-			LastHeight = al_get_display_height(all_get_display());
-		}
-		if (LastWidth != al_get_display_width(all_get_display()) || LastHeight != al_get_display_height(all_get_display()))
-		{
-			bool widthfirst = true;
-			
-			if (abs(LastWidth - al_get_display_width(all_get_display())) < abs(LastHeight - al_get_display_height(all_get_display()))) widthfirst = false;
-			
-			if (widthfirst)
-			{
-				al_resize_display(all_get_display(), al_get_display_width(all_get_display()), al_get_display_width(all_get_display())*0.75);
-			}
-			else
-			{
-				al_resize_display(all_get_display(), al_get_display_height(all_get_display())/0.75, al_get_display_height(all_get_display()));
-			}
-		}
-		LastWidth = al_get_display_width(all_get_display());
-		LastHeight = al_get_display_height(all_get_display());
-	}
-}
-
 void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 {
 	if(zcmusic!=NULL)
 	{
 		zcmusic_poll();
 	}
-	
-	doAspectResize();
 	
 	while(Paused && !Advance && !Quit)
 	{

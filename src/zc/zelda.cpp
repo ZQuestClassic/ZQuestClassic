@@ -630,11 +630,41 @@ volatile int32_t lastfps=0;
 volatile int32_t framecnt=0;
 volatile int32_t myvsync=0;
 
+void doAspectResize()
+{
+	if (DragAspect)
+	{
+		if (LastWidth == 0 || LastHeight == 0)
+		{
+			LastWidth = al_get_display_width(all_get_display());
+			LastHeight = al_get_display_height(all_get_display());
+		}
+		if (LastWidth != al_get_display_width(all_get_display()) || LastHeight != al_get_display_height(all_get_display()))
+		{
+			bool widthfirst = true;
+			
+			if (abs(LastWidth - al_get_display_width(all_get_display())) < abs(LastHeight - al_get_display_height(all_get_display()))) widthfirst = false;
+			
+			if (widthfirst)
+			{
+				al_resize_display(all_get_display(), al_get_display_width(all_get_display()), al_get_display_width(all_get_display())*0.75);
+			}
+			else
+			{
+				al_resize_display(all_get_display(), al_get_display_height(all_get_display())/0.75, al_get_display_height(all_get_display()));
+			}
+		}
+		LastWidth = al_get_display_width(all_get_display());
+		LastHeight = al_get_display_height(all_get_display());
+	}
+}
+
 bool update_hw_pal = false;
 PALETTE* hw_palette = NULL;
 void update_hw_screen(bool force)
 {
 	//if(!hw_screen) return;
+	doAspectResize();
 	if(force || (!is_sys_pal && !Throttlefps) || myvsync)
 	{
 		zc_process_mouse_events();

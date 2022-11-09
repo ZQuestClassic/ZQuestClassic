@@ -32365,26 +32365,7 @@ int32_t main(int32_t argc,char **argv)
 		}
 		
 #endif
-		if (DragAspect)
-		{
-			if (LastWidth != al_get_display_width(all_get_display()) || LastHeight != al_get_display_height(all_get_display()))
-			{
-				bool widthfirst = true;
-				
-				if (abs(LastWidth - al_get_display_width(all_get_display())) < abs(LastHeight - al_get_display_height(all_get_display()))) widthfirst = false;
-				
-				if (widthfirst)
-				{
-					al_resize_display(all_get_display(), al_get_display_width(all_get_display()), al_get_display_width(all_get_display())*0.75);
-				}
-				else
-				{
-					al_resize_display(all_get_display(), al_get_display_height(all_get_display())/0.75, al_get_display_height(all_get_display()));
-				}
-			}
-			LastWidth = al_get_display_width(all_get_display());
-			LastHeight = al_get_display_height(all_get_display());
-		}
+		doAspectResize();
 		check_autosave();
 		/*
 		if (!is_large) 
@@ -34356,9 +34337,39 @@ void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest,BITMAP* 
 }
 void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest,BITMAP* transdest){}
 
+void doAspectResize()
+{
+	if (DragAspect)
+	{
+		if (LastWidth == 0 || LastHeight == 0)
+		{
+			LastWidth = al_get_display_width(all_get_display());
+			LastHeight = al_get_display_height(all_get_display());
+		}
+		if (LastWidth != al_get_display_width(all_get_display()) || LastHeight != al_get_display_height(all_get_display()))
+		{
+			bool widthfirst = true;
+			
+			if (abs(LastWidth - al_get_display_width(all_get_display())) < abs(LastHeight - al_get_display_height(all_get_display()))) widthfirst = false;
+			
+			if (widthfirst)
+			{
+				al_resize_display(all_get_display(), al_get_display_width(all_get_display()), al_get_display_width(all_get_display())*0.75);
+			}
+			else
+			{
+				al_resize_display(all_get_display(), al_get_display_height(all_get_display())/0.75, al_get_display_height(all_get_display()));
+			}
+		}
+		LastWidth = al_get_display_width(all_get_display());
+		LastHeight = al_get_display_height(all_get_display());
+	}
+}
+
 bool update_hw_pal = false;
 void update_hw_screen(bool force)
 {
+	doAspectResize();
 	if(force || myvsync)
 	{
 		zc_process_mouse_events();

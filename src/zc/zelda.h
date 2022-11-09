@@ -512,6 +512,7 @@ extern std::string load_qstpath;
 extern volatile int32_t lastfps;
 extern volatile int32_t framecnt;
 extern void throttleFPS();
+void doAspectResize();
 
 // quest file data
 extern zquestheader QHeader;

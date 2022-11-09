@@ -286,6 +286,7 @@ int32_t gettilepagenumber(const char *prompt, int32_t initialval);
 int32_t gethexnumber(const char *prompt,int32_t initialval);
 
 void update_combo_cycling();
+void doAspectResize();
 
 bool confirmBox(const char *m1, const char *m2 = NULL, const char *m3 = NULL);
 int32_t onSelectSFX();
