@@ -8110,7 +8110,7 @@ static MENU settings_menu[] =
 	{ (char *)"Up+A+B To &Quit",			onNESquit,			   NULL,					  0, NULL },
 	{ (char *)"Click to Freeze",			onClickToFreeze,		 NULL,					  0, NULL },
 	{ (char *)"Autosave Window Size Changes",			onSaveDragResize,		 NULL,					  0, NULL },
-	{ (char *)"Keep Aspect Ratio on Resize",			onDragAspect,		 NULL,					  0, NULL },
+	{ (char *)"Lock Aspect Ratio",			onDragAspect,		 NULL,					  0, NULL },
 	{ (char *)"Volume &Keys",			   onVolKeys,			   NULL,					  0, NULL },
 	{ (char *)"Cont. &Heart Beep",		  onHeartBeep,			 NULL,					  0, NULL },
 	{ (char *)"Sa&ve Indicator",			onSaveIndicator,		 NULL,					  0, NULL },

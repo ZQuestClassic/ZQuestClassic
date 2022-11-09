@@ -283,7 +283,7 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					OPT_CHECK(OPT_SKIP_LAYER_WARNING, "Skip Wrong Layer Flag Warning"),
 					OPT_CHECK(OPT_NUMERICAL_FLAG_LIST, "Sort Flag List by Flag Number"),
 					OPT_CHECK(OPT_SAVEDRAGRESIZE, "Autosave Window Size Changes"),
-					OPT_CHECK(OPT_DRAGASPECT, "Keep aspect ratio on resize")
+					OPT_CHECK(OPT_DRAGASPECT, "Lock Aspect Ratio")
 				)),
 				TabRef(name = "3", Rows<2>(
 					ROW_DDOWN(OPT_ABRETENTION, "Auto-backup Retention:", abRetentionList),

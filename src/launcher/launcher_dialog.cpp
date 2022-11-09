@@ -431,7 +431,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX("Click to Freeze","zc.cfg","zeldadx","clicktofreeze",1),
 						CONFIG_CHECKBOX_I("Quickload Last Quest","zc.cfg","zeldadx","quickload_last",0,"Unless 'Quickload Slot' is set, this will load the last quest played immediately upon launching."),
 						CONFIG_CHECKBOX_I("Autosave Window Size Changes","zc.cfg","zeldadx","save_drag_resize",0,"Makes any changes to the window size by dragging get saved for whenever you open the program next."),
-						CONFIG_CHECKBOX_I("Keep Aspect Ratio on Resize","zc.cfg","zeldadx","drag_aspect",0,"Makes any changes to the window size by dragging get snapped to ZC's default aspect ratio."),
+						CONFIG_CHECKBOX_I("Lock Aspect Ratio","zc.cfg","zeldadx","drag_aspect",0,"Makes any changes to the window size by dragging get snapped to ZC's default aspect ratio."),
 						CONFIG_CHECKBOX_I("Monochrome Debuggers","zc.cfg","CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text."),
 						CONFIG_CHECKBOX_I("Text Readability","zc.cfg","gui","bolder_font",0,"Attempts to make text more readable in some areas (ex. larger, bolder)")
 					),
@@ -528,7 +528,9 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX("Save Paths","zquest.cfg","zquest","save_paths",1),
 						CONFIG_CHECKBOX_I("Show Misalignments","zquest.cfg","zquest","show_misalignments",0,"Shows blinking arrows on the sides of the screen where the solidity does not match across the screen border."),
 						CONFIG_CHECKBOX_I("Show Ruleset Dialog on New Quest","zquest.cfg","zquest","rulesetdialog",1,"On creating a 'New' quest, automatically pop up the 'Pick Ruleset' menu. (This can be found any time at 'Quest->Options->Pick Ruleset')"),
-						CONFIG_CHECKBOX("Tile Protection","zquest.cfg","zquest","tile_protection",1),
+						CONFIG_CHECKBOX("Tile Protection","zquest.cfg","zquest","tile_protection",1)
+					),
+					Rows<2>(fitParent = true,
 						CONFIG_CHECKBOX("Uncompressed Autosaves","zquest.cfg","zquest","uncompressed_auto_saves",1),
 						CONFIG_CHECKBOX_I("Static effect for invalid data","zquest.cfg","zquest","invalid_static",0,"Uses an animated static effect for 'invalid' things (filtered out combos, nonexistant screens on the minimap, etc)"),
 						CONFIG_CHECKBOX_I("Warn on Init Script Change","zquest.cfg","zquest","warn_initscript_changes",1,"When compiling ZScript, receive a warning when the global init script changes (which may break existing save files for the quest)"),
