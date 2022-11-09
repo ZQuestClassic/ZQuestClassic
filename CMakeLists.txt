@@ -323,17 +323,15 @@ target_include_directories(alpng PRIVATE
 )
 list(APPEND IMAGELIBS alpng)
 
-add_library(algif5 STATIC
-	allegro-addons/algif5/src/algif.c
-	allegro-addons/algif5/src/bitmap.c
-	allegro-addons/algif5/src/gif.c
-	allegro-addons/algif5/src/lzw.c
+add_library(algif STATIC
+	allegro-addons/algif/src/save_gif.cpp
+	allegro-addons/algif/src/load_gif.cpp
 )
-target_include_directories(algif5 PUBLIC
-	allegro-addons/algif5/src
+target_include_directories(algif PUBLIC
+	allegro-addons/algif/include
 )
-target_link_libraries(algif5 PUBLIC allegro_with_legacy)
-list(APPEND IMAGELIBS algif5)
+target_link_libraries(algif PUBLIC allegro_with_legacy)
+list(APPEND IMAGELIBS algif)
 
 add_library(al5img STATIC
 	allegro-addons/al5img/src/al5img.c
@@ -341,7 +339,7 @@ add_library(al5img STATIC
 target_include_directories(al5img PUBLIC
 	allegro-addons/al5img/include
 )
-target_link_libraries(al5img PUBLIC allegro_with_legacy algif5)
+target_link_libraries(al5img PUBLIC allegro_with_legacy algif)
 list(APPEND IMAGELIBS al5img)
 
 #############################################################
@@ -757,7 +755,7 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	# Organize into folders
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 	set_target_properties(zcsound gme dumb aldmb almp3 alogg PROPERTIES FOLDER Sound)
-	set_target_properties(allegro allegro_audio allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif5 al5_example PROPERTIES FOLDER Allegro)
+	set_target_properties(allegro allegro_audio allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif al5_example PROPERTIES FOLDER Allegro)
 	set_target_properties(zconsole zconsolelogger PROPERTIES FOLDER ZConsole)
 	if(WANT_SENTRY)
 		set_target_properties(crashpad_client crashpad_compat crashpad_getopt crashpad_handler crashpad_handler_lib crashpad_minidump crashpad_snapshot crashpad_tools crashpad_util crashpad_zlib mini_chromium sentry PROPERTIES FOLDER Sentry)
