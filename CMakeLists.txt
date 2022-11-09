@@ -306,7 +306,7 @@ endif()
 # Allegro Graphics Addons
 #############################################################
 
-add_library(alpng ${SOUND_LIB_SHARED}
+add_library(alpng STATIC
 	allegro-addons/loadpng/loadpng.c
 	allegro-addons/loadpng/regpng.c
 	allegro-addons/loadpng/savepng.c
