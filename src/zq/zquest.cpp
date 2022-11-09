@@ -499,7 +499,8 @@ int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0; 
 int32_t window_width, window_height;
-bool Vsync = false, ShowFPS = false, SaveDragResize = false;
+bool Vsync = false, ShowFPS = false, SaveDragResize = false, DragAspect = false;
+int32_t LastWidth = 0, LastHeight = 0;
 int32_t ComboBrush = 0;                                             //show the brush instead of the normal mouse
 int32_t ComboBrushPause = 0;                                        //temporarily disable the combo brush
 int32_t BrushPosition = 0;                                          //top left, middle, bottom right, etc.
@@ -31191,6 +31192,7 @@ int32_t main(int32_t argc,char **argv)
 	Vsync						  = zc_get_config("zquest","vsync",1)!=0;
 	ShowFPS						= zc_get_config("zquest","showfps",0)!=0;
 	SaveDragResize						= zc_get_config("zquest","save_drag_resize",0)!=0;
+	DragAspect						= zc_get_config("zquest","drag_aspect",0)!=0;
 	ComboBrush					 = zc_get_config("zquest","combo_brush",0);
 	BrushPosition				  = zc_get_config("zquest","brush_position",0);
 	FloatBrush					 = zc_get_config("zquest","float_brush",0);
@@ -31972,6 +31974,8 @@ int32_t main(int32_t argc,char **argv)
 		al_set_window_position(all_get_display(), center_x - window_width_temp / 2, center_y - window_height_temp / 2);
 	}
 #endif
+	LastWidth = al_get_display_width(all_get_display());
+	LastHeight = al_get_display_height(all_get_display());
 
 	//check and log RTC date and time
 	for (int32_t q = 0; q < curTimeLAST; q++) 
@@ -32361,7 +32365,26 @@ int32_t main(int32_t argc,char **argv)
 		}
 		
 #endif
-		
+		if (DragAspect)
+		{
+			if (LastWidth != al_get_display_width(all_get_display()) || LastHeight != al_get_display_height(all_get_display()))
+			{
+				bool widthfirst = true;
+				
+				if (abs(LastWidth - al_get_display_width(all_get_display())) < abs(LastHeight - al_get_display_height(all_get_display()))) widthfirst = false;
+				
+				if (widthfirst)
+				{
+					al_resize_display(all_get_display(), al_get_display_width(all_get_display()), al_get_display_width(all_get_display())*0.75);
+				}
+				else
+				{
+					al_resize_display(all_get_display(), al_get_display_height(all_get_display())/0.75, al_get_display_height(all_get_display()));
+				}
+			}
+			LastWidth = al_get_display_width(all_get_display());
+			LastHeight = al_get_display_height(all_get_display());
+		}
 		check_autosave();
 		/*
 		if (!is_large) 
@@ -33358,6 +33381,7 @@ int32_t save_config_file()
     set_config_int("zquest","vsync",Vsync);
     set_config_int("zquest","showfps",ShowFPS);
     set_config_int("zquest","save_drag_resize",SaveDragResize);
+    set_config_int("zquest","drag_aspect",DragAspect);
     set_config_int("zquest","combo_brush",ComboBrush);
     set_config_int("zquest","brush_position",BrushPosition);
     set_config_int("zquest","float_brush",FloatBrush);

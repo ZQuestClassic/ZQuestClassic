@@ -408,7 +408,8 @@ bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true,
      show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false, show_effectflags = false;
 
 
-bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false, SaveDragResize=false;
+bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false, SaveDragResize=false, DragAspect=false;
+int32_t LastWidth = 0, LastHeight = 0;
 bool Playing, FrameSkip=false, TransLayers = true;
 bool __debug=false,debug_enabled = false;
 bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
@@ -5436,7 +5437,8 @@ int main(int argc, char **argv)
 		al_set_window_position(all_get_display(), center_x - window_width_temp / 2, center_y - window_height_temp / 2);
 	}
 #endif
-	
+	LastWidth = al_get_display_width(all_get_display());
+	LastHeight = al_get_display_height(all_get_display());
 	sbig = (screen_scale > 1);
 	switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
 	set_display_switch_mode(is_windowed_mode()?SWITCH_PAUSE:switch_type);
@@ -5767,7 +5769,7 @@ reload_for_replay_file:
 		while(Quit<=0)
 		{
 #ifdef _WIN32
-		
+			
 			if(use_win32_proc != FALSE)
 			{
 				win32data.Update(0);

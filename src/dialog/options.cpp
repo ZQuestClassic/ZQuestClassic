@@ -21,6 +21,7 @@ void OptionsDialog::loadOptions()
 	opts[OPT_VSYNC] = Vsync ? 1 : 0;
 	opts[OPT_FPS] = ShowFPS ? 1 : 0;
 	opts[OPT_SAVEDRAGRESIZE] = SaveDragResize ? 1 : 0;
+	opts[OPT_DRAGASPECT] = DragAspect ? 1 : 0;
 	opts[OPT_COMB_BRUSH] = ComboBrush ? 1 : 0;
 	opts[OPT_FLOAT_BRUSH] = FloatBrush ? 1 : 0;
 	opts[OPT_RELOAD_QUEST] = OpenLastQuest ? 1 : 0;
@@ -67,6 +68,7 @@ void OptionsDialog::saveOptions()
 	Vsync = opts[OPT_VSYNC];
 	ShowFPS = opts[OPT_FPS];
 	SaveDragResize = opts[OPT_SAVEDRAGRESIZE];
+	DragAspect = opts[OPT_DRAGASPECT];
 	ComboBrush = opts[OPT_COMB_BRUSH];
 	FloatBrush = opts[OPT_FLOAT_BRUSH];
 	OpenLastQuest = opts[OPT_RELOAD_QUEST];
@@ -280,7 +282,8 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					OPT_CHECK(OPT_DISABLE_COMPILE_CONSOLE, "Internal Compile Window"),
 					OPT_CHECK(OPT_SKIP_LAYER_WARNING, "Skip Wrong Layer Flag Warning"),
 					OPT_CHECK(OPT_NUMERICAL_FLAG_LIST, "Sort Flag List by Flag Number"),
-					OPT_CHECK(OPT_SAVEDRAGRESIZE, "Autosave Window Size Changes")
+					OPT_CHECK(OPT_SAVEDRAGRESIZE, "Autosave Window Size Changes"),
+					OPT_CHECK(OPT_DRAGASPECT, "Keep aspect ratio on resize")
 				)),
 				TabRef(name = "3", Rows<2>(
 					ROW_DDOWN(OPT_ABRETENTION, "Auto-backup Retention:", abRetentionList),

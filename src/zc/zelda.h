@@ -417,7 +417,8 @@ extern float avgfps;
 
 extern bool cheats_execute_goto, cheats_execute_light;
 extern bool blockmoving;
-extern bool Throttlefps, MenuOpen, ClickToFreeze, Paused, Advance, ShowFPS, Showpal, Playing, FrameSkip, TransLayers, disableClickToFreeze, SaveDragResize;
+extern bool Throttlefps, MenuOpen, ClickToFreeze, Paused, Advance, ShowFPS, Showpal, Playing, FrameSkip, TransLayers, disableClickToFreeze, SaveDragResize, DragAspect;
+extern int32_t LastWidth, LastHeight;
 extern bool refreshpal,blockpath,__debug,loaded_guys,freeze_guys;
 extern bool loaded_enemies,drawguys,details,debug_enabled,watch;
 extern bool down_control_states[controls::btnLast];
