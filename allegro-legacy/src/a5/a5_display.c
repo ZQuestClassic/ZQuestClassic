@@ -36,6 +36,7 @@ static bool _a5_disable_threaded_display = false;
 static int _a5_display_width = 0;
 static int _a5_display_height = 0;
 static int _a5_display_scale = 1;
+static bool _a5_display_force_integer_scale = true;
 static bool _a5_display_fullscreen = false;
 static int _a5_display_flags = 0;
 static int _a5_bitmap_flags = ALLEGRO_NO_PRESERVE_TEXTURE;
@@ -684,6 +685,12 @@ void all_set_scale(int scale)
 }
 
 // local edit
+void all_set_force_integer_scale(bool force)
+{
+  _a5_display_force_integer_scale = force;
+}
+
+// local edit
 int all_get_scale()
 {
   return _a5_display_scale;
@@ -718,6 +725,9 @@ void all_get_display_transform(int* out_native_width, int* out_native_height,
   if (scale_y < scale) {
     scale = scale_y;
   }
+
+  if (_a5_display_force_integer_scale && scale > 1)
+    scale = (int) scale;
 
   if (out_offset_x) *out_offset_x = (w - want_w * scale) / 2;
   if (out_offset_y) *out_offset_y = (h - want_h * scale) / 2;
