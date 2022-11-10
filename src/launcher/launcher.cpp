@@ -196,6 +196,7 @@ int32_t main(int32_t argc, char* argv[])
 #endif
 	}
 
+	all_set_force_integer_scale(zc_get_config("zquest", "scaling_force_integer", 1) != 0);
 	if (strcmp(zc_get_config("ZLAUNCH", "scaling_mode", "linear"), "linear") == 0)
 		all_set_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR);
 
