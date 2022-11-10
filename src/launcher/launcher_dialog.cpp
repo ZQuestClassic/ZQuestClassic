@@ -444,8 +444,9 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX("Click to Freeze","zc.cfg","zeldadx","clicktofreeze",1),
 						CONFIG_CHECKBOX_I("Quickload Last Quest","zc.cfg","zeldadx","quickload_last",0,"Unless 'Quickload Slot' is set, this will load the last quest played immediately upon launching."),
 						CONFIG_CHECKBOX_I("Autosave Window Size Changes","zc.cfg","zeldadx","save_drag_resize",0,"Makes any changes to the window size by dragging get saved for whenever you open the program next."),
-						CONFIG_CHECKBOX_I("Save Window Position","zc.cfg","zeldadx","save_window_position",0,"Remembers the last position of the ZC Window."),
 						CONFIG_CHECKBOX_I("Lock Aspect Ratio On Resize","zc.cfg","zeldadx","drag_aspect",0,"Makes any changes to the window size by dragging get snapped to ZC's default (4:3) aspect ratio."),
+						CONFIG_CHECKBOX_I("Save Window Position","zc.cfg","zeldadx","save_window_position",0,"Remembers the last position of the ZC Window."),
+						CONFIG_CHECKBOX_I("Force Integer Values for Scale","zc.cfg","zquest","scaling_force_integer",0,"Locks ZC's display to be an even integer scaling. Results in a lot of black letterboxing."),
 						CONFIG_CHECKBOX_I("Monochrome Debuggers","zc.cfg","CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text."),
 						CONFIG_CHECKBOX_I("Text Readability","zc.cfg","gui","bolder_font",0,"Attempts to make text more readable in some areas (ex. larger, bolder)")
 					),
@@ -555,7 +556,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Disable Level Palette Shortcuts","zquest.cfg","zquest","dis_lpal_shortcut",1,"If enabled, keyboard shortcuts that change the screen's palette are disabled."),
 						CONFIG_CHECKBOX_I("Autosave Window Size Changes","zquest.cfg","zquest","save_drag_resize",0,"Makes any changes to the window size by dragging get saved for whenever you open the program next."),
 						CONFIG_CHECKBOX_I("Lock Aspect Ratio On Resize","zquest.cfg","zquest","drag_aspect",0,"Makes any changes to the window size by dragging get snapped to ZQuest's default (4:3) aspect ratio."),
-						CONFIG_CHECKBOX_I("Save Window Position","zquest.cfg","zquest","save_window_position",0,"Remembers the last position of the ZQuest Window.")
+						CONFIG_CHECKBOX_I("Save Window Position","zquest.cfg","zquest","save_window_position",0,"Remembers the last position of the ZQuest Window."),
+						CONFIG_CHECKBOX_I("Force Integer Values for Scale","zquest.cfg","zquest","scaling_force_integer",0,"Locks ZQuest's display to be an even integer scaling. Results in a lot of black letterboxing.")
 					),
 					Rows<3>(fitParent = true,
 						CONFIG_TEXTFIELD_FL("Cursor Scale (small):", "zquest.cfg","zquest","cursor_scale_small",1.0,1.0,5.0, 4),
