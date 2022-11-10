@@ -70,6 +70,7 @@ if(NOT EMSCRIPTEN)
 
 	set(PNG_BUILD_ZLIB ON CACHE BOOL "")
 	set(PNG_STATIC OFF CACHE BOOL "")
+	set(WANT_IMAGE_PNG OFF)
 	FetchContent_Declare(
 		png
 		GIT_REPOSITORY
@@ -83,6 +84,7 @@ if(NOT EMSCRIPTEN)
 	if(NOT PNG_LIBRARIES)
 		set(PNG_LIBRARIES png)
 		set(PNG_INCLUDE_DIRS "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
+		set(PNG_INCLUDE_DIR "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
 	endif()
 endif()
 
