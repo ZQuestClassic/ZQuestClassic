@@ -33,6 +33,7 @@
 #include <malloc.h>
 #endif
 
+#include "WindowsScaling.h"
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
 #include "particles.h"
@@ -495,10 +496,12 @@ int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_cpoollist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
 int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0, TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0, BlinkSpeed = 20, UseSmall = 0, RulesetDialog = 0, EnableTooltips = 0, 
-	ShowFFScripts = 0, ShowSquares = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 0, DisableCompileConsole = 0, numericalFlags = 0;
+	ShowFFScripts = 0, ShowSquares = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 1, DisableCompileConsole = 0, numericalFlags = 0;
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0; 
-bool Vsync = false, ShowFPS = false;
+int32_t window_width, window_height;
+bool Vsync = false, ShowFPS = false, SaveDragResize = false, DragAspect = false, SaveWinPos=false;
+int32_t LastWidth = 0, LastHeight = 0;
 int32_t ComboBrush = 0;                                             //show the brush instead of the normal mouse
 int32_t ComboBrushPause = 0;                                        //temporarily disable the combo brush
 int32_t BrushPosition = 0;                                          //top left, middle, bottom right, etc.
@@ -31176,7 +31179,7 @@ int32_t main(int32_t argc,char **argv)
 	chop_path(imagepath);
 	chop_path(tmusicpath);
 	
-	DisableLPalShortcuts        = zc_get_config("zquest","dis_lpal_shortcut",0);
+	DisableLPalShortcuts        = zc_get_config("zquest","dis_lpal_shortcut",1);
 	DisableCompileConsole        = zc_get_config("zquest","internal_compile_console",0);
 	MouseScroll					= zc_get_config("zquest","mouse_scroll",0);
 	WarnOnInitChanged			  = zc_get_config("zquest","warn_initscript_changes",1);
@@ -31190,6 +31193,9 @@ int32_t main(int32_t argc,char **argv)
 	CycleOn						= zc_get_config("zquest","cycle_on",1);
 	Vsync						  = zc_get_config("zquest","vsync",1)!=0;
 	ShowFPS						= zc_get_config("zquest","showfps",0)!=0;
+	SaveDragResize						= zc_get_config("zquest","save_drag_resize",0)!=0;
+	DragAspect						= zc_get_config("zquest","drag_aspect",0)!=0;
+	SaveWinPos						= zc_get_config("zquest","save_window_position",0)!=0;
 	ComboBrush					 = zc_get_config("zquest","combo_brush",0);
 	BrushPosition				  = zc_get_config("zquest","brush_position",0);
 	FloatBrush					 = zc_get_config("zquest","float_brush",0);
@@ -31943,6 +31949,35 @@ int32_t main(int32_t argc,char **argv)
 		al_hide_mouse_cursor(all_get_display());
 #endif
 	}
+	
+#ifndef __EMSCRIPTEN__
+	if (!all_get_fullscreen_flag()) {
+		// Just in case.
+		while (!all_get_display()) {
+			al_rest(1);
+		}
+		window_width = is_large ? zc_get_config("zquest","large_window_width",zq_screen_w) : zc_get_config("zquest","small_window_width",zq_screen_w);
+		window_height = is_large ? zc_get_config("zquest","large_window_height",zq_screen_h) : zc_get_config("zquest","small_window_height",zq_screen_h);
+		int o_window_x, o_window_y;
+		al_get_window_position(all_get_display(), &o_window_x, &o_window_y);
+		int o_window_w = al_get_display_width(all_get_display());
+		int o_window_h = al_get_display_height(all_get_display());
+		int center_x = o_window_x + o_window_w / 2;
+		int center_y = o_window_y + o_window_h / 2;
+		double vscale = getverticalscale(); 
+		double hscale = gethorizontalscale(); 
+		int window_width_temp = window_width*hscale;
+		int window_height_temp = window_height*vscale;
+		al_resize_display(all_get_display(), window_width_temp, window_height_temp);
+		
+		int new_x = zc_get_config("zquest","window_x",0);
+		int new_y = zc_get_config("zquest","window_y",0);
+		if (new_x > 0 && new_y > 0) al_set_window_position(all_get_display(), new_x, new_y);
+		else al_set_window_position(all_get_display(), center_x - window_width_temp / 2, center_y - window_height_temp / 2);
+	}
+#endif
+	LastWidth = al_get_display_width(all_get_display());
+	LastHeight = al_get_display_height(all_get_display());
 
 	//check and log RTC date and time
 	for (int32_t q = 0; q < curTimeLAST; q++) 
@@ -32332,7 +32367,7 @@ int32_t main(int32_t argc,char **argv)
 		}
 		
 #endif
-		
+		doAspectResize();
 		check_autosave();
 		/*
 		if (!is_large) 
@@ -33328,6 +33363,9 @@ int32_t save_config_file()
     set_config_int("zquest","cycle_on",CycleOn);
     set_config_int("zquest","vsync",Vsync);
     set_config_int("zquest","showfps",ShowFPS);
+    set_config_int("zquest","save_drag_resize",SaveDragResize);
+    set_config_int("zquest","drag_aspect",DragAspect);
+    set_config_int("zquest","save_window_position",SaveWinPos);
     set_config_int("zquest","combo_brush",ComboBrush);
     set_config_int("zquest","brush_position",BrushPosition);
     set_config_int("zquest","float_brush",FloatBrush);
@@ -33347,6 +33385,32 @@ int32_t save_config_file()
     set_config_int("zquest","overwrite_prevention",OverwriteProtection);
     set_config_int("zquest","import_map_bias",ImportMapBias);
     
+    if (all_get_display() && !all_get_fullscreen_flag()) 
+    {
+	if (SaveDragResize)
+	{
+		window_width = al_get_display_width(all_get_display()) / gethorizontalscale();
+		window_height = al_get_display_height(all_get_display()) / getverticalscale();
+	}
+	if (is_large) 
+	{
+		set_config_int("zquest","large_window_width",window_width);
+		set_config_int("zquest","large_window_height",window_height);
+	}
+	else
+	{
+		set_config_int("zquest","small_window_width",window_width);
+		set_config_int("zquest","small_window_height",window_height);
+	}
+    }
+    if (all_get_display() && !all_get_fullscreen_flag() && SaveWinPos)
+    {
+		int o_window_x, o_window_y;
+		al_get_window_position(all_get_display(), &o_window_x, &o_window_y);
+		set_config_int("zquest", "window_x", o_window_x);
+		set_config_int("zquest", "window_y", o_window_y);
+    }
+    
     set_config_int("zquest","keyboard_repeat_delay",KeyboardRepeatDelay);
     set_config_int("zquest","keyboard_repeat_rate",KeyboardRepeatRate);
     
@@ -33354,6 +33418,12 @@ int32_t save_config_file()
     set_config_int("zquest","small",UseSmall);
     set_config_int("zquest","rulesetdialog",RulesetDialog);
     set_config_int("zquest","enable_tooltips",EnableTooltips);
+    
+    if (all_get_display() && SaveDragResize)
+    {
+	window_width = al_get_display_width(all_get_display()) / gethorizontalscale();
+	window_height = al_get_display_height(all_get_display()) / getverticalscale();
+    }
     
     for(int32_t x=0; x<7; x++)
     {
@@ -34277,9 +34347,39 @@ void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest,BITMAP* 
 }
 void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest,BITMAP* transdest){}
 
+void doAspectResize()
+{
+	if (DragAspect)
+	{
+		if (LastWidth == 0 || LastHeight == 0)
+		{
+			LastWidth = al_get_display_width(all_get_display());
+			LastHeight = al_get_display_height(all_get_display());
+		}
+		if (LastWidth != al_get_display_width(all_get_display()) || LastHeight != al_get_display_height(all_get_display()))
+		{
+			bool widthfirst = true;
+			
+			if (abs(LastWidth - al_get_display_width(all_get_display())) < abs(LastHeight - al_get_display_height(all_get_display()))) widthfirst = false;
+			
+			if (widthfirst)
+			{
+				al_resize_display(all_get_display(), al_get_display_width(all_get_display()), al_get_display_width(all_get_display())*0.75);
+			}
+			else
+			{
+				al_resize_display(all_get_display(), al_get_display_height(all_get_display())/0.75, al_get_display_height(all_get_display()));
+			}
+		}
+		LastWidth = al_get_display_width(all_get_display());
+		LastHeight = al_get_display_height(all_get_display());
+	}
+}
+
 bool update_hw_pal = false;
 void update_hw_screen(bool force)
 {
+	doAspectResize();
 	if(force || myvsync)
 	{
 		zc_process_mouse_events();

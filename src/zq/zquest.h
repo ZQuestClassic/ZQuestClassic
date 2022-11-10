@@ -140,7 +140,7 @@ extern int32_t  Flip,Combo,CSet,First[3];
 extern int32_t  Flags,Flag,menutype;
 extern int32_t MouseScroll, SavePaths, CycleOn, InvalidStatic, NoScreenPreview,WarnOnInitChanged,DisableLPalShortcuts,DisableCompileConsole,skipLayerWarning,numericalFlags;
 extern int32_t Frameskip, RequestedFPS, zqColorDepth, zqUseWin32Proc;
-extern bool Vsync, ShowFPS;
+extern bool Vsync, ShowFPS, SaveDragResize, DragAspect, SaveWinPos;
 extern int32_t ComboBrush;                                      //show the brush instead of the normal mouse
 extern int32_t ComboBrushPause;                                 //temporarily disable the combo brush
 extern int32_t BrushPosition;                                   //top left, middle, bottom right, etc.
@@ -196,6 +196,8 @@ extern int32_t doorcombos_page, doorcombos_pages;
 extern bool rules_done, save_rules;
 extern bool init_done, save_init;
 extern bool doorcombos_done, save_doorcombos;
+
+extern int32_t window_width, window_height;
 
 void loadlvlpal(int32_t level);
 
@@ -284,6 +286,7 @@ int32_t gettilepagenumber(const char *prompt, int32_t initialval);
 int32_t gethexnumber(const char *prompt,int32_t initialval);
 
 void update_combo_cycling();
+void doAspectResize();
 
 bool confirmBox(const char *m1, const char *m2 = NULL, const char *m3 = NULL);
 int32_t onSelectSFX();

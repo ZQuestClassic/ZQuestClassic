@@ -31,6 +31,7 @@
 #include <loadpng.h>
 
 #include "zscriptversion.h"
+#include "WindowsScaling.h"
 #include "zcmusic.h"
 #include "base/zdefs.h"
 #include "zelda.h"
@@ -408,7 +409,8 @@ bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true,
      show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false, show_effectflags = false;
 
 
-bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false;
+bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false, SaveDragResize=false, DragAspect=false, SaveWinPos=false;
+int32_t LastWidth = 0, LastHeight = 0;
 bool Playing, FrameSkip=false, TransLayers = true;
 bool __debug=false,debug_enabled = false;
 bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
@@ -629,11 +631,41 @@ volatile int32_t lastfps=0;
 volatile int32_t framecnt=0;
 volatile int32_t myvsync=0;
 
+void doAspectResize()
+{
+	if (DragAspect)
+	{
+		if (LastWidth == 0 || LastHeight == 0)
+		{
+			LastWidth = al_get_display_width(all_get_display());
+			LastHeight = al_get_display_height(all_get_display());
+		}
+		if (LastWidth != al_get_display_width(all_get_display()) || LastHeight != al_get_display_height(all_get_display()))
+		{
+			bool widthfirst = true;
+			
+			if (abs(LastWidth - al_get_display_width(all_get_display())) < abs(LastHeight - al_get_display_height(all_get_display()))) widthfirst = false;
+			
+			if (widthfirst)
+			{
+				al_resize_display(all_get_display(), al_get_display_width(all_get_display()), al_get_display_width(all_get_display())*0.75);
+			}
+			else
+			{
+				al_resize_display(all_get_display(), al_get_display_height(all_get_display())/0.75, al_get_display_height(all_get_display()));
+			}
+		}
+		LastWidth = al_get_display_width(all_get_display());
+		LastHeight = al_get_display_height(all_get_display());
+	}
+}
+
 bool update_hw_pal = false;
 PALETTE* hw_palette = NULL;
 void update_hw_screen(bool force)
 {
 	//if(!hw_screen) return;
+	doAspectResize();
 	if(force || (!is_sys_pal && !Throttlefps) || myvsync)
 	{
 		zc_process_mouse_events();
@@ -5429,11 +5461,20 @@ int main(int argc, char **argv)
 		int o_window_h = al_get_display_height(all_get_display());
 		int center_x = o_window_x + o_window_w / 2;
 		int center_y = o_window_y + o_window_h / 2;
-		al_resize_display(all_get_display(), window_width, window_height);
-		al_set_window_position(all_get_display(), center_x - window_width / 2, center_y - window_height / 2);
+		double vscale = getverticalscale(); 
+		double hscale = gethorizontalscale(); 
+		int window_width_temp = window_width*hscale;
+		int window_height_temp = window_height*vscale;
+		al_resize_display(all_get_display(), window_width_temp, window_height_temp);
+		
+		int new_x = zc_get_config("zeldadx","window_x",0);
+		int new_y = zc_get_config("zeldadx","window_y",0);
+		if (new_x > 0 && new_y > 0) al_set_window_position(all_get_display(), new_x, new_y);
+		else al_set_window_position(all_get_display(), center_x - window_width_temp / 2, center_y - window_height_temp / 2);
 	}
 #endif
-	
+	LastWidth = al_get_display_width(all_get_display());
+	LastHeight = al_get_display_height(all_get_display());
 	sbig = (screen_scale > 1);
 	switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
 	set_display_switch_mode(is_windowed_mode()?SWITCH_PAUSE:switch_type);
@@ -5764,12 +5805,11 @@ reload_for_replay_file:
 		while(Quit<=0)
 		{
 #ifdef _WIN32
-		
+			
 			if(use_win32_proc != FALSE)
 			{
 				win32data.Update(0);
 			}
-			
 #endif
 			game_loop();
 			advanceframe(true);

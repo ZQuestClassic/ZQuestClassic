@@ -4,6 +4,7 @@ set(ZQUEST_GUI_SOURCES
 ################################
 # Add or remove files here
 ################################
+src/WindowsScaling.cpp
 src/zq/zq_class.cpp
 src/zq/zq_cset.cpp
 src/zq/zq_custom.cpp

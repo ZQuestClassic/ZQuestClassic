@@ -417,7 +417,8 @@ extern float avgfps;
 
 extern bool cheats_execute_goto, cheats_execute_light;
 extern bool blockmoving;
-extern bool Throttlefps, MenuOpen, ClickToFreeze, Paused, Advance, ShowFPS, Showpal, Playing, FrameSkip, TransLayers, disableClickToFreeze;
+extern bool Throttlefps, MenuOpen, ClickToFreeze, Paused, Advance, ShowFPS, Showpal, Playing, FrameSkip, TransLayers, disableClickToFreeze, SaveDragResize, DragAspect, SaveWinPos;
+extern int32_t LastWidth, LastHeight;
 extern bool refreshpal,blockpath,__debug,loaded_guys,freeze_guys;
 extern bool loaded_enemies,drawguys,details,debug_enabled,watch;
 extern bool down_control_states[controls::btnLast];
@@ -511,6 +512,7 @@ extern std::string load_qstpath;
 extern volatile int32_t lastfps;
 extern volatile int32_t framecnt;
 extern void throttleFPS();
+void doAspectResize();
 
 // quest file data
 extern zquestheader QHeader;
