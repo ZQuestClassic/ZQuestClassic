@@ -14417,6 +14417,7 @@ static AccessorTable PalDataTable[] =
 		{ "LoadSpritePalette",      ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_PALDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 		{ "LoadMainPalette",        ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_PALDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 		{ "LoadCyclePalette",       ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_PALDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+		{ "LoadBitmapPalette",      ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_PALDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 		{ "WriteLevelPalette",      ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_PALDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 		{ "WriteLevelCSet",         ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_PALDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 		{ "WriteSpritePalette",     ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_PALDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -14428,9 +14429,17 @@ static AccessorTable PalDataTable[] =
 		{ "GetColor",               ZVARTYPEID_RGBDATA,          FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_PALDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 		{ "SetColor",               ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_PALDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_RGBDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 		{ "ClearColor",             ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_PALDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+		{ "ClearCSet",              ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_PALDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+		{ "GetR",                   ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_PALDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+		{ "GetG",                   ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_PALDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+		{ "GetB",                   ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_PALDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+		{ "SetR",                   ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_PALDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+		{ "SetG",                   ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_PALDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+		{ "SetB",                   ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_PALDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 		{ "Mix",                    ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      5,           { ZVARTYPEID_PALDATA, ZVARTYPEID_PALDATA, ZVARTYPEID_PALDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 		{ "MixCSet",                ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      6,           { ZVARTYPEID_PALDATA, ZVARTYPEID_PALDATA, ZVARTYPEID_PALDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 		{ "CopyPalette",            ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_PALDATA, ZVARTYPEID_PALDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+		{ "CopyCSet",               ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      4,           { ZVARTYPEID_PALDATA, ZVARTYPEID_PALDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 		{ "Free",                   ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_PALDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 		{ "Own",                    ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_PALDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 
@@ -14496,6 +14505,20 @@ void PalDataSymbols::generateCode()
 		//pop pointer
 		POPREF();
 		addOpcode2(code, new OLoadCyclePalette(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void LoadBitmapPalette(paldata, int32_t)
+	{
+		Function* function = getFunction("LoadBitmapPalette", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2(code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2(code, new OLoadBitmapPalette(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
 	}
@@ -14655,6 +14678,107 @@ void PalDataSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
+	//void ClearCSet(paldata, int32_t)
+	{
+		Function* function = getFunction("ClearCSet", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2(code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2(code, new OPalDataClearCSet(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//rgb GetR(paldata, int32_t)
+	{
+		Function* function = getFunction("GetR", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2(code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2(code, new OPalDataGetR(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//rgb GetG(paldata, int32_t)
+	{
+		Function* function = getFunction("GetG", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2(code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2(code, new OPalDataGetG(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//rgb GetB(paldata, int32_t)
+	{
+		Function* function = getFunction("GetB", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2(code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2(code, new OPalDataGetB(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetR(paldata, int32_t, int32_t)
+	{
+		Function* function = getFunction("SetR", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2(code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2(code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer
+		POPREF();
+		addOpcode2(code, new OPalDataSetR(new VarArgument(EXP1), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetG(paldata, int32_t, int32_t)
+	{
+		Function* function = getFunction("SetG", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2(code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2(code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer
+		POPREF();
+		addOpcode2(code, new OPalDataSetG(new VarArgument(EXP1), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetB(paldata, int32_t, int32_t)
+	{
+		Function* function = getFunction("SetB", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2(code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2(code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer
+		POPREF();
+		addOpcode2(code, new OPalDataSetB(new VarArgument(EXP1), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
 	//void Mix(paldata, paldata, paldata, int32_t, int32_t)
 	{
 		Function* function = getFunction("Mix", 5);
@@ -14668,7 +14792,7 @@ void PalDataSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//void MixCSet(paldata, paldata, paldata, int32_t, int32_t)
+	//void MixCSet(paldata, paldata, paldata, int32_t, int32_t, ints32_t)
 	{
 		Function* function = getFunction("MixCSet", 6);
 		int32_t label = function->getLabel();
@@ -14692,6 +14816,19 @@ void PalDataSymbols::generateCode()
 		//pop pointer
 		POPREF();
 		addOpcode2(code, new OPalDataCopy(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void CopyCSet(paldata, paldata, int32_t, int32_t)
+	{
+		Function* function = getFunction("CopyCSet", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2(code, new OPalDataCopyCSet());
+		LABELBACK(label);
+		POP_ARGS(3, NUL);
+		//pop pointer
+		POPREF();
 		RETURN();
 		function->giveCode(code);
 	}

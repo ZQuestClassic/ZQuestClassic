@@ -24015,7 +24015,7 @@ void FFScript::do_create_paldata()
 	for (int32_t q = 0; q < PALDATA_BITSTREAM_SIZE; ++q)
 		pd->colors_used[q] = 0;
 	ri->d[rEXP1] = ri->paldataref;
-	zprint("paldataref: %d\n", ri->paldataref);
+	//zprint("paldataref: %d\n", ri->paldataref);
 }
 
 void FFScript::do_create_paldata_clr()
@@ -24037,7 +24037,7 @@ void FFScript::do_create_paldata_clr()
 	for(int32_t q = 0; q < 240; ++q)
 		pd->set_color(q, c);
 	ri->d[rEXP1] = ri->paldataref;
-	zprint("paldataref: %d\n", ri->paldataref);
+	//zprint("paldataref: %d\n", ri->paldataref);
 }
 
 void FFScript::do_mix_clr()
@@ -24159,6 +24159,58 @@ void FFScript::do_paldata_load_cycle()
 	return;
 }
 
+void FFScript::do_paldata_load_bitmap()
+{
+	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->LoadBitmapPalette()"))
+	{
+		int32_t pathptr = get_register(sarg1) / 10000;
+		string str;
+		ArrayH::getString(pathptr, str, 256);
+
+		//char cptr = new char[str->size()+1]; // +1 to account for \0 byte
+		//strncpy(cptr, str->c_str(), str->size());
+
+		if (get_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
+		{
+			char buf[2048] = { 0 };
+			if (FFCore.get_scriptfile_path(buf, str.c_str()))
+				str = buf;
+		}
+		regulate_path(str);
+
+		if (str.empty())
+		{
+			al_trace("String pointer is null! Internal error. \n");
+			return;
+		}
+
+		PALETTE tempPal;
+		get_palette(tempPal);
+		if (checkPath(str.c_str(), false))
+		{
+			BITMAP* bmp = load_bitmap(str.c_str(), tempPal);
+			if (!bmp)
+			{
+				Z_scripterrlog("LoadBitmapPalette() failed to load image file %s.\n", str.c_str());
+			}
+			else
+			{
+				//zprint("Read image file %s\n", str.c_str());
+				for (int32_t q = 0; q < PALDATA_NUM_COLORS; ++q)
+				{
+					pd->colors[q] = tempPal[q];
+					set_bit(pd->colors_used, q, true);
+				}
+			}
+			destroy_bitmap(bmp);
+		}
+		else
+		{
+			Z_scripterrlog("Failed to load image file: %s. File not found.\n", str.c_str());
+		}
+	}
+	return;
+}
 
 void FFScript::do_paldata_write_level()
 {
@@ -24214,6 +24266,17 @@ void FFScript::do_paldata_write_level()
 		{
 			loadlvlpal(lvl);
 			currcset = lvl;
+			if (darkroom && !get_bit(quest_rules, qr_NEW_DARKROOM))
+			{
+				if (get_bit(quest_rules, qr_FADE))
+				{
+					interpolatedfade();
+				}
+				else
+				{
+					loadfadepal((DMaps[currdmap].color) * pdLEVEL + poFADE3);
+				}
+			}
 		}
 	}
 	return;
@@ -24236,6 +24299,7 @@ void FFScript::do_paldata_write_levelcset()
 				pd->write_cset(1, lvl * pdLEVEL + poNEWCSETS + 0);
 				changed = true;
 			}
+			break;
 		case 2:
 			if (pd->check_cset(2, lvl * pdLEVEL + poLEVEL + 0))
 			{
@@ -24293,6 +24357,17 @@ void FFScript::do_paldata_write_levelcset()
 		if (changed && DMaps[currdmap].color == lvl)
 		{
 			loadlvlpal(lvl);
+			if (darkroom && !get_bit(quest_rules, qr_NEW_DARKROOM))
+			{
+				if (get_bit(quest_rules, qr_FADE))
+				{
+					interpolatedfade();
+				}
+				else
+				{
+					loadfadepal((DMaps[currdmap].color) * pdLEVEL + poFADE3);
+				}
+			}
 			currcset = lvl;
 		}
 	}
@@ -24617,12 +24692,109 @@ void FFScript::do_paldata_clearcolor()
 	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->SetColor()"))
 	{
 		int32_t ind = get_register(sarg1) / 10000;
-		if (unsigned(ind) >= 240)
+		if (unsigned(ind) >= PALDATA_NUM_COLORS)
 		{
-			Z_scripterrlog("Invalid color index (%d) passed to paldata->ClearColor(). Valid indices are 0-239. Aborting.\n", ind);
+			Z_scripterrlog("Invalid color index (%d) passed to paldata->ClearColor(). Valid indices are 0-255. Aborting.\n", ind);
 			return;
 		}
 		set_bit(pd->colors_used, ind, false);
+	}
+}
+
+void FFScript::do_paldata_clearcset()
+{
+	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->ClearCSet()"))
+	{
+		int32_t cs = get_register(sarg1) / 10000;
+		if (unsigned(cs) >= 16)
+		{
+			Z_scripterrlog("Invalid cset (%d) passed to paldata->ClearCSet(). Valid csets are 0-15. Aborting.\n", cs);
+			return;
+		}
+		for (int32_t q = 0; q < 16; ++q)
+		{
+			set_bit(pd->colors_used, CSET(cs) + q, false);
+		}
+	}
+}
+
+void FFScript::do_paldata_getrgb(int32_t v)
+{
+	char* fname = "";
+	switch (v)
+	{
+	case 0: fname = "paldata->GetR()"; break;
+	case 1: fname = "paldata->GetG()"; break;
+	case 2: fname = "paldata->GetB()"; break;
+	}
+	if (user_paldata* pd = checkPalData(ri->paldataref, fname))
+	{
+		int32_t ind = get_register(sarg1) / 10000;
+		if (unsigned(ind) >= PALDATA_NUM_COLORS)
+		{
+			Z_scripterrlog("Invalid color index (%d) passed to %s. Valid indices are 0-255. Aborting.\n", ind, fname);
+			return;
+		}
+		if (!get_bit(pd->colors_used, ind))
+		{
+			Z_scripterrlog("%s tried to access unused color %d.\n", fname, ind);
+			return;
+		}
+		switch (v)
+		{
+		case 0:
+			ri->d[rEXP1] = pd->colors[ind].r * 10000;
+			break;
+		case 1:
+			ri->d[rEXP1] = pd->colors[ind].g * 10000;
+			break;
+		case 2:
+			ri->d[rEXP1] = pd->colors[ind].b * 10000;
+			break;
+		}
+	}
+}
+
+void FFScript::do_paldata_setrgb(int32_t v)
+{
+	char* fname = "";
+	switch (v)
+	{
+	case 0: fname = "paldata->SetR()"; break;
+	case 1: fname = "paldata->SetG()"; break;
+	case 2: fname = "paldata->SetB()"; break;
+	}
+	if (user_paldata* pd = checkPalData(ri->paldataref, fname))
+	{
+		int32_t ind = get_register(sarg1) / 10000;
+		int32_t val = get_register(sarg2) / 10000;
+		if (unsigned(ind) >= PALDATA_NUM_COLORS)
+		{
+			Z_scripterrlog("Invalid color index (%d) passed to %s. Valid indices are 0-255. Aborting.\n", ind, fname);
+			return;
+		}
+		if (unsigned(val) > 63)
+		{
+			Z_scripterrlog("RGB value(%d) passed to %s is out of range. RGB values range from 0 - 63.\n", val, fname);
+			val = vbound(val, 0, 63);
+		}
+		if (!get_bit(pd->colors_used, ind))
+		{
+			Z_scripterrlog("%s tried to access unused color %d.\n", fname, ind);
+			return;
+		}
+		switch (v)
+		{
+		case 0:
+			pd->colors[ind].r = val;
+			break;
+		case 1:
+			pd->colors[ind].g = val;
+			break;
+		case 2:
+			pd->colors[ind].b = val;
+			break;
+		}
 	}
 }
 
@@ -24664,7 +24836,7 @@ void FFScript::do_paldata_mixcset()
 					Z_scripterrlog("CSet passed to 'paldata->MixCSet()' out of range. Valid CSets are 0-14\n");
 					return;
 				}
-				pd->mix(pd_start, pd_end, percent, color_space, cset * 16, cset * 16 + 16);
+				pd->mix(pd_start, pd_end, percent, color_space, CSET(cset), CSET(cset) + 16);
 			}
 		}
 	}
@@ -24684,6 +24856,24 @@ void FFScript::do_paldata_copy()
 			for (int32_t q = 0; q < PALDATA_BITSTREAM_SIZE; ++q)
 			{
 				pd_dest->colors_used[q] = pd->colors_used[q];
+			}
+		}
+	}
+}
+
+void FFScript::do_paldata_copycset()
+{
+	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->CopyCSet()"))
+	{
+		int32_t ref_dest = SH::read_stack(ri->sp + 2);
+		int32_t cs = SH::read_stack(ri->sp + 1) / 10000;
+		int32_t cs_dest = SH::read_stack(ri->sp + 0) / 10000;
+		if (user_paldata* pd_dest = checkPalData(ref_dest, "paldata->CopyCSet()"))
+		{
+			for (int32_t q = 0; q < 16; ++q)
+			{
+				pd_dest->colors[CSET(cs_dest) + q] = pd->colors[CSET(cs) + q];
+				set_bit(pd_dest->colors_used, CSET(cs_dest) + q, get_bit(pd->colors_used, CSET(cs) + q));
 			}
 		}
 	}
@@ -24742,8 +24932,10 @@ void user_paldata::write_cset_main(int32_t cset)
 		int32_t ind = CSET(cset) + q;
 		if (get_bit(colors_used, ind))
 		{
+			zprint("CSet %d C%d (%d, %d, %d) ->", cset, q, RAMpal[ind].r, RAMpal[ind].g, RAMpal[ind].b);
 			tempgreypal[ind] = colors[ind];
 			RAMpal[ind] = tempgreypal[ind];
+			zprint("(%d, %d, %d)\n", RAMpal[ind].r, RAMpal[ind].g, RAMpal[ind].b);
 		}
 	}
 }
@@ -29786,6 +29978,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				FFCore.do_paldata_load_main(); break;
 			case PALDATALOADCYCLE:
 				FFCore.do_paldata_load_cycle(); break;
+			case PALDATALOADBITMAP:
+				FFCore.do_paldata_load_bitmap(); break;
 			case PALDATAWRITELEVEL:
 				FFCore.do_paldata_write_level(); break;
 			case PALDATAWRITELEVELCS:
@@ -29808,12 +30002,28 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				FFCore.do_paldata_setcolor(); break;
 			case PALDATACLEARCLR:
 				FFCore.do_paldata_clearcolor(); break;
+			case PALDATACLEARCSET:
+				FFCore.do_paldata_clearcset(); break;
+			case PALDATAGETR:
+				FFCore.do_paldata_getrgb(0); break;
+			case PALDATAGETG:
+				FFCore.do_paldata_getrgb(1); break;
+			case PALDATAGETB:
+				FFCore.do_paldata_getrgb(2); break;
+			case PALDATASETR:
+				FFCore.do_paldata_setrgb(0); break;
+			case PALDATASETG:
+				FFCore.do_paldata_setrgb(1); break;
+			case PALDATASETB:
+				FFCore.do_paldata_setrgb(2); break;
 			case PALDATAMIX:
 				FFCore.do_paldata_mix(); break;
 			case PALDATAMIXCS:
 				FFCore.do_paldata_mixcset(); break;
 			case PALDATACOPY:
 				FFCore.do_paldata_copy(); break;
+			case PALDATACOPYCSET:
+				FFCore.do_paldata_copycset(); break;
 			case PALDATAFREE:
 				if (user_paldata* pd = checkPalData(ri->paldataref, "Free()", true))
 				{
@@ -38318,6 +38528,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "PALDATALOADSPRITE",           1,   0,   0,   0 },
 	{ "PALDATALOADMAIN",           0,   0,   0,   0 },
 	{ "PALDATALOADCYCLE",           1,   0,   0,   0 },
+	{ "PALDATALOADBITMAP",           1,   0,   0,   0 },
 	{ "PALDATAWRITELEVEL",           1,   0,   0,   0 },
 	{ "PALDATAWRITELEVELCS",           2,   0,   0,   0 },
 	{ "PALDATAWRITESPRITE",           1,   0,   0,   0 },
@@ -38329,9 +38540,17 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "PALDATAGETCLR",           1,   0,   0,   0 },
 	{ "PALDATASETCLR",           2,   0,   0,   0 },
 	{ "PALDATACLEARCLR",           1,   0,   0,   0 },
+	{ "PALDATACLEARCSET",           1,   0,   0,   0 },
+	{ "PALDATAGETR",           1,   0,   0,   0 },
+	{ "PALDATAGETG",           1,   0,   0,   0 },
+	{ "PALDATAGETB",           1,   0,   0,   0 },
+	{ "PALDATASETR",           2,   0,   0,   0 },
+	{ "PALDATASETG",           2,   0,   0,   0 },
+	{ "PALDATASETB",           2,   0,   0,   0 },
 	{ "PALDATAMIX",           0,   0,   0,   0 },
 	{ "PALDATAMIXCS",           0,   0,   0,   0 },
 	{ "PALDATACOPY",           1,   0,   0,   0 },
+	{ "PALDATACOPYCSET",           0,   0,   0,   0 },
 	{ "PALDATAFREE",           0,   0,   0,   0 },
 	{ "PALDATAOWN",           0,   0,   0,   0 },
 	{ "",                    0,   0,   0,   0}

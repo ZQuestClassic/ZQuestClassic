@@ -3399,6 +3399,17 @@ namespace ZScript
 			return new OLoadCyclePalette(a->clone());
 		}
 	};
+
+	class OLoadBitmapPalette : public UnaryOpcode
+	{
+	public:
+		OLoadBitmapPalette(Argument* A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode* clone()
+		{
+			return new OLoadBitmapPalette(a->clone());
+		}
+	};
 	
 	class OWriteLevelPalette : public UnaryOpcode
 	{
@@ -3520,6 +3531,83 @@ namespace ZScript
 			return new OPalDataClearColor(a->clone());
 		}
 	};
+
+	class OPalDataClearCSet : public UnaryOpcode
+	{
+	public:
+		OPalDataClearCSet(Argument* A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode* clone()
+		{
+			return new OPalDataClearCSet(a->clone());
+		}
+	};
+
+	class OPalDataGetR : public UnaryOpcode
+	{
+	public:
+		OPalDataGetR(Argument* A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode* clone()
+		{
+			return new OPalDataGetR(a->clone());
+		}
+	};
+
+	class OPalDataGetG : public UnaryOpcode
+	{
+	public:
+		OPalDataGetG(Argument* A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode* clone()
+		{
+			return new OPalDataGetG(a->clone());
+		}
+	};
+
+	class OPalDataGetB : public UnaryOpcode
+	{
+	public:
+		OPalDataGetB(Argument* A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode* clone()
+		{
+			return new OPalDataGetB(a->clone());
+		}
+	};
+
+	class OPalDataSetR : public BinaryOpcode
+	{
+	public:
+		OPalDataSetR(Argument* A, Argument* B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode* clone()
+		{
+			return new OPalDataSetR(a->clone(), b->clone());
+		}
+	};
+
+	class OPalDataSetG : public BinaryOpcode
+	{
+	public:
+		OPalDataSetG(Argument* A, Argument* B) : BinaryOpcode(A, B) {}
+		std::string toString();
+		Opcode* clone()
+		{
+			return new OPalDataSetG(a->clone(), b->clone());
+		}
+	};
+
+	class OPalDataSetB : public BinaryOpcode
+	{
+	public:
+		OPalDataSetB(Argument* A, Argument* B) : BinaryOpcode(A, B) {}
+		std::string toString();
+		Opcode* clone()
+		{
+			return new OPalDataSetB(a->clone(), b->clone());
+		}
+	};
 	
 	class OPalDataMix : public Opcode
 	{
@@ -3551,6 +3639,17 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OPalDataCopy(a->clone());
+		}
+	};
+
+	class OPalDataCopyCSet : public Opcode
+	{
+	public:
+		OPalDataCopyCSet() : Opcode() {}
+		std::string toString();
+		Opcode* clone()
+		{
+			return new OPalDataCopyCSet();
 		}
 	};
 	

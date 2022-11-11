@@ -1198,6 +1198,7 @@ void do_paldata_load_level();
 void do_paldata_load_sprite();
 void do_paldata_load_main();
 void do_paldata_load_cycle();
+void do_paldata_load_bitmap();
 void do_paldata_write_level();
 void do_paldata_write_levelcset();
 void do_paldata_write_sprite();
@@ -1209,9 +1210,13 @@ void do_paldata_write_cyclecset();
 void do_paldata_getcolor();
 void do_paldata_setcolor();
 void do_paldata_clearcolor();
+void do_paldata_clearcset();
+void do_paldata_getrgb(int32_t v);
+void do_paldata_setrgb(int32_t v);
 void do_paldata_mix();
 void do_paldata_mixcset();
 void do_paldata_copy();
+void do_paldata_copycset();
 void do_directory_get();
 void do_directory_reload();
 void do_directory_free();
@@ -3397,6 +3402,7 @@ enum ASM_DEFINE
 	PALDATALOADSPRITE,
 	PALDATALOADMAIN,
 	PALDATALOADCYCLE,
+	PALDATALOADBITMAP,
 	PALDATAWRITELEVEL,
 	PALDATAWRITELEVELCS,
 	PALDATAWRITESPRITE,
@@ -3408,9 +3414,17 @@ enum ASM_DEFINE
 	PALDATAGETCLR,
 	PALDATASETCLR,
 	PALDATACLEARCLR,
+	PALDATACLEARCSET,
+	PALDATAGETR,
+	PALDATAGETG,
+	PALDATAGETB,
+	PALDATASETR,
+	PALDATASETG,
+	PALDATASETB,
 	PALDATAMIX,
 	PALDATAMIXCS,
 	PALDATACOPY,
+	PALDATACOPYCSET,
 	PALDATAFREE,
 	PALDATAOWN,
 	

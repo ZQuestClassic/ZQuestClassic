@@ -3019,6 +3019,11 @@ string OLoadCyclePalette::toString()
 	return "PALDATALOADCYCLE " + getArgument()->toString();
 }
 
+string OLoadBitmapPalette::toString()
+{
+	return "PALDATALOADBITMAP " + getArgument()->toString();
+}
+
 string OWriteLevelPalette::toString()
 {
     return "PALDATAWRITELEVEL " + getArgument()->toString();
@@ -3074,6 +3079,41 @@ string OPalDataClearColor::toString()
     return "PALDATACLEARCLR " + getArgument()->toString();
 }
 
+string OPalDataClearCSet::toString()
+{
+	return "PALDATACLEARCSET " + getArgument()->toString();
+}
+
+string OPalDataGetR::toString()
+{
+	return "PALDATAGETR " + getArgument()->toString();
+}
+
+string OPalDataGetG::toString()
+{
+	return "PALDATAGETG " + getArgument()->toString();
+}
+
+string OPalDataGetB::toString()
+{
+	return "PALDATAGETB " + getArgument()->toString();
+}
+
+string OPalDataSetR::toString()
+{
+	return "PALDATASETR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OPalDataSetG::toString()
+{
+	return "PALDATASETG " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OPalDataSetB::toString()
+{
+	return "PALDATASETB " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 string OPalDataMix::toString()
 {
     return "PALDATAMIX";
@@ -3087,6 +3127,11 @@ string OPalDataMixCSet::toString()
 string OPalDataCopy::toString()
 {
 	return "PALDATACOPY " + getArgument()->toString();
+}
+
+string OPalDataCopyCSet::toString()
+{
+	return "PALDATACOPYCSET";
 }
 
 string OPalDataFree::toString()
