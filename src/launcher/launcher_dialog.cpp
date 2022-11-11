@@ -405,8 +405,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 	int32_t def_large_h = 600*scale_large;
 	int32_t def_small_w = 320*scale;
 	int32_t def_small_h = 240*scale;
-	RECT desktop;
-	// Get a handle to the desktop window
 	int rightmost;
 	int bottommost;
 	ALLEGRO_MONITOR_INFO info;
