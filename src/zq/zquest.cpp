@@ -8526,38 +8526,38 @@ static void fill(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t tar
     }
 }
 
-static void fill_flag(mapscr* fillscr, int32_t targetflag, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal)
+static void fill_flag(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t targetflag, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal)
 {
 	if((fillscr->sflag[((sy<<4)+sx)])!=targetflag)
 		return;
 	
-    Map.DoSetFlagCommand(Map.getCurrMap(), Map.getCurrScr(), (sy<<4)+sx, Flag);
+    Map.DoSetFlagCommand(map, screen_index, (sy<<4)+sx, Flag);
 	
 	if((sy>0) && (dir!=down))
-		fill_flag(fillscr, targetflag, sx, sy-1, up, diagonal);
+		fill_flag(map, screen_index, fillscr, targetflag, sx, sy-1, up, diagonal);
 		
 	if((sy<10) && (dir!=up))
-		fill_flag(fillscr, targetflag, sx, sy+1, down, diagonal);
+		fill_flag(map, screen_index, fillscr, targetflag, sx, sy+1, down, diagonal);
 		
 	if((sx>0) && (dir!=right))
-		fill_flag(fillscr, targetflag, sx-1, sy, left, diagonal);
+		fill_flag(map, screen_index, fillscr, targetflag, sx-1, sy, left, diagonal);
 		
 	if((sx<15) && (dir!=left))
-		fill_flag(fillscr, targetflag, sx+1, sy, right, diagonal);
+		fill_flag(map, screen_index, fillscr, targetflag, sx+1, sy, right, diagonal);
 		
 	if(diagonal==1)
 	{
 		if((sy>0) && (sx>0) && (dir!=r_down))
-			fill_flag(fillscr, targetflag, sx-1, sy-1, l_up, diagonal);
+			fill_flag(map, screen_index, fillscr, targetflag, sx-1, sy-1, l_up, diagonal);
 			
 		if((sy<10) && (sx<15) && (dir!=l_up))
-			fill_flag(fillscr, targetflag, sx+1, sy+1, r_down, diagonal);
+			fill_flag(map, screen_index, fillscr, targetflag, sx+1, sy+1, r_down, diagonal);
 			
 		if((sx>0) && (sy<10) && (dir!=r_up))
-			fill_flag(fillscr, targetflag, sx-1, sy+1, l_down, diagonal);
+			fill_flag(map, screen_index, fillscr, targetflag, sx-1, sy+1, l_down, diagonal);
 			
 		if((sx<15) && (sy>0) && (dir!=l_down))
-			fill_flag(fillscr, targetflag, sx+1, sy-1, r_up, diagonal);
+			fill_flag(map, screen_index, fillscr, targetflag, sx+1, sy-1, r_up, diagonal);
 	}
 	
 }
@@ -9311,7 +9311,7 @@ void fill_4_flag()
         }
         
         Map.StartListCommand();
-		fill_flag(Map.AbsoluteScr(drawmap, drawscr),
+		fill_flag(drawmap, drawscr, Map.AbsoluteScr(drawmap, drawscr),
              (Map.AbsoluteScr(drawmap, drawscr)->sflag[(by<<4)+bx]),
              bx, by, 255, 0);
         Map.FinishListCommand();
@@ -9402,7 +9402,7 @@ void fill_8_flag()
         }
         
         Map.StartListCommand();
-        fill_flag(Map.AbsoluteScr(drawmap, drawscr),
+        fill_flag(drawmap, drawscr, Map.AbsoluteScr(drawmap, drawscr),
              (Map.AbsoluteScr(drawmap, drawscr)->sflag[(by<<4)+bx]),
              bx, by, 255, 1);
         Map.FinishListCommand();
