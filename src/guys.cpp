@@ -2889,10 +2889,10 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb)
 			int32_t tx = (bx+dx).getFloor();
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
-				if(scr_walkflag(tx, by+ty, special, left, tx, by, kb))
+				if(scr_walkflag(tx, by+ty, special, left, bx, by, kb))
 					return false;
 			}
-			if(scr_walkflag(tx, ry, special, left, tx, by, kb))
+			if(scr_walkflag(tx, ry, special, left, bx, by, kb))
 				return false;
 		}
 		else
@@ -2900,10 +2900,10 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb)
 			int32_t tx = (rx+dx).getCeil();
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
-				if(scr_walkflag(tx, by+ty, special, right, tx, by, kb))
+				if(scr_walkflag(tx, by+ty, special, right, bx, by, kb))
 					return false;
 			}
-			if(scr_walkflag(tx, ry, special, right, tx, by, kb))
+			if(scr_walkflag(tx, ry, special, right, bx, by, kb))
 				return false;
 		}
 	}
@@ -2915,10 +2915,10 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb)
 			int32_t ty = (by+dy).getFloor();
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
-				if(scr_walkflag(bx+tx, ty, special, up, bx, ty, kb))
+				if(scr_walkflag(bx+tx, ty, special, up, bx, by, kb))
 					return false;
 			}
-			if(scr_walkflag(rx, ty, special, up, bx, ty, kb))
+			if(scr_walkflag(rx, ty, special, up, bx, by, kb))
 				return false;
 		}
 		else
@@ -2926,10 +2926,10 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb)
 			int32_t ty = (ry+dy).getCeil();
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
-				if(scr_walkflag(bx+tx, ty, special, down, bx, ty, kb))
+				if(scr_walkflag(bx+tx, ty, special, down, bx, by, kb))
 					return false;
 			}
-			if(scr_walkflag(rx, ty, special, down, bx, ty, kb))
+			if(scr_walkflag(rx, ty, special, down, bx, by, kb))
 				return false;
 		}
 	}
