@@ -1443,13 +1443,14 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 		
 		char temp;
 		
-		for(int32_t j=0; j<256; j++) // why not MAXITEMS ?
+		for(int32_t j=0; j<MAXITEMS; j++) // why not MAXITEMS ?
 		{
 			if(!p_getc(&temp, f, true))
 				return 18;
 				
-			savedata[i].set_item(j, (temp != 0));
+			savedata[i].set_item_no_flush(j, (temp != 0));
 		}
+		
 		
 		if(!pfread(savedata[i].version,sizeof(savedata[i].version),f,true))
 		{
