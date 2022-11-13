@@ -5380,8 +5380,8 @@ int main(int argc, char **argv)
 	resy = 240*2;
 	screen_scale = 2;
 	
-	all_set_force_integer_scale(zc_get_config("zquest", "scaling_force_integer", 1) != 0);
-	if (strcmp(zc_get_config("zeldadx", "scaling_mode", "linear"), "linear") == 0)
+	all_set_force_integer_scale(zc_get_config("zeldadx", "scaling_force_integer", 0) != 0);
+	if (strcmp(zc_get_config("zeldadx", "scaling_mode", "nn"), "linear") == 0)
 		all_set_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR);
 	
 	if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))

@@ -399,8 +399,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 	using namespace GUI::Props;
 	using namespace GUI::Lists;
 	queue_revert = 0;
-	int32_t scale = zc_get_config("zquest","scale",3);
-	int32_t scale_large = zc_get_config("zquest","scale_large",1);
+	int32_t scale = zc_get_config("zquest.cfg","zquest","scale",3);
+	int32_t scale_large = zc_get_config("zquest.cfg","zquest","scale_large",1);
 	int32_t def_large_w = 800*scale_large;
 	int32_t def_large_h = 600*scale_large;
 	int32_t def_small_w = 320*scale;
@@ -444,7 +444,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Autosave Window Size Changes","zc.cfg","zeldadx","save_drag_resize",0,"Makes any changes to the window size by dragging get saved for whenever you open the program next."),
 						CONFIG_CHECKBOX_I("Lock Aspect Ratio On Resize","zc.cfg","zeldadx","drag_aspect",0,"Makes any changes to the window size by dragging get snapped to ZC's default (4:3) aspect ratio."),
 						CONFIG_CHECKBOX_I("Save Window Position","zc.cfg","zeldadx","save_window_position",0,"Remembers the last position of the ZC Window."),
-						CONFIG_CHECKBOX_I("Force Integer Values for Scale","zc.cfg","zquest","scaling_force_integer",0,"Locks ZC's display to be an even integer scaling. Results in a lot of black letterboxing."),
+						CONFIG_CHECKBOX_I("Force Integer Values for Scale","zc.cfg","zeldadx","scaling_force_integer",0,"Locks ZC's display to be an even integer scaling. Results in a lot of black letterboxing."),
 						CONFIG_CHECKBOX_I("Monochrome Debuggers","zc.cfg","CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text."),
 						CONFIG_CHECKBOX_I("Text Readability","zc.cfg","gui","bolder_font",0,"Attempts to make text more readable in some areas (ex. larger, bolder)")
 					),
@@ -620,6 +620,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 									}
 								}),
 							tf_module_zcl = TextField(
+								minwidth = 10_em,
 								read_only = true, fitParent = true,
 								forceFitW = true
 							),
