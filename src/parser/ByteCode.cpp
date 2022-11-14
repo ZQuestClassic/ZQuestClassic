@@ -3064,6 +3064,11 @@ string OWriteCycleCSet::toString()
 	return "PALDATAWRITECYCLECS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+string OPalDataColorValid::toString()
+{
+	return "PALDATAVALIDCLR " + getArgument()->toString();
+}
+
 string OPalDataGetColor::toString()
 {
     return "PALDATAGETCLR " + getArgument()->toString();

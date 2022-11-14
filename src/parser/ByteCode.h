@@ -3499,6 +3499,17 @@ namespace ZScript
 		}
 	};
 	
+	class OPalDataColorValid : public UnaryOpcode
+	{
+	public:
+		OPalDataColorValid(Argument* A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode* clone()
+		{
+			return new OPalDataColorValid(a->clone());
+		}
+	};
+
 	class OPalDataGetColor : public UnaryOpcode
 	{
 	public:

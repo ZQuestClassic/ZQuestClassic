@@ -1085,6 +1085,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "PALDATAWRITEMAINCS",           1,   0,   0,   0 },
 	{ "PALDATAWRITECYCLE",           1,   0,   0,   0 },
 	{ "PALDATAWRITECYCLECS",           2,   0,   0,   0 },
+	{ "PALDATAVALIDCLR",           1,   0,   0,   0 },
 	{ "PALDATAGETCLR",           1,   0,   0,   0 },
 	{ "PALDATASETCLR",           2,   0,   0,   0 },
 	{ "PALDATACLEARCLR",           1,   0,   0,   0 },

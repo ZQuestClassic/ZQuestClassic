@@ -1207,6 +1207,7 @@ void do_paldata_write_main();
 void do_paldata_write_maincset();
 void do_paldata_write_cycle();
 void do_paldata_write_cyclecset();
+void do_paldata_colorvalid();
 void do_paldata_getcolor();
 void do_paldata_setcolor();
 void do_paldata_clearcolor();
@@ -3411,6 +3412,7 @@ enum ASM_DEFINE
 	PALDATAWRITEMAINCS,
 	PALDATAWRITECYCLE,
 	PALDATAWRITECYCLECS,
+	PALDATAVALIDCLR,
 	PALDATAGETCLR,
 	PALDATASETCLR,
 	PALDATACLEARCLR,
