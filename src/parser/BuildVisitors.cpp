@@ -882,6 +882,7 @@ void BuildOpcodes::caseFuncDecl(ASTFuncDecl &host, void *param)
 
 void BuildOpcodes::caseDataDecl(ASTDataDecl& host, void* param)
 {
+	if(parsing_user_class == puc_vars) return;
 	OpcodeContext& context = *(OpcodeContext*)param;
 	Datum& manager = *host.manager;
 	ASTExpr* init = host.getInitializer();
@@ -992,14 +993,30 @@ void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
 	visit(host.right.get(), param);
 	//and store it
 	LValBOHelper helper(scope);
+	helper.parsing_user_class = parsing_user_class;
 	host.left->execute(helper, param);
 	addOpcodes(helper.getResult());
 }
 
 void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {
+	if(parsing_user_class > puc_vars)
+	{
+		if(host.asString() == "this")
+		{
+			addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(CLASS_THISKEY)));	
+			return;
+		}
+	}
 	OpcodeContext* c = (OpcodeContext*)param;
-
+	
+	if(UserClassVar* ucv = dynamic_cast<UserClassVar*>(host.binding))
+	{
+		UserClass& user_class = *ucv->getClass();
+		addOpcode(new OReadObject(new VarArgument(CLASS_THISKEY), new LiteralArgument(ucv->getIndex())));
+		return;
+	}
+	
 	// If a constant, just load its value.
 	if (std::optional<int32_t> value = host.binding->getCompileTimeValue(scope->isGlobal() || scope->isScript()))
 	{
@@ -1028,6 +1045,12 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 
 void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 {
+	if(UserClassVar* ucv = host.u_datum)
+	{
+		visit(host.left.get(), param);
+		addOpcode(new OReadObject(new VarArgument(EXP1), new LiteralArgument(ucv->getIndex())));
+		return;
+	}
 	OpcodeContext *c = (OpcodeContext *)param;
 	int32_t isIndexed = (host.index != NULL);
 	assert(host.readFunction->isInternal());
@@ -1091,7 +1114,7 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 {
 	// If the left hand side is an arrow, then we'll let it run instead.
-	if (host.array->isTypeArrow())
+	if (host.array->isTypeArrow() && !host.array->isTypeArrowUsrClass())
 	{
 		caseExprArrow(static_cast<ASTExprArrow&>(*host.array), param);
 		return;
@@ -1123,7 +1146,9 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 {
 	if (host.isDisabled()) return;
 	OpcodeContext* c = (OpcodeContext*)param;
-	if(host.binding->prototype) //Prototype function
+	auto& func = *host.binding;
+	bool classfunc = func.getFlag(FUNCFLAG_CLASSFUNC) && !func.getFlag(FUNCFLAG_STATIC);
+	if(func.prototype) //Prototype function
 	{
 		int32_t startRefCount = arrayRefs.size(); //Store ref count
 		//Visit each parameter, in case there are side-effects; but don't push the results, as they are unneeded.
@@ -1134,12 +1159,32 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		}
 		
 		//Set the return to the default value
-		DataType const& retType = *host.binding->returnType;
-		if(retType != DataType::ZVOID)
+		if(classfunc && func.getFlag(FUNCFLAG_CONSTRUCTOR) && parsing_user_class <= puc_vars)
 		{
-			if (std::optional<int32_t> val = host.binding->defaultReturn->getCompileTimeValue(NULL, scope))
+			ClassScope* cscope = func.internalScope->getClass();
+			UserClass& user_class = cscope->user_class;
+			vector<Function*> destr = cscope->getDestructor();
+			Function* destructor = destr.size() == 1 ? destr.at(0) : nullptr;
+			if(destructor && !destructor->prototype)
 			{
-				addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*val)));
+				Function* destructor = destr[0];
+				addOpcode(new OSetImmediate(new VarArgument(EXP1),
+					new LabelArgument(destructor->getLabel())));
+			}
+			else addOpcode(new OSetImmediate(new VarArgument(EXP1),
+				new LiteralArgument(0)));
+			addOpcode(new OConstructClass(new VarArgument(EXP1),
+				new VectorArgument(user_class.members)));
+		}
+		else
+		{
+			DataType const& retType = *func.returnType;
+			if(retType != DataType::ZVOID)
+			{
+				if (std::optional<int32_t> val = func.defaultReturn->getCompileTimeValue(NULL, scope))
+				{
+					addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*val)));
+				}
 			}
 		}
 
@@ -1148,12 +1193,12 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		while ((int32_t)arrayRefs.size() > startRefCount)
 			arrayRefs.pop_back();
 	}
-	else if(host.binding->getFlag(FUNCFLAG_INLINE) && host.binding->isInternal()) //Inline function
+	else if(func.getFlag(FUNCFLAG_INLINE) && func.isInternal()) //Inline function
 	{
 		// User functions actually can't really benefit from any optimization like this... -Em
 		int32_t startRefCount = arrayRefs.size(); //Store ref count
 		
-		if (host.left->isTypeArrow() && !(host.binding->internal_flags & IFUNCFLAG_SKIPPOINTER))
+		if (host.left->isTypeArrow() && !(func.internal_flags & IFUNCFLAG_SKIPPOINTER))
 		{
 			//load the value of the left-hand of the arrow into EXP1
 			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
@@ -1169,7 +1214,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		}
 		
-		std::vector<std::shared_ptr<Opcode>> const& funcCode = host.binding->getCode();
+		std::vector<std::shared_ptr<Opcode>> const& funcCode = func.getCode();
 		for(auto it = funcCode.begin();
 			it != funcCode.end(); ++it)
 		{
@@ -1181,20 +1226,21 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			ASTExprArrow* arr = static_cast<ASTExprArrow*>(host.left.get());
 			if(arr->left->getWriteType(scope, this) && !arr->left->isConstant())
 			{
-				if(host.binding->internal_flags & IFUNCFLAG_REASSIGNPTR)
+				if(func.internal_flags & IFUNCFLAG_REASSIGNPTR)
 				{
-					bool isVoid = host.binding->returnType->isVoid();
+					bool isVoid = func.returnType->isVoid();
 					if(!isVoid) addOpcode(new OPushRegister(new VarArgument(EXP1)));
 					addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 					LValBOHelper helper(scope);
+					helper.parsing_user_class = parsing_user_class;
 					arr->left->execute(helper, param);
 					addOpcodes(helper.getResult());
 					if(!isVoid) addOpcode(new OPopRegister(new VarArgument(EXP1)));
 				}
 			}
-			else if(host.binding->internal_flags & IFUNCFLAG_REASSIGNPTR) //This is likely a mistake in the script... give the user a warning.
+			else if(func.internal_flags & IFUNCFLAG_REASSIGNPTR) //This is likely a mistake in the script... give the user a warning.
 			{
-				handleError(CompileError::BadReassignCall(&host, host.binding->getSignature().asString()));
+				handleError(CompileError::BadReassignCall(&host, func.getSignature().asString()));
 			}
 		}
 		//Deallocate string/array literals from within the parameters
@@ -1202,9 +1248,72 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		while ((int32_t)arrayRefs.size() > startRefCount)
 			arrayRefs.pop_back();
 	}
-	else //Non-inline function
+	else if(classfunc)
 	{
-		int32_t funclabel = host.binding->getLabel();
+		int32_t funclabel = func.getLabel();
+		//push the stack frame pointer
+		bool store_this = host.left->isTypeArrow();
+		if(store_this)
+			addOpcode(new OPushRegister(new VarArgument(CLASS_THISKEY)));
+		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
+		//push the return address
+		int32_t returnaddr = ScriptParser::getUniqueLabelID();
+		int32_t startRefCount = arrayRefs.size(); //Store ref count
+		addOpcode(new OPushImmediate(new LabelArgument(returnaddr)));
+		
+		if (store_this)
+		{
+			//load the value of the left-hand of the arrow into EXP1
+			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
+			addOpcode(new OSetRegister(new VarArgument(CLASS_THISKEY), new VarArgument(EXP1)));
+		}
+
+		//push the parameters, in forward order
+		for (auto it = host.parameters.begin();
+			it != host.parameters.end(); ++it)
+		{
+			//Compile-time constants can be optimized slightly...
+			if(std::optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
+				addOpcode(new OPushImmediate(new LiteralArgument(*val)));
+			else
+			{
+				visit(*it, param);
+				addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			}
+		}
+		//push any std::optional parameter values
+		auto num_actual_params = func.paramTypes.size();
+		auto used_opt_params = num_actual_params - host.parameters.size();
+		auto opt_param_count = func.opt_vals.size();
+		auto skipped_optional_params = opt_param_count - used_opt_params;
+		for(auto q = skipped_optional_params; q < opt_param_count; ++q)
+		{
+			addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
+		}
+		//goto
+		if(parsing_user_class == puc_construct && func.getFlag(FUNCFLAG_CONSTRUCTOR)
+			&& !host.isConstructor())
+		{
+			//A constructor calling another constructor to inherit it's code
+			//Use the alt label of the constructor, which is after the constructy bits
+			addOpcode(new OGotoImmediate(new LabelArgument(func.getAltLabel())));
+		}
+		else addOpcode(new OGotoImmediate(new LabelArgument(funclabel)));
+		//pop the stack frame pointer
+		Opcode *next = new OPopRegister(new VarArgument(SFRAME));
+		next->setLabel(returnaddr);
+		addOpcode(next);
+		if(store_this)
+			addOpcode(new OPopRegister(new VarArgument(CLASS_THISKEY)));
+		
+		//Deallocate string/array literals from within the parameters
+		deallocateRefsUntilCount(startRefCount);
+		while ((int32_t)arrayRefs.size() > startRefCount)
+		arrayRefs.pop_back();
+	}
+	else
+	{
+		int32_t funclabel = func.getLabel();
 		//push the stack frame pointer
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
 		//push the return address
@@ -1215,7 +1324,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		
 		// If the function is a pointer function (->func()) we need to push the
 		// left-hand-side.
-		if (host.left->isTypeArrow() && !(host.binding->internal_flags & IFUNCFLAG_SKIPPOINTER))
+		if (host.left->isTypeArrow() && !(func.internal_flags & IFUNCFLAG_SKIPPOINTER))
 		{
 			//load the value of the left-hand of the arrow into EXP1
 			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
@@ -1238,14 +1347,13 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			}
 		}
 		//push any std::optional parameter values
-		auto func = host.binding;
-		auto num_actual_params = func->paramTypes.size();
+		auto num_actual_params = func.paramTypes.size();
 		auto used_opt_params = num_actual_params - host.parameters.size();
-		auto opt_param_count = func->opt_vals.size();
+		auto opt_param_count = func.opt_vals.size();
 		auto skipped_optional_params = opt_param_count - used_opt_params;
 		for(auto q = skipped_optional_params; q < opt_param_count; ++q)
 		{
-			addOpcode(new OPushImmediate(new LiteralArgument(func->opt_vals[q])));
+			addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
 		}
 		//goto
 		addOpcode(new OGotoImmediate(new LabelArgument(funclabel)));
@@ -1259,20 +1367,21 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			ASTExprArrow* arr = static_cast<ASTExprArrow*>(host.left.get());
 			if(arr->left->getWriteType(scope, this) && !arr->left->isConstant())
 			{
-				if(host.binding->internal_flags & IFUNCFLAG_REASSIGNPTR)
+				if(func.internal_flags & IFUNCFLAG_REASSIGNPTR)
 				{
-					bool isVoid = host.binding->returnType->isVoid();
+					bool isVoid = func.returnType->isVoid();
 					if(!isVoid) addOpcode(new OPushRegister(new VarArgument(EXP1)));
 					addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 					LValBOHelper helper(scope);
+					helper.parsing_user_class = parsing_user_class;
 					arr->left->execute(helper, param);
 					addOpcodes(helper.getResult());
 					if(!isVoid) addOpcode(new OPopRegister(new VarArgument(EXP1)));
 				}
 			}
-			else if(host.binding->internal_flags & IFUNCFLAG_REASSIGNPTR) //This is likely a mistake in the script... give the user a warning.
+			else if(func.internal_flags & IFUNCFLAG_REASSIGNPTR) //This is likely a mistake in the script... give the user a warning.
 			{
-				handleError(CompileError::BadReassignCall(&host, host.binding->getSignature().asString()));
+				handleError(CompileError::BadReassignCall(&host, func.getSignature().asString()));
 			}
 		}
 		
@@ -1293,6 +1402,12 @@ void BuildOpcodes::caseExprNegate(ASTExprNegate& host, void* param)
 
 	visit(host.operand.get(), param);
 	addOpcode(new OSubImmediate2(new LiteralArgument(0), new VarArgument(EXP1)));
+}
+
+void BuildOpcodes::caseExprDelete(ASTExprDelete& host, void* param)
+{
+	visit(host.operand.get(), param);
+	addOpcode(new OFreeObject(new VarArgument(EXP1)));
 }
 
 void BuildOpcodes::caseExprNot(ASTExprNot& host, void* param)
@@ -1342,6 +1457,7 @@ void BuildOpcodes::caseExprIncrement(ASTExprIncrement& host, void* param)
 	
 	// Store it
 	LValBOHelper helper(scope);
+	helper.parsing_user_class = parsing_user_class;
 	host.operand->execute(helper, param);
 	addOpcodes(helper.getResult());
 	
@@ -1361,6 +1477,7 @@ void BuildOpcodes::caseExprPreIncrement(ASTExprPreIncrement& host, void* param)
 
 	// Store it
 	LValBOHelper helper(scope);
+	helper.parsing_user_class = parsing_user_class;
 	host.operand->execute(helper, param);
 	addOpcodes(helper.getResult());
 }
@@ -1378,6 +1495,7 @@ void BuildOpcodes::caseExprPreDecrement(ASTExprPreDecrement& host, void* param)
 
 	// Store it.
 	LValBOHelper helper(scope);
+	helper.parsing_user_class = parsing_user_class;
 	host.operand->execute(helper, param);
 	addOpcodes(helper.getResult());
 }
@@ -1395,6 +1513,7 @@ void BuildOpcodes::caseExprDecrement(ASTExprDecrement& host, void* param)
 								new LiteralArgument(10000)));
 	// Store it.
 	LValBOHelper helper(scope);
+	helper.parsing_user_class = parsing_user_class;
 	host.operand->execute(helper, param);
 	addOpcodes(helper.getResult());
 
@@ -2738,6 +2857,13 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {
 	OpcodeContext* c = (OpcodeContext*)param;
 	int32_t vid = host.binding->id;
+	
+	if(UserClassVar* ucv = dynamic_cast<UserClassVar*>(host.binding))
+	{
+		UserClass& user_class = *ucv->getClass();
+		addOpcode(new OWriteObject(new VarArgument(CLASS_THISKEY), new LiteralArgument(ucv->getIndex())));
+		return;
+	}
 
 	if (std::optional<int32_t> globalId = host.binding->getGlobalId())
 	{
@@ -2760,6 +2886,23 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 
 void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 {
+	if(UserClassVar* ucv = host.u_datum)
+	{
+		BuildOpcodes oc(scope);
+		if(ucv->is_arr)
+		{
+			oc.visit(host.left.get(), param); //incase side effects
+			addOpcodes(oc.getResult());
+			return; //No overwriting object arrays!
+		}
+		addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		oc.visit(host.left.get(), param);
+		addOpcodes(oc.getResult());
+		addOpcode(new OSetRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
+		addOpcode(new OPopRegister(new VarArgument(EXP1)));
+		addOpcode(new OWriteObject(new VarArgument(EXP2), new LiteralArgument(ucv->getIndex())));
+		return;
+	}
 	OpcodeContext *c = (OpcodeContext *)param;
 	int32_t isIndexed = (host.index != NULL);
 	assert(host.writeFunction->isInternal());
@@ -2857,7 +3000,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 {
 	// Arrows just fall back on the arrow implementation.
-	if (host.array->isTypeArrow())
+	if (host.array->isTypeArrow() && !host.array->isTypeArrowUsrClass())
 	{
 		caseExprArrow(static_cast<ASTExprArrow&>(*host.array), param);
 		return;

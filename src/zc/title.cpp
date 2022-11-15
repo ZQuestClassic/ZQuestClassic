@@ -1443,13 +1443,14 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 		
 		char temp;
 		
-		for(int32_t j=0; j<256; j++) // why not MAXITEMS ?
+		for(int32_t j=0; j<MAXITEMS; j++) // why not MAXITEMS ?
 		{
 			if(!p_getc(&temp, f, true))
 				return 18;
 				
-			savedata[i].set_item(j, (temp != 0));
+			savedata[i].set_item_no_flush(j, (temp != 0));
 		}
+		
 		
 		if(!pfread(savedata[i].version,sizeof(savedata[i].version),f,true))
 		{
@@ -2139,6 +2140,73 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 		{
 			savedata[i].replay_file = "";
 		}
+		if(section_version >= 30)
+		{
+			uint32_t sz;
+			if(!p_igetl(&sz,f,true))
+				return 83;
+			for(uint32_t objind = 0; objind < sz; ++objind)
+			{
+				saved_user_object& s_ob = savedata[i].user_objects.emplace_back();
+				if(!p_igetl(&s_ob.object_index,f,true))
+					return 84;
+				//user_object
+				user_object& obj = s_ob.obj;
+				if(!p_getc(&tempbyte,f,true))
+					return 85;
+				obj.reserved = tempbyte!=0;
+				//Don't need to save owned_type,owned_i?
+				uint32_t datsz;
+				if(!p_igetl(&datsz,f,true))
+					return 86;
+				for(uint32_t q = 0; q < datsz; ++q)
+				{
+					if(!p_igetl(&templong,f,true))
+						return 87;
+					obj.data.push_back(templong);
+				}
+				if(!p_igetl(&obj.owned_vars,f,true))
+					return 88;
+				//scr_func_exec
+				scr_func_exec& exec = obj.destruct;
+				if(!p_igetl(&exec.pc,f,true))
+					return 89;
+				if(!p_igetl(&exec.thiskey,f,true))
+					return 90;
+				if(!p_igetl(&exec.type,f,true))
+					return 91;
+				if(!p_igetl(&exec.i,f,true))
+					return 92;
+				if(!p_igetw(&exec.script,f,true))
+					return 93;
+				if(!p_getwstr(&exec.name,f,true))
+					return 94;
+				//array data map
+				auto& map = s_ob.held_arrays;
+				uint32_t arrcount;
+				if(!p_igetl(&arrcount,f,true))
+					return 95;
+				for(uint32_t ind = 0; ind < arrcount; ++ind)
+				{
+					int32_t arr_index;
+					if(!p_igetl(&arr_index,f,true))
+						return 96;
+					
+					uint32_t arrsz;
+					if(!p_igetl(&arrsz,f,true))
+						return 97;
+					ZScriptArray zsarr;
+					zsarr.Resize(arrsz);
+					for(uint32_t q = 0; q < arrsz; ++q)
+					{
+						if(!p_igetl(&templong,f,true))
+							return 98;
+						zsarr[q] = templong;
+					}
+					map[arr_index] = zsarr;
+				}
+			}
+		}
 	}
 	
 	
@@ -2762,6 +2830,60 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 			return 81;
 		if (!pfwrite((void*)savedata[i].replay_file.c_str(), savedata[i].replay_file.length(), f))
 			return 82;
+		uint32_t sz = savedata[i].user_objects.size();
+		if(!p_iputl(sz,f))
+			return 83;
+		for(saved_user_object const& s_ob : savedata[i].user_objects)
+		{
+			if(!p_iputl(s_ob.object_index,f))
+				return 84;
+			//user_object
+			user_object const& obj = s_ob.obj;
+			if(!p_putc(obj.reserved?1:0,f))
+				return 85;
+			//Don't need to save owned_type,owned_i?
+			uint32_t datsz = obj.data.size();
+			if(!p_iputl(datsz,f))
+				return 86;
+			for(uint32_t q = 0; q < datsz; ++q)
+				if(!p_iputl(obj.data.at(q),f))
+					return 87;
+			if(!p_iputl(obj.owned_vars,f))
+				return 88;
+			//scr_func_exec
+			scr_func_exec const& exec = obj.destruct;
+			if(!p_iputl(exec.pc,f))
+				return 89;
+			if(!p_iputl(exec.thiskey,f))
+				return 90;
+			if(!p_iputl(exec.type,f))
+				return 91;
+			if(!p_iputl(exec.i,f))
+				return 92;
+			if(!p_iputw(exec.script,f))
+				return 93;
+			if(!p_putwstr(exec.name,f))
+				return 94;
+			auto& map = s_ob.held_arrays;
+			uint32_t arrcount = map.size();
+			if(!p_iputl(arrcount,f))
+				return 95;
+			for(auto it = map.begin(); it != map.end(); ++it)
+			{
+				auto& pair = *it;
+				if(!p_iputl(pair.first,f))
+					return 96;
+				auto& zsarr = pair.second;
+				uint32_t arrsz = zsarr.Size();
+				if(!p_iputl(arrsz,f))
+					return 97;
+				for(uint32_t ind = 0; ind < arrsz; ++ind)
+				{
+					if(!p_iputl(zsarr[ind],f))
+						return 98;
+				}
+			}
+		}
 	}
 	
 	return 0;
@@ -4677,6 +4799,7 @@ void game_over(int32_t type)
 			setMonochrome(false); //Clear monochrome before drawing the file select.
 			doClearTint();
 			
+			game->save_user_objects();
 			saves[currgame]=*game;
 			
 			int32_t ring=0;
@@ -4711,6 +4834,7 @@ void save_game(bool savepoint)
 		lastentrance = game->get_continue_scrn();
 	}
 	
+	game->save_user_objects();
 	saves[currgame]=*game;
 	
 	flushItemCache();
@@ -4857,6 +4981,7 @@ bool save_game(bool savepoint, int32_t type)
 					lastentrance = game->get_continue_scrn();
 				}
 				
+				game->save_user_objects();
 				saves[currgame]=*game;
 				
 				int32_t ring=0;

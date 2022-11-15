@@ -4,6 +4,7 @@ set(LAUNCHER_GUI_SOURCES
 ################################
 # Add or remove files here
 ################################
+src/WindowsScaling.cpp
 src/jwin.cpp
 src/editbox.cpp
 src/tab_ctl.cpp

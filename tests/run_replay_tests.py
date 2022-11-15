@@ -62,8 +62,7 @@ if args.filter:
         exit(1)
 if args.ci:
     replays_failing_in_ci = [
-        # Never finishes.
-        'new2013.zplay',
+        # None!
     ]
     tests = [t for t in tests if t.name not in replays_failing_in_ci]
 

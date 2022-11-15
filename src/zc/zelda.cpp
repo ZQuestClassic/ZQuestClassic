@@ -28,8 +28,10 @@
 #include <stdlib.h>
 
 #include <al5img.h>
+#include <loadpng.h>
 
 #include "zscriptversion.h"
+#include "WindowsScaling.h"
 #include "zcmusic.h"
 #include "base/zdefs.h"
 #include "zelda.h"
@@ -407,7 +409,8 @@ bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true,
      show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false, show_effectflags = false;
 
 
-bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false;
+bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false, SaveDragResize=false, DragAspect=false, SaveWinPos=false;
+int32_t LastWidth = 0, LastHeight = 0;
 bool Playing, FrameSkip=false, TransLayers = true;
 bool __debug=false,debug_enabled = false;
 bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
@@ -486,6 +489,7 @@ void ScriptOwner::clear()
 //ZScript array storage
 std::vector<ZScriptArray> globalRAM;
 ZScriptArray localRAM[NUM_ZSCRIPT_ARRAYS];
+std::map<int32_t,ZScriptArray> objectRAM;
 ScriptOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
 
 //script bitmap drawing
@@ -627,11 +631,41 @@ volatile int32_t lastfps=0;
 volatile int32_t framecnt=0;
 volatile int32_t myvsync=0;
 
+void doAspectResize()
+{
+	if (DragAspect)
+	{
+		if (LastWidth == 0 || LastHeight == 0)
+		{
+			LastWidth = al_get_display_width(all_get_display());
+			LastHeight = al_get_display_height(all_get_display());
+		}
+		if (LastWidth != al_get_display_width(all_get_display()) || LastHeight != al_get_display_height(all_get_display()))
+		{
+			bool widthfirst = true;
+			
+			if (abs(LastWidth - al_get_display_width(all_get_display())) < abs(LastHeight - al_get_display_height(all_get_display()))) widthfirst = false;
+			
+			if (widthfirst)
+			{
+				al_resize_display(all_get_display(), al_get_display_width(all_get_display()), al_get_display_width(all_get_display())*0.75);
+			}
+			else
+			{
+				al_resize_display(all_get_display(), al_get_display_height(all_get_display())/0.75, al_get_display_height(all_get_display()));
+			}
+		}
+		LastWidth = al_get_display_width(all_get_display());
+		LastHeight = al_get_display_height(all_get_display());
+	}
+}
+
 bool update_hw_pal = false;
 PALETTE* hw_palette = NULL;
 void update_hw_screen(bool force)
 {
 	//if(!hw_screen) return;
+	doAspectResize();
 	if(force || (!is_sys_pal && !Throttlefps) || myvsync)
 	{
 		zc_process_mouse_events();
@@ -1214,95 +1248,8 @@ void Z_scripterrlog(const char * const format,...)
 {
     if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0)
     {
-        switch(curScriptType)
-        {
-			case SCRIPT_GLOBAL:
-				al_trace("Global script %u (%s): ", curScriptNum+1, globalmap[curScriptNum].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Global script %u (%s): \n", 
-					curScriptNum+1, globalmap[curScriptNum].scriptname.c_str()); }
-				break;
-			case SCRIPT_GENERIC:
-				al_trace("Generic Script %u (%s): ", curScriptNum+1, genericmap[curScriptNum].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Generic Script %u (%s): \n", 
-					curScriptNum+1, genericmap[curScriptNum].scriptname.c_str()); }
-				break;
-			case SCRIPT_GENERIC_FROZEN:
-				al_trace("Generic Script (FRZ) %u (%s): ", curScriptNum+1, genericmap[curScriptNum].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Generic Script (FRZ) %u (%s): \n", 
-					curScriptNum+1, genericmap[curScriptNum].scriptname.c_str()); }
-				break;
-	
-			case SCRIPT_PLAYER:
-				al_trace("Hero script %u (%s): ", curScriptNum, playermap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Player script %u (%s): \n", curScriptNum, playermap[curScriptNum-1].scriptname.c_str()); }
-				break;
-			
-			case SCRIPT_LWPN:
-				al_trace("LWeapon script %u (%s): ", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"LWeapon script %u (%s): \n", curScriptNum, lwpnmap[curScriptNum-1].scriptname.c_str());}
-				break;
-			
-			case SCRIPT_EWPN:
-				al_trace("EWeapon script %u (%s): ", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"EWeapon script %u (%s): \n", curScriptNum, ewpnmap[curScriptNum-1].scriptname.c_str());}     
-				break;
-			
-			case SCRIPT_NPC:
-				al_trace("NPC script %u (%s): ", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"NPC script %u (%s): \n", curScriptNum, npcmap[curScriptNum-1].scriptname.c_str());}     
-				break;
-            
-			case SCRIPT_FFC:
-				al_trace("FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"FFC script %u (%s): ", curScriptNum, ffcmap[curScriptNum-1].scriptname.c_str());}
-				break;
-            
-			case SCRIPT_ITEM:
-				al_trace("Item script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Itemdata script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());}  
-				break;
-			
-			case SCRIPT_DMAP:
-				al_trace("DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"DMap script %u (%s): ", curScriptNum, dmapmap[curScriptNum-1].scriptname.c_str());} 
-				break;
-			
-			case SCRIPT_ITEMSPRITE:
-				al_trace("itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"itemsprite script %u (%s): ", curScriptNum, itemspritemap[curScriptNum-1].scriptname.c_str());} 
-				break;
-			
-			case SCRIPT_SCREEN:
-				al_trace("Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());
-				
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Screen script %u (%s): ", curScriptNum, screenmap[curScriptNum-1].scriptname.c_str());} 
-				break;
-			
-			case SCRIPT_SUBSCREEN:
-				al_trace("Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Subscreen script %u (%s): ", curScriptNum, itemmap[curScriptNum-1].scriptname.c_str());} 
-				break;
-			
-			case SCRIPT_COMBO:
-				al_trace("Combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
-				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Combo script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());}
-				break;
-        }
-        
+        FFCore.TraceScriptIDs();
+		
         char buf[2048];
         
         va_list ap;
@@ -1824,6 +1771,11 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 	}
 	if(ret && report)
 	{
+		if(replay_is_active())
+		{
+			exit(1);
+		}
+
 		system_pal();
 		std::ostringstream oss;
 		if(ret == qe_no_qst)
@@ -1878,8 +1830,10 @@ int32_t init_game()
 	// as a non-zero number for the recording, but is 0 during replay).
     frame = 0;
 
+	FFCore.user_objects_init();
 	//Copy saved data to RAM data (but not global arrays)
 	game->Copy(saves[currgame]);
+	game->load_user_objects();
 	bool firstplay = (game->get_hasplayed() == 0);
 
 	// The following code is the setup for recording a save file, enabled via "replay_new_saves" config.
@@ -1919,6 +1873,7 @@ int32_t init_game()
 				replay_set_debug(replay_debug_arg);
 				replay_set_sync_rng(true);
 				replay_set_meta("qst", relativize_path(game->qstpath));
+				replay_set_meta("name", game->get_name());
 				replay_save();
 			}
 			exit_sys_pal();
@@ -4738,6 +4693,7 @@ int main(int argc, char **argv)
 	}
 
 	al5img_init();
+	register_png_file_type();
 
 	three_finger_flag=false;
 	
@@ -5424,6 +5380,10 @@ int main(int argc, char **argv)
 	resy = 240*2;
 	screen_scale = 2;
 	
+	all_set_force_integer_scale(zc_get_config("zeldadx", "scaling_force_integer", 0) != 0);
+	if (strcmp(zc_get_config("zeldadx", "scaling_mode", "nn"), "linear") == 0)
+		all_set_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR);
+	
 	if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
 	{
 		//what we need here is not rightousness but madness!!!
@@ -5502,11 +5462,20 @@ int main(int argc, char **argv)
 		int o_window_h = al_get_display_height(all_get_display());
 		int center_x = o_window_x + o_window_w / 2;
 		int center_y = o_window_y + o_window_h / 2;
-		al_resize_display(all_get_display(), window_width, window_height);
-		al_set_window_position(all_get_display(), center_x - window_width / 2, center_y - window_height / 2);
+		double vscale = getverticalscale(); 
+		double hscale = gethorizontalscale(); 
+		int window_width_temp = window_width*hscale;
+		int window_height_temp = window_height*vscale;
+		al_resize_display(all_get_display(), window_width_temp, window_height_temp);
+		
+		int new_x = zc_get_config("zeldadx","window_x",0);
+		int new_y = zc_get_config("zeldadx","window_y",0);
+		if (new_x > 0 && new_y > 0) al_set_window_position(all_get_display(), new_x, new_y);
+		else al_set_window_position(all_get_display(), center_x - window_width_temp / 2, center_y - window_height_temp / 2);
 	}
 #endif
-	
+	LastWidth = al_get_display_width(all_get_display());
+	LastHeight = al_get_display_height(all_get_display());
 	sbig = (screen_scale > 1);
 	switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
 	set_display_switch_mode(is_windowed_mode()?SWITCH_PAUSE:switch_type);
@@ -5749,8 +5718,6 @@ int main(int argc, char **argv)
 #endif
 	
 reload_for_replay_file:
-	int replay_debug_last_x = -1;
-	int replay_debug_last_y = -1;
 	if (load_replay_file_deffered_called)
 	{
 		load_replay_file(load_replay_file_mode, load_replay_file_filename);
@@ -5787,7 +5754,15 @@ reload_for_replay_file:
 		}
 		strcpy(saves[0].qstpath, testingqst_name);
 		saves[0].set_quest(0xFF);
-		saves[0].set_name("Hero");
+		if (replay_is_active())
+		{
+			std::string replay_name = replay_get_meta_str("name", "Hero");
+			saves[0].set_name(replay_name.c_str());
+		}
+		else
+		{
+			saves[0].set_name("Hero");
+		}
 		clearConsole();
 		if (use_testingst_start)
 			Z_message("Test mode: \"%s\", %d, %d\n", testingqst_name, testingqst_dmap, testingqst_screen);
@@ -5831,28 +5806,14 @@ reload_for_replay_file:
 		while(Quit<=0)
 		{
 #ifdef _WIN32
-		
+			
 			if(use_win32_proc != FALSE)
 			{
 				win32data.Update(0);
 			}
-			
 #endif
 			game_loop();
-			if (replay_is_debug() && !Quit)
-			{
-				int x = HeroX().getInt();
-				int y = HeroY().getInt();
-				if (x != replay_debug_last_x || y != replay_debug_last_y)
-				{
-					replay_step_comment(fmt::format("h {:x} {:x}", x, y));
-					replay_debug_last_x = x;
-					replay_debug_last_y = y;
-				}
-			}
-
-			FFCore.newScriptEngine();
-			
+			advanceframe(true);
 			FFCore.runF6Engine();
 		
 			//clear Hero's last hits 
@@ -5996,6 +5957,7 @@ reload_for_replay_file:
 			FFCore.user_dirs_init(); //Clear open FLIST*!
 			FFCore.user_bitmaps_init(); //Clear open bitmaps
 			FFCore.user_stacks_init(); //Clear open stacks
+			FFCore.user_objects_init(); //Clear open stacks
 		}
 		//Deallocate ALL ZScript arrays on ANY exit.
 		FFCore.deallocateAllArrays();

@@ -52,6 +52,7 @@ namespace ZScript
 		virtual void caseExprIndex(ASTExprIndex &host, void *param);
 		virtual void caseExprCall(ASTExprCall &host, void *param);
 		virtual void caseExprNegate(ASTExprNegate &host, void *param);
+		virtual void caseExprDelete(ASTExprDelete &host, void *param);
 		virtual void caseExprNot(ASTExprNot &host, void *param);
 		virtual void caseExprBitNot(ASTExprBitNot &host, void *param);
 		virtual void caseExprIncrement(ASTExprIncrement &host, void *param);

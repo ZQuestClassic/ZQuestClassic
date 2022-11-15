@@ -31,7 +31,9 @@ namespace ZScript
 
 	// ZScript.h
 	class Script;
+	class UserClass;
 	class Datum;
+	class UserClassVar;
 	class Namespace;
 	class Function;
 	class FunctionSignature;
@@ -41,6 +43,7 @@ namespace ZScript
 	class RootScope;
 	class FileScope;
 	class ScriptScope;
+	class ClassScope;
 	class FunctionScope;
 	class NamespaceScope;
 
@@ -62,6 +65,7 @@ namespace ZScript
 		virtual bool isGlobal() const {return false;}
 		virtual bool isRoot() const {return false;}
 		virtual bool isScript() const {return false;}
+		virtual bool isClass() const {return false;}
 		virtual bool isFunction() const {return false;}
 		virtual bool isNamespace() const {return false;}
 		virtual bool isFile() const {return false;}
@@ -79,6 +83,7 @@ namespace ZScript
 		virtual std::vector<Scope*> getChildren() const = 0;
 		virtual FileScope* getFile() const = 0;
 		virtual ScriptScope* getScript() = 0;
+		virtual ClassScope* getClass() = 0;
 		virtual int32_t useNamespace(std::string name, bool noUsing) = 0;
 		virtual int32_t useNamespace(std::vector<std::string> names, std::vector<std::string> delimiters, bool noUsing) = 0;
 	
@@ -112,6 +117,7 @@ namespace ZScript
 		virtual Scope* makeChild(std::string const& name) = 0;
 		virtual FileScope* makeFileChild(std::string const& filename) = 0;
 		virtual ScriptScope* makeScriptChild(Script& script) = 0;
+		virtual ClassScope* makeClassChild(UserClass& user_class) = 0;
 		virtual NamespaceScope* makeNamespaceChild(ASTNamespace& node) = 0;
 		virtual FunctionScope* makeFunctionChild(Function& function) = 0;
 		virtual DataType const* addDataType(
@@ -216,6 +222,7 @@ namespace ZScript
 	// Attempt to resolve name to a variable under scope.
 	Datum* lookupDatum(Scope &, std::string const& name, ASTExprIdentifier& host, CompileErrorHandler* errorHandler, bool forceSkipUsing = false);
 	Datum* lookupDatum(Scope &, ASTExprIdentifier& host, CompileErrorHandler* errorHandler);
+	UserClassVar* lookupClassVars(Scope& scope, ASTExprIdentifier& host, CompileErrorHandler* errorHandler);
 	
 	// Attempt to resolve name to a getter under scope.
 	Function* lookupGetter(Scope const&, std::string const& name);
@@ -228,11 +235,17 @@ namespace ZScript
 	
 	// Attempt to resolve name to possible functions under scope.
 	std::vector<Function*> lookupFunctions(
-			Scope&, std::string const& name, std::vector<DataType const*> const& parameterTypes, bool noUsing);
+			Scope&, std::string const& name, std::vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass = false);
 	std::vector<Function*> lookupFunctions(
-			Scope&, std::vector<std::string> const& name, std::vector<std::string> const& delimiters, std::vector<DataType const*> const& parameterTypes, bool noUsing);
-			
-	inline void trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes);
+			Scope&, std::vector<std::string> const& name, std::vector<std::string> const& delimiters, std::vector<DataType const*> const& parameterTypes, bool noUsing, bool isClass = false);
+	
+	UserClass* lookupClass(Scope& scope, std::string const& name, bool noUsing);
+	UserClass* lookupClass(Scope& scope, std::vector<std::string> const& names,
+		std::vector<std::string> const& delimiters, bool noUsing);
+	std::vector<Function*> lookupConstructors(UserClass const& user_class, std::vector<DataType const*> const& parameterTypes);
+	std::vector<Function*> lookupClassFuncs(UserClass const& user_class,
+		std::string const& name, std::vector<DataType const*> const& parameterTypes);
+	inline void trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes, bool trimClasses = true);
 
 	// Resolve an option value under the scope. Will only return empty if
 	// the provided option is invalid. If the option is valid but not set,
@@ -301,6 +314,7 @@ namespace ZScript
 		virtual std::vector<Scope*> getChildren() const;
 		virtual FileScope* getFile() const {return parentFile_;}
 		virtual ScriptScope* getScript();
+		virtual ClassScope* getClass();
 		virtual int32_t useNamespace(std::string name, bool noUsing);
 		virtual int32_t useNamespace(std::vector<std::string> names, std::vector<std::string> delimiters, bool noUsing);
 	
@@ -333,6 +347,7 @@ namespace ZScript
 		virtual Scope* makeChild(std::string const& name);
 		virtual FileScope* makeFileChild(std::string const& filename);
 		virtual ScriptScope* makeScriptChild(Script& script);
+		virtual ClassScope* makeClassChild(UserClass& user_class);
 		virtual NamespaceScope* makeNamespaceChild(ASTNamespace& node);
 		virtual FunctionScope* makeFunctionChild(Function& function);
 		virtual DataType const* addDataType(
@@ -361,7 +376,8 @@ namespace ZScript
 		// Stack
 		virtual int32_t getLocalStackDepth() const {return stackDepth_;}
 		virtual std::optional<int32_t> getLocalStackOffset(Datum const& datum) const;
-		
+
+		int32_t stackDepth_;
 	protected:
 		Scope* parent_;
 		FileScope* parentFile_;
@@ -373,7 +389,6 @@ namespace ZScript
 		std::vector<Datum*> anonymousData_;
 		std::map<std::string, Datum*> namedData_;
 		std::map<Datum*, int32_t> stackOffsets_;
-		int32_t stackDepth_;
 		std::map<std::string, Function*> getters_;
 		std::map<std::string, Function*> setters_;
 		std::map<std::string, std::vector<Function*> > functionsByName_;
@@ -409,6 +424,7 @@ namespace ZScript
 		// present there as well.
 		virtual Scope* makeChild(std::string const& name);
 		virtual ScriptScope* makeScriptChild(Script& script);
+		virtual ClassScope* makeClassChild(UserClass& user_class);
 		virtual NamespaceScope* makeNamespaceChild(ASTNamespace& node);
 		virtual DataType const* addDataType(
 				std::string const& name, DataType const* type,
@@ -514,6 +530,28 @@ namespace ZScript
 		ScriptScope(Scope* parent, FileScope* parentFile, Script& script);
 		virtual bool isScript() const {return true;}
 		Script& script;
+	};
+	class ClassScope : public BasicScope
+	{
+	public:
+		ClassScope(Scope* parent, FileScope* parentFile, UserClass& user_class);
+		virtual bool isClass() const {return true;}
+		UserClass& user_class;
+		
+		std::vector<Function*> getMemberFuncs() const;
+		std::vector<Function*> getConstructors() const;
+		std::vector<Function*> getDestructor() const;
+		bool add(Datum& datum, CompileErrorHandler* errorHandler);
+		void parse_ucv();
+		UserClassVar* getClassVar(std::string const& name);
+		virtual Function* addFunction(
+				DataType const* returnType, std::string const& name,
+				std::vector<DataType const*> const& paramTypes, std::vector<std::string const*> const& paramNames,
+				int32_t flags = 0, ASTFuncDecl* node = NULL, CompileErrorHandler* handler = NULL);
+	private:
+		std::map<FunctionSignature, Function*> constructorsBySignature_;
+		Function* destructor_;
+		std::map<std::string, UserClassVar*> classData_;
 	};
 
 	class FunctionScope : public BasicScope

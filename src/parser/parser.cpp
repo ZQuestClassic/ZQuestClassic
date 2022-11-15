@@ -74,7 +74,7 @@ void zconsole_db(const char *format,...)
 		if(ConsoleWrite)
 			fprintf(console, "%s", tmp);
 		else
-			fprintf(console, "%s\r\n", tmp);
+			fprintf(console, "%s\n", tmp);
 		fclose(console);
 	}
 	if(ConsoleWrite)
@@ -108,7 +108,7 @@ void zconsole_warn(const char *format,...)
 		if(ConsoleWrite)
 			fprintf(console, "%s", tmp);
 		else
-			fprintf(console, "%s\r\n", tmp);
+			fprintf(console, "%s\n", tmp);
 		fclose(console);
 	}
 	if(ConsoleWrite)
@@ -143,7 +143,7 @@ void zconsole_error(const char *format,...)
 		if(ConsoleWrite)
 			fprintf(console, "%s", tmp);
 		else
-			fprintf(console, "%s\r\n", tmp);
+			fprintf(console, "%s\n", tmp);
 		fclose(console);
 	}
 	if(ConsoleWrite)
@@ -177,7 +177,7 @@ void zconsole_info(const char *format,...)
 		if(ConsoleWrite)
 			fprintf(console, "%s", tmp);
 		else
-			fprintf(console, "%s\r\n", tmp);
+			fprintf(console, "%s\n", tmp);
 		fclose(console);
 	}
 	if(ConsoleWrite)
@@ -349,12 +349,16 @@ int32_t main(int32_t argc, char **argv)
 	strcpy(FFCore.scriptRunString, runstr);
 	updateIncludePaths();
 	// Any errors will be printed to stdout.
-	/*
-	for(auto q = 0; q < 2147483647; ++q)
+	#ifdef _DEBUG
+	if(used_switch(argc, argv, "-delay"))
 	{
-		if(!(rand()%10))
-			--q;
-	} //*/
+		for(auto q = 0; q < 2147483647; ++q)
+		{
+			if(!(rand()%10))
+				--q;
+		}
+	}
+	#endif
 	unique_ptr<ZScript::ScriptsData> result(compile(script_path));
 	if(!result)
 		zconsole_info("%s", "Failure!");

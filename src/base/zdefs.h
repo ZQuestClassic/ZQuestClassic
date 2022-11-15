@@ -136,6 +136,12 @@
 #include "base/process_management.h"
 #include "zconfig.h"
 
+typedef uint8_t  byte;  //0-255  ( 8 bits)
+typedef uint16_t word;  //0-65,535  (16 bits)
+typedef uint32_t dword; //0-4,294,967,295  (32 bits)
+typedef uint64_t qword; //0-18,446,744,073,709,551,616  (64 bits)
+#include "user_object.h"
+
 
 
 #define ZELDA_VERSION       0x0255                         //version of the program
@@ -267,7 +273,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        29
+#define V_SAVEGAME        30
 #define V_COMBOALIASES     4
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        7
@@ -349,11 +355,6 @@ extern int32_t passive_subscreen_offset;
 
 extern int32_t CSET_SIZE;
 extern int32_t CSET_SHFT;
-
-typedef uint8_t  byte;  //0-255  ( 8 bits)
-typedef uint16_t word;  //0-65,535  (16 bits)
-typedef uint32_t dword; //0-4,294,967,295  (32 bits)
-typedef uint64_t qword; //0-18,446,744,073,709,551,616  (64 bits)
 
 extern int32_t readsize, writesize;
 extern bool fake_pack_writing;
@@ -2306,6 +2307,7 @@ struct guydata
 #define FLAG_IGNORE_SCREENEDGE        0x2000
 #define FLAG_USE_NEW_MOVEMENT         0x4000
 
+#define MAX_PC dword(-1)
 class refInfo
 {
 public:
@@ -2333,6 +2335,7 @@ public:
 	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
 	
 	int32_t switchkey; //used for switch statements
+	dword thiskey; //used for user class 'this' pointers
 	
 	void Clear()
 	{
@@ -2349,6 +2352,7 @@ public:
 		memset(d, 0, 8 * sizeof(int32_t));
 		a[0] = a[1] = 0;
 		switchkey = 0;
+		thiskey = 0;
 	}
 	
 	refInfo()
@@ -2379,6 +2383,7 @@ public:
 		memcpy(d, rhs.d, 8 * sizeof(int32_t));
 		memcpy(a, rhs.a, 2 * sizeof(int32_t));
 		switchkey = rhs.switchkey;
+		thiskey = rhs.thiskey;
 		return *this;
 	}
 };
@@ -4543,6 +4548,7 @@ enum
 	crCUSTOM19, crCUSTOM20, crCUSTOM21, crCUSTOM22, crCUSTOM23,
 	crCUSTOM24, crCUSTOM25, MAX_COUNTERS
 };
+
 #define DIDCHEAT_BIT 0x80
 #define NUM_GSWITCHES 256
 struct gamedata
@@ -4632,6 +4638,8 @@ struct gamedata
 	int32_t gswitch_timers[NUM_GSWITCHES];
 
 	std::string replay_file;
+	std::vector<saved_user_object> user_objects;
+	
 	
 	// member functions
 	// public:
@@ -4654,8 +4662,11 @@ struct gamedata
 		return *this;
 	}
 	
+	void save_user_objects();
+	void load_user_objects();
+	
 	char *get_name();
-	void set_name(char *n);
+	void set_name(const char *n);
 	
 	byte get_quest();
 	void set_quest(byte q);

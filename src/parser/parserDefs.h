@@ -9,8 +9,12 @@
 using namespace util;
 
 //FUNCFLAG values, for `Function` and `ASTFuncDecl` objects.
-#define FUNCFLAG_INLINE				0x01
-#define FUNCFLAG_INVALID			0x02
+#define FUNCFLAG_INLINE             0x01
+#define FUNCFLAG_INVALID            0x02
+#define FUNCFLAG_STATIC             0x04
+#define FUNCFLAG_CONSTRUCTOR        0x08
+#define FUNCFLAG_DESTRUCTOR         0x10
+#define FUNCFLAG_CLASSFUNC          0x20
 
 #define IFUNCFLAG_SKIPPOINTER		0x01
 #define IFUNCFLAG_REASSIGNPTR		0x02

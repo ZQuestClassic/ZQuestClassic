@@ -2,7 +2,8 @@
 #include <allegro.h>
 #include <allegro/internal/aintern.h>
 #include <a5alleg.h>
-#include <algif.h>
+#include <load_gif.h>
+#include <save_gif.h>
 
 BITMAP *al5_bitmap_to_al4_bitmap(ALLEGRO_BITMAP *a5bmp, RGB *pal)
 {
@@ -146,20 +147,10 @@ BITMAP *load_bmp_al5(AL_CONST char *filename, RGB *pal)
     return load_al4_bitmap_through_al5(filename, pal);
 }
 
-BITMAP *load_gif(AL_CONST char *filename, RGB *pal)
-{
-    ALGIF_ANIMATION *gif = algif_load_animation(filename);
-    ALLEGRO_BITMAP *a5bmp = algif_get_bitmap(gif, 0);
-    BITMAP *bmp = al5_bitmap_to_al4_bitmap(a5bmp, pal);
-    algif_destroy_animation(gif);
-    return bmp;
-}
-
 void al5img_init()
 {
     register_bitmap_file_type("jpg", load_al4_bitmap_through_al5, save_al4_bitmap_through_al5);
     register_bitmap_file_type("jpeg", load_al4_bitmap_through_al5, save_al4_bitmap_through_al5);
     register_bitmap_file_type("bmp", load_bmp_al5, save_bmp);
-    register_bitmap_file_type("png", load_al4_bitmap_through_al5, save_al4_bitmap_through_al5);
-    register_bitmap_file_type("gif", load_gif, save_al4_bitmap_through_al5);
+    register_bitmap_file_type("gif",  load_gif, save_gif);
 }

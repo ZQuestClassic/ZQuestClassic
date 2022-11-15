@@ -33,6 +33,7 @@
 #include <malloc.h>
 #endif
 
+#include "WindowsScaling.h"
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
 #include "particles.h"
@@ -42,6 +43,7 @@ particle_list particles;
 void setZScriptVersion(int32_t) { } //bleh...
 
 #include <al5img.h>
+#include <loadpng.h>
 
 #include "dialog/cheat_codes.h"
 #include "dialog/room.h"
@@ -494,10 +496,12 @@ int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_cpoollist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
 int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0, TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0, BlinkSpeed = 20, UseSmall = 0, RulesetDialog = 0, EnableTooltips = 0, 
-	ShowFFScripts = 0, ShowSquares = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 0, DisableCompileConsole = 0, numericalFlags = 0;
+	ShowFFScripts = 0, ShowSquares = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 1, DisableCompileConsole = 0, numericalFlags = 0;
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0; 
-bool Vsync = false, ShowFPS = false;
+int32_t window_width, window_height;
+bool Vsync = false, ShowFPS = false, SaveDragResize = false, DragAspect = false, SaveWinPos=false;
+int32_t LastWidth = 0, LastHeight = 0;
 int32_t ComboBrush = 0;                                             //show the brush instead of the normal mouse
 int32_t ComboBrushPause = 0;                                        //temporarily disable the combo brush
 int32_t BrushPosition = 0;                                          //top left, middle, bottom right, etc.
@@ -8522,38 +8526,38 @@ static void fill(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t tar
     }
 }
 
-static void fill_flag(mapscr* fillscr, int32_t targetflag, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal)
+static void fill_flag(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t targetflag, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal)
 {
 	if((fillscr->sflag[((sy<<4)+sx)])!=targetflag)
 		return;
 	
-    Map.DoSetFlagCommand(Map.getCurrMap(), Map.getCurrScr(), (sy<<4)+sx, Flag);
+    Map.DoSetFlagCommand(map, screen_index, (sy<<4)+sx, Flag);
 	
 	if((sy>0) && (dir!=down))
-		fill_flag(fillscr, targetflag, sx, sy-1, up, diagonal);
+		fill_flag(map, screen_index, fillscr, targetflag, sx, sy-1, up, diagonal);
 		
 	if((sy<10) && (dir!=up))
-		fill_flag(fillscr, targetflag, sx, sy+1, down, diagonal);
+		fill_flag(map, screen_index, fillscr, targetflag, sx, sy+1, down, diagonal);
 		
 	if((sx>0) && (dir!=right))
-		fill_flag(fillscr, targetflag, sx-1, sy, left, diagonal);
+		fill_flag(map, screen_index, fillscr, targetflag, sx-1, sy, left, diagonal);
 		
 	if((sx<15) && (dir!=left))
-		fill_flag(fillscr, targetflag, sx+1, sy, right, diagonal);
+		fill_flag(map, screen_index, fillscr, targetflag, sx+1, sy, right, diagonal);
 		
 	if(diagonal==1)
 	{
 		if((sy>0) && (sx>0) && (dir!=r_down))
-			fill_flag(fillscr, targetflag, sx-1, sy-1, l_up, diagonal);
+			fill_flag(map, screen_index, fillscr, targetflag, sx-1, sy-1, l_up, diagonal);
 			
 		if((sy<10) && (sx<15) && (dir!=l_up))
-			fill_flag(fillscr, targetflag, sx+1, sy+1, r_down, diagonal);
+			fill_flag(map, screen_index, fillscr, targetflag, sx+1, sy+1, r_down, diagonal);
 			
 		if((sx>0) && (sy<10) && (dir!=r_up))
-			fill_flag(fillscr, targetflag, sx-1, sy+1, l_down, diagonal);
+			fill_flag(map, screen_index, fillscr, targetflag, sx-1, sy+1, l_down, diagonal);
 			
 		if((sx<15) && (sy>0) && (dir!=l_down))
-			fill_flag(fillscr, targetflag, sx+1, sy-1, r_up, diagonal);
+			fill_flag(map, screen_index, fillscr, targetflag, sx+1, sy-1, r_up, diagonal);
 	}
 	
 }
@@ -9307,7 +9311,7 @@ void fill_4_flag()
         }
         
         Map.StartListCommand();
-		fill_flag(Map.AbsoluteScr(drawmap, drawscr),
+		fill_flag(drawmap, drawscr, Map.AbsoluteScr(drawmap, drawscr),
              (Map.AbsoluteScr(drawmap, drawscr)->sflag[(by<<4)+bx]),
              bx, by, 255, 0);
         Map.FinishListCommand();
@@ -9398,7 +9402,7 @@ void fill_8_flag()
         }
         
         Map.StartListCommand();
-        fill_flag(Map.AbsoluteScr(drawmap, drawscr),
+        fill_flag(drawmap, drawscr, Map.AbsoluteScr(drawmap, drawscr),
              (Map.AbsoluteScr(drawmap, drawscr)->sflag[(by<<4)+bx]),
              bx, by, 255, 1);
         Map.FinishListCommand();
@@ -25495,6 +25499,7 @@ int32_t onCompileScript()
 		sprintf(zScriptBytes, "%d Bytes in Buffer", (int32_t)(zScript.size()));
 		sprintf(zLastVer, "Last Compiled Using ZScript: v.%d",(FFCore.quest_format[vLastCompile]));
 		int32_t ret = zc_popup_dialog(compile_dlg,5);
+		bool ctrl = key_shifts & KB_CTRL_FLAG;
 		try_recovering_missing_scripts = (compile_dlg[9].flags & D_SELECTED) ? 1 : 0;
 		switch(ret)
 		{
@@ -25639,6 +25644,10 @@ int32_t onCompileScript()
 				};
 				if(zc_get_config("Compiler","noclose_compile_console",0))
 					args.push_back("-noclose");
+				#ifdef _DEBUG
+				if(ctrl)
+					args.push_back("-delay");
+				#endif
 				process_manager* pm = launch_piped_process(ZSCRIPT_FILE, args);
 				if(!pm)
 				{
@@ -30300,31 +30309,34 @@ void custom_vsync()
 
 void switch_out()
 {
-    zcmusic_pause(zcmusic, ZCM_PAUSE);
-    zc_midi_pause();
+	zcmusic_pause(zcmusic, ZCM_PAUSE);
+	zc_midi_pause();
 }
 
 void switch_in()
 {
-    if(quit)
-        return;
-        
-    BITMAP *ts=screen;
-    screen=menu1;
-    
-    /*
-    if (!is_large) 
+	if(quit)
+		return;
+	acquire_screen();
+	BITMAP *ts=screen;
+	screen=menu1;
+	acquire_screen();
+	
+	/*
+	if (!is_large) 
 	{
 		dialogs[0].dp = (void *) the_menu;
 	}
 	else dialogs[0].dp = (void *) the_menu_large;
-    */
-    //dialogs[0].dp2 = z3font;
-    jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
-    
-    screen=ts;
-    zcmusic_pause(zcmusic, ZCM_RESUME);
-    zc_midi_resume();
+	*/
+	//dialogs[0].dp2 = z3font;
+	jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
+	
+	release_screen();
+	screen=ts;
+	release_screen();
+	zcmusic_pause(zcmusic, ZCM_RESUME);
+	zc_midi_resume();
 }
 
 void Z_eventlog(const char *format,...)
@@ -30633,6 +30645,7 @@ int32_t main(int32_t argc,char **argv)
 	}
 
 	al5img_init();
+	register_png_file_type();
 
 #ifdef __EMSCRIPTEN__
 	em_mark_initializing_status();
@@ -31166,7 +31179,7 @@ int32_t main(int32_t argc,char **argv)
 	chop_path(imagepath);
 	chop_path(tmusicpath);
 	
-	DisableLPalShortcuts        = zc_get_config("zquest","dis_lpal_shortcut",0);
+	DisableLPalShortcuts        = zc_get_config("zquest","dis_lpal_shortcut",1);
 	DisableCompileConsole        = zc_get_config("zquest","internal_compile_console",0);
 	MouseScroll					= zc_get_config("zquest","mouse_scroll",0);
 	WarnOnInitChanged			  = zc_get_config("zquest","warn_initscript_changes",1);
@@ -31180,6 +31193,9 @@ int32_t main(int32_t argc,char **argv)
 	CycleOn						= zc_get_config("zquest","cycle_on",1);
 	Vsync						  = zc_get_config("zquest","vsync",1)!=0;
 	ShowFPS						= zc_get_config("zquest","showfps",0)!=0;
+	SaveDragResize						= zc_get_config("zquest","save_drag_resize",0)!=0;
+	DragAspect						= zc_get_config("zquest","drag_aspect",0)!=0;
+	SaveWinPos						= zc_get_config("zquest","save_window_position",0)!=0;
 	ComboBrush					 = zc_get_config("zquest","combo_brush",0);
 	BrushPosition				  = zc_get_config("zquest","brush_position",0);
 	FloatBrush					 = zc_get_config("zquest","float_brush",0);
@@ -31794,16 +31810,15 @@ int32_t main(int32_t argc,char **argv)
 	  zqwin_set_scale(scale_arg);
 	}*/
 
+	all_set_force_integer_scale(zc_get_config("zquest", "scaling_force_integer", 0) != 0);
+	if (strcmp(zc_get_config("zquest", "scaling_mode", "nn"), "linear") == 0)
+		all_set_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR);
+
 	int32_t videofail = (set_gfx_mode(tempmode,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0));
 
 	if(videofail!=0)
 	{
-		allegro_init();
 		three_finger_flag=false;
-
-#ifndef __EMSCRIPTEN__
-		al5img_init();
-#endif
 		
 		//set_config_file("ag.cfg");
 		zc_set_config_standard();
@@ -31935,6 +31950,35 @@ int32_t main(int32_t argc,char **argv)
 		al_hide_mouse_cursor(all_get_display());
 #endif
 	}
+	
+#ifndef __EMSCRIPTEN__
+	if (!all_get_fullscreen_flag()) {
+		// Just in case.
+		while (!all_get_display()) {
+			al_rest(1);
+		}
+		window_width = is_large ? zc_get_config("zquest","large_window_width",zq_screen_w) : zc_get_config("zquest","small_window_width",zq_screen_w);
+		window_height = is_large ? zc_get_config("zquest","large_window_height",zq_screen_h) : zc_get_config("zquest","small_window_height",zq_screen_h);
+		int o_window_x, o_window_y;
+		al_get_window_position(all_get_display(), &o_window_x, &o_window_y);
+		int o_window_w = al_get_display_width(all_get_display());
+		int o_window_h = al_get_display_height(all_get_display());
+		int center_x = o_window_x + o_window_w / 2;
+		int center_y = o_window_y + o_window_h / 2;
+		double vscale = getverticalscale(); 
+		double hscale = gethorizontalscale(); 
+		int window_width_temp = window_width*hscale;
+		int window_height_temp = window_height*vscale;
+		al_resize_display(all_get_display(), window_width_temp, window_height_temp);
+		
+		int new_x = zc_get_config("zquest","window_x",0);
+		int new_y = zc_get_config("zquest","window_y",0);
+		if (new_x > 0 && new_y > 0) al_set_window_position(all_get_display(), new_x, new_y);
+		else al_set_window_position(all_get_display(), center_x - window_width_temp / 2, center_y - window_height_temp / 2);
+	}
+#endif
+	LastWidth = al_get_display_width(all_get_display());
+	LastHeight = al_get_display_height(all_get_display());
 
 	//check and log RTC date and time
 	for (int32_t q = 0; q < curTimeLAST; q++) 
@@ -32324,7 +32368,7 @@ int32_t main(int32_t argc,char **argv)
 		}
 		
 #endif
-		
+		doAspectResize();
 		check_autosave();
 		/*
 		if (!is_large) 
@@ -33320,6 +33364,9 @@ int32_t save_config_file()
     set_config_int("zquest","cycle_on",CycleOn);
     set_config_int("zquest","vsync",Vsync);
     set_config_int("zquest","showfps",ShowFPS);
+    set_config_int("zquest","save_drag_resize",SaveDragResize);
+    set_config_int("zquest","drag_aspect",DragAspect);
+    set_config_int("zquest","save_window_position",SaveWinPos);
     set_config_int("zquest","combo_brush",ComboBrush);
     set_config_int("zquest","brush_position",BrushPosition);
     set_config_int("zquest","float_brush",FloatBrush);
@@ -33339,6 +33386,32 @@ int32_t save_config_file()
     set_config_int("zquest","overwrite_prevention",OverwriteProtection);
     set_config_int("zquest","import_map_bias",ImportMapBias);
     
+    if (all_get_display() && !all_get_fullscreen_flag()) 
+    {
+	if (SaveDragResize)
+	{
+		window_width = al_get_display_width(all_get_display()) / gethorizontalscale();
+		window_height = al_get_display_height(all_get_display()) / getverticalscale();
+	}
+	if (is_large) 
+	{
+		set_config_int("zquest","large_window_width",window_width);
+		set_config_int("zquest","large_window_height",window_height);
+	}
+	else
+	{
+		set_config_int("zquest","small_window_width",window_width);
+		set_config_int("zquest","small_window_height",window_height);
+	}
+    }
+    if (all_get_display() && !all_get_fullscreen_flag() && SaveWinPos)
+    {
+		int o_window_x, o_window_y;
+		al_get_window_position(all_get_display(), &o_window_x, &o_window_y);
+		set_config_int("zquest", "window_x", o_window_x);
+		set_config_int("zquest", "window_y", o_window_y);
+    }
+    
     set_config_int("zquest","keyboard_repeat_delay",KeyboardRepeatDelay);
     set_config_int("zquest","keyboard_repeat_rate",KeyboardRepeatRate);
     
@@ -33346,6 +33419,12 @@ int32_t save_config_file()
     set_config_int("zquest","small",UseSmall);
     set_config_int("zquest","rulesetdialog",RulesetDialog);
     set_config_int("zquest","enable_tooltips",EnableTooltips);
+    
+    if (all_get_display() && SaveDragResize)
+    {
+	window_width = al_get_display_width(all_get_display()) / gethorizontalscale();
+	window_height = al_get_display_height(all_get_display()) / getverticalscale();
+    }
     
     for(int32_t x=0; x<7; x++)
     {
@@ -34147,6 +34226,7 @@ void FFScript::user_bitmaps_init()
 
 void FFScript::user_files_init(){}
 void FFScript::user_dirs_init(){}
+void FFScript::user_objects_init(){}
 void FFScript::user_stacks_init(){}
 
 void FFScript::deallocateAllArrays(const byte scriptType, const int32_t UID, bool requireAlways){}
@@ -34268,9 +34348,39 @@ void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest,BITMAP* 
 }
 void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest,BITMAP* transdest){}
 
+void doAspectResize()
+{
+	if (DragAspect)
+	{
+		if (LastWidth == 0 || LastHeight == 0)
+		{
+			LastWidth = al_get_display_width(all_get_display());
+			LastHeight = al_get_display_height(all_get_display());
+		}
+		if (LastWidth != al_get_display_width(all_get_display()) || LastHeight != al_get_display_height(all_get_display()))
+		{
+			bool widthfirst = true;
+			
+			if (abs(LastWidth - al_get_display_width(all_get_display())) < abs(LastHeight - al_get_display_height(all_get_display()))) widthfirst = false;
+			
+			if (widthfirst)
+			{
+				al_resize_display(all_get_display(), al_get_display_width(all_get_display()), al_get_display_width(all_get_display())*0.75);
+			}
+			else
+			{
+				al_resize_display(all_get_display(), al_get_display_height(all_get_display())/0.75, al_get_display_height(all_get_display()));
+			}
+		}
+		LastWidth = al_get_display_width(all_get_display());
+		LastHeight = al_get_display_height(all_get_display());
+	}
+}
+
 bool update_hw_pal = false;
 void update_hw_screen(bool force)
 {
+	doAspectResize();
 	if(force || myvsync)
 	{
 		zc_process_mouse_events();
@@ -34357,6 +34467,7 @@ void exit_sys_pal(){}
 
 void replay_step_comment(std::string comment) {}
 bool replay_is_active() {return false;}
+int replay_get_version() {return 0;}
 bool replay_is_debug() {return false;}
 
 #ifdef __EMSCRIPTEN__

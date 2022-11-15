@@ -534,6 +534,20 @@ set_target_properties(allegro-legacy
     )
 
 # local edit
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    set_property(TARGET allegro-legacy
+        APPEND_STRING PROPERTY COMPILE_FLAGS "/O2"
+    )
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set_property(TARGET allegro-legacy
+        APPEND_STRING PROPERTY COMPILE_FLAGS "-O3"
+    )
+endif()
+
+STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
+
+# local edit
 if(APPLE)
     set_target_properties(allegro-legacy PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
     set_target_properties(allegro-legacy PROPERTIES INSTALL_NAME_DIR "@rpath")

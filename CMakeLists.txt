@@ -1,6 +1,8 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.24)
 set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo CACHE STRING INTERNAL FORCE)
 project (ZeldaClassic)
+
+include(FetchContent)
 
 set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
 set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
@@ -46,6 +48,47 @@ function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
 endfunction(enable_unity_build)
 
 #############################################################
+# zlib/libpng
+#############################################################
+
+if(NOT EMSCRIPTEN)
+	FetchContent_Declare(
+		zlib
+		GIT_REPOSITORY
+			https://github.com/Mizux/zlib.git
+		GIT_TAG
+			19d7d6b32ee3af4ed4bdec415f42f518c93b5025
+		FIND_PACKAGE_ARGS NAMES ZLIB
+	)
+	FetchContent_MakeAvailable(zlib)
+
+	if(NOT ZLIB_LIBRARIES)
+		set(ZLIB_INCLUDE_DIR ${zlib_SOURCE_DIR} ${zlib_BINARY_DIR})
+		set(ZLIB_LIBRARY ZLIB::ZLIB)
+		set(ZLIB_LIBRARIES ZLIB::ZLIB)
+	endif()
+
+	set(PNG_BUILD_ZLIB ON CACHE BOOL "")
+	set(PNG_STATIC OFF CACHE BOOL "")
+	set(WANT_IMAGE_PNG OFF)
+	FetchContent_Declare(
+		png
+		GIT_REPOSITORY
+			https://github.com/glennrp/libpng.git
+		GIT_TAG
+			v1.6.37
+		FIND_PACKAGE_ARGS NAMES PNG
+	)
+	FetchContent_MakeAvailable(png)
+
+	if(NOT PNG_LIBRARIES)
+		set(PNG_LIBRARIES png)
+		set(PNG_INCLUDE_DIRS "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
+		set(PNG_INCLUDE_DIR "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
+	endif()
+endif()
+
+#############################################################
 # Allegro
 #############################################################
 
@@ -62,7 +105,6 @@ add_definitions(-DALLEGRO_KCM_AUDIO_SRC)
 add_definitions(-DALLEGRO_UNSTABLE)
 option(SHARED "" ON)
 
-include(FetchContent)
 FetchContent_Declare(
   allegro5
   GIT_REPOSITORY https://github.com/connorjclark/allegro5.git
@@ -122,7 +164,6 @@ endif()
 # Header and source file lists
 #############################################################
 
-include_directories(./include/zlib123)
 include_directories(./include/xxhash)
 include_directories(./src)
 # TODO: remove
@@ -207,13 +248,6 @@ if(WIN32)
 endif()
 
 if(MSVC)
-	if("${vs_platform}" STREQUAL "win32")
-		set(IMAGELIBS "$<$<CONFIG:DEBUG>:$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib>"
-					  "$<$<CONFIG:RELEASE>:$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib>")
-	endif()
-
-	add_compile_options("$<$<CONFIG:DEBUG>:/MTd>")
-	add_compile_options("$<$<CONFIG:RELEASE>:/MT>")
 	# Turn off warnings for all targets that aren't ours (set later in Misc. section)
 	add_compile_options(/W0)
 
@@ -274,17 +308,32 @@ endif()
 # Allegro Graphics Addons
 #############################################################
 
-add_library(algif5 STATIC
-	allegro-addons/algif5/src/algif.c
-	allegro-addons/algif5/src/bitmap.c
-	allegro-addons/algif5/src/gif.c
-	allegro-addons/algif5/src/lzw.c
+add_library(alpng STATIC
+	allegro-addons/loadpng/loadpng.c
+	allegro-addons/loadpng/regpng.c
+	allegro-addons/loadpng/savepng.c
 )
-target_include_directories(algif5 PUBLIC
-	allegro-addons/algif5/src
+target_link_libraries(alpng PUBLIC
+	allegro_with_legacy
+	${PNG_LIBRARIES}
 )
-target_link_libraries(algif5 PUBLIC allegro_with_legacy)
-list(APPEND IMAGELIBS algif5)
+target_include_directories(alpng PUBLIC
+	allegro-addons/loadpng
+)
+target_include_directories(alpng PRIVATE
+	${PNG_INCLUDE_DIRS}
+)
+list(APPEND IMAGELIBS alpng)
+
+add_library(algif STATIC
+	allegro-addons/algif/src/save_gif.cpp
+	allegro-addons/algif/src/load_gif.cpp
+)
+target_include_directories(algif PUBLIC
+	allegro-addons/algif/include
+)
+target_link_libraries(algif PUBLIC allegro_with_legacy)
+list(APPEND IMAGELIBS algif)
 
 add_library(al5img STATIC
 	allegro-addons/al5img/src/al5img.c
@@ -292,7 +341,7 @@ add_library(al5img STATIC
 target_include_directories(al5img PUBLIC
 	allegro-addons/al5img/include
 )
-target_link_libraries(al5img PUBLIC allegro_with_legacy algif5)
+target_link_libraries(al5img PUBLIC allegro_with_legacy algif)
 list(APPEND IMAGELIBS al5img)
 
 #############################################################
@@ -392,6 +441,7 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	else()
 		set(SOUND_LIB_SHARED SHARED)
 	endif()
+
 	add_library(almp3 ${SOUND_LIB_SHARED}
 		allegro-addons/almp3/src/almp3.c
 		allegro-addons/almp3/decoder/common.c
@@ -454,6 +504,7 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	FetchContent_MakeAvailable(gme_external)
 	add_library(gme_headers INTERFACE)
 	target_include_directories(gme_headers INTERFACE ${gme_external_SOURCE_DIR}/gme)
+	target_link_libraries(gme_headers INTERFACE ${ZLIB_LIBRARIES})
 	target_compile_definitions(gme_headers INTERFACE -DVGM_YM2612_NUKED)
 
 	option(BUILD_EXAMPLES "" OFF)
@@ -469,7 +520,7 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	add_library(dumb_headers INTERFACE)
 	target_include_directories(dumb_headers INTERFACE ${dumb_external_SOURCE_DIR}/include)
 
-	set(SOUNDLIBS almp3 alogg gme gme_headers aldmb dumb dumb_headers)
+	set(SOUNDLIBS alpng almp3 alogg gme gme_headers aldmb dumb dumb_headers)
 endif()
 
 if(MSVC AND (MSVC_VERSION GREATER 1600))
@@ -706,7 +757,7 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	# Organize into folders
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 	set_target_properties(zcsound gme dumb aldmb almp3 alogg PROPERTIES FOLDER Sound)
-	set_target_properties(allegro allegro_audio allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif5 al5_example PROPERTIES FOLDER Allegro)
+	set_target_properties(allegro allegro_audio allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif al5_example PROPERTIES FOLDER Allegro)
 	set_target_properties(zconsole zconsolelogger PROPERTIES FOLDER ZConsole)
 	if(WANT_SENTRY)
 		set_target_properties(crashpad_client crashpad_compat crashpad_getopt crashpad_handler crashpad_handler_lib crashpad_minidump crashpad_snapshot crashpad_tools crashpad_util crashpad_zlib mini_chromium sentry PROPERTIES FOLDER Sentry)

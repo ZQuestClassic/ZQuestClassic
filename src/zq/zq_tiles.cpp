@@ -16281,8 +16281,8 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				
 				if(do_text_button((150+28*2)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Export",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
 				{
-					strcpy(datapath, "tileset.bmp");
-					if(getname("Export Tile Page (.bmp)","bmp",NULL,datapath,true))
+					strcpy(datapath, "tileset.png");
+					if(getname("Export Tile Page (.png)","png",NULL,datapath,true))
 					{
 						PALETTE temppal;
 						get_palette(temppal);

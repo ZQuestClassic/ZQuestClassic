@@ -4,6 +4,10 @@
 #include "AST.h"
 #include "CompileError.h"
 
+enum
+{
+	puc_none, puc_vars, puc_funcs, puc_construct, puc_destruct, puc_max
+};
 namespace ZScript
 {
 	////////////////////////////////////////////////////////////////
@@ -11,6 +15,8 @@ namespace ZScript
 	class ASTVisitor
 	{
 	public:
+		ASTVisitor() : parsing_user_class(puc_none), scope(nullptr) {}
+		
 		virtual void caseDefault(AST& host, void* param = NULL) {}
 		// AST Subclasses
 		virtual void caseFile(ASTFile& host, void* param = NULL) {
@@ -58,6 +64,8 @@ namespace ZScript
 		// Declarations
 		virtual void caseScript(ASTScript& host, void* param = NULL) {
 			caseDefault(host, param);}
+		virtual void caseClass(ASTClass& host, void* param = NULL) {
+			caseDefault(host, param);}
 		virtual void caseNamespace(ASTNamespace& host, void* param = NULL){
 			caseDefault(host, param);}
 		virtual void caseImportDecl(ASTImportDecl& host, void* param = NULL) {
@@ -104,6 +112,8 @@ namespace ZScript
 		virtual void caseExprCall(ASTExprCall& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseExprNegate(ASTExprNegate& host, void* param = NULL) {
+			caseDefault(host, param);}
+		virtual void caseExprDelete(ASTExprDelete& host, void* param = NULL) {
 			caseDefault(host, param);}
 		virtual void caseExprNot(ASTExprNot& host, void* param = NULL) {
 			caseDefault(host, param);}
@@ -194,7 +204,8 @@ namespace ZScript
 			caseDefault(host, param);}
 		virtual void caseDataType(ASTDataType& host, void* param = NULL) {
 			caseDefault(host, param);}
-			
+
+		int parsing_user_class;
 	protected:
 		//Current scope
 		ZScript::Scope* scope;
@@ -215,7 +226,8 @@ namespace ZScript
 		// Used as a parameter to signal that both lval and rval are needed.
 		static void* const paramReadWrite;
 		
-		RecursiveVisitor() : failure(false), failure_halt(false), failure_temp(false), breakNode(NULL) {}
+		RecursiveVisitor() : failure(false), failure_halt(false),
+			failure_temp(false), breakNode(NULL) {}
 	
 		// Mark as having failed.
 		void fail() {failure = true;}
@@ -278,6 +290,7 @@ namespace ZScript
 				ASTStmtReturnVal& host, void* param = NULL);
 		// Declarations
 		virtual void caseScript(ASTScript& host, void* param = NULL);
+		virtual void caseClass(ASTClass& host, void* param = NULL);
 		virtual void caseNamespace(ASTNamespace& host, void* param = NULL);
 		virtual void caseImportDecl(ASTImportDecl& host, void* param = NULL);
 		virtual void caseIncludePath(ASTIncludePath& host, void* param = NULL);
@@ -299,6 +312,7 @@ namespace ZScript
 		virtual void caseExprIndex(ASTExprIndex& host, void* param = NULL);
 		virtual void caseExprCall(ASTExprCall& host, void* param = NULL);
 		virtual void caseExprNegate(ASTExprNegate& host, void* param = NULL);
+		virtual void caseExprDelete(ASTExprDelete& host, void* param = NULL);
 		virtual void caseExprNot(ASTExprNot& host, void* param = NULL);
 		virtual void caseExprBitNot(ASTExprBitNot& host, void* param = NULL);
 		virtual void caseExprIncrement(
@@ -347,7 +361,6 @@ namespace ZScript
 		               ZScript::DataType const& targetType,
 		               AST* node = NULL,
 		               bool twoWay = false);
-		
 	protected:
 		// Returns true if we have failed or for some other reason must break out
 		// of recursion. Should be called with the current node and param between

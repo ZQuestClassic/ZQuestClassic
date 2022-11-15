@@ -62,6 +62,27 @@ Script* Program::addScript(
 	return script;
 }
 
+UserClass* Program::getClass(string const& name) const
+{
+	return find<UserClass*>(classesByName_, name).value_or(boost::add_pointer<UserClass>::type());
+}
+
+UserClass* Program::getClass(ASTClass* node) const
+{
+	return find<UserClass*>(classesByNode_, node).value_or(boost::add_pointer<UserClass>::type());
+}
+UserClass* Program::addClass(
+		ASTClass& node, Scope& parentScope, CompileErrorHandler* handler)
+{
+	UserClass* user_class = createClass(*this, parentScope, node, handler);
+	if (!user_class) return NULL;
+
+	classes.push_back(user_class);
+	classesByName_[user_class->getName()] = user_class;
+	classesByNode_[&node] = user_class;
+	return user_class;
+}
+
 Namespace* Program::addNamespace(ASTNamespace& node, Scope& parentScope, CompileErrorHandler* handler)
 {
 	Namespace* namesp = createNamespace(*this, parentScope, node, handler);
@@ -113,11 +134,64 @@ vector<Function*> Program::getInternalFunctions() const
 	return functions;
 }
 
+vector<Function*> Program::getUserClassConstructors() const
+{
+	vector<Function*> functions;
+	for(auto it = classes.begin(); it != classes.end(); ++it)
+	{
+		UserClass* user_class = *it;
+		appendElements(functions, user_class->getScope().getConstructors());
+	}
+	return functions;
+}
+vector<Function*> Program::getUserClassDestructors() const
+{
+	vector<Function*> functions;
+	for(auto it = classes.begin(); it != classes.end(); ++it)
+	{
+		UserClass* user_class = *it;
+		appendElements(functions, user_class->getScope().getDestructor());
+	}
+	return functions;
+}
+
 vector<Function*> ZScript::getFunctions(Program const& program)
 {
 	vector<Function*> functions = getFunctionsInBranch(program.getScope());
 	appendElements(functions, getClassFunctions(program.getTypeStore()));
 	return functions;
+}
+
+////////////////////////////////////////////////////////////////
+// ZScript::UserClass
+
+UserClass::UserClass(Program& program, ASTClass& user_class)
+	: program(program), node(user_class), classType(nullptr)
+{
+	members.push_back(0);
+}
+
+UserClass::~UserClass()
+{}
+
+UserClass* ZScript::createClass(
+		Program& program, Scope& parentScope, ASTClass& node,
+		CompileErrorHandler* errorHandler)
+{
+	UserClass* user_class = new UserClass(program, node);
+
+	ClassScope* scope = parentScope.makeClassChild(*user_class);
+	if (!scope)
+	{
+		if (errorHandler)
+			errorHandler->handleError(
+				CompileError::ClassRedef(&node, user_class->getName().c_str()));
+		delete user_class;
+		return NULL;
+	}
+	user_class->scope = scope;
+	
+	return user_class;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -315,6 +389,42 @@ std::optional<int32_t> Variable::getCompileTimeValue(bool getinitvalue) const
 	return std::nullopt;
 }
 
+// ZScript::UserClassVar
+
+UserClassVar* UserClassVar::create(
+		Scope& scope, ASTDataDecl& node, DataType const& type,
+		CompileErrorHandler* errorHandler)
+{
+	UserClassVar* ucv = new UserClassVar(scope, node, type);
+	if (ucv->tryAddToScope(errorHandler))
+	{
+		ClassScope* cscope = scope.getClass();
+		UserClass& user_class = cscope->user_class;
+		if(type.isArray())
+		{
+			ucv->is_arr = true;
+			int32_t totalSize = -1;
+			if (std::optional<int32_t> size = node.extraArrays[0]->getCompileTimeSize(errorHandler, &scope))
+				totalSize = *size;
+			user_class.members.push_back(totalSize);
+		}
+		else
+		{
+			user_class.members[0]++;
+		}
+		return ucv;
+	}
+	delete ucv;
+	return NULL;
+}
+UserClassVar::UserClassVar(
+		Scope& scope, ASTDataDecl& node, DataType const& type)
+	: Datum(scope, type), _index(0),
+	  node(node), is_arr(false)
+{
+	node.manager = this;
+}
+
 // ZScript::BuiltinVariable
 
 BuiltinVariable* BuiltinVariable::create(
@@ -475,11 +585,26 @@ Script* Function::getScript() const
 		dynamic_cast<ScriptScope*>(parentScope);
 	return &scriptScope->script;
 }
+UserClass* Function::getClass() const
+{
+	if (!internalScope) return NULL;
+	Scope* parentScope = internalScope->getParent();
+	if (!parentScope) return NULL;
+	if (!parentScope->isClass()) return NULL;
+	ClassScope* classScope =
+		dynamic_cast<ClassScope*>(parentScope);
+	return &classScope->user_class;
+}
 
 int32_t Function::getLabel() const
 {
 	if (!label) label = ScriptParser::getUniqueLabelID();
 	return *label;
+}
+int32_t Function::getAltLabel() const
+{
+	if (!altlabel) altlabel = ScriptParser::getUniqueLabelID();
+	return *altlabel;
 }
 
 bool Function::isTracing() const

@@ -36,8 +36,10 @@ static bool _a5_disable_threaded_display = false;
 static int _a5_display_width = 0;
 static int _a5_display_height = 0;
 static int _a5_display_scale = 1;
+static bool _a5_display_force_integer_scale = true;
 static bool _a5_display_fullscreen = false;
 static int _a5_display_flags = 0;
+static int _a5_bitmap_flags = ALLEGRO_NO_PRESERVE_TEXTURE;
 static volatile int _a5_display_creation_done = 0;
 static ALLEGRO_EVENT_QUEUE * _a5_display_thread_event_queue = NULL;
 static ALLEGRO_TIMER * _a5_display_thread_timer = NULL;
@@ -88,7 +90,7 @@ static bool _a5_setup_screen(int w, int h)
     goto fail;
   }
   al_store_state(&old_state, ALLEGRO_STATE_NEW_BITMAP_PARAMETERS);
-  al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE);
+  al_set_new_bitmap_flags(_a5_bitmap_flags);
 
   _a5_screen = al_create_bitmap(w, h);
   al_restore_state(&old_state);
@@ -355,11 +357,11 @@ static void a5_palette_from_a4_palette(const PALETTE a4_palette, ALLEGRO_COLOR *
 
 static void a5_display_set_palette(const struct RGB * palette, int from, int to, int vsync)
 {
-    if(vsync)
-    {
-      a5_display_vsync();
-    }
     a5_palette_from_a4_palette(palette, _a5_screen_palette, from, to);
+    /*if (vsync)
+    {
+        a5_display_vsync();
+    }*/
 }
 
 static void a5_display_move_mouse(int x, int y)
@@ -652,6 +654,16 @@ void all_set_display_flags(int flags)
   _a5_display_flags = flags;
 }
 
+int all_get_bitmap_flags()
+{
+  return _a5_bitmap_flags;
+}
+
+void all_set_bitmap_flags(int flags)
+{
+  _a5_bitmap_flags = flags;
+}
+
 // local edit
 void all_set_fullscreen_flag(bool fullscreen)
 {
@@ -670,6 +682,12 @@ bool all_get_fullscreen_flag()
 void all_set_scale(int scale)
 {
   _a5_display_scale = scale;
+}
+
+// local edit
+void all_set_force_integer_scale(bool force)
+{
+  _a5_display_force_integer_scale = force;
 }
 
 // local edit
@@ -707,6 +725,9 @@ void all_get_display_transform(int* out_native_width, int* out_native_height,
   if (scale_y < scale) {
     scale = scale_y;
   }
+
+  if (_a5_display_force_integer_scale && scale > 1)
+    scale = (int) scale;
 
   if (out_offset_x) *out_offset_x = (w - want_w * scale) / 2;
   if (out_offset_y) *out_offset_y = (h - want_h * scale) / 2;
