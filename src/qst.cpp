@@ -19350,7 +19350,7 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
         }
         
 		al_trace("Registering blank tiles\n");
-        register_blank_tiles(max_tiles);
+        register_blank_tiles();
     }
     
     //memset(temp_tile, 0, tilesize(tf32Bit));
