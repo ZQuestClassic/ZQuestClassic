@@ -8193,6 +8193,7 @@ static MENU fixes_menu[] =
 #if DEVLEVEL > 0
 int32_t devLogging();
 int32_t devDebug();
+int32_t devTimestmp();
 #if DEVLEVEL > 1
 int32_t setCheat();
 #endif //DEVLEVEL > 1

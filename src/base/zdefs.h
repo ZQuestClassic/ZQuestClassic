@@ -20,6 +20,13 @@
 //DEVLEVEL 3 ?? (Seems to do nothing special)
 //DEVLEVEL 4 = ignore quest passwords
 
+#ifdef _DEBUG
+#if DEVLEVEL < 4
+#undef DEVLEVEL
+#define DEVLEVEL 4
+#endif
+#endif
+
 #if DEVLEVEL > 0
 #define DEVLOGGING	dev_logging
 #define DEVDEBUG	dev_debug
