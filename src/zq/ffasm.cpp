@@ -1099,6 +1099,41 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "RESRVD_OP_EMILY29",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY30",   0,   0,   0,   0},
 
+	{ "CREATEPALDATA",           0,   0,   0,   0 },
+	{ "CREATEPALDATACLR",           1,   0,   0,   0 },
+	{ "MIXCLR",           0,   0,   0,   0 },
+	{ "CREATERGBHEX",           1,   0,   0,   0 },
+	{ "CREATERGB",           0,   0,   0,   0 },
+	{ "PALDATALOADLEVEL",           1,   0,   0,   0 },
+	{ "PALDATALOADSPRITE",           1,   0,   0,   0 },
+	{ "PALDATALOADMAIN",           0,   0,   0,   0 },
+	{ "PALDATALOADCYCLE",           1,   0,   0,   0 },
+	{ "PALDATALOADBITMAP",           1,   0,   0,   0 },
+	{ "PALDATAWRITELEVEL",           1,   0,   0,   0 },
+	{ "PALDATAWRITELEVELCS",           2,   0,   0,   0 },
+	{ "PALDATAWRITESPRITE",           1,   0,   0,   0 },
+	{ "PALDATAWRITESPRITECS",           2,   0,   0,   0 },
+	{ "PALDATAWRITEMAIN",           0,   0,   0,   0 },
+	{ "PALDATAWRITEMAINCS",           1,   0,   0,   0 },
+	{ "PALDATAWRITECYCLE",           1,   0,   0,   0 },
+	{ "PALDATAWRITECYCLECS",           2,   0,   0,   0 },
+	{ "PALDATAVALIDCLR",           1,   0,   0,   0 },
+	{ "PALDATAGETCLR",           1,   0,   0,   0 },
+	{ "PALDATASETCLR",           2,   0,   0,   0 },
+	{ "PALDATACLEARCLR",           1,   0,   0,   0 },
+	{ "PALDATACLEARCSET",           1,   0,   0,   0 },
+	{ "PALDATAGETR",           1,   0,   0,   0 },
+	{ "PALDATAGETG",           1,   0,   0,   0 },
+	{ "PALDATAGETB",           1,   0,   0,   0 },
+	{ "PALDATASETR",           2,   0,   0,   0 },
+	{ "PALDATASETG",           2,   0,   0,   0 },
+	{ "PALDATASETB",           2,   0,   0,   0 },
+	{ "PALDATAMIX",           0,   0,   0,   0 },
+	{ "PALDATAMIXCS",           0,   0,   0,   0 },
+	{ "PALDATACOPY",           1,   0,   0,   0 },
+	{ "PALDATACOPYCSET",           0,   0,   0,   0 },
+	{ "PALDATAFREE",           0,   0,   0,   0 },
+	{ "PALDATAOWN",           0,   0,   0,   0 },
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -2503,6 +2538,8 @@ script_variable variable_list[]=
 	{ "RESRVD_VAR_EMILY28", RESRVD_VAR_EMILY28, 0, 0 },
 	{ "RESRVD_VAR_EMILY29", RESRVD_VAR_EMILY29, 0, 0 },
 	{ "RESRVD_VAR_EMILY30", RESRVD_VAR_EMILY30, 0, 0 },
+	
+	{ "REFPALDATA", REFPALDATA, 0, 0 },
 	
 	{ " ",  -1, 0, 0 }
 };

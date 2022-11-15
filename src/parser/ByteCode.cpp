@@ -2179,6 +2179,8 @@ string ZScript::VarToString(int32_t ID)
 	case EWPNFAKEJUMP: return "EWPNFAKEJUMP";
 	case HEROFAKEJUMP: return "HEROFAKEJUMP";
 	
+	case REFPALDATA: return "REFPALDATA";
+	
 	default:
 	{
 		sprintf(temp, "d%d", ID);
@@ -3131,6 +3133,178 @@ string OLoadDirectoryRegister::toString()
 string OLoadRNG::toString()
 {
     return "LOADRNG";
+}
+
+string OCreatePalData::toString()
+{
+    return "CREATEPALDATA";
+}
+
+string OCreatePalDataClr::toString()
+{
+	return "CREATEPALDATACLR " + getArgument()->toString();
+}
+
+string OMixColorArray::toString()
+{
+	return "MIXCLR";
+}
+string OCreateRGBHex::toString()
+{
+	return "CREATERGBHEX " + getArgument()->toString();
+}
+string OCreateRGB::toString()
+{
+	return "CREATERGB";
+}
+string OLoadLevelPalette::toString()
+{
+    return "PALDATALOADLEVEL " + getArgument()->toString();
+}
+
+string OLoadSpritePalette::toString()
+{
+    return "PALDATALOADSPRITE " + getArgument()->toString();
+}
+
+string OLoadMainPalette::toString()
+{
+    return "PALDATALOADMAIN";
+}
+
+string OLoadCyclePalette::toString()
+{
+	return "PALDATALOADCYCLE " + getArgument()->toString();
+}
+
+string OLoadBitmapPalette::toString()
+{
+	return "PALDATALOADBITMAP " + getArgument()->toString();
+}
+
+string OWriteLevelPalette::toString()
+{
+    return "PALDATAWRITELEVEL " + getArgument()->toString();
+}
+
+string OWriteLevelCSet::toString()
+{
+    return "PALDATAWRITELEVELCS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OWriteSpritePalette::toString()
+{
+    return "PALDATAWRITESPRITE " + getArgument()->toString();
+}
+
+string OWriteSpriteCSet::toString()
+{
+    return "PALDATAWRITESPRITECS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OWriteMainPalette::toString()
+{
+    return "PALDATAWRITEMAIN";
+}
+
+string OWriteMainCSet::toString()
+{
+    return "PALDATAWRITEMAINCS " + getArgument()->toString();
+}
+
+string OWriteCyclePalette::toString()
+{
+	return "PALDATAWRITECYCLE " + getArgument()->toString();
+}
+
+string OWriteCycleCSet::toString()
+{
+	return "PALDATAWRITECYCLECS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OPalDataColorValid::toString()
+{
+	return "PALDATAVALIDCLR " + getArgument()->toString();
+}
+
+string OPalDataGetColor::toString()
+{
+    return "PALDATAGETCLR " + getArgument()->toString();
+}
+
+string OPalDataSetColor::toString()
+{
+    return "PALDATASETCLR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OPalDataClearColor::toString()
+{
+    return "PALDATACLEARCLR " + getArgument()->toString();
+}
+
+string OPalDataClearCSet::toString()
+{
+	return "PALDATACLEARCSET " + getArgument()->toString();
+}
+
+string OPalDataGetR::toString()
+{
+	return "PALDATAGETR " + getArgument()->toString();
+}
+
+string OPalDataGetG::toString()
+{
+	return "PALDATAGETG " + getArgument()->toString();
+}
+
+string OPalDataGetB::toString()
+{
+	return "PALDATAGETB " + getArgument()->toString();
+}
+
+string OPalDataSetR::toString()
+{
+	return "PALDATASETR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OPalDataSetG::toString()
+{
+	return "PALDATASETG " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OPalDataSetB::toString()
+{
+	return "PALDATASETB " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OPalDataMix::toString()
+{
+    return "PALDATAMIX";
+}
+
+string OPalDataMixCSet::toString()
+{
+    return "PALDATAMIXCS";
+}
+
+string OPalDataCopy::toString()
+{
+	return "PALDATACOPY " + getArgument()->toString();
+}
+
+string OPalDataCopyCSet::toString()
+{
+	return "PALDATACOPYCSET";
+}
+
+string OPalDataFree::toString()
+{
+	return "PALDATAFREE";
+}
+
+string OPalDataOwn::toString()
+{
+	return "PALDATAOWN";
 }
 
 string OLoadDropsetRegister	::toString()

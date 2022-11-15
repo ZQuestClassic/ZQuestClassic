@@ -358,27 +358,51 @@ struct script_bitmaps
 	}
 };
 
-#define MAX_USER_PALETTES 256
+// #define MAX_USER_PALETTES 256
 
-struct user_palette
-{
-	PALETTE* u_pal;
-	byte colours[256];
-	int32_t current_id;
-};
+// struct user_palette
+// {
+	// PALETTE* u_pal;
+	// byte colours[256];
+	// int32_t current_id;
+// };
 
-struct script_palettes
-{
-	int32_t num_active;
-	user_palette script_created_palettes[MAX_USER_PALETTES];
-};
+// struct script_palettes
+// {
+	// int32_t num_active;
+	// user_palette script_created_palettes[MAX_USER_PALETTES];
+// };
 
-#define MAX_USER_RGB 256
-struct user_rgb
-{
-	RGB usr_rgb[256][MAX_USER_RGB];
-	int32_t current_active;
-};
+// #define MAX_USER_RGB 256
+// struct user_rgb
+// {
+	// bool reserved;
+
+	// int32_t owned_type, owned_i;
+
+	// void clear()
+	// {
+		// reserved = false;
+		// owned_type = -1;
+		// owned_i = 0;
+	// }
+
+	// void own(int32_t type, int32_t i)
+	// {
+		// owned_type = type;
+		// owned_i = i;
+	// }
+	// void own_clear(int32_t type, int32_t i)
+	// {
+		// if (owned_type == type && owned_i == i)
+			// clear();
+	// }
+	// void own_clear_any()
+	// {
+		// if (owned_type != -1 || owned_i != 0)
+			// clear();
+	// }
+// };
 
 #define MAX_USER_FILES 256
 struct user_file
@@ -639,6 +663,69 @@ struct user_rng
 	void own_clear_any()
 	{
 		if(owned_type != -1 || owned_i != 0)
+			clear();
+	}
+};
+
+#define MAX_USER_PALDATAS 256
+#define PALDATA_NUM_COLORS 256
+#define PALDATA_BITSTREAM_SIZE 32
+struct user_paldata
+{
+	bool reserved;
+
+	RGB colors[PALDATA_NUM_COLORS];
+	byte colors_used[PALDATA_BITSTREAM_SIZE]; //A set of 256 bitflags
+
+	int32_t owned_type, owned_i;
+
+	enum { CSPACE_RGB, CSPACE_CMYK, CSPACE_HSV, CSPACE_HSV_CW, CSPACE_HSV_CCW, CSPACE_HSL, CSPACE_HSL_CW, CSPACE_HSL_CCW, CSPACE_LAB, CSPACE_LCH, CSPACE_LCH_CW, CSPACE_LCH_CCW };
+
+	void clear()
+	{
+		for(int32_t q = 0; q < 32; ++q)
+			colors_used[q] = 0;
+		reserved = false;
+		owned_type = -1;
+		owned_i = 0;
+	}
+	
+	//Sets a color index on the paldata
+	void set_color(int32_t ind, RGB c)
+	{
+		c.r = vbound(c.r, 0, 63);
+		c.g = vbound(c.g, 0, 63);
+		c.b = vbound(c.b, 0, 63);
+		colors[ind] = c;
+		set_bit(colors_used, ind, true);
+	}
+
+	void load_cset(int32_t cset, int32_t dataset);
+	void write_cset(int32_t cset, int32_t dataset);
+	bool check_cset(int32_t cset, int32_t dataset);
+	void load_cset_main(int32_t cset);
+	void write_cset_main(int32_t cset);
+	bool check_cset_main(int32_t cset);
+	static RGB mix_color(RGB start, RGB end, double percent, int32_t color_space = CSPACE_RGB);
+	static void RGBTo(RGB c, double arr[], int32_t color_space);
+	static RGB RGBFrom(double arr[], int32_t color_space);
+	static double HueToRGB(double v1, double v2, double vH);
+	static double WrapLerp(double a, double b, double t, double min, double max, int32_t direction);
+	void mix(user_paldata *pal_start, user_paldata *pal_end, double percent, int32_t color_space = CSPACE_RGB, int32_t start_color = 0, int32_t end_color = 240);
+
+	void own(int32_t type, int32_t i)
+	{
+		owned_type = type;
+		owned_i = i;
+	}
+	void own_clear(int32_t type, int32_t i)
+	{
+		if (owned_type == type && owned_i == i)
+			clear();
+	}
+	void own_clear_any()
+	{
+		if (owned_type != -1 || owned_i != 0)
 			clear();
 	}
 };
@@ -1067,11 +1154,13 @@ void user_dirs_init();
 void user_objects_init();
 void user_stacks_init();
 void user_rng_init();
+void user_paldata_init();
 int32_t get_free_file(bool skipError = false);
 int32_t get_free_directory(bool skipError = false);
 int32_t get_free_object(bool skipError = false);
 int32_t get_free_stack(bool skipError = false);
 int32_t get_free_rng(bool skipError = false);
+int32_t get_free_paldata(bool skipError = false);
 
 bool get_scriptfile_path(char* buf, const char* path);
 
@@ -1102,6 +1191,35 @@ void do_file_geterr();
 void do_loaddirectory();
 void do_loadstack();
 void do_loadrng();
+void do_create_paldata();
+void do_create_paldata_clr();
+void do_mix_clr();
+void do_create_rgb_hex();
+void do_create_rgb();
+void do_paldata_load_level();
+void do_paldata_load_sprite();
+void do_paldata_load_main();
+void do_paldata_load_cycle();
+void do_paldata_load_bitmap();
+void do_paldata_write_level();
+void do_paldata_write_levelcset();
+void do_paldata_write_sprite();
+void do_paldata_write_spritecset();
+void do_paldata_write_main();
+void do_paldata_write_maincset();
+void do_paldata_write_cycle();
+void do_paldata_write_cyclecset();
+void do_paldata_colorvalid();
+void do_paldata_getcolor();
+void do_paldata_setcolor();
+void do_paldata_clearcolor();
+void do_paldata_clearcset();
+void do_paldata_getrgb(int32_t v);
+void do_paldata_setrgb(int32_t v);
+void do_paldata_mix();
+void do_paldata_mixcset();
+void do_paldata_copy();
+void do_paldata_copycset();
 void do_directory_get();
 void do_directory_reload();
 void do_directory_free();
@@ -3318,7 +3436,43 @@ enum ASM_DEFINE
 	RESRVD_OP_EMILY30,
 	
 	
-	NUMCOMMANDS           //0x01DB
+	CREATEPALDATA,
+	CREATEPALDATACLR,
+	MIXCLR,
+	CREATERGBHEX,
+	CREATERGB,
+	PALDATALOADLEVEL,
+	PALDATALOADSPRITE,
+	PALDATALOADMAIN,
+	PALDATALOADCYCLE,
+	PALDATALOADBITMAP,
+	PALDATAWRITELEVEL,
+	PALDATAWRITELEVELCS,
+	PALDATAWRITESPRITE,
+	PALDATAWRITESPRITECS,
+	PALDATAWRITEMAIN,
+	PALDATAWRITEMAINCS,
+	PALDATAWRITECYCLE,
+	PALDATAWRITECYCLECS,
+	PALDATAVALIDCLR,
+	PALDATAGETCLR,
+	PALDATASETCLR,
+	PALDATACLEARCLR,
+	PALDATACLEARCSET,
+	PALDATAGETR,
+	PALDATAGETG,
+	PALDATAGETB,
+	PALDATASETR,
+	PALDATASETG,
+	PALDATASETB,
+	PALDATAMIX,
+	PALDATAMIXCS,
+	PALDATACOPY,
+	PALDATACOPYCSET,
+	PALDATAFREE,
+	PALDATAOWN,
+	
+	NUMCOMMANDS           //0x01FE
 };
 
 
@@ -4872,7 +5026,9 @@ enum ASM_DEFINE
 #define RESRVD_VAR_EMILY29      0x14A0
 #define RESRVD_VAR_EMILY30      0x14A1
 
-#define NUMVARIABLES         	0x14A2
+#define REFPALDATA 			    0x14A2
+
+#define NUMVARIABLES         	0x14A3
 
 //} End variables
 
