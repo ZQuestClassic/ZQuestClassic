@@ -5058,14 +5058,12 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	syskeys();
 	if (replay_is_replaying())
 		replay_peek_quit();
-	if (Quit)
-		replay_step_quit(Quit);
-	if (GameFlags & GAMEFLAG_TRYQUIT)
-		replay_step_quit(0);
 	if(allowF6Script)
 	{
 		FFCore.runF6Engine();
 	}
+	if (Quit)
+		replay_step_quit(Quit);
 	// Someday... maybe install a Turbo button here?
 	updatescr(allowwavy, true);
 	throttleFPS();
