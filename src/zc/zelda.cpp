@@ -1870,7 +1870,7 @@ int32_t init_game()
 				"You are about to create a new recording at:",
 				relativize_path(replay_path).c_str(),
 				"Do you wish to record this save file?",
-				"Yes","No",13,27,lfont)!=0)
+				"Yes","No",13,27,lfont)==1)
 			{
 				saves[currgame].replay_file = replay_path;
 				replay_start(ReplayMode::Record, replay_path);
