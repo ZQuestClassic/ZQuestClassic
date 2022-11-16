@@ -60,6 +60,7 @@
 #include "base/zc_math.h"
 #include <fmt/format.h>
 #include <fmt/std.h>
+#include <regex>
 
 using namespace util;
 extern FFScript FFCore; //the core script engine.
@@ -1847,10 +1848,13 @@ int32_t init_game()
 		std::filesystem::create_directory(replay_file_dir);
 		if (firstplay && replay_new_saves)
 		{
-			// TODO: need to escape?
 			std::string filename_prefix = fmt::format("{}-{}", saves[currgame].title, saves[currgame]._name);
-			filename_prefix.erase(0, filename_prefix.find_first_not_of("\t\n\v\f\r ")); // left trim
-			filename_prefix.erase(filename_prefix.find_last_not_of("\t\n\v\f\r ") + 1); // right trim
+			{
+				filename_prefix.erase(0, filename_prefix.find_first_not_of("\t\n\v\f\r ")); // left trim
+				filename_prefix.erase(filename_prefix.find_last_not_of("\t\n\v\f\r ") + 1); // right trim
+				std::regex re("[^a-zA-Z0-9_-+]+");
+				filename_prefix = std::regex_replace(filename_prefix, re, "_");
+			}
 			auto replay_path_prefix = replay_file_dir / filename_prefix;
 			std::string replay_path = fmt::format("{}.{}", replay_path_prefix.string(), REPLAY_EXTENSION);
 			if (std::filesystem::exists(replay_path))
