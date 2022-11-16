@@ -358,52 +358,6 @@ struct script_bitmaps
 	}
 };
 
-// #define MAX_USER_PALETTES 256
-
-// struct user_palette
-// {
-	// PALETTE* u_pal;
-	// byte colours[256];
-	// int32_t current_id;
-// };
-
-// struct script_palettes
-// {
-	// int32_t num_active;
-	// user_palette script_created_palettes[MAX_USER_PALETTES];
-// };
-
-// #define MAX_USER_RGB 256
-// struct user_rgb
-// {
-	// bool reserved;
-
-	// int32_t owned_type, owned_i;
-
-	// void clear()
-	// {
-		// reserved = false;
-		// owned_type = -1;
-		// owned_i = 0;
-	// }
-
-	// void own(int32_t type, int32_t i)
-	// {
-		// owned_type = type;
-		// owned_i = i;
-	// }
-	// void own_clear(int32_t type, int32_t i)
-	// {
-		// if (owned_type == type && owned_i == i)
-			// clear();
-	// }
-	// void own_clear_any()
-	// {
-		// if (owned_type != -1 || owned_i != 0)
-			// clear();
-	// }
-// };
-
 #define MAX_USER_FILES 256
 struct user_file
 {
@@ -1214,8 +1168,8 @@ void do_paldata_getcolor();
 void do_paldata_setcolor();
 void do_paldata_clearcolor();
 void do_paldata_clearcset();
-void do_paldata_getrgb(int32_t v);
-void do_paldata_setrgb(int32_t v);
+int32_t do_paldata_getrgb(int32_t v);
+void do_paldata_setrgb(int32_t v, int32_t val);
 void do_paldata_mix();
 void do_paldata_mixcset();
 void do_paldata_copy();
@@ -3455,16 +3409,8 @@ enum ASM_DEFINE
 	PALDATAWRITECYCLE,
 	PALDATAWRITECYCLECS,
 	PALDATAVALIDCLR,
-	PALDATAGETCLR,
-	PALDATASETCLR,
 	PALDATACLEARCLR,
 	PALDATACLEARCSET,
-	PALDATAGETR,
-	PALDATAGETG,
-	PALDATAGETB,
-	PALDATASETR,
-	PALDATASETG,
-	PALDATASETB,
 	PALDATAMIX,
 	PALDATAMIXCS,
 	PALDATACOPY,
@@ -3472,7 +3418,7 @@ enum ASM_DEFINE
 	PALDATAFREE,
 	PALDATAOWN,
 	
-	NUMCOMMANDS           //0x01FE
+	NUMCOMMANDS           //0x01F6
 };
 
 
@@ -5028,7 +4974,43 @@ enum ASM_DEFINE
 
 #define REFPALDATA 			    0x14A2
 
-#define NUMVARIABLES         	0x14A3
+#define PALDATACOLOR 		    0x14A3
+#define PALDATAR     		    0x14A4
+#define PALDATAG     		    0x14A5
+#define PALDATAB     		    0x14A6
+
+#define RESRVD_VAR_MOOSH01      0x14A7
+#define RESRVD_VAR_MOOSH02      0x14A8
+#define RESRVD_VAR_MOOSH03      0x14A9
+#define RESRVD_VAR_MOOSH04      0x14AA
+#define RESRVD_VAR_MOOSH05      0x14AB
+#define RESRVD_VAR_MOOSH06      0x14AC
+#define RESRVD_VAR_MOOSH07      0x14AD
+#define RESRVD_VAR_MOOSH08      0x14AE
+#define RESRVD_VAR_MOOSH09      0x14AF
+#define RESRVD_VAR_MOOSH10      0x14B0
+#define RESRVD_VAR_MOOSH11      0x14B1
+#define RESRVD_VAR_MOOSH12      0x14B2
+#define RESRVD_VAR_MOOSH13      0x14B3
+#define RESRVD_VAR_MOOSH14      0x14B4
+#define RESRVD_VAR_MOOSH15      0x14B5
+#define RESRVD_VAR_MOOSH16      0x14B6
+#define RESRVD_VAR_MOOSH17      0x14B7
+#define RESRVD_VAR_MOOSH18      0x14B8
+#define RESRVD_VAR_MOOSH19      0x14B9
+#define RESRVD_VAR_MOOSH20      0x14BA
+#define RESRVD_VAR_MOOSH21      0x14BB
+#define RESRVD_VAR_MOOSH22      0x14BC
+#define RESRVD_VAR_MOOSH23      0x14BD
+#define RESRVD_VAR_MOOSH24      0x14BE
+#define RESRVD_VAR_MOOSH25      0x14BF
+#define RESRVD_VAR_MOOSH26      0x14C0
+#define RESRVD_VAR_MOOSH27      0x14C1
+#define RESRVD_VAR_MOOSH28      0x14C2
+#define RESRVD_VAR_MOOSH29      0x14C3
+#define RESRVD_VAR_MOOSH30      0x14C4
+
+#define NUMVARIABLES         	0x14C5
 
 //} End variables
 

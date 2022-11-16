@@ -12226,6 +12226,44 @@ int32_t get_register(const int32_t arg)
 			
 		///----------------------------------------------------------------------------------------------------//
 		
+		case PALDATACOLOR:
+		{
+			if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->GetColor()"))
+			{
+				int32_t ind = ri->d[rINDEX] / 10000; // get_register(sarg1) / 10000;
+				if (unsigned(ind) >= PALDATA_NUM_COLORS)
+				{
+					Z_scripterrlog("Invalid color index (%d) passed to paldata->GetColor(). Valid indices are 0-255.\n", ind);
+					ret = 0;
+					break;
+				}
+
+				if (get_bit(pd->colors_used, ind))
+				{
+					RGB c = pd->colors[ind];
+					ret = c.r | (c.g << 8) | (c.b << 16);
+				}
+				else
+				{
+					//Z_scripterrlog("Color index (%d) returned an invalid color in paldata->GetColor().\n", ind);
+					ret = -10000;
+					break;
+				}
+			}
+			break;
+		}
+		case PALDATAR:
+			ret = FFCore.do_paldata_getrgb(0);
+			break;
+		case PALDATAG:
+			ret = FFCore.do_paldata_getrgb(1);
+			break;
+		case PALDATAB:
+			ret = FFCore.do_paldata_getrgb(2);
+			break;
+
+		///----------------------------------------------------------------------------------------------------//
+		
 		case GENDATARUNNING:
 		{
 			ret = 0;
@@ -21698,6 +21736,46 @@ void set_register(const int32_t arg, const int32_t value)
 		case CLASS_THISKEY: ri->thiskey = value; break;
 		case REFPALDATA: ri->paldataref = value; break;
 		
+		//-------------------------------------------------------------------------------------------------
+		
+		case PALDATACOLOR:
+		{
+			if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->SetColor()"))
+			{
+				int32_t ind = ri->d[rINDEX] / 10000;
+				if (unsigned(ind) >= PALDATA_NUM_COLORS)
+				{
+					Z_scripterrlog("Invalid color index (%d) passed to paldata->SetColor(). Valid indices are 0-255. Aborting.\n", ind);
+					break;
+				}
+				int32_t clri = value;
+
+				RGB c = _RGB(clri & 0xFF, (clri >> 8) & 0xFF, (clri >> 16) & 0xFF);
+
+				if (c.r < 0 || c.g < 0 || c.b < 0)
+				{
+					Z_scripterrlog("Invalid rgb (%d) passed to paldata->SetColor().\n", clri);
+				}
+				c.r = vbound(c.r, 0, 63);
+				c.g = vbound(c.g, 0, 63);
+				c.b = vbound(c.b, 0, 63);
+
+				pd->set_color(ind, c);
+			}
+			break;
+		}
+		case PALDATAR:
+			FFCore.do_paldata_setrgb(0, value / 10000);
+			break;
+		case PALDATAG:
+			FFCore.do_paldata_setrgb(1, value / 10000);
+			break;
+		case PALDATAB:
+			FFCore.do_paldata_setrgb(2, value / 10000);
+			break;
+
+		//-------------------------------------------------------------------------------------------------
+
 		case GENDATARUNNING:
 		{
 			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "Running"))
@@ -24078,7 +24156,6 @@ void FFScript::do_create_paldata()
 	for (int32_t q = 0; q < PALDATA_BITSTREAM_SIZE; ++q)
 		pd->colors_used[q] = 0;
 	ri->d[rEXP1] = ri->paldataref;
-	//zprint("paldataref: %d\n", ri->paldataref);
 }
 
 void FFScript::do_create_paldata_clr()
@@ -24100,7 +24177,6 @@ void FFScript::do_create_paldata_clr()
 	for(int32_t q = 0; q < 240; ++q)
 		pd->set_color(q, c);
 	ri->d[rEXP1] = ri->paldataref;
-	//zprint("paldataref: %d\n", ri->paldataref);
 }
 
 void FFScript::do_mix_clr()
@@ -24230,9 +24306,6 @@ void FFScript::do_paldata_load_bitmap()
 		string str;
 		ArrayH::getString(pathptr, str, 256);
 
-		//char cptr = new char[str->size()+1]; // +1 to account for \0 byte
-		//strncpy(cptr, str->c_str(), str->size());
-
 		if (get_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
 		{
 			char buf[2048] = { 0 };
@@ -24258,7 +24331,6 @@ void FFScript::do_paldata_load_bitmap()
 			}
 			else
 			{
-				//zprint("Read image file %s\n", str.c_str());
 				for (int32_t q = 0; q < PALDATA_NUM_COLORS; ++q)
 				{
 					pd->colors[q] = tempPal[q];
@@ -24696,58 +24768,6 @@ void FFScript::do_paldata_colorvalid()
 	}
 }
 
-void FFScript::do_paldata_getcolor()
-{
-	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->GetColor()"))
-	{
-		int32_t ind = get_register(sarg1) / 10000;
-		if (unsigned(ind) >= PALDATA_NUM_COLORS)
-		{
-			Z_scripterrlog("Invalid color index (%d) passed to paldata->GetColor(). Valid indices are 0-255.\n", ind);
-			ri->d[rEXP1] = 0;
-			return;
-		}
-
-		if (get_bit(pd->colors_used, ind))
-		{
-			RGB c = pd->colors[ind];
-			ri->d[rEXP1] = c.r | (c.g << 8) | (c.b << 16);
-		}
-		else
-		{
-			Z_scripterrlog("Color index (%d) returned an invalid color in paldata->GetColor().\n", ind);
-			ri->d[rEXP1] = 0;
-			return;
-		}
-	}
-}
-
-void FFScript::do_paldata_setcolor()
-{
-	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->SetColor()"))
-	{
-		int32_t ind = get_register(sarg1) / 10000;
-		if (unsigned(ind) >= PALDATA_NUM_COLORS)
-		{
-			Z_scripterrlog("Invalid color index (%d) passed to paldata->SetColor(). Valid indices are 0-255. Aborting.\n", ind);
-			return;
-		}
-		int32_t clri = get_register(sarg2);
-
-		RGB c = _RGB(clri & 0xFF, (clri >> 8) & 0xFF, (clri >> 16) & 0xFF);
-
-		if (c.r < 0 || c.g < 0 || c.b < 0)
-		{
-			Z_scripterrlog("Invalid rgb (%d) passed to paldata->SetColor().\n", clri);
-		}
-		c.r = vbound(c.r, 0, 63);
-		c.g = vbound(c.g, 0, 63);
-		c.b = vbound(c.b, 0, 63);
-
-		pd->set_color(ind, c);
-	}
-}
-
 void FFScript::do_paldata_clearcolor()
 {
 	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->SetColor()"))
@@ -24779,58 +24799,53 @@ void FFScript::do_paldata_clearcset()
 	}
 }
 
-void FFScript::do_paldata_getrgb(int32_t v)
+int32_t FFScript::do_paldata_getrgb(int32_t v)
 {
 	char* fname = "";
 	switch (v)
 	{
-	case 0: fname = "paldata->GetR()"; break;
-	case 1: fname = "paldata->GetG()"; break;
-	case 2: fname = "paldata->GetB()"; break;
+		case 0: fname = "paldata->R[]"; break;
+		case 1: fname = "paldata->G[]"; break;
+		case 2: fname = "paldata->B[]"; break;
 	}
 	if (user_paldata* pd = checkPalData(ri->paldataref, fname))
 	{
-		int32_t ind = get_register(sarg1) / 10000;
+		int32_t ind = ri->d[rINDEX] / 10000;
 		if (unsigned(ind) >= PALDATA_NUM_COLORS)
 		{
 			Z_scripterrlog("Invalid color index (%d) passed to %s. Valid indices are 0-255.\n", ind, fname);
-			ri->d[rEXP1] = 0;
-			return;
+			return -10000;
 		}
 		if (!get_bit(pd->colors_used, ind))
 		{
 			Z_scripterrlog("%s tried to access unused color %d.\n", fname, ind);
-			ri->d[rEXP1] = 0;
-			return;
+			return -10000;
 		}
 		switch (v)
 		{
-		case 0:
-			ri->d[rEXP1] = pd->colors[ind].r * 10000;
-			break;
-		case 1:
-			ri->d[rEXP1] = pd->colors[ind].g * 10000;
-			break;
-		case 2:
-			ri->d[rEXP1] = pd->colors[ind].b * 10000;
-			break;
+			case 0:
+				return pd->colors[ind].r * 10000;
+			case 1:
+				return pd->colors[ind].g * 10000;
+			case 2:
+				return pd->colors[ind].b * 10000;
 		}
 	}
+	return -10000;
 }
 
-void FFScript::do_paldata_setrgb(int32_t v)
+void FFScript::do_paldata_setrgb(int32_t v, int32_t val)
 {
 	char* fname = "";
 	switch (v)
 	{
-	case 0: fname = "paldata->SetR()"; break;
-	case 1: fname = "paldata->SetG()"; break;
-	case 2: fname = "paldata->SetB()"; break;
+		case 0: fname = "paldata->R[]"; break;
+		case 1: fname = "paldata->G[]"; break;
+		case 2: fname = "paldata->B[]"; break;
 	}
 	if (user_paldata* pd = checkPalData(ri->paldataref, fname))
 	{
-		int32_t ind = get_register(sarg1) / 10000;
-		int32_t val = get_register(sarg2) / 10000;
+		int32_t ind = ri->d[rINDEX] / 10000;
 		if (unsigned(ind) >= PALDATA_NUM_COLORS)
 		{
 			Z_scripterrlog("Invalid color index (%d) passed to %s. Valid indices are 0-255. Aborting.\n", ind, fname);
@@ -24848,15 +24863,15 @@ void FFScript::do_paldata_setrgb(int32_t v)
 		}
 		switch (v)
 		{
-		case 0:
-			pd->colors[ind].r = val;
-			break;
-		case 1:
-			pd->colors[ind].g = val;
-			break;
-		case 2:
-			pd->colors[ind].b = val;
-			break;
+			case 0:
+				pd->colors[ind].r = val;
+				break;
+			case 1:
+				pd->colors[ind].g = val;
+				break;
+			case 2:
+				pd->colors[ind].b = val;
+				break;
 		}
 	}
 }
@@ -24938,20 +24953,10 @@ void FFScript::do_paldata_copycset()
 				Z_scripterrlog("Invalid CSet (%d) passed to paldata->CopyCSet(). Valid CSets are 0-15. Aborting.\n", cs);
 				return;
 			}
-			// zprint("CSET %d -> %d\n", cs, cs_dest);
 			for (int32_t q = 0; q < 16; ++q)
 			{
-				// {
-				// 	RGB c1 = pd_dest->colors[CSET(cs_dest) + q];
-				// 	RGB c2 = pd->colors[CSET(cs) + q];
-				// 	zprint("[(%d, %d, %d) (%d) -> (%d, %d, %d) (%d)]\n", c1.r, c1.g, c1.b, get_bit(pd_dest->colors_used, CSET(cs_dest) + q), c2.r, c2.g, c2.b, get_bit(pd->colors_used, CSET(cs) + q));
-				// }
 				pd_dest->colors[CSET(cs_dest) + q] = pd->colors[CSET(cs) + q];
 				set_bit(pd_dest->colors_used, CSET(cs_dest) + q, bool(get_bit(pd->colors_used, CSET(cs) + q)));
-				// {
-				// 	RGB c2 = pd->colors[CSET(cs) + q];
-				// 	zprint("[(%d, %d, %d) (%d)]\n", c2.r, c2.g, c2.b, get_bit(pd->colors_used, CSET(cs) + q));
-				// }
 			}
 		}
 	}
@@ -25010,17 +25015,17 @@ void user_paldata::write_cset_main(int32_t cset)
 		int32_t ind = CSET(cset) + q;
 		if (get_bit(colors_used, ind))
 		{
-			// zprint("CSet %d C%d (%d, %d, %d) ->", cset, q, RAMpal[ind].r, RAMpal[ind].g, RAMpal[ind].b);
-			// tempgreypal[ind] = colors[ind];
-			// RAMpal[ind] = tempgreypal[ind];
 			RAMpal[ind] = colors[ind];
-			// zprint("(%d, %d, %d)\n", RAMpal[ind].r, RAMpal[ind].g, RAMpal[ind].b);
 		}
 	}
 }
 
 
-//Checks a memory cset from paldata
+//Checks a memory cset from 
+
+
+
+
 bool user_paldata::check_cset(int32_t cset, int32_t dataset)
 {
 	byte* si = colordata + CSET(dataset) * 3;
@@ -30235,26 +30240,10 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 				FFCore.do_paldata_write_cyclecset(); break;
 			case PALDATAVALIDCLR:
 				FFCore.do_paldata_colorvalid(); break;
-			case PALDATAGETCLR:
-				FFCore.do_paldata_getcolor(); break;
-			case PALDATASETCLR:
-				FFCore.do_paldata_setcolor(); break;
 			case PALDATACLEARCLR:
 				FFCore.do_paldata_clearcolor(); break;
 			case PALDATACLEARCSET:
 				FFCore.do_paldata_clearcset(); break;
-			case PALDATAGETR:
-				FFCore.do_paldata_getrgb(0); break;
-			case PALDATAGETG:
-				FFCore.do_paldata_getrgb(1); break;
-			case PALDATAGETB:
-				FFCore.do_paldata_getrgb(2); break;
-			case PALDATASETR:
-				FFCore.do_paldata_setrgb(0); break;
-			case PALDATASETG:
-				FFCore.do_paldata_setrgb(1); break;
-			case PALDATASETB:
-				FFCore.do_paldata_setrgb(2); break;
 			case PALDATAMIX:
 				FFCore.do_paldata_mix(); break;
 			case PALDATAMIXCS:
@@ -38802,16 +38791,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "PALDATAWRITECYCLE",           1,   0,   0,   0 },
 	{ "PALDATAWRITECYCLECS",           2,   0,   0,   0 },
 	{ "PALDATAVALIDCLR",           1,   0,   0,   0 },
-	{ "PALDATAGETCLR",           1,   0,   0,   0 },
-	{ "PALDATASETCLR",           2,   0,   0,   0 },
 	{ "PALDATACLEARCLR",           1,   0,   0,   0 },
 	{ "PALDATACLEARCSET",           1,   0,   0,   0 },
-	{ "PALDATAGETR",           1,   0,   0,   0 },
-	{ "PALDATAGETG",           1,   0,   0,   0 },
-	{ "PALDATAGETB",           1,   0,   0,   0 },
-	{ "PALDATASETR",           2,   0,   0,   0 },
-	{ "PALDATASETG",           2,   0,   0,   0 },
-	{ "PALDATASETB",           2,   0,   0,   0 },
 	{ "PALDATAMIX",           0,   0,   0,   0 },
 	{ "PALDATAMIXCS",           0,   0,   0,   0 },
 	{ "PALDATACOPY",           1,   0,   0,   0 },

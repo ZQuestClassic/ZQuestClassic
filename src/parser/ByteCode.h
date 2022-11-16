@@ -1472,7 +1472,43 @@
 
 #define REFPALDATA              1388
 
-#define LAST_BYTECODE           1389
+#define PALDATACOLOR            1389
+#define PALDATAR                1390
+#define PALDATAG                1391
+#define PALDATAB                1392
+
+#define RESRVD_VAR_MOOSH01      1393
+#define RESRVD_VAR_MOOSH02      1394
+#define RESRVD_VAR_MOOSH03      1395
+#define RESRVD_VAR_MOOSH04      1396
+#define RESRVD_VAR_MOOSH05      1397
+#define RESRVD_VAR_MOOSH06      1398
+#define RESRVD_VAR_MOOSH07      1399
+#define RESRVD_VAR_MOOSH08      1400
+#define RESRVD_VAR_MOOSH09      1401
+#define RESRVD_VAR_MOOSH10      1402
+#define RESRVD_VAR_MOOSH11      1403
+#define RESRVD_VAR_MOOSH12      1404
+#define RESRVD_VAR_MOOSH13      1405
+#define RESRVD_VAR_MOOSH14      1406
+#define RESRVD_VAR_MOOSH15      1407
+#define RESRVD_VAR_MOOSH16      1408
+#define RESRVD_VAR_MOOSH17      1409
+#define RESRVD_VAR_MOOSH18      1410
+#define RESRVD_VAR_MOOSH19      1411
+#define RESRVD_VAR_MOOSH20      1412
+#define RESRVD_VAR_MOOSH21      1413
+#define RESRVD_VAR_MOOSH22      1414
+#define RESRVD_VAR_MOOSH23      1415
+#define RESRVD_VAR_MOOSH24      1416
+#define RESRVD_VAR_MOOSH25      1417
+#define RESRVD_VAR_MOOSH26      1418
+#define RESRVD_VAR_MOOSH27      1419
+#define RESRVD_VAR_MOOSH28      1420
+#define RESRVD_VAR_MOOSH29      1421
+#define RESRVD_VAR_MOOSH30      1422
+
+#define LAST_BYTECODE           1423
 
 //} END OF BYTECODE
 
@@ -3851,28 +3887,6 @@ namespace ZScript
 			return new OPalDataColorValid(a->clone());
 		}
 	};
-
-	class OPalDataGetColor : public UnaryOpcode
-	{
-	public:
-		OPalDataGetColor(Argument* A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode* clone()
-		{
-			return new OPalDataGetColor(a->clone());
-		}
-	};
-	
-	class OPalDataSetColor : public BinaryOpcode
-	{
-	public:
-		OPalDataSetColor(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
-		{
-			return new OPalDataSetColor(a->clone(), b->clone());
-		}
-	};
 	
 	class OPalDataClearColor : public UnaryOpcode
 	{
@@ -3896,72 +3910,6 @@ namespace ZScript
 		}
 	};
 
-	class OPalDataGetR : public UnaryOpcode
-	{
-	public:
-		OPalDataGetR(Argument* A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode* clone()
-		{
-			return new OPalDataGetR(a->clone());
-		}
-	};
-
-	class OPalDataGetG : public UnaryOpcode
-	{
-	public:
-		OPalDataGetG(Argument* A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode* clone()
-		{
-			return new OPalDataGetG(a->clone());
-		}
-	};
-
-	class OPalDataGetB : public UnaryOpcode
-	{
-	public:
-		OPalDataGetB(Argument* A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode* clone()
-		{
-			return new OPalDataGetB(a->clone());
-		}
-	};
-
-	class OPalDataSetR : public BinaryOpcode
-	{
-	public:
-		OPalDataSetR(Argument* A, Argument* B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode* clone()
-		{
-			return new OPalDataSetR(a->clone(), b->clone());
-		}
-	};
-
-	class OPalDataSetG : public BinaryOpcode
-	{
-	public:
-		OPalDataSetG(Argument* A, Argument* B) : BinaryOpcode(A, B) {}
-		std::string toString();
-		Opcode* clone()
-		{
-			return new OPalDataSetG(a->clone(), b->clone());
-		}
-	};
-
-	class OPalDataSetB : public BinaryOpcode
-	{
-	public:
-		OPalDataSetB(Argument* A, Argument* B) : BinaryOpcode(A, B) {}
-		std::string toString();
-		Opcode* clone()
-		{
-			return new OPalDataSetB(a->clone(), b->clone());
-		}
-	};
-	
 	class OPalDataMix : public Opcode
 	{
 	public:

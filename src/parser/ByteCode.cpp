@@ -2180,6 +2180,40 @@ string ZScript::VarToString(int32_t ID)
 	case HEROFAKEJUMP: return "HEROFAKEJUMP";
 	
 	case REFPALDATA: return "REFPALDATA";
+	case PALDATACOLOR: return "PALDATACOLOR";
+	case PALDATAR: return "PALDATAR";
+	case PALDATAG: return "PALDATAG";
+	case PALDATAB: return "PALDATAB";
+	case RESRVD_VAR_MOOSH01: return "RESRVD_VAR_MOOSH01";
+	case RESRVD_VAR_MOOSH02: return "RESRVD_VAR_MOOSH02";
+	case RESRVD_VAR_MOOSH03: return "RESRVD_VAR_MOOSH03";
+	case RESRVD_VAR_MOOSH04: return "RESRVD_VAR_MOOSH04";
+	case RESRVD_VAR_MOOSH05: return "RESRVD_VAR_MOOSH05";
+	case RESRVD_VAR_MOOSH06: return "RESRVD_VAR_MOOSH06";
+	case RESRVD_VAR_MOOSH07: return "RESRVD_VAR_MOOSH07";
+	case RESRVD_VAR_MOOSH08: return "RESRVD_VAR_MOOSH08";
+	case RESRVD_VAR_MOOSH09: return "RESRVD_VAR_MOOSH09";
+	case RESRVD_VAR_MOOSH10: return "RESRVD_VAR_MOOSH10";
+	case RESRVD_VAR_MOOSH11: return "RESRVD_VAR_MOOSH11";
+	case RESRVD_VAR_MOOSH12: return "RESRVD_VAR_MOOSH12";
+	case RESRVD_VAR_MOOSH13: return "RESRVD_VAR_MOOSH13";
+	case RESRVD_VAR_MOOSH14: return "RESRVD_VAR_MOOSH14";
+	case RESRVD_VAR_MOOSH15: return "RESRVD_VAR_MOOSH15";
+	case RESRVD_VAR_MOOSH16: return "RESRVD_VAR_MOOSH16";
+	case RESRVD_VAR_MOOSH17: return "RESRVD_VAR_MOOSH17";
+	case RESRVD_VAR_MOOSH18: return "RESRVD_VAR_MOOSH18";
+	case RESRVD_VAR_MOOSH19: return "RESRVD_VAR_MOOSH19";
+	case RESRVD_VAR_MOOSH20: return "RESRVD_VAR_MOOSH20";
+	case RESRVD_VAR_MOOSH21: return "RESRVD_VAR_MOOSH21";
+	case RESRVD_VAR_MOOSH22: return "RESRVD_VAR_MOOSH22";
+	case RESRVD_VAR_MOOSH23: return "RESRVD_VAR_MOOSH23";
+	case RESRVD_VAR_MOOSH24: return "RESRVD_VAR_MOOSH24";
+	case RESRVD_VAR_MOOSH25: return "RESRVD_VAR_MOOSH25";
+	case RESRVD_VAR_MOOSH26: return "RESRVD_VAR_MOOSH26";
+	case RESRVD_VAR_MOOSH27: return "RESRVD_VAR_MOOSH27";
+	case RESRVD_VAR_MOOSH28: return "RESRVD_VAR_MOOSH28";
+	case RESRVD_VAR_MOOSH29: return "RESRVD_VAR_MOOSH29";
+	case RESRVD_VAR_MOOSH30: return "RESRVD_VAR_MOOSH30";
 	
 	default:
 	{
@@ -3227,16 +3261,6 @@ string OPalDataColorValid::toString()
 	return "PALDATAVALIDCLR " + getArgument()->toString();
 }
 
-string OPalDataGetColor::toString()
-{
-    return "PALDATAGETCLR " + getArgument()->toString();
-}
-
-string OPalDataSetColor::toString()
-{
-    return "PALDATASETCLR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-
 string OPalDataClearColor::toString()
 {
     return "PALDATACLEARCLR " + getArgument()->toString();
@@ -3245,36 +3269,6 @@ string OPalDataClearColor::toString()
 string OPalDataClearCSet::toString()
 {
 	return "PALDATACLEARCSET " + getArgument()->toString();
-}
-
-string OPalDataGetR::toString()
-{
-	return "PALDATAGETR " + getArgument()->toString();
-}
-
-string OPalDataGetG::toString()
-{
-	return "PALDATAGETG " + getArgument()->toString();
-}
-
-string OPalDataGetB::toString()
-{
-	return "PALDATAGETB " + getArgument()->toString();
-}
-
-string OPalDataSetR::toString()
-{
-	return "PALDATASETR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-
-string OPalDataSetG::toString()
-{
-	return "PALDATASETG " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-
-string OPalDataSetB::toString()
-{
-	return "PALDATASETB " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OPalDataMix::toString()
