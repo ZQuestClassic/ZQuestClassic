@@ -563,6 +563,10 @@ long		-2,147,483,648 -> 2,147,483,647
 		101010Lb (== 0.0042, == 42L) //Binary long
 		00011bL (== 0.0003, == 3L) //Binary long
 		17oL, 17Lo (== 0.0015, == 15L) //Octal long
+		
+rgb         0L -> 0x3F3F3FL
+	rgb is a special type used by paldata for color operations.
+	rgb values cannot inherently cast to other primitive types.
 	
 
 untyped : A special datatype that can be cast to and from any other type.
@@ -707,6 +711,9 @@ untyped : A special datatype that can be cast to and from any other type.
 	
 	genericdata :
 		Object type for managing 'generic scripts'
+		
+	paldata :
+		Object type for storing palettes
 	
 	//Planned/Incomplete
 	warpringdata : t/b/a
@@ -715,14 +722,6 @@ untyped : A special datatype that can be cast to and from any other type.
 		(Planned) Access to all Doorset Editor data
 	misccolorsdata : t/b/a
 		(Planned) Access to all Misc Colours dialogue data.
-	rgbdata : t/b/a
-		(Planned) DATATYPE for colour triplets as red,green,blue in one integer value.
-		Because ZScript will interpret the value as 'float' inside the script, this datatype
-		allows operating on a value as a true integer.
-	palette : t/b/a
-		(Planned) OBJECT TYPE, for loading and using USER PALETTES.
-		This is similar to how user bitmaps work, and may also include a save/load format similar
-		to ZPL, so that palettes created by script can be saved, then imported into other quests.
 	zcmididata : t/b/a
 		(Planned) OBJECT TYPE for working with MIDIs, both in-quest, and as external files.
 	palcycledata : t/b/a
@@ -7460,18 +7459,6 @@ t/b/a
 
 t/b/a
 
-/////////////////
-///  rgbdata  ///
-/////////////////								// RGBata
-
-t/b/a
-
-/////////////////
-///  palette  ///
-/////////////////								// Palettedata
-
-t/b/a
-
 ////////////////
 ///  zcmidi  ///
 ////////////////								// MIDI
@@ -7552,6 +7539,26 @@ void Greyscale(bool enable);
 int IsBlankTile[214500];
  * Returns 1 is the tile supplied as an index is blank, 0 is it is not blank.
  * Returns -1 if the user passed an invalid tile ID to the index.
+
+paldata CreatePalData();
+ * Creates a new empty paldata.
+
+paldata CreatePalData(rgb color);
+ * Creates a new paldata with all colors filled to the same rgb value.
+
+rgb MixColor(rgb clr_start, rgb clr_end, float percent, int color_space);
+ * Interpolates a color between clr_start and clr_end and then returns the resulting rgb.
+ * The value of percent should range from 0-1, with 0 representing the starting color.
+ * Color space specifies a color space to interpolate through, changing the resulting average.
+ * See CSPACE_ constants in std_constants.zh
+
+rgb CreateRGB(int r, int g, int b);
+ * Returns an rgb based on the R/G/B values
+ * Values range 0-63
+
+rgb CreateRGB(long hexcode);
+ * Returns an rgb based on a long hexcode (0xRRGGBBL)
+ * R/G/B values will be converted from 0-255 to 0-63
 
 /////////////////
 ///  Audio->  ///
@@ -8193,6 +8200,113 @@ untyped InitD[8];
  * This is shared by the passive and frozen modes
 
 
+///////////////
+//  paldata  //
+/////////////// paldata
+
+rgb Color[256]; 
+ * Access the color values of the paldata.
+ * Will return INVALID_COLOR if the color is invalid.
+
+int R[256];
+int G[256];
+int B[256];
+ * Access the R/G/B values of the paldata.
+ * Will return -1 if the color is invalid.
+
+void ClearColor(int index);
+ * Clears the color at index on the paldata 
+ * Cleared colors will be skipped when writing to a palette.
+
+void ClearCSet(int index);
+ * Clears a cset on the paldata 
+ * Cleared colors will be skipped when writing to a palette.
+
+bool ColorValid(int index);
+ * Returns true if the color at index is valid.
+
+void LoadLevelPalette(int pal);
+ * Loads a level's palette to the paldata.
+ * CSets will be arranged as they appear on the main palette, so CSet 2 starts at index 0x20, ect.
+
+void LoadSpritePalette(int pal);
+ * Loads a page of sprite palettes to the paldata.
+ * Currently only values of 0 and 1 are valid. 
+
+void LoadMainPalette();
+ * Loads the main palette to the paldata.
+ * Will load colors that have been changed by Tint() and Greyscale()
+
+void LoadCyclePalette(int pal);
+ * Loads a level's cycle/dark room palette to the paldata.
+ * CSets will be arranged as they appear in the level palette editor so the first four csets
+ *     will be left blank.
+
+void LoadBitmapPalette(char32[] path);
+ * Loads the palette from an image.
+ * Currently only BMP, PCX, and TGA are supported.
+
+void WriteLevelPalette(int pal);
+ * Writes the paldata to a level palette. 
+ * Empty color indices will be skipped.
+
+void WriteLevelCSet(int pal, int cset);
+ * Writes a cset of the paldata to a level palette.
+ * Empty color indices will be skipped.
+
+void WriteSpritePalette(int page);
+ * Writes the paldata to a sprite palette page.
+ * Empty color indices will be skipped. 
+ * This will copy over the whole page at once.
+
+void WriteSpriteCSet(int page, int cset);
+ * Writes a cset of the paldata to a sprite palette page.
+ * Empty color indices will be skipped.
+
+void WriteMainPalette();
+ * Writes the paldata to the main palette.
+ * Empty color indices will be skipped. 
+ * CSets currently affected by level palettes or sprite palettes will be skipped over.
+
+void WriteMainCSet(int cset);
+ * Writes a cset of the paldata to the main palette.
+ * Empty color indices will be skipped. 
+
+void WriteCyclePalette(int pal);
+ * Writes the paldata to a level's cycle/dark room palette. 
+ * Empty color indices will be skipped.
+
+void WriteCycleCSet(int pal, int cset);
+ * Writes a cset of the paldata to a level's cycle/dark room palette.
+ * Empty color indices will be skipped.
+
+void Mix(paldata start, paldata end, float percent, int color_space);
+ * Interpolates all the colors on a paldata between start and end.
+ * The value of percent should range from 0-1, with 0 representing the starting color.
+ * Color space specifies a color space to interpolate through, changing the resulting average.
+ * See CSPACE_ constants in std_constants.zh
+
+void MixCSet(paldata start, paldata end, int cset, float percent, int color_space);
+ * Interpolates all the colors in a cset on a paldata between start and end.
+ * The value of percent should range from 0-1, with 0 representing the starting color.
+ * Color space specifies a color space to interpolate through, changing the resulting average.
+ * See CSPACE_ constants in std_constants.zh
+
+void Copy(paldata target);
+ * Copies all the colors from this paldata to the target. 
+
+void CopyCSet(paldata target, int src_cset, int dest_cset);
+ * Copies all the colors from one cset on this paldata to another on the target. 
+
+void Free();
+ * This will deallocate the paldata pointer, so that the pointer ID may be re-used.
+ * There is a limit to how many paldata pointers may be allocated at once,
+ *     so be sure to free them when you are no longer using them.
+
+void Own();
+ * Grants 'Ownership' of the pointer to the currently running script.
+ * When the script terminates (at the same time any Local Arrays in the script
+ *     are cleared), the pointer will be automatically freed.
 
 ________        ___.                       .__                
 \______ \   ____\_ |__  __ __  ____   ____ |__| ____    ____  

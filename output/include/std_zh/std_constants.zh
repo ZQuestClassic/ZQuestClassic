@@ -28,6 +28,8 @@ DEFINEU NULL			= 0;
 DEFINEU null			= 0;
 DEFINEU Null			= 0;
 
+const rgb INVALID_COLOR = <rgb>(-1);
+
 DEFINEF RADIAN 			= 57.2958; //Multiplication value for converting radians to degrees. 
 DEFINEF DEGREE			= 0.0174; //Multiplication value for converting degrees to radians.
 

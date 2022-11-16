@@ -12234,7 +12234,7 @@ int32_t get_register(const int32_t arg)
 				if (unsigned(ind) >= PALDATA_NUM_COLORS)
 				{
 					Z_scripterrlog("Invalid color index (%d) passed to paldata->GetColor(). Valid indices are 0-255.\n", ind);
-					ret = 0;
+					ret = -10000;
 					break;
 				}
 
