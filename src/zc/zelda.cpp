@@ -1852,7 +1852,7 @@ int32_t init_game()
 			{
 				filename_prefix.erase(0, filename_prefix.find_first_not_of("\t\n\v\f\r ")); // left trim
 				filename_prefix.erase(filename_prefix.find_last_not_of("\t\n\v\f\r ") + 1); // right trim
-				std::regex re("[^a-zA-Z0-9_-+]+");
+				std::regex re(R"([^a-zA-Z0-9_+\-]+)");
 				filename_prefix = std::regex_replace(filename_prefix, re, "_");
 			}
 			auto replay_path_prefix = replay_file_dir / filename_prefix;
