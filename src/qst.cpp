@@ -6643,16 +6643,6 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 							return qe_invalid;
 						}
 						tempitem.cost_amount[0] = tempbyte;
-						switch(tempitem.family)
-						{
-							case itype_arrow:
-							case itype_bomb:
-							case itype_sbomb:
-								tempitem.cost_amount[1] = 1;
-								break;
-							default:
-								tempitem.cost_amount[1] = 0;
-						}
 					}
 					else
 					{
@@ -6955,20 +6945,6 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 					{
 						return qe_invalid;
 					}
-					switch(tempitem.family)
-					{
-						case itype_arrow:
-							tempitem.cost_counter[1] = crARROWS;
-							break;
-						case itype_bomb:
-							tempitem.cost_counter[1] = crBOMBS;
-							break;
-						case itype_sbomb:
-							tempitem.cost_counter[1] = crSBOMBS;
-							break;
-						default:
-							tempitem.cost_counter[1] = crNONE;
-					}
 				}
 				else
 				{
@@ -6979,23 +6955,6 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 							return qe_invalid;
 						}
 					}
-				}
-			}
-			else
-			{
-				switch(tempitem.family)
-				{
-					case itype_arrow:
-						tempitem.cost_counter[1] = crARROWS;
-						break;
-					case itype_bomb:
-						tempitem.cost_counter[1] = crBOMBS;
-						break;
-					case itype_sbomb:
-						tempitem.cost_counter[1] = crSBOMBS;
-						break;
-					default:
-						tempitem.cost_counter[1] = crNONE;
 				}
 			}
 			if ( s_version >= 44 )  //! sprite scripts
@@ -7058,6 +7017,28 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
             tempitem.playsound=WAV_SCALE;
             reset_itembuf(&tempitem,i);
         }
+		if(s_version < 53)
+		{
+			switch(tempitem.family)
+			{
+				case itype_arrow:
+					tempitem.cost_counter[1] = crARROWS;
+					tempitem.cost_amount[1] = 1;
+					break;
+				case itype_bomb:
+					tempitem.cost_counter[1] = crBOMBS;
+					tempitem.cost_amount[1] = 1;
+					break;
+				case itype_sbomb:
+					tempitem.cost_counter[1] = crSBOMBS;
+					tempitem.cost_amount[1] = 1;
+					break;
+				default:
+					tempitem.cost_counter[1] = crNONE;
+					tempitem.cost_amount[1] = 0;
+			}
+			tempitem.magiccosttimer[1] = 0;
+		}
         
         if(keepdata==true)
         {
