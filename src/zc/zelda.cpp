@@ -96,7 +96,7 @@ bool use_testingst_start = false;
 static uint16_t testingqst_dmap = 0;
 static uint8_t testingqst_screen = 0;
 static uint8_t testingqst_retsqr = 0;
-static bool replay_debug_arg = false;
+static bool replay_debug = false;
 
 extern CConsoleLoggerEx zscript_coloured_console;
 extern CConsoleLoggerEx coloured_console;
@@ -1874,7 +1874,7 @@ int32_t init_game()
 			{
 				saves[currgame].replay_file = replay_path;
 				replay_start(ReplayMode::Record, replay_path);
-				replay_set_debug(replay_debug_arg);
+				replay_set_debug(replay_debug);
 				replay_set_sync_rng(true);
 				replay_set_meta("qst", relativize_path(game->qstpath));
 				replay_set_meta("name", game->get_name());
@@ -5578,7 +5578,8 @@ int main(int argc, char **argv)
 	int assert_arg = used_switch(argc, argv, "-assert");
 	int update_arg = used_switch(argc, argv, "-update");
 	int frame_arg = used_switch(argc, argv, "-frame");
-	replay_debug_arg = used_switch(argc, argv, "-replay-debug") > 0;
+
+	replay_debug = zc_get_config("zeldadx","replay_debug",0) == 1 || used_switch(argc, argv, "-replay-debug") > 0;
 	if (replay_arg > 0)
 	{
 		load_replay_file(ReplayMode::Replay, argv[replay_arg + 1]);
@@ -5601,7 +5602,7 @@ int main(int argc, char **argv)
 		ASSERT(zqtesting_mode);
 
 		replay_start(ReplayMode::Record, argv[record_arg + 1]);
-		replay_set_debug(replay_debug_arg);
+		replay_set_debug(replay_debug);
 		replay_set_sync_rng(true);
 		replay_set_meta("qst", testingqst_name);
 		replay_set_meta_bool("test_mode", true);
