@@ -193,7 +193,7 @@ struct CheatReplayStep : ReplayStep
 
     void run()
     {
-        cheats_execute(cheat, arg1, arg2);
+        // During replay, replay_do_cheats handles enqueuing cheats.
     }
 
     std::string print()
@@ -844,6 +844,20 @@ void replay_peek_input()
         if (replay_log[i]->type == TypeButtonDown || replay_log[i]->type == TypeButtonUp)
         {
             replay_log[i]->run();
+        }
+        i++;
+    }
+}
+
+void replay_do_cheats()
+{
+    size_t i = replay_log_current_index;
+    while (i < replay_log.size() && replay_log[i]->frame == frame_count)
+    {
+        if (replay_log[i]->type == TypeCheat)
+        {
+            auto cheat_replay_step = static_cast<CheatReplayStep *>(replay_log[i].get());
+            cheats_enqueue(cheat_replay_step->cheat, cheat_replay_step->arg1, cheat_replay_step->arg2);
         }
         i++;
     }

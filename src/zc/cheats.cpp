@@ -49,16 +49,7 @@ void cheats_enqueue(Cheat cheat, int arg1, int arg2)
     cheats.push({cheat, arg1, arg2});
 }
 
-void cheats_execute_queued()
-{
-    while (!cheats.empty())
-    {
-        std::apply(cheats_execute, cheats.front());
-        cheats.pop();
-    }
-}
-
-void cheats_execute(Cheat cheat, int arg1, int arg2)
+static void cheats_execute(Cheat cheat, int arg1, int arg2)
 {
     replay_step_cheat(cheat, arg1, arg2);
 
@@ -190,5 +181,14 @@ void cheats_execute(Cheat cheat, int arg1, int arg2)
     case None:
     case Last:
         break;
+    }
+}
+
+void cheats_execute_queued()
+{
+    while (!cheats.empty())
+    {
+        std::apply(cheats_execute, cheats.front());
+        cheats.pop();
     }
 }

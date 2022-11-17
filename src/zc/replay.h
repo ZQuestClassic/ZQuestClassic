@@ -31,6 +31,7 @@ void replay_continue(std::string filename_);
 void replay_poll();
 void replay_peek_quit();
 void replay_peek_input();
+void replay_do_cheats();
 bool replay_is_assert_done();
 void replay_forget_input();
 void replay_stop();

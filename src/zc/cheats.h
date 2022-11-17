@@ -31,6 +31,5 @@ Cheat cheat_from_string(std::string name);
 std::string cheat_to_string(Cheat cheat);
 void cheats_enqueue(Cheat cheat, int arg1 = -1, int arg2 = -1);
 void cheats_execute_queued();
-void cheats_execute(Cheat cheat, int arg1, int arg2);
 
 #endif

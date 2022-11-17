@@ -5020,7 +5020,6 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		{
 			FFCore.runF6Engine();
 		}
-		// to keep fps constant
 		updatescr(allowwavy);
 		throttleFPS();
 		
@@ -5055,7 +5054,15 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	update_keys(); //Update ZScript key arrays
 	locking_keys = false;
 	
+	if (replay_is_replaying())
+		replay_do_cheats();
 	syskeys();
+
+	// Cheats used via the System menu (called by syskeys) will call cheats_enqueue. syskeys
+	// is called just above, and in the paused loop above, so the queue-and-defer-slightly
+	// approach here means it doesn't matter which call adds the cheat.
+	cheats_execute_queued();
+
 	if (replay_is_replaying())
 		replay_peek_quit();
 	if(allowF6Script)

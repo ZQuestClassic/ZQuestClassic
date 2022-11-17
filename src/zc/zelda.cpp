@@ -3546,8 +3546,6 @@ void game_loop()
 			midi_paused=false;
 			midi_suspended = midissuspNONE;
 		}
-
-		cheats_execute_queued();
 		
 		//  walkflagx=0; walkflagy=0;
 		runDrunkRNG();
