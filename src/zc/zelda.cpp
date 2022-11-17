@@ -5319,7 +5319,6 @@ int main(int argc, char **argv)
 		}
 		show_saving(screen);
 		save_savedgames();
-		if (replay_get_mode() == ReplayMode::Record) replay_save();
 		save_game_configs();
 		set_gfx_mode(GFX_TEXT,80,25,0,0);
 		//rest(250); // ???
@@ -6003,7 +6002,7 @@ reload_for_replay_file:
 	
 	// clean up
 	
-	if (zqtesting_mode && replay_get_mode() == ReplayMode::Record) replay_save();
+	if (replay_get_mode() == ReplayMode::Record) replay_save();
 	replay_stop();
 	music_stop();
 	kill_sfx();
@@ -6077,7 +6076,7 @@ void delete_everything_else() //blarg.
 
 void quit_game()
 {
-	if (zqtesting_mode && replay_get_mode() == ReplayMode::Record) replay_save();
+	if (replay_get_mode() == ReplayMode::Record) replay_save();
 	replay_stop();
 
 	script_drawing_commands.Dispose(); //for allegro bitmaps
