@@ -5470,10 +5470,12 @@ int main(int argc, char **argv)
 		int window_height_temp = window_height*vscale;
 		al_resize_display(all_get_display(), window_width_temp, window_height_temp);
 		
+#ifndef ALLEGRO_MACOSX
 		int new_x = zc_get_config("zeldadx","window_x",0);
 		int new_y = zc_get_config("zeldadx","window_y",0);
 		if (new_x > 0 && new_y > 0) al_set_window_position(all_get_display(), new_x, new_y);
 		else al_set_window_position(all_get_display(), center_x - window_width_temp / 2, center_y - window_height_temp / 2);
+#endif
 	}
 #endif
 	LastWidth = al_get_display_width(all_get_display());
