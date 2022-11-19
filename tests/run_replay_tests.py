@@ -83,6 +83,7 @@ def run_replay_test(replay_file):
         exe_path,
         f'-{mode}', replay_file,
         '-v1' if args.throttle_fps else '-v0',
+        '-replay-exit-when-done',
     ]
     if args.frame is not None:
         exe_args.extend(['-frame', str(args.frame)])

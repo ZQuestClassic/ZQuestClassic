@@ -28,6 +28,7 @@ static const char TypeRng = 'R';
 static ReplayMode mode = ReplayMode::Off;
 static int version;
 static bool debug;
+static bool exit_when_done;
 static bool sync_rng;
 static int frame_arg;
 static std::string filename;
@@ -575,10 +576,17 @@ static void check_assert()
         {
             has_assert_failed = true;
             int line_number = assert_current_index + meta_map.size() + 1;
-            fmt::print(stderr, "<{}> expected:\n\t{}\nbut got:\n\t{}\n", line_number,
-                                              replay_step->print(), record_step->print());
-            replay_save(filename + ".roundtrip");
-            // Paused = true;
+            std::string error = fmt::format("<{}> expected:\n\t{}\nbut got:\n\t{}", line_number,
+                                            replay_step->print(), record_step->print());
+            fprintf(stderr, "%s\n", error.c_str());
+			replay_save(filename + ".roundtrip");
+            if (!exit_when_done)
+            {
+                enter_sys_pal();
+                jwin_auto_alert("Assert", error.c_str(), 150, 8, "OK", NULL, 13, 27, lfont);
+                exit_sys_pal();
+				replay_stop();
+            }
             break;
         }
 
@@ -908,7 +916,16 @@ void replay_stop()
         {
             fprintf(stderr, "replay_log size is %zu but record_log size is %zu\n", replay_log.size(), record_log.size());
         }
-        exit(has_assert_failed ? ASSERT_FAILED_EXIT_CODE : 0);
+
+        if (exit_when_done)
+            exit(has_assert_failed ? ASSERT_FAILED_EXIT_CODE : 0);
+        else if (has_assert_failed)
+        {
+            enter_sys_pal();
+            jwin_alert("Assert", "Assert failed, replay has stopped", NULL, NULL, "OK", NULL, 13, 27, lfont);
+            exit_sys_pal();
+			Paused = true;
+        }
     }
 
     if (mode == ReplayMode::Update)
@@ -1238,6 +1255,11 @@ void replay_set_frame_arg(int frame)
         frame_arg = frame;
 }
 
+void replay_enable_exit_when_done()
+{
+	exit_when_done = true;
+}
+
 size_t replay_register_rng(zc_randgen *rng)
 {
     if (std::find(rngs.begin(), rngs.end(), rng) != rngs.end())
@@ -1267,11 +1289,11 @@ void replay_set_rng_seed(zc_randgen *rng, int seed)
             int line_number = replay_log_current_index + meta_map.size() + 1;
             std::string error = fmt::format("<{}> rng desync", line_number);
             fprintf(stderr, "%s\n", error.c_str());
-            replay_stop();
-            if (mode == ReplayMode::Assert)
+            if (mode == ReplayMode::Assert && exit_when_done)
             {
                 ASSERT(false);
             }
+            replay_stop();
             enter_sys_pal();
             jwin_alert("Recording", "rng desync! stopping replay", NULL, NULL, "OK", NULL, 13, 27, lfont);
             exit_sys_pal();

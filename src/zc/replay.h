@@ -65,6 +65,7 @@ void replay_set_sync_rng(bool enable);
 bool replay_is_replaying();
 bool replay_is_recording();
 void replay_set_frame_arg(int frame);
+void replay_enable_exit_when_done();
 
 size_t replay_register_rng(zc_randgen *rng);
 void replay_set_rng_seed(zc_randgen *rng, int seed);

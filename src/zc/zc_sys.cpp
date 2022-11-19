@@ -6717,7 +6717,7 @@ int32_t onStopReplayOrRecord()
 	return D_O_K;
 }
 
-int32_t onLoadReplay()
+static int32_t handle_on_load_replay(ReplayMode mode)
 {
 	if (Playing)
 	{
@@ -6729,7 +6729,7 @@ int32_t onLoadReplay()
 		return D_CLOSE;
 	}
 
-	if (jwin_alert("Replay",
+	if (jwin_alert(mode == ReplayMode::Replay ? "Replay" : "Assert",
 		"Select a replay file to play back.",
 		"You won't be able to save, and it won't effect existing saves.",
 		"You can stop the replay and take over manually any time.",
@@ -6743,11 +6743,21 @@ int32_t onLoadReplay()
 			return D_CLOSE;
 
 		replay_quit();
-		load_replay_file_deferred(ReplayMode::Replay, replay_path);
+		load_replay_file_deferred(mode, replay_path);
 		Quit = qRESET;
 		return D_CLOSE;
 	}
 	return D_O_K;
+}
+
+int32_t onLoadReplay()
+{
+	handle_on_load_replay(ReplayMode::Replay);
+}
+
+int32_t onLoadReplayAssert()
+{
+	handle_on_load_replay(ReplayMode::Assert);
 }
 
 int32_t onSaveReplay()
@@ -6792,6 +6802,7 @@ static MENU replay_menu[] =
 	{ (char *)"Record new saves",		   onToggleRecordingNewSaves, NULL,					 0,			NULL   },
 	{ (char *)"Stop replay",				onStopReplayOrRecord,	  NULL,					 0,			NULL   },
 	{ (char *)"Load replay",				onLoadReplay,			  NULL,					 0,			NULL   },
+	{ (char *)"Load replay (assert)",		onLoadReplayAssert,		  NULL,					 0,			NULL   },
 	{ (char *)"Save replay",				onSaveReplay,			  NULL,					 0,			NULL   },
 	
 	{  NULL,								NULL,					  NULL,					 0,			NULL   }
@@ -8964,7 +8975,7 @@ void System()
 		replay_menu[1].text = replay_get_mode() == ReplayMode::Record ?
 			(char *)"Stop recording" :
 			(char *)"Stop replaying";
-		replay_menu[3].flags = replay_get_mode() == ReplayMode::Record ? 0 : D_DISABLED;
+		replay_menu[4].flags = replay_get_mode() == ReplayMode::Record ? 0 : D_DISABLED;
 	
 		reset_snapshot_format_menu();
 		snapshot_format_menu[SnapshotFormat].flags = D_SELECTED;

@@ -5572,6 +5572,9 @@ int main(int argc, char **argv)
 		testingqst_retsqr = (uint8_t)retsqr;
 	}
 
+	if (used_switch(argc, argv, "-replay-exit-when-done") > 0)
+		replay_enable_exit_when_done();
+
 	int replay_arg = used_switch(argc, argv, "-replay");
 	int snapshot_arg = used_switch(argc, argv, "-snapshot");
 	int record_arg = used_switch(argc, argv, "-record");
