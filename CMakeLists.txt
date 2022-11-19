@@ -694,9 +694,10 @@ endif()
 
 set(zc_targets zquest zelda zlauncher zcbase zcgui zcsound zscript zconsolelogger)
 set(zc_apps zquest zelda zlauncher)
-set(zc_warnings
+set(zc_clang_errors
 	-Werror=format
 	-Werror=inconsistent-missing-override
+	-Werror=return-type
 )
 
 foreach(target IN LISTS zc_targets)
@@ -729,10 +730,10 @@ foreach(target IN LISTS zc_targets)
 
 	if(CMAKE_C_COMPILER_ID MATCHES "Clang")
 		# Uncomment to autofix. Only works for clang. When done, comment this line out again.
-		# target_compile_options(${target} PRIVATE -ferror-limit=10000 -Wno-everything ${zc_warnings} "SHELL:-Xclang -fix-what-you-can" "SHELL:-Xclang -fixit-recompile")
+		# target_compile_options(${target} PRIVATE -ferror-limit=10000 -Wno-everything ${zc_clang_errors} "SHELL:-Xclang -fix-what-you-can" "SHELL:-Xclang -fixit-recompile")
 	endif()
 	if(NOT CMAKE_COMPILER_IS_MSVC)
-		target_compile_options(${target} PRIVATE ${zc_warnings})
+		target_compile_options(${target} PRIVATE ${zc_clang_errors})
 	endif()
 endforeach()
 
