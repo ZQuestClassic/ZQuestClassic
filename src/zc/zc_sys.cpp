@@ -6752,12 +6752,12 @@ static int32_t handle_on_load_replay(ReplayMode mode)
 
 int32_t onLoadReplay()
 {
-	handle_on_load_replay(ReplayMode::Replay);
+	return handle_on_load_replay(ReplayMode::Replay);
 }
 
 int32_t onLoadReplayAssert()
 {
-	handle_on_load_replay(ReplayMode::Assert);
+	return handle_on_load_replay(ReplayMode::Assert);
 }
 
 int32_t onSaveReplay()
