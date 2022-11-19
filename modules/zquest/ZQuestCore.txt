@@ -14,6 +14,7 @@ src/md5.cpp
 src/particles.cpp
 src/qst.cpp
 src/sprite.cpp
+src/solidobject.cpp
 src/subscr.cpp
 src/zc/zc_custom.cpp
 src/init.cpp

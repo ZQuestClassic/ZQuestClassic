@@ -84,7 +84,6 @@ sprite::sprite()
     txsz=1;
     tysz=1;
     id=-1;
-    hxsz=hysz=16;
     hzsz=1;
     yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
     dir=down;
@@ -185,8 +184,6 @@ sprite::sprite()
 }
 
 sprite::sprite(sprite const & other):
-    x(other.x),
-    y(other.y),
     z(other.z),
     fakez(other.fakez),
     fall(other.fall),
@@ -202,8 +199,6 @@ sprite::sprite(sprite const & other):
     zofs(other.zofs),
     hxofs(other.hxofs),
     hyofs(other.hyofs),
-    hxsz(other.hxsz),
-    hysz(other.hysz),
     hzsz(other.hzsz),
     txsz(other.txsz),
     tysz(other.tysz),
@@ -306,8 +301,10 @@ can_flicker(other.can_flicker)
 }
 
 sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t Yofs):
-    x(X),y(Y),tile(T),cs(CS),flip(F),clk(Clk),yofs(Yofs)
+    tile(T),cs(CS),flip(F),clk(Clk),yofs(Yofs)
 {
+	x = X;
+	y = Y;
     uid = getNextUID();
     isspawning = false;
     hxsz=hysz=16;

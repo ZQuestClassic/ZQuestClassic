@@ -12,6 +12,7 @@ src/zc/hero.cpp
 src/particles.cpp
 src/items.cpp
 src/sprite.cpp
+src/solidobject.cpp
 src/tiles.cpp
 src/maps.cpp
 src/zc/script_drawing.cpp

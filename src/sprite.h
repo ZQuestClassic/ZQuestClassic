@@ -19,7 +19,7 @@
 #include "base/zdefs.h"
 #include <set>
 #include <map>
-#include "zfix.h"
+#include "solidobject.h"
 
 using std::map;
 // this code needs some patching for use in zquest.cc
@@ -49,7 +49,7 @@ struct scriptmem
 // Forward reference
 class refInfo;
 
-class sprite
+class sprite : public solid_object
 {
 private:
     static int32_t getNextUID();
@@ -66,12 +66,12 @@ public:
     
    
     
-    zfix x,y,z,fall,fakefall,fakez;
+    zfix z,fall,fakefall,fakez;
     int32_t tile,shadowtile,cs,flip,c_clk,clk,misc;
     zfix xofs,yofs,zofs;
     zfix shadowxofs,shadowyofs;
     // no hzofs - it's always equal to zofs.
-    int32_t hxofs,hyofs,hxsz,hysz,hzsz;
+    int32_t hxofs,hyofs,hzsz;
     int32_t txsz,tysz;
     /*
      * Explanation of hzsz:
