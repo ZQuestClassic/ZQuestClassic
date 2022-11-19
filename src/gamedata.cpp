@@ -1161,5 +1161,14 @@ void gamedata::clear_portal()
 	portalspr = 0;
 }
 
+bool gamedata::should_show_time()
+{
+	// Drawing the time makes manually updating replays much more difficult.
+	if (replay_is_active() && replay_is_debug())
+		return false;
+
+	return get_timevalid() && !did_cheat() && get_bit(quest_rules,qr_TIME);
+}
+
 /*** end of gamedata.cpp ***/
 

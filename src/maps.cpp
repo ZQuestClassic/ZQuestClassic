@@ -4104,7 +4104,8 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	//13. Draw the subscreen, without clipping
 	if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
 	{
-		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
+		bool showtime = game->get_timevalid() && !game->did_cheat() && get_bit(quest_rules,qr_TIME);
+		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, showtime, sspUP);
 		
 		// Draw primitives over subscren
 		do_primitives(framebuf, 7, this_screen, 0, playing_field_offset); //Layer '7' appears above subscreen if quest rule is set
