@@ -16423,7 +16423,7 @@ REDRAW:
 			select_tile_view_menu[1].flags = HIDE_UNUSED ? D_SELECTED : 0;
 			select_tile_view_menu[2].flags = HIDE_BLANK ? D_SELECTED : 0;
 			select_tile_view_menu[3].flags = HIDE_8BIT_MARKER ? D_SELECTED : 0;
-			select_tile_view_menu[7].flags = (type!=0) ? D_DISABLED : 0;
+			select_tile_rc_menu[7].flags = (type!=0) ? D_DISABLED : 0;
 			int32_t m = popup_menu(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
 			redraw=true;
 			

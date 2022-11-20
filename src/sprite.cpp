@@ -2221,79 +2221,58 @@ bool sprite_list::del(int32_t j, bool force)
 
 void sprite_list::draw(BITMAP* dest,bool lowfirst)
 {
-    switch(lowfirst)
-    {
-    case true:
-        for(int32_t i=0; i<count; i++)
-        {
-            sprites[i]->draw(dest);
-        }
-        
-        break;
-        
-    case false:
-        for(int32_t i=count-1; i>=0; i--)
-        {
-            sprites[i]->draw(dest);
-        }
-        
-        break;
-    }
+	if(lowfirst)
+		for(int32_t i=0; i<count; i++)
+		{
+			sprites[i]->draw(dest);
+		}
+	else
+		for(int32_t i=count-1; i>=0; i--)
+		{
+			sprites[i]->draw(dest);
+		}
 }
 
 void sprite_list::drawshadow(BITMAP* dest,bool translucent, bool lowfirst)
 {
-    switch(lowfirst)
-    {
-    case true:
-        for(int32_t i=0; i<count; i++)
-            sprites[i]->drawshadow(dest,translucent);
-            
-        break;
-        
-    case false:
-        for(int32_t i=count-1; i>=0; i--)
-            sprites[i]->drawshadow(dest,translucent);
-            
-        break;
-    }
+	if(lowfirst)
+		for(int32_t i=0; i<count; i++)
+		{
+			sprites[i]->drawshadow(dest,translucent);
+		}
+	else
+		for(int32_t i=count-1; i>=0; i--)
+		{
+			sprites[i]->drawshadow(dest,translucent);
+		}
 }
 
 void sprite_list::draw2(BITMAP* dest,bool lowfirst)
 {
-    switch(lowfirst)
-    {
-    case true:
-        for(int32_t i=0; i<count; i++)
-            sprites[i]->draw2(dest);
-            
-        break;
-        
-    case false:
-        for(int32_t i=count-1; i>=0; i--)
-            sprites[i]->draw2(dest);
-            
-        break;
-    }
+	if(lowfirst)
+		for(int32_t i=0; i<count; i++)
+		{
+			sprites[i]->draw2(dest);
+		}
+	else
+		for(int32_t i=count-1; i>=0; i--)
+		{
+			sprites[i]->draw2(dest);
+		}
 }
 
 void sprite_list::drawcloaked2(BITMAP* dest,bool lowfirst)
 {
-    switch(lowfirst)
-    {
-    case true:
-        for(int32_t i=0; i<count; i++)
-            sprites[i]->drawcloaked2(dest);
-            
-        break;
-        
-    case false:
-    
-        for(int32_t i=count-1; i>=0; i--)
-            sprites[i]->drawcloaked2(dest);
-            
-        break;
-    }
+	if(lowfirst)
+		for(int32_t i=0; i<count; i++)
+		{
+			sprites[i]->drawcloaked2(dest);
+		}
+	else
+		for(int32_t i=count-1; i>=0; i--)
+		{
+			sprites[i]->drawcloaked2(dest);
+		}
 }
 
 extern char *guy_string[];

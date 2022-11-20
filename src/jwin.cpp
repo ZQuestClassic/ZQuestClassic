@@ -1823,7 +1823,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 					GUI_EVENT(d, geCHANGE_VALUE);
 				}
 			}
-			else if((lower_c >= 32) && (lower_c <= 255))
+			else if(lower_c >= 32)
 			{
 				if(multiselect)
 				{
@@ -2291,7 +2291,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 					GUI_EVENT(d, geCHANGE_VALUE);
 				}
 			}
-			else if((lower_c >= 32) && (lower_c <= 255))
+			else if(lower_c >= 32)
 			{
 				if(multiselect)
 				{
@@ -6756,7 +6756,7 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 				//Find a different indexing type in the strings?
 				if(!foundmatch)
 				{
-					char buf[6];
+					char buf[16];
 					if(num < 0) sprintf(buf, "(%04d)", num);
 					else sprintf(buf, "(%03d)", num);
 					std::string cmp = buf;
