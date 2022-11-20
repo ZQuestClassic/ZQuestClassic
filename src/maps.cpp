@@ -97,16 +97,16 @@ extern HeroClass Hero;
 int32_t current_ffcombo=-1;
 bool triggered_screen_secrets=false;
 
-int16_t ffposx[32]= {-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
+int16_t ffposx[MAXFFCS]= {-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
                    -1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000
                   };
-int16_t ffposy[32]= {-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
+int16_t ffposy[MAXFFCS]= {-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
                    -1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000
                   };
-int32_t ffprvx[32]= {-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
+int32_t ffprvx[MAXFFCS]= {-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
                   -10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000
                  };
-int32_t ffprvy[32]= {-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
+int32_t ffprvy[MAXFFCS]= {-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
                   -10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000
                  };
 
@@ -292,18 +292,18 @@ int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y)
 // Used by MAPFFCOMBO(), MAPFFCOMBOFLAG, and getFFCAt().
 inline bool ffcIsAt(int32_t index, int32_t x, int32_t y)
 {
-    int32_t fx=tmpscr->ffx[index]/10000;
-    if(x<fx || x>fx+(tmpscr->ffwidth[index]&63)) // FFC sizes are weird.
+    int32_t fx=tmpscr->ffcs[index].x.getInt();
+    if(x<fx || x>fx+(tmpscr->ffEffectWidth(index)-1)) // FFC sizes are weird.
         return false;
     
-    int32_t fy=tmpscr->ffy[index]/10000;
-    if(y<fy || y>fy+(tmpscr->ffheight[index]&63))
+    int32_t fy=tmpscr->ffcs[index].y.getInt();
+    if(y<fy || y>fy+(tmpscr->ffEffectHeight[index]-1))
         return false;
     
-    if((tmpscr->ffflags[index]&(ffCHANGER|ffETHEREAL))!=0)
+    if((tmpscr->ffcs[index].flags&(ffCHANGER|ffETHEREAL))!=0)
         return false;
 	
-    if(tmpscr->ffdata[index]<=0)
+    if(tmpscr->ffcs[index].data<=0)
         return false;
     
     return true;
@@ -311,10 +311,10 @@ inline bool ffcIsAt(int32_t index, int32_t x, int32_t y)
 
 int32_t MAPFFCOMBO(int32_t x,int32_t y)
 {
-    for(int32_t i=0; i<32; i++)
+    for(int32_t i=0; i<MAXFFCS; i++)
     {
         if(ffcIsAt(i, x, y))
-            return tmpscr->ffdata[i];
+            return tmpscr->ffcs[i].data;
     }
     
     return 0;
@@ -372,11 +372,11 @@ int32_t FFCOMBOTYPE(int32_t x,int32_t y)
 
 int32_t FFORCOMBO(int32_t x, int32_t y)
 {
-	for(int32_t i=0; i<32; i++)
-    {
-        if(ffcIsAt(i, x, y))
-            return tmpscr->ffdata[i];
-    }
+	for(int32_t i=0; i<MAXFFCS; i++)
+	{
+		if(ffcIsAt(i, x, y))
+			return tmpscr->ffcs[i].data;
+	}
 	
 	return MAPCOMBO(x,y);
 }
@@ -410,11 +410,11 @@ int32_t FFORCOMBOTYPE(int32_t x, int32_t y)
 
 int32_t FFORCOMBO_L(int32_t layer, int32_t x, int32_t y)
 {
-	for(int32_t i=0; i<32; i++)
-    {
-        if(ffcIsAt(i, x, y))
-            return tmpscr->ffdata[i];
-    }
+	for(int32_t i=0; i<MAXFFCS; i++)
+	{
+		if(ffcIsAt(i, x, y))
+			return tmpscr->ffcs[i].data;
+	}
 	
 	return layer ? MAPCOMBOL(layer, x, y) : MAPCOMBO(x,y);
 }
@@ -435,12 +435,12 @@ int32_t MAPCOMBOFLAG(int32_t x,int32_t y)
 
 int32_t MAPFFCOMBOFLAG(int32_t x,int32_t y)
 {
-    for(int32_t i=0; i<32; i++)
+    for(int32_t i=0; i<MAXFFCS; i++)
     {
         if(ffcIsAt(i, x, y))
         {
             current_ffcombo = i;
-            return combobuf[tmpscr->ffdata[i]].flag;
+            return combobuf[tmpscr->ffcs[i].data].flag;
         }
     }
     
@@ -450,7 +450,7 @@ int32_t MAPFFCOMBOFLAG(int32_t x,int32_t y)
 
 int32_t getFFCAt(int32_t x, int32_t y)
 {
-    for(int32_t i=0; i<32; i++)
+    for(int32_t i=0; i<MAXFFCS; i++)
     {
         if(ffcIsAt(i, x, y))
             return i;
@@ -998,9 +998,9 @@ void update_combo_cycling()
         newcset[i]=-1;
     }
     
-    for(int32_t i=0; i<32; i++)
+    for(int32_t i=0; i<MAXFFCS; i++)
     {
-        x=tmpscr->ffdata[i];
+        x=tmpscr->ffcs[i].data;
         //y=animated_combo_table[x][0];
         
         if(combobuf[x].animflags & AF_FRESH) continue;
@@ -1022,9 +1022,9 @@ void update_combo_cycling()
         }
     }
     
-    for(int32_t i=0; i<32; i++)
+    for(int32_t i=0; i<MAXFFCS; i++)
     {
-        x=tmpscr->ffdata[i];
+        x=tmpscr->ffcs[i].data;
         //y=animated_combo_table2[x][0];
         
         if(!(combobuf[x].animflags & AF_FRESH)) continue;
@@ -1046,14 +1046,14 @@ void update_combo_cycling()
         }
     }
     
-    for(int32_t i=0; i<32; i++)
+    for(int32_t i=0; i<MAXFFCS; i++)
     {
         if(newdata[i]==-1)
             continue;
             
-        tmpscr->ffdata[i]=newdata[i];
+        tmpscr->ffcs[i].data=newdata[i];
         if(newcset[i]>-1)
-			tmpscr->ffcset[i]=newcset[i];
+		tmpscr->ffcs[i].cset=newcset[i];
         
         newdata[i]=-1;
         newcset[i]=-1;
@@ -1252,12 +1252,12 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 						if (!(ShallowCheck && (cmb.walk&(1<<b)) && (cmb.usrflags&cflag4))) return 0;
 					}
 				}
-				for(int32_t k=0; k<32; k++)
+				for(int32_t k=0; k<MAXFFCS; k++)
 				{
 					if(ffcIsAt(k, tx2, ty2) && !combo_class_buf[FFCOMBOTYPE(tx2,ty2)].water && !(ShallowCheck && FFCOMBOTYPE(tx2,ty2) == cSHALLOWWATER))
 						return 0;
 				}
-				for(int32_t k=0; k<32; k++)
+				for(int32_t k=0; k<MAXFFCS; k++)
 				{
 					if(combo_class_buf[FFCOMBOTYPE(tx2,ty2)].water || (ShallowCheck && FFCOMBOTYPE(tx2,ty2) == cSHALLOWWATER))
 					{
@@ -1765,11 +1765,11 @@ int32_t findtrigger(int32_t scombo, bool ff)
     int32_t iter;
     int32_t ret = 0;
     
-    for(int32_t j=0; j<(ff?32:176); j++)
+    for(int32_t j=0; j<(ff?MAXFFCS:176); j++)
     {
         if(ff)
         {
-            checkflag=combobuf[tmpscr->ffdata[j]].flag;
+            checkflag=combobuf[tmpscr->ffcs[j].data].flag;
             iter=1;
         }
         else iter=2;
@@ -2212,7 +2212,7 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Pe
 		}
 	}
 	
-	for(int32_t i=0; i<32; i++) //FFC 'trigger flags'
+	for(int32_t i=0; i<MAXFFCS; i++) //FFC 'trigger flags'
 	{
 		if(single>=0) if(i+176!=single) continue;
 		
@@ -2223,7 +2223,7 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Pe
 			//for (int32_t iter=0; iter<1; ++iter) // Only one kind of FFC flag now.
 			{
 				putit=true;
-				int32_t checkflag=combobuf[s->ffdata[i]].flag; //Inherent
+				int32_t checkflag=combobuf[s->ffcs[i].data].flag; //Inherent
 				
 				//No placed flags yet
 				switch(checkflag)
@@ -2349,12 +2349,12 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Pe
 				{
 					if(ft==sSECNEXT)
 					{
-						s->ffdata[i]++;
+						s->ffcs[i].data++;
 					}
 					else
 					{
-						s->ffdata[i] = s->secretcombo[ft];
-						s->ffcset[i] = s->secretcset[ft];
+						s->ffcs[i].data = s->secretcombo[ft];
+						s->ffcs[i].cset = s->secretcset[ft];
 					}
 				}
 			}
@@ -2444,19 +2444,19 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Pe
 		  */
 	}
 	
-	for(int32_t i=0; i<32; i++) // FFCs
+	for(int32_t i=0; i<MAXFFCS; i++) // FFCs
 	{
 		if((!(s->flags2&fCLEARSECRET) /*Enemies->Secret*/ && single < 0) || high16only || s->flags4&fENEMYSCRTPERM)
 		{
 			for(int32_t iter=0; iter<1; ++iter)  // Only one kind of FFC flag now.
 			{
-				int32_t checkflag=combobuf[s->ffdata[i]].flag; //Inherent
+				int32_t checkflag=combobuf[s->ffcs[i].data].flag; //Inherent
 				
 				//No placed flags yet
 				if((checkflag > 15)&&(checkflag < 32)) //If we find a flag, change the combo
 				{
-					s->ffdata[i] = s->secretcombo[checkflag-16+4];
-					s->ffcset[i] = s->secretcset[checkflag-16+4];
+					s->ffcs[i].data = s->secretcombo[checkflag-16+4];
+					s->ffcs[i].cset = s->secretcset[checkflag-16+4];
 				}
 			}
 		}
@@ -2672,108 +2672,111 @@ void update_freeform_combos()
     ffscript_engine(false);
     if ( !FFCore.system_suspend[susptUPDATEFFC] )
     {
-	    for(int32_t i=0; i<32; i++)
+	    for(int32_t i=0; i<MAXFFCS; i++)
 	    {
 		// Combo 0?
-		if(tmpscr->ffdata[i]==0)
+		if(tmpscr->ffcs[i].data==0)
 		    continue;
 		    
 		// Changer?
-		if(tmpscr->ffflags[i]&ffCHANGER)
+		if(tmpscr->ffcs[i].flags&ffCHANGER)
 		    continue;
 		    
 		// Stationary?
-		if(tmpscr->ffflags[i]&ffSTATIONARY)
+		if(tmpscr->ffcs[i].flags&ffSTATIONARY)
 		    continue;
 		    
 		// Frozen because Hero's holding up an item?
-		if(Hero.getHoldClk()>0 && (tmpscr->ffflags[i]&ffIGNOREHOLDUP)==0)
+		if(Hero.getHoldClk()>0 && (tmpscr->ffcs[i].flags&ffIGNOREHOLDUP)==0)
 		    continue;
 		    
 		// Check for changers
-		if(tmpscr->fflink[i]==0)
+		if(tmpscr->ffcs[i].link==0)
 		{
-		    for(int32_t j=0; j<32; j++)
+		    for(int32_t j=0; j<MAXFFCS; j++)
 		    {
 			// Combo 0?
-			if(tmpscr->ffdata[j]==0)
+			if(tmpscr->ffcs[j].data==0)
 			    continue;
 			    
 			// Not a changer?
-			if(!(tmpscr->ffflags[j]&ffCHANGER))
+			if(!(tmpscr->ffcs[j].flags&ffCHANGER))
 			    continue;
 			    
 			// Ignore this changer? (ffposx and ffposy are last changer position)
-			if((tmpscr->ffx[j]/10000==ffposx[i]&&tmpscr->ffy[j]/10000==ffposy[i]) || tmpscr->ffflags[i]&ffIGNORECHANGER)
+			if((tmpscr->ffcs[j].x.getInt()==ffposx[i]&&tmpscr->ffcs[j].y.getInt()==ffposy[i]) || tmpscr->ffcs[i].flags&ffIGNORECHANGER)
 			    continue;
 			    
-			if((isonline(tmpscr->ffx[i], tmpscr->ffy[i], ffprvx[i],ffprvy[i], tmpscr->ffx[j], tmpscr->ffy[j]) || // Along the line, or...
-				//(tmpscr->ffx[i]==tmpscr->ffx[j] && tmpscr->ffy[i]==tmpscr->ffy[j])) && // At exactly the same position, and...
+			if((isonline(tmpscr->ffcs[i].x.getZLong(), tmpscr->ffcs[i].y.getZLong(), ffprvx[i],ffprvy[i], tmpscr->ffcs[j].x.getZLong(), tmpscr->ffcs[j].y.getZLong()) || // Along the line, or...
 				( // At exactly the same position, 
-					(tmpscr->ffx[i]==tmpscr->ffx[j] && tmpscr->ffy[i]==tmpscr->ffy[j])) 
+					(tmpscr->ffcs[i].x==tmpscr->ffcs[j].x && tmpscr->ffcs[i].y==tmpscr->ffcs[j].y)) 
 					||
 					//or imprecision and close enough
-					( (tmpscr->ffflags[i]&ffIMPRECISIONCHANGER) && ((abs(tmpscr->ffx[i] - tmpscr->ffx[j]) < 10000) && abs(tmpscr->ffy[i] - tmpscr->ffy[j]) < 10000) )
+					( (tmpscr->ffcs[i].flags&ffIMPRECISIONCHANGER) && ((abs(tmpscr->ffcs[i].x.getZLong() - tmpscr->ffcs[j].x.getZLong()) < 10000) && abs(tmpscr->ffcs[i].y.getZLong() - tmpscr->ffcs[j].y.getZLong()) < 10000) )
 				)
 			&& //and...
 				(ffprvx[i]>-10000000 && ffprvy[i]>-10000000)) // This isn't the first frame on this screen
 			{
-			    if(tmpscr->ffflags[j]&ffCHANGETHIS)
+			    if(tmpscr->ffcs[j].flags&ffCHANGETHIS)
 			    {
-				tmpscr->ffdata[i] = tmpscr->ffdata[j];
-				tmpscr->ffcset[i] = tmpscr->ffcset[j];
+				tmpscr->ffcs[i].data = tmpscr->ffcs[j].data;
+				tmpscr->ffcs[i].cset = tmpscr->ffcs[j].cset;
 			    }
 			    
-			    if(tmpscr->ffflags[j]&ffCHANGENEXT)
-				tmpscr->ffdata[i]++;
+			    if(tmpscr->ffcs[j].flags&ffCHANGENEXT)
+				tmpscr->ffcs[i].data++;
 				
-			    if(tmpscr->ffflags[j]&ffCHANGEPREV)
-				tmpscr->ffdata[i]--;
+			    if(tmpscr->ffcs[j].flags&ffCHANGEPREV)
+				tmpscr->ffcs[i].data--;
 				
-			    tmpscr->ffdelay[i]=tmpscr->ffdelay[j];
-			    tmpscr->ffx[i]=tmpscr->ffx[j];
-			    tmpscr->ffy[i]=tmpscr->ffy[j];
-			    tmpscr->ffxdelta[i]=tmpscr->ffxdelta[j];
-			    tmpscr->ffydelta[i]=tmpscr->ffydelta[j];
-			    tmpscr->ffxdelta2[i]=tmpscr->ffxdelta2[j];
-			    tmpscr->ffydelta2[i]=tmpscr->ffydelta2[j];
-			    tmpscr->fflink[i]=tmpscr->fflink[j];
-			    tmpscr->ffwidth[i]=tmpscr->ffwidth[j];
-			    tmpscr->ffheight[i]=tmpscr->ffheight[j];
+			    tmpscr->ffcs[i].delay=tmpscr->ffcs[j].delay;
+			    tmpscr->ffcs[i].x=tmpscr->ffcs[j].x;
+			    tmpscr->ffcs[i].y=tmpscr->ffcs[j].y;
+			    tmpscr->ffcs[i].vx=tmpscr->ffcs[j].vx;
+			    tmpscr->ffcs[i].vy=tmpscr->ffcs[j].vy;
+			    tmpscr->ffcs[i].ax=tmpscr->ffcs[j].ax;
+			    tmpscr->ffcs[i].ay=tmpscr->ffcs[j].ay;
+			    tmpscr->ffcs[i].link=tmpscr->ffcs[j].link;
+			    tmpscr->ffcs[i].hxsz=tmpscr->ffcs[j].hxsz;
+			    tmpscr->ffcs[i].hysz=tmpscr->ffcs[j].hysz;
+			    tmpscr->ffcs[i].txsz=tmpscr->ffcs[j].txsz;
+			    tmpscr->ffcs[i].tysz=tmpscr->ffcs[j].tysz;
 			    
-			    if(tmpscr->ffflags[i]&ffCARRYOVER)
-				tmpscr->ffflags[i]=tmpscr->ffflags[j]|ffCARRYOVER;
+			    if(tmpscr->ffcs[i].flags&ffCARRYOVER)
+				tmpscr->ffcs[i].flags=tmpscr->ffcs[j].flags|ffCARRYOVER;
 			    else
-				tmpscr->ffflags[i]=tmpscr->ffflags[j];
+				tmpscr->ffcs[i].flags=tmpscr->ffcs[j].flags;
 				
-			    tmpscr->ffflags[i]&=~ffCHANGER;
-			    ffposx[i]=(int16_t)(tmpscr->ffx[j]/10000);
-			    ffposy[i]=(int16_t)(tmpscr->ffy[j]/10000);
+			    tmpscr->ffcs[i].flags&=~ffCHANGER;
+			    ffposx[i]=(tmpscr->ffcs[j].x.getInt());
+			    ffposy[i]=(tmpscr->ffcs[j].y.getInt());
 			    
-			    if(combobuf[tmpscr->ffdata[j]].flag>15 && combobuf[tmpscr->ffdata[j]].flag<32)
-				tmpscr->ffdata[j]=tmpscr->secretcombo[combobuf[tmpscr->ffdata[j]].flag-16+4];
+			    if(combobuf[tmpscr->ffcs[j].data].flag>15 && combobuf[tmpscr->ffcs[j].data].flag<32)
+				tmpscr->ffcs[j].data=tmpscr->secretcombo[combobuf[tmpscr->ffcs[j].data].flag-16+4];
 				
-			    if((tmpscr->ffflags[j]&ffSWAPNEXT)||(tmpscr->ffflags[j]&ffSWAPPREV))
+			    if((tmpscr->ffcs[j].flags&ffSWAPNEXT)||(tmpscr->ffcs[j].flags&ffSWAPPREV))
 			    {
 				int32_t k=0;
 				
-				if(tmpscr->ffflags[j]&ffSWAPNEXT)
+				if(tmpscr->ffcs[j].flags&ffSWAPNEXT)
 				    k=j<31?j+1:0;
 				    
-				if(tmpscr->ffflags[j]&ffSWAPPREV)
+				if(tmpscr->ffcs[j].flags&ffSWAPPREV)
 				    k=j>0?j-1:31;
 				    
-				zc_swap(tmpscr->ffdata[j],tmpscr->ffdata[k]);
-				zc_swap(tmpscr->ffcset[j],tmpscr->ffcset[k]);
-				zc_swap(tmpscr->ffdelay[j],tmpscr->ffdelay[k]);
-				zc_swap(tmpscr->ffxdelta[j],tmpscr->ffxdelta[k]);
-				zc_swap(tmpscr->ffydelta[j],tmpscr->ffydelta[k]);
-				zc_swap(tmpscr->ffxdelta2[j],tmpscr->ffxdelta2[k]);
-				zc_swap(tmpscr->ffydelta2[j],tmpscr->ffydelta2[k]);
-				zc_swap(tmpscr->fflink[j],tmpscr->fflink[k]);
-				zc_swap(tmpscr->ffwidth[j],tmpscr->ffwidth[k]);
-				zc_swap(tmpscr->ffheight[j],tmpscr->ffheight[k]);
-				zc_swap(tmpscr->ffflags[j],tmpscr->ffflags[k]);
+				zc_swap(tmpscr->ffcs[j].data,tmpscr->ffcs[k].data);
+				zc_swap(tmpscr->ffcs[j].cset,tmpscr->ffcs[k].cset);
+				zc_swap(tmpscr->ffcs[j].delay,tmpscr->ffcs[k].delay);
+				zc_swap(tmpscr->ffcs[j].vx,tmpscr->ffcs[k].vx);
+				zc_swap(tmpscr->ffcs[j].vy,tmpscr->ffcs[k].vy);
+				zc_swap(tmpscr->ffcs[j].ax,tmpscr->ffcs[k].ax);
+				zc_swap(tmpscr->ffcs[j].ay,tmpscr->ffcs[k].ay);
+				zc_swap(tmpscr->ffcs[j].link,tmpscr->ffcs[k].link);
+				zc_swap(tmpscr->ffcs[j].hxsz,tmpscr->ffcs[k].hxsz);
+				zc_swap(tmpscr->ffcs[j].hysz,tmpscr->ffcs[k].hysz);
+				zc_swap(tmpscr->ffcs[j].txsz,tmpscr->ffcs[k].txsz);
+				zc_swap(tmpscr->ffcs[j].tysz,tmpscr->ffcs[k].tysz);
+				zc_swap(tmpscr->ffcs[j].flags,tmpscr->ffcs[k].flags);
 			    }
 			    
 			    break;
@@ -2781,106 +2784,106 @@ void update_freeform_combos()
 		    }
 		}
 		
-		if(tmpscr->fflink[i] ? !tmpscr->ffdelay[tmpscr->fflink[i]] : !tmpscr->ffdelay[i])
+		if(tmpscr->ffcs[i].link ? !tmpscr->ffcs[tmpscr->ffcs[i].link].delay : !tmpscr->ffcs[i].delay)
 		{
-		    if(tmpscr->fflink[i]&&(tmpscr->fflink[i]-1)!=i)
+		    if(tmpscr->ffcs[i].link&&(tmpscr->ffcs[i].link-1)!=i)
 		    {
-			ffprvx[i] = tmpscr->ffx[i];
-			ffprvy[i] = tmpscr->ffy[i];
-			tmpscr->ffx[i]+=tmpscr->ffxdelta[tmpscr->fflink[i]-1];
-			tmpscr->ffy[i]+=tmpscr->ffydelta[tmpscr->fflink[i]-1];
+			ffprvx[i] = tmpscr->ffcs[i].x.getZLong();
+			ffprvy[i] = tmpscr->ffcs[i].y.getZLong();
+			tmpscr->ffcs[i].x+=tmpscr->ffcs[tmpscr->ffcs[i].link-1].vx;
+			tmpscr->ffcs[i].y+=tmpscr->ffcs[tmpscr->ffcs[i].link-1].vy;
 		    }
 		    else
 		    {
-			ffprvx[i] = tmpscr->ffx[i];
-			ffprvy[i] = tmpscr->ffy[i];
-			tmpscr->ffx[i]+=tmpscr->ffxdelta[i];
-			tmpscr->ffy[i]+=tmpscr->ffydelta[i];
-			tmpscr->ffxdelta[i]+=tmpscr->ffxdelta2[i];
-			tmpscr->ffydelta[i]+=tmpscr->ffydelta2[i];
+			ffprvx[i] = tmpscr->ffcs[i].x.getZLong();
+			ffprvy[i] = tmpscr->ffcs[i].y.getZLong();
+			tmpscr->ffcs[i].x+=tmpscr->ffcs[i].vx;
+			tmpscr->ffcs[i].y+=tmpscr->ffcs[i].vy;
+			tmpscr->ffcs[i].ax+=tmpscr->ffcs[i].ax;
+			tmpscr->ffcs[i].ay+=tmpscr->ffcs[i].ay;
 			
-			if(tmpscr->ffxdelta[i]>1280000) tmpscr->ffxdelta[i]=1280000;
+			if(tmpscr->ffcs[i].vx>128) tmpscr->ffcs[i].vx=128;
 			
-			if(tmpscr->ffxdelta[i]<-1280000) tmpscr->ffxdelta[i]=-1280000;
+			if(tmpscr->ffcs[i].vx<-128) tmpscr->ffcs[i].vx=-128;
 			
-			if(tmpscr->ffydelta[i]>1280000) tmpscr->ffydelta[i]=1280000;
+			if(tmpscr->ffcs[i].vy>128) tmpscr->ffcs[i].vy=128;
 			
-			if(tmpscr->ffydelta[i]<-1280000) tmpscr->ffydelta[i]=-1280000;
+			if(tmpscr->ffcs[i].vy<-128) tmpscr->ffcs[i].vy=-128;
 		    }
 		}
 		else
 		{
-		    if(!tmpscr->fflink[i] || (tmpscr->fflink[i]-1)==i)
-			tmpscr->ffdelay[i]--;
+		    if(!tmpscr->ffcs[i].link || (tmpscr->ffcs[i].link-1)==i)
+			tmpscr->ffcs[i].delay--;
 		}
 		
 		// Check if the FFC's off the side of the screen
 		
 		// Left
-		if(tmpscr->ffx[i]<-320000)
+		if(tmpscr->ffcs[i].x<-32)
 		{
 		    if(tmpscr->flags6&fWRAPAROUNDFF)
 		    {
-			tmpscr->ffx[i] = 2880000+(tmpscr->ffx[i]+320000);
-			ffprvy[i] = tmpscr->ffy[i];
+			tmpscr->ffcs[i].x = 288+(tmpscr->ffcs[i].x+32);
+			ffprvy[i] = tmpscr->ffcs[i].y.getZLong();
 			ffposx[i]=-1000; // Re-enable previous changer
 			ffposy[i]=-1000;
 		    }
-		    else if(tmpscr->ffx[i]<-640000)
+		    else if(tmpscr->ffcs[i].x<-64)
 		    {
-			tmpscr->ffdata[i]=0;
-			tmpscr->ffflags[i]&=~ffCARRYOVER;
+			tmpscr->ffcs[i].data=0;
+			tmpscr->ffcs[i].flags&=~ffCARRYOVER;
 		    }
 		}
 		
 		// Right
-		else if(tmpscr->ffx[i]>=2880000)
+		else if(tmpscr->ffcs[i].x>=288)
 		{
 		    if(tmpscr->flags6&fWRAPAROUNDFF)
 		    {
-			tmpscr->ffx[i] = tmpscr->ffx[i]-2880000-320000;
-			ffprvy[i] = tmpscr->ffy[i];
+			tmpscr->ffcs[i].x = tmpscr->ffcs[i].x-288-32;
+			ffprvy[i] = tmpscr->ffcs[i].y.getZLong();
 			ffposx[i]=-1000;
 			ffposy[i]=-1000;
 		    }
 		    else
 		    {
-			tmpscr->ffdata[i]=0;
-			tmpscr->ffflags[i]&=~ffCARRYOVER;
+			tmpscr->ffcs[i].data=0;
+			tmpscr->ffcs[i].flags&=~ffCARRYOVER;
 		    }
 		}
 		
 		// Top
-		if(tmpscr->ffy[i]<-320000)
+		if(tmpscr->ffcs[i].y<-32)
 		{
 		    if(tmpscr->flags6&fWRAPAROUNDFF)
 		    {
-			tmpscr->ffy[i] = 2080000+(tmpscr->ffy[i]+320000);
-			ffprvx[i] = tmpscr->ffx[i];
+			tmpscr->ffcs[i].y = 208+(tmpscr->ffcs[i].y+32);
+			ffprvx[i] = tmpscr->ffcs[i].x.getZLong();
 			ffposx[i]=-1000;
 			ffposy[i]=-1000;
 		    }
-		    else if(tmpscr->ffy[i]<-640000)
+		    else if(tmpscr->ffcs[i].y<-64)
 		    {
-			tmpscr->ffdata[i]=0;
-			tmpscr->ffflags[i]&=~ffCARRYOVER;
+			tmpscr->ffcs[i].data=0;
+			tmpscr->ffcs[i].flags&=~ffCARRYOVER;
 		    }
 		}
 		
 		// Bottom
-		else if(tmpscr->ffy[i]>=2080000)
+		else if(tmpscr->ffcs[i].y>=208)
 		{
 		    if(tmpscr->flags6&fWRAPAROUNDFF)
 		    {
-			tmpscr->ffy[i] = tmpscr->ffy[i]-2080000-320000;
-			ffprvy[i] = tmpscr->ffy[i];
+			tmpscr->ffcs[i].y = tmpscr->ffcs[i].y-208-32;
+			ffprvy[i] = tmpscr->ffcs[i].x.getZLong();
 			ffposx[i]=-1000;
 			ffposy[i]=-1000;
 		    }
 		    else
 		    {
-			tmpscr->ffdata[i]=0;
-			tmpscr->ffflags[i]&=~ffCARRYOVER;
+			tmpscr->ffcs[i].data=0;
+			tmpscr->ffcs[i].flags&=~ffCARRYOVER;
 		    }
 		}
 	    }
@@ -3088,29 +3091,29 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basesc
 		case -3:                                                //freeform combos
 			for(int32_t i = 31; i >= 0; i--)
 			{
-				if(basescr->ffdata[i])
+				if(basescr->ffcs[i].data)
 				{
-					if(!(basescr->ffflags[i]&ffCHANGER) //If FFC is a changer, don't draw
-						&& !((basescr->ffflags[i]&ffLENSINVIS) && lensclk) //If lens is active and ffc is invis to lens, don't draw
-						&& (!(basescr->ffflags[i]&ffLENSVIS) || lensclk)) //If FFC does not require lens, or lens is active, draw
+					if(!(basescr->ffcs[i].flags&ffCHANGER) //If FFC is a changer, don't draw
+						&& !((basescr->ffcs[i].flags&ffLENSINVIS) && lensclk) //If lens is active and ffc is invis to lens, don't draw
+						&& (!(basescr->ffcs[i].flags&ffLENSVIS) || lensclk)) //If FFC does not require lens, or lens is active, draw
 					{
-						if(scrolling && (basescr->ffflags[i] & ffCARRYOVER) != 0 && tempscreen == 3)
+						if(scrolling && (basescr->ffcs[i].flags & ffCARRYOVER) != 0 && tempscreen == 3)
 							continue; //If scrolling, only draw carryover ffcs from newscr and not oldscr,
 							
 						//otherwise we'll draw the same one twice
 						
-						if(!!(basescr->ffflags[i]&ffOVERLAY) == (type==-4)) //what exactly is this supposed to mean?
+						if(!!(basescr->ffcs[i].flags&ffOVERLAY) == (type==-4)) //what exactly is this supposed to mean?
 						{
-							int32_t tx=((basescr->ffx[i]/10000));
-							int32_t ty=((basescr->ffy[i]/10000))+playing_field_offset;
+							int32_t tx=((basescr->ffcs[i].x.getInt()));
+							int32_t ty=((basescr->ffcs[i].y.getInt()))+playing_field_offset;
 							
-							if(basescr->ffflags[i]&ffTRANS)
+							if(basescr->ffcs[i].flags&ffTRANS)
 							{
-								overcomboblocktranslucent(bmp, tx-x, ty-y, basescr->ffdata[i], basescr->ffcset[i], 1+(basescr->ffwidth[i]>>6), 1+(basescr->ffheight[i]>>6),128);
+								overcomboblocktranslucent(bmp, tx-x, ty-y, basescr->ffcs[i].data, basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i),128);
 							}
 							else
 							{
-								overcomboblock(bmp, tx-x, ty-y, basescr->ffdata[i], basescr->ffcset[i], 1+(basescr->ffwidth[i]>>6), 1+(basescr->ffheight[i]>>6));
+								overcomboblock(bmp, tx-x, ty-y, basescr->ffcs[i].data, basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i));
 							}
 						}
 					}
@@ -3529,14 +3532,14 @@ void calc_darkroom_combos(bool scrolling)
 			}
 		}
 	}
-	for(int q = 0; q < 32; ++q)
+	for(int q = 0; q < MAXFFCS; ++q)
 	{
-		newcombo const& cmb = combobuf[tmpscr->ffdata[q]];
+		newcombo const& cmb = combobuf[tmpscr->ffcs[q].data];
 		if(cmb.type == cTORCH)
 		{
-			doDarkroomCircle((tmpscr->ffx[q]/10000)+(tmpscr->ffEffectWidth(q)/2), (tmpscr->ffy[q]/10000)+(tmpscr->ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_curscr);
+			doDarkroomCircle((tmpscr->ffcs[q].x.getInt())+(tmpscr->ffEffectWidth(q)/2), (tmpscr->ffcs[q].y.getInt())+(tmpscr->ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_curscr);
 			if(scrolldir > -1)
-				doDarkroomCircle((tmpscr->ffx[q]/10000)+(tmpscr->ffEffectWidth(q)/2)+scrollxoffs, (tmpscr->ffy[q]/10000)+(tmpscr->ffEffectHeight(q)/2)+scrollyoffs, cmb.attribytes[0], darkscr_bmp_scrollscr);
+				doDarkroomCircle((tmpscr->ffcs[q].x.getInt())+(tmpscr->ffEffectWidth(q)/2)+scrollxoffs, (tmpscr->ffcs[q].y.getInt())+(tmpscr->ffEffectHeight(q)/2)+scrollyoffs, cmb.attribytes[0], darkscr_bmp_scrollscr);
 		}
 	}
 	
@@ -3566,14 +3569,14 @@ void calc_darkroom_combos(bool scrolling)
 			}
 		}
 	}
-	for(int q = 0; q < 32; ++q)
+	for(int q = 0; q < MAXFFCS; ++q)
 	{
-		newcombo const& cmb = combobuf[tmpscr[1].ffdata[q]];
+		newcombo const& cmb = combobuf[tmpscr[1].ffcs[q].data];
 		if(cmb.type == cTORCH)
 		{
-			doDarkroomCircle((tmpscr[1].ffx[q]/10000)+(tmpscr[1].ffEffectWidth(q)/2), (tmpscr[1].ffy[q]/10000)+(tmpscr[1].ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_scrollscr);
+			doDarkroomCircle((tmpscr[1].ffcs[q].x.getInt())+(tmpscr[1].ffEffectWidth(q)/2), (tmpscr[1].ffcs[q].y.getInt())+(tmpscr[1].ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_scrollscr);
 			if(scrolldir > -1)
-				doDarkroomCircle((tmpscr[1].ffx[q]/10000)+(tmpscr[1].ffEffectWidth(q)/2)-scrollxoffs, (tmpscr[1].ffy[q]/10000)+(tmpscr[1].ffEffectHeight(q)/2)-scrollyoffs, cmb.attribytes[0], darkscr_bmp_curscr);
+				doDarkroomCircle((tmpscr[1].ffcs[q].x.getInt())+(tmpscr[1].ffEffectWidth(q)/2)-scrollxoffs, (tmpscr[1].ffcs[q].y.getInt())+(tmpscr[1].ffEffectHeight(q)/2)-scrollyoffs, cmb.attribytes[0], darkscr_bmp_curscr);
 		}
 	}
 }
@@ -4770,14 +4773,14 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	{
 		// Before loading new FFCs, deallocate the arrays used by those that aren't carrying over
 		
-		for(int32_t ffid = 0; ffid < 32; ++ffid)
+		for(int32_t ffid = 0; ffid < MAXFFCS; ++ffid)
 		{
-			if(!(ffscr.flags5&fNOFFCARRYOVER) && (ffscr.ffflags[ffid]&ffCARRYOVER)) continue;
+			if(!(ffscr.flags5&fNOFFCARRYOVER) && (ffscr.ffcs[ffid].flags&ffCARRYOVER)) continue;
 			FFCore.deallocateAllArrays(SCRIPT_FFC, ffid, false); //false means this does not require 'qr_ALWAYS_DEALLOCATE_ARRAYS' to be checked. -V
 		}
 		FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
 		
-		for(int32_t i = 0; i < 32; i++)
+		for(int32_t i = 0; i < MAXFFCS; i++)
 		{
 			// If these aren't reset, changers may not work right
 			ffposx[i]=-1000;
@@ -4785,41 +4788,43 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 			ffprvx[i]=-10000000;
 			ffprvy[i]=-10000000;
 			
-			if((ffscr.ffflags[i]&ffCARRYOVER) && !(ffscr.flags5&fNOFFCARRYOVER))
+			if((ffscr.ffcs[i].flags&ffCARRYOVER) && !(ffscr.flags5&fNOFFCARRYOVER))
 			{
-				tmpscr[tmp].ffdata[i] = ffscr.ffdata[i];
-				tmpscr[tmp].ffx[i] = ffscr.ffx[i];
-				tmpscr[tmp].ffy[i] = ffscr.ffy[i];
-				tmpscr[tmp].ffxdelta[i] = ffscr.ffxdelta[i];
-				tmpscr[tmp].ffydelta[i] = ffscr.ffydelta[i];
-				tmpscr[tmp].ffxdelta2[i] = ffscr.ffxdelta2[i];
-				tmpscr[tmp].ffydelta2[i] = ffscr.ffydelta2[i];
-				tmpscr[tmp].fflink[i] = ffscr.fflink[i];
-				tmpscr[tmp].ffdelay[i] = ffscr.ffdelay[i];
-				tmpscr[tmp].ffcset[i] = ffscr.ffcset[i];
-				tmpscr[tmp].ffwidth[i] = ffscr.ffwidth[i];
-				tmpscr[tmp].ffheight[i] = ffscr.ffheight[i];
-				tmpscr[tmp].ffflags[i] = ffscr.ffflags[i];
-				tmpscr[tmp].ffscript[i] = ffscr.ffscript[i];
+				tmpscr[tmp].ffcs[i].data = ffscr.ffcs[i].data;
+				tmpscr[tmp].ffcs[i].x = ffscr.ffcs[i].x;
+				tmpscr[tmp].ffcs[i].y = ffscr.ffcs[i].y;
+				tmpscr[tmp].ffcs[i].vx = ffscr.ffcs[i].vx;
+				tmpscr[tmp].ffcs[i].vy = ffscr.ffcs[i].vy;
+				tmpscr[tmp].ffcs[i].ax = ffscr.ffcs[i].ax;
+				tmpscr[tmp].ffcs[i].ay = ffscr.ffcs[i].ay;
+				tmpscr[tmp].ffcs[i].link = ffscr.ffcs[i].link;
+				tmpscr[tmp].ffcs[i].delay = ffscr.ffcs[i].delay;
+				tmpscr[tmp].ffcs[i].cset = ffscr.ffcs[i].cset;
+				tmpscr[tmp].ffcs[i].hxsz = ffscr.ffcs[i].hxsz;
+				tmpscr[tmp].ffcs[i].hysz = ffscr.ffcs[i].hysz;
+				tmpscr[tmp].ffcs[i].txsz = ffscr.ffcs[i].txsz;
+				tmpscr[tmp].ffcs[i].tysz = ffscr.ffcs[i].tysz;
+				tmpscr[tmp].ffcs[i].flags = ffscr.ffcs[i].flags;
+				tmpscr[tmp].ffcs[i].script = ffscr.ffcs[i].script;
 				
 				for(int32_t j=0; j<2; ++j)
 				{
-					tmpscr[tmp].inita[i][j] = ffscr.inita[i][j];
+					tmpscr[tmp].ffcs[i].inita[j] = ffscr.ffcs[i].inita[j];
 				}
 				
 				for(int32_t j=0; j<8; ++j)
 				{
-					tmpscr[tmp].initd[i][j] = ffscr.initd[i][j];
+					tmpscr[tmp].ffcs[i].initd[j] = ffscr.ffcs[i].initd[j];
 				}
 				
-				if(!(ffscr.ffflags[i]&ffSCRIPTRESET))
+				if(!(ffscr.ffcs[i].flags&ffSCRIPTRESET))
 				{
-					tmpscr[tmp].ffscript[i] = ffscr.ffscript[i]; // Restart script if it has halted.
-					tmpscr[tmp].initialized[i] = ffscr.initialized[i];
+					tmpscr[tmp].ffcs[i].script = ffscr.ffcs[i].script; // Restart script if it has halted.
+					tmpscr[tmp].ffcs[i].initialized = ffscr.ffcs[i].initialized;
 				}
 				else
 				{
-					tmpscr[tmp].initialized[i] = false;
+					tmpscr[tmp].ffcs[i].initialized = false;
 					
 					ffcScriptData[i].pc = 0;
 					ffcScriptData[i].sp = 0;

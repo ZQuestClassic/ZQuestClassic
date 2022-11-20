@@ -2957,9 +2957,9 @@ void show_ffscript_names()
     
     for(int32_t i=0; i< MAXFFCS; i++)
     {
-        if(tmpscr->ffscript[i])
+        if(tmpscr->ffcs[i].script)
         {
-            textout_shadowed_ex(framebuf,font, ffcmap[tmpscr->ffscript[i]-1].scriptname.c_str(),2,ypos,WHITE,BLACK,-1);
+            textout_shadowed_ex(framebuf,font, ffcmap[tmpscr->ffcs[i].script-1].scriptname.c_str(),2,ypos,WHITE,BLACK,-1);
             ypos+=12;
         }
     }
@@ -3580,11 +3580,11 @@ void game_loop()
 		
 		bool freeze = false;
 		
-		for(int32_t i=0; i<32; i++)
+		for(int32_t i=0; i<MAXFFCS; i++)
 		{
-			if(combobuf[tmpscr->ffdata[i]].type==cSCREENFREEZE) freeze=true;
+			if(combobuf[tmpscr->ffcs[i].data].type==cSCREENFREEZE) freeze=true;
 			
-			if(combobuf[tmpscr->ffdata[i]].type==cSCREENFREEZEFF) freezeff=true;
+			if(combobuf[tmpscr->ffcs[i].data].type==cSCREENFREEZEFF) freezeff=true;
 		}
 		
 		for(int32_t i=0; i<176; i++)
@@ -3845,9 +3845,9 @@ void game_loop()
 			if ( tmpscr->ffcswaitdraw&(1<<q) )
 			{
 				//Z_scripterrlog("FFC (%d) called Waitdraw()\n", q);
-				if(tmpscr->ffscript[q] != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
+				if(tmpscr->ffcs[q].script != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
 				{
-					ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[q], q);
+					ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffcs[q].script, q);
 					tmpscr->ffcswaitdraw &= ~(1<<q);
 				}
 			}
