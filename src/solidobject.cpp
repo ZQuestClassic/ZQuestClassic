@@ -76,6 +76,7 @@ void solid_object::copy(solid_object const& other)
 	hyofs = other.hyofs;
 	solid = other.solid;
 	if (solid) solid_objects.push_back(this);
+	else remove_object(this);
 }
 
 solid_object::solid_object(solid_object const& other) 
