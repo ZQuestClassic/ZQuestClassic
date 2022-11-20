@@ -16732,6 +16732,9 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
                     tempffc.tysz=1;
                     tempffc.flags=0;
                 }
+		
+		tempffc.setSolid(tempffc.flags & ffSOLID);
+			
                 
                 if(Header->zelda_version == 0x211 || (Header->zelda_version == 0x250 && Header->build<20))
                 {
@@ -17308,6 +17311,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 				}
 				if(!p_igetl(&(tempffc.flags),f,true))
 					return qe_invalid;
+				tempffc.setSolid(tempffc.flags & ffSOLID);
 				if(!p_igetw(&(tempffc.script),f,true))
 					return qe_invalid;
 				for(auto q = 0; q < 8; ++q)

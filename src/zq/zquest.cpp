@@ -8950,7 +8950,7 @@ finished:
 void moveffc(int32_t i, int32_t cx, int32_t cy)
 {
     int32_t ffx = vbound(int32_t(Map.CurrScr()->ffcs[i].x.getFloat()),0,240);
-    int32_t ffy = vbound(int32_t(Map.CurrScr()->ffcs[i].x.getFloat()),0,160);
+    int32_t ffy = vbound(int32_t(Map.CurrScr()->ffcs[i].y.getFloat()),0,160);
 	int32_t offx = ffx, offy = ffy;
     showxypos_ffc = i;
     doxypos((byte&)ffx,(byte&)ffy,15,0xFF,true,cx-ffx,cy-ffy,(Map.CurrScr()->ffTileWidth(i)*16),(Map.CurrScr()->ffTileHeight(i)*16));

@@ -3079,11 +3079,11 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 				{
 					if(!(layer->ffcs[i].flags&ffCHANGER))
 					{
+						int32_t tx=(layer->ffcs[i].x.getInt())+x;
+						int32_t ty=(layer->ffcs[i].y.getInt())+y;
+						
 						if(layer->ffcs[i].flags&ffOVERLAY)
 						{
-							int32_t tx=(layer->ffcs[i].x.getInt())+x;
-							int32_t ty=(layer->ffcs[i].y.getInt())+y;
-							
 							if(layer->ffcs[i].flags&ffTRANS)
 							{
 								//overtiletranslucent16(dest, combo_tile(layer->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, layer->ffcs[i].cset, combobuf[layer->ffcs[i].data].flip, 128);
@@ -3139,6 +3139,22 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 					for(int32_t i=0; i<176; i++)
 					{
 						put_walkflags_layered(dest,((i&15)<<4)+x,(i&0xF0)+y,i, k);
+					}
+				}
+			}
+		}
+		for(int32_t i=MAXFFCS-1; i>=0; i--)
+		{
+			if(layer->ffcs[i].data)
+			{
+				if(!(layer->ffcs[i].flags&ffCHANGER))
+				{
+					int32_t tx=(layer->ffcs[i].x.getInt())+x;
+					int32_t ty=(layer->ffcs[i].y.getInt())+y;
+					
+					if(layer->ffcs[i].flags&ffSOLID)
+					{
+						rectfill(dest, tx, ty, tx + layer->ffEffectWidth(i) - 1, ty + layer->ffEffectHeight(i) - 1, vc(12));
 					}
 				}
 			}

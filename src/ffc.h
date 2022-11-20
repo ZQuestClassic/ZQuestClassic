@@ -29,12 +29,12 @@ public:
 	int32_t initd[INITIAL_D];
 	int32_t inita[INITIAL_A];
 	bool initialized;
-	
+	bool loaded;
 	
 	ffcdata();
 	~ffcdata();
 	ffcdata(ffcdata const& other);
-	void copy(ffcdata const& other);
+	virtual void copy(ffcdata const& other);
 	ffcdata& operator=(ffcdata const& other);
 	void clear();
 	virtual void setSolid(bool set);

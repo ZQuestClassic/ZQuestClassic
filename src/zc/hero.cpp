@@ -9687,8 +9687,7 @@ bool HeroClass::mirrorBonk()
 {
 	zfix tx = x, ty = y, tz = z;
 	WalkflagInfo info = walkflag(x,y+(bigHitbox?0:8),2,up);
-	if(blockmoving)
-		info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8));
+	info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8));
 	execute(info);
 	bool fail = info.isUnwalkable();
 	
@@ -13420,8 +13419,7 @@ void HeroClass::movehero()
 				if(dir==up&&yoff)
 				{
 					info = walkflag(x,y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7]),2,up);
-					if(blockmoving)
-						info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7]));
+					info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7]));
 					execute(info);
 					
 					if(!info.isUnwalkable())
@@ -13439,8 +13437,7 @@ void HeroClass::movehero()
 				if(dir==down&&yoff)
 				{
 					info = walkflag(x,y+15+int32_t(lsteps[y.getInt()&7]),2,down);
-					if(blockmoving)
-						info = info || walkflagMBlock(x+8,y+15+int32_t(lsteps[y.getInt()&7]));
+					info = info || walkflagMBlock(x+8,y+15+int32_t(lsteps[y.getInt()&7]));
 					execute(info);
 					
 					if(!info.isUnwalkable())
@@ -13496,8 +13493,7 @@ void HeroClass::movehero()
 					while(true)
 					{
 						info = walkflag(temp_x,temp_y+(bigHitbox?0:8)-temp_step,2,up);
-						if(blockmoving)
-							info = info || walkflagMBlock(temp_x+8,temp_y+(bigHitbox?0:8)-temp_step);
+						info = info || walkflagMBlock(temp_x+8,temp_y+(bigHitbox?0:8)-temp_step);
 						execute(info);
 						
 						if(!info.isUnwalkable())
@@ -13534,8 +13530,7 @@ void HeroClass::movehero()
 					while(true)
 					{
 						info = walkflag(temp_x,temp_y+15+temp_step,2,down);
-						if(blockmoving)
-							info = info || walkflagMBlock(temp_x+8,temp_y+15+temp_step);
+						info = info || walkflagMBlock(temp_x+8,temp_y+15+temp_step);
 						execute(info);
 						
 						if(!info.isUnwalkable())
@@ -13733,10 +13728,8 @@ void HeroClass::movehero()
 						{
 							info = walkflag(x,(bigHitbox?0:8)+(y-hero_newstep),2,up);
 							
-							if(x.getFloor() & 7)
-								info = info || walkflag(x+16,(bigHitbox?0:8)+(y-hero_newstep),1,up);
-							else if(blockmoving)
-								info = info || walkflagMBlock(x+16, (bigHitbox?0:8)+(y-hero_newstep));
+							info = info || walkflag(x+15,(bigHitbox?0:8)+(y-hero_newstep),1,up);
+							info = info || walkflagMBlock(x+15, (bigHitbox?0:8)+(y-hero_newstep));
 								
 							execute(info);
 							
@@ -13960,9 +13953,9 @@ void HeroClass::movehero()
 							info = walkflag(x,15+(y+hero_newstep),2,down);
 							
 							if(x.getFloor() & 7)
-								info = info || walkflag(x+16,15+(y+hero_newstep),1,down);
-							else if(blockmoving)
-								info = info || walkflagMBlock(x+16, 15+(y+hero_newstep));
+								info = info || walkflag(x+15,15+(y+hero_newstep),1,down);
+							else
+								info = info || walkflagMBlock(x+15, 15+(y+hero_newstep));
 								
 							execute(info);
 							
@@ -14171,9 +14164,8 @@ void HeroClass::movehero()
 					do
 					{
 						info = walkflag(x-hero_newstep,y+(bigHitbox?0:8),1,left)||walkflag(x-hero_newstep,y+8,1,left);
-						
-						if(y.getFloor() & 7)
-							info = info || walkflag(x-hero_newstep,y+16,1,left);
+					
+						info = info || walkflag(x-hero_newstep,y+15,1,left);
 							
 						execute(info);
 						
@@ -14389,8 +14381,7 @@ void HeroClass::movehero()
 					{
 						info = walkflag(x+15+hero_newstep,y+(bigHitbox?0:8),1,right)||walkflag(x+15+hero_newstep,y+8,1,right);;
 						
-						if(y.getFloor() & 7)
-							info = info || walkflag(x+15+hero_newstep,y+16,1,right);
+						info = info || walkflag(x+15+hero_newstep,y+15,1,right);
 							
 						execute(info);
 						
@@ -14615,7 +14606,7 @@ void HeroClass::movehero()
 						
 						if(x.getInt() & 7)
 							info = info || walkflag(x+16,y+(bigHitbox?0:8)-z3step,1,up);
-						else if(blockmoving)
+						else
 							info = info || walkflagMBlock(x+16, y+(bigHitbox?0:8)-z3step);
 							
 						execute(info);
@@ -14629,7 +14620,7 @@ void HeroClass::movehero()
 								
 								if(x.getInt()&7)
 									info = info || walkflag(x+16,y+(bigHitbox?0:8)-z3step,1,up);
-								else if(blockmoving)
+								else
 									info = info || walkflagMBlock(x+16, y+(bigHitbox?0:8)-z3step);
 									
 								execute(info);
@@ -14783,7 +14774,7 @@ void HeroClass::movehero()
 						
 						if(x.getInt()&7)
 							info = info || walkflag(x+16,y+15+z3step,1,down);
-						else if(blockmoving)
+						else
 							info = info || walkflagMBlock(x+16, y+15+z3step);
 						
 						execute(info);
@@ -14797,7 +14788,7 @@ void HeroClass::movehero()
 								
 								if(x.getInt()&7)
 									info = info || walkflag(x+16,y+15+z3step,1,down);
-								else if(blockmoving)
+								else
 									info = info || walkflagMBlock(x+16, y+15+z3step);
 									
 								execute(info);
@@ -15435,7 +15426,7 @@ void HeroClass::movehero()
 						info = walkflag(temp_x,temp_y+(bigHitbox?0:8)-temp_step,2,up);
 						if(x.getInt() & 7)
 							info = info || walkflag(temp_x+16,temp_y+(bigHitbox?0:8)-temp_step,1,up);
-						else if(blockmoving)
+						else
 							info = info || walkflagMBlock(temp_x+8,temp_y+(bigHitbox?0:8)-temp_step);
 					}
 					
@@ -15565,7 +15556,7 @@ void HeroClass::movehero()
 						info=walkflag(temp_x,temp_y+15+temp_step,2,down);
 						if(x.getInt() & 7)
 							info = info || walkflag(temp_x+16,temp_y+15+temp_step,1,down);
-						else if(blockmoving)
+						else
 							 info = info || walkflagMBlock(temp_x+8,temp_y+15+temp_step);
 					}
 					
@@ -15958,7 +15949,7 @@ LEFTRIGHT_NEWMOVE:
 					info = walkflag(x,y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7]),2,up);
 					if(x.getInt() & 7)
 						info = info || walkflag(x+16,y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7]),1,up);
-					else if(blockmoving)
+					else
 						info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7]));
 				}
 				
@@ -16063,7 +16054,7 @@ LEFTRIGHT_NEWMOVE:
 					info=walkflag(x,y+15+int32_t(lsteps[y.getInt()&7]),2,down);
 					if(x.getInt() & 7)
 						info = info || walkflag(x+16,y+15+int32_t(lsteps[y.getInt()&7]),1,down);
-					else if(blockmoving)
+					else
 						 info = info || walkflagMBlock(x+8,y+15+int32_t(lsteps[y.getInt()&7]));
 				}
 				
@@ -16945,6 +16936,12 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
         return ret;
     }
     
+    if (collide_object(wx, wy,1, 1))
+    {
+	ret.setUnwalkable(true);
+	return ret;
+    }
+    
     if(isdungeon() && currscr<128 && wy<(bigHitbox?32:40) && (((diagonalMovement||NO_GRIDLOCK)?(x<=112||x>=128):x!=120) || _walkflag(120,24,2,SWITCHBLOCK_STATE))
             && !get_bit(quest_rules,qr_FREEFORM))
     {
@@ -17434,9 +17431,13 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
 // Only checks for moving blocks. Apparently this is a thing we need.
 HeroClass::WalkflagInfo HeroClass::walkflagMBlock(int32_t wx,int32_t wy)
 {
-    WalkflagInfo ret;
-    ret.setUnwalkable(blockmoving && mblock2.hit(wx,wy,0,1,1,1));
-    return ret;
+	WalkflagInfo ret;
+	if(toogam) return ret;
+	if (blockmoving)
+		ret.setUnwalkable(mblock2.hit(wx,wy,0,1,1,1));
+	if (collide_object(wx, wy,1, 1))
+		ret.setUnwalkable(true);
+	return ret;
 }
 
 bool HeroClass::checksoliddamage()

@@ -71,7 +71,7 @@ public:
     zfix xofs,yofs,zofs;
     zfix shadowxofs,shadowyofs;
     // no hzofs - it's always equal to zofs.
-    int32_t hxofs,hyofs,hzsz;
+    int32_t hzsz;
     int32_t txsz,tysz;
     /*
      * Explanation of hzsz:
