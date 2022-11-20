@@ -40,6 +40,7 @@
 #ifndef _JWIN_H_
 #define _JWIN_H_
 
+#include "base/zdefs.h"
 #include "base/zc_alleg.h"
 #include "tab_ctl.h"
 
