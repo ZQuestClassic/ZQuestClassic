@@ -2216,7 +2216,7 @@ void scriptLocationReport()
                 newnode->pal=ts->color;
                 
                 for(int32_t j=0; j<8; ++j)
-                    newnode->d[j] = ts->initd[i][j];
+                    newnode->d[j] = ts->ffcs[i].initd[j];
                     
                 newnode->next=NULL;
                 tempnode->next=newnode;

@@ -377,7 +377,7 @@ void BasicEditboxView::draw()
 	blit(dbuf, screen, 0, 0, host->x, host->y,host->w, host->h);
 	set_clip_rect(screen, 0, 0,SCREEN_W,SCREEN_H);
 	
-	update_hw_screen();
+	update_hw_screen(false);
 }
 
 bool BasicEditboxView::mouseClick(int32_t x, int32_t y)

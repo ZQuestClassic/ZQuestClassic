@@ -297,7 +297,7 @@ inline bool ffcIsAt(int32_t index, int32_t x, int32_t y)
         return false;
     
     int32_t fy=tmpscr->ffcs[index].y.getInt();
-    if(y<fy || y>fy+(tmpscr->ffEffectHeight[index]-1))
+    if(y<fy || y>fy+(tmpscr->ffEffectHeight(index)-1))
         return false;
     
     if((tmpscr->ffcs[index].flags&(ffCHANGER|ffETHEREAL))!=0)
