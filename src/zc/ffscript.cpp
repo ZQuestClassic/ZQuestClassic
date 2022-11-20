@@ -12521,8 +12521,11 @@ void set_register(const int32_t arg, const int32_t value)
 			
 		case FFFLAGSD:
 			if(BC::checkFFC(ri->ffcref, "ffc->Flags[]") == SH::_NoError)
-				value ? tmpscr->ffcs[ri->ffcref].flags |=   1<<((ri->d[rINDEX])/10000)
-					: tmpscr->ffcs[ri->ffcref].flags &= ~(1<<((ri->d[rINDEX])/10000));
+			{
+				auto flag = 1<<((ri->d[rINDEX])/10000);
+				SETFLAG(tmpscr->ffcs[ri->ffcref].flags, flag, value);
+				if (flag == ffSOLID) tmpscr->ffcs[ri->ffcref].setSolid(value);
+			}
 			break;
 			
 		case FFCWIDTH:
@@ -19400,16 +19403,34 @@ void set_register(const int32_t arg, const int32_t value)
 		case MAPDATAENTRYX: 		SET_MAPDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
 		case MAPDATAENTRYY: 		SET_MAPDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
 		//case MAPDATANUMFF: 		SET_MAPDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
-		case MAPDATAFFDATA:         SET_MAPDATA_FFC_INDEX32(data, "FFCData", 31); break;  //W, 32 OF THESE
-		case MAPDATAFFCSET:         SET_MAPDATA_FFC_INDEX32(cset, "FFCCSet", 31); break;  //B, 32
-		case MAPDATAFFDELAY:        SET_MAPDATA_FFC_INDEX32(delay, "FFCDelay", 31); break;    //W, 32
-		case MAPDATAFFX:        SET_MAPDATA_FFCPOS_INDEX32(x, "FFCX", 31); break; //INT32, 32 OF THESE
-		case MAPDATAFFY:        SET_MAPDATA_FFCPOS_INDEX32(y, "FFCY", 31); break; //..
-		case MAPDATAFFXDELTA:       SET_MAPDATA_FFCPOS_INDEX32(vx, "FFCVx", 31); break;   //..
-		case MAPDATAFFYDELTA:       SET_MAPDATA_FFCPOS_INDEX32(vy, "FFCVy", 31); break;   //..
-		case MAPDATAFFXDELTA2:      SET_MAPDATA_FFCPOS_INDEX32(ax, "FFCAx", 31); break;  //..
-		case MAPDATAFFYDELTA2:      SET_MAPDATA_FFCPOS_INDEX32(ay, "FFCAy", 31); break;  //..
-		case MAPDATAFFFLAGS:        SET_MAPDATA_FFC_INDEX32(flags, "FFCFlags", 31); break;    //INT16, 32 OF THESE
+		case MAPDATAFFDATA:         SET_MAPDATA_FFC_INDEX32(data, "FFCData", MAXFFCS-1); break;  //W, 32 OF THESE
+		case MAPDATAFFCSET:         SET_MAPDATA_FFC_INDEX32(cset, "FFCCSet", MAXFFCS-1); break;  //B, 32
+		case MAPDATAFFDELAY:        SET_MAPDATA_FFC_INDEX32(delay, "FFCDelay", MAXFFCS-1); break;    //W, 32
+		case MAPDATAFFX:        SET_MAPDATA_FFCPOS_INDEX32(x, "FFCX", MAXFFCS-1); break; //INT32, 32 OF THESE
+		case MAPDATAFFY:        SET_MAPDATA_FFCPOS_INDEX32(y, "FFCY", MAXFFCS-1); break; //..
+		case MAPDATAFFXDELTA:       SET_MAPDATA_FFCPOS_INDEX32(vx, "FFCVx", MAXFFCS-1); break;   //..
+		case MAPDATAFFYDELTA:       SET_MAPDATA_FFCPOS_INDEX32(vy, "FFCVy", MAXFFCS-1); break;   //..
+		case MAPDATAFFXDELTA2:      SET_MAPDATA_FFCPOS_INDEX32(ax, "FFCAx", MAXFFCS-1); break;  //..
+		case MAPDATAFFYDELTA2:      SET_MAPDATA_FFCPOS_INDEX32(ay, "FFCAy", MAXFFCS-1); break;  //..
+		
+		case MAPDATAFFFLAGS:
+		{
+			int32_t indx = (ri->d[rINDEX] / 10000)-1;
+			if(indx < 0 || indx > MAXFFCS-1)
+			{
+				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), "FFCFlags");
+			}
+			else if (mapscr *m = GetMapscr(ri->mapsref))
+			{
+				m->ffcs[indx].flags = value/10000;
+				m->ffcs[indx].setSolid(m->ffcs[indx].flags&ffSOLID);
+			}
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCFlags");
+			}
+			break;
+		}
 
 		//Number of ffcs that are in use (have valid data
 		case MAPDATANUMFF: 	

@@ -3480,6 +3480,8 @@ void do_walkflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t temps
 				}
 			}
 		}
+		
+		put_ffcwalkflags(dest, x, y+playing_field_offset);
 	}
 }
 
@@ -4693,6 +4695,15 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	
 	mapscr ffscr = tmpscr[tmp];
 	tmpscr[tmp] = TheMaps[currmap*MAPSCRS+scr];
+	if (!tmp)
+	{
+		for(int i = 0; i < MAXFFCS; ++i)
+		{
+			tmpscr[tmp].ffcs[i].setSolid(false);
+			tmpscr[tmp].ffcs[i].loaded = true;
+			if (tmpscr[tmp].ffcs[i].flags & ffSOLID) tmpscr[tmp].ffcs[i].setSolid(true);
+		}
+	}
 	
 	const int32_t _mapsSize = ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth;
 	tmpscr[tmp].valid |= mVALID; //layer 0 is always valid
@@ -5367,6 +5378,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 	if((cwalkflag&b) && !dried)
 		return true;
 		
+	if (collide_object(x, y,cnt*8-7, 1)) return true;
 	if(cnt==1) return false;
 	
 	++bx;
@@ -5961,6 +5973,9 @@ bool hit_walkflag(int32_t x,int32_t y,int32_t cnt)
 		
 	//  for(int32_t i=0; i<4; i++)
 	if(mblock2.clk && mblock2.hit(x,y,0,cnt*8,1,16))
+		return true;
+	
+	if (collide_object(x, y,cnt*8, 1))
 		return true;
 		
 	return _walkflag(x,y,cnt);

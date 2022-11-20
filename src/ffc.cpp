@@ -4,6 +4,7 @@
 ffcdata::ffcdata() : solid_object()
 {
 	clear();
+	loaded = false;
 }
 
 ffcdata::~ffcdata()
@@ -12,6 +13,12 @@ ffcdata::~ffcdata()
 void ffcdata::copy(ffcdata const& other)
 {
 	solid_object::copy(other);
+	if (!loaded)
+	{
+		bool temp = solid;
+		solid_object::setSolid(false);
+		solid = temp;
+	}
 	ax = other.ax;
 	ay = other.ay;
 	flags = other.flags;
@@ -310,6 +317,7 @@ mapscr& mapscr::operator=(mapscr const& other)
 
 void ffcdata::setSolid(bool set) //exists so that ffcs can do special handling for whether to make something solid or not.
 {
-	solid_object::setSolid(set);
+	if (loaded) solid_object::setSolid(set);
+	else solid = set;
 }
 

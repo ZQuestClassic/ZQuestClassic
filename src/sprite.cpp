@@ -80,7 +80,7 @@ sprite::sprite()
 {
     uid = getNextUID();
 	isspawning = false;
-    x=y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=yofs=shadowxofs=shadowyofs=zofs=hxofs=hyofs=fall=fakefall=fakez=0;
+    x=y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=yofs=shadowxofs=shadowyofs=zofs=fall=fakefall=fakez=0;
     txsz=1;
     tysz=1;
     id=-1;
@@ -197,8 +197,6 @@ sprite::sprite(sprite const & other):
     xofs(other.xofs),
     yofs(other.yofs),
     zofs(other.zofs),
-    hxofs(other.hxofs),
-    hyofs(other.hyofs),
     hzsz(other.hzsz),
     txsz(other.txsz),
     tysz(other.tysz),
