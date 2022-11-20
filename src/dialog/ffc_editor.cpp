@@ -50,50 +50,50 @@ void ffdata::clear()
 void ffdata::load(mapscr const* scr, int32_t ind)
 {
 	if(unsigned(ind)>31) return;
-	x = scr->ffx[ind];
-	y = scr->ffy[ind];
-	dx = scr->ffxdelta[ind];
-	dy = scr->ffydelta[ind];
-	ax = scr->ffxdelta2[ind];
-	ay = scr->ffydelta2[ind];
-	data = scr->ffdata[ind];
-	cset = scr->ffcset[ind];
-	delay = scr->ffdelay[ind];
-	flags = scr->ffflags[ind];
-	link = scr->fflink[ind];
+	x = scr->ffcs[ind].x.getZLong();
+	y = scr->ffcs[ind].y.getZLong();
+	dx = scr->ffcs[ind].vx.getZLong();
+	dy = scr->ffcs[ind].vy.getZLong();
+	ax = scr->ffcs[ind].ax.getZLong();
+	ay = scr->ffcs[ind].ay.getZLong();
+	data = scr->ffcs[ind].data;
+	cset = scr->ffcs[ind].cset;
+	delay = scr->ffcs[ind].delay;
+	flags = scr->ffcs[ind].flags;
+	link = scr->ffcs[ind].link;
 	twid = scr->ffTileWidth(ind)-1;
 	thei = scr->ffTileHeight(ind)-1;
 	fwid = scr->ffEffectWidth(ind)-1;
 	fhei = scr->ffEffectHeight(ind)-1;
-	script = scr->ffscript[ind];
+	script = scr->ffcs[ind].script;
 	for(auto q = 0; q < 2; ++q)
-		inita[q] = scr->inita[ind][q];
+		inita[q] = scr->ffcs[ind].inita[q];
 	for(auto q = 0; q < 8; ++q)
-		initd[q] = scr->initd[ind][q];
+		initd[q] = scr->ffcs[ind].initd[q];
 }
 void ffdata::save(mapscr* scr, int32_t ind)
 {
 	if(unsigned(ind)>31) return;
-	scr->ffx[ind] = x;
-	scr->ffy[ind] = y;
-	scr->ffxdelta[ind] = dx;
-	scr->ffydelta[ind] = dy;
-	scr->ffxdelta2[ind] = ax;
-	scr->ffydelta2[ind] = ay;
-	scr->ffdata[ind] = data;
-	scr->ffcset[ind] = cset;
-	scr->ffdelay[ind] = delay;
-	scr->ffflags[ind] = flags;
-	scr->fflink[ind] = link;
+	scr->ffcs[ind].x = zslongToFix(x);
+	scr->ffcs[ind].y = zslongToFix(y);
+	scr->ffcs[ind].vx = zslongToFix(dx);
+	scr->ffcs[ind].vy = zslongToFix(dy);
+	scr->ffcs[ind].ax = zslongToFix(ax);
+	scr->ffcs[ind].ay = zslongToFix(ay);
+	scr->ffcs[ind].data = data;
+	scr->ffcs[ind].cset = cset;
+	scr->ffcs[ind].delay = delay;
+	scr->ffcs[ind].flags = flags;
+	scr->ffcs[ind].link = link;
 	scr->ffTileWidth(ind, twid+1);
 	scr->ffTileHeight(ind, thei+1);
 	scr->ffEffectWidth(ind, fwid+1);
 	scr->ffEffectHeight(ind, fhei+1);
-	scr->ffscript[ind] = script;
+	scr->ffcs[ind].script = script;
 	for(auto q = 0; q < 2; ++q)
-		scr->inita[ind][q] = inita[q];
+		scr->ffcs[ind].inita[q] = inita[q];
 	for(auto q = 0; q < 8; ++q)
-		scr->initd[ind][q] = initd[q];
+		scr->ffcs[ind].initd[q] = initd[q];
 	SETFLAG(scr->numff,(1<<ind),data!=0);
 }
 

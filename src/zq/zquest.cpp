@@ -7171,10 +7171,10 @@ void refresh(int32_t flags)
         size_t maxwid = mapscreen_x+(mapscreensize*mapscreenbmp->w);
 		BITMAP* tempbmp = create_bitmap_ex(8,maxwid,text_height(is_large ? lfont_l : font));
         for(int32_t i=0; i< MAXFFCS; i++)
-            if(Map.CurrScr()->ffscript[i] && Map.CurrScr()->ffdata[i])
+            if(Map.CurrScr()->ffcs[i].script && Map.CurrScr()->ffcs[i].data)
             {
 				clear_bitmap(tempbmp);
-                textout_shadowed_ex(tempbmp,is_large ? lfont_l : font, ffcmap[Map.CurrScr()->ffscript[i]-1].scriptname.substr(0,300).c_str(),2,0,vc(showxypos_ffc==i ? 14 : 15),vc(0),-1);
+                textout_shadowed_ex(tempbmp,is_large ? lfont_l : font, ffcmap[Map.CurrScr()->ffcs[i].script-1].scriptname.substr(0,300).c_str(),2,0,vc(showxypos_ffc==i ? 14 : 15),vc(0),-1);
                 masked_blit(tempbmp,menu1,0,0,0,ypos,tempbmp->w, tempbmp->h);
 				ypos+=16;
             }
@@ -7439,7 +7439,7 @@ void refresh(int32_t flags)
 //Fixme:
             int32_t ctype =
                 combobuf[vbound(
-                             (c>=305 ? Map.CurrScr()->ffdata[c-305] :
+                             (c>=305 ? Map.CurrScr()->ffcs[c-305].data :
                               c>=304 ? Map.CurrScr()->undercombo :
                               c>=176 ? Map.CurrScr()->secretcombo[c-176] :
                               Map.CurrScr()->data.empty() ? 0 : // Sanity check: does room combo data exist?
@@ -8949,17 +8949,17 @@ finished:
 // Drag FFCs around
 void moveffc(int32_t i, int32_t cx, int32_t cy)
 {
-    int32_t ffx = vbound(int32_t(Map.CurrScr()->ffx[i]/10000.0),0,240);
-    int32_t ffy = vbound(int32_t(Map.CurrScr()->ffy[i]/10000.0),0,160);
+    int32_t ffx = vbound(int32_t(Map.CurrScr()->ffcs[i].x.getFloat()),0,240);
+    int32_t ffy = vbound(int32_t(Map.CurrScr()->ffcs[i].x.getFloat()),0,160);
 	int32_t offx = ffx, offy = ffy;
     showxypos_ffc = i;
-    doxypos((byte&)ffx,(byte&)ffy,15,0xFF,true,cx-ffx,cy-ffy,((1+(Map.CurrScr()->ffwidth[i]>>6))*16),((1+(Map.CurrScr()->ffheight[i]>>6))*16));
+    doxypos((byte&)ffx,(byte&)ffy,15,0xFF,true,cx-ffx,cy-ffy,(Map.CurrScr()->ffTileWidth(i)*16),(Map.CurrScr()->ffTileHeight(i)*16));
     if(ffx > 240) ffx = 240;
     if(ffy > 160) ffy = 160;
     if((ffx != offx) || (ffy != offy))
     {
-        Map.CurrScr()->ffx[i] = ffx*10000;
-        Map.CurrScr()->ffy[i] = ffy*10000;
+        Map.CurrScr()->ffcs[i].x = ffx;
+        Map.CurrScr()->ffcs[i].y = ffy;
         saved = false;
     }
 }
@@ -10016,14 +10016,14 @@ void domouse()
 	if(isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
 	{
 		for(int32_t i=MAXFFCS-1; i>=0; i--)
-			if(Map.CurrScr()->ffdata[i]!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffflags[i]&ffOVERLAY)))
+			if(Map.CurrScr()->ffcs[i].data!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
 			{
-				int32_t ffx = int32_t(Map.CurrScr()->ffx[i]/10000.0);
-				int32_t ffy = int32_t(Map.CurrScr()->ffy[i]/10000.0);
+				int32_t ffx = int32_t(Map.CurrScr()->ffcs[i].x.getFloat());
+				int32_t ffy = int32_t(Map.CurrScr()->ffcs[i].y.getFloat());
 				int32_t cx2 = (x-startxint)/mapscreensize;
 				int32_t cy2 = (y-startyint)/mapscreensize;
 				
-				if(cx2 >= ffx && cx2 < ffx+((1+(Map.CurrScr()->ffwidth[i]>>6))*16) && cy2 >= ffy && cy2 < ffy+((1+(Map.CurrScr()->ffheight[i]>>6))*16))
+				if(cx2 >= ffx && cx2 < ffx+(Map.CurrScr()->ffTileWidth(i)*16) && cy2 >= ffy && cy2 < ffy+(Map.CurrScr()->ffTileHeight(i)*16))
 				{
 					// FFC tooltip
 					if(tooltip_current_ffc != i)
@@ -10034,9 +10034,9 @@ void domouse()
 					tooltip_current_ffc = i;
 					char msg[1024] = {0};
 					sprintf(msg,"FFC: %d Combo: %d\nCSet: %d Type: %s\nScript: %s",
-							i+1, Map.CurrScr()->ffdata[i],Map.CurrScr()->ffcset[i],
-							combo_class_buf[combobuf[Map.CurrScr()->ffdata[i]].type].name,
-							(Map.CurrScr()->ffscript[i]<=0 ? "(None)" : ffcmap[Map.CurrScr()->ffscript[i]-1].scriptname.substr(0,400).c_str()));
+							i+1, Map.CurrScr()->ffcs[i].data,Map.CurrScr()->ffcs[i].data,
+							combo_class_buf[combobuf[Map.CurrScr()->ffcs[i].data].type].name,
+							(Map.CurrScr()->ffcs[i].script<=0 ? "(None)" : ffcmap[Map.CurrScr()->ffcs[i].script-1].scriptname.substr(0,400).c_str()));
 					update_tooltip(x, y, startxint, startyint, int32_t(256*mapscreensize),int32_t(176*mapscreensize), msg);
 					break;
 				}
@@ -10217,12 +10217,12 @@ void domouse()
 			
 			// Move FFCs
 			for(int32_t i=MAXFFCS-1; i>=0; i--)
-				if(Map.CurrScr()->ffdata[i]!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffflags[i]&ffOVERLAY)))
+				if(Map.CurrScr()->ffcs[i].data!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
 				{
-					int32_t ffx = int32_t(Map.CurrScr()->ffx[i]/10000.0);
-					int32_t ffy = int32_t(Map.CurrScr()->ffy[i]/10000.0);
+					int32_t ffx = int32_t(Map.CurrScr()->ffcs[i].x.getFloat());
+					int32_t ffy = int32_t(Map.CurrScr()->ffcs[i].y.getFloat());
 					
-					if(cx2 >= ffx && cx2 < ffx+((1+(Map.CurrScr()->ffwidth[i]>>6))*16) && cy2 >= ffy && cy2 < ffy+((1+(Map.CurrScr()->ffheight[i]>>6))*16))
+					if(cx2 >= ffx && cx2 < ffx+(Map.CurrScr()->ffTileWidth(i)*16) && cy2 >= ffy && cy2 < ffy+(Map.CurrScr()->ffTileHeight(i)*16))
 					{
 						moveffc(i,cx2,cy2);
 						break;
@@ -10938,20 +10938,20 @@ void domouse()
 			// This loop also serves to find the free ffc with the smallest slot number.
 			for(int32_t i=MAXFFCS-1; i>=0; i--)
 			{
-				if(Map.CurrScr()->ffdata[i]==0 && i < earliestfreeffc)
+				if(Map.CurrScr()->ffcs[i].data==0 && i < earliestfreeffc)
 					earliestfreeffc = i;
 					
 				if(clickedffc || !(Map.CurrScr()->valid&mVALID))
 					continue;
 					
-				if(Map.CurrScr()->ffdata[i]!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffflags[i]&ffOVERLAY)))
+				if(Map.CurrScr()->ffcs[i].data!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
 				{
-					int32_t ffx = int32_t(Map.CurrScr()->ffx[i]/10000.0);
-					int32_t ffy = int32_t(Map.CurrScr()->ffy[i]/10000.0);
+					int32_t ffx = int32_t(Map.CurrScr()->ffcs[i].x.getFloat());
+					int32_t ffy = int32_t(Map.CurrScr()->ffcs[i].y.getFloat());
 					int32_t cx2 = (x-startxint)/mapscreensize;
 					int32_t cy2 = (y-startyint)/mapscreensize;
 					
-					if(cx2 >= ffx && cx2 < ffx+((1+(Map.CurrScr()->ffwidth[i]>>6))*16) && cy2 >= ffy && cy2 < ffy+((1+(Map.CurrScr()->ffheight[i]>>6))*16))
+					if(cx2 >= ffx && cx2 < ffx+(Map.CurrScr()->ffTileWidth(i)*16) && cy2 >= ffy && cy2 < ffy+(Map.CurrScr()->ffTileHeight(i)*16))
 					{
 						draw_ffc_rc_menu[1].flags = (Map.getCopyFFC()>-1) ? 0 : D_DISABLED;
 						
@@ -10967,7 +10967,7 @@ void domouse()
 							{
 								if(jwin_alert("Confirm Paste","Really replace the FFC with","the data of the copied FFC?",NULL,"&Yes","&No",'y','n',lfont)==1)
 								{
-                                    Map.DoPasteScreenCommand(PasteCommandType::ScreenOneFFC, i);
+									Map.DoPasteScreenCommand(PasteCommandType::ScreenOneFFC, i);
 									saved=false;
 								}
 							}
@@ -10980,16 +10980,28 @@ void domouse()
 							case 3:
 								if(jwin_alert("Confirm Clear","Really clear this Freeform Combo?",NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
 								{
-									Map.CurrScr()->ffdata[i] = Map.CurrScr()->ffcset[i] = Map.CurrScr()->ffx[i] = Map.CurrScr()->ffy[i] = Map.CurrScr()->ffxdelta[i] =
-																   Map.CurrScr()->ffydelta[i] = Map.CurrScr()->ffxdelta2[i] = Map.CurrScr()->ffydelta2[i] = Map.CurrScr()->ffflags[i] = Map.CurrScr()->ffscript[i] =
-																		   Map.CurrScr()->fflink[i] = Map.CurrScr()->ffdelay[i] = 0;
-									Map.CurrScr()->ffwidth[i] = Map.CurrScr()->ffheight[i] = 15;
+									Map.CurrScr()->ffcs[i].data = 0;
+									Map.CurrScr()->ffcs[i].cset = 0;
+									Map.CurrScr()->ffcs[i].x = 0;
+									Map.CurrScr()->ffcs[i].y = 0;
+									Map.CurrScr()->ffcs[i].vx = 0;
+									Map.CurrScr()->ffcs[i].vy = 0;
+									Map.CurrScr()->ffcs[i].ax = 0;
+									Map.CurrScr()->ffcs[i].ay = 0;
+									Map.CurrScr()->ffcs[i].flags = 0;
+									Map.CurrScr()->ffcs[i].script = 0;
+									Map.CurrScr()->ffcs[i].link = 0;
+									Map.CurrScr()->ffcs[i].delay = 0;
+									Map.CurrScr()->ffcs[i].hxsz = 16;
+									Map.CurrScr()->ffcs[i].hysz = 16;
+									Map.CurrScr()->ffcs[i].txsz = 1;
+									Map.CurrScr()->ffcs[i].tysz = 1;
 									
 									for(int32_t j=0; j<8; j++)
-										Map.CurrScr()->initd[i][j] = 0;
+										Map.CurrScr()->ffcs[i].initd[j] = 0;
 										
 									for(int32_t j=0; j<2; j++)
-										Map.CurrScr()->inita[i][j] = 10000;
+										Map.CurrScr()->ffcs[i].inita[j] = 10000;
 										
 									saved = false;
 								}
@@ -10997,15 +11009,13 @@ void domouse()
 							
 							case 4: //snap to grid
 							{
-								int32_t oldffx = Map.CurrScr()->ffx[i]/10000;
-								int32_t oldffy = Map.CurrScr()->ffy[i]/10000;
+								int32_t oldffx = Map.CurrScr()->ffcs[i].x.getInt();
+								int32_t oldffy = Map.CurrScr()->ffcs[i].y.getInt();
 								int32_t pos = COMBOPOS(oldffx,oldffy);
-								int32_t newffy = COMBOY(pos)*10000;
-								int32_t newffx = COMBOX(pos)*10000;
-								Map.CurrScr()->ffx[i] = newffx;
-								Map.CurrScr()->ffy[i] = newffy;
-								//Map.CurrScr()->ffx[i] = (Map.CurrScr()->ffx[i]-(Map.CurrScr()->ffx[i] % 16));
-								//Map.CurrScr()->ffy[i] = (Map.CurrScr()->ffy[i]-(Map.CurrScr()->ffy[i] % 16));
+								int32_t newffy = COMBOY(pos);
+								int32_t newffx = COMBOX(pos);
+								Map.CurrScr()->ffcs[i].x = newffx;
+								Map.CurrScr()->ffcs[i].y = newffy;
 								saved = false;
 								break;
 							}
@@ -11185,9 +11195,9 @@ void domouse()
 					
 					case 14:
 					{
-						Map.CurrScr()->ffx[earliestfreeffc] = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
-						Map.CurrScr()->ffy[earliestfreeffc] = (((y-startyint)&(~0x000F))/mapscreensize)*10000;
-                        Map.DoPasteScreenCommand(PasteCommandType::ScreenOneFFC, earliestfreeffc);
+						Map.CurrScr()->ffcs[earliestfreeffc].x = (((x-startxint)&(~0x000F))/mapscreensize);
+						Map.CurrScr()->ffcs[earliestfreeffc].y = (((y-startyint)&(~0x000F))/mapscreensize);
+						Map.DoPasteScreenCommand(PasteCommandType::ScreenOneFFC, earliestfreeffc);
 					}
 					break;
 					
@@ -23427,7 +23437,7 @@ int32_t d_ffcombolist_proc(int32_t msg,DIALOG *d,int32_t c)
         if(buf)
         {
             clear_bitmap(buf);
-            putcombo(buf,0,0,Map.CurrScr()->ffdata[d1],Map.CurrScr()->ffcset[d1]);
+            putcombo(buf,0,0,Map.CurrScr()->ffcs[d1].data,Map.CurrScr()->ffcs[d1].cset);
             stretch_blit(buf, ffcur, 0,0, 16, 16, 0, 0, ffcur->w, ffcur->h);
             destroy_bitmap(buf);
         }
@@ -23441,46 +23451,46 @@ int32_t d_ffcombolist_proc(int32_t msg,DIALOG *d,int32_t c)
         rectfill(screen,xd,y2,x+196*int32_t(is_large?1.5:1),y+127*int32_t(is_large?1.5:1),jwin_pal[jcBOX]);
         
         textprintf_ex(screen,tempfont,xd,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Combo #:");
-        textprintf_ex(screen,tempfont,xd+x2,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffdata[d1]);
+        textprintf_ex(screen,tempfont,xd+x2,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].data);
         
         textprintf_ex(screen,tempfont,xd,y2+yd,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"CSet #:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcset[d1]);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].cset);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"X Pos:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffx[d1]/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].x.getFloat());
         
         textprintf_ex(screen,tempfont,xd,y2+yd*3,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Y Pos:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*3,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffy[d1]/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*3,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].y.getFloat());
         
         textprintf_ex(screen,tempfont,xd,y2+yd*4,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"X Speed:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*4,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffxdelta[d1]/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*4,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].vx.getFloat());
         
         textprintf_ex(screen,tempfont,xd,y2+yd*5,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Y Speed:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*5,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffydelta[d1]/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*5,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].vy.getFloat());
         
         textprintf_ex(screen,tempfont,xd,y2+yd*6,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"X Accel:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*6,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffxdelta2[d1]/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*6,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].ax.getFloat());
         
         textprintf_ex(screen,tempfont,xd,y2+yd*7,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Y Accel:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*7,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffydelta2[d1]/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*7,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].ay.getFloat());
         
         textprintf_ex(screen,tempfont,xd,y2+yd*8,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Linked To:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*8,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->fflink[d1]);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*8,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].link);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*9,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Move Delay:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*9,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffdelay[d1]);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*9,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].delay);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*10,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Combo W:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*10,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffwidth[d1]&63)+1);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*10,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffEffectWidth(d1));
         
         textprintf_ex(screen,tempfont,xd,y2+yd*11,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Combo H:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*11,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffheight[d1]&63)+1);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*11,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffEffectHeight(d1));
         
         textprintf_ex(screen,tempfont,xd,y2+yd*12,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile W:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*12,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffwidth[d1]>>6)+1);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*12,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffTileWidth(d1));
         
         textprintf_ex(screen,tempfont,xd,y2+yd*13,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile H:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*13,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffheight[d1]>>6)+1);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*13,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffTileHeight(d1));
         
         break;
     }
@@ -23495,7 +23505,7 @@ int32_t onSelectFFCombo()
     
     if(!ffcur) return D_O_K;
     
-    putcombo(ffcur,0,0,Map.CurrScr()->ffdata[ff_combo],Map.CurrScr()->ffcset[ff_combo]);
+    putcombo(ffcur,0,0,Map.CurrScr()->ffcs[ff_combo].data,Map.CurrScr()->ffcs[ff_combo].cset);
     ffcombo_sel_dlg[5].dp = ffcur;
     
     if(is_large)

@@ -3793,7 +3793,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	{
 		ignoreffc = true;
 	}
-	else if(combobuf[tmpscr->ffdata[current_ffcombo]].triggerflags[0] & combotriggerONLYGENTRIG)
+	else if(combobuf[tmpscr->ffcs[current_ffcombo].data].triggerflags[0] & combotriggerONLYGENTRIG)
 		ignoreffc = true;
 	
 	if(!isCuttableType(type) &&
@@ -3911,12 +3911,12 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	{
 		if(isCuttableNextType(type2))
 		{
-			s->ffdata[current_ffcombo]++;
+			s->ffcs[current_ffcombo].data++;
 		}
 		else
 		{
-			s->ffdata[current_ffcombo] = s->undercombo;
-			s->ffcset[current_ffcombo] = s->undercset;
+			s->ffcs[current_ffcombo].data = s->undercombo;
+			s->ffcs[current_ffcombo].cset = s->undercset;
 		}
 	}
 	
@@ -4397,7 +4397,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     {
         ignoreffc = true;
     }
-    else if(combobuf[tmpscr->ffdata[current_ffcombo]].triggerflags[0] & combotriggerONLYGENTRIG)
+    else if(combobuf[tmpscr->ffcs[current_ffcombo].data].triggerflags[0] & combotriggerONLYGENTRIG)
 		type2 = cNONE;
     if(!isCuttableType(type) &&
             (flag<mfSWORD || flag>mfXSWORD) &&  flag!=mfSTRIKE && (flag2<mfSWORD || flag2>mfXSWORD) && flag2!=mfSTRIKE)
@@ -4512,12 +4512,12 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     {
         if(isCuttableNextType(type2))
         {
-            s->ffdata[current_ffcombo]++;
+            s->ffcs[current_ffcombo].data++;
         }
         else
         {
-            s->ffdata[current_ffcombo] = s->undercombo;
-            s->ffcset[current_ffcombo] = s->undercset;
+            s->ffcs[current_ffcombo].data = s->undercombo;
+            s->ffcs[current_ffcombo].cset = s->undercset;
         }
     }
     
@@ -4818,7 +4818,7 @@ void HeroClass::check_pound_block2(int32_t bx, int32_t by, weapon *w)
     
     if(current_ffcombo == -1 || get_bit(ffcgrid, current_ffcombo) != 0)
         ignoreffc = true;
-    else if(combobuf[tmpscr->ffdata[current_ffcombo]].triggerflags[0] & combotriggerONLYGENTRIG)
+    else if(combobuf[tmpscr->ffcs[current_ffcombo].data].triggerflags[0] & combotriggerONLYGENTRIG)
 		type2 = cNONE;
     if(type2!=cPOUND && flag3!=mfSTRIKE && flag3!=mfHAMMER)
         ignoreffc = true;
@@ -4878,7 +4878,7 @@ void HeroClass::check_pound_block2(int32_t bx, int32_t by, weapon *w)
         }
         else
         {
-            s->ffdata[current_ffcombo]+=1;
+            s->ffcs[current_ffcombo].data+=1;
         }
     }
     
@@ -4977,7 +4977,7 @@ void HeroClass::check_slash_block(weapon *w)
     {
         ignoreffc = true;
     }
-    else if(combobuf[tmpscr->ffdata[current_ffcombo]].triggerflags[0] & combotriggerONLYGENTRIG)
+    else if(combobuf[tmpscr->ffcs[current_ffcombo].data].triggerflags[0] & combotriggerONLYGENTRIG)
 		type2 = cNONE;
     if(!isCuttableType(type) &&
             (flag<mfSWORD || flag>mfXSWORD) &&  flag!=mfSTRIKE && (flag2<mfSWORD || flag2>mfXSWORD) && flag2!=mfSTRIKE)
@@ -5071,12 +5071,12 @@ void HeroClass::check_slash_block(weapon *w)
     {
         if(isCuttableNextType(type2))
         {
-            s->ffdata[current_ffcombo]++;
+            s->ffcs[current_ffcombo].data++;
         }
         else
         {
-            s->ffdata[current_ffcombo] = s->undercombo;
-            s->ffcset[current_ffcombo] = s->undercset;
+            s->ffcs[current_ffcombo].data = s->undercombo;
+            s->ffcs[current_ffcombo].cset = s->undercset;
         }
     }
     
@@ -5381,7 +5381,7 @@ void HeroClass::check_pound_block(int32_t bx, int32_t by)
         }
         else
         {
-            s->ffdata[current_ffcombo]+=1;
+            s->ffcs[current_ffcombo].data+=1;
         }
     }
     
@@ -5606,7 +5606,7 @@ void HeroClass::check_pound_block(weapon *w)
         }
         else
         {
-            s->ffdata[current_ffcombo]+=1;
+            s->ffcs[current_ffcombo].data+=1;
         }
     }
     
@@ -9391,11 +9391,11 @@ bool HeroClass::animate(int32_t)
 	
 	awarp=false;
 	
-	for(int32_t i=0; i<32; i++)
+	for(int32_t i=0; i<MAXFFCS; i++)
 	{
 		int32_t ind=0;
 		
-		newcombo const& cmb = combobuf[tmpscr->ffdata[i]];
+		newcombo const& cmb = combobuf[tmpscr->ffcs[i].data];
 		if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
 		{
 			if(cmb.type==cAWARPA)
@@ -13426,36 +13426,7 @@ void HeroClass::movehero()
 					
 					if(!info.isUnwalkable())
 					{
-						bool ffcwalk = true;
-						//check for solid ffcs here -Z
-						//This does work, however once the solif ffc stops Hero from moving, the player can release the dpan, press again, and pass through it.
-						for ( int32_t q = 0; q < 32; ++q )
-						{
-							//solid ffcs attampt -Z ( 30th March, 2019 )
-							if ( !(tmpscr->ffflags[0]&ffSOLID) ) continue;
-							{
-								//al_trace("(int32_t)tmpscr->ffy[0] is %d\n",(int32_t)tmpscr->ffy[q]/10000);
-								//al_trace("(int32_t)((tmpscr->ffheight[ri->ffcref]&0x3F)+1) is %d\n",(int32_t)((tmpscr->ffheight[q]&0x3F)+1));
-								int32_t max_y = (((int32_t)tmpscr->ffy[q])/10000) + (int32_t)((tmpscr->ffheight[q]&0x3F)+1);
-								//al_trace("max_y for ffc bottom edge is: %d\n", max_y);
-								//al_trace("int32_t(lsteps[y.getInt()&7] is %d\n",int32_t(lsteps[y.getInt()&7]));
-								//if ( (int32_t)y - int32_t(lsteps[y.getInt()&7]) == max_y ) //if the ffc bottom edge is in the step range
-								if ( (int32_t)y == max_y ) //if the ffc bottom edge is in the step range
-								{
-									//al_trace("Player is under the ffc\n");
-									int32_t herowidthx = (int32_t)x+(int32_t)hxsz;
-									//al_trace("herowidthx is: %d\n",herowidthx);
-									if ( herowidthx >= (((int32_t)tmpscr->ffx[q])/10000) && (int32_t)x < ( (((int32_t)tmpscr->ffx[q])/10000) + (int32_t)(tmpscr->ffwidth[q]&0x3F)+1) )
-									{
-										al_trace("Player is under X border of ffc\n");
-										//Player is under the ffc
-										ffcwalk = false;
-									}
-								}
-							}
-						}
-						
-						if ( ffcwalk ) move(up);
+						move(up);
 					}
 					else
 					{
@@ -13474,33 +13445,7 @@ void HeroClass::movehero()
 					
 					if(!info.isUnwalkable())
 					{
-						bool ffcwalk = true;
-						//solid ffcs attampt -Z ( 30th March, 2019 )
-						//check for solid ffcs here -Z
-						for ( int32_t q = 0; q < 32; ++q )
-						{
-							if ( !(tmpscr->ffflags[0]&ffSOLID) ) continue;
-							{
-								int32_t min_y = (((int32_t)tmpscr->ffy[0])/10000);
-								//if ( (int32_t)y+(int32_t)hysz + int32_t(lsteps[y.getInt()&7]) > min_y ) //if the ffc bottom edge is in the step range
-								//if ( (int32_t)y+(int32_t)hysz + 1 > min_y ) //if the ffc bottom edge is in the step range
-								if ( (int32_t)y+(int32_t)hysz == min_y ) //if the ffc bottom edge is in the step range
-								{
-									//al_trace("Player is under the ffc\n");
-									int32_t herowidthx = (int32_t)x+(int32_t)hxsz;
-									//al_trace("herowidthx is: %d\n",herowidthx);
-									if ( herowidthx >= (((int32_t)tmpscr->ffx[0])/10000) && (int32_t)x < ( (((int32_t)tmpscr->ffx[0])/10000) + (int32_t)(tmpscr->ffwidth[0]&0x3F)+1) )
-									{
-									//	al_trace("Player is under X border of ffc\n");
-										//Player is under the ffc
-										ffcwalk = false;
-									}
-								}
-							}
-						}
-						
-						if ( ffcwalk )
-							move(down);
+						move(down);
 					}
 					else
 					{
@@ -13557,41 +13502,11 @@ void HeroClass::movehero()
 						
 						if(!info.isUnwalkable())
 						{
-							bool ffcwalk = true;
-							//check for solid ffcs here -Z
-							//This does work, however once the solif ffc stops Hero from moving, the player can release the dpan, press again, and pass through it.
-							for ( int32_t q = 0; q < 32; ++q )
-							{
-								//solid ffcs attampt -Z ( 30th March, 2019 )
-								if ( !(tmpscr->ffflags[0]&ffSOLID) ) continue;
-								//al_trace("(int32_t)tmpscr->ffy[0] is %d\n",(int32_t)tmpscr->ffy[q]/10000);
-								//al_trace("(int32_t)((tmpscr->ffheight[ri->ffcref]&0x3F)+1) is %d\n",(int32_t)((tmpscr->ffheight[q]&0x3F)+1));
-								int32_t max_y = (((int32_t)tmpscr->ffy[q])/10000) + (int32_t)((tmpscr->ffheight[q]&0x3F)+1);
-								//al_trace("max_y for ffc bottom edge is: %d\n", max_y);
-								//al_trace("int32_t(lsteps[y.getInt()&7] is %d\n",int32_t(lsteps[y.getInt()&7]));
-								//if ( (int32_t)y - int32_t(lsteps[y.getInt()&7]) == max_y ) //if the ffc bottom edge is in the step range
-								if ( temp_y.getInt() == max_y ) //if the ffc bottom edge is in the step range
-								{
-									//al_trace("Player is under the ffc\n");
-									int32_t herowidthx = temp_x.getInt()+(int32_t)hxsz;
-									//al_trace("herowidthx is: %d\n",herowidthx);
-									if ( herowidthx >= (((int32_t)tmpscr->ffx[q])/10000) && temp_x.getInt() < ( (((int32_t)tmpscr->ffx[q])/10000) + (int32_t)(tmpscr->ffwidth[q]&0x3F)+1) )
-									{
-										al_trace("Player is under X border of ffc\n");
-										//Player is under the ffc
-										ffcwalk = false;
-									}
-								}
-							}
-							
-							if ( ffcwalk )
-							{
-								hero_newstep = temp_step;
-								x = temp_x;
-								y = temp_y;
-								move(up);
-								return;
-							}
+							hero_newstep = temp_step;
+							x = temp_x;
+							y = temp_y;
+							move(up);
+							return;
 						}
 						//Could not move, try moving less
 						if(temp_y != int32_t(temp_y))
@@ -13625,39 +13540,11 @@ void HeroClass::movehero()
 						
 						if(!info.isUnwalkable())
 						{
-							bool ffcwalk = true;
-							//solid ffcs attampt -Z ( 30th March, 2019 )
-							//check for solid ffcs here -Z
-							for ( int32_t q = 0; q < 32; ++q )
-							{
-								if ( !(tmpscr->ffflags[0]&ffSOLID) ) continue;
-								{
-									int32_t min_y = (((int32_t)tmpscr->ffy[0])/10000);
-									//if ( temp_y.getInt()+(int32_t)hysz + temp_step > min_y ) //if the ffc bottom edge is in the step range
-									//if ( temp_y.getInt()+(int32_t)hysz + 1 > min_y ) //if the ffc bottom edge is in the step range
-									if ( temp_y.getInt()+(int32_t)hysz == min_y ) //if the ffc bottom edge is in the step range
-									{
-										//al_trace("Player is under the ffc\n");
-										int32_t herowidthx = temp_x.getInt()+(int32_t)hxsz;
-										//al_trace("herowidthx is: %d\n",herowidthx);
-										if ( herowidthx >= (((int32_t)tmpscr->ffx[0])/10000) && temp_x.getInt() < ( (((int32_t)tmpscr->ffx[0])/10000) + (int32_t)(tmpscr->ffwidth[0]&0x3F)+1) )
-										{
-										//	al_trace("Player is under X border of ffc\n");
-											//Player is under the ffc
-											ffcwalk = false;
-										}
-									}
-								}
-							}
-							
-							if ( ffcwalk )
-							{
-								hero_newstep = temp_step;
-								x = temp_x;
-								y = temp_y;
-								move(down);
-								return;
-							}
+							hero_newstep = temp_step;
+							x = temp_x;
+							y = temp_y;
+							move(down);
+							return;
 						}
 						//Could not move, try moving less
 						if(temp_y != int32_t(temp_y))
@@ -24858,9 +24745,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		if ( tmpscr->ffcswaitdraw&(1<<q) )
 		{
 			//Z_scripterrlog("FFC (%d) called Waitdraw()\n", q);
-			if(tmpscr->ffscript[q] != 0)
+			if(tmpscr->ffcs[q].script != 0)
 			{
-				ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[q], q);
+				ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffcs[q].script, q);
 				tmpscr->ffcswaitdraw &= ~(1<<q);
 			}
 		}

@@ -42,7 +42,7 @@ struct cmbtimer
 	cmbtimer() {clear();}
 };
 cmbtimer combo_trig_timers[7][176];
-cmbtimer ffc_trig_timers[32];
+cmbtimer ffc_trig_timers[MAXFFCS];
 
 bool alwaysCTypeEffects(int32_t type)
 {
@@ -2076,7 +2076,7 @@ void init_combo_timers()
 			combo_trig_timers[lyr][pos].clear();
 		}
 	}
-	for(auto f = 0; f < 32; ++f)
+	for(auto f = 0; f < MAXFFCS; ++f)
 	{
 		ffc_trig_timers[f].clear();
 	}
@@ -2152,15 +2152,15 @@ void update_combo_timers()
 		}
 	}
 	mapscr* ffscr = FFCore.tempScreens[0];
-	for(auto ffc = 0; ffc < 32; ++ffc)
+	for(auto ffc = 0; ffc < MAXFFCS; ++ffc)
 	{
 		cmbtimer& timer = ffc_trig_timers[ffc];
-		timer.updateData(ffscr->ffdata[ffc]);
+		timer.updateData(ffscr->ffcs[ffc].data);
 		newcombo const& cmb = combobuf[timer.data];
 		if(cmb.type == cSHOOTER)
 		{
-			zfix wx = zslongToFix(ffscr->ffx[ffc]);
-			zfix wy = zslongToFix(ffscr->ffy[ffc]);
+			zfix wx = ffscr->ffcs[ffc].x;
+			zfix wy = ffscr->ffcs[ffc].y;
 			wx += (ffscr->ffTileWidth(ffc)-1)*8;
 			wy += (ffscr->ffTileHeight(ffc)-1)*8;
 			handle_shooter(cmb, timer, wx, wy);

@@ -860,8 +860,11 @@ void zmap::clearscr(int32_t scr)
     
     for(int32_t i=0; i<32; i++)
     {
-        screens[scr].ffwidth[i]=15;
-        screens[scr].ffheight[i]=15;
+        screens[scr].ffcs[i].data=0;
+        screens[scr].ffcs[i].hxsz=16;
+        screens[scr].ffcs[i].hysz=16;
+	screens[scr].ffcs[i].txsz=1;
+        screens[scr].ffcs[i].tysz=1;
     }
 }
 
@@ -1646,7 +1649,7 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
     dest->scrHeight=src->scrHeight;
     dest->numff=src->numff;
     
-    for(int32_t i=0; i<32; i++)
+    for(int32_t i=0; i<MAXFFCS; i++)
     {
         for(int32_t j=0; j<8; j++)
         {
@@ -1660,21 +1663,23 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
             dest->inita[i][j]=src->inita[i][j];
         }
         
-        dest->ffdata[i]=src->ffdata[i];
-        dest->ffcset[i]=src->ffcset[i];
-        dest->ffdelay[i]=src->ffdelay[i];
-        dest->ffx[i]=src->ffx[i];
-        dest->ffy[i]=src->ffy[i];
-        dest->ffxdelta[i]=src->ffxdelta[i];
-        dest->ffydelta[i]=src->ffydelta[i];
-        dest->ffxdelta2[i]=src->ffxdelta2[i];
-        dest->ffydelta2[i]=src->ffydelta2[i];
-        dest->ffflags[i]=src->ffflags[i];
-        dest->ffwidth[i]=src->ffwidth[i];
-        dest->ffheight[i]=src->ffheight[i];
-        dest->fflink[i]=src->fflink[i];
-        dest->ffscript[i]=src->ffscript[i];
-        dest->initialized[i]=src->initialized[i];
+        dest->ffcs[i].data=src->ffcs[i].data;
+        dest->ffcs[i].cset=src->ffcs[i].cset;
+        dest->ffcs[i].delay=src->ffcs[i].delay;
+        dest->ffcs[i].x=src->ffcs[i].x;
+        dest->ffcs[i].y=src->ffcs[i].y;
+        dest->ffcs[i].vx=src->ffcs[i].vx;
+        dest->ffcs[i].vy=src->ffcs[i].vy;
+        dest->ffcs[i].ax=src->ffcs[i].ax;
+        dest->ffcs[i].ay=src->ffcs[i].ay;
+        dest->ffcs[i].flags=src->ffcs[i].flags;
+        dest->ffcs[i].hxsz=src->ffcs[i].hxsz;
+        dest->ffcs[i].hysz=src->ffcs[i].hysz;
+	dest->ffcs[i].txsz=src->ffcs[i].txsz;
+        dest->ffcs[i].tysz=src->ffcs[i].tysz;
+        dest->ffcs[i].link=src->ffcs[i].link;
+        dest->ffcs[i].script=src->ffcs[i].script;
+        dest->ffcs[i].initialized=src->ffcs[i].initialized;
         /*dest->pc[i]=src->pc[i];
         dest->scriptflag[i]=src->scriptflag[i];
         dest->sp[i]=src->sp[i];
@@ -2648,12 +2653,12 @@ void zmap::draw_darkness(BITMAP* dest, BITMAP* transdest)
 			}
 		}
 	}
-	for(auto q = 0; q < 32; ++q)
+	for(auto q = 0; q < MAXFFCS; ++q)
 	{
-		newcombo const& cmb = combobuf[basescr->ffdata[q]];
+		newcombo const& cmb = combobuf[basescr->ffcs[q].data];
 		if(cmb.type == cTORCH)
 		{
-			doDarkroomCircle((basescr->ffx[q]/10000)+(basescr->ffEffectWidth(q)/2), (basescr->ffy[q]/10000)+(basescr->ffEffectHeight(q)/2), cmb.attribytes[0], dest, transdest);
+			doDarkroomCircle((basescr->ffcs[q].x.getInt())+(basescr->ffEffectWidth(q)/2), (basescr->ffcs[q].y.getInt())+(basescr->ffEffectHeight(q)/2), cmb.attribytes[0], dest, transdest);
 		}
 	}
 }
@@ -2802,26 +2807,26 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		
 		if(k==0)
 		{
-			for(int32_t i=31; i>=0; i--)
+			for(int32_t i=MAXFFCS-1; i>=0; i--)
 			{
-				if(layer->ffdata[i])
+				if(layer->ffcs[i].data)
 				{
-					if(!(layer->ffflags[i]&ffCHANGER))
+					if(!(layer->ffcs[i].flags&ffCHANGER))
 					{
-						if(!(layer->ffflags[i]&ffOVERLAY))
+						if(!(layer->ffcs[i].flags&ffOVERLAY))
 						{
-							int32_t tx=(layer->ffx[i]/10000)+x;
-							int32_t ty=(layer->ffy[i]/10000)+y;
+							int32_t tx=(layer->ffcs[i].x.getInt())+x;
+							int32_t ty=(layer->ffcs[i].y.getInt())+y;
 							
-							if(layer->ffflags[i]&ffTRANS)
+							if(layer->ffcs[i].flags&ffTRANS)
 							{
-								overcomboblocktranslucent(dest, tx, ty, layer->ffdata[i], layer->ffcset[i],1+(layer->ffwidth[i]>>6), 1+(layer->ffheight[i]>>6),128);
-								//overtiletranslucent16(dest, combo_tile(layer->ffdata[i],tx,ty)+(j*20)+(l), tx, ty, layer->ffcset[i], combobuf[layer->ffdata[i]].flip, 128);
+								overcomboblocktranslucent(dest, tx, ty, layer->ffcs[i].data, layer->ffcs[i].cset,layer->ffTileWidth(i), layer->ffTileHeight(i),128);
+								//overtiletranslucent16(dest, combo_tile(layer->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, layer->ffcs[i].cset, combobuf[layer->ffcs[i].data].flip, 128);
 							}
 							else
 							{
-								overcomboblock(dest, tx, ty, layer->ffdata[i], layer->ffcset[i], 1+(layer->ffwidth[i]>>6), 1+(layer->ffheight[i]>>6));
-								//overtile16(dest, combo_tile(layer->ffdata[i],tx,ty)+(j*20)+(l), tx, ty, layer->ffcset[i], combobuf[layer->ffdata[i]].flip);
+								overcomboblock(dest, tx, ty, layer->ffcs[i].data, layer->ffcs[i].cset, layer->ffTileWidth(i), layer->ffTileHeight(i));
+								//overtile16(dest, combo_tile(layer->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, layer->ffcs[i].cset, combobuf[layer->ffcs[i].data].flip);
 							}
 						}
 					}
@@ -3068,27 +3073,26 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		
 		if(k==4)
 		{
-			for(int32_t i=31; i>=0; i--)
+			for(int32_t i=MAXFFCS-1; i>=0; i--)
 			{
-				if(layer->ffdata[i])
+				if(layer->ffcs[i].data)
 				{
-					if(!(layer->ffflags[i]&ffCHANGER))
+					if(!(layer->ffcs[i].flags&ffCHANGER))
 					{
-						if(layer->ffflags[i]&ffOVERLAY)
+						if(layer->ffcs[i].flags&ffOVERLAY)
 						{
-							//overcombo(framebuf,(int32_t)layer->ffx[i],(int32_t)layer->ffy[i]+56,layer->ffdata[i],layer->ffcset[i]);
-							int32_t tx=(layer->ffx[i]/10000)+x;
-							int32_t ty=(layer->ffy[i]/10000)+y;
+							int32_t tx=(layer->ffcs[i].x.getInt())+x;
+							int32_t ty=(layer->ffcs[i].y.getInt())+y;
 							
-							if(layer->ffflags[i]&ffTRANS)
+							if(layer->ffcs[i].flags&ffTRANS)
 							{
-								//overtiletranslucent16(dest, combo_tile(layer->ffdata[i],tx,ty)+(j*20)+(l), tx, ty, layer->ffcset[i], combobuf[layer->ffdata[i]].flip, 128);
-								overcomboblocktranslucent(dest,tx,ty,layer->ffdata[i], layer->ffcset[i], 1+(layer->ffwidth[i]>>6), 1+(layer->ffheight[i]>>6),128);
+								//overtiletranslucent16(dest, combo_tile(layer->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, layer->ffcs[i].cset, combobuf[layer->ffcs[i].data].flip, 128);
+								overcomboblocktranslucent(dest,tx,ty,layer->ffcs[i].data, layer->ffcs[i].cset, layer->ffTileWidth(i), layer->ffTileHeight(i),128);
 							}
 							else
 							{
-								//overtile16(dest, combo_tile(layer->ffdata[i],tx,ty)+(j*20)+(l), tx, ty, layer->ffcset[i], combobuf[layer->ffdata[i]].flip);
-								overcomboblock(dest, tx, ty, layer->ffdata[i], layer->ffcset[i], 1+(layer->ffwidth[i]>>6), 1+(layer->ffheight[i]>>6));
+								//overtile16(dest, combo_tile(layer->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, layer->ffcs[i].cset, combobuf[layer->ffcs[i].data].flip);
+								overcomboblock(dest, tx, ty, layer->ffcs[i].data, layer->ffcs[i].cset, layer->ffTileWidth(i), layer->ffTileHeight(i));
 							}
 						}
 					}
@@ -3098,13 +3102,13 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		
 		if(k==5)
 		{
-			for(int32_t i=31; i>=0; i--)
+			for(int32_t i=MAXFFCS-1; i>=0; i--)
 			{
-				if(layer->ffdata[i])
+				if(layer->ffcs[i].data)
 				{
-					if(layer->ffflags[i]&ffCHANGER)
+					if(layer->ffcs[i].flags&ffCHANGER)
 					{
-						putpixel(dest,(layer->ffx[i]/10000)+x,(layer->ffy[i]/10000)+y,vc(zc_oldrand()%16));
+						putpixel(dest,(layer->ffcs[i].x.getInt())+x,(layer->ffcs[i].y.getInt())+y,vc(zc_oldrand()%16));
 					}
 				}
 			}
@@ -4786,28 +4790,28 @@ void zmap::PasteFFCombos(const mapscr& copymapscr)
         
         for(int32_t i=0; i<32; i++)
         {
-            screens[currscr].ffdata[i] = copymapscr.ffdata[i];
-            screens[currscr].ffcset[i] = copymapscr.ffcset[i];
-            screens[currscr].ffx[i] = copymapscr.ffx[i];
-            screens[currscr].ffy[i] = copymapscr.ffy[i];
-            screens[currscr].ffxdelta[i] = copymapscr.ffxdelta[i];
-            screens[currscr].ffydelta[i] = copymapscr.ffydelta[i];
-            screens[currscr].ffxdelta2[i] = copymapscr.ffxdelta2[i];
-            screens[currscr].ffydelta2[i] = copymapscr.ffydelta2[i];
-            screens[currscr].fflink[i] = copymapscr.fflink[i];
-            screens[currscr].ffdelay[i] = copymapscr.ffdelay[i];
-            screens[currscr].ffwidth[i] = copymapscr.ffwidth[i];
-            screens[currscr].ffheight[i] = copymapscr.ffheight[i];
-            screens[currscr].ffwidth[i] = copymapscr.ffwidth[i];
-            screens[currscr].ffheight[i] = copymapscr.ffheight[i];
-            screens[currscr].ffflags[i] = copymapscr.ffflags[i];
-            screens[currscr].ffscript[i] = copymapscr.ffscript[i];
+            screens[currscr].ffcs[i].data = copymapscr.ffcs[i].data;
+            screens[currscr].ffcs[i].cset = copymapscr.ffcs[i].cset;
+            screens[currscr].ffcs[i].x = copymapscr.ffcs[i].x;
+            screens[currscr].ffcs[i].y = copymapscr.ffcs[i].y;
+            screens[currscr].ffcs[i].vx = copymapscr.ffcs[i].vx;
+            screens[currscr].ffcs[i].vy = copymapscr.ffcs[i].vy;
+            screens[currscr].ffcs[i].ax = copymapscr.ffcs[i].ax;
+            screens[currscr].ffcs[i].ay = copymapscr.ffcs[i].ay;
+            screens[currscr].ffcs[i].link = copymapscr.ffcs[i].link;
+            screens[currscr].ffcs[i].delay = copymapscr.ffcs[i].delay;
+            screens[currscr].ffcs[i].hxsz = copymapscr.ffcs[i].hxsz;
+            screens[currscr].ffcs[i].hysz = copymapscr.ffcs[i].hysz;
+	    screens[currscr].ffcs[i].txsz = copymapscr.ffcs[i].txsz;
+            screens[currscr].ffcs[i].tysz = copymapscr.ffcs[i].tysz;
+            screens[currscr].ffcs[i].flags = copymapscr.ffcs[i].flags;
+            screens[currscr].ffcs[i].script = copymapscr.ffcs[i].script;
             
             for(int32_t j=0; j<8; j++)
-                screens[currscr].initd[i][j] = copymapscr.initd[i][j];
+                screens[currscr].ffcs[i].initd[j] = copymapscr.ffcs[i].initd[j];
                 
             for(int32_t j=0; j<2; j++)
-                screens[currscr].inita[i][j] = copymapscr.inita[i][j];
+                screens[currscr].ffcs[i].inita[j] = copymapscr.ffcs[i].inita[j];
         }
         
         saved=false;
@@ -4819,27 +4823,27 @@ void zmap::PasteOneFFC(const mapscr& copymapscr, int32_t i) //i - destination ff
     if(copyffc < 0)  // Sanity check
         return;
 
-    screens[currscr].ffdata[i] = copymapscr.ffdata[copyffc];
-    screens[currscr].ffcset[i] = copymapscr.ffcset[copyffc];
+    screens[currscr].ffcs[i].data = copymapscr.ffcs[copyffc].data;
+    screens[currscr].ffcs[i].cset = copymapscr.ffcs[copyffc].cset;
     // Don't copy X or Y
-    screens[currscr].ffxdelta[i] = copymapscr.ffxdelta[copyffc];
-    screens[currscr].ffydelta[i] = copymapscr.ffydelta[copyffc];
-    screens[currscr].ffxdelta2[i] = copymapscr.ffxdelta2[copyffc];
-    screens[currscr].ffydelta2[i] = copymapscr.ffydelta2[copyffc];
-    screens[currscr].fflink[i] = copymapscr.fflink[copyffc];
-    screens[currscr].ffdelay[i] = copymapscr.ffdelay[copyffc];
-    screens[currscr].ffwidth[i] = copymapscr.ffwidth[copyffc];
-    screens[currscr].ffheight[i] = copymapscr.ffheight[copyffc];
-    screens[currscr].ffwidth[i] = copymapscr.ffwidth[copyffc];
-    screens[currscr].ffheight[i] = copymapscr.ffheight[copyffc];
-    screens[currscr].ffflags[i] = copymapscr.ffflags[copyffc];
-    screens[currscr].ffscript[i] = copymapscr.ffscript[copyffc];
+    screens[currscr].ffcs[i].vx = copymapscr.ffcs[copyffc].vx;
+    screens[currscr].ffcs[i].vy = copymapscr.ffcs[copyffc].vy;
+    screens[currscr].ffcs[i].ax = copymapscr.ffcs[copyffc].ax;
+    screens[currscr].ffcs[i].ay = copymapscr.ffcs[copyffc].ay;
+    screens[currscr].ffcs[i].link = copymapscr.ffcs[copyffc].link;
+    screens[currscr].ffcs[i].delay = copymapscr.ffcs[copyffc].delay;
+    screens[currscr].ffcs[i].hxsz = copymapscr.ffcs[copyffc].hxsz;
+    screens[currscr].ffcs[i].hysz = copymapscr.ffcs[copyffc].hysz;
+    screens[currscr].ffcs[i].txsz = copymapscr.ffcs[copyffc].txsz;
+    screens[currscr].ffcs[i].tysz = copymapscr.ffcs[copyffc].tysz;
+    screens[currscr].ffcs[i].flags = copymapscr.ffcs[copyffc].flags;
+    screens[currscr].ffcs[i].script = copymapscr.ffcs[copyffc].script;
     
     for(int32_t j=0; j<8; j++)
-        screens[currscr].initd[i][j] = copymapscr.initd[copyffc][j];
+        screens[currscr].ffcs[i].initd[j] = copymapscr.ffcs[copyffc].initd[j];
         
     for(int32_t j=0; j<2; j++)
-        screens[currscr].inita[i][j] = copymapscr.inita[copyffc][j];
+        screens[currscr].ffcs[i].inita[j] = copymapscr.ffcs[copyffc].inita[j];
         
     screens[currscr].numff|=(1<<i);
     //copyffc = -1;
@@ -5185,12 +5189,12 @@ void zmap::update_combo_cycling()
         prvscr.cset[i]=newcset[i];
     }
     
-    for(int32_t i=0; i<32; i++)
+    for(int32_t i=0; i<MAXFFCS; i++)
     {
         newdata[i]=-1;
         newcset[i]=-1;
         
-        x=prvscr.ffdata[i];
+        x=prvscr.ffcs[i].data;
         //y=animated_combo_table[x][0];
         
         //time to restart
@@ -5210,9 +5214,9 @@ void zmap::update_combo_cycling()
         }
     }
     
-    for(int32_t i=0; i<32; i++)
+    for(int32_t i=0; i<MAXFFCS; i++)
     {
-        x=prvscr.ffdata[i];
+        x=prvscr.ffcs[i].data;
         //y=animated_combo_table2[x][0];
         
         //time to restart
@@ -5232,13 +5236,13 @@ void zmap::update_combo_cycling()
         }
     }
     
-    for(int32_t i=0; i<32; i++)
+    for(int32_t i=0; i<MAXFFCS; i++)
     {
         if(newdata[i]==-1)
             continue;
             
-        prvscr.ffdata[i]=newdata[i];
-        prvscr.ffcset[i]=newcset[i];
+        prvscr.ffcs[i].data=newdata[i];
+        prvscr.ffcs[i].cset=newcset[i];
     }
     
     if(get_bit(quest_rules,qr_CMBCYCLELAYERS))
@@ -5333,80 +5337,84 @@ void zmap::update_freeform_combos()
         return;
     }
     
-    for(int32_t i=0; i<32; i++)
+    for(int32_t i=0; i<MAXFFCS; i++)
     {
-        if(!(prvscr.ffflags[i]&ffCHANGER) && prvscr.ffdata[i]!=0 && !(prvscr.ffflags[i]&ffSTATIONARY))
+        if(!(prvscr.ffcs[i].flags&ffCHANGER) && prvscr.ffcs[i].data!=0 && !(prvscr.ffcs[i].flags&ffSTATIONARY))
         {
         
-            for(int32_t j=0; j<32; j++)
+            for(int32_t j=0; j<MAXFFCS; j++)
             {
                 if(i!=j)
                 {
-                    if(prvscr.ffflags[j]&ffCHANGER && prvscr.ffdata[j] != 0)
+                    if(prvscr.ffcs[j].flags&ffCHANGER && prvscr.ffcs[j].data != 0)
                     {
-                        if((((prvscr.ffx[j]/10000)!=ffposx[i])||((prvscr.ffy[j]/10000)!=ffposy[i]))&&(prvscr.fflink[i]==0))
+                        if((((prvscr.ffcs[j].x.getInt())!=ffposx[i])||((prvscr.ffcs[j].y.getInt())!=ffposy[i]))&&(prvscr.ffcs[i].link==0))
                         {
-                            if((isonline(prvscr.ffx[i],prvscr.ffy[i],ffprvx[i],ffprvy[i],prvscr.ffx[j],prvscr.ffy[j])||
-                                    ((prvscr.ffx[i]==prvscr.ffx[j])&&(prvscr.ffy[i]==prvscr.ffy[j])))&&(ffprvx[i]>-10000000&&ffprvy[i]>-10000000))
+                            if((isonline(prvscr.ffcs[i].x.getZLong(),prvscr.ffcs[i].y.getZLong(),ffprvx[i],ffprvy[i],prvscr.ffcs[j].x.getZLong(),prvscr.ffcs[j].y.getZLong())||
+                                    ((prvscr.ffcs[i].x.getZLong()==prvscr.ffcs[j].x.getZLong())&&(prvscr.ffcs[i].y.getZLong()==prvscr.ffcs[j].y.getZLong())))&&(ffprvx[i]>-10000000&&ffprvy[i]>-10000000))
                             {
-                                //prvscr.ffdata[i]=prvscr.ffdata[j];
-                                //prvscr.ffcset[i]=prvscr.ffcset[j];
-                                if(prvscr.ffflags[j]&ffCHANGETHIS)
+                                //prvscr.ffcs[i].data=prvscr.ffcs[j].data;
+                                //prvscr.ffcs[i].cset=prvscr.ffcs[j].cset;
+                                if(prvscr.ffcs[j].flags&ffCHANGETHIS)
                                 {
-                                    prvscr.ffdata[i] = prvscr.ffdata[j];
-                                    prvscr.ffcset[i] = prvscr.ffcset[j];
+                                    prvscr.ffcs[i].data = prvscr.ffcs[j].data;
+                                    prvscr.ffcs[i].cset = prvscr.ffcs[j].cset;
                                 }
                                 
-                                if(prvscr.ffflags[j]&ffCHANGENEXT)
-                                    prvscr.ffdata[i]++;
+                                if(prvscr.ffcs[j].flags&ffCHANGENEXT)
+                                    prvscr.ffcs[i].data++;
                                     
-                                if(prvscr.ffflags[j]&ffCHANGEPREV)
-                                    prvscr.ffdata[i]--;
+                                if(prvscr.ffcs[j].flags&ffCHANGEPREV)
+                                    prvscr.ffcs[i].data--;
                                     
-                                prvscr.ffdelay[i]=prvscr.ffdelay[j];
-                                prvscr.ffx[i]=prvscr.ffx[j];
-                                prvscr.ffy[i]=prvscr.ffy[j];
+                                prvscr.ffcs[i].delay=prvscr.ffcs[j].delay;
+                                prvscr.ffcs[i].x=prvscr.ffcs[j].x;
+                                prvscr.ffcs[i].y=prvscr.ffcs[j].y;
+				
+				prvscr.ffcs[i].vx=prvscr.ffcs[j].vx;
+                                prvscr.ffcs[i].vy=prvscr.ffcs[j].vy;
+				prvscr.ffcs[i].ax=prvscr.ffcs[j].ax;
+                                prvscr.ffcs[i].ay=prvscr.ffcs[j].ay;
                                 
-                                prvscr.ffxdelta[i]=prvscr.ffxdelta[j];
-                                prvscr.ffydelta[i]=prvscr.ffydelta[j];
-                                prvscr.ffxdelta2[i]=prvscr.ffxdelta2[j];
-                                prvscr.ffydelta2[i]=prvscr.ffydelta2[j];
+                                prvscr.ffcs[i].link=prvscr.ffcs[j].link;
+                                prvscr.ffcs[i].hxsz=prvscr.ffcs[j].hxsz;
+                                prvscr.ffcs[i].hysz=prvscr.ffcs[j].hysz;
+				prvscr.ffcs[i].txsz=prvscr.ffcs[j].txsz;
+                                prvscr.ffcs[i].tysz=prvscr.ffcs[j].tysz;
                                 
-                                prvscr.fflink[i]=prvscr.fflink[j];
-                                prvscr.ffwidth[i]=prvscr.ffwidth[j];
-                                prvscr.ffheight[i]=prvscr.ffheight[j];
+                                if(prvscr.ffcs[i].flags&ffCARRYOVER)
+                                    prvscr.ffcs[i].flags=prvscr.ffcs[j].flags&ffCARRYOVER;
+                                else prvscr.ffcs[i].flags=prvscr.ffcs[j].flags;
                                 
-                                if(prvscr.ffflags[i]&ffCARRYOVER)
-                                    prvscr.ffflags[i]=prvscr.ffflags[j]&ffCARRYOVER;
-                                else prvscr.ffflags[i]=prvscr.ffflags[j];
+                                prvscr.ffcs[i].flags&=~ffCHANGER;
+                                ffposx[i]=(prvscr.ffcs[j].x.getInt());
+                                ffposy[i]=(prvscr.ffcs[j].y.getInt());
                                 
-                                prvscr.ffflags[i]&=~ffCHANGER;
-                                ffposx[i]=(int16_t)(prvscr.ffx[j]/10000);
-                                ffposy[i]=(int16_t)(prvscr.ffy[j]/10000);
-                                
-                                if(combobuf[prvscr.ffdata[j]].flag>15 && combobuf[prvscr.ffdata[j]].flag<32)
+                                if(combobuf[prvscr.ffcs[j].data].flag>15 && combobuf[prvscr.ffcs[j].data].flag<32)
                                 {
-                                    prvscr.ffdata[j]=prvscr.secretcombo[combobuf[prvscr.ffdata[j]].flag-16+4];
+                                    prvscr.ffcs[j].data=prvscr.secretcombo[combobuf[prvscr.ffcs[j].data].flag-16+4];
                                 }
                                 
-                                if((prvscr.ffflags[j]&ffSWAPNEXT)||(prvscr.ffflags[j]&ffSWAPPREV))
+                                if((prvscr.ffcs[j].flags&ffSWAPNEXT)||(prvscr.ffcs[j].flags&ffSWAPPREV))
                                 {
                                     int32_t k=0;
                                     
-                                    if(prvscr.ffflags[j]&ffSWAPNEXT)
-                                        k=j<31?j+1:0;
+                                    if(prvscr.ffcs[j].flags&ffSWAPNEXT)
+                                        k=j<(MAXFFCS-1)?j+1:0;
                                         
-                                    if(prvscr.ffflags[j]&ffSWAPPREV)
-                                        k=j>0?j-1:31;
+                                    if(prvscr.ffcs[j].flags&ffSWAPPREV)
+                                        k=j>0?j-1:(MAXFFCS-1);
                                         
-                                    zc_swap(prvscr.ffxdelta[j],prvscr.ffxdelta[k]);
-                                    zc_swap(prvscr.ffydelta[j],prvscr.ffydelta[k]);
-                                    zc_swap(prvscr.ffxdelta2[j],prvscr.ffxdelta2[k]);
-                                    zc_swap(prvscr.ffydelta2[j],prvscr.ffydelta2[k]);
-                                    zc_swap(prvscr.fflink[j],prvscr.fflink[k]);
-                                    zc_swap(prvscr.ffwidth[j],prvscr.ffwidth[k]);
-                                    zc_swap(prvscr.ffheight[j],prvscr.ffheight[k]);
-                                    zc_swap(prvscr.ffflags[j],prvscr.ffflags[k]);
+                                    zc_swap(prvscr.ffcs[j].vx,prvscr.ffcs[k].vx);
+                                    zc_swap(prvscr.ffcs[j].vy,prvscr.ffcs[k].vy);
+                                    zc_swap(prvscr.ffcs[j].ax,prvscr.ffcs[k].ax);
+                                    zc_swap(prvscr.ffcs[j].ay,prvscr.ffcs[k].ay);
+                                    zc_swap(prvscr.ffcs[j].link,prvscr.ffcs[k].link);
+                                    zc_swap(prvscr.ffcs[j].hxsz,prvscr.ffcs[k].hxsz);
+                                    zc_swap(prvscr.ffcs[j].hysz,prvscr.ffcs[k].hysz);
+				    zc_swap(prvscr.ffcs[j].txsz,prvscr.ffcs[k].txsz);
+                                    zc_swap(prvscr.ffcs[j].tysz,prvscr.ffcs[k].tysz);
+                                    zc_swap(prvscr.ffcs[j].flags,prvscr.ffcs[k].flags);
                                 }
                             }
                         }
@@ -5414,92 +5422,92 @@ void zmap::update_freeform_combos()
                 }
             }
             
-            if(prvscr.fflink[i] ? !prvscr.ffdelay[prvscr.fflink[i]] : !prvscr.ffdelay[i])
+            if(prvscr.ffcs[i].link ? !prvscr.ffcs[prvscr.ffcs[i].link].delay : !prvscr.ffcs[i].delay)
             {
-                if(prvscr.fflink[i]&&(prvscr.fflink[i]-1)!=i)
+                if(prvscr.ffcs[i].link&&(prvscr.ffcs[i].link-1)!=i)
                 {
-                    ffprvx[i] = prvscr.ffx[i];
-                    ffprvy[i] = prvscr.ffy[i];
-                    prvscr.ffx[i]+=prvscr.ffxdelta[prvscr.fflink[i]-1];
-                    prvscr.ffy[i]+=prvscr.ffydelta[prvscr.fflink[i]-1];
+                    ffprvx[i] = prvscr.ffcs[i].x.getZLong();
+                    ffprvy[i] = prvscr.ffcs[i].y.getZLong();
+                    prvscr.ffcs[i].x+=prvscr.ffcs[prvscr.ffcs[i].link-1].vx;
+                    prvscr.ffcs[i].y+=prvscr.ffcs[prvscr.ffcs[i].link-1].vy;
                 }
                 else
                 {
-                    ffprvx[i] = prvscr.ffx[i];
-                    ffprvy[i] = prvscr.ffy[i];
-                    prvscr.ffx[i]+=prvscr.ffxdelta[i];
-                    prvscr.ffy[i]+=prvscr.ffydelta[i];
-                    prvscr.ffxdelta[i]+=prvscr.ffxdelta2[i];
-                    prvscr.ffydelta[i]+=prvscr.ffydelta2[i];
+                    ffprvx[i] = prvscr.ffcs[i].x.getZLong();
+                    ffprvy[i] = prvscr.ffcs[i].y.getZLong();
+                    prvscr.ffcs[i].x+=prvscr.ffcs[i].vx;
+                    prvscr.ffcs[i].y+=prvscr.ffcs[i].vy;
+                    prvscr.ffcs[i].vx+=prvscr.ffcs[i].ax;
+                    prvscr.ffcs[i].vy+=prvscr.ffcs[i].ay;
                     
-                    if(prvscr.ffxdelta[i]>1280000) prvscr.ffxdelta[i]=1280000;
+                    if(prvscr.ffcs[i].vx>128) prvscr.ffcs[i].vx=128;
                     
-                    if(prvscr.ffxdelta[i]<-1280000) prvscr.ffxdelta[i]=-1280000;
+                    if(prvscr.ffcs[i].vx<-128) prvscr.ffcs[i].vx=-128;
                     
-                    if(prvscr.ffydelta[i]>1280000) prvscr.ffydelta[i]=1280000;
+                    if(prvscr.ffcs[i].vy>128) prvscr.ffcs[i].vy=128;
                     
-                    if(prvscr.ffydelta[i]<-1280000) prvscr.ffydelta[i]=-1280000;
+                    if(prvscr.ffcs[i].vy<-128) prvscr.ffcs[i].vy=-128;
                 }
             }
             else
             {
-                if(!prvscr.fflink[i] || (prvscr.fflink[i]-1)==i)
-                    prvscr.ffdelay[i]--;
+                if(!prvscr.ffcs[i].link || (prvscr.ffcs[i].link-1)==i)
+                    prvscr.ffcs[i].delay--;
             }
             
-            if(prvscr.ffx[i]<-320000)
+            if(prvscr.ffcs[i].x<-32)
             {
                 if(prvscr.flags6&fWRAPAROUNDFF)
                 {
-                    prvscr.ffx[i] = (2880000+(prvscr.ffx[i]+320000));
-                    ffprvy[i] = prvscr.ffy[i];
+                    prvscr.ffcs[i].x = (288+(prvscr.ffcs[i].x+32));
+                    ffprvy[i] = prvscr.ffcs[i].y.getZLong();
                 }
                 else
                 {
-                    prvscr.ffdata[i]=0;
-                    prvscr.ffflags[i]&=~ffCARRYOVER;
+                    prvscr.ffcs[i].data=0;
+                    prvscr.ffcs[i].flags&=~ffCARRYOVER;
                 }
             }
             
-            if(prvscr.ffy[i]<-320000)
+            if(prvscr.ffcs[i].y<-32)
             {
                 if(prvscr.flags6&fWRAPAROUNDFF)
                 {
-                    prvscr.ffy[i] = 2080000+(prvscr.ffy[i]+320000);
-                    ffprvx[i] = prvscr.ffx[i];
+                    prvscr.ffcs[i].y = 208+(prvscr.ffcs[i].y+32);
+                    ffprvx[i] = prvscr.ffcs[i].x.getZLong();
                 }
                 else
                 {
-                    prvscr.ffdata[i]=0;
-                    prvscr.ffflags[i]&=~ffCARRYOVER;
+                    prvscr.ffcs[i].data=0;
+                    prvscr.ffcs[i].flags&=~ffCARRYOVER;
                 }
             }
             
-            if(prvscr.ffx[i]>=2880000)
+            if(prvscr.ffcs[i].x>=288)
             {
                 if(prvscr.flags6&fWRAPAROUNDFF)
                 {
-                    prvscr.ffx[i] = prvscr.ffx[i]-2880000-320000;
-                    ffprvy[i] = prvscr.ffy[i];
+                    prvscr.ffcs[i].x = prvscr.ffcs[i].x-288-32;
+                    ffprvy[i] = prvscr.ffcs[i].y.getZLong();
                 }
                 else
                 {
-                    prvscr.ffdata[i]=0;
-                    prvscr.ffflags[i]&=~ffCARRYOVER;
+                    prvscr.ffcs[i].data=0;
+                    prvscr.ffcs[i].flags&=~ffCARRYOVER;
                 }
             }
             
-            if(prvscr.ffy[i]>=2080000)
+            if(prvscr.ffcs[i].y>=208)
             {
                 if(prvscr.flags6&fWRAPAROUNDFF)
                 {
-                    prvscr.ffy[i] = prvscr.ffy[i]-2080000-320000;
-                    ffprvy[i] = prvscr.ffy[i];
+                    prvscr.ffcs[i].y = prvscr.ffcs[i].y-208-32;
+                    ffprvy[i] = prvscr.ffcs[i].x.getZLong();
                 }
                 else
                 {
-                    prvscr.ffdata[i]=0;
-                    prvscr.ffflags[i]&=~ffCARRYOVER;
+                    prvscr.ffcs[i].data=0;
+                    prvscr.ffcs[i].flags&=~ffCARRYOVER;
                 }
             }
             
@@ -9533,62 +9541,69 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 	
 	if(!p_iputl(screen.numff,f))
 		return qe_invalid;
-	for(int32_t k=0; k<32; k++)
+	for(int32_t k=0; k<MAXFFCS; k++)
 	{
+		ffcdata const& tempffc = screen.ffcs[k];
 		if((screen.numff>>k)&1)
 		{
-			if(!p_iputw(screen.ffdata[k],f))
+			if(!p_iputw(tempffc.data,f))
 				return qe_invalid;
 			
-			if(!p_putc(screen.ffcset[k],f))
+			if(!p_putc(tempffc.cset,f))
 				return qe_invalid;
 			
-			if(!p_iputw(screen.ffdelay[k],f))
+			if(!p_iputw(tempffc.delay,f))
 				return qe_invalid;
 			
-			if(!p_iputl(screen.ffx[k],f))
+			if(!p_iputzf(tempffc.x,f))
 				return qe_invalid;
 			
-			if(!p_iputl(screen.ffy[k],f))
+			if(!p_iputzf(tempffc.y,f))
 				return qe_invalid;
 			
-			if(!p_iputl(screen.ffxdelta[k],f))
+			if(!p_iputzf(tempffc.vx,f))
 				return qe_invalid;
 			
-			if(!p_iputl(screen.ffydelta[k],f))
+			if(!p_iputzf(tempffc.vy,f))
 				return qe_invalid;
 			
-			if(!p_iputl(screen.ffxdelta2[k],f))
+			if(!p_iputzf(tempffc.ax,f))
 				return qe_invalid;
 			
-			if(!p_iputl(screen.ffydelta2[k],f))
+			if(!p_iputzf(tempffc.ay,f))
 				return qe_invalid;
 			
-			if(!p_putc(screen.fflink[k],f))
+			if(!p_putc(tempffc.link,f))
 				return qe_invalid;
 			
-			if(!p_putc(screen.ffwidth[k],f))
+			if(!p_putl(tempffc.hxsz,f))
 				return qe_invalid;
 			
-			if(!p_putc(screen.ffheight[k],f))
+			if(!p_putl(tempffc.hysz,f))
 				return qe_invalid;
 			
-			if(!p_iputl(screen.ffflags[k],f))
+			if(!p_putc(tempffc.txsz,f))
 				return qe_invalid;
 			
-			if(!p_iputw(screen.ffscript[k],f))
+			if(!p_putc(tempffc.tysz,f))
+				return qe_invalid;
+			
+			if(!p_iputl(tempffc.flags,f))
+				return qe_invalid;
+			
+			if(!p_iputw(tempffc.script,f))
 				return qe_invalid;
 			
 			for(auto q = 0; q < 8; ++q)
 			{
-				if(!p_iputl(screen.initd[k][q],f))
+				if(!p_iputl(tempffc.initd[q],f))
 					return qe_invalid;
 			}
 			
-			if(!p_putc(screen.inita[k][0]/10000,f))
+			if(!p_putc(tempffc.inita[0]/10000,f))
 				return qe_invalid;
 			
-			if(!p_putc(screen.inita[k][1]/10000,f))
+			if(!p_putc(tempffc.inita[1]/10000,f))
 				return qe_invalid;
 		}
 	}
@@ -14618,7 +14633,7 @@ void zmap::prv_secrets(bool high16only)
     }
     
     //FFCs
-    for(int32_t i=0; i<32; i++)
+    for(int32_t i=0; i<MAXFFCS; i++)
     {
         bool putit;
         
@@ -14627,7 +14642,7 @@ void zmap::prv_secrets(bool high16only)
             for(int32_t iter=0; iter<1; ++iter)
             {
                 putit=true;
-                int32_t checkflag=combobuf[s->ffdata[i]].flag;
+                int32_t checkflag=combobuf[s->ffcs[i].data].flag;
                 
                 if(iter==1)
                 {
@@ -14751,8 +14766,8 @@ void zmap::prv_secrets(bool high16only)
                 
                 if(putit)
                 {
-                    s->ffdata[i] = s->secretcombo[ft];
-                    s->ffcset[i] = s->secretcset[ft];
+                    s->ffcs[i].data = s->secretcombo[ft];
+                    s->ffcs[i].cset = s->secretcset[ft];
                 }
             }
         }
@@ -14761,7 +14776,7 @@ void zmap::prv_secrets(bool high16only)
         {
             for(int32_t iter=0; iter<1; ++iter)
             {
-                int32_t checkflag=combobuf[s->ffdata[i]].flag;
+                int32_t checkflag=combobuf[s->ffcs[i].data].flag;
                 
                 if(iter==1)
                 {
@@ -14770,8 +14785,8 @@ void zmap::prv_secrets(bool high16only)
                 
                 if((checkflag > 15)&&(checkflag < 32))
                 {
-                    s->ffdata[i] = s->secretcombo[checkflag-16+4];
-                    s->ffcset[i] = s->secretcset[checkflag-16+4];
+                    s->ffcs[i].data = s->secretcombo[checkflag-16+4];
+                    s->ffcs[i].cset = s->secretcset[checkflag-16+4];
                     //        putit = true;
                 }
             }

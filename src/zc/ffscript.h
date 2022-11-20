@@ -2250,8 +2250,8 @@ enum __Error
     int32_t sid;
 };
 
-extern int32_t ffmisc[32][16];
-extern refInfo ffcScriptData[32];
+extern int32_t ffmisc[MAXFFCS][16];
+extern refInfo ffcScriptData[MAXFFCS];
 extern refInfo screenScriptData;
 extern word g_doscript;
 extern PALETTE tempgreypal; //script greyscale

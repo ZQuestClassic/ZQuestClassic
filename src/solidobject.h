@@ -1,7 +1,6 @@
 #ifndef _SOLIDOBJECT_H_
 #define _SOLIDOBJECT_H_
 
-#include "base/zdefs.h"
 #include "zfix.h"
 
 class solid_object
@@ -13,7 +12,7 @@ public:
 	solid_object();
 	~solid_object();
 	solid_object(solid_object const& other);
-	void setSolid(bool set);
+	virtual void setSolid(bool set);
 	bool getSolid() const;
 private:
 	bool solid;

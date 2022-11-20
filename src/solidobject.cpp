@@ -1,4 +1,5 @@
 #include "solidobject.h"
+#include "base/zdefs.h"
 
 using std::vector;
 

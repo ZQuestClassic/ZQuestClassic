@@ -638,11 +638,11 @@ int32_t combo_stack[176*7][MAX_SCRIPT_REGISTERS];
 //This is where we need to change the formula. These stacks need to be variable in some manner
 //to permit adding additional scripts to them, without manually sizing them in advance. - Z
 
-int32_t ffc_stack[32][MAX_SCRIPT_REGISTERS];
+int32_t ffc_stack[MAXFFCS][MAX_SCRIPT_REGISTERS];
 int32_t global_stack[NUMSCRIPTGLOBAL][MAX_SCRIPT_REGISTERS];
 int32_t item_stack[256][MAX_SCRIPT_REGISTERS];
 int32_t item_collect_stack[256][MAX_SCRIPT_REGISTERS];
-int32_t ffmisc[32][16];
+int32_t ffmisc[MAXFFCS][16];
 int32_t player_stack[MAX_SCRIPT_REGISTERS];
 int32_t dmap_stack[MAX_SCRIPT_REGISTERS];
 int32_t onmap_stack[MAX_SCRIPT_REGISTERS];
@@ -3051,42 +3051,42 @@ int32_t get_register(const int32_t arg)
 		//FFC Variables
 		case DATA:
 			if(BC::checkFFC(ri->ffcref, "ffc->Data") == SH::_NoError)
-				ret = tmpscr->ffdata[ri->ffcref]*10000;
+				ret = tmpscr->ffcs[ri->ffcref].data*10000;
 			break;
 			
 		case FFSCRIPT:
 			if(BC::checkFFC(ri->ffcref, "ffc->Script") == SH::_NoError)
-				ret = tmpscr->ffscript[ri->ffcref]*10000;
+				ret = tmpscr->ffcs[ri->ffcref].script*10000;
 			break;
 			
 		case FCSET:
 			if(BC::checkFFC(ri->ffcref, "ffc->CSet") == SH::_NoError)
-				ret = tmpscr->ffcset[ri->ffcref]*10000;
+				ret = tmpscr->ffcs[ri->ffcref].cset*10000;
 			break;
 			
 		case DELAY:
 			if(BC::checkFFC(ri->ffcref, "ffc->Delay") == SH::_NoError)
-				ret = tmpscr->ffdelay[ri->ffcref]*10000;
+				ret = tmpscr->ffcs[ri->ffcref].delay*10000;
 			break;
 			
 		case FX:
 			if(BC::checkFFC(ri->ffcref, "ffc->X") == SH::_NoError)
-				ret = tmpscr->ffx[ri->ffcref];
+				ret = tmpscr->ffcs[ri->ffcref].x.getZLong();
 			break;
 			
 		case FY:
 			if(BC::checkFFC(ri->ffcref, "ffc->Y") == SH::_NoError)
-				ret = tmpscr->ffy[ri->ffcref];
+				ret = tmpscr->ffcs[ri->ffcref].x.getZLong();
 			break;
 			
 		case XD:
 			if(BC::checkFFC(ri->ffcref, "ffc->Vx") == SH::_NoError)
-				ret = tmpscr->ffxdelta[ri->ffcref];
+				ret = tmpscr->ffcs[ri->ffcref].vx.getZLong();
 			break;
 			
 		case YD:
 			if(BC::checkFFC(ri->ffcref, "ffc->Vy") == SH::_NoError)
-				ret = tmpscr->ffydelta[ri->ffcref];
+				ret = tmpscr->ffcs[ri->ffcref].vy.getZLong();
 			break;
 		case FFCID:
 			if(BC::checkFFC(ri->ffcref, "ffc->ID") == SH::_NoError)
@@ -3095,42 +3095,42 @@ int32_t get_register(const int32_t arg)
 			
 		case XD2:
 			if(BC::checkFFC(ri->ffcref, "ffc->Ax") == SH::_NoError)
-				ret = tmpscr->ffxdelta2[ri->ffcref];
+				ret = tmpscr->ffcs[ri->ffcref].ax.getZLong();
 			break;
 			
 		case YD2:
 			if(BC::checkFFC(ri->ffcref, "ffc->Ay") == SH::_NoError)
-				ret = tmpscr->ffydelta2[ri->ffcref];
+				ret = tmpscr->ffcs[ri->ffcref].ay.getZLong();
 			break;
 			
 		case FFFLAGSD:
 			if(BC::checkFFC(ri->ffcref, "ffc->Flags[]") == SH::_NoError)
-				ret=((tmpscr->ffflags[ri->ffcref] >> (ri->d[rINDEX] / 10000))&1) ? 10000 : 0;
+				ret=((tmpscr->ffcs[ri->ffcref].flags >> (ri->d[rINDEX] / 10000))&1) ? 10000 : 0;
 			break;
 			
 		case FFCWIDTH:
 			if(BC::checkFFC(ri->ffcref, "ffc->EffectWidth") == SH::_NoError)
-				ret=((tmpscr->ffwidth[ri->ffcref]&0x3F)+1)*10000;
+				ret=(tmpscr->ffcs[ri->ffcref].hxsz.getZLong());
 			break;
 			
 		case FFCHEIGHT:
 			if(BC::checkFFC(ri->ffcref, "ffc->EffectHeight") == SH::_NoError)
-				ret=((tmpscr->ffheight[ri->ffcref]&0x3F)+1)*10000;
+				ret=(tmpscr->ffcs[ri->ffcref].hysz.getZLong());
 			break;
 			
 		case FFTWIDTH:
 			if(BC::checkFFC(ri->ffcref, "ffc->TileWidth") == SH::_NoError)
-				ret=((tmpscr->ffwidth[ri->ffcref]>>6)+1)*10000;
+				ret=(tmpscr->ffcs[ri->ffcref].txsz.getZLong())*10000;
 			break;
 			
 		case FFTHEIGHT:
 			if(BC::checkFFC(ri->ffcref, "ffc->TileHeight") == SH::_NoError)
-				ret=((tmpscr->ffheight[ri->ffcref]>>6)+1)*10000;
+				ret=(tmpscr->ffcs[ri->ffcref].tysz.getZLong())*10000;
 			break;
 			
 		case FFLINK:
 			if(BC::checkFFC(ri->ffcref, "ffc->Link") == SH::_NoError)
-				ret=(tmpscr->fflink[ri->ffcref])*10000;
+				ret=(tmpscr->ffcs[ri->ffcref].link)*10000;
 			break;
 			
 		case FFMISCD:
@@ -9250,7 +9250,7 @@ int32_t get_register(const int32_t arg)
 			} \
 			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				ret = (m->member[indx]); \
+				ret = (m->ffcs[indx].member); \
 			} \
 			else \
 			{ \
@@ -9269,7 +9269,7 @@ int32_t get_register(const int32_t arg)
 			} \
 			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				ret = (m->member[indx])*10000; \
+				ret = (m->ffcs[indx].member)*10000; \
 			} \
 			else \
 			{ \
@@ -9288,7 +9288,7 @@ int32_t get_register(const int32_t arg)
 			} \
 			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				ret = (m->member[indx])*10000; \
+				ret = (m->ffcs[indx].member)*10000; \
 			} \
 			else \
 			{ \
@@ -9388,16 +9388,16 @@ int32_t get_register(const int32_t arg)
 		case MAPDATAENTRYX: 		GET_MAPDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
 		case MAPDATAENTRYY: 		GET_MAPDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
 		//case MAPDATANUMFF: 		GET_MAPDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
-		case MAPDATAFFDATA:         GET_MAPDATA_FFC_INDEX32(ffdata, "FFCData", 31); break;  //W, 32 OF THESE
-		case MAPDATAFFCSET:         GET_MAPDATA_FFC_INDEX32(ffcset, "FFCCSet", 31); break;  //B, 32
-		case MAPDATAFFDELAY:        GET_MAPDATA_FFC_INDEX32(ffdelay, "FFCDelay", 31); break;    //W, 32
-		case MAPDATAFFX:        GET_MAPDATA_FFCPOS_INDEX32(ffx, "FFCX", 31); break; //INT32, 32 OF THESE
-		case MAPDATAFFY:        GET_MAPDATA_FFCPOS_INDEX32(ffy, "FFCY", 31); break; //..
-		case MAPDATAFFXDELTA:       GET_MAPDATA_FFCPOS_INDEX32(ffxdelta, "FFCVx", 31); break;   //..
-		case MAPDATAFFYDELTA:       GET_MAPDATA_FFCPOS_INDEX32(ffydelta, "FFCVy", 31); break;   //..
-		case MAPDATAFFXDELTA2:      GET_MAPDATA_FFCPOS_INDEX32(ffxdelta2, "FFCAx", 31); break;  //..
-		case MAPDATAFFYDELTA2:      GET_MAPDATA_FFCPOS_INDEX32(ffydelta2, "FFCAy", 31); break;  //..
-		case MAPDATAFFFLAGS:        GET_MAPDATA_FFC_INDEX32(ffflags, "FFCFlags", 31); break;    //INT16, 32 OF THESE
+		case MAPDATAFFDATA:         GET_MAPDATA_FFC_INDEX32(data, "FFCData", MAXFFCS-1); break;  //W, 32 OF THESE
+		case MAPDATAFFCSET:         GET_MAPDATA_FFC_INDEX32(cset, "FFCCSet", MAXFFCS-1); break;  //B, 32
+		case MAPDATAFFDELAY:        GET_MAPDATA_FFC_INDEX32(delay, "FFCDelay", MAXFFCS-1); break;    //W, 32
+		case MAPDATAFFX:        GET_MAPDATA_FFCPOS_INDEX32(x, "FFCX", MAXFFCS-1); break; //INT32, 32 OF THESE
+		case MAPDATAFFY:        GET_MAPDATA_FFCPOS_INDEX32(y, "FFCY", MAXFFCS-1); break; //..
+		case MAPDATAFFXDELTA:       GET_MAPDATA_FFCPOS_INDEX32(vx, "FFCVx", MAXFFCS-1); break;   //..
+		case MAPDATAFFYDELTA:       GET_MAPDATA_FFCPOS_INDEX32(vy, "FFCVy", MAXFFCS-1); break;   //..
+		case MAPDATAFFXDELTA2:      GET_MAPDATA_FFCPOS_INDEX32(ax, "FFCAx", MAXFFCS-1); break;  //..
+		case MAPDATAFFYDELTA2:      GET_MAPDATA_FFCPOS_INDEX32(ay, "FFCAy", MAXFFCS-1); break;  //..
+		case MAPDATAFFFLAGS:        GET_MAPDATA_FFC_INDEX32(flags, "FFCFlags", MAXFFCS-1); break;    //INT16, 32 OF THESE
 		case MAPDATASIDEWARPID: 
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
@@ -9536,7 +9536,7 @@ int32_t get_register(const int32_t arg)
 					ret = -10000;
 					break;
 				}
-				ret=((m->ffwidth[indx]>>6)+1)*10000;
+				ret=((m->ffTileWidth(indx))*10000;
 			}
 			else
 			{
@@ -9546,7 +9546,6 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 		
-		//GET_MAPDATA_BYTE_INDEX(ffwidth, "FFCTileWidth");  //B, 32 OF THESE
 		case MAPDATAFFHEIGHT:      
 		{
 			if (mapscr *m = GetMapscr(ri->mapsref))
@@ -9558,7 +9557,7 @@ int32_t get_register(const int32_t arg)
 					ret = -10000;
 					break;
 				}
-				ret=((m->ffheight[indx]>>6)+1)*10000;
+				ret=((m->ffTileHeight(indx))*10000;
 			}
 			else
 			{
@@ -9569,9 +9568,6 @@ int32_t get_register(const int32_t arg)
 			
 		}
 		 
-		//EffectWidth tmpscr->ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref]&63) | ((((value/10000)-1)&3)<<6);
-		 
-		//GET_MAPDATA_BYTE_INDEX(ffheight, "FFCTileHeight"  //B, 32 OF THESE
 		case MAPDATAFFEFFECTWIDTH:     
 		{
 			if (mapscr *m = GetMapscr(ri->mapsref))
@@ -9583,7 +9579,7 @@ int32_t get_register(const int32_t arg)
 					ret = -10000;
 					break;
 				}
-				ret=((m->ffwidth[indx]&0x3F)+1)*10000;
+				ret=((m->ffEffectWidth(indx))*10000;
 			}
 			else
 			{
@@ -9593,7 +9589,6 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 		
-		//GET_MAPDATA_BYTE_INDEX(ffwidth, "FFCEffectWidth");    //B, 32 OF THESE
 		case MAPDATAFFEFFECTHEIGHT:
 		{
 			if (mapscr *m = GetMapscr(ri->mapsref))
@@ -9605,7 +9600,7 @@ int32_t get_register(const int32_t arg)
 					ret = -10000;
 					break;
 				}
-				ret=((m->ffheight[indx]&0x3F)+1)*10000;
+				ret=((m->ffEffectHeight(indx))*10000;
 			}
 			else
 			{
@@ -9615,10 +9610,9 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 			
-		//GET_MAPDATA_BYTE_INDEX(ffheight, "FFCEffectHeight"    //B, 32 OF THESE   
 		 
-		case MAPDATAFFLINK:         GET_MAPDATA_FFC_INDEX32(fflink, "FFCLink", 31); break;  //B, 32 OF THESE
-		case MAPDATAFFSCRIPT:       GET_MAPDATA_FFC_INDEX32(ffscript, "FFCScript", 31); break;  //W, 32 OF THESE
+		case MAPDATAFFLINK:         GET_MAPDATA_FFC_INDEX32(link, "FFCLink", MAXFFCS-1); break;  //B, 32 OF THESE
+		case MAPDATAFFSCRIPT:       GET_MAPDATA_FFC_INDEX32(script, "FFCScript", MAXFFCS-1); break;  //W, 32 OF THESE
 
 		case MAPDATAINTID: 	 //Same form as SetScreenD()
 			//SetFFCInitD(ffindex, d, value)
@@ -9628,7 +9622,7 @@ int32_t get_register(const int32_t arg)
 				int32_t ffid = (ri->d[rINDEX]/10000) -1;
 				int32_t indx = ri->d[rINDEX2]/10000;
 					
-				if ( (unsigned)ffid > 31 ) 
+				if ( (unsigned)ffid > MAXFFCS-1 ) 
 				{
 					Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
 					ret = -10000;
@@ -12419,20 +12413,20 @@ void set_register(const int32_t arg, const int32_t value)
 	//FFC Variables
 		case DATA:
 			if(BC::checkFFC(ri->ffcref, "ffc->Data") == SH::_NoError)
-				tmpscr->ffdata[ri->ffcref] = vbound(value/10000,0,MAXCOMBOS-1);
+				tmpscr->ffcs[ri->ffcref].data = vbound(value/10000,0,MAXCOMBOS-1);
 			break;
 		
 		case FFSCRIPT:
 			if(BC::checkFFC(ri->ffcref, "ffc->Script") == SH::_NoError)
 			{
-				tmpscr->ffscript[ri->ffcref] = vbound(value/10000, 0, NUMSCRIPTFFC-1);
+				tmpscr->ffcs[ri->ffcref].script = vbound(value/10000, 0, NUMSCRIPTFFC-1);
 				if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
 				{
 					for(int32_t i=0; i<2; i++)
-						tmpscr->inita[ri->ffcref][i] = 0;
+						tmpscr->ffcs[ri->ffcref].inita[i] = 0;
 					
 					for(int32_t i=0; i<8; i++)
-						tmpscr->initd[ri->ffcref][i] = 0;
+						tmpscr->ffcs[ri->ffcref].initd[i] = 0;
 				}
 				for(int32_t i=0; i<16; i++)
 					ffmisc[ri->ffcref][i] = 0;
@@ -12446,32 +12440,32 @@ void set_register(const int32_t arg, const int32_t value)
 			
 		case FCSET:
 			if(BC::checkFFC(ri->ffcref, "ffc->CSet") == SH::_NoError)
-				tmpscr->ffcset[ri->ffcref] = (value/10000)&15;
+				tmpscr->ffcs[ri->ffcref].cset = (value/10000)&15;
 			break;
 			
 		case DELAY:
 			if(BC::checkFFC(ri->ffcref, "ffc->Delay") == SH::_NoError)
-				tmpscr->ffdelay[ri->ffcref] = value/10000;
+				tmpscr->ffcs[ri->ffcref].delay = value/10000;
 			break;
 			
 		case FX:
 			if(BC::checkFFC(ri->ffcref, "ffc->X") == SH::_NoError)
-				tmpscr->ffx[ri->ffcref] = value;
+				tmpscr->ffcs[ri->ffcref].x = zslongToFix(value);
 			break;
 			
 		case FY:
 			if(BC::checkFFC(ri->ffcref, "ffc->Y") == SH::_NoError)
-				tmpscr->ffy[ri->ffcref]=value;
+				tmpscr->ffcs[ri->ffcref].y=zslongToFix(value);
 			break;
 			
 		case XD:
 			if(BC::checkFFC(ri->ffcref, "ffc->Vx") == SH::_NoError)
-				tmpscr->ffxdelta[ri->ffcref]=value;
+				tmpscr->ffcs[ri->ffcref].vx=zslongToFix(value);
 			break;
 			
 		case YD:
 			if(BC::checkFFC(ri->ffcref, "ffc->Vy") == SH::_NoError)
-				tmpscr->ffydelta[ri->ffcref]=value;
+				tmpscr->ffcs[ri->ffcref].vy=zslongToFix(value);
 			break;
 		
 		case FFCID:
@@ -12481,43 +12475,43 @@ void set_register(const int32_t arg, const int32_t value)
 			
 		case XD2:
 			if(BC::checkFFC(ri->ffcref, "ffc->Ax") == SH::_NoError)
-				tmpscr->ffxdelta2[ri->ffcref]=value;
+				tmpscr->ffcs[ri->ffcref].ax=zslongToFix(value);
 			break;
 			
 		case YD2:
 			if(BC::checkFFC(ri->ffcref, "ffc->Ay") == SH::_NoError)
-				tmpscr->ffydelta2[ri->ffcref]=value;
+				tmpscr->ffcs[ri->ffcref].ay=zslongToFix(value);
 			break;
 			
 		case FFFLAGSD:
 			if(BC::checkFFC(ri->ffcref, "ffc->Flags[]") == SH::_NoError)
-				value ? tmpscr->ffflags[ri->ffcref] |=   1<<((ri->d[rINDEX])/10000)
-					: tmpscr->ffflags[ri->ffcref] &= ~(1<<((ri->d[rINDEX])/10000));
+				value ? tmpscr->ffcs[ri->ffcref].flags |=   1<<((ri->d[rINDEX])/10000)
+					: tmpscr->ffcs[ri->ffcref].flags &= ~(1<<((ri->d[rINDEX])/10000));
 			break;
 			
 		case FFCWIDTH:
 			if(BC::checkFFC(ri->ffcref, "ffc->EffectWidth") == SH::_NoError)
-				tmpscr->ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref] & ~63) | (((value/10000)-1)&63);
+				tmpscr->ffcs[ri->ffcref].hxsz = (value/10000);
 			break;
 			
 		case FFCHEIGHT:
 			if(BC::checkFFC(ri->ffcref, "ffc->EffectHeight") == SH::_NoError)
-				tmpscr->ffheight[ri->ffcref]= (tmpscr->ffheight[ri->ffcref] & ~63) | (((value/10000)-1)&63);
+				tmpscr->ffcs[ri->ffcref].hysz = (value/10000);
 			break;
 			
 		case FFTWIDTH:
 			if(BC::checkFFC(ri->ffcref, "ffc->TileWidth") == SH::_NoError)
-				tmpscr->ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref]&63) | ((((value/10000)-1)&3)<<6);
+				tmpscr->ffcs[ri->ffcref].txsz = vbound(value/10000, 1, 4);
 			break;
 			
 		case FFTHEIGHT:
 			if(BC::checkFFC(ri->ffcref, "ffc->TileHeight") == SH::_NoError)
-				tmpscr->ffheight[ri->ffcref]=(tmpscr->ffheight[ri->ffcref]&63) | ((((value/10000)-1)&3)<<6);
+				tmpscr->ffcs[ri->ffcref].tysz = vbound(value/10000, 1, 4);
 			break;
 			
 		case FFLINK:
 			if(BC::checkFFC(ri->ffcref, "ffc->Link") == SH::_NoError)
-				(tmpscr->fflink[ri->ffcref])=vbound(value/10000, 0, 32); // Allow "ffc->Link = 0" to unlink ffc.
+				(tmpscr->ffcs[ri->ffcref].link)=vbound(value/10000, 0, 32); // Allow "ffc->Link = 0" to unlink ffc.
 			//0 is none, setting this before made it impssible to clear it. -Z
 			break;
 			
@@ -12531,7 +12525,7 @@ void set_register(const int32_t arg, const int32_t value)
 		
 		case FFINITDD:
 			if(BC::checkFFC(ri->ffcref, "ffc->InitD[]") == SH::_NoError)
-				(tmpscr->initd[ri->ffcref][vbound(ri->d[rINDEX]/10000,0,7)])=value;
+				(tmpscr->ffcs[ri->ffcref].initd[vbound(ri->d[rINDEX]/10000,0,7)])=value;
 			break;
 		
 			
@@ -19077,7 +19071,7 @@ void set_register(const int32_t arg, const int32_t value)
 			} \
 			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				m->member[indx] = value; \
+				m->ffcs[indx].member = value; \
 			} \
 			else \
 			{ \
@@ -19095,7 +19089,7 @@ void set_register(const int32_t arg, const int32_t value)
 			} \
 			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				m->member[indx] = value/10000; \
+				m->ffcs[indx].member = value/10000; \
 			} \
 			else \
 			{ \
@@ -19118,7 +19112,7 @@ void set_register(const int32_t arg, const int32_t value)
 			} \
 			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				m->member[indx] = v; \
+				m->ffcs[indx].member = v; \
 			} \
 			else \
 			{ \
@@ -19341,16 +19335,16 @@ void set_register(const int32_t arg, const int32_t value)
 		case MAPDATAENTRYX: 		SET_MAPDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
 		case MAPDATAENTRYY: 		SET_MAPDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
 		//case MAPDATANUMFF: 		SET_MAPDATA_VAR_INT16(numff, "NumFFCs"); break;	//INT16
-		case MAPDATAFFDATA:         SET_MAPDATA_FFC_INDEX32(ffdata, "FFCData", 31); break;  //W, 32 OF THESE
-		case MAPDATAFFCSET:         SET_MAPDATA_FFC_INDEX32(ffcset, "FFCCSet", 31); break;  //B, 32
-		case MAPDATAFFDELAY:        SET_MAPDATA_FFC_INDEX32(ffdelay, "FFCDelay", 31); break;    //W, 32
-		case MAPDATAFFX:        SET_MAPDATA_FFCPOS_INDEX32(ffx, "FFCX", 31); break; //INT32, 32 OF THESE
-		case MAPDATAFFY:        SET_MAPDATA_FFCPOS_INDEX32(ffy, "FFCY", 31); break; //..
-		case MAPDATAFFXDELTA:       SET_MAPDATA_FFCPOS_INDEX32(ffxdelta, "FFCVx", 31); break;   //..
-		case MAPDATAFFYDELTA:       SET_MAPDATA_FFCPOS_INDEX32(ffydelta, "FFCVy", 31); break;   //..
-		case MAPDATAFFXDELTA2:      SET_MAPDATA_FFCPOS_INDEX32(ffxdelta2, "FFCAx", 31); break;  //..
-		case MAPDATAFFYDELTA2:      SET_MAPDATA_FFCPOS_INDEX32(ffydelta2, "FFCAy", 31); break;  //..
-		case MAPDATAFFFLAGS:        SET_MAPDATA_FFC_INDEX32(ffflags, "FFCFlags", 31); break;    //INT16, 32 OF THESE
+		case MAPDATAFFDATA:         SET_MAPDATA_FFC_INDEX32(data, "FFCData", 31); break;  //W, 32 OF THESE
+		case MAPDATAFFCSET:         SET_MAPDATA_FFC_INDEX32(cset, "FFCCSet", 31); break;  //B, 32
+		case MAPDATAFFDELAY:        SET_MAPDATA_FFC_INDEX32(delay, "FFCDelay", 31); break;    //W, 32
+		case MAPDATAFFX:        SET_MAPDATA_FFCPOS_INDEX32(x, "FFCX", 31); break; //INT32, 32 OF THESE
+		case MAPDATAFFY:        SET_MAPDATA_FFCPOS_INDEX32(y, "FFCY", 31); break; //..
+		case MAPDATAFFXDELTA:       SET_MAPDATA_FFCPOS_INDEX32(vx, "FFCVx", 31); break;   //..
+		case MAPDATAFFYDELTA:       SET_MAPDATA_FFCPOS_INDEX32(vy, "FFCVy", 31); break;   //..
+		case MAPDATAFFXDELTA2:      SET_MAPDATA_FFCPOS_INDEX32(ax, "FFCAx", 31); break;  //..
+		case MAPDATAFFYDELTA2:      SET_MAPDATA_FFCPOS_INDEX32(ay, "FFCAy", 31); break;  //..
+		case MAPDATAFFFLAGS:        SET_MAPDATA_FFC_INDEX32(flags, "FFCFlags", 31); break;    //INT16, 32 OF THESE
 
 		//Number of ffcs that are in use (have valid data
 		case MAPDATANUMFF: 	
@@ -19443,10 +19437,6 @@ void set_register(const int32_t arg, const int32_t value)
 			break;
 		}
 
-		//Height and With are Or'd together, and need to be separate:
-		/*
-		 //TileWidth ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref] & ~63) | (((value/10000)-1)&63);
-		*/
 		case MAPDATAFFWIDTH:       
 		{
 			int32_t indx = (ri->d[rINDEX] / 10000)-1;
@@ -19460,7 +19450,7 @@ void set_register(const int32_t arg, const int32_t value)
 			}
 			else if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				m->ffwidth[indx]= (m->ffwidth[indx]&63) | ((((value/10000)-1)&3)<<6);
+				m->ffTileWidth(indx, (value/10000));
 			}
 			else
 			{
@@ -19469,8 +19459,6 @@ void set_register(const int32_t arg, const int32_t value)
 			break;
 		}  
 		 
-		 
-		//SET_MAPDATA_BYTE_INDEX(ffwidth, "FFCTileWidth");  //B, 32 OF THESE
 		case MAPDATAFFHEIGHT:      
 		{
 			int32_t indx = (ri->d[rINDEX] / 10000)-1;
@@ -19484,7 +19472,7 @@ void set_register(const int32_t arg, const int32_t value)
 			}
 			else if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				m->ffheight[indx]=(m->ffheight[indx]&63) | ((((value/10000)-1)&3)<<6);
+				m->ffTileHeight(indx, (value/10000));
 			}
 			else
 			{
@@ -19494,9 +19482,6 @@ void set_register(const int32_t arg, const int32_t value)
 			
 		}
 		 
-		//EffectWidth tmpscr->ffwidth[ri->ffcref]= (tmpscr->ffwidth[ri->ffcref]&63) | ((((value/10000)-1)&3)<<6);
-		 
-		//SET_MAPDATA_BYTE_INDEX(ffheight, "FFCTileHeight"  //B, 32 OF THESE
 		case MAPDATAFFEFFECTWIDTH:     
 		{
 			int32_t indx = (ri->d[rINDEX] / 10000)-1;
@@ -19510,7 +19495,7 @@ void set_register(const int32_t arg, const int32_t value)
 			}
 			else if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				m->ffwidth[indx]= (m->ffwidth[indx] & ~63) | (((value/10000)-1)&63);
+				m->ffEffectWidth(indx, (value/10000));
 			}
 			else
 			{
@@ -19519,8 +19504,6 @@ void set_register(const int32_t arg, const int32_t value)
 			break;
 		}
 		 
-		 
-		//SET_MAPDATA_BYTE_INDEX(ffwidth, "FFCEffectWidth");    //B, 32 OF THESE
 		case MAPDATAFFEFFECTHEIGHT:
 		{
 			int32_t indx = (ri->d[rINDEX] / 10000)-1;
@@ -19534,7 +19517,7 @@ void set_register(const int32_t arg, const int32_t value)
 			}
 			else if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				m->ffheight[indx]= (m->ffheight[indx] & ~63) | (((value/10000)-1)&63);
+				m->ffEffectHeight(indx, (value/10000));
 			}
 			else
 			{
@@ -19542,11 +19525,9 @@ void set_register(const int32_t arg, const int32_t value)
 			}
 			break;
 		}
-			
-		//SET_MAPDATA_BYTE_INDEX(ffheight, "FFCEffectHeight"    //B, 32 OF THESE   
 		 
-		case MAPDATAFFLINK:         SET_MAPDATA_FFC_INDEX_VBOUND(fflink, "FFCLink", 31, 0, 32); break;  //B, 32 OF THESE
-		case MAPDATAFFSCRIPT:       SET_MAPDATA_FFC_INDEX_VBOUND(ffscript, "FFCScript", 31, 0, 255); break; //W, 32 OF THESE
+		case MAPDATAFFLINK:         SET_MAPDATA_FFC_INDEX_VBOUND(link, "FFCLink", 31, 0, 32); break;  //B, 32 OF THESE
+		case MAPDATAFFSCRIPT:       SET_MAPDATA_FFC_INDEX_VBOUND(script, "FFCScript", 31, 0, 255); break; //W, 32 OF THESE
 
 		case MAPDATAINTID: 	 //Same form as SetScreenD()
 			//SetFFCInitD(ffindex, d, value)
@@ -32516,7 +32497,7 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 		switch(type)
 		{
 		case SCRIPT_FFC:
-			tmpscr->ffscript[i] = 0;
+			tmpscr->ffcs[i].script = 0;
 			FFScript::deallocateAllArrays(type, i);
 			break;
 			
@@ -32730,16 +32711,16 @@ int32_t ffscript_engine(const bool preload)
 		}
 		for(byte i = 0; i < MAXFFCS; i++)
 		{
-			if(tmpscr->ffscript[i] == 0)
+			if(tmpscr->ffcs[i].script == 0)
 				continue;
 				
-			if(preload && !(tmpscr->ffflags[i]&ffPRELOAD))
+			if(preload && !(tmpscr->ffcs[i].flags&ffPRELOAD))
 				continue;
 				
-			if((tmpscr->ffflags[i]&ffIGNOREHOLDUP)==0 && Hero.getHoldClk()>0)
+			if((tmpscr->ffcs[i].flags&ffIGNOREHOLDUP)==0 && Hero.getHoldClk()>0)
 				continue;
 				
-			ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[i], i);
+			ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffcs[i].script, i);
 			tmpscr->initialized[i] = true;
 		}
 	}
@@ -44001,112 +43982,122 @@ void FFScript::write_mapscreens(PACKFILE *f,int32_t vers_id)
 			for(int32_t k=0; k<32; k++)
 			{
 			
-				if(!p_iputw(m->ffdata[k],f))
+				if(!p_iputw(m->ffcs[k].data,f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_putc(m->ffcset[k],f))
+				if(!p_putc(m->ffcs[k].cset,f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_iputw(m->ffdelay[k],f))
+				if(!p_iputw(m->ffcs[k].delay,f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_iputl(m->ffx[k],f))
+				if(!p_iputzf(m->ffcs[k].x,f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_iputl(m->ffy[k],f))
+				if(!p_iputzf(m->ffcs[k].y,f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_iputl(m->ffxdelta[k],f))
+				if(!p_iputzf(m->ffcs[k].vx,f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_iputl(m->ffydelta[k],f))
+				if(!p_iputzf(m->ffcs[k].vy,f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_iputl(m->ffxdelta2[k],f))
+				if(!p_iputzf(m->ffcs[k].ax,f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_iputl(m->ffydelta2[k],f))
+				if(!p_iputzf(m->ffcs[k].ay,f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_putc(m->fflink[k],f))
+				if(!p_putc(m->ffcs[k].link,f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_putc(m->ffwidth[k],f))
+				if(!p_iputl(m->ffcs[k].hxsz,f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_putc(m->ffheight[k],f))
+				if(!p_iputl(m->ffcs[k].hysz,f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_iputl(m->ffflags[k],f))
+				if(!p_putc(m->ffcs[k].txsz,f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_iputw(m->ffscript[k],f))
+				if(!p_putc(m->ffcs[k].tysz,f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_iputl(m->initd[k][0],f))
+				if(!p_iputl(m->ffcs[k].flags,f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_iputl(m->initd[k][1],f))
+				if(!p_iputw(m->ffcs[k].script,f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_iputl(m->initd[k][2],f))
+				if(!p_iputl(m->ffcs[k].initd[0],f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_iputl(m->initd[k][3],f))
+				if(!p_iputl(m->ffcs[k].initd[1],f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_iputl(m->initd[k][4],f))
+				if(!p_iputl(m->ffcs[k].initd[2],f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_iputl(m->initd[k][5],f))
+				if(!p_iputl(m->ffcs[k].initd[3],f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_iputl(m->initd[k][6],f))
+				if(!p_iputl(m->ffcs[k].initd[4],f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_iputl(m->initd[k][7],f))
+				if(!p_iputl(m->ffcs[k].initd[5],f))
+				{
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+				}
+				
+				if(!p_iputl(m->ffcs[k].initd[6],f))
+				{
+				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
+				}
+				
+				if(!p_iputl(m->ffcs[k].initd[7],f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
@@ -44602,112 +44593,122 @@ void FFScript::read_mapscreens(PACKFILE *f,int32_t vers_id)
 			for(int32_t k=0; k<32; k++)
 			{
 			
-				if(!p_igetw(&(m->ffdata[k]),f,true))
+				if(!p_igetw(&(m->ffcs[k].data),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_getc(&(m->ffcset[k]),f,true))
+				if(!p_getc(&(m->ffcs[k].cset),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_igetw(&(m->ffdelay[k]),f,true))
+				if(!p_igetw(&(m->ffcs[k].delay),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_igetl(&(m->ffx[k]),f,true))
+				if(!p_igetzf(&(m->ffcs[k].x),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_igetl(&(m->ffy[k]),f,true))
+				if(!p_igetzf(&(m->ffcs[k].y),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_igetl(&(m->ffxdelta[k]),f,true))
+				if(!p_igetzf(&(m->ffcs[k].vx),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_igetl(&(m->ffydelta[k]),f,true))
+				if(!p_igetzf(&(m->ffcs[k].vy),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_igetl(&(m->ffxdelta2[k]),f,true))
+				if(!p_igetzf(&(m->ffcs[k].ax),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_igetl(&(m->ffydelta2[k]),f,true))
+				if(!p_igetzf(&(m->ffcs[k].ay),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_getc(&(m->fflink[k]),f,true))
+				if(!p_getc(&(m->ffcs[k].link),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_getc(&(m->ffwidth[k]),f,true))
+				if(!p_igetl(&(m->ffcs[k].hxsz),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_getc(&(m->ffheight[k]),f,true))
+				if(!p_igetl(&(m->ffcs[k].hysz),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_igetl(&(m->ffflags[k]),f,true))
+				if(!p_getc(&(m->ffcs[k].txsz),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_igetw(&(m->ffscript[k]),f,true))
+				if(!p_getc(&(m->ffcs[k].tysz),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_igetl(&(m->initd[k][0]),f,true))
+				if(!p_igetl(&(m->ffcs[k].flags),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_igetl(&(m->initd[k][1]),f,true))
+				if(!p_igetw(&(m->ffcs[k].script),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_igetl(&(m->initd[k][2]),f,true))
+				if(!p_igetl(&(m->ffcs[k].initd[0]),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_igetl(&(m->initd[k][3]),f,true))
+				if(!p_igetl(&(m->ffcs[k].initd[1]),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_igetl(&(m->initd[k][4]),f,true))
+				if(!p_igetl(&(m->ffcs[k].initd[2]),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_igetl(&(m->initd[k][5]),f,true))
+				if(!p_igetl(&(m->ffcs[k].initd[3]),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_igetl(&(m->initd[k][6]),f,true))
+				if(!p_igetl(&(m->ffcs[k].initd[4]),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_igetl(&(m->initd[k][7]),f,true))
+				if(!p_igetl(&(m->ffcs[k].initd[5]),f,true))
+				{
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+				}
+				
+				if(!p_igetl(&(m->ffcs[k].initd[6]),f,true))
+				{
+				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
+				}
+				
+				if(!p_igetl(&(m->ffcs[k].initd[7]),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}

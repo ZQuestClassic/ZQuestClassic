@@ -4570,10 +4570,12 @@ void clear_screen(mapscr *temp_scr)
 	temp_scr->secretsfx=27;
 	temp_scr->holdupsfx=20;
     
-    for(int32_t j=0; j<32; j++)
+    for(int32_t j=0; j<MAXFFCS; j++)
     {
-        temp_scr->ffwidth[j] = 15;
-        temp_scr->ffheight[j] = 15;
+        temp_scr->ffcs[j].hxsz = 16;
+        temp_scr->ffcs[j].hysz = 16;
+        temp_scr->ffcs[j].txsz = 1;
+        temp_scr->ffcs[j].tysz = 1;
     }
 }
 
@@ -16598,19 +16600,21 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
         
         for(m=0; m<MAXFFCS; m++)
         {
+	    ffcdata& tempffc = temp_mapscr->ffcs[m];
+	    tempffc.clear();
             if((temp_mapscr->numff>>m)&1)
             {
-                if(!p_igetw(&(temp_mapscr->ffdata[m]),f,true))
+                if(!p_igetw(&(tempffc.data),f,true))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_getc(&(temp_mapscr->ffcset[m]),f,true))
+                if(!p_getc(&(tempffc.cset),f,true))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetw(&(temp_mapscr->ffdelay[m]),f,true))
+                if(!p_igetw(&(tempffc.delay),f,true))
                 {
                     return qe_invalid;
                 }
@@ -16622,160 +16626,168 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
                         return qe_invalid;
                     }
                     
-                    temp_mapscr->ffx[m]=int32_t(tempfloat*10000);
+                    tempffc.x=zslongToFix(int32_t(tempfloat*10000));
                     
                     if(!p_igetf(&tempfloat,f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    temp_mapscr->ffy[m]=int32_t(tempfloat*10000);
+                    tempffc.y=zslongToFix(int32_t(tempfloat*10000));
                     
                     if(!p_igetf(&tempfloat,f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    temp_mapscr->ffxdelta[m]=int32_t(tempfloat*10000);
+                    tempffc.vx=zslongToFix(int32_t(tempfloat*10000));
                     
                     if(!p_igetf(&tempfloat,f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    temp_mapscr->ffydelta[m]=int32_t(tempfloat*10000);
+                    tempffc.vy=zslongToFix(int32_t(tempfloat*10000));
                     
                     if(!p_igetf(&tempfloat,f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    temp_mapscr->ffxdelta2[m]=int32_t(tempfloat*10000);
+                    tempffc.ax=zslongToFix(int32_t(tempfloat*10000));
                     
                     if(!p_igetf(&tempfloat,f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    temp_mapscr->ffydelta2[m]=int32_t(tempfloat*10000);
+                    tempffc.ay=zslongToFix(int32_t(tempfloat*10000));
                 }
                 else
                 {
-                    if(!p_igetl(&(temp_mapscr->ffx[m]),f,true))
+                    if(!p_igetzf(&(tempffc.x),f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_igetl(&(temp_mapscr->ffy[m]),f,true))
+                    if(!p_igetzf(&(tempffc.y),f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_igetl(&(temp_mapscr->ffxdelta[m]),f,true))
+                    if(!p_igetzf(&(tempffc.vx),f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_igetl(&(temp_mapscr->ffydelta[m]),f,true))
+                    if(!p_igetzf(&(tempffc.vy),f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_igetl(&(temp_mapscr->ffxdelta2[m]),f,true))
+                    if(!p_igetzf(&(tempffc.ax),f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_igetl(&(temp_mapscr->ffydelta2[m]),f,true))
+                    if(!p_igetzf(&(tempffc.ay),f,true))
                     {
                         return qe_invalid;
                     }
                 }
                 
-                if(!p_getc(&(temp_mapscr->fflink[m]),f,true))
+                if(!p_getc(&(tempffc.link),f,true))
                 {
                     return qe_invalid;
                 }
                 
                 if(version>7)
                 {
-                    if(!p_getc(&(temp_mapscr->ffwidth[m]),f,true))
+                    if(!p_getc(&tempbyte,f,true))
                     {
                         return qe_invalid;
                     }
-                    
-                    if(!p_getc(&(temp_mapscr->ffheight[m]),f,true))
+		    
+		    tempffc.hxsz = (tempbyte&0x3F)+1;
+		    tempffc.txsz = (tempbyte>>6)+1;
+		    
+		    if(!p_getc(&tempbyte,f,true))
                     {
                         return qe_invalid;
                     }
+		    
+		    tempffc.hysz = (tempbyte&0x3F)+1;
+		    tempffc.tysz = (tempbyte>>6)+1;
                     
-                    if(!p_igetl(&(temp_mapscr->ffflags[m]),f,true))
+                    if(!p_igetl(&(tempffc.flags),f,true))
                     {
                         return qe_invalid;
                     }
                 }
                 else
                 {
-                    temp_mapscr->ffwidth[m]=15;
-                    temp_mapscr->ffheight[m]=15;
-                    temp_mapscr->ffflags[m]=0;
+                    tempffc.hxsz=16;
+                    tempffc.hysz=16; 
+		    tempffc.txsz=1;
+                    tempffc.tysz=1;
+                    tempffc.flags=0;
                 }
                 
                 if(Header->zelda_version == 0x211 || (Header->zelda_version == 0x250 && Header->build<20))
                 {
-                    temp_mapscr->ffflags[m]|=ffIGNOREHOLDUP;
+                    tempffc.flags|=ffIGNOREHOLDUP;
                 }
                 
                 if(version>9)
                 {
-                    if(!p_igetw(&(temp_mapscr->ffscript[m]),f,true))
+                    if(!p_igetw(&(tempffc.script),f,true))
                     {
                         return qe_invalid;
                     }
                 }
                 else
                 {
-                    temp_mapscr->ffscript[m]=0;
+                    tempffc.script=0;
                 }
                 
                 if(version>10)
                 {
-                    if(!p_igetl(&(temp_mapscr->initd[m][0]),f,true))
+                    if(!p_igetl(&(tempffc.initd[0]),f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_igetl(&(temp_mapscr->initd[m][1]),f,true))
+                    if(!p_igetl(&(tempffc.initd[1]),f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_igetl(&(temp_mapscr->initd[m][2]),f,true))
+                    if(!p_igetl(&(tempffc.initd[2]),f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_igetl(&(temp_mapscr->initd[m][3]),f,true))
+                    if(!p_igetl(&(tempffc.initd[3]),f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_igetl(&(temp_mapscr->initd[m][4]),f,true))
+                    if(!p_igetl(&(tempffc.initd[4]),f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_igetl(&(temp_mapscr->initd[m][5]),f,true))
+                    if(!p_igetl(&(tempffc.initd[5]),f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_igetl(&(temp_mapscr->initd[m][6]),f,true))
+                    if(!p_igetl(&(tempffc.initd[6]),f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_igetl(&(temp_mapscr->initd[m][7]),f,true))
+                    if(!p_igetl(&(tempffc.initd[7]),f,true))
                     {
                         return qe_invalid;
                     }
@@ -16785,47 +16797,27 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
                         return qe_invalid;
                     }
                     
-                    temp_mapscr->inita[m][0]=tempbyte*10000;
+                    tempffc.inita[0]=tempbyte*10000;
                     
                     if(!p_getc(&(tempbyte),f,true))
                     {
                         return qe_invalid;
                     }
                     
-                    temp_mapscr->inita[m][1]=tempbyte*10000;
+                    tempffc.inita[1]=tempbyte*10000;
                 }
                 else
                 {
-                    temp_mapscr->inita[m][0] = 10000;
-                    temp_mapscr->inita[m][1] = 10000;
+                    tempffc.inita[0] = 10000;
+                    tempffc.inita[1] = 10000;
                 }
                 
-                temp_mapscr->initialized[m] = false;
+                tempffc.initialized = false;
                 
                 if(version <= 11)
                 {
                     fixffcs=true;
                 }
-            }
-            else
-            {
-                temp_mapscr->ffdata[m]=0;
-                temp_mapscr->ffcset[m]=0;
-                temp_mapscr->ffdelay[m]=0;
-                temp_mapscr->ffx[m]=0;
-                temp_mapscr->ffy[m]=0;
-                temp_mapscr->ffxdelta[m]=0;
-                temp_mapscr->ffydelta[m]=0;
-                temp_mapscr->ffxdelta2[m]=0;
-                temp_mapscr->ffydelta2[m]=0;
-                temp_mapscr->ffdata[m]=0;
-                temp_mapscr->ffwidth[m]=15;
-                temp_mapscr->ffheight[m]=15;
-                temp_mapscr->ffflags[m]=0;
-                temp_mapscr->ffscript[m]=0;
-                //temp_mapscr->a[m][0] = 10000;
-                //temp_mapscr->a[m][1] = 10000;
-                temp_mapscr->initialized[m] = false;
             }
         }
     }
@@ -16839,12 +16831,12 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
         }
     }
     
-    for(int32_t m=0; m<MAXFFCS; m++)
-    {
-        // ffcScriptData used to be part of mapscr, and this was handled just above
-        ffcScriptData[m].a[0] = 10000;
-        ffcScriptData[m].a[1] = 10000;
-    }
+    // for(int32_t m=0; m<MAXFFCS; m++)
+    // {
+        // // ffcScriptData used to be part of mapscr, and this was handled just above
+        // ffcScriptData[m].a[0] = 10000;
+        // ffcScriptData[m].a[1] = 10000;
+    // }
     
     //2.55 starts here
     if ( version >= 19 && Header->zelda_version > 0x253 )
@@ -17265,75 +17257,77 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 		//FFC
 		if(!p_igetl(&(temp_mapscr->numff),f,true))
 			return qe_invalid;
-		for(auto m = 0; m < 32; ++m)
+		byte tempbyte;
+		for(auto m = 0; m < 32; ++m) //this should remain 32 cause old quests only had 32; we need another loop if we want to add more. FFC_BUMP
 		{
+			ffcdata& tempffc = temp_mapscr->ffcs[m];
+			tempffc.clear();
 			if(temp_mapscr->numff & (1<<m))
 			{
-				if(!p_igetw(&(temp_mapscr->ffdata[m]),f,true))
+				if(!p_igetw(&(tempffc.data),f,true))
 					return qe_invalid;
-				if(!p_getc(&(temp_mapscr->ffcset[m]),f,true))
+				if(!p_getc(&(tempffc.cset),f,true))
 					return qe_invalid;
-				if(!p_igetw(&(temp_mapscr->ffdelay[m]),f,true))
+				if(!p_igetw(&(tempffc.delay),f,true))
 					return qe_invalid;
-				if(!p_igetl(&(temp_mapscr->ffx[m]),f,true))
+				if(!p_igetzf(&(tempffc.x),f,true))
 					return qe_invalid;
-				if(!p_igetl(&(temp_mapscr->ffy[m]),f,true))
+				if(!p_igetzf(&(tempffc.y),f,true))
 					return qe_invalid;
-				if(!p_igetl(&(temp_mapscr->ffxdelta[m]),f,true))
+				if(!p_igetzf(&(tempffc.vx),f,true))
 					return qe_invalid;
-				if(!p_igetl(&(temp_mapscr->ffydelta[m]),f,true))
+				if(!p_igetzf(&(tempffc.vy),f,true))
 					return qe_invalid;
-				if(!p_igetl(&(temp_mapscr->ffxdelta2[m]),f,true))
+				if(!p_igetzf(&(tempffc.ax),f,true))
 					return qe_invalid;
-				if(!p_igetl(&(temp_mapscr->ffydelta2[m]),f,true))
+				if(!p_igetzf(&(tempffc.ay),f,true))
 					return qe_invalid;
-				if(!p_getc(&(temp_mapscr->fflink[m]),f,true))
+				if(!p_getc(&(tempffc.link),f,true))
 					return qe_invalid;
-				if(!p_getc(&(temp_mapscr->ffwidth[m]),f,true))
+				if(version < 24)
+				{
+					if(!p_getc(&tempbyte,f,true))
+						return qe_invalid;
+					tempffc.hxsz = (tempbyte&0x3F)+1;
+					tempffc.txsz = (tempbyte>>6)+1;
+					if(!p_getc(&tempbyte,f,true))
+						return qe_invalid;
+					tempffc.hysz = (tempbyte&0x3F)+1;
+					tempffc.tysz = (tempbyte>>6)+1;
+				}
+				else
+				{
+					if(!p_igetl(&(tempffc.hxsz),f,true))
+						return qe_invalid;
+					if(!p_igetl(&(tempffc.hysz),f,true))
+						return qe_invalid;
+					if(!p_getc(&(tempffc.txsz),f,true))
+						return qe_invalid;
+					if(!p_getc(&(tempffc.tysz),f,true))
+						return qe_invalid;
+				}
+				if(!p_igetl(&(tempffc.flags),f,true))
 					return qe_invalid;
-				if(!p_getc(&(temp_mapscr->ffheight[m]),f,true))
-					return qe_invalid;
-				if(!p_igetl(&(temp_mapscr->ffflags[m]),f,true))
-					return qe_invalid;
-				if(!p_igetw(&(temp_mapscr->ffscript[m]),f,true))
+				if(!p_igetw(&(tempffc.script),f,true))
 					return qe_invalid;
 				for(auto q = 0; q < 8; ++q)
 				{
-					if(!p_igetl(&(temp_mapscr->initd[m][q]),f,true))
+					if(!p_igetl(&(tempffc.initd[q]),f,true))
 						return qe_invalid;
 				}
-				byte tempbyte;
 				if(!p_getc(&(tempbyte),f,true))
 					return qe_invalid;
-				temp_mapscr->inita[m][0]=tempbyte*10000;
+				tempffc.inita[0]=tempbyte*10000;
 				
 				if(!p_getc(&(tempbyte),f,true))
 					return qe_invalid;
-				temp_mapscr->inita[m][1]=tempbyte*10000;
+				tempffc.inita[1]=tempbyte*10000;
 				
-				temp_mapscr->initialized[m] = false;
-			}
-			else
-			{
-				temp_mapscr->ffdata[m]=0;
-				temp_mapscr->ffcset[m]=0;
-				temp_mapscr->ffdelay[m]=0;
-				temp_mapscr->ffx[m]=0;
-				temp_mapscr->ffy[m]=0;
-				temp_mapscr->ffxdelta[m]=0;
-				temp_mapscr->ffydelta[m]=0;
-				temp_mapscr->ffxdelta2[m]=0;
-				temp_mapscr->ffydelta2[m]=0;
-				temp_mapscr->ffdata[m]=0;
-				temp_mapscr->ffwidth[m]=15;
-				temp_mapscr->ffheight[m]=15;
-				temp_mapscr->ffflags[m]=0;
-				temp_mapscr->ffscript[m]=0;
-				temp_mapscr->initialized[m] = false;
+				tempffc.initialized = false;
 			}
 			
-			ffcScriptData[m].a[0] = 10000;
-			ffcScriptData[m].a[1] = 10000;
+			// ffcScriptData[m].a[0] = 10000;
+			// ffcScriptData[m].a[1] = 10000;
 		}
 		//END FFC
 	}
@@ -17406,7 +17400,7 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 			TheMaps[i].zero_memory();
 		
 		// Used to be done for each screen
-		for(int32_t i=0; i<32; i++)
+		for(int32_t i=0; i<32; i++) //Keep 32. FFC_BUMP
 		{
 			ffcScriptData[i].a[0] = 10000;
 			ffcScriptData[i].a[1] = 10000;
@@ -22117,10 +22111,10 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
         {
             for(int32_t j=0; j<MAPSCRS; j++)
             {
-                for(int32_t m=0; m<32; m++)
+                for(int32_t m=0; m<MAXFFCS; m++)
                 {
-                    if(combobuf[TheMaps[(i*MAPSCRS)+j].ffdata[m]].type == cCHANGE)
-                        TheMaps[(i*MAPSCRS)+j].ffflags[m]|=ffCHANGER;
+                    if(combobuf[TheMaps[(i*MAPSCRS)+j].ffcs[m].data].type == cCHANGE)
+                        TheMaps[(i*MAPSCRS)+j].ffcs[m].flags|=ffCHANGER;
                 }
             }
         }

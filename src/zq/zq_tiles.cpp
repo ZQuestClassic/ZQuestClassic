@@ -14209,9 +14209,9 @@ void do_movecombo(combo_move_data const& cmd)
 			
 			for(int32_t k=0; k<MAXFFCS; k++)
 			{
-				if((TheMaps[i*MAPSCRS+j].ffdata[k] >= cmd.copy1) && (TheMaps[i*MAPSCRS+j].ffdata[k] < cmd.copy1+cmd.copycnt) && (TheMaps[i*MAPSCRS+j].ffdata[k] != 0))
+				if((TheMaps[i*MAPSCRS+j].ffcs[k].data >= cmd.copy1) && (TheMaps[i*MAPSCRS+j].ffcs[k].data < cmd.copy1+cmd.copycnt) && (TheMaps[i*MAPSCRS+j].ffcs[k].data != 0))
 				{
-					TheMaps[i*MAPSCRS+j].ffdata[k] += diff;
+					TheMaps[i*MAPSCRS+j].ffcs[k].data += diff;
 				}
 			}
 		}
