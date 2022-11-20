@@ -1654,13 +1654,13 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
         for(int32_t j=0; j<8; j++)
         {
             //dest->d[i][j]=src->d[i][j];
-            dest->initd[i][j]=src->initd[i][j];
+            dest->ffcs[i].initd[j]=src->ffcs[i].initd[j];
         }
         
         for(int32_t j=0; j<2; j++)
         {
             //dest->a[i][j]=src->a[i][j];
-            dest->inita[i][j]=src->inita[i][j];
+            dest->ffcs[i].inita[j]=src->ffcs[i].inita[j];
         }
         
         dest->ffcs[i].data=src->ffcs[i].data;
@@ -9576,10 +9576,10 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 			if(!p_putc(tempffc.link,f))
 				return qe_invalid;
 			
-			if(!p_putl(tempffc.hxsz,f))
+			if(!p_iputl(tempffc.hxsz,f))
 				return qe_invalid;
 			
-			if(!p_putl(tempffc.hysz,f))
+			if(!p_iputl(tempffc.hysz,f))
 				return qe_invalid;
 			
 			if(!p_putc(tempffc.txsz,f))

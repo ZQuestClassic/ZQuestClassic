@@ -17,6 +17,7 @@
 //link = fflink
 //script = ffscript
 //ffwidth, ffheight?
+
 class ffcdata : public solid_object
 {
 public:
@@ -33,6 +34,8 @@ public:
 	ffcdata();
 	~ffcdata();
 	ffcdata(ffcdata const& other);
+	void copy(ffcdata const& other);
+	ffcdata& operator=(ffcdata const& other);
 	void clear();
 	virtual void setSolid(bool set);
 };
@@ -214,151 +217,7 @@ struct mapscr
 	byte hidescriptlayers;
 	byte doscript;
 	
-	void zero_memory()
-	{
-		//oh joy, this will be fun...
-		valid=0;
-		guy=0;
-		str=0;
-		room=0;
-		item=0;
-		hasitem=0;
-		tilewarpoverlayflags=0;
-		door_combo_set=0;
-		warpreturnc=0;
-		stairx=0;
-		stairy=0;
-		itemx=0;
-		itemy=0;
-		color=0;
-		enemyflags=0;
-		
-		exitdir=0;
-		pattern=0;
-		sidewarpoverlayflags=0;
-		warparrivalx=0;
-		warparrivaly=0;
-		
-		sidewarpindex=0;
-		undercombo=0;
-		undercset=0;
-		catchall=0;
-		flags=0;
-		flags2=0;
-		flags3=0;
-		flags4=0;
-		flags5=0;
-		flags6=0;
-		flags7=0;
-		flags8=0;
-		flags9=0;
-		flags10=0;
-		csensitive=0;
-		noreset=0;
-		nocarry=0;
-		timedwarptics=0;
-		nextmap=0;
-		nextscr=0;
-		// new for 2.6
-		//entry_x = entry_y = 0; //Where Hero entered the screen. Used for pits, and to prevent water walking. -Z
-		
-		
-		viewX=0;
-		viewY=0;
-		scrWidth=0;
-		scrHeight=0;
-		numff=0;
-		entry_x = 0;
-		entry_y = 0;
-		
-		old_cpage = 0;
-		screen_midi = 0;
-		
-		for(int32_t i(0); i<4; i++)
-		{
-			door[i]=0;
-			tilewarpdmap[i]=0;
-			tilewarpscr[i]=0;
-			tilewarptype[i]=0;
-			warpreturnx[i]=0;
-			warpreturny[i]=0;
-			path[i]=0;
-			sidewarpscr[i]=0;
-			sidewarpdmap[i]=0;
-			sidewarptype[i]=0;
-		}
-		
-		for(int32_t i(0); i<10; i++)
-			enemy[i]=0;
-			
-		for(int32_t i(0); i<128; i++)
-		{
-			secretcombo[i]=0;
-			secretcset[i]=0;
-			secretflag[i]=0;
-		}
-		
-		for(int32_t i(0); i<6; i++)
-		{
-			layermap[i]=0;
-			layerscreen[i]=0;
-			layeropacity[i]=0;
-		}
-		
-		for(int32_t i(0); i<32; i++)
-		{
-			ffcs[i].clear();
-		}
-		
-		/*	  for(int32_t i(0);i<256;i++)
-			  {
-			   map_stack[i]=0;
-			  }
-			   for(int32_t i(0);i<8;i++)
-			  {
-			   map_d[i]=0;
-			  }
-		   map_pc=0;
-		   map_scriptflag=0;
-		   map_sp=map_itemref=map_itemclass=0;
-		   map_lwpnref=0;
-		   map_lwpnclass=0;
-		   map_ewpnref=0;
-		   map_ewpnclass=0;
-		   map_guyref=0;
-		   map_guyclass=0;
-		   map_ffcref=0;*/
-		script_entry=0;
-		script_occupancy=0;
-		script_exit=0;
-		oceansfx=0;
-		bosssfx=0;
-		secretsfx=0;
-		holdupsfx=0;
-		lens_layer=0;
-	
-		for ( int32_t q = 0; q < 10; q++ ) npcstrings[q] = 0;
-		for ( int32_t q = 0; q < 10; q++ ) new_items[q] = 0;
-		for ( int32_t q = 0; q < 10; q++ ) new_item_x[q] = 0;
-		for ( int32_t q = 0; q < 10; q++ ) new_item_y[q] = 0;
-	
-		script = 0;
-		doscript = 0;
-		for ( int32_t q = 0; q < 8; q++) screeninitd[q] = 0;
-		preloadscript = 0;
-		
-		screen_waitdraw = 0;
-		ffcswaitdraw = 0;
-		screendatascriptInitialised = 0;
-		hidelayers = 0;
-		hidescriptlayers = 0;
-		data.assign(176,0);
-		sflag.assign(176,0);
-		cset.assign(176,0);
-		//data.assign(data.size(),0);
-		//sflag.assign(sflag.size(),0);
-		//cset.assign(cset.size(),0);
-	}
+	void zero_memory();
 	
 	mapscr()
 	{
@@ -367,8 +226,10 @@ struct mapscr
 		cset.resize(176,0);
 		zero_memory();
 	}
+	void copy(mapscr const& other);
+	mapscr(mapscr const& other);
+	mapscr& operator=(mapscr const& other);
 };
-
 
 #endif
 

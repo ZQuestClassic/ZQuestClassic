@@ -12,6 +12,8 @@ public:
 	solid_object();
 	~solid_object();
 	solid_object(solid_object const& other);
+	void copy(solid_object const& other);
+	solid_object& operator=(solid_object const& other);
 	virtual void setSolid(bool set);
 	bool getSolid() const;
 private:

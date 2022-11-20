@@ -33,11 +33,27 @@ solid_object::~solid_object()
 	}
 }
 
-solid_object::solid_object(solid_object const& other)
-	: x(other.x), y(other.y), hxsz(other.hxsz), hysz(other.hysz),
-	vx(other.vx), vy(other.vy), solid(other.solid)
+void solid_object::copy(solid_object const& other)
 {
+	x = other.x;
+	y = other.y;
+	vx = other.vx;
+	vy = other.vy;
+	hxsz = other.hxsz;
+	hysz = other.hysz;
+	solid = other.solid;
 	if (solid) solid_objects.push_back(this);
+}
+
+solid_object::solid_object(solid_object const& other) 
+{
+	copy(other);
+}
+
+solid_object& solid_object::operator=(solid_object const& other)
+{
+	copy(other);
+	return *this;
 }
 
 void solid_object::setSolid(bool set)

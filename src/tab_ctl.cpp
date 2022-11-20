@@ -161,7 +161,7 @@ bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int
             }
         }
 		
-		update_hw_screen();
+		update_hw_screen(false);
     }
     
     return over;
@@ -196,7 +196,7 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
             }
         }
         
-		update_hw_screen();
+		update_hw_screen(false);
     }
     
     if(over)
@@ -206,7 +206,7 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
         draw_button(screen,x,y,w,h,text,bg,fg,0);
         unscare_mouse();
         
-		update_hw_screen();
+		update_hw_screen(false);
     }
     
     return over;

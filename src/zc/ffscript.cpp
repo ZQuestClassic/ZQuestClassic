@@ -3076,7 +3076,7 @@ int32_t get_register(const int32_t arg)
 			
 		case FY:
 			if(BC::checkFFC(ri->ffcref, "ffc->Y") == SH::_NoError)
-				ret = tmpscr->ffcs[ri->ffcref].x.getZLong();
+				ret = tmpscr->ffcs[ri->ffcref].y.getZLong();
 			break;
 			
 		case XD:
@@ -3110,22 +3110,22 @@ int32_t get_register(const int32_t arg)
 			
 		case FFCWIDTH:
 			if(BC::checkFFC(ri->ffcref, "ffc->EffectWidth") == SH::_NoError)
-				ret=(tmpscr->ffcs[ri->ffcref].hxsz.getZLong());
+				ret=(tmpscr->ffcs[ri->ffcref].hxsz*10000);
 			break;
 			
 		case FFCHEIGHT:
 			if(BC::checkFFC(ri->ffcref, "ffc->EffectHeight") == SH::_NoError)
-				ret=(tmpscr->ffcs[ri->ffcref].hysz.getZLong());
+				ret=(tmpscr->ffcs[ri->ffcref].hysz*10000);
 			break;
 			
 		case FFTWIDTH:
 			if(BC::checkFFC(ri->ffcref, "ffc->TileWidth") == SH::_NoError)
-				ret=(tmpscr->ffcs[ri->ffcref].txsz.getZLong())*10000;
+				ret=(tmpscr->ffcs[ri->ffcref].txsz*10000);
 			break;
 			
 		case FFTHEIGHT:
 			if(BC::checkFFC(ri->ffcref, "ffc->TileHeight") == SH::_NoError)
-				ret=(tmpscr->ffcs[ri->ffcref].tysz.getZLong())*10000;
+				ret=(tmpscr->ffcs[ri->ffcref].tysz*10000);
 			break;
 			
 		case FFLINK:
@@ -3156,7 +3156,7 @@ int32_t get_register(const int32_t arg)
 			else
 			{
 				if(BC::checkFFC(ri->ffcref, "ffc->InitD[]") == SH::_NoError)
-				ret = tmpscr->initd[ri->ffcref][a];
+				ret = tmpscr->ffcs[ri->ffcref].initd[a];
 			}
 		}
 		break;
@@ -8390,6 +8390,20 @@ int32_t get_register(const int32_t arg)
 				ret = (tmpscr->member[indx]?10000:0); \
 			} \
 		} \
+
+		#define GET_FFC_BOOL_INDEX(member, str, indexbound) \
+		{ \
+			int32_t indx = ri->d[rINDEX] / 10000; \
+			if(indx < 0 || indx > indexbound ) \
+			{ \
+				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), str); \
+				ret = -10000; \
+			} \
+			else \
+			{ \
+				ret = (tmpscr->ffcs[indx].member?10000:0); \
+			} \
+		} \
 		
 		
 		#define GET_SCREENDATA_FLAG(member, str, indexbound) \
@@ -8510,7 +8524,7 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 			//inita	//INT32, 32 OF THESE, EACH WITH 2
-		case SCREENDATAFFINITIALISED: 	GET_SCREENDATA_BOOL_INDEX(initialized, "FFCRunning", 31); break;	//BOOL, 32 OF THESE
+		case SCREENDATAFFINITIALISED: 	GET_FFC_BOOL_INDEX(initialized, "FFCRunning", 31); break;	//BOOL, 32 OF THESE
 		case SCREENDATASCRIPTENTRY: 	GET_SCREENDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
 		case SCREENDATASCRIPTOCCUPANCY: 	GET_SCREENDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
 		case SCREENDATASCRIPTEXIT: 	GET_SCREENDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
@@ -9191,6 +9205,28 @@ int32_t get_register(const int32_t arg)
 				} \
 			} \
 		} \
+
+		#define GET_FFC_MAPDATA_BOOL_INDEX(member, str, indexbound) \
+		{ \
+			int32_t indx = ri->d[rINDEX] / 10000; \
+			if(indx < 0 || indx > indexbound ) \
+			{ \
+				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
+				ret = -10000; \
+			} \
+			else \
+			{ \
+				if (mapscr *m = GetMapscr(ri->mapsref)) \
+				{ \
+					ret = (m->ffcs[indx].member?10000:0); \
+				} \
+				else \
+				{ \
+					Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
+					ret = -10000; \
+				} \
+			} \
+		} \
 		
 		#define GET_MAPDATA_FLAG(member, str) \
 		{ \
@@ -9250,7 +9286,7 @@ int32_t get_register(const int32_t arg)
 			} \
 			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				ret = (m->ffcs[indx].member); \
+				ret = (m->ffcs[indx].member).getZLong(); \
 			} \
 			else \
 			{ \
@@ -9536,7 +9572,7 @@ int32_t get_register(const int32_t arg)
 					ret = -10000;
 					break;
 				}
-				ret=((m->ffTileWidth(indx))*10000;
+				ret=(m->ffTileWidth(indx))*10000;
 			}
 			else
 			{
@@ -9557,7 +9593,7 @@ int32_t get_register(const int32_t arg)
 					ret = -10000;
 					break;
 				}
-				ret=((m->ffTileHeight(indx))*10000;
+				ret=(m->ffTileHeight(indx))*10000;
 			}
 			else
 			{
@@ -9579,7 +9615,7 @@ int32_t get_register(const int32_t arg)
 					ret = -10000;
 					break;
 				}
-				ret=((m->ffEffectWidth(indx))*10000;
+				ret=(m->ffEffectWidth(indx))*10000;
 			}
 			else
 			{
@@ -9600,7 +9636,7 @@ int32_t get_register(const int32_t arg)
 					ret = -10000;
 					break;
 				}
-				ret=((m->ffEffectHeight(indx))*10000;
+				ret=(m->ffEffectHeight(indx))*10000;
 			}
 			else
 			{
@@ -9634,7 +9670,7 @@ int32_t get_register(const int32_t arg)
 				}
 				else
 				{ 
-					ret = (m->initd[ffid][indx]);
+					ret = (m->ffcs[ffid].initd[indx]);
 				}
 				
 				//int32_t ffindex = ri->d[rINDEX]/10000;
@@ -9677,7 +9713,7 @@ int32_t get_register(const int32_t arg)
 				}
 				else
 				{ 
-					ret = (m->inita[ffid][indx]);
+					ret = (m->ffcs[ffid].inita[indx]);
 				}
 			}
 			else
@@ -9689,7 +9725,7 @@ int32_t get_register(const int32_t arg)
 		}	
 
 			//inita	//INT32, 32 OF THESE, EACH WITH 2
-		case MAPDATAFFINITIALISED: 	GET_MAPDATA_BOOL_INDEX(initialized, "FFCRunning", 31); break;	//BOOL, 32 OF THESE
+		case MAPDATAFFINITIALISED: 	GET_FFC_MAPDATA_BOOL_INDEX(initialized, "FFCRunning", 31); break;	//BOOL, 32 OF THESE
 		case MAPDATASCRIPTENTRY: 	GET_MAPDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
 		case MAPDATASCRIPTOCCUPANCY: 	GET_MAPDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
 		case MAPDATASCRIPTEXIT: 	GET_MAPDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
@@ -12433,7 +12469,7 @@ void set_register(const int32_t arg, const int32_t value)
 				
 				ffcScriptData[ri->ffcref].Clear();
 				FFScript::deallocateAllArrays(SCRIPT_FFC, ri->ffcref);
-				tmpscr->initialized[ri->ffcref] = false;
+				tmpscr->ffcs[ri->ffcref].initialized = false;
 			}
 			break;
 			
@@ -18230,6 +18266,17 @@ void set_register(const int32_t arg, const int32_t value)
 			} \
 			tmpscr->member[indx] =( (value/10000) ? 1 : 0 ); \
 		}
+
+		#define SET_FFC_BOOL_INDEX(member, str, indexbound) \
+		{ \
+			int32_t indx = ri->d[rINDEX] / 10000; \
+			if(indx < 0 || indx > indexbound ) \
+			{ \
+				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), str); \
+				break; \
+			} \
+			tmpscr->ffcs[indx].member =( (value/10000) ? 1 : 0 ); \
+		}
 		
 
 		case SCREENDATAVALID:		SET_SCREENDATA_VAR_BYTE(valid, "Valid"); break;		//b
@@ -18410,7 +18457,7 @@ void set_register(const int32_t arg, const int32_t value)
 		}
 
 			//inita	//INT32, 32 OF THESE, EACH WITH 2
-		case SCREENDATAFFINITIALISED: 	SET_SCREENDATA_BOOL_INDEX(initialized, "FFCRunning", 31); break;	//BOOL, 32 OF THESE
+		case SCREENDATAFFINITIALISED: 	SET_FFC_BOOL_INDEX(initialized, "FFCRunning", 31); break;	//BOOL, 32 OF THESE
 		case SCREENDATASCRIPTENTRY: 	SET_SCREENDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
 		case SCREENDATASCRIPTOCCUPANCY: 	SET_SCREENDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
 		case SCREENDATASCRIPTEXIT: 	SET_SCREENDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
@@ -19043,6 +19090,24 @@ void set_register(const int32_t arg, const int32_t value)
 			} \
 			break; \
 		} \
+
+		#define SET_FFC_MAPDATA_BOOL_INDEX(member, str, indexbound) \
+		{ \
+			int32_t indx = ri->d[rINDEX] / 10000; \
+			if(indx < 0 || indx > indexbound ) \
+			{ \
+				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
+			} \
+			else if (mapscr *m = GetMapscr(ri->mapsref)) \
+			{ \
+				m->ffcs[indx].member =( (value/10000) ? 1 : 0 ); \
+			} \
+			else \
+			{ \
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
+			} \
+			break; \
+		} \
 		
 		#define SET_MAPDATA_FLAG(member, str) \
 		{ \
@@ -19071,7 +19136,7 @@ void set_register(const int32_t arg, const int32_t value)
 			} \
 			else if (mapscr *m = GetMapscr(ri->mapsref)) \
 			{ \
-				m->ffcs[indx].member = value; \
+				m->ffcs[indx].member = zslongToFix(value); \
 			} \
 			else \
 			{ \
@@ -19550,7 +19615,7 @@ void set_register(const int32_t arg, const int32_t value)
 				}
 				else
 				{ 
-					 m->initd[ffid][indx] = value;
+					 m->ffcs[ffid].initd[indx] = value;
 				}
 			}
 			else
@@ -19584,7 +19649,7 @@ void set_register(const int32_t arg, const int32_t value)
 				}
 				else
 				{ 
-					 m->inita[ffid][indx] = value;
+					 m->ffcs[ffid].inita[indx] = value;
 				}
 			}
 			else
@@ -19594,7 +19659,7 @@ void set_register(const int32_t arg, const int32_t value)
 			break;
 		}	
 			
-		case MAPDATAFFINITIALISED: 	SET_MAPDATA_BOOL_INDEX(initialized, "FFCRunning", 31); break;	//BOOL, 32 OF THESE
+		case MAPDATAFFINITIALISED: 	SET_FFC_MAPDATA_BOOL_INDEX(initialized, "FFCRunning", 31); break;	//BOOL, 32 OF THESE
 		case MAPDATASCRIPTENTRY: 	SET_MAPDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
 		case MAPDATASCRIPTOCCUPANCY: 	SET_MAPDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
 		case MAPDATASCRIPTEXIT: 	SET_MAPDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
@@ -28373,10 +28438,10 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			curscript = ffscripts[script];
 			stack = &(ffc_stack[i]);
 			
-			if(!tmpscr->initialized[i])
+			if(!tmpscr->ffcs[i].initialized)
 			{
-				memcpy(ri->d, tmpscr->initd[i], 8 * sizeof(int32_t));
-				memcpy(ri->a, tmpscr->inita[i], 2 * sizeof(int32_t));
+				memcpy(ri->d, tmpscr->ffcs[i].initd, 8 * sizeof(int32_t));
+				memcpy(ri->a, tmpscr->ffcs[i].inita, 2 * sizeof(int32_t));
 			}
 			
 			ri->ffcref = i; //'this' pointer
@@ -32721,7 +32786,7 @@ int32_t ffscript_engine(const bool preload)
 				continue;
 				
 			ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffcs[i].script, i);
-			tmpscr->initialized[i] = true;
+			tmpscr->ffcs[i].initialized = true;
 		}
 	}
 	
