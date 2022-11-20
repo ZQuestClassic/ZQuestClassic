@@ -5770,6 +5770,7 @@ reload_for_replay_file:
 		{
 			saves[0].set_name("Hero");
 		}
+		saves[0].set_timevalid(1);
 		clearConsole();
 		if (use_testingst_start)
 			Z_message("Test mode: \"%s\", %d, %d\n", testingqst_name, testingqst_dmap, testingqst_screen);

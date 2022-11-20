@@ -5274,7 +5274,7 @@ void blackscr(int32_t fcnt,bool showsubscr)
 	script_drawing_commands.Clear();
 	
 	FFCore.warpScriptCheck();
-	bool showtime = game->get_timevalid() && !game->did_cheat() && get_bit(quest_rules,qr_TIME);
+	bool showtime = game->should_show_time();
 	while(fcnt>0)
 	{
 		clear_bitmap(framebuf);

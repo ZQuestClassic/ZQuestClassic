@@ -263,6 +263,7 @@ struct tile_move_data
 	tile_move_data& operator=(tile_move_data const& other)
 	{
 		copy(other);
+		return *this;
 	}
 
 	void copy(tile_move_data const& other)
@@ -317,6 +318,7 @@ struct combo_move_data
 	combo_move_data& operator=(combo_move_data const& other)
 	{
 		copy(other);
+		return *this;
 	}
 	void copy(combo_move_data const& other)
 	{

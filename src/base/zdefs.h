@@ -4504,6 +4504,8 @@ struct gamedata
 	void set_portal(int16_t destdmap, int16_t srcdmap, byte scr, int32_t x, int32_t y, byte sfx, int32_t weffect, int16_t psprite);
 	void load_portal();
 	void clear_portal();
+
+	bool should_show_time();
 };
 
 // "initialization data" flags (bit numbers in bit string)
