@@ -2743,6 +2743,8 @@ void update_freeform_combos()
 					thisffc.ax+=thisffc.ax;
 					thisffc.ay+=thisffc.ay;
 					
+					
+					//!TODO SOLIDPUSH remove these caps on a compat rule
 					if(thisffc.vx>128) thisffc.vx=128;
 					
 					if(thisffc.vx<-128) thisffc.vx=-128;
