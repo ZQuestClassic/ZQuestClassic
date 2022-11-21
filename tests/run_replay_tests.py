@@ -61,10 +61,29 @@ if args.filter:
         print('no tests matched filter')
         exit(1)
 if args.ci:
-    replays_failing_in_ci = [
+    skip_in_ci = [
         # None!
     ]
-    tests = [t for t in tests if t.name not in replays_failing_in_ci]
+    tests = [t for t in tests if t.name not in skip_in_ci]
+
+
+def read_last_contentful_line(file):
+    f = pathlib.Path(test).open('rb')
+    try:  # catch OSError in case of a one line file
+        f.seek(-2, os.SEEK_END)
+        found_content = False
+        while True:
+            c = f.read(1)
+            if not c.isspace():
+                found_content = True
+            if found_content and c == b'\n':
+                if found_content:
+                    break
+            f.seek(-2, os.SEEK_CUR)
+    except OSError:
+        f.seek(0)
+    return f.readline().decode()
+
 
 def run_replay_test(replay_file):
     # TODO: fix this common-ish error, and whatever else is causing random failures.
@@ -88,13 +107,29 @@ def run_replay_test(replay_file):
     if args.frame is not None:
         exe_args.extend(['-frame', str(args.frame)])
 
+    # Cap the length of a replay in CI.
+    if args.ci:
+        max_duration = 4 * 60
+        last_step = read_last_contentful_line(replay_file)
+        last_frame = int(last_step.split(' ')[1])
+        fps = 800
+        estimated_duration = last_frame / fps
+        if estimated_duration > max_duration:
+            frame = fps * max_duration
+            exe_args.extend(['-frame', str(frame)])
+            print(f"-frame {frame}, only doing {100 * frame / last_frame:.2f}% ... ", end='', flush=True)
+            estimated_duration = max_duration
+        timeout = 5 + estimated_duration * 1.2
+    else:
+        timeout = None
+
     for _ in range(0, 5):
         try:
             process_result = subprocess.run(exe_args,
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE,
-                                    text=True,
-                                    timeout=60*10)
+                                            stdout=subprocess.PIPE,
+                                            stderr=subprocess.PIPE,
+                                            text=True,
+                                            timeout=timeout)
             if 'Replay is active' in process_result.stdout:
                 break
             print('did not start correctly, trying again...')
