@@ -26,8 +26,11 @@ public:
 	solid_object(solid_object const& other);
 	solid_object& operator=(solid_object const& other);
 	
-	virtual void setSolid(bool set);
+	virtual bool setSolid(bool set);
 	virtual bool getSolid() const;
+	virtual void updateSolid();
+	void setTempNonsolid(bool set);
+	bool getTempNonsolid() const;
 	
 	virtual bool collide(solid_object const* other) const;
 	virtual bool collide(int32_t tx, int32_t ty, int32_t tw, int32_t th) const;
@@ -37,6 +40,7 @@ public:
 	virtual void solid_push(solid_object* pusher);
 protected:
 	bool solid;
+	bool ignore_solid_temp;
 	void solid_push_int(solid_object const* obj, zfix& dx, zfix& dy) const;
 private:
 	bool in_solid_arr;

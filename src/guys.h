@@ -160,6 +160,7 @@ public:
 	// The one with an index is the one that is called by
 	// the guys sprite list; index is the enemy's index in the list.
 	virtual bool animate(int32_t index);
+	virtual bool setSolid(bool set);
 	
 	// auomatically kill off enemy (for rooms with ringleaders)
 	virtual void kickbucket();

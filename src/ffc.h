@@ -38,9 +38,8 @@ public:
 	void changerCopy(ffcdata& other, int32_t i = -1, int32_t j = -1);
 	ffcdata& operator=(ffcdata const& other);
 	void clear();
-	virtual void setSolid(bool set);
-	virtual bool getSolid() const;
-	void updateSolid();
+	virtual bool setSolid(bool set);
+	virtual void updateSolid();
 };
 
 struct mapscr

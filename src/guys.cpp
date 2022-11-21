@@ -3434,6 +3434,15 @@ bool enemy::animate(int32_t index)
 	// returns true when enemy is defeated
 	return Dead(index);
 }
+
+bool enemy::setSolid(bool set)
+{
+	bool actual = set && !isSubmerged(); //!TODO more things like teleporting wizzrobes
+	bool ret = solid_object::setSolid(actual);
+	solid = set;
+	return ret;
+}
+
 bool enemy::m_walkflag_old(int32_t dx,int32_t dy,int32_t special, int32_t x, int32_t y)
 {
 	int32_t yg = (special==spw_floater)?8:0;

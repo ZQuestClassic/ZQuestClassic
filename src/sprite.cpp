@@ -429,6 +429,7 @@ bool sprite::animate(int32_t)
 }
 void sprite::post_animate()
 {
+	updateSolid();
 	solid_update();
 }
 int32_t sprite::real_x(zfix fx)
@@ -2305,6 +2306,7 @@ void sprite_list::animate()
 			setCurObject(sprites[active_iterator]);
 			if(sprites[active_iterator]->animate(active_iterator))
 			{
+				setCurObject(NULL);
 #ifndef IS_ZQUEST
 				if (replay_is_active() && dynamic_cast<enemy*>(sprites[active_iterator]) != nullptr)
 				{
@@ -2314,7 +2316,11 @@ void sprite_list::animate()
 #endif
 				del(active_iterator);
 			}
-			else sprites[active_iterator]->post_animate();
+			else
+			{
+				setCurObject(NULL);
+				sprites[active_iterator]->post_animate();
+			}
 		}
 		
 		++active_iterator;

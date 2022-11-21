@@ -131,21 +131,19 @@ void ffcdata::clear()
 	script = 0;
 	memset(initd, 0, sizeof(initd));
 	memset(inita, 0, sizeof(inita));
-	setSolid(false);
+	updateSolid();
 }
-void ffcdata::setSolid(bool set) //exists so that ffcs can do special handling for whether to make something solid or not.
+bool ffcdata::setSolid(bool set) //exists so that ffcs can do special handling for whether to make something solid or not.
 {
 	bool actual = set && !(flags&ffCHANGER) && loaded;
-	solid_object::setSolid(actual);
+	bool ret = solid_object::setSolid(actual);
 	solid = set;
+	return ret;
 }
 void ffcdata::updateSolid()
 {
-	setSolid(flags&ffSOLID);
-}
-bool ffcdata::getSolid() const
-{
-	return solid && !(flags&ffCHANGER);
+	if(setSolid(flags&ffSOLID))
+		solid_update(false);
 }
 
 void mapscr::zero_memory()

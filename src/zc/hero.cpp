@@ -9721,8 +9721,8 @@ void HeroClass::solid_push(solid_object* obj)
 	// if(ffcdata* ff = dynamic_cast<ffcdata*>(obj))
 		// ff->doContactDamage();
 	
-	bool temp_solid = obj->getSolid();
-	obj->setSolid(false);
+	bool t = obj->getTempNonsolid();
+	obj->setTempNonsolid(true);
 	
 	//Only move an integer amount
 	dx.doRoundAway();
@@ -9757,7 +9757,7 @@ void HeroClass::solid_push(solid_object* obj)
 		}
 	}
 	
-	obj->setSolid(temp_solid);
+	obj->setTempNonsolid(t);
 }
 
 // A routine used exclusively by startwpn,

@@ -116,27 +116,44 @@ solid_object& solid_object::operator=(solid_object const& other)
 	return *this;
 }
 
-void solid_object::setSolid(bool set)
+bool solid_object::setSolid(bool set)
 {
 	solid = set;
 	if(solid && !in_solid_arr)
 	{
 		solid_objects.push_back(this);
 		in_solid_arr = true;
+		return true;
 	}
 	else if(in_solid_arr && !solid)
 	{
 		remove_object(this);
 		in_solid_arr = false;
+		return true;
 	}
+	return false;
 }
 bool solid_object::getSolid() const
 {
 	return solid;
 }
+void solid_object::updateSolid()
+{
+	if(setSolid(solid))
+		solid_update(false);
+}
+void solid_object::setTempNonsolid(bool set)
+{
+	ignore_solid_temp = set;
+}
+bool solid_object::getTempNonsolid() const
+{
+	return ignore_solid_temp;
+}
 
 bool solid_object::collide(solid_object const* o) const
 {
+	if(ignore_solid_temp) return false;
 	return collide(o->x + o->hxofs + o->sxofs,
 	               o->y + o->hyofs + o->syofs,
 	               o->hxsz + o->sxsz_ofs,
@@ -144,6 +161,7 @@ bool solid_object::collide(solid_object const* o) const
 }
 bool solid_object::collide(int32_t tx, int32_t ty, int32_t tw, int32_t th) const
 {
+	if(ignore_solid_temp) return false;
 	int32_t rx = x+hxofs+sxofs, ry = y+hyofs+syofs;
 	int32_t rw = hxsz+sxsz_ofs, rh = hysz+sysz_ofs;
 	return tx+tw>rx && ty+th>ry &&
@@ -152,6 +170,7 @@ bool solid_object::collide(int32_t tx, int32_t ty, int32_t tw, int32_t th) const
 
 void solid_object::putwalkflags(BITMAP *dest, int32_t tx, int32_t ty)
 {
+	if(ignore_solid_temp) return;
 	tx += x.getFloor() + hxofs + sxofs;
 	ty += y.getFloor() + hyofs + syofs;
 	rectfill(dest, tx, ty, tx + hxsz-1 + sxsz_ofs,
