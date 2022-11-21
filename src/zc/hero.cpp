@@ -491,6 +491,8 @@ bool  HeroClass::getBigHitbox()
 void HeroClass::setBigHitbox(bool newbigHitbox)
 {
     bigHitbox=newbigHitbox;
+	syofs = bigHitbox?0:8;
+	sysz_ofs = bigHitbox?0:-8;
 }
 int32_t HeroClass::getStepRate()
 {
@@ -1515,7 +1517,7 @@ void HeroClass::init()
     
     for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
     
-    bigHitbox=(get_bit(quest_rules, qr_LTTPCOLLISION));
+    setBigHitbox(get_bit(quest_rules, qr_LTTPCOLLISION));
     diagonalMovement=(get_bit(quest_rules,qr_LTTPWALK));
     
 	shield_active = false;
@@ -7465,6 +7467,7 @@ bool HeroClass::animate(int32_t)
 		pity=y;
 		dowarp(3,0);
 		cheats_execute_goto=false;
+		solid_update(false);
 		return false;
 	}
 	
@@ -8901,7 +8904,8 @@ bool HeroClass::animate(int32_t)
 		
 		if(CarryHero()==false)
 			restart_level();
-			
+		
+		solid_update(false);
 		return false;
 	}
 	
@@ -8912,6 +8916,7 @@ bool HeroClass::animate(int32_t)
 		xofs=0;
 		action=none; FFCore.setHeroAction(none);
 		ewind_restart=false;
+		solid_update(false);
 		return false;
 	}
 	
@@ -9641,6 +9646,118 @@ bool HeroClass::animate(int32_t)
 	}
 	
 	return false;
+}
+
+bool HeroClass::push_pixel(int32_t dir)
+{
+	switch(NORMAL_DIR(dir))
+	{
+		case up:
+		{
+			if(!(solpush_walkflag(x,y+(bigHitbox?-1:7),2,this)
+				|| (x.getInt()&7?solpush_walkflag(x+16,y+(bigHitbox?-1:7),1,this):0)))
+			{
+				--y;
+				return true;
+			}
+			return false;
+		}
+		case down:
+		{
+			if(!(solpush_walkflag(x,y+16,2,this)
+				|| (x.getInt()&7?solpush_walkflag(x+16,y+16,1,this):0)))
+			{
+				++y;
+				return true;
+			}
+			return false;
+		}
+		case left:
+		{
+			if(!(solpush_walkflag(x-1,y+(bigHitbox?0:8),1,this)
+				|| solpush_walkflag(x-1,y+8,1,this)
+				|| (y.getInt()&7?solpush_walkflag(x-1,y+16,1,this):0)))
+			{
+				--x;
+				return true;
+			}
+			return false;
+		}
+		case right:
+		{
+			if(!(solpush_walkflag(x+16,y+(bigHitbox?0:8),1,this)
+				|| solpush_walkflag(x+16,y+8,1,this)
+				|| (y.getInt()&7?solpush_walkflag(x+16,y+16,1,this):0)))
+			{
+				++x;
+				return true;
+			}
+			return false;
+		}
+		case r_up:
+		case r_down:
+		case l_up:
+		case l_down:
+			//!TODO SOLIDPUSH diagonal solidchecks
+			break;
+	}
+	return false;
+}
+
+void HeroClass::solid_push(solid_object* obj)
+{
+	if(obj == this) return; //can't push self
+	if(toogam) return; //No being pushed with noclip enabled
+	
+	zfix dx, dy;
+	solid_push_int(obj,dx,dy);
+	
+	if(!dx && !dy) return;
+	
+	//!TODO SOLIDPUSH enemies contact damage (if needed)
+	// if(enemy* enm = dynamic_cast<enemy*>(obj))
+		// enm->doContactDamage();
+	//!TODO SOLIDPUSH ffc contact damage (damage combos)
+	// if(ffcdata* ff = dynamic_cast<ffcdata*>(obj))
+		// ff->doContactDamage();
+	
+	bool temp_solid = obj->getSolid();
+	obj->setSolid(false);
+	
+	//Only move an integer amount
+	dx.doRoundAway();
+	dy.doRoundAway();
+	
+	while(dx && dy)
+	{
+		//!TODO SOLIDPUSH diagonal move loop
+		break;
+	}
+	int32_t pdir;
+	if(dx)
+	{
+		pdir = dx > 0 ? right : left;
+		for(int32_t q = abs(dx); q > 0; --q)
+		{
+			if(check_pitslide() != -1)
+				break;
+			if(!push_pixel(pdir))
+				break;
+		}
+	}
+	if(dy)
+	{
+		pdir = dy > 0 ? down : up;
+		for(int32_t q = abs(dy); q > 0; --q)
+		{
+			if(check_pitslide() != -1)
+				break;
+			if(!push_pixel(pdir))
+				break;
+		}
+	}
+	
+	obj->setSolid(temp_solid);
 }
 
 // A routine used exclusively by startwpn,

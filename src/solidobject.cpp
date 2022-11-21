@@ -1,5 +1,12 @@
 #include "solidobject.h"
 #include "base/zdefs.h"
+#include "sprite.h"
+#include "hero.h"
+
+#ifdef IS_PLAYER
+extern sprite_list guys;
+extern HeroClass Hero;
+#endif
 
 using std::vector;
 
@@ -53,18 +60,21 @@ bool collide_object(solid_object const* obj)
 	return false;
 }
 
-bool collide_object(int32_t tx, int32_t ty, int32_t tw, int32_t th)
+bool collide_object(int32_t tx, int32_t ty, int32_t tw, int32_t th, solid_object const* ign)
 {
 	for(auto it = solid_objects.begin(); it != solid_objects.end(); ++it)
 	{
-		if (*it == curobject) continue;
+		if (*it == ign || *it == curobject) continue;
 		if ((*it)->collide(tx, ty, tw, th))
 			return true;
 	}
 	return false;
 }
 
-solid_object::solid_object() : solid(false), hxsz(16), hysz(16), hxofs(0), hyofs(0), solidflags(0)
+solid_object::solid_object() : solid(false), in_solid_arr(false),
+	hxsz(16), hysz(16), hxofs(0), hyofs(0),
+	sxofs(0), syofs(0), sxsz_ofs(0), sysz_ofs(0),
+	solidflags(0)
 {}
 
 solid_object::~solid_object()
@@ -79,16 +89,20 @@ void solid_object::copy(solid_object const& other)
 {
 	x = other.x;
 	y = other.y;
+	old_x = other.old_x;
+	old_y = other.old_y;
 	vx = other.vx;
 	vy = other.vy;
 	hxsz = other.hxsz;
 	hysz = other.hysz;
 	hxofs = other.hxofs;
 	hyofs = other.hyofs;
-	solid = other.solid;
+	sxofs = other.sxofs;
+	syofs = other.syofs;
+	sxsz_ofs = other.sxsz_ofs;
+	sysz_ofs = other.sysz_ofs;
 	solidflags = other.solidflags;
-	if (solid) solid_objects.push_back(this);
-	else remove_object(this);
+	setSolid(other.solid);
 }
 
 solid_object::solid_object(solid_object const& other) 
@@ -104,38 +118,121 @@ solid_object& solid_object::operator=(solid_object const& other)
 
 void solid_object::setSolid(bool set)
 {
-	if (set == solid) return;
-	if (solid = set)
+	solid = set;
+	if(solid && !in_solid_arr)
 	{
 		solid_objects.push_back(this);
+		in_solid_arr = true;
 	}
-	else
+	else if(in_solid_arr && !solid)
 	{
 		remove_object(this);
+		in_solid_arr = false;
 	}
 }
-
 bool solid_object::getSolid() const
 {
 	return solid;
 }
 
-bool solid_object::collide(solid_object const* o)
+bool solid_object::collide(solid_object const* o) const
 {
-	return collide(o->x + o->hxofs, o->y + o->hyofs, o->hxsz, o->hysz);
+	return collide(o->x + o->hxofs + o->sxofs,
+	               o->y + o->hyofs + o->syofs,
+	               o->hxsz + o->sxsz_ofs,
+	               o->hysz + o->sysz_ofs);
 }
-
-bool solid_object::collide(int32_t tx, int32_t ty, int32_t tw, int32_t th)
+bool solid_object::collide(int32_t tx, int32_t ty, int32_t tw, int32_t th) const
 {
-	return tx+tw>x+hxofs &&
-		ty+th>y+hyofs &&
-		tx<x+hxofs+hxsz &&
-		ty<y+hyofs+hysz;
+	int32_t rx = x+hxofs+sxofs, ry = y+hyofs+syofs;
+	int32_t rw = hxsz+sxsz_ofs, rh = hysz+sysz_ofs;
+	return tx+tw>rx && ty+th>ry &&
+	       tx<rx+rw && ty<ry+rh;
 }
 
 void solid_object::putwalkflags(BITMAP *dest, int32_t tx, int32_t ty)
 {
-	tx += x.getFloor() + hxofs;
-	ty += y.getFloor() + hyofs;
-	rectfill(dest, tx, ty, tx + hxsz-1, ty + hysz-1, makecol(255,85,85));
+	tx += x.getFloor() + hxofs + sxofs;
+	ty += y.getFloor() + hyofs + syofs;
+	rectfill(dest, tx, ty, tx + hxsz-1 + sxsz_ofs,
+	         ty + hysz-1 + sysz_ofs, makecol(255,85,85));
 }
+
+void solid_object::solid_update(bool push)
+{
+#ifdef IS_PLAYER
+	if(push && solid)
+	{
+		if(x != old_x || y != old_y)
+		{
+			Hero.solid_push(this);
+			guys.solid_push(this);
+		}
+	}
+#endif
+	old_x = x;
+	old_y = y;
+}
+void solid_object::solid_push(solid_object* pusher)
+{
+	//Default behavior: Ignore
+	//!TODO SOLIDPUSH Implement 'enemy::solid_push'
+	//!TODO SOLIDPUSH finish 'HeroClass::solid_push' (good for 4-dir, needs diagonals)
+}
+
+void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy) const
+{
+	dx = dy = 0;
+	zfix odx = obj->x - obj->old_x,
+	     ody = obj->y - obj->old_y,
+	     obj_x = obj->x + obj->hxofs + obj->sxofs,
+	     obj_y = obj->y + obj->hyofs + obj->syofs,
+	     obj_ox = obj->old_x + obj->hxofs + obj->sxsz_ofs,
+	     obj_oy = obj->old_y + obj->hyofs + obj->sysz_ofs;
+	int32_t obj_w = obj->hxsz + obj->sxsz_ofs,
+	        obj_h = obj->hysz + obj->sysz_ofs;
+	
+	zfix rx = x+hxofs+sxofs, ry = y+hyofs+syofs,
+		 rw = hxsz+sxsz_ofs, rh = hysz+sysz_ofs;
+	
+	if(odx && ody)
+	{
+		//!TODO SOLIDPUSH Diagonal Movement pushing
+		return;
+	}
+	else if(odx)
+	{
+		if(odx > 0) //right
+		{
+			if(collide(obj_ox+obj_w, obj_oy, odx, obj_h)) //collided
+			{
+				dx = obj_x + obj_w - rx;
+			}
+		}
+		else //left
+		{
+			if(collide(obj_x, obj_oy, -odx, obj_h)) //collided
+			{
+				dx = obj_x - rw - rx;
+			}
+		}
+	}
+	else if(ody)
+	{
+		if(ody > 0) //down
+		{
+			if(collide(obj_ox, obj_oy+obj_h, obj_w, ody)) //collided
+			{
+				dy = obj_y + obj_h - ry;
+			}
+		}
+		else //up
+		{
+			if(collide(obj_ox, obj_y, obj_w, -ody)) //collided
+			{
+				dy = obj_y - rh - ry;
+			}
+		}
+	}
+}
+

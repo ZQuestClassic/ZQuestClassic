@@ -151,6 +151,8 @@ public:
     virtual void draw2(BITMAP* dest);                       // top layer for special needs
     virtual void drawcloaked2(BITMAP* dest);                // top layer for special needs
     virtual bool animate(int32_t index);
+	virtual void post_animate();
+	//virtual void solid_push(solid_object* pusher);
     virtual void check_conveyor();
 	virtual int32_t get_pit(); //Returns combo ID of pit that sprite WOULD fall into; no side-effects
 	virtual int32_t check_pits(); //Returns combo ID of pit fallen into; 0 for not fallen.
@@ -163,6 +165,7 @@ public:
     int32_t fake_z(zfix fz);
     virtual bool hit(sprite *s);
     virtual bool hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
+    virtual bool hit(int32_t tx,int32_t ty,int32_t txsz,int32_t tysz);
     
     
     virtual int32_t hitdir(int32_t tx,int32_t ty,int32_t txsz,int32_t tysz,int32_t dir);
@@ -226,12 +229,14 @@ public:
     void draw2(BITMAP* dest,bool lowfirst);
     void drawcloaked2(BITMAP* dest,bool lowfirst);
     void animate();
+	void solid_push(solid_object* pusher);
     void check_conveyor();
 	void run_script(int32_t mode);
     int32_t Count();
 	bool has_space(int32_t space = 1);
     int32_t hit(sprite *s);
     int32_t hit(int32_t x,int32_t y,int32_t z,int32_t xsize, int32_t ysize, int32_t zsize);
+    int32_t hit(int32_t x,int32_t y,int32_t xsize, int32_t ysize);
     // returns the number of sprites with matching id
     int32_t idCount(int32_t id, int32_t mask);
     // returns index of first sprite with matching id, -1 if none found

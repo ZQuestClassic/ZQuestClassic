@@ -427,6 +427,10 @@ bool sprite::animate(int32_t)
     ++c_clk;
     return false;
 }
+void sprite::post_animate()
+{
+	solid_update();
+}
 int32_t sprite::real_x(zfix fx)
 {
     int32_t rx = fx.getInt();
@@ -982,6 +986,19 @@ bool sprite::hit(sprite *s)
     }
     
     return hit(s->x+s->hxofs,s->y+s->hyofs-s->fakez,s->z+s->zofs,s->hxsz,s->hysz,s->hzsz);
+}
+
+bool sprite::hit(int32_t tx,int32_t ty,int32_t txsz2,int32_t tysz2)
+{
+    if(!(scriptcoldet&1) || fallclk || drownclk) return false;
+    
+    if(id<0 || clk<0) return false;
+    
+    return tx+txsz2>x+hxofs &&
+           ty+tysz2>y+hyofs &&
+           
+           tx<x+hxofs+hxsz &&
+           ty<y+hyofs+hysz;
 }
 
 bool sprite::hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz2,int32_t tysz2,int32_t tzsz2)
@@ -2297,11 +2314,18 @@ void sprite_list::animate()
 #endif
 				del(active_iterator);
 			}
+			else sprites[active_iterator]->post_animate();
 		}
 		
 		++active_iterator;
 	}
 	active_iterator = -1;
+}
+
+void sprite_list::solid_push(solid_object* pusher)
+{
+    for(int32_t i=0; i<count; i++)
+        sprites[i]->solid_push(pusher);
 }
 
 void sprite_list::run_script(int32_t mode)
@@ -2354,6 +2378,14 @@ int32_t sprite_list::hit(int32_t x,int32_t y,int32_t z, int32_t xsize, int32_t y
 {
     for(int32_t i=0; i<count; i++)
         if(sprites[i]->hit(x,y,z,xsize,ysize,zsize))
+            return i;
+            
+    return -1;
+}
+int32_t sprite_list::hit(int32_t x,int32_t y,int32_t xsize, int32_t ysize)
+{
+    for(int32_t i=0; i<count; i++)
+        if(sprites[i]->hit(x,y,xsize,ysize))
             return i;
             
     return -1;

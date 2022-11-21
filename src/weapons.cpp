@@ -3416,6 +3416,7 @@ bool weapon::animate(int32_t index)
 				return 0; //Avoid NULLPO if this object deleted itself
 			}
 		}
+		solid_update(false);
 		return false;
 	}
 	if(fallclk > 0)
@@ -3436,6 +3437,7 @@ bool weapon::animate(int32_t index)
 				if(isLWeapon)
 					run_script(MODE_NORMAL);
 				
+				solid_update(false);
 				return false;
 			}
 			return true;
@@ -3451,6 +3453,7 @@ bool weapon::animate(int32_t index)
 		if(isLWeapon)
 			run_script(MODE_NORMAL);
 		
+		solid_update(false);
 		return false;
 	}
 	if(drownclk > 0)
@@ -3472,6 +3475,7 @@ bool weapon::animate(int32_t index)
 				if(isLWeapon)
 					run_script(MODE_NORMAL);
 				
+				solid_update(false);
 				return false;
 			}
 			return true;
@@ -3499,6 +3503,7 @@ bool weapon::animate(int32_t index)
 		if(isLWeapon)
 			run_script(MODE_NORMAL);
 		
+		solid_update(false);
 		return false;
 	}
 	// do special timing stuff
@@ -6645,8 +6650,6 @@ bool weapon::animate(int32_t index)
 				
 				if(dead == 0 && !weapon_dying_frame && get_bit(quest_rules,qr_WEAPONS_EXTRA_FRAME))
 				{
-					if(id==wSword) return true;
-					else if ( id==wBrang ) return dead==0;
 					weapon_dying_frame = true;
 					return false;
 				}
@@ -7375,6 +7378,16 @@ bool weapon::hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz2,int32_t tysz2,in
         return false;
         
     return (Dead()&&dead!=-10) ? false : sprite::hit(tx,ty,tz,txsz2,tysz2,tzsz2);
+}
+bool weapon::hit(int32_t tx,int32_t ty,int32_t txsz2,int32_t tysz2)
+{
+    if(!(scriptcoldet&1) || fallclk || drownclk) return false;
+    
+	if(id==wBugNet) return false;
+    if(id==ewBrang && misc)
+        return false;
+        
+    return (Dead()&&dead!=-10) ? false : sprite::hit(tx,ty,txsz2,tysz2);
 }
 
 void weapon::update_weapon_frame(int32_t change, int32_t orig)

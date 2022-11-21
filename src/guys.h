@@ -174,6 +174,7 @@ public:
 	// override hit detection to check for invicibility, stunned, etc
 	virtual bool hit(sprite *s);
 	virtual bool hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
+	virtual bool hit(int32_t tx,int32_t ty,int32_t txsz,int32_t tysz);
 	virtual bool hit(weapon *w);
 	virtual void break_shield() {}; // Overridden by types that can have shields
 	

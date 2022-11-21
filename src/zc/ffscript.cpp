@@ -12523,8 +12523,10 @@ void set_register(const int32_t arg, const int32_t value)
 			if(BC::checkFFC(ri->ffcref, "ffc->Flags[]") == SH::_NoError)
 			{
 				auto flag = 1<<((ri->d[rINDEX])/10000);
-				SETFLAG(tmpscr->ffcs[ri->ffcref].flags, flag, value);
-				if (flag == ffSOLID) tmpscr->ffcs[ri->ffcref].setSolid(value);
+				ffcdata& ff = tmpscr->ffcs[ri->ffcref];
+				SETFLAG(ff.flags, flag, value);
+				if (flag == ffSOLID || flag == ffCHANGER)
+					ff.updateSolid();
 			}
 			break;
 			
@@ -19423,7 +19425,7 @@ void set_register(const int32_t arg, const int32_t value)
 			else if (mapscr *m = GetMapscr(ri->mapsref))
 			{
 				m->ffcs[indx].flags = value/10000;
-				m->ffcs[indx].setSolid(m->ffcs[indx].flags&ffSOLID);
+				m->ffcs[indx].updateSolid();
 			}
 			else
 			{

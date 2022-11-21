@@ -154,6 +154,7 @@ public:
     // override hit detection to check for invicibility, etc
     virtual bool hit(sprite *s);
     virtual bool hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
+	virtual bool hit(int32_t tx,int32_t ty,int32_t txsz,int32_t tysz);
     virtual void draw(BITMAP *dest);
     virtual void update_weapon_frame(int32_t change, int32_t orig);
 	virtual int32_t run_script(int32_t mode);

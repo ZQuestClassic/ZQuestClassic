@@ -6482,6 +6482,10 @@ bool enemy::hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz2,int32_t tysz2,int
 {
 	return (dying || hclk>0) ? false : sprite::hit(tx,ty,tz,txsz2,tysz2,tzsz2);
 }
+bool enemy::hit(int32_t tx,int32_t ty,int32_t txsz2,int32_t tysz2)
+{
+	return (dying || hclk>0) ? false : sprite::hit(tx,ty,txsz2,tysz2);
+}
 
 bool enemy::hit(weapon *w)
 {

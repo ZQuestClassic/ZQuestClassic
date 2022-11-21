@@ -49,7 +49,10 @@ item::~item()
 bool item::animate(int32_t)
 {
 	if(switch_hooked)
+	{
+		solid_update(false);
 		return false;
+	}
 	if(!screenIsScrolling()) // Because subscreen items are items, too. :p
 	{
 		if(fallclk > 0)
@@ -65,7 +68,7 @@ bool item::animate(int32_t)
 			tile = spr.tile + zc_min(animclk / spd, fr-1);
 			
 			// run_script(MODE_NORMAL);
-			
+			solid_update(false);
 			return false;
 		}
 		if(drownclk > 0)
@@ -95,6 +98,7 @@ bool item::animate(int32_t)
 			
 			// run_script(MODE_NORMAL);
 			
+			solid_update(false);
 			return false;
 		}
 		if(isSideViewGravity())

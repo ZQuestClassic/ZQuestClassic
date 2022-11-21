@@ -16600,8 +16600,8 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
         
         for(m=0; m<MAXFFCS; m++)
         {
-	    ffcdata& tempffc = temp_mapscr->ffcs[m];
-	    tempffc.clear();
+			ffcdata& tempffc = temp_mapscr->ffcs[m];
+			tempffc.clear();
             if((temp_mapscr->numff>>m)&1)
             {
                 if(!p_igetw(&(tempffc.data),f,true))
@@ -16708,16 +16708,16 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
                         return qe_invalid;
                     }
 		    
-		    tempffc.hxsz = (tempbyte&0x3F)+1;
-		    tempffc.txsz = (tempbyte>>6)+1;
-		    
-		    if(!p_getc(&tempbyte,f,true))
+					tempffc.hxsz = (tempbyte&0x3F)+1;
+					tempffc.txsz = (tempbyte>>6)+1;
+					
+					if(!p_getc(&tempbyte,f,true))
                     {
                         return qe_invalid;
                     }
 		    
-		    tempffc.hysz = (tempbyte&0x3F)+1;
-		    tempffc.tysz = (tempbyte>>6)+1;
+					tempffc.hysz = (tempbyte&0x3F)+1;
+					tempffc.tysz = (tempbyte>>6)+1;
                     
                     if(!p_igetl(&(tempffc.flags),f,true))
                     {
@@ -16727,13 +16727,13 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
                 else
                 {
                     tempffc.hxsz=16;
-                    tempffc.hysz=16; 
-		    tempffc.txsz=1;
+					tempffc.hysz=16; 
+					tempffc.txsz=1;
                     tempffc.tysz=1;
                     tempffc.flags=0;
                 }
 		
-		tempffc.setSolid(tempffc.flags & ffSOLID);
+				tempffc.updateSolid();
 			
                 
                 if(Header->zelda_version == 0x211 || (Header->zelda_version == 0x250 && Header->build<20))
@@ -17311,7 +17311,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 				}
 				if(!p_igetl(&(tempffc.flags),f,true))
 					return qe_invalid;
-				tempffc.setSolid(tempffc.flags & ffSOLID);
+				tempffc.updateSolid();
 				if(!p_igetw(&(tempffc.script),f,true))
 					return qe_invalid;
 				for(auto q = 0; q < 8; ++q)
