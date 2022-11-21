@@ -146,6 +146,17 @@ void ffcdata::updateSolid()
 		solid_update(false);
 }
 
+void ffcdata::setLoaded(bool set)
+{
+	if(loaded==set) return;
+	loaded = set;
+	updateSolid();
+}
+bool ffcdata::getLoaded() const
+{
+	return loaded;
+}
+
 void mapscr::zero_memory()
 {
 	//oh joy, this will be fun...

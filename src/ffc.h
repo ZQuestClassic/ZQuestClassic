@@ -29,7 +29,6 @@ public:
 	int32_t initd[INITIAL_D];
 	int32_t inita[INITIAL_A];
 	bool initialized;
-	bool loaded;
 	
 	ffcdata();
 	~ffcdata();
@@ -40,6 +39,10 @@ public:
 	void clear();
 	virtual bool setSolid(bool set);
 	virtual void updateSolid();
+	void setLoaded(bool set);
+	bool getLoaded() const;
+private:
+	bool loaded;
 };
 
 struct mapscr
