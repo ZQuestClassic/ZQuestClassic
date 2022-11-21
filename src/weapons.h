@@ -167,7 +167,8 @@ double RadiansToDegrees(double rad);
 double DirToRadians(int dir);
 double DirToDegrees(int dir);
 int32_t AngleToDir(double radians);
-int32_t AngleToDir4(double radians);
+int32_t AngleToDir4(double degrees);
+int32_t AngleToDir4Rad(double radians);
 
 int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid);
 void killgenwpn(weapon* w);

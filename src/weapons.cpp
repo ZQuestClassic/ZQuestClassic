@@ -176,6 +176,30 @@ int32_t AngleToDir4(double ddir)
 	return lookat;
 }
 
+int32_t AngleToDir4Rad(double ddir)
+{
+	int32_t lookat=0;
+	ddir = RadiansToDegrees(ddir);
+	
+	if(ddir <= 135.0 && ddir > 45.0)
+	{
+		lookat = down;
+	}
+	else if(ddir <= 45.0 && ddir > -45.0)
+	{
+		lookat = right;
+	}
+	else if(ddir <= -45.0 && ddir > -135.0)
+	{
+		lookat = up;
+	}
+	else
+	{
+		lookat = left;
+	}
+	return lookat;
+}
+
 static void weapon_triggersecret(int32_t pos, int32_t flag)
 {
 	mapscr *s = tmpscr;

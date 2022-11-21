@@ -2807,5 +2807,74 @@ bool breakable::animate(int32_t)
 	return false;
 }
 
+//x1,y1 = top of left line
+//x2,y2 = bottom of left line
+//x3,y3 = top of right line
+//x4,y4 = bottom of right line
+bool insideRotRect(double x, double y, int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+	int32_t x3, int32_t y3, int32_t x4, int32_t y4)
+{
+	if(y < y1 && y < y3) return false;
+	if(y > y2 && y > y4) return false;
+
+	double slope1 = (y2-y1)/double(x2-x1);
+	double b1 = y1 - (slope1*x1);
+	double slope2 = (y4-y3)/double(x4-x3);
+	double b2 = y3 - (slope2*x3);
+	double slope3 = (y3-y1)/double(x3-x1);
+	double b3 = y3 - (slope3*x3);
+	double slope4 = (y4-y2)/double(x4-x2);
+	double b4 = y4 - (slope4*x4);
+	double l1y = slope1*x + b1;
+	double l2y = slope2*x + b2;
+	double l3y = slope3*x + b3;
+	double l4y = slope4*x + b4;
+	if(y < l1y && y < l2y) return false;
+	if(y > l1y && y > l2y) return false;
+	if(y < l3y && y < l4y) return false;
+	if(y > l3y && y > l4y) return false;
+	return true;
+}
+
+bool lineLineColl(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int32_t x4, int32_t y4)
+{
+	 float denominator = ((x2 - x1) * (y4 - y3)) - ((y2 - y1) * (x4 - x3));
+	float numerator1 = ((y1 - y3) * (x4 - x3)) - ((x1 - x3) * (y4 - y3));
+	float numerator2 = ((y1 - y3) * (x2 - x1)) - ((x1 - x3) * (y2 - y1));
+	
+	if (denominator == 0) 
+	{
+		if (x3 >= x1 && x3 <= x2 || x3 <= x1 && x3 >= x2 
+		|| x4 >= x1 && x4 <= x2 || x4 <= x1 && x4 >= x2)
+		{
+			return numerator1 == 0 && numerator2 == 0;
+		}
+		else return false;
+	}
+	    
+	float r = numerator1 / denominator;
+	float s = numerator2 / denominator;
+
+	return (r >= 0 && r <= 1) && (s >= 0 && s <= 1);
+}
+
+//Line box collision is just 4 lineline collisions
+bool lineBoxCollision(int32_t linex1, int32_t liney1, int32_t linex2, int32_t liney2, int32_t boxx, int32_t boxy, int32_t boxwidth, int32_t boxheight)
+{
+	if (lineLineColl(linex1, liney1, linex2, liney2, boxx, boxy, boxx+boxwidth-1, boxy)) return true;
+	if (lineLineColl(linex1, liney1, linex2, liney2, boxx, boxy, boxx, boxy+boxheight-1)) return true;
+	if (lineLineColl(linex1, liney1, linex2, liney2, boxx+boxwidth-1, boxy, boxx+boxwidth-1, boxy+boxheight-1)) return true;
+	if (lineLineColl(linex1, liney1, linex2, liney2, boxx, boxy+boxheight-1, boxx+boxwidth-1, boxy+boxheight-1)) return true;
+	return false;
+}
+
+double comparePointLine(double x, double y, double x1, double y1, double x2, double y2)
+{
+    double slope = (y2-y1)/(x2-x1);
+    double b = y1 - (slope*x1);
+    double ly = slope*x + b;
+    return y-ly;
+}
+
 /*** end of sprite.cc ***/
 

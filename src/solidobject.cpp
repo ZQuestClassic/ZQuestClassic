@@ -216,7 +216,229 @@ void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy) co
 	
 	if(odx && ody)
 	{
-		//!TODO SOLIDPUSH Diagonal Movement pushing
+		//first lets see if the object is even in range; if not we can skip all these checks
+		if (collide((odx > 0?obj_ox:obj_x), (ody > 0 ? obj_oy : obj_y), abs(odx)+obj_w, abs(ody)+obj_h))
+		{
+			//we're grabbing the corners of the object. These coordinates assume a rotrect either going upright or downleft.
+			zfix leftx = obj_x;
+			zfix topy = obj_y;
+			zfix todx = odx;
+			zfix ox, oy, nx, ny;
+			zfix rightx = leftx + obj_w - 1;
+			zfix bottomy = topy + obj_h - 1;
+			if (odx > 0)
+			{
+				ox = leftx;
+				nx = rightx;
+			}
+			else
+			{
+				ox = rightx;
+				nx = leftx;
+			}
+			if (ody > 0)
+			{
+				oy = topy;
+				ny = bottomy;
+			}
+			else
+			{
+				oy = bottomy;
+				ny = topy;
+			}
+			if (ody > 0)
+			{
+				todx = -odx;
+				leftx = obj_ox;
+				topy = obj_oy;
+			}
+			zfix centerx = leftx + (obj_w/2)-1;
+			zfix centery = topy + (obj_h/2)-1;
+			rightx = leftx + obj_w - 1;
+			bottomy = topy + obj_h - 1;
+
+			
+			//however, depending on the direction, we want to use different corners of the object.
+			//thankfully, we can tell the direction by getting the signs of the velocity. if they're both equal, it's upleft and downright instead.
+			
+			zfix lefty = (sign(odx) == sign(ody)) ? bottomy : topy;
+			zfix righty = (sign(odx) == sign(ody)) ? topy : bottomy;
+			zfix side = 0;
+			bool collided = false;
+			if (lineBoxCollision(leftx, lefty, leftx+todx, lefty+abs(ody), rx, ry, rw, rh))
+			{
+				--side;
+				collided = true;
+			}
+			if (lineBoxCollision(rightx, righty, rightx+todx, righty+abs(ody), rx, ry, rw, rh))
+			{
+				++side;
+				collided = true;
+			}
+			if(!collided)
+			{
+				if (insideRotRect(rx+((rw)/2)-1, ry+((rh)/2)-1, leftx, lefty, leftx+todx, lefty+abs(ody), centerx, centery, centerx+todx, centery+abs(ody)))
+				{
+					--side;
+					collided = true;
+				}
+				if (insideRotRect(rx+((rw)/2)-1, ry+((rh)/2)-1, centerx, centery, centerx+todx, centery+abs(ody), rightx, righty, rightx+todx, righty+abs(ody)))
+				{
+					++side;
+					collided = true;
+				}
+			}
+			if (!collided && collide(obj_x, obj_y, obj_w, obj_h)) 
+			{
+				double val = comparePointLine(rx+rw/2, ry+rh/2, ox, oy, nx, ny);
+				if (abs(val) > 6) side = sign(val);
+				collided = true;
+			}
+			if (collided)
+			{
+				if (lineBoxCollision(ox, oy, nx, ny, rx+(rw/4), ry+(rh/4), rw/2, rh/2))
+				{
+					side = 0;
+				}
+				byte pdir = 0; //topleft
+				byte pdir2 = 0; //the dir the thing will actually be pushed in
+				if (odx >= 0 && ody < 0) pdir = 1; //topright
+				if (odx < 0 && ody >= 0) pdir = 2; //bottomleft
+				if (odx >= 0 && ody >= 0) pdir = 3; //bottomright
+				
+				switch(pdir)
+				{
+					case 0:
+					{
+						if (side < 0) pdir2 = left;
+						else if (side > 0) pdir2 = up;
+						else pdir2 = l_up;
+						break;
+					}
+					case 1:
+					{
+						if (side < 0) pdir2 = up;
+						else if (side > 0) pdir2 = right;
+						else pdir2 = r_up;
+						break;
+					}
+					case 2:
+					{
+						if (side < 0) pdir2 = left;
+						else if (side > 0) pdir2 = down;
+						else pdir2 = l_down;
+						break;
+					}
+					case 3:
+					{
+						if (side < 0) pdir2 = down;
+						else if (side > 0) pdir2 = right;
+						else pdir2 = r_down;
+						break;
+					}
+					default:
+						break;
+				}
+				zfix orx = rx;
+				zfix ory = ry;
+				int32_t count = 0;
+				while (side < 0 ? (insideRotRect(rx+((rw)/2)-1, ry+((rh)/2)-1, leftx, lefty, leftx+todx, lefty+abs(ody), centerx, centery, centerx+todx, centery+abs(ody))
+						|| lineBoxCollision(leftx, lefty, leftx+todx, lefty+abs(ody), rx, ry, rw, rh)) 
+						: (side > 0 ? (insideRotRect(rx+((rw)/2)-1, ry+((rh)/2)-1, centerx, centery, centerx+todx, centery+abs(ody), rightx, righty, rightx+todx, righty+abs(ody))
+							|| lineBoxCollision(rightx, righty, rightx+todx, righty+abs(ody), rx, ry, rw, rh))
+							: (lineBoxCollision(ox, oy, nx, ny, rx+(rw/4), ry+(rh/4), rw/2, rh/2) || obj->collide(rx, ry, rw, rh))))
+				{
+					bool check = true;
+					if (obj->collide(rx, ry, rw, rh))
+					{
+						double val = comparePointLine(rx+rw/2, ry+rh/2, ox, oy, nx, ny);
+						if (side == (abs(val) > 6 ? sign(val) : 0)) check = false;
+					}
+					if (check)
+					{
+						if (side < 0)
+						{
+							if (!(insideRotRect(rx+((rw)/2)-1, ry+((rh)/2)-1, leftx, lefty, leftx+todx, lefty+abs(ody), centerx, centery, centerx+todx, centery+abs(ody))
+								|| lineBoxCollision(leftx, lefty, leftx+todx, lefty+abs(ody), rx, ry, rw, rh))) 
+									break;
+						}
+						else if (side > 0)
+						{
+							if (!(insideRotRect(rx+((rw)/2)-1, ry+((rh)/2)-1, centerx, centery, centerx+todx, centery+abs(ody), rightx, righty, rightx+todx, righty+abs(ody))
+								|| lineBoxCollision(rightx, righty, rightx+todx, righty+abs(ody), rx, ry, rw, rh)))
+									break;
+						}
+						else if (!lineBoxCollision(ox, oy, nx, ny, rx+(rw/4), ry+(rh/4), rw/2, rh/2))
+							break;
+					}
+					switch(pdir2)
+					{
+						case up:
+						{
+							--ry;
+							break;
+						}
+						case down:
+						{
+							++ry;
+							break;
+						}
+						case left:
+						{
+							--rx;
+							break;
+						}
+						case right:
+						{
+							++rx;
+							break;
+						}
+						case l_up:
+						{
+							--rx;
+							--ry;
+							break;
+						}
+						case r_up:
+						{
+							++rx;
+							--ry;
+							break;
+						}
+						case l_down:
+						{
+							--rx;
+							++ry;
+							break;
+						}
+						case r_down:
+						{
+							++rx;
+							++ry;
+							break;
+						}
+						default:
+							break;
+					}
+				}
+				dx = rx - orx;
+				dy = ry - ory;
+			}
+			// if (collide(obj_x, obj_y, obj_w, obj_h))
+			// {
+				
+				// if (abs(obj_x+sxofs - rx) > abs(obj_y + ((ry - obj_y) < 0? syofs:0) - ry))
+				// {
+					// if ((rx - obj_x) > 0) dx = obj_x + obj_w - rx;
+					// else dx = obj_x - rw - rx;
+				// }
+				// else
+				// {
+					// if ((ry - obj_y) > 0) dy = obj_y + obj_h - ry;
+					// else dy = obj_y - rh - ry;
+				// }
+			// }
+		}
 		return;
 	}
 	else if(odx)

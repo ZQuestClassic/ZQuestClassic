@@ -308,6 +308,11 @@ public:
 	
 	virtual bool animate(int32_t);
 };
+
+bool insideRotRect(double x, double y, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int32_t x4, int32_t y4);
+bool lineLineColl(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int32_t x4, int32_t y4);
+bool lineBoxCollision(int32_t linex1, int32_t liney1, int32_t linex2, int32_t liney2, int32_t boxx, int32_t boxy, int32_t boxwidth, int32_t boxheight);
+double comparePointLine(double x, double y, double x1, double x2, double y1, double y2);
 #endif
 /*** end of sprite.cc ***/
 

@@ -1493,7 +1493,7 @@ bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 				case -1: //4-dir at player
 				{
 					angular = false;
-					dir = AngleToDir4(at_player);
+					dir = AngleToDir4Rad(at_player);
 					break;
 				}
 				case -2: //8-dir at player

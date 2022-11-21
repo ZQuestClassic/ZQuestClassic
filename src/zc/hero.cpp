@@ -9728,12 +9728,22 @@ void HeroClass::solid_push(solid_object* obj)
 	dx.doRoundAway();
 	dy.doRoundAway();
 	
+	int32_t pdir = dy > 0 ? down : up;
+	int32_t pdir2 = dx > 0 ? right : left;
+	
 	while(dx && dy)
 	{
-		//!TODO SOLIDPUSH diagonal move loop
-		break;
+		if(check_pitslide() != -1)
+			break;
+		if(!push_pixel(pdir))
+			break;
+		if (dy > 0) --dy;
+		else ++dy;
+		if(!push_pixel(pdir2))
+			break;
+		if (dx > 0) --dx;
+		else ++dx;
 	}
-	int32_t pdir;
 	if(dx)
 	{
 		pdir = dx > 0 ? right : left;
