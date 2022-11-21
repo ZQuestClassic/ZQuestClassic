@@ -5603,6 +5603,7 @@ int main(int argc, char **argv)
 	else if (record_arg > 0)
 	{
 		ASSERT(zqtesting_mode);
+		int replay_name_arg = used_switch(argc, argv, "-replay-name");
 
 		replay_start(ReplayMode::Record, argv[record_arg + 1]);
 		replay_set_debug(replay_debug);
@@ -5612,6 +5613,8 @@ int main(int argc, char **argv)
 		replay_set_meta("starting_dmap", testingqst_dmap);
 		replay_set_meta("starting_scr", testingqst_screen);
 		replay_set_meta("starting_retsqr", testingqst_retsqr);
+		if (used_switch(argc, argv, "-replay-name") > 0)
+			replay_set_meta("name", argv[replay_name_arg + 1]);
 		use_testingst_start = true;
 	}
 	if (frame_arg > 0)
