@@ -4639,7 +4639,10 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	tmpscr[tmp] = TheMaps[currmap*MAPSCRS+scr];
 	if (!tmp)
 		for(int i = 0; i < MAXFFCS; ++i)
+		{
 			tmpscr[tmp].ffcs[i].setLoaded(true);
+			tmpscr[tmp].ffcs[i].solid_update(false);
+		}
 	
 	const int32_t _mapsSize = ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth;
 	tmpscr[tmp].valid |= mVALID; //layer 0 is always valid
