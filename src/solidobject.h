@@ -7,8 +7,9 @@
 class solid_object;
 
 bool collide_object(solid_object const* obj);
-bool collide_object(int32_t tx, int32_t ty, int32_t tw, int32_t th);
+bool collide_object(int32_t tx, int32_t ty, int32_t tw, int32_t th, bool ignorecuruid = false);
 void put_ffcwalkflags(BITMAP *dest, int32_t x, int32_t y);
+void setCurObject(solid_object* obj);
 
 class solid_object
 {

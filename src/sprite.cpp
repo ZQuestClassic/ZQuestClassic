@@ -2285,6 +2285,7 @@ void sprite_list::animate()
 	{
 		if(!(freeze_guys && sprites[active_iterator]->canfreeze))
 		{
+			setCurObject(sprites[active_iterator]);
 			if(sprites[active_iterator]->animate(active_iterator))
 			{
 #ifndef IS_ZQUEST

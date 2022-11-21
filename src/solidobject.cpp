@@ -30,12 +30,23 @@ void put_ffcwalkflags(BITMAP *dest, int32_t x, int32_t y)
 	}
 }
 
+static solid_object* curobject = NULL;
+
+void setCurObject(solid_object* obj)
+{
+	curobject = obj;
+}
+
+solid_object* getCurObject()
+{
+	return curobject;
+}
 
 bool collide_object(solid_object const* obj)
 {
 	for(auto it = solid_objects.begin(); it != solid_objects.end(); ++it)
 	{
-		if (*it == obj) continue;
+		if (*it == obj || *it == curobject) continue;
 		if ((*it)->collide(obj))
 			return true;
 	}
@@ -46,14 +57,14 @@ bool collide_object(int32_t tx, int32_t ty, int32_t tw, int32_t th)
 {
 	for(auto it = solid_objects.begin(); it != solid_objects.end(); ++it)
 	{
+		if (*it == curobject) continue;
 		if ((*it)->collide(tx, ty, tw, th))
 			return true;
 	}
 	return false;
 }
 
-
-solid_object::solid_object() : solid(false), hxsz(16), hysz(16), hxofs(0), hyofs(0)
+solid_object::solid_object() : solid(false), hxsz(16), hysz(16), hxofs(0), hyofs(0), solidflags(0)
 {}
 
 solid_object::~solid_object()
@@ -75,6 +86,7 @@ void solid_object::copy(solid_object const& other)
 	hxofs = other.hxofs;
 	hyofs = other.hyofs;
 	solid = other.solid;
+	solidflags = other.solidflags;
 	if (solid) solid_objects.push_back(this);
 	else remove_object(this);
 }
