@@ -14087,6 +14087,7 @@ bool eWizzrobe::animate(int32_t index)
 		{
 			fading=0;
 			hxofs=0;
+			solid_update(false);
 		}
 		else switch(clk)
 		{
@@ -14211,6 +14212,7 @@ bool eWizzrobe::animate(int32_t index)
 				
 				fading=fade_flicker;
 				hxofs=0;
+				solid_update(false);
 				break;
 				
 			case 64:
@@ -14240,6 +14242,7 @@ bool eWizzrobe::animate(int32_t index)
 			case 146:
 				fading=fade_invisible;
 				hxofs=1000;
+				solid_update(false);
 
 				[[fallthrough]];
 			default:
