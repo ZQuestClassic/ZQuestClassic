@@ -4749,7 +4749,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		
 		init_ffpos();
 		word ffcCount = ffscr.countFFC();
-		for(word i = 0; i < ffcCount; i++)
+		for(word i = 0; i < MAXFFCS; i++)
 		{
 			if((ffscr.ffcs[i].flags&ffCARRYOVER) && !(ffscr.flags5&fNOFFCARRYOVER))
 			{
