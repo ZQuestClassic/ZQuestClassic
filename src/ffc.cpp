@@ -376,7 +376,7 @@ void mapscr::copy(mapscr const& other)
 		layeropacity[i]=other.layeropacity[i];
 	}
 	
-	word c = other.countConstFFC();
+	word c = other.countFFC();
 	for(word i = 0; i<c; ++i)
 		ffcs[i] = other.ffcs[i];
 	for(word i = c; i<MAXFFCS; ++i)

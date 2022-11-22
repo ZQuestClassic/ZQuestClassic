@@ -16813,8 +16813,6 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
                 }
             }
         }
-	
-	temp_mapscr->countFFC();
     }
     
     //add in the new whistle flags

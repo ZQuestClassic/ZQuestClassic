@@ -12435,17 +12435,7 @@ void set_register(const int32_t arg, const int32_t value)
 	//FFC Variables
 		case DATA:
 			if(BC::checkFFC(ri->ffcref, "ffc->Data") == SH::_NoError)
-			{
 				tmpscr->ffcs[ri->ffcref].data = vbound(value/10000,0,MAXCOMBOS-1);
-				if (tmpscr->ffcs[ri->ffcref].data != 0 && ri->ffcref > tmpscr->lastffc)
-				{
-					tmpscr->lastffc = ri->ffcref;
-				}
-				else if (tmpscr->ffcs[ri->ffcref].data == 0 && ri->ffcref == tmpscr->lastffc) 
-				{
-					tmpscr->countFFC(tmpscr->lastffc);
-				}
-			}
 			break;
 		
 		case FFSCRIPT:
@@ -19380,31 +19370,7 @@ void set_register(const int32_t arg, const int32_t value)
 		case MAPDATASCREENHEIGHT: 	SET_MAPDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
 		case MAPDATAENTRYX: 		SET_MAPDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
 		case MAPDATAENTRYY: 		SET_MAPDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
-		case MAPDATAFFDATA:         
-		{
-			int32_t indx = (ri->d[rINDEX] / 10000)-1;
-			if(indx < 0 || indx > MAXFFCS-1 )
-			{
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), "FFCData");
-			}
-			else if (mapscr *m = GetMapscr(ri->mapsref))
-			{
-				m->ffcs[indx].data = value/10000;
-				if (m->ffcs[indx].data != 0 && indx > m->lastffc)
-				{
-					m->lastffc = indx;
-				}
-				else if (m->ffcs[indx].data == 0 && indx == m->lastffc) 
-				{
-					m->countFFC(m->lastffc);
-				}
-			}
-			else
-			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised", "FFCData");
-			}
-			break;  //W, MAXFFCS OF THESE
-		}
+		case MAPDATAFFDATA:         SET_MAPDATA_FFC_INDEX32(data, "FFCData", MAXFFCS-1); break;  //W, MAXFFCS OF THESE
 		case MAPDATAFFCSET:         SET_MAPDATA_FFC_INDEX32(cset, "FFCCSet", MAXFFCS-1); break;  //B, MAXFFCS
 		case MAPDATAFFDELAY:        SET_MAPDATA_FFC_INDEX32(delay, "FFCDelay", MAXFFCS-1); break;    //W, MAXFFCS
 		case MAPDATAFFX:        SET_MAPDATA_FFCPOS_INDEX32(x, "FFCX", MAXFFCS-1); break; //INT32, MAXFFCS OF THESE
