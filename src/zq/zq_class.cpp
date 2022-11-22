@@ -1650,7 +1650,7 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
     dest->scrWidth=src->scrWidth;
     dest->scrHeight=src->scrHeight;
     
-	word c = src->countFFC();
+	word c = src->countConstFFC();
     for(word i=0; i<c; ++i)
 		dest->ffcs[i] = src->ffcs[i];
     for(word i=c; i<MAXFFCS; ++i)
@@ -4768,7 +4768,7 @@ void zmap::PasteFFCombos(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-		word c = copymapscr.countFFC();
+		word c = copymapscr.countConstFFC();
         for(word i=0; i<c; i++)
             screens[currscr].ffcs[i] = copymapscr.ffcs[i];
 		for(word i = c; i < MAXFFCS; ++i)

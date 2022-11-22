@@ -1010,6 +1010,11 @@ void update_combo_cycling()
                 (cmb.nextcombo!=0))
         {
             ffc.data=cmb.nextcombo;
+	    if (ffc.data != 0 && i > tmpscr->lastffc) tmpscr->lastffc = i;
+	    else if (ffc.data == 0 && i == tmpscr->lastffc) 
+	    {
+		    tmpscr->countFFC(tmpscr->lastffc);
+	    }
             if(!(cmb.animflags & AF_CYCLENOCSET))
 				ffc.cset=cmb.nextcset;
             
@@ -2760,6 +2765,14 @@ void update_freeform_combos()
 				else if(thisffc.x<-64)
 				{
 					thisffc.data=0;
+					if (thisffc.data != 0 && i > tmpscr->lastffc)
+					{
+						tmpscr->lastffc = i;
+					}
+					else if (thisffc.data == 0 && i == tmpscr->lastffc) 
+					{
+						tmpscr->countFFC(tmpscr->lastffc);
+					}
 					thisffc.flags&=~ffCARRYOVER;
 				}
 			}
@@ -2776,6 +2789,14 @@ void update_freeform_combos()
 				else
 				{
 					thisffc.data=0;
+					if (thisffc.data != 0 && i > tmpscr->lastffc)
+					{
+						tmpscr->lastffc = i;
+					}
+					else if (thisffc.data == 0 && i == tmpscr->lastffc) 
+					{
+						tmpscr->countFFC(tmpscr->lastffc);
+					}
 					thisffc.flags&=~ffCARRYOVER;
 				}
 			}
@@ -2793,6 +2814,14 @@ void update_freeform_combos()
 				else if(thisffc.y<-64)
 				{
 					thisffc.data=0;
+					if (thisffc.data != 0 && i > tmpscr->lastffc)
+					{
+						tmpscr->lastffc = i;
+					}
+					else if (thisffc.data == 0 && i == tmpscr->lastffc) 
+					{
+						tmpscr->countFFC(tmpscr->lastffc);
+					}
 					thisffc.flags&=~ffCARRYOVER;
 				}
 			}
@@ -2809,6 +2838,14 @@ void update_freeform_combos()
 				else
 				{
 					thisffc.data=0;
+					if (thisffc.data != 0 && i > tmpscr->lastffc)
+					{
+						tmpscr->lastffc = i;
+					}
+					else if (thisffc.data == 0 && i == tmpscr->lastffc) 
+					{
+						tmpscr->countFFC(tmpscr->lastffc);
+					}
 					thisffc.flags&=~ffCARRYOVER;
 				}
 			}

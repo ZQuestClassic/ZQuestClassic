@@ -14217,6 +14217,14 @@ void do_movecombo(combo_move_data const& cmd)
 				if((ffc.data >= cmd.copy1) && (ffc.data < cmd.copy1+cmd.copycnt) && (ffc.data != 0))
 				{
 					ffc.data += diff;
+					if (ffc.data != 0 && k > scr.lastffc)
+					{
+						scr.lastffc = k;
+					}
+					else if (ffc.data == 0 && k == scr.lastffc) 
+					{
+						scr.countFFC(scr.lastffc);
+					}
 				}
 			}
 		}

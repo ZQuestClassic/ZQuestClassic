@@ -123,13 +123,38 @@ struct mapscr
 	
 	byte entry_x, entry_y; //Where Hero entered the screen. Used for pits, and to prevent water walking. -Z
 	
+	word lastffc = 0;
+	bool loadedlastffc = false;
+	
 	ffcdata ffcs[MAXFFCS];
 	
-	word countFFC() const
+	word countFFC(word startingpos = MAXFFCS)
+	{
+		if (loadedlastffc == false)
+		{
+			lastffc = 0;
+			for(word w = startingpos; w > 0; --w)
+			{
+				if(ffcs[w-1].data)
+				{
+					lastffc = w;
+					break;
+				}
+			}
+			loadedlastffc = true;
+		}
+		return lastffc;
+	}
+	
+	word countConstFFC() const
 	{
 		for(word w = MAXFFCS; w > 0; --w)
+		{
 			if(ffcs[w-1].data)
+			{
 				return w;
+			}
+		}
 		return 0;
 	}
 	
