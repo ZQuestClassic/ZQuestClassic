@@ -37,6 +37,7 @@ static std::string filename;
 static std::vector<std::shared_ptr<ReplayStep>> replay_log;
 static std::vector<std::shared_ptr<ReplayStep>> record_log;
 static std::map<std::string, std::string> meta_map;
+static std::vector<int> snapshot_frames;
 static size_t replay_log_current_index;
 static size_t assert_current_index;
 static size_t manual_takeover_start_index;
@@ -49,7 +50,6 @@ static std::vector<zc_randgen *> rngs;
 static uint32_t prev_gfx_hash;
 static int prev_debug_x;
 static int prev_debug_y;
-static bool saved_image;
 
 struct ReplayStep
 {
@@ -775,27 +775,35 @@ static void start_manual_takeover()
     Paused = true;
 }
 
-static void do_snapshot()
+static void do_snapshot(bool unexpected)
 {
-    if (mode == ReplayMode::Snapshot && frame_arg != -1)
-    {
-        if (frame_arg == frame_count)
-        {
-            int line_number = replay_log_current_index + meta_map.size() + 1;
-            if (debug) line_number += 1;
-            std::string img_filename = fmt::format("{}.{}-{}.bmp", filename, frame_count, line_number);
-            fmt::print("Saving requested bitmap: {}\n", img_filename);
-            save_bitmap(img_filename.c_str(), framebuf, RAMpal);
-            saved_image = true;
-        }
-        else if (frame_arg < frame_count)
-        {
-            if (saved_image)
-                exit(0);
-            fmt::print(stderr, "Missed expected snapshot frame: {}\n", frame_arg);
-            exit(1);
-        }
-    }
+	static int last_snapshot_frame = 0;
+	static int num_snapshots_this_frame = 0;
+
+	auto it = std::find(snapshot_frames.begin(), snapshot_frames.end(), frame_count);
+	if (it == snapshot_frames.end())
+		return;
+
+	if (last_snapshot_frame != frame_count)
+	{
+		last_snapshot_frame = frame_count;
+		num_snapshots_this_frame = 0;
+	}
+
+	std::string img_filename = num_snapshots_this_frame == 0 ?
+		fmt::format("{}.{}", filename, frame_count) :
+		fmt::format("{}.{}_{}", filename, frame_count, num_snapshots_this_frame + 1);
+	if (unexpected)
+		img_filename += "-unexpected";
+	img_filename += ".bmp";
+
+	if (unexpected)
+		fmt::print(stderr, "Saving unexpected bitmap: {}\n", img_filename);
+	else
+		fmt::print("Saving requested bitmap: {}\n", img_filename);
+
+	save_bitmap(img_filename.c_str(), framebuf, RAMpal);
+	num_snapshots_this_frame++;
 }
 
 void replay_start(ReplayMode mode_, std::string filename_)
@@ -812,9 +820,9 @@ void replay_start(ReplayMode mode_, std::string filename_)
     frame_arg = -1;
     prev_gfx_hash = 0;
     prev_debug_x = prev_debug_y = -1;
-    saved_image = false;
     replay_log.clear();
     record_log.clear();
+	snapshot_frames.clear();
     replay_forget_input();
 
     switch (mode)
@@ -831,7 +839,6 @@ void replay_start(ReplayMode mode_, std::string filename_)
         break;
     }
     case ReplayMode::Replay:
-    case ReplayMode::Snapshot:
         load_replay(filename);
         break;
     case ReplayMode::Assert:
@@ -905,19 +912,12 @@ void replay_poll()
 
     if (frame_arg != -1 && frame_arg <= frame_count && replay_is_replaying())
     {
-        if (mode == ReplayMode::Snapshot)
-            do_snapshot();
-
         if (mode == ReplayMode::Update)
         {
             start_manual_takeover();
             enter_sys_pal();
             jwin_alert("Recording", "Re-recording until new screen is loaded", NULL, NULL, "OK", NULL, 13, 27, lfont);
             exit_sys_pal();
-        }
-        else if (mode == ReplayMode::Snapshot && frame_arg == frame_count)
-        {
-            // Let it go on for one more frame.
         }
         else
         {
@@ -939,7 +939,6 @@ void replay_poll()
         do_recording_poll();
         break;
     case ReplayMode::Replay:
-    case ReplayMode::Snapshot:
         do_replaying_poll();
         if (replay_log_current_index == replay_log.size())
             replay_stop();
@@ -965,6 +964,77 @@ void replay_poll()
     }
 
     frame_count++;
+}
+
+// example: 0 3 4-10 45
+bool replay_add_snapshot_frame(std::string frames_shorthand)
+{
+	std::vector<int> frames;
+	bool in_number = false;
+	bool in_range = false;
+	size_t cur_start_index = 0;
+
+	for (size_t i = 0; i <= frames_shorthand.size(); i++)
+	{
+		char c = i == frames_shorthand.size() ? ' ' : frames_shorthand[i];
+		if (c == ' ')
+		{
+			if (!in_number)
+				continue;
+
+			errno = 0;
+			int as_int = std::strtol(frames_shorthand.data() + cur_start_index, nullptr, 10);
+			if (errno)
+				return false;
+
+			if (in_range)
+			{
+				int from = frames.back();
+				if (from >= as_int)
+					return false;
+
+				for (int i = from + 1; i <= as_int; i++)
+					frames.push_back(i);
+			}
+			else
+			{
+				frames.push_back(as_int);
+			}
+			in_number = in_range = false;
+		}
+		else if (std::isdigit(c))
+		{
+			if (!in_number)
+			{
+				in_number = true;
+				cur_start_index = i;
+			}
+		}
+		else if (c == '-')
+		{
+			if (!in_number)
+				return false;
+
+			errno = 0;
+			int as_int = std::strtol(frames_shorthand.data() + cur_start_index, nullptr, 10);
+			if (errno)
+				return false;
+
+			frames.push_back(as_int);
+			in_number = false;
+			in_range = true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	if (frames.size() > 100000)
+		return false;
+
+	snapshot_frames.insert(snapshot_frames.end(), frames.begin(), frames.end());
+	return true;
 }
 
 void replay_peek_quit()
@@ -1072,14 +1142,6 @@ void replay_stop()
     {
         replay_save();
         exit(0);
-    }
-
-    if (mode == ReplayMode::Snapshot)
-    {
-        if (saved_image)
-            exit(0);
-        fmt::print(stderr, "Missed expected snapshot frame: {}\n", frame_arg);
-        exit(1);
     }
 
     mode = ReplayMode::Off;
@@ -1213,7 +1275,9 @@ std::string int_to_basE91(T value)
 
 void replay_step_gfx(uint32_t gfx_hash)
 {
-    do_snapshot();
+    auto it = std::find(snapshot_frames.begin(), snapshot_frames.end(), frame_count);
+    bool should_do_snapshot = it != snapshot_frames.end();
+    bool unexpected = false;
 
     // Skip if last invocation was the same value.
     if (gfx_hash == prev_gfx_hash)
@@ -1238,13 +1302,12 @@ void replay_step_gfx(uint32_t gfx_hash)
 				replay_log.size() > step_index &&
 				steps_are_equal(record_log.back().get(), replay_log.at(step_index).get());
 			if (!gfx_matches)
-			{
-				std::string img_filename = fmt::format("{}.unexpected-{}-{}.bmp", filename, frame_count, step_index);
-				fmt::print(stderr, "Saving unexpected bitmap: {}\n", img_filename);
-				save_bitmap(img_filename.c_str(), framebuf, RAMpal);
-			}
+				should_do_snapshot = unexpected = true;
 		}
 	}
+
+	if (should_do_snapshot)
+		do_snapshot(unexpected);
 }
 
 void replay_set_meta(std::string key, std::string value)
@@ -1380,7 +1443,7 @@ void replay_set_sync_rng(bool enable)
 
 bool replay_is_replaying()
 {
-    return mode == ReplayMode::Replay || mode == ReplayMode::Snapshot || mode == ReplayMode::Assert || mode == ReplayMode::Update;
+    return mode == ReplayMode::Replay || mode == ReplayMode::Assert || mode == ReplayMode::Update;
 }
 
 bool replay_is_recording()

@@ -42,14 +42,11 @@ parser.add_argument('--build_folder', default='build/Debug')
 parser.add_argument('--filter')
 parser.add_argument('--throttle_fps', action='store_true')
 parser.add_argument('--update', action='store_true')
-parser.add_argument('--snapshot', action='store_true')
+parser.add_argument('--snapshot')
 parser.add_argument('--retries', type=int, default=0)
 parser.add_argument('--frame', type=int)
 parser.add_argument('--ci')
 args = parser.parse_args()
-
-if args.snapshot and args.update:
-    raise Exception('can only have one of --update or --snapshot')
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 replays_dir = os.path.join(script_dir, 'replays')
@@ -95,8 +92,6 @@ def run_replay_test(replay_file):
     mode = 'assert'
     if args.update:
         mode = 'update'
-    elif args.snapshot:
-        mode = 'snapshot'
 
     exe_args = [
         exe_path,
@@ -106,6 +101,8 @@ def run_replay_test(replay_file):
     ]
     if args.frame is not None:
         exe_args.extend(['-frame', str(args.frame)])
+    if args.snapshot is not None:
+        exe_args.extend(['-snapshot', args.snapshot])
 
     # Cap the length of a replay in CI.
     if args.ci:

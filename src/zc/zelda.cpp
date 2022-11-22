@@ -4528,7 +4528,7 @@ int32_t onFullscreen()
 static bool current_session_is_replay = false;
 static void load_replay_file(ReplayMode mode, std::string replay_file)
 {
-	ASSERT(mode == ReplayMode::Replay || mode == ReplayMode::Snapshot || mode == ReplayMode::Assert || mode == ReplayMode::Update);
+	ASSERT(mode == ReplayMode::Replay || mode == ReplayMode::Assert || mode == ReplayMode::Update);
 	replay_start(mode, replay_file);
 	strcpy(testingqst_name, replay_get_meta_str("qst").c_str());
 	if (replay_get_meta_bool("test_mode"))
@@ -5584,11 +5584,6 @@ int main(int argc, char **argv)
 	{
 		load_replay_file(ReplayMode::Replay, argv[replay_arg + 1]);
 	}
-	else if (snapshot_arg > 0)
-	{
-		ASSERT(frame_arg > 0);
-		load_replay_file(ReplayMode::Snapshot, argv[snapshot_arg + 1]);
-	}
 	else if (assert_arg > 0)
 	{
 		load_replay_file(ReplayMode::Assert, argv[assert_arg + 1]);
@@ -5616,6 +5611,8 @@ int main(int argc, char **argv)
 	}
 	if (frame_arg > 0)
 		replay_set_frame_arg(std::stoi(argv[frame_arg + 1]));
+	if (snapshot_arg > 0)
+		replay_add_snapshot_frame(argv[snapshot_arg + 1]);
 	
 	//clearConsole();
 	if(!zqtesting_mode && !replay_is_active())
