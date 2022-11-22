@@ -8880,13 +8880,12 @@ void System()
 		misc_menu[12].flags =(zasm_debugger)?D_SELECTED:0;
 		misc_menu[13].flags =(zscript_debugger)?D_SELECTED:0;
 		
+		the_player_menu[2].flags = replay_is_replaying() ? D_DISABLED : 0;
 		cheat_menu[0].flags = 0;
 		refill_menu[4].flags = get_bit(quest_rules, qr_TRUEARROWS) ? 0 : D_DISABLED;
 		cheat_menu[1].text  = (cheat >= 1) || get_debug() ? bar_str : NULL;
 		cheat_menu[3].text  = (cheat >= 2) || get_debug() ? bar_str : NULL;
 		cheat_menu[8].text  = (cheat >= 3) || get_debug() ? bar_str : NULL;
-		// TODO add onCheatConsole to new cheats_enqueue system for replay support.
-		cheat_menu[9].flags = replay_is_active() ? D_DISABLED : 0;
 		cheat_menu[10].text = (cheat >= 4) || get_debug() ? bar_str : NULL;
 		cheat_menu[4].flags = getClock() ? D_SELECTED : 0;
 		cheat_menu[11].flags = toogam ? D_SELECTED : 0;
