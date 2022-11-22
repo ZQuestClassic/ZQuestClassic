@@ -3686,7 +3686,7 @@ bool weapon::animate(int32_t index)
 			screengrid_layer[1][q] = 0;
 		}
 		
-		for(int32_t q=0; q<4; q++)
+		for (word q = MAXFFCS / 8 - 1; q >= 0; --q)
 			ffcgrid[q] = 0;
 		
 		for(int32_t dx = 0; dx < hxsz; dx += 16)
