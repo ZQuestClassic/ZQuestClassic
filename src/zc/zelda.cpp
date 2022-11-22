@@ -5613,6 +5613,8 @@ int main(int argc, char **argv)
 		replay_set_frame_arg(std::stoi(argv[frame_arg + 1]));
 	if (snapshot_arg > 0)
 		replay_add_snapshot_frame(argv[snapshot_arg + 1]);
+	if (strlen(zc_get_config("zeldadx", "replay_snapshot", "")) > 0)
+		replay_add_snapshot_frame(zc_get_config("zeldadx", "replay_snapshot", ""));
 	
 	//clearConsole();
 	if(!zqtesting_mode && !replay_is_active())
