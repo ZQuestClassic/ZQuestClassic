@@ -59,7 +59,7 @@ void ffdata::load(mapscr const* scr, int32_t ind)
 	dy = scr->ffcs[ind].vy.getZLong();
 	ax = scr->ffcs[ind].ax.getZLong();
 	ay = scr->ffcs[ind].ay.getZLong();
-	data = scr->ffcs[ind].data;
+	data = scr->ffcs[ind].getData();
 	cset = scr->ffcs[ind].cset;
 	delay = scr->ffcs[ind].delay;
 	flags = scr->ffcs[ind].flags;
@@ -83,15 +83,7 @@ void ffdata::save(mapscr* scr, int32_t ind)
 	scr->ffcs[ind].vy = zslongToFix(dy);
 	scr->ffcs[ind].ax = zslongToFix(ax);
 	scr->ffcs[ind].ay = zslongToFix(ay);
-	scr->ffcs[ind].data = data;
-	if (data != 0 && ind > scr->lastffc)
-	{
-		scr->lastffc = ind;
-	}
-	else if (data == 0 && ind == scr->lastffc) 
-	{
-		scr->countFFC(scr->lastffc);
-	}
+	scr->ffcs[ind].setData(data);
 	scr->ffcs[ind].cset = cset;
 	scr->ffcs[ind].delay = delay;
 	scr->ffcs[ind].flags = flags;

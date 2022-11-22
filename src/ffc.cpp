@@ -8,7 +8,7 @@ extern newcombo *combobuf;
 extern mapscr tmpscr[2];
 #endif
 
-ffcdata::ffcdata() : solid_object()
+ffcdata::ffcdata() : solid_object(), parent(nullptr), mapscr_index(0)
 {
 	clear();
 	loaded = false;
@@ -23,7 +23,7 @@ void ffcdata::copy(ffcdata const& other)
 	ax = other.ax;
 	ay = other.ay;
 	flags = other.flags;
-	data = other.data;
+	setData(other.data);
 	delay = other.delay;
 	cset = other.cset;
 	link = other.link;
@@ -41,15 +41,15 @@ void ffcdata::changerCopy(ffcdata& other, int32_t i, int32_t j)
 #ifdef IS_PLAYER
 	if(other.flags&ffCHANGETHIS)
 	{
-		data = other.data;
+		setData(other.data);
 		cset = other.cset;
 	}
 	
 	if(other.flags&ffCHANGENEXT)
-		++data;
+		incData(1);
 	
 	if(other.flags&ffCHANGEPREV)
-		--data;
+		incData(-1);
 	
 	delay=other.delay;
 	x=other.x;
@@ -72,7 +72,7 @@ void ffcdata::changerCopy(ffcdata& other, int32_t i, int32_t j)
 	flags&=~ffCHANGER;
 	
 	if(combobuf[other.data].flag>15 && combobuf[other.data].flag<32)
-		other.data=tmpscr->secretcombo[combobuf[other.data].flag-16+4];
+		other.setData(tmpscr->secretcombo[combobuf[other.data].flag-16+4]);
 	
 	if(i > -1 && j > -1)
 	{
@@ -88,7 +88,9 @@ void ffcdata::changerCopy(ffcdata& other, int32_t i, int32_t j)
 			if(other.flags&ffSWAPPREV)
 				k=j>0?j-1:(MAXFFCS-1);
 			ffcdata& ffck = tmpscr->ffcs[k];
-			zc_swap(other.data,ffck.data);
+			auto w = ffck.data;
+			ffck.setData(other.data);
+			other.setData(w);
 			zc_swap(other.cset,ffck.cset);
 			zc_swap(other.delay,ffck.delay);
 			zc_swap(other.vx,ffck.vx);
@@ -123,7 +125,8 @@ void ffcdata::clear()
 {
 	x = y = vx = vy = ax = ay = 0;
 	flags = 0;
-	data = delay = 0;
+	setData(0);
+	delay = 0;
 	cset = link = 0;
 	txsz = tysz = 1;
 	hxsz = hysz = 16;
@@ -133,6 +136,18 @@ void ffcdata::clear()
 	memset(inita, 0, sizeof(inita));
 	updateSolid();
 }
+
+void ffcdata::setData(word newdata)
+{
+	data = newdata;
+	if(parent)
+		parent->update_ffc_data(mapscr_index, data!=0);
+}
+void ffcdata::incData(int32_t inc)
+{
+	setData(data+inc);
+}
+
 bool ffcdata::setSolid(bool set) //exists so that ffcs can do special handling for whether to make something solid or not.
 {
 	bool actual = set && !(flags&ffCHANGER) && loaded;
@@ -187,7 +202,6 @@ void mapscr::zero_memory()
 	color=0;
 	enemyflags=0;
 	lastffc = 0;
-	loadedlastffc = false;
 	
 	exitdir=0;
 	pattern=0;
@@ -260,6 +274,8 @@ void mapscr::zero_memory()
 	for(int32_t i(0); i<MAXFFCS; i++)
 	{
 		ffcs[i].clear();
+		ffcs[i].parent = this;
+		ffcs[i].mapscr_index = i;
 	}
 	
 	script_entry=0;
@@ -291,6 +307,14 @@ void mapscr::zero_memory()
 	cset.assign(176,0);
 }
 
+mapscr::mapscr()
+{
+	data.resize(176,0);
+	sflag.resize(176,0);
+	cset.resize(176,0);
+	zero_memory();
+}
+
 void mapscr::copy(mapscr const& other)
 {
 	valid=other.valid;
@@ -309,7 +333,6 @@ void mapscr::copy(mapscr const& other)
 	color=other.color;
 	enemyflags=other.enemyflags;
 	lastffc = other.lastffc;
-	loadedlastffc = other.loadedlastffc;
 	
 	exitdir=other.exitdir;
 	pattern=other.pattern;
@@ -380,7 +403,7 @@ void mapscr::copy(mapscr const& other)
 		layeropacity[i]=other.layeropacity[i];
 	}
 	
-	word c = other.countConstFFC();
+	word c = other.numFFC();
 	for(word i = 0; i<c; ++i)
 		ffcs[i] = other.ffcs[i];
 	for(word i = c; i<MAXFFCS; ++i)

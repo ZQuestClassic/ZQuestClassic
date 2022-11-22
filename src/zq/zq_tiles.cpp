@@ -14210,21 +14210,14 @@ void do_movecombo(combo_move_data const& cmd)
 				scr.undercombo += diff;
 			}
 			
-			word maxffc = scr.countFFC();
+			word maxffc = scr.numFFC();
 			for(word k=0; k<maxffc; k++)
 			{
 				ffcdata& ffc = scr.ffcs[k];
-				if((ffc.data >= cmd.copy1) && (ffc.data < cmd.copy1+cmd.copycnt) && (ffc.data != 0))
+				if((ffc.getData() >= cmd.copy1) && (ffc.getData() < cmd.copy1+cmd.copycnt)
+					&& (ffc.getData() != 0) && (ffc.getData()+diff!=0))
 				{
-					ffc.data += diff;
-					if (ffc.data != 0 && k > scr.lastffc)
-					{
-						scr.lastffc = k;
-					}
-					else if (ffc.data == 0 && k == scr.lastffc) 
-					{
-						scr.countFFC(scr.lastffc);
-					}
+					ffc.incData(diff);
 				}
 			}
 		}

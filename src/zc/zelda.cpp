@@ -2951,7 +2951,7 @@ void show_ffscript_names()
 {
 	int32_t ypos = 8;
 	
-	word c = tmpscr->countFFC();
+	word c = tmpscr->numFFC();
 	for(word i=0; i< c; i++)
 	{
 		if(ypos > 224) break;
@@ -3578,12 +3578,12 @@ void game_loop()
 		
 		bool freeze = false;
 		
-		word c = tmpscr->countFFC();
+		word c = tmpscr->numFFC();
 		for(word i=0; i<c; i++)
 		{
-			if(combobuf[tmpscr->ffcs[i].data].type==cSCREENFREEZE) freeze=true;
+			if(combobuf[tmpscr->ffcs[i].getData()].type==cSCREENFREEZE) freeze=true;
 			
-			if(combobuf[tmpscr->ffcs[i].data].type==cSCREENFREEZEFF) freezeff=true;
+			if(combobuf[tmpscr->ffcs[i].getData()].type==cSCREENFREEZEFF) freezeff=true;
 		}
 		
 		for(int32_t i=0; i<176; i++)
@@ -3839,7 +3839,7 @@ void game_loop()
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 		
-		c = tmpscr->countFFC();
+		c = tmpscr->numFFC();
 		for ( word q = 0; q < c; ++q )
 		{
 			//Z_scripterrlog("tmpscr->ffcswaitdraw is: %d\n", tmpscr->ffcswaitdraw);

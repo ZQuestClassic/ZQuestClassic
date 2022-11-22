@@ -305,7 +305,7 @@ inline bool ffcIsAt(int32_t index, int32_t x, int32_t y)
     if((tmpscr->ffcs[index].flags&(ffCHANGER|ffETHEREAL))!=0)
         return false;
 	
-    if(tmpscr->ffcs[index].data<=0)
+    if(tmpscr->ffcs[index].getData()<=0)
         return false;
     
     return true;
@@ -316,7 +316,7 @@ int32_t MAPFFCOMBO(int32_t x,int32_t y)
 	int32_t ffcid = getFFCAt(x,y);
 	if(ffcid > -1)
 	{
-		return tmpscr->ffcs[ffcid].data;
+		return tmpscr->ffcs[ffcid].getData();
 	}
     return 0;
 }
@@ -376,7 +376,7 @@ int32_t FFORCOMBO(int32_t x, int32_t y)
 	int32_t ffcid = getFFCAt(x,y);
 	if(ffcid > -1)
 	{
-		return tmpscr->ffcs[ffcid].data;
+		return tmpscr->ffcs[ffcid].getData();
 	}
 	
 	return MAPCOMBO(x,y);
@@ -414,7 +414,7 @@ int32_t FFORCOMBO_L(int32_t layer, int32_t x, int32_t y)
 	int32_t ffcid = getFFCAt(x,y);
 	if(ffcid > -1)
 	{
-		return tmpscr->ffcs[ffcid].data;
+		return tmpscr->ffcs[ffcid].getData();
 	}
 	
 	return layer ? MAPCOMBOL(layer, x, y) : MAPCOMBO(x,y);
@@ -439,14 +439,14 @@ int32_t MAPFFCOMBOFLAG(int32_t x,int32_t y)
 	current_ffcombo = getFFCAt(x,y);
 	if(current_ffcombo > -1)
 	{
-		return combobuf[tmpscr->ffcs[current_ffcombo].data].flag;
+		return combobuf[tmpscr->ffcs[current_ffcombo].getData()].flag;
 	}
     return 0;
 }
 
 int32_t getFFCAt(int32_t x, int32_t y)
 {
-	word c = tmpscr->countFFC();
+	word c = tmpscr->numFFC();
     for(word i=0; i<c; i++)
     {
         if(ffcIsAt(i, x, y))
@@ -995,32 +995,26 @@ void update_combo_cycling()
         newcset[i]=-1;
     }
     
-	word c = tmpscr->countFFC();
+	word c = tmpscr->numFFC();
     for(word i=0; i<c; i++)
     {
 		ffcdata& ffc = tmpscr->ffcs[i];
-		newcombo const& cmb = combobuf[ffc.data];
-        x=ffc.data;
+		newcombo const& cmb = combobuf[ffc.getData()];
         
-		bool fresh = combobuf[x].animflags & AF_FRESH;
+		bool fresh = cmb.animflags & AF_FRESH;
         
         //time to restart
         if((cmb.aclk>=cmb.speed) &&
                 (cmb.tile-cmb.frames>=cmb.o_tile-1) &&
                 (cmb.nextcombo!=0))
         {
-            ffc.data=cmb.nextcombo;
-	    if (ffc.data != 0 && i > tmpscr->lastffc) tmpscr->lastffc = i;
-	    else if (ffc.data == 0 && i == tmpscr->lastffc) 
-	    {
-		    tmpscr->countFFC(tmpscr->lastffc);
-	    }
+            ffc.setData(cmb.nextcombo);
             if(!(cmb.animflags & AF_CYCLENOCSET))
 				ffc.cset=cmb.nextcset;
             
-            if(combobuf[ffc.data].animflags & AF_CYCLE)
+            if(combobuf[ffc.getData()].animflags & AF_CYCLE)
             {
-                (fresh?restartanim2:restartanim)[ffc.data]=true;
+                (fresh?restartanim2:restartanim)[ffc.getData()]=true;
             }
         }
     }
@@ -1174,7 +1168,7 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 		}
 		else
 		{
-			word ffc_count = tmpscr->countFFC();
+			word ffc_count = tmpscr->numFFC();
 			for(int32_t i=(fullcheck?3:0); i>=0; i--)
 			{
 				int32_t tx2=((i&2)<<2)+x;
@@ -1224,7 +1218,7 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 					if(ffcIsAt(k, tx2, ty2))
 					{
 						ffcdata const& ffc = tmpscr->ffcs[k];
-						auto ty = combobuf[ffc.data].type;
+						auto ty = combobuf[ffc.getData()].type;
 						if(!combo_class_buf[ty].water && !(ShallowCheck && ty == cSHALLOWWATER))
 							return 0;
 					}
@@ -1236,10 +1230,10 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 						if(ffcIsAt(k, tx2, ty2))
 						{
 							ffcdata const& ffc = tmpscr->ffcs[k];
-							auto ty = combobuf[ffc.data].type;
+							auto ty = combobuf[ffc.getData()].type;
 							if(combo_class_buf[ty].water || (ShallowCheck && ty == cSHALLOWWATER))
 							{
-								return ffc.data;
+								return ffc.getData();
 							}
 						}
 					}
@@ -1754,7 +1748,7 @@ int32_t findtrigger(int32_t scombo, bool ff)
     int32_t checkflag=0;
     int32_t ret = 0;
     
-	word c = ff ? tmpscr->countFFC() : 176;
+	word c = ff ? tmpscr->numFFC() : 176;
 	bool sflag = false;
     for(word j=0; j<c; j++)
     {
@@ -1763,7 +1757,7 @@ int32_t findtrigger(int32_t scombo, bool ff)
 			if(layer == -2)
 			{
 				if(ff)
-					checkflag = combobuf[tmpscr->ffcs[j].data].flag;
+					checkflag = combobuf[tmpscr->ffcs[j].getData()].flag;
 				else continue;
 			}
 			else
@@ -2201,7 +2195,7 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Pe
 		}
 	}
 	
-	word c = s->countFFC();
+	word c = s->numFFC();
 	for(word i=0; i<c; i++) //FFC 'trigger flags'
 	{
 		if(single>=0) if(i+176!=single) continue;
@@ -2213,7 +2207,7 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Pe
 			//for (int32_t iter=0; iter<1; ++iter) // Only one kind of FFC flag now.
 			{
 				putit=true;
-				int32_t checkflag=combobuf[s->ffcs[i].data].flag; //Inherent
+				int32_t checkflag=combobuf[s->ffcs[i].getData()].flag; //Inherent
 				
 				//No placed flags yet
 				switch(checkflag)
@@ -2339,11 +2333,11 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Pe
 				{
 					if(ft==sSECNEXT)
 					{
-						s->ffcs[i].data++;
+						s->ffcs[i].incData(1);
 					}
 					else
 					{
-						s->ffcs[i].data = s->secretcombo[ft];
+						s->ffcs[i].setData(s->secretcombo[ft]);
 						s->ffcs[i].cset = s->secretcset[ft];
 					}
 				}
@@ -2438,12 +2432,12 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Pe
 	{
 		if((!(s->flags2&fCLEARSECRET) /*Enemies->Secret*/ && single < 0) || high16only || s->flags4&fENEMYSCRTPERM)
 		{
-			int32_t checkflag=combobuf[s->ffcs[i].data].flag; //Inherent
+			int32_t checkflag=combobuf[s->ffcs[i].getData()].flag; //Inherent
 			
 			//No placed flags yet
 			if((checkflag > 15)&&(checkflag < 32)) //If we find a flag, change the combo
 			{
-				s->ffcs[i].data = s->secretcombo[checkflag-16+4];
+				s->ffcs[i].setData(s->secretcombo[checkflag - 16 + 4]);
 				s->ffcs[i].cset = s->secretcset[checkflag-16+4];
 			}
 		}
@@ -2659,12 +2653,12 @@ void update_freeform_combos()
 	ffscript_engine(false);
 	if ( !FFCore.system_suspend[susptUPDATEFFC] )
 	{
-		word c = tmpscr->countFFC();
+		word c = tmpscr->numFFC();
 		for(word i=0; i<c; i++)
 		{
 			ffcdata& thisffc = tmpscr->ffcs[i];
 			// Combo 0?
-			if(thisffc.data==0)
+			if(thisffc.getData()==0)
 				continue;
 				
 			// Changer?
@@ -2686,7 +2680,7 @@ void update_freeform_combos()
 				{
 					ffcdata& otherffc = tmpscr->ffcs[j];
 					// Combo 0?
-					if(otherffc.data==0)
+					if(otherffc.getData()==0)
 						continue;
 						
 					// Not a changer?
@@ -2764,15 +2758,7 @@ void update_freeform_combos()
 				}
 				else if(thisffc.x<-64)
 				{
-					thisffc.data=0;
-					if (thisffc.data != 0 && i > tmpscr->lastffc)
-					{
-						tmpscr->lastffc = i;
-					}
-					else if (thisffc.data == 0 && i == tmpscr->lastffc) 
-					{
-						tmpscr->countFFC(tmpscr->lastffc);
-					}
+					thisffc.setData(0);
 					thisffc.flags&=~ffCARRYOVER;
 				}
 			}
@@ -2788,15 +2774,7 @@ void update_freeform_combos()
 				}
 				else
 				{
-					thisffc.data=0;
-					if (thisffc.data != 0 && i > tmpscr->lastffc)
-					{
-						tmpscr->lastffc = i;
-					}
-					else if (thisffc.data == 0 && i == tmpscr->lastffc) 
-					{
-						tmpscr->countFFC(tmpscr->lastffc);
-					}
+					thisffc.setData(0);
 					thisffc.flags&=~ffCARRYOVER;
 				}
 			}
@@ -2813,15 +2791,7 @@ void update_freeform_combos()
 				}
 				else if(thisffc.y<-64)
 				{
-					thisffc.data=0;
-					if (thisffc.data != 0 && i > tmpscr->lastffc)
-					{
-						tmpscr->lastffc = i;
-					}
-					else if (thisffc.data == 0 && i == tmpscr->lastffc) 
-					{
-						tmpscr->countFFC(tmpscr->lastffc);
-					}
+					thisffc.setData(0);
 					thisffc.flags&=~ffCARRYOVER;
 				}
 			}
@@ -2837,15 +2807,7 @@ void update_freeform_combos()
 				}
 				else
 				{
-					thisffc.data=0;
-					if (thisffc.data != 0 && i > tmpscr->lastffc)
-					{
-						tmpscr->lastffc = i;
-					}
-					else if (thisffc.data == 0 && i == tmpscr->lastffc) 
-					{
-						tmpscr->countFFC(tmpscr->lastffc);
-					}
+					thisffc.setData(0);
 					thisffc.flags&=~ffCARRYOVER;
 				}
 			}
@@ -3053,9 +3015,9 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basesc
 	{
 		case -4: //overhead FFCs
 		case -3:                                                //freeform combos
-			for(int32_t i = (basescr->countFFC()-1); i >= 0; --i)
+			for(int32_t i = (basescr->numFFC()-1); i >= 0; --i)
 			{
-				if(basescr->ffcs[i].data)
+				if(basescr->ffcs[i].getData())
 				{
 					if(!(basescr->ffcs[i].flags&ffCHANGER) //If FFC is a changer, don't draw
 						&& !((basescr->ffcs[i].flags&ffLENSINVIS) && lensclk) //If lens is active and ffc is invis to lens, don't draw
@@ -3073,11 +3035,11 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basesc
 							
 							if(basescr->ffcs[i].flags&ffTRANS)
 							{
-								overcomboblocktranslucent(bmp, tx-x, ty-y, basescr->ffcs[i].data, basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i),128);
+								overcomboblocktranslucent(bmp, tx-x, ty-y, basescr->ffcs[i].getData(), basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i),128);
 							}
 							else
 							{
-								overcomboblock(bmp, tx-x, ty-y, basescr->ffcs[i].data, basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i));
+								overcomboblock(bmp, tx-x, ty-y, basescr->ffcs[i].getData(), basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i));
 							}
 						}
 					}
@@ -3498,10 +3460,10 @@ void calc_darkroom_combos(bool scrolling)
 			}
 		}
 	}
-	word c = tmpscr->countFFC();
+	word c = tmpscr->numFFC();
 	for(word q = 0; q < c; ++q)
 	{
-		newcombo const& cmb = combobuf[tmpscr->ffcs[q].data];
+		newcombo const& cmb = combobuf[tmpscr->ffcs[q].getData()];
 		if(cmb.type == cTORCH)
 		{
 			doDarkroomCircle((tmpscr->ffcs[q].x.getInt())+(tmpscr->ffEffectWidth(q)/2), (tmpscr->ffcs[q].y.getInt())+(tmpscr->ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_curscr);
@@ -3536,10 +3498,10 @@ void calc_darkroom_combos(bool scrolling)
 			}
 		}
 	}
-	c = tmpscr[1].countFFC();
+	c = tmpscr[1].numFFC();
 	for(word q = 0; q < c; ++q)
 	{
-		newcombo const& cmb = combobuf[tmpscr[1].ffcs[q].data];
+		newcombo const& cmb = combobuf[tmpscr[1].ffcs[q].getData()];
 		if(cmb.type == cTORCH)
 		{
 			doDarkroomCircle((tmpscr[1].ffcs[q].x.getInt())+(tmpscr[1].ffEffectWidth(q)/2), (tmpscr[1].ffcs[q].y.getInt())+(tmpscr[1].ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_scrollscr);
@@ -4748,7 +4710,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
 		
 		init_ffpos();
-		word ffcCount = ffscr.countFFC();
+		word ffcCount = ffscr.numFFC();
 		for(word i = 0; i < MAXFFCS; i++)
 		{
 			if((ffscr.ffcs[i].flags&ffCARRYOVER) && !(ffscr.flags5&fNOFFCARRYOVER))

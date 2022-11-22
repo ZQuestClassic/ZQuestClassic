@@ -3,6 +3,7 @@
 
 #include "zfix.h"
 #include "solidobject.h"
+struct mapscr;
 
 //x = ffx
 //y = ffy
@@ -23,7 +24,7 @@ class ffcdata : public solid_object
 public:
 	zfix ax, ay;
 	dword flags;
-	word data, delay;
+	word delay;
 	byte cset, link, txsz,tysz;
 	word script;
 	int32_t initd[INITIAL_D];
@@ -37,14 +38,24 @@ public:
 	void changerCopy(ffcdata& other, int32_t i = -1, int32_t j = -1);
 	ffcdata& operator=(ffcdata const& other);
 	void clear();
+	
+	void setData(word newdata);
+	void incData(int32_t inc);
+	word getData() const {return data;}
+	
 	virtual bool setSolid(bool set);
 	virtual void updateSolid();
 	void setLoaded(bool set);
 	bool getLoaded() const;
+	
 	//Overload to do damage to Hero on pushing them
 	virtual void doContactDamage(int32_t hdir);
 private:
+	word data;
 	bool loaded;
+	mapscr* parent;
+	word mapscr_index;
+	friend struct mapscr;
 };
 
 struct mapscr
@@ -124,38 +135,40 @@ struct mapscr
 	byte entry_x, entry_y; //Where Hero entered the screen. Used for pits, and to prevent water walking. -Z
 	
 	word lastffc = 0;
-	bool loadedlastffc = false;
 	
 	ffcdata ffcs[MAXFFCS];
 	
-	word countFFC(word startingpos = MAXFFCS)
+	void update_ffc_count(word spos = 0)
 	{
-		if (loadedlastffc == false)
-		{
-			lastffc = 0;
-			for(word w = startingpos; w > 0; --w)
-			{
-				if(ffcs[w-1].data)
-				{
-					lastffc = w-1;
-					break;
-				}
-			}
-			loadedlastffc = true;
-		}
-		return lastffc+1;
-	}
-	
-	word countConstFFC() const
-	{
-		for(word w = MAXFFCS; w > 0; --w)
+		if(spos < 1 || spos > MAXFFCS)
+			spos = lastffc;
+		lastffc = 0;
+		for(word w = spos; w > 0; --w)
 		{
 			if(ffcs[w-1].data)
 			{
-				return w;
+				lastffc = w-1;
+				break;
 			}
 		}
-		return 0;
+	}
+	void update_ffc_data(word index, bool valid)
+	{
+		if(valid)
+		{
+			if(index > lastffc)
+				update_ffc_count(index);
+		}
+		else
+		{
+			if(index == lastffc)
+				update_ffc_count(index);
+		}
+	}
+	
+	word numFFC() const
+	{
+		return lastffc+1;
 	}
 	
 	byte ffEffectWidth(size_t ind) const
@@ -225,13 +238,7 @@ struct mapscr
 	
 	void zero_memory();
 	
-	mapscr()
-	{
-		data.resize(176,0);
-		sflag.resize(176,0);
-		cset.resize(176,0);
-		zero_memory();
-	}
+	mapscr();
 	void copy(mapscr const& other);
 	mapscr(mapscr const& other);
 	mapscr& operator=(mapscr const& other);

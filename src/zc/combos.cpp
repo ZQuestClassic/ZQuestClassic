@@ -2148,7 +2148,7 @@ void update_combo_timers()
 		}
 	}
 	mapscr* ffscr = FFCore.tempScreens[0];
-	dword c = ffscr->countFFC();
+	dword c = ffscr->numFFC();
 	if(ffc_trig_timers.size() != c)
 	{
 		dword osz = ffc_trig_timers.size();
@@ -2161,7 +2161,7 @@ void update_combo_timers()
 	for(word ffc = 0; ffc < c; ++ffc)
 	{
 		cmbtimer& timer = ffc_trig_timers[ffc];
-		timer.updateData(ffscr->ffcs[ffc].data);
+		timer.updateData(ffscr->ffcs[ffc].getData());
 		newcombo const& cmb = combobuf[timer.data];
 		if(cmb.type == cSHOOTER)
 		{

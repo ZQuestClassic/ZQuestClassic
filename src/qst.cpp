@@ -16587,6 +16587,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		
 		int32_t m;
 		float tempfloat;
+		word tempw;
 		
 		for(m=0; m<32; m++)
 		{
@@ -16594,10 +16595,11 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 			tempffc.clear();
 			if((bits>>m)&1)
 			{
-				if(!p_igetw(&(tempffc.data),f,true))
+				if(!p_igetw(&tempw,f,true))
 				{
 					return qe_invalid;
 				}
+				tempffc.setData(tempw);
 				
 				if(!p_getc(&(tempffc.cset),f,true))
 				{
@@ -16813,13 +16815,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 				}
 			}
 		}
-	
-		for (m = 32; m < MAXFFCS; m++)
-		{
-			ffcdata& tempffc = temp_mapscr->ffcs[m];
-			tempffc.clear();
-		}
-		temp_mapscr->countFFC();
+		
 	}
 	
 	//add in the new whistle flags
@@ -17269,6 +17265,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 				return qe_invalid;
 		}
 		byte tempbyte;
+		word tempw;
 		static ffcdata nil_ffc;
 		for(word m = 0; m < numffc; ++m)
 		{
@@ -17278,10 +17275,11 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 			tempffc.clear();
 			if(old_ff && !(bits & (1<<m))) continue;
 			
-			if(!p_igetw(&(tempffc.data),f,true))
+			if(!p_igetw(&tempw,f,true))
 				return qe_invalid;
-			if(!old_ff && !tempffc.data) //empty ffc, nothing more to load
+			if(!old_ff && !tempw) //empty ffc, nothing more to load
 				continue;
+			tempffc.setData(tempw);
 			
 			if(!p_getc(&(tempffc.cset),f,true))
 				return qe_invalid;
@@ -22131,7 +22129,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
             {
                 for(int32_t m=0; m<32; m++)
                 {
-                    if(combobuf[TheMaps[(i*MAPSCRS)+j].ffcs[m].data].type == cCHANGE)
+                    if(combobuf[TheMaps[(i*MAPSCRS)+j].ffcs[m].getData()].type == cCHANGE)
                         TheMaps[(i*MAPSCRS)+j].ffcs[m].flags|=ffCHANGER;
                 }
             }
