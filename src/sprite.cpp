@@ -427,6 +427,11 @@ bool sprite::animate(int32_t)
     ++c_clk;
     return false;
 }
+void sprite::post_animate()
+{
+	updateSolid();
+	solid_update();
+}
 int32_t sprite::real_x(zfix fx)
 {
     int32_t rx = fx.getInt();
@@ -982,6 +987,19 @@ bool sprite::hit(sprite *s)
     }
     
     return hit(s->x+s->hxofs,s->y+s->hyofs-s->fakez,s->z+s->zofs,s->hxsz,s->hysz,s->hzsz);
+}
+
+bool sprite::hit(int32_t tx,int32_t ty,int32_t txsz2,int32_t tysz2)
+{
+    if(!(scriptcoldet&1) || fallclk || drownclk) return false;
+    
+    if(id<0 || clk<0) return false;
+    
+    return tx+txsz2>x+hxofs &&
+           ty+tysz2>y+hyofs &&
+           
+           tx<x+hxofs+hxsz &&
+           ty<y+hyofs+hysz;
 }
 
 bool sprite::hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz2,int32_t tysz2,int32_t tzsz2)
@@ -2083,6 +2101,16 @@ sprite *sprite_list::spr(int32_t index)
     return sprites[index];
 }
 
+int32_t sprite_list::find(sprite *spr)
+{
+	for(int32_t ind = 0; ind < count; ++ind)
+	{
+		if(spr == sprites[ind])
+			return ind;
+	}
+	return -1;
+}
+
 bool sprite_list::swap(int32_t a,int32_t b)
 {
     if(a<0 || a>=count || b<0 || b>=count)
@@ -2285,8 +2313,10 @@ void sprite_list::animate()
 	{
 		if(!(freeze_guys && sprites[active_iterator]->canfreeze))
 		{
+			setCurObject(sprites[active_iterator]);
 			if(sprites[active_iterator]->animate(active_iterator))
 			{
+				setCurObject(NULL);
 #ifndef IS_ZQUEST
 				if (replay_is_active() && dynamic_cast<enemy*>(sprites[active_iterator]) != nullptr)
 				{
@@ -2296,11 +2326,22 @@ void sprite_list::animate()
 #endif
 				del(active_iterator);
 			}
+			else
+			{
+				setCurObject(NULL);
+				sprites[active_iterator]->post_animate();
+			}
 		}
 		
 		++active_iterator;
 	}
 	active_iterator = -1;
+}
+
+void sprite_list::solid_push(solid_object* pusher)
+{
+    for(int32_t i=0; i<count; i++)
+        sprites[i]->solid_push(pusher);
 }
 
 void sprite_list::run_script(int32_t mode)
@@ -2353,6 +2394,14 @@ int32_t sprite_list::hit(int32_t x,int32_t y,int32_t z, int32_t xsize, int32_t y
 {
     for(int32_t i=0; i<count; i++)
         if(sprites[i]->hit(x,y,z,xsize,ysize,zsize))
+            return i;
+            
+    return -1;
+}
+int32_t sprite_list::hit(int32_t x,int32_t y,int32_t xsize, int32_t ysize)
+{
+    for(int32_t i=0; i<count; i++)
+        if(sprites[i]->hit(x,y,xsize,ysize))
             return i;
             
     return -1;
@@ -2766,6 +2815,75 @@ bool breakable::animate(int32_t)
 	}
 #endif
 	return false;
+}
+
+//x1,y1 = top of left line
+//x2,y2 = bottom of left line
+//x3,y3 = top of right line
+//x4,y4 = bottom of right line
+bool insideRotRect(double x, double y, int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+	int32_t x3, int32_t y3, int32_t x4, int32_t y4)
+{
+	if(y < y1 && y < y3) return false;
+	if(y > y2 && y > y4) return false;
+
+	double slope1 = (y2-y1)/double(x2-x1);
+	double b1 = y1 - (slope1*x1);
+	double slope2 = (y4-y3)/double(x4-x3);
+	double b2 = y3 - (slope2*x3);
+	double slope3 = (y3-y1)/double(x3-x1);
+	double b3 = y3 - (slope3*x3);
+	double slope4 = (y4-y2)/double(x4-x2);
+	double b4 = y4 - (slope4*x4);
+	double l1y = slope1*x + b1;
+	double l2y = slope2*x + b2;
+	double l3y = slope3*x + b3;
+	double l4y = slope4*x + b4;
+	if(y < l1y && y < l2y) return false;
+	if(y > l1y && y > l2y) return false;
+	if(y < l3y && y < l4y) return false;
+	if(y > l3y && y > l4y) return false;
+	return true;
+}
+
+bool lineLineColl(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, int32_t x4, int32_t y4)
+{
+	 float denominator = ((x2 - x1) * (y4 - y3)) - ((y2 - y1) * (x4 - x3));
+	float numerator1 = ((y1 - y3) * (x4 - x3)) - ((x1 - x3) * (y4 - y3));
+	float numerator2 = ((y1 - y3) * (x2 - x1)) - ((x1 - x3) * (y2 - y1));
+	
+	if (denominator == 0) 
+	{
+		if (x3 >= x1 && x3 <= x2 || x3 <= x1 && x3 >= x2 
+		|| x4 >= x1 && x4 <= x2 || x4 <= x1 && x4 >= x2)
+		{
+			return numerator1 == 0 && numerator2 == 0;
+		}
+		else return false;
+	}
+	    
+	float r = numerator1 / denominator;
+	float s = numerator2 / denominator;
+
+	return (r >= 0 && r <= 1) && (s >= 0 && s <= 1);
+}
+
+//Line box collision is just 4 lineline collisions
+bool lineBoxCollision(int32_t linex1, int32_t liney1, int32_t linex2, int32_t liney2, int32_t boxx, int32_t boxy, int32_t boxwidth, int32_t boxheight)
+{
+	if (lineLineColl(linex1, liney1, linex2, liney2, boxx, boxy, boxx+boxwidth-1, boxy)) return true;
+	if (lineLineColl(linex1, liney1, linex2, liney2, boxx, boxy, boxx, boxy+boxheight-1)) return true;
+	if (lineLineColl(linex1, liney1, linex2, liney2, boxx+boxwidth-1, boxy, boxx+boxwidth-1, boxy+boxheight-1)) return true;
+	if (lineLineColl(linex1, liney1, linex2, liney2, boxx, boxy+boxheight-1, boxx+boxwidth-1, boxy+boxheight-1)) return true;
+	return false;
+}
+
+double comparePointLine(double x, double y, double x1, double y1, double x2, double y2)
+{
+    double slope = (y2-y1)/(x2-x1);
+    double b = y1 - (slope*x1);
+    double ly = slope*x + b;
+    return y-ly;
 }
 
 /*** end of sprite.cc ***/

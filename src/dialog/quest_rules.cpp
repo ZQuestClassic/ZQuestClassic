@@ -798,7 +798,15 @@ static const GUI::ListData compatRulesList
 		"If enabled, FFCs that 'run on screen init' will not run before the opening wipe on the first screen"
 		" loading from the save select screen." },
 	{ "No lifting sprite", qr_NO_LIFT_SPRITE,
-		"If enabled, the player will not display a 'lifting' sprite." }
+		"If enabled, the player will not display a 'lifting' sprite." },
+	{ "Old Sideview Landing", qr_OLD_SIDEVIEW_LANDING_CODE,
+		"If enabled, the old code for landing in sideview will be used." },
+	{ "FFC 128 speed cap", qr_OLD_FFC_SPEED_CAP,
+		"If enabled, ffcs will cap to 128 speed." },
+	{ "Wizzrobes use old submerge code", qr_OLD_WIZZROBE_SUBMERGING,
+		"If enabled, wizzrobes will not read as 'Submerged' to ZScript, and will use hardcoded"
+			" offsets. If disabled, relative offsets will be used, and 'Submerged' will read"
+			" as true when vanished."}
 };
 
 static const GUI::ListData enemiesRulesList

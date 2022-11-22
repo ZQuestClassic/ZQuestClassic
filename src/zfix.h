@@ -85,9 +85,18 @@ public:
 	{
 		return val;
 	}
-	int32_t getDPart() const
+	int32_t getZLongDPart() const
 	{
 		return val%10000;
+	}
+	zfix getDPart() const
+	{
+		return zslongToFix(val%10000);
+	}
+	zfix& doDPart()
+	{
+		val %= 10000;
+		return *this;
 	}
 	
 	

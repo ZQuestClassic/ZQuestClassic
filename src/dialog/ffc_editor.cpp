@@ -5,7 +5,10 @@
 #include "zq_class.h"
 #include "alert.h"
 #include "zc_list_data.h"
- 
+
+#define SWAP_MAX 2147483647
+#define SWAP_MIN (-2147483647-1)
+
 extern script_data *ffscripts[NUMSCRIPTFFC];
 extern int32_t Combo, CSet;
 static int32_t tCSet;
@@ -95,7 +98,7 @@ void ffdata::save(mapscr* scr, int32_t ind)
 	for(auto q = 0; q < 8; ++q)
 		scr->ffcs[ind].initd[q] = initd[q];
 	SETFLAG(scr->numff,(1<<ind),data!=0);
-	scr->ffcs[ind].setSolid(scr->ffcs[ind].flags & ffSOLID);
+	scr->ffcs[ind].updateSolid();
 }
 
 ffdata& ffdata::operator=(ffdata const& other)
@@ -300,18 +303,18 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 						}
 					),
 					// DummyWidget(),
-					SWAPFIELD("X Pos:", ffc.x, -320000, 2880000),
+					SWAPFIELD("X Pos:", ffc.x, SWAP_MIN, SWAP_MAX),
 					// DummyWidget(),
 					// DummyWidget(),
-					SWAPFIELD("Y Pos:", ffc.y, -320000, 2880000),
+					SWAPFIELD("Y Pos:", ffc.y, SWAP_MIN, SWAP_MAX),
 					SWAPFIELDB("Combo W:", ffc.fwid, 1, 64, 1),
-					SWAPFIELD("X Speed:", ffc.dx, -1280000, 1280000),
+					SWAPFIELD("X Speed:", ffc.dx, SWAP_MIN, SWAP_MAX),
 					SWAPFIELDB("Combo H:", ffc.fhei, 1, 64, 1),
-					SWAPFIELD("Y Speed:", ffc.dy, -1280000, 1280000),
+					SWAPFIELD("Y Speed:", ffc.dy, SWAP_MIN, SWAP_MAX),
 					SWAPFIELDB("Tile W:", ffc.twid, 1, 4, 1),
-					SWAPFIELD("X Accel:", ffc.ax, -1280000, 1280000),
+					SWAPFIELD("X Accel:", ffc.ax, SWAP_MIN, SWAP_MAX),
 					SWAPFIELDB("Tile H:", ffc.thei, 1, 4, 1),
-					SWAPFIELD("Y Accel:", ffc.ay, -1280000, 1280000),
+					SWAPFIELD("Y Accel:", ffc.ay, SWAP_MIN, SWAP_MAX),
 					SWAPFIELDS("A. Delay:", ffc.delay, 0, 9999)
 				)),
 				TabRef(name = "Flags", Columns<12>(

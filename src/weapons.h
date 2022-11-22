@@ -154,6 +154,7 @@ public:
     // override hit detection to check for invicibility, etc
     virtual bool hit(sprite *s);
     virtual bool hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
+	virtual bool hit(int32_t tx,int32_t ty,int32_t txsz,int32_t tysz);
     virtual void draw(BITMAP *dest);
     virtual void update_weapon_frame(int32_t change, int32_t orig);
 	virtual int32_t run_script(int32_t mode);
@@ -166,7 +167,8 @@ double RadiansToDegrees(double rad);
 double DirToRadians(int dir);
 double DirToDegrees(int dir);
 int32_t AngleToDir(double radians);
-int32_t AngleToDir4(double radians);
+int32_t AngleToDir4(double degrees);
+int32_t AngleToDir4Rad(double radians);
 
 int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid);
 void killgenwpn(weapon* w);

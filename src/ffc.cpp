@@ -1,6 +1,15 @@
 #include "base/zdefs.h"
 #include "ffc.h"
 
+#ifdef IS_PLAYER
+#include "combos.h"
+#include "maps.h"
+extern newcombo *combobuf;
+extern mapscr tmpscr[2];
+extern int16_t ffposx[MAXFFCS];
+extern int16_t ffposy[MAXFFCS];
+#endif
+
 ffcdata::ffcdata() : solid_object()
 {
 	clear();
@@ -13,12 +22,6 @@ ffcdata::~ffcdata()
 void ffcdata::copy(ffcdata const& other)
 {
 	solid_object::copy(other);
-	if (!loaded)
-	{
-		bool temp = solid;
-		solid_object::setSolid(false);
-		solid = temp;
-	}
 	ax = other.ax;
 	ay = other.ay;
 	flags = other.flags;
@@ -32,6 +35,79 @@ void ffcdata::copy(ffcdata const& other)
 	script = other.script;
 	memcpy(initd, other.initd, sizeof(initd));
 	memcpy(inita, other.inita, sizeof(inita));
+	updateSolid();
+}
+
+void ffcdata::changerCopy(ffcdata& other, int32_t i, int32_t j)
+{
+#ifdef IS_PLAYER
+	if(other.flags&ffCHANGETHIS)
+	{
+		data = other.data;
+		cset = other.cset;
+	}
+	
+	if(other.flags&ffCHANGENEXT)
+		++data;
+	
+	if(other.flags&ffCHANGEPREV)
+		--data;
+	
+	delay=other.delay;
+	x=other.x;
+	y=other.y;
+	vx=other.vx;
+	vy=other.vy;
+	ax=other.ax;
+	ay=other.ay;
+	link=other.link;
+	hxsz=other.hxsz;
+	hysz=other.hysz;
+	txsz=other.txsz;
+	tysz=other.tysz;
+	
+	if(flags&ffCARRYOVER)
+		flags=other.flags|ffCARRYOVER;
+	else
+		flags=other.flags;
+	
+	flags&=~ffCHANGER;
+	
+	if(combobuf[other.data].flag>15 && combobuf[other.data].flag<32)
+		other.data=tmpscr->secretcombo[combobuf[other.data].flag-16+4];
+	
+	if(i > -1 && j > -1)
+	{
+		ffposx[i]=(other.x.getInt());
+		ffposy[i]=(other.y.getInt());
+		if((other.flags&ffSWAPNEXT)||(other.flags&ffSWAPPREV))
+		{
+			int32_t k=0;
+			
+			if(other.flags&ffSWAPNEXT)
+				k=j<31?j+1:0;
+				
+			if(other.flags&ffSWAPPREV)
+				k=j>0?j-1:31;
+			ffcdata& ffck = tmpscr->ffcs[k];
+			zc_swap(other.data,ffck.data);
+			zc_swap(other.cset,ffck.cset);
+			zc_swap(other.delay,ffck.delay);
+			zc_swap(other.vx,ffck.vx);
+			zc_swap(other.vy,ffck.vy);
+			zc_swap(other.ax,ffck.ax);
+			zc_swap(other.ay,ffck.ay);
+			zc_swap(other.link,ffck.link);
+			zc_swap(other.hxsz,ffck.hxsz);
+			zc_swap(other.hysz,ffck.hysz);
+			zc_swap(other.txsz,ffck.txsz);
+			zc_swap(other.tysz,ffck.tysz);
+			zc_swap(other.flags,ffck.flags);
+		}
+	}
+	updateSolid();
+	solid_update(false);
+#endif
 }
 
 ffcdata::ffcdata(ffcdata const& other)
@@ -57,7 +133,41 @@ void ffcdata::clear()
 	script = 0;
 	memset(initd, 0, sizeof(initd));
 	memset(inita, 0, sizeof(inita));
-	setSolid(false);
+	updateSolid();
+}
+bool ffcdata::setSolid(bool set) //exists so that ffcs can do special handling for whether to make something solid or not.
+{
+	bool actual = set && !(flags&ffCHANGER) && loaded;
+	bool ret = solid_object::setSolid(actual);
+	solid = set;
+	return ret;
+}
+void ffcdata::updateSolid()
+{
+	if(setSolid(flags&ffSOLID))
+		solid_update(false);
+}
+
+void ffcdata::setLoaded(bool set)
+{
+	if(loaded==set) return;
+	loaded = set;
+	updateSolid();
+}
+bool ffcdata::getLoaded() const
+{
+	return loaded;
+}
+
+void ffcdata::doContactDamage(int32_t hdir)
+{
+#ifdef IS_PLAYER
+	if(flags & (ffCHANGER | ffETHEREAL))
+		return; //Changer or ethereal; has no type
+	newcombo const& cmb = combobuf[data];
+	if(data && isdamage_type(cmb.type))
+		trigger_damage_combo(data, hdir, true);
+#endif
 }
 
 void mapscr::zero_memory()
@@ -315,9 +425,4 @@ mapscr& mapscr::operator=(mapscr const& other)
 	return *this;
 }
 
-void ffcdata::setSolid(bool set) //exists so that ffcs can do special handling for whether to make something solid or not.
-{
-	if (loaded) solid_object::setSolid(set);
-	else solid = set;
-}
 

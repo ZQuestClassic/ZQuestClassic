@@ -298,7 +298,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        1
 
-#define V_COMPATRULE       33
+#define V_COMPATRULE       34
 #define V_ZINFO            2
 
 //= V_SHOPS is under V_MISC
@@ -1102,9 +1102,11 @@ enum
 	//50
 	qr_CONVEYORS_L1_L2, qr_CUSTOMCOMBOS_EVERY_LAYER, qr_SUBSCR_BACKWARDS_ID_ORDER, qr_FASTCOUNTERDRAIN,
 	qr_OLD_LOCKBLOCK_COLLISION, qr_DECO_2_YOFFSET, qr_SCREENSTATE_80s_BUG, qr_AUTOCOMBO_ANY_LAYER,
-	//60
+	//51
 	qr_GOHMA_UNDAMAGED_BUG, qr_FFCPRELOAD_BUGGED_LOAD, qr_SWITCHES_AFFECT_MOVINGBLOCKS, qr_BROKEN_GETPIXEL_VALUE,
-	qr_NO_LIFT_SPRITE,
+	qr_NO_LIFT_SPRITE, qr_OLD_SIDEVIEW_LANDING_CODE, qr_OLD_FFC_SPEED_CAP, qr_OLD_WIZZROBE_SUBMERGING,
+	
+	//60
 	//70
 	
 	//ZScript Parser //room for 20 of these
@@ -1163,9 +1165,13 @@ const direction oppositeDir[]= {down, up, right, left, r_down, l_down, r_up, l_u
 const direction normalDir[]={up,down,left,right,l_up,r_up,l_down,r_down,up,r_up,right,r_down,down,l_down,left,l_up};
 const direction xDir[] = { dir_invalid,dir_invalid,left,right,left,right,left,right };
 const direction yDir[] = { up,down,dir_invalid,dir_invalid,up,up,down,down };
-int32_t X_DIR(int32_t dir);
-int32_t Y_DIR(int32_t dir);
-#define NORMAL_DIR(dir)    ((dir >= 0 && dir < 16) ? normalDir[dir] : -1)
+direction X_DIR(int32_t dir);
+direction Y_DIR(int32_t dir);
+direction XY_DIR(int32_t xdir, int32_t ydir);
+direction GET_XDIR(zfix const& sign);
+direction GET_YDIR(zfix const& sign);
+direction GET_DIR(zfix const& dx, zfix const& dy);
+#define NORMAL_DIR(dir)    ((dir >= 0 && dir < 16) ? normalDir[dir] : dir_invalid)
 
 // refill stuff
 enum { REFILL_NONE, REFILL_FAIRYDONE, REFILL_LIFE, REFILL_MAGIC, REFILL_ALL};
@@ -2300,21 +2306,22 @@ struct guydata
     
 };
 //Moveflags
-#define FLAG_OBEYS_GRAV               0x0001
-#define FLAG_CAN_PITFALL              0x0002
-#define FLAG_CAN_PITWALK              0x0004
-#define FLAG_CAN_WATERDROWN           0x0008
-#define FLAG_CAN_WATERWALK            0x0010
-#define FLAG_ONLY_WATERWALK           0x0020 //Only walks on water
-#define FLAG_ONLY_SHALLOW_WATERWALK   0x0040 //Only walks on shallow water
-#define FLAG_ONLY_PITWALK             0x0080 //Only walks on pitfalls
-#define FLAG_NO_FAKE_Z                0x0100
-#define FLAG_NO_REAL_Z                0x0200
-#define FLAG_USE_FAKE_Z               0x0400
-#define FLAG_IGNORE_SOLIDITY          0x0800
-#define FLAG_IGNORE_BLOCKFLAGS        0x1000
-#define FLAG_IGNORE_SCREENEDGE        0x2000
-#define FLAG_USE_NEW_MOVEMENT         0x4000
+#define FLAG_OBEYS_GRAV               0x00000001
+#define FLAG_CAN_PITFALL              0x00000002
+#define FLAG_CAN_PITWALK              0x00000004
+#define FLAG_CAN_WATERDROWN           0x00000008
+#define FLAG_CAN_WATERWALK            0x00000010
+#define FLAG_ONLY_WATERWALK           0x00000020 //Only walks on water
+#define FLAG_ONLY_SHALLOW_WATERWALK   0x00000040 //Only walks on shallow water
+#define FLAG_ONLY_PITWALK             0x00000080 //Only walks on pitfalls
+#define FLAG_NO_FAKE_Z                0x00000100
+#define FLAG_NO_REAL_Z                0x00000200
+#define FLAG_USE_FAKE_Z               0x00000400
+#define FLAG_IGNORE_SOLIDITY          0x00000800
+#define FLAG_IGNORE_BLOCKFLAGS        0x00001000
+#define FLAG_IGNORE_SCREENEDGE        0x00002000
+#define FLAG_USE_NEW_MOVEMENT         0x00004000
+#define FLAG_NOT_PUSHABLE             0x00008000
 
 #define MAX_PC dword(-1)
 class refInfo

@@ -80,7 +80,7 @@ public:
 	int16_t bgsfx, bosspal;
 	byte defense[edefLAST255];
 	byte hitsfx,deadsfx;
-	byte submerged;
+	bool submerged;
 
 	int32_t  clk2,sclk;
 	int32_t  starting_hp;
@@ -139,9 +139,9 @@ public:
 	
 	bool is_move_paused();
 	bool scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32_t input_x, int32_t input_y, bool kb);
-	bool scr_canmove(zfix dx, zfix dy, int32_t special, bool kb = false);
+	bool scr_canmove(zfix dx, zfix dy, int32_t special, bool kb = false, bool ign_sv = false);
 	bool scr_canplace(zfix dx, zfix dy, int32_t special, bool kb = false);
-	bool movexy(zfix dx, zfix dy, int32_t special, bool kb = false);
+	bool movexy(zfix dx, zfix dy, int32_t special, bool kb = false, bool ign_sv = false);
 	bool moveDir(int32_t dir, zfix px, int32_t special, bool kb = false);
 	bool moveAtAngle(zfix degrees, zfix px, int32_t special, bool kb = false);
 	bool can_movexy(zfix dx, zfix dy, int32_t special, bool kb = false);
@@ -160,10 +160,17 @@ public:
 	// The one with an index is the one that is called by
 	// the guys sprite list; index is the enemy's index in the list.
 	virtual bool animate(int32_t index);
+	virtual bool setSolid(bool set);
+	virtual void solid_push(solid_object* pusher);
+	//Overload to do damage to Hero on pushing them
+	virtual void doContactDamage(int32_t hdir);
+	//Overload to give 'riding sideview platform' behaviors
+	virtual bool sideview_mode() const;
+	virtual bool is_unpushable() const;
 	
 	// auomatically kill off enemy (for rooms with ringleaders)
 	virtual void kickbucket();
-	virtual bool isSubmerged();
+	virtual bool isSubmerged() const;
 	// Stop BG SFX only if no other enemy is playing it
 	void stop_bgsfx(int32_t index);
 	bool m_walkflag_simple(int32_t dx,int32_t dy);
@@ -174,6 +181,7 @@ public:
 	// override hit detection to check for invicibility, stunned, etc
 	virtual bool hit(sprite *s);
 	virtual bool hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
+	virtual bool hit(int32_t tx,int32_t ty,int32_t txsz,int32_t tysz);
 	virtual bool hit(weapon *w);
 	virtual void break_shield() {}; // Overridden by types that can have shields
 	
@@ -443,7 +451,7 @@ public:
 	virtual bool animate(int32_t index);
 	bool canplace(int32_t d);
 	virtual void draw(BITMAP *dest);
-	virtual bool isSubmerged();
+	virtual bool isSubmerged() const;
 };
 
 class eWallM : public enemy
@@ -455,7 +463,7 @@ public:
 	void wallm_crawl();
 	void grabhero();
 	virtual void draw(BITMAP *dest);
-	virtual bool isSubmerged();
+	virtual bool isSubmerged() const;
 };
 
 class eTrap : public enemy
@@ -557,7 +565,7 @@ public:
 	virtual void facehero();
 	virtual bool animate(int32_t index);
 	virtual void draw(BITMAP *dest);
-	virtual bool isSubmerged();
+	virtual bool isSubmerged() const;
 };
 
 class eStalfos : public enemy
@@ -608,6 +616,7 @@ public:
 	void wizzrobe_attack();
 	void wizzrobe_attack_for_real();
 	void wizzrobe_newdir(int32_t homing);
+	void submerge(bool set);
 	virtual void draw(BITMAP *dest);
 };
 

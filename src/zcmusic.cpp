@@ -9,9 +9,15 @@
 
 //#include "precompiled.h" //always first
 
-
 #include "base/zc_alleg.h" // Has to be there or else OS X Universal 10.4 complains of fix overload - Taku
 #include <string.h>
+
+#ifdef _DEBUG
+#ifdef _malloca
+#undef _malloca
+#endif
+#endif
+
 #include <aldumb.h>
 #include <alogg.h>
 #include <almp3.h>
@@ -23,6 +29,7 @@
 #include "base/util.h"
 #include "zcmusic.h"
 #include <filesystem>
+#include <stdlib.h>
 
 using namespace util;
 

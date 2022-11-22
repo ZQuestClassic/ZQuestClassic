@@ -342,7 +342,7 @@ public:
 	void movehero();
 	void move(int32_t d, int32_t forceRate = -1);
 	void moveOld(int32_t d2);
-	int32_t hithero(int32_t hit);
+	int32_t hithero(int32_t hit, int32_t force_hdir = -1);
 	int32_t  nextcombo(int32_t cx,int32_t cy,int32_t cdir);
 	int32_t  nextflag(int32_t cx,int32_t cy,int32_t cdir, bool comboflag);
 	bool nextcombo_wf(int32_t d);
@@ -451,6 +451,9 @@ public:
 	virtual void drawshadow(BITMAP* dest, bool translucent);
 	virtual void draw(BITMAP* dest);
 	virtual bool animate(int32_t index);
+	bool push_pixel(int32_t dir);
+	virtual bool setSolid(bool set);
+	virtual void solid_push(solid_object* pusher);
 	bool dowarp(int32_t type, int32_t index, int32_t warpsfx=0);
 	
 	void herostep();
@@ -591,6 +594,8 @@ public:
 	bool canSideviewLadder(bool down = false);
 	void trySideviewLadder();
 	bool canSideviewLadderRemote(int32_t wx, int32_t wy, bool down = false);
+	virtual bool sideview_mode() const;
+	virtual bool is_unpushable() const;
 };
 
 bool usingActiveShield(int32_t itmid = -1);

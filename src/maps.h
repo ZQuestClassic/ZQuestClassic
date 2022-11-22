@@ -85,6 +85,7 @@ int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, i
 bool iswater_type(int32_t type);
 bool ispitfall(int32_t combo);
 bool ispitfall_type(int32_t type);
+bool isdamage_type(int32_t type);
 bool ispitfall(int32_t x, int32_t y);
 int32_t getpitfall(int32_t x, int32_t y);
 bool isGrassType(int32_t type);
@@ -158,6 +159,7 @@ bool _walkflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m);
 bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m, bool notLink = false);
 bool water_walkflag(int32_t x,int32_t y,int32_t cnt);
 bool hit_walkflag(int32_t x,int32_t y,int32_t cnt);
+bool solpush_walkflag(int32_t x, int32_t y, int32_t cnt, solid_object const* ign = nullptr);
 void map_bkgsfx(bool on);
 void toggle_switches(dword flags, bool entry);
 void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t);

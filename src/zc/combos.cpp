@@ -1122,11 +1122,9 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 	return true;
 }
 
-bool trigger_damage_combo(int32_t lyr, int32_t pos)
+bool trigger_damage_combo(int32_t cid, int32_t hdir, bool force_solid)
 {
-	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
-	mapscr* tmp = FFCore.tempScreens[lyr];
-	auto cid = tmp->data[pos];
+	if(hdir > 3) hdir = -1;
 	newcombo const& cmb = combobuf[cid];
 	if(Hero.hclk || Hero.superman || Hero.fallclk)
 		return false; //immune
@@ -1151,13 +1149,14 @@ bool trigger_damage_combo(int32_t lyr, int32_t pos)
 	if(dmg < 0)
 	{
 		if(itemid < 0 || ignoreBoots || (tmpscr->flags5&fDAMAGEWITHBOOTS)
-			|| (4<<current_item_power(itype_boots)<(abs(dmg))) || ((cmb.walk&0xF) && bootsnosolid)
+			|| (4<<current_item_power(itype_boots)<(abs(dmg)))
+			|| ((force_solid||(cmb.walk&0xF)) && bootsnosolid)
 			|| !(checkbunny(itemid) && checkmagiccost(itemid)))
 		{
 			std::vector<int32_t> &ev = FFCore.eventData;
 			ev.clear();
 			ev.push_back(-dmg*10000);
-			ev.push_back(-10000);
+			ev.push_back(hdir*10000);
 			ev.push_back(0);
 			ev.push_back(Hero.NayrusLoveShieldClk>0?10000:0);
 			ev.push_back(48*10000);
@@ -1175,7 +1174,7 @@ bool trigger_damage_combo(int32_t lyr, int32_t pos)
 			
 			throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
 			dmg = ev[0]/10000;
-			int32_t hdir = ev[1]/10000;
+			hdir = ev[1]/10000;
 			nullhit = ev[2] != 0;
 			bool nayrulove = ev[3] != 0;
 			int32_t iframes = ev[4] / 10000;
@@ -1493,7 +1492,7 @@ bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 				case -1: //4-dir at player
 				{
 					angular = false;
-					dir = AngleToDir4(at_player);
+					dir = AngleToDir4Rad(at_player);
 					break;
 				}
 				case -2: //8-dir at player
@@ -1809,7 +1808,7 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 					
 					case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 					case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
-						trigger_damage_combo(lyr,pos);
+						trigger_damage_combo(cid);
 						break;
 					
 					case cSTEPSFX:

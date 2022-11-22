@@ -29,15 +29,22 @@ public:
 	int32_t initd[INITIAL_D];
 	int32_t inita[INITIAL_A];
 	bool initialized;
-	bool loaded;
 	
 	ffcdata();
 	~ffcdata();
 	ffcdata(ffcdata const& other);
 	virtual void copy(ffcdata const& other);
+	void changerCopy(ffcdata& other, int32_t i = -1, int32_t j = -1);
 	ffcdata& operator=(ffcdata const& other);
 	void clear();
-	virtual void setSolid(bool set);
+	virtual bool setSolid(bool set);
+	virtual void updateSolid();
+	void setLoaded(bool set);
+	bool getLoaded() const;
+	//Overload to do damage to Hero on pushing them
+	virtual void doContactDamage(int32_t hdir);
+private:
+	bool loaded;
 };
 
 struct mapscr
@@ -98,25 +105,24 @@ struct mapscr
 	//  byte layerysize[6];
 	//  byte layeryspeed[6];
 	//  byte layerydelay[6];
-	byte layeropacity[6]; //should be available to zscript.-Z
+	byte layeropacity[6];
 	word timedwarptics;
 	byte nextmap;
 	byte nextscr;
-	word secretcombo[128]; //should be available to zscript.-Z
-	byte secretcset[128]; //should be available to zscript.-Z
-	byte secretflag[128]; //should be available to zscript.-Z
-	// you're listening to ptr radio, the sounds of insane. ;)
+	word secretcombo[128];
+	byte secretcset[128];
+	byte secretflag[128];
+	
 	std::vector<word> data;
 	std::vector<byte> sflag;
 	std::vector<byte> cset;
 	word viewX;
 	word viewY;
-	byte scrWidth; //ooooh. Can we make this a variable set by script? -Z
-	byte scrHeight; //ooooh. Can we make this a variable set by script? -Z
+	byte scrWidth;
+	byte scrHeight;
 	
 	byte entry_x, entry_y; //Where Hero entered the screen. Used for pits, and to prevent water walking. -Z
 	
-	//Why doesn't ffc get to be its own class?
 	dword numff;
 	ffcdata ffcs[NUM_FFCS];
 	
@@ -153,38 +159,6 @@ struct mapscr
 		ffcs[ind].tysz = val;
 	}
 	
-	//ffc script attachments
-	
-	
-	/*int32_t d[32][8];
-	int32_t a[32][2];
-	word pc[32];
-	dword scriptflag[32];
-	byte sp[32]; //stack pointer
-	byte ffcref[32];
-	dword itemref[32];
-	byte itemclass[32];
-	dword lwpnref[32];
-	dword ewpnref[32];
-	dword guyref[32];*/
-	//byte lwpnclass[32]; Not implemented
-	//byte ewpnclass[32]; Not implemented
-	//byte guyclass[32]; Not implemented
-	
-	/*int32_t map_stack[256];
-	int32_t map_d[8];
-	word map_pc;
-	dword map_scriptflag;
-	byte map_sp;
-	byte map_itemref;
-	byte map_itemclass;
-	byte map_lwpnref;
-	byte map_lwpnclass;
-	byte map_ewpnref;
-	byte map_ewpnclass;
-	byte map_guyref;
-	byte map_guyclass;
-	byte map_ffcref;*/ //All this is trash because we don't have map scripts, waste of memory
 	word script_entry;
 	word script_occupancy;
 	word script_exit;
@@ -199,7 +173,7 @@ struct mapscr
 	int16_t screen_midi;
 	byte lens_layer;
 	
-	//for future versions after 2.54 -Z
+	//Currently unused
 	int32_t npcstrings[10];
 	int16_t new_items[10];
 	int16_t new_item_x[10];
