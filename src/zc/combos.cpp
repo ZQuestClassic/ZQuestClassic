@@ -1122,11 +1122,8 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 	return true;
 }
 
-bool trigger_damage_combo(int32_t lyr, int32_t pos)
+bool trigger_damage_combo(int32_t cid, bool force_solid)
 {
-	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
-	mapscr* tmp = FFCore.tempScreens[lyr];
-	auto cid = tmp->data[pos];
 	newcombo const& cmb = combobuf[cid];
 	if(Hero.hclk || Hero.superman || Hero.fallclk)
 		return false; //immune
@@ -1151,7 +1148,8 @@ bool trigger_damage_combo(int32_t lyr, int32_t pos)
 	if(dmg < 0)
 	{
 		if(itemid < 0 || ignoreBoots || (tmpscr->flags5&fDAMAGEWITHBOOTS)
-			|| (4<<current_item_power(itype_boots)<(abs(dmg))) || ((cmb.walk&0xF) && bootsnosolid)
+			|| (4<<current_item_power(itype_boots)<(abs(dmg)))
+			|| ((force_solid||(cmb.walk&0xF)) && bootsnosolid)
 			|| !(checkbunny(itemid) && checkmagiccost(itemid)))
 		{
 			std::vector<int32_t> &ev = FFCore.eventData;
@@ -1809,7 +1807,7 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 					
 					case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 					case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
-						trigger_damage_combo(lyr,pos);
+						trigger_damage_combo(cid);
 						break;
 					
 					case cSTEPSFX:

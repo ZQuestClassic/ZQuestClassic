@@ -85,6 +85,7 @@ int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, i
 bool iswater_type(int32_t type);
 bool ispitfall(int32_t combo);
 bool ispitfall_type(int32_t type);
+bool isdamage_type(int32_t type);
 bool ispitfall(int32_t x, int32_t y);
 int32_t getpitfall(int32_t x, int32_t y);
 bool isGrassType(int32_t type);

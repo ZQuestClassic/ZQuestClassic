@@ -649,17 +649,40 @@ bool valid_str(char const* ptr, char cancel)
 	return ptr && ptr[0] && ptr[0] != cancel;
 }
 
-int32_t X_DIR(int32_t dir)
+direction X_DIR(int32_t dir)
 {
 	dir = NORMAL_DIR(dir);
-	if(dir < 0) return dir;
+	if(dir < 0) return dir_invalid;
 	return xDir[dir];
 }
-int32_t Y_DIR(int32_t dir)
+direction Y_DIR(int32_t dir)
 {
 	dir = NORMAL_DIR(dir);
-	if(dir < 0) return dir;
+	if(dir < 0) return dir_invalid;
 	return yDir[dir];
+}
+direction XY_DIR(int32_t xdir, int32_t ydir)
+{
+	if(X_DIR(xdir) < 0) return NORMAL_DIR(ydir);
+	if(Y_DIR(ydir) < 0) return NORMAL_DIR(xdir);
+	switch(X_DIR(xdir))
+	{
+		case right:
+			switch(Y_DIR(ydir))
+			{
+				case up: return r_up;
+				case down: return r_down;
+			}
+			break;
+		case left:
+			switch(Y_DIR(ydir))
+			{
+				case up: return l_up;
+				case down: return l_down;
+			}
+			break;
+	}
+	return dir_invalid;
 }
 
 string get_dbreport_string()

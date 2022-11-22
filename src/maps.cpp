@@ -1292,6 +1292,17 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 	}
 }
 
+bool isdamage_type(int32_t type)
+{
+	switch(type)
+	{
+		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
+		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
+			return true;
+	}
+	return false;
+}
+
 bool ispitfall_type(int32_t type)
 {
 	return combo_class_buf[type].pit != 0;
@@ -2740,18 +2751,20 @@ void update_freeform_combos()
 					ffprvy[i] = thisffc.y.getZLong();
 					thisffc.x+=thisffc.vx;
 					thisffc.y+=thisffc.vy;
-					thisffc.ax+=thisffc.ax;
-					thisffc.ay+=thisffc.ay;
+					thisffc.vx+=thisffc.ax;
+					thisffc.vy+=thisffc.ay;
 					
 					
-					//!TODO SOLIDPUSH remove these caps on a compat rule
-					if(thisffc.vx>128) thisffc.vx=128;
-					
-					if(thisffc.vx<-128) thisffc.vx=-128;
-					
-					if(thisffc.vy>128) thisffc.vy=128;
-					
-					if(thisffc.vy<-128) thisffc.vy=-128;
+					if(get_bit(quest_rules, qr_OLD_FFC_SPEED_CAP))
+					{
+						if(thisffc.vx>128) thisffc.vx=128;
+						
+						if(thisffc.vx<-128) thisffc.vx=-128;
+						
+						if(thisffc.vy>128) thisffc.vy=128;
+						
+						if(thisffc.vy<-128) thisffc.vy=-128;
+					}
 				}
 			}
 			else

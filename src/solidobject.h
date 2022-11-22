@@ -38,10 +38,16 @@ public:
 	void putwalkflags(BITMAP *dest, int32_t tx, int32_t ty);
 	void solid_update(bool push = true);
 	virtual void solid_push(solid_object* pusher);
+	//Overload to behave as a combo of some sort? (just for damage combos on collision)
+	virtual int32_t get_solid_combo() const {return 0;}
 protected:
 	bool solid;
 	bool ignore_solid_temp;
-	void solid_push_int(solid_object const* obj, zfix& dx, zfix& dy) const;
+	void solid_push_int(solid_object const* obj, zfix& dx, zfix& dy);
+	int32_t push_dir() const;
+	
+	//Overload to give 'riding sideview platform' behaviors
+	virtual bool sideview_mode() const {return false;}
 private:
 	bool in_solid_arr;
 };

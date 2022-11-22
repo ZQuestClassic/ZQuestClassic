@@ -72,6 +72,7 @@ bool collide_object(int32_t tx, int32_t ty, int32_t tw, int32_t th, solid_object
 }
 
 solid_object::solid_object() : solid(false), in_solid_arr(false),
+	ignore_solid_temp(false),
 	hxsz(16), hysz(16), hxofs(0), hyofs(0),
 	sxofs(0), syofs(0), sxsz_ofs(0), sysz_ofs(0),
 	solidflags(0)
@@ -79,7 +80,7 @@ solid_object::solid_object() : solid(false), in_solid_arr(false),
 
 solid_object::~solid_object()
 {
-	if(solid)
+	if(in_solid_arr)
 	{
 	    remove_object(this);
 	}
@@ -196,10 +197,9 @@ void solid_object::solid_push(solid_object* pusher)
 {
 	//Default behavior: Ignore
 	//!TODO SOLIDPUSH Implement 'enemy::solid_push'
-	//!TODO SOLIDPUSH finish 'HeroClass::solid_push' (good for 4-dir, needs diagonals)
 }
 
-void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy) const
+void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy)
 {
 	dx = dy = 0;
 	zfix odx = obj->x - obj->old_x,
@@ -213,6 +213,47 @@ void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy) co
 	
 	zfix rx = x+hxofs+sxofs, ry = y+hyofs+syofs,
 		 rw = hxsz+sxsz_ofs, rh = hysz+sysz_ofs;
+	bool sideview_slim = false;
+	#define ZF_TO_INT(zf) (zf).getFloor()
+	
+	if(sideview_mode())
+	{
+		bool ride_platform = false;
+		if(ZF_TO_INT(ry+rh) == ZF_TO_INT(obj_oy)) //correct y
+		{
+			int32_t cx1 = ZF_TO_INT(obj_ox), cx2 = ZF_TO_INT(obj_ox + obj_w);
+			if(ZF_TO_INT(rw) > 4) //sanity
+			{
+				int32_t x1 = ZF_TO_INT(rx+4), x2 = ZF_TO_INT(rx+rw-4);
+				if((x1 > cx1 && x1 < cx2)
+				 || (x2 > cx1 && x2 < cx2)) //correct x
+				{
+					ride_platform = true;
+				}
+			}
+			else
+			{
+				int32_t x1 = ZF_TO_INT(rx+rw/2);
+				if(x1 > cx1 && x1 < cx2) //correct x
+				{
+					ride_platform = true;
+				}
+			}
+		}
+		if(ride_platform)
+		{
+			dx = odx;
+			dy = ody;
+			return;
+		}
+		if(ody && (!odx || ody < 0))
+		{
+			//Sideview solids use a 4-slimmer hitbox in some cases
+			sideview_slim = true;
+			sxofs += 4;
+			sxsz_ofs -= 8;
+		}
+	}
 	
 	if(odx && ody)
 	{
@@ -424,7 +465,6 @@ void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy) co
 				// }
 			// }
 		}
-		return;
 	}
 	else if(odx)
 	{
@@ -460,5 +500,39 @@ void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy) co
 			}
 		}
 	}
+	if(sideview_slim)
+	{
+		sxofs -= 4;
+		sxsz_ofs += 8;
+	}
+	
+	if(!dx && !dy) return; //no movement at all
+	//handle subpixel rounding
+	if(zfix xd = x.getDPart())
+	{
+		x.doTrunc();
+		dx += xd;
+	}
+	if(zfix yd = y.getDPart())
+	{
+		y.doTrunc();
+		dy += yd;
+	}
+	//Lock to integer grid
+	//!TODO SOLIDPUSH allow a subpixel-push? -Em
+	dx.doRoundAway();
+	dy.doRoundAway();
+}
+
+int32_t solid_object::push_dir() const
+{
+	zfix odx = x - old_x,
+	     ody = y - old_y;
+	int32_t xdir = -1, ydir = -1;
+	if(odx > 0) xdir = right;
+	else if(odx < 0) xdir = left;
+	if(ody > 0) xdir = down;
+	else if(ody < 0) xdir = up;
+	return XY_DIR(xdir, ydir);
 }
 

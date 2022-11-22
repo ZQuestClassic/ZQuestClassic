@@ -593,6 +593,7 @@ public:
 	bool canSideviewLadder(bool down = false);
 	void trySideviewLadder();
 	bool canSideviewLadderRemote(int32_t wx, int32_t wy, bool down = false);
+	virtual bool sideview_mode() const;
 };
 
 bool usingActiveShield(int32_t itmid = -1);

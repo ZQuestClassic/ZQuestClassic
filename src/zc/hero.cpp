@@ -113,7 +113,7 @@ static inline bool platform_fallthrough()
 
 static inline bool on_sideview_solid(int32_t x, int32_t y, bool ignoreFallthrough = false)
 {
-	return (_walkflag(x+4,y+16,0) || (y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) ||
+	return (_walkflag(x+4,y+16,1) || _walkflag(x+12,y+16,1) || (y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) ||
 		(((y%16)==0) && (!platform_fallthrough() || ignoreFallthrough) &&
 		(checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16))));
 }
@@ -7703,7 +7703,7 @@ bool HeroClass::animate(int32_t)
 			hoverflags &= ~HOV_OUT;
 		}
 	}
-	if(isSideViewHero() && (moveflags & FLAG_OBEYS_GRAV))  // Sideview gravity
+	if(sideview_mode())  // Sideview gravity
 	{
 		//Handle falling through a platform
 		if((y.getInt()%16==0) && (isSVPlatform(x+4,y+16) || isSVPlatform(x+12,y+16)) && !(on_sideview_solid(x,y)))
@@ -7715,15 +7715,15 @@ bool HeroClass::animate(int32_t)
 		//Unless using old collision, run this check BEFORE moving Hero, to prevent clipping into the ceiling.
 		if(!get_bit(quest_rules, qr_OLD_SIDEVIEW_CEILING_COLLISON))
 		{
-			if((_walkflag(x+4,y+((bigHitbox||!diagonalMovement)?(fall/100):(fall/100)+8),1,SWITCHBLOCK_STATE) || _walkflag(x+12,y+((bigHitbox||!diagonalMovement)?(fall/100):(fall/100)+8),1,SWITCHBLOCK_STATE)
+			if(fall < 0 && (_walkflag(x+4,y+((bigHitbox||!diagonalMovement)?(fall/100):(fall/100)+8),1,SWITCHBLOCK_STATE) || _walkflag(x+12,y+((bigHitbox||!diagonalMovement)?(fall/100):(fall/100)+8),1,SWITCHBLOCK_STATE)
 				|| ((y+(fall/100)<=0) &&
 				// Extra checks if Smart Screen Scrolling is enabled
 				 (nextcombo_wf(up) || ((get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE)) &&
-											   !(tmpscr->flags2&wfUP)) && (nextcombo_solid(up))))))
-					&& fall < 0)
+											   !(tmpscr->flags2&wfUP)) && (nextcombo_solid(up)))))))
 			{
 				fall = jumping = 0; // Bumped his head
-				y -= y.getInt()%8; //fix coords
+				if(get_bit(quest_rules,qr_OLD_SIDEVIEW_LANDING_CODE))
+					y -= y.getInt()%8; //fix coords
 				// ... maybe on spikes //this is the change from 2.50.1RC3 that Saffith made, that breaks some old quests. -Z
 				if ( !get_bit(quest_rules, qr_OLDSIDEVIEWSPIKES) ) //fix for older sideview quests -Z
 				{
@@ -7741,6 +7741,31 @@ bool HeroClass::animate(int32_t)
 			if(fall > 0 && (checkSVLadderPlatform(x+4,y+ydiff+15)||checkSVLadderPlatform(x+12,y+ydiff+15)) && (((y.getInt()+ydiff+15)&0xF0)!=((y.getInt()+15)&0xF0)) && !platform_fallthrough())
 			{
 				ydiff -= (y.getInt()+ydiff)%16;
+			}
+			if(ydiff && !get_bit(quest_rules,qr_OLD_SIDEVIEW_LANDING_CODE))
+			{
+				if(ydiff > 0)
+				{
+					for(auto q = 0; q < ydiff; ++q)
+					{
+						if(_walkflag(x+4,y+16+q,1) || _walkflag(x+12,y+16+q,1))
+						{
+							ydiff = q;
+							break;
+						}
+					}
+				}
+				else if(ydiff < 0)
+				{
+					for(auto q = 0; q > ydiff; --q)
+					{
+						if(_walkflag(x+4,y+q-1,1) || _walkflag(x+12,y+q,1))
+						{
+							ydiff = q;
+							break;
+						}
+					}
+				}
 			}
 			y+=ydiff;
 			hs_starty+=ydiff;
@@ -7784,7 +7809,9 @@ bool HeroClass::animate(int32_t)
 		if((on_sideview_solid(x,y) || getOnSideviewLadder())  && !(pull_hero && dir==down) && action!=rafting)
 		{
 			stop_item_sfx(itype_hoverboots);
-			if(!getOnSideviewLadder() && (fall > 0 || get_bit(quest_rules, qr_OLD_SIDEVIEW_CEILING_COLLISON)))
+			if(get_bit(quest_rules,qr_OLD_SIDEVIEW_LANDING_CODE)
+				&& !getOnSideviewLadder()
+				&& (fall > 0 || get_bit(quest_rules, qr_OLD_SIDEVIEW_CEILING_COLLISON)))
 				y-=(int32_t)y%8; //fix position
 			fall = hoverclk = jumping = 0;
 			hoverflags = 0;
@@ -9717,52 +9744,50 @@ void HeroClass::solid_push(solid_object* obj)
 	//!TODO SOLIDPUSH enemies contact damage (if needed)
 	// if(enemy* enm = dynamic_cast<enemy*>(obj))
 		// enm->doContactDamage();
-	//!TODO SOLIDPUSH ffc contact damage (damage combos)
-	// if(ffcdata* ff = dynamic_cast<ffcdata*>(obj))
-		// ff->doContactDamage();
+	
+	if(int32_t cid = obj->get_solid_combo()) //object has a combo ID (ex. ffc)
+	{
+		newcombo const& cmb = combobuf[cid];
+		if(isdamage_type(cmb.type)) //Damage combo
+			trigger_damage_combo(cid, true);
+	}
 	
 	bool t = obj->getTempNonsolid();
 	obj->setTempNonsolid(true);
 	
-	//Only move an integer amount
-	dx.doRoundAway();
-	dy.doRoundAway();
-	
-	int32_t pdir = dy > 0 ? down : up;
-	int32_t pdir2 = dx > 0 ? right : left;
+	int32_t ydir = dy > 0 ? down : up;
+	int32_t xdir = dx > 0 ? right : left;
 	
 	while(dx && dy)
 	{
 		if(check_pitslide() != -1)
 			break;
-		if(!push_pixel(pdir))
+		if(!push_pixel(ydir))
 			break;
 		if (dy > 0) --dy;
 		else ++dy;
-		if(!push_pixel(pdir2))
+		if(!push_pixel(xdir))
 			break;
 		if (dx > 0) --dx;
 		else ++dx;
 	}
 	if(dx)
 	{
-		pdir = dx > 0 ? right : left;
 		for(int32_t q = abs(dx); q > 0; --q)
 		{
 			if(check_pitslide() != -1)
 				break;
-			if(!push_pixel(pdir))
+			if(!push_pixel(xdir))
 				break;
 		}
 	}
 	if(dy)
 	{
-		pdir = dy > 0 ? down : up;
 		for(int32_t q = abs(dy); q > 0; --q)
 		{
 			if(check_pitslide() != -1)
 				break;
-			if(!push_pixel(pdir))
+			if(!push_pixel(ydir))
 				break;
 		}
 	}
@@ -10043,8 +10068,9 @@ bool HeroClass::do_jump(int32_t jumpid, bool passive)
 	// Reset the ladder, unless on an unwalkable combo
 	if((ladderx || laddery) && !(_walkflag(ladderx,laddery,0,SWITCHBLOCK_STATE)))
 		reset_ladder();
-		
-	sfx(itm.usesound,pan(x.getInt()));
+	
+	if(itm.usesound)
+		sfx(itm.usesound,pan(x.getInt()));
 	
 	if(passive) did_passive_jump = true;
 	return true;
@@ -29480,6 +29506,10 @@ void HeroClass::setImmortal(int32_t nimmortal)
 void HeroClass::kill(bool bypassFairy)
 {
 	dying_flags = DYING_FORCED | (bypassFairy ? DYING_NOREV : 0);
+}
+bool HeroClass::sideview_mode() const
+{
+	return isSideViewHero() && (moveflags & FLAG_OBEYS_GRAV);
 }
 /*** end of hero.cpp ***/
 

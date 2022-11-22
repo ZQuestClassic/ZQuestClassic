@@ -3641,6 +3641,11 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		set_bit(quest_rules,qr_NO_LIFT_SPRITE,1);
 	}
+	if(compatrule_version < 34)
+	{
+		set_bit(quest_rules,qr_OLD_SIDEVIEW_LANDING_CODE,1);
+		set_bit(quest_rules,qr_OLD_FFC_SPEED_CAP,1);
+	}
 	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);

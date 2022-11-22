@@ -298,7 +298,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        1
 
-#define V_COMPATRULE       33
+#define V_COMPATRULE       34
 #define V_ZINFO            2
 
 //= V_SHOPS is under V_MISC
@@ -1104,7 +1104,7 @@ enum
 	qr_OLD_LOCKBLOCK_COLLISION, qr_DECO_2_YOFFSET, qr_SCREENSTATE_80s_BUG, qr_AUTOCOMBO_ANY_LAYER,
 	//60
 	qr_GOHMA_UNDAMAGED_BUG, qr_FFCPRELOAD_BUGGED_LOAD, qr_SWITCHES_AFFECT_MOVINGBLOCKS, qr_BROKEN_GETPIXEL_VALUE,
-	qr_NO_LIFT_SPRITE,
+	qr_NO_LIFT_SPRITE, qr_OLD_SIDEVIEW_LANDING_CODE, qr_OLD_FFC_SPEED_CAP,
 	//70
 	
 	//ZScript Parser //room for 20 of these
@@ -1163,9 +1163,10 @@ const direction oppositeDir[]= {down, up, right, left, r_down, l_down, r_up, l_u
 const direction normalDir[]={up,down,left,right,l_up,r_up,l_down,r_down,up,r_up,right,r_down,down,l_down,left,l_up};
 const direction xDir[] = { dir_invalid,dir_invalid,left,right,left,right,left,right };
 const direction yDir[] = { up,down,dir_invalid,dir_invalid,up,up,down,down };
-int32_t X_DIR(int32_t dir);
-int32_t Y_DIR(int32_t dir);
-#define NORMAL_DIR(dir)    ((dir >= 0 && dir < 16) ? normalDir[dir] : -1)
+direction X_DIR(int32_t dir);
+direction Y_DIR(int32_t dir);
+direction XY_DIR(int32_t xdir, int32_t ydir);
+#define NORMAL_DIR(dir)    ((dir >= 0 && dir < 16) ? normalDir[dir] : dir_invalid)
 
 // refill stuff
 enum { REFILL_NONE, REFILL_FAIRYDONE, REFILL_LIFE, REFILL_MAGIC, REFILL_ALL};
