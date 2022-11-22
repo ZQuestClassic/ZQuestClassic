@@ -3635,15 +3635,8 @@ bool DisableButton[18];
  * This allows disabling the engine's button, while not disabling the button for scripts.
  * Use the CB_* constants to access this array. 
  
-bool KeyRaw[127];
- * Read-Only: An array of boolean values that read as 'true'
- * 	if the corresponding keyboard key was pressed this frame.
- * You can write a key false, but not true. 
- * Use the KEY_* constants to access this array. 
- * Note: This writes directly to allegro's key[] values.
-	
 bool ReadKey[127] ( should become a function ReadKey()? )
- * As 'KeyRaw[]', except that reading a key with ReadKey[] will ignore further input from that key, 
+ * As 'Key[]', except that reading a key with ReadKey[] will ignore further input from that key, 
    until it is released. 
  * Read-only.
  * Use the KEY_* constants to access this array. 
@@ -3653,16 +3646,15 @@ bool Key[127];
  * Functions similarly to 'Input->Button[]', but for keys.
  * Read/Write; this will affect most engine functions as well, though
  *     system keys such as 'Esc', 'F3', 'F4', 'F6', 'F7', 'F8', 'F9'
- *     bypass this, though can be affected via 'KeyRaw[]'
+ *     bypass this.
  
 bool KeyPress[127];
  * Returns true if a key was pressed this frame.
  * Functions similarly to 'Input->Press[]', but for keys.
  * Read/Write; this will affect most engine functions as well, though
  *     system keys such as 'Esc', 'F3', 'F4', 'F6', 'F7', 'F8', 'F9'
- *     bypass this, though can be affected via 'KeyRaw[]'
- *     Writing this true for 'F3', 'F4', or 'F6' will trigger the button;
- *     though writing false must occur to 'KeyRaw[]'.
+ *     bypass this.
+ *     Writing this true for 'F3', 'F4', or 'F6' will trigger the button
  
 bool DisableKey[127];
  * Setting an index of this array to 'true' will disable that key for engine input
