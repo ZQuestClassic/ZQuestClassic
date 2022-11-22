@@ -97,7 +97,6 @@ void ffdata::save(mapscr* scr, int32_t ind)
 		scr->ffcs[ind].inita[q] = inita[q];
 	for(auto q = 0; q < 8; ++q)
 		scr->ffcs[ind].initd[q] = initd[q];
-	SETFLAG(scr->numff,(1<<ind),data!=0);
 	scr->ffcs[ind].updateSolid();
 }
 

@@ -220,7 +220,6 @@ void mapscr::zero_memory()
 	viewY=0;
 	scrWidth=0;
 	scrHeight=0;
-	numff=0;
 	entry_x = 0;
 	entry_y = 0;
 	
@@ -342,7 +341,6 @@ void mapscr::copy(mapscr const& other)
 	viewY=other.viewY;
 	scrWidth=other.scrWidth;
 	scrHeight=other.scrHeight;
-	numff=other.numff;
 	entry_x = other.entry_x;
 	entry_y = other.entry_y;
 	
