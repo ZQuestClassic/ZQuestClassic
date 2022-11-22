@@ -17339,6 +17339,81 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 			// ffcScriptData[m].a[0] = 10000;
 			// ffcScriptData[m].a[1] = 10000;
 		}
+		if(version >= 25)
+		{
+			for(auto m = 32; m < 128; ++m)
+			{
+				ffcdata& tempffc = temp_mapscr->ffcs[m];
+				tempffc.clear();
+				if(temp_mapscr->numff & (1<<m))
+				{
+					if(!p_igetw(&(tempffc.data),f,true))
+						return qe_invalid;
+					if(!p_getc(&(tempffc.cset),f,true))
+						return qe_invalid;
+					if(!p_igetw(&(tempffc.delay),f,true))
+						return qe_invalid;
+					if(!p_igetzf(&(tempffc.x),f,true))
+						return qe_invalid;
+					if(!p_igetzf(&(tempffc.y),f,true))
+						return qe_invalid;
+					if(!p_igetzf(&(tempffc.vx),f,true))
+						return qe_invalid;
+					if(!p_igetzf(&(tempffc.vy),f,true))
+						return qe_invalid;
+					if(!p_igetzf(&(tempffc.ax),f,true))
+						return qe_invalid;
+					if(!p_igetzf(&(tempffc.ay),f,true))
+						return qe_invalid;
+					if(!p_getc(&(tempffc.link),f,true))
+						return qe_invalid;
+					if(version < 24)
+					{
+						if(!p_getc(&tempbyte,f,true))
+							return qe_invalid;
+						tempffc.hxsz = (tempbyte&0x3F)+1;
+						tempffc.txsz = (tempbyte>>6)+1;
+						if(!p_getc(&tempbyte,f,true))
+							return qe_invalid;
+						tempffc.hysz = (tempbyte&0x3F)+1;
+						tempffc.tysz = (tempbyte>>6)+1;
+					}
+					else
+					{
+						if(!p_igetl(&(tempffc.hxsz),f,true))
+							return qe_invalid;
+						if(!p_igetl(&(tempffc.hysz),f,true))
+							return qe_invalid;
+						if(!p_getc(&(tempffc.txsz),f,true))
+							return qe_invalid;
+						if(!p_getc(&(tempffc.tysz),f,true))
+							return qe_invalid;
+					}
+					if(!p_igetl(&(tempffc.flags),f,true))
+						return qe_invalid;
+					tempffc.updateSolid();
+					if(!p_igetw(&(tempffc.script),f,true))
+						return qe_invalid;
+					for(auto q = 0; q < 8; ++q)
+					{
+						if(!p_igetl(&(tempffc.initd[q]),f,true))
+							return qe_invalid;
+					}
+					if(!p_getc(&(tempbyte),f,true))
+						return qe_invalid;
+					tempffc.inita[0]=tempbyte*10000;
+					
+					if(!p_getc(&(tempbyte),f,true))
+						return qe_invalid;
+					tempffc.inita[1]=tempbyte*10000;
+					
+					tempffc.initialized = false;
+				}
+				
+				// ffcScriptData[m].a[0] = 10000;
+				// ffcScriptData[m].a[1] = 10000;
+			}
+		}
 		//END FFC
 	}
 	return 0;
@@ -17410,7 +17485,7 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 			TheMaps[i].zero_memory();
 		
 		// Used to be done for each screen
-		for(int32_t i=0; i<32; i++) //Keep 32. FFC_BUMP
+		for(int32_t i=0; i<MAXFFCS; i++)
 		{
 			ffcScriptData[i].a[0] = 10000;
 			ffcScriptData[i].a[1] = 10000;
