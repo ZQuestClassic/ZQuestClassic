@@ -36,6 +36,7 @@ import difflib
 import pathlib
 import shutil
 from time import sleep
+from timeit import default_timer as timer
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--build_folder', default='build/Debug')
@@ -103,36 +104,43 @@ def run_replay_test(replay_file):
         exe_args.extend(['-frame', str(args.frame)])
     if args.snapshot is not None:
         exe_args.extend(['-snapshot', args.snapshot])
+    
+    last_step = read_last_contentful_line(replay_file)
+    num_frames = int(last_step.split(' ')[1])
+    num_frames_checked = num_frames
 
     # Cap the length of a replay in CI.
     if args.ci:
         max_duration = 4 * 60
-        last_step = read_last_contentful_line(replay_file)
-        last_frame = int(last_step.split(' ')[1])
         fps = 800
-        estimated_duration = last_frame / fps
+        estimated_duration = num_frames / fps
         if estimated_duration > max_duration:
-            frame = fps * max_duration
-            exe_args.extend(['-frame', str(frame)])
-            print(f"-frame {frame}, only doing {100 * frame / last_frame:.2f}% ... ", end='', flush=True)
+            num_frames_checked = fps * max_duration
+            exe_args.extend(['-frame', str(num_frames_checked)])
+            print(f"-frame {num_frames_checked}, only doing {100 * num_frames_checked / num_frames:.2f}% ... ", end='', flush=True)
             estimated_duration = max_duration
-        timeout = 5 + estimated_duration * 1.2
+        timeout = 30 + estimated_duration * 1.2
     else:
         timeout = None
 
+    fps = None
     for _ in range(0, 5):
         try:
+            start = timer()
             process_result = subprocess.run(exe_args,
                                             stdout=subprocess.PIPE,
                                             stderr=subprocess.PIPE,
                                             text=True,
                                             timeout=timeout)
             if 'Replay is active' in process_result.stdout:
+                # TODO: we only know the fps if the replay succeeded.
+                if process_result.returncode == 0:
+                    fps = int(num_frames_checked / (timer() - start))
                 break
             print('did not start correctly, trying again...')
             sleep(1)
         except subprocess.TimeoutExpired as e:
-            return False, f'{e}\n\n{e.stdout}', e.stderr, None
+            return False, f'{e}\n\n{e.stdout}', e.stderr, None, None
 
     diff = None
     if not args.update and process_result.returncode == 120:
@@ -152,7 +160,7 @@ def run_replay_test(replay_file):
         else:
             diff = 'missing roundtrip file, cannnot diff'
 
-    return process_result.returncode == 0, process_result.stdout, process_result.stderr, diff
+    return process_result.returncode == 0, process_result.stdout, process_result.stderr, diff, fps
 
 
 test_states = {}
@@ -175,8 +183,12 @@ for i in range(args.retries + 1):
 
     for test in [t for t in tests if not test_states[t]]:
         print(f'= {test.relative_to(replays_dir)} ... ', end='', flush=True)
-        test_states[test], stdout, stderr, diff = run_replay_test(test)
-        print('✅' if test_states[test] else '❌')
+        test_states[test], stdout, stderr, diff, fps = run_replay_test(test)
+        status_emoji = '✅' if test_states[test] else '❌'
+        if fps != None:
+            print(f'{status_emoji} {fps} fps')
+        else:
+            print(status_emoji)
 
         # Only print on failure and last attempt.
         if not test_states[test] and i == args.retries:

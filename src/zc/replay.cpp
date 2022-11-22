@@ -962,10 +962,13 @@ void replay_poll()
         do_replaying_poll();
         do_recording_poll();
         check_assert();
-        if (replay_log_current_index == replay_log.size() && assert_current_index == replay_log.size())
-            replay_stop();
-        if (has_assert_failed && (frame_count - replay_log[assert_current_index]->frame > 60*60 || frame_count > replay_log.back()->frame))
-            replay_stop();
+        if (mode != ReplayMode::Off)
+        {
+            if (replay_log_current_index == replay_log.size() && assert_current_index == replay_log.size())
+                replay_stop();
+            else if (has_assert_failed && (frame_count - replay_log[assert_current_index]->frame > 60*60 || frame_count > replay_log.back()->frame))
+                replay_stop();
+        }
         break;
     case ReplayMode::Update:
         do_replaying_poll();
