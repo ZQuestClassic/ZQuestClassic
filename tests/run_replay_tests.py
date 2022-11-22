@@ -140,7 +140,7 @@ def run_replay_test(replay_file):
             print('did not start correctly, trying again...')
             sleep(1)
         except subprocess.TimeoutExpired as e:
-            return False, f'{e}\n\n{e.stdout}', e.stderr, None
+            return False, f'{e}\n\n{e.stdout}', e.stderr, None, None
 
     diff = None
     if not args.update and process_result.returncode == 120:
