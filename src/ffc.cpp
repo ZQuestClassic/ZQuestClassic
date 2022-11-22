@@ -6,8 +6,6 @@
 #include "maps.h"
 extern newcombo *combobuf;
 extern mapscr tmpscr[2];
-extern int16_t ffposx[MAXFFCS];
-extern int16_t ffposy[MAXFFCS];
 #endif
 
 ffcdata::ffcdata() : solid_object()
@@ -209,7 +207,7 @@ void mapscr::zero_memory()
 	flags8=0;
 	flags9=0;
 	flags10=0;
-	csensitive=0;
+	csensitive=1;
 	noreset=0;
 	nocarry=0;
 	timedwarptics=0;
@@ -224,7 +222,7 @@ void mapscr::zero_memory()
 	entry_y = 0;
 	
 	old_cpage = 0;
-	screen_midi = 0;
+	screen_midi = -1;
 	
 	for(int32_t i(0); i<4; i++)
 	{
@@ -254,7 +252,7 @@ void mapscr::zero_memory()
 	{
 		layermap[i]=0;
 		layerscreen[i]=0;
-		layeropacity[i]=0;
+		layeropacity[i]=255;
 	}
 	
 	for(int32_t i(0); i<MAXFFCS; i++)
@@ -267,8 +265,8 @@ void mapscr::zero_memory()
 	script_exit=0;
 	oceansfx=0;
 	bosssfx=0;
-	secretsfx=0;
-	holdupsfx=0;
+	secretsfx=27;
+	holdupsfx=20;
 	lens_layer=0;
 
 	for ( int32_t q = 0; q < 10; q++ ) npcstrings[q] = 0;
@@ -378,10 +376,12 @@ void mapscr::copy(mapscr const& other)
 		layeropacity[i]=other.layeropacity[i];
 	}
 	
-	for(int32_t i(0); i<MAXFFCS; i++)
-	{
+	word c = other.countFFC();
+	for(word i = 0; i<c; ++i)
 		ffcs[i] = other.ffcs[i];
-	}
+	for(word i = c; i<MAXFFCS; ++i)
+		ffcs[i].clear();
+	
 	script_entry=other.script_entry;
 	script_occupancy=other.script_occupancy;
 	script_exit=other.script_exit;

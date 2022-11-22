@@ -72,18 +72,20 @@ extern string zScript;
 
 zmap Map;
 int32_t prv_mode=0;
-int16_t ffposx[32]= {-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
-                   -1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000
-                  };
-int16_t ffposy[32]= {-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,
-                   -1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000
-                  };
-int32_t ffprvx[32]= {-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
-                  -10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000
-                 };
-int32_t ffprvy[32]= {-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,
-                  -10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000,-10000000
-                 };
+int16_t ffposx[MAXFFCS];
+int16_t ffposy[MAXFFCS];
+int32_t ffprvx[MAXFFCS];
+int32_t ffprvy[MAXFFCS];
+void init_ffpos()
+{
+    for (word q = 0; q < MAXFFCS; ++q)
+    {
+        ffposx[q] = -1000;
+        ffposy[q] = -1000;
+        ffprvx[q] = -10000000;
+        ffprvy[q] = -10000000;
+    }
+}
 
 bool save_warn=true;
 
@@ -1647,49 +1649,12 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
     dest->viewY=src->viewY;
     dest->scrWidth=src->scrWidth;
     dest->scrHeight=src->scrHeight;
-    dest->numff=src->numff;
     
-    for(int32_t i=0; i<MAXFFCS; i++)
-    {
-        for(int32_t j=0; j<8; j++)
-        {
-            //dest->d[i][j]=src->d[i][j];
-            dest->ffcs[i].initd[j]=src->ffcs[i].initd[j];
-        }
-        
-        for(int32_t j=0; j<2; j++)
-        {
-            //dest->a[i][j]=src->a[i][j];
-            dest->ffcs[i].inita[j]=src->ffcs[i].inita[j];
-        }
-        
-        dest->ffcs[i].data=src->ffcs[i].data;
-        dest->ffcs[i].cset=src->ffcs[i].cset;
-        dest->ffcs[i].delay=src->ffcs[i].delay;
-        dest->ffcs[i].x=src->ffcs[i].x;
-        dest->ffcs[i].y=src->ffcs[i].y;
-        dest->ffcs[i].vx=src->ffcs[i].vx;
-        dest->ffcs[i].vy=src->ffcs[i].vy;
-        dest->ffcs[i].ax=src->ffcs[i].ax;
-        dest->ffcs[i].ay=src->ffcs[i].ay;
-        dest->ffcs[i].flags=src->ffcs[i].flags;
-        dest->ffcs[i].hxsz=src->ffcs[i].hxsz;
-        dest->ffcs[i].hysz=src->ffcs[i].hysz;
-	dest->ffcs[i].txsz=src->ffcs[i].txsz;
-        dest->ffcs[i].tysz=src->ffcs[i].tysz;
-        dest->ffcs[i].link=src->ffcs[i].link;
-        dest->ffcs[i].script=src->ffcs[i].script;
-        dest->ffcs[i].initialized=src->ffcs[i].initialized;
-        /*dest->pc[i]=src->pc[i];
-        dest->scriptflag[i]=src->scriptflag[i];
-        dest->sp[i]=src->sp[i];
-        dest->itemref[i]=src->itemref[i];
-        dest->ffcref[i]=src->ffcref[i];
-        dest->itemclass[i]=src->itemclass[i];
-        dest->lwpnref[i]=src->lwpnref[i];
-        dest->ewpnref[i]=src->ewpnref[i];
-        dest->guyref[i]=src->guyref[i];*/
-    }
+	word c = src->countFFC();
+    for(word i=0; i<c; ++i)
+		dest->ffcs[i] = src->ffcs[i];
+    for(word i=c; i<MAXFFCS; ++i)
+		dest->ffcs[i].clear();
     
     /*for(int32_t i=0; i<256; i++)
       dest->map_stack[i]=src->map_stack[i];
@@ -2653,7 +2618,8 @@ void zmap::draw_darkness(BITMAP* dest, BITMAP* transdest)
 			}
 		}
 	}
-	for(auto q = 0; q < MAXFFCS; ++q)
+	word maxffc = basescr->countFFC();
+	for(auto q = 0; q < maxffc; ++q)
 	{
 		newcombo const& cmb = combobuf[basescr->ffcs[q].data];
 		if(cmb.type == cTORCH)
@@ -4802,33 +4768,11 @@ void zmap::PasteFFCombos(const mapscr& copymapscr)
 {
     if(can_paste)
     {
-        screens[currscr].numff = copymapscr.numff;
-        
-        for(int32_t i=0; i<32; i++)
-        {
-            screens[currscr].ffcs[i].data = copymapscr.ffcs[i].data;
-            screens[currscr].ffcs[i].cset = copymapscr.ffcs[i].cset;
-            screens[currscr].ffcs[i].x = copymapscr.ffcs[i].x;
-            screens[currscr].ffcs[i].y = copymapscr.ffcs[i].y;
-            screens[currscr].ffcs[i].vx = copymapscr.ffcs[i].vx;
-            screens[currscr].ffcs[i].vy = copymapscr.ffcs[i].vy;
-            screens[currscr].ffcs[i].ax = copymapscr.ffcs[i].ax;
-            screens[currscr].ffcs[i].ay = copymapscr.ffcs[i].ay;
-            screens[currscr].ffcs[i].link = copymapscr.ffcs[i].link;
-            screens[currscr].ffcs[i].delay = copymapscr.ffcs[i].delay;
-            screens[currscr].ffcs[i].hxsz = copymapscr.ffcs[i].hxsz;
-            screens[currscr].ffcs[i].hysz = copymapscr.ffcs[i].hysz;
-	    screens[currscr].ffcs[i].txsz = copymapscr.ffcs[i].txsz;
-            screens[currscr].ffcs[i].tysz = copymapscr.ffcs[i].tysz;
-            screens[currscr].ffcs[i].flags = copymapscr.ffcs[i].flags;
-            screens[currscr].ffcs[i].script = copymapscr.ffcs[i].script;
-            
-            for(int32_t j=0; j<8; j++)
-                screens[currscr].ffcs[i].initd[j] = copymapscr.ffcs[i].initd[j];
-                
-            for(int32_t j=0; j<2; j++)
-                screens[currscr].ffcs[i].inita[j] = copymapscr.ffcs[i].inita[j];
-        }
+		word c = copymapscr.countFFC();
+        for(word i=0; i<c; i++)
+            screens[currscr].ffcs[i] = copymapscr.ffcs[i];
+		for(word i = c; i < MAXFFCS; ++i)
+			screens[currscr].ffcs[i].clear();
         
         saved=false;
     }
@@ -4860,8 +4804,6 @@ void zmap::PasteOneFFC(const mapscr& copymapscr, int32_t i) //i - destination ff
         
     for(int32_t j=0; j<2; j++)
         screens[currscr].ffcs[i].inita[j] = copymapscr.ffcs[copyffc].inita[j];
-        
-    screens[currscr].numff|=(1<<i);
     //copyffc = -1;
     saved=false;
 }
@@ -5205,61 +5147,33 @@ void zmap::update_combo_cycling()
         prvscr.cset[i]=newcset[i];
     }
     
-    for(int32_t i=0; i<MAXFFCS; i++)
+	word maxffc = prvscr.countFFC();
+    for(word i=0; i<maxffc; i++)
     {
-        newdata[i]=-1;
-        newcset[i]=-1;
-        
-        x=prvscr.ffcs[i].data;
+		ffcdata& ffc = prvscr.ffcs[i];
+        newcombo const& cmb = combobuf[ffc.data];
+        x=ffc.data;
         //y=animated_combo_table[x][0];
         
         //time to restart
-        if((combobuf[x].aclk>=combobuf[x].speed) &&
-                (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
-                (combobuf[x].nextcombo!=0))
+        if((cmb.aclk>=cmb.speed) &&
+                (cmb.tile-cmb.frames>=cmb.o_tile-1) &&
+                (cmb.nextcombo!=0))
         {
-            newdata[i]=combobuf[x].nextcombo;
-            if(!(combobuf[x].animflags & AF_CYCLENOCSET))
-				newcset[i]=combobuf[x].nextcset;
-            int32_t c = newdata[i];
+            ffc.data=cmb.nextcombo;
+            if(!(cmb.animflags & AF_CYCLENOCSET))
+				ffc.cset=cmb.nextcset;
             
-            if(combobuf[c].animflags & AF_CYCLE)
+            if(combobuf[ffc.data].animflags & AF_CYCLE)
             {
-                restartanim[c]=true;
+                restartanim[ffc.data]=true;
+                restartanim2[ffc.data]=true;
             }
+			prvscr.ffcs[i].data=ffc.data;
+			prvscr.ffcs[i].cset=ffc.cset;
         }
     }
     
-    for(int32_t i=0; i<MAXFFCS; i++)
-    {
-        x=prvscr.ffcs[i].data;
-        //y=animated_combo_table2[x][0];
-        
-        //time to restart
-        if((combobuf[x].aclk>=combobuf[x].speed) &&
-                (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
-                (combobuf[x].nextcombo!=0))
-        {
-            newdata[i]=combobuf[x].nextcombo;
-            if(!(combobuf[x].animflags & AF_CYCLENOCSET))
-				newcset[i]=combobuf[x].nextcset;
-            int32_t c = newdata[i];
-            
-            if(combobuf[c].animflags & AF_CYCLE)
-            {
-                restartanim2[c]=true;
-            }
-        }
-    }
-    
-    for(int32_t i=0; i<MAXFFCS; i++)
-    {
-        if(newdata[i]==-1)
-            continue;
-            
-        prvscr.ffcs[i].data=newdata[i];
-        prvscr.ffcs[i].cset=newcset[i];
-    }
     
     if(get_bit(quest_rules,qr_CMBCYCLELAYERS))
     {
@@ -5353,12 +5267,12 @@ void zmap::update_freeform_combos()
         return;
     }
     
-    for(int32_t i=0; i<MAXFFCS; i++)
+	word maxffc = prvscr.countFFC();
+    for(int32_t i=0; i<maxffc; i++)
     {
         if(!(prvscr.ffcs[i].flags&ffCHANGER) && prvscr.ffcs[i].data!=0 && !(prvscr.ffcs[i].flags&ffSTATIONARY))
         {
-        
-            for(int32_t j=0; j<MAXFFCS; j++)
+            for(int32_t j=0; j<maxffc; j++)
             {
                 if(i!=j)
                 {
@@ -5387,15 +5301,15 @@ void zmap::update_freeform_combos()
                                 prvscr.ffcs[i].x=prvscr.ffcs[j].x;
                                 prvscr.ffcs[i].y=prvscr.ffcs[j].y;
 				
-				prvscr.ffcs[i].vx=prvscr.ffcs[j].vx;
+								prvscr.ffcs[i].vx=prvscr.ffcs[j].vx;
                                 prvscr.ffcs[i].vy=prvscr.ffcs[j].vy;
-				prvscr.ffcs[i].ax=prvscr.ffcs[j].ax;
+								prvscr.ffcs[i].ax=prvscr.ffcs[j].ax;
                                 prvscr.ffcs[i].ay=prvscr.ffcs[j].ay;
                                 
                                 prvscr.ffcs[i].link=prvscr.ffcs[j].link;
                                 prvscr.ffcs[i].hxsz=prvscr.ffcs[j].hxsz;
                                 prvscr.ffcs[i].hysz=prvscr.ffcs[j].hysz;
-				prvscr.ffcs[i].txsz=prvscr.ffcs[j].txsz;
+								prvscr.ffcs[i].txsz=prvscr.ffcs[j].txsz;
                                 prvscr.ffcs[i].tysz=prvscr.ffcs[j].tysz;
                                 
                                 if(prvscr.ffcs[i].flags&ffCARRYOVER)
@@ -5456,13 +5370,16 @@ void zmap::update_freeform_combos()
                     prvscr.ffcs[i].vx+=prvscr.ffcs[i].ax;
                     prvscr.ffcs[i].vy+=prvscr.ffcs[i].ay;
                     
-                    if(prvscr.ffcs[i].vx>128) prvscr.ffcs[i].vx=128;
-                    
-                    if(prvscr.ffcs[i].vx<-128) prvscr.ffcs[i].vx=-128;
-                    
-                    if(prvscr.ffcs[i].vy>128) prvscr.ffcs[i].vy=128;
-                    
-                    if(prvscr.ffcs[i].vy<-128) prvscr.ffcs[i].vy=-128;
+					if(get_bit(quest_rules, qr_OLD_FFC_SPEED_CAP))
+					{
+						if(prvscr.ffcs[i].vx>128) prvscr.ffcs[i].vx=128;
+						
+						if(prvscr.ffcs[i].vx<-128) prvscr.ffcs[i].vx=-128;
+						
+						if(prvscr.ffcs[i].vy>128) prvscr.ffcs[i].vy=128;
+						
+						if(prvscr.ffcs[i].vy<-128) prvscr.ffcs[i].vy=-128;
+					}
                 }
             }
             else
@@ -9555,73 +9472,75 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 			return qe_invalid;
 	}
 	
-	if(!p_iputl(screen.numff,f))
+	dword numffc = screen.countFFC();
+	if(!p_iputw(numffc,f))
 		return qe_invalid;
-	for(int32_t k=0; k<MAXFFCS; k++)
+	for(int32_t k=0; k<numffc; ++k)
 	{
 		ffcdata const& tempffc = screen.ffcs[k];
-		if((screen.numff>>k)&1)
+		
+		if(!p_iputw(tempffc.data,f))
+			return qe_invalid;
+		
+		if(!tempffc.data) //don't save the rest of the ffc
+			continue;
+		
+		if(!p_putc(tempffc.cset,f))
+			return qe_invalid;
+		
+		if(!p_iputw(tempffc.delay,f))
+			return qe_invalid;
+		
+		if(!p_iputzf(tempffc.x,f))
+			return qe_invalid;
+		
+		if(!p_iputzf(tempffc.y,f))
+			return qe_invalid;
+		
+		if(!p_iputzf(tempffc.vx,f))
+			return qe_invalid;
+		
+		if(!p_iputzf(tempffc.vy,f))
+			return qe_invalid;
+		
+		if(!p_iputzf(tempffc.ax,f))
+			return qe_invalid;
+		
+		if(!p_iputzf(tempffc.ay,f))
+			return qe_invalid;
+		
+		if(!p_putc(tempffc.link,f))
+			return qe_invalid;
+		
+		if(!p_iputl(tempffc.hxsz,f))
+			return qe_invalid;
+		
+		if(!p_iputl(tempffc.hysz,f))
+			return qe_invalid;
+		
+		if(!p_putc(tempffc.txsz,f))
+			return qe_invalid;
+		
+		if(!p_putc(tempffc.tysz,f))
+			return qe_invalid;
+		
+		if(!p_iputl(tempffc.flags,f))
+			return qe_invalid;
+		
+		if(!p_iputw(tempffc.script,f))
+			return qe_invalid;
+		
+		for(auto q = 0; q < 8; ++q)
 		{
-			if(!p_iputw(tempffc.data,f))
-				return qe_invalid;
-			
-			if(!p_putc(tempffc.cset,f))
-				return qe_invalid;
-			
-			if(!p_iputw(tempffc.delay,f))
-				return qe_invalid;
-			
-			if(!p_iputzf(tempffc.x,f))
-				return qe_invalid;
-			
-			if(!p_iputzf(tempffc.y,f))
-				return qe_invalid;
-			
-			if(!p_iputzf(tempffc.vx,f))
-				return qe_invalid;
-			
-			if(!p_iputzf(tempffc.vy,f))
-				return qe_invalid;
-			
-			if(!p_iputzf(tempffc.ax,f))
-				return qe_invalid;
-			
-			if(!p_iputzf(tempffc.ay,f))
-				return qe_invalid;
-			
-			if(!p_putc(tempffc.link,f))
-				return qe_invalid;
-			
-			if(!p_iputl(tempffc.hxsz,f))
-				return qe_invalid;
-			
-			if(!p_iputl(tempffc.hysz,f))
-				return qe_invalid;
-			
-			if(!p_putc(tempffc.txsz,f))
-				return qe_invalid;
-			
-			if(!p_putc(tempffc.tysz,f))
-				return qe_invalid;
-			
-			if(!p_iputl(tempffc.flags,f))
-				return qe_invalid;
-			
-			if(!p_iputw(tempffc.script,f))
-				return qe_invalid;
-			
-			for(auto q = 0; q < 8; ++q)
-			{
-				if(!p_iputl(tempffc.initd[q],f))
-					return qe_invalid;
-			}
-			
-			if(!p_putc(tempffc.inita[0]/10000,f))
-				return qe_invalid;
-			
-			if(!p_putc(tempffc.inita[1]/10000,f))
+			if(!p_iputl(tempffc.initd[q],f))
 				return qe_invalid;
 		}
+		
+		if(!p_putc(tempffc.inita[0]/10000,f))
+			return qe_invalid;
+		
+		if(!p_putc(tempffc.inita[1]/10000,f))
+			return qe_invalid;
 	}
 	
 	return qe_OK;
@@ -14649,7 +14568,8 @@ void zmap::prv_secrets(bool high16only)
     }
     
     //FFCs
-    for(int32_t i=0; i<MAXFFCS; i++)
+	word c = s->countFFC();
+    for(word i=0; i<c; ++i)
     {
         bool putit;
         

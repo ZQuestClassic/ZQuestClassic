@@ -8503,21 +8503,16 @@ int32_t get_register(const int32_t arg)
 		//Number of ffcs that are in use (have valid data
 		case SCREENDATANUMFF: 	
 		{
-			int32_t indx = ri->d[rINDEX] / 10000;
-			if ( !indx )
+			uint32_t indx = ri->d[rINDEX] / 10000;
+			if (!indx || indx > MAXFFCS)
 			{
-				Z_scripterrlog("Invalid Index passed to Screen->NumFFCs[%d].\n Valid indices are 1 through [32].\n", indx);
-				ret = 0;
-			}
-			else if(((unsigned)indx)>MAXFFCS)
-			{
-				Z_scripterrlog("Invalid Index passed to Screen->NumFFCs[%d].\n Valid indices are 1 through [32].\n", indx);
+				Z_scripterrlog("Invalid Index passed to Screen->NumFFCs[%d].\n Valid indices are 1 through %d.\n", indx, MAXFFCS);
 				ret = 0;
 			}
 			else
 			{
 				--indx;
-				ret = (m->ffcs[indx.data != 0) ? 10000 : 0;
+				ret = (tmpscr->ffcs[indx].data != 0) ? 10000 : 0;
 			}
 			break;
 		}
@@ -9451,22 +9446,16 @@ int32_t get_register(const int32_t arg)
 		//Number of ffcs that are in use (have valid data
 		case MAPDATANUMFF: 	
 		{
-			int32_t indx = ri->d[rINDEX] / 10000;
-			if ( !indx )
+			uint32_t indx = ri->d[rINDEX] / 10000;
+			if (!indx || indx > MAXFFCS)
 			{
-				Z_scripterrlog("Invalid Index passed to mapdata->NumFFCs[%d].\n Valid indices are 1 through [32].\n", indx);
-				ret = 0;
-			}
-			else if(((unsigned)indx)>MAXFFCS)
-			{
-				Z_scripterrlog("Invalid Index passed to mapdata->NumFFCs[%d].\n Valid indices are 1 through [32].\n", indx);
+				Z_scripterrlog("Invalid Index passed to mapdata->NumFFCs[%d].\n Valid indices are 1 through %d.\n", indx, MAXFFCS);
 				ret = 0;
 			}
 			else if (mapscr *m = GetMapscr(ri->mapsref))
 			{
 				--indx;
-				ret = (m->ffcs[indx.data != 0) ? 10000 : 0;
-				//ret = ((tmpscr->hidescriptlayers >> indx) & 1) ? 0 : 10000;
+				ret = (m->ffcs[indx].data != 0) ? 10000 : 0;
 			}
 			else
 			{
@@ -12502,8 +12491,6 @@ void set_register(const int32_t arg, const int32_t value)
 			break;
 		
 		case FFCID:
-			//if(BC::checkFFC(ri->ffcref, "ffc->ID") != SH::_NoError)
-				ri->ffcref = vbound((value-10000)/10000, 0, MAXFFCS-1);
 			break;
 			
 		case XD2:
@@ -32756,7 +32743,8 @@ int32_t ffscript_engine(const bool preload)
 				
 			}
 		}
-		for(byte i = 0; i < MAXFFCS; i++)
+		word c = tmpscr->countFFC();
+		for(word i = 0; i < c; i++)
 		{
 			if(tmpscr->ffcs[i].script == 0)
 				continue;
@@ -44021,7 +44009,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int32_t vers_id)
 			Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 			}
 			
-			for(int32_t k=0; k<MAXFFCS; k++)
+			for(int32_t k=0; k<32; k++)
 			{
 			
 				if(!p_iputw(m->ffcs[k].data,f))
@@ -44627,7 +44615,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int32_t vers_id)
 			Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 			}
 			
-			for(int32_t k=0; k<MAXFFCS; k++)
+			for(int32_t k=0; k<32; k++)
 			{
 			
 				if(!p_igetw(&(m->ffcs[k].data),f,true))

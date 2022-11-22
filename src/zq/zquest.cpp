@@ -3093,6 +3093,7 @@ static ListData autosave_list(autosavelist, &font);
 static ListData autosave_list2(autosavelist2, &font);
 static ListData color_list(colorlist, &font);
 static ListData snapshotformat_list(snapshotformatlist, &font);
+void init_ffpos();
 
 static DIALOG options_dlg[] =
 {
@@ -3308,24 +3309,13 @@ int32_t onRedo()
     return D_O_K;
 }
 
-extern int16_t ffposx[MAXFFCS];
-extern int16_t ffposy[MAXFFCS];
-extern int32_t ffprvx[MAXFFCS];
-extern int32_t ffprvy[MAXFFCS];
-
 int32_t onCopy()
 {
     if(prv_mode)
     {
         Map.set_prvcmb(Map.get_prvcmb()==0?1:0);
         
-        for(int32_t i=0; i<MAXFFCS; i++)
-        {
-            ffposx[i]=-1000;
-            ffposy[i]=-1000;
-            ffprvx[i]=-10000000;
-            ffprvy[i]=-10000000;
-        }
+        init_ffpos();
         
         return D_O_K;
     }
@@ -7170,14 +7160,19 @@ void refresh(int32_t flags)
         int32_t ypos = ShowFPS ? 28 : 18;
         size_t maxwid = mapscreen_x+(mapscreensize*mapscreenbmp->w);
 		BITMAP* tempbmp = create_bitmap_ex(8,maxwid,text_height(is_large ? lfont_l : font));
-        for(int32_t i=0; i< MAXFFCS; i++)
+		word c = Map.CurrScr()->countFFC();
+        for(word i=0; i< c; i++)
+		{
+			if(ypos > (is_large ? 420 : 180))
+				break;
             if(Map.CurrScr()->ffcs[i].script && Map.CurrScr()->ffcs[i].data)
             {
 				clear_bitmap(tempbmp);
                 textout_shadowed_ex(tempbmp,is_large ? lfont_l : font, ffcmap[Map.CurrScr()->ffcs[i].script-1].scriptname.substr(0,300).c_str(),2,0,vc(showxypos_ffc==i ? 14 : 15),vc(0),-1);
                 masked_blit(tempbmp,menu1,0,0,0,ypos,tempbmp->w, tempbmp->h);
-				ypos+=16;
+				ypos+=(is_large?14:10);
             }
+		}
 		destroy_bitmap(tempbmp);
     }
     
@@ -7433,7 +7428,8 @@ void refresh(int32_t flags)
         
         bool undercombo = false, warpa = false, warpb = false, warpc = false, warpd = false, warpr = false;
         
-        for(int32_t c=0; c<176+128+1+MAXFFCS; ++c)
+		word maxffc = Map.CurrScr()->countFFC();
+        for(int32_t c=0; c<176+128+1+maxffc; ++c)
         {
             // Checks both combos, secret combos, undercombos and FFCs
 //Fixme:
@@ -10938,13 +10934,18 @@ void domouse()
 			// This loop also serves to find the free ffc with the smallest slot number.
 			for(int32_t i=MAXFFCS-1; i>=0; i--)
 			{
-				if(Map.CurrScr()->ffcs[i].data==0 && i < earliestfreeffc)
-					earliestfreeffc = i;
-					
+				auto data = Map.CurrScr()->ffcs[i].data;
+				if(data==0)
+				{
+					if(i < earliestfreeffc)
+						earliestfreeffc = i;
+					continue;
+				}
+				
 				if(clickedffc || !(Map.CurrScr()->valid&mVALID))
 					continue;
 					
-				if(Map.CurrScr()->ffcs[i].data!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
+				if(data!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
 				{
 					int32_t ffx = int32_t(Map.CurrScr()->ffcs[i].x.getFloat());
 					int32_t ffy = int32_t(Map.CurrScr()->ffcs[i].y.getFloat());
@@ -30458,7 +30459,6 @@ int32_t Awpn=0, Bwpn=0, Bpos=0, Xwpn = 0, Ywpn = 0;
 sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 int32_t exittimer = 10000, exittimer2 = 100;
 
-
 int32_t main(int32_t argc,char **argv)
 {
 #if (defined(_DEBUG) && defined(_MSC_VER))
@@ -32353,6 +32353,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	Map.setCopyFFC(-1); //Do not have an initial ffc on the clipboard. 
 	
+	init_ffpos();
 	
 	/*
 	if (!is_large) 

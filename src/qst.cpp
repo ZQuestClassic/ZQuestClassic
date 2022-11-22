@@ -4565,24 +4565,7 @@ int32_t count_palcycles(miscQdata *Misc)
 
 void clear_screen(mapscr *temp_scr)
 {
-    temp_scr->zero_memory();
-    
-    for(int32_t j=0; j<6; j++)
-    {
-        temp_scr->layeropacity[j]=255;
-    }
-	temp_scr->screen_midi=-1;
-	temp_scr->csensitive=1;
-	temp_scr->secretsfx=27;
-	temp_scr->holdupsfx=20;
-    
-    for(int32_t j=0; j<MAXFFCS; j++)
-    {
-        temp_scr->ffcs[j].hxsz = 16;
-        temp_scr->ffcs[j].hysz = 16;
-        temp_scr->ffcs[j].txsz = 1;
-        temp_scr->ffcs[j].tysz = 1;
-    }
+	temp_scr->zero_memory();
 }
 
 int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, word max_dmaps, bool keepdata)
@@ -16596,7 +16579,8 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
     
     if(version>6)
     {
-        if(!p_igetl(&(temp_mapscr->numff),f,true))
+		dword bits;
+        if(!p_igetl(&bits,f,true))
         {
             return qe_invalid;
         }
@@ -16604,11 +16588,11 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
         int32_t m;
         float tempfloat;
         
-        for(m=0; m<MAXFFCS; m++)
+        for(m=0; m<32; m++)
         {
 			ffcdata& tempffc = temp_mapscr->ffcs[m];
 			tempffc.clear();
-            if((temp_mapscr->numff>>m)&1)
+            if((bits>>m)&1)
             {
                 if(!p_igetw(&(tempffc.data),f,true))
                 {
@@ -16840,7 +16824,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
         }
     }
     
-    // for(int32_t m=0; m<MAXFFCS; m++)
+    // for(int32_t m=0; m<32; m++)
     // {
         // // ffcScriptData used to be part of mapscr, and this was handled just above
         // ffcScriptData[m].a[0] = 10000;
@@ -17264,155 +17248,97 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 			temp_mapscr->csensitive = 1;
 		}
 		//FFC
-		if(!p_igetl(&(temp_mapscr->numff),f,true))
-			return qe_invalid;
-		byte tempbyte;
-		for(auto m = 0; m < 32; ++m) //this should remain 32 cause old quests only had 32; we need another loop if we want to add more. FFC_BUMP
+		bool old_ff = version < 25;
+		dword bits = 0;
+		word numffc = 32;
+		if(old_ff)
 		{
-			ffcdata& tempffc = temp_mapscr->ffcs[m];
-			tempffc.clear();
-			if(temp_mapscr->numff & (1<<m))
-			{
-				if(!p_igetw(&(tempffc.data),f,true))
-					return qe_invalid;
-				if(!p_getc(&(tempffc.cset),f,true))
-					return qe_invalid;
-				if(!p_igetw(&(tempffc.delay),f,true))
-					return qe_invalid;
-				if(!p_igetzf(&(tempffc.x),f,true))
-					return qe_invalid;
-				if(!p_igetzf(&(tempffc.y),f,true))
-					return qe_invalid;
-				if(!p_igetzf(&(tempffc.vx),f,true))
-					return qe_invalid;
-				if(!p_igetzf(&(tempffc.vy),f,true))
-					return qe_invalid;
-				if(!p_igetzf(&(tempffc.ax),f,true))
-					return qe_invalid;
-				if(!p_igetzf(&(tempffc.ay),f,true))
-					return qe_invalid;
-				if(!p_getc(&(tempffc.link),f,true))
-					return qe_invalid;
-				if(version < 24)
-				{
-					if(!p_getc(&tempbyte,f,true))
-						return qe_invalid;
-					tempffc.hxsz = (tempbyte&0x3F)+1;
-					tempffc.txsz = (tempbyte>>6)+1;
-					if(!p_getc(&tempbyte,f,true))
-						return qe_invalid;
-					tempffc.hysz = (tempbyte&0x3F)+1;
-					tempffc.tysz = (tempbyte>>6)+1;
-				}
-				else
-				{
-					if(!p_igetl(&(tempffc.hxsz),f,true))
-						return qe_invalid;
-					if(!p_igetl(&(tempffc.hysz),f,true))
-						return qe_invalid;
-					if(!p_getc(&(tempffc.txsz),f,true))
-						return qe_invalid;
-					if(!p_getc(&(tempffc.tysz),f,true))
-						return qe_invalid;
-				}
-				if(!p_igetl(&(tempffc.flags),f,true))
-					return qe_invalid;
-				tempffc.updateSolid();
-				if(!p_igetw(&(tempffc.script),f,true))
-					return qe_invalid;
-				for(auto q = 0; q < 8; ++q)
-				{
-					if(!p_igetl(&(tempffc.initd[q]),f,true))
-						return qe_invalid;
-				}
-				if(!p_getc(&(tempbyte),f,true))
-					return qe_invalid;
-				tempffc.inita[0]=tempbyte*10000;
-				
-				if(!p_getc(&(tempbyte),f,true))
-					return qe_invalid;
-				tempffc.inita[1]=tempbyte*10000;
-				
-				tempffc.initialized = false;
-			}
-			
-			// ffcScriptData[m].a[0] = 10000;
-			// ffcScriptData[m].a[1] = 10000;
+			if(!p_igetl(&bits,f,true))
+				return qe_invalid;
 		}
-		if(version >= 25)
+		else
 		{
-			for(auto m = 32; m < 128; ++m)
+			if(!p_igetw(&numffc,f,true))
+				return qe_invalid;
+		}
+		byte tempbyte;
+		static ffcdata nil_ffc;
+		for(word m = 0; m < numffc; ++m)
+		{
+			ffcdata& tempffc = (m < MAXFFCS)
+				? temp_mapscr->ffcs[m]
+				: nil_ffc; //sanity
+			tempffc.clear();
+			if(old_ff && !(bits & (1<<m))) continue;
+			
+			if(!p_igetw(&(tempffc.data),f,true))
+				return qe_invalid;
+			if(!old_ff && !tempffc.data) //empty ffc, nothing more to load
+				continue;
+			
+			if(!p_getc(&(tempffc.cset),f,true))
+				return qe_invalid;
+			if(!p_igetw(&(tempffc.delay),f,true))
+				return qe_invalid;
+			if(!p_igetzf(&(tempffc.x),f,true))
+				return qe_invalid;
+			if(!p_igetzf(&(tempffc.y),f,true))
+				return qe_invalid;
+			if(!p_igetzf(&(tempffc.vx),f,true))
+				return qe_invalid;
+			if(!p_igetzf(&(tempffc.vy),f,true))
+				return qe_invalid;
+			if(!p_igetzf(&(tempffc.ax),f,true))
+				return qe_invalid;
+			if(!p_igetzf(&(tempffc.ay),f,true))
+				return qe_invalid;
+			if(!p_getc(&(tempffc.link),f,true))
+				return qe_invalid;
+			if(version < 24)
 			{
-				ffcdata& tempffc = temp_mapscr->ffcs[m];
-				tempffc.clear();
-				if(temp_mapscr->numff & (1<<m))
-				{
-					if(!p_igetw(&(tempffc.data),f,true))
-						return qe_invalid;
-					if(!p_getc(&(tempffc.cset),f,true))
-						return qe_invalid;
-					if(!p_igetw(&(tempffc.delay),f,true))
-						return qe_invalid;
-					if(!p_igetzf(&(tempffc.x),f,true))
-						return qe_invalid;
-					if(!p_igetzf(&(tempffc.y),f,true))
-						return qe_invalid;
-					if(!p_igetzf(&(tempffc.vx),f,true))
-						return qe_invalid;
-					if(!p_igetzf(&(tempffc.vy),f,true))
-						return qe_invalid;
-					if(!p_igetzf(&(tempffc.ax),f,true))
-						return qe_invalid;
-					if(!p_igetzf(&(tempffc.ay),f,true))
-						return qe_invalid;
-					if(!p_getc(&(tempffc.link),f,true))
-						return qe_invalid;
-					if(version < 24)
-					{
-						if(!p_getc(&tempbyte,f,true))
-							return qe_invalid;
-						tempffc.hxsz = (tempbyte&0x3F)+1;
-						tempffc.txsz = (tempbyte>>6)+1;
-						if(!p_getc(&tempbyte,f,true))
-							return qe_invalid;
-						tempffc.hysz = (tempbyte&0x3F)+1;
-						tempffc.tysz = (tempbyte>>6)+1;
-					}
-					else
-					{
-						if(!p_igetl(&(tempffc.hxsz),f,true))
-							return qe_invalid;
-						if(!p_igetl(&(tempffc.hysz),f,true))
-							return qe_invalid;
-						if(!p_getc(&(tempffc.txsz),f,true))
-							return qe_invalid;
-						if(!p_getc(&(tempffc.tysz),f,true))
-							return qe_invalid;
-					}
-					if(!p_igetl(&(tempffc.flags),f,true))
-						return qe_invalid;
-					tempffc.updateSolid();
-					if(!p_igetw(&(tempffc.script),f,true))
-						return qe_invalid;
-					for(auto q = 0; q < 8; ++q)
-					{
-						if(!p_igetl(&(tempffc.initd[q]),f,true))
-							return qe_invalid;
-					}
-					if(!p_getc(&(tempbyte),f,true))
-						return qe_invalid;
-					tempffc.inita[0]=tempbyte*10000;
-					
-					if(!p_getc(&(tempbyte),f,true))
-						return qe_invalid;
-					tempffc.inita[1]=tempbyte*10000;
-					
-					tempffc.initialized = false;
-				}
-				
-				// ffcScriptData[m].a[0] = 10000;
-				// ffcScriptData[m].a[1] = 10000;
+				if(!p_getc(&tempbyte,f,true))
+					return qe_invalid;
+				tempffc.hxsz = (tempbyte&0x3F)+1;
+				tempffc.txsz = (tempbyte>>6)+1;
+				if(!p_getc(&tempbyte,f,true))
+					return qe_invalid;
+				tempffc.hysz = (tempbyte&0x3F)+1;
+				tempffc.tysz = (tempbyte>>6)+1;
 			}
+			else
+			{
+				if(!p_igetl(&(tempffc.hxsz),f,true))
+					return qe_invalid;
+				if(!p_igetl(&(tempffc.hysz),f,true))
+					return qe_invalid;
+				if(!p_getc(&(tempffc.txsz),f,true))
+					return qe_invalid;
+				if(!p_getc(&(tempffc.tysz),f,true))
+					return qe_invalid;
+			}
+			if(!p_igetl(&(tempffc.flags),f,true))
+				return qe_invalid;
+			tempffc.updateSolid();
+			if(!p_igetw(&(tempffc.script),f,true))
+				return qe_invalid;
+			for(auto q = 0; q < 8; ++q)
+			{
+				if(!p_igetl(&(tempffc.initd[q]),f,true))
+					return qe_invalid;
+			}
+			if(!p_getc(&(tempbyte),f,true))
+				return qe_invalid;
+			tempffc.inita[0]=tempbyte*10000;
+			
+			if(!p_getc(&(tempbyte),f,true))
+				return qe_invalid;
+			tempffc.inita[1]=tempbyte*10000;
+			
+			tempffc.initialized = false;
+		}
+		for(word m = numffc; m < MAXFFCS; ++m)
+		{
+			temp_mapscr->ffcs[m].clear();
 		}
 		//END FFC
 	}
@@ -22196,7 +22122,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
         {
             for(int32_t j=0; j<MAPSCRS; j++)
             {
-                for(int32_t m=0; m<MAXFFCS; m++)
+                for(int32_t m=0; m<32; m++)
                 {
                     if(combobuf[TheMaps[(i*MAPSCRS)+j].ffcs[m].data].type == cCHANGE)
                         TheMaps[(i*MAPSCRS)+j].ffcs[m].flags|=ffCHANGER;

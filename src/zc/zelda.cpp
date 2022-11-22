@@ -2949,16 +2949,18 @@ void show_details()
 
 void show_ffscript_names()
 {
-    int32_t ypos = 8;
-    
-    for(int32_t i=0; i< MAXFFCS; i++)
-    {
-        if(tmpscr->ffcs[i].script)
-        {
-            textout_shadowed_ex(framebuf,font, ffcmap[tmpscr->ffcs[i].script-1].scriptname.c_str(),2,ypos,WHITE,BLACK,-1);
-            ypos+=12;
-        }
-    }
+	int32_t ypos = 8;
+	
+	word c = tmpscr->countFFC();
+	for(word i=0; i< c; i++)
+	{
+		if(ypos > 224) break;
+		if(tmpscr->ffcs[i].script)
+		{
+			textout_shadowed_ex(framebuf,font, ffcmap[tmpscr->ffcs[i].script-1].scriptname.c_str(),2,ypos,WHITE,BLACK,-1);
+			ypos+=12;
+		}
+	}
 }
 
 void do_magic_casting()
@@ -3576,7 +3578,8 @@ void game_loop()
 		
 		bool freeze = false;
 		
-		for(int32_t i=0; i<MAXFFCS; i++)
+		word c = tmpscr->countFFC();
+		for(word i=0; i<c; i++)
 		{
 			if(combobuf[tmpscr->ffcs[i].data].type==cSCREENFREEZE) freeze=true;
 			
@@ -3836,7 +3839,8 @@ void game_loop()
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 		
-		for ( int32_t q = 0; q < MAXFFCS; ++q )
+		c = tmpscr->countFFC();
+		for ( word q = 0; q < c; ++q )
 		{
 			//Z_scripterrlog("tmpscr->ffcswaitdraw is: %d\n", tmpscr->ffcswaitdraw);
 			if ( tmpscr->ffcswaitdraw&(1<<q) )
@@ -5777,6 +5781,8 @@ reload_for_replay_file:
 		if (replay_is_active())
 			printf("Replay is active\n");
 	}
+	
+	init_ffpos();
 	
 	while(Quit!=qEXIT)
 	{

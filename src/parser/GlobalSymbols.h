@@ -28,7 +28,7 @@ struct AccessorTable
     int32_t rettype;
     int32_t setorget;
     int32_t var;
-    int32_t numindex;
+    int32_t numindex; //!TODO Remove this bullshit
 	int32_t funcFlags;
 	int32_t numParams;
     int32_t params[20];

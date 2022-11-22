@@ -14188,32 +14188,35 @@ void do_movecombo(combo_move_data const& cmd)
 	{
 		for(int32_t j=0; j<MAPSCRS; j++)
 		{
+			mapscr& scr = TheMaps[i*MAPSCRS+j];
 			for(int32_t k=0; k<176; k++)
 			{
-				if((TheMaps[i*MAPSCRS+j].data[k]>=cmd.copy1)&&(TheMaps[i*MAPSCRS+j].data[k]<cmd.copy1+cmd.copycnt))
+				if((scr.data[k]>=cmd.copy1)&&(scr.data[k]<cmd.copy1+cmd.copycnt))
 				{
-					TheMaps[i*MAPSCRS+j].data[k] += diff;
+					scr.data[k] += diff;
 				}
 			}
 			
 			for(int32_t k=0; k<128; k++)
 			{
-				if((TheMaps[i*MAPSCRS+j].secretcombo[k]>=cmd.copy1)&& (TheMaps[i*MAPSCRS+j].secretcombo[k]<cmd.copy1+cmd.copycnt))
+				if((scr.secretcombo[k]>=cmd.copy1)&& (scr.secretcombo[k]<cmd.copy1+cmd.copycnt))
 				{
-					TheMaps[i*MAPSCRS+j].secretcombo[k] += diff;
+					scr.secretcombo[k] += diff;
 				}
 			}
 			
-			if((TheMaps[i*MAPSCRS+j].undercombo>=cmd.copy1)&&(TheMaps[i*MAPSCRS+j].undercombo<cmd.copy1+cmd.copycnt))
+			if((scr.undercombo>=cmd.copy1)&&(scr.undercombo<cmd.copy1+cmd.copycnt))
 			{
-				TheMaps[i*MAPSCRS+j].undercombo += diff;
+				scr.undercombo += diff;
 			}
 			
-			for(int32_t k=0; k<MAXFFCS; k++)
+			word maxffc = scr.countFFC();
+			for(word k=0; k<maxffc; k++)
 			{
-				if((TheMaps[i*MAPSCRS+j].ffcs[k].data >= cmd.copy1) && (TheMaps[i*MAPSCRS+j].ffcs[k].data < cmd.copy1+cmd.copycnt) && (TheMaps[i*MAPSCRS+j].ffcs[k].data != 0))
+				ffcdata& ffc = scr.ffcs[k];
+				if((ffc.data >= cmd.copy1) && (ffc.data < cmd.copy1+cmd.copycnt) && (ffc.data != 0))
 				{
-					TheMaps[i*MAPSCRS+j].ffcs[k].data += diff;
+					ffc.data += diff;
 				}
 			}
 		}

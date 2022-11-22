@@ -125,6 +125,14 @@ struct mapscr
 	
 	ffcdata ffcs[MAXFFCS];
 	
+	word countFFC() const
+	{
+		for(word w = MAXFFCS; w > 0; --w)
+			if(ffcs[w-1].data)
+				return w;
+		return 0;
+	}
+	
 	byte ffEffectWidth(size_t ind) const
 	{
 		return (byte)ffcs[ind].hxsz;
