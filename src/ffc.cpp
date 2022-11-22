@@ -186,6 +186,8 @@ void mapscr::zero_memory()
 	itemy=0;
 	color=0;
 	enemyflags=0;
+	lastffc = 0;
+	loadedlastffc = false;
 	
 	exitdir=0;
 	pattern=0;
@@ -306,6 +308,8 @@ void mapscr::copy(mapscr const& other)
 	itemy=other.itemy;
 	color=other.color;
 	enemyflags=other.enemyflags;
+	lastffc = other.lastffc;
+	loadedlastffc = other.loadedlastffc;
 	
 	exitdir=other.exitdir;
 	pattern=other.pattern;

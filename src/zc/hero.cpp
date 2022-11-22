@@ -3517,7 +3517,7 @@ bool HeroClass::checkstab()
 				set_bit(screengrid_layer[1],q,0);
 			}
 			
-			for(word q = MAXFFCS/8-1; q >= 0; --q)
+			for(int16_t q = MAXFFCS/8-1; q >= 0; --q)
 				ffcgrid[q] = 0;
 		}
 		
@@ -3573,7 +3573,7 @@ bool HeroClass::checkstab()
 				set_bit(screengrid_layer[1],q,0);
 		}
 		
-		for(word q = MAXFFCS/8-1; q >= 0; --q)
+		for(int16_t q = MAXFFCS/8-1; q >= 0; --q)
 			ffcgrid[q] = 0;
 			
 		if(dir==up && (x.getInt()&15)==0)

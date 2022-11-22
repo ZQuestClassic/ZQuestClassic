@@ -137,13 +137,13 @@ struct mapscr
 			{
 				if(ffcs[w-1].data)
 				{
-					lastffc = w;
+					lastffc = w-1;
 					break;
 				}
 			}
 			loadedlastffc = true;
 		}
-		return lastffc;
+		return lastffc+1;
 	}
 	
 	word countConstFFC() const
