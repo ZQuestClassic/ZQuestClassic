@@ -124,7 +124,7 @@ struct mapscr
 	byte entry_x, entry_y; //Where Hero entered the screen. Used for pits, and to prevent water walking. -Z
 	
 	dword numff;
-	ffcdata ffcs[NUM_FFCS];
+	ffcdata ffcs[MAXFFCS];
 	
 	byte ffEffectWidth(size_t ind) const
 	{

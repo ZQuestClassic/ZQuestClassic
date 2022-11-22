@@ -3411,7 +3411,7 @@ bool HeroClass::checkstab()
 			
 			}
 			
-			for(int32_t q=0; q<32; q++)
+			for(int32_t q=0; q<MAXFFCS; q++)
 				set_bit(ffcgrid, q, 0);
 		}
 		
@@ -3517,7 +3517,7 @@ bool HeroClass::checkstab()
 				set_bit(screengrid_layer[1],q,0);
 			}
 			
-			for(int32_t q=0; q<32; q++)
+			for(int32_t q=0; q<MAXFFCS; q++)
 				set_bit(ffcgrid,q, 0);
 		}
 		
@@ -3573,7 +3573,7 @@ bool HeroClass::checkstab()
 				set_bit(screengrid_layer[1],q,0);
 		}
 		
-		for(int32_t q=0; q<32; q++)
+		for(int32_t q=0; q<MAXFFCS; q++)
 			set_bit(ffcgrid, q, 0);
 			
 		if(dir==up && (x.getInt()&15)==0)
@@ -9627,7 +9627,7 @@ bool HeroClass::animate(int32_t)
 				set_bit(screengrid,q,0); 
 			}
 			
-			for(int32_t q=0; q<32; q++)
+			for(int32_t q=0; q<MAXFFCS; q++)
 				set_bit(ffcgrid, q, 0);
 		*/
 	}
@@ -24894,7 +24894,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	}
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 	
-	for ( int32_t q = 0; q < 32; ++q )
+	for ( int32_t q = 0; q < MAXFFCS; ++q )
 	{
 		//Z_scripterrlog("tmpscr->ffcswaitdraw is: %d\n", tmpscr->ffcswaitdraw);
 		if ( tmpscr->ffcswaitdraw&(1<<q) )

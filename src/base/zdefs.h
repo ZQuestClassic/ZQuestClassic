@@ -144,7 +144,7 @@ typedef uint64_t qword; //0-18,446,744,073,709,551,616  (64 bits)
 #define INITIAL_A 2
 #define INITIAL_D 8
 #define FFSCRIPT_MISC 32
-#define NUM_FFCS 32
+#define MAXFFCS 32
 
 #include "ffc.h"
 #include "metadata/metadata.h"
@@ -481,7 +481,6 @@ extern bool fake_pack_writing;
 #define BOUND_COMBO(c)	vbound(c, 0, MAXCOMBOS)
 #define MAXSUBSCREENITEMS	256
 #define MAXCUSTOMSUBSCREENS 128
-#define MAXFFCS			 32
 #define MAXNPCS	512
 
 #define MAXFAVORITECOMMANDS 8

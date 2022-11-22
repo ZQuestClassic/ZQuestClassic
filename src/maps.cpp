@@ -3044,7 +3044,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basesc
 	{
 		case -4: //overhead FFCs
 		case -3:                                                //freeform combos
-			for(int32_t i = 31; i >= 0; i--)
+			for(int32_t i = (MAXFFCS-1); i >= 0; i--)
 			{
 				if(basescr->ffcs[i].data)
 				{

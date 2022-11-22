@@ -85,10 +85,10 @@ void ffcdata::changerCopy(ffcdata& other, int32_t i, int32_t j)
 			int32_t k=0;
 			
 			if(other.flags&ffSWAPNEXT)
-				k=j<31?j+1:0;
+				k=j<(MAXFFCS-1)?j+1:0;
 				
 			if(other.flags&ffSWAPPREV)
-				k=j>0?j-1:31;
+				k=j>0?j-1:(MAXFFCS-1);
 			ffcdata& ffck = tmpscr->ffcs[k];
 			zc_swap(other.data,ffck.data);
 			zc_swap(other.cset,ffck.cset);
@@ -258,7 +258,7 @@ void mapscr::zero_memory()
 		layeropacity[i]=0;
 	}
 	
-	for(int32_t i(0); i<32; i++)
+	for(int32_t i(0); i<MAXFFCS; i++)
 	{
 		ffcs[i].clear();
 	}

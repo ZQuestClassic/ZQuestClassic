@@ -353,7 +353,7 @@ int32_t     lensid = 0; // Lens's item id. -1 if lens is off.
 int32_t    Bpos = 0;
 byte screengrid[22]={0};
 byte screengrid_layer[2][22]={0};
-byte ffcgrid[4]={0};
+byte ffcgrid[MAXFFCS/8]={0};
 bool halt=false;
 bool screenscrolling=false;
 bool close_button_quit=false;
@@ -3840,7 +3840,7 @@ void game_loop()
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 		
-		for ( int32_t q = 0; q < 32; ++q )
+		for ( int32_t q = 0; q < MAXFFCS; ++q )
 		{
 			//Z_scripterrlog("tmpscr->ffcswaitdraw is: %d\n", tmpscr->ffcswaitdraw);
 			if ( tmpscr->ffcswaitdraw&(1<<q) )

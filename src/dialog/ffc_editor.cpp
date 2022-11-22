@@ -52,7 +52,7 @@ void ffdata::clear()
 }
 void ffdata::load(mapscr const* scr, int32_t ind)
 {
-	if(unsigned(ind)>31) return;
+	if(unsigned(ind)>MAXFFCS-1) return;
 	x = scr->ffcs[ind].x.getZLong();
 	y = scr->ffcs[ind].y.getZLong();
 	dx = scr->ffcs[ind].vx.getZLong();
@@ -76,7 +76,7 @@ void ffdata::load(mapscr const* scr, int32_t ind)
 }
 void ffdata::save(mapscr* scr, int32_t ind)
 {
-	if(unsigned(ind)>31) return;
+	if(unsigned(ind)>MAXFFCS-1) return;
 	scr->ffcs[ind].x = zslongToFix(x);
 	scr->ffcs[ind].y = zslongToFix(y);
 	scr->ffcs[ind].vx = zslongToFix(dx);
@@ -128,7 +128,7 @@ ffdata& ffdata::operator=(ffdata const& other)
 
 FFCDialog::FFCDialog(mapscr* scr, int32_t ffind) :
 	thescr(scr), ffind(ffind),
-	list_link(GUI::ListData::numbers(true, 1, 32)),
+	list_link(GUI::ListData::numbers(true, 1, MAXFFCS)),
 	list_ffcscript(GUI::ZCListData::ffc_script())
 {
 	ffc.load(scr, ffind);

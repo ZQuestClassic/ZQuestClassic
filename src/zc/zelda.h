@@ -370,7 +370,7 @@ extern int32_t     lensid;
 extern int32_t    Bpos;
 extern byte screengrid[22];
 extern byte screengrid_layer[2][22];
-extern byte ffcgrid[4];
+extern byte ffcgrid[MAXFFCS/8];
 extern volatile int32_t logic_counter;
 #ifdef _SCRIPT_COUNTER
 extern volatile int32_t script_counter;

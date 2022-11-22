@@ -399,7 +399,7 @@ script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 
 // Dummy - needed to compile, but unused
-refInfo ffcScriptData[32];
+refInfo ffcScriptData[MAXFFCS];
 
 extern string zScript;
 char zScriptBytes[512];
@@ -3308,10 +3308,10 @@ int32_t onRedo()
     return D_O_K;
 }
 
-extern int16_t ffposx[32];
-extern int16_t ffposy[32];
-extern int32_t ffprvx[32];
-extern int32_t ffprvy[32];
+extern int16_t ffposx[MAXFFCS];
+extern int16_t ffposy[MAXFFCS];
+extern int32_t ffprvx[MAXFFCS];
+extern int32_t ffprvy[MAXFFCS];
 
 int32_t onCopy()
 {
@@ -3319,7 +3319,7 @@ int32_t onCopy()
     {
         Map.set_prvcmb(Map.get_prvcmb()==0?1:0);
         
-        for(int32_t i=0; i<32; i++)
+        for(int32_t i=0; i<MAXFFCS; i++)
         {
             ffposx[i]=-1000;
             ffposy[i]=-1000;
@@ -23386,8 +23386,8 @@ int32_t onEditComboAlias()
     return D_O_K;
 }
 
-static char ffcombo_str_buf[32];
-static char fflink_str_buf[32];
+static char ffcombo_str_buf[MAXFFCS];
+static char fflink_str_buf[MAXFFCS];
 
 BITMAP* ffcur;
 
@@ -23395,12 +23395,12 @@ const char *ffcombolist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
-        bound(index,0,31);
+        bound(index,0,MAXFFCS-1);
         sprintf(ffcombo_str_buf,"%d",index+1);
         return ffcombo_str_buf;
     }
     
-    *list_size=32;
+    *list_size=MAXFFCS;
     return NULL;
 }
 
