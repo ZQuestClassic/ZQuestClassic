@@ -44,7 +44,7 @@ void fix_menu();
 int32_t onFullscreenMenu();
 void f_Quit(int32_t type);
 void advanceframe(bool allowwavy, bool sfxcleaup = true, bool allowF6Script = true);
-void updatescr(bool allowwavy, bool record_gfx = false);
+void updatescr(bool allowwavy);
 void syskeys();
 void checkQuitKeys();
 bool CheatModifierKeys();
@@ -73,6 +73,10 @@ bool zc_readkey(int32_t k, bool ignoreDisable = false);
 bool zc_getkey(int32_t k, bool ignoreDisable = false);
 bool zc_readrawkey(int32_t k, bool ignoreDisable = false);
 bool zc_getrawkey(int32_t k, bool ignoreDisable = false);
+bool zc_get_system_key(int32_t k);
+bool zc_read_system_key(int32_t k);
+bool is_system_key(int32_t k);
+void update_system_keys();
 void update_keys();
 bool zc_disablekey(int32_t k, bool val);
 void eat_buttons();
@@ -85,7 +89,8 @@ extern bool drunk_toggle_state[11];
 extern bool disabledKeys[127];
 extern bool KeyInput[127]; //ZScript 'Input->Key[]'
 extern bool KeyPress[127]; //ZScript 'Input->KeyPress[]'
-extern bool key_truestate[127]; //Internal, used for ZScript 'Input->KeyPress[]'
+extern bool key_current_frame[127];
+extern bool key_previous_frame[127];
 extern bool button_press[ZC_CONTROL_STATES];
 extern int32_t cheat_modifier_keys[4]; //two options each, default either control and either shift
 extern const char *qst_dir_name;

@@ -7326,10 +7326,9 @@ void HeroClass::addsparkle(int32_t wpn)
                 direction=oppositeDir[direction];
         }
 	if(itemtype==itype_brang && get_bit(quest_rules, qr_WRONG_BRANG_TRAIL_DIR)) direction = 0;
-        
-        Lwpns.add(new weapon((zfix)(w->x+(itemtype==itype_cbyrna ? 2 : zc_oldrand()%4)+(h*4)),
-                             (zfix)(w->y+(itemtype==itype_cbyrna ? 2 : zc_oldrand()%4)+(v*4)-w->fakez),
-                             w->z,sparkle_type==wpn3 ? wFSparkle : wSSparkle,sparkle_type,0,direction,itemid,getUID(),false,false,true, 0, sparkle_type));
+		zfix x = w->x+(itemtype==itype_cbyrna ? 2 : zc_oldrand()%4)+(h*4);
+		zfix y = w->y+(itemtype==itype_cbyrna ? 2 : zc_oldrand()%4)+(v*4)-w->fakez;
+        Lwpns.add(new weapon(x, y, w->z, sparkle_type==wpn3 ? wFSparkle : wSSparkle,sparkle_type,0,direction,itemid,getUID(),false,false,true, 0, sparkle_type));
 	weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
 	}
 }
@@ -7357,9 +7356,9 @@ void HeroClass::addsparkle2(int32_t type1, int32_t type2)
         return;
     }
     
-    Lwpns.add(new weapon((zfix)((Lwpns.spr(arrow)->x-3)+(zc_oldrand()%7)),
-                         (zfix)((Lwpns.spr(arrow)->y-3)+(zc_oldrand()%7)-Lwpns.spr(arrow)->fakez),
-                         Lwpns.spr(arrow)->z, wPhantom, type2,0,0,((weapon*)Lwpns.spr(arrow))->parentitem,-1));
+    zfix x = (Lwpns.spr(arrow)->x-3)+(zc_oldrand()%7);
+    zfix y = (Lwpns.spr(arrow)->y-3)+(zc_oldrand()%7)-Lwpns.spr(arrow)->fakez;
+    Lwpns.add(new weapon(x, y, Lwpns.spr(arrow)->z, wPhantom, type2,0,0,((weapon*)Lwpns.spr(arrow))->parentitem,-1));
 }
 
 //cleans up decorations that exit the bounds of the screen for a int32_t time, to prevebt them wrapping around.
@@ -25020,9 +25019,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	{
 		if (replay_is_active() && replay_get_version() < 3)
 		{
-			locking_keys = true;
 			replay_poll();
-			locking_keys = false;
 		}
 		if(Quit)
 		{

@@ -134,8 +134,6 @@ char qst_files_path[2048];
 #define getcwd _getcwd
 #endif
 
-bool rF12();
-bool rF5();
 bool rF11();
 bool rI();
 bool rQ();
@@ -473,24 +471,23 @@ void save_game_configs()
 	set_config_int(cfg_sect,"key_cheatmod_b1",cheat_modifier_keys[2]);
 	set_config_int(cfg_sect,"key_cheatmod_b2",cheat_modifier_keys[3]);
    
-   
-   
-   
-	set_config_int(cfg_sect,"key_a",Akey);
-	set_config_int(cfg_sect,"key_b",Bkey);
-	set_config_int(cfg_sect,"key_s",Skey);
-	set_config_int(cfg_sect,"key_l",Lkey);
-	set_config_int(cfg_sect,"key_r",Rkey);
-	set_config_int(cfg_sect,"key_p",Pkey);
-	set_config_int(cfg_sect,"key_ex1",Exkey1);
-	set_config_int(cfg_sect,"key_ex2",Exkey2);
-	set_config_int(cfg_sect,"key_ex3",Exkey3);
-	set_config_int(cfg_sect,"key_ex4",Exkey4);
-   
-	set_config_int(cfg_sect,"key_up",   DUkey);
-	set_config_int(cfg_sect,"key_down", DDkey);
-	set_config_int(cfg_sect,"key_left", DLkey);
-	set_config_int(cfg_sect,"key_right",DRkey);
+	if (!replay_is_replaying())
+	{
+		set_config_int(cfg_sect,"key_a",Akey);
+		set_config_int(cfg_sect,"key_b",Bkey);
+		set_config_int(cfg_sect,"key_s",Skey);
+		set_config_int(cfg_sect,"key_l",Lkey);
+		set_config_int(cfg_sect,"key_r",Rkey);
+		set_config_int(cfg_sect,"key_p",Pkey);
+		set_config_int(cfg_sect,"key_ex1",Exkey1);
+		set_config_int(cfg_sect,"key_ex2",Exkey2);
+		set_config_int(cfg_sect,"key_ex3",Exkey3);
+		set_config_int(cfg_sect,"key_ex4",Exkey4);
+		set_config_int(cfg_sect,"key_up",   DUkey);
+		set_config_int(cfg_sect,"key_down", DDkey);
+		set_config_int(cfg_sect,"key_left", DLkey);
+		set_config_int(cfg_sect,"key_right",DRkey);
+	}
    
 	set_config_int(cfg_sect,"btn_a",Abtn);
 	set_config_int(cfg_sect,"btn_b",Bbtn);
@@ -3825,7 +3822,7 @@ void draw_fuzzy(int32_t fuzz)
 	}
 }
 
-void updatescr(bool allowwavy, bool record_gfx)
+void updatescr(bool allowwavy)
 {
 	static BITMAP *wavybuf = create_bitmap_ex(8,256,224);
 	static BITMAP *panorama = create_bitmap_ex(8,256,224);
@@ -4421,9 +4418,7 @@ void f_Quit(int32_t type)
 	system_pal();
 	clear_keybuf();
 	
-	locking_keys = true;
 	replay_poll();
-	locking_keys = false;
 	if (replay_is_replaying())
 		replay_peek_quit();
 
@@ -4605,62 +4600,9 @@ int32_t onLightSwitch()
 int32_t onGoTo();
 int32_t onGoToComplete();
 
-// Used in syskeys() to prevent keys from being read as both game and system input
-/*static int32_t storedInput[14];
-static void backupAndClearInput()
-{
-	storedInput[0]=key[DUkey];
-	key[DUkey]=false;
-	storedInput[1]=key[DDkey];
-	key[DDkey]=false;
-	storedInput[2]=key[DLkey];
-	key[DLkey]=false;
-	storedInput[3]=key[DRkey];
-	key[DRkey]=false;
-	storedInput[4]=key[Akey];
-	key[Akey]=false;
-	storedInput[5]=key[Bkey];
-	key[Bkey]=false;
-	storedInput[6]=key[Skey];
-	key[Skey]=false;
-	storedInput[7]=key[Lkey];
-	key[Lkey]=false;
-	storedInput[8]=key[Rkey];
-	key[Rkey]=false;
-	storedInput[9]=key[Pkey];
-	key[Pkey]=false;
-	storedInput[10]=key[Exkey1];
-	key[Exkey1]=false;
-	storedInput[11]=key[Exkey2];
-	key[Exkey2]=false;
-	storedInput[12]=key[Exkey3];
-	key[Exkey3]=false;
-	storedInput[13]=key[Exkey4];
-	key[Exkey4]=false;
-}
-
-static void restoreInput()
-{
-	key[DUkey]=storedInput[0];
-	key[DDkey]=storedInput[1];
-	key[DLkey]=storedInput[2];
-	key[DRkey]=storedInput[3];
-	key[Akey]=storedInput[4];
-	key[Bkey]=storedInput[5];
-	key[Skey]=storedInput[6];
-	key[Lkey]=storedInput[7];
-	key[Rkey]=storedInput[8];
-	key[Pkey]=storedInput[9];
-	key[Exkey1]=storedInput[10];
-	key[Exkey2]=storedInput[11];
-	key[Exkey3]=storedInput[12];
-	key[Exkey4]=storedInput[13];
-}
-*/
 void syskeys()
 {
-	  //Saffith's method of separating system and game key bindings. Can't do this!!
-	//backupAndClearInput(); //This caused input to become randomly 'stuck'. -Z
+	update_system_keys();
 	
 	int32_t oldtitle_version;
 	
@@ -4680,9 +4622,9 @@ void syskeys()
 	
 	mouse_down=gui_mouse_b();
 	
-	if(zc_readkey(KEY_F1))
+	if(zc_read_system_key(KEY_F1))
 	{
-		if(zc_getkey(KEY_ZC_LCONTROL) || zc_getkey(KEY_ZC_RCONTROL))
+		if(zc_get_system_key(KEY_ZC_LCONTROL) || zc_get_system_key(KEY_ZC_RCONTROL))
 		{
 			halt=!halt;
 			//zinit.subscreen=(zinit.subscreen+1)%ssdtMAX;
@@ -4700,39 +4642,39 @@ void syskeys()
 	  1-((get_bit(QHeader.rules4,qr4_NEWENEMYTILES))));
 	  */
 	
-	if(zc_readkey(KEY_OPENBRACE))	if(frame_rest_suggest > 0) frame_rest_suggest--;
+	if(zc_read_system_key(KEY_OPENBRACE))	if(frame_rest_suggest > 0) frame_rest_suggest--;
 	
-	if(zc_readkey(KEY_CLOSEBRACE))	if(frame_rest_suggest <= 2) frame_rest_suggest++;
+	if(zc_read_system_key(KEY_CLOSEBRACE))	if(frame_rest_suggest <= 2) frame_rest_suggest++;
 	
-	if(zc_readkey(KEY_F2))	ShowFPS=!ShowFPS;
+	if(zc_read_system_key(KEY_F2))	ShowFPS=!ShowFPS;
 	
-	if(zc_readrawkey(KEY_F3) && Playing)	Paused=!Paused;
+	if(zc_read_system_key(KEY_F3) && Playing)	Paused=!Paused;
 	
-	if(zc_readrawkey(KEY_F4) && Playing)
+	if(zc_read_system_key(KEY_F4) && Playing)
 	{
 		Paused=true;
 		Advance=true;
 	}
 	
-	if(zc_readrawkey(KEY_F6)) onTryQuit();
+	if(zc_read_system_key(KEY_F6)) onTryQuit();
 	
 #ifndef ALLEGRO_MACOSX
-	if(zc_readrawkey(KEY_F9))	f_Quit(qRESET);
+	if(zc_read_system_key(KEY_F9))	f_Quit(qRESET);
 	
-	if(zc_readrawkey(KEY_F10))   f_Quit(qEXIT);
+	if(zc_read_system_key(KEY_F10))   f_Quit(qEXIT);
 #else
-	if(zc_readrawkey(KEY_F7))	f_Quit(qRESET);
+	if(zc_read_system_key(KEY_F7))	f_Quit(qRESET);
 	
-	if(zc_readrawkey(KEY_F8))   f_Quit(qEXIT);
+	if(zc_read_system_key(KEY_F8))   f_Quit(qEXIT);
 #endif
-	if(rF5()&&(Playing && currscr<128 && DMaps[currdmap].flags&dmfVIEWMAP))	onSaveMapPic();
+	if(zc_read_system_key(KEY_F5)&&(Playing && currscr<128 && DMaps[currdmap].flags&dmfVIEWMAP))	onSaveMapPic();
 	
-	if(rF12())
+	if (zc_read_system_key(KEY_F12))
 	{
 		onSnapshot();
 	}
 	
-	if(debug_enabled && zc_readkey(KEY_TAB))
+	if(debug_enabled && zc_read_system_key(KEY_TAB))
 		set_debug(!get_debug());
 		
 	if(get_debug() || cheat>=1)
@@ -4824,16 +4766,16 @@ void syskeys()
 	
 	if(volkeys)
 	{
-		if(zc_readkey(KEY_PGUP)) master_volume(-1,midi_volume+8);
+		if(zc_read_system_key(KEY_PGUP)) master_volume(-1,midi_volume+8);
 		
-		if(zc_readkey(KEY_PGDN)) master_volume(-1,midi_volume==255?248:midi_volume-8);
+		if(zc_read_system_key(KEY_PGDN)) master_volume(-1,midi_volume==255?248:midi_volume-8);
 		
-		if(zc_readkey(KEY_HOME)) master_volume(digi_volume+8,-1);
+		if(zc_read_system_key(KEY_HOME)) master_volume(digi_volume+8,-1);
 		
-		if(zc_readkey(KEY_END))  master_volume(digi_volume==255?248:digi_volume-8,-1);
+		if(zc_read_system_key(KEY_END))  master_volume(digi_volume==255?248:digi_volume-8,-1);
 	}
 	
-	if(!get_debug() || !SystemKeys)
+	if(!get_debug() || !SystemKeys || replay_is_replaying())
 		goto bottom;
 		
 	if(zc_readkey(KEY_D))
@@ -4937,14 +4879,6 @@ void syskeys()
 	
 	if(zc_readkey(KEY_STOP))   jukebox(currmidi+1);
 	
-	/*
-	  if(zc_readkey(KEY_TILDE)) {
-	  wavyout();
-	  zinit.subscreen=(zinit.subscreen+1)%3;
-	  wavyin();
-	  }
-	  */
-	
 	verifyBothWeapons();
 	
 bottom:
@@ -4978,6 +4912,11 @@ void checkQuitKeys()
 
 bool CheatModifierKeys()
 {
+	// Cheats are replayed via the X cheat step, no need to check for keyboard input
+	// to trigger cheats.
+	if (replay_is_replaying())
+		return false;
+
 	if ( ( cheat_modifier_keys[0] > 0 && key[cheat_modifier_keys[0]] ) ||
 		( cheat_modifier_keys[1] > 0 && key[cheat_modifier_keys[1]] ) ||
 		(cheat_modifier_keys[0] <= 0 && cheat_modifier_keys[1] <= 0))
@@ -5012,7 +4951,8 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		{
 			FFCore.runF6Engine();
 		}
-		updatescr(allowwavy);
+		if (replay_get_mode() != ReplayMode::Assert)
+			updatescr(allowwavy);
 		throttleFPS();
 		
 #ifdef _WIN32
@@ -5039,12 +4979,16 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		
 	Advance=false;
 
-	locking_keys = true;
-	if (replay_is_active() && replay_get_version() >= 3)
-		replay_poll();
+	if (replay_is_active())
+	{
+		if (replay_get_version() >= 3)
+			replay_poll();
+		if (replay_get_version() >= 6)
+			replay_peek_input();
+	}
+	update_keys();
+
 	++frame;
-	update_keys(); //Update ZScript key arrays
-	locking_keys = false;
 	
 	if (replay_is_replaying())
 		replay_do_cheats();
@@ -5066,7 +5010,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	if (Quit)
 		replay_step_quit(Quit);
 	// Someday... maybe install a Turbo button here?
-	updatescr(allowwavy, true);
+	updatescr(allowwavy);
 	throttleFPS();
 	
 #ifdef _WIN32
@@ -9566,20 +9510,7 @@ const char* joybtn_name(int32_t b)
 
 int32_t next_press_key()
 {
-	char k[127];
-
-	for(int32_t i=0; i<127; i++)
-		k[i]=key[i];
-		
-	for(;;)
-	{
-		for(int32_t i=0; i<127; i++)
-			if(key[i]!=k[i])
-				return i;
-		rest(1);
-	}
-
-	//	return (readkey()>>8);
+	return readkey()>>8;
 }
 
 int32_t next_press_btn()
@@ -9741,15 +9672,12 @@ bool KeyPress[127]=
 	false,false,false,false,false,false,false
 };
 
-bool key_truestate[127]=
-{
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false
-};
+bool key_current_frame[127];
+bool key_previous_frame[127];
+
+static bool key_system[127];
+static bool key_system_previous[127];
+static bool key_system_press[127];
 
 bool button_press[ZC_CONTROL_STATES] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 bool button_hold[ZC_CONTROL_STATES] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
@@ -9762,7 +9690,6 @@ bool button_hold[ZC_CONTROL_STATES] = {false, false, false, false, false, false,
 
 void load_control_state()
 {
-	locking_keys = true;
 	if (!replay_is_replaying())
 	{
 		raw_control_state[0]=zc_getrawkey(DUkey, true)||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset < -STICK_PRECISION : joybtn(DUbtn));
@@ -9801,10 +9728,9 @@ void load_control_state()
 	{
 		if (replay_get_version() < 3)
 			replay_poll();
-		else if (replay_is_replaying())
+		else if (replay_is_replaying() && replay_get_version() < 6)
 			replay_peek_input();
 	}
-	locking_keys = false;
 
 	// Some test replay files were made before a serious input bug was fixed, so instead
 	// of re-doing them or tossing them out, just check for that zplay version.
@@ -10103,17 +10029,9 @@ bool rAxisRight()
 	return getInput(btnAxisRight, true);
 }
 
-bool rF12()
-{
-	return getInput(btnF12, true);
-}
 bool rF11()
 {
 	return getInput(btnF11, true);
-}
-bool rF5()
-{
-	return getInput(btnF5, true);
 }
 bool rQ()
 {
@@ -10253,6 +10171,10 @@ void eat_buttons()
 	getInput(btnEx4, true, false, true);
 }
 
+// Is true for the _first frame_ of a key press.
+// But! it is possible that a script manually sets the value of KeyPress,
+// in which case it will be restored to the "true" value based on `key_current_frame`
+// and `key_previous_frame` on the next frame.
 bool zc_readkey(int32_t k, bool ignoreDisable)
 {
 	if(ignoreDisable) return KeyPress[k];
@@ -10268,6 +10190,10 @@ bool zc_readkey(int32_t k, bool ignoreDisable)
 	}
 }
 
+// Is true for _every frame_ a key is held down.
+// But! it is possible that a script manually sets the value of KeyInput,
+// in which case it will be restored to the "true" value based on `key_current_frame`
+// on the next frame.
 bool zc_getkey(int32_t k, bool ignoreDisable)
 {
 	if(ignoreDisable) return KeyInput[k];
@@ -10283,39 +10209,101 @@ bool zc_getkey(int32_t k, bool ignoreDisable)
 	}
 }
 
+// Reads (and then clears) the current frame key state directly.
+// Scripts can also modify `key_current_frame`.
 bool zc_readrawkey(int32_t k, bool ignoreDisable)
 {
 	if(zc_getrawkey(k, ignoreDisable))
 	{
-		key[k]=0;
+		_key[k]=key[k]=key_current_frame[k]=0;
 		return true;
 	}
-	key[k]=0;
+	_key[k]=key[k]=key_current_frame[k]=0;
 	return false;
 }
 
+// Reads the current frame key state directly.
+// Scripts can also modify `key_current_frame`.
 bool zc_getrawkey(int32_t k, bool ignoreDisable)
 {
-	if(ignoreDisable) return key[k];
+	if(ignoreDisable) return key_current_frame[k];
 	switch(k)
 	{
 		case KEY_F7:
 		case KEY_F8:
 		case KEY_F9:
-			return key[k];
+			return key_current_frame[k];
 			
 		default:
-			return key[k] && !disabledKeys[k];
+			return key_current_frame[k] && !disabledKeys[k];
+	}
+}
+
+// Only used for a handful of keys, like tilde and Function keys.
+// This state is never read within the game.
+// It exists so that all keyboard input still functions during replay,
+// without inadvertently doing things like toggling throttling if the player
+// presses ~
+bool zc_get_system_key(int32_t k)
+{
+	return key_system[k];
+}
+
+// True for the _first_ frame of a key press.
+bool zc_read_system_key(int32_t k)
+{
+	return key_system_press[k];
+}
+
+bool is_system_key(int32_t k)
+{
+	switch (k)
+	{
+		case KEY_BACKQUOTE:
+		case KEY_CLOSEBRACE:
+		case KEY_END:
+		case KEY_HOME:
+		case KEY_OPENBRACE:
+		case KEY_PGDN:
+		case KEY_PGUP:
+		case KEY_TAB:
+		case KEY_TILDE:
+			return true;
+	}
+	return is_Fkey(k);
+}
+
+void update_system_keys()
+{
+	poll_keyboard();
+	for (int32_t q = 0; q < 127; ++q)
+	{
+		if (!is_system_key(q))
+			continue;
+
+		key_system[q] = key[q];
+		key_system_press[q] = key_system[q] && !key_system_previous[q];
+		key_system_previous[q] = key_system[q];
 	}
 }
 
 void update_keys()
 {
-	for(int32_t q = 0; q < 127; ++q)
+	if (!replay_is_replaying())
+		poll_keyboard();
+
+	for (int32_t q = 0; q < 127; ++q)
 	{
-		KeyPress[q] = key[q] && !key_truestate[q];
-		KeyInput[q] = key[q];
-		key_truestate[q] = key[q];
+		// When replaying, replay.cpp takes care of updating `key_current_frame`.
+		if (!replay_is_replaying())
+			key_current_frame[q] = key[q];
+
+		KeyPress[q] = key_current_frame[q] && !key_previous_frame[q];
+		if (KeyPress[q] && q == KEY_B) {
+			int lol = 1;
+		}
+		KeyInput[q] = key_current_frame[q];
+		key_previous_frame[q] = key_current_frame[q];
 	}
 }
 

@@ -223,7 +223,12 @@ void throttleFPS()
     timeBeginPeriod(1); // Basically, jist is that other programs can affect the FPS of ZC in weird ways. (making it better for example... go figure)
 #endif
 
-    if( (Throttlefps ^ (zc_getkey(KEY_TILDE)!=0)) || get_bit(quest_rules, qr_NOFASTMODE) )
+#ifdef ALLEGRO_MACOSX
+	int toggle_key = KEY_BACKQUOTE;
+#else
+	int toggle_key = KEY_TILDE;
+#endif
+    if( (Throttlefps ^ (zc_get_system_key(toggle_key)!=0)) || get_bit(quest_rules, qr_NOFASTMODE) )
     {
         if(zc_vsync == FALSE)
         {
@@ -1827,8 +1832,7 @@ int32_t init_game()
 
     // Various things use the frame counter to do random stuff (ex: runDrunkRNG).
 	// We only bother setting it to 0 here so that recordings will play back the
-	// same way, even if manually started in the ZC UI (in which case,` frame` starts
-	// as a non-zero number for the recording, but is 0 during replay).
+	// same way, even if manually started in the ZC UI.
     frame = 0;
 
 	FFCore.user_objects_init();
@@ -2703,14 +2707,6 @@ int32_t cont_game()
 	{
 		game->set_life(game->get_cont_hearts()*game->get_hp_per_heart());
 	}
-		
-	/*
-	  else
-	  game->life=3*game->get_hp_per_heart();
-	  */
-	
-	//  for(int32_t i=0; i<128; i++)
-	//	key[i]=0;
 	
 	initZScriptGlobalScript(GLOBAL_SCRIPT_ONCONTGAME);
 	ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONCONTGAME, GLOBAL_SCRIPT_ONCONTGAME);	
@@ -4848,6 +4844,7 @@ int main(int argc, char **argv)
 		Z_error_fatal(allegro_error);
 		quit_game();
 	}
+	poll_keyboard();
 	
 	if(install_mouse() < 0)
 	{
@@ -5985,16 +5982,12 @@ reload_for_replay_file:
 			}
 			else if (replay_get_mode() != ReplayMode::Record && Quit == qEXIT)
 			{
-				locking_keys = true;
 				replay_poll();
-				locking_keys = false;
 				Quit = qQUIT;
 			}
 			else if (Quit == qQUIT)
 			{
-				locking_keys = true;
 				replay_poll();
-				locking_keys = false;
 			}
 		}
 
