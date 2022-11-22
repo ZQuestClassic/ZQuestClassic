@@ -254,8 +254,9 @@ struct CheatReplayStep : ReplayStep
 {
     Cheat cheat;
     int arg1, arg2;
+    std::string arg3;
 
-    CheatReplayStep(int frame, Cheat cheat, int arg1, int arg2) : ReplayStep(frame, TypeCheat), cheat(cheat), arg1(arg1), arg2(arg2)
+    CheatReplayStep(int frame, Cheat cheat, int arg1, int arg2, std::string arg3) : ReplayStep(frame, TypeCheat), cheat(cheat), arg1(arg1), arg2(arg2), arg3(arg3)
     {
     }
 
@@ -267,7 +268,9 @@ struct CheatReplayStep : ReplayStep
     std::string print()
     {
         std::string cheat_name = cheat_to_string(cheat);
-        if (arg1 == -1)
+        if (cheat == Cheat::PlayerData)
+            return fmt::format("{} {} {} {}", type, frame, cheat_name, arg3);
+        else if (arg1 == -1)
             return fmt::format("{} {} {}", type, frame, cheat_name);
         else if (arg2 == -1)
             return fmt::format("{} {} {} {}", type, frame, cheat_name, arg1);
@@ -368,7 +371,10 @@ static bool steps_are_equal(const ReplayStep* step1, const ReplayStep* step2)
 		{
 			auto cheat_replay_step = static_cast<const CheatReplayStep *>(step1);
 			auto cheat_record_step = static_cast<const CheatReplayStep *>(step2);
-			are_equal = cheat_replay_step->cheat == cheat_record_step->cheat;
+			are_equal = cheat_replay_step->cheat == cheat_record_step->cheat &&
+				cheat_replay_step->arg1 == cheat_record_step->arg1 &&
+				cheat_replay_step->arg2 == cheat_record_step->arg2 &&
+				cheat_replay_step->arg3 == cheat_record_step->arg3;
 		}
 		break;
 		case TypeRng:
@@ -584,18 +590,27 @@ static void load_replay(std::string filename)
         else if (type == TypeCheat)
         {
             Cheat cheat;
-            int arg1, arg2;
+            int arg1 = -1, arg2 = -1;
+            std::string arg3;
 
             std::string cheat_name;
             iss >> cheat_name;
             cheat = cheat_from_string(cheat_name);
             ASSERT(cheat > Cheat::None && cheat < Cheat::Last);
 
-            if (!(iss >> arg1))
-                arg1 = -1;
-            if (!(iss >> arg2))
-                arg2 = -1;
-            replay_log.push_back(std::make_shared<CheatReplayStep>(frame, (Cheat)cheat, arg1, arg2));
+            if (cheat == Cheat::PlayerData)
+            {
+                iss.ignore(1);
+                portable_get_line(iss, arg3);
+            }
+            else
+            {
+                if (!(iss >> arg1))
+                    arg1 = -1;
+                if (!(iss >> arg2))
+                    arg2 = -1;
+            }
+            replay_log.push_back(std::make_shared<CheatReplayStep>(frame, (Cheat)cheat, arg1, arg2, arg3));
         }
         else if (type == TypeRng)
         {
@@ -1076,7 +1091,7 @@ void replay_do_cheats()
         if (replay_log[i]->type == TypeCheat)
         {
             auto cheat_replay_step = static_cast<CheatReplayStep *>(replay_log[i].get());
-            cheats_enqueue(cheat_replay_step->cheat, cheat_replay_step->arg1, cheat_replay_step->arg2);
+            cheats_enqueue(cheat_replay_step->cheat, cheat_replay_step->arg1, cheat_replay_step->arg2, cheat_replay_step->arg3);
         }
         i++;
     }
@@ -1382,10 +1397,10 @@ void replay_step_quit(int quit_state)
         record_log.push_back(std::make_shared<QuitReplayStep>(frame_count, quit_state));
 }
 
-void replay_step_cheat(Cheat cheat, int arg1, int arg2)
+void replay_step_cheat(Cheat cheat, int arg1, int arg2, std::string arg3)
 {
     if (replay_is_recording())
-        record_log.push_back(std::make_shared<CheatReplayStep>(frame_count, cheat, arg1, arg2));
+        record_log.push_back(std::make_shared<CheatReplayStep>(frame_count, cheat, arg1, arg2, arg3));
 }
 
 ReplayMode replay_get_mode()
