@@ -109,7 +109,7 @@ public:
     byte do_animation;
     int32_t rotation;
     int32_t scale; 
-    int32_t moveflags;
+    dword moveflags;
     byte drawflags;
 	byte knockbackflags;
 	byte screenedge;

@@ -684,6 +684,22 @@ direction XY_DIR(int32_t xdir, int32_t ydir)
 	}
 	return dir_invalid;
 }
+direction GET_XDIR(zfix const& sign)
+{
+	if(sign < 0) return left;
+	if(sign) return right;
+	return dir_invalid;
+}
+direction GET_YDIR(zfix const& sign)
+{
+	if(sign < 0) return up;
+	if(sign) return down;
+	return dir_invalid;
+}
+direction GET_DIR(zfix const& dx, zfix const& dy)
+{
+	return XY_DIR(GET_XDIR(dx), GET_YDIR(dy));
+}
 
 string get_dbreport_string()
 {

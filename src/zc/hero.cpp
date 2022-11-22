@@ -7093,8 +7093,9 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	return false;
 }
 
-int32_t HeroClass::hithero(int32_t hit2)
+int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 {
+	if(force_hdir > 3) force_hdir = -1;
 	enemy* enemyptr = (enemy*)guys.spr(hit2);
 	if(!enemyptr) return 0;
 	//printf("Stomp check: %d <= 12, %d < %d\n", int32_t((y+16)-(((enemy*)guys.spr(hit2))->y)), (int32_t)falling_oldy, (int32_t)y);
@@ -7140,7 +7141,7 @@ int32_t HeroClass::hithero(int32_t hit2)
 	ev.clear();
 	//Args: 'damage (pre-ring)','hitdir','nullifyhit','type:npc','npc uid'
 	ev.push_back((enemy_dp(hit2) *10000));
-	ev.push_back(((sprite*)enemyptr)->hitdir(x,y,16,16,dir)*10000);
+	ev.push_back((force_hdir>-1 ? force_hdir : ((sprite*)enemyptr)->hitdir(x,y,16,16,dir))*10000);
 	ev.push_back(0);
 	ev.push_back(NayrusLoveShieldClk>0?10000:0);
 	ev.push_back(48*10000);
@@ -9746,17 +9747,18 @@ void HeroClass::solid_push(solid_object* obj)
 	if(obj == this) return; //can't push self
 	
 	zfix dx, dy;
-	solid_push_int(obj,dx,dy);
+	int32_t hdir = -1;
+	solid_push_int(obj,dx,dy,hdir);
 	
 	if(!dx && !dy) return;
 	
-	obj->doContactDamage();
+	int32_t ydir = GET_YDIR(dy);
+	int32_t xdir = GET_XDIR(dx);
+	
+	obj->doContactDamage(hdir);
 	
 	bool t = obj->getTempNonsolid();
 	obj->setTempNonsolid(true);
-	
-	int32_t ydir = dy > 0 ? down : up;
-	int32_t xdir = dx > 0 ? right : left;
 	
 	while(dx && dy)
 	{

@@ -342,7 +342,7 @@ public:
 	void movehero();
 	void move(int32_t d, int32_t forceRate = -1);
 	void moveOld(int32_t d2);
-	int32_t hithero(int32_t hit);
+	int32_t hithero(int32_t hit, int32_t force_hdir = -1);
 	int32_t  nextcombo(int32_t cx,int32_t cy,int32_t cdir);
 	int32_t  nextflag(int32_t cx,int32_t cy,int32_t cdir, bool comboflag);
 	bool nextcombo_wf(int32_t d);

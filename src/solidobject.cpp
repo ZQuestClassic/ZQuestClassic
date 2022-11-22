@@ -199,7 +199,7 @@ void solid_object::solid_push(solid_object* pusher)
 	//!TODO SOLIDPUSH Implement 'enemy::solid_push'
 }
 
-void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy)
+void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy, int32_t& hdir)
 {
 	dx = dy = 0;
 	if(is_unpushable()) return;
@@ -508,6 +508,7 @@ void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy)
 	}
 	
 	if(!dx && !dy) return; //no movement at all
+	hdir = XY_DIR(GET_YDIR(dy), GET_XDIR(dx));
 	//handle subpixel rounding
 	if(zfix xd = x.getDPart())
 	{

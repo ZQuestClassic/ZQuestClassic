@@ -159,14 +159,14 @@ bool ffcdata::getLoaded() const
 	return loaded;
 }
 
-void ffcdata::doContactDamage()
+void ffcdata::doContactDamage(int32_t hdir)
 {
 #ifdef IS_PLAYER
 	if(flags & (ffCHANGER | ffETHEREAL))
 		return; //Changer or ethereal; has no type
 	newcombo const& cmb = combobuf[data];
 	if(data && isdamage_type(cmb.type))
-		trigger_damage_combo(data, true);
+		trigger_damage_combo(data, hdir, true);
 #endif
 }
 

@@ -42,7 +42,7 @@ public:
 	void setLoaded(bool set);
 	bool getLoaded() const;
 	//Overload to do damage to Hero on pushing them
-	virtual void doContactDamage();
+	virtual void doContactDamage(int32_t hdir);
 private:
 	bool loaded;
 };

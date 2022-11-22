@@ -139,9 +139,9 @@ public:
 	
 	bool is_move_paused();
 	bool scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32_t input_x, int32_t input_y, bool kb);
-	bool scr_canmove(zfix dx, zfix dy, int32_t special, bool kb = false);
+	bool scr_canmove(zfix dx, zfix dy, int32_t special, bool kb = false, bool ign_sv = false);
 	bool scr_canplace(zfix dx, zfix dy, int32_t special, bool kb = false);
-	bool movexy(zfix dx, zfix dy, int32_t special, bool kb = false);
+	bool movexy(zfix dx, zfix dy, int32_t special, bool kb = false, bool ign_sv = false);
 	bool moveDir(int32_t dir, zfix px, int32_t special, bool kb = false);
 	bool moveAtAngle(zfix degrees, zfix px, int32_t special, bool kb = false);
 	bool can_movexy(zfix dx, zfix dy, int32_t special, bool kb = false);
@@ -163,7 +163,7 @@ public:
 	virtual bool setSolid(bool set);
 	virtual void solid_push(solid_object* pusher);
 	//Overload to do damage to Hero on pushing them
-	virtual void doContactDamage();
+	virtual void doContactDamage(int32_t hdir);
 	//Overload to give 'riding sideview platform' behaviors
 	virtual bool sideview_mode() const;
 	virtual bool is_unpushable() const;

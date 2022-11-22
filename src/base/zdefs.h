@@ -1168,6 +1168,9 @@ const direction yDir[] = { up,down,dir_invalid,dir_invalid,up,up,down,down };
 direction X_DIR(int32_t dir);
 direction Y_DIR(int32_t dir);
 direction XY_DIR(int32_t xdir, int32_t ydir);
+direction GET_XDIR(zfix const& sign);
+direction GET_YDIR(zfix const& sign);
+direction GET_DIR(zfix const& dx, zfix const& dy);
 #define NORMAL_DIR(dir)    ((dir >= 0 && dir < 16) ? normalDir[dir] : dir_invalid)
 
 // refill stuff
@@ -2303,22 +2306,22 @@ struct guydata
     
 };
 //Moveflags
-#define FLAG_OBEYS_GRAV               0x0001
-#define FLAG_CAN_PITFALL              0x0002
-#define FLAG_CAN_PITWALK              0x0004
-#define FLAG_CAN_WATERDROWN           0x0008
-#define FLAG_CAN_WATERWALK            0x0010
-#define FLAG_ONLY_WATERWALK           0x0020 //Only walks on water
-#define FLAG_ONLY_SHALLOW_WATERWALK   0x0040 //Only walks on shallow water
-#define FLAG_ONLY_PITWALK             0x0080 //Only walks on pitfalls
-#define FLAG_NO_FAKE_Z                0x0100
-#define FLAG_NO_REAL_Z                0x0200
-#define FLAG_USE_FAKE_Z               0x0400
-#define FLAG_IGNORE_SOLIDITY          0x0800
-#define FLAG_IGNORE_BLOCKFLAGS        0x1000
-#define FLAG_IGNORE_SCREENEDGE        0x2000
-#define FLAG_USE_NEW_MOVEMENT         0x4000
-#define FLAG_NOT_PUSHABLE             0x8000
+#define FLAG_OBEYS_GRAV               0x00000001
+#define FLAG_CAN_PITFALL              0x00000002
+#define FLAG_CAN_PITWALK              0x00000004
+#define FLAG_CAN_WATERDROWN           0x00000008
+#define FLAG_CAN_WATERWALK            0x00000010
+#define FLAG_ONLY_WATERWALK           0x00000020 //Only walks on water
+#define FLAG_ONLY_SHALLOW_WATERWALK   0x00000040 //Only walks on shallow water
+#define FLAG_ONLY_PITWALK             0x00000080 //Only walks on pitfalls
+#define FLAG_NO_FAKE_Z                0x00000100
+#define FLAG_NO_REAL_Z                0x00000200
+#define FLAG_USE_FAKE_Z               0x00000400
+#define FLAG_IGNORE_SOLIDITY          0x00000800
+#define FLAG_IGNORE_BLOCKFLAGS        0x00001000
+#define FLAG_IGNORE_SCREENEDGE        0x00002000
+#define FLAG_USE_NEW_MOVEMENT         0x00004000
+#define FLAG_NOT_PUSHABLE             0x00008000
 
 #define MAX_PC dword(-1)
 class refInfo

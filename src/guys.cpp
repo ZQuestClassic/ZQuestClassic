@@ -2870,12 +2870,12 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	return false;
 }
 
-bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb)
+bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 {
 	if(!(dx || dy)) return true;
 	zfix bx = x+hxofs, by = y+hyofs; //left/top
 	zfix rx = bx+hxsz-1, ry = by+hysz-1; //right/bottom
-	if(dy < 0) //check gravity
+	if(!ign_sv && dy < 0) //check gravity
 	{
 		if((moveflags & FLAG_OBEYS_GRAV) && isSideViewGravity())
 			return false;
@@ -2935,7 +2935,7 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb)
 	}
 	else
 	{
-		return scr_canmove(dx, 0, special, kb) && scr_canmove(dy, 0, special, kb);
+		return scr_canmove(dx, 0, special, kb, ign_sv) && scr_canmove(dy, 0, special, kb, ign_sv);
 	}
 	return true;
 }
@@ -2965,17 +2965,17 @@ bool enemy::scr_canplace(zfix dx, zfix dy, int32_t special, bool kb)
 	return true;
 }
 
-bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb)
+bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 {
 	bool ret = true;
-	if(dy < 0 && (moveflags & FLAG_OBEYS_GRAV) && isSideViewGravity())
+	if(!ign_sv && dy < 0 && (moveflags & FLAG_OBEYS_GRAV) && isSideViewGravity())
 		dy = 0;
 	while(abs(dx) > 8 || abs(dy) > 8)
 	{
 		if(abs(dx) > abs(dy))
 		{
 			int32_t tdx = dx.sign() * 8;
-			if(movexy(tdx, 0, special, kb))
+			if(movexy(tdx, 0, special, kb, ign_sv))
 				dx -= tdx;
 			else
 			{
@@ -2986,7 +2986,7 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb)
 		else
 		{
 			int32_t tdy = dy.sign() * 8;
-			if(movexy(0, tdy, special, kb))
+			if(movexy(0, tdy, special, kb, ign_sv))
 				dy -= tdy;
 			else
 			{
@@ -2997,18 +2997,18 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb)
 	}
 	if(dx)
 	{
-		if(scr_canmove(dx, 0, special, kb))
+		if(scr_canmove(dx, 0, special, kb, ign_sv))
 			x += dx;
 		else
 		{
 			ret = false;
 			int32_t xsign = dx.sign();
-			while(scr_canmove(xsign, 0, special, kb))
+			while(scr_canmove(xsign, 0, special, kb, ign_sv))
 			{
 				x += xsign;
 				dx -= xsign;
 			}
-			if(scr_canmove(dx.decsign(), 0, special, kb)) //can move 0.0001 to 0.9999 px in this direction
+			if(scr_canmove(dx.decsign(), 0, special, kb, ign_sv)) //can move 0.0001 to 0.9999 px in this direction
 			{
 				if(dx > 0)
 					x.doCeil();
@@ -3018,18 +3018,18 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb)
 	}
 	if(dy)
 	{
-		if(scr_canmove(0, dy, special, kb))
+		if(scr_canmove(0, dy, special, kb, ign_sv))
 			y += dy;
 		else
 		{
 			ret = false;
 			int32_t ysign = dy.sign();
-			while(scr_canmove(0, ysign, special, kb))
+			while(scr_canmove(0, ysign, special, kb, ign_sv))
 			{
 				y += ysign;
 				dy -= ysign;
 			}
-			if(scr_canmove(0, dy.decsign(), special, kb)) //can move 0.0001 to 0.9999 px in this direction
+			if(scr_canmove(0, dy.decsign(), special, kb, ign_sv)) //can move 0.0001 to 0.9999 px in this direction
 			{
 				if(dy > 0)
 					y.doCeil();
@@ -3319,42 +3319,78 @@ bool enemy::animate(int32_t index)
 	{
 		if(isSideViewGravity())
 		{
-			if(!isOnSideviewPlatform())
+			if(get_bit(quest_rules,qr_OLD_SIDEVIEW_LANDING_CODE))
 			{
-				bool willHitSVPlatform = false;
-				int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH)?hxsz:16;
-				int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT)?hysz:16;
-				for(int32_t nx = x+4; nx < x+usewid; nx+=16)
+				if(!isOnSideviewPlatform())
 				{
-					if(fall > 0 && !IGNORE_SIDEVIEW_PLATFORMS && checkSVLadderPlatform(x+4,y+(fall/100)+usehei-1) && (((int32_t(y)+(int32_t(fall)/100)+usehei-1)&0xF0)!=((int32_t(y)+usehei-1)&0xF0)))
+					bool willHitSVPlatform = false;
+					int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH)?hxsz:16;
+					int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT)?hysz:16;
+					for(int32_t nx = x+4; nx < x+usewid; nx+=16)
 					{
-						willHitSVPlatform = true;
-						break;
+						if(fall > 0 && !IGNORE_SIDEVIEW_PLATFORMS && checkSVLadderPlatform(x+4,y+(fall/100)+usehei-1) && (((int32_t(y)+(int32_t(fall)/100)+usehei-1)&0xF0)!=((int32_t(y)+usehei-1)&0xF0)))
+						{
+							willHitSVPlatform = true;
+							break;
+						}
 					}
-				}
-				if(willHitSVPlatform)
-				{
-					y+=fall/100;
-					//y-=int32_t(y)%16; //Fix to top of SV Ladder
-					do_fix(y, 16); //Fix to top of SV Ladder
-					fall = 0;
+					if(willHitSVPlatform)
+					{
+						y+=fall/100;
+						//y-=int32_t(y)%16; //Fix to top of SV Ladder
+						do_fix(y, 16); //Fix to top of SV Ladder
+						fall = 0;
+					}
+					else
+					{
+						y+=fall/100;
+						if(fall <= (int32_t)zinit.terminalv)
+							fall += (zinit.gravity2/100);
+					}
 				}
 				else
 				{
-					y+=fall/100;
-					if(fall <= (int32_t)zinit.terminalv)
-						fall += (zinit.gravity2/100);
+					if(fall!=0)   // Only fix pos once
+					{
+						//y-=(int32_t)y%8; // Fix position
+						do_fix(y, 8); //Fix position
+					}
+						
+					fall = 0;
 				}
 			}
 			else
 			{
-				if(fall!=0)   // Only fix pos once
+				if(isOnSideviewPlatform())
+					fall = 0;
+				else
 				{
-					//y-=(int32_t)y%8; // Fix position
-					do_fix(y, 8); //Fix position
+					zfix fall_amnt = fall/100;
+					bool hit = false;
+					while(fall_amnt >= 1)
+					{
+						--fall_amnt;
+						++y;
+						if(isOnSideviewPlatform())
+						{
+							y = y.getInt();
+							fall_amnt = 0;
+							hit = true;
+							break;
+						}
+					}
+					if(fall_amnt > 0)
+						y += fall_amnt;
+					if(fall_amnt < 0)
+					{
+						if(!movexy(0,fall_amnt,spw_none))
+							hit = true;
+					}
+					if(hit)
+						fall = 0;
+					else if(fall <= (int32_t)zinit.terminalv)
+							fall += (zinit.gravity2/100);
 				}
-					
-				fall = 0;
 			}
 		}
 		else
@@ -3442,9 +3478,9 @@ bool enemy::setSolid(bool set)
 	solid = set;
 	return ret;
 }
-void enemy::doContactDamage()
+void enemy::doContactDamage(int32_t hdir)
 {
-	Hero.hithero(guys.find(this));
+	Hero.hithero(guys.find(this), hdir);
 }
 
 void enemy::solid_push(solid_object *obj)
@@ -3452,7 +3488,8 @@ void enemy::solid_push(solid_object *obj)
 	if(obj == this) return; //can't push self
 	if(moveflags&FLAG_NOT_PUSHABLE) return; //not pushable
 	zfix dx, dy;
-	solid_push_int(obj,dx,dy);
+	int32_t hdir = -1;
+	solid_push_int(obj,dx,dy,hdir);
 	
 	if(!dx && !dy) return;
 	
@@ -3463,7 +3500,7 @@ void enemy::solid_push(solid_object *obj)
 	int32_t xdir = dx > 0 ? right : left;
 	
 	auto special = isflier(id) ? spw_floater : spw_none;
-	if(!movexy(dx,dy,special,true))
+	if(!movexy(dx,dy,special,true,true))
 	{
 		//Crushed?
 	}
@@ -3687,9 +3724,10 @@ bool enemy::isOnSideviewPlatform()
 	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hxsz : 16;
 	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hysz : 16;
 	if(y + usehei >= 176 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) return true; //Bottom of the map
-	for(int32_t nx = x+4; nx < x + usewid; nx+=16)
+	for(int32_t nx = x+4; nx <= x + usewid - 4; nx+=16)
 	{
-		if(_walkflag(nx,y+usehei,0)) return true;
+		if(_walkflag(nx,y+usehei,1)) return true;
+		if(_walkflag(nx+usewid/2,y+usehei,1)) return true;
 		if(IGNORE_SIDEVIEW_PLATFORMS || ((int32_t(y)+usehei)%16)!=0) continue;
 		if(checkSVLadderPlatform(nx,y+usehei)) return true;
 		if(checkSVLadderPlatform(nx+8,y+usehei)) return true;
