@@ -223,7 +223,12 @@ void throttleFPS()
     timeBeginPeriod(1); // Basically, jist is that other programs can affect the FPS of ZC in weird ways. (making it better for example... go figure)
 #endif
 
-    if( (Throttlefps ^ (zc_getkey(KEY_TILDE)!=0)) || get_bit(quest_rules, qr_NOFASTMODE) )
+#ifdef ALLEGRO_MACOSX
+	int toggle_key = KEY_BACKQUOTE;
+#else
+	int toggle_key = KEY_TILDE;
+#endif
+    if( (Throttlefps ^ (zc_get_system_key(toggle_key)!=0)) || get_bit(quest_rules, qr_NOFASTMODE) )
     {
         if(zc_vsync == FALSE)
         {
@@ -1827,8 +1832,7 @@ int32_t init_game()
 
     // Various things use the frame counter to do random stuff (ex: runDrunkRNG).
 	// We only bother setting it to 0 here so that recordings will play back the
-	// same way, even if manually started in the ZC UI (in which case,` frame` starts
-	// as a non-zero number for the recording, but is 0 during replay).
+	// same way, even if manually started in the ZC UI.
     frame = 0;
 
 	FFCore.user_objects_init();
@@ -2703,14 +2707,6 @@ int32_t cont_game()
 	{
 		game->set_life(game->get_cont_hearts()*game->get_hp_per_heart());
 	}
-		
-	/*
-	  else
-	  game->life=3*game->get_hp_per_heart();
-	  */
-	
-	//  for(int32_t i=0; i<128; i++)
-	//	key[i]=0;
 	
 	initZScriptGlobalScript(GLOBAL_SCRIPT_ONCONTGAME);
 	ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONCONTGAME, GLOBAL_SCRIPT_ONCONTGAME);	
@@ -4533,7 +4529,7 @@ int32_t onFullscreen()
 static bool current_session_is_replay = false;
 static void load_replay_file(ReplayMode mode, std::string replay_file)
 {
-	ASSERT(mode == ReplayMode::Replay || mode == ReplayMode::Snapshot || mode == ReplayMode::Assert || mode == ReplayMode::Update);
+	ASSERT(mode == ReplayMode::Replay || mode == ReplayMode::Assert || mode == ReplayMode::Update);
 	replay_start(mode, replay_file);
 	strcpy(testingqst_name, replay_get_meta_str("qst").c_str());
 	if (replay_get_meta_bool("test_mode"))
@@ -4849,6 +4845,7 @@ int main(int argc, char **argv)
 		Z_error_fatal(allegro_error);
 		quit_game();
 	}
+	poll_keyboard();
 	
 	if(install_mouse() < 0)
 	{
@@ -5588,11 +5585,6 @@ int main(int argc, char **argv)
 	{
 		load_replay_file(ReplayMode::Replay, argv[replay_arg + 1]);
 	}
-	else if (snapshot_arg > 0)
-	{
-		ASSERT(frame_arg > 0);
-		load_replay_file(ReplayMode::Snapshot, argv[snapshot_arg + 1]);
-	}
 	else if (assert_arg > 0)
 	{
 		load_replay_file(ReplayMode::Assert, argv[assert_arg + 1]);
@@ -5604,6 +5596,7 @@ int main(int argc, char **argv)
 	else if (record_arg > 0)
 	{
 		ASSERT(zqtesting_mode);
+		int replay_name_arg = used_switch(argc, argv, "-replay-name");
 
 		replay_start(ReplayMode::Record, argv[record_arg + 1]);
 		replay_set_debug(replay_debug);
@@ -5613,10 +5606,16 @@ int main(int argc, char **argv)
 		replay_set_meta("starting_dmap", testingqst_dmap);
 		replay_set_meta("starting_scr", testingqst_screen);
 		replay_set_meta("starting_retsqr", testingqst_retsqr);
+		if (used_switch(argc, argv, "-replay-name") > 0)
+			replay_set_meta("name", argv[replay_name_arg + 1]);
 		use_testingst_start = true;
 	}
 	if (frame_arg > 0)
 		replay_set_frame_arg(std::stoi(argv[frame_arg + 1]));
+	if (snapshot_arg > 0)
+		replay_add_snapshot_frame(argv[snapshot_arg + 1]);
+	if (strlen(zc_get_config("zeldadx", "replay_snapshot", "")) > 0)
+		replay_add_snapshot_frame(zc_get_config("zeldadx", "replay_snapshot", ""));
 	
 	//clearConsole();
 	if(!zqtesting_mode && !replay_is_active())
@@ -5983,16 +5982,12 @@ reload_for_replay_file:
 			}
 			else if (replay_get_mode() != ReplayMode::Record && Quit == qEXIT)
 			{
-				locking_keys = true;
 				replay_poll();
-				locking_keys = false;
 				Quit = qQUIT;
 			}
 			else if (Quit == qQUIT)
 			{
-				locking_keys = true;
 				replay_poll();
-				locking_keys = false;
 			}
 		}
 

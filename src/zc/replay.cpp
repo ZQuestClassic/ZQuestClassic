@@ -2,6 +2,7 @@
 #include "zc_sys.h"
 #include "base/zc_alleg.h"
 #include "zelda.h"
+#include <array>
 #include <vector>
 #include <map>
 #include <fstream>
@@ -15,15 +16,16 @@
 struct ReplayStep;
 
 static const int ASSERT_FAILED_EXIT_CODE = 120;
-static const int VERSION = 4;
+static const int VERSION = 6;
 
 static const char TypeMeta = 'M';
-static const char TypeButtonDown = 'D';
-static const char TypeButtonUp = 'U';
+static const char TypeKeyDown = 'D';
+static const char TypeKeyUp = 'U';
 static const char TypeComment = 'C';
 static const char TypeQuit = 'Q';
 static const char TypeCheat = 'X';
 static const char TypeRng = 'R';
+static const char TypeKeyMap = 'K';
 
 static ReplayMode mode = ReplayMode::Off;
 static int version;
@@ -35,6 +37,7 @@ static std::string filename;
 static std::vector<std::shared_ptr<ReplayStep>> replay_log;
 static std::vector<std::shared_ptr<ReplayStep>> record_log;
 static std::map<std::string, std::string> meta_map;
+static std::vector<int> snapshot_frames;
 static size_t replay_log_current_index;
 static size_t assert_current_index;
 static size_t manual_takeover_start_index;
@@ -42,11 +45,11 @@ static bool has_assert_failed;
 static bool did_attempt_input_during_replay;
 static int frame_count;
 static bool previous_control_state[ZC_CONTROL_STATES];
+static char previous_keys[KEY_MAX];
 static std::vector<zc_randgen *> rngs;
 static uint32_t prev_gfx_hash;
 static int prev_debug_x;
 static int prev_debug_y;
-static bool saved_image;
 
 struct ReplayStep
 {
@@ -60,10 +63,77 @@ struct ReplayStep
     virtual std::string print() = 0;
 };
 
-struct ButtonReplayStep : public ReplayStep
+struct KeyMapReplayStep : ReplayStep
 {
-    inline static int button_keys[ZC_CONTROL_STATES];
+	static const int NumButtons = 14;
+	static KeyMapReplayStep current;
+	static KeyMapReplayStep stored;
 
+	static KeyMapReplayStep make(int frame)
+	{
+		KeyMapReplayStep step(frame, {
+			DUkey,
+			DDkey,
+			DLkey,
+			DRkey,
+			Akey,
+			Bkey,
+			Skey,
+			Lkey,
+			Rkey,
+			Pkey,
+			Exkey1,
+			Exkey2,
+			Exkey3,
+			Exkey4,
+		});
+		return step;
+	}
+
+	std::array<int, KeyMapReplayStep::NumButtons> button_keys;
+
+	KeyMapReplayStep(int frame, std::array<int, KeyMapReplayStep::NumButtons> button_keys) : button_keys(button_keys), ReplayStep(frame, TypeKeyMap)
+	{
+	}
+
+	int find_button_index_for_key(int key)
+	{
+		for (int i = 0; i < KeyMapReplayStep::NumButtons; i++)
+		{
+			if (button_keys[i] == key)
+				return i;
+		}
+		return -1;
+	}
+
+	void run()
+	{
+		DUkey = button_keys[0];
+		DDkey = button_keys[1];
+		DLkey = button_keys[2];
+		DRkey = button_keys[3];
+		Akey = button_keys[4];
+		Bkey = button_keys[5];
+		Skey = button_keys[6];
+		Lkey = button_keys[7];
+		Rkey = button_keys[8];
+		Pkey = button_keys[9];
+		Exkey1 = button_keys[10];
+		Exkey2 = button_keys[11];
+		Exkey3 = button_keys[12];
+		Exkey4 = button_keys[13];
+	}
+
+	std::string print()
+	{
+		return fmt::format("{} {} {}", type, frame, fmt::join(button_keys, " "));
+	}
+};
+KeyMapReplayStep KeyMapReplayStep::current(0, {});
+KeyMapReplayStep KeyMapReplayStep::stored(0, {});
+
+struct KeyReplayStep : public ReplayStep
+{
     inline static const char *button_names[] = {
         "Up",
         "Down",
@@ -85,28 +155,9 @@ struct ButtonReplayStep : public ReplayStep
         "RightA",
     };
 
-    static void load_keys()
-    {
-        // TODO: block changing controls during replay
-        button_keys[btnUp] = DUkey;
-        button_keys[btnDown] = DDkey;
-        button_keys[btnLeft] = DLkey;
-        button_keys[btnRight] = DRkey;
-        button_keys[btnA] = Akey;
-        button_keys[btnB] = Bkey;
-        button_keys[btnS] = Skey;
-        button_keys[btnL] = Lkey;
-        button_keys[btnR] = Rkey;
-        button_keys[btnP] = Pkey;
-        button_keys[btnEx1] = Exkey1;
-        button_keys[btnEx2] = Exkey2;
-        button_keys[btnEx3] = Exkey3;
-        button_keys[btnEx4] = Exkey4;
-    }
-
     static int find_index_for_button_name(std::string button_name)
     {
-        for (int i = 0; i < ZC_CONTROL_STATES; i++)
+        for (int i = 0; i < KeyMapReplayStep::NumButtons; i++)
         {
             if (button_names[i] == button_name)
                 return i;
@@ -114,34 +165,50 @@ struct ButtonReplayStep : public ReplayStep
         return -1;
     }
 
-    int button_index;
+    static int find_index_for_key_name(std::string key_name)
+    {
+        for (int i = 1; i < KEY_MAX; i++)
+        {
+            if (_keyboard_common_names[i] == key_name)
+                return i;
+        }
+        return -1;
+    }
 
-    ButtonReplayStep(int frame, int type, int button_index) : ReplayStep(frame, type), button_index(button_index)
+    int button_index;
+	int key_index;
+
+    KeyReplayStep(int frame, int type, int button_index, int key_index) : ReplayStep(frame, type), button_index(button_index), key_index(key_index)
     {
     }
 
     void run()
     {
-        raw_control_state[button_index] = type == TypeButtonDown;
+        if (button_index != -1)
+            raw_control_state[button_index] = type == TypeKeyDown;
 
-        // Set the key/joystick states directly, in case the engine does readkey
-        // directly, or zscript queries the state of these things.
-        if (button_index < 14)
-        {
-            key[button_keys[button_index]] = type == TypeButtonDown ? 1 : 0;
-        }
-        else
+        // Set the key/joystick states, in case zscript queries the state of these things.
+        if (button_index != -1 && button_index >= 14)
         {
             // TODO zscript allows polling the joystick state directly,
             // so should probably do that. I don't have a gamepad at the moment
             // so can't verify. For now, do nothing. This seems like it would be
             // rare enough to matter that it's ok to skip for now.
         }
+        else
+        {
+            key_current_frame[key_index] = type == TypeKeyDown ? 1 : 0;
+        }
     }
 
+	// If associated with a button in the most recent key map step, print as just the button name.
+	// Otherwise, print as the key named prefixed with "k ".
     std::string print()
     {
-        return fmt::format("{} {} {}", type, frame, button_names[button_index]);
+        if (button_index != -1)
+            return fmt::format("{} {} {}", type, frame, button_names[button_index]);
+        else
+            return fmt::format("{} {} k {}", type, frame, _keyboard_common_names[key_index]);
     }
 };
 
@@ -280,12 +347,14 @@ static bool steps_are_equal(const ReplayStep* step1, const ReplayStep* step2)
 			are_equal = comment_replay_step->comment == comment_record_step->comment;
 		}
 		break;
-		case TypeButtonUp:
-		case TypeButtonDown:
+		case TypeKeyUp:
+		case TypeKeyDown:
 		{
-			auto button_replay_step = static_cast<const ButtonReplayStep *>(step1);
-			auto button_record_step = static_cast<const ButtonReplayStep *>(step2);
-			are_equal = button_replay_step->button_index == button_record_step->button_index;
+			auto key_replay_step = static_cast<const KeyReplayStep *>(step1);
+			auto key_record_step = static_cast<const KeyReplayStep *>(step2);
+			are_equal =
+				key_replay_step->button_index == key_record_step->button_index &&
+				key_replay_step->key_index == key_record_step->key_index;
 		}
 		break;
 		case TypeQuit:
@@ -312,48 +381,40 @@ static bool steps_are_equal(const ReplayStep* step1, const ReplayStep* step2)
 				rng_replay_step->end_index == rng_record_step->end_index;
 		}
 		break;
+		case TypeKeyMap:
+		{
+			auto map_replay_step = static_cast<const KeyMapReplayStep *>(step1);
+			auto map_record_step = static_cast<const KeyMapReplayStep *>(step2);
+			are_equal = map_replay_step->button_keys == map_record_step->button_keys;
+		}
+		break;
 		}
 
 	return are_equal;
 }
 
-static bool is_Fkey(int k)
-{
-    switch (k)
-    {
-    case KEY_F1:
-    case KEY_F2:
-    case KEY_F3:
-    case KEY_F4:
-    case KEY_F5:
-    case KEY_F6:
-    case KEY_F7:
-    case KEY_F8:
-    case KEY_F9:
-    case KEY_F10:
-    case KEY_F11:
-    case KEY_F12:
-        return true;
-    }
-
-    return false;
-}
-
-// This is for ignoring keyboard input during recording playback,
+// This is for detecting keyboard input during replaying,
 // and prompting the user if they wish to end the replay.
-static int keyboard_intercept(int key)
+static int keyboard_intercept(int c)
 {
-    if (is_Fkey(key >> 8))
-        return key;
-    did_attempt_input_during_replay = true;
-    return 0;
+	int k = c >> 8;
+	if (!is_system_key(k))
+		did_attempt_input_during_replay = true;
+
+	// Don't modify the key state at all; this is OK because the
+	// game doesn't read directly from `key` anymore–it now reads from
+	// `key_current_frame`. Only the system keys use `key` directly.
+	return c;
 }
 
-static void start_recording()
+static void install_keyboard_handlers()
 {
-    for (int i = 0; i < ZC_CONTROL_STATES; i++)
-        previous_control_state[i] = false;
-    record_log.clear();
+	keyboard_callback = keyboard_intercept;
+}
+
+static void uninstall_keyboard_handlers()
+{
+	keyboard_callback = nullptr;
 }
 
 static void do_recording_poll()
@@ -381,15 +442,41 @@ static void do_recording_poll()
 		}
 	}
 
-    for (int i = 0; i < ZC_CONTROL_STATES; i++)
-    {
-        bool state = raw_control_state[i];
-        if (state == previous_control_state[i])
-            continue;
+	if (version >= 5)
+	{
+		KeyMapReplayStep new_key_map = KeyMapReplayStep::make(frame_count);
+		if (new_key_map.button_keys != KeyMapReplayStep::current.button_keys)
+		{
+			KeyMapReplayStep::current = new_key_map;
+			record_log.push_back(std::make_shared<KeyMapReplayStep>(frame_count, new_key_map.button_keys));
+		}
+	}
 
-        record_log.push_back(std::make_shared<ButtonReplayStep>(frame_count, state ? TypeButtonDown : TypeButtonUp, i));
-        previous_control_state[i] = state;
-    }
+	for (int i = 0; i < KeyMapReplayStep::NumButtons; i++)
+	{
+		bool state = raw_control_state[i];
+		if (state == previous_control_state[i])
+			continue;
+
+		int key_index = KeyMapReplayStep::current.button_keys[i];
+		record_log.push_back(std::make_shared<KeyReplayStep>(frame_count, state ? TypeKeyDown : TypeKeyUp, i, key_index));
+		previous_control_state[i] = state;
+	}
+
+	if (version >= 5)
+	{
+		for (int i = 1; i < KEY_MAX; i++)
+		{
+			char state = key_current_frame[i];
+			if (state == previous_keys[i] || i == KEY_ESC)
+				continue;
+			if (KeyMapReplayStep::current.find_button_index_for_key(i) != -1)
+			    continue;
+
+			record_log.push_back(std::make_shared<KeyReplayStep>(frame_count, state ? TypeKeyDown : TypeKeyUp, -1, i));
+			previous_keys[i] = state;
+		}
+	}
 }
 
 // https://stackoverflow.com/a/6089413/2788187
@@ -438,6 +525,9 @@ static void load_replay(std::string filename)
         exit(1);
     }
 
+    KeyMapReplayStep key_map = KeyMapReplayStep::make(0);
+    bool found_key_map = false;
+
     bool done_with_meta = false;
     std::string line;
     while (portable_get_line(file, line))
@@ -458,8 +548,13 @@ static void load_replay(std::string filename)
             iss.ignore(1);
         }
 
-        if (!done_with_meta)
-            done_with_meta = type != TypeMeta;
+        if (!done_with_meta && type != TypeMeta)
+        {
+            done_with_meta = true;
+            version = replay_get_meta_int("version", 1);
+            if (version < 5)
+                KeyMapReplayStep::current = key_map;
+        }
 
         if (type == TypeMeta)
         {
@@ -511,17 +606,50 @@ static void load_replay(std::string filename)
             ASSERT(start_index <= end_index);
             replay_log.push_back(std::make_shared<RngReplayStep>(frame, start_index, end_index, seed));
         }
-        else if (type == TypeButtonUp || type == TypeButtonDown)
+        else if (type == TypeKeyMap)
         {
-            std::string button_name;
-            portable_get_line(iss, button_name);
-            int button = ButtonReplayStep::find_index_for_button_name(button_name);
-            ASSERT(button != -1);
-            if (button == -1)
-                continue;
+			ASSERT(version >= 5);
+            std::array<int, KeyMapReplayStep::NumButtons> keys;
+            for (int i = 0; i < KeyMapReplayStep::NumButtons; i++)
+            {
+                iss >> keys[i];
+            }
+            replay_log.push_back(std::make_shared<KeyMapReplayStep>(frame, keys));
+            if (!found_key_map)
+            {
+                KeyMapReplayStep::current = KeyMapReplayStep(frame, keys);
+                found_key_map = true;
+            }
+            key_map = KeyMapReplayStep(frame, keys);
+        }
+        else if (type == TypeKeyUp || type == TypeKeyDown)
+        {
+            if (version >= 5)
+                ASSERT(found_key_map);
 
-            iss >> button;
-            replay_log.push_back(std::make_shared<ButtonReplayStep>(frame, type, button));
+            std::string text;
+            portable_get_line(iss, text);
+
+            int button_index;
+            int key_index;
+            if (text.rfind("k ", 0) == 0)
+            {
+                button_index = -1;
+                key_index = KeyReplayStep::find_index_for_key_name(text.substr(2));
+                if (key_index == -1)
+                    fprintf(stderr, "unknown key %s\n", text.substr(2).c_str());
+                ASSERT(key_index != -1);
+            }
+            else
+            {
+                button_index = KeyReplayStep::find_index_for_button_name(text);
+                if (button_index == -1)
+                    fprintf(stderr, "unknown button %s\n", text.c_str());
+                ASSERT(button_index != -1);
+                key_index = key_map.button_keys[button_index];
+            }
+
+            replay_log.push_back(std::make_shared<KeyReplayStep>(frame, type, button_index, key_index));
         }
     }
 
@@ -550,7 +678,15 @@ static void do_replaying_poll()
 {
     while (replay_log_current_index < replay_log.size() && replay_log[replay_log_current_index]->frame == frame_count)
     {
-        replay_log[replay_log_current_index]->run();
+        if (version >= 6)
+        {
+            if (replay_log[replay_log_current_index]->type != TypeKeyDown && replay_log[replay_log_current_index]->type != TypeKeyUp)
+                replay_log[replay_log_current_index]->run();
+        }
+        else
+        {
+            replay_log[replay_log_current_index]->run();
+        }
         replay_log_current_index += 1;
     }
 }
@@ -595,7 +731,7 @@ static void check_assert()
 }
 
 static size_t old_start_of_next_screen_index;
-static bool stored_control_state[ZC_CONTROL_STATES];
+static bool stored_control_state[KeyMapReplayStep::NumButtons];
 
 static void start_manual_takeover()
 {
@@ -618,48 +754,56 @@ static void start_manual_takeover()
 
     // Calculate what the button state is at the beginning of the next screen.
     // The state will be restored to this after the manual takeover is done.
-    for (int i = 0; i < ZC_CONTROL_STATES; i++)
+    for (int i = 0; i < KeyMapReplayStep::NumButtons; i++)
         stored_control_state[i] = raw_control_state[i];
     for (size_t i = manual_takeover_start_index; i < old_start_of_next_screen_index; i++)
     {
-        if (replay_log[i]->type != TypeButtonDown && replay_log[i]->type != TypeButtonUp)
+        if (replay_log[i]->type != TypeKeyDown && replay_log[i]->type != TypeKeyUp)
             continue;
 
-        auto button_step = static_cast<ButtonReplayStep *>(replay_log[i].get());
-        stored_control_state[button_step->button_index] = button_step->type == TypeButtonDown;
+        auto key_step = static_cast<KeyReplayStep *>(replay_log[i].get());
+        stored_control_state[key_step->key_index] = key_step->type == TypeKeyDown;
     }
 
     // Avoid unexpected input when manual takeover starts, which can be awkward to play.
     for (int i = 0; i < KEY_MAX; i++)
-        key[i] = 0;
+        _key[i] = key[i] = 0;
 
     mode = ReplayMode::ManualTakeover;
-    keyboard_callback = nullptr;
+    uninstall_keyboard_handlers();
     Throttlefps = true;
     Paused = true;
 }
 
-static void do_snapshot()
+static void do_snapshot(bool unexpected)
 {
-    if (mode == ReplayMode::Snapshot && frame_arg != -1)
-    {
-        if (frame_arg == frame_count)
-        {
-            int line_number = replay_log_current_index + meta_map.size() + 1;
-            if (debug) line_number += 1;
-            std::string img_filename = fmt::format("{}.{}-{}.bmp", filename, frame_count, line_number);
-            fmt::print("Saving requested bitmap: {}\n", img_filename);
-            save_bitmap(img_filename.c_str(), framebuf, RAMpal);
-            saved_image = true;
-        }
-        else if (frame_arg < frame_count)
-        {
-            if (saved_image)
-                exit(0);
-            fmt::print(stderr, "Missed expected snapshot frame: {}\n", frame_arg);
-            exit(1);
-        }
-    }
+	static int last_snapshot_frame = 0;
+	static int num_snapshots_this_frame = 0;
+
+	auto it = std::find(snapshot_frames.begin(), snapshot_frames.end(), frame_count);
+	if (it == snapshot_frames.end())
+		return;
+
+	if (last_snapshot_frame != frame_count)
+	{
+		last_snapshot_frame = frame_count;
+		num_snapshots_this_frame = 0;
+	}
+
+	std::string img_filename = num_snapshots_this_frame == 0 ?
+		fmt::format("{}.{}", filename, frame_count) :
+		fmt::format("{}.{}_{}", filename, frame_count, num_snapshots_this_frame + 1);
+	if (unexpected)
+		img_filename += "-unexpected";
+	img_filename += ".bmp";
+
+	if (unexpected)
+		fmt::print(stderr, "Saving unexpected bitmap: {}\n", img_filename);
+	else
+		fmt::print("Saving requested bitmap: {}\n", img_filename);
+
+	save_bitmap(img_filename.c_str(), framebuf, RAMpal);
+	num_snapshots_this_frame++;
 }
 
 void replay_start(ReplayMode mode_, std::string filename_)
@@ -676,8 +820,10 @@ void replay_start(ReplayMode mode_, std::string filename_)
     frame_arg = -1;
     prev_gfx_hash = 0;
     prev_debug_x = prev_debug_y = -1;
-    saved_image = false;
-    ButtonReplayStep::load_keys();
+    replay_log.clear();
+    record_log.clear();
+	snapshot_frames.clear();
+    replay_forget_input();
 
     switch (mode)
     {
@@ -689,24 +835,28 @@ void replay_start(ReplayMode mode_, std::string filename_)
         version = VERSION;
         std::time_t ct = std::time(0);
         replay_set_meta("time_created", strtok(ctime(&ct), "\n"));
-        start_recording();
+        KeyMapReplayStep::current = KeyMapReplayStep::make(0);
         break;
     }
     case ReplayMode::Replay:
-    case ReplayMode::Snapshot:
         load_replay(filename);
         break;
     case ReplayMode::Assert:
     case ReplayMode::Update:
         load_replay(filename);
-        start_recording();
         break;
     }
 
     if (replay_is_replaying())
     {
         ASSERT(!keyboard_callback);
-        keyboard_callback = keyboard_intercept;
+        install_keyboard_handlers();
+        KeyMapReplayStep::stored = KeyMapReplayStep::make(0);
+    }
+
+    if (replay_is_recording() && version >= 5)
+    {
+        record_log.push_back(std::make_shared<KeyMapReplayStep>(0, KeyMapReplayStep::current.button_keys));
     }
 }
 
@@ -714,12 +864,10 @@ void replay_continue(std::string filename_)
 {
     ASSERT(mode == ReplayMode::Off);
     mode = ReplayMode::Record;
+    replay_forget_input();
     filename = filename_;
-    ButtonReplayStep::load_keys();
     load_replay(filename);
     record_log = replay_log;
-    for (int i = 0; i < ZC_CONTROL_STATES; i++)
-        previous_control_state[i] = false;
     frame_count = record_log.back()->frame + 1;
 }
 
@@ -727,8 +875,6 @@ void replay_poll()
 {
     if (mode == ReplayMode::Off)
         return;
-
-    ASSERT(locking_keys);
 
     if (did_attempt_input_during_replay && replay_is_replaying())
     {
@@ -739,10 +885,9 @@ void replay_poll()
         for (int i = 0; i < KEY_MAX; i++)
         {
             key_copy[i] = key[i];
-            key[i] = 0;
+            _key[i] = key[i] = 0;
         }
-        keyboard_callback = nullptr;
-        locking_keys = false;
+        uninstall_keyboard_handlers();
 		
 		enter_sys_pal();
 		if (jwin_alert("Replay",
@@ -758,29 +903,21 @@ void replay_poll()
 		exit_sys_pal();
 
         did_attempt_input_during_replay = false;
-        locking_keys = true;
-        keyboard_callback = keyboard_intercept;
+        install_keyboard_handlers();
         for (int i = 0; i < KEY_MAX; i++)
-            key[i] = key_copy[i];
+            _key[i] = key[i] = key_copy[i];
         for (int i = 0; i < controls::btnLast; i++)
             down_control_states[i] = down_states[i];
     }
 
     if (frame_arg != -1 && frame_arg <= frame_count && replay_is_replaying())
     {
-        if (mode == ReplayMode::Snapshot)
-            do_snapshot();
-
         if (mode == ReplayMode::Update)
         {
             start_manual_takeover();
             enter_sys_pal();
             jwin_alert("Recording", "Re-recording until new screen is loaded", NULL, NULL, "OK", NULL, 13, 27, lfont);
             exit_sys_pal();
-        }
-        else if (mode == ReplayMode::Snapshot && frame_arg == frame_count)
-        {
-            // Let it go on for one more frame.
         }
         else
         {
@@ -802,7 +939,6 @@ void replay_poll()
         do_recording_poll();
         break;
     case ReplayMode::Replay:
-    case ReplayMode::Snapshot:
         do_replaying_poll();
         if (replay_log_current_index == replay_log.size())
             replay_stop();
@@ -813,7 +949,7 @@ void replay_poll()
         check_assert();
         if (replay_log_current_index == replay_log.size() && assert_current_index == replay_log.size())
             replay_stop();
-        if (has_assert_failed && frame_count - replay_log[assert_current_index]->frame > 60*60)
+        if (has_assert_failed && (frame_count - replay_log[assert_current_index]->frame > 60*60 || frame_count > replay_log.back()->frame))
             replay_stop();
         break;
     case ReplayMode::Update:
@@ -828,6 +964,77 @@ void replay_poll()
     }
 
     frame_count++;
+}
+
+// example: 0 3 4-10 45
+bool replay_add_snapshot_frame(std::string frames_shorthand)
+{
+	std::vector<int> frames;
+	bool in_number = false;
+	bool in_range = false;
+	size_t cur_start_index = 0;
+
+	for (size_t i = 0; i <= frames_shorthand.size(); i++)
+	{
+		char c = i == frames_shorthand.size() ? ' ' : frames_shorthand[i];
+		if (c == ' ')
+		{
+			if (!in_number)
+				continue;
+
+			errno = 0;
+			int as_int = std::strtol(frames_shorthand.data() + cur_start_index, nullptr, 10);
+			if (errno)
+				return false;
+
+			if (in_range)
+			{
+				int from = frames.back();
+				if (from >= as_int)
+					return false;
+
+				for (int i = from + 1; i <= as_int; i++)
+					frames.push_back(i);
+			}
+			else
+			{
+				frames.push_back(as_int);
+			}
+			in_number = in_range = false;
+		}
+		else if (std::isdigit(c))
+		{
+			if (!in_number)
+			{
+				in_number = true;
+				cur_start_index = i;
+			}
+		}
+		else if (c == '-')
+		{
+			if (!in_number)
+				return false;
+
+			errno = 0;
+			int as_int = std::strtol(frames_shorthand.data() + cur_start_index, nullptr, 10);
+			if (errno)
+				return false;
+
+			frames.push_back(as_int);
+			in_number = false;
+			in_range = true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	if (frames.size() > 100000)
+		return false;
+
+	snapshot_frames.insert(snapshot_frames.end(), frames.begin(), frames.end());
+	return true;
 }
 
 void replay_peek_quit()
@@ -853,7 +1060,7 @@ void replay_peek_input()
     size_t i = replay_log_current_index;
     while (i < replay_log.size() && replay_log[i]->frame == frame_count)
     {
-        if (replay_log[i]->type == TypeButtonDown || replay_log[i]->type == TypeButtonUp)
+        if (replay_log[i]->type == TypeKeyDown || replay_log[i]->type == TypeKeyUp)
         {
             replay_log[i]->run();
         }
@@ -886,9 +1093,11 @@ void replay_forget_input()
         return;
 
     for (int i = 0; i < KEY_MAX; i++)
-        key[i] = 0;
-    for (int i = 0; i < ZC_CONTROL_STATES; i++)
+        _key[i] = key[i] = key_current_frame[i] = 0;
+    for (int i = 0; i < KeyMapReplayStep::NumButtons; i++)
         previous_control_state[i] = raw_control_state[i] = false;
+    for (int i = 0; i < KEY_MAX; i++)
+        previous_keys[i] = false;
 }
 
 void replay_stop()
@@ -900,6 +1109,7 @@ void replay_stop()
     {
         keyboard_callback = nullptr;
         replay_forget_input();
+        KeyMapReplayStep::stored.run();
     }
 
     if (mode == ReplayMode::Assert)
@@ -932,14 +1142,6 @@ void replay_stop()
     {
         replay_save();
         exit(0);
-    }
-
-    if (mode == ReplayMode::Snapshot)
-    {
-        if (saved_image)
-            exit(0);
-        fmt::print(stderr, "Missed expected snapshot frame: {}\n", frame_arg);
-        exit(1);
     }
 
     mode = ReplayMode::Off;
@@ -981,19 +1183,20 @@ void replay_stop_manual_takeover()
 
     // Restore button state.
     std::vector<std::shared_ptr<ReplayStep>> restore_log;
-    for (int i = 0; i < ZC_CONTROL_STATES; i++)
+    for (int i = 0; i < KeyMapReplayStep::NumButtons; i++)
         raw_control_state[i] = stored_control_state[i];
 
     // Insert some button steps to make the replay_log match what the record_log will have inserted on the next
     // call to do_recording_poll.
     // This is the same as do_recording_poll, but without setting the previous control state variable.
-    for (int i = 0; i < ZC_CONTROL_STATES; i++)
+    for (int i = 0; i < KeyMapReplayStep::NumButtons; i++)
     {
         bool state = raw_control_state[i];
         if (state == previous_control_state[i])
             continue;
 
-        restore_log.push_back(std::make_shared<ButtonReplayStep>(frame_count, state ? TypeButtonDown : TypeButtonUp, i));
+        int key_index = KeyMapReplayStep::current.button_keys[i];
+        restore_log.push_back(std::make_shared<KeyReplayStep>(frame_count, state ? TypeKeyDown : TypeKeyUp, i, key_index));
     }
 
     int num_steps_before = replay_log.size();
@@ -1013,7 +1216,7 @@ void replay_stop_manual_takeover()
     save_replay(filename, replay_log);
     replay_log_current_index = record_log.size();
     mode = ReplayMode::Update;
-    keyboard_callback = keyboard_intercept;
+    install_keyboard_handlers();
     frame_arg = -1;
     enter_sys_pal();
     jwin_alert("Recording", "Done re-recording, resuming replay from here", NULL, NULL, "OK", NULL, 13, 27, lfont);
@@ -1072,7 +1275,9 @@ std::string int_to_basE91(T value)
 
 void replay_step_gfx(uint32_t gfx_hash)
 {
-    do_snapshot();
+    auto it = std::find(snapshot_frames.begin(), snapshot_frames.end(), frame_count);
+    bool should_do_snapshot = it != snapshot_frames.end();
+    bool unexpected = false;
 
     // Skip if last invocation was the same value.
     if (gfx_hash == prev_gfx_hash)
@@ -1097,13 +1302,12 @@ void replay_step_gfx(uint32_t gfx_hash)
 				replay_log.size() > step_index &&
 				steps_are_equal(record_log.back().get(), replay_log.at(step_index).get());
 			if (!gfx_matches)
-			{
-				std::string img_filename = fmt::format("{}.unexpected-{}-{}.bmp", filename, frame_count, step_index);
-				fmt::print(stderr, "Saving unexpected bitmap: {}\n", img_filename);
-				save_bitmap(img_filename.c_str(), framebuf, RAMpal);
-			}
+				should_do_snapshot = unexpected = true;
 		}
 	}
+
+	if (should_do_snapshot)
+		do_snapshot(unexpected);
 }
 
 void replay_set_meta(std::string key, std::string value)
@@ -1203,13 +1407,13 @@ std::string replay_get_buttons_string()
 {
     std::string text;
     text += fmt::format("{} ", frame_count);
-    for (int i = 0; i < ZC_CONTROL_STATES; i++)
+    for (int i = 0; i < KeyMapReplayStep::NumButtons; i++)
     {
         if (raw_control_state[i])
         {
             if (!text.empty())
                 text += ' ';
-            text += ButtonReplayStep::button_names[i];
+            text += KeyReplayStep::button_names[i];
         }
     }
     return text;
@@ -1239,7 +1443,7 @@ void replay_set_sync_rng(bool enable)
 
 bool replay_is_replaying()
 {
-    return mode == ReplayMode::Replay || mode == ReplayMode::Snapshot || mode == ReplayMode::Assert || mode == ReplayMode::Update;
+    return mode == ReplayMode::Replay || mode == ReplayMode::Assert || mode == ReplayMode::Update;
 }
 
 bool replay_is_recording()
@@ -1287,7 +1491,7 @@ void replay_set_rng_seed(zc_randgen *rng, int seed)
         else if (mode != ReplayMode::Update)
         {
             int line_number = replay_log_current_index + meta_map.size() + 1;
-            std::string error = fmt::format("<{}> rng desync", line_number);
+            std::string error = fmt::format("<{}> rng desync! stopping replay", line_number);
             fprintf(stderr, "%s\n", error.c_str());
             if (mode == ReplayMode::Assert && exit_when_done)
             {
@@ -1295,7 +1499,7 @@ void replay_set_rng_seed(zc_randgen *rng, int seed)
             }
             replay_stop();
             enter_sys_pal();
-            jwin_alert("Recording", "rng desync! stopping replay", NULL, NULL, "OK", NULL, 13, 27, lfont);
+            jwin_alert("Recording", error.c_str(), NULL, NULL, "OK", NULL, 13, 27, lfont);
             exit_sys_pal();
         }
     }

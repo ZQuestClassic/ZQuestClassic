@@ -166,7 +166,7 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			bool should_record = zc_get_config("zquest", "test_mode_record", false);
 			std::filesystem::path replay_file_dir = zc_get_config("zquest", "replay_file_dir", "replays/");
 			std::filesystem::create_directory(replay_file_dir);
-			auto replay_path = (replay_file_dir / "latest_test.zplay");
+			auto replay_path = replay_file_dir / fmt::format("test_{}.zplay", std::time(nullptr));
 
 			std::vector<std::string> args = {
 				"-test",

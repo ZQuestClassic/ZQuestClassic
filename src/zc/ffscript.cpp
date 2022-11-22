@@ -182,7 +182,7 @@ void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
 	
 	syskeys();
 	// Someday... maybe install a Turbo button here?
-	updatescr(allowwavy, true);
+	updatescr(allowwavy);
 	throttleFPS();
 	
 #ifdef _WIN32
@@ -3853,7 +3853,7 @@ int32_t get_register(const int32_t arg)
 			//hmm...no, this won;t return properly for modifier keys. 
 			int32_t keyid = ri->d[rINDEX]/10000;
 			//key = vbound(key,0,n);
-			bool pressed = key[keyid] != 0;
+			bool pressed = key_current_frame[keyid] != 0;
 			ret = pressed?10000:0;
 		}
 		break;
@@ -13676,7 +13676,7 @@ void set_register(const int32_t arg, const int32_t value)
 			//hmm...no, this won;t return properly for modifier keys. 
 			int32_t keyid = ri->d[rINDEX]/10000;
 			//key = vbound(key,0,n);
-			key[keyid]=(value?true:false); //It isn't possible to set keys true, because polling occurs before they are set?
+			_key[keyid]=key[keyid]=key_current_frame[keyid]=(value?true:false); //It isn't possible to set keys true, because polling occurs before they are set?
 			//but they *can* be set false; ??? -Z
 		}
 		break;

@@ -23,12 +23,12 @@ enum ReplayMode
     Assert,
     Update,
     ManualTakeover,
-    Snapshot,
 };
 
 void replay_start(ReplayMode mode_, std::string filename_);
 void replay_continue(std::string filename_);
 void replay_poll();
+bool replay_add_snapshot_frame(std::string frames_shorthand);
 void replay_peek_quit();
 void replay_peek_input();
 void replay_do_cheats();
