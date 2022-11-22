@@ -2,6 +2,8 @@
 #include "ffc.h"
 
 #ifdef IS_PLAYER
+#include "combos.h"
+#include "maps.h"
 extern newcombo *combobuf;
 extern mapscr tmpscr[2];
 extern int16_t ffposx[MAXFFCS];
@@ -155,6 +157,17 @@ void ffcdata::setLoaded(bool set)
 bool ffcdata::getLoaded() const
 {
 	return loaded;
+}
+
+void ffcdata::doContactDamage()
+{
+#ifdef IS_PLAYER
+	if(flags & (ffCHANGER | ffETHEREAL))
+		return; //Changer or ethereal; has no type
+	newcombo const& cmb = combobuf[data];
+	if(data && isdamage_type(cmb.type))
+		trigger_damage_combo(data, true);
+#endif
 }
 
 void mapscr::zero_memory()

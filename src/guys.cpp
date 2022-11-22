@@ -2416,7 +2416,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	}
 	
 	stickclk = 0;
-	submerged = 0;
+	submerged = false;
 	hitdir = -1;
 	dialogue_str = 0; //set by spawn flags. 
 	editorflags = d->editorflags; //set by Enemy Editor 
@@ -3437,10 +3437,46 @@ bool enemy::animate(int32_t index)
 
 bool enemy::setSolid(bool set)
 {
-	bool actual = set && !isSubmerged(); //!TODO more things like teleporting wizzrobes
+	bool actual = set && !isSubmerged();
 	bool ret = solid_object::setSolid(actual);
 	solid = set;
 	return ret;
+}
+void enemy::doContactDamage()
+{
+	Hero.hithero(guys.find(this));
+}
+
+void enemy::solid_push(solid_object *obj)
+{
+	if(obj == this) return; //can't push self
+	if(moveflags&FLAG_NOT_PUSHABLE) return; //not pushable
+	zfix dx, dy;
+	solid_push_int(obj,dx,dy);
+	
+	if(!dx && !dy) return;
+	
+	bool t = obj->getTempNonsolid();
+	obj->setTempNonsolid(true);
+	
+	int32_t ydir = dy > 0 ? down : up;
+	int32_t xdir = dx > 0 ? right : left;
+	
+	auto special = isflier(id) ? spw_floater : spw_none;
+	if(!movexy(dx,dy,special,true))
+	{
+		//Crushed?
+	}
+	
+	obj->setTempNonsolid(t);
+}
+bool enemy::is_unpushable() const
+{
+	return isSubmerged();
+}
+bool enemy::sideview_mode() const
+{
+	return isSideViewGravity() && (moveflags&FLAG_OBEYS_GRAV) && !(moveflags&FLAG_NOT_PUSHABLE);
 }
 
 bool enemy::m_walkflag_old(int32_t dx,int32_t dy,int32_t special, int32_t x, int32_t y)
@@ -3774,9 +3810,10 @@ void enemy::kickbucket()
 		hp=-1000;                                               // don't call death_sfx()
 }
 
-bool enemy::isSubmerged()
+bool enemy::isSubmerged() const
 {
 	return submerged;
+	//!TODO SOLIDPUSH more things like teleporting wizzrobes
 }
 
 void enemy::FireBreath(bool seekhero)
@@ -10972,7 +11009,7 @@ eLeever::eLeever(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	clk3 = 0;
 	//nets+1460;
 	temprule=(get_bit(quest_rules,qr_NEWENEMYTILES)) != 0;
-	submerged = 0;
+	submerged = false;
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
@@ -10994,7 +11031,7 @@ eLeever::eLeever(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)d->zofs;
 }
 
-bool eLeever::isSubmerged()
+bool eLeever::isSubmerged() const
 {
 	Z_scripterrlog("misc is: %d\n", misc);
 	return misc <= 0;
@@ -11484,7 +11521,7 @@ void eWallM::draw(BITMAP *dest)
 	//    tile = clk&8 ? 128:129;
 }
 
-bool eWallM::isSubmerged()
+bool eWallM::isSubmerged() const
 {
 	return ( !misc );
 }
@@ -12826,7 +12863,7 @@ void eZora::draw(BITMAP *dest)
 	enemy::draw(dest);
 }
 
-bool eZora::isSubmerged()
+bool eZora::isSubmerged() const
 {
 	return ( clk < 3 );
 }
@@ -14028,13 +14065,27 @@ void eKeese::draw(BITMAP *dest)
 	enemy::draw(dest);
 }
 
+void eWizzrobe::submerge(bool set)
+{
+	if(get_bit(quest_rules,qr_OLD_WIZZROBE_SUBMERGING))
+	{
+		hxofs = set?1000:0;
+		return;
+	}
+	if(submerged == set) return;
+	submerged = set;
+	if(set)
+		hxofs+=1000;
+	else hxofs -= 1000;
+}
 eWizzrobe::eWizzrobe(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
-//  switch(d->misc1)
+	hxofs = 0;
+	submerged = false;
 	switch(dmisc1)
 	{
 	case 0:
-		hxofs=1000;
+		submerge(true);
 		fading=fade_invisible;
 		// Set clk to just before the 'reappear' threshold
 		clk=zc_min(clk+(146+zc_max(0,dmisc5))+14,(146+zc_max(0,dmisc5))-1);
@@ -14052,14 +14103,17 @@ eWizzrobe::eWizzrobe(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	fclk=0;
 	if(!dmisc1) frate=1200+146; //1200 = 20 seconds
 	SIZEflags = d->SIZEflags;
-	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
+	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
-	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
-	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
+	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && d->tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hxsz = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0  ) hzsz = d->hzsz;
+	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 )
+	{
+		hxofs = (submerged?hxofs:0)+d->hxofs;
+	}
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
 //    if ( (SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = hzofs;
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = d->xofs;
@@ -14095,7 +14149,7 @@ bool eWizzrobe::animate(int32_t index)
 		if(watch || (!get_bit(quest_rules, qr_WIZZROBES_DONT_OBEY_STUN) && stunclk))
 		{
 			fading=0;
-			hxofs=0;
+			submerge(false);
 			solid_update(false);
 		}
 		else switch(clk)
@@ -14220,7 +14274,7 @@ bool eWizzrobe::animate(int32_t index)
 				}
 				
 				fading=fade_flicker;
-				hxofs=0;
+				submerge(false);
 				solid_update(false);
 				break;
 				
@@ -14250,7 +14304,7 @@ bool eWizzrobe::animate(int32_t index)
 				
 			case 146:
 				fading=fade_invisible;
-				hxofs=1000;
+				submerge(true);
 				solid_update(false);
 
 				[[fallthrough]];

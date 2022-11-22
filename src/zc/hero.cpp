@@ -7095,9 +7095,10 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 
 int32_t HeroClass::hithero(int32_t hit2)
 {
+	enemy* enemyptr = (enemy*)guys.spr(hit2);
+	if(!enemyptr) return 0;
 	//printf("Stomp check: %d <= 12, %d < %d\n", int32_t((y+16)-(((enemy*)guys.spr(hit2))->y)), (int32_t)falling_oldy, (int32_t)y);
 	int32_t stompid = current_item_id(itype_stompboots);
-	enemy* enemyptr = (enemy*)guys.spr(hit2);
 	if(current_item(itype_stompboots) && checkbunny(stompid) && checkmagiccost(stompid) && (stomping ||
 			((z+fakez) > (enemyptr->z+(enemyptr->fakez))) ||
 			((isSideViewHero() && (y+16)-(enemyptr->y)<=14) && falling_oldy<y)))
@@ -7127,6 +7128,8 @@ int32_t HeroClass::hithero(int32_t hit2)
 	}
 	else if(superman || !(scriptcoldet&1) || fallclk)
 		return 0;
+	//!TODO SOLIDPUSH Enemy flag to make them not deal contact damage
+	//!Add a flag check to this if:
 	else if (!(enemyptr->stunclk==0 && enemyptr->frozenclock==0 && (!get_bit(quest_rules, qr_SAFEENEMYFADE) || enemyptr->fading != fade_flicker)
 			&& (enemyptr->d->family != eeGUY || enemyptr->dmisc1)))
 	{
@@ -7201,14 +7204,13 @@ int32_t HeroClass::hithero(int32_t hit2)
 	switch(enemyptr->family)
 	{
 		case eeWALLM:
-		if(enemyptr->hp>0)
-		{
-			GrabHero(hit2);
-			inwallm=true;
-			action=none; FFCore.setHeroAction(none);
-		}
-		
-		break;
+			if(enemyptr->hp>0)
+			{
+				GrabHero(hit2);
+				inwallm=true;
+				action=none; FFCore.setHeroAction(none);
+			}
+			break;
 		
 		//case eBUBBLEST:
 		//case eeBUBBLE:
@@ -7221,46 +7223,46 @@ int32_t HeroClass::hithero(int32_t hit2)
 			
 			switch(dm7)
 			{
-			case e7tTEMPJINX:
-				if(dm8==0 || dm8==2)
-					if(swordclk>=0 && !(sworddivisor==0))
-						swordclk=150;
+				case e7tTEMPJINX:
+					if(dm8==0 || dm8==2)
+						if(swordclk>=0 && !(sworddivisor==0))
+							swordclk=150;
+							
+					if(dm8==1 || dm8==2)
+						if(itemclk>=0 && !(itemdivisor==0))
+							itemclk=150;
+							
+					break;
+				
+				case e7tPERMJINX:
+					if(dm8==0 || dm8==2)
+						if(sworddivisor) swordclk=(itemid >-1 && itemsbuf[itemid].flags & ITEM_FLAG1)? int32_t(150/sworddivisor) : -1;
 						
-				if(dm8==1 || dm8==2)
-					if(itemclk>=0 && !(itemdivisor==0))
-						itemclk=150;
+					if(dm8==1 || dm8==2)
+						if(itemdivisor) itemclk=(itemid >-1 && itemsbuf[itemid].flags & ITEM_FLAG1)? int32_t(150/itemdivisor) : -1;
 						
-				break;
+					break;
 				
-			case e7tPERMJINX:
-				if(dm8==0 || dm8==2)
-					if(sworddivisor) swordclk=(itemid >-1 && itemsbuf[itemid].flags & ITEM_FLAG1)? int32_t(150/sworddivisor) : -1;
-					
-				if(dm8==1 || dm8==2)
-					if(itemdivisor) itemclk=(itemid >-1 && itemsbuf[itemid].flags & ITEM_FLAG1)? int32_t(150/itemdivisor) : -1;
-					
-				break;
+				case e7tUNJINX:
+					if(dm8==0 || dm8==2)
+						swordclk=0;
+						
+					if(dm8==1 || dm8==2)
+						itemclk=0;
+						
+					break;
 				
-			case e7tUNJINX:
-				if(dm8==0 || dm8==2)
-					swordclk=0;
-					
-				if(dm8==1 || dm8==2)
-					itemclk=0;
-					
-				break;
+				case e7tTAKEMAGIC:
+					game->change_dmagic(-dm8*game->get_magicdrainrate());
+					break;
 				
-			case e7tTAKEMAGIC:
-				game->change_dmagic(-dm8*game->get_magicdrainrate());
-				break;
+				case e7tTAKERUPEES:
+					game->change_drupy(-dm8);
+					break;
 				
-			case e7tTAKERUPEES:
-				game->change_drupy(-dm8);
-				break;
-				
-			case e7tDRUNK:
-				drunkclk += dm8;
-				break;
+				case e7tDRUNK:
+					drunkclk += dm8;
+					break;
 			}
 			verifyAWpn();
 			if(dm7 >= e7tEATITEMS)
@@ -9731,26 +9733,24 @@ bool HeroClass::push_pixel(int32_t dir)
 	return false;
 }
 
+bool HeroClass::setSolid(bool set)
+{
+	bool actual = set && !toogam; //not solid when noclipping
+	bool ret = solid_object::setSolid(actual);
+	solid = set;
+	return ret;
+}
+
 void HeroClass::solid_push(solid_object* obj)
 {
 	if(obj == this) return; //can't push self
-	if(toogam) return; //No being pushed with noclip enabled
 	
 	zfix dx, dy;
 	solid_push_int(obj,dx,dy);
 	
 	if(!dx && !dy) return;
 	
-	//!TODO SOLIDPUSH enemies contact damage (if needed)
-	// if(enemy* enm = dynamic_cast<enemy*>(obj))
-		// enm->doContactDamage();
-	
-	if(int32_t cid = obj->get_solid_combo()) //object has a combo ID (ex. ffc)
-	{
-		newcombo const& cmb = combobuf[cid];
-		if(isdamage_type(cmb.type)) //Damage combo
-			trigger_damage_combo(cid, true);
-	}
+	obj->doContactDamage();
 	
 	bool t = obj->getTempNonsolid();
 	obj->setTempNonsolid(true);
@@ -29509,7 +29509,11 @@ void HeroClass::kill(bool bypassFairy)
 }
 bool HeroClass::sideview_mode() const
 {
-	return isSideViewHero() && (moveflags & FLAG_OBEYS_GRAV);
+	return isSideViewHero() && (moveflags & FLAG_OBEYS_GRAV) && !toogam;
+}
+bool HeroClass::is_unpushable() const
+{
+	return toogam;
 }
 /*** end of hero.cpp ***/
 

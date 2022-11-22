@@ -41,7 +41,8 @@ public:
 	virtual void updateSolid();
 	void setLoaded(bool set);
 	bool getLoaded() const;
-	virtual int32_t get_solid_combo() const {return data;}
+	//Overload to do damage to Hero on pushing them
+	virtual void doContactDamage();
 private:
 	bool loaded;
 };

@@ -3645,6 +3645,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		set_bit(quest_rules,qr_OLD_SIDEVIEW_LANDING_CODE,1);
 		set_bit(quest_rules,qr_OLD_FFC_SPEED_CAP,1);
+		set_bit(quest_rules,qr_OLD_WIZZROBE_SUBMERGING,1);
 	}
 	
 	//always set

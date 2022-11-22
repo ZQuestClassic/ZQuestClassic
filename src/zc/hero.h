@@ -452,6 +452,7 @@ public:
 	virtual void draw(BITMAP* dest);
 	virtual bool animate(int32_t index);
 	bool push_pixel(int32_t dir);
+	virtual bool setSolid(bool set);
 	virtual void solid_push(solid_object* pusher);
 	bool dowarp(int32_t type, int32_t index, int32_t warpsfx=0);
 	
@@ -594,6 +595,7 @@ public:
 	void trySideviewLadder();
 	bool canSideviewLadderRemote(int32_t wx, int32_t wy, bool down = false);
 	virtual bool sideview_mode() const;
+	virtual bool is_unpushable() const;
 };
 
 bool usingActiveShield(int32_t itmid = -1);

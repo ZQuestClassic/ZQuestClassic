@@ -80,7 +80,7 @@ public:
 	int16_t bgsfx, bosspal;
 	byte defense[edefLAST255];
 	byte hitsfx,deadsfx;
-	byte submerged;
+	bool submerged;
 
 	int32_t  clk2,sclk;
 	int32_t  starting_hp;
@@ -161,10 +161,16 @@ public:
 	// the guys sprite list; index is the enemy's index in the list.
 	virtual bool animate(int32_t index);
 	virtual bool setSolid(bool set);
+	virtual void solid_push(solid_object* pusher);
+	//Overload to do damage to Hero on pushing them
+	virtual void doContactDamage();
+	//Overload to give 'riding sideview platform' behaviors
+	virtual bool sideview_mode() const;
+	virtual bool is_unpushable() const;
 	
 	// auomatically kill off enemy (for rooms with ringleaders)
 	virtual void kickbucket();
-	virtual bool isSubmerged();
+	virtual bool isSubmerged() const;
 	// Stop BG SFX only if no other enemy is playing it
 	void stop_bgsfx(int32_t index);
 	bool m_walkflag_simple(int32_t dx,int32_t dy);
@@ -445,7 +451,7 @@ public:
 	virtual bool animate(int32_t index);
 	bool canplace(int32_t d);
 	virtual void draw(BITMAP *dest);
-	virtual bool isSubmerged();
+	virtual bool isSubmerged() const;
 };
 
 class eWallM : public enemy
@@ -457,7 +463,7 @@ public:
 	void wallm_crawl();
 	void grabhero();
 	virtual void draw(BITMAP *dest);
-	virtual bool isSubmerged();
+	virtual bool isSubmerged() const;
 };
 
 class eTrap : public enemy
@@ -559,7 +565,7 @@ public:
 	virtual void facehero();
 	virtual bool animate(int32_t index);
 	virtual void draw(BITMAP *dest);
-	virtual bool isSubmerged();
+	virtual bool isSubmerged() const;
 };
 
 class eStalfos : public enemy
@@ -610,6 +616,7 @@ public:
 	void wizzrobe_attack();
 	void wizzrobe_attack_for_real();
 	void wizzrobe_newdir(int32_t homing);
+	void submerge(bool set);
 	virtual void draw(BITMAP *dest);
 };
 

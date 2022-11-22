@@ -38,8 +38,8 @@ public:
 	void putwalkflags(BITMAP *dest, int32_t tx, int32_t ty);
 	void solid_update(bool push = true);
 	virtual void solid_push(solid_object* pusher);
-	//Overload to behave as a combo of some sort? (just for damage combos on collision)
-	virtual int32_t get_solid_combo() const {return 0;}
+	//Overload to do damage to Hero on pushing them
+	virtual void doContactDamage(){}
 protected:
 	bool solid;
 	bool ignore_solid_temp;
@@ -48,6 +48,7 @@ protected:
 	
 	//Overload to give 'riding sideview platform' behaviors
 	virtual bool sideview_mode() const {return false;}
+	virtual bool is_unpushable() const {return false;}
 private:
 	bool in_solid_arr;
 };

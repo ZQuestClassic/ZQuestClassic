@@ -2101,6 +2101,16 @@ sprite *sprite_list::spr(int32_t index)
     return sprites[index];
 }
 
+int32_t sprite_list::find(sprite *spr)
+{
+	for(int32_t ind = 0; ind < count; ++ind)
+	{
+		if(spr == sprites[ind])
+			return ind;
+	}
+	return -1;
+}
+
 bool sprite_list::swap(int32_t a,int32_t b)
 {
     if(a<0 || a>=count || b<0 || b>=count)

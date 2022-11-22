@@ -202,6 +202,7 @@ void solid_object::solid_push(solid_object* pusher)
 void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy)
 {
 	dx = dy = 0;
+	if(is_unpushable()) return;
 	zfix odx = obj->x - obj->old_x,
 	     ody = obj->y - obj->old_y,
 	     obj_x = obj->x + obj->hxofs + obj->sxofs,

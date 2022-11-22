@@ -213,6 +213,7 @@ public:
     sprite *getByUID(int32_t uid);
     void clear(bool force = false);
     sprite *spr(int32_t index);
+	int32_t find(sprite *spr);
     bool swap(int32_t a,int32_t b);
     bool add(sprite *s);
     // removes pointer from list but doesn't delete it
