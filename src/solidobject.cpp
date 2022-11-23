@@ -356,7 +356,7 @@ void solid_object::solid_push(solid_object* pusher)
 
 void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy, int32_t& hdir)
 {
-	dx = dy = 0;
+	dx = dy = 0; hdir = -1;
 	if(is_unpushable()) return;
 	zfix odx = obj->x - obj->old_x,
 	     ody = obj->y - obj->old_y,
@@ -661,6 +661,8 @@ void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy, in
 		sxofs -= 4;
 		sxsz_ofs += 8;
 	}
+	if(dx || dy)
+		hdir = XY_DIR(GET_YDIR(dy), GET_XDIR(dx));
 }
 
 int32_t solid_object::push_dir() const
