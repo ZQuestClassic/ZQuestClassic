@@ -128,6 +128,7 @@ def run_replay_test(replay_file):
         try:
             start = timer()
             process_result = subprocess.run(exe_args,
+                                            cwd=args.build_folder,
                                             stdout=subprocess.PIPE,
                                             stderr=subprocess.PIPE,
                                             text=True,
