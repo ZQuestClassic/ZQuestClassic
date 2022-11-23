@@ -830,7 +830,7 @@ enum
 	//170
 	cSPOTLIGHT, cGLASS, cLIGHTTARGET, cSWITCHHOOK, cBUTTONPROMPT,
 	//175
-	cCUSTOMBLOCK, cSHOOTER,
+	cCUSTOMBLOCK, cSHOOTER, cSLOPE,
     cMAX,
 	// ! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
@@ -4615,6 +4615,15 @@ struct zcmap
 	word viewY;
 	bool subaTrans;
 	bool subpTrans;
+};
+
+struct slopedata
+{
+	zfix x1;
+	zfix y1;
+	zfix x2;
+	zfix y2;
+	zfix slope;
 };
 
 enum controls //Args for 'getInput()'

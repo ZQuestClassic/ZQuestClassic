@@ -5,11 +5,17 @@
 #include "base/zc_alleg.h"
 
 class solid_object;
+struct slopedata;
 
 bool collide_object(solid_object const* obj);
 bool collide_object(int32_t tx, int32_t ty, int32_t tw, int32_t th, solid_object const* ign = nullptr);
 void put_ffcwalkflags(BITMAP *dest, int32_t x, int32_t y);
 void setCurObject(solid_object* obj);
+bool check_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th);
+slopedata get_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th);
+bool check_slope(solid_object const* o);
+slopedata get_slope(solid_object const* o);
+void slope_push_int(slopedata s, solid_object* obj, zfix& dx, zfix& dy);
 
 class solid_object
 {

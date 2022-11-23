@@ -675,6 +675,18 @@ void ComboEditorDialog::loadComboType()
 			h_attribyte[0] = "SFX to play during the warp";
 			break;
 		}
+		case cSLOPE:
+		{
+			l_attribyte[0] = "X Offset 1:";
+			h_attribyte[0] = "X Offset of the starting point of the slope line.";
+			l_attribyte[1] = "Y Offset 1:";
+			h_attribyte[1] = "Y Offset of the starting point of the slope line.";
+			l_attribyte[2] = "X Offset 2:";
+			h_attribyte[2] = "X Offset of the starting point of the slope line.";
+			l_attribyte[3] = "Y Offset 2:";
+			h_attribyte[3] = "Y Offset of the starting point of the slope line.";
+			break;
+		}
 		case cTRIGNOFLAG: case cSTRIGNOFLAG:
 		case cTRIGFLAG: case cSTRIGFLAG:
 		{

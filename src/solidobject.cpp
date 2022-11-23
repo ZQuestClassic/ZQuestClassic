@@ -2,6 +2,7 @@
 #include "base/zdefs.h"
 #include "sprite.h"
 #include "hero.h"
+#include "base/zc_math.h"
 
 #ifdef IS_PLAYER
 extern sprite_list guys;
@@ -11,6 +12,7 @@ extern HeroClass Hero;
 using std::vector;
 
 vector<solid_object*> solid_objects;
+vector<slopedata> slopes;
 
 bool remove_object(solid_object* obj)
 {
@@ -69,6 +71,85 @@ bool collide_object(int32_t tx, int32_t ty, int32_t tw, int32_t th, solid_object
 			return true;
 	}
 	return false;
+}
+
+bool check_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th)
+{
+	for(auto it = slopes.begin(); it != slopes.end(); ++it)
+	{
+		if (lineBoxCollision((*it).x1, (*it).y1, (*it).x2, (*it).y2, tx, ty, tw, th)) return true;
+	}
+	return false;
+}
+
+slopedata get_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th)
+{
+	for(auto it = slopes.begin(); it != slopes.end(); ++it)
+	{
+		if (lineBoxCollision((*it).x1, (*it).y1, (*it).x2, (*it).y2, tx, ty, tw, th)) return (*it);
+	}
+	slopedata s;
+	return s;
+}
+
+bool check_slope(solid_object const* o)
+{
+	return check_slope(o->x + o->hxofs + o->sxofs,
+	               o->y + o->hyofs + o->syofs,
+	               o->hxsz + o->sxsz_ofs,
+	               o->hysz + o->sysz_ofs);
+}
+
+slopedata get_slope(solid_object const* o)
+{
+	return get_slope(o->x + o->hxofs + o->sxofs,
+	               o->y + o->hyofs + o->syofs,
+	               o->hxsz + o->sxsz_ofs,
+	               o->hysz + o->sysz_ofs);
+}
+
+void slope_push_int(slopedata s, solid_object* obj, zfix& dx, zfix& dy)
+{
+	zfix rx = obj->x+obj->hxofs+obj->sxofs, ry = obj->y+obj->hyofs+obj->syofs,
+	rw = obj->hxsz+obj->sxsz_ofs, rh = obj->hysz+obj->sysz_ofs;
+	zfix cx = rx + rw/2 - 1;
+	zfix cy = ry + rh/2 - 1;
+	double lineangle = atan2(double(s.y2-s.y1),double(s.x2-s.x1));
+	double val = comparePointLine(cx, cy, s.x1, s.y1, s.x2, s.y2);
+	if (sign(val) < 0)
+	{
+		lineangle -= PI/2;
+	}
+	else
+	{
+		lineangle += PI/2;
+	}
+	zfix orx = rx;
+	zfix ory = ry;
+	while(lineBoxCollision(s.x1, s.y1, s.x2, s.y2, rx, ry, rw, rh))
+	{
+		rx += zc::math::Cos(lineangle);
+		ry += zc::math::Sin(lineangle);
+	}
+	dx = (rx - orx);
+	dy = (ry - ory);
+
+	if (!dx && !dy) return; //no movement at all
+	//handle subpixel rounding
+	if(zfix xd = obj->x.getDPart())
+	{
+		obj->x.doTrunc();
+		dx += xd;
+	}
+	if(zfix yd = obj->y.getDPart())
+	{
+		obj->y.doTrunc();
+		dy += yd;
+	}
+	//Lock to integer grid
+	//!TODO SOLIDPUSH allow a subpixel-push? -Em
+	dx.doRoundAway();
+	dy.doRoundAway();
 }
 
 solid_object::solid_object() : solid(false), in_solid_arr(false),

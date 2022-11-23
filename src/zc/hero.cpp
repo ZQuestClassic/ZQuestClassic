@@ -42,6 +42,7 @@ extern HeroClass Hero;
 extern ZModule zcm;
 extern zcmodule moduledata;
 extern refInfo playerScriptData;
+extern std::vector<slopedata> slopes;
 #include "zscriptversion.h"
 #include "particles.h"
 #include <fmt/format.h>
@@ -2177,7 +2178,7 @@ attack:
 					// Stone of Agony
 					if(agony)
 					{
-						w->y-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,2));
+						w->y-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,2))?1:0;
 					}
 				}
 				
@@ -2247,7 +2248,7 @@ attack:
 				// Stone of Agony
 				if(agony)
 				{
-					yofs-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3));
+					yofs-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3))?1:0;
 				}
 
 				//Probably what makes Hero flicker, except for the QR check. What makes him flicker when that rule is off?! -Z
@@ -2399,7 +2400,7 @@ attack:
 			// Stone of Agony
 			if(agony)
 			{
-				wy-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3));
+				wy-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3))?1:0;
 			}
 			
 			w->x = x+wx;
@@ -2851,7 +2852,7 @@ attack:
 	// Stone of Agony
 	if(agony)
 	{
-		yofs-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3));
+		yofs-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3))?1:0;
 	}
 	
 	if(!(get_bit(quest_rules,qr_HEROFLICKER)&&((superman||hclk)&&(frame&1))))
@@ -9356,10 +9357,26 @@ bool HeroClass::animate(int32_t)
 	
 	bool awarp = false;
 	//!DIMI: Global Combo Effects (AUTO STUFF)
+	slopes.clear();
 	for(int32_t i=0; i<176; ++i)
 	{
 		for(int32_t layer=0; layer<7; ++layer)
 		{
+			if (layer <= 2)
+			{
+				int32_t cid = ( layer ) ? MAPCOMBOL(layer,COMBOX(i),COMBOY(i)) : MAPCOMBO(COMBOX(i),COMBOY(i));
+				newcombo const& cmb = combobuf[cid];
+				if (cmb.type == cSLOPE) 
+				{
+					slopedata s;
+					s.x1 = COMBOX(i) + cmb.attribytes[0];
+					s.y1 = COMBOY(i) + cmb.attribytes[1];
+					s.x2 = COMBOX(i) + cmb.attribytes[2];
+					s.y2 = COMBOY(i) + cmb.attribytes[3];
+					s.slope = (s.y2-s.y1)/(s.x2-s.x1);
+					slopes.push_back(s);
+				}
+			}
 			if(!get_bit(quest_rules,qr_AUTOCOMBO_ANY_LAYER))
 			{
 				if(layer > 2) break;
@@ -9430,6 +9447,16 @@ bool HeroClass::animate(int32_t)
 		int32_t ind=0;
 		
 		newcombo const& cmb = combobuf[tmpscr->ffcs[i].getData()];
+		if (cmb.type == cSLOPE) 
+		{
+			slopedata s;
+			s.x1 = zfix(tmpscr->ffcs[i].x) + zfix(cmb.attribytes[0]);
+			s.y1 = zfix(tmpscr->ffcs[i].y) + zfix(cmb.attribytes[1]);
+			s.x2 = zfix(tmpscr->ffcs[i].x) + zfix(cmb.attribytes[2]);
+			s.y2 = zfix(tmpscr->ffcs[i].y) + zfix(cmb.attribytes[3]);
+			s.slope = (s.y2-s.y1)/(s.x2-s.x1);
+			slopes.push_back(s);
+		}
 		if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
 		{
 			if(cmb.type==cAWARPA)
@@ -9471,6 +9498,47 @@ bool HeroClass::animate(int32_t)
 			sdir = dir;
 			dowarp(1,ind);
 			break;
+		}
+	}
+	if (check_slope(this))
+	{
+		zfix dx;
+		zfix dy;
+		slope_push_int(get_slope(this), this, dx, dy);
+		int32_t ydir = GET_YDIR(dy);
+		int32_t xdir = GET_XDIR(dx);
+		while(dx && dy)
+		{
+			if(check_pitslide() != -1)
+				break;
+			if(!push_pixel(ydir))
+				break;
+			if (dy > 0) --dy;
+			else ++dy;
+			if(!push_pixel(xdir))
+				break;
+			if (dx > 0) --dx;
+			else ++dx;
+		}
+		if(dx)
+		{
+			for(int32_t q = abs(dx); q > 0; --q)
+			{
+				if(check_pitslide() != -1)
+					break;
+				if(!push_pixel(xdir))
+					break;
+			}
+		}
+		if(dy)
+		{
+			for(int32_t q = abs(dy); q > 0; --q)
+			{
+				if(check_pitslide() != -1)
+					break;
+				if(!push_pixel(ydir))
+					break;
+			}
 		}
 	}
 	
