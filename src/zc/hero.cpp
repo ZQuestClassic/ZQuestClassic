@@ -9387,14 +9387,11 @@ bool HeroClass::animate(int32_t)
 	{
 		for(int32_t layer=0; layer<7; ++layer)
 		{
-			if (layer <= 2)
+			int32_t cid = ( layer ) ? MAPCOMBOL(layer,COMBOX(i),COMBOY(i)) : MAPCOMBO(COMBOX(i),COMBOY(i));
+			newcombo const& cmb = combobuf[cid];
+			if (cmb.type == cSLOPE) 
 			{
-				int32_t cid = ( layer ) ? MAPCOMBOL(layer,COMBOX(i),COMBOY(i)) : MAPCOMBO(COMBOX(i),COMBOY(i));
-				newcombo const& cmb = combobuf[cid];
-				if (cmb.type == cSLOPE) 
-				{
-					slopes.emplace_back(cmb, COMBOX(i), COMBOY(i));
-				}
+				slopes.emplace_back(cmb, COMBOX(i), COMBOY(i));
 			}
 			if(!get_bit(quest_rules,qr_AUTOCOMBO_ANY_LAYER))
 			{
@@ -9405,8 +9402,6 @@ bool HeroClass::animate(int32_t)
 			int32_t ind=0;
 			
 			//AUTOMATIC TRIGGER CODE
-			int32_t cid = ( layer ) ? MAPCOMBOL(layer,COMBOX(i),COMBOY(i)) : MAPCOMBO(COMBOX(i),COMBOY(i));
-			newcombo const& cmb = combobuf[cid];
 			if (cmb.triggerflags[1]&combotriggerAUTOMATIC)
 			{
 				do_trigger_combo(layer, i);
