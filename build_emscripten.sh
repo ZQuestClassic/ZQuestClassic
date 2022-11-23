@@ -173,6 +173,7 @@ emcmake cmake \
   -D CMAKE_C_FLAGS="${EMCC_FLAGS[*]} ${EMCC_AND_LINKER_FLAGS[*]}" \
   -D CMAKE_CXX_FLAGS="${EMCC_FLAGS[*]} ${EMCC_AND_LINKER_FLAGS[*]} -D_NPASS" \
   -D CMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS[*]} ${EMCC_AND_LINKER_FLAGS[*]}" \
+  ${ZC_EMCC_CMAKE_EXTRA_FLAGS[@]} \
   ..
 
 # TODO: can this be removed?
