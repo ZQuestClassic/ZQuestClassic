@@ -52,14 +52,14 @@ void ffdata::clear()
 }
 void ffdata::load(mapscr const* scr, int32_t ind)
 {
-	if(unsigned(ind)>31) return;
+	if(unsigned(ind)>MAXFFCS-1) return;
 	x = scr->ffcs[ind].x.getZLong();
 	y = scr->ffcs[ind].y.getZLong();
 	dx = scr->ffcs[ind].vx.getZLong();
 	dy = scr->ffcs[ind].vy.getZLong();
 	ax = scr->ffcs[ind].ax.getZLong();
 	ay = scr->ffcs[ind].ay.getZLong();
-	data = scr->ffcs[ind].data;
+	data = scr->ffcs[ind].getData();
 	cset = scr->ffcs[ind].cset;
 	delay = scr->ffcs[ind].delay;
 	flags = scr->ffcs[ind].flags;
@@ -76,14 +76,14 @@ void ffdata::load(mapscr const* scr, int32_t ind)
 }
 void ffdata::save(mapscr* scr, int32_t ind)
 {
-	if(unsigned(ind)>31) return;
+	if(unsigned(ind)>MAXFFCS-1) return;
 	scr->ffcs[ind].x = zslongToFix(x);
 	scr->ffcs[ind].y = zslongToFix(y);
 	scr->ffcs[ind].vx = zslongToFix(dx);
 	scr->ffcs[ind].vy = zslongToFix(dy);
 	scr->ffcs[ind].ax = zslongToFix(ax);
 	scr->ffcs[ind].ay = zslongToFix(ay);
-	scr->ffcs[ind].data = data;
+	scr->ffcs[ind].setData(data);
 	scr->ffcs[ind].cset = cset;
 	scr->ffcs[ind].delay = delay;
 	scr->ffcs[ind].flags = flags;
@@ -97,7 +97,6 @@ void ffdata::save(mapscr* scr, int32_t ind)
 		scr->ffcs[ind].inita[q] = inita[q];
 	for(auto q = 0; q < 8; ++q)
 		scr->ffcs[ind].initd[q] = initd[q];
-	SETFLAG(scr->numff,(1<<ind),data!=0);
 	scr->ffcs[ind].updateSolid();
 }
 
@@ -128,7 +127,7 @@ ffdata& ffdata::operator=(ffdata const& other)
 
 FFCDialog::FFCDialog(mapscr* scr, int32_t ffind) :
 	thescr(scr), ffind(ffind),
-	list_link(GUI::ListData::numbers(true, 1, 32)),
+	list_link(GUI::ListData::numbers(true, 1, MAXFFCS)),
 	list_ffcscript(GUI::ZCListData::ffc_script())
 {
 	ffc.load(scr, ffind);

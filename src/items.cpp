@@ -609,26 +609,7 @@ void removeItemsOfFamily(gamedata *g, itemdata *items, int32_t family)
 	{
 		if(items[i].family == family)
 		{
-			g->set_item(i,false);
-			if ( game->forced_bwpn == i ) 
-			{
-				game->forced_bwpn = -1;
-			} //not else if! -Z
-			if ( game->forced_awpn == i ) 
-			{
-				game->forced_awpn = -1;
-			}
-		}
-	}
-}
-
-void removeLowerLevelItemsOfFamily(gamedata *g, itemdata *items, int32_t family, int32_t level)
-{
-	for(int32_t i=0; i<MAXITEMS; i++)
-	{
-		if(items[i].family == family && items[i].fam_type < level)
-		{
-			g->set_item(i, false);
+			g->set_item_no_flush(i,false);
 			if ( game->forced_bwpn == i ) 
 			{
 				game->forced_bwpn = -1;
@@ -647,6 +628,35 @@ void removeLowerLevelItemsOfFamily(gamedata *g, itemdata *items, int32_t family,
 			}
 		}
 	}
+	flushItemCache();
+}
+
+void removeLowerLevelItemsOfFamily(gamedata *g, itemdata *items, int32_t family, int32_t level)
+{
+	for(int32_t i=0; i<MAXITEMS; i++)
+	{
+		if(items[i].family == family && items[i].fam_type < level)
+		{
+			g->set_item_no_flush(i, false);
+			if ( game->forced_bwpn == i ) 
+			{
+				game->forced_bwpn = -1;
+			} //not else if! -Z
+			if ( game->forced_awpn == i ) 
+			{
+				game->forced_awpn = -1;
+			}
+			if ( game->forced_xwpn == i ) 
+			{
+				game->forced_xwpn = -1;
+			}
+			if ( game->forced_ywpn == i ) 
+			{
+				game->forced_ywpn = -1;
+			}
+		}
+	}
+	flushItemCache();
 }
 
 void removeItemsOfFamily(zinitdata *z, itemdata *items, int32_t family)

@@ -144,7 +144,7 @@ typedef uint64_t qword; //0-18,446,744,073,709,551,616  (64 bits)
 #define INITIAL_A 2
 #define INITIAL_D 8
 #define FFSCRIPT_MISC 32
-#define NUM_FFCS 32
+#define MAXFFCS 128
 
 #include "ffc.h"
 #include "metadata/metadata.h"
@@ -277,7 +277,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS          35
 #define V_CSETS            5 //palette data
-#define V_MAPS            24
+#define V_MAPS            25
 #define V_DMAPS            16
 #define V_DOORS            1
 #define V_ITEMS           53
@@ -481,7 +481,6 @@ extern bool fake_pack_writing;
 #define BOUND_COMBO(c)	vbound(c, 0, MAXCOMBOS)
 #define MAXSUBSCREENITEMS	256
 #define MAXCUSTOMSUBSCREENS 128
-#define MAXFFCS			 32
 #define MAXNPCS	512
 
 #define MAXFAVORITECOMMANDS 8

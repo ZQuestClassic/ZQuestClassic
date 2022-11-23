@@ -42,7 +42,7 @@ struct cmbtimer
 	cmbtimer() {clear();}
 };
 cmbtimer combo_trig_timers[7][176];
-cmbtimer ffc_trig_timers[MAXFFCS];
+std::vector<cmbtimer> ffc_trig_timers;
 
 bool alwaysCTypeEffects(int32_t type)
 {
@@ -2075,10 +2075,7 @@ void init_combo_timers()
 			combo_trig_timers[lyr][pos].clear();
 		}
 	}
-	for(auto f = 0; f < MAXFFCS; ++f)
-	{
-		ffc_trig_timers[f].clear();
-	}
+	ffc_trig_timers.clear();
 }
 
 bool on_cooldown(int32_t lyr, int32_t pos)
@@ -2151,10 +2148,20 @@ void update_combo_timers()
 		}
 	}
 	mapscr* ffscr = FFCore.tempScreens[0];
-	for(auto ffc = 0; ffc < MAXFFCS; ++ffc)
+	dword c = ffscr->numFFC();
+	if(ffc_trig_timers.size() != c)
+	{
+		dword osz = ffc_trig_timers.size();
+		ffc_trig_timers.resize(c);
+		for(dword q = osz; q < c; ++q) //Is this needed? -Em
+		{
+			ffc_trig_timers[q].clear();
+		}
+	}
+	for(word ffc = 0; ffc < c; ++ffc)
 	{
 		cmbtimer& timer = ffc_trig_timers[ffc];
-		timer.updateData(ffscr->ffcs[ffc].data);
+		timer.updateData(ffscr->ffcs[ffc].getData());
 		newcombo const& cmb = combobuf[timer.data];
 		if(cmb.type == cSHOOTER)
 		{

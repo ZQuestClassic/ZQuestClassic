@@ -8484,6 +8484,7 @@ MapDataSymbols MapDataSymbols::singleton = MapDataSymbols();
 
 static AccessorTable MapDataTable[] =
 {
+//	  name,                                     rettype,          setorget,     var,                 numindex,             funcFlags,                            numParams,   params
 	{ "isSolid",                        ZVARTYPEID_BOOL,          FUNCTION,     0,                          1,             FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "isSolidLayer",                   ZVARTYPEID_BOOL,          FUNCTION,     0,                          1,             0,                                    4,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	

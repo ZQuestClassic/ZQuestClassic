@@ -3673,7 +3673,7 @@ bool weapon::animate(int32_t index)
 		}*/
 		byte temp_screengrid[22];
 		byte temp_screengrid_layer[2][22];
-		byte temp_ffcgrid[4];
+		byte temp_ffcgrid[MAXFFCS/8];
 		memcpy(temp_screengrid, screengrid, sizeof(screengrid));
 		memcpy(temp_screengrid_layer[0], screengrid_layer[0], sizeof(screengrid_layer[0]));
 		memcpy(temp_screengrid_layer[1], screengrid_layer[1], sizeof(screengrid_layer[1]));
@@ -3686,7 +3686,7 @@ bool weapon::animate(int32_t index)
 			screengrid_layer[1][q] = 0;
 		}
 		
-		for(int32_t q=0; q<4; q++)
+		for (int16_t q = MAXFFCS / 8 - 1; q >= 0; --q)
 			ffcgrid[q] = 0;
 		
 		for(int32_t dx = 0; dx < hxsz; dx += 16)

@@ -6,11 +6,9 @@
 #include "maps.h"
 extern newcombo *combobuf;
 extern mapscr tmpscr[2];
-extern int16_t ffposx[MAXFFCS];
-extern int16_t ffposy[MAXFFCS];
 #endif
 
-ffcdata::ffcdata() : solid_object()
+ffcdata::ffcdata() : solid_object(), parent(nullptr), mapscr_index(0)
 {
 	clear();
 	loaded = false;
@@ -25,7 +23,7 @@ void ffcdata::copy(ffcdata const& other)
 	ax = other.ax;
 	ay = other.ay;
 	flags = other.flags;
-	data = other.data;
+	setData(other.data);
 	delay = other.delay;
 	cset = other.cset;
 	link = other.link;
@@ -43,15 +41,15 @@ void ffcdata::changerCopy(ffcdata& other, int32_t i, int32_t j)
 #ifdef IS_PLAYER
 	if(other.flags&ffCHANGETHIS)
 	{
-		data = other.data;
+		setData(other.data);
 		cset = other.cset;
 	}
 	
 	if(other.flags&ffCHANGENEXT)
-		++data;
+		incData(1);
 	
 	if(other.flags&ffCHANGEPREV)
-		--data;
+		incData(-1);
 	
 	delay=other.delay;
 	x=other.x;
@@ -74,7 +72,7 @@ void ffcdata::changerCopy(ffcdata& other, int32_t i, int32_t j)
 	flags&=~ffCHANGER;
 	
 	if(combobuf[other.data].flag>15 && combobuf[other.data].flag<32)
-		other.data=tmpscr->secretcombo[combobuf[other.data].flag-16+4];
+		other.setData(tmpscr->secretcombo[combobuf[other.data].flag-16+4]);
 	
 	if(i > -1 && j > -1)
 	{
@@ -85,12 +83,14 @@ void ffcdata::changerCopy(ffcdata& other, int32_t i, int32_t j)
 			int32_t k=0;
 			
 			if(other.flags&ffSWAPNEXT)
-				k=j<31?j+1:0;
+				k=j<(MAXFFCS-1)?j+1:0;
 				
 			if(other.flags&ffSWAPPREV)
-				k=j>0?j-1:31;
+				k=j>0?j-1:(MAXFFCS-1);
 			ffcdata& ffck = tmpscr->ffcs[k];
-			zc_swap(other.data,ffck.data);
+			auto w = ffck.data;
+			ffck.setData(other.data);
+			other.setData(w);
 			zc_swap(other.cset,ffck.cset);
 			zc_swap(other.delay,ffck.delay);
 			zc_swap(other.vx,ffck.vx);
@@ -125,7 +125,8 @@ void ffcdata::clear()
 {
 	x = y = vx = vy = ax = ay = 0;
 	flags = 0;
-	data = delay = 0;
+	setData(0);
+	delay = 0;
 	cset = link = 0;
 	txsz = tysz = 1;
 	hxsz = hysz = 16;
@@ -135,6 +136,18 @@ void ffcdata::clear()
 	memset(inita, 0, sizeof(inita));
 	updateSolid();
 }
+
+void ffcdata::setData(word newdata)
+{
+	data = newdata;
+	if(parent)
+		parent->update_ffc_data(mapscr_index, data!=0);
+}
+void ffcdata::incData(int32_t inc)
+{
+	setData(data+inc);
+}
+
 bool ffcdata::setSolid(bool set) //exists so that ffcs can do special handling for whether to make something solid or not.
 {
 	bool actual = set && !(flags&ffCHANGER) && loaded;
@@ -188,6 +201,7 @@ void mapscr::zero_memory()
 	itemy=0;
 	color=0;
 	enemyflags=0;
+	lastffc = 0;
 	
 	exitdir=0;
 	pattern=0;
@@ -209,7 +223,7 @@ void mapscr::zero_memory()
 	flags8=0;
 	flags9=0;
 	flags10=0;
-	csensitive=0;
+	csensitive=1;
 	noreset=0;
 	nocarry=0;
 	timedwarptics=0;
@@ -220,12 +234,11 @@ void mapscr::zero_memory()
 	viewY=0;
 	scrWidth=0;
 	scrHeight=0;
-	numff=0;
 	entry_x = 0;
 	entry_y = 0;
 	
 	old_cpage = 0;
-	screen_midi = 0;
+	screen_midi = -1;
 	
 	for(int32_t i(0); i<4; i++)
 	{
@@ -255,12 +268,14 @@ void mapscr::zero_memory()
 	{
 		layermap[i]=0;
 		layerscreen[i]=0;
-		layeropacity[i]=0;
+		layeropacity[i]=255;
 	}
 	
-	for(int32_t i(0); i<32; i++)
+	for(int32_t i(0); i<MAXFFCS; i++)
 	{
 		ffcs[i].clear();
+		ffcs[i].parent = this;
+		ffcs[i].mapscr_index = i;
 	}
 	
 	script_entry=0;
@@ -268,8 +283,8 @@ void mapscr::zero_memory()
 	script_exit=0;
 	oceansfx=0;
 	bosssfx=0;
-	secretsfx=0;
-	holdupsfx=0;
+	secretsfx=27;
+	holdupsfx=20;
 	lens_layer=0;
 
 	for ( int32_t q = 0; q < 10; q++ ) npcstrings[q] = 0;
@@ -292,6 +307,14 @@ void mapscr::zero_memory()
 	cset.assign(176,0);
 }
 
+mapscr::mapscr()
+{
+	data.resize(176,0);
+	sflag.resize(176,0);
+	cset.resize(176,0);
+	zero_memory();
+}
+
 void mapscr::copy(mapscr const& other)
 {
 	valid=other.valid;
@@ -309,6 +332,7 @@ void mapscr::copy(mapscr const& other)
 	itemy=other.itemy;
 	color=other.color;
 	enemyflags=other.enemyflags;
+	lastffc = other.lastffc;
 	
 	exitdir=other.exitdir;
 	pattern=other.pattern;
@@ -342,7 +366,6 @@ void mapscr::copy(mapscr const& other)
 	viewY=other.viewY;
 	scrWidth=other.scrWidth;
 	scrHeight=other.scrHeight;
-	numff=other.numff;
 	entry_x = other.entry_x;
 	entry_y = other.entry_y;
 	
@@ -380,10 +403,12 @@ void mapscr::copy(mapscr const& other)
 		layeropacity[i]=other.layeropacity[i];
 	}
 	
-	for(int32_t i(0); i<MAXFFCS; i++)
-	{
+	word c = other.numFFC();
+	for(word i = 0; i<c; ++i)
 		ffcs[i] = other.ffcs[i];
-	}
+	for(word i = c; i<MAXFFCS; ++i)
+		ffcs[i].clear();
+	
 	script_entry=other.script_entry;
 	script_occupancy=other.script_occupancy;
 	script_exit=other.script_exit;

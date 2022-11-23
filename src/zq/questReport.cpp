@@ -1008,10 +1008,11 @@ void integrityCheckSaveCombo()
                 }
             }
             
-            for(int32_t c=0; c< MAXFFCS; c++)
+			word maxffc = ts->numFFC();
+            for(word c=0; c< maxffc; c++)
             {
                 // Checks both combos and secret combos.
-                if(integrityBoolSaveCombo(ts,combobuf[ts->ffcs[c].data].type))
+                if(integrityBoolSaveCombo(ts,combobuf[ts->ffcs[c].getData()].type))
                     case_found = true;
             }
             
@@ -2194,11 +2195,12 @@ void scriptLocationReport()
             sc=m*MAPSCRS+s;
             ts=&TheMaps[sc];
             
-            for(int32_t i=0; i<MAXFFCS; i++)
+			word c = ts->numFFC();
+            for(word i=0; i<c; i++)
             {
                 int32_t script = ts->ffcs[i].script;
                 
-                if(!script || !ts->ffcs[i].data) continue;
+                if(!script || !ts->ffcs[i].getData()) continue;
                 
                 tempnode=&(script_location_grid[script]);
                 
@@ -2321,23 +2323,15 @@ void ComboLocationReport()
             int32_t ffuses = 0;
             bool undercombouses = false;
             
-            for(int32_t c=0; c<337; ++c)
+			word maxffc = ts->numFFC();
+			word max = zc_max(maxffc,176);
+            for(int32_t c=0; c<max; ++c)
             {
-                // Checks both combos and secret combos.
-                if(c<176)
-                {
-                    if(ts->data[c] == Combo) uses++;
-                }
-                else if(c<304)
-                {
-                    if(ts->secretcombo[c-176] == Combo) secretuses++;
-                }
-                else if(c<336)
-                {
-                    if(ts->ffcs[c-304].data == Combo && Combo > 0) ffuses++;
-                }
-                else if(ts->undercombo == Combo) undercombouses = true;
+				if(c < 128 && ts->secretcombo[c] == Combo) secretuses++;
+				if(c < 176 && ts->data[c] == Combo) uses++;
+				if(c < maxffc && ts->ffcs[c].getData() == Combo && Combo > 0) ffuses++;
             }
+			if(ts->undercombo == Combo) undercombouses = true;
             
             if(uses > 0 || secretuses > 0 || ffuses > 0 || undercombouses)
             {
@@ -2514,7 +2508,7 @@ void ComboTypeLocationReport()
                     }
                     else if(c<336)
                     {
-                        if(combobuf[ts->ffcs[c-304].data].type == Type) ffuses++;
+                        if(combobuf[ts->ffcs[c-304].getData()].type == Type) ffuses++;
                     }
                     else if(combobuf[ts->undercombo].type == Type) undercombouses = true;
                 }

@@ -3411,8 +3411,8 @@ bool HeroClass::checkstab()
 			
 			}
 			
-			for(int32_t q=0; q<32; q++)
-				set_bit(ffcgrid, q, 0);
+			for(dword q = MAXFFCS/8; q > 0; --q)
+				ffcgrid[q-1] = 0;
 		}
 		
 		if(dir==up && ((x.getInt()&15)==0))
@@ -3517,8 +3517,8 @@ bool HeroClass::checkstab()
 				set_bit(screengrid_layer[1],q,0);
 			}
 			
-			for(int32_t q=0; q<32; q++)
-				set_bit(ffcgrid,q, 0);
+			for(dword q = MAXFFCS/8; q > 0; --q)
+				ffcgrid[q-1] = 0;
 		}
 		
 		// cutable blocks
@@ -3573,8 +3573,8 @@ bool HeroClass::checkstab()
 				set_bit(screengrid_layer[1],q,0);
 		}
 		
-		for(int32_t q=0; q<32; q++)
-			set_bit(ffcgrid, q, 0);
+		for(dword q = MAXFFCS/8; q > 0; --q)
+			ffcgrid[q-1] = 0;
 			
 		if(dir==up && (x.getInt()&15)==0)
 		{
@@ -3795,7 +3795,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	{
 		ignoreffc = true;
 	}
-	else if(combobuf[tmpscr->ffcs[current_ffcombo].data].triggerflags[0] & combotriggerONLYGENTRIG)
+	else if(combobuf[tmpscr->ffcs[current_ffcombo].getData()].triggerflags[0] & combotriggerONLYGENTRIG)
 		ignoreffc = true;
 	
 	if(!isCuttableType(type) &&
@@ -3913,11 +3913,11 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	{
 		if(isCuttableNextType(type2))
 		{
-			s->ffcs[current_ffcombo].data++;
+			s->ffcs[current_ffcombo].incData(1);
 		}
 		else
 		{
-			s->ffcs[current_ffcombo].data = s->undercombo;
+			s->ffcs[current_ffcombo].setData(s->undercombo);
 			s->ffcs[current_ffcombo].cset = s->undercset;
 		}
 	}
@@ -4399,7 +4399,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     {
         ignoreffc = true;
     }
-    else if(combobuf[tmpscr->ffcs[current_ffcombo].data].triggerflags[0] & combotriggerONLYGENTRIG)
+    else if(combobuf[tmpscr->ffcs[current_ffcombo].getData()].triggerflags[0] & combotriggerONLYGENTRIG)
 		type2 = cNONE;
     if(!isCuttableType(type) &&
             (flag<mfSWORD || flag>mfXSWORD) &&  flag!=mfSTRIKE && (flag2<mfSWORD || flag2>mfXSWORD) && flag2!=mfSTRIKE)
@@ -4514,11 +4514,11 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     {
         if(isCuttableNextType(type2))
         {
-            s->ffcs[current_ffcombo].data++;
+            s->ffcs[current_ffcombo].incData(1);
         }
         else
         {
-            s->ffcs[current_ffcombo].data = s->undercombo;
+            s->ffcs[current_ffcombo].setData(s->undercombo);
             s->ffcs[current_ffcombo].cset = s->undercset;
         }
     }
@@ -4820,7 +4820,7 @@ void HeroClass::check_pound_block2(int32_t bx, int32_t by, weapon *w)
     
     if(current_ffcombo == -1 || get_bit(ffcgrid, current_ffcombo) != 0)
         ignoreffc = true;
-    else if(combobuf[tmpscr->ffcs[current_ffcombo].data].triggerflags[0] & combotriggerONLYGENTRIG)
+    else if(combobuf[tmpscr->ffcs[current_ffcombo].getData()].triggerflags[0] & combotriggerONLYGENTRIG)
 		type2 = cNONE;
     if(type2!=cPOUND && flag3!=mfSTRIKE && flag3!=mfHAMMER)
         ignoreffc = true;
@@ -4880,7 +4880,7 @@ void HeroClass::check_pound_block2(int32_t bx, int32_t by, weapon *w)
         }
         else
         {
-            s->ffcs[current_ffcombo].data+=1;
+            s->ffcs[current_ffcombo].incData(1);
         }
     }
     
@@ -4979,7 +4979,7 @@ void HeroClass::check_slash_block(weapon *w)
     {
         ignoreffc = true;
     }
-    else if(combobuf[tmpscr->ffcs[current_ffcombo].data].triggerflags[0] & combotriggerONLYGENTRIG)
+    else if(combobuf[tmpscr->ffcs[current_ffcombo].getData()].triggerflags[0] & combotriggerONLYGENTRIG)
 		type2 = cNONE;
     if(!isCuttableType(type) &&
             (flag<mfSWORD || flag>mfXSWORD) &&  flag!=mfSTRIKE && (flag2<mfSWORD || flag2>mfXSWORD) && flag2!=mfSTRIKE)
@@ -5073,11 +5073,11 @@ void HeroClass::check_slash_block(weapon *w)
     {
         if(isCuttableNextType(type2))
         {
-            s->ffcs[current_ffcombo].data++;
+            s->ffcs[current_ffcombo].incData(1);
         }
         else
         {
-            s->ffcs[current_ffcombo].data = s->undercombo;
+            s->ffcs[current_ffcombo].setData(s->undercombo);
             s->ffcs[current_ffcombo].cset = s->undercset;
         }
     }
@@ -5383,7 +5383,7 @@ void HeroClass::check_pound_block(int32_t bx, int32_t by)
         }
         else
         {
-            s->ffcs[current_ffcombo].data+=1;
+            s->ffcs[current_ffcombo].incData(1);
         }
     }
     
@@ -5608,7 +5608,7 @@ void HeroClass::check_pound_block(weapon *w)
         }
         else
         {
-            s->ffcs[current_ffcombo].data+=1;
+            s->ffcs[current_ffcombo].incData(1);
         }
     }
     
@@ -9424,11 +9424,12 @@ bool HeroClass::animate(int32_t)
 	
 	awarp=false;
 	
-	for(int32_t i=0; i<MAXFFCS; i++)
+	word c = tmpscr->numFFC();
+	for(word i=0; i<c; i++)
 	{
 		int32_t ind=0;
 		
-		newcombo const& cmb = combobuf[tmpscr->ffcs[i].data];
+		newcombo const& cmb = combobuf[tmpscr->ffcs[i].getData()];
 		if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
 		{
 			if(cmb.type==cAWARPA)
@@ -9626,7 +9627,7 @@ bool HeroClass::animate(int32_t)
 				set_bit(screengrid,q,0); 
 			}
 			
-			for(int32_t q=0; q<32; q++)
+			for(int32_t q=0; q<MAXFFCS; q++)
 				set_bit(ffcgrid, q, 0);
 		*/
 	}
@@ -24893,7 +24894,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	}
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 	
-	for ( int32_t q = 0; q < 32; ++q )
+	word c = tmpscr->numFFC();
+	for ( word q = 0; q < c; ++q )
 	{
 		//Z_scripterrlog("tmpscr->ffcswaitdraw is: %d\n", tmpscr->ffcswaitdraw);
 		if ( tmpscr->ffcswaitdraw&(1<<q) )
