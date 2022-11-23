@@ -114,9 +114,13 @@ static inline bool platform_fallthrough()
 
 static inline bool on_sideview_solid(int32_t x, int32_t y, bool ignoreFallthrough = false)
 {
-	return (_walkflag(x+4,y+16,1) || _walkflag(x+12,y+16,1) || (y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) ||
-		(((y%16)==0) && (!platform_fallthrough() || ignoreFallthrough) &&
-		(checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16))));
+	if (_walkflag(x+4,y+16,1) || _walkflag(x+12,y+16,1)) return true;
+	if (y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) return true;
+	if(check_slope(x, y+1, 16, 16) < 0) return true;
+	if (platform_fallthrough() && !ignoreFallthrough) return false;
+	if (y%16==0 && (checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16)))
+		return true;
+	return false;
 }
 
 bool usingActiveShield(int32_t itmid)
@@ -7751,8 +7755,7 @@ bool HeroClass::animate(int32_t)
 				{
 					for(auto q = 0; q < ydiff; ++q)
 					{
-						if(_walkflag(x+4,y+16+q,1)
-							|| _walkflag(x+12,y+16+q,1))
+						if(on_sideview_solid(x,y+q))
 						{
 							ydiff = q;
 							break;
@@ -7831,6 +7834,10 @@ bool HeroClass::animate(int32_t)
 			hoverclk = -hoverclk;
 			reset_ladder();
 			fall = (zinit.gravity2 / 100);
+		}
+		else if (hoverclk < 1 && on_sideview_solid(x, y+(zinit.gravity2/100)) && fall == 0)
+		{
+			while(!on_sideview_solid(x, y)) ++y;
 		}
 		// Continue falling.
 		
@@ -9514,11 +9521,10 @@ bool HeroClass::animate(int32_t)
 	}
 	if (check_slope(this))
 	{
-		zfix dx;
-		zfix dy;
+		zfix dx, dy;
 		slope_push_int(get_slope(this), this, dx, dy);
 		
-		push_move(dx,dy);
+		if (dx || dy) push_move(dx,dy);
 	}
 	
 	if(ffwarp)

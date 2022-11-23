@@ -3724,13 +3724,12 @@ bool enemy::isOnSideviewPlatform()
 	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hxsz : 16;
 	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hysz : 16;
 	if(y + usehei >= 176 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) return true; //Bottom of the map
-	for(int32_t nx = x+4; nx <= x + usewid - 4; nx+=16)
+	if(check_slope(x, y+1, usewid, usehei)) return true;
+	for(int32_t nx = x + 4; nx <= x + usewid - 4; nx+=16)
 	{
 		if(_walkflag(nx,y+usehei,1)) return true;
-		if(_walkflag(nx+usewid/2,y+usehei,1)) return true;
 		if(IGNORE_SIDEVIEW_PLATFORMS || ((int32_t(y)+usehei)%16)!=0) continue;
 		if(checkSVLadderPlatform(nx,y+usehei)) return true;
-		if(checkSVLadderPlatform(nx+8,y+usehei)) return true;
 	}
 	return false;
 }

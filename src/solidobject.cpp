@@ -87,26 +87,42 @@ bool collide_object(int32_t tx, int32_t ty, int32_t tw, int32_t th, solid_object
 	return false;
 }
 
-bool check_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th)
+int32_t check_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th)
 {
-	for(auto it = slopes.begin(); it != slopes.end(); ++it)
+	for(slopedata const& s : slopes)
 	{
-		if (lineBoxCollision((*it).x1, (*it).y1, (*it).x2, (*it).y2, tx, ty, tw, th)) return true;
+		if (lineBoxCollision(s.x1, s.y1, s.x2, s.y2, tx, ty, tw, th))
+		{
+			zfix cx = tx + tw/2 - 1;
+			zfix cy = ty + th/2 - 1;
+			double lineangle = atan2(double(s.y2-s.y1),double(s.x2-s.x1));
+			double val = comparePointLine(cx, cy, s.x1, s.y1, s.x2, s.y2);
+			if (val < 0)
+			{
+				lineangle -= PI/2;
+			}
+			else
+			{
+				lineangle += PI/2;
+			}
+			int32_t ret = sign(zc::math::Sin(lineangle));
+			return ret?ret:1;
+		}
 	}
-	return false;
+	return 0;
 }
 
-slopedata get_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th)
+slopedata const& get_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th)
 {
 	for(auto it = slopes.begin(); it != slopes.end(); ++it)
 	{
 		if (lineBoxCollision((*it).x1, (*it).y1, (*it).x2, (*it).y2, tx, ty, tw, th)) return (*it);
 	}
-	slopedata s;
+	static slopedata s;
 	return s;
 }
 
-bool check_slope(solid_object const* o)
+int32_t check_slope(solid_object* o)
 {
 	return check_slope(o->x + o->hxofs + o->sxofs,
 	               o->y + o->hyofs + o->syofs,
@@ -114,7 +130,7 @@ bool check_slope(solid_object const* o)
 	               o->hysz + o->sysz_ofs);
 }
 
-slopedata get_slope(solid_object const* o)
+slopedata const& get_slope(solid_object* o)
 {
 	return get_slope(o->x + o->hxofs + o->sxofs,
 	               o->y + o->hyofs + o->syofs,
@@ -122,15 +138,17 @@ slopedata get_slope(solid_object const* o)
 	               o->hysz + o->sysz_ofs);
 }
 
-void slope_push_int(slopedata s, solid_object* obj, zfix& dx, zfix& dy)
+void slope_push_int(slopedata const& s, solid_object* obj, zfix& dx, zfix& dy)
 {
 	zfix rx = obj->x+obj->hxofs+obj->sxofs, ry = obj->y+obj->hyofs+obj->syofs,
 	rw = obj->hxsz+obj->sxsz_ofs, rh = obj->hysz+obj->sysz_ofs;
+	zfix orx = rx;
+	zfix ory = ry;
 	zfix cx = rx + rw/2 - 1;
 	zfix cy = ry + rh/2 - 1;
 	double lineangle = atan2(double(s.y2-s.y1),double(s.x2-s.x1));
 	double val = comparePointLine(cx, cy, s.x1, s.y1, s.x2, s.y2);
-	if (sign(val) < 0)
+	if (val < 0)
 	{
 		lineangle -= PI/2;
 	}
@@ -138,12 +156,20 @@ void slope_push_int(slopedata s, solid_object* obj, zfix& dx, zfix& dy)
 	{
 		lineangle += PI/2;
 	}
-	zfix orx = rx;
-	zfix ory = ry;
-	while(lineBoxCollision(s.x1, s.y1, s.x2, s.y2, rx, ry, rw, rh))
+	if (obj->sideview_mode() && zc::math::Sin(lineangle) < 0)
 	{
-		rx += zc::math::Cos(lineangle);
-		ry += zc::math::Sin(lineangle);
+		while(lineBoxCollision(s.x1, s.y1, s.x2, s.y2, rx, ry, rw, rh))
+		{
+			--ry;
+		}
+	}
+	else
+	{
+		while(lineBoxCollision(s.x1, s.y1, s.x2, s.y2, rx, ry, rw, rh))
+		{
+			rx += zc::math::Cos(lineangle);
+			ry += zc::math::Sin(lineangle);
+		}
 	}
 	dx = (rx - orx);
 	dy = (ry - ory);
