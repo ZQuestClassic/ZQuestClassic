@@ -140,14 +140,14 @@ struct mapscr
 	
 	void update_ffc_count(word spos = 0)
 	{
-		if(spos < 1 || spos > MAXFFCS)
+		if(spos < lastffc || spos > MAXFFCS)
 			spos = lastffc;
 		lastffc = 0;
 		for(word w = spos; w > 0; --w)
 		{
-			if(ffcs[w-1].data)
+			if(ffcs[w].data)
 			{
-				lastffc = w-1;
+				lastffc = w;
 				break;
 			}
 		}
