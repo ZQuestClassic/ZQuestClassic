@@ -16946,6 +16946,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 	{
 		auto ret = readmapscreen_old(f,Header,temp_mapscr,temp_map,version);
 		if(ret) return ret;
+		temp_mapscr->update_ffc_count(32);
 	}
 	else
 	{
@@ -17345,6 +17346,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 		{
 			temp_mapscr->ffcs[m].clear();
 		}
+		temp_mapscr->update_ffc_count(numffc);
 		//END FFC
 	}
 	return 0;
