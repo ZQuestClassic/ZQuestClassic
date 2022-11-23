@@ -1224,17 +1224,7 @@ void zmap::put_walkflags_layered(BITMAP *dest,int32_t x,int32_t y,int32_t pos,in
 	
 	if(c.type == cSLOPE)
 	{
-		slopedata s;
-		s.x1 = x + c.attribytes[0];
-		s.y1 = y + c.attribytes[1];
-		s.x2 = x + c.attribytes[2];
-		s.y2 = y + c.attribytes[3];
-		if(s.x1 > s.x2)
-		{
-			zc_swap(s.x1,s.x2);
-			zc_swap(s.y1,s.y2);
-		}
-		s.slope = (s.y2-s.y1)/(s.x2-s.x1);
+		slopedata s(c, x, y);
 		line(dest, s.x1, s.y1, s.x2, s.y2, vc(12));
 		if(s.slope > 0)
 		{
@@ -1375,17 +1365,7 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int32_t x,int32_t y,int32
 	
 	if(c.type == cSLOPE)
 	{
-		slopedata s;
-		s.x1 = x + c.attribytes[0];
-		s.y1 = y + c.attribytes[1];
-		s.x2 = x + c.attribytes[2];
-		s.y2 = y + c.attribytes[3];
-		if(s.x1 > s.x2)
-		{
-			zc_swap(s.x1,s.x2);
-			zc_swap(s.y1,s.y2);
-		}
-		s.slope = (s.y2-s.y1)/(s.x2-s.x1);
+		slopedata s(c, x, y);
 		line(dest, s.x1, s.y1, s.x2, s.y2, vc(12));
 		if(s.slope > 0)
 		{
@@ -1457,17 +1437,7 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t layer)
 	
 	if(c.type == cSLOPE)
 	{
-		slopedata s;
-		s.x1 = c.attribytes[0];
-		s.y1 = c.attribytes[1];
-		s.x2 = c.attribytes[2];
-		s.y2 = c.attribytes[3];
-		if(s.x1 > s.x2)
-		{
-			zc_swap(s.x1,s.x2);
-			zc_swap(s.y1,s.y2);
-		}
-		s.slope = (s.y2-s.y1)/(s.x2-s.x1);
+		slopedata s(c, x, y);
 		
 		BITMAP* sub = create_bitmap_ex(8,16,16);
 		clear_bitmap(sub);
@@ -3175,17 +3145,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 					
 					if(cmb.type == cSLOPE)
 					{
-						slopedata s;
-						s.x1 = tx + cmb.attribytes[0];
-						s.y1 = ty + cmb.attribytes[1];
-						s.x2 = tx + cmb.attribytes[2];
-						s.y2 = ty + cmb.attribytes[3];
-						if(s.x1 > s.x2)
-						{
-							zc_swap(s.x1,s.x2);
-							zc_swap(s.y1,s.y2);
-						}
-						s.slope = (s.y2-s.y1)/(s.x2-s.x1);
+						slopedata s(cmb, tx, ty);
 						line(dest, s.x1, s.y1, s.x2, s.y2, vc(12));
 						if(s.slope > 0)
 						{

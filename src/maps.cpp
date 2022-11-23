@@ -3407,7 +3407,7 @@ void do_walkflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t temps
 			}
 		}
 		
-		put_ffcwalkflags(dest, x, y+playing_field_offset);
+		if (tempscreen == 2) put_ffcwalkflags(dest, -x, -y+playing_field_offset);
 	}
 }
 
@@ -4565,6 +4565,8 @@ void openshutters()
 	sfx(WAV_DOOR,128);
 }
 
+extern std::vector<slopedata> slopes;
+
 void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay=false)
 {
 	if (tmp == 0 && replay_is_active())
@@ -4591,6 +4593,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	}
 	if(!tmp)
 	{
+		slopes.clear();
 		triggered_screen_secrets = false; //Reset var
 		init_combo_timers();
 		timeExitAllGenscript(GENSCR_ST_CHANGE_SCREEN);

@@ -1243,3 +1243,32 @@ char const* getProgramVerStr()
 	return buf;
 }
 
+slopedata::slopedata(newcombo const& cmb, zfix const& x, zfix const& y)
+{
+	if (cmb.type == cSLOPE) 
+	{
+		x1 = x + int32_t(cmb.attrishorts[0]);
+		y1 = y + int32_t(cmb.attrishorts[1]);
+		x2 = x + int32_t(cmb.attrishorts[2]);
+		y2 = y + int32_t(cmb.attrishorts[3]);
+		if(x1 > x2)
+		{
+			zc_swap(x1,x2);
+			zc_swap(y1,y2);
+		}
+		slope = (y2-y1)/(x2-x1);
+		slipperiness = zslongToFix(cmb.attributes[0]);
+	}
+}
+
+zfix slopedata::getX(zfix const& y) const
+{
+	zfix b = y1 - slope * x1;
+	return (y - b)/slope;
+}
+zfix slopedata::getY(zfix const& x) const
+{
+	zfix b = y1 - slope * x1;
+	return (x*slope)+b;
+}
+

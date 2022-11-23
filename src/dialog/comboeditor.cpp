@@ -677,14 +677,16 @@ void ComboEditorDialog::loadComboType()
 		}
 		case cSLOPE:
 		{
-			l_attribyte[0] = "X Offset 1:";
-			h_attribyte[0] = "X Offset of the starting point of the slope line.";
-			l_attribyte[1] = "Y Offset 1:";
-			h_attribyte[1] = "Y Offset of the starting point of the slope line.";
-			l_attribyte[2] = "X Offset 2:";
-			h_attribyte[2] = "X Offset of the starting point of the slope line.";
-			l_attribyte[3] = "Y Offset 2:";
-			h_attribyte[3] = "Y Offset of the starting point of the slope line.";
+			l_attrishort[0] = "X Offset 1:";
+			h_attrishort[0] = "X Offset of the starting point of the slope line.";
+			l_attrishort[1] = "Y Offset 1:";
+			h_attrishort[1] = "Y Offset of the starting point of the slope line.";
+			l_attrishort[2] = "X Offset 2:";
+			h_attrishort[2] = "X Offset of the starting point of the slope line.";
+			l_attrishort[3] = "Y Offset 2:";
+			h_attrishort[3] = "Y Offset of the starting point of the slope line.";
+			l_attribute[0] = "Slipperiness";
+			h_attribute[0] = "Pixels per frame to slide down the slope in sideview.";
 			break;
 		}
 		case cTRIGNOFLAG: case cSTRIGNOFLAG:

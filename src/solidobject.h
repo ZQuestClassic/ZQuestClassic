@@ -15,6 +15,7 @@ int32_t check_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th);
 slopedata const& get_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th);
 int32_t check_slope(solid_object* o);
 slopedata const& get_slope(solid_object* o);
+bool slide_slope(solid_object* obj, zfix& dx, zfix& dy);
 void slope_push_int(slopedata const& s, solid_object* obj, zfix& dx, zfix& dy);
 
 class solid_object

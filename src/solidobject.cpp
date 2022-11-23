@@ -112,6 +112,52 @@ int32_t check_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th)
 	return 0;
 }
 
+bool slide_slope(solid_object* obj, zfix& dx, zfix& dy)
+{
+	if (!obj->sideview_mode()) return false;
+	zfix tx = obj->x+obj->hxofs+obj->sxofs, ty = obj->y+obj->hyofs+obj->syofs,
+		tw = obj->hxsz+obj->sxsz_ofs, th = obj->hysz+obj->sysz_ofs;
+		
+	dx = dy = 0;
+	zfix otx = tx, oty = ty;
+	
+	for(slopedata const& s : slopes)
+	{
+		if (!s.slipperiness) continue;
+		if (lineBoxCollision(s.x1, s.y1, s.x2, s.y2, tx, ty+1, tw, th))
+		{
+			zfix cx = tx + tw/2 - 1;
+			zfix cy = ty + th/2 - 1;
+			double lineangle = atan2(double(s.y2-s.y1),double(s.x2-s.x1));
+			double val = comparePointLine(cx, cy, s.x1, s.y1, s.x2, s.y2);
+			if (val < 0)
+			{
+				lineangle -= PI/2;
+			}
+			else
+			{
+				lineangle += PI/2;
+			}
+			if (sign(zc::math::Sin(lineangle)) <= 0)
+			{
+				int32_t xdir = sign(zc::math::Cos(lineangle));
+				if (xdir)
+				{
+					ty += s.slipperiness;
+					int32_t my = zc_min(s.y1, s.y2);
+					if(int32_t(oty + th) < my) return false;
+					dx = (s.getX(ty)-s.getX(oty));
+					dy = ty-oty;
+					if (!dx && !dy) return false;
+				}
+				return true;
+			}
+			return false;
+		}
+	}
+	return false;
+}
+
 slopedata const& get_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th)
 {
 	for(auto it = slopes.begin(); it != slopes.end(); ++it)
@@ -165,10 +211,15 @@ void slope_push_int(slopedata const& s, solid_object* obj, zfix& dx, zfix& dy)
 	}
 	else
 	{
-		while(lineBoxCollision(s.x1, s.y1, s.x2, s.y2, rx, ry, rw, rh))
+		zfix mx = zc::math::Cos(lineangle);
+		zfix my = zc::math::Sin(lineangle);
+		if (mx && my)
 		{
-			rx += zc::math::Cos(lineangle);
-			ry += zc::math::Sin(lineangle);
+			while (lineBoxCollision(s.x1, s.y1, s.x2, s.y2, rx, ry, rw, rh))
+			{
+				rx += zc::math::Cos(lineangle);
+				ry += zc::math::Sin(lineangle);
+			}
 		}
 	}
 	dx = (rx - orx);

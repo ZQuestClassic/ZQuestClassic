@@ -112,11 +112,12 @@ static inline bool platform_fallthrough()
 		|| (Hero.jumping < 0 && getInput(btnDown, false, get_bit(quest_rules,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_bit(quest_rules,qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS));
 }
 
-static inline bool on_sideview_solid(int32_t x, int32_t y, bool ignoreFallthrough = false)
+static inline bool on_sideview_solid(int32_t x, int32_t y, bool ignoreFallthrough = false, int32_t slopesmisc = 0)
 {
+	if(slopesmisc != 1 && check_slope(x, y+1, 16, 16) < 0) return true;
+	if(slopesmisc == 2) return false;
 	if (_walkflag(x+4,y+16,1) || _walkflag(x+12,y+16,1)) return true;
 	if (y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) return true;
-	if(check_slope(x, y+1, 16, 16) < 0) return true;
 	if (platform_fallthrough() && !ignoreFallthrough) return false;
 	if (y%16==0 && (checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16)))
 		return true;
@@ -7713,11 +7714,13 @@ bool HeroClass::animate(int32_t)
 	if(sideview_mode())  // Sideview gravity
 	{
 		//Handle falling through a platform
+		bool platformfell = false;
 		if((y.getInt()%16==0) && (isSVPlatform(x+4,y+16) || isSVPlatform(x+12,y+16)) && !(on_sideview_solid(x,y)))
 		{
 			y+=1; //Fall down a pixel instantly, through the platform.
 			if(fall < 0) fall = 0;
 			if(jumping < 0) jumping = 0;
+			platformfell = true;
 		}
 		//Unless using old collision, run this check BEFORE moving Hero, to prevent clipping into the ceiling.
 		if(!get_bit(quest_rules, qr_OLD_SIDEVIEW_CEILING_COLLISON))
@@ -7814,6 +7817,7 @@ bool HeroClass::animate(int32_t)
 			}
 		}
 		// Stop hovering/falling if you land on something.
+		bool needFall = false;
 		if((on_sideview_solid(x,y) || getOnSideviewLadder())  && !(pull_hero && dir==down) && action!=rafting)
 		{
 			stop_item_sfx(itype_hoverboots);
@@ -7835,13 +7839,25 @@ bool HeroClass::animate(int32_t)
 			reset_ladder();
 			fall = (zinit.gravity2 / 100);
 		}
-		else if (hoverclk < 1 && on_sideview_solid(x, y+(zinit.gravity2/100)) && fall == 0)
+		else if (hoverclk < 1 && fall == 0 && !platformfell)
 		{
-			while(!on_sideview_solid(x, y)) ++y;
+			zfix my = y + (zinit.gravity2/100);
+			needFall = true;
+			for (zfix ty = y+1; ty < my; ++ty)
+			{
+				//if (on_sideview_solid(x, ty, false, 1)) break;
+				if (on_sideview_solid(x, ty, false, 0))
+				{
+					y = ty;
+					needFall = false;
+					break;
+				}
+			}
 		}
+		else needFall = true;
 		// Continue falling.
 		
-		else if(fall <= (int32_t)zinit.terminalv)
+		if(fall <= (int32_t)zinit.terminalv && needFall)
 		{
 			
 			if(fall != 0 || hoverclk>0)
@@ -9377,18 +9393,7 @@ bool HeroClass::animate(int32_t)
 				newcombo const& cmb = combobuf[cid];
 				if (cmb.type == cSLOPE) 
 				{
-					slopedata s;
-					s.x1 = COMBOX(i) + cmb.attribytes[0];
-					s.y1 = COMBOY(i) + cmb.attribytes[1];
-					s.x2 = COMBOX(i) + cmb.attribytes[2];
-					s.y2 = COMBOY(i) + cmb.attribytes[3];
-					if(s.x1 > s.x2)
-					{
-						zc_swap(s.x1,s.x2);
-						zc_swap(s.y1,s.y2);
-					}
-					s.slope = (s.y2-s.y1)/(s.x2-s.x1);
-					slopes.push_back(s);
+					slopes.emplace_back(cmb, COMBOX(i), COMBOY(i));
 				}
 			}
 			if(!get_bit(quest_rules,qr_AUTOCOMBO_ANY_LAYER))
@@ -9461,20 +9466,9 @@ bool HeroClass::animate(int32_t)
 		int32_t ind=0;
 		
 		newcombo const& cmb = combobuf[tmpscr->ffcs[i].getData()];
-		if (cmb.type == cSLOPE)
+		if (cmb.type == cSLOPE && !(tmpscr->ffcs[i].flags&ffCHANGER))
 		{
-			slopedata s;
-			s.x1 = zfix(tmpscr->ffcs[i].x) + zfix(cmb.attribytes[0]);
-			s.y1 = zfix(tmpscr->ffcs[i].y) + zfix(cmb.attribytes[1]);
-			s.x2 = zfix(tmpscr->ffcs[i].x) + zfix(cmb.attribytes[2]);
-			s.y2 = zfix(tmpscr->ffcs[i].y) + zfix(cmb.attribytes[3]);
-			if(s.x1 > s.x2)
-			{
-				zc_swap(s.x1,s.x2);
-				zc_swap(s.y1,s.y2);
-			}
-			s.slope = (s.y2-s.y1)/(s.x2-s.x1);
-			slopes.push_back(s);
+			slopes.emplace_back(cmb, tmpscr->ffcs[i].x, tmpscr->ffcs[i].y);
 		}
 		if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
 		{
@@ -9519,12 +9513,17 @@ bool HeroClass::animate(int32_t)
 			break;
 		}
 	}
+	zfix dx, dy;
 	if (check_slope(this))
 	{
-		zfix dx, dy;
 		slope_push_int(get_slope(this), this, dx, dy);
 		
 		if (dx || dy) push_move(dx,dy);
+	}
+	if (sideview_mode() && !on_sideview_solid(x, y, false, 1))
+	{
+		if (slide_slope(this, dx, dy))
+			push_move(dx, dy);
 	}
 	
 	if(ffwarp)
@@ -25434,11 +25433,15 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
 		
 		do_layer(framebuf, 0, 1, oldscr, tx2, ty2, 3);
-		
-		if(!(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) ) do_layer(framebuf, 0, 2, oldscr, tx2, ty2, 3);
-		
 		do_layer(framebuf, 0, 1, newscr, tx, ty, 2, false, true);
 		
+		if(get_bit(quest_rules, qr_FFCSCROLL))
+		{
+			do_layer(framebuf, -3, 0, oldscr, tx2, ty2, 3, true); //ffcs
+			do_layer(framebuf, -3, 0, newscr, tx, ty, 2, true);
+		}
+		
+		if(!(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) ) do_layer(framebuf, 0, 2, oldscr, tx2, ty2, 3);
 		if(!(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))) do_layer(framebuf, 0, 2, newscr, tx, ty, 2, false, !(oldscr->flags7&fLAYER2BG));
 		
 		//push blocks
@@ -25458,11 +25461,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		do_effectflags(framebuf, oldscr, tx2, ty2,3); //show effectflags if the cheat is on
 		do_effectflags(framebuf, newscr, tx, ty,2);
 		
-		if(get_bit(quest_rules, qr_FFCSCROLL))
-		{
-			do_layer(framebuf, -3, 0, oldscr, tx2, ty2, 3, true); //ffcs
-			do_layer(framebuf, -3, 0, newscr, tx, ty, 2, true);
-		}
 		
 		putscrdoors(framebuf, 0-tx2, 0-ty2+playing_field_offset, oldscr);
 		putscrdoors(framebuf, 0-tx,  0-ty+playing_field_offset, newscr);

@@ -4624,6 +4624,11 @@ struct slopedata
 	zfix x2;
 	zfix y2;
 	zfix slope;
+	zfix slipperiness;
+	slopedata(){};
+	slopedata(newcombo const& cmb, zfix const& x, zfix const& y);
+	zfix getX(zfix const& y) const;
+	zfix getY(zfix const& x) const;
 };
 
 enum controls //Args for 'getInput()'
