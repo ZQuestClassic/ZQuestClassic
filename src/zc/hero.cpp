@@ -7751,7 +7751,8 @@ bool HeroClass::animate(int32_t)
 				{
 					for(auto q = 0; q < ydiff; ++q)
 					{
-						if(_walkflag(x+4,y+16+q,1) || _walkflag(x+12,y+16+q,1))
+						if(_walkflag(x+4,y+16+q,1)
+							|| _walkflag(x+12,y+16+q,1))
 						{
 							ydiff = q;
 							break;
@@ -7762,7 +7763,8 @@ bool HeroClass::animate(int32_t)
 				{
 					for(auto q = 0; q > ydiff; --q)
 					{
-						if(_walkflag(x+4,y+q-1,1) || _walkflag(x+12,y+q,1))
+						if(_walkflag(x+4,y+(bigHitbox?0:8)+q-1,1)
+							|| _walkflag(x+12,y+(bigHitbox?0:8)+q,1))
 						{
 							ydiff = q;
 							break;
@@ -9373,6 +9375,11 @@ bool HeroClass::animate(int32_t)
 					s.y1 = COMBOY(i) + cmb.attribytes[1];
 					s.x2 = COMBOX(i) + cmb.attribytes[2];
 					s.y2 = COMBOY(i) + cmb.attribytes[3];
+					if(s.x1 > s.x2)
+					{
+						zc_swap(s.x1,s.x2);
+						zc_swap(s.y1,s.y2);
+					}
 					s.slope = (s.y2-s.y1)/(s.x2-s.x1);
 					slopes.push_back(s);
 				}
@@ -9447,13 +9454,18 @@ bool HeroClass::animate(int32_t)
 		int32_t ind=0;
 		
 		newcombo const& cmb = combobuf[tmpscr->ffcs[i].getData()];
-		if (cmb.type == cSLOPE) 
+		if (cmb.type == cSLOPE)
 		{
 			slopedata s;
 			s.x1 = zfix(tmpscr->ffcs[i].x) + zfix(cmb.attribytes[0]);
 			s.y1 = zfix(tmpscr->ffcs[i].y) + zfix(cmb.attribytes[1]);
 			s.x2 = zfix(tmpscr->ffcs[i].x) + zfix(cmb.attribytes[2]);
 			s.y2 = zfix(tmpscr->ffcs[i].y) + zfix(cmb.attribytes[3]);
+			if(s.x1 > s.x2)
+			{
+				zc_swap(s.x1,s.x2);
+				zc_swap(s.y1,s.y2);
+			}
 			s.slope = (s.y2-s.y1)/(s.x2-s.x1);
 			slopes.push_back(s);
 		}
@@ -9505,41 +9517,8 @@ bool HeroClass::animate(int32_t)
 		zfix dx;
 		zfix dy;
 		slope_push_int(get_slope(this), this, dx, dy);
-		int32_t ydir = GET_YDIR(dy);
-		int32_t xdir = GET_XDIR(dx);
-		while(dx && dy)
-		{
-			if(check_pitslide() != -1)
-				break;
-			if(!push_pixel(ydir))
-				break;
-			if (dy > 0) --dy;
-			else ++dy;
-			if(!push_pixel(xdir))
-				break;
-			if (dx > 0) --dx;
-			else ++dx;
-		}
-		if(dx)
-		{
-			for(int32_t q = abs(dx); q > 0; --q)
-			{
-				if(check_pitslide() != -1)
-					break;
-				if(!push_pixel(xdir))
-					break;
-			}
-		}
-		if(dy)
-		{
-			for(int32_t q = abs(dy); q > 0; --q)
-			{
-				if(check_pitslide() != -1)
-					break;
-				if(!push_pixel(ydir))
-					break;
-			}
-		}
+		
+		push_move(dx,dy);
 	}
 	
 	if(ffwarp)
@@ -9746,60 +9725,88 @@ bool HeroClass::animate(int32_t)
 	return false;
 }
 
-bool HeroClass::push_pixel(int32_t dir)
+bool HeroClass::push_pixel(zfix dx, zfix dy)
 {
-	switch(NORMAL_DIR(dir))
+	ASSERT(abs(dx) <= 1 && abs(dy) <= 1);
+	if(dx && dy)
 	{
-		case up:
+		bool r = push_pixel(0,dy);
+		bool r2 = push_pixel(dx,0);
+		return r && r2;
+	}
+	if(dx < 0)
+	{
+		if(!(solpush_walkflag(x+dx,y+(bigHitbox?0:8),1,this)
+			|| solpush_walkflag(x+dx,y+8,1,this)
+			|| (y.getInt()&7?solpush_walkflag(x+dx,y+16,1,this):0)))
 		{
-			if(!(solpush_walkflag(x,y+(bigHitbox?-1:7),2,this)
-				|| (x.getInt()&7?solpush_walkflag(x+16,y+(bigHitbox?-1:7),1,this):0)))
-			{
-				--y;
-				return true;
-			}
-			return false;
+			x += dx;
+			return true;
 		}
-		case down:
+		return false;
+	}
+	else if(dx > 0)
+	{
+		if(!(solpush_walkflag(x+15+dx,y+(bigHitbox?0:8),1,this)
+			|| solpush_walkflag(x+15+dx,y+8,1,this)
+			|| (y.getInt()&7?solpush_walkflag(x+15+dx,y+16,1,this):0)))
 		{
-			if(!(solpush_walkflag(x,y+16,2,this)
-				|| (x.getInt()&7?solpush_walkflag(x+16,y+16,1,this):0)))
-			{
-				++y;
-				return true;
-			}
-			return false;
+			x += dx;
+			return true;
 		}
-		case left:
+		return false;
+	}
+	else if(dy < 0)
+	{
+		if(!(solpush_walkflag(x,y+(bigHitbox?0:8)+dy,2,this)
+			|| (x.getInt()&7?solpush_walkflag(x+16,y+(bigHitbox?0:8)+dy,1,this):0)))
 		{
-			if(!(solpush_walkflag(x-1,y+(bigHitbox?0:8),1,this)
-				|| solpush_walkflag(x-1,y+8,1,this)
-				|| (y.getInt()&7?solpush_walkflag(x-1,y+16,1,this):0)))
-			{
-				--x;
-				return true;
-			}
-			return false;
+			y += dy;
+			return true;
 		}
-		case right:
+		return false;
+	}
+	else if(dy > 0)
+	{
+		if(!(solpush_walkflag(x,y+15+dy,2,this)
+			|| (x.getInt()&7?solpush_walkflag(x+16,y+15+dy,1,this):0)))
 		{
-			if(!(solpush_walkflag(x+16,y+(bigHitbox?0:8),1,this)
-				|| solpush_walkflag(x+16,y+8,1,this)
-				|| (y.getInt()&7?solpush_walkflag(x+16,y+16,1,this):0)))
-			{
-				++x;
-				return true;
-			}
-			return false;
+			y += dy;
+			return true;
 		}
-		case r_up:
-		case r_down:
-		case l_up:
-		case l_down:
-			//!TODO SOLIDPUSH diagonal solidchecks
-			break;
+		return false;
 	}
 	return false;
+}
+bool HeroClass::push_move(zfix dx, zfix dy)
+{
+	bool ret = true;
+	while(dx || dy)
+	{
+		if(check_pitslide() != -1)
+			break;
+		if(dy)
+		{
+			zfix cy = (abs(dy) >= 1) ? sign(dy) : dy;
+			dy -= cy;
+			if(!push_pixel(0,cy))
+			{
+				dy = 0;
+				ret = false;
+			}
+		}
+		if(dx)
+		{
+			zfix cx = (abs(dx) >= 1) ? sign(dx) : dx;
+			dx -= cx;
+			if(!push_pixel(cx,0))
+			{
+				dx = 0;
+				ret = false;
+			}
+		}
+	}
+	return ret;
 }
 
 bool HeroClass::setSolid(bool set)
@@ -9820,47 +9827,12 @@ void HeroClass::solid_push(solid_object* obj)
 	
 	if(!dx && !dy) return;
 	
-	int32_t ydir = GET_YDIR(dy);
-	int32_t xdir = GET_XDIR(dx);
-	
 	obj->doContactDamage(hdir);
 	
 	bool t = obj->getTempNonsolid();
 	obj->setTempNonsolid(true);
 	
-	while(dx && dy)
-	{
-		if(check_pitslide() != -1)
-			break;
-		if(!push_pixel(ydir))
-			break;
-		if (dy > 0) --dy;
-		else ++dy;
-		if(!push_pixel(xdir))
-			break;
-		if (dx > 0) --dx;
-		else ++dx;
-	}
-	if(dx)
-	{
-		for(int32_t q = abs(dx); q > 0; --q)
-		{
-			if(check_pitslide() != -1)
-				break;
-			if(!push_pixel(xdir))
-				break;
-		}
-	}
-	if(dy)
-	{
-		for(int32_t q = abs(dy); q > 0; --q)
-		{
-			if(check_pitslide() != -1)
-				break;
-			if(!push_pixel(ydir))
-				break;
-		}
-	}
+	push_move(dx,dy);
 	
 	obj->setTempNonsolid(t);
 }

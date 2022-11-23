@@ -451,7 +451,8 @@ public:
 	virtual void drawshadow(BITMAP* dest, bool translucent);
 	virtual void draw(BITMAP* dest);
 	virtual bool animate(int32_t index);
-	bool push_pixel(int32_t dir);
+	bool push_pixel(zfix dx, zfix dy);
+	bool push_move(zfix dx, zfix dy);
 	virtual bool setSolid(bool set);
 	virtual void solid_push(solid_object* pusher);
 	bool dowarp(int32_t type, int32_t index, int32_t warpsfx=0);

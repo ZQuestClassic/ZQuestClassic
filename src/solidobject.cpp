@@ -37,6 +37,20 @@ void put_ffcwalkflags(BITMAP *dest, int32_t x, int32_t y)
 	{
 		(*it)->putwalkflags(dest, x, y);
 	}
+	for(slopedata& s : slopes)
+	{
+		line(dest, x+s.x1, y+s.y1, x+s.x2, y+s.y2, makecol(255,85,85));
+		if(s.slope > 0)
+		{
+			line(dest, x+s.x1, y+s.y1+1, x+s.x2-1, y+s.y2, makecol(255,85,85));
+			line(dest, x+s.x1+1, y+s.y1, x+s.x2, y+s.y2-1, makecol(255,85,85));
+		}
+		else if(s.slope < 0)
+		{
+			line(dest, x+s.x1, y+s.y1-1, x+s.x2-1, y+s.y2, makecol(255,85,85));
+			line(dest, x+s.x1+1, y+s.y1, x+s.x2, y+s.y2+1, makecol(255,85,85));
+		}
+	}
 }
 
 static solid_object* curobject = NULL;
@@ -133,23 +147,6 @@ void slope_push_int(slopedata s, solid_object* obj, zfix& dx, zfix& dy)
 	}
 	dx = (rx - orx);
 	dy = (ry - ory);
-
-	if (!dx && !dy) return; //no movement at all
-	//handle subpixel rounding
-	if(zfix xd = obj->x.getDPart())
-	{
-		obj->x.doTrunc();
-		dx += xd;
-	}
-	if(zfix yd = obj->y.getDPart())
-	{
-		obj->y.doTrunc();
-		dy += yd;
-	}
-	//Lock to integer grid
-	//!TODO SOLIDPUSH allow a subpixel-push? -Em
-	dx.doRoundAway();
-	dy.doRoundAway();
 }
 
 solid_object::solid_object() : solid(false), in_solid_arr(false),
@@ -587,24 +584,6 @@ void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy, in
 		sxofs -= 4;
 		sxsz_ofs += 8;
 	}
-	
-	if(!dx && !dy) return; //no movement at all
-	hdir = XY_DIR(GET_YDIR(dy), GET_XDIR(dx));
-	//handle subpixel rounding
-	if(zfix xd = x.getDPart())
-	{
-		x.doTrunc();
-		dx += xd;
-	}
-	if(zfix yd = y.getDPart())
-	{
-		y.doTrunc();
-		dy += yd;
-	}
-	//Lock to integer grid
-	//!TODO SOLIDPUSH allow a subpixel-push? -Em
-	dx.doRoundAway();
-	dy.doRoundAway();
 }
 
 int32_t solid_object::push_dir() const

@@ -1106,7 +1106,7 @@ void zmap::put_walkflags_layered(BITMAP *dest,int32_t x,int32_t y,int32_t pos,in
 	int32_t cx = COMBOX(pos);
 	int32_t cy = COMBOY(pos);
 	
-	newcombo c = combobuf[ MAPCOMBO2(layer,cx,cy) ];
+	newcombo const& c = combobuf[ MAPCOMBO2(layer,cx,cy) ];
 	
 	if (c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) return;
 	
@@ -1219,6 +1219,32 @@ void zmap::put_walkflags_layered(BITMAP *dest,int32_t x,int32_t y,int32_t pos,in
 							rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(14));
 				}
 			}
+		}
+	}
+	
+	if(c.type == cSLOPE)
+	{
+		slopedata s;
+		s.x1 = x + c.attribytes[0];
+		s.y1 = y + c.attribytes[1];
+		s.x2 = x + c.attribytes[2];
+		s.y2 = y + c.attribytes[3];
+		if(s.x1 > s.x2)
+		{
+			zc_swap(s.x1,s.x2);
+			zc_swap(s.y1,s.y2);
+		}
+		s.slope = (s.y2-s.y1)/(s.x2-s.x1);
+		line(dest, s.x1, s.y1, s.x2, s.y2, vc(12));
+		if(s.slope > 0)
+		{
+			line(dest, s.x1, s.y1+1, s.x2-1, s.y2, vc(12));
+			line(dest, s.x1+1, s.y1, s.x2, s.y2-1, vc(12));
+		}
+		else if(s.slope < 0)
+		{
+			line(dest, s.x1, s.y1-1, s.x2-1, s.y2, vc(12));
+			line(dest, s.x1+1, s.y1, s.x2, s.y2+1, vc(12));
 		}
 	}
 }
@@ -1346,78 +1372,119 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int32_t x,int32_t y,int32
 			}
 		}
 	}
+	
+	if(c.type == cSLOPE)
+	{
+		slopedata s;
+		s.x1 = x + c.attribytes[0];
+		s.y1 = y + c.attribytes[1];
+		s.x2 = x + c.attribytes[2];
+		s.y2 = y + c.attribytes[3];
+		if(s.x1 > s.x2)
+		{
+			zc_swap(s.x1,s.x2);
+			zc_swap(s.y1,s.y2);
+		}
+		s.slope = (s.y2-s.y1)/(s.x2-s.x1);
+		line(dest, s.x1, s.y1, s.x2, s.y2, vc(12));
+		if(s.slope > 0)
+		{
+			line(dest, s.x1, s.y1+1, s.x2-1, s.y2, vc(12));
+			line(dest, s.x1+1, s.y1, s.x2, s.y2-1, vc(12));
+		}
+		else if(s.slope < 0)
+		{
+			line(dest, s.x1, s.y1-1, s.x2-1, s.y2, vc(12));
+			line(dest, s.x1+1, s.y1, s.x2, s.y2+1, vc(12));
+		}
+	}
 }
 
 void put_walkflags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t layer)
 {
-    newcombo c = combobuf[cmbdat];
-    
-    if (c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) return;
-    
-    for(int32_t i=0; i<4; i++)
-    {
-        int32_t tx=((i&2)<<2)+x;
-        int32_t ty=((i&1)<<3)+y;
-        
-	bool bridgedetected = false;
-	/* //!DIMI: Why is this commented out? God, I can't remember my own shitty code. 
-	for (int32_t m = -1; m <= 1; m++)
-	{
-		if (combobuf[Map.MAPCOMBO2(m,tx,ty)].type == cBRIDGE && !(combobuf[Map.MAPCOMBO2(m,tx,ty)].walk&(1<<i))) 
-		{
-			bridgedetected = true;
-		}
-        }*/
-	if (bridgedetected)
-	{
-		if (i >= 3) break;
-		else continue;
-	}
-        if(combo_class_buf[c.type].water!=0)
-	{
-		
-		if ((layer==0 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 1) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 2)) && get_bit(quest_rules, qr_DROWN))
-		{
-			rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
-			//al_trace("water, drown\n");
-		}
-		else
-		{
-			rectfill(dest,tx,ty,tx+7,ty+7,vc(11));
-			//al_trace("water, no drown\n");
-		}
+	newcombo c = combobuf[cmbdat];
 	
+	if (c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) return;
+	
+	for(int32_t i=0; i<4; i++)
+	{
+		int32_t tx=((i&2)<<2)+x;
+		int32_t ty=((i&1)<<3)+y;
+		
+		if(combo_class_buf[c.type].water!=0)
+		{
+			if ((layer==0 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 1) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 2)) && get_bit(quest_rules, qr_DROWN))
+			{
+				rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
+				//al_trace("water, drown\n");
+			}
+			else
+			{
+				rectfill(dest,tx,ty,tx+7,ty+7,vc(11));
+				//al_trace("water, no drown\n");
+			}
+		}
+			
+		if(c.walk&(1<<i))
+		{
+			if(c.type==cLADDERHOOKSHOT)
+			{
+				for(int32_t k=0; k<8; k+=2)
+					for(int32_t j=0; j<8; j+=2)
+						rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(6+((k+j)/2)%2));
+			}
+			else
+			{
+				int32_t color = vc(12);
+				
+				if(c.type==cLADDERONLY)
+					color=vc(6);
+				else if(c.type==cHOOKSHOTONLY)
+					color=vc(7);
+					
+				rectfill(dest,tx,ty,tx+7,ty+7,color);
+			}
+		}
+		
+		// Draw damage combos
+		if(combo_class_buf[c.type].modify_hp_amount != 0)
+		{
+			for(int32_t k=0; k<8; k+=2)
+				for(int32_t j=0; j<8; j+=2)
+					if(((k+j)/2)%2) rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(4));
+		}
 	}
-            
-        if(c.walk&(1<<i))
-        {
-            if(c.type==cLADDERHOOKSHOT)
-            {
-                for(int32_t k=0; k<8; k+=2)
-                    for(int32_t j=0; j<8; j+=2)
-                        rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(6+((k+j)/2)%2));
-            }
-            else
-            {
-                int32_t color = vc(12);
-                
-                if(c.type==cLADDERONLY)
-                    color=vc(6);
-                else if(c.type==cHOOKSHOTONLY)
-                    color=vc(7);
-                    
-                rectfill(dest,tx,ty,tx+7,ty+7,color);
-            }
-        }
-        
-        // Draw damage combos
-        if(combo_class_buf[c.type].modify_hp_amount != 0)
-        {
-	    for(int32_t k=0; k<8; k+=2)
-		for(int32_t j=0; j<8; j+=2)
-		    if(((k+j)/2)%2) rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(4));
-        }
-    }
+	
+	if(c.type == cSLOPE)
+	{
+		slopedata s;
+		s.x1 = c.attribytes[0];
+		s.y1 = c.attribytes[1];
+		s.x2 = c.attribytes[2];
+		s.y2 = c.attribytes[3];
+		if(s.x1 > s.x2)
+		{
+			zc_swap(s.x1,s.x2);
+			zc_swap(s.y1,s.y2);
+		}
+		s.slope = (s.y2-s.y1)/(s.x2-s.x1);
+		
+		BITMAP* sub = create_bitmap_ex(8,16,16);
+		clear_bitmap(sub);
+		line(sub, s.x1, s.y1, s.x2, s.y2, vc(12));
+		if(s.slope > 0)
+		{
+			line(sub, s.x1, s.y1+1, s.x2-1, s.y2, vc(12));
+			line(sub, s.x1+1, s.y1, s.x2, s.y2-1, vc(12));
+		}
+		else if(s.slope < 0)
+		{
+			line(sub, s.x1, s.y1-1, s.x2-1, s.y2, vc(12));
+			line(sub, s.x1+1, s.y1, s.x2, s.y2+1, vc(12));
+		}
+		masked_blit(sub, dest, 0, 0, x, y, 16, 16);
+		destroy_bitmap(sub);
+	}
 }
 
 void put_flag(BITMAP* dest, int32_t x, int32_t y, int32_t flag)
@@ -3093,16 +3160,43 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		}
 		for(int32_t i=MAXFFCS-1; i>=0; i--)
 		{
-			if(layer->ffcs[i].getData())
+			if(auto data = layer->ffcs[i].getData())
 			{
 				if(!(layer->ffcs[i].flags&ffCHANGER))
 				{
+					newcombo const& cmb = combobuf[data];
 					int32_t tx=(layer->ffcs[i].x.getInt())+x;
 					int32_t ty=(layer->ffcs[i].y.getInt())+y;
 					
 					if(layer->ffcs[i].flags&ffSOLID)
 					{
 						rectfill(dest, tx, ty, tx + layer->ffEffectWidth(i) - 1, ty + layer->ffEffectHeight(i) - 1, vc(12));
+					}
+					
+					if(cmb.type == cSLOPE)
+					{
+						slopedata s;
+						s.x1 = tx + cmb.attribytes[0];
+						s.y1 = ty + cmb.attribytes[1];
+						s.x2 = tx + cmb.attribytes[2];
+						s.y2 = ty + cmb.attribytes[3];
+						if(s.x1 > s.x2)
+						{
+							zc_swap(s.x1,s.x2);
+							zc_swap(s.y1,s.y2);
+						}
+						s.slope = (s.y2-s.y1)/(s.x2-s.x1);
+						line(dest, s.x1, s.y1, s.x2, s.y2, vc(12));
+						if(s.slope > 0)
+						{
+							line(dest, s.x1, s.y1+1, s.x2-1, s.y2, vc(12));
+							line(dest, s.x1+1, s.y1, s.x2, s.y2-1, vc(12));
+						}
+						else if(s.slope < 0)
+						{
+							line(dest, s.x1, s.y1-1, s.x2-1, s.y2, vc(12));
+							line(dest, s.x1+1, s.y1, s.x2, s.y2+1, vc(12));
+						}
 					}
 				}
 			}
