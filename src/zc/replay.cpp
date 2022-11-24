@@ -16,6 +16,7 @@
 
 struct ReplayStep;
 
+static const int ASSERT_SNAPSHOT_BUFFER = 10;
 static const int ASSERT_FAILED_EXIT_CODE = 120;
 static const int VERSION = 6;
 
@@ -52,6 +53,14 @@ static uint32_t prev_gfx_hash;
 static int prev_debug_x;
 static int prev_debug_y;
 static bool gfx_got_mismatch;
+
+struct FramebufHistoryEntry
+{
+	BITMAP* bitmap;
+	PALETTE pal;
+	int frame;
+};
+static std::array<FramebufHistoryEntry, ASSERT_SNAPSHOT_BUFFER> framebuf_history;
 
 struct ReplayStep
 {
@@ -690,6 +699,21 @@ static void save_replay(std::string filename, const std::vector<std::shared_ptr<
     out.close();
 }
 
+static void save_snapshot(BITMAP* bitmap, PALETTE pal, int frame, bool was_unexpected)
+{
+	std::string img_filename = fmt::format("{}.{}", filename, frame);
+	if (was_unexpected)
+		img_filename += "-unexpected";
+	img_filename += ".bmp";
+
+	if (was_unexpected)
+		fmt::print(stderr, "Saving unexpected bitmap: {}\n", img_filename);
+	else
+		fmt::print("Saving bitmap: {}\n", img_filename);
+
+	save_bitmap(img_filename.c_str(), bitmap, pal);
+}
+
 static void do_replaying_poll()
 {
     while (replay_log_current_index < replay_log.size() && replay_log[replay_log_current_index]->frame == frame_count)
@@ -739,8 +763,15 @@ static void check_assert()
                 exit_sys_pal();
             }
 
+            // Save the history bitmaps.
+            for (auto framebuf_history : framebuf_history)
+            {
+                if (framebuf_history.frame > 0)
+                    save_snapshot(framebuf_history.bitmap, framebuf_history.pal, framebuf_history.frame, false);
+            }
+
             // Snapshot the next few frames.
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < ASSERT_SNAPSHOT_BUFFER; i++)
                 snapshot_frames.push_back(frame_count + i);
             break;
         }
@@ -794,23 +825,25 @@ static void start_manual_takeover()
     Paused = true;
 }
 
-static void do_snapshot()
+static void maybe_take_snapshot()
 {
 	auto it = std::find(snapshot_frames.begin(), snapshot_frames.end(), frame_count);
+	size_t history_index = frame_count % framebuf_history.size();
 	if (!gfx_got_mismatch && it == snapshot_frames.end())
+	{
+		if (mode == ReplayMode::Assert)
+		{
+			blit(framebuf, framebuf_history[history_index].bitmap, 0, 0, 0, 0, framebuf->w, framebuf->h);
+			framebuf_history[history_index].frame = frame_count;
+			memcpy(framebuf_history[history_index].pal, RAMpal, PAL_SIZE*sizeof(RGB));
+		}
 		return;
+	}
 
-	std::string img_filename = fmt::format("{}.{}", filename, frame_count);
-	if (gfx_got_mismatch)
-		img_filename += "-unexpected";
-	img_filename += ".bmp";
+	// So we know to ignore this frame if framebuf_history is written to disk.
+	framebuf_history[history_index].frame = -1;
 
-	if (gfx_got_mismatch)
-		fmt::print(stderr, "Saving unexpected bitmap: {}\n", img_filename);
-	else
-		fmt::print("Saving requested bitmap: {}\n", img_filename);
-
-	save_bitmap(img_filename.c_str(), framebuf, RAMpal);
+	save_snapshot(framebuf, RAMpal, frame_count, gfx_got_mismatch);
 }
 
 void replay_start(ReplayMode mode_, std::string filename_)
@@ -853,6 +886,15 @@ void replay_start(ReplayMode mode_, std::string filename_)
     case ReplayMode::Update:
         load_replay(filename);
         break;
+    }
+
+    if (mode == ReplayMode::Assert)
+    {
+        for (int i = 0; i < framebuf_history.size(); i++)
+        {
+            framebuf_history[i].bitmap = create_bitmap_ex(8, framebuf->w, framebuf->h);
+            framebuf_history[i].frame = -1;
+        }
     }
 
     if (replay_is_replaying())
@@ -974,7 +1016,7 @@ void replay_poll()
         break;
     }
 
-    do_snapshot();
+    maybe_take_snapshot();
     frame_count++;
 }
 
@@ -1154,6 +1196,12 @@ void replay_stop()
     {
         replay_save();
         exit(0);
+    }
+
+    for (int i = 0; i < framebuf_history.size(); i++)
+    {
+        if (framebuf_history[i].bitmap)
+            destroy_bitmap(framebuf_history[i].bitmap);
     }
 
     mode = ReplayMode::Off;
