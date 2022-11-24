@@ -19,12 +19,14 @@ namespace GUI::ZCListData
 	GUI::ListData bottletype();
 	GUI::ListData dmaps(bool numbered = false);
 	GUI::ListData lweaptypes();
+	GUI::ListData weaptypes(bool numbered = false);
 	GUI::ListData sfxnames(bool numbered = false);
 	GUI::ListData midinames(bool numbered = false);
 	GUI::ListData itemdata_script();
 	GUI::ListData itemsprite_script();
 	GUI::ListData ffc_script();
 	GUI::ListData lweapon_script();
+	GUI::ListData eweapon_script();
 	GUI::ListData combodata_script();
     GUI::ListData const& deftypes();
     GUI::ListData const& warpeffects();

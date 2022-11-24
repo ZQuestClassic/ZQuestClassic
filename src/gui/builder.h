@@ -623,6 +623,12 @@ Button(forceFitH = true, text = "?", \
 	{ \
 		InfoDialog("Info",inf).show(); \
 	})
+#define INFOBTNL(inf) \
+Button(forceFitH = true, hAlign = 0.0, text = "?", \
+	onPressFunc = [=]() \
+	{ \
+		InfoDialog("Info",inf).show(); \
+	})
 //}
 
 #endif

@@ -1401,6 +1401,7 @@ bool trigger_switchhookblock(int32_t lyr, int32_t pos)
 static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool angular, double radians, int32_t dir)
 {
 	byte weapid = cmb.attribytes[1];
+	if(!weapid) return nullptr;
 	byte weapspr = cmb.attribytes[2];
 	int32_t damage = cmb.attrishorts[2];
 	zfix steprate = zslongToFix(cmb.attributes[2]/100);
@@ -1464,6 +1465,7 @@ static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool an
 bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 {
 	if(cmb.type != cSHOOTER) return false;
+	if(!cmb.attribytes[1]) return false; //no weapon
 	if(wx > 255 || wx < -15 || wy > 175 || wy < -15) return false;
 	
 	bool proxstop = cmb.usrflags&cflag4;

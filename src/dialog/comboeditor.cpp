@@ -79,7 +79,7 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index, bool cl
 	list_counters_nn(GUI::ZCListData::counters(true, true)),
 	list_sprites(GUI::ZCListData::miscsprites()),
 	list_sprites_spec(GUI::ZCListData::miscsprites(false,true)),
-	list_weaptype(GUI::ZCListData::lweaptypes()),
+	list_weaptype(GUI::ZCListData::weaptypes(true)),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
 	list_deftypes(GUI::ZCListData::deftypes())
 {
@@ -1287,14 +1287,15 @@ void ComboEditorDialog::loadComboType()
 			l_attribyte[2] = "Sprite:";
 			h_attribyte[2] = "The sprite of the spawned weapon";
 			//byte[3] : multishot shot count
-			l_attribyte[4] = "Unblockable";
+			l_attribyte[4] = "Unblockable:";
 			h_attribyte[4] = "Sum the following values to create a flagset:"
 				"\n1: Bypass 'Block' defense"
 				"\n2: Bypass 'Ignore' defense"
 				"\n4: Bypass enemy/player shield blocking"
 				"\n8: Bypass player shield reflecting";
-			l_attribyte[5] = "Script";
-			h_attribyte[5] = "LWeapon or EWeapon script ID to attach to the fired weapons";
+			l_attribyte[5] = "Script:";
+			h_attribyte[5] = "LWeapon or EWeapon script ID to attach to the fired weapons."
+				"\nNote that there is no way to supply InitD to such scripts.";
 			
 			//short[0],[1] : Rate
 			l_attrishort[2] = "Damage:";
@@ -2215,11 +2216,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					),
 					wizardButton = Button(
 						text = "Wizard", disabled = !hasComboWizard(local_comboref.type),
-						padding = 0_px, forceFitH = true, onPressFunc = [&]()
-						{
-							if(hasComboWizard(local_comboref.type))
-								call_combo_wizard(*this);
-						}
+						padding = 0_px, forceFitH = true, onClick = message::WIZARD
 					),
 					Label(text = "Inherent Flag:", hAlign = 1.0),
 					DropDownList(data = list_flag, fitParent = true,
@@ -3278,7 +3275,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				T=message::TILESEL,
 			},
 			Column(
-				Rows<3>(padding = 0_px,
+				Rows<4>(padding = 0_px,
 					Label(text = "Type:", hAlign = 1.0),
 					DropDownList(data = list_ctype, fitParent = true,
 						maxwidth = sized(220_px, 400_px),
@@ -3294,11 +3291,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					),
 					wizardButton = Button(
 						text = "Wizard", disabled = !hasComboWizard(local_comboref.type),
-						padding = 0_px, forceFitH = true, onPressFunc = [&]()
-						{
-							if(hasComboWizard(local_comboref.type))
-								call_combo_wizard(*this);
-						}
+						padding = 0_px, forceFitH = true, onClick = message::WIZARD
 					),
 					Label(text = "Inherent Flag:", hAlign = 1.0),
 					DropDownList(data = list_flag, fitParent = true,
@@ -4437,6 +4430,16 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				}).show();
 			if(cleared) return true;
 			break;
+		
+		case message::WIZARD:
+			if(hasComboWizard(local_comboref.type))
+			{
+				call_combo_wizard(*this);
+				rerun_dlg = true;
+				return true;
+			}
+			break;
+		
 		case message::OK:
 			saved = false;
 			if(!hasCTypeEffects(local_comboref.type))

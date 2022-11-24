@@ -299,7 +299,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_FAVORITES        1
 
 #define V_COMPATRULE       34
-#define V_ZINFO            2
+#define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
 
@@ -5628,7 +5628,18 @@ void exit_sys_pal();
 
 enum {nswapDEC, nswapHEX, nswapLDEC, nswapLHEX, nswapBOOL, nswapMAX};
 
-#define SMART_WRAP(x, mod) (x < 0 ? ((mod-(-x%mod))%mod) : (x%mod))
+
+double WrapAngle(double radians);
+double WrapDegrees(double degrees);
+double DegreesToRadians(double deg);
+double RadiansToDegrees(double rad);
+double DirToRadians(int dir);
+double DirToDegrees(int dir);
+int32_t AngleToDir(double radians);
+int32_t AngleToDir4(double degrees);
+int32_t AngleToDir4Rad(double radians);
+
+#define SMART_WRAP(x, mod) ((x) < 0 ? (((mod)-(-(x)%(mod)))%(mod)) : ((x)%(mod)))
 
 #undef cmb1
 #undef cmb2

@@ -471,6 +471,32 @@ GUI::ListData GUI::ZCListData::lweaptypes()
 	return ls;
 }
 
+GUI::ListData GUI::ZCListData::weaptypes(bool numbered)
+{
+	std::map<std::string, int32_t> vals;
+	
+	GUI::ListData ls;
+	ls.add("(None)", 0);
+	for(int32_t q=1; q<wMax; ++q)
+	{
+		if(!ZI.isUsableWeap(q))
+			continue; //Hidden
+		char const* module_str = ZI.getWeapName(q);
+		char* name = new char[strlen(module_str) + 8];
+		if(numbered)
+			sprintf(name, "%s (%03d)", module_str, q);
+		else strcpy(name, module_str);
+		
+		std::string sname(name);
+		
+		ls.add(sname, q);
+		
+		delete[] name;
+	}
+	
+	return ls;
+}
+
 GUI::ListData GUI::ZCListData::sfxnames(bool numbered)
 {
 	std::map<std::string, int32_t> vals;
@@ -570,6 +596,19 @@ GUI::ListData GUI::ZCListData::lweapon_script()
 	std::set<std::string> names;
 	
 	load_scriptnames(names,vals,lwpnmap,NUMSCRIPTWEAPONS-1);
+	
+	GUI::ListData ls;
+	ls.add("(None)", 0);
+	ls.add(names,vals);
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::eweapon_script()
+{
+	std::map<std::string, int32_t> vals;
+	std::set<std::string> names;
+	
+	load_scriptnames(names,vals,ewpnmap,NUMSCRIPTWEAPONS-1);
 	
 	GUI::ListData ls;
 	ls.add("(None)", 0);

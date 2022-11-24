@@ -23,7 +23,7 @@ class ComboEditorDialog: public GUI::Dialog<ComboEditorDialog>
 {
 public:
 	enum class message { OK, CANCEL, COMBOTYPE, COMBOFLAG, HFLIP, VFLIP,
-		ROTATE, PLUSCS, MINUSCS, CLEAR, TILESEL };
+		ROTATE, PLUSCS, MINUSCS, CLEAR, TILESEL, WIZARD };
 	
 
 	std::shared_ptr<GUI::Widget> view() override;
