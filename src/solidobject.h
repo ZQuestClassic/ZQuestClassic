@@ -12,9 +12,11 @@ bool collide_object(int32_t tx, int32_t ty, int32_t tw, int32_t th, solid_object
 void put_ffcwalkflags(BITMAP *dest, int32_t x, int32_t y);
 void setCurObject(solid_object* obj);
 int32_t check_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th);
+int32_t check_new_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th, int32_t otx, int32_t oty);
 slopedata const& get_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th);
-int32_t check_slope(solid_object* o);
-slopedata const& get_slope(solid_object* o);
+slopedata const& get_new_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th, int32_t otx, int32_t oty);
+int32_t check_slope(solid_object* o, bool onlyNew = false);
+slopedata const& get_slope(solid_object* o, bool onlyNew = false);
 bool slide_slope(solid_object* obj, zfix& dx, zfix& dy);
 void slope_push_int(slopedata const& s, solid_object* obj, zfix& dx, zfix& dy);
 

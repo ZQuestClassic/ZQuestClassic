@@ -684,6 +684,16 @@ void ComboEditorDialog::loadComboType()
 			h_attrishort[3] = "Y Offset of the starting point of the slope line.";
 			l_attribute[0] = "Slipperiness";
 			h_attribute[0] = "Pixels per frame to slide down the slope in sideview.";
+			l_flag[1] = "Pass through bottom";
+			h_flag[1] = "Disables the slope's collision from below, allowing sprites to pass through from the bottom.";
+			l_flag[2] = "Pass through top";
+			h_flag[2] = "Disables the slope's collision from above, allowing sprites to pass through from the top.";
+			l_flag[1] = "Pass through left side";
+			h_flag[1] = "Disables the slope's collision from the left, allowing sprites to pass through from the left side."
+				"\nThis flag is not needed if you have either pass through top or pass through bottom checked.";
+			l_flag[2] = "Pass through right side";
+			h_flag[2] = "Disables the slope's collision from the right, allowing sprites to pass through from the right side."
+				"\nThis flag is not needed if you have either pass through top or pass through bottom checked.";
 			break;
 		}
 		case cTRIGNOFLAG: case cSTRIGNOFLAG:

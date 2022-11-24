@@ -194,7 +194,7 @@ class HeroClass : public sprite
 	
 public:
 	std::map<int16_t, int32_t> usecounts;
-	bool autostep,superman,inwallm,tapping,stomping,last_hurrah,onpassivedmg;
+	bool autostep,superman,inwallm,tapping,stomping,last_hurrah,onpassivedmg,inair;
 	int32_t refilling,
 		ladderx,
 		laddery,
@@ -452,7 +452,7 @@ public:
 	virtual void draw(BITMAP* dest);
 	virtual bool animate(int32_t index);
 	bool push_pixel(zfix dx, zfix dy);
-	bool push_move(zfix dx, zfix dy);
+	int32_t push_move(zfix dx, zfix dy);
 	virtual bool setSolid(bool set);
 	virtual void solid_push(solid_object* pusher);
 	bool dowarp(int32_t type, int32_t index, int32_t warpsfx=0);
