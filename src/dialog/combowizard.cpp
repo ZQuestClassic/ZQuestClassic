@@ -177,11 +177,28 @@ void ComboWizardDialog::endUpdate()
 			}
 			//Proximity stuff
 			int32_t& a1 = local_ref.attributes[1];
-			if(!(parent.local_comboref.usrflags&cflag4) && !(local_ref.usrflags&cflag4))
+			if(!(local_ref.usrflags&cflag4))
 			{
-				a1 = parent.local_comboref.attributes[1];
+				if(!(parent.local_comboref.usrflags&cflag4))
+					a1 = parent.local_comboref.attributes[1];
+				else a1 = 0;
 			}
-			//
+			//Spread stuff
+			byte& b3 = local_ref.attribytes[3];
+			int32_t& a3 = local_ref.attributes[3];
+			if(!(local_ref.usrflags&cflag7))
+			{
+				if(!(parent.local_comboref.usrflags&cflag7))
+				{
+					a3 = parent.local_comboref.attributes[3];
+					b3 = parent.local_comboref.attribytes[3];
+				}
+				else
+				{
+					a3 = 0;
+					b3 = 0;
+				}
+			}
 			break;
 		}
 	}
@@ -201,10 +218,12 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 	using namespace GUI::Props;
 	using namespace GUI::Key;
 	
+	string ctyname(ZI.getComboTypeName(local_ref.type));
+	
 	std::shared_ptr<GUI::Grid> windowRow;
 	window = Window(
 		//use_vsync = true,
-		title = "Combo Wizard",
+		title = "Combo Wizard (" + ctyname + ")",
 		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
@@ -225,6 +244,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		)
 	);
 	
+	bool wip = false;
 	switch(local_ref.type)
 	{
 		case cSLOPE:
@@ -391,7 +411,6 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		}
 		case cSHOOTER:
 		{
-			InfoDialog("WIP","Shooter Wizard is WIP, not complete!").show();
 			byte& shot_sfx = local_ref.attribytes[0];
 			byte& weap_type = local_ref.attribytes[1];
 			byte& weap_sprite = local_ref.attribytes[2];
@@ -411,8 +430,10 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			int32_t& prox = local_ref.attributes[1];
 			if(prox < 0) prox = 0;
 			
-			byte& shot_count = local_ref.attribytes[3]; //!TODO
-			int32_t& spread = local_ref.attributes[3]; //!TODO
+			byte& shot_count = local_ref.attribytes[3];
+			int32_t& spread = local_ref.attributes[3];
+			spread = SMART_WRAP(spread, 360*10000);
+			if(shot_count < 2) shot_count = 2;
 			
 			size_t seladir = 0;
 			int32_t angle = 0;
@@ -437,20 +458,20 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 				else
 				{
 					seladir = 1;
-					angle = angle_dir;
+					angle = vbound(angle_dir,0,3599999);
 					dir = AngleToDir(WrapAngle(DegreesToRadians(angle/10000.0)));
 				}
 			}
 			else
 			{
-				dir = angle_dir / 10000;
+				dir = NORMAL_DIR(angle_dir / 10000);
 			}
 			
 			rs_sz[0] = 5;
 			
 			static size_t tabpos = 0;
 			windowRow->add(TabPanel(ptr = &tabpos,
-				TabRef(name = "1", Row(
+				TabRef(name = "1", Rows<2>(
 					Rows<3>(
 						Label(text = parent.l_attribyte[0], hAlign = 1.0),
 						ddls[0] = DropDownList(data = parent.list_sfx,
@@ -536,6 +557,49 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								SETFLAG(unblockable,WPNUNB_REFL,state);
 							}
 						)
+					),
+					Row(colSpan = 2, padding = 0_px,
+						Rows<2>(padding = 0_px,
+							cboxes[6] = Checkbox(
+								text = "Insta-shot", hAlign = 0.0,
+								checked = local_ref.usrflags&cflag3,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_ref.usrflags,cflag3,state);
+								}
+							),
+							INFOBTN(parent.h_flag[2]),
+							cboxes[7] = Checkbox(
+								text = "Custom Weapons are LWeapons", hAlign = 0.0,
+								checked = local_ref.usrflags&cflag5,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_ref.usrflags,cflag5,state);
+									update();
+								}
+							),
+							INFOBTN(parent.h_flag[4])
+						),
+						Rows<2>(padding = 0_px,
+							cboxes[8] = Checkbox(
+								text = "Auto-rotate sprite", hAlign = 0.0,
+								checked = local_ref.usrflags&cflag6,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_ref.usrflags,cflag6,state);
+								}
+							),
+							INFOBTN(parent.h_flag[5]),
+							cboxes[9] = Checkbox(
+								text = "Boss Fireball", hAlign = 0.0,
+								checked = local_ref.usrflags&cflag8,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_ref.usrflags,cflag8,state);
+								}
+							),
+							INFOBTN(parent.h_flag[7])
+						)
 					)
 				)),
 				TabRef(name = "2", Row(
@@ -610,7 +674,42 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								prox = val;
 							}),
 						INFOBTN("If enabled, the shooter will stop shooting when the player"
-							" is within this distance (in pixels) of the combo.")
+							" is within this distance (in pixels) of the combo."),
+						//
+						cboxes[5] = Checkbox(
+							text = "Multishot", colSpan = 3,
+							checked = local_ref.usrflags&cflag7,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_ref.usrflags,cflag7,state);
+								tfs[6]->setDisabled(!state);
+								tfs[7]->setDisabled(!state);
+							}
+						),
+						//
+						Label(text = "Shot Count:", hAlign = 1.0),
+						tfs[6] = TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_BYTE,
+							low = 2, high = 255, val = shot_count,
+							disabled = !(local_ref.usrflags&cflag7),
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								shot_count = val;
+							}),
+						INFOBTN("How many shots to shoot, if Multishot is enabled"),
+						//
+						Label(text = "Shot Spread:", hAlign = 1.0),
+						tfs[7] = TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_ZSINT,
+							val = spread,
+							disabled = !(local_ref.usrflags&cflag7),
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								spread = val;
+							}),
+						INFOBTN("Angle in degrees between shots, if Multishot is enabled")
 					),
 					Rows<3>(
 						rset[0][0] = Radio(
@@ -683,9 +782,13 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			break;
 		}
 		default: //Should be unreachable
+			wip = true;
 			windowRow->add(Button(text = "Exit",minwidth = 90_lpx,onClick = message::CANCEL));
 			break;
 	}
+	if(wip)
+		InfoDialog("WIP","The '" + ctyname + "' wizard is WIP,"
+			" and may not be fully functional!").show();
 	update(true);
 	return window;
 }

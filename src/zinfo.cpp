@@ -241,8 +241,8 @@ const char weap_name_default_string[wMax][255] =
 	"-Hookshot","-Hookshot Handle","-Hookshot Chain","Sparkle","Fire Sparkle",
 	"-Smack","-Phantom","-Byrna","Reflected Beam","-Stomp",
 	//30
-	"-lwMax","Script 1","Script 2","Script 3","Script 4",
-	"Script 5","Script 6","Script 7","Script 8","Script 9",
+	"-lwMax","Custom Weapon 1","Custom Weapon 2","Custom Weapon 3","Custom Weapon 4",
+	"Custom Weapon 5","Custom Weapon 6","Custom Weapon 7","Custom Weapon 8","Custom Weapon 9",
 	//40
 	"Script 10","Ice","-Flame","-Sound","Thrown",
 	"-Pot","-Lit","-Med1","-Med2","-Med3",
