@@ -7,6 +7,7 @@
 #include <map>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 #include <fmt/format.h>
 
 #define XXH_STATIC_LINKING_ONLY
@@ -50,6 +51,7 @@ static std::vector<zc_randgen *> rngs;
 static uint32_t prev_gfx_hash;
 static int prev_debug_x;
 static int prev_debug_y;
+static bool gfx_got_mismatch;
 
 struct ReplayStep
 {
@@ -425,6 +427,8 @@ static void uninstall_keyboard_handlers()
 
 static void do_recording_poll()
 {
+	gfx_got_mismatch = false;
+
 	if (debug && !Quit)
 	{
 		if (!screenscrolling)
@@ -439,13 +443,10 @@ static void do_recording_poll()
 			}
 		}
 
-		if (mode != ReplayMode::Replay)
-		{
-			int depth = bitmap_color_depth(framebuf);
-			size_t len = framebuf->w * framebuf->h * BYTES_PER_PIXEL(depth);
-			uint32_t hash = XXH32(framebuf->dat, len, 0);
-			replay_step_gfx(hash);
-		}
+		int depth = bitmap_color_depth(framebuf);
+		size_t len = framebuf->w * framebuf->h * BYTES_PER_PIXEL(depth);
+		uint32_t hash = XXH32(framebuf->dat, len, 0);
+		replay_step_gfx(hash);
 	}
 
 	if (version >= 5)
@@ -734,10 +735,13 @@ static void check_assert()
             if (!exit_when_done)
             {
                 enter_sys_pal();
-                jwin_auto_alert("Assert", error.c_str(), 150, 8, "OK", NULL, 13, 27, lfont);
+                jwin_auto_alert("Assert", error.c_str(), 150, 8, "OK (keep replaying)", NULL, 13, 27, lfont);
                 exit_sys_pal();
-				replay_stop();
             }
+
+            // Snapshot the next few frames.
+            for (int i = 0; i < 10; i++)
+                snapshot_frames.push_back(frame_count + i);
             break;
         }
 
@@ -790,35 +794,23 @@ static void start_manual_takeover()
     Paused = true;
 }
 
-static void do_snapshot(bool unexpected)
+static void do_snapshot()
 {
-	static int last_snapshot_frame = 0;
-	static int num_snapshots_this_frame = 0;
-
 	auto it = std::find(snapshot_frames.begin(), snapshot_frames.end(), frame_count);
-	if (it == snapshot_frames.end())
+	if (!gfx_got_mismatch && it == snapshot_frames.end())
 		return;
 
-	if (last_snapshot_frame != frame_count)
-	{
-		last_snapshot_frame = frame_count;
-		num_snapshots_this_frame = 0;
-	}
-
-	std::string img_filename = num_snapshots_this_frame == 0 ?
-		fmt::format("{}.{}", filename, frame_count) :
-		fmt::format("{}.{}_{}", filename, frame_count, num_snapshots_this_frame + 1);
-	if (unexpected)
+	std::string img_filename = fmt::format("{}.{}", filename, frame_count);
+	if (gfx_got_mismatch)
 		img_filename += "-unexpected";
 	img_filename += ".bmp";
 
-	if (unexpected)
+	if (gfx_got_mismatch)
 		fmt::print(stderr, "Saving unexpected bitmap: {}\n", img_filename);
 	else
 		fmt::print("Saving requested bitmap: {}\n", img_filename);
 
 	save_bitmap(img_filename.c_str(), framebuf, RAMpal);
-	num_snapshots_this_frame++;
 }
 
 void replay_start(ReplayMode mode_, std::string filename_)
@@ -830,6 +822,7 @@ void replay_start(ReplayMode mode_, std::string filename_)
     sync_rng = false;
     did_attempt_input_during_replay = false;
     has_assert_failed = false;
+    gfx_got_mismatch = false;
     filename = filename_;
     manual_takeover_start_index = assert_current_index = replay_log_current_index = frame_count = 0;
     frame_arg = -1;
@@ -981,6 +974,7 @@ void replay_poll()
         break;
     }
 
+    do_snapshot();
     frame_count++;
 }
 
@@ -1293,39 +1287,48 @@ std::string int_to_basE91(T value)
 
 void replay_step_gfx(uint32_t gfx_hash)
 {
-    auto it = std::find(snapshot_frames.begin(), snapshot_frames.end(), frame_count);
-    bool should_do_snapshot = it != snapshot_frames.end();
-    bool unexpected = false;
+	// 16 bits should be enough entropy to detect visual regressions.
+	// Using uint16_t reduces .zplay by ~7%.
+	std::string gfx_comment = fmt::format("g {}", int_to_basE91((uint16_t)gfx_hash));
 
-    // Skip if last invocation was the same value.
-    if (gfx_hash == prev_gfx_hash)
-        return;
-
-    prev_gfx_hash = gfx_hash;
-    // 16 bits should be enough entropy to detect visual regressions.
-    // Using uint16_t reduces .zplay by ~7%.
-    replay_step_comment(fmt::format("g {}", int_to_basE91((uint16_t)gfx_hash)));
-
-    // Note: I tried a simple queue cache to remember the last N hashes and use shorthand
-    // for repeats (ex: gfx ^2), but even with a huge memory of 16777216 hashes the
-    // savings was never more than 2%, so not worth it.
-
-	if (mode == ReplayMode::Assert && has_assert_failed)
+	if (mode == ReplayMode::Assert)
 	{
-		size_t step_index = record_log.size() - 1;
-		int frame_failed = replay_log[assert_current_index]->frame;
-		if (frame_failed == frame_count)
+		std::string expected_gfx_comment;
+		auto it_start = std::lower_bound(replay_log.begin(), replay_log.end(), frame_count,
+			[](auto step, const int value) {
+				return step->frame < value;
+			});
+		for (auto it = it_start; it < replay_log.end(); it++)
 		{
-			bool gfx_matches =
-				replay_log.size() > step_index &&
-				steps_are_equal(record_log.back().get(), replay_log.at(step_index).get());
-			if (!gfx_matches)
-				should_do_snapshot = unexpected = true;
+			if (it->get()->frame != frame_count)
+				break;
+			if (it->get()->type == TypeComment)
+			{
+				auto comment_step = static_cast<const CommentReplayStep *>(it->get());
+				if (comment_step->comment.rfind("g ", 0) == 0)
+				{
+					expected_gfx_comment = comment_step->comment;
+					break;
+				}
+			}
 		}
+
+		if (expected_gfx_comment.empty() && gfx_hash != prev_gfx_hash)
+			gfx_got_mismatch = true;
+		if (!expected_gfx_comment.empty() && expected_gfx_comment != gfx_comment)
+			gfx_got_mismatch = true;
 	}
 
-	if (should_do_snapshot)
-		do_snapshot(unexpected);
+	// Skip if last invocation was the same value.
+	if (gfx_hash != prev_gfx_hash)
+	{
+		replay_step_comment(gfx_comment);
+		prev_gfx_hash = gfx_hash;
+	}
+
+	// Note: I tried a simple queue cache to remember the last N hashes and use shorthand
+	// for repeats (ex: gfx ^2), but even with a huge memory of 16777216 hashes the
+	// savings was never more than 2%, so not worth it.
 }
 
 void replay_set_meta(std::string key, std::string value)
