@@ -117,6 +117,7 @@ if(NOT allegro5_POPULATED)
 	option(WANT_EXAMPLES "" OFF)
 	option(WANT_DEMO "" OFF)
 	option(WANT_DOCS "" OFF)
+	option(WANT_IMAGE_WEBP "" OFF)
   add_subdirectory(${allegro5_SOURCE_DIR} ${allegro5_BINARY_DIR} EXCLUDE_FROM_ALL)
   # Allegro 5 CMakeLists sets CMAKE_CONFIGURATION_TYPES in a way that doesn't work for us,
   # so set it back to our value.
