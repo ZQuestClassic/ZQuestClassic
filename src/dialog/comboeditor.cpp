@@ -1,4 +1,5 @@
 #include "comboeditor.h"
+#include "combowizard.h"
 #include "info.h"
 #include "alert.h"
 #include "base/zsys.h"
@@ -79,6 +80,7 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index, bool cl
 	list_sprites(GUI::ZCListData::miscsprites()),
 	list_sprites_spec(GUI::ZCListData::miscsprites(false,true)),
 	list_weaptype(GUI::ZCListData::lweaptypes()),
+	list_sfx(GUI::ZCListData::sfxnames(true)),
 	list_deftypes(GUI::ZCListData::deftypes())
 {
 	if(clrd)
@@ -607,7 +609,6 @@ void cflag_help(int32_t id)
 void ComboEditorDialog::refreshScript()
 {
 	loadComboType();
-	string l_initd[2];
 	int32_t sw_initd[2];
 	for(auto q = 0; q < 2; ++q)
 	{
@@ -644,10 +645,6 @@ void ComboEditorDialog::refreshScript()
 void ComboEditorDialog::loadComboType()
 {
 	static std::string dirstr[] = {"up","down","left","right"};
-	string l_flag[16];
-	string l_attribyte[8];
-	string l_attrishort[8];
-	string l_attribute[4];
 	#define FL(fl) (local_comboref.usrflags & (fl))
 	for(size_t q = 0; q < 16; ++q)
 	{
@@ -1906,6 +1903,7 @@ void ComboEditorDialog::loadComboType()
 		l_attributes[q]->setText(l_attribute[q]);
 	}
 	cteff_tflag->setDisabled(!hasCTypeEffects(local_comboref.type));
+	wizardButton->setDisabled(!hasComboWizard(local_comboref.type));
 	pendDraw();
 }
 void ComboEditorDialog::updateCSet()
@@ -2191,7 +2189,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				T=message::TILESEL,
 			},
 			Column(
-				Rows<3>(padding = 0_px,
+				Rows<4>(padding = 0_px,
 					Label(text = "Type:", hAlign = 1.0),
 					DropDownList(data = list_ctype, fitParent = true,
 						maxwidth = sized(220_px, 400_px),
@@ -2203,6 +2201,14 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						text = "?", hAlign = 1.0, onPressFunc = [&]()
 						{
 							ctype_help(local_comboref.type);
+						}
+					),
+					wizardButton = Button(
+						text = "Wizard", disabled = !hasComboWizard(local_comboref.type),
+						padding = 0_px, forceFitH = true, onPressFunc = [&]()
+						{
+							if(hasComboWizard(local_comboref.type))
+								call_combo_wizard(*this);
 						}
 					),
 					Label(text = "Inherent Flag:", hAlign = 1.0),
@@ -3274,6 +3280,14 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						text = "?", hAlign = 1.0, onPressFunc = [&]()
 						{
 							ctype_help(local_comboref.type);
+						}
+					),
+					wizardButton = Button(
+						text = "Wizard", disabled = !hasComboWizard(local_comboref.type),
+						padding = 0_px, forceFitH = true, onPressFunc = [&]()
+						{
+							if(hasComboWizard(local_comboref.type))
+								call_combo_wizard(*this);
 						}
 					),
 					Label(text = "Inherent Flag:", hAlign = 1.0),
@@ -4417,7 +4431,7 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			saved = false;
 			if(!hasCTypeEffects(local_comboref.type))
 				local_comboref.triggerflags[0] &= ~combotriggerCMBTYPEFX;
-			memcpy(&combobuf[index], &local_comboref, sizeof(local_comboref));
+			combobuf[index] = local_comboref;
 			edited = true;
 			return true;
 

@@ -3181,7 +3181,89 @@ struct newcombo
 		prompt_x = 12;
 		prompt_y = -8;
 	}
-
+	
+	void copy(newcombo const& other)
+	{
+		tile = other.tile;
+		flip = other.flip;
+		walk = other.walk;
+		type = other.type;
+		csets = other.csets;
+		foo = other.foo;
+		frames = other.frames;
+		speed = other.speed;
+		nextcombo = other.nextcombo;
+		nextcset = other.nextcset;
+		flag = other.flag;
+		skipanim = other.skipanim;
+		skipanimy = other.skipanimy;
+		nexttimer = other.nexttimer;
+		animflags = other.animflags;
+		for(int32_t q = 0; q < 6; ++q)
+			expansion[q] = other.expansion[q];
+		for(int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
+			attributes[q] = other.attributes[q];
+		usrflags = other.usrflags;
+		genflags = other.genflags;
+		for(int32_t q = 0; q < 3; ++q)
+			triggerflags[q] = other.triggerflags[q];
+		triggerlevel = other.triggerlevel;
+		triggerbtn = other.triggerbtn;
+		triggeritem = other.triggeritem;
+		trigtimer = other.trigtimer;
+		trigsfx = other.trigsfx;
+		trigprox = other.trigprox;
+		trigctr = other.trigctr;
+		trigctramnt = other.trigctramnt;
+		triglbeam = other.triglbeam;
+		trigcschange = other.trigcschange;
+		spawnitem = other.spawnitem;
+		spawnenemy = other.spawnenemy;
+		exstate = other.exstate;
+		spawnip = other.spawnip;
+		trigcopycat = other.trigcopycat;
+		trigcooldown = other.trigcooldown;
+		trigchange = other.trigchange;
+		for(int32_t q = 0; q < 11; ++q)
+			label[q] = other.label[q];
+		for(int32_t q = 0; q < 8; ++q)
+		{
+			attribytes[q] = other.attribytes[q];
+			attrishorts[q] = other.attrishorts[q];
+		}
+		script = other.script;
+		for(int32_t q = 0; q < 2; ++q)
+			initd[q] = other.initd[q];
+		o_tile = other.o_tile;
+		cur_frame = other.cur_frame;
+		aclk = other.aclk;
+		
+		liftcmb = other.liftcmb;
+		liftundercmb = other.liftundercmb;
+		liftcs = other.liftcs;
+		liftundercs = other.liftundercs;
+		liftdmg = other.liftdmg;
+		liftlvl = other.liftlvl;
+		liftitm = other.liftitm;
+		liftflags = other.liftflags;
+		liftgfx = other.liftgfx;
+		liftsprite = other.liftsprite;
+		liftsfx = other.liftsfx;
+		liftbreaksprite = other.liftbreaksprite;
+		liftbreaksfx = other.liftbreaksfx;
+		lifthei = other.lifthei;
+		lifttime = other.lifttime;
+		
+		prompt_cid = other.prompt_cid;
+		prompt_cs = other.prompt_cs;
+		prompt_x = other.prompt_x;
+		prompt_y = other.prompt_y;
+	}
+	
+	newcombo(){clear();}
+	newcombo(newcombo const& other){copy(other);}
+	newcombo& operator=(newcombo const& other){copy(other); return *this;}
+	
 	bool is_blank(bool ignoreEff = false)
 	{
 		if(tile) return false;
