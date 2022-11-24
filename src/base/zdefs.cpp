@@ -1256,6 +1256,7 @@ slopedata::slopedata(newcombo const& cmb, zfix const& x, zfix const& y)
 		ignoretop = (cmb.usrflags&cflag3);
 		ignoreleft = (cmb.usrflags&cflag4);
 		ignoreright = (cmb.usrflags&cflag5);
+		falldown = (cmb.usrflags&cflag6);
 		
 		if(x1 > x2)
 		{
@@ -1287,6 +1288,7 @@ slopedata::slopedata(newcombo const& cmb, zfix const& x, zfix const& y, zfix con
 		ignoretop = (cmb.usrflags&cflag3);
 		ignoreleft = (cmb.usrflags&cflag4);
 		ignoreright = (cmb.usrflags&cflag5);
+		falldown = (cmb.usrflags&cflag6);
 		
 		if(x1 > x2)
 		{

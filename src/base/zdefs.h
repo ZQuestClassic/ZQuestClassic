@@ -4712,6 +4712,7 @@ struct slopedata
 	zfix slope;
 	zfix slipperiness;
 	bool stairs;
+	bool falldown;
 	bool ignorebottom;
 	bool ignoretop;
 	bool ignoreleft;
