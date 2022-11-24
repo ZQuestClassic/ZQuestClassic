@@ -684,6 +684,8 @@ void ComboEditorDialog::loadComboType()
 			h_attrishort[3] = "Y Offset of the starting point of the slope line.";
 			l_attribute[0] = "Slipperiness";
 			h_attribute[0] = "Pixels per frame to slide down the slope in sideview.";
+			l_flag[0] = "Is Stairs";
+			h_flag[0] = "You must hold up or be in the air for this slope to be active from the top. Bottom is always passthrough.";
 			l_flag[1] = "Pass through bottom";
 			h_flag[1] = "Disables the slope's collision from below, allowing sprites to pass through from the bottom.";
 			l_flag[2] = "Pass through top";

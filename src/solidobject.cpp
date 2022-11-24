@@ -244,7 +244,7 @@ bool slide_slope(solid_object* obj, zfix& dx, zfix& dy)
 	
 	for(slopedata const& s : slopes)
 	{
-		if (!s.slipperiness) continue;
+		if (!s.slipperiness && s.x1 == s.ox1 && s.y1 == s.oy1) continue;
 		if (lineBoxCollision(s.x1, s.y1, s.x2, s.y2, tx, ty+1, tw, th))
 		{
 			zfix cx = tx + tw/2 - 1;
@@ -261,16 +261,21 @@ bool slide_slope(solid_object* obj, zfix& dx, zfix& dy)
 			}
 			if (sign(zc::math::Sin(lineangle)) <= 0)
 			{
-				int32_t xdir = sign(zc::math::Cos(lineangle));
-				if (xdir)
+				dx += (s.x1 - s.ox1);
+				dy += (s.y1 - s.oy1);
+				if (s.slipperiness)
 				{
-					ty += s.slipperiness;
-					int32_t my = zc_min(s.y1, s.y2);
-					if(int32_t(oty + th) < my) return false;
-					dx = (s.getX(ty)-s.getX(oty));
-					dy = ty-oty;
-					if (!dx && !dy) return false;
+					int32_t xdir = sign(zc::math::Cos(lineangle));
+					if (xdir)
+					{
+						ty += s.slipperiness;
+						int32_t my = zc_min(s.y1, s.y2);
+						if (int32_t(oty + th) < my) return false;
+						dx += (s.getX(ty) - s.getX(oty));
+						dy += ty - oty;
+					}
 				}
+				if (!dx && !dy) return false;
 				return true;
 			}
 			return false;
@@ -279,7 +284,7 @@ bool slide_slope(solid_object* obj, zfix& dx, zfix& dy)
 	return false;
 }
 
-void slope_push_int(slopedata const& s, solid_object* obj, zfix& dx, zfix& dy, bool onplatform)
+void slope_push_int(slopedata const& s, solid_object* obj, zfix& dx, zfix& dy, bool onplatform, bool fallthrough)
 {
 	bool disabledY = (dy == -1);
 	bool disabledX = (dx == -1);
@@ -300,15 +305,17 @@ void slope_push_int(slopedata const& s, solid_object* obj, zfix& dx, zfix& dy, b
 		lineangle += PI/2;
 	}
 	if (zc::math::Sin(lineangle) < 0 &&
-		(s.ignoretop || (s.stairs && onplatform))) return;
+		(s.ignoretop || (s.stairs && onplatform) || (s.falldown && fallthrough))) return;
 	if (zc::math::Sin(lineangle) > 0 && 
 		(s.ignorebottom || s.stairs)) return;
 	if (zc::math::Cos(lineangle) < 0 && s.ignoreleft) return;
 	if (zc::math::Cos(lineangle) > 0 && s.ignoreright) return;
 	if (obj->sideview_mode() && zc::math::Sin(lineangle) < 0)
 	{
+		
 		while(lineBoxCollision(s.x1, s.y1, s.x2, s.y2, rx, ry, rw, rh))
 		{
+			onplatform = true;
 			--ry;
 		}
 	}
@@ -326,9 +333,28 @@ void slope_push_int(slopedata const& s, solid_object* obj, zfix& dx, zfix& dy, b
 				if (!disabledY) ry += zc::math::Sin(lineangle);
 			}
 		}
+		else
+		{
+			if (s.y1 == s.y2 && s.x1 != s.x2)
+			{
+				if (!my || disabledY) return;
+				while (lineBoxCollision(s.x1, s.y1, s.x2, s.y2, rx, ry, rw, rh))
+				{
+					ry += zc::math::Sin(lineangle);
+				}
+			}
+			if (s.x1 == s.x2 && s.y1 != s.y2)
+			{
+				if (!mx || disabledX) return;
+				while (lineBoxCollision(s.x1, s.y1, s.x2, s.y2, rx, ry, rw, rh))
+				{
+					rx += zc::math::Cos(lineangle);
+				}
+			}
+		}
 	}
-	dx = (rx - orx);
-	dy = (ry - ory);
+	dx += (rx - orx);
+	dy += (ry - ory);
 }
 
 solid_object::solid_object() : solid(false), in_solid_arr(false),

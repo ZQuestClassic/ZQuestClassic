@@ -1261,6 +1261,8 @@ slopedata::slopedata(newcombo const& cmb, zfix const& x, zfix const& y)
 		{
 			zc_swap(x1,x2);
 			zc_swap(y1,y2);
+			zc_swap(ox1,ox2);
+			zc_swap(oy1,oy2);
 		}
 		
 		slope = (y2-y1)/(x2-x1);
