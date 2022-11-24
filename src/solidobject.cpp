@@ -279,7 +279,7 @@ bool slide_slope(solid_object* obj, zfix& dx, zfix& dy)
 	return false;
 }
 
-void slope_push_int(slopedata const& s, solid_object* obj, zfix& dx, zfix& dy)
+void slope_push_int(slopedata const& s, solid_object* obj, zfix& dx, zfix& dy, bool onplatform)
 {
 	bool disabledY = (dy == -1);
 	bool disabledX = (dx == -1);
@@ -299,8 +299,10 @@ void slope_push_int(slopedata const& s, solid_object* obj, zfix& dx, zfix& dy)
 	{
 		lineangle += PI/2;
 	}
-	if (zc::math::Sin(lineangle) < 0 && s.ignoretop) return;
-	if (zc::math::Sin(lineangle) > 0 && s.ignorebottom) return;
+	if (zc::math::Sin(lineangle) < 0 &&
+		(s.ignoretop || (s.stairs && onplatform))) return;
+	if (zc::math::Sin(lineangle) > 0 && 
+		(s.ignorebottom || s.stairs)) return;
 	if (zc::math::Cos(lineangle) < 0 && s.ignoreleft) return;
 	if (zc::math::Cos(lineangle) > 0 && s.ignoreright) return;
 	if (obj->sideview_mode() && zc::math::Sin(lineangle) < 0)

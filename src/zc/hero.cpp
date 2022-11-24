@@ -106,9 +106,16 @@ byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 #define SWITCHBLOCK_STATE (switchblock_z<0?switchblock_z:(switchblock_z+z+fakez < 0 ? zslongToFix(2147483647) : switchblock_z+z+fakez))
 #define FIXED_Z3_ANIMATION ((zinit.heroAnimationStyle==las_zelda3||zinit.heroAnimationStyle==las_zelda3slow)&&!get_bit(quest_rules,qr_BROKEN_Z3_ANIMATION))
 
+static inline bool on_sideview_slope(int32_t x, int32_t y, int32_t oldx, int32_t oldy)
+{
+	if(check_new_slope(x, y+1, 16, 16, oldx, oldy) < 0) return true;
+	return false;
+}
+
 static inline bool platform_fallthrough()
 {
-	return (getInput(btnDown, false, get_bit(quest_rules,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_bit(quest_rules,qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS))
+	return (!on_sideview_slope(Hero.x, Hero.y,Hero.old_x,Hero.old_y) && (on_sideview_slope(Hero.x,Hero.y+1,Hero.old_x,Hero.old_y) || on_sideview_slope(Hero.x, Hero.y + 2, Hero.old_x, Hero.old_y)) && Down())
+		|| (getInput(btnDown, false, get_bit(quest_rules,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_bit(quest_rules,qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS))
 		|| (Hero.jumping < 0 && getInput(btnDown, false, get_bit(quest_rules,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_bit(quest_rules,qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS));
 }
 
@@ -135,6 +142,7 @@ static inline bool on_sideview_solid_oldpos(int32_t x, int32_t y, int32_t oldx, 
 		return true;
 	return false;
 }
+
 
 bool usingActiveShield(int32_t itmid)
 {
@@ -7729,10 +7737,10 @@ bool HeroClass::animate(int32_t)
 		bool platformfell = false;
 		if((y.getInt()%16==0) && (isSVPlatform(x+4,y+16) || isSVPlatform(x+12,y+16)) && !(on_sideview_solid_oldpos(x,y,old_x,old_y)))
 		{
+			if (!(!on_sideview_slope(Hero.x, Hero.y,Hero.old_x,Hero.old_y) && (on_sideview_slope(Hero.x,Hero.y+1,Hero.old_x,Hero.old_y) || on_sideview_slope(Hero.x, Hero.y + 2, Hero.old_x, Hero.old_y)) && Down())) platformfell = true;
 			y+=1; //Fall down a pixel instantly, through the platform.
 			if(fall < 0) fall = 0;
 			if(jumping < 0) jumping = 0;
-			platformfell = true;
 		}
 		//Unless using old collision, run this check BEFORE moving Hero, to prevent clipping into the ceiling.
 		if(!get_bit(quest_rules, qr_OLD_SIDEVIEW_CEILING_COLLISON))
@@ -9529,27 +9537,29 @@ bool HeroClass::animate(int32_t)
 		if (slide_slope(this, dx, dy))
 			push_move(dx, dy);
 	}
+	bool onplatform = (on_sideview_solid_oldpos(x, y,old_x,old_y, false, 1) && !Up());
 	for (auto q = 0; (check_slope(this, true) && !toogam) && q < 2; ++q)
 	{
 		if (check_slope(this, true) && !toogam)
 		{
-			slope_push_int(get_slope(this), this, dx, dy);
+			slope_push_int(get_slope(this), this, dx, dy, onplatform);
 			
 			if (dx || dy) 
 			{
 				int32_t pushret = push_move(dx,dy);
+				onplatform = (on_sideview_solid_oldpos(x, y,old_x,old_y, false, 1) && !Up());
 				if (pushret == 1)
 				{
 					dx = -1;
 					dy = 0;
-					slope_push_int(get_slope(this), this, dx, dy);
+					slope_push_int(get_slope(this), this, dx, dy, onplatform);
 					push_move(dx,dy);
 				}
 				if (pushret == 2)
 				{
 					dx = 0;
 					dy = -1;
-					slope_push_int(get_slope(this), this, dx, dy);
+					slope_push_int(get_slope(this), this, dx, dy, onplatform);
 					push_move(dx,dy);
 				}
 			}
