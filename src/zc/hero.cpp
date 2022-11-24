@@ -9478,7 +9478,7 @@ bool HeroClass::animate(int32_t)
 		newcombo const& cmb = combobuf[tmpscr->ffcs[i].getData()];
 		if (cmb.type == cSLOPE && !(tmpscr->ffcs[i].flags&ffCHANGER))
 		{
-			slopes.emplace_back(cmb, tmpscr->ffcs[i].x, tmpscr->ffcs[i].y);
+			slopes.emplace_back(cmb, tmpscr->ffcs[i].x, tmpscr->ffcs[i].y, tmpscr->ffcs[i].old_x2, tmpscr->ffcs[i].old_y2);
 		}
 		if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
 		{

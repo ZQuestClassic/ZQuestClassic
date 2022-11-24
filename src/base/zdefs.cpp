@@ -1247,10 +1247,39 @@ slopedata::slopedata(newcombo const& cmb, zfix const& x, zfix const& y)
 {
 	if (cmb.type == cSLOPE) 
 	{
+		x1 = ox1 = x + int32_t(cmb.attrishorts[0]);
+		y1 = oy1 = y + int32_t(cmb.attrishorts[1]);
+		x2 = ox2 = x + int32_t(cmb.attrishorts[2]);
+		y2 = oy2 = y + int32_t(cmb.attrishorts[3]);
+		stairs = (cmb.usrflags&cflag1);
+		ignorebottom = (cmb.usrflags&cflag2);
+		ignoretop = (cmb.usrflags&cflag3);
+		ignoreleft = (cmb.usrflags&cflag4);
+		ignoreright = (cmb.usrflags&cflag5);
+		
+		if(x1 > x2)
+		{
+			zc_swap(x1,x2);
+			zc_swap(y1,y2);
+		}
+		
+		slope = (y2-y1)/(x2-x1);
+		slipperiness = zslongToFix(cmb.attributes[0]);
+	}
+}
+
+slopedata::slopedata(newcombo const& cmb, zfix const& x, zfix const& y, zfix const& ox, zfix const& oy)
+{
+	if (cmb.type == cSLOPE) 
+	{
 		x1 = x + int32_t(cmb.attrishorts[0]);
 		y1 = y + int32_t(cmb.attrishorts[1]);
 		x2 = x + int32_t(cmb.attrishorts[2]);
 		y2 = y + int32_t(cmb.attrishorts[3]);
+		ox1 = ox + int32_t(cmb.attrishorts[0]);
+		oy1 = oy + int32_t(cmb.attrishorts[1]);
+		ox2 = ox + int32_t(cmb.attrishorts[2]);
+		oy2 = oy + int32_t(cmb.attrishorts[3]);
 		stairs = (cmb.usrflags&cflag1);
 		ignorebottom = (cmb.usrflags&cflag2);
 		ignoretop = (cmb.usrflags&cflag3);

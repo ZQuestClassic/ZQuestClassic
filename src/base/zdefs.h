@@ -4705,6 +4705,10 @@ struct slopedata
 	zfix y1;
 	zfix x2;
 	zfix y2;
+	zfix ox1;
+	zfix oy1;
+	zfix ox2;
+	zfix oy2;
 	zfix slope;
 	zfix slipperiness;
 	bool stairs;
@@ -4714,6 +4718,7 @@ struct slopedata
 	bool ignoreright;
 	slopedata(){};
 	slopedata(newcombo const& cmb, zfix const& x, zfix const& y);
+	slopedata(newcombo const& cmb, zfix const& x, zfix const& y, zfix const& ox, zfix const& oy);
 	zfix getX(zfix const& y) const;
 	zfix getY(zfix const& x) const;
 };

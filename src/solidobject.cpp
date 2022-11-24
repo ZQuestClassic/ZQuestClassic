@@ -121,7 +121,7 @@ int32_t check_new_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th, int32_t 
 {
 	for(slopedata const& s : slopes)
 	{
-		if (lineBoxCollision(s.x1, s.y1, s.x2, s.y2, tx, ty, tw, th) && !lineBoxCollision(s.x1, s.y1, s.x2, s.y2, otx, oty, tw, th))
+		if (lineBoxCollision(s.x1, s.y1, s.x2, s.y2, tx, ty, tw, th) && !lineBoxCollision(s.ox1, s.oy1, s.ox2, s.oy2, otx, oty, tw, th))
 		{
 			zfix cx = tx + tw/2 - 1;
 			zfix cy = ty + th/2 - 1;
@@ -180,7 +180,7 @@ slopedata const& get_new_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th, i
 	for(auto it = slopes.begin(); it != slopes.end(); ++it)
 	{
 		if (lineBoxCollision((*it).x1, (*it).y1, (*it).x2, (*it).y2, tx, ty, tw, th)
-			&& !lineBoxCollision((*it).x1, (*it).y1, (*it).x2, (*it).y2, otx, oty, tw, th)) 
+			&& !lineBoxCollision((*it).ox1, (*it).oy1, (*it).ox2, (*it).oy2, otx, oty, tw, th)) 
 		{
 			zfix cx = tx + tw/2 - 1;
 			zfix cy = ty + th/2 - 1;
@@ -448,6 +448,8 @@ void solid_object::solid_update(bool push)
 		}
 	}
 #endif
+	old_x2 = old_x;
+	old_y2 = old_y;
 	old_x = x;
 	old_y = y;
 }

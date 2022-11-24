@@ -24,7 +24,7 @@ class solid_object
 {
 public:
 	zfix x, y, vx, vy;
-	zfix old_x, old_y;
+	zfix old_x, old_y, old_x2, old_y2;
 	int32_t hxsz,hysz,hxofs,hyofs;
 	int32_t sxofs,syofs,sxsz_ofs,sysz_ofs;
 	int32_t solidflags;

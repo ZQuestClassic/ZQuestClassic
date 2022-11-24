@@ -688,11 +688,11 @@ void ComboEditorDialog::loadComboType()
 			h_flag[1] = "Disables the slope's collision from below, allowing sprites to pass through from the bottom.";
 			l_flag[2] = "Pass through top";
 			h_flag[2] = "Disables the slope's collision from above, allowing sprites to pass through from the top.";
-			l_flag[1] = "Pass through left side";
-			h_flag[1] = "Disables the slope's collision from the left, allowing sprites to pass through from the left side."
+			l_flag[3] = "Pass through left side";
+			h_flag[3] = "Disables the slope's collision from the left, allowing sprites to pass through from the left side."
 				"\nThis flag is not needed if you have either pass through top or pass through bottom checked.";
-			l_flag[2] = "Pass through right side";
-			h_flag[2] = "Disables the slope's collision from the right, allowing sprites to pass through from the right side."
+			l_flag[4] = "Pass through right side";
+			h_flag[4] = "Disables the slope's collision from the right, allowing sprites to pass through from the right side."
 				"\nThis flag is not needed if you have either pass through top or pass through bottom checked.";
 			break;
 		}
