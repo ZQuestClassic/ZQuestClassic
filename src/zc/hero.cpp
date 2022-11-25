@@ -121,11 +121,12 @@ static inline bool platform_fallthrough(bool doslopecheck = true)
 
 static inline bool on_sideview_solid(int32_t x, int32_t y, bool ignoreFallthrough = false, int32_t slopesmisc = 0)
 {
-	if(slopesmisc != 1 && check_slope(x, y+1, 16, 16) < 0) return true;
+	if(slopesmisc != 1 && check_slope(x, y+1, 16, 16, (slopesmisc == 3)) < 0) return true;
 	if(slopesmisc == 2) return false;
 	if (_walkflag(x+4,y+16,1) || _walkflag(x+12,y+16,1)) return true;
 	if (y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) return true;
 	if (platform_fallthrough() && !ignoreFallthrough) return false;
+	if(slopesmisc != 1 && check_slope(x, y+1, 16, 16) < 0) return true;
 	if (y%16==0 && (checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16)))
 		return true;
 	return false;
@@ -133,11 +134,12 @@ static inline bool on_sideview_solid(int32_t x, int32_t y, bool ignoreFallthroug
 
 static inline bool on_sideview_solid_oldpos(int32_t x, int32_t y, int32_t oldx, int32_t oldy, bool ignoreFallthrough = false, int32_t slopesmisc = 0)
 {
-	if(slopesmisc != 1 && check_new_slope(x, y+1, 16, 16, oldx, oldy) < 0) return true;
+	if(slopesmisc != 1 && check_new_slope(x, y+1, 16, 16, oldx, oldy, (slopesmisc == 3)) < 0) return true;
 	if(slopesmisc == 2) return false;
 	if (_walkflag(x+4,y+16,1) || _walkflag(x+12,y+16,1)) return true;
 	if (y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) return true;
 	if (platform_fallthrough() && !ignoreFallthrough) return false;
+	if (slopesmisc != 1 && check_new_slope(x, y + 1, 16, 16, oldx, oldy) < 0) return true;
 	if (y%16==0 && (checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16)))
 		return true;
 	return false;
@@ -7731,16 +7733,18 @@ bool HeroClass::animate(int32_t)
 			hoverflags &= ~HOV_OUT;
 		}
 	}
+	bool platformfell2 = false;
 	if(sideview_mode())  // Sideview gravity
 	{
 		//Handle falling through a platform
 		bool platformfell = false;
-		if((y.getInt()%16==0) && (isSVPlatform(x+4,y+16) || isSVPlatform(x+12,y+16)) && !(on_sideview_solid_oldpos(x,y,old_x,old_y)))
+		if (on_sideview_solid_oldpos(x,y,old_x,old_y,true,3) && !on_sideview_solid_oldpos(x,y,old_x,old_y,false,3))
 		{
 			if (!(!on_sideview_slope(Hero.x, Hero.y,Hero.old_x,Hero.old_y) && (on_sideview_slope(Hero.x,Hero.y+1,Hero.old_x,Hero.old_y) || on_sideview_slope(Hero.x, Hero.y + 2, Hero.old_x, Hero.old_y)) && Down())) platformfell = true;
 			y+=1; //Fall down a pixel instantly, through the platform.
 			if(fall < 0) fall = 0;
 			if(jumping < 0) jumping = 0;
+			platformfell2 = true;
 		}
 		//Unless using old collision, run this check BEFORE moving Hero, to prevent clipping into the ceiling.
 		if(!get_bit(quest_rules, qr_OLD_SIDEVIEW_CEILING_COLLISON))
@@ -7839,7 +7843,7 @@ bool HeroClass::animate(int32_t)
 		}
 		// Stop hovering/falling if you land on something.
 		bool needFall = false;
-		if((on_sideview_solid_oldpos(x,y,old_x,old_y) || getOnSideviewLadder())  && !(pull_hero && dir==down) && action!=rafting)
+		if((on_sideview_solid_oldpos(x,y,old_x,old_y) || getOnSideviewLadder())  && !(pull_hero && dir==down) && action!=rafting && !platformfell2)
 		{
 			stop_item_sfx(itype_hoverboots);
 			if(get_bit(quest_rules,qr_OLD_SIDEVIEW_LANDING_CODE)
@@ -9542,7 +9546,7 @@ bool HeroClass::animate(int32_t)
 	{
 		if (check_slope(this, true) && !toogam)
 		{
-			slope_push_int(get_slope(this), this, dx, dy, onplatform);
+			slope_push_int(get_slope(this), this, dx, dy, onplatform, platformfell2);
 			
 			if (dx || dy) 
 			{

@@ -88,7 +88,7 @@ bool collide_object(int32_t tx, int32_t ty, int32_t tw, int32_t th, solid_object
 	return false;
 }
 
-int32_t check_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th)
+int32_t check_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th, bool fallthrough)
 {
 	for(slopedata const& s : slopes)
 	{
@@ -106,7 +106,7 @@ int32_t check_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th)
 			{
 				lineangle += PI/2;
 			}
-			if (zc::math::Sin(lineangle) < 0 && s.ignoretop) continue;
+			if (zc::math::Sin(lineangle) < 0 && (s.ignoretop || (s.falldown && fallthrough))) continue;
 			if (zc::math::Sin(lineangle) > 0 && s.ignorebottom) continue;
 			if (zc::math::Cos(lineangle) < 0 && s.ignoreleft) continue;
 			if (zc::math::Cos(lineangle) > 0 && s.ignoreright) continue;
@@ -117,7 +117,7 @@ int32_t check_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th)
 	return 0;
 }
 
-int32_t check_new_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th, int32_t otx, int32_t oty)
+int32_t check_new_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th, int32_t otx, int32_t oty, bool fallthrough)
 {
 	for(slopedata const& s : slopes)
 	{
@@ -135,7 +135,7 @@ int32_t check_new_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th, int32_t 
 			{
 				lineangle += PI/2;
 			}
-			if (zc::math::Sin(lineangle) < 0 && s.ignoretop) continue;
+			if (zc::math::Sin(lineangle) < 0 && (s.ignoretop || (s.falldown && fallthrough))) continue;
 			if (zc::math::Sin(lineangle) > 0 && s.ignorebottom) continue;
 			if (zc::math::Cos(lineangle) < 0 && s.ignoreleft) continue;
 			if (zc::math::Cos(lineangle) > 0 && s.ignoreright) continue;

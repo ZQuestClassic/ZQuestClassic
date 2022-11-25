@@ -704,6 +704,8 @@ void ComboEditorDialog::loadComboType()
 			l_flag[4] = "Pass through right side";
 			h_flag[4] = "Disables the slope's collision from the right, allowing sprites to pass through from the right side."
 				"\nThis flag is not needed if you have either pass through top or pass through bottom checked.";
+			l_flag[5] = "Can fall through";
+			h_flag[5] = "Treats the slope like a Sideview Platform Flag, allowing you to fall through it depending on quest rules.";
 			break;
 		}
 		case cTRIGNOFLAG: case cSTRIGNOFLAG:
