@@ -35,6 +35,8 @@ bool hasComboWizard(int32_t type)
 		// case cARMOS: case cBSGRAVE: case cGRAVE:
 		// case cSTEPSFX: case cSWITCHHOOK: case cCSWITCHBLOCK:
 		// case cSAVE: case cSAVE2:
+		case cTRIGNOFLAG: case cSTRIGNOFLAG:
+		case cTRIGFLAG: case cSTRIGFLAG:
 		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
 		case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
@@ -234,6 +236,10 @@ void ComboWizardDialog::updateTitle()
 		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
 			ctyname = "Warp";
 			break;
+		case cTRIGNOFLAG: case cSTRIGNOFLAG:
+		case cTRIGFLAG: case cSTRIGFLAG:
+			ctyname = "Step->Secrets";
+			break;
 		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
 			ctyname = "Damage";
@@ -306,74 +312,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						{
 							warp_sfx = val;
 						}),
-					INFOBTN(parent.h_attribyte[0])
-				)
-			);
-			break;
-		}
-		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
-		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
-		{
-			int32_t& damage = local_ref.attributes[0];
-			lists[0] = GUI::ZCListData::combotype(true).filter(
-				[](GUI::ListItem const& itm){return isDamageType(itm.value);});
-			rs_sz[0] = 2;
-			windowRow->add(
-				Column(padding = 0_px,
-					Rows<3>(
-						rset[0][0] = Radio(
-							hAlign = 0.0,
-							checked = !(local_ref.usrflags&cflag1),
-							text = "Type-based Damage",
-							indx = 0,
-							onToggle = message::RSET0
-						),
-						//Label(text = "Type:", hAlign = 1.0),
-						ddls[0] = DropDownList(data = lists[0],
-							fitParent = true, selectedValue = local_ref.type,
-							onSelectFunc = [&](int32_t val)
-							{
-								local_ref.type = val;
-								updateTitle();
-							}),
-						INFOBTN(thelp),
-						//
-						rset[0][1] = Radio(
-							hAlign = 0.0,
-							checked = local_ref.usrflags&cflag1,
-							text = "Custom Damage",
-							indx = 1,
-							onToggle = message::RSET0
-						),
-						tfs[0] = TextField(
-							fitParent = true, minwidth = 8_em,
-							type = GUI::TextField::type::SWAP_ZSINT,
-							val = damage, disabled = !(local_ref.usrflags&cflag1),
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								damage = val;
-							}),
-						INFOBTN("The amount of damage, in HP, to deal. Negative amounts heal."
-							"\nFor healing, the lowest healing amount combo you"
-							" are standing on takes effect."
-							"\nFor damage, the greatest amount takes priority unless"
-							" 'Quest->Options->Combos->Lesser Damage Combos Take Priority' is checked.")
-						//
-					),
-					Rows<2>(
-						INFOBTN("Does not knock the player back when damaging them if checked."
-							" Otherwise, knocks the player in the direction opposite"
-							" the one they face."),
-						cboxes[0] = Checkbox(
-							text = "No Knockback",
-							hAlign = 0.0,
-							checked = local_ref.usrflags&cflag2, fitParent = true,
-							onToggleFunc = [&](bool state)
-							{
-								SETFLAG(local_ref.usrflags,cflag2,state);
-							}
-						)
-					)
+					INFOBTN("SFX to play during the warp")
 				)
 			);
 			break;
@@ -546,6 +485,141 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			));
 			break;
 		}
+		case cTRIGNOFLAG: case cSTRIGNOFLAG:
+		case cTRIGFLAG: case cSTRIGFLAG:
+		{
+			byte& trig_sfx = local_ref.attribytes[0];
+			bool perm = (local_ref.type==cTRIGFLAG||local_ref.type==cSTRIGFLAG);
+			bool sens = (local_ref.type==cSTRIGNOFLAG||local_ref.type==cSTRIGFLAG);
+			windowRow->add(
+				Rows<3>(
+					INFOBTN_HAL(1.0,"If checked, the combo will trigger secrets permanently."),
+					cboxes[0] = Checkbox(
+							text = "Permanent", hAlign = 0.0,
+							checked = perm, colSpan = 2,
+							onToggleFunc = [&](bool state)
+							{
+								switch(local_ref.type)
+								{
+									case cTRIGNOFLAG:
+										if(state) local_ref.type = cTRIGFLAG;
+										break;
+									case cSTRIGNOFLAG:
+										if(state) local_ref.type = cSTRIGFLAG;
+										break;
+									case cTRIGFLAG:
+										if(!state) local_ref.type = cTRIGNOFLAG;
+										break;
+									case cSTRIGFLAG:
+										if(!state) local_ref.type = cSTRIGNOFLAG;
+										break;
+								}
+							}
+						),
+					//
+					INFOBTN_HAL(1.0,"If checked, the combo will trigger even if barely touched."),
+					cboxes[1] = Checkbox(
+							text = "Sensitive", hAlign = 0.0,
+							checked = sens, colSpan = 2,
+							onToggleFunc = [&](bool state)
+							{
+								switch(local_ref.type)
+								{
+									case cTRIGNOFLAG:
+										if(state) local_ref.type = cSTRIGNOFLAG;
+										break;
+									case cTRIGFLAG:
+										if(state) local_ref.type = cSTRIGFLAG;
+										break;
+									case cSTRIGFLAG:
+										if(!state) local_ref.type = cTRIGFLAG;
+										break;
+									case cSTRIGNOFLAG:
+										if(!state) local_ref.type = cTRIGNOFLAG;
+										break;
+								}
+							}
+						),
+					//
+					Label(text = "Trigger Sound:", hAlign = 1.0),
+					ddls[0] = DropDownList(data = parent.list_sfx,
+						fitParent = true, selectedValue = trig_sfx,
+						onSelectFunc = [&](int32_t val)
+						{
+							trig_sfx = val;
+						}),
+					INFOBTN("SFX to play when triggered")
+				)
+			);
+			break;
+		}
+		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
+		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
+		{
+			int32_t& damage = local_ref.attributes[0];
+			lists[0] = GUI::ZCListData::combotype(true).filter(
+				[](GUI::ListItem const& itm){return isDamageType(itm.value);});
+			rs_sz[0] = 2;
+			windowRow->add(
+				Column(padding = 0_px,
+					Rows<3>(
+						rset[0][0] = Radio(
+							hAlign = 0.0,
+							checked = !(local_ref.usrflags&cflag1),
+							text = "Type-based Damage",
+							indx = 0,
+							onToggle = message::RSET0
+						),
+						//Label(text = "Type:", hAlign = 1.0),
+						ddls[0] = DropDownList(data = lists[0],
+							fitParent = true, selectedValue = local_ref.type,
+							onSelectFunc = [&](int32_t val)
+							{
+								local_ref.type = val;
+								updateTitle();
+							}),
+						INFOBTN(thelp),
+						//
+						rset[0][1] = Radio(
+							hAlign = 0.0,
+							checked = local_ref.usrflags&cflag1,
+							text = "Custom Damage",
+							indx = 1,
+							onToggle = message::RSET0
+						),
+						tfs[0] = TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_ZSINT,
+							val = damage, disabled = !(local_ref.usrflags&cflag1),
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								damage = val;
+							}),
+						INFOBTN("The amount of damage, in HP, to deal. Negative amounts heal."
+							"\nFor healing, the lowest healing amount combo you"
+							" are standing on takes effect."
+							"\nFor damage, the greatest amount takes priority unless"
+							" 'Quest->Options->Combos->Lesser Damage Combos Take Priority' is checked.")
+						//
+					),
+					Rows<2>(
+						INFOBTN("Does not knock the player back when damaging them if checked."
+							" Otherwise, knocks the player in the direction opposite"
+							" the one they face."),
+						cboxes[0] = Checkbox(
+							text = "No Knockback",
+							hAlign = 0.0,
+							checked = local_ref.usrflags&cflag2, fitParent = true,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_ref.usrflags,cflag2,state);
+							}
+						)
+					)
+				)
+			);
+			break;
+		}
 		case cSHOOTER:
 		{
 			byte& shot_sfx = local_ref.attribytes[0];
@@ -658,7 +732,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					),
 					Rows<2>(
 						Label(text = "Unblockable"),
-						INFOBTNL("The following checkboxes can make the weapon bypass"
+						INFOBTN_HAL(0.0,"The following checkboxes can make the weapon bypass"
 							"types of blocking."),
 						cboxes[0] = Checkbox(
 							text = "Bypass 'Block' Defense",
