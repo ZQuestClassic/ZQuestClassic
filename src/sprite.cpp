@@ -81,6 +81,8 @@ sprite::sprite()
     uid = getNextUID();
 	isspawning = false;
     x=y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=yofs=shadowxofs=shadowyofs=zofs=fall=fakefall=fakez=0;
+    slopeid = -1;
+    onplatid = 0;
     txsz=1;
     tysz=1;
     id=-1;
@@ -193,6 +195,8 @@ sprite::sprite(sprite const & other):
     flip(other.flip),
     c_clk(other.c_clk),
     clk(other.clk),
+    slopeid(other.slopeid),
+    onplatid(other.onplatid),
     misc(other.misc),
     xofs(other.xofs),
     yofs(other.yofs),
@@ -305,6 +309,8 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
 	y = Y;
     uid = getNextUID();
     isspawning = false;
+    slopeid = -1;
+    onplatid = 0;
     hxsz=hysz=16;
     hxofs=hyofs=xofs=0;
     txsz=1;

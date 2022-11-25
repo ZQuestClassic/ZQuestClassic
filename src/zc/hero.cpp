@@ -7876,6 +7876,12 @@ bool HeroClass::animate(int32_t)
 				if (on_sideview_solid_oldpos(x, ty,old_x,old_y, false, 0))
 				{
 					y = ty;
+					if (check_new_slope(x, ty + 1, 16, 16, old_x, old_y, false) < 0)
+					{
+						slopedata s = get_new_slope(x, ty + 1, 16, 16, old_x, old_y);
+						if (!slopeid) slopeid = s.slope;
+						onplatid = 2;
+					}
 					needFall = false;
 					break;
 				}
@@ -9418,7 +9424,7 @@ bool HeroClass::animate(int32_t)
 			newcombo const& cmb = combobuf[cid];
 			if (cmb.type == cSLOPE) 
 			{
-				slopes.emplace_back(cmb, COMBOX(i), COMBOY(i));
+				slopes.emplace_back(cmb, COMBOX(i), COMBOY(i),(176*layer)+i);
 			}
 			if(!get_bit(quest_rules,qr_AUTOCOMBO_ANY_LAYER))
 			{
@@ -9490,7 +9496,7 @@ bool HeroClass::animate(int32_t)
 		newcombo const& cmb = combobuf[tmpscr->ffcs[i].getData()];
 		if (cmb.type == cSLOPE && !(tmpscr->ffcs[i].flags&ffCHANGER))
 		{
-			slopes.emplace_back(cmb, tmpscr->ffcs[i].x, tmpscr->ffcs[i].y, tmpscr->ffcs[i].old_x2, tmpscr->ffcs[i].old_y2);
+			slopes.emplace_back(cmb, tmpscr->ffcs[i].x, tmpscr->ffcs[i].y, tmpscr->ffcs[i].old_x2, tmpscr->ffcs[i].old_y2, (176*7)+int32_t(i));
 		}
 		if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
 		{
@@ -9538,32 +9544,43 @@ bool HeroClass::animate(int32_t)
 	zfix dx, dy;
 	if (sideview_mode() && !on_sideview_solid_oldpos(x, y,old_x,old_y, false, 1) && on_sideview_solid_oldpos(x, y,old_x,old_y, false, 2) && !toogam)
 	{
-		if (slide_slope(this, dx, dy))
-			push_move(dx, dy);
+		if (slide_slope(this, dx, dy, slopeid))
+		{
+			onplatid = 2;
+			if (dx || dy) push_move(dx, dy);
+		}
 	}
+	if (onplatid <= 0) slopeid = 0;
+	else --onplatid;
 	bool onplatform = (on_sideview_solid_oldpos(x, y,old_x,old_y, false, 1) && !Up());
 	for (auto q = 0; (check_slope(this, true) && !toogam) && q < 2; ++q)
 	{
 		if (check_slope(this, true) && !toogam)
 		{
-			slope_push_int(get_slope(this), this, dx, dy, onplatform, platformfell2);
+			slopedata s = get_slope(this, true);
+			bool staircheck = false;
+			if (s.slope != slopeid && slopeid != 0) staircheck = true;
+			if (onplatform) staircheck = true;
+			slope_push_int(s, this, dx, dy, staircheck, platformfell2);
 			
 			if (dx || dy) 
 			{
 				int32_t pushret = push_move(dx,dy);
 				onplatform = (on_sideview_solid_oldpos(x, y,old_x,old_y, false, 1) && !Up());
+				if (s.slope != slopeid && slopeid != 0) staircheck = true;
+				if (onplatform) staircheck = true;
 				if (pushret == 1)
 				{
 					dx = -1;
 					dy = 0;
-					slope_push_int(get_slope(this), this, dx, dy, onplatform);
+					slope_push_int(s, this, dx, dy, staircheck);
 					push_move(dx,dy);
 				}
 				if (pushret == 2)
 				{
 					dx = 0;
 					dy = -1;
-					slope_push_int(get_slope(this), this, dx, dy, onplatform);
+					slope_push_int(s, this, dx, dy, staircheck);
 					push_move(dx,dy);
 				}
 			}

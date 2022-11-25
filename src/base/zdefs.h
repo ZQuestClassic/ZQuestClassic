@@ -4716,6 +4716,7 @@ struct slopedata
 	zfix oy2;
 	zfix slope;
 	zfix slipperiness;
+	int32_t id;
 	bool stairs;
 	bool falldown;
 	bool ignorebottom;
@@ -4724,7 +4725,8 @@ struct slopedata
 	bool ignoreright;
 	slopedata(){};
 	slopedata(newcombo const& cmb, zfix const& x, zfix const& y);
-	slopedata(newcombo const& cmb, zfix const& x, zfix const& y, zfix const& ox, zfix const& oy);
+	slopedata(newcombo const& cmb, zfix const& x, zfix const& y, int32_t ID);
+	slopedata(newcombo const& cmb, zfix const& x, zfix const& y, zfix const& ox, zfix const& oy, int32_t ID);
 	zfix getX(zfix const& y) const;
 	zfix getY(zfix const& x) const;
 };

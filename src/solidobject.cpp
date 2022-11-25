@@ -107,7 +107,8 @@ int32_t check_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th, bool fallthr
 				lineangle += PI/2;
 			}
 			if (zc::math::Sin(lineangle) < 0 && (s.ignoretop || (s.falldown && fallthrough))) continue;
-			if (zc::math::Sin(lineangle) > 0 && s.ignorebottom) continue;
+			if (zc::math::Sin(lineangle) > 0 && 
+				(s.ignorebottom || s.stairs)) continue;
 			if (zc::math::Cos(lineangle) < 0 && s.ignoreleft) continue;
 			if (zc::math::Cos(lineangle) > 0 && s.ignoreright) continue;
 			int32_t ret = sign(zc::math::Sin(lineangle));
@@ -136,7 +137,8 @@ int32_t check_new_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th, int32_t 
 				lineangle += PI/2;
 			}
 			if (zc::math::Sin(lineangle) < 0 && (s.ignoretop || (s.falldown && fallthrough))) continue;
-			if (zc::math::Sin(lineangle) > 0 && s.ignorebottom) continue;
+			if (zc::math::Sin(lineangle) > 0 && 
+				(s.ignorebottom || s.stairs)) continue;
 			if (zc::math::Cos(lineangle) < 0 && s.ignoreleft) continue;
 			if (zc::math::Cos(lineangle) > 0 && s.ignoreright) continue;
 			int32_t ret = sign(zc::math::Sin(lineangle));
@@ -165,7 +167,8 @@ slopedata const& get_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th)
 				lineangle += PI/2;
 			}
 			if (zc::math::Sin(lineangle) < 0 && (*it).ignoretop) continue;
-			if (zc::math::Sin(lineangle) > 0 && (*it).ignorebottom) continue;
+			if (zc::math::Sin(lineangle) > 0 && 
+				((*it).ignorebottom || (*it).stairs)) continue;
 			if (zc::math::Cos(lineangle) < 0 && (*it).ignoreleft) continue;
 			if (zc::math::Cos(lineangle) > 0 && (*it).ignoreright) continue;
 			return (*it);
@@ -195,7 +198,8 @@ slopedata const& get_new_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th, i
 				lineangle += PI/2;
 			}
 			if (zc::math::Sin(lineangle) < 0 && (*it).ignoretop) continue;
-			if (zc::math::Sin(lineangle) > 0 && (*it).ignorebottom) continue;
+			if (zc::math::Sin(lineangle) > 0 && 
+				((*it).ignorebottom || (*it).stairs)) continue;
 			if (zc::math::Cos(lineangle) < 0 && (*it).ignoreleft) continue;
 			if (zc::math::Cos(lineangle) > 0 && (*it).ignoreright) continue;
 			return (*it);
@@ -233,7 +237,7 @@ slopedata const& get_slope(solid_object* o, bool onlyNew)
 	               o->old_y + o->hyofs + o->syofs);
 }
 
-bool slide_slope(solid_object* obj, zfix& dx, zfix& dy)
+bool slide_slope(solid_object* obj, zfix& dx, zfix& dy, int32_t& ID)
 {
 	if (!obj->sideview_mode()) return false;
 	zfix tx = obj->x+obj->hxofs+obj->sxofs, ty = obj->y+obj->hyofs+obj->syofs,
@@ -244,7 +248,7 @@ bool slide_slope(solid_object* obj, zfix& dx, zfix& dy)
 	
 	for(slopedata const& s : slopes)
 	{
-		if (!s.slipperiness && s.x1 == s.ox1 && s.y1 == s.oy1) continue;
+		if (s.stairs && ID != 0 && s.slope != ID) continue;
 		if (lineBoxCollision(s.x1, s.y1, s.x2, s.y2, tx, ty+1, tw, th))
 		{
 			zfix cx = tx + tw/2 - 1;
@@ -263,6 +267,7 @@ bool slide_slope(solid_object* obj, zfix& dx, zfix& dy)
 			{
 				dx += (s.x1 - s.ox1);
 				dy += (s.y1 - s.oy1);
+				ID = s.slope;
 				if (s.slipperiness)
 				{
 					int32_t xdir = sign(zc::math::Cos(lineangle));
@@ -275,7 +280,6 @@ bool slide_slope(solid_object* obj, zfix& dx, zfix& dy)
 						dy += ty - oty;
 					}
 				}
-				if (!dx && !dy) return false;
 				return true;
 			}
 			return false;

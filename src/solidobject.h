@@ -17,7 +17,7 @@ slopedata const& get_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th);
 slopedata const& get_new_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th, int32_t otx, int32_t oty);
 int32_t check_slope(solid_object* o, bool onlyNew = false);
 slopedata const& get_slope(solid_object* o, bool onlyNew = false);
-bool slide_slope(solid_object* obj, zfix& dx, zfix& dy);
+bool slide_slope(solid_object* obj, zfix& dx, zfix& dy, int32_t& ID);
 void slope_push_int(slopedata const& s, solid_object* obj, zfix& dx, zfix& dy, bool onplatform = false, bool fallthrough = false);
 
 class solid_object
