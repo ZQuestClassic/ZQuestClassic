@@ -32,10 +32,9 @@ bool hasComboWizard(int32_t type)
 		// case cBUSHNEXTTOUCHY:
 		// case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
 		// case cLOCKBLOCK: case cBOSSLOCKBLOCK:
-		// case cBSGRAVE: case cGRAVE:
 		// case cSTEPSFX: case cSWITCHHOOK: case cCSWITCHBLOCK:
 		// case cSAVE: case cSAVE2:
-		case cARMOS:
+		case cARMOS: case cGRAVE: case cBSGRAVE:
 		case cSTEP: case cSTEPSAME: case cSTEPALL: case cSTEPCOPY:
 		case cTRIGNOFLAG: case cSTRIGNOFLAG:
 		case cTRIGFLAG: case cSTRIGFLAG:
@@ -344,6 +343,9 @@ void ComboWizardDialog::updateTitle()
 		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
 			ctyname = "Damage";
+			break;
+		case cGRAVE: case cBSGRAVE:
+			ctyname = "Grave";
 			break;
 		default:
 			ctyname = ZI.getComboTypeName(local_ref.type);
@@ -750,12 +752,13 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			));
 			break;
 		}
-		case cARMOS:
+		case cARMOS: case cGRAVE: case cBSGRAVE:
 		{
 			lists[0] = GUI::ZCListData::enemies(true).filter(
 				[&](GUI::ListItem& itm){return unsigned(itm.value)<256;});
 			byte& e1 = local_ref.attribytes[0];
 			byte& e2 = local_ref.attribytes[1];
+			bool armos = local_ref.type==cARMOS;
 			
 			if(!(local_ref.usrflags&cflag1))
 			{
@@ -765,6 +768,36 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			else if(!(local_ref.usrflags&cflag2))
 				e2 = 0;
 			
+			std::shared_ptr<GUI::Grid> endrow = Rows<2>(padding = 0_px,
+					colSpan = 3, hAlign = 1.0);
+			if(armos)
+			{
+				endrow->add(cboxes[0] = Checkbox(
+						text = "Handle Large", hAlign = 0.0,
+							checked = local_ref.usrflags&cflag3,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_ref.usrflags,cflag3,state);
+							}
+						));
+				endrow->add(INFOBTN("If the specified enemy is larger"
+						" than 1x1 tile, attempt to use armos"
+						" combos that take up its' size"));
+			}
+			else
+			{
+				endrow->add(cboxes[0] = Checkbox(
+						text = "Next", hAlign = 0.0,
+							checked = local_ref.type==cBSGRAVE,
+							onToggleFunc = [&](bool state)
+							{
+								local_ref.type = state ? cBSGRAVE : cGRAVE;
+							}
+						));
+				endrow->add(INFOBTN("If the combo should become the next combo"
+					" after spawning its' enemy."));
+			}
+			string cty = armos ? "Armos" : "Grave";
 			windowRow->add(Rows<3>(
 				Label(text = "Enemy 1:", hAlign = 1.0),
 				ddls[0] = DropDownList(data = lists[0],
@@ -779,7 +812,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						InfoDialog("Info","The enemies to spawn."
 							" If both are set, one will be randomly chosen."
 							" If only one is set, it will be used."
-							"\nIf neither is set, the enemy flagged as 'Spawned by Armos'").show();
+							"\nIf neither is set, uses the enemy flagged as 'Spawned by "+cty+"'").show();
 					}),
 				//
 				Label(text = "Enemy 2:", hAlign = 1.0),
@@ -791,21 +824,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					}),
 				//rowspans from button above
 				//
-				Rows<2>(padding = 0_px,
-					colSpan = 3, hAlign = 1.0,
-					
-					cboxes[0] = Checkbox(
-						text = "Handle Large", hAlign = 0.0,
-							checked = local_ref.usrflags&cflag3,
-							onToggleFunc = [&](bool state)
-							{
-								SETFLAG(local_ref.usrflags,cflag3,state);
-							}
-						),
-					INFOBTN("If the specified enemy is larger"
-						" than 1x1 tile, attempt to use armos"
-						" combos that take up its' size")
-				)
+				endrow
 			));
 			break;
 		}
