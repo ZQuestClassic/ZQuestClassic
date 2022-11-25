@@ -35,6 +35,7 @@ bool hasComboWizard(int32_t type)
 		// case cARMOS: case cBSGRAVE: case cGRAVE:
 		// case cSTEPSFX: case cSWITCHHOOK: case cCSWITCHBLOCK:
 		// case cSAVE: case cSAVE2:
+		case cSTEP: case cSTEPSAME: case cSTEPALL: case cSTEPCOPY:
 		case cTRIGNOFLAG: case cSTRIGNOFLAG:
 		case cTRIGFLAG: case cSTRIGFLAG:
 		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
@@ -111,6 +112,15 @@ void ComboWizardDialog::update(bool first)
 			tfs[0]->setDisabled(!rad0);
 			break;
 		}
+		case cSTEP: case cSTEPSAME: case cSTEPALL: case cSTEPCOPY:
+		{
+			auto r0 = getRadio(0);
+			local_ref.type = cSTEP+r0;
+			cboxes[0]->setDisabled(r0==3);
+			ddls[0]->setDisabled(r0==3);
+			ddls[1]->setDisabled(r0==3);
+			break;
+		}
 		case cSLOPE:
 		{
 			tfs[0]->setVal(local_ref.attrishorts[0]);
@@ -145,6 +155,22 @@ void ComboWizardDialog::endUpdate()
 	update();
 	switch(local_ref.type)
 	{
+		case cSTEPCOPY:
+		{
+			if(parent.local_comboref.type == cSTEPCOPY)
+			{
+				local_ref.attribytes[0] = parent.local_comboref.attribytes[0];
+				local_ref.attribytes[1] = parent.local_comboref.attribytes[1];
+				local_ref.usrflags = parent.local_comboref.usrflags;
+			}
+			else
+			{
+				local_ref.attribytes[0] = 0;
+				local_ref.attribytes[1] = 0;
+				local_ref.usrflags &= ~cflag1;
+			}
+			break;
+		}
 		case cSHOOTER:
 		{
 			//Angle stuff
@@ -240,6 +266,9 @@ void ComboWizardDialog::updateTitle()
 		case cTRIGFLAG: case cSTRIGFLAG:
 			ctyname = "Step->Secrets";
 			break;
+		case cSTEP: case cSTEPSAME: case cSTEPALL: case cSTEPCOPY:
+			ctyname = "Step->Next";
+			break;
 		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
 			ctyname = "Damage";
@@ -293,7 +322,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		{
 			byte& warp_sfx = local_ref.attribytes[0];
 			lists[0] = GUI::ZCListData::combotype(true).filter(
-				[](GUI::ListItem const& itm){return isWarpType(itm.value);});
+				[](GUI::ListItem& itm){return isWarpType(itm.value);});
 			windowRow->add(
 				Rows<3>(
 					Label(text = "Type:", hAlign = 1.0),
@@ -553,12 +582,102 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			);
 			break;
 		}
+		case cSTEP: case cSTEPSAME: case cSTEPALL: case cSTEPCOPY:
+		{
+			byte& step_sfx = local_ref.attribytes[0];
+			byte& req_item = local_ref.attribytes[1];
+			rs_sz[0] = 4;
+			lists[0] = GUI::ZCListData::items(true).filter(
+				[&](GUI::ListItem& itm)
+				{
+					if(itm.value == 0) //Remove item 0
+						return false;
+					if(itm.value == -1) //Change the none value to 0
+						itm.value = 0;
+					return true;
+				});
+			windowRow->add(Rows<4>(
+				Label(text = "Step Sound:", hAlign = 1.0),
+				ddls[0] = DropDownList(data = parent.list_sfx,
+					fitParent = true, selectedValue = step_sfx,
+					colSpan = 2,
+					onSelectFunc = [&](int32_t val)
+					{
+						step_sfx = val;
+					}),
+				INFOBTN("SFX to play during the warp"),
+				//
+				Label(text = "Req. Item:", hAlign = 1.0),
+				ddls[1] = DropDownList(data = lists[0],
+					fitParent = true, selectedValue = req_item,
+					colSpan = 2,
+					onSelectFunc = [&](int32_t val)
+					{
+						req_item = val;
+					}),
+				INFOBTN("Item ID that must be owned in order to trigger."),
+				//
+				DummyWidget(),
+				DummyWidget(width = 15_em),
+				rset[0][0] = Radio(
+					hAlign = 0.0,
+					checked = local_ref.type == cSTEP,
+					text = "Standard",
+					indx = 0,
+					onToggle = message::RSET0
+				),
+				INFOBTN(getComboTypeHelpText(cSTEP)),
+				//
+				DummyWidget(colSpan = 2),
+				rset[0][1] = Radio(
+					hAlign = 0.0,
+					checked = local_ref.type == cSTEPSAME,
+					text = "Same",
+					indx = 1,
+					onToggle = message::RSET0
+				),
+				INFOBTN(getComboTypeHelpText(cSTEPSAME)),
+				//
+				DummyWidget(colSpan = 2),
+				rset[0][2] = Radio(
+					hAlign = 0.0,
+					checked = local_ref.type == cSTEPALL,
+					text = "All",
+					indx = 2,
+					onToggle = message::RSET0
+				),
+				INFOBTN(getComboTypeHelpText(cSTEPALL)),
+				//
+				DummyWidget(colSpan = 2),
+				rset[0][3] = Radio(
+					hAlign = 0.0,
+					checked = local_ref.type == cSTEPCOPY,
+					text = "Copycat",
+					indx = 3,
+					onToggle = message::RSET0
+				),
+				INFOBTN(getComboTypeHelpText(cSTEPCOPY)),
+				//
+				DummyWidget(colSpan = 2),
+				cboxes[0] = Checkbox(
+					text = "Heavy", hAlign = 0.0,
+					checked = local_ref.usrflags&cflag1,
+					onToggleFunc = [&](bool state)
+					{
+						SETFLAG(local_ref.usrflags,cflag1,state);
+					}
+				),
+				INFOBTN("Requires Heavy Boots to trigger")
+				//
+			));
+			break;
+		}
 		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
 		{
 			int32_t& damage = local_ref.attributes[0];
 			lists[0] = GUI::ZCListData::combotype(true).filter(
-				[](GUI::ListItem const& itm){return isDamageType(itm.value);});
+				[](GUI::ListItem& itm){return isDamageType(itm.value);});
 			rs_sz[0] = 2;
 			windowRow->add(
 				Column(padding = 0_px,

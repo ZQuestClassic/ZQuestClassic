@@ -146,7 +146,9 @@ public:
 	void add(std::set<std::string> names, std::map<std::string, int32_t> vals);
 	
 	//Modifies the listdata, and returns a self-reference
-	ListData& filter(std::function<bool(ListItem const&)>);
+	ListData& filter(std::function<bool(ListItem&)>);
+	ListItem& accessItem(int32_t val);
+	ListItem& accessIndex(size_t index);
 	
 private:
 	std::vector<ListItem> listItems;
