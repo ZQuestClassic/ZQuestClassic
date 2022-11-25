@@ -6,6 +6,8 @@ extern zcmodule moduledata;
 extern char *weapon_string[];
 extern char *sfx_string[];
 extern char *item_string[];
+extern char *guy_string[eMAXGUYS];
+extern const char *old_guy_string[OLDMAXGUYS];
 extern miscQdata QMisc;
 
 #ifndef IS_PARSER
@@ -167,6 +169,46 @@ static const GUI::ListData button
 GUI::ListData const& GUI::ZCListData::buttons()
 {
 	return button;
+}
+
+GUI::ListData GUI::ZCListData::enemies(bool numbered, bool defaultFilter)
+{
+	map<std::string, int32_t> ids;
+	std::set<std::string> names;
+	
+	for(int32_t q=1; q < eMAXGUYS; ++q)
+	{
+		if(defaultFilter)
+		{
+			if(q >= 11 && q <= 19) //Segment components
+				continue;
+			if(q < OLDMAXGUYS && old_guy_string[q][strlen(old_guy_string[q])-1]==' ')
+				continue; //'Hidden' enemies
+			if(guysbuf[q].family == eeGUY)
+				continue; //Guys
+		}
+		char const* npcname = guy_string[q];
+		if(numbered)
+		{
+			char* name = new char[strlen(npcname) + 7];
+			sprintf(name, "%s (%03d)", npcname, q);
+			npcname = name;
+		}
+		std::string sname(npcname);
+		
+		ids[sname] = q;
+		names.insert(sname);
+		if(numbered)
+			delete[] npcname;
+	}
+	
+	GUI::ListData ls;
+	ls.add("(None)", 0);
+	for(auto it = names.begin(); it != names.end(); ++it)
+	{
+		ls.add(*it, ids[*it]);
+	}
+	return ls;
 }
 
 GUI::ListData GUI::ZCListData::items(bool numbered)

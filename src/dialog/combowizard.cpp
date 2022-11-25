@@ -29,12 +29,13 @@ bool hasComboWizard(int32_t type)
 		// case cTALLGRASSNEXT:case cSLASHNEXT: case cSLASHNEXTITEM: case cBUSHNEXT:
 		// case cSLASHTOUCHY: case cSLASHITEMTOUCHY: case cBUSHTOUCHY: case cFLOWERSTOUCHY:
 		// case cTALLGRASSTOUCHY: case cSLASHNEXTTOUCHY: case cSLASHNEXTITEMTOUCHY:
-		// case cBUSHNEXTTOUCHY: case cSTEP: case cSTEPSAME: case cSTEPALL:
+		// case cBUSHNEXTTOUCHY:
 		// case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
 		// case cLOCKBLOCK: case cBOSSLOCKBLOCK:
-		// case cARMOS: case cBSGRAVE: case cGRAVE:
+		// case cBSGRAVE: case cGRAVE:
 		// case cSTEPSFX: case cSWITCHHOOK: case cCSWITCHBLOCK:
 		// case cSAVE: case cSAVE2:
+		case cARMOS:
 		case cSTEP: case cSTEPSAME: case cSTEPALL: case cSTEPCOPY:
 		case cTRIGNOFLAG: case cSTRIGNOFLAG:
 		case cTRIGFLAG: case cSTRIGFLAG:
@@ -99,6 +100,9 @@ size_t ComboWizardDialog::getRadio(size_t rs)
 	return 0;
 }
 
+#define RESET(member) (local_ref.member = src_ref.member)
+#define ZERO(member) (local_ref.member = 0)
+#define RESET_ZERO(member,flag) (local_ref.member = (flag ? 0 : src_ref.member))
 void ComboWizardDialog::update(bool first)
 {
 	switch(local_ref.type)
@@ -205,6 +209,37 @@ void ComboWizardDialog::endUpdate()
 					local_ref.usrflags &= ~(cflag5|cflag6|cflag7);
 					local_ref.usrflags |= src_ref.usrflags & (cflag5|cflag6|cflag7);
 				}
+			}
+			break;
+		}
+		case cARMOS:
+		{
+			byte& e1 = local_ref.attribytes[0];
+			byte& e2 = local_ref.attribytes[1];
+			bool fl1 = src_ref.usrflags&cflag1;
+			bool fl2 = src_ref.usrflags&cflag2;
+			
+			if(e1 == e2)
+				e2 = 0;
+			
+			if(e1 && e2)
+			{
+				//both good
+				local_ref.usrflags |= cflag1|cflag2;
+			}
+			else if(e1 || e2)
+			{
+				if(!e1) //make e1 the valid one
+					zc_swap(e1,e2);
+				local_ref.usrflags |= cflag1;
+				local_ref.usrflags &= ~cflag2;
+				RESET_ZERO(attribytes[1],fl2);
+			}
+			else
+			{
+				local_ref.usrflags &= ~(cflag1|cflag2);
+				RESET_ZERO(attribytes[0],fl1);
+				RESET_ZERO(attribytes[1],fl2);
 			}
 			break;
 		}
@@ -712,6 +747,65 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 				),
 				INFOBTN("Requires Heavy Boots to trigger")
 				//
+			));
+			break;
+		}
+		case cARMOS:
+		{
+			lists[0] = GUI::ZCListData::enemies(true).filter(
+				[&](GUI::ListItem& itm){return unsigned(itm.value)<256;});
+			byte& e1 = local_ref.attribytes[0];
+			byte& e2 = local_ref.attribytes[1];
+			
+			if(!(local_ref.usrflags&cflag1))
+			{
+				e1 = 0;
+				e2 = 0;
+			}
+			else if(!(local_ref.usrflags&cflag2))
+				e2 = 0;
+			
+			windowRow->add(Rows<3>(
+				Label(text = "Enemy 1:", hAlign = 1.0),
+				ddls[0] = DropDownList(data = lists[0],
+					fitParent = true, selectedValue = e1,
+					onSelectFunc = [&](int32_t val)
+					{
+						e1 = val;
+					}),
+				Button(text = "?", rowSpan = 2, fitParent = true,
+					onPressFunc = [=]()
+					{
+						InfoDialog("Info","The enemies to spawn."
+							" If both are set, one will be randomly chosen."
+							" If only one is set, it will be used."
+							"\nIf neither is set, the enemy flagged as 'Spawned by Armos'").show();
+					}),
+				//
+				Label(text = "Enemy 2:", hAlign = 1.0),
+				ddls[1] = DropDownList(data = lists[0],
+					fitParent = true, selectedValue = e2,
+					onSelectFunc = [&](int32_t val)
+					{
+						e2 = val;
+					}),
+				//rowspans from button above
+				//
+				Rows<2>(padding = 0_px,
+					colSpan = 3, hAlign = 1.0,
+					
+					cboxes[0] = Checkbox(
+						text = "Handle Large", hAlign = 0.0,
+							checked = local_ref.usrflags&cflag3,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_ref.usrflags,cflag3,state);
+							}
+						),
+					INFOBTN("If the specified enemy is larger"
+						" than 1x1 tile, attempt to use armos"
+						" combos that take up its' size")
+				)
 			));
 			break;
 		}
