@@ -34,31 +34,6 @@ char *palname_spaced(int32_t pal)
     return buf;
 }
 
-static bool isNextType(int32_t type)
-{
-	switch(type)
-	{
-		case cLIFTSLASHNEXT:
-		case cLIFTSLASHNEXTSPECITEM:
-		case cLIFTSLASHNEXTITEM:
-		case cDIGNEXT:
-		case cLIFTNEXT:
-		case cLIFTNEXTITEM:
-		case cLIFTNEXTSPECITEM:
-		case cSLASHNEXT:
-		case cBUSHNEXT:
-		case cTALLGRASSNEXT:
-		case cSLASHNEXTITEM:
-		case cSLASHNEXTTOUCHY:
-		case cSLASHNEXTITEMTOUCHY:
-		case cBUSHNEXTTOUCHY:
-		{
-			return true;
-		}
-		default: return false;
-	}
-}
-
 static int32_t usesSecretTriggerFlag(int32_t type)
 {
 	switch(type)
