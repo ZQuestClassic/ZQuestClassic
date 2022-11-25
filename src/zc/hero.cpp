@@ -42,7 +42,7 @@ extern HeroClass Hero;
 extern ZModule zcm;
 extern zcmodule moduledata;
 extern refInfo playerScriptData;
-extern std::vector<slopedata> slopes;
+extern std::map<int32_t, slopedata> slopes;
 #include "zscriptversion.h"
 #include "particles.h"
 #include <fmt/format.h>
@@ -9424,7 +9424,7 @@ bool HeroClass::animate(int32_t)
 			newcombo const& cmb = combobuf[cid];
 			if (cmb.type == cSLOPE) 
 			{
-				slopes.emplace_back(cmb, COMBOX(i), COMBOY(i),(176*layer)+i);
+				slopes.try_emplace((176*layer)+i, cmb, COMBOX(i), COMBOY(i),(176*layer)+i);
 			}
 			if(!get_bit(quest_rules,qr_AUTOCOMBO_ANY_LAYER))
 			{
@@ -9496,7 +9496,7 @@ bool HeroClass::animate(int32_t)
 		newcombo const& cmb = combobuf[tmpscr->ffcs[i].getData()];
 		if (cmb.type == cSLOPE && !(tmpscr->ffcs[i].flags&ffCHANGER))
 		{
-			slopes.emplace_back(cmb, tmpscr->ffcs[i].x, tmpscr->ffcs[i].y, tmpscr->ffcs[i].old_x2, tmpscr->ffcs[i].old_y2, (176*7)+int32_t(i));
+			slopes.try_emplace((176*7)+int32_t(i), cmb, tmpscr->ffcs[i].x, tmpscr->ffcs[i].y, tmpscr->ffcs[i].old_x2, tmpscr->ffcs[i].old_y2, (176*7)+int32_t(i));
 		}
 		if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
 		{

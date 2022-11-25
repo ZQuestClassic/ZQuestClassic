@@ -4568,7 +4568,7 @@ void openshutters()
 	sfx(WAV_DOOR,128);
 }
 
-extern std::vector<slopedata> slopes;
+extern std::map<int32_t, slopedata> slopes;
 
 void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay=false)
 {
