@@ -25,6 +25,7 @@ public:
 	
 	inline void show()
 	{
+		auto oz = gui_mouse_z();
 		runner = DialogRunner();
 		rerun_dlg = false;
 		popup_zqdialog_start();
@@ -36,7 +37,7 @@ public:
 			runner.run(*static_cast<T*>(this));
 		}
 		popup_zqdialog_end();
-		position_mouse_z(0);
+		position_mouse_z(oz);
 	}
 	
 	inline void pendDraw()

@@ -6552,6 +6552,7 @@ static int32_t droplist(DIALOG *d)
     ListData *data = (ListData *)d->dp;
     int32_t d1 = d->d1;
     int32_t listsize, x, y, w, h, max_w;
+	auto oz = gui_mouse_z();
 
     data->listFunc(-1, &listsize);
     y = d->y + d->h;
@@ -6598,11 +6599,11 @@ static int32_t droplist(DIALOG *d)
     }*/
     if(popup_zqdialog(droplist_dlg,1)==1)
     {
-        position_mouse_z(0);
+		position_mouse_z(oz);
         return droplist_dlg[1].d1;
     }
     
-    position_mouse_z(0);
+	position_mouse_z(oz);
     return d1;
 }
 

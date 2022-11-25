@@ -81,20 +81,23 @@ DIALOG_PLAYER *player = NULL;
 
 int32_t zc_do_dialog(DIALOG *d, int32_t f)
 {
+	auto oz = gui_mouse_z();
 	int32_t ret=do_zqdialog(d,f);
-	position_mouse_z(0);
+	position_mouse_z(oz);
 	return ret;
 }
 
 int32_t zc_popup_dialog(DIALOG *d, int32_t f)
 {
+	auto oz = gui_mouse_z();
 	int32_t ret=popup_zqdialog(d,f);
-	position_mouse_z(0);
+	position_mouse_z(oz);
 	return ret;
 }
 
 int32_t do_dialog_through_bitmap(BITMAP *buffer, DIALOG *dialog, int32_t focus_obj)
 {
+	auto oz = gui_mouse_z();
 	BITMAP* orig_screen = screen;
 	screen = buffer;
 	
@@ -102,13 +105,14 @@ int32_t do_dialog_through_bitmap(BITMAP *buffer, DIALOG *dialog, int32_t focus_o
 	
 	screen = orig_screen;
 	blit(buffer, screen, 0, 0, 0, 0, screen->w, screen->h);
-	position_mouse_z(0);
+	position_mouse_z(oz);
 	
 	return ret;
 }
 
 int32_t zc_popup_dialog_dbuf(DIALOG *dialog, int32_t focus_obj)
 {
+	auto oz = gui_mouse_z();
 	BITMAP* buffer = create_bitmap_ex(get_color_depth(),SCREEN_H,SCREEN_W);
 	blit(screen, buffer, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
 	
@@ -117,12 +121,13 @@ int32_t zc_popup_dialog_dbuf(DIALOG *dialog, int32_t focus_obj)
 	gui_set_screen(NULL);
 	
 	blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
-	position_mouse_z(0);
+	position_mouse_z(oz);
 	return ret;
 }
 
 int32_t PopUp_dialog(DIALOG *d,int32_t f)
 {
+	auto oz = gui_mouse_z();
 	// uses the bitmap that's already allocated
 	go();
 	player = init_dialog(d,f);
@@ -135,15 +140,13 @@ int32_t PopUp_dialog(DIALOG *d,int32_t f)
 	
 	int32_t ret = shutdown_dialog(player);
 	comeback();
-	position_mouse_z(0);
+	position_mouse_z(oz);
 	return ret;
 }
 
-int32_t popup_dialog_through_bitmap(BITMAP *buffer, DIALOG *dialog, int32_t focus_obj)
+int32_t popup_dialog_through_bitmap(BITMAP *, DIALOG *dialog, int32_t focus_obj)
 {
-	//these are here to bypass compiler warnings about unused arguments
-	buffer=buffer;
-	
+	auto oz = gui_mouse_z();
 	BITMAP *bmp;
 	int32_t ret;
 	
@@ -168,13 +171,14 @@ int32_t popup_dialog_through_bitmap(BITMAP *buffer, DIALOG *dialog, int32_t focu
 		destroy_bitmap(bmp);
 	}
 	
-	position_mouse_z(0);
+	position_mouse_z(oz);
 	
 	return ret;
 }
 
 int32_t PopUp_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int32_t f)
 {
+	auto oz = gui_mouse_z();
 	// uses the bitmap that's already allocated
 	go();
 	player = init_dialog(d,f);
@@ -187,19 +191,20 @@ int32_t PopUp_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int32_t f)
 	
 	int32_t ret = shutdown_dialog(player);
 	comeback();
-	position_mouse_z(0);
+	position_mouse_z(oz);
 	return ret;
 }
 
 int32_t update_dialog_through_bitmap(BITMAP* buffer, DIALOG_PLAYER *the_player)
 {
+	auto oz = gui_mouse_z();
 	BITMAP* orig_screen = screen;
 	int32_t result;
 	screen = buffer;
 	result = update_dialog(the_player);
 	screen = orig_screen;
 	blit(buffer, screen, 0, 0, 0, 0, screen->w, screen->h);
-	position_mouse_z(0);
+	position_mouse_z(oz);
 	return result;
 }
 
