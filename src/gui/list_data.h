@@ -145,6 +145,9 @@ public:
 	void add(std::string name, int32_t val, std::string desc) {listItems.emplace_back(name, val,desc);};
 	void add(std::set<std::string> names, std::map<std::string, int32_t> vals);
 	
+	//Modifies the listdata, and returns a self-reference
+	ListData& filter(std::function<bool(ListItem const&)>);
+	
 private:
 	std::vector<ListItem> listItems;
 	

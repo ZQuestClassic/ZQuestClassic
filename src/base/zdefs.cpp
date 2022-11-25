@@ -1470,3 +1470,103 @@ int32_t AngleToDir4Rad(double ddir)
 	return lookat;
 }
 
+
+bool isNextType(int32_t type)
+{
+	switch(type)
+	{
+		case cLIFTSLASHNEXT:
+		case cLIFTSLASHNEXTSPECITEM:
+		case cLIFTSLASHNEXTITEM:
+		case cDIGNEXT:
+		case cLIFTNEXT:
+		case cLIFTNEXTITEM:
+		case cLIFTNEXTSPECITEM:
+		case cSLASHNEXT:
+		case cBUSHNEXT:
+		case cTALLGRASSNEXT:
+		case cSLASHNEXTITEM:
+		case cSLASHNEXTTOUCHY:
+		case cSLASHNEXTITEMTOUCHY:
+		case cBUSHNEXTTOUCHY:
+		{
+			return true;
+		}
+		default: return false;
+	}
+}
+bool isWarpType(int32_t type)
+{
+	switch(type)
+	{
+		case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
+		case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
+		case cDIVEWARP: case cDIVEWARPB: case cDIVEWARPC: case cDIVEWARPD:
+		case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
+		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
+		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
+			return true;
+	}
+	return false;
+}
+int32_t getWarpLetter(int32_t type)
+{
+	switch(type)
+	{
+		case cSTAIR: case cSWIMWARP: case cDIVEWARP: case cPIT:
+		case cAWARPA: case cSWARPA:
+			return 0;
+		case cSTAIRB: case cSWIMWARPB: case cDIVEWARPB: case cPITB:
+		case cAWARPB: case cSWARPB:
+			return 1;
+		case cSTAIRC: case cSWIMWARPC: case cDIVEWARPC: case cPITC:
+		case cAWARPC: case cSWARPC:
+			return 2;
+		case cSTAIRD: case cSWIMWARPD: case cDIVEWARPD: case cPITD:
+		case cAWARPD: case cSWARPD:
+			return 3;
+		case cSTAIRR: case cPITR: case cAWARPR: case cSWARPR:
+			return 4;
+	}
+	return -1;
+}
+int32_t simplifyWarpType(int32_t type)
+{
+	switch(type)
+	{
+		case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
+			return cSTAIR;
+		case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
+			return cSWIMWARP;
+		case cDIVEWARP: case cDIVEWARPB: case cDIVEWARPC: case cDIVEWARPD:
+			return cDIVEWARP;
+		case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
+			return cPIT;
+		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
+			return cAWARPA;
+		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
+			return cSWARPA;
+	}
+	return 0;
+}
+bool isStepType(int32_t type)
+{
+	switch(type)
+	{
+		case cSTEP: case cSTEPSAME:
+		case cSTEPALL: case cSTEPCOPY:
+			return true;
+	}
+	return false;
+}
+bool isDamageType(int32_t type)
+{
+	switch(type)
+	{
+		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
+		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
+			return true;
+	}
+	return false;
+}
+

@@ -30,24 +30,26 @@ bool hasComboWizard(int32_t type)
 		// case cSLASHTOUCHY: case cSLASHITEMTOUCHY: case cBUSHTOUCHY: case cFLOWERSTOUCHY:
 		// case cTALLGRASSTOUCHY: case cSLASHNEXTTOUCHY: case cSLASHNEXTITEMTOUCHY:
 		// case cBUSHNEXTTOUCHY: case cSTEP: case cSTEPSAME: case cSTEPALL:
-		// case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
-		// case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
-		// case cDIVEWARP: case cDIVEWARPB: case cDIVEWARPC: case cDIVEWARPD:
-		// case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
-		// case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
-		// case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
 		// case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
 		// case cLOCKBLOCK: case cBOSSLOCKBLOCK:
 		// case cARMOS: case cBSGRAVE: case cGRAVE:
-		// case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
-		// case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
 		// case cSTEPSFX: case cSWITCHHOOK: case cCSWITCHBLOCK:
 		// case cSAVE: case cSAVE2:
+		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
+		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
+		case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
+		case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
+		case cDIVEWARP: case cDIVEWARPB: case cDIVEWARPC: case cDIVEWARPD:
+		case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
+		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
+		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
 		case cSLOPE: case cSHOOTER:
 			return true;
 	}
 	return false;
 }
+
+#define RELOAD() parent.loadComboType(&local_ref)
 
 void call_combo_wizard(ComboEditorDialog& dlg)
 {
@@ -99,6 +101,14 @@ void ComboWizardDialog::update(bool first)
 {
 	switch(local_ref.type)
 	{
+		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
+		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
+		{
+			auto rad0 = getRadio(0);
+			SETFLAG(local_ref.usrflags,cflag1,rad0);
+			tfs[0]->setDisabled(!rad0);
+			break;
+		}
 		case cSLOPE:
 		{
 			tfs[0]->setVal(local_ref.attrishorts[0]);
@@ -212,18 +222,37 @@ Button(height = hei, text = "?", \
 	})
 #define DDH sized(16_px, 21_px)
 
+void ComboWizardDialog::updateTitle()
+{
+	switch(local_ref.type)
+	{
+		case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
+		case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
+		case cDIVEWARP: case cDIVEWARPB: case cDIVEWARPC: case cDIVEWARPD:
+		case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
+		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
+		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
+			ctyname = "Warp";
+			break;
+		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
+		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
+			ctyname = "Damage";
+			break;
+		default:
+			ctyname = ZI.getComboTypeName(local_ref.type);
+			break;
+	}
+	window->setTitle("Combo Wizard (" + ctyname + ")");
+}
 std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	using namespace GUI::Key;
 	
-	string ctyname(ZI.getComboTypeName(local_ref.type));
-	
 	std::shared_ptr<GUI::Grid> windowRow;
 	window = Window(
 		//use_vsync = true,
-		title = "Combo Wizard (" + ctyname + ")",
 		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
@@ -244,9 +273,111 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		)
 	);
 	
+	thelp = getComboTypeHelpText(local_ref.type);
+	
 	bool wip = false;
 	switch(local_ref.type)
 	{
+		case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
+		case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
+		case cDIVEWARP: case cDIVEWARPB: case cDIVEWARPC: case cDIVEWARPD:
+		case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
+		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
+		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
+		{
+			byte& warp_sfx = local_ref.attribytes[0];
+			lists[0] = GUI::ZCListData::combotype(true).filter(
+				[](GUI::ListItem const& itm){return isWarpType(itm.value);});
+			windowRow->add(
+				Rows<3>(
+					Label(text = "Type:", hAlign = 1.0),
+					ddls[0] = DropDownList(data = lists[0],
+						fitParent = true, selectedValue = local_ref.type,
+						onSelectFunc = [&](int32_t val)
+						{
+							local_ref.type = val;
+						}),
+					INFOBTN(thelp),
+					//
+					Label(text = "Warp Sound:", hAlign = 1.0),
+					ddls[1] = DropDownList(data = parent.list_sfx,
+						fitParent = true, selectedValue = warp_sfx,
+						onSelectFunc = [&](int32_t val)
+						{
+							warp_sfx = val;
+						}),
+					INFOBTN(parent.h_attribyte[0])
+				)
+			);
+			break;
+		}
+		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
+		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
+		{
+			int32_t& damage = local_ref.attributes[0];
+			lists[0] = GUI::ZCListData::combotype(true).filter(
+				[](GUI::ListItem const& itm){return isDamageType(itm.value);});
+			rs_sz[0] = 2;
+			windowRow->add(
+				Column(padding = 0_px,
+					Rows<3>(
+						rset[0][0] = Radio(
+							hAlign = 0.0,
+							checked = !(local_ref.usrflags&cflag1),
+							text = "Type-based Damage",
+							index = 0,
+							onToggle = message::RSET0
+						),
+						//Label(text = "Type:", hAlign = 1.0),
+						ddls[0] = DropDownList(data = lists[0],
+							fitParent = true, selectedValue = local_ref.type,
+							onSelectFunc = [&](int32_t val)
+							{
+								local_ref.type = val;
+								updateTitle();
+							}),
+						INFOBTN(thelp),
+						//
+						rset[0][1] = Radio(
+							hAlign = 0.0,
+							checked = local_ref.usrflags&cflag1,
+							text = "Custom Damage",
+							index = 1,
+							onToggle = message::RSET0
+						),
+						tfs[0] = TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_ZSINT,
+							val = damage, disabled = !(local_ref.usrflags&cflag1),
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								damage = val;
+							}),
+						INFOBTN("The amount of damage, in HP, to deal. Negative amounts heal."
+							"\nFor healing, the lowest healing amount combo you"
+							" are standing on takes effect."
+							"\nFor damage, the greatest amount takes priority unless"
+							" 'Quest->Options->Combos->Lesser Damage Combos Take Priority' is checked.")
+						//
+					),
+					Rows<2>(
+						INFOBTN("Does not knock the player back when damaging them if checked."
+							" Otherwise, knocks the player in the direction opposite"
+							" the one they face."),
+						cboxes[0] = Checkbox(
+							text = "No Knockback",
+							hAlign = 0.0,
+							checked = local_ref.usrflags&cflag2, fitParent = true,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_ref.usrflags,cflag2,state);
+							}
+						)
+					)
+				)
+			);
+			break;
+		}
 		case cSLOPE:
 		{
 			local_ref.walk -= local_ref.walk & 0x0F; //nonsolid combo
@@ -257,7 +388,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			int32_t& slip = local_ref.attributes[0];
 			windowRow->add(Row(
 				Rows<3>(
-					Label(text = parent.l_attrishort[0], hAlign = 1.0),
+					Label(text = "X Offset 1:", hAlign = 1.0),
 					tfs[0] = TextField(
 						fitParent = true, minwidth = 8_em,
 						type = GUI::TextField::type::SWAP_SSHORT,
@@ -266,9 +397,15 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						{
 							x1 = val;
 						}),
-					INFOBTN(parent.h_attrishort[0]),
+					Button(text = "?", rowSpan = 4, fitParent = true,
+						onPressFunc = [=]()
+						{
+							InfoDialog("Info","The starting and ending X,Y"
+								" points of the slope line, as offsets from"
+								" the top-left of the combo.").show();
+						}),
 					//
-					Label(text = parent.l_attrishort[1], hAlign = 1.0),
+					Label(text = "Y Offset 1:", hAlign = 1.0),
 					tfs[1] = TextField(
 						fitParent = true, minwidth = 8_em,
 						type = GUI::TextField::type::SWAP_SSHORT,
@@ -277,9 +414,9 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						{
 							y1 = val;
 						}),
-					INFOBTN(parent.h_attrishort[1]),
+					//button above rowspans here
 					//
-					Label(text = parent.l_attrishort[2], hAlign = 1.0),
+					Label(text = "X Offset 2:", hAlign = 1.0),
 					tfs[2] = TextField(
 						fitParent = true, minwidth = 8_em,
 						type = GUI::TextField::type::SWAP_SSHORT,
@@ -288,9 +425,9 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						{
 							x2 = val;
 						}),
-					INFOBTN(parent.h_attrishort[2]),
+					//button above rowspans here
 					//
-					Label(text = parent.l_attrishort[3], hAlign = 1.0),
+					Label(text = "Y Offset 2:", hAlign = 1.0),
 					tfs[3] = TextField(
 						fitParent = true, minwidth = 8_em,
 						type = GUI::TextField::type::SWAP_SSHORT,
@@ -299,9 +436,9 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						{
 							y2 = val;
 						}),
-					INFOBTN(parent.h_attrishort[3]),
+					//button above rowspans here
 					//
-					Label(text = parent.l_attribute[0], hAlign = 1.0),
+					Label(text = "Slipperiness:", hAlign = 1.0),
 					tfs[4] = TextField(
 						fitParent = true, minwidth = 8_em,
 						type = GUI::TextField::type::SWAP_ZSINT,
@@ -310,7 +447,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						{
 							slip = val;
 						}),
-					INFOBTN(parent.h_attribute[0])
+					INFOBTN("Pixels per frame to slide down the slope in sideview.")
 				),
 				Rows<4>(
 					Label(colSpan = 4, text = "Preset Slopes"),
@@ -473,25 +610,25 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			windowRow->add(TabPanel(ptr = &tabpos,
 				TabRef(name = "1", Rows<2>(
 					Rows<3>(
-						Label(text = parent.l_attribyte[0], hAlign = 1.0),
+						Label(text = "Shot SFX:", hAlign = 1.0),
 						ddls[0] = DropDownList(data = parent.list_sfx,
 							fitParent = true, selectedValue = shot_sfx,
 							onSelectFunc = [&](int32_t val)
 							{
 								shot_sfx = val;
 							}),
-						INFOBTN(parent.h_attribyte[0]),
+						INFOBTN("SFX to play when shooting a weapon"),
 						//
-						Label(text = parent.l_attribyte[2], hAlign = 1.0),
+						Label(text = "Sprite:", hAlign = 1.0),
 						ddls[2] = DropDownList(data = list_sprites,
 							fitParent = true, selectedValue = weap_sprite,
 							onSelectFunc = [&](int32_t val)
 							{
 								weap_sprite = val;
 							}),
-						INFOBTN(parent.h_attribyte[2]),
+						INFOBTN("The sprite of the spawned weapon"),
 						//
-						Label(text = parent.l_attribyte[1], hAlign = 1.0),
+						Label(text = "Weapon Type:", hAlign = 1.0),
 						ddls[1] = DropDownList(data = parent.list_weaptype,
 							fitParent = true, selectedValue = weap_type,
 							onSelectFunc = [&](int32_t val)
@@ -499,9 +636,9 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								weap_type = val;
 								update();
 							}),
-						INFOBTN(parent.h_attribyte[1]),
+						INFOBTN("The LWeapon or EWeapon ID to be shot"),
 						//
-						Label(text = parent.l_attribyte[5], hAlign = 1.0),
+						Label(text = "Script:", hAlign = 1.0),
 						switcher[0] = Switcher(
 							ddls[3] = DropDownList(data = list_lwscript,
 								fitParent = true, selectedValue = script,
@@ -516,11 +653,13 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									script = val;
 								})
 						),
-						INFOBTN(parent.h_attribute[5])
+						INFOBTN("LWeapon or EWeapon script ID to attach to the fired weapons."
+								"\nNote that there is no way to supply InitD to such scripts.")
 					),
 					Rows<2>(
 						Label(text = "Unblockable"),
-						INFOBTNL(parent.h_attribyte[4]),
+						INFOBTNL("The following checkboxes can make the weapon bypass"
+							"types of blocking."),
 						cboxes[0] = Checkbox(
 							text = "Bypass 'Block' Defense",
 							hAlign = 0.0, colSpan = 2,
@@ -568,7 +707,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									SETFLAG(local_ref.usrflags,cflag3,state);
 								}
 							),
-							INFOBTN(parent.h_flag[2]),
+							INFOBTN("Shoots when the timer starts, rather than ends"),
 							cboxes[7] = Checkbox(
 								text = "Custom Weapons are LWeapons", hAlign = 0.0,
 								checked = local_ref.usrflags&cflag5,
@@ -578,7 +717,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									update();
 								}
 							),
-							INFOBTN(parent.h_flag[4])
+							INFOBTN("If a 'Custom Weapon' ID is used, it will be treated as an LWeapon with this checked, and an EWeapon otherwise.")
 						),
 						Rows<2>(padding = 0_px,
 							cboxes[8] = Checkbox(
@@ -589,7 +728,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									SETFLAG(local_ref.usrflags,cflag6,state);
 								}
 							),
-							INFOBTN(parent.h_flag[5]),
+							INFOBTN("Attempt to rotate the sprite to match the weapon's angle"),
 							cboxes[9] = Checkbox(
 								text = "Boss Fireball", hAlign = 0.0,
 								checked = local_ref.usrflags&cflag8,
@@ -598,13 +737,13 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									SETFLAG(local_ref.usrflags,cflag8,state);
 								}
 							),
-							INFOBTN(parent.h_flag[7])
+							INFOBTN("If a fireball weapon type is used, it will be considered a 'boss' fireball.")
 						)
 					)
 				)),
 				TabRef(name = "2", Row(
 					Rows<3>(
-						Label(text = parent.l_attrishort[2], hAlign = 1.0),
+						Label(text = "Damage", hAlign = 1.0),
 						tfs[0] = TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_SSHORT,
@@ -613,9 +752,9 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							{
 								damage = val;
 							}),
-						INFOBTN(parent.h_attrishort[2]),
+						INFOBTN("The damage of the spawned weapon"),
 						//
-						Label(text = parent.l_attribute[2], hAlign = 1.0),
+						Label(text = "Step Speed:", hAlign = 1.0),
 						tfs[1] = TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_ZSINT,
@@ -624,7 +763,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							{
 								step = val;
 							}),
-						INFOBTN(parent.h_attribute[2]),
+						INFOBTN("The speed of the weapon, in 100ths px/frame"),
 						//
 						Label(text = "Min Rate:", hAlign = 1.0),
 						tfs[3] = TextField(
@@ -635,7 +774,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							{
 								rate = val;
 							}),
-						Button(text = "?", rowSpan = 2,
+						Button(text = "?", rowSpan = 2, fitParent = true,
 							onPressFunc = [=]()
 							{
 								InfoDialog("Info","The fire rates of the shooter."
@@ -786,10 +925,11 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			windowRow->add(Button(text = "Exit",minwidth = 90_lpx,onClick = message::CANCEL));
 			break;
 	}
+	update(true);
+	updateTitle();
 	if(wip)
 		InfoDialog("WIP","The '" + ctyname + "' wizard is WIP,"
 			" and may not be fully functional!").show();
-	update(true);
 	return window;
 }
 

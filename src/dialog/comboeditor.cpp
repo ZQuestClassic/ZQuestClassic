@@ -679,10 +679,10 @@ void ComboEditorDialog::loadComboType()
 			l_attrishort[1] = "Y Offset 1:";
 			h_attrishort[1] = "Y Offset of the starting point of the slope line.";
 			l_attrishort[2] = "X Offset 2:";
-			h_attrishort[2] = "X Offset of the starting point of the slope line.";
+			h_attrishort[2] = "X Offset of the ending point of the slope line.";
 			l_attrishort[3] = "Y Offset 2:";
-			h_attrishort[3] = "Y Offset of the starting point of the slope line.";
-			l_attribute[0] = "Slipperiness";
+			h_attrishort[3] = "Y Offset of the ending point of the slope line.";
+			l_attribute[0] = "Slipperiness:";
 			h_attribute[0] = "Pixels per frame to slide down the slope in sideview.";
 			l_flag[0] = "Is Stairs";
 			h_flag[0] = "You must hold up or be in the air for this slope to be active from the top. Bottom is always passthrough.";

@@ -5640,6 +5640,13 @@ int32_t AngleToDir(double radians);
 int32_t AngleToDir4(double degrees);
 int32_t AngleToDir4Rad(double radians);
 
+bool isNextType(int32_t type);
+bool isWarpType(int32_t type);
+int32_t getWarpLetter(int32_t type);
+int32_t simplifyWarpType(int32_t type);
+bool isStepType(int32_t type);
+bool isDamageType(int32_t type);
+
 #define SMART_WRAP(x, mod) ((x) < 0 ? (((mod)-(-(x)%(mod)))%(mod)) : ((x)%(mod)))
 
 #undef cmb1

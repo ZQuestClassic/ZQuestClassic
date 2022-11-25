@@ -19,6 +19,9 @@
 class ComboWizardDialog;
 bool call_combo_editor(int32_t index);
 
+std::string getComboTypeHelpText(int32_t id);
+std::string getMapFlagHelpText(int32_t id);
+
 class ComboEditorDialog: public GUI::Dialog<ComboEditorDialog>
 {
 public:

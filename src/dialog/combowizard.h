@@ -19,6 +19,7 @@ public:
 private:
 	newcombo local_ref;
 	ComboEditorDialog& parent;
+	std::string thelp, ctyname;
 	
 	int32_t flags;
 	std::shared_ptr<GUI::Window> window;
@@ -29,12 +30,17 @@ private:
 	std::shared_ptr<GUI::Radio> rset[10][10];
 	size_t rs_sz[10];
 	
+	GUI::ListData lists[10];
+	
 	GUI::ListData list_lwscript, list_ewscript, list_sprites;
 	
 	void setRadio(size_t rs, size_t ind);
 	size_t getRadio(size_t rs);
+	
 	void update(bool first = false);
 	void endUpdate();
+	
+	void updateTitle();
 	
 	ComboWizardDialog(ComboEditorDialog& parent);
 	friend void call_combo_wizard(ComboEditorDialog& dlg);
