@@ -335,7 +335,7 @@ bool flyerblocked(int32_t dx, int32_t dy, int32_t special, guydata const& gd)
 
   */
 
-eFire::eFire(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eFire::eFire(eFire const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -385,7 +385,7 @@ eFire::eFire(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	}
 }
 
-eOther::eOther(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eOther::eOther(eOther const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -438,7 +438,7 @@ eOther::eOther(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 
 
 
-eScript::eScript(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eScript::eScript(eScript const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -488,7 +488,7 @@ eScript::eScript(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	}
 }
 
-eFriendly::eFriendly(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eFriendly::eFriendly(eFriendly const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -538,7 +538,7 @@ eFriendly::eFriendly(enemy const & other, bool new_script_uid, bool clear_parent
 	}
 }
 
-eGhini::eGhini(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eGhini::eGhini(eGhini const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -590,7 +590,7 @@ eGhini::eGhini(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	}
 }
 
-eTektite::eTektite(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eTektite::eTektite(eTektite const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -642,7 +642,7 @@ eTektite::eTektite(enemy const & other, bool new_script_uid, bool clear_parent_s
 	}
 }
 
-eItemFairy::eItemFairy(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eItemFairy::eItemFairy(eItemFairy const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -689,7 +689,7 @@ eItemFairy::eItemFairy(enemy const & other, bool new_script_uid, bool clear_pare
 	}
 }
 
-ePeahat::ePeahat(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+ePeahat::ePeahat(ePeahat const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -739,7 +739,7 @@ ePeahat::ePeahat(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	}
 }
 
-eLeever::eLeever(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eLeever::eLeever(eLeever const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -787,7 +787,7 @@ eLeever::eLeever(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	}
 }
 
-eWallM::eWallM(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eWallM::eWallM(eWallM const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -834,7 +834,7 @@ eWallM::eWallM(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	}
 }
 
-eStalfos::eStalfos(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eStalfos::eStalfos(eStalfos const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -889,7 +889,7 @@ eStalfos::eStalfos(enemy const & other, bool new_script_uid, bool clear_parent_s
 	}
 }
 
-eZora::eZora(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eZora::eZora(eZora const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -936,7 +936,7 @@ eZora::eZora(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	}
 }
 
-eSpinTile::eSpinTile(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eSpinTile::eSpinTile(eSpinTile const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -983,7 +983,7 @@ eSpinTile::eSpinTile(enemy const & other, bool new_script_uid, bool clear_parent
 	}
 }
 
-eNPC::eNPC(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eNPC::eNPC(eNPC const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -1030,7 +1030,7 @@ eNPC::eNPC(enemy const & other, bool new_script_uid, bool clear_parent_script_UI
 	}
 }
 
-eTrigger::eTrigger(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eTrigger::eTrigger(eTrigger const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -1077,7 +1077,7 @@ eTrigger::eTrigger(enemy const & other, bool new_script_uid, bool clear_parent_s
 	}
 }
 
-eProjectile::eProjectile(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eProjectile::eProjectile(eProjectile const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -1125,7 +1125,7 @@ eProjectile::eProjectile(enemy const & other, bool new_script_uid, bool clear_pa
 	}
 }
 
-eBoulder::eBoulder(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eBoulder::eBoulder(eBoulder const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -1172,7 +1172,7 @@ eBoulder::eBoulder(enemy const & other, bool new_script_uid, bool clear_parent_s
 	}
 }
 
-eRock::eRock(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eRock::eRock(eRock const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -1219,7 +1219,7 @@ eRock::eRock(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	}
 }
 
-eTrap2::eTrap2(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eTrap2::eTrap2(eTrap2 const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -1266,7 +1266,7 @@ eTrap2::eTrap2(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	}
 }
 
-eTrap::eTrap(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eTrap::eTrap(eTrap const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -1318,7 +1318,7 @@ eTrap::eTrap(enemy const & other, bool new_script_uid, bool clear_parent_script_
 
 
 
-eKeese::eKeese(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eKeese::eKeese(eKeese const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -1369,7 +1369,7 @@ eKeese::eKeese(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	}
 }
 
-eWizzrobe::eWizzrobe(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eWizzrobe::eWizzrobe(eWizzrobe const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -1419,7 +1419,7 @@ eWizzrobe::eWizzrobe(enemy const & other, bool new_script_uid, bool clear_parent
 	}
 }
 
-eDodongo::eDodongo(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eDodongo::eDodongo(eDodongo const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -1466,7 +1466,7 @@ eDodongo::eDodongo(enemy const & other, bool new_script_uid, bool clear_parent_s
 	}
 }
 
-eDodongo2::eDodongo2(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eDodongo2::eDodongo2(eDodongo2 const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -1514,7 +1514,7 @@ eDodongo2::eDodongo2(enemy const & other, bool new_script_uid, bool clear_parent
 	}
 }
 
-eAquamentus::eAquamentus(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eAquamentus::eAquamentus(eAquamentus const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -1563,7 +1563,7 @@ eAquamentus::eAquamentus(enemy const & other, bool new_script_uid, bool clear_pa
 	}
 }
 
-eGohma::eGohma(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eGohma::eGohma(eGohma const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -1611,7 +1611,7 @@ eGohma::eGohma(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	}
 }
 
-eLilDig::eLilDig(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eLilDig::eLilDig(eLilDig const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -1658,7 +1658,7 @@ eLilDig::eLilDig(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	}
 }
 
-eBigDig::eBigDig(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eBigDig::eBigDig(eBigDig const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -1705,7 +1705,7 @@ eBigDig::eBigDig(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	}
 }
 
-eGanon::eGanon(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eGanon::eGanon(eGanon const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -1754,7 +1754,7 @@ eGanon::eGanon(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	}
 }
 
-eMoldorm::eMoldorm(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eMoldorm::eMoldorm(eMoldorm const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -1804,7 +1804,7 @@ eMoldorm::eMoldorm(enemy const & other, bool new_script_uid, bool clear_parent_s
 	}
 }
 
-esMoldorm::esMoldorm(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+esMoldorm::esMoldorm(esMoldorm const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -1852,7 +1852,7 @@ esMoldorm::esMoldorm(enemy const & other, bool new_script_uid, bool clear_parent
 	}
 }
 /*
-eManhandla::eManhandla(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eManhandla::eManhandla(eManhandla const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -1908,7 +1908,7 @@ eManhandla::eManhandla(enemy const & other, bool new_script_uid, bool clear_pare
 	}
 }
 
-esManhandla::esManhandla(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+esManhandla::esManhandla(esManhandla const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -1954,7 +1954,7 @@ esManhandla::esManhandla(enemy const & other, bool new_script_uid, bool clear_pa
 	}
 }
 
-eGleeok::eGleeok(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eGleeok::eGleeok(eGleeok const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -2005,7 +2005,7 @@ eGleeok::eGleeok(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	}
 }
 
-esGleeok::esGleeok(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+esGleeok::esGleeok(esGleeok const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -2071,7 +2071,7 @@ esGleeok::esGleeok(enemy const & other, bool new_script_uid, bool clear_parent_s
 	}
 }
 
-ePatra::ePatra(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+ePatra::ePatra(ePatra const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -2128,7 +2128,7 @@ ePatra::ePatra(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	}
 }
 
-ePatraBS::ePatraBS(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+ePatraBS::ePatraBS(ePatraBS const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -2181,7 +2181,7 @@ ePatraBS::ePatraBS(enemy const & other, bool new_script_uid, bool clear_parent_s
 	}
 }
 
-esPatra::esPatra(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+esPatra::esPatra(esPatra const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -2237,7 +2237,7 @@ esPatra::esPatra(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	}
 }
 
-esPatraBS::esPatraBS(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+esPatraBS::esPatraBS(esPatraBS const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)

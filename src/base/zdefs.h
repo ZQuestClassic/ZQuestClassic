@@ -146,8 +146,8 @@ typedef uint64_t qword; //0-18,446,744,073,709,551,616  (64 bits)
 #define FFSCRIPT_MISC 32
 #define MAXFFCS 128
 
-#define MAX_32 (2147483647)
-#define MIN_32 (-2147483647-1)
+#define MAX_SIGNED_32 (2147483647)
+#define MIN_SIGNED_32 (-2147483647-1)
 #define MAX_DWORD dword(-1)
 #define MIN_DWORD 0
 
