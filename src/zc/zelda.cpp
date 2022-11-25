@@ -822,7 +822,7 @@ void ChangeSubscreenText(int32_t index, const char *f)
 {
 	index = vbound(index, 0, SAVESC_END-1);
 	strncpy(SaveScreenText[index], f, 31);
-	SaveScreenText[index][32]='\0';
+	SaveScreenText[index][31]='\0';
 }
 
 
@@ -2157,7 +2157,7 @@ int32_t init_game()
 	skip_keycheats:
 	//Calculate the quest's script-file-storage path -V
 	{
-		memset(qst_files_path, sizeof(qst_files_path), 0);
+		memset(qst_files_path, 0, sizeof(qst_files_path));
 		string str(qstpath);
 		size_t pos = str.find_last_of("/\\");
 		if(pos==string::npos) pos=0;
@@ -5076,7 +5076,7 @@ int main(int argc, char **argv)
 			strcpy(save_file_name,"zc.sav");
 		SAVE_FILE = (char *)save_file_name;  
 	}
-	/*else*/ //if ( strcmp(get_config_string("zeldadx","debug","")) )
+	else*/ //if ( strcmp(get_config_string("zeldadx","debug","")) )
 	{	    
 		for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
 			strcpy(save_file_name,get_config_string("SAVEFILE","save_filename","zc.sav"));

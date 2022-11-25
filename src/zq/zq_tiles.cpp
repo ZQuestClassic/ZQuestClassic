@@ -8298,7 +8298,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					}
 					else
 					{
-						if((guysbuf[bie[u].i].tile==0))
+						if(guysbuf[bie[u].i].tile==0)
 						{
 							continue;
 						}
@@ -9853,7 +9853,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					}
 					else
 					{
-						if((guysbuf[bie[u].i].tile==0))
+						if(guysbuf[bie[u].i].tile==0)
 						{
 							continue;
 						}
@@ -11256,7 +11256,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					}
 					else
 					{
-						if((guysbuf[bie[u].i].tile==0))
+						if(guysbuf[bie[u].i].tile==0)
 						{
 							continue;
 						}
@@ -12923,7 +12923,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					}
 					else
 					{
-						if((guysbuf[bie[u].i].tile==0))
+						if(guysbuf[bie[u].i].tile==0)
 						{
 							continue;
 						}
@@ -13977,7 +13977,7 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 			}
 			else
 			{
-				if((guysbuf[bie[u].i].tile==0))
+				if(guysbuf[bie[u].i].tile==0)
 				{
 					continue;
 				}

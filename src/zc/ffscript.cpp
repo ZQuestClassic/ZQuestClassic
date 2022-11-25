@@ -203,8 +203,6 @@ mapscr* GetMapscr(int32_t mapref)
 {
 	switch(mapref)
 	{
-		// TODO: fails to compile for 64 bit
-		// case LONG_MAX: return NULL; //shouldn't happen, as error should already have been thrown before calling this func
 		case MAPSCR_TEMP0: return FFCore.tempScreens[0]; //Temp layer 0
 		case MAPSCR_TEMP1: return FFCore.tempScreens[1]; //Temp layer 1
 		case MAPSCR_TEMP2: return FFCore.tempScreens[2]; //Temp layer 2
@@ -8679,7 +8677,7 @@ int32_t get_register(const int32_t arg)
 		
 		case MAPDATAINITDARRAY:
 		{
-			if ( ri->mapsref == LONG_MAX ) 
+			if ( ri->mapsref == MAX_SIGNED_32 ) 
 			{ 
 				Z_scripterrlog("Script attempted to use a mapdata->InitD[%d] on a pointer that is uninitialised\n",ri->d[rINDEX]/10000); 
 				break; 
@@ -8702,7 +8700,7 @@ int32_t get_register(const int32_t arg)
 			}
 			else
 			{
-				if ( ri->mapsref == LONG_MAX )
+				if ( ri->mapsref == MAX_SIGNED_32 )
 				{
 						Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","LayerInvisible");
 						ret = -10000;
@@ -8725,7 +8723,7 @@ int32_t get_register(const int32_t arg)
 			}
 			else
 			{
-				if ( ri->mapsref == LONG_MAX )
+				if ( ri->mapsref == MAX_SIGNED_32 )
 				{
 						Z_scripterrlog("Script attempted to use a mapdata->DisableScriptDraws on a pointer that is uninitialised\n");
 						ret = -10000;
@@ -10079,7 +10077,7 @@ int32_t get_register(const int32_t arg)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -10107,7 +10105,7 @@ int32_t get_register(const int32_t arg)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -10135,7 +10133,7 @@ int32_t get_register(const int32_t arg)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -10169,7 +10167,7 @@ int32_t get_register(const int32_t arg)
 			else 
 			{
 				int32_t ref = ri->shopsref; 
-				bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+				bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
 				int32_t indx = ri->d[rINDEX] / 10000; 
 				if ( indx < 0 || indx > 2 ) 
 				{ 
@@ -19988,7 +19986,7 @@ void set_register(const int32_t arg, const int32_t value)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -20015,7 +20013,7 @@ void set_register(const int32_t arg, const int32_t value)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -20041,7 +20039,7 @@ void set_register(const int32_t arg, const int32_t value)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -20075,7 +20073,7 @@ void set_register(const int32_t arg, const int32_t value)
 				else 
 				{
 					int32_t ref = ri->shopsref; 
-					bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+					bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
 					int32_t indx = ri->d[rINDEX] / 10000; 
 					if ( indx < 0 || indx > 2 ) 
 					{ 
@@ -22306,7 +22304,7 @@ void do_div(bool v, const bool inv = false)
 	if(temp == 0)
 	{
 		Z_scripterrlog("Script attempted to divide %ld by zero!\n", temp2);
-		set_register(destreg, int32_t(sign(temp2) * LONG_MAX));
+		set_register(destreg, int32_t(sign(temp2) * MAX_SIGNED_32));
 	}
 	else
 	{
@@ -22412,11 +22410,6 @@ void do_log10(const bool v)
 	
 	if(temp > 0)
 		set_register(sarg1, int32_t(log10(temp) * 10000.0));
-	else if(temp == 0)
-	{
-		Z_eventlog("Script tried to calculate log of 0\n");
-		set_register(sarg1, -LONG_MAX);
-	}
 	else
 	{
 		Z_eventlog("Script tried to calculate log of %f\n", temp / 10000.0);
@@ -22430,11 +22423,11 @@ void do_naturallog(const bool v)
 	
 	if(temp > 0)
 		set_register(sarg1, int32_t(log(temp) * 10000.0));
-	else if(temp == 0)
-	{
-		Z_eventlog("Script tried to calculate ln of 0\n");
-		set_register(sarg1, -LONG_MAX);
-	}
+	// else if(temp == 0)
+	// {
+		// Z_eventlog("Script tried to calculate ln of 0\n");
+		// set_register(sarg1, MIN_SIGNED_32);
+	// }
 	else
 	{
 		Z_eventlog("Script tried to calculate ln of %f\n", temp / 10000.0);
@@ -22908,7 +22901,7 @@ void do_issolid()
 
 void do_mapdataissolid()
 {
-	if ( ri->mapsref == LONG_MAX  )
+	if ( ri->mapsref == MAX_SIGNED_32  )
 	{
 		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","isSolid()");
 		set_register(sarg1,10000);
@@ -22934,7 +22927,7 @@ void do_mapdataissolid()
 
 void do_mapdataissolid_layer()
 {
-	if ( ri->mapsref == LONG_MAX  )
+	if ( ri->mapsref == MAX_SIGNED_32  )
 	{
 		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","isSolidLayer()");
 		set_register(sarg1,10000);
@@ -23979,7 +23972,7 @@ void do_loadlweapon(const bool v)
 	int32_t index = SH::get_arg(sarg1, v) / 10000;
 	
 	if(BC::checkLWeaponIndex(index, "Screen->LoadLWeapon") != SH::_NoError)
-		ri->lwpn = 0; //LONG_MAX; //Now NULL
+		ri->lwpn = 0; //MAX_DWORD; //Now NULL
 	else
 	{
 		ri->lwpn = Lwpns.spr(index)->getUID();
@@ -23993,7 +23986,7 @@ void do_loadeweapon(const bool v)
 	int32_t index = SH::get_arg(sarg1, v) / 10000;
 	
 	if(BC::checkEWeaponIndex(index, "Screen->LoadEWeapon") != SH::_NoError)
-		ri->ewpn = 0; //LONG_MAX; //Now NULL
+		ri->ewpn = 0; //MAX_DWORD; //Now NULL
 	else
 	{
 		ri->ewpn = Ewpns.spr(index)->getUID();
@@ -24006,7 +23999,7 @@ void do_loaditem(const bool v)
 	int32_t index = SH::get_arg(sarg1, v) / 10000;
 	
 	if(BC::checkItemIndex(index, "Screen->LoadItem") != SH::_NoError)
-		ri->itemref = 0; //LONG_MAX; //Now NULL
+		ri->itemref = 0; //MAX_DWORD; //Now NULL
 	else
 	{
 		ri->itemref = items.spr(index)->getUID();
@@ -24034,7 +24027,7 @@ void do_loadnpc(const bool v)
 	int32_t index = SH::get_arg(sarg1, v) / 10000;
 	
 	if(BC::checkGuyIndex(index, "Screen->LoadNPC") != SH::_NoError)
-		ri->guyref = 0; // LONG_MAX;
+		ri->guyref = 0; // MAX_DWORD;
 	else
 	{
 		ri->guyref = guys.spr(index)->getUID();
@@ -24053,7 +24046,7 @@ void FFScript::do_loaditem_by_script_uid(const bool v)
 			ri->itemref = items.spr(j)->getUID();
 		return;
 		}
-	ri->itemref = LONG_MAX;
+	ri->itemref = MAX_DWORD;
 	//error here.
 	//Z_eventlog("Script loaded NPC with UID = %ld\n", ri->guyref);
 }
@@ -24068,7 +24061,7 @@ void FFScript::do_loadnpc_by_script_uid(const bool v)
 			ri->guyref = guys.spr(j)->getUID();
 		return;
 		}
-	ri->guyref = LONG_MAX;
+	ri->guyref = MAX_DWORD;
 	//error here.
 	//Z_eventlog("Script loaded NPC with UID = %ld\n", ri->guyref);
 }
@@ -24082,7 +24075,7 @@ void FFScript::do_loaddmapdata(const bool v)
 	if ( ID < 0 || ID > 511 )
 	{
 	Z_scripterrlog("Invalid DMap ID passed to Game->LoadDMapData(): %d\n", ID);
-	ri->dmapsref = LONG_MAX;
+	ri->dmapsref = MAX_DWORD;
 	}
 		
 	else ri->dmapsref = ID;
@@ -24141,7 +24134,7 @@ void FFScript::do_loaddropset(const bool v)
 	if ( ID < 0 || ID > MAXITEMDROPSETS )
 	{
 		Z_scripterrlog("Invalid Dropset ID passed to Game->LoadDropset(): %d\n", ID);
-		ri->dropsetref = LONG_MAX;
+		ri->dropsetref = MAX_DWORD;
 	}
 		
 	else ri->dropsetref = ID;
@@ -25741,7 +25734,7 @@ void FFScript::do_loadnpcdata(const bool v)
 	if ( ID < 1 || ID > (MAXGUYS-1) )
 	{
 		Z_scripterrlog("Invalid NPC ID passed to Game->LoadNPCData: %d\n", ID);
-		ri->npcdataref = LONG_MAX;
+		ri->npcdataref = MAX_DWORD;
 	}
 		
 	else ri->npcdataref = ID;
@@ -25754,7 +25747,7 @@ void FFScript::do_loadmessagedata(const bool v)
 	if ( ID < 1 || ID > (msg_count-1) )
 	{
 		Z_scripterrlog("Invalid Message ID passed to Game->LoadMessageData: %d\n", ID);
-		ri->zmsgref = LONG_MAX;
+		ri->zmsgref = MAX_DWORD;
 	}
 		
 	else ri->zmsgref = ID;
@@ -25898,7 +25891,7 @@ void FFScript::do_loadmapdata(const bool v)
 	if ( ID < 0 || ID > (map_count-1) )
 	{
 		Z_scripterrlog("Invalid Map ID passed to Game->LoadMapData: %d\n", ID);
-		ri->mapsref = LONG_MAX;
+		ri->mapsref = MAX_SIGNED_32;
 	}
 
 	else ri->mapsref = ID;
@@ -26019,7 +26012,7 @@ void do_createlweapon(const bool v)
 	}
 	else
 	{
-		//ri->lwpn = LONG_MAX;
+		//ri->lwpn = MAX_DWORD;
 		ri->lwpn = 0; // Now NULL
 		Z_scripterrlog("Couldn't create lweapon %ld, screen lweapon limit reached\n", ID);
 	}
@@ -26040,7 +26033,7 @@ void do_createlweapon(const bool v)
 	/*
 	if(Lwpns.Count() < 1)
 	{
-		ri->lwpn = LONG_MAX;
+		ri->lwpn = MAX_DWORD;
 		Z_scripterrlog("Couldn't create lweapon %ld, screen lweapon limit reached\n", ID);
 	}
 	else
@@ -26088,7 +26081,7 @@ void do_createeweapon(const bool v)
 	/*
 	if(Ewpns.Count() < 1)
 	{
-		ri->ewpn = LONG_MAX;
+		ri->ewpn = MAX_DWORD;
 		Z_scripterrlog("Couldn't create eweapon %ld, screen eweapon limit reached\n", ID);
 	}
 	else
@@ -26120,7 +26113,7 @@ void do_createitem(const bool v)
 	/*
 	if(items.Count() < 1)
 	{
-		ri->itemref = LONG_MAX;
+		ri->itemref = MAX_DWORD;
 		Z_scripterrlog("Couldn't create item \"%s\", screen item limit reached\n", item_string[ID]);
 	}
 	else
@@ -26143,7 +26136,7 @@ void do_createnpc(const bool v)
 	
 	if(numcreated == 0)
 	{
-		//ri->guyref = LONG_MAX;
+		//ri->guyref = MAX_DWORD;
 		ri->guyref = 0;
 		Z_scripterrlog("Couldn't create NPC \"%s\", screen NPC limit reached\n", guy_string[ID]);
 	}
@@ -33985,14 +33978,12 @@ int32_t FFScript::loadMapData()
 	 if ( _map < 1 || _map > map_count )
 	{
 		Z_scripterrlog("Invalid Map ID passed to Game->LoadMapData: %d\n", _map);
-		ri->mapsref = LONG_MAX;
-		return LONG_MAX;
+		ri->mapsref = MAX_SIGNED_32;
 	}
 	else if ( _scr < 0 || _scr > 129 ) //0x00 to 0x81 -Z
 	{
 		Z_scripterrlog("Invalid Screen ID passed to Game->LoadMapData: %d\n", _scr);
-		ri->mapsref = LONG_MAX;
-		return LONG_MAX;
+		ri->mapsref = MAX_SIGNED_32;
 	}
 	else ri->mapsref = indx;
 	//zprint("LoadMapData Screen set ri->mapsref to: %d\n", ri->mapsref);
@@ -36665,7 +36656,7 @@ void FFScript::do_npc_add(const bool v)
 	
 	if(numcreated == 0)
 	{
-		ri->guyref = LONG_MAX;
+		ri->guyref = MAX_DWORD;
 		Z_scripterrlog("Couldn't create NPC \"%s\", screen NPC limit reached\n", guy_string[id]);
 	}
 	else
@@ -37266,7 +37257,7 @@ void FFScript::do_xtoa()
 	}
 	double num = number;
 	// zprint2("xtoa_c(), num is: %f\n", num);
-	int32_t digits = floor(FFCore.LogToBase(num, (double)16) + 1);
+	int32_t digits = num ? floor(FFCore.LogToBase(num, 16) + 1) : 1;
 	//sizeof(number)*CHAR_BIT/4;
 	// zprint2("xtoa_c, digits is: %d\n",digits);
 	
@@ -37691,10 +37682,6 @@ int32_t FFScript::Log10(double temp)
 	int32_t ret = 0;
 	if(temp > 0)
 		ret = int32_t(log10(temp) * 10000.0);
-	else if(temp == 0)
-	{
-		ret = -LONG_MAX;
-	}
 	else ret = 0;
 	return ret;
 }
@@ -37717,10 +37704,6 @@ double FFScript::ln(double temp)
 	
 	if(temp > 0)
 		return (log(temp));
-	else if(temp == 0)
-	{
-		return ((double)(-LONG_MAX));
-	}
 	else
 	{
 		return 0;
@@ -37730,6 +37713,7 @@ double FFScript::ln(double temp)
 // Returns the logarithm of x to the given base.
 double FFScript::LogToBase(double x, double base)
 {
+	if(x <= 0 || base <= 0) return 0;
 	return FFCore.ln(x)/FFCore.ln(base);
 }
 

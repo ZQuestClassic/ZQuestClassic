@@ -1421,8 +1421,8 @@ void del_qst_buffers()
 
 bool init_palnames()
 {
-    if(palnames==NULL)
-        return false;
+    // if(palnames==NULL)
+        // return false;
         
     for(int32_t x=0; x<MAXLEVELS; x++)
     {

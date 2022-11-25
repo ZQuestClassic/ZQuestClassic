@@ -415,7 +415,7 @@ void load_game_configs()
 	monochrome_console = (byte) zc_get_config("CONSOLE","monochrome_debuggers",0);
 #endif
 
-	char* default_path = "";
+	char const* default_path = "";
 	strcpy(qstdir,get_config_string(cfg_sect,qst_dir_name,default_path));
    
 	if(strlen(qstdir)==0)
@@ -3670,7 +3670,10 @@ void draw_lens_under(BITMAP *dest, bool layer)
 		if(tmpscr->stairx + tmpscr->stairy)
 		{
 			if(!hints)
-				if(!(itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,tmpscr->stairx,tmpscr->stairy+playing_field_offset,tmpscr->secretcombo[sSTAIRS],tmpscr->secretcset[sSTAIRS]);
+			{
+				if(!(itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG2))
+					putcombo(dest,tmpscr->stairx,tmpscr->stairy+playing_field_offset,tmpscr->secretcombo[sSTAIRS],tmpscr->secretcset[sSTAIRS]);
+			}
 			else
 			{
 				if(tmpscr->flags&fWHISTLE)
@@ -6552,21 +6555,21 @@ void about_zcplayer_module(const char *prompt,int32_t initialval)
 {	
 	
 	module_info_dlg[0].dp2 = lfont;
-	if ( moduledata.moduletitle[0] != NULL )
+	if ( moduledata.moduletitle[0] != 0 )
 		module_info_dlg[2].dp = (char*)moduledata.moduletitle;
 	
-	if ( moduledata.moduleauthor[0] != NULL )
+	if ( moduledata.moduleauthor[0] != 0 )
 		module_info_dlg[4].dp = (char*)moduledata.moduleauthor;
 	
-	if ( moduledata.moduleinfo0[0] != NULL )
+	if ( moduledata.moduleinfo0[0] != 0 )
 		module_info_dlg[7].dp = (char*)moduledata.moduleinfo0;
-	if ( moduledata.moduleinfo1[0] != NULL )
+	if ( moduledata.moduleinfo1[0] != 0 )
 		module_info_dlg[8].dp = (char*)moduledata.moduleinfo1;
-	if ( moduledata.moduleinfo2[0] != NULL )
+	if ( moduledata.moduleinfo2[0] != 0 )
 		module_info_dlg[9].dp = (char*)moduledata.moduleinfo2;
-	if ( moduledata.moduleinfo3[0] != NULL )
+	if ( moduledata.moduleinfo3[0] != 0 )
 		module_info_dlg[10].dp = (char*)moduledata.moduleinfo3;
-	if ( moduledata.moduleinfo4[0] != NULL )
+	if ( moduledata.moduleinfo4[0] != 0 )
 		module_info_dlg[11].dp = (char*)moduledata.moduleinfo4;
 	
 	char module_date[255];
@@ -7694,7 +7697,7 @@ int32_t onEpilepsy()
 		NULL, 
 		'y', 
 		'n', 
-		NULL, 
+		0, 
 		lfont) == 1)
 	{
 		if ( epilepsyFlashReduction ) epilepsyFlashReduction = 0;
@@ -8236,7 +8239,7 @@ int32_t onMIDIPatch()
 		NULL, 
 		'y', 
 		'n', 
-		NULL, 
+		0, 
 		lfont) == 1)
 	{
 		if (midi_patch_fix) midi_patch_fix = 0;

@@ -325,7 +325,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							hAlign = 0.0,
 							checked = !(local_ref.usrflags&cflag1),
 							text = "Type-based Damage",
-							index = 0,
+							indx = 0,
 							onToggle = message::RSET0
 						),
 						//Label(text = "Type:", hAlign = 1.0),
@@ -342,7 +342,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							hAlign = 0.0,
 							checked = local_ref.usrflags&cflag1,
 							text = "Custom Damage",
-							index = 1,
+							indx = 1,
 							onToggle = message::RSET0
 						),
 						tfs[0] = TextField(
@@ -855,7 +855,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							hAlign = 0.0,
 							checked = seladir==0,
 							text = "Direction",
-							index = 0,
+							indx = 0,
 							onToggle = message::RSET0
 						),
 						IH_BTN(DDH,"The direction to shoot in"),
@@ -871,7 +871,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							hAlign = 0.0,
 							checked = seladir==1,
 							text = "Angle",
-							index = 1,
+							indx = 1,
 							onToggle = message::RSET0
 						),
 						IH_BTN(DDH,"The angle to shoot in"),
@@ -889,7 +889,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							hAlign = 0.0,
 							checked = seladir==2,
 							text = "Aimed 4-Dir",
-							index = 2,
+							indx = 2,
 							onToggle = message::RSET0
 						),
 						IH_BTN(DDH,"Aim 4-directionally at the player"),
@@ -899,7 +899,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							hAlign = 0.0,
 							checked = seladir==3,
 							text = "Aimed 8-Dir",
-							index = 3,
+							indx = 3,
 							onToggle = message::RSET0
 						),
 						IH_BTN(DDH,"Aim 8-directionally at the player"),
@@ -909,7 +909,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							hAlign = 0.0,
 							checked = seladir==4,
 							text = "Aimed 360",
-							index = 4,
+							indx = 4,
 							onToggle = message::RSET0
 						),
 						IH_BTN(DDH,"Aim angularly at the player"),

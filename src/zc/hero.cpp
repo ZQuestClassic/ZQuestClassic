@@ -596,7 +596,7 @@ void HeroClass::resetflags(bool all)
         hoverclk=jumping=0;
 		hoverflags = 0;
     }
-    damageovertimeclk = -1;
+    damageovertimeclk = 0;
     newconveyorclk = 0;
     switchhookclk = switchhookstyle = switchhookarg = switchhookmaxtime = 0;
 	for(auto q = 0; q < 7; ++q)
@@ -1446,7 +1446,7 @@ void HeroClass::init()
     hookshot_frozen=false;
     onpassivedmg=false;
     dir = up;
-    damageovertimeclk = -1;
+    damageovertimeclk = 0;
     newconveyorclk = 0;
     switchhookclk = switchhookstyle = switchhookarg = switchhookmaxtime = 0;
 	for(auto q = 0; q < 7; ++q)
@@ -7483,9 +7483,9 @@ bool HeroClass::animate(int32_t)
 	{
 		onpassivedmg=false;
 	}
-	else if (damageovertimeclk != -1)
+	else if (damageovertimeclk)
 	{
-		damageovertimeclk = -1;
+		damageovertimeclk = 0;
 	}
 	
 	if(cheats_execute_goto)
@@ -7619,7 +7619,7 @@ bool HeroClass::animate(int32_t)
 					if (!(current_item(combobuf[watercheck].attribytes[2]) > 0 && current_item(combobuf[watercheck].attribytes[2]) >= combobuf[watercheck].attribytes[3]))
 					{
 						onpassivedmg = true;
-						if (damageovertimeclk == 0)
+						if (!damageovertimeclk)
 						{
 							int32_t curhp = game->get_life();
 							if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife())); //Affected by rings
@@ -7634,14 +7634,14 @@ bool HeroClass::animate(int32_t)
 						}
 						if (combobuf[watercheck].attribytes[1] > 0)
 						{
-							if (damageovertimeclk <= 0 || damageovertimeclk > combobuf[watercheck].attribytes[1]) damageovertimeclk = combobuf[watercheck].attribytes[1];
+							if (!damageovertimeclk || damageovertimeclk > combobuf[watercheck].attribytes[1]) damageovertimeclk = combobuf[watercheck].attribytes[1];
 							else --damageovertimeclk;
 						}
 						else damageovertimeclk = 0;
 					}
-					else damageovertimeclk = -1;
+					else damageovertimeclk = 0;
 				}
-				else damageovertimeclk = -1;
+				else damageovertimeclk = 0;
 				int32_t thesfx = combobuf[watercheck].attribytes[0];
 				if ( thesfx > 0 && !sfx_allocated(thesfx) && action==walking )
 					sfx(thesfx,pan((int32_t)x));
@@ -7662,7 +7662,7 @@ bool HeroClass::animate(int32_t)
 				if (!(current_item(combobuf[watercheck].attribytes[2]) > 0 && current_item(combobuf[watercheck].attribytes[2]) >= combobuf[watercheck].attribytes[3]))
 				{
 					onpassivedmg = true;
-					if (damageovertimeclk == 0)
+					if (!damageovertimeclk)
 					{
 						int32_t curhp = game->get_life();
 						if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife())); //Affected by rings
@@ -7671,14 +7671,14 @@ bool HeroClass::animate(int32_t)
 					}
 					if (combobuf[watercheck].attribytes[1] > 0)
 					{
-						if (damageovertimeclk <= 0 || damageovertimeclk > combobuf[watercheck].attribytes[1]) damageovertimeclk = combobuf[watercheck].attribytes[1];
+						if (!damageovertimeclk || damageovertimeclk > combobuf[watercheck].attribytes[1]) damageovertimeclk = combobuf[watercheck].attribytes[1];
 						else --damageovertimeclk;
 					}
 					else damageovertimeclk = 0;
 				}
-				else damageovertimeclk = -1;
+				else damageovertimeclk = 0;
 			}
-			else damageovertimeclk = -1;
+			else damageovertimeclk = 0;
 			int32_t thesfx = combobuf[watercheck].attribytes[0];
 			if ( thesfx > 0 && !sfx_allocated(thesfx) && action==walking )
 				sfx(thesfx,pan((int32_t)x));
@@ -9265,14 +9265,14 @@ bool HeroClass::animate(int32_t)
 					}
 					if (combobuf[watercheck].attribytes[1] > 0)
 					{
-						if (damageovertimeclk <= 0 || damageovertimeclk > combobuf[watercheck].attribytes[1]) damageovertimeclk = combobuf[watercheck].attribytes[1];
+						if (!damageovertimeclk || damageovertimeclk > combobuf[watercheck].attribytes[1]) damageovertimeclk = combobuf[watercheck].attribytes[1];
 						else --damageovertimeclk;
 					}
 					else damageovertimeclk = 0;
 				}
-				else damageovertimeclk = -1;
+				else damageovertimeclk = 0;
 			}
-			else damageovertimeclk = -1;
+			else damageovertimeclk = 0;
 			//combobuf[watercheck].attributes[0]
 		}
 
@@ -10943,7 +10943,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			
 			Lwpns.add(new weapon(x,y-fakez,z,wWhistle,0,0,dir,itemid,getUID(),false,0,1,0));
 			
-			if(whistleflag=findentrance(x,y,mfWHISTLE,get_bit(quest_rules, qr_PERMANENT_WHISTLE_SECRETS)))
+			if((whistleflag=findentrance(x,y,mfWHISTLE,get_bit(quest_rules, qr_PERMANENT_WHISTLE_SECRETS))))
 				didstuff |= did_whistle;
 				
 			if((didstuff&did_whistle && itm.flags&ITEM_FLAG1) || currscr>=128)
@@ -19113,7 +19113,7 @@ void HeroClass::checklocked()
 	if ( !found ) return;
 	
 	int32_t si = (currmap<<7) + currscr;
-	int32_t di = NULL;
+	int32_t di = 0;
 	
 	
 	
@@ -26677,10 +26677,10 @@ void dospecialmoney(int32_t index)
     
     case rBOMBS:
 	{
-        if(game->get_spendable_rupies()<abs(tmpscr[tmp].catchall) && !current_item_power(itype_wallet))
+        if(game->get_spendable_rupies()<tmpscr[tmp].catchall && !current_item_power(itype_wallet))
             return;
             
-		int32_t price = -abs(tmpscr[tmp].catchall);
+		int32_t price = -tmpscr[tmp].catchall;
 		int32_t wmedal = current_item_id(itype_wealthmedal);
 		if(wmedal >= 0)
 		{
@@ -26723,10 +26723,10 @@ void dospecialmoney(int32_t index)
         
     case rARROWS:
 	{
-        if(game->get_spendable_rupies()<abs(tmpscr[tmp].catchall) && !current_item_power(itype_wallet))
+        if(game->get_spendable_rupies()<tmpscr[tmp].catchall && !current_item_power(itype_wallet))
             return;
             
-        int32_t price = -abs(tmpscr[tmp].catchall);
+        int32_t price = -tmpscr[tmp].catchall;
 		int32_t wmedal = current_item_id(itype_wealthmedal);
 		if(wmedal >= 0)
 		{
@@ -26757,9 +26757,9 @@ void dospecialmoney(int32_t index)
     case rSWINDLE:
         if(items.spr(index)->id==iRupy)
         {
-            if(game->get_spendable_rupies()<abs(tmpscr[tmp].catchall) && !current_item_power(itype_wallet))
+            if(game->get_spendable_rupies()<tmpscr[tmp].catchall && !current_item_power(itype_wallet))
                 return;
-	    int32_t tmpprice = -abs(tmpscr[tmp].catchall);
+	    int32_t tmpprice = -tmpscr[tmp].catchall;
 	    int32_t total = game->get_drupy()-tmpprice;
 	    total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
 	    game->set_drupy(game->get_drupy()-total);
@@ -27677,7 +27677,7 @@ void HeroClass::StartRefill(int32_t refillWhat)
 					if(itemsbuf[refill_why].flags & ITEM_FLAG3){swordclk=0;verifyAWpn();}
 					if(itemsbuf[refill_why].flags & ITEM_FLAG4)itemclk=0;
 				}
-				else if((itemsbuf[refill_why].family==itype_triforcepiece))
+				else if(itemsbuf[refill_why].family==itype_triforcepiece)
 				{
 					if(itemsbuf[refill_why].flags & ITEM_FLAG3){swordclk=0;verifyAWpn();}
 					if(itemsbuf[refill_why].flags & ITEM_FLAG4)itemclk=0;

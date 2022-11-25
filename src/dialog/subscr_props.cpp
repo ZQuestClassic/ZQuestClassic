@@ -1086,7 +1086,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						{
 							std::string txt(str);
 							if(local_subref.dp1)
-								delete[] local_subref.dp1;
+								delete[] (char*)local_subref.dp1;
 							local_subref.dp1 = new char[txt.size()+1];
 							strcpy((char*)local_subref.dp1, txt.c_str());
 						})
@@ -1321,7 +1321,7 @@ void save_sso(subscreen_object const& src, subscreen_object* dest)
 		case ssoTEXT:
 		{
 			if(dest->dp1)
-				delete[] dest->dp1;
+				delete[] (char*)dest->dp1;
 			memcpy(dest, &src, sizeof(subscreen_object));
 			dest->dp1 = new char[strlen(tbuf)+1];
 			strcpy((char*)dest->dp1, tbuf);
@@ -1330,7 +1330,7 @@ void save_sso(subscreen_object const& src, subscreen_object* dest)
 		case ssoTEXTBOX:
 		{
 			if(dest->dp1)
-				delete[] dest->dp1;
+				delete[] (char*)dest->dp1;
 			memcpy(dest, &src, sizeof(subscreen_object));
 			dest->dp1 = repl_escchar(nullptr, tbuf, true);
 			break;

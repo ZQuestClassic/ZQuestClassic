@@ -339,8 +339,8 @@ eFire::eFire(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	clk4(clk4),
-	shield(shield)
+	clk4(other.clk4),
+	shield(other.shield)
 
 {
 	
@@ -389,8 +389,8 @@ eOther::eOther(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	clk4(clk4),
-	shield(shield)
+	clk4(other.clk4),
+	shield(other.shield)
 
 {
 	
@@ -442,8 +442,8 @@ eScript::eScript(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	clk4(clk4),
-	shield(shield)
+	clk4(other.clk4),
+	shield(other.shield)
 
 {
 	
@@ -492,8 +492,8 @@ eFriendly::eFriendly(enemy const & other, bool new_script_uid, bool clear_parent
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	clk4(clk4),
-	shield(shield)
+	clk4(other.clk4),
+	shield(other.shield)
 
 {
 	
@@ -542,10 +542,10 @@ eGhini::eGhini(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	clk4(clk4),
-	ox(ox),
-	oy(oy),
-	c(c)
+	clk4(other.clk4),
+	ox(other.ox),
+	oy(other.oy),
+	c(other.c)
 
 {
 	
@@ -594,10 +594,10 @@ eTektite::eTektite(enemy const & other, bool new_script_uid, bool clear_parent_s
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	old_y(old_y),
-	clk2start(clk2start),
-	cstart(cstart),
-	c(c)
+	old_y(other.old_y),
+	clk2start(other.clk2start),
+	cstart(other.cstart),
+	c(other.c)
 
 {
 	
@@ -693,9 +693,9 @@ ePeahat::ePeahat(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	ox(ox),
-	oy(oy),
-	c(c)
+	ox(other.ox),
+	oy(other.oy),
+	c(other.c)
 {
 	
 	//arrays
@@ -743,7 +743,7 @@ eLeever::eLeever(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	temprule(temprule)
+	temprule(other.temprule)
 {
 	
 	//arrays
@@ -838,14 +838,14 @@ eStalfos::eStalfos(enemy const & other, bool new_script_uid, bool clear_parent_s
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	clk4(clk4),
-	clk5(clk5),
-	fired(fired),
-	shield(shield),
-	dashing(dashing),
-	multishot(multishot),
-	fy(fy),
-	shadowdistance(shadowdistance)
+	clk4(other.clk4),
+	clk5(other.clk5),
+	fired(other.fired),
+	shield(other.shield),
+	dashing(other.dashing),
+	multishot(other.multishot),
+	fy(other.fy),
+	shadowdistance(other.shadowdistance)
 {
 	
 	//arrays
@@ -1081,7 +1081,7 @@ eProjectile::eProjectile(enemy const & other, bool new_script_uid, bool clear_pa
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	minRange(minRange)
+	minRange(other.minRange)
 {
 	
 	//arrays
@@ -1270,8 +1270,8 @@ eTrap::eTrap(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	ox(ox),
-	oy(oy)
+	ox(other.ox),
+	oy(other.oy)
 {
 	
 	//arrays
@@ -1322,10 +1322,10 @@ eKeese::eKeese(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	ox(ox),
-	c(c),
-	clk4(clk4),
-	oy(oy)
+	ox(other.ox),
+	c(other.c),
+	clk4(other.clk4),
+	oy(other.oy)
 {
 	
 	//arrays
@@ -1373,9 +1373,9 @@ eWizzrobe::eWizzrobe(enemy const & other, bool new_script_uid, bool clear_parent
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	charging(charging),
-	firing(firing),
-	fclk(fclk)
+	charging(other.charging),
+	firing(other.firing),
+	fclk(other.fclk)
 {
 	
 	//arrays
@@ -1470,7 +1470,7 @@ eDodongo2::eDodongo2(enemy const & other, bool new_script_uid, bool clear_parent
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	previous_dir(previous_dir)
+	previous_dir(other.previous_dir)
 {
 	
 	//arrays
@@ -1518,8 +1518,8 @@ eAquamentus::eAquamentus(enemy const & other, bool new_script_uid, bool clear_pa
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	fbx(fbx),
-	clk4(clk4)
+	fbx(other.fbx),
+	clk4(other.clk4)
 {
 	
 	//arrays
@@ -1567,7 +1567,7 @@ eGohma::eGohma(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	clk4(clk4)
+	clk4(other.clk4)
 {
 	
 	//arrays
@@ -1709,7 +1709,7 @@ eGanon::eGanon(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	Stunclk(Stunclk)
+	Stunclk(other.Stunclk)
 
 {
 	
@@ -1758,8 +1758,8 @@ eMoldorm::eMoldorm(enemy const & other, bool new_script_uid, bool clear_parent_s
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	segcnt(segcnt),
-	segid(segid)
+	segcnt(other.segcnt),
+	segid(other.segid)
 
 {
 	
@@ -1808,7 +1808,7 @@ esMoldorm::esMoldorm(enemy const & other, bool new_script_uid, bool clear_parent
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	parentclk(parentclk)
+	parentclk(other.parentclk)
 {
 	
 	//arrays
@@ -2656,7 +2656,7 @@ enemy::enemy(enemy const & other, bool new_script_uid, bool clear_parent_script_
    
 	wpn(other.wpn),			//int32_t
 	SIZEflags(other.SIZEflags),			//int32_t
-	hashero(hashero)
+	hashero(other.hashero)
 
 {
 	

@@ -2043,21 +2043,21 @@ void about_module(const char *prompt,int32_t initialval)
 {	
 	
 	module_info_dlg[0].dp2 = lfont;
-	if ( moduledata.moduletitle[0] != NULL )
+	if ( moduledata.moduletitle[0] != 0 )
 		module_info_dlg[2].dp = (char*)moduledata.moduletitle;
 	
-	if ( moduledata.moduleauthor[0] != NULL )
+	if ( moduledata.moduleauthor[0] != 0 )
 		module_info_dlg[4].dp = (char*)moduledata.moduleauthor;
 	
-	if ( moduledata.moduleinfo0[0] != NULL )
+	if ( moduledata.moduleinfo0[0] != 0 )
 		module_info_dlg[7].dp = (char*)moduledata.moduleinfo0;
-	if ( moduledata.moduleinfo1[0] != NULL )
+	if ( moduledata.moduleinfo1[0] != 0 )
 		module_info_dlg[8].dp = (char*)moduledata.moduleinfo1;
-	if ( moduledata.moduleinfo2[0] != NULL )
+	if ( moduledata.moduleinfo2[0] != 0 )
 		module_info_dlg[9].dp = (char*)moduledata.moduleinfo2;
-	if ( moduledata.moduleinfo3[0] != NULL )
+	if ( moduledata.moduleinfo3[0] != 0 )
 		module_info_dlg[10].dp = (char*)moduledata.moduleinfo3;
-	if ( moduledata.moduleinfo4[0] != NULL )
+	if ( moduledata.moduleinfo4[0] != 0 )
 		module_info_dlg[11].dp = (char*)moduledata.moduleinfo4;
 	
 	char module_date[255];

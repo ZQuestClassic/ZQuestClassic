@@ -690,6 +690,8 @@ set(zc_clang_errors
 	-Werror=format
 	-Werror=inconsistent-missing-override
 	-Werror=return-type
+	-Wno-write-strings
+	-Wno-switch
 )
 
 foreach(target IN LISTS zc_targets)
