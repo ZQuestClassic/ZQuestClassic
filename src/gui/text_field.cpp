@@ -84,6 +84,13 @@ void TextField::setVal(int32_t val)
 					buf[q] = 0;
 			}
 			break;
+		case type::SWAP_ZSINT_NO_DEC:
+		{
+			auto v = val / 10000;
+			startVal = v*10000;
+			sprintf(buf,"%d",v);
+			break;
+		}
 		case type::FIXED_DECIMAL:
 		{
 			int32_t scale = int32_t(pow(10, fixedPlaces));
@@ -121,10 +128,17 @@ void TextField::setVal(int32_t val)
 			}
 			break;
 		case type::SWAP_BYTE:
+			s = 3;
+			break;
 		case type::SWAP_SSHORT:
+			s = 6;
+			break;
 		case type::SWAP_ZSINT:
 		case type::SWAP_ZSINT2:
 			s = 12;
+			break;
+		case type::SWAP_ZSINT_NO_DEC:
+			s = 7;
 			break;
 	}
 	check_len(s);
@@ -190,6 +204,7 @@ int32_t TextField::getVal()
 		case type::SWAP_BYTE:
 		case type::SWAP_SSHORT:
 		case type::SWAP_ZSINT:
+		case type::SWAP_ZSINT_NO_DEC:
 		case type::SWAP_ZSINT2:
 			if(alDialog)
 				value = alDialog->fg;
@@ -378,6 +393,10 @@ void TextField::realize(DialogRunner& runner)
 
 			case type::SWAP_ZSINT:
 				proc = newGUIProc<jwin_numedit_swap_zsint_proc>;
+				break;
+			
+			case type::SWAP_ZSINT_NO_DEC:
+				proc = newGUIProc<jwin_numedit_swap_zsint_nodec_proc>;
 				break;
 
 			case type::SWAP_ZSINT2:

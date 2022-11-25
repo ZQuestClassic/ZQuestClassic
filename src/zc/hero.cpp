@@ -9246,7 +9246,7 @@ bool HeroClass::animate(int32_t)
 			int32_t watercheck = iswaterex(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, true, false);
 			if (combobuf[watercheck].usrflags&cflag2)
 			{
-				if (!(current_item(combobuf[watercheck].attribytes[2]) > 0 && current_item(combobuf[watercheck].attribytes[2]) >= combobuf[watercheck].attribytes[3]))
+				if (current_item(combobuf[watercheck].attribytes[2]) < combobuf[watercheck].attribytes[3])
 				{
 					onpassivedmg = true;
 					if (damageovertimeclk == 0)

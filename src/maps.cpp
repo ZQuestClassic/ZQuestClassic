@@ -361,8 +361,11 @@ int32_t COMBOTYPE(int32_t x,int32_t y)
     
 	if(y&8) b<<=1;
 	newcombo const& cmb = combobuf[MAPCOMBO(x,y)];
-	if (cmb.type == cWATER && (cmb.usrflags&cflag4) && (cmb.walk&b) && ((cmb.walk>>4)&b)) return cSHALLOWWATER;
-	if (cmb.type == cWATER && (cmb.usrflags&cflag3) && (cmb.walk&b) && ((cmb.walk>>4)&b)) return cNONE;
+	if (cmb.type == cWATER && (cmb.walk&b) && ((cmb.walk>>4)&b))
+	{
+		if(cmb.usrflags&cflag4) return cSHALLOWWATER;
+		if(cmb.usrflags&cflag3) return cNONE;
+	}
 	return cmb.type;
 }
 

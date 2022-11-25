@@ -3041,7 +3041,7 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 	}
 	if(msg==MSG_CHAR && ((c&255)=='.'))
 	{
-		if(ntype >= nswapLDEC) //No '.' in int32_t modes
+		if(ntype >= nswapLDEC) //No '.' in long modes
 			c&=~255;
 		else
 		{
@@ -3136,6 +3136,175 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 			d->d1 = 9; //9 digits max (incl '-')
 			if(msg == MSG_CHAR && !editproc_special_key(c) && isalpha(c&255)) //always capitalize
 				c = (c&~255) | (toupper(c&255));
+			ret |= jwin_hexedit_proc(msg, d, c);
+			break;
+	}
+	if(rev_d2 && ref_d2 == d->d2)
+	{
+		d->d2 = old_d2;
+	}
+	
+	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
+	
+	return ret;
+}
+int32_t jwin_numedit_swap_zsint_nodec_proc(int32_t msg, DIALOG *d, int32_t c)
+{
+	const size_t maxlen = 7;
+	DIALOG* swapbtn;
+	if(d->flags&D_NEW_GUI)
+	{
+		swapbtn = d+1;
+	}
+	else swapbtn = (DIALOG*)d->dp3;
+	if(!swapbtn) return D_O_K;
+	if(msg==MSG_START) //Setup the swapbtn
+	{
+		d->bg = 0;
+		swapbtn->d2 = 2; //Max states
+		swapbtn->dp3 = (void*)d;
+	}
+	int32_t ret = D_O_K;
+	int32_t ntype = swapbtn->d1&0xF,
+	    otype = swapbtn->d1>>4;
+	
+	char* str = (char*)d->dp;
+	int64_t v = 0;
+	if(msg == MSG_START)
+		v = d->fg;
+	else switch(otype)
+	{
+		case nswapDEC:
+			v = atoi(str);
+			v *= 10000;
+			break;
+        case nswapHEX:
+			v = zc_xtoi(str);
+			v *= 10000;
+			break;
+	}
+	int32_t b;
+	if ( v > 2147480000 )
+		b=2147480000;
+	else if ( v < -2147480000 )
+		b=-2147480000;
+	else b = (int32_t)v;
+	bool queued_neg = d->bg;
+	if(msg==MSG_CHAR && ((c&255)=='-'))
+	{
+		if(b)
+		{
+			if(b==INT_MIN)
+				++b;
+			b = -b;
+			v = b;
+			if(b<0)
+			{
+				if(str[0] != '-')
+				{
+					char buf[16] = {0};
+					strcpy(buf, str);
+					sprintf(str, "-%s", buf);
+					INC_TF_CURSORS(d->d2,1,strlen(str));
+				}
+			}
+			else if(str[0] == '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "%s", buf+1);
+				INC_TF_CURSORS(d->d2,-1,strlen(str));
+			}
+			if(msg != MSG_DRAW) ret |= D_REDRAWME;
+		}
+		else queued_neg = !queued_neg; //queue negative
+		c &= ~255;
+		ret |= D_USED_CHAR;
+	}
+	if(b && queued_neg)
+	{
+		//b = -b; //actually, 'atoi' handles it for us.....
+		queued_neg = false;
+	}
+	if(bool(d->bg) != queued_neg)
+	{
+		d->bg = queued_neg;
+		if(queued_neg)
+		{
+			if(str[0] != '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "-%s", buf);
+				INC_TF_CURSORS(d->d2,1,strlen(str));
+			}
+		}
+		else if(!b && str[0] == '-')
+		{
+			char buf[16] = {0};
+			strcpy(buf, str);
+			sprintf(str, "%s", buf+1);
+			INC_TF_CURSORS(d->d2,-1,strlen(str));
+		}
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	if(v != b || otype != ntype || msg == MSG_START)
+	{
+		switch(ntype)
+		{
+			case nswapDEC:
+				if(b < 0)
+					sprintf(str, "-%ld", abs(b/10000L));
+				else sprintf(str, "%ld", b/10000L);
+				break;
+			case nswapHEX:
+				if(b<0)
+					sprintf(str, "-%lX", abs(b/10000L));
+				else sprintf(str, "%lX", b/10000L);
+				break;
+		}
+		d->d2 = 0xFFFF0000|strlen(str);
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	if(d->fg != b)
+	{
+		d->fg = b; //Store numeric data
+		GUI_EVENT(d, geUPDATE_SWAP);
+	}
+	if(msg==MSG_CHAR && ((c&255)=='.'))
+	{
+		c&=~255; //no '.' in nodec version
+	}
+	bool rev_d2 = false;
+	int32_t old_d2 = d->d2;
+	int32_t ref_d2;
+	if(msg == MSG_CHAR && queued_neg)
+	{
+		auto scursor = d->d2 & 0xFFFF;
+		auto ecursor = (d->d2 & 0xFFFF0000) >> 16;
+		if(!scursor)
+		{
+			rev_d2 = true;
+			INC_TF_CURSORS(d->d2,1,strlen(str));
+			ref_d2 = d->d2;
+		}
+	}
+	bool areaselect = (d->d2 & 0xFFFF0000) != 0xFFFF0000;
+	switch(ntype)
+	{
+		case nswapDEC:
+			d->d1 = 7; //7 digits max (incl '-')
+			ret |= jwin_numedit_proc(msg, d, c);
+			break;
+		case nswapHEX:
+			d->d1 = 6; //6 digits max (incl '-')
+			if(msg==MSG_CHAR && !editproc_special_key(c))
+			{
+				if(!isxdigit(c&255))
+					c&=~255;
+				if(isalpha(c&255)) //always capitalize
+					c = (c&~255) | (toupper(c&255));
+			}
 			ret |= jwin_hexedit_proc(msg, d, c);
 			break;
 	}
@@ -3337,7 +3506,7 @@ int32_t jwin_numedit_swap_zsint2_proc(int32_t msg, DIALOG *d, int32_t c)
 	}
 	if(msg==MSG_CHAR && ((c&255)=='.'))
 	{
-		if(ntype >= nswapLDEC) //No '.' in int32_t modes
+		if(ntype >= nswapLDEC) //No '.' in long modes
 			c&=~255;
 		else
 		{

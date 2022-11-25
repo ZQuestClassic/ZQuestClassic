@@ -18,7 +18,9 @@ public:
 
 private:
 	newcombo local_ref;
-	ComboEditorDialog& parent;
+	newcombo& dest_ref;
+	newcombo const& src_ref;
+	ComboEditorDialog const& parent;
 	std::string thelp, ctyname;
 	
 	int32_t flags;
@@ -27,6 +29,7 @@ private:
 	std::shared_ptr<GUI::DropDownList> ddls[10];
 	std::shared_ptr<GUI::Checkbox> cboxes[10];
 	std::shared_ptr<GUI::Switcher> switcher[10];
+	std::shared_ptr<GUI::CornerSwatch> cswatchs[3];
 	std::shared_ptr<GUI::Radio> rset[10][10];
 	size_t rs_sz[10];
 	

@@ -27,8 +27,10 @@ public:
 				dm.sender = snd;
 				this->done = this->done || dlg.handleMessage(dm);
 			};
-
-		runInner(dlg.view());
+		
+		std::shared_ptr<Widget> root = dlg.view();
+		if(root)
+			runInner(root);
 	}
 
 	/* Add a DIALOG and connect it to its owner.

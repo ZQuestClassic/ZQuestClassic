@@ -46,13 +46,11 @@ bool hasComboWizard(int32_t type)
 		case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
 		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
 		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
-		case cSLOPE: case cSHOOTER:
+		case cSLOPE: case cSHOOTER: case cWATER: case cSHALLOWWATER:
 			return true;
 	}
 	return false;
 }
-
-#define RELOAD() parent.loadComboType(&local_ref)
 
 void call_combo_wizard(ComboEditorDialog& dlg)
 {
@@ -60,7 +58,8 @@ void call_combo_wizard(ComboEditorDialog& dlg)
 }
 
 ComboWizardDialog::ComboWizardDialog(ComboEditorDialog& parent) : parent(parent),
-	local_ref(parent.local_comboref), flags(0),
+	local_ref(parent.local_comboref), dest_ref(parent.local_comboref),
+	src_ref(parent.local_comboref), flags(0),
 	list_sprites(GUI::ZCListData::miscsprites()),
 	list_lwscript(GUI::ZCListData::lweapon_script()),
 	list_ewscript(GUI::ZCListData::eweapon_script())
@@ -121,6 +120,19 @@ void ComboWizardDialog::update(bool first)
 			ddls[1]->setDisabled(r0==3);
 			break;
 		}
+		case cWATER: case cSHALLOWWATER:
+		{
+			bool hpmod = local_ref.usrflags&cflag2;
+			tfs[2]->setDisabled(!hpmod);
+			tfs[3]->setDisabled(!hpmod);
+			ddls[2]->setDisabled(!hpmod);
+			tfs[4]->setDisabled(!hpmod);
+			ddls[3]->setDisabled(!hpmod);
+			cboxes[2]->setDisabled(!hpmod);
+			cboxes[3]->setDisabled(!hpmod);
+			cboxes[4]->setDisabled(!hpmod);
+			break;
+		}
 		case cSLOPE:
 		{
 			tfs[0]->setVal(local_ref.attrishorts[0]);
@@ -157,17 +169,42 @@ void ComboWizardDialog::endUpdate()
 	{
 		case cSTEPCOPY:
 		{
-			if(parent.local_comboref.type == cSTEPCOPY)
+			if(src_ref.type == cSTEPCOPY)
 			{
-				local_ref.attribytes[0] = parent.local_comboref.attribytes[0];
-				local_ref.attribytes[1] = parent.local_comboref.attribytes[1];
-				local_ref.usrflags = parent.local_comboref.usrflags;
+				local_ref.attribytes[0] = src_ref.attribytes[0];
+				local_ref.attribytes[1] = src_ref.attribytes[1];
+				local_ref.usrflags = src_ref.usrflags;
 			}
 			else
 			{
 				local_ref.attribytes[0] = 0;
 				local_ref.attribytes[1] = 0;
 				local_ref.usrflags &= ~cflag1;
+			}
+			break;
+		}
+		case cWATER: case cSHALLOWWATER:
+		{
+			if(!(local_ref.usrflags&cflag2))
+			{
+				if(src_ref.usrflags&cflag2)
+				{
+					local_ref.attribytes[1] = 0;
+					local_ref.attribytes[2] = 0;
+					local_ref.attribytes[3] = 0;
+					local_ref.attributes[1] = 0;
+					local_ref.attributes[2] = 0;
+				}
+				else
+				{
+					local_ref.attribytes[1] = src_ref.attribytes[1];
+					local_ref.attribytes[2] = src_ref.attribytes[2];
+					local_ref.attribytes[3] = src_ref.attribytes[3];
+					local_ref.attributes[1] = src_ref.attributes[1];
+					local_ref.attributes[2] = src_ref.attributes[2];
+					local_ref.usrflags &= ~(cflag5|cflag6|cflag7);
+					local_ref.usrflags |= src_ref.usrflags & (cflag5|cflag6|cflag7);
+				}
 			}
 			break;
 		}
@@ -205,36 +242,36 @@ void ComboWizardDialog::endUpdate()
 				if(high_rate < rate)
 					zc_swap(high_rate,rate);
 			}
-			else if(parent.local_comboref.usrflags&cflag2)
+			else if(src_ref.usrflags&cflag2)
 			{
 				high_rate = 0;
 			}
 			else
 			{
-				high_rate = parent.local_comboref.attrishorts[1];
+				high_rate = src_ref.attrishorts[1];
 			}
 			//Proximity stuff
 			int32_t& a1 = local_ref.attributes[1];
 			if(!(local_ref.usrflags&cflag4))
 			{
-				if(!(parent.local_comboref.usrflags&cflag4))
-					a1 = parent.local_comboref.attributes[1];
-				else a1 = 0;
+				if(!(src_ref.usrflags&cflag4))
+					a1 = 0;
+				else a1 = src_ref.attributes[1];
 			}
 			//Spread stuff
 			byte& b3 = local_ref.attribytes[3];
 			int32_t& a3 = local_ref.attributes[3];
 			if(!(local_ref.usrflags&cflag7))
 			{
-				if(!(parent.local_comboref.usrflags&cflag7))
-				{
-					a3 = parent.local_comboref.attributes[3];
-					b3 = parent.local_comboref.attribytes[3];
-				}
-				else
+				if(src_ref.usrflags&cflag7)
 				{
 					a3 = 0;
 					b3 = 0;
+				}
+				else
+				{
+					a3 = src_ref.attributes[3];
+					b3 = src_ref.attribytes[3];
 				}
 			}
 			break;
@@ -586,6 +623,12 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		{
 			byte& step_sfx = local_ref.attribytes[0];
 			byte& req_item = local_ref.attribytes[1];
+			if(local_ref.type == cSTEPCOPY)
+			{
+				step_sfx = 0;
+				req_item = 0;
+				local_ref.usrflags &= ~cflag1;
+			}
 			rs_sz[0] = 4;
 			lists[0] = GUI::ZCListData::items(true).filter(
 				[&](GUI::ListItem& itm)
@@ -669,6 +712,233 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 				),
 				INFOBTN("Requires Heavy Boots to trigger")
 				//
+			));
+			break;
+		}
+		case cWATER: case cSHALLOWWATER:
+		{
+			static size_t tabpos = 0;
+			//Deep only
+			lists[0] = GUI::ListData({
+				{ "Solid is Solid", 0 },
+				{ "Solid is Land", cflag3 },
+				{ "Solid is Shallow", cflag4 }
+			});
+			auto sel_val = (local_ref.usrflags&cflag4) ? cflag4 : (local_ref.usrflags&cflag3);
+			byte& flipp_level = local_ref.attribytes[0];
+			byte& drown_sfx = local_ref.attribytes[4];
+			int32_t& drown_damage = local_ref.attributes[0];
+			
+			//Shallow only
+			byte& splash_sfx = local_ref.attribytes[0];
+			
+			//Both
+			lists[1] = GUI::ZCListData::itemclass(true,true);
+			byte& hp_delay = local_ref.attribytes[1];
+			byte& req_ic = local_ref.attribytes[2];
+			byte& req_it_lvl = local_ref.attribytes[3];
+			int32_t& hp_mod = local_ref.attributes[1];
+			int32_t& mod_sfx = local_ref.attributes[2];
+			
+			std::shared_ptr<GUI::Grid> mainrow;
+			if(local_ref.type == cWATER) //deep
+			{
+				mainrow = Row(padding = 0_px,
+					Rows<2>(
+						cboxes[0] = Checkbox(
+							text = "Is Lava", hAlign = 1.0,
+							checked = local_ref.usrflags&cflag1,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_ref.usrflags,cflag1,state);
+							}
+						),
+						INFOBTN("If a liquid is Lava, it uses a different drowning sprite, and only flippers with the"
+							" 'Can Swim In Lava' flag set will apply."),
+						//
+						ddls[0] = DropDownList(data = lists[0],
+							fitParent = true, selectedValue = sel_val,
+							maxwidth = 30_em,
+							onSelectFunc = [&](int32_t val)
+							{
+								local_ref.usrflags &= ~(cflag3|cflag4);
+								local_ref.usrflags |= val;
+							}),
+						INFOBTN("Whether solid areas of the combo are treated as"
+							" solid, walkable land, or walkable shallow water."),
+						//
+						Label(text = "Solidity:", hAlign = 1.0),
+						Button(text = "?", fitParent = true,
+							rowSpan = 2,
+							onPressFunc = [&]()
+							{
+								InfoDialog("Solidity","The pink-highlighted corners of the combo"
+									" will be treated as either solid walls, walkable land,"
+									" or walkable shallow water based on the dropdown above.").show();
+							}),
+						//
+						cswatchs[0] = CornerSwatch(
+							val = solidity_to_flag(local_ref.walk&0xF),
+							color = vc(12), hAlign = 1.0,
+							onSelectFunc = [&](int32_t val)
+							{
+								local_ref.walk &= ~0xF;
+								local_ref.walk |= solidity_to_flag(val);
+							})
+						//button rowspans here
+					),
+					Rows<3>(
+						Label(text = "Minimum Flipper Level:", hAlign = 1.0),
+						tfs[0] = TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_BYTE,
+							low = 1, high = 255, val = flipp_level,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								flipp_level = val;
+							}),
+						INFOBTN("The minimum level flippers required to swim in the water."
+							" Flippers of lower level will have no effect."),
+						//
+						Label(text = "Drown Damage:", hAlign = 1.0),
+						tfs[1] = TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
+							val = drown_damage,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								drown_damage = val;
+							}),
+						INFOBTN("The amount of damage dealt when drowning, in HP points."
+							" If negative, drowning will heal the player."),
+						//
+						Label(text = "Drown SFX:", hAlign = 1.0),
+						ddls[1] = DropDownList(data = parent.list_sfx,
+							fitParent = true, selectedValue = drown_sfx,
+							onSelectFunc = [&](int32_t val)
+							{
+								drown_sfx = val;
+							}),
+						INFOBTN("The SFX played when drowning")
+						//
+					)
+				);
+			}
+			else //shallow
+			{
+				mainrow = Rows<3>(
+					Label(text = "Splash SFX:", hAlign = 1.0),
+					ddls[1] = DropDownList(data = parent.list_sfx,
+						fitParent = true, selectedValue = splash_sfx,
+						onSelectFunc = [&](int32_t val)
+						{
+							splash_sfx = val;
+						}),
+					INFOBTN("The SFX played when walking in")
+				);
+			}
+			
+			windowRow->add(TabPanel(ptr = &tabpos,
+				TabRef(name = "Main",
+					mainrow
+				),
+				TabRef(name = "Passive HP Mod",
+					Rows<3>(
+						cboxes[1] = Checkbox(
+								text = "Passive HP Mod", colSpan = 3,
+								checked = local_ref.usrflags&cflag2,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_ref.usrflags,cflag2,state);
+									update();
+								}
+							),
+						//
+						Label(text = "HP Modification:", hAlign = 1.0),
+						tfs[2] = TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
+							val = hp_mod,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								hp_mod = val;
+							}),
+						INFOBTN("How much HP should be modified by (negative for damage)"),
+						//
+						Label(text = "HP Delay:", hAlign = 1.0),
+						tfs[3] = TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_BYTE,
+							low = 0, high = 255, val = hp_delay,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								hp_delay = val;
+							}),
+						INFOBTN("The number of frames between HP modifications"),
+						//
+						Label(text = "Req Itemclass:", hAlign = 1.0),
+						ddls[2] = DropDownList(data = lists[1],
+							fitParent = true, selectedValue = req_ic,
+							onSelectFunc = [&](int32_t val)
+							{
+								req_ic = val;
+							}),
+						INFOBTN("The itemclass, if any, that will stop the HP modification if owned."),
+						//
+						Label(text = "Req Item Level:", hAlign = 1.0),
+						tfs[4] = TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_BYTE,
+							low = 1, high = 255, val = req_it_lvl,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								req_it_lvl = val;
+							}),
+						INFOBTN("The minimum level you must own of the 'Req Itemclass' for it to"
+							" stop hp modification."),
+						//
+						Label(text = "Mod SFX:", hAlign = 1.0),
+						ddls[3] = DropDownList(data = parent.list_sfx,
+							fitParent = true, selectedValue = mod_sfx,
+							onSelectFunc = [&](int32_t val)
+							{
+								mod_sfx = val;
+							}),
+						INFOBTN("The SFX played every 'HP Delay' frames the player is in the liquid."),
+						//
+						Rows<2>(padding = 0_px, colSpan = 3, hAlign = 1.0,
+							cboxes[2] = Checkbox(
+									text = "Mod SFX Only if HP changed", hAlign = 0.0,
+									checked = local_ref.usrflags&cflag6,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag6,state);
+									}
+								),
+							INFOBTN("Only play the HP Mod SFX when HP actually changes"),
+							//
+							cboxes[3] = Checkbox(
+									text = "Rings affect HP Mod", hAlign = 0.0,
+									checked = local_ref.usrflags&cflag5,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag5,state);
+									}
+								),
+							INFOBTN("Ring items defense reduces damage from HP Mod"),
+							//
+							cboxes[4] = Checkbox(
+									text = "Damage triggers hit anim", hAlign = 0.0,
+									checked = local_ref.usrflags&cflag7,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag7,state);
+									}
+								),
+							INFOBTN("HP Mod Damage triggers the hit animation and invincibility frames")
+						)
+					)
+				)
 			));
 			break;
 		}
@@ -1134,7 +1404,7 @@ bool ComboWizardDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			return false;
 		case message::OK:
 			endUpdate();
-			parent.local_comboref = local_ref;
+			dest_ref = local_ref;
 			return true;
 
 		case message::CANCEL:

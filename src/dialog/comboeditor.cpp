@@ -55,9 +55,17 @@ bool hasCTypeEffects(int32_t type)
 }
 
 static bool edited = false, cleared = false;
+#if DEVLEVEL > 0
+static int32_t force_wizard = 0;
+#endif
 bool call_combo_editor(int32_t index)
 {
 	combo_use_script_data = zc_get_config("zquest","show_comboscript_meta_attribs",1)?true:false;
+#if DEVLEVEL > 0
+	force_wizard = 0;
+	if(key_shifts&KB_CTRL_FLAG)
+		force_wizard = (key_shifts&KB_SHIFT_FLAG)?2:1;
+#endif
 	int32_t cs = CSet;
 	edited = false; cleared = false;
 	ComboEditorDialog(index).show();
@@ -763,6 +771,12 @@ void ComboEditorDialog::loadComboType()
 			h_attribyte[0] = "SFX ID to play when stepping in the shallow liquid";
 			if(FL(cflag2)) //Modify HP
 			{
+				l_flag[4] = "Rings affect HP Mod";
+				h_flag[4] = "Ring items defense reduces damage from HP Mod";
+				l_flag[5] = "Mod SFX only on HP change";
+				h_flag[5] = "Only play the HP Mod SFX when HP actually changes";
+				l_flag[6] = "Damage causes hit anim";
+				h_flag[6] = "HP Mod Damage triggers the hit animation and invincibility frames";
 				l_attribute[1] = "HP Modification:";
 				h_attribute[1] = "How much HP should be modified by (negative for damage)";
 				l_attribute[2] = "HP Mod SFX:";
@@ -4337,6 +4351,25 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 	l_minmax_trig->setText((local_comboref.triggerflags[0] & (combotriggerINVERTMINMAX))
 		? maxstr : minstr);
 	refreshScript();
+#if DEVLEVEL > 0
+	if(force_wizard)
+	{
+		if(force_wizard==1)
+		{
+			local_comboref.type = cSHALLOWWATER;
+			call_combo_wizard(*this);
+		}
+		else for(auto q = 0; q < cMAX; ++q)
+		{
+			if(hasComboWizard(q))
+			{
+				local_comboref.type = q;
+				call_combo_wizard(*this);
+			}
+		}
+		return nullptr;
+	}
+#endif
 	return window;
 }
 

@@ -200,12 +200,12 @@ GUI::ListData GUI::ZCListData::items(bool numbered)
 	return ls;
 }
 
-GUI::ListData GUI::ZCListData::itemclass(bool numbered)
+GUI::ListData GUI::ZCListData::itemclass(bool numbered, bool zero_none)
 {
 	map<std::string, int32_t> fams;
 	std::set<std::string> famnames;
 	
-	for(int32_t i=0; i<itype_max; ++i)
+	for(int32_t i=zero_none?1:0; i<itype_max; ++i)
 	{
 		if(!ZI.isUsableItemclass(i))
 			continue; //Hidden
@@ -237,7 +237,8 @@ GUI::ListData GUI::ZCListData::itemclass(bool numbered)
 	}
 	
 	GUI::ListData ls;
-	
+	if(zero_none)
+		ls.add("(None)", 0);
 	for(auto it = famnames.begin(); it != famnames.end(); ++it)
 	{
 		ls.add(*it, fams[*it]);
