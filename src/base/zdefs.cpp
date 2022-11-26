@@ -1252,6 +1252,7 @@ slopedata::slopedata(newcombo const& cmb, zfix const& x, zfix const& y)
 		x2 = ox2 = x + int32_t(cmb.attrishorts[2]);
 		y2 = oy2 = y + int32_t(cmb.attrishorts[3]);
 		id = -1;
+		inuse = true;
 		stairs = (cmb.usrflags&cflag1);
 		ignorebottom = (cmb.usrflags&cflag2);
 		ignoretop = (cmb.usrflags&cflag3);
@@ -1281,6 +1282,7 @@ slopedata::slopedata(newcombo const& cmb, zfix const& x, zfix const& y, int32_t 
 		x2 = ox2 = x + int32_t(cmb.attrishorts[2]);
 		y2 = oy2 = y + int32_t(cmb.attrishorts[3]);
 		id  = ID;
+		inuse = true;
 		stairs = (cmb.usrflags&cflag1);
 		ignorebottom = (cmb.usrflags&cflag2);
 		ignoretop = (cmb.usrflags&cflag3);
@@ -1301,19 +1303,19 @@ slopedata::slopedata(newcombo const& cmb, zfix const& x, zfix const& y, int32_t 
 	}
 }
 
-slopedata::slopedata(newcombo const& cmb, zfix const& x, zfix const& y, zfix const& ox, zfix const& oy, int32_t ID)
+void slopedata::updateslope(newcombo const& cmb, zfix const& x, zfix const& y)
 {
 	if (cmb.type == cSLOPE) 
 	{
+		ox1 = x1;
+		oy1 = y1;
+		ox2 = x2;
+		oy2 = y2;
 		x1 = x + int32_t(cmb.attrishorts[0]);
 		y1 = y + int32_t(cmb.attrishorts[1]);
 		x2 = x + int32_t(cmb.attrishorts[2]);
 		y2 = y + int32_t(cmb.attrishorts[3]);
-		ox1 = ox + int32_t(cmb.attrishorts[0]);
-		oy1 = oy + int32_t(cmb.attrishorts[1]);
-		ox2 = ox + int32_t(cmb.attrishorts[2]);
-		oy2 = oy + int32_t(cmb.attrishorts[3]);
-		id  = ID;
+		inuse = true;
 		stairs = (cmb.usrflags&cflag1);
 		ignorebottom = (cmb.usrflags&cflag2);
 		ignoretop = (cmb.usrflags&cflag3);

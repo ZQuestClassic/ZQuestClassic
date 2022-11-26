@@ -9415,7 +9415,12 @@ bool HeroClass::animate(int32_t)
 	
 	bool awarp = false;
 	//!DIMI: Global Combo Effects (AUTO STUFF)
-	slopes.clear();
+	//slopes.clear();
+	for (auto& p : slopes)
+	{
+		slopedata& s = p.second;
+		s.inuse = false;
+	}
 	for(int32_t i=0; i<176; ++i)
 	{
 		for(int32_t layer=0; layer<7; ++layer)
@@ -9424,7 +9429,17 @@ bool HeroClass::animate(int32_t)
 			newcombo const& cmb = combobuf[cid];
 			if (cmb.type == cSLOPE) 
 			{
-				slopes.try_emplace((176*layer)+i, cmb, COMBOX(i), COMBOY(i),(176*layer)+i);
+				int32_t id = (176*layer)+i;
+				auto it = slopes.find(id);
+				if (it == slopes.end())
+				{
+					slopes.try_emplace(id, cmb, COMBOX(i), COMBOY(i), id);
+				}
+				else
+				{
+					slopedata& s = (*it).second;
+					s.updateslope(cmb, COMBOX(i), COMBOY(i));
+				}
 			}
 			if(!get_bit(quest_rules,qr_AUTOCOMBO_ANY_LAYER))
 			{
@@ -9496,7 +9511,17 @@ bool HeroClass::animate(int32_t)
 		newcombo const& cmb = combobuf[tmpscr->ffcs[i].getData()];
 		if (cmb.type == cSLOPE && !(tmpscr->ffcs[i].flags&ffCHANGER))
 		{
-			slopes.try_emplace((176*7)+int32_t(i), cmb, tmpscr->ffcs[i].x, tmpscr->ffcs[i].y, tmpscr->ffcs[i].old_x2, tmpscr->ffcs[i].old_y2, (176*7)+int32_t(i));
+			int32_t id = (176*7)+int32_t(i);
+			auto it = slopes.find(id);
+			if (it == slopes.end())
+			{
+				slopes.try_emplace(id, cmb, tmpscr->ffcs[i].x, tmpscr->ffcs[i].y, id);
+			}
+			else
+			{
+				slopedata& s = (*it).second;
+				s.updateslope(cmb, tmpscr->ffcs[i].x, tmpscr->ffcs[i].y);
+			}
 		}
 		if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
 		{
@@ -9539,6 +9564,15 @@ bool HeroClass::animate(int32_t)
 			sdir = dir;
 			dowarp(1,ind);
 			break;
+		}
+	}
+	
+	for (auto& p : slopes)
+	{
+		slopedata& s = p.second;
+		if (!s.inuse)
+		{
+			slopes.erase(s.id);
 		}
 	}
 	zfix dx, dy;
