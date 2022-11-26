@@ -1768,6 +1768,7 @@ int32_t findtrigger(int32_t scombo, bool ff)
                 else
                     checkflag = (layer>-1 ? combobuf[tmpscr2[layer].data[j]].flag : combobuf[tmpscr->data[j]].flag);
 				sflag = !sflag;
+				if (sflag) --layer;
 			}
 			switch(checkflag)
 			{
