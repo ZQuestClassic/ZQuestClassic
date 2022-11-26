@@ -5994,7 +5994,8 @@ reload_for_replay_file:
 		{
 			if (replay_is_assert_done())
 			{
-				Quit = qEXIT;
+				Quit = qQUIT;
+				replay_stop();
 			}
 			else if (replay_get_mode() != ReplayMode::Record && Quit == qEXIT)
 			{
