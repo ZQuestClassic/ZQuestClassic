@@ -2191,6 +2191,13 @@ int32_t init_game()
 	//  currdmap = warpscr = worldscr=0;
 	if(firstplay)
 	{
+		// Without this, during replay assert there is a difference (for rings only?) on playback.
+		// Seems like the `game` field should be in a known, zero'd out state, but on the original
+		// playthrough it isn't. I guess it's related to whatever happened to be in saves[currgame] which
+		// was copied above.
+		for (int i = 0; i < MAXITEMS; i++)
+			game->item[i] = false;
+
 		if (!use_testingst_start)
 			game->set_continue_dmap(zinit.start_dmap);
 		resetItems(game,&zinit,true);
