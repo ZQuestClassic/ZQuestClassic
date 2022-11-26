@@ -2043,21 +2043,21 @@ void about_module(const char *prompt,int32_t initialval)
 {	
 	
 	module_info_dlg[0].dp2 = lfont;
-	if ( moduledata.moduletitle[0] != NULL )
+	if ( moduledata.moduletitle[0] != 0 )
 		module_info_dlg[2].dp = (char*)moduledata.moduletitle;
 	
-	if ( moduledata.moduleauthor[0] != NULL )
+	if ( moduledata.moduleauthor[0] != 0 )
 		module_info_dlg[4].dp = (char*)moduledata.moduleauthor;
 	
-	if ( moduledata.moduleinfo0[0] != NULL )
+	if ( moduledata.moduleinfo0[0] != 0 )
 		module_info_dlg[7].dp = (char*)moduledata.moduleinfo0;
-	if ( moduledata.moduleinfo1[0] != NULL )
+	if ( moduledata.moduleinfo1[0] != 0 )
 		module_info_dlg[8].dp = (char*)moduledata.moduleinfo1;
-	if ( moduledata.moduleinfo2[0] != NULL )
+	if ( moduledata.moduleinfo2[0] != 0 )
 		module_info_dlg[9].dp = (char*)moduledata.moduleinfo2;
-	if ( moduledata.moduleinfo3[0] != NULL )
+	if ( moduledata.moduleinfo3[0] != 0 )
 		module_info_dlg[10].dp = (char*)moduledata.moduleinfo3;
-	if ( moduledata.moduleinfo4[0] != NULL )
+	if ( moduledata.moduleinfo4[0] != 0 )
 		module_info_dlg[11].dp = (char*)moduledata.moduleinfo4;
 	
 	char module_date[255];
@@ -4853,7 +4853,7 @@ void EditGameMiscArray()
 		gamemiscarray_dlg[37+q].dp3 = &(gamemiscarray_dlg[71+q]);
 		
 		strcpy(miscvalue_labels[q], misc.questmisc_strings[q]);
-		if ( miscvalue_labels[q][0] == NULL ) sprintf(miscvalue_labels[q],"Misc[%d]",q);
+		if ( miscvalue_labels[q][0] == 0 ) sprintf(miscvalue_labels[q],"Misc[%d]",q);
 		gamemiscarray_dlg[5+q].dp = miscvalue_labels[q];
 		
 	}
@@ -7438,7 +7438,7 @@ void refresh(int32_t flags)
                              (c>=305 ? Map.CurrScr()->ffcs[c-305].getData() :
                               c>=304 ? Map.CurrScr()->undercombo :
                               c>=176 ? Map.CurrScr()->secretcombo[c-176] :
-                              Map.CurrScr()->data.empty() ? 0 : // Sanity check: does room combo data exist?
+                              !Map.CurrScr()->valid ? 0 : // Sanity check: does room combo data exist?
                               Map.CurrScr()->data[c]
                              ), 0, MAXCOMBOS-1)].type;
                              
@@ -16606,9 +16606,9 @@ void editdmap(int32_t index)
 		strcpy(initd_labels[q], DMaps[index].initD_label[q]);
 		strcpy(sub_initd_labels[q], DMaps[index].sub_initD_label[q]);
 		strcpy(onmap_initd_labels[q], DMaps[index].onmap_initD_label[q]);
-		if ( initd_labels[q][0] == NULL ) sprintf(initd_labels[q],"InitD[%d]",q);
-		if ( sub_initd_labels[q][0] == NULL ) sprintf(sub_initd_labels[q],"InitD[%d]",q);
-		if ( onmap_initd_labels[q][0] == NULL ) sprintf(onmap_initd_labels[q],"InitD[%d]",q);
+		if ( initd_labels[q][0] == 0 ) sprintf(initd_labels[q],"InitD[%d]",q);
+		if ( sub_initd_labels[q][0] == 0 ) sprintf(sub_initd_labels[q],"InitD[%d]",q);
+		if ( onmap_initd_labels[q][0] == 0 ) sprintf(onmap_initd_labels[q],"InitD[%d]",q);
 		editdmap_dlg[130+q].dp = initd_labels[q];
 		editdmap_dlg[148+q].dp = sub_initd_labels[q];
 		editdmap_dlg[169+q].dp = onmap_initd_labels[q];
@@ -25083,18 +25083,18 @@ static int32_t zscripparsertrules[] =
 	qr_PARSER_NO_LOGGING,
 	qr_PARSER_SHORT_CIRCUIT,
 	qr_PARSER_BOOL_TRUE_DECIMAL,
-	NULL, //this dialogue index is used by global settings
-	NULL, //this dialogue index is used by global settings
-	NULL, //this dialogue index is used by global settings
-	NULL, //this dialogue index is used by global settings
-	NULL, //this dialogue index is used by global settings
-	NULL, //this dialogue index is used by global settings
-	NULL, //this dialogue index is used by global settings
+	0, //this dialogue index is used by global settings
+	0, //this dialogue index is used by global settings
+	0, //this dialogue index is used by global settings
+	0, //this dialogue index is used by global settings
+	0, //this dialogue index is used by global settings
+	0, //this dialogue index is used by global settings
+	0, //this dialogue index is used by global settings
 	qr_PARSER_TRUE_INT_SIZE,
-	NULL, //this dialogue index is used by global settings
-	NULL, //this dialogue index is used by global settings
-	NULL, //this dialogue index is used by global settings
-	NULL, //this dialogue index is used by global settings
+	0, //this dialogue index is used by global settings
+	0, //this dialogue index is used by global settings
+	0, //this dialogue index is used by global settings
+	0, //this dialogue index is used by global settings
 	qr_PARSER_FORCE_INLINE,
 	qr_PARSER_BINARY_32BIT,
 	qr_PARSER_STRINGSWITCH_INSENSITIVE,
@@ -29128,7 +29128,7 @@ int32_t onEditSFX(int32_t index)
 			
 			case 10:
 			{
-				memset(temppath, 0, sizeof(temppath));
+				temppath[0]=0;//memset(temppath, 0, sizeof(temppath));
 				char tempname[36];
 				strcpy(tempname,sfx_string[index]);
 				//change spaces to dashes for f/s safety

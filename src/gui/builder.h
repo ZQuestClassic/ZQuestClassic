@@ -274,7 +274,7 @@ ZCGUI_BUILDER_START(Radio)
 	ZCGUI_ACCEPT_PROP(checked, setChecked, bool)
 	ZCGUI_ACCEPT_PROP(text, setText, std::string)
 	ZCGUI_ACCEPT_PROP(set, setProcSet, int32_t)
-	ZCGUI_ACCEPT_PROP(index, setIndex, size_t)
+	ZCGUI_ACCEPT_PROP(indx, setIndex, size_t)
 	ZCGUI_ACCEPT_PROP(onToggle, onToggle, Dialog::message)
 
 	ZCGUI_SUGGEST_PROP(title, text)
@@ -363,7 +363,7 @@ ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(Switcher, Switcher, makeSwitcher)
 
 ZCGUI_BUILDER_START(TabPanel)
-	ZCGUI_ACCEPT_PROP(index, switchTo, size_t)
+	ZCGUI_ACCEPT_PROP(indx, switchTo, size_t)
 	ZCGUI_ACCEPT_PROP(ptr, setPtr, size_t*)
 	ZCGUI_ACCEPT_PROP(onSwitch, setOnSwitch, std::function<void(size_t)>)
 	ZCGUI_ACCEPT_MULTIPLE_CHILDREN(add)
@@ -497,7 +497,7 @@ ZCGUI_BUILDER_FUNCTION(PaletteFrame, PaletteFrame, makePaletteFrame)
 
 ZCGUI_BUILDER_START(MsgPreview)
 	ZCGUI_ACCEPT_PROP(data, setData, MsgStr const*)
-	ZCGUI_ACCEPT_PROP(index, setIndex, int32_t)
+	ZCGUI_ACCEPT_PROP(indx, setIndex, int32_t)
 	ZCGUI_ACCEPT_PROP(text, setText, std::string)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(MsgPreview, MsgPreview, makeMsgPreview)
@@ -619,6 +619,12 @@ Button(forceFitH = true, text = "?", \
 	disabled = true)
 #define INFOBTN(inf) \
 Button(forceFitH = true, text = "?", \
+	onPressFunc = [=]() \
+	{ \
+		InfoDialog("Info",inf).show(); \
+	})
+#define INFOBTN_HAL(hal,inf) \
+Button(forceFitH = true, hAlign = hal, text = "?", \
 	onPressFunc = [=]() \
 	{ \
 		InfoDialog("Info",inf).show(); \

@@ -999,7 +999,7 @@ void build_biic_list()
 		if(!ZI.isUsableItemclass(i))
 			continue; //Hidden
 		char const* itname = ZI.getItemClassName(i);
-        if(i < itype_last || itname[0] != NULL )
+        if(i < itype_last || itname[0] != 0 )
 		{
             char* name = new char[strlen(itname) + 7];
             sprintf(name, "%s (%03d)", itname, i);

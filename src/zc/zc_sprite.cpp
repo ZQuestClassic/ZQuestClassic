@@ -305,7 +305,7 @@ bool movingblock::animate(int32_t)
 		trigger = false; bhole = false;
 		blockmoving=false;
 		
-		if(fallCombo = getpitfall(x+8,y+8))
+		if((fallCombo = getpitfall(x+8,y+8)))
 		{
 			fallclk = PITFALL_FALL_FRAMES;
 		}

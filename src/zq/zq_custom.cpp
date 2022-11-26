@@ -2033,7 +2033,7 @@ void build_bief_list()
 	{
 	//Load enemy names from the module
 		//if(moduledata.enem_type_names[i][0]!='-')
-	if (moduledata.enem_type_names[i][0]!=NULL)
+	if (moduledata.enem_type_names[i][0]!=0)
 	{
 		if(moduledata.enem_type_names[i][0]!='-')
 		{
@@ -2095,7 +2095,7 @@ void build_biea_list()
 	for(int32_t i=start; i<aMAX; i++)
 	{
 		
-	if ( moduledata.enem_anim_type_names[1][0] != NULL )
+	if ( moduledata.enem_anim_type_names[1][0] != 0 )
 	{
 		if(eneanim_string[i][0]!='-')
 		{
@@ -4782,11 +4782,11 @@ void edit_enemydata(int32_t index)
 		
 		//InitD Labels
 		strcpy(npc_initd_labels[q], guysbuf[index].initD_label[q]);
-		if ( npc_initd_labels[q][0] == NULL ) sprintf(npc_initd_labels[q],"InitD[%d]",q);
+		if ( npc_initd_labels[q][0] == 0 ) sprintf(npc_initd_labels[q],"InitD[%d]",q);
 		enedata_dlg[337+q].dp = npc_initd_labels[q];
 		
 		strcpy(weapon_initd_labels[q], guysbuf[index].weapon_initD_label[q]);
-		if ( weapon_initd_labels[q][0] == NULL ) sprintf(weapon_initd_labels[q],"InitD[%d]",q);
+		if ( weapon_initd_labels[q][0] == 0 ) sprintf(weapon_initd_labels[q],"InitD[%d]",q);
 		enedata_dlg[353+q].dp = weapon_initd_labels[q];
 	}
 

@@ -3126,7 +3126,7 @@ int32_t stripspaces(char *source, char *target, int32_t stop)
         return 0;
     }
     
-    for(end=stop-1; ((source[end]==' ')); --end)
+    for(end=stop-1; source[end]==' '; --end)
     {
         /* do nothing */
     }

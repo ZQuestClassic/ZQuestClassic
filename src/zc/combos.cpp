@@ -54,99 +54,6 @@ bool alwaysCTypeEffects(int32_t type)
 	return false;
 }
 
-bool isNextType(int32_t type)
-{
-	switch(type)
-	{
-		case cLIFTSLASHNEXT:
-		case cLIFTSLASHNEXTSPECITEM:
-		case cLIFTSLASHNEXTITEM:
-		case cDIGNEXT:
-		case cLIFTNEXT:
-		case cLIFTNEXTITEM:
-		case cLIFTNEXTSPECITEM:
-		case cSLASHNEXT:
-		case cBUSHNEXT:
-		case cTALLGRASSNEXT:
-		case cSLASHNEXTITEM:
-		case cSLASHNEXTTOUCHY:
-		case cSLASHNEXTITEMTOUCHY:
-		case cBUSHNEXTTOUCHY:
-		{
-			return true;
-		}
-		default: return false;
-	}
-}
-
-bool isWarpType(int32_t type)
-{
-	switch(type)
-	{
-		case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
-		case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
-		case cDIVEWARP: case cDIVEWARPB: case cDIVEWARPC: case cDIVEWARPD:
-		case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
-		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
-		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
-			return true;
-	}
-	return false;
-}
-
-int32_t getWarpLetter(int32_t type)
-{
-	switch(type)
-	{
-		case cSTAIR: case cSWIMWARP: case cDIVEWARP: case cPIT:
-		case cAWARPA: case cSWARPA:
-			return 0;
-		case cSTAIRB: case cSWIMWARPB: case cDIVEWARPB: case cPITB:
-		case cAWARPB: case cSWARPB:
-			return 1;
-		case cSTAIRC: case cSWIMWARPC: case cDIVEWARPC: case cPITC:
-		case cAWARPC: case cSWARPC:
-			return 2;
-		case cSTAIRD: case cSWIMWARPD: case cDIVEWARPD: case cPITD:
-		case cAWARPD: case cSWARPD:
-			return 3;
-		case cSTAIRR: case cPITR: case cAWARPR: case cSWARPR:
-			return 4;
-	}
-	return -1;
-}
-
-int32_t simplifyWarpType(int32_t type)
-{
-	switch(type)
-	{
-		case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
-			return cSTAIR;
-		case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
-			return cSWIMWARP;
-		case cDIVEWARP: case cDIVEWARPB: case cDIVEWARPC: case cDIVEWARPD:
-			return cDIVEWARP;
-		case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
-			return cPIT;
-		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
-			return cAWARPA;
-		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
-			return cSWARPA;
-	}
-	return 0;
-}
-
-bool isStepType(int32_t type)
-{
-	switch(type)
-	{
-		case cSTEP: case cSTEPSAME:
-		case cSTEPALL: case cSTEPCOPY:
-			return true;
-	}
-	return false;
-}
-
 void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_t flag2, int32_t ft, int32_t scombo, bool single16, int32_t layer)
 {
 	if ( combobuf[cid].type < cTRIGGERGENERIC && !(combobuf[cid].usrflags&cflag9 )  )  //Script combos need an 'Engine' flag
@@ -232,7 +139,7 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 				if (layer) 
 				{
 					
-					screen_combo_modify_preroutine(tmpscr,scombo);
+					//screen_combo_modify_preroutine(tmpscr,scombo);
 					screen_combo_modify_preroutine(FFCore.tempScreens[layer],scombo);
 					
 					//undercombo or next?
@@ -247,7 +154,7 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 					
 					screen_combo_modify_postroutine(FFCore.tempScreens[layer],scombo);
 					//screen_combo_modify_postroutine(FFCore.tempScreens[layer],cid);
-					screen_combo_modify_postroutine(tmpscr,scombo);
+					//screen_combo_modify_postroutine(tmpscr,scombo);
 				}
 				else
 				{
@@ -616,7 +523,7 @@ bool try_locked_combo(newcombo const& cmb) //cLOCKBLOCK or cLOCKEDCHEST specific
 		return true;
 	}
 	else if((cmb.usrflags&cflag1) && itemonly) return false; //Nothing but item works
-	else if ( (cmb.usrflags&cflag4) )
+	else if ((cmb.usrflags&cflag4))
 	{
 		if ( game->get_counter(thecounter) >= ctr_amount )
 		{
@@ -951,7 +858,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 				if ((guysbuf[id2].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) armosxsz = guysbuf[id2].txsz;
 				if ((guysbuf[id2].SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) armosysz = guysbuf[id2].tysz;
 				
-				if ( ( armosxsz > 1 ) || ( armosysz > 1 ) )
+				if ( armosxsz > 1 || armosysz > 1 )
 				{
 					switch(trigdir)
 					{
@@ -963,7 +870,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 							{
 								chy += 16;
 								if ( pos - chy < 0 ) break; //don't go out of bounds
-								if ( ( combobuf[(tmpscr->data[pos-chy])].type == cARMOS ) ) 
+								if ( combobuf[(tmpscr->data[pos-chy])].type == cARMOS )
 								{
 									ypos -=16;
 								}
@@ -974,7 +881,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 								if ( (pos % 16) == 0 || pos == 0 ) break; //don't wrap rows
 								++chx;
 								if ( pos - chx < 0 ) break; //don't go out of bounds
-								if ( ( combobuf[(tmpscr->data[pos-chx])].type == cARMOS ) ) 
+								if ( combobuf[(tmpscr->data[pos-chx])].type == cARMOS )
 								{
 									xpos -=16;
 								}
@@ -1003,7 +910,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 								//zprint("ty2: %d\n", ty2);
 								//zprint("MAPCOMBO(tx2,ty2): %d\n",MAPCOMBO(tx2,ty2));
 								//zprint("MAPCOMBO(tx2-chx,ty2): %d\n",MAPCOMBO(GridX(tx2-chx),ty2));
-								if ( ( combobuf[(tmpscr->data[pos-chx])].type == cARMOS ) ) 
+								if ( combobuf[(tmpscr->data[pos-chx])].type == cARMOS )
 								{
 									//zprint("found match\n");
 									xpos -=16;
@@ -1019,7 +926,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 							{
 								chy += 16;
 								if ( pos - chy < 0 ) break; //don't go out of bounds
-								if ( ( combobuf[(tmpscr->data[pos-chy])].type == cARMOS ) ) 
+								if ( combobuf[(tmpscr->data[pos-chy])].type == cARMOS )
 								{
 									ypos -=16;
 								}
@@ -1030,7 +937,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 								if ( (pos % 16) == 0 || pos == 0 ) break; //don't wrap rows
 								++chx;
 								if ( pos - chx < 0 ) break; //don't go out of bounds
-								if ( ( combobuf[(tmpscr->data[pos-chx])].type == cARMOS ) ) 
+								if ( combobuf[(tmpscr->data[pos-chx])].type == cARMOS ) 
 								{
 									xpos -=16;
 								}
@@ -1046,7 +953,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 							{
 								chy += 16;
 								if ( pos - chy < 0 ) break; //don't go out of bounds
-								if ( ( combobuf[(tmpscr->data[pos-chy])].type == cARMOS ) ) 
+								if ( combobuf[(tmpscr->data[pos-chy])].type == cARMOS ) 
 								{
 									//zprint("found match\n");
 									ypos -=16;
@@ -1074,7 +981,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 				}
 				if (guysbuf[id2].family == eeGHOMA) 
 				{
-					if ( ( combobuf[(tmpscr->data[pos-chx+1])].type == cARMOS ) ) xpos += 16;
+					if ( combobuf[(tmpscr->data[pos-chx+1])].type == cARMOS ) xpos += 16;
 				}
 				if(addenemy(tx+xpos,ty+1+ypos,id2,0))
 				{
@@ -1234,7 +1141,7 @@ bool trigger_stepfx(int32_t lyr, int32_t pos, bool stepped)
 			case ewFireball2:
 			
 				Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir, -1,-1,false)); 
-				if (cmb.attribytes[3] > 0 && cmb.attribytes[3] < 256 )
+				if (cmb.attribytes[3] > 0 )
 				{
 					weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
 					w->LOADGFX(cmb.attribytes[3]);
@@ -1269,7 +1176,7 @@ bool trigger_stepfx(int32_t lyr, int32_t pos, bool stepped)
 			//case wSword180: 
 			//case wSwordLA:
 				Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir,-1,Hero.getUID(),false,0,1,0)); 
-				if (cmb.attribytes[3] > 0 && cmb.attribytes[3] < 256 )
+				if (cmb.attribytes[3] > 0 )
 				{
 					weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
 					w->LOADGFX(cmb.attribytes[3]);
@@ -1278,7 +1185,7 @@ bool trigger_stepfx(int32_t lyr, int32_t pos, bool stepped)
 			
 			case wFire:
 				Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir,-1, Hero.getUID(),false,0,1,0));
-				if (cmb.attribytes[3] > 0 && cmb.attribytes[3] < 256 )
+				if (cmb.attribytes[3] > 0 )
 				{
 					weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
 					w->LOADGFX(cmb.attribytes[3]);
@@ -1313,7 +1220,7 @@ bool trigger_stepfx(int32_t lyr, int32_t pos, bool stepped)
 					else
 					{
 						Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir,-1, Hero.getUID(),false,0,1,0));
-						if (cmb.attribytes[3] > 0 && cmb.attribytes[3] < 256 )
+						if (cmb.attribytes[3] > 0 )
 						{
 							weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
 							w->LOADGFX(cmb.attribytes[3]);
@@ -1324,7 +1231,7 @@ bool trigger_stepfx(int32_t lyr, int32_t pos, bool stepped)
 				else //wscript ewpn
 				{
 					Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir, -1,-1,false)); 
-					if (cmb.attribytes[3] > 0 && cmb.attribytes[3] < 256 )
+					if (cmb.attribytes[3] > 0 )
 					{
 						weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
 						w->LOADGFX(cmb.attribytes[3]);
@@ -1351,7 +1258,7 @@ bool trigger_stepfx(int32_t lyr, int32_t pos, bool stepped)
 				else
 				{
 					Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir,-1, Hero.getUID(),false,0,1,0));
-					if (cmb.attribytes[3] > 0 && cmb.attribytes[3] < 256 )
+					if (cmb.attribytes[3] > 0 )
 					{
 						weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
 						w->LOADGFX(cmb.attribytes[3]);
@@ -1363,7 +1270,7 @@ bool trigger_stepfx(int32_t lyr, int32_t pos, bool stepped)
 				//(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentitem, int32_t prntid, bool isDummy, byte script_gen, byte isLW, byte special) : sprite(), parentid(
 				//Ewpns.add(new weapon((zfix)tx+8,(zfix)ty+8,(zfix)0,ewLitBomb,16,0,0, -1,-1,false)); break;
 				Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,ewLitBomb,0,((damg > 0) ? damg : 4),up, -1,-1,false)); 
-				if (cmb.attribytes[3] > 0 && cmb.attribytes[3] < 256 )
+				if (cmb.attribytes[3] > 0 )
 				{
 					weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
 					w->LOADGFX(cmb.attribytes[3]);
@@ -1401,6 +1308,7 @@ bool trigger_switchhookblock(int32_t lyr, int32_t pos)
 static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool angular, double radians, int32_t dir)
 {
 	byte weapid = cmb.attribytes[1];
+	if(!weapid) return nullptr;
 	byte weapspr = cmb.attribytes[2];
 	int32_t damage = cmb.attrishorts[2];
 	zfix steprate = zslongToFix(cmb.attributes[2]/100);
@@ -1464,6 +1372,7 @@ static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool an
 bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 {
 	if(cmb.type != cSHOOTER) return false;
+	if(!cmb.attribytes[1]) return false; //no weapon
 	if(wx > 255 || wx < -15 || wy > 175 || wy < -15) return false;
 	
 	bool proxstop = cmb.usrflags&cflag4;

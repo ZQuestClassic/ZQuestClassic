@@ -37,6 +37,7 @@ using std::set;
 #include "drawing.h"
 #include "combos.h"
 #include "replay.h"
+#include "slopes.h"
 extern word combo_doscript[176];
 extern refInfo screenScriptData;
 extern FFScript FFCore;
@@ -220,9 +221,6 @@ int32_t MAPCOMBOzq(int32_t x,int32_t y)
 //specific layers 1 to 6
 int32_t MAPCOMBOL(int32_t layer,int32_t x,int32_t y)
 {
-    
-    if(tmpscr2[layer-1].data.empty()) return 0;
-    
     if(tmpscr2[layer-1].valid==0) return 0;
     
     int32_t combo = COMBOPOS(x,y);
@@ -235,9 +233,6 @@ int32_t MAPCOMBOL(int32_t layer,int32_t x,int32_t y)
 
 int32_t MAPCSETL(int32_t layer,int32_t x,int32_t y)
 {
-    
-    if(tmpscr2[layer-1].cset.empty()) return 0;
-    
     if(tmpscr2[layer-1].valid==0) return 0;
     
     int32_t combo = COMBOPOS(x,y);
@@ -250,9 +245,6 @@ int32_t MAPCSETL(int32_t layer,int32_t x,int32_t y)
 
 int32_t MAPFLAGL(int32_t layer,int32_t x,int32_t y)
 {
-    
-    if(tmpscr2[layer-1].sflag.empty()) return 0;
-    
     if(tmpscr2[layer-1].valid==0) return 0;
     
     int32_t combo = COMBOPOS(x,y);
@@ -276,8 +268,6 @@ int32_t COMBOTYPEL(int32_t layer,int32_t x,int32_t y)
 int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y)
 {
     if(layer==-1) return MAPCOMBOFLAG(x,y);
-    
-    if(tmpscr2[layer-1].data.empty()) return 0;
     
     if(tmpscr2[layer-1].valid==0) return 0;
     
@@ -361,8 +351,11 @@ int32_t COMBOTYPE(int32_t x,int32_t y)
     
 	if(y&8) b<<=1;
 	newcombo const& cmb = combobuf[MAPCOMBO(x,y)];
-	if (cmb.type == cWATER && (cmb.usrflags&cflag4) && (cmb.walk&b) && ((cmb.walk>>4)&b)) return cSHALLOWWATER;
-	if (cmb.type == cWATER && (cmb.usrflags&cflag3) && (cmb.walk&b) && ((cmb.walk>>4)&b)) return cNONE;
+	if (cmb.type == cWATER && (cmb.walk&b) && ((cmb.walk>>4)&b))
+	{
+		if(cmb.usrflags&cflag4) return cSHALLOWWATER;
+		if(cmb.usrflags&cflag3) return cNONE;
+	}
 	return cmb.type;
 }
 
@@ -460,8 +453,6 @@ int32_t MAPCOMBO2(int32_t layer,int32_t x,int32_t y)
 {
     if(layer<=-1) return MAPCOMBO(x,y);
     
-    if(tmpscr2[layer].data.empty()) return 0;
-    
     if(tmpscr2[layer].valid==0) return 0;
     
     int32_t combo = COMBOPOS(x,y);
@@ -487,7 +478,6 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool 
 		return 0;
 		
 	mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
-	if(m->data.empty()) return 0;
     
 	if(m->valid==0) return 0;
 	
@@ -504,8 +494,6 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool 
 	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS2*MAPSCRS)) return 0;
 	
 	mapscr scr = ((mapid < 0 || mapid > MAXMAPS2*MAPSCRS) ? *m : TheMaps[mapid]);
-	
-	if(scr.data.empty()) return 0;
     
 	if(scr.valid==0) return 0;
 	
@@ -562,8 +550,6 @@ int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y)
 {
 	if(layer==-1) return MAPCSET(x,y);
 	
-	if(tmpscr2[layer].cset.empty()) return 0;
-	
 	if(tmpscr2[layer].valid==0) return 0;
 	
 	int32_t combo = COMBOPOS(x,y);
@@ -577,8 +563,6 @@ int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y)
 int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
 {
     if(layer==-1) return MAPFLAG(x,y);
-    
-    if(tmpscr2[layer].sflag.empty()) return 0;
     
     if(tmpscr2[layer].valid==0) return 0;
     
@@ -622,8 +606,6 @@ int32_t MAPCOMBOFLAG2(int32_t layer,int32_t x,int32_t y)
 {
     if(layer==-1) return MAPCOMBOFLAG(x,y);
     
-    if(tmpscr2[layer].data.empty()) return 0;
-    
     if(tmpscr2[layer].valid==0) return 0;
     
     int32_t combo = COMBOPOS(x,y);
@@ -640,7 +622,6 @@ bool HASFLAG(int32_t flag, int32_t layer, int32_t pos)
 	if(unsigned(layer) > 6) return false;
 	mapscr* m = (layer ? &tmpscr2[layer-1] : tmpscr);
 	if(!m->valid) return false;
-	if(m->data.empty()) return false;
 	
 	if(m->sflag[pos] == flag) return true;
 	if(combobuf[m->data[pos]].flag == flag) return true;
@@ -1023,8 +1004,6 @@ void update_combo_cycling()
     {
         for(int32_t j=0; j<6; j++)
         {
-            if(tmpscr2[j].data.empty()) continue;
-            
             for(int32_t i=0; i<176; i++)
             {
                 x=(tmpscr2+j)->data[i];
@@ -1469,8 +1448,6 @@ bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by)
 		
 	mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
 	
-	if(m->data.empty()) return false;
-	
 	if(m->valid==0) return false;
 	
 	if(!_walkflag(bx,by,1, m))
@@ -1550,8 +1527,6 @@ bool remove_screenstatecombos2(mapscr *s, mapscr *t, int32_t what1, int32_t what
 	{
 		for(int32_t j=0; j<6; j++)
 		{
-			if(t[j].data.empty()) continue;
-			
 			for(int32_t i=0; i<176; i++)
 			{
 				newcombo const& cmb = combobuf[t[j].data[i]];
@@ -1614,8 +1589,6 @@ bool remove_xstatecombos2(mapscr *s, mapscr *t, int32_t mi, byte xflag, bool tri
 	{
 		for(int32_t j=0; j<6; j++)
 		{
-			if(t[j].data.empty()) continue;
-			
 			for(int32_t i=0; i<176; i++)
 			{
 				newcombo const& cmb = combobuf[t[j].data[i]];
@@ -2026,8 +1999,6 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Pe
 			{
 				for(int32_t j=0; j<6; j++)  //Layers
 				{
-					if(t[j].data.empty()||t[j].cset.empty()) continue; //If layer isn't used
-					
 					if(single>=0 && i!=single) continue; //If it's got a singular flag and i isn't where the flag is
 					
 					int32_t newflag2 = -1;
@@ -2400,8 +2371,6 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Pe
 			{
 				for(int32_t j=0; j<6; j++)  //Layers
 				{
-					if(t[j].data.empty()||t[j].cset.empty()) continue; //If layer is not valid (surely checking for 'valid' would be better?)
-					
 					int32_t newflag2 = -1;
 					
 					for(int32_t iter=0; iter<2; ++iter)
@@ -3232,7 +3201,8 @@ void do_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t
     }
 }
 
-
+#define SOLID_COL makecol(178,36,36)
+//makecol(255,85,85)
 // Called by do_walkflags
 void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat,int32_t lyr)
 {
@@ -3293,7 +3263,7 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 			}
 			else
 			{
-				int32_t color = makecol(255,85,85);
+				int32_t color = SOLID_COL;
 				
 				if(isstepable(cmbdat)&& (!doladdercheck))
 					color=makecol(165,105,8);
@@ -3373,6 +3343,30 @@ void do_effectflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t tem
 	}
 }
 
+void draw_ladder_platform(BITMAP* dest, int32_t x, int32_t y, int32_t c)
+{
+	for(auto cx = 0; cx < 256; cx += 16)
+	{
+		for(auto cy = 0; cy < 176; cy += 16)
+		{
+			if(isSVLadder(cx,cy))
+			{
+				auto nx = cx+x, ny = cy+y;
+				if(cy && !isSVLadder(cx,cy-16))
+					line(dest,nx,ny,nx+15,ny,c);
+				rectfill(dest,nx,ny,nx+3,ny+15,c);
+				rectfill(dest,nx+12,ny,nx+15,ny+15,c);
+				rectfill(dest,nx+4,ny+2,nx+11,ny+5,c);
+				rectfill(dest,nx+4,ny+10,nx+11,ny+13,c);
+			}
+			else if(isSVPlatform(cx,cy))
+			{
+				line(dest,cx+x,cy+y,cx+x+15,cy+y,c);
+			}
+		}
+	}
+}
+
 // Walkflags L4 cheat
 void do_walkflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t tempscreen)
 {
@@ -3408,7 +3402,12 @@ void do_walkflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t temps
 			}
 		}
 		
-		put_ffcwalkflags(dest, x, y+playing_field_offset);
+		if (tempscreen == 2)
+		{
+			draw_ladder_platform(dest,-x,-y+playing_field_offset,makecol(165,105,8));
+			draw_solid_objects(dest,-x,-y+playing_field_offset,SOLID_COL);
+			draw_slopes(dest,-x,-y+playing_field_offset,makecol(255,85,255));
+		}
 	}
 }
 
@@ -4592,6 +4591,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	}
 	if(!tmp)
 	{
+		slopes.clear();
 		triggered_screen_secrets = false; //Reset var
 		init_combo_timers();
 		timeExitAllGenscript(GENSCR_ST_CHANGE_SCREEN);
@@ -4633,9 +4633,9 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	
 	const int32_t _mapsSize = ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth;
 	tmpscr[tmp].valid |= mVALID; //layer 0 is always valid
-	tmpscr[tmp].data = TheMaps[currmap*MAPSCRS+scr].data;
-	tmpscr[tmp].sflag = TheMaps[currmap*MAPSCRS+scr].sflag;
-	tmpscr[tmp].cset = TheMaps[currmap*MAPSCRS+scr].cset;
+	memcpy(tmpscr[tmp].data, TheMaps[currmap*MAPSCRS+scr].data, sizeof(tmpscr[tmp].data));
+	memcpy(tmpscr[tmp].sflag, TheMaps[currmap*MAPSCRS+scr].sflag, sizeof(tmpscr[tmp].sflag));
+	memcpy(tmpscr[tmp].cset, TheMaps[currmap*MAPSCRS+scr].cset, sizeof(tmpscr[tmp].cset));
 	
 	//screen / screendata script
 	FFCore.clear_screen_stack();
@@ -4666,11 +4666,6 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		tmpscr[tmp].doscript = 0;
 	}
 	
-	
-	tmpscr[tmp].data.resize(_mapsSize, 0);
-	tmpscr[tmp].sflag.resize(_mapsSize, 0);
-	tmpscr[tmp].cset.resize(_mapsSize, 0);
-	
 	if(overlay)
 	{
 		for(int32_t c=0; c< ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth; ++c)
@@ -4690,16 +4685,13 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 				int32_t lm = (tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i];
 				int32_t fm = (ffscr.layermap[i]-1)*MAPSCRS+ffscr.layerscreen[i];
 				
-				if(!TheMaps[lm].data.empty() && !TheMaps[fm].data.empty())
+				for(int32_t c=0; c< ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth; ++c)
 				{
-					for(int32_t c=0; c< ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth; ++c)
+					if(TheMaps[lm].data[c]==0)
 					{
-						if(TheMaps[lm].data[c]==0)
-						{
-							TheMaps[lm].data[c] = TheMaps[fm].data[c];
-							TheMaps[lm].sflag[c] = TheMaps[fm].sflag[c];
-							TheMaps[lm].cset[c] = TheMaps[fm].cset[c];
-						}
+						TheMaps[lm].data[c] = TheMaps[fm].data[c];
+						TheMaps[lm].sflag[c] = TheMaps[fm].sflag[c];
+						TheMaps[lm].cset[c] = TheMaps[fm].cset[c];
 					}
 				}
 			}
@@ -4755,10 +4747,6 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 				// const int32_t _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
 				
 				tmpscr2[i]=TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]];
-				
-				tmpscr2[i].data.resize(_mapsSize, 0);
-				tmpscr2[i].sflag.resize(_mapsSize, 0);
-				tmpscr2[i].cset.resize(_mapsSize, 0);
 				
 				if(overlay)
 				{
@@ -4905,12 +4893,13 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		}
 	}
 	
-	
+	if(tmp == 0) //Reload slopes
+		update_slope_comboposes();
 	for(int32_t j=-1; j<6; ++j)  // j == -1 denotes the current screen
 	{
 		if(j<0 || ((tmpscr[tmp].layermap[j]>0)&&(ZCMaps[tmpscr[tmp].layermap[j]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[tmpscr[tmp].layermap[j]-1].tileHeight==ZCMaps[currmap].tileHeight)))
 		{
-			mapscr *layerscreen= (j<0 ? &tmpscr[tmp] : !tmpscr2[j].data.empty() ? &tmpscr2[j] :
+			mapscr *layerscreen= (j<0 ? &tmpscr[tmp] : tmpscr2[j].valid ? &tmpscr2[j] :
 								  &TheMaps[(tmpscr[tmp].layermap[j]-1)*MAPSCRS]+tmpscr[tmp].layerscreen[j]);
 								  
 			for(int32_t i=0; i<(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight); ++i)
@@ -4954,10 +4943,6 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 	
 	tmpscr[tmp] = TheMaps[currmap*MAPSCRS+scr];
 	
-	tmpscr[tmp].data.resize(_mapsSize, 0);
-	tmpscr[tmp].sflag.resize(_mapsSize, 0);
-	tmpscr[tmp].cset.resize(_mapsSize, 0);
-	
 	if(tmp==0)
 	{
 		for(int32_t i=0; i<6; i++)
@@ -4968,10 +4953,6 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 				if((ZCMaps[tmpscr[tmp].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[tmpscr[tmp].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
 				{
 					tmpscr2[i]=TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]];
-					
-					tmpscr2[i].data.resize(_mapsSize, 0);
-					tmpscr2[i].sflag.resize(_mapsSize, 0);
-					tmpscr2[i].cset.resize(_mapsSize, 0);
 				}
 				else
 				{
@@ -6267,10 +6248,6 @@ void ViewMap()
 							const int32_t _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
 							
 							tmpscr2[i]=TheMaps[(tmpscr[0].layermap[i]-1)*MAPSCRS+tmpscr[0].layerscreen[i]];
-							
-							tmpscr2[i].data.resize(_mapsSize, 0);
-							tmpscr2[i].sflag.resize(_mapsSize, 0);
-							tmpscr2[i].cset.resize(_mapsSize, 0);
 						}
 					}
 					

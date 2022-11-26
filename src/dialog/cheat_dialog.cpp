@@ -21,14 +21,14 @@ radios[ind] = Radio( \
 	checked = (ind==cheat),	\
 	disabled = (ind > maxcheat), \
 	text = std::to_string(ind), \
-	GUI::Props::index = ind \
+	indx = ind \
 )
 
 std::shared_ptr<GUI::Widget> SetCheatDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	using GUI::Props::index;
+	using GUI::Props::indx;
 
 	return Window(
 		title = "Cheats",

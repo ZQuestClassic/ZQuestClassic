@@ -215,6 +215,10 @@ public:
     int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos);
     int32_t MAPCOMBO2(int32_t lyr,int32_t x,int32_t y, int32_t map = -1, int32_t scr = -1);
     int32_t MAPCOMBO(int32_t x,int32_t y, int32_t map = -1, int32_t scr = -1);
+    int32_t MAPFLAG3(int32_t map, int32_t screen, int32_t layer, int32_t x,int32_t y);
+    int32_t MAPFLAG3(int32_t map, int32_t screen, int32_t layer, int32_t pos);
+    int32_t MAPFLAG2(int32_t lyr,int32_t x,int32_t y, int32_t map = -1, int32_t scr = -1);
+    int32_t MAPFLAG(int32_t x,int32_t y, int32_t map = -1, int32_t scr = -1);
     void put_walkflags_layered(BITMAP *dest,int32_t x,int32_t y,int32_t pos,int32_t layer);
     void put_walkflags_layered_external(BITMAP *dest,int32_t x,int32_t y,int32_t pos,int32_t layer, int32_t map, int32_t screen);
     bool misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir);

@@ -8,9 +8,6 @@ extern newcombo *combobuf;
 #define minSECRET_TYPE 0
 #define maxSECRET_TYPE 43
 
-bool isNextType(int32_t type);
-bool isWarpType(int32_t type);
-bool isStepType(int32_t type);
 
 bool do_cswitch_combo(newcombo const& cmb, int32_t layer, int32_t cpos, weapon* w = NULL);
 void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_t flag2, int32_t ft, int32_t scombo, bool single16, int32_t layer);

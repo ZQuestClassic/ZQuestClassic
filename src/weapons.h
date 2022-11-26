@@ -160,16 +160,6 @@ public:
 	virtual int32_t run_script(int32_t mode);
 };
 
-double WrapAngle(double radians);
-double WrapDegrees(double degrees);
-double DegreesToRadians(double deg);
-double RadiansToDegrees(double rad);
-double DirToRadians(int dir);
-double DirToDegrees(int dir);
-int32_t AngleToDir(double radians);
-int32_t AngleToDir4(double degrees);
-int32_t AngleToDir4Rad(double radians);
-
 int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid);
 void killgenwpn(weapon* w);
 void do_generic_combo(weapon *w, int32_t bx, int32_t by, int32_t wid, 

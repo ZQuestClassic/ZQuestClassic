@@ -1421,8 +1421,8 @@ void del_qst_buffers()
 
 bool init_palnames()
 {
-    if(palnames==NULL)
-        return false;
+    // if(palnames==NULL)
+        // return false;
         
     for(int32_t x=0; x<MAXLEVELS; x++)
     {
@@ -16433,10 +16433,6 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	const int32_t _mapsSize = (temp_map->tileWidth*temp_map->tileHeight);
 	
-	temp_mapscr->data.resize(_mapsSize, 0);
-	temp_mapscr->sflag.resize(_mapsSize, 0);
-	temp_mapscr->cset.resize(_mapsSize, 0);
-	
 	for(int32_t k=0; k<(temp_map->tileWidth*temp_map->tileHeight); k++)
 	{
 		if(!p_igetw(&(temp_mapscr->data[k]),f,true))
@@ -16946,7 +16942,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 	{
 		auto ret = readmapscreen_old(f,Header,temp_mapscr,temp_map,version);
 		if(ret) return ret;
-		temp_mapscr->update_ffc_count(32);
+		temp_mapscr->update_ffc_count(31);
 	}
 	else
 	{
@@ -17204,9 +17200,6 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 					return qe_invalid;
 			}
 		}
-		temp_mapscr->data.resize(176, 0);
-		temp_mapscr->sflag.resize(176, 0);
-		temp_mapscr->cset.resize(176, 0);
 		if(scr_has_flags & SCRHAS_COMBOFLAG)
 		{
 			for(int32_t k=0; k<176; ++k)
@@ -17346,7 +17339,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 		{
 			temp_mapscr->ffcs[m].clear();
 		}
-		temp_mapscr->update_ffc_count(numffc);
+		temp_mapscr->update_ffc_count(numffc-1);
 		//END FFC
 	}
 	return 0;
@@ -17477,13 +17470,9 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 				
 				TheMaps[index]=TheMaps[index-1];
 				
-				TheMaps[index].data.resize(176, 0);
-				TheMaps[index].sflag.resize(176, 0);
-				TheMaps[index].cset.resize(176, 0);
-				
-				TheMaps[i*MAPSCRS+132].data = TheMaps[i*MAPSCRS+131].data;
-				TheMaps[i*MAPSCRS+132].sflag = TheMaps[i*MAPSCRS+131].sflag;
-				TheMaps[i*MAPSCRS+132].cset = TheMaps[i*MAPSCRS+131].cset;
+				MEMCPY_ARR(TheMaps[i*MAPSCRS+132].data, TheMaps[i*MAPSCRS+131].data);
+				MEMCPY_ARR(TheMaps[i*MAPSCRS+132].sflag, TheMaps[i*MAPSCRS+131].sflag);
+				MEMCPY_ARR(TheMaps[i*MAPSCRS+132].cset, TheMaps[i*MAPSCRS+131].cset);
 				
 				for(int32_t j=133; j<MAPSCRS; j++)
 				{

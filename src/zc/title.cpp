@@ -305,16 +305,16 @@ static void mainscreen(int32_t f)
 		blit((BITMAP*)data[BMP_TITLE_NES].dat,scrollbuf,0,0,0,0,256,224);
 		blit(scrollbuf,framebuf,0,0,0,0,256,224);
 		char tbuf[2048] = {0}; char tbuf2[2048] = {0};
-	char copyrbuf[2][2048] = { {NULL }, {NULL} };
+	char copyrbuf[2][2048] = { {0}, {0} };
 	//const char *copy_year = (char *)moduledata.copyright_strings[2];
 	//const char *copy_s0 =  (char *)moduledata.copyright_strings[0];
 	//const char *copy_s1 =  (char *)moduledata.copyright_strings[1];
-	if ( moduledata.copyright_strings[0][0] != NULL ) 
+	if ( moduledata.copyright_strings[0][0] != 0 ) 
 	{
 		strcpy(tbuf,"(C)");
 		strcat(tbuf,moduledata.copyright_strings[0]);
 	}
-	if ( moduledata.copyright_strings[1][0] != NULL ) 
+	if ( moduledata.copyright_strings[1][0] != 0 ) 
 	{	
 		strcpy(tbuf2,"(C)");
 		strcat(tbuf2,moduledata.copyright_strings[2]);
@@ -816,7 +816,7 @@ static void DX_mainscreen(int32_t f)
 	static int32_t pic=0;
 	//char tbuf[80];
 	char tbuf[2048] = {0}; char tbuf2[2048] = {0};
-	char copyrbuf[2][2048] = { {NULL }, {NULL} };
+	char copyrbuf[2][2048] = { {0}, {0} };
 	
 	if(f>=1010)
 		return;
@@ -849,12 +849,12 @@ static void DX_mainscreen(int32_t f)
 	//const char *copy_year = (char *)moduledata.copyright_strings[2];
 	//const char *copy_s0 =  (char *)moduledata.copyright_strings[0];
 	//const char *copy_s1 =  (char *)moduledata.copyright_strings[1];
-	if ( moduledata.copyright_strings[0][0] != NULL ) 
+	if ( moduledata.copyright_strings[0][0] != 0 ) 
 	{
 		strcpy(tbuf,"(C)");
 		strcat(tbuf,moduledata.copyright_strings[0]);
 	}
-	if ( moduledata.copyright_strings[1][0] != NULL ) 
+	if ( moduledata.copyright_strings[1][0] != 0 ) 
 	{	
 		strcpy(tbuf2,"(C)");
 		strcat(tbuf2,moduledata.copyright_strings[2]);
@@ -1042,7 +1042,7 @@ static void v25_mainscreen(int32_t f)
 	static int32_t pic=0;
 	//char tbuf[80];
 	char tbuf[2048] = {0}; char tbuf2[2048] = {0};
-	char copyrbuf[2][2048] = { {NULL }, {NULL} };
+	char copyrbuf[2][2048] = { {0}, {0} };
 	if(f>=1010)
 		return;
 		
@@ -1073,12 +1073,12 @@ static void v25_mainscreen(int32_t f)
 	//const char *copy_year = (char *)moduledata.copyright_strings[2];
 	//const char *copy_s0 =  (char *)moduledata.copyright_strings[0];
 	//const char *copy_s1 =  (char *)moduledata.copyright_strings[1];
-	if ( moduledata.copyright_strings[0][0] != NULL ) 
+	if ( moduledata.copyright_strings[0][0] != 0 ) 
 	{
 		strcpy(tbuf,"(C)");
 		strcat(tbuf,moduledata.copyright_strings[0]);
 	}
-	if ( moduledata.copyright_strings[1][0] != NULL ) 
+	if ( moduledata.copyright_strings[1][0] != 0 ) 
 	{	
 		strcpy(tbuf2,"(C)");
 		strcat(tbuf2,moduledata.copyright_strings[2]);

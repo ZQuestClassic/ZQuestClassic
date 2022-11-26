@@ -146,6 +146,11 @@ typedef uint64_t qword; //0-18,446,744,073,709,551,616  (64 bits)
 #define FFSCRIPT_MISC 32
 #define MAXFFCS 128
 
+#define MAX_SIGNED_32 (2147483647)
+#define MIN_SIGNED_32 (-2147483647-1)
+#define MAX_DWORD dword(-1)
+#define MIN_DWORD 0
+
 #include "ffc.h"
 #include "metadata/metadata.h"
 #include "base/zc_alleg.h"
@@ -299,7 +304,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_FAVORITES        1
 
 #define V_COMPATRULE       34
-#define V_ZINFO            2
+#define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
 
@@ -830,7 +835,7 @@ enum
 	//170
 	cSPOTLIGHT, cGLASS, cLIGHTTARGET, cSWITCHHOOK, cBUTTONPROMPT,
 	//175
-	cCUSTOMBLOCK, cSHOOTER,
+	cCUSTOMBLOCK, cSHOOTER, cSLOPE,
     cMAX,
 	// ! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
@@ -3181,7 +3186,89 @@ struct newcombo
 		prompt_x = 12;
 		prompt_y = -8;
 	}
-
+	
+	void copy(newcombo const& other)
+	{
+		tile = other.tile;
+		flip = other.flip;
+		walk = other.walk;
+		type = other.type;
+		csets = other.csets;
+		foo = other.foo;
+		frames = other.frames;
+		speed = other.speed;
+		nextcombo = other.nextcombo;
+		nextcset = other.nextcset;
+		flag = other.flag;
+		skipanim = other.skipanim;
+		skipanimy = other.skipanimy;
+		nexttimer = other.nexttimer;
+		animflags = other.animflags;
+		for(int32_t q = 0; q < 6; ++q)
+			expansion[q] = other.expansion[q];
+		for(int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
+			attributes[q] = other.attributes[q];
+		usrflags = other.usrflags;
+		genflags = other.genflags;
+		for(int32_t q = 0; q < 3; ++q)
+			triggerflags[q] = other.triggerflags[q];
+		triggerlevel = other.triggerlevel;
+		triggerbtn = other.triggerbtn;
+		triggeritem = other.triggeritem;
+		trigtimer = other.trigtimer;
+		trigsfx = other.trigsfx;
+		trigprox = other.trigprox;
+		trigctr = other.trigctr;
+		trigctramnt = other.trigctramnt;
+		triglbeam = other.triglbeam;
+		trigcschange = other.trigcschange;
+		spawnitem = other.spawnitem;
+		spawnenemy = other.spawnenemy;
+		exstate = other.exstate;
+		spawnip = other.spawnip;
+		trigcopycat = other.trigcopycat;
+		trigcooldown = other.trigcooldown;
+		trigchange = other.trigchange;
+		for(int32_t q = 0; q < 11; ++q)
+			label[q] = other.label[q];
+		for(int32_t q = 0; q < 8; ++q)
+		{
+			attribytes[q] = other.attribytes[q];
+			attrishorts[q] = other.attrishorts[q];
+		}
+		script = other.script;
+		for(int32_t q = 0; q < 2; ++q)
+			initd[q] = other.initd[q];
+		o_tile = other.o_tile;
+		cur_frame = other.cur_frame;
+		aclk = other.aclk;
+		
+		liftcmb = other.liftcmb;
+		liftundercmb = other.liftundercmb;
+		liftcs = other.liftcs;
+		liftundercs = other.liftundercs;
+		liftdmg = other.liftdmg;
+		liftlvl = other.liftlvl;
+		liftitm = other.liftitm;
+		liftflags = other.liftflags;
+		liftgfx = other.liftgfx;
+		liftsprite = other.liftsprite;
+		liftsfx = other.liftsfx;
+		liftbreaksprite = other.liftbreaksprite;
+		liftbreaksfx = other.liftbreaksfx;
+		lifthei = other.lifthei;
+		lifttime = other.lifttime;
+		
+		prompt_cid = other.prompt_cid;
+		prompt_cs = other.prompt_cs;
+		prompt_x = other.prompt_x;
+		prompt_y = other.prompt_y;
+	}
+	
+	newcombo(){clear();}
+	newcombo(newcombo const& other){copy(other);}
+	newcombo& operator=(newcombo const& other){copy(other); return *this;}
+	
 	bool is_blank(bool ignoreEff = false)
 	{
 		if(tile) return false;
@@ -5522,7 +5609,26 @@ void exit_sys_pal();
 
 enum {nswapDEC, nswapHEX, nswapLDEC, nswapLHEX, nswapBOOL, nswapMAX};
 
-#define SMART_WRAP(x, mod) (x < 0 ? ((mod-(-x%mod))%mod) : (x%mod))
+
+double WrapAngle(double radians);
+double WrapDegrees(double degrees);
+double DegreesToRadians(double deg);
+double RadiansToDegrees(double rad);
+double DirToRadians(int dir);
+double DirToDegrees(int dir);
+int32_t AngleToDir(double radians);
+int32_t AngleToDir4(double degrees);
+int32_t AngleToDir4Rad(double radians);
+
+bool isNextType(int32_t type);
+bool isWarpType(int32_t type);
+int32_t getWarpLetter(int32_t type);
+int32_t simplifyWarpType(int32_t type);
+bool isStepType(int32_t type);
+bool isDamageType(int32_t type);
+
+#define SMART_WRAP(x, mod) ((x) < 0 ? (((mod)-(-(x)%(mod)))%(mod)) : ((x)%(mod)))
+#define MEMCPY_ARR(dest,src) memcpy(dest,src,sizeof(dest))
 
 #undef cmb1
 #undef cmb2

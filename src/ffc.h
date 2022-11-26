@@ -41,7 +41,7 @@ public:
 	
 	void setData(word newdata);
 	void incData(int32_t inc);
-	word getData() const {return data;}
+	word const& getData() const {return data;}
 	
 	virtual bool setSolid(bool set);
 	virtual void updateSolid();
@@ -124,13 +124,9 @@ struct mapscr
 	byte secretcset[128];
 	byte secretflag[128];
 	
-	std::vector<word> data;
-	std::vector<byte> sflag;
-	std::vector<byte> cset;
-	word viewX;
-	word viewY;
-	byte scrWidth;
-	byte scrHeight;
+	word data[176];
+	byte sflag[176];
+	byte cset[176];
 	
 	byte entry_x, entry_y; //Where Hero entered the screen. Used for pits, and to prevent water walking. -Z
 	
@@ -140,14 +136,14 @@ struct mapscr
 	
 	void update_ffc_count(word spos = 0)
 	{
-		if(spos < 1 || spos > MAXFFCS)
+		if(spos < lastffc || spos > MAXFFCS)
 			spos = lastffc;
 		lastffc = 0;
 		for(word w = spos; w > 0; --w)
 		{
-			if(ffcs[w-1].data)
+			if(ffcs[w].data)
 			{
-				lastffc = w-1;
+				lastffc = w;
 				break;
 			}
 		}

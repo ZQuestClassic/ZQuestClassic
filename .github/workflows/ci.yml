@@ -60,7 +60,7 @@ jobs:
     - run: ccache -s
     
     # Check ZScript
-    - run: ./buildpack.bat y
+    - run: ./buildpack.bat N
       working-directory: output/_auto
     - run: ./zscript.exe -input "include/std.zh" -unlinked
       working-directory: output/_auto/buildpack

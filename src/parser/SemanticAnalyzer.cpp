@@ -1274,7 +1274,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	if (arrow)
 	{
 		DataType const* arrtype = arrow->left->getReadType(scope, this);
-		if(user_class = arrtype->getUsrClass())
+		if((user_class = arrtype->getUsrClass()))
 			;
 		else parameterTypes.push_back(arrtype);
 	}

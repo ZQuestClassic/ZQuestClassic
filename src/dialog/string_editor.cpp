@@ -128,7 +128,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	using GUI::Props::index;
+	using GUI::Props::indx;
 	
 	char* start_text = encode_msg_str(tmpMsgStr.s);
 	std::shared_ptr<GUI::TabPanel> tpan;
@@ -148,7 +148,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 						tmpMsgStr.s = parse_msg_str(foo);
 					}
 				),
-				preview = MsgPreview(data = &tmpMsgStr, index = strIndex, text = start_text),
+				preview = MsgPreview(data = &tmpMsgStr, indx = strIndex, text = start_text),
 				Row(padding = 0_px,
 					Label(text = "Player Name Preview:"),
 					TextField(
@@ -320,7 +320,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 				ScrollingPane(
 					ptr = &scroll_pos1,
 					height = 48_px, padding = 0_px,
-					preview = MsgPreview(data = &tmpMsgStr, index = strIndex, text = start_text)
+					preview = MsgPreview(data = &tmpMsgStr, indx = strIndex, text = start_text)
 				),
 				Row(padding = 0_px,
 					Label(text = "Player Name Preview:"),

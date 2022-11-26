@@ -203,8 +203,6 @@ mapscr* GetMapscr(int32_t mapref)
 {
 	switch(mapref)
 	{
-		// TODO: fails to compile for 64 bit
-		// case LONG_MAX: return NULL; //shouldn't happen, as error should already have been thrown before calling this func
 		case MAPSCR_TEMP0: return FFCore.tempScreens[0]; //Temp layer 0
 		case MAPSCR_TEMP1: return FFCore.tempScreens[1]; //Temp layer 1
 		case MAPSCR_TEMP2: return FFCore.tempScreens[2]; //Temp layer 2
@@ -8494,10 +8492,10 @@ int32_t get_register(const int32_t arg)
 		case SCREENDATASECRETCOMBO: 	GET_SCREENDATA_VAR_INDEX32(secretcombo, "SecretCombo", 127); break;	//W, 128 OF THESE
 		case SCREENDATASECRETCSET: 	GET_SCREENDATA_BYTE_INDEX(secretcset, "SecretCSet", 127); break;	//B, 128 OF THESE
 		case SCREENDATASECRETFLAG: 	GET_SCREENDATA_BYTE_INDEX(secretflag, "SecretFlags", 127); break;	//B, 128 OF THESE
-		case SCREENDATAVIEWX: 		GET_SCREENDATA_VAR_INT32(viewX, "ViewX"); break;	//W
-		case SCREENDATAVIEWY: 		GET_SCREENDATA_VAR_INT32(viewY, "ViewY"); break; //W
-		case SCREENDATASCREENWIDTH: 	GET_SCREENDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
-		case SCREENDATASCREENHEIGHT: 	GET_SCREENDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
+		case SCREENDATAVIEWX: 		break;//GET_SCREENDATA_VAR_INT32(viewX, "ViewX"); break;	//W
+		case SCREENDATAVIEWY: 		break;//GET_SCREENDATA_VAR_INT32(viewY, "ViewY"); break; //W
+		case SCREENDATASCREENWIDTH: 	break;//GET_SCREENDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
+		case SCREENDATASCREENHEIGHT: 	break;//GET_SCREENDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
 		case SCREENDATAENTRYX: 		GET_SCREENDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
 		case SCREENDATAENTRYY: 		GET_SCREENDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
 		//Number of ffcs that are in use (have valid data
@@ -8679,7 +8677,7 @@ int32_t get_register(const int32_t arg)
 		
 		case MAPDATAINITDARRAY:
 		{
-			if ( ri->mapsref == LONG_MAX ) 
+			if ( ri->mapsref == MAX_SIGNED_32 ) 
 			{ 
 				Z_scripterrlog("Script attempted to use a mapdata->InitD[%d] on a pointer that is uninitialised\n",ri->d[rINDEX]/10000); 
 				break; 
@@ -8702,7 +8700,7 @@ int32_t get_register(const int32_t arg)
 			}
 			else
 			{
-				if ( ri->mapsref == LONG_MAX )
+				if ( ri->mapsref == MAX_SIGNED_32 )
 				{
 						Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","LayerInvisible");
 						ret = -10000;
@@ -8725,7 +8723,7 @@ int32_t get_register(const int32_t arg)
 			}
 			else
 			{
-				if ( ri->mapsref == LONG_MAX )
+				if ( ri->mapsref == MAX_SIGNED_32 )
 				{
 						Z_scripterrlog("Script attempted to use a mapdata->DisableScriptDraws on a pointer that is uninitialised\n");
 						ret = -10000;
@@ -8741,19 +8739,19 @@ int32_t get_register(const int32_t arg)
 		
 		//These use the same method as GetScreenD -Z
 		case SCREENWIDTH:
-			ret=FFScript::get_screenWidth(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
+			// ret=FFScript::get_screenWidth(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
 			break;
 
 		case SCREENHEIGHT:
-			ret=FFScript::get_screenHeight(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
+			// ret=FFScript::get_screenHeight(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
 			break;
 
 		case SCREENVIEWX:
-			ret=get_screenViewX(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
+			// ret=get_screenViewX(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
 			break;
 
 		case SCREENVIEWY:
-			ret=get_screenViewY(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
+			// ret=get_screenViewY(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
 			break;
 
 		case SCREENGUY:
@@ -9409,11 +9407,11 @@ int32_t get_register(const int32_t arg)
 		case MAPDATASECRETCSET: 	GET_MAPDATA_BYTE_INDEX(secretcset, "SecretCSet", 127); break;	//B, 128 OF THESE
 		case MAPDATASECRETFLAG: 	GET_MAPDATA_BYTE_INDEX(secretflag, "SecretFlags", 127); break;	//B, 128 OF THESE
 
-		case MAPDATAVIEWX: 		GET_MAPDATA_VAR_INT32(viewX, "ViewX"); break;	//W
+		case MAPDATAVIEWX: 		break;//GET_MAPDATA_VAR_INT32(viewX, "ViewX"); break;	//W
 		case MAPDATASCRIPT: 		GET_MAPDATA_VAR_INT32(script, "Script"); break;	//W
-		case MAPDATAVIEWY: 		GET_MAPDATA_VAR_INT32(viewY, "ViewY"); break; //W
-		case MAPDATASCREENWIDTH: 	GET_MAPDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
-		case MAPDATASCREENHEIGHT: 	GET_MAPDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
+		case MAPDATAVIEWY: 		break;//GET_MAPDATA_VAR_INT32(viewY, "ViewY"); break; //W
+		case MAPDATASCREENWIDTH: 	break;//GET_MAPDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
+		case MAPDATASCREENHEIGHT: 	break;//GET_MAPDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
 		case MAPDATAENTRYX: 		GET_MAPDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
 		case MAPDATAENTRYY: 		GET_MAPDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
 		case MAPDATAFFDATA:         GET_MAPDATA_FFC_INDEX32(getData(), "FFCData", MAXFFCS-1); break;  //W, MAXFFCS OF THESE
@@ -10079,7 +10077,7 @@ int32_t get_register(const int32_t arg)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -10107,7 +10105,7 @@ int32_t get_register(const int32_t arg)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -10135,7 +10133,7 @@ int32_t get_register(const int32_t arg)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -10169,7 +10167,7 @@ int32_t get_register(const int32_t arg)
 			else 
 			{
 				int32_t ref = ri->shopsref; 
-				bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+				bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
 				int32_t indx = ri->d[rINDEX] / 10000; 
 				if ( indx < 0 || indx > 2 ) 
 				{ 
@@ -17820,34 +17818,20 @@ void set_register(const int32_t arg, const int32_t value)
     {
         int32_t pos = (ri->d[rINDEX])/10000;
         int32_t val = (value/10000); //type
-	if ( ((unsigned) pos) > 175 )
-	{
-		Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboT[]\n", pos);
-	}
-	else if ( ((unsigned) val) >= 256 )
-	{
-		Z_scripterrlog("Invalid Flag ID %d used to write to Screen->ComboT[]\n", val);
-	}
+		if ( ((unsigned) pos) > 175 )
+		{
+			Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboT[]\n", pos);
+		}
+		else if ( ((unsigned) val) >= 256 )
+		{
+			Z_scripterrlog("Invalid Flag ID %d used to write to Screen->ComboT[]\n", val);
+		}
         else
         {
-            // Preprocess each instance of the combo on the screen
-            for(int32_t i = 0; i < 176; i++)
-            {
-                if(tmpscr->data[i] == tmpscr->data[pos])
-                {
-                    screen_combo_modify_preroutine(tmpscr,i);
-                }
-            }
-            
-            combobuf[tmpscr->data[pos]].type=val;
-            
-            for(int32_t i = 0; i < 176; i++)
-            {
-                if(tmpscr->data[i] == tmpscr->data[pos])
-                {
-                    screen_combo_modify_postroutine(tmpscr,i);
-                }
-            }
+			auto cid = tmpscr->data[pos];
+            screen_combo_modify_pre(cid);
+            combobuf[cid].type=val;
+            screen_combo_modify_post(cid);
         }
     }
     break;
@@ -18093,25 +18077,9 @@ void set_register(const int32_t arg, const int32_t value)
 			}
 				
 			int32_t cdata = TheMaps[scr].data[pos];
-			
-			// Preprocess the screen's combos in case the combo changed is present on the screen. -L
-			for(int32_t i = 0; i < 176; i++)
-			{
-				if(tmpscr->data[i] == cdata)
-				{
-					screen_combo_modify_preroutine(tmpscr,i);
-				}
-			}
-			
+			screen_combo_modify_pre(cdata);
 			combobuf[cdata].type=value/10000;
-			
-			for(int32_t i = 0; i < 176; i++)
-			{
-				if(tmpscr->data[i] == cdata)
-				{
-					screen_combo_modify_postroutine(tmpscr,i);
-				}
-			}
+			screen_combo_modify_post(cdata);
 		}
 		break;
 		
@@ -18398,10 +18366,10 @@ void set_register(const int32_t arg, const int32_t value)
 		case SCREENDATASECRETCOMBO: 	SET_SCREENDATA_VAR_INDEX32(secretcombo, "SecretCombo", 127); break;	//W, 128 OF THESE
 		case SCREENDATASECRETCSET: 	SET_SCREENDATA_BYTE_INDEX(secretcset, "SecretCSet", 127); break;	//B, 128 OF THESE
 		case SCREENDATASECRETFLAG: 	SET_SCREENDATA_BYTE_INDEX(secretflag, "SecretFlags", 127); break;	//B, 128 OF THESE
-		case SCREENDATAVIEWX: 		SET_SCREENDATA_VAR_INT32(viewX, "ViewX"); break;	//W
-		case SCREENDATAVIEWY: 		SET_SCREENDATA_VAR_INT32(viewY, "ViewY"); break; //W
-		case SCREENDATASCREENWIDTH: 	SET_SCREENDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
-		case SCREENDATASCREENHEIGHT: 	SET_SCREENDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
+		case SCREENDATAVIEWX: 		break;//SET_SCREENDATA_VAR_INT32(viewX, "ViewX"); break;	//W
+		case SCREENDATAVIEWY: 		break;//SET_SCREENDATA_VAR_INT32(viewY, "ViewY"); break; //W
+		case SCREENDATASCREENWIDTH: 	break;//SET_SCREENDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
+		case SCREENDATASCREENHEIGHT: 	break;//SET_SCREENDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
 		case SCREENDATAENTRYX: 		
 		{
 			int32_t newx = vbound((value/10000),0,255);
@@ -18538,19 +18506,19 @@ void set_register(const int32_t arg, const int32_t value)
 
 		//These use the same method as SetScreenD
 		case SCREENWIDTH:
-			FFScript::set_screenWidth(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
+			// FFScript::set_screenWidth(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
 			break;
 
 		case SCREENHEIGHT:
-			FFScript::set_screenHeight(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
+			// FFScript::set_screenHeight(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
 			break;
 
 		case SCREENVIEWX:
-			FFScript::set_screenViewX(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
+			// FFScript::set_screenViewX(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
 			break;
 
 		case SCREENVIEWY:
-			FFScript::set_screenViewY(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
+			// FFScript::set_screenViewY(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
 			break;
 
 		case SCREENGUY:
@@ -19341,7 +19309,7 @@ void set_register(const int32_t arg, const int32_t value)
 		case MAPDATASECRETCOMBO: 	SET_MAPDATA_VAR_INDEX32(secretcombo, "SecretCombo", 127); break;	//W, 128 OF THESE
 		case MAPDATASECRETCSET: 	SET_MAPDATA_BYTE_INDEX(secretcset, "SecretCSet", 127); break;	//B, 128 OF THESE
 		case MAPDATASECRETFLAG: 	SET_MAPDATA_BYTE_INDEX(secretflag, "SecretFlags", 127); break;	//B, 128 OF THESE
-		case MAPDATAVIEWX: 		SET_MAPDATA_VAR_INT32(viewX, "ViewX"); break;	//W
+		case MAPDATAVIEWX: 		break;//SET_MAPDATA_VAR_INT32(viewX, "ViewX"); break;	//W
 		case MAPDATASCRIPT:
 		{
 			if (mapscr *m = GetMapscr(ri->mapsref)) 
@@ -19367,9 +19335,9 @@ void set_register(const int32_t arg, const int32_t value)
 			break;
 			
 		}
-		case MAPDATAVIEWY: 		SET_MAPDATA_VAR_INT32(viewY, "ViewY"); break; //W
-		case MAPDATASCREENWIDTH: 	SET_MAPDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
-		case MAPDATASCREENHEIGHT: 	SET_MAPDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
+		case MAPDATAVIEWY: 		break;//SET_MAPDATA_VAR_INT32(viewY, "ViewY"); break; //W
+		case MAPDATASCREENWIDTH: 	break;//SET_MAPDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
+		case MAPDATASCREENHEIGHT: 	break;//SET_MAPDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
 		case MAPDATAENTRYX: 		SET_MAPDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
 		case MAPDATAENTRYY: 		SET_MAPDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
 		case MAPDATAFFDATA:         
@@ -19844,24 +19812,10 @@ void set_register(const int32_t arg, const int32_t value)
 				}
 				else
 				{
-					// Preprocess each instance of the combo on the screen
-					for(int32_t i = 0; i < 176; i++)
-					{
-						if(m->data[i] == m->data[pos])
-						{
-							screen_combo_modify_preroutine(m,i);
-						}
-					}
-					
-					combobuf[m->data[pos]].type=val;
-					
-					for(int32_t i = 0; i < 176; i++)
-					{
-						if(m->data[i] == m->data[pos])
-						{
-							screen_combo_modify_postroutine(m,i);
-						}
-					}
+					auto cid = tmpscr->data[pos];
+					screen_combo_modify_pre(cid);
+					combobuf[cid].type=val;
+					screen_combo_modify_post(cid);
 				}
 			}
 			else
@@ -19988,7 +19942,7 @@ void set_register(const int32_t arg, const int32_t value)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -20015,7 +19969,7 @@ void set_register(const int32_t arg, const int32_t value)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -20041,7 +19995,7 @@ void set_register(const int32_t arg, const int32_t value)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -20075,7 +20029,7 @@ void set_register(const int32_t arg, const int32_t value)
 				else 
 				{
 					int32_t ref = ri->shopsref; 
-					bool isInfo = ( ref > NUMSHOPS && ref < LONG_MAX ); 
+					bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
 					int32_t indx = ri->d[rINDEX] / 10000; 
 					if ( indx < 0 || indx > 2 ) 
 					{ 
@@ -20876,7 +20830,20 @@ void set_register(const int32_t arg, const int32_t value)
 			}
 			break;
 		}
-		case COMBODTYPE:	SET_COMBO_VAR_BYTE(type, "Type"); break;						//char
+		case COMBODTYPE:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->Type: %d\n", (ri->combosref*10000));
+			}
+			else
+			{
+				screen_combo_modify_pre(ri->combosref);
+				combobuf[ri->combosref].type = vbound((value / 10000),0,255);
+				screen_combo_modify_post(ri->combosref);
+			}
+			break;
+		}
 		case COMBODCSET:
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
@@ -22306,7 +22273,7 @@ void do_div(bool v, const bool inv = false)
 	if(temp == 0)
 	{
 		Z_scripterrlog("Script attempted to divide %ld by zero!\n", temp2);
-		set_register(destreg, int32_t(sign(temp2) * LONG_MAX));
+		set_register(destreg, int32_t(sign(temp2) * MAX_SIGNED_32));
 	}
 	else
 	{
@@ -22412,11 +22379,6 @@ void do_log10(const bool v)
 	
 	if(temp > 0)
 		set_register(sarg1, int32_t(log10(temp) * 10000.0));
-	else if(temp == 0)
-	{
-		Z_eventlog("Script tried to calculate log of 0\n");
-		set_register(sarg1, -LONG_MAX);
-	}
 	else
 	{
 		Z_eventlog("Script tried to calculate log of %f\n", temp / 10000.0);
@@ -22430,11 +22392,11 @@ void do_naturallog(const bool v)
 	
 	if(temp > 0)
 		set_register(sarg1, int32_t(log(temp) * 10000.0));
-	else if(temp == 0)
-	{
-		Z_eventlog("Script tried to calculate ln of 0\n");
-		set_register(sarg1, -LONG_MAX);
-	}
+	// else if(temp == 0)
+	// {
+		// Z_eventlog("Script tried to calculate ln of 0\n");
+		// set_register(sarg1, MIN_SIGNED_32);
+	// }
 	else
 	{
 		Z_eventlog("Script tried to calculate ln of %f\n", temp / 10000.0);
@@ -22908,7 +22870,7 @@ void do_issolid()
 
 void do_mapdataissolid()
 {
-	if ( ri->mapsref == LONG_MAX  )
+	if ( ri->mapsref == MAX_SIGNED_32  )
 	{
 		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","isSolid()");
 		set_register(sarg1,10000);
@@ -22934,7 +22896,7 @@ void do_mapdataissolid()
 
 void do_mapdataissolid_layer()
 {
-	if ( ri->mapsref == LONG_MAX  )
+	if ( ri->mapsref == MAX_SIGNED_32  )
 	{
 		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","isSolidLayer()");
 		set_register(sarg1,10000);
@@ -23281,12 +23243,6 @@ int32_t get_screenwarpReturnY(mapscr *m, int32_t d)
 	return f*10000;
 }
 //One too many inputs here. -Z
-int32_t get_screenViewX(mapscr *m)
-{
-	int32_t f = m->viewX;
-	return f*10000;
-}
-//One too many inputs here. -Z
 int32_t get_screenGuy(mapscr *m)
 {
 	int32_t f = m->guy;
@@ -23302,12 +23258,6 @@ int32_t get_screenString(mapscr *m)
 int32_t get_screenRoomtype(mapscr *m)
 {
 	int32_t f = m->room;
-	return f*10000;
-}
-//One too many inputs here. -Z
-int32_t get_screenViewY(mapscr *m)
-{
-	int32_t f = m->viewY;
 	return f*10000;
 }
 //One too many inputs here. -Z
@@ -23512,62 +23462,6 @@ void do_getscreenUnderCSet()
 	set_register(sarg1, get_screenundercset(&TheMaps[map * MAPSCRS + scrn], d));
 }
 
-//One too many inputs here. -Z
-void do_getscreenWidth()
-{
-	int32_t map     = (ri->d[rEXP1] / 10000) - 1;
-	int32_t scrn  = ri->d[rINDEX2] / 10000;
-	int32_t d = ri->d[rINDEX] / 10000;
-	
-	if(BC::checkMapID(map, "Game->GetScreenWidth(...map...)") != SH::_NoError ||
-			BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenWidth(...screen...)") != SH::_NoError ||
-			BC::checkBounds(d, 0, 214747, "Game->GetScreenWidth(...val...)") != SH::_NoError)
-		return;
-		
-	set_register(sarg1, get_screenWidth(&TheMaps[map * MAPSCRS + scrn], d));
-}
-//One too many inputs here. -Z
-void do_getscreenHeight()
-{
-	int32_t map     = (ri->d[rEXP1] / 10000) - 1;
-	int32_t scrn  = ri->d[rINDEX2] / 10000;
-	int32_t d = ri->d[rINDEX] / 10000;
-	
-	if(BC::checkMapID(map, "Game->GetScreenHeight(...map...)") != SH::_NoError ||
-			BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenHeight(...screen...)") != SH::_NoError ||
-			BC::checkBounds(d, 0, 214747, "Game->GetScreenHeight(...val...)") != SH::_NoError)
-		return;
-		
-	set_register(sarg1, get_screenHeight(&TheMaps[map * MAPSCRS + scrn], d));
-}
-//One too many inputs here. -Z
-void do_getscreenViewX()
-{
-	int32_t map     = (ri->d[rEXP1] / 10000) - 1;
-	int32_t scrn  = ri->d[rINDEX2] / 10000;
-	int32_t d = ri->d[rINDEX] / 10000;
-	
-	if(BC::checkMapID(map, "Game->GetScreenViewX(...map...)") != SH::_NoError ||
-			BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenViewX(...screen...)") != SH::_NoError ||
-			BC::checkBounds(d, 0, 214747, "Game->GetScreenViewX(...val...)") != SH::_NoError)
-		return;
-		
-	set_register(sarg1, get_screenViewX(&TheMaps[map * MAPSCRS + scrn], d));
-}
-//One too many inputs here. -Z
-void do_getscreenViewY()
-{
-	int32_t map     = (ri->d[rEXP1] / 10000) - 1;
-	int32_t scrn  = ri->d[rINDEX2] / 10000;
-	int32_t d = ri->d[rINDEX] / 10000;
-	
-	if(BC::checkMapID(map, "Game->GetScreenViewY(...map...)") != SH::_NoError ||
-			BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenViewY(...screen...)") != SH::_NoError ||
-			BC::checkBounds(d, 0, 214747, "Game->GetScreenViewY(...val...)") != SH::_NoError)
-		return;
-		
-	set_register(sarg1, get_screenViewY(&TheMaps[map * MAPSCRS + scrn], d));
-}
 //One too many inputs here. -Z
 void do_getscreenGuy()
 {
@@ -23979,7 +23873,7 @@ void do_loadlweapon(const bool v)
 	int32_t index = SH::get_arg(sarg1, v) / 10000;
 	
 	if(BC::checkLWeaponIndex(index, "Screen->LoadLWeapon") != SH::_NoError)
-		ri->lwpn = 0; //LONG_MAX; //Now NULL
+		ri->lwpn = 0; //MAX_DWORD; //Now NULL
 	else
 	{
 		ri->lwpn = Lwpns.spr(index)->getUID();
@@ -23993,7 +23887,7 @@ void do_loadeweapon(const bool v)
 	int32_t index = SH::get_arg(sarg1, v) / 10000;
 	
 	if(BC::checkEWeaponIndex(index, "Screen->LoadEWeapon") != SH::_NoError)
-		ri->ewpn = 0; //LONG_MAX; //Now NULL
+		ri->ewpn = 0; //MAX_DWORD; //Now NULL
 	else
 	{
 		ri->ewpn = Ewpns.spr(index)->getUID();
@@ -24006,7 +23900,7 @@ void do_loaditem(const bool v)
 	int32_t index = SH::get_arg(sarg1, v) / 10000;
 	
 	if(BC::checkItemIndex(index, "Screen->LoadItem") != SH::_NoError)
-		ri->itemref = 0; //LONG_MAX; //Now NULL
+		ri->itemref = 0; //MAX_DWORD; //Now NULL
 	else
 	{
 		ri->itemref = items.spr(index)->getUID();
@@ -24034,7 +23928,7 @@ void do_loadnpc(const bool v)
 	int32_t index = SH::get_arg(sarg1, v) / 10000;
 	
 	if(BC::checkGuyIndex(index, "Screen->LoadNPC") != SH::_NoError)
-		ri->guyref = 0; // LONG_MAX;
+		ri->guyref = 0; // MAX_DWORD;
 	else
 	{
 		ri->guyref = guys.spr(index)->getUID();
@@ -24053,7 +23947,7 @@ void FFScript::do_loaditem_by_script_uid(const bool v)
 			ri->itemref = items.spr(j)->getUID();
 		return;
 		}
-	ri->itemref = LONG_MAX;
+	ri->itemref = MAX_DWORD;
 	//error here.
 	//Z_eventlog("Script loaded NPC with UID = %ld\n", ri->guyref);
 }
@@ -24068,7 +23962,7 @@ void FFScript::do_loadnpc_by_script_uid(const bool v)
 			ri->guyref = guys.spr(j)->getUID();
 		return;
 		}
-	ri->guyref = LONG_MAX;
+	ri->guyref = MAX_DWORD;
 	//error here.
 	//Z_eventlog("Script loaded NPC with UID = %ld\n", ri->guyref);
 }
@@ -24082,7 +23976,7 @@ void FFScript::do_loaddmapdata(const bool v)
 	if ( ID < 0 || ID > 511 )
 	{
 	Z_scripterrlog("Invalid DMap ID passed to Game->LoadDMapData(): %d\n", ID);
-	ri->dmapsref = LONG_MAX;
+	ri->dmapsref = MAX_DWORD;
 	}
 		
 	else ri->dmapsref = ID;
@@ -24141,7 +24035,7 @@ void FFScript::do_loaddropset(const bool v)
 	if ( ID < 0 || ID > MAXITEMDROPSETS )
 	{
 		Z_scripterrlog("Invalid Dropset ID passed to Game->LoadDropset(): %d\n", ID);
-		ri->dropsetref = LONG_MAX;
+		ri->dropsetref = MAX_DWORD;
 	}
 		
 	else ri->dropsetref = ID;
@@ -25741,7 +25635,7 @@ void FFScript::do_loadnpcdata(const bool v)
 	if ( ID < 1 || ID > (MAXGUYS-1) )
 	{
 		Z_scripterrlog("Invalid NPC ID passed to Game->LoadNPCData: %d\n", ID);
-		ri->npcdataref = LONG_MAX;
+		ri->npcdataref = MAX_DWORD;
 	}
 		
 	else ri->npcdataref = ID;
@@ -25754,7 +25648,7 @@ void FFScript::do_loadmessagedata(const bool v)
 	if ( ID < 1 || ID > (msg_count-1) )
 	{
 		Z_scripterrlog("Invalid Message ID passed to Game->LoadMessageData: %d\n", ID);
-		ri->zmsgref = LONG_MAX;
+		ri->zmsgref = MAX_DWORD;
 	}
 		
 	else ri->zmsgref = ID;
@@ -25898,7 +25792,7 @@ void FFScript::do_loadmapdata(const bool v)
 	if ( ID < 0 || ID > (map_count-1) )
 	{
 		Z_scripterrlog("Invalid Map ID passed to Game->LoadMapData: %d\n", ID);
-		ri->mapsref = LONG_MAX;
+		ri->mapsref = MAX_SIGNED_32;
 	}
 
 	else ri->mapsref = ID;
@@ -26019,7 +25913,7 @@ void do_createlweapon(const bool v)
 	}
 	else
 	{
-		//ri->lwpn = LONG_MAX;
+		//ri->lwpn = MAX_DWORD;
 		ri->lwpn = 0; // Now NULL
 		Z_scripterrlog("Couldn't create lweapon %ld, screen lweapon limit reached\n", ID);
 	}
@@ -26040,7 +25934,7 @@ void do_createlweapon(const bool v)
 	/*
 	if(Lwpns.Count() < 1)
 	{
-		ri->lwpn = LONG_MAX;
+		ri->lwpn = MAX_DWORD;
 		Z_scripterrlog("Couldn't create lweapon %ld, screen lweapon limit reached\n", ID);
 	}
 	else
@@ -26088,7 +25982,7 @@ void do_createeweapon(const bool v)
 	/*
 	if(Ewpns.Count() < 1)
 	{
-		ri->ewpn = LONG_MAX;
+		ri->ewpn = MAX_DWORD;
 		Z_scripterrlog("Couldn't create eweapon %ld, screen eweapon limit reached\n", ID);
 	}
 	else
@@ -26120,7 +26014,7 @@ void do_createitem(const bool v)
 	/*
 	if(items.Count() < 1)
 	{
-		ri->itemref = LONG_MAX;
+		ri->itemref = MAX_DWORD;
 		Z_scripterrlog("Couldn't create item \"%s\", screen item limit reached\n", item_string[ID]);
 	}
 	else
@@ -26143,7 +26037,7 @@ void do_createnpc(const bool v)
 	
 	if(numcreated == 0)
 	{
-		//ri->guyref = LONG_MAX;
+		//ri->guyref = MAX_DWORD;
 		ri->guyref = 0;
 		Z_scripterrlog("Couldn't create NPC \"%s\", screen NPC limit reached\n", guy_string[ID]);
 	}
@@ -33740,27 +33634,6 @@ void FFScript::set_screenwarpReturnX(mapscr *m, int32_t d, int32_t value)
 }
 
 
-//Use as SetScreenD:
-void FFScript::set_screenWidth(mapscr *m, int32_t value)
-{
-	int32_t w = vbound(value,0,255); //value is char
-	m->scrWidth = w;
-}
-void FFScript::set_screenHeight(mapscr *m, int32_t value)
-{
-	int32_t h = vbound(value,0,255); //value is char
-	m->scrHeight = h;
-}
-void FFScript::set_screenViewX(mapscr *m, int32_t value)
-{
-	int32_t x = vbound(value, 0, 255); //value is char
-	m->viewX = x;
-}
-void FFScript::set_screenViewY(mapscr *m, int32_t value)
-{
-	int32_t y = vbound(value, 0, 255); //value is char
-	m->viewY = y;
-}
 void FFScript::set_screenGuy(mapscr *m, int32_t value)
 {
 	int32_t bloke = vbound(value,0,9); 
@@ -33810,17 +33683,6 @@ void FFScript::set_screenatchall(mapscr *m, int32_t value)
 
 
 //One too many inputs here. -Z
-int32_t FFScript::get_screenWidth(mapscr *m)
-{
-	int32_t f = m->scrWidth;
-	return f*10000;
-}
-//One too many inputs here. -Z
-int32_t FFScript::get_screenHeight(mapscr *m)
-{
-	int32_t f = m->scrHeight;
-	return f*10000;
-}
 
 int32_t FFScript::GetQuestVersion()
 {
@@ -33985,14 +33847,12 @@ int32_t FFScript::loadMapData()
 	 if ( _map < 1 || _map > map_count )
 	{
 		Z_scripterrlog("Invalid Map ID passed to Game->LoadMapData: %d\n", _map);
-		ri->mapsref = LONG_MAX;
-		return LONG_MAX;
+		ri->mapsref = MAX_SIGNED_32;
 	}
 	else if ( _scr < 0 || _scr > 129 ) //0x00 to 0x81 -Z
 	{
 		Z_scripterrlog("Invalid Screen ID passed to Game->LoadMapData: %d\n", _scr);
-		ri->mapsref = LONG_MAX;
-		return LONG_MAX;
+		ri->mapsref = MAX_SIGNED_32;
 	}
 	else ri->mapsref = indx;
 	//zprint("LoadMapData Screen set ri->mapsref to: %d\n", ri->mapsref);
@@ -36665,7 +36525,7 @@ void FFScript::do_npc_add(const bool v)
 	
 	if(numcreated == 0)
 	{
-		ri->guyref = LONG_MAX;
+		ri->guyref = MAX_DWORD;
 		Z_scripterrlog("Couldn't create NPC \"%s\", screen NPC limit reached\n", guy_string[id]);
 	}
 	else
@@ -37266,7 +37126,7 @@ void FFScript::do_xtoa()
 	}
 	double num = number;
 	// zprint2("xtoa_c(), num is: %f\n", num);
-	int32_t digits = floor(FFCore.LogToBase(num, (double)16) + 1);
+	int32_t digits = num ? floor(FFCore.LogToBase(num, 16) + 1) : 1;
 	//sizeof(number)*CHAR_BIT/4;
 	// zprint2("xtoa_c, digits is: %d\n",digits);
 	
@@ -37691,10 +37551,6 @@ int32_t FFScript::Log10(double temp)
 	int32_t ret = 0;
 	if(temp > 0)
 		ret = int32_t(log10(temp) * 10000.0);
-	else if(temp == 0)
-	{
-		ret = -LONG_MAX;
-	}
 	else ret = 0;
 	return ret;
 }
@@ -37717,10 +37573,6 @@ double FFScript::ln(double temp)
 	
 	if(temp > 0)
 		return (log(temp));
-	else if(temp == 0)
-	{
-		return ((double)(-LONG_MAX));
-	}
 	else
 	{
 		return 0;
@@ -37730,6 +37582,7 @@ double FFScript::ln(double temp)
 // Returns the logarithm of x to the given base.
 double FFScript::LogToBase(double x, double base)
 {
+	if(x <= 0 || base <= 0) return 0;
 	return FFCore.ln(x)/FFCore.ln(base);
 }
 
@@ -43976,7 +43829,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int32_t vers_id)
 			{
 			try
 			{
-				if(!p_iputw(m->data.at(k),f))
+				if(!p_iputw(m->data[k],f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
@@ -43991,7 +43844,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int32_t vers_id)
 			{
 			try
 			{
-				if(!p_putc(m->sflag.at(k),f))
+				if(!p_putc(m->sflag[k], f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
@@ -44006,7 +43859,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int32_t vers_id)
 			{
 			try
 			{
-				if(!p_putc(m->cset.at(k),f))
+				if(!p_putc(m->cset[k],f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
@@ -44582,7 +44435,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int32_t vers_id)
 			{
 			try
 			{
-				if(!p_igetw(&(m->data.at(k)),f,true))
+				if(!p_igetw(&(m->data[k]),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
@@ -44597,7 +44450,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int32_t vers_id)
 			{
 			try
 			{
-				if(!p_getc(&(m->sflag.at(k)),f,true))
+				if(!p_getc(&(m->sflag[k]),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
@@ -44612,7 +44465,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int32_t vers_id)
 			{
 			try
 			{
-				if(!p_getc(&(m->cset.at(k)),f,true))
+				if(!p_getc(&(m->cset[k]),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}

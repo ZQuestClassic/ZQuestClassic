@@ -63,4 +63,29 @@ void ListData::add(set<string> names, map<string, int32_t> vals)
 	}
 }
 
+ListData& ListData::filter(std::function<bool(ListItem&)> filt_func)
+{
+	for(auto it = listItems.begin(); it != listItems.end();)
+	{
+		ListItem& itm = *it;
+		
+		if(filt_func(itm)) ++it;
+		else it = listItems.erase(it);
+	}
+	return *this;
+}
+ListItem& ListData::accessItem(int32_t key)
+{
+	for(ListItem& li : listItems)
+	{
+		if(li.value == key)
+			return li;
+	}
+	static ListItem nil("",0);
+	return nil;
+}
+ListItem& ListData::accessIndex(size_t index)
+{
+	return listItems.at(index);
+}
 }

@@ -2,6 +2,8 @@
 #include "base/zdefs.h"
 #include "sprite.h"
 #include "hero.h"
+#include "base/zc_math.h"
+#include "slopes.h"
 
 #ifdef IS_PLAYER
 extern sprite_list guys;
@@ -29,12 +31,10 @@ bool remove_object(solid_object* obj)
     return ret;
 }
 
-void put_ffcwalkflags(BITMAP *dest, int32_t x, int32_t y)
+void draw_solid_objects(BITMAP *dest, int32_t x, int32_t y, int32_t col)
 {
 	for(auto it = solid_objects.begin(); it != solid_objects.end(); ++it)
-	{
-		(*it)->putwalkflags(dest, x, y);
-	}
+		(*it)->draw(dest, x, y, col);
 }
 
 static solid_object* curobject = NULL;
@@ -169,13 +169,13 @@ bool solid_object::collide(int32_t tx, int32_t ty, int32_t tw, int32_t th) const
 	       tx<rx+rw && ty<ry+rh;
 }
 
-void solid_object::putwalkflags(BITMAP *dest, int32_t tx, int32_t ty)
+void solid_object::draw(BITMAP *dest, int32_t tx, int32_t ty, int32_t col)
 {
 	if(ignore_solid_temp) return;
 	tx += x.getFloor() + hxofs + sxofs;
 	ty += y.getFloor() + hyofs + syofs;
 	rectfill(dest, tx, ty, tx + hxsz-1 + sxsz_ofs,
-	         ty + hysz-1 + sysz_ofs, makecol(255,85,85));
+	         ty + hysz-1 + sysz_ofs, col);
 }
 
 void solid_object::solid_update(bool push)
@@ -190,6 +190,8 @@ void solid_object::solid_update(bool push)
 		}
 	}
 #endif
+	old_x2 = old_x;
+	old_y2 = old_y;
 	old_x = x;
 	old_y = y;
 }
@@ -201,7 +203,7 @@ void solid_object::solid_push(solid_object* pusher)
 
 void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy, int32_t& hdir)
 {
-	dx = dy = 0;
+	dx = dy = 0; hdir = -1;
 	if(is_unpushable()) return;
 	zfix odx = obj->x - obj->old_x,
 	     ody = obj->y - obj->old_y,
@@ -506,24 +508,8 @@ void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy, in
 		sxofs -= 4;
 		sxsz_ofs += 8;
 	}
-	
-	if(!dx && !dy) return; //no movement at all
-	hdir = XY_DIR(GET_YDIR(dy), GET_XDIR(dx));
-	//handle subpixel rounding
-	if(zfix xd = x.getDPart())
-	{
-		x.doTrunc();
-		dx += xd;
-	}
-	if(zfix yd = y.getDPart())
-	{
-		y.doTrunc();
-		dy += yd;
-	}
-	//Lock to integer grid
-	//!TODO SOLIDPUSH allow a subpixel-push? -Em
-	dx.doRoundAway();
-	dy.doRoundAway();
+	if(dx || dy)
+		hdir = XY_DIR(GET_YDIR(dy), GET_XDIR(dx));
 }
 
 int32_t solid_object::push_dir() const

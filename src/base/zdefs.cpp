@@ -1243,3 +1243,260 @@ char const* getProgramVerStr()
 	return buf;
 }
 
+//double ddir=atan2(double(fakey-(Hero.y)),double(Hero.x-fakex));
+double WrapAngle( double radians ) 
+{
+	while (radians <= -PI) radians += (PI*2);
+	while (radians > PI) radians -= (PI*2);
+	return radians;
+}
+double WrapDegrees( double degrees )
+{
+	while (degrees <= -180.0) degrees += 360.0;
+	while (degrees > 180.0) degrees -= 360.0;
+	return degrees;
+}
+
+double DegreesToRadians(double d)
+{
+	double dvs = PI/180.0;
+	return d*dvs;
+}
+
+double RadiansToDegrees(double rad)
+{
+	double dvs = 180.0/PI;
+	return rad*dvs;
+}
+
+double DirToRadians(int d)
+{
+	switch(d)
+	{
+		case up:
+			return DegreesToRadians(270);
+		case down:
+			return DegreesToRadians(90);
+		case left:
+			return DegreesToRadians(180);
+		case right:
+			return 0;
+		case 4:
+			return DegreesToRadians(225);
+		case 5:
+			return DegreesToRadians(315);
+		case 6:
+			return DegreesToRadians(135);
+		case 7:
+			return DegreesToRadians(45);
+	}
+	return 0;
+}
+
+double DirToDegrees(int d)
+{
+	switch(d)
+	{
+		case up:
+			return 270;
+		case down:
+			return 90;
+		case left:
+			return 180;
+		case right:
+			return 0;
+		case 4:
+			return 225;
+		case 5:
+			return 315;
+		case 6:
+			return 135;
+		case 7:
+			return 45;
+	}
+	return 0;
+}
+int32_t AngleToDir(double ddir)
+{
+	int32_t lookat=0;
+	
+	if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
+	{
+		lookat=l_up;
+	}
+	else if((ddir<=(((-3)*PI)/8))&&(ddir>(((-5)*PI)/8)))
+	{
+		lookat=up;
+	}
+	else if((ddir<=(((-1)*PI)/8))&&(ddir>(((-3)*PI)/8)))
+	{
+		lookat=r_up;
+	}
+	else if((ddir<=(((1)*PI)/8))&&(ddir>(((-1)*PI)/8)))
+	{
+		lookat=right;
+	}
+	else if((ddir<=(((3)*PI)/8))&&(ddir>(((1)*PI)/8)))
+	{
+		lookat=r_down;
+	}
+	else if((ddir<=(((5)*PI)/8))&&(ddir>(((3)*PI)/8)))
+	{
+		lookat=down;
+	}
+	else if((ddir<=(((7)*PI)/8))&&(ddir>(((5)*PI)/8)))
+	{
+		lookat=l_down;
+	}
+	else
+	{
+		lookat=left;
+	}
+	return lookat;
+}
+int32_t AngleToDir4(double ddir)
+{
+	int32_t lookat=0;
+	
+	if(ddir <= 135.0 && ddir > 45.0)
+	{
+		lookat = down;
+	}
+	else if(ddir <= 45.0 && ddir > -45.0)
+	{
+		lookat = right;
+	}
+	else if(ddir <= -45.0 && ddir > -135.0)
+	{
+		lookat = up;
+	}
+	else
+	{
+		lookat = left;
+	}
+	return lookat;
+}
+int32_t AngleToDir4Rad(double ddir)
+{
+	int32_t lookat=0;
+	ddir = RadiansToDegrees(ddir);
+	
+	if(ddir <= 135.0 && ddir > 45.0)
+	{
+		lookat = down;
+	}
+	else if(ddir <= 45.0 && ddir > -45.0)
+	{
+		lookat = right;
+	}
+	else if(ddir <= -45.0 && ddir > -135.0)
+	{
+		lookat = up;
+	}
+	else
+	{
+		lookat = left;
+	}
+	return lookat;
+}
+
+
+bool isNextType(int32_t type)
+{
+	switch(type)
+	{
+		case cLIFTSLASHNEXT:
+		case cLIFTSLASHNEXTSPECITEM:
+		case cLIFTSLASHNEXTITEM:
+		case cDIGNEXT:
+		case cLIFTNEXT:
+		case cLIFTNEXTITEM:
+		case cLIFTNEXTSPECITEM:
+		case cSLASHNEXT:
+		case cBUSHNEXT:
+		case cTALLGRASSNEXT:
+		case cSLASHNEXTITEM:
+		case cSLASHNEXTTOUCHY:
+		case cSLASHNEXTITEMTOUCHY:
+		case cBUSHNEXTTOUCHY:
+		{
+			return true;
+		}
+		default: return false;
+	}
+}
+bool isWarpType(int32_t type)
+{
+	switch(type)
+	{
+		case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
+		case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
+		case cDIVEWARP: case cDIVEWARPB: case cDIVEWARPC: case cDIVEWARPD:
+		case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
+		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
+		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
+			return true;
+	}
+	return false;
+}
+int32_t getWarpLetter(int32_t type)
+{
+	switch(type)
+	{
+		case cSTAIR: case cSWIMWARP: case cDIVEWARP: case cPIT:
+		case cAWARPA: case cSWARPA:
+			return 0;
+		case cSTAIRB: case cSWIMWARPB: case cDIVEWARPB: case cPITB:
+		case cAWARPB: case cSWARPB:
+			return 1;
+		case cSTAIRC: case cSWIMWARPC: case cDIVEWARPC: case cPITC:
+		case cAWARPC: case cSWARPC:
+			return 2;
+		case cSTAIRD: case cSWIMWARPD: case cDIVEWARPD: case cPITD:
+		case cAWARPD: case cSWARPD:
+			return 3;
+		case cSTAIRR: case cPITR: case cAWARPR: case cSWARPR:
+			return 4;
+	}
+	return -1;
+}
+int32_t simplifyWarpType(int32_t type)
+{
+	switch(type)
+	{
+		case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
+			return cSTAIR;
+		case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
+			return cSWIMWARP;
+		case cDIVEWARP: case cDIVEWARPB: case cDIVEWARPC: case cDIVEWARPD:
+			return cDIVEWARP;
+		case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
+			return cPIT;
+		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
+			return cAWARPA;
+		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
+			return cSWARPA;
+	}
+	return 0;
+}
+bool isStepType(int32_t type)
+{
+	switch(type)
+	{
+		case cSTEP: case cSTEPSAME:
+		case cSTEPALL: case cSTEPCOPY:
+			return true;
+	}
+	return false;
+}
+bool isDamageType(int32_t type)
+{
+	switch(type)
+	{
+		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
+		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
+			return true;
+	}
+	return false;
+}
+
