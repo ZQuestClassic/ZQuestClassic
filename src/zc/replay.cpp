@@ -1186,7 +1186,7 @@ void replay_stop()
         else if (has_assert_failed)
         {
             enter_sys_pal();
-            jwin_alert("Assert", "Assert failed, replay has stopped", NULL, NULL, "OK", NULL, 13, 27, lfont);
+            jwin_alert("Assert", "Replay has stopped, and the assert failed.", NULL, NULL, "OK", NULL, 13, 27, lfont);
             exit_sys_pal();
 			Paused = true;
         }
