@@ -1835,6 +1835,9 @@ int32_t init_game()
 	// same way, even if manually started in the ZC UI.
     frame = 0;
 
+	// Initialize some other values.
+	loadside = 0;
+
 	FFCore.user_objects_init();
 	//Copy saved data to RAM data (but not global arrays)
 	game->Copy(saves[currgame]);
