@@ -4704,33 +4704,6 @@ struct zcmap
 	bool subpTrans;
 };
 
-struct slopedata
-{
-	zfix x1;
-	zfix y1;
-	zfix x2;
-	zfix y2;
-	zfix ox1;
-	zfix oy1;
-	zfix ox2;
-	zfix oy2;
-	zfix slope;
-	zfix slipperiness;
-	int32_t id;
-	bool stairs;
-	bool falldown;
-	bool ignorebottom;
-	bool ignoretop;
-	bool ignoreleft;
-	bool ignoreright;
-	slopedata(){};
-	slopedata(newcombo const& cmb, zfix const& x, zfix const& y);
-	slopedata(newcombo const& cmb, zfix const& x, zfix const& y, int32_t ID);
-	void slopedata::updateslope(newcombo const& cmb, zfix const& x, zfix const& y);
-	zfix getX(zfix const& y) const;
-	zfix getY(zfix const& x) const;
-};
-
 enum controls //Args for 'getInput()'
 {
 	//control_state indeces

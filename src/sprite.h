@@ -80,7 +80,7 @@ public:
      * Enemies have hzsz of 0 so that Hero can jump over them (see LA.)
      */
     int32_t id,dir;
-    int32_t slopeid;
+    zfix slopeid;
     byte onplatid = 0;
     bool angular,canfreeze;
     double angle;

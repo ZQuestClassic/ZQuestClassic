@@ -35,6 +35,7 @@
 #include "combos.h"
 #include "base/zc_math.h"
 #include "user_object.h"
+#include "slopes.h"
 extern FFScript FFCore;
 extern word combo_doscript[176];
 extern byte itemscriptInitialised[256];
@@ -42,7 +43,6 @@ extern HeroClass Hero;
 extern ZModule zcm;
 extern zcmodule moduledata;
 extern refInfo playerScriptData;
-extern std::map<int32_t, slopedata> slopes;
 #include "zscriptversion.h"
 #include "particles.h"
 #include <fmt/format.h>
@@ -7878,9 +7878,9 @@ bool HeroClass::animate(int32_t)
 					y = ty;
 					if (check_new_slope(x, ty + 1, 16, 16, old_x, old_y, false) < 0)
 					{
-						slopedata s = get_new_slope(x, ty + 1, 16, 16, old_x, old_y);
-						if (!slopeid) slopeid = s.slope;
-						onplatid = 2;
+						if(!slopeid)
+							slopeid = get_new_slope(x, ty + 1, 16, 16, old_x, old_y).get_info().slope();
+						onplatid = 5;
 					}
 					needFall = false;
 					break;
@@ -9415,34 +9415,18 @@ bool HeroClass::animate(int32_t)
 	
 	bool awarp = false;
 	//!DIMI: Global Combo Effects (AUTO STUFF)
-	//slopes.clear();
+	for(auto& p : slopes)
+	{
+		slope_object& s = p.second;
+		s.updateslope(); //sets old x/y poses
+	}
 	for(int32_t i=0; i<176; ++i)
 	{
 		for(int32_t layer=0; layer<7; ++layer)
 		{
 			int32_t cid = ( layer ) ? MAPCOMBOL(layer,COMBOX(i),COMBOY(i)) : MAPCOMBO(COMBOX(i),COMBOY(i));
 			newcombo const& cmb = combobuf[cid];
-			int32_t id = (176*layer)+i;
-			auto it = slopes.find(id);
-			if (cmb.type == cSLOPE) 
-			{
-				if (it == slopes.end())
-				{
-					slopes.try_emplace(id, cmb, COMBOX(i), COMBOY(i), id);
-				}
-				else
-				{
-					slopedata& s = (*it).second;
-					s.updateslope(cmb, COMBOX(i), COMBOY(i));
-				}
-			}
-			else
-			{
-				if (it != slopes.end())
-				{
-					slopes.erase(it);
-				}
-			}
+			
 			if(!get_bit(quest_rules,qr_AUTOCOMBO_ANY_LAYER))
 			{
 				if(layer > 2) break;
@@ -9511,27 +9495,7 @@ bool HeroClass::animate(int32_t)
 		int32_t ind=0;
 		
 		newcombo const& cmb = combobuf[tmpscr->ffcs[i].getData()];
-		int32_t id = (176*7)+int32_t(i);
-		auto it = slopes.find(id);
-		if (cmb.type == cSLOPE && !(tmpscr->ffcs[i].flags&ffCHANGER))
-		{
-			if (it == slopes.end())
-			{
-				slopes.try_emplace(id, cmb, tmpscr->ffcs[i].x, tmpscr->ffcs[i].y, id);
-			}
-			else
-			{
-				slopedata& s = (*it).second;
-				s.updateslope(cmb, tmpscr->ffcs[i].x, tmpscr->ffcs[i].y);
-			}
-		}
-		else
-		{
-			if (it != slopes.end())
-			{
-				slopes.erase(it);
-			}
-		}
+		
 		if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
 		{
 			if(cmb.type==cAWARPA)
@@ -9580,7 +9544,7 @@ bool HeroClass::animate(int32_t)
 	{
 		if (slide_slope(this, dx, dy, slopeid))
 		{
-			onplatid = 2;
+			onplatid = 5;
 			if (dx || dy) push_move(dx, dy);
 		}
 	}
@@ -9591,9 +9555,9 @@ bool HeroClass::animate(int32_t)
 	{
 		if (check_slope(this, true) && !toogam)
 		{
-			slopedata s = get_slope(this, true);
+			slope_info const& s = get_slope(this, true).get_info();
 			bool staircheck = false;
-			if (s.slope != slopeid && slopeid != 0) staircheck = true;
+			if (s.slope() != slopeid && slopeid) staircheck = true;
 			if (onplatform) staircheck = true;
 			slope_push_int(s, this, dx, dy, staircheck, platformfell2);
 			
@@ -9601,8 +9565,10 @@ bool HeroClass::animate(int32_t)
 			{
 				int32_t pushret = push_move(dx,dy);
 				onplatform = (on_sideview_solid_oldpos(x, y,old_x,old_y, false, 1) && !Up());
-				if (s.slope != slopeid && slopeid != 0) staircheck = true;
+				if (s.slope() != slopeid && slopeid) staircheck = true;
 				if (onplatform) staircheck = true;
+				if(sideview_mode() && slopeid)
+					onplatid = 5;
 				if (pushret == 1)
 				{
 					dx = -1;

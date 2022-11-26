@@ -41,7 +41,7 @@ public:
 	
 	void setData(word newdata);
 	void incData(int32_t inc);
-	word getData() const {return data;}
+	word const& getData() const {return data;}
 	
 	virtual bool setSolid(bool set);
 	virtual void updateSolid();

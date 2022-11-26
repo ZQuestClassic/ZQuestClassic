@@ -5,20 +5,11 @@
 #include "base/zc_alleg.h"
 
 class solid_object;
-struct slopedata;
 
 bool collide_object(solid_object const* obj);
 bool collide_object(int32_t tx, int32_t ty, int32_t tw, int32_t th, solid_object const* ign = nullptr);
-void put_ffcwalkflags(BITMAP *dest, int32_t x, int32_t y);
+void draw_solid_objects(BITMAP *dest, int32_t x, int32_t y, int32_t col);
 void setCurObject(solid_object* obj);
-int32_t check_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th, bool fallthrough = false);
-int32_t check_new_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th, int32_t otx, int32_t oty, bool fallthrough = false);
-slopedata const& get_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th);
-slopedata const& get_new_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th, int32_t otx, int32_t oty);
-int32_t check_slope(solid_object* o, bool onlyNew = false);
-slopedata const& get_slope(solid_object* o, bool onlyNew = false);
-bool slide_slope(solid_object* obj, zfix& dx, zfix& dy, int32_t& ID);
-void slope_push_int(slopedata const& s, solid_object* obj, zfix& dx, zfix& dy, bool onplatform = false, bool fallthrough = false);
 
 class solid_object
 {
@@ -44,7 +35,7 @@ public:
 	virtual bool collide(solid_object const* other) const;
 	virtual bool collide(int32_t tx, int32_t ty, int32_t tw, int32_t th) const;
 	
-	void putwalkflags(BITMAP *dest, int32_t tx, int32_t ty);
+	void draw(BITMAP *dest, int32_t tx, int32_t ty, int32_t col);
 	void solid_update(bool push = true);
 	virtual void solid_push(solid_object* pusher);
 	//Overload to do damage to Hero on pushing them

@@ -17818,34 +17818,20 @@ void set_register(const int32_t arg, const int32_t value)
     {
         int32_t pos = (ri->d[rINDEX])/10000;
         int32_t val = (value/10000); //type
-	if ( ((unsigned) pos) > 175 )
-	{
-		Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboT[]\n", pos);
-	}
-	else if ( ((unsigned) val) >= 256 )
-	{
-		Z_scripterrlog("Invalid Flag ID %d used to write to Screen->ComboT[]\n", val);
-	}
+		if ( ((unsigned) pos) > 175 )
+		{
+			Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboT[]\n", pos);
+		}
+		else if ( ((unsigned) val) >= 256 )
+		{
+			Z_scripterrlog("Invalid Flag ID %d used to write to Screen->ComboT[]\n", val);
+		}
         else
         {
-            // Preprocess each instance of the combo on the screen
-            for(int32_t i = 0; i < 176; i++)
-            {
-                if(tmpscr->data[i] == tmpscr->data[pos])
-                {
-                    screen_combo_modify_preroutine(tmpscr,i);
-                }
-            }
-            
-            combobuf[tmpscr->data[pos]].type=val;
-            
-            for(int32_t i = 0; i < 176; i++)
-            {
-                if(tmpscr->data[i] == tmpscr->data[pos])
-                {
-                    screen_combo_modify_postroutine(tmpscr,i);
-                }
-            }
+			auto cid = tmpscr->data[pos];
+            screen_combo_modify_pre(cid);
+            combobuf[cid].type=val;
+            screen_combo_modify_post(cid);
         }
     }
     break;
@@ -18091,25 +18077,9 @@ void set_register(const int32_t arg, const int32_t value)
 			}
 				
 			int32_t cdata = TheMaps[scr].data[pos];
-			
-			// Preprocess the screen's combos in case the combo changed is present on the screen. -L
-			for(int32_t i = 0; i < 176; i++)
-			{
-				if(tmpscr->data[i] == cdata)
-				{
-					screen_combo_modify_preroutine(tmpscr,i);
-				}
-			}
-			
+			screen_combo_modify_pre(cdata);
 			combobuf[cdata].type=value/10000;
-			
-			for(int32_t i = 0; i < 176; i++)
-			{
-				if(tmpscr->data[i] == cdata)
-				{
-					screen_combo_modify_postroutine(tmpscr,i);
-				}
-			}
+			screen_combo_modify_post(cdata);
 		}
 		break;
 		
@@ -19842,24 +19812,10 @@ void set_register(const int32_t arg, const int32_t value)
 				}
 				else
 				{
-					// Preprocess each instance of the combo on the screen
-					for(int32_t i = 0; i < 176; i++)
-					{
-						if(m->data[i] == m->data[pos])
-						{
-							screen_combo_modify_preroutine(m,i);
-						}
-					}
-					
-					combobuf[m->data[pos]].type=val;
-					
-					for(int32_t i = 0; i < 176; i++)
-					{
-						if(m->data[i] == m->data[pos])
-						{
-							screen_combo_modify_postroutine(m,i);
-						}
-					}
+					auto cid = tmpscr->data[pos];
+					screen_combo_modify_pre(cid);
+					combobuf[cid].type=val;
+					screen_combo_modify_post(cid);
 				}
 			}
 			else
@@ -20874,7 +20830,20 @@ void set_register(const int32_t arg, const int32_t value)
 			}
 			break;
 		}
-		case COMBODTYPE:	SET_COMBO_VAR_BYTE(type, "Type"); break;						//char
+		case COMBODTYPE:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->Type: %d\n", (ri->combosref*10000));
+			}
+			else
+			{
+				screen_combo_modify_pre(ri->combosref);
+				combobuf[ri->combosref].type = vbound((value / 10000),0,255);
+				screen_combo_modify_post(ri->combosref);
+			}
+			break;
+		}
 		case COMBODCSET:
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )

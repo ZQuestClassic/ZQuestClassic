@@ -47,6 +47,7 @@
 #include "base/util.h"
 #include "zq_files.h"
 #include "dialog/alert.h"
+#include "slopes.h"
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
@@ -1224,18 +1225,8 @@ void zmap::put_walkflags_layered(BITMAP *dest,int32_t x,int32_t y,int32_t pos,in
 	
 	if(c.type == cSLOPE)
 	{
-		slopedata s(c, x, y);
-		line(dest, s.x1, s.y1, s.x2, s.y2, vc(12));
-		if(s.slope > 0)
-		{
-			line(dest, s.x1, s.y1+1, s.x2-1, s.y2, vc(12));
-			line(dest, s.x1+1, s.y1, s.x2, s.y2-1, vc(12));
-		}
-		else if(s.slope < 0)
-		{
-			line(dest, s.x1, s.y1-1, s.x2-1, s.y2, vc(12));
-			line(dest, s.x1+1, s.y1, s.x2, s.y2+1, vc(12));
-		}
+		slope_info s(c, x, y);
+		s.draw(dest, 0, 0, vc(13));
 	}
 }
 
@@ -1365,18 +1356,8 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int32_t x,int32_t y,int32
 	
 	if(c.type == cSLOPE)
 	{
-		slopedata s(c, x, y);
-		line(dest, s.x1, s.y1, s.x2, s.y2, vc(12));
-		if(s.slope > 0)
-		{
-			line(dest, s.x1, s.y1+1, s.x2-1, s.y2, vc(12));
-			line(dest, s.x1+1, s.y1, s.x2, s.y2-1, vc(12));
-		}
-		else if(s.slope < 0)
-		{
-			line(dest, s.x1, s.y1-1, s.x2-1, s.y2, vc(12));
-			line(dest, s.x1+1, s.y1, s.x2, s.y2+1, vc(12));
-		}
+		slope_info s(c, x, y);
+		s.draw(dest, 0, 0, vc(13));
 	}
 }
 
@@ -1437,21 +1418,12 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t layer)
 	
 	if(c.type == cSLOPE)
 	{
-		slopedata s(c, 0, 0);
+		slope_info s(c, 0, 0);
+		zfix const& slope = s.slope();
 		
 		BITMAP* sub = create_bitmap_ex(8,16,16);
 		clear_bitmap(sub);
-		line(sub, s.x1, s.y1, s.x2, s.y2, vc(12));
-		if(s.slope > 0)
-		{
-			line(sub, s.x1, s.y1+1, s.x2-1, s.y2, vc(12));
-			line(sub, s.x1+1, s.y1, s.x2, s.y2-1, vc(12));
-		}
-		else if(s.slope < 0)
-		{
-			line(sub, s.x1, s.y1-1, s.x2-1, s.y2, vc(12));
-			line(sub, s.x1+1, s.y1, s.x2, s.y2+1, vc(12));
-		}
+		s.draw(sub, 0, 0, vc(13));
 		masked_blit(sub, dest, 0, 0, x, y, 16, 16);
 		destroy_bitmap(sub);
 	}
@@ -3145,18 +3117,8 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 					
 					if(cmb.type == cSLOPE)
 					{
-						slopedata s(cmb, tx, ty);
-						line(dest, s.x1, s.y1, s.x2, s.y2, vc(12));
-						if(s.slope > 0)
-						{
-							line(dest, s.x1, s.y1+1, s.x2-1, s.y2, vc(12));
-							line(dest, s.x1+1, s.y1, s.x2, s.y2-1, vc(12));
-						}
-						else if(s.slope < 0)
-						{
-							line(dest, s.x1, s.y1-1, s.x2-1, s.y2, vc(12));
-							line(dest, s.x1+1, s.y1, s.x2, s.y2+1, vc(12));
-						}
+						slope_info s(cmb, tx, ty);
+						s.draw(dest, 0, 0, vc(13));
 					}
 				}
 			}

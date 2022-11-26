@@ -21,6 +21,7 @@ src/zc/cheats.cpp
 src/zc/replay.cpp
 src/user_object.cpp
 src/ffc.cpp
+src/slopes.cpp
 
 ## End of Zelda Core module
 )

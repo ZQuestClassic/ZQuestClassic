@@ -423,7 +423,7 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 				if (layer) 
 				{
 					
-					screen_combo_modify_preroutine(tmpscr,scombo);
+					//screen_combo_modify_preroutine(tmpscr,scombo);
 					screen_combo_modify_preroutine(FFCore.tempScreens[layer],scombo);
 					
 					//undercombo or next?
@@ -438,7 +438,7 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 					
 					screen_combo_modify_postroutine(FFCore.tempScreens[layer],scombo);
 					//screen_combo_modify_postroutine(FFCore.tempScreens[layer],cid);
-					screen_combo_modify_postroutine(tmpscr,scombo);
+					//screen_combo_modify_postroutine(tmpscr,scombo);
 				}
 				else
 				{

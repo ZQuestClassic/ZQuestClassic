@@ -25,6 +25,7 @@
 #include "zscriptversion.h"
 #include "particles.h"
 #include "base/zc_math.h"
+#include "slopes.h"
 extern particle_list particles;
 
 extern FFScript FFCore;
@@ -21303,6 +21304,35 @@ void load_default_enemies()
 	activate_fireball_statues();
 }
 
+void update_slope_combopos(int32_t lyr, int32_t pos)
+{
+	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return;
+	mapscr* s = FFCore.tempScreens[lyr];
+	newcombo const& cmb = combobuf[s->data[pos]];
+	
+	auto id = (176*lyr)+pos;
+	auto it = slopes.find(id);
+	
+	bool wasSlope = it!=slopes.end();
+	bool isSlope = cmb.type == cSLOPE;
+	
+	if(isSlope && !wasSlope)
+	{
+		slopes.try_emplace(id, &(s->data[pos]), nullptr, id, pos);
+	}
+	else if(wasSlope && !isSlope)
+	{
+		slopes.erase(it);
+	}
+}
+void update_slope_comboposes()
+{
+	for(auto lyr = 0; lyr < 7; ++lyr)
+	{
+		for(auto pos = 0; pos < 176; ++pos)
+			update_slope_combopos(lyr,pos);
+	}
+}
 
 // Everything that must be done before we change a screen's combo to another combo, or a combo's type to another type.
 // There's 2 routines because it's unclear if combobuf or tmpscr->data gets modified. -L
@@ -21322,7 +21352,6 @@ void screen_combo_modify_postroutine(mapscr *s, int32_t pos)
 		// Awaken spinning tile
 		awaken_spinning_tile(s,pos);
 	}
-	/* Shouldn't be needed anymore?
 	int32_t lyr = -1;
 	if(s == tmpscr) lyr = 0;
 	else for(size_t q = 0; q < 6; ++q)
@@ -21334,9 +21363,61 @@ void screen_combo_modify_postroutine(mapscr *s, int32_t pos)
 		}
 	}
 	if(lyr > -1)
+		update_slope_combopos(lyr,pos);
+}
+
+void screen_ffc_modify_postroutine(word index)
+{
+	ffcdata& ff = tmpscr->ffcs[index];
+	newcombo const& cmb = combobuf[ff.getData()];
+	
+	auto id = (176*7)+int32_t(index);
+	auto it = slopes.find(id);
+	
+	bool wasSlope = it!=slopes.end();
+	bool isSlope = cmb.type == cSLOPE;
+	if(isSlope && !wasSlope)
 	{
-		FFCore.reset_combo_script(lyr, pos);
-	} */
+		slopes.try_emplace(id, nullptr, &ff, id);
+	}
+	else if(wasSlope && !isSlope)
+	{
+		slopes.erase(it);
+	}
+}
+
+void screen_combo_modify_pre(int32_t cid)
+{
+	for(auto lyr = 0; lyr < 7; ++lyr)
+	{
+		mapscr* t = FFCore.tempScreens[lyr];
+		for(int32_t i = 0; i < 176; i++)
+		{
+			if(t->data[i] == cid)
+			{
+				screen_combo_modify_preroutine(t,i);
+			}
+		}
+	}
+}
+void screen_combo_modify_post(int32_t cid)
+{
+	for(auto lyr = 0; lyr < 7; ++lyr)
+	{
+		mapscr* t = FFCore.tempScreens[lyr];
+		for(int32_t i = 0; i < 176; i++)
+		{
+			if(t->data[i] == cid)
+			{
+				screen_combo_modify_postroutine(t,i);
+			}
+		}
+	}
+	for(word ind = 0; ind < MAXFFCS; ++ind)
+	{
+		if(tmpscr->ffcs[ind].getData() == cid)
+			screen_ffc_modify_postroutine(ind);
+	}
 }
 
 void awaken_spinning_tile(mapscr *s, int32_t pos)

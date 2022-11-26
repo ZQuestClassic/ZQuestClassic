@@ -44,8 +44,13 @@ int32_t getWeaponID(weapon *w);
 void awaken_spinning_tile(mapscr *s, int32_t pos);
 
 // Used to remove/add fireball shooter enemies
+void update_slope_comboposes();
+void update_slope_combopos(int32_t lyr, int32_t pos);
 void screen_combo_modify_preroutine(mapscr *s, int32_t pos);
 void screen_combo_modify_postroutine(mapscr *s, int32_t pos);
+void screen_ffc_modify_postroutine(word index);
+void screen_combo_modify_pre(int32_t cid);
+void screen_combo_modify_post(int32_t cid);
 
 // Find the IDs of enemies spawned by combos and flags. Called once on loading a quest.
 void identifyCFEnemies();

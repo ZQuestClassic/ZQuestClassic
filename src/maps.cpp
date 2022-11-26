@@ -37,6 +37,7 @@ using std::set;
 #include "drawing.h"
 #include "combos.h"
 #include "replay.h"
+#include "slopes.h"
 extern word combo_doscript[176];
 extern refInfo screenScriptData;
 extern FFScript FFCore;
@@ -3410,7 +3411,11 @@ void do_walkflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t temps
 			}
 		}
 		
-		if (tempscreen == 2) put_ffcwalkflags(dest, -x, -y+playing_field_offset);
+		if (tempscreen == 2)
+		{
+			draw_solid_objects(dest, -x, -y+playing_field_offset,makecol(255,85,85));
+			draw_slopes(dest,-x,-y+playing_field_offset,makecol(255,85,255));
+		}
 	}
 }
 
@@ -4568,8 +4573,6 @@ void openshutters()
 	sfx(WAV_DOOR,128);
 }
 
-extern std::map<int32_t, slopedata> slopes;
-
 void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay=false)
 {
 	if (tmp == 0 && replay_is_active())
@@ -4910,7 +4913,8 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		}
 	}
 	
-	
+	if(tmp == 0) //Reload slopes
+		update_slope_comboposes();
 	for(int32_t j=-1; j<6; ++j)  // j == -1 denotes the current screen
 	{
 		if(j<0 || ((tmpscr[tmp].layermap[j]>0)&&(ZCMaps[tmpscr[tmp].layermap[j]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[tmpscr[tmp].layermap[j]-1].tileHeight==ZCMaps[currmap].tileHeight)))

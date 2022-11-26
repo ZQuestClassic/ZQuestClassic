@@ -21,6 +21,7 @@ src/init.cpp
 src/zinfo.cpp
 src/zconfig.cpp
 src/ffc.cpp
+src/slopes.cpp
 
 ## End of ZQuest Core module
 )

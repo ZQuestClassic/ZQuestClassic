@@ -6,6 +6,7 @@
 #include "maps.h"
 extern newcombo *combobuf;
 extern mapscr tmpscr[2];
+void screen_ffc_modify_postroutine(word index);
 #endif
 
 ffcdata::ffcdata() : solid_object(), parent(nullptr), mapscr_index(0)
@@ -142,6 +143,10 @@ void ffcdata::setData(word newdata)
 	data = newdata;
 	if(parent)
 		parent->update_ffc_data(mapscr_index, data!=0);
+#if IS_PLAYER
+	if(parent == tmpscr)
+		screen_ffc_modify_postroutine(mapscr_index);
+#endif
 }
 void ffcdata::incData(int32_t inc)
 {

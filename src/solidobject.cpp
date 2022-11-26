@@ -3,6 +3,7 @@
 #include "sprite.h"
 #include "hero.h"
 #include "base/zc_math.h"
+#include "slopes.h"
 
 #ifdef IS_PLAYER
 extern sprite_list guys;
@@ -12,7 +13,6 @@ extern HeroClass Hero;
 using std::vector;
 
 vector<solid_object*> solid_objects;
-std::map<int32_t, slopedata> slopes;
 
 bool remove_object(solid_object* obj)
 {
@@ -31,27 +31,10 @@ bool remove_object(solid_object* obj)
     return ret;
 }
 
-void put_ffcwalkflags(BITMAP *dest, int32_t x, int32_t y)
+void draw_solid_objects(BITMAP *dest, int32_t x, int32_t y, int32_t col)
 {
 	for(auto it = solid_objects.begin(); it != solid_objects.end(); ++it)
-	{
-		(*it)->putwalkflags(dest, x, y);
-	}
-	for(auto& p : slopes)
-	{
-		slopedata& s = p.second;
-		line(dest, x+s.x1, y+s.y1, x+s.x2, y+s.y2, makecol(255,85,85));
-		if(s.slope > 0)
-		{
-			line(dest, x+s.x1, y+s.y1+1, x+s.x2-1, y+s.y2, makecol(255,85,85));
-			line(dest, x+s.x1+1, y+s.y1, x+s.x2, y+s.y2-1, makecol(255,85,85));
-		}
-		else if(s.slope < 0)
-		{
-			line(dest, x+s.x1, y+s.y1-1, x+s.x2-1, y+s.y2, makecol(255,85,85));
-			line(dest, x+s.x1+1, y+s.y1, x+s.x2, y+s.y2+1, makecol(255,85,85));
-		}
-	}
+		(*it)->draw(dest, x, y, col);
 }
 
 static solid_object* curobject = NULL;
@@ -86,284 +69,6 @@ bool collide_object(int32_t tx, int32_t ty, int32_t tw, int32_t th, solid_object
 			return true;
 	}
 	return false;
-}
-
-int32_t check_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th, bool fallthrough)
-{
-	for (auto const& p : slopes)
-	{
-		slopedata const& s = p.second;
-		if (lineBoxCollision(s.x1, s.y1, s.x2, s.y2, tx, ty, tw, th))
-		{
-			zfix cx = tx + tw/2 - 1;
-			zfix cy = ty + th/2 - 1;
-			double lineangle = atan2(double(s.y2-s.y1),double(s.x2-s.x1));
-			double val = comparePointLine(cx, cy, s.x1, s.y1, s.x2, s.y2);
-			if (val < 0)
-			{
-				lineangle -= PI/2;
-			}
-			else
-			{
-				lineangle += PI/2;
-			}
-			if (zc::math::Sin(lineangle) < 0 && (s.ignoretop || (s.falldown && fallthrough))) continue;
-			if (zc::math::Sin(lineangle) > 0 && 
-				(s.ignorebottom || s.stairs)) continue;
-			if (zc::math::Cos(lineangle) < 0 && s.ignoreleft) continue;
-			if (zc::math::Cos(lineangle) > 0 && s.ignoreright) continue;
-			int32_t ret = sign(zc::math::Sin(lineangle));
-			return ret?ret:1;
-		}
-	}
-	return 0;
-}
-
-int32_t check_new_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th, int32_t otx, int32_t oty, bool fallthrough)
-{
-	for(auto const& p : slopes)
-	{
-		slopedata const& s = p.second;
-		if (lineBoxCollision(s.x1, s.y1, s.x2, s.y2, tx, ty, tw, th) && !lineBoxCollision(s.ox1, s.oy1, s.ox2, s.oy2, otx, oty, tw, th))
-		{
-			zfix cx = tx + tw/2 - 1;
-			zfix cy = ty + th/2 - 1;
-			double lineangle = atan2(double(s.y2-s.y1),double(s.x2-s.x1));
-			double val = comparePointLine(cx, cy, s.x1, s.y1, s.x2, s.y2);
-			if (val < 0)
-			{
-				lineangle -= PI/2;
-			}
-			else
-			{
-				lineangle += PI/2;
-			}
-			if (zc::math::Sin(lineangle) < 0 && (s.ignoretop || (s.falldown && fallthrough))) continue;
-			if (zc::math::Sin(lineangle) > 0 && 
-				(s.ignorebottom || s.stairs)) continue;
-			if (zc::math::Cos(lineangle) < 0 && s.ignoreleft) continue;
-			if (zc::math::Cos(lineangle) > 0 && s.ignoreright) continue;
-			int32_t ret = sign(zc::math::Sin(lineangle));
-			return ret?ret:1;
-		}
-	}
-	return 0;
-}
-
-slopedata const& get_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th)
-{
-	for (auto const& p : slopes)
-	{
-		slopedata const& s = p.second;
-		if (lineBoxCollision(s.x1, s.y1, s.x2, s.y2, tx, ty, tw, th)) 
-		{
-			zfix cx = tx + tw/2 - 1;
-			zfix cy = ty + th/2 - 1;
-			double lineangle = atan2(double(s.y2-s.y1),double(s.x2-s.x1));
-			double val = comparePointLine(cx, cy, s.x1, s.y1, s.x2, s.y2);
-			if (val < 0)
-			{
-				lineangle -= PI/2;
-			}
-			else
-			{
-				lineangle += PI/2;
-			}
-			if (zc::math::Sin(lineangle) < 0 && s.ignoretop) continue;
-			if (zc::math::Sin(lineangle) > 0 && 
-				(s.ignorebottom || s.stairs)) continue;
-			if (zc::math::Cos(lineangle) < 0 && s.ignoreleft) continue;
-			if (zc::math::Cos(lineangle) > 0 && s.ignoreright) continue;
-			return s;
-		}
-	}
-	static slopedata s;
-	return s;
-}
-
-slopedata const& get_new_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th, int32_t otx, int32_t oty)
-{
-	for(auto const& p : slopes)
-	{
-		slopedata const& s = p.second;
-		if (lineBoxCollision(s.x1, s.y1, s.x2, s.y2, tx, ty, tw, th)
-			&& !lineBoxCollision(s.ox1, s.oy1, s.ox2, s.oy2, otx, oty, tw, th)) 
-		{
-			zfix cx = tx + tw/2 - 1;
-			zfix cy = ty + th/2 - 1;
-			double lineangle = atan2(double(s.y2-s.y1),double(s.x2-s.x1));
-			double val = comparePointLine(cx, cy, s.x1, s.y1, s.x2, s.y2);
-			if (val < 0)
-			{
-				lineangle -= PI/2;
-			}
-			else
-			{
-				lineangle += PI/2;
-			}
-			if (zc::math::Sin(lineangle) < 0 && s.ignoretop) continue;
-			if (zc::math::Sin(lineangle) > 0 && 
-				(s.ignorebottom || s.stairs)) continue;
-			if (zc::math::Cos(lineangle) < 0 && s.ignoreleft) continue;
-			if (zc::math::Cos(lineangle) > 0 && s.ignoreright) continue;
-			return s;
-		}
-	}
-	static slopedata s;
-	return s;
-}
-
-int32_t check_slope(solid_object* o, bool onlyNew)
-{
-	if (!onlyNew) return check_slope(o->x + o->hxofs + o->sxofs,
-	               o->y + o->hyofs + o->syofs,
-	               o->hxsz + o->sxsz_ofs,
-	               o->hysz + o->sysz_ofs);
-	else return check_new_slope(o->x + o->hxofs + o->sxofs,
-	               o->y + o->hyofs + o->syofs,
-	               o->hxsz + o->sxsz_ofs,
-	               o->hysz + o->sysz_ofs,
-		       o->old_x + o->hxofs + o->sxofs,
-	               o->old_y + o->hyofs + o->syofs);
-}
-
-slopedata const& get_slope(solid_object* o, bool onlyNew)
-{
-	if (!onlyNew) return get_slope(o->x + o->hxofs + o->sxofs,
-	               o->y + o->hyofs + o->syofs,
-	               o->hxsz + o->sxsz_ofs,
-	               o->hysz + o->sysz_ofs);
-	else return get_new_slope(o->x + o->hxofs + o->sxofs,
-	               o->y + o->hyofs + o->syofs,
-	               o->hxsz + o->sxsz_ofs,
-	               o->hysz + o->sysz_ofs,
-		       o->old_x + o->hxofs + o->sxofs,
-	               o->old_y + o->hyofs + o->syofs);
-}
-
-bool slide_slope(solid_object* obj, zfix& dx, zfix& dy, int32_t& ID)
-{
-	if (!obj->sideview_mode()) return false;
-	zfix tx = obj->x+obj->hxofs+obj->sxofs, ty = obj->y+obj->hyofs+obj->syofs,
-		tw = obj->hxsz+obj->sxsz_ofs, th = obj->hysz+obj->sysz_ofs;
-		
-	dx = dy = 0;
-	zfix otx = tx, oty = ty;
-	
-	for (auto const& p : slopes)
-	{
-		slopedata const& s = p.second;
-		if (s.stairs && ID != 0 && s.slope != ID) continue;
-		if (lineBoxCollision(s.x1, s.y1, s.x2, s.y2, tx, ty+1, tw, th))
-		{
-			zfix cx = tx + tw/2 - 1;
-			zfix cy = ty + th/2 - 1;
-			double lineangle = atan2(double(s.y2-s.y1),double(s.x2-s.x1));
-			double val = comparePointLine(cx, cy, s.x1, s.y1, s.x2, s.y2);
-			if (val < 0)
-			{
-				lineangle -= PI/2;
-			}
-			else
-			{
-				lineangle += PI/2;
-			}
-			if (sign(zc::math::Sin(lineangle)) <= 0)
-			{
-				dx += (s.x1 - s.ox1);
-				dy += (s.y1 - s.oy1);
-				ID = s.slope;
-				if (s.slipperiness)
-				{
-					int32_t xdir = sign(zc::math::Cos(lineangle));
-					if (xdir)
-					{
-						ty += s.slipperiness;
-						int32_t my = zc_min(s.y1, s.y2);
-						if (int32_t(oty + th) < my) return false;
-						dx += (s.getX(ty) - s.getX(oty));
-						dy += ty - oty;
-					}
-				}
-				return true;
-			}
-			return false;
-		}
-	}
-	return false;
-}
-
-void slope_push_int(slopedata const& s, solid_object* obj, zfix& dx, zfix& dy, bool onplatform, bool fallthrough)
-{
-	bool disabledY = (dy == -1);
-	bool disabledX = (dx == -1);
-	zfix rx = obj->x+obj->hxofs+obj->sxofs, ry = obj->y+obj->hyofs+obj->syofs,
-	rw = obj->hxsz+obj->sxsz_ofs, rh = obj->hysz+obj->sysz_ofs;
-	zfix orx = rx;
-	zfix ory = ry;
-	zfix cx = rx + rw/2 - 1;
-	zfix cy = ry + rh/2 - 1;
-	double lineangle = atan2(double(s.y2-s.y1),double(s.x2-s.x1));
-	double val = comparePointLine(cx, cy, s.x1, s.y1, s.x2, s.y2);
-	if (val < 0)
-	{
-		lineangle -= PI/2;
-	}
-	else
-	{
-		lineangle += PI/2;
-	}
-	if (zc::math::Sin(lineangle) < 0 &&
-		(s.ignoretop || (s.stairs && onplatform) || (s.falldown && fallthrough))) return;
-	if (zc::math::Sin(lineangle) > 0 && 
-		(s.ignorebottom || s.stairs)) return;
-	if (zc::math::Cos(lineangle) < 0 && s.ignoreleft) return;
-	if (zc::math::Cos(lineangle) > 0 && s.ignoreright) return;
-	if (obj->sideview_mode() && zc::math::Sin(lineangle) < 0)
-	{
-		
-		while(lineBoxCollision(s.x1, s.y1, s.x2, s.y2, rx, ry, rw, rh))
-		{
-			onplatform = true;
-			--ry;
-		}
-	}
-	else
-	{
-		zfix mx = zc::math::Cos(lineangle);
-		zfix my = zc::math::Sin(lineangle);
-		if (disabledX && !my) return;
-		if (disabledY && !mx) return;
-		if (mx && my)
-		{
-			while (lineBoxCollision(s.x1, s.y1, s.x2, s.y2, rx, ry, rw, rh))
-			{
-				if (!disabledX) rx += zc::math::Cos(lineangle);
-				if (!disabledY) ry += zc::math::Sin(lineangle);
-			}
-		}
-		else
-		{
-			if (s.y1 == s.y2 && s.x1 != s.x2)
-			{
-				if (!my || disabledY) return;
-				while (lineBoxCollision(s.x1, s.y1, s.x2, s.y2, rx, ry, rw, rh))
-				{
-					ry += zc::math::Sin(lineangle);
-				}
-			}
-			if (s.x1 == s.x2 && s.y1 != s.y2)
-			{
-				if (!mx || disabledX) return;
-				while (lineBoxCollision(s.x1, s.y1, s.x2, s.y2, rx, ry, rw, rh))
-				{
-					rx += zc::math::Cos(lineangle);
-				}
-			}
-		}
-	}
-	dx += (rx - orx);
-	dy += (ry - ory);
 }
 
 solid_object::solid_object() : solid(false), in_solid_arr(false),
@@ -464,13 +169,13 @@ bool solid_object::collide(int32_t tx, int32_t ty, int32_t tw, int32_t th) const
 	       tx<rx+rw && ty<ry+rh;
 }
 
-void solid_object::putwalkflags(BITMAP *dest, int32_t tx, int32_t ty)
+void solid_object::draw(BITMAP *dest, int32_t tx, int32_t ty, int32_t col)
 {
 	if(ignore_solid_temp) return;
 	tx += x.getFloor() + hxofs + sxofs;
 	ty += y.getFloor() + hyofs + syofs;
 	rectfill(dest, tx, ty, tx + hxsz-1 + sxsz_ofs,
-	         ty + hysz-1 + sysz_ofs, makecol(255,85,85));
+	         ty + hysz-1 + sysz_ofs, col);
 }
 
 void solid_object::solid_update(bool push)
