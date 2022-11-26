@@ -1210,7 +1210,8 @@ void replay_stop()
     if (mode == ReplayMode::Update)
     {
         replay_save();
-        exit(0);
+        if (exit_when_done)
+            exit(0);
     }
 
     for (int i = 0; i < framebuf_history.size(); i++)
