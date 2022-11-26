@@ -66,6 +66,11 @@ using std::pair;
 #define EPSILON 0.01 // Define your own tolerance
 #define FLOAT_EQ(x,v) (((v - EPSILON) < x) && (x <( v + EPSILON)))
 
+#define COLOR_SOLID  vc(4)
+#define COLOR_SLOPE  vc(13)
+#define COLOR_LADDER vc(6)
+//#define COLOR_EFFECT vc(10)
+
 //const char zqsheader[30]="Zelda Classic String Table\n\x01";
 extern char msgbuf[MSG_NEW_SIZE*8];
 
@@ -1102,6 +1107,21 @@ int32_t zmap::warpindex(int32_t combo)
     
 }
 
+void draw_ladder(BITMAP* dest, int32_t x, int32_t y, int32_t c, bool top = false)
+{
+	if(top)
+		line(dest,x,y,x+15,y,c);
+	rectfill(dest,x,y,x+3,y+15,c);
+	rectfill(dest,x+12,y,x+15,y+15,c);
+	rectfill(dest,x+4,y+2,x+11,y+5,c);
+	rectfill(dest,x+4,y+10,x+11,y+13,c);
+}
+
+void draw_platform(BITMAP* dest, int32_t x, int32_t y, int32_t c)
+{
+	line(dest,x,y,x+15,y,c);
+}
+
 void zmap::put_walkflags_layered(BITMAP *dest,int32_t x,int32_t y,int32_t pos,int32_t layer)
 {
 	int32_t cx = COMBOX(pos);
@@ -1154,7 +1174,7 @@ void zmap::put_walkflags_layered(BITMAP *dest,int32_t x,int32_t y,int32_t pos,in
 			}
 			else
 			{
-				int32_t color = vc(12);
+				int32_t color = COLOR_SOLID;
 				
 				if(isstepable(MAPCOMBO(cx,cy)) && (!get_bit(quest_rules,  qr_NO_SOLID_SWIM) || (combo_class_buf[combobuf[MAPCOMBO(cx,cy)].type].water==0 && combo_class_buf[c.type].water==0)))
 					color=vc(6);
@@ -1191,11 +1211,14 @@ void zmap::put_walkflags_layered(BITMAP *dest,int32_t x,int32_t y,int32_t pos,in
 	}
 	
 	// Draw damage combos
-	bool dmg = combo_class_buf[combobuf[MAPCOMBO2(-1,cx,cy)].type].modify_hp_amount
-	   || combo_class_buf[combobuf[MAPCOMBO2(0,cx,cy)].type].modify_hp_amount
-	   || combo_class_buf[combobuf[MAPCOMBO2(1,cx,cy)].type].modify_hp_amount;
+	newcombo const& c0 = combobuf[MAPCOMBO2(-1,cx,cy)];
+	newcombo const& c1 = combobuf[MAPCOMBO2(0,cx,cy)];
+	newcombo const& c2 = combobuf[MAPCOMBO2(1,cx,cy)];
+	bool dmg = combo_class_buf[c0.type].modify_hp_amount
+	   || combo_class_buf[c1.type].modify_hp_amount
+	   || combo_class_buf[c2.type].modify_hp_amount;
 		   
-	if (combo_class_buf[combobuf[MAPCOMBO2(1,cx,cy)].type].modify_hp_amount) bridgedetected = 0;
+	if (combo_class_buf[c2.type].modify_hp_amount) bridgedetected = 0;
 			   
 	if(dmg)
 	{
@@ -1226,7 +1249,34 @@ void zmap::put_walkflags_layered(BITMAP *dest,int32_t x,int32_t y,int32_t pos,in
 	if(c.type == cSLOPE)
 	{
 		slope_info s(c, x, y);
-		s.draw(dest, 0, 0, vc(13));
+		s.draw(dest, 0, 0, COLOR_SLOPE);
+	}
+	auto fl0 = MAPFLAG2(-1,cx,cy);
+	auto fl1 = MAPFLAG2(0,cx,cy);
+	auto fl2 = MAPFLAG2(1,cx,cy);
+	if(fl0 == mfSIDEVIEWLADDER || fl1 == mfSIDEVIEWLADDER || fl2 == mfSIDEVIEWLADDER
+		|| c0.flag == mfSIDEVIEWLADDER || c1.flag == mfSIDEVIEWLADDER || c2.flag == mfSIDEVIEWLADDER)
+	{
+		bool top = false;
+		if(cy)
+		{
+			top = true;
+			if(combobuf[MAPCOMBO2(-1,cx,cy-16)].flag == mfSIDEVIEWLADDER
+				|| combobuf[MAPCOMBO2(0,cx,cy-16)].flag == mfSIDEVIEWLADDER
+				|| combobuf[MAPCOMBO2(1,cx,cy-16)].flag == mfSIDEVIEWLADDER
+				|| MAPFLAG2(-1,cx,cy) == mfSIDEVIEWLADDER
+				|| MAPFLAG2(0,cx,cy) == mfSIDEVIEWLADDER
+				|| MAPFLAG2(1,cx,cy) == mfSIDEVIEWLADDER)
+			{
+				top = false;
+			}
+		}
+		draw_ladder(dest,x,y,COLOR_LADDER,top);
+	}
+	else if(fl0 == mfSIDEVIEWPLATFORM || fl1 == mfSIDEVIEWPLATFORM || fl2 == mfSIDEVIEWPLATFORM
+		|| c0.flag == mfSIDEVIEWPLATFORM || c1.flag == mfSIDEVIEWPLATFORM || c2.flag == mfSIDEVIEWPLATFORM)
+	{
+		draw_platform(dest,x,y,COLOR_LADDER);
 	}
 }
 
@@ -1284,7 +1334,7 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int32_t x,int32_t y,int32
 			}
 			else
 			{
-				int32_t color = vc(12);
+				int32_t color = COLOR_SOLID;
 				
 				if(isstepable(MAPCOMBO3(map, screen, -1, cx,cy)) && (!get_bit(quest_rules,  qr_NO_SOLID_SWIM) || combo_class_buf[combobuf[MAPCOMBO3(map, screen, -1, cx,cy)].type].water==0))
 					color=vc(6);
@@ -1322,11 +1372,14 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int32_t x,int32_t y,int32
 	}
 	
 	// Draw damage combos
-	bool dmg = combo_class_buf[combobuf[MAPCOMBO3(map, screen, -1,cx,cy)].type].modify_hp_amount
-	   || combo_class_buf[combobuf[MAPCOMBO3(map, screen, 0,cx,cy)].type].modify_hp_amount
-	   || combo_class_buf[combobuf[MAPCOMBO3(map, screen, 1,cx,cy)].type].modify_hp_amount;
+	newcombo const& c0 = combobuf[MAPCOMBO3(map, screen, -1,pos)];
+	newcombo const& c1 = combobuf[MAPCOMBO3(map, screen, 0,pos)];
+	newcombo const& c2 = combobuf[MAPCOMBO3(map, screen, 1,pos)];
+	bool dmg = combo_class_buf[c0.type].modify_hp_amount
+	   || combo_class_buf[c1.type].modify_hp_amount
+	   || combo_class_buf[c2.type].modify_hp_amount;
 		   
-	if (combo_class_buf[combobuf[MAPCOMBO3(map, screen, 1,cx,cy)].type].modify_hp_amount) bridgedetected = 0;
+	if (combo_class_buf[c2.type].modify_hp_amount) bridgedetected = 0;
 			   
 	if(dmg)
 	{
@@ -1357,7 +1410,34 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int32_t x,int32_t y,int32
 	if(c.type == cSLOPE)
 	{
 		slope_info s(c, x, y);
-		s.draw(dest, 0, 0, vc(13));
+		s.draw(dest, 0, 0, COLOR_SLOPE);
+	}
+	auto fl0 = MAPFLAG3(map,screen,-1,pos);
+	auto fl1 = MAPFLAG3(map,screen,0,pos);
+	auto fl2 = MAPFLAG3(map,screen,1,pos);
+	if(fl0 == mfSIDEVIEWLADDER || fl1 == mfSIDEVIEWLADDER || fl2 == mfSIDEVIEWLADDER
+		|| c0.flag == mfSIDEVIEWLADDER || c1.flag == mfSIDEVIEWLADDER || c2.flag == mfSIDEVIEWLADDER)
+	{
+		bool top = false;
+		if(cy)
+		{
+			top = true;
+			if(combobuf[MAPCOMBO3(map,screen,-1,cx,cy-16)].flag == mfSIDEVIEWLADDER
+				|| combobuf[MAPCOMBO3(map,screen,0,cx,cy-16)].flag == mfSIDEVIEWLADDER
+				|| combobuf[MAPCOMBO3(map,screen,1,cx,cy-16)].flag == mfSIDEVIEWLADDER
+				|| MAPFLAG3(map,screen,-1,cx,cy-16) == mfSIDEVIEWLADDER
+				|| MAPFLAG3(map,screen,0,cx,cy-16) == mfSIDEVIEWLADDER
+				|| MAPFLAG3(map,screen,1,cx,cy-16) == mfSIDEVIEWLADDER)
+			{
+				top = false;
+			}
+		}
+		draw_ladder(dest,x,y,COLOR_LADDER,top);
+	}
+	else if(fl0 == mfSIDEVIEWPLATFORM || fl1 == mfSIDEVIEWPLATFORM || fl2 == mfSIDEVIEWPLATFORM
+		|| c0.flag == mfSIDEVIEWPLATFORM || c1.flag == mfSIDEVIEWPLATFORM || c2.flag == mfSIDEVIEWPLATFORM)
+	{
+		draw_platform(dest,x,y,COLOR_LADDER);
 	}
 }
 
@@ -1396,7 +1476,7 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t layer)
 			}
 			else
 			{
-				int32_t color = vc(12);
+				int32_t color = COLOR_SOLID;
 				
 				if(c.type==cLADDERONLY)
 					color=vc(6);
@@ -1423,9 +1503,17 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t layer)
 		
 		BITMAP* sub = create_bitmap_ex(8,16,16);
 		clear_bitmap(sub);
-		s.draw(sub, 0, 0, vc(13));
+		s.draw(sub, 0, 0, COLOR_SLOPE);
 		masked_blit(sub, dest, 0, 0, x, y, 16, 16);
 		destroy_bitmap(sub);
+	}
+	if(c.flag == mfSIDEVIEWLADDER)
+	{
+		draw_ladder(dest,x,y,COLOR_LADDER);
+	}
+	else if(c.flag == mfSIDEVIEWPLATFORM)
+	{
+		draw_platform(dest,x,y,COLOR_LADDER);
 	}
 }
 
@@ -1491,7 +1579,7 @@ void put_combo(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t
 	  int32_t tx=((i&2)<<2)+x;
 	  int32_t ty=((i&1)<<3)+y;
 	  if((flags&cWALK) && (c.walk&(1<<i)))
-	  rectfill(dest,tx,ty,tx+7,ty+7,vc(12));
+	  rectfill(dest,tx,ty,tx+7,ty+7,COLOR_SOLID);
 	  }
 	  */
 	
@@ -2569,6 +2657,107 @@ int32_t zmap::MAPCOMBO(int32_t x,int32_t y, int32_t map, int32_t scr) //map=-1,s
     return screen1->data[combo];
 }
 
+int32_t zmap::MAPFLAG3(int32_t map, int32_t screen, int32_t layer, int32_t x,int32_t y)
+{
+	return MAPFLAG3(map, screen, layer, COMBOPOS(x,y));
+}
+
+int32_t zmap::MAPFLAG3(int32_t map, int32_t screen, int32_t layer, int32_t pos)
+{ 
+	if (map < 0 || screen < 0) return 0;
+	
+	if(pos>175 || pos < 0)
+		return 0;
+		
+	mapscr const* m = &TheMaps[(map*MAPSCRS)+screen];
+	
+	if(m->data.empty()) return 0;
+    
+	if(m->valid==0) return 0;
+	
+	int32_t mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
+	
+	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS2*MAPSCRS)) return 0;
+	
+	mapscr const* scr = ((mapid < 0 || mapid > MAXMAPS2*MAPSCRS) ? m : &TheMaps[mapid]);
+	
+	if(scr->data.empty()) return 0;
+    
+	if(scr->valid==0) return 0;
+		
+	return scr->sflag[pos];						// entire combo code
+}
+
+int32_t zmap::MAPFLAG2(int32_t lyr,int32_t x,int32_t y, int32_t map, int32_t scr)
+{
+    if(lyr<=-1) return MAPFLAG(x,y,map,scr);
+    
+    if(map<0)
+        map=currmap;
+        
+    if(scr<0)
+        scr=currscr;
+        
+    mapscr *screen1;
+    
+    if(prv_mode)
+    {
+        screen1=get_prvscr();
+    }
+    else
+    {
+        screen1=AbsoluteScr(currmap,currscr);
+    }
+    
+    int32_t layermap;
+    layermap=screen1->layermap[lyr]-1;
+    
+    if(layermap<0 || layermap >= map_count) return 0;
+    
+    mapscr *layer;
+    
+    if(prv_mode)
+        layer = &prvlayers[lyr];
+    else
+        layer = AbsoluteScr(layermap,screen1->layerscreen[lyr]);
+        
+    int32_t combo = COMBOPOS(x,y);
+    
+    if(combo>175 || combo < 0)
+        return 0;
+        
+    return layer->sflag[combo];
+}
+
+int32_t zmap::MAPFLAG(int32_t x,int32_t y, int32_t map, int32_t scr) //map=-1,scr=-1
+{
+    if(map<0)
+        map=currmap;
+        
+    if(scr<0)
+        scr=currscr;
+        
+    mapscr *screen1;
+    
+    if(prv_mode)
+    {
+        screen1=get_prvscr();
+    }
+    else
+    {
+        screen1=AbsoluteScr(currmap,currscr);
+    }
+    
+    x = vbound(x, 0, 16*16);
+    y = vbound(y, 0, 11*16);
+    int32_t combo = COMBOPOS(x,y);
+    
+    if(combo>175 || combo < 0)
+        return 0;
+        
+    return screen1->sflag[combo];
+}
+
 void zmap::draw_darkness(BITMAP* dest, BITMAP* transdest)
 {
 	mapscr *layers[7];
@@ -3112,13 +3301,13 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 					
 					if(layer->ffcs[i].flags&ffSOLID)
 					{
-						rectfill(dest, tx, ty, tx + layer->ffEffectWidth(i) - 1, ty + layer->ffEffectHeight(i) - 1, vc(12));
+						rectfill(dest, tx, ty, tx + layer->ffEffectWidth(i) - 1, ty + layer->ffEffectHeight(i) - 1, COLOR_SOLID);
 					}
 					
 					if(cmb.type == cSLOPE)
 					{
 						slope_info s(cmb, tx, ty);
-						s.draw(dest, 0, 0, vc(13));
+						s.draw(dest, 0, 0, COLOR_SLOPE);
 					}
 				}
 			}

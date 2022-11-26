@@ -3235,7 +3235,8 @@ void do_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t
     }
 }
 
-
+#define SOLID_COL makecol(178,36,36)
+//makecol(255,85,85)
 // Called by do_walkflags
 void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat,int32_t lyr)
 {
@@ -3296,7 +3297,7 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 			}
 			else
 			{
-				int32_t color = makecol(255,85,85);
+				int32_t color = SOLID_COL;
 				
 				if(isstepable(cmbdat)&& (!doladdercheck))
 					color=makecol(165,105,8);
@@ -3376,6 +3377,30 @@ void do_effectflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t tem
 	}
 }
 
+void draw_ladder_platform(BITMAP* dest, int32_t x, int32_t y, int32_t c)
+{
+	for(auto cx = 0; cx < 256; cx += 16)
+	{
+		for(auto cy = 0; cy < 176; cy += 16)
+		{
+			if(isSVLadder(cx,cy))
+			{
+				auto nx = cx+x, ny = cy+y;
+				if(cy && !isSVLadder(cx,cy-16))
+					line(dest,nx,ny,nx+15,ny,c);
+				rectfill(dest,nx,ny,nx+3,ny+15,c);
+				rectfill(dest,nx+12,ny,nx+15,ny+15,c);
+				rectfill(dest,nx+4,ny+2,nx+11,ny+5,c);
+				rectfill(dest,nx+4,ny+10,nx+11,ny+13,c);
+			}
+			else if(isSVPlatform(cx,cy))
+			{
+				line(dest,cx+x,cy+y,cx+x+15,cy+y,c);
+			}
+		}
+	}
+}
+
 // Walkflags L4 cheat
 void do_walkflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t tempscreen)
 {
@@ -3413,7 +3438,8 @@ void do_walkflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t temps
 		
 		if (tempscreen == 2)
 		{
-			draw_solid_objects(dest, -x, -y+playing_field_offset,makecol(255,85,85));
+			draw_ladder_platform(dest,-x,-y+playing_field_offset,makecol(165,105,8));
+			draw_solid_objects(dest,-x,-y+playing_field_offset,SOLID_COL);
 			draw_slopes(dest,-x,-y+playing_field_offset,makecol(255,85,255));
 		}
 	}
