@@ -846,6 +846,20 @@ static void maybe_take_snapshot()
 	save_snapshot(framebuf, RAMpal, frame_count, gfx_got_mismatch);
 }
 
+std::string replay_mode_to_string(ReplayMode mode)
+{
+	switch (mode)
+	{
+		case ReplayMode::Off: return "off";
+		case ReplayMode::Replay: return "replay";
+		case ReplayMode::Record: return "record";
+		case ReplayMode::Assert: return "assert";
+		case ReplayMode::Update: return "update";
+		case ReplayMode::ManualTakeover: return "manual_takeover";
+	}
+	return "unknown";
+}
+
 void replay_start(ReplayMode mode_, std::string filename_)
 {
     ASSERT(mode == ReplayMode::Off);

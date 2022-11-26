@@ -6673,10 +6673,23 @@ static int32_t handle_on_load_replay(ReplayMode mode)
 		return D_CLOSE;
 	}
 
-	if (jwin_alert(mode == ReplayMode::Replay ? "Replay" : "Assert",
-		"Select a replay file to play back.",
-		"You won't be able to save, and it won't effect existing saves.",
-		"You can stop the replay and take over manually any time.",
+	std::string mode_string = replay_mode_to_string(mode);
+	mode_string[0] = std::toupper(mode_string[0]);
+
+	std::string line_1 = "Select a replay file to play back.";
+	std::string line_2 = "You won't be able to save, and it won't effect existing saves.";
+	std::string line_3 = "You can stop the replay and take over manually any time.";
+	if (mode == ReplayMode::Update)
+	{
+		line_1 = "Select a replay file to update.";
+		line_2 = "WARNING: be sure to back up the zplay file";
+		line_3 = "and verify that the updated replay works as expected!";
+	}
+
+	if (jwin_alert(mode_string.c_str(),
+		line_1.c_str(),
+		line_2.c_str(),
+		line_3.c_str(),
 		"OK","Nevermind",13,27,lfont) == 1)
 	{
 		char replay_path[2048];
@@ -6702,6 +6715,11 @@ int32_t onLoadReplay()
 int32_t onLoadReplayAssert()
 {
 	return handle_on_load_replay(ReplayMode::Assert);
+}
+
+int32_t onLoadReplayUpdate()
+{
+	return handle_on_load_replay(ReplayMode::Update);
 }
 
 int32_t onSaveReplay()
@@ -6747,6 +6765,7 @@ static MENU replay_menu[] =
 	{ (char *)"Stop replay",				onStopReplayOrRecord,	  NULL,					 0,			NULL   },
 	{ (char *)"Load replay",				onLoadReplay,			  NULL,					 0,			NULL   },
 	{ (char *)"Load replay (assert)",		onLoadReplayAssert,		  NULL,					 0,			NULL   },
+	{ (char *)"Load replay (update)",		onLoadReplayUpdate,		  NULL,					 0,			NULL   },
 	{ (char *)"Save replay",				onSaveReplay,			  NULL,					 0,			NULL   },
 	
 	{  NULL,								NULL,					  NULL,					 0,			NULL   }
@@ -8918,7 +8937,7 @@ void System()
 		replay_menu[1].text = replay_get_mode() == ReplayMode::Record ?
 			(char *)"Stop recording" :
 			(char *)"Stop replaying";
-		replay_menu[4].flags = replay_get_mode() == ReplayMode::Record ? 0 : D_DISABLED;
+		replay_menu[5].flags = replay_get_mode() == ReplayMode::Record ? 0 : D_DISABLED;
 	
 		reset_snapshot_format_menu();
 		snapshot_format_menu[SnapshotFormat].flags = D_SELECTED;
