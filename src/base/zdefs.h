@@ -4717,7 +4717,6 @@ struct slopedata
 	zfix slope;
 	zfix slipperiness;
 	int32_t id;
-	bool inuse;
 	bool stairs;
 	bool falldown;
 	bool ignorebottom;

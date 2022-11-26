@@ -1252,7 +1252,6 @@ slopedata::slopedata(newcombo const& cmb, zfix const& x, zfix const& y)
 		x2 = ox2 = x + int32_t(cmb.attrishorts[2]);
 		y2 = oy2 = y + int32_t(cmb.attrishorts[3]);
 		id = -1;
-		inuse = true;
 		stairs = (cmb.usrflags&cflag1);
 		ignorebottom = (cmb.usrflags&cflag2);
 		ignoretop = (cmb.usrflags&cflag3);
@@ -1282,7 +1281,6 @@ slopedata::slopedata(newcombo const& cmb, zfix const& x, zfix const& y, int32_t 
 		x2 = ox2 = x + int32_t(cmb.attrishorts[2]);
 		y2 = oy2 = y + int32_t(cmb.attrishorts[3]);
 		id  = ID;
-		inuse = true;
 		stairs = (cmb.usrflags&cflag1);
 		ignorebottom = (cmb.usrflags&cflag2);
 		ignoretop = (cmb.usrflags&cflag3);
@@ -1315,7 +1313,6 @@ void slopedata::updateslope(newcombo const& cmb, zfix const& x, zfix const& y)
 		y1 = y + int32_t(cmb.attrishorts[1]);
 		x2 = x + int32_t(cmb.attrishorts[2]);
 		y2 = y + int32_t(cmb.attrishorts[3]);
-		inuse = true;
 		stairs = (cmb.usrflags&cflag1);
 		ignorebottom = (cmb.usrflags&cflag2);
 		ignoretop = (cmb.usrflags&cflag3);

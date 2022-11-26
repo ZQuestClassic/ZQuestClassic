@@ -1437,7 +1437,7 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t layer)
 	
 	if(c.type == cSLOPE)
 	{
-		slopedata s(c, x, y);
+		slopedata s(c, 0, 0);
 		
 		BITMAP* sub = create_bitmap_ex(8,16,16);
 		clear_bitmap(sub);
