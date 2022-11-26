@@ -4222,10 +4222,6 @@ int32_t onSaveMapPic()
 						const int32_t _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
 						
 						tmpscr2[i]=TheMaps[(tmpscr[1].layermap[i]-1)*MAPSCRS+tmpscr[1].layerscreen[i]];
-						
-						tmpscr2[i].data.resize(_mapsSize, 0);
-						tmpscr2[i].sflag.resize(_mapsSize, 0);
-						tmpscr2[i].cset.resize(_mapsSize, 0);
 					}
 				}
 				

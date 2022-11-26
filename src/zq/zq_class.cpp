@@ -567,10 +567,6 @@ void zmap::set_prvscr(int32_t map, int32_t scr)
     
     const int32_t _mapsSize = ZCMaps[map].tileWidth*ZCMaps[map].tileHeight;
     
-    prvscr.data.resize(_mapsSize, 0);
-    prvscr.sflag.resize(_mapsSize, 0);
-    prvscr.cset.resize(_mapsSize, 0);
-    
     for(int32_t i=0; i<6; i++)
     {
         if(prvscr.layermap[i]>0)
@@ -579,11 +575,6 @@ void zmap::set_prvscr(int32_t map, int32_t scr)
             if((ZCMaps[prvscr.layermap[i]-1].tileWidth==ZCMaps[map].tileWidth) && (ZCMaps[prvscr.layermap[i]-1].tileHeight==ZCMaps[map].tileHeight))
             {
                 prvlayers[i]=TheMaps[(prvscr.layermap[i]-1)*MAPSCRS+prvscr.layerscreen[i]];
-                
-                prvlayers[i].data.resize(_mapsSize, 0);
-                prvlayers[i].sflag.resize(_mapsSize, 0);
-                prvlayers[i].cset.resize(_mapsSize, 0);
-                
             }
             else
             {
@@ -1721,13 +1712,9 @@ void copy_mapscr(mapscr *dest, const mapscr *src)
         dest->secretflag[i]=src->secretflag[i];
     }
     
-    dest->data=src->data;
-    dest->sflag=src->sflag;
-    dest->cset=src->cset;
-    dest->viewX=src->viewX;
-    dest->viewY=src->viewY;
-    dest->scrWidth=src->scrWidth;
-    dest->scrHeight=src->scrHeight;
+	MEMCPY_ARR(dest->data,src->data);
+	MEMCPY_ARR(dest->sflag,src->sflag);
+	MEMCPY_ARR(dest->cset,src->cset);
     
 	word c = src->numFFC();
     for(word i=0; i<c; ++i)
@@ -2568,8 +2555,6 @@ int32_t zmap::MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos)
 		return 0;
 		
 	mapscr const* m = &TheMaps[(map*MAPSCRS)+screen];
-	
-	if(m->data.empty()) return 0;
     
 	if(m->valid==0) return 0;
 	
@@ -2578,8 +2563,6 @@ int32_t zmap::MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos)
 	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS2*MAPSCRS)) return 0;
 	
 	mapscr const* scr = ((mapid < 0 || mapid > MAXMAPS2*MAPSCRS) ? m : &TheMaps[mapid]);
-	
-	if(scr->data.empty()) return 0;
     
 	if(scr->valid==0) return 0;
 		
@@ -2670,8 +2653,6 @@ int32_t zmap::MAPFLAG3(int32_t map, int32_t screen, int32_t layer, int32_t pos)
 		return 0;
 		
 	mapscr const* m = &TheMaps[(map*MAPSCRS)+screen];
-	
-	if(m->data.empty()) return 0;
     
 	if(m->valid==0) return 0;
 	
@@ -2680,8 +2661,6 @@ int32_t zmap::MAPFLAG3(int32_t map, int32_t screen, int32_t layer, int32_t pos)
 	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS2*MAPSCRS)) return 0;
 	
 	mapscr const* scr = ((mapid < 0 || mapid > MAXMAPS2*MAPSCRS) ? m : &TheMaps[mapid]);
-	
-	if(scr->data.empty()) return 0;
     
 	if(scr->valid==0) return 0;
 		
@@ -3426,9 +3405,9 @@ void zmap::drawrow(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int3
 	{
 		for(int32_t i=c; i<(c&0xF0)+16; i++)
 		{
-			word cmbdat = (i < (int32_t)layer->data.size() ? layer->data[i] : 0);
-			byte cmbcset = (i < (int32_t)layer->data.size() ? layer->cset[i] : 0);
-			int32_t cmbflag = (i < (int32_t)layer->data.size() ? layer->sflag[i] : 0);
+			word cmbdat = (i < 176 ? layer->data[i] : 0);
+			byte cmbcset = (i < 176 ? layer->cset[i] : 0);
+			int32_t cmbflag = (i < 176 ? layer->sflag[i] : 0);
 			drawcombo(dest,((i&15)<<4)+x,y,cmbdat,cmbcset,((flags|dark)&~cWALK),
 				cmbflag,(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG));
 		}
@@ -3634,7 +3613,7 @@ void zmap::drawrow(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int3
 					
 					if(_lscr>-1 && _lscr<map_count*MAPSCRS)
 					{
-						if(i < (int32_t)TheMaps[_lscr].data.size())
+						if(i < 176)
 						{
 							put_flags(dest,((i&15)<<4)+x,/*(i&0xF0)+*/y,
 									  TheMaps[_lscr].data[i],
@@ -4330,8 +4309,8 @@ void zmap::putdoor2(int32_t scr,int32_t side,int32_t door)
 void zmap::putdoor(int32_t scr,int32_t side,int32_t door)
 {
     screens[scr].door[side]=door;
-    word *di = &screens[scr].data.front();
-    byte *di2 = &screens[scr].cset.front();
+    word *di = &screens[scr].data[0];
+    byte *di2 = &screens[scr].cset[0];
     
     switch(side)
     {
@@ -5365,7 +5344,7 @@ void zmap::update_combo_cycling()
     {
         for(int32_t j=0; j<6; j++)
         {
-            if(prvlayers[j].data.empty())
+            if(!prvlayers[j].valid)
                 continue;
                 
             for(int32_t i=0;	i<176; i++)
@@ -9622,17 +9601,17 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 	{
 		for(int32_t k=0; k<176; ++k)
 		{
-			if(!p_iputw(screen.data.at(k),f))
+			if(!p_iputw(screen.data[k],f))
 				return qe_invalid;
 		}
 		for(int32_t k=0; k<176; ++k)
 		{
-			if(!p_putc(screen.sflag.at(k),f))
+			if(!p_putc(screen.sflag[k],f))
 				return qe_invalid;
 		}
 		for(int32_t k=0; k<176; ++k)
 		{
-			if(!p_putc(screen.cset.at(k),f))
+			if(!p_putc(screen.cset[k],f))
 				return qe_invalid;
 		}
 	}
@@ -14545,7 +14524,7 @@ void zmap::prv_secrets(bool high16only)
                 {
                     putit=true;
                     
-                    if(t[j].data.empty())
+                    if(!t[j].valid)
                         continue;
                         
                     int32_t checkflag=combobuf[t[j].data[i]].flag;
@@ -14720,7 +14699,7 @@ void zmap::prv_secrets(bool high16only)
         
         for(int32_t j=0; j<6; j++)
         {
-            if(t[j].data.empty()||t[j].cset.empty()) continue;
+            if(!t[j].valid) continue;
             
             int32_t newflag2 = -1;
             

@@ -24929,16 +24929,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	tmpscr[1] = tmpscr[0];
 	
 	const int32_t _mapsSize = ZCMaps[currmap].tileWidth * ZCMaps[currmap].tileHeight;
-	tmpscr[1].data.resize(_mapsSize, 0);
-	tmpscr[1].sflag.resize(_mapsSize, 0);
-	tmpscr[1].cset.resize(_mapsSize, 0);
 	
 	for(int32_t i = 0; i < 6; i++)
 	{
 		tmpscr3[i] = tmpscr2[i];
-		tmpscr3[1].data.resize(_mapsSize, 0);
-		tmpscr3[1].sflag.resize(_mapsSize, 0);
-		tmpscr3[1].cset.resize(_mapsSize, 0);
 	}
 	
 	conveyclk = 2;

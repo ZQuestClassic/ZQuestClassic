@@ -235,10 +235,6 @@ void mapscr::zero_memory()
 	nextmap=0;
 	nextscr=0;
 	
-	viewX=0;
-	viewY=0;
-	scrWidth=0;
-	scrHeight=0;
 	entry_x = 0;
 	entry_y = 0;
 	
@@ -307,16 +303,13 @@ void mapscr::zero_memory()
 	screendatascriptInitialised = 0;
 	hidelayers = 0;
 	hidescriptlayers = 0;
-	data.assign(176,0);
-	sflag.assign(176,0);
-	cset.assign(176,0);
+	memset(data, 0, sizeof(data));
+	memset(sflag, 0, sizeof(sflag));
+	memset(cset, 0, sizeof(cset));
 }
 
 mapscr::mapscr()
 {
-	data.resize(176,0);
-	sflag.resize(176,0);
-	cset.resize(176,0);
 	zero_memory();
 }
 
@@ -367,10 +360,6 @@ void mapscr::copy(mapscr const& other)
 	nextscr=other.nextscr;
 	
 	
-	viewX=other.viewX;
-	viewY=other.viewY;
-	scrWidth=other.scrWidth;
-	scrHeight=other.scrHeight;
 	entry_x = other.entry_x;
 	entry_y = other.entry_y;
 	
@@ -439,9 +428,9 @@ void mapscr::copy(mapscr const& other)
 	hidelayers = other.hidelayers;
 	hidescriptlayers = other.hidescriptlayers;
 	
-	data = other.data;
-	sflag = other.sflag;
-	cset = other.cset;
+	memcpy(data, other.data, sizeof(data));
+	memcpy(sflag, other.sflag, sizeof(sflag));
+	memcpy(cset, other.cset, sizeof(cset));
 }
 
 mapscr::mapscr(mapscr const& other)

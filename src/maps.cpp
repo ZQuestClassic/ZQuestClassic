@@ -221,9 +221,6 @@ int32_t MAPCOMBOzq(int32_t x,int32_t y)
 //specific layers 1 to 6
 int32_t MAPCOMBOL(int32_t layer,int32_t x,int32_t y)
 {
-    
-    if(tmpscr2[layer-1].data.empty()) return 0;
-    
     if(tmpscr2[layer-1].valid==0) return 0;
     
     int32_t combo = COMBOPOS(x,y);
@@ -236,9 +233,6 @@ int32_t MAPCOMBOL(int32_t layer,int32_t x,int32_t y)
 
 int32_t MAPCSETL(int32_t layer,int32_t x,int32_t y)
 {
-    
-    if(tmpscr2[layer-1].cset.empty()) return 0;
-    
     if(tmpscr2[layer-1].valid==0) return 0;
     
     int32_t combo = COMBOPOS(x,y);
@@ -251,9 +245,6 @@ int32_t MAPCSETL(int32_t layer,int32_t x,int32_t y)
 
 int32_t MAPFLAGL(int32_t layer,int32_t x,int32_t y)
 {
-    
-    if(tmpscr2[layer-1].sflag.empty()) return 0;
-    
     if(tmpscr2[layer-1].valid==0) return 0;
     
     int32_t combo = COMBOPOS(x,y);
@@ -277,8 +268,6 @@ int32_t COMBOTYPEL(int32_t layer,int32_t x,int32_t y)
 int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y)
 {
     if(layer==-1) return MAPCOMBOFLAG(x,y);
-    
-    if(tmpscr2[layer-1].data.empty()) return 0;
     
     if(tmpscr2[layer-1].valid==0) return 0;
     
@@ -464,8 +453,6 @@ int32_t MAPCOMBO2(int32_t layer,int32_t x,int32_t y)
 {
     if(layer<=-1) return MAPCOMBO(x,y);
     
-    if(tmpscr2[layer].data.empty()) return 0;
-    
     if(tmpscr2[layer].valid==0) return 0;
     
     int32_t combo = COMBOPOS(x,y);
@@ -491,7 +478,6 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool 
 		return 0;
 		
 	mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
-	if(m->data.empty()) return 0;
     
 	if(m->valid==0) return 0;
 	
@@ -508,8 +494,6 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool 
 	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS2*MAPSCRS)) return 0;
 	
 	mapscr scr = ((mapid < 0 || mapid > MAXMAPS2*MAPSCRS) ? *m : TheMaps[mapid]);
-	
-	if(scr.data.empty()) return 0;
     
 	if(scr.valid==0) return 0;
 	
@@ -566,8 +550,6 @@ int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y)
 {
 	if(layer==-1) return MAPCSET(x,y);
 	
-	if(tmpscr2[layer].cset.empty()) return 0;
-	
 	if(tmpscr2[layer].valid==0) return 0;
 	
 	int32_t combo = COMBOPOS(x,y);
@@ -581,8 +563,6 @@ int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y)
 int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
 {
     if(layer==-1) return MAPFLAG(x,y);
-    
-    if(tmpscr2[layer].sflag.empty()) return 0;
     
     if(tmpscr2[layer].valid==0) return 0;
     
@@ -626,8 +606,6 @@ int32_t MAPCOMBOFLAG2(int32_t layer,int32_t x,int32_t y)
 {
     if(layer==-1) return MAPCOMBOFLAG(x,y);
     
-    if(tmpscr2[layer].data.empty()) return 0;
-    
     if(tmpscr2[layer].valid==0) return 0;
     
     int32_t combo = COMBOPOS(x,y);
@@ -644,7 +622,6 @@ bool HASFLAG(int32_t flag, int32_t layer, int32_t pos)
 	if(unsigned(layer) > 6) return false;
 	mapscr* m = (layer ? &tmpscr2[layer-1] : tmpscr);
 	if(!m->valid) return false;
-	if(m->data.empty()) return false;
 	
 	if(m->sflag[pos] == flag) return true;
 	if(combobuf[m->data[pos]].flag == flag) return true;
@@ -1027,8 +1004,6 @@ void update_combo_cycling()
     {
         for(int32_t j=0; j<6; j++)
         {
-            if(tmpscr2[j].data.empty()) continue;
-            
             for(int32_t i=0; i<176; i++)
             {
                 x=(tmpscr2+j)->data[i];
@@ -1473,8 +1448,6 @@ bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by)
 		
 	mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
 	
-	if(m->data.empty()) return false;
-	
 	if(m->valid==0) return false;
 	
 	if(!_walkflag(bx,by,1, m))
@@ -1554,8 +1527,6 @@ bool remove_screenstatecombos2(mapscr *s, mapscr *t, int32_t what1, int32_t what
 	{
 		for(int32_t j=0; j<6; j++)
 		{
-			if(t[j].data.empty()) continue;
-			
 			for(int32_t i=0; i<176; i++)
 			{
 				newcombo const& cmb = combobuf[t[j].data[i]];
@@ -1618,8 +1589,6 @@ bool remove_xstatecombos2(mapscr *s, mapscr *t, int32_t mi, byte xflag, bool tri
 	{
 		for(int32_t j=0; j<6; j++)
 		{
-			if(t[j].data.empty()) continue;
-			
 			for(int32_t i=0; i<176; i++)
 			{
 				newcombo const& cmb = combobuf[t[j].data[i]];
@@ -2029,8 +1998,6 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Pe
 			{
 				for(int32_t j=0; j<6; j++)  //Layers
 				{
-					if(t[j].data.empty()||t[j].cset.empty()) continue; //If layer isn't used
-					
 					if(single>=0 && i!=single) continue; //If it's got a singular flag and i isn't where the flag is
 					
 					int32_t newflag2 = -1;
@@ -2403,8 +2370,6 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Pe
 			{
 				for(int32_t j=0; j<6; j++)  //Layers
 				{
-					if(t[j].data.empty()||t[j].cset.empty()) continue; //If layer is not valid (surely checking for 'valid' would be better?)
-					
 					int32_t newflag2 = -1;
 					
 					for(int32_t iter=0; iter<2; ++iter)
@@ -4667,9 +4632,9 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	
 	const int32_t _mapsSize = ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth;
 	tmpscr[tmp].valid |= mVALID; //layer 0 is always valid
-	tmpscr[tmp].data = TheMaps[currmap*MAPSCRS+scr].data;
-	tmpscr[tmp].sflag = TheMaps[currmap*MAPSCRS+scr].sflag;
-	tmpscr[tmp].cset = TheMaps[currmap*MAPSCRS+scr].cset;
+	memcpy(tmpscr[tmp].data, TheMaps[currmap*MAPSCRS+scr].data, sizeof(tmpscr[tmp].data));
+	memcpy(tmpscr[tmp].sflag, TheMaps[currmap*MAPSCRS+scr].sflag, sizeof(tmpscr[tmp].sflag));
+	memcpy(tmpscr[tmp].cset, TheMaps[currmap*MAPSCRS+scr].cset, sizeof(tmpscr[tmp].cset));
 	
 	//screen / screendata script
 	FFCore.clear_screen_stack();
@@ -4700,11 +4665,6 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		tmpscr[tmp].doscript = 0;
 	}
 	
-	
-	tmpscr[tmp].data.resize(_mapsSize, 0);
-	tmpscr[tmp].sflag.resize(_mapsSize, 0);
-	tmpscr[tmp].cset.resize(_mapsSize, 0);
-	
 	if(overlay)
 	{
 		for(int32_t c=0; c< ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth; ++c)
@@ -4724,16 +4684,13 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 				int32_t lm = (tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i];
 				int32_t fm = (ffscr.layermap[i]-1)*MAPSCRS+ffscr.layerscreen[i];
 				
-				if(!TheMaps[lm].data.empty() && !TheMaps[fm].data.empty())
+				for(int32_t c=0; c< ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth; ++c)
 				{
-					for(int32_t c=0; c< ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth; ++c)
+					if(TheMaps[lm].data[c]==0)
 					{
-						if(TheMaps[lm].data[c]==0)
-						{
-							TheMaps[lm].data[c] = TheMaps[fm].data[c];
-							TheMaps[lm].sflag[c] = TheMaps[fm].sflag[c];
-							TheMaps[lm].cset[c] = TheMaps[fm].cset[c];
-						}
+						TheMaps[lm].data[c] = TheMaps[fm].data[c];
+						TheMaps[lm].sflag[c] = TheMaps[fm].sflag[c];
+						TheMaps[lm].cset[c] = TheMaps[fm].cset[c];
 					}
 				}
 			}
@@ -4789,10 +4746,6 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 				// const int32_t _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
 				
 				tmpscr2[i]=TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]];
-				
-				tmpscr2[i].data.resize(_mapsSize, 0);
-				tmpscr2[i].sflag.resize(_mapsSize, 0);
-				tmpscr2[i].cset.resize(_mapsSize, 0);
 				
 				if(overlay)
 				{
@@ -4945,7 +4898,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	{
 		if(j<0 || ((tmpscr[tmp].layermap[j]>0)&&(ZCMaps[tmpscr[tmp].layermap[j]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[tmpscr[tmp].layermap[j]-1].tileHeight==ZCMaps[currmap].tileHeight)))
 		{
-			mapscr *layerscreen= (j<0 ? &tmpscr[tmp] : !tmpscr2[j].data.empty() ? &tmpscr2[j] :
+			mapscr *layerscreen= (j<0 ? &tmpscr[tmp] : tmpscr2[j].valid ? &tmpscr2[j] :
 								  &TheMaps[(tmpscr[tmp].layermap[j]-1)*MAPSCRS]+tmpscr[tmp].layerscreen[j]);
 								  
 			for(int32_t i=0; i<(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight); ++i)
@@ -4989,10 +4942,6 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 	
 	tmpscr[tmp] = TheMaps[currmap*MAPSCRS+scr];
 	
-	tmpscr[tmp].data.resize(_mapsSize, 0);
-	tmpscr[tmp].sflag.resize(_mapsSize, 0);
-	tmpscr[tmp].cset.resize(_mapsSize, 0);
-	
 	if(tmp==0)
 	{
 		for(int32_t i=0; i<6; i++)
@@ -5003,10 +4952,6 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 				if((ZCMaps[tmpscr[tmp].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[tmpscr[tmp].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
 				{
 					tmpscr2[i]=TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]];
-					
-					tmpscr2[i].data.resize(_mapsSize, 0);
-					tmpscr2[i].sflag.resize(_mapsSize, 0);
-					tmpscr2[i].cset.resize(_mapsSize, 0);
 				}
 				else
 				{
@@ -6302,10 +6247,6 @@ void ViewMap()
 							const int32_t _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
 							
 							tmpscr2[i]=TheMaps[(tmpscr[0].layermap[i]-1)*MAPSCRS+tmpscr[0].layerscreen[i]];
-							
-							tmpscr2[i].data.resize(_mapsSize, 0);
-							tmpscr2[i].sflag.resize(_mapsSize, 0);
-							tmpscr2[i].cset.resize(_mapsSize, 0);
 						}
 					}
 					

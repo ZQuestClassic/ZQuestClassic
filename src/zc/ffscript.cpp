@@ -8492,10 +8492,10 @@ int32_t get_register(const int32_t arg)
 		case SCREENDATASECRETCOMBO: 	GET_SCREENDATA_VAR_INDEX32(secretcombo, "SecretCombo", 127); break;	//W, 128 OF THESE
 		case SCREENDATASECRETCSET: 	GET_SCREENDATA_BYTE_INDEX(secretcset, "SecretCSet", 127); break;	//B, 128 OF THESE
 		case SCREENDATASECRETFLAG: 	GET_SCREENDATA_BYTE_INDEX(secretflag, "SecretFlags", 127); break;	//B, 128 OF THESE
-		case SCREENDATAVIEWX: 		GET_SCREENDATA_VAR_INT32(viewX, "ViewX"); break;	//W
-		case SCREENDATAVIEWY: 		GET_SCREENDATA_VAR_INT32(viewY, "ViewY"); break; //W
-		case SCREENDATASCREENWIDTH: 	GET_SCREENDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
-		case SCREENDATASCREENHEIGHT: 	GET_SCREENDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
+		case SCREENDATAVIEWX: 		break;//GET_SCREENDATA_VAR_INT32(viewX, "ViewX"); break;	//W
+		case SCREENDATAVIEWY: 		break;//GET_SCREENDATA_VAR_INT32(viewY, "ViewY"); break; //W
+		case SCREENDATASCREENWIDTH: 	break;//GET_SCREENDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
+		case SCREENDATASCREENHEIGHT: 	break;//GET_SCREENDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
 		case SCREENDATAENTRYX: 		GET_SCREENDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
 		case SCREENDATAENTRYY: 		GET_SCREENDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
 		//Number of ffcs that are in use (have valid data
@@ -8739,19 +8739,19 @@ int32_t get_register(const int32_t arg)
 		
 		//These use the same method as GetScreenD -Z
 		case SCREENWIDTH:
-			ret=FFScript::get_screenWidth(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
+			// ret=FFScript::get_screenWidth(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
 			break;
 
 		case SCREENHEIGHT:
-			ret=FFScript::get_screenHeight(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
+			// ret=FFScript::get_screenHeight(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
 			break;
 
 		case SCREENVIEWX:
-			ret=get_screenViewX(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
+			// ret=get_screenViewX(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
 			break;
 
 		case SCREENVIEWY:
-			ret=get_screenViewY(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
+			// ret=get_screenViewY(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)]);
 			break;
 
 		case SCREENGUY:
@@ -9407,11 +9407,11 @@ int32_t get_register(const int32_t arg)
 		case MAPDATASECRETCSET: 	GET_MAPDATA_BYTE_INDEX(secretcset, "SecretCSet", 127); break;	//B, 128 OF THESE
 		case MAPDATASECRETFLAG: 	GET_MAPDATA_BYTE_INDEX(secretflag, "SecretFlags", 127); break;	//B, 128 OF THESE
 
-		case MAPDATAVIEWX: 		GET_MAPDATA_VAR_INT32(viewX, "ViewX"); break;	//W
+		case MAPDATAVIEWX: 		break;//GET_MAPDATA_VAR_INT32(viewX, "ViewX"); break;	//W
 		case MAPDATASCRIPT: 		GET_MAPDATA_VAR_INT32(script, "Script"); break;	//W
-		case MAPDATAVIEWY: 		GET_MAPDATA_VAR_INT32(viewY, "ViewY"); break; //W
-		case MAPDATASCREENWIDTH: 	GET_MAPDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
-		case MAPDATASCREENHEIGHT: 	GET_MAPDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
+		case MAPDATAVIEWY: 		break;//GET_MAPDATA_VAR_INT32(viewY, "ViewY"); break; //W
+		case MAPDATASCREENWIDTH: 	break;//GET_MAPDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
+		case MAPDATASCREENHEIGHT: 	break;//GET_MAPDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
 		case MAPDATAENTRYX: 		GET_MAPDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
 		case MAPDATAENTRYY: 		GET_MAPDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
 		case MAPDATAFFDATA:         GET_MAPDATA_FFC_INDEX32(getData(), "FFCData", MAXFFCS-1); break;  //W, MAXFFCS OF THESE
@@ -18366,10 +18366,10 @@ void set_register(const int32_t arg, const int32_t value)
 		case SCREENDATASECRETCOMBO: 	SET_SCREENDATA_VAR_INDEX32(secretcombo, "SecretCombo", 127); break;	//W, 128 OF THESE
 		case SCREENDATASECRETCSET: 	SET_SCREENDATA_BYTE_INDEX(secretcset, "SecretCSet", 127); break;	//B, 128 OF THESE
 		case SCREENDATASECRETFLAG: 	SET_SCREENDATA_BYTE_INDEX(secretflag, "SecretFlags", 127); break;	//B, 128 OF THESE
-		case SCREENDATAVIEWX: 		SET_SCREENDATA_VAR_INT32(viewX, "ViewX"); break;	//W
-		case SCREENDATAVIEWY: 		SET_SCREENDATA_VAR_INT32(viewY, "ViewY"); break; //W
-		case SCREENDATASCREENWIDTH: 	SET_SCREENDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
-		case SCREENDATASCREENHEIGHT: 	SET_SCREENDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
+		case SCREENDATAVIEWX: 		break;//SET_SCREENDATA_VAR_INT32(viewX, "ViewX"); break;	//W
+		case SCREENDATAVIEWY: 		break;//SET_SCREENDATA_VAR_INT32(viewY, "ViewY"); break; //W
+		case SCREENDATASCREENWIDTH: 	break;//SET_SCREENDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
+		case SCREENDATASCREENHEIGHT: 	break;//SET_SCREENDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
 		case SCREENDATAENTRYX: 		
 		{
 			int32_t newx = vbound((value/10000),0,255);
@@ -18506,19 +18506,19 @@ void set_register(const int32_t arg, const int32_t value)
 
 		//These use the same method as SetScreenD
 		case SCREENWIDTH:
-			FFScript::set_screenWidth(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
+			// FFScript::set_screenWidth(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
 			break;
 
 		case SCREENHEIGHT:
-			FFScript::set_screenHeight(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
+			// FFScript::set_screenHeight(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
 			break;
 
 		case SCREENVIEWX:
-			FFScript::set_screenViewX(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
+			// FFScript::set_screenViewX(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
 			break;
 
 		case SCREENVIEWY:
-			FFScript::set_screenViewY(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
+			// FFScript::set_screenViewY(&TheMaps[(ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)], value/10000);
 			break;
 
 		case SCREENGUY:
@@ -19309,7 +19309,7 @@ void set_register(const int32_t arg, const int32_t value)
 		case MAPDATASECRETCOMBO: 	SET_MAPDATA_VAR_INDEX32(secretcombo, "SecretCombo", 127); break;	//W, 128 OF THESE
 		case MAPDATASECRETCSET: 	SET_MAPDATA_BYTE_INDEX(secretcset, "SecretCSet", 127); break;	//B, 128 OF THESE
 		case MAPDATASECRETFLAG: 	SET_MAPDATA_BYTE_INDEX(secretflag, "SecretFlags", 127); break;	//B, 128 OF THESE
-		case MAPDATAVIEWX: 		SET_MAPDATA_VAR_INT32(viewX, "ViewX"); break;	//W
+		case MAPDATAVIEWX: 		break;//SET_MAPDATA_VAR_INT32(viewX, "ViewX"); break;	//W
 		case MAPDATASCRIPT:
 		{
 			if (mapscr *m = GetMapscr(ri->mapsref)) 
@@ -19335,9 +19335,9 @@ void set_register(const int32_t arg, const int32_t value)
 			break;
 			
 		}
-		case MAPDATAVIEWY: 		SET_MAPDATA_VAR_INT32(viewY, "ViewY"); break; //W
-		case MAPDATASCREENWIDTH: 	SET_MAPDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
-		case MAPDATASCREENHEIGHT: 	SET_MAPDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
+		case MAPDATAVIEWY: 		break;//SET_MAPDATA_VAR_INT32(viewY, "ViewY"); break; //W
+		case MAPDATASCREENWIDTH: 	break;//SET_MAPDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
+		case MAPDATASCREENHEIGHT: 	break;//SET_MAPDATA_VAR_BYTE(scrHeight,	"Height"); break;	//B
 		case MAPDATAENTRYX: 		SET_MAPDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
 		case MAPDATAENTRYY: 		SET_MAPDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
 		case MAPDATAFFDATA:         
@@ -23243,12 +23243,6 @@ int32_t get_screenwarpReturnY(mapscr *m, int32_t d)
 	return f*10000;
 }
 //One too many inputs here. -Z
-int32_t get_screenViewX(mapscr *m)
-{
-	int32_t f = m->viewX;
-	return f*10000;
-}
-//One too many inputs here. -Z
 int32_t get_screenGuy(mapscr *m)
 {
 	int32_t f = m->guy;
@@ -23264,12 +23258,6 @@ int32_t get_screenString(mapscr *m)
 int32_t get_screenRoomtype(mapscr *m)
 {
 	int32_t f = m->room;
-	return f*10000;
-}
-//One too many inputs here. -Z
-int32_t get_screenViewY(mapscr *m)
-{
-	int32_t f = m->viewY;
 	return f*10000;
 }
 //One too many inputs here. -Z
@@ -23474,62 +23462,6 @@ void do_getscreenUnderCSet()
 	set_register(sarg1, get_screenundercset(&TheMaps[map * MAPSCRS + scrn], d));
 }
 
-//One too many inputs here. -Z
-void do_getscreenWidth()
-{
-	int32_t map     = (ri->d[rEXP1] / 10000) - 1;
-	int32_t scrn  = ri->d[rINDEX2] / 10000;
-	int32_t d = ri->d[rINDEX] / 10000;
-	
-	if(BC::checkMapID(map, "Game->GetScreenWidth(...map...)") != SH::_NoError ||
-			BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenWidth(...screen...)") != SH::_NoError ||
-			BC::checkBounds(d, 0, 214747, "Game->GetScreenWidth(...val...)") != SH::_NoError)
-		return;
-		
-	set_register(sarg1, get_screenWidth(&TheMaps[map * MAPSCRS + scrn], d));
-}
-//One too many inputs here. -Z
-void do_getscreenHeight()
-{
-	int32_t map     = (ri->d[rEXP1] / 10000) - 1;
-	int32_t scrn  = ri->d[rINDEX2] / 10000;
-	int32_t d = ri->d[rINDEX] / 10000;
-	
-	if(BC::checkMapID(map, "Game->GetScreenHeight(...map...)") != SH::_NoError ||
-			BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenHeight(...screen...)") != SH::_NoError ||
-			BC::checkBounds(d, 0, 214747, "Game->GetScreenHeight(...val...)") != SH::_NoError)
-		return;
-		
-	set_register(sarg1, get_screenHeight(&TheMaps[map * MAPSCRS + scrn], d));
-}
-//One too many inputs here. -Z
-void do_getscreenViewX()
-{
-	int32_t map     = (ri->d[rEXP1] / 10000) - 1;
-	int32_t scrn  = ri->d[rINDEX2] / 10000;
-	int32_t d = ri->d[rINDEX] / 10000;
-	
-	if(BC::checkMapID(map, "Game->GetScreenViewX(...map...)") != SH::_NoError ||
-			BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenViewX(...screen...)") != SH::_NoError ||
-			BC::checkBounds(d, 0, 214747, "Game->GetScreenViewX(...val...)") != SH::_NoError)
-		return;
-		
-	set_register(sarg1, get_screenViewX(&TheMaps[map * MAPSCRS + scrn], d));
-}
-//One too many inputs here. -Z
-void do_getscreenViewY()
-{
-	int32_t map     = (ri->d[rEXP1] / 10000) - 1;
-	int32_t scrn  = ri->d[rINDEX2] / 10000;
-	int32_t d = ri->d[rINDEX] / 10000;
-	
-	if(BC::checkMapID(map, "Game->GetScreenViewY(...map...)") != SH::_NoError ||
-			BC::checkBounds(scrn, 0, 0x87, "Game->GetScreenViewY(...screen...)") != SH::_NoError ||
-			BC::checkBounds(d, 0, 214747, "Game->GetScreenViewY(...val...)") != SH::_NoError)
-		return;
-		
-	set_register(sarg1, get_screenViewY(&TheMaps[map * MAPSCRS + scrn], d));
-}
 //One too many inputs here. -Z
 void do_getscreenGuy()
 {
@@ -33702,27 +33634,6 @@ void FFScript::set_screenwarpReturnX(mapscr *m, int32_t d, int32_t value)
 }
 
 
-//Use as SetScreenD:
-void FFScript::set_screenWidth(mapscr *m, int32_t value)
-{
-	int32_t w = vbound(value,0,255); //value is char
-	m->scrWidth = w;
-}
-void FFScript::set_screenHeight(mapscr *m, int32_t value)
-{
-	int32_t h = vbound(value,0,255); //value is char
-	m->scrHeight = h;
-}
-void FFScript::set_screenViewX(mapscr *m, int32_t value)
-{
-	int32_t x = vbound(value, 0, 255); //value is char
-	m->viewX = x;
-}
-void FFScript::set_screenViewY(mapscr *m, int32_t value)
-{
-	int32_t y = vbound(value, 0, 255); //value is char
-	m->viewY = y;
-}
 void FFScript::set_screenGuy(mapscr *m, int32_t value)
 {
 	int32_t bloke = vbound(value,0,9); 
@@ -33772,17 +33683,6 @@ void FFScript::set_screenatchall(mapscr *m, int32_t value)
 
 
 //One too many inputs here. -Z
-int32_t FFScript::get_screenWidth(mapscr *m)
-{
-	int32_t f = m->scrWidth;
-	return f*10000;
-}
-//One too many inputs here. -Z
-int32_t FFScript::get_screenHeight(mapscr *m)
-{
-	int32_t f = m->scrHeight;
-	return f*10000;
-}
 
 int32_t FFScript::GetQuestVersion()
 {
@@ -43929,7 +43829,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int32_t vers_id)
 			{
 			try
 			{
-				if(!p_iputw(m->data.at(k),f))
+				if(!p_iputw(m->data[k],f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
@@ -43944,7 +43844,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int32_t vers_id)
 			{
 			try
 			{
-				if(!p_putc(m->sflag.at(k),f))
+				if(!p_putc(m->sflag[k], f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
@@ -43959,7 +43859,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int32_t vers_id)
 			{
 			try
 			{
-				if(!p_putc(m->cset.at(k),f))
+				if(!p_putc(m->cset[k],f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
@@ -44535,7 +44435,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int32_t vers_id)
 			{
 			try
 			{
-				if(!p_igetw(&(m->data.at(k)),f,true))
+				if(!p_igetw(&(m->data[k]),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
@@ -44550,7 +44450,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int32_t vers_id)
 			{
 			try
 			{
-				if(!p_getc(&(m->sflag.at(k)),f,true))
+				if(!p_getc(&(m->sflag[k]),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
@@ -44565,7 +44465,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int32_t vers_id)
 			{
 			try
 			{
-				if(!p_getc(&(m->cset.at(k)),f,true))
+				if(!p_getc(&(m->cset[k]),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}

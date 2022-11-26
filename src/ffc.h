@@ -124,13 +124,9 @@ struct mapscr
 	byte secretcset[128];
 	byte secretflag[128];
 	
-	std::vector<word> data;
-	std::vector<byte> sflag;
-	std::vector<byte> cset;
-	word viewX;
-	word viewY;
-	byte scrWidth;
-	byte scrHeight;
+	word data[176];
+	byte sflag[176];
+	byte cset[176];
 	
 	byte entry_x, entry_y; //Where Hero entered the screen. Used for pits, and to prevent water walking. -Z
 	

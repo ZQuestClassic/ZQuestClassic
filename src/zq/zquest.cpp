@@ -7438,7 +7438,7 @@ void refresh(int32_t flags)
                              (c>=305 ? Map.CurrScr()->ffcs[c-305].getData() :
                               c>=304 ? Map.CurrScr()->undercombo :
                               c>=176 ? Map.CurrScr()->secretcombo[c-176] :
-                              Map.CurrScr()->data.empty() ? 0 : // Sanity check: does room combo data exist?
+                              !Map.CurrScr()->valid ? 0 : // Sanity check: does room combo data exist?
                               Map.CurrScr()->data[c]
                              ), 0, MAXCOMBOS-1)].type;
                              

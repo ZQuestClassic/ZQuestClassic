@@ -5628,6 +5628,7 @@ bool isStepType(int32_t type);
 bool isDamageType(int32_t type);
 
 #define SMART_WRAP(x, mod) ((x) < 0 ? (((mod)-(-(x)%(mod)))%(mod)) : ((x)%(mod)))
+#define MEMCPY_ARR(dest,src) memcpy(dest,src,sizeof(dest))
 
 #undef cmb1
 #undef cmb2
