@@ -50,6 +50,7 @@ static bool previous_control_state[ZC_CONTROL_STATES];
 static char previous_keys[KEY_MAX];
 static std::vector<zc_randgen *> rngs;
 static uint32_t prev_gfx_hash;
+static bool prev_gfx_hash_was_same;
 static int prev_debug_x;
 static int prev_debug_y;
 static bool gfx_got_mismatch;
@@ -61,6 +62,7 @@ struct FramebufHistoryEntry
 	int frame;
 };
 static std::array<FramebufHistoryEntry, ASSERT_SNAPSHOT_BUFFER> framebuf_history;
+static int framebuf_history_index;
 
 struct ReplayStep
 {
@@ -828,20 +830,17 @@ static void start_manual_takeover()
 static void maybe_take_snapshot()
 {
 	auto it = std::find(snapshot_frames.begin(), snapshot_frames.end(), frame_count);
-	size_t history_index = frame_count % framebuf_history.size();
 	if (!gfx_got_mismatch && it == snapshot_frames.end())
 	{
-		if (mode == ReplayMode::Assert)
+		if (mode == ReplayMode::Assert && !prev_gfx_hash_was_same)
 		{
-			blit(framebuf, framebuf_history[history_index].bitmap, 0, 0, 0, 0, framebuf->w, framebuf->h);
-			framebuf_history[history_index].frame = frame_count;
-			memcpy(framebuf_history[history_index].pal, RAMpal, PAL_SIZE*sizeof(RGB));
+			blit(framebuf, framebuf_history[framebuf_history_index].bitmap, 0, 0, 0, 0, framebuf->w, framebuf->h);
+			framebuf_history[framebuf_history_index].frame = frame_count;
+			memcpy(framebuf_history[framebuf_history_index].pal, RAMpal, PAL_SIZE*sizeof(RGB));
+			framebuf_history_index = (framebuf_history_index + 1) % framebuf_history.size();
 		}
 		return;
 	}
-
-	// So we know to ignore this frame if framebuf_history is written to disk.
-	framebuf_history[history_index].frame = -1;
 
 	save_snapshot(framebuf, RAMpal, frame_count, gfx_got_mismatch);
 }
@@ -874,10 +873,12 @@ void replay_start(ReplayMode mode_, std::string filename_)
     manual_takeover_start_index = assert_current_index = replay_log_current_index = frame_count = 0;
     frame_arg = -1;
     prev_gfx_hash = 0;
+    prev_gfx_hash_was_same = false;
     prev_debug_x = prev_debug_y = -1;
     replay_log.clear();
     record_log.clear();
 	snapshot_frames.clear();
+    framebuf_history_index = 0;
     replay_forget_input();
 
     switch (mode)
@@ -1382,7 +1383,8 @@ void replay_step_gfx(uint32_t gfx_hash)
 	}
 
 	// Skip if last invocation was the same value.
-	if (gfx_hash != prev_gfx_hash)
+	prev_gfx_hash_was_same = gfx_hash == prev_gfx_hash;
+	if (!prev_gfx_hash_was_same)
 	{
 		replay_step_comment(gfx_comment);
 		prev_gfx_hash = gfx_hash;
