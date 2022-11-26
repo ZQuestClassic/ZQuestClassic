@@ -169,6 +169,11 @@ class HeroClass : public sprite
 			return flags;
 		}
 		
+		void setFlags(int32_t val)
+		{
+			flags = val;;
+		}
+		
 		bool isUnwalkable()
 		{
 			return (flags & UNWALKABLE) != 0;

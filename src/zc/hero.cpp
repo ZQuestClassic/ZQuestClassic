@@ -16313,9 +16313,9 @@ LEFTRIGHT_NEWMOVE:
 				{
 					info=walkflag(x,y+15+int32_t(lsteps[y.getInt()&7]),2,down);
 					if(x.getInt() & 7)
-						info = info || walkflag(x+16,y+15+int32_t(lsteps[y.getInt()&7]),1,down);
+						info = (info || walkflag(x+16,y+15+int32_t(lsteps[y.getInt()&7]),1,down));
 					else
-						 info = info || walkflagMBlock(x+8,y+15+int32_t(lsteps[y.getInt()&7]));
+						 info = (info || walkflagMBlock(x+8,y+15+int32_t(lsteps[y.getInt()&7])));
 				}
 				
 				execute(info);
@@ -17691,7 +17691,8 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
 // Only checks for moving blocks. Apparently this is a thing we need.
 HeroClass::WalkflagInfo HeroClass::walkflagMBlock(int32_t wx,int32_t wy)
 {
-	WalkflagInfo ret;
+	HeroClass::WalkflagInfo ret;
+	ret.setFlags(~1);
 	if(toogam) return ret;
 	if (blockmoving)
 		ret.setUnwalkable(mblock2.hit(wx,wy,0,1,1,1));
