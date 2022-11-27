@@ -693,7 +693,7 @@ static void save_replay(std::string filename, const std::vector<std::shared_ptr<
     replay_set_meta("time_updated", strtok(ctime(&ct), "\n"));
     replay_set_meta("version", version);
 
-    std::ofstream out(filename);
+    std::ofstream out(filename, std::ios::binary);
     for (auto it : meta_map)
         out << fmt::format("{} {} {}", TypeMeta, it.first, it.second) << '\n';
     for (auto it : log)
