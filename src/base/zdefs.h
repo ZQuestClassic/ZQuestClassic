@@ -5548,7 +5548,7 @@ INLINE bool p_getwvec(std::vector<T> *vec, PACKFILE *f, bool keepdata)
 			if(!pfread(&dummy,sizeof(T),f,keepdata))
 				return false;
 			if(keepdata)
-				str->push_back(dummy);
+				vec->push_back(dummy);
 		}
 	}
 	return true;
