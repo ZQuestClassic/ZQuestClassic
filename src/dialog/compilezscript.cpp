@@ -11,6 +11,11 @@
 #include "info.h"
 using std::string;
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#include "base/emscripten_utils.h"
+#endif
+
 void doEditZScript(int32_t bg,int32_t fg);
 void clear_map_states();
 void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool fromCompile);
@@ -233,6 +238,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			
 			std::string quest_rules_hex = get_qr_hexstr();
 			clock_t start_compile_time = clock();
+			bool hasWarnErr = false;
 #ifdef __EMSCRIPTEN__
 			int32_t code = em_compile_zscript(tmpfilename, consolefilename, quest_rules_hex.c_str());
 #else
@@ -280,7 +286,6 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 
 			FILE *console = fopen(consolefilename, "r");
 			char buf4[512];
-			bool hasWarnErr = false;
 			bool running = true;
 			if (console) 
 			{
