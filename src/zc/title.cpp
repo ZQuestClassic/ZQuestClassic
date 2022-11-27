@@ -4681,10 +4681,7 @@ void game_over(int32_t type)
 	int32_t curcset = SaveScreenSettings[SAVESC_CURSOR_CSET];
 	bool done=false;
 	
-	do {
-		load_control_state();
-	}
-	while(getInput(btnS, true, false, true));//rSbtn
+	zc_readrawkey(Skey, true);
 	
 	do
 	{
