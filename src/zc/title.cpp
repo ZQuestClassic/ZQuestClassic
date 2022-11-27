@@ -4680,8 +4680,18 @@ void game_over(int32_t type)
 	int32_t htile = SaveScreenSettings[SAVESC_USETILE];
 	int32_t curcset = SaveScreenSettings[SAVESC_CURSOR_CSET];
 	bool done=false;
-	
-	zc_readrawkey(Skey, true);
+
+	if (replay_is_active() && replay_get_version() <= 6)
+	{
+		do {
+			load_control_state();
+		}
+		while(getInput(btnS, true, false, true));//rSbtn
+	}
+	else
+	{
+		zc_readrawkey(Skey, true);
+	}
 	
 	do
 	{
