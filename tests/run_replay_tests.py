@@ -2,6 +2,8 @@
 
 # Before this will work, you need to install git-lfs:
 #     https://git-lfs.github.com/
+# You should also run:
+#     git config diff.lfs.textconv cat
 
 # To create a new replay test, run:
 #    ./zelda -record path_to_file.zplay -test path_to_game.qst dmap screen
