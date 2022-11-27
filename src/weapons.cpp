@@ -4622,19 +4622,19 @@ bool weapon::animate(int32_t index)
 			
 			if(findentrance(x,y,mfSTRIKE,true))
 			{
-				dead=4;
+				if (dead < 0) dead=4;
 			}
 			
 			if(findentrance(x,y,mfARROW,true))
 			{
-				dead=4;
+				if (dead < 0) dead=4;
 			}
 			
 			if(current_item(itype_arrow)>1)
 			{
 				if(findentrance(x,y,mfSARROW,true))
 				{
-					dead=4;
+					if (dead < 0) dead=4;
 				}
 			}
 			
@@ -4642,13 +4642,13 @@ bool weapon::animate(int32_t index)
 			{
 				if(findentrance(x,y,mfGARROW,true))
 				{
-					dead=4;
+					if (dead < 0) dead=4;
 				}
 			}
 			
 			if(blocked())
 			{
-				dead=4;
+				if (dead < 0) dead=4;
 			}
 			
 			break;

@@ -17692,7 +17692,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
 HeroClass::WalkflagInfo HeroClass::walkflagMBlock(int32_t wx,int32_t wy)
 {
 	HeroClass::WalkflagInfo ret;
-	ret.setFlags(~1);
+	if (!blockmoving) ret.setFlags(~1);
 	if(toogam) return ret;
 	if (blockmoving)
 		ret.setUnwalkable(mblock2.hit(wx,wy,0,1,1,1));
