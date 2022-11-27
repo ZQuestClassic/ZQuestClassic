@@ -238,6 +238,7 @@ struct child_process_handler : public io_manager
 
 process_killer launch_process(std::string file, const std::vector<std::string>& args = {});
 process_manager* launch_piped_process(std::string file, const std::vector<std::string>& args = {});
+void launch_file(std::string const& file);
 
 #endif
 

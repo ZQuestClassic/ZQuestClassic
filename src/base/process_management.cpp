@@ -160,3 +160,27 @@ process_manager* launch_piped_process(std::string file, const std::vector<std::s
 #endif
 }
 
+void launch_file(std::string const& file)
+{
+#ifdef _WIN32
+	char path_buf[2048];
+	GetCurrentDirectory(2047, path_buf);
+	//trim trailing slashes
+	for (int32_t q = strlen(path_buf) - 1; q >= 0; --q)
+	{
+		if (path_buf[q] == '/' || path_buf[q] == '\\')
+			path_buf[q] = 0;
+		else break;
+	}
+	strcat(path_buf, "\\\\");
+	strcat(path_buf, file.c_str());
+	ShellExecute(0, 0, path_buf, 0, 0, SW_NORMAL);
+#else
+	//!TODO Open a file, os-based.
+	//Ex: 'launch_file("docs/ZScript_Docs.html")',
+	// should open the html file with the default program for html
+	//Ex: 'launch_file("include/std_zh")',
+	// should launch the folder std_zh in a file explorer
+#endif
+}
+

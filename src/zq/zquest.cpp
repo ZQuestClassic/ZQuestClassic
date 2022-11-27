@@ -91,10 +91,11 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "ffasmexport.h"
 #include <fstream>
 #include "base/module.h"
-#include "zscrdata.h"
+//#include "zscrdata.h"
 #include "drawing.h"
 #include "ConsoleLogger.h"
 
+extern CConsoleLoggerEx parser_console;
 //Windows mmemory tools
 #ifdef _WIN32
 #include <windows.h>
@@ -211,11 +212,6 @@ int32_t zq_scale_small, zq_scale_large, zq_scale;
 bool halt=false;
 bool show_sprites=true;
 bool show_hitboxes = false;
-
-byte compile_success_sample = 0;
-byte compile_error_sample = 0;
-byte compile_finish_sample = 0;
-byte compile_audio_volume = 0;
 
 // Used to find FFC script names
 vector<string> asffcscripts;
@@ -24337,22 +24333,6 @@ const char *gscriptlist2(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-static DIALOG compile_dlg[] =
-{
-	//                      x       y       w       h       fg      bg      key     flags   d1  d2  dp
-	{ jwin_win_proc,        0,      0,      200,    130,    vc(14), vc(1),  0,      D_EXIT,  0,  0, (void *)"Compile ZScript", NULL, NULL },
-	{ jwin_button_proc,     109,    89,     61,     21,     vc(14), vc(1),  27,     D_EXIT,  0,  0, (void *)"Cancel", NULL, NULL },
-	{ jwin_button_proc,     131,    30,     61,     21,     vc(14), vc(1),  'e',    D_EXIT,  0,  0, (void *)"&Edit", NULL, NULL },
-	{ jwin_button_proc,     30,     60,     61,     21,     vc(14), vc(1),  'l',    D_EXIT,  0,  0, (void *)"&Load", NULL, NULL },
-	{ jwin_text_proc,       8,      35,     61,     21,     vc(14), vc(1),  0,           0,  0,  0, (void *)zScriptBytes, NULL, NULL },
-	{ jwin_button_proc,     30,     89,     61,     21,     vc(14), vc(1),  'c',    D_EXIT,  0,  0, (void *)"&Compile!", NULL, NULL },
-	{ jwin_button_proc,     109,    60,     61,     21,     vc(14), vc(1),  'x',    D_EXIT,  0,  0, (void *)"E&xport", NULL, NULL },
-	{ d_timer_proc,         0,      0,      0,      0,      0,      0,      0,           0,  0,  0, NULL, NULL, NULL },
-	{ jwin_text_proc,       8,      25,     61,     21,     vc(14), vc(1),  0,           0,  0,  0, (void *)zLastVer, NULL, NULL },
-	{ jwin_check_proc,      8,      112,    90,     8,      vc(14), vc(1),  0,  D_DISABLED,  0,  0, (void *)"Recover ZASM for scripts missing during compile", NULL, NULL },
-	{ NULL,                 0,      0,      0,      0,      0,      0,      0,           0,  0,  0, NULL, NULL, NULL }
-};
-
 static int32_t as_ffc_list[] = { 4, 5, 6, -1};
 static int32_t as_global_list[] = { 7, 8, 9, -1}; //Why does putting 15 in here not place my message only on the global tab? ~Joe
 static int32_t as_item_list[] = { 10, 11, 12, -1};
@@ -25449,466 +25429,8 @@ void clear_map_states()
 	}
 }
 
-bool doCompileOpenHeaderDlg()
+void clearAssignSlotDlg()
 {
-    call_header_dlg();
-    return false;
-}
-
-void compile_sfx(bool success)
-{
-	if ( success )
-	{
-		compile_error_sample = 0;
-		compile_success_sample = vbound(zc_get_config("Compiler","compile_success_sample",20),0,255);
-		if ( compile_success_sample > 0 )
-		{
-			compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",200),0,255);
-			if(sfxdat)
-				sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
-			else sfx_voice[compile_success_sample]=allocate_voice(&customsfxdata[compile_success_sample]);
-			voice_set_volume(sfx_voice[compile_success_sample], compile_audio_volume);
-			voice_start(sfx_voice[compile_success_sample]);
-		}
-	}
-	else
-	{
-		compile_success_sample = 0;
-		compile_error_sample = vbound(zc_get_config("Compiler","compile_error_sample",20),0,255);
-		if ( compile_error_sample > 0 )
-		{
-			compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",200),0,255);
-			if(sfxdat)
-				sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
-			else sfx_voice[compile_error_sample]=allocate_voice(&customsfxdata[compile_error_sample]);
-			voice_set_volume(sfx_voice[compile_error_sample], compile_audio_volume);
-			voice_start(sfx_voice[compile_error_sample]);
-		}
-	}
-}
-
-int32_t onCompileScript()
-{
-	compile_dlg[0].dp2 = lfont;
-	int32_t memuse = 0;
-    bool hasWarnErr = false;
-	#ifdef _WIN32
-	PROCESS_MEMORY_COUNTERS memCounter;
-	BOOL memresult = false;
-	#endif
-	
-	/*if(try_recovering_missing_scripts!=0)
-	{
-		compile_dlg[9].flags |= D_SELECTED;
-	}
-	else*/
-	{
-		compile_dlg[9].flags &= ~D_SELECTED;
-	}
-	
-	if(is_large)
-		large_dialog(compile_dlg);
-
-    int32_t retval = D_O_K;
-    popup_zqdialog_start();
-	for(;;) //while(true)
-	{
-		sprintf(zScriptBytes, "%d Bytes in Buffer", (int32_t)(zScript.size()));
-		sprintf(zLastVer, "Last Compiled Using ZScript: v.%d",(FFCore.quest_format[vLastCompile]));
-		int32_t ret = zc_popup_dialog(compile_dlg,5);
-		bool ctrl = key_shifts & KB_CTRL_FLAG;
-		try_recovering_missing_scripts = (compile_dlg[9].flags & D_SELECTED) ? 1 : 0;
-		switch(ret)
-		{
-			case 0:
-			case 1:
-				//Cancel
-				goto exit_oncompilescript;
-				
-			case 2:
-				//Edit
-				doEditZScript(vc(15),vc(0));
-				break;
-				
-			case 3:
-			{
-				//Load from File
-				if(zScript.size() > 0)
-				{
-					if(jwin_alert("Confirm Overwrite","Loading will erase the current buffer.","Proceed anyway?",NULL,"Yes","No",'y','n',lfont)==2)
-						break;
-						
-					zScript.clear();
-				}
-				
-				if(!getname("Load ZScript (.z, .zh, .zs, .zlib, etc.)", (char *)"z,zh,zs,zlib,zasm,zscript,squid" ,NULL,datapath,false))
-					break;
-					
-				FILE *zscript = fopen(temppath,"r");
-				
-				if(zscript == NULL)
-				{
-					jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-					break;
-				}
-				
-				char c = fgetc(zscript);
-				
-				while(!feof(zscript))
-				{
-					zScript += c;
-					c = fgetc(zscript);
-				}
-				
-				fclose(zscript);
-				saved = false;
-				break;
-			}
-			
-			case 6:
-				//Export
-			{
-				if(!getname("Save ZScript (.zs)", "zs", NULL,datapath,false))
-					break;
-					
-				if(exists(temppath))
-				{
-					if(jwin_alert("Confirm Overwrite","File already exists.","Overwrite?",NULL,"Yes","No",'y','n',lfont)==2)
-						break;
-				}
-				
-				FILE *zscript = fopen(temppath,"w");
-				
-				if(!zscript)
-				{
-					jwin_alert("Error","Unable to open file for writing!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-					break;
-				}
-				
-				int32_t written = (int32_t)fwrite(zScript.c_str(), sizeof(char), zScript.size(), zscript);
-				
-				if(written != (int32_t)zScript.size())
-					jwin_alert("Error","IO error while writing script to file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-					
-				fclose(zscript);
-				break;
-			}
-			
-			case 5:
-			{
-				#ifdef _WIN32
-				memresult = GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof( memCounter ));
-				memuse = memCounter.WorkingSetSize / 1024 / 1024;
-				zprint2("Mem use: %d\n", memuse);
-				if ( memuse >= 3072 )
-				{
-					jwin_alert("Memory exhausted!","Please save your quest, then close and"," relaunch ZQuest before compiling.",NULL,"O&K",NULL,'k',0,lfont);
-					goto exit_oncompilescript;
-				}	
-				#endif
-				//need elseif for linux here! -Z
-				//Compile!
-				char tmpfilename[L_tmpnam];
-				std::tmpnam(tmpfilename);
-				FILE *tempfile = fopen(tmpfilename,"w");
-
-				char consolefilename[L_tmpnam];
-				std::tmpnam(consolefilename);
-
-				if(!tempfile)
-				{
-					jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-					goto exit_oncompilescript;
-				}
-				
-				fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
-				fclose(tempfile);
-				
-				script_data old_init_script(*globalscripts[0]);
-				uint32_t lastInitSize = old_init_script.size();
-				map<string, ZScript::ScriptTypeID> stypes;
-				map<string, disassembled_script_data> scripts;
-				
-                std::string quest_rules_hex = get_qr_hexstr();
-                clock_t start_compile_time = clock();
-#ifdef __EMSCRIPTEN__
-                int32_t code = em_compile_zscript(tmpfilename, consolefilename, quest_rules_hex.c_str());
-#else
-				int32_t code = -9999;
-				if(!fileexists(ZSCRIPT_FILE))
-				{
-					InfoDialog("Parser", ZSCRIPT_FILE " was not found!").show();
-					break;
-				}
-				parser_console.kill();
-				if (!DisableCompileConsole) 
-				{
-					parser_console.Create("ZScript Parser Output", 600, 200, NULL, "zconsole.exe");
-					parser_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
-					parser_console.gotoxy(0,0);
-					zconsole_info2("%s", "External ZScript Parser\n");
-				}
-				else
-				{
-					box_start(1, "Compile Progress", lfont, sfont,true, 512, 280);
-				}
-
-				std::vector<std::string> args = {
-					"-input", tmpfilename,
-					"-console", consolefilename,
-					"-qr", quest_rules_hex.c_str(),
-					"-linked",
-				};
-				if(zc_get_config("Compiler","noclose_compile_console",0))
-					args.push_back("-noclose");
-				#ifdef _DEBUG
-				if(ctrl)
-					args.push_back("-delay");
-				#endif
-				process_manager* pm = launch_piped_process(ZSCRIPT_FILE, args);
-				if(!pm)
-				{
-					InfoDialog("Parser","Failed to launch " ZSCRIPT_FILE).show();
-					break;
-				}
-				
-				int current = 0, last = 0;
-				int syncthing = 0;
-				pm->read(&syncthing, sizeof(int32_t));
-
-				FILE *console = fopen(consolefilename, "r");
-				char buf4[512];
-				bool hasWarnErr = false;
-				bool running = true;
-				if (console) 
-				{
-					while(running)
-					{
-						pm->read(&code, sizeof(int32_t));
-						switch(code)
-						{
-							case ZC_CONSOLE_DB_CODE:
-							case ZC_CONSOLE_ERROR_CODE:
-							case ZC_CONSOLE_WARN_CODE:
-								hasWarnErr = true;
-								[[fallthrough]];
-							case ZC_CONSOLE_INFO_CODE:
-								fseek(console, 0, SEEK_END);
-								current = ftell(console);
-								if (current != last)
-								{
-									int amount = (current-last);
-									fseek(console, last, SEEK_SET);
-									last = current;
-									int end = fread(&buf4, sizeof(char), amount, console);
-									buf4[end] = 0;
-									ReadConsole(buf4, code);
-								}
-								pm->write(&code, sizeof(int32_t));
-								break;
-							default:
-								running = false;
-								break;
-						}
-					}
-				}
-				pm->read(&code, sizeof(int32_t));
-                delete pm;
-#endif
-				clock_t end_compile_time = clock();
-				
-				
-				char tmp[128] = {0};
-				sprintf(tmp,"%lf",(end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC));
-				for(size_t ind = strlen(tmp)-1; ind > 0; --ind)
-				{
-					if(tmp[ind] == '0' && tmp[ind-1] != '.') tmp[ind] = 0;
-					else break;
-				}
-				char buf[1024] = {0};
-				sprintf(buf, "ZScript compilation: Returned code '%d' (%s)\n"
-					"Compile took %s seconds (%ld cycles)%s",
-					code, code ? "failure" : "success",
-					tmp, (long)end_compile_time - start_compile_time,
-					code ? (!DisableCompileConsole?"\nCompilation failed. See console for details.":"\nCompilation failed.") : "");
-				
-				if(!code)
-				{
-					read_compile_data(stypes, scripts);
-					if (!(DisableCompileConsole || hasWarnErr)) 
-					{
-						parser_console.kill();
-					}
-				}
-				else if (DisableCompileConsole)
-				{
-					char buf3[256] = {0};
-					sprintf(buf3, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),(long)end_compile_time - start_compile_time);
-					box_out(buf3);
-					box_eol();
-					box_out("Compilation failed.");
-					box_eol();
-				}
-				compile_sfx(!code);
-				if (DisableCompileConsole) box_end(true);
-				
-				bool cancel = code;
-				if (!DisableCompileConsole) 
-				{
-					if(code)
-						InfoDialog("ZScript Parser", buf).show();
-					else AlertDialog("ZScript Parser", buf,
-						[&](bool ret,bool)
-						{
-							cancel = !ret;
-						}, "Continue", "Cancel").show();
-				}
-				if ( compile_success_sample > 0 )
-				{
-					if(sfx_voice[compile_success_sample]!=-1)
-					{
-						deallocate_voice(sfx_voice[compile_success_sample]);
-						sfx_voice[compile_success_sample]=-1;
-					}
-				}
-				if ( compile_error_sample > 0 )
-				{
-					if(sfx_voice[compile_error_sample]!=-1)
-					{
-						deallocate_voice(sfx_voice[compile_error_sample]);
-						sfx_voice[compile_error_sample]=-1;
-					}
-				}
-				//refresh(rALL);
-				
-				if(cancel)
-					break;
-				
-				asffcscripts.clear();
-				asffcscripts.push_back("<none>");
-				asglobalscripts.clear();
-				asglobalscripts.push_back("<none>");
-				asitemscripts.clear();
-				asitemscripts.push_back("<none>");
-				asnpcscripts.clear();
-				asnpcscripts.push_back("<none>");
-				aseweaponscripts.clear();
-				aseweaponscripts.push_back("<none>");
-				aslweaponscripts.clear();
-				aslweaponscripts.push_back("<none>");
-				asplayerscripts.clear();
-				asplayerscripts.push_back("<none>");
-				asdmapscripts.clear();
-				asdmapscripts.push_back("<none>");
-				asscreenscripts.clear();
-				asscreenscripts.push_back("<none>");
-				asitemspritescripts.clear();
-				asitemspritescripts.push_back("<none>");
-				ascomboscripts.clear();
-				ascomboscripts.push_back("<none>");
-				asgenericscripts.clear();
-				asgenericscripts.push_back("<none>");
-				clear_map_states();
-				globalmap[0].updateName("~Init"); //force name to ~Init
-				
-				using namespace ZScript;
-				for (auto it = stypes.begin(); it != stypes.end(); ++it)
-				{
-					string const& name = it->first;
-					switch(it->second)
-					{
-						case scrTypeIdFfc:
-							asffcscripts.push_back(name);
-							break;
-						case scrTypeIdItem:
-							asitemscripts.push_back(name);
-							break;
-						case scrTypeIdNPC:
-							asnpcscripts.push_back(name);
-							break;
-						case scrTypeIdEWeapon:
-							aseweaponscripts.push_back(name);
-							break;
-						case scrTypeIdLWeapon:
-							aslweaponscripts.push_back(name);
-							break;
-						case scrTypeIdPlayer:
-							asplayerscripts.push_back(name);
-							break;
-						case scrTypeIdDMap:
-							asdmapscripts.push_back(name);
-							break;
-						case scrTypeIdScreen:
-							asscreenscripts.push_back(name);
-							break;
-						case scrTypeIdItemSprite:
-							asitemspritescripts.push_back(name);
-							break;
-						case scrTypeIdComboData:
-							ascomboscripts.push_back(name);
-							break;
-						case scrTypeIdGeneric:
-							asgenericscripts.push_back(name);
-							break;
-						case scrTypeIdGlobal:
-							if (name != "~Init")
-							{
-								asglobalscripts.push_back(name);
-							}
-							break;
-					}
-				}
-			
-				//scripts are compiled without error, so store the zscript version here: -Z, 25th July 2019, A29
-				misc.zscript_last_compiled_version = V_FFSCRIPT;
-				FFCore.quest_format[vLastCompile] = V_FFSCRIPT;
-				al_trace("Compiled scripts in version: %d\n", misc.zscript_last_compiled_version);
-				
-				assignscript_dlg[0].dp2 = lfont;
-				assignscript_dlg[4].d1 = -1;
-				assignscript_dlg[5].d1 = -1;
-				assignscript_dlg[7].d1 = -1;
-				assignscript_dlg[8].d1 = -1;
-				assignscript_dlg[10].d1 = -1;
-				assignscript_dlg[11].d1 = -1;
-				assignscript_dlg[13].flags = 0;
-				
-				do_script_disassembly(scripts, true);
-				
-				//assign scripts to slots
-				do_slots(scripts);
-				
-				if(WarnOnInitChanged)
-				{
-					script_data const& new_init_script = *globalscripts[0];
-					if(new_init_script != old_init_script) //Global init changed
-					{
-						auto newInitSize = new_init_script.size();
-						AlertFuncDialog("Init Script Changed",
-							"Either global variables, or your global script Init, have changed. ("+to_string(lastInitSize)+"->"+to_string(newInitSize)+")\n\n"
-							"This can break existing save files of your quest. To prevent users "
-							"from loading save files that would break, you can raise the \"Quest "
-							"Ver\" and \"Min. Ver\" in the Header menu (Quest>>Options>>Header)\n\n"
-							"Ensure that both versions are higher than \"Quest Ver\" was previously, "
-							"and that \"Quest Ver\" is the same or higher than \"Min. Ver\"",
-							2, 1, //2 buttons, where buttons[1] is focused
-							"Header", doCompileOpenHeaderDlg,
-							"OK", NULL
-						).show();
-					}
-				}
-				goto exit_oncompilescript;
-			}
-		}
-	}
-exit_oncompilescript:
-    popup_zqdialog_end();
-    return retval;
-}
-
-int32_t onSlotAssign()
-{
-	//setup dlg
 	assignscript_dlg[0].dp2 = lfont;
 	assignscript_dlg[4].d1 = -1;
 	assignscript_dlg[5].d1 = -1;
@@ -25917,6 +25439,11 @@ int32_t onSlotAssign()
 	assignscript_dlg[10].d1 = -1;
 	assignscript_dlg[11].d1 = -1;
 	assignscript_dlg[13].flags = 0;
+}
+
+int32_t onSlotAssign()
+{
+	clearAssignSlotDlg();
 	//Clear right-hand side of names
 	asffcscripts.clear();
 	asffcscripts.push_back("<none>");
@@ -25971,6 +25498,7 @@ void inc_script_name(string& name)
 
 void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool fromCompile)
 {
+	clearAssignSlotDlg();
 	bool skipDisassembled = fromCompile && try_recovering_missing_scripts == 0;
 	for(int32_t i = 0; i < NUMSCRIPTGLOBAL; ++i)
 	{
@@ -26951,6 +26479,8 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 
 void doClearSlots(byte* flags);
 
+extern byte compile_success_sample, compile_error_sample,
+	compile_finish_sample, compile_audio_volume;
 bool do_slots(map<string, disassembled_script_data> &scripts)
 {
 	if(is_large)
@@ -32962,7 +32492,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(cpage_dlg);
     center_zq_cset_dialogs();
     jwin_center_dialog(change_track_dlg);
-    jwin_center_dialog(compile_dlg);
     jwin_center_dialog(csetfix_dlg);
     jwin_center_dialog(dmapmaps_dlg);
     center_zq_door_dialogs();
