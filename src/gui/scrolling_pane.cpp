@@ -184,7 +184,8 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 }
 
 ScrollingPane::ScrollingPane(): childrenEnd(0), scrollPos(0), maxScrollPos(0),
-	contentHeight(0), oldMouseX(nullptr), oldMouseY(nullptr), scrollptr(nullptr)
+	contentHeight(0), oldMouseX(nullptr), oldMouseY(nullptr), scrollptr(nullptr),
+	targHei(0_px)
 {
 	bgColor=jwin_pal[jcBOX];
 }
@@ -253,14 +254,34 @@ void ScrollingPane::calculateSize()
 {
 	setPreferredWidth(25_em);
 	setPreferredHeight(10_em);
-	if(content)
-	{
-		content->calculateSize();
-		setPreferredWidth(Size::pixels(content->getTotalWidth())+4_em);
-		contentHeight=content->getTotalHeight();
-		maxScrollPos=contentHeight-getHeight();
-	}
+	growToTarget();
 	Widget::calculateSize();
+}
+
+void ScrollingPane::growToTarget()
+{
+	if(!content)
+	{
+		if(targHei > 0 && targHei > getHeight())
+			setPreferredHeight(targHei);
+		return;
+	}
+	content->calculateSize();
+	setPreferredWidth(Size::pixels(content->getTotalWidth())+4_em);
+	contentHeight=content->getTotalHeight();
+	auto hei = getHeight();
+	if(hei > contentHeight)
+	{
+		setPreferredHeight(Size::pixels(contentHeight));
+	}
+	else if(targHei > 0 && targHei > hei)
+	{
+		if(contentHeight < targHei)
+			setPreferredHeight(Size::pixels(contentHeight));
+		else setPreferredHeight(targHei);
+	}
+	
+	maxScrollPos=contentHeight-getHeight();
 }
 
 void ScrollingPane::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
@@ -268,6 +289,8 @@ void ScrollingPane::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t
 	// We want to be about as big as possible...
 	setPreferredWidth(Size::pixels(contW));
 	setPreferredHeight(Size::pixels(contH));
+	
+	growToTarget();
 	Widget::arrange(contX, contY, contW, contH);
 	if(content)
 	{

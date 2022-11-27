@@ -760,7 +760,7 @@ void load_mouse()
 		clear_bitmap(zcmouse[j]);
 		clear_bitmap(tmpbmp);
 		clear_bitmap(subbmp);
-		blit((BITMAP*)data[BMP_MOUSE].dat,tmpbmp,1,j*17+1,0,0,16,16);
+		blit((BITMAP*)datafile[BMP_MOUSE].dat,tmpbmp,1,j*17+1,0,0,16,16);
 		for(int32_t x = 0; x < 16; ++x)
 		{
 			for(int32_t y = 0; y < 16; ++y)
@@ -812,7 +812,7 @@ bool game_vid_mode(int32_t mode,int32_t wait)
 	set_mouse_sprite(zcmouse[0]);
 	
 	for(int32_t i=240; i<256; i++)
-		RAMpal[i]=((RGB*)data[PAL_GUI].dat)[i];
+		RAMpal[i]=((RGB*)datafile[PAL_GUI].dat)[i];
 		
 	set_palette(RAMpal);
 	clear_to_color(screen,BLACK);
@@ -6856,8 +6856,8 @@ int32_t onCredits()
 	int32_t c=0;
 	int32_t l=0;
 	int32_t ol=-1;
-	RLE_SPRITE *rle = (RLE_SPRITE*)(data[RLE_CREDITS].dat);
-	RGB *pal = (RGB*)(data[PAL_CREDITS].dat);
+	RLE_SPRITE *rle = (RLE_SPRITE*)(datafile[RLE_CREDITS].dat);
+	RGB *pal = (RGB*)(datafile[PAL_CREDITS].dat);
 	PALETTE tmppal;
 	
 	clear_bitmap(win);
@@ -8402,7 +8402,7 @@ void system_pal()
 {
 	is_sys_pal = true;
 	static PALETTE pal;
-	copy_pal((RGB*)data[PAL_GUI].dat, pal);
+	copy_pal((RGB*)datafile[PAL_GUI].dat, pal);
 	
 	// set up the grayscale palette
 	for(int32_t i=128; i<192; i++)
@@ -8504,7 +8504,7 @@ void system_pal2()
 {
 	is_sys_pal = true;
 	static PALETTE RAMpal2;
-	copy_pal((RGB*)data[PAL_GUI].dat, RAMpal2);
+	copy_pal((RGB*)datafile[PAL_GUI].dat, RAMpal2);
 	
 	/* Windows 2000 colors
 	  RAMpal2[dvc(1)] = _RGB(  0*63/255,   0*63/255,   0*63/255);

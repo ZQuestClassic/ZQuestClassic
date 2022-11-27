@@ -254,6 +254,20 @@ int32_t TextField::getSwapType()
 }
 void TextField::setSwapType(int32_t newtype)
 {
+	switch(tfType)
+	{
+		case type::SWAP_BYTE:
+		case type::SWAP_SSHORT:
+		case type::SWAP_ZSINT_NO_DEC:
+			if(unsigned(newtype) > 1) newtype = 0;
+			break;
+		case type::SWAP_ZSINT:
+			if(unsigned(newtype) > 3) newtype = 0;
+			break;
+		case type::SWAP_ZSINT2:
+			if(unsigned(newtype) > 4) newtype = 0;
+			break;
+	}
 	swap_type_start = newtype;
 	if(swapBtnDialog)
 	{
@@ -385,22 +399,32 @@ void TextField::realize(DialogRunner& runner)
 		{
 			case type::SWAP_BYTE:
 				proc = newGUIProc<jwin_numedit_swap_byte_proc>;
+				if(unsigned(swap_type_start) > 1)
+					swap_type_start = 0;
 				break;
 
 			case type::SWAP_SSHORT:
 				proc = newGUIProc<jwin_numedit_swap_sshort_proc>;
+				if(unsigned(swap_type_start) > 1)
+					swap_type_start = 0;
 				break;
 
 			case type::SWAP_ZSINT:
 				proc = newGUIProc<jwin_numedit_swap_zsint_proc>;
+				if(unsigned(swap_type_start) > 3)
+					swap_type_start = 0;
 				break;
 			
 			case type::SWAP_ZSINT_NO_DEC:
 				proc = newGUIProc<jwin_numedit_swap_zsint_nodec_proc>;
+				if(unsigned(swap_type_start) > 1)
+					swap_type_start = 0;
 				break;
 
 			case type::SWAP_ZSINT2:
 				proc = newGUIProc<jwin_numedit_swap_zsint2_proc>;
+				if(unsigned(swap_type_start) > 4)
+					swap_type_start = 0;
 				hascb = true;
 				break;
 

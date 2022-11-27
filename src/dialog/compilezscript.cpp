@@ -105,6 +105,7 @@ std::shared_ptr<GUI::Widget> CompileZScriptDialog::view()
 	
 	window = Window(
 		title = "Compile ZScript",
+		onEnter = message::COMPILE,
 		onClose = message::CANCEL,
 		Column(
 			labels[0] = Label(hAlign = 0.0),
@@ -328,8 +329,8 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			sprintf(tmp,"%lf",(end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC));
 			for(size_t ind = strlen(tmp)-1; ind > 0; --ind)
 			{
-				if(tmp[ind] == '0' && tmp[ind-1] != '.') tmp[ind] = 0;
-				else return false;
+				if (tmp[ind] == '0' && tmp[ind - 1] != '.') tmp[ind] = 0;
+				else break;
 			}
 			char buf[1024] = {0};
 			sprintf(buf, "ZScript compilation: Returned code '%d' (%s)\n"

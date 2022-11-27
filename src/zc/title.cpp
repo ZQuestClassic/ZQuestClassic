@@ -302,7 +302,7 @@ static void mainscreen(int32_t f)
 		
 	if(f==0)
 	{
-		blit((BITMAP*)data[BMP_TITLE_NES].dat,scrollbuf,0,0,0,0,256,224);
+		blit((BITMAP*)datafile[BMP_TITLE_NES].dat,scrollbuf,0,0,0,0,256,224);
 		blit(scrollbuf,framebuf,0,0,0,0,256,224);
 		char tbuf[2048] = {0}; char tbuf2[2048] = {0};
 	char copyrbuf[2][2048] = { {0}, {0} };
@@ -821,7 +821,7 @@ static void DX_mainscreen(int32_t f)
 	if(f>=1010)
 		return;
 		
-	DATAFILE *dat = (DATAFILE*)data[TITLE_DX].dat;
+	DATAFILE *dat = (DATAFILE*)datafile[TITLE_DX].dat;
 	BITMAP *bmp;
 	
 	if(f==0)
@@ -1046,7 +1046,7 @@ static void v25_mainscreen(int32_t f)
 	if(f>=1010)
 		return;
 		
-	DATAFILE *dat = (DATAFILE*)data[TITLE_25].dat;
+	DATAFILE *dat = (DATAFILE*)datafile[TITLE_25].dat;
 	BITMAP *bmp;
 	
 	if(f==0)

@@ -4355,8 +4355,9 @@ struct gamedata
 	int32_t gen_initd[NUMSCRIPTSGENERIC][8];
 	int32_t gen_dataSize[NUMSCRIPTSGENERIC];
 	std::vector<int32_t> gen_data[NUMSCRIPTSGENERIC];
-	uint32_t xstates[MAXMAPS2*MAPSCRSNORMAL];
 	uint32_t gen_eventstate[NUMSCRIPTSGENERIC];
+	
+	uint32_t xstates[MAXMAPS2*MAPSCRSNORMAL];
 	
 	int32_t gswitch_timers[NUM_GSWITCHES];
 
@@ -4684,6 +4685,14 @@ struct zinitdata
 	byte switchhookstyle;
 	
 	byte magicdrainrate;
+	
+	bool gen_doscript[NUMSCRIPTSGENERIC];
+	word gen_exitState[NUMSCRIPTSGENERIC];
+	word gen_reloadState[NUMSCRIPTSGENERIC];
+	int32_t gen_initd[NUMSCRIPTSGENERIC][8];
+	int32_t gen_dataSize[NUMSCRIPTSGENERIC];
+	std::vector<int32_t> gen_data[NUMSCRIPTSGENERIC];
+	uint32_t gen_eventstate[NUMSCRIPTSGENERIC];
 };
 
 struct zcmap

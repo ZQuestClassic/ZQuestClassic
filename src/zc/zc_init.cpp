@@ -278,9 +278,3 @@ zinitdata *apply_init_data_delta(zinitdata *base, std::string delta)
 	return result;
 }
 
-void resetItems(gamedata *gamed)
-{
-    zinitdata *z = copyIntoZinit(gamed);
-    resetItems(gamed, z, false);
-    delete z;
-}

@@ -672,6 +672,19 @@ GUI::ListData GUI::ZCListData::combodata_script()
 	return ls;
 }
 
+GUI::ListData GUI::ZCListData::generic_script()
+{
+	std::map<std::string, int32_t> vals;
+	std::set<std::string> names;
+	
+	load_scriptnames(names,vals,genericmap,NUMSCRIPTSGENERIC-1);
+	
+	GUI::ListData ls;
+	ls.add("(None)", 0);
+	ls.add(names,vals);
+	return ls;
+}
+
 static const GUI::ListData defense_types
 {
 	{ "(None)", 0 },

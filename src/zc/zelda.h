@@ -308,7 +308,7 @@ extern BITMAP   *darkscr_bmp_curscr, *darkscr_bmp_scrollscr,
                 *darkscr_bmp_curscr_trans, *darkscr_bmp_scrollscr_trans;
 extern BITMAP *lightbeam_bmp;
 extern BITMAP *zcmouse[4];
-extern DATAFILE *data, *sfxdata, *fontsdata, *mididata;
+extern DATAFILE *datafile, *sfxdata, *fontsdata, *mididata;
 extern SAMPLE   wav_refill;
 //extern FONT custom_fonts[MAXFONTS];
 extern PALETTE  RAMpal;

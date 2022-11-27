@@ -301,7 +301,7 @@ BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo,
 		   *pricesdisplaybuf, *tb_page[3], *temp_buf, *prim_bmp,
 		   *script_menu_buf, *f6_menu_buf, *hw_screen;
 BITMAP     *zcmouse[4];
-DATAFILE   *data, *sfxdata, *fontsdata, *mididata;
+DATAFILE   *datafile, *sfxdata, *fontsdata, *mididata;
 PALETTE    RAMpal;
 byte       *colordata, *trashbuf;
 //byte       *tilebuf;
@@ -2358,7 +2358,7 @@ int32_t init_game()
 	Hero.resetflags(true); //This should probably occur after running Hero's init script. 
 	
 	
-	copy_pal((RGB*)data[PAL_GUI].dat,RAMpal);
+	copy_pal((RGB*)datafile[PAL_GUI].dat,RAMpal);
 	loadfullpal();
 	ringcolor(false);
 	loadlvlpal(DMaps[currdmap].color);
@@ -5120,13 +5120,13 @@ int main(int argc, char **argv)
 	packfile_password(""); // Temporary measure. -L
 	Z_message("Zelda.Dat...");
 	
-	if((data=load_datafile(moduledata.datafiles[zelda_dat]))==NULL) 
+	if((datafile=load_datafile(moduledata.datafiles[zelda_dat]))==NULL) 
 	{
 		Z_error_fatal("failed");
 		quit_game();
 	}
 	
-	if(strncmp((char*)data[0].dat,zeldadat_sig,24))
+	if(strncmp((char*)datafile[0].dat,zeldadat_sig,24))
 	{
 		Z_error_fatal("\nIncompatible version of zelda.dat.\nPlease upgrade to %s Build %d",VerStr(ZELDADAT_VERSION), ZELDADAT_BUILD);
 		quit_game();
@@ -5170,7 +5170,7 @@ int main(int argc, char **argv)
 	
 	Z_message("OK\n");
 	
-	mididata = (DATAFILE*)data[ZC_MIDI].dat;
+	mididata = (DATAFILE*)datafile[ZC_MIDI].dat;
 	
 	set_uformat(U_ASCII);
 	initFonts();
@@ -6107,7 +6107,7 @@ void quit_game()
 	
 	if(game) delete game;
 	
-	if(data) unload_datafile(data);
+	if(datafile) unload_datafile(datafile);
 	
 	if(fontsdata) unload_datafile(fontsdata);
 	
