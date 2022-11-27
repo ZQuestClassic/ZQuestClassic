@@ -19585,10 +19585,9 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	int32_t dummy;
 	word s_version=0, s_cversion=0;
 	byte padding;
+	word tempw;
 	
 	zinitdata temp_zinit;
-	memset(&temp_zinit, 0, sizeof(zinitdata));
-	
 	
 	// Legacy item properties (now integrated into itemdata)
 	byte sword_hearts[4];
@@ -19617,15 +19616,6 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	byte red_potion_magic_percent=1;
 	
 	temp_zinit.subscreen_style=get_bit(quest_rules,qr_COOLSCROLL)?1:0;
-	temp_zinit.max_rupees=255;
-	temp_zinit.max_keys=255;
-	temp_zinit.hcp_per_hc=4;
-	temp_zinit.bomb_ratio=4;
-	
-	for(int32_t i=0; i<MAXITEMS; i++)
-	{
-		temp_zinit.items[i]=false;
-	}
 	
 	if(Header->zelda_version > 0x192)
 	{
@@ -19635,8 +19625,8 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			return qe_invalid;
 		}
 		
-	FFCore.quest_format[vInitData] = s_version;
-	
+		FFCore.quest_format[vInitData] = s_version;
+		
 		//al_trace("Init data version %d\n", s_version);
 		if(!p_igetw(&s_cversion,f,true))
 		{
@@ -19659,21 +19649,6 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		fixpolsvoice=true;
 		
 	/* End highly unorthodox updating thing */
-	
-	temp_zinit.ss_grid_x=8;
-	temp_zinit.ss_grid_y=8;
-	temp_zinit.ss_grid_xofs=0;
-	temp_zinit.ss_grid_yofs=0;
-	temp_zinit.ss_grid_color=8;
-	temp_zinit.ss_bbox_1_color=15;
-	temp_zinit.ss_bbox_2_color=7;
-	temp_zinit.ss_flags=0;
-	temp_zinit.gravity=16;
-	temp_zinit.terminalv=320;
-	temp_zinit.msg_speed=5;
-	temp_zinit.transition_type=0;
-	temp_zinit.jump_hero_layer_threshold=255;
-	temp_zinit.subscrSpeed = 1;
 	
 	if(s_version >= 15 && get_bit(deprecated_rules, 27)) // The int16_t-lived rule, qr_JUMPHEROLAYER3
 		temp_zinit.jump_hero_layer_threshold=0;
@@ -21018,9 +20993,38 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(temp_zinit.misc,idM_DOUBLEMAGIC,0);
 	}
 	
+	temp_zinit.clear_genscript();
+	if(s_version > 32)
+	{
+		word numgenscript = 0;
+		if(!p_igetw(&numgenscript,f,true))
+			return qe_invalid;
+		for(auto q = 0; q < numgenscript; ++q)
+		{
+			if(!p_getc(&padding,f,true))
+				return qe_invalid;
+			if(!(padding&2))
+				continue;
+			temp_zinit.gen_doscript[q] = padding&1;
+			if(!p_igetw(&temp_zinit.gen_exitState[q],f,true))
+				return qe_invalid;
+			if(!p_igetw(&temp_zinit.gen_reloadState[q],f,true))
+				return qe_invalid;
+			for(auto p = 0; p < 8; ++p)
+				if(!p_igetl(&temp_zinit.gen_initd[q][p],f,true))
+					return qe_invalid;
+			if(!p_igetl(&temp_zinit.gen_dataSize[q],f,true))
+				return qe_invalid;
+			if(!p_getlvec<int32_t>(&temp_zinit.gen_data[q],f,true))
+				return qe_invalid;
+			if(!p_igetl(&temp_zinit.gen_eventstate[q],f,true))
+				return qe_invalid;
+		}
+	}
+	
 	if(keepdata==true)
 	{
-		memcpy(&zinit, &temp_zinit, sizeof(zinitdata));
+		zinit = temp_zinit;
 		
 		if(zinit.heroAnimationStyle==las_zelda3slow)
 		{

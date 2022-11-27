@@ -921,6 +921,7 @@ void countGenScripts();
 void timeExitAllGenscript(byte exState);
 void throwGenScriptEvent(int32_t event);
 void load_genscript(const gamedata& gd);
+void load_genscript(const zinitdata& gd);
 void save_genscript(gamedata& gd);
 
 class FFScript

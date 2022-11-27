@@ -4,14 +4,22 @@
 #include <gui/builder.h>
 #include "gui/use_size.h"
 
+static bool badmax;
 void call_edit_vector(std::vector<int32_t>& vec, bool zsint, size_t min, size_t max)
 {
+	if((badmax = max > 1000))
+	{
+		max = 1000;
+	}
 	VectorPickDialog(vec, zsint, min, max).show();
 }
 
 VectorPickDialog::VectorPickDialog(std::vector<int32_t>& vec, bool zsint, size_t min, size_t max)
 	: local_vec(vec), dest_vec(vec), min(min), max(max), zsint(zsint)
-{}
+{
+	local_vec.clear();
+	local_vec.assign(vec.begin(),vec.end());
+}
 
 static int32_t scroll_pos1 = 0;
 std::shared_ptr<GUI::Widget> VectorPickDialog::view()
@@ -22,7 +30,7 @@ std::shared_ptr<GUI::Widget> VectorPickDialog::view()
 	
 	std::shared_ptr<GUI::Grid> wingrid, sgrid;
 	
-	sgrid = GUI::Internal::makeRows(sized(3,4));
+	sgrid = GUI::Internal::makeRows(sized(2,4));
 	
 	window = Window(
 		title = "Vector Editor",
@@ -111,7 +119,7 @@ std::shared_ptr<GUI::Widget> VectorPickDialog::view()
 		if(zsint)
 		{
 			row->add(TextField(
-				minwidth = 8_em, hPadding = 0_px,
+				maxwidth = 8_em, hPadding = 0_px,
 				type = GUI::TextField::type::SWAP_ZSINT2,
 				val = local_vec[ind],
 				onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
@@ -122,7 +130,7 @@ std::shared_ptr<GUI::Widget> VectorPickDialog::view()
 		else
 		{
 			row->add(TextField(
-				minwidth = 8_em, hPadding = 0_px,
+				maxwidth = 8_em, hPadding = 0_px,
 				type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
 				val = local_vec[ind]*10000,
 				onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
@@ -161,7 +169,7 @@ std::shared_ptr<GUI::Widget> VectorPickDialog::view()
 	}
 	wingrid->add(ScrollingPane(
 		ptr = &scroll_pos1,
-		targHeight = 200_spx,
+		targHeight = sized(150_px,300_px),
 		sgrid));
 	return window;
 }
@@ -174,7 +182,8 @@ bool VectorPickDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			rerun_dlg = true;
 			return true;
 		case message::OK:
-			dest_vec = local_vec;
+			dest_vec.clear();
+			dest_vec.assign(local_vec.begin(),local_vec.end());
 			return true;
 
 		case message::CANCEL:

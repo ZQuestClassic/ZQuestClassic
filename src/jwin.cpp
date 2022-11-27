@@ -2626,6 +2626,9 @@ int32_t jwin_numedit_swap_byte_proc(int32_t msg, DIALOG *d, int32_t c)
 	{
 		d->bg = 0;
 		swapbtn->d2 = 2; //Max states
+		auto ty = swapbtn->d1&0xF;
+		if(unsigned(ty) > swapbtn->d2)
+			swapbtn->d1 &= ~0xF;
 		swapbtn->dp3 = (void*)d;
 	}
 	int32_t ret = D_O_K;
@@ -2726,6 +2729,9 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 	{
 		d->bg = 0;
 		swapbtn->d2 = 2; //Max states
+		auto ty = swapbtn->d1&0xF;
+		if(unsigned(ty) > swapbtn->d2)
+			swapbtn->d1 &= ~0xF;
 		swapbtn->dp3 = (void*)d;
 	}
 	int32_t ret = D_O_K;
@@ -2880,6 +2886,9 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 	{
 		d->bg = 0;
 		swapbtn->d2 = 4; //Max states
+		auto ty = swapbtn->d1&0xF;
+		if(unsigned(ty) > swapbtn->d2)
+			swapbtn->d1 &= ~0xF;
 		swapbtn->dp3 = (void*)d;
 	}
 	int32_t ret = D_O_K;
@@ -3162,6 +3171,9 @@ int32_t jwin_numedit_swap_zsint_nodec_proc(int32_t msg, DIALOG *d, int32_t c)
 	{
 		d->bg = 0;
 		swapbtn->d2 = 2; //Max states
+		auto ty = swapbtn->d1&0xF;
+		if(unsigned(ty) > swapbtn->d2)
+			swapbtn->d1 &= ~0xF;
 		swapbtn->dp3 = (void*)d;
 	}
 	int32_t ret = D_O_K;
@@ -3330,6 +3342,9 @@ int32_t jwin_numedit_swap_zsint2_proc(int32_t msg, DIALOG *d, int32_t c)
 	{
 		d->bg = 0;
 		swapbtn->d2 = 5; //Max states
+		auto ty = swapbtn->d1&0xF;
+		if(unsigned(ty) > swapbtn->d2)
+			swapbtn->d1 &= ~0xF;
 		swapbtn->dp3 = (void*)d;
 	}
 	int32_t ret = D_O_K;
@@ -3610,6 +3625,9 @@ int32_t jwin_numedit_swap_zsint2_proc(int32_t msg, DIALOG *d, int32_t c)
 	}
 	
 	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
+	
+	if(msg==MSG_START)
+		tf_obj->refresh_cb_swap();
 	
 	return ret;
 }

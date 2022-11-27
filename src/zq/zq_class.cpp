@@ -13451,6 +13451,29 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 		new_return(3);
 	}
 	
+	word numgenscript = 0;
+	word ind = 1;
+	bool valid_inds[NUMSCRIPTSGENERIC] = {0};
+	for(auto it = genericmap.begin(); it != genericmap.end(); it++)
+	{
+        bool valid = zinit.gen_doscript[ind] || zinit.gen_exitState[ind]
+            || zinit.gen_reloadState[ind] || zinit.gen_initd[ind][0]
+            || zinit.gen_initd[ind][1] || zinit.gen_initd[ind][2]
+            || zinit.gen_initd[ind][3] || zinit.gen_initd[ind][4]
+            || zinit.gen_initd[ind][5] || zinit.gen_initd[ind][6]
+            || zinit.gen_initd[ind][7] || zinit.gen_dataSize[ind]
+            || zinit.gen_data[ind].size() || zinit.gen_eventstate[ind];
+        if (valid)
+        {
+            valid_inds[ind] = true;
+            if (it->second.hasScriptData())
+            {
+                numgenscript = ind + 1;
+            }
+        }
+		++ind;
+	}
+	
 	for(int32_t writecycle=0; writecycle<2; ++writecycle)
 	{
 		fake_pack_writing=(writecycle==0);
@@ -13818,6 +13841,35 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 		{
 			new_return(92);
 		}
+		
+		if(!p_iputw(numgenscript,f))
+			new_return(93);
+		for(auto q = 0; q < numgenscript; ++q)
+		{
+			if(!valid_inds[q])
+			{
+				if(!p_putc(0,f))
+					new_return(94);
+                continue;
+			}
+			else if(!p_putc(2|(zinit.gen_doscript[q]?1:0),f))
+				new_return(95);
+			
+			if(!p_iputw(zinit.gen_exitState[q],f))
+				new_return(96);
+			if(!p_iputw(zinit.gen_reloadState[q],f))
+				new_return(97);
+			for(auto p = 0; p < 8; ++p)
+				if(!p_iputl(zinit.gen_initd[q][p],f))
+					new_return(98);
+			if(!p_iputl(zinit.gen_dataSize[q],f))
+				new_return(99);
+			if(!p_putlvec<int32_t>(zinit.gen_data[q],f))
+				new_return(100);
+			if(!p_iputl(zinit.gen_eventstate[q],f))
+				new_return(101);
+		}
+		
 		if(writecycle==0)
 		{
 			section_size=writesize;

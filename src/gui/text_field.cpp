@@ -18,7 +18,7 @@ namespace GUI
 TextField::TextField(): buffer(nullptr), tfType(type::TEXT), maxLength(0),
 	onEnterMsg(-1), onValueChangedMsg(-1), startVal(0), lbound(0), ubound(-1),
 	fixedPlaces(4), valSet(false), forced_length(false), swap_type_start(0),
-	last_applied_vis(true)
+	last_applied_vis(true), last_applied_dis(false)
 {
 	setPreferredWidth(1_em);
 	setPreferredHeight(24_lpx);
@@ -521,10 +521,16 @@ void TextField::applyVisibility(bool visible)
 
 void TextField::applyDisabled(bool dis)
 {
+	last_applied_dis = dis;
+	bool sw4 = false;
 	Widget::applyDisabled(dis);
-	if(alDialog) alDialog.applyDisabled(dis);
+	if(swap_cb)
+	{
+		sw4 = getSwapType() == nswapBOOL;
+		swap_cb->applyDisabled(!sw4 || dis);
+	}
+	if(alDialog) alDialog.applyDisabled(sw4 || dis);
 	if(swapBtnDialog) swapBtnDialog.applyDisabled(dis);
-	if(swap_cb) swap_cb->applyDisabled(dis);
 	applyReadableFont();
 }
 
@@ -610,6 +616,7 @@ void TextField::refresh_cb_swap()
 	if(swap_cb)
 	{
 		applyVisibility(last_applied_vis);
+		applyDisabled(last_applied_dis);
 		pendDraw();
 	}
 }

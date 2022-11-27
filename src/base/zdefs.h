@@ -290,7 +290,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        32
+#define V_INITDATA        33
 #define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
@@ -4693,6 +4693,35 @@ struct zinitdata
 	int32_t gen_dataSize[NUMSCRIPTSGENERIC];
 	std::vector<int32_t> gen_data[NUMSCRIPTSGENERIC];
 	uint32_t gen_eventstate[NUMSCRIPTSGENERIC];
+	
+	void clear_genscript()
+	{
+		memset(gen_doscript, 0, sizeof(gen_doscript));
+		memset(gen_exitState, 0, sizeof(gen_exitState));
+		memset(gen_reloadState, 0, sizeof(gen_reloadState));
+		memset(gen_eventstate, 0, sizeof(gen_eventstate));
+		memset(gen_initd, 0, sizeof(gen_initd));
+		memset(gen_dataSize, 0, sizeof(gen_dataSize));
+		for(size_t q = 0; q < NUMSCRIPTSGENERIC; ++q)
+		{
+			gen_data[q].clear();
+			gen_data[q].resize(0);
+		}
+	}
+	
+	void clear();
+	void copy(zinitdata const& other);
+	
+	zinitdata(){clear();}
+	zinitdata(zinitdata const& other)
+	{
+		copy(other);
+	}
+	zinitdata& operator=(zinitdata const& other)
+	{
+		copy(other);
+		return *this;
+	}
 };
 
 struct zcmap
@@ -5460,6 +5489,118 @@ INLINE bool p_putwstr(std::string const& str, PACKFILE *f)
 		for(size_t q = 0; q < sz; ++q)
 		{
 			if(!p_putc(str.at(q),f))
+				return false;
+		}
+	}
+	return true;
+}
+
+template<typename T>
+INLINE bool p_getcvec(std::vector<T> *vec, PACKFILE *f, bool keepdata)
+{
+	if(keepdata)
+		vec->clear();
+	byte sz = 0;
+	if(!p_getc(&sz,f,keepdata))
+		return false;
+	if(sz) //vec found
+	{
+		T dummy;
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!pfread(&dummy,sizeof(T),f,keepdata))
+				return false;
+			if(keepdata)
+				str->push_back(dummy);
+		}
+	}
+	return true;
+}
+template<typename T>
+INLINE bool p_putcvec(std::vector<T> const& vec, PACKFILE *f)
+{
+	byte sz = byte(zc_min(255,vec.size()));
+	if(!p_putc(sz,f))
+		return false;
+	if(sz)
+	{
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!pfwrite(&(vec.at(q)),sizeof(T),f))
+				return false;
+		}
+	}
+	return true;
+}
+template<typename T>
+INLINE bool p_getwvec(std::vector<T> *vec, PACKFILE *f, bool keepdata)
+{
+	if(keepdata)
+		vec->clear();
+	word sz = 0;
+	if(!p_igetw(&sz,f,keepdata))
+		return false;
+	if(sz) //vec found
+	{
+		T dummy;
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!pfread(&dummy,sizeof(T),f,keepdata))
+				return false;
+			if(keepdata)
+				str->push_back(dummy);
+		}
+	}
+	return true;
+}
+template<typename T>
+INLINE bool p_putwvec(std::vector<T> const& vec, PACKFILE *f)
+{
+	word sz = word(zc_min(65535,vec.size()));
+	if(!p_iputw(sz,f))
+		return false;
+	if(sz)
+	{
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!pfwrite(&(vec.at(q)),sizeof(T),f))
+				return false;
+		}
+	}
+	return true;
+}
+template<typename T>
+INLINE bool p_getlvec(std::vector<T> *vec, PACKFILE *f, bool keepdata)
+{
+	if(keepdata)
+		vec->clear();
+	dword sz = 0;
+	if(!p_igetl(&sz,f,keepdata))
+		return false;
+	if(sz) //vec found
+	{
+		T dummy;
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!pfread(&dummy,sizeof(T),f,keepdata))
+				return false;
+			if(keepdata)
+				vec->push_back(dummy);
+		}
+	}
+	return true;
+}
+template<typename T>
+INLINE bool p_putlvec(std::vector<T> const& vec, PACKFILE *f)
+{
+	dword sz = vec.size();
+	if(!p_iputl(sz,f))
+		return false;
+	if(sz)
+	{
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!pfwrite((void*)&(vec.at(q)), sizeof(T), f))
 				return false;
 		}
 	}

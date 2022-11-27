@@ -717,8 +717,25 @@ void load_genscript(const gamedata& gd)
 		gen.reloadState = gd.gen_reloadState[q];
 		gen.eventstate = gd.gen_eventstate[q];
 		memcpy(gen.initd, gd.gen_initd[q], sizeof(gen.initd));
-		gen.dataResize(gd.gen_dataSize[q]);
 		gen.data = gd.gen_data[q];
+		gen.dataResize(gd.gen_dataSize[q]);
+	}
+}
+void load_genscript(const zinitdata& zd)
+{
+	for(size_t q = 0; q < NUMSCRIPTSGENERIC; ++q)
+	{
+		user_genscript& gen = user_scripts[q];
+		gen.clear();
+		gen.indx = q;
+		gen.doscript = zd.gen_doscript[q];
+		gen.exitState = zd.gen_exitState[q];
+		gen.reloadState = zd.gen_reloadState[q];
+		gen.eventstate = zd.gen_eventstate[q];
+		memcpy(gen.initd, zd.gen_initd[q], sizeof(gen.initd));
+		gen.dataResize(zd.gen_data[q].size());
+		gen.data = zd.gen_data[q];
+		gen.dataResize(zd.gen_dataSize[q]);
 	}
 }
 

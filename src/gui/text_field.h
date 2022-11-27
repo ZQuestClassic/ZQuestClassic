@@ -108,6 +108,7 @@ private:
 	size_t maxLength;
 	bool forced_length;
 	bool last_applied_vis;
+	bool last_applied_dis;
 	DialogRef alDialog;
 	DialogRef swapBtnDialog;
 	std::shared_ptr<GUI::Checkbox> swap_cb;
