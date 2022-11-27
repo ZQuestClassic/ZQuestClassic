@@ -1,0 +1,55 @@
+name: Code Coverage
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['2.55-master']
+    paths: ['tests/**']
+
+jobs:
+  coverage:
+    runs-on: macos-12
+    if: github.repository == 'ArmageddonGames/ZQuestClassic'
+
+    steps:
+    - name: git clone
+      uses: nschloe/action-cached-lfs-checkout@v1
+    
+    - run: brew install ninja dylibbundler create-dmg
+    - name: Install Bison
+      run: |
+        wget http://ftp.gnu.org/gnu/bison/bison-3.6.tar.gz
+        tar -zxvf bison-3.6.tar.gz
+        cd bison-3.6
+        ./configure
+        make
+        sudo make install
+    
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.10' 
+    - run: pip install gcovr
+
+    - run: cp src/metadata/*.h.sig src/metadata/sigs/
+    - name: Configure build
+      run: cmake -S . -B build -G 'Ninja Multi-Config' .
+    - run: ./buildpack.sh ../../build/Coverage
+      working-directory: output/_auto
+    - run: cp -r output/_auto/buildpack/* build/Coverage
+
+    - run: cmake --build build --config Coverage -t zelda_coverage
+
+    - name: Install Node.js 16.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 16.x
+    - run: |
+        git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+        mkdir tmp
+        npx gh-pages --dist build/coverage-report --dest coverage -u "github-actions-bot <support+actions@github.com>"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # https://github.com/tschaub/gh-pages/issues/354
+        CACHE_DIR: tmp
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
