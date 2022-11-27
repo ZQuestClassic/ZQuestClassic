@@ -49,6 +49,7 @@ parser.add_argument('--snapshot')
 parser.add_argument('--retries', type=int, default=0)
 parser.add_argument('--frame', type=int)
 parser.add_argument('--ci')
+parser.add_argument('--always_exit_zero', action='store_true')
 args = parser.parse_args()
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -208,4 +209,5 @@ if num_failures == 0:
     print('all replay tests passed')
 else:
     print(f'{num_failures} replay tests failed')
-    exit(1)
+    if not args.always_exit_zero:
+        exit(1)

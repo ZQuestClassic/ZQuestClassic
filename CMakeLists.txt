@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.24)
-set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo CACHE STRING INTERNAL FORCE)
+set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo Coverage CACHE STRING INTERNAL FORCE)
 project (ZeldaClassic)
 
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(FetchContent)
 
 set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
@@ -121,7 +122,7 @@ if(NOT allegro5_POPULATED)
   add_subdirectory(${allegro5_SOURCE_DIR} ${allegro5_BINARY_DIR} EXCLUDE_FROM_ALL)
   # Allegro 5 CMakeLists sets CMAKE_CONFIGURATION_TYPES in a way that doesn't work for us,
   # so set it back to our value.
-  set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo CACHE STRING INTERNAL FORCE)
+  set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo Coverage CACHE STRING INTERNAL FORCE)
 endif()
 
 # These include files are typically copied into the correct places via allegro's install
@@ -570,6 +571,14 @@ endif()
 if(MSVC AND USE_PCH)
 	set_target_properties(zelda PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZCPrecompiledBinary}\"" OBJECT_DEPENDS "${ZCPrecompiledBinary}")
 	target_compile_definitions(zelda PRIVATE ZC_PCH)
+endif()
+
+find_program(CODE_COVERAGE_GCOVR gcovr)
+if (CODE_COVERAGE_GCOVR)
+	include(CodeCoverage)
+	setup_coverage_test_target(zelda_coverage ${CMAKE_BINARY_DIR}/coverage-report
+		python ${CMAKE_SOURCE_DIR}/tests/run_replay_tests.py --build_folder ${CMAKE_BINARY_DIR}/Coverage --always_exit_zero --ci osx)
+	add_dependencies(zelda_coverage zelda)
 endif()
 
 #############################################################
