@@ -1,6 +1,8 @@
 #include "qrpanel.h"
 #include "grid.h"
+#include "scrolling_pane.h"
 #include "checkbox_qr.h"
+#include "label.h"
 #include "base/zc_alleg.h"
 #include "dialog_runner.h"
 #include "../jwin.h"
@@ -8,11 +10,15 @@
 #include "dialog/info.h"
 #include <utility>
 
+std::string const& getTagName(int32_t ruletype);
+std::string const& getLongestTagName();
 
 namespace GUI
 {
 
-QRPanel::QRPanel(): TabPanel(), message(-1), init_qrs(NULL), qrCount(16)
+QRPanel::QRPanel(): TabPanel(), message(-1),
+	init_qrs(NULL), qrCount(16), scrolling(false),
+	scrollWidth(0_px), scrollHeight(0_px)
 {}
 
 void QRPanel::loadQRs(byte const* qrs)
@@ -25,32 +31,69 @@ void QRPanel::setCount(size_t count)
 	qrCount = count;
 }
 
+void QRPanel::setScrollWidth(Size sz)
+{
+	scrollWidth = sz;
+}
+void QRPanel::setScrollHeight(Size sz)
+{
+	scrollHeight = sz;
+}
+
 void QRPanel::loadList(GUI::ListData qrlist)
 {
 	assert(init_qrs);
 	size_t q = 0;
 	int32_t tabnum = 1;
-	if(qrlist.size() <= qrCount+1) //If it can fit without a tabpanel, allow it to
+	scrolling = qrCount == 0;
+	if(scrolling)
+		qrCount = qrlist.size();
+	else if(qrlist.size() <= qrCount+1) //If it can fit without a tabpanel, allow it to
 		++qrCount;
+	
+	if(!qrlist.size())
+	{
+		std::shared_ptr<TabRef> tab = std::make_shared<TabRef>();
+		if(scrolling)
+		{
+			scrollpane = std::make_shared<ScrollingPane>();
+			scrollpane->setContent(std::make_shared<DummyWidget>());
+			scrollpane->setPadding(0_px);
+			if(scrollHeight > 0)
+				scrollpane->minHeight(scrollHeight);
+			if(scrollWidth > 0)
+				scrollpane->minWidth(scrollWidth);
+			tab->setContent(scrollpane);
+			tab->setName(" ");
+		}
+		else
+		{
+			tab->setContent(std::make_shared<DummyWidget>());
+			tab->setName(" ");
+		}
+		add(tab);
+		return;
+	}
 	while(q < qrlist.size())
 	{
-		std::shared_ptr<Grid> content = Grid::rows(2);
+		std::shared_ptr<Grid> content = Grid::rows(scrolling?3:2);
 		for(size_t ind = 0; ind < qrCount; ++ind)
 		{
 			std::shared_ptr<QRCheckbox> cbox = std::make_shared<QRCheckbox>();
 			std::shared_ptr<Button> ibtn = std::make_shared<Button>();
 			ibtn->setText("?");
+			ListItem* li = nullptr;
 			if(q >= qrlist.size())
 			{
 				cbox->setText("--");
 				cbox->setDisabled(true);
 				ibtn->setDisabled(true);
 			}
-			else
+			else if((li = &(qrlist.accessIndex(q))))
 			{
-				int32_t qr = qrlist.getValue(q);
-				std::string const& name = qrlist.getText(q);
-				std::string const& infotext = qrlist.getInfo(q);
+				int32_t qr = li->value;
+				std::string const& name = li->text;
+				std::string const& infotext = li->info;
 				cbox->setText(name);
 				if(infotext.size())
 					ibtn->setOnPress([infotext](){InfoDialog("QR Info",infotext).show();});
@@ -70,14 +113,79 @@ void QRPanel::loadList(GUI::ListData qrlist)
 			ibtn->setForceFitHei(true); //fit the height of the cbox
 			content->add(ibtn);
 			content->add(cbox);
+			if(scrolling)
+			{
+				//ASSERT(li);
+				std::shared_ptr<Label> lbl = std::make_shared<Label>();
+				lbl->setHAlign(1.0);
+				content->add(lbl);
+				
+				if(scrollWidth > 0_px) //width forcing
+				{
+					//Calculate the width
+					Size cbwid = scrollWidth;
+					//Calculate the longest possible width
+					lbl->setText(getLongestTagName());
+					lbl->calculateSize();
+					lbl->setAlign(2);
+					lbl->setHAlign(0.0);
+					cbwid -= lbl->getTotalWidth();
+					lbl->minWidth(Size::pixels(lbl->getWidth()));
+					//Set the real text back
+					lbl->setText(getTagName(li->tag));
+					
+					//..and the button width
+					ibtn->calculateSize();
+					cbwid -= ibtn->getTotalWidth();
+					
+					//..and the padding on the cbox
+					cbox->calculateSize();
+					cbwid -= cbox->getTotalWidth()-cbox->getWidth();
+					
+					//Force the cbox width
+					cbox->overrideWidth(cbwid);
+				}
+				else
+				{
+					lbl->setText(getTagName(li->tag));
+				}
+			}
 		}
-		content->setHAlign(0.0);
-		content->setVAlign(0.0);
+		
 		std::shared_ptr<TabRef> tab = std::make_shared<TabRef>();
-		tab->setContent(content);
-		tab->setName(" "+std::to_string(tabnum++)+" ");
+		
+		content->setVAlign(0.0);
+		if(scrolling)
+		{
+			scrollpane = std::make_shared<ScrollingPane>();
+			scrollpane->setContent(content);
+			scrollpane->setPtr((int32_t*)indexptr);
+			scrollpane->setPadding(0_px);
+			if(scrollHeight > 0)
+				scrollpane->minHeight(scrollHeight);
+			if(scrollWidth > 0)
+				scrollpane->minWidth(scrollWidth);
+			
+			tab->setContent(scrollpane);
+			tab->setName(" ");
+		}
+		else
+		{
+			content->setHAlign(0.0);
+			tab->setContent(content);
+			tab->setName(" "+std::to_string(tabnum++)+" ");
+		}
 		add(tab);
 	}
 }
+ScrollingPane* QRPanel::getScrollPane()
+{
+	if (scrolling)
+	{
+		return scrollpane.get();
+	}
+	return nullptr;
+}
 
 }
+

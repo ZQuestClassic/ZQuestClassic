@@ -774,6 +774,7 @@ enum
 	cmdTestQuest,
     cmdRedo,
 	cmdDrawingModePool,
+	cmdQRSearch,
     cmdMAX
 };
 

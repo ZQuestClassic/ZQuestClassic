@@ -4,6 +4,7 @@
 #include <gui/dialog.h>
 #include <gui/text_field.h>
 #include <gui/list_data.h>
+#include <gui/window.h>
 #include <functional>
 #include <string_view>
 
@@ -14,7 +15,8 @@ void call_qr_dialog(size_t qrs_per_tab, std::function<void(byte*)> setQRs);
 class QRDialog: public GUI::Dialog<QRDialog>
 {
 public:
-	enum class message { OK, CANCEL, TOGGLE_QR, HEADER, RULESET, CHEATS, RULETMP, QRSTR_CPY, QRSTR_LOAD };
+	enum class message { OK, CANCEL, TOGGLE_QR, HEADER, RULESET,
+		CHEATS, RULETMP, QRSTR_CPY, QRSTR_LOAD, RERUN, SEARCH };
 
 	QRDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*)> setQRs);
 
@@ -22,11 +24,16 @@ public:
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
-	std::function<void(byte*)> setQRs;
 	std::shared_ptr<GUI::TextField> mapCountTF;
+	std::shared_ptr<GUI::Window> window;
+	
+	std::function<void(byte*)> setQRs;
 	byte local_qrs[QR_SZ];
 	byte const* realqrs;
 	size_t qrs_per_tab;
+	bool searchmode;
+	
+	friend void call_qrsearch_dialog(std::function<void(byte*)> setQRs);
 };
 
 #endif

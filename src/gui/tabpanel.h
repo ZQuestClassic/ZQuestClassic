@@ -48,12 +48,13 @@ public:
 	}
 	
 	void setOnSwitch(std::function<void(size_t)> newOnSwitch);
-
+protected:
+	size_t* indexptr;
+	
 private:
 	std::vector<std::shared_ptr<TabRef>> children;
 	DialogRef alDialog;
 	size_t visibleChild;
-	size_t* indexptr;
 	std::function<void(size_t)> onSwitch;
 
 	/* Sets or unsets D_HIDDEN for each of the child's DIALOGs. */

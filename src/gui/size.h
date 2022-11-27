@@ -93,10 +93,34 @@ public:
 	{
 		return value < other.value;
 	}
+	inline constexpr bool operator<(int32_t val) const noexcept
+	{
+		return value < val;
+	}
+	inline constexpr bool operator<=(const Size& other) const noexcept
+	{
+		return value <= other.value;
+	}
+	inline constexpr bool operator<=(int32_t val) const noexcept
+	{
+		return value <= val;
+	}
 
 	inline constexpr bool operator>(const Size& other) const noexcept
 	{
 		return value > other.value;
+	}
+	inline constexpr bool operator>(int32_t val) const noexcept
+	{
+		return value > val;
+	}
+	inline constexpr bool operator>=(const Size& other) const noexcept
+	{
+		return value >= other.value;
+	}
+	inline constexpr bool operator>=(int32_t val) const noexcept
+	{
+		return value >= val;
 	}
 
 	inline constexpr bool operator==(const Size& other) const noexcept
@@ -107,6 +131,27 @@ public:
 	inline constexpr bool operator!=(const Size& other) const noexcept
 	{
 		return value != other.value;
+	}
+
+	inline Size& operator-=(Size const& other)
+	{
+		value -= other.value;
+		return *this;
+	}
+	inline Size& operator-=(int32_t val)
+	{
+		value -= val;
+		return *this;
+	}
+	inline Size& operator+=(Size const& other)
+	{
+		value += other.value;
+		return *this;
+	}
+	inline Size& operator+=(int32_t val)
+	{
+		value += val;
+		return *this;
 	}
 
 private:

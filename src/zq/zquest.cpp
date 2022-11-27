@@ -1058,6 +1058,12 @@ int32_t onRulesDlg()
 	return D_O_K;
 }
 
+int32_t onRulesSearch()
+{
+	call_qrsearch_dialog(set_rules);
+	return D_O_K;
+}
+
 int32_t onZScriptSettings()
 {
 	ScriptRulesDialog(quest_rules, (is_large?17:13), [](byte* newrules)
@@ -33794,7 +33800,8 @@ command_pair commands[cmdMAX]=
     { "Effect Square Fix",                  0, (intF) onEffectFix },
     { "Test Quest",                         0, (intF) onTestQst },
     { "Redo",                               0, (intF) onRedo },
-    { "Combo Pool Mode",                    0, (intF) onDrawingModePool }
+    { "Combo Pool Mode",                    0, (intF) onDrawingModePool },
+    { "Quest Rules Search",                 0, (intF) onRulesSearch }
 };
 
 /********************************/
