@@ -21375,7 +21375,7 @@ void screen_ffc_modify_postroutine(word index)
 	auto it = slopes.find(id);
 	
 	bool wasSlope = it!=slopes.end();
-	bool isSlope = cmb.type == cSLOPE;
+	bool isSlope = cmb.type == cSLOPE && !(ff.flags&ffCHANGER);
 	if(isSlope && !wasSlope)
 	{
 		slopes.try_emplace(id, nullptr, &ff, id);
