@@ -40450,18 +40450,30 @@ string zs_sprintf(char const* format, int32_t num_args)
 					}
 					++format;
 					min_digits = atoi(argbuf);
-					if(min_digits > 10)
-					{
-						Z_scripterrlog("Min digits argument cannot be larger than 10! Value will be truncated to 10.");
-						min_digits = 10;
-					}
 					if(!min_digits)
 					{
 						Z_scripterrlog("Error formatting string: Invalid number '%s'\n", argbuf);
 					}
 				}
+				bool bin = (format[0] == 'b' || format[0] == 'B');
+				bool hex = (format[0] == 'x' || format[0] == 'X');
+				if(bin)
+				{
+					if(min_digits > 32)
+					{
+						Z_scripterrlog("Min digits argument cannot be larger than 32!"
+							" Value will be truncated to 32.");
+						min_digits = 32;
+					}
+				}
+				else if(min_digits > 10)
+				{
+					Z_scripterrlog("Min digits argument cannot be larger than 10!"
+						" Value will be truncated to 10.");
+					min_digits = 10;
+				}
 				char mindigbuf[8] = {0};
-				sprintf(mindigbuf, "%%0%d%c", min_digits, (format[0]=='x' || format[0]=='X') ? format[0] : 'd');
+				sprintf(mindigbuf, "%%0%d%c", min_digits, hex ? format[0] : 'd');
 				switch( format[0] )
 				{
 					case 'd':
@@ -40519,16 +40531,14 @@ string zs_sprintf(char const* format, int32_t num_args)
 					}
 					case 'l':
 					{
-						{
-							char argbuf[32] = {0};
-							if(min_digits)
-								sprintf(argbuf,mindigbuf,arg_val);
-							else zc_itoa(arg_val, argbuf);
-							++next_arg;
-							oss << buf << argbuf;
-							q = 300; //break main loop
-							break;
-						}
+						char argbuf[32] = {0};
+						if(min_digits)
+							sprintf(argbuf,mindigbuf,arg_val);
+						else zc_itoa(arg_val, argbuf);
+						++next_arg;
+						oss << buf << argbuf;
+						q = 300; //break main loop
+						break;
 					}
 					case 's':
 					{
@@ -40574,6 +40584,26 @@ string zs_sprintf(char const* format, int32_t num_args)
 						}
 						++next_arg;
 						oss << buf << "0x" << argbuf;
+						q = 300; //break main loop
+						break;
+					}
+					case 'b': //int binary
+						arg_val /= 10000;
+						[[fallthrough]];
+					case 'B': //long binary
+					{
+						char argbuf[33] = {0};
+						int num_digits = min_digits;
+						for(int q = num_digits; q < 32; ++q)
+							if(arg_val&(1<<q))
+								num_digits = q+1;
+						for(int q = 0; q < num_digits; ++q)
+						{
+							argbuf[q] = (arg_val&(1<<(num_digits-q-1)))
+								? '1' : '0';
+						}
+						++next_arg;
+						oss << buf << argbuf;
 						q = 300; //break main loop
 						break;
 					}

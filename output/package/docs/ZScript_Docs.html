@@ -269,7 +269,7 @@
 <body class = "pagecont">
 <header class = "pagecont">
 	<h1>ZScript Documentation (Under Construction)</h1>
-	<p>Last Updated: November 27, 2022 at 12:02 AM EST (<a href="https://www.zeldaclassic.com/zscript-docs/" target="_blank" rel="noopener noreferrer">Latest</a>)</p>
+	<p>Last Updated: November 28, 2022 at 1:24 AM EST (<a href="https://www.zeldaclassic.com/zscript-docs/" target="_blank" rel="noopener noreferrer">Latest</a>)</p>
 </header>
 <main class = "pagecont">
 	<a class = "link" data-link = "root" data-bid = 0 data-tid = 0>Return to Top</a>
@@ -946,10 +946,11 @@ Valid patterns:
 <li>'%s': Inserts the value as a string (must be a valid array pointer)</li>
 <li>'%c': Inserts the value as a character.</li>
 <li>'%x' or '%X': Inserts the value as a hexadecimal integer (no decimal places). Capitalization of letters matches the capitalization of the 'x'.</li>
+<li>'%b' or '%B': Inserts the value in Binary. 'b' has no decimal included, while 'B' uses all 32 bits as a long.</li>
 <li>'%%': Inserts a single '%', does not act as a pattern.</li>
 </ul>
 
-Also, by including numbers between the '%' and letter for patterns (excluding '%s', '%c', '%%'), it will take a minimum of that many digits, adding leading 0's as needed. Example: '%5i' given a value of '253' would display as '00253', filling up 5 digits of space.
+Also, by including numbers between the '%' and letter for patterns (excluding '%s', '%c', '%%'), it will take a minimum of that many digits, adding leading 0's as needed. Example: '%5i' given a value of '253' would display as '00253', filling up 5 digits of space. The max number of digits is 10, except in Binary ('%b','%B'), where it is 32.
 
 Related: <a class = 'link' data-link = 'sprintf'>sprintf()</a></div>
 		<div class = "cntnt" data-bid = 35 data-tid = -1 hidden>These functions relate to the manipulation of strings.</div>
