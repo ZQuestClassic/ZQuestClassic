@@ -1039,7 +1039,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 	if(is_large)
 	{
 		tabs->add(TabRef(name = "Main",
-			ScrollingPane(targHeight = 200_px,
+			ScrollingPane(targHeight = 400_px,
 				Row(padding = 0_px,
 					Rows<2>(vAlign = 0.0,
 						Checkbox(

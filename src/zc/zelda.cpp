@@ -1991,11 +1991,10 @@ int32_t init_game()
 	//Load the quest
 	//setPackfilePassword(datapwd);
 	int32_t ret = load_quest(game);
-	if (firstplay)
-		load_genscript(zinit);
-	else load_genscript(*game);
+	if (!firstplay) load_genscript(*game);
 	genscript_timing = SCR_TIMING_START_FRAME;
 	timeExitAllGenscript(GENSCR_ST_RELOAD);
+	if(firstplay) load_genscript(zinit);
 	countGenScripts();
 	
 	if(ret != qe_OK)

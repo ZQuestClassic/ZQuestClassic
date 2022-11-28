@@ -244,7 +244,7 @@ const char weap_name_default_string[wMax][255] =
 	"-lwMax","Custom Weapon 1","Custom Weapon 2","Custom Weapon 3","Custom Weapon 4",
 	"Custom Weapon 5","Custom Weapon 6","Custom Weapon 7","Custom Weapon 8","Custom Weapon 9",
 	//40
-	"Script 10","Ice","-Flame","-Sound","Thrown",
+	"Custom Weapon 10","Ice","-Flame","-Sound","Thrown",
 	"-Pot","-Lit","-Med1","-Med2","-Med3",
 	//50
 	"-Sword180","-SwordLA","-Bug Net","","",
