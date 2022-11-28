@@ -1579,11 +1579,8 @@ void replay_set_rng_seed(zc_randgen *rng, int seed)
             int line_number = replay_log_current_index + meta_map.size() + 1;
             std::string error = fmt::format("<{}> rng desync! stopping replay", line_number);
             fprintf(stderr, "%s\n", error.c_str());
-            if (mode == ReplayMode::Assert && exit_when_done)
-            {
-                ASSERT(false);
-            }
             replay_stop();
+
             enter_sys_pal();
             jwin_alert("Recording", error.c_str(), NULL, NULL, "OK", NULL, 13, 27, lfont);
             exit_sys_pal();
@@ -1596,10 +1593,18 @@ void replay_set_rng_seed(zc_randgen *rng, int seed)
         if (!record_log.empty() && record_log.back()->type == TypeRng && record_log.back()->frame == frame_count)
         {
             auto rng_step = static_cast<RngReplayStep *>(record_log.back().get());
-            if (rng_step->seed == seed && rng_step->end_index == index - 1)
+            if (rng_step->seed == seed)
             {
-                rng_step->end_index = index;
-                did_extend = true;
+                if (std::abs(rng_step->start_index - index) <= 1)
+                {
+                    rng_step->start_index = std::min(rng_step->start_index, index);
+                    did_extend = true;
+                }
+                if (std::abs(rng_step->end_index - index) <= 1)
+                {
+                    rng_step->end_index = std::max(rng_step->end_index, index);
+                    did_extend = true;
+                }
             }
         }
 
