@@ -18,6 +18,25 @@ extern word item_doscript[256];
 extern int32_t item_stack[256][MAX_SCRIPT_REGISTERS];
 extern byte itemscriptInitialised[256];
 
+inline bool ffcIsAt(int32_t index, int32_t x, int32_t y)
+{
+    int32_t fx=tmpscr->ffcs[index].x.getInt();
+    if(x<fx || x>fx+(tmpscr->ffEffectWidth(index)-1)) // FFC sizes are weird.
+        return false;
+    
+    int32_t fy=tmpscr->ffcs[index].y.getInt();
+    if(y<fy || y>fy+(tmpscr->ffEffectHeight(index)-1))
+        return false;
+    
+    if((tmpscr->ffcs[index].flags&(ffCHANGER|ffETHEREAL))!=0)
+        return false;
+	
+    if(tmpscr->ffcs[index].getData()<=0)
+        return false;
+    
+    return true;
+}
+
 struct cmbtimer
 {
 	int32_t data;
@@ -309,9 +328,8 @@ void do_generic_combo_ffc2(int32_t pos, int32_t cid, int32_t ft)
 	}
 }
 
-bool do_cswitch_combo(newcombo const& cmb, int32_t layer, int32_t cpos, weapon* w)
+bool do_cswitch_combo(newcombo const& cmb, weapon* w)
 {
-	mapscr* scr = (layer ? &tmpscr2[layer] : tmpscr);
 	byte pair = cmb.attribytes[0];
 	if(cmb.usrflags & cflag11) //global state
 	{
@@ -381,7 +399,90 @@ void trigger_cswitch_block(int32_t layer, int32_t pos)
 			combobuf[newcid2].aclk = 0;
 		}
 	}
+	if (cmb.usrflags&cflag11)
+	{
+		word c = tmpscr->numFFC();
+		for(word i=0; i<c; i++)
+		{
+			if(ffcIsAt(i, COMBOX(pos)+8, COMBOY(pos)+8))
+			{
+				ffcdata& ffc2 = tmpscr->ffcs[i];
+				newcombo const& cmb_2 = combobuf[ffc2.getData()];
+				ffc2.setData(BOUND_COMBO(ffc2.getData() + cmbofs));
+				ffc2.cset = (ffc2.cset + csofs) & 15;
+				int32_t newcid2 = ffc2.getData();
+				if(combobuf[newcid2].animflags & AF_CYCLE)
+				{
+					combobuf[newcid2].tile = combobuf[newcid2].o_tile;
+					combobuf[newcid2].cur_frame=0;
+					combobuf[newcid2].aclk = 0;
+				}
+			}
+		}
+	}
 }
+
+void trigger_cswitch_block_ffc(int32_t pos)
+{
+	if(unsigned(pos) >= MAXFFCS) return;
+	ffcdata& ffc = tmpscr->ffcs[pos];
+	auto cid = ffc.getData();
+	newcombo const& cmb = combobuf[cid];
+	if(cmb.type != cCSWITCHBLOCK) return;
+	
+	int32_t cmbofs = (cmb.attributes[0]/10000L);
+	int32_t csofs = (cmb.attributes[1]/10000L);
+	ffc.setData(BOUND_COMBO(cid + cmbofs));
+	ffc.cset = (ffc.cset + csofs) & 15;
+	auto newcid = ffc.getData();
+	if(combobuf[newcid].animflags & AF_CYCLE)
+	{
+		combobuf[newcid].tile = combobuf[newcid].o_tile;
+		combobuf[newcid].cur_frame=0;
+		combobuf[newcid].aclk = 0;
+	}
+	int32_t pos2 = COMBOPOS(ffc.x+8, ffc.y+8);
+	for(auto lyr = 0; lyr < 7; ++lyr)
+	{
+		if(!(cmb.usrflags&(1<<lyr))) continue;
+		mapscr* scr_2 = FFCore.tempScreens[lyr];
+		if(!scr_2->data[pos2]) //Don't increment empty space
+			continue;
+		newcombo const& cmb_2 = combobuf[scr_2->data[pos2]];
+		scr_2->data[pos2] = BOUND_COMBO(scr_2->data[pos2] + cmbofs);
+		scr_2->cset[pos2] = (scr_2->cset[pos2] + csofs) & 15;
+		int32_t newcid2 = scr_2->data[pos2];
+		if(combobuf[newcid2].animflags & AF_CYCLE)
+		{
+			combobuf[newcid2].tile = combobuf[newcid2].o_tile;
+			combobuf[newcid2].cur_frame=0;
+			combobuf[newcid2].aclk = 0;
+		}
+	}
+	if (cmb.usrflags&cflag11)
+	{
+		word c = tmpscr->numFFC();
+		for(word i=0; i<c; i++)
+		{
+			if (i == pos) continue;
+			if(ffcIsAt(i, ffc.x+8, ffc.y+8))
+			{
+				ffcdata& ffc2 = tmpscr->ffcs[i];
+				newcombo const& cmb_2 = combobuf[ffc2.getData()];
+				ffc2.setData(BOUND_COMBO(ffc2.getData() + cmbofs));
+				ffc2.cset = (ffc2.cset + csofs) & 15;
+				int32_t newcid2 = ffc2.getData();
+				if(combobuf[newcid2].animflags & AF_CYCLE)
+				{
+					combobuf[newcid2].tile = combobuf[newcid2].o_tile;
+					combobuf[newcid2].cur_frame=0;
+					combobuf[newcid2].aclk = 0;
+				}
+			}
+		}
+	}
+}
+
 
 void spawn_decoration(newcombo const& cmb, int32_t pos)
 {
@@ -1771,7 +1872,7 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 				switch(cmb.type)
 				{
 					case cCSWITCH:
-						do_cswitch_combo(cmb, lyr, pos, w);
+						do_cswitch_combo(cmb, w);
 						break;
 					
 					case cCSWITCHBLOCK:
