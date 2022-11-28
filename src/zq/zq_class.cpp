@@ -13844,7 +13844,7 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 		
 		if(!p_iputw(numgenscript,f))
 			new_return(93);
-		for(auto q = 0; q < numgenscript; ++q)
+		for(auto q = 1; q < numgenscript; ++q)
 		{
 			if(!valid_inds[q])
 			{
