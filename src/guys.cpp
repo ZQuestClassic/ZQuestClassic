@@ -21341,6 +21341,12 @@ void screen_combo_modify_preroutine(mapscr *s, int32_t pos)
 	delete_fireball_shooter(s, pos);
 }
 
+//Placeholder in case we need it.
+void screen_ffc_modify_preroutine(word index)
+{
+	return;
+}
+
 // Everything that must be done after we change a screen's combo to another combo. -L
 void screen_combo_modify_postroutine(mapscr *s, int32_t pos)
 {

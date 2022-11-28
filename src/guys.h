@@ -47,6 +47,7 @@ void awaken_spinning_tile(mapscr *s, int32_t pos);
 void update_slope_comboposes();
 void update_slope_combopos(int32_t lyr, int32_t pos);
 void screen_combo_modify_preroutine(mapscr *s, int32_t pos);
+void screen_ffc_modify_preroutine(word index);
 void screen_combo_modify_postroutine(mapscr *s, int32_t pos);
 void screen_ffc_modify_postroutine(word index);
 void screen_combo_modify_pre(int32_t cid);

@@ -486,6 +486,119 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	if ( combobuf[cid].usrflags&cflag8 ) killgenwpn(w);
 }
 
+void do_generic_combo_ffc(weapon *w, int32_t pos, int32_t cid, int32_t ft)
+{
+	if ( combobuf[cid].type < cTRIGGERGENERIC && !(combobuf[cid].usrflags&cflag9 )  )  //Script combos need an 'Engine' flag
+	{ 
+		return;
+	} 
+	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
+	byte* grid = w->wscreengrid_ffc;
+	ffcdata& ffc = tmpscr->ffcs[pos];
+	if ( !(get_bit(grid,pos)) || (combobuf[cid].usrflags&cflag5) ) 
+	{
+		if ((combobuf[cid].usrflags&cflag1)) 
+		{
+			if (combobuf[cid].usrflags & cflag10)
+			{
+				switch (combobuf[cid].attribytes[0])
+				{
+					case 0:
+					case 1:
+					default:
+						decorations.add(new dBushLeaves(ffc.x, ffc.y, dBUSHLEAVES, 0, 0));
+						break;
+					case 2:
+						decorations.add(new dFlowerClippings(ffc.x, ffc.y, dFLOWERCLIPPINGS, 0, 0));
+						break;
+					case 3:
+						decorations.add(new dGrassClippings(ffc.x, ffc.y, dGRASSCLIPPINGS, 0, 0));
+						break;
+				}
+			}
+			else decorations.add(new comboSprite(ffc.x, ffc.y, 0, 0, combobuf[cid].attribytes[0]));
+		}
+		int32_t it = -1;
+		int32_t thedropset = -1;
+		if ( (combobuf[cid].usrflags&cflag2) )
+		{
+			if ( combobuf[cid].usrflags&cflag11 ) //specific item
+			{
+				it = combobuf[cid].attribytes[1];
+			}
+			else
+			{
+				it = select_dropitem(combobuf[cid].attribytes[1]);
+				thedropset = combobuf[cid].attribytes[1];
+			}
+		}
+		if( it != -1 )
+		{
+			item* itm = (new item(ffc.x, ffc.y,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			itm->from_dropset = thedropset;
+			items.add(itm);
+		}
+		
+		//drop special room item
+		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(mSPECIALITEM))
+		{
+			items.add(new item(ffc.x, ffc.y,
+				(zfix)0,
+				tmpscr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[tmpscr->item].family==itype_triforcepiece ||
+				(tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+		}
+		//screen secrets
+		if ( combobuf[cid].usrflags&cflag7 )
+		{
+			screen_ffc_modify_preroutine(pos);
+			ffc.setData(tmpscr->secretcombo[ft]);
+			ffc.cset = tmpscr->secretcset[ft];
+			// newflag = s->secretflag[ft];
+			screen_ffc_modify_postroutine(pos);
+			if ( combobuf[cid].attribytes[2] > 0 )
+				sfx(combobuf[cid].attribytes[2],int32_t(ffc.x));
+		}
+		
+		//loop next combo
+		if((combobuf[cid].usrflags&cflag4))
+		{
+			do
+			{
+				screen_ffc_modify_preroutine(pos);
+				
+				//undercombo or next?
+				if((combobuf[cid].usrflags&cflag12))
+				{
+					ffc.setData(tmpscr->undercombo);
+					ffc.cset = tmpscr->undercset;	
+				}
+				else
+					ffc.setData(vbound(ffc.getData()+1,0,MAXCOMBOS));
+				
+				screen_ffc_modify_postroutine(pos);
+				
+				if (combobuf[cid].usrflags&cflag8) w->dead = 1;
+				if (combobuf[cid].usrflags&cflag12) break; //No continuous for undercombo
+				if (combobuf[cid].usrflags&cflag5) cid = ffc.getData(); //cid needs to be set to data so continuous combos work
+				
+			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
+			if ( (combobuf[cid].attribytes[2]) > 0 )
+				sfx(combobuf[cid].attribytes[2],int32_t(ffc.x));
+			
+			
+		}
+		if((combobuf[cid].usrflags&cflag14)) //drop enemy
+		{
+			addenemy(ffc.x,ffc.y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
+		}
+		//zprint("continuous\n");
+		
+	}
+	set_bit(grid,pos,1);
+	
+	if (combobuf[cid].usrflags&cflag8) killgenwpn(w);
+}
+
 //Checks if a weapon triggers a combo at a given bx/by
 static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *c, int32_t layer = 0/*, int32_t comboid, int32_t flag*/)
 {

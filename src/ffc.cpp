@@ -153,6 +153,11 @@ void ffcdata::incData(int32_t inc)
 	setData(data+inc);
 }
 
+word ffcdata::getData()
+{
+	return data;
+}
+
 bool ffcdata::setSolid(bool set) //exists so that ffcs can do special handling for whether to make something solid or not.
 {
 	bool actual = set && !(flags&ffCHANGER) && loaded;
