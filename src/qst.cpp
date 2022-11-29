@@ -2026,6 +2026,11 @@ void print_quest_metadata(zquestheader const& tempheader, char const* path, byte
 	{
 		switch ( tempheader.zelda_version )
 		{
+			case 0x300:
+			{
+				zprint2("Last saved in ZQuest Version: 3.0, %s: %d", tempheader.getAlphaStr(), tempheader.getAlphaVer());
+				break;
+			}
 			case 0x255:
 			{
 				zprint2("Last saved in ZQuest Version: 2.55.0, %s: %d", tempheader.getAlphaStr(), tempheader.getAlphaVer());
@@ -2123,11 +2128,11 @@ void print_quest_metadata(zquestheader const& tempheader, char const* path, byte
 		zprint2("%s\n", tempheader.getAlphaVerStr());
 	else zprint2("\n");
 	if ( tempheader.made_in_module_name[0] ) zprint2("Created with ZC Module: %s\n\n", tempheader.made_in_module_name);
-	if ( tempheader.new_version_devsig[0] ) zprint2("Developr Signoff by: %s\n", tempheader.new_version_devsig);
+	if ( tempheader.new_version_devsig[0] ) zprint2("Developer Signoff by: %s\n", tempheader.new_version_devsig);
 	if ( tempheader.new_version_compilername[0] ) zprint2("Compiled with: %s, (ID: %d)\n", tempheader.new_version_compilername, tempheader.compilerid);
 	if ( tempheader.new_version_compilerversion[0] ) zprint2("Compiler Version: %s, (%d,%d,%d,%d)\n", tempheader.new_version_compilerversion,tempheader.compilerversionnumber_first,tempheader.compilerversionnumber_second,tempheader.compilerversionnumber_third,tempheader.compilerversionnumber_fourth);
 	if ( tempheader.product_name[0] ) zprint2("Project ID: %s\n", tempheader.product_name);
-	if ( tempheader.new_version_id_date_day ) zprint2("Editor Built at date and time: %d-%d-%d at @ %s %s\n", tempheader.new_version_id_date_day, tempheader.new_version_id_date_month, tempheader.new_version_id_date_year, tempheader.build_timestamp, tempheader.build_timezone);
+	if ( tempheader.new_version_id_date_day ) zprint2("Editor Built (M-D-YYYY) %d-%d-%04d @ %s %s\n", tempheader.new_version_id_date_month, tempheader.new_version_id_date_day, tempheader.new_version_id_date_year, tempheader.build_timestamp, tempheader.build_timezone);
 	zprint2("\n");
 }
 
@@ -2845,7 +2850,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 				}
 			}
 		}
-		if(printmetadata || __isZQuest)
+		if(printmetadata)
 		{
 			print_quest_metadata(tempheader, loading_qst_name, loading_qst_num);
 		}
@@ -19189,7 +19194,7 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 		{
 			tiles_used=zc_min(tiles_used, ZC250MAXTILES-start_tile);
 		}
-		else //2.55
+		else //2.55+
 		{
 			tiles_used = zc_min(tiles_used,NEWMAXTILES-start_tile); 
 		}

@@ -1152,7 +1152,7 @@ int32_t zquestheader::compareDate() const
 		return 1;
 	if(new_version_id_date_day < BUILDTM_DAY)
 		return -1;
-	#define BUILDTIME_FUZZ 15
+	#define BUILDTIME_FUZZ 45
 	int32_t time_minutes = (new_version_id_date_hour*60)+new_version_id_date_minute;
 	int32_t btm_minutes = (BUILDTM_HOUR*60)+BUILDTM_MINUTE;
 	if(time_minutes > btm_minutes+BUILDTIME_FUZZ)

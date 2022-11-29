@@ -4063,7 +4063,7 @@ error2:
 		set_bit(skip_flags,skip_header,0);
 		//if(encrypted)
 		//	  setPackfilePassword(datapwd);
-		loadquest(imagepath,&tempheader,&misc,customtunes,false,compressed,encrypted,true,skip_flags);
+		loadquest(imagepath,&tempheader,&misc,customtunes,false,compressed,encrypted,true,skip_flags,0,true,-1);
 		//loadquest(imagepath,&tempheader,&misc,customtunes,false,compressed,encrypted,false,skip_flags);
 	//fails to keep quest password data / header
 		

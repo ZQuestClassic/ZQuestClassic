@@ -165,19 +165,12 @@ typedef uint64_t qword; //0-18,446,744,073,709,551,616  (64 bits)
 
 
 
-#define ZELDA_VERSION       0x0255                         //version of the program
-#define ZC_VERSION 25500 //Version ID for ZScript Game->Version
-#define VERSION_BUILD       61                             //V_BUILD build number of this version
-//31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-//#define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 37"                    //version of the program as presented in text
-//#define IS_BETA             -39                       //is this a beta? (1: beta, -1: alpha)
-//#define VERSION_BETA        39	
-//#define DATE_STR            "19th October, 2019, 12:18GMT"
-//__DATE__ and __TIME__ macros can simplify this, in the future. 
-//#define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 37"
-#define COPYRIGHT_YEAR      "2019"                          //shown on title screen and in ending
+#define ZELDA_VERSION       0x0300    //version of the program
+#define ZC_VERSION          30000     //Version ID for ZScript Game->Version
+#define VERSION_BUILD       62        //V_BUILD build number of this version
+#define COPYRIGHT_YEAR      "2019"    //shown on title screen and in ending
 
-#define MIN_VERSION         0x0184
+#define MIN_VERSION           0x0184
 
 #define ZELDADAT_VERSION      0x0211                        //version of zelda.dat
 #define ZELDADAT_BUILD        17                            //build of zelda.dat
@@ -237,10 +230,6 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #else
 #define PI 3.14159265358979323846
 #endif
-
-//#define HP_PER_HEART          16 //We should make this a global quest setting.
-//#define MAGICPERBLOCK         32
-//#define DAMAGE_MULTIPLIER     2 //We should make this a global quest setting.
 
 #define ZC_ID(a,b,c,d)  (((a)<<24) | ((b)<<16) | ((c)<<8) | (d))
 
@@ -432,8 +421,6 @@ extern bool fake_pack_writing;
 #define WRAP_CS2(cs,cs2) (get_bit(quest_rules,qr_OLDCS2)?((cs+cs2+16)%16):((cs+cs2+12)%12))
 
 #define XOR(a,b) (!(a) != !(b))
-
-//#define MAGICDRAINRATE  2
 
 // quest stuff
 #define ZQ_TILES        0

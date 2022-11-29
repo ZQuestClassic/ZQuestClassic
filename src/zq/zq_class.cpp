@@ -6671,7 +6671,7 @@ int32_t init_quest(const char *)
     
 	loading_file_new = true;
 	//load_quest("qst.dat#NESQST_NEW_QST",true,true);
-    load_quest(qstdat_string,true,true);
+    load_quest(qstdat_string,true,true,false);
     loading_file_new = false;
 	
 	sprintf(buf,"ZQuest - Untitled Quest");
@@ -6979,7 +6979,7 @@ void popup_bugfix_dlg(char* cfg)
 	}
 }
 // wrapper to reinitialize everything on an error
-int32_t load_quest(const char *filename, bool compressed, bool encrypted)
+int32_t load_quest(const char *filename, bool compressed, bool encrypted, bool printmeta)
 {
 	char buf[2048];
 //  if(encrypted)
@@ -6991,8 +6991,8 @@ int32_t load_quest(const char *filename, bool compressed, bool encrypted)
 		skip_flags[i]=0;
 	}
 	for(int32_t i=0; i<qr_MAX; i++)
-				set_bit(quest_rules,i,0);
-	int32_t ret=loadquest(filename,&header,&misc,customtunes,true,compressed,encrypted,true,skip_flags);
+		set_bit(quest_rules,i,0);
+	int32_t ret=loadquest(filename,&header,&misc,customtunes,true,compressed,encrypted,true,skip_flags,printmeta?1:0,true,-1);
 //  setPackfilePassword(NULL);
 
 	if(ret!=qe_OK)

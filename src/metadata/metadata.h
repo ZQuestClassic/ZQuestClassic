@@ -41,13 +41,13 @@
 #define ALPHA_VER_STR (ALPHA_SUB_STR " " STRGZ(ALPHA_VER))
 #endif
 
-#define PROJECT_NAME "AEternal"
+#define PROJECT_NAME "Phoenix"
 #define COMPANY_NAME "Armageddon Games"
 #define ZQ_EDITOR_NAME "ZQuest Creator"
-#define ZQ_EDITOR_V "2.55"
+#define ZQ_EDITOR_V "3.0"
 #define ZQ_EDITOR_COPYRIGHT "Copyright (C) 2021"
 
 #define ZC_PLAYER_NAME "ZQuest Classic Player"
-#define ZC_PLAYER_V "2.55"
+#define ZC_PLAYER_V "3.0"
 #define ZC_PLAYER_COPYRIGHT "Copyright (C) 2021"
 //}

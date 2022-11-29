@@ -13,7 +13,7 @@ void call_ruleset_dlg()
 static const GUI::ListData rulesetsList
 {
 	{ "Modern", rulesetModern,
-		"Enables all new 2.55 features including\n"
+		"Enables all modern features including\n"
 		"new Hero movement/step speed, new\n"
 		"combo animations, scripting extensions,\n"
 		"and other engine enhancements." },
