@@ -49,6 +49,7 @@ static int frame_count;
 static bool previous_control_state[ZC_CONTROL_STATES];
 static char previous_keys[KEY_MAX];
 static std::vector<zc_randgen *> rngs;
+static std::map<int, int> rng_seed_count_this_frame;
 static uint32_t prev_gfx_hash;
 static bool prev_gfx_hash_was_same;
 static int prev_debug_x;
@@ -321,10 +322,14 @@ static int get_rng_index(zc_randgen *rng)
     return it - rngs.begin();
 }
 
-static RngReplayStep *find_rng_step(int rng_index, size_t starting_step_index, const std::vector<std::shared_ptr<ReplayStep>> &log)
+// Find the RNG step associated with the given |rng_index|, starting at |starting_step_index|.
+// Only RNG steps for the current |frame_count| are valid.
+// If an offset is given, the nth RNG step will be returned (offset = 1 means the first).
+static RngReplayStep *find_rng_step(int rng_index, size_t starting_step_index, const std::vector<std::shared_ptr<ReplayStep>> &log, int offset = 1)
 {
-    RngReplayStep *result = nullptr;
+    ASSERT(offset >= 1);
 
+    int num_seen = 0;
     for (size_t i = starting_step_index; i < log.size(); i++)
     {
         auto step = log[i];
@@ -335,10 +340,13 @@ static RngReplayStep *find_rng_step(int rng_index, size_t starting_step_index, c
 
         auto rng_step = static_cast<RngReplayStep *>(step.get());
         if (rng_index >= rng_step->start_index && rng_index <= rng_step->end_index)
-            result = rng_step;
+            num_seen += 1;
+
+        if (num_seen == offset)
+            return rng_step;
     }
 
-    return result;
+    return nullptr;
 }
 
 static bool steps_are_equal(const ReplayStep* step1, const ReplayStep* step2)
@@ -1032,6 +1040,7 @@ void replay_poll()
     }
 
     maybe_take_snapshot();
+    rng_seed_count_this_frame.clear();
     frame_count++;
 }
 
@@ -1567,9 +1576,18 @@ void replay_set_rng_seed(zc_randgen *rng, int seed)
     int index = get_rng_index(rng);
     ASSERT(index != -1);
 
+    int seed_count = 0;
+    {
+        auto it = rng_seed_count_this_frame.find(index);
+        if (it != rng_seed_count_this_frame.end())
+            seed_count = it->second;
+    }
+    seed_count += 1;
+    rng_seed_count_this_frame[index] = seed_count;
+
     if (replay_is_replaying())
     {
-        RngReplayStep *rng_step = find_rng_step(index, replay_log_current_index, replay_log);
+        RngReplayStep *rng_step = find_rng_step(index, replay_log_current_index, replay_log, seed_count);
         if (rng_step)
         {
             seed = rng_step->seed;
@@ -1596,14 +1614,14 @@ void replay_set_rng_seed(zc_randgen *rng, int seed)
             auto rng_step = static_cast<RngReplayStep *>(record_log.back().get());
             if (rng_step->seed == seed)
             {
-                if (std::abs(rng_step->start_index - index) <= 1)
+                if (rng_step->start_index == index + 1)
                 {
-                    rng_step->start_index = std::min(rng_step->start_index, index);
+                    rng_step->start_index = index;
                     did_extend = true;
                 }
-                if (std::abs(rng_step->end_index - index) <= 1)
+                if (rng_step->end_index == index - 1)
                 {
-                    rng_step->end_index = std::max(rng_step->end_index, index);
+                    rng_step->end_index = index;
                     did_extend = true;
                 }
             }
