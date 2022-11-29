@@ -49,8 +49,17 @@ parser.add_argument('--snapshot')
 parser.add_argument('--retries', type=int, default=0)
 parser.add_argument('--frame', type=int)
 parser.add_argument('--ci')
-parser.add_argument('--always_exit_zero', action='store_true')
+parser.add_argument('--replay', action='store_true')
 args = parser.parse_args()
+
+if args.replay and args.update:
+    raise Exception('only one of --update or --replay may be used')
+
+mode = 'assert'
+if args.update:
+    mode = 'update'
+elif args.replay:
+    mode = 'replay'
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 replays_dir = os.path.join(script_dir, 'replays')
@@ -92,10 +101,6 @@ def run_replay_test(replay_file):
     # Assertion failed: (mutex), function al_lock_mutex, file threads.c, line 324.
     exe_name = 'zelda.exe' if os.name == 'nt' else 'zelda'
     exe_path = f'{args.build_folder}/{exe_name}'
-
-    mode = 'assert'
-    if args.update:
-        mode = 'update'
 
     exe_args = [
         exe_path,
@@ -176,7 +181,7 @@ for test in tests:
     if maybe_qst_path.exists():
         shutil.copy2(maybe_qst_path, args.build_folder)
 
-print(f'running {len(tests)} replay tests\n')
+print(f'running {len(tests)} replays\n')
 iteration_count = 0
 for i in range(args.retries + 1):
     if all(test_states.values()):
@@ -204,10 +209,11 @@ for i in range(args.retries + 1):
             print(diff)
 
 
-num_failures = sum(not state for state in test_states.values())
-if num_failures == 0:
-    print('all replay tests passed')
-else:
-    print(f'{num_failures} replay tests failed')
-    if not args.always_exit_zero:
-        exit(1)
+if mode == 'assert':
+    num_failures = sum(not state for state in test_states.values())
+    if num_failures == 0:
+        print('all replay tests passed')
+    else:
+        print(f'{num_failures} replay tests failed')
+        if not args.always_exit_zero:
+            exit(1)
