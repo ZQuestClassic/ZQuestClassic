@@ -9,7 +9,7 @@ extern newcombo* combobuf;
 std::map<int32_t, slope_object> slopes;
 
 slope_info::slope_info(newcombo const& cmb, zfix const& xoffs, zfix const& yoffs)
-	: cmb(cmb)
+	: cmb(&cmb)
 {
 	x1 = xoffs + int32_t(cmb.attrishorts[0]);
 	y1 = yoffs + int32_t(cmb.attrishorts[1]);
@@ -22,6 +22,10 @@ slope_info::slope_info(newcombo const& cmb, zfix const& xoffs, zfix const& yoffs
 		zc_swap(y1,y2);
 	}
 }
+
+slope_info::slope_info()
+	: cmb(nullptr)
+{}
 
 zfix slope_info::getX(zfix const& y) const
 {
@@ -36,6 +40,7 @@ zfix slope_info::getY(zfix const& x) const
 
 void slope_info::draw(BITMAP* dest, int32_t x, int32_t y, int32_t col) const
 {
+	if(!cmb) return;
 	line(dest, x+x1, y+y1, x+x2, y+y2, col);
 	zfix const& sl = slope();
 	if(sl > 0)
@@ -56,16 +61,14 @@ void draw_slopes(BITMAP *dest, int32_t x, int32_t y, int32_t col)
 		p.second.get_info().draw(dest,x,y,col);
 }
 
-static newcombo nil_combo;
-static slope_info nil_info(nil_combo);
 slope_info slope_object::get_info() const
 {
 	bool ff = ffc && ffc->getLoaded();
 	word const* id = ff ? &ffc->getData() : cmbid;
-	if(!id) return nil_info;
+	if(!id) return slope_info();
 	newcombo const& cmb = combobuf[*id];
 	if(cmb.type != cSLOPE)
-		return nil_info;
+		return slope_info();
 	
 	return slope_info(cmb, ff ? ffc->x : xoffs, ff ? ffc->y : yoffs);
 }
@@ -95,8 +98,17 @@ slope_object::slope_object(word* cid, ffcdata* ff, int32_t id, word cpos)
 	}
 }
 
+zfix slope_info::slope()        const { return (y2-y1)/(x2-x1); }
+zfix slope_info::slipperiness() const { return cmb ? zslongToFix(cmb->attributes[0]) : 0; }
+bool slope_info::stairs()       const { return cmb && (cmb->usrflags & cflag1); }
+bool slope_info::ignorebottom() const { return cmb && (cmb->usrflags & cflag2); }
+bool slope_info::ignoretop()    const { return cmb && (cmb->usrflags & cflag3); }
+bool slope_info::ignoreleft()   const { return cmb && (cmb->usrflags & cflag4); }
+bool slope_info::ignoreright()  const { return cmb && (cmb->usrflags & cflag5); }
+bool slope_info::falldown()     const { return cmb && (cmb->usrflags & cflag6); }
 bool slope_info::ignore(double lineangle, bool canfall, bool onplatform) const
 {
+	if(!cmb) return true;
 	auto sinangle = zc::math::Sin(lineangle);
 	auto cosangle = zc::math::Cos(lineangle);
 	if (sinangle < 0 && ((onplatform && stairs())

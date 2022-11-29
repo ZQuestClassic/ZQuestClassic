@@ -12,18 +12,17 @@ void draw_slopes(BITMAP *dest, int32_t x, int32_t y, int32_t col);
 
 struct slope_info
 {
-	newcombo const& cmb;
 	zfix x1,y1,x2,y2;
 	
-	zfix slope() const {return (y2-y1)/(x2-x1);}
-	zfix slipperiness() const {return zslongToFix(cmb.attributes[0]);}
+	zfix slope()        const;
+	zfix slipperiness() const;
 	
-	bool stairs()       const { return cmb.usrflags & cflag1; }
-	bool ignorebottom() const { return cmb.usrflags & cflag2; }
-	bool ignoretop()    const { return cmb.usrflags & cflag3; }
-	bool ignoreleft()   const { return cmb.usrflags & cflag4; }
-	bool ignoreright()  const { return cmb.usrflags & cflag5; }
-	bool falldown()     const { return cmb.usrflags & cflag6; }
+	bool stairs()       const;
+	bool ignorebottom() const;
+	bool ignoretop()    const;
+	bool ignoreleft()   const;
+	bool ignoreright()  const;
+	bool falldown()     const;
 	bool ignore(double lineangle, bool canfall = false, bool onplatform = false) const;
 	
 	zfix getX(zfix const& y) const;
@@ -32,6 +31,11 @@ struct slope_info
 	void draw(BITMAP* dest, int32_t x, int32_t y, int32_t col) const;
 	
 	slope_info(newcombo const& cmb, zfix const& xoffs = 0, zfix const& yoffs = 0);
+	slope_info();
+private:
+	newcombo const* cmb;
+	slope_info(slope_info const& other) = delete;
+	slope_info& operator=(slope_info const& other) = delete;
 };
 
 struct slope_object
@@ -46,6 +50,8 @@ struct slope_object
 	
 	void updateslope();
 	slope_object(word* cid = nullptr, ffcdata* ff = nullptr, int32_t id = -1, word cpos = 0);
+	slope_object(slope_object const& other) = delete;
+	slope_object& operator=(slope_object const& other) = delete;
 };
 
 int32_t check_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th, bool fallthrough = false);
