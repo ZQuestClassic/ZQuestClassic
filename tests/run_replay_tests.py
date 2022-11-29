@@ -215,5 +215,4 @@ if mode == 'assert':
         print('all replay tests passed')
     else:
         print(f'{num_failures} replay tests failed')
-        if not args.always_exit_zero:
-            exit(1)
+        exit(1)
