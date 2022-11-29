@@ -786,7 +786,7 @@ static void stretch_dialog(DIALOG *d, int32_t width, int32_t height, int32_t sho
     font_w = text_length(font, uconvert_ascii("A", tmp));
     
     if(width == 0)
-        width = (int32_t)(0.95*SCREEN_W);
+        width = (int32_t)(0.95*screen->w);
         
     hpad = (int32_t)(0.05*width);
     
@@ -836,7 +836,7 @@ static void stretch_dialog(DIALOG *d, int32_t width, int32_t height, int32_t sho
     font_w = text_length(font, uconvert_ascii("A", tmp));
     
     if(width == 0)
-        width = (int32_t)(0.95*SCREEN_W);
+        width = (int32_t)(0.95*screen->w);
     
     hpad = (int32_t)(0.05*width);
     

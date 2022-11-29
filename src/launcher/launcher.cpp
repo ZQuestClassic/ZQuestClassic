@@ -3,9 +3,9 @@
 #include "launcher.h"
 #include "base/module.h"
 #include "base/fonts.h"
+#include "base/render.h"
 #include "dialog/alert.h"
 #include "launcher_dialog.h"
-#include "zqscale.h"
 #include "base/zapp.h"
 
 #define QUICK_EXIT 0
@@ -28,10 +28,9 @@ volatile int32_t framecnt = 0;
 int32_t joystick_index = 0;
 int32_t readsize = 0, writesize = 0;
 volatile int32_t myvsync=0;
-extern int32_t zqwin_scale;
 int32_t zq_screen_w=800;
 int32_t zq_screen_h=600;
-BITMAP *tmp_scr;;
+BITMAP *tmp_scr;
 BITMAP *mouse_bmp;
 int32_t gui_colorset = 99;
 volatile bool close_button_quit = false;
@@ -179,50 +178,19 @@ int32_t main(int32_t argc, char* argv[])
 	
 	set_color_depth(8);
 
-	int scale_arg = used_switch(argc,argv,"-scale");
-	if(scale_arg && (argc>(scale_arg+1)))
-	{
-		scale_arg = atoi(argv[scale_arg+1]);
+	all_disable_threaded_display();
 
-		if(scale_arg == 0)
-		{
-			scale_arg = 1;
-		}
+	// TODO: remember window size.
+	double monitor_scale = zc_get_monitor_scale();
+	int window_width = zq_screen_w * monitor_scale;
+	int window_height = zq_screen_h * monitor_scale;
 
-		zqwin_set_scale(scale_arg);
-	} else {
-#ifdef __APPLE__
-		zqwin_set_scale(2);
-#endif
-	}
-
-	all_set_force_integer_scale(false);
-	// all_set_force_integer_scale(zc_get_config("ZLAUNCH", "scaling_force_integer", 0) != 0);
-	// if (strcmp(zc_get_config("ZLAUNCH", "scaling_mode", "nn"), "linear") == 0)
-		// all_set_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR);
-
-	int32_t videofail = set_gfx_mode(GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
+	int32_t videofail = set_gfx_mode(GFX_AUTODETECT_WINDOWED,window_width,window_height,0,0);
 	
 	if(videofail)
 	{
 		Z_error_fatal(allegro_error);
 		QUIT_LAUNCHER();
-	}
-
-	if (zc_get_config("ZLAUNCH","hw_cursor",0) == 1)
-	{
-		// Must wait for the display thread to create the a5 display before the
-		// hardware cursor can be enabled.
-		while (!all_get_display()) rest(1);
-		enable_hardware_cursor();
-		select_mouse_cursor(MOUSE_CURSOR_ARROW);
-	}
-	else
-	{
-#ifdef _WIN32
-		while (!all_get_display()) rest(1);
-		al_hide_mouse_cursor(all_get_display());
-#endif
 	}
 	
 	Z_message("Loading bitmaps..."); //{
@@ -284,6 +252,7 @@ END_OF_MAIN()
 
 //Things required to compile from shared files... le sigh -Em
 bool is_large = true; //scaling
+bool DragAspect = true;
 bool is_zquest() //Used for sizing purposes
 {
 	return true;
@@ -512,19 +481,88 @@ void myvsync_callback()
 }
 END_OF_FUNCTION(myvsync_callback)
 
+static RenderTreeItem rti_root;
+static RenderTreeItem rti_screen;
+
+static int zc_gui_mouse_x()
+{
+	return rti_screen.global_to_local_x(mouse_x);
+}
+
+static int zc_gui_mouse_y()
+{
+	return rti_screen.global_to_local_y(mouse_y);
+}
+
+static void init_render_tree()
+{
+	if (!rti_root.children.empty())
+		return;
+
+	if (zc_get_config("ZLAUNCH", "scaling_mode", 0) == 1)
+		al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR);
+	else
+		al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE);
+	rti_screen.bitmap = al_create_bitmap(screen->w, screen->h);
+	rti_screen.a4_bitmap = screen;
+
+	rti_root.children.push_back(&rti_screen);
+
+	gui_mouse_x = zc_gui_mouse_x;
+	gui_mouse_y = zc_gui_mouse_y;
+}
+
+static void configure_render_tree()
+{
+	int resx = al_get_display_width(all_get_display());
+	int resy = al_get_display_height(all_get_display());
+
+	rti_root.transform.x = 0;
+	rti_root.transform.y = 0;
+	rti_root.transform.scale = 1;
+	rti_root.visible = true;
+
+	{
+		static bool scaling_force_integer = zc_get_config("ZLAUNCH", "scaling_force_integer", 0) == 1;
+
+		int w = al_get_bitmap_width(rti_screen.bitmap);
+		int h = al_get_bitmap_height(rti_screen.bitmap);
+		float scale = std::min((float)resx/w, (float)resy/h);
+		if (scaling_force_integer)
+			scale = (int) scale;
+		rti_screen.transform.x = (resx - w*scale) / 2 / scale;
+		rti_screen.transform.y = (resy - h*scale) / 2 / scale;
+		rti_screen.transform.scale = scale;
+		rti_screen.visible = true;
+	}
+}
+
+static void render_launcher()
+{
+	init_render_tree();
+	configure_render_tree();
+
+	al_set_target_backbuffer(all_get_display());
+	al_clear_to_color(al_map_rgb_f(0, 0, 0));
+	render_tree_draw(&rti_root);
+
+	al_flip_display();
+}
+
 bool update_hw_pal = false;
 void update_hw_screen(bool force)
 {
 	if(force || myvsync)
 	{
+		zc_process_display_events();
 		if(update_hw_pal)
 		{
 			set_palette(RAMpal);
 			load_mouse();
 		}
 		update_hw_pal=false;
-		myvsync=0;
-		all_mark_screen_dirty();
+		if (myvsync)
+			render_launcher();
 	}
 }
 

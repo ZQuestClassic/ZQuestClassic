@@ -656,7 +656,6 @@ void ending()
 	game->set_continue_dmap(zinit.start_dmap);
 	game->set_continue_scrn(0xFF);
 	game->set_cont_hearts(zinit.cont_heart);
-	show_saving(scrollbuf);
 	save_savedgames();
 	if (replay_get_mode() == ReplayMode::Record) replay_save();
 }
@@ -782,7 +781,6 @@ void ending_scripted()
 	game->set_continue_scrn(0xFF);
 	game->set_cont_hearts(zinit.cont_heart);
 	game->set_hasplayed(false);
-	show_saving(scrollbuf);
 	save_savedgames();
 	if (replay_get_mode() == ReplayMode::Record) replay_save();
 }

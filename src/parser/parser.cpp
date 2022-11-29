@@ -400,4 +400,5 @@ int32_t main(int32_t argc, char **argv)
 }
 END_OF_MAIN()
 
-
+// TODO: make this not needed to compile...
+bool DragAspect = false;

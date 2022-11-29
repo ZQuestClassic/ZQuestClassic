@@ -10,7 +10,6 @@
 #include "zq_custom.h"
 #include "zq_misc.h"
 #include "zq_tiles.h"
-#include "zqscale.h"
 #include "zquest.h"
 #include "base/zsys.h"
 #include <map>
@@ -1381,8 +1380,6 @@ const char *stringcatlist(int32_t index, int32_t *list_size)
 
 // Dialog procs
  //
-
-extern int32_t zqwin_scale;
 
 int32_t d_msgtile_proc(int32_t msg,DIALOG *d,int32_t c)
 {

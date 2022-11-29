@@ -180,6 +180,7 @@ AL_LEGACY_FUNCPTR(void, gui_menu_draw_menu_item, (MENU *m, int x, int y, int w, 
 
 AL_LEGACY_VAR(DIALOG *, active_dialog);
 AL_LEGACY_VAR(MENU *, active_menu);
+AL_LEGACY_VAR(int, dialog_count);
 
 AL_LEGACY_VAR(int, gui_mouse_focus);
 

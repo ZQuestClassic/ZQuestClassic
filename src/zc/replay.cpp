@@ -717,7 +717,7 @@ static void save_snapshot(BITMAP* bitmap, PALETTE pal, int frame, bool was_unexp
 	img_filename += ".bmp";
 
 	if (was_unexpected)
-		fmt::print(stderr, "Saving unexpected bitmap: {}\n", img_filename);
+		fmt::print("Saving unexpected bitmap: {}\n", img_filename);
 	else
 		fmt::print("Saving bitmap: {}\n", img_filename);
 

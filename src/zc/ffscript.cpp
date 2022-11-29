@@ -18,11 +18,13 @@
 //
 
 #include "zc_sys.h"
+#include "base/zc_alleg.h"
 extern byte use_dwm_flush;
 uint8_t using_SRAM = 0;
 #include "base/zc_math.h"
 #include "base/zc_array.h"
 #include "ffscript.h"
+#include "render.h"
 #include "zc_subscr.h"
 #include <time.h>
 #include "script_drawing.h"
@@ -3734,8 +3736,7 @@ int32_t get_register(const int32_t arg)
 			
 		case INPUTMOUSEX:
 		{
-			int32_t leftOffset=(resx/2)-(128*screen_scale);
-			ret=((gui_mouse_x()-leftOffset)/screen_scale)*10000;
+			ret=gui_mouse_x()*10000;
 			break;
 		}
 		
@@ -3743,8 +3744,7 @@ int32_t get_register(const int32_t arg)
 		{
 			int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
 			int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
-			int32_t topOffset=(resy/2)-((112-tempoffset)*screen_scale);
-			ret=((gui_mouse_y()-topOffset)/screen_scale)*10000;
+			ret=((gui_mouse_y()-tempoffset))*10000;
 			break;
 		}
 		
@@ -3957,16 +3957,15 @@ int32_t get_register(const int32_t arg)
 			{
 				case 0: //MouseX
 				{
-					int32_t leftOffset=(resx/2)-(128*screen_scale);
-					rv=((gui_mouse_x()-leftOffset)/screen_scale)*10000;
+					rv=gui_mouse_x()*10000;
 					break;	
 				}
 				case 1: //MouseY
 				{
 					int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
 					int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
-					int32_t topOffset=(resy/2)-((112-tempoffset)*screen_scale);
-					rv=((gui_mouse_y()-topOffset)/screen_scale)*10000;
+					int32_t topOffset= (112-tempoffset);
+					rv=(gui_mouse_y()-topOffset)*10000;
 					break;
 				}
 				case 2: //MouseZ
@@ -13609,8 +13608,7 @@ void set_register(const int32_t arg, const int32_t value)
 			
 		case INPUTMOUSEX:
 		{
-			int32_t leftOffset=(resx/2)-(128*screen_scale);
-			position_mouse((value/10000)*screen_scale+leftOffset, gui_mouse_y());
+			position_mouse(rti_game.local_to_global_x(value/10000), mouse_y);
 			break;
 		}
 		
@@ -13618,8 +13616,7 @@ void set_register(const int32_t arg, const int32_t value)
 		{
 			int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
 			int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
-			int32_t topOffset=(resy/2)-((112-tempoffset)*screen_scale);
-			position_mouse(gui_mouse_x(), (value/10000)*screen_scale+topOffset);
+			position_mouse(mouse_x, rti_game.local_to_global_y(value/10000 + tempoffset));
 			break;
 		}
 		
@@ -13766,16 +13763,14 @@ void set_register(const int32_t arg, const int32_t value)
 			{
 				case 0: //MouseX
 				{
-					int32_t leftOffset=(resx/2)-(128*screen_scale);
-					position_mouse((value/10000)*screen_scale+leftOffset, gui_mouse_y());
+					position_mouse(rti_game.local_to_global_x(value/10000), mouse_y);
 					break;	
 				}
 				case 1: //MouseY
 				{
 					int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
 					int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset :(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
-					int32_t topOffset=(resy/2)-((112-tempoffset)*screen_scale);
-					position_mouse(gui_mouse_x(), (value/10000)*screen_scale+topOffset);
+					position_mouse(mouse_x, rti_game.local_to_global_y(value/10000 + tempoffset));
 					break;
 					
 				}

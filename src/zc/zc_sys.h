@@ -19,6 +19,8 @@ extern MENU the_player_menu[];
 extern MENU the_player_menu2[];
 extern bool is_sys_pal;
 
+void render_zc();
+
 void large_dialog(DIALOG *d);
 void large_dialog(DIALOG *d, float RESIZE_AMT);
 
@@ -190,10 +192,6 @@ enum {bosCIRCLE=0, bosOVAL, bosTRIANGLE, bosSMAS, bosFADEBLACK, bosMAX};
 void go();
 void comeback();
 void dump_pal(BITMAP *dest);
-void show_paused(BITMAP *target);
-void show_fps(BITMAP *target);
-void show_saving(BITMAP *target);
-void show_replay_controls(BITMAP *target);
 bool game_vid_mode(int32_t mode,int32_t wait);
 void init_NES_mode();
 

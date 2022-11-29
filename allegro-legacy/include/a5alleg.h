@@ -31,7 +31,7 @@ AL_LEGACY_FUNC(void, all_render_a5_bitmap, (BITMAP * bp, ALLEGRO_BITMAP * a5bp))
 AL_LEGACY_FUNC(void, all_render_screen, (void));
 AL_LEGACY_FUNC(void, all_disable_threaded_display, (void));
 // local edit
-AL_LEGACY_FUNC(void, all_mark_screen_dirty, (void));
+AL_LEGACY_FUNC(void, all_process_display_events, ());
 AL_LEGACY_FUNC(void, all_set_scale, (int scale));
 AL_LEGACY_FUNC(void, all_set_force_integer_scale, (bool force));
 AL_LEGACY_FUNC(int, all_get_scale, (void));
@@ -47,6 +47,7 @@ AL_LEGACY_FUNC(int, all_get_bitmap_flags, (void));
 AL_LEGACY_FUNC(void, all_lock_screen, (void));
 AL_LEGACY_FUNC(void, all_unlock_screen, (void));
 AL_LEGACY_FUNC(void, all_mouse_is_ready, (bool));
+AL_LEGACY_FUNC(void, all_set_transparent_palette_index, (int));
 AL_LEGACY_FUNC(void, all_keyboard_queue_register_event_source, (ALLEGRO_EVENT_SOURCE *));
 
 #ifdef __cplusplus

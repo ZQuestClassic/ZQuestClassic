@@ -64,6 +64,8 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
                 case ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY:
                 {
                     _mouse_on = -1;
+                    // TODO: feels like this shouldn't be needed. for osx, it helps.
+                    // al_show_mouse_cursor(all_get_display());
                     break;
                 }
                 case ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY:
@@ -77,34 +79,7 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
                     _mouse_y = event.mouse.y;
                     _mouse_z = event.mouse.z;
 
-                    // local edit
-                    // all of this complexity is because ZC is not coded to be resolution-independent
-                    // re: it's UI
-#ifndef __EMSCRIPTEN__
-                    int native_width, native_height, display_width, display_height, offset_x, offset_y;
-                    double scale;
-                    all_get_display_transform(&native_width, &native_height, &display_width, &display_height, &offset_x, &offset_y, &scale);
-
-                    if (all_get_fullscreen_flag() && (gfx_capabilities & GFX_HW_CURSOR))
-                    {
-                        _mouse_x -= offset_x;
-                        _mouse_y -= offset_y;
-                    }
-
-                    if (all_get_fullscreen_flag())
-                    {
-                        _mouse_x /= scale;
-                        _mouse_y /= scale;
-                    }
-                    else
-                    {
-                        _mouse_x = native_width * ((double)_mouse_x - offset_x) / ((double)display_width - offset_x * 2);
-                        _mouse_y = native_height * ((double)_mouse_y - offset_y) / ((double)display_height - offset_y * 2);
-                    }
-#endif
-
                     if (prevx != _mouse_x || prevy != _mouse_y || prevz != _mouse_z) {
-                        all_mark_screen_dirty();
                         prevx = event.mouse.x;
                         prevy = event.mouse.y;
                         prevz = event.mouse.z;
@@ -159,10 +134,10 @@ static int a5_mouse_init(void)
     }
     have_touch_input = al_install_touch_input();
 
-    if(_a5_display)
-    {
-        al_hide_mouse_cursor(_a5_display);
-    }
+    // if(_a5_display)
+    // {
+    //     al_hide_mouse_cursor(_a5_display);
+    // }
     a5_mouse_thread = al_create_thread(a5_mouse_thread_proc, NULL);
     al_start_thread(a5_mouse_thread);
     return 0;
@@ -177,7 +152,7 @@ static void a5_mouse_exit(void)
 
 static void a5_mouse_position(int x, int y)
 {
-    al_set_mouse_xy(_a5_display, x, y);
+    // al_set_mouse_xy(_a5_display, x, y);
 }
 
 static void a5_mouse_get_mickeys(int * x, int * y)

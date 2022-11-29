@@ -156,7 +156,7 @@ add_subdirectory(allegro-legacy EXCLUDE_FROM_ALL)
 add_library(allegro_with_legacy INTERFACE)
 target_include_directories(allegro_with_legacy INTERFACE ${allegro5_SOURCE_DIR}/include ${allegro5_BINARY_DIR}/include)
 target_include_directories(allegro_with_legacy INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/allegro-legacy/include ${CMAKE_CURRENT_BINARY_DIR}/allegro-legacy/include)
-target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primitives allegro_image allegro_main)
+target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primitives allegro_font allegro_image allegro_main)
 
 if (NOT EMSCRIPTEN)
 	target_link_libraries(allegro_with_legacy INTERFACE allegro_dialog)
@@ -357,6 +357,7 @@ set(zcbase_sources
 	src/base/module.cpp
 	src/base/process_management.cpp
 	src/base/random.cpp
+	src/base/render.cpp
 	src/base/sin1.cpp
 	src/base/util.cpp
 	src/base/win32.cpp
@@ -556,7 +557,7 @@ endif()
 
 add_executable(zelda ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE_SOURCES} ${ZELDA_SUBSCREEN_SOURCES} ${ZELDA_SCRIPTING_SOURCES} ${ZELDAEXTRASOURCES} ${ZELDA_MODULES})
 target_compile_definitions(zelda PRIVATE IS_PLAYER)
-set_property(TARGET zelda PROPERTY VS_DPI_AWARE "OFF")
+set_property(TARGET zelda PROPERTY VS_DPI_AWARE "PerMonitor")
 target_include_directories(zelda PRIVATE src/zc)
 target_link_libraries(zelda PRIVATE allegro_with_legacy)
 
@@ -609,7 +610,7 @@ if(Boost_FOUND)
 	include_directories(${Boost_INCLUDE_DIRS})
 	add_definitions(-DHAS_BOOST)
 	add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZQUEST_MODULES})
-	set_property(TARGET zquest PROPERTY VS_DPI_AWARE "OFF")
+	set_property(TARGET zquest PROPERTY VS_DPI_AWARE "PerMonitor")
 
 	target_link_libraries(zquest PUBLIC allegro_with_legacy zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
 	target_include_directories(zquest PRIVATE src/zq)
@@ -666,7 +667,7 @@ endif()
 
 add_executable(zlauncher ${LAUNCHER_SOURCES} ${LAUNCHER_GUI_SOURCES} ${LAUNCHEREXTRASOURCES})
 target_compile_definitions(zlauncher PRIVATE IS_LAUNCHER)
-set_property(TARGET zlauncher PROPERTY VS_DPI_AWARE "OFF")
+set_property(TARGET zlauncher PROPERTY VS_DPI_AWARE "PerMonitor")
 target_include_directories(zlauncher PRIVATE src/launcher)
 target_link_libraries(zlauncher PRIVATE allegro_with_legacy zcbase zcgui zconsolelogger ${LAUNCHERLIBSEXTRA})
 

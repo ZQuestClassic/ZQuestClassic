@@ -6,7 +6,6 @@ set(LAUNCHER_SOURCES
 ################################
 src/launcher/launcher.cpp
 src/zconfig.cpp
-src/zqscale.cpp
 
 ## End of Launcher Core module
 )
