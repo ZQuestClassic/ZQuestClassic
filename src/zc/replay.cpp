@@ -1639,25 +1639,13 @@ void replay_sync_rng()
     if (!sync_rng)
         return;
 
-    // Only reset the rngs that haven't been updated this frame.
-    size_t first_step_index_for_frame = 0;
-    bool found_first_step = false;
-    if (!record_log.empty())
-    {
-        size_t i = record_log.size() - 1;
-        while (i > 0 && record_log[i]->frame == frame_count)
-        {
-            found_first_step = true;
-            first_step_index_for_frame = i;
-            i--;
-        }
-    }
-
     int seed = time(0);
     for (size_t i = 0; i < rngs.size(); i++)
     {
-        if (found_first_step && find_rng_step(i, first_step_index_for_frame, record_log))
+        // Only reset the rngs that haven't been updated this frame.
+        if (rng_seed_count_this_frame.find(i) != rng_seed_count_this_frame.end())
             continue;
+
         replay_set_rng_seed(rngs[i], seed);
         if (mode == ReplayMode::Off)
             return;
