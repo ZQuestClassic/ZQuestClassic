@@ -14,12 +14,14 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 void do_generic_combo_ffc2(int32_t pos, int32_t cid, int32_t ft);
 
 void spawn_decoration(newcombo const& cmb, int32_t pos);
+void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y);
 
 bool can_locked_combo(newcombo const& cmb);
 bool try_locked_combo(newcombo const& cmb);
 
 void trigger_sign(newcombo const& cmb);
 void trigger_cuttable(int32_t lyr, int32_t pos);
+void trigger_cuttable_ffc(int32_t pos);
 bool trigger_step(int32_t lyr, int32_t pos);
 bool trigger_chest(int32_t lyr, int32_t pos);
 bool trigger_lockblock(int32_t lyr, int32_t pos);

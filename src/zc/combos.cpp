@@ -505,6 +505,26 @@ void spawn_decoration(newcombo const& cmb, int32_t pos)
 	}
 }
 
+void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y)
+{
+	int16_t decotype = (cmb.usrflags & cflag1) ? ((cmb.usrflags & cflag10) ? (cmb.attribytes[0]) : (-1)) : (0);
+	if(decotype > 3) decotype = 0;
+	if(!decotype) decotype = (isBushType(cmb.type) ? 1 :
+		(isFlowersType(cmb.type) ? 2 :
+		(isGrassType(cmb.type) ? 3 :
+		((cmb.usrflags & cflag1) ? -1 : -2))));
+	switch(decotype)
+	{
+		case -2: break; //nothing
+		case -1:
+			decorations.add(new comboSprite(x, y, 0, 0, cmb.attribytes[0]));
+			break;
+		case 1: decorations.add(new dBushLeaves(x, y, dBUSHLEAVES, 0, 0)); break;
+		case 2: decorations.add(new dFlowerClippings(x, y, dFLOWERCLIPPINGS, 0, 0)); break;
+		case 3: decorations.add(new dGrassClippings(x, y, dGRASSCLIPPINGS, 0, 0)); break;
+	}
+}
+
 void trigger_cuttable(int32_t lyr, int32_t pos)
 {
 	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return;
@@ -630,6 +650,107 @@ void trigger_cuttable(int32_t lyr, int32_t pos)
 		}
 	}
 	spawn_decoration(cmb, pos);
+}
+
+void trigger_cuttable_ffc(int32_t pos)
+{
+	if(unsigned(pos) > MAXFFCS) return;
+	ffcdata& ffc = tmpscr->ffcs[pos];
+	newcombo const& cmb = combobuf[ffc.getData()];
+	auto type = cmb.type;
+	if (!isCuttableType(type)) return;
+	auto flag2 = cmb.flag;
+	auto x = ffc.x, y = ffc.y;
+	
+	bool skipSecrets = isNextType(type) && !get_bit(quest_rules,qr_OLD_SLASHNEXT_SECRETS);
+	bool done = false;
+	if(!skipSecrets)
+	{
+		done = true;
+		if(flag2 >= 16 && flag2 <= 31)
+		{ 
+			ffc.setData(tmpscr->secretcombo[(tmpscr->sflag[pos])-16+4]);
+			ffc.cset = tmpscr->secretcset[(tmpscr->sflag[pos])-16+4];
+		}
+		else if(flag2 == mfARMOS_SECRET)
+		{
+			ffc.setData(tmpscr->secretcombo[sSTAIRS]);
+			ffc.cset = tmpscr->secretcset[sSTAIRS];
+			sfx(tmpscr->secretsfx);
+		}
+		else if((flag2>=mfSWORD && flag2<=mfXSWORD)|| flag2==mfSTRIKE)
+		{
+			for(int32_t i=0; i <= 3; i++)
+			{
+				findentrance(x,y,mfSWORD+i,true);
+			}
+			
+			findentrance(x,y,mfSTRIKE,true);
+		}
+		else done = false;
+	}
+	if(!done)
+	{
+		if(isCuttableNextType(type))
+		{
+			ffc.incData(1);
+		}
+		else
+		{
+			ffc.setData(tmpscr->undercombo);
+			ffc.cset = tmpscr->undercset;
+		}
+	}
+	
+	if((flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
+	{
+		items.add(new item((zfix)x, (zfix)y,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
+		sfx(tmpscr->secretsfx);
+	}
+	else if(isCuttableItemType(type))
+	{
+		int32_t it = -1;
+		int32_t thedropset = -1;
+		if (cmb.usrflags&cflag2) //specific dropset or item
+		{
+			if (cmb.usrflags&cflag11) 
+			{
+				it = cmb.attribytes[1];
+			}
+			else
+			{
+				it = select_dropitem(cmb.attribytes[1]);
+				thedropset = cmb.attribytes[1];
+			}
+		}
+		else
+		{
+			it = select_dropitem(12);
+			thedropset = 12;
+		}
+		
+		if(it!=-1)
+		{
+			item* itm = (new item((zfix)x, (zfix)y,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			itm->from_dropset = thedropset;
+			items.add(itm);
+		}
+	}
+	
+	//putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
+	
+	if(get_bit(quest_rules,qr_MORESOUNDS))
+	{
+		if (cmb.usrflags&cflag3)
+		{
+			sfx(cmb.attribytes[2],int32_t(x));
+		}
+		else if (isBushType(type) || isFlowersType(type) || isGrassType(type))
+		{
+			sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(x));
+		}
+	}
+	spawn_decoration_xy(cmb, x, y);
 }
 
 bool trigger_step(int32_t lyr, int32_t pos)
