@@ -21,8 +21,8 @@ function(setup_coverage_test_target target_name output_dir test_runner)
           -e ${CMAKE_SOURCE_DIR}/src/gui
           -e ${CMAKE_SOURCE_DIR}/src/editbox
           -e ${CMAKE_SOURCE_DIR}/src/jwin
-          -e ${CMAKE_SOURCE_DIR}/base/jwinfsel
-          -e ${CMAKE_SOURCE_DIR}/base/gui
+          -e ${CMAKE_SOURCE_DIR}/src/base/jwinfsel
+          -e ${CMAKE_SOURCE_DIR}/src/base/gui
           -e ${CMAKE_SOURCE_DIR}/src/base/process_management
           -d
         COMMAND ${CMAKE_COMMAND} -E echo "Open ${output_dir}/index.html in your browser to view the coverage report."
