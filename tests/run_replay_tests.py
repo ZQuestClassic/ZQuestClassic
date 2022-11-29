@@ -119,7 +119,7 @@ def run_replay_test(replay_file):
 
     # Cap the length of a replay in CI.
     if args.ci:
-        max_duration = 4 * 60
+        max_duration = 5 * 60
         fps = 800
         estimated_duration = num_frames / fps
         if estimated_duration > max_duration:
@@ -127,7 +127,7 @@ def run_replay_test(replay_file):
             exe_args.extend(['-frame', str(num_frames_checked)])
             print(f"-frame {num_frames_checked}, only doing {100 * num_frames_checked / num_frames:.2f}% ... ", end='', flush=True)
             estimated_duration = max_duration
-        timeout = 30 + estimated_duration * 1.2
+        timeout = 60 + estimated_duration * 1.5
     else:
         timeout = None
 
