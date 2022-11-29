@@ -16,11 +16,10 @@
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
 #include "zeldadat.h"
+#include "render.h"
 
 extern DATAFILE* datafile;
 
-extern bool sbig;
-extern int32_t screen_scale;
 extern int32_t joystick_index;
 int32_t logovolume = 0;
 
@@ -144,6 +143,8 @@ int32_t aglogo_new_nofire(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t 
     blit((BITMAP*)datafile[RLE_AGTEXT].dat,frame,0,0,0,0,256,224);
     textout_ex(frame, dsphantompfont, "Celebrating Twenty Years", 79-32-1, 170-1, 3, -1);
     textout_ex(frame, dsphantompfont, "Celebrating Twenty Years", 79-32, 170, 200, -1);
+
+    rti_screen.visible = true;
     
     do
     {
@@ -159,10 +160,7 @@ int32_t aglogo_new_nofire(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t 
 	    
         vsync();
         
-        //if(sbig)
-            stretch_blit(frame,screen, 0,0,255,223, 0,0,SCREEN_W, SCREEN_H);// (resx-(320*screen_scale))>>1, (resy-(198*screen_scale))>>1, 320*screen_scale,198*screen_scale);
-        //else
-        //    blit(frame,screen, 0,0,(resx-320)>>1, (resy-198)>>1, 320,198);
+		stretch_blit(frame,screen, 0,0,255,223, 0,0,screen->w, screen->h);
             
         poll_joystick();
         
@@ -188,6 +186,8 @@ int32_t aglogo_new_nofire(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t 
         }
     }
     while(fadecnt>0);
+
+    rti_screen.visible = false;
     
     stop_sample((SAMPLE*)datafile[WAV_00_AGFIRE].dat);
     clear_keybuf();
@@ -227,6 +227,8 @@ int32_t aglogo(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t resy)
     clear_bitmap(interm);
     clear_bitmap(overla);
     blit((BITMAP*)datafile[RLE_AGTEXT].dat,overla, 0,0,0,0, 256,224);
+
+    rti_screen.visible = true;
     do
     {
         AddFire(firebuf,17);
@@ -239,9 +241,9 @@ int32_t aglogo(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t resy)
 	textout_ex(interm, dsphantompfont, "Celebrating Twenty Years", 79-32-1, 170-1, 3, -1);
 	textout_ex(interm, dsphantompfont, "Celebrating Twenty Years", 79-32, 170, 200, -1);
 	
-	stretch_blit(interm,frame, 0,0,255,223, 0,0,256, 224);// (resx-(320*screen_scale))>>1, (resy-(198*screen_scale))>>1, 320*screen_scale,198*screen_scale);
+	stretch_blit(interm,screen, 0,0,255,223, 0,0,screen->w, screen->h);
         vsync();
-	stretch_blit(frame,screen, 0,0,255,223, 0,0,SCREEN_W, SCREEN_H);// (resx-(320*screen_scale))>>1, (resy-(198*screen_scale))>>1, 320*screen_scale,198*screen_scale);
+	// stretch_blit(frame,screen, 0,0,255,223, 0,0,SCREEN_W, SCREEN_H);
         
 	//else
         //    blit(frame,screen, 0,0,(resx-320)>>1, (resy-198)>>1, 320,198);
@@ -270,8 +272,12 @@ int32_t aglogo(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t resy)
                 
             set_palette_range(workpal,0,255,false);
         }
+
+        update_hw_screen();
     }
     while(fadecnt>0);
+
+    rti_screen.visible = false;
     
     stop_sample((SAMPLE*)datafile[WAV_00_AGFIRE].dat);
     clear_keybuf();
@@ -311,10 +317,7 @@ int32_t aglogo_old(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t resy)
 		
 		vsync();
 		
-		if(sbig)
-			stretch_blit(frame,screen, 0,0,320,198, (resx-(320*screen_scale))>>1, (resy-(198*screen_scale))>>1, 320*screen_scale,198*screen_scale);
-		else
-			blit(frame,screen, 0,0,(resx-320)>>1, (resy-198)>>1, 320,198);
+		blit(frame,screen, 0,0,(resx-320)>>1, (resy-198)>>1, 320,198);
 		
 		poll_joystick();
 		

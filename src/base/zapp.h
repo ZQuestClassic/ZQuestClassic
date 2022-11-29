@@ -1,6 +1,8 @@
 #ifndef _ZAPP_H_
 #define _ZAPP_H_
 
+struct ALLEGRO_FONT;
+
 enum App {
     undefined,
     zelda,
@@ -11,7 +13,9 @@ enum App {
 
 void common_main_setup(App id, int argc, char **argv);
 App get_app_id();
-void zc_install_mouse_event_handler();
-void zc_process_mouse_events();
+double zc_get_monitor_scale();
+void zc_process_display_events();
+ALLEGRO_FONT* zc_get_builtin_font();
+void zc_update_builtin_font();
 
 #endif

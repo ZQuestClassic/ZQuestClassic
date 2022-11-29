@@ -45,7 +45,7 @@ extern bool is_large;
 extern int32_t RulesetDialog;
 
 extern bool disable_saving, OverwriteProtection;
-extern int32_t zq_scale, TileProtection;
+extern int32_t TileProtection;
 
 extern uint8_t PreFillTileEditorPage, PreFillComboEditorPage, PreFillMapTilePage;
 extern int32_t DMapEditorLastMaptileUsed;
@@ -286,7 +286,6 @@ int32_t gettilepagenumber(const char *prompt, int32_t initialval);
 int32_t gethexnumber(const char *prompt,int32_t initialval);
 
 void update_combo_cycling();
-void doAspectResize();
 
 bool confirmBox(const char *m1, const char *m2 = NULL, const char *m3 = NULL);
 int32_t onSelectSFX();
@@ -410,7 +409,6 @@ int32_t onTemplates();
 extern BITMAP *pic;
 extern PALETTE picpal;
 extern int32_t  pblack,pwhite;
-extern double scale;
 extern bool vp_showpal, vp_showsize, vp_center;
 
 INLINE int32_t pal_sum(RGB p)
@@ -1172,7 +1170,6 @@ extern volatile int32_t myvsync;
 void myvsync_callback();
 void fps_callback();
 
-extern BITMAP *hw_screen;
 extern bool update_hw_pal;
 void update_hw_screen(bool force);
 

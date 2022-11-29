@@ -33,7 +33,6 @@
 #include <malloc.h>
 #endif
 
-#include "WindowsScaling.h"
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
 #include "particles.h"
@@ -63,6 +62,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "zquest.h"
 #include "zquestdat.h"
 #include "ffasm.h"
+#include "render.h"
 
 // the following are used by both zelda.cc and zquest.cc
 #include "base/zdefs.h"
@@ -174,7 +174,6 @@ extern CConsoleLoggerEx zscript_coloured_console;
 uint8_t console_is_open = 0;
 uint8_t __isZQuest = 1; //Shared functionscan reference this. -Z
 
-#include "zqscale.h"
 #include "base/util.h"
 
 #ifdef __EMSCRIPTEN__
@@ -207,8 +206,6 @@ int32_t passive_subscreen_height=56;
 int32_t passive_subscreen_offset=0;
 
 bool disable_saving=false, OverwriteProtection;
-int32_t scale_arg;
-int32_t zq_scale_small, zq_scale_large, zq_scale;
 bool halt=false;
 bool show_sprites=true;
 bool show_hitboxes = false;
@@ -497,7 +494,6 @@ int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp re
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0; 
 int32_t window_width, window_height;
 bool Vsync = false, ShowFPS = false, SaveDragResize = false, DragAspect = false, SaveWinPos=false;
-int32_t LastWidth = 0, LastHeight = 0;
 int32_t ComboBrush = 0;                                             //show the brush instead of the normal mouse
 int32_t ComboBrushPause = 0;                                        //temporarily disable the combo brush
 int32_t BrushPosition = 0;                                          //top left, middle, bottom right, etc.
@@ -1538,8 +1534,6 @@ int32_t onResetTransparency()
     return D_O_K;
 }
 
-extern int32_t zqwin_scale;
-
 int32_t onFullScreen()
 {
 	
@@ -1556,7 +1550,6 @@ int32_t onFullScreen()
 		0, 
 		lfont) == 1)	
     {
-	    int32_t old_scale = zqwin_scale;
 	#ifdef ALLEGRO_DOS
 	    return D_O_K;
 	#endif
@@ -1564,63 +1557,13 @@ int32_t onFullScreen()
 	    show_mouse(NULL);
 	    bool windowed=is_windowed_mode()!=0;
 	    
-	    if(windowed)
-	    {
-		zqwin_set_scale(1);
-	    }
-	    else
-	    {
-		zqwin_set_scale(scale_arg);
-	    }
-
-	    int32_t ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
-	    
+	    int32_t ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w,zq_screen_h,0,0);
 	    if(ret!=0)
 	    {
-		if(zqwin_scale==1&&windowed)
-		{
-		    zqwin_set_scale(2);
-		    ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
-		    
-		    if(ret!=0)
-		    {
-			zqwin_set_scale(scale_arg);
-			ret=set_gfx_mode(GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
-			
-			if(ret!=0)
-			{
-			    /*FFCore.ZScriptConsole
-			    (
-				
-				CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Can't set video mode (%d).\n", ret
-			    );*/
-			    Z_message("Can't set video mode (%d).\n", ret);
-			    Z_message(allegro_error);
-			    //quit_game();
-			    exit(1);
-			}
-		    }
-		}
-		else
-		{
-		    zqwin_set_scale(old_scale);
-		    ret=set_gfx_mode(GFX_AUTODETECT_FULLSCREEN,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
-		    
-		    if(ret!=0)
-		    {
-			/*FFCore.ZScriptConsole
-			(
-				CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Can't set video mode (%d).\n", ret
-			);*/
-			
 			Z_message("Can't set video mode (%d).\n", ret);
 			Z_message(allegro_error);
 			// quit_game();
 			exit(1);
-		    }
-		}
 	    }
 	    
 	    gui_mouse_focus=0;
@@ -4961,7 +4904,7 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal)
     
     set_palette(dstpal);
     
-    BITMAP *graypic = create_bitmap_ex(8,SCREEN_W,SCREEN_H);
+    BITMAP *graypic = create_bitmap_ex(8,screen->w,screen->h);
     int32_t _w = screen->w-1;
     int32_t _h = screen->h-1;
     
@@ -4976,7 +4919,7 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal)
         }
     }
     
-    blit(graypic,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+    blit(graypic,screen,0,0,0,0,screen->w,screen->h);
     destroy_bitmap(graypic);
     char extbuf[2][80];
     memset(extbuf[0],0,80);
@@ -7635,9 +7578,7 @@ void refresh(int32_t flags)
     
     unscare_mouse();
     SCRFIX();
-#ifdef __EMSCRIPTEN__
-    all_render_screen();
-#endif
+	update_hw_screen();
 }
 
 void select_scr()
@@ -7985,7 +7926,12 @@ void draw(bool justcset)
             int32_t cxstart=(x-startxint)/int32_t(16*mapscreensize);
             int32_t cystart=(y-startyint)/int32_t(16*mapscreensize);
             int32_t cstart=(cystart*16)+cxstart;
-			if(cstart == lastpos) continue;
+			if(cstart == lastpos)
+			{
+				do_animations();
+				refresh(rALL);
+				continue;
+			}
 			lastpos = cstart;
             combo_alias *combo = &combo_aliases[combo_apos];
             
@@ -8654,7 +8600,7 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
         if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
         {
             scare_mouse();
-            zq_set_mouse_range(startxint,startyint,int32_t(startxint+(256*mapscreensize)-1),int32_t(startyint+(176*mapscreensize)-1));
+            set_mouse_range(startxint,startyint,int32_t(startxint+(256*mapscreensize)-1),int32_t(startyint+(176*mapscreensize)-1));
             
             while(gui_mouse_b()==1)
             {
@@ -8688,7 +8634,7 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
                 py2=byte(vbound(y,0,255)&mask);
             }
             
-            zq_set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
+            set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
             unscare_mouse();
             done=true;
         }
@@ -8736,11 +8682,6 @@ finished:
 
 void doflags()
 {
-	if (zc_get_config("zquest","hw_cursor",0) == 1)
-	{
-		select_mouse_cursor(MOUSE_CURSOR_ALLEGRO);
-		disable_hardware_cursor();
-	}
 	set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
 	int32_t of=Flags;
 	Flags=cFLAGS;
@@ -8924,16 +8865,10 @@ void doflags()
 		
 		do_animations();
 		refresh(rALL | rNOCURSOR);
-		zc_process_mouse_events();
 	}
 	
 finished:
 	Flags=of;
-	if (zc_get_config("zquest","hw_cursor",0) == 1)
-	{
-		select_mouse_cursor(MOUSE_CURSOR_ARROW);
-		enable_hardware_cursor();
-	}
 	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
 	refresh(rMAP+rMENU);
 	
@@ -15658,7 +15593,7 @@ int32_t col_width=(is_large ? d->d1 ? 22:11:(d->d1?14:7));
     {
     case MSG_DRAW:
     {
-        BITMAP *tempbmp = create_bitmap_ex(8,SCREEN_W,SCREEN_H);
+        BITMAP *tempbmp = create_bitmap_ex(8,screen->w,screen->h);
         clear_bitmap(tempbmp);
         int32_t x=d->x;
         int32_t y=d->y;
@@ -15687,7 +15622,7 @@ int32_t col_width=(is_large ? d->d1 ? 22:11:(d->d1?14:7));
             }
         }
         
-        masked_blit(tempbmp,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+        masked_blit(tempbmp,screen,0,0,0,0,screen->w,screen->h);
         destroy_bitmap(tempbmp);
     }
     break;
@@ -19491,7 +19426,7 @@ int32_t d_warpdestsel_proc(int32_t msg,DIALOG *d,int32_t c)
                 if(!mousedown||!inrect)
                 {
                     set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
-                    zq_set_mouse_range(d->x+2, d->y+2, d->x+256+1, d->y+176+1);
+                    set_mouse_range(d->x+2, d->y+2, d->x+256+1, d->y+176+1);
                 }
                 
                 rect(bmp, px2, py2, px2+15, py2+15, vc(15));
@@ -19503,7 +19438,7 @@ int32_t d_warpdestsel_proc(int32_t msg,DIALOG *d,int32_t c)
             {
                 if(mousedown||!inrect)
                 {
-                    zq_set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
+                    set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
                     set_mouse_sprite(mouse_bmp[MOUSE_BMP_POINT_BOX][0]);
                 }
                 
@@ -19833,30 +19768,30 @@ int32_t onTileWarp()
     restore_mouse();
     warp_dlg[0].dp=(void *) "Tile Warp";
     warp_dlg[0].dp2=lfont;
-    warp_dlg[5].x = SCREEN_W+10;
-    warp_dlg[6].x = SCREEN_W+10;
-    warp_dlg[10].x = SCREEN_W+10;
-    warp_dlg[11].x = SCREEN_W+10;
-    warp_dlg[12].x = SCREEN_W+10;
-    warp_dlg[13].x = SCREEN_W+10;
-    warp_dlg[20].x = SCREEN_W+10;
-    warp_dlg[21].x = SCREEN_W+10;
-    warp_dlg[25].x = SCREEN_W+10;
-    warp_dlg[26].x = SCREEN_W+10;
-    warp_dlg[27].x = SCREEN_W+10;
-    warp_dlg[28].x = SCREEN_W+10;
-    warp_dlg[32].x = SCREEN_W+10;
-    warp_dlg[33].x = SCREEN_W+10;
-    warp_dlg[37].x = SCREEN_W+10;
-    warp_dlg[38].x = SCREEN_W+10;
-    warp_dlg[39].x = SCREEN_W+10;
-    warp_dlg[40].x = SCREEN_W+10;
-    warp_dlg[44].x = SCREEN_W+10;
-    warp_dlg[45].x = SCREEN_W+10;
-    warp_dlg[49].x = SCREEN_W+10;
-    warp_dlg[50].x = SCREEN_W+10;
-    warp_dlg[51].x = SCREEN_W+10;
-    warp_dlg[52].x = SCREEN_W+10;
+    warp_dlg[5].x = screen->w + 10;
+    warp_dlg[6].x = screen->w + 10;
+    warp_dlg[10].x = screen->w + 10;
+    warp_dlg[11].x = screen->w + 10;
+    warp_dlg[12].x = screen->w + 10;
+    warp_dlg[13].x = screen->w + 10;
+    warp_dlg[20].x = screen->w + 10;
+    warp_dlg[21].x = screen->w + 10;
+    warp_dlg[25].x = screen->w + 10;
+    warp_dlg[26].x = screen->w + 10;
+    warp_dlg[27].x = screen->w + 10;
+    warp_dlg[28].x = screen->w + 10;
+    warp_dlg[32].x = screen->w + 10;
+    warp_dlg[33].x = screen->w + 10;
+    warp_dlg[37].x = screen->w + 10;
+    warp_dlg[38].x = screen->w + 10;
+    warp_dlg[39].x = screen->w + 10;
+    warp_dlg[40].x = screen->w + 10;
+    warp_dlg[44].x = screen->w + 10;
+    warp_dlg[45].x = screen->w + 10;
+    warp_dlg[49].x = screen->w + 10;
+    warp_dlg[50].x = screen->w + 10;
+    warp_dlg[51].x = screen->w + 10;
+    warp_dlg[52].x = screen->w + 10;
     
     for(int32_t i=0; i<4; i++)
     {
@@ -21020,56 +20955,17 @@ void EditWarpRingScr(int32_t ring,int32_t index)
         
         if(m!=67)
         {
-            warpring_warp_dlg[m].x = SCREEN_W+10;
+            warpring_warp_dlg[m].x = screen->w + 10;
         }
     }
     
-    /*int32_t tempx20=warpring_warp_dlg[20].x;
-      int32_t tempx21=warpring_warp_dlg[21].x;
-      int32_t tempx25=warpring_warp_dlg[25].x;
-      int32_t tempx26=warpring_warp_dlg[26].x;
-      int32_t tempx27=warpring_warp_dlg[27].x;
-      int32_t tempx28=warpring_warp_dlg[28].x;
+    warpring_warp_dlg[5].x = screen->w + 10;
+    warpring_warp_dlg[6].x = screen->w + 10;
+    warpring_warp_dlg[10].x = screen->w + 10;
+    warpring_warp_dlg[11].x = screen->w + 10;
+    warpring_warp_dlg[12].x = screen->w + 10;
+    warpring_warp_dlg[13].x = screen->w + 10;
     
-      int32_t tempx32=warpring_warp_dlg[32].x;
-      int32_t tempx33=warpring_warp_dlg[33].x;
-      int32_t tempx37=warpring_warp_dlg[37].x;
-      int32_t tempx38=warpring_warp_dlg[38].x;
-      int32_t tempx39=warpring_warp_dlg[39].x;
-      int32_t tempx40=warpring_warp_dlg[40].x;
-    
-      int32_t tempx44=warpring_warp_dlg[44].x;
-      int32_t tempx45=warpring_warp_dlg[45].x;
-      int32_t tempx49=warpring_warp_dlg[49].x;
-      int32_t tempx50=warpring_warp_dlg[50].x;
-      int32_t tempx51=warpring_warp_dlg[51].x;
-      int32_t tempx52=warpring_warp_dlg[52].x;*/
-    
-    warpring_warp_dlg[5].x = SCREEN_W+10;
-    warpring_warp_dlg[6].x = SCREEN_W+10;
-    warpring_warp_dlg[10].x = SCREEN_W+10;
-    warpring_warp_dlg[11].x = SCREEN_W+10;
-    warpring_warp_dlg[12].x = SCREEN_W+10;
-    warpring_warp_dlg[13].x = SCREEN_W+10;
-    
-    /*warpring_warp_dlg[20].x = SCREEN_W+10;
-      warpring_warp_dlg[21].x = SCREEN_W+10;
-      warpring_warp_dlg[25].x = SCREEN_W+10;
-      warpring_warp_dlg[26].x = SCREEN_W+10;
-      warpring_warp_dlg[27].x = SCREEN_W+10;
-      warpring_warp_dlg[28].x = SCREEN_W+10;
-      warpring_warp_dlg[32].x = SCREEN_W+10;
-      warpring_warp_dlg[33].x = SCREEN_W+10;
-      warpring_warp_dlg[37].x = SCREEN_W+10;
-      warpring_warp_dlg[38].x = SCREEN_W+10;
-      warpring_warp_dlg[39].x = SCREEN_W+10;
-      warpring_warp_dlg[40].x = SCREEN_W+10;
-      warpring_warp_dlg[44].x = SCREEN_W+10;
-      warpring_warp_dlg[45].x = SCREEN_W+10;
-      warpring_warp_dlg[49].x = SCREEN_W+10;
-      warpring_warp_dlg[50].x = SCREEN_W+10;
-      warpring_warp_dlg[51].x = SCREEN_W+10;
-      warpring_warp_dlg[52].x = SCREEN_W+10;*/
     for(int32_t i=0; i<4; i++)
     {
         warpring_warp_dlg[10+i].d2 = 0;
@@ -21129,26 +21025,6 @@ void EditWarpRingScr(int32_t ring,int32_t index)
         warpring_warp_dlg[m].x=tempx[m-17];
     }
     
-    /*warpring_warp_dlg[20].x = tempx20;
-      warpring_warp_dlg[21].x = tempx21;
-      warpring_warp_dlg[25].x = tempx25;
-      warpring_warp_dlg[26].x = tempx26;
-      warpring_warp_dlg[27].x = tempx27;
-      warpring_warp_dlg[28].x = tempx28;
-    
-      warpring_warp_dlg[32].x = tempx32;
-      warpring_warp_dlg[33].x = tempx33;
-      warpring_warp_dlg[37].x = tempx37;
-      warpring_warp_dlg[38].x = tempx38;
-      warpring_warp_dlg[39].x = tempx39;
-      warpring_warp_dlg[40].x = tempx40;
-    
-      warpring_warp_dlg[44].x = tempx44;
-      warpring_warp_dlg[45].x = tempx45;
-      warpring_warp_dlg[49].x = tempx49;
-      warpring_warp_dlg[50].x = tempx50;
-      warpring_warp_dlg[51].x = tempx51;
-      warpring_warp_dlg[52].x = tempx52;*/
     for(int32_t i=0; i<4; i++)
     {
         warpring_warp_dlg[10+i].d2 = 0x80;
@@ -29841,10 +29717,7 @@ void custom_vsync()
     
     while(!myvsync) rest(1);
     
-    all_mark_screen_dirty();
-#ifdef __EMSCRIPTEN__
-    all_render_screen();
-#endif
+	update_hw_screen();
     
     myvsync=0;
     
@@ -29864,10 +29737,6 @@ void switch_in()
 {
 	if(quit)
 		return;
-	acquire_screen();
-	BITMAP *ts=screen;
-	screen=menu1;
-	acquire_screen();
 	
 	/*
 	if (!is_large) 
@@ -29879,9 +29748,6 @@ void switch_in()
 	//dialogs[0].dp2 = z3font;
 	jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
 	
-	release_screen();
-	screen=ts;
-	release_screen();
 	zcmusic_pause(zcmusic, ZCM_RESUME);
 	zc_midi_resume();
 }
@@ -30193,9 +30059,10 @@ int32_t main(int32_t argc,char **argv)
 	al5img_init();
 	register_png_file_type();
 
+	all_disable_threaded_display();
+
 #ifdef __EMSCRIPTEN__
 	em_mark_initializing_status();
-	all_disable_threaded_display();
 	em_init_fs();
 #endif
 	
@@ -31302,41 +31169,13 @@ int32_t main(int32_t argc,char **argv)
 	
 	set_close_button_callback((void (*)()) hit_close_button);
 	
-#ifndef ALLEGRO_DOS
-	zq_scale_small = zc_get_config("zquest","scale",1);
-	zq_scale_large = zc_get_config("zquest","scale_large",1);
-	zq_scale = is_large ? zq_scale_large : zq_scale_small;
-	scale_arg = used_switch(argc,argv,"-scale");
-	
-	if(scale_arg && (argc>(scale_arg+1)))
-	{
-		scale_arg = atoi(argv[scale_arg+1]);
-		
-		if(scale_arg == 0)
-		{
-			scale_arg = 1;
-		}
-		
-		zq_scale=scale_arg;
-	}
-	else
-	{
-		scale_arg = zq_scale;
-	}
-	
-	zqwin_set_scale(scale_arg);
-	
-#endif
-	
 	if(used_switch(argc,argv,"-fullscreen"))
 	{
 		tempmode = GFX_AUTODETECT_FULLSCREEN;
-		zqwin_set_scale(1);
 	}
 	else if(used_switch(argc,argv,"-windowed"))
 	{
 		tempmode=GFX_AUTODETECT_WINDOWED;
-		zqwin_set_scale(scale_arg);
 	}
 	
 	/*if (tempmode==GFX_AUTODETECT_FULLSCREEN)
@@ -31356,117 +31195,8 @@ int32_t main(int32_t argc,char **argv)
 	  zqwin_set_scale(scale_arg);
 	}*/
 
-	all_set_force_integer_scale(zc_get_config("zquest", "scaling_force_integer", 0) != 0);
-	if (strcmp(zc_get_config("zquest", "scaling_mode", "nn"), "linear") == 0)
-		all_set_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR);
+	int32_t videofail = (set_gfx_mode(tempmode,zq_screen_w,zq_screen_h,0,0));
 
-	int32_t videofail = (set_gfx_mode(tempmode,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0));
-
-	if(videofail!=0)
-	{
-		three_finger_flag=false;
-		
-		//set_config_file("ag.cfg");
-		zc_set_config_standard();
-		if(install_timer() < 0)
-		{
-
-			/*
-		FFCore.ZScriptConsole
-		(
-			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-			"Failed to init allegro timers!"
-		);
-			*/
-
-		Z_error_fatal(allegro_error);
-		quit_game();
-		}
-		
-		if(install_keyboard() < 0)
-		{
-
-			/*
-		FFCore.ZScriptConsole
-		(
-			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-			"Failed to install keyboard!"
-		);
-			*/
-
-		Z_error_fatal(allegro_error);
-		quit_game();
-		}
-		
-		if(install_mouse() < 0)
-		{
-
-		/*FFCore.ZScriptConsole
-		(
-			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-			"Failed to install mouse!"
-		);
-			*/
-
-		Z_error_fatal(allegro_error);
-		quit_game();
-		}
-		zc_install_mouse_event_handler();
-		
-		LOCK_VARIABLE(lastfps);
-		
-		LOCK_VARIABLE(framecnt);
-		LOCK_FUNCTION(fps_callback);
-		
-		if(install_int_ex(fps_callback,SECS_TO_TIMER(1)))
-		{
-
-		/*
-			FFCore.ZScriptConsole
-		(
-			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-			"Failed to allocate timer fps callback!"
-		);
-			*/
-
-		Z_error_fatal("couldn't allocate timer");
-		quit_game();
-		}
-		
-		
-		LOCK_VARIABLE(dclick_status);
-		LOCK_VARIABLE(dclick_time);
-		lock_dclick_function();
-		install_int(dclick_check, 20);
-	
-		//while(!quit && (--exittimer > 0))
-		//{
-			
-			
-		//}
-		//Z_error_fatal("Vid");
-		
-			//The console requires the allegro process to exist, vefore it can lwaunch. 
-		//Let's hope that this doesn't create a magical memory leak, or thread issues.
-		CConsoleLoggerEx zq_scale_console;
-		zq_scale_console.Create("ZQuest Creator Logging Console", 600, 200);
-		zq_scale_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
-		zq_scale_console.gotoxy(0,0);
-		zq_scale_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Logging Console\n");
-
-		zq_scale_console.cprintf( CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-						CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator cannot run at the selected scale (%d) \nwith your current video hardware.\nPlease try a lower-resolution setting or a smaller scale.\n", zq_scale);
-
-
-		Z_error_fatal(allegro_error);
-	//quit_game here crashes if we call console code
-	//I think that there is no process by the time that the console tries to attach itself?
-	}
 	//extra block here is intentional
 	if(videofail!=0)
 	{
@@ -31476,57 +31206,38 @@ int32_t main(int32_t argc,char **argv)
 	else
 	{
 		Z_message("gfx mode set at -%d %dbpp %d x %d \n",
-				  tempmode, get_color_depth(), zq_screen_w*zqwin_scale, zq_screen_h*zqwin_scale);
+				  tempmode, get_color_depth(), zq_screen_w, zq_screen_h);
 		//Z_message("OK\n");
 	}
 
-	if (zc_get_config("zquest","hw_cursor",0) == 1)
-	{
-		// Must wait for the display thread to create the a5 display before the
-		// hardware cursor can be enabled.
-		while (!all_get_display()) rest(1);
-		enable_hardware_cursor();
-		select_mouse_cursor(MOUSE_CURSOR_ARROW);
-		show_mouse(screen);
-	}
-	else
-	{
-#ifdef _WIN32
-		while (!all_get_display()) rest(1);
-		al_hide_mouse_cursor(all_get_display());
-#endif
-	}
-	
 #ifndef __EMSCRIPTEN__
 	if (!all_get_fullscreen_flag()) {
 		// Just in case.
 		while (!all_get_display()) {
 			al_rest(1);
 		}
+
 		window_width = is_large ? zc_get_config("zquest","large_window_width",zq_screen_w) : zc_get_config("zquest","small_window_width",zq_screen_w);
 		window_height = is_large ? zc_get_config("zquest","large_window_height",zq_screen_h) : zc_get_config("zquest","small_window_height",zq_screen_h);
-		int o_window_x, o_window_y;
-		al_get_window_position(all_get_display(), &o_window_x, &o_window_y);
-		int o_window_w = al_get_display_width(all_get_display());
-		int o_window_h = al_get_display_height(all_get_display());
-		int center_x = o_window_x + o_window_w / 2;
-		int center_y = o_window_y + o_window_h / 2;
-		double vscale = getverticalscale(); 
-		double hscale = gethorizontalscale(); 
-		int window_width_temp = window_width*hscale;
-		int window_height_temp = window_height*vscale;
-		al_resize_display(all_get_display(), window_width_temp, window_height_temp);
-		
-#ifndef ALLEGRO_MACOSX
+		double monitor_scale = zc_get_monitor_scale();
+		al_resize_display(all_get_display(), window_width*monitor_scale, window_height*monitor_scale);
+
+		int window_w = al_get_display_width(all_get_display());
+		int window_h = al_get_display_height(all_get_display());
+
 		int new_x = zc_get_config("zquest","window_x",0);
 		int new_y = zc_get_config("zquest","window_y",0);
-		if (new_x > 0 && new_y > 0) al_set_window_position(all_get_display(), new_x, new_y);
-		else al_set_window_position(all_get_display(), center_x - window_width_temp / 2, center_y - window_height_temp / 2);
-#endif
+		if (new_x == 0 && new_y == 0)
+		{
+			ALLEGRO_MONITOR_INFO info;
+			al_get_monitor_info(0, &info);
+
+			new_x = (info.x2 - info.x1) / 2 - window_w / 2;
+			new_y = (info.y2 - info.y1) / 2 - window_h / 2;
+		}
+		al_set_window_position(all_get_display(), new_x, new_y);
 	}
 #endif
-	LastWidth = al_get_display_width(all_get_display());
-	LastHeight = al_get_display_height(all_get_display());
 
 	//check and log RTC date and time
 	for (int32_t q = 0; q < curTimeLAST; q++) 
@@ -31917,7 +31628,6 @@ int32_t main(int32_t argc,char **argv)
 		}
 		
 #endif
-		doAspectResize();
 		check_autosave();
 		/*
 		if (!is_large) 
@@ -32028,8 +31738,8 @@ int32_t main(int32_t argc,char **argv)
 		maps_menu[1].flags=(Map.getCurrMap()<map_count && map_count>0) ? 0 : D_DISABLED;
 		maps_menu[2].flags=(Map.getCurrMap()>0)? 0 : D_DISABLED;
 		
+		etc_menu[2].flags=etc_menu_smallmode[2].flags=(isFullScreen()==1)?D_DISABLED:0;
 		etc_menu[4].flags=(isFullScreen()==1)?D_SELECTED:0;
-		zc_process_mouse_events();
 		quit = !update_dialog(player2);
 		
 		//clear_keybuf();
@@ -32045,10 +31755,6 @@ int32_t main(int32_t argc,char **argv)
 	}
 	parser_console.kill();
 	killConsole();
-#ifndef ALLEGRO_DOS
-	zqwin_set_scale(1);
-#endif
-	
 	
 	quit_game();
 	
@@ -32627,7 +32333,7 @@ int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c)
         ComboBrushPause=1;
         refresh(rMAP);
         ComboBrushPause=0;
-        restore_mouse();
+        // restore_mouse();
         clear_tooltip();
     }
     
@@ -32920,8 +32626,6 @@ int32_t save_config_file()
     set_config_int("zquest","float_brush",FloatBrush);
     set_config_int("zquest","open_last_quest",OpenLastQuest);
     set_config_int("zquest","show_misalignments",ShowMisalignments);
-    set_config_int("zquest","scale",zq_scale_small);
-    set_config_int("zquest","scale_large",zq_scale_large);
     set_config_int("zquest","fullscreen", is_windowed_mode() ? 0 : 1);
     set_config_int("zquest","showffscripts",ShowFFScripts);
     set_config_int("zquest","showsquares",ShowSquares);
@@ -32936,21 +32640,25 @@ int32_t save_config_file()
     
     if (all_get_display() && !all_get_fullscreen_flag()) 
     {
-	if (SaveDragResize)
-	{
-		window_width = al_get_display_width(all_get_display()) / gethorizontalscale();
-		window_height = al_get_display_height(all_get_display()) / getverticalscale();
-	}
-	if (is_large) 
-	{
-		set_config_int("zquest","large_window_width",window_width);
-		set_config_int("zquest","large_window_height",window_height);
-	}
-	else
-	{
-		set_config_int("zquest","small_window_width",window_width);
-		set_config_int("zquest","small_window_height",window_height);
-	}
+		if (SaveDragResize)
+		{
+			double monitor_scale = zc_get_monitor_scale();
+			window_width = al_get_display_width(all_get_display()) / monitor_scale;
+			window_height = al_get_display_height(all_get_display()) / monitor_scale;
+		}
+		if (window_width > 0 && window_height > 0)
+		{
+			if (is_large) 
+			{
+				set_config_int("zquest","large_window_width",window_width);
+				set_config_int("zquest","large_window_height",window_height);
+			}
+			else
+			{
+				set_config_int("zquest","small_window_width",window_width);
+				set_config_int("zquest","small_window_height",window_height);
+			}
+		}
     }
     if (all_get_display() && !all_get_fullscreen_flag() && SaveWinPos)
     {
@@ -32970,8 +32678,9 @@ int32_t save_config_file()
     
     if (all_get_display() && SaveDragResize)
     {
-	window_width = al_get_display_width(all_get_display()) / gethorizontalscale();
-	window_height = al_get_display_height(all_get_display()) / getverticalscale();
+        double monitor_scale = zc_get_monitor_scale();
+        window_width = al_get_display_width(all_get_display()) / monitor_scale;
+        window_height = al_get_display_height(all_get_display()) / monitor_scale;
     }
     
     for(int32_t x=0; x<7; x++)
@@ -33897,52 +33606,20 @@ void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest,BITMAP* 
 }
 void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest,BITMAP* transdest){}
 
-void doAspectResize()
-{
-	if (DragAspect)
-	{
-		if (LastWidth == 0 || LastHeight == 0)
-		{
-			LastWidth = al_get_display_width(all_get_display());
-			LastHeight = al_get_display_height(all_get_display());
-		}
-		if (LastWidth != al_get_display_width(all_get_display()) || LastHeight != al_get_display_height(all_get_display()))
-		{
-			bool widthfirst = true;
-			
-			if (abs(LastWidth - al_get_display_width(all_get_display())) < abs(LastHeight - al_get_display_height(all_get_display()))) widthfirst = false;
-			
-			if (widthfirst)
-			{
-				al_resize_display(all_get_display(), al_get_display_width(all_get_display()), al_get_display_width(all_get_display())*0.75);
-			}
-			else
-			{
-				al_resize_display(all_get_display(), al_get_display_height(all_get_display())/0.75, al_get_display_height(all_get_display()));
-			}
-		}
-		LastWidth = al_get_display_width(all_get_display());
-		LastHeight = al_get_display_height(all_get_display());
-	}
-}
-
 bool update_hw_pal = false;
 void update_hw_screen(bool force)
 {
-	doAspectResize();
 	if(force || myvsync)
 	{
-		zc_process_mouse_events();
+		zc_process_display_events();
 		if(update_hw_pal)
 		{
 			set_palette(RAMpal);
 			update_hw_pal=false;
 		}
+		if (myvsync)
+			render_zq();
 		myvsync=0;
-		all_mark_screen_dirty();
-#ifdef __EMSCRIPTEN__
-		all_render_screen();
-#endif
 	}
 }
 

@@ -4,7 +4,6 @@ set(ZQUEST_GUI_SOURCES
 ################################
 # Add or remove files here
 ################################
-src/WindowsScaling.cpp
 src/zq/zq_class.cpp
 src/zq/zq_cset.cpp
 src/zq/zq_custom.cpp
@@ -17,7 +16,6 @@ src/zq/zq_sprite.cpp
 src/zq/zq_subscr.cpp
 src/zq/zq_strings.cpp
 src/zq/zq_tiles.cpp
-src/zqscale.cpp
 src/play_midi.cpp
 src/jwin.cpp
 

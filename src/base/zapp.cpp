@@ -2,6 +2,11 @@
 #include "zc_alleg.h"
 #include <filesystem>
 #include <string>
+
+#ifdef _WIN32
+#include <allegro5/allegro_windows.h>
+#endif
+
 #ifdef __APPLE__
 #include <unistd.h>
 #endif
@@ -64,62 +69,93 @@ App get_app_id()
     return app_id;
 }
 
-static ALLEGRO_EVENT_QUEUE *evq = nullptr;
-void zc_install_mouse_event_handler()
+// https://learn.microsoft.com/en-us/windows/win32/hidpi/high-dpi-desktop-application-development-on-windows
+// https://mariusbancila.ro/blog/2021/05/19/how-to-build-high-dpi-aware-native-desktop-applications/
+// On windows, Allegro sets DPI awareness at runtime:
+//   https://github.com/liballeg/allegro5/blob/0d9271d381c33ab1096b424beadfd82050aaa2d3/src/win/wsystem.c#L142
+// But it's better to do it in the application manifest, hence `set_property(TARGET zelda PROPERTY VS_DPI_AWARE "PerMonitor")`
+double zc_get_monitor_scale()
 {
-	if (!evq)
+#ifdef _WIN32
+	if (all_get_display())
 	{
-		evq = al_create_event_queue();
-		al_register_event_source(evq, al_get_mouse_event_source());
+		// why not use al_get_monitor_dpi? Because allegro uses GetDpiForMonitor,
+		// which is an older API.
+		HWND hwnd = al_get_win_window_handle(all_get_display());
+		int dpi = GetDpiForWindow(hwnd);
+		return dpi / 96.0;
 	}
+	else
+	{
+		HDC hdc = GetDC(NULL);
+		int dpi = GetDeviceCaps(hdc, LOGPIXELSX);
+		ReleaseDC(NULL, hdc);
+		return dpi / 96.0;
+	}
+#else
+	return al_get_monitor_dpi(0) / 96.0;
+#endif
 }
-void zc_process_mouse_events()
+
+extern bool DragAspect;
+static void doAspectResize()
 {
-	if (!evq)
+	if (!DragAspect || all_get_fullscreen_flag())
 		return;
 
-	ALLEGRO_EVENT event;
-	while (al_get_next_event(evq, &event))
+	static int prev_width = 0, prev_height = 0;
+
+	if (prev_width == 0 || prev_height == 0)
 	{
-		switch (event.type)
-		{
-		case ALLEGRO_EVENT_MOUSE_AXES:
-		{
-			int mouse_x = event.mouse.x;
-			int mouse_y = event.mouse.y;
+		prev_width = al_get_display_width(all_get_display());
+		prev_height = al_get_display_height(all_get_display());
+	}
 
-			int native_width, native_height, display_width, display_height, offset_x, offset_y;
-			double scale;
-			all_get_display_transform(&native_width, &native_height, &display_width, &display_height, &offset_x, &offset_y, &scale);
-
-			// Show OS cursor when hovering over letterboxing.
-			if (mouse_on_screen() && !(gfx_capabilities & GFX_HW_CURSOR))
-			{
-				static bool is_within_letterbox_prev = !false;
-				bool is_within_letterbox = !all_get_fullscreen_flag() &&
-					(mouse_x < offset_x || mouse_y < offset_y ||
-					mouse_x >= display_width - offset_x || mouse_y >= display_height - offset_y);
-				
-				if (is_within_letterbox_prev == is_within_letterbox)
-				{
-					break;
-				}
-				else if (is_within_letterbox)
-				{
-					enable_hardware_cursor();
-					if (app_id == App::zquest)
-						show_mouse(NULL);
-				}
-				else
-				{
-					disable_hardware_cursor();
-					if (app_id == App::zquest)
-						show_mouse(screen);
-				}
-				is_within_letterbox_prev = is_within_letterbox;
-			}
-			break;
+	if (prev_width != al_get_display_width(all_get_display()) || prev_height != al_get_display_height(all_get_display()))
+	{
+		bool width_first = true;
+		
+		if (abs(prev_width - al_get_display_width(all_get_display())) < abs(prev_height - al_get_display_height(all_get_display()))) width_first = false;
+		
+		if (width_first)
+		{
+			al_resize_display(all_get_display(), al_get_display_width(all_get_display()), al_get_display_width(all_get_display())*0.75);
 		}
+		else
+		{
+			al_resize_display(all_get_display(), al_get_display_height(all_get_display())/0.75, al_get_display_height(all_get_display()));
 		}
 	}
+
+	prev_width = al_get_display_width(all_get_display());
+	prev_height = al_get_display_height(all_get_display());
+}
+
+void zc_process_display_events()
+{
+	all_process_display_events();
+	// TODO: should do this only in response to a resize event
+	doAspectResize();
+}
+
+static ALLEGRO_FONT* builtin_font;
+
+void zc_update_builtin_font()
+{
+	if (!builtin_font)
+		return;
+	
+	// Only a problem for fullscreen (at least, directx).
+	if (!all_get_fullscreen_flag())
+		return;
+	
+	al_destroy_font(builtin_font);
+	builtin_font = al_create_builtin_font();
+}
+
+ALLEGRO_FONT* zc_get_builtin_font()
+{
+	if (!builtin_font)
+		builtin_font = al_create_builtin_font();
+	return builtin_font;
 }

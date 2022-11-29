@@ -47,11 +47,7 @@ using namespace util;
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
 #define zc_min(a,b)  ((a)<(b)?(a):(b))
 //#endif
-//#ifdef _ZQUEST_SCALE_
-extern volatile int32_t myvsync;
-extern int32_t zqwin_scale;
 void update_hw_screen(bool force);
-//#endif
 extern int32_t zq_screen_w, zq_screen_h;
 extern int32_t joystick_index;
 
@@ -5274,6 +5270,12 @@ static void draw_menu_item(MENU_INFO *m, int32_t c)
     
     get_menu_pos(m, c, &x, &y, &w);
     if ( m->bar ) { /* */ }
+
+	if (gui_menu_draw_menu_item) {
+      gui_menu_draw_menu_item(&m->menu[c], x, y, w, text_height(font)+4,
+			      m->bar, (c == m->sel) ? TRUE : FALSE);
+      return;
+   }
     
     rectfill(screen, x, y, x+w-1, y+h-1, bg);
     //   text_mode(-1);
@@ -5364,11 +5366,18 @@ static void draw_menu_item(MENU_INFO *m, int32_t c)
 static void draw_menu(MENU_INFO *m)
 {
     int32_t c;
-    
-    if(m->bar)
-        rectfill(screen, zc_max(0,m->x), zc_max(0,m->y), zc_min(m->x+m->w-1, screen->w), zc_min(m->y+m->h-1, screen->h), scheme[jcBOX]);
-    else
-        jwin_draw_win(screen, m->x, m->y, m->w, m->h, FR_WIN);
+
+	int w = m->w;
+	int h = m->h;
+
+	if (gui_menu_draw_menu)
+		gui_menu_draw_menu(m->x, m->y, m->w, m->h);
+	else {
+		if(m->bar)
+			rectfill(screen, zc_max(0,m->x), zc_max(0,m->y), zc_min(m->x+w-1, screen->w), zc_min(m->y+h-1, screen->h), scheme[jcBOX]);
+		else
+			jwin_draw_win(screen, m->x, m->y, w, h, FR_WIN);
+	}
         
     for(c=0; m->menu[c].text; c++)
         draw_menu_item(m, c);
@@ -6271,13 +6280,14 @@ int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c)
 			
 			jwin_center_dialog(selcolor_dlg);
 			int32_t val = popup_zqdialog(selcolor_dlg, 3);
+			ret = D_REDRAW;
 			
 			set_palette(oldpal);
 			if(val == 1 || val == 3)
 			{
 				d->d1 = selcolor_dlg[3].d1;
 				GUI_EVENT(d, geCHANGE_VALUE);
-				ret = D_REDRAWME;
+				ret |= D_REDRAWME;
 			}
 			break;
 		}

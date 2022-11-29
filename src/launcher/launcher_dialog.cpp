@@ -73,14 +73,6 @@ namespace GUI::Lists
 	static const ListData autoSaveCopiesList = ListData::numbers(false, 1, 10);
 	static const ListData frameRestSuggestList = ListData::numbers(false, 0, 3);
 
-	static const ListData scaleList
-	{
-		{ "1x", 1 },
-		{ "2x", 2 },
-		{ "3x", 3 },
-		{ "4x", 4 }
-	};
-
 	static const ListData gfxDriverList
 	{
 		{ "Default", 0 },
@@ -353,26 +345,6 @@ char const* getGFXDriverStr(int32_t id)
 }
 //}
 
-//{ Resolution
-
-int32_t getResPreset(int32_t resx, int32_t resy)
-{
-	double mod_x = resx/320.0,
-		mod_y = resy/240.0;
-	if(mod_x > 5 || mod_y > 5) return 5;
-	if(mod_x < 1 || mod_y < 1) return 1;
-	double left_x = mod_x - floor(mod_x),
-		left_y = mod_y - floor(mod_y);
-	double avg_leftovers = (left_x+left_y)/2;
-	int32_t round_x = (left_x >= 0.5 ? ceil(mod_x) : floor(mod_x)),
-		round_y = (left_y >= 0.5 ? ceil(mod_y) : floor(mod_y));
-	if(round_x != round_y)
-		return (avg_leftovers >= 0.5 ? zc_max(round_x, round_y) : zc_min(round_x, round_y));
-	return round_x;
-}
-
-//}
-
 //}
 
 char theme_saved_filepath[4096] = {0};
@@ -444,7 +416,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Autosave Window Size Changes","zc.cfg","zeldadx","save_drag_resize",0,"Makes any changes to the window size by dragging get saved for whenever you open the program next."),
 						CONFIG_CHECKBOX_I("Lock Aspect Ratio On Resize","zc.cfg","zeldadx","drag_aspect",0,"Makes any changes to the window size by dragging get snapped to ZC's default (4:3) aspect ratio."),
 						CONFIG_CHECKBOX_I("Save Window Position","zc.cfg","zeldadx","save_window_position",0,"Remembers the last position of the ZC Window."),
-						CONFIG_CHECKBOX_I("Force Integer Values for Scale","zc.cfg","zeldadx","scaling_force_integer",0,"Locks ZC's display to be an even integer scaling. Results in a lot of black letterboxing."),
+						CONFIG_CHECKBOX_I("Force Integer Values for Scale","zc.cfg","zeldadx","scaling_force_integer",1,"Locks the screen to only scale by an integer value. Results in perfect pixel art scaling, at the expense of not using the entire availabe window space."),
+						CONFIG_CHECKBOX_I("Linear Scaling","zc.cfg","zeldadx","scaling_mode",1,"Use linear scaling when upscaling the window. If off, the default is nearest-neighbor scaling"),
 						CONFIG_CHECKBOX_I("Monochrome Debuggers","zc.cfg","CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text."),
 						CONFIG_CHECKBOX_I("Text Readability","zc.cfg","gui","bolder_font",0,"Attempts to make text more readable in some areas (ex. larger, bolder)"),
 						CONFIG_CHECKBOX_I("Replay New Saves","zc.cfg","zeldadx","replay_new_saves",0,"Starting a new game will prompt recording to a .zplay file"),
@@ -457,8 +430,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_DROPDOWN_I("Screenshot Output:", "zc.cfg","zeldadx","snapshot_format",3,screenshotOutputList,"The output format of screenshots"),
 						CONFIG_DROPDOWN_I("Name Entry Mode:", "zc.cfg","zeldadx","name_entry_mode",0,nameEntryList,"The entry method of save file names."),
 						CONFIG_DROPDOWN_I("Title Screen:", "zc.cfg","zeldadx","title",0,titleScreenList,"Which title screen will be displayed."),
-						CONFIG_TEXTFIELD_I("Window Width:","zc.cfg","zeldadx","resx", 640, 256, 3000, "The width of the ZC window"),
-						CONFIG_TEXTFIELD_I("Window Height:","zc.cfg","zeldadx","resy", 480, 240, 2250, "The height of the ZC window"),
+						CONFIG_TEXTFIELD_I("Window Width:","zc.cfg","zeldadx","window_width", 640, 256, 3000, "The width of the ZC window, for windowed mode"),
+						CONFIG_TEXTFIELD_I("Window Height:","zc.cfg","zeldadx","window_height", 480, 240, 2250, "The height of the ZC window, for windowed mode"),
 						CONFIG_TEXTFIELD_I("Saved Window X:","zc.cfg","zeldadx","window_x", 0, 0, rightmost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
 						CONFIG_TEXTFIELD_I("Saved Window Y:","zc.cfg","zeldadx","window_y", 0, 0, bottommost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
 #ifndef _WIN32
@@ -511,25 +484,12 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						),
 						DummyWidget(),
 						//
-						Label(text = "Resolution:", hAlign = 1.0),
-						ddl_res = DropDownList(data = resPresetList,
-							fitParent = true,
-							minwidth = CONFIG_DROPDOWN_MINWIDTH,
-							selectedValue = getResPreset(zc_get_config("zc.cfg","zeldadx","resx",640), zc_get_config("zc.cfg","zeldadx","resx",480)),
-							onSelectFunc = [&](int32_t val)
-							{
-								zc_set_config("zc.cfg","zeldadx","resx",320*val);
-								zc_set_config("zc.cfg","zeldadx","resy",240*val);
-							}
-						),
-						DummyWidget(),
-						//
 						CONFIG_DROPDOWN_I("Quickload Slot:", "zc.cfg","zeldadx","quickload_slot",0,quickSlotList,"Unless 'disabled', this save slot will be immediately loaded upon launching.")
 					)
 				)),
 				TabRef(name = "ZQ Creator", Row(framed = true,
 					Rows<2>(fitParent = true,
-						CONFIG_CHECKBOX_I("Fullscreen","zquest.cfg","zquest","fullscreen",0,"Not exactly 'stable'."),
+						CONFIG_CHECKBOX_I("Fullscreen","zquest.cfg","zquest","fullscreen",0,"Exactly stable."),
 						CONFIG_CHECKBOX_I("Small Mode","zquest.cfg","zquest","small",0,"If enabled, the 'classic' small mode interface will be used. This mode has less screen space, and lacks features such as favorite combos, favorite commands, multiple combo rows, next-screen preview, etc."),
 						CONFIG_CHECKBOX("VSync","zquest.cfg","zquest","vsync",1),
 						CONFIG_CHECKBOX("Show FPS","zquest.cfg","zquest","showfps",0),
@@ -557,7 +517,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Autosave Window Size Changes","zquest.cfg","zquest","save_drag_resize",0,"Makes any changes to the window size by dragging get saved for whenever you open the program next."),
 						CONFIG_CHECKBOX_I("Lock Aspect Ratio On Resize","zquest.cfg","zquest","drag_aspect",0,"Makes any changes to the window size by dragging get snapped to ZQuest's default (4:3) aspect ratio."),
 						CONFIG_CHECKBOX_I("Save Window Position","zquest.cfg","zquest","save_window_position",0,"Remembers the last position of the ZQuest Window."),
-						CONFIG_CHECKBOX_I("Force Integer Values for Scale","zquest.cfg","zquest","scaling_force_integer",0,"Locks ZQuest's display to be an even integer scaling. Results in a lot of black letterboxing."),
+						CONFIG_CHECKBOX_I("Force Integer Values for Scale","zquest.cfg","zquest","scaling_force_integer",0,"Locks the screen to only scale by an integer value. Results in perfect pixel art scaling, at the expense of not using the entire availabe window space."),
+						CONFIG_CHECKBOX_I("Linear Scaling","zquest.cfg","zquest","scaling_mode",0,"Use linear scaling when upscaling the window. If off, the default is nearest-neighbor scaling"),
 						CONFIG_CHECKBOX_I("Record During Test Feature","zquest.cfg","zquest","test_mode_record",0,"Save a recording to replays/test_XXXXXXXX.zplay when using the GUI test feature.")
 					),
 					Rows<3>(fitParent = true,
@@ -567,8 +528,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_DROPDOWN_I("Auto-Backup Retention:", "zquest.cfg","zquest","auto_backup_retention",0,autoBackupCopiesList,"The number of auto-backups to keep"),
 						CONFIG_DROPDOWN_I("Auto-Save Retention:", "zquest.cfg","zquest","auto_save_retention",9,autoSaveCopiesList,"The number of auto-saves to keep"),
 						CONFIG_TEXTFIELD_I("Auto-Save Interval:", "zquest.cfg", "zquest", "auto_save_interval", 5, 0, 300, "Frequency of auto saves, in minutes. Valid range is 0-300, where '0' disables autosaves alltogether."),
-						//CONFIG_DROPDOWN_I("Scale (Small Mode):", "zquest.cfg","zquest","scale",3,scaleList,"The scale multiplier for the default small mode resolution (320x240). If this scales larger than your monitor resolution, ZQ will fail to launch."),
-						//CONFIG_DROPDOWN_I("Scale (Large Mode):", "zquest.cfg","zquest","scale_large",1,scaleList,"The scale multiplier for the default large mode resolution (800x600). If this scales larger than your monitor resolution, ZQ will fail to launch."),
 						CONFIG_TEXTFIELD_I("Window Width (Large Mode):","zquest.cfg","zquest","large_window_width", def_large_w, 200, 3000, "The width of the ZQuest window in large mode"),
 						CONFIG_TEXTFIELD_I("Window Height (Large Mode):","zquest.cfg","zquest","large_window_height", def_large_h, 150, 2250, "The height of the ZQuest window in large mode"),
 						CONFIG_TEXTFIELD_I("Window Width (Small Mode):","zquest.cfg","zquest","small_window_width", def_small_w, 200, 3000, "The width of the ZQuest window in small mode"),

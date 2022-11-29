@@ -31,7 +31,6 @@
 #include <loadpng.h>
 
 #include "zscriptversion.h"
-#include "WindowsScaling.h"
 #include "zcmusic.h"
 #include "base/zdefs.h"
 #include "zelda.h"
@@ -219,16 +218,12 @@ END_OF_FUNCTION(update_script_counter)
 
 void throttleFPS()
 {
-#ifdef _WIN32           // TEMPORARY!! -Trying to narrow down a win10 bug that affects performance.
-    timeBeginPeriod(1); // Basically, jist is that other programs can affect the FPS of ZC in weird ways. (making it better for example... go figure)
-#endif
-
 #ifdef ALLEGRO_MACOSX
 	int toggle_key = KEY_BACKQUOTE;
 #else
 	int toggle_key = KEY_TILDE;
 #endif
-    if( (Throttlefps ^ (zc_get_system_key(toggle_key)!=0)) || get_bit(quest_rules, qr_NOFASTMODE) )
+    if( (Throttlefps ^ (zc_get_system_key(toggle_key)!=0)) || get_bit(quest_rules, qr_NOFASTMODE) || Paused)
     {
         if(zc_vsync == FALSE)
         {
@@ -248,11 +243,6 @@ void throttleFPS()
         }
 	
     }
-#ifdef _WIN32
-    timeEndPeriod(1);
-#endif
-
-	all_mark_screen_dirty();
 
     logic_counter = 0;
 }
@@ -296,10 +286,10 @@ int32_t curr_tb_page=0;
 RGB_MAP rgb_table;
 COLOR_MAP trans_table, trans_table2;
 
-BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo,
+BITMAP     *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2,
            *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf,
 		   *pricesdisplaybuf, *tb_page[3], *temp_buf, *prim_bmp,
-		   *script_menu_buf, *f6_menu_buf, *hw_screen;
+		   *script_menu_buf, *f6_menu_buf;
 BITMAP     *zcmouse[4];
 DATAFILE   *datafile, *sfxdata, *fontsdata, *mididata;
 PALETTE    RAMpal;
@@ -373,7 +363,6 @@ combo_pool combo_pools[MAXCOMBOPOOLS];
 SAMPLE customsfxdata[WAV_COUNT] = {0};
 uint8_t customsfxflag[WAV_COUNT>>3]  = {0};
 int32_t sfxdat=1;
-int32_t zqwin_scale = 0;
 
 extern int32_t jwin_pal[jcMAX];
 int32_t gui_colorset=0;
@@ -415,8 +404,7 @@ bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true,
      show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false, show_effectflags = false;
 
 
-bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false, SaveDragResize=false, DragAspect=false, SaveWinPos=false;
-int32_t LastWidth = 0, LastHeight = 0;
+bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Saving=false, Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false, SaveDragResize=false, DragAspect=false, SaveWinPos=false;
 bool Playing, FrameSkip=false, TransLayers = true;
 bool __debug=false,debug_enabled = false;
 bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
@@ -591,14 +579,13 @@ dword getNumGlobalArrays()
 //movingblock mblock2; //mblock[4]?
 //HeroClass   Hero;
 
-int32_t resx= 0,resy= 0,scrx= 0,scry= 0;
+int32_t resx= 0,resy= 0;
+// the number of horizontal or vertical pixels between the framebuffer (320x240) and the window.
+// aka, the letterbox size.
+int32_t scrx= 0,scry= 0;
 int32_t window_width = 0, window_height = 0;
-bool sbig=false;                                                  // big screen
-bool sbig2=false;													// bigger screen
-int32_t screen_scale = 2; //default = 2 (640x480)
-bool scanlines=false; 
 extern byte pause_in_background;
-extern signed char pause_in_background_menu_init;//do scanlines if sbig==1
+extern signed char pause_in_background_menu_init;
 bool toogam=false;
 bool ignoreSideview=false;
 
@@ -637,55 +624,24 @@ volatile int32_t lastfps=0;
 volatile int32_t framecnt=0;
 volatile int32_t myvsync=0;
 
-void doAspectResize()
-{
-	if (DragAspect)
-	{
-		if (LastWidth == 0 || LastHeight == 0)
-		{
-			LastWidth = al_get_display_width(all_get_display());
-			LastHeight = al_get_display_height(all_get_display());
-		}
-		if (LastWidth != al_get_display_width(all_get_display()) || LastHeight != al_get_display_height(all_get_display()))
-		{
-			bool widthfirst = true;
-			
-			if (abs(LastWidth - al_get_display_width(all_get_display())) < abs(LastHeight - al_get_display_height(all_get_display()))) widthfirst = false;
-			
-			if (widthfirst)
-			{
-				al_resize_display(all_get_display(), al_get_display_width(all_get_display()), al_get_display_width(all_get_display())*0.75);
-			}
-			else
-			{
-				al_resize_display(all_get_display(), al_get_display_height(all_get_display())/0.75, al_get_display_height(all_get_display()));
-			}
-		}
-		LastWidth = al_get_display_width(all_get_display());
-		LastHeight = al_get_display_height(all_get_display());
-	}
-}
-
 bool update_hw_pal = false;
 PALETTE* hw_palette = NULL;
 void update_hw_screen(bool force)
 {
-	//if(!hw_screen) return;
-	doAspectResize();
 	if(force || (!is_sys_pal && !Throttlefps) || myvsync)
 	{
-		zc_process_mouse_events();
-		blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+		zc_process_display_events();
+		resx = al_get_display_width(all_get_display());
+		resy = al_get_display_height(all_get_display());
 		if(update_hw_pal && hw_palette)
 		{
 			set_palette(*hw_palette);
 			update_hw_pal = false;
 		}
+		framecnt++;
+		if (myvsync||force)
+			render_zc();
 		myvsync=0;
-		all_mark_screen_dirty();
-#ifdef __EMSCRIPTEN__
-		all_render_screen();
-#endif
 	}
 }
 
@@ -2919,45 +2875,6 @@ void putintro()
             ++intropos;
 }
 
-//static char *dirstr[4] = {"Up","Down","Left","Right"};
-//static char *dirstr[32] = {"U","D","L","R"," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "};
-
-//use detail_int[x] for global detail info
-void show_details()
-{
-    //textprintf_ex(framebuf,font,-3,-5,WHITE,BLACK,"%-4d",whistleclk);
-    textprintf_ex(framebuf,font,0,8,WHITE,BLACK,"dlvl:%-2d dngn:%d", dlevel, isdungeon());
-    textprintf_ex(framebuf,font,0,176,WHITE,BLACK,"%u %s",game->get_time(),time_str_long(game->get_time()));
-    
-//    textprintf_ex(framebuf,font,200,16,WHITE,BLACK,"%3d",Hero.getPushing());
-//    for(int32_t i=0; i<Lwpns.Count(); i++)
-//      textprintf_ex(framebuf,font,200,(i<<3)+16,WHITE,BLACK,"%3d",items.spr(i)->id);
-
-//    for(int32_t i=0; i<Ewpns.Count(); i++)
-//      textprintf_ex(framebuf,font,90,(i<<3)+16,WHITE,BLACK,"%3d %3d %3d %3d %3d",((weapon*)Ewpns.spr(i))->id, ((weapon*)Ewpns.spr(i))->tile, ((weapon*)Ewpns.spr(i))->clk, ((weapon*)Ewpns.spr(i))->aframe, wpnsbuf[((weapon*)Ewpns.spr(i))->id].frames);
-
-//    for(int32_t i=0; i<items.Count(); i++)
-//      textprintf_ex(framebuf,font,90,(i<<3)+16,WHITE,BLACK,"%3d %3d %3d",((weapon*)Lwpns.spr(i))->tile, ((weapon*)Lwpns.spr(i))->dir, ((weapon*)Lwpns.spr(i))->flip);
-
-    for(int32_t i=0; i<guys.Count(); i++)
-        textprintf_ex(framebuf,font,90,(i<<3)+16,WHITE,BLACK,"%d",(int32_t)((enemy*)guys.spr(i))->id);
-        
-//      textprintf_ex(framebuf,font,90,16,WHITE,BLACK,"%3d, %3d",int32_t(HeroModifiedX()),int32_t(HeroModifiedY()));
-    //textprintf_ex(framebuf,font,90,24,WHITE,BLACK,"%3d, %3d",detail_int[0],detail_int[1]);
-//      textprintf_ex(framebuf,font,200,16,WHITE,BLACK,"%3d",Hero.getAction());
-
-    /*
-      for(int32_t i=0; i<Ewpns.Count(); i++)
-      {
-      sprite *s=Ewpns.spr(i);
-      textprintf_ex(framebuf,font,100,(i<<3)+16,WHITE,BLACK,"%3d>%3d %3d>%3d %3d<%3d %3d<%3d ",
-      int32_t(Hero.getX()+0+16), int32_t(s->x+s->hxofs),  int32_t(Hero.getY()+0+16), int32_t(s->y+s->hyofs),
-      int32_t(Hero.getX()+0), int32_t(s->x+s->hxofs+s->hxsz), int32_t(Hero.getY()+0), int32_t(s->y+s->hyofs+s->hysz));
-      }
-      */
-//        textprintf_ex(framebuf,font,200,16,WHITE,BLACK,"gi=%3d",guycarryingitem);
-}
-
 void show_ffscript_names()
 {
 	int32_t ypos = 8;
@@ -4484,9 +4401,15 @@ int32_t isFullScreen()
 
 bool setGraphicsMode(bool windowed)
 {
-    int32_t type=windowed ? GFX_AUTODETECT_WINDOWED : GFX_AUTODETECT_FULLSCREEN;
-    bool result = set_gfx_mode(type, resx, resy, 0, 0)==0;
-    return result;
+	int32_t type=windowed ? GFX_AUTODETECT_WINDOWED : GFX_AUTODETECT_FULLSCREEN;
+	int w = resx, h = resy;
+	if (type == GFX_AUTODETECT_WINDOWED)
+	{
+		w = window_width;
+		h = window_height;
+	}
+	bool result = set_gfx_mode(type, w, h, 0, 0)==0;
+	return result;
 }
 
 int32_t onFullscreen()
@@ -4696,16 +4619,28 @@ int main(int argc, char **argv)
 		al_destroy_config(tempcfg);
 	}
 
+	all_disable_threaded_display();
 
 #ifdef __EMSCRIPTEN__
 	em_mark_initializing_status();
-	all_disable_threaded_display();
 	em_init_fs();
 #endif
 	
 	if(!al_init_image_addon())
 	{
 		Z_error_fatal("Failed al_init_image_addon");
+		quit_game();
+	}
+
+	if(!al_init_font_addon())
+	{
+		Z_error_fatal("Failed al_init_font_addon");
+		quit_game();
+	}
+
+	if(!al_init_primitives_addon())
+	{
+		Z_error_fatal("Failed al_init_primitives_addon");
 		quit_game();
 	}
 
@@ -4870,7 +4805,6 @@ int main(int argc, char **argv)
 		Z_error_fatal(allegro_error);
 		quit_game();
 	}
-	zc_install_mouse_event_handler();
 	
 	if(install_joystick(JOY_TYPE_AUTODETECT) < 0)
 	{
@@ -4984,12 +4918,12 @@ int main(int argc, char **argv)
 	//set_color_depth(32);
 	//set_color_conversion(COLORCONV_24_TO_8);
 	framebuf  = create_bitmap_ex(8,256,224);
+	menu_bmp  = create_bitmap_ex(8,640,480);
 	temp_buf  = create_bitmap_ex(8,256,224);
 	scrollbuf = create_bitmap_ex(8,512,406);
 	screen2   = create_bitmap_ex(8,320,240);
 	tmp_scr   = create_bitmap_ex(8,320,240);
 	tmp_bmp   = create_bitmap_ex(8,32,32);
-	fps_undo  = create_bitmap_ex(8,64,16);
 	prim_bmp  = create_bitmap_ex(8,512,512);
 	msg_bg_display_buf = create_bitmap_ex(8,256, 176);
 	msg_txt_display_buf = create_bitmap_ex(8,256, 176);
@@ -5007,7 +4941,7 @@ int main(int argc, char **argv)
 	darkscr_bmp_scrollscr_trans = create_bitmap_ex(8, 256, 176);
 	lightbeam_bmp = create_bitmap_ex(8, 256, 176);
 	
-	if(!framebuf || !scrollbuf || !tmp_bmp || !fps_undo || !tmp_scr
+	if(!framebuf || !scrollbuf || !tmp_bmp || !tmp_scr
 			|| !screen2 || !msg_txt_display_buf || !msg_bg_display_buf || !pricesdisplaybuf
 			|| !script_menu_buf || !f6_menu_buf)
 	{
@@ -5333,7 +5267,6 @@ int main(int argc, char **argv)
 		{
 			pan_style = (int32_t)FFCore.usr_panstyle;
 		}
-		show_saving(screen);
 		save_savedgames();
 		save_game_configs();
 		set_gfx_mode(GFX_TEXT,80,25,0,0);
@@ -5363,10 +5296,12 @@ int main(int argc, char **argv)
 		bool old_sbig2 = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big2")==0 : 0;
 	}
 	
-	if(resx>=640 && resy>=480)
-	{
-		is_large=true;
-	}
+	// TODO: delete this and is_large variable. we always large now
+	// if(resx>=640 && resy>=480)
+	// {
+	// 	is_large=true;
+	// }
+	is_large = true;
 	
 	//request_refresh_rate(60);
 	
@@ -5383,87 +5318,26 @@ int main(int argc, char **argv)
 		tempmode=GFX_AUTODETECT_WINDOWED;
 	}
 
-	
-	//set scale
 	if(resx < 256) resx = 256;
-	
 	if(resy < 240) resy = 240;
 	
-	// We pretty much ignore resx/resy now, always making a display of 640x480. a5_display.c handles the scaling now.
-	// TODO: rename "resx" "resy" options and zlauncher "Resolution" to "Window size",
+	double monitor_scale = zc_get_monitor_scale();
+	resx *= monitor_scale;
+	resy *= monitor_scale;
+
+	// TODO: consolidate "resx" and "resy" variables with window_width,height.
 	window_width = resx;
 	window_height = resy;
-	resx = 320*2;
-	resy = 240*2;
-	screen_scale = 2;
-	
-	all_set_force_integer_scale(zc_get_config("zeldadx", "scaling_force_integer", 0) != 0);
-	if (strcmp(zc_get_config("zeldadx", "scaling_mode", "nn"), "linear") == 0)
-		all_set_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR);
 	
 	if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
 	{
-		//what we need here is not rightousness but madness!!!
-		
-#define TRY_SET_VID_MODE(scale) \
-	Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy); \
-	screen_scale=scale; \
-	resx=320*scale; \
-	resy=240*scale
-		
-		TRY_SET_VID_MODE(2);
-		
-		if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
-		{
-			TRY_SET_VID_MODE(1);
-			
-			if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
-			{
-				if(tempmode != GFX_AUTODETECT_WINDOWED)
-				{
-					tempmode=GFX_AUTODETECT_WINDOWED;
-					al_trace("-fullscreen not supported by your video driver! setting -windowed switch\n");
-					TRY_SET_VID_MODE(2);
-					
-					if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
-					{
-						TRY_SET_VID_MODE(1);
-						
-						if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
-						{
-							Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
-							al_trace("Fatal Error...Zelda Classic could not be initialized. Have a nice day :) \n");
-							Z_error_fatal(allegro_error);
-							quit_game();
-						}
-						else Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
-					}
-					else Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
-				}
-				else
-				{
-					al_trace("Fatal Error: could not create a window for Zelda Classic.\n");
-					Z_error_fatal(allegro_error);
-					quit_game();
-				}
-			}
-			else Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
-		}
-		else Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
+		al_trace("Fatal Error: could not create a window for Zelda Classic.\n");
+		Z_error_fatal(allegro_error);
+		quit_game();
 	}
 	else
 	{
 		Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
-	}
-
-	if (zc_get_config("zeldadx","hw_cursor",0) == 1)
-	{
-		// Must wait for the display thread to create the a5 display before the
-		// hardware cursor can be enabled.
-		while (!all_get_display()) rest(1);
-		enable_hardware_cursor();
-		select_mouse_cursor(MOUSE_CURSOR_ARROW);
-		show_mouse(screen);
 	}
 
 #ifndef __EMSCRIPTEN__
@@ -5473,38 +5347,33 @@ int main(int argc, char **argv)
 			al_rest(1);
 		}
 
-		int o_window_x, o_window_y;
-		al_get_window_position(all_get_display(), &o_window_x, &o_window_y);
-		int o_window_w = al_get_display_width(all_get_display());
-		int o_window_h = al_get_display_height(all_get_display());
-		int center_x = o_window_x + o_window_w / 2;
-		int center_y = o_window_y + o_window_h / 2;
-		double vscale = getverticalscale(); 
-		double hscale = gethorizontalscale(); 
-		int window_width_temp = window_width*hscale;
-		int window_height_temp = window_height*vscale;
-		al_resize_display(all_get_display(), window_width_temp, window_height_temp);
+		int window_w = al_get_display_width(all_get_display());
+		int window_h = al_get_display_height(all_get_display());
 		
-#ifndef ALLEGRO_MACOSX
 		int new_x = zc_get_config("zeldadx","window_x",0);
 		int new_y = zc_get_config("zeldadx","window_y",0);
-		if (new_x > 0 && new_y > 0) al_set_window_position(all_get_display(), new_x, new_y);
-		else al_set_window_position(all_get_display(), center_x - window_width_temp / 2, center_y - window_height_temp / 2);
-#endif
+		if (new_x == 0 && new_y == 0)
+		{
+			ALLEGRO_MONITOR_INFO info;
+			al_get_monitor_info(0, &info);
+
+			new_x = (info.x2 - info.x1) / 2 - window_w / 2;
+			new_y = (info.y2 - info.y1) / 2 - window_h / 2;
+		}
+		al_set_window_position(all_get_display(), new_x, new_y);
 	}
 #endif
-	LastWidth = al_get_display_width(all_get_display());
-	LastHeight = al_get_display_height(all_get_display());
-	sbig = (screen_scale > 1);
 	switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
 	set_display_switch_mode(is_windowed_mode()?SWITCH_PAUSE:switch_type);
-	zq_screen_w = resx;
-	zq_screen_h = resy;
 	
-	hw_screen = screen;
 	hw_palette = &RAMpal;
-	screen = create_bitmap_ex(8, resx, resy);
-	clear_to_color(screen, BLACK);	
+	zq_screen_w = 640;
+	zq_screen_h = 480;
+	screen = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
+	clear_to_color(screen, BLACK);
+
+	// Initialize render tree.
+	render_zc();
 	
 	set_close_button_callback((void (*)()) hit_close_button);
 	set_window_title("Zelda Classic");
@@ -6048,7 +5917,6 @@ reload_for_replay_file:
 	{
 		pan_style = (int32_t)FFCore.usr_panstyle;
 	}
-	show_saving(screen);
 	save_savedgames();
 	if (replay_get_mode() == ReplayMode::Record) replay_save();
 	save_game_configs();
@@ -6124,7 +5992,6 @@ void quit_game()
 	destroy_bitmap(tmp_scr);
 	destroy_bitmap(screen2);
 	destroy_bitmap(tmp_bmp);
-	destroy_bitmap(fps_undo);
 	destroy_bitmap(prim_bmp);
 	set_clip_state(msg_bg_display_buf, 1);
 	destroy_bitmap(msg_bg_display_buf);
