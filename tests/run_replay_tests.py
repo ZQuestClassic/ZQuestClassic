@@ -127,7 +127,7 @@ def run_replay_test(replay_file):
             exe_args.extend(['-frame', str(num_frames_checked)])
             print(f"-frame {num_frames_checked}, only doing {100 * num_frames_checked / num_frames:.2f}% ... ", end='', flush=True)
             estimated_duration = max_duration
-        timeout = 60 + estimated_duration * 1.5
+        timeout = max(60 + estimated_duration * 1.5, 60 * 3)
     else:
         timeout = None
 
