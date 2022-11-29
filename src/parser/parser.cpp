@@ -57,16 +57,14 @@ void zconsole_db(const char *format,...)
 	//{
 	int32_t ret;
 	char tmp[1024];
-	
 	va_list argList;
 	va_start(argList, format);
 	#ifdef WIN32
-	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+			ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	#else
-	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+			ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	#endif
 	tmp[vbound(ret,0,1023)]=0;
-	
 	va_end(argList);
 	if(console_path.size())
 	{
@@ -91,16 +89,14 @@ void zconsole_warn(const char *format,...)
 	//{
 	int32_t ret;
 	char tmp[1024];
-	
 	va_list argList;
 	va_start(argList, format);
 	#ifdef WIN32
-	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+			ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	#else
-	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+			ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	#endif
 	tmp[vbound(ret,0,1023)]=0;
-	
 	va_end(argList);
 	if(console_path.size())
 	{
@@ -125,16 +121,14 @@ void zconsole_error(const char *format,...)
 	//{
 	int32_t ret;
 	char tmp[1024];
-	
 	va_list argList;
 	va_start(argList, format);
 	#ifdef WIN32
-	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+			ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	#else
-	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+			ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	#endif
 	tmp[vbound(ret,0,1023)]=0;
-	
 	va_end(argList);
 	//}
 	if(console_path.size())
@@ -159,16 +153,14 @@ void zconsole_info(const char *format,...)
 	//{
 	int32_t ret;
 	char tmp[1024];
-	
 	va_list argList;
 	va_start(argList, format);
 	#ifdef WIN32
-	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+			ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	#else
-	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+			ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	#endif
 	tmp[vbound(ret,0,1023)]=0;
-	
 	va_end(argList);
 	//}
 	if(console_path.size())
@@ -225,7 +217,6 @@ std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path)
 	}
 	fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
 	fclose(tempfile);
-	
 	std::unique_ptr<ZScript::ScriptsData> res(ZScript::compile(tmpfilename));
 	unlink(tmpfilename);
 	return res;
@@ -242,7 +233,7 @@ void updateIncludePaths()
 		do
 		{
 			c = fgetc(f);
-			if(c!=EOF) 
+			if(c!=EOF)
 				includePathString[pos++] = c;
 		}
 		while(c!=EOF && pos<MAX_INCLUDE_PATH_CHARS);
@@ -292,7 +283,6 @@ int32_t main(int32_t argc, char **argv)
 	if(console_path_index)
 		console_path = argv[console_path_index + 1];
 	else console_path = "";
-	
 	child_process_handler* cph = (linked ? new child_process_handler() : nullptr);
 	ConsoleWrite = cph;
 	if(allegro_init() != 0)
@@ -300,14 +290,12 @@ int32_t main(int32_t argc, char **argv)
 		zconsole_error("%s", "Failed Init!");
 		exit(1);
 	}
-	
 	int32_t script_path_index = used_switch(argc, argv, "-input");
 	if (!script_path_index)
 	{
 		zconsole_error("%s", "Error: missing required flag: -input");
 		return 1;
 	}
-	
 	if(console_path.size())
 	{
 		FILE *console=fopen(console_path.c_str(), "w");
@@ -337,12 +325,10 @@ int32_t main(int32_t argc, char **argv)
 
 	std::string script_path = argv[script_path_index + 1];
 	int32_t syncthing = 0;
-	
 	if(linked)
 	{
 		cph->write(&syncthing, sizeof(int32_t));
 	}
-	
 	zc_set_config_standard();
 	memset(FFCore.scriptRunString,0,sizeof(FFCore.scriptRunString));
 	char const* runstr = zc_get_config(zc_get_standard_config_name(),"Compiler","run_string","run");
@@ -363,7 +349,6 @@ int32_t main(int32_t argc, char **argv)
 	if(!result)
 		zconsole_info("%s", "Failure!");
 	int32_t res = (result ? 0 : (zscript_failcode ? zscript_failcode : -1));
-	
 	if(linked)
 	{
 		if(!res)

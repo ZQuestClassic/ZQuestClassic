@@ -36,17 +36,17 @@ ALLEGRO_ICON            ICON                    "./zl_icon.ico"
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resource.h\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "\r\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
     "#include ""windows.h""\r\0"
 END
@@ -103,7 +103,7 @@ END
 //
 // Generated from the TEXTINCLUDE 3 resource.h
 //
-
+
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 

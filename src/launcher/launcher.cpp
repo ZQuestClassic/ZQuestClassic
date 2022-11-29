@@ -87,8 +87,6 @@ int32_t main(int32_t argc, char* argv[])
 
 	set_uformat(U_ASCII);
 	zc_srand(time(0));
-	
-	
 	Z_message("Initializing Allegro... "); //{
 	if(!al_init())
 	{
@@ -117,12 +115,9 @@ int32_t main(int32_t argc, char* argv[])
 		Z_error_fatal(allegro_error);
 		QUIT_LAUNCHER();
 	}
-	
 	LOCK_VARIABLE(lastfps);
-	
 	LOCK_VARIABLE(framecnt);
 	LOCK_FUNCTION(fps_callback);
-	
 	if(install_int_ex(fps_callback,SECS_TO_TIMER(1)))
 	{
 		Z_error_fatal("couldn't allocate timer\n");
@@ -135,26 +130,19 @@ int32_t main(int32_t argc, char* argv[])
 		Z_error_fatal("couldn't allocate timer\n");
 		QUIT_LAUNCHER();
 	}
-	
 	LOCK_VARIABLE(dclick_status);
 	LOCK_VARIABLE(dclick_time);
 	lock_dclick_function();
 	install_int(dclick_check, 20);
-	
-	
 	set_gfx_mode(GFX_TEXT,80,50,0,0);
 	Z_message("OK\n");
 	//} end Initializing Allegro...OK
-	
 	Z_message("Initializing module...");
 	zcm.init(true);
 	Z_message("OK\n");
-	
 	Z_message("Loading data files:\n"); //{
-	
 	resolve_password(datapwd);
 	packfile_password(datapwd);
-	
 	Z_message("....Fonts.Dat..."); //{
 	if((fontsdata=load_datafile(moduledata.datafiles[fonts_dat]))==NULL)
 	{
@@ -172,10 +160,8 @@ int32_t main(int32_t argc, char* argv[])
 	Z_message("OK\n");
 	//} end Fonts.Dat...OK
 	packfile_password("");
-	
 	Z_message("....OK\n");
 	//} end Loading data files:
-	
 	set_color_depth(8);
 
 	all_disable_threaded_display();
@@ -186,20 +172,17 @@ int32_t main(int32_t argc, char* argv[])
 	int window_height = zq_screen_h * monitor_scale;
 
 	int32_t videofail = set_gfx_mode(GFX_AUTODETECT_WINDOWED,window_width,window_height,0,0);
-	
 	if(videofail)
 	{
 		Z_error_fatal(allegro_error);
 		QUIT_LAUNCHER();
 	}
-	
 	Z_message("Loading bitmaps..."); //{
 	tmp_scr = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
 	mouse_bmp = create_bitmap_ex(8,16,16);
 	//{ Screen setup
 	screen = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
 	//}
-	
 	if(!(tmp_scr && mouse_bmp && screen))
 	{
 		Z_error_fatal("failed\n");
@@ -207,36 +190,27 @@ int32_t main(int32_t argc, char* argv[])
 	}
 	Z_message("OK\n");
 	//}
-	
 	// while(!key[KEY_SPACE]);
-	
 	Z_message("Loading configs...");
 	gui_colorset = zc_get_config("ZLAUNCH","gui_colorset",99);
 	Z_message("OK\n");
-	
 	Z_message("Initializing palette...");
 	init_launcher_palette();
 	Z_message("OK\n");
-	
-	
 	Z_message("Initializing mouse...");
 	//{ Mouse setup
 	load_mouse();
 	show_mouse(screen);
 	//}
 	Z_message("OK\n");
-	
 	get_root_path(rootpath, 4096);
-	
 	set_window_title("ZQuest Launcher");
 	set_close_button_callback((void (*)()) hit_close_button);
 	//
 	Z_message("Launcher opened successfully.\n");
-	
 	#if QUICK_EXIT > 0
 	goto exit;
 	#endif
-	
 	LauncherDialog().show();
 
 	#if QUICK_EXIT > 0
@@ -244,7 +218,6 @@ int32_t main(int32_t argc, char* argv[])
 	#endif
 	Z_message("Exiting launcher...\n");
 	//
-	
 	flush_config_file();
 	return 0;
 }
@@ -461,9 +434,7 @@ void init_launcher_palette()
 	RAMpal[254].r = 34; RAMpal[254].g = 42; RAMpal[254].b = 53;
 	RAMpal[255].r = 41; RAMpal[255].g = 49; RAMpal[255].b = 59;
 	//}
-	
 	load_colorset(gui_colorset);
-	
 	set_palette(RAMpal);
 	clear_to_color(screen,vc(0));
 }
@@ -570,19 +541,15 @@ bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *
 {
     if(def!=temppath)
         strcpy(temppath,def);
-        
     if(!usefilename)
     {
         int32_t i=(int32_t)strlen(temppath);
-        
         while(i>=0 && temppath[i]!='\\' && temppath[i]!='/')
             temppath[i--]=0;
     }
-    
     //  int32_t ret = file_select_ex(prompt,temppath,ext,255,-1,-1);
     int32_t ret=0;
     int32_t sel=0;
-    
     if(list==NULL)
     {
         ret = jwin_file_select_ex(prompt,temppath,ext,2048,-1,-1,lfont);
@@ -591,7 +558,6 @@ bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *
     {
         ret = jwin_file_browse_ex(prompt, temppath, list, &sel, 2048, -1, -1, lfont);
     }
-    
     return ret!=0;
 }
 

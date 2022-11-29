@@ -24,7 +24,7 @@ similar to this:
 const int CONSTANT_NAME = ###; // And sometimes there's a note here
 
 The ### part is what you need to change; be sure to leave the equals sign and
-semicolon in place. 
+semicolon in place.
 
 These are the standard settings:
 
@@ -65,7 +65,7 @@ AUTOGHOST_MAX_FFC
    for other purposes. Making this range too small can result in some scripts
    not working, so it's best not to restrict it more than necessary.
    Both must be between 1 and 32.
-   
+
 AUTOGHOST_MIN_ENEMY_ID
 AUTOGHOST_MAX_ENEMY_ID
    These allow you to limit the range of enemy IDs that can be set up
@@ -77,7 +77,7 @@ GH_DRAW_OVER_THRESHOLD
    Some scripts set the FFC's "Draw Over" flag automatically as the enemy moves
    up and down. This determines the Z value at which it changes. This is similar
    to the setting "Jumping Sprite Layer Threshold" in the initialization data.
-   
+
 GH_GRAVITY
 GH_TERMINAL_VELOCITY
    These should match the numbers set for gravity and terminal velocity in
@@ -128,12 +128,12 @@ __GH_ETHEREAL
 
 __GH_FIX_EWM_FALL
    This is a bugfix setting that prevents inappropriate removal of falling weapons
-   on sideview screens. 
+   on sideview screens.
    Set this to 0 if you are using legacy scripts that are incompatible with this option.
-   
+
 __GH_FIX_EWM_THROW
    This is a bugfix setting that prevents inappropriate removal of thrown weapons
-   on sideview screens. 
+   on sideview screens.
    Set this to 0 if you are using legacy scripts that are incompatible with this option.
 
 __GH_WEAPONS_HIT_PLATFORMS
@@ -151,7 +151,7 @@ In ZQuest, go to Quest > Scripts > Compile ZScript... > Edit and enter this:
 #include "std.zh"
 #include "ghost.zh"
 
-This assumes that all these files are in the default location. 
+This assumes that all these files are in the default location.
 Ghost.zh is normally in './headers' and its sub-files are in #./headers/ghost_zh/2.8'.
 If you put ghost.zh files in a other paths, you'll have to specify that, for instance:
 
@@ -215,7 +215,7 @@ exactly as shown after it is compiled, including capitalization.
 For example, using the Armos_LttP script, these names will work:
   Armos (LttP)   @Armos_LttP
   Armos (L1, @Armos_LttP)
-  
+
 These names will not work:
   Armos  @armos_lttp
   - Incorrect capitalization

@@ -20,5 +20,5 @@ ZC Version Semantics:
                    >--------------------------{ Alpha, Beta, Gamma, or Release
                                                 [subversion] == state revision; e.g. Alpha-2, Beta-16, Gamma-1, Release 1.
                                                 [notation] == special notes for a build, e.g. Alpha-1-Fix-Dungeons
-							
+
 A full formal version might be: '2.60.2-Beta-2-Fix-Link'.

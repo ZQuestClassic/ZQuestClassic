@@ -66,7 +66,7 @@ void Checkbox_OnMouseRelease(int id)
             Event_Add(EVENT_CHECKBOX_CHANGED, id, 0);
         }
     }
-    
+
     GUI_Data[id+CB_STATE]&=~CBSTATE_CLICKED;
 }
 

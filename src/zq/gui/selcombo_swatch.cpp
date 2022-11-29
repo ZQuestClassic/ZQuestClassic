@@ -48,25 +48,20 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 			}
 		}
 		break;
-		
 		case MSG_DRAW:
 			BITMAP *buf = create_bitmap_ex(8,20,20);
 			BITMAP *bigbmp = create_bitmap_ex(8,d->h,d->h);
-			
 			if(buf && bigbmp)
 			{
 				clear_bitmap(buf);
-				
 				if(d->d1)
 					overtile16(buf,combobuf[d->d1].tile,2,2,d->d2,combobuf[d->d1].flip);
-					
 				stretch_blit(buf, bigbmp, 2,2, 17, 17, 2, 2, d->h-4, d->h-4);
 				destroy_bitmap(buf);
 				jwin_draw_frame(bigbmp,0,0,d->h,d->h,FR_DEEP);
 				blit(bigbmp,screen,0,0,d->x,d->y,d->h,d->h);
 				destroy_bitmap(bigbmp);
 			}
-			
 			//    text_mode(d->bg);
 			if(d->bg)
 			{

@@ -114,9 +114,7 @@ static void doAspectResize()
 	if (prev_width != al_get_display_width(all_get_display()) || prev_height != al_get_display_height(all_get_display()))
 	{
 		bool width_first = true;
-		
 		if (abs(prev_width - al_get_display_width(all_get_display())) < abs(prev_height - al_get_display_height(all_get_display()))) width_first = false;
-		
 		if (width_first)
 		{
 			al_resize_display(all_get_display(), al_get_display_width(all_get_display()), al_get_display_width(all_get_display())*0.75);
@@ -144,11 +142,9 @@ void zc_update_builtin_font()
 {
 	if (!builtin_font)
 		return;
-	
 	// Only a problem for fullscreen (at least, directx).
 	if (!all_get_fullscreen_flag())
 		return;
-	
 	al_destroy_font(builtin_font);
 	builtin_font = al_create_builtin_font();
 }

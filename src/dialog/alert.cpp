@@ -38,7 +38,7 @@ std::shared_ptr<GUI::Widget> AlertDialog::view()
 		onTick = [&](){return alert_on_tick();},
 		hPadding = 0_px,
 		Column(
-			hPadding = 0_px, 
+			hPadding = 0_px,
 			Label(noHLine = true,
 				hPadding = sized(1_em,2_em),
 				maxLines = 20,

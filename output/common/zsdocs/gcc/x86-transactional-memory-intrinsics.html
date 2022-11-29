@@ -80,7 +80,7 @@ Next: <a href="x86-control_002dflow-protection-intrinsics.html#x86-control_002df
 <p>These hardware transactional memory intrinsics for x86 allow you to use
 memory transactions with RTM (Restricted Transactional Memory).
 This support is enabled with the <samp>-mrtm</samp> option.
-For using HLE (Hardware Lock Elision) see 
+For using HLE (Hardware Lock Elision) see
 <a href="x86-specific-memory-model-extensions-for-transactional-memory.html#x86-specific-memory-model-extensions-for-transactional-memory">x86 specific memory model extensions for transactional memory</a> instead.
 </p>
 <p>A memory transaction commits all changes to memory in an atomic way,
@@ -92,10 +92,10 @@ and suitable fallback code always needs to be supplied.
 </p>
 <dl>
 <dt><a name="index-_005fxbegin"></a>RTM Function: <em>unsigned</em> <strong>_xbegin</strong> <em>()</em></dt>
-<dd><p>Start a RTM (Restricted Transactional Memory) transaction. 
+<dd><p>Start a RTM (Restricted Transactional Memory) transaction.
 Returns <code>_XBEGIN_STARTED</code> when the transaction
-started successfully (note this is not 0, so the constant has to be 
-explicitly tested).  
+started successfully (note this is not 0, so the constant has to be
+explicitly tested).
 </p>
 <p>If the transaction aborts, all side effects
 are undone and an abort code encoded as a bit mask is returned.
@@ -143,7 +143,7 @@ to other threads in an atomic manner.
 <dl>
 <dt><a name="index-_005fxabort"></a>RTM Function: <em>void</em> <strong>_xabort</strong> <em>(status)</em></dt>
 <dd><p>Abort the current transaction. When no transaction is active this is a no-op.
-The <var>status</var> is an 8-bit constant; its value is encoded in the return 
+The <var>status</var> is an 8-bit constant; its value is encoded in the return
 value from <code>_xbegin</code>.
 </p></dd></dl>
 
@@ -157,18 +157,18 @@ int n_tries, max_tries;
 unsigned status = _XABORT_EXPLICIT;
 ...
 
-for (n_tries = 0; n_tries &lt; max_tries; n_tries++) 
+for (n_tries = 0; n_tries &lt; max_tries; n_tries++)
   {
     status = _xbegin ();
     if (status == _XBEGIN_STARTED || !(status &amp; _XABORT_RETRY))
       break;
   }
-if (status == _XBEGIN_STARTED) 
+if (status == _XBEGIN_STARTED)
   {
     ... transaction code...
     _xend ();
-  } 
-else 
+  }
+else
   {
     ... non-transactional fallback path...
   }

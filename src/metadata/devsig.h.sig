@@ -1,7 +1,7 @@
 /** Developer Signoff Metadata for Header v4
-* 
+*
 * ZQ Metadata for the Compiler used to build ZQ/ZC.
-* 
+*
 * !! DO NOT COMMIT CHANGES TO THIS FILE TO GITHUB
 */
 

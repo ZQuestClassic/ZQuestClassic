@@ -154,7 +154,7 @@ guarded by save/clear/restore of the global interrupt enable flag.
 </p>
 <p>The differences to the <code>naked</code> function attribute are:
 </p><ul>
-<li> <code>naked</code> functions do not have a return instruction whereas 
+<li> <code>naked</code> functions do not have a return instruction whereas
 <code>OS_main</code> and <code>OS_task</code> functions have a <code>RET</code> or
 <code>RETI</code> return instruction.
 </li><li> <code>naked</code> functions do not set up a frame for local variables
@@ -170,7 +170,7 @@ function is an interrupt handler.  The compiler generates function
 entry and exit sequences suitable for use in an interrupt handler when this
 attribute is present.
 </p>
-<p>See also the <code>interrupt</code> function attribute. 
+<p>See also the <code>interrupt</code> function attribute.
 </p>
 <p>The AVR hardware globally disables interrupts when an interrupt is executed.
 Interrupt handler functions defined with the <code>signal</code> attribute

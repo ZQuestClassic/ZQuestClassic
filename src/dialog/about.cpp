@@ -17,15 +17,14 @@ std::shared_ptr<GUI::Widget> AboutDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	bool devmode = key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL];
-	
 	std::shared_ptr<GUI::Grid> windowGrid;
 	std::shared_ptr<GUI::Window> window = Window(
 		title = std::move(dlgTitle),
 		onEnter = 0,
 		onClose = 0,
-		hPadding = 0_px, 
+		hPadding = 0_px,
 		windowGrid = Column(
-			hPadding = 0_px, 
+			hPadding = 0_px,
 			Label(noHLine = true,
 				hPadding = sized(1_em,2_em),
 				maxLines = 20,

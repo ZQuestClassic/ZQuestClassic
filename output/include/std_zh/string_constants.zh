@@ -20,7 +20,7 @@ const char32 CHAR_NULL 		= 0; //NULL char, end of string.
 const char32 CHAR_SOH 		= 1; //Start of heading.
 const char32 CHAR_STX 		= 2; //Start of text.
 const char32 CHAR_ETX		= 3; //End of text.
-const char32 CHAR_EOT 		= 4; //End of transmission. 
+const char32 CHAR_EOT 		= 4; //End of transmission.
 const char32 CHAR_ENQ		= 5; //Enquiry
 const char32 CHAR_ACK		= 6; //Acknowledge
 const char32 CHAR_BELL		= 7; //Bell tone.
@@ -50,7 +50,7 @@ const char32 CHAR_SUB		= 26; //Substitute
 const char32 CHAR_SUBSTITUTE	= 26;
 const char32 CHAR_ESC		= 27; //Escape char.
 const char32 CHAR_FS		= 28; //File separator.
-const char32 CHAR_FILESEP		= 28; 
+const char32 CHAR_FILESEP		= 28;
 const char32 CHAR_GROUPSEP 	= 29;
 const char32 CHAR_GS 		= 29; //Group separator.
 const char32 CHAR_RECORDSEP 	= 30;
@@ -158,10 +158,10 @@ const char32 CHAR_DEL 		= 127; //Forward delete.
 
 //Extended ASCII
 
-//The following characters will not show in the ZQ editor, or in Zelda Classic, but you may use them 
+//The following characters will not show in the ZQ editor, or in Zelda Classic, but you may use them
 //in HARDCODED ZScript Strings (not in the ZQ String Editor!) when making a Tile Font, so that you may
 //type non-English characters, and mathematical/currency symbols into hard-coded strings, and display
-//them using your Tile Font. 
+//them using your Tile Font.
 
 const char32 CHAR_EURO 			= 128; //Euro Sign €
 const char32 CHAR_BLANK129 		= 129; //Blank
@@ -205,7 +205,7 @@ const char32 CHAR_CURRENCY 		= 164; //Misc. Currency Sign ¤
 const char32 CHAR_YEN 			= 165; //Yen Sign ¥
 const char32 CHAR_BROKEN_BAR 		= 166; //Broken Vertical Bar ¦
 const char32 CHAR_SECTION 			= 167; //Section Sign §
-const char32 CHAR_UMLAUT 			= 168; //Raw Umlaut 
+const char32 CHAR_UMLAUT 			= 168; //Raw Umlaut
 const char32 CHAR_DIAERESIS 		= 168; //Raw ¨
 const char32 CHAR_COPYRIGHT 		= 169; //Copyright Sign ©
 const char32 CHAR_ORDINAL_A 		= 170; //Ordinal A (Fem) ª

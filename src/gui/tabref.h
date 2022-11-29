@@ -17,7 +17,6 @@ public:
 
 	/* Sets the widget that will appear in the window. */
 	void setContent(std::shared_ptr<Widget> newContent) noexcept;
-	
 	std::string const& getName() const {return tabname;}
 	void setName(std::string name) {tabname = name;}
 

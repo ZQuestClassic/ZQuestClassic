@@ -18,14 +18,12 @@ public:
 		TEXT, INT_DECIMAL, INT_HEX, SWAP_BYTE, SWAP_SSHORT,
 		SWAP_ZSINT, FIXED_DECIMAL, SWAP_ZSINT2, SWAP_ZSINT_NO_DEC
 	};
-	
 	TextField();
 
 	/* Set the text field's input type. This determines how the text
 	 * will be interpreted when a message is sent.
 	 */
 	void setType(type newType);
-	
 	bool isSwapType()
 	{
 		switch(tfType)
@@ -52,19 +50,15 @@ public:
 	 * the TextField, so don't hold on to it after the dialog is closed.
 	 */
 	std::string_view getText();
-	
 	/* Set the int32_t value, unused for type::TEXT
 	 */
 	void setVal(int32_t val);
-	
 	/* Gets the value as an integer.
 	 * Attempts to read 'type::TEXT' as a decimal int32_t value.
 	 */
 	int32_t getVal();
-	
 	void setLowBound(int32_t low);
 	void setHighBound(int32_t high);
-	
 	/* Set the maximum length of the text, not including the null terminator.
 	 */
 	void setMaxLength(size_t newMax);
@@ -91,11 +85,9 @@ public:
 
 	/* Sets a function to be called on value change. */
 	void setOnValChanged(std::function<void(type,std::string_view,int32_t)> newOnValChanged);
-	
 	void setFixedPlaces(size_t places);
 	void setSwapType(int32_t newtype);
 	int32_t getSwapType();
-	
 	size_t get_str_pos();
 	void refresh_cb_swap();
 private:
@@ -115,7 +107,6 @@ private:
 	int32_t onEnterMsg, onValueChangedMsg;
 	bool valSet;
 	std::function<void(type,std::string_view,int32_t)> onValChanged;
-	
 	void applyReadableFont();
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;
@@ -123,7 +114,6 @@ private:
 	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
 	void applyFont(FONT* newFont) override;
 	void updateReadOnly(bool ro) override;
-	
 	void _updateBuf(size_t sz);
 	void check_len(size_t min);
 };

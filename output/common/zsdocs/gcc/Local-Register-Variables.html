@@ -80,7 +80,7 @@ Previous: <a href="Global-Register-Variables.html#Global-Register-Variables" acc
 <a name="index-specifying-registers-for-local-variables"></a>
 <a name="index-registers-for-local-variables"></a>
 
-<p>You can define a local register variable and associate it with a specified 
+<p>You can define a local register variable and associate it with a specified
 register like this:
 </p>
 <div class="smallexample">
@@ -88,9 +88,9 @@ register like this:
 </pre></div>
 
 <p>Here <code>r12</code> is the name of the register that should be used.  Note
-that this is the same syntax used for defining global register variables, 
-but for a local variable the declaration appears within a function.  The 
-<code>register</code> keyword is required, and cannot be combined with 
+that this is the same syntax used for defining global register variables,
+but for a local variable the declaration appears within a function.  The
+<code>register</code> keyword is required, and cannot be combined with
 <code>static</code>.  The register name must be a valid register name for the
 target platform.
 </p>
@@ -100,17 +100,17 @@ the outcome may be contrary to expectations. In particular, when the
 variable with its initializer in <code>asm</code> statements, which may cause
 the corresponding operand to appear in a different register.
 </p>
-<p>As with global register variables, it is recommended that you choose 
-a register that is normally saved and restored by function calls on your 
+<p>As with global register variables, it is recommended that you choose
+a register that is normally saved and restored by function calls on your
 machine, so that calls to library routines will not clobber it.
 </p>
 <p>The only supported use for this feature is to specify registers
-for input and output operands when calling Extended <code>asm</code> 
-(see <a href="Extended-Asm.html#Extended-Asm">Extended Asm</a>).  This may be necessary if the constraints for a 
-particular machine don&rsquo;t provide sufficient control to select the desired 
-register.  To force an operand into a register, create a local variable 
-and specify the register name after the variable&rsquo;s declaration.  Then use 
-the local variable for the <code>asm</code> operand and specify any constraint 
+for input and output operands when calling Extended <code>asm</code>
+(see <a href="Extended-Asm.html#Extended-Asm">Extended Asm</a>).  This may be necessary if the constraints for a
+particular machine don&rsquo;t provide sufficient control to select the desired
+register.  To force an operand into a register, create a local variable
+and specify the register name after the variable&rsquo;s declaration.  Then use
+the local variable for the <code>asm</code> operand and specify any constraint
 letter that matches the register:
 </p>
 <div class="smallexample">
@@ -120,10 +120,10 @@ register int *result asm (&quot;r0&quot;);
 asm (&quot;sysint&quot; : &quot;=r&quot; (result) : &quot;0&quot; (p1), &quot;r&quot; (p2));
 </pre></div>
 
-<p><em>Warning:</em> In the above example, be aware that a register (for example 
-<code>r0</code>) can be call-clobbered by subsequent code, including function 
-calls and library calls for arithmetic operators on other variables (for 
-example the initialization of <code>p2</code>).  In this case, use temporary 
+<p><em>Warning:</em> In the above example, be aware that a register (for example
+<code>r0</code>) can be call-clobbered by subsequent code, including function
+calls and library calls for arithmetic operators on other variables (for
+example the initialization of <code>p2</code>).  In this case, use temporary
 variables for expressions between the register assignments:
 </p>
 <div class="smallexample">
@@ -135,30 +135,30 @@ asm (&quot;sysint&quot; : &quot;=r&quot; (result) : &quot;0&quot; (p1), &quot;r&
 </pre></div>
 
 <p>Defining a register variable does not reserve the register.  Other than
-when invoking the Extended <code>asm</code>, the contents of the specified 
-register are not guaranteed.  For this reason, the following uses 
-are explicitly <em>not</em> supported.  If they appear to work, it is only 
-happenstance, and may stop working as intended due to (seemingly) 
-unrelated changes in surrounding code, or even minor changes in the 
+when invoking the Extended <code>asm</code>, the contents of the specified
+register are not guaranteed.  For this reason, the following uses
+are explicitly <em>not</em> supported.  If they appear to work, it is only
+happenstance, and may stop working as intended due to (seemingly)
+unrelated changes in surrounding code, or even minor changes in the
 optimization of a future version of gcc:
 </p>
 <ul>
 <li> Passing parameters to or from Basic <code>asm</code>
-</li><li> Passing parameters to or from Extended <code>asm</code> without using input 
+</li><li> Passing parameters to or from Extended <code>asm</code> without using input
 or output operands.
 </li><li> Passing parameters to or from routines written in assembler (or
 other languages) using non-standard calling conventions.
 </li></ul>
 
-<p>Some developers use Local Register Variables in an attempt to improve 
-gcc&rsquo;s allocation of registers, especially in large functions.  In this 
+<p>Some developers use Local Register Variables in an attempt to improve
+gcc&rsquo;s allocation of registers, especially in large functions.  In this
 case the register name is essentially a hint to the register allocator.
 While in some instances this can generate better code, improvements are
 subject to the whims of the allocator/optimizers.  Since there are no
 guarantees that your improvements won&rsquo;t be lost, this usage of Local
 Register Variables is discouraged.
 </p>
-<p>On the MIPS platform, there is related use for local register variables 
+<p>On the MIPS platform, there is related use for local register variables
 with slightly different characteristics (see <a href="http://gcc.gnu.org/onlinedocs/gccint/MIPS-Coprocessors.html#MIPS-Coprocessors">Defining coprocessor specifics for MIPS targets</a> in <cite>GNU Compiler Collection (GCC) Internals</cite>).
 </p>
 <hr>

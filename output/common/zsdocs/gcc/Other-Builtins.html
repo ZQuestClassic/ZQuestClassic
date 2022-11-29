@@ -1082,7 +1082,7 @@ a function if it does not.  For example:
 
 <p>You may use this built-in function in either a macro or an inline
 function.  However, if you use it in an inlined function and pass an
-argument of the function as the argument to the built-in, GCC 
+argument of the function as the argument to the built-in, GCC
 never returns 1 when you call the inline function with a string constant
 or compound literal (see <a href="Compound-Literals.html#Compound-Literals">Compound Literals</a>) and does not return 1
 when you pass a constant numeric value to the inline function unless you
@@ -1158,8 +1158,8 @@ expressions for <var>exp</var>, you should use constructions such as
 </p>
 <p>For the purposes of branch prediction optimizations, the probability that
 a <code>__builtin_expect</code> expression is <code>true</code> is controlled by GCC&rsquo;s
-<code>builtin-expect-probability</code> parameter, which defaults to 90%.  
-You can also use <code>__builtin_expect_with_probability</code> to explicitly 
+<code>builtin-expect-probability</code> parameter, which defaults to 90%.
+You can also use <code>__builtin_expect_with_probability</code> to explicitly
 assign a probability value to individual expressions.
 </p></dd></dl>
 
@@ -1577,7 +1577,7 @@ significant bit position.  If <var>x</var> is 0, the result is undefined.
 <dt><a name="index-_005f_005fbuiltin_005fclrsb"></a>Built-in Function: <em>int</em> <strong>__builtin_clrsb</strong> <em>(int x)</em></dt>
 <dd><p>Returns the number of leading redundant sign bits in <var>x</var>, i.e. the
 number of bits following the most significant bit that are identical
-to it.  There are no special cases for 0 or other values. 
+to it.  There are no special cases for 0 or other values.
 </p></dd></dl>
 
 <dl>

@@ -1,11 +1,11 @@
-ChangeLog for 2.53.0 
+ChangeLog for 2.53.0
 
 //Gamma 5
 
-Updated all default active subscreens in qst.dat, with the new items. 
+Updated all default active subscreens in qst.dat, with the new items.
 Added the following item scripts to Classic.zh, and items
 	to the default quest in qst.dat:
-	
+
 	MagicBossKey: Acts like the Magical Key, for Boss Locks.
 		Set to item ID: 146
 	MagicalMap: Gives the player the dungeon map to every dungeon.
@@ -14,7 +14,7 @@ Added the following item scripts to Classic.zh, and items
 		Set to item ID: 148
 
 Renamed all system-wide screenshot files as follows:
-	ZC: 
+	ZC:
 		zc_screen#####.png
 	ZQuest:
 		Maps:
@@ -33,9 +33,9 @@ Changed l_down sprites on 8-way enemy shots to face down.
 	( ZoriaRPG, 5th March, 2019 )
 
 //Gamma 4
-Classic.zh: Fix BossExplode ffc to work with all segmented bosses. 
+Classic.zh: Fix BossExplode ffc to work with all segmented bosses.
 
-Resize fields for text entry to fit five chars. 
+Resize fields for text entry to fit five chars.
 Fixed Init Data (and cheat data) field sizes for:
 	Heart Containers (was a field size of 2, now 3)
 	Starting HP (in hearts, was 3 now size 5)
@@ -43,7 +43,7 @@ Fixed Init Data (and cheat data) field sizes for:
 	Max Magic (was size 3, now 5)
 	Super Bomb Ratio (was size 2, now 3)
 
-Updated qst.dat 
+Updated qst.dat
 
 Fixed the SignPost ffc script.
 
@@ -51,8 +51,8 @@ Moved the new functions from Classic.zh to std_functions.zh.
 Added some relativity functions to Classic.zh--should move to std_functions.zh:
 	DistXY(ffc, int), LeftOf(), RightOf(), Above(), Below(), Facing(ffc).
 
-2.50.x quests with a build < 31, or quests with a header 
-	version < 0x250 will now write hitsfx = WAV_EHIT, for all guys where 
+2.50.x quests with a build < 31, or quests with a header
+	version < 0x250 will now write hitsfx = WAV_EHIT, for all guys where
 	the hitsfx sound == 0, on saving a quest in 2.53.
 
 Quests made in 2.53 Gamma 0/1 or earlier (build 31) now load
@@ -60,9 +60,9 @@ Quests made in 2.53 Gamma 0/1 or earlier (build 31) now load
 	This prevents corruption of the quest by modifying the value on quest load,
 	and ensures that the value only changes if the user saves the quest in 2.53.
 
-2.50.2 AND EARLIER play SFX_HIT even if Enemy Editor Hit Sound is 0. 
+2.50.2 AND EARLIER play SFX_HIT even if Enemy Editor Hit Sound is 0.
 	Thus, I added a special case that causes this to happen in guys.cpp, based
-	on header version and build. 
+	on header version and build.
 
 	Arbitrary enemy policy 15610. :P
 	( ZoriaRPG, 25th February, 2019 )
@@ -73,7 +73,7 @@ Fixed Byrna Cleanup Routine killing SFX 30. This was caused by
 
 Classic.zh Fixes and Improvements:
 	Renamed constants to prevent future conflicts.
-	BossMusic ffc: 
+	BossMusic ffc:
 		Fixed a bug that caused the victory music to re-play when the
 		player revisited the screen.
 		Added InitD variables to allow customisation by the user.
@@ -84,7 +84,7 @@ Classic.zh Fixes and Improvements:
 		Fixed a bug that caused the TF drop to repeat if the player revisited
 		the screen.
 		Added a dropshadow to the object when falling.
-		Slowed falling descent. 
+		Slowed falling descent.
 		Clamped screen coordinates of drop to ensure that the object does
 		not fall partway off the edges of the screen.
 	( ZoriaRPG, 24th February, 2019 )
@@ -95,37 +95,37 @@ Added scripts 'DropTRIFORCE' and 'DropHEARTCONTAINER' to Classic.zh.
 	because of a Waitframe in the loop.
 	Removed traces.
 
-Added a case for r_down dir on 8-way EW_MAGIC shots. 
+Added a case for r_down dir on 8-way EW_MAGIC shots.
 	( ZoriaRPG, 22nd February, 2019 )
-	
-Updated qst.dat with all of the new goodies. 
+
+Updated qst.dat with all of the new goodies.
 
 Added constants to Classic.zh:
 	const int _classic_zc__TRK_BOSS = 25;
 	const int _classic_zh__MIDI_VICTORY = 1;
 	const int _classic_zh__TILE_FIREWORK = 10140;
 
-Added file Classic.nsf, from klop422 (Legend of Zelda NSF  from the PZC Database). 
+Added file Classic.nsf, from klop422 (Legend of Zelda NSF  from the PZC Database).
 	We use track 25 for boss music here.
-Added a victory jingle MIDI as MIDI ID 1. 
+Added a victory jingle MIDI as MIDI ID 1.
 Add combo to use for Boss Audio FFC to combo page 3 as combo ID 905.
 Added BossMusic ffc to classic.zh. This is compatible with the BossExplosion ffc.
 Added tile for Boss Audio to tile page 61 as tile 16026.
 
-Added overload functions to Collision() that function as LinkCollision(). 
+Added overload functions to Collision() that function as LinkCollision().
 
-Updated ffc scripts in classic.zh to clear their combo on init. 
-Fixed signpost script. 
-Added default fireworks ffc to copy and paste, on map 1, screen 0x82. 
+Updated ffc scripts in classic.zh to clear their combo on init.
+Fixed signpost script.
+Added default fireworks ffc to copy and paste, on map 1, screen 0x82.
 Added combo using the Fire Work tile to combo page 3, as combo 904.
 Added tile to use as  marker for fireworks ffc to tile page 61, as tile 16025.
-Modified fireworks script constants. 
-Added fireworks SFX as sound 61. 
-Added fireworks weapon sprite as Sprite 88. 
+Modified fireworks script constants.
+Added fireworks SFX as sound 61.
+Added fireworks weapon sprite as Sprite 88.
 Added tiles for fireworks to tile page 39 as tiles 10140, 10141, 10142.
-Fixed daira tiles on page 38. 
+Fixed daira tiles on page 38.
 	( ZoriaRPG, 21st February, 2019 )
-	
+
 Classic.zh:
 	Added item script 'ItemSound'
 	Added FFC script 'BossExplode'
@@ -136,67 +136,67 @@ Classic.zh:
 		const int _BOSS_EXPLODE_DELAY
 		const int _BOSS_EXPLODE_RANDOM_MIN
 		const int _BOSS_EXPLODE_RANDOM_MAX
-	
+
 		const int I_HALFMAGIC = 	144;
 		const int I_LEARNSLASH =	143;
 		const int NPC_DAIRA1 = 		177;
 		const int NPC_DAIRA2 = 		178;
-	
+
 Add item: Message (Example) as item 145.
-Adjusted stats of both Daira enemies, and set their defences. 
+Adjusted stats of both Daira enemies, and set their defences.
 	Note: 1/4 Arrow damage is intentional for L2, to reflect
-	better armour/scales. 
+	better armour/scales.
 Add Daira (L2) [blue] as enemy 178, renamed Daira to Daira (L1) [red].
-Fixed ZCL 'Skip Logo' selection not saving. 
-	ZCL is now v2.6.11. 
+Fixed ZCL 'Skip Logo' selection not saving.
+	ZCL is now v2.6.11.
 Default quest changes:
 Added ffc scripts:
 	PermBlockSecrets : This triggers normal screen secrets.
 	PermBlockShutter : Block->Shutter secrets in NES Dungeons
 	Daira (autoghost)
 Removed ffc script PermSecret
-Fixed name of 'CanSlash' item script. 
+Fixed name of 'CanSlash' item script.
 Added item script 'ItemMessage'
 Added Daira enemy as npc ID: 177
 Added Daira script to classic.zh
 Added Daira tiles to tile page 38 (tiles 9880, through 9959)
 	( ZoriaRPG, 19th February, 2019 )
 Added call to Classic.zh in the buffer.
-	Updated all active subscreens to include the new items. 
+	Updated all active subscreens to include the new items.
 	Added items: 'Scroll: Learn Slash', 'Scroll: Half Magic'
-	Placed default FFCs with scripts attached on map 1, screen 0x82. 
-		These have their icon set, and their Ethereal flag set. 
+	Placed default FFCs with scripts attached on map 1, screen 0x82.
+		These have their icon set, and their Ethereal flag set.
 	Added the following scripts:
 	Default active script with Tango and Ghost.
 	Half Magic Item (item, pickup)
 	Learn Slash Item (item, pickup)
 	Change Room Guy (ffc)
-	Perm. Secrets (ffc) 
+	Perm. Secrets (ffc)
 	Signpost (ffc)
-	
+
 	Added freezeall and freeze only ffc default combos to combo page 3:
-		
-	Added tiles on page 61 for icons to represent the FFC scripts. 
+
+	Added tiles on page 61 for icons to represent the FFC scripts.
 	(Tile IDs: 16002, 16003, 16004, 16005, 16023, 16024, 16061, 16062)
 	Added combos for ffc icons to combo page 3:
 		IDs: 892, 893
-		Icons for the above, are combos: 888, 889. 
-	Added tiles for the icon combos for freeze combos to tile page 61 as 
-		tiles: 16000, and 16001. 
+		Icons for the above, are combos: 888, 889.
+	Added tiles for the icon combos for freeze combos to tile page 61 as
+		tiles: 16000, and 16001.
 Commented out some conflicting constants in stdExtra.zh
 Moved stdWeapons and Laser.zh into an 'extras' path.
-Corrected power rating of remote bombs. 
-	This will only affect quests saved in 2.53, and 
-	only if the power of the bomb is > 1. 
-Reverted back to Gleeok's forced on bit for half tile collision 
+Corrected power rating of remote bombs.
+	This will only affect quests saved in 2.53, and
+	only if the power of the bomb is > 1.
+Reverted back to Gleeok's forced on bit for half tile collision
 	in quests made in 2.50.0 and 2.50.1 Or lower 2.50 builds).
-Expanded the Emulation menu toggle to cover builds through 2.50.1. 
-	I'm tired of this one, too. 
-Began adding some default scripts to Classic (as Classic.zh), and 
+Expanded the Emulation menu toggle to cover builds through 2.50.1.
+	I'm tired of this one, too.
+Began adding some default scripts to Classic (as Classic.zh), and
 	corrected some constants in the included scripts, to match.
 Fixed the selection mark for Bombchu Emulation, and ensured that
-	it is enabled by default for 2.50.0 and 2.50.1 quests. 
-Added an emulation option to restore the large blast radius 
+	it is enabled by default for 2.50.0 and 2.50.1 quests.
+Added an emulation option to restore the large blast radius
 	(superbomb) if Link is hit by a charging bombchu.
 	This is enabled by default for 2.50.1 and earlier quests, and disabled in 2.53 quests
 Fixed 8-way shots always using WAV_FIRE.
@@ -206,7 +206,7 @@ Fixed 8-way shots always using WAV_FIRE.
 	( ZoriaRPG, 18th February, 2019 )
 
 //Gamma 3
-Updated qst.dat, to strip out some remaining rubbish pal cycle data. 
+Updated qst.dat, to strip out some remaining rubbish pal cycle data.
 Fixes for Palette Cycle Issues:
 	Palettes above 256 were not set up to have palette cycles in 2.50.
 	The array in QMisc is [256][3], where it should have been [512][3].
@@ -230,19 +230,19 @@ Added leading zeros to the 'Select Item' 'Pow: ' field, so that
 items with powers greater than 10 don't carry over digits to items with
 powers < 10.
 	( ZoriaRPG, 17th February, 2019 )
-Re-fix 1st.qst Level 9 Rupee issue. I had set the wrong type. 
+Re-fix 1st.qst Level 9 Rupee issue. I had set the wrong type.
 	( NightmareJames, 16th February, 2019 )
 Updated include 'tango.zh', and its associated demo to current versions of both.
 Pressing the Enter key, or the numpad Enter key, while viewing
-the Quest Header dialogue now EITHER activates the selected element, 
+the Quest Header dialogue now EITHER activates the selected element,
 	or saves the dialogue changes, instead of opening the
-	'Change Quest password' sub-dialogue. 
+	'Change Quest password' sub-dialogue.
 	It will auto-save if the selected element is OK, or any TEXT field.
 	Otherwise, it triggers the selected element.
-	This should also work from the numpad Enter key. 
+	This should also work from the numpad Enter key.
 	I also made the changes as an EXAMPLE chain, for making all
-	JWin DIALOGUES more user-friendly, in the future. 
-		See Commits: 
+	JWin DIALOGUES more user-friendly, in the future.
+		See Commits:
 			b479871e9d38d8245874bc6cffc2f72e93f6cd5a
 			c638d67cd856cc09e2e937c5a7da3dc9e0743952
 			93956d00d4bb933236c6625cb778eb6ddd5caba4
@@ -256,9 +256,9 @@ Added kill_sfx() call to three other possible places where the Cane of Byyrna
 	sound should probably be terminated:
 	Whenever we call stopCaneOfByrna()
 	If we can't pay the cost during item / weapon init
-	If the beams aren't created during init, for some reason. 
-Re-adjust qr_OFFSETEWPNCOLLISIONFIX in qst.cpp, to force it on for 2.50.0 build < 24, 
-	instead of build |< 29 (as Gleeok forced it). 
+	If the beams aren't created during init, for some reason.
+Re-adjust qr_OFFSETEWPNCOLLISIONFIX in qst.cpp, to force it on for 2.50.0 build < 24,
+	instead of build |< 29 (as Gleeok forced it).
 
 	I tested SIX quest files, CREATED in three versions of ZQuest:
 		2.50.0, bit set off (b24)
@@ -269,33 +269,33 @@ Re-adjust qr_OFFSETEWPNCOLLISIONFIX in qst.cpp, to force it on for 2.50.0 build 
 		2.50.2, bit set on (b29)
 	If we check build < 29, then quests made in 2.50.0 and possibly 2.50.1 have
 	the bit forced on, when it wasn't intended.
-    
-	Unless the actual BEHAVIOUR of this bit has changed (this needs verification), 
-	then builds 24, 28, 29, 30, 31, and 32 should never force this bit on. 
-	
+
+	Unless the actual BEHAVIOUR of this bit has changed (this needs verification),
+	then builds 24, 28, 29, 30, 31, and 32 should never force this bit on.
+
 	It is certainly possible that quests made prior to build 24 (2.50.0 release) have this wrong.
-	I would need to check every RC to see, and backtrack from there. 
+	I would need to check every RC to see, and backtrack from there.
 	( ZoriaRPG, 16th February, 2019 )
-	
+
 Fixed a secret rupee in Lv9 (1st.qst) not being secret.
 	( NightmareJames, 31st January, 2019; file added to Gamma 3, 14th February, 2019 )
 Reverted the patch that stopped Ganon from hurting Link if Link
-	is standing on Ganon when Ganon dies. 
+	is standing on Ganon when Ganon dies.
 	We can apply this as a general rule or fix to all enemy behaviour in 2.55.
 
-	The NES Ganon hurts Link. 
+	The NES Ganon hurts Link.
 
-Cleared Link's attackclk before calling win_game(). 
+Cleared Link's attackclk before calling win_game().
 	This prevents a charged sword, or other weapon, from carrying
-	over to the ending sequence as a visual artefact. 
+	over to the ending sequence as a visual artefact.
 Stop playing byrna beam sfx as soon as the beams die in Link.cpp
 Fix stunned peahats hurting Link in 2.50+ quests.
 	( ZoriaRPG, 14th February, 2019 )
 
 //Gamma 2
-Changed the default length of the short hookshot to 8. 
+Changed the default length of the short hookshot to 8.
 	At one point, the distance was in pixels, then someone
-	changed it to tiles. We'll make pixels an option again in 2.55. 
+	changed it to tiles. We'll make pixels an option again in 2.55.
 Reverted the usesound value for the Magic Book in qst.dat.
 Reverted the last two changes, and hardcoded WAV_FIRE in weapons.cpp.
 Hardcoded wand fire sfx for quests made in builds prior to 2.53 Gamma 2 (2.50 Build 32)
@@ -304,7 +304,7 @@ Increased Build ID to 32, and updated qst.dat (again).
 Fixed default sound for magic book on quest load for older quests, and
 	set to 13 (WAV_FIRE) in qst.dat for default blank quest.
 	(Updated qst.dat)
-Corrected copyright year in zdefs.h. 
+Corrected copyright year in zdefs.h.
 Fixed the following in std.zh:
 	Added revised behaviour to RotatePointX() and RotatePointY().
 	Added toggle for old/new RotatePointX() and RotatePointY() behaviour.
@@ -321,14 +321,14 @@ Fixed screenshots saving without using modifier keys.
 Emulation: Restrict Repeating DMap Intros to 2.11.x
 Enabling or disabling the Debig Console (win32 only) now updates and saves
 	the zc.cfg file setting for debug_console under zeldadx.
-Fixed Link->Misc being multiplied and divided by 10000. 
+Fixed Link->Misc being multiplied and divided by 10000.
 	( ZoriaRPG, 12th February, 2019 )
 
-Fixed Wealth Medals in Bomb/Arrow upgrade rooms which use percentage zero 
+Fixed Wealth Medals in Bomb/Arrow upgrade rooms which use percentage zero
 	out cost (integer division != double division) (guys.cpp)
 	No code was ever in place to give the discount? (link.cpp)
 	( Venrob, 11th February, 2019 )
-	
+
 Fixed Combo Aliad dialogue not doing copy/swap for aliases
 	greater than 999. Required refactor.
 	( ZoriaRPG, 30th January, 2019 )
@@ -353,7 +353,7 @@ Added an Emulation toggle to try to permit continuous sword triggers
 Try to fix tall grash animation during scrolling.
 Try to fix Ganon's Ashes not spawning.
 	( ZoriaRPG, 25th January, 2019 )
-	
+
 Possible fix for the following reported issue:
 	`Ganon can hurt you when he's red, and doesn't hurt you when he's flashing, but for one frame his hurtbox comes back when he explodes` -P-Tux
 
@@ -393,12 +393,12 @@ Try to fix wizzrobes in 1.90/1.84 quests.
 	They were spawning in walls, and never should.
 Try to make it possible for Windrobes in 2.10 quests to nbot line up.
 	( ZoriaRPG, 16th January, 2019 )
-	
-Fix some emulation options. 
+
+Fix some emulation options.
 	( ZoriaRPG, 14th January, 2019 )
 
 //Beta 32
-Fixed emulation (item/segment) appearing in quests older than 1.92. 
+Fixed emulation (item/segment) appearing in quests older than 1.92.
 Clear emulation array, except on F6/GameOver->Continue.
 Added the ability to copy Link#s walking sprites over his swimming
 	and diving sprites in 1.90 quests with BS Link Animation.
@@ -406,41 +406,41 @@ Begin adding 1.90 BS Animation Toggle
 Begin adding 1.9x Tribble Emulation.
 Begin adding emulation of half-tile (off-grid) collision.
 Fix emulationm of segmented enemy drops.
-Fix crash when saving screenshots caused by filename buffer overflow. 
+Fix crash when saving screenshots caused by filename buffer overflow.
 	( ZoriaRPG, 14th January, 2019 )
 
 //Beta 31
 Added an Emulation Menu option to enable drop-per-segment
-	for Lanmola, Manhandla, and Moldorm. 
+	for Lanmola, Manhandla, and Moldorm.
 	This needs testing in older quests, and further verification.
 	neither the menu option, nor the config section option
 	should work in 2.50+ quests.
 	( ZoriaRPG, 8th January, 2019 )
-	
+
 //Beta 30
 Re-added the 'Menu' button configuration option to
 	Joystick Button configs.
 	( ZoriaRPG, 8th January, 2019 )
-	
+
 //Beta 29
-Fixed colour issues when using DrawScreen(), DrawLayer(), 
+Fixed colour issues when using DrawScreen(), DrawLayer(),
 	and FastCombo(), drawing combos with a CSet2 value.
 	( ZoriaRPG, 7th January, 2019 )
-	
+
 //Beta 28
 Renamed entry [0] in Emulation Menu to 'Flip-Flip Cancel and Wave Warps'
 	Disabled this option if the current quest was made in 2.10 or
 	( ZoriaRPG, 22nd December, 2018 )
-	
-Added a new menu to ZC Player: 'Emulation'. 
+
+Added a new menu to ZC Player: 'Emulation'.
 	This is used for enabling/disabling certain internal behaviour, when playing some
-	legacy quests where it is desirable to have this option. 
+	legacy quests where it is desirable to have this option.
 	( ZoriaRPG, 21st December, 2018 )
-	
+
 //Beta 27
 Fixed Ganon's HP in 1st/2nd. On the NES, he has 30, not 32.
 Fixed vires splitting before their slide() ends.
-Fixed MP3s with metadata not playing. 
+Fixed MP3s with metadata not playing.
 	Let's hope that this fix doesn't fuck up 2.50.0 or 2.50.1 quests.
 	( ZoriaRPG, 16th December, 2018 )
 

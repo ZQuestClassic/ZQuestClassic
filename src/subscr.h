@@ -75,7 +75,7 @@ enum { sstsNORMAL, sstsSHADOW, sstsSHADOWU, sstsOUTLINE8, sstsOUTLINEPLUS, sstsO
 
 //subscreen fonts
 enum
-{ 
+{
 	ssfZELDA, ssfSS1, ssfSS2, ssfSS3, ssfSS4, ssfZTIME, ssfSMALL, ssfSMALLPROP, ssfZ3SMALL,
 	ssfGBLA, ssfZ3, ssfGORON, ssfZORAN, ssfHYLIAN1, ssfHYLIAN2, ssfHYLIAN3, ssfHYLIAN4,
 	ssfPROP, ssfGBORACLE, ssfGBORACLEP, ssfDSPHANTOM, ssfDSPHANTOMP, ssfAT800, ssfACORN,

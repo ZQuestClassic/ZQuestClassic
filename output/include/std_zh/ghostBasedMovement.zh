@@ -24,7 +24,7 @@ namespace GhostBasedMovement
 		{
 			FixCoords(n);
 			PickDir4(n, rate, homing, hunger);
-			
+
 			counter=Floor(16/step);
 		}
 		if(HitPlayerInvert(n))
@@ -63,10 +63,10 @@ namespace GhostBasedMovement
 		if(counter <= 0)
 		{
 			PickDir8(n, rate, homing, hunger);
-			
+
 			counter=Floor(8/step);
 		}
-		
+
 		int xStep, yStep;
 		switch(n->Dir)
 		{
@@ -98,7 +98,7 @@ namespace GhostBasedMovement
 		if(n->HitDir > -1) return counter;
 		step /= 100;
 		unless(step) return counter;
-		
+
 		int walkCounter, haltCounter;
 		if(counter != -1)
 		{
@@ -107,7 +107,7 @@ namespace GhostBasedMovement
 		}
 		if(haltCounter > 0)
 			return haltCounter - 1;
-		
+
 		unless(walkCounter)
 		{
 			FixCoords(n);
@@ -115,7 +115,7 @@ namespace GhostBasedMovement
 			if(counter == -1)
 			{
 				PickDir4(n, rate, homing, hunger);
-				
+
 				if(Rand(16) < haltRate)
 				{
 					return haltTime;
@@ -124,10 +124,10 @@ namespace GhostBasedMovement
 		}
 		if(HitPlayerInvert(n))
 			walkCounter = Floor(16/step)-walkCounter;
-		
+
 		--walkCounter;
 		n->Move(n->Dir, step, flying?SPW_FLOATER:SPW_NONE);
-		
+
 		if(walkCounter > 0)
 			return walkCounter*1L;
 		return -1;
@@ -148,7 +148,7 @@ namespace GhostBasedMovement
 			PickDir8(n, rate, homing, hunger);
 			counter = turnCheckTime;
 		}
-		
+
 		n->Move(n->Dir, step, flying?SPW_FLOATER:SPW_NONE);
 		return counter - 1;
 	}
@@ -161,16 +161,16 @@ namespace GhostBasedMovement
 		enum { STATE_RESTING, STATE_ACCEL, STATE_MAXSPEED, STATE_DECEL };
 		int stateTimer = (counter%1)/1L;
 		int walkCounter = counter & 0x7FFF;
-		
+
 		if(counter == -1)
 		{
 			state = STATE_ACCEL;
 			stateTimer = 0;
 			walkCounter = 0;
 		}
-		
+
 		stateTimer=Min(stateTimer+1, 9999);
-		
+
 		switch(state)
 		{
 			case STATE_RESTING:
@@ -228,7 +228,7 @@ namespace GhostBasedMovement
 			walkCounter = VarWalk8(n, walkCounter, step, rate, homing, hunger, turnCheckTime, true);
 		return ((state<<14) | walkCounter) + (stateTimer*1L);
 	}
-	
+
 	//Helper functions, used by the above functions.
 	void FixCoords(npc n)
 	{
@@ -251,7 +251,7 @@ namespace GhostBasedMovement
 			else
 				return DIR_RIGHT;
 		}
-		
+
 		if (eightWay)
 		{
 			if (Abs(Hero->X-n->X)-Abs(Hero->Y-n->Y)<=range)
@@ -284,7 +284,7 @@ namespace GhostBasedMovement
 		{
 			// See if any is on the screen
 			lweapon bait=LoadLWeaponOf(LW_BAIT);
-			
+
 			if(bait->isValid())
 			{
 				// Found bait; try to move toward it
@@ -294,19 +294,19 @@ namespace GhostBasedMovement
 						newDir=DIR_UP;
 					else
 						newDir=DIR_DOWN;
-					
+
 					if(n->CanMove(newDir, 16, 0))
 					{
 						n->Dir=newDir;
 						return;
 					}
 				}
-				
+
 				if(bait->X<n->X)
 					newDir=DIR_LEFT;
 				else
 					newDir=DIR_RIGHT;
-				
+
 				if(n->CanMove(newDir, 16, 0))
 				{
 					n->Dir=newDir;
@@ -314,7 +314,7 @@ namespace GhostBasedMovement
 				}
 			}
 		} // End hunger check
-		
+
 		// Homing?
 		if(Rand(256)<homing)
 		{
@@ -325,12 +325,12 @@ namespace GhostBasedMovement
 				return;
 			}
 		}
-		
+
 		// Check solidity of surrounding combos
 		bool combos[4];
 		int numDirs;
 		int counter;
-		
+
 		for(int i=0; i<4; ++i)
 		{
 			if(n->CanMove(i, 16, 0))
@@ -339,28 +339,28 @@ namespace GhostBasedMovement
 				++numDirs;
 			}
 		}
-		
+
 		// Trapped?
 		unless(numDirs)
 		{
 			n->Dir=-1;
 			return;
 		}
-		
+
 		if(Rand(16)>=rate)
 		{
 			// Doesn't want to turn; keep going the same direction if possible
 			if(combos[n->Dir])
 				return;
 		}
-		
+
 		// Pick a direction at random from the ones available
 		counter=Rand(numDirs);
 		for(int dir=0; dir<4; ++dir)
 		{
 			unless(combos[dir])
 				continue;
-			
+
 			unless(counter)
 			{
 				n->Dir=dir;
@@ -373,7 +373,7 @@ namespace GhostBasedMovement
 	void PickDir8(npc n, int rate, int homing, int hunger)
 	{
 		int newDir=-1;
-		
+
 		if(n->CanMove(n->Dir, 8, 0))
 		{
 			// Go for bait?
@@ -381,7 +381,7 @@ namespace GhostBasedMovement
 			{
 				// See if any is on the screen
 				lweapon bait=LoadLWeaponOf(LW_BAIT);
-				
+
 				if(bait->isValid())
 				{
 					if(bait->X<n->X)
@@ -390,7 +390,7 @@ namespace GhostBasedMovement
 						newDir=DIR_RIGHT;
 					else
 						newDir=0;
-					
+
 					if(Abs(n->Y-bait->Y)>14)
 					{
 						if(newDir > 0)
@@ -408,8 +408,8 @@ namespace GhostBasedMovement
 								newDir=DIR_DOWN;
 						}
 					}
-					
-					
+
+
 					if(n->CanMove(newDir, 16, 0))
 					{
 						n->Dir=newDir;
@@ -419,7 +419,7 @@ namespace GhostBasedMovement
 					}
 				}
 			} // End hunger check
-			
+
 			// Homing?
 			if(Rand(256)<homing)
 			{
@@ -432,7 +432,7 @@ namespace GhostBasedMovement
 					return;
 				}
 			}
-			
+
 			if(Rand(16) >= rate)
 				return;
 		}
@@ -440,7 +440,7 @@ namespace GhostBasedMovement
 		bool dirs[8];
 		int numDirs;
 		int counter;
-		
+
 		for(int i=0; i<8; ++i)
 		{
 			if(n->CanMove(i, 8, 0))
@@ -449,7 +449,7 @@ namespace GhostBasedMovement
 				dirs[i]=true;
 			}
 		}
-		
+
 		// Trapped?
 		unless(numDirs)
 		{
@@ -458,14 +458,14 @@ namespace GhostBasedMovement
 			n->Y <<= 0;
 			return;
 		}
-		
+
 		// Pick a direction at random from the ones available
 		counter=Rand(numDirs);
 		for(int dir=0; dir<8; ++dir)
 		{
 			unless(dirs[dir])
 				continue;
-			
+
 			unless(counter)
 			{
 				n->Dir=dir;

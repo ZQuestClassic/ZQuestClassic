@@ -1,7 +1,7 @@
 namespace weapons
 {
 	//Creates and returns an exact copy of the passed LWeapon. Assumes that the passed pointer is valid.
-	lweapon Duplicate(eweapon a) 
+	lweapon Duplicate(eweapon a)
 	{
 		lweapon b = Screen->CreateLWeapon(a->ID);
 		b->X = a->X;
@@ -54,7 +54,7 @@ namespace weapons
 	}
 
 	//Creates and returns an exact copy of the passed EWeapon. Assumes that the passed pointer is valid.
-	eweapon Duplicate(lweapon a) 
+	eweapon Duplicate(lweapon a)
 	{
 		eweapon b = Screen->CreateEWeapon(a->ID);
 		b->X = a->X;

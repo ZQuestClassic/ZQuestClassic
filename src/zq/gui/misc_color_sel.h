@@ -17,14 +17,12 @@ class MiscColorSel: public Widget
 {
 public:
 	MiscColorSel();
-	
 	void setC1(int32_t val);
 	void setC2(int32_t val);
 	void setOnUpdate(std::function<void(int32_t,int32_t)> newOnUpdate);
 
 private:
 	std::function<void(int32_t,int32_t)> onUpdate;
-	
 	std::shared_ptr<Grid> internal_grid;
 	std::shared_ptr<Label> labels[2];
 	std::shared_ptr<DropDownList> sel_list;
@@ -32,10 +30,8 @@ private:
 	std::shared_ptr<DropDownList> misc_sel_list;
 	std::shared_ptr<MiscColorRow> mc_sys_row;
 	std::shared_ptr<MiscColorRow> mc_cs_row;
-	
 	int32_t c1, c2;
 	int32_t c2s[11];
-	
 	void doUpdate1(int32_t val, bool func = true);
 	void doUpdate2(int32_t val, bool func = true);
 	void applyVisibility(bool visible) override;

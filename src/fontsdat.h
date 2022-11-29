@@ -35,15 +35,15 @@
 #define FONT_ZORAN                       29       /* FONT */
 #define FONT_ZTIME                       30       /* FONT */
 
-//Future Fonts, defined for testing purposes for 2.54. 
+//Future Fonts, defined for testing purposes for 2.54.
 
-#define FONT_ZZ_ATARU800	31	
+#define FONT_ZZ_ATARU800	31
 #define FONT_ZZ_ACORN		32
 #define FONT_ZZ_ADOS		33
 #define FONT_ZZ_ALLEGRO		34
 #define FONT_ZZ_APPLE2		35
-#define FONT_ZZ_APPLE280	36	
-#define FONT_ZZ_APPLE2GS	37	
+#define FONT_ZZ_APPLE280	36
+#define FONT_ZZ_APPLE2GS	37
 #define FONT_ZZ_AQUA		38
 #define FONT_ZZ_ATARI400	39
 #define FONT_ZZ_C64		40
@@ -52,7 +52,7 @@
 #define FONT_ZZ_COCO		43
 #define FONT_ZZ_COCO2		44
 #define FONT_ZZ_COUPE		45
-#define FONT_ZZ_CPC		46	
+#define FONT_ZZ_CPC		46
 #define FONT_ZZ_FANTASY		47
 #define FONT_ZZ_FDS_KANA	48
 #define FONT_ZZ_FDSLIKE		49
@@ -64,7 +64,7 @@
 #define FONT_ZZ_JP		55
 #define FONT_ZZ_KONG		56
 #define FONT_ZZ_MANA		57
-#define FONT_ZZ_MARIOLAND	58	
+#define FONT_ZZ_MARIOLAND	58
 #define FONT_ZZ_MOT		59
 #define FONT_ZZ_MSX0		60
 #define FONT_ZZ_MSX1		61
@@ -82,7 +82,7 @@
 #define FONT_ZZ_ZX		73
 #define FONT_ZZZ_LISA		74
 
-#define FONT_LAST		75 //use in for loops 
+#define FONT_LAST		75 //use in for loops
 
 
 

@@ -61,20 +61,16 @@ MiscColorSel::MiscColorSel(): onUpdate(NULL), c1(0), c2(0)
 	{
 		c2s[q] = 0;
 	}
-	
 	internal_grid = Grid::columns(2);
 	internal_grid->setPadding(0_px);
-	
 	labels[0] = std::make_shared<Label>();
 	labels[0]->setText("Type:");
 	labels[0]->setHAlign(1.0);
 	labels[1] = std::make_shared<Label>();
 	labels[1]->setText("Color:");
 	labels[1]->setHAlign(1.0);
-	
 	internal_grid->add(labels[0]);
 	internal_grid->add(labels[1]);
-	
 	sel_list = std::make_shared<DropDownList>();
 	sel_list->setFitParent(true);
 	sel_list->setListData(colTyList);
@@ -83,7 +79,6 @@ MiscColorSel::MiscColorSel(): onUpdate(NULL), c1(0), c2(0)
 			doUpdate1(val);
 		});
 	internal_grid->add(sel_list);
-	
 	sw = std::make_shared<Switcher>();
 	misc_sel_list = std::make_shared<DropDownList>();
 	misc_sel_list->setFitParent(true);
@@ -93,7 +88,6 @@ MiscColorSel::MiscColorSel(): onUpdate(NULL), c1(0), c2(0)
 			doUpdate2(val);
 		});
 	sw->add(misc_sel_list);
-	
 	mc_sys_row = std::make_shared<MiscColorRow>();
 	mc_sys_row->setSys(true);
 	mc_sys_row->setOnUpdate([&](int32_t val)
@@ -101,7 +95,6 @@ MiscColorSel::MiscColorSel(): onUpdate(NULL), c1(0), c2(0)
 			doUpdate2(val);
 		});
 	sw->add(mc_sys_row);
-	
 	mc_cs_row = std::make_shared<MiscColorRow>();
 	mc_cs_row->setHAlign(0.0);
 	mc_cs_row->setOnUpdate([&](int32_t val)
@@ -109,7 +102,6 @@ MiscColorSel::MiscColorSel(): onUpdate(NULL), c1(0), c2(0)
 			doUpdate2(val);
 		});
 	sw->add(mc_cs_row);
-	
 	internal_grid->add(sw);
 }
 
@@ -137,7 +129,6 @@ void MiscColorSel::setC2(int32_t val)
 void MiscColorSel::applyVisibility(bool visible)
 {
 	Widget::applyVisibility(visible);
-	
 	labels[0]->setExposed(visible);
 	labels[1]->setExposed(visible);
 	sel_list->setExposed(visible);

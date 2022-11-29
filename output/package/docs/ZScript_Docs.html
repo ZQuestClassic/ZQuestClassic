@@ -720,7 +720,7 @@ Errors and debug information are logged to the Output Console (some of which is 
 Edited in 'Quest->Strings' in ZQuest, message strings represent messages that can be displayed on-screen to the player, including not only text, but also various formatting options, and <a class = 'link' data-link = 'SCCs'>String Control Codes</a>.
 
 ZScript can use <a class = 'link' data-link = 'messagedata'>messagedata</a> pointers to modify message strings directly.</div>
-		<div class = "cntnt" data-bid = 3 data-tid = -1 hidden><h3>String Control Codes</h3> <a class = "ttip">v<span class = "ttt">Rev July 17th, 2022 for 2.55 A107</span></a> 
+		<div class = "cntnt" data-bid = 3 data-tid = -1 hidden><h3>String Control Codes</h3> <a class = "ttip">v<span class = "ttt">Rev July 17th, 2022 for 2.55 A107</span></a>
 
 Special effects can be created when <a class = 'link' data-link = 'message strings'>message strings</a> are displayed by inserting special control codes into the string. All valid codes are listed below.
 
@@ -1427,7 +1427,7 @@ Use the <span class = "code1">LA_</span> constants to access this.
 The Hero's current FakeZ axis position. This value is treated as a second, separate Z axis;
 Sprites will be offset upwards by this amount when drawn just like the Z axis and shadows will draw if applicable; however, the sprite's hitbox will not be moved upwards into the Z Axis; instead it will be moved upwards on the Y axis, mimicking how Vires and Pols Voice worked in the original Zelda.
 This value is affected by 'FakeJump' instead of 'Jump'.
- 
+
 <h3>int FakeJump;</h3>
 The current velocity on the FakeZ axis. This value is added to FakeZ every frame; and this value is decreased by the gravity value until it is lower than the terminal velocity value.
 

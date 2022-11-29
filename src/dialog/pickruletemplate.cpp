@@ -42,7 +42,6 @@ std::shared_ptr<GUI::Widget> PickRuleTemplateDialog::view()
 			text = ruletemplatesList.getText(q)
 			));
 	}
-	
 	return Window(
 		title = "Pick Rule Template",
 		onEnter = message::OK,

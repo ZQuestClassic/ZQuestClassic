@@ -16,7 +16,6 @@ namespace ZScript
 	{
 	public:
 		ASTVisitor() : parsing_user_class(puc_none), scope(nullptr) {}
-		
 		virtual void caseDefault(AST& host, void* param = NULL) {}
 		// AST Subclasses
 		virtual void caseFile(ASTFile& host, void* param = NULL) {
@@ -225,24 +224,19 @@ namespace ZScript
 		static void* const paramWrite;
 		// Used as a parameter to signal that both lval and rval are needed.
 		static void* const paramReadWrite;
-		
 		RecursiveVisitor() : failure(false), failure_halt(false),
 			failure_temp(false), breakNode(NULL) {}
-	
 		// Mark as having failed.
 		void fail() {failure = true;}
-	
 		// Used to signal that a compile error has occured.
 		void handleError(CompileError const& error) /*override*/;
 		bool hasError() const /*override*/ {return failure;}
-	
 		// Visits a single node. The only virtual visit function as all others
 		// defer to this one.
 		virtual void visit(AST& node, void* param = NULL);
 
 		////////////////////////////////////////////////////////////////
 		// Convenience Functions
-	
 		// Visits a single node if it exists.
 		void visit(AST* node, void* param = NULL);
 		// Visit a group of nodes.
@@ -256,7 +250,6 @@ namespace ZScript
 				visit(**it, param);
 			}
 		}
-		
 		template <class Container>
 		void block_visit(AST& host, Container const& nodes, void* param = NULL)
 		{
@@ -271,7 +264,6 @@ namespace ZScript
 
 		////////////////////////////////////////////////////////////////
 		// Cases
-	
 		virtual void caseDefault(AST&, void*) {}
 		virtual void caseFile(ASTFile& host, void* param = NULL);
 		virtual void caseSetOption(ASTSetOption& host, void* param = NULL);
@@ -352,10 +344,8 @@ namespace ZScript
 		virtual void caseCharLiteral(
 				ASTCharLiteral& host, void* param = NULL);
 		virtual void caseArrayLiteral(ASTArrayLiteral& host, void* param = NULL);
-		
 		bool hasFailed() const {return failure;}
 		bool hasTempFailed() const {return failure_temp;}
-		
 		// Signal a compile error if source can't be cast to target.
 		void checkCast(ZScript::DataType const& sourceType,
 		               ZScript::DataType const& targetType,
@@ -373,13 +363,10 @@ namespace ZScript
 
 		// Node which we are breaking recursion until we reach.
 		AST* breakNode;
-	
 		// Set to true if any errors have occurred.
 		bool failure;
-		
 		// Set to true if any errors have occurred. This is cleared when recursion reaches a block-level.
 		bool failure_temp;
-		
 		// Set to true if a hard error occurs (Halting)
 		bool failure_halt;
 	};

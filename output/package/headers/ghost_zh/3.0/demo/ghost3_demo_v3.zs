@@ -7,8 +7,8 @@
 namespace ghost3 //Ghost is now in a namespace. You now have three options when it comes to making ghost scipts:
 {                //This is the first one. Including the script in namespace ghost3 will let you access ghost's
                  //functions and constants without prefixes (see third method).
-		 
-		 
+
+
 	@Author("Dimi") //This is a handy way of marking a script's author. Good practice!
 	ffc script cheatson
 	{
@@ -21,7 +21,7 @@ namespace ghost3 //Ghost is now in a namespace. You now have three options when 
 	@Author("Dimi")
 	npc script G3_Example1
 	{
-		//using namespace ghost3; //This is the second method. Putting this line at the top of your script will also allow you to access 
+		//using namespace ghost3; //This is the second method. Putting this line at the top of your script will also allow you to access
 		//ghost's functions and etc w/o prefix. You can also put this line outside of any scripts to allow usage anywhere.
 		//It is commented out because this script is already in a namespace.
 		//Keep in mind that the "using namespace" method may cause compatibility issues with Ghost 2.8 if you are mix and matching.
@@ -30,7 +30,7 @@ namespace ghost3 //Ghost is now in a namespace. You now have three options when 
 		{
 			untyped data[DATA_SIZE]; //Always first
 			init(this, data); //Always second
-			
+
 			eweapon fakeparticle = CreateDummyEWeapon(EW_SCRIPT1, 0, 0, 32, 0, EWF_NO_COLLISION);
 			SetEWeaponLifespan(fakeparticle, EWL_TIMER, 15);
 			SetEWeaponDeathEffect(fakeparticle, EWD_VANISH, -1);
@@ -96,7 +96,7 @@ npc script G3_Example2
 	{
 		untyped data[ghost3::DATA_SIZE]; //Always first
 		ghost3::init(this, data); //Always second
-		
+
 		eweapon fakeparticle = ghost3::CreateDummyEWeapon(EW_SCRIPT1, 0, 0, 97, 0, ghost3::EWF_NO_COLLISION);
 		ghost3::SetEWeaponLifespan(fakeparticle, ghost3::EWL_TIMER, 20);
 		ghost3::SetEWeaponDeathEffect(fakeparticle, ghost3::EWD_VANISH, -1);
@@ -130,7 +130,7 @@ namespace ghost3
 		{
 			untyped data[DATA_SIZE]; //Always first
 			init(this, data); //Always second
-			
+
 			eweapon fakeparticle = CreateDummyEWeapon(EW_SCRIPT1, 0, this->WeaponDamage, 87, 0, 0);
 			SetEWeaponLifespan(fakeparticle, EWL_TIMER, 30);
 			SetEWeaponDeathEffect(fakeparticle, EWD_AIM_AT_LINK, 0);
@@ -159,7 +159,7 @@ namespace ghost3
 		{
 			untyped data[DATA_SIZE]; //Always first
 			init(this, data); //Always second
-			
+
 			int shotcounter;
 			while(true)
 			{
@@ -175,7 +175,7 @@ namespace ghost3
 		}
 	}
 }
-	
+
 @Author("Dimi")
 npc script G3_Example5
 {
@@ -184,7 +184,7 @@ npc script G3_Example5
 	{
 		untyped data[ghost3::DATA_SIZE]; //Always first
 		ghost3::init(this, data); //Always second
-		
+
 		int shotcounter;
 		while(true)
 		{
@@ -275,7 +275,7 @@ namespace ghost3
 			eweapon e; int sinclk;
 			while(true)
 			{
-				if (hitclk > 0) 
+				if (hitclk > 0)
 				{
 					this->CSet = 6 + ((hitclk>>1)%4);
 					--hitclk;
@@ -311,7 +311,7 @@ namespace ghost3
 			}
 		}
 	}
-	
+
 	npc script G3_Example9
 	{
 		//using namespace ghost3;
@@ -367,11 +367,11 @@ namespace ghost3
 				{
 					Ghost_Waitframe(this, GHD_NONE, true);
 				}
-				
+
 			}
 		}
 	}
-	
+
 	npc script G3_Patra
 	{
 		//using namespace ghost3;
@@ -383,11 +383,11 @@ namespace ghost3
 		{
 			untyped data[DATA_SIZE]; //Always first
 			init(this, data); //Always second
-			
+
 			tile = (tile > 0) ? tile : DEFAULT_TILE;
 			frames = (frames > 0) ? frames : DEFAULT_FRAME;
 			aspeed = (aspeed > 0) ? aspeed : DEFAULT_ASPEED;
-			
+
 			SetFlag(this, GHF_SET_DIRECTION);
 			if (dirs >= 2) SetFlag(this, GHF_8WAY);
 			if (dirs == 1) SetFlag(this, GHF_4WAY);
@@ -406,7 +406,7 @@ namespace ghost3
 			int dist;
 			int angle;
 			npc n = Screen->LoadNPCByUID(this->ParentUID);
-			if (n->isValid()) 
+			if (n->isValid())
 			{
 				dist = Distance(CenterX(n), CenterY(n), CenterX(this), CenterY(this));
 				angle = Angle(CenterX(n), CenterY(n), CenterX(this), CenterY(this));
@@ -427,7 +427,7 @@ namespace ghost3
 					spawn->Y = CenterY(this)-8+VectorY(spawndist, initangle+(offset*i));
 				}
 			}
-			
+
 			while(true)
 			{
 				if (n->isValid())
@@ -442,10 +442,10 @@ namespace ghost3
 					data[GHI_VY] = Clamp(data[GHI_VY], -(this->Step/100), (this->Step/100));
 				}
 				Ghost_Waitframe(this, GHD_NONE, true);
-			} 
+			}
 		}
 	}
-	
+
 	void RemoveSpawnPoof(npc this)
 	{
 		int drawxoff = this->DrawXOffset;
@@ -453,7 +453,7 @@ namespace ghost3
 		Waitframes(4);
 		this->DrawXOffset = drawxoff;
 	}
-		
+
 // Temp Functions
 	void UpdateKnockback(npc this, int frames, int speed)
 	{
@@ -489,10 +489,10 @@ namespace ghost3
 			printf("Shifts must be greater than 0; std::arrayshift(untyped,untyped,int)\n");
 			return;
 		}
-		int q; 
+		int q;
 		if (shifts > 0)
 		{
-			for ( q = (SizeOfArray(ptr)-1); q >= shifts; --q) 
+			for ( q = (SizeOfArray(ptr)-1); q >= shifts; --q)
 			{
 				ptr[q] = ptr[q-shifts];
 			}
@@ -505,7 +505,7 @@ namespace ghost3
 		{
 			shifts = Abs(shifts);
 			int arrsize = (SizeOfArray(ptr)-1);
-			for (q = 0; q <= arrsize-shifts; ++q) 
+			for (q = 0; q <= arrsize-shifts; ++q)
 			{
 				ptr[q] = ptr[q+shifts];
 			}

@@ -221,8 +221,8 @@ extern int16_t lastCustomTint[4];
 
 //extern byte __isZQuest;
 
-void setMonochromatic(int32_t mode); //GFX are monochrome. 
-void setMonochrome(bool state); //GFX are monochrome. 
+void setMonochromatic(int32_t mode); //GFX are monochrome.
+void setMonochrome(bool state); //GFX are monochrome.
 bool isMonochrome();
 bool isUserTinted();
 void isUserTinted(bool state);
@@ -240,21 +240,21 @@ void runDrunkRNG();
 void load_replay_file_deferred(ReplayMode mode, std::string replay_file);
 void zc_game_srand(int seed, zc_randgen* rng = nullptr);
 
-//Save screen settings. 
-enum { 	SAVESC_BACKGROUND, 		SAVESC_TEXT, 			SAVESC_USETILE, 	
-	SAVESC_CURSOR_CSET, 		SAVESC_CUR_SOUND,  		SAVESC_TEXT_CONTINUE_COLOUR, 
-	SAVESC_TEXT_SAVE_COLOUR, 	SAVESC_TEXT_RETRY_COLOUR, 	SAVESC_TEXT_CONTINUE_FLASH, 
+//Save screen settings.
+enum { 	SAVESC_BACKGROUND, 		SAVESC_TEXT, 			SAVESC_USETILE,
+	SAVESC_CURSOR_CSET, 		SAVESC_CUR_SOUND,  		SAVESC_TEXT_CONTINUE_COLOUR,
+	SAVESC_TEXT_SAVE_COLOUR, 	SAVESC_TEXT_RETRY_COLOUR, 	SAVESC_TEXT_CONTINUE_FLASH,
 	SAVESC_TEXT_SAVE_FLASH, 	SAVESC_TEXT_RETRY_FLASH,	SAVESC_MIDI,
-	SAVESC_CUR_FLIP, 		    SAVESC_TEXT_DONTSAVE_COLOUR, 	SAVESC_TEXT_SAVEQUIT_COLOUR, 
+	SAVESC_CUR_FLIP, 		    SAVESC_TEXT_DONTSAVE_COLOUR, 	SAVESC_TEXT_SAVEQUIT_COLOUR,
 	SAVESC_TEXT_SAVE2_COLOUR, 	SAVESC_TEXT_QUIT_COLOUR, 	SAVESC_TEXT_DONTSAVE_FLASH,
 	SAVESC_TEXT_SAVEQUIT_FLASH,	SAVESC_TEXT_SAVE2_FLASH, 	SAVESC_TEXT_QUIT_FLASH,
-	SAVESC_EXTRA1, 			SAVESC_EXTRA2,			SAVESC_EXTRA3,			
+	SAVESC_EXTRA1, 			SAVESC_EXTRA2,			SAVESC_EXTRA3,
 	SAVESC_LAST	};
 
 extern int32_t SaveScreenSettings[24]; //BG, Text, Cursor CSet, MIDI
-//Save Screen text. 
+//Save Screen text.
 enum { SAVESC_CONTINUE, SAVESC_SAVE, SAVESC_RETRY, SAVESC_DONTSAVE, SAVESC_SAVEQUIT, SAVESC_SAVE2, SAVESC_QUIT, SAVESC_END };
-extern char SaveScreenText[7][32]; //(char *) "CONTINUE", (char *) "SAVE", (char*) "RETRY" , 
+extern char SaveScreenText[7][32]; //(char *) "CONTINUE", (char *) "SAVE", (char*) "RETRY" ,
 					//DON'T SAVE, SAVE AND QUIT, SAVE, QUIT
 extern void SetSaveScreenSetting(int32_t indx, int32_t value);
 extern void ChangeSubscreenText(int32_t index, const char *f);
@@ -329,7 +329,7 @@ extern char *standalone_quest;
 extern bool skip_title;
 extern bool disable_save_to_disk;
 
-extern int32_t draw_screen_clip_rect_x1; //Used by the ending, bu could be used to change the drawn screen size. 
+extern int32_t draw_screen_clip_rect_x1; //Used by the ending, bu could be used to change the drawn screen size.
 extern int32_t draw_screen_clip_rect_x2;
 extern int32_t draw_screen_clip_rect_y1;
 extern int32_t draw_screen_clip_rect_y2;

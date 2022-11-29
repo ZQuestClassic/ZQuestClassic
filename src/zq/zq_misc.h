@@ -58,7 +58,6 @@ INLINE int32_t popup_menu(MENU *menu,int32_t x,int32_t y)
     {
         rest(1);
     }
-    
     return jwin_do_menu(menu,x,y);
 }
 

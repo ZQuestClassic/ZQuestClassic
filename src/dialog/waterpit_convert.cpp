@@ -40,7 +40,6 @@ std::shared_ptr<GUI::Widget> PitConvertDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	return Window(
 		title = "Combo Damage Convert",
 		onEnter = message::OK,

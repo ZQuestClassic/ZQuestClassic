@@ -15,18 +15,18 @@ namespace classic_zh
 	const int DATE_YEAR 			= 2020;
 	const int HOUR				= 5;
 	const int MINUTE			= 3;
-	
+
 	//System Limits
 	const int MAX_LEVELS			= 512;
-	
+
 	//Basic Settings
-	
+
 	//Invisible Combo for FFCs
 	const int CMB_INVISIBLE 		= 1;
-	
+
 	//Max distance to signpost, in pixels
 	const int SIGNPOST_DIST 		= 16;
-	
+
 	//Boss Explosion Default Settings
 	const int BOSS_EXPLODE_SPRITE 		= 88;
 	const int BOSS_EXPLODE_DUR 		= 150;
@@ -48,10 +48,10 @@ namespace classic_zh
 
 	//Returns the current version of Classic.zh
 	float getVersion() { return VERSION; }
-	
+
 	//Functions
 	//Returns the datestamp of the current version of Classic.zh as a compound float in format DDMM.YYYY
-	float getDate() 
+	float getDate()
 	{
 		int date = DATE_MONTH;
 		date += DATE_YEAR/10000;
@@ -59,7 +59,7 @@ namespace classic_zh
 		return date;
 	}
 	//Returns the timestamp of classic.zh as a compound float in the format of HH.MM
-	float getTime() 
+	float getTime()
 	{
 		int tm = MINUTE;
 		tm += HOUR*100;
@@ -85,10 +85,10 @@ namespace classic_zh
 	//Returns if there are enemy NPCs alive on the current screen.
 	bool ScreenGuyAlive()
 	{
-		bool alive = false; 
+		bool alive = false;
 		for ( int q = Screen->NumNPCs(); q > 0; --q )
 		{
-			npc n = Screen->LoadNPC(q); 
+			npc n = Screen->LoadNPC(q);
 			if ( n->Type == NPCT_GUY )
 			{
 				alive = true;
@@ -183,18 +183,18 @@ ffc script BossMusic
 		Game->PlayEnhancedMusic("Classic.nsf",trk);
 		while(EnemiesAlive()) Waitframe();
 		//for ( int q = Screen->NumLWeapons(); q > 0; --q ) //the number changes, so we need to refresh...
-		for ( int q = 1; q < Screen->NumLWeapons(); ++q ) 
+		for ( int q = 1; q < Screen->NumLWeapons(); ++q )
 		{
 			lweapon isFirework = Screen->LoadLWeapon(q);
-			if ( isFirework->OriginalTile == origtile ) 
+			if ( isFirework->OriginalTile == origtile )
 			{
 				while(isFirework->isValid()) Waitframe();
-				
+
 			}
 		}
 		Audio->PlayMIDI(mid);
 		for ( int q = 0; q < 601; ++q ) Waitframe();
-		Game->PlayMIDI(Game->DMapMIDI[Game->GetCurDMap()]);	
+		Game->PlayMIDI(Game->DMapMIDI[Game->GetCurDMap()]);
 		Screen->D[reg] = classic_zh::REG_BOSS_DEAD;
 	}
 }
@@ -216,9 +216,9 @@ ffc script BossExplode
 		for ( int q = Screen->NumNPCs(); q > 0; --q )
 		{
 			npc n = Screen->LoadNPC(q);
-			if ( classic_zh::isBoss(n) || n->ID == enemy_override ) 
+			if ( classic_zh::isBoss(n) || n->ID == enemy_override )
 			{
-				boss = n; 
+				boss = n;
 				width = n->TileWidth;
 				height = n->TileHeight;
 				x = n->X;
@@ -226,7 +226,7 @@ ffc script BossExplode
 				type = boss->Type;
 				break;
 			}
-			
+
 		}
 		unless ( (boss->isValid()) ) Quit();
 		while(alive)
@@ -245,9 +245,9 @@ ffc script BossExplode
 				for ( int q = Screen->NumNPCs(); q > 0; --q )
 				{
 					npc n = Screen->LoadNPC(q);
-					if ( n->Type == type ) 
+					if ( n->Type == type )
 					{
-						boss = n; 
+						boss = n;
 						width = n->TileWidth;
 						height = n->TileHeight;
 						x = n->X;
@@ -255,13 +255,13 @@ ffc script BossExplode
 						type = boss->Type;
 						break;
 					}
-					
+
 				}
 			}
 			else { alive = false; break; }
 			Waitframe();
 		}
-			
+
 		Screen->D[reg] = classic_zh::REG_BOSS_EXPLODING;
 		for ( int q = dur; q > 0; --q )
 		{
@@ -281,7 +281,7 @@ ffc script BossExplode
 		}
 		Screen->D[reg] = classic_zh::REG_BOSS_DEAD;
 		Quit();
-		
+
 	}
 }
 
@@ -319,12 +319,12 @@ ffc script SignPost
 //        {
 //            if ( !Screen->D[reg] )
 //            {
-//                if ( Screen->State[ST_SECRET] ) 
+//                if ( Screen->State[ST_SECRET] )
 //                {
 //                    Screen->D[reg] = 1;
 //                }
 //            }
-//            else 
+//            else
 //            {
 //                Screen->TriggerSecrets();
 //                Quit();
@@ -349,7 +349,7 @@ ffc script ChangeRoomGuy
 				if ( g->ID != NPC_FIRE )
 				{
 					g->OriginalTile = t;
-					if ( cs > 0 ) 
+					if ( cs > 0 )
 						g->CSet = cs;
 					break;
 				}
@@ -373,24 +373,24 @@ ffc script PermBlockSecrets
 				Audio->PlaySound(SFX_SECRET);
 				Quit();
 			}
-			cnt = 0; 
+			cnt = 0;
 			for ( int q = 0; q < 176; ++q )
 			{
 				if ( Screen->ComboF[q] == CF_BLOCKTRIGGER ) ++cnt;
 				if ( Screen->ComboI[q] == CF_BLOCKTRIGGER ) ++cnt;
 			}
-			unless ( cnt ) 
+			unless ( cnt )
 			{
 				Screen->State[ST_SECRET] = true;
-				Screen->D[reg] = 1; 
+				Screen->D[reg] = 1;
 				break;
 			}
-			Waitframe(); 
+			Waitframe();
 		}
-				
+
 		//count the number of block triggers on the screen
 		//then, if there are none, set the screen state
-		
+
 	}
 }
 
@@ -412,24 +412,24 @@ ffc script PermBlockShutters
 				}
 				Quit();
 			}
-			cnt = 0; 
+			cnt = 0;
 			for ( int q = 0; q < 176; ++q )
 			{
 				if ( Screen->ComboF[q] == CF_BLOCKTRIGGER ) ++cnt;
 				if ( Screen->ComboI[q] == CF_BLOCKTRIGGER ) ++cnt;
 			}
-			unless ( cnt ) 
+			unless ( cnt )
 			{
 				Screen->State[ST_SECRET] = true;
-				Screen->D[reg] = 1; 
+				Screen->D[reg] = 1;
 				break;
 			}
-			Waitframe(); 
+			Waitframe();
 		}
-				
+
 		//count the number of block triggers on the screen
 		//then, if there are none, set the screen state
-		
+
 	}
 }
 
@@ -439,7 +439,7 @@ global script Active
     {
         StartGhostZH();
         Tango_Start();
-	    
+
         while(true)
         {
             UpdateGhostZH1();
@@ -466,21 +466,21 @@ ffc script DropTRIFORCE
 		//boss is dead. Position the heart container over Link.
 		hc->X = (Clamp(Link->X, 0, 250)); yy = (Clamp(Link->Y, 0, 150)); //Don't drop partway offscreen.
 		hc->Y = yy;
-		hc->DrawYOffset = 0; hc->HitYOffset = 0; 
+		hc->DrawYOffset = 0; hc->HitYOffset = 0;
 		lweapon shadow = Screen->CreateLWeapon(LW_SCRIPT1);
 		shadow->UseSprite(50);
 		shadow->X = hc->X; shadow->Y = yy+8;
 		shadow->CollDetection = false;
 		while(hc->isValid())
 		{
-			if ( hc->Z > 8 ) ++hc->Z; //Slow its descent. 
+			if ( hc->Z > 8 ) ++hc->Z; //Slow its descent.
 			if ( hc->Z == 0 && hc->Jump < 0.4) Remove(shadow);
-			if ( Collision(hc) ) Screen->D[reg] = classic_zh::REG_BOSS_DROPPED_TRIFORCE; //If Link touches it. 
+			if ( Collision(hc) ) Screen->D[reg] = classic_zh::REG_BOSS_DROPPED_TRIFORCE; //If Link touches it.
 			Waitframe();
-			
+
 		}
 		Screen->D[reg] = classic_zh::REG_BOSS_DROPPED_TRIFORCE;
-	}	
+	}
 }
 
 ffc script DropHEARTCONTAINER
@@ -497,19 +497,19 @@ ffc script DropHEARTCONTAINER
 		//boss is dead. Position the heart container over Link.
 		hc->X = (Clamp(Link->X, 0, 250)); yy = (Clamp(Link->Y, 0, 150)); //Don't drop partway offscreen.
 		hc->Y = yy;
-		hc->DrawYOffset = 0; hc->HitYOffset = 0; 
+		hc->DrawYOffset = 0; hc->HitYOffset = 0;
 		lweapon shadow = Screen->CreateLWeapon(LW_SCRIPT1);
 		shadow->UseSprite(50);
 		shadow->X = hc->X; shadow->Y = yy+8;
 		shadow->CollDetection = false;
 		while(hc->isValid())
 		{
-			if ( hc->Z > 8 ) ++hc->Z; //Slow its descent. 
-			if ( hc->Z == 0 && hc->Jump < 0.4) Remove(shadow); 
+			if ( hc->Z > 8 ) ++hc->Z; //Slow its descent.
+			if ( hc->Z == 0 && hc->Jump < 0.4) Remove(shadow);
 			Waitframe();
 		}
 		Screen->D[reg] = classic_zh::REG_BOSS_DROPPED_HEART;
-	}	
+	}
 }
 
 
@@ -549,7 +549,7 @@ itemdata script MagicCompass
 	}
 }
 
-//Allows showing a uniue string for each of the four HC pieces. 
+//Allows showing a uniue string for each of the four HC pieces.
 itemdata script CollectHeartContainer
 {
 	void run(int m)
@@ -570,6 +570,6 @@ ffc script ScreenGuyMusic
 		Waitframes(5);
 		Game->PlayEnhancedMusic(filenm,trk);
 		while(classic_zh::ScreenGuyAlive()) Waitframe();
-		Game->PlayMIDI(Game->DMapMIDI[Game->GetCurDMap()]);	
+		Game->PlayMIDI(Game->DMapMIDI[Game->GetCurDMap()]);
 	}
 }

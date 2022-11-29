@@ -63,7 +63,6 @@ void call_testqst_dialog()
 			"Save As", do_save_as,
 			"Test", do_skip
 		).show();
-		
 		if(!(skip || saved))
 			return;
 	}
@@ -184,7 +183,6 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 #endif
 		}
 		return true;
-		
 		case message::CANCEL:
 		default:
 			return true;

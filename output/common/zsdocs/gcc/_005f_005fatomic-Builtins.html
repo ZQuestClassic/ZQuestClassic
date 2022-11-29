@@ -97,7 +97,7 @@ pointer type that is 1, 2, 4, or 8 bytes in length.  16-byte integral
 types are also allowed if &lsquo;<samp>__int128</samp>&rsquo; (see <a href="_005f_005fint128.html#g_t_005f_005fint128">__int128</a>) is
 supported by the architecture.
 </p>
-<p>The four non-arithmetic functions (load, store, exchange, and 
+<p>The four non-arithmetic functions (load, store, exchange, and
 compare_exchange) all have a generic version as well.  This generic
 version works on any data type.  It uses the lock-free built-in function
 if the specific data type size makes that possible; otherwise, an
@@ -205,8 +205,8 @@ contents of <code>*<var>ptr</var></code> in <code>*<var>ret</var></code>.
 
 <dl>
 <dt><a name="index-_005f_005fatomic_005fstore_005fn"></a>Built-in Function: <em>void</em> <strong>__atomic_store_n</strong> <em>(<var>type</var> *ptr, <var>type</var> val, int memorder)</em></dt>
-<dd><p>This built-in function implements an atomic store operation.  It writes 
-<code><var>val</var></code> into <code>*<var>ptr</var></code>.  
+<dd><p>This built-in function implements an atomic store operation.  It writes
+<code><var>val</var></code> into <code>*<var>ptr</var></code>.
 </p>
 <p>The valid memory order variants are
 <code>__ATOMIC_RELAXED</code>, <code>__ATOMIC_SEQ_CST</code>, and <code>__ATOMIC_RELEASE</code>.
@@ -326,7 +326,7 @@ the type to which the pointer points.
 the byte at <code>*<var>ptr</var></code>.  The byte is set to some implementation
 defined nonzero &ldquo;set&rdquo; value and the return value is <code>true</code> if and only
 if the previous contents were &ldquo;set&rdquo;.
-It should be only used for operands of type <code>bool</code> or <code>char</code>. For 
+It should be only used for operands of type <code>bool</code> or <code>char</code>. For
 other types only part of the value may be set.
 </p>
 <p>All memory orders are valid.
@@ -338,7 +338,7 @@ other types only part of the value may be set.
 <dd>
 <p>This built-in function performs an atomic clear operation on
 <code>*<var>ptr</var></code>.  After the operation, <code>*<var>ptr</var></code> contains 0.
-It should be only used for operands of type <code>bool</code> or <code>char</code> and 
+It should be only used for operands of type <code>bool</code> or <code>char</code> and
 in conjunction with <code>__atomic_test_and_set</code>.
 For other types it may only clear partially. If the type is not <code>bool</code>
 prefer using <code>__atomic_store</code>.
@@ -378,7 +378,7 @@ generate lock-free atomic instructions for the target architecture.
 resolves to a compile-time constant.
 </p>
 <p><var>ptr</var> is an optional pointer to the object that may be used to determine
-alignment.  A value of 0 indicates typical alignment should be used.  The 
+alignment.  A value of 0 indicates typical alignment should be used.  The
 compiler may also ignore this parameter.
 </p>
 <div class="smallexample">
@@ -396,7 +396,7 @@ the built-in function is not known to be lock-free, a call is made to a
 runtime routine named <code>__atomic_is_lock_free</code>.
 </p>
 <p><var>ptr</var> is an optional pointer to the object that may be used to determine
-alignment.  A value of 0 indicates typical alignment should be used.  The 
+alignment.  A value of 0 indicates typical alignment should be used.  The
 compiler may also ignore this parameter.
 </p></dd></dl>
 

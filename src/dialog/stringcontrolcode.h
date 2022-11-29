@@ -34,7 +34,6 @@ private:
 		list_weffect, list_sfx, list_midi, list_screenstate;
 	int32_t* cur_args;
 	bool warp_xy_toggle;
-	
 	void default_args();
 	bool load_scc_str(std::string const& str);
 };

@@ -27,7 +27,6 @@ struct zinfo
 	//Shared
 	char *ic_name[itype_max];
 	char *ctr_name[MAX_COUNTERS];
-	
 	bool isUsableItemclass(size_t q);
 	bool isUsableComboType(size_t q);
 	bool isUsableMapFlag(size_t q);
@@ -41,7 +40,6 @@ struct zinfo
 	char const* getWeapName(size_t q);
 	char const* getMapFlagHelp(size_t q);
 	char const* getCtrName(int32_t q);
-	
 	void copyFrom(zinfo const& other);
 	bool isNull();
 };

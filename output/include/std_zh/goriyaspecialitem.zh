@@ -3,13 +3,13 @@
 ffc script goriyaItem
 {
 	void run(int iid, int paddingTicks, int reg, int bit)
-	{    
+	{
 		Waitframes(6);
 		paddingTicks *= 60;
 		while(__classic_zh_ScreenGuyAlive()) Waitframe();
 		Waitframes(paddingTicks);
 		if ( (Screen->D[reg] & (1<<bit)) ) Quit();
-	    
+
 		item it = Screen->CreateItem(iid);
 		it->X = this->X;
 		it->Y = this->Y;
@@ -24,12 +24,12 @@ ffc script goriyaItem
 ffc script guyRoomtoSpecialItem
 {
 	void run(int paddingTicks, int reg, int bit)
-	{    
+	{
 		Waitframes(6);
 		paddingTicks *= 60;
 		while(1)
 		{
-			if ( (Screen->D[reg] & (1<<bit)) ) 
+			if ( (Screen->D[reg] & (1<<bit)) )
 			{
 				Screen->RoomType = RT_SPECIALITEM;
 				Quit();
@@ -40,6 +40,6 @@ ffc script guyRoomtoSpecialItem
 				Screen->D[reg] |= (1<<bit);
 			}
 			Waitframe();
-		}	
+		}
 	}
 }

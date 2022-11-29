@@ -53,7 +53,6 @@ private:
 	// being deleted (or bouncing, in the case of boomerangs)
 	int32_t minX, maxX, minY, maxY;
 	friend void setScreenLimits(weapon&);
-    
 public:
     void setAngle(double angletoset);
     void doAutoRotate(bool dodir = false, bool doboth = false);
@@ -75,16 +74,14 @@ public:
 	byte misc_wflags;
 	byte wscreengrid[22];
 	byte wscreengrid_layer[6][22];
-	
 	int16_t death_spawnitem;
 	int16_t death_spawndropset;
 	int32_t death_item_pflags;
 	int16_t death_sprite;
 	byte death_sfx;
 	bool has_shadow;
-	
 	//!DIMI: More variables? That suuuuuure won't break anything. Nope.
-    int32_t count1; 
+    int32_t count1;
     int32_t count2;
     int32_t count3;
     int32_t count4;
@@ -100,20 +97,19 @@ public:
     byte quantity_iterator;
     int32_t weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z
     int32_t weaprange; //default range -Z
-    int32_t weapduration; //default duration, 0 = infinite. 
+    int32_t weapduration; //default duration, 0 = infinite.
     int32_t clocks[WEAPON_CLOCKS];
     int32_t tilemod;
     byte drawlayer;
-    word family_class;												
+    word family_class;
     byte family_level;
     word flags;
     int32_t collectflags; //items that this weapon can collect on contact.
     int32_t ffmisc[FFSCRIPT_MISC];
-    char weapname[128]; //Weapon Name, pulled from editor. 
+    char weapname[128]; //Weapon Name, pulled from editor.
      int32_t duplicates; //Number of duplicate weapons generated.
      int32_t wpn_misc_d[FFSCRIPT_MISC];
     //! End weapon editor. -Z
-    
     int32_t script_UID;
     int32_t parent_script_UID;
     int32_t getScriptUID();
@@ -124,10 +120,8 @@ public:
     bool isHeroMelee();
     //2.6 ZScript -Z
     int32_t scriptrange,blastsfx;
-    
     //2.6 enemy editor weapon sprite
     int32_t wpnsprite;
-    
     //Used only by ffscript! No not make readable by scripts!
     byte ScriptGenerated; //Used to permit creating HeroClass weapons, or other weapon types that the engine does not control.
     byte isLWeapon;
@@ -162,11 +156,10 @@ public:
 
 int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid);
 void killgenwpn(weapon* w);
-void do_generic_combo(weapon *w, int32_t bx, int32_t by, int32_t wid, 
+void do_generic_combo(weapon *w, int32_t bx, int32_t by, int32_t wid,
 	int32_t cid, int32_t flag, int32_t flag2, int32_t ft, int32_t scombo, bool single16, int32_t layer);
 void putweapon(BITMAP *dest,int32_t x,int32_t y,int32_t weapon_id, int32_t type, int32_t dir, int32_t &aclk, int32_t &aframe,
                int32_t parentid);
-	       
 #endif
 /*** end of sprite.cc ***/
 

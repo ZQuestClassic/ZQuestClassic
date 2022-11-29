@@ -5,7 +5,7 @@ namespace ghost3
 	typedef const int DEFINE;
 	typedef const int CONFIG;
 	typedef const bool CONFIGB;
-	
+
 	// Used for DrawGhostFFCs()
 	const int GHI_DRAW_COMBO      = 0;
 	const int GHI_DRAW_CSET       = 1;
@@ -61,7 +61,7 @@ namespace ghost3
 		// Already normal
 		if(dir>=0 && dir<=7)
 			return dir;
-		
+
 		// 8-15 go clockwise from up to up-left
 		if(dir==8)
 			return DIR_UP;
@@ -79,11 +79,11 @@ namespace ghost3
 			return DIR_LEFT;
 		if(dir==15)
 			return DIR_LEFTUP;
-		
+
 		// Out of range, probably -1
 		return DIR_UP;
 	}
-	
+
 	long get_bit(long flagset, long bits)
 	{
 		return flagset & bits;
@@ -93,7 +93,7 @@ namespace ghost3
 		if (IsValidArray(bits))
 		{
 			for (int q = (SizeOfArray(bits)-1); q >= 0; --q) flagset |= bits[q];
-			
+
 			return flagset;
 		}
 		else return flagset | bits;

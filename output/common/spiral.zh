@@ -12,13 +12,13 @@ void spiral_in(lweapon l, float circleSpeed, float forwardSpeed, float circleGro
 	circleSizeMiscIndex = ( circleSizeMiscIndex >= 0 && circleSizeMiscIndex < 32 ) ? circleSizeMiscIndex : CIRCLESIZEMISC; //If invalid, use the const.
 	circleSpeed = circleSpeed ? circleSpeed : 1;
 	forwardSpeed = forwardSpeed ? forwardSpeed : -1; // Assuming negative Z is towards the camera
-	l->Misc[circleSizeMiscIndex] = (initialCircleSize && !l->Misc[circleSizeMiscIndex]) ? initialCircleSize : CIRCLESIZE; //If set to 0, use const. 
-	
-	circleGrowSpeed = circleGrowSpeed ? circleGrowSpeed : CIRCLEGROW; //If 0, use default. 
- 
+	l->Misc[circleSizeMiscIndex] = (initialCircleSize && !l->Misc[circleSizeMiscIndex]) ? initialCircleSize : CIRCLESIZE; //If set to 0, use const.
+
+	circleGrowSpeed = circleGrowSpeed ? circleGrowSpeed : CIRCLEGROW; //If 0, use default.
+
 	float xPos = Sin(clk * circleSpeed) * l->Misc[circleSizeMiscIndex];
 	float yPos = Cos(clk * circleSpeed) * l->Misc[circleSizeMiscIndex];
-	
+
 	l->Misc[circleSizeMiscIndex] += circleGrowSpeed;
 	l->X = l->X + xPos;
 	l->Y = l->Y + yPos;
@@ -48,13 +48,13 @@ void spiral_in(eweapon l, float circleSpeed, float forwardSpeed, float circleGro
 	circleSizeMiscIndex = ( circleSizeMiscIndex >= 0 && circleSizeMiscIndex < 32 ) ? circleSizeMiscIndex : CIRCLESIZEMISC; //If invalid, use the const.
 	circleSpeed = circleSpeed ? circleSpeed : 1;
 	forwardSpeed = forwardSpeed ? forwardSpeed : -1; // Assuming negative Z is towards the camera
-	l->Misc[circleSizeMiscIndex] = (initialCircleSize && !l->Misc[circleSizeMiscIndex]) ? initialCircleSize : CIRCLESIZE; //If set to 0, use const. 
-	
-	circleGrowSpeed = circleGrowSpeed ? circleGrowSpeed : CIRCLEGROW; //If 0, use default. 
- 
+	l->Misc[circleSizeMiscIndex] = (initialCircleSize && !l->Misc[circleSizeMiscIndex]) ? initialCircleSize : CIRCLESIZE; //If set to 0, use const.
+
+	circleGrowSpeed = circleGrowSpeed ? circleGrowSpeed : CIRCLEGROW; //If 0, use default.
+
 	float xPos = Sin(clk * circleSpeed) * l->Misc[circleSizeMiscIndex];
 	float yPos = Cos(clk * circleSpeed) * l->Misc[circleSizeMiscIndex];
-	
+
 	l->Misc[circleSizeMiscIndex] += circleGrowSpeed;
 	l->X = l->X + xPos;
 	l->Y = l->Y + yPos;
@@ -71,13 +71,13 @@ void spiral_in(npc l, float circleSpeed, float forwardSpeed, float circleGrowSpe
 	circleSizeMiscIndex = ( circleSizeMiscIndex >= 0 && circleSizeMiscIndex < 32 ) ? circleSizeMiscIndex : CIRCLESIZEMISC; //If invalid, use the const.
 	circleSpeed = circleSpeed ? circleSpeed : 1;
 	forwardSpeed = forwardSpeed ? forwardSpeed : -1; // Assuming negative Z is towards the camera
-	l->Misc[circleSizeMiscIndex] = (initialCircleSize && !l->Misc[circleSizeMiscIndex]) ? initialCircleSize : CIRCLESIZE; //If set to 0, use const. 
-	
-	circleGrowSpeed = circleGrowSpeed ? circleGrowSpeed : CIRCLEGROW; //If 0, use default. 
- 
+	l->Misc[circleSizeMiscIndex] = (initialCircleSize && !l->Misc[circleSizeMiscIndex]) ? initialCircleSize : CIRCLESIZE; //If set to 0, use const.
+
+	circleGrowSpeed = circleGrowSpeed ? circleGrowSpeed : CIRCLEGROW; //If 0, use default.
+
 	float xPos = Sin(clk * circleSpeed) * l->Misc[circleSizeMiscIndex];
 	float yPos = Cos(clk * circleSpeed) * l->Misc[circleSizeMiscIndex];
-	
+
 	l->Misc[circleSizeMiscIndex] += circleGrowSpeed;
 	l->X = l->X + xPos;
 	l->Y = l->Y + yPos;
@@ -94,13 +94,13 @@ void spiral_in(itemsprite l, float circleSpeed, float forwardSpeed, float circle
 	circleSizeMiscIndex = ( circleSizeMiscIndex >= 0 && circleSizeMiscIndex < 32 ) ? circleSizeMiscIndex : CIRCLESIZEMISC; //If invalid, use the const.
 	circleSpeed = circleSpeed ? circleSpeed : 1;
 	forwardSpeed = forwardSpeed ? forwardSpeed : -1; // Assuming negative Z is towards the camera
-	l->Misc[circleSizeMiscIndex] = (initialCircleSize && !l->Misc[circleSizeMiscIndex]) ? initialCircleSize : CIRCLESIZE; //If set to 0, use const. 
-	
-	circleGrowSpeed = circleGrowSpeed ? circleGrowSpeed : CIRCLEGROW; //If 0, use default. 
- 
+	l->Misc[circleSizeMiscIndex] = (initialCircleSize && !l->Misc[circleSizeMiscIndex]) ? initialCircleSize : CIRCLESIZE; //If set to 0, use const.
+
+	circleGrowSpeed = circleGrowSpeed ? circleGrowSpeed : CIRCLEGROW; //If 0, use default.
+
 	float xPos = Sin(clk * circleSpeed) * l->Misc[circleSizeMiscIndex];
 	float yPos = Cos(clk * circleSpeed) * l->Misc[circleSizeMiscIndex];
-	
+
 	l->Misc[circleSizeMiscIndex] += circleGrowSpeed;
 	l->X = l->X + xPos;
 	l->Y = l->Y + yPos;
@@ -117,13 +117,13 @@ void spiral_in(float circleSpeed, float forwardSpeed, float circleGrowSpeed, int
 	circleSizeMiscIndex = ( circleSizeMiscIndex >= 0 && circleSizeMiscIndex < 32 ) ? circleSizeMiscIndex : CIRCLESIZEMISC; //If invalid, use the const.
 	circleSpeed = circleSpeed ? circleSpeed : 1;
 	forwardSpeed = forwardSpeed ? forwardSpeed : -1; // Assuming negative Z is towards the camera
-	Hero->Misc[circleSizeMiscIndex] = (initialCircleSize && !Hero->Misc[circleSizeMiscIndex]) ? initialCircleSize : CIRCLESIZE; //If set to 0, use const. 
-	
-	circleGrowSpeed = circleGrowSpeed ? circleGrowSpeed : CIRCLEGROW; //If 0, use default. 
- 
+	Hero->Misc[circleSizeMiscIndex] = (initialCircleSize && !Hero->Misc[circleSizeMiscIndex]) ? initialCircleSize : CIRCLESIZE; //If set to 0, use const.
+
+	circleGrowSpeed = circleGrowSpeed ? circleGrowSpeed : CIRCLEGROW; //If 0, use default.
+
 	float xPos = Sin(clk * circleSpeed) * Hero->Misc[circleSizeMiscIndex];
 	float yPos = Cos(clk * circleSpeed) * Hero->Misc[circleSizeMiscIndex];
-	
+
 	Hero->Misc[circleSizeMiscIndex] += circleGrowSpeed;
 	Hero->X = Hero->X + xPos;
 	Hero->Y = Hero->Y + yPos;

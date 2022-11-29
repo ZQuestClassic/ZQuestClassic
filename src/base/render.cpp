@@ -14,7 +14,6 @@ static void render_tree_layout(RenderTreeItem* rti, RenderTreeItem* rti_parent)
 		rti->computed.x = rti->computed.scale * rti->transform.x + rti_parent->transform.x;
 		rti->computed.y = rti->computed.scale * rti->transform.y + rti_parent->transform.y;
 	}
-	
 	for (auto rti_child : rti->children)
 	{
 		render_tree_layout(rti_child, rti);

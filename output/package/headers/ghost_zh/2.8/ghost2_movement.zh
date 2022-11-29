@@ -38,20 +38,20 @@ void Ghost_MoveXY(float xStep, float yStep, int imprecision)
             }
         }
     }
-    
+
     int edge; // Position of leading edge
     int edgeDiff; // Difference between Ghost_X/Ghost_Y and edge
     int startHT; // The half-tile position where the edge starts
     int endHT; // And where it ends up
-    
+
     if(xStep<0) // Left
     {
         edgeDiff=__Ghost_XOffsets>>8;
         edge=Ghost_X+edgeDiff;
-        
+
         startHT=Floor(edge/8);
         endHT=Floor((edge+xStep)/8);
-        
+
         // If the edge ends up on the same half-tile line it's already on,
         // there's no need to check walkability
         if(startHT==endHT)
@@ -60,35 +60,35 @@ void Ghost_MoveXY(float xStep, float yStep, int imprecision)
             edge+=xStep;
         else // Can't move all the way; snap to the grid
             edge=(edge>>3)<<3;
-        
+
         Ghost_X=edge-edgeDiff;
     }
     else if(xStep>0) // Right
     {
         edgeDiff=16*Ghost_TileWidth-(__Ghost_XOffsets&0xFF)-1;
         edge=Ghost_X+edgeDiff;
-        
+
         startHT=Floor(edge/8);
         endHT=Floor((edge+xStep)/8);
-        
+
         if(startHT==endHT)
             edge+=xStep;
         else if(Ghost_CanMove(DIR_RIGHT, xStep, imprecision))
             edge+=xStep;
         else
             edge=(((edge+7)>>3)<<3)-1;
-        
+
         Ghost_X=edge-edgeDiff;
     }
-    
+
     if(yStep<0) // Up
     {
         edgeDiff=__Ghost_YOffsets>>8;
         edge=Ghost_Y+edgeDiff;
-        
+
         startHT=Floor(edge/8);
         endHT=Floor((edge+yStep)/8);
-        
+
         // If the edge ends up on the same half-tile line it's already on,
         // there's no need to check walkability
         if(startHT==endHT)
@@ -97,33 +97,33 @@ void Ghost_MoveXY(float xStep, float yStep, int imprecision)
             edge+=yStep;
         else // Can't move all the way; snap to the grid
             edge=(edge>>3)<<3;
-        
+
         Ghost_Y=edge-edgeDiff;
     }
     else if(yStep>0) // Down
     {
         edgeDiff=16*Ghost_TileHeight-(__Ghost_YOffsets&0xFF)-1;
         edge=Ghost_Y+edgeDiff;
-        
+
         startHT=Floor(edge/8);
         endHT=Floor((edge+yStep)/8);
-        
+
         if(startHT==endHT)
             edge+=yStep;
         else if(Ghost_CanMove(DIR_DOWN, yStep, imprecision))
             edge+=yStep;
         else
             edge=(((edge+7)>>3)<<3)-1;
-        
+
         Ghost_Y=edge-edgeDiff;
     }
-    
+
     if(Ghost_FlagIsSet(GHF_SET_DIRECTION) && (__Ghost_InternalFlags&__GHFI_DIR_FORCED)==0)
     {
         // Use 8 directions if 8-way flag is set
         if(Ghost_FlagIsSet(GHF_8WAY))
             Ghost_Dir=AngleDir8(WrapAngle(ArcTan(xStep, yStep))*57.2958);
-        
+
         // Otherwise, 4 directions
         else
         {
@@ -142,7 +142,7 @@ void Ghost_MoveXY(float xStep, float yStep, int imprecision)
                     Ghost_Dir=DIR_RIGHT;
             }
         }
-        
+
         __Ghost_PrevX=Ghost_X;
         __Ghost_PrevY=Ghost_Y;
     }
@@ -202,12 +202,12 @@ bool Ghost_CanMove(int dir, float step, int imprecision, bool inAir)
 {
     if(step==0)
         return true;
-    
+
     if(dir>=4) // Diagonal
         step*=0.7071;
-    
+
     dir=__NormalizeDir(dir);
-    
+
     // More than 8 pixels? Step 8 at a time
     while(step>8)
     {
@@ -215,7 +215,7 @@ bool Ghost_CanMove(int dir, float step, int imprecision, bool inAir)
             return false;
         step-=8;
     }
-    
+
     return __Ghost_CanMoveSingle(dir, step, imprecision, inAir);
 }
 
@@ -225,7 +225,7 @@ bool __Ghost_CanMoveNES(int dir, float step, int imprecision)
 {
     if(step==0)
         return true;
-    
+
     // More than 8 pixels? Step 8 at a time
     while(step>8)
     {
@@ -233,7 +233,7 @@ bool __Ghost_CanMoveNES(int dir, float step, int imprecision)
             return false;
         step-=8;
     }
-    
+
     return __Ghost_CanMoveSingle(dir, step, imprecision, Ghost_Z>0);
 }
 
@@ -246,34 +246,34 @@ bool __Ghost_CanMoveSingle(int dir, float step, int imprecision, bool inAir)
     int edgeSize; // Length of that edge (ignoring imprecision)
     float edgeStart; // X or Y at the top or left end of the leading edge
     int numCheckPoints; // Number of points to check, excluding endpoints
-    
+
     if(dir==DIR_LEFT)
     {
         // The edge size is tile height minus hit box offsets
         edgeSize=16*Ghost_TileHeight-(__Ghost_YOffsets>>8)-(__Ghost_YOffsets&0xFF);
-        
+
         // The leading edge is the left edge of the hitbox
         leadingEdge=Ghost_X+(__Ghost_XOffsets>>8)-step;
-        
+
         // The edge starts at the top of the hitbox
         edgeStart=Ghost_Y+(__Ghost_YOffsets>>8);
-        
+
         // Check every eight pixels; -1 cuts off the last point
         numCheckPoints=edgeSize/8-1;
-        
+
         // Check the non-end points
         for(i=1; i<=numCheckPoints; i++)
         {
             if(!Ghost_CanMovePixel(leadingEdge, edgeStart+i*8, inAir))
                 return false;
         }
-        
+
         // Then the endpoints
         if(!Ghost_CanMovePixel(leadingEdge, edgeStart+imprecision, inAir))
             return false;
         if(!Ghost_CanMovePixel(leadingEdge, edgeStart+edgeSize-imprecision-1, inAir))
             return false;
-        
+
         return true;
     }
     else if(dir==DIR_RIGHT)
@@ -282,18 +282,18 @@ bool __Ghost_CanMoveSingle(int dir, float step, int imprecision, bool inAir)
         leadingEdge=Ghost_X+16*Ghost_TileWidth-(__Ghost_XOffsets&0xFF)-1+step;
         edgeStart=Ghost_Y+(__Ghost_YOffsets>>8);
         numCheckPoints=edgeSize/8-1;
-        
+
         for(i=1; i<=numCheckPoints; i++)
         {
             if(!Ghost_CanMovePixel(leadingEdge, edgeStart+i*8, inAir))
                 return false;
         }
-        
+
         if(!Ghost_CanMovePixel(leadingEdge, edgeStart+imprecision, inAir))
             return false;
         if(!Ghost_CanMovePixel(leadingEdge, edgeStart+edgeSize-imprecision-1, inAir))
             return false;
-        
+
         return true;
     }
     else if(dir==DIR_UP)
@@ -302,23 +302,23 @@ bool __Ghost_CanMoveSingle(int dir, float step, int imprecision, bool inAir)
         if(IsSideview() && !Ghost_FlagIsSet(GHF_NO_FALL))
 
             return false;
-        
+
         edgeSize=16*Ghost_TileWidth-(__Ghost_XOffsets>>8)-(__Ghost_XOffsets&0xFF);
         leadingEdge=Ghost_Y+(__Ghost_YOffsets>>8)-step;
         edgeStart=Ghost_X+(__Ghost_XOffsets>>8);
         numCheckPoints=edgeSize/8-1;
-        
+
         for(i=1; i<=numCheckPoints; i++)
         {
             if(!Ghost_CanMovePixel(edgeStart+i*8, leadingEdge, inAir))
                 return false;
         }
-        
+
         if(!Ghost_CanMovePixel(edgeStart+imprecision, leadingEdge, inAir))
             return false;
         if(!Ghost_CanMovePixel(edgeStart+edgeSize-imprecision-1, leadingEdge, inAir))
             return false;
-        
+
         return true;
     }
     else if(dir==DIR_DOWN)
@@ -327,32 +327,32 @@ bool __Ghost_CanMoveSingle(int dir, float step, int imprecision, bool inAir)
         leadingEdge=Ghost_Y+16*Ghost_TileHeight-(__Ghost_YOffsets&0xFF)-1+step;
         edgeStart=Ghost_X+(__Ghost_XOffsets>>8);
         numCheckPoints=edgeSize/8-1;
-        
+
         for(i=1; i<=numCheckPoints; i++)
         {
             if(!Ghost_CanMovePixel(edgeStart+i*8, leadingEdge, inAir))
                 return false;
         }
-        
+
         if(!Ghost_CanMovePixel(edgeStart+imprecision, leadingEdge, inAir))
             return false;
         if(!Ghost_CanMovePixel(edgeStart+edgeSize-imprecision-1, leadingEdge, inAir))
             return false;
-        
+
         return true;
     }
-    
+
     // Diagonal directions - move along one axis and test the other
     else if(dir==DIR_LEFTUP)
     {
         bool ret;
-        
+
         Ghost_X-=step;
         ret=Ghost_CanMove(DIR_UP, step, imprecision, inAir);
         Ghost_X+=step;
         if(!ret)
             return false;
-        
+
         Ghost_Y-=step;
         ret=Ghost_CanMove(DIR_LEFT, step, imprecision, inAir);
         Ghost_Y+=step;
@@ -361,13 +361,13 @@ bool __Ghost_CanMoveSingle(int dir, float step, int imprecision, bool inAir)
     else if(dir==DIR_RIGHTUP)
     {
         bool ret;
-        
+
         Ghost_X+=step;
         ret=Ghost_CanMove(DIR_UP, step, imprecision, inAir);
         Ghost_X-=step;
         if(!ret)
             return false;
-        
+
         Ghost_Y-=step;
         ret=Ghost_CanMove(DIR_RIGHT, step, imprecision, inAir);
         Ghost_Y+=step;
@@ -376,13 +376,13 @@ bool __Ghost_CanMoveSingle(int dir, float step, int imprecision, bool inAir)
     else if(dir==DIR_LEFTDOWN)
     {
         bool ret;
-        
+
         Ghost_X-=step;
         ret=Ghost_CanMove(DIR_DOWN, step, imprecision, inAir);
         Ghost_X+=step;
         if(!ret)
             return false;
-        
+
         Ghost_Y+=step;
         ret=Ghost_CanMove(DIR_LEFT, step, imprecision, inAir);
         Ghost_Y-=step;
@@ -391,13 +391,13 @@ bool __Ghost_CanMoveSingle(int dir, float step, int imprecision, bool inAir)
     else if(dir==DIR_RIGHTDOWN)
     {
         bool ret;
-        
+
         Ghost_X+=step;
         ret=Ghost_CanMove(DIR_DOWN, step, imprecision, inAir);
         Ghost_X-=step;
         if(!ret)
             return false;
-        
+
         Ghost_Y+=step;
         ret=Ghost_CanMove(DIR_RIGHT, step, imprecision, inAir);
         Ghost_Y-=step;
@@ -416,9 +416,9 @@ bool Ghost_CanMovePixel(int x, int y, bool inAir)
 {
     if(x<0 || x>255 || y<0 || y>175)
         return Ghost_FlagIsSet(GHF_MOVE_OFFSCREEN);
-    
+
     int combo=ComboAt(x, y);
-    
+
     // "No enemy" flags and combos
     if(!Ghost_FlagIsSet(GHF_IGNORE_NO_ENEMY))
     {
@@ -428,7 +428,7 @@ bool Ghost_CanMovePixel(int x, int y, bool inAir)
             return false;
         if(Screen->ComboI[combo]==CF_NOENEMY)
             return false;
-        
+
         // Flying
         if(Ghost_FlagIsSet(GHF_FLYING_ENEMY))
         {
@@ -452,29 +452,29 @@ bool Ghost_CanMovePixel(int x, int y, bool inAir)
                 return false;
         }
     }
-    
+
     // Restricted to water
     if(Ghost_FlagIsSet(GHF_DEEP_WATER_ONLY))
         return IsWater(combo);
-    
+
     if(Ghost_FlagIsSet(GHF_WATER_ONLY))
         return IsWater(combo) || Screen->ComboT[combo]==CT_SHALLOWWATER;
-    
+
     // Water and pit walkability override solidity checking
     if(IsWater(combo))
         return Ghost_FlagIsSet(GHF_IGNORE_WATER);
-    
+
     if(__IsPit(combo))
         return Ghost_FlagIsSet(GHF_IGNORE_PITS);
-    
+
     // Ignore solidity: always OK
     if(Ghost_FlagIsSet(GHF_IGNORE_SOLIDITY))
         return true;
-    
+
     // Full tile movement: Only if the whole tile is walkable
     else if(Ghost_FlagIsSet(GHF_FULL_TILE_MOVEMENT))
         return __FullTileWalkable(x, y);
-    
+
     // All others: Only if the pixel is walkable
     else
         return !Screen->isSolid(x, y);
@@ -490,18 +490,18 @@ int Ghost_ConstantWalk4(int counter, int step, int rate, int homing, int hunger)
     // Don't move while being knocked back
     if(__Ghost_KnockbackCounter>0)
         return counter;
-    
+
     int xStep=0;
 
     int yStep=0;
-    
+
     // Trying to walk onto half solid combos will throw off the counter
     bool ftmSet=Ghost_FlagIsSet(GHF_FULL_TILE_MOVEMENT);
     if(!Ghost_FlagIsSet(GHF_IGNORE_SOLIDITY))
         Ghost_SetFlag(GHF_FULL_TILE_MOVEMENT);
-    
+
     step/=100;
-    
+
     // If the enemy was knocked back into a wall,
     // check whether it's half a tile off the grid
     if((__Ghost_InternalFlags&__GHFI_KNOCKBACK_INTERRUPTED)!=0)
@@ -511,7 +511,7 @@ int Ghost_ConstantWalk4(int counter, int step, int rate, int homing, int hunger)
             // Fix direction
             bool canMoveLeft=__Ghost_CanMoveNES(DIR_LEFT, 1, 0);
             bool canMoveRight=__Ghost_CanMoveNES(DIR_RIGHT, 1, 0);
-            
+
             // Can move both left and right (or neither, for some reason)
             if(canMoveLeft==canMoveRight)
             {
@@ -525,7 +525,7 @@ int Ghost_ConstantWalk4(int counter, int step, int rate, int homing, int hunger)
             // Can only move right
             else
                 Ghost_Dir=DIR_RIGHT;
-            
+
             counter=Floor(8/step);
         }
         else if(Ghost_Y%16==8) // Half a tile off vertically
@@ -533,7 +533,7 @@ int Ghost_ConstantWalk4(int counter, int step, int rate, int homing, int hunger)
             // Fix direction
             bool canMoveUp=__Ghost_CanMoveNES(DIR_UP, 1, 0);
             bool canMoveDown=__Ghost_CanMoveNES(DIR_DOWN, 1, 0);
-            
+
             // Can move both up and down (or neither, for some reason)
             if(canMoveUp==canMoveDown)
             {
@@ -547,13 +547,13 @@ int Ghost_ConstantWalk4(int counter, int step, int rate, int homing, int hunger)
             // Can only move down
             else
                 Ghost_Dir=DIR_DOWN;
-            
+
             counter=Floor(8/step);
         }
         else // Aligned to the grid
             counter=Floor(16/step);
     }
-    
+
     if(counter<=0)
     {
         // Snap to grid and maybe turn
@@ -581,7 +581,7 @@ int Ghost_ConstantWalk4(int counter, int step, int rate, int homing, int hunger)
     {
         __Ghost_InternalFlags&=~__GHFI_HIT_LINK;
     }
-    
+
     // These functions use the full step on both axes for diagonal movement
     if(Ghost_Dir!=DIR_UP && Ghost_Dir!=DIR_DOWN)
     {
@@ -590,7 +590,7 @@ int Ghost_ConstantWalk4(int counter, int step, int rate, int homing, int hunger)
         else // Right
             xStep=step;
     }
-    
+
     if(Ghost_Dir!=DIR_LEFT && Ghost_Dir!=DIR_RIGHT)
     {
         if(Ghost_Dir==DIR_UP || Ghost_Dir==DIR_LEFTUP || Ghost_Dir==DIR_RIGHTUP)
@@ -598,11 +598,11 @@ int Ghost_ConstantWalk4(int counter, int step, int rate, int homing, int hunger)
         else // Down
             yStep=step;
     }
-    
+
     // Restore the flag
     if(!ftmSet)
         Ghost_UnsetFlag(GHF_FULL_TILE_MOVEMENT);
-    
+
     Ghost_MoveXY(xStep, yStep, 0);
     return counter-1;
 }
@@ -612,18 +612,18 @@ int Ghost_ConstantWalk8(int counter, int step, int rate, int homing, int hunger)
     // Don't move while being knocked back
     if(__Ghost_KnockbackCounter>0)
         return counter;
-    
+
     int xStep=0;
     int yStep=0;
     step/=100;
-    
+
     if(counter<=0)
     {
         // Turn
         __Ghost_NewDir8(rate, homing, hunger);
         counter=Floor(8/step);
     }
-    
+
     // Needs to snap to the grid, so Ghost_Move() would be problematic
     if(Ghost_Dir!=DIR_UP && Ghost_Dir!=DIR_DOWN)
     {
@@ -633,7 +633,7 @@ int Ghost_ConstantWalk8(int counter, int step, int rate, int homing, int hunger)
             xStep=step;
 
     }
-    
+
     if(Ghost_Dir!=DIR_LEFT && Ghost_Dir!=DIR_RIGHT)
     {
         if(Ghost_Dir==DIR_UP || Ghost_Dir==DIR_LEFTUP || Ghost_Dir==DIR_RIGHTUP)
@@ -641,7 +641,7 @@ int Ghost_ConstantWalk8(int counter, int step, int rate, int homing, int hunger)
         else // Down
             yStep=step;
     }
-    
+
     Ghost_MoveXY(xStep, yStep, 0);
     return counter-1;
 }
@@ -651,11 +651,11 @@ float Ghost_HaltingWalk4(int counter, int step, int rate, int homing, int hunger
     // Don't move while being knocked back
     if(__Ghost_KnockbackCounter>0)
         return counter;
-    
+
     // The counter is actually two combined...
     int walkCounter;
     int haltCounter;
-    
+
     if(counter==-1)
     {
         walkCounter=0;
@@ -666,18 +666,18 @@ float Ghost_HaltingWalk4(int counter, int step, int rate, int homing, int hunger
         walkCounter=counter*10000;
         haltCounter=counter>>0;
     }
-    
+
     // Halted; just count down
     if(haltCounter>0)
         return haltCounter-1;
-    
+
     // Trying to walk onto half solid combos will throw off the counter
     bool ftmSet=Ghost_FlagIsSet(GHF_FULL_TILE_MOVEMENT);
     if(!Ghost_FlagIsSet(GHF_IGNORE_SOLIDITY))
         Ghost_SetFlag(GHF_FULL_TILE_MOVEMENT);
-    
+
     step/=100;
-    
+
     // If the enemy was knocked back into a wall,
     // check whether it's half a tile off the grid
     if((__Ghost_InternalFlags&__GHFI_KNOCKBACK_INTERRUPTED)!=0)
@@ -687,7 +687,7 @@ float Ghost_HaltingWalk4(int counter, int step, int rate, int homing, int hunger
             // Fix direction
             bool canMoveLeft=__Ghost_CanMoveNES(DIR_LEFT, 1, 0);
             bool canMoveRight=__Ghost_CanMoveNES(DIR_RIGHT, 1, 0);
-            
+
             // Can move both left and right (or neither, for some reason)
             if(canMoveLeft==canMoveRight)
             {
@@ -701,7 +701,7 @@ float Ghost_HaltingWalk4(int counter, int step, int rate, int homing, int hunger
             // Can only move right
             else
                 Ghost_Dir=DIR_RIGHT;
-            
+
             walkCounter=Floor(8/step);
         }
         else if(Ghost_Y%16==8) // Half a tile off vertically
@@ -709,7 +709,7 @@ float Ghost_HaltingWalk4(int counter, int step, int rate, int homing, int hunger
             // Fix direction
             bool canMoveUp=__Ghost_CanMoveNES(DIR_UP, 1, 0);
             bool canMoveDown=__Ghost_CanMoveNES(DIR_DOWN, 1, 0);
-            
+
             // Can move both up and down (or neither, for some reason)
             if(canMoveUp==canMoveDown)
             {
@@ -723,23 +723,23 @@ float Ghost_HaltingWalk4(int counter, int step, int rate, int homing, int hunger
             // Can only move down
             else
                 Ghost_Dir=DIR_DOWN;
-            
+
             walkCounter=Floor(8/step);
         }
         else // Aligned to the grid
             walkCounter=Floor(16/step);
     }
-    
+
     if(walkCounter==0)
     {
         // Snap to the grid and possibly turn
         __Ghost_FixCoords();
         walkCounter=Floor(16/step);
-        
+
         if(counter==-1)
         {
             __Ghost_NewDir4(rate, homing, hunger);
-            
+
             // Halt?
             if(Rand(16)<haltRate)
             {
@@ -750,7 +750,7 @@ float Ghost_HaltingWalk4(int counter, int step, int rate, int homing, int hunger
             }
         }
     }
-    
+
     // Turn around after hitting Link
     if(Abs(Ghost_X-Link->X)<16 && Abs(Ghost_Y-Link->Y)<16)
     {
@@ -765,13 +765,13 @@ float Ghost_HaltingWalk4(int counter, int step, int rate, int homing, int hunger
     // Not touching Link - clear the flag
     else
         __Ghost_InternalFlags&=~__GHFI_HIT_LINK;
-    
+
     walkCounter--;
     Ghost_Move(Ghost_Dir, step, 0);
-    
+
     if(!ftmSet)
         Ghost_UnsetFlag(GHF_FULL_TILE_MOVEMENT);
-    
+
     if(walkCounter>0)
         return walkCounter/10000;
     else
@@ -784,19 +784,19 @@ int Ghost_VariableWalk8(int counter, int step, int rate, int homing,
     // Don't move while being knocked back
     if(__Ghost_KnockbackCounter>0)
         return counter;
-    
+
     step/=100;
-    
+
     if(!__Ghost_CanMoveNES(Ghost_Dir, step, 0))
         counter=0;
-    
+
     // Time to turn?
     if(counter<=0)
     {
         __Ghost_NewDir8(rate, homing, hunger);
         counter=turnCheckTime;
     }
-    
+
     Ghost_Move(Ghost_Dir, step, 0);
     return counter-1;
 }
@@ -808,21 +808,21 @@ float Ghost_FloaterWalk(float counter, int normalStep,
 {
     // Bits 16-15: state
     // Bits 14-0: walk counter
-    // Fraction: state timer    
+    // Fraction: state timer
     int state=counter&0x18000;
     int stateTimer=(counter%1)*10000;
     int walkCounter=counter&0x07FFF;
     int step=0;
-    
+
     if(counter==-1) // First call - initialize
     {
         state=0x08000; // Speeding up
         stateTimer=0;
         walkCounter=0;
     }
-    
+
     stateTimer=Min(stateTimer+1, 9999);
-    
+
     // Resting
     if(state==0x00000)
     {
@@ -832,12 +832,12 @@ float Ghost_FloaterWalk(float counter, int normalStep,
             stateTimer=0;
         }
     }
-    
+
     // Speeding up
     else if(state==0x08000)
     {
         rate=0;
-        
+
         if(stateTimer>=accelTime*accelSteps) // Full speed
         {
             state=0x10000;
@@ -846,12 +846,12 @@ float Ghost_FloaterWalk(float counter, int normalStep,
         else
             step=(((stateTimer-1)/accelTime)<<0)*accelAmount;
     }
-    
+
     // Full speed
     else if(state==0x10000)
     {
         step=normalStep;
-        
+
         if(stateTimer>48)
         {
             if(Rand(768)==0) // It'll stop eventually...
@@ -862,12 +862,12 @@ float Ghost_FloaterWalk(float counter, int normalStep,
             }
         }
     }
-    
+
     // Slowing down
     else // state==0x18000
     {
         rate=0;
-        
+
         if(stateTimer>accelTime*accelSteps) // Stopped
         {
             state=0x00000;
@@ -881,10 +881,10 @@ float Ghost_FloaterWalk(float counter, int normalStep,
 
         }
     }
-    
+
     if(step>0)
         walkCounter=Ghost_VariableWalk8(walkCounter, step, rate, homing, hunger, turnCheckTime);
-    
+
     counter=(state|walkCounter)+(stateTimer/10000);
     return counter;
 }
@@ -896,7 +896,7 @@ void __Ghost_FixCoords()
     if((Ghost_X&8)!=0)
         newX+=16;
     Ghost_X=newX;
-    
+
     if((Screen->Flags[SF_ROOMTYPE]&100b)!=0) // If sideview
     {
         float newY=(Ghost_Y&0xF8);
@@ -968,7 +968,7 @@ void __Ghost_NewDir4(int rate, int homing, int hunger)
     {
         // See if any is on the screen
         lweapon bait=LoadLWeaponOf(LW_BAIT);
-        
+
         if(bait->isValid())
         {
             // Found bait; try to move toward it
@@ -979,19 +979,19 @@ void __Ghost_NewDir4(int rate, int homing, int hunger)
                     newDir=DIR_UP;
                 else
                     newDir=DIR_DOWN;
-                
+
                 if(__Ghost_CanMoveNES(newDir, 16, 0))
                 {
                     Ghost_Dir=newDir;
                     return;
                 }
             }
-            
+
             if(bait->X<Ghost_X)
                 newDir=DIR_LEFT;
             else
                 newDir=DIR_RIGHT;
-            
+
             if(__Ghost_CanMoveNES(newDir, 16, 0))
             {
                 Ghost_Dir=newDir;
@@ -999,7 +999,7 @@ void __Ghost_NewDir4(int rate, int homing, int hunger)
             }
         }
     } // End hunger check
-    
+
     // Homing?
     if(Rand(256)<homing)
     {
@@ -1010,12 +1010,12 @@ void __Ghost_NewDir4(int rate, int homing, int hunger)
             return;
         }
     }
-    
+
     // Check solidity of surrounding combos
     bool combos[4];
     int numDirs;
     int counter;
-    
+
     for(int i=0; i<4; i++)
     {
         if(__Ghost_CanMoveNES(i, 16, 0))
@@ -1024,28 +1024,28 @@ void __Ghost_NewDir4(int rate, int homing, int hunger)
             numDirs++;
         }
     }
-    
+
     // Trapped?
     if(numDirs==0)
     {
         Ghost_Dir=-1;
         return;
     }
-    
+
     if(Rand(16)>=rate)
     {
         // Doesn't want to turn; keep going the same direction if possible
         if(combos[Ghost_Dir])
             return;
     }
-    
+
     // Pick a direction at random from the ones available
     counter=Rand(numDirs);
     for(int dir=0; dir<4; dir++)
     {
         if(!combos[dir])
             continue;
-        
+
         if(counter==0)
         {
             Ghost_Dir=dir;
@@ -1175,17 +1175,17 @@ bool __FullTileWalkable(int x, int y)
     // Offscreen?
     if(x<0 || y<0 || x>=256 || y>=176)
         return Ghost_FlagIsSet(GHF_MOVE_OFFSCREEN);
-    
+
     // Get the exact coordinate of the top-left pixel
     x-=x%16;
     y-=y%16;
-    
+
     if(Screen->isSolid(x, y) ||
        Screen->isSolid(x+8, y) ||
        Screen->isSolid(x, y+8) ||
        Screen->isSolid(x+8, y+8))
         return false;
-    
+
     return true;
 }
 
@@ -1193,7 +1193,7 @@ void Ghost_SetPosition(ffc this, npc ghost)
 {
     if(!ghost->isValid())
         return;
-    
+
     // Real Z
     if(GH_FAKE_Z==0 && !Ghost_FlagIsSet(GHF_FAKE_Z))
     {

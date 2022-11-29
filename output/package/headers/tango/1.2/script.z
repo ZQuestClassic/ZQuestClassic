@@ -10,7 +10,7 @@ global script TangoActiveScript
     void run()
     {
         Tango_Start();
-        
+
         while(true)
         {
             Tango_Update1();

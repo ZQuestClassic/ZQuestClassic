@@ -26,7 +26,7 @@ void Window_OnMouseMove(int id, int x, int y)
 {
     if(GUI_Data[id+WINDOW_MOVEABLE]==0)
         return;
-    
+
     GUI_Data[id+WIDGET_X]+=x;
     GUI_Data[id+WIDGET_Y]+=y;
 }

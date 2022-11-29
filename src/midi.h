@@ -40,12 +40,10 @@ typedef struct midi_info
     int32_t tempo_changes;
     double tempo[MAX_TEMPO_CHANGES];                          // tempo can change during song
     dword  tempo_c[MAX_TEMPO_CHANGES];                        // store the total delta time before each change in tempo
-    
     // MTrk event info (used by parse_mtrk())
     dword dt,nbytes;
     byte event,running_status,type,byte2;
     byte *buf;
-    
 } midi_info;
 
 typedef struct mtrkevent

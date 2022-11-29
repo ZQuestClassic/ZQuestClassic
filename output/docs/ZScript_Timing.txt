@@ -23,8 +23,8 @@
 19b. Link active, during scrolling, waitdraw may apply
 19c. DMap Active, during scrolling, waitdraw may apply
 19d. DMap Subscreen Passive, during scrolling, waitdraw may apply.
-19e. DMap Subscreen Active, is the player pressed the Start button or the script was already running. 
-	Running this script executes is its own isolated event loop. 
+19e. DMap Subscreen Active, is the player pressed the Start button or the script was already running.
+	Running this script executes is its own isolated event loop.
 	If the DMap Subscreen Active script is running:
 		(a) DMap Active (if the QR to run it is enabled)
 		(b) DMap Subscreen Passive (if the QR to run it is enabled)
@@ -34,7 +34,7 @@
 		(f) DMap Subscreen Passive (after waitdraw, if the QR to run it is enabled)
 		(g) DMap Subscreen Active (after waitdraw)
 20. Item Collect Scripts
-21. Item Action scripts 
+21. Item Action scripts
 22. LWeapon scripts (by screen index)
 23. WAITDRAW
 24. Global Active (after Waitdraw pause)

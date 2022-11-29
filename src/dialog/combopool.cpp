@@ -32,7 +32,6 @@ std::shared_ptr<GUI::Widget> ComboPoolDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Key;
 	using namespace GUI::Props;
-	
 	std::shared_ptr<GUI::Grid> wingrid, sgrid;
 	size_t per_row = is_large ? 4 : 3;
 	size_t vis_rows = is_large ? 3 : 2;
@@ -187,7 +186,6 @@ std::shared_ptr<GUI::Widget> ComboPoolDialog::view()
 						size_t inc = 1;
 						if(key_shifts & KB_CTRL_FLAG) inc = 100;
 						else if(key_shifts & KB_SHIFT_FLAG) inc = 10;
-						
 						if(entry.quant > inc)
 							entry.quant -= inc;
 						else entry.quant = 0;
@@ -213,7 +211,6 @@ std::shared_ptr<GUI::Widget> ComboPoolDialog::view()
 						size_t inc = 1;
 						if(key_shifts & KB_CTRL_FLAG) inc = 100;
 						else if(key_shifts & KB_SHIFT_FLAG) inc = 10;
-						
 						if(entry.quant < 65535-inc)
 							entry.quant += inc;
 						else entry.quant = 65535;

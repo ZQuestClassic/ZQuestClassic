@@ -13,7 +13,6 @@ namespace ZScript
 {
 	// Forward Declaration (AST.h)
 	class AST;
-	
 	class CompileError
 	{
 	public:
@@ -76,7 +75,6 @@ namespace ZScript
 
 	private:
 		CompileError(Impl*);
-		
 		Impl* pimpl_;
 	};
 
@@ -98,15 +96,12 @@ namespace ZScript
 		SimpleCompileErrorHandler() : errorCount_(0), warningCount_(0) {}
 
 		void handleError(CompileError const&);
-	
 		bool hasError() const {return errorCount_ > 0;}
 		int32_t getErrorCount() const {return errorCount_;}
 		int32_t getWarningCount() const {return warningCount_;}
-	
 	private:
 		int32_t errorCount_;
 		int32_t warningCount_;
 	};
 }
-	
 #endif

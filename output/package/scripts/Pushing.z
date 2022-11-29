@@ -5,9 +5,9 @@ bool NoPush = false;
 void PushAnimation()
 {
     if (((!CanWalk(Link->X, Link->Y, Link->Dir, 1, false) ||
-    (Link->Dir == AngleDir4(Angle(Link->X + 7, Link->Y + 11, Screen->MovingBlockX + 7, Screen->MovingBlockY + 7)) 
-    && Screen->MovingBlockX > -1 && Screen->MovingBlockY > -1 
-    && RectCollision(Link->X, Link->Y + 8, Link->X + 15, Link->Y + 15, 
+    (Link->Dir == AngleDir4(Angle(Link->X + 7, Link->Y + 11, Screen->MovingBlockX + 7, Screen->MovingBlockY + 7))
+    && Screen->MovingBlockX > -1 && Screen->MovingBlockY > -1
+    && RectCollision(Link->X, Link->Y + 8, Link->X + 15, Link->Y + 15,
     Screen->MovingBlockX - 2, Screen->MovingBlockY - 2, Screen->MovingBlockX + 16, Screen->MovingBlockY + 16)))
     && Link->Action == LA_WALKING && Link->HP > 0) && !NoPush)
     {

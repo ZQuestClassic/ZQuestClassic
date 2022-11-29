@@ -68,7 +68,6 @@ zinitdata *copyIntoZinit(gamedata *gdata)
     zinit2->max_bombs = gdata->get_maxbombs();
     zinit2->arrows = gdata->get_arrows();
     zinit2->max_arrows = gdata->get_maxarrows();
-	
 	zinit2->hp_per_heart = gdata->get_hp_per_heart();
 	zinit2->magic_per_block = gdata->get_mp_per_block();
 	zinit2->hero_damage_multiplier = gdata->get_hero_dmgmult();
@@ -86,13 +85,11 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 	zinit2->exitWaterJump = gdata->get_sideswim_jump();
 	zinit2->bunny_ltm = gdata->get_bunny_ltm();
 	zinit2->switchhookstyle = gdata->get_switchhookstyle();
-	
 	for(int32_t q = 0; q < 25; ++q)
 	{
 		zinit2->scrcnt[q] = gdata->get_counter(q+7);
 		zinit2->scrmaxcnt[q] = gdata->get_maxcounter(q+7);
 	}
-    
     for(int32_t i=0; i<MAXLEVELS; i++)
     {
         set_bit(zinit2->map, i, (gdata->lvlitems[i] & liMAP) ? 1 : 0);
@@ -100,35 +97,27 @@ zinitdata *copyIntoZinit(gamedata *gdata)
         set_bit(zinit2->boss_key, i, (gdata->lvlitems[i] & liBOSSKEY) ? 1 : 0);
         zinit2->level_keys[i] = gdata->lvlkeys[i];
     }
-    
     for(int32_t i=0; i<8; i++)
     {
         set_bit(&zinit2->triforce,i,(gdata->lvlitems[i+1]&liTRIFORCE) ? 1 : 0);
     }
-    
     zinit2->max_magic = gdata->get_maxmagic();
     zinit2->magic = gdata->get_magic();
-    
 	zinit2->magicdrainrate = vbound(gdata->get_magicdrainrate(), 0, 255);
     set_bit(zinit2->misc, idM_CANSLASH, gdata->get_canslash());
-    
     zinit2->arrows = gdata->get_arrows();
     zinit2->max_arrows = gdata->get_maxarrows();
-    
     zinit2->max_rupees = gdata->get_maxcounter(1);
     zinit2->max_keys = gdata->get_maxcounter(5);
-    
     zinit2->start_heart = gdata->get_life()/gdata->get_hp_per_heart();
     zinit2->cont_heart = gdata->get_cont_hearts();
     zinit2->hcp_per_hc = gdata->get_hcp_per_hc();
     set_bit(zinit2->misc,idM_CONTPERCENT,gdata->get_cont_percent() ? 1 : 0);
-    
     //now set up the items!
     for(int32_t i=0; i<MAXITEMS; i++)
     {
         zinit2->items[i] = gdata->get_item(i);
     }
-    
     return zinit2;
 }
 
@@ -193,7 +182,6 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 std::string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
 {
 	std::vector<std::string> tokens;
-	
 	#define PROP(name) if (base->name != changed->name) \
 		tokens.push_back(fmt::format("{}={}", #name, (int)changed->name));
 	LIST_PROPS;
@@ -236,7 +224,6 @@ zinitdata *apply_init_data_delta(zinitdata *base, std::string delta)
 
 	std::vector<std::string> tokens;
 	split(delta, tokens, ' ');
-	
 	#define FAIL_IF(x) if (x) { delete result; return nullptr; }
 
 	for (std::string token : tokens)
@@ -265,7 +252,6 @@ zinitdata *apply_init_data_delta(zinitdata *base, std::string delta)
 			} else
 			LIST_ARRAY_PROPS;
 			#undef LIST_ARRAY_PROPS
-	
 			continue;
 		}
 

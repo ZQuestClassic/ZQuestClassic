@@ -14,7 +14,7 @@ extern PALETTE RAMpal;
 extern bool update_hw_pal;
 
 const char months[13][13] =
-{ 
+{
 	"Nonetober", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
 };
 
@@ -96,7 +96,6 @@ void load_themefile(char const* fpath, PALETTE pal)
 	pal[dvc(6)] = _RGB(zc_get_config("Theme","dvc6_r",13),zc_get_config("Theme","dvc6_g",14),zc_get_config("Theme","dvc6_b",14));//menu selected text
 	pal[dvc(7)] = _RGB(zc_get_config("Theme","dvc7_r",42),zc_get_config("Theme","dvc7_g",60),zc_get_config("Theme","dvc7_b",48));
 	pal[dvc(8)] = _RGB(zc_get_config("Theme","dvc8_r",6),zc_get_config("Theme","dvc8_g",49),zc_get_config("Theme","dvc8_b",35));//highlight on selected menu text
-					   
 	jwin_pal[jcBOX]	=dvc(zc_get_config("Theme","jcbox",4));
 	jwin_pal[jcLIGHT]  =dvc(zc_get_config("Theme","jclight",5));
 	jwin_pal[jcMEDLT]  =dvc(zc_get_config("Theme","jcmedlt",4));
@@ -118,9 +117,7 @@ void load_themefile(char const* fpath, PALETTE pal)
 	jwin_pal[jcALT_TEXTBG] = dvc(zc_get_config("Theme","jc_alt_textbg",r_dvc(jwin_pal[jcTEXTFG])));
 	jwin_pal[jcDISABLED_FG] = dvc(zc_get_config("Theme","jc_disabled_fg",r_dvc(jwin_pal[jcMEDDARK])));
 	jwin_pal[jcDISABLED_BG] = dvc(zc_get_config("Theme","jc_disabled_bg",r_dvc(jwin_pal[jcBOX])));
-	
 	pop_config_state();
-	
     gui_bg_color=jwin_pal[jcBOX];
     gui_fg_color=jwin_pal[jcBOXFG];
     jwin_set_colors(jwin_pal);
@@ -189,7 +186,6 @@ void load_udef_colorset(char const* fpath, PALETTE pal)
 	char const* tfnm = zc_get_config("Theme", "theme_filename", "-");
 	bool defaulted_theme = !(tfnm[0]&&tfnm[0]!='-');
 	strcpy(tmp_themefile, defaulted_theme ? darkthemename : tfnm);
-	
 	fix_filename_case(tmp_themefile);
 	fix_filename_slashes(tmp_themefile);
 	if(defaulted_theme
@@ -225,19 +221,16 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			pal[dvc(6)] = _RGB(255*63/255, 255*63/255, 225*63/255);
 			pal[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
 			pal[dvc(8)] = _RGB(0*63/255,   0*63/255,  80*63/255);
-			
 			byte palrstart=  0*63/255, palrend=166*63/255,
 				 palgstart=  0*63/255, palgend=202*63/255,
 				 palbstart=128*63/255, palbend=240*63/255,
 				 paldivs=7;
-				 
 			for(int32_t i=0; i<paldivs; i++)
 			{
 				pal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
 				pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
 				pal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
 			}
-			
 			jwin_pal[jcBOX]	=dvc(3);
 			jwin_pal[jcLIGHT]  =dvc(5);
 			jwin_pal[jcMEDLT]  =dvc(4);
@@ -253,7 +246,6 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			jwin_pal[jcSELFG]  =dvc(6);
 		}
 		break;
-		
 		case 2:  //Windows 99
 		{
 			pal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
@@ -265,19 +257,16 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			pal[dvc(7)] = _RGB(255*63/255, 255*63/255, 225*63/255);
 			pal[dvc(8)] = _RGB(255*63/255, 225*63/255, 160*63/255);
 			pal[dvc(9)] = _RGB(0*63/255,   0*63/255,  80*63/255);
-			
 			byte palrstart=  0*63/255, palrend=166*63/255,
 				 palgstart=  0*63/255, palgend=202*63/255,
 				 palbstart=128*63/255, palbend=240*63/255,
 				 paldivs=6;
-				 
 			for(int32_t i=0; i<paldivs; i++)
 			{
 				pal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
 				pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
 				pal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
 			}
-			
 			jwin_pal[jcBOX]	=dvc(4);
 			jwin_pal[jcLIGHT]  =dvc(6);
 			jwin_pal[jcMEDLT]  =dvc(5);
@@ -293,7 +282,6 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			jwin_pal[jcSELFG]  =dvc(7);
 		}
 		break;
-		
 		case 3:  //Windows 2000 Blue
 		{
 			pal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
@@ -304,19 +292,16 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			pal[dvc(6)] = _RGB(255*63/255, 255*63/255, 127*63/255);
 			pal[dvc(7)] = _RGB(255*63/255, 225*63/255,  63*63/255);
 			pal[dvc(8)] = _RGB(0*63/255,   0*63/255,  80*63/255);
-			
 			byte palrstart=  0*63/255, palrend=162*63/255,
 				 palgstart=  0*63/255, palgend=158*63/255,
 				 palbstart= 80*63/255, palbend=250*63/255,
 				 paldivs=7;
-				 
 			for(int32_t i=0; i<paldivs; i++)
 			{
 				pal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
 				pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
 				pal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
 			}
-			
 			jwin_pal[jcBOX]	=dvc(4);
 			jwin_pal[jcLIGHT]  =dvc(5);
 			jwin_pal[jcMEDLT]  =dvc(4);
@@ -332,7 +317,6 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			jwin_pal[jcSELFG]  =dvc(6);
 		}
 		break;
-		
 		case 687:  //Windows 2000 Gold (6-87 was the North American release date of LoZ)
 		{
 			pal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
@@ -344,19 +328,16 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			pal[dvc(7)] = _RGB(255*63/255, 223*63/255, 128*63/255);
 			pal[dvc(8)] = _RGB(255*63/255, 225*63/255, 160*63/255);
 			pal[dvc(9)] = _RGB(80*63/255,  80*63/255,   0*63/255);
-			
 			byte palrstart=128*63/255, palrend=240*63/255,
 				 palgstart=128*63/255, palgend=202*63/255,
 				 palbstart=  0*63/255, palbend=166*63/255,
 				 paldivs=6;
-				 
 			for(int32_t i=0; i<paldivs; i++)
 			{
 				pal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
 				pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
 				pal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
 			}
-			
 			jwin_pal[jcBOX]	=dvc(4);
 			jwin_pal[jcLIGHT]  =dvc(6);
 			jwin_pal[jcMEDLT]  =dvc(5);
@@ -372,7 +353,6 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			jwin_pal[jcSELFG]  =dvc(7);
 		}
 		break;
-		
 		case 4104:  //Windows 2000 Easter (4-1-04 is April Fools Day, the date of this release)
 		{
 			pal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
@@ -383,19 +363,16 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			pal[dvc(6)] = _RGB(244*63/255, 243*63/255, 161*63/255);
 			pal[dvc(7)] = _RGB(120*63/255, 173*63/255, 189*63/255);
 			pal[dvc(8)] = _RGB(220*63/255, 183*63/255, 227*63/255);
-			
 			byte palrstart=244*63/255, palrend=220*63/255,
 				 palgstart=243*63/255, palgend=183*63/255,
 				 palbstart=161*63/255, palbend=227*63/255,
 				 paldivs=7;
-				 
 			for(int32_t i=0; i < paldivs; i++)
 			{
 				pal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
 				pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
 				pal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
 			}
-			
 			jwin_pal[jcBOX]	=dvc(4);
 			jwin_pal[jcLIGHT]  =dvc(5);
 			jwin_pal[jcMEDLT]  =dvc(4);
@@ -411,10 +388,8 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			jwin_pal[jcSELFG]  =dvc(6);
 		}
 		break;
-		
 		case 2019:  //2.55 DARK Theme
 		{
-		   
 			pal[dvc(1)] = _RGB(4,38,46); //box fg is text
 			pal[dvc(2)] = _RGB(16*63/255, 10*63/255, 0*63/255);
 			pal[dvc(3)] = _RGB(17,20,20); //slate
@@ -423,12 +398,10 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			pal[dvc(6)] = _RGB(13,14,14);//menu selected text
 			pal[dvc(7)] = _RGB(42,60,48);
 			pal[dvc(8)] = _RGB(6,49,35);//highlight on selected menu text
-			
 			byte palrstart= 10*63/255, palrend=166*63/255,
 				 palgstart= 36*63/255, palgend=202*63/255,
 				 palbstart=106*63/255, palbend=240*63/255,
 				 paldivs=7;
-		   
 			jwin_pal[jcBOX]	=dvc(4);
 			jwin_pal[jcLIGHT]  =dvc(5);
 			jwin_pal[jcMEDLT]  =dvc(4);
@@ -444,7 +417,6 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			jwin_pal[jcSELFG]  =dvc(6);
 		}
 		break;
-		
 		case 99:  //User Defined
 		{
 			udef = true;
@@ -452,7 +424,6 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			strcpy(themefile, tmp_themefile);
 		}
 		break;
-		
 		case 201018:  //20-oct-2018, PureZC Expo
 		{
 			//16,10,0; dark chocolate
@@ -470,12 +441,11 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			pal[dvc(6)] = _RGB(0,0,0);
 			pal[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
 			pal[dvc(8)] = _RGB(63,49,0);
-			
 			byte palrstart= 10*63/255, palrend=166*63/255,
 				 palgstart= 36*63/255, palgend=202*63/255,
 				 palbstart=106*63/255, palbend=240*63/255,
 				 paldivs=7;
-			/*	 
+			/*
 			for(int32_t i=0; i<paldivs; i++)
 			{
 				pal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
@@ -498,7 +468,6 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			jwin_pal[jcSELFG]  =dvc(6);
 		}
 		break;
-		
 		default:  //Windows 2000
 		{
 			pal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
@@ -509,19 +478,16 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			pal[dvc(6)] = _RGB(255*63/255, 255*63/255, 225*63/255);
 			pal[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
 			pal[dvc(8)] = _RGB(0*63/255,   0*63/255,  80*63/255);
-			
 			byte palrstart= 10*63/255, palrend=166*63/255,
 				 palgstart= 36*63/255, palgend=202*63/255,
 				 palbstart=106*63/255, palbend=240*63/255,
 				 paldivs=7;
-				 
 			for(int32_t i=0; i<paldivs; i++)
 			{
 				pal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
 				pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
 				pal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
 			}
-			
 			jwin_pal[jcBOX]	=dvc(4);
 			jwin_pal[jcLIGHT]  =dvc(5);
 			jwin_pal[jcMEDLT]  =dvc(4);
@@ -538,7 +504,6 @@ void load_colorset(int32_t colorset, PALETTE pal)
 		}
 		break;
 	}
-	
 	if(!udef) //Auto-fill the indexes that aren't used in old styles
 	{
 		jwin_pal[jcCURSORMISC] = dvc(1);
@@ -550,10 +515,8 @@ void load_colorset(int32_t colorset, PALETTE pal)
 		jwin_pal[jcDISABLED_FG] = jwin_pal[jcMEDDARK];
 		jwin_pal[jcDISABLED_BG] = jwin_pal[jcBOX];
 	}
-	
     gui_bg_color=jwin_pal[jcBOX];
     gui_fg_color=jwin_pal[jcBOXFG];
-    
     jwin_set_colors(jwin_pal);
 }
 
@@ -704,17 +667,13 @@ direction GET_DIR(zfix const& dx, zfix const& dy)
 string get_dbreport_string()
 {
 	std::stringstream oss;
-	
 	char buf[256];
-	
 	oss << "```\n"
 		<< ZQ_EDITOR_NAME
 		<< "\nVersion: " << ZQ_EDITOR_V << " " << ALPHA_VER_STR
 		<< "\nBuild: " << VERSION_BUILD;
-		
 	sprintf(buf,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(),
 		(char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-	
 	oss << "\n" << buf
 		<< "\nDev Signoff: " << DEV_SIGNOFF
 		<< "\nQR:" << get_qr_hexstr(quest_rules, true, false)
@@ -841,7 +800,6 @@ string generate_zq_about()
 	oss << buf1 << '\n';
 	sprintf(buf1, "Built By: %s", DEV_SIGNOFF);
 	oss << buf1 << '\n';
-	
 	return oss.str();
 }
 
@@ -878,17 +836,14 @@ void combo_pool::swap(size_t ind1, size_t ind2) //Swap 2 combos
 {
 	if(ind1 >= combos.size()) return;
 	if(ind2 >= combos.size()) return;
-	
 	auto it1 = combos.begin();
 	for(size_t q = 0; q < ind1 && it1 != combos.end(); ++q)
 		++it1;
 	if(it1 == combos.end()) return;
-	
 	auto it2 = combos.begin();
 	for(size_t q = 0; q < ind2 && it2 != combos.end(); ++q)
 		++it2;
 	if(it2 == combos.end()) return;
-	
 	cpool_entry cp1 = *it1;
 	cpool_entry cp2 = *it2;
 	it1 = combos.insert(it1, cp2);
@@ -920,7 +875,6 @@ void combo_pool::trim() //Trim any invalid entries or unneeded space
 			it = combos.erase(it);
 			continue;
 		}
-		
 		cpool_entry* entry = &(*it);
 		cpool_entry* canon_entry = get(entry->cid, entry->cset);
 		if(canon_entry != entry) //Duplicate entry, merge them
@@ -1088,7 +1042,7 @@ char const* zquestheader::getVerStr() const
 						strcpy(buf, "2.50.1, Gamma 1"); break;
 					case 26:
 						strcpy(buf, "2.50.1, Gamma 2"); break;
-					case 27: 
+					case 27:
 						strcpy(buf, "2.50.1, Gamma 3"); break;
 					case 28:
 						strcpy(buf, "2.50.1, Release"); break;
@@ -1244,7 +1198,7 @@ char const* getProgramVerStr()
 }
 
 //double ddir=atan2(double(fakey-(Hero.y)),double(Hero.x-fakex));
-double WrapAngle( double radians ) 
+double WrapAngle( double radians )
 {
 	while (radians <= -PI) radians += (PI*2);
 	while (radians > PI) radians -= (PI*2);
@@ -1319,7 +1273,6 @@ double DirToDegrees(int d)
 int32_t AngleToDir(double ddir)
 {
 	int32_t lookat=0;
-	
 	if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
 	{
 		lookat=l_up;
@@ -1357,7 +1310,6 @@ int32_t AngleToDir(double ddir)
 int32_t AngleToDir4(double ddir)
 {
 	int32_t lookat=0;
-	
 	if(ddir <= 135.0 && ddir > 45.0)
 	{
 		lookat = down;
@@ -1380,7 +1332,6 @@ int32_t AngleToDir4Rad(double ddir)
 {
 	int32_t lookat=0;
 	ddir = RadiansToDegrees(ddir);
-	
 	if(ddir <= 135.0 && ddir > 45.0)
 	{
 		lookat = down;
@@ -1535,7 +1486,6 @@ void zinitdata::clear()
 	ss_bbox_1_color = 0;
 	ss_bbox_2_color = 0;
 	ss_flags = 0;
-	
 	subscreen_style = 0;
 	usecustomsfx = 0;
 	max_rupees = 255;
@@ -1547,7 +1497,6 @@ void zinitdata::clear()
 	transition_type = 0;
 	jump_hero_layer_threshold = 0;
 	hero_swim_speed = 0;
-	
 	bombs = 0;
 	super_bombs = 0;
 	max_bombs = 0;
@@ -1559,31 +1508,24 @@ void zinitdata::clear()
 	heroSideswimUpStep = 0;
 	heroSideswimSideStep = 0;
 	heroSideswimDownStep = 0;
-	
 	exitWaterJump = 0;
 
 	hp_per_heart = 0;
 	magic_per_block = 0;
 	hero_damage_multiplier = 0;
 	ene_damage_multiplier = 0;
-	
 	memset(scrcnt,0,sizeof(scrcnt));
 	memset(scrmaxcnt,0,sizeof(scrmaxcnt));
-	
 	swimgravity = 0;
-	
 	dither_type = 0;
 	dither_arg = 0;
 	dither_percent = 0;
 	def_lightrad = 0;
 	transdark_percent = 0;
 	darkcol = 0;
-	
 	bunny_ltm = 0;
 	switchhookstyle = 0;
-	
 	magicdrainrate = 0;
-	
 	memset(gen_doscript,0,sizeof(gen_doscript));
 	memset(gen_exitState,0,sizeof(gen_exitState));
 	memset(gen_reloadState,0,sizeof(gen_reloadState));
@@ -1631,7 +1573,6 @@ void zinitdata::copy(zinitdata const& other)
 	ss_bbox_1_color = other.ss_bbox_1_color;
 	ss_bbox_2_color = other.ss_bbox_2_color;
 	ss_flags = other.ss_flags;
-	
 	subscreen_style = other.subscreen_style;
 	usecustomsfx = other.usecustomsfx;
 	max_rupees, max_keys = other.max_rupees, max_keys;
@@ -1642,7 +1583,6 @@ void zinitdata::copy(zinitdata const& other)
 	transition_type = other.transition_type;
 	jump_hero_layer_threshold = other.jump_hero_layer_threshold;
 	hero_swim_speed = other.hero_swim_speed;
-	
 	bombs = other.bombs;
 	super_bombs = other.super_bombs;
 	max_bombs = other.max_bombs;
@@ -1654,31 +1594,24 @@ void zinitdata::copy(zinitdata const& other)
 	heroSideswimUpStep = other.heroSideswimUpStep;
 	heroSideswimSideStep = other.heroSideswimSideStep;
 	heroSideswimDownStep = other.heroSideswimDownStep;
-	
 	exitWaterJump = other.exitWaterJump;
 
 	hp_per_heart = other.hp_per_heart;
 	magic_per_block = other.magic_per_block;
 	hero_damage_multiplier = other.hero_damage_multiplier;
 	ene_damage_multiplier = other.ene_damage_multiplier;
-	
 	memcpy(scrcnt,other.scrcnt,sizeof(scrcnt));
 	memcpy(scrmaxcnt,other.scrmaxcnt,sizeof(scrmaxcnt));
-	
 	swimgravity = other.swimgravity;
-	
 	dither_type = other.dither_type;
 	dither_arg = other.dither_arg;
 	dither_percent = other.dither_percent;
 	def_lightrad = other.def_lightrad;
 	transdark_percent = other.transdark_percent;
 	darkcol = other.darkcol;
-	
 	bunny_ltm = other.bunny_ltm;
 	switchhookstyle = other.switchhookstyle;
-	
 	magicdrainrate = other.magicdrainrate;
-	
 	memcpy(gen_doscript,other.gen_doscript,sizeof(gen_doscript));
 	memcpy(gen_exitState,other.gen_exitState,sizeof(gen_exitState));
 	memcpy(gen_reloadState,other.gen_reloadState,sizeof(gen_reloadState));

@@ -19,7 +19,7 @@ const int CF_STEP = 200;
 
 // -------- FUNCTIONS -------- //
 
-// Function to move Link to an (X,Y) coordinate. 
+// Function to move Link to an (X,Y) coordinate.
 // It pretty much combines Link->X and Link->Y into one command.
 void moveLink(int x, int y)
 {
@@ -54,7 +54,7 @@ void forceWarp(int warpnum)
 // Note: Uses FFC 31
 void scriptWarp(int dmap, int screen, int type, int warpnum)
 {
-	
+
 	ffc warp;
 	for(int q = 1; q < 33; ++q)
 	{
@@ -71,7 +71,7 @@ void scriptWarp(int dmap, int screen, int type, int warpnum)
 	}
 	int err_no_ffc[]="No free ffcs exist to use for scriptWarp()";
 	TraceS(err_no_ffc); TraceNL();
-	
+
 }
 // This is an overload of the above that automatically chooses Sidewarp D.
 void scriptWarp(int dmap, int screen, int type)
@@ -106,7 +106,7 @@ bool ifItemInput(int itemID)
 {
 	// Get the item slot the item is in
 	int itemSlot = getItemInputSlot(itemID);
-	
+
 	// If the player is pressing A and the item is in slot A
 	if(itemSlot == TRH_INPUT_A )
 	{
@@ -163,45 +163,45 @@ void createEnemy(int enemyNum)
 		// Get a random location on the screen
 		int x = Rand(12) * 16 + 32;
 		int y = Rand(7) * 16 + 32;
-		
+
 		// Boolean for if the location is acceptable
 		bool ifLocationOkay = true;
-		
+
 		// Make sure the location isn't over Link
 		if(Distance(x, y, Link->X, Link->Y) < 16)
 			ifLocationOkay = false;
-			
+
 		// These next 5 things make sure that the location is not solid
 			if(Screen->isSolid(x, y))
 				ifLocationOkay = false;
-				
+
 			if(Screen->isSolid(x+15, y))
 				ifLocationOkay = false;
-				
+
 			if(Screen->isSolid(x, y+15))
 				ifLocationOkay = false;
-				
+
 			if(Screen->isSolid(x+15, y+15))
 				ifLocationOkay = false;
-				
+
 			if(Screen->isSolid(x+8, y+8))
 				ifLocationOkay = false;
 		// End checking for solidity
-		
+
 		// Get the combo number and type of the location
 		int comboNum = ComboAt(x, y);
 		int comboType = Screen->ComboT[comboNum];
-		
+
 		// If the combo type is water or anything preventing enemies, the location is not okay
 		if(comboType == CT_WATER ) ifLocationOkay = false;
-		if(comboType == CT_NOENEMY) ifLocationOkay = false; 
-		if(comboType == CT_NOFLYZONE) ifLocationOkay = false; 
+		if(comboType == CT_NOENEMY) ifLocationOkay = false;
+		if(comboType == CT_NOFLYZONE) ifLocationOkay = false;
 		if(comboType == CT_NOJUMPZONE) ifLocationOkay = false;
-			
+
 		// Check if there is a no enemy combo flag on the location
 		if(Screen->ComboF[comboNum] == CF_NOENEMY)
 			ifLocationOkay = false;
-			
+
 		// If the location is acceptable, create the enemy there
 		if(ifLocationOkay)
 		{
@@ -246,19 +246,19 @@ bool WeaponCollision(eweapon a, float x1, float y1, float x2, float y2)
 bool WeaponSolidCollision(lweapon a)
 {
 	// Variables for the weapon edge locations
-	
+
 	bool ifMagic = a->ID == LW_MAGIC || a->ID == LW_REFMAGIC;
-	
+
 	// Grab the center of the item
 	int x = a->X + a->HitXOffset + a->HitWidth / 2;
 	int y = a->Y + a->HitYOffset + a->HitHeight / 2;
-	
+
 	// Loop through all locations and check if they're solid
 	if(Screen->isSolid(x, y))
 	{
 		// Grab the combo type of the location
 		int combo = Screen->ComboT[ComboAt(x, y)];
-			
+
 		if(combo == CT_HOOKSHOTONLY)
 			return false;
 		// If the wand item is magic
@@ -272,7 +272,7 @@ bool WeaponSolidCollision(lweapon a)
 		else
 			return true;
 	}
-	
+
 	// The weapon did not hit a solid object
 	return false;
 }
@@ -281,13 +281,13 @@ bool WeaponSolidCollision(lweapon a)
 bool WeaponSolidCollision(eweapon a)
 {
 	// Variables for the weapon edge locations
-	
+
 	bool ifMagic = a->ID == EW_MAGIC || a->ID == EW_WIND;
-	
+
 	// Grab the center of the item
 	int x = a->X + a->HitXOffset + a->HitWidth / 2;
 	int y = a->Y + a->HitYOffset + a->HitHeight / 2;
-	
+
 	// Loop through all locations and check if they're solid
 	if(Screen->isSolid(x, y))
 	{
@@ -296,7 +296,7 @@ bool WeaponSolidCollision(eweapon a)
 		{
 			// Grab the combo type of the location
 			int combo = Screen->ComboT[ComboAt(x, y)];
-			
+
 			// If the combo type is NOT a mirror or prism, it hit a solid object
 			if(combo < 45 || combo > 49)
 				return true;
@@ -305,7 +305,7 @@ bool WeaponSolidCollision(eweapon a)
 		else
 			return true;
 	}
-	
+
 	// The weapon did not hit a solid object
 	return false;
 }
@@ -406,21 +406,21 @@ bool canWalk(float x, float y)
 	// Check if the location is solid
 	if(Screen->isSolid(x, y))
 		return false;
-		
+
 	// Grab the combo locationj
 	int combo = ComboAt(x, y);
-	
+
 	// If the combo is water, return false
 	if(Screen->ComboT[combo] == CT_WATER)
 		return false;
-		
+
 	// Check if the location is out of bounds
 	if(x < 0 || x >= 256)
 		return false;
-		
+
 	if(y < 0 || y >= 176)
 		return false;
-		
+
 	// Else it's okay, so return true
 	return true;
 }
@@ -443,7 +443,7 @@ bool canWalk(float x, float y, bool fullTile)
 			{
 				if ( canWalk(x + 15, y) )
 				{
-					if (canWalk(x, y + 8)) 
+					if (canWalk(x, y + 8))
 					{
 						if ( canWalk(x + 15, y + 8) )
 						{
@@ -459,7 +459,7 @@ bool canWalk(float x, float y, bool fullTile)
 								}
 							}
 						}
-					}	
+					}
 				}
 			}
 		}			// Else one of the 4 corners of the grid is solid
@@ -504,15 +504,15 @@ bool canWalk(float x1, float y1, float x2, float y2)
 		x1 = x2;
 		x2 = temp;
 	}
-	
+
 	if(y1 > y2)
 	{
 		int temp = y1;
 		y1 = y2;
 		y2 = temp;
 	}
-	
-	// Go through each 
+
+	// Go through each
 	for(int x = x1; x < x2; x += 8)
 	{
 		if(!canWalk(x, y1))
@@ -520,7 +520,7 @@ bool canWalk(float x1, float y1, float x2, float y2)
 		if(!canWalk(x, y2))
 			return false;
 	}
-	
+
 	for(int y = y1; y < y2; y += 8)
 	{
 		if(!canWalk(x1, y))
@@ -528,10 +528,10 @@ bool canWalk(float x1, float y1, float x2, float y2)
 		if(!canWalk(x2, y))
 			return false;
 	}
-	
+
 	if(!canWalk(x2, y2))
 		return false;
-	
+
 	return true;
 }
 
@@ -542,30 +542,30 @@ bool canWalkEnemy(float x, float y, bool flying)
 	// Get the combo number and type of the location
 	int comboNum = ComboAt(x, y);
 	int comboType = Screen->ComboT[comboNum];
-	
+
 	// If the combo type is a no enemy combo
 	if(comboType == CT_NOENEMY)
 		return false;
-		
+
 	// If it is NOT a flying enemy and the combo is a no ground enemy zone
 	if(!flying )
 	{
 		if (comboType == CT_NOGROUNDENEMY) return false;
 	}
-		
+
 	// If it is a flying enemy and the combo is a no fly zone
 	if(flying )
 	{
 		if ( comboType == CT_NOFLYZONE) return false;
 	}
-		
+
 	// Check if there is a no enemy combo flag on the location
 	if(Screen->ComboF[comboNum] == CF_NOENEMY)
 		return false;
-		
+
 	if(x < 0 || y < 0 || x > 256 || y > 168)
 		return false;
-		
+
 	if(flying)
 		return true;
 	else
@@ -587,7 +587,7 @@ bool canWalkEnemy(float x, float y, bool flying, bool fullTile)
 		if(canWalkEnemy(x, y, flying) )
 		{
 			if ( canWalkEnemy(x + 8, y, flying) )
-			{				
+			{
 				if (canWalkEnemy(x + 15, y, flying) )
 				{
 					if (canWalkEnemy(x, y + 8, flying) )
@@ -610,7 +610,7 @@ bool canWalkEnemy(float x, float y, bool flying, bool fullTile)
 				}
 			}
 		}
-							
+
 		// Else one of the 4 corners of the grid is solid
 		// Return false
 		return false;
@@ -654,15 +654,15 @@ bool canWalk(float x1, float y1, float x2, float y2, bool flying)
 		x1 = x2;
 		x2 = temp;
 	}
-	
+
 	if(y1 > y2)
 	{
 		int temp = y1;
 		y1 = y2;
 		y2 = temp;
 	}
-	
-	// Go through each 
+
+	// Go through each
 	for(int x = x1; x < x2; x += 8)
 	{
 		if(canWalkEnemy(x, y1, flying))
@@ -670,7 +670,7 @@ bool canWalk(float x1, float y1, float x2, float y2, bool flying)
 		if(canWalkEnemy(x, y2, flying))
 			return false;
 	}
-	
+
 	for(int y = y1; y < y2; y += 8)
 	{
 		if(canWalkEnemy(x1, y, flying))
@@ -678,15 +678,15 @@ bool canWalk(float x1, float y1, float x2, float y2, bool flying)
 		if(canWalkEnemy(x2, y, flying))
 			return false;
 	}
-	
+
 	if(canWalkEnemy(x2, y2, flying))
 		return false;
-	
+
 	return true;
 }
 
 // Function to see if Link has hit a square
-bool LinkCollision(int x1, int y1, int x2, int y2) 
+bool LinkCollision(int x1, int y1, int x2, int y2)
 {
 	// Grab the bottom right of Link
 	int ax = Link->X + Link->HitXOffset;
@@ -723,7 +723,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 		for (int i = Screen->NumLWeapons(); i > 0; --i)
 		{
 			lweapon current = Screen->LoadLWeapon(i);
-			
+
 			// Check if it's the right weapon
 			if(current->ID == LW_ARROW)
 			{
@@ -735,7 +735,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 				}
 			}
 		}
-		
+
 		// Else it didn't hit
 		return false;
 	}
@@ -746,7 +746,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 		for (int i = Screen->NumLWeapons(); i > 0; --i)
 		{
 			lweapon current = Screen->LoadLWeapon(i);
-			
+
 			// Check if it's the right weapon
 			if(current->ID == LW_BOMBBLAST)
 			{
@@ -757,7 +757,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 				}
 			}
 		}
-		
+
 		// Else it didn't hit
 		return false;
 	}
@@ -768,7 +768,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 		for (int i = Screen->NumLWeapons(); i > 0; --i)
 		{
 			lweapon current = Screen->LoadLWeapon(i);
-			
+
 			// Check if it's the right weapon
 			if(current->ID == LW_MAGIC)
 			{
@@ -780,7 +780,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 				}
 			}
 		}
-		
+
 		// Else it didn't hit
 		return false;
 	}
@@ -793,7 +793,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 			for (int i = Screen->NumLWeapons(); i > 0; --i)
 			{
 				lweapon current = Screen->LoadLWeapon(i);
-				
+
 				// Check if it's the right weapon
 				if(current->ID == LW_BRANG)
 				{
@@ -805,7 +805,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 					}
 				}
 			}
-			
+
 			// Else it didn't hit
 			return false;
 		}
@@ -819,7 +819,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 			for (int i = Screen->NumLWeapons(); i > 0; --i)
 			{
 				lweapon current = Screen->LoadLWeapon(i);
-				
+
 				// Check if it's the right weapon
 				if(current->ID == LW_SWORD)
 				{
@@ -828,7 +828,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 						return true;
 				}
 			}
-			
+
 			// Else it didn't hit
 			return false;
 		}
@@ -840,7 +840,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 		for (int i = Screen->NumLWeapons(); i > 0; --i)
 		{
 			lweapon current = Screen->LoadLWeapon(i);
-			
+
 			// Check if it's the right weapon
 			if(current->ID == LW_HOOKSHOT)
 			{
@@ -852,7 +852,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 				}
 			}
 		}
-		
+
 		// Else it didn't hit
 		return false;
 	}
@@ -863,7 +863,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 		for (int i = Screen->NumLWeapons(); i > 0; --i)
 		{
 			lweapon current = Screen->LoadLWeapon(i);
-			
+
 			// Check if it's the right weapon
 			if(current->ID == LW_HAMMER)
 			{
@@ -875,7 +875,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 				}
 			}
 		}
-		
+
 		// Else it didn't hit
 		return false;
 	}
@@ -886,18 +886,18 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 		for (int i = Screen->NumLWeapons(); i > 0; --i)
 		{
 			lweapon current = Screen->LoadLWeapon(i);
-			
+
 			if(current->ID == LW_SPARKLE) continue;
             if(current->ID == LW_FIRESPARKLE) continue;
             if(current->ID == LW_BOMB) continue;
             if(current->ID == LW_SBOMB) continue;
             if(current->ID == LW_BAIT) continue;
-            if(current->DeadState > 0 ) 
+            if(current->DeadState > 0 )
 	    {
 		    if(current->ID != LW_BRANG) continue;
 	    }
             if(!current->CollDetection) continue;
-			
+
 			if(WeaponCollision(current, x, y, x2, y2))
 			{
 				if(current->ID == LW_BRANG || current->ID == LW_HOOKSHOT)
@@ -907,7 +907,7 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 				return true;
 			}
 		}
-		
+
 		// Else it didn't hit
 		return false;
 	}
@@ -916,12 +916,12 @@ bool checkCFlag(int x, int y, int x2, int y2, int flag)
 	{
 		x = Floor(x / 16) * 16;
 		y = Floor(y / 16) * 16;
-		
+
 		// If the distance from the switch to Link is <= 4 pixels
 		if(Distance(Link->X, Link->Y, x, y) <= 6)
 			return true;
 	}
-	
+
 	return false;
 }//! End of bool checkCFlag(int x, int y, int x2, int y2, int flag)
 
@@ -985,10 +985,10 @@ void CFlag(int x1, int y1, int x2, int y2, int flag, bool SFX)
 {
 	// Wait until the location was hit
 	waitUntilCFlag(x1, y1, x2, y2, flag);
-	
+
 	// Activate secrets
 	Screen->TriggerSecrets();
-	
+
 	// If requested, play the normal secret SFX
 	if(SFX)
 		Game->PlaySound(SFX_SECRET);
@@ -999,10 +999,10 @@ void CFlag(int x, int y, int flag, bool SFX)
 {
 	// Wait until the location was hit
 	waitUntilCFlag(x, y, flag);
-	
+
 	// Activate secrets
 	Screen->TriggerSecrets();
-	
+
 	// If requested, play the normal secret SFX
 	if(SFX)
 		Game->PlaySound(SFX_SECRET);
@@ -1013,10 +1013,10 @@ void CFlag(ffc object, int flag, bool SFX)
 {
 	// Wait until the location was hit
 	waitUntilCFlag(object, flag);
-	
+
 	// Activate secrets
 	Screen->TriggerSecrets();
-	
+
 	// If requested, play the normal secret SFX
 	if(SFX)
 		Game->PlaySound(SFX_SECRET);
@@ -1035,7 +1035,7 @@ bool isOnlyDirection(int direction)
 		directions += DIR_LEFT + 1;
 	if(Link->InputRight)
 		directions += DIR_RIGHT + 1;
-		
+
 	// Remove offset and do final check...
 	if(directions - 1 == direction)
 		return true;
@@ -1049,7 +1049,7 @@ void ffcAngularMovement(ffc theffc, float angle, int speed)
 	// First find out the x and y unit circle values
 	int unitX = RadianCos(angle);
 	int unitY = RadianSin(angle);
-	
+
 	// Set the ffc's Vx and Vy to speed * unit circle value
 	theffc->Vx = unitX * speed;
 	theffc->Vy = unitY * speed;
@@ -1071,7 +1071,7 @@ bool leavingScreen()
 		if ( Link->InputRight) return true;
 	}
 	else if(Link->Y >= 159 )
-	{		
+	{
 		if (Link->InputDown) return true;
 	}
 	return false;
@@ -1083,18 +1083,18 @@ bool lineBoxCollision(int lineX1, int lineY1, int lineX2, int lineY2, int boxX1,
 	// Shrink down the box for the border
 	boxX1 += boxBorder; boxY1 += boxBorder;
 	boxX2 -= boxBorder; boxY2 -= boxBorder;
-	
+
 	// If the line isn't vertical
 	if(lineX2!=lineX1)
 	{
-		
+
 		float i0 = (boxX1 - lineX1)/(lineX2-lineX1);
 		float i1 = (boxX2 - lineX1)/(lineX2-lineX1);
-		
+
 		float yA = lineY1 + i0*(lineY2-lineY1);
 		float yB = lineY1 + i1*(lineY2-lineY1);
-		
-		
+
+
 		if(Max(boxX1, boxX2) >= Min(lineX1, lineX2))
 		{
 			if ( Min(boxX1, boxX2) <= Max(lineX1, lineX2) )
@@ -1114,7 +1114,7 @@ bool lineBoxCollision(int lineX1, int lineY1, int lineX2, int lineY2, int boxX1,
 		return false;
 	}
 	// If the line is vertical
-	else 
+	else
 	{
 		if(lineX1 >= boxX1 )
 		{
@@ -1123,20 +1123,20 @@ bool lineBoxCollision(int lineX1, int lineY1, int lineX2, int lineY2, int boxX1,
 				// Basically we need to find the top and bottom y values of the line to check for intersection
 				float lineYMin = lineY1;
 				float lineYMax = lineY2;
-				
+
 				if(lineYMin > lineYMax)
 				{
 					lineYMin = lineY2;
 					lineYMax = lineY1;
 				}
-				
+
 				// If either point intersects
 				if(boxY1 >= lineYMin )
 				{
 					if ( boxY1 <= lineYMax) return true;
 				}
-					
-				
+
+
 				if (boxY2 >= lineYMin )
 				{
 					if ( boxY2 <= lineYMax) return true;
@@ -1152,13 +1152,13 @@ float angleDifference(float angle1, float angle2)
 {
 	// Get the difference between the two angles
 	float dif = angle2 - angle1;
-	
+
 	// Compensate for the difference being outside of normal bounds
 	if(dif >= PI)
 		dif -= 2 * PI;
 	else if(dif <= -1 * PI)
 		dif += 2 * PI;
-		
+
 	return dif;
 }
 

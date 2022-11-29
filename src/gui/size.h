@@ -42,27 +42,22 @@ public:
 	{
 		return value;
 	}
-	
 	inline constexpr operator int32_t() const noexcept
 	{
 		return value;
 	}
-	
 	inline constexpr Size operator+(const int32_t v) const noexcept
 	{
 		return Size(value+v);
 	}
-	
 	inline constexpr Size operator+(const Size& other) const noexcept
 	{
 		return Size(value+other.value);
 	}
-	
 	inline constexpr Size operator*(const int32_t v) const noexcept
 	{
 		return Size(value*v);
 	}
-	
 	inline constexpr Size operator*(const Size& other) const noexcept
 	{
 		return Size(value*other.value);
@@ -71,18 +66,15 @@ public:
 	inline friend Size operator*(const T v, const Size s);
 	template<typename T>
 	inline friend Size operator*(const Size s, const T v);
-	
 	inline constexpr Size operator/(const int32_t v) const noexcept
 	{
 		return Size(value/v);
 	}
-	
 	inline constexpr Size operator/(const Size& other) const noexcept
 	{
 		return Size(value/other.value);
 	}
 	inline friend Size operator/(const int32_t v, const Size s);
-	
 	inline constexpr Size operator-(const Size& other) const noexcept
 	{
 		return Size(value-other.value);

@@ -31,13 +31,13 @@ int __Tango_RunStringControlCode(int pos)
     int numArgs=__Tango_GetNumSCCArgs(code);
     int args[3]={ 0, 0, 0 };
     pos++;
-    
+
     for(int i=0; i<numArgs; i++)
     {
         args[i]=__Tango_Buffer[pos];
         pos++;
     }
-    
+
     if(code<11)
     {
         if(code==__TANGO_SCC_TEXT_COLOR)
@@ -118,7 +118,7 @@ int __Tango_RunStringControlCode(int pos)
         else if(code==__TANGO_SCC_PLAY_MIDI)
             Game->PlayMIDI(args[0]);
     }
-    
+
     return numArgs+1;
 }
 

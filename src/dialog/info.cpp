@@ -42,9 +42,9 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 		title = std::move(dlgTitle),
 		onEnter = 0,
 		onClose = 0,
-		hPadding = 0_px, 
+		hPadding = 0_px,
 		Column(
-			hPadding = 0_px, 
+			hPadding = 0_px,
 			Label(noHLine = true,
 				hPadding = sized(1_em,2_em),
 				maxLines = 20,

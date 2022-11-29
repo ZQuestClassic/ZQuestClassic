@@ -8,7 +8,6 @@
 int32_t d_cs_color_proc2(int32_t msg,DIALOG *d,int32_t)
 {
 	int32_t w=(d->w-4)/16;
-	
 	switch(msg)
 	{
 		case MSG_DRAW:
@@ -16,23 +15,18 @@ int32_t d_cs_color_proc2(int32_t msg,DIALOG *d,int32_t)
 			//top blank part
 			rectfill(screen, d->x, d->y, d->x+(w*16)+3, d->y+1, jwin_pal[jcBOX]);
 			jwin_draw_frame(screen,d->x,d->y+2,w*16+4, d->h-4, FR_DEEP);
-			
 			for(int32_t i=0; i<16; ++i)
 			{
 				rectfill(screen, d->x+2+(w*i), d->y+4, d->x+2+(w*(i+1))-1, d->y+d->h-5, (d->d2)*16+i);
 			}
-			
 			// right end
 			rectfill(screen, d->x+(w*16)+4, d->y, d->x+d->w-1, d->y+d->h-1, jwin_pal[jcBOX]);
 			// bottom part
 			rectfill(screen, d->x, d->y+d->h-2, d->x+(w*16)+3, d->y+d->h-1, jwin_pal[jcBOX]);
-			
 			//indicator lines
 			hline(screen, d->x+2+(w*d->d1), d->y, d->x+2+(w*(d->d1+1))-1, jwin_pal[jcBOXFG]);
 			hline(screen, d->x+2+(w*d->d1), d->y+d->h-1, d->x+2+(w*(d->d1+1))-1, jwin_pal[jcBOXFG]);
-			
 			break;
-			
 		case MSG_CLICK:
 		{
 			auto oldd1 = d->d1;
@@ -45,14 +39,12 @@ int32_t d_cs_color_proc2(int32_t msg,DIALOG *d,int32_t)
 			break;
 		}
 	}
-	
 	return D_O_K;
 }
 
 int32_t d_sys_color_proc2(int32_t msg,DIALOG *d,int32_t)
 {
 	int32_t w=(d->w-4)/17;
-	
 	switch(msg)
 	{
 		case MSG_DRAW:
@@ -60,25 +52,20 @@ int32_t d_sys_color_proc2(int32_t msg,DIALOG *d,int32_t)
 			//top blank part
 			rectfill(screen, d->x, d->y, d->x+(w*17)+3, d->y+1, jwin_pal[jcBOX]);
 			jwin_draw_frame(screen,d->x,d->y+2,w*17+4, d->h-4, FR_DEEP);
-			
 			for(int32_t i=0; i<17; ++i)
 			{
 				rectfill(screen, d->x+2+(w*i), d->y+4, d->x+2+(w*(i+1))-1, d->y+d->h-5, vc(zc_max(0,i-1)));
 			}
-			
 			line(screen, d->x+2, d->y+4, d->x+2+w-1, d->y+d->h-5, vc(15));
 			line(screen, d->x+2, d->y+d->h-5, d->x+2+w-1, d->y+4, vc(15));
 			// right end
 			rectfill(screen, d->x+(w*17)+4, d->y, d->x+d->w-1, d->y+d->h-1, jwin_pal[jcBOX]);
 			// bottom part
 			rectfill(screen, d->x, d->y+d->h-2, d->x+(w*17)+3, d->y+d->h-1, jwin_pal[jcBOX]);
-			
 			//indicator lines
 			hline(screen, d->x+2+(w*(d->d1+1)), d->y, d->x+2+(w*(d->d1+2))-1, jwin_pal[jcBOXFG]);
 			hline(screen, d->x+2+(w*(d->d1+1)), d->y+d->h-1, d->x+2+(w*(d->d1+2))-1, jwin_pal[jcBOXFG]);
-			
 			break;
-			
 		case MSG_CLICK:
 		{
 			auto oldd1 = d->d1;
@@ -92,14 +79,12 @@ int32_t d_sys_color_proc2(int32_t msg,DIALOG *d,int32_t)
 			break;
 		}
 	}
-	
 	return D_O_K;
 }
 
 
 namespace GUI
 {
-	
 MiscColorRow::MiscColorRow(): onUpdate(NULL), val(0), isSys(false)
 {}
 
@@ -175,9 +160,7 @@ void MiscColorRow::setOnUpdate(std::function<void(int32_t)> newOnUpdate)
 int32_t MiscColorRow::onEvent(int32_t event, MessageDispatcher& sendMessage)
 {
 	assert(event == geCHANGE_SELECTION);
-	
 	if(alDialog) val = alDialog->d1;
-	
 	if(onUpdate)
 		onUpdate(val);
 	return -1;

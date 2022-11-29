@@ -19,23 +19,18 @@ string LiteralArgument::toString()
     string sign = value < 0 ? "-" : "";
     sprintf(temp,"%d", abs(value/10000));
     string first = string(temp);
-    
     if(value % 10000 == 0)
         return sign + first;
-        
     sprintf(temp,"%d", abs(value%10000));
     string second = string(temp);
-    
     while(second.length() < 4)
         second = "0" + second;
-        
     return sign + first + "." + second;
 }
 
 string ZScript::VarToString(int32_t ID)
 {
 	char temp[128];
-	
 	switch(ID)
 	{
 	case SP:
@@ -44,216 +39,146 @@ string ZScript::VarToString(int32_t ID)
 		return "PC";
 	case SWITCHKEY:
 		return "SWITCHKEY";
-		
 	case DATA:
 		return "DATA";
-		
 	case FFSCRIPT:
 		return "FFSCRIPT";
-		
 	case FCSET:
 		return "CSET";
-		
 	case DELAY:
 		return "DELAY";
-		
 	case FX:
 		return "X";
 	case FFCID:
 	return "FFCID";
-		
 	case FY:
 		return "Y";
-		
 	case XD:
 		return "XD";
-		
 	case YD:
 		return "YD";
-		
 	case XD2:
 		return "XD2";
-		
 	case YD2:
 		return "YD2";
-		
 	case LINKX:
 		return "LINKX";
-		
 	case LINKY:
 		return "LINKY";
-		
 	case LINKZ:
 		return "LINKZ";
-		
 	case LINKJUMP:
 		return "LINKJUMP";
-		
 	case LINKDIR:
 		return "LINKDIR";
-		
 	case LINKHITDIR:
 		return "LINKHITDIR";
-		
 	case LINKSWORDJINX:
 		return "LINKSWORDJINX";
-		
 	case LINKITEMJINX:
 		return "LINKITEMJINX";
-		
 	case LINKHP:
 		return "LINKHP";
-		
 	case LINKMP:
 		return "LINKMP";
-		
 	case LINKMAXHP:
 		return "LINKMAXHP";
-		
 	case LINKMAXMP:
 		return "LINKMAXMP";
-		
 	case LINKACTION:
 		return "LINKACTION";
-		
 	case LINKHELD:
 		return "LINKHELD";
-		
 	case LINKINVIS:
 		return "LINKINVIS";
-		
 	case LINKINVINC:
 		return "LINKINVINC";
-		
 	case LINKMISCD:
 		return "LINKMISCD";
-		
 	case LINKTILE:
 		return "LINKTILE";
-		
 	case LINKFLIP:
 		return "LINKFLIP";
-		
 	case INPUTSTART:
 		return "INPUTSTART";
-		
 	case INPUTMAP:
 		return "INPUTMAP";
-		
 	case INPUTUP:
 		return "INPUTUP";
-		
 	case INPUTDOWN:
 		return "INPUTDOWN";
-		
 	case INPUTLEFT:
 		return "INPUTLEFT";
-		
 	case INPUTRIGHT:
 		return "INPUTRIGHT";
-		
 	case INPUTA:
 		return "INPUTA";
-		
 	case INPUTB:
 		return "INPUTB";
-		
 	case INPUTL:
 		return "INPUTL";
-		
 	case INPUTR:
 		return "INPUTR";
-		
 	case INPUTEX1:
 		return "INPUTEX1";
-		
 	case INPUTEX2:
 		return "INPUTEX2";
-		
 	case INPUTEX3:
 		return "INPUTEX3";
-		
 	case INPUTEX4:
 		return "INPUTEX4";
-		
 	case INPUTAXISUP:
 		return "INPUTAXISUP";
-		
 	case INPUTAXISDOWN:
 		return "INPUTAXISDOWN";
-		
 	case INPUTAXISLEFT:
 		return "INPUTAXISLEFT";
-		
 	case INPUTAXISRIGHT:
 		return "INPUTAXISRIGHT";
-		
 	case INPUTPRESSSTART:
 		return "INPUTPRESSSTART";
-		
 	case INPUTPRESSMAP:
 		return "INPUTPRESSMAP";
-		
 	case INPUTPRESSUP:
 		return "INPUTPRESSUP";
-		
 	case INPUTPRESSDOWN:
 		return "INPUTPRESSDOWN";
-		
 	case INPUTPRESSLEFT:
 		return "INPUTPRESSLEFT";
-		
 	case INPUTPRESSRIGHT:
 		return "INPUTPRESSRIGHT";
-		
 	case INPUTPRESSA:
 		return "INPUTPRESSA";
-		
 	case INPUTPRESSB:
 		return "INPUTPRESSB";
-		
 	case INPUTPRESSL:
 		return "INPUTPRESSL";
-		
 	case INPUTPRESSR:
 		return "INPUTPRESSR";
-		
 	case INPUTPRESSEX1:
 		return "INPUTPRESSEX1";
-		
 	case INPUTPRESSEX2:
 		return "INPUTPRESSEX2";
-		
 	case INPUTPRESSEX3:
 		return "INPUTPRESSEX3";
-		
 	case INPUTPRESSEX4:
 		return "INPUTPRESSEX4";
-		
 	case INPUTPRESSAXISUP:
 		return "PRESSAXISUP";
-		
 	case INPUTPRESSAXISDOWN:
 		return "PRESSAXISDOWN";
-		
 	case INPUTPRESSAXISLEFT:
 		return "PRESSAXISLEFT";
-		
 	case INPUTPRESSAXISRIGHT:
 		return "PRESSAXISRIGHT";
-		
 	case INPUTMOUSEX:
 		return "INPUTMOUSEX";
-		
 	case INPUTMOUSEY:
 		return "INPUTMOUSEY";
-		
 	case INPUTMOUSEZ:
 		return "INPUTMOUSEZ";
-		
 	case INPUTMOUSEB:
 		return "INPUTMOUSEB";
-	
 	case BUTTONPRESS: return "BUTTONPRESS";
 	case BUTTONINPUT: return "BUTTONINPUT";
 	case BUTTONHELD: return "BUTTONHELD";
@@ -262,18 +187,15 @@ string ZScript::VarToString(int32_t ID)
 	case DISABLEKEY: return "DISABLEKEY";
 	case DISABLEBUTTON: return "DISABLEBUTTON";
 	case JOYPADPRESS: return "JOYPADPRESS";
-	
 	 case LINKINVFRAME:
 	return "LINKINVFRAME";
 	case LINKCANFLICKER:
 	return "LINKCANFLICKER";
 	case LINKHURTSFX:
 	return "LINKHURTSFX";
-	
 	case LINKEATEN: return "LINKEATEN";
 	case LINKGRABBED: return "LINKGRABBED";
 	case HEROBUNNY: return "HEROBUNNY";
-	
 	case LINKITEMB: return "LINKITEMB";
 
 	case LINKITEMA: return "LINKITEMA";
@@ -285,49 +207,36 @@ string ZScript::VarToString(int32_t ID)
 	case LINKUSINGITEM: return "LINKUSINGITEM";
 	case LINKUSINGITEMA: return "LINKUSINGITEMA";
 	case LINKUSINGITEMB: return "LINKUSINGITEMB";
-	
 	case SDD:
 		return "SDD";
-		
 	case SCREENFLAGSD:
 		return "SCREENFLAGSD";
-		
 	case SCREENEFLAGSD:
 		return "SCREENEFLAGSD";
-		
 	case COMBODD:
 		return "COMBODD";
-		
 	case COMBOCD:
 		return "COMBOCD";
-		
 	case COMBOFD:
 		return "COMBOFD";
-		
 	case COMBODDM:
 		return "COMBODDM";
-		
 	case COMBOCDM:
 		return "COMBOCDM";
-		
 	case COMBOFDM:
 		return "COMBOFDM";
-		
 	case REFFFC:
 		return "REFFFC";
-	
 	case REFMAPDATA: return "REFMAPDATA";
 	case REFSCREENDATA: return "REFSCREENDATA";
 	case REFCOMBODATA: return "REFCOMBODATA";
 	case REFSPRITEDATA: return "REFSPRITEDATA";
 	case REFBITMAP: return "REFBITMAP";
 	case REFNPCCLASS: return "REFNPCCLASS";
-	
 	 case REFDMAPDATA: return "REFDMAPDATA";
 	 case REFSHOPDATA: return "REFSHOPDATA";
 	 case REFMSGDATA: return "REFMSGDATA";
 	 case REFNIL: return "REFNIL";
-	
 	 case REFDROPS: return "REFDROPS";
 	 case REFPONDS: return "REFPONDS";
 	 case REFWARPRINGS: return "REFWARPRINGS";
@@ -339,212 +248,146 @@ string ZScript::VarToString(int32_t ID)
 	 case REFPALCYCLE: return "REFPALCYCLE";
 	 case REFGAMEDATA: return "REFGAMEDATA";
 	 case REFCHEATS: return "REFCHEATS";
-		
 	case REFITEM:
 		return "REFITEM";
-		
 	case ITEMCOUNT:
 		return "ITEMCOUNT";
-		
 	case ITEMX:
 		return "ITEMX";
-		
 	case ITEMY:
 		return "ITEMY";
-		
 	case ITEMZ:
 		return "ITEMZ";
-		
 	case ITEMJUMP:
 		return "ITEMJUMP";
-		
 	case ITEMDRAWTYPE:
 		return "ITEMDRAWTYPE";
-		
 	case ITEMID:
 		return "ITEMID";
-		
 	case ITEMTILE:
 		return "ITEMTILE";
-		
 	case ITEMCSET:
 		return "ITEMCSET";
-		
 	case ITEMFLASHCSET:
 		return "ITEMFLASHCSET";
-		
 	case ITEMFRAMES:
 		return "ITEMFRAMES";
-		
 	//This DOES NOT DO what ZScript.txt claims that it does, and needs to be fixed. -Z
 	case ITEMFRAME:
 		return "ITEMFRAME";
-		
 	case ITEMASPEED:
 		return "ITEMASPEED";
-	
 	case ITEMACLK:
 		return "ITEMACLK";
-		
 	case ITEMDELAY:
 		return "ITEMDELAY";
-		
 	case ITEMFLASH:
 		return "ITEMFLASH";
-		
 	case ITEMFLIP:
 		return "ITEMFLIP";
-		
 	case ITEMEXTEND:
 		return "ITEMEXTEND";
-		
 	case ITEMPICKUP:
 		return "ITEMPICKUP";
-		
 	case ITEMMISCD:
 		return "ITEMMISCD";
-		
 	case ITEMCLASSFAMILY:
 		return "IDATAFAMILY";
-		
 	case ITEMCLASSFAMTYPE:
 		return "IDATALEVEL";
-		
 	case ITEMCLASSAMOUNT:
 		return "IDATAAMOUNT";
-		
 	case ITEMCLASSMAX:
 		return "IDATAMAX";
-		
 	case ITEMCLASSSETMAX:
 		return "IDATASETMAX";
-		
 	case ITEMCLASSSETGAME:
 		return "IDATAKEEP";
-		
 	case ITEMCLASSCOUNTER:
 		return "IDATACOUNTER";
-		
 	case ITEMCLASSUSESOUND:
 		return "IDATAUSESOUND";
 	case IDATAUSESOUND2:
 		return "IDATAUSESOUND2";
-		
 	case ITEMCLASSPOWER:
 		return "IDATAPOWER";
-		
 	case ITEMCLASSINITDD:
 		return "IDATAINITDD";
-		
 	case REFITEMCLASS:
 		return "REFITEMCLASS";
-		
 	case COMBOID:
 		return "COMBOID";
-		
 	case COMBOTD:
 		return "COMBOTD";
-		
 	case COMBOSD:
 		return "COMBOSD";
-		
 	case COMBOED:
 		return "COMBOED";
-		
 	case COMBOIDM:
 		return "COMBOIDM";
-		
 	case COMBOTDM:
 		return "COMBOTDM";
-		
 	case COMBOSDM:
 		return "COMBOSDM";
-		
 	case GETMIDI:
 		return "GETMIDI";
-		
 	case CURSCR:
 		return "CURSCR";
-		
 	case CURDSCR:
 		return "CURDSCR";
-		
 	case CURMAP:
 		return "CURMAP";
-		
 	case CURDMAP:
 		return "CURDMAP";
 	case GAMEMAXMAPS: return "GAMEMAXMAPS";
-		
 	case CURLEVEL:
 		return "CURLEVEL";
-		
 	case GAMEDEATHS:
 		return "GAMEDEATHS";
-		
 	case GAMECHEAT:
 		return "GAMECHEAT";
 	case GAMEMAXCHEAT:
 		return "GAMEMAXCHEAT";
 	case SHOWNMSG:
 		return "SHOWNMSG";
-	
 	case ZELDAVERSION:
 	return "ZELDAVERSION";
 	case ZELDABUILD:
 	return "ZELDABUILD";
 	case ZELDABETA:
 	return "ZELDABETA";
-	
-		
 	case GAMETIME:
 		return "GAMETIME";
-		
 	case GAMEHASPLAYED:
 		return "GAMEHASPLAYED";
-		
 	case GAMESTANDALONE:
 		return "GAMESTANDALONE";
-		
 	case GAMETIMEVALID:
 		return "GAMETIMEVALID";
-		
 	case GAMEGUYCOUNT:
 		return "GAMEGUYCOUNT";
-		
 	case GAMECONTSCR:
 		return "GAMECONTSCR";
-		
 	case GAMECONTDMAP:
 		return "GAMECONTDMAP";
-		
 	case GAMEENTRSCR:
 		return "GAMEENTRSCR";
-		
 	case GAMEENTRDMAP:
 		return "GAMEENTRDMAP";
-		
 	case GAMECOUNTERD:
 		return "GAMECOUNTERD";
-		
 	case GAMEMCOUNTERD:
 		return "GAMEMCOUNTERD";
-		
 	case GAMEDCOUNTERD:
 		return "GAMEDCOUNTERD";
-		
 	case GAMEGENERICD:
 		return "GAMEGENERICD";
-	
 	case GAMEMISC:
 		return "GAMEMISC";
-		
 	case GAMEITEMSD:
 		return "GAMEITEMSD";
-		
 	case GAMELITEMSD:
 		return "GAMELITEMSD";
-		
 	case GAMELKEYSD:
 		return "GAMELKEYSD";
 	case GAMELSWITCH:
@@ -553,7 +396,6 @@ string ZScript::VarToString(int32_t ID)
 		return "GAMEGSWITCH";
 	case GAMEBOTTLEST:
 		return "GAMEBOTTLEST";
-		
 	case REFBOTTLETYPE:
 		return "REFBOTTLETYPE";
 	case REFBOTTLESHOP:
@@ -582,7 +424,6 @@ string ZScript::VarToString(int32_t ID)
 		return "COMBODUSRFLAGARR";
 	case COMBODGENFLAGARR:
 		return "COMBODGENFLAGARR";
-		
 	case HERORESPAWNX:
 		return "HERORESPAWNX";
 	case HERORESPAWNY:
@@ -619,180 +460,121 @@ string ZScript::VarToString(int32_t ID)
 		return "GAMEMISCSFX";
 	case GAMEEVENTDATA:
 		return "GAMEEVENTDATA";
-		
 	case SCREENSTATED:
 		return "SCREENSTATED";
-		
 	case SCREENSTATEDD:
 		return "SCREENSTATEDD";
-		
 	case DMAPFLAGSD:
 		return "DMAPFLAGSD";
-		
 	case DMAPLEVELD:
 		return "DMAPLEVELD";
-	
 	case DMAPLEVELPAL:
 	return "DMAPLEVELPAL";
-		
 	case DMAPCOMPASSD:
 		return "DMAPCOMPASSD";
-		
 	case DMAPCONTINUED:
 		return "DMAPCONTINUED";
-		
 	case DMAPMIDID:
 		return "DMAPMIDID";
-		
 	case DMAPOFFSET:
 		return "DMAPOFFSET";
-		
 	case DMAPMAP:
 		return "DMAPMAP";
-		
 	case SDDD:
 		return "SDDD";
-		
 	case SDDDD:
 		return "SDDDD";
-		
 	case GAMECLICKFREEZE:
 		return "GAMECLICKFREEZE";
-		
 	case NOACTIVESUBSC: return "NOACTIVESUBSC"; //Disable active subscreen.
-	
 	case FFFLAGSD:
 		return "FFFLAGSD";
-		
 	case FFTWIDTH:
 		return "FFTWIDTH";
-		
 	case FFTHEIGHT:
 		return "FFTHEIGHT";
-		
 	case FFCWIDTH:
 		return "FFCWIDTH";
-		
 	case FFCHEIGHT:
 		return "FFCHEIGHT";
-		
 	case FFLINK:
 		return "FFLINK";
-		
 	case FFMISCD:
 		return "FFMISCD";
-		
 	case FFINITDD:
 		return "FFINITDD";
-		
 		/*case FFDD:
 		return "FFDD";*/
 	case LINKITEMD:
 		return "LINKITEMD";
-	
 	case DISABLEDITEM: return "DISABLEDITEM";
-		
 	case REFNPC:
 		return "REFNPC";
-		
 	case NPCCOUNT:
 		return "NPCCOUNT";
-		
 	case NPCX:
 		return "NPCX";
-		
 	case NPCY:
 		return "NPCY";
-		
 	case NPCZ:
 		return "NPCZ";
-		
 	case NPCJUMP:
 		return "NPCJUMP";
-		
 	case NPCDIR:
 		return "NPCDIR";
-		
 	case NPCRATE:
 		return "NPCRATE";
-		
 	case NPCHOMING:
 		return "NPCHOMING";
-		
 	case NPCFRAMERATE:
 		return "NPCFRAMERATE";
-		
 	case NPCHALTRATE:
 		return "NPCHALTRATE";
-		
 	case NPCDRAWTYPE:
 		return "NPCDRAWTYPE";
-		
 	case NPCHP:
 		return "NPCHP";
-		
 	case NPCID:
 		return "NPCID";
-		
 	case NPCTYPE:
 		return "NPCTYPE";
-		
 	case NPCDP:
 		return "NPCDP";
-		
 	case NPCWDP:
 		return "NPCWDP";
-		
 	case NPCTILE:
 		return "NPCTILE";
-		
 	case NPCOTILE:
 		return "NPCOTILE";
-		
 	case NPCWEAPON:
 		return "NPCWEAPON";
-		
 	case NPCITEMSET:
 		return "NPCITEMSET";
-		
 	case NPCCSET:
 		return "NPCCSET";
-		
 	case NPCBOSSPAL:
 		return "NPCBOSSPAL";
-		
 	case NPCBGSFX:
 		return "NPCBGSFX";
-		
 	case NPCEXTEND:
 		return "NPCEXTEND";
-		
 	case NPCSTEP:
 		return "NPCSTEP";
-		
 	case NPCDEFENSED:
 		return "NPCDEFENSED";
 	case NPCSCRDEFENSED: return "NPCSCRDEFENSED";
-		
 	case NPCMISCD:
 		return "NPCMISCD";
-		
 	case NPCDD:
 		return "NPCDD";
-		
 	case NPCMFLAGS:
 		return "NPCMFLAGS";
-		
 	case NPCCOLLDET:
 		return "NPCCOLLDET";
-		
 	case NPCSTUN:
 		return "NPCSTUN";
-		
 	case NPCHUNGER:
 		return "NPCHUNGER";
-	
-	
 	case NPCINVINC:
 		return "NPCINVINC";
 	case NPCSUPERMAN:
@@ -803,477 +585,323 @@ string ZScript::VarToString(int32_t ID)
 		return "NPCRINGLEAD";
 	case NPCSHIELD:
 		return "NPCSHIELD";
-	
 	case NPCFROZEN:
-		return "NPCFROZEN";   
+		return "NPCFROZEN";
 	case NPCFROZENTILE:
 		return "NPCFROZENTILE";
 	case NPCFROZENCSET:
-		return "NPCFROZENCSET"; 
+		return "NPCFROZENCSET";
 	case NPCBEHAVIOUR:
-		return "NPCBEHAVIOUR"; 
-		
+		return "NPCBEHAVIOUR";
 	case SCRDOORD:
 		return "SCRDOORD";
-		
 	case LIT:
 		return "LIT";
-		
 	case WAVY:
 		return "WAVY";
-		
 	case QUAKE:
 		return "QUAKE";
-		
 	case ITEMOTILE:
 		return "ITEMOTILE";
-		
 	case REFLWPN:
 		return "REFLWPN";
-		
 	case LWPNCOUNT:
 		return "LWPNCOUNT";
-		
 	case LWPNX:
 		return "LWPNX";
-		
 	case LWPNY:
 		return "LWPNY";
-		
 	case LWPNZ:
 		return "LWPNZ";
-		
 	case LWPNJUMP:
 		return "LWPNJUMP";
-		
 	case LWPNDIR:
 		return "LWPNDIR";
-		
 	case LWPNANGLE:
 		return "LWPNANGLE";
-	
 	case LWPNDEGANGLE:
 		return "LWPNDEGANGLE";
-		
 	case LWPNVX:
 		return "LWPNVX";
-		
 	case LWPNVY:
 		return "LWPNVY";
-		
 	case LWPNSTEP:
 		return "LWPNSTEP";
-		
 	case LWPNFRAMES:
 		return "LWPNFRAMES";
-		
 	case LWPNFRAME:
 		return "LWPNFRAME";
-		
 	case LWPNDRAWTYPE:
 		return "LWPNDRAWTYPE";
-		
 	case LWPNPOWER:
 		return "LWPNPOWER";
-		
 	case LWPNID:
 		return "LWPNID";
-		
 	case LWPNANGULAR:
 		return "LWPNANGULAR";
-		
 	case LWPNAUTOROTATE:
 		return "LWPNAUTOROTATE";
-		
 	case LWPNFLAGS:
 		return "LWPNFLAGS";
 	case EWPNFLAGS:
 		return "EWPNFLAGS";
-		
 	case LWPNBEHIND:
 		return "LWPNBEHIND";
-		
 	case LWPNASPEED:
 		return "LWPNASPEED";
-		
 	case LWPNTILE:
 		return "LWPNTILE";
-		
 	case LWPNFLASHCSET:
 		return "LWPNFLASHCSET";
-		
 	case LWPNDEAD:
 		return "LWPNDEAD";
-		
 	case LWPNCSET:
 		return "LWPNCSET";
-		
 	case LWPNFLASH:
 		return "LWPNFLASH";
-		
 	case LWPNFLIP:
 		return "LWPNFLIP";
-		
 	case LWPNOTILE:
 		return "LWPNOTILE";
-		
 	case LWPNOCSET:
 		return "LWPNOCSET";
-		
 	case LWPNEXTEND:
 		return "LWPNEXTEND";
-		
 	case LWPNCOLLDET:
 		return "LWPNCOLLDET";
-	
 	case LWPNPARENT:
 		return "LWPNPARENT";
 	case LWPNLEVEL:
 		return "LWPNLEVEL";
-	
 	case EWPNLEVEL:
 		return "EWPNLEVEL";
 	case EWPNPARENT:
 		return "EWPNPARENT";
-		
 	case REFEWPN:
 		return "REFEWPN";
-		
 	case EWPNCOUNT:
 		return "EWPNCOUNT";
-		
 	case EWPNX:
 		return "EWPNX";
-		
 	case EWPNY:
 		return "EWPNY";
-		
 	case EWPNZ:
 		return "EWPNZ";
-		
 	case EWPNJUMP:
 		return "EWPNJUMP";
-		
 	case EWPNDIR:
 		return "EWPNDIR";
-		
 	case EWPNANGLE:
 		return "EWPNANGLE";
-		
 	case EWPNDEGANGLE:
 		return "EWPNDEGANGLE";
-		
 	case EWPNVX:
 		return "EWPNVX";
-		
 	case EWPNVY:
 		return "EWPNVY";
-		
 	case EWPNSTEP:
 		return "EWPNSTEP";
-		
 	case EWPNFRAMES:
 		return "EWPNFRAMES";
-		
 	case EWPNFRAME:
 		return "EWPNFRAME";
-		
 	case EWPNDRAWTYPE:
 		return "EWPNDRAWTYPE";
-		
 	case EWPNPOWER:
 		return "EWPNPOWER";
-		
 	case EWPNID:
 		return "EWPNID";
-		
 	case EWPNANGULAR:
 		return "EWPNANGULAR";
-		
 	case EWPNAUTOROTATE:
 		return "EWPNAUTOROTATE";
-		
 	case EWPNBEHIND:
 		return "EWPNBEHIND";
-		
 	case EWPNASPEED:
 		return "EWPNASPEED";
-		
 	case EWPNTILE:
 		return "EWPNTILE";
-		
 	case EWPNFLASHCSET:
 		return "EWPNFLASHCSET";
-		
 	case EWPNDEAD:
 		return "EWPNDEAD";
-		
 	case EWPNCSET:
 		return "EWPNCSET";
-		
 	case EWPNFLASH:
 		return "EWPNFLASH";
-		
 	case EWPNFLIP:
 		return "EWPNFLIP";
-		
 	case EWPNOTILE:
 		return "EWPNOTILE";
-		
 	case EWPNOCSET:
 		return "EWPNOCSET";
-		
 	case EWPNEXTEND:
 		return "EWPNEXTEND";
-		
 	case EWPNCOLLDET:
 		return "EWPNCOLLDET";
-		
 	case SCRIPTRAM:
 		return "SCRIPTRAM";
-		
 	case GLOBALRAM:
 		return "GLOBALRAM";
-		
 	case SCRIPTRAMD:
 		return "SCRIPTRAMD";
-		
 	case GLOBALRAMD:
 		return "GLOBALRAMD";
-		
 	case LWPNHXOFS:
 		return "LWPNHXOFS";
-		
 	case LWPNHYOFS:
 		return "LWPNHYOFS";
-		
 	case LWPNXOFS:
 		return "LWPNXOFS";
-		
 	case LWPNYOFS:
 		return "LWPNYOFS";
-	
 	case LWPNSHADOWXOFS:
 		return "LWPNSHADOWXOFS";
-		
 	case LWPNSHADOWYOFS:
 		return "LWPNSHADOWYOFS";
-		
 	case LWPNZOFS:
 		return "LWPNZOFS";
-		
 	case LWPNHXSZ:
 		return "LWPNHXSZ";
-		
 	case LWPNHYSZ:
 		return "LWPNHYSZ";
-		
 	case LWPNHZSZ:
 		return "LWPNHZSZ";
-		
 	case LWPNTXSZ:
 		return "LWPNTXSZ";
-		
 	case LWPNTYSZ:
 		return "LWPNTYSZ";
-		
 	case LWPNMISCD:
 		return "LWPNMISCD";
-		
 	case EWPNHXOFS:
 		return "EWPNHXOFS";
-		
 	case EWPNHYOFS:
 		return "EWPNHYOFS";
-		
 	case EWPNXOFS:
 		return "EWPNXOFS";
-		
 	case EWPNYOFS:
 		return "EWPNYOFS";
-		
 	case EWPNSHADOWXOFS:
 		return "EWPNSHADOWXOFS";
-		
 	case EWPNSHADOWYOFS:
 		return "EWPNSHADOWYOFS";
-		
 	case EWPNZOFS:
 		return "EWPNZOFS";
-		
 	case EWPNHXSZ:
 		return "EWPNHXSZ";
-		
 	case EWPNHYSZ:
 		return "EWPNHYSZ";
-		
 	case EWPNHZSZ:
 		return "EWPNHZSZ";
-		
 	case EWPNTXSZ:
 		return "EWPNTXSZ";
-		
 	case EWPNTYSZ:
 		return "EWPNTYSZ";
-		
 	case EWPNMISCD:
 		return "EWPNMISCD";
-		
 	case NPCHXOFS:
 		return "NPCHXOFS";
-		
 	case NPCHYOFS:
 		return "NPCHYOFS";
-		
 	case NPCXOFS:
 		return "NPCXOFS";
-		
 	case NPCYOFS:
 		return "NPCYOFS";
-		
 	case NPCSHADOWXOFS:
 		return "NPCSHADOWXOFS";
-		
 	case NPCSHADOWYOFS:
 		return "NPCSHADOWYOFS";
-		
 	case NPCZOFS:
 		return "NPCZOFS";
-		
 	case NPCHXSZ:
 		return "NPCHXSZ";
-		
 	case NPCHYSZ:
 		return "NPCHYSZ";
-		
 	case NPCHZSZ:
 		return "NPCHZSZ";
-		
 	case NPCTXSZ:
 		return "NPCTXSZ";
-		
 	case NPCTYSZ:
 		return "NPCTYSZ";
-		
 	case ITEMHXOFS:
 		return "ITEMHXOFS";
-		
 	case ITEMHYOFS:
 		return "ITEMHYOFS";
-		
 	case ITEMXOFS:
 		return "ITEMXOFS";
-		
 	case ITEMYOFS:
 		return "ITEMYOFS";
-		
 	case ITEMSHADOWXOFS:
 		return "ITEMSHADOWXOFS";
-		
 	case ITEMSHADOWYOFS:
 		return "ITEMSHADOWYOFS";
-		
 	case ITEMZOFS:
 		return "ITEMZOFS";
-		
 	case ITEMHXSZ:
 		return "ITEMHXSZ";
-		
 	case ITEMHYSZ:
 		return "ITEMHYSZ";
-		
 	case ITEMHZSZ:
 		return "ITEMHZSZ";
-		
 	case ITEMTXSZ:
 		return "ITEMTXSZ";
-		
 	case ITEMTYSZ:
 		return "ITEMTYSZ";
-		
 	case LINKHXOFS:
 		return "LINKHXOFS";
-		
 	case LINKHYOFS:
 		return "LINKHYOFS";
-		
 	case LINKXOFS:
 		return "LINKXOFS";
-		
 	case LINKYOFS:
 		return "LINKYOFS";
-		
 	case HEROSHADOWXOFS:
 		return "HEROSHADOWXOFS";
-		
 	case HEROSHADOWYOFS:
 		return "HEROSHADOWYOFS";
-		
 	case LINKZOFS:
 		return "LINKZOFS";
-		
 	case LINKHXSZ:
 		return "LINKHXSZ";
-		
 	case LINKHYSZ:
 		return "LINKHYSZ";
-		
 	case LINKHZSZ:
 		return "LINKHZSZ";
-		
 	case LINKTXSZ:
 		return "LINKTXSZ";
-		
 	case LINKTYSZ:
 		return "LINKTYSZ";
-		
 	case LINKDRUNK:
 		return "LINKDRUNK";
-		
 	case LINKEQUIP:
 		return "LINKEQUIP";
-		
 	case LINKLADDERX:
 		return "LINKLADDERX";
-		
 	case LINKLADDERY:
 		return "LINKLADDERY";
-		
 	case ROOMTYPE:
 		return "ROOMTYPE";
-		
 	case ROOMDATA:
 		return "ROOMDATA";
-		
 	case PUSHBLOCKX:
 		return "PUSHBLOCKX";
-		
 	case PUSHBLOCKY:
 		return "PUSHBLOCKY";
-		
 	case PUSHBLOCKLAYER:
 		return "PUSHBLOCKLAYER";
-		
 	case PUSHBLOCKCOMBO:
 		return "PUSHBLOCKCOMBO";
-		
 	case PUSHBLOCKCSET:
 		return "PUSHBLOCKCSET";
-		
 	case UNDERCOMBO:
 		return "UNDERCOMBO";
-		
 	case UNDERCSET:
 		return "UNDERCSET";
-	
 	//2.6
 	case CREATELWPNDX: return "CREATELWPNDX";
-	
 	//2.54 -Z
 /* 2.54 Implemented
 	*/
-	
-	
 //itemclass / itemdata
 
 	//case IDATAFRAME: return "IDATAFRAME";
@@ -1287,11 +915,11 @@ string ZScript::VarToString(int32_t ID)
 	case IDATACOST2: return "IDATACOST2";
 	case IDATAMINHEARTS: return "IDATAMINHEARTS";
 	case IDATATILE: return "IDATATILE";
-	case IDATAMISC: return "IDATAMISC";    
+	case IDATAMISC: return "IDATAMISC";
 	case IDATACSET: return "IDATACSET";
 	case IDATAFRAMES: return "IDATAFRAMES";
 	case IDATAASPEED: return "IDATAASPEED";
-	case IDATADELAY: return "IDATADELAY"; 
+	case IDATADELAY: return "IDATADELAY";
 	case IDATACOMBINE: return "IDATACOMBINE";
 	case IDATADOWNGRADE: return "IDATADOWNGRADE";
 	case IDATAKEEPOLD: return "IDATAKEEPOLD";
@@ -1301,12 +929,10 @@ string ZScript::VarToString(int32_t ID)
 	case IDATAGAINLOWER: return "IDATAGAINLOWER";
 	case IDATAPSTRING: return "IDATAPSTRING";
 	case IDATAPFLAGS: return "IDATAPFLAGS";
-	
 	//idata arrays
 	case IDATAATTRIB: return "IDATAATTRIB";
 	case IDATAFLAGS: return "IDATAFLAGS";
 	case IDATASPRITE: return "IDATASPRITE";
-		
 	case IDATAUSEWPN: return "IDATAUSEWPN";
 	case IDATAUSEDEF: return "IDATAUSEDEF";
 	case IDATAWRANGE: return "IDATAWRANGE";
@@ -1328,7 +954,6 @@ string ZScript::VarToString(int32_t ID)
 	case IDATAWEAPYOFS: return "IDATAWEAPYOFS";
 	case IDATAWEAPZOFS: return "IDATAWEAPZOFS";
 	case IDATAWPNINITD: return "IDATAWPNINITD";
-	
 	//Item Sizing
 	case IDATAOVERRIDEFLWEAP: return "IDATAOVERRIDEFLWEAP";
 	case IDATATILEHWEAP: return "IDATATILEHWEAP";
@@ -1351,11 +976,8 @@ string ZScript::VarToString(int32_t ID)
 	case IDATADXOFS: return "IDATADXOFS";
 	case IDATAHYOFS: return "IDATAHYOFS";
 	case IDATAHXOFS: return "IDATAHXOFS";
-	
 	case NPCWEAPSPRITE: return "NPCWEAPSPRITE";
-	
 	//Debug->
-	
 	case DEBUGREFFFC: return "DEBUGREFFFC";
 	case DEBUGREFITEM: return "DEBUGREFITEM";
 	case DEBUGREFNPC: return "DEBUGREFNPC";
@@ -1364,9 +986,7 @@ string ZScript::VarToString(int32_t ID)
 	case DEBUGREFEWEAPON: return "DEBUGREFEWEAPON";
 	case DEBUGSP: return "DEBUGSP";
 	case DEBUGGDR: return "DEBUGGDR";
-	
 	case LWPNRANGE: return "LWPNRANGE";
-	
 	case SETSCREENDOOR: return "SETSCREENDOOR";
 	case SETSCREENENEMY: return "SETSCREENENEMY";
 	case SCREENWIDTH: return "SCREENWIDTH";
@@ -1391,41 +1011,30 @@ string ZScript::VarToString(int32_t ID)
 	case SETSCREENPATH: return "SETSCREENPATH";
 	case SETSCREENWARPRX: return "SETSCREENWARPRX";
 	case SETSCREENWARPRY: return "SETSCREENWARPRY";
-	
 	case GAMENUMMESSAGES: return "GAMENUMMESSAGES";
 	case GAMESUBSCHEIGHT: return "GAMESUBSCHEIGHT";
 	case GAMEPLAYFIELDOFS: return "GAMEPLAYFIELDOFS";
 	case PASSSUBOFS: return "PASSSUBOFS";
 	case COMBODATAID: return "COMBODATAID";
-	
 	case LINKBIGHITBOX: return "LINKBIGHITBOX";
 	case LINKDIAG: return "LINKDIAG";
-	
 	//NPCData
-	
 	//three inputs no return (function-only)
 	case SETNPCDATASCRIPTDEF: return "SETNPCDATASCRIPTDEF";
 	case SETNPCDATADEFENSE: return "SETNPCDATADEFENSE";
 	case SETNPCDATASIZEFLAG: return "SETNPCDATASIZEFLAG";
 	case SETNPCDATAATTRIBUTE: return "SETNPCDATAATTRIBUTE";
-	
 	//ComboData
-	
 	//three inputs no return (function-only)
 	case SCDBLOCKWEAPON: return "SCDBLOCKWEAPON";
 	case SCDEXPANSION: return "SCDEXPANSION";
 	case SCDSTRIKEWEAPONS: return "SCDSTRIKEWEAPONS";
-	
 	//Game Over Screen
 	case SETGAMEOVERELEMENT: return "SETGAMEOVERELEMENT";
 	case SETGAMEOVERSTRING: return "SETGAMEOVERSTRING";
-	
 	//Input->Mouse[]
 	case MOUSEARR: return "MOUSEARR";
-	
-	
 	//DataTypes
-	
 	//spritedata sd->
 	case SPRITEDATATILE: return "SPRITEDATATILE";
 	case SPRITEDATAMISC: return "SPRITEDATAMISC";
@@ -1433,7 +1042,6 @@ string ZScript::VarToString(int32_t ID)
 	case SPRITEDATAFRAMES: return "SPRITEDATAFRAMES";
 	case SPRITEDATASPEED: return "SPRITEDATASPEED";
 	case SPRITEDATATYPE: return "SPRITEDATATYPE";
-	
 	//npcdata nd->
 	case NPCDATATILE: return "NPCDATATILE";
 	case NPCDATAHEIGHT: return "NPCDATAHEIGHT";
@@ -1483,7 +1091,6 @@ string ZScript::VarToString(int32_t ID)
 	case NPCDATAFROZENTILE: return "NPCDATAFROZENTILE";
 	case NPCDATAFROZENCSET: return "NPCDATAFROZENCSET";
 	case NPCDATABEHAVIOUR: return "NPCDATABEHAVIOUR";
-		
 	case MAPDATAVALID: return "MAPDATAVALID";
 	case MAPDATAGUY: return "MAPDATAGUY";
 	case MAPDATASTRING: return "MAPDATASTRING";
@@ -1563,7 +1170,6 @@ string ZScript::VarToString(int32_t ID)
 	case MAPDATAHOLDUPSFX: return "MAPDATAHOLDUPSFX";
 	case MAPDATASCREENMIDI: return "MAPDATASCREENMIDI";
 	case MAPDATALENSLAYER: return "MAPDATALENSLAYER";
-	
 	case MAPDATACOMBODD: return "MAPDATACOMBODD";
 	case MAPDATACOMBOCD: return "MAPDATACOMBOCD";
 	case MAPDATACOMBOFD: return "MAPDATACOMBOFD";
@@ -1571,15 +1177,10 @@ string ZScript::VarToString(int32_t ID)
 	case MAPDATACOMBOID: return "MAPDATACOMBOID";
 	case MAPDATACOMBOSD: return "MAPDATACOMBOSD";
 	case MAPDATACOMBOED: return "MAPDATACOMBOED";
-	
-	
-	
 	case MAPDATAMISCD: return "MAPDATAMISCD";
 	case MAPDATASCREENSTATED: return "MAPDATASCREENSTATED";
 	case MAPDATASCREENFLAGSD: return "MAPDATASCREENFLAGSD";
 	case MAPDATASCREENEFLAGSD: return "MAPDATASCREENEFLAGSD";
-	
-		
 	case SCREENDATAVALID: return "SCREENDATAVALID";
 	case SCREENDATAGUY: return "SCREENDATAGUY";
 	case SCREENDATASTRING: return "SCREENDATASTRING";
@@ -1661,14 +1262,12 @@ string ZScript::VarToString(int32_t ID)
 	case SCREENDATAHOLDUPSFX: return "SCREENDATAHOLDUPSFX";
 	case SCREENDATASCREENMIDI: return "SCREENDATASCREENMIDI";
 	case SCREENDATALENSLAYER: return "SCREENDATALENSLAYER";
-	
 	case LINKSCRIPTTILE: return "LINKSCRIPTTILE";
 	case LINKSCRIPFLIP: return "LINKSCRIPFLIP";
 	case MAPDATAITEMX: return "MAPDATAITEMX";
 	case MAPDATAITEMY: return "MAPDATAITEMY";
 	case SCREENDATAITEMX: return "SCREENDATAITEMX";
 	case SCREENDATAITEMY: return "SCREENDATAITEMY";
-	
 	case MAPDATAFFEFFECTWIDTH: return "MAPDATAFFEFFECTWIDTH";
 	case MAPDATAFFEFFECTHEIGHT: return "MAPDATAFFEFFECTHEIGHT";
 	case SCREENDATAFFEFFECTWIDTH: return "SCREENDATAFFEFFECTWIDTH";
@@ -1680,10 +1279,8 @@ string ZScript::VarToString(int32_t ID)
 	case SHOPDATAHASITEM: return "SHOPDATAHASITEM";
 	case SHOPDATAPRICE: return "SHOPDATAPRICE";
 	case SHOPDATASTRING: return "SHOPDATASTRING";
-	
 	case AUDIOVOLUME: return "AUDIOVOLUME";
 	case AUDIOPAN: return "AUDIOPAN";
-	
 	case MESSAGEDATANEXT: return "MESSAGEDATANEXT";
 	case MESSAGEDATATILE: return "MESSAGEDATATILE";
 	case MESSAGEDATACSET: return "MESSAGEDATACSET";
@@ -1709,7 +1306,6 @@ string ZScript::VarToString(int32_t ID)
 	case MESSAGEDATATEXTWID: return "MESSAGEDATATEXTWID";
 	case MESSAGEDATATEXTHEI: return "MESSAGEDATATEXTHEI";
 	case MESSAGEDATATEXTLEN: return "MESSAGEDATATEXTLEN";
-	
 	case DMAPDATAID: return "DMAPDATAID";
 	case DMAPDATAMAP: return "DMAPDATAMAP";
 	case DMAPDATALEVEL: return "DMAPDATALEVEL";
@@ -1729,12 +1325,9 @@ string ZScript::VarToString(int32_t ID)
 	case DMAPDATASUBSCRP: return "DMAPDATASUBSCRP";
 	case DMAPDATADISABLEDITEMS: return "DMAPDATADISABLEDITEMS";
 	case DMAPDATAFLAGS: return "DMAPDATAFLAGS";
-	
 	case ITEMPSTRING: return "ITEMPSTRING";
 	case ITEMPSTRINGFLAGS: return "ITEMPSTRINGFLAGS";
 	case ITEMOVERRIDEFLAGS: return "ITEMOVERRIDEFLAGS";
-	
-	
 	case LINKPUSH: return "LINKPUSH";
 	case LINKSTUN: return "LINKSTUN";
 	case TYPINGMODE: return "TYPINGMODE";
@@ -1847,15 +1440,12 @@ string ZScript::VarToString(int32_t ID)
 	case DMAPDATAMAPSCRIPT: return "DMAPDATAMAPSCRIPT";
 	case DMAPDATAMAPINITD: return "DMAPDATAMAPINITD";
 	case DMAPDATACHARTED: return "DMAPDATACHARTED";
-	
-	
 	case DONULL: return "DONULL";
 	case DEBUGD: return "DEBUGD";
 	case GETPIXEL: return "GETPIXEL";
 	case DOUNTYPE: return "DOUNTYPE";
 	case LINKTILEMOD: return "LINKTILEMOD";
 	case NPCINITD: return "NPCINITD";
-	
 	case NPCCOLLISION: return "NPCCOLLISION";
 	case NPCLINEDUP: return "NPCLINEDUP";
 	case NPCDATAINITD: return "NPCDATAINITD";
@@ -1866,7 +1456,6 @@ string ZScript::VarToString(int32_t ID)
 	case LWPNINITD: return "LWPNINITD";
 	case ITEMFAMILY: return "ITEMFAMILY";
 	case ITEMLEVEL: return "ITEMLEVEL";
-	
 	case EWPNSCRIPT: return "EWPNSCRIPT";
 	case EWPNINITD: return "EWPNINITD";
 	case NPCSCRIPT: return "NPCSCRIPT";
@@ -1878,19 +1467,16 @@ string ZScript::VarToString(int32_t ID)
 	case LINKINITD: return "LINKINITD";
 	case NPCDATAWEAPONINITD: return "NPCDATAWEAPONINITD";
 	case NPCDATAWEAPONSCRIPT: return "NPCDATAWEAPONSCRIPT";
-	
 	case NPCSCRIPTTILE: return "NPCSCRIPTTILE";
 	case NPCSCRIPTFLIP: return "NPCSCRIPTFLIP";
 	case LWPNSCRIPTTILE: return "LWPNSCRIPTTILE";
 	case LWPNSCRIPTFLIP: return "LWPNSCRIPTFLIP";
 	case EWPNSCRIPTTILE: return "EWPNSCRIPTTILE";
 	case EWPNSCRIPTFLIP: return "EWPNSCRIPTFLIP";
-	
 	case LINKENGINEANIMATE: return "LINKENGINEANIMATE";
 	case NPCENGINEANIMATE: return "NPCENGINEANIMATE";
 	case LWPNENGINEANIMATE: return "LWPNENGINEANIMATE";
 	case EWPNENGINEANIMATE: return "EWPNENGINEANIMATE";
-	
 	case SKIPCREDITS: return "SKIPCREDITS";
 	case SKIPF6: return "SKIPF6";
 	case LWPNUSEWEAPON: return "LWPNUSEWEAPON";
@@ -1901,7 +1487,6 @@ string ZScript::VarToString(int32_t ID)
 	case NPCROTATION: return "NPCROTATION";
 	case ITEMROTATION: return "ITEMROTATION";
 	case LINKROTATION: return "LINKROTATION";
-	
 	case LWPNSCALE: return "LWPNSCALE";
 	case EWPNSCALE: return "EWPNSCALE";
 	case NPCSCALE: return "NPCSCALE";
@@ -1917,11 +1502,8 @@ string ZScript::VarToString(int32_t ID)
 	case KEYMODIFIERS: return "KEYMODIFIERS";
 	case SIMULATEKEYPRESS: return "SIMULATEKEYPRESS";
 	case KEYBINDINGS: return "KEYBINDINGS";
-	
 	case MAPDATASCRIPT: return "MAPDATASCRIPT";
-	
 	case MAPDATAINITDARRAY: return "MAPDATAINITDARRAY";
-	
 	case LWPNGRAVITY: return "LWPNGRAVITY";
 	case EWPNGRAVITY: return "EWPNGRAVITY";
 	case NPCGRAVITY: return "NPCGRAVITY";
@@ -1929,10 +1511,8 @@ string ZScript::VarToString(int32_t ID)
 	case LINKGRAVITY: return "LINKGRAVITY";
 	case MAPDATASIDEWARPID: return "MAPDATASIDEWARPID";
 	case SCREENSIDEWARPID: return "SCREENSIDEWARPID";
-	
 	case MAPDATALAYERINVIS: return "MAPDATALAYERINVIS";
 	case MAPDATASCRIPTDRAWS: return "MAPDATASCRIPTDRAWS";
-	
 	case ITEMSCRIPTTILE: return "ITEMSCRIPTTILE";
 	case ITEMSCRIPTFLIP: return "ITEMSCRIPTFLIP";
 	case MAPDATAMAP: return "MAPDATAMAP";
@@ -1949,7 +1529,6 @@ string ZScript::VarToString(int32_t ID)
 	case REFSTACK: return "REFSTACK";
 	case REFSUBSCREEN: return "REFSUBSCREEN";
 	case REFRNG: return "REFRNG";
-	
 	case CLASS_THISKEY: return "CLASS_THISKEY";
 	case RESRVD_VAR_EMILY01: return "RESRVD_VAR_EMILY01";
 	case RESRVD_VAR_EMILY02: return "RESRVD_VAR_EMILY02";
@@ -1981,7 +1560,6 @@ string ZScript::VarToString(int32_t ID)
 	case RESRVD_VAR_EMILY28: return "RESRVD_VAR_EMILY28";
 	case RESRVD_VAR_EMILY29: return "RESRVD_VAR_EMILY29";
 	case RESRVD_VAR_EMILY30: return "RESRVD_VAR_EMILY30";
-	
 	case LINKCLIMBING: return "LINKCLIMBING";
 	case NPCIMMORTAL: return "NPCIMMORTAL";
 	case NPCNOSLIDE: return "NPCNOSLIDE";
@@ -1989,7 +1567,6 @@ string ZScript::VarToString(int32_t ID)
 	case NPCNOSCRIPTKB: return "NPCNOSCRIPTKB";
 	case GETRENDERTARGET: return "GETRENDERTARGET";
 	case HERONOSTEPFORWARD: return "HERONOSTEPFORWARD";
-	
 	case SCREENDATATWARPRETSQR: return "SCREENDATATWARPRETSQR";
 	case SCREENDATASWARPRETSQR: return "SCREENDATASWARPRETSQR";
 	case MAPDATATWARPRETSQR: return "MAPDATATWARPRETSQR";
@@ -2006,7 +1583,6 @@ string ZScript::VarToString(int32_t ID)
 	case NPCPARENTUID: return "NPCPARENTUID";
 	case KEYPRESS: return "KEYPRESS";
 	case KEYINPUT: return "KEYINPUT";
-	
 	case SPRITEMAXNPC: return "SPRITEMAXNPC";
 	case SPRITEMAXLWPN: return "SPRITEMAXLWPN";
 	case SPRITEMAXEWPN: return "SPRITEMAXEWPN";
@@ -2028,14 +1604,11 @@ string ZScript::VarToString(int32_t ID)
 	case COMBODOTILE: return "COMBODOTILE";
 	case COMBODFRAME: return "COMBODFRAME";
 	case COMBODACLK: return "COMBODACLK";
-	
 	case FILEPOS: return "FILEPOS";
 	case FILEEOF: return "FILEEOF";
 	case FILEERR: return "FILEERR";
-	
 	case INCQST: return "INCQST";
 	case HEROJUMPCOUNT: return "HEROJUMPCOUNT";
-	
 	case HEROPULLDIR: return "HEROPULLDIR";
 	case HEROPULLCLK: return "HEROPULLCLK";
 	case HEROFALLCLK: return "HEROFALLCLK";
@@ -2058,7 +1631,6 @@ string ZScript::VarToString(int32_t ID)
 	case MODULEGETINT: return "MODULEGETINT";
 	case MODULEGETSTR: return "MODULEGETSTR";
 	case NPCORIGINALHP: return "NPCORIGINALHP";
-	
 	case CLOCKCLK: return "CLOCKCLK";
 	case CLOCKACTIVE: return "CLOCKACTIVE";
 	case NPCHITDIR: return "NPCHITDIR";
@@ -2074,7 +1646,6 @@ string ZScript::VarToString(int32_t ID)
 	case NPCHALTCLK: return "NPCHALTCLK";
 	case NPCMOVESTATUS: return "NPCMOVESTATUS";
 	case NPCFRAME: return "NPCFRAME";
-	
 	case DIRECTORYSIZE: return "DIRECTORYSIZE";
 	case STACKSIZE: return "STACKSIZE";
 	case STACKFULL: return "STACKFULL";
@@ -2082,17 +1653,14 @@ string ZScript::VarToString(int32_t ID)
 	case LONGDISTANCESCALE: return "LONGDISTANCESCALE";
 	case ACTIVESSSPEED: return "ACTIVESSSPEED";
 	case HEROISWARPING: return "HEROISWARPING";
-	
 	case ITEMGLOWRAD: return "ITEMGLOWRAD";
 	case NPCGLOWRAD: return "NPCGLOWRAD";
 	case LWPNGLOWRAD: return "LWPNGLOWRAD";
 	case EWPNGLOWRAD: return "EWPNGLOWRAD";
-	
 	case ITEMGLOWSHP: return "ITEMGLOWSHP";
 	case NPCGLOWSHP: return "NPCGLOWSHP";
 	case LWPNGLOWSHP: return "LWPNGLOWSHP";
 	case EWPNGLOWSHP: return "EWPNGLOWSHP";
-	
 	case ITEMDIR: return "ITEMDIR";
 	case ITEMFORCEGRAB: return "ITEMFORCEGRAB";
 	case COMBODTRIGGERITEM: return "COMBODTRIGGERITEM";
@@ -2103,7 +1671,6 @@ string ZScript::VarToString(int32_t ID)
 	case COMBODTRIGGERLIGHTBEAM: return "COMBODTRIGGERLIGHTBEAM";
 	case COMBODTRIGGERCTR: return "COMBODTRIGGERCTR";
 	case COMBODTRIGGERCTRAMNT: return "COMBODTRIGGERCTRAMNT";
-	
 	case COMBODTRIGGERCOOLDOWN: return "COMBODTRIGGERCOOLDOWN";
 	case COMBODTRIGGERCOPYCAT: return "COMBODTRIGGERCOPYCAT";
 	case COMBODTRIGITEMPICKUP: return "COMBODTRIGITEMPICKUP";
@@ -2126,15 +1693,12 @@ string ZScript::VarToString(int32_t ID)
 	case COMBODLIFTBREAKSFX: return "COMBODLIFTBREAKSFX";
 	case COMBODLIFTHEIGHT: return "COMBODLIFTHEIGHT";
 	case COMBODLIFTTIME: return "COMBODLIFTTIME";
-	
 	case SCREENEXSTATED: return "SCREENEXSTATED";
 	case MAPDATAEXSTATED: return "MAPDATAEXSTATED";
 	case HEROSTANDING: return "HEROSTANDING";
-	
 	case ITEMENGINEANIMATE: return "ITEMENGINEANIMATE";
 	case LWPNUNBL: return "LWPNUNBL";
 	case EWPNUNBL: return "EWPNUNBL";
-	
 	case NPCSHADOWSPR: return "NPCSHADOWSPR";
 	case LWPNSHADOWSPR: return "LWPNSHADOWSPR";
 	case EWPNSHADOWSPR: return "EWPNSHADOWSPR";
@@ -2145,7 +1709,6 @@ string ZScript::VarToString(int32_t ID)
 	case NPCDSPAWNSPR: return "NPCDSPAWNSPR";
 	case NPCDDEATHSPR: return "NPCDDEATHSPR";
 	case ITEMDROPPEDBY: return "ITEMDROPPEDBY";
-	
 	case REFGENERICDATA: return "REFGENERICDATA";
 	case GENDATARUNNING: return "GENDATARUNNING";
 	case GENDATASIZE: return "GENDATASIZE";
@@ -2154,7 +1717,6 @@ string ZScript::VarToString(int32_t ID)
 	case GENDATAINITD: return "GENDATAINITD";
 	case GENDATARELOADSTATE: return "GENDATARELOADSTATE";
 	case GENDATAEVENTSTATE: return "GENDATAEVENTSTATE";
-	
 	case COMBODCSET2FLAGS: return "COMBODCSET2FLAGS";
 	case HEROIMMORTAL: return "HEROIMMORTAL";
 	case NPCCANFLICKER: return "NPCCANFLICKER";
@@ -2178,7 +1740,6 @@ string ZScript::VarToString(int32_t ID)
 	case LWPNFAKEJUMP: return "LWPNFAKEJUMP";
 	case EWPNFAKEJUMP: return "EWPNFAKEJUMP";
 	case HEROFAKEJUMP: return "HEROFAKEJUMP";
-	
 	case REFPALDATA: return "REFPALDATA";
 	case PALDATACOLOR: return "PALDATACOLOR";
 	case PALDATAR: return "PALDATAR";
@@ -2214,7 +1775,6 @@ string ZScript::VarToString(int32_t ID)
 	case RESRVD_VAR_MOOSH28: return "RESRVD_VAR_MOOSH28";
 	case RESRVD_VAR_MOOSH29: return "RESRVD_VAR_MOOSH29";
 	case RESRVD_VAR_MOOSH30: return "RESRVD_VAR_MOOSH30";
-	
 	default:
 	{
 		sprintf(temp, "d%d", ID);
@@ -4097,7 +3657,7 @@ string OZapOut::toString()
     return "ZAPOUT";
 }
 
-//These need to be unary opcodes that accept bool linkvisible. 
+//These need to be unary opcodes that accept bool linkvisible.
 string OWavyIn::toString()
 {
     return "WAVYIN";
@@ -5905,8 +5465,8 @@ string oARRAYCOPY::toString()
     return "ARRAYCOPY " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
-/*to do 
-  //1 INPUT, NO RETURN 
+/*to do
+  //1 INPUT, NO RETURN
      { "REMCHR",                2,   0,   0,   0},
      { "STRINGUPPERLOWER",                2,   0,   0,   0},
      { "STRINGLOWERUPPER",                2,   0,   0,   0},
@@ -6011,7 +5571,7 @@ string Oremchr2::toString()
 
 
 /*to do
-  //3 INPUT 1 RET 
+  //3 INPUT 1 RET
     { "XTOA3",		       1,   0,   0,   0},
     { "STRCATF",		       1,   0,   0,   0},
     { "ITOA3",		       1,   0,   0,   0},
@@ -6023,7 +5583,6 @@ string Oremchr2::toString()
     { "STRRCHR3",		       1,   0,   0,   0},
     { "STRSPN3",		       1,   0,   0,   0},
     { "STRCSPN3",		       1,   0,   0,   0},
-    
 */
 
 

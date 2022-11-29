@@ -57,7 +57,6 @@ namespace // file local
 			: name(name), code(*code), used(false),
 			  strict(false), format("")
 		{}
-		
 		string name;
 		char code;
 		bool used;
@@ -93,7 +92,6 @@ void CompileError::initialize()
 #		undef X
 #		undef X_D
 #		undef X_A
-		
 		initialized = true;
 	}
 }
@@ -124,7 +122,6 @@ namespace // file local
 		return arg.c_str();
 	}
 	////////////////////////////////////////////////////////////////
-	
 	// Two argument specialization (default).
 	template <typename A = void, typename B = void>
 	class CEImpl : public CompileError::Impl
@@ -135,7 +132,6 @@ namespace // file local
 			: id_(id), source_(source), arg1_(arg1), arg2_(arg2)
 		{}
 		CEImpl* clone() const /*override*/ {return new CEImpl(*this);}
-		
 		CompileError::Id getId() const /*override*/ {return id_;}
 		string getMessage() const /*override*/ {
 			return XH.formatStr(&entries[id_].format,
@@ -159,7 +155,6 @@ namespace // file local
 			: id_(id), source_(source), arg_(arg)
 		{}
 		CEImpl* clone() const /*override*/ {return new CEImpl(*this);}
-		
 		CompileError::Id getId() const /*override*/ {return id_;}
 		string getMessage() const /*override*/ {
 			return XH.formatStr(&entries[id_].format, formatArg<A>(arg_));}
@@ -180,7 +175,6 @@ namespace // file local
 			: id_(id), source_(source)
 		{}
 		CEImpl* clone() const /*override*/ {return new CEImpl(*this);}
-		
 		CompileError::Id getId() const /*override*/ {return id_;}
 		string getMessage() const /*override*/ {return entries[id_].format;}
 		AST const* getSource() const /*override*/ {return source_;}
@@ -272,7 +266,6 @@ string CompileError::toString() const
 	if (!pimpl_) return "unknown error";
 	Id id = pimpl_->getId();
 	Entry& entry = entries[id];
-	
 	ostringstream oss;
 
 	// Output location data.

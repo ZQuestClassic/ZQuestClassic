@@ -148,7 +148,7 @@ float __Tango_RunCustomFunction(float function, float args)
         // Unknown function
         Tango_LogUndefinedFunction(function);
     }
-    
+
     return 0;
 }
 ```

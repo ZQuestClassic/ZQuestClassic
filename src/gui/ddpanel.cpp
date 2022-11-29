@@ -50,7 +50,6 @@ void DDPanel::loadList(GUI::ListData dd_data)
 			std::shared_ptr<Button> ibtn = std::make_shared<Button>();
 			std::shared_ptr<Label> ddlabel = std::make_shared<Label>();
 			ibtn->setText("?");
-			
 			int32_t indexVal = dd_data.getValue(q);
 			std::string const& name = dd_data.getText(q);
 			std::string const& infotext = dd_data.getInfo(q);
@@ -66,7 +65,6 @@ void DDPanel::loadList(GUI::ListData dd_data)
 				});
 			ddown->onSelectionChanged(message);
 			++q;
-			
 			ddlabel->setHAlign(1.0);
 			ddown->setHAlign(1.0);
 			ibtn->setHAlign(0.0);

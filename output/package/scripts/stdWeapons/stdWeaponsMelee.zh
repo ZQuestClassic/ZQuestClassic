@@ -50,13 +50,13 @@ void MeleeWeaponUpdate (lweapon sword, int dir, int origtile, int offset, bool n
 	sword->HitYOffset = sword->DrawYOffset;
 }
 
-void MeleeWeaponStab(ffc f, lweapon l, int origtile, int delay, int offset, int triggerflag, 
+void MeleeWeaponStab(ffc f, lweapon l, int origtile, int delay, int offset, int triggerflag,
 int combodestroy, int enemydefense, int combodestroysfx, int aspeed){
 	l->CollDetection=true;
 	int Wdir = Link->Dir;
 	l->Dir=Wdir;
 	if (LweaponFlagIsSet(l, LWF_IGNORE_ENEMY_SHIELDS)) l->Dir = GetUnblockableDir(Wdir);
-	LweaponSetFlag(l, LWF_MELEE);	
+	LweaponSetFlag(l, LWF_MELEE);
 	LweaponSetFlag(l, LWF_PENETRATING);
 	LweaponSetFlag(l, LWF_NO_FALL);
 	LweaponSetFlag(l, LWF_MOVE_OFFSCREEN);
@@ -81,7 +81,7 @@ int combodestroy, int enemydefense, int combodestroysfx, int aspeed){
 	}
 }
 
-void MeleeWeaponSlash90(ffc f, lweapon l, int origtile, int delay, int offset, int triggerflag, 
+void MeleeWeaponSlash90(ffc f, lweapon l, int origtile, int delay, int offset, int triggerflag,
 int combodestroy, int enemydefense, int combodestroysfx, int aspeed){
 	l->CollDetection=true;
 	LweaponSetFlag(l, LWF_MELEE);
@@ -123,11 +123,11 @@ int combodestroy, int enemydefense, int combodestroysfx, int aspeed){
 	}
 }
 
-void MeleeWeaponSlash90Alt(ffc f, lweapon l, int origtile, int delay, int offset, int triggerflag, 
+void MeleeWeaponSlash90Alt(ffc f, lweapon l, int origtile, int delay, int offset, int triggerflag,
 int combodestroy, int enemydefense, int combodestroysfx, int aspeed){
 	l->CollDetection=true;
 	//sword->HitXOffset += sword->Misc[LWEAPON_MISC_HIT_OFFSET_X];
-	//sword->HitYOffset += sword->Misc[LWEAPON_MISC_HIT_OFFSET_Y]; 
+	//sword->HitYOffset += sword->Misc[LWEAPON_MISC_HIT_OFFSET_Y];
 	int TileOffset = l->TileWidth;
 	LweaponSetFlag(l, LWF_MELEE);
 	LweaponSetFlag(l, LWF_PENETRATING);
@@ -170,7 +170,7 @@ int combodestroy, int enemydefense, int combodestroysfx, int aspeed){
 	}
 }
 
-void MeleeWeaponSlash180(ffc f, lweapon l, int origtile, int delay, int offset, int triggerflag, 
+void MeleeWeaponSlash180(ffc f, lweapon l, int origtile, int delay, int offset, int triggerflag,
 int combodestroy, int enemydefense, int combodestroysfx, int aspeed){
 	l->CollDetection=true;
 	int TileOffset = l->TileWidth;
@@ -230,7 +230,7 @@ int combodestroy, int enemydefense, int combodestroysfx, int aspeed){
 	}
 }
 
-void MeleeWeaponSlash360(ffc f, lweapon l, int origtile, int delay, int offset, int triggerflag, 
+void MeleeWeaponSlash360(ffc f, lweapon l, int origtile, int delay, int offset, int triggerflag,
 int combodestroy, int enemydefense, int combodestroysfx, int aspeed){
 	l->CollDetection=true;
 	int TileOffset = l->TileWidth;
@@ -324,7 +324,7 @@ int combodestroy, int enemydefense, int combodestroysfx, int aspeed){
 	}
 }
 
-void MeleeWeaponPound(ffc f, lweapon l, int origtile, int lag, int delay, int offset, 
+void MeleeWeaponPound(ffc f, lweapon l, int origtile, int lag, int delay, int offset,
 int triggerflag, bool breakshield, int combodestroy, int enemydefense, int poundsfx, int combodestroysfx, int aspeed){
 	l->CollDetection=true;
 	if (Link->Dir==DIR_DOWN) origtile +=20*(l->TileHeight);
@@ -378,12 +378,12 @@ int triggerflag, bool breakshield, int combodestroy, int enemydefense, int pound
 		}
 		LweaponWaitframe (f, l, true);
 	}
-	
+
 }
 
 void MeleeWeaponDraw(ffc f, lweapon l, int origtile, int delay, int offset){
 	LweaponSetFlag(l, LWF_MELEE);
-	LweaponSetFlag(l, LWF_NO_FALL);	
+	LweaponSetFlag(l, LWF_NO_FALL);
 	l->CollDetection = false;
 	int Wdir = Link->Dir;
 	l->Dir=Wdir;

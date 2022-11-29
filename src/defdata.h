@@ -22,4 +22,3 @@ extern itemdata default_items[iLast];
 extern guydata default_guys[OLDMAXGUYS];
 extern item_drop_object default_item_drop_sets[isMAX];
 #endif
- 

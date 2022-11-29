@@ -2,7 +2,7 @@
 /// Third-Party Utilities ///
 /////////////////////////////
 
-The following third-party (add-on) utilities are now bundled 
+The following third-party (add-on) utilities are now bundled
 with ZC 2.55 (starting in Alpha 30, 24th August, 2019):
 
 ///////////////////////
@@ -23,7 +23,7 @@ the Module Fonts Datafile (e.g. fonts.dat).
 /////////////////////////////
 An enhanced utility for editing sprite sheets used by ZQuest.
 This allows editing full tile pages with six levels of oom,
-operating on more than one tile at a time, while preserving 
+operating on more than one tile at a time, while preserving
 the Quest palettes of the image, in a variety of formats.
 
 It also has many other sprite animation/creation features.

@@ -217,10 +217,8 @@ void ComboWizardDialog::endUpdate()
 			byte& e2 = local_ref.attribytes[1];
 			bool fl1 = src_ref.usrflags&cflag1;
 			bool fl2 = src_ref.usrflags&cflag2;
-			
 			if(e1 == e2)
 				e2 = 0;
-			
 			if(e1 && e2)
 			{
 				//both good
@@ -358,7 +356,6 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	using namespace GUI::Key;
-	
 	std::shared_ptr<GUI::Grid> windowRow;
 	window = Window(
 		//use_vsync = true,
@@ -381,9 +378,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			)
 		)
 	);
-	
 	thelp = getComboTypeHelpText(local_ref.type);
-	
 	bool wip = false;
 	switch(local_ref.type)
 	{
@@ -759,7 +754,6 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			byte& e1 = local_ref.attribytes[0];
 			byte& e2 = local_ref.attribytes[1];
 			bool armos = local_ref.type==cARMOS;
-			
 			if(!(local_ref.usrflags&cflag1))
 			{
 				e1 = 0;
@@ -767,7 +761,6 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			}
 			else if(!(local_ref.usrflags&cflag2))
 				e2 = 0;
-			
 			std::shared_ptr<GUI::Grid> endrow = Rows<2>(padding = 0_px,
 					colSpan = 3, hAlign = 1.0);
 			if(armos)
@@ -841,10 +834,8 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			byte& flipp_level = local_ref.attribytes[0];
 			byte& drown_sfx = local_ref.attribytes[4];
 			int32_t& drown_damage = local_ref.attributes[0];
-			
 			//Shallow only
 			byte& splash_sfx = local_ref.attribytes[0];
-			
 			//Both
 			lists[1] = GUI::ZCListData::itemclass(true,true);
 			byte& hp_delay = local_ref.attribytes[1];
@@ -852,7 +843,6 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			byte& req_it_lvl = local_ref.attribytes[3];
 			int32_t& hp_mod = local_ref.attributes[1];
 			int32_t& mod_sfx = local_ref.attributes[2];
-			
 			std::shared_ptr<GUI::Grid> mainrow;
 			if(local_ref.type == cWATER) //deep
 			{
@@ -950,7 +940,6 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					INFOBTN("The SFX played when walking in")
 				);
 			}
-			
 			windowRow->add(TabPanel(ptr = &tabpos,
 				TabRef(name = "Main",
 					mainrow
@@ -1129,25 +1118,19 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			byte& weap_sprite = local_ref.attribytes[2];
 			int16_t& damage = local_ref.attrishorts[2];
 			int32_t& step = local_ref.attributes[2];
-			
 			byte& unblockable = local_ref.attribytes[4];
 			byte& script = local_ref.attribytes[5];
-			
 			int32_t& angle_dir = local_ref.attributes[0];
-			
 			int16_t& rate = local_ref.attrishorts[0];
 			int16_t& high_rate = local_ref.attrishorts[1];
 			if(!(local_ref.usrflags&cflag2))
 				high_rate = rate;
-			
 			int32_t& prox = local_ref.attributes[1];
 			if(prox < 0) prox = 0;
-			
 			byte& shot_count = local_ref.attribytes[3];
 			int32_t& spread = local_ref.attributes[3];
 			spread = SMART_WRAP(spread, 360*10000);
 			if(shot_count < 2) shot_count = 2;
-			
 			size_t seladir = 0;
 			int32_t angle = 0;
 			int32_t dir = 0;
@@ -1179,9 +1162,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			{
 				dir = NORMAL_DIR(angle_dir / 10000);
 			}
-			
 			rs_sz[0] = 5;
-			
 			static size_t tabpos = 0;
 			windowRow->add(TabPanel(ptr = &tabpos,
 				TabRef(name = "1", Rows<2>(
@@ -1208,7 +1189,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						ddls[1] = DropDownList(data = parent.list_weaptype,
 							fitParent = true, selectedValue = weap_type,
 							onSelectFunc = [&](int32_t val)
-							{ 
+							{
 								weap_type = val;
 								update();
 							}),
@@ -1523,7 +1504,6 @@ bool ComboWizardDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::CANCEL:
 		default:
 			return true;
-		
 		case message::RSET0: case message::RSET1: case message::RSET2: case message::RSET3: case message::RSET4:
 		case message::RSET5: case message::RSET6: case message::RSET7: case message::RSET8: case message::RSET9:
 			setRadio(int32_t(msg.message)-int32_t(message::RSET0), int32_t(msg.argument));

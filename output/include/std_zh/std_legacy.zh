@@ -1,4 +1,4 @@
-//Legacy wrapper functions, for compatibility with old scripts. 
+//Legacy wrapper functions, for compatibility with old scripts.
 ///5th November, 2019
 
 float __stdzh_getVersion() { return STD_VERSION; }
@@ -31,7 +31,7 @@ void __stdzh_SetV(int indx, int value)
 }
 
 //Increase the value of any 'indx' by +1.
-void __stdzh_IncV(int indx) 
+void __stdzh_IncV(int indx)
 {
 	++std::GlobalRAM[indx];
 }
@@ -54,7 +54,7 @@ void __stdzh_DecV(int indx, int amount)
 	std::GlobalRAM[indx] -= amount;
 }
 
-//Stores the pointer of any array to an inmdex of GlobalRAM to allow accessing it from any script. 
+//Stores the pointer of any array to an inmdex of GlobalRAM to allow accessing it from any script.
 void __stdzh_StoreArrayPointer(int arr, int indx)
 {
 	std::GlobalRAM[indx] = arr;

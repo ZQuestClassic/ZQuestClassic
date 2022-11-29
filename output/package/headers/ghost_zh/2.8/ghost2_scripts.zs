@@ -6,7 +6,7 @@ global script GhostZHActiveScript
     void run()
     {
         StartGhostZH();
-        
+
         while(true)
         {
             UpdateGhostZH1();

@@ -30,7 +30,6 @@ public:
 	int32_t initd[INITIAL_D];
 	int32_t inita[INITIAL_A];
 	bool initialized;
-	
 	ffcdata();
 	~ffcdata();
 	ffcdata(ffcdata const& other);
@@ -38,16 +37,13 @@ public:
 	void changerCopy(ffcdata& other, int32_t i = -1, int32_t j = -1);
 	ffcdata& operator=(ffcdata const& other);
 	void clear();
-	
 	void setData(word newdata);
 	void incData(int32_t inc);
 	word const& getData() const {return data;}
-	
 	virtual bool setSolid(bool set);
 	virtual void updateSolid();
 	void setLoaded(bool set);
 	bool getLoaded() const;
-	
 	//Overload to do damage to Hero on pushing them
 	virtual void doContactDamage(int32_t hdir);
 private:
@@ -123,17 +119,12 @@ struct mapscr
 	word secretcombo[128];
 	byte secretcset[128];
 	byte secretflag[128];
-	
 	word data[176];
 	byte sflag[176];
 	byte cset[176];
-	
 	byte entry_x, entry_y; //Where Hero entered the screen. Used for pits, and to prevent water walking. -Z
-	
 	word lastffc = 0;
-	
 	ffcdata ffcs[MAXFFCS];
-	
 	void update_ffc_count(word spos = 0)
 	{
 		if(spos < lastffc || spos > MAXFFCS)
@@ -161,12 +152,10 @@ struct mapscr
 				update_ffc_count(index);
 		}
 	}
-	
 	word numFFC() const
 	{
 		return lastffc+1;
 	}
-	
 	byte ffEffectWidth(size_t ind) const
 	{
 		return (byte)ffcs[ind].hxsz;
@@ -199,41 +188,32 @@ struct mapscr
 	{
 		ffcs[ind].tysz = val;
 	}
-	
 	word script_entry;
 	word script_occupancy;
 	word script_exit;
-	
 	byte oceansfx;
 	byte bosssfx;
 	byte secretsfx;
 	byte holdupsfx;
-	
 	// for importing older quests...
 	byte old_cpage;
 	int16_t screen_midi;
 	byte lens_layer;
-	
 	//Currently unused
 	int32_t npcstrings[10];
 	int16_t new_items[10];
 	int16_t new_item_x[10];
 	int16_t new_item_y[10];
-	
-	
 	word script;
 	int32_t screeninitd[8];
 	byte screen_waitdraw;
 	byte preloadscript;
 	uint32_t ffcswaitdraw;
 	byte screendatascriptInitialised;
-	
 	byte hidelayers;
 	byte hidescriptlayers;
 	byte doscript;
-	
 	void zero_memory();
-	
 	mapscr();
 	void copy(mapscr const& other);
 	mapscr(mapscr const& other);

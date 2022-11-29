@@ -12,12 +12,9 @@ namespace GUI
 class ColorSel: public Widget
 {
 public:
-	
 	ColorSel();
-	
 	void setVal(byte val);
 	byte getVal();
-	
 	/* Sets the message to send whenever the text changes. Like onEnter,
 	 * the type of the argument varies depending on the text field's type.
 	 */
@@ -29,7 +26,6 @@ public:
 
 	/* Sets a function to be called on value change. */
 	void setOnValChanged(std::function<void(byte)> newOnValChanged);
-	
 private:
 	DialogRef alDialog;
 	int32_t onValueChangedMsg;

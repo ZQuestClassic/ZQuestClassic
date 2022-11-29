@@ -11,7 +11,7 @@ namespace ghost3
 			yStep=0;
 
 		// If moving more than 8 pixels along either axis, go 8 at a time
-		
+
 		while(Abs(xStep)>8 || Abs(yStep)>8)
 		{
 			if(Abs(xStep)>=Abs(yStep))
@@ -41,75 +41,75 @@ namespace ghost3
 				}
 			}
 		}
-		
+
 		int edge; // Position of leading edge
 		int edgeDiff; // Difference between Ghost_X/Ghost_Y and edge
 		int startHT; // The half-tile position where the edge starts
 		int endHT; // And where it ends up
-		
+
 		if(xStep<0) // Left
 		{
 			edgeDiff=ghost->HitXOffset;
 			edge=ghost->X+edgeDiff;
-			
+
 			startHT=Round(edge/8);
 			endHT=Round((edge+xStep)/8);
-			
+
 			// If the edge ends up on the same half-tile line it's already on,
 			// there's no need to check walkability
 			if(ghost3::CanMove(ghost, DIR_LEFT, -xStep, imprecision))
 				edge+=xStep;
 			else // Can't move all the way; snap to the grid
 				edge=(edge>>3)<<3;
-			
+
 			ghost->X=edge-edgeDiff;
 		}
 		else if(xStep>0) // Right
 		{
 			edgeDiff=ghost->HitXOffset+ghost->HitWidth-1;
 			edge=ghost->X+edgeDiff;
-			
+
 			startHT=Round(edge/8);
 			endHT=Round((edge+xStep)/8);
-			
+
 			if(ghost3::CanMove(ghost, DIR_RIGHT, xStep, imprecision))
 				edge+=xStep;
 			else
 				edge=((edge+7)>>3)<<3;
-			
+
 			ghost->X=edge-edgeDiff;
 		}
-		
+
 		if(yStep<0) // Up
 		{
 			edgeDiff=ghost->HitYOffset;
 			edge=ghost->Y+edgeDiff;
-			
+
 			startHT=Round(edge/8);
 			endHT=Round((edge+yStep)/8);
-			
+
 			// If the edge ends up on the same half-tile line it's already on,
 			// there's no need to check walkability
 			if(ghost3::CanMove(ghost, DIR_UP, -yStep, imprecision))
 				edge+=yStep;
 			else // Can't move all the way; snap to the grid
 				edge=(edge>>3)<<3;
-			
+
 			ghost->Y=edge-edgeDiff;
 		}
 		else if(yStep>0) // Down
 		{
 			edgeDiff=ghost->HitHeight+ghost->HitYOffset-1;
 			edge=ghost->Y+edgeDiff;
-			
+
 			startHT=Round(edge/8);
 			endHT=Round((edge+yStep)/8);
-			
+
 			if(ghost3::CanMove(ghost, DIR_DOWN, yStep, imprecision))
 				edge+=yStep;
 			else
 				edge=((edge+7)>>3)<<3;
-			
+
 			ghost->Y=edge-edgeDiff;
 		}
 	}
@@ -172,12 +172,12 @@ namespace ghost3
 	{
 		if(step==0)
 			return true;
-		
+
 		if(dir>=4) // Diagonal
 			step*=DIAGONAL_MODIFIER;
-		
+
 		dir=NormalizeDir(dir);
-		
+
 		// More than 8 pixels? Step 8 at a time
 		while(step>8)
 		{
@@ -185,7 +185,7 @@ namespace ghost3
 				return false;
 			step-=8;
 		}
-		
+
 		return CanMoveSingle(ghost, dir, step, imprecision, inAir);
 	}
 
@@ -206,29 +206,29 @@ namespace ghost3
 				// The edge size is hitheight, because what the fuck saffith
 			// That was not okay. My eyes hurt now.
 				edgeSize=ghost->HitHeight;
-				
+
 				// The leading edge is the left edge of the hitbox
 				leadingEdge=ghost->X+ghost->HitXOffset-step;
-				
+
 				// The edge starts at the top of the hitbox
 				edgeStart=ghost->Y+ghost->HitYOffset;
-				
+
 				// Check every eight pixels; -1 cuts off the last point
 				numCheckPoints=edgeSize/8-1;
-				
+
 				// Check the non-end points
 				for(i=1; i<=numCheckPoints; ++i)
 				{
 					if(!CanMovePixel(ghost, leadingEdge, edgeStart+i*8, inAir))
 						return false;
 				}
-				
+
 				// Then the endpoints
 				if(!CanMovePixel(ghost, leadingEdge, edgeStart+imprecision, inAir))
 					return false;
 				if(!CanMovePixel(ghost, leadingEdge, edgeStart+edgeSize-imprecision-1, inAir))
 					return false;
-				
+
 				return true;
 			}
 			case DIR_RIGHT:
@@ -237,7 +237,7 @@ namespace ghost3
 				leadingEdge=ghost->X+ghost->HitWidth+ghost->HitXOffset-1+step;
 				edgeStart=ghost->Y+ghost->HitYOffset;
 				numCheckPoints=edgeSize/8-1;
-				
+
 				for(i=1; i<=numCheckPoints; ++i)
 				{
 					if(!CanMovePixel(ghost, leadingEdge, edgeStart+i*8, inAir))
@@ -247,7 +247,7 @@ namespace ghost3
 					return false;
 				if(!CanMovePixel(ghost, leadingEdge, edgeStart+edgeSize-imprecision-1, inAir))
 					return false;
-				
+
 				return true;
 			}
 			case DIR_UP:
@@ -260,23 +260,23 @@ namespace ghost3
 						return false;
 					}
 				}
-				
+
 				edgeSize=ghost->HitWidth;
 				leadingEdge=ghost->Y+ghost->HitYOffset-step;
 				edgeStart=ghost->X+ghost->HitXOffset;
 				numCheckPoints=edgeSize/8-1;
-				
+
 				for(i=1; i<=numCheckPoints; ++i)
 				{
 					if(!CanMovePixel(ghost, edgeStart+i*8, leadingEdge, inAir))
 						return false;
 				}
-				
+
 				if(!CanMovePixel(ghost, edgeStart+imprecision, leadingEdge, inAir))
 					return false;
 				if(!CanMovePixel(ghost, edgeStart+edgeSize-imprecision-1, leadingEdge, inAir))
 					return false;
-				
+
 				return true;
 			}
 			case DIR_DOWN:
@@ -285,32 +285,32 @@ namespace ghost3
 				leadingEdge=ghost->Y+ghost->HitHeight+ghost->HitYOffset-1+step;
 				edgeStart=ghost->X+ghost->HitXOffset;
 				numCheckPoints=edgeSize/8-1;
-				
+
 				for(i=1; i<=numCheckPoints; ++i)
 				{
 					if(!CanMovePixel(ghost, edgeStart+i*8, leadingEdge, inAir))
 						return false;
 				}
-				
+
 				if(!CanMovePixel(ghost, edgeStart+imprecision, leadingEdge, inAir))
 					return false;
 				if(!CanMovePixel(ghost, edgeStart+edgeSize-imprecision-1, leadingEdge, inAir))
 					return false;
-				
+
 				return true;
 			}
-			
+
 			// Diagonal directions - move along one axis and test the other
 			case DIR_LEFTUP:
 			{
 				bool ret;
-				
+
 				ghost->X-=step;
 				ret=ghost3::CanMove(ghost, DIR_UP, step, imprecision, inAir);
 				ghost->X+=step;
 				if(!ret)
 					return false;
-				
+
 				ghost->Y-=step;
 				ret=ghost3::CanMove(ghost, DIR_LEFT, step, imprecision, inAir);
 				ghost->Y+=step;
@@ -319,13 +319,13 @@ namespace ghost3
 			case DIR_RIGHTUP:
 			{
 				bool ret;
-				
+
 				ghost->X+=step;
 				ret=ghost3::CanMove(ghost, DIR_UP, step, imprecision, inAir);
 				ghost->X-=step;
 				if(!ret)
 					return false;
-				
+
 				ghost->Y-=step;
 				ret=ghost3::CanMove(ghost, DIR_RIGHT, step, imprecision, inAir);
 				ghost->Y+=step;
@@ -334,13 +334,13 @@ namespace ghost3
 			case DIR_LEFTDOWN:
 			{
 				bool ret;
-				
+
 				ghost->X-=step;
 				ret=ghost3::CanMove(ghost, DIR_DOWN, step, imprecision, inAir);
 				ghost->X+=step;
 				if(!ret)
 					return false;
-				
+
 				ghost->Y+=step;
 				ret=ghost3::CanMove(ghost, DIR_LEFT, step, imprecision, inAir);
 				ghost->Y-=step;
@@ -349,13 +349,13 @@ namespace ghost3
 			case DIR_RIGHTDOWN:
 			{
 				bool ret;
-				
+
 				ghost->X+=step;
 				ret=ghost3::CanMove(ghost, DIR_DOWN, step, imprecision, inAir);
 				ghost->X-=step;
 				if(!ret)
 					return false;
-				
+
 				ghost->Y+=step;
 				ret=ghost3::CanMove(ghost, DIR_RIGHT, step, imprecision, inAir);
 				ghost->Y-=step;
@@ -375,9 +375,9 @@ namespace ghost3
 	{
 		if(x<0 || x>255 || y<0 || y>175)
 			return FlagIsSet(ghost, GHF_MOVE_OFFSCREEN);
-		
+
 		int combo=ComboAt(x, y);
-		
+
 		// "No enemy" flags and combos
 		if(!FlagIsSet(ghost, GHF_IGNORE_NO_ENEMY))
 		{
@@ -387,8 +387,8 @@ namespace ghost3
 				return false;
 			if(Screen->ComboI[combo]==CF_NOENEMY)
 				return false;
-				
-			
+
+
 			// Flying
 			if(FlagIsSet(ghost, GHF_FLYING_ENEMY))
 			{
@@ -425,13 +425,13 @@ namespace ghost3
 		// Ignore solidity: always OK
 		if(FlagIsSet(ghost, GHF_IGNORE_SOLIDITY))
 			return true;
-		
+
 		// Full tile movement: Only if the whole tile is walkable
-		else 
+		else
 		{
 			if(FlagIsSet(ghost, GHF_FULL_TILE_MOVEMENT))
 				return __FullTileWalkable(x, y, FlagIsSet(ghost, GHF_MOVE_OFFSCREEN));
-			
+
 			// All others: Only if the pixel is walkable
 			else
 			{
@@ -452,28 +452,28 @@ namespace ghost3
 		// Offscreen?
 		if(x<0 || y<0 || x>=256 || y>=176)
 			return offscreen;
-		
+
 		// Get the exact coordinate of the top-left pixel
 		x-=x%16;
 		y-=y%16;
-		
+
 		if(Screen->isSolid(x, y) ||
 		   Screen->isSolid(x+8, y) ||
 		   Screen->isSolid(x, y+8) ||
 		   Screen->isSolid(x+8, y+8))
 			return false;
-		
+
 		return true;
 	}
-	
+
 	bool CanPlaceTile(npc ghost, int x, int y, bool inair)
 	{
 		x-=x%16;
 		y-=y%16;
 		unless(CanMovePixel(ghost, x, y, inair)&&CanMovePixel(ghost, x+8, y, inair)
-		&&CanMovePixel(ghost, x, y+8, inair)&&CanMovePixel(ghost, x+8, y+8, inair)) 
+		&&CanMovePixel(ghost, x, y+8, inair)&&CanMovePixel(ghost, x+8, y+8, inair))
 			return false;
-		
+
 		return true;
 	}
 
@@ -501,19 +501,19 @@ namespace ghost3
 		}
 		return false;
 	}
-	
+
 	int AngleDir4(int x1, int y1, int x2, int y2) //Overload to do the Angle function
 	{
 		return ::AngleDir4(Angle(x1, y1, x2, y2));
 	}
-	
+
 	int AngleDir8(int x1, int y1, int x2, int y2) //Overload to do the Angle function
 	{
 		return ::AngleDir8(Angle(x1, y1, x2, y2));
 	}
-	
+
 	void WizzrobeMove(npc this, int walkstep, int phasestep, int walkhoming, int phasehoming, int walkrate, int phaserate, int haltrate)
-	{	
+	{
 		int data = this->Misc[GH_INTERNAL];
 		int arr[3];
 		arr[0] = this->Dir;
@@ -538,15 +538,15 @@ namespace ghost3
 							WizzrobeNewDir(this, phasehoming, phaserate);
 						}
 					}
-					
+
 					break;
-					
+
 				case 2:											   //phasing
 				{
 					int jx=this->X;
 					int jy=this->Y;
 					int jdir=-1;
-					
+
 					switch(Rand(8))
 					{
 						case 0:
@@ -554,26 +554,26 @@ namespace ghost3
 							jy-=32;
 							jdir=15;
 							break;
-							
+
 						case 1:
 							jx+=32;
 							jy-=32;
 							jdir=9;
 							break;
-							
+
 						case 2:
 							jx+=32;
 							jy+=32;
 							jdir=11;
 							break;
-							
+
 						case 3:
 							jx-=32;
 							jy+=32;
 							jdir=13;
 							break;
 					}
-					
+
 					if(jdir>0 && jx>=32 && jx<=208 && jy>=32 && jy<=128)
 					{
 						data[D0]=3;
@@ -582,14 +582,14 @@ namespace ghost3
 						break;
 					}
 				}
-				
+
 				case 3:
 					this->Dir&=3;
 					data[D0]=0;
-					
+
 				case 0:
 					WizzrobeNewDir(this, walkhoming, walkrate);
-					
+
 				default:
 					arr[0] = this->Dir;
 					arr[1] = 1;
@@ -615,52 +615,52 @@ namespace ghost3
 					{
 						data[CLK0]=32;
 					}
-					
+
 					break;
 			}
-			
+
 			if(data[D0]<0)
 				++data[D0];
 		}
-		
+
 		--data[CLK0];
-		
+
 		int step;
-		
+
 		switch(data[D0])
 		{
 			case 1:
 			case 3:
 				step=phasestep;
 				break;
-				
+
 			case 2:
 				step=0;
 				break;
-				
+
 			default:
 				step=walkstep;
 				break;
-				
+
 		}
-		
+
 		step /= 100;
-		
+
 		ForceMove(this, step);
-		
+
 		if(data[D0]==0 && Rand(128)<=haltrate-1)
 			data[D0]=2;
-			
+
 		if(data[D0]==2 && data[CLK0]==4)
 			FixCoords(this, false);
-				
+
 	}
 	void WizzrobeAnimate(npc this)
 	{
 		int data = this->Misc[GH_INTERNAL];
 		if (data[D0] == 1 || data[D0] == 3) WizzrobeFlicker(this);
 	}
-	
+
 	bool DoWizzrobeStuff(npc this, int walkstep, int phasestep, int walkhoming, int phasehoming, int walkrate, int phaserate, int haltrate, int attackstyle, int attackrange)
 	{
 		int data = this->Misc[GH_INTERNAL];
@@ -709,46 +709,46 @@ namespace ghost3
 			case DIR_UP:
 				this->Y-=s;
 				break;
-				
+
 			case 12:
 			case DIR_DOWN:
 				this->Y+=s;
 				break;
-				
+
 			case 14:
 			case DIR_LEFT:
 				this->X-=s;
 				break;
-				
+
 			case 10:
 			case DIR_RIGHT:
 				this->X+=s;
 				break;
-				
+
 			case 15:
 			case DIR_LEFTUP:
 				this->X-=s;
 				this->Y-=s;
 				break;
-				
+
 			case 9:
 			case DIR_RIGHTUP:
 				this->X+=s;
 				this->Y-=s;
 				break;
-				
+
 			case 13:
 			case DIR_LEFTDOWN:
 				this->X-=s;
 				this->Y+=s;
 				break;
-				
+
 			case 11:
 			case DIR_RIGHTDOWN:
 				this->X+=s;
 				this->Y+=s;
 				break;
-				
+
 			case -1:
 				break;
 		}
@@ -760,11 +760,11 @@ namespace ghost3
 			this->X=Clamp(this->X, 0, 240);
 			this->Y=Clamp(this->Y, 0, 160);
 		}
-		
+
 		if(this->X > 0 && this->Y > 0 && this->X <= 240 && this->Y <= 160)
 		{
 			this->X=(this->X&0xF0)+((this->X&8)?16:0);
-			
+
 			if(IsSideview())
 				this->Y=(this->Y&0xF8)+((this->Y&4)?8:0);
 			else
@@ -830,7 +830,7 @@ namespace ghost3
 	void WizzrobeFlicker(npc this)
 	{
 		int data = this->Misc[GH_INTERNAL];
-		if (data[FLICKERCLK]&10b) 
+		if (data[FLICKERCLK]&10b)
 		{
 			this->BFlags[WIZZROBE_INVISIBLE]  = true;
 		}
@@ -963,7 +963,7 @@ namespace ghost3
 		int x;
 		int y;
 		int dir;
-		
+
 		while(!placed && t<160)
 		{
 			if(IsDungeon())
@@ -976,15 +976,15 @@ namespace ghost3
 				x=(Rand(14)+1)*16;
 				y=(Rand(19)+1)*16;
 			}
-			
+
 			if((Abs(x-Hero->X) >= 32) || (Abs(y-Hero->Y) >= 32))
 			{
 				placed=true;
 			}
-			
+
 			++t;
 		}
-		
+
 		if(Abs(x - Hero->X) < Abs(y - Hero->Y))
 		{
 			if(y < Hero->Y)
@@ -1022,7 +1022,7 @@ namespace ghost3
 		int pos2=Rand(23);
 		int tried=0;
 		bool last_resort = false , placed = false;
-		
+
 		do
 		{
 			if(pos2<14)
@@ -1035,10 +1035,10 @@ namespace ghost3
 				x=lx;
 				y=((pos2-14)<<4)+16;
 			}
-			
+
 			// Don't commit to a last resort if position is out of bounds.
 			last_resort= !(x<32 || y<32 || x>=224 || y>=144);
-			
+
 			if(Abs(lx-x)>16 || Abs(ly-y)>16)
 			{
 				// Red Wizzrobes should be able to appear on water, but not other
@@ -1047,22 +1047,22 @@ namespace ghost3
 				if(CanPlaceTile(this, x, y, true))
 					placed=true;
 			}
-			
+
 			if(!placed && tried>=22 && last_resort)
 			{
 				placed=true;
 			}
-			
+
 			++tried;
 			pos2=(pos2+3)%23;
 		}
 		while(!placed);
-		
+
 		if(y==ly)
 			dir=(x<lx)?DIR_RIGHT:DIR_LEFT;
 		else
 			dir=(y<ly)?DIR_DOWN:DIR_UP;
-			
+
 		arr[0] = x;
 		arr[1] = y;
 		arr[2] = dir;
@@ -1092,13 +1092,13 @@ namespace ghost3
 					data[GHI_DIR] = dir;
 				}
 				if (this->X < 0 || this->X >= (256-(this->TileWidth*16)) ||
-				this->Y < 0 || this->Y >= (176-(this->TileHeight*16))) 
+				this->Y < 0 || this->Y >= (176-(this->TileHeight*16)))
 				{
 					this->X = Clamp(this->X, 0, 256-(this->TileWidth*16));
 					this->Y = Clamp(this->Y, 0, 176-(this->TileHeight*16));
 					break;
 				}
-				if (phase) 
+				if (phase)
 				{
 					WizzrobeFlicker(this);
 					this->CollDetection = false;
@@ -1111,7 +1111,7 @@ namespace ghost3
 			}
 			Ghost_Waitframe(this, GHD_NONE, true);
 		}
-		if (phase) 
+		if (phase)
 		{
 			this->CollDetection = colldet;
 			WizzrobeFlickerClear(this);
@@ -1183,7 +1183,7 @@ namespace ghost3
 		if (ignoresolid) ForceMoveAtAngle(this, angle2, dist);
 		else MoveAtAngle(this, angle2, dist, 2);
 	}
-	
+
 	void ForceMoveAtAngle(npc this, int angle, int step)
 	{
 		this->X += VectorX(step, angle);

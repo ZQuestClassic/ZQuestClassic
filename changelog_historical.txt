@@ -50,7 +50,7 @@ Zelda Classic 2.11 Beta 16
         New items: Wealth Medal 1 (75% rate at shops), Wealth Medal 2 (50% at shops), Wealth Medal 3 (25% rate at shops).
         New FFC flag: Script Restarts When Carried Over.
         New FFC flag: Visible Only With Lens.
-        Here's another major one: Scripting Drawing Commands. They'll be explained in the scripting forum in a bit, but now with scripting you are able to draw primitives like rectangles, circles, and lines, as well as a group of tiles or combos, onto any layer, using any color, with full scaling and rotation. Head over to the scripting forum a little later to see what I mean 
+        Here's another major one: Scripting Drawing Commands. They'll be explained in the scripting forum in a bit, but now with scripting you are able to draw primitives like rectangles, circles, and lines, as well as a group of tiles or combos, onto any layer, using any color, with full scaling and rotation. Head over to the scripting forum a little later to see what I mean
 
 Zelda Classic 2.11 Beta 15
 
@@ -66,8 +66,8 @@ Zelda Classic 2.11 Beta 15
         Lots and lots of miscellaneous bug fixes
         Lots of additions to the scripting engine. Look at the scripting form for more details.
         More will be listed by DN or _L_
-	
-	
+
+
 Beta 11 progress
 
     Just because I felt like it.
@@ -79,7 +79,7 @@ Beta 11 progress
     3. Fixed the bug where stepping on groups of step->next combos would cause some combos to change to later combos than it should. Also changed the behavior of step->next somewhat. The main difference is that when in a group of step->next or related combos, only the combo at the center of link gets affected.
     4. I believe i fixed the importing of .zqs (strings) files. However, with this change it has becme difficult if not impossible to import older .zqs files.
 
-    Short list? Come on, it's only been a day 
+    Short list? Come on, it's only been a day
 
 
 
@@ -112,10 +112,10 @@ Beta 10 progress
     23. Ganon can now use the new enemy tiles (not complete use, though).
     24. Hit detection on Dodongos is now fixed.
     25. Dodongos no longer fly left when killed.
-    26. Level-specific keys: Keys can now be kept track of on a level-by-level basis (keep in mind, not a dmap by dmap basis). The normal key item operates exactly like it has operated. A new item, "Level-specific key" increases the key amount of the current level number you're in. Key doors will by default look for a key gained in that level. If it finds noen, it'll then look for a normal key to use. Useful for keys that you only want to work in a specific dungeon. 
+    26. Level-specific keys: Keys can now be kept track of on a level-by-level basis (keep in mind, not a dmap by dmap basis). The normal key item operates exactly like it has operated. A new item, "Level-specific key" increases the key amount of the current level number you're in. Key doors will by default look for a key gained in that level. If it finds noen, it'll then look for a normal key to use. Useful for keys that you only want to work in a specific dungeon.
 
 
-    
+
 Zelda Classic 2.11 Beta 8
 
     Here it is, the long-awaited beta 8. Many bug fixes, many tweaks, many improvements/enhancements. Probably tons of new bugs, too.
@@ -213,12 +213,12 @@ Zelda Classic 2.11 Beta 5
 
     Aw, who am I kidding, I can't remember all the changes >_< I'll make a comprehensive list when I get better, but for now, the one new feature I want to highlight is in the Link Dialog. Besides a new animation style, there's... something else. Use it, explore it, and report any and all bugs that occur using this (I'm sure there are many). For a demonstration of some of Link's new abilities, look at the extra qst file. i's not pass-protected, so do whatever you like to it.
 
-    And of course, remember to back up your quests, save files won't work, use at your own risk, yadda yadda... you all just want the link 
-    
+    And of course, remember to back up your quests, save files won't work, use at your own risk, yadda yadda... you all just want the link
+
  2.11 Beta 3 Progress
 
     1. New psuedo-isometric drawing mode. Like so:
-    
+
  Zelda Classic 2.11 Beta 2
 
     ALLEGRO FILE IS UP
@@ -231,8 +231,8 @@ Zelda Classic 2.11 Beta 5
     4. To activate preview mode, press X. Most of the instructions are in the thread linked above, so I won't repeat them here.
 
     I believe that's all. If DN has anything more to add, he'll post here. Also note that this is the windows build only. If neccesary, either I or DN will compile DOS distros either today or tomorrow, though we are trying to get to the point of depreciation on that As for Linux or Mac distros, don't ask me. That's DN's department completely.
-    
-    
+
+
 2.11 Beta 1(and 2) Progress
 
     Here's the changes so far for ZC 2.11 Beta 1:
@@ -287,7 +287,7 @@ Zelda Classic 2.11 Beta 5
     48. Fixed the bug where there would sometimes be random characters appearing at the end of a message string in panel 4 and in the confirm string delete dialog.
     49. The DMap number in the Edit DMap dialog titlebar is now correct (before, it was 1 number too low).
     50. Going to the MIDI editor now stops music playback in ZQuest.
-    51. If a screen doesn't have a message string associated with it, it is now shown as (None) instead of (none) on panel 4, to make it match up with the other items there. 
+    51. If a screen doesn't have a message string associated with it, it is now shown as (None) instead of (none) on panel 4, to make it match up with the other items there.
 
 
 
@@ -614,21 +614,21 @@ ZC Version 1.93 alpha/beta 1	December.30.2003
 1. Fixed a bug that I don't remember anyone pointing out where Link no longer slides if he gets hit. This was from the fix to keep Link from sliding the wrong way off the ladder (still have to make a quest rule for that I think).
 
 2. Compile-time optimizations. For you programmers out there, I basically took out all and replaced them with which means I had to take each file and extract a header file for it, which is much more fun when you are working with inherited classes. Took me 29 revisions of the code to get it finished (2 days work, too). Now when I make a small change, I don't have to wait for 5 minutes for 5 or more unchanged files to recompile to get an object to link with.
- 
+
 3. Screen drawing optimizations. Before, there were several sections of code for drawing the screen scattered throughout different files (anywhere from 7 to 40 lines long each). I've consolidated them all into one command. This will make the drawing more consistent and make sure I didn't forget to draw something at each spot, especially if I make a change to screen drawing at a later date.
- 
+
 4. Linux port (which causes this version to be renamed to 1.93 Alpha 1).
- 
+
 5. Semi-working Mac OS X port.
- 
+
 6. Tile grabbing now has a reduce feature, which will try to match the colors of the imported image (if you are grabbing from a bitmap instead of from exported tiles) to the colors in the current CSet.
- 
+
 7. ZQuest (the Windows version, anyway) now lets you switch between full-screen and windowed mode at will. You can either use Alt-Enter or select Fullscreen from the Etc menu.
- 
+
 8. When loading or saving quests in ZQuest, you now get a progress list displayed. It shows you exactly what data is being loaded/saved and where it dies if there is an error. This will help in quest recovery if there is a problem later.
- 
+
 9. Automatic data recovery. Because of the new format of the quests, if there is an error while reading the quest, many times, the program can scan from that point and find the beginning of the next section and continue from there. So, instead of losing your entire quest, you may just get some ectra junk thrown in to the section that had a bad value in it. This feature may possibly be expanded to cause it to rescan the entire quest looking for any data it hasn't already read (in case the bad section caused it to skip a section header and miss a vital section), so that very little, if any, data is lost.
- 
+
 10. Translucency now works with palette cycling.
 
 11. Animation and palette cycling no longer pauses during most operations.
@@ -691,7 +691,7 @@ Door Combo Set editor. Tab control again instead of the little arrow buttons.
 
 
 Enhanced DMap editor. Nested tab control in the 4th screen.
- 
+
 25. Speed increase in the game engine. Now, slower machines should not choke on intense screens like they used to.
 26. Rotated tiles. Now, combos (gotta check to make sure this applies to any tiles used for any function of the game) can use tiles that are rotated, not just flipped.
 
@@ -895,7 +895,7 @@ Adjusted the flamethrower so that it sprays in a cone shape and can hit both nea
 Adjusted the hammer so that it now stuns ground enemies in a 4-combo radius (probably too big at the moment).
 Added the slash ability (complete with GB Zelda tiles) for Link. Like the 1/2 magic upgrade, this is something that you can have Link learn, or you can give him the slash ability from the start (or omit it altogether if you wish). There are sprites for these, as well.
 Interpolated fading (when switching between light and dark rooms or when going to a room with a different palette) takes half as long now. The original (Zelda 1-style) fading still goes at normal speed (I think).
-Added shadows to some enemies (mainly the non-boss ones that jump or fly) and a shadow sprite and a quest rules for controlling the shadow display. 
+Added shadows to some enemies (mainly the non-boss ones that jump or fly) and a shadow sprite and a quest rules for controlling the shadow display.
 Pressing the 'S' key in the tile editor swaps the primary and secondary colors (assigned to the mouse buttons). Holding down the control key while pressing the 'S' key, the colors in the current tile will be swapped as well.
 Fixed combo cycling (I hope). Test it out and see if it works for you.
 Added a new combo type: "No Jump Zone". Tektites can't jump on or over this. Now you can make the tektite corrals you always wanted.
@@ -1039,74 +1039,74 @@ Removed the key file check.
 160 missing
 
 ZC Version 1.92 beta 159	March.29.2002
-What's new in this version (make sure you get the beta 159 Support Archive as well): 
+What's new in this version (make sure you get the beta 159 Support Archive as well):
 
-1. More fixes to the combo-pagelessness code. 
+1. More fixes to the combo-pagelessness code.
 
-2. Fixed the bug where combos past page 4 wouldn't show up in the big combo list (where you select combos to edit). 
+2. Fixed the bug where combos past page 4 wouldn't show up in the big combo list (where you select combos to edit).
 
-3. Added some more shortcuts to the menus. 
+3. Added some more shortcuts to the menus.
 
-4. Added a new screen flag "No Secret Sounds". Supposed to prevent secret sounds from sounding on the current screen. Hasn't been tested yet. 
+4. Added a new screen flag "No Secret Sounds". Supposed to prevent secret sounds from sounding on the current screen. Hasn't been tested yet.
 
-5. Added a new screen flag "NMEs Always Rtrn" Makes enemies always return for that room. 
+5. Added a new screen flag "NMEs Always Rtrn" Makes enemies always return for that room.
 
-6. Added some speedups for the combo scrolling. Try holding shift, control, or alt (or a combination of these) while scrolling using either mouse scrolling, the scroll buttons, or the page up, page down, up arrow, or down arrow keys. 
+6. Added some speedups for the combo scrolling. Try holding shift, control, or alt (or a combination of these) while scrolling using either mouse scrolling, the scroll buttons, or the page up, page down, up arrow, or down arrow keys.
 
-7. Removed the code that exists ZQuest if no key file is found or if an invalid keyfile is found. It will still tell you if one of these things is happening, though. This will help me find bugs in the system. 
+7. Removed the code that exists ZQuest if no key file is found or if an invalid keyfile is found. It will still tell you if one of these things is happening, though. This will help me find bugs in the system.
 
-8. Fixed the import/export functions. 
+8. Fixed the import/export functions.
 
-9. Separated the sound effects from the rest of zelda.dat. The sound effects are now stored in sfx.dat. This is the first step toward customizable sounds. 
+9. Separated the sound effects from the rest of zelda.dat. The sound effects are now stored in sfx.dat. This is the first step toward customizable sounds.
 
-10. Fixed the problem where moving tiles to their original location will delete them. 
+10. Fixed the problem where moving tiles to their original location will delete them.
 
-11. Fixed the sword beams, I hope. 
+11. Fixed the sword beams, I hope.
 
-12. "I-Warp Total" has been renamed to "Full-Screen Warp" or something like that. 
+12. "I-Warp Total" has been renamed to "Full-Screen Warp" or something like that.
 
 Can't remember any other changes at the moment. I may add more later.
 
 
 ZC Version 1.92 beta 159	March.29.2002
-What's new in this version (make sure you get the beta 159 Support Archive as well): 
+What's new in this version (make sure you get the beta 159 Support Archive as well):
 
-1. More fixes to the combo-pagelessness code. 
+1. More fixes to the combo-pagelessness code.
 
-2. Fixed the bug where combos past page 4 wouldn't show up in the big combo list (where you select combos to edit). 
+2. Fixed the bug where combos past page 4 wouldn't show up in the big combo list (where you select combos to edit).
 
-3. Added some more shortcuts to the menus. 
+3. Added some more shortcuts to the menus.
 
-4. Added a new screen flag "No Secret Sounds". Supposed to prevent secret sounds from sounding on the current screen. Hasn't been tested yet. 
+4. Added a new screen flag "No Secret Sounds". Supposed to prevent secret sounds from sounding on the current screen. Hasn't been tested yet.
 
-5. Added a new screen flag "NMEs Always Rtrn" Makes enemies always return for that room. 
+5. Added a new screen flag "NMEs Always Rtrn" Makes enemies always return for that room.
 
-6. Added some speedups for the combo scrolling. Try holding shift, control, or alt (or a combination of these) while scrolling using either mouse scrolling, the scroll buttons, or the page up, page down, up arrow, or down arrow keys. 
+6. Added some speedups for the combo scrolling. Try holding shift, control, or alt (or a combination of these) while scrolling using either mouse scrolling, the scroll buttons, or the page up, page down, up arrow, or down arrow keys.
 
-7. Removed the code that exists ZQuest if no key file is found or if an invalid keyfile is found. It will still tell you if one of these things is happening, though. This will help me find bugs in the system. 
+7. Removed the code that exists ZQuest if no key file is found or if an invalid keyfile is found. It will still tell you if one of these things is happening, though. This will help me find bugs in the system.
 
-8. Fixed the import/export functions. 
+8. Fixed the import/export functions.
 
-9. Separated the sound effects from the rest of zelda.dat. The sound effects are now stored in sfx.dat. This is the first step toward customizable sounds. 
+9. Separated the sound effects from the rest of zelda.dat. The sound effects are now stored in sfx.dat. This is the first step toward customizable sounds.
 
-10. Fixed the problem where moving tiles to their original location will delete them. 
+10. Fixed the problem where moving tiles to their original location will delete them.
 
-11. Fixed the sword beams, I hope. 
+11. Fixed the sword beams, I hope.
 
-12. "I-Warp Total" has been renamed to "Full-Screen Warp" or something like that. 
+12. "I-Warp Total" has been renamed to "Full-Screen Warp" or something like that.
 
 Can't remember any other changes at the moment. I may add more later.
 
 ZC Version 1.92 beta 158	March.26.2002
-What's new in this version: 
+What's new in this version:
 
-1. The secret combos should work now. Before, they were referencing the templace screen. Now, they do not. Also, before, when you activated a secret combo, the flag that was set on the template screen for that combo would be copied over. Now, it is stored with the secret combo. To select what flag you want (I may need to tweak this later), hold the ctrl key when you click on a secret combo and you can pick a flag for that combo. 
+1. The secret combos should work now. Before, they were referencing the templace screen. Now, they do not. Also, before, when you activated a secret combo, the flag that was set on the template screen for that combo would be copied over. Now, it is stored with the secret combo. To select what flag you want (I may need to tweak this later), hold the ctrl key when you click on a secret combo and you can pick a flag for that combo.
 
-2. Doors should be separated from the template screen now. 
+2. Doors should be separated from the template screen now.
 
-3. Moved some things around in the quest menu. 
+3. Moved some things around in the quest menu.
 
-Known issues: 
+Known issues:
 
 1. Import/Export doesn't work right, because of the change in the file format. Beta 159 will fix this. This also causes the zgp.dat file not to work (your default blank quest when you start ZQuest).
 
@@ -1166,20 +1166,20 @@ Fixed string linking where the correct string is displayed now instead of just t
 Not a biggie, but a small asthetic changeL Now, message strings, intro strings, and dmap titles only display the edit cursor in ZQuest if you are actually editing the string.
 
 ZC Version 1.92 beta 147	March.30.2002
-1. Finally completed the quest template system. I like it, at least. A new option under the File menu is Quest Templates. This is where you set up your quest templates. These are exported .zqt files. Then, when you select New from the file menu, you can pick what template to start from. The defaults menu will use whatever template you set, as the template filename is saved with the quest now. If you rename the quest template filename, then load a quest that used it, the default menus will fail until you point the quest back to a valid template file. How do you do that? With the template menu in the Quest menu. This is also how you set up a quest template for an older quest you may have. Whether or not a quest has a quest template (valid or otherwise) associated with it has no bearing at all on gameplay. 
-2. Fixed the bug where if you had a dmap intro string set and had a guy there with a string and you walked into the room, both would start showing up at the same time. Now, the DMap intro shows up, vanishes after a moment, then the guy string shows up. 
-3. Fixed the bug where a DMap intro string might show up twice. 
-4. Fixed the bug in ZQuest where the F12 key would turn the vertical flip bit on. 
-5. Added string linking. Now, when you edit strings, you can hit a check box to make the string linked to the next string. Then, when you play, after the first string shows up, the a short delay occurs. After that, you hit a button and the second one shows up. 
-6. Fixed and tested the expanded strings. Set up a string in slot 259. Worked for both the room string and the pay for info strings. 
-7. Fixed problem with some text being garbled (the triangle indicators showing you have more than 3 saved games, the copy indicator for the enemy screen, and the Paused and frames per second indicators, for example). 
-8. Removed the feature where tiles would not be saved if you were using the default tileset. While it makes quests larger for original-style ones where you don't edit any tiles, it makes things easier on my end. Plus, it makes it where you don't have to edit a tile just to get the MapMaker to work right. 
+1. Finally completed the quest template system. I like it, at least. A new option under the File menu is Quest Templates. This is where you set up your quest templates. These are exported .zqt files. Then, when you select New from the file menu, you can pick what template to start from. The defaults menu will use whatever template you set, as the template filename is saved with the quest now. If you rename the quest template filename, then load a quest that used it, the default menus will fail until you point the quest back to a valid template file. How do you do that? With the template menu in the Quest menu. This is also how you set up a quest template for an older quest you may have. Whether or not a quest has a quest template (valid or otherwise) associated with it has no bearing at all on gameplay.
+2. Fixed the bug where if you had a dmap intro string set and had a guy there with a string and you walked into the room, both would start showing up at the same time. Now, the DMap intro shows up, vanishes after a moment, then the guy string shows up.
+3. Fixed the bug where a DMap intro string might show up twice.
+4. Fixed the bug in ZQuest where the F12 key would turn the vertical flip bit on.
+5. Added string linking. Now, when you edit strings, you can hit a check box to make the string linked to the next string. Then, when you play, after the first string shows up, the a short delay occurs. After that, you hit a button and the second one shows up.
+6. Fixed and tested the expanded strings. Set up a string in slot 259. Worked for both the room string and the pay for info strings.
+7. Fixed problem with some text being garbled (the triangle indicators showing you have more than 3 saved games, the copy indicator for the enemy screen, and the Paused and frames per second indicators, for example).
+8. Removed the feature where tiles would not be saved if you were using the default tileset. While it makes quests larger for original-style ones where you don't edit any tiles, it makes things easier on my end. Plus, it makes it where you don't have to edit a tile just to get the MapMaker to work right.
 
-FatCatFan, let me know when you get back and I'll send you all the important information about the new file format. 
+FatCatFan, let me know when you get back and I'll send you all the important information about the new file format.
 
-I'm thinking of going ahead and starting work on combo revamping. When completed, this will eliminate combo pages entirely. I could even double the number of available combos. 
+I'm thinking of going ahead and starting work on combo revamping. When completed, this will eliminate combo pages entirely. I could even double the number of available combos.
 
-Or, I could hold off on that for another beta or two. Maybe add a few new minor features, like the trigger events that Jigglysaint mentioned or the frame for messages that I had talked about. 
+Or, I could hold off on that for another beta or two. Maybe add a few new minor features, like the trigger events that Jigglysaint mentioned or the frame for messages that I had talked about.
 
 146, 145 missing
 
@@ -1196,7 +1196,7 @@ What's new/fixed:
 
 4. JayeM update the zquest.txt file to beta 142.
 
-5. Compiled with the newest Allegro, 4.01. Might fix some stability issues. YOU NEED TO DOWNLOAD THE NEW WINDOWS SUPPORT ARCHIVE IF YOU USE THE WINDOWS VERSION OF ZC! 
+5. Compiled with the newest Allegro, 4.01. Might fix some stability issues. YOU NEED TO DOWNLOAD THE NEW WINDOWS SUPPORT ARCHIVE IF YOU USE THE WINDOWS VERSION OF ZC!
 
 6. Using a new compressor on the executables. This one works on both DOS and Windows files, so the Windows version is now WAY smaller. It compresses better than the previous program I used, so the DOS version is a little smaller, too.
 
@@ -1226,7 +1226,7 @@ What's new/fixed:
 
 3. Began work on quest templates. Basically, a quest template allows you to select what your quest will look like when you start. It's equivalent to starting a new quest, then loading a ZGP file. Now, however, you can have a list of commonly used templates that you can pick from when you start a new quest. When you select New from the File menu, you will see this dialog first:
 
- 
+
 
 [picture needed]
 
@@ -1305,7 +1305,7 @@ What's new/fixed:
 
 1. Auto-backup option (under the Etc.->Options menu). Turn it on and every time you save, your quest will also be exported with the same name and a qsb extension.
 
-2. More strings. Around 65k of them. If anyone thinks they need more, their quest is just too long. 
+2. More strings. Around 65k of them. If anyone thinks they need more, their quest is just too long.
 
 3. Red candle flame fixed when it was broken due to the new red candle flag.
 
@@ -1313,7 +1313,7 @@ What's new/fixed:
 
 5. Now, if you hit cancel on any of the rules or init data pages, your previous information comes back. Before, it would only restore the previous information for the page you were on.
 
-6. Found the cause of the titlescreen and "All of Treasures" screen bugs. I've fixed the "All of Treasures" screen (I think), and plan to fix the titlescreen tomorrow. 
+6. Found the cause of the titlescreen and "All of Treasures" screen bugs. I've fixed the "All of Treasures" screen (I think), and plan to fix the titlescreen tomorrow.
 
 As for the format of QSU files now (this is for FCF), I will be changing the format again with beta 141 (I forgot to enhance the string function in the QSU importer/exporter). You might want to wait until then before updating mapmaker.
 
@@ -1416,7 +1416,7 @@ ZC Version 1.92 beta 135	Unknown Date
 
 3. In response to KJAZZ's post, I updated newdefault again. It's now in the Zelda Classic 1.92 Beta 135+ Support Archive, and also available separately (save it to your C:\ZCBeta directory, or wherever you've been extracting the betas).
 
-4. Added item bubbles. This should make things a lot more interesting. 
+4. Added item bubbles. This should make things a lot more interesting.
 
 For some reason, the 256 combo bug that corrupted your saves vanished. I'm beginning to thing it's a roaming bug, so whenever you save, export a .QSU as well, just in case.
 
@@ -1473,11 +1473,11 @@ Finally, there is a "block trigger" flag. If you push a block of any kind onto i
 
 ZC Version 1.92 beta 131	Unknown Date
  - When Link pulled himself with the Hookshot, game would sometimes crash; fixed
- 
+
  130 missing
- 
+
  ZC Version 1.92 beta 129	Unknown Date
-Yeah, I'm releasing this a day early. So, sue me. 
+Yeah, I'm releasing this a day early. So, sue me.
 
 What's new in this version:
 
@@ -1733,7 +1733,7 @@ Lots of fixes. Thanks for all the feedback. There's
 ////////////
 
 ZC Version 1.82	July.15.2000
-I'm in the middle of moving enemy data from the code into data files, so there could be some bugs. I've added the lens of truth and the flippers. The cheat codes are now defined separately in each quest. I added a cool "Matrix" screen saver. 
+I'm in the middle of moving enemy data from the code into data files, so there could be some bugs. I've added the lens of truth and the flippers. The cheat codes are now defined separately in each quest. I added a cool "Matrix" screen saver.
 NOTE: There are a couple incompatibilities with the last version. First, the quest file format has changed, so old quests will have to be converted (loaded and saved) with ZQuest. Second, the auto-triggering of side warps on the edges of DMaps has been removed. This means you could get stuck in dungeons if the warps aren't fixed first. See the ZQuest help file for more info.
 
 ////////////
@@ -1742,7 +1742,7 @@ NOTE: There are a couple incompatibilities with the last version. First, the que
 
 ZC Version 1.77	March.28.2000
  Just a small update. I added a feature for quests to define a minimum version. If your game for that quest is below the minimum version that the quest author sets, then you have to restart the quest. I used this on the demo quest because I made a few fixes and small changes that I wanted to enforce.
- 
+
 
 ////////////
 /// 1.76 ///
@@ -1764,7 +1764,7 @@ This version has some fixes for the bugs that snuck into v1.70. I also added a w
      - swinging your sword when you die
      - boss SFX bugs
      - a small GUI bug
-     
+
 ////////////
 /// 1.70 ///
 ////////////
@@ -1782,7 +1782,7 @@ Another month, another version. But enough philo-sophizing. This version is stil
      - lots of little details
      - added two real "levels" to the demo quest
      - slight changes to the BS-Zelda 1st quest
-     
+
 ////////////
 /// 1.60 ///
 ////////////
@@ -1799,7 +1799,7 @@ ZC Version 1.60	December.12.2000
      - game icons can be defined for each quest
      - major changes to the editor and quest format
      - custom music for the fight with Ganon
-     
+
 ////////////
 /// 1.02 ///
 ////////////
@@ -1846,7 +1846,7 @@ ZC Version 0.95 debug	December.06.1999
     - enemies stop when you get a clock
     - only one clock at a time
     - keyboard & joystick dialog box bug in high res modes
-    
+
 ZC Version 0.94	November.28.1999
 I finally changed the GUI colors. Added some video mode switches (see below under "Options"). Fixed/implemented lots of enemies: falling rocks, peahats, keese, vires, wall monsters, pols voice. Lots of other improvements. It's almost done.
 
@@ -1886,5 +1886,5 @@ First demo of Zelda DX. Tons of new stuff. It is playable (up to the beginning o
 /// Previous ///
 ////////////////
 
-Lots of SPHINX C-- demos without specific names; generally 
+Lots of SPHINX C-- demos without specific names; generally
     called 'Zelda clone'.

@@ -25,7 +25,7 @@ extern void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int32_
 #define poNEWCSETS  15+13                                   // new level specific palettes in csets
 
 // palette data sizes in "data sets"
-//The below determines the size of each palette section. 
+//The below determines the size of each palette section.
 #define pdFULL   15                                         // number of csets in the full palette
 #define pdLEVEL  17                                         // complete level pal (normal & fade pals)
 #define pdSPRITE 30                                         // number of sprite csets
@@ -68,4 +68,3 @@ extern byte nes_colors[];
 //bool init_colordata();
 extern bool init_palnames();
 #endif                                                      // _ZC_COLORS_H_
- 

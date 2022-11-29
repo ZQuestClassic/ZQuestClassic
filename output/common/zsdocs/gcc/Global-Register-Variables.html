@@ -80,17 +80,17 @@ Next: <a href="Local-Register-Variables.html#Local-Register-Variables" accesskey
 <a name="index-registers_002c-global-variables-in"></a>
 <a name="index-registers_002c-global-allocation"></a>
 
-<p>You can define a global register variable and associate it with a specified 
+<p>You can define a global register variable and associate it with a specified
 register like this:
 </p>
 <div class="smallexample">
 <pre class="smallexample">register int *foo asm (&quot;r12&quot;);
 </pre></div>
 
-<p>Here <code>r12</code> is the name of the register that should be used. Note that 
-this is the same syntax used for defining local register variables, but for 
-a global variable the declaration appears outside a function. The 
-<code>register</code> keyword is required, and cannot be combined with 
+<p>Here <code>r12</code> is the name of the register that should be used. Note that
+this is the same syntax used for defining local register variables, but for
+a global variable the declaration appears outside a function. The
+<code>register</code> keyword is required, and cannot be combined with
 <code>static</code>. The register name must be a valid register name for the
 target platform.
 </p>
@@ -99,11 +99,11 @@ the outcome may be contrary to expectations.  In  particular, using the
 <code>volatile</code> qualifier does not fully prevent the compiler from
 optimizing accesses to the register.
 </p>
-<p>Registers are a scarce resource on most systems and allowing the 
-compiler to manage their usage usually results in the best code. However, 
+<p>Registers are a scarce resource on most systems and allowing the
+compiler to manage their usage usually results in the best code. However,
 under special circumstances it can make sense to reserve some globally.
-For example this may be useful in programs such as programming language 
-interpreters that have a couple of global variables that are accessed 
+For example this may be useful in programs such as programming language
+interpreters that have a couple of global variables that are accessed
 very often.
 </p>
 <p>After defining a global register variable, for the current compilation
@@ -128,14 +128,14 @@ Accesses from basic asms are not supported.
 </li></ul>
 
 <p>Note that these points <em>only</em> apply to code that is compiled with the
-definition. The behavior of code that is merely linked in (for example 
+definition. The behavior of code that is merely linked in (for example
 code from libraries) is not affected.
 </p>
-<p>If you want to recompile source files that do not actually use your global 
-register variable so they do not use the specified register for any other 
-purpose, you need not actually add the global register declaration to 
-their source code. It suffices to specify the compiler option 
-<samp>-ffixed-<var>reg</var></samp> (see <a href="Code-Gen-Options.html#Code-Gen-Options">Code Gen Options</a>) to reserve the 
+<p>If you want to recompile source files that do not actually use your global
+register variable so they do not use the specified register for any other
+purpose, you need not actually add the global register declaration to
+their source code. It suffices to specify the compiler option
+<samp>-ffixed-<var>reg</var></samp> (see <a href="Code-Gen-Options.html#Code-Gen-Options">Code Gen Options</a>) to reserve the
 register.
 </p>
 <a name="Declaring-the-variable"></a>
@@ -144,9 +144,9 @@ register.
 <p>Global register variables cannot have initial values, because an
 executable file has no means to supply initial contents for a register.
 </p>
-<p>When selecting a register, choose one that is normally saved and 
+<p>When selecting a register, choose one that is normally saved and
 restored by function calls on your machine. This ensures that code
-which is unaware of this reservation (such as library routines) will 
+which is unaware of this reservation (such as library routines) will
 restore it before returning.
 </p>
 <p>On machines with register windows, be sure to choose a global
@@ -156,18 +156,18 @@ register that is not affected magically by the function call mechanism.
 <h4 class="subsubheading">Using the variable</h4>
 
 <a name="index-qsort_002c-and-global-register-variables"></a>
-<p>When calling routines that are not aware of the reservation, be 
-cautious if those routines call back into code which uses them. As an 
-example, if you call the system library version of <code>qsort</code>, it may 
-clobber your registers during execution, but (if you have selected 
-appropriate registers) it will restore them before returning. However 
-it will <em>not</em> restore them before calling <code>qsort</code>&rsquo;s comparison 
-function. As a result, global values will not reliably be available to 
+<p>When calling routines that are not aware of the reservation, be
+cautious if those routines call back into code which uses them. As an
+example, if you call the system library version of <code>qsort</code>, it may
+clobber your registers during execution, but (if you have selected
+appropriate registers) it will restore them before returning. However
+it will <em>not</em> restore them before calling <code>qsort</code>&rsquo;s comparison
+function. As a result, global values will not reliably be available to
 the comparison function unless the <code>qsort</code> function itself is rebuilt.
 </p>
 <p>Similarly, it is not safe to access the global register variables from signal
-handlers or from more than one thread of control. Unless you recompile 
-them specially for the task at hand, the system library routines may 
+handlers or from more than one thread of control. Unless you recompile
+them specially for the task at hand, the system library routines may
 temporarily use the register for other things.  Furthermore, since the register
 is not reserved exclusively for the variable, accessing it from handlers of
 asynchronous signals may observe unrelated temporary values residing in the

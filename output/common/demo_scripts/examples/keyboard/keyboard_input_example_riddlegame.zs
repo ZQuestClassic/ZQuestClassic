@@ -12,14 +12,14 @@ hero script kb_riddle
 		TraceS("Riddle Game String Processor:\n");
 		Game->TypingMode = true;
 		int index; int won;
-		
+
 		while(1)
 		{
 			while(!Input->Key[KEY_ENTER])
 			{
 				for(int i = KEY_A; i<=KEY_SPACE; ++i)
 				{
-					
+
 					if(Input->ReadKey[i])
 					{
 						if(i == KEY_BACKSPACE && index > 0)
@@ -27,7 +27,7 @@ hero script kb_riddle
 							--index;
 							StringBuffer[index] = 0;
 						}
-						else 
+						else
 						{
 							if ( index < ( BUFFER_SIZE-1 ) )
 							{
@@ -36,7 +36,7 @@ hero script kb_riddle
 								++index;
 							}
 						}
-						
+
 						TraceS(StringBuffer);
 					}
 				}
@@ -49,7 +49,7 @@ hero script kb_riddle
 			Screen->DrawString(6, 8, 40, 2, 1, -1, 0, "Type, then press ENTER to guess...", 128);
 			Screen->DrawString(6, 20, 60, 0, 1, -1, 0, StringBuffer, 128);
 
-		
+
 			strcpy(lower, StringBuffer);
 			TraceNL(); TraceS(StringBuffer); TraceNL();
 			TraceS(lower); TraceNL();
@@ -62,7 +62,7 @@ hero script kb_riddle
 				won = 1;
 			}
 			else won = 2;
-			if ( won == 1 ) 
+			if ( won == 1 )
 			{
 				Game->TypingMode = false;
 				Game->PlaySound(SFX_WON);
@@ -76,18 +76,18 @@ hero script kb_riddle
 			}
 			else if ( won == 2 )
 			{
-				won = 0; 
-				
+				won = 0;
+
 				Game->PlaySound(SFX_LOSS);
-				
+
 				while(!Input->ReadKey[KEY_Y])
 				{
 					Screen->DrawString(6, 8, 20, 0, 1, -1, 0, "Fail. Press Y to try again.", 128);
 					Waitframe();
 				}
-				
+
 				for ( int q = 0; q < 20; ++q ) StringBuffer[q] = 0;
-				index = 0; 
+				index = 0;
 			}
 			Waitframe();
 		}

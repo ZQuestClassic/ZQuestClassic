@@ -3,7 +3,7 @@
 
 // Bow and arrow tiles cannot exceed 32768!
 // Your bow and arrow tiles should be in the order up, down, left, right.
-// This item script should be attached to the Action Script slot of an item that has a custom item class, not an existing bow. 
+// This item script should be attached to the Action Script slot of an item that has a custom item class, not an existing bow.
 // D0: bow tile
 // D1: bow CSet
 // D2: arrow tile
@@ -23,7 +23,7 @@ item script LttPBow
 			float args[] = {bow_tile, bow_cset, arrow_tile, arrow_cset, arrow_damage, arrow_step, bow_family};
 			RunFFCScript(script_num, args);
 		}
-			
+
 	}
 }
 
@@ -34,23 +34,23 @@ ffc script LttPBowFFC
 		itemdata A_item;
 		itemdata B_item;
 		bool using_B = false;
-		
+
 		B_item = Game->LoadItemData(GetEquipmentB());
 		if (B_item->Family == bow_family)
 		{
 			using_B = true;
 		}
-		
+
 		// Comment this out to give Link's bowmanship a lot less oomph.
 		Link->Action = LA_ATTACKING;
-		
+
 		// Loop to draw the bow for 15 frames before firing. Similar for loops for additional frames of animation, such as taking out the bow
 		// à la Link to the Past, can be placed here.
 		for (int i = 0; i < 15; i++)
 		{
 			A_item = Game->LoadItemData(GetEquipmentA());
 			B_item = Game->LoadItemData(GetEquipmentB());
-			
+
 			Link->InputUp = false;
 			Link->InputDown = false;
 			Link->InputLeft = false;
@@ -74,18 +74,18 @@ ffc script LttPBowFFC
 				}
 			}
 			// Disable other button inputs here if you want.
-			
+
 			// Quits if Link gets hit. Comment this out if you don't want arrow firing to be interrupted.
 			if (Link->Action == LA_GOTHURTLAND)
 			{
 				Quit();
 			}
-			
+
 			Screen->FastTile(4, Link->X + InFrontX(Link->Dir, 7), Link->Y + InFrontY(Link->Dir, 7), bow_tile + Link->Dir, bow_cset, OP_OPAQUE);
-			
+
 			Waitframe();
 		}
-		
+
 		// Checks to see that you have arrows and that no previously fired arrows are on screen.
 		if (Game->Counter[CR_ARROWS] > 0 && NumLWeaponsOf(LW_ARROW) == 0)
 		{
@@ -97,7 +97,7 @@ ffc script LttPBowFFC
 			arrow->Damage = arrow_damage;
 			arrow->Step = arrow_step;
 			arrow->Dir = Link->Dir;
-			
+
 			//Arrow hitbox shenanigans. Modeled after ZC arrow defaults.
 			if (arrow->Dir == DIR_UP || arrow->Dir == DIR_DOWN)
 			{

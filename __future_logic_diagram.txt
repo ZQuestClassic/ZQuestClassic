@@ -10,14 +10,14 @@ No emulation is needed, nor do new quests need to maintain compatibility with
 legacy quests, as the old software runs invisible over the new, with input and video
 output being translated.
 
-All old quests run in this 'Blue Box' module, running on top of 'Yellow Box', invisibly to the user. 
+All old quests run in this 'Blue Box' module, running on top of 'Yellow Box', invisibly to the user.
 
 
 INPUT     VIDEO bitmap +-----------------> Display
 -----     ------------------------
 V         ^  Modern Audio Output +-------> System Audio Devices
-V         ^ +---------+-----------      
-V         ^ |         ^ 
+V         ^ +---------+-----------
+V         ^ |         ^
 V         ^ ^
 V         ^ ^
 +---------+-+<<<<<<<<<+-------------------------------
@@ -32,7 +32,7 @@ V         ^ ^
       |                      |   ^
       |                      |   |-----------------
       ^   Blue/Yellow Layer  |---+   RAM Bitmaps  |
-      |   --------->>>>>>+   |   | Old Quest Data | 
+      |   --------->>>>>>+   |   | Old Quest Data |
       |   | Read Into*   V   |   ------------------
 ------+---+----      ----+---+---------
 |  ZC Rerwite |      |  Zelda Classic |
@@ -41,13 +41,13 @@ V         ^ ^
 ------+----+---      ----+---+---------
       ^    ^  Read Into* V   ^
       ^    ^<<<<<<<<-----+   ^
--------------                ^    
-|  New Type |	             ^	 
+-------------                ^
+|  New Type |	             ^
 -------------                ^
       ^                      ^
 ------+--------        ------+-----------
-|  Quest Type |=====>>>+ OLD QUEST TYPE | 
----------------	       ------------------	  
-			  
+|  Quest Type |=====>>>+ OLD QUEST TYPE |
+---------------	       ------------------
+
 *Old quest read into ZC4, loads classic ZC3 engine in the baqckground.
 This background layer pipes new input in

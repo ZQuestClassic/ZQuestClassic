@@ -1,4 +1,3 @@
-	
 #ifndef BYTECODE_H //2.53 Updated to 16th Jan, 2017
 #define BYTECODE_H
 
@@ -448,7 +447,7 @@
 #define RESERVED000D 417
 #define RESERVED000E 418
 #define RESERVED000F 419
-#define LINKITEMB 420 
+#define LINKITEMB 420
 #define LINKITEMA 421
 #define __RESERVED_FOR_LINKWALKTILE 422
 #define	__RESERVED_FOR_LINKFLOATTILE 423
@@ -486,7 +485,7 @@
 #define IDATASPRITE 455
 #define IDATAATTRIB 456
 #define DMAPLEVELPAL 457 //512 of these
-#define __RESERVED_FOR_ITEMINDEX 458	
+#define __RESERVED_FOR_ITEMINDEX 458
 #define __RESERVED_FOR_LWPNINDEX 459
 #define __RESERVED_FOR_EWPNINDEX 460
 #define __RESERVED_FOR_NPCINDEX 461
@@ -572,7 +571,7 @@
 #define SCREENWIDTH 534
 #define SCREENHEIGHT 535
 #define SCREENVIEWX 536
-#define SCREENVIEWY 537 
+#define SCREENVIEWY 537
 #define SCREENGUY 538
 #define SCREENSTRING 539
 #define SCREENROOM 540
@@ -755,7 +754,7 @@
 #define MAPDATAFFHEIGHT 	709	//B, 32 OF THESE
 #define MAPDATAFFLINK 		710	//B, 32 OF THESE
 #define MAPDATAFFSCRIPT 	711	//W, 32 OF THESE
-#define MAPDATAINTID 		712	//INT32 , 32 OF THESE, EACH WITH 10 INDICES. 
+#define MAPDATAINTID 		712	//INT32 , 32 OF THESE, EACH WITH 10 INDICES.
 #define MAPDATAINITA 		713	//INT32, 32 OF THESE, EACH WITH 2
 #define MAPDATAFFINITIALISED 	714	//BOOL, 32 OF THESE
 #define MAPDATASCRIPTENTRY 	715	//W
@@ -835,7 +834,7 @@
 #define SCREENDATAFFHEIGHT 		788	//B, 32 OF THESE
 #define SCREENDATAFFLINK 		789	//B, 32 OF THESE
 #define SCREENDATAFFSCRIPT 		790	//W, 32 OF THESE
-#define SCREENDATAINTID 		791	//INT32 , 32 OF THESE, EACH WITH 10 INDICES. 
+#define SCREENDATAINTID 		791	//INT32 , 32 OF THESE, EACH WITH 10 INDICES.
 #define SCREENDATAINITA 		792	//INT32, 32 OF THESE, EACH WITH 2
 #define SCREENDATAFFINITIALISED 	793	//BOOL, 32 OF THESE
 #define SCREENDATASCRIPTENTRY 		794	//W
@@ -932,7 +931,7 @@
 #define ITEMPSTRINGFLAGS 	876	//word
 #define ITEMOVERRIDEFLAGS 	877	//int32_t
 
-#define LINKPUSH 		878	
+#define LINKPUSH 		878
 #define GAMEMISC 		879	//int32_t
 #define LINKSTUN 		880	//int32_t (32b)
 #define TYPINGMODE 		881	//bool, ffcore
@@ -1007,7 +1006,7 @@
 #define COMBODSTATUETYPE	944	//C
 #define COMBODSTEPTYPE		945	//C
 #define COMBODSTEPCHANGEINTO	946	//LONG
-#define COMBODSTRIKEWEAPONS	947	//BYTE, 32 INDICES. 
+#define COMBODSTRIKEWEAPONS	947	//BYTE, 32 INDICES.
 #define COMBODSTRIKEREMNANTS	948	//LONG
 #define COMBODSTRIKEREMNANTSTYPE 949	//C
 #define COMBODSTRIKECHANGE	950	//LONG
@@ -1069,14 +1068,14 @@
 #define ITEMFAMILY 	1004
 #define ITEMLEVEL 	1005
 
-#define EWPNSCRIPT			1006	
-#define EWPNINITD			1007	
-#define NPCSCRIPT			1008	
-#define DMAPSCRIPT			1009	
-#define DMAPINITD			1010	
-#define SCREENSCRIPT			1011	
-#define SCREENINITD			1012	
-#define LINKINITD			1013	
+#define EWPNSCRIPT			1006
+#define EWPNINITD			1007
+#define NPCSCRIPT			1008
+#define DMAPSCRIPT			1009
+#define DMAPINITD			1010
+#define SCREENSCRIPT			1011
+#define SCREENINITD			1012
+#define LINKINITD			1013
 #define NPCDATAWEAPONINITD 		1014
 #define NPCDATAWEAPONSCRIPT 	1015
 
@@ -1558,7 +1557,6 @@ namespace ZScript
 	private:
 		int32_t value;
 	};
-	
 	class StringArgument : public Argument
 	{
 	public:
@@ -2395,7 +2393,6 @@ namespace ZScript
 			return new OWaitdraw();
 		}
 	};
-	
 	class OWaitTo : public BinaryOpcode
 	{
 	public:
@@ -2406,7 +2403,6 @@ namespace ZScript
 			return new OWaitTo(a->clone(),b->clone());
 		}
 	};
-	
 	class OWaitEvent : public Opcode
 	{
 	public:
@@ -2416,7 +2412,6 @@ namespace ZScript
 			return new OWaitEvent();
 		}
 	};
-	
 	class ONoOp : public Opcode
 	{
 	public:
@@ -2426,7 +2421,6 @@ namespace ZScript
 			return new ONoOp();
 		}
 	};
-	
 	class OCastBoolI : public UnaryOpcode
 	{
 	public:
@@ -2437,7 +2431,6 @@ namespace ZScript
 			return new OCastBoolI(a->clone());
 		}
 	};
-	
 	class OCastBoolF : public UnaryOpcode
 	{
 	public:
@@ -2653,7 +2646,6 @@ namespace ZScript
 			return new OTrace6Register(a->clone());
 		}
 	};
-	
 	class OPrintfImmediate : public UnaryOpcode
 	{
 	public:
@@ -2807,7 +2799,6 @@ namespace ZScript
 			return new ORShiftRegister(a->clone(), b->clone());
 		}
 	};
-	
 	class O32BitAndImmediate : public BinaryOpcode
 	{
 	public:
@@ -3016,7 +3007,6 @@ namespace ZScript
 			return new OTanRegister(a->clone(), b->clone());
 		}
 	};
-	
 	class OEngineDegtoRad : public BinaryOpcode
 	{
 	public:
@@ -3027,7 +3017,6 @@ namespace ZScript
 			return new OEngineDegtoRad(a->clone(), b->clone());
 		}
 	};
-	
 	class OEngineRadtoDeg : public BinaryOpcode
 	{
 	public:
@@ -3038,7 +3027,6 @@ namespace ZScript
 			return new OEngineRadtoDeg(a->clone(), b->clone());
 		}
 	};
-	
 	class Ostrlen : public BinaryOpcode
 	{
 	public:
@@ -3303,7 +3291,6 @@ namespace ZScript
 			return new ORandRegister(a->clone(), b->clone());
 		}
 	};
-	
 	class OSRandRegister : public UnaryOpcode
 	{
 	public:
@@ -3314,7 +3301,6 @@ namespace ZScript
 			return new OSRandRegister(a->clone());
 		}
 	};
-	
 	class OSRandImmediate : public UnaryOpcode
 	{
 	public:
@@ -3325,7 +3311,6 @@ namespace ZScript
 			return new OSRandImmediate(a->clone());
 		}
 	};
-	
 	class OSRandRand : public UnaryOpcode
 	{
 	public:
@@ -3336,7 +3321,6 @@ namespace ZScript
 			return new OSRandRand(a->clone());
 		}
 	};
-	
 	class ORNGRand1 : public Opcode
 	{
 	public:
@@ -3347,7 +3331,6 @@ namespace ZScript
 			return new ORNGRand1();
 		}
 	};
-	
 	class ORNGRand2 : public UnaryOpcode
 	{
 	public:
@@ -3369,7 +3352,6 @@ namespace ZScript
 			return new ORNGRand3(a->clone(), b->clone());
 		}
 	};
-	
 	class ORNGLRand1 : public Opcode
 	{
 	public:
@@ -3380,7 +3362,6 @@ namespace ZScript
 			return new ORNGLRand1();
 		}
 	};
-	
 	class ORNGLRand2 : public UnaryOpcode
 	{
 	public:
@@ -3402,7 +3383,6 @@ namespace ZScript
 			return new ORNGLRand3(a->clone(), b->clone());
 		}
 	};
-	
 	class ORNGSeed : public UnaryOpcode
 	{
 	public:
@@ -3413,7 +3393,6 @@ namespace ZScript
 			return new ORNGSeed(a->clone());
 		}
 	};
-	
 	class ORNGRSeed : public Opcode
 	{
 	public:
@@ -3424,7 +3403,6 @@ namespace ZScript
 			return new ORNGRSeed();
 		}
 	};
-	
 	class ORNGFree : public Opcode
 	{
 	public:
@@ -3435,7 +3413,6 @@ namespace ZScript
 			return new ORNGFree();
 		}
 	};
-	
 	class OSqrtRegister : public BinaryOpcode
 	{
 	public:
@@ -3689,7 +3666,6 @@ namespace ZScript
 			return new OCreatePalData();
 		}
 	};
-	
 	class OCreatePalDataClr : public UnaryOpcode
 	{
 	public:
@@ -3722,7 +3698,6 @@ namespace ZScript
 			return new OCreateRGB();
 		}
 	};
-	
 	class OMixColorArray : public Opcode
 	{
 	public:
@@ -3733,7 +3708,6 @@ namespace ZScript
 			return new OMixColorArray();
 		}
 	};
-	
 	class OLoadLevelPalette : public UnaryOpcode
 	{
 	public:
@@ -3788,7 +3762,6 @@ namespace ZScript
 			return new OLoadBitmapPalette(a->clone());
 		}
 	};
-	
 	class OWriteLevelPalette : public UnaryOpcode
 	{
 	public:
@@ -3799,7 +3772,6 @@ namespace ZScript
 			return new OWriteLevelPalette(a->clone());
 		}
 	};
-	
 	class OWriteLevelCSet : public BinaryOpcode
 	{
 	public:
@@ -3810,7 +3782,6 @@ namespace ZScript
 			return new OWriteLevelCSet(a->clone(), b->clone());
 		}
 	};
-	
 	class OWriteSpritePalette : public UnaryOpcode
 	{
 	public:
@@ -3821,7 +3792,6 @@ namespace ZScript
 			return new OWriteSpritePalette(a->clone());
 		}
 	};
-	
 	class OWriteSpriteCSet : public BinaryOpcode
 	{
 	public:
@@ -3832,7 +3802,6 @@ namespace ZScript
 			return new OWriteSpriteCSet(a->clone(), b->clone());
 		}
 	};
-	
 	class OWriteMainPalette : public Opcode
 	{
 	public:
@@ -3843,7 +3812,6 @@ namespace ZScript
 			return new OWriteMainPalette();
 		}
 	};
-	
 	class OWriteMainCSet : public UnaryOpcode
 	{
 	public:
@@ -3876,7 +3844,6 @@ namespace ZScript
 			return new OWriteCycleCSet(a->clone(), b->clone());
 		}
 	};
-	
 	class OPalDataColorValid : public UnaryOpcode
 	{
 	public:
@@ -3887,7 +3854,6 @@ namespace ZScript
 			return new OPalDataColorValid(a->clone());
 		}
 	};
-	
 	class OPalDataClearColor : public UnaryOpcode
 	{
 	public:
@@ -3920,7 +3886,6 @@ namespace ZScript
 			return new OPalDataMix();
 		}
 	};
-	
 	class OPalDataMixCSet : public Opcode
 	{
 	public:
@@ -3931,7 +3896,6 @@ namespace ZScript
 			return new OPalDataMixCSet();
 		}
 	};
-	
 	class OPalDataCopy : public UnaryOpcode
 	{
 	public:
@@ -3953,7 +3917,6 @@ namespace ZScript
 			return new OPalDataCopyCSet();
 		}
 	};
-	
 	class OLoadDropsetRegister : public UnaryOpcode
 	{
 	public:
@@ -4397,7 +4360,6 @@ namespace ZScript
 			return new OPlayEnhancedMusic(a->clone(), b->clone());
 		}
 	};
-	
 	class OPlayEnhancedMusicEx : public BinaryOpcode
 	{
 	public:
@@ -4408,7 +4370,6 @@ namespace ZScript
 			return new OPlayEnhancedMusicEx(a->clone(), b->clone());
 		}
 	};
-	
 	class OGetEnhancedMusicPos : public UnaryOpcode
 	{
 	public:
@@ -4419,7 +4380,6 @@ namespace ZScript
 			return new OGetEnhancedMusicPos(a->clone());
 		}
 	};
-	
 	class OSetEnhancedMusicPos : public UnaryOpcode
 	{
 	public:
@@ -4430,7 +4390,6 @@ namespace ZScript
 			return new OSetEnhancedMusicPos(a->clone());
 		}
 	};
-	
 	class OSetEnhancedMusicSpeed : public UnaryOpcode
 	{
 	public:
@@ -4452,7 +4411,6 @@ namespace ZScript
 			return new OGetDMapMusicFilename(a->clone(), b->clone());
 		}
 	};
-	
 	class OGetNPCDataInitDLabel : public BinaryOpcode
 	{
 	public:
@@ -4879,7 +4837,6 @@ namespace ZScript
 			return new OIsValidEWpn(a->clone());
 		}
 	};
-	
 	class OMakeAngularLwpn : public UnaryOpcode
 	{
 	public:
@@ -4890,7 +4847,6 @@ namespace ZScript
 			return new OMakeAngularLwpn(a->clone());
 		}
 	};
-	
 	class OMakeAngularEwpn : public UnaryOpcode
 	{
 	public:
@@ -4901,7 +4857,6 @@ namespace ZScript
 			return new OMakeAngularEwpn(a->clone());
 		}
 	};
-	
 	class OMakeDirectionalLwpn : public UnaryOpcode
 	{
 	public:
@@ -4912,7 +4867,6 @@ namespace ZScript
 			return new OMakeDirectionalLwpn(a->clone());
 		}
 	};
-	
 	class OMakeDirectionalEwpn : public UnaryOpcode
 	{
 	public:
@@ -5025,7 +4979,6 @@ namespace ZScript
 			return new OPutPixelRegister();
 		}
 	};
-	
 	class OPutPixelArrayRegister : public Opcode
 	{
 	public:
@@ -5035,7 +4988,6 @@ namespace ZScript
 			return new OPutPixelArrayRegister();
 		}
 	};
-	
 	class OPutTileArrayRegister : public Opcode
 	{
 	public:
@@ -5045,7 +4997,6 @@ namespace ZScript
 			return new OPutTileArrayRegister();
 		}
 	};
-	
 	class OPutLinesArrayRegister : public Opcode
 	{
 	public:
@@ -5055,7 +5006,6 @@ namespace ZScript
 			return new OPutLinesArrayRegister();
 		}
 	};
-	
 	class OFastComboArrayRegister : public Opcode
 	{
 	public:
@@ -5307,7 +5257,6 @@ namespace ZScript
 			return new OCopyTileRegister(a->clone(),b->clone());
 		}
 	};
-	
 	class Ostrcpy : public BinaryOpcode
 	{
 	public:
@@ -5318,7 +5267,6 @@ namespace ZScript
 			return new Ostrcpy(a->clone(),b->clone());
 		}
 	};
-	
 	class oARRAYCOPY : public BinaryOpcode
 	{
 	public:
@@ -5512,7 +5460,6 @@ namespace ZScript
 			return new OGameReload();
 		}
 	};
-	
 	class OGameContinue : public Opcode
 	{
 	public:
@@ -5522,7 +5469,6 @@ namespace ZScript
 			return new OGameContinue();
 		}
 	};
-	
 	class OGameSaveQuit : public Opcode
 	{
 	public:
@@ -5532,7 +5478,6 @@ namespace ZScript
 			return new OGameSaveQuit();
 		}
 	};
-	
 	class OGameSaveContinue : public Opcode
 	{
 	public:
@@ -5650,7 +5595,6 @@ namespace ZScript
 			return new OGetFFCScript(a->clone());
 		}
 	};
-	
 	class OGetComboScript : public UnaryOpcode
 	{
 	public:
@@ -5719,7 +5663,7 @@ namespace ZScript
 	};
 
 
-	//These need to be unary opcodes that accept bool linkvisible. 
+	//These need to be unary opcodes that accept bool linkvisible.
 	class OWavyIn : public Opcode
 	{
 	public:
@@ -5771,7 +5715,6 @@ namespace ZScript
 			return new OOpenWipeShape(a->clone());
 		}
 	};
-	
 	class OCloseWipeShape : public UnaryOpcode
 	{
 	public:
@@ -6094,7 +6037,6 @@ namespace ZScript
 			return new OBMPPolygonRegister();
 		}
 	};
-	
 	class ONDataBaseTile : public BinaryOpcode
 	{
 	public:
@@ -8807,7 +8749,6 @@ namespace ZScript
 			return new OGreyscaleR(a->clone());
 		}
 	};
-	
 	class OMonochromeR : public UnaryOpcode
 	{
 	public:
@@ -8818,7 +8759,6 @@ namespace ZScript
 			return new OMonochromeR(a->clone());
 		}
 	};
-	
 	class OClearTint : public Opcode
 	{
 	public:
@@ -8828,7 +8768,6 @@ namespace ZScript
 			return new OClearTint();
 		}
 	};
-	
 	class OTintR : public Opcode
 	{
 	public:
@@ -8838,7 +8777,6 @@ namespace ZScript
 			return new OTintR();
 		}
 	};
-	
 	class OMonoHueR : public Opcode
 	{
 	public:
@@ -8848,9 +8786,7 @@ namespace ZScript
 			return new OMonoHueR();
 		}
 	};
-	
 	//bitmap functions
-	
 	class OBMPDrawBitmapExRegister : public Opcode
 	{
 	public:
@@ -8869,7 +8805,6 @@ namespace ZScript
 			return new OBMPBlitTO();
 		}
 	};
-	
 	class OBMPGetPixel : public Opcode
 	{
 	public:
@@ -9105,7 +9040,6 @@ namespace ZScript
 			return new OBMPFrameRegister();
 		}
 	};
-	
 	class OHeroWarpExRegister : public UnaryOpcode
 	{
 	public:
@@ -9116,7 +9050,6 @@ namespace ZScript
 			return new OHeroWarpExRegister(a->clone());
 		}
 	};
-	
 	class OHeroExplodeRegister : public UnaryOpcode
 	{
 	public:
@@ -9127,7 +9060,6 @@ namespace ZScript
 			return new OHeroExplodeRegister(a->clone());
 		}
 	};
-	
 	class OSwitchNPC : public UnaryOpcode
 	{
 	public:
@@ -9208,7 +9140,6 @@ namespace ZScript
 			return new OScreenTriggerCombo(a->clone(),b->clone());
 		}
 	};
-	
 	class ONPCMovePaused : public Opcode
 	{
 	public:
@@ -9279,7 +9210,6 @@ namespace ZScript
 			return new ONPCCanMoveXY();
 		}
 	};
-	
 	class OGetSystemRTCRegister : public UnaryOpcode
 	{
 	public:
@@ -9290,7 +9220,6 @@ namespace ZScript
 			return new OGetSystemRTCRegister(a->clone());
 		}
 	};
-	
 
 	class ONPCExplodeRegister : public UnaryOpcode
 	{
@@ -9302,7 +9231,6 @@ namespace ZScript
 			return new ONPCExplodeRegister(a->clone());
 		}
 	};
-	
 	class OLWeaponExplodeRegister : public UnaryOpcode
 	{
 	public:
@@ -9335,7 +9263,6 @@ namespace ZScript
 			return new OItemExplodeRegister(a->clone());
 		}
 	};
-	
 	class ORunItemScript : public UnaryOpcode
 	{
 	public:
@@ -9357,7 +9284,6 @@ namespace ZScript
 		}
 	};
 	*/
-	
 	//new npc-> functions for npc scripts
 	class ONPCDead : public UnaryOpcode
 	{
@@ -9399,7 +9325,6 @@ namespace ZScript
 			return new ONPCRemove(a->clone());
 		}
 	};
-	
 	class OLWpnRemove : public Opcode
 	{
 	public:
@@ -9610,7 +9535,6 @@ namespace ZScript
 			return new OGetNPCDataName(a->clone());
 		}
 	};
-	
 	class OIsValidBitmap : public UnaryOpcode
 	{
 	public:
@@ -9621,7 +9545,6 @@ namespace ZScript
 			return new OIsValidBitmap(a->clone());
 		}
 	};
-	
 	class OIsAllocatedBitmap : public UnaryOpcode
 	{
 	public:
@@ -9632,7 +9555,6 @@ namespace ZScript
 			return new OIsAllocatedBitmap(a->clone());
 		}
 	};
-	
 	class OAllocateBitmap : public UnaryOpcode
 	{
 	public:
@@ -9643,7 +9565,6 @@ namespace ZScript
 			return new OAllocateBitmap(a->clone());
 		}
 	};
-	
 	class OReadBitmap : public Opcode
 	{
 	public:
@@ -9653,7 +9574,6 @@ namespace ZScript
 			return new OReadBitmap();
 		}
 	};
-	
 	class OClearBitmap : public Opcode
 	{
 	public:
@@ -9663,7 +9583,6 @@ namespace ZScript
 			return new OClearBitmap();
 		}
 	};
-	
 	class OBitmapClearToColor : public Opcode
 	{
 	public:
@@ -9673,7 +9592,6 @@ namespace ZScript
 			return new OBitmapClearToColor();
 		}
 	};
-	
 	class ORegenerateBitmap : public Opcode
 	{
 	public:
@@ -9683,7 +9601,6 @@ namespace ZScript
 			return new ORegenerateBitmap();
 		}
 	};
-	
 	class OWriteBitmap : public Opcode
 	{
 	public:
@@ -9693,7 +9610,6 @@ namespace ZScript
 			return new OWriteBitmap();
 		}
 	};
-	
 	class OBitmapFree : public Opcode
 	{
 	public:
@@ -9703,7 +9619,6 @@ namespace ZScript
 			return new OBitmapFree();
 		}
 	};
-	
 	class OBitmapOwn : public Opcode
 	{
 	public:
@@ -9740,7 +9655,6 @@ namespace ZScript
 			return new ORNGOwn();
 		}
 	};
-	
 	class OBitmapWriteTile : public Opcode
 	{
 	public:
@@ -9750,7 +9664,6 @@ namespace ZScript
 			return new OBitmapWriteTile();
 		}
 	};
-	
 	class OBitmapDither : public Opcode
 	{
 	public:
@@ -9760,7 +9673,6 @@ namespace ZScript
 			return new OBitmapDither();
 		}
 	};
-	
 	class OBitmapReplColor : public Opcode
 	{
 	public:
@@ -9770,7 +9682,6 @@ namespace ZScript
 			return new OBitmapReplColor();
 		}
 	};
-	
 	class OBitmapShiftColor : public Opcode
 	{
 	public:
@@ -9780,7 +9691,6 @@ namespace ZScript
 			return new OBitmapShiftColor();
 		}
 	};
-	
 	class OBitmapMaskDraw : public Opcode
 	{
 	public:
@@ -9790,7 +9700,6 @@ namespace ZScript
 			return new OBitmapMaskDraw();
 		}
 	};
-	
 	class OBitmapMaskDraw2 : public Opcode
 	{
 	public:
@@ -9800,7 +9709,6 @@ namespace ZScript
 			return new OBitmapMaskDraw2();
 		}
 	};
-	
 	class OBitmapMaskDraw3 : public Opcode
 	{
 	public:
@@ -9810,7 +9718,6 @@ namespace ZScript
 			return new OBitmapMaskDraw3();
 		}
 	};
-	
 	class OBitmapMaskBlit : public Opcode
 	{
 	public:
@@ -9820,7 +9727,6 @@ namespace ZScript
 			return new OBitmapMaskBlit();
 		}
 	};
-	
 	class OBitmapMaskBlit2 : public Opcode
 	{
 	public:
@@ -9830,7 +9736,6 @@ namespace ZScript
 			return new OBitmapMaskBlit2();
 		}
 	};
-	
 	class OBitmapMaskBlit3 : public Opcode
 	{
 	public:
@@ -9840,7 +9745,6 @@ namespace ZScript
 			return new OBitmapMaskBlit3();
 		}
 	};
-	
 	class OBMPDrawScreenSolidRegister : public Opcode
 	{
 	public:
@@ -9932,7 +9836,6 @@ namespace ZScript
 			return new OBMPDrawScreenCIFlagRegister();
 		}
 	};
-	
 	//Text ptr opcodes
 	class OFontHeight : public UnaryOpcode
 	{
@@ -9944,7 +9847,6 @@ namespace ZScript
 			return new OFontHeight(a->clone());
 		}
 	};
-	
 	class OStringWidth : public BinaryOpcode
 	{
 	public:
@@ -9955,7 +9857,6 @@ namespace ZScript
 			return new OStringWidth(a->clone(),b->clone());
 		}
 	};
-	
 	class OCharWidth : public BinaryOpcode
 	{
 	public:
@@ -9966,7 +9867,6 @@ namespace ZScript
 			return new OCharWidth(a->clone(),b->clone());
 		}
 	};
-	
 	class OMessageWidth : public UnaryOpcode
 	{
 	public:
@@ -9977,7 +9877,6 @@ namespace ZScript
 			return new OMessageWidth(a->clone());
 		}
 	};
-	
 	class OMessageHeight : public UnaryOpcode
 	{
 	public:
@@ -9988,7 +9887,6 @@ namespace ZScript
 			return new OMessageHeight(a->clone());
 		}
 	};
-	
 	//
 	class OStrCmp : public UnaryOpcode
 	{
@@ -10030,7 +9928,6 @@ namespace ZScript
 			return new OStrNICmp(a->clone());
 		}
 	};
-	
 	class Oxlen : public BinaryOpcode
 	{
 	public:
@@ -10041,7 +9938,6 @@ namespace ZScript
 			return new Oxlen(a->clone(), b->clone());
 		}
 	};
-	
 	class Oxtoi : public BinaryOpcode
 	{
 	public:
@@ -10052,7 +9948,6 @@ namespace ZScript
 			return new Oxtoi(a->clone(), b->clone());
 		}
 	};
-	
 	class Oilen : public BinaryOpcode
 	{
 	public:
@@ -10063,8 +9958,6 @@ namespace ZScript
 			return new Oilen(a->clone(), b->clone());
 		}
 	};
-	
-	
 	class Oatoi : public BinaryOpcode
 	{
 	public:
@@ -10075,7 +9968,6 @@ namespace ZScript
 			return new Oatoi(a->clone(), b->clone());
 		}
 	};
-	
 	class Ostrcspn : public UnaryOpcode
 	{
 	public:
@@ -10096,8 +9988,6 @@ namespace ZScript
 			return new Ostrstr(a->clone());
 		}
 	};
-	
-	
 	class Oitoa : public BinaryOpcode
 	{
 	public:
@@ -10108,7 +9998,6 @@ namespace ZScript
 			return new Oitoa(a->clone(),b->clone());
 		}
 	};
-	
 	class Oxtoa : public BinaryOpcode
 	{
 	public:
@@ -10119,7 +10008,6 @@ namespace ZScript
 			return new Oxtoa(a->clone(),b->clone());
 		}
 	};
-	
 	class Oitoacat : public BinaryOpcode
 	{
 	public:
@@ -10130,7 +10018,6 @@ namespace ZScript
 			return new Oitoacat(a->clone(),b->clone());
 		}
 	};
-	
 	class OSaveGameStructs : public BinaryOpcode
 	{
 	public:
@@ -10241,8 +10128,6 @@ namespace ZScript
 			return new Oremchr2(a->clone());
 		}
 	};
-	
-	
 	class Ouppertolower : public BinaryOpcode
 	{
 	public:
@@ -10253,7 +10138,6 @@ namespace ZScript
 			return new Ouppertolower(a->clone(), b->clone());
 		}
 	};
-	
 	class Olowertoupper : public BinaryOpcode
 	{
 	public:
@@ -10264,7 +10148,6 @@ namespace ZScript
 			return new Olowertoupper(a->clone(), b->clone());
 		}
 	};
-	
 	class Oconvertcase : public BinaryOpcode
 	{
 	public:
@@ -10275,8 +10158,6 @@ namespace ZScript
 			return new Oconvertcase(a->clone(), b->clone());
 		}
 	};
-	
-	
 	//Game->Getthingbystring
 	class OGETNPCSCRIPT : public UnaryOpcode
 	{
@@ -10428,7 +10309,6 @@ namespace ZScript
 			return new OGETDMAPBYNAME(a->clone());
 		}
 	};
-	
 	class OLoadNPCBySUIDRegister : public UnaryOpcode
 	{
 	public:
@@ -10439,7 +10319,6 @@ namespace ZScript
 			return new OLoadNPCBySUIDRegister(a->clone());
 		}
 	};
-	
 	class OLoadLWeaponBySUIDRegister : public UnaryOpcode
 	{
 	public:
@@ -10450,7 +10329,6 @@ namespace ZScript
 			return new OLoadLWeaponBySUIDRegister(a->clone());
 		}
 	};
-	
 	class OLoadEWeaponBySUIDRegister : public UnaryOpcode
 	{
 	public:
@@ -10461,7 +10339,6 @@ namespace ZScript
 			return new OLoadEWeaponBySUIDRegister(a->clone());
 		}
 	};
-	
 	class OByte : public UnaryOpcode
 	{
 	public:
@@ -10472,7 +10349,6 @@ namespace ZScript
 			return new OByte(a->clone());
 		}
 	};
-	
 	class OCeiling : public UnaryOpcode
 	{
 	public:
@@ -10483,7 +10359,6 @@ namespace ZScript
 			return new OCeiling(a->clone());
 		}
 	};
-	
 	class OFloor : public UnaryOpcode
 	{
 	public:
@@ -10494,7 +10369,6 @@ namespace ZScript
 			return new OFloor(a->clone());
 		}
 	};
-	
 	class OToInteger : public UnaryOpcode
 	{
 	public:
@@ -10505,7 +10379,6 @@ namespace ZScript
 			return new OToInteger(a->clone());
 		}
 	};
-	
 	class OWord : public UnaryOpcode
 	{
 	public:
@@ -10516,7 +10389,6 @@ namespace ZScript
 			return new OWord(a->clone());
 		}
 	};
-	
 	class OShort : public UnaryOpcode
 	{
 	public:
@@ -10527,8 +10399,6 @@ namespace ZScript
 			return new OShort(a->clone());
 		}
 	};
-	
-	
 	class OSByte : public UnaryOpcode
 	{
 	public:
@@ -10539,14 +10409,12 @@ namespace ZScript
 			return new OSByte(a->clone());
 		}
 	};
-	
 	class OReturn : public Opcode
 	{
 	public:
 		std::string toString() /*override*/;
 		OReturn* clone() {return new OReturn();}
 	};
-	
 	class OGraphicsGetpixel : public UnaryOpcode
 	{
 	public:
@@ -10557,7 +10425,6 @@ namespace ZScript
 			return new OGraphicsGetpixel(a->clone());
 		}
 	};
-	
 	class OGraphicsCountColor : public UnaryOpcode
 	{
 	public:
@@ -10568,7 +10435,6 @@ namespace ZScript
 			return new OGraphicsCountColor(a->clone());
 		}
 	};
-	
 	class ODirExists : public UnaryOpcode
 	{
 	public:
@@ -10579,7 +10445,6 @@ namespace ZScript
 			return new ODirExists(a->clone());
 		}
 	};
-	
 	class OFileExists : public UnaryOpcode
 	{
 	public:
@@ -10590,7 +10455,6 @@ namespace ZScript
 			return new OFileExists(a->clone());
 		}
 	};
-	
 	class OFileSystemRemove : public UnaryOpcode
 	{
 	public:
@@ -10601,7 +10465,6 @@ namespace ZScript
 			return new OFileSystemRemove(a->clone());
 		}
 	};
-	
 	class OFileClose : public Opcode
 	{
 	public:
@@ -10611,7 +10474,6 @@ namespace ZScript
 			return new OFileClose();
 		}
 	};
-	
 	class OFileFree : public Opcode
 	{
 	public:
@@ -10621,7 +10483,6 @@ namespace ZScript
 			return new OFileFree();
 		}
 	};
-	
 	class OFileIsAllocated : public Opcode
 	{
 	public:
@@ -10631,7 +10492,6 @@ namespace ZScript
 			return new OFileIsAllocated();
 		}
 	};
-	
 	class OFileIsValid : public Opcode
 	{
 	public:
@@ -10641,7 +10501,6 @@ namespace ZScript
 			return new OFileIsValid();
 		}
 	};
-	
 	class OAllocateFile : public Opcode
 	{
 	public:
@@ -10651,7 +10510,6 @@ namespace ZScript
 			return new OAllocateFile();
 		}
 	};
-	
 	class OFileFlush : public Opcode
 	{
 	public:
@@ -10661,7 +10519,6 @@ namespace ZScript
 			return new OFileFlush();
 		}
 	};
-	
 	class OFileGetChar : public Opcode
 	{
 	public:
@@ -10671,7 +10528,6 @@ namespace ZScript
 			return new OFileGetChar();
 		}
 	};
-	
 	class OFileRewind : public Opcode
 	{
 	public:
@@ -10681,7 +10537,6 @@ namespace ZScript
 			return new OFileRewind();
 		}
 	};
-	
 	class OFileClearError : public Opcode
 	{
 	public:
@@ -10691,7 +10546,6 @@ namespace ZScript
 			return new OFileClearError();
 		}
 	};
-	
 	class OFileOpen : public UnaryOpcode
 	{
 	public:
@@ -10702,7 +10556,6 @@ namespace ZScript
 			return new OFileOpen(a->clone());
 		}
 	};
-	
 	class OFileCreate : public UnaryOpcode
 	{
 	public:
@@ -10713,7 +10566,6 @@ namespace ZScript
 			return new OFileCreate(a->clone());
 		}
 	};
-	
 	class OFileReadString : public UnaryOpcode
 	{
 	public:
@@ -10724,7 +10576,6 @@ namespace ZScript
 			return new OFileReadString(a->clone());
 		}
 	};
-	
 	class OFileWriteString : public UnaryOpcode
 	{
 	public:
@@ -10735,7 +10586,6 @@ namespace ZScript
 			return new OFileWriteString(a->clone());
 		}
 	};
-	
 	class OFilePutChar : public UnaryOpcode
 	{
 	public:
@@ -10746,7 +10596,6 @@ namespace ZScript
 			return new OFilePutChar(a->clone());
 		}
 	};
-	
 	class OFileUngetChar : public UnaryOpcode
 	{
 	public:
@@ -10757,7 +10606,6 @@ namespace ZScript
 			return new OFileUngetChar(a->clone());
 		}
 	};
-	
 	class OFileGetError : public UnaryOpcode
 	{
 	public:
@@ -10768,7 +10616,6 @@ namespace ZScript
 			return new OFileGetError(a->clone());
 		}
 	};
-	
 	class OFileRemove : public Opcode
 	{
 	public:
@@ -10778,7 +10625,6 @@ namespace ZScript
 			return new OFileRemove();
 		}
 	};
-	
 	class OFileReadChars : public BinaryOpcode
 	{
 	public:
@@ -10789,7 +10635,6 @@ namespace ZScript
 			return new OFileReadChars(a->clone(), b->clone());
 		}
 	};
-	
 	class OFileReadBytes : public BinaryOpcode
 	{
 	public:
@@ -10800,7 +10645,6 @@ namespace ZScript
 			return new OFileReadBytes(a->clone(), b->clone());
 		}
 	};
-	
 	class OFileReadInts : public BinaryOpcode
 	{
 	public:
@@ -10811,7 +10655,6 @@ namespace ZScript
 			return new OFileReadInts(a->clone(), b->clone());
 		}
 	};
-	
 	class OFileWriteChars : public BinaryOpcode
 	{
 	public:
@@ -10822,7 +10665,6 @@ namespace ZScript
 			return new OFileWriteChars(a->clone(), b->clone());
 		}
 	};
-	
 	class OFileWriteBytes : public BinaryOpcode
 	{
 	public:
@@ -10833,7 +10675,6 @@ namespace ZScript
 			return new OFileWriteBytes(a->clone(), b->clone());
 		}
 	};
-	
 	class OFileWriteInts : public BinaryOpcode
 	{
 	public:
@@ -10844,7 +10685,6 @@ namespace ZScript
 			return new OFileWriteInts(a->clone(), b->clone());
 		}
 	};
-	
 	class OFileSeek : public BinaryOpcode
 	{
 	public:
@@ -10855,7 +10695,6 @@ namespace ZScript
 			return new OFileSeek(a->clone(), b->clone());
 		}
 	};
-	
 	class OFileOpenMode : public BinaryOpcode
 	{
 	public:
@@ -10866,7 +10705,6 @@ namespace ZScript
 			return new OFileOpenMode(a->clone(), b->clone());
 		}
 	};
-	
 	class ODirectoryGet : public BinaryOpcode
 	{
 	public:
@@ -10877,7 +10715,6 @@ namespace ZScript
 			return new ODirectoryGet(a->clone(), b->clone());
 		}
 	};
-	
 	class ODirectoryReload : public Opcode
 	{
 	public:
@@ -10887,7 +10724,6 @@ namespace ZScript
 			return new ODirectoryReload();
 		}
 	};
-	
 	class ODirectoryFree : public Opcode
 	{
 	public:
@@ -10897,7 +10733,6 @@ namespace ZScript
 			return new ODirectoryFree();
 		}
 	};
-	
 	class OStackFree : public Opcode
 	{
 	public:
@@ -10925,7 +10760,6 @@ namespace ZScript
 			return new OStackClear();
 		}
 	};
-	
 	class OStackPopBack : public UnaryOpcode
 	{
 	public:
@@ -11006,7 +10840,6 @@ namespace ZScript
 			return new OStackSet(a->clone(), b->clone());
 		}
 	};
-	
 	class OModuleGetIC : public BinaryOpcode
 	{
 	public:

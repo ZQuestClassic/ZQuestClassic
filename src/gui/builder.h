@@ -286,7 +286,6 @@ ZCGUI_BUILDER_START(RadioSet)
 	ZCGUI_ACCEPT_PROP(checked, setChecked, int32_t)
 	ZCGUI_ACCEPT_PROP(set, setProcSet, int32_t)
 	ZCGUI_ACCEPT_PROP(onToggle, onToggle, Dialog::message)
-	
 	ZCGUI_ACCEPT_PROP(data, loadList, const ::GUI::ListData&)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(RadioSet, RadioSet, makeRadioSet)

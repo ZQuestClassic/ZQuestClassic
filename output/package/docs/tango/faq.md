@@ -87,13 +87,13 @@ int __Tango_SlotDefs[] = {
     0, 512,   // Occupies __Tango_Buffer[0] to __Tango_Buffer[511]
     0, 0,     // Draws to a region at 0, 0 on the bitmap
     192, 128, // Drawing region is 192x128 pixels
-    
+
     // Slot 1
     TANGO_SLOT_SMALL,
     512, 64, // Occupies __Tango_Buffer[512] to __Tango_Buffer[575]
     0, 128,  // Draws to a region at 0, 128 (just below slot 0)
     128, 32  // Drawing region is 128x32
-    
+
     // Slot 2
     TANGO_SLOT_SMALL,
     576, 64, // Occupies __Tango_Buffer[576] to __Tango_Buffer[639]
@@ -118,12 +118,12 @@ types exist for users to create their own distictions. There are three reasons
 you might use different slot types:
 
 1. Reservation
-    
+
     In order to display a string, you must first have a free slot. If no slots
     are free, you can't show any text without clearing one out. If there's
     something you need to be able to display, you can create a dedicated slot
     type for it, so there will always be a slot free when you need it.
-    
+
     For instance, suppose you want NPCs to spout random lines of dialog in the
     background. You might define several slots of type `SLOT_BG` to use for this
     purpose, and one of type `SLOT_FG` for the text box when Link talks to
@@ -131,18 +131,18 @@ you might use different slot types:
     like, and the main `SLOT_FG` will always be available when you need it.
 
 2. Drawing order
-    
+
     Text slots are drawn to the screen in order from first to last. If you want
     certain strings to be drawn above or below others, you can enforce this by
     using different slot types.
-    
+
     Going back to the same example, you wouldn't want your NPCs' random lines
     to appear on top of the main text box. If slots 0-4 are `SLOT_BG` and
     slot 5 is `SLOT_FG`, you can be sure the most important text will always
     be on top.
 
 3. Efficient use of space
-    
+
     If you plan to have one or two long strings appear alongside a lot of
     short ones, you can use different slot types to avoid wasting space
     in `__Tango_Buffer[]`. Because `__Tango_Buffer[]` is a global array,
@@ -152,7 +152,7 @@ you might use different slot types:
     for drawing on the offscreen bitmap. If you have ten slots all using
     192x128 pixels, they'll have to overlap, potentially causing graphical
     errors.
-    
+
     If your random NPC dialog will only ever be a line or two, you can give
     `SLOT_BG` a small amount of space in the buffer and bitmap, while `SLOT_FG`
     might have room for several hundred characters and space to draw a large

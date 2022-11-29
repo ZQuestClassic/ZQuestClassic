@@ -56,7 +56,6 @@ BYTE ReadByte(void)
 
 long ConsoleLoop(void)
 {
-	
 	DWORD cbRead,cbWritten;
 	char chBuf[1024];
 	BOOL bSuccess;
@@ -118,7 +117,6 @@ long ConsoleExLoop(void)
 			loop=false;
 			break;
 		}
-		
 		char first_byte_of_command = (char)((DWORD)dwCommand>>24);	// WE ASSUME DWORD=32BIT !!!
 		switch (first_byte_of_command)
 		{
@@ -151,7 +149,6 @@ long ConsoleExLoop(void)
 				{
 					DWORD attributes;
 					ReadPipe(attributes);
-					
 					SetConsoleTextAttribute(g_hConsole,(WORD)attributes);
 
 					int size = dwCommand & 0x00FFFFFF;
@@ -167,7 +164,6 @@ long ConsoleExLoop(void)
 							loop=false;
 							break;
 						}
-						
 						if (! WriteFile(g_hConsole,chBuf, cbRead, &cbWritten, NULL))
 						{
 							loop=false;
@@ -212,7 +208,6 @@ long ConsoleExLoop(void)
 
 
 		}
-		
 
 
 	}
@@ -222,11 +217,11 @@ long ConsoleExLoop(void)
 }
 
 //Windows Implementation of getch(). getchar() only allows 'Press RETURN/ENTER' to exit, not 'ANY KEY'.
-TCHAR getch() 
+TCHAR getch()
 {
 	DWORD mode, cc;
 	HANDLE h = GetStdHandle( STD_INPUT_HANDLE );
-	if (h == NULL) 
+	if (h == NULL)
 	{
 		return 0; // console not found
 	}
@@ -288,7 +283,6 @@ int main(int argc, char* argv[])
 
 	// The pipe connected; change to message-read mode.
 
-	
 	BOOL bSuccess ;
 	DWORD cbRead;
 	//////////////////////////////////////////////////////////////////////////
@@ -322,7 +316,6 @@ int main(int argc, char* argv[])
 		} while (c && len<=sizeof(header)-1);
 		header[len]=0;
 
-		
 		// Set title
 		{
 			p1 = strstr(header,"TITLE:");
@@ -351,7 +344,6 @@ int main(int argc, char* argv[])
 				p1 += 12;
 				while (*p1==' ' || *p1=='\t')
 					p1++;
-			
 				p2=p1;
 				while (*p2 && *p2!=',' && *p2!='x')
 					p2++;
@@ -372,7 +364,6 @@ int main(int argc, char* argv[])
 				coord.X = 1024;
 				coord.Y = 32767;
 				COORD newSize = {121,32766};
-				
 				system("mode CON: COLS=120");
 				system("mode CON: ROWS=32765");
 				//System.Console.SetBufferSize(140,150000);
@@ -380,7 +371,6 @@ int main(int argc, char* argv[])
 				HWND theWindow = GetConsoleWindow();
 				SetWindowPos(theWindow, HWND_TOP, 0, 0, 400, 600, 0);
 			}
-			
 		}
 
 		// Is it "extended" console ? (with extra-functionality , such as cls,colors,...)
@@ -420,12 +410,10 @@ int main(int argc, char* argv[])
 	//int x;
 	//std::cin >> x;
 	//std::cin.ignore(std::cin.rdbuf()->in_avail());
-	
 	printf("\r\nPress any key to end...\r\n");
-	getch(); //getchar(); //getchar() only allows pressing RETURN/ENTER, but getch() allows any key to exit. 
+	getch(); //getchar(); //getchar() only allows pressing RETURN/ENTER, but getch() allows any key to exit.
 	printf("\r\nConsoleHelper Ended\r\n");
 	return 0;
-	
 }
 
 
@@ -440,7 +428,6 @@ void cls(WORD color)
   CONSOLE_SCREEN_BUFFER_INFO csbi; /* to get buffer info */
 
   SetConsoleTextAttribute(g_hConsole,color);
-  
   /* fill the entire screen with blanks */
   FillConsoleOutputCharacter(g_hConsole, (TCHAR) ' ',g_dwConsoleSize, coordScreen, &cCharsWritten);
   /* get the current text attribute */
@@ -458,7 +445,6 @@ void cls(void)
   CONSOLE_SCREEN_BUFFER_INFO csbi; /* to get buffer info */
 
   SetConsoleTextAttribute(g_hConsole,FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);
-  
   /* fill the entire screen with blanks */
   FillConsoleOutputCharacter(g_hConsole, (TCHAR) ' ',g_dwConsoleSize, coordScreen, &cCharsWritten);
   /* get the current text attribute */

@@ -38,7 +38,6 @@ namespace ZScript
 		scrTypeIdComboData,
 		scrTypeIdSubscreenData,
 		scrTypeIdGeneric,
-		
 		scrTypeIdEnd
 	};
 }
@@ -171,15 +170,12 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 	char buf[512] = {0};
 	char* buf2 = nullptr;
 	size_t buf2sz = 0;
-	
 	FILE *tempfile = fopen("tmp2","rb");
-			
 	if(!tempfile)
 	{
 		//jwin_alert("Error","Unable to open the temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
 		return;
 	}
-	
 	fread(&stypes_sz, sizeof(size_t), 1, tempfile);
 	for(size_t ind = 0; ind < stypes_sz; ++ind)
 	{
@@ -189,7 +185,6 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 		fread(&_id, sizeof(ZScript::ScriptTypeID), 1, tempfile);
 		stypes[buf] = _id;
 	}
-	
 	fread(&scripts_sz, sizeof(size_t), 1, tempfile);
 	for(size_t ind = 0; ind < scripts_sz; ++ind)
 	{
@@ -197,13 +192,9 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 
 		dummy = fread(buf, sizeof(char), dummy, tempfile);
 		buf[dummy] = 0;
-		
 		disassembled_script_data dsd;
-		
 		read_meta(dsd.first, tempfile);
-		
 		fread(&(dsd.format), sizeof(byte), 1, tempfile);
-		
 		size_t tmp;
 		fread(&tmp, sizeof(size_t), 1, tempfile);
 		for(size_t ind2 = 0; ind2 < tmp; ++ind2)
@@ -232,13 +223,11 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 			oc->setLabel(lbl);
 			dsd.second.push_back(oc);
 		}
-		
 		scripts[buf] = dsd;
 	}
 
 read_compile_error:
 	fclose(tempfile);
-	
 	if (buf2) free(buf2);
 }
 
@@ -246,13 +235,11 @@ void write_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, 
 {
 	size_t dummy = stypes.size();
 	FILE *tempfile = fopen("tmp2","wb");
-			
 	if(!tempfile)
 	{
 		//jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
 		return;
 	}
-	
 	fwrite(&dummy, sizeof(size_t), 1, tempfile);
 	for(auto it = stypes.begin(); it != stypes.end(); ++it)
 	{
@@ -263,7 +250,6 @@ void write_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, 
 		fwrite((void*)str.c_str(), sizeof(char), dummy, tempfile);
 		fwrite(&v, sizeof(ZScript::ScriptTypeID), 1, tempfile);
 	}
-	
 	dummy = scripts.size();
 	fwrite(&dummy, sizeof(size_t), 1, tempfile);
 	for(auto it = scripts.begin(); it != scripts.end(); ++it)
@@ -273,27 +259,20 @@ void write_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, 
 		dummy = str.size();
 		fwrite(&dummy, sizeof(size_t), 1, tempfile);
 		fwrite((void*)str.c_str(), sizeof(char), dummy, tempfile);
-		
 		write_meta(v.first, tempfile);
-		
 		fwrite(&(v.format), sizeof(byte), 1, tempfile);
-		
 		dummy = v.second.size();
 		fwrite(&dummy, sizeof(size_t), 1, tempfile);
-		
 		for(auto it = v.second.begin(); it != v.second.end(); ++it)
 		{
 			string opstr = (*it)->toString();
 			int32_t lbl = (*it)->getLabel();
-			
 			dummy = opstr.size();
 			fwrite(&dummy, sizeof(size_t), 1, tempfile);
 			fwrite((void*)opstr.c_str(), sizeof(char), dummy, tempfile);
-			
 			fwrite(&lbl, sizeof(int32_t), 1, tempfile);
 		}
 	}
-	
 	//fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
 	fclose(tempfile);
 }
@@ -317,16 +296,14 @@ void zconsole_db2(const char *format,...)
 	//{
 	int32_t ret;
 	char tmp[1024];
-	
 	va_list argList;
 	va_start(argList, format);
 	#ifdef WIN32
-	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+			ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	#else
-	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+			ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	#endif
 	tmp[vbound(ret,0,1023)]=0;
-	
 	va_end(argList);
 	//}
 	al_trace("%s\n", tmp);
@@ -347,16 +324,14 @@ void zconsole_warn2(const char *format,...)
 	//{
 	int32_t ret;
 	char tmp[1024];
-	
 	va_list argList;
 	va_start(argList, format);
 	#ifdef WIN32
-	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+			ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	#else
-	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+			ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	#endif
 	tmp[vbound(ret,0,1023)]=0;
-	
 	va_end(argList);
 	//}
 	al_trace("%s\n", tmp);
@@ -377,16 +352,14 @@ void zconsole_error2(const char *format,...)
 	//{
 	int32_t ret;
 	char tmp[1024];
-	
 	va_list argList;
 	va_start(argList, format);
 	#ifdef WIN32
-	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+			ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	#else
-	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+			ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	#endif
 	tmp[vbound(ret,0,1023)]=0;
-	
 	va_end(argList);
 	//}
 	al_trace("%s\n", tmp);
@@ -407,16 +380,14 @@ void zconsole_info2(const char *format,...)
 	//{
 	int32_t ret;
 	char tmp[1024];
-	
 	va_list argList;
 	va_start(argList, format);
 	#ifdef WIN32
-	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+			ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	#else
-	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+			ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	#endif
 	tmp[vbound(ret,0,1023)]=0;
-	
 	va_end(argList);
 	//}
 	al_trace("%s\n", tmp);

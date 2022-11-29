@@ -8,10 +8,10 @@ namespace std
 
 
 
-		bool OnPlatform(lweapon l) 
+		bool OnPlatform(lweapon l)
 		{
 			unless ( IsSideview() ) return false;
-			return ((Screen->isSolid((l->X+l->HitXOffset)+ONSIDEVIEWPLATFORM_OVERHANG_DEPTH,(l->Y+l->HitYOffset+l->HitHeight) 
+			return ((Screen->isSolid((l->X+l->HitXOffset)+ONSIDEVIEWPLATFORM_OVERHANG_DEPTH,(l->Y+l->HitYOffset+l->HitHeight)
 				|| Screen->isSolid((l->X+l->HitXOffset)+l->HitWidth-ONSIDEVIEWPLATFORM_OVERHANG_DEPTH),(l->Y+l->HitYOffset)+l->HitHeight)));
 		}
 	}

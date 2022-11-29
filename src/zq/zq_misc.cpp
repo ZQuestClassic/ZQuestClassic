@@ -284,7 +284,6 @@ void loadlvlpal(int32_t level)
 		RAMpal[CSET(9)+i] = _RGB(si);
 		si+=3;
 	}
-	
 	if (get_bit(quest_rules, qr_CSET1_LEVEL))
 	{
 		si = colordata + CSET(level*pdLEVEL+poNEWCSETS)*3;
@@ -747,10 +746,10 @@ const char *eneanim_string[aMAX] =
     "4-Frame",
     "Ganon",
     "2-Frame Big",
-    "4-Frame 8-Dir Big + Tracking", 
-    "4-Frame 4-Dir Big + Tracking", 
+    "4-Frame 8-Dir Big + Tracking",
+    "4-Frame 4-Dir Big + Tracking",
     "4-Frame 8-Dir Big + Firing",
-    "4-Frame 4-Dir Big", 
+    "4-Frame 4-Dir Big",
     "4-Frame 4-Dir Big + Firing"
 };
 
@@ -1080,7 +1079,6 @@ int32_t onMapscrSnapshot()
 
 	char buf[200];
 	int32_t num=0;
-	
 	do
 	{
 		sprintf(buf, "%szquest_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
@@ -1096,7 +1094,6 @@ int32_t onMapscrSnapshot()
 	clear_to_color(panorama,vc(0));
 
 	Map.draw(panorama, 0, 0, useflags?Flags:0, -1, -1);
-	
 	save_bitmap(buf,panorama,usepal);
 	destroy_bitmap(panorama);
 
@@ -1200,7 +1197,6 @@ int32_t onExit()
 int32_t onAbout()
 {
     char buf1[80]={0};
-	
     if(get_debug())
     {
 		char buf2[80]={0};
@@ -1408,7 +1404,6 @@ int32_t onDecreaseFlag()
 
 		Flag=(Flag-1);
 	} while(!ZI.isUsableMapFlag(Flag));
-	
     setFlagColor();
     refresh(rMENU);
     return D_O_K;

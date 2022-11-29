@@ -15,7 +15,7 @@ int Widget_Create(int type, int parent)
             return i;
         }
     }
-    
+
     return -1; // Shouldn't happen...
 }
 
@@ -23,13 +23,13 @@ void Widget_Destroy(int id)
 {
     int other;
     GUI_Data[id+WIDGET_TYPE]=WTYPE_NONE;
-    
+
     if(GUI_Data[id+WIDGET_NEXT_CHILD]!=-1)
     {
         other=GUI_Data[id+WIDGET_NEXT_CHILD];
         GUI_Data[other+WIDGET_PREV_CHILD]=GUI_Data[id+WIDGET_PREV_CHILD];
     }
-    
+
     if(GUI_Data[id+WIDGET_PREV_CHILD]!=-1)
     {
         other=GUI_Data[id+WIDGET_PREV_CHILD];
@@ -40,7 +40,7 @@ void Widget_Destroy(int id)
         other=GUI_Data[id+WIDGET_PARENT];
         GUI_Data[other+WIDGET_FIRST_CHILD]=GUI_Data[id+WIDGET_NEXT_CHILD];
     }
-    
+
     while(GUI_Data[id+WIDGET_FIRST_CHILD]!=-1) // Destroy children
         Widget_Destroy(GUI_Data[id+WIDGET_FIRST_CHILD]);
 }
@@ -49,7 +49,7 @@ void Widget_AddChild(int id, int newChild)
 {
     GUI_Data[newChild+WIDGET_PARENT]=id;
     GUI_Data[newChild+WIDGET_NEXT_CHILD]=-1;
-    
+
     int curChild=GUI_Data[id+WIDGET_FIRST_CHILD];
     if(curChild==-1)
     {
@@ -60,7 +60,7 @@ void Widget_AddChild(int id, int newChild)
     {
         while(GUI_Data[curChild+WIDGET_NEXT_CHILD]!=-1)
             curChild=GUI_Data[curChild+WIDGET_NEXT_CHILD];
-        
+
         GUI_Data[curChild+WIDGET_NEXT_CHILD]=newChild;
         GUI_Data[newChild+WIDGET_PREV_CHILD]=curChild;
     }

@@ -85,11 +85,11 @@ Next: <a href="Preprocessor-Options.html#Preprocessor-Options" accesskey="n" rel
 <a name="index-options_002c-profiling"></a>
 
 <p>GCC supports a number of command-line options that control adding
-run-time instrumentation to the code it normally generates.  
+run-time instrumentation to the code it normally generates.
 For example, one purpose of instrumentation is collect profiling
 statistics for use in finding program hot spots, code coverage
 analysis, or profile-guided optimizations.
-Another class of program instrumentation is adding run-time checking 
+Another class of program instrumentation is adding run-time checking
 to detect programming errors like invalid pointer
 dereferences or out-of-bounds array accesses, as well as deliberately
 hostile attacks such as stack smashing or C++ vtable hijacking.
@@ -825,7 +825,7 @@ pointer is detected at run time, an error is reported and execution of the
 program is immediately halted.
 </p>
 <p>This option causes run-time data structures to be built at program startup,
-which are used for verifying the vtable pointers.  
+which are used for verifying the vtable pointers.
 The options &lsquo;<samp>std</samp>&rsquo; and &lsquo;<samp>preinit</samp>&rsquo;
 control the timing of when these data structures are built.  In both cases the
 data structures are built before execution reaches <code>main</code>.  Using
@@ -841,13 +841,13 @@ values specified, &lsquo;<samp>none</samp>&rsquo; takes highest priority over bo
 </dd>
 <dt><code>-fvtv-debug</code></dt>
 <dd><a name="index-fvtv_002ddebug"></a>
-<p>When used in conjunction with <samp>-fvtable-verify=std</samp> or 
-<samp>-fvtable-verify=preinit</samp>, causes debug versions of the 
-runtime functions for the vtable verification feature to be called.  
-This flag also causes the compiler to log information about which 
+<p>When used in conjunction with <samp>-fvtable-verify=std</samp> or
+<samp>-fvtable-verify=preinit</samp>, causes debug versions of the
+runtime functions for the vtable verification feature to be called.
+This flag also causes the compiler to log information about which
 vtable pointers it finds for each class.
-This information is written to a file named <samp>vtv_set_ptr_data.log</samp> 
-in the directory named by the environment variable <code>VTV_LOGS_DIR</code> 
+This information is written to a file named <samp>vtv_set_ptr_data.log</samp>
+in the directory named by the environment variable <code>VTV_LOGS_DIR</code>
 if that is defined or the current working directory otherwise.
 </p>
 <p>Note:  This feature <em>appends</em> data to the log file. If you want a fresh log

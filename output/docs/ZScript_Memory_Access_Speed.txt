@@ -8,16 +8,16 @@ ZScript Array
 Declaration/Allocation
 With no initialisers:
 1 Push a register (A) to store the pointer.
-2. Allocate the array internaly to give it a pointer and to save the address 
+2. Allocate the array internaly to give it a pointer and to save the address
 	of the pointer to a map with  <ALLOCATEMEMV (A),(Pointer ID)>
 3. Set up the stack to read it:
 	SETR
 	ADDV
 	STOREI
-	
+
 With initialisers that are constant/literal:
 1 Push a register (A) to store the pointer.
-2. Allocate the array internaly to give it a pointer and to save the address 
+2. Allocate the array internaly to give it a pointer and to save the address
 	of the pointer to a map with  <ALLOCATEMEMV (A),(Pointer ID)>
 3. Set up the stack to read it:
 	SETR
@@ -47,7 +47,7 @@ Deallocation:
 	Call DEALLOCATEMEMR on that register.
 	Set the register that held the pointer to 0.
 	Pop that register.
-	
+
 ZScript Variable
 Initial declaration:
 

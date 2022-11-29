@@ -129,12 +129,10 @@ ASTFloat::ASTFloat(char* value, Type type, LocationData const& location)
 	: AST(location), type(type), negative(false),
 	  value(static_cast<string>(value))
 {}
-    
 ASTFloat::ASTFloat(char const* value, Type type, LocationData const& location)
 	: AST(location), type(type), negative(false),
 	  value(static_cast<string>(value))
 {}
-    
 ASTFloat::ASTFloat(
 		string const& value, Type type, LocationData const& location)
 	: AST(location), type(type), negative(false), value(value)
@@ -214,7 +212,6 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 
 			break;
 		}
-		
 		case TYPE_L_DECIMAL:
 		{
 			// Trim off the "L".
@@ -240,7 +237,6 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 			if(neg) intpart = "-" + intpart;
 			break;
 		}
-		
 		case TYPE_L_HEX:
 		case TYPE_HEX:
 		{
@@ -256,7 +252,6 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 			}
 			// Parse the hex.
 			int32_t val2=0;
-		
 			for(size_t i=0; i<f.size(); i++)
 			{
 				char d = f.at(i);
@@ -269,7 +264,6 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 				else
 					val2+=(10+d-'a');
 			}
-		
 			if(neg && val2 > 0) val2 *= -1;
 
 			char temp[60];
@@ -315,7 +309,6 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 			}
 			// Parse the octal.
 			int32_t val2=0;
-		
 			for(size_t i=0; i<f.size(); i++)
 			{
 				char d = f.at(i);
@@ -323,7 +316,6 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 
 				val2+=(d-'0');
 			}
-		
 			if(neg && val2 > 0) val2 *= -1;
 
 			char temp[60];
@@ -387,7 +379,6 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 			{
 				f = f.substr(f.size() - 18, 18);
 			}
-			
 			for(size_t i=0; i<f.size(); i++)
 			{
 				val2<<=1;
@@ -442,7 +433,6 @@ ASTAnnotation::ASTAnnotation(ASTString* first, ASTString* second, LocationData c
 
 void ASTAnnotation::execute(ASTVisitor& visitor, void* param)
 {
-	
 }
 
 // ASTAnnotationList
@@ -453,7 +443,6 @@ ASTAnnotationList::ASTAnnotationList(LocationData const& location)
 
 void ASTAnnotationList::execute(ASTVisitor& visitor, void* param)
 {
-	
 }
 
 // ASTSetOption
@@ -538,7 +527,6 @@ void ASTStmtIf::execute(ASTVisitor& visitor, void* param)
 }
 
 // ASTStmtIfElse
-    
 ASTStmtIfElse::ASTStmtIfElse(
 		ASTExpr* condition, ASTBlock* thenStatement,
 		ASTBlock* elseStatement, LocationData const& location)
@@ -875,7 +863,6 @@ void ASTFuncDecl::setFlag(int32_t flag, bool state)
 			invalidMsg += " Only internal functions may be inline at this time.";
 			return;
 		}
-	
 	if(func) state ? func->flags |= flag : func->flags &= ~flag;
 	state ? flags |= flag : flags &= ~flag;
 }
@@ -919,7 +906,6 @@ ASTDataDeclList& ASTDataDeclList::operator=(ASTDataDeclList const& rhs)
 			decl->baseType.release();
 		addDeclaration(decl);
 	}
-	
 	return *this;
 }
 
@@ -1323,7 +1309,6 @@ DataType const* ASTExprIndex::getWriteType(Scope* scope, CompileErrorHandler* er
 	}
 	return type;
 }
-	
 // ASTExprCall
 
 ASTExprCall::ASTExprCall(LocationData const& location)
@@ -1864,7 +1849,6 @@ std::optional<int32_t> ASTExprExpn::getCompileTimeValue(
 	std::optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	std::optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	bool is_long = left->isLong(scope, errorHandler) || right->isLong(scope, errorHandler);
-	
 	if(rightValue && (*rightValue == 0)) return 10000; //x^0 == 1
 	if(leftValue) //1^x == 1
 	{
@@ -1874,7 +1858,6 @@ std::optional<int32_t> ASTExprExpn::getCompileTimeValue(
 		}
 		else if(*leftValue == 10000) return 10000;
 	}
-	
 	if (!leftValue) return std::nullopt;
 	if (!rightValue) return std::nullopt;
 	if(*leftValue == 0) return 0;
@@ -1915,18 +1898,15 @@ std::optional<int32_t> ASTExprDivide::getCompileTimeValue(
 			errorHandler->handleError(CompileError::DivByZero(this, "divide"));
 		return (*leftValue >= 0) ? 2147483647 : -2147483647; //error value
 	}
-	
 	if(*lookupOption(*scope, CompileOption::OPT_TRUNCATE_DIVISION_BY_LITERAL_BUG)
 		&& left->isLiteral() && right->isLiteral())
 	{
 		return *leftValue / *rightValue * 10000L;
 	}
-	
 	return static_cast<int32_t>((*leftValue * 1.0) / (*rightValue * 1.0) * (10000L));
 }
 
 // ASTExprModulo
-    
 ASTExprModulo::ASTExprModulo(
 		ASTExpr* left, ASTExpr* right, LocationData const& location)
 	: ASTMultExpr(left, right, location)
@@ -2072,7 +2052,6 @@ std::optional<int32_t> ASTExprLShift::getCompileTimeValue(
 	if (!leftValue) return std::nullopt;
 	std::optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return std::nullopt;
-	
 	if (*rightValue % 10000L)
 	{
 		if (errorHandler)
@@ -2084,7 +2063,6 @@ std::optional<int32_t> ASTExprLShift::getCompileTimeValue(
 	   || left->isLong(scope, errorHandler)
 	   || right->isLong(scope, errorHandler))
 		return *leftValue << (*rightValue / 10000L);
-	
 	return ((*leftValue / 10000L) << (*rightValue / 10000L)) * 10000L;
 }
 
@@ -2108,7 +2086,6 @@ std::optional<int32_t> ASTExprRShift::getCompileTimeValue(
 	if (!leftValue) return std::nullopt;
 	std::optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return std::nullopt;
-	
 	if (*rightValue % 10000L)
 	{
 		if (errorHandler)
@@ -2120,7 +2097,6 @@ std::optional<int32_t> ASTExprRShift::getCompileTimeValue(
 	   || left->isLong(scope, errorHandler)
 	   || right->isLong(scope, errorHandler))
 		return *leftValue >> (*rightValue / 10000L);
-	
 	return ((*leftValue / 10000L) >> (*rightValue / 10000L)) * 10000L;
 }
 
@@ -2152,7 +2128,6 @@ std::optional<int32_t> ASTTernaryExpr::getCompileTimeValue(
 	if (!leftValue) return std::nullopt;
 	std::optional<int32_t> middleValue = middle->getCompileTimeValue(errorHandler, scope);
 	std::optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
-	
 	if(*leftValue)
 	{
 		if(!middleValue) return std::nullopt;
@@ -2191,7 +2166,6 @@ std::optional<int32_t> ASTNumberLiteral::getCompileTimeValue(
 {
 	if (!value) return std::nullopt;
     pair<int32_t, bool> val = ScriptParser::parseLong(value->parseValue(errorHandler, scope), scope);
-	
     if (!val.second && errorHandler)
 	    errorHandler->handleError(
 			    CompileError::ConstTrunc(this, value->value.c_str()));
@@ -2413,13 +2387,12 @@ ASTDataType::ASTDataType(DataType const& type, LocationData const& location)
 {}
 
 void ASTDataType::execute(ASTVisitor& visitor, void* param)
-{	
+{
 	visitor.caseDataType(*this, param);
 }
 
 DataType const& ASTDataType::resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler)
 {
-	
 	DataType* resolved = type->resolve(scope, errorHandler);
 	if(resolved && constant_ && !wasResolved_)
 	{

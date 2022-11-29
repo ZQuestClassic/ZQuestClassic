@@ -10,17 +10,17 @@ void run(){
 	TraceLWeapon(l);
 	itemdata ww[6];
 	int sz = SizeOfArrayItemdata(ww);
-	
+
 		for ( int q = 0; q < 256; q++ )
 		{
 			int ptrid = Debug->GetLWeaponPointer(lw[q]);
 			TraceLWeapon(lw[q]); Trace(ptrid);
-			if ( ptrid == -1 ) 
+			if ( ptrid == -1 )
 			{
 				lw[q] = l; TraceLWeapon(lw[q]); break;
 			}
-			
-			
+
+
 		}
 		bitmap b;
 		mapdata m;
@@ -31,11 +31,11 @@ void run(){
 		int n1 = nd->GetTile(16);
 		Game->GameOverScreen[2] = 24380; //Tile
 		Game->GameOverScreen[11] = 3; //MIDI
-		
+
 		/* String Literals
 
 		*/
-	
+
 		TraceS("foo");
 	}
 }
@@ -43,7 +43,7 @@ void run(){
 global script active{
 	void run(){
 		while(1){
-			if ( Input->Press[10] ) 
+			if ( Input->Press[10] )
 				for ( int q = 0; q < 256; q++ ) TraceLWeapon(lw[q]);
 			Waitdraw(); Waitframe();
 		}
@@ -61,11 +61,11 @@ ffjbhsdkjbk
 		//int ssss = SpriteData->GetTile(9);
 		//int b = NPCData->GetWeapon(2);
 		//int m = MapData->GetItem(1,1);
-		
+
 		//int d = Input->GetType(7);
 		//int j = Input->Joypad[4];
-		//if ( Input->Button[0] ) { 
-		//	Input->Mouse[4] = 1; 
+		//if ( Input->Button[0] ) {
+		//	Input->Mouse[4] = 1;
 		//}
 */
 		TraceNL();
@@ -78,7 +78,7 @@ ffjbhsdkjbk
 		//ffc nn = this->ID;
 		//TraceFFC(nn);
 		//if ( Game->JoypadPress[1] ) {}
-	
+
 	}
 }
 

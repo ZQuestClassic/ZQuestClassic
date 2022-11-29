@@ -12,7 +12,6 @@ static inline bool dithercheck(byte type, byte arg, int32_t x, int32_t y, int32_
 	bool ret = false,
 	     inv = (type%2); //invert return for odd types
 	type &= ~1; //even-ize the type for switch simplicity
-	
 	switch(type) //arg bounding, prevent "/0" and "%0"
 	{
 		case dithStatic: case dithStatic2: case dithStatic3:
@@ -21,7 +20,6 @@ static inline bool dithercheck(byte type, byte arg, int32_t x, int32_t y, int32_
 			arg = zc_max(1,arg); //don't div by 0!
 			break;
 	}
-	
 	switch(type) //calculate
 	{
 		case dithChecker:
@@ -30,7 +28,7 @@ static inline bool dithercheck(byte type, byte arg, int32_t x, int32_t y, int32_
 		case dithCrissCross:
 			ret = (((x%arg)==(y%arg)) || ((arg-(x%arg))==(y%arg)));
 			break;
-		case dithDiagULDR: 
+		case dithDiagULDR:
 			ret = ((x%arg)==(y%arg));
 			break;
 		case dithDiagURDL:
@@ -68,7 +66,6 @@ static inline bool dithercheck(byte type, byte arg, int32_t x, int32_t y, int32_
 			ret = diff < filt;
 			break;
 		}
-		
 		default:
 			//don't dither if invalid type found,
 			//just draw every pixel -Em

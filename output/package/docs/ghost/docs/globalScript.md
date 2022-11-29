@@ -40,17 +40,17 @@ void UpdateGhostZHData2()
 void UpdateEWeapon(eweapon wpn)
 :   This must be called on eweapons each frame to enable the special behaviors
     provided by ghost.zh.
-    
+
     Call in the main loop before `Waitdraw()`.
 
 void UpdateEWeapons()
 :   Runs `UpdateEWeapon()` on all eweapons onscreen.
-    
+
     Call in the main loop before `Waitdraw()`.
 
 void CleanUpGhostFFCs()
 :   Hides enemy FFCs when Link dies. If `__GH_USE_DRAWCOMBO` is enabled, this function does nothing.
-    
+
     Call in the main loop before `Waitdraw()` and after anything that would save
     Link from dying when `Link->HP<=0`.
 
@@ -58,10 +58,10 @@ void DrawGhostFFCs()
 :   Draws enemy combos if `__GH_USE_DRAWCOMBO` is enabled and draws additional
     combos regardless. If `__GH_USE_DRAWCOMBO` is disabled and no scripts use
     `Ghost_AddCombo()`, this function does nothing.
-    
+
     Call in the main loop after `Waitdraw()`.
 
 void AutoGhost()
 :   Detects AutoGhost enemies and sets up FFCs for them.
-    
+
     Call in the main loop after `Waitdraw()`.

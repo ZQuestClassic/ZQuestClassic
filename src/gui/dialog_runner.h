@@ -27,7 +27,6 @@ public:
 				dm.sender = snd;
 				this->done = this->done || dlg.handleMessage(dm);
 			};
-		
 		std::shared_ptr<Widget> root = dlg.view();
 		if(root)
 			runInner(root);
@@ -65,12 +64,10 @@ public:
 	{
 		return running;
 	}
-	
 	void pendDraw()
 	{
 		redrawPending = true;
 	}
-	
 	void forceDraw()
 	{
 		acquire_screen();

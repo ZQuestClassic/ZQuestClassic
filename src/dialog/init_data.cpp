@@ -38,7 +38,6 @@ void InitDataDialog::setOfs(size_t ofs)
 	bool _510 = levelsOffset==510;
 	levelsOffset = vbound(ofs/10, 0, 51)*10;
 	if(!(_510 || levelsOffset==510)) return;
-	
 	bool vis = levelsOffset!=510;
 	for(int32_t q = 2; q < 10; ++q)
 	{
@@ -92,7 +91,6 @@ std::shared_ptr<GUI::Widget> InitDataDialog::WORD_FIELD(word* member)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	return TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
 		high = 65535, val = *member,
 		fitParent = true,
@@ -224,33 +222,26 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 #ifdef EMSCRIPTEN_DEBUG
 	return std::shared_ptr<GUI::Widget>(nullptr);
 #endif
-	
 	map<int32_t, map<int32_t, vector<int32_t> > > families;
 	icswitcher = Switcher(fitParent = true, hAlign = 0.0, vAlign = 0.0);
-	
 	for(int32_t q = 0; q < MAXITEMS; ++q)
 	{
 		int32_t family = itemsbuf[q].family;
-		
 		if(family == 0x200 || family == itype_triforcepiece || !(itemsbuf[q].flags & ITEM_GAMEDATA))
 		{
 			continue;
 		}
-		
         if(families.find(family) == families.end())
         {
             families[family] = map<int32_t, vector<int32_t> >();
         }
 		int32_t level = zc_max(1, itemsbuf[q].fam_type);
-		
 		if(families[family].find(level) == families[family].end())
 		{
 			families[family][level] = vector<int32_t>();
 		}
-        
         families[family][level].push_back(q);
 	}
-	
 	int32_t fam_ind = 0;
 	for(int32_t q = 0; q < itype_max; ++q)
 	{
@@ -308,7 +299,6 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 		}
 		icswitcher->add(tbpnl);
 	}
-	
 	std::shared_ptr<GUI::Widget> ilist_panel;
 	if(switchids.size())
 	{
@@ -332,9 +322,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 		icswitcher->switchTo(0);
 		ilist_panel = Label(text = "No 'Equipment Item's to display!");
 	}
-	
 	std::shared_ptr<GUI::TabPanel> tabs;
-	
 	if(is_large) //Just return an entirely different dialog...
 	{
 		window = Window(
@@ -909,7 +897,6 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 			)
 		);
 	}
-	
 	if(!isZC)
 	{
 		tabs->add(TabRef(name = "GenScript", Row(
@@ -930,7 +917,6 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 					})
 			)));
 	}
-	
 	return window;
 }
 
@@ -1008,11 +994,8 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	zasm_meta const& meta = genericscripts[index]->meta;
-	
 	std::shared_ptr<GUI::TabPanel> tabs;
-	
 	window = Window(
 		padding = sized(0_px, 2_spx),
 		title = "Generic Script Data (" + std::to_string(index) + ")",
@@ -1589,7 +1572,6 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 			GEN_INITD(7,meta)
 		)
 	));
-	
 	return window;
 }
 

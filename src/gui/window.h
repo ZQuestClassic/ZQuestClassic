@@ -22,20 +22,17 @@ public:
 
 	/* Sets the widget that will appear in the window. */
 	void setContent(std::shared_ptr<Widget> newContent) noexcept;
-	
 	/* Sets if the dialog needs a d_vsync_proc or not */
 	void setVSync(bool useVSync)
 	{
 		use_vsync = useVSync;
 	}
-	
 	template<typename T>
 	RequireMessage<T> onClose(T m)
 	{
 		closeMessage = static_cast<int32_t>(m);
 		onKey(Key::Esc, m);
 	}
-	
 	void setOnTick(std::function<int32_t()> newOnTick);
 
 private:

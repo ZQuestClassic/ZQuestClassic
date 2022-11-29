@@ -17,9 +17,9 @@ enum
 {
     ls_walk, ls_slash, ls_stab, ls_pound, ls_float, ls_dive,
     ls_landhold1, ls_landhold2, ls_waterhold1, ls_waterhold2, ls_cast,
-    ls_swim, ls_jump, ls_charge, ls_drown, ls_falling, ls_lavadrown, 
-    ls_sideswim, ls_sideswimslash, ls_sideswimstab, ls_sideswimpound, 
-    ls_sideswimcharge, ls_sidewaterhold1, ls_sidewaterhold2, 
+    ls_swim, ls_jump, ls_charge, ls_drown, ls_falling, ls_lavadrown,
+    ls_sideswim, ls_sideswimslash, ls_sideswimstab, ls_sideswimpound,
+    ls_sideswimcharge, ls_sidewaterhold1, ls_sidewaterhold2,
     ls_sideswimcast, ls_sidedrown, ls_revslash, ls_lifting, ls_liftwalk, ls_max
 };
 enum {spr_tile, spr_flip, spr_extend, spr_frames};

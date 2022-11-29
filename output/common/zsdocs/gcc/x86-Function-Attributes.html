@@ -138,7 +138,7 @@ requires the <samp>-maccumulate-outgoing-args</samp> option.
 aggregates are returned in memory.  If the caller is responsible for
 popping the hidden pointer together with the rest of the arguments, specify
 <var>number</var> equal to zero.  If callee is responsible for popping the
-hidden pointer, specify <var>number</var> equal to one.  
+hidden pointer, specify <var>number</var> equal to one.
 </p>
 <p>The default x86-32 ABI assumes that the callee pops the
 stack for hidden pointer.  However, on x86-32 Microsoft Windows targets,
@@ -290,7 +290,7 @@ will crash if the wrong kind of handler is used.
 </dd>
 <dt><code>target (<var>options</var>)</code></dt>
 <dd><a name="index-target-function-attribute-5"></a>
-<p>As discussed in <a href="Common-Function-Attributes.html#Common-Function-Attributes">Common Function Attributes</a>, this attribute 
+<p>As discussed in <a href="Common-Function-Attributes.html#Common-Function-Attributes">Common Function Attributes</a>, this attribute
 allows specification of target-specific compilation options.
 </p>
 <p>On the x86, the following options are allowed:
@@ -881,14 +881,14 @@ void (*foo2)(void);
 
 /* foo's address is assumed to be valid.  */
 int
-foo (void) 
+foo (void)
 
-  /* This call site is not checked for control-flow 
+  /* This call site is not checked for control-flow
      validity.  */
   (*foo1)();
 
   /* A warning is issued about attribute mismatch.  */
-  foo1 = foo2; 
+  foo1 = foo2;
 
   /* This call site is still not checked.  */
   (*foo1)();
@@ -897,7 +897,7 @@ foo (void)
   (*foo2)();
 
   /* A warning is issued about attribute mismatch.  */
-  foo2 = foo1; 
+  foo2 = foo1;
 
   /* This call site is still checked.  */
   (*foo2)();

@@ -449,7 +449,6 @@ UserClass* ZScript::lookupClass(Scope& scope, vector<string> const& names,
 		return nullptr;
 	else if (names.size() == 1)
 		return lookupClass(scope, names[0], noUsing);
-	
 	string const& name = names.back();
 	vector<string> ancestry(names.begin(), --names.end());
 	vector<Scope*> scopes = lookupScopes(scope, ancestry, delimiters, true); //Don't include using scopes
@@ -462,7 +461,6 @@ UserClass* ZScript::lookupClass(Scope& scope, vector<string> const& names,
 	     it != scopes.end(); ++it)
 	{
 		Scope& current = **it;
-		
 		tscope = current.getChild(name);
 		if(tscope && tscope->isClass())
 		{
@@ -477,7 +475,6 @@ UserClass* ZScript::lookupClass(Scope& scope, vector<string> const& names,
 			 it != usingScopes.end(); ++it)
 		{
 			Scope& current = **it;
-			
 			tscope = current.getChild(name);
 			if(tscope && tscope->isClass())
 			{
@@ -527,7 +524,6 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 			it = functions.erase(it);
 			continue;
 		}
-		
 		auto targetSize = parameterTypes.size();
 		auto maxSize = function.paramTypes.size();
 		auto minSize = maxSize - function.opt_vals.size();
@@ -870,7 +866,7 @@ vector<Function*> BasicScope::getLocalFunctions(string const& name) const
 CompileOptionSetting BasicScope::getLocalOption(CompileOption option) const
 {
 	if (std::optional<CompileOptionSetting> setting =
-	    	find<CompileOptionSetting>(options_, option))
+			find<CompileOptionSetting>(options_, option))
 		return *setting;
 	return defaultOption_;
 }
@@ -1455,7 +1451,7 @@ vector<Function*> RootScope::getLocalFunctions(string const& name) const
 {
 	vector<Function*> results(BasicScope::getLocalFunctions(name));
 	if (std::optional<vector<Function*> > desc =
-	    	find<vector<Function*> >(descFunctionsByName_, name))
+			find<vector<Function*> >(descFunctionsByName_, name))
 		appendElements(results, *desc);
 	return results;
 }
@@ -1744,7 +1740,6 @@ Function* ClassScope::addFunction(
 		optFunc = destructor_ ? std::optional<Function*>(destructor_) : std::optional<Function*>(std::nullopt);
 	else
 		optFunc = find<Function*>(functionsBySignature_, signature);
-	
 	if(optFunc)
 		foundFunc = *optFunc;
 	if (foundFunc)
@@ -1792,7 +1787,6 @@ Function* ClassScope::addFunction(
 			fun->opt_vals.push_back(*it);
 		}
 	}
-	
 	if(constructor)
 		constructorsBySignature_[signature] = fun;
 	else if(destructor)

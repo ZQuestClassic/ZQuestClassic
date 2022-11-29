@@ -5,11 +5,11 @@ Version 2.8.15
 	( 2020-19-APRIL )
 * Added __GH_FIX_255_ANONE to fix issues where the tiles for enemies
 * 	using Animation Style 'None' in 2.55.0 (and possibly in 2.53.1)
-*	do not have visual bugs. 
+*	do not have visual bugs.
 
 2.8.14
 	( 2020-23-MARCH )
-	* Added some YuuRand-specific fixes. 
+	* Added some YuuRand-specific fixes.
 2.8.13
 	( 2020-28-JAN )
 * Further optimised AutoGHost, plus tabbing/spacing clean-up.
@@ -21,23 +21,23 @@ Version 2.8.15
 * Fixed some docs typos and searching for new additions.
 * 	Search keywords need two spaces on either side of them
 *	in search_index.json.
-* Updated the Docs (txt, html, and md) with new configs, and 
+* Updated the Docs (txt, html, and md) with new configs, and
 *	to the 2.53.1 spec for use of '#include'.
-* Fixed some bugs when using EWM_FALL and EWM_THROW in sideview. 
+* Fixed some bugs when using EWM_FALL and EWM_THROW in sideview.
 *	-ywkls provided the base fixes.
 * Added the following config values:
 *	__GH_WEAPONS_HIT_PLATFORMS
-*		If set to 1, weapons in sideview will die when 
+*		If set to 1, weapons in sideview will die when
 *		they hit a solid sideview platform.
-*		
+*
 *	__GH_FIX_EWM_FALL
-*		If set to 1, this will patch bugs where falling 
-*		weapons can be inappropriately destroyed because 
+*		If set to 1, this will patch bugs where falling
+*		weapons can be inappropriately destroyed because
 *		of their position.
 *
 *	__GH_FIX_EWM_THROW
-*		If set to 1, this will patch bugs where thrown 
-*		weapons can be inappropriately destroyed because 
+*		If set to 1, this will patch bugs where thrown
+*		weapons can be inappropriately destroyed because
 *		of their position.
 *
 * These configs default on:
@@ -52,7 +52,7 @@ Version 2.8.15
 * Added a config, __GH_ETHEREAL, defaulted to 1 to user settings.
 *	This forces ffcs used to control ghost npcs to Ethereal.
 
-2.8.11 
+2.8.11
 	(2020-23-JAN)
 * Fixed __GhCleanUp() to reset the ffc positions to 0,0.
 
@@ -67,12 +67,12 @@ Version 2.8.15
 * Changed void __AutoGhostParseName() to int __AutoGhostParseName
 * 	return 1 on success; or 0.
 * FindUnusedFFC is optimised now and has an extra sanity check.
-* Fixed bad logging caused by some kind of ZASM quirk in 2.53+. 
+* Fixed bad logging caused by some kind of ZASM quirk in 2.53+.
 *	Apparently ZASM doesn't want to return before the traces?!
 * Optimised Ghost_InitAutoGhost()
 
 
-2.8.9 
+2.8.9
 	(2020-18-JAN)
 * Optimised Ghost_InitAutoGhost().
 * Fixed bad logging caused by some kind of ZASM quirk in 2.53+.
@@ -85,26 +85,26 @@ Version 2.8.15
 
 2.8.8 (2020-12-JAN)
 * Removed dummy functions and added new YuuRand specific functions to ghost2_yuurand.zh
-*	to use for UpdateEWeapon, and for UpdateGhostZH1. 
+*	to use for UpdateEWeapon, and for UpdateGhostZH1.
 * Split off configs into ghost.cfg so that the includes are their
 * 	own file, adding ghost.cfg.
 * Added non-YR dummy file to avoid a compiler error, adding ghost2_no_yuurand.zh.
 
 2.8.7 (2020-09-JAN)
 * Moved YuuRand addendums into 2.8/ghost_yuurand.zh and simplified
-*	the process of upgrading. 
+*	the process of upgrading.
 * Validate arrays in YuuRand functions that take them by reference.
 * Don't use 'array' as an identifier. Use 'aptr'.
 * Add YuuRannd Compatibility
 * 	Made the stock ghost.zh/.8/... files compatible with YuuRannd
-*	Added GhostYR.zh with YuuRand Constants to use instead of Ghost.zh stock file. 
+*	Added GhostYR.zh with YuuRand Constants to use instead of Ghost.zh stock file.
 *	Added YuuRand_Readme.txt
 
 2.8.6 (2019-15-DEC)
 * Fixed eweapon death effect EWD_AIM_AT_LINK slightly missing Link.
 
 2.8.5 (2019-12-12)
-* Renamed files to comply with HEADER_GUARD option in 2.53.1 
+* Renamed files to comply with HEADER_GUARD option in 2.53.1
 	and 2.55.x.
 
 2.8.4 (2019-07-15)
@@ -184,7 +184,7 @@ Version 2.8.15
     specify a death animation
 * The global script functions have been consolidated into three. This should
     eliminate the need to update the global script for future updates.
-    
+
 Changes in 2.7.0 and earlier were not tracked at the time. The logs for
 those versions may be incomplete.
 
@@ -240,7 +240,7 @@ those versions may be incomplete.
 * Added a setting to make enemies flicker instead of flash.
 * You can now use an alternate number (-1 by default) instead of
     GH_INVISIBLE_COMBO to make enemies use the invisible combo.
-* Added GHF_FLYING_ENEMY, GHF_IGNORE_NO_ENEMY, GHF_WATER_ONLY, and 
+* Added GHF_FLYING_ENEMY, GHF_IGNORE_NO_ENEMY, GHF_WATER_ONLY, and
     GHF_DEEP_WATER_ONLY
 * GHF_ flags can no longer be ORed together; they must be set individually.
 * Ghost_SetFlags() and the init functions with a flags argument are deprecated.

@@ -37,7 +37,6 @@ typedef struct FLIST
 	char dir[1024];
 	int32_t size;
 	char *name[FLIST_SIZE];
-	
 	void load(const char* path);
 	bool get(int32_t index, char* buf);
 	void clear();

@@ -20,7 +20,7 @@ namespace nme
 				}
 				Waitframe();
 			}
-				
+
 		}
 		untyped getinfo(int inx)
 		{
@@ -28,7 +28,7 @@ namespace nme
 			return ptr[inx];
 		}
 	}
-	
+
 	untyped getnpcinfo(npc n, int inx)
 	{
 		unless(n->isValid())
@@ -47,4 +47,3 @@ namespace nme
 }
 
 //unless ( nme::getnpcinfo(n, inx) == nme::ERR_RETURN ) do_something()
-		

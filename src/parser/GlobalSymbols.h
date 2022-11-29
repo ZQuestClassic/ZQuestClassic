@@ -52,7 +52,6 @@ protected:
 
 private:
 	map<std::pair<string, int32_t>, ZScript::Function*> functions;
-	
 	// Generates the code for functions which can't be auto generated.
 	virtual void generateCode() = 0;
 };

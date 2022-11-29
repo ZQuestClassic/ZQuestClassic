@@ -32,20 +32,19 @@ extern script_bitmaps scb;
 #define DegtoFix(d)     ((d)*0.7111111111111)
 #define RadtoFix(d)     ((d)*40.743665431525)
 
-inline double sd_log2( double n )  
-{  
-    // log(n)/log(2) is log2.  
-	double v = log( (double)n ) / log( (double)2 );  
+inline double sd_log2( double n )
+{
+    // log(n)/log(2) is log2.
+	double v = log( (double)n ) / log( (double)2 );
     return v;
-}  
+}
 
-inline bool isPowerOfTwo(int32_t n) 
-{ 
-   if(n==0) 
-   return false; 
-  
-   return (ceil(sd_log2(n)) == floor(sd_log2(n))); 
-} 
+inline bool isPowerOfTwo(int32_t n)
+{
+   if(n==0)
+   return false;
+   return (ceil(sd_log2(n)) == floor(sd_log2(n)));
+}
 
 
 
@@ -71,96 +70,70 @@ FONT *get_zc_font(int32_t index)
     {
     default:
         return zfont;
-        
     case font_z3font:
         return z3font;
-        
     case font_z3smallfont:
         return z3smallfont;
-        
     case font_deffont:
         return deffont;
-        
     case font_lfont:
         return lfont;
-        
     case font_lfont_l:
         return lfont_l;
-        
     case font_pfont:
         return pfont;
-        
     case font_mfont:
         return mfont;
-        
     case font_ztfont:
         return ztfont;
-        
     case font_sfont:
         return sfont;
-        
     case font_sfont2:
         return sfont2;
-        
     case font_spfont:
         return spfont;
-        
     case font_ssfont1:
         return ssfont1;
-        
     case font_ssfont2:
         return ssfont2;
-        
     case font_ssfont3:
         return ssfont3;
-        
     case font_ssfont4:
         return ssfont4;
-        
     case font_gblafont:
         return gblafont;
-        
     case font_goronfont:
         return goronfont;
-        
     case font_zoranfont:
         return zoranfont;
-        
     case font_hylian1font:
         return hylian1font;
-        
     case font_hylian2font:
         return hylian2font;
-        
     case font_hylian3font:
         return hylian3font;
-        
     case font_hylian4font:
         return hylian4font;
-        
     case font_gboraclefont:
         return gboraclefont;
-        
     case font_gboraclepfont:
         return gboraclepfont;
-        
     case font_dsphantomfont:
         return dsphantomfont;
-        
     case font_dsphantompfont:
         return dsphantompfont;
      case font_atari800font: return atari800font;
 		 case font_acornfont: return acornfont;
 		 case font_adosfont: return adosfont;
-		 case font_baseallegrofont: return  baseallegrofont;  
+		 case font_baseallegrofont: return  baseallegrofont;
 		 case font_apple2font: return apple2font;
-		 case font_apple280colfont: return apple280colfont;   
+		 case font_apple280colfont: return apple280colfont;
 		 case font_apple2gsfont: return  apple2gsfont;
-		 case font_aquariusfont: return  aquariusfont;  
-		 case font_atari400font: return  atari400font;  
-		 case font_c64font: return c64font;   
-		 case font_c64hiresfont: return c64hiresfont;   
-		 case font_cgafont: return cgafont;   
+		 case font_aquariusfont: return  aquariusfont;
+		 case font_atari400font: return  atari400font;
+		 case font_c64font: return c64font;
+		 case font_c64hiresfont: return c64hiresfont;
+		 case font_cgafont: return cgafont;
 		 case font_cocofont: return cocofont;
 		 case font_coco2font: return coco2font;
 		 case font_coupefon: return  coupefont;
@@ -168,14 +141,14 @@ FONT *get_zc_font(int32_t index)
 		 case font_fantasyfon: return  fantasyfont;
 		 case font_fdskanafon: return  fdskanafont;
 		 case font_fdslikefon: return  fdslikefont;
-		 case font_fdsromanfon: return fdsromanfont; 
-		 case font_finalffont: return finalffont; 
+		 case font_fdsromanfon: return fdsromanfont;
+		 case font_finalffont: return finalffont;
 		 case font_futharkfont: return  futharkfont;
-		 case font_gaiafont: return gaiafont; 
-		 case font_hirafont: return hirafont; 
-		 case font_jpfont: return jpfont; 
+		 case font_gaiafont: return gaiafont;
+		 case font_hirafont: return hirafont;
+		 case font_jpfont: return jpfont;
 		 case font_kongfont: return  kongfont;
-		 case font_manafont: return manafont; 
+		 case font_manafont: return manafont;
 		 case font_mlfont: return  mlfont;
 		 case font_motfont: return motfont;
 		 case font_msxmode0font: return  msxmode0font;
@@ -211,45 +184,35 @@ public:
             OldPutTile(_Dest, tile+(w-w2)+(skiprows*TILES_PER_ROW), x+16*(w-w2), y, w2, h, color, flip);
             return;
         }
-        
         switch(flip)
         {
         case 1:
             for(int32_t j=0; j<h; j++)
                 for(int32_t k=w-1; k>=0; k--)
                     oldputtile16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+j*16, color, flip);
-                    
             break;
-            
         case 2:
             for(int32_t j=h-1; j>=0; j--)
                 for(int32_t k=0; k<w; k++)
                     oldputtile16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+((h-1)-j)*16, color, flip);
-                    
             break;
-            
         case 3:
             for(int32_t j=h-1; j>=0; j--)
                 for(int32_t k=w-1; k>=0; k--)
                     oldputtile16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+((h-1)-j)*16, color, flip);
-                    
             break;
-            
         case 0:
         default:
             for(int32_t j=0; j<h; j++)
                 for(int32_t k=0; k<w; k++)
                     oldputtile16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+j*16, color, flip);
-                    
             break;
         }
     }
-    
     static void OverTile(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t w, int32_t h, int32_t color, int32_t flip, byte skiprows=0)
     {
 		overtileblock16(_Dest,tile,x,y,w,h,color,flip,skiprows);
     }
-	
 	static void OverTileCloaked(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t w, int32_t h, int32_t flip, byte skiprows=0)
 	{
 		if(skiprows>0 && tile%TILES_PER_ROW+w>=TILES_PER_ROW)
@@ -259,39 +222,30 @@ public:
 			OverTileCloaked(_Dest, tile+(w-w2)+(skiprows*TILES_PER_ROW), x+16*(w-w2), y, w2, h, flip);
 			return;
 		}
-		
 		switch(flip)
 		{
 			case 1:
 				for(int32_t j=0; j<h; j++)
 					for(int32_t k=w-1; k>=0; k--)
 						overtilecloaked16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+j*16, flip);
-						
 				break;
-				
 			case 2:
 				for(int32_t j=h-1; j>=0; j--)
 					for(int32_t k=0; k<w; k++)
 						overtilecloaked16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+((h-1)-j)*16, flip);
-						
 				break;
-				
 			case 3:
 				for(int32_t j=h-1; j>=0; j--)
 					for(int32_t k=w-1; k>=0; k--)
 						overtilecloaked16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+((h-1)-j)*16, flip);
-						
 				break;
-				
 			default:
 				for(int32_t j=0; j<h; j++)
 					for(int32_t k=0; k<w; k++)
 						overtilecloaked16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+j*16, flip);
-						
 				break;
 		}
 	}
-    
     static void OverTileTranslucent(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t w, int32_t h, int32_t color, int32_t flip, int32_t opacity, byte skiprows=0)
     {
         if(skiprows>0 && tile%TILES_PER_ROW+w>=TILES_PER_ROW)
@@ -301,39 +255,30 @@ public:
             OverTileTranslucent(_Dest, tile+(w-w2)+(skiprows*TILES_PER_ROW), x+16*(w-w2), y, w2, h, color, flip, opacity);
             return;
         }
-        
         switch(flip)
         {
         case 1:
             for(int32_t j=0; j<h; j++)
                 for(int32_t k=w-1; k>=0; k--)
                     overtiletranslucent16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+j*16, color, flip, opacity);
-                    
             break;
-            
         case 2:
             for(int32_t j=h-1; j>=0; j--)
                 for(int32_t k=0; k<w; k++)
                     overtiletranslucent16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+((h-1)-j)*16, color, flip, opacity);
-                    
             break;
-            
         case 3:
             for(int32_t j=h-1; j>=0; j--)
                 for(int32_t k=w-1; k>=0; k--)
                     overtiletranslucent16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+((h-1)-j)*16, color, flip, opacity);
-                    
             break;
-            
         default:
             for(int32_t j=0; j<h; j++)
                 for(int32_t k=0; k<w; k++)
                     overtiletranslucent16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+j*16, color, flip, opacity);
-                    
             break;
         }
     }
-    
     static void PutTileTranslucent(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t w, int32_t h, int32_t color, int32_t flip, int32_t opacity, byte skiprows=0)
     {
         if(skiprows>0 && tile%TILES_PER_ROW+w>=TILES_PER_ROW)
@@ -343,35 +288,27 @@ public:
             PutTileTranslucent(_Dest, tile+(w-w2)+(skiprows*TILES_PER_ROW), x+16*(w-w2), y, w2, h, color, flip, opacity);
             return;
         }
-        
         switch(flip)
         {
         case 1:
             for(int32_t j=0; j<h; j++)
                 for(int32_t k=w-1; k>=0; k--)
                     puttiletranslucent16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+j*16, color, flip, opacity);
-                    
             break;
-            
         case 2:
             for(int32_t j=h-1; j>=0; j--)
                 for(int32_t k=0; k<w; k++)
                     puttiletranslucent16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+((h-1)-j)*16, color, flip, opacity);
-                    
             break;
-            
         case 3:
             for(int32_t j=h-1; j>=0; j--)
                 for(int32_t k=w-1; k>=0; k--)
                     puttiletranslucent16(_Dest, tile+(j*TILES_PER_ROW)+k, x+((w-1)-k)*16, y+((h-1)-j)*16, color, flip, opacity);
-                    
             break;
-            
         default:
             for(int32_t j=0; j<h; j++)
                 for(int32_t k=0; k<w; k++)
                     puttiletranslucent16(_Dest, tile+(j*TILES_PER_ROW)+k, x+k*16, y+j*16, color, flip, opacity);
-                    
             break;
         }
     }
@@ -398,22 +335,18 @@ void do_rectr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     {
         return;
     }
-    
     int32_t x1=sdci[2]/10000;
     int32_t y1=sdci[3]/10000;
     int32_t x2=sdci[4]/10000;
     int32_t y2=sdci[5]/10000;
-    
     if(x1>x2)
     {
         zc_swap(x1,x2);
     }
-    
     if(y1>y2)
     {
         zc_swap(y1,y2);
     }
-    
     if(sdci[7] != 10000)
     {
         int32_t w=x2-x1+1;
@@ -425,14 +358,11 @@ void do_rectr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         y1=y1-((h2-h)/2);
         y2=y2+((h2-h)/2);
     }
-    
     int32_t color=sdci[6]/10000;
-    
     if(sdci[12]/10000<=127) //translucent
     {
         drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
     }
-    
     if(sdci[10]==0) //no rotation
     {
         if(sdci[11]) //filled
@@ -453,10 +383,8 @@ void do_rectr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         fixed ra2=itofix(sdci[10]/10000);
         fixed ra=ra1+ra2;
         ra = (ra/360)*256;
-        
         fixed fcosa = fixcos(ra);
         fixed fsina = fixsin(ra);
-        
         xy[ 0]=xoffset+rx + fixtoi((fcosa * (x1 - rx) - fsina * (y1 - ry)));     //x1
         xy[ 1]=yoffset+ry + fixtoi((fsina * (x1 - rx) + fcosa * (y1 - ry)));     //y1
         xy[ 2]=xoffset+rx + fixtoi((fcosa * (x2 - rx) - fsina * (y1 - ry)));     //x2
@@ -473,7 +401,6 @@ void do_rectr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         xy[13]=yoffset+ry + fixtoi((fsina * (x2 - rx) + fcosa * (y2 - ry - 1)));         //y2
         xy[14]=xoffset+rx + fixtoi((fcosa * (x1 - rx + 1) - fsina * (y2 - ry)));         //x1
         xy[15]=yoffset+ry + fixtoi((fsina * (x1 - rx + 1) + fcosa * (y2 - ry)));         //y2
-        
         if(sdci[11]) //filled
         {
             polygon(bmp, 4, xy, color);
@@ -486,7 +413,6 @@ void do_rectr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
             line(bmp, xy[6], xy[7], xy[ 8], xy[ 9], color);
         }
     }
-    
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
@@ -501,17 +427,14 @@ void do_framer(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     //sdci[7]=height
     //sdci[8]=overlay
     //sdci[9]=opacity
-    
     int32_t x=sdci[2]/10000;
     int32_t y=sdci[3]/10000;
-    
     int32_t tile=sdci[4]/10000;
     int32_t cs=sdci[5]/10000;
     int32_t w=sdci[6]/10000;
     int32_t h=sdci[7]/10000;
     bool overlay=sdci[8];
     bool trans=(sdci[9]/10000<=127);
-    
 	frame2x2(bmp, &QMisc, x + xoffset, y + yoffset, tile, cs, w, h, 0, overlay, trans);
 }
 
@@ -534,25 +457,20 @@ void do_circler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     {
         return;
     }
-    
     int32_t x1=sdci[2]/10000;
     int32_t y1=sdci[3]/10000;
     qword r=sdci[4];
-    
     if(sdci[6] != 10000)
     {
         r*=sdci[6];
         r/=10000;
     }
-    
     r/=10000;
     int32_t color=sdci[5]/10000;
-    
     if(sdci[11]/10000<=127) //translucent
     {
         drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
     }
-    
     if(sdci[9]!=0&&(sdci[2]!=sdci[7]||sdci[3]!=sdci[8])) //rotation
     {
         int32_t xy[2];
@@ -562,13 +480,11 @@ void do_circler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         fixed ra2=itofix(sdci[9]/10000);
         fixed ra=ra1+ra2;
         ra = (ra/360)*256;
-        
         xy[ 0]=rx + fixtoi((fixcos(ra) * (x1 - rx) - fixsin(ra) * (y1 - ry)));     //x1
         xy[ 1]=ry + fixtoi((fixsin(ra) * (x1 - rx) + fixcos(ra) * (y1 - ry)));     //y1
         x1=xy[0];
         y1=xy[1];
     }
-    
     if(sdci[10]) //filled
     {
         circlefill(bmp, x1+xoffset, y1+yoffset, r, color);
@@ -577,7 +493,6 @@ void do_circler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     {
         circle(bmp, x1+xoffset, y1+yoffset, r, color);
     }
-    
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
@@ -598,56 +513,43 @@ void do_arcr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     //sdci[12]=closed
     //sdci[13]=fill
     //sdci[14]=opacity
-    
     if(sdci[8]==0)  //scale
     {
         return;
     }
-    
     int32_t cx=sdci[2]/10000;
     int32_t cy=sdci[3]/10000;
     qword r=sdci[4];
-    
     if(sdci[8] != 10000)
     {
         r*=sdci[8];
         r/=10000;
     }
-    
     r/=10000;
-    
     int32_t color=sdci[7]/10000;
-    
     fixed ra1=itofix(sdci[11]%10000)/10000;
     fixed ra2=itofix(sdci[11]/10000);
     fixed ra=ra1+ra2;
     ra = (ra/360)*256;
-    
-    
     fixed a1=itofix(sdci[5]%10000)/10000;
     fixed a2=itofix(sdci[5]/10000);
     fixed sa=a1+a2;
     sa = (sa/360)*256;
-    
     a1=itofix(sdci[6]%10000)/10000;
     a2=itofix(sdci[6]/10000);
     fixed ea=a1+a2;
     ea = (ea/360)*256;
-    
     if(sdci[11]!=0) //rotation
     {
         int32_t rx=sdci[9]/10000;
         int32_t ry=sdci[10]/10000;
-        
         cx=rx + fixtoi((fixcos(ra) * (cx - rx) - fixsin(ra) * (cy - ry)));     //x1
         cy=ry + fixtoi((fixsin(ra) * (cx - rx) + fixcos(ra) * (cy - ry)));     //y1
         ea-=ra;
         sa-=ra;
     }
-    
     int32_t fx=cx+fixtoi(fixcos(-(ea+sa)/2)*r/2);
     int32_t fy=cy+fixtoi(fixsin(-(ea+sa)/2)*r/2);
-    
     if(sdci[12]) //closed
     {
         if(sdci[13]) //filled
@@ -657,7 +559,6 @@ void do_arcr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
             line(prim_bmp, cx+xoffset, cy+yoffset, cx+xoffset+fixtoi(fixcos(-sa)*r), cy+yoffset+fixtoi(fixsin(-sa)*r), color);
             line(prim_bmp, cx+xoffset, cy+yoffset, cx+xoffset+fixtoi(fixcos(-ea)*r), cy+yoffset+fixtoi(fixsin(-ea)*r), color);
             floodfill(prim_bmp, zc_max(0,fx)+xoffset, zc_max(0,fy)+yoffset, color);
-            
             if(sdci[14]/10000<=127) //translucent
             {
                 draw_trans_sprite(bmp, prim_bmp, 0,0);
@@ -680,7 +581,6 @@ void do_arcr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         {
             drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
         }
-        
         arc(bmp, cx+xoffset, cy+yoffset, sa, ea, int32_t(r), color);
         drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
     }
@@ -701,12 +601,10 @@ void do_ellipser(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     //sdci[10]=rotation angle
     //sdci[11]=fill
     //sdci[12]=opacity
-    
     if(sdci[7]==0)  //scale
     {
         return;
     }
-    
     int32_t x1=sdci[2]/10000;
     int32_t y1=sdci[3]/10000;
     int32_t radx=sdci[4]/10000;
@@ -715,27 +613,21 @@ void do_ellipser(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     rady*=sdci[7]/10000;
     int32_t color=sdci[6]/10000;
     float rotation = sdci[10]/10000;
-    
     int32_t rx=sdci[8]/10000;
     int32_t ry=sdci[9]/10000;
     fixed ra1=itofix(sdci[10]%10000)/10000;
     fixed ra2=itofix(sdci[10]/10000);
     fixed ra=ra1+ra2;
     ra = (ra/360)*256;
-    
     int32_t xy[2];
     xy[ 0]=rx + fixtoi((fixcos(ra) * (x1 - rx) - fixsin(ra) * (y1 - ry)));     //x1
     xy[ 1]=ry + fixtoi((fixsin(ra) * (x1 - rx) + fixcos(ra) * (y1 - ry)));     //y1
     x1=xy[0];
     y1=xy[1];
-    
     if(radx<1||rady<1||radx>255||rady>255) return;
-    
     BITMAP* bitty = script_drawing_commands.AquireSubBitmap(radx*2+1, rady*2+1);
-    
     if(sdci[11]) //filled
     {
-    
         if(sdci[12]/10000<128) //translucent
         {
             clear_bitmap(prim_bmp);
@@ -764,7 +656,6 @@ void do_ellipser(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
             rotate_sprite(bmp, bitty, x1+xoffset-radx,y1+yoffset-rady, degrees_to_fixed(rotation));
         }
     }
-    
     // Since 0 is the transparent color, the stuff above will fail if the ellipse color is also 0.
     // Instead, it uses color 255 and replaces it afterward. That'll also screw up color 255 around
     // the ellipse, but it shouldn't be used anyway.
@@ -773,13 +664,11 @@ void do_ellipser(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         // This is very slow, so check the smallest possible square
         int32_t endx=zc_min(bmp->w-1, x1+zc_max(radx, rady));
         int32_t endy=zc_min(bmp->h-1, y1+zc_max(radx, rady));
-        
         for(int32_t y=zc_max(0, y1-zc_max(radx, rady)); y<=endy; y++)
             for(int32_t x=zc_max(0, x1-zc_max(radx, rady)); x<=endx; x++)
                 if(getpixel(bmp, x, y)==255)
                     putpixel(bmp, x, y, 0);
     }
-    
     script_drawing_commands.ReleaseSubBitmap(bitty);
 }
 
@@ -801,12 +690,10 @@ void do_liner(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     {
         return;
     }
-    
     int32_t x1=sdci[2]/10000;
     int32_t y1=sdci[3]/10000;
     int32_t x2=sdci[4]/10000;
     int32_t y2=sdci[5]/10000;
-    
     if(sdci[7] != 10000)
     {
         int32_t w=x2-x1+1;
@@ -818,14 +705,11 @@ void do_liner(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         y1=y1-((h2-h)/2);
         y2=y2+((h2-h)/2);
     }
-    
     int32_t color=sdci[6]/10000;
-    
     if(sdci[11]/10000<=127) //translucent
     {
         drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
     }
-    
     if(sdci[10]!=0) //rotation
     {
         int32_t xy[4];
@@ -834,7 +718,6 @@ void do_liner(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         fixed ra1=itofix(sdci[10]%10000)/10000;
         fixed ra2=itofix(sdci[10]/10000);
         fixed ra=ra1+ra2;
-        
         xy[ 0]=rx + fixtoi((fixcos(ra) * (x1 - rx) - fixsin(ra) * (y1 - ry)));     //x1
         xy[ 1]=ry + fixtoi((fixsin(ra) * (x1 - rx) + fixcos(ra) * (y1 - ry)));     //y1
         xy[ 2]=rx + fixtoi((fixcos(ra) * (x2 - rx) - fixsin(ra) * (y2 - ry)));     //x2
@@ -844,7 +727,6 @@ void do_liner(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         x2=xy[2];
         y2=xy[3];
     }
-    
     line(bmp, x1+xoffset, y1+yoffset, x2+xoffset, y2+yoffset, color);
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
@@ -853,7 +735,6 @@ void do_linesr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t y
 {
     //sdci[1]=layer
     //sdci[2]=array[10] = { x, y, x2, y2, colour, scale, rx, ry, angle, opacity }
-	
     //sdci[2]=x
     //sdci[3]=y
     //sdci[4]=x2
@@ -868,27 +749,20 @@ void do_linesr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t y
     //{
     //    return;
     //}
-    
     std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
-    
     if(!v_ptr)
     {
         al_trace("Screen->PutPixels: Vector pointer is null! Internal error. \n");
         return;
     }
-    
     std::vector<int32_t> &v = *v_ptr;
-    
     if(v.empty())
         return;
         //Z_scripterrlog("PutPixels reached line %d\n", 983);
-    
     int32_t* pos = &v[0];
     int32_t sz = v.size();
-    
     for ( int32_t q = 0; q < sz; q+=10 )
     {
-	
 	    int32_t x1 = v.at(q);
 	    Z_scripterrlog("Lines( x1 ) is: %d\n", x1);
 	    int32_t y1 = v.at(q+1);
@@ -901,7 +775,6 @@ void do_linesr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t y
 	    Z_scripterrlog("Lines( colour ) is: %d\n", color);
 	    Z_scripterrlog("Lines( scale ) is: %d\n", v.at(q+5));
 	    if (v.at(q+5) == 0) { Z_scripterrlog("Lines() aborting due to scale\n"); return; }//scale
-	    
 	    if( v.at(q+5) != 10000)
 	    {
 		int32_t w=x2-x1+1;
@@ -913,8 +786,6 @@ void do_linesr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t y
 		y1=y1-((h2-h)/2);
 		y2=y2+((h2-h)/2);
 	    }
-	    
-	    
 	    Z_scripterrlog("Lines( opacity ) is: %d\n", v.at(q+9));
 	    if(v.at(q+9) <= 127) //translucent
 	    {
@@ -927,15 +798,11 @@ void do_linesr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t y
 	    if( v.at(q+8) !=0 ) //rotation
 	    {
 		int32_t xy[4];
-		    
 		int32_t rx = v.at(q+6);
-		    
 		int32_t ry = v.at(q+7);
-		    
 		fixed ra1=itofix(v.at(q+8) % 1);
 		fixed ra2=itofix(v.at(q+8));
 		fixed ra=ra1+ra2;
-		
 		xy[ 0]=rx + fixtoi((fixcos(ra) * (x1 - rx) - fixsin(ra) * (y1 - ry)));     //x1
 		xy[ 1]=ry + fixtoi((fixsin(ra) * (x1 - rx) + fixcos(ra) * (y1 - ry)));     //y1
 		xy[ 2]=rx + fixtoi((fixcos(ra) * (x2 - rx) - fixsin(ra) * (y2 - ry)));     //x2
@@ -962,23 +829,18 @@ void do_polygonr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t
 
 	int32_t col = sdci[4]/10000;
 	int32_t op = sdci[5]/10000;
-    
 	//bool brokenOffset= ( (get_bit(extra_rules, er_BITMAPOFFSET)!=0) || (get_bit(quest_rules,qr_BITMAPOFFSETFIX)!=0) );
 	//Z_scripterrlog("Broken offset rule for Polygon() is: %s\n", brokenOffset ? "ON" : "OFF");
     std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
-    
     if(!v_ptr)
     {
         al_trace("Screen->Polygon: Vector pointer is null! Internal error. \n");
         return;
     }
-    
     std::vector<int32_t> &v = *v_ptr;
-    
     if(v.empty())
         return;
         //Z_scripterrlog("PutPixels reached line %d\n", 983);
-    
     int32_t* pos = &v[0];
     int32_t sz = v.size();
 	int32_t numpoints = (sdci[2]/10000);
@@ -987,7 +849,6 @@ void do_polygonr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t
 		numpoints = sz/2;
 	if(numpoints < 1)
 		return; //Don't draw 0 or negative point count
-    
     //Fix the draw Y offset. -Z 20th June, 2019
     for ( int32_t q = 1; q < sz; q+=2 )
     {
@@ -998,7 +859,6 @@ void do_polygonr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 	}
 	else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
-	
 	polygon(bmp, numpoints, (int32_t*)pos, col);
 	//polygon(bmp, (sdci[2]/10000), &v, col);
 	drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
@@ -1014,31 +874,24 @@ void bmp_do_polygonr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int
 
 	int32_t col = sdci[4]/10000;
 	int32_t op = sdci[5]/10000;
-	
-	if ( sdci[17] <= 0 ) 
+	if ( sdci[17] <= 0 )
 	{
 		Z_scripterrlog("bitmap->Rectangle() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 		return;
 	}
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
     std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
-    
     if(!v_ptr)
     {
         al_trace("Screen->Polygon: Vector pointer is null! Internal error. \n");
         return;
     }
-    
     std::vector<int32_t> &v = *v_ptr;
-    
     if(v.empty())
         return;
         //Z_scripterrlog("PutPixels reached line %d\n", 983);
-    
     int32_t* pos = &v[0];
     int32_t sz = v.size();
 	int32_t numpoints = (sdci[2]/10000);
@@ -1047,18 +900,16 @@ void bmp_do_polygonr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int
 		numpoints = sz/2;
 	if(numpoints < 1)
 		return; //Don't draw 0 or negative point count
-    
     //Fix the draw Y offset. -Z 20th June, 2019
     for ( int32_t q = 1; q < sz; q+=2 )
     {
-		pos[q] += yoffset;    
+		pos[q] += yoffset;
     }
 	if(op <= 127) //translucent
 	{
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 	}
 	else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
-	
 	polygon(refbmp, numpoints, (int32_t*)pos, col);
 	//polygon(refbmp, (sdci[2]/10000), &v, col);
 	drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
@@ -1067,20 +918,16 @@ void bmp_do_polygonr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int
 void do_spliner(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     /* layer, x1, y1, x2, y2, x3, y3, x4, y4, color, opacity */
-    
     int32_t points[8] = {    xoffset + (sdci[2]/10000), yoffset + (sdci[3]/10000),
                          xoffset + (sdci[4]/10000), yoffset + (sdci[5]/10000),
                          xoffset + (sdci[6]/10000), yoffset + (sdci[7]/10000),
                          xoffset + (sdci[8]/10000), yoffset + (sdci[9]/10000)
                     };
-                    
     if(sdci[11]/10000 < 128)   //translucent
     {
         drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
     }
-    
     spline(bmp, points, sdci[10]/10000);
-    
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
@@ -1098,12 +945,10 @@ void do_putpixelr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     int32_t x1=sdci[2]/10000;
     int32_t y1=sdci[3]/10000;
     int32_t color=sdci[4]/10000;
-    
     if(sdci[8]/10000<=127) //translucent
     {
         drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
     }
-    
     if(sdci[7]!=0) //rotation
     {
         int32_t xy[2];
@@ -1112,13 +957,11 @@ void do_putpixelr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         fixed ra1=itofix(sdci[7]%10000)/10000;
         fixed ra2=itofix(sdci[7]/10000);
         fixed ra=ra1+ra2;
-        
         xy[ 0]=rx + fixtoi((fixcos(ra) * (x1 - rx) - fixsin(ra) * (y1 - ry)));     //x1
         xy[ 1]=ry + fixtoi((fixsin(ra) * (x1 - rx) + fixcos(ra) * (y1 - ry)));     //y1
         x1=xy[0];
         y1=xy[1];
     }
-    
     putpixel(bmp, x1+xoffset, y1+yoffset, color);
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
@@ -1131,33 +974,23 @@ void do_putpixelsr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32
     //sdci[3]=rotation anchor x
     //sdci[4]=rotation anchor y
     //sdci[5]=rotation angle
-	
-	
     std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
-    
     if(!v_ptr)
     {
         al_trace("Screen->PutPixels: Vector pointer is null! Internal error. \n");
         return;
     }
-    
     std::vector<int32_t> &v = *v_ptr;
-    
     if(v.empty())
         return;
         //Z_scripterrlog("PutPixels reached line %d\n", 983);
-    
     int32_t* pos = &v[0];
     int32_t sz = v.size();
     //Z_scripterrlog("Vector size is: %d\n", sz);
     //for ( int32_t m = 0; m < 256; ++m ) Z_scripterrlog("Vector contents at pos[%d]: %d\n", m, pos[m]);
-  
     //FFCore.getValues(sdci[2]/10000, points, sz);
-    
-    
 	int32_t x1 = 0;
 	int32_t y1 = 0;
-    
     for ( int32_t q = 0; q < sz; q+=4 )
     {
 	    //Z_scripterrlog("Vector q: %d\n", q);
@@ -1174,7 +1007,6 @@ void do_putpixelsr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32
 		fixed ra1=itofix(sdci[5]%10000)/10000;
 		fixed ra2=itofix(sdci[5]/10000);
 		fixed ra=ra1+ra2;
-		
 		xy[ 0]=rx + fixtoi((fixcos(ra) * (x1 - rx) - fixsin(ra) * (y1 - ry)));     //x1
 		xy[ 1]=ry + fixtoi((fixsin(ra) * (x1 - rx) + fixcos(ra) * (y1 - ry)));     //y1
 		x1=xy[0];
@@ -1186,8 +1018,7 @@ void do_putpixelsr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32
 	    if ( v.at(q+3) /*pos[q+3]*/ < 128 ) drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 	    else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 	    putpixel(bmp, x1+xoffset, y1+yoffset, v.at(q+2) /*pos[q+2]*/);
-	    //if ( points[q+3] < 128 ) 
-		
+	    //if ( points[q+3] < 128 )
 	    //else drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
     }
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
@@ -1210,15 +1041,12 @@ void do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     //sdci[13]=flip
     //sdci[14]=transparency
     //sdci[15]=opacity
-    
     int32_t w = sdci[5]/10000;
     int32_t h = sdci[6]/10000;
-    
     if(w < 1 || h < 1 || h > 20 || w > 20)
     {
         return;
     }
-    
     int32_t xscale=sdci[8]/10000;
     int32_t yscale=sdci[9]/10000;
     int32_t rx = sdci[10]/10000;
@@ -1228,25 +1056,19 @@ void do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     bool transparency=sdci[14]!=0;
     int32_t opacity=sdci[15]/10000;
     int32_t color=sdci[7]/10000;
-    
     int32_t x1=sdci[2]/10000;
     int32_t y1=sdci[3]/10000;
-    
     //don't scale if it's not safe to do so
     bool canscale = true;
-    
     if(xscale==0||yscale==0)
     {
         return;
     }
-    
     if(xscale<0||yscale<0)
         canscale = false; //default size
-        
     if((xscale>0 && yscale>0) || rotation)   //scaled or rotated
     {
         BITMAP* pbitty = script_drawing_commands.AquireSubBitmap(w*16, h*16);
-        
         if(transparency) //transparency
         {
             TileHelper::OverTile(pbitty, (sdci[4]/10000), 0, 0, w, h, color, flip);
@@ -1255,7 +1077,6 @@ void do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         {
             TileHelper::OldPutTile(pbitty, (sdci[4]/10000), 0, 0, w, h, color, flip);
         }
-        
         if(rotation != 0)
         {
             //low negative values indicate no anchor-point rotation
@@ -1270,15 +1091,12 @@ void do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
                 x1=xy[0];
                 y1=xy[1];
             }
-            
             if(canscale) //scale first
             {
                 //damnit all, .. fixme.
                 BITMAP* tempbit = create_bitmap_ex(8, xscale>512?512:xscale, yscale>512?512:yscale);
                 clear_bitmap(tempbit);
-                
                 stretch_sprite(tempbit, pbitty, 0, 0, xscale, yscale);
-                
                 if(opacity < 128)
                 {
                     clear_bitmap(prim_bmp);
@@ -1289,7 +1107,6 @@ void do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
                 {
                     rotate_sprite(bmp, tempbit, x1+xoffset, y1+yoffset, degrees_to_fixed(rotation));
                 }
-                
                 destroy_bitmap(tempbit);
             }
             else //no scale
@@ -1333,9 +1150,7 @@ void do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
                 }
             }
         }
-        
         script_drawing_commands.ReleaseSubBitmap(pbitty);
-        
     }
     else // no scale or rotation
     {
@@ -1365,20 +1180,15 @@ void do_drawtilecloakedr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yo
 	//sdci[5]=tile width
 	//sdci[6]=tile height
 	//sdci[7]=flip
-	
 	int32_t w = sdci[5]/10000;
 	int32_t h = sdci[6]/10000;
-	
 	if(w < 1 || h < 1 || h > 20 || w > 20)
 	{
 		return;
 	}
-	
 	int32_t flip=(sdci[7]/10000)&3;
-	
 	int32_t x1=sdci[2]/10000;
 	int32_t y1=sdci[3]/10000;
-	
 	TileHelper::OverTileCloaked(bmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, flip);
 }
 
@@ -1401,10 +1211,8 @@ void do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     //sdci[14]=flip
     //sdci[15]=transparency
     //sdci[16]=opacity
-    
     int32_t w = sdci[5]/10000;
     int32_t h = sdci[6]/10000;
-    
     if(w<1||h<1||h>20||w>20)
     {
         return;
@@ -1415,40 +1223,31 @@ void do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		Z_scripterrlog("DrawCombo() cannot draw combo '%d', as it is out of bounds.\n", cmb);
 		return;
 	}
-	
     int32_t xscale=sdci[8]/10000;
     int32_t yscale=sdci[9]/10000;
     int32_t rx = sdci[10]/10000; //these work now
     int32_t ry = sdci[11]/10000; //these work now
     float rotation=sdci[12]/10000;
-    
     bool transparency=sdci[15]!=0;
     int32_t opacity=sdci[16]/10000;
     int32_t color=sdci[7]/10000;
     int32_t x1=sdci[2]/10000;
     int32_t y1=sdci[3]/10000;
-    
     const newcombo & c = combobuf[cmb];
     int32_t tiletodraw = combo_tile(c, x1, y1);
     int32_t flip = ((sdci[14]/10000) & 3) ^ c.flip;
     int32_t skiprows=c.skipanimy;
-    
-    
     //don't scale if it's not safe to do so
     bool canscale = true;
-    
     if(xscale==0||yscale==0)
     {
         return;
     }
-    
     if(xscale<0||yscale<0)
         canscale = false; //default size
-        
     if((xscale>0 && yscale>0) || rotation)   //scaled or rotated
     {
         BITMAP* pbitty = script_drawing_commands.AquireSubBitmap(w*16, h*16);   //-pbitty in the hisouse. :D
-        
         if(transparency)
         {
             TileHelper::OverTile(pbitty, tiletodraw, 0, 0, w, h, color, flip, skiprows);
@@ -1457,7 +1256,6 @@ void do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         {
             TileHelper::OldPutTile(pbitty, tiletodraw, 0, 0, w, h, color, flip, skiprows);
         }
-        
         if(rotation != 0) // rotate
         {
             //fixed point sucks ;0
@@ -1472,14 +1270,11 @@ void do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
                 x1=xy[0];
                 y1=xy[1];
             }
-            
             if(canscale) //scale first
             {
                 BITMAP* tempbit = create_bitmap_ex(8, xscale>512?512:xscale, yscale>512?512:yscale);
                 clear_bitmap(tempbit);
-                
                 stretch_sprite(tempbit, pbitty, 0, 0, xscale, yscale);
-                
                 if(opacity < 128)
                 {
                     clear_bitmap(prim_bmp);
@@ -1490,7 +1285,6 @@ void do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
                 {
                     rotate_sprite(bmp, tempbit, x1+xoffset, y1+yoffset, degrees_to_fixed(rotation));
                 }
-                
                 destroy_bitmap(tempbit);
             }
             else //no scale
@@ -1534,7 +1328,6 @@ void do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
                 }
             }
         }
-        
         script_drawing_commands.ReleaseSubBitmap(pbitty); //rap sucks
     }
     else // no scale or rotation
@@ -1565,10 +1358,8 @@ void do_drawcombocloakedr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 	//sdci[5]=tile width
 	//sdci[6]=tile height
 	//sdci[7]=flip
-	
 	int32_t w = sdci[5]/10000;
 	int32_t h = sdci[6]/10000;
-	
 	if(w<1||h<1||h>20||w>20)
 	{
 		return;
@@ -1579,15 +1370,12 @@ void do_drawcombocloakedr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 		Z_scripterrlog("DrawComboCloaked() cannot draw combo '%d', as it is out of bounds.\n", cmb);
 		return;
 	}
-	
 	int32_t x1=sdci[2]/10000;
 	int32_t y1=sdci[3]/10000;
-	
 	const newcombo & c = combobuf[cmb];
 	int32_t tiletodraw = combo_tile(c, x1, y1);
 	int32_t flip = ((sdci[7]/10000) & 3) ^ c.flip;
 	int32_t skiprows=c.skipanimy;
-	
 	TileHelper::OverTileCloaked(bmp, tiletodraw, xoffset+x1, yoffset+y1, w, h, flip, skiprows);
 }
 
@@ -1595,9 +1383,7 @@ void do_drawcombocloakedr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 void do_fasttiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     /* layer, x, y, tile, color opacity */
-    
     int32_t opacity = sdci[6]/10000;
-    
     if(opacity < 128)
         overtiletranslucent16(bmp, sdci[4]/10000, xoffset+(sdci[2]/10000), yoffset+(sdci[3]/10000), sdci[5]/10000, 0, opacity);
     else
@@ -1607,30 +1393,22 @@ void do_fasttiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 void do_fasttilesr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     /* layer, x, y, tile, color opacity */
-    
     //sdci[1]=layer
     //sdci[2]=array {x,y,tile,colour,opacity}
-    
     std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
-    
     if(!v_ptr)
     {
         al_trace("Screen->PutPixels: Vector pointer is null! Internal error. \n");
         return;
     }
-    
     std::vector<int32_t> &v = *v_ptr;
-    
     if(v.empty())
         return;
         //Z_scripterrlog("PutPixels reached line %d\n", 983);
-    
     int32_t* pos = &v[0];
     int32_t sz = v.size();
-    
     for ( int32_t q = 0; q < sz; q+=5 )
     {
-	    
 	    if(v.at(q+4) < 128)
 		overtiletranslucent16(bmp, v.at(q), xoffset+(v.at(q+1)), yoffset+(v.at(q+2)), v.at(q+3), 0, v.at(q+4));
 	    else
@@ -1643,11 +1421,9 @@ void do_fasttilesr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32
 void do_fastcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
     /* layer, x, y, tile, color opacity */
-    
     int32_t opacity = sdci[6] / 10000;
     int32_t x1 = sdci[2] / 10000;
     int32_t y1 = sdci[3] / 10000;
-    
     int32_t cmb = (sdci[4]/10000);
 	if((unsigned)cmb >= MAXCOMBOS)
 	{
@@ -1657,13 +1433,11 @@ void do_fastcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     //if( index >= MAXCOMBOS ) return; //bleh.
 	/*
     const newcombo & c = combobuf[index];
-    
     if(opacity < 128)
         overtiletranslucent16(bmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int32_t)c.flip, opacity);
     else
         overtile16(bmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int32_t)c.flip);
 	*/
-	
 	if(opacity < 128)
 	{
 		//void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h, int32_t opacity)
@@ -1680,26 +1454,19 @@ void do_fastcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 void do_fastcombosr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	/* layer, x, y, combo, cset, opacity */
-	
 	//sdci[1]=layer
 	//sdci[2]=array {x,y,combo,cset,opacity}
-	
 	std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
-	
 	if(!v_ptr)
 	{
 		al_trace("Screen->FastCombos: Vector pointer is null! Internal error. \n");
 		return;
 	}
-	
 	std::vector<int32_t> &v = *v_ptr;
-	
 	if(v.empty())
 		return;
-	
 	int32_t* pos = &v[0];
 	int32_t sz = v.size();
-	
 	for ( int32_t q = 0; q < sz; q+=5 )
 	{
 		if((unsigned)(v.at(q+2)) >= MAXCOMBOS)
@@ -1739,7 +1506,6 @@ void do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		    //sdci[8]=stretch y (height)
 		    //sdci[9]=char
 		    //sdci[10]=opacity
-		    
 		    int32_t x=sdci[2]/10000;
 		    int32_t y=sdci[3]/10000;
 		    int32_t font_index=sdci[4]/10000;
@@ -1749,25 +1515,19 @@ void do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		    int32_t h=sdci[8]/10000;
 		    char glyph=char(sdci[9]/10000);
 		    int32_t opacity=sdci[10]/10000;
-		    
 		    //safe check
 		    if(bg_color < -1) bg_color = -1;
-		    
 		    if(w>512) w=512; //w=vbound(w,0,512);
-		    
 		    if(h>512) h=512; //h=vbound(h,0,512);
-		    
 		    //undone
 		    if(w>0&&h>0)//stretch the character
 		    {
 			BITMAP *pbmp = script_drawing_commands.GetSmallTextureBitmap(1,1);
-			
 			if(opacity < 128)
 			{
 			    if(w>128||h>128)
 			    {
 				clear_bitmap(prim_bmp);
-				
 				textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
 				stretch_sprite(prim_bmp, pbmp, 0, 0, w, h);
 				draw_trans_sprite(bmp, prim_bmp, x+xoffset, y+yoffset);
@@ -1775,11 +1535,9 @@ void do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 			    else //this is faster
 			    {
 				BITMAP *pbmp2 = script_drawing_commands.AquireSubBitmap(w,h);
-				
 				textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
 				stretch_sprite(pbmp2, pbmp, 0, 0, w, h);
 				draw_trans_sprite(bmp, pbmp2, x+xoffset, y+yoffset);
-				
 				script_drawing_commands.ReleaseSubBitmap(pbmp2);
 			    }
 			}
@@ -1788,7 +1546,6 @@ void do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 			    textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
 			    stretch_sprite(bmp, pbmp, x+xoffset, y+yoffset, w, h);
 			}
-			
 		    }
 		    else //no stretch
 		    {
@@ -1796,22 +1553,18 @@ void do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 			{
 			    BITMAP *pbmp = create_sub_bitmap(prim_bmp,0,0,16,16);
 			    clear_bitmap(pbmp);
-			    
 			    textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
 			    draw_trans_sprite(bmp, pbmp, x+xoffset, y+yoffset);
-			    
 			    destroy_bitmap(pbmp);
 			}
 			else // no opacity
 			{
 			    textprintf_ex(bmp, get_zc_font(font_index), x+xoffset, y+yoffset, color, bg_color, "%c", glyph);
 			}
-		    }		
+		    }
 	}
-	
 	else //2.53.0 fixed version and later.
 	{
-	
 		//sdci[1]=layer
 		    //sdci[2]=x
 		    //sdci[3]=y
@@ -1822,7 +1575,6 @@ void do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		    //sdci[8]=stretch y (height)
 		    //sdci[9]=char
 		    //sdci[10]=opacity
-		    
 		    int32_t x=sdci[2]/10000;
 		    int32_t y=sdci[3]/10000;
 		    int32_t font_index=sdci[4]/10000;
@@ -1832,25 +1584,19 @@ void do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		    int32_t h=sdci[8]/10000;
 		    char glyph=char(sdci[9]/10000);
 		    int32_t opacity=sdci[10]/10000;
-		    
 		    //safe check
 		    if(bg_color < -1) bg_color = -1;
-		    
 		    if(w>512) w=512; //w=vbound(w,0,512);
-		    
 		    if(h>512) h=512; //h=vbound(h,0,512);
-		    
 		    //undone
 		    if(w>0&&h>0)//stretch the character
 		    {
 			BITMAP *pbmp = script_drawing_commands.GetSmallTextureBitmap(1,1);
-			
 			if(opacity < 128)
 			{
 			    if(w>128||h>128)
 			    {
 				clear_bitmap(prim_bmp);
-				
 				textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
 				stretch_sprite(prim_bmp, pbmp, 0, 0, w, h);
 				draw_trans_sprite(bmp, prim_bmp, x+xoffset, y+yoffset);
@@ -1858,11 +1604,9 @@ void do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 			    else //this is faster
 			    {
 				BITMAP *pbmp2 = script_drawing_commands.AquireSubBitmap(w,h);
-				
 				textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
 				stretch_sprite(pbmp2, pbmp, 0, 0, w, h);
 				draw_trans_sprite(bmp, pbmp2, x+xoffset, y+yoffset);
-				
 				script_drawing_commands.ReleaseSubBitmap(pbmp2);
 			    }
 			}
@@ -1871,7 +1615,6 @@ void do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 			    textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
 			    stretch_sprite(bmp, pbmp, x+xoffset, y+yoffset, w, h);
 			}
-			
 		    }
 		    else //no stretch
 		    {
@@ -1879,20 +1622,16 @@ void do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 			{
 			    BITMAP *pbmp = create_sub_bitmap(prim_bmp,0,0,16,16);
 			    clear_bitmap(pbmp);
-			    
 			    textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
 			    draw_trans_sprite(bmp, pbmp, x+xoffset, y+yoffset);
-			    
 			    destroy_bitmap(pbmp);
 			}
 			else // no opacity
 			{
 			    textprintf_ex(bmp, get_zc_font(font_index), x+xoffset, y+yoffset, color, bg_color, "%c", glyph);
 			}
-		    }		
-		
+		    }
 	}
-    
 }
 
 
@@ -1912,7 +1651,6 @@ void do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 	    //sdci[9]=integer
 	    //sdci[10]=num decimal places
 	    //sdci[11]=opacity
-	    
 	    int32_t x=sdci[2]/10000;
 	    int32_t y=sdci[3]/10000;
 	    int32_t font_index=sdci[4]/10000;
@@ -1923,54 +1661,42 @@ void do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 	    //float number=static_cast<float>(sdci[9])/10000.0f;
 	    int32_t decplace=sdci[10]/10000;
 	    int32_t opacity=sdci[11]/10000;
-	    
 	    //safe check
 	    if(bg_color < -1) bg_color = -1;
-	    
 	    if(w>512) w=512; //w=vbound(w,0,512);
-	    
 	    if(h>512) h=512; //h=vbound(h,0,512);
-	    
 	    char numbuf[15];
-	    
 		switch(decplace)
 		{
 		    default:
 		    case 0:
 			sprintf(numbuf,"%d",(sdci[9]/10000)); //For some reason, static casting for zero decimal places was
 			break;					//reducing the value by -1, so 8.000 printed as '7'. -Z
-			
 		    case 1:
 			//sprintf(numbuf,"%.01f",number);
-			sprintf(numbuf,"%.01f",(static_cast<float>(sdci[9])/10000.0f)); //Would this be slower? 
+			sprintf(numbuf,"%.01f",(static_cast<float>(sdci[9])/10000.0f)); //Would this be slower?
 			break;
-			
 		    case 2:
 			//sprintf(numbuf,"%.02f",number);
 			sprintf(numbuf,"%.02f",(static_cast<float>(sdci[9])/10000.0f));
 			break;
-			
 		    case 3:
 			//sprintf(numbuf,"%.03f",number);
 			sprintf(numbuf,"%.03f",(static_cast<float>(sdci[9])/10000.0f));
 			break;
-			
 		    case 4:
 			//sprintf(numbuf,"%.04f",number);
 			sprintf(numbuf,"%.04f",(static_cast<float>(sdci[9])/10000.0f));
 			break;
 		}
-	    
 	    if(w>0&&h>0)//stretch
 	    {
 		BITMAP *pbmp = script_drawing_commands.GetSmallTextureBitmap(1,1);
-		
 		if(opacity < 128)
 		{
 		    if(w>128||h>128)
 		    {
 			clear_bitmap(prim_bmp);
-			
 			textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
 			stretch_sprite(prim_bmp, pbmp, 0, 0, w, h);
 			draw_trans_sprite(bmp, prim_bmp, x+xoffset, y+yoffset);
@@ -1979,11 +1705,9 @@ void do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		    {
 			BITMAP *pbmp2 = create_sub_bitmap(prim_bmp,0,0,w,h);
 			clear_bitmap(pbmp2);
-			
 			textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
 			stretch_sprite(pbmp2, pbmp, 0, 0, w, h);
 			draw_trans_sprite(bmp, pbmp2, x+xoffset, y+yoffset);
-			
 			destroy_bitmap(pbmp2);
 		    }
 		}
@@ -1992,7 +1716,6 @@ void do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		    textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
 		    stretch_sprite(bmp, pbmp, x+xoffset, y+yoffset, w, h);
 		}
-		
 	    }
 	    else //no stretch
 	    {
@@ -2000,10 +1723,8 @@ void do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		{
 		    BITMAP *pbmp = create_sub_bitmap(prim_bmp,0,0,16,16);
 		    clear_bitmap(pbmp);
-		    
 		    textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
 		    draw_trans_sprite(bmp, pbmp, x+xoffset, y+yoffset);
-		    
 		    destroy_bitmap(pbmp);
 		}
 		else // no opacity
@@ -2011,9 +1732,7 @@ void do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		    textout_ex(bmp, get_zc_font(font_index), numbuf, x+xoffset, y+yoffset, color, bg_color);
 		}
 	    }
-		
 	}
-	
 	else //2.53.0 fixed version and later.
 	{
 	    //sdci[1]=layer
@@ -2027,7 +1746,6 @@ void do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 	    //sdci[9]=integer
 	    //sdci[10]=num decimal places
 	    //sdci[11]=opacity
-	    
 	    int32_t x=sdci[2]/10000;
 	    int32_t y=sdci[3]/10000;
 	    int32_t font_index=sdci[4]/10000;
@@ -2039,58 +1757,45 @@ void do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		//int32_t numberint = sdci[9]/10000;
 	    int32_t decplace=sdci[10]/10000;
 	    int32_t opacity=sdci[11]/10000;
-	    
 	    //safe check
 	    if(bg_color < -1) bg_color = -1;
-	    
 	    if(w>512) w=512; //w=vbound(w,0,512);
-	    
 	    if(h>512) h=512; //h=vbound(h,0,512);
-	    
 	    char numbuf[15];
-	    
 	    switch(decplace)
 	    {
 	    default:
 	    case 0:
 		sprintf(numbuf,"%d",(sdci[9]/10000)); //For some reason, static casting for zero decimal places was
 		break;					//reducing the value by -1, so 8.000 printed as '7'. -Z
-		
 	    case 1:
 		//sprintf(numbuf,"%.01f",number);
-		sprintf(numbuf,"%.01f",(static_cast<float>(sdci[9])/10000.0f)); //Would this be slower? 
+		sprintf(numbuf,"%.01f",(static_cast<float>(sdci[9])/10000.0f)); //Would this be slower?
 		break;
-		
 	    case 2:
 		//sprintf(numbuf,"%.02f",number);
 		sprintf(numbuf,"%.02f",(static_cast<float>(sdci[9])/10000.0f));
 		break;
-		
 	    case 3:
 		//sprintf(numbuf,"%.03f",number);
 		sprintf(numbuf,"%.03f",(static_cast<float>(sdci[9])/10000.0f));
 		break;
-		
 	    case 4:
 		//sprintf(numbuf,"%.04f",number);
 		sprintf(numbuf,"%.04f",(static_cast<float>(sdci[9])/10000.0f));
 		break;
 	    }
-	    
 	    //FONT* font=get_zc_font(sdci[4]/10000);
-	    
 	    if(w>0&&h>0)//stretch
 	    {
 		BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, text_length(get_zc_font(font_index), numbuf)+1, text_height(get_zc_font(font_index)));
 		clear_bitmap(pbmp);
 		    //script_drawing_commands.GetSmallTextureBitmap(1,1);
-		
 		if(opacity < 128)
 		{
 		    if(w>128||h>128)
 		    {
 			clear_bitmap(prim_bmp);
-			
 			textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
 			stretch_sprite(prim_bmp, pbmp, 0, 0, w, h);
 			draw_trans_sprite(bmp, prim_bmp, x+xoffset, y+yoffset);
@@ -2099,11 +1804,9 @@ void do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		    {
 			BITMAP *pbmp2 = create_sub_bitmap(prim_bmp,0,0,w,h);
 			clear_bitmap(pbmp2);
-			
 			textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
 			stretch_sprite(pbmp2, pbmp, 0, 0, w, h);
 			draw_trans_sprite(bmp, pbmp2, x+xoffset, y+yoffset);
-			
 			destroy_bitmap(pbmp2);
 		    }
 		}
@@ -2112,7 +1815,6 @@ void do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		    textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
 		    stretch_sprite(bmp, pbmp, x+xoffset, y+yoffset, w, h);
 		}
-		
 	    }
 	    else //no stretch
 	    {
@@ -2121,10 +1823,8 @@ void do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		    FONT* font = get_zc_font(font_index);
 		    BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, text_length(font, numbuf), text_height(font));
 		    clear_bitmap(pbmp);
-		    
 		    textout_ex(pbmp, font, numbuf, 0, 0, color, bg_color);
 		    draw_trans_sprite(bmp, pbmp, x+xoffset, y+yoffset);
-		    
 		    destroy_bitmap(pbmp);
 		}
 		else // no opacity
@@ -2147,15 +1847,12 @@ void do_drawstringr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int3
     //sdci[7]=format_option
     //sdci[8]=string
     //sdci[9]=opacity
-    
     std::string* str = (std::string*)script_drawing_commands[i].GetPtr();
-    
     if(!str)
     {
         al_trace("String pointer is null! Internal error. \n");
         return;
     }
-    
     int32_t x=sdci[2]/10000;
     int32_t y=sdci[3]/10000;
     FONT* font=get_zc_font(sdci[4]/10000);
@@ -2164,10 +1861,8 @@ void do_drawstringr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int3
     int32_t format_type=sdci[7]/10000;
     int32_t opacity=sdci[9]/10000;
     //sdci[8] not needed :)
-    
     //safe check
     if(bg_color < -1) bg_color = -1;
-    
     if(opacity < 128)
     {
         int32_t width=zc_min(text_length(font, str->c_str()), 512);
@@ -2211,15 +1906,12 @@ void do_drawstringr2(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int
     //sdci[9]=opacity
 	//sdci[10]=shadowtype
 	//sdci[11]=shadow_color
-    
     std::string* str = (std::string*)script_drawing_commands[i].GetPtr();
-    
     if(!str)
     {
         al_trace("String pointer is null! Internal error. \n");
         return;
     }
-    
     int32_t x=sdci[2]/10000;
     int32_t y=sdci[3]/10000;
     FONT* font=get_zc_font(sdci[4]/10000);
@@ -2230,10 +1922,8 @@ void do_drawstringr2(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int
 	int32_t textstyle = sdci[10]/10000;
 	int32_t shadow_color = sdci[11]/10000;
     //sdci[8] not needed :)
-    
     //safe check
     if(bg_color < -1) bg_color = -1;
-    
     if(opacity < 128)
     {
         int32_t width=zc_min(text_length(font, str->c_str()), 512);
@@ -2272,7 +1962,6 @@ void do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     //sdci[13]=flip
     //sdci[14]=tile/combo
     //sdci[15]=polytype
-    
     int32_t x1 = sdci[2]/10000;
     int32_t y1 = sdci[3]/10000;
     int32_t x2 = sdci[4]/10000;
@@ -2287,7 +1976,6 @@ void do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     int32_t flip=(sdci[13]/10000)&3;
     int32_t tile = sdci[14]/10000;
     int32_t polytype = sdci[15]/10000;
-    
     //todo: finish palette shading
     /*
     POLYTYPE_FLAT
@@ -2307,30 +1995,23 @@ void do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     POLYTYPE_PTEX_MASK_TRANS
     */
     polytype = vbound(polytype, 0, 14);
-    
     if(((w-1) & w) != 0 || ((h-1) & h) != 0)
     {
         Z_message("Quad() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
         return; //non power of two error
     }
-    
     int32_t tex_width = w*16;
     int32_t tex_height = h*16;
-    
     BITMAP *tex;
-    
     bool mustDestroyBmp = false;
-    
 	if ( tile > 65519 ) tex = zscriptDrawingRenderTarget->GetBitmapPtr(tile - 65519);
 	else tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
-    
     if(!tex)
     {
         mustDestroyBmp = true;
         tex = create_bitmap_ex(8, tex_width, tex_height);
         clear_bitmap(tex);
     }
-    
     int32_t col[4];
     /*
     if( color < 0 )
@@ -2344,31 +2025,24 @@ void do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     {
         col[0]=col[1]=col[2]=col[3]=color;
     }
-    
     if(tile > 0 && tile <= 65519)   // TILE
     {
         TileHelper::OverTile(tex, tile, 0, 0, w, h, color, flip);
     }
-    
     if ( tile < 0 )        // COMBO
     {
         const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
         const int32_t tiletodraw = combo_tile(c, x1, y1);
         flip = flip ^ c.flip;
-        
         TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
     }
-    
     V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
     V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(tex_height), col[1] };
     V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(tex_width), static_cast<float>(tex_height), col[2] };
     V3D_f V4 = { static_cast<float>(x4+xoffset), static_cast<float>(y4+yoffset), 0, static_cast<float>(tex_width), 0,                              col[3] };
-    
     quad3d_f(bmp, polytype, tex, &V1, &V2, &V3, &V4);
-    
     if(mustDestroyBmp)
         destroy_bitmap(tex);
-        
 }
 
 
@@ -2387,7 +2061,6 @@ void do_drawtriangler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
     //sdci[11]=flip
     //sdci[12]=tile/combo
     //sdci[13]=polytype
-    
     int32_t x1 = sdci[2]/10000;
     int32_t y1 = sdci[3]/10000;
     int32_t x2 = sdci[4]/10000;
@@ -2400,28 +2073,22 @@ void do_drawtriangler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
     int32_t flip=(sdci[11]/10000)&3;
     int32_t tile = sdci[12]/10000;
     int32_t polytype = sdci[13]/10000;
-    
     polytype = vbound(polytype, 0, 14);
-    
     if(((w-1) & w) != 0 || ((h-1) & h) != 0)
     {
         Z_message("Quad() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
         return; //non power of two error
     }
-    
     int32_t tex_width = w*16;
     int32_t tex_height = h*16;
-    
     bool mustDestroyBmp = false;
     BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
-    
     if(!tex)
     {
         mustDestroyBmp = true;
         tex = create_bitmap_ex(8, tex_width, tex_height);
         clear_bitmap(tex);
     }
-    
     int32_t col[3];
     /*
     if( color < 0 )
@@ -2434,7 +2101,6 @@ void do_drawtriangler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
     {
         col[0]=col[1]=col[2]=color;
     }
-    
     if(tile > 0)   // TILE
     {
         TileHelper::OverTile(tex, tile, 0, 0, w, h, color, flip);
@@ -2444,17 +2110,12 @@ void do_drawtriangler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
         const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
         const int32_t tiletodraw = combo_tile(c, x1, y1);
         flip = flip ^ c.flip;
-        
         TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
     }
-    
     V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
     V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(tex_height), col[1] };
     V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(tex_width), static_cast<float>(tex_height), col[2] };
-    
-    
     triangle3d_f(bmp, polytype, tex, &V1, &V2, &V3);
-    
     if(mustDestroyBmp)
         destroy_bitmap(tex);
 }
@@ -2500,51 +2161,41 @@ void do_drawbitmapr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 	bool stretched = (sw != dw || sh != dh);
 
 	BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
-    
 	if(!sourceBitmap)
 	{
 		Z_message("Warning: Screen->DrawBitmap(%d) contains invalid data or is not initialized.\n", bitmapIndex);
 		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
 		return;
 	}
-    
 	BITMAP* subBmp = 0;
-    
 	if(rot != 0)
 	{
 		subBmp = script_drawing_commands.AquireSubBitmap(dw, dh);
-        
 		if(!subBmp)
 		{
 			Z_scripterrlog("DrawBitmap() failed to create a sub-bitmap to use for %s. Aborting.\n", "rotation");
 			return;
 		}
 	}
-    
-    
 	dx = dx + xoffset;
 	dy = dy + yoffset;
-    
 	if(stretched)
 	{
 		if(masked)
 		{
 			if(rot != 0)
-			{	
+			{
 				//if ( rot == 4096 ) { //translucent
 				//	masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 				//	//rotate_sprite_trans(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
 				//	draw_trans_sprite(bmp, subBmp, dx, dy);
 				//	//draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_TRANS, 0);
-			
-			
 				// }
-				//else { 
+				//else {
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
 					//rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
 					//
-			
 				// }
 			}
 			else
@@ -2576,14 +2227,13 @@ void do_drawbitmapr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 				//if ( rot == 4096 ) {//translucent
 				//	masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					//rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
-		    
 					//masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//rotate_sprite_trans(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
 				//	draw_trans_sprite(bmp, subBmp, dx, dy);
 				// }
 			//else {
 				masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
-				rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));  
+				rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
 			// }
 		}
 		else
@@ -2594,7 +2244,7 @@ void do_drawbitmapr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 			if(rot != 0)
 			{
 				//if ( rot == 4096 ) { //translucent
-				//	blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);   
+				//	blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 				//	draw_trans_sprite(bmp, subBmp, dx, dy);
 				// }
 				//else {
@@ -2606,7 +2256,6 @@ void do_drawbitmapr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 				blit(sourceBitmap, bmp, sx, sy, dx, dy, dw, dh);
 		}
 	}
-    
 	//cleanup
 	if(subBmp)
 	{
@@ -2633,8 +2282,6 @@ void do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 	//scdi[12] = pivot cx
 	//sdci[13] = pivot cy
 	//scdi[14] = effect flags
-	
-		
 		const int32_t BITDX_NORMAL = 0;
 		const int32_t BITDX_TRANS = 1; //Translucent
 		const int32_t BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its center.
@@ -2642,13 +2289,10 @@ void do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 		const int32_t BITDX_VFLIP = 8; //Vertical Flip.
 		//Note:	Some modes cannot be combined. if a combination is not supported, an error
 		//	detailing this will be shown in allegro.log.
-		
 	//scdi[15] = litcolour
-		//The allegro docs are wrong. The params are: rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot),litcolour); 
+		//The allegro docs are wrong. The params are: rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 		/not rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
-	
 	//sdci[16]=mask
-	
 	*/
 
 	int32_t bitmapIndex = sdci[2]/10000;
@@ -2666,8 +2310,6 @@ void do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 	int32_t mode = sdci[14]/10000;
 	int32_t litcolour = sdci[15]/10000;
 	bool masked = (sdci[16] != 0);
-	
-	
 
 	//bugfix
 	sx = vbound(sx, 0, 512);
@@ -2682,318 +2324,260 @@ void do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 	bool stretched = (sw != dw || sh != dh);
 
 	BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
-    
 	if(!sourceBitmap)
 	{
 		Z_message("Warning: Screen->DrawBitmap(%d) contains invalid data or is not initialized.\n", bitmapIndex);
 		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
 		return;
 	}
-    
 	BITMAP* subBmp = 0;
-	
 	/*
 	if ( bitmapIndex == -1 ) {
-		blit(bmp, sourceBitmap, sx, sy, 0, 0, dw, dh); 
+		blit(bmp, sourceBitmap, sx, sy, 0, 0, dw, dh);
 	}
 	*/
-    
-	if(rot != 0 || mode != 0)    
+	if(rot != 0 || mode != 0)
 	{
 		subBmp = script_drawing_commands.AquireSubBitmap(dw, dh);
-        
 		if(!subBmp)
 		{
 			Z_scripterrlog("bitmap->Blit failed to create a sub-bitmap to use for %s. Aborting.\n", "rotation");
 			return;
 		}
 	}
-    
-    
 	dx = dx + xoffset;
 	dy = dy + yoffset;
-    
-	if(stretched) 
+	if(stretched)
 	{
 		if(masked) //stretched and masked
-		{	
+		{
 			if ( rot == 0 ) //if not rotated
-			{ 
-				switch(mode) 
+			{
+				switch(mode)
 				{
 					case 1:
 					//transparent
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_trans_sprite(bmp, subBmp, dx, dy);
 					break;
-					
-					
-					case 2: 
+					case 2:
 						//pivot?
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite(bmp, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_trans(bmp, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_v_flip(bmp, subBmp, dx, dy);
 					break;
-					
-					case 5: 
+					case 5:
 						//trans + v flip
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip(bmp, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					break;
-					
-					case 8: 
+					case 8:
 						//vlip h
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_h_flip(bmp, subBmp, dx, dy);
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					//return error cannot pivot and h flip
 					break;
-					
 					case 12:
 						//vh flip
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_vh_flip(bmp, subBmp, dx, dy);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_lit_sprite(bmp, subBmp, dx, dy, litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_lit(bmp, subBmp, dx, dy, cx, cy,  degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + v flip
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip_lit(bmp, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot, Flip, and Lit.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_VH_FLIP);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
+						//Probably not wort supporting.
 					//masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect
 					masked_stretch_blit(sourceBitmap, bmp, sx, sy, sw, sh, dx, dy, dw, dh);
 					break;
-					
-					
 					default:
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-					
-					
 				}
 			} //end if not rotated
-			
 			if ( rot != 0 ) //if rotated
-			{ 
+			{
 				switch(mode)
 				{
-					case 1: 
+					case 1:
 						//transparent
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_trans(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
-					
 					break;
-					
-					case 2: 
+					case 2:
 						//pivot?
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					//return an error, cannot both rotate and pivot
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_v_flip(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 5: 
+					case 5:
 						//trans + v flip
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_v_flip_trans(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					//return an error, cannot both rotate and pivot
 					break;
-					
-					case 8: 
+					case 8:
 						//flip h
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rorate and H-Flip.\n", bitmapIndex);
 					//return an error, cannot both rotate and flip H
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot Rotate and Flip a Trans Sprite.\n", bitmapIndex);
 					//return an error, cannot rotate and flip a trans sprite
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					//return error cannot pivot and h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 12: 
+					case 12:
 						//vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + vflip
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_v_flip_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
 					//return an error, cannot both rotate and H flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Flip a Lit Sprite.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
 					//return an error, cannot both rotate and VH flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
+						//Probably not wort supporting.
 					//masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect.
 					masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
 					default:
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-				
 				}
 			}
-		} //end if stretched and masked 
-		
+		} //end if stretched and masked
 		else  //stretched, not masked
 		{
 			if ( rot == 0 )  //if not rotated
@@ -3004,837 +2588,685 @@ void do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_trans_sprite(bmp, subBmp, dx, dy);
 					break;
-					
-					
-					case 2: 
+					case 2:
 						//pivot?
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite(bmp, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_trans(bmp, subBmp, dx,dy,  cx,  cy, degrees_to_fixed(rot));
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_v_flip(bmp, subBmp, dx, dy);
 					break;
-					
-					case 5: 
+					case 5:
 						//trans + v flip
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip(bmp, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					break;
-					
-					case 8: 
+					case 8:
 						//vlip h
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_h_flip(bmp, subBmp, dx, dy);
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					//return error cannot pivot and h flip
 					break;
-					
 					case 12:
 						//vh flip
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_vh_flip(bmp, subBmp, dx, dy);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_lit_sprite(bmp, subBmp, dx, dy, litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_lit(bmp, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + v flip
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip_lit(bmp, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot, Flip, and Lit.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_VH_FLIP);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
+						//Probably not wort supporting.
 					//stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect
 					stretch_blit(sourceBitmap, bmp, sx, sy, sw, sh, dx, dy, dw, dh);
 					break;
-					
-					
 					default:
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-					
-					
 				}
 			} //end if not rotated
-			
 			if ( rot != 0 ) //if rotated
-			{ 
+			{
 				switch(mode)
 				{
-					case 1: 
+					case 1:
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);//transparent
 					rotate_sprite_trans(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
-					
 					break;
-					
-					case 2: 
+					case 2:
 						//pivot?
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					//return an error, cannot both rotate and pivot
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_v_flip(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 5: 
+					case 5:
 						//trans + v flip
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_v_flip_trans(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					//return an error, cannot both rotate and pivot
 					break;
-					
-					case 8: 
+					case 8:
 						//flip h
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rorate and H-Flip.\n", bitmapIndex);
 					//return an error, cannot both rotate and flip H
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot Rotate and Flip a Trans Sprite.\n", bitmapIndex);
 					//return an error, cannot rotate and flip a trans sprite
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					//return error cannot pivot and h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 12: 
+					case 12:
 						//vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);//transparent
 					rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + vflip
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);//transparent
 					rotate_sprite_v_flip_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
 					//return an error, cannot both rotate and H flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Flip a Lit Sprite.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
 					//return an error, cannot both rotate and VH flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
+						//Probably not wort supporting.
 					//stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect.
 					stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
 					default:
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-				
 				}
 			}
-			
 		} //end if stretched, but not masked
 	}
 	else //not stretched
-	{ 
-		
+	{
 		if(masked) //if masked, but not stretched
-		{ 
-			
+		{
 			if ( rot == 0 ) //if not rotated
-			{ 
-				switch(mode) 
+			{
+				switch(mode)
 				{
 					case 1:
 					//transparent
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_trans_sprite(bmp, subBmp, dx, dy);
 					break;
-					
-					
-					case 2: 
+					case 2:
 						//pivot?
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite(bmp, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_trans(bmp, subBmp, dx, dy,  cx, cy, degrees_to_fixed(rot));
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_v_flip(bmp, subBmp, dx, dy);
 					break;
-					
-					case 5: 
+					case 5:
 						//trans + v flip
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_v_flip(bmp, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot));
 					break;
-					
-					case 8: 
+					case 8:
 						//vlip h
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_h_flip(bmp, subBmp, dx, dy);
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					//return error cannot pivot and h flip
 					break;
-					
 					case 12:
 						//vh flip
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_vh_flip(bmp, subBmp, dx, dy);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_lit_sprite(bmp, subBmp, dx, dy, litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_lit(bmp, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + v flip
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_v_flip_lit(bmp, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot, Flip, and Lit.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_VH_FLIP);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
+						//Probably not wort supporting.
 					//stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect
 					masked_blit(sourceBitmap, bmp, sx, sy, dx, dy, dw, dh);
 					break;
-					
-					
 					default:
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-					
-					
 				}
 			} //end if not rotated
-			
 			if ( rot != 0 )  //if rotated
 			{
 				switch(mode)
 				{
-					case 1: 
+					case 1:
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);	//transparent
 					rotate_sprite_trans(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
-					
 					break;
-					
-					case 2: 
+					case 2:
 						//pivot?
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					//return an error, cannot both rotate and pivot
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_v_flip(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 5: 
+					case 5:
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);	//trans + v flip
 					rotate_sprite_v_flip_trans(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					//return an error, cannot both rotate and pivot
 					break;
-					
-					case 8: 
+					case 8:
 						//flip h
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rorate and H-Flip.\n", bitmapIndex);
 					//return an error, cannot both rotate and flip H
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot Rotate and Flip a Trans Sprite.\n", bitmapIndex);
 					//return an error, cannot rotate and flip a trans sprite
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					//return error cannot pivot and h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 12: 
+					case 12:
 						//vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + vflip
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_v_flip_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
 					//return an error, cannot both rotate and H flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Flip a Lit Sprite.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
 					//return an error, cannot both rotate and VH flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
+						//Probably not wort supporting.
 					//stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect.
 					masked_blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
 					default:
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-				
 				}
 			} //end rtated, masked
 		} //end if masked
 
 		else //not masked, and not stretched; just blit
-		{ 
-			
+		{
 			if ( rot == 0 ) //if not rotated
-			{ 
-				switch(mode) 
+			{
+				switch(mode)
 				{
 					case 1:
 					//transparent
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_trans_sprite(bmp, subBmp, dx, dy);
 					break;
-					
-					
-					case 2: 
+					case 2:
 						//pivot?
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite(bmp, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_trans(bmp, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot));
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_v_flip(bmp, subBmp, dx, dy);
 					break;
-					
-					case 5: 
+					case 5:
 						//trans + v flip
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_v_flip(bmp, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					break;
-					
-					case 8: 
+					case 8:
 						//vlip h
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_h_flip(bmp, subBmp, dx, dy);
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					//return error cannot pivot and h flip
 					break;
-					
 					case 12:
 						//vh flip
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_vh_flip(bmp, subBmp, dx, dy);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_lit_sprite(bmp, subBmp, dx, dy, litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_lit(bmp, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + v flip
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_v_flip_lit(bmp, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot, Flip, and Lit.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(bmp, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_VH_FLIP);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
-					//blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+						//Probably not wort supporting.
+					//blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect
 					blit(sourceBitmap, bmp, sx, sy, dx, dy, dw, dh);
 					break;
-					
-					
 					default:
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-					
-					
 				}
 			} //end if not rotated
-			
 			if ( rot != 0 ) //if rotated
-			{ 
+			{
 				switch(mode)
 				{
-					case 1: 
+					case 1:
 						blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);//transparent
 						rotate_sprite_trans(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
-					 
 					break;
-					
-					case 2: 
+					case 2:
 						//pivot?
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					//return an error, cannot both rotate and pivot
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_v_flip(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 5: 
+					case 5:
 						//trans + v flip
 					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_v_flip_trans(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					//return an error, cannot both rotate and pivot
 					break;
-					
-					case 8: 
+					case 8:
 						//flip h
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rorate and H-Flip.\n", bitmapIndex);
 					//return an error, cannot both rotate and flip H
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot Rotate and Flip a Trans Sprite.\n", bitmapIndex);
 					//return an error, cannot rotate and flip a trans sprite
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					//return error cannot pivot and h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 12: 
+					case 12:
 						//vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
 					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + vflip
 					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_v_flip_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
 					//return an error, cannot both rotate and H flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Flip a Lit Sprite.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
 					//return an error, cannot both rotate and VH flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
-					//blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+						//Probably not wort supporting.
+					//blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect.
-					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sourceBitmap, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
 					default:
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-				
 				}
 			} //end if rotated
 		} //end if not masked
 	} //end if not stretched
-    
 	//cleanup
-	if(subBmp) 
+	if(subBmp)
 	{
 		script_drawing_commands.ReleaseSubBitmap(subBmp); //purge the temporary bitmap.
 	}
@@ -3851,52 +3283,40 @@ void do_drawquad3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int3
     //sdci[6]=flip
     //sdci[7]=tile/combo
     //sdci[8]=polytype
-    
     std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
-    
     if(!v_ptr)
     {
         al_trace("Quad3d: Vector pointer is null! Internal error. \n");
         return;
     }
-    
     std::vector<int32_t> &v = *v_ptr;
-    
     if(v.empty())
         return;
-        
     int32_t* pos = &v[0];
     int32_t* uv = &v[12];
     int32_t* col = &v[20];
     int32_t* size = &v[24];
-    
     int32_t w = size[0]; //magic numerical constants... yuck.
     int32_t h = size[1];
     int32_t flip = (sdci[6]/10000)&3;
     int32_t tile = sdci[7]/10000;
     int32_t polytype = sdci[8]/10000;
-    
     polytype = vbound(polytype, 0, 14);
-    
 	if(((w-1) & w) != 0 || ((h-1) & h) != 0)
 	{
 		Z_message("Quad3d() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
 		return; //non power of two error
 	}
-    
     int32_t tex_width = w*16;
     int32_t tex_height = h*16;
-    
     bool mustDestroyBmp = false;
     BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
-    
     if(!tex)
     {
         mustDestroyBmp = true;
         tex = create_bitmap_ex(8, tex_width, tex_height);
         clear_bitmap(tex);
     }
-    
     if(tile > 0)   // TILE
     {
         TileHelper::OverTile(tex, tile, 0, 0, w, h, col[0], flip);
@@ -3906,20 +3326,15 @@ void do_drawquad3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int3
         const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
         const int32_t tiletodraw = combo_tile(c, 0, 0);
         flip = flip ^ c.flip;
-        
         TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
     }
-    
     V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]),  static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
     V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]),  static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
     V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]),  static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
     V3D_f V4 = { static_cast<float>(pos[9]+xoffset), static_cast<float>(pos[10]+yoffset), static_cast<float>(pos[11]), static_cast<float>(uv[6]), static_cast<float>(uv[7]), col[3] };
-    
     quad3d_f(bmp, polytype, tex, &V1, &V2, &V3, &V4);
-    
     if(mustDestroyBmp)
         destroy_bitmap(tex);
-        
 }
 
 
@@ -3934,52 +3349,40 @@ void do_drawtriangle3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, 
     //sdci[6]=flip
     //sdci[7]=tile/combo
     //sdci[8]=polytype
-    
     std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
-    
     if(!v_ptr)
     {
         al_trace("Triange3d: Vector pointer is null! Internal error. \n");
         return;
     }
-    
     std::vector<int32_t> &v = *v_ptr;
-    
     if(v.empty())
         return;
-        
     int32_t* pos = &v[0];
     int32_t* uv = &v[9];
     int32_t* col = &v[15];
     int32_t* size = &v[18];
-    
     int32_t w = size[0]; //magic numerical constants... yuck.
     int32_t h = size[1];
     int32_t flip = (sdci[6]/10000)&3;
     int32_t tile = sdci[7]/10000;
     int32_t polytype = sdci[8]/10000;
-    
     polytype = vbound(polytype, 0, 14);
-    
 	if(((w-1) & w) != 0 || ((h-1) & h) != 0)
 	{
 		Z_message("Triangle3d() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
 		return; //non power of two error
 	}
-    
     int32_t tex_width = w*16;
     int32_t tex_height = h*16;
-    
     bool mustDestroyBmp = false;
     BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
-    
     if(!tex)
     {
         mustDestroyBmp = true;
         tex = create_bitmap_ex(8, tex_width, tex_height);
         clear_bitmap(tex);
     }
-    
     if(tile > 0)   // TILE
     {
         TileHelper::OverTile(tex, tile, 0, 0, w, h, col[0], flip);
@@ -3989,19 +3392,14 @@ void do_drawtriangle3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, 
         const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
         const int32_t tiletodraw = combo_tile(c, 0, 0);
         flip = flip ^ c.flip;
-        
         TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
     }
-    
     V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]), static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
     V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]), static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
     V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]), static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
-    
     triangle3d_f(bmp, polytype, tex, &V1, &V2, &V3);
-    
     if(mustDestroyBmp)
         destroy_bitmap(tex);
-        
 }
 
 void bmp_do_rectr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
@@ -4024,32 +3422,26 @@ void bmp_do_rectr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     {
         return;
     }
-    if ( sdci[17] <= 0 ) 
+    if ( sdci[17] <= 0 )
     {
 	Z_scripterrlog("bitmap->Rectangle() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 	return;
     }
     BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
     int32_t x1=sdci[2]/10000;
     int32_t y1=sdci[3]/10000;
     int32_t x2=sdci[4]/10000;
     int32_t y2=sdci[5]/10000;
-    
-    
     if(x1>x2)
     {
         zc_swap(x1,x2);
     }
-    
     if(y1>y2)
     {
         zc_swap(y1,y2);
     }
-    
     if(sdci[7] != 10000)
     {
         int32_t w=x2-x1+1;
@@ -4061,14 +3453,11 @@ void bmp_do_rectr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         y1=y1-((h2-h)/2);
         y2=y2+((h2-h)/2);
     }
-    
     int32_t color=sdci[6]/10000;
-    
     if(sdci[12]/10000<=127) //translucent
     {
         drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
     }
-    
     if(sdci[10]==0) //no rotation
     {
         if(sdci[11]) //filled
@@ -4089,10 +3478,8 @@ void bmp_do_rectr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         fixed ra2=itofix(sdci[10]/10000);
         fixed ra=ra1+ra2;
         ra = (ra/360)*256;
-        
         fixed fcosa = fixcos(ra);
         fixed fsina = fixsin(ra);
-        
         xy[ 0]=xoffset+rx + fixtoi((fcosa * (x1 - rx) - fsina * (y1 - ry)));     //x1
         xy[ 1]=yoffset+ry + fixtoi((fsina * (x1 - rx) + fcosa * (y1 - ry)));     //y1
         xy[ 2]=xoffset+rx + fixtoi((fcosa * (x2 - rx) - fsina * (y1 - ry)));     //x2
@@ -4109,7 +3496,6 @@ void bmp_do_rectr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         xy[13]=yoffset+ry + fixtoi((fsina * (x2 - rx) + fcosa * (y2 - ry - 1)));         //y2
         xy[14]=xoffset+rx + fixtoi((fcosa * (x1 - rx + 1) - fsina * (y2 - ry)));         //x1
         xy[15]=yoffset+ry + fixtoi((fsina * (x1 - rx + 1) + fcosa * (y2 - ry)));         //y2
-        
         if(sdci[11]) //filled
         {
             polygon(refbmp, 4, xy, color);
@@ -4122,7 +3508,6 @@ void bmp_do_rectr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
             line(refbmp, xy[6], xy[7], xy[ 8], xy[ 9], color);
         }
     }
-    
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
@@ -4138,7 +3523,7 @@ void bmp_do_framer(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     //sdci[8]=overlay
     //sdci[9]=opacity
 
-	if ( sdci[17] <= 0 ) 
+	if ( sdci[17] <= 0 )
 	{
 		Z_scripterrlog("bitmap->DrawFrame() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 		return;
@@ -4150,14 +3535,12 @@ void bmp_do_framer(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 
     int32_t x=sdci[2]/10000;
     int32_t y=sdci[3]/10000;
-    
     int32_t tile=sdci[4]/10000;
     int32_t cs=sdci[5]/10000;
     int32_t w=sdci[6]/10000;
     int32_t h=sdci[7]/10000;
     bool overlay=sdci[8];
     bool trans=(sdci[9]/10000<=127);
-    
 	frame2x2(refbmp, &QMisc, x + xoffset, y + yoffset, tile, cs, w, h, 0, overlay, trans);
 }
 
@@ -4187,27 +3570,21 @@ void bmp_do_circler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
     }
     BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
     int32_t x1=sdci[2]/10000;
     int32_t y1=sdci[3]/10000;
     qword r=sdci[4];
-    
     if(sdci[6] != 10000)
     {
         r*=sdci[6];
         r/=10000;
     }
-    
     r/=10000;
     int32_t color=sdci[5]/10000;
-    
     if(sdci[11]/10000<=127) //translucent
     {
         drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
     }
-    
     if(sdci[9]!=0&&(sdci[2]!=sdci[7]||sdci[3]!=sdci[8])) //rotation
     {
         int32_t xy[2];
@@ -4217,13 +3594,11 @@ void bmp_do_circler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
         fixed ra2=itofix(sdci[9]/10000);
         fixed ra=ra1+ra2;
         ra = (ra/360)*256;
-        
         xy[ 0]=rx + fixtoi((fixcos(ra) * (x1 - rx) - fixsin(ra) * (y1 - ry)));     //x1
         xy[ 1]=ry + fixtoi((fixsin(ra) * (x1 - rx) + fixcos(ra) * (y1 - ry)));     //y1
         x1=xy[0];
         y1=xy[1];
     }
-    
     if(sdci[10]) //filled
     {
         circlefill(refbmp, x1+xoffset, y1+yoffset, r, color);
@@ -4232,7 +3607,6 @@ void bmp_do_circler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
     {
         circle(refbmp, x1+xoffset, y1+yoffset, r, color);
     }
-    
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
@@ -4254,7 +3628,6 @@ void bmp_do_arcr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     //sdci[13]=fill
     //sdci[14]=opacity
 	//sdci[17] Bitmap Pointer
-    
     if(sdci[8]==0)  //scale
     {
         return;
@@ -4266,53 +3639,40 @@ void bmp_do_arcr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     }
     BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
     int32_t cx=sdci[2]/10000;
     int32_t cy=sdci[3]/10000;
     qword r=sdci[4];
-    
     if(sdci[8] != 10000)
     {
         r*=sdci[8];
         r/=10000;
     }
-    
     r/=10000;
-    
     int32_t color=sdci[7]/10000;
-    
     fixed ra1=itofix(sdci[11]%10000)/10000;
     fixed ra2=itofix(sdci[11]/10000);
     fixed ra=ra1+ra2;
     ra = (ra/360)*256;
-    
-    
     fixed a1=itofix(sdci[5]%10000)/10000;
     fixed a2=itofix(sdci[5]/10000);
     fixed sa=a1+a2;
     sa = (sa/360)*256;
-    
     a1=itofix(sdci[6]%10000)/10000;
     a2=itofix(sdci[6]/10000);
     fixed ea=a1+a2;
     ea = (ea/360)*256;
-    
     if(sdci[11]!=0) //rotation
     {
         int32_t rx=sdci[9]/10000;
         int32_t ry=sdci[10]/10000;
-        
         cx=rx + fixtoi((fixcos(ra) * (cx - rx) - fixsin(ra) * (cy - ry)));     //x1
         cy=ry + fixtoi((fixsin(ra) * (cx - rx) + fixcos(ra) * (cy - ry)));     //y1
         ea-=ra;
         sa-=ra;
     }
-    
     int32_t fx=cx+fixtoi(fixcos(-(ea+sa)/2)*r/2);
     int32_t fy=cy+fixtoi(fixsin(-(ea+sa)/2)*r/2);
-    
     if(sdci[12]) //closed
     {
         if(sdci[13]) //filled
@@ -4322,7 +3682,6 @@ void bmp_do_arcr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
             line(prim_bmp, cx+xoffset, cy+yoffset, cx+xoffset+fixtoi(fixcos(-sa)*r), cy+yoffset+fixtoi(fixsin(-sa)*r), color);
             line(prim_bmp, cx+xoffset, cy+yoffset, cx+xoffset+fixtoi(fixcos(-ea)*r), cy+yoffset+fixtoi(fixsin(-ea)*r), color);
             floodfill(prim_bmp, zc_max(0,fx)+xoffset, zc_max(0,fy)+yoffset, color);
-            
             if(sdci[14]/10000<=127) //translucent
             {
                 draw_trans_sprite(refbmp, prim_bmp, 0,0);
@@ -4345,7 +3704,6 @@ void bmp_do_arcr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         {
             drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
         }
-        
         arc(refbmp, cx+xoffset, cy+yoffset, sa, ea, int32_t(r), color);
         drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
     }
@@ -4367,7 +3725,6 @@ void bmp_do_ellipser(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffse
     //sdci[11]=fill
     //sdci[12]=opacity
 	//sdci[17] Bitmap Pointer
-    
     if(sdci[7]==0)  //scale
     {
         return;
@@ -4379,7 +3736,6 @@ void bmp_do_ellipser(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffse
     }
     BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
     int32_t x1=sdci[2]/10000;
     int32_t y1=sdci[3]/10000;
     int32_t radx=sdci[4]/10000;
@@ -4388,31 +3744,23 @@ void bmp_do_ellipser(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffse
     rady*=sdci[7]/10000;
     int32_t color=sdci[6]/10000;
     float rotation = sdci[10]/10000;
-    
     int32_t rx=sdci[8]/10000;
     int32_t ry=sdci[9]/10000;
     fixed ra1=itofix(sdci[10]%10000)/10000;
     fixed ra2=itofix(sdci[10]/10000);
     fixed ra=ra1+ra2;
     ra = (ra/360)*256;
-    
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
     int32_t xy[2];
     xy[ 0]=rx + fixtoi((fixcos(ra) * (x1 - rx) - fixsin(ra) * (y1 - ry)));     //x1
     xy[ 1]=ry + fixtoi((fixsin(ra) * (x1 - rx) + fixcos(ra) * (y1 - ry)));     //y1
     x1=xy[0];
     y1=xy[1];
-    
     if(radx<1||rady<1||radx>255||rady>255) return;
-    
     BITMAP* bitty = script_drawing_commands.AquireSubBitmap(radx*2+1, rady*2+1);
-    
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
     if(sdci[11]) //filled
     {
-    
         if(sdci[12]/10000<128) //translucent
         {
             clear_bitmap(prim_bmp);
@@ -4441,7 +3789,6 @@ void bmp_do_ellipser(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffse
             rotate_sprite(refbmp, bitty, x1+xoffset-radx,y1+yoffset-rady, degrees_to_fixed(rotation));
         }
     }
-    
     // Since 0 is the transparent color, the stuff above will fail if the ellipse color is also 0.
     // Instead, it uses color 255 and replaces it afterward. That'll also screw up color 255 around
     // the ellipse, but it shouldn't be used anyway.
@@ -4450,13 +3797,11 @@ void bmp_do_ellipser(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffse
         // This is very slow, so check the smallest possible square
         int32_t endx=zc_min(bmp->w-1, x1+zc_max(radx, rady));
         int32_t endy=zc_min(bmp->h-1, y1+zc_max(radx, rady));
-        
         for(int32_t y=zc_max(0, y1-zc_max(radx, rady)); y<=endy; y++)
             for(int32_t x=zc_max(0, x1-zc_max(radx, rady)); x<=endx; x++)
                 if(getpixel(refbmp, x, y)==255)
                     putpixel(refbmp, x, y, 0);
     }
-    
     script_drawing_commands.ReleaseSubBitmap(bitty);
 }
 
@@ -4479,21 +3824,17 @@ void bmp_do_liner(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     {
         return;
     }
-    
     if ( sdci[17] <= 0 )
     {
 	Z_scripterrlog("bitmap->Line() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 	return;
     }
-    
     BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
     int32_t x1=sdci[2]/10000;
     int32_t y1=sdci[3]/10000;
     int32_t x2=sdci[4]/10000;
     int32_t y2=sdci[5]/10000;
-    
     if(sdci[7] != 10000)
     {
         int32_t w=x2-x1+1;
@@ -4505,16 +3846,12 @@ void bmp_do_liner(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         y1=y1-((h2-h)/2);
         y2=y2+((h2-h)/2);
     }
-    
     int32_t color=sdci[6]/10000;
-    
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
     if(sdci[11]/10000<=127) //translucent
     {
         drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
     }
-    
     if(sdci[10]!=0) //rotation
     {
         int32_t xy[4];
@@ -4523,7 +3860,6 @@ void bmp_do_liner(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         fixed ra1=itofix(sdci[10]%10000)/10000;
         fixed ra2=itofix(sdci[10]/10000);
         fixed ra=ra1+ra2;
-        
         xy[ 0]=rx + fixtoi((fixcos(ra) * (x1 - rx) - fixsin(ra) * (y1 - ry)));     //x1
         xy[ 1]=ry + fixtoi((fixsin(ra) * (x1 - rx) + fixcos(ra) * (y1 - ry)));     //y1
         xy[ 2]=rx + fixtoi((fixcos(ra) * (x2 - rx) - fixsin(ra) * (y2 - ry)));     //x2
@@ -4533,7 +3869,6 @@ void bmp_do_liner(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         x2=xy[2];
         y2=xy[3];
     }
-    
     line(refbmp, x1+xoffset, y1+yoffset, x2+xoffset, y2+yoffset, color);
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
@@ -4543,31 +3878,24 @@ void bmp_do_spliner(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 {
     /* layer, x1, y1, x2, y2, x3, y3, x4, y4, color, opacity */
 	//sdci[17] Bitmap Pointer
-    
     int32_t points[8] = {    xoffset + (sdci[2]/10000), yoffset + (sdci[3]/10000),
                          xoffset + (sdci[4]/10000), yoffset + (sdci[5]/10000),
                          xoffset + (sdci[6]/10000), yoffset + (sdci[7]/10000),
                          xoffset + (sdci[8]/10000), yoffset + (sdci[9]/10000)
                     };
-                    
     if(sdci[11]/10000 < 128)   //translucent
     {
         drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
     }
-    
     if ( sdci[17] <= 0 )
     {
 	Z_scripterrlog("bitmap->Spline() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 	return;
     }
-    
     BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
     spline(refbmp, points, sdci[10]/10000);
-    
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
@@ -4586,23 +3914,18 @@ void bmp_do_putpixelr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
     int32_t x1=sdci[2]/10000;
     int32_t y1=sdci[3]/10000;
     int32_t color=sdci[4]/10000;
-    
     if(sdci[8]/10000<=127) //translucent
     {
         drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
     }
-    
     if ( sdci[17] <= 0 )
     {
 	Z_scripterrlog("bitmap->PutPixel() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 	return;
     }
-    
     BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
     if(sdci[7]!=0) //rotation
     {
         int32_t xy[2];
@@ -4611,13 +3934,11 @@ void bmp_do_putpixelr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
         fixed ra1=itofix(sdci[7]%10000)/10000;
         fixed ra2=itofix(sdci[7]/10000);
         fixed ra=ra1+ra2;
-        
         xy[ 0]=rx + fixtoi((fixcos(ra) * (x1 - rx) - fixsin(ra) * (y1 - ry)));     //x1
         xy[ 1]=ry + fixtoi((fixsin(ra) * (x1 - rx) + fixcos(ra) * (y1 - ry)));     //y1
         x1=xy[0];
         y1=xy[1];
     }
-    
     putpixel(refbmp, x1+xoffset, y1+yoffset, color);
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
@@ -4641,24 +3962,19 @@ void bmp_do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
     //sdci[14]=transparency
     //sdci[15]=opacity
 	//sdci[17] Bitmap Pointer
-    
     int32_t w = sdci[5]/10000;
     int32_t h = sdci[6]/10000;
-    
     if(w < 1 || h < 1 || h > 20 || w > 20)
     {
         return;
     }
-    
     if ( sdci[17] <= 0 )
     {
 	Z_scripterrlog("bitmap->DrawTile() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 	return;
     }
-    
     BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
     int32_t xscale=sdci[8]/10000;
     int32_t yscale=sdci[9]/10000;
     int32_t rx = sdci[10]/10000;
@@ -4668,28 +3984,20 @@ void bmp_do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
     bool transparency=sdci[14]!=0;
     int32_t opacity=sdci[15]/10000;
     int32_t color=sdci[7]/10000;
-    
     int32_t x1=sdci[2]/10000;
     int32_t y1=sdci[3]/10000;
-    
-    
     //don't scale if it's not safe to do so
     bool canscale = true;
-    
     if(xscale==0||yscale==0)
     {
         return;
     }
-    
     if(xscale<0||yscale<0)
         canscale = false; //default size
-        
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
     if((xscale>0 && yscale>0) || rotation)   //scaled or rotated
     {
         BITMAP* pbitty = script_drawing_commands.AquireSubBitmap(w*16, h*16);
-        
         if(transparency) //transparency
         {
             TileHelper::OverTile(pbitty, (sdci[4]/10000), 0, 0, w, h, color, flip);
@@ -4698,7 +4006,6 @@ void bmp_do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
         {
             TileHelper::OldPutTile(pbitty, (sdci[4]/10000), 0, 0, w, h, color, flip);
         }
-        
         if(rotation != 0)
         {
             //low negative values indicate no anchor-point rotation
@@ -4713,15 +4020,12 @@ void bmp_do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
                 x1=xy[0];
                 y1=xy[1];
             }
-            
             if(canscale) //scale first
             {
                 //damnit all, .. fixme.
                 BITMAP* tempbit = create_bitmap_ex(8, xscale>512?512:xscale, yscale>512?512:yscale);
                 clear_bitmap(tempbit);
-                
                 stretch_sprite(tempbit, pbitty, 0, 0, xscale, yscale);
-                
                 if(opacity < 128)
                 {
                     clear_bitmap(prim_bmp);
@@ -4732,7 +4036,6 @@ void bmp_do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
                 {
                     rotate_sprite(refbmp, tempbit, x1+xoffset, y1+yoffset, degrees_to_fixed(rotation));
                 }
-                
                 destroy_bitmap(tempbit);
             }
             else //no scale
@@ -4776,9 +4079,7 @@ void bmp_do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
                 }
             }
         }
-        
         script_drawing_commands.ReleaseSubBitmap(pbitty);
-        
     }
     else // no scale or rotation
     {
@@ -4809,31 +4110,23 @@ void bmp_do_drawtilecloakedr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_
 	//sdci[6]=tile height
 	//sdci[7]=flip
 	//sdci[17] Bitmap Pointer
-	
 	int32_t w = sdci[5]/10000;
 	int32_t h = sdci[6]/10000;
-	
 	if(w < 1 || h < 1 || h > 20 || w > 20)
 	{
 		return;
 	}
-	
 	if ( sdci[17] <= 0 )
 	{
 		Z_scripterrlog("bitmap->DrawTileCloaked() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 		return;
 	}
-	
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-	
 	int32_t flip=(sdci[7]/10000)&3;
-	
 	int32_t x1=sdci[2]/10000;
 	int32_t y1=sdci[3]/10000;
-		
-	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-	
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
 	TileHelper::OverTileCloaked(refbmp, (sdci[4]/10000), xoffset+x1, yoffset+y1, w, h, flip);
 }
 
@@ -4859,18 +4152,15 @@ void bmp_do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoff
 	//sdci[17] Bitmap Pointer
     int32_t w = sdci[5]/10000;
     int32_t h = sdci[6]/10000;
-    
     if(w<1||h<1||h>20||w>20)
     {
         return;
     }
-    
     if ( sdci[17] <= 0 )
     {
 	Z_scripterrlog("bitmap->DrawCombo() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 	return;
     }
-    
     BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
     if ( refbmp == NULL ) return;
 	int32_t cmb = (sdci[4]/10000);
@@ -4879,42 +4169,32 @@ void bmp_do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoff
 		Z_scripterrlog("DrawCombo() cannot draw combo '%d', as it is out of bounds.\n", cmb);
 		return;
 	}
-    
     int32_t xscale=sdci[8]/10000;
     int32_t yscale=sdci[9]/10000;
     int32_t rx = sdci[10]/10000; //these work now
     int32_t ry = sdci[11]/10000; //these work now
     float rotation=sdci[12]/10000;
-    
     bool transparency=sdci[15]!=0;
     int32_t opacity=sdci[16]/10000;
     int32_t color=sdci[7]/10000;
     int32_t x1=sdci[2]/10000;
     int32_t y1=sdci[3]/10000;
-    
     const newcombo & c = combobuf[cmb];
     int32_t tiletodraw = combo_tile(c, x1, y1);
     int32_t flip = ((sdci[14]/10000) & 3) ^ c.flip;
     int32_t skiprows=c.skipanimy;
-    
-    
     //don't scale if it's not safe to do so
     bool canscale = true;
-    
     if(xscale==0||yscale==0)
     {
         return;
     }
-    
     if(xscale<0||yscale<0)
         canscale = false; //default size
-        
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
     if((xscale>0 && yscale>0) || rotation)   //scaled or rotated
     {
         BITMAP* pbitty = script_drawing_commands.AquireSubBitmap(w*16, h*16);   //-pbitty in the hisouse. :D
-        
         if(transparency)
         {
             TileHelper::OverTile(pbitty, tiletodraw, 0, 0, w, h, color, flip, skiprows);
@@ -4923,7 +4203,6 @@ void bmp_do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoff
         {
             TileHelper::OldPutTile(pbitty, tiletodraw, 0, 0, w, h, color, flip, skiprows);
         }
-        
         if(rotation != 0) // rotate
         {
             //fixed point sucks ;0
@@ -4938,14 +4217,11 @@ void bmp_do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoff
                 x1=xy[0];
                 y1=xy[1];
             }
-            
             if(canscale) //scale first
             {
                 BITMAP* tempbit = create_bitmap_ex(8, xscale>512?512:xscale, yscale>512?512:yscale);
                 clear_bitmap(tempbit);
-                
                 stretch_sprite(tempbit, pbitty, 0, 0, xscale, yscale);
-                
                 if(opacity < 128)
                 {
                     clear_bitmap(prim_bmp);
@@ -4956,7 +4232,6 @@ void bmp_do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoff
                 {
                     rotate_sprite(refbmp, tempbit, x1+xoffset, y1+yoffset, degrees_to_fixed(rotation));
                 }
-                
                 destroy_bitmap(tempbit);
             }
             else //no scale
@@ -5000,7 +4275,6 @@ void bmp_do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoff
                 }
             }
         }
-        
         script_drawing_commands.ReleaseSubBitmap(pbitty); //rap sucks
     }
     else // no scale or rotation
@@ -5033,21 +4307,17 @@ void bmp_do_drawcombocloakedr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32
 	//sdci[6]=tile height
 	//sdci[7]=flip
 	//sdci[17] Bitmap Pointer
-	
 	int32_t w = sdci[5]/10000;
 	int32_t h = sdci[6]/10000;
-	
 	if(w<1||h<1||h>20||w>20)
 	{
 		return;
 	}
-	
 	if ( sdci[17] <= 0 )
 	{
 		Z_scripterrlog("bitmap->DrawComboCloaked() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 		return;
 	}
-	
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
 	int32_t cmb = (sdci[4]/10000);
@@ -5056,17 +4326,13 @@ void bmp_do_drawcombocloakedr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32
 		Z_scripterrlog("DrawComboCloaked() cannot draw combo '%d', as it is out of bounds.\n", cmb);
 		return;
 	}
-	
-	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-	
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
 	int32_t x1=sdci[2]/10000;
 	int32_t y1=sdci[3]/10000;
-	
 	const newcombo & c = combobuf[cmb];
 	int32_t tiletodraw = combo_tile(c, x1, y1);
 	int32_t flip = ((sdci[7]/10000) & 3) ^ c.flip;
 	int32_t skiprows=c.skipanimy;
-	
 	TileHelper::OverTileCloaked(refbmp, tiletodraw, xoffset+x1, yoffset+y1, w, h, flip, skiprows);
 }
 
@@ -5075,7 +4341,6 @@ void bmp_do_fasttiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 {
     /* layer, x, y, tile, color opacity */
 	//sdci[17] Bitmap Pointer
-    
     int32_t opacity = sdci[6]/10000;
     if ( sdci[17] <= 0 )
     {
@@ -5084,9 +4349,7 @@ void bmp_do_fasttiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
     }
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
     if(opacity < 128)
         overtiletranslucent16(refbmp, sdci[4]/10000, xoffset+(sdci[2]/10000), yoffset+(sdci[3]/10000), sdci[5]/10000, 0, opacity);
     else
@@ -5104,12 +4367,9 @@ void do_bmpwritetile(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffse
 	}
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-	
-	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-	
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
 	int32_t x = (sdci[2]/10000), y = (sdci[3]/10000), tl = (sdci[4]/10000);
 	bool is8bit = sdci[5]!=0, mask = sdci[6]!=0;
-	
 	write_tile(newtilebuf, refbmp, tl, x+xoffset, y+yoffset, is8bit, mask);
 }
 
@@ -5133,14 +4393,12 @@ void do_bmpdither(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 	}
 	BITMAP *mask = FFCore.GetScriptBitmap(sdci[2]-10);
 	if ( mask == NULL ) return;
-	
 	int32_t dType = sdci[4] / 10000L;
 	if(dType < 0 || dType >= dithMax)
 	{
 		Z_scripterrlog("bitmap->Dither() used an invalid dither type: %d. Aborting.\n", dType);
 		return;
 	}
-	
 	ditherblit(refbmp, mask, byte(sdci[3]/10000L), dType, sdci[5]/10000L);
 }
 
@@ -5259,19 +4517,15 @@ void bmp_do_fastcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoff
 		Z_scripterrlog("FastCombo() cannot draw combo '%d', as it is out of bounds.\n", cmb);
 		return;
 	}
-    
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
     //if( index >= MAXCOMBOS ) return; //bleh.
 	/*
     const newcombo & c = combobuf[index];
-    
     if(opacity < 128)
         overtiletranslucent16(refbmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int32_t)c.flip, opacity);
     else
         overtile16(refbmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int32_t)c.flip);
 	*/
-	
 	if(opacity < 128)
 	{
 		//void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h, int32_t opacity)
@@ -5297,9 +4551,7 @@ void bmp_do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 	}
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-	
-	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-	
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
 	//broken 2.50.2 and earlier drawcharacter()
 	if ( get_bit(quest_rules, qr_BROKENCHARINTDRAWING) )
 	{
@@ -5314,7 +4566,6 @@ void bmp_do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 		    //sdci[9]=char
 		    //sdci[10]=opacity
 		//sdci[17] Bitmap Pointer
-		    
 		    int32_t x=sdci[2]/10000;
 		    int32_t y=sdci[3]/10000;
 		    int32_t font_index=sdci[4]/10000;
@@ -5324,25 +4575,19 @@ void bmp_do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 		    int32_t h=sdci[8]/10000;
 		    char glyph=char(sdci[9]/10000);
 		    int32_t opacity=sdci[10]/10000;
-		    
 		    //safe check
 		    if(bg_color < -1) bg_color = -1;
-		    
 		    if(w>512) w=512; //w=vbound(w,0,512);
-		    
 		    if(h>512) h=512; //h=vbound(h,0,512);
-		    
 		    //undone
 		    if(w>0&&h>0)//stretch the character
 		    {
 			BITMAP *pbmp = script_drawing_commands.GetSmallTextureBitmap(1,1);
-			
 			if(opacity < 128)
 			{
 			    if(w>128||h>128)
 			    {
 				clear_bitmap(prim_bmp);
-				
 				textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
 				stretch_sprite(prim_bmp, pbmp, 0, 0, w, h);
 				draw_trans_sprite(refbmp, prim_bmp, x+xoffset, y+yoffset);
@@ -5350,11 +4595,9 @@ void bmp_do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 			    else //this is faster
 			    {
 				BITMAP *pbmp2 = script_drawing_commands.AquireSubBitmap(w,h);
-				
 				textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
 				stretch_sprite(pbmp2, pbmp, 0, 0, w, h);
 				draw_trans_sprite(refbmp, pbmp2, x+xoffset, y+yoffset);
-				
 				script_drawing_commands.ReleaseSubBitmap(pbmp2);
 			    }
 			}
@@ -5363,7 +4606,6 @@ void bmp_do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 			    textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
 			    stretch_sprite(refbmp, pbmp, x+xoffset, y+yoffset, w, h);
 			}
-			
 		    }
 		    else //no stretch
 		    {
@@ -5371,22 +4613,18 @@ void bmp_do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 			{
 			    BITMAP *pbmp = create_sub_bitmap(prim_bmp,0,0,16,16);
 			    clear_bitmap(pbmp);
-			    
 			    textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
 			    draw_trans_sprite(refbmp, pbmp, x+xoffset, y+yoffset);
-			    
 			    destroy_bitmap(pbmp);
 			}
 			else // no opacity
 			{
 			    textprintf_ex(refbmp, get_zc_font(font_index), x+xoffset, y+yoffset, color, bg_color, "%c", glyph);
 			}
-		    }		
+		    }
 	}
-	
 	else //2.53.0 fixed version and later.
 	{
-	
 		//sdci[1]=layer
 		    //sdci[2]=x
 		    //sdci[3]=y
@@ -5397,7 +4635,6 @@ void bmp_do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 		    //sdci[8]=stretch y (height)
 		    //sdci[9]=char
 		    //sdci[10]=opacity
-		    
 		    int32_t x=sdci[2]/10000;
 		    int32_t y=sdci[3]/10000;
 		    int32_t font_index=sdci[4]/10000;
@@ -5407,25 +4644,19 @@ void bmp_do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 		    int32_t h=sdci[8]/10000;
 		    char glyph=char(sdci[9]/10000);
 		    int32_t opacity=sdci[10]/10000;
-		    
 		    //safe check
 		    if(bg_color < -1) bg_color = -1;
-		    
 		    if(w>512) w=512; //w=vbound(w,0,512);
-		    
 		    if(h>512) h=512; //h=vbound(h,0,512);
-		    
 		    //undone
 		    if(w>0&&h>0)//stretch the character
 		    {
 			BITMAP *pbmp = script_drawing_commands.GetSmallTextureBitmap(1,1);
-			
 			if(opacity < 128)
 			{
 			    if(w>128||h>128)
 			    {
 				clear_bitmap(prim_bmp);
-				
 				textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
 				stretch_sprite(prim_bmp, pbmp, 0, 0, w, h);
 				draw_trans_sprite(refbmp, prim_bmp, x+xoffset, y+yoffset);
@@ -5433,11 +4664,9 @@ void bmp_do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 			    else //this is faster
 			    {
 				BITMAP *pbmp2 = script_drawing_commands.AquireSubBitmap(w,h);
-				
 				textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
 				stretch_sprite(pbmp2, pbmp, 0, 0, w, h);
 				draw_trans_sprite(refbmp, pbmp2, x+xoffset, y+yoffset);
-				
 				script_drawing_commands.ReleaseSubBitmap(pbmp2);
 			    }
 			}
@@ -5446,7 +4675,6 @@ void bmp_do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 			    textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
 			    stretch_sprite(refbmp, pbmp, x+xoffset, y+yoffset, w, h);
 			}
-			
 		    }
 		    else //no stretch
 		    {
@@ -5454,20 +4682,16 @@ void bmp_do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 			{
 			    BITMAP *pbmp = create_sub_bitmap(prim_bmp,0,0,16,16);
 			    clear_bitmap(pbmp);
-			    
 			    textprintf_ex(pbmp, get_zc_font(font_index), 0, 0, color, bg_color, "%c", glyph);
 			    draw_trans_sprite(refbmp, pbmp, x+xoffset, y+yoffset);
-			    
 			    destroy_bitmap(pbmp);
 			}
 			else // no opacity
 			{
 			    textprintf_ex(refbmp, get_zc_font(font_index), x+xoffset, y+yoffset, color, bg_color, "%c", glyph);
 			}
-		    }		
-		
+		    }
 	}
-    
 }
 
 
@@ -5480,9 +4704,7 @@ void bmp_do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffse
 	}
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-	
-	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-	
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
 	//broken 2.50.2 and earlier drawinteger()
 	if ( get_bit(quest_rules, qr_BROKENCHARINTDRAWING) )
 	{
@@ -5498,7 +4720,6 @@ void bmp_do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffse
 	    //sdci[10]=num decimal places
 	    //sdci[11]=opacity
 		//sdci[17] Bitmap Pointer
-	    
 	    int32_t x=sdci[2]/10000;
 	    int32_t y=sdci[3]/10000;
 	    int32_t font_index=sdci[4]/10000;
@@ -5509,54 +4730,42 @@ void bmp_do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffse
 	    //float number=static_cast<float>(sdci[9])/10000.0f;
 	    int32_t decplace=sdci[10]/10000;
 	    int32_t opacity=sdci[11]/10000;
-	    
 	    //safe check
 	    if(bg_color < -1) bg_color = -1;
-	    
 	    if(w>512) w=512; //w=vbound(w,0,512);
-	    
 	    if(h>512) h=512; //h=vbound(h,0,512);
-	    
 	    char numbuf[15];
-	    
 		switch(decplace)
 		{
 		    default:
 		    case 0:
 			sprintf(numbuf,"%d",(sdci[9]/10000)); //For some reason, static casting for zero decimal places was
 			break;					//reducing the value by -1, so 8.000 printed as '7'. -Z
-			
 		    case 1:
 			//sprintf(numbuf,"%.01f",number);
-			sprintf(numbuf,"%.01f",(static_cast<float>(sdci[9])/10000.0f)); //Would this be slower? 
+			sprintf(numbuf,"%.01f",(static_cast<float>(sdci[9])/10000.0f)); //Would this be slower?
 			break;
-			
 		    case 2:
 			//sprintf(numbuf,"%.02f",number);
 			sprintf(numbuf,"%.02f",(static_cast<float>(sdci[9])/10000.0f));
 			break;
-			
 		    case 3:
 			//sprintf(numbuf,"%.03f",number);
 			sprintf(numbuf,"%.03f",(static_cast<float>(sdci[9])/10000.0f));
 			break;
-			
 		    case 4:
 			//sprintf(numbuf,"%.04f",number);
 			sprintf(numbuf,"%.04f",(static_cast<float>(sdci[9])/10000.0f));
 			break;
 		}
-	    
 	    if(w>0&&h>0)//stretch
 	    {
 		BITMAP *pbmp = script_drawing_commands.GetSmallTextureBitmap(1,1);
-		
 		if(opacity < 128)
 		{
 		    if(w>128||h>128)
 		    {
 			clear_bitmap(prim_bmp);
-			
 			textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
 			stretch_sprite(prim_bmp, pbmp, 0, 0, w, h);
 			draw_trans_sprite(refbmp, prim_bmp, x+xoffset, y+yoffset);
@@ -5565,11 +4774,9 @@ void bmp_do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffse
 		    {
 			BITMAP *pbmp2 = create_sub_bitmap(prim_bmp,0,0,w,h);
 			clear_bitmap(pbmp2);
-			
 			textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
 			stretch_sprite(pbmp2, pbmp, 0, 0, w, h);
 			draw_trans_sprite(refbmp, pbmp2, x+xoffset, y+yoffset);
-			
 			destroy_bitmap(pbmp2);
 		    }
 		}
@@ -5578,7 +4785,6 @@ void bmp_do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffse
 		    textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
 		    stretch_sprite(refbmp, pbmp, x+xoffset, y+yoffset, w, h);
 		}
-		
 	    }
 	    else //no stretch
 	    {
@@ -5586,10 +4792,8 @@ void bmp_do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffse
 		{
 		    BITMAP *pbmp = create_sub_bitmap(prim_bmp,0,0,16,16);
 		    clear_bitmap(pbmp);
-		    
 		    textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
 		    draw_trans_sprite(refbmp, pbmp, x+xoffset, y+yoffset);
-		    
 		    destroy_bitmap(pbmp);
 		}
 		else // no opacity
@@ -5597,9 +4801,7 @@ void bmp_do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffse
 		    textout_ex(refbmp, get_zc_font(font_index), numbuf, x+xoffset, y+yoffset, color, bg_color);
 		}
 	    }
-		
 	}
-	
 	else //2.53.0 fixed version and later.
 	{
 	    //sdci[1]=layer
@@ -5613,7 +4815,6 @@ void bmp_do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffse
 	    //sdci[9]=integer
 	    //sdci[10]=num decimal places
 	    //sdci[11]=opacity
-	    
 	    int32_t x=sdci[2]/10000;
 	    int32_t y=sdci[3]/10000;
 	    int32_t font_index=sdci[4]/10000;
@@ -5625,58 +4826,45 @@ void bmp_do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffse
 		//int32_t numberint = sdci[9]/10000;
 	    int32_t decplace=sdci[10]/10000;
 	    int32_t opacity=sdci[11]/10000;
-	    
 	    //safe check
 	    if(bg_color < -1) bg_color = -1;
-	    
 	    if(w>512) w=512; //w=vbound(w,0,512);
-	    
 	    if(h>512) h=512; //h=vbound(h,0,512);
-	    
 	    char numbuf[15];
-	    
 	    switch(decplace)
 	    {
 	    default:
 	    case 0:
 		sprintf(numbuf,"%d",(sdci[9]/10000)); //For some reason, static casting for zero decimal places was
 		break;					//reducing the value by -1, so 8.000 printed as '7'. -Z
-		
 	    case 1:
 		//sprintf(numbuf,"%.01f",number);
-		sprintf(numbuf,"%.01f",(static_cast<float>(sdci[9])/10000.0f)); //Would this be slower? 
+		sprintf(numbuf,"%.01f",(static_cast<float>(sdci[9])/10000.0f)); //Would this be slower?
 		break;
-		
 	    case 2:
 		//sprintf(numbuf,"%.02f",number);
 		sprintf(numbuf,"%.02f",(static_cast<float>(sdci[9])/10000.0f));
 		break;
-		
 	    case 3:
 		//sprintf(numbuf,"%.03f",number);
 		sprintf(numbuf,"%.03f",(static_cast<float>(sdci[9])/10000.0f));
 		break;
-		
 	    case 4:
 		//sprintf(numbuf,"%.04f",number);
 		sprintf(numbuf,"%.04f",(static_cast<float>(sdci[9])/10000.0f));
 		break;
 	    }
-	    
 	    //FONT* font=get_zc_font(sdci[4]/10000);
-	    
 	    if(w>0&&h>0)//stretch
 	    {
 		BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, text_length(get_zc_font(font_index), numbuf)+1, text_height(get_zc_font(font_index)));
 		clear_bitmap(pbmp);
 		    //script_drawing_commands.GetSmallTextureBitmap(1,1);
-		
 		if(opacity < 128)
 		{
 		    if(w>128||h>128)
 		    {
 			clear_bitmap(prim_bmp);
-			
 			textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
 			stretch_sprite(prim_bmp, pbmp, 0, 0, w, h);
 			draw_trans_sprite(refbmp, prim_bmp, x+xoffset, y+yoffset);
@@ -5685,11 +4873,9 @@ void bmp_do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffse
 		    {
 			BITMAP *pbmp2 = create_sub_bitmap(prim_bmp,0,0,w,h);
 			clear_bitmap(pbmp2);
-			
 			textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
 			stretch_sprite(pbmp2, pbmp, 0, 0, w, h);
 			draw_trans_sprite(refbmp, pbmp2, x+xoffset, y+yoffset);
-			
 			destroy_bitmap(pbmp2);
 		    }
 		}
@@ -5698,7 +4884,6 @@ void bmp_do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffse
 		    textout_ex(pbmp, get_zc_font(font_index), numbuf, 0, 0, color, bg_color);
 		    stretch_sprite(refbmp, pbmp, x+xoffset, y+yoffset, w, h);
 		}
-		
 	    }
 	    else //no stretch
 	    {
@@ -5707,10 +4892,8 @@ void bmp_do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffse
 		    FONT* font = get_zc_font(font_index);
 		    BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, text_length(font, numbuf), text_height(font));
 		    clear_bitmap(pbmp);
-		    
 		    textout_ex(pbmp, font, numbuf, 0, 0, color, bg_color);
 		    draw_trans_sprite(refbmp, pbmp, x+xoffset, y+yoffset);
-		    
 		    destroy_bitmap(pbmp);
 		}
 		else // no opacity
@@ -5739,20 +4922,15 @@ void bmp_do_drawstringr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, 
 	Z_scripterrlog("bitmap->DrawString() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 	return;
     }
-	
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
     std::string* str = (std::string*)script_drawing_commands[i].GetPtr();
-    
     if(!str)
     {
         al_trace("String pointer is null! Internal error. \n");
         return;
     }
-    
     int32_t x=sdci[2]/10000;
     int32_t y=sdci[3]/10000;
     FONT* font=get_zc_font(sdci[4]/10000);
@@ -5761,10 +4939,8 @@ void bmp_do_drawstringr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, 
     int32_t format_type=sdci[7]/10000;
     int32_t opacity=sdci[9]/10000;
     //sdci[8] not needed :)
-    
     //safe check
     if(bg_color < -1) bg_color = -1;
-    
     if(opacity < 128)
     {
         int32_t width=zc_min(text_length(font, str->c_str()), 512);
@@ -5814,20 +4990,15 @@ void bmp_do_drawstringr2(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset,
 	Z_scripterrlog("bitmap->DrawString() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 	return;
     }
-	
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
     std::string* str = (std::string*)script_drawing_commands[i].GetPtr();
-    
     if(!str)
     {
         al_trace("String pointer is null! Internal error. \n");
         return;
     }
-    
     int32_t x=sdci[2]/10000;
     int32_t y=sdci[3]/10000;
     FONT* font=get_zc_font(sdci[4]/10000);
@@ -5838,10 +5009,8 @@ void bmp_do_drawstringr2(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset,
 	int32_t textstyle = sdci[10]/10000;
 	int32_t shadow_color = sdci[11]/10000;
     //sdci[8] not needed :)
-    
     //safe check
     if(bg_color < -1) bg_color = -1;
-    
     if(opacity < 128)
     {
         int32_t width=zc_min(text_length(font, str->c_str()), 512);
@@ -5871,7 +5040,7 @@ void bmp_do_clearr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 	Z_scripterrlog("bitmap->Clear() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 	return;
     }
-	int32_t bitid = sdci[17] - 10; 
+	int32_t bitid = sdci[17] - 10;
 	if ( scb.script_created_bitmaps[bitid].u_bmp )
 		clear_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
 }
@@ -5887,7 +5056,7 @@ void bmp_do_clearcolorr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yof
 	Z_scripterrlog("bitmap->ClearToColor() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 	return;
     }
-	int32_t bitid = sdci[17] - 10; 
+	int32_t bitid = sdci[17] - 10;
 	if ( scb.script_created_bitmaps[bitid].u_bmp )
 		clear_to_color(scb.script_created_bitmaps[bitid].u_bmp, pal_color);
 }
@@ -5902,7 +5071,7 @@ void bmp_do_regenr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 	{
 		//flip height and width
 		h = h ^ w;
-		w = h ^ w; 
+		w = h ^ w;
 		h = h ^ w;
 	}
 	//sdci[17] Bitmap Pointer
@@ -5912,16 +5081,12 @@ void bmp_do_regenr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 	Z_scripterrlog("bitmap->Create() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 	return;
     }
-	int32_t bitid = sdci[17] - 10; 
+	int32_t bitid = sdci[17] - 10;
 	if ( scb.script_created_bitmaps[bitid].u_bmp )
 		destroy_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
 	scb.script_created_bitmaps[bitid].u_bmp = create_bitmap_ex(8,w,h);
-	
 	scb.script_created_bitmaps[bitid].width = w;
 	scb.script_created_bitmaps[bitid].height = h;
-	
-	
-    
 }
 
 void bmp_do_readr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
@@ -5942,11 +5107,9 @@ void bmp_do_readr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_
 		Z_scripterrlog("bitmap->Read() wanted to use to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 		return;
     }
-	int32_t bitid = sdci[17] - 10; 
+	int32_t bitid = sdci[17] - 10;
 	scb.script_created_bitmaps[bitid].destroy();
-    
     std::string* str = (std::string*)script_drawing_commands[i].GetPtr();
-    
     //char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
 //	std::strncpy(cptr, str->c_str(), str->size());
   //  Z_scripterrlog("The following should be the filename string:\n");
@@ -5957,7 +5120,6 @@ void bmp_do_readr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_
         al_trace("String pointer is null! Internal error. \n");
         return;
     }
-    
    // Z_scripterrlog("Trying to read filename %s\n", cptr);
     PALETTE tempPal;
     get_palette(tempPal);
@@ -5972,7 +5134,7 @@ void bmp_do_readr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_
 		//scb.script_created_bitmaps[bitid].u_bmp = create_bitmap_ex(8,256,176);
 		//clear_bitmap(scb.script_created_bitmaps[bitid].u_bmp);
 	    }
-	    else 
+	    else
 	    {
 		    zprint("Read image file %s\n",str->c_str());
 	    }
@@ -6000,34 +5162,29 @@ void bmp_do_writer(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32
     //sdci[9]=opacity
 	//sdci[17] Bitmap Pointer
 	//Z_scripterrlog("bitmap->Write() pointer is: %d\n", sdci[17]);
-	
     if ( sdci[17] <= 0 )
     {
 	Z_scripterrlog("bitmap->Write() wanted to use to an invalid bitmap id: %d. Aborting.\n",  sdci[17]);
 	return;
     }
-	int32_t bitid = sdci[17] - 10; 
-	
-    if ( !scb.script_created_bitmaps[bitid].u_bmp ) 
+	int32_t bitid = sdci[17] - 10;
+    if ( !scb.script_created_bitmaps[bitid].u_bmp )
     {
 	    Z_scripterrlog("Tried to write from an invalid bitmap pointer %d. Aborting. \n", sdci[17]);
 		return;
     }
-    
     bool overwrite = (sdci[3] != 0);
     std::string* str = (std::string*)script_drawing_commands[i].GetPtr();
-    
     if(!str)
     {
         al_trace("String pointer is null! Internal error. \n");
         return;
     }
-    
     //char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
 	//std::strncpy(cptr, str->c_str(), str->size());
     //Z_scripterrlog("bitmap->Write extension matches ? : %s\n!", (FFCore.checkExtension(str->c_str(), ".png")) ? "true" : "false");
     //Z_scripterrlog("Trying to write filename %s\n", cptr);
-	if 
+	if
 	(
 		( (FFCore.checkExtension(*str, "")) ) ||
 		( !(FFCore.checkExtension(*str, ".png")) && !(FFCore.checkExtension(*str, ".gif")) && !(FFCore.checkExtension(*str, ".bmp"))
@@ -6085,9 +5242,7 @@ void bmp_do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 		return;
     }
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
-    
 	if ( !refbmp ) return;
-    
     int32_t x1 = sdci[2]/10000;
     int32_t y1 = sdci[3]/10000;
     int32_t x2 = sdci[4]/10000;
@@ -6104,9 +5259,7 @@ void bmp_do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
     int32_t polytype = sdci[15]/10000;
     int32_t quad_render_source = sdci[16]-10;
     //Z_scripterrlog("bitmap->Quad() render source is: %d\n", quad_render_source);
-    
     bool tex_is_bitmap = ( sdci[16] != 0 );
-    
     BITMAP *bmptexture=NULL;
     BITMAP *tex=NULL;
     polytype = vbound(polytype, 0, 14);
@@ -6114,32 +5267,26 @@ void bmp_do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
     int32_t col[4];
         col[0]=col[1]=col[2]=col[3]=color;
     bool mustDestroyBmp = false;
-    
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
     if ( tex_is_bitmap )
     {
 	    bmptexture = FFCore.GetScriptBitmap(quad_render_source);
-		if ( !bmptexture ) 
+		if ( !bmptexture )
 		{
 			Z_scripterrlog("Bitmap pointer used as a texture in %s is uninitialised.\n Defaulting to using a tile as a texture.\n", "bitmap->Triangle3()");
 			tex_is_bitmap = 0;
 		}
     }
-    
-	if ( tex_is_bitmap ) 
+	if ( tex_is_bitmap )
 	{
-		
 		if ( !isPowerOfTwo(bmptexture->h) ) Z_scripterrlog("HEIGHT of Bitmap ( pointer %d ) provided as a render source for bitmap->Quad is not a POWER OF TWO.\nTextels may render improperly!\n", quad_render_source);
 		if ( !isPowerOfTwo(bmptexture->w) ) Z_scripterrlog("WIDTH of Bitmap ( pointer %d ) provided as a render source for bitmap->Quad is not a POWER OF TWO.\nTextels may render improperly!\n", quad_render_source);
 		if ( !isPowerOfTwo(w) ) Z_scripterrlog("WIDTH ARG (%d) provided as a render source for bitmap->Quad is not a POWER OF TWO.\nTextels may render improperly!\n", w);
 		if ( !isPowerOfTwo(h) ) Z_scripterrlog("HEIGHT ARG (%d) provided as a render source for bitmap->Quad is not a POWER OF TWO.\nTextels may render improperly!\n", h);
-		
 		V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
 		V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(h), col[1] };
 		V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(w), static_cast<float>(h), col[2] };
 		V3D_f V4 = { static_cast<float>(x4+xoffset), static_cast<float>(y4+yoffset), 0, static_cast<float>(w), 0,                              col[3] };
-	    
 		quad3d_f(refbmp, polytype, bmptexture, &V1, &V2, &V3, &V4);
 	}
 	else
@@ -6152,18 +5299,15 @@ void bmp_do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 			tex = create_bitmap_ex(8, w*16, h*16);
 			clear_bitmap(tex);
 		}
-		
 		if(tile > 0)   // TILE
 		{
 			TileHelper::OverTile(tex, tile, 0, 0, w, h, color, flip);
 		}
-	    
 		if ( tile < 0 )        // COMBO
 		{
 			const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
 			const int32_t tiletodraw = combo_tile(c, x1, y1);
 			flip = flip ^ c.flip;
-		
 			TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
 		}
 		if(((w-1) & w) != 0 || ((h-1) & h) != 0)
@@ -6176,14 +5320,8 @@ void bmp_do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 		V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(h), col[1] };
 		V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(w), static_cast<float>(h), col[2] };
 		V3D_f V4 = { static_cast<float>(x4+xoffset), static_cast<float>(y4+yoffset), 0, static_cast<float>(w), 0,                              col[3] };
-	    
 		quad3d_f(refbmp, polytype, tex, &V1, &V2, &V3, &V4);
-		
 	}
-   
-    
-    
-    
     //todo: finish palette shading
     /*
     POLYTYPE_FLAT
@@ -6202,10 +5340,8 @@ void bmp_do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
     POLYTYPE_ATEX_MASK_TRANS
     POLYTYPE_PTEX_MASK_TRANS
     */
-    
     if(mustDestroyBmp)
         destroy_bitmap(tex);
-        
 }
 
 
@@ -6214,7 +5350,6 @@ void bmp_do_getpixelr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
     //sdci[1]=layer
     //sdci[2]=x1
     //sdci[3]=y1
-    
 	//sdci[17] Bitmap Pointer
     if ( sdci[17] <= 0 )
     {
@@ -6223,10 +5358,7 @@ void bmp_do_getpixelr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
     }
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
-    
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
     int32_t x1 = sdci[2]/10000;
     int32_t y1 = (sdci[3]/10000)+yoffset;
     int32_t col = getpixel(scb.script_created_bitmaps[(sdci[17]-10)].u_bmp, x1, y1);
@@ -6261,26 +5393,20 @@ void bmp_do_drawtriangler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
     }
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
-    
     int32_t render_source = sdci[14]-10;
     //Z_scripterrlog("bitmap->Triangle() render source is: %d\n", render_source);
-    
     bool tex_is_bitmap = ( sdci[14] != 0 );
-    
     BITMAP *bmptexture=NULL;
-	if ( tex_is_bitmap ) 
+	if ( tex_is_bitmap )
 	{
 		bmptexture = FFCore.GetScriptBitmap(render_source);
-		if ( !bmptexture ) 
+		if ( !bmptexture )
 		{
 			Z_scripterrlog("Bitmap pointer used as a texture in %s is uninitialised.\n Defaulting to using a tile as a texture.\n", "bitmap->Triangle3()");
 			tex_is_bitmap = 0;
 		}
 	}
-    
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-    
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
     int32_t x1 = sdci[2]/10000;
     int32_t y1 = sdci[3]/10000;
     int32_t x2 = sdci[4]/10000;
@@ -6293,25 +5419,19 @@ void bmp_do_drawtriangler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
     int32_t flip=(sdci[11]/10000)&3;
     int32_t tile = sdci[12]/10000;
     int32_t polytype = sdci[13]/10000;
-    
     polytype = vbound(polytype, 0, 14);
     int32_t utex_w = w;
     int32_t utex_h = h;
-    
-    
     int32_t tex_width = w*16;
     int32_t tex_height = h*16;
-    
     bool mustDestroyBmp = false;
     BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
-    
     if(!tex)
     {
         mustDestroyBmp = true;
         tex = create_bitmap_ex(8, tex_width, tex_height);
         clear_bitmap(tex);
     }
-    
     int32_t col[3];
     /*
     if( color < 0 )
@@ -6324,7 +5444,6 @@ void bmp_do_drawtriangler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
     {
         col[0]=col[1]=col[2]=color;
     }
-    
     if(tile > 0)   // TILE
     {
         TileHelper::OverTile(tex, tile, 0, 0, w, h, color, flip);
@@ -6334,7 +5453,6 @@ void bmp_do_drawtriangler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
         const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
         const int32_t tiletodraw = combo_tile(c, x1, y1);
         flip = flip ^ c.flip;
-        
         TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, color, flip);
     }
     if ( !tex_is_bitmap )
@@ -6347,28 +5465,19 @@ void bmp_do_drawtriangler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 	V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
 	V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(tex_height), col[1] };
 	V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(tex_width), static_cast<float>(tex_height), col[2] };
-    
-    
 	triangle3d_f(refbmp, polytype, tex, &V1, &V2, &V3);
-    
     }
-    
     else
     {
 	if ( !isPowerOfTwo(bmptexture->h) ) Z_scripterrlog("HEIGHT of Bitmap ( pointer %d ) provided as a render source for bitmap->Triangle is not a POWER OF TWO.\nTextels may render improperly!\n", render_source);
 		if ( !isPowerOfTwo(bmptexture->w) ) Z_scripterrlog("WIDTH of Bitmap ( pointer %d ) provided as a render source for bitmap->Triangle is not a POWER OF TWO.\nTextels may render improperly!\n", render_source);
 		if ( !isPowerOfTwo(utex_h) ) Z_scripterrlog("WIDTH ARG (%d) provided as a render source for bitmap->Triangle is not a POWER OF TWO.\nTextels may render improperly!\n", utex_w);
 		if ( !isPowerOfTwo(utex_w) ) Z_scripterrlog("HEIGHT ARG (%d) provided as a render source for bitmap->Triangle is not a POWER OF TWO.\nTextels may render improperly!\n", utex_h);
-		
 	V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
 	V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(utex_h), col[1] };
 	V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(utex_w), static_cast<float>(utex_h), col[2] };
-    
-    
-	triangle3d_f(refbmp, polytype, bmptexture, &V1, &V2, &V3);    
-	    
+	triangle3d_f(refbmp, polytype, bmptexture, &V1, &V2, &V3);
     }
-    
     if(mustDestroyBmp)
         destroy_bitmap(tex);
 }
@@ -6377,14 +5486,13 @@ void bmp_do_drawtriangler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	/*
-	int32_t layer, int32_t rt, int32_t srcX, int32_t srcY, int32_t srcW, int32_t srcH, int32_t destW, int32_t destH, int32_t angle, int32_t cx, int32_t cy, int32_t space_z, int32_t horizon, 
+	int32_t layer, int32_t rt, int32_t srcX, int32_t srcY, int32_t srcW, int32_t srcH, int32_t destW, int32_t destH, int32_t angle, int32_t cx, int32_t cy, int32_t space_z, int32_t horizon,
 	int32_t scale_x, int32_t scale_y){
-	
-	//sdci[1]=layer 
-	//sdci[2]=bitmap target 
+	//sdci[1]=layer
+	//sdci[2]=bitmap target
 		//
 		//	-2 is the current Render Target
-		//	-1, this is the screen (framebuf). 
+		//	-1, this is the screen (framebuf).
 		//	0: Render target 0
 		//	1: Render target 1
 		//	2: Render target 2
@@ -6392,8 +5500,7 @@ void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		//	4: Render target 4
 		//	5: Render target 5
 		//	6: Render target 6
-		//	Otherwise: The pointer to a bitmap. 
-		
+		//	Otherwise: The pointer to a bitmap.
 	//sdci[3]=sourcex
 	//sdci[4]=sourcey
 	//sdci[5]=sourcew
@@ -6410,9 +5517,6 @@ void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 	//scdi[15] = scale Y
 	//sdci[16] = masked?
 	//sdci[17] Bitmap Pointer
-	
-	
-	
 		// ZScript-side constant values:
 		const int32_t BITDX_NORMAL = 0;
 		const int32_t BITDX_TRANS = 1; //Translucent
@@ -6421,15 +5525,11 @@ void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		const int32_t BITDX_VFLIP = 8; //Vertical Flip.
 		//Note:	Some modes cannot be combined. if a combination is not supported, an error
 		//	detailing this will be shown in allegro.log.
-		
 	//scdi[15] = litcolour
-		//The allegro docs are wrong. The params are: rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot),litcolour); 
+		//The allegro docs are wrong. The params are: rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 		//not rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
-	
 	//sdci[16]=mask
-	
 	*/
-	
 
 	int32_t bitmapIndex = sdci[2];
 	int32_t usr_bitmap_index = sdci[2]-10;
@@ -6443,14 +5543,13 @@ void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 	{
 		bitmapIndex = bitmapIndex / 10000; //reduce if ZScript sent a raw value, such as bitmap = <int32_t> 8;
 	}
-	else if ( usr_bitmap_index > 0 && usr_bitmap_index < 10000 ) 
+	else if ( usr_bitmap_index > 0 && usr_bitmap_index < 10000 )
 	{
 		bitmapIndex = usr_bitmap_index;
 		using_user_bitmap = 1;
 		Z_scripterrlog("Mode7 is using a user bitmap target, pointer: %d\n", usr_bitmap_index);
 		yoffset = 0;
 	}
-	
 	//int32_t sx = sdci[3]/10000;
 	//int32_t sy = sdci[4]/10000;
 	//int32_t sw = sdci[5]/10000;
@@ -6466,19 +5565,16 @@ void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 	//int32_t cy = sdci[13]/10000;
 	//int32_t mode = sdci[14]/10000;
 	//int32_t litcolour = sdci[15]/10000;
-	
 	//rendering mode 7 args
 	double srcX = sdci[3]/10000.0;
-	double srcY = sdci[4]/10000.0; 
+	double srcY = sdci[4]/10000.0;
 	double destX = sdci[5]/10000.0;
 	double destY = sdci[6]/10000.0;
-	
-	
-//	int32_t srcW = sdci[5]/10000; 
-//	int32_t srcH = sdci[6]/10000; 
+//	int32_t srcW = sdci[5]/10000;
+//	int32_t srcH = sdci[6]/10000;
 	double destW = sdci[7]/10000.0;
 	double destH = sdci[8]/10000.0;
-//	int32_t angle = sdci[9]/10000; 
+//	int32_t angle = sdci[9]/10000;
 //	int32_t cx = sdci[10]/10000;
 //	int32_t cy = sdci[11]/10000;
 	double space_z = sdci[9]/10000.0;
@@ -6486,29 +5582,22 @@ void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 	double scale_x = sdci[11]/10000.0;
 	double scale_y = sdci[12]/10000.0;
 	byte masked = ( sdci[13] ) ? 1 : 0;
-	
-	
 	int32_t ref = 0;
-	
 	//dx = 0 + xoffset;
 	//dy = 0 + yoffset;
-	
-	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-	//Do we need to also check the render target and do the same thing if the 
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
+	//Do we need to also check the render target and do the same thing if the
 		//dest == -2 and the render target is not RT_SCREEN?
-		
 	ref = sdci[17];
 	//Z_scripterrlog("bitmap->blit() ref id this frame is: %d\n", ref);
 	ref -=10;
 	//Z_scripterrlog("bitmap->blit() modified ref id this frame is: %d\n", ref);
-		
-	
 	if ( ref <= 0 )
 	{
 		Z_scripterrlog("bitmap->blit() wanted to use to an invalid source bitmap id: %d. Aborting.\n", ref);
 		return;
 	}
-	BITMAP *sourceBitmap = FFCore.GetScriptBitmap(ref); //This can be the screen, as -1. 
+	BITMAP *sourceBitmap = FFCore.GetScriptBitmap(ref); //This can be the screen, as -1.
 	#if LOG_BMPBLIT_LEVEL > 0
 	Z_scripterrlog("bitmap->Blit() is trying to blit to ref: %d\n",sdci[17]);
 	#endif
@@ -6518,7 +5607,6 @@ void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
 		return;
 	}
-	
 	BITMAP *destBMP=NULL;
 	//zprint2("mode 7 bitmap index is: %d\n",bitmapIndex);
 	switch(bitmapIndex)
@@ -6527,7 +5615,7 @@ void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		{
 			int32_t curr_rt = zscriptDrawingRenderTarget->GetCurrentRenderTarget();
 			//zprint2("current RT is: %d\n", curr_rt);
-			if ( curr_rt >= 0 && curr_rt < 7 ) 
+			if ( curr_rt >= 0 && curr_rt < 7 )
 				destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); //Drawing to the current RenderTarget.
 			else destBMP = bmp; //screen
 			break;
@@ -6539,7 +5627,6 @@ void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 			//destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
 			//destBMP = framebuf; //Drawing to the screen.
 			//break;
-		
 		//1 through 6 are the old system bitmaps (Render Targets)
 		case 0:
 		case 1:
@@ -6547,17 +5634,16 @@ void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		case 3:
 		case 4:
 		case 5:
-		case 6: 
+		case 6:
 		{
 			//This gets a render target.
 			//destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); break;
-			
-			destBMP = zscriptDrawingRenderTarget->GetTargetBitmap(bitmapIndex); 
+			destBMP = zscriptDrawingRenderTarget->GetTargetBitmap(bitmapIndex);
 			//sdci[18] = bitmapIndex;
 			break;
 		}
 		//Otherwise, we are using a user-created bitmap, so, get that pointer insted.
-		default: 
+		default:
 		{
 			destBMP = scb.script_created_bitmaps[usr_bitmap_index].u_bmp;
 			//sdci[18] = usr_bitmap_index;
@@ -6569,21 +5655,15 @@ void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		}
 			//FFCore.get_user_bitmap(bitmapIndex); break;
 	}
-	
-	
-	
 	#if LOG_BMPBLIT_LEVEL > 0
 	Z_scripterrlog("bitmap->Blit() is trying to blit to dest bitmap ID: %d\n",bitmapIndex);
 	#endif
-	
-	
 	if (!destBMP)
 	{
 		Z_message("Warning: blit(%d) destination bitmap contains invalid data or is not initialized.\n", bitmapIndex);
 		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
 		return;
 	}
-	
 	//bugfix
 	//sx = vbound(sx, 0, sourceBitmap->w);
 	/* //These vars are named wrongly for this function -V
@@ -6614,79 +5694,56 @@ void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 	#endif
 	*/
 	//BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
-	
-	
-    
-	
-    
 	BITMAP* subBmp = 0;
-	
 	/* IDR what this was. -Z ( 17th April, 2019 )
 	if ( bitmapIndex == -1 ) {
-		blit(bmp, sourceBitmap, sx, sy, 0, 0, dw, dh); 
+		blit(bmp, sourceBitmap, sx, sy, 0, 0, dw, dh);
 	}
 	*/
-    
-	//if(rot != 0 || mode != 0)    
+	//if(rot != 0 || mode != 0)
 	//{
 	//	subBmp = create_bitmap_ex(8,sourceBitmap->w, sourceBitmap->h);//script_drawing_commands.AquireSubBitmap(dw, dh);
 	//	clear_bitmap(subBmp);
-        
 	//	if(!subBmp)
 	//	{
 	//		Z_scripterrlog("bitmap->Blit failed to create a sub-bitmap to use for %s. Aborting.\n", "rotation");
 	//		return;
 	//	}
 	//}
-    
-    
 	//dx = dx + xoffset; //don't do this here!
 	//dy = dy + yoffset; //Nor this. It auto-offsets the bitmap by +56. Hmm. The fix that gleeok made isn't being applied to these functions. -Z ( 17th April, 2019 )
-	//All of these are a factor of 10000 as fix. 
+	//All of these are a factor of 10000 as fix.
 	int32_t screen_x = 0; int32_t screen_y = 0;
-	
 	double distance = 0; double horizontal_scale = 0;
-	
 	int32_t screen_y_horizon = 0;
-	
 	double line_dx = 0; double line_dy = 0;
-	
 	int32_t space_x = 0; int32_t space_y = 0;
-	
 	for(screen_y = 0; screen_y < destH; screen_y++) //fix, offset by .0000
 	{
 		//Calculate the distance of each line from the camera point
 		screen_y_horizon = screen_y + horizon;
-		
 		distance = ((space_z * scale_y) / ((screen_y_horizon != 0) ? screen_y_horizon : 1));
-			
 		//Get the scale of each line based on the distance
-		
 		horizontal_scale = (distance / (( scale_x != 0 ) ? scale_x : 1));
-		
 		//There was some math here before I stripped out the rotation step
 		line_dx = horizontal_scale;
 		line_dy = 0;
-		
 		//space_x,space_y - where to grab each scanline from on the space bitmap
 		space_x = srcX - destW/2.0 * line_dx;
 		space_y = srcY - distance + destH/2.0 * line_dy;
-		
 		//Keep blits within the bounds of both bitmaps to avoid crashes
 		int32_t y1 = srcY+space_y;
 		int32_t y2 = destY+screen_y;
 		if(y1 >=0 && y1 <= (sourceBitmap->h-1) && y2 >=0 && y2 <= (destBMP->h-1) )
 		{
-			if ( masked ) masked_stretch_blit(sourceBitmap, destBMP, (int32_t)(srcX+space_x), (int32_t)(srcY+space_y), 
+			if ( masked ) masked_stretch_blit(sourceBitmap, destBMP, (int32_t)(srcX+space_x), (int32_t)(srcY+space_y),
 				(int32_t)(line_dx*destW), 1, (int32_t)(screen_x), (int32_t)(screen_y)+yoffset, (int32_t)(destW), 1);
-			else stretch_blit(sourceBitmap, destBMP, (int32_t)(srcX+space_x), (int32_t)(srcY+space_y), 
+			else stretch_blit(sourceBitmap, destBMP, (int32_t)(srcX+space_x), (int32_t)(srcY+space_y),
 				(int32_t)(line_dx*destW), 1, (int32_t)(screen_x), (int32_t)(screen_y)+yoffset, (int32_t)(destW), 1);
 		}
 	}
-	
-	
 	//cleanup
-	if(subBmp) 
+	if(subBmp)
 	{
 		//script_drawing_commands.ReleaseSubBitmap(subBmp); //purge the temporary bitmap.
 		destroy_bitmap(subBmp);
@@ -6698,11 +5755,11 @@ void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	/*
-	//sdci[1]=layer 
-	//sdci[2]=bitmap target 
+	//sdci[1]=layer
+	//sdci[2]=bitmap target
 		//
 		//	-2 is the current Render Target
-		//	-1, this is the screen (framebuf). 
+		//	-1, this is the screen (framebuf).
 		//	0: Render target 0
 		//	1: Render target 1
 		//	2: Render target 2
@@ -6710,8 +5767,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 		//	4: Render target 4
 		//	5: Render target 5
 		//	6: Render target 6
-		//	Otherwise: The pointer to a bitmap. 
-		
+		//	Otherwise: The pointer to a bitmap.
 	//sdci[3]=sourcex
 	//sdci[4]=sourcey
 	//sdci[5]=sourcew
@@ -6725,7 +5781,6 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 	//sdci[13] = pivot cy
 	//scdi[14] = effect flags
 	//sdci[17] Bitmap Pointer
-	
 		// ZScript-side constant values:
 		const int32_t BITDX_NORMAL = 0;
 		const int32_t BITDX_TRANS = 1; //Translucent
@@ -6734,15 +5789,11 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 		const int32_t BITDX_VFLIP = 8; //Vertical Flip.
 		//Note:	Some modes cannot be combined. if a combination is not supported, an error
 		//	detailing this will be shown in allegro.log.
-		
 	//scdi[15] = litcolour
-		//The allegro docs are wrong. The params are: rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot),litcolour); 
+		//The allegro docs are wrong. The params are: rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 		//not rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
-	
 	//sdci[16]=mask
-	
 	*/
-	
 	int32_t bitmapIndex = sdci[2]/10000;
 	int32_t usr_bitmap_index = sdci[2]-10;
 	byte using_user_bitmap = 0;
@@ -6755,13 +5806,12 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 	{
 		bitmapIndex = bitmapIndex / 10000; //reduce if ZScript sent a raw value, such as bitmap = <int32_t> 8;
 	}
-	if ( usr_bitmap_index > 0 && usr_bitmap_index < 10000 ) 
+	if ( usr_bitmap_index > 0 && usr_bitmap_index < 10000 )
 	{
 		bitmapIndex = usr_bitmap_index;
 		using_user_bitmap = 1;
 		yoffset = 0;
 	}
-	
 	int32_t sx = sdci[3]/10000;
 	int32_t sy = sdci[4]/10000;
 	int32_t sw = sdci[5]/10000;
@@ -6778,39 +5828,31 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 	int32_t mode = sdci[14]/10000;
 	int32_t litcolour = sdci[15]/10000;
 	bool masked = (sdci[16] != 0);
-	
 	int32_t ref = 0;
-	
 	dx = dx + xoffset;
 	dy = dy + yoffset;
-	
-	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-	//Do we need to also check the render target and do the same thing if the 
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
+	//Do we need to also check the render target and do the same thing if the
 		//dest == -2 and the render target is not RT_SCREEN?
-		
 	ref = sdci[17];
 	//Z_scripterrlog("bitmap->blit() ref id this frame is: %d\n", ref);
 	ref -=10;
 	//Z_scripterrlog("bitmap->blit() modified ref id this frame is: %d\n", ref);
-		
-	
 	if ( ref <= 0 )
 	{
 		Z_scripterrlog("bitmap->blit() wanted to use to an invalid source bitmap id: %d. Aborting.\n", ref);
 		return;
 	}
-	BITMAP *sourceBitmap = FFCore.GetScriptBitmap(ref); //This can be the screen, as -1. 
+	BITMAP *sourceBitmap = FFCore.GetScriptBitmap(ref); //This can be the screen, as -1.
 	#if LOG_BMPBLIT_LEVEL > 0
 	Z_scripterrlog("bitmap->Blit() is trying to blit to ref: %d\n",sdci[17]);
 	#endif
 	if(!sourceBitmap)
 	{
-		
 		Z_message("Warning: blit(%d) source bitmap contains invalid data or is not initialized.\n", ref);
 		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
 		return;
 	}
-	
 	BITMAP *destBMP=NULL;
 	//zprint2("blit () bitmap index is: %d\n",bitmapIndex);
 	switch(bitmapIndex)
@@ -6819,7 +5861,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 		{
 			int32_t curr_rt = zscriptDrawingRenderTarget->GetCurrentRenderTarget();
 			//zprint2("current RT is: %d\n", curr_rt);
-			if ( curr_rt >= 0 && curr_rt < 7 ) 
+			if ( curr_rt >= 0 && curr_rt < 7 )
 				destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); //Drawing to the current RenderTarget.
 			else destBMP = bmp; //screen
 			break;
@@ -6831,7 +5873,6 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 			//destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
 			//destBMP = framebuf; //Drawing to the screen.
 			//break;
-		
 		//1 through 6 are the old system bitmaps (Render Targets)
 		case 0:
 		case 1:
@@ -6839,17 +5880,16 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 		case 3:
 		case 4:
 		case 5:
-		case 6: 
+		case 6:
 		{
 			//This gets a render target.
 			destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); break;
-			
-			//destBMP = zscriptDrawingRenderTarget->GetTargetBitmap(bitmapIndex); 
+			//destBMP = zscriptDrawingRenderTarget->GetTargetBitmap(bitmapIndex);
 			//sdci[18] = bitmapIndex;
 			break;
 		}
 		//Otherwise, we are using a user-created bitmap, so, get that pointer insted.
-		default: 
+		default:
 		{
 			destBMP = scb.script_created_bitmaps[usr_bitmap_index].u_bmp;
 			//sdci[18] = usr_bitmap_index;
@@ -6861,22 +5901,15 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 		}
 			//FFCore.get_user_bitmap(bitmapIndex); break;
 	}
-	
-	
-	
 	#if LOG_BMPBLIT_LEVEL > 0
 	Z_scripterrlog("bitmap->Blit() is trying to blit to dest bitmap ID: %d\n",bitmapIndex);
 	#endif
-	
-	
 	if (!destBMP)
 	{
-		
 		Z_message("Warning: blit(%d) destination bitmap contains invalid data or is not initialized.\n", bitmapIndex);
 		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
 		return;
 	}
-	
 	//bugfix
 	//sx = vbound(sx, 0, sourceBitmap->w);
 	#if LOG_BMPBLIT_LEVEL > 0
@@ -6905,27 +5938,18 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 	Z_scripterrlog("Blit %s is: %s\n", "stretched", stretched ? "true" : "false");
 	#endif
 	//BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
-	
-	
-    
-	
-    
 	BITMAP* subBmp = 0;
-	
 	/* IDR what this was. -Z ( 17th April, 2019 )
 	if ( bitmapIndex == -1 ) {
-		blit(bmp, sourceBitmap, sx, sy, 0, 0, dw, dh); 
+		blit(bmp, sourceBitmap, sx, sy, 0, 0, dw, dh);
 	}
 	*/
-    
-	if(rot != 0 || mode != 0)    
+	if(rot != 0 || mode != 0)
 	{
 		subBmp = create_bitmap_ex(8,sourceBitmap->w, sourceBitmap->h);//script_drawing_commands.AquireSubBitmap(dw, dh);
 		clear_bitmap(subBmp);
-        
 		if(!subBmp)
 		{
-			
 			Z_scripterrlog("bitmap->Blit failed to create a sub-bitmap to use for %s. Aborting.\n", "rotation");
 			return;
 		}
@@ -6941,1144 +5965,931 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 	}
 	//dx = dx + xoffset; //don't do this here!
 	//dy = dy + yoffset; //Nor this. It auto-offsets the bitmap by +56. Hmm. The fix that gleeok made isn't being applied to these functions. -Z ( 17th April, 2019 )
-    
-	if(stretched) 
+	if(stretched)
 	{
-		if(masked) 
+		if(masked)
 		{	//stretched and masked
-			if ( rot == 0 ) 
+			if ( rot == 0 )
 			{ //if not rotated
-				switch(mode) 
+				switch(mode)
 				{
 					case 1:
 					//transparent
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_trans_sprite(destBMP, subBmp, dx, dy);
 					break;
-					
-					
-					case 2: 
+					case 2:
 						//pivot?
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_trans(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_v_flip(destBMP, subBmp, dx, dy);
 					break;
-					
-					case 5: 
+					case 5:
 						//trans + v flip
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					break;
-					
-					case 8: 
+					case 8:
 						//vlip h
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_h_flip(destBMP, subBmp, dx, dy);
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					//return error cannot pivot and h flip
 					break;
-					
 					case 12:
 						//vh flip
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_vh_flip(destBMP, subBmp, dx, dy);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_lit_sprite(destBMP, subBmp, dx, dy, litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_lit(destBMP, subBmp, dx, dy, cx, cy,  degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + v flip
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip_lit(destBMP, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot, Flip, and Lit.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_VH_FLIP);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
+						//Probably not wort supporting.
 					//masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect
 					masked_stretch_blit(sbmp, destBMP, sx, sy, sw, sh, dx, dy, dw, dh);
 					break;
-					
-					
 					default:
-						
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-					
-					
 				}
 			} //end if not rotated
-			
 			if ( rot != 0 ) //if rotated
-			{ 
+			{
 				switch(mode)
 				{
-					case 1: 
+					case 1:
 						//transparent
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_trans(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
-					
 					break;
-					
-					case 2: 
+					case 2:
 						//pivot?
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_v_flip(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 5: 
+					case 5:
 						//trans + v flip
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_v_flip_trans(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					//return an error, cannot both rotate and pivot
 					break;
-					
-					case 8: 
+					case 8:
 						//flip h
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rorate and H-Flip.\n", bitmapIndex);
 					//return an error, cannot both rotate and flip H
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot Rotate and Flip a Trans Sprite.\n", bitmapIndex);
 					//return an error, cannot rotate and flip a trans sprite
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					//return error cannot pivot and h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 12: 
+					case 12:
 						//vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_lit(destBMP, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + vflip
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_v_flip_lit(destBMP, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
 					//return an error, cannot both rotate and H flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Flip a Lit Sprite.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
 					//return an error, cannot both rotate and VH flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
+						//Probably not wort supporting.
 					//masked_stretch_blit(sourceBitmap, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect.
 					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
 					default:
-						
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-				
 				}
 			}
-		} //end if stretched and masked 
-		
+		} //end if stretched and masked
 		else  //stretched, not masked
 		{
-			
-		
 			if ( rot == 0 ) //if not rotated
 			{
-				switch(mode) 
+				switch(mode)
 				{
 					case 1:
 					//transparent
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_trans_sprite(destBMP, subBmp, dx, dy);
 					break;
-					
-					
-					case 2: 
+					case 2:
 						//pivot?
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_trans(destBMP, subBmp, dx,dy,  cx,  cy, degrees_to_fixed(rot));
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_v_flip(destBMP, subBmp, dx, dy);
 					break;
-					
-					case 5: 
+					case 5:
 						//trans + v flip
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					break;
-					
-					case 8: 
+					case 8:
 						//vlip h
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_h_flip(destBMP, subBmp, dx, dy);
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					//return error cannot pivot and h flip
 					break;
-					
 					case 12:
 						//vh flip
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_vh_flip(destBMP, subBmp, dx, dy);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_lit_sprite(destBMP, subBmp, dx, dy, litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_lit(destBMP, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + v flip
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip_lit(destBMP, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot, Flip, and Lit.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_VH_FLIP);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
+						//Probably not wort supporting.
 					//stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect
 					stretch_blit(sbmp, destBMP, sx, sy, sw, sh, dx, dy, dw, dh);
 					break;
-					
-					
 					default:
-						
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-					
-					
 				}
 			} //end if not rotated
-			
 			if ( rot != 0 )  //if rotated
 			{
 				switch(mode)
 				{
-					case 1: 
+					case 1:
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);//transparent
 					rotate_sprite_trans(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
-					
 					break;
-					
-					case 2: 
+					case 2:
 						//pivot?
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_v_flip(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 5: 
+					case 5:
 						//trans + v flip
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_v_flip_trans(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					//return an error, cannot both rotate and pivot
 					break;
-					
-					case 8: 
+					case 8:
 						//flip h
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rorate and H-Flip.\n", bitmapIndex);
 					//return an error, cannot both rotate and flip H
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot Rotate and Flip a Trans Sprite.\n", bitmapIndex);
 					//return an error, cannot rotate and flip a trans sprite
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					//return error cannot pivot and h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 12: 
+					case 12:
 						//vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);//transparent
 					rotate_sprite_lit(destBMP, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + vflip
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);//transparent
 					rotate_sprite_v_flip_lit(destBMP, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
 					//return an error, cannot both rotate and H flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Flip a Lit Sprite.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
 					//return an error, cannot both rotate and VH flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
+						//Probably not wort supporting.
 					//stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect.
 					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
 					default:
-						
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-				
 				}
 			}
-			
 		} //end if stretched, but not masked
 	}
 	else //not stretched
-	{ 
-		
+	{
 		if(masked) //if masked, but not stretched
-		{ 
-			
+		{
 			if ( rot == 0 ) //if not rotated
-			{ 
-				switch(mode) 
+			{
+				switch(mode)
 				{
 					case 1:
 					//transparent
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_trans_sprite(destBMP, subBmp, dx, dy);
 					break;
-					
-					
-					case 2: 
+					case 2:
 						//pivot?
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_trans(destBMP, subBmp, dx, dy,  cx, cy, degrees_to_fixed(rot));
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_v_flip(destBMP, subBmp, dx, dy);
 					break;
-					
-					case 5: 
+					case 5:
 						//trans + v flip
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_v_flip(destBMP, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot));
 					break;
-					
-					case 8: 
+					case 8:
 						//vlip h
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_h_flip(destBMP, subBmp, dx, dy);
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					//return error cannot pivot and h flip
 					break;
-					
 					case 12:
 						//vh flip
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_vh_flip(destBMP, subBmp, dx, dy);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_lit_sprite(destBMP, subBmp, dx, dy, litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_lit(destBMP, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + v flip
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_v_flip_lit(destBMP, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot, Flip, and Lit.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_VH_FLIP);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
+						//Probably not wort supporting.
 					//stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect
 					masked_blit(sbmp, destBMP, sx, sy, dx, dy, dw, dh);
 					break;
-					
-					
 					default:
-						
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-					
-					
 				}
 			} //end if not rotated
-			
 			if ( rot != 0 )  //if rotated
 			{
 				switch(mode)
 				{
-					case 1: 
+					case 1:
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);	//transparent
 					rotate_sprite_trans(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
-					
 					break;
-					
-					case 2: 
+					case 2:
 						//pivot?
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_v_flip(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 5: 
+					case 5:
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);	//trans + v flip
 					rotate_sprite_v_flip_trans(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					//return an error, cannot both rotate and pivot
 					break;
-					
-					case 8: 
+					case 8:
 						//flip h
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rorate and H-Flip.\n", bitmapIndex);
 					//return an error, cannot both rotate and flip H
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot Rotate and Flip a Trans Sprite.\n", bitmapIndex);
 					//return an error, cannot rotate and flip a trans sprite
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					//return error cannot pivot and h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 12: 
+					case 12:
 						//vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_lit(destBMP, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + vflip
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_v_flip_lit(destBMP, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
 					//return an error, cannot both rotate and H flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Flip a Lit Sprite.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
 					//return an error, cannot both rotate and VH flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
+						//Probably not wort supporting.
 					//stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect.
 					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
 					default:
-						
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-				
 				}
 			} //end rtated, masked
 		} //end if masked
 
 		else  //not masked, and not stretched; just blit
 		{
-			
 			if ( rot == 0 ) //if not rotated
-			{ 
-				switch(mode) 
+			{
+				switch(mode)
 				{
 					case 1:
 					//transparent
-					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_trans_sprite(destBMP, subBmp, dx, dy);
 					break;
-					
-					
-					case 2: 
+					case 2:
 						//pivot?
-					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
-					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_trans(destBMP, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot));
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
-					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_v_flip(destBMP, subBmp, dx, dy);
 					break;
-					
-					case 5: 
+					case 5:
 						//trans + v flip
-					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
-					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_v_flip(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					break;
-					
-					case 8: 
+					case 8:
 						//vlip h
-					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_h_flip(destBMP, subBmp, dx, dy);
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
-					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					//return error cannot pivot and h flip
 					break;
-					
 					case 12:
 						//vh flip
-					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_vh_flip(destBMP, subBmp, dx, dy);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
-					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
-					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_lit_sprite(destBMP, subBmp, dx, dy, litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
-					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_lit(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + v flip
-					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
-					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_v_flip_lit(destBMP, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
-					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot, Flip, and Lit.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
-					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(destBMP, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_VH_FLIP);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
-					//blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
+						//Probably not wort supporting.
+					//blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect
 					blit(sbmp, destBMP, sx, sy, dx, dy, dw, dh);
 					break;
-					
-					
 					default:
-						
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-					
-					
 				}
 			} //end if not rotated
-			
 			if ( rot != 0 )  //if rotated
 			{
 				switch(mode)
 				{
-					case 1: 
+					case 1:
 						blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);//transparent
 					rotate_sprite_trans(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
-					 
 					break;
-					
-					case 2: 
+					case 2:
 						//pivot?
-					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
-					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_v_flip(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 5: 
+					case 5:
 						//trans + v flip
 					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_v_flip_trans(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					//return an error, cannot both rotate and pivot
 					break;
-					
-					case 8: 
+					case 8:
 						//flip h
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rorate and H-Flip.\n", bitmapIndex);
 					//return an error, cannot both rotate and flip H
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot Rotate and Flip a Trans Sprite.\n", bitmapIndex);
 					//return an error, cannot rotate and flip a trans sprite
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					//return error cannot pivot and h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 12: 
+					case 12:
 						//vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
 					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_lit(destBMP, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + vflip
 					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_v_flip_lit(destBMP, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
 					//return an error, cannot both rotate and H flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Flip a Lit Sprite.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
 					//return an error, cannot both rotate and VH flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
-					//blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
+						//Probably not wort supporting.
+					//blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect.
-					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite(destBMP, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
 					default:
-						
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-				
 				}
 			} //end if rotated
 		} //end if not masked
 	} //end if not stretched
-    
 	//cleanup
-	if(subBmp) 
+	if(subBmp)
 	{
 		//script_drawing_commands.ReleaseSubBitmap(subBmp); //purge the temporary bitmap.
 		destroy_bitmap(subBmp);
@@ -8094,11 +6905,11 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	/*
-	//sdci[1]=layer 
-	//sdci[2]=bitmap target 
+	//sdci[1]=layer
+	//sdci[2]=bitmap target
 		//
 		//	-2 is the current Render Target
-		//	-1, this is the screen (framebuf). 
+		//	-1, this is the screen (framebuf).
 		//	0: Render target 0
 		//	1: Render target 1
 		//	2: Render target 2
@@ -8106,8 +6917,7 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 		//	4: Render target 4
 		//	5: Render target 5
 		//	6: Render target 6
-		//	Otherwise: The pointer to a bitmap. 
-		
+		//	Otherwise: The pointer to a bitmap.
 	//sdci[3]=sourcex
 	//sdci[4]=sourcey
 	//sdci[5]=sourcew
@@ -8121,7 +6931,6 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 	//sdci[13] = pivot cy
 	//scdi[14] = effect flags
 	//sdci[17] Bitmap Pointer
-	
 		// ZScript-side constant values:
 		const int32_t BITDX_NORMAL = 0;
 		const int32_t BITDX_TRANS = 1; //Translucent
@@ -8130,15 +6939,11 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 		const int32_t BITDX_VFLIP = 8; //Vertical Flip.
 		//Note:	Some modes cannot be combined. if a combination is not supported, an error
 		//	detailing this will be shown in allegro.log.
-		
 	//scdi[15] = litcolour
-		//The allegro docs are wrong. The params are: rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot),litcolour); 
+		//The allegro docs are wrong. The params are: rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 		//not rotate_sprite_lit(bmp, subBmp, dx, dy, degrees_to_fixed(rot));
-	
 	//sdci[16]=mask
-	
 	*/
-	
 	int32_t srcyoffset = yoffset, srcxoffset = xoffset;
 	int32_t bitmapIndex = sdci[2]/10000;
 	int32_t usr_bitmap_index = sdci[2]-10;
@@ -8152,13 +6957,12 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 	{
 		bitmapIndex = bitmapIndex / 10000; //reduce if ZScript sent a raw value, such as bitmap = <int32_t> 8;
 	}
-	if ( usr_bitmap_index > 0 && usr_bitmap_index < 10000 ) 
+	if ( usr_bitmap_index > 0 && usr_bitmap_index < 10000 )
 	{
 		bitmapIndex = usr_bitmap_index;
 		using_user_bitmap = 1;
 		srcyoffset = 0;
 	}
-	
 	int32_t sx = sdci[3]/10000;
 	int32_t sy = sdci[4]/10000;
 	int32_t sw = sdci[5]/10000;
@@ -8175,34 +6979,28 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 	int32_t mode = sdci[14]/10000;
 	int32_t litcolour = sdci[15]/10000;
 	bool masked = (sdci[16] != 0);
-	
 	int32_t ref = 0;
-	
 	//These should go down farther, should they not? -V
 	//dx = dx + xoffset;
 	//dy = dy + yoffset;
-	
-	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-	if ( (bitmapIndex) != -2 && (bitmapIndex) != -1 ) srcyoffset = 0; //Don't crop. 
-	//Do we need to also check the render target and do the same thing if the 
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
+	if ( (bitmapIndex) != -2 && (bitmapIndex) != -1 ) srcyoffset = 0; //Don't crop.
+	//Do we need to also check the render target and do the same thing if the
 		//dest == -2 and the render target is not RT_SCREEN?
 	dx = dx + xoffset;
 	dy = dy + yoffset;
 	sx = sx + srcxoffset;
 	sy = sy + srcyoffset;
-		
 	ref = sdci[17];
 	//Z_scripterrlog("bitmap->blit() ref id this frame is: %d\n", ref);
 	ref -=10;
 	//Z_scripterrlog("bitmap->blit() modified ref id this frame is: %d\n", ref);
-		
-	
 	if ( ref <= 0 )
 	{
 		Z_scripterrlog("bitmap->blit() wanted to use to an invalid source bitmap id: %d. Aborting.\n", ref);
 		return;
 	}
-	BITMAP *sourceBitmap = FFCore.GetScriptBitmap(ref); //This can be the screen, as -1. 
+	BITMAP *sourceBitmap = FFCore.GetScriptBitmap(ref); //This can be the screen, as -1.
 	#if LOG_BMPBLIT_LEVEL > 0
 	Z_scripterrlog("bitmap->Blit() is trying to blit to ref: %d\n",sdci[17]);
 	#endif
@@ -8212,17 +7010,15 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
 		return;
 	}
-	
 	BITMAP *destBMP=NULL;
 	//zprint2("RevBlit bitmap index is: %d\n",bitmapIndex);
-	
 	switch(bitmapIndex)
 	{
 		case -2:
 		{
 			int32_t curr_rt = zscriptDrawingRenderTarget->GetCurrentRenderTarget();
 			//zprint2("current RT is: %d\n", curr_rt);
-			if ( curr_rt >= 0 && curr_rt < 7 ) 
+			if ( curr_rt >= 0 && curr_rt < 7 )
 				destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); //Drawing to the current RenderTarget.
 			else destBMP = bmp; //screen
 			break;
@@ -8234,7 +7030,6 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 			//destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
 			//destBMP = framebuf; //Drawing to the screen.
 			//break;
-		
 		//1 through 6 are the old system bitmaps (Render Targets)
 		case 0:
 		case 1:
@@ -8242,17 +7037,16 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 		case 3:
 		case 4:
 		case 5:
-		case 6: 
+		case 6:
 		{
 			//This gets a render target.
 			//destBMP = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex); break;
-			
-			destBMP = zscriptDrawingRenderTarget->GetTargetBitmap(bitmapIndex); 
+			destBMP = zscriptDrawingRenderTarget->GetTargetBitmap(bitmapIndex);
 			//sdci[18] = bitmapIndex;
 			break;
 		}
 		//Otherwise, we are using a user-created bitmap, so, get that pointer insted.
-		default: 
+		default:
 		{
 			destBMP = scb.script_created_bitmaps[usr_bitmap_index].u_bmp;
 			//sdci[18] = usr_bitmap_index;
@@ -8264,19 +7058,15 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 		}
 			//FFCore.get_user_bitmap(bitmapIndex); break;
 	}
-	
 	#if LOG_BMPBLIT_LEVEL > 0
 	Z_scripterrlog("bitmap->Blit() is trying to blit to dest bitmap ID: %d\n",bitmapIndex);
 	#endif
-	
-	
 	if (!destBMP)
 	{
 		Z_message("Warning: blit(%d) destination bitmap contains invalid data or is not initialized.\n", bitmapIndex);
 		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
 		return;
 	}
-	
 	//bugfix
 	//sx = vbound(sx, 0, sourceBitmap->w);
 	#if LOG_BMPBLIT_LEVEL > 0
@@ -8308,32 +7098,24 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 	Z_scripterrlog("Blit %s is: %s\n", "stretched", stretched ? "true" : "false");
 	#endif
 	//BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
-	
-	
-    
 	BITMAP* newDest = sourceBitmap;
-	BITMAP* newSource = destBMP; //Flip them. 
-    
+	BITMAP* newSource = destBMP; //Flip them.
 	BITMAP* subBmp = 0;
-	
 	/* IDR what this was. -Z ( 17th April, 2019 )
 	if ( bitmapIndex == -1 ) {
-		blit(bmp, sourceBitmap, sx, sy, 0, 0, dw, dh); 
+		blit(bmp, sourceBitmap, sx, sy, 0, 0, dw, dh);
 	}
 	*/
-    
-	if(rot != 0 || mode != 0)    
+	if(rot != 0 || mode != 0)
 	{
 		subBmp = create_bitmap_ex(8,sourceBitmap->w, sourceBitmap->h);//script_drawing_commands.AquireSubBitmap(dw, dh);
 		clear_bitmap(subBmp);
-        
 		if(!subBmp)
 		{
 			Z_scripterrlog("bitmap->Blit failed to create a sub-bitmap to use for %s. Aborting.\n", "rotation");
 			return;
 		}
 	}
-    
 	if (sx + sw > destBMP->w || sy + sh > destBMP->h)
 	{
 		newSource = create_bitmap_ex(8, sw, sh);
@@ -8344,1136 +7126,931 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 	}
 	//dx = dx + xoffset; //don't do this here!
 	//dy = dy + yoffset; //Nor this. It auto-offsets the bitmap by +56. Hmm. The fix that gleeok made isn't being applied to these functions. -Z ( 17th April, 2019 )
-    
-	if(stretched) 
+	if(stretched)
 	{
-		if(masked) 
+		if(masked)
 		{	//stretched and masked
-			if ( rot == 0 ) 
+			if ( rot == 0 )
 			{ //if not rotated
-				switch(mode) 
+				switch(mode)
 				{
 					case 1:
 					//transparent
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_trans_sprite(newDest, subBmp, dx, dy);
 					break;
-					
-					
-					case 2: 
+					case 2:
 						//pivot?
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_trans(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_v_flip(newDest, subBmp, dx, dy);
 					break;
-					
-					case 5: 
+					case 5:
 						//trans + v flip
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					break;
-					
-					case 8: 
+					case 8:
 						//vlip h
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_h_flip(newDest, subBmp, dx, dy);
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					//return error cannot pivot and h flip
 					break;
-					
 					case 12:
 						//vh flip
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_vh_flip(newDest, subBmp, dx, dy);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_lit_sprite(newDest, subBmp, dx, dy, litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_lit(newDest, subBmp, dx, dy, cx, cy,  degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + v flip
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip_lit(newDest, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot, Flip, and Lit.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_VH_FLIP);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
+						//Probably not wort supporting.
 					//masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect
 					masked_stretch_blit(newSource, newDest, sx, sy, sw, sh, dx, dy, dw, dh);
 					break;
-					
-					
 					default:
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-					
-					
 				}
 			} //end if not rotated
-			
 			if ( rot != 0 ) //if rotated
-			{ 
+			{
 				switch(mode)
 				{
-					case 1: 
+					case 1:
 						//transparent
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_trans(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
-					
 					break;
-					
-					case 2: 
+					case 2:
 						//pivot?
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_v_flip(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 5: 
+					case 5:
 						//trans + v flip
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_v_flip_trans(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					//return an error, cannot both rotate and pivot
 					break;
-					
-					case 8: 
+					case 8:
 						//flip h
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rorate and H-Flip.\n", bitmapIndex);
 					//return an error, cannot both rotate and flip H
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot Rotate and Flip a Trans Sprite.\n", bitmapIndex);
 					//return an error, cannot rotate and flip a trans sprite
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					//return error cannot pivot and h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 12: 
+					case 12:
 						//vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_lit(newDest, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + vflip
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_v_flip_lit(newDest, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
 					//return an error, cannot both rotate and H flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Flip a Lit Sprite.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
 					//return an error, cannot both rotate and VH flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
+						//Probably not wort supporting.
 					//masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect.
 					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
 					default:
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-				
 				}
 			}
-		} //end if stretched and masked 
-		
+		} //end if stretched and masked
 		else  //stretched, not masked
 		{
-			
-		
 			if ( rot == 0 ) //if not rotated
 			{
-				switch(mode) 
+				switch(mode)
 				{
 					case 1:
 					//transparent
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_trans_sprite(newDest, subBmp, dx, dy);
 					break;
-					
-					
-					case 2: 
+					case 2:
 						//pivot?
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_trans(newDest, subBmp, dx,dy,  cx,  cy, degrees_to_fixed(rot));
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_v_flip(newDest, subBmp, dx, dy);
 					break;
-					
-					case 5: 
+					case 5:
 						//trans + v flip
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					break;
-					
-					case 8: 
+					case 8:
 						//vlip h
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_h_flip(newDest, subBmp, dx, dy);
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					//return error cannot pivot and h flip
 					break;
-					
 					case 12:
 						//vh flip
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_vh_flip(newDest, subBmp, dx, dy);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_lit_sprite(newDest, subBmp, dx, dy, litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_lit(newDest, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + v flip
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite_v_flip_lit(newDest, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot, Flip, and Lit.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_VH_FLIP);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
+						//Probably not wort supporting.
 					//stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect
 					stretch_blit(newSource, newDest, sx, sy, sw, sh, dx, dy, dw, dh);
 					break;
-					
-					
 					default:
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-					
-					
 				}
 			} //end if not rotated
-			
 			if ( rot != 0 )  //if rotated
 			{
 				switch(mode)
 				{
-					case 1: 
+					case 1:
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);//transparent
 					rotate_sprite_trans(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
-					
 					break;
-					
-					case 2: 
+					case 2:
 						//pivot?
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					pivot_sprite(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_v_flip(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 5: 
+					case 5:
 						//trans + v flip
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite_v_flip_trans(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					//return an error, cannot both rotate and pivot
 					break;
-					
-					case 8: 
+					case 8:
 						//flip h
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rorate and H-Flip.\n", bitmapIndex);
 					//return an error, cannot both rotate and flip H
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot Rotate and Flip a Trans Sprite.\n", bitmapIndex);
 					//return an error, cannot rotate and flip a trans sprite
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					//return error cannot pivot and h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 12: 
+					case 12:
 						//vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);//transparent
 					rotate_sprite_lit(newDest, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + vflip
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);//transparent
 					rotate_sprite_v_flip_lit(newDest, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
 					//return an error, cannot both rotate and H flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Flip a Lit Sprite.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
 					//return an error, cannot both rotate and VH flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
+						//Probably not wort supporting.
 					//stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect.
 					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					rotate_sprite(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
 					default:
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-				
 				}
 			}
-			
 		} //end if stretched, but not masked
 	}
 	else //not stretched
-	{ 
-		
+	{
 		if(masked) //if masked, but not stretched
-		{ 
-			
+		{
 			if ( rot == 0 ) //if not rotated
-			{ 
-				switch(mode) 
+			{
+				switch(mode)
 				{
 					case 1:
 					//transparent
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_trans_sprite(newDest, subBmp, dx, dy);
 					break;
-					
-					
-					case 2: 
+					case 2:
 						//pivot?
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_trans(newDest, subBmp, dx, dy,  cx, cy, degrees_to_fixed(rot));
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_v_flip(newDest, subBmp, dx, dy);
 					break;
-					
-					case 5: 
+					case 5:
 						//trans + v flip
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_v_flip(newDest, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot));
 					break;
-					
-					case 8: 
+					case 8:
 						//vlip h
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_h_flip(newDest, subBmp, dx, dy);
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					//return error cannot pivot and h flip
 					break;
-					
 					case 12:
 						//vh flip
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_vh_flip(newDest, subBmp, dx, dy);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_lit_sprite(newDest, subBmp, dx, dy, litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_lit(newDest, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + v flip
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_v_flip_lit(newDest, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot, Flip, and Lit.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_VH_FLIP);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
+						//Probably not wort supporting.
 					//stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect
 					masked_blit(newSource, newDest, sx, sy, dx, dy, dw, dh);
 					break;
-					
-					
 					default:
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-					
-					
 				}
 			} //end if not rotated
-			
 			if ( rot != 0 )  //if rotated
 			{
 				switch(mode)
 				{
-					case 1: 
+					case 1:
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);	//transparent
 					rotate_sprite_trans(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
-					
 					break;
-					
-					case 2: 
+					case 2:
 						//pivot?
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_v_flip(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 5: 
+					case 5:
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);	//trans + v flip
 					rotate_sprite_v_flip_trans(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					//return an error, cannot both rotate and pivot
 					break;
-					
-					case 8: 
+					case 8:
 						//flip h
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rorate and H-Flip.\n", bitmapIndex);
 					//return an error, cannot both rotate and flip H
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot Rotate and Flip a Trans Sprite.\n", bitmapIndex);
 					//return an error, cannot rotate and flip a trans sprite
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					//return error cannot pivot and h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 12: 
+					case 12:
 						//vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_lit(newDest, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + vflip
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_v_flip_lit(newDest, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
 					//return an error, cannot both rotate and H flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Flip a Lit Sprite.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
 					//return an error, cannot both rotate and VH flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
+						//Probably not wort supporting.
 					//stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect.
 					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
 					default:
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-				
 				}
 			} //end rtated, masked
 		} //end if masked
 
 		else  //not masked, and not stretched; just blit
 		{
-			
 			if ( rot == 0 ) //if not rotated
-			{ 
-				switch(mode) 
+			{
+				switch(mode)
 				{
 					case 1:
 					//transparent
-					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_trans_sprite(newDest, subBmp, dx, dy);
 					break;
-					
-					
-					case 2: 
+					case 2:
 						//pivot?
-					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
-					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_trans(newDest, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot));
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
-					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_v_flip(newDest, subBmp, dx, dy);
 					break;
-					
-					case 5: 
+					case 5:
 						//trans + v flip
-					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
-					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_v_flip(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					break;
-					
-					case 8: 
+					case 8:
 						//vlip h
-					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_h_flip(newDest, subBmp, dx, dy);
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
-					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					//return error cannot pivot and h flip
 					break;
-					
 					case 12:
 						//vh flip
-					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_vh_flip(newDest, subBmp, dx, dy);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
-					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_TRANS, DRAW_SPRITE_VH_FLIP);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
-					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_lit_sprite(newDest, subBmp, dx, dy, litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
-					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_lit(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + v flip
-					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_V_FLIP);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
-					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite_v_flip_lit(newDest, subBmp, dx, dy,  cx,  cy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
-					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_H_FLIP);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot, Flip, and Lit.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
-					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					draw_sprite_ex(newDest, subBmp, dx, dy, DRAW_SPRITE_LIT, DRAW_SPRITE_VH_FLIP);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
-					//blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+						//Probably not wort supporting.
+					//blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect
 					blit(newSource, newDest, sx, sy, dx, dy, dw, dh);
 					break;
-					
-					
 					default:
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-					
-					
 				}
 			} //end if not rotated
-			
 			if ( rot != 0 )  //if rotated
 			{
 				switch(mode)
 				{
-					case 1: 
+					case 1:
 						blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);//transparent
 					rotate_sprite_trans(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
-					 
 					break;
-					
-					case 2: 
+					case 2:
 						//pivot?
-					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					pivot_sprite(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
 					//Pivoting requires two more args
 					break;
-					
-					case 3: 
+					case 3:
 						//pivot + trans
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 4: 
+					case 4:
 						//flip v
-					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_v_flip(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 5: 
+					case 5:
 						//trans + v flip
 					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_v_flip_trans(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
-					case 6: 
+					case 6:
 						//pivot + v flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					//return an error, cannot both rotate and pivot
 					break;
-					
-					case 8: 
+					case 8:
 						//flip h
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rorate and H-Flip.\n", bitmapIndex);
 					//return an error, cannot both rotate and flip H
 					break;
-					
-					case 9: 
+					case 9:
 						//trans + h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot Rotate and Flip a Trans Sprite.\n", bitmapIndex);
 					//return an error, cannot rotate and flip a trans sprite
 					break;
-					
-					case 10: 
+					case 10:
 						//flip H and pivot
 					//return error cannot pivot and h flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 12: 
+					case 12:
 						//vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 13: 
+					case 13:
 						//trans + vh flip
 					//return an error, cannot rotate and VH flip a trans sprite
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and VH-Flip.\n", bitmapIndex);
 					break;
-					
-					case 14: 
+					case 14:
 						//pivot and vh flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					//return error cannot both pivot and vh flip
 					break;
-					
-					case 16: 
+					case 16:
 						//lit
 					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_lit(newDest, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 18: 
+					case 18:
 						//pivot, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rorate.\n", bitmapIndex);
 					break;
-					
-					case 20: 
+					case 20:
 						//lit + vflip
 					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite_v_flip_lit(newDest, subBmp, dx, dy, degrees_to_fixed(rot),litcolour);
 					break;
-					
-					case 22: 
+					case 22:
 						//Pivot, vflip, lit
 					//return an error, cannot both rotate and pivot
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
 					break;
-					
-					case 24: 
+					case 24:
 						//lit + h flip
 					//return an error, cannot both rotate and H flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Rotate and H-Flip.\n", bitmapIndex);
 					break;
-					
-					case 26: 
+					case 26:
 						//pivot + lit + hflip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Flip a Lit Sprite.\n", bitmapIndex);
 					//return error cannot pivot, lit, and flip
 					break;
-					
-					case 28: 
+					case 28:
 						//lit + vh flip
 					//return an error, cannot both rotate and VH flip
 					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and VH-Flip.\n", bitmapIndex);
 					break;
-					
 					case 32: //gouraud
-						//Probably not wort supporting. 
-					//blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+						//Probably not wort supporting.
+					//blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					//draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t c1, int32_t c2, int32_t c3, int32_t c4);
 					break;
-					
-					case 0: 
+					case 0:
 						//no effect.
-					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
 					rotate_sprite(newDest, subBmp, dx, dy, degrees_to_fixed(rot));
 					break;
-					
 					default:
 						return Z_message("Warning: Screen->DrawBitmap(%d) mode flags not possible in this combination!\n", bitmapIndex);
-				
 				}
 			} //end if rotated
 		} //end if not masked
 	} //end if not stretched
-    
 	//cleanup
-	if(subBmp) 
+	if(subBmp)
 	{
 		//script_drawing_commands.ReleaseSubBitmap(subBmp); //purge the temporary bitmap.
 		destroy_bitmap(subBmp);
@@ -9487,7 +8064,6 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 
 void bmp_do_drawquad3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
-	
 	//sdci[1]=layer
 	//sdci[2]=pos[12]
 	//sdci[3]=uv[8]
@@ -9505,25 +8081,19 @@ void bmp_do_drawquad3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, 
 	}
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-	
 	std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
-	
 	if(!v_ptr)
 	{
 		al_trace("Quad3d: Vector pointer is null! Internal error. \n");
 		return;
 	}
-	
 	std::vector<int32_t> &v = *v_ptr;
-	
 	if(v.empty())
 		return;
-		
 	int32_t* pos = &v[0];
 	int32_t* uv = &v[12];
 	int32_t* col = &v[20];
 	int32_t* size = &v[24];
-	
 	int32_t w = size[0]; //magic numerical constants... yuck.
 	int32_t h = size[1];
 	int32_t flip = (sdci[6]/10000)&3;
@@ -9531,30 +8101,20 @@ void bmp_do_drawquad3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, 
 	int32_t polytype = sdci[8]/10000;
 	int32_t quad_render_source = sdci[9]-10;
 	Z_scripterrlog("Quad3D texture is %d\n", quad_render_source);
-	
 	polytype = vbound(polytype, 0, 14);
-	
 	int32_t tex_width = w*16;
 	int32_t tex_height = h*16;
-	
 	bool mustDestroyBmp = false;
-	BITMAP *tex=NULL; 
-	
-	
+	BITMAP *tex=NULL;
 	bool tex_is_bitmap = ( sdci[9] != 0 );
 	//Z_scripterrlog("sdci[9] is %d\n", quad_render_source);
 	//Z_scripterrlog("sdci[17] is %d\n", sdci[17]-10);
 	BITMAP *bmptexture;
-	
 	if ( tex_is_bitmap ) bmptexture = FFCore.GetScriptBitmap(quad_render_source);
-	
-	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-   
-	
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
 	if ( !tex_is_bitmap )
 	{
 	tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
-	
 	if(!tex)
 	{
 		mustDestroyBmp = true;
@@ -9575,23 +8135,19 @@ void bmp_do_drawquad3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, 
 		const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
 		const int32_t tiletodraw = combo_tile(c, 0, 0);
 		flip = flip ^ c.flip;
-		
 		TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
 		}
-		
 	V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]),  static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
 	V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]),  static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
 	V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]),  static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
 	V3D_f V4 = { static_cast<float>(pos[9]+xoffset), static_cast<float>(pos[10]+yoffset), static_cast<float>(pos[11]), static_cast<float>(uv[6]), static_cast<float>(uv[7]), col[3] };
-	
 	quad3d_f(refbmp, polytype, tex, &V1, &V2, &V3, &V4);
 	if(mustDestroyBmp)
 		destroy_bitmap(tex);
 	}
 	else
 	{
-		
-		if ( !bmptexture ) 
+		if ( !bmptexture )
 		{
 			Z_scripterrlog("Bitmap pointer used as a texture in %s is uninitialised.\n Defaulting to using a tile as a texture.\n", "bitmap->Quad3D()");
 			tex_is_bitmap = 0;
@@ -9601,22 +8157,15 @@ void bmp_do_drawquad3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, 
 		if ( !isPowerOfTwo(bmptexture->w) ) Z_scripterrlog("WIDTH of Bitmap ( pointer %d ) provided as a render source for bitmap->Quad3D is not a POWER OF TWO.\nTextels may render improperly!\n", quad_render_source);
 		if ( !isPowerOfTwo(h) ) Z_scripterrlog("WIDTH ARG (%d) provided as a render source for bitmap->Quad3D is not a POWER OF TWO.\nTextels may render improperly!\n", h);
 		if ( !isPowerOfTwo(w) ) Z_scripterrlog("HEIGHT ARG (%d) provided as a render source for bitmap->Quad3D is not a POWER OF TWO.\nTextels may render improperly!\n", w);
-		
 	V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]),  static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
 	V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]),  static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
 	V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]),  static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
 	V3D_f V4 = { static_cast<float>(pos[9]+xoffset), static_cast<float>(pos[10]+yoffset), static_cast<float>(pos[11]), static_cast<float>(uv[6]), static_cast<float>(uv[7]), col[3] };
-		
 	BITMAP *foo = create_bitmap_ex(8, 256, 176);
-		
-	//quad3d_f(refbmp, polytype, foo, &V1, &V2, &V3, &V4);	
-	quad3d_f(refbmp, polytype, bmptexture, &V1, &V2, &V3, &V4); 
+	//quad3d_f(refbmp, polytype, foo, &V1, &V2, &V3, &V4);
+	quad3d_f(refbmp, polytype, bmptexture, &V1, &V2, &V3, &V4);
 	destroy_bitmap(foo);
-		
 	}
-	
-	
-		
 }
 
 
@@ -9640,25 +8189,19 @@ void bmp_do_drawtriangle3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffs
 	}
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-	
 	std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
-	
 	if(!v_ptr)
 	{
 		al_trace("bitmap->Triangle3d: Vector pointer is null! Internal error. \n");
 		return;
 	}
-	
 	std::vector<int32_t> &v = *v_ptr;
-	
 	if(v.empty())
 		return;
-		
 	int32_t* pos = &v[0];
 	int32_t* uv = &v[9];
 	int32_t* col = &v[15];
 	int32_t* size = &v[18];
-	
 	int32_t w = size[0]; //magic numerical constants... yuck.
 	int32_t h = size[1];
 	int32_t flip = (sdci[6]/10000)&3;
@@ -9666,38 +8209,32 @@ void bmp_do_drawtriangle3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffs
 	int32_t polytype = sdci[8]/10000;
 	int32_t quad_render_source = sdci[9]-10;
 	polytype = vbound(polytype, 0, 14);
-	
 	if(((w-1) & w) != 0 || ((h-1) & h) != 0)
 	{
 		Z_message("bitmap->Triangle3d() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
 		return; //non power of two error
 	}
-	
 	int32_t tex_width = w*16;
 	int32_t tex_height = h*16;
-	
 	bool mustDestroyBmp = false;
 	BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
-	
 	if(!tex)
 	{
 		mustDestroyBmp = true;
 		tex = create_bitmap_ex(8, tex_width, tex_height);
 		clear_bitmap(tex);
 	}
-	
 	bool tex_is_bitmap = ( sdci[9] != 0 );
 	BITMAP *bmptexture=NULL;
-	if ( tex_is_bitmap ) 
+	if ( tex_is_bitmap )
 	{
 		bmptexture = FFCore.GetScriptBitmap(quad_render_source);
-		if ( !bmptexture ) 
+		if ( !bmptexture )
 		{
 			Z_scripterrlog("Bitmap pointer used as a texture in %s is uninitialised.\n Defaulting to using a tile as a texture.\n", "bitmap->Triangle3()");
 			tex_is_bitmap = 0;
 		}
 	}
-	
 	if ( !tex_is_bitmap )
 	{
 		if(tile > 0)   // TILE
@@ -9709,14 +8246,11 @@ void bmp_do_drawtriangle3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffs
 		const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
 		const int32_t tiletodraw = combo_tile(c, 0, 0);
 		flip = flip ^ c.flip;
-		
 		TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
 		}
-		
 		V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]), static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
 		V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]), static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
 		V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]), static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
-		
 		triangle3d_f(refbmp, polytype, tex, &V1, &V2, &V3);
 	}
 	else
@@ -9725,18 +8259,13 @@ void bmp_do_drawtriangle3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffs
 		if ( !isPowerOfTwo(bmptexture->w) ) Z_scripterrlog("WIDTH of Bitmap ( pointer %d ) provided as a render source for bitmap->Triangle3D is not a POWER OF TWO.\nTextels may render improperly!\n", quad_render_source);
 		if ( !isPowerOfTwo(w) ) Z_scripterrlog("WIDTH ARG (%d) provided as a render source for bitmap->Triangle3D is not a POWER OF TWO.\nTextels may render improperly!\n", w);
 		if ( !isPowerOfTwo(h) ) Z_scripterrlog("HEIGHT ARG (%d) provided as a render source for bitmap->Triangle3D is not a POWER OF TWO.\nTextels may render improperly!\n", h);
-		
 	V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]), static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
 	V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]), static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
 	V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]), static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
-		
-	triangle3d_f(refbmp, polytype, bmptexture, &V1, &V2, &V3);	
-		
-		
+	triangle3d_f(refbmp, polytype, bmptexture, &V1, &V2, &V3);
 	}
 	if(mustDestroyBmp)
 		destroy_bitmap(tex);
-		
 }
 
 
@@ -9750,25 +8279,18 @@ mapscr *getmapscreen(int32_t map_index, int32_t screen_index, int32_t layer)   /
 {
 	mapscr *base_screen;
 	int32_t index = map_index*MAPSCRS+screen_index;
-	
 	if((uint32_t)layer > 6 || (uint32_t)index >= TheMaps.size())
 		return NULL;
-		
 	if(layer != 0)
 	{
 		layer = layer - 1;
-		
 		base_screen=&(TheMaps[index]);
-		
 		if(base_screen->layermap[layer]==0)
 			return NULL;
-			
 		index=(base_screen->layermap[layer]-1)*MAPSCRS+base_screen->layerscreen[layer];
-		
 		if((uint32_t)index >= TheMaps.size())   // Might as well make sure
 			return NULL;
 	}
-	
 	return &(TheMaps[index]);
 }
 
@@ -9778,23 +8300,17 @@ void draw_mapscr(BITMAP *b, const mapscr& m, int32_t x, int32_t y, bool transpar
 	{
 		const int32_t x2 = ((i&15)<<4) + x;
 		const int32_t y2 = (i&0xF0) + y;
-		
 		//const newcombo & c = combobuf[ m.data[i] ];
 		/*
 		newcombo c = combobuf[m.data[i]];
 		int32_t csets[4];
 		int32_t cofs = c.csets&15;
-		
 		if(cofs&8)
 			cofs |= ~int32_t(0xF);
-			
 		for(int32_t i=0; i<4; ++i)
 			csets[i] = c.csets&(16<<i) ? cset + cofs : cset;
-	
-	
 		const int32_t tile = combo_tile(c, x2, y2);
 		*/
-		
 		if(transparent)
 		{
 			//void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h, int32_t opacity)
@@ -9813,17 +8329,16 @@ void draw_mapscr(BITMAP *b, const mapscr& m, int32_t x, int32_t y, bool transpar
 void draw_map_solidity(BITMAP *b, const mapscr& m, int32_t x, int32_t y)
 {
 	BITMAP* square = create_bitmap_ex(8,16,16);
-	
 	for(int32_t i(0); i < 176; ++i)
 	{
 		const int32_t x2 = ((i&15)<<4) + x;
 		const int32_t y2 = (i&0xF0) + y;
 		//Blit the palette index of the solidity value.
 		//int32_t col = (combobuf[m.data[i]].walk&15);
-		//if ( col != 0 ) 
+		//if ( col != 0 )
 		//{
 		//	Z_scripterrlog("Position %d has a solidity value of %d.\n", i, col);
-		//	
+		//
 		//}
 		clear_to_color(square,(combobuf[m.data[i]].walk&15));
 		if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS)) blit(square, b, 0, 0, x2, y2, square->w, square->h);
@@ -9841,12 +8356,10 @@ void do_bmpdrawscreen_solidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, in
 	//sdci[5]=y
 	//sdci[6]=rotation
 	//sdci[17] Bitmap Pointer
-	
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
 
-	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-	
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
 	int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
 	int32_t scrn = sdci[3]/10000;
 	int32_t x = sdci[4]/10000;
@@ -9854,24 +8367,17 @@ void do_bmpdrawscreen_solidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, in
 	int32_t x1 = x + xoffset;
 	int32_t y1 = y + yoffset;
 	int32_t rotation = sdci[6]/10000;
-	
 	const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-	
 	if(index >= TheMaps.size())
 	{
 		al_trace("DrawScreen: invalid map or screen index. \n");
 		return;
 	}
-	
 	const mapscr & m = TheMaps[index];
-	
-	
 	BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-	
 	if(rotation != 0)
 		b = script_drawing_commands.AquireSubBitmap(256, 176);
-		
 	//draw layer 0
 	draw_map_solidity(b, m, x1, y1);
 	if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS))
@@ -9879,17 +8385,13 @@ void do_bmpdrawscreen_solidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, in
 		for(int32_t i(0); i < 6; ++i)
 		{
 			if(m.layermap[i] == 0) continue;
-			
 			uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
-			
 			if(layer_screen_index >= TheMaps.size())
 				continue;
-			
 			//draw valid layers
 			draw_map_solidity(b, TheMaps[ layer_screen_index ], x1, y1);
 		}
 	}
-	
 	if(rotation != 0) // rotate
 	{
 		rotate_sprite(refbmp, b, x1, y1, degrees_to_fixed(rotation));
@@ -9902,17 +8404,16 @@ void draw_map_solid(BITMAP *b, const mapscr& m, int32_t x, int32_t y)
 	BITMAP* square = create_bitmap_ex(8,16,16);
 	BITMAP* subsquare = create_bitmap_ex(8,16,16);
 	clear_to_color(subsquare,1);
-	
 	for(int32_t i(0); i < 176; ++i)
 	{
 		const int32_t x2 = ((i&15)<<4) + x;
 		const int32_t y2 = (i&0xF0) + y;
 		//Blit the palette index of the solidity value.
 		//int32_t col = (combobuf[m.data[i]].walk&15);
-		//if ( col != 0 ) 
+		//if ( col != 0 )
 		//{
 		//	Z_scripterrlog("Position %d has a solidity value of %d.\n", i, col);
-		//	
+		//
 		//}
 		clear_bitmap(square);
 		int32_t sol = (combobuf[m.data[i]].walk);
@@ -9932,7 +8433,6 @@ void draw_map_solid(BITMAP *b, const mapscr& m, int32_t x, int32_t y)
 		if ( sol &8 )	{
 			blit(subsquare, square, 0, 0, 8, 8, 8, 8);
 		}
-		
 		if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS)) blit(square, b, 0, 0, x2, y2, square->w, square->h);
 		else masked_blit(square, b, 0, 0, x2, y2, square->w, square->h);
 	}
@@ -9949,12 +8449,10 @@ void do_bmpdrawscreen_solidr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_
 	//sdci[5]=y
 	//sdci[6]=rotation
 	//sdci[17] Bitmap Pointer
-	
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
 
-	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-	
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
 	int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
 	int32_t scrn = sdci[3]/10000;
 	int32_t x = sdci[4]/10000;
@@ -9962,40 +8460,28 @@ void do_bmpdrawscreen_solidr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_
 	int32_t x1 = x + xoffset;
 	int32_t y1 = y + yoffset;
 	int32_t rotation = sdci[6]/10000;
-	
 	const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-	
 	if(index >= TheMaps.size())
 	{
 		al_trace("DrawScreen: invalid map or screen index. \n");
 		return;
 	}
-	
 	const mapscr & m = TheMaps[index];
-	
-	
 	BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-	
 	if(rotation != 0)
 		b = script_drawing_commands.AquireSubBitmap(256, 176);
-		
 	//draw layer 0
 	draw_map_solid(b, m, x1, y1);
-	
 	for(int32_t i(0); i < 6; ++i) //This one doesn't need the QR; it works just fine.
 	{
 		if(m.layermap[i] == 0) continue;
-		
 		uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
-		
 		if(layer_screen_index >= TheMaps.size())
 			continue;
-		
 		//draw valid layers
 		draw_map_solid(b, TheMaps[ layer_screen_index ], x1, y1);
 	}
-	
 	if(rotation != 0) // rotate
 	{
 		rotate_sprite(refbmp, b, x1, y1, degrees_to_fixed(rotation));
@@ -10006,7 +8492,6 @@ void do_bmpdrawscreen_solidr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_
 void draw_map_cflag(BITMAP *b, const mapscr& m, int32_t x, int32_t y)
 {
 	BITMAP* square = create_bitmap_ex(8,16,16);
-	
 	for(int32_t i(0); i < 176; ++i)
 	{
 		const int32_t x2 = ((i&15)<<4) + x;
@@ -10028,12 +8513,10 @@ void do_bmpdrawscreen_cflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_
 	//sdci[5]=y
 	//sdci[6]=rotation
 	//sdci[17] Bitmap Pointer
-	
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
 
-	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-	
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
 	int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
 	int32_t scrn = sdci[3]/10000;
 	int32_t x = sdci[4]/10000;
@@ -10041,24 +8524,17 @@ void do_bmpdrawscreen_cflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_
 	int32_t x1 = x + xoffset;
 	int32_t y1 = y + yoffset;
 	int32_t rotation = sdci[6]/10000;
-	
 	const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-	
 	if(index >= TheMaps.size())
 	{
 		al_trace("DrawScreen: invalid map or screen index. \n");
 		return;
 	}
-	
 	const mapscr & m = TheMaps[index];
-	
-	
 	BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-	
 	if(rotation != 0)
 		b = script_drawing_commands.AquireSubBitmap(256, 176);
-		
 	//draw layer 0
 	draw_map_cflag(b, m, x1, y1);
 	if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS))
@@ -10066,17 +8542,13 @@ void do_bmpdrawscreen_cflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_
 		for(int32_t i(0); i < 6; ++i)
 		{
 			if(m.layermap[i] == 0) continue;
-			
 			uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
-			
 			if(layer_screen_index >= TheMaps.size())
 				continue;
-			
 			//draw valid layers
 			draw_map_cflag(b, TheMaps[ layer_screen_index ], x1, y1);
 		}
 	}
-	
 	if(rotation != 0) // rotate
 	{
 		rotate_sprite(refbmp, b, x1, y1, degrees_to_fixed(rotation));
@@ -10088,7 +8560,6 @@ void do_bmpdrawscreen_cflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_
 void draw_map_combotype(BITMAP *b, const mapscr& m, int32_t x, int32_t y)
 {
 	BITMAP* square = create_bitmap_ex(8,16,16);
-	
 	for(int32_t i(0); i < 176; ++i)
 	{
 		const int32_t x2 = ((i&15)<<4) + x;
@@ -10110,12 +8581,10 @@ void do_bmpdrawscreen_ctyper(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_
 	//sdci[5]=y
 	//sdci[6]=rotation
 	//sdci[17] Bitmap Pointer
-	
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
 
-	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-	
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
 	int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
 	int32_t scrn = sdci[3]/10000;
 	int32_t x = sdci[4]/10000;
@@ -10123,43 +8592,31 @@ void do_bmpdrawscreen_ctyper(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_
 	int32_t x1 = x + xoffset;
 	int32_t y1 = y + yoffset;
 	int32_t rotation = sdci[6]/10000;
-	
 	const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-	
 	if(index >= TheMaps.size())
 	{
 		al_trace("DrawScreen: invalid map or screen index. \n");
 		return;
 	}
-	
 	const mapscr & m = TheMaps[index];
-	
-	
 	BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-	
 	if(rotation != 0)
 		b = script_drawing_commands.AquireSubBitmap(256, 176);
-		
 	//draw layer 0
 	draw_map_combotype(b, m, x1, y1);
-	
 	if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS))
 	{
 		for(int32_t i(0); i < 6; ++i)
 		{
 			if(m.layermap[i] == 0) continue;
-			
 			uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
-			
 			if(layer_screen_index >= TheMaps.size())
 				continue;
-			
 			//draw valid layers
 			draw_map_combotype(b, TheMaps[ layer_screen_index ], x1, y1);
 		}
 	}
-	
 	if(rotation != 0) // rotate
 	{
 		rotate_sprite(refbmp, b, x1, y1, degrees_to_fixed(rotation));
@@ -10171,7 +8628,6 @@ void do_bmpdrawscreen_ctyper(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_
 void draw_map_comboiflag(BITMAP *b, const mapscr& m, int32_t x, int32_t y)
 {
 	BITMAP* square = create_bitmap_ex(8,16,16);
-	
 	for(int32_t i(0); i < 176; ++i)
 	{
 		const int32_t x2 = ((i&15)<<4) + x;
@@ -10193,12 +8649,10 @@ void do_bmpdrawscreen_ciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32
 	//sdci[5]=y
 	//sdci[6]=rotation
 	//sdci[17] Bitmap Pointer
-	
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
 
-	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-	
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
 	int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
 	int32_t scrn = sdci[3]/10000;
 	int32_t x = sdci[4]/10000;
@@ -10206,43 +8660,31 @@ void do_bmpdrawscreen_ciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32
 	int32_t x1 = x + xoffset;
 	int32_t y1 = y + yoffset;
 	int32_t rotation = sdci[6]/10000;
-	
 	const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-	
 	if(index >= TheMaps.size())
 	{
 		al_trace("DrawScreen: invalid map or screen index. \n");
 		return;
 	}
-	
 	const mapscr & m = TheMaps[index];
-	
-	
 	BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-	
 	if(rotation != 0)
 		b = script_drawing_commands.AquireSubBitmap(256, 176);
-		
 	//draw layer 0
 	draw_map_comboiflag(b, m, x1, y1);
-	
 	if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS))
 	{
 		for(int32_t i(0); i < 6; ++i)
 		{
 			if(m.layermap[i] == 0) continue;
-			
 			uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
-			
 			if(layer_screen_index >= TheMaps.size())
 				continue;
-			
 			//draw valid layers
 			draw_map_comboiflag(b, TheMaps[ layer_screen_index ], x1, y1);
 		}
 	}
-	
 	if(rotation != 0) // rotate
 	{
 		rotate_sprite(refbmp, b, x1, y1, degrees_to_fixed(rotation));
@@ -10260,7 +8702,6 @@ void do_drawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset,
     //sdci[6]=y
     //sdci[7]=rotation
     //sdci[8]=opacity
-    
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
     int32_t scrn = sdci[3]/10000;
     int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
@@ -10270,10 +8711,8 @@ void do_drawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset,
     int32_t y1 = y + yoffset;
     int32_t rotation = sdci[7]/10000;
     int32_t opacity = sdci[8]/10000;
-    
     const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
     const mapscr* m = getmapscreen(map, scrn, sourceLayer);
-    
     if(!m) //no need to log it.
         return;
 
@@ -10282,23 +8721,16 @@ void do_drawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset,
 		al_trace("DrawLayer: invalid map index \"%i\". Map count is %lu.\n", index, TheMaps.size());
 		return;
 	}
-    
     const mapscr & l = *m;
-    
     BITMAP* b = bmp;
-    
     if(rotation != 0)
         b = script_drawing_commands.AquireSubBitmap(256, 176);
-        
-        
     const int32_t maxX = isOffScreen ? 512 : 256;
     const int32_t maxY = isOffScreen ? 512 : 176 + yoffset;
     bool transparent = opacity <= 128;
-    
     if(rotation != 0) // rotate
     {
         draw_mapscr(b, l, x1, y1, transparent);
-        
         rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
         script_drawing_commands.ReleaseSubBitmap(b);
     }
@@ -10308,17 +8740,13 @@ void do_drawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset,
         {
             const int32_t x2 = ((i&15)<<4) + x1;
             const int32_t y2 = (i&0xF0) + y1;
-            
             if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
             {
                 const newcombo & c = combobuf[ l.data[i] ];
                 const int32_t tile = combo_tile(c, x2, y2);
-                
                 if(opacity < 128)
-		{	
+		{
 		    overcomboblocktranslucent(b, x2, y2, l.data[i], l.cset[i], 1, 1, 128);
-		
-		
                     //overtiletranslucent16(b, tile, x2, y2, l.cset[i], c.flip, opacity);
 		}
                 else
@@ -10330,7 +8758,6 @@ void do_drawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset,
             }
         }
     }
-    
     //putscr
 }
 
@@ -10344,7 +8771,6 @@ void do_drawscreenr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
     //sdci[4]=x
     //sdci[5]=y
     //sdci[6]=rotation
-    
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
     int32_t scrn = sdci[3]/10000;
     int32_t x = sdci[4]/10000;
@@ -10352,41 +8778,28 @@ void do_drawscreenr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
     int32_t x1 = x + xoffset;
     int32_t y1 = y + yoffset;
     int32_t rotation = sdci[6]/10000;
-    
     const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-    
     if(index >= TheMaps.size())
     {
         al_trace("DrawScreen: invalid map or screen index. \n");
         return;
     }
-    
     const mapscr & m = TheMaps[index];
-    
-    
     BITMAP* b = bmp;
-    
     if(rotation != 0)
         b = script_drawing_commands.AquireSubBitmap(256, 176);
-        
     //draw layer 0
     draw_mapscr(b, m, x1, y1, false);
-    
     for(int32_t i(0); i < 6; ++i)
     {
         if(m.layermap[i] == 0) continue;
-        
         uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
-        
         if(layer_screen_index >= TheMaps.size())
             continue;
-            
         bool trans = m.layeropacity[i] == 128;
-        
         //draw valid layers
         draw_mapscr(b, TheMaps[ layer_screen_index ], x1, y1, trans);
     }
-    
     if(rotation != 0) // rotate
     {
         rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
@@ -10407,10 +8820,8 @@ void do_bmpdrawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 	//[8] noclip
     //sdci[9]=opacity
 	//sdci[17] Bitmap Pointer
-	
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
     int32_t scrn = sdci[3]/10000;
     int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
@@ -10423,7 +8834,6 @@ void do_bmpdrawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
     //zprint2("Running bmp->DrawLayer(%d, %d, %d, %d, %d, %d, %d, %d)\n", sdci[1]/10000, map, scrn, sourceLayer, x, y, rotation, opacity);
     const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
     const mapscr* m = getmapscreen(map, scrn, sourceLayer);
-    
     if(!m) //no need to log it.
         return;
 
@@ -10432,24 +8842,18 @@ void do_bmpdrawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 		Z_scripterrlog("DrawLayer: invalid map index \"%i\". Map count is %d.\n", index, TheMaps.size());
 		return;
 	}
-    
     const mapscr & l = *m;
-    
     BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
     if(rotation != 0)
         b = script_drawing_commands.AquireSubBitmap(256, 176);
-        
-        
     const int32_t maxX = isOffScreen ? 512 : 256;
     const int32_t maxY = isOffScreen ? 512 : 176 + yoffset;
     bool transparent = opacity <= 128;
-    
     if(rotation != 0) // rotate
     {
         draw_mapscr(b, l, x, y, transparent);
-        
         rotate_sprite(refbmp, b, x, y, degrees_to_fixed(rotation));
         script_drawing_commands.ReleaseSubBitmap(b);
     }
@@ -10459,22 +8863,18 @@ void do_bmpdrawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
         {
             const int32_t x2 = ((i&15)<<4) + x;
             const int32_t y2 = (i&0xF0) + y;
-            
             //if(noclip&&(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY))   //in clipping rect
             {
                 const newcombo & c = combobuf[ l.data[i] ];
                 const int32_t tile = combo_tile(c, x2, y2);
-                
                 if(opacity < 128)
                     overtiletranslucent16(refbmp, tile, x2, y2, l.cset[i], c.flip, opacity);
                 else
                     overtile16(refbmp, tile, x2, y2, l.cset[i], c.flip);
-                    
                 //putcombo( b, xx, yy, l.data[i], l.cset[i] );
             }
         }
     }
-    
     //putscr
 }
 
@@ -10489,12 +8889,10 @@ void do_bmpdrawscreenr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoff
     //sdci[5]=y
     //sdci[6]=rotation
 	//sdci[17] Bitmap Pointer
-	
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
 
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
-	
+    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop.
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
     int32_t scrn = sdci[3]/10000;
     int32_t x = sdci[4]/10000;
@@ -10502,42 +8900,29 @@ void do_bmpdrawscreenr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoff
     int32_t x1 = x + xoffset;
     int32_t y1 = y + yoffset;
     int32_t rotation = sdci[6]/10000;
-    
     const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-    
     if(index >= TheMaps.size())
     {
         al_trace("DrawScreen: invalid map or screen index. \n");
         return;
     }
-    
     const mapscr & m = TheMaps[index];
-    
-    
     BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
     if(rotation != 0)
         b = script_drawing_commands.AquireSubBitmap(256, 176);
-        
     //draw layer 0
     draw_mapscr(b, m, x1, y1, false);
-    
     for(int32_t i(0); i < 6; ++i)
     {
         if(m.layermap[i] == 0) continue;
-        
         uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
-        
         if(layer_screen_index >= TheMaps.size())
             continue;
-            
         bool trans = m.layeropacity[i] == 128;
-        
         //draw valid layers
         draw_mapscr(b, TheMaps[ layer_screen_index ], x1, y1, trans);
     }
-    
     if(rotation != 0) // rotate
     {
         rotate_sprite(refbmp, b, x1, y1, degrees_to_fixed(rotation));
@@ -10556,7 +8941,6 @@ void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int3
     //sdci[7]=rotation
     //sdci[8]=bool noclip
 	//sdci[9] == opacity
-    
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
     int32_t scrn = sdci[3]/10000;
     int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
@@ -10567,10 +8951,8 @@ void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int3
     int32_t rotation = sdci[7]/10000;
     byte noclip = (sdci[8]!=0);
     int32_t opacity = sdci[9]/10000;
-    
     const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
     const mapscr* m = getmapscreen(map, scrn, sourceLayer);
-    
     if(!m) //no need to log it.
         return;
 
@@ -10579,23 +8961,16 @@ void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int3
 		al_trace("DrawLayer: invalid map index \"%i\". Map count is %lu.\n", index, TheMaps.size());
 		return;
 	}
-    
     const mapscr & l = *m;
-    
     BITMAP* b = bmp;
-    
     if(rotation != 0)
         b = script_drawing_commands.AquireSubBitmap(256, 176);
-        
-        
     const int32_t maxX = isOffScreen ? 512 : 256;
     const int32_t maxY = isOffScreen ? 512 : 176 + yoffset;
     bool transparent = opacity <= 128;
-    
     if(rotation != 0) // rotate
     {
         draw_map_solid(b, l, x1, y1);
-        
         rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
         script_drawing_commands.ReleaseSubBitmap(b);
     }
@@ -10608,11 +8983,9 @@ void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int3
         {
             const int32_t x2 = ((i&15)<<4) + x1;
             const int32_t y2 = (i&0xF0) + y1;
-            
             if(noclip&&(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY))   //in clipping rect
             {
                 int32_t sol = (combobuf[l.data[i]].walk);
-                
                 if ( sol & 1 )
 		{
 			blit(subsquare, square, 0, 0, 0, 0, 8, 8);
@@ -10628,14 +9001,12 @@ void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int3
 		if ( sol &8 )	{
 			blit(subsquare, square, 0, 0, 8, 8, 8, 8);
 		}
-		
 		blit(square, b, 0, 0, x2, y2, square->w, square->h);
             }
         }
 	destroy_bitmap(square);
 	destroy_bitmap(subsquare);
     }
-    
     //putscr
 }
 
@@ -10650,8 +9021,6 @@ void do_bmpdrawlayersolidityr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32
     //sdci[7]=rotation
 	//[8] noclip
     //sdci[9]=opacity
-	
-    
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
     int32_t scrn = sdci[3]/10000;
     int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
@@ -10662,10 +9031,8 @@ void do_bmpdrawlayersolidityr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32
     int32_t rotation = sdci[7]/10000;
 	byte noclip = (sdci[8]!=0);
     int32_t opacity = sdci[9]/10000;
-    
     const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
     const mapscr* m = getmapscreen(map, scrn, sourceLayer);
-    
     if(!m) //no need to log it.
         return;
 
@@ -10674,23 +9041,16 @@ void do_bmpdrawlayersolidityr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32
 		al_trace("DrawLayer: invalid map index \"%i\". Map count is %lu.\n", index, TheMaps.size());
 		return;
 	}
-    
     const mapscr & l = *m;
-    
     BITMAP* b = bmp;
-    
     if(rotation != 0)
         b = script_drawing_commands.AquireSubBitmap(256, 176);
-        
-        
     const int32_t maxX = isOffScreen ? 512 : 256;
     const int32_t maxY = isOffScreen ? 512 : 176 + yoffset;
     bool transparent = opacity <= 128;
-    
     if(rotation != 0) // rotate
     {
         draw_map_solidity(b, l, x1, y1);
-        
         rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
         script_drawing_commands.ReleaseSubBitmap(b);
     }
@@ -10701,7 +9061,6 @@ void do_bmpdrawlayersolidityr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32
         {
             const int32_t x2 = ((i&15)<<4) + x1;
             const int32_t y2 = (i&0xF0) + y1;
-            
             if(noclip && (x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY))   //in clipping rect
             {
                 clear_to_color(square,(combobuf[l.data[i]].walk&15));
@@ -10710,7 +9069,6 @@ void do_bmpdrawlayersolidityr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32
         }
 	destroy_bitmap(square);
     }
-    
     //putscr
 }
 
@@ -10725,8 +9083,6 @@ void do_bmpdrawlayercflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
     //sdci[7]=rotation
 	//[8] noclip
     //sdci[9]=opacity
-	
-    
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
     int32_t scrn = sdci[3]/10000;
     int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
@@ -10738,10 +9094,8 @@ void do_bmpdrawlayercflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
 
 	byte noclip = (sdci[8]!=0);
     int32_t opacity = sdci[9]/10000;
-    
     const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
     const mapscr* m = getmapscreen(map, scrn, sourceLayer);
-    
     if(!m) //no need to log it.
         return;
 
@@ -10750,23 +9104,16 @@ void do_bmpdrawlayercflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
 		al_trace("DrawLayer: invalid map index \"%i\". Map count is %lu.\n", index, TheMaps.size());
 		return;
 	}
-    
     const mapscr & l = *m;
-    
     BITMAP* b = bmp;
-    
     if(rotation != 0)
         b = script_drawing_commands.AquireSubBitmap(256, 176);
-        
-        
     const int32_t maxX = isOffScreen ? 512 : 256;
     const int32_t maxY = isOffScreen ? 512 : 176 + yoffset;
     bool transparent = opacity <= 128;
-    
     if(rotation != 0) // rotate
     {
         draw_map_cflag(b, l, x1, y1);
-        
         rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
         script_drawing_commands.ReleaseSubBitmap(b);
     }
@@ -10777,7 +9124,6 @@ void do_bmpdrawlayercflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
         {
             const int32_t x2 = ((i&15)<<4) + x1;
             const int32_t y2 = (i&0xF0) + y1;
-            
             if(noclip&&(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY))   //in clipping rect
             {
                 clear_to_color(square,l.sflag[i]);
@@ -10786,7 +9132,6 @@ void do_bmpdrawlayercflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
         }
 	destroy_bitmap(square);
     }
-    
     //putscr
 }
 
@@ -10801,7 +9146,6 @@ void do_bmpdrawlayerctyper(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
     //sdci[7]=rotation
 	//[8] noclip
     //sdci[9]=opacity
-    
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
     int32_t scrn = sdci[3]/10000;
     int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
@@ -10815,7 +9159,6 @@ void do_bmpdrawlayerctyper(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
     int32_t opacity = sdci[9]/10000;
     const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
     const mapscr* m = getmapscreen(map, scrn, sourceLayer);
-    
     if(!m) //no need to log it.
         return;
 
@@ -10824,23 +9167,16 @@ void do_bmpdrawlayerctyper(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
 		al_trace("DrawLayer: invalid map index \"%i\". Map count is %lu.\n", index, TheMaps.size());
 		return;
 	}
-    
     const mapscr & l = *m;
-    
     BITMAP* b = bmp;
-    
     if(rotation != 0)
         b = script_drawing_commands.AquireSubBitmap(256, 176);
-        
-        
     const int32_t maxX = isOffScreen ? 512 : 256;
     const int32_t maxY = isOffScreen ? 512 : 176 + yoffset;
     bool transparent = opacity <= 128;
-    
     if(rotation != 0) // rotate
     {
         draw_map_combotype(b, l, x1, y1);
-        
         rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
         script_drawing_commands.ReleaseSubBitmap(b);
     }
@@ -10851,7 +9187,6 @@ void do_bmpdrawlayerctyper(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
         {
             const int32_t x2 = ((i&15)<<4) + x1;
             const int32_t y2 = (i&0xF0) + y1;
-            
             if(noclip&&(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY))   //in clipping rect
             {
                 clear_to_color(square,(combobuf[l.data[i]].type));
@@ -10860,7 +9195,6 @@ void do_bmpdrawlayerctyper(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
         }
 	destroy_bitmap(square);
     }
-    
     //putscr
 }
 
@@ -10875,7 +9209,6 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t
     //sdci[7]=rotation
 	//[8] noclip
     //sdci[9]=opacity
-    
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
     int32_t scrn = sdci[3]/10000;
     int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
@@ -10886,10 +9219,8 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t
     int32_t rotation = sdci[7]/10000;
     byte noclip = (sdci[8]!=0);
     int32_t opacity = sdci[9]/10000;
-    
     const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
     const mapscr* m = getmapscreen(map, scrn, sourceLayer);
-    
     if(!m) //no need to log it.
         return;
 
@@ -10898,23 +9229,16 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t
 		al_trace("DrawLayer: invalid map index \"%i\". Map count is %lu.\n", index, TheMaps.size());
 		return;
 	}
-    
     const mapscr & l = *m;
-    
     BITMAP* b = bmp;
-    
     if(rotation != 0)
         b = script_drawing_commands.AquireSubBitmap(256, 176);
-        
-        
     const int32_t maxX = isOffScreen ? 512 : 256;
     const int32_t maxY = isOffScreen ? 512 : 176 + yoffset;
     bool transparent = opacity <= 128;
-    
     if(rotation != 0) // rotate
     {
         draw_map_comboiflag(b, l, x1, y1);
-        
         rotate_sprite(bmp, b, x1, y1, degrees_to_fixed(rotation));
         script_drawing_commands.ReleaseSubBitmap(b);
     }
@@ -10925,7 +9249,6 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t
         {
             const int32_t x2 = ((i&15)<<4) + x1;
             const int32_t y2 = (i&0xF0) + y1;
-            
             if(noclip&&(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY))   //in clipping rect
             {
                 clear_to_color(square,(combobuf[l.data[i]].flag));
@@ -10934,7 +9257,6 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t
         }
 	destroy_bitmap(square);
     }
-    
     //putscr
 }
 
@@ -10947,10 +9269,8 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t
 void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_t xoff, int32_t yoff)
 {
 	color_map = &trans_table2;
-	
 	//was this next variable ever used? -- DN
 	//bool drawsubscr=false;
-	
 	if(type > 7)
 		return;
 	if(theScreen->hidescriptlayers & (1<<type))
@@ -10961,10 +9281,8 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 	//[][17]: unused
 	//[][18]: rendertarget
 	//[][19]: unused
-	
 	// Trying to match the old behavior exactly...
 	const bool brokenOffset= ( (get_bit(extra_rules, er_BITMAPOFFSET)!=0) || (get_bit(quest_rules,qr_BITMAPOFFSETFIX)!=0) );
-	
 	bool isTargetOffScreenBmp = false;
 	const int32_t type_mul_10000 = type * 10000;
 	const int32_t numDrawCommandsToProcess = script_drawing_commands.Count();
@@ -10978,12 +9296,10 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 			yoffset = 0;
 		}
 		int32_t *sdci = &script_drawing_commands[i][0];
-		
 		if(sdci[1] != type_mul_10000)
 			continue;
 		// get the correct render target, if set.
 		BITMAP *bmp = zscriptDrawingRenderTarget->GetTargetBitmap(sdci[18]);
-		
 		if(!bmp)
 		{
 			// draw to screen with subscreen offset
@@ -11004,7 +9320,6 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 			}
 			isTargetOffScreenBmp = true;
 		}
-		
 		switch(sdci[0])
 		{
 			case RECTR:
@@ -11017,38 +9332,31 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 				do_framer(bmp, sdci, xoffset, yoffset);
 			}
 			break;
-			
-			
 			case CIRCLER:
 			{
 				do_circler(bmp, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case ARCR:
 			{
 				do_arcr(bmp, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case ELLIPSER:
 			{
 				do_ellipser(bmp, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case LINER:
 			{
 				do_liner(bmp, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case SPLINER:
 			{
 				do_spliner(bmp, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case PUTPIXELR:
 			{
 				do_putpixelr(bmp, sdci, xoffset, yoffset);
@@ -11060,145 +9368,119 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 				do_putpixelsr(bmp, i, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case TILEARRAYR:
 			{
 			 //Z_scripterrlog("Reached case PIXELARRAYR\n");
 				do_fasttilesr(bmp, i, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case LINESARRAY:
 			{
 			 //Z_scripterrlog("Reached case PIXELARRAYR\n");
 				do_linesr(bmp, i, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case COMBOARRAYR:
 			{
 			 //Z_scripterrlog("Reached case PIXELARRAYR\n");
 				do_fastcombosr(bmp, i, sdci, xoffset, yoffset);
 			}
 			break;
-			
-			
-			
 			case DRAWTILER:
 			{
 				do_drawtiler(bmp, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case DRAWTILECLOAKEDR:
 			{
 				do_drawtilecloakedr(bmp, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case DRAWCOMBOR:
 			{
 				do_drawcombor(bmp, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case DRAWCOMBOCLOAKEDR:
 			{
 				do_drawcombocloakedr(bmp, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case FASTTILER:
 			{
 				do_fasttiler(bmp, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case FASTCOMBOR:
 			{
 				do_fastcombor(bmp, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case DRAWCHARR:
 			{
 				do_drawcharr(bmp, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case DRAWINTR:
 			{
 				do_drawintr(bmp, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case DRAWSTRINGR:
 			{
 				do_drawstringr(bmp, i, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case DRAWSTRINGR2:
 			{
 				do_drawstringr2(bmp, i, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case QUADR:
 			{
 				do_drawquadr(bmp, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case QUAD3DR:
 			{
 				do_drawquad3dr(bmp, i, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case TRIANGLER:
 			{
 				do_drawtriangler(bmp, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case TRIANGLE3DR:
 			{
 				do_drawtriangle3dr(bmp, i, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case POLYGONR:
 			{
 				do_polygonr(bmp, i, sdci, xoffset, yoffset);
 			}
 			break;
-			
-			
 			case BITMAPR:
 			{
 				do_drawbitmapr(bmp, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case BITMAPEXR:
 			{
 				do_drawbitmapexr(bmp, sdci, xoffset, yoffset);
 			}
 			break;
-			
 			case DRAWLAYERR:
 			{
 				do_drawlayerr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp);
 			}
 			break;
-			
 			case DRAWSCREENR:
 			{
 				do_drawscreenr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp);
 			}
 			break;
-			
 			case BMPRECTR: bmp_do_rectr(bmp, sdci, xoffset, yoffset); break;
 			case BMPFRAMER: bmp_do_framer(bmp, sdci, xoffset, yoffset); break;
 			case BMPCIRCLER: bmp_do_circler(bmp, sdci, xoffset, yoffset); break;
@@ -11219,7 +9501,6 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 			case BMPDRAWSTRINGR2: bmp_do_drawstringr2(bmp, i, sdci, xoffset, yoffset); break;
 			case BMPQUADR: bmp_do_drawquadr(bmp, sdci, xoffset, yoffset); break;
 			case BMPQUAD3DR: bmp_do_drawquad3dr(bmp, i, sdci, xoffset, yoffset); break;
-				
 			case BITMAPGETPIXEL: bmp_do_getpixelr(bmp, sdci, xoffset, yoffset); break;
 			case BMPTRIANGLER: bmp_do_drawtriangler(bmp, sdci, xoffset, yoffset); break;
 			case BMPTRIANGLE3DR: bmp_do_drawtriangle3dr(bmp, i, sdci, xoffset, yoffset); break;
@@ -11239,7 +9520,6 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 			case CLEARBITMAP: bmp_do_clearr(bmp, sdci, xoffset, yoffset); break;
 			case BITMAPCLEARTOCOLOR: bmp_do_clearcolorr(bmp, sdci, xoffset, yoffset); break;
 			case REGENERATEBITMAP: bmp_do_regenr(bmp, sdci, xoffset, yoffset); break;
-			
 			case BMPDRAWLAYERSOLIDR: do_bmpdrawlayersolidmaskr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
 			case BMPDRAWLAYERCFLAGR: do_bmpdrawlayercflagr(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
 			case BMPDRAWLAYERCTYPER: do_bmpdrawlayerctyper(bmp, sdci, xoffset, yoffset, isTargetOffScreenBmp); break;
@@ -11253,8 +9533,6 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 			case BMPMASKBLIT: do_bmpmaskblit(bmp, sdci, xoffset, yoffset); break;
 		}
 	}
-	
-	
 	color_map=&trans_table;
 }
 
@@ -11263,11 +9541,9 @@ void CScriptDrawingCommands::Clear()
 	scb.update();
 	if(commands.empty())
 		return;
-	
 	//only clear what was used.
 	memset((void*)&commands[0], 0, count * sizeof(CScriptDrawingCommandVars));
 	count = 0;
-	
 	draw_container.Clear();
 }
 CScriptDrawingCommands* CScriptDrawingCommands::pop_commands()
@@ -11276,10 +9552,8 @@ CScriptDrawingCommands* CScriptDrawingCommands::pop_commands()
 	if(commands.empty())
 		return ret;
 	ret->push_commands(this, false);
-	
 	memset((void*)&commands[0], 0, count * sizeof(CScriptDrawingCommandVars));
 	count = 0;
-	
 	draw_container.Clear();
 	return ret;
 }

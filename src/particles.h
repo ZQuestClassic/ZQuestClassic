@@ -12,7 +12,6 @@ class particle
 private:
     static int32_t getNextUID();
     int32_t uid;
-    
 public:
     int32_t getUID()
     {

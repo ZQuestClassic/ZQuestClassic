@@ -40,7 +40,6 @@ void scr_func_exec::execute()
 	script_data* sc_data = load_scrdata(type,script,i);
 	if(!pc || !sc_data || !sc_data->valid())
 		return;
-	
 	ffscript *zas = &sc_data->zasm[pc-1];
 	if(!(zas->command == STARTDESTRUCTOR && zas->strptr && name == *(zas->strptr)))
 	{
@@ -48,7 +47,6 @@ void scr_func_exec::execute()
 			zas = &sc_data->zasm[pc-1];
 		else return;
 	}
-	
 	if(zas->command == STARTDESTRUCTOR && zas->strptr && name == *(zas->strptr))
 	{
 		push_ri();
@@ -57,7 +55,6 @@ void scr_func_exec::execute()
 		ri->pc = pc;
 		ri->thiskey = thiskey;
 		ri->sp--;
-		
 		curscript = sc_data;
 		stack = &static_stack;
 		curScriptType = type;
@@ -79,7 +76,6 @@ bool scr_func_exec::validate()
 	script_data* sc_data = load_scrdata(type,script,i);
 	if(!pc || !sc_data || !sc_data->valid())
 		return false;
-	
 	ffscript &zas = sc_data->zasm[pc-1];
 	if(zas.command == STARTDESTRUCTOR && zas.strptr && name == *(zas.strptr))
 		return true; //validated!

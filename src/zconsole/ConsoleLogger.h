@@ -40,7 +40,7 @@
 
 
 // If no "helper_executable" location was specify -
-// search for the DEFAULT_HELPER_EXE 
+// search for the DEFAULT_HELPER_EXE
 #define DEFAULT_HELPER_EXE	"zconsole.exe"
 
 
@@ -51,24 +51,18 @@ public:
 	// ctor,dtor
 	CConsoleLogger();
 	virtual ~CConsoleLogger();
-	
 	bool valid();
-	
 	// create a logger: starts a pipe+create the child process
 	int32_t Create(const char *lpszWindowTitle=NULL,
 				int32_t buffer_size_x=-1,int32_t buffer_size_y=-1,
 				const char *logger_name=NULL,
 				const char *helper_executable=NULL);
-	
 	void kill();
-	
 	// close everything
 	int32_t Close(void);
-	
 	// output functions
 	inline int32_t print(const char *lpszText,int32_t iSize=-1);
 	int32_t printf(const char *format,...);
-	
 	// play with the CRT output functions
 	int32_t SetAsDefaultOutput(void);
 	static int32_t ResetDefaultOutput(void);
@@ -78,7 +72,6 @@ protected:
 	HANDLE	m_hPipe;
 	process_killer killer;
 	bool kill_on_close;
-	
 #ifdef CONSOLE_LOGGER_USING_MS_SDK
 	// we'll use this DWORD as VERY fast critical-section . for more info:
 	// * "Understand the Impact of Low-Lock Techniques in Multithreaded Apps"
@@ -88,7 +81,6 @@ protected:
 
 	inline void InitializeCriticalSection(void)
 	{ m_fast_critical_section=0; }
-	
 	inline void DeleteCriticalSection(void)
 	{ m_fast_critical_section=0; }
 
@@ -104,7 +96,6 @@ protected:
 	CRITICAL_SECTION	m_cs;
 	inline void InitializeCriticalSection(void)
 	{ ::InitializeCriticalSection(&m_cs); }
-	
 	inline void DeleteCriticalSection(void)
 	{ ::DeleteCriticalSection(&m_cs); }
 
@@ -125,7 +116,6 @@ protected:
 	// the _print() helper function
 	virtual int32_t _print(const char *lpszText,int32_t iSize);
 
-	
 
 
 	// SafeWriteFile : write safely to the pipe
@@ -151,7 +141,7 @@ protected:
 //                   but with COLORS and more functionality (cls,gotoxy,...)
 //
 // the drawback - we first send the "command" and than the data,
-//                so it's little bit slower . (i don't believe that anyone 
+//                so it's little bit slower . (i don't believe that anyone
 //                is going to notice the differences , it's not measurable)
 //
 //////////////////////////////////////////////////////////////////////////
@@ -193,27 +183,20 @@ public:
 		COLOR_COMMON_LVB_REVERSE_VIDEO =COMMON_LVB_REVERSE_VIDEO ,
 		COLOR_COMMON_LVB_UNDERSCORE=COMMON_LVB_UNDERSCORE
 
-		
 	};
-	
 	// Clear screen , use default color (black&white)
 	void cls(void);
-	
 	// Clear screen use specific color
 	void cls(DWORD color);
 
 	// Clear till End Of Line , use default color (black&white)
 	void clear_eol(void);
-	
 	// Clear till End Of Line , use specified color
 	void clear_eol(DWORD color);
-	
 	// write string , use specified color
 	int32_t cprintf(int32_t attributes,const char *format,...);
-	
 	// write string , use current color
 	int32_t cprintf(const char *format,...);
-	
 	// goto(x,y)
 	void gotoxy(int32_t x,int32_t y);
 
@@ -221,10 +204,8 @@ public:
 
 	DWORD	GetCurrentColor(void)
 	{ return m_dwCurrentAttributes; }
-	
 	void	SetCurrentColor(DWORD dwColor)
 	{ m_dwCurrentAttributes=dwColor; }
-	
 
 protected:
 	virtual int32_t	AddHeaders(void)
@@ -235,7 +216,6 @@ protected:
 		WriteFile(m_hPipe,ptr,strlen(ptr),&cbWritten,NULL);
 		return (cbWritten==strlen(ptr)) ? 0 : -1;
 	}
-	
 	virtual int32_t _print(const char *lpszText,int32_t iSize);
 	virtual int32_t _cprint(int32_t attributes,const char *lpszText,int32_t iSize);
 
@@ -252,24 +232,19 @@ public:
 	// ctor,dtor
 	CConsoleLogger();
 	virtual ~CConsoleLogger();
-	
 	bool valid();
-	
 	// create a logger: starts a pipe+create the child process
 	int32_t Create(const char *lpszWindowTitle=NULL,
 				int32_t buffer_size_x=-1,int32_t buffer_size_y=-1,
 				const char *logger_name=NULL,
 				const char *helper_executable=NULL);
-	
 	void kill();
 
 	// close everything
 	int32_t Close(void);
-	
 	// output functions
 	inline int32_t print(const char *lpszText,int32_t iSize=-1);
 	int32_t printf(const char *format,...);
-	
 	// play with the CRT output functions
 	int32_t SetAsDefaultOutput(void);
 	static int32_t ResetDefaultOutput(void);
@@ -328,25 +303,19 @@ public:
 		COLOR_COMMON_LVB_REVERSE_VIDEO,
 		COLOR_COMMON_LVB_UNDERSCORE
 	};
-	
 	// Clear screen , use default color (black&white)
 	void cls(void);
-	
 	// Clear screen use specific color
 	void cls(word color);
 
 	// Clear till End Of Line , use default color (black&white)
 	void clear_eol(void);
-	
 	// Clear till End Of Line , use specified color
 	void clear_eol(word color);
-	
 	// write string , use specified color
 	int32_t cprintf(int32_t attributes,const char *format,...);
-	
 	// write string , use current color
 	int32_t cprintf(const char *format,...);
-	
 	// goto(x,y)
 	void gotoxy(int32_t x,int32_t y);
 
@@ -354,21 +323,17 @@ public:
 
 	word	GetCurrentColor(void)
 	{
-        return 0;    
+        return 0;
     }
-	
 	void	SetCurrentColor(word dwColor)
 	{
-            
     }
-	
 
 protected:
 	virtual int32_t AddHeaders(void)
 	{
 		return  0;
 	}
-	
 	virtual int32_t _print(const char *lpszText,int32_t iSize);
 	virtual int32_t _cprint(int32_t attributes,const char *lpszText,int32_t iSize);
 

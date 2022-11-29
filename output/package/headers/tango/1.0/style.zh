@@ -24,7 +24,7 @@ const int TANGO_STYLE_TEXT_SPEED           = 12; // Default
 const int TANGO_STYLE_TEXT_SFX             = 13; // Default
 const int TANGO_STYLE_TEXT_END_SFX         = 14;
 const int TANGO_STYLE_MENU_CURSOR_COMBO    = 15;
-const int TANGO_STYLE_MENU_CURSOR_CSET     = 16; 
+const int TANGO_STYLE_MENU_CURSOR_CSET     = 16;
 const int TANGO_STYLE_MENU_CURSOR_WIDTH    = 17;
 const int TANGO_STYLE_MENU_CURSOR_MOVE_SFX = 18;
 const int TANGO_STYLE_MENU_SELECT_SFX      = 19;
@@ -102,7 +102,7 @@ int Tango_GetStyleAttribute(int style, int attribute)
 {
     if(!__Tango_ValidateStyle(style))
         return TANGO_INVALID;
-    
+
     return __Tango_Styles[style*__TANGO_SIZEOF_STYLE+attribute];
 }
 
@@ -110,7 +110,7 @@ int Tango_GetSlotStyle(int slot)
 {
     if(!__Tango_ValidateSlot(slot))
         return TANGO_INVALID;
-    
+
     return __Tango_SlotData[slot*__TANGO_SIZEOF_DATA+__TSDIDX_STYLE];
 }
 
@@ -124,7 +124,7 @@ int Tango_GetSlotStyleAttribute(int slot, int attribute)
 {
     if(!__Tango_ValidateSlot(slot))
         return TANGO_INVALID;
-    
+
     int style=__Tango_SlotData[slot*__TANGO_SIZEOF_DATA+__TSDIDX_STYLE];
     return __Tango_Styles[style*__TANGO_SIZEOF_STYLE+attribute];
 }
@@ -133,15 +133,15 @@ void Tango_ClearStyle(int style)
 {
     if(!__Tango_ValidateStyle(style))
         return;
-    
+
     int styleStart=style*__TANGO_SIZEOF_STYLE;
-    
+
     __Tango_Styles[styleStart+TANGO_STYLE_BACKDROP_TYPE]=TANGO_BACKDROP_CLEAR;
     __Tango_Styles[styleStart+TANGO_STYLE_BACKDROP_DATA]=0;
     __Tango_Styles[styleStart+TANGO_STYLE_BACKDROP_CSET]=0;
     __Tango_Styles[styleStart+TANGO_STYLE_BACKDROP_WIDTH]=0;
     __Tango_Styles[styleStart+TANGO_STYLE_BACKDROP_HEIGHT]=0;
-    
+
     __Tango_Styles[styleStart+TANGO_STYLE_TEXT_FONT]=0;
     __Tango_Styles[styleStart+TANGO_STYLE_TEXT_X]=0;
     __Tango_Styles[styleStart+TANGO_STYLE_TEXT_Y]=0;
@@ -152,14 +152,14 @@ void Tango_ClearStyle(int style)
     __Tango_Styles[styleStart+TANGO_STYLE_TEXT_SPEED]=0;
     __Tango_Styles[styleStart+TANGO_STYLE_TEXT_SFX]=0;
     __Tango_Styles[styleStart+TANGO_STYLE_TEXT_END_SFX]=0;
-    
+
     __Tango_Styles[styleStart+TANGO_STYLE_MENU_CURSOR_COMBO]=0;
     __Tango_Styles[styleStart+TANGO_STYLE_MENU_CURSOR_CSET]=0;
     __Tango_Styles[styleStart+TANGO_STYLE_MENU_CURSOR_WIDTH]=0;
     __Tango_Styles[styleStart+TANGO_STYLE_MENU_CURSOR_MOVE_SFX]=0;
     __Tango_Styles[styleStart+TANGO_STYLE_MENU_SELECT_SFX]=0;
     __Tango_Styles[styleStart+TANGO_STYLE_MENU_CANCEL_SFX]=0;
-    
+
     __Tango_Styles[styleStart+TANGO_STYLE_MORE_COMBO]=0;
     __Tango_Styles[styleStart+TANGO_STYLE_MORE_CSET]=0;
     __Tango_Styles[styleStart+TANGO_STYLE_MORE_X]=0;

@@ -511,8 +511,8 @@ unambiguous base classes.
 </p>
 <p>Mixing code compiled with <samp>-frtti</samp> with that compiled with
 <samp>-fno-rtti</samp> may not work.  For example, programs may
-fail to link if a class compiled with <samp>-fno-rtti</samp> is used as a base 
-for a class compiled with <samp>-frtti</samp>.  
+fail to link if a class compiled with <samp>-fno-rtti</samp> is used as a base
+for a class compiled with <samp>-frtti</samp>.
 </p>
 </dd>
 <dt><code>-fsized-deallocation</code></dt>
@@ -774,7 +774,7 @@ function pointers were used as template arguments.
 point include:
 </p>
 <ul>
-<li> For SysV/x86-64, unions with <code>long double</code> members are 
+<li> For SysV/x86-64, unions with <code>long double</code> members are
 passed in memory as specified in psABI.  For example:
 
 <div class="smallexample">
@@ -951,7 +951,7 @@ by <samp>-Wabi</samp> and <samp>-Wc++17-compat</samp>.
 <div class="smallexample">
 <pre class="smallexample">template &lt;class T&gt; void f(T t) { t(); };
 void g() noexcept;
-void h() { f(g); } 
+void h() { f(g); }
 </pre></div>
 
 <p>In C++14, <code>f</code> calls <code>f&lt;void(*)()&gt;</code>, but in
@@ -1158,10 +1158,10 @@ But this use is not portable across different compilers.
 <a name="index-Wnon_002dtemplate_002dfriend"></a>
 <p>Disable warnings when non-template friend functions are declared
 within a template.  In very old versions of GCC that predate implementation
-of the ISO standard, declarations such as 
+of the ISO standard, declarations such as
 &lsquo;<samp>friend int foo(int)</samp>&rsquo;, where the name of the friend is an unqualified-id,
 could be interpreted as a particular specialization of a template
-function; the warning exists to diagnose compatibility problems, 
+function; the warning exists to diagnose compatibility problems,
 and is enabled by default.
 </p>
 </dd>

@@ -27,13 +27,11 @@ public:
 private:
 	std::shared_ptr<GUI::TextField> mapCountTF;
 	std::shared_ptr<GUI::Window> window;
-	
 	std::function<void(byte*)> setQRs;
 	byte local_qrs[QR_SZ];
 	byte const* realqrs;
 	size_t qrs_per_tab;
 	bool searchmode;
-	
 	friend void call_qrsearch_dialog(std::function<void(byte*)> setQRs);
 };
 

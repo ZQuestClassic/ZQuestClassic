@@ -49,7 +49,6 @@ void Radio::setProcSet(int32_t newProcSet)
 	procset = newProcSet;
 	if(alDialog) alDialog->d1 = procset;
 }
-	
 void Radio::setIndex(size_t newIndex)
 {
 	index = newIndex;

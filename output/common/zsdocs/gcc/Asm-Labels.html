@@ -103,20 +103,20 @@ the assembler code should be &lsquo;<samp>myfoo</samp>&rsquo; rather than the us
 variable, this feature allows you to define names for the
 linker that do not start with an underscore.
 </p>
-<p>GCC does not support using this feature with a non-static local variable 
+<p>GCC does not support using this feature with a non-static local variable
 since such variables do not have assembler names.  If you are
-trying to put the variable in a particular register, see 
+trying to put the variable in a particular register, see
 <a href="Explicit-Register-Variables.html#Explicit-Register-Variables">Explicit Register Variables</a>.
 </p>
 <a name="Assembler-names-for-functions_003a"></a>
 <h4 class="subsubheading">Assembler names for functions:</h4>
 
-<p>To specify the assembler name for functions, write a declaration for the 
+<p>To specify the assembler name for functions, write a declaration for the
 function before its definition and put <code>asm</code> there, like this:
 </p>
 <div class="smallexample">
 <pre class="smallexample">int func (int x, int y) asm (&quot;MYFUNC&quot;);
-     
+
 int func (int x, int y)
 {
    /* <span class="roman">&hellip;</span> */

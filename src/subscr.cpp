@@ -1747,102 +1747,78 @@ void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int32_
         case sstsSHADOW:
             textout_shadow_right_ex(bmp, f, s, x, y, shadow, bg);
             break;
-            
         case sstsSHADOWU:
             textout_shadow_right_u_ex(bmp, f, s, x, y, shadow, bg);
             break;
-            
         case sstsOUTLINE8:
             textout_shadow_right_o_ex(bmp, f, s, x, y, shadow, bg);
             break;
-            
         case sstsOUTLINEPLUS:
             textout_shadow_right_plus_ex(bmp, f, s, x, y, shadow, bg);
             break;
-            
         case sstsOUTLINEX:
             textout_shadow_right_x_ex(bmp, f, s, x, y, shadow, bg);
             break;
-            
         case sstsSHADOWED:
             textout_shadowed_right_ex(bmp, f, s, x, y, color, shadow, bg);
             break;
-            
         case sstsSHADOWEDU:
             textout_shadowed_right_u_ex(bmp, f, s, x, y, color, shadow, bg);
             break;
-            
         case sstsOUTLINED8:
             textout_shadowed_right_o_ex(bmp, f, s, x, y, color, shadow, bg);
             break;
-            
         case sstsOUTLINEDPLUS:
             textout_shadowed_right_plus_ex(bmp, f, s, x, y, color, shadow, bg);
             break;
-            
         case sstsOUTLINEDX:
             textout_shadowed_right_x_ex(bmp, f, s, x, y, color, shadow, bg);
             break;
-            
         case sstsNORMAL:
         default:
             textout_right_ex(bmp, f, s, x, y, color, bg);
             break;
         }
-        
         break;
-        
     case sstaCENTER:
         switch(textstyle)
         {
         case sstsSHADOW:
             textout_shadow_center_ex(bmp, f, s, x, y, shadow, bg);
             break;
-            
         case sstsSHADOWU:
             textout_shadow_center_u_ex(bmp, f, s, x, y, shadow, bg);
             break;
-            
         case sstsOUTLINE8:
             textout_shadow_center_o_ex(bmp, f, s, x, y, shadow, bg);
             break;
-            
         case sstsOUTLINEPLUS:
             textout_shadow_center_plus_ex(bmp, f, s, x, y, shadow, bg);
             break;
-            
         case sstsOUTLINEX:
             textout_shadow_center_x_ex(bmp, f, s, x, y, shadow, bg);
             break;
-            
         case sstsSHADOWED:
             textout_shadowed_center_ex(bmp, f, s, x, y, color, shadow, bg);
             break;
-            
         case sstsSHADOWEDU:
             textout_shadowed_center_u_ex(bmp, f, s, x, y, color, shadow, bg);
             break;
-            
         case sstsOUTLINED8:
             textout_shadowed_center_o_ex(bmp, f, s, x, y, color, shadow, bg);
             break;
-            
         case sstsOUTLINEDPLUS:
             textout_shadowed_center_plus_ex(bmp, f, s, x, y, color, shadow, bg);
             break;
-            
         case sstsOUTLINEDX:
             textout_shadowed_center_x_ex(bmp, f, s, x, y, color, shadow, bg);
             break;
-            
         case sstsNORMAL:
         default:
             textout_centre_ex(bmp, f, s, x, y, color, bg);
             break;
         }
-        
         break;
-        
     case sstaLEFT:
     default:
         switch(textstyle)
@@ -1850,49 +1826,38 @@ void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int32_
         case sstsSHADOW:
             textout_shadow_ex(bmp, f, s, x, y, shadow, bg);
             break;
-            
         case sstsSHADOWU:
             textout_shadow_u_ex(bmp, f, s, x, y, shadow, bg);
             break;
-            
         case sstsOUTLINE8:
             textout_shadow_o_ex(bmp, f, s, x, y, shadow, bg);
             break;
-            
         case sstsOUTLINEPLUS:
             textout_shadow_plus_ex(bmp, f, s, x, y, shadow, bg);
             break;
-            
         case sstsOUTLINEX:
             textout_shadow_x_ex(bmp, f, s, x, y, shadow, bg);
             break;
-            
         case sstsSHADOWED:
             textout_shadowed_ex(bmp, f, s, x, y, color, shadow, bg);
             break;
-            
         case sstsSHADOWEDU:
             textout_shadowed_u_ex(bmp, f, s, x, y, color, shadow, bg);
             break;
-            
         case sstsOUTLINED8:
             textout_shadowed_o_ex(bmp, f, s, x, y, color, shadow, bg);
             break;
-            
         case sstsOUTLINEDPLUS:
             textout_shadowed_plus_ex(bmp, f, s, x, y, color, shadow, bg);
             break;
-            
         case sstsOUTLINEDX:
             textout_shadowed_x_ex(bmp, f, s, x, y, color, shadow, bg);
             break;
-            
         case sstsNORMAL:
         default:
             textout_ex(bmp, f, s, x, y, color, bg);
             break;
         }
-        
         break;
     }
 }
@@ -1905,11 +1870,9 @@ void textprintf_styled_aligned_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t
     ASSERT(bmp);
     ASSERT(f);
     ASSERT(format);
-    
     va_start(ap, format);
     uvszprintf(buf, sizeof(buf), format, ap);
     va_end(ap);
-    
     textout_styled_aligned_ex(bmp, f, buf, x, y, textstyle, alignment, color, shadow, bg);
 }
 
@@ -1930,23 +1893,19 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
     int32_t width;
     int32_t i = 0;
     int32_t noignore;
-    
     usetc(s+usetc(s, '.'), 0);
     usetc(text+usetc(text, ' '), 0);
     usetc(space+usetc(space, ' '), 0);
-    
     /* find the correct text */
     if(thetext != NULL)
     {
         printed = thetext;
         scanned = thetext;
     }
-    
     /* loop over the entire string */
     for(;;)
     {
         width = 0;
-        
         /* find the next break */
         while(ugetc(scanned))
         {
@@ -1957,17 +1916,14 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
                 /* we are done parsing the line end */
                 break;
             }
-            
             /* the next character length */
             usetc(s+usetc(s, ugetc(scanned)), 0);
             len = text_length(tempfont, s);
-            
             /* modify length if its a tab */
             if(ugetc(s) == '\t')
             {
                 len = tabsize * text_length(tempfont, space);
             }
-            
             /* check for the end of a line by excess width of next char */
             if(width+len >= w)
             {
@@ -1977,7 +1933,6 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
                     /* remember where we were */
                     oldscan = scanned;
                     noignore = FALSE;
-                    
                     /* go backwards looking for start of word */
                     while(!uisspace(ugetc(scanned)))
                     {
@@ -1986,30 +1941,24 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
                         {
                             /* the whole line is filled, so stop here */
                             tmp = ptmp = scanned;
-                            
                             while(ptmp != oldscan)
                             {
                                 ptmp = tmp;
                                 tmp += uwidth(tmp);
                             }
-                            
                             scanned = ptmp;
                             noignore = TRUE;
                             break;
                         }
-                        
                         /* look further backwards to wrap */
                         tmp = ptmp = printed;
-                        
                         while(tmp < scanned)
                         {
                             ptmp = tmp;
                             tmp += uwidth(tmp);
                         }
-                        
                         scanned = ptmp;
                     }
-                    
                     /* put the space at the end of the line */
                     if(!noignore)
                     {
@@ -2020,29 +1969,24 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
                     {
                         ignore = NULL;
                     }
-                    
                     /* check for endline at the convenient place */
                     if(ugetc(scanned) == '\n')
                     {
                         scanned += uwidth(scanned);
                     }
                 }
-                
                 /* we are done parsing the line end */
                 break;
             }
-            
             /* the character can be added */
             scanned += uwidth(scanned);
             width += len;
         }
-        
         /* check if we are to print it */
         if((y1+text_height(tempfont) <= (y+h)))
         {
             int32_t tempw=0;
             char *tempprinted=printed;
-            
             /* print up to the marked character */
             while(printed != scanned)
             {
@@ -2053,7 +1997,6 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
                 case '\n':
                     /* don't print endlines in the text */
                     break;
-                    
                     /* possibly expand the tabs */
                 case '\t':
                     for(i=0; i<tabsize; i++)
@@ -2061,9 +2004,7 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
                         usetc(s+usetc(s, ' '), 0);
                         tempw += text_length(tempfont, s);
                     }
-                    
                     break;
-                    
                     /* print a normal character */
                 default:
                     if(printed != ignore)
@@ -2072,41 +2013,33 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
                         tempw += text_length(tempfont, s);
                     }
                 }
-                
                 /* goto the next character */
                 printed += uwidth(printed);
             }
-            
             printed=tempprinted;
-            
             switch(alignment)
             {
             case sstaRIGHT:
                 x1=x+w-tempw;
                 break;
-                
             case sstaCENTER:
                 x1=x+((w-tempw)/2)+1;
                 break;
-                
             case sstaLEFT:
             default:
                 x1 = x;
                 break;
             }
-            
             /* print up to the marked character */
             while(printed != scanned)
             {
                 /* do special stuff for each charater */
                 switch(ugetc(printed))
                 {
-                
                 case '\r':
                 case '\n':
                     /* don't print endlines in the text */
                     break;
-                    
                     /* possibly expand the tabs */
                 case '\t':
                     for(i=0; i<tabsize; i++)
@@ -2115,9 +2048,7 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
                         textout_styled_aligned_ex(dest, tempfont, s, x1, y1, textstyle, sstaLEFT, color, shadowcolor, backcolor);
                         x1 += text_length(tempfont, s);
                     }
-                    
                     break;
-                    
                     /* print a normal character */
                 default:
                     if(printed != ignore)
@@ -2127,11 +2058,9 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
                         x1 += text_length(tempfont, s);
                     }
                 }
-                
                 /* goto the next character */
                 printed += uwidth(printed);
             }
-            
             /* print the line end */
             y1 += text_height(tempfont);
         }
@@ -2139,9 +2068,7 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
         {
             scanned += uwidth(scanned);
         }
-        
         printed = scanned;
-        
         /* check if we are at the end of the string */
         if(!ugetc(printed))
         {
@@ -2161,7 +2088,6 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,int32_t tile,int3
       |         |
       |         |
       \_ __ __ _/
-    
       0  1  4  5
       2  3  6  7
       80 81 84 85
@@ -2171,9 +2097,7 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,int32_t tile,int3
     {
 		tile = misc->colors.blueframe_tile;
     }
-    
     int32_t t8 = tile<<2;
-    
     if(overlay)
     {
         if(trans)
@@ -2182,19 +2106,15 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,int32_t tile,int3
             {
                 int32_t top    = (dx >= (w>>1)) ? ((dx==w-1) ? t8+5  : t8+4) : ((dx==0) ? t8    : t8+1);
                 int32_t bottom = (dx >= (w>>1)) ? ((dx==w-1) ? t8+87 : t8+86) : ((dx==0) ? t8+82 : t8+83);
-                
                 overtiletranslucent8(dest,top,(dx<<3)+x,y,cset,0,128);
                 overtiletranslucent8(dest,bottom,(dx<<3)+x,((h-1)<<3)+y,cset,0,128);
             }
-            
             for(int32_t dy=1; dy<h-1; dy++)
             {
                 int32_t left  = (dy >= (h>>1)) ? t8+80 : t8+2;
                 int32_t right = (dy >= (h>>1)) ? t8+85 : t8+7;
-                
                 overtiletranslucent8(dest,left,x,(dy<<3)+y,cset,0,128);
                 overtiletranslucent8(dest,right,((w-1)<<3)+x,(dy<<3)+y,cset,0,128);
-                
                 for(int32_t dx=1; dx<w-1; dx++)
                 {
                     int32_t fill = (dy >= (h>>1)) ? ((dx >= (w>>1)) ? t8+84 : t8+81) : ((dx >= (w>>1)) ? t8+6 : t8+3);
@@ -2208,19 +2128,15 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,int32_t tile,int3
             {
                 int32_t top    = (dx >= (w>>1)) ? ((dx==w-1) ? t8+5  : t8+4) : ((dx==0) ? t8    : t8+1);
                 int32_t bottom = (dx >= (w>>1)) ? ((dx==w-1) ? t8+87 : t8+86) : ((dx==0) ? t8+82 : t8+83);
-                
                 overtile8(dest,top,(dx<<3)+x,y,cset,0);
                 overtile8(dest,bottom,(dx<<3)+x,((h-1)<<3)+y,cset,0);
             }
-            
             for(int32_t dy=1; dy<h-1; dy++)
             {
                 int32_t left  = (dy >= (h>>1)) ? t8+80 : t8+2;
                 int32_t right = (dy >= (h>>1)) ? t8+85 : t8+7;
-                
                 overtile8(dest,left,x,(dy<<3)+y,cset,0);
                 overtile8(dest,right,((w-1)<<3)+x,(dy<<3)+y,cset,0);
-                
                 for(int32_t dx=1; dx<w-1; dx++)
                 {
                     int32_t fill = (dy >= (h>>1)) ? ((dx >= (w>>1)) ? t8+84 : t8+81) : ((dx >= (w>>1)) ? t8+6 : t8+3);
@@ -2237,19 +2153,15 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,int32_t tile,int3
             {
                 int32_t top    = (dx >= (w>>1)) ? ((dx==w-1) ? t8+5  : t8+4) : ((dx==0) ? t8    : t8+1);
                 int32_t bottom = (dx >= (w>>1)) ? ((dx==w-1) ? t8+87 : t8+86) : ((dx==0) ? t8+82 : t8+83);
-                
                 puttiletranslucent8(dest,top,(dx<<3)+x,y,cset,0,128);
                 puttiletranslucent8(dest,bottom,(dx<<3)+x,((h-1)<<3)+y,cset,0,128);
             }
-            
             for(int32_t dy=1; dy<h-1; dy++)
             {
                 int32_t left  = (dy >= (h>>1)) ? t8+80 : t8+2;
                 int32_t right = (dy >= (h>>1)) ? t8+85 : t8+7;
-                
                 puttiletranslucent8(dest,left,x,(dy<<3)+y,cset,0,128);
                 puttiletranslucent8(dest,right,((w-1)<<3)+x,(dy<<3)+y,cset,0,128);
-                
                 for(int32_t dx=1; dx<w-1; dx++)
                 {
                     int32_t fill = (dy >= (h>>1)) ? ((dx >= (w>>1)) ? t8+84 : t8+81) : ((dx >= (w>>1)) ? t8+6 : t8+3);
@@ -2263,19 +2175,15 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,int32_t tile,int3
             {
                 int32_t top    = (dx >= (w>>1)) ? ((dx==w-1) ? t8+5  : t8+4) : ((dx==0) ? t8    : t8+1);
                 int32_t bottom = (dx >= (w>>1)) ? ((dx==w-1) ? t8+87 : t8+86) : ((dx==0) ? t8+82 : t8+83);
-                
                 oldputtile8(dest,top,(dx<<3)+x,y,cset,0);
                 oldputtile8(dest,bottom,(dx<<3)+x,((h-1)<<3)+y,cset,0);
             }
-            
             for(int32_t dy=1; dy<h-1; dy++)
             {
                 int32_t left  = (dy >= (h>>1)) ? t8+80 : t8+2;
                 int32_t right = (dy >= (h>>1)) ? t8+85 : t8+7;
-                
                 oldputtile8(dest,left,x,(dy<<3)+y,cset,0);
                 oldputtile8(dest,right,((w-1)<<3)+x,(dy<<3)+y,cset,0);
-                
                 for(int32_t dx=1; dx<w-1; dx++)
                 {
                     int32_t fill = (dy >= (h>>1)) ? ((dx >= (w>>1)) ? t8+84 : t8+81) : ((dx >= (w>>1)) ? t8+6 : t8+3);
@@ -2289,11 +2197,9 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,int32_t tile,int3
 void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t c1,int32_t c2)
 {
     int32_t si=0;
-    
     for(int32_t y2=0; y2<=7; ++y2)
     {
         byte dl = DMaps[get_currdmap()].grid[si];
-        
         for(int32_t x2=0; x2<=7; ++x2)
         {
             if(c2==-1)
@@ -2304,14 +2210,11 @@ void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t c1,int32_t c2)
             else
             {
                 rectfill(dest,(x2*8)+x,(y2*4)+y,(x2*8)+x+6,(y2*4)+y+2,c2);
-                
                 if(dl&0x80)
                     rectfill(dest,(x2*8)+x+2,(y2*4)+y,(x2*8)+x+4,(y2*4)+y+2,c1);
             }
-            
             dl<<=1;
         }
-        
         ++si;
     }
 }
@@ -2350,9 +2253,7 @@ void draw_block_flip(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,
                     }
                 }
             }
-            
             break;
-            
         case 1: //horizontal
             if(trans)
             {
@@ -2374,9 +2275,7 @@ void draw_block_flip(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,
                     }
                 }
             }
-            
             break;
-            
         case 2:
             if(trans)
             {
@@ -2398,9 +2297,7 @@ void draw_block_flip(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,
                     }
                 }
             }
-            
             break;
-            
         case 3:
             if(trans)
             {
@@ -2422,7 +2319,6 @@ void draw_block_flip(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,
                     }
                 }
             }
-            
             break;
         }
     }
@@ -2451,9 +2347,7 @@ void draw_block_flip(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,
                     }
                 }
             }
-            
             break;
-            
         case 1: //horizontal
             if(trans)
             {
@@ -2475,9 +2369,7 @@ void draw_block_flip(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,
                     }
                 }
             }
-            
             break;
-            
         case 2:
             if(trans)
             {
@@ -2499,9 +2391,7 @@ void draw_block_flip(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,
                     }
                 }
             }
-            
             break;
-            
         case 3:
             if(trans)
             {
@@ -2523,7 +2413,6 @@ void draw_block_flip(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,
                     }
                 }
             }
-            
             break;
         }
     }
@@ -2533,7 +2422,6 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, bool showmap,
 {
     zcolors c=misc->colors;
     int32_t type = (DMaps[get_currdmap()].type&dmfTYPE);
-    
     if(showmap)
     {
         switch(type)
@@ -2556,12 +2444,10 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, bool showmap,
             {
                 rectfill(dest,x+8,y+8,x+71,y+39,c.overw_bg);
             }
-            
             if(!DMaps[get_currdmap()].minimap_1_tile && ((DMaps[get_currdmap()].type&dmfTYPE) == dmBSOVERW))
             {
                 drawgrid(dest,x+8,y+8,c.bs_goal,c.bs_dk);
             }
-            
             break;
         }
         case dmDNGN:
@@ -2594,12 +2480,10 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, bool showmap,
                     drawgrid(dest,x+8,y+8,c.dngn_fg,-1);
                 }
             }
-            
             break;
 		}
         }
     }
-    
     if(showcompass)
     {
         if(type==dmDNGN || type==dmCAVE)
@@ -2607,17 +2491,14 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, bool showmap,
             if(show_subscreen_dmap_dots&&has_item(itype_compass, get_dlevel()))
             {
                 int32_t c2 = dccolor;
-                
                 if(!has_item(itype_triforcepiece, get_dlevel()) && (frame&16))
                     c2 = lccolor;
-                    
                 int32_t cx = ((DMaps[get_currdmap()].compass&15)<<3)+x+10;
                 int32_t cy = ((DMaps[get_currdmap()].compass&0xF0)>>2)+y+8;
                 putdot(dest,cx,cy,c2);
             }
         }
     }
-    
     if(showhero)
     {
         if(show_subscreen_dmap_dots && herocolor != 255)
@@ -2640,7 +2521,6 @@ void lifemeter(BITMAP *dest,int32_t x,int32_t y,int32_t cs,bool bs_style)
 	{
 		return;
 	}
-	
 	if(!bs_style)
 	{
 		y+=24;
@@ -2649,7 +2529,6 @@ void lifemeter(BITMAP *dest,int32_t x,int32_t y,int32_t cs,bool bs_style)
 	const int32_t basetile = wpnsbuf[iwQuarterHearts].tile;
 	const int32_t max_iter = (game != NULL ? zc_min(game->get_maxlife(),game->get_hp_per_heart()*24) : 1);
 	const int32_t inc = (game != NULL ? game->get_hp_per_heart() : 16);
-	
 	for(int32_t i=0; i<max_iter; i+=inc)
 	{
 		if(game != NULL)
@@ -2657,21 +2536,16 @@ void lifemeter(BITMAP *dest,int32_t x,int32_t y,int32_t cs,bool bs_style)
 			if(get_bit(quest_rules,qr_QUARTERHEART))
 			{
 				if(i+((game->get_hp_per_heart()/4)*3)>=game->get_life()) tile= (basetile*4)+2;
-				
 				if(i+(game->get_hp_per_heart()/2)>=game->get_life()) tile=1;
-				
 				if(i+((game->get_hp_per_heart()/4)*1)>=game->get_life()) tile= (basetile*4)+3;
 			}
 			else if(i+(game->get_hp_per_heart()/2)>=game->get_life()) tile=1;
-			
 			if(i>=game->get_life()) tile=4;
 		}
 		else
 			tile=4;
-		
 		overtile8(dest,tile,x,y,cs,0);
 		x+=8;
-		
 		if(((i>>4)&7)==7)
 		{
 			x-=64;
@@ -2687,7 +2561,6 @@ void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t not
     frames=frames;
     speed=speed;
     delay=delay;
-    
     // show
     //   <0: always
     //  >=0: when drain rate matches show
@@ -2696,11 +2569,9 @@ void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t not
 		if(show != game->get_magicdrainrate())
             return;
     }
-    
     int32_t containers=game->get_maxmagic()/game->get_mp_per_block();
     int32_t tile=zc_oldrand()%32767, cset=zc_oldrand()%15;
     bool mod_value=(zc_oldrand()%2)!=0;
-    
     if(container<containers)
     {
         tile=notlast_tile;
@@ -2725,7 +2596,6 @@ void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t not
         cset=aftercap_cset;
         mod_value=aftercap_mod;
     }
-    
     if(mod_value)
     {
         if(game->get_magic()>=container*game->get_mp_per_block())
@@ -2751,10 +2621,8 @@ void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t not
             }
         }
     }
-    
     //tile=14161*4;
     overtile8(dest,tile,x,y,cset,0);
-    
 }
 
 void lifegauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
@@ -2764,11 +2632,9 @@ void lifegauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notl
     frames=frames;
     speed=speed;
     delay=delay;
-    
     int32_t containers=game->get_maxlife()/game->get_hp_per_heart();
     int32_t tile=zc_oldrand()%32767, cset=zc_oldrand()%15;
     bool mod_value=(zc_oldrand()%2)!=0;
-    
     if(container<containers)
     {
         tile=notlast_tile;
@@ -2793,7 +2659,6 @@ void lifegauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notl
         cset=aftercap_cset;
         mod_value=aftercap_mod;
     }
-    
     if(mod_value)
     {
         if(game->get_life()>=container*game->get_hp_per_heart())
@@ -2819,28 +2684,22 @@ void lifegauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notl
             }
         }
     }
-    
     overtile8(dest,tile,x,y,cset,0);
-    
 }
 
 
 void magicmeter(BITMAP *dest,int32_t x,int32_t y)
 {
     if(!get_bit(quest_rules,qr_ENABLEMAGIC)) return;
-    
     if(game->get_maxmagic()==0) return;
-    
     int32_t tile;
     int32_t mmtile=wpnsbuf[iwMMeter].tile;
     int32_t mmcset=wpnsbuf[iwMMeter].csets&15;
     overtile8(dest,(mmtile*4)+2,x-8,y,mmcset,0);
-    
     if(game->get_magicdrainrate()==1)
     {
         overtile8(dest,(mmtile*4)+1,x-10,y,mmcset,0);
     }
-    
     for(int32_t i=0; i<game->get_maxmagic(); i+=game->get_mp_per_block())
     {
         if(game->get_magic()>=i+game->get_mp_per_block())
@@ -2858,13 +2717,10 @@ void magicmeter(BITMAP *dest,int32_t x,int32_t y)
                 tile=((mmtile+1)*4)+((game->get_magic()-i)%game->get_mp_per_block());
             }
         }
-        
         overtile8(dest,tile,x,y,mmcset,0);
         x+=8;
     }
-    
     overtile8(dest,(mmtile*4)+3,x,y,mmcset,0);
-    
 }
 
 void putxnum(BITMAP *dest,int32_t x,int32_t y,int32_t num,FONT *tempfont,int32_t color,int32_t shadowcolor,int32_t bgcolor,int32_t textstyle,bool usex,int32_t digits,bool infinite,char idigit)
@@ -2873,29 +2729,23 @@ void putxnum(BITMAP *dest,int32_t x,int32_t y,int32_t num,FONT *tempfont,int32_t
     {
         return;
     }
-    
     int32_t found_digits=5;
-    
     if(num<10000)
     {
         found_digits=4;
     }
-    
     if(num<1000)
     {
         found_digits=3;
     }
-    
     if(num<100)
     {
         found_digits=2;
     }
-    
     if(num<10)
     {
         found_digits=1;
     }
-    
     if(infinite)
     {
         textprintf_styled_aligned_ex(dest,tempfont,x,y,textstyle,sstaLEFT,color,shadowcolor,bgcolor,"%s%c",usex?"X":"",idigit);
@@ -2925,7 +2775,6 @@ void reset_subscr_items()
         delete Aitem;
         Aitem = NULL;
     }
-    
     if(Bitem)
     {
         delete Bitem;
@@ -2936,13 +2785,11 @@ void reset_subscr_items()
         delete Yitem;
         Yitem = NULL;
     }
-    
     if(Xitem)
     {
         delete Xitem;
         Xitem = NULL;
     }
-    
     Aid = Bid = Yid = Xid = 0;
 }
 
@@ -2952,18 +2799,15 @@ void update_subscr_items()
     if(Bid != Bwpn)
     {
         Bid = 0;
-        
         if(Bitem)
         {
             delete Bitem;
             Bitem = NULL;
         }
-        
         if(Bwpn > 0)
         {
             Bitem = new item((zfix)0, (zfix)0, (zfix)0, Bwpn&0x0FFF, 0, 0);
             Bitem->dummy_bool[0]=false;
-            
             switch(itemsbuf[Bwpn&0x0FFF].family)
             {
             case itype_arrow:
@@ -2971,11 +2815,9 @@ void update_subscr_items()
                 {
                     Bitem->dummy_bool[0]=true;
                 }
-                
                 break;
 		//default: break;
             }
-            
             //      Bitem = new item((zfix)(zinit.subscreen<ssdtBSZELDA?124:136), (zfix)24,(zfix)0, Bwpn, 0, 0);
             if(Bitem != NULL)
             {
@@ -2985,21 +2827,17 @@ void update_subscr_items()
             }
         }
     }
-    
     if(Aid != Awpn)
     {
         Aid = 0;
-        
         if(Aitem)
         {
             delete Aitem;
             Aitem = NULL;
         }
-        
         if(Awpn > 0)
         {
             Aitem = new item((zfix)0, (zfix)0,(zfix)0,Awpn&0x0FFF, 0, 0);
-            
             switch(itemsbuf[Awpn&0x0FFF].family)
             {
             case itype_arrow:
@@ -3007,11 +2845,9 @@ void update_subscr_items()
                 {
                     Aitem->dummy_bool[0]=true;
                 }
-                
                 break;
 		//default: break;
             }
-            
             if(Aitem != NULL)
             {
                 Aid = Awpn;
@@ -3020,21 +2856,17 @@ void update_subscr_items()
             }
         }
     }
-    
     if(Xid != Xwpn)
     {
         Xid = 0;
-        
         if(Xitem)
         {
             delete Xitem;
             Xitem = NULL;
         }
-        
         if(Xwpn > 0)
         {
             Xitem = new item((zfix)0, (zfix)0,(zfix)0,Xwpn&0x0FFF, 0, 0);
-            
             switch(itemsbuf[Xwpn&0x0FFF].family)
             {
             case itype_arrow:
@@ -3042,11 +2874,9 @@ void update_subscr_items()
                 {
                     Xitem->dummy_bool[0]=true;
                 }
-                
                 break;
 		//default: break;
             }
-            
             if(Xitem != NULL)
             {
                 Xid = Xwpn;
@@ -3055,21 +2885,17 @@ void update_subscr_items()
             }
         }
     }
-    
     if(Yid != Ywpn)
     {
         Yid = 0;
-        
         if(Yitem)
         {
             delete Yitem;
             Yitem = NULL;
         }
-        
         if(Ywpn > 0)
         {
             Yitem = new item((zfix)0, (zfix)0,(zfix)0,Ywpn&0x0FFF, 0, 0);
-            
             switch(itemsbuf[Ywpn&0x0FFF].family)
             {
             case itype_arrow:
@@ -3077,11 +2903,9 @@ void update_subscr_items()
                 {
                     Yitem->dummy_bool[0]=true;
                 }
-                
                 break;
 		//default: break;
             }
-            
             if(Yitem != NULL)
             {
                 Yid = Ywpn;
@@ -3090,16 +2914,12 @@ void update_subscr_items()
             }
         }
     }
-    
     if(Bitem)
         Bitem->animate(0);
-        
     if(Aitem)
         Aitem->animate(0);
-    
     if(Xitem)
         Xitem->animate(0);
-        
     if(Yitem)
         Yitem->animate(0);
 }
@@ -3115,22 +2935,18 @@ void add_subscr_item(item *newItem)
 int32_t stripspaces(char *source, char *target, int32_t stop)
 {
     int32_t begin, end;
-    
     for(begin=0; ((begin<stop)&&(source[begin]==' ')); ++begin)
     {
         /* do nothing */
     }
-    
     if(begin==stop)
     {
         return 0;
     }
-    
     for(end=stop-1; source[end]==' '; --end)
     {
         /* do nothing */
     }
-    
     sprintf(target, "%.*s", (end-begin+1), source+begin);
     return (end-begin+1);
 }
@@ -3180,13 +2996,11 @@ bool displaysubscreenitem(int32_t itemtype, int32_t d, int32_t id)
 					  || (current_item_power(itype_bombbag)
 						  && itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1))))
 			return false;
-			
 		if(itemtype!=itype_bowandarrow ||
 				d!=itype_arrow ||
 				((get_bit(quest_rules,qr_TRUEARROWS)&&game->get_arrows()) ||
 				 (!get_bit(quest_rules,qr_TRUEARROWS)&&game->get_rupies())))
 			return true;
-			
 		return false;
 	}
 	else
@@ -3202,13 +3016,11 @@ bool displaysubscreenitem(int32_t itemtype, int32_t d, int32_t id)
 					  || (current_item_power(itype_bombbag)
 						  && itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1))))
 			return false;
-			
 		if(itemtype!=itype_bowandarrow ||
 				d!=itype_arrow ||
 				((get_bit(quest_rules,qr_TRUEARROWS)&&game->get_arrows()) ||
 				 (!get_bit(quest_rules,qr_TRUEARROWS)&&game->get_rupies())))
 			return true;
-			
 		return false;
 	}
 }
@@ -3219,7 +3031,6 @@ int32_t get_subscreenitem_id(int32_t itemtype, bool forceItem)
 		return itemtype&0xFFF;
     // We need to do a reverse loop to prevent the Bow from being drawn above the Arrow (Bow & Arrow).
     int32_t overridecheck = 0xFFFF;
-    
     for(int32_t i=Sitems.Count()-1; i>=0; i--)
     {
         if(itemtype & 0x8000) // if 0x8000, then itemtype is actually an item ID.
@@ -3232,7 +3043,6 @@ int32_t get_subscreenitem_id(int32_t itemtype, bool forceItem)
         else if(Sitems.spr(i)->misc!=-1)
         {
             int32_t d= itemsbuf[Sitems.spr(i)->id].family;
-            
             if((d==itemtype)||
                     (itemtype==itype_letterpotion&&((d==itype_letter && current_item_id(itype_potion)==-1)||d==itype_potion))||
                     (itemtype==itype_bowandarrow&&(d==itype_bow||d==itype_arrow)))
@@ -3257,7 +3067,7 @@ int32_t get_subscreenitem_id(int32_t itemtype, bool forceItem)
 	}
 
     //Item Override stuff here
-    if((itemtype & 0x8000) && 
+    if((itemtype & 0x8000) &&
 		(!game || game->item[itemtype&0xFFF])
             && !item_disabled(itemtype&0xFFF) && displaysubscreenitem(itemsbuf[itemtype&0xFFF].family, 0, (itemtype&0xFFF)))
     {
@@ -3270,7 +3080,6 @@ item* get_subscreenitem(int32_t itemtype)
 {
     // We need to do a reverse loop to prevent the Bow from being drawn above the Arrow (Bow & Arrow).
     int32_t overridecheck = 0xFFFF;
-    
     for(int32_t i=Sitems.Count()-1; i>=0; i--)
     {
         if(itemtype & 0x8000) // if 0x8000, then itemtype is actually an item ID.
@@ -3283,7 +3092,6 @@ item* get_subscreenitem(int32_t itemtype)
         else if(Sitems.spr(i)->misc!=-1)
         {
             int32_t d= itemsbuf[Sitems.spr(i)->id].family;
-            
             if((d==itemtype)||
                     (itemtype==itype_letterpotion&&((d==itype_letter && current_item_id(itype_potion)==-1)||d==itype_potion))||
                     (itemtype==itype_bowandarrow&&(d==itype_bow||d==itype_arrow)))
@@ -3292,9 +3100,8 @@ item* get_subscreenitem(int32_t itemtype)
             }
         }
     }
-    
     //Item Override stuff here
-    if((itemtype & 0x8000) && 
+    if((itemtype & 0x8000) &&
 		(!game || game->item[itemtype&0xFFF])
             && !item_disabled(itemtype&0xFFF) && displaysubscreenitem(itemsbuf[itemtype&0xFFF].family, 0, (itemtype&0xFFF)))
     {
@@ -3312,7 +3119,6 @@ void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype)
 {
     // We need to do a reverse loop to prevent the Bow from being drawn above the Arrow (Bow & Arrow).
     int32_t overridecheck = 0xFFFF;
-    
     for(int32_t i=Sitems.Count()-1; i>=0; i--)
     {
         if(itemtype & 0x8000) // if 0x8000, then itemtype is actually an item ID.
@@ -3327,7 +3133,6 @@ void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype)
         else if(Sitems.spr(i)->misc!=-1)
         {
             int32_t d= itemsbuf[Sitems.spr(i)->id].family;
-            
             if((d==itemtype)||
                     (itemtype==itype_letterpotion&&((d==itype_letter && current_item_id(itype_potion)==-1)||d==itype_potion))||
                     (itemtype==itype_bowandarrow&&(d==itype_bow||d==itype_arrow)))
@@ -3335,12 +3140,10 @@ void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype)
                 Sitems.spr(i)->x = x;
                 Sitems.spr(i)->y = y;
                 Sitems.spr(i)->yofs=0;
-                
                 if(displaysubscreenitem(itemtype, d, -1))
                 {
                     Sitems.spr(i)->drawzcboss(dest);
                 }
-                
                 if(itemtype!=itype_bowandarrow)
                 {
                     return;
@@ -3362,7 +3165,6 @@ void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype)
             overridecheck = Sitems.Count()-1;
             Sitems.spr(overridecheck)->misc = -1;
         }
-        
         Sitems.spr(overridecheck)->x = x;
         Sitems.spr(overridecheck)->y = y;
         Sitems.spr(overridecheck)->yofs=0;
@@ -3373,91 +3175,70 @@ void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype)
 int32_t subscreen_color(miscQdata *misc, int32_t c1, int32_t c2)
 {
     int32_t ret;
-    
     switch(c1)
     {
     case ssctSYSTEM:
         ret=(c2==-1)?c2:vc(c2);
         break;
-        
     case ssctMISC:
         switch(c2)
         {
         case ssctTEXT:
             ret=misc->colors.text;
             break;
-            
         case ssctCAPTION:
             ret=misc->colors.caption;
             break;
-            
         case ssctOVERWBG:
             ret=misc->colors.overw_bg;
             break;
-            
         case ssctDNGNBG:
             ret=misc->colors.dngn_bg;
             break;
-            
         case ssctDNGNFG:
             ret=misc->colors.dngn_fg;
             break;
-            
         case ssctCAVEFG:
             ret=misc->colors.cave_fg;
             break;
-            
         case ssctBSDK:
             ret=misc->colors.bs_dk;
             break;
-            
         case ssctBSGOAL:
             ret=misc->colors.bs_goal;
             break;
-            
         case ssctCOMPASSLT:
             ret=misc->colors.compass_lt;
             break;
-            
         case ssctCOMPASSDK:
             ret=misc->colors.compass_dk;
             break;
-            
         case ssctSUBSCRBG:
             ret=misc->colors.subscr_bg;
             break;
-            
         case ssctSUBSCRSHADOW:
             ret=misc->colors.subscr_shadow;
             break;
-            
         case ssctTRIFRAMECOLOR:
             ret=misc->colors.triframe_color;
             break;
-            
         case ssctBMAPBG:
             ret=misc->colors.bmap_bg;
             break;
-            
         case ssctBMAPFG:
             ret=misc->colors.bmap_fg;
             break;
-            
         case ssctHERODOT:
             ret=misc->colors.hero_dot;
             break;
-            
         default:
             ret=(zc_oldrand()*1000)%256;
             break;
         }
-        
         break;
-        
     default:
         ret=(c1<<4)+c2;
     }
-    
     return ret;
 }
 
@@ -3466,7 +3247,6 @@ int32_t subscreen_color(miscQdata *misc, int32_t c1, int32_t c2)
 int32_t subscreen_cset(miscQdata *misc,int32_t c1, int32_t c2)
 {
     int32_t ret=c1;
-    
     switch(c1)
     {
     case ssctMISC:
@@ -3475,135 +3255,103 @@ int32_t subscreen_cset(miscQdata *misc,int32_t c1, int32_t c2)
         case sscsTRIFORCECSET:
             ret=misc->colors.triforce_cset;
             break;
-            
         case sscsTRIFRAMECSET:
             ret=misc->colors.triframe_cset;
             break;
-            
         case sscsOVERWORLDMAPCSET:
             ret=misc->colors.overworld_map_cset;
             break;
-            
         case sscsDUNGEONMAPCSET:
             ret=misc->colors.dungeon_map_cset;
             break;
-            
         case sscsBLUEFRAMECSET:
             ret=misc->colors.blueframe_cset;
             break;
-            
         case sscsHCPIECESCSET:
             ret=misc->colors.HCpieces_cset;
             break;
-            
         case sscsSSVINECSET:
             ret=wpnsbuf[iwSubscreenVine].csets&15;
             break;
-            
         default:
             ret=(zc_oldrand()*1000)%256;
             break;
         }
-        
         break;
-        
     default:
         ret=c1;
     }
-    
     return ret;
 }
 
 FONT *ss_font(int32_t fontnum)
 {
     FONT *tempfont;
-    
     switch(fontnum)
     {
     case ssfSMALL:
         tempfont=sfont;
         break;
-        
     case ssfSMALLPROP:
         tempfont=spfont;
         break;
-        
     case ssfSS1:
         tempfont=ssfont1;
         break;
-        
     case ssfSS2:
         tempfont=ssfont2;
         break;
-        
     case ssfSS3:
         tempfont=ssfont3;
         break;
-        
     case ssfSS4:
         tempfont=ssfont4;
         break;
-        
     case ssfZTIME:
         tempfont=ztfont;
         break;
-        
     case ssfZELDA:
         tempfont=zfont;
         break;
-        
     case ssfZ3:
         tempfont=z3font;
         break;
-        
     case ssfZ3SMALL:
         tempfont=z3smallfont;
         break;
-        
     case ssfGBLA:
         tempfont=gblafont;
         break;
-        
     case ssfGORON:
         tempfont=goronfont;
         break;
-        
     case ssfZORAN:
         tempfont=zoranfont;
         break;
-        
     case ssfHYLIAN1:
         tempfont=hylian1font;
         break;
-        
     case ssfHYLIAN2:
         tempfont=hylian2font;
         break;
-        
     case ssfHYLIAN3:
         tempfont=hylian3font;
         break;
-        
     case ssfHYLIAN4:
         tempfont=hylian4font;
         break;
-        
     case ssfPROP:
         tempfont=font;
         break;
-        
     case ssfGBORACLE:
         tempfont=gboraclefont;
         break;
-        
     case ssfGBORACLEP:
         tempfont=gboraclepfont;
         break;
-        
     case ssfDSPHANTOM:
         tempfont=dsphantomfont;
         break;
-        
     case ssfDSPHANTOMP:
         tempfont=dsphantompfont;
         break;
@@ -3657,7 +3405,6 @@ FONT *ss_font(int32_t fontnum)
         tempfont=ss_font(fontnum);
         break;
     }
-    
     return tempfont;
 }
 
@@ -3733,7 +3480,7 @@ int32_t to_real_font(int32_t ss_font)
 		case ssfLISA: return font_lisafont;
 	}
 	return font_zfont;
-} 
+}
 int32_t to_ss_font(int32_t real_font)
 {
 	switch(real_font)
@@ -3805,7 +3552,7 @@ int32_t to_ss_font(int32_t real_font)
 		case font_lisafont: return ssfLISA;
 	}
 	return ssfZELDA;
-} 
+}
 
 item *sel_a=NULL, *sel_b=NULL;
 
@@ -3817,7 +3564,6 @@ void delete_selectors()
         delete sel_a;
         sel_a=NULL;
     }
-    
     if(sel_b)
     {
         delete sel_b;
@@ -3833,13 +3579,10 @@ void animate_selectors()
         delete_selectors();
         new_sel = false;
     }
-    
     if(!sel_a)
         sel_a = new item((zfix)0, (zfix)0, (zfix)0, iSelectA, 0, 0);
-        
     if(!sel_b)
         sel_b = new item((zfix)0, (zfix)0, (zfix)0, iSelectB, 0, 0);
-        
     sel_a->yofs=0;
 	sel_a->subscreenItem=true;
     sel_a->animate(0);
@@ -3856,7 +3599,6 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 	//clear_to_color(dest, 0);
 	color_map=&trans_table;
 	set_trans_blender(0, 0, 0, 128);
-	
 	//doing animation here leads to 2x speed when drawing both active and passive subscreen -DD
 	/*static item sel_a((zfix)0,(zfix)0,(zfix)0,iSelectA,0,0);
 	static item sel_b((zfix)0,(zfix)0,(zfix)0,iSelectB,0,0);
@@ -3872,7 +3614,6 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 	sel_b.animate(0);*/
 	if(!sel_a || !sel_b)
 		animate_selectors();
-		
 	for(int32_t i=0; i<MAXSUBSCREENITEMS&&css->objects[i].type>ssoNULL; ++i)
 	{
 		if((css->objects[i].pos & pos2) != 0)
@@ -3882,7 +3623,6 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 			tempfont=ss_font(fontnum);
 			int32_t x=css->objects[i].x+xofs;
 			int32_t y=css->objects[i].y+yofs;
-			
 			switch(css->objects[i].type)
 			{
 				case sso2X2FRAME:
@@ -3893,96 +3633,79 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 					//frame2x2(dest, misc, x, y, FFCore.getQuestHeaderInfo(vZelda) < 0x193 ? 278 : css->objects[i].d1, subscreen_cset(misc, css->objects[i].colortype1, css->objects[i].color1), css->objects[i].w, css->objects[i].h, css->objects[i].d2, css->objects[i].d3 != 0, css->objects[i].d4 != 0);
 				}
 				break;
-				
 				case ssoBSTIME:
 				{
 					char *ts;
-					
 					if(game)
 						ts = time_str_short2(game->get_time());
 					else
 						ts = time_str_short2(0);
-						
 					//textout_shadowed_ex(dest,tempfont,ts,x,y,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1),subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2),subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
 					textout_styled_aligned_ex(dest,tempfont,ts,x,y,css->objects[i].d3,css->objects[i].d2,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1),subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2),subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
 				}
 				break;
-				
 				case ssoSSTIME:
 				case ssoTIME:
 				{
 					if(showtime||css->objects[i].type==ssoTIME)
 					{
 						char *ts;
-						
 						if(game)
 							ts = time_str_med(game->get_time());
 						else
 							ts = time_str_med(0);
-							
 						//textout_right_ex(dest,tempfont,ts,x,y,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1),subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2));
 						textout_styled_aligned_ex(dest,tempfont,ts,x,y,css->objects[i].d3,css->objects[i].d2,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1),subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2),subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
 					}
 				}
 				break;
-				
 				case ssoTEXT:
 				{
 					//textout_styled_aligned_ex(bmp, f,       s,                          x,y,textstyle,         alignment,         color,                                                                    shadow,                                                                   bg)
 					textout_styled_aligned_ex(dest,tempfont,(char *)css->objects[i].dp1,x,y,css->objects[i].d3,css->objects[i].d2,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1),subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2),subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
 				}
 				break;
-				
 				case ssoLINE:
 				{
 					if(css->objects[i].d4)
 					{
 						drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 					}
-					
 					line(dest, x, y, x+css->objects[i].w-1, y+css->objects[i].h-1, subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1));
-					
 					if(css->objects[i].d4)
 					{
 						drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 					}
 				}
 				break;
-				
 				case ssoRECT:
 				{
 					if(css->objects[i].d2)
 					{
 						drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 					}
-					
 					if(css->objects[i].d1!=0)
 					{
 						rectfill(dest, x, y, x+css->objects[i].w-1, y+css->objects[i].h-1, subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2));
 					}
-					
 					rect(dest, x, y, x+css->objects[i].w-1, y+css->objects[i].h-1, subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1));
-					
 					if(css->objects[i].d2)
 					{
 						drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 					}
 				}
 				break;
-				
 				case ssoMAGICMETER:
 				{
 					magicmeter(dest, x, y);
 				}
 				break;
-				
 				case ssoLIFEMETER:
 				{
 					//lifemeter(dest, x, y, css->objects[i].d1, css->objects[i].d2 != 0);
 					lifemeter(dest, x, y, 1, css->objects[i].d2 != 0);
 				}
 				break;
-				
 				case ssoBUTTONITEM:
 				{
 					if(css->objects[i].d2)
@@ -3991,26 +3714,22 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 					}
 					//zprint2("Button item ID is: %d\n", css->objects[i].d1);
 					buttonitem(dest, css->objects[i].d1, x, y);
-					
 					if(css->objects[i].d2)
 					{
 						drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 					}
 				}
 				break;
-				
 				case ssoCOUNTERS:
 				{
 					defaultcounters(dest, x, y, tempfont,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1),subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2),subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3),css->objects[i].d2 != 0,css->objects[i].d3,css->objects[i].d4,css->objects[i].d5);
 				}
 				break;
-				
 				case ssoCOUNTER:
 				{
 					counter(dest, x, y, tempfont,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1),subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2),subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3),css->objects[i].d2,css->objects[i].d3,css->objects[i].d4,css->objects[i].d5,css->objects[i].d6&1, css->objects[i].d7, css->objects[i].d8, css->objects[i].d9, css->objects[i].d10, (css->objects[i].d6&2)!=0);
 				}
 				break;
-				
 				case ssoMINIMAPTITLE:
 				{
 					if(!css->objects[i].d4 || has_item(itype_map, get_dlevel()))
@@ -4019,7 +3738,6 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 					}
 				}
 				break;
-				
 				case ssoMINIMAP:
 				{
 					//drawdmap(dest, misc, x, y, showmap,                 showhero,           showcompass,        herocolor,                                                                 lccolor,                                                                   dccolor)
@@ -4027,20 +3745,17 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 							 css->objects[i].d3 && !(DMaps[get_currdmap()].flags&dmfNOCOMPASS), subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1), subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2), subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
 				}
 				break;
-				
 				case ssoLARGEMAP:
 				{
 					//putBmap(dest, misc, x, y, showmap,                 showhero,              showrooms,             roomcolor,                                                                 herocolor,                                                                 large)
 					putBmap(dest, misc, x, y, css->objects[i].d1 != 0, css->objects[i].d2!=0, css->objects[i].d3!=0, subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1), subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2), css->objects[i].d10 != 0);
 				}
 				break;
-				
 				case ssoCLEAR:
 				{
 					clear_to_color(dest,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1));
 				}
 				break;
-				
 				case ssoCURRENTITEM:
 				{
 					// Shouldn't really be checking is_zquest here, but it's okay for now...
@@ -4050,7 +3765,6 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 					}
 				}
 				break;
-				
 				case ssoTEXTBOX:
 				{
 					//draw_textbox(dest, x, y, w,                 h,                 tempfont, thetext,                     wword,                 tabsize,            alignment,          textstyle,          color,                                                                     shadowcolor,                                                               backcolor)
@@ -4058,20 +3772,16 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 					//draw_textbox(dest, 0, 0, 200, 50, sfont, "This is a test", 1, 4, 0, 0, subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1), subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2), subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
 				}
 				break;
-				
 				case ssoSELECTEDITEMNAME:
 				{
 					int32_t itemid=Bweapon(Bpos);
-					
 					// If it's a combined bow and arrow, the item ID will have 0xF000 added.
 					if(itemid>=0xF000)
 						itemid-=0xF000;
-					
 					// 0 can mean either the item with index 0 is selected or there's no
 					// valid item to select, so be sure Hero has whatever it would be.
 					if(!game->get_item(itemid))
 						break;
-						
 					char itemname[140]="";
 					sprintf(itemname, "%s", item_string[itemid]);
 					itemdata const& itm = itemsbuf[itemid];
@@ -4097,35 +3807,29 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 								}
 							}
 					}
-					
 					draw_textbox(dest, x, y, css->objects[i].w, css->objects[i].h, tempfont, itemname, css->objects[i].d4!=0, css->objects[i].d5, css->objects[i].d2, css->objects[i].d3, subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1), subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2), subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
 					// draw_textbox(dest, x, y, w,                 h,                 tempfont, thetext,  wword,                 tabsize,            alignment,          textstyle,          color,                                             shadowcolor,                                       backcolor);
 				}
 				break;
-				
 				case ssoTRIFRAME:
 				{
 					//puttriframe(dest, misc, x, y, triframecolor,                                                             numbercolor,                                                               triframetile,       triframecset,       triforcetile,       triforcecset,       showframe,             showpieces,            largepieces)
 					puttriframe(dest, misc, x, y, subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1), subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2), css->objects[i].d1, css->objects[i].d2, css->objects[i].d3, css->objects[i].d4, css->objects[i].d5!=0, css->objects[i].d6!=0, css->objects[i].d7!=0);
 				}
 				break;
-				
 				case ssoTRIFORCE:
 				{
 					puttriforce(dest,misc,x,y,css->objects[i].d1,subscreen_cset(misc, css->objects[i].colortype1, css->objects[i].color1),css->objects[i].w,css->objects[i].h,css->objects[i].d2,css->objects[i].d3!=0,css->objects[i].d4!=0,css->objects[i].d5);
 				}
 				break;
-				
 				case ssoTILEBLOCK:
 				{
 					draw_block_flip(dest,x,y,css->objects[i].d1,subscreen_cset(misc, css->objects[i].colortype1, css->objects[i].color1),css->objects[i].w,css->objects[i].h,css->objects[i].d2,css->objects[i].d3!=0,css->objects[i].d4!=0);
 				}
 				break;
-				
 				case ssoMINITILE:
 				{
 					int32_t t=css->objects[i].d1;
-					
 					if(t==-1)
 					{
 						switch(css->objects[i].d2)
@@ -4133,19 +3837,15 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 							case ssmstSSVINETILE:
 								t=wpnsbuf[iwSubscreenVine].tile*4;
 								break;
-								
 							case ssmstMAGICMETER:
 								t=wpnsbuf[iwMMeter].tile*4;
 								break;
-								
 							default:
 								t=(zc_oldrand()*100000)%32767;
 								break;
 						}
 					}
-					
 					t+=css->objects[i].d3;
-					
 					if(css->objects[i].d5)
 					{
 						if(css->objects[i].d6)
@@ -4170,12 +3870,10 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 					}
 				}
 				break;
-				
 				case ssoSELECTOR1:
 				case ssoSELECTOR2:
 				{
 					int32_t p=-1;
-					
 					for(int32_t j=0; j<MAXSUBSCREENITEMS&&css->objects[j].type!=ssoNULL; ++j)
 					{
 						if(css->objects[j].type==ssoCURRENTITEM)
@@ -4187,12 +3885,10 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 							}
 						}
 					}
-					
 					bool big_sel=css->objects[i].d5 != 0;
 					item *tempsel=(css->objects[i].type==ssoSELECTOR1)?sel_a:sel_b;
 					int32_t temptile=tempsel->tile;
 					tempsel->drawstyle=0;
-					
 					if(css->objects[i].d4)
 					{
 						tempsel->drawstyle=1;
@@ -4220,14 +3916,12 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 							int32_t tmpx = css->objects[p].x+xofs+(big_sel?(j%2?8:-8):0);
 							int32_t tmpy = css->objects[p].y+yofs+(big_sel?(j>1?8:-8):0);
 							tempsel->tile+=(zc_max(itemsbuf[tempsel->id].frames,1)*j);
-							
 							if(temptile)
 							{
 								tempsel->drawzcboss(tmpbmp);
 								tempsel->tile=temptile;
 							}
 							masked_stretch_blit(tmpbmp, dest, vbound(sxofs, 0, sw), vbound(syofs, 0, sh), sw-vbound(sxofs, 0, sw), sh-vbound(syofs, 0, sh), tmpx+dxofs, tmpy+dyofs, dw, dh);
-							
 							if(!big_sel)
 							{
 								break;
@@ -4237,7 +3931,6 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 					destroy_bitmap(tmpbmp);
 				}
 				break;
-				
 				case ssoMAGICGAUGE:
 				{
 					//          void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
@@ -4248,20 +3941,17 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 							   css->objects[i].d9);
 				}
 				break;
-				
 				case ssoLIFEGAUGE:
 				{
 					lifegauge(dest,x,y, css->objects[i].d1, css->objects[i].d2, css->objects[i].colortype1, ((css->objects[i].d10&1)?1:0), css->objects[i].d3, css->objects[i].color1, ((css->objects[i].d10&2)?1:0),
 							  css->objects[i].d4, css->objects[i].colortype2, ((css->objects[i].d10&4)?1:0), css->objects[i].d5, css->objects[i].color2, ((css->objects[i].d10&8)?1:0), css->objects[i].d6, css->objects[i].d7, css->objects[i].d8, ((css->objects[i].d10&16)?1:0));
 				}
 				break;
-				
 				default:
 				{
 				}
 				break;
 			}
-			
 			//sso_bounding_box(dest, css, i, vc(15));
 		}
 	}
@@ -4277,7 +3967,6 @@ void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
         {
             Aitem->x=x;
             Aitem->y=y;
-            
             switch(itemsbuf[Aitem->id].family)
             {
             case itype_arrow:
@@ -4290,21 +3979,16 @@ void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
                         if(!checkmagiccost(Aitem->id)) return;
                     }
                 }
-                
                 break;
             }
-            
             Aitem->drawzcboss(dest);
         }
-        
         break;
-        
     case 1:  //B button
         if(Bitem&&show_subscreen_items)
         {
             Bitem->x=x;
             Bitem->y=y;
-            
             switch(itemsbuf[Bitem->id].family)
             {
             case itype_arrow:
@@ -4317,15 +4001,11 @@ void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
                         if(!checkmagiccost(Bitem->id)) return;
                     }
                 }
-                
                 break;
             }
-            
             Bitem->drawzcboss(dest);
         }
-        
         break;
-	
 	case 2:  //X button
         if(Xitem&&show_subscreen_items)
         {
@@ -4333,7 +4013,6 @@ void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
 		//zprint2("Drawing X Item\n");
             Xitem->x=x;
             Xitem->y=y;
-            
             switch(itemsbuf[Xitem->id].family)
             {
             case itype_arrow:
@@ -4346,24 +4025,19 @@ void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
                         if(!checkmagiccost(Xitem->id)) return;
                     }
                 }
-                
                 break;
             }
-            
             Xitem->drawzcboss(dest);
         }
 	//else zprint2("Xitem is NULL\n");
-        
         break;
-        
-	case 3:  
+	case 3:
         if(Yitem&&show_subscreen_items)
         {
 		//Y button
 		//zprint2("Drawing Y Item\n");
             Yitem->x=x;
             Yitem->y=y;
-            
             switch(itemsbuf[Yitem->id].family)
             {
             case itype_arrow:
@@ -4376,16 +4050,12 @@ void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
                         if(!checkmagiccost(Yitem->id)) return;
                     }
                 }
-                
                 break;
             }
-            
             Yitem->drawzcboss(dest);
         }
 	//else zprint2("Yitem is NULL\n");
-        
         break;
-        
     default:
         break;
     }
@@ -4394,17 +4064,14 @@ void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
 void defaultcounters(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, int32_t shadowcolor, int32_t bgcolor, bool usex, int32_t textstyle, int32_t digits, char idigit)
 {
     int32_t yofs = (game==NULL || (game->get_sbombs() && current_item_id(itype_sbomb)>-1)) ? 8 : 0;
-    
     //88, 16
     overtile8(dest,5,x,y,1,0);
     overtile8(dest,8,x,y+16-yofs,1,0);
     overtile8(dest,9,x,y+24-yofs,0,0);
-    
     if(game)
     {
         bool magickey = false;
         int32_t itemid = current_item_id(itype_magickey);
-        
         if(itemid>-1)
         {
             if(itemsbuf[itemid].flags&ITEM_FLAG1)
@@ -4412,21 +4079,17 @@ void defaultcounters(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t
             else
                 magickey = itemsbuf[itemid].power==get_dlevel();
         }
-        
         putxnum(dest,x+8,y,game->get_rupies(),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,current_item_power(itype_wallet)>0,idigit);
         putxnum(dest,x+8,y+16-yofs,game->get_keys()+game->get_lkeys(),tempfont,color,shadowcolor,bgcolor, textstyle,usex,digits,magickey,idigit);
         putxnum(dest,x+8,y+24-yofs,game->get_bombs(),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,current_item_power(itype_bombbag)>0,idigit);
     }
-    
     if(game==NULL || (game->get_sbombs() && current_item_id(itype_sbomb)>-1))
     {
         overtile8(dest,13,x,y+24,1,0);
-        
         if(game)
         {
             int32_t itemid = current_item_id(itype_bombbag);
             bool superbomb = (itemid>=0 && itemsbuf[itemid].power>0 && itemsbuf[itemid].flags & ITEM_FLAG1);
-            
             putxnum(dest,x+8,y+24,game->get_sbombs(),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,superbomb,idigit);
         }
     }
@@ -4453,22 +4116,18 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
     int32_t value=0;
     bool infinite=false;
 	int32_t itemtypes[3]={itemtype1, itemtype2, itemtype3};
-    
     if(game != NULL && game->get_item(infiniteitem) && !item_disabled(infiniteitem))
     {
         infinite=true;
     }
-    
     char valstring[80];
     char formatstring[80];
     sprintf(valstring,"01234567890123456789");
     sprintf(formatstring, "%%0%dd", digits);
-    
     if(onlyselected && !(((Bitem&&(is_counter_item(Bitem->id,itemtype1)||is_counter_item(Bitem->id,itemtype2)||is_counter_item(Bitem->id,itemtype3)))||(Aitem&&(is_counter_item(Aitem->id,itemtype1)||is_counter_item(Aitem->id,itemtype2)||is_counter_item(Aitem->id,itemtype3))))))
     {
         return;
     }
-    
     int32_t itemtype;
     /*
     for (int32_t i=0; i<3; ++i)
@@ -4489,41 +4148,31 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
     itemtype=itemtype1;
     /* commented out until I find out what it does - it's messing up custom subscreens now as
     itemtype2 and 3 are zero - so hero's life gets added to the counters */
-    
-    /*	
+    /*
 	Not sure who did that, but I implemented it in its own section, ignoring counter0] for now.
 	It will need a format change to counter lists in order to allow stacking LIFE on other counters.
 	For the present, counter 0 for item2 and item3 is NULL. -Z (26-Jan-2020)
     */
-    
-    
     switch(itemtype)
     {
     case sscRUPEES:
         if(current_item_power(itype_wallet))
             infinite=true;
-            
         value+=game->get_rupies();
         break;
-        
     case sscBOMBS:
         if(current_item_power(itype_bombbag))
             infinite=true;
-            
         value+=game->get_bombs();
         break;
-        
     case sscSBOMBS:
     {
         int32_t itemid = current_item_id(itype_bombbag);
-        
         if(itemid>-1 && itemsbuf[itemid].power>0 && itemsbuf[itemid].flags & ITEM_FLAG1)
             infinite=true;
-            
         value+=game->get_sbombs();
         break;
     }
-    
     case sscLIFE:
     {
 	value+=game->get_life();
@@ -4534,7 +4183,6 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
 	value+=game->get_magic();
         break;
     }
-    
     case sscMAXHP:
     {
 	value+=game->get_maxlife();
@@ -4545,11 +4193,9 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
 	value+=game->get_maxmagic();
         break;
     }
-    
     case sscARROWS:
         if((!get_bit(quest_rules,qr_TRUEARROWS) && current_item_power(itype_wallet)) || current_item_power(itype_quiver))
             infinite=true;
-            
         // If Hero somehow got ammunition before getting the arrow,
         // or if the arrow was disabled in a DMap,
         // we shouldn't put the value as zero.
@@ -4565,13 +4211,11 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
             }
         }
         break;
-        
     case sscGENKEYMAGIC:
     case sscLEVKEYMAGIC:
     case sscANYKEYMAGIC:
     {
         int32_t itemid = current_item_id(itype_magickey);
-        
         if(itemid>-1 && !infinite)
         {
             if(itemsbuf[itemid].flags&ITEM_FLAG1)
@@ -4580,7 +4224,6 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
                 infinite = itemsbuf[itemid].power==get_dlevel();
         }
     }
-    
     //fall through
     case sscANYKEYNOMAGIC:
     case sscLEVKEYNOMAGIC:
@@ -4588,13 +4231,10 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
         if(itemtype == sscGENKEYNOMAGIC || itemtype == sscANYKEYNOMAGIC
                 || itemtype == sscGENKEYMAGIC || itemtype == sscANYKEYMAGIC)
             value += game->get_keys();
-            
         if(itemtype == sscLEVKEYNOMAGIC || itemtype == sscANYKEYNOMAGIC
                 || itemtype == sscLEVKEYMAGIC || itemtype == sscANYKEYMAGIC)
             value += game->get_lkeys();
-            
         break;
-        
     case sscSCRIPT1:
     case sscSCRIPT2:
     case sscSCRIPT3:
@@ -4622,20 +4262,16 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
     case sscSCRIPT25:
         value += game->get_counter(itemtype-3);
         break;
-        
     default:
         break;
     }
-    
     //Re-implement item2 and item3 stacking counters. -Z 26-Jan-2020
 	if ( /*get_bit(quest_rules,qrSTACKSUBSCREENCOUNTERS) || (*/( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) >= 33 ) //this ishowit looks in 2.53.1, Beta 25
 		|| ( FFCore.getQuestHeaderInfo(vZelda) > 0x250  ) ) /*)*/
-    
 	{
 		//add item2 and item3 values to item1 values
 		for (int32_t i=1; i<3; ++i)
 		{
-		    
 			switch (i)
 			{
 				case 1:
@@ -4663,10 +4299,8 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
 						itemtype=itemtype3;
 						break;
 					}
-				  
 				}
 			}
-		      
 			switch(itemtype)
 			{
 				case -3:
@@ -4718,7 +4352,6 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
 				case sscARROWS:
 					if((!get_bit(quest_rules,qr_TRUEARROWS) && current_item_power(itype_wallet)) || current_item_power(itype_quiver))
 					infinite=true;
-			    
 					// If Hero somehow got ammunition before getting the arrow,
 					// or if the arrow was disabled in a DMap,
 					// we shouldn't put the value as zero.
@@ -4739,7 +4372,7 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
 				case sscLEVKEYMAGIC:
 				case sscANYKEYMAGIC:
 				{
-					int32_t itemid = current_item_id(itype_magickey);	
+					int32_t itemid = current_item_id(itype_magickey);
 					if(itemid>-1 && !infinite)
 					{
 						if(itemsbuf[itemid].flags&ITEM_FLAG1)
@@ -4752,7 +4385,6 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
 						}
 					}
 				}
-		    
 				//fall through
 				case sscANYKEYNOMAGIC:
 				case sscLEVKEYNOMAGIC:
@@ -4762,14 +4394,12 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
 					{
 						value += game->get_keys();
 					}
-			    
 					if(itemtype == sscLEVKEYNOMAGIC || itemtype == sscANYKEYNOMAGIC
 						|| itemtype == sscLEVKEYMAGIC || itemtype == sscANYKEYMAGIC)
 					{
 						value += game->get_lkeys();
 					}
 				break;
-			
 				case sscSCRIPT1:
 				case sscSCRIPT2:
 				case sscSCRIPT3:
@@ -4799,22 +4429,18 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
 					value += game->get_counter(itemtype-3);
 					break;
 				}
-			
 				default:
 				{
 					break;
 				}
 			}
-	      
 		}
 	}
-    
     // (for loop) }
     if(!showzero&&!value&&!infinite)
     {
         return;
     }
-    
     if(infinite)
     {
         sprintf(valstring, "%c", idigit);
@@ -4823,9 +4449,7 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
     {
         sprintf(valstring, formatstring, value);
     }
-    
     textout_styled_aligned_ex(dest,tempfont,valstring,x,y,textstyle,alignment,color,shadowcolor,bgcolor);
-    
     //  putxnum(dest,x+8,y,game->get_rupies(),tempfont,color,shadowcolor,bgcolor,shadowed,usex,digits,0,idigit);
 }
 
@@ -4835,10 +4459,8 @@ void minimaptitle(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t co
     char dmaptitle[2][11];
     sprintf(dmaptitlesource[0], "%.10s", DMaps[get_currdmap()].title);
     sprintf(dmaptitlesource[1], "%.10s", DMaps[get_currdmap()].title+10);
-    
     int32_t title_len1=stripspaces(dmaptitlesource[0], dmaptitle[0], 10);
     int32_t title_len2=stripspaces(dmaptitlesource[1], dmaptitle[1], 10);
-    
     if((title_len1>0)||(title_len2>0))
     {
         if((title_len1>0)&&(title_len2>0))
@@ -4867,14 +4489,12 @@ void put_passive_subscr(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,bool sh
     Sitems.animate();
     update_subscr_items();
     BITMAP *subscr = create_sub_bitmap(dest,x,y,256,passive_subscreen_height);
-    
     if(no_subscreen())
     {
         clear_to_color(subscr,0);
         destroy_bitmap(subscr);
         return;
     }
-    
     show_custom_subscreen(subscr, misc, current_subscreen_passive, 0, 0, showtime, pos2);
     destroy_bitmap(subscr);
 }
@@ -4894,13 +4514,11 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tr
         triframetile=misc->colors.triframe_tile;
         triframecset=misc->colors.triframe_cset;
     }
-    
     if(triforcetile==0)
     {
         triforcetile=misc->colors.triforce_tile;
         triforcecset=misc->colors.triforce_cset;
     }
-    
     if(!largepieces)
     {
         if(showframe)
@@ -4919,24 +4537,19 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tr
                 _allegro_hline(dest,x+15,y+40,x+80,triframecolor);
             }
         }
-        
         if(showpieces)
         {
             for(int32_t i=0; i<8; i++)
             {
                 int32_t lvl = i+1;
-                
                 if(get_bit(quest_rules,qr_4TRI) && lvl>4)
                     lvl -= 4;
-                    
                 if(has_item(itype_triforcepiece, lvl))
                 {
                     int32_t tp=0;
-                    
                     for(; tp<8; tp++)
                         if(misc->triforce[tp] == i+1)
                             break;
-                            
                     overtile16(dest,triforcetile,x+tripiece[0][tp][0],y+tripiece[0][tp][1],triforcecset,tripiece[0][tp][2]);
                 }
             }
@@ -4957,15 +4570,12 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tr
                     //left inside vertical
                     _allegro_vline(dest,x+31,y+56,y+103,triframecolor);
                     _allegro_vline(dest,x+32,y+56,y+103,triframecolor);
-                    
                     //center inside vertical top
                     _allegro_vline(dest,x+55,y+8   ,y+55,triframecolor);
                     _allegro_vline(dest,x+56,y+8   ,y+55,triframecolor);
-                    
                     //right inside vertical
                     _allegro_vline(dest,x+79,y+56,y+103,triframecolor);
                     _allegro_vline(dest,x+80,y+56,y+103,triframecolor);
-                    
                     if(!get_bit(quest_rules,qr_3TRI))
                     {
                         //center inside vertical bottom
@@ -4973,43 +4583,33 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tr
                         _allegro_vline(dest,x+56,y+56,y+103,triframecolor);
                     }
                 }
-                
                 //middle inside horizontal
                 _allegro_hline(dest,x+32,y+55,x+79,triframecolor);
                 _allegro_hline(dest,x+32,y+56,x+79,triframecolor);
-                
                 //bottom outside horizontal
                 _allegro_hline(dest,x+8,y+103,x+103,triframecolor);
-                
                 //left outside diagonal
                 line(dest,x+8,y+103,x+55,y+8,triframecolor);
                 line(dest,x+9,y+102,x+55,y+9,triframecolor);
-                
                 //right outside diagonal
                 line(dest,x+56,y+8,x+103,y+103,triframecolor);
                 line(dest,x+56,y+9,x+102,y+102,triframecolor);
-                
                 //left inside diagonal
                 line(dest,x+32,y+56,x+55,y+103,triframecolor);
                 line(dest,x+32,y+57,x+54,y+102,triframecolor);
                 line(dest,x+32,y+55,x+55,y+102,triframecolor);
-                
                 //right inside diagonal
                 line(dest,x+56,y+103,x+79,y+56,triframecolor);
                 line(dest,x+57,y+102,x+79,y+57,triframecolor);
                 line(dest,x+56,y+102,x+79,y+55,triframecolor);
-                
                 for(int32_t i=0; i<8; i++)
                 {
                     int32_t lvl = i+1;
-                    
                     if(get_bit(quest_rules,qr_4TRI) && lvl>4)
                     {
                         lvl -= 4;
                     }
-                    
                     int32_t tp=0;
-                    
                     for(; tp<8; tp++)
                     {
                         if(misc->triforce[tp] == i+1)
@@ -5017,7 +4617,6 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tr
                             break;
                         }
                     }
-                    
                     if(!has_item(itype_triforcepiece, lvl))
                     {
                         textprintf_ex(dest, pfont, x+tripiece[1][tp][0]+((tripiece[1][tp][2]&1)?8:14),y+tripiece[1][tp][1]+((tripiece[1][tp][2]&2)?9:32), numbercolor, -1, "%d", lvl);
@@ -5025,20 +4624,16 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tr
                 }
             }
         }
-        
         if(showpieces)
         {
             for(int32_t i=0; i<8; i++)
             {
                 int32_t lvl = i+1;
-                
                 if(get_bit(quest_rules,qr_4TRI) && lvl>4)
                 {
                     lvl -= 4;
                 }
-                
                 int32_t tp=0;
-                
                 for(; tp<8; tp++)
                 {
                     if(misc->triforce[tp] == i+1)
@@ -5046,7 +4641,6 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tr
                         break;
                     }
                 }
-                
                 if(has_item(itype_triforcepiece, lvl))
                 {
                     draw_block_flip(dest,x+tripiece[1][tp][0]-(tripiece[1][tp][2]&1?0:8),y+tripiece[1][tp][1],triforcetile,triforcecset,2,3,tripiece[1][tp][2],1,0);
@@ -5064,24 +4658,19 @@ void puttriforce(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t ti
         tile=misc->colors.triforce_tile;
         cset=misc->colors.triforce_cset;
     }
-    
 	if(trinum <= 8)
 	{
 		for(int32_t i=0; i<8; i++)
 		{
 			int32_t lvl = i+1;
-			
 			if(get_bit(quest_rules,qr_4TRI) && lvl>4)
 				lvl -= 4;
-				
 			if(lvl==trinum && has_item(itype_triforcepiece, lvl))
 			{
 				int32_t tp=0;
-				
 				for(; tp<8; tp++)
 					if(misc->triforce[tp] == i+1)
 						break;
-						
 				draw_block_flip(dest,x,y,tile,cset,w,h,flip,overlay,trans);
 			}
 		}
@@ -5111,10 +4700,8 @@ void draw_block(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32
 void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, bool showrooms, bool showhero, int32_t roomcolor, int32_t herocolor, bool large)
 {
     int32_t si=0;
-    
     int32_t maptile=has_item(itype_map, get_dlevel())?DMaps[get_currdmap()].largemap_2_tile:DMaps[get_currdmap()].largemap_1_tile;
     int32_t mapcset=has_item(itype_map, get_dlevel())?DMaps[get_currdmap()].largemap_2_cset:DMaps[get_currdmap()].largemap_1_cset;
-    
     if(showmap)
     {
         if(maptile)
@@ -5135,12 +4722,9 @@ void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, b
         else
         {
             BITMAP *bmp = create_bitmap_ex(8,8,8);
-            
             if(!bmp)
                 return;
-                
             clear_bitmap(bmp);
-            
             for(int32_t x2=0; x2<8; x2++)
             {
                 for(int32_t y2=8-fringe[x2]; y2<8; y2++)
@@ -5148,9 +4732,7 @@ void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, b
                     putpixel(bmp,x2,y2,misc->colors.bmap_bg);
                 }
             }
-            
             rectfill(dest,x,y,x+(large?127:95),y+79,misc->colors.bmap_bg);
-            
             for(int32_t y2=0; y2<2; ++y2)
             {
                 for(int32_t x2=0; x2<(large?16:12); ++x2)
@@ -5158,13 +4740,11 @@ void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, b
                     if((large?bmap_original[y2][x2]:bmap_bs[y2][x2]))
                     {
                         rectfill(dest,(x2<<3)+x,(y2*72)+y,(x2<<3)+x+7,(y2*72)+y+7,misc->colors.subscr_bg);
-                        
                         switch((large?bmap_original[y2][x2]:bmap_bs[y2][x2]))
                         {
                         case 3:
                             draw_sprite_v_flip(dest,bmp,(x2<<3)+x,(y2*72)+y);
                             break;
-                            
                         case 1:
                         default:
                             draw_sprite(dest,bmp,(x2<<3)+x,(y2*72)+y);
@@ -5173,20 +4753,16 @@ void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, b
                     }
                 }
             }
-            
             destroy_bitmap(bmp);
         }
     }
-    
     if(showrooms)
     {
         if(roomcolor==-1)
         {
             roomcolor = misc->colors.bmap_fg;
         }
-        
         si=(get_currdmap() << 7);
-        
         for(int32_t y2=y+8; y2<y+72; y2+=8)
         {
 			while(((unsigned)((si&0xF)-DMaps[get_currdmap()].xoff))>7)
@@ -5202,16 +4778,11 @@ void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, b
                 if(get_bmaps(si))
                 {
                     rectfill(dest,x2+1,y2+1,x2+6,y2+6,roomcolor);
-                    
                     if(get_bmaps(si)&1) _allegro_hline(dest,x2+3,y2,  x2+4,roomcolor);  //top door
-                    
                     if(get_bmaps(si)&2) _allegro_hline(dest,x2+3,y2+7,x2+4,roomcolor);  //bottom door
-                    
                     if(get_bmaps(si)&4) _allegro_vline(dest,x2,  y2+3,y2+4,roomcolor);  //left door
-                    
                     if(get_bmaps(si)&8) _allegro_vline(dest,x2+7,y2+3,y2+4,roomcolor);  //right door
                 }
-                
                 ++si;
             }
 			if(DMaps[get_currdmap()].xoff < 0)
@@ -5220,7 +4791,6 @@ void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, b
 			}
 		}
     }
-    
     if(showhero)
     {
         if(get_currscr()<MAPSCRSNORMAL)
@@ -5229,7 +4799,6 @@ void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, b
             {
                 herocolor=misc->colors.hero_dot;
             }
-            
             int32_t xoff = (((DMaps[get_currdmap()].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[get_currdmap()].xoff);
             putdot(dest,(((get_homescr()&15)-xoff)<<3)+x+(large?34:18)+(maptile?8:0),((get_homescr()&0xF0)>>1)+y+11,herocolor);
         }
@@ -5240,13 +4809,11 @@ void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, b
 void load_Sitems(miscQdata *misc)
 {
     Sitems.clear();
-    
     // HC Pieces
     if(misc->colors.HCpieces_tile)
     {
         //      item *HCP = new item((zfix)(inventory_x[5]-ofs),(zfix)y,iMax,0,0);
         item *HCP = new item((zfix)0,(zfix)0,(zfix)0,iHCPiece,0,0);
-        
         if(HCP)
         {
             int32_t hcpphc =  game->get_hcp_per_hc();
@@ -5257,28 +4824,23 @@ void load_Sitems(miscQdata *misc)
             add_subscr_item(HCP);
         }
     }
-    
     if(has_item(itype_map, get_dlevel()))
     {
         add_subscr_item(new item((zfix)0,(zfix)0,(zfix)0,iMap,0,0));
     }
-    
     if(has_item(itype_compass, get_dlevel()))
     {
         add_subscr_item(new item((zfix)0,(zfix)0,(zfix)0,iCompass,0,0));
     }
-    
     if(has_item(itype_bosskey, get_dlevel()))
     {
         add_subscr_item(new item((zfix)0,(zfix)0,(zfix)0,iBossKey,0,0));
     }
-    
     for(int32_t i=0; i<itype_max; i++)
     {
         //special case: ignore the dmap-specific items processed above. -DD
         if(i == itype_map || i == itype_compass || i == itype_bosskey)
             continue;
-            
         // Display the ring even if it has run out of magic.
         if(current_item_id(i,false)>-1)
         {
@@ -5289,7 +4851,6 @@ void load_Sitems(miscQdata *misc)
         }
     }
     //al_trace("Finished load_Sitems(%d)\n",0);
-    
     new_sel=true;
 }
 
@@ -5297,49 +4858,37 @@ void update_subscreens(int32_t dmap)
 {
     if(dmap<0)
         dmap=get_currdmap();
-        
     int32_t index=DMaps[dmap].active_subscreen;
-    
     int32_t i=-1, j=0;
-    
     while(custom_subscreen[j].objects[0].type!=ssoNULL&&i!=index)
     {
         if(custom_subscreen[j].ss_type==sstACTIVE)
         {
             ++i;
         }
-        
         ++j;
     }
-    
     current_subscreen_active=&custom_subscreen[j-1];
-    
     index=DMaps[dmap].passive_subscreen;
-    
     i=-1, j=0;
-    
     while(custom_subscreen[j].objects[0].type!=ssoNULL&&i!=index)
     {
         if(custom_subscreen[j].ss_type==sstPASSIVE)
         {
             ++i;
         }
-        
         ++j;
     }
-    
     current_subscreen_passive=&custom_subscreen[j-1];
 }
 
 int32_t ss_objects(subscreen_group *tempss)
 {
     int32_t i=0;
-    
     while(i<MAXSUBSCREENITEMS&&tempss->objects[i].type!=ssoNULL)
     {
         ++i;
     }
-    
     return i;
 }
 
@@ -5348,7 +4897,6 @@ void purge_blank_subscreen_objects(subscreen_group *tempss)
 {
     int32_t objects=ss_objects(tempss);
     subscreen_object tempsso;
-    
     //filter all the ssoNONE items to the end (yeah, bubble sort; sue me)
     for(int32_t j=0; j<objects-1; j++)
     {
@@ -5362,7 +4910,6 @@ void purge_blank_subscreen_objects(subscreen_group *tempss)
             }
         }
     }
-    
     //NULL out the ssoNONE items
     for(int32_t j=0; j<objects; j++)
     {
@@ -5382,27 +4929,21 @@ int32_t get_alignment(subscreen_object *tempsso)
     case ssoTEXT:
         return tempsso->d2;
         break;
-        
     case ssoBSTIME:
         return sstaLEFT;
         break;
-        
     case ssoTIME:
         return sstaRIGHT;
         break;
-        
     case ssoSSTIME:
         return sstaRIGHT;
         break;
-        
     case ssoCOUNTER:
         return tempsso->d2;
         break;
-        
     case ssoMINIMAPTITLE:
         return tempsso->d2;
         break;
-        
     case ssoCURRENTITEMTEXT:
     case ssoCURRENTITEMNAME:
     case ssoSELECTEDITEMNAME:
@@ -5411,7 +4952,6 @@ int32_t get_alignment(subscreen_object *tempsso)
     case ssoSELECTEDITEMCLASSNAME:
         return sstaLEFT;
         break;
-        
     case ssoNONE:
     case sso2X2FRAME:
     case ssoLINE:
@@ -5441,7 +4981,6 @@ int32_t get_alignment(subscreen_object *tempsso)
         return sstaLEFT;
         break;
     }
-    
 //  return false;//UNREACHABLE
 }
 
@@ -5459,13 +4998,11 @@ int32_t get_alignment(subscreen_object *tempsso)
 int32_t sso_y(subscreen_object *tempsso)
 {
     int32_t y=0;
-    
     switch(tempsso->type)
     {
     case ssoLIFEMETER:
         y=tempsso->y+(tempsso->d2?0:(tempsso->d3?8:16));
         break;
-        
     case ssoNONE:
     case sso2X2FRAME:
     case ssoTEXT:
@@ -5504,12 +5041,10 @@ int32_t sso_y(subscreen_object *tempsso)
     case ssoSELECTEDITEMCLASSNAME:
         y=tempsso->y;
         break;
-        
     default:
         y=(zc_oldrand()*1000)%64;
         break;
     }
-    
     switch(tempsso->type)
     {
     case ssoTEXT:
@@ -5529,23 +5064,19 @@ int32_t sso_y(subscreen_object *tempsso)
             y-=1;
             break;
         }
-        
         break;
     }
-    
     return y;
 }
 
 int32_t sso_x(subscreen_object *tempsso)
 {
     int32_t x=0;
-    
     switch(tempsso->type)
     {
     case ssoMAGICMETER:
         x=tempsso->x-10;
         break;
-        
     case ssoNONE:
     case sso2X2FRAME:
     case ssoTEXT:
@@ -5584,12 +5115,10 @@ int32_t sso_x(subscreen_object *tempsso)
     case ssoSELECTEDITEMCLASSNAME:
         x=tempsso->x;
         break;
-        
     default:
         x=(zc_oldrand()*1000)%64;
         break;
     }
-    
     switch(tempsso->type)
     {
     case ssoTEXT:
@@ -5611,10 +5140,8 @@ int32_t sso_x(subscreen_object *tempsso)
             x-=1;
             break;
         }
-        
         break;
     }
-    
     return x;
 }
 
@@ -5623,159 +5150,121 @@ int32_t sso_x(subscreen_object *tempsso)
 int32_t sso_h(subscreen_object *tempsso)
 {
     int32_t h=0;
-    
     switch(tempsso->type)
     {
     case ssoNONE:
         h=5;
         break;
-        
     case sso2X2FRAME:
         h=tempsso->h*8;
         break;
-        
     case ssoTEXT:
         h=text_height(ss_font(tempsso->d1));
         break;
-        
     case ssoLINE:
         h=tempsso->h;
         break;
-        
     case ssoRECT:
         h=tempsso->h;
         break;
-        
     case ssoBSTIME:
         h=text_height(ss_font(tempsso->d1));
         break;
-        
     case ssoTIME:
         h=text_height(ss_font(tempsso->d1));
         break;
-        
     case ssoSSTIME:
         h=text_height(ss_font(tempsso->d1));
         break;
-        
     case ssoMAGICMETER:
         h=8;
         break;
-        
     case ssoLIFEMETER:
         h=tempsso->d3?24:16;
         break;
-        
     case ssoBUTTONITEM:
         h=16;
         break;
-        
     case ssoICON:
         h=8;
         break;
-        
     case ssoCOUNTER:
         h=text_height(ss_font(tempsso->d1));
         break;
-        
     case ssoCOUNTERS:
         h=32;
         break;
-        
     case ssoMINIMAPTITLE:
         h=16;
         break;
-        
     case ssoMINIMAP:
         h=48;
         break;
-        
     case ssoLARGEMAP:
         h=80;
         break;
-        
     case ssoCLEAR:
         h=5;
         break;
-        
     case ssoCURRENTITEM:
         h=16;
         break;
-        
     case ssoITEM:
         h=16;
         break;
-        
     case ssoTRIFRAME:
         h=16*((tempsso->d7)?7:3);
         break;
-        
     case ssoTRIFORCE:
         h=16;
         break;
-        
     case ssoTILEBLOCK:
         h=16*(tempsso->h);
         break;
-        
     case ssoMINITILE:
         h=8;
         break;
-        
     case ssoSELECTOR1:
     case ssoSELECTOR2:
         h=tempsso->d5?32:16;
         break;
-        
     case ssoMAGICGAUGE:
         h=8;
         break;
-        
     case ssoLIFEGAUGE:
         h=8;
         break;
-        
     case ssoTEXTBOX:
         h=tempsso->h;
         break;
-        
     case ssoCURRENTITEMTILE:
         h=16;
         break;
-        
     case ssoSELECTEDITEMTILE:
         h=16;
         break;
-        
     case ssoCURRENTITEMTEXT:
         h=16;
         break;
-        
     case ssoCURRENTITEMNAME:
         h=tempsso->h;
         break;
-        
     case ssoSELECTEDITEMNAME:
         h=tempsso->h;
         break;
-        
     case ssoCURRENTITEMCLASSTEXT:
         h=tempsso->h;
         break;
-        
     case ssoCURRENTITEMCLASSNAME:
         h=tempsso->h;
         break;
-        
     case ssoSELECTEDITEMCLASSNAME:
         h=tempsso->h;
         break;
-        
     default:
         h=(zc_oldrand()*1000)%64;
         break;
     }
-    
     switch(tempsso->type)
     {
     case ssoTEXT:
@@ -5799,169 +5288,129 @@ int32_t sso_h(subscreen_object *tempsso)
             h+=1;
             break;
         }
-        
         break;
     }
-    
     return h;
 }
 
 int32_t sso_w(subscreen_object *tempsso)
 {
     int32_t w=0;
-    
     switch(tempsso->type)
     {
     case ssoNONE:
         w=5;
         break;
-        
     case sso2X2FRAME:
         w=tempsso->w*8;
         break;
-        
     case ssoTEXT:
         w=text_length(ss_font(tempsso->d1), (char *)tempsso->dp1);
         break;
-        
     case ssoLINE:
         w=tempsso->w;
         break;
-        
     case ssoRECT:
         w=tempsso->w;
         break;
-        
     case ssoBSTIME:
         w=text_length(ss_font(tempsso->d1), time_str_short2(game->get_time()));
         break;
-        
     case ssoTIME:
         w=text_length(ss_font(tempsso->d1), time_str_med(game->get_time()));
         break;
-        
     case ssoSSTIME:
         w=text_length(ss_font(tempsso->d1), time_str_med(game->get_time()));
         break;
-        
     case ssoMAGICMETER:
         w=82;
         break;
-        
     case ssoLIFEMETER:
         w=64;
         break;
-        
     case ssoBUTTONITEM:
         w=16;
         break;
-        
     case ssoICON:
         w=8;
         break;
-        
     case ssoCOUNTER:
         w=text_length(ss_font(tempsso->d1), "0")*tempsso->d4;
         break;
-        
     case ssoCOUNTERS:
         w=32;
         break;
-        
     case ssoMINIMAPTITLE:
         w=80;
         break;
-        
     case ssoMINIMAP:
         w=80;
         break;
-        
     case ssoLARGEMAP:
         w=16*((tempsso->d4)?9:7);
         break;
-        
     case ssoCLEAR:
         w=5;
         break;
-        
     case ssoCURRENTITEM:
         w=16;
         break;
-        
     case ssoITEM:
         w=16;
         break;
-        
     case ssoTRIFRAME:
         w=16*((tempsso->d7)?7:6);
         break;
-        
     case ssoTRIFORCE:
         w=16;
         break;
-        
     case ssoTILEBLOCK:
         w=16*(tempsso->w);
         break;
-        
     case ssoMINITILE:
         w=8;
         break;
-        
     case ssoSELECTOR1:
     case ssoSELECTOR2:
         w=tempsso->d5?32:16;
         break;
-        
     case ssoMAGICGAUGE:
         w=8;
         break;
-        
     case ssoLIFEGAUGE:
         w=8;
         break;
-        
     case ssoTEXTBOX:
         w=tempsso->w;
         break;
-        
     case ssoCURRENTITEMTILE:
         w=16;
         break;
-        
     case ssoSELECTEDITEMTILE:
         w=16;
         break;
-        
     case ssoCURRENTITEMTEXT:
         w=16;
         break;
-        
     case ssoCURRENTITEMNAME:
         w=tempsso->w;
         break;
-        
     case ssoSELECTEDITEMNAME:
         w=tempsso->w;
         break;
-        
     case ssoCURRENTITEMCLASSTEXT:
         w=tempsso->w;
         break;
-        
     case ssoCURRENTITEMCLASSNAME:
         w=tempsso->w;
         break;
-        
     case ssoSELECTEDITEMCLASSNAME:
         w=tempsso->w;
         break;
-        
     default:
         w=(zc_oldrand()*1000)%64;
         break;
     }
-    
     switch(tempsso->type)
     {
     case ssoTEXT:
@@ -5985,10 +5434,8 @@ int32_t sso_w(subscreen_object *tempsso)
             w+=1;
             break;
         }
-        
         break;
     }
-    
     return w;
 }
 
@@ -5998,31 +5445,25 @@ void sso_bounding_box(BITMAP *bmp, subscreen_group *tempss, int32_t index, int32
     {
         return;
     }
-    
     int32_t x=sso_x(&tempss->objects[index]);
     int32_t y=sso_y(&tempss->objects[index]);
     int32_t w=sso_w(&tempss->objects[index]);
     int32_t h=sso_h(&tempss->objects[index]);
-    
     switch(get_alignment(&tempss->objects[index]))
     {
     case sstaCENTER:
         x-=(w/2);
         break;
-        
     case sstaRIGHT:
         x-=w;
         break;
-        
     case sstaLEFT:
     default:
         break;
     }
-    
     int32_t c=x+w/2;
     int32_t m=y+h/2;
     bool normalrect=true;
-    
     if(color==-1)
     {
         color=jwin_pal[jcTITLER];
@@ -6031,7 +5472,6 @@ void sso_bounding_box(BITMAP *bmp, subscreen_group *tempss, int32_t index, int32
     {
         color=jwin_pal[jcTITLEL];
     }
-    
     //draw a bounding box around the current object
     if(normalrect)
     {
@@ -6043,7 +5483,6 @@ void sso_bounding_box(BITMAP *bmp, subscreen_group *tempss, int32_t index, int32
         rect(bmp, x-1,   y+h-2, x+1, y+h, color);
         rect(bmp, x+w-2, y-1,   x+w, y+1, color);
         rect(bmp, x+w-2, y+h-2, x+w, y+h, color);
-        
         if(w>=9)
         {
             rect(bmp, c-1, y-1,   c+1, y+1, color);
@@ -6058,7 +5497,6 @@ void sso_bounding_box(BITMAP *bmp, subscreen_group *tempss, int32_t index, int32
             _allegro_hline(bmp, x+2,  y,     x+w-3, color);
             _allegro_hline(bmp, x+2,  y+h-1, x+w-3, color);
         }
-        
         if(h>=9)
         {
             rect(bmp, x-1,   m-1, x+1, m+1, color);

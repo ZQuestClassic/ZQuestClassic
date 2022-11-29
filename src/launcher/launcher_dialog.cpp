@@ -79,7 +79,6 @@ namespace GUI::Lists
 		{ "Direct3D", 1 },
 		{ "OpenGL", 2 }
 	};
-	
 	static const ListData nameEntryList
 	{
 		{ "Keyboard", 0 },
@@ -93,7 +92,6 @@ namespace GUI::Lists
 		{ "Modern", 1 },
 		{ "2.5", 2 }
 	};
-	
 	static const ListData resPresetList
 	{
 		{ "640x480", 2 },
@@ -150,7 +148,6 @@ Checkbox( \
 	{ \
 		zc_set_config(file,head,subhead,state?1:0); \
 	})
-	
 #define CONFIG_CHECKBOX_I_ZCL(name, head, subhead, def, info) \
 Button(forceFitH = true, text = "?", \
 	onPressFunc = [&]() \
@@ -384,7 +381,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 	al_get_monitor_info(0, &info);
 	rightmost = info.x2 - info.x1;
 	bottommost = info.y2 - info.y1;
-	
 	rightmost=rightmost - 48;
 	bottommost=bottommost - 48;
 	window = Window(
@@ -731,7 +727,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 			)
 		)
 	);
-	
 	char path[4096] = {0};
 	relativize_path(path, zc_get_config("zc.cfg", "ZCMODULE", "current_module", "modules/classic.zmod"));
 	tf_module_zc->setText(path);

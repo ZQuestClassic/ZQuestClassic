@@ -81,7 +81,7 @@ int __Tango_RunFlowControl(int pos)
     int ret=0;
     int offset=2;
     bool clear=true;
-    
+
     // Evaluate the condition first, unless this is @else
     int argLength=0;
     bool condition=false;
@@ -90,7 +90,7 @@ int __Tango_RunFlowControl(int pos)
         argLength=__Tango_ReadArgLength(pos+2);
         condition=(__Tango_ReadArg(pos+2)!=0);
     }
-    
+
     if(type==__TANGO_FLOW_IF)
     {
         if(condition)
@@ -145,7 +145,7 @@ int __Tango_RunFlowControl(int pos)
             clear=false;
         }
     }
-    
+
     // Overwrite with filler
     if(clear)
     {
@@ -154,7 +154,7 @@ int __Tango_RunFlowControl(int pos)
             end++;
         __Tango_Delete(pos, end);
     }
-    
+
     return ret;
 }
 
@@ -167,14 +167,14 @@ void __Tango_RunSetter(int pos, bool clear)
     int var=__Tango_Buffer[pos+3];
     int argLength=__Tango_ReadArgLength(pos+4);
     int value=__Tango_ReadArg(pos+4);
-    
+
     // Only two cases: @set and @inc.
     // For @inc, just add the variable's current value to the given value.
     if(type==__TANGO_SETTER_INC)
         value+=__Tango_GetVar(var);
-    
+
     __Tango_SetVar(var, value);
-    
+
     if(clear)
         __Tango_Delete(pos, pos+3+argLength);
 }
@@ -191,13 +191,13 @@ int __Tango_RunFunction(int pos, bool clear)
     int ret=0;
     bool found;
     bool negative=false;
-    
+
     if(function<0)
     {
         negative=true;
         function=-function;
     }
-    
+
     // Read arguments first.
     for(int i=0; true; i++)
     {
@@ -210,15 +210,15 @@ int __Tango_RunFunction(int pos, bool clear)
                 __Tango_LogError(__TANGO_ERROR_TOO_MANY_ARGS);
             continue; // Extra args are read but not stored
         }
-        
+
         args[i]=__Tango_ReadArg(pos+totalLength);
         totalLength+=argLength;
     }
-    
+
     // Clear out the space where the function and its arguments were stored.
     if(clear)
         __Tango_Delete(pos, pos+totalLength);
-    
+
     // Sorted by numeric value to reduce comparisons and if/else depth.
     found=true;
     if(function<5)
@@ -306,14 +306,14 @@ int __Tango_RunFunction(int pos, bool clear)
         else
             found=false;
     }
-    
+
     // Not a built-in function; check custom functions.
     if(!found)
         ret=__Tango_RunCustomFunction(function, args);
-    
+
     if(negative)
         ret=-ret;
-    
+
     return ret;
 }
 
@@ -322,7 +322,7 @@ int __Tango_RunFunction(int pos, bool clear)
 int __Tango_ReadArgLength(int pos)
 {
     int type=__Tango_Buffer[pos];
-    
+
     if(type==__TANGO_NUM_MARKER || type==__TANGO_VAR_MARKER)
         return 2;
     else if(type==__TANGO_FUNC_MARKER)
@@ -330,20 +330,20 @@ int __Tango_ReadArgLength(int pos)
         int depth=0;
         int character;
         int length=0;
-        
+
         do
         {
             character=__Tango_Buffer[pos+length];
-            
+
             if(character==__TANGO_FUNC_MARKER)
 
                 depth++;
             else if(character==__TANGO_FUNC_END_MARKER)
                 depth--;
-            
+
             length++;
         } while(depth>0);
-        
+
         return length;
     }
     // The only other thing that's valid here is an end marker
@@ -357,13 +357,13 @@ int __Tango_ReadArgLength(int pos)
 int __Tango_ReadArg(int pos)
 {
     int argType=__Tango_Buffer[pos];
-    
+
     if(argType==__TANGO_FUNC_MARKER)
         return __Tango_RunFunction(pos, false);
 
     else if(argType==__TANGO_VAR_MARKER)
         return __Tango_GetVar(__Tango_Buffer[pos+1]);
-    
+
     else // Number (or maybe something invalid)
         return __Tango_Buffer[pos+1];
 }
@@ -385,7 +385,7 @@ void __Tango_AppendMessage(int pos, int messageID)
     while(!(__Tango_Buffer[pos]==NULL &&
             !__Tango_IsSpecialDataMarker(__Tango_Buffer[pos-1])))
         pos++;
-    
+
     int buffer[256];
     Game->GetMessage(messageID, buffer);
     __Tango_LoadIntoBuffer(buffer, 0, pos);
@@ -404,12 +404,12 @@ void __Tango_FuncNumber(int number, int pos)
 {
     int buf[13];
     int numChars=0;
-    
+
     if(number==(number<<0)) // Integer?
         numChars=itoa(buf, number);
     else
         numChars=__Tango_FloatToASCII(buf, number, false);
-    
+
     for(int i=0; i<numChars; i++)
     {
         __Tango_Buffer[pos]=buf[i];
@@ -423,11 +423,11 @@ void __Tango_FuncOrdinal(int number, int pos)
     int buf[9];
     int numChars;
     int ordinal;
-    
+
     number<<=0; // No fractions allowed.
     numChars=itoa(buf, number);
     ordinal=__Tango_GetOrdinal(number);
-    
+
     if(ordinal==1) // "st"
     {
         buf[numChars]=115;
@@ -448,7 +448,7 @@ void __Tango_FuncOrdinal(int number, int pos)
         buf[numChars]=116;
         buf[numChars+1]=104;
     }
-    
+
     numChars+=2;
     for(int i=0; i<numChars; i++)
     {
@@ -457,17 +457,17 @@ void __Tango_FuncOrdinal(int number, int pos)
     }
 }
 
-// Helper for __Tango_FuncOrdinal. 
+// Helper for __Tango_FuncOrdinal.
 int __Tango_GetOrdinal(int num)
 {
     if(num<0)
         num=-num;
-    
+
     // Check for 11, 12, and 13 first
     num%=100;
     if(num==11 || num==12 || num==13)
         return 0;
-    
+
     return num%10;
 }
 
@@ -476,7 +476,7 @@ void __Tango_FuncSaveName(int pos)
 {
     int buf[9];
     Game->GetSaveName(buf);
-    
+
     for(int i=0; buf[i]>0; i++)
     {
         __Tango_Buffer[pos]=buf[i];
@@ -495,9 +495,9 @@ void __Tango_FuncString(int string, int pos)
         __Tango_Buffer[pos]=NULL;
         return;
     }
-    
+
     int length=Min(strlen(string), __TANGO_MAX_STRING_FUNC_LENGTH);
-    
+
     for(int i=0; i<length; i++)
         __Tango_Buffer[pos+i]=string[i];
 }
@@ -524,7 +524,7 @@ void __Tango_FuncActivateMenu(int pos, int flags, int initialPos)
     Tango_SetMenuFlags(flags);
     Tango_ActivateMenu();
     __Tango_SetCurrSlotData(__TSDIDX_STATE, __TANGO_STATE_MENU_WAIT);
-    
+
     // Insert the character to tell __Tango_Process() the menu's done.
     __Tango_Buffer[pos]=__TANGO_CHAR_MENU_END;
     Tango_SetMenuCursorPosition(initialPos);
@@ -550,7 +550,7 @@ int __Tango_FuncSync(int args)
     bool found;
     int syncValue;
     // @sync is unique in that it can take either one argument or two.
-    
+
     // If there's only one argument, sync on this value if
     // no other strings were waiting.
     if(args[1]==0)
@@ -558,7 +558,7 @@ int __Tango_FuncSync(int args)
         found=__Tango_FindSyncingStrings(args[0]);
         syncValue=args[0];
     }
-        
+
     // If there are two arguments, don't stop even if no strings were
     // waiting on the first argument. Sync on the second instead.
     else
@@ -567,7 +567,7 @@ int __Tango_FuncSync(int args)
         found=__Tango_FindSyncingStrings(args[1]);
         syncValue=args[1];
     }
-    
+
     if(found)
         return 0;
     else
@@ -586,7 +586,7 @@ bool __Tango_FindSyncingStrings(int value)
     int stateIdx;
     int counterIdx;
     bool found=false;
-    
+
     for(int i=0; i<__TANGO_NUM_SLOTS; i++)
     {
         stateIdx=i*__TANGO_SIZEOF_DATA+__TSDIDX_STATE;
@@ -601,11 +601,11 @@ bool __Tango_FindSyncingStrings(int value)
             }
         }
     }
-    
+
     return found;
 }
 
-// Get the current value of a variable. 
+// Get the current value of a variable.
 float __Tango_GetVar(int var)
 {
     float ret=0;
@@ -615,7 +615,7 @@ float __Tango_GetVar(int var)
         negative=true;
         var=-var;
     }
-    
+
     if(var==__TANGO_VAR_A0)
         ret=__Tango_GetCurrSlotData(TANGO_VAR_A0);
     else if(var==__TANGO_VAR_A1)
@@ -643,10 +643,10 @@ float __Tango_GetVar(int var)
         ret=__Tango_Data[__TDIDX_LAST_CHOICE];
     else
         ret=Tango_GetCustomVar(var);
-    
+
     if(negative)
         ret=-ret;
-    
+
     return ret;
 }
 
@@ -654,7 +654,7 @@ float __Tango_GetVar(int var)
 void __Tango_SetVar(int var, float value)
 {
     int dataStart=__Tango_Data[__TCS_DATA_START];
-    
+
     if(var==__TANGO_VAR_A0)
         __Tango_SetCurrSlotData(TANGO_VAR_A0, value);
     else if(var==__TANGO_VAR_A1)
@@ -674,11 +674,11 @@ void __Tango_SetVar(int var, float value)
         int flags=__Tango_GetCurrStyleData(TANGO_STYLE_FLAGS);
         if(flags&TANGO_FLAG_FREEZE_SCREEN)
             __Tango_DecScreenFreeze();
-        
+
         __Tango_SetCurrSlotData(__TSDIDX_STYLE, value);
         __Tango_Data[__TCS_STYLE_START]=value*__TANGO_SIZEOF_STYLE;
         __Tango_Data[__TDIDX_REFRESH_STYLE]=1;
-        
+
         // If switching to a style that freezes the screen,
         // increment the freeze counter.
         flags=Tango_GetStyleAttribute(value, TANGO_STYLE_FLAGS);

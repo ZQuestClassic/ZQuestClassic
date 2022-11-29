@@ -348,7 +348,7 @@ ffc script Switch_Trap{
 			Screen->isSolid(x+4, y+12)||
 			Screen->isSolid(x+12, y+12)){
 			return false;
-		
+
 		}
 		if(ComboFI(pos, CF_NOENEMY)||ComboFI(pos, CF_NOGROUNDENEMY))
 			return false;
@@ -419,7 +419,7 @@ ffc script Switch_Sequential{
 			Switches_Update(switches, switchesPressed, switchOrder, switchCmb, switchMisc, false);
 			Waitframe();
 		}
-		
+
 	}
 	void Switches_Organize(int switches, int switchOrder){
 		bool banned[34];

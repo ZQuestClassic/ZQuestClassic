@@ -31,7 +31,6 @@ public:
 
 	/* Sets a function to be called on toggle. */
 	void setOnToggleFunc(std::function<void(bool)> newOnToggleFunc);
-	
 	template<typename T>
 	RequireMessage<T> onToggle(T m)
 	{

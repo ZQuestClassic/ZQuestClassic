@@ -78,14 +78,14 @@ Next: <a href="Enumerator-Attributes.html#Enumerator-Attributes" accesskey="n" r
 <h3 class="section">6.36 Label Attributes</h3>
 <a name="index-Label-Attributes"></a>
 
-<p>GCC allows attributes to be set on C labels.  See <a href="Attribute-Syntax.html#Attribute-Syntax">Attribute Syntax</a>, for 
-details of the exact syntax for using attributes.  Other attributes are 
-available for functions (see <a href="Function-Attributes.html#Function-Attributes">Function Attributes</a>), variables 
+<p>GCC allows attributes to be set on C labels.  See <a href="Attribute-Syntax.html#Attribute-Syntax">Attribute Syntax</a>, for
+details of the exact syntax for using attributes.  Other attributes are
+available for functions (see <a href="Function-Attributes.html#Function-Attributes">Function Attributes</a>), variables
 (see <a href="Variable-Attributes.html#Variable-Attributes">Variable Attributes</a>), enumerators (see <a href="Enumerator-Attributes.html#Enumerator-Attributes">Enumerator Attributes</a>),
 statements (see <a href="Statement-Attributes.html#Statement-Attributes">Statement Attributes</a>), and for types
 (see <a href="Type-Attributes.html#Type-Attributes">Type Attributes</a>).
 </p>
-<p>This example uses the <code>cold</code> label attribute to indicate the 
+<p>This example uses the <code>cold</code> label attribute to indicate the
 <code>ErrorHandling</code> branch is unlikely to be taken and that the
 <code>ErrorHandling</code> label is unused:
 </p>
@@ -95,7 +95,7 @@ statements (see <a href="Statement-Attributes.html#Statement-Attributes">Stateme
    asm goto (&quot;some asm&quot; : : : : NoError);
 
 /* This branch (the fall-through from the asm) is less commonly used */
-ErrorHandling: 
+ErrorHandling:
    __attribute__((cold, unused)); /* Semi-colon is required here */
    printf(&quot;error\n&quot;);
    return 0;
@@ -108,7 +108,7 @@ NoError:
 <dl compact="compact">
 <dt><code>unused</code></dt>
 <dd><a name="index-unused-label-attribute"></a>
-<p>This feature is intended for program-generated code that may contain 
+<p>This feature is intended for program-generated code that may contain
 unused labels, but which is compiled with <samp>-Wall</samp>.  It is
 not normally appropriate to use in it human-written code, though it
 could be useful in cases where the code that jumps to the label is

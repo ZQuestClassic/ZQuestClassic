@@ -6,7 +6,7 @@ v31.09.19
 ////////////
 Screen->TileWarpOverlayFlags/Screen->SideWarpOverlayFlags handle Combos Carry Over checkbox in the warp_dlg
 	probably should be bool arrays
-	
+
 
 int TileWarpOverlayFlags;
  * Has to do with overlay of Link over/under combos (clipping?) with some warp types.
@@ -17,20 +17,20 @@ int TileWarpOverlayFlags;
         wdmap = tmpscr[t].tilewarpdmap[index];
         wscr = tmpscr[t].tilewarpscr[index];
         overlay = get_bit(&tmpscr[t].tilewarpoverlayflags,index)?1:0;
- 
+
  int CSet;
  * ? The screen palette. ?
  //* Changed to ->Palette
- 
+
  int SideWarpOverlayFlags;
  * Carryover?
- 
+
 
 //////////////////////
 /// NOW DOCUMENTED ///
 //////////////////////
-Screen-> ScriptEntry ScriptOccupancy and ExitScript appear to be totally 
-	unused; presumably intended for screen scripts that run upon entering, 
+Screen-> ScriptEntry ScriptOccupancy and ExitScript appear to be totally
+	unused; presumably intended for screen scripts that run upon entering,
 	while occupying, and upon exiting a screen.
 
 itemdata->CollectFlags references an unused variable, but it has this comment on it: A flagset that determines of the weapon can collect an item.
@@ -43,7 +43,7 @@ mapscr.valid (Screen->Valid):
 
 In zquest.cpp draw(), draw_block(), flood(), fill_4, and a bunch of other functions, it is |='d with mVALID
 
-So, I'd say that Screen->Valid | mVERSION is always true, and 
+So, I'd say that Screen->Valid | mVERSION is always true, and
 	Screen->Valid | mVALID is true on INITIALIZED screens (i.e. screens where you have edited, which do not show as the default blank blue in ZQ)
 
 Ah, and Screen->SideWarpIndex can be removed, as my Screen->SideWarpID[4] is array access for that var.
@@ -61,18 +61,18 @@ All size/override flags should be bool.
 Screen-> and mapdata->
 int Valid;
  * ?
- 
+
  //* This seems fine? Is the ZASM incorrect? Is that what I'm reading?!
- 
+
  //To ADD
  mapdata->Script (screen script)
  mapdata->InitD (screen InitD)
- 
+
  all instances of the bitwise SizeFlags should become boolOverrideFlags[]
- 
+
 itemdata int CollectFlags;
  * Unused? Intended to be a flagset used when running a collect script, or collecting a screen item.
- 
+
  //spritedata
  int Tile;
  * The tile used by the weapon sprite.
@@ -82,76 +82,75 @@ int Misc;
 
 int Type;
  * The Misc Type. (or is this Misc?)
- 
+
  //combodata combo type bytes
- 
-int BlockNPC; 
-int BlockHole; 
-int BlockTrigger; 
+
+int BlockNPC;
+int BlockHole;
+int BlockTrigger;
 int BlockWeapon[32];
-int ConveyorSpeedX; 
-int ConveyorSpeedY; 
-int SpawnNPC; 
-int SpawnNPCWhen; 
+int ConveyorSpeedX;
+int ConveyorSpeedY;
+int SpawnNPC;
+int SpawnNPCWhen;
 int SpawnNPCChange;
-int DirChange; 
-int DistanceChangeTiles; 
-int DiveItem; 
-int Dock; 
-int Fairy; 
-int FFCAttributeChange; 
-int DecorationTile; 
-int DecorationType; 
+int DirChange;
+int DistanceChangeTiles;
+int DiveItem;
+int Dock;
+int Fairy;
+int FFCAttributeChange;
+int DecorationTile;
+int DecorationType;
 int Hookshot;
-int Ladder; 
-int LockBlock; 
-int LockBlockChange; 
-int Mirror; 
-int DamageAmount; 
+int Ladder;
+int LockBlock;
+int LockBlockChange;
+int Mirror;
+int DamageAmount;
 int DamageDelay;
-int DamageType; 
-int MagicAmount; 
-int MagicDelay; 
-int MagicType; 
+int DamageType;
+int MagicAmount;
+int MagicDelay;
+int MagicType;
 int NoPushBlocks;
-int Overhead; 
-int PlaceNPC; 
-int PushDir; 
-int PushDelay; 
-int PushHeavy; 
-int Pushed; 
+int Overhead;
+int PlaceNPC;
+int PushDir;
+int PushDelay;
+int PushHeavy;
+int Pushed;
 int Raft;
-int ResetRoom; 
-int SavePoint; 
-int FreezeScreen; 
-int SecretCombo; 
+int ResetRoom;
+int SavePoint;
+int FreezeScreen;
+int SecretCombo;
 int Singular (self-only);
-int SlowWalk; 
-int Statue; 
-int Step; 
-int StepChange; 
-int Strike[32]; 
+int SlowWalk;
+int Statue;
+int Step;
+int StepChange;
+int Strike[32];
 int StrikeRemnants;
-int StrikeRemnantsType; 
-int StrikeChange; 
-int StrikeItem; 
-int TouchItem;	
-int TouchStairs; 
-int TriggerType; 
-int TriggerSensitivity; 
-int Warp; 
+int StrikeRemnantsType;
+int StrikeChange;
+int StrikeItem;
+int TouchItem;
+int TouchStairs;
+int TriggerType;
+int TriggerSensitivity;
+int Warp;
 int WarpSensitivity;
-int WarpDirect; 
-int WarpLocation; 
-int Water; 
-int Whistle; 
-int WinGame; 
+int WarpDirect;
+int WarpLocation;
+int Water;
+int Whistle;
+int WinGame;
 int BlockWeaponLevel;
 
 //npc
 int FrozenTile;
  * Unimplemented at this time.
- 
+
 int FrozenCSet;
  * Unimplemented at this time.
- 

@@ -17,7 +17,7 @@ typedef struct newcombo150 {
   byte type;
   byte attr;
   word e;
-} 
+}
 
 
 typedef struct dmap150 {
@@ -31,31 +31,31 @@ typedef struct dmap150 {
  byte type;
  byte grid[8];
 // 16 bytes total
-} 
+}
 
 typedef struct shoptype150 {
  byte item[3];
  byte price[3];
  byte d1,d2;
-} 
+}
 
 typedef struct infotype150 {
  byte str[3];
  byte price[3];
  byte d1,d2;
-} 
+}
 
 typedef struct warpring150 {
  byte dmap[8];
  byte scr[8];
  byte size;
  byte d1;
-} 
+}
 
 typedef struct windwarp150 {
  byte dmap;
  byte scr;
-} 
+}
 
 
 typedef struct zcolors150 {
@@ -67,7 +67,7 @@ typedef struct zcolors150 {
  byte cave_bg, cave_fg;
  byte bs_lt, bs_med, bs_dk, bs_goal;
 // 14 bytes
-} 
+}
 
 
 
@@ -96,13 +96,13 @@ typedef struct zquestheader150 {
  char  author[65];
  short pwdkey;
  char  password[30];
-} 
+}
 
 typedef struct MsgStr150 {
  char s[73];
  byte d1,d2,d3;
 // 76 bytes total
-} 
+}
 
 typedef struct miscQdata150 {
  shoptype shop[16];
@@ -113,7 +113,7 @@ typedef struct miscQdata150 {
  byte     triforce[8];  // positions of triforce pieces on subscreen
  zcolors  colors;
  byte     misc[32];
-} 
+}
 
 
 typedef struct mapscr150 {
@@ -138,7 +138,7 @@ typedef struct combo150 {
   byte type;
   byte attr;
   word e[5];
-} 
+}
 
 
 typedef struct music150 {
@@ -149,7 +149,7 @@ typedef struct music150 {
  short loop;
  short volume;
  MIDI *midi;
-} 
+}
 
 #define QH_IDSTR150 "AG Zelda Classic Quest File\n "
 
@@ -189,7 +189,7 @@ void *read_block150(PACKFILE *f, int size, int alloc_size)
 
 
 /* read_midi:
- *  Reads MIDI data from a datafile (this is not the same thing as the 
+ *  Reads MIDI data from a datafile (this is not the same thing as the
  *  standard midi file format).
  */
 MIDI *read_midi150(PACKFILE *f)

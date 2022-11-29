@@ -33,13 +33,13 @@ if %ERRORLEVEL% NEQ 1 goto :close
 echo Zipping...
 echo Zipping...>>%log%
 if exist "C:\Program Files\7-Zip\7z.exe" (
-	
+
 	if exist "%extrapack%.zip" (
 		del "%extrapack%.zip"
 	)
-	
+
 	"C:\Program Files\7-Zip\7z.exe" a -tzip "%extrapack%.zip" -r "%extrapack%\*" -mx9
-	
+
 	goto end
 )
 

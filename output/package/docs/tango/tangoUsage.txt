@@ -176,7 +176,7 @@ after @0 won't be printed.
 
 ================ Extending Tango code ================
 
-It's possible to create your own variables and functions. 
+It's possible to create your own variables and functions.
 
 The name of the new function or variable must be a series of lower-case
 letters and numbers, and the first character must be a letter. There's no
@@ -212,7 +212,7 @@ float __Tango_RunCustomFunction(float function, float args)
         // Unknown function
         Tango_LogUndefinedFunction(function);
     }
-    
+
     return 0;
 }
 

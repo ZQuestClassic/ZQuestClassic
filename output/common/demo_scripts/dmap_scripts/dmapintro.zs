@@ -12,8 +12,7 @@ dmapdata script dmapintro
 		}
 		d->Flags |= useflag;
 		Screen->Message(intro_msg);
-		
+
 	}
 }
-		
-		
+

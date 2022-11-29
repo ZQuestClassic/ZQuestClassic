@@ -15,7 +15,7 @@ typedef const long CONFIGL;
 typedef const bool CONFIGB;
 typedef const untyped CONFIGU;
 
-DEFINE ERR_RETURN 			= -1; 
+DEFINE ERR_RETURN 			= -1;
 
 ///////////////////////
 /// Mathematical values
@@ -30,10 +30,10 @@ DEFINEU Null			= 0;
 
 const rgb INVALID_COLOR = <rgb>(-1);
 
-DEFINEF RADIAN 			= 57.2958; //Multiplication value for converting radians to degrees. 
+DEFINEF RADIAN 			= 57.2958; //Multiplication value for converting radians to degrees.
 DEFINEF DEGREE			= 0.0174; //Multiplication value for converting degrees to radians.
 
-DEFINE SQRT_ERROR			= 464; // The return value of SafeSqrt() if a negative value is passed. 
+DEFINE SQRT_ERROR			= 464; // The return value of SafeSqrt() if a negative value is passed.
 DEFINEF SQRT_MAX			= 463.4095; //The largest square root thet ZC can return.
 
 
@@ -65,14 +65,14 @@ DEFINE MIN_LWEAPON 			= 1; //Lowest numbered objects.
 DEFINE MIN_EWEAPON 			= 1;
 DEFINE MIN_NPC			= 1;
 DEFINE MIN_ITEM			= 1;
-DEFINE MAX_LWEAPON 			= 255; //1 to 255. 
-DEFINE MAX_EWEAPON 			= 255; //1 to 255. 
-DEFINE MAX_NPCS	 		= 255; //1 to 255. 
+DEFINE MAX_LWEAPON 			= 255; //1 to 255.
+DEFINE MAX_EWEAPON 			= 255; //1 to 255.
+DEFINE MAX_NPCS	 		= 255; //1 to 255.
 DEFINE MAX_ITEM	 		= 255; //1 to 255;
 
 DEFINE MIN_FFC			= 1;
-DEFINE MAX_FFC			= 32; 
-DEFINE MIN_OBJ			= 1; //Short, const for loops. 
+DEFINE MAX_FFC			= 32;
+DEFINE MIN_OBJ			= 1; //Short, const for loops.
 
 DEFINE MIN_COUNTER_INDEX		= 0;
 DEFINE MAX_COUNTER_INDEX		= 31;
@@ -82,9 +82,9 @@ DEFINE MIN_COMBO_POS 		= 0;
 DEFINE MAX_COMBO_POS 		= 175;
 DEFINE NUM_COMBO_POS 		= 176;
 
-DEFINE MAX_OBJECT_POINTERS 		= 255; //Max of any one type. 
+DEFINE MAX_OBJECT_POINTERS 		= 255; //Max of any one type.
 DEFINE MAX_WEAPON_POINTERS 		= 510; //eweapon and lweapon combined.
-DEFINE MAX_TOTAL_OBJECT_POINTERS 	= 1020; //Max shared, across the three types. 
+DEFINE MAX_TOTAL_OBJECT_POINTERS 	= 1020; //Max shared, across the three types.
 DEFINE MAX_SPRITES 			= 1020; //npc, eweapon, and lweapon
 DEFINE MAX_DRAWING 			= 1000; //Maximum number of simultaneous drawing commands.
 
@@ -101,7 +101,7 @@ DEFINE MIN_ITEMDATA			= 0;
 DEFINE MAX_ITEMDATA			= 255;
 DEFINE NUM_ITEMDATA         = 256;
 
-DEFINE MAX_ARRAY_POINTERS	 	= 4095; //Arrays in operation. 
+DEFINE MAX_ARRAY_POINTERS	 	= 4095; //Arrays in operation.
 DEFINE MAX_TILES 			= 65519;
 DEFINE MAX_COMBOS			= 65279;
 DEFINE MAX_STRINGS			= 65519; //Strings in String Editor
@@ -122,7 +122,7 @@ DEFINE MAX_DMAPINTROLENGTH		= 73;
 DEFINE MAX_FFC_W 			= 4; //Four tiles wide
 DEFINE MAX_FFC_H 			= 4; //Four tiles high
 DEFINE MAX_FFC_EFFECT_W		= 64; //Sixty-four pixels wide.
-DEFINE MAX_FFC_EFFECT_H		= 64; //Sixty four pixels high. 
+DEFINE MAX_FFC_EFFECT_H		= 64; //Sixty four pixels high.
 
 //Default array sizes
 DEFINE INIT_D_SIZE			= 8;
@@ -137,7 +137,7 @@ DEFINE MAX_DEFENCE 			= 42;
 /////////////////////
 /// Screen Dimensions
 
-DEFINE SCREEN_W 			= 256; //X width of the Screen, starting at 0 (left) and goign right). 
+DEFINE SCREEN_W 			= 256; //X width of the Screen, starting at 0 (left) and goign right).
 //!SCREEN_WIDTH  is already called in stdExtra.zh
 DEFINE SCREEN_H 			= 176; //Y height of the screen, starting at 0 (top), going down.
 //!SCREEN_HEIGHT  is already called in stdExtra.zh
@@ -145,7 +145,7 @@ DEFINE SCREEN_H 			= 176; //Y height of the screen, starting at 0 (top), going d
 DEFINE SCREEN_RIGHT 			= 255; //The rightmost screen pixel.
 DEFINE SCREEN_LEFT 			= 0; //The leftmost screen pixel.
 DEFINE SCREEN_TOP 			= 0; //The top screen pixel, below the subscreen.
-DEFINE SCREEN_BOTTOM 		= 175; //The lowest screen pixel.  
+DEFINE SCREEN_BOTTOM 		= 175; //The lowest screen pixel.
 
 DEFINE SUBSCREEN_BOTTOM		= -1; //Bottom of passive subscreen.
 DEFINE SUBSCREEN_TOP 		= -56; //Top of passive subscreen.
@@ -153,8 +153,8 @@ DEFINE SUBSCREEN_TOP 		= -56; //Top of passive subscreen.
 
 DEFINE SCREEN_CENTER_X 		= 128;
 DEFINE SCREEN_CENTRE_X 		= 128;
-DEFINE SCREEN_CENTER_Y 		= 88; 
-DEFINE SCREEN_CENTRE_Y 		= 88; 
+DEFINE SCREEN_CENTER_Y 		= 88;
+DEFINE SCREEN_CENTRE_Y 		= 88;
 
 
 ///////////////////
@@ -179,7 +179,7 @@ DEFINE CSET_9 	= 144;
 DEFINE CSET_10 	= 160;
 DEFINE CSET_11 	= 176;
 DEFINE CSET_12 	= 192;
-DEFINE CSET_13 	= 208; //Warning: Using CSets 13 through 15 is not officially supported, 
+DEFINE CSET_13 	= 208; //Warning: Using CSets 13 through 15 is not officially supported,
 DEFINE CSET_14 	= 224; //	  and may affect compatibility with future ZC builds.
 DEFINE CSET_15 	= 240;
 
@@ -399,7 +399,7 @@ DEFINEF RAD_DIR_DOWNLEFT 	= 2.3562; //Pi
 DEFINEF RAD_DIR_DOWN 	= 1.5708;
 DEFINEF RAD_DIR_RIGHTDOWN 	= 0.7854;
 DEFINEF RAD_DIR_DOWNRIGHT 	= 0.7854;
-DEFINEF RAD_DIR_RIGHT 	= 0; 
+DEFINEF RAD_DIR_RIGHT 	= 0;
 
 
 
@@ -420,9 +420,9 @@ DEFINE FLIP_BOTH 		= 3;
 DEFINE ROT_CW 		= 4;
 DEFINE ROT_CW_FLIP 		= 5;
 DEFINE ROT_CCW_FLIP 		= 6;
-DEFINE ROT_CCW 		= 7; 
+DEFINE ROT_CCW 		= 7;
 DEFINE ROT_ACW_FLIP 		= 6; //Anticlockwise, please.
-DEFINE ROT_ACW 		= 7; 
+DEFINE ROT_ACW 		= 7;
 
 
 
@@ -436,7 +436,7 @@ DEFINE EXT_NORMAL            = 3; // Extended
 DEFINE EXT_EXTENDED          = 3; // Extended
 DEFINE EXT_NOSHADOW          = 4; // Extended; NPC has no shadow.
 
-//! We need some better names for Extend constants. 
+//! We need some better names for Extend constants.
 
 //Generic counters. Use with itemclass->Counter, Game->Counter[], Game->MCounter[] and Game->DCounter[]
 DEFINE CR_NONE               = -1;
@@ -666,7 +666,7 @@ DEFINE IC_LETTERPOTION       = 88;
 
 // 89-255 free use
 
-// These item classes create a projectile of the 
+// These item classes create a projectile of the
 // type LW_CUSTOM/LW_SCRIPT, 01 to 10
 DEFINE IC_WPN_CUSTOM_01           = 256;
 DEFINE IC_WPN_SCRIPT_01           = 256;
@@ -1190,7 +1190,7 @@ DEFINE NPC_ZORA              = 33;
 
 //NPC hit point values. Use with npc->HP to make the enemy die in a special manner.
 DEFINE HP_SILENT = -1000;  // The enemy will die without their Death Sound playing.
-DEFINE HP_GLEEOKHEAD = 1000; //Floating Gleeok heads have this as their HP value. 
+DEFINE HP_GLEEOKHEAD = 1000; //Floating Gleeok heads have this as their HP value.
 
 //////////////////////////////////////////////////////
 /// Enemy Editor NPC Attributes / Attribute types
@@ -1309,7 +1309,7 @@ DEFINE NPCA_GLEEOK_WEAPON 		= 2;
 	//Gleeok Weapon Settings
 	DEFINE NPCA_GLEEOK_1SHOT	= 0;
 	DEFINE NPCA_GLEEOK_BREATH	= 2;
-DEFINE NPCA_GLEEOK_CLK 		= 3; //48 by defaault. 
+DEFINE NPCA_GLEEOK_CLK 		= 3; //48 by defaault.
 //IDK what this setting does. It is th Clk line param in esGleeok::esGleeok, but Clk is not used in the function. -Z
 DEFINE NPCA_GLEEOK_NECK_SEGMENTS 	= 4;
 DEFINE NPCA_GLEEOK_NECK_OFFSET_1 	= 5;
@@ -1394,7 +1394,7 @@ DEFINE NPCA_WIZ_SOLIDCOMBOS 		= 3;
 	DEFINE NPCA_WIZ_SOLID_OK_YES = 1;
 DEFINE NPCA_WIZ_TELEPORT_DELAY 	= 4;
 
-	
+
 //Trap Indices
 DEFINE NPCA_TRAP_DIR 		= 0;
 	//Trap Dir Settings
@@ -1455,7 +1455,7 @@ DEFINE NPCD_WIND = 32;
 DEFINE NPCD_SPARKLE = 33;
 DEFINE NPCD_SONIC = 34;
 //35 to 42 reserved, but non-descript in zdefs.
-//the following are defined, but unused. 
+//the following are defined, but unused.
 DEFINE NPCD_ETHER = 43;
 DEFINE NPCD_BOMBOS = 44;
 DEFINE NPCD_POT = 45;
@@ -1529,8 +1529,8 @@ DEFINE NPCMF_NEVERRETURNS 		= 0x0004; //Never Returns After Death
 DEFINE NPCMF_NOT_BEATABLE  		= 0x0008; //Doesn't Count as beatable Enemy
 DEFINE NPCMF_SPAWNFLICKER 		= 0x0010; //Unused.
 //! These may be offset here, as MM defines:
-//!	DEFINE NPCMF_SPAWNFLICKER = 0x0010; //Spawn animation = flicker (???) 
-//!	in stdExtra.zh.  If so, the values should be offset to include this, ending at 0x2000. 
+//!	DEFINE NPCMF_SPAWNFLICKER = 0x0010; //Spawn animation = flicker (???)
+//!	in stdExtra.zh.  If so, the values should be offset to include this, ending at 0x2000.
 // Fixed
 DEFINE NPCMF_ONLY_LENS 		= 0x0020; //Only Seen By Lens of truth
 DEFINE NPCMF_FLASHING 		= 0x0040; //Is Flashing
@@ -1662,7 +1662,7 @@ DEFINE FONT_SUBSCREEN2       = 13;
 DEFINE FONT_SUBSCREEN3       = 14;
 DEFINE FONT_SUBSCREEN4       = 15;
 DEFINE FONT_GBLA             = 16;
-DEFINE FONT_LA		= 16; 
+DEFINE FONT_LA		= 16;
 DEFINE FONT_GORON            = 17;
 DEFINE FONT_ZORAN            = 18;
 DEFINE FONT_HYLIAN1          = 19;
@@ -1690,7 +1690,7 @@ DEFINE FONT_ATARI400		= 35;
 DEFINE FONT_C64		= 36;
 DEFINE FONT_C64_HIRES	= 37;
 DEFINE FONT_CGA		= 38;
-DEFINE FONT_COCO		= 39;	//Invrse chars for upper. 
+DEFINE FONT_COCO		= 39;	//Invrse chars for upper.
 DEFINE FONT_COCO2		= 40;	//Upper and lower
 DEFINE FONT_COUPE		= 41;
 DEFINE FONT_CPC		= 42;	//Amstrad
@@ -1810,17 +1810,17 @@ DEFINE PT_FLAT               = 0; // single color shading
 DEFINE PT_FLATSHADED         = 1; // "" with flat shading (*3D only)
 DEFINE PT_COLSHADED          = 2; // "" with color shading (*3D only)
 DEFINE PT_TEXTURE            = 3; // texture mapped polygon using 2d linear interpolation
-DEFINE PT_PTEXTURE           = 4; // "" 
+DEFINE PT_PTEXTURE           = 4; // ""
 DEFINE PT_MASKTEXTURE        = 5; // transparent texture mapped polygon using 2d linear interpolation
-DEFINE PT_MASKPTEXTURE       = 6; // "" 
+DEFINE PT_MASKPTEXTURE       = 6; // ""
 DEFINE PT_LITTEXTURE         = 7; // "" with lighting (*3D only)
 DEFINE PT_LITPTEXTURE        = 8; // "" (*3D only)
 DEFINE PT_MASKLITTEXTURE     = 9; // "" with transparency
-DEFINE PT_MASKLITPTEXTURE    = 10; // "" 
+DEFINE PT_MASKLITPTEXTURE    = 10; // ""
 DEFINE PT_TRANSTEXTURE       = 11; // translucent texture mapped polygon using 2d linear interpolation
-DEFINE PT_TRANSPTEXTURE      = 12; // "" 
+DEFINE PT_TRANSPTEXTURE      = 12; // ""
 DEFINE PT_MASKTRANSTEXTURE   = 13; // translucent and transparent texture mapped polygon using 2d linear interpolation
-DEFINE PT_MASKTRANSPTEXTURE  = 14; // "" 
+DEFINE PT_MASKTRANSPTEXTURE  = 14; // ""
 
 // Opacity options. Use with drawing commands.
 DEFINE OP_TRANS              = 64;
@@ -1865,7 +1865,7 @@ enum
 	SFR_INTERIOR, //0x0000 ?
 	SFR_DUNGEON, //0x0001
 	SFR_SIDEVIEW, //0x0002
-	
+
 	SFR_LAST
 };
 
@@ -1878,10 +1878,10 @@ enum
 	SFV_NOOFFSET, // 0x0008; //'...but don't offset'
 	SFV_LAYER2BG, // 0x0010; //Layer 2 is Background
 	SFV_LAYER3BG, //0x0020;
-	SFV_DARKROOM, //0x0040; 
-	SFV_DARK_DITHER, //0x0080; 
-	SFV_DARK_TRANS, //0x0100; 
-	
+	SFV_DARKROOM, //0x0040;
+	SFV_DARK_DITHER, //0x0080;
+	SFV_DARK_TRANS, //0x0100;
+
 	SFV_LAST
 };
 
@@ -1892,7 +1892,7 @@ enum
 	SFS_TEMPSECRETS, //0x0002; //Secrets are temporary.
 	SFS_TRIGPERM, //0x0004; //All Triggers->Perm Secret
 	SFS_ALLTRIGFLAGS, //0x0008; //All triggers->16-31
-	
+
 	SFS_LAST
 };
 
@@ -1903,15 +1903,15 @@ enum
 	SFW_SENDSIRECT, //0x0002; //Sensitive Warps are direct.
 	SFW_MAZEPATHS, //0x0004; //Use maze Path
 	SFW_MAZEOVERRIDE, //0x0008; //maze Overrides Sidewarps
-	SFW_SPRITECARRY, //0x0010; //Sprites carry over. 
+	SFW_SPRITECARRY, //0x0010; //Sprites carry over.
 	SFW_DISABLE_MIRROR, //0x0020; //Disable Magic Mirror
-	
+
 	SFW_LAST
 };
 
 
 //Screen Flag Items
-enum 
+enum
 {
 	SFI_HOLDUP, //0x0001; //Hold up item.
 	SFI_FALLS, //0x0002; //Falls from ceiling
@@ -1920,7 +1920,7 @@ enum
 	SFI_ITEMSECRETPERM, //0x0010; //Item triggering secrets is permanent
 	SFI_ITEMRETURNS, //0x0020; //Regular item always returns
 	SFI_SPECIALITEMRETURNS, //0x0040; //Special item always returns
-	
+
 	SFI_LAST
 };
 
@@ -1929,9 +1929,9 @@ enum
 {
 	SFC_MIDAIR,// 0x0001; //Combos affect midair Link
 	SFC_CYCLEINIT, //0x0002; //Cycle combos on screen init.
-	SFC_IGNOREBOOTS, //0x0004; //Damage combos ignore boots. 
+	SFC_IGNOREBOOTS, //0x0004; //Damage combos ignore boots.
 	SFC_TOGGLERINGS, //0x0008; //Toggle 'Rings Affect Combos'
-	
+
 	SFC_LAST
 };
 
@@ -1941,8 +1941,8 @@ enum
 	SFSV_SAVECONTHERE, //0x0001; //Save Point->ontinue here.
 	SFSV_SAVEONENTRY, //0x0002; //Save game on entry.
 	SFSV_CONTHERE, // 0x0004; //Comtinue here.
-	SFSV_NOCONTINUEWARP, //0x0008; //No continue Here after warp. 
-	
+	SFSV_NOCONTINUEWARP, //0x0008; //No continue Here after warp.
+
 	SFSV_LAST
 };
 
@@ -1950,8 +1950,8 @@ enum
 enum
 {
 	SFF_WRAP,  //  0x0001; //Freeform Combos Wrap Around
-	SFF_NOCARRYOVER, //0x0002; //No FFC carry over. 
-	
+	SFF_NOCARRYOVER, //0x0002; //No FFC carry over.
+
 	SFF_LAST
 };
 
@@ -1961,7 +1961,7 @@ enum
 	SFWH_STAIRS = 0, //0x0001; //Whistle->Stairs
 	SFWH_PALCHANGE, //0x0002; //Whistle->Palette Change
 	SFWH_DRYLAKE, //0x0004; //Whistle->Dry lake
-	
+
 	SFWH_LAST
 };
 
@@ -1974,7 +1974,7 @@ DEFINE SFW_DRYLAKE = SFWH_DRYLAKE; //0x0004; //Whistle->Dry lake
 enum
 {
 	SFM_ALLOW_LADDER,   //0x0001; //Toggle 'Allow Ladder'
-	SFM_NO_DIVING,      //0x0002; //Toggle 'No Diving' 
+	SFM_NO_DIVING,      //0x0002; //Toggle 'No Diving'
 	SFM_SCRIPT1,        //0x0004; //General use 1 (Scripts)
 	SFM_SCRIPT2,        //0x0008; //General use 2 (Scripts)
 	SFM_SCRIPT3,        //0x0010; //General use 3 (Scripts)
@@ -1998,7 +1998,7 @@ enum
 	SEFSP_MIDDLETRAP, //0x0004
 	SEFSP_ROCK, //0x0008
 	SEFSP_SHOOTER, //0x0010
-	
+
 	SEFSP_LAST
 };
 
@@ -2010,7 +2010,7 @@ enum
 	SEFL1_INVIS, //0x0004
 	SEFL1_BOSS, //0x0008
 	SEFL1_TRAPS_IGNORE_SOLID, //0x0010
-	
+
 	SEFL1_LAST
 };
 
@@ -2022,7 +2022,7 @@ enum
 	SEFL2_ENEMEIS_SECRET, //0x0004
 	SEFL2_ENEMIES_SECRET_PERM, //0x0008
 	SEFL2_CHAIN_ENEMIES_TRIGGERS, //0x0010
-	
+
 	SEFL2_LAST
 };
 
@@ -2060,7 +2060,7 @@ enum roomtypes
 	//10
 	rtSHOP, rtBOMBS, rtMOYL, rtTENRUPY, rtSTAIRWARP,
 	//15
-	rtGAN, rtWINGAME, rtITEMPOND, /*item ponds not implemented*/ rtMAGIC, rtSLASH, 
+	rtGAN, rtWINGAME, rtITEMPOND, /*item ponds not implemented*/ rtMAGIC, rtSLASH,
 	//20
 	rtARROWS, rtONEITEM, rtLAST
 };
@@ -2070,10 +2070,10 @@ enum catchalltypes
 	//0
 	caNONE, caITEM, caPRICE, caAMOUNT, caGAMBLE,
 	//5
-	caSHOPID, caINFOSHOPID, caWARPRING, caPONDID, 
+	caSHOPID, caINFOSHOPID, caWARPRING, caPONDID,
 	//10
 	caLAST
-	
+
 };
 
 //DMap Flag constants. Use with Game->DMapFlags.
@@ -2218,7 +2218,7 @@ enum HeroAction
 	LA_MAX
 };
 
-							/*lavadrowning, sideswimming, sideswimhit, sideswimattacking, 
+							/*lavadrowning, sideswimming, sideswimhit, sideswimattacking,
 								sidewaterhold1, sidewaterhold2, sideswimcasting, sideswimfreeze, sidedrowning,
 								sideswimisspinning, sideswimischarging*/
 
@@ -2717,7 +2717,7 @@ DEFINE GOS_QUIT		= 6;	//Save and Quit Screen
 
 
 // Constants for DrawBitmapEX Modes
-// These work as FLAGS that you may sum, or stack, to combine effects. 
+// These work as FLAGS that you may sum, or stack, to combine effects.
 
 DEFINE BITDX_NORMAL = 0;
 DEFINE BITDX_TRANS = 1; //Translucent
@@ -2725,7 +2725,7 @@ DEFINE BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of
 DEFINE BITDX_VFLIP = 4; //Vertical Flip.
 DEFINE BITDX_HFLIP = 8; //Horizontal Flip
 //Note:	Some modes cannot be combined. if a combination is not supported, an error
-//	detailing this will be shown in allegro.log. 
+//	detailing this will be shown in allegro.log.
 
 //Effects for Link->WarpEffect
 DEFINE WARPFX_NONE = 0;
@@ -2738,7 +2738,7 @@ DEFINE WARPFX_CANCEL = 6;
 DEFINE WARPFX_SCROLL = 7;
 
 //Sprites for Link->SetTile(sprite, int, int, int)
-//See Quest->Graphics->Sprites->Link for what these are. 
+//See Quest->Graphics->Sprites->Link for what these are.
 DEFINE LSPR_NORMAL = 1;
 DEFINE LSPR_FLOAT = 2;
 DEFINE LSPR_SWIM = 3;
@@ -2764,17 +2764,17 @@ DEFINE ANIM_Z3 = 2;
 DEFINE ANIM_Z3SLOW = 3;
 DEFINE SWIM_SLOW = 0;
 DEFINE SWIM_FAST = 1;
-DEFINE WALK_SLOW = 0; //Need to check what the walk speeds are. 
+DEFINE WALK_SLOW = 0; //Need to check what the walk speeds are.
 DEFINE WALK_FAST = 1;
 DEFINE WALK_NEW = 2;
 
 //Link Tile Offsets
 DEFINE LINKTILE_OFS_NORMAL = -261; //We need to figure out all of these, and determine how they are calculated.
-//Determine the offsetws for each sprite, each anim type, and each extend. 
-//Make a function to set the tiles with these offsets. 
+//Determine the offsetws for each sprite, each anim type, and each extend.
+//Make a function to set the tiles with these offsets.
 
 //Constants for SetItemSlot()
-//These stack as flags. 
+//These stack as flags.
 DEFINE ITM_REQUIRE_NONE = 0;
 DEFINE ITM_REQUIRE_INVENTORY = 1;
 DEFINE ITM_REQUIRE_A_SLOT_RULE = 2;
@@ -2795,7 +2795,7 @@ DEFINE MOUSE_MIDDLE = 5;
 //GetSecretCombo()
 
 DEFINE SECCMB_BCANDLE 	= 0;
-DEFINE SECCMB_ARROW		= 1;	
+DEFINE SECCMB_ARROW		= 1;
 DEFINE SECCMB_BOMB		= 2;
 DEFINE SECCMB_STAIRS		= 3;
 DEFINE SECCMB_SECRET01	= 4;
@@ -2840,7 +2840,7 @@ DEFINE SECCMB_HAMMER		= 42;
 DEFINE SECCMB_STRIKE		= 43;
 DEFINE SECCMB_SECRETSNEXT	= 44; //Only ->SecretFlags[] has a value for this index
 DEFINE SECCMB_MAX            = 45;
-//45 to 127 unused. 
+//45 to 127 unused.
 
 //Audio->
 //Audio->Volume[]
@@ -2916,13 +2916,13 @@ DEFINEF DIR16_RADS_UPLEFT 	= 3.927;
 DEFINEF DIR16_RADS_LEFTLEFTUP = 3.5343;
 DEFINEF DIR16_RADS_LEFT 	= 3.1416; //3.1519; //Pi
 DEFINEF DIR16_RADS_LEFTLEFTDOWN = 2.7489;
-DEFINEF DIR16_RADS_LEFTDOWN 	= 2.3562; 
+DEFINEF DIR16_RADS_LEFTDOWN 	= 2.3562;
 DEFINEF DIR16_RADS_DOWNDOWNLEFT = 1.9635;
 DEFINEF DIR16_RADS_DOWN 	= 1.5708;
 DEFINEF DIR16_RADS_DOWNDOWNRIGHT = 1.1781;
 DEFINEF DIR16_RADS_RIGHTDOWN 	= 0.7854;
-DEFINEF DIR16_RADS_RIGHTRIGHTDOWN = 0.3927; 
-DEFINEF DIR16_RADS_RIGHT 	= 0; 
+DEFINEF DIR16_RADS_RIGHTRIGHTDOWN = 0.3927;
+DEFINEF DIR16_RADS_RIGHT 	= 0;
 DEFINEF DIR16_RADS_RIGHTRIGHTUP = 5.8905;
 DEFINEF DIR16_RADS_RIGHTUP 	= 5.4978;
 DEFINEF DIR16_RADS_RIGHTUPUP 	= 5.1141;
@@ -2934,12 +2934,12 @@ DEFINE DMAP_CAVE = 2;
 DEFINE DMAP_BSOVERWORLD = 3;
 
 enum dmapgridpositions
-{ 
+{
 	/*The Grid[index] is the row, with leftmost being 0.
-	/ The grid values are OR'd together, with MSB at left, and LSB at right, so, 
-	/ if the top-rightmost screen is marked visible, then Grid[0] will == 1, 
+	/ The grid values are OR'd together, with MSB at left, and LSB at right, so,
+	/ if the top-rightmost screen is marked visible, then Grid[0] will == 1,
 	/ if the bottom-leftmost screen is marked visible, then Grid[7] will == 128
-	/ if both the top-leftmost and top-rightmost screens are marked visible, then 
+	/ if both the top-leftmost and top-rightmost screens are marked visible, then
 	/ Grid[0] will == 129
 	*/
 	dmMAPGRID_ROW_0, dmMAPGRID_ROW_1, dmMAPGRID_ROW_2, dmMAPGRID_ROW_3,
@@ -2952,9 +2952,9 @@ enum dmapgridpositions
 	for use with Graphics->Monochrome(int mode)
 	Add together the MODE and the TINT, e.g.:
 	Graphics->Monochrome(TINT_MODE_DISTRIBUTED+TINT_AMBER); //Set amber, distribuyted
-			
+
 	Set to TINT_NONE to disable Monochrome:
-	Graphics->Monochrome(TINT_NONE); 
+	Graphics->Monochrome(TINT_NONE);
 */
 
 //Tint Options
@@ -3139,27 +3139,27 @@ enum linkspritetype
 	LSprholdsprw1, LSprholdsprw2, LSprdrownspr, LSprlast
 };
 
-	
+
 
 //suspend types
-enum { 
+enum {
 	//Typical processes that we want to pause, similar to ALLOFF()
-	
+
 	//0 : Combo animation
 	susptCOMBOANIM,
-	
+
 	//1->5 Main Sprite animation by type
-	susptGUYS, susptLWEAPONS, susptEWEAPONS, susptITEMS, susptLINK, 
-	
+	susptGUYS, susptLWEAPONS, susptEWEAPONS, susptITEMS, susptLINK,
+
 	//6 : FFC (e.g. movement, changers, but not scripts)
 	susptUPDATEFFC, //ffcs
-	
+
 	//7->8 : Sprite subclasses
 	susptDECORATIONS, susptPARTICLES, //sprite subclasses
-	
+
 	//9->10: Palette events
 	susptPALCYCLE, susptLAKES, //lake dries up
-	
+
 	//11->15 : game system events
 	susptCOLLISIONS, susptCONTROLSTATE, susptONEFRAMECONDS, susptSCRIPDRAWCLEAR, susptQUAKE,
 
@@ -3168,9 +3168,9 @@ enum {
 	//21
 	susptFFCSCRIPTS, susptLINKACTIVE, susptITEMSCRIPTENGINE, susptDMAPSCRIPT, susptSCREENSCRIPTS,
 	susptSUBSCREENSCRIPTS, susptCOMBOSCRIPTS, //27
-	
+
 	//28->59: Reserved padding
-	
+
 	//60->42 : Moving items
 	susptCONVEYORSITEMS = 60, susptDRAGGINGITEM, susptROAMINGITEM,
 	//63->67 : Misc
@@ -3240,41 +3240,41 @@ enum mapscreenflags
 {
 	// Room Types
 	MSF_INTERIOR, MSF_DUNGEON, MSF_SIDEVIEW,
-	
+
 	// View
 	MSF_INVISLINK, MSF_NOLINKMARKER, MSF_NOSUBSCREEN, MSF_NOOFFSET, MSF_LAYER3BG,
 	MSF_LAYER2BG, MSF_DARKROOM,
-	
+
 	// Secrets
 	MSF_BLOCKSHUT, MSF_TEMPSECRETS, MSF_TRIGPERM, MSF_ALLTRIGFLAGS,
-	
+
 	// Warp
 	MSF_AUTODIRECT, MSF_SENDSIRECT, MSF_MAZEPATHS, MSF_MAZEOVERRIDE, MSF_SPRITECARRY,
 	MSF_DIRECTTIMEDWARPS, MSF_SECRETSISABLETIMEWRP, MSF_RANDOMTIMEDWARP,
-	
+
 	// Item
 	MSF_HOLDUP, MSF_FALLS,
-	
+
 	// Combo
 	MSF_MIDAIR, MSF_CYCLEINIT, MSF_IGNOREBOOTS, MSF_TOGGLERINGS,
-	
+
 	// Save
 	MSF_SAVECONTHERE, MSF_SAVEONENTRY, MSF_CONTHERE, MSF_NOCONTINUEWARP,
-	
+
 	// FFC
-	MSF_WRAPFFC, MSF_NOCARRYOVERFFC, 
-	
-	// Whistle 
+	MSF_WRAPFFC, MSF_NOCARRYOVERFFC,
+
+	// Whistle
 	MSF_STAIRS, MSF_PALCHANGE, MSF_DRYLAKE,
-	
+
 	// Enemies
 	MSF_INVISIBLEENEMIES, MSF_TRAPS_IGNORE_SOLID, MSF_EMELIESALWAYSRETURN, MSF_ENEMIES_ITEM, MSF_ENEMEIS_SECRET,
 	MSF_ENEMIES_SECRET_PERM,
-	
+
 	// Misc
 	MSF_ALLOW_LADDER, MSF_NO_DIVING, MSF_SFXONENTRY, MSF_LENSEFFECT,
-		 
-	//Custom / Script 
+
+	//Custom / Script
 	MSF_SCRIPT1,
 	MSF_CUSTOM1 = MSF_SCRIPT1,
 	MSF_SCRIPT2,
@@ -3341,7 +3341,7 @@ define CHRT_RIGHT =   00001000b;
 // "special" walk flags
 enum NPCWalkType
 {
-	SPW_NONE, SPW_DOOR, SPW_CLIPRIGHT, SPW_FLOATER, SPW_TRAP, SPW_HALFSTEP, 
+	SPW_NONE, SPW_DOOR, SPW_CLIPRIGHT, SPW_FLOATER, SPW_TRAP, SPW_HALFSTEP,
 	SPW_WATER, SPW_WIZZROBE, SPW_CLIPBOTTOMRIGHT
 };
 
@@ -3504,7 +3504,7 @@ enum ComboTrigFlag
 	TRIGFLAG_EW_WIND,
 	TRIGFLAG_EW_FLAME2,
 	//83-95 free
-	
+
 	TRIGFLAG_MAX_IN_USE,
 	TRIGFLAG_MAX = 96
 };
@@ -3533,7 +3533,7 @@ enum miscSpr
 	MISCSPR_DROWN,
 	MISCSPR_LAVADROWN,
 	MISCSPR_SWITCHPOOF,
-	
+
 	MISCSPR_MAX
 };
 
@@ -3549,7 +3549,7 @@ enum miscSFX
 	MISCSFX_SUBSCR_CURSOR_MOVE,
 	MISCSFX_REFILL,
 	MISCSFX_RUPEEDRAIN,
-	
+
 	MISCSFX_MAX
 };
 
@@ -3706,13 +3706,13 @@ enum //Combodata LiftFlags[]
 	LF_BREAKONSOLID
 };
 
-enum 
+enum
 {
 	CSPACE_RGB,
-	CSPACE_CMYK, 
-	CSPACE_HSV, CSPACE_HSV_CW, CSPACE_HSV_CCW, 
-	CSPACE_HSL, CSPACE_HSL_CW, CSPACE_HSL_CCW, 
-	CSPACE_LAB, 
+	CSPACE_CMYK,
+	CSPACE_HSV, CSPACE_HSV_CW, CSPACE_HSV_CCW,
+	CSPACE_HSL, CSPACE_HSL_CW, CSPACE_HSL_CCW,
+	CSPACE_LAB,
 	CSPACE_LCH, CSPACE_LCH_CW, CSPACE_LCH_CCW,
 	CSPACE_NUMCSPACE
 };

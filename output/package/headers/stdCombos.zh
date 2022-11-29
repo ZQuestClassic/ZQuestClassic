@@ -55,7 +55,7 @@ int ComboFlagCollision (int flag, ffc f){
 }
 
 
-// Returns INT if FFC collides with a combo which has specific inherent flag. 
+// Returns INT if FFC collides with a combo which has specific inherent flag.
 int ComboIFlagCollision (int flag, ffc f){
 	for (int i = 0; i<176; i++){
 		if (Screen->ComboI[i]==flag){
@@ -113,7 +113,7 @@ int ComboFlagCollision (int flag, lweapon f){
 }
 
 
-// Returns INT if Lweapon collides with a combo which has specific inherent flag. 
+// Returns INT if Lweapon collides with a combo which has specific inherent flag.
 int ComboIFlagCollision (int flag, lweapon f){
 	for (int i = 0; i<176; i++){
 		if (Screen->ComboI[i]==flag){
@@ -303,7 +303,7 @@ int ComboAnyFlagCollision (int flag, item f){
 //Link-to-Combo interaction functions
 //
 //All these functions use the so called "sensivity" which works like "Damage combo sensivity"
-//value in "Screen Data" window in ZQuest. 
+//value in "Screen Data" window in ZQuest.
 
 //Returns TRUE if Link touches the combo.
 bool LinkComboCollision(int loc, int sens){
@@ -429,7 +429,7 @@ int LinkComboAnyFlagStepped(int flag, int sens){
 	return -1;
 }
 
-// The following set of 25 functions behaves exactly like previous functions 
+// The following set of 25 functions behaves exactly like previous functions
 // but has reversed order of arguments so you don`t have to remember the order of arguments.
 int ComboTypeCollision (ffc f, int type){
 	return ComboTypeCollision (type, f);
@@ -618,7 +618,7 @@ int ComboFlagCollision (int flag, ffc f, bool solidonly){
 }
 
 
-// Returns INT if FFC collides with a combo which has specific inherent flag. 
+// Returns INT if FFC collides with a combo which has specific inherent flag.
 int ComboIFlagCollision (int flag, ffc f, bool solidonly){
 	for (int i = 0; i<176; i++){
 		if (Screen->ComboI[i]==flag){
@@ -686,7 +686,7 @@ int ComboFlagCollision (int flag, lweapon f, bool solidonly){
 }
 
 
-// Returns INT if Lweapon collides with a combo which has specific inherent flag. 
+// Returns INT if Lweapon collides with a combo which has specific inherent flag.
 int ComboIFlagCollision (int flag, lweapon f, bool solidonly){
 	for (int i = 0; i<176; i++){
 		if (Screen->ComboI[i]==flag){
@@ -1046,7 +1046,7 @@ int LinkHardcodedComboStepped(int flag, int sens, bool solidonly){
 	return -1;
 }
 
-// The following set of 30 functions behaves exactly like previous functions 
+// The following set of 30 functions behaves exactly like previous functions
 // but has reversed order of arguments so you don`t have to remember the order of arguments.
 int ComboTypeCollision (ffc f, int type, bool solidonly){
 	return ComboTypeCollision (type,f, solidonly);
@@ -1208,7 +1208,7 @@ int ComboFlagCollision (int flag, lweapon f, bool solidonly, int Zheight){
 }
 
 
-// Returns INT if Lweapon collides with a combo which has specific inherent flag. 
+// Returns INT if Lweapon collides with a combo which has specific inherent flag.
 int ComboIFlagCollision (int flag, lweapon f, bool solidonly, int Zheight){
 	for (int i = 0; i<176; i++){
 		if (Screen->ComboI[i]==flag){
@@ -1389,7 +1389,7 @@ bool LinkComboCollision(int loc, int sens, bool solidonly, int Zheight){
 	int ay = Link->Y;
 	int bx = (Link->X)+(Link->HitWidth);
 	int by = (Link->Y)+(Link->HitHeight);
-	
+
 	//if ((Link->Dir==DIR_DOWN)&&(Link->InputDown)) by++;//
 	//else if (IsSideview()) by++;
 	if (solidonly) return SolidComboCollision (loc, ax, ay, bx, by);
@@ -1408,7 +1408,7 @@ bool LinkComboStepped(int loc, int sens, bool solidonly, int Zheight){
 	int bx = (Link->X)+(Link->HitWidth);
 	int by = (Link->Y)+((Link->HitHeight)/2);
 	//if ((Link->Dir==DIR_DOWN)&&(Link->InputDown)) by++;//
-	//else if (IsSideview()) by++; 
+	//else if (IsSideview()) by++;
 	if (solidonly) return SolidComboCollision (loc, ax, ay, bx, by);
 	if(!(RectCollision( ComboX(loc), ComboY(loc), (ComboX(loc)+16), (ComboY(loc)+16), ax, ay, bx, by))) return false;
 	else if (!(Distance(CenterLinkX(), CenterLinkY(), (ComboX(loc)+8), (ComboY(loc)+8)) < (sens+8))) return false;

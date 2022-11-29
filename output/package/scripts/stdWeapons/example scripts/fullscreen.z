@@ -66,7 +66,7 @@ ffc script EtherSpell{
 		FullScreenAttack(this, l, 1, 60,NPCD_SWORD, triggerGlobal);
 		 TriggerUpdate (l, triggerSpot,SFX_SECRET, true, -1, -1);
 		Link->Action=LA_NONE;
-		TerminateLweapon(this, l);		
+		TerminateLweapon(this, l);
 	}
 }
 
@@ -130,7 +130,7 @@ ffc script BombosSpell{
 		FullScreenAttack(this, l, 1, 60,NPCD_FIRE, triggerGlobal);
 		 TriggerUpdate (l, triggerSpot,SFX_SECRET, true, -1, -1);
 		Link->Action=LA_NONE;
-		TerminateLweapon(this, l);		
+		TerminateLweapon(this, l);
 	}
 }
 
@@ -173,7 +173,7 @@ ffc script QuakeSpell{
 		FullScreenAttack(this, l, 1, 60,NPCD_FIRE, triggerGlobal);
 		 TriggerUpdate (l, triggerSpot,SFX_SECRET, true);
 		Link->Action=LA_NONE;
-		TerminateLweapon(this, l);		
+		TerminateLweapon(this, l);
 	}
 }
 

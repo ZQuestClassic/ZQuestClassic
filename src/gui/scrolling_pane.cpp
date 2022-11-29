@@ -91,7 +91,6 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 				return D_REDRAW;
 			else
 				return D_O_K;
-		
 		case MSG_WANTFOCUS:
 			if(gui_mouse_b())
 				return D_WANTFOCUS|D_REDRAW;
@@ -280,7 +279,6 @@ void ScrollingPane::growToTarget()
 			setPreferredHeight(Size::pixels(contentHeight));
 		else setPreferredHeight(targHei);
 	}
-	
 	maxScrollPos=contentHeight-getHeight();
 }
 
@@ -289,7 +287,6 @@ void ScrollingPane::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t
 	// We want to be about as big as possible...
 	setPreferredWidth(Size::pixels(contW));
 	setPreferredHeight(Size::pixels(contH));
-	
 	growToTarget();
 	Widget::arrange(contX, contY, contW, contH);
 	if(content)
@@ -355,7 +352,6 @@ void ScrollingPane::realize(DialogRunner& runner)
 		0, 0, // d1, d2
 		this, nullptr, nullptr // dp, dp2, dp3
 	});
-	
 	if(scrollptr)
 		scroll(*scrollptr-scrollPos);
 }

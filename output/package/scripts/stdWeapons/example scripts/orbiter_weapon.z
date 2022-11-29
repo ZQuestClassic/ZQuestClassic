@@ -7,7 +7,7 @@ const int LWEAPON_MISC_ROTANGLE = 1;
 const int FFC_MISC_TERMINATE=0;
 
 //This version of Cane of Byrna was created to test and explain ability to handle multiple lweapons in one script.
-//Also fine rotation has been shown here.  
+//Also fine rotation has been shown here.
 
 //2 sprites needed
 
@@ -30,7 +30,7 @@ ffc script OrbiterWeapon{
 			Quit();
 		}
 		itemdata it = Game->LoadItemData(this->InitD[7]);
-		int sound = it->UseSound;		
+		int sound = it->UseSound;
 		lweapon wand = LweaponInit (this, LW_GHOSTED, damage, wandsprite, 0);
 		SetLweaponHitboxOffsets(wand,0,0,6,6);
 		MeleeWeaponSlash90Alt(this, wand, wand->Misc[LWEAPON_MISC_ORIGTILE], 6, 12, 88, 0, NPCD_WAND, 0, 1);
@@ -56,9 +56,9 @@ ffc script OrbiterMagic{
 			LweaponSetFlag(l[i], LWF_NO_FALL);
 			LweaponSetFlag(l[i], LWF_PENETRATING);
 			LweaponSetFlag(l[i], LWF_MOVE_OFFSCREEN);
-			
+
 			LweaponUnSetFlag(l[i], LWF_AUTO_POS_UPDATE);
-			
+
 			SetEnemyDefense(l[i], NPCD_BYRNA);
 			l[i]->Angular=true;
 			l[i]->CSet=5;
@@ -98,7 +98,7 @@ ffc script OrbiterMagic{
 					counter=30;
 				}
 			}
-			
+
 			if (this->Misc[FFC_MISC_TERMINATE]>0){
 				for (int i=0; i<numorbs; i++){
 						if (l[i]->isValid()) Remove(l[i]);

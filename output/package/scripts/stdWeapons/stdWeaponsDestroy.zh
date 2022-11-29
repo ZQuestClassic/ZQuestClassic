@@ -8,7 +8,7 @@ lweapon ChangeLweapon(ffc f, lweapon l, int type, int damage, int sprite){
 //Super - Set to TRUE for super-bomb-like blast radius.
 //Numbooms - number of explosions to create.
 //Spread - Maximum explosion distance away from source lweapon.
-//Delay - delay between explosions, in frames. 
+//Delay - delay between explosions, in frames.
 void KillExplosionMultiple (ffc f, lweapon l, int damage, bool super, int numbooms, int spread, int delay){
 	if (l->isValid()) Remove(l);
 	int radius = Cond(super, LW_SBOMBBLAST, LW_BOMBBLAST);

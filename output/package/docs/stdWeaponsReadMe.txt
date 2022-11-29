@@ -4,7 +4,7 @@ v.1.0
 
 **Version History**
 v1.0
-//Ice rod firing sound no longer hardcoded. Use that "use sound" field in item editor. 
+//Ice rod firing sound no longer hardcoded. Use that "use sound" field in item editor.
 //Ditto for direct wand hit trigger flag for Ice Rod.
 //Added new function: FullScreenAttack for spells to affect full screen.
 //Ether, Quake and Bombos spells completed.
@@ -23,7 +23,7 @@ v1.0
 //New sample script: Flamethrower/Golden candle.
 //New sample script: Sand Rod. Fires magic that replaces certain combos with another ones and has limited range.
 //Fixed particles not being removed when off-screen.
-//New function for Melee sub-library - MeleeWeaponDrawAboveHead. 
+//New function for Melee sub-library - MeleeWeaponDrawAboveHead.
 //Expanded custom sword and hammer scripts with almost full support of tiger scroll techniques.
 //Legacy TriggerUpdate functions now use screen`s undercombo as replacement, instead of next in table.
 //The secret debug command (draw hitboxes for all ghosted lweapons) now has an option in main header.
@@ -49,7 +49,7 @@ v1.4
 v1.3
 //Added functions that detect if lweapon actually hit unprotected enemy, either dealing damage
 // or just stunning it.
-//Damaging particles can now use defenses for enemy interaction. 
+//Damaging particles can now use defenses for enemy interaction.
 //Fixed ClearParticles function.
 //Fixed off-by-1 error in SetLweaponHitboxOffsets function.
 //Added Ice Hookshot sample script.
@@ -64,8 +64,8 @@ v1.2
 // when lweapon hits blocker combo. Also this function no longer automatically removes lweapon
 // and that behavior must be defined in lweapon script.
 //Added SetAngularMovement function. Yikes!
-//HitTrigger and TriggerUpdate functions return default value (false for former), 
-// if the flag is set at 0. BlockedByCombo also returns false, if combo type argument 
+//HitTrigger and TriggerUpdate functions return default value (false for former),
+// if the flag is set at 0. BlockedByCombo also returns false, if combo type argument
 // is set to 0.
 //Fixed DrawXOffset so it reads correct value when read outside LweaponWaitframe.
 //Added Master Boomerang sample script.
@@ -85,21 +85,21 @@ v1.1
 //All melee weapon functions now have an extra argument called "aspeed", which controls sequence speed.
 //Fixed hitbox auto-rotating for hammers.
 
-v1.0 
+v1.0
 //Initial release.
 
 **Usage**
 
 The library is used for creating and manipulating Lweapons with FFC`s to make
-scripted weapons. WeaponLauncher item script runs FFC script with arguments 
-passed to FFC. FFC controls movement, while Lweapon handles appearance and 
+scripted weapons. WeaponLauncher item script runs FFC script with arguments
+passed to FFC. FFC controls movement, while Lweapon handles appearance and
 interaction with enemies and stuff.
 
-The script usually begins with LweaponInit function that prepares FFC, 
+The script usually begins with LweaponInit function that prepares FFC,
 creates main Lweapon and assigns default parameters, like damage, sprite etc.
 Instead of default Waitframe, LweaponWaitframe should be used. This function
 updates all routinous aspects of Lweapon controlling, such as gravity, updating
-position, direction, sprite etc. Instead of direct call of Quit(), use 
+position, direction, sprite etc. Instead of direct call of Quit(), use
 TerminateLweapon so the script at the end could thoroughly clean FFC for recycling.
 
 **Setup**
@@ -111,10 +111,10 @@ TerminateLweapon so the script at the end could thoroughly clean FFC for recycli
 from step 1. Note down ID of that combo.
 3. Open stdWeapons.zh and assign constant named LW_FFC_DATA to Id of the combo
 from step 2.
-4. Check out other constants in stdWeapons.zh, like FFC and Lweapon Misc 
+4. Check out other constants in stdWeapons.zh, like FFC and Lweapon Misc
 array indexes to make sure there aren`t any conflicts with other scripts.
 5. Global script combining: put UpdateLweaponZH() function inside the main loop of your Active
-global script and InitLweaponZH() inside the Init global script. 
+global script and InitLweaponZH() inside the Init global script.
 6. Import and compile the library. It requires std.zh, ffcscript.zh and stdCombos.zh
 7. Assign WeaponLauncher item script to an empty slot.
 
@@ -125,10 +125,10 @@ Although some weapons require certain specific setup, most simple scripted
 weapons set up like this:
 1. Most weapons require sprite to render visible. Set up them in
 Quest->Graphics->Sprites->Weapons/Misc editor. Weapons with 8-way direction must
-have 2 framesets in tile editor, one right after another for cardinal 
-and diagonal directions. To have launched weapon looking properly, 
-his sprite for orthogonal directions should point to the UP in sprite editor, 
-for diagonal sprite - RIGHT-UP. Also make sure the "Animation Frames" value isn`t 
+have 2 framesets in tile editor, one right after another for cardinal
+and diagonal directions. To have launched weapon looking properly,
+his sprite for orthogonal directions should point to the UP in sprite editor,
+for diagonal sprite - RIGHT-UP. Also make sure the "Animation Frames" value isn`t
 set to 0, or some lweapons will have wrong animation.
 2. Import and compile the weapon FFC script. Assign it to FFC script slot.
 3. Set up standard item settings as usual, like graphics, pickup settings etc.
@@ -136,28 +136,28 @@ set to 0, or some lweapons will have wrong animation.
 slot number. Assign "WeaponLauncher" item script to Action script slot.
 
 *Melee weapon setup*
-1. Set up tiles for melee weapon sprite tiles. Refer to custommeleesetup.png image 
+1. Set up tiles for melee weapon sprite tiles. Refer to custommeleesetup.png image
 for setting up sprite tiles for various melee weapons.
 2. In Quest->Graphics->Sprites->Weapons/Misc editor define new sprite and select top-left corner
-tile in the setup. Also make sure the "Animation Frames" value is 
+tile in the setup. Also make sure the "Animation Frames" value is
 set to 1, or lweapon will have wrong animation.
-3. Import and compile melee weapon FFC script. 
+3. Import and compile melee weapon FFC script.
 Assign WeaponLauncher item script and melee weapon FFC script to slots.
 4. Define new item for the weapon and set up his parameters as usual. Set D variables according
-to documentation, usually including sprite ID from step 2 and FFC script slot in D7. 
-Assign WeaponLauncher into Action item script slot. 
+to documentation, usually including sprite ID from step 2 and FFC script slot in D7.
+Assign WeaponLauncher into Action item script slot.
 
 ** Header Constants**
 
 LW_FFC_DATA - Combo ID that all stdWeapons FFC`s using. Set it to blank.
 
-//lweapon type ID`s. By default they are set to LW_SCRIPT1 for normal lweapons 
+//lweapon type ID`s. By default they are set to LW_SCRIPT1 for normal lweapons
 //and LW_SCRIPT2 for particles.
 LW_GHOSTED - Type of Lweapon to be considered as scripted. Use an unique number between 31 and 40.
 LW_PARTICLE - Particle lweapon ID. Set it so it does not conflict with other scripts.
 
 SFX_DEBUG_TERMINATE - SFX used when Lweapon script terminates. Used mostly when debugging.
-DEBUG_DRAW_HITBOXES - Draw lweapon hitboxes. 0 - off, 1 - on. 
+DEBUG_DRAW_HITBOXES - Draw lweapon hitboxes. 0 - off, 1 - on.
 
 DEFAULT_STUN_DURATION - Default enemy stun duration, in frames. Used when stunning enemies.
 
@@ -165,11 +165,11 @@ CUSTOM_SPRITE_DRAW_LAYER - Layer used to draw custom Lweapon sprites. The reason
 drawing of lweapon`s sprite is the fact that defult drawing is quite buggy with big lweapons.
 
 * FFC`s misc variables. Set them to avoid conflicts with other scripts.
-FFC_MISC_Z - FFC`s fake Z position. 
+FFC_MISC_Z - FFC`s fake Z position.
 FFC_MISC_VZ - FFC`s fake Z-axis velocity.
 FFC_MISC_AZ - FFC`s fake Z-axis acceleration.
 FFC_MISC_TIMER - //Counter used for timing stuff, like drawing animated and flickering shadows or continious SFX.
-			//Goes up every frame, resets once every 1/2 hour. 
+			//Goes up every frame, resets once every 1/2 hour.
 
 * Lweapon Misc variables. Set them to avoid conflicts with other scripts.
 LWEAPON_MISC_DEFENSE - Default enemy defense used against this lweapon.
@@ -216,8 +216,8 @@ LWEAPON_LARGE_SHADOW_MIN_HEIGHT = 2; // and this high to use large shadows.
 *Init*
 
 item script WeaponLauncher
-* Main weapon launcher item script. 
-* D0-D6 are passed to host FFC as arguments (7 arguments). 
+* Main weapon launcher item script.
+* D0-D6 are passed to host FFC as arguments (7 arguments).
 * D7 - Script slot for FFC.
 * When FFC script is run, it can access item ID that launched this lweapon via this->InitD[7].
 * This allows FFC script to obtain itemdata of the said item and use it for his own purposes.
@@ -255,7 +255,7 @@ void LweaponWaitframe (ffc f, lweapon l, bool quitoninvalid)
 
 void LweaponUpdate(ffc f, lweapon l)
 void LweaponUpdatePostWaitframe(ffc f, lweapon l)
-* This pair of functions is similar to LweaponWaitframe, but don`t have built in Waitframe command. 
+* This pair of functions is similar to LweaponWaitframe, but don`t have built in Waitframe command.
 * Run Waitframe between those functions if you need to handle multiple lweapons inside one script.
 
 *Flags*
@@ -264,37 +264,37 @@ void LweaponSetFlag(lweapon l, int flag)
 void LweaponUnSetFlag(lweapon l, int flag)
 void LweaponToggleFlag(lweapon l, int flag)
 *  Sets or unsets a flag that controls various aspects of the given lweapon`s behaviour.
-* 
+*
 *  *LWF_GHOSTED - Checks if lweapon is controlled by script. Always turned on all the time. Mostly used
 *   by other scripts to tell apart "ghosted" lweapons and normal ones.
-* 
+*
 *  *LWF_8WAY - If set, lweapon will use all directions, other than cardinal ones. Will use tiles right
 *   after currant ones in tile table for diagonal directions.
-* 
+*
 *  *LWF_PENETRATING - If set, lweapon will be able to penetrate enemies.
-* 
+*
 *  *LWF_MOVE_OFFSCREEN - If set, lweapon can move offscreen without disappearing on screen edges. This is done by
 *   altering Draw and Hit coordinate offsets, instead of X and Y values during LweaponWaitframe routine.
-* 
-*  *LWF_DRAW_SHADOW - Controls whether the shadow will be drawn underneath Lweapon sprite. Used only in top-down areas. 
-* 
+*
+*  *LWF_DRAW_SHADOW - Controls whether the shadow will be drawn underneath Lweapon sprite. Used only in top-down areas.
+*
 *  *LWF_NO_FALL - If set, lweapon will not be affected by gravity.
-* 
+*
 *  *LWF_CAN_PICKUP_ITEMS - If set, lweapon can drag around dropped items.
-* 
+*
 *  *LWF_CAN_INSTA_DELIVER_ITEMS - If set, any dropped item that touched this lweapon will be teleported to
 *   Link`s position. Takes priority over LWF_CAN_PICKUP_ITEMS.
-* 
+*
 *  *LWF_AUTO_DIR_UPDATE - If set, lweapon`s direction will be updated automatically, depending on
 *  FFC`s Vx and Vy values.
-* 
+*
 *  *LWF_AUTO_SPRITE_UPDATE - If set, lweapon`s sprite will be updated automatically, depending on it`s
 *  direction. Uses next sprite in the table, if moving in diagonal directions.
-* 
+*
 *  *LWF_MELEE - Used internally for telling apart melee and projectile lweapons.
-* 
+*
 *  *LWF_SWING_WHILE_WALKING - Used only with melee weapons. If set, Link can walk while melee weapon is active.
-* 
+*
 *  *LWF_IGNORE_ENEMY_SHIELDS - If set, lweapon can blow trough directional enemy shields, like Darknut`s one.
 *
 *  *LWF_AUTO_POS_UPDATE - If set, lweapon`s position will be updated automatically. Algorithm is decided by LWF_MOVE_OFFSCREEN flag.
@@ -348,7 +348,7 @@ int GetEnemyDefense( lweapon l)
 * Determines enemy defense used against given Lweapon. Also works with non-ghosted lweapons.
 
 bool AnyNPCCollision(lweapon l)
-* Returns TRUE, if the given lweapon collides with any NPC on the screen. 
+* Returns TRUE, if the given lweapon collides with any NPC on the screen.
 * Ignores enemies whose defense is set to IGNORE or ONE-HIT-KILL(the latter should be already dead anyways).
 
 bool BlockedByDefense(lweapon l, npc n)
@@ -368,10 +368,10 @@ bool BlockedByEnemy(lweapon l)
 * Returns TRUE if Enemy has managed to block this Lweapon in any way.
 
 bool HitEnemy(lweapon l, npc n)
-* Returns true if Lweapon actually hits given enemy, dealing damage and such. 
+* Returns true if Lweapon actually hits given enemy, dealing damage and such.
 
 npc OnHitEnemy(lweapon l)
-* Returns pointer to NPC if the given Lweapon actually hits it, dealing damage and such. 
+* Returns pointer to NPC if the given Lweapon actually hits it, dealing damage and such.
 
 bool HitEnemy(lweapon l)
 * Returns true if Lweapon actually hits any enemy, dealing damage and such.
@@ -410,9 +410,9 @@ void UseEnemyDefense(lweapon l, int npcid, int defense)
 * /!\the scripts that use this function or enemies will react weirdly when hit by script Lweapons.
 
 *Custom Enemy Defenses*
-Custom enemy defenses are stored in one massive global array that consists of 10240 elements (20 defense entries 
-for all 512 enemy slots in the quest). All functions listed below work with this array. Aside from original 18 
-defenses, SetEnemyDefense function can work with this custom defense array, as well as couple of specials. 
+Custom enemy defenses are stored in one massive global array that consists of 10240 elements (20 defense entries
+for all 512 enemy slots in the quest). All functions listed below work with this array. Aside from original 18
+defenses, SetEnemyDefense function can work with this custom defense array, as well as couple of specials.
 Here are valid values for second argument for SetEnemyDefense function.
 0-16 - Default defenses from Enemy editor.
 18 - Special Defense - Ignore defenses completely.
@@ -485,7 +485,7 @@ void TriggerUpdate (lweapon l, int flag, int sound, bool perm)
 * Uses screen`s undercombo for replacing triggered combo.
 * Sound - sound to play on triggering secrets.
 * Perm - Set to TRUE, and the secrets will be permanent.
-* CMB - Combo used on replacing activated triggers. Set to 0 to use screen`s undercombo, 
+* CMB - Combo used on replacing activated triggers. Set to 0 to use screen`s undercombo,
 * or -1 for changing to next combo in the table.
 * SCset - CSet for Combo used on replacing activated triggers. Set to -1 to use screen`s under cset.
 * Run this every frame.
@@ -513,7 +513,7 @@ void ReplaceFlaggedCombos( lweapon l, int flag, int newcombo, int newcset, int s
 * retainflag - if set to FALSE, the combo flag that triggered collision will be removed.
 
 void DestroyCombosOnCollision( lweapon l, int type, int sound)
-* Destroys combos of specific type on collision by replacing them with screen`s undercombo. 
+* Destroys combos of specific type on collision by replacing them with screen`s undercombo.
 * Sound - sound to play on destruction.
 
 void ChangeToNextOnCollision( lweapon l, int type, int newcset, int sound)
@@ -561,7 +561,7 @@ void TerminateLweapon (ffc f, lweapon l)
 * does not terminate the script and allow it to execute some more code, like launching sword beam.
 * Always use MeleeweaponEndStrike to terminate melee lweapon.
 
-void MeleeWeaponStab(ffc f, lweapon l, int origtile, int delay, int offset, int triggerflag, 
+void MeleeWeaponStab(ffc f, lweapon l, int origtile, int delay, int offset, int triggerflag,
  int combodestroy, int enemydefense, int combodestroysfx, int aspeed)
 * Performs melee weapon stab, like spear, or sword w/o slash ability.
 * origtile - the top-left tile in the tile setup for animation
@@ -574,7 +574,7 @@ void MeleeWeaponStab(ffc f, lweapon l, int origtile, int delay, int offset, int 
 * combodestroysfx - sound to play when this lweapon destroys combos.
 * aspeed - stab speed. Lower value-faster.
 
-void MeleeWeaponSlash90(ffc f, lweapon l, int origtile, int delay, int offset, int triggerflag, 
+void MeleeWeaponSlash90(ffc f, lweapon l, int origtile, int delay, int offset, int triggerflag,
  int combodestroy, int enemydefense, int combodestroysfx, int aspeed)
 * Performs melee weapon slash, like sword with Flip Right Facing Slash quest rule on.
 * origtile - the top-left tile in the tile setup for animation
@@ -587,7 +587,7 @@ void MeleeWeaponSlash90(ffc f, lweapon l, int origtile, int delay, int offset, i
 * combodestroysfx - sound to play when this lweapon destroys combos.
 * aspeed - slash speed. Lower value-faster.
 
-void MeleeWeaponSlash90Alt(ffc f, lweapon l, int origtile, int delay, int offset, int triggerflag, 
+void MeleeWeaponSlash90Alt(ffc f, lweapon l, int origtile, int delay, int offset, int triggerflag,
  int combodestroy, int enemydefense, int combodestroysfx, int aspeed)
 * Same as MeleeWeaponSlash90, but with Flip Right Facing Slash quest rule turned off.
 * origtile - the top-left tile in the tile setup for animation
@@ -600,7 +600,7 @@ void MeleeWeaponSlash90Alt(ffc f, lweapon l, int origtile, int delay, int offset
 * combodestroysfx - sound to play when this lweapon destroys combos.
 * aspeed - slash speed. Lower value-faster.
 
-void MeleeWeaponSlash180(ffc f, lweapon l, int origtile, int delay, int offset, int triggerflag, 
+void MeleeWeaponSlash180(ffc f, lweapon l, int origtile, int delay, int offset, int triggerflag,
  int combodestroy, int enemydefense, int combodestroysfx, int aspeed)
 * Performs 180 degree melee weapon slash, like swordin Link to the past.
 * origtile - the top-left tile in the tile setup for animation
@@ -610,10 +610,10 @@ void MeleeWeaponSlash180(ffc f, lweapon l, int origtile, int delay, int offset, 
 * triggerflag - flag, that triggers secrets, when hit by this lweapon. 0 to disable.
 * combodestroy - type of combo to be destroyed by this lweapon. 0 to disable.
 * enemydefense - enemy defense to use against this lweapon.
-* combodestroysfx - sound to play when this lweapon destroys combos. 
+* combodestroysfx - sound to play when this lweapon destroys combos.
 * aspeed - slash speed. Lower value-faster.
 
-void MeleeWeaponSlash360(ffc f, lweapon l, int origtile, int delay, int offset, int triggerflag, 
+void MeleeWeaponSlash360(ffc f, lweapon l, int origtile, int delay, int offset, int triggerflag,
  int combodestroy, int enemydefense, int combodestroysfx, int aspeed)
 * Performs full 360 degree spin attack with the weapon. If you want something, like Hurricane spin,
 * call this function multiple times in a row, like in for() loop.
@@ -624,17 +624,17 @@ void MeleeWeaponSlash360(ffc f, lweapon l, int origtile, int delay, int offset, 
 * triggerflag - flag, that triggers secrets, when hit by this lweapon. 0 to disable.
 * combodestroy - type of combo to be destroyed by this lweapon. 0 to disable.
 * enemydefense - enemy defense to use against this lweapon.
-* combodestroysfx - sound to play when this lweapon destroys combos. 
+* combodestroysfx - sound to play when this lweapon destroys combos.
 * aspeed - slash speed. Lower value-faster.
 
-void MeleeWeaponPound(ffc f, lweapon l, int origtile, int lag, int delay, int offset, 
+void MeleeWeaponPound(ffc f, lweapon l, int origtile, int lag, int delay, int offset,
 int triggerflag, bool breakshield, int combodestroy, int enemydefense, int poundsfx, int combodestroysfx, int aspeed)
 * Performs mele weapon Pound, like hammer.
 * Performs full 360 degree spin attack with the weapon. If you want something, like Hurricane spin,
 * call this function multiple times in a row, like in for() loop.
 * origtile - the top-left tile in the tile setup for animation
 *  Usually you should pass in lweapon->Misc[LWEAPON_MISC_ORIGTILE] (see "Library Constants") here.
-* lag - time between Link drawing lweapon (and holding it upwards) and slamming it into the ground, in frames. 
+* lag - time between Link drawing lweapon (and holding it upwards) and slamming it into the ground, in frames.
 * delay - wait time between last frame of melee weapon sequence and function returning.
 * offset - How far Lweapon is away from Link, in pixels.
 * triggerflag - flag, that triggers secrets, when hit by this lweapon. 0 to disable.
@@ -662,7 +662,7 @@ MeleeWeaponDrawAboveHead(ffc f, lweapon l, int origtile, int delay, int offset)
 
 void MeleeWeaponEndStrike(ffc f, lweapon l, int origtile, int delay, int offset, int aspeed)
 * Performs animation of Link putting weapon back into his pocket and terminates the script,
-* complete with FFC cleanup. 
+* complete with FFC cleanup.
 * Collision is disabled for this lweapon.
 * origtile - the top-left tile in the tile setup for animation
 *  Usually you should pass in lweapon->Misc[LWEAPON_MISC_ORIGTILE] (see "Library Constants") here.
@@ -671,7 +671,7 @@ void MeleeWeaponEndStrike(ffc f, lweapon l, int origtile, int delay, int offset,
 
 *Particles*
 * Particles are little animated images created by main lweapon, in specific functions listed below
-* are called. Particles have coodinates, velocity, acceleration and lifespan. Classical examples 
+* are called. Particles have coodinates, velocity, acceleration and lifespan. Classical examples
 * of particles are hammer impact dust, silver&golden arrow sparkles and Magic/Fire boomerang sparkles.
 * The fire boomerang`s sparkles have special ability to damage enemies that stepped on them.
 
@@ -681,13 +681,13 @@ lweapon CreateParticle (int x, int y, int sprite, int ax, int ay, int vx, int vy
 * sprite - sprite used by prticle from Weapons/Misc animation data
 * vx, vy - initial velocity, horizontal and vertical
 * ax, ay - acceleration, horizontal and vertical
-* lifespan - delay between creating particle and it disappearing. Set to -2 for full animation 
+* lifespan - delay between creating particle and it disappearing. Set to -2 for full animation
 * sequence(Aspeed*Numfraes)
 * grav - whether the particle is affected by gravity in sideview areas or not.
 
 lweapon CreateParticleAdvanced( int x, int y, int numframes, int aspeed, int origtile,
 int cset, int flashcset, int ax, int ay, int vx, int vy, int lifespan, bool grav)
-* Andvanced version of particle creating. Use it if you are running out of sprite slots 
+* Andvanced version of particle creating. Use it if you are running out of sprite slots
 * in Weapons/Misc animation data.
 * x, y - starting coordinates
 * origtile - original tile for first frame of animation
@@ -697,7 +697,7 @@ int cset, int flashcset, int ax, int ay, int vx, int vy, int lifespan, bool grav
 * flashcset - second Cset used for flashing. Match to "cset" for no flashing
 * vx, vy - initial velocity, horizontal and vertical
 * ax, ay - acceleration, horizontal and vertical
-* lifespan - delay between creating particle and it disappearing. Set to -2 for full animation 
+* lifespan - delay between creating particle and it disappearing. Set to -2 for full animation
 * sequence(Aspeed*Numfraes)
 * grav - whether the particle is affected by gravity in sideview areas or not.
 
@@ -707,11 +707,11 @@ void SetParticleAngularMovement(lweapon anim, int angle, int speed)
 void BigParticle (lweapon anim, int tilewidth, int tileheight)
 * Expands particle size.
 
-void SetAsDamagingParticle(lweapon anim, int dam, int HitXoffset, int HitYoffset, 
+void SetAsDamagingParticle(lweapon anim, int dam, int HitXoffset, int HitYoffset,
 int HitWidth, int Hitheight, int defense)
 * Sets particle as Damaging particle that deals damage to all NPC`s when stepped on.
 * dam - damage
-* HitXoffset, HitYoffset - hitbox offsets, left and top. 
+* HitXoffset, HitYoffset - hitbox offsets, left and top.
 * HitWidth, Hitheight - hitbox width and height.
 * defense - defense used for interaction with enemies
 
@@ -731,22 +731,22 @@ bool AmmoManager(int counter1, int cost1, int infiniteitem1, int counter2, int c
 * Usually placed in the init phase of the script before Lweapon initialization.
 * Call ClearFFC(this) then Quit() if this function returns "false" (not enough ammo).
 * Or execute something cruel, like weapon backfiring. :-)
-* counter - Counter used as fuel. 
+* counter - Counter used as fuel.
 * cost - Amount to subtract each time the function is called.
-* infiniteitem - if Link has this item in his inventory, the check, and ammo cost payup, will be completely 
+* infiniteitem - if Link has this item in his inventory, the check, and ammo cost payup, will be completely
 * bypassed.
 * drain - if set to TRUE, the counter updates gradually.
-* Overloaded to check up to 4 different counters with different 
+* Overloaded to check up to 4 different counters with different
 * costs and presense of "infinite counter" items.
 
 void AmmoManager(ffc f, int counter, int cost, int infiniteitem, bool drain)
-void AmmoManager(ffc f, int counter1, int cost1, int infiniteitem1, int counter2, int cost2, 
+void AmmoManager(ffc f, int counter1, int cost1, int infiniteitem1, int counter2, int cost2,
  int infiniteitem2, bool drain)
 bool AmmoManager(int counter1, int cost1, int infiniteitem1, int counter2, int cost2, int infiniteitem2,
  int counter3, int cost3, int infiniteitem3, bool drain)
 bool AmmoManager(int counter1, int cost1, int infiniteitem1, int counter2, int cost2, int infiniteitem2,
  int counter3, int cost3, int infiniteitem3, int counter4, int cost4, int infiniteitem4, bool drain)
-* Same as previous functions, but simply quits the script when not enough ammo, 
+* Same as previous functions, but simply quits the script when not enough ammo,
 * complete with FFC cleanup.
 
 
@@ -765,9 +765,9 @@ CheckMaxLweapons(ffc f, int maxlweapons)
 bool MaxLweaponsReached(ffc f, int maxlweapons)
 * Checks against maximum number of allowed scripted lweapons running given FFC`s script.
 * Unlike previous function, it just returns whether limit is reached or not.
- 
+
 bool InsideScreen (lweapon l)
-* Returns TRUE, if lweapon is inside screen boundaries. 
+* Returns TRUE, if lweapon is inside screen boundaries.
 
 bool OnScreenEdge(lweapon lw)
 * Returns TRUE, if lweapon is touching screen boundaries.
@@ -781,7 +781,7 @@ void ContiniousSFX(ffc f, int delay, int sound)
 void ItemPickup (lweapon l, bool instant, int PickFlags)
 void ItemPickup (lweapon l, bool instant)
 * Causes Lweapon to drag dropped items around or instantly deliver items straight to Link.
-  Called automatically on LweaponWaitframe, if LWF_CAN_PICKUP_ITEMS or 
+  Called automatically on LweaponWaitframe, if LWF_CAN_PICKUP_ITEMS or
   LWF_CAN_INSTADELIVER_ITEMS lweapon flag is set.
   Uses item->Pickup flags to control which items to pickup. By default (and automatically inside
   LweaponWaitframe) By default, it works for only items dropped by dead enemies.

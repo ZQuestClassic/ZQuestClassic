@@ -14,10 +14,10 @@ void GUI_Create()
     GUI_OldMouseZ=Link->InputMouseZ;
     GUI_WidgetUnderMouse=-1;
     GUI_ClickedWidget=-1;
-    
+
     for(int i=SIZEOF_WIDGET; i<GUI_DATA_SIZE; i+=SIZEOF_WIDGET)
         GUI_Data[i+WIDGET_TYPE]=WTYPE_NONE;
-    
+
     GUIRoot_Create();
 }
 
@@ -25,17 +25,17 @@ void GUI_Destroy()
 {
     for(int i=0; i<GUI_DATA_SIZE; i+=SIZEOF_WIDGET)
         GUI_Data[i+WIDGET_TYPE]=WTYPE_NONE;
-    
+
     Game->ClickToFreezeEnabled=true;
 }
 
 void GUI_Update()
 {
     Event_Clear();
-    
+
     int oldUnderMouse=GUI_WidgetUnderMouse;
     GUI_WidgetUnderMouse=GUI_GetWidgetUnderMouse(GUI_ROOT, Link->InputMouseX, Link->InputMouseY);
-    
+
     if(Link->InputMouseX!=GUI_OldMouseX || Link->InputMouseY!=GUI_OldMouseY)
     {
         // Only send a signal if something was clicked
@@ -46,7 +46,7 @@ void GUI_Update()
         GUI_OldMouseX=Link->InputMouseX;
         GUI_OldMouseY=Link->InputMouseY;
     }
-    
+
     if(GUI_WidgetUnderMouse!=oldUnderMouse) // Mouse moved to new widget
     {
         // If something was clicked, only notify that widget
@@ -65,7 +65,7 @@ void GUI_Update()
                 Signal_OnMouseEnter(GUI_WidgetUnderMouse);
         }
     }
-    
+
     if((Link->InputMouseB&MB_LEFTCLICK)!=0) // Button is pressed
     {
         if(!GUI_MouseWasPressed) // Just clicked
@@ -88,7 +88,7 @@ void GUI_Update()
             GUI_MouseWasPressed=false;
         }
     }
-    
+
     if(Link->InputMouseZ!=GUI_OldMouseZ) // Scroll wheel
     {
         if(GUI_ClickedWidget!=-1)
@@ -123,7 +123,7 @@ void GUI_DispatchDrawSignal(int id, int x, int y)
     if((GUI_Data[id+WIDGET_FLAGS]&WFLAG_HIDDEN)==0)
     {
         Signal_Draw(id, x+GUI_Data[id+WIDGET_X], y+GUI_Data[id+WIDGET_Y]);
-        
+
         if(GUI_Data[id+WIDGET_FIRST_CHILD]!=-1)
             GUI_DispatchDrawSignal(GUI_Data[id+WIDGET_FIRST_CHILD],
               x+GUI_Data[id+WIDGET_X], y+GUI_Data[id+WIDGET_Y]);
@@ -141,11 +141,11 @@ int GUI_GetWidgetUnderMouse(int id, int mouseX, int mouseY)
         if(next!=-1)
             return next;
     }
-    
+
     int x=GUI_Data[id+WIDGET_X];
     int y=GUI_Data[id+WIDGET_Y];
     bool underMouse=true;
-    
+
     if((GUI_Data[id+WIDGET_FLAGS]&WFLAG_HIDDEN)!=0)
         underMouse=false;
     else if(mouseX<x)
@@ -156,7 +156,7 @@ int GUI_GetWidgetUnderMouse(int id, int mouseX, int mouseY)
         underMouse=false;
     else if(mouseY>=y+GUI_Data[id+WIDGET_HEIGHT])
         underMouse=false;
-    
+
     if(underMouse)
     {
         if(GUI_Data[id+WIDGET_FIRST_CHILD]!=-1)
@@ -165,7 +165,7 @@ int GUI_GetWidgetUnderMouse(int id, int mouseX, int mouseY)
             if(child!=-1)
                 return child;
         }
-        
+
         if((GUI_Data[id+WIDGET_FLAGS]&WFLAG_WANTS_MOUSE)!=0)
             return id;
         else

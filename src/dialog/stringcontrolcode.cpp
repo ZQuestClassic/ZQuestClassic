@@ -99,10 +99,8 @@ void SCCDialog::default_args()
 	args[MSGC_COLOUR][1] = misc.colors.msgtext & 0xF;
 	args[MSGC_SPEED][0] = zinit.msg_speed;
 	args[MSGC_GOTOIFRAND][0] = 2;
-	
 	args[MSGC_SHDCOLOR][0] = refstr->shadow_color;
 	args[MSGC_SHDTYPE][0] = refstr->shadow_type;
-	
 	warp_xy_toggle = true;
 }
 
@@ -233,9 +231,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Key;
 	using namespace GUI::Props;
-	
 	window.reset();
-	
 	std::shared_ptr<GUI::Grid> wingrid, sgrid;
 	std::string mcguffinname(ZI.getItemClassName(itype_triforcepiece));
 	static std::string scc_helpstr;
@@ -1004,7 +1000,6 @@ bool SCCDialog::load_scc_str(std::string const& str)
 			}
 			int32_t val = atoi(buf);
 			//if(val < 0) val = MAX_SCC_ARG;
-			
 			if(cur_arg < 0)
 			{
 				scc = byte(val);
@@ -1020,7 +1015,6 @@ bool SCCDialog::load_scc_str(std::string const& str)
 	}
 	if(cur_arg < 0) return false; //no scc
 	if(cur_arg < limit) return false; //missing params
-	
 	curscc = scc;
 	for(q = 0; q < limit; ++q)
 	{

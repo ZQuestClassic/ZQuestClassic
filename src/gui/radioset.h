@@ -19,7 +19,6 @@ class RadioSet: public Widget
 {
 public:
 	RadioSet();
-	
 	/* Sets whether the radio is checked or not. */
 	void setChecked(size_t value);
 
@@ -27,7 +26,6 @@ public:
 	size_t getChecked();
 
 	void setProcSet(int32_t newProcSet);
-	
 	int32_t getProcSet() const {return procset;}
 
 	void loadList(GUI::ListData radiolist);

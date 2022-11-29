@@ -17,7 +17,6 @@ class QRPanel: public TabPanel
 {
 public:
 	QRPanel();
-	
 	void loadQRs(byte const* qrs);
 	void setCount(size_t count);
 	void setScrollWidth(Size sz);
@@ -29,14 +28,11 @@ public:
 	{
 		message = static_cast<int32_t>(m);
 	}
-	
 	ScrollingPane* getScrollPane();
-	
 private:
 	std::shared_ptr<ScrollingPane> scrollpane;
 	bool scrolling;
 	Size scrollWidth, scrollHeight;
-	
 	int32_t message;
 	byte const* init_qrs;
 	size_t qrCount;

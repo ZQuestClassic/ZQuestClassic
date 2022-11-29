@@ -25,7 +25,7 @@ Program::Program(ASTFile& root, CompileErrorHandler* errorHandler)
 {
 	// Create the ~Init script.
 	if (Script* initScript =
-	    	createScript(
+			createScript(
 				*this, *rootScope_, ScriptType::global,
 				"~Init", errorHandler))
 	{
@@ -87,7 +87,6 @@ Namespace* Program::addNamespace(ASTNamespace& node, Scope& parentScope, Compile
 {
 	Namespace* namesp = createNamespace(*this, parentScope, node, handler);
 	if(!namesp) return NULL;
-	
 	for(vector<Namespace*>::iterator it = namespaces.begin();
 		it != namespaces.end(); ++it)
 		if(namesp == *it) return namesp; //Already registered, don't re-register.
@@ -190,7 +189,6 @@ UserClass* ZScript::createClass(
 		return NULL;
 	}
 	user_class->scope = scope;
-	
 	return user_class;
 }
 
@@ -495,7 +493,6 @@ FunctionSignature::FunctionSignature(
 FunctionSignature::FunctionSignature(Function const& function)
 	: name(function.name), parameterTypes(function.paramTypes), prefix(function.hasPrefixType)
 {}
-		
 int32_t FunctionSignature::compare(FunctionSignature const& other) const
 {
 	int32_t c = name.compare(other.name);

@@ -46,7 +46,7 @@ void Bounce (ffc ball, lweapon l, int sound){
 	if (bounce){
 		Game->PlaySound(sound);
 		return;
-	}	
+	}
 }
 
 //Puts FFC at position where it`s Lweapon`s wall collision just recently occured.
@@ -68,7 +68,7 @@ void MoveToSolidContactPosition(ffc f, lweapon l){
 //Best used with circling Lweapons. Run once every frame.
 void SetPolarCoordinates (ffc f, int oX, int oY, float radius, int angle){
 	f->X=oX+(radius*Cos(angle));
-	f->Y=oY+(radius*Sin(angle));	
+	f->Y=oY+(radius*Sin(angle));
 }
 
 //Causes FFC to be affected by gravity. Run once every frame.

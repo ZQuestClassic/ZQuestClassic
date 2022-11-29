@@ -19,4 +19,3 @@ zinitdata *copyIntoZinit(gamedata *src);
 std::string serialize_init_data_delta(zinitdata *base, zinitdata *changed);
 zinitdata *apply_init_data_delta(zinitdata *base, std::string delta);
 #endif
- 

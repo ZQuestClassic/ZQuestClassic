@@ -12,7 +12,6 @@ class MiscColorRow: public Widget
 {
 public:
 	MiscColorRow();
-	
 	void setVal(int32_t newVal);
 	int32_t getVal();
 	void setCS(int32_t newCS);
@@ -22,7 +21,6 @@ public:
 private:
 	DialogRef alDialog;
 	std::function<void(int32_t)> onUpdate;
-	
 	int32_t val, cs;
 	bool isSys;
 	void applyVisibility(bool visible) override;

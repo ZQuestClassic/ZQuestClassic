@@ -1,7 +1,7 @@
 /** ZQ Version Metadata for Header v4
-* 
+*
 * ZQ Metadata for the Compiler used to build ZQ/ZC.
-* 
+*
 * !! ALWAYS COMMIT THESE CHANGES TO GITHUB
 */
 

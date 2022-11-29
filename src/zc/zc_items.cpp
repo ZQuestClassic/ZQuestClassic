@@ -81,10 +81,8 @@ void item_fall(zfix& x, zfix& y, zfix& fall)
 	else
 	{
 		y+=fall/100;
-		
 		if((fall/100)==0 && fall>0)
 			fall*=(fall>0 ? 2 : 0.5); // That oughta do something about the floatiness.
-			
 		if(fall <= (int32_t)zinit.terminalv)
 		{
 			fall += (zinit.gravity2 / 100);
@@ -95,25 +93,20 @@ void item_fall(zfix& x, zfix& y, zfix& fall)
 int32_t select_dropitem(int32_t item_set)
 {
     int32_t total_chance=0;
-    
     for(int32_t k=0; k<11; ++k)
     {
         int32_t current_chance=item_drop_sets[item_set].chance[k];
-        
         if(k>0)
         {
             int32_t current_item=item_drop_sets[item_set].item[k-1];
-            
             if((!get_bit(quest_rules,qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(itemsbuf[current_item].family == itype_magic))
             {
                 current_chance=0;
             }
-            
             if((!get_bit(quest_rules,qr_TRUEARROWS))&&(itemsbuf[current_item].family == itype_arrowammo))
             {
                 current_chance=0;
             }
-			
 			if(get_bit(quest_rules, qr_SMARTDROPS))
 			{
 				if(itemsbuf[current_item].amount > 0 && game->get_maxcounter(itemsbuf[current_item].count) == 0)
@@ -129,33 +122,24 @@ int32_t select_dropitem(int32_t item_set)
 				}
 			}
         }
-        
         total_chance+=current_chance;
     }
-    
     if(total_chance==0)
         return -1;
-        
     int32_t item_chance=(zc_oldrand()%total_chance)+1;
-    
     int32_t drop_item=-1;
-    
     for(int32_t k=10; k>=0; --k)
     {
-    
         int32_t current_chance=item_drop_sets[item_set].chance[k];
         int32_t current_item=(k==0 ? -1 : item_drop_sets[item_set].item[k-1]);
-        
         if((!get_bit(quest_rules,qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(current_item>=0&&itemsbuf[current_item].family == itype_magic))
         {
             current_chance=0;
         }
-        
         if((!get_bit(quest_rules,qr_TRUEARROWS))&&(current_item>=0&&itemsbuf[current_item].family == itype_arrowammo))
         {
             current_chance=0;
         }
-        
 		if(get_bit(quest_rules, qr_SMARTDROPS))
 		{
 			if(itemsbuf[current_item].amount > 0 && game->get_maxcounter(itemsbuf[current_item].count) == 0)
@@ -163,7 +147,6 @@ int32_t select_dropitem(int32_t item_set)
 				current_chance = 0;
 			}
 		}
-		
 		if(get_bit(quest_rules, qr_SMARTER_DROPS)) //OH SHIT EMILY
 		{											//DEEDEE 'BOUT TO DAB ON YOU
 			if(itemsbuf[current_item].amount > 0 && game->get_counter(itemsbuf[current_item].count) >= game->get_maxcounter(itemsbuf[current_item].count))
@@ -171,7 +154,6 @@ int32_t select_dropitem(int32_t item_set)
 				current_chance = 0;	//Item droprate being set to 0 faster than I can chug an entire coffee (read: fast)
 			}
 		}
-		
         if(current_chance>0&&item_chance<=current_chance)
         {
             drop_item=current_item;
@@ -182,13 +164,11 @@ int32_t select_dropitem(int32_t item_set)
             item_chance-=current_chance;
         }
     }
-    
     return drop_item;
 }
 int32_t select_dropitem(int32_t item_set, int32_t x, int32_t y)
 {
 	int32_t drop_item = select_dropitem(item_set);
-	
     if(drop_item>=0 && itemsbuf[drop_item].family==itype_fairy && !get_bit(quest_rules,qr_OLD_FAIRY_LIMIT))
     {
         for(int32_t j=0; j<items.Count(); ++j)
@@ -200,7 +180,6 @@ int32_t select_dropitem(int32_t item_set, int32_t x, int32_t y)
             }
         }
     }
-	
 	return drop_item;
 }
 int32_t item::run_script(int32_t mode)

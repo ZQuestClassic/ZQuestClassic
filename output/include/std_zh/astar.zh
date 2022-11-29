@@ -1,10 +1,10 @@
 // Credits to Lejes for making the A* algorithm actually work in ZC! I probably wouldn't have ended up making my version (which is older than this) work without the assistance!
-// Optimised for 2.55 on 24th May, 220 by ZoriaRPG. 
+// Optimised for 2.55 on 24th May, 220 by ZoriaRPG.
 
 namespace astar
 {
 	const int SETSIZE = 176;
-	
+
 	ffc script AstarFFC
 	{
 		void run()
@@ -15,7 +15,7 @@ namespace astar
 				{
 					Astar(this, ComboAt(Link->X + 8, Link->Y + 8));
 				}
-				
+
 				Waitframe();
 			}
 		}
@@ -25,7 +25,7 @@ namespace astar
 	{
 		int PathfinderLoc = ComboAt(CenterX(Pathfinder), CenterY(Pathfinder));
 		int current = PathfinderLoc;
-		
+
 		int ClosedSet[SETSIZE]; // The set of nodes already evaluated.
 		int OpenSet[SETSIZE]; // The set of tentative nodes to be evaluated, initially containing the start node
 		int Came_From[SETSIZE]; // The map of navigated nodes.
@@ -46,11 +46,11 @@ namespace astar
 			g_score[i] = 9999;
 			f_score[i] = 9999;
 		}
-		
+
 		OpenSet[0] = PathfinderLoc;
 		g_score[current] = 0;
 		f_score[current] = ManhattanDist(PathfinderLoc, Dest);
-	   
+
 		until(ListIsEmpty(OpenSet))//while OpenSet is not empty
 		{
 			current = FindNode(OpenSet);
@@ -58,10 +58,10 @@ namespace astar
 			{
 				if (OpenSet[i] > -1 && current > -1)
 				{
-					if 
+					if
 					(
-						f_score[OpenSet[i]] < f_score[current] 
-						|| 
+						f_score[OpenSet[i]] < f_score[current]
+						||
 						(
 							f_score[OpenSet[i]] == f_score[current] && ManhattanDist(OpenSet[i], Dest) < ManhattanDist(current, Dest)
 						)
@@ -82,24 +82,24 @@ namespace astar
 					{
 						//Pathfinder->X = ComboX(total_path[i]);
 						//Pathfinder->Y = ComboY(total_path[i]);
-						
+
 						// Correct vvv
 						Screen->ComboD[total_path[i]] = 897;
 						Screen->ComboC[total_path[i]] = 7;
 						Waitframes(15); //Why are we waiting here? Z
-						
+
 						// int walkVar = i + 1;
 						// while(walkVar <= -1)
 						// {
 							// walkVar += 1;
 						// }
-						
+
 						// if(total_path[walkVar] == PathfinderLoc - 16)
 						// {
 							// for(int i2 = 0; i2 < 16; i2 += 1)
 							// {
 								// Pathfinder->Y -= 1;
-								
+
 								// Waitframe();
 							// }
 						// }
@@ -108,7 +108,7 @@ namespace astar
 							// for(int i2 = 0; i2 < 16; i2 += 1)
 							// {
 								// Pathfinder->Y += 1;
-								
+
 								// Waitframe();
 							// }
 						// }
@@ -117,7 +117,7 @@ namespace astar
 							// for(int i2 = 0; i2 < 16; i2 += 1)
 							// {
 								// Pathfinder->X -= 1;
-								
+
 								// Waitframe();
 							// }
 						// }
@@ -126,15 +126,15 @@ namespace astar
 							// for(int i2 = 0; i2 < 16; i2 += 1)
 							// {
 								// Pathfinder->X += 1;
-								
+
 								// Waitframe();
 							// }
 						// }
-						
+
 						// break;
 					}
 				}
-			   
+
 				break;
 			}
 
@@ -151,8 +151,8 @@ namespace astar
 					case 3: {neighbor = current - 1; break;}
 					case 4: {neighbor = current + 1; break;}
 				}
-				
-				
+
+
 				unless (ValInRange(0, 175, neighbor))
 				{
 					continue;
@@ -165,7 +165,7 @@ namespace astar
 				int tentative_g_score = g_score[current] + ManhattanDist(current, neighbor);
 				//if (tentative_g_score < g_score[neighbor] || !NumInArray(OpenSet, neighbor))      // Discover a new node
 				/*Note, ZScript used to not short circuit. If this expr relies on calling 'NumInArray()' even if the first condition
-					evaluates false, then it must be rewritten as two statements. 
+					evaluates false, then it must be rewritten as two statements.
 					I also inverted the logic so that it can use a single unless stmt for both sides of the logical OR
 					-Z
 				*/
@@ -179,10 +179,10 @@ namespace astar
 						AddNode(OpenSet, neighbor);
 					}
 				}
-			   
+
 				// Game->PlaySound(2);
 			}
-		   
+
 			for(i = 0; i < SETSIZE; ++i)
 			{
 				if(OpenSet[i] > -1)
@@ -190,13 +190,13 @@ namespace astar
 					Screen->ComboD[OpenSet[i]] = 896;
 					Screen->ComboC[OpenSet[i]] = 5;
 				}
-			   
+
 				if(ClosedSet[i] > -1)
 				{
 					Screen->ComboD[ClosedSet[i]] = 898;
 					Screen->ComboC[ClosedSet[i]] = 8;
 				}
-				
+
 				if (g_score[i] < 9999)
 				{
 					Screen->DrawInteger(6, ComboX(i), ComboY(i) + 10, FONT_SP, 0x06, 0x07, 0, 0, g_score[i], 0, OP_OPAQUE);
@@ -208,7 +208,7 @@ namespace astar
 				Screen->DrawInteger(6, 0, 0, FONT_Z1, 0x01, 0x07, 0, 0, current, 0, OP_OPAQUE);
 				Screen->DrawInteger(6, 0, 16, FONT_Z1, 0x01, 0x07, 0, 0, OpenSet[0], 0, OP_OPAQUE);
 			}
-		   
+
 			Waitframe();
 		}
 
@@ -218,7 +218,7 @@ namespace astar
 	void reconstruct_path(int total_path, int Came_From, int current, int PathfinderLoc)
 	{
 		total_path[0] = current;
-		
+
 		for (int i = 1; i < 176; ++i) //intentionally starting from totalpath[1] -Z
 		{
 			total_path[i] = Came_From[current];
@@ -229,12 +229,12 @@ namespace astar
 			}
 		}
 	}
-	 
+
 	int ManhattanDist(int loc1, int loc2)
 	{
 		return (Abs(ComboX(loc2) - ComboX(loc1)) + Abs(ComboY(loc2) - ComboY(loc1)));
 	}
-	 
+
 	// Returns if an array is "empty". Returns true if all elements of an array equal -1. Overloaded to check a specific indice.
 	bool ListIsEmpty(float list_arr_ptr)
 	{
@@ -247,10 +247,10 @@ namespace astar
 				return false;
 			}
 		}
-	       
+
 		return true;
 	}
-	 
+
 	// Returns if an indice on a list array is "empty".
 	bool ListIsEmpty(float list_arr_ptr, int indice)
 	{
@@ -263,12 +263,12 @@ namespace astar
 			return false;
 		}
 	}
-	 
+
 	// returns the size of an array "list"
 	int ListSize(float list_arr_ptr)
 	{
 		int size = 0;
-	       
+
 		//for(int i = 0; i < SizeOfArray(list_arr); i += 1)
 		for(int i = 0; i < SETSIZE; ++i)
 		{
@@ -277,10 +277,10 @@ namespace astar
 				++size;
 			}
 		}
-	       
+
 		return size;
 	}
-	 
+
 	// Adds a 'node' to an array 'list'
 	int AddNode(int list_arr_ptr, int locToAdd)
 	{
@@ -296,7 +296,7 @@ namespace astar
 			}
 		}
 	}
-	 
+
 	// Adds a 'node' to an array 'list'
 	int AddNode(int locToAdd, int val_gCost, int val_hCost, int val_Parent, int list_arr_ptr, int list_gCost, int list_hCost, int list_Parent)
 	{
@@ -309,14 +309,14 @@ namespace astar
 				list_gCost[i] = val_gCost;
 				list_hCost[i] = val_hCost;
 				list_Parent[i] = val_Parent;
-			       
+
 				return i;
-			       
+
 				break;
 			}
 		}
 	}
-	 
+
 	// Removes a 'node' from an array 'list'
 	void RemoveNode(int list_arr_ptr, int node)
 	{
@@ -330,7 +330,7 @@ namespace astar
 			}
 		}
 	}
-	 
+
 	// Returns if a variable is in an array.
 	bool NumInArray(float arr_ptr, float num)
 	{
@@ -342,10 +342,10 @@ namespace astar
 				return true;
 			}
 		}
-	       
+
 		return false;
 	}
-	 
+
 	// Returns the lowest number in array 'arr'.
 	// Set checkForValid to true if you want to make sure the returned value is "valid" (ie. above -1).
 	float LowestVal(float arr_ptr, bool checkForValid)
@@ -366,7 +366,7 @@ namespace astar
 				smallest = arr_ptr[i];
 			}
 		}
-		*/ 
+		*/
 		//SHould me moderately faster this way. -Z
 		for(; i >= 0; --i)
 		{
@@ -384,14 +384,14 @@ namespace astar
 		}
 		return smallest;
 	}
-	 
+
 	//Well, this won't find duplicates. -Z
 	float LowestIndice(float arr_ptr, bool checkForValid)
 	{
 		int smallestVal = arr_ptr[0];
 		int smallestIndice = 0;
-		int sz = SizeOfArray(arr_ptr); 	//This won't change, and it is faster to check this var than 
-						//to perform a repeated internal size check. -Z 
+		int sz = SizeOfArray(arr_ptr); 	//This won't change, and it is faster to check this var than
+						//to perform a repeated internal size check. -Z
 		for(int i = 1; i < sz; ++i)
 		{
 			if(checkForValid)
@@ -410,7 +410,7 @@ namespace astar
 		}
 		return smallestIndice;
 	}
-	 
+
 	// Returns if a number is in range of range_min (inclusive) and range_max (inclusive).
 	bool ValInRange(float min, float max, float num)
 	{
@@ -428,7 +428,7 @@ namespace astar
 				return true;
 			}
 		}
-	       
+
 	}
 
 	void AstarArrayInit(int OpenSet_ptr, int ClosedSet_ptr, int Came_From_ptr, int g_score_ptr, int f_score_ptr)

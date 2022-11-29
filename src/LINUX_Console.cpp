@@ -11,13 +11,11 @@
 #endif
 
 #ifdef _WIN32
-    
     if(used_switch(argc, argv, "-console") || used_switch(argc, argv, "-con"))
     {
         DebugConsole::Open();
         zconsole = true;
     }
-    
 #else //Unix
 
     { // Let's try making a console for Linux -Z
@@ -47,10 +45,10 @@
 
 	int32_t xterm_fd = open(ptname,O_RDWR);
 	{
-		char c = 0; int32_t tries = 10000; 
-		do 
+		char c = 0; int32_t tries = 10000;
+		do
 		{
-			read(xterm_fd, &c, 1); 
+			read(xterm_fd, &c, 1);
 			--tries;
 		} while (c!='\n' && tries > 0);
 	}
@@ -68,22 +66,17 @@
 		use_debug_console = 0; goto no_lx_console;
 	}
     } //this is in a block because I want it in a block. -Z
-    
     no_lx_console:
     {
 	    //Z_error_fatal("Could not open Linux console.\n");
     }
-    
-    
 	std::cout << "\n       _____   ____                  __ \n";
 	std::cout << "      /__  /  / __ \\__  _____  _____/ /_\n";
 	std::cout << "        / /  / / / / / / / _ \\/ ___/ __/\n";
 	std::cout << "       / /__/ /_/ / /_/ /  __(__  ) /_ \n";
 	std::cout << "      /____/\\___\\_\\__,_/\\___/____/\\__/\n\n";
-	
 	std::cout << "Quest Data Logging & ZScript Debug Console\n";
 	std::cout << "ZConsole for Linux\n\n";
-    
 	if ( FFCore.getQuestHeaderInfo(vZelda) > 0 )
 	{
 		printf("Quest Made in ZC Version %x, Build %d\n", FFCore.getQuestHeaderInfo(vZelda), FFCore.getQuestHeaderInfo(vBuild));
@@ -95,4 +88,3 @@
 	//std::cerr << "Test cerr\n\n";
 	std::cin.ignore(1);
 #endif
-    

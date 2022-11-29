@@ -15,10 +15,10 @@ void __Tango_LogError(int error)
 {
     if(__TANGO_LOGGING_LEVEL<1)
         return;
-    
+
     if(__TANGO_ONSCREEN_NOTIFICATION!=0)
         __Tango_Data[__TDIDX_ERROR_NOTIFICATION]=300;
-    
+
     int str[]="tango.zh error ";
     TraceS(str);
     TraceToBase(error, 10, 0);

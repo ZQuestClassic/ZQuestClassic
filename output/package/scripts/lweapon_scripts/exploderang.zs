@@ -28,4 +28,3 @@ lweapon script exploderang
 		}
 	}
 }
-					

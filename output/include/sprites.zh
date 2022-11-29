@@ -65,12 +65,12 @@ itemsprite script fall
 		this->Z = 100;
 		while(this->isValid())
 		{
-			
+
 			this->Scale = this->Z/50;
 			if ( this->Scale <= 1 ) { this->Scale = 1; sprites::rectify(this); Quit(); }
 			sprites::rectify(this);
 			Waitframe();
-			
+
 		}
 	}
 }

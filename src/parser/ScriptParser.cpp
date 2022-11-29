@@ -57,7 +57,6 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 	zscript_had_warn_err = false;
 	zscript_error_out = false;
 	ScriptParser::initialize();
-	
 	zconsole_info("%s", "Pass 1: Parsing");
 
 	unique_ptr<ASTFile> root(parseFile(filename, true));
@@ -107,7 +106,6 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 	if (!id.get())
 		return nullptr;
 	if(zscript_error_out) return nullptr;
-	
 	zconsole_info("%s", "Pass 6: Assembling");
 
 	ScriptParser::assemble(id.get());
@@ -241,7 +239,6 @@ bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int32_t reclimit)
 bool ScriptParser::preprocess(ASTFile* root, int32_t reclimit)
 {
 	assert(root);
-	
 	if (reclimit == 0)
 	{
 		log_error(CompileError::ImportRecursion(NULL, recursionLimit));
@@ -320,13 +317,11 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 	for (int32_t i = 0; i < globalStackSize; ++i)
 		rval->globalsInit.push_back(
 				new OPopRegister(new VarArgument(EXP2)));*/
-	
 	//Parse the indexes for class variables
 	for(UserClass* user_class : program.classes)
 	{
 		user_class->getScope().parse_ucv();
 	}
-	
 	//globals have been initialized, now we repeat for the functions
 	vector<Function*> funs = program.getUserFunctions();
 	appendElements(funs, program.getUserClassConstructors());
@@ -357,13 +352,10 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			scriptname = functionScript->getName();
 		}
 		scope = function.internalScope;
-		
 		if(classfunc)
 		{
 			UserClass& user_class = scope->getClass()->user_class;
-			
 			vector<std::shared_ptr<Opcode>> funccode;
-			
 			int32_t stackSize = getStackSize(function);
 			// Start of the function.
 			if (puc == puc_construct)
@@ -403,7 +395,6 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			// Push 0s for the local variables.
 			for (int32_t i = stackSize - getParameterCount(function); i > 0; --i)
 				addOpcode2(funccode, new OPushImmediate(new LiteralArgument(0)));
-			
 			// Set up the stack frame register
 			addOpcode2(funccode, new OSetRegister(new VarArgument(SFRAME),
 												new VarArgument(SP)));
@@ -411,11 +402,8 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			BuildOpcodes bo(scope);
 			bo.parsing_user_class = puc;
 			node.execute(bo, &oc);
-			
 			if (bo.hasError()) failure = true;
-			
 			appendElements(funccode, bo.getResult());
-			
 			// Pop off everything
 			std::shared_ptr<Opcode> next(new OPopArgsRegister(new VarArgument(NUL),
 				new LiteralArgument(stackSize)));
@@ -429,15 +417,12 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 		else
 		{
 			vector<std::shared_ptr<Opcode>> funccode;
-			
 			int32_t stackSize = getStackSize(function);
-			
 			// Start of the function.
 			std::shared_ptr<Opcode> first(new OSetImmediate(new VarArgument(EXP1),
 											  new LiteralArgument(0)));
 			first->setLabel(function.getLabel());
 			funccode.push_back(std::move(first));
-			
 			// Push on the this, if a script
 			if (isRun)
 			{
@@ -445,7 +430,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 
 				if (type == ScriptType::ffc )
 				{
-					addOpcode2(funccode, 
+					addOpcode2(funccode,
 						new OSetRegister(new VarArgument(EXP2),
 								 new VarArgument(REFFFC)));
 
@@ -509,37 +494,29 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 						new OSetRegister(new VarArgument(EXP2),
 								new VarArgument(REFGENERICDATA)));
 				}
-				
 				addOpcode2(funccode, new OPushRegister(new VarArgument(EXP2)));
 			}
-			
 			// Push 0s for the local variables.
 			for (int32_t i = stackSize - getParameterCount(function); i > 0; --i)
 				addOpcode2(funccode, new OPushRegister(new VarArgument(EXP1)));
-			
 			// Set up the stack frame register
 			addOpcode2(funccode, new OSetRegister(new VarArgument(SFRAME),
 												new VarArgument(SP)));
 			OpcodeContext oc(typeStore);
 			BuildOpcodes bo(scope);
 			node.execute(bo, &oc);
-			
 			if (bo.hasError()) failure = true;
-			
 			appendElements(funccode, bo.getResult());
-			
 			// Add appendix code.
 			std::shared_ptr<Opcode> next(new OSetImmediate(new VarArgument(EXP2),
 													  new LiteralArgument(0)));
 			next->setLabel(bo.getReturnLabelID());
 			funccode.push_back(std::move(next));
-			
 			// Pop off everything.
 			for (int32_t i = 0; i < stackSize; ++i)
 			{
 				addOpcode2(funccode, new OPopRegister(new VarArgument(EXP2)));
 			}
-			
 			//if it's a main script, quit.
 			if (isRun)
 			{
@@ -557,7 +534,6 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				//and return
 				addOpcode2(funccode, new OReturn());
 			}
-			
 			function.giveCode(funccode);
 		}
 	}

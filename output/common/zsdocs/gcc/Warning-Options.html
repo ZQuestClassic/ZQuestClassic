@@ -243,56 +243,56 @@ enables some language-specific warnings described in <a href="C_002b_002b-Dialec
 <p><samp>-Wall</samp> turns on the following warning flags:
 </p>
 <div class="smallexample">
-<pre class="smallexample">-Waddress   
--Warray-bounds=1 <span class="roman">(only with</span> <samp>-O2</samp><span class="roman">)</span>  
--Wbool-compare  
--Wbool-operation  
--Wc++11-compat  -Wc++14-compat  
--Wcatch-value <span class="roman">(C++ and Objective-C++ only)</span>  
--Wchar-subscripts  
--Wcomment  
--Wduplicate-decl-specifier <span class="roman">(C and Objective-C only)</span> 
--Wenum-compare <span class="roman">(in C/ObjC; this is on by default in C++)</span> 
--Wformat   
--Wint-in-bool-context  
--Wimplicit <span class="roman">(C and Objective-C only)</span> 
--Wimplicit-int <span class="roman">(C and Objective-C only)</span> 
--Wimplicit-function-declaration <span class="roman">(C and Objective-C only)</span> 
--Winit-self <span class="roman">(only for C++)</span> 
--Wlogical-not-parentheses 
--Wmain <span class="roman">(only for C/ObjC and unless</span> <samp>-ffreestanding</samp><span class="roman">)</span>  
--Wmaybe-uninitialized 
--Wmemset-elt-size 
--Wmemset-transposed-args 
--Wmisleading-indentation <span class="roman">(only for C/C++)</span> 
--Wmissing-attributes 
--Wmissing-braces <span class="roman">(only for C/ObjC)</span> 
--Wmultistatement-macros  
--Wnarrowing <span class="roman">(only for C++)</span>  
--Wnonnull  
--Wnonnull-compare  
--Wopenmp-simd 
--Wparentheses  
--Wpessimizing-move <span class="roman">(only for C++)</span>  
--Wpointer-sign  
--Wreorder   
--Wrestrict   
--Wreturn-type  
--Wsequence-point  
--Wsign-compare <span class="roman">(only in C++)</span>  
--Wsizeof-pointer-div 
--Wsizeof-pointer-memaccess 
--Wstrict-aliasing  
--Wstrict-overflow=1  
--Wswitch  
--Wtautological-compare  
--Wtrigraphs  
--Wuninitialized  
--Wunknown-pragmas  
--Wunused-function  
--Wunused-label     
--Wunused-value     
--Wunused-variable  
+<pre class="smallexample">-Waddress
+-Warray-bounds=1 <span class="roman">(only with</span> <samp>-O2</samp><span class="roman">)</span>
+-Wbool-compare
+-Wbool-operation
+-Wc++11-compat  -Wc++14-compat
+-Wcatch-value <span class="roman">(C++ and Objective-C++ only)</span>
+-Wchar-subscripts
+-Wcomment
+-Wduplicate-decl-specifier <span class="roman">(C and Objective-C only)</span>
+-Wenum-compare <span class="roman">(in C/ObjC; this is on by default in C++)</span>
+-Wformat
+-Wint-in-bool-context
+-Wimplicit <span class="roman">(C and Objective-C only)</span>
+-Wimplicit-int <span class="roman">(C and Objective-C only)</span>
+-Wimplicit-function-declaration <span class="roman">(C and Objective-C only)</span>
+-Winit-self <span class="roman">(only for C++)</span>
+-Wlogical-not-parentheses
+-Wmain <span class="roman">(only for C/ObjC and unless</span> <samp>-ffreestanding</samp><span class="roman">)</span>
+-Wmaybe-uninitialized
+-Wmemset-elt-size
+-Wmemset-transposed-args
+-Wmisleading-indentation <span class="roman">(only for C/C++)</span>
+-Wmissing-attributes
+-Wmissing-braces <span class="roman">(only for C/ObjC)</span>
+-Wmultistatement-macros
+-Wnarrowing <span class="roman">(only for C++)</span>
+-Wnonnull
+-Wnonnull-compare
+-Wopenmp-simd
+-Wparentheses
+-Wpessimizing-move <span class="roman">(only for C++)</span>
+-Wpointer-sign
+-Wreorder
+-Wrestrict
+-Wreturn-type
+-Wsequence-point
+-Wsign-compare <span class="roman">(only in C++)</span>
+-Wsizeof-pointer-div
+-Wsizeof-pointer-memaccess
+-Wstrict-aliasing
+-Wstrict-overflow=1
+-Wswitch
+-Wtautological-compare
+-Wtrigraphs
+-Wuninitialized
+-Wunknown-pragmas
+-Wunused-function
+-Wunused-label
+-Wunused-value
+-Wunused-variable
 -Wvolatile-register-var
 </pre></div>
 
@@ -314,22 +314,22 @@ them must be enabled individually.
 name is still supported, but the newer name is more descriptive.)
 </p>
 <div class="smallexample">
-<pre class="smallexample">-Wclobbered  
--Wcast-function-type  
--Wdeprecated-copy <span class="roman">(C++ only)</span> 
--Wempty-body  
--Wignored-qualifiers 
--Wimplicit-fallthrough=3 
--Wmissing-field-initializers  
--Wmissing-parameter-type <span class="roman">(C only)</span>  
--Wold-style-declaration <span class="roman">(C only)</span>  
--Woverride-init  
--Wsign-compare <span class="roman">(C only)</span> 
--Wredundant-move <span class="roman">(only for C++)</span>  
--Wtype-limits  
--Wuninitialized  
--Wshift-negative-value <span class="roman">(in C++03 and in C99 and newer)</span>  
--Wunused-parameter <span class="roman">(only with</span> <samp>-Wunused</samp> <span class="roman">or</span> <samp>-Wall</samp><span class="roman">)</span> 
+<pre class="smallexample">-Wclobbered
+-Wcast-function-type
+-Wdeprecated-copy <span class="roman">(C++ only)</span>
+-Wempty-body
+-Wignored-qualifiers
+-Wimplicit-fallthrough=3
+-Wmissing-field-initializers
+-Wmissing-parameter-type <span class="roman">(C only)</span>
+-Wold-style-declaration <span class="roman">(C only)</span>
+-Woverride-init
+-Wsign-compare <span class="roman">(C only)</span>
+-Wredundant-move <span class="roman">(only for C++)</span>
+-Wtype-limits
+-Wuninitialized
+-Wshift-negative-value <span class="roman">(in C++03 and in C99 and newer)</span>
+-Wunused-parameter <span class="roman">(only with</span> <samp>-Wunused</samp> <span class="roman">or</span> <samp>-Wall</samp><span class="roman">)</span>
 -Wunused-but-set-parameter <span class="roman">(only with</span> <samp>-Wunused</samp> <span class="roman">or</span> <samp>-Wall</samp><span class="roman">)</span>
 </pre></div>
 
@@ -1540,7 +1540,7 @@ you use that never return as <code>noreturn</code>.  See <a href="Function-Attri
 <a name="index-warning-for-unknown-pragmas"></a>
 <a name="index-unknown-pragmas_002c-warning"></a>
 <a name="index-pragmas_002c-warning-of-unknown"></a>
-<p>Warn when a <code>#pragma</code> directive is encountered that is not understood by 
+<p>Warn when a <code>#pragma</code> directive is encountered that is not understood by
 GCC.  If this command-line option is used, warnings are even issued
 for unknown pragmas in system header files.  This is not the case if
 the warnings are only enabled by the <samp>-Wall</samp> command-line option.
@@ -1582,7 +1582,7 @@ It is equivalent to <samp>-Wstrict-aliasing=3</samp>
 It warns about code that might break the strict aliasing rules that the
 compiler is using for optimization.
 Higher levels correspond to higher accuracy (fewer false positives).
-Higher levels also correspond to more effort, similar to the way <samp>-O</samp> 
+Higher levels also correspond to more effort, similar to the way <samp>-O</samp>
 works.
 <samp>-Wstrict-aliasing</samp> is equivalent to <samp>-Wstrict-aliasing=3</samp>.
 </p>
@@ -1891,7 +1891,7 @@ C++ <code>throw</code> or fatal error reporting functions leading to <code>abort
 <dd><a name="index-Wno_002dsuggest_002dfinal_002dtypes"></a>
 <a name="index-Wsuggest_002dfinal_002dtypes"></a>
 <p>Warn about types with virtual methods where code quality would be improved
-if the type were declared with the C++11 <code>final</code> specifier, 
+if the type were declared with the C++11 <code>final</code> specifier,
 or, if possible,
 declared in an anonymous namespace. This allows GCC to more aggressively
 devirtualize the polymorphic calls. This warning is more effective with link
@@ -1903,7 +1903,7 @@ more complete.
 <dd><a name="index-Wno_002dsuggest_002dfinal_002dmethods"></a>
 <a name="index-Wsuggest_002dfinal_002dmethods"></a>
 <p>Warn about virtual methods where code quality would be improved if the method
-were declared with the C++11 <code>final</code> specifier, 
+were declared with the C++11 <code>final</code> specifier,
 or, if possible, its type were
 declared in an anonymous namespace or with the <code>final</code> specifier.
 This warning is
@@ -2718,7 +2718,7 @@ This warning is on by default.
 <dd><a name="index-Wbad_002dfunction_002dcast"></a>
 <a name="index-Wno_002dbad_002dfunction_002dcast"></a>
 <p>Warn when a function call is cast to a non-matching type.
-For example, warn if a call to a function returning an integer type 
+For example, warn if a call to a function returning an integer type
 is cast to a pointer type.
 </p>
 </dd>
@@ -2994,7 +2994,7 @@ while</code> statement.  This warning is also enabled by <samp>-Wextra</samp>.
 <a name="index-Wno_002denum_002dcompare"></a>
 <p>Warn about a comparison between values of different enumerated types.
 In C++ enumerated type mismatches in conditional expressions are also
-diagnosed and the warning is enabled by default.  In C this warning is 
+diagnosed and the warning is enabled by default.  In C this warning is
 enabled by <samp>-Wall</samp>.
 </p>
 </dd>
@@ -3391,7 +3391,7 @@ recommended form for most uses.  It is equivalent to
 <samp>-Wnormalized</samp>.
 </p>
 <p>Unfortunately, there are some characters allowed in identifiers by
-ISO C and ISO C++ that, when turned into NFC, are not allowed in 
+ISO C and ISO C++ that, when turned into NFC, are not allowed in
 identifiers.  That is, there&rsquo;s no way to use these symbols in portable
 ISO C or C++ and have all your identifiers in NFC.
 <samp>-Wnormalized=id</samp> suppresses the warning for these characters.
@@ -3414,7 +3414,7 @@ well, and GCC warns if your code is not in NFKC if you use
 <samp>-Wnormalized=nfkc</samp>.  This warning is comparable to warning
 about every identifier that contains the letter O because it might be
 confused with the digit 0, and so is not the default, but may be
-useful as a local coding convention if the programming environment 
+useful as a local coding convention if the programming environment
 cannot be fixed to display these characters distinctly.
 </p>
 </dd>
@@ -3697,7 +3697,7 @@ warning messages, use <samp>-Wno-varargs</samp>.
 <p>Warn if vector operation is not implemented via SIMD capabilities of the
 architecture.  Mainly useful for the performance tuning.
 Vector operation can be implemented <code>piecewise</code>, which means that the
-scalar operation is performed on every vector element; 
+scalar operation is performed on every vector element;
 <code>in parallel</code>, which means that the vector operation is implemented
 using scalars of wider type, which normally is more performance efficient;
 and <code>as a single scalar</code>, which means that vector fits into a

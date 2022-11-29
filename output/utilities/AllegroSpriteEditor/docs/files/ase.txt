@@ -173,7 +173,7 @@ Cel Chunk (0x2005)
     WORD	Width in pixels
     WORD	Height in pixels
     BYTE[]	Compressed "Raw Cel" data. Details about the
-                compression method: 
+                compression method:
                 http://www.ietf.org/rfc/rfc1951.txt
 
 

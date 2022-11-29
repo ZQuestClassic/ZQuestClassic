@@ -29,7 +29,7 @@ ffc script BombArrow{
 		LweaponSetFlag(arrow, LWF_NO_FALL);
 		SetStraightMotion4(this, speed);
 		if (this->Vx!=0)SetLweaponHitboxOffsets(arrow, 4, 4, 0, 0);
-		else if (this->Vy!=0)SetLweaponHitboxOffsets(arrow, 0, 0, 4, 4);		
+		else if (this->Vy!=0)SetLweaponHitboxOffsets(arrow, 0, 0, 4, 4);
 		while (true){
 			//DrawLweaponHitbox(arrow);
 			//debugValue(2, arrow->Misc[LWEAPON_MISC_HIT_OFFSET_X]);

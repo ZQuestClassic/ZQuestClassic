@@ -48,7 +48,6 @@ public:
 	 * This should not be used by widgets.
 	 */
 	void capHeight(Size newHeight) noexcept;
-	
 	/* Expand the widget's width, if it is below the given width
 	 * This should not be used by widgets.
 	 */
@@ -87,7 +86,6 @@ public:
 
 	/* Set all four margins to the same value. */
 	void setMargins(Size size) noexcept;
-	
 	inline void setLeftPadding(Size size) noexcept
 	{
 		leftPadding = size.resolve();
@@ -132,7 +130,6 @@ public:
 	 * This simply sets a flag indicating whether the widget is visible.
 	 */
 	void setVisible(bool visible);
-	
 	bool getVisible() const {return !(flags&f_INVISIBLE);}
 
 	/* Sets this widget to be visible or invisible. This function should
@@ -176,7 +173,6 @@ public:
 
 	/* Returns the height of the widget. This should only be used by widgets. */
 	int32_t getHeight() const { return height; }
-	
 	/* Returns the width limit of the widget. This should only be used by widgets. */
 	int32_t getMaxWidth() const { return maxwidth; }
 
@@ -226,7 +222,6 @@ public:
 	{
 		return flags&f_FOCUSED;
 	}
-	
 	/* If this is true, this widget is 'disabled' (greyed-out) when the dialog starts
 	 * This does not affect the status if the dialog is open already
 	 */
@@ -237,10 +232,8 @@ public:
 	{
 		return flags&f_DISABLED;
 	}
-	
 	virtual void updateReadOnly(bool ro){}
-	
-	/* If this is true, this widget is non-interactable (but NOT greyed-out) 
+	/* If this is true, this widget is non-interactable (but NOT greyed-out)
 	 * when the dialog starts.
 	 * This does not affect the status if the dialog is open already
 	 */
@@ -258,7 +251,6 @@ public:
 	{
 		return flags&f_READ_ONLY;
 	}
-	
 	/* If this is true, a frame proc will be generated around this widget
 	 */
 	void setFramed(bool framed) noexcept;
@@ -268,7 +260,6 @@ public:
 	{
 		return flags&f_FRAMED;
 	}
-	
 	/* If this is true, the widget will expand to fill it's parent
 	 */
 	void setFitParent(bool fit) noexcept;
@@ -278,7 +269,6 @@ public:
 	{
 		return flags&f_FIT_PARENT;
 	}
-	
 	/* If true, widget will fit the parent exactly,
 	 * and will not be accounted for when sizing grids
 	 */
@@ -294,7 +284,6 @@ public:
 	{
 		return flags&f_FORCE_FIT_H;
 	}
-	
 	void setRowSpan(uint8_t newSpan)
 	{
 		rowSpan = std::max(uint8_t(1),newSpan);
@@ -311,16 +300,12 @@ public:
 	{
 		return colSpan;
 	}
-	
 	//Sets the text that appears inside the frame, if framed
 	void setFrameText(std::string const& newstr);
-	
 	//Sets the font to use for the widget (overridable)
 	virtual void applyFont(FONT* newfont);
-	
 	//For some reason need this to not be virtual???
 	void setFont(FONT* newfont) {applyFont(newfont);}
-	
 	template<typename T>
 	inline void setUserData(T&& ud)
 	{
@@ -365,16 +350,13 @@ protected:
 	 * The widget should add its own
 	 */
 	int32_t getFlags() const noexcept;
-	
 	FONT* widgFont;
-	
 	/* Returns true if the dialog is running, and thus draws to the screen are permitted */
 	bool allowDraw();
 	/* Note that the widget has done something requiring redraw */
 	void pendDraw();
 	/* Returns true if the entire dialog has been realized */
 	bool isConstructed();
-	
 private:
 	enum
 	{

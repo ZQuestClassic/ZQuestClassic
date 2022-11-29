@@ -15,7 +15,7 @@ const int LW_GHOSTED = 31; //Type of Lweapon to be considered as scripted. Use a
 const int LW_PARTICLE = 32; //Particle lweapon ID. Set it so it does not conflict with other scripts.
 
 const int SFX_DEBUG_TERMINATE = 0; //SFX used when Lweapon script terminates. Used mostly when debugging.
-const int DEBUG_DRAW_HITBOXES = 0; //Draw lweapon hitboxes. 0 - off, 1 - on. 
+const int DEBUG_DRAW_HITBOXES = 0; //Draw lweapon hitboxes. 0 - off, 1 - on.
 
 const int CUSTOM_SPRITE_DRAW_LAYER = 4; //Layer used to draw custom Lweapon sprites.
 
@@ -23,7 +23,7 @@ const int DEFAULT_STUN_DURATION = 300; //Default enemy stun duration, in frames.
 
 //FFC`s misc variables. Set them to avoid conflicts with other scripts.
 const int FFC_MISC_ITEM_ID = 11;  //ID of item that launched stdWeapons script.
-const int FFC_MISC_Z = 12;  //FFC`s fake Z position. 
+const int FFC_MISC_Z = 12;  //FFC`s fake Z position.
 const int FFC_MISC_VZ = 13;  //FFC`s fake Z-axis velocity.
 const int FFC_MISC_AZ = 14;  //FFC`s fake Z-axis acceleration.
 const int FFC_MISC_TIMER = 15; //Internal counter used for timing stuff, like drawing animated and flickering shadows or continious SFX.

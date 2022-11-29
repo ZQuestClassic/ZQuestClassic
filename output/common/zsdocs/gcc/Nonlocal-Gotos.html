@@ -80,17 +80,17 @@ Next: <a href="Constructing-Calls.html#Constructing-Calls" accesskey="n" rel="ne
 
 <p>GCC provides the built-in functions <code>__builtin_setjmp</code> and
 <code>__builtin_longjmp</code> which are similar to, but not interchangeable
-with, the C library functions <code>setjmp</code> and <code>longjmp</code>.  
+with, the C library functions <code>setjmp</code> and <code>longjmp</code>.
 The built-in versions are used internally by GCC&rsquo;s libraries
-to implement exception handling on some targets.  You should use the 
+to implement exception handling on some targets.  You should use the
 standard C library functions declared in <code>&lt;setjmp.h&gt;</code> in user code
 instead of the builtins.
 </p>
 <p>The built-in versions of these functions use GCC&rsquo;s normal
 mechanisms to save and restore registers using the stack on function
 entry and exit.  The jump buffer argument <var>buf</var> holds only the
-information needed to restore the stack frame, rather than the entire 
-set of saved register values.  
+information needed to restore the stack frame, rather than the entire
+set of saved register values.
 </p>
 <p>An important caveat is that GCC arranges to save and restore only
 those registers known to the specific architecture variant being
@@ -110,7 +110,7 @@ intptr_t <var>buf</var>[5];
 
 <dl>
 <dt><a name="index-_005f_005fbuiltin_005fsetjmp"></a>Built-in Function: <em>int</em> <strong>__builtin_setjmp</strong> <em>(intptr_t *<var>buf</var>)</em></dt>
-<dd><p>This function saves the current stack context in <var>buf</var>.  
+<dd><p>This function saves the current stack context in <var>buf</var>.
 <code>__builtin_setjmp</code> returns 0 when returning directly,
 and 1 when returning from <code>__builtin_longjmp</code> using the same
 <var>buf</var>.
@@ -118,7 +118,7 @@ and 1 when returning from <code>__builtin_longjmp</code> using the same
 
 <dl>
 <dt><a name="index-_005f_005fbuiltin_005flongjmp"></a>Built-in Function: <em>void</em> <strong>__builtin_longjmp</strong> <em>(intptr_t *<var>buf</var>, int <var>val</var>)</em></dt>
-<dd><p>This function restores the stack context in <var>buf</var>, 
+<dd><p>This function restores the stack context in <var>buf</var>,
 saved by a previous call to <code>__builtin_setjmp</code>.  After
 <code>__builtin_longjmp</code> is finished, the program resumes execution as
 if the matching <code>__builtin_setjmp</code> returns the value <var>val</var>,

@@ -10,10 +10,10 @@ void __Tango_LogMessage(int msg, float data)
 {
     if(__TANGO_LOGGING_LEVEL<2)
         return;
-    
+
     int str[]="tango.zh: ";
     TraceS(str);
-    
+
     if(msg==__TANGO_MSG_LOAD_START)
     {
         int str2[]="loading text:\n%s\n";
@@ -46,13 +46,13 @@ void __Tango_LogError(int errorNum)
 {
     if(__TANGO_LOGGING_LEVEL<1)
         return;
-    
+
     if(__TANGO_ONSCREEN_NOTIFICATION!=0)
         __Tango_Data[__TDIDX_ERROR_NOTIFICATION]=300;
-    
+
     int str[]="tango.zh error: ";
     TraceS(str);
-    
+
     if(errorNum==__TANGO_ERROR_OVERFLOW)
         __Tango_LogOverflow();
     else if(errorNum==__TANGO_ERROR_TOO_MANY_ARGS)
@@ -69,13 +69,13 @@ void __Tango_LogError(int errorNum, float data)
 {
     if(__TANGO_LOGGING_LEVEL<1)
         return;
-    
+
     if(__TANGO_ONSCREEN_NOTIFICATION!=0)
         __Tango_Data[__TDIDX_ERROR_NOTIFICATION]=300;
-    
+
     int str[]="tango.zh error: ";
     TraceS(str);
-    
+
     if(errorNum==__TANGO_ERROR_INVALID_CHARACTER)
         __Tango_LogInvalidCharacter(data);
     else if(errorNum==__TANGO_ERROR_UNDEFINED_FUNCTION)
@@ -108,13 +108,13 @@ void __Tango_LogError(int errorNum, float data1, float data2)
 {
     if(__TANGO_LOGGING_LEVEL<1)
         return;
-    
+
     if(__TANGO_ONSCREEN_NOTIFICATION!=0)
         __Tango_Data[__TDIDX_ERROR_NOTIFICATION]=300;
-    
+
     int str[]="tango.zh error: ";
     TraceS(str);
-    
+
     if(errorNum==__TANGO_ERROR_SLOT_STATE_ARRAY_TOO_SMALL)
         __Tango_LogSlotStateArrayTooSmall(data1, data2);
     else if(errorNum==__TANGO_ERROR_MENU_STATE_ARRAY_TOO_SMALL)
@@ -146,7 +146,7 @@ void __Tango_LogTooManyArgs()
 {
     int str[]="More than %d arguments given to a function\n";
     printf(str, __TANGO_MAX_FUNCTION_ARGS);
-    
+
     int str2[]="(%d is the maximum, not necessarily the correct number)\n";
     printf(str2, __TANGO_MAX_FUNCTION_ARGS);
 }
@@ -156,7 +156,7 @@ void __Tango_LogInvalidStyle(float data)
     int str[]="Invalid style specified.";
     TraceS(str);
     TraceNL();
-    
+
     int numBuf[12];
     __Tango_FloatToASCII(numBuf, data, true);
     int str2[]="Style was %s; valid styles are integers from 0 to %d\n";
@@ -168,7 +168,7 @@ void __Tango_LogInvalidSlot(float data)
     int str2[]="Invalid slot specified.";
     TraceS(str2);
     TraceNL();
-    
+
     int dataBuf[12];
     __Tango_FloatToASCII(dataBuf, data, true);
     int str3[]="Slot was %s; valid slots are integers from 0 to %d\n";
@@ -180,7 +180,7 @@ void __Tango_LogInvalidFunction(int data)
     int str[]="The string contains an invalid or incomplete function call.";
     TraceS(str);
     TraceNL();
-    
+
     int str2[]="Error occurred at position %d\n";
     printf(str2, data);
 }
@@ -190,7 +190,7 @@ void __Tango_LogInvalidCharacterCode(int data)
     int str[]="The string contains an invalid or incomplete character code.";
     TraceS(str);
     TraceNL();
-    
+
     int str2[]="Error occurred at position %d\n";
     printf(str2, data);
 }
@@ -200,7 +200,7 @@ void __Tango_LogInvalidFunctionArg(int data)
     int str[]="The string contains an invalid function argument.";
     TraceS(str);
     TraceNL();
-    
+
     int str2[]="Error occurred at position %d\n";
     printf(str2, data);
 }
@@ -210,7 +210,7 @@ void __Tango_LogInvalidStringArg(float data)
     int str[]="The argument to @string() was not a valid string.";
     TraceS(str);
     TraceNL();
-    
+
     int numBuf[12];
     __Tango_FloatToASCII(numBuf, data, true);
     int str2[]="Pointer value was %s\n";
@@ -222,7 +222,7 @@ void __Tango_LogInvalidString(float data)
     int str[]="Attempted to load an invalid string.";
     TraceS(str);
     TraceNL();
-    
+
     int numBuf[12];
     __Tango_FloatToASCII(numBuf, data, true);
     int str2[]="Pointer value was %s\n";
@@ -234,7 +234,7 @@ void __Tango_LogInvalidMessage(float data)
     int str[]="Attempted to load an invalid message.";
     TraceS(str);
     TraceNL();
-    
+
     int numBuf[12];
     __Tango_FloatToASCII(numBuf, data, true);
     int str2[]="Message number was was %s\n";

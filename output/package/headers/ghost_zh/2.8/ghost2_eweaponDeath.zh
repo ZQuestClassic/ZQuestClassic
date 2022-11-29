@@ -101,7 +101,7 @@ void __DoEWeaponDeathAimAtLink(eweapon wpn)
         wpn->Step=300;
         wpn->Misc[__EWI_ON_DEATH]=0;
     }
-    
+
     // Spin while waiting
     else if(wpn->Angular)
     {
@@ -236,7 +236,7 @@ void __DoEWeaponDeathRunScript(eweapon wpn)
     ffc f;
     eweapon checkWpn;
     int minID;
-    
+
     // First, find a free FFC
     ffcID=FindUnusedFFC();
     if(ffcID==0)
@@ -246,7 +246,7 @@ void __DoEWeaponDeathRunScript(eweapon wpn)
         return;
     }
     f=Screen->LoadFFC(ffcID);
-    
+
     // Give the weapon an ID number so it can be found later
     for(int i=Screen->NumEWeapons(); i>0; i--)
     {
@@ -257,10 +257,10 @@ void __DoEWeaponDeathRunScript(eweapon wpn)
         minID=Min(minID, checkWpn->Misc[__EWI_ID]);
     }
     wpn->Misc[__EWI_ID]=minID-1;
-    
+
     // Set the death effect done flag so this doesn't repeat every frame
     wpn->Misc[__EWI_FLAGS]|=__EWFI_DEATH_EFFECT_DONE;
-    
+
     // Then run the script
     f->Data=GH_INVISIBLE_COMBO;
     f->X=CenterX(wpn)-8;

@@ -12,9 +12,7 @@ template<typename T>
 struct WidgetSetItem
 {
 	std::shared_ptr<T> widg;
-	
 	WidgetSetItem<T> *next, *prev;
-	
 	WidgetSetItem(std::shared_ptr<T>& widg, WidgetSetItem<T> *prev) :
 		widg(widg), next(NULL), prev(prev)
 	{}
@@ -50,7 +48,6 @@ struct WidgetSet
 			func(node->widg, ind++);
 		}
 	}
-	
 	std::shared_ptr<T>& operator[](int32_t offset)
 	{
 		//Assert: No '[]' on an empty WidgetSet
@@ -69,7 +66,6 @@ struct WidgetSet
 		}
 		return node->widg;
 	}
-	
 private:
 	size_t _size;
 	void deleteAll()

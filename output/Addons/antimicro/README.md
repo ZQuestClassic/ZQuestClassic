@@ -22,7 +22,7 @@ following GitHub users who have helped us make the transition:
 
 antimicro is a graphical program used to map keyboard keys and mouse controls
 to a gamepad. This program is useful for playing PC games using a gamepad that
-do not have any form of built-in gamepad support. However, you can use this 
+do not have any form of built-in gamepad support. However, you can use this
 program to control any desktop application with a gamepad; on Linux, this
 means that your system has to be running an X environment in order to run
 this program.
@@ -343,22 +343,22 @@ Travis Nickles <nickles.travis@gmail.com>
 
 ### Contributors
 
-Zerro Alvein  
-aybe  
-Jeff Backus <jeff@jsbackus.com>  
-Arthur Moore  
+Zerro Alvein
+aybe
+Jeff Backus <jeff@jsbackus.com>
+Arthur Moore
 Anton Tornqvist <antont@inbox.lv>
 
 ### Translators
 
-VaGNaroK <vagnarokalkimist@gmail.com> - Brazilian Portuguese  
-zzpxyx - Chinese  
-Belleguic Terence <hizo@free.fr> - French  
-Leonard Koenig <leonard.r.koenig@googlemail.com> - German  
-phob - German  
-tou omiya - Japanese  
-Dmitriy Koshel <form.eater@gmail.com> - Russian  
-Jay Alexander Fleming <tito.nehru.naser@gmail.com> - Serbian  
-burunduk - Ukrainian  
-Flavio HR <flavio.hrx@gmail.com> - Spanish  
-WAZAAAAA - wazaaaaa00<@>gmail<.>com - Italian  
+VaGNaroK <vagnarokalkimist@gmail.com> - Brazilian Portuguese
+zzpxyx - Chinese
+Belleguic Terence <hizo@free.fr> - French
+Leonard Koenig <leonard.r.koenig@googlemail.com> - German
+phob - German
+tou omiya - Japanese
+Dmitriy Koshel <form.eater@gmail.com> - Russian
+Jay Alexander Fleming <tito.nehru.naser@gmail.com> - Serbian
+burunduk - Ukrainian
+Flavio HR <flavio.hrx@gmail.com> - Spanish
+WAZAAAAA - wazaaaaa00<@>gmail<.>com - Italian

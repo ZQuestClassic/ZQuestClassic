@@ -71,10 +71,10 @@ eweapon FireEWeapon(int weaponID, int x, int y, float angle, int step, int damag
 {
     if(sprite<0)
         sprite=GetDefaultEWeaponSprite(weaponID);
-    
+
     if(sound<0)
         sound=GetDefaultEWeaponSound(weaponID);
-    
+
     eweapon wpn=Screen->CreateEWeapon(weaponID);
     wpn->X=x;
     wpn->Y=y;
@@ -82,22 +82,22 @@ eweapon FireEWeapon(int weaponID, int x, int y, float angle, int step, int damag
     wpn->Damage=damage;
     wpn->Angular=true;
     wpn->Angle=angle;
-    
+
     if(sprite>=0)
         wpn->UseSprite(sprite);
-    
+
     wpn->Misc[__EWI_FLAGS]=flags|__EWFI_IS_GHZH_EWPN;
-    
+
     SetEWeaponDir(wpn); // After flags so unblockability is detected
-    
+
     if((flags&EWF_NO_COLLISION)!=0)
         wpn->CollDetection=false;
-    
+
     if((wpn->Misc[__EWI_FLAGS]&EWF_ROTATE)!=0)
         SetEWeaponRotation(wpn);
-    
+
     Game->PlaySound(sound);
-    
+
     return wpn;
 }
 
@@ -114,22 +114,22 @@ eweapon FireNonAngularEWeapon(int weaponID, int x, int y, int dir, int step, int
 {
     if(sprite<0)
         sprite=GetDefaultEWeaponSprite(weaponID);
-    
+
     if(sound<0)
         sound=GetDefaultEWeaponSound(weaponID);
-    
+
     eweapon wpn=Screen->CreateEWeapon(weaponID);
     wpn->X=x;
     wpn->Y=y;
     wpn->Step=step;
     wpn->Damage=damage;
     wpn->Angular=false;
-    
+
     if((flags&EWF_UNBLOCKABLE)!=0)
         wpn->Dir=__UnblockableDir(dir);
     else
         wpn->Dir=dir;
-        
+
     if(sprite>=0)
         wpn->UseSprite(sprite);
 
@@ -138,9 +138,9 @@ eweapon FireNonAngularEWeapon(int weaponID, int x, int y, int dir, int step, int
 
     if((flags&EWF_ROTATE)!=0)
         SetEWeaponRotation(wpn);
-    
+
     wpn->Misc[__EWI_FLAGS]=flags|__EWFI_IS_GHZH_EWPN;
-    
+
     Game->PlaySound(sound);
     return wpn;
 }
@@ -195,7 +195,7 @@ eweapon CreateDummyEWeapon(int weaponID, int step, int damage, int sprite, int s
     wpn->Misc[__EWI_DUMMY_STEP]=step;
     wpn->Misc[__EWI_DUMMY_SOUND]=sound;
     wpn->Misc[__EWI_DUMMY_SPRITE]=sprite;
-    
+
     // Give the weapon a unique ID number so it can be found later
     for(int i=Screen->NumEWeapons(); i>0; i--)
     {
@@ -205,16 +205,16 @@ eweapon CreateDummyEWeapon(int weaponID, int step, int damage, int sprite, int s
         minID=Min(minID, checkWpn->Misc[__EWI_ID]);
     }
     wpn->Misc[__EWI_ID]=minID-1;
-    
+
     wpn->Misc[__EWI_FLAGS]=flags|__EWFI_IS_GHZH_EWPN|__EWFI_DUMMY;
-    
+
     wpn->CollDetection=false;
     wpn->DrawXOffset=32768;
-    
+
     // Move it to make sure it's not deleted
     wpn->X=32;
     wpn->Y=32;
-    
+
     return wpn;
 }
 
@@ -286,15 +286,15 @@ float __GetEWeaponThrowHeight(eweapon wpn)
     float step=wpn->Step/100;
     if(step<=0)
         return 1;
-    
+
     float dist=Distance(wpn->X+wpn->HitWidth/2, wpn->Y+wpn->HitHeight/2,
       Link->X+8, Link->Y+8);
     if(dist<1)
         return 1;
-    
+
     float travelTime=dist/step;
     float ret=0;
-    
+
     // Every increase in velocity of GH_GRAVITY means two frames in the air.
     // This might overshoot by a frame, but that's all right.
     while(ret<=GH_TERMINAL_VELOCITY)
@@ -304,7 +304,7 @@ float __GetEWeaponThrowHeight(eweapon wpn)
         if(travelTime<=0)
             return ret;
     }
-    
+
     // Needs to exceed terminal velocity. Slightly trickier here, because
     // an increase of GH_GRAVITY may mean more than two more frames in the air.
     float excess=0; // Distance left to fall after reaching TV
@@ -314,7 +314,7 @@ float __GetEWeaponThrowHeight(eweapon wpn)
         excess+=ret-GH_TERMINAL_VELOCITY;
         travelTime-=2;
     }
-    
+
     return ret;
 }
 
@@ -336,7 +336,7 @@ void SetEWeaponDeathEffect(eweapon wpn, int type, int arg)
         if(arg<1 || arg>511)
             type=EWD_VANISH;
     }
-    
+
     wpn->Misc[__EWI_ON_DEATH]=type;
     wpn->Misc[__EWI_ON_DEATH_ARG]=arg;
     wpn->Misc[__EWI_FLAGS]|=__EWFI_IS_GHZH_EWPN;
@@ -358,7 +358,7 @@ void UpdateEWeapon(eweapon wpn)
 {
     if((__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_SUSPEND)!=0)
         return;
-    
+
     // Needed for EWF_ROTATE_360
     int startX=wpn->X;
     int startY=wpn->Y;
@@ -404,7 +404,7 @@ void UpdateEWeapon(eweapon wpn)
                     __UpdateEWMDrift(wpn);
                     selfPropelled=false;
                 }
-		
+
                 else //EWM_DRIFT_WAIT
                 {
                     startX=wpn->Misc[__EWI_XPOS];
@@ -414,8 +414,8 @@ void UpdateEWeapon(eweapon wpn)
                 }
             }
         } // End movement updates
-        
-        
+
+
         // Start lifespan updates
         if(wpn->Misc[__EWI_LIFESPAN]!=0)
         {
@@ -483,7 +483,7 @@ void UpdateEWeapon(eweapon wpn)
                 __DoEWeaponDeathRunScript(wpn);
         }
     } // End death effects
-    
+
     // Start flags
 
     if((wpn->Misc[__EWI_FLAGS]&EWF_SHADOW)!=0)
@@ -491,31 +491,31 @@ void UpdateEWeapon(eweapon wpn)
         if(wpn->Z>0)
             DrawEWeaponShadow(wpn);
     }
-    
+
     if((wpn->Misc[__EWI_FLAGS]&EWF_ROTATE_360)!=0)
     {
         wpn->DrawXOffset=1000;
-        
+
         // Don't draw if Link is dead
         if(Link->HP<=0)
             return;
-        
+
         // Flickering? Nothing to do here.
         if((wpn->Misc[__EWI_FLAGS]&EWF_FLICKER)!=0 &&
            (__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_FLICKER)!=0)
             return;
-        
+
         float endX;
         float endY;
         float angle;
-        
+
         // Get the angle first
         if(wpn->Angular)
             angle=RadtoDeg(wpn->Angle);
         else
         {
             int dir=__NormalizeDir(wpn->Dir);
-            
+
             if(dir==DIR_UP)
                 angle=-90;
             else if(dir==DIR_RIGHTUP)
@@ -533,7 +533,7 @@ void UpdateEWeapon(eweapon wpn)
             else // DIR_LEFTUP
                 angle=-135;
         }
-        
+
         if(selfPropelled)
         {
             endX=wpn->X+wpn->Step/100*Cos(angle);
@@ -544,18 +544,18 @@ void UpdateEWeapon(eweapon wpn)
             endX=wpn->Misc[__EWI_XPOS];
             endY=wpn->Misc[__EWI_YPOS];
         }
-        
+
         // If the weapon's moving, use that angle instead of
         // wpn->Angle or wpn->Dir
         if(!(startX==endX && startY==endY))
             angle=Angle(startX, startY, endX, endY);
-        
+
         int flip;
         if(angle>=0 && angle<180)
             flip=0;
         else
             flip=2;
-        
+
         // Currently, these are always drawn on layer 4.
         // That should probably be changed...
         Screen->DrawTile(4, endX, endY-wpn->Z, wpn->Tile,
@@ -572,11 +572,11 @@ void UpdateEWeapon(eweapon wpn)
             else
                 wpn->DrawXOffset=0;
         }
-        
+
         if((wpn->Misc[__EWI_FLAGS]&EWF_ROTATE)!=0)
             SetEWeaponRotation(wpn);
     }
-    
+
     if((wpn->Misc[__EWI_FLAGS]&EWF_FAKE_Z)!=0 || __GH_FAKE_EWEAPON_Z!=0)
     {
         // For some reason, DrawZOffset is also HitZOffset,
@@ -585,7 +585,7 @@ void UpdateEWeapon(eweapon wpn)
         wpn->HitYOffset=-wpn->Z;
         wpn->DrawYOffset=-wpn->Z;
     }
-    
+
     // End flags
 }
 
@@ -598,28 +598,28 @@ void __UpdateEWeaponVisualFlags(eweapon wpn)
         if(wpn->Z>0)
             DrawEWeaponShadow(wpn);
     }
-    
+
     if((wpn->Misc[__EWI_FLAGS]&EWF_ROTATE_360)!=0)
     {
         wpn->DrawXOffset=1000;
-        
+
         // Flickering? Nothing to do here.
         if((wpn->Misc[__EWI_FLAGS]&EWF_FLICKER)!=0 &&
            (__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_FLICKER)!=0)
             return;
-        
+
         // This works a little differently than in UpdateEWeapon(). Since
         // movement isn't updating normally, the angle or direction are
         // always used. It's not perfect, but it'll have to do.
-        
+
         float angle;
-        
+
         if(wpn->Angular)
             angle=RadtoDeg(wpn->Angle);
         else
         {
             int dir=__NormalizeDir(wpn->Dir);
-            
+
             if(dir==DIR_UP)
                 angle=-90;
             else if(dir==DIR_RIGHTUP)
@@ -637,13 +637,13 @@ void __UpdateEWeaponVisualFlags(eweapon wpn)
             else // DIR_LEFTUP
                 angle=-135;
         }
-        
+
         int flip;
         if(angle>=0 && angle<180)
             flip=0;
         else
             flip=2;
-        
+
         // Currently, these are always drawn on layer 4.
         // That should probably be changed...
         Screen->DrawTile(4, wpn->X, wpn->Y-wpn->Z, wpn->Tile, 1, 1, wpn->CSet,
@@ -659,7 +659,7 @@ void __UpdateEWeaponVisualFlags(eweapon wpn)
             else
                 wpn->DrawXOffset=0;
         }
-        
+
         if((wpn->Misc[__EWI_FLAGS]&EWF_ROTATE)!=0)
             SetEWeaponRotation(wpn);
     }
@@ -671,10 +671,10 @@ void SetEWeaponDir(eweapon wpn)
 {
     float angle=wpn->Angle%6.2832;
     int dir;
-    
+
     if(angle<0)
         angle+=6.2832;
-    
+
     if(angle<0.3927 || angle>5.8905)
         dir=DIR_RIGHT;
     else if(angle<1.1781)
@@ -691,10 +691,10 @@ void SetEWeaponDir(eweapon wpn)
         dir=DIR_UP;
     else
         dir=DIR_RIGHTUP;
-    
+
     if((wpn->Misc[__EWI_FLAGS]&EWF_UNBLOCKABLE)!=0)
         dir=__UnblockableDir(dir);
-    
+
     wpn->Dir=dir;
 }
 
@@ -759,7 +759,7 @@ void DrawEWeaponShadow(eweapon wpn)
 {
     if(GH_SHADOW_FLICKER>0 && (__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_FLICKER)!=0)
         return;
-    
+
     int x=CenterX(wpn)-8+wpn->DrawXOffset;
     int y=wpn->Y+(wpn->TileHeight-1)*16+wpn->DrawYOffset-wpn->DrawZOffset;
 
@@ -855,7 +855,7 @@ int GetDefaultEWeaponSound(int weaponID)
 eweapon GetAssociatedEWeapon(int weaponID)
 {
     eweapon wpn;
-    
+
     for(int i=Screen->NumEWeapons(); i>0; i--)
     {
         wpn=Screen->LoadEWeapon(i);
@@ -865,7 +865,7 @@ eweapon GetAssociatedEWeapon(int weaponID)
         if(wpn->Misc[__EWI_ID]==weaponID)
             return wpn;
     }
-    
+
     // Couldn't find it; return an uninitialized weapon
     eweapon invalidWpn;
     return invalidWpn;
@@ -959,7 +959,7 @@ int __UnblockableDir(int dir)
         return 13;
     if(dir==DIR_RIGHTDOWN)
         return 11;
-    
+
     // Should never get here
     return dir;
 }

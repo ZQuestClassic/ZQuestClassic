@@ -4,7 +4,7 @@ Zelda Classic is a game and editing tool that lets you create custom Legend of Z
 Homepage:
 http://zeldaclassic.com
 
-The homepage contains information about the latest release, links to the latest binaries, and a repository of custom quests for you to enjoy. 
+The homepage contains information about the latest release, links to the latest binaries, and a repository of custom quests for you to enjoy.
 
 [Latest Downloads](http://zeldaclassic.com/downloads), [Our Discord](https://discord.gg/ddk2dk4guq)
 
@@ -26,7 +26,7 @@ You may need to tweak the configuration settings for other platforms.
  - the zcsound library, which is used by all the other binaries;
  - zelda, the Zelda Classic player;
  - zquest, the Zelda Classic level editor;
- 
+
 The included build scripts will build all targets.
 
 **3))** Included in this repository are pre-built libraries for many of ZC's dependencies, including several Allegro add-on libraries for handling sound. These binaries are included for the most common platforms for convenience of the developers, but if you are using a different operating system or toolchain you may need to rebuild these binaries from source. There are (currently) no automated scripts for doing this, but the source packages are included in the `/other` directory.

@@ -17,7 +17,6 @@ std::shared_ptr<GUI::Widget> VidModeDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	char resbuf[32];
 	resx = al_get_display_width(all_get_display());
 	resy = al_get_display_height(all_get_display());
@@ -28,7 +27,7 @@ std::shared_ptr<GUI::Widget> VidModeDialog::view()
 		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
-			hPadding = 0_px, 
+			hPadding = 0_px,
 			Label(text = resbuf),
 			Row(
 				Label(text = "New Res:"),
@@ -134,7 +133,6 @@ bool VidModeDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			al_get_window_position(all_get_display(), &o_x, &o_y);
 			int o_w = al_get_display_width(all_get_display()),
 			    o_h = al_get_display_height(all_get_display());
-			
 			int cx = o_x + (o_w/2), cy = o_y + (o_h/2);
 			int nx = cx - (resx/2), ny = cy - (resy/2);
 			if(nx < 0) nx = 0;

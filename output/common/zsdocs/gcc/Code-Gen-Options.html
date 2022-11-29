@@ -338,18 +338,18 @@ Use it to conform to a non-default application binary interface.
 <dd><a name="index-fno_002dcommon"></a>
 <a name="index-fcommon"></a>
 <a name="index-tentative-definitions"></a>
-<p>In C code, this option controls the placement of global variables 
-defined without an initializer, known as <em>tentative definitions</em> 
-in the C standard.  Tentative definitions are distinct from declarations 
+<p>In C code, this option controls the placement of global variables
+defined without an initializer, known as <em>tentative definitions</em>
+in the C standard.  Tentative definitions are distinct from declarations
 of a variable with the <code>extern</code> keyword, which do not allocate storage.
 </p>
 <p>Unix C compilers have traditionally allocated storage for
 uninitialized global variables in a common block.  This allows the
 linker to resolve all tentative definitions of the same variable
 in different compilation units to the same object, or to a non-tentative
-definition.  
-This is the behavior specified by <samp>-fcommon</samp>, and is the default for 
-GCC on most targets.  
+definition.
+This is the behavior specified by <samp>-fcommon</samp>, and is the default for
+GCC on most targets.
 On the other hand, this behavior is not required by ISO
 C, and on some targets may carry a speed or code size penalty on
 variable references.
@@ -357,7 +357,7 @@ variable references.
 <p>The <samp>-fno-common</samp> option specifies that the compiler should instead
 place uninitialized global variables in the BSS section of the object file.
 This inhibits the merging of tentative definitions by the linker so
-you get a multiple-definition error if the same 
+you get a multiple-definition error if the same
 variable is defined in more than one compilation unit.
 Compiling with <samp>-fno-common</samp> is useful on targets for which
 it provides better performance, or if you wish to verify that the
@@ -546,7 +546,7 @@ This leads to more efficient code by eliminating PLT stubs and exposing
 GOT loads to optimizations.  On architectures such as 32-bit x86 where
 PLT stubs expect the GOT pointer in a specific register, this gives more
 register allocation freedom to the compiler.
-Lazy binding requires use of the PLT; 
+Lazy binding requires use of the PLT;
 with <samp>-fno-plt</samp> all external symbols are resolved at load time.
 </p>
 <p>Alternatively, the function attribute <code>noplt</code> can be used to avoid calls
@@ -761,10 +761,10 @@ instruction, even though that accesses bytes that do not contain
 any portion of the bit-field, or memory-mapped registers unrelated to
 the one being updated.
 </p>
-<p>In some cases, such as when the <code>packed</code> attribute is applied to a 
+<p>In some cases, such as when the <code>packed</code> attribute is applied to a
 structure field, it may not be possible to access the field with a single
 read or write that is correctly aligned for the target machine.  In this
-case GCC falls back to generating multiple accesses rather than code that 
+case GCC falls back to generating multiple accesses rather than code that
 will fault or truncate the result at run time.
 </p>
 <p>Note:  Due to restrictions of the C/C++11 memory model, write accesses are

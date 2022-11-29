@@ -13,7 +13,6 @@ struct scr_func_exec
 	int32_t type, i;
 	word script;
 	std::string name;
-	
 	scr_func_exec(){clear();}
 	void clear();
 	void execute();
@@ -27,16 +26,12 @@ struct user_object
 	std::vector<int32_t> data;
 	size_t owned_vars;
 	scr_func_exec destruct;
-	
 	user_object() : reserved(false), owned_type(-1), owned_i(0),
 		owned_vars(0)
 	{}
-	
 	void prep(dword pc, int32_t type, word script, int32_t i);
-	
 	void clear(bool destructor = true);
 	user_object& operator=(user_object const& other);
-	
 	void disown()
 	{
 		owned_type = -1;
@@ -48,7 +43,6 @@ struct user_object
 	{
 		return owned_type == -1 && owned_i == 0;
 	}
-	
 	void own(int32_t type, int32_t i)
 	{
 		owned_type = type;

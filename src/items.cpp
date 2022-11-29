@@ -59,14 +59,12 @@ bool item::animate(int32_t)
 		{
 			if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
 			if(!--fallclk) return true;
-			
 			wpndata& spr = wpnsbuf[QMisc.sprites[sprFALL]];
 			cs = spr.csets & 0xF;
 			int32_t fr = spr.frames ? spr.frames : 1;
 			int32_t spd = spr.speed ? spr.speed : 1;
 			int32_t animclk = (PITFALL_FALL_FRAMES-fallclk);
 			tile = spr.tile + zc_min(animclk / spd, fr-1);
-			
 			// run_script(MODE_NORMAL);
 			solid_update(false);
 			return false;
@@ -76,8 +74,7 @@ bool item::animate(int32_t)
 			//if(drownclk == WATER_DROWN_FRAMES && drownCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
 			//!TODO: Drown SFX
 			if(!--drownclk) return true;
-			
-			if (drownCombo && combobuf[drownCombo].usrflags&cflag1) 
+			if (drownCombo && combobuf[drownCombo].usrflags&cflag1)
 			{
 				wpndata &spr = wpnsbuf[QMisc.sprites[sprLAVADROWN]];
 				cs = spr.csets & 0xF;
@@ -86,7 +83,7 @@ bool item::animate(int32_t)
 				int32_t animclk = (WATER_DROWN_FRAMES-drownclk);
 				tile = spr.tile + zc_min(animclk / spd, fr-1);
 			}
-			else 
+			else
 			{
 				wpndata &spr = wpnsbuf[QMisc.sprites[sprDROWN]];
 				cs = spr.csets & 0xF;
@@ -95,9 +92,7 @@ bool item::animate(int32_t)
 				int32_t animclk = (WATER_DROWN_FRAMES-drownclk);
 				tile = spr.tile + zc_min(animclk / spd, fr-1);
 			}
-			
 			// run_script(MODE_NORMAL);
-			
 			solid_update(false);
 			return false;
 		}
@@ -107,8 +102,8 @@ bool item::animate(int32_t)
 					(can_drop(x,y) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
 					||
 					(can_drop(x,y) && ipDUMMY && linked_parent == eeGANON ) //Ganon's dust pile
-				) 
-				&& 
+				)
+				&&
 				( moveflags & FLAG_OBEYS_GRAV ) //if the user set item->Gravity = false, let it float. -Z
 			)
 			{
@@ -131,7 +126,6 @@ bool item::animate(int32_t)
 				if (!(moveflags & FLAG_NO_FAKE_Z))
 				{
 					fakez-=fakefall/100;
-				
 					if(fakez<0)
 					{
 						fakez = 0;
@@ -150,7 +144,6 @@ bool item::animate(int32_t)
 				if (!(moveflags & FLAG_NO_REAL_Z))
 				{
 					z-=fall/100;
-					
 					if(z<0)
 					{
 						z = 0;
@@ -183,18 +176,15 @@ bool item::animate(int32_t)
 			}
 		}
 	}
-	
 	// Maybe it fell off the bottom in sideview, or was moved by a script.
 	if(y>352 || y<-176 || x<-256 || x > 512)
 	{
 		return true;
 	}
-	
 	if((++clk)>=0x8000)
 	{
 		clk=0x7000;
 	}
-	
 	itemdata const* itm = &itemsbuf[id];
 	if(itm->family == itype_progressive_itm)
 	{
@@ -211,11 +201,9 @@ bool item::animate(int32_t)
 		if(id2 > -1)
 			itm = &itemsbuf[id2];
 	}
-	
 	if(flash)
 	{
 		cs = o_cset;
-		
 		if(frame&8)
 		{
 			cs >>= 4;
@@ -225,26 +213,21 @@ bool item::animate(int32_t)
 			cs &= 15;
 		}
 	}
-	
 	if(do_animation && ((get_bit(quest_rules, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES) ? (anim) : (frames>0)) || itm->family==itype_bottle))
 	{
 		int32_t spd = o_speed;
-		
 		if(aframe==0)
 		{
 			spd *= o_delay+1;
 		}
-		
 		if(++aclk >= spd)
 		{
 			aclk=0;
-			
 			if(++aframe >= frames)
 			{
 				aframe=0;
 			}
 		}
-		
 		//tile = o_tile + aframe;
 		if(extend > 2)
 		{
@@ -273,17 +256,14 @@ bool item::animate(int32_t)
 		}
 #endif
 	}
-	
 	if(itemsbuf[id].family == itype_fairy && itemsbuf[id].misc3)
 	{
 		movefairynew(x,y,*this);
 	}
-	
 	if(fadeclk==0 && !subscreenItem)
 	{
 		return true;
 	}
-	
 	if(pickup&ipTIMER)
 	{
 		if(++clk2 == 512)
@@ -291,7 +271,6 @@ bool item::animate(int32_t)
 			return true;
 		}
 	}
-	
 	return false;
 }
 
@@ -299,7 +278,6 @@ void item::draw(BITMAP *dest)
 {
 	if(pickup&ipNODRAW || tile==0 || force_grab)
 		return;
-		
 	if ( (z > 0 || fakez > 0) && get_bit(quest_rules, qr_ITEMSHADOWS) )
 	{
 		shadowtile = wpnsbuf[spr_shadow].tile+aframe;
@@ -333,16 +311,14 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	pickupexstate = -1;
 
 	#ifndef IS_ZQUEST
-	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_ITEM); //This is used by child npcs. 
-	//Sadly, this also stores UIDs for all dummy objects, including subscreen and other stuff. 
-	//if ( !isDummy && ( pickup == 0x100 || pickup <= 0 || pickup == 0x002 || pickup == 0x004 && pickup == 0x800 ) ) script_UID = FFCore.GetScriptObjectUID(UID_TYPE_ITEM); //This is used by child npcs. 
+	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_ITEM); //This is used by child npcs.
+	//Sadly, this also stores UIDs for all dummy objects, including subscreen and other stuff.
+	//if ( !isDummy && ( pickup == 0x100 || pickup <= 0 || pickup == 0x002 || pickup == 0x004 && pickup == 0x800 ) ) script_UID = FFCore.GetScriptObjectUID(UID_TYPE_ITEM); //This is used by child npcs.
 	//if it is on the screen
-	//if ( x > 0 && x < 256 && y > 56 && y < 256 && !isDummy && ( pickup == 0x100 || pickup == 0 || pickup == 0x002 || pickup == 0x004 && pickup == 0x800 ) ) script_UID = FFCore.GetScriptObjectUID(UID_TYPE_ITEM); //This is used by child npcs. 
+	//if ( x > 0 && x < 256 && y > 56 && y < 256 && !isDummy && ( pickup == 0x100 || pickup == 0 || pickup == 0x002 || pickup == 0x004 && pickup == 0x800 ) ) script_UID = FFCore.GetScriptObjectUID(UID_TYPE_ITEM); //This is used by child npcs.
 	#endif
-	
 	if(id<0 || id>iMax) //>, not >= for dummy items such as the HC Piece display in the subscreen
 		return;
-		 
 	o_tile = itm.tile;
 	tile = itm.tile;
 	cs = itm.csets&15;
@@ -353,15 +329,14 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	flip = itm.misc_flags>>2;
 	family = itm.family;
 	lvl = itm.fam_type;
-	overrideFLAGS = itm.overrideFLAGS; 
+	overrideFLAGS = itm.overrideFLAGS;
 	pstring = itm.pstring;
 	pickup_string_flags = itm.pickup_string_flags;
 	linked_parent = family == itype_progressive_itm ? -1 : 0;
 	moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
 	for ( int32_t q = 0; q < 8; q++ ) initD[q] = itm.initiald[q];
-	
 	//if ( itm.overrideFLAGS&itemdataOVERRIDE_PICKUP ) pickup = itm.pickup;
-	switch (itm.pickupflag) 
+	switch (itm.pickupflag)
 	{
 		case 1:
 			pickup = itm.pickup;
@@ -378,15 +353,11 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 		default:
 			break;
 	}
-	
 	if(itm.misc_flags&1)
 		flash=true;
-		
 	if(itm.misc_flags&2)
 		twohand=true;
-		
 	anim = itm.frames>0;
-	
 	if(pickup&ipBIGRANGE)
 	{
 		hxofs=-8;
@@ -407,22 +378,19 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 		hyofs=4;
 		hysz=12;
 	}
-	
 	if(!isDummy && itm.family == itype_fairy && itm.misc3)
 	{
 		misc = ++fairy_cnt;
-		
 		if(addfairynew(x, y, itm.misc3, *this))
 			sfx(itm.usesound);
 	}
-	
 	/*for(int32_t j=0;j<8;j++)
 	{
 	  if(j<2) a[j]=itm.initiala[j]*10000;
 	  d[j]=itm.initiald[j];
 	}*/
 	if ( itm.overrideFLAGS > 0 ) {
-		extend = 3; 
+		extend = 3;
 		if ( itm.overrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itm.tilew;}
 		if ( itm.overrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itm.tileh;}
 		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itm.hxsz;}
@@ -431,7 +399,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itm.hxofs;}
 		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itm.hyofs;}
 		if ( itm.overrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itm.xofs;}
-		if ( itm.overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itm.yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);} 
+		if ( itm.overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itm.yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 		/* yofs+playing_field_offset == yofs+56.
 		It is needed for the passive subscreen offset.
 		*/
@@ -446,9 +414,8 @@ void putitem(BITMAP *dest,int32_t x,int32_t y,int32_t item_id)
 {
 	item temp((zfix)x,(zfix)y,(zfix)0,item_id,0,0);
 	temp.yofs=0;
-	
 	if ( itemsbuf[item_id].overrideFLAGS > 0 ) {
-		temp.extend = 3; 
+		temp.extend = 3;
 		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { temp.txsz = itemsbuf[item_id].tilew;}
 		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){temp.tysz = itemsbuf[item_id].tileh;}
 		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) { temp.hxsz = itemsbuf[item_id].hxsz;}
@@ -478,16 +445,13 @@ void item::load_gfx(itemdata const& itm)
 	if(do_animation && ((get_bit(quest_rules, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES) ? (anim) : (frames>0))||itm.family==itype_bottle))
 	{
 		int32_t spd = o_speed;
-		
 		if(aframe==0)
 		{
 			spd *= o_delay+1;
 		}
-		
 		if(aclk >= spd)
 		{
 			aclk=0;
-			
 			if(++aframe >= frames)
 			{
 				aframe=0;
@@ -497,7 +461,6 @@ void item::load_gfx(itemdata const& itm)
 		{
 			aframe=0;
 		}
-		
 		//tile = o_tile + aframe;
 		if(extend > 2)
 		{
@@ -535,7 +498,6 @@ int32_t get_progressive_item(itemdata const& itm, bool lastOwned)
 		if(unsigned(id) >= MAXITEMS)
 			continue;
 		lastid = id;
-		
 		//Skip items that are owned as 'Equipment Item's
 		if(game->get_item(id))
 			continue;
@@ -553,7 +515,6 @@ int32_t get_progressive_item(itemdata const& itm, bool lastOwned)
 				if(game->get_maxcounter(hcitem.count) >= hcitem.max)
 					continue;
 		}
-		
 		if(lastOwned) return lastid;
 		return id;
 	}
@@ -572,7 +533,6 @@ void putitem2(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t &aclk, i
 	temp.yofs=0;
 	temp.aclk=aclk;
 	temp.aframe=aframe;
-	
 	if(flash)
 	{
 		temp.flash=(flash != 0);
@@ -588,8 +548,7 @@ void putitem2(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t &aclk, i
 		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) {temp.hyofs = itemsbuf[item_id].hyofs;}
 		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) {temp.xofs = itemsbuf[item_id].xofs;}
 		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) { temp.yofs = itemsbuf[item_id].yofs; }
-	}	    
-	
+	}
 	temp.animate(0);
 	temp.draw(dest);
 	aclk=temp.aclk;
@@ -610,19 +569,19 @@ void removeItemsOfFamily(gamedata *g, itemdata *items, int32_t family)
 		if(items[i].family == family)
 		{
 			g->set_item_no_flush(i,false);
-			if ( game->forced_bwpn == i ) 
+			if ( game->forced_bwpn == i )
 			{
 				game->forced_bwpn = -1;
 			} //not else if! -Z
-			if ( game->forced_awpn == i ) 
+			if ( game->forced_awpn == i )
 			{
 				game->forced_awpn = -1;
 			}
-			if ( game->forced_xwpn == i ) 
+			if ( game->forced_xwpn == i )
 			{
 				game->forced_xwpn = -1;
 			}
-			if ( game->forced_ywpn == i ) 
+			if ( game->forced_ywpn == i )
 			{
 				game->forced_ywpn = -1;
 			}
@@ -638,19 +597,19 @@ void removeLowerLevelItemsOfFamily(gamedata *g, itemdata *items, int32_t family,
 		if(items[i].family == family && items[i].fam_type < level)
 		{
 			g->set_item_no_flush(i, false);
-			if ( game->forced_bwpn == i ) 
+			if ( game->forced_bwpn == i )
 			{
 				game->forced_bwpn = -1;
 			} //not else if! -Z
-			if ( game->forced_awpn == i ) 
+			if ( game->forced_awpn == i )
 			{
 				game->forced_awpn = -1;
 			}
-			if ( game->forced_xwpn == i ) 
+			if ( game->forced_xwpn == i )
 			{
 				game->forced_xwpn = -1;
 			}
-			if ( game->forced_ywpn == i ) 
+			if ( game->forced_ywpn == i )
 			{
 				game->forced_ywpn = -1;
 			}
@@ -666,19 +625,19 @@ void removeItemsOfFamily(zinitdata *z, itemdata *items, int32_t family)
 		if(items[i].family == family)
 		{
 			z->items[i]=false;
-			if ( game->forced_bwpn == i ) 
+			if ( game->forced_bwpn == i )
 			{
 				game->forced_bwpn = -1;
 			} //not else if! -Z
-			if ( game->forced_awpn == i ) 
+			if ( game->forced_awpn == i )
 			{
 				game->forced_awpn = -1;
 			}
-			if ( game->forced_xwpn == i ) 
+			if ( game->forced_xwpn == i )
 			{
 				game->forced_xwpn = -1;
 			}
-			if ( game->forced_ywpn == i ) 
+			if ( game->forced_ywpn == i )
 			{
 				game->forced_ywpn = -1;
 			}
@@ -690,7 +649,6 @@ int32_t getHighestLevelOfFamily(zinitdata *source, itemdata *items, int32_t fami
 {
 	int32_t result = -1;
 	int32_t highestlevel = -1;
-	
 	for(int32_t i=0; i<MAXITEMS; i++)
 	{
 		if(items[i].family == family && source->items[i])
@@ -702,7 +660,6 @@ int32_t getHighestLevelOfFamily(zinitdata *source, itemdata *items, int32_t fami
 			}
 		}
 	}
-	
 	return result;
 }
 
@@ -710,7 +667,6 @@ int32_t getHighestLevelOfFamily(gamedata *source, itemdata *items, int32_t famil
 {
 	int32_t result = -1;
 	int32_t highestlevel = -1;
-	
 	for(int32_t i=0; i<MAXITEMS; i++)
 	{
 		if(items[i].family == family && source->get_item(i) && (checkenabled?(!(source->items_off[i])):1))
@@ -722,7 +678,6 @@ int32_t getHighestLevelOfFamily(gamedata *source, itemdata *items, int32_t famil
 			}
 		}
 	}
-	
 	return result;
 }
 
@@ -730,7 +685,6 @@ int32_t getHighestLevelEvenUnowned(itemdata *items, int32_t family)
 {
 	int32_t result = -1;
 	int32_t highestlevel = -1;
-	
 	for(int32_t i=0; i<MAXITEMS; i++)
 	{
 		if(items[i].family == family)
@@ -742,20 +696,17 @@ int32_t getHighestLevelEvenUnowned(itemdata *items, int32_t family)
 			}
 		}
 	}
-	
 	return result;
 }
 
 int32_t getItemID(itemdata *items, int32_t family, int32_t level)
 {
 	if(level<0) return getCanonicalItemID(items, family);
-	
 	for(int32_t i=0; i<MAXITEMS; i++)
 	{
 		if(items[i].family == family && items[i].fam_type == level)
 			return i;
 	}
-	
 	return -1;
 }
 
@@ -766,7 +717,6 @@ int32_t getItemIDPower(itemdata *items, int32_t family, int32_t power)
 		if(items[i].family == family && items[i].power == power)
 			return i;
 	}
-	
 	return -1;
 }
 
@@ -775,7 +725,6 @@ int32_t getCanonicalItemID(itemdata *items, int32_t family)
 {
 	int32_t lowestid = -1;
 	int32_t lowestlevel = -1;
-	
 	for(int32_t i=0; i<MAXITEMS; i++)
 	{
 		if(items[i].family == family && (items[i].fam_type < lowestlevel || lowestlevel == -1))
@@ -784,7 +733,6 @@ int32_t getCanonicalItemID(itemdata *items, int32_t family)
 			lowestid = i;
 		}
 	}
-	
 	return lowestid;
 }
 
@@ -795,7 +743,6 @@ void addOldStyleFamily(zinitdata *dest, itemdata *items, int32_t family, char le
 		if(levels & (1<<i))
 		{
 			int32_t id = getItemID(items, family, i+1);
-			
 			if(id != -1)
 				dest->items[id]=true;
 		}
@@ -805,7 +752,6 @@ void addOldStyleFamily(zinitdata *dest, itemdata *items, int32_t family, char le
 int32_t computeOldStyleBitfield(zinitdata *source, itemdata *items, int32_t family)
 {
 	int32_t rval=0;
-	
 	for(int32_t i=0; i<MAXITEMS; i++)
 	{
 		if(items[i].family == family && source->items[i])
@@ -814,7 +760,6 @@ int32_t computeOldStyleBitfield(zinitdata *source, itemdata *items, int32_t fami
 				rval |= 1<<(items[i].fam_type-1);
 		}
 	}
-	
 	return rval;
 }
 

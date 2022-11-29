@@ -56,16 +56,12 @@ private:
     //unique sprite ID
     //given upon construction
     int32_t uid;
-    
 public:
 	void unget_UID();
     int32_t getUID()
     {
         return uid;
     }
-    
-   
-    
     zfix z,fall,fakefall,fakez;
     int32_t tile,shadowtile,cs,flip,c_clk,clk,misc;
     zfix xofs,yofs,zofs;
@@ -110,7 +106,7 @@ public:
     signed char scriptflip;
     byte do_animation;
     int32_t rotation;
-    int32_t scale; 
+    int32_t scale;
     dword moveflags;
     byte drawflags;
 	byte knockbackflags;
@@ -130,16 +126,12 @@ public:
 	int32_t drownCombo; // Pitfall fallen combo
 	bool isspawning;
 	bool can_flicker;
-	
 	byte spr_shadow, spr_death, spr_spawn;
 	int16_t spr_death_anim_clk, spr_spawn_anim_clk;
 	byte spr_death_anim_frm, spr_spawn_anim_frm;
-	
 	byte glowRad, glowShape;
 	bool switch_hooked;
-	
 	int32_t ignore_delete;
-    
     sprite();
     sprite(sprite const & other);
     sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t Yofs);
@@ -168,8 +160,6 @@ public:
     virtual bool hit(sprite *s);
     virtual bool hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
     virtual bool hit(int32_t tx,int32_t ty,int32_t txsz,int32_t tysz);
-    
-    
     virtual int32_t hitdir(int32_t tx,int32_t ty,int32_t txsz,int32_t tysz,int32_t dir);
     virtual void move(zfix dx,zfix dy);
     virtual void move(zfix s);
@@ -178,9 +168,7 @@ public:
     void explode(int32_t mode);
 	bool getCanFlicker();
 	void setCanFlicker(bool v);
-	
 	void alloc_scriptmem();
-	
 	virtual int32_t run_script(int32_t mode);
 };
 
@@ -208,10 +196,8 @@ class sprite_list
     // Cache requests from scripts
     mutable int32_t lastUIDRequested;
     mutable sprite* lastSpriteRequested;
-    
 public:
     sprite_list();
-    
     sprite *getByUID(int32_t uid);
     void clear(bool force = false);
     sprite *spr(int32_t index);
@@ -256,7 +242,6 @@ public:
     int32_t idNth(int32_t id, int32_t n);
     // returns index of last sprite with matching id, -1 if none found
     int32_t idLast(int32_t id);
-    
 private:
 
     void checkConsistency(); //for debugging
@@ -278,7 +263,6 @@ public:
 	byte blockLayer;
 	zfix step;
 	bool force_many;
-    
     movingblock();
 	void clear();
 	void set(int32_t X, int32_t Y, int32_t combo, int32_t cset, int32_t layer, int32_t placedfl);
@@ -304,11 +288,9 @@ public:
 	int32_t dropitem, breaktimer, fromdropset;
 	int8_t breaksprtype;
 	byte breaksfx,breakspr;
-	
 	breakable(zfix X, zfix Y, zfix Z, newcombo const& cmb, int32_t cset);
 	breakable(zfix X, zfix Y, zfix Z, newcombo const& cmb, int32_t cset, int32_t dropitem,
 		int32_t fromdropset, byte breaksfx, int8_t breaksprtype, byte breakspr, int32_t breaktimer);
-	
 	virtual bool animate(int32_t);
 };
 

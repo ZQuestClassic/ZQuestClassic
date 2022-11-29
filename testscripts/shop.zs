@@ -15,7 +15,7 @@ ffc script Automatic_Z3_Shop
 {
 	void run(int shop_id)
 	{
-		item shopitems[3]; 
+		item shopitems[3];
 		shopdata sd = Game->LoadShopData(shop_id);
 		for ( int q = 0; q < 176; ++q )
 		{
@@ -39,7 +39,7 @@ ffc script Automatic_Z3_Shop
 				shopitems[1]->HitXOffset = -32768;
 				shopitems[1]->PString = sd->String[1];
 				shopitems[1]->PStringFlags |= 0x04;
-				
+
 			}
 			if ( Screen->ComboF[q] == FLAG_SHOP_ITEM_3 )
 			{
@@ -54,32 +54,32 @@ ffc script Automatic_Z3_Shop
 		}
 		while(1)
 		{
-			
+
 			//Draw the prices
 			Screen->DrawString( SHOP_STRING_LAYER, shopitems[0]->X+SHOP_PRICE_X_OFFSET+SHOP_STRING_SHADOW_X_OFFSET,
 				shopitems[0]->Y+SHOP_PRICE_Y_OFFSET+SHOP_STRING_SHADOW_Y_OFFSET, FONT_Z3_SMALL, SHOP_STRING_BG_COLOUR,
 				0, 0, Game->GetMessage(sd->String[0]), OP_OPAQUE);
-				
+
 			Screen->DrawString( SHOP_STRING_LAYER, shopitems[0]->X+SHOP_PRICE_X_OFFSET,
 				shopitems[0]->Y+SHOP_PRICE_Y_OFFSET, FONT_Z3_SMALL, SHOP_STRING_FG_COLOUR,
 				0, 0, Game->GetMessage(sd->String[0]), OP_OPAQUE);
-			
+
 			Screen->DrawString( SHOP_STRING_LAYER, shopitems[1]->X+SHOP_PRICE_X_OFFSET+SHOP_STRING_SHADOW_X_OFFSET,
 				shopitems[0]->Y+SHOP_PRICE_Y_OFFSET+SHOP_STRING_SHADOW_Y_OFFSET, FONT_Z3_SMALL, SHOP_STRING_BG_COLOUR,
 				0, 0, Game->GetMessage(sd->String[1]), OP_OPAQUE);
-				
+
 			Screen->DrawString( SHOP_STRING_LAYER, shopitems[1]->X+SHOP_PRICE_X_OFFSET,
 				shopitems[0]->Y+SHOP_PRICE_Y_OFFSET, FONT_Z3_SMALL, SHOP_STRING_FG_COLOUR,
 				0, 0, Game->GetMessage(sd->String[1]), OP_OPAQUE);
-				
+
 			Screen->DrawString( SHOP_STRING_LAYER, shopitems[2]->X+SHOP_PRICE_X_OFFSET+SHOP_STRING_SHADOW_X_OFFSET,
 				shopitems[0]->Y+SHOP_PRICE_Y_OFFSET+SHOP_STRING_SHADOW_Y_OFFSET, FONT_Z3_SMALL, SHOP_STRING_BG_COLOUR,
 				0, 0, Game->GetMessage(sd->String[2]), OP_OPAQUE);
-				
+
 			Screen->DrawString( SHOP_STRING_LAYER, shopitems[2]->X+SHOP_PRICE_X_OFFSET,
 				shopitems[0]->Y+SHOP_PRICE_Y_OFFSET, FONT_Z3_SMALL, SHOP_STRING_FG_COLOUR,
 				0, 0, Game->GetMessage(sd->String[2]), OP_OPAQUE);
-			
+
 			for ( int q = 0; q < 3; ++q )
 			{
 				if ( PressedBuyButton() )
@@ -88,16 +88,16 @@ ffc script Automatic_Z3_Shop
 					{
 						if ( Game->Counter[CR_RUPEES] >= sd->Price[q] )
 						{
-							if ( Below(shopitems[q]) ) 
+							if ( Below(shopitems[q]) )
 							{
 								if ( DistXY(shopitems[q], 12) )
 								{
 									Audio->PlaySound(SFX_BUYITEM);
 									Game->DCounter[CR_RUPEES] += sd->Price[q];
-									shopitems[q]->Pickup = IP_HOLDUP; 
-									shopitems[q]->HitXOffset = 0; 
-									shopitems[q]->X = Link->X; 
-									shopitems[q]->Y = Link->Y; 
+									shopitems[q]->Pickup = IP_HOLDUP;
+									shopitems[q]->HitXOffset = 0;
+									shopitems[q]->X = Link->X;
+									shopitems[q]->Y = Link->Y;
 								}
 							}
 						}
@@ -108,4 +108,3 @@ ffc script Automatic_Z3_Shop
 		}
 	}
 }
-			

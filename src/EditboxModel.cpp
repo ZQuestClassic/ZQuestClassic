@@ -67,10 +67,8 @@ int32_t Unicode::getCharWidth(int32_t c, FONT *f)
 {
 	if(c == '\n')
 		return  0;
-		
 	if(c == '\t')
 		return TABSIZE*getCharWidth(' ', f);
-		
 	char temp[50];
 	int32_t width = usetc(temp, c);
 	usetc(temp+width,0);
@@ -90,7 +88,6 @@ int32_t Unicode::getCharAtOffset(const char *s, int32_t offset)
 pair<int32_t, int32_t> Unicode::munchWord(string &s, int32_t startoffset, FONT *f)
 {
 	uint32_t endoffset;
-	
 	for(endoffset = startoffset; endoffset < s.size(); endoffset++)
 	{
 		int32_t c = Unicode::getCharAtIndex(s,endoffset);
@@ -99,7 +96,6 @@ pair<int32_t, int32_t> Unicode::munchWord(string &s, int32_t startoffset, FONT *
 				break;
 		}
 	}
-	
 	pair<int32_t, int32_t> rval;
 	rval.first = endoffset-startoffset; //guaranteed >= 1
 	rval.second = text_length(f,s.substr(startoffset, endoffset-startoffset).c_str());
@@ -111,28 +107,22 @@ void Unicode::textout_ex_nonstupid(BITMAP *bmp, FONT *f, string &s, int32_t x, i
 	uint32_t offset = 0;
 	string newstring;
 	const char *txt = s.c_str();
-	
 	while(offset < s.size())
 	{
 		int32_t c = ugetc(txt+offset);
-		
 		int32_t width = uwidth(txt);
 		offset+=width;
 		char temp[50];
-		
 		if(c == '\n')
 			continue;
-			
 		if(c == '\t')
 		{
 			int32_t temp_offset = 0;
-			
 			for(int32_t i=0; i<TABSIZE; i++)
 			{
 				int32_t temp_width = usetc(temp+temp_offset, ' ');
 				temp_offset+=temp_width;
 			}
-			
 			usetc(temp+temp_offset,0);
 		}
 		else
@@ -140,10 +130,8 @@ void Unicode::textout_ex_nonstupid(BITMAP *bmp, FONT *f, string &s, int32_t x, i
 			int32_t temp_width = usetc(temp,c);
 			usetc(temp+temp_width,0);
 		}
-		
 		newstring += temp;
 	}
-	
 	textout_ex(bmp, f, newstring.c_str(), x, y, fg, bg);
 }
 
@@ -155,7 +143,6 @@ int32_t Unicode::getIndexOfWidth(string &s, int32_t x, FONT *f)
 	int32_t lastwidth=0;
 	const char *buf = s.c_str();
 	int32_t c;
-	
 	for(index=0; ; index++)
 	{
 		int32_t width = Unicode::getCharWidth(buf, offset);
@@ -163,18 +150,14 @@ int32_t Unicode::getIndexOfWidth(string &s, int32_t x, FONT *f)
 		lastwidth = Unicode::getCharWidth(c,f);
 		pixwidth += lastwidth;
 		offset += width;
-		
 		if(offset == s.size() || c == '\n' || pixwidth > x)
 			break;
 	}
-	
 	if(offset == s.size() ||c == '\n')
 		return index;
-	
 	//else try the next char, see if it's closer
 	if(x-pixwidth+lastwidth < pixwidth - x)
 		return index;
-	
 	return index+1;
 }
 
@@ -183,13 +166,11 @@ int32_t Unicode::getLength(string &s)
 	int32_t length=0;
 	uint32_t offset=0;
 	const char *buf = s.c_str();
-	
 	while(offset < s.length())
 	{
 		offset += Unicode::getCharWidth(buf,offset);
 		length++;
 	}
-	
 	return length;
 }
 
@@ -202,7 +183,6 @@ pair<int32_t, int32_t> TextSelection::getSelection()
 {
 	if(start < end)
 		return pair<int32_t, int32_t>(start,end);
-	
 	return pair<int32_t, int32_t>(end, start);
 }
 
@@ -236,7 +216,6 @@ void EditboxCursor::operator ++(int32_t)
 {
 	if((uint32_t)index < host.getBuffer().size()-1)
 		index++;
-	
 	setPreferredX();
 }
 
@@ -244,7 +223,6 @@ void EditboxCursor::operator --(int32_t)
 {
 	if(index > 0)
 		index--;
-		
 	setPreferredX();
 }
 
@@ -257,7 +235,6 @@ void EditboxCursor::insertChar(int32_t c)
 {
 	if(host.isReadonly())
 		return;
-	
 	Unicode::insertAtIndex(host.getBuffer(),c,index);
 	CursorPos cp = host.findCursor();
 	Unicode::insertAtIndex(cp.it->line, c, cp.index);
@@ -271,23 +248,19 @@ void EditboxCursor::deleteChar()
 {
 	if(host.isReadonly())
 		return;
-	
 	//DO NOT let you delete the last char of the buffer
 	if(index == int32_t(host.getBuffer().size())-1)
 	{
 		return;
 	}
-	
 	Unicode::removeRange(host.getBuffer(),index,index+1);
 	//check if newline was deleted
 	CursorPos cp = host.findCursor();
 	int32_t c = Unicode::getCharAtIndex(cp.it->line, cp.index);
-	
 	if(c == '\n')
 	{
 		cp.it->newlineterminated = false;
 	}
-	
 	Unicode::removeRange(cp.it->line, cp.index, cp.index+1);
 	cp.it->numchars--;
 	host.markAsDirty(cp.it);
@@ -298,9 +271,7 @@ void EditboxCursor::insertString(string s)
 {
 	if(host.isReadonly())
 		return;
-	
 	int32_t length = Unicode::getLength(s);
-	
 	for(int32_t i=0; i<length; i++)
 	{
 		insertChar(Unicode::getCharAtIndex(s,i));
@@ -311,7 +282,6 @@ void EditboxCursor::insertNewline()
 {
 	if(host.isReadonly())
 		return;
-	
 	int32_t c = Unicode::getCharAtOffset(uconvert_ascii("\n",NULL),0);
 	Unicode::insertAtIndex(host.getBuffer(),c,index);
 	CursorPos cp = host.findCursor();
@@ -344,30 +314,24 @@ CursorPos EditboxModel::findIndex(int32_t totalindex)
 	int32_t lineno = 0;
 	int32_t curindex = 0;
 	CursorPos rval;
-	
 	for(list<LineData>::iterator it = lines.begin(); it != lines.end(); it++)
 	{
 		curindex += it->numchars;
 		rval.it = it;
-		
 		if(curindex > totalindex)
 			break;
-		
 		lineno++;
 	}
-	
 	int32_t offinline = totalindex-curindex+rval.it->numchars;
 	rval.lineno = lineno;
 	rval.index = offinline;
 	string &str = rval.it->line;
 	rval.x = 0;
-	
 	for(int32_t i=0; i<offinline; i++)
 	{
 		int32_t c = Unicode::getCharAtIndex(str,i);
 		rval.x += Unicode::getCharWidth(c,view->getFont());
 	}
-	
 	return rval;
 }
 
@@ -375,15 +339,12 @@ void EditboxModel::markAsDirty(list<LineData>::iterator line)
 {
 	//coalesce lines that are NOT newline-terminated
 	list<LineData>::reverse_iterator rit = list<LineData>::reverse_iterator(line);
-	
 	//find start of line
 	while(rit != lines.rend() && !rit->newlineterminated)
 	{
 		rit++;
 	}
-	
 	line = rit.base();
-	
 	while(!line->newlineterminated)
 	{
 		list<LineData>::iterator next = line;
@@ -395,7 +356,6 @@ void EditboxModel::markAsDirty(list<LineData>::iterator line)
 		line->newlineterminated = next->newlineterminated;
 		lines.erase(next);
 	}
-	
 	line->dirtyflag=true;
 }
 
@@ -411,7 +371,6 @@ void EditboxModel::copy()
 {
 	if(!getSelection().hasSelection())
 		return;
-	
 	pair<int32_t,int32_t> sel = getSelection().getSelection();
 	Unicode::extractRange(getBuffer(), clipboard, sel.first, sel.second);
 	set_al_clipboard(clipboard);
@@ -420,7 +379,6 @@ void EditboxModel::copy()
 void EditboxModel::cut()
 {
 	copy();
-	
 	if(!isReadonly())
 		clear();
 }
@@ -429,26 +387,22 @@ void EditboxModel::clear()
 {
 	if(isReadonly())
 		return;
-	
 	//ultimate annoying.
 	//kill some lines
 	if(!getSelection().hasSelection())
 		return;
-	
 	pair<int32_t, int32_t> sel = getSelection().getSelection();
 	getCursor().updateCursor(sel.first);
 	getSelection().clearSelection();
 	Unicode::removeRange(getBuffer(),sel.first, sel.second);
 	CursorPos start = findIndex(sel.first);
 	CursorPos end = findIndex(sel.second);
-	
 	if(start.lineno == end.lineno)
 	{
 		//thank god, an easy case
 		//slight complication if the \n was deleted
 		if(end.index == end.it->numchars)
 			end.it->newlineterminated = false;
-		
 		int32_t numremoved = end.index-start.index;
 		Unicode::removeRange(end.it->line, start.index, end.index);
 		end.it->numchars -= numremoved;
@@ -465,9 +419,7 @@ void EditboxModel::clear()
 		//count the number of lines to munch
 		list<LineData>::iterator it = start.it;
 		int32_t numtomunch=0;
-		
 		for(it++; it != end.it; ++it) ++numtomunch;
-		
 		//and now munch
 		for(int32_t i=0; i<numtomunch; i++)
 		{
@@ -476,17 +428,14 @@ void EditboxModel::clear()
 			destroy_bitmap(it->strip);
 			getLines().erase(it);
 		}
-		
 		//munch the last line
 		it = start.it;
 		it++;
-		
 		//there's a complication if the whole line is deleted
 		if(it->numchars == end.index)
 		{
 			it->newlineterminated = false;
 		}
-		
 		it->numchars -= end.index;
 		it->line = it->line.substr(end.index, it->line.size()-end.index);
 		markAsDirty(start.it);
@@ -501,7 +450,6 @@ void EditboxModel::paste()
 	if(!get_al_clipboard(clipboard))
 		return;
 	util::removechar(clipboard, '\r');
-	
 	CursorPos cp = findCursor();
 	int32_t offset = Unicode::indexToOffset(getBuffer(), getCursor().getPosition());
 	buffer = buffer.substr(0,offset) + clipboard + buffer.substr(offset, buffer.size()-offset);
@@ -524,28 +472,22 @@ void EditboxModel::paste()
 	list<LineData>::iterator it = cp.it;
 	it++;
 	getLines().insert(it, therestline);
-	
 	for(list<LineData>::reverse_iterator toiit = toinsert.rbegin(); toiit != toinsert.rend(); toiit++)
 	{
 		list<LineData>::iterator iter = cp.it;
 		iter++;
 		getLines().insert(iter, *toiit);
 	}
-	
 	it = cp.it;
 	it++;
-	
 	for(size_t i=0; i<toinsert.size(); i++)
 		it++;
-	
 	markAsDirty(it);
-	
 	//maybe mark starting line too
 	if(toinsert.size() > 1 || (toinsert.size() == 1 && toinsert.begin()->newlineterminated == true))
 	{
 		markAsDirty(cp.it);
 	}
-	
 	//update cursor
 	getCursor().updateCursor(getCursor().getPosition()+Unicode::getLength(clipboard));
 	getView()->update();
@@ -565,15 +507,12 @@ void EditboxModel::undo()
 	if(has_undo_point)
 	{
 		auto oldind = getCursor().getPosition();
-		
 		//Swap the buffer
 		buffer.swap(undobuf);
 		makeLines(lines, buffer);
-		
 		//Move the cursor
 		getCursor().updateCursor(undoindx);
 		undoindx = oldind;
-		
 		getView()->update();
 	}
 }
@@ -589,12 +528,10 @@ void EditboxModel::makeLines(list<LineData> &target, string &source)
 	int32_t lineno;
 	lineno=0;
 	int32_t endoffset;
-	
 	for(endoffset = 0; endoffset != int32_t(str.size()); endindex++)
 	{
 		int32_t width = Unicode::getCharWidth(buf, endoffset);
 		int32_t c = Unicode::getCharAtOffset(buf, endoffset);
-		
 		if(c == '\n')
 		{
 			//end of line
@@ -611,10 +548,8 @@ void EditboxModel::makeLines(list<LineData> &target, string &source)
 			startoffset = endoffset;
 			continue;
 		}
-		
 		endoffset+=width;
 	}
-	
 	if(endoffset != startoffset)
 	{
 		LineData ld;
@@ -630,29 +565,21 @@ void EditboxModel::makeLines(list<LineData> &target, string &source)
 void EditboxModel::doHelp()
 {
 	string helpstr = "";
-	
 	if(!helpfile)
 		return;
-	
 	FILE *hb = fopen(helpfile, "r");
-	
 	if(!hb)
 	{
 		return;
 	}
-	
 	char c = fgetc(hb);
-	
 	while(!feof(hb))
 	{
 		helpstr+=c;
 		c = fgetc(hb);
 	}
-	
 	fclose(hb);
-	
 	help_dlg[0].dp2= lfont;
-	
 	if(is_large)
 	{
 		help_dlg[0].w=800;
@@ -662,7 +589,6 @@ void EditboxModel::doHelp()
 		help_dlg[2].w=800-8-4;
 		help_dlg[2].h=600-27-4;
 	}
-	
 	help_dlg[2].dp = new EditboxModel(helpstr, new EditboxWordWrapView(&help_dlg[2],(is_large?sfont3:pfont),view->getDialog()->fg,view->getDialog()->bg,BasicEditboxView::HSTYLE_EOTEXT),true);
 	help_dlg[2].bg = view->getDialog()->bg;
 	zc_popup_dialog(help_dlg,2);

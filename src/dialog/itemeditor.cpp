@@ -111,7 +111,6 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 	}while(false)
 	#define FLAG(val) (ref.flags & ITEM_FLAG##val)
 	std::string classname(ZI.getItemClassName(ref.family));
-	
 	switch(ref.family)
 	{
 		case itype_fairy:
@@ -159,7 +158,6 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 				"Sum all of the values you want to apply. Weapons and lightbeams with their flags set will be reflected from in front of the player.\n"
 				"Weapons are only reflected if their value is in both 'Block Flags' and 'Reflect Flags'.");
 			_SET(actionsnd[0], "De/Reflection Sound:", "Plays when the shield successfully blocks or reflects a weapon");
-			
 			_SET(flag[0], "Protects Front", "The shield will protect the front side of the player");
 			_SET(flag[1], "Protects Back", "The shield will protect the back side of the player");
 			_SET(flag[2], "Protects Left", "The shield will protect the left side of the player");
@@ -493,7 +491,6 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(flag[4], "Drags Items", "Collected items are dragged towards the player");
 			_SET(flag[5], "Hits Enemy Projectiles", "If checked, the weapon can collide with projectiles, either blocking or reflecting them.");
 			_SET(flag[6], "Picks Up Keys", "Will pick up Key type items");
-			
 			inf->wpn[0] = "Tip Sprite:";
 			inf->wpn[1] = "Chain Sprite (H):";
 			inf->wpn[2] = "Chain Sprite (V):";
@@ -530,7 +527,6 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(flag[8], "Swaps Items", "Items that would be collected are instead swapped with the player.");
 			if(!FLAG(9))
 				_SET(flag[4], "Drags Items", "Collected items are dragged towards the player");
-			
 			inf->wpn[0] = "Tip Sprite:";
 			inf->wpn[1] = "Chain Sprite (H):";
 			inf->wpn[2] = "Chain Sprite (V):";
@@ -666,7 +662,6 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(flag[1], "Magic is Percent", "MP Regained is a percentage out of max MP");
 			inf->flag[2] = "Removes Sword Jinxes";
 			inf->flag[3] = "Removes Item Jinxes";
-			
 			if(FLAG(1))
 				_SET(misc[0], "% HP Regained:", "Percentage of max life restored when collected.");
 			else
@@ -675,7 +670,6 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 				_SET(misc[1], "% MP Regained:", "Percentage of max magic restored when collected.");
 			else
 				_SET(misc[1], "MP Regained:", "Magic (in points) restored when collected.");
-			
 			break;
 		}
 		case itype_whistle: //!TODO Help Text
@@ -960,7 +954,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::FLAG_CHECK(int index, int bit)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	return Row(padding = 0_px,
 		ib_flags[index] = Button(forceFitH = true, text = "?",
 			disabled = true,
@@ -995,7 +988,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::SPRITE_DROP_IMPL(T* mem, int inde
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	return Row(vPadding = 0_px,
 		l_spr[index] = Label(textAlign = 2, width = SPR_LAB_WID, topMargin = 1_px),
 		ib_spr[index] = Button(forceFitH = true, text = "?",
@@ -1022,7 +1014,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::IT_INITD(int index)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	return Row(padding = 0_px,
 		l_it_initds[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
 		ib_it_initds[index] = Button(forceFitH = true, text = "?",
@@ -1045,7 +1036,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::WP_INITD(int index)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	return Row(padding = 0_px,
 		l_wp_initds[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
 		ib_wp_initds[index] = Button(forceFitH = true, text = "?",
@@ -1098,7 +1088,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 #ifdef EMSCRIPTEN_DEBUG
 	return std::shared_ptr<GUI::Widget>(nullptr);
 #endif
-	
 	char titlebuf[256];
 	sprintf(titlebuf, "Item Editor (%d): %s", index, itemname.c_str());
 	if(is_large)
@@ -1178,16 +1167,12 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							Rows<6>(framed = true,
 								ATTRIB_FIELD(misc1,0),
 								ATTRIB_FIELD(misc6,5),
-								
 								ATTRIB_FIELD(misc2,1),
 								ATTRIB_FIELD(misc7,6),
-								
 								ATTRIB_FIELD(misc3,2),
 								ATTRIB_FIELD(misc8,7),
-								
 								ATTRIB_FIELD(misc4,3),
 								ATTRIB_FIELD(misc9,8),
-								
 								ATTRIB_FIELD(misc5,4),
 								ATTRIB_FIELD(misc10,9)
 							)
@@ -2538,7 +2523,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 											"By default, subscreens use the highest level item of an itemclass for displaying.").show();
 									}),
 								NUM_FIELD(fam_type, 1, 255, ATTR_WID),
-								
 								l_power = Label(width=ATTR_LAB_WID,textAlign=2),
 								ib_power = Button(forceFitH = true, text = "?",
 									disabled = true,
@@ -2547,7 +2531,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										InfoDialog("Attribute Info",h_power).show();
 									}),
 								NUM_FIELD(power, 0, 255, ATTR_WID),
-								
 								ATTRIB_FIELD(misc1,0),
 								ATTRIB_FIELD(misc2,1),
 								ATTRIB_FIELD(misc3,2),
@@ -3329,7 +3312,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								Button(text = "Refresh Preview", onClick = message::RELOAD)
 							)
 						)),
-						TabRef(name = "Sprites", 
+						TabRef(name = "Sprites",
 							TabPanel(
 								TabRef(name = "1", Column(
 									SPRITE_DROP(0,wpn),
@@ -3921,10 +3904,8 @@ void ItemEditorDialog::loadItemClass()
 {
 	animFrame->setTile(calcBottleTile(local_itemref, bottleType));
 	animSwitcher->switchTo(local_itemref.family == itype_bottle ? 1 : 0);
-	
 	ItemNameInfo inf;
 	loadinfo(&inf, local_itemref);
-	
 	if(item_use_script_data)
 	{
 		if(local_itemref.sprite_script && (item_use_script_data & ISCRDATA_SPRITE))
@@ -3943,15 +3924,12 @@ void ItemEditorDialog::loadItemClass()
 			load_meta(inf,meta);
 		}
 	}
-	
 	#define __SET(obj, mem) \
 	l_##obj->setText(inf.mem.size() ? inf.mem : defInfo.mem); \
 	h_##obj = (inf.h_##mem.size() ? inf.h_##mem : ""); \
 	if(ib_##obj) \
 		ib_##obj->setDisabled(h_##obj.empty());
-	
 	__SET(power, power);
-	
 	__SET(attribs[0], misc[0]);
 	__SET(attribs[1], misc[1]);
 	__SET(attribs[2], misc[2]);
@@ -3962,7 +3940,6 @@ void ItemEditorDialog::loadItemClass()
 	__SET(attribs[7], misc[7]);
 	__SET(attribs[8], misc[8]);
 	__SET(attribs[9], misc[9]);
-	
 	__SET(flags[0], flag[0]);
 	__SET(flags[1], flag[1]);
 	__SET(flags[2], flag[2]);
@@ -3979,10 +3956,8 @@ void ItemEditorDialog::loadItemClass()
 	__SET(flags[13], flag[13]);
 	__SET(flags[14], flag[14]);
 	__SET(flags[15], flag[15]);
-	
 	__SET(sfx[0], actionsnd[0]);
 	__SET(sfx[1], actionsnd[1]);
-	
 	__SET(spr[0], wpn[0]);
 	__SET(spr[1], wpn[1]);
 	__SET(spr[2], wpn[2]);
@@ -4006,7 +3981,6 @@ bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			loadItemClass();
 			return false;
 		}
-		
 		case message::GFXSIZE:
 		{
 			animFrame->setSkipX((local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEWIDTH)
@@ -4015,7 +3989,6 @@ bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				? local_itemref.tileh-1 : 0);
 			return false;
 		}
-		
 		case message::DEFAULT:
 		{
 			bool cancel = false;
@@ -4032,7 +4005,6 @@ bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			reset_name = itemname;
 			return true;
 		}
-		
 		case message::RELOAD:
 		{
 			_reload_editor = true;

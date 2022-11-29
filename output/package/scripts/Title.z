@@ -8,13 +8,13 @@ ffc script delayStartWarp{
 
         Waitframes(delay);
 
-        
+
 
         while(!Link->PressStart)
 
             Waitframe();
 
-            
+
 
         this->Data = CMB_AUTOWARP;
 

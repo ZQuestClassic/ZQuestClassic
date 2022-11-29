@@ -150,7 +150,6 @@ TextField( \
 	{ \
 		mem = val; \
 	})
-	
 #define SWAPFIELDS(str, mem, lb, hb) \
 Label(text = str, hAlign = 1.0), \
 TextField( \
@@ -161,7 +160,6 @@ TextField( \
 	{ \
 		mem = (int16_t)val; \
 	})
-	
 #define SWAPFIELDB(str, mem, lb, hb, offs) \
 Label(text = str, hAlign = 1.0), \
 TextField( \
@@ -198,7 +196,6 @@ std::shared_ptr<GUI::Widget> FFCDialog::FFC_INITD(int index)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	return Row(padding = 0_px,
 		l_initds[index] = Label(minwidth = 12_em, textAlign = 2),
 		ib_initds[index] = Button(forceFitH = true, text = "?",
@@ -235,7 +232,6 @@ void FFCDialog::refreshScript()
 			if(meta.initd_help[q].size())
 				help[q] = meta.initd_help[q];
 		}
-		
 		for(auto q = 0; q < 8; ++q)
 		{
 			if(unsigned(meta.initd_type[q]) < nswapMAX)
@@ -263,7 +259,6 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	using namespace GUI::Key;
-	
 	window = Window(
 		title = "FFC Editor ("+std::to_string(ffind+1)+")",
 		info = "Edit an FFC, setting up its' combo, flags, and script data.\n"
@@ -456,7 +451,6 @@ bool FFCDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::CANCEL:
 		default:
 			return true;
-		
 		case message::MINUSCS:
 			m = true;
 			[[fallthrough]];

@@ -93,7 +93,7 @@ void LaunchSwordBeam(int damage, int sprite, int dir, int hearts, int shardparti
 	int args[8] = {damage, sprite, SWORD_BEAM_SPEED/100, shardparticle, dir ,0,0, itm};
 	int buffer[] = "SwordBeam";
 	int scr = Game->GetFFCScript(buffer);
-	ffc beam = LaunchScriptedLweapon(scr, args);	
+	ffc beam = LaunchScriptedLweapon(scr, args);
 }
 
 void TapForSecretFlags(ffc f, lweapon l, int flag1, int flag2){

@@ -6,11 +6,11 @@ global script stdWeaponsInit{
 
 global script StdWeaponsActive{
 	void run(){
-		while(true){			
+		while(true){
 			UpdateLweaponZH();
-			
-			Waitdraw();			
-			
+
+			Waitdraw();
+
 			Waitframe();
 		}
 	}

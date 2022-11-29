@@ -13,7 +13,7 @@ hero script kb_read_test
 		{
                         for(int i = KEY_A; i<=KEY_SPACE; ++i)
 			{
-				
+
 				if(Input->ReadKey[i])
 				{
 					if(i == KEY_BACKSPACE && index > 0)
@@ -21,7 +21,7 @@ hero script kb_read_test
 						--index;
 						StringBuffer[index] = 0;
 					}
-					else 
+					else
 					{
 						if ( index < ( BUFFER_SIZE-1 ) )
 						{
@@ -30,7 +30,7 @@ hero script kb_read_test
 							++index;
 						}
 					}
-					
+
 					TraceS(StringBuffer);
 				}
                         }

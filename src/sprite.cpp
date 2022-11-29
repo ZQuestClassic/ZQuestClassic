@@ -94,7 +94,6 @@ sprite::sprite()
     extend=0;
     wpnsprite = 0; //wpnsprite is new for 2.6 -Z
     scrmem = NULL;
-    
     /*ewpnclass=0;
     lwpnclass=0;
     guyclass=0;*/ //Not implemented
@@ -113,7 +112,6 @@ sprite::sprite()
 	old_cset = 0;
 	drownclk = 0;
 	drownCombo = 0;
-	
     for(int32_t i=0; i<10; i++)
     {
         dummy_int[i]=0;
@@ -121,7 +119,6 @@ sprite::sprite()
         dummy_float[i]=0;
         dummy_bool[i]=false;
     }
-    
     //for(int32_t i=0;i<8;i++)
     //{
     //  if(i<2) a[i]=0;
@@ -135,10 +132,8 @@ sprite::sprite()
     doscript=1;
     waitdraw = 0;
     for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
-    
     scriptcoldet = 1;
     initialised = 0;
-    
     //itemref = 0;
     //guyref = 0;
     //lwpnref = 0;
@@ -266,7 +261,6 @@ can_flicker(other.can_flicker)
 {
     uid = getNextUID();
 	isspawning = other.isspawning;
-    
     for(int32_t i=0; i<10; ++i)
     {
         dummy_int[i]=other.dummy_int[i];
@@ -274,7 +268,6 @@ can_flicker(other.can_flicker)
         dummy_float[i]=other.dummy_float[i];
         dummy_bool[i]=other.dummy_bool[i];
     }
-    
     //for (int32_t i=0; i<8; ++i)
     //{
     //  d[i]=other.d[i];
@@ -284,11 +277,8 @@ can_flicker(other.can_flicker)
     //  a[i]=other.a[i];
     //}
     for(int32_t i=0; i<32; i++) miscellaneous[i] = other.miscellaneous[i];
-    
     scriptcoldet = other.scriptcoldet;
     initialised = other.initialised;
-    
-    
     scrmem = NULL;
 	for (int32_t i=0; i<8; ++i)
 	{
@@ -319,7 +309,6 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
     dir=down;
     angular=canfreeze=false;
     extend=0;
-    
     //for(int32_t i=0;i<8;i++)
     //{
     //  if(i<2) a[i]=0;
@@ -333,7 +322,6 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
     waitdraw = 0;
     //itemclass=0;
     for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
-    
     scriptcoldet = 1;
     initialised = 0;
     //ewpnclass=0;
@@ -373,12 +361,12 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
     drownclk = 0;
     drownCombo = 0;
     drawflags = 0;
-    for ( int32_t q = 0; q < 8; q++ ) 
+    for ( int32_t q = 0; q < 8; q++ )
     {
         initD[q] = 0;
         weap_initd[q] = 0;
     }
-    for ( int32_t q = 0; q < 2; q++ ) 
+    for ( int32_t q = 0; q < 2; q++ )
     {
         initA[q] = 0;
         weap_inita[q] = 0;
@@ -389,7 +377,6 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
 	switch_hooked = false;
 	ignore_delete = 0;
 	can_flicker = true;
-	
 	//Defaults for old hardcoded sprites
 	spr_shadow = iwShadow;
 	spr_death = iwDeath;
@@ -447,7 +434,6 @@ int32_t sprite::real_x(zfix fx)
     case 13:
         if(fx.getZLong() & 0xFFFF) //No idea what the hell this is doing, but it sure isn't just getting the decimal portion.
             ++rx;
-            
         break;
     }
     return rx;
@@ -985,25 +971,19 @@ int32_t sprite::check_water() //Returns combo ID of water fallen into; 0 for not
 bool sprite::hit(sprite *s)
 {
     if(!(scriptcoldet&1) || fallclk || drownclk) return false;
-    
     if(id<0 || s->id<0 || clk<0) return false;
-    
     if(halt)
     {
     }
-    
     return hit(s->x+s->hxofs,s->y+s->hyofs-s->fakez,s->z+s->zofs,s->hxsz,s->hysz,s->hzsz);
 }
 
 bool sprite::hit(int32_t tx,int32_t ty,int32_t txsz2,int32_t tysz2)
 {
     if(!(scriptcoldet&1) || fallclk || drownclk) return false;
-    
     if(id<0 || clk<0) return false;
-    
     return tx+txsz2>x+hxofs &&
            ty+tysz2>y+hyofs &&
-           
            tx<x+hxofs+hxsz &&
            ty<y+hyofs+hysz;
 }
@@ -1011,13 +991,10 @@ bool sprite::hit(int32_t tx,int32_t ty,int32_t txsz2,int32_t tysz2)
 bool sprite::hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz2,int32_t tysz2,int32_t tzsz2)
 {
     if(!(scriptcoldet&1) || fallclk || drownclk) return false;
-    
     if(id<0 || clk<0) return false;
-    
     return tx+txsz2>x+hxofs &&
            ty+tysz2>y+hyofs-fakez &&
            tz+tzsz2>z+zofs &&
-           
            tx<x+hxofs+hxsz &&
            ty<y+hyofs+hysz-fakez &&
            tz<z+zofs+hzsz;
@@ -1026,15 +1003,12 @@ bool sprite::hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz2,int32_t tysz2,in
 int32_t sprite::hitdir(int32_t tx,int32_t ty,int32_t txsz2,int32_t tysz2,int32_t dir2)
 {
     if(!(scriptcoldet&1) || fallclk || drownclk) return 0xFF;
-    
     int32_t cx1=x+hxofs+(hxsz>>1);
     int32_t cy1=y+hyofs+(hysz>>1)-fakez;
     int32_t cx2=tx+(txsz2>>1);
     int32_t cy2=ty+(tysz2>>1);
-    
     if(dir2>=left && abs(cy1-cy2)<=8)
         return (cx2-cx1<0)?left:right;
-        
     return (cy2-cy1<0)?up:down;
 }
 
@@ -1052,53 +1026,44 @@ void sprite::move(zfix s)
         y += zc::math::Sin(angle)*s;
 		return;
     }
-    
     switch(dir)
     {
     case 8:
     case up:
         y-=s;
         break;
-        
     case 12:
     case down:
         y+=s;
         break;
-        
     case 14:
     case left:
         x-=s;
         break;
-        
     case 10:
     case right:
         x+=s;
         break;
-        
     case 15:
     case l_up:
         x-=s;
         y-=s;
         break;
-        
     case 9:
     case r_up:
         x+=s;
         y-=s;
         break;
-        
     case 13:
     case l_down:
         x-=s;
         y+=s;
         break;
-        
     case 11:
     case r_down:
         x+=s;
         y+=s;
         break;
-        
     case -1:
         break;
     }
@@ -1167,7 +1132,7 @@ void sprite::draw(BITMAP* dest)
 		yofs = tyoffs;
 		return; //don't run the rest, use the old code
 	}
-	if ( get_bit(quest_rules,qr_OLDSPRITEDRAWS) || (drawflags&sprdrawflagALWAYSOLDDRAWS) ) 
+	if ( get_bit(quest_rules,qr_OLDSPRITEDRAWS) || (drawflags&sprdrawflagALWAYSOLDDRAWS) )
 	{
 		drawzcboss(dest);
 		yofs = tyoffs;
@@ -1176,8 +1141,6 @@ void sprite::draw(BITMAP* dest)
 	int32_t sx = real_x(x+xofs);
 	int32_t sy = real_y(y+yofs)-real_z(z+zofs);
 	sy -= fake_z(fakez);
-	
-    
 	if(id<0)
 	{
 		yofs = tyoffs;
@@ -1198,16 +1161,14 @@ void sprite::draw(BITMAP* dest)
 				blit(dest, temp, sx, sy-16, 0, 0, 16, 32);
 				//clear_bitmap(temp);
 				if ( sprBMP2 ) clear_bitmap(sprBMP2);
-            
 				//Draw sprite tiles to the temp (scratch) bitmap.
 				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW),0,0,cs,((scriptflip > -1) ? scriptflip : flip));
 				overtile16(temp,TILEBOUND((scripttile > -1) ? scripttile : tile),0,16,cs,((scriptflip > -1) ? scriptflip : flip));
-				
 				//Blit to the screen...
 				if ( rotation )
-				{	
+				{
 					//First rotating and scaling as needed to a scratch-bitmap.
-					if ( scale ) 
+					if ( scale )
 					{
 						double new_scale = scale / 100.0;
 						rotate_scaled_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
@@ -1217,7 +1178,7 @@ void sprite::draw(BITMAP* dest)
 				}
 				else
 				{
-					if ( scale ) 
+					if ( scale )
 					{
 						double new_scale = scale / 100.0;
 						rotate_scaled_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(0),ftofix(new_scale));
@@ -1236,17 +1197,15 @@ void sprite::draw(BITMAP* dest)
 				blit(dest, temp, sx-16, sy-16, 0, 0, 48, 32);
 				//clear_bitmap(temp);
 				clear_bitmap(sprBMP2);
-            
 				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW),16,0,cs,((scriptflip > -1) ? scriptflip : flip));
 				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),0,0,cs,((scriptflip > -1) ? scriptflip : flip));
 				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),32,0,cs,((scriptflip > -1) ? scriptflip : flip));
 				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)),16,16,cs,((scriptflip > -1) ? scriptflip : flip));
 				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),0,16,cs,((scriptflip > -1) ? scriptflip : flip));
 				overtile16(temp,TILEBOUND(((scripttile > -1) ? scripttile : tile)+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),32,16,cs,((scriptflip > -1) ? scriptflip : flip));
-				
 				if ( rotation )
 				{
-					if ( scale ) 
+					if ( scale )
 					{
 						double new_scale = scale / 100.0;
 						rotate_scaled_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
@@ -1257,28 +1216,25 @@ void sprite::draw(BITMAP* dest)
 				}
 				else
 				{
-					if ( scale ) 
+					if ( scale )
 					{
 						double new_scale = scale / 100.0;
 						rotate_scaled_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(0),ftofix(new_scale));
 						blit(sprBMP2, temp2, 8, 0, 0, 0, 32, 32);
 						doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
 					}
-					else 
+					else
 					{
 						blit(temp, temp2, 8, 0, 0, 0, 32, 32);
 						doSpriteDraw(drawstyle, dest, temp2, sx-8, sy-16);
 					}
 				}
-					
-				
 				destroy_bitmap(temp);
 				break;
 			}
 			case 3:
 			{
 				int32_t tileToDraw;
-            
 				switch(flip_type)
 				{
 					case 1:
@@ -1292,27 +1248,24 @@ void sprite::draw(BITMAP* dest)
 							for(int32_t j=txsz-1; j>=0; j--)
 							{
 								tileToDraw=((scripttile > -1) ? scripttile : tile)+(i*TILES_PER_ROW)+j;
-							
 								if(tileToDraw%TILES_PER_ROW<j) // Wrapped around
 									tileToDraw+=TILES_PER_ROW*(tysz-1);
-							    
 								overtile16(sprBMP,tileToDraw,0+(txsz-j-1)*16,0+i*16,cs,((scriptflip > -1) ? scriptflip : flip));
 							}
 						}
 						if ( rotation )
 						{
-							if ( scale ) 
+							if ( scale )
 							{
 								double new_scale = scale / 100.0;
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
 							}
 							else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
 							doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
-							
 						}
 						else
 						{
-							if ( scale ) 
+							if ( scale )
 							{
 								double new_scale = scale / 100.0;
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0),ftofix(new_scale));
@@ -1320,11 +1273,9 @@ void sprite::draw(BITMAP* dest)
 							}
 							else doSpriteDraw(drawstyle, dest, sprBMP, sx, sy);
 						}
-							
 						destroy_bitmap(sprBMP);
 					} //end extend == 3 && flip == 1
 					break;
-                
 					case 2:
 					{
 						BITMAP* sprBMP = create_bitmap_ex(8,txsz*16,tysz*16);
@@ -1336,16 +1287,14 @@ void sprite::draw(BITMAP* dest)
 							for(int32_t j=0; j<txsz; j++)
 							{
 								tileToDraw=((scripttile > -1) ? scripttile : tile)+(i*TILES_PER_ROW)+j;
-							
 								if(tileToDraw%TILES_PER_ROW<j)
 									tileToDraw+=TILES_PER_ROW*(tysz-1);
-							    
 								overtile16(sprBMP,tileToDraw,0+j*16,0+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
 							}
 						}
 						if ( rotation )
 						{
-							if ( scale ) 
+							if ( scale )
 							{
 								double new_scale = scale / 100.0;
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
@@ -1355,7 +1304,7 @@ void sprite::draw(BITMAP* dest)
 						}
 						else
 						{
-							if ( scale ) 
+							if ( scale )
 							{
 								double new_scale = scale / 100.0;
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0),ftofix(new_scale));
@@ -1363,11 +1312,9 @@ void sprite::draw(BITMAP* dest)
 							}
 							else doSpriteDraw(drawstyle, dest, sprBMP, sx, sy);
 						}
-							
 						destroy_bitmap(sprBMP);
 					}//end extend == 3 &7 flip == 2
 					break;
-                
 					case 3:
 					{
 						BITMAP* sprBMP = create_bitmap_ex(8,txsz*16,tysz*16);
@@ -1379,16 +1326,14 @@ void sprite::draw(BITMAP* dest)
 							for(int32_t j=txsz-1; j>=0; j--)
 							{
 								tileToDraw=((scripttile > -1) ? scripttile : tile)+(i*TILES_PER_ROW)+j;
-							
 								if(tileToDraw%TILES_PER_ROW<j)
 									tileToDraw+=TILES_PER_ROW*(tysz-1);
-							    
 								overtile16(sprBMP,tileToDraw,0+(txsz-j-1)*16,0+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
 							}
 						}
 						if ( rotation )
 						{
-							if ( scale ) 
+							if ( scale )
 							{
 								double new_scale = scale / 100.0;
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
@@ -1398,7 +1343,7 @@ void sprite::draw(BITMAP* dest)
 						}
 						else
 						{
-							if ( scale ) 
+							if ( scale )
 							{
 								double new_scale = scale / 100.0;
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0),ftofix(new_scale));
@@ -1406,18 +1351,15 @@ void sprite::draw(BITMAP* dest)
 							}
 							else doSpriteDraw(drawstyle, dest, sprBMP, sx, sy);
 						}
-							
 						destroy_bitmap(sprBMP);
 					} //end extend == 3 && flip == 3
 					break;
-                
 					case 0:
 					{
 						BITMAP* sprBMP = create_bitmap_ex(8,txsz*16,tysz*16);
 						//BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
 						clear_bitmap(sprBMP);
 						clear_bitmap(sprBMP2);
-						
 						for(int32_t i=0; i<tysz; i++)
 						{
 							for(int32_t j=0; j<txsz; j++)
@@ -1433,7 +1375,7 @@ void sprite::draw(BITMAP* dest)
 						//rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, 0,ftofix(new_scale));
 						if ( rotation )
 						{
-							if ( scale ) 
+							if ( scale )
 							{
 								double new_scale = scale / 100.0;
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
@@ -1443,7 +1385,7 @@ void sprite::draw(BITMAP* dest)
 						}
 						else
 						{
-							if ( scale ) 
+							if ( scale )
 							{
 								double new_scale = scale / 100.0;
 								rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0),ftofix(new_scale));
@@ -1451,9 +1393,7 @@ void sprite::draw(BITMAP* dest)
 							}
 							else doSpriteDraw(drawstyle, dest, sprBMP, sx, sy);
 						}
-						
 						destroy_bitmap(sprBMP);
-                
 						break;
 					} //end extend == 0 && flip == 3
 				}
@@ -1466,10 +1406,9 @@ void sprite::draw(BITMAP* dest)
 				clear_bitmap(sprBMP);
 				clear_bitmap(sprBMP2);
 				overtile16(sprBMP,TILEBOUND(scripttile > -1 ? scripttile : tile),0,0,cs,((scriptflip > -1) ? scriptflip : flip));
-				
 				if ( rotation )
 				{
-					if ( scale ) 
+					if ( scale )
 					{
 						double new_scale = scale / 100.0;
 						rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
@@ -1479,7 +1418,7 @@ void sprite::draw(BITMAP* dest)
 				}
 				else
 				{
-					if ( scale ) 
+					if ( scale )
 					{
 						double new_scale = scale / 100.0;
 						rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0),ftofix(new_scale));
@@ -1496,11 +1435,10 @@ void sprite::draw(BITMAP* dest)
 	else if (!fallclk && !drownclk) //I'm unsure when the clk is < 0 -Z
 	{
 		isspawning = true;
-		if(e!=3) //if extend != 3 
+		if(e!=3) //if extend != 3
 		{
 			int32_t t  = wpnsbuf[spr_spawn].tile;
 			int32_t cs2 = wpnsbuf[spr_spawn].csets&15;
-            
 			if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
 			{
 				if(clk < -2)
@@ -1523,16 +1461,13 @@ void sprite::draw(BITMAP* dest)
 			else if(BSZ)
 			{
 				if(clk>=-10) ++t;
-                
 				if(clk>=-5) ++t;
 			}
 			else
 			{
 				if(clk>=-12) ++t;
-                
 				if(clk>=-6) ++t;
 			}
-            
 			overtile16(dest,t,sx,sy,cs2,0);
 		}
 		else //extend == 3?
@@ -1544,8 +1479,7 @@ void sprite::draw(BITMAP* dest)
 			w.txsz = txsz;
 			w.tysz = tysz;
 			w.extend = 3;
-            
-			if ( w.scripttile <= -1 ) 
+			if ( w.scripttile <= -1 )
 			{
 				if(BSZ)
 				{
@@ -1556,7 +1490,6 @@ void sprite::draw(BITMAP* dest)
 						else
 							w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
 					}
-				
 					if(clk>=-5)
 					{
 						if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
@@ -1574,7 +1507,6 @@ void sprite::draw(BITMAP* dest)
 						else
 							w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
 					}
-			
 					if(clk>=-6)
 					{
 						if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
@@ -1584,20 +1516,17 @@ void sprite::draw(BITMAP* dest)
 					}
 				}
 			}
-            
 			w.draw(dest);
 		}
 	}
-    
 	if(show_hitboxes && !is_zquest())
 		rect(dest,x+hxofs,y+playing_field_offset+hyofs-(z+zofs)-fakez,x+hxofs+hxsz-1,(y+playing_field_offset+hyofs+hysz-(z+zofs)-fakez)-1,vc((id+16)%255));
 
-	if ( sprBMP2 ) 
+	if ( sprBMP2 )
 	{
 		//if there is still somehow data in the scaling bitmap
 		destroy_bitmap(sprBMP2);
 	}
-	
 	yofs = tyoffs;
 }
 
@@ -1609,26 +1538,20 @@ void sprite::drawzcboss(BITMAP* dest)
     {
         return;
     }
-    
     int32_t sx = real_x(x+xofs);
     int32_t sy = real_y(y+yofs)-real_z(z+zofs);
     sy -= fake_z(fakez);
-    
     if(id<0)
         return;
-        
     int32_t e = extend>=3 ? 3 : extend;
-    
     if(clk>=0)
     {
         switch(e)
         {
             BITMAP *temp;
-            
         case 1:
             temp = create_bitmap_ex(8,16,32);
             blit(dest, temp, sx, sy-16, 0, 0, 16, 32);
-            
             if(drawstyle==0 || drawstyle==3)
             {
 		int32_t tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
@@ -1643,7 +1566,6 @@ void sprite::drawzcboss(BITMAP* dest)
 			overtile16(temp,tile,0,16,cs,tmpflip);
 		}
             }
-            
             if(drawstyle==1)
             {
 		int32_t tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
@@ -1658,7 +1580,6 @@ void sprite::drawzcboss(BITMAP* dest)
 			overtiletranslucent16(temp,tile,0,16,cs,tmpflip,128);
 		}
             }
-            
             if(drawstyle==2)
             {
 		int32_t tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
@@ -1673,15 +1594,12 @@ void sprite::drawzcboss(BITMAP* dest)
 			overtilecloaked16(temp,tile,0,16,tmpflip);
 		}
             }
-            
             masked_blit(temp, dest, 0, 0, sx, sy-16, 16, 32);
             destroy_bitmap(temp);
             break;
-            
         case 2:
             temp = create_bitmap_ex(8,48,32);
             blit(dest, temp, sx-16, sy-16, 0, 0, 48, 32);
-            
             if(drawstyle==0 || drawstyle==3)
             {
 		if ( scripttile > -1 )
@@ -1693,7 +1611,7 @@ void sprite::drawzcboss(BITMAP* dest)
 			overtile16(temp,vbound(scripttile,0,NEWMAXTILES),16,16,cs,tmpflip);
 			overtile16(temp,vbound(scripttile-(tmpflip?-1:1),0,NEWMAXTILES),0,16,cs,tmpflip);
 			overtile16(temp,vbound(scripttile+(tmpflip?-1:1),0,NEWMAXTILES),32,16,cs,tmpflip);
-		}   
+		}
 		else
 		{
 			int32_t tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
@@ -1705,7 +1623,6 @@ void sprite::drawzcboss(BITMAP* dest)
 			overtile16(temp,tile+(tmpflip?-1:1),32,16,cs,tmpflip);
 		}
             }
-            
             if(drawstyle==1)
             {
 		if ( scripttile > -1 )
@@ -1717,7 +1634,7 @@ void sprite::drawzcboss(BITMAP* dest)
 			overtiletranslucent16(temp,vbound(scripttile,0,NEWMAXTILES),16,16,cs,tmpflip,128);
 			overtiletranslucent16(temp,vbound(scripttile-(tmpflip?-1:1),0,NEWMAXTILES),0,16,cs,tmpflip,128);
 			overtiletranslucent16(temp,vbound(scripttile+(tmpflip?-1:1),0,NEWMAXTILES),32,16,cs,tmpflip,128);
-		}    
+		}
 		else
 		{
 			int32_t tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
@@ -1729,7 +1646,6 @@ void sprite::drawzcboss(BITMAP* dest)
 			overtiletranslucent16(temp,tile+(tmpflip?-1:1),32,16,cs,tmpflip,128);
 		}
             }
-            
             if(drawstyle==2)
             {
 		if ( scripttile > -1 )
@@ -1741,7 +1657,7 @@ void sprite::drawzcboss(BITMAP* dest)
 			overtilecloaked16(temp,vbound(scripttile,0,NEWMAXTILES),16,16,tmpflip);
 			overtilecloaked16(temp,vbound(scripttile-(tmpflip?-1:1),0,NEWMAXTILES),0,16,tmpflip);
 			overtilecloaked16(temp,vbound(scripttile+(tmpflip?-1:1),0,NEWMAXTILES),32,16,tmpflip);
-		}    
+		}
 		else
 		{
 			int32_t tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
@@ -1753,15 +1669,12 @@ void sprite::drawzcboss(BITMAP* dest)
 			overtilecloaked16(temp,tile+(tmpflip?-1:1),32,16,tmpflip);
 		}
             }
-            
             masked_blit(temp, dest, 8, 0, sx-8, sy-16, 32, 32);
             destroy_bitmap(temp);
             break;
-            
         case 3:
         {
             int32_t tileToDraw;
-            
             switch(flip)
             {
             case 1:
@@ -1770,10 +1683,8 @@ void sprite::drawzcboss(BITMAP* dest)
                     for(int32_t j=txsz-1; j>=0; j--)
                     {
                         tileToDraw = vbound( (scripttile > -1 ) ? ( scripttile+(i*TILES_PER_ROW)+j ) : (tile+(i*TILES_PER_ROW)+j) ,0, NEWMAXTILES );
-                        
                         if(tileToDraw%TILES_PER_ROW<j) // Wrapped around
                             tileToDraw+=TILES_PER_ROW*(tysz-1);
-			
 			tileToDraw = vbound(tileToDraw, 0, NEWMAXTILES);
 			int32_t tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
                         if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,tmpflip);
@@ -1781,19 +1692,15 @@ void sprite::drawzcboss(BITMAP* dest)
                         else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,tmpflip);
                     }
                 }
-                
                 break;
-                
             case 2:
                 for(int32_t i=tysz-1; i>=0; i--)
                 {
                     for(int32_t j=0; j<txsz; j++)
                     {
                         tileToDraw = vbound( (scripttile > -1 ) ? ( scripttile+(i*TILES_PER_ROW)+j ) : (tile+(i*TILES_PER_ROW)+j) ,0, NEWMAXTILES );
-                        
                         if(tileToDraw%TILES_PER_ROW<j)
                             tileToDraw+=TILES_PER_ROW*(tysz-1);
-			
 			tileToDraw = vbound(tileToDraw, 0, NEWMAXTILES);
 			int32_t tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
                         if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,tmpflip);
@@ -1801,19 +1708,15 @@ void sprite::drawzcboss(BITMAP* dest)
                         else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,tmpflip);
                     }
                 }
-                
                 break;
-                
             case 3:
                 for(int32_t i=tysz-1; i>=0; i--)
                 {
                     for(int32_t j=txsz-1; j>=0; j--)
                     {
                         tileToDraw = vbound( (scripttile > -1 ) ? ( scripttile+(i*TILES_PER_ROW)+j ) : (tile+(i*TILES_PER_ROW)+j) ,0, NEWMAXTILES );
-                        
                         if(tileToDraw%TILES_PER_ROW<j)
                             tileToDraw+=TILES_PER_ROW*(tysz-1);
-			
 			tileToDraw = vbound(tileToDraw, 0, NEWMAXTILES);
 			int32_t tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
                         if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,tmpflip);
@@ -1821,19 +1724,15 @@ void sprite::drawzcboss(BITMAP* dest)
                         else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,tmpflip);
                     }
                 }
-                
                 break;
-                
             case 0:
                 for(int32_t i=0; i<tysz; i++)
                 {
                     for(int32_t j=0; j<txsz; j++)
                     {
                         tileToDraw = vbound( (scripttile > -1 ) ? ( scripttile+(i*TILES_PER_ROW)+j ) : (tile+(i*TILES_PER_ROW)+j) ,0, NEWMAXTILES );
-                        
                         if(tileToDraw%TILES_PER_ROW<j)
                             tileToDraw+=TILES_PER_ROW*(tysz-1);
-			
 			tileToDraw = vbound(tileToDraw, 0, NEWMAXTILES);
 			int32_t tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
                         if(drawstyle==0 || drawstyle==3) overtile16(dest,tileToDraw,sx+j*16,sy+i*16,cs,tmpflip);
@@ -1841,10 +1740,8 @@ void sprite::drawzcboss(BITMAP* dest)
                         else if(drawstyle==2) overtilecloaked16(dest,tileToDraw,sx+j*16,sy+i*16,tmpflip);
                     }
                 }
-                
                 break;
             }
-            
             case 0:
             default:
                 if(drawstyle==0 || drawstyle==3)
@@ -1862,7 +1759,6 @@ void sprite::drawzcboss(BITMAP* dest)
 		    int32_t tmpflip = ( (scriptflip > -1) ? scriptflip : flip );
                     overtilecloaked16(dest,vbound(((scripttile > -1) ? scripttile : tile), 0, NEWMAXTILES),sx,sy,tmpflip);
 		}
-                    
                 break;
             }
             break;
@@ -1874,7 +1770,6 @@ void sprite::drawzcboss(BITMAP* dest)
         {
             int32_t t  = wpnsbuf[spr_spawn].tile;
             int32_t cs2 = wpnsbuf[spr_spawn].csets&15;
-            
             if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
 			{
 				if(clk < -2)
@@ -1897,16 +1792,13 @@ void sprite::drawzcboss(BITMAP* dest)
 			else if(BSZ)
             {
                 if(clk>=-10) ++t;
-                
                 if(clk>=-5) ++t;
             }
             else
             {
                 if(clk>=-12) ++t;
-                
                 if(clk>=-6) ++t;
             }
-            
             overtile16(dest,t,sx,sy,cs2,0);
         }
         else
@@ -1918,7 +1810,6 @@ void sprite::drawzcboss(BITMAP* dest)
             w.txsz = txsz;
             w.tysz = tysz;
             w.extend = 3;
-            
             if(BSZ)
             {
                 if(clk>=-10)
@@ -1928,7 +1819,6 @@ void sprite::drawzcboss(BITMAP* dest)
                     else
                         w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
                 }
-                
                 if(clk>=-5)
                 {
                     if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
@@ -1946,7 +1836,6 @@ void sprite::drawzcboss(BITMAP* dest)
                     else
                         w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
                 }
-                
                 if(clk>=-6)
                 {
                     if(tile/TILES_PER_ROW==(tile+txsz)/TILES_PER_ROW)
@@ -1955,11 +1844,9 @@ void sprite::drawzcboss(BITMAP* dest)
                         w.tile+=txsz+(tysz-1)*TILES_PER_ROW;
                 }
             }
-            
             w.draw(dest);
         }
     }
-    
     if(show_hitboxes && !is_zquest())
         rect(dest,x+hxofs,y+playing_field_offset+hyofs-(z+zofs)-fakez,x+hxofs+hxsz-1,(y+playing_field_offset+hyofs+hysz-(z+zofs)-fakez)-1,vc((id+16)%255));
 }
@@ -1969,10 +1856,8 @@ void sprite::draw8(BITMAP* dest)
     int32_t sx = real_x(x+xofs);
     int32_t sy = real_y(y+yofs)-real_z(z+zofs);
 	sy -= fake_z(fakez);
-    
     if(id<0)
         return;
-        
     if(clk>=0)
     {
         switch(drawstyle)
@@ -1980,7 +1865,6 @@ void sprite::draw8(BITMAP* dest)
         case 0:                                               //normal
             overtile8(dest,((scripttile > -1) ? scripttile : tile),sx,sy,cs,((scriptflip > -1) ? scriptflip : flip));
             break;
-            
         case 1:                                               //phantom
             overtiletranslucent8(dest,((scripttile > -1) ? scripttile : tile),sx,sy,cs,((scriptflip > -1) ? scriptflip : flip),128);
             break;
@@ -1993,10 +1877,8 @@ void sprite::drawcloaked(BITMAP* dest)
     int32_t sx = real_x(x+xofs);
     int32_t sy = real_y(y+yofs)-real_z(z+zofs);
     sy -= fake_z(fakez);
-    
     if(id<0)
         return;
-        
     if(clk>=0)
     {
         overtilecloaked16(dest,((scripttile > -1) ? scripttile : tile),sx,sy,((scriptflip > -1) ? scriptflip : flip));
@@ -2005,7 +1887,6 @@ void sprite::drawcloaked(BITMAP* dest)
     {
         int32_t t  = wpnsbuf[spr_spawn].tile;
         int32_t cs2 = wpnsbuf[spr_spawn].csets&15;
-        
 		if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
 		{
 			if(clk < -2)
@@ -2028,19 +1909,15 @@ void sprite::drawcloaked(BITMAP* dest)
         else if(BSZ)
         {
             if(clk>=-10) ++t;
-            
             if(clk>=-5) ++t;
         }
         else
         {
             if(clk>=-12) ++t;
-            
             if(clk>=-6) ++t;
         }
-        
         overtile16(dest,t,x,sy,cs2,0);
     }
-    
     if(get_debug() && key[KEY_O])
         rectfill(dest,x+hxofs,sy+hyofs-fakez,x+hxofs+hxsz-1,sy+hyofs+hysz-fakez-1,vc(id));
 }
@@ -2051,7 +1928,6 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
 	{
 		return;
 	}
-	
 	int32_t sx = real_x(x+xofs+shadowxofs)+(txsz-1)*8;
 	int32_t sy = real_y(y+yofs+shadowyofs)+(tysz-1)*16;
 	//int32_t sy1 = sx-56; //subscreen offset
@@ -2103,7 +1979,6 @@ sprite *sprite_list::spr(int32_t index)
 {
     if(index<0 || index>=count)
         return NULL;
-        
     return sprites[index];
 }
 
@@ -2121,7 +1996,6 @@ bool sprite_list::swap(int32_t a,int32_t b)
 {
     if(a<0 || a>=count || b<0 || b>=count)
         return false;
-        
     sprite *c = sprites[a];
     sprites[a] = sprites[b];
     sprites[b] = c;
@@ -2138,7 +2012,6 @@ bool sprite_list::add(sprite *s)
         delete s;
         return false;
     }
-    
     containedUIDs[s->getUID()] = count;
     sprites[count++]=s;
     //checkConsistency();
@@ -2154,20 +2027,14 @@ bool sprite_list::remove(sprite *s)
         lastUIDRequested=0;
         lastSpriteRequested=0;
     }
-    
     map<int32_t, int32_t>::iterator it = containedUIDs.find(s->getUID());
-    
     if(it != containedUIDs.end())
         containedUIDs.erase(it);
-        
     int32_t j=0;
-    
     for(; j<count; j++)
         if(sprites[j] == s)
             goto gotit;
-            
     return false;
-    
 gotit:
 
     for(int32_t i=j; i<count-1; i++)
@@ -2175,7 +2042,6 @@ gotit:
         sprites[i]=sprites[i+1];
         containedUIDs[sprites[i]->getUID()] = i;
     }
-    
     --count;
     //checkConsistency();
     return true;
@@ -2187,7 +2053,6 @@ zfix sprite_list::getX(int32_t j)
     {
         return (zfix)1000000;
     }
-    
     return sprites[j]->x;
 }
 
@@ -2197,7 +2062,6 @@ zfix sprite_list::getY(int32_t j)
     {
         return (zfix)1000000;
     }
-    
     return sprites[j]->y;
 }
 
@@ -2207,7 +2071,6 @@ int32_t sprite_list::getID(int32_t j)
     {
         return -1;
     }
-    
     return sprites[j]->id;
 }
 
@@ -2217,7 +2080,6 @@ int32_t sprite_list::getMisc(int32_t j)
     {
         return -1;
     }
-    
     return sprites[j]->misc;
 }
 
@@ -2225,28 +2087,21 @@ bool sprite_list::del(int32_t j, bool force)
 {
 	if(j<0||j>=count)
 		return false;
-	
 	if(!force && sprites[j]->ignore_delete) return false;
-	
 	map<int32_t, int32_t>::iterator it = containedUIDs.find(sprites[j]->getUID());
-	
 	if(it != containedUIDs.end())
 		containedUIDs.erase(it);
-	
 	if(sprites[j]==lastSpriteRequested)
 	{
 		lastUIDRequested=0;
 		lastSpriteRequested=0;
 	}
-	
 	delete sprites[j];
-	
 	for(int32_t i=j; i<count-1; i++)
 	{
 		sprites[i]=sprites[i+1];
 		containedUIDs[sprites[i]->getUID()] = i;
 	}
-	
 	--count;
 	if(j<=active_iterator) --active_iterator;
 	//checkConsistency();
@@ -2314,7 +2169,6 @@ extern char *guy_string[];
 void sprite_list::animate()
 {
 	active_iterator = 0;
-	
 	while(active_iterator<count)
 	{
 		if(!(freeze_guys && sprites[active_iterator]->canfreeze))
@@ -2338,7 +2192,6 @@ void sprite_list::animate()
 			}
 			setCurObject(NULL);
 		}
-		
 		++active_iterator;
 	}
 	active_iterator = -1;
@@ -2353,14 +2206,12 @@ void sprite_list::solid_push(solid_object* pusher)
 void sprite_list::run_script(int32_t mode)
 {
 	active_iterator = 0;
-	
 	while(active_iterator<count)
 	{
 		if(!(freeze_guys && sprites[active_iterator]->canfreeze))
 		{
 			sprites[active_iterator]->run_script(mode);
 		}
-		
 		++active_iterator;
 	}
 	active_iterator = -1;
@@ -2369,7 +2220,6 @@ void sprite_list::run_script(int32_t mode)
 void sprite_list::check_conveyor()
 {
     int32_t i=0;
-    
     while(i<count)
     {
         sprites[i]->check_conveyor();
@@ -2392,7 +2242,6 @@ int32_t sprite_list::hit(sprite *s)
     for(int32_t i=0; i<count; i++)
         if(sprites[i]->hit(s))
             return i;
-            
     return -1;
 }
 
@@ -2401,7 +2250,6 @@ int32_t sprite_list::hit(int32_t x,int32_t y,int32_t z, int32_t xsize, int32_t y
     for(int32_t i=0; i<count; i++)
         if(sprites[i]->hit(x,y,z,xsize,ysize,zsize))
             return i;
-            
     return -1;
 }
 int32_t sprite_list::hit(int32_t x,int32_t y,int32_t xsize, int32_t ysize)
@@ -2409,7 +2257,6 @@ int32_t sprite_list::hit(int32_t x,int32_t y,int32_t xsize, int32_t ysize)
     for(int32_t i=0; i<count; i++)
         if(sprites[i]->hit(x,y,xsize,ysize))
             return i;
-            
     return -1;
 }
 
@@ -2417,7 +2264,6 @@ int32_t sprite_list::hit(int32_t x,int32_t y,int32_t xsize, int32_t ysize)
 int32_t sprite_list::idCount(int32_t id, int32_t mask)
 {
     int32_t c=0;
-    
     for(int32_t i=0; i<count; i++)
     {
         if(((sprites[i]->id)&mask) == (id&mask))
@@ -2425,7 +2271,6 @@ int32_t sprite_list::idCount(int32_t id, int32_t mask)
             ++c;
         }
     }
-    
     return c;
 }
 
@@ -2439,7 +2284,6 @@ int32_t sprite_list::idFirst(int32_t id, int32_t mask)
             return i;
         }
     }
-    
     return -1;
 }
 
@@ -2454,7 +2298,6 @@ int32_t sprite_list::idNth(int32_t id, int32_t n, int32_t mask)
             else return i;
         }
     }
-    
     return -1;
 }
 
@@ -2468,7 +2311,6 @@ int32_t sprite_list::idLast(int32_t id, int32_t mask)
             return i;
         }
     }
-    
     return -1;
 }
 
@@ -2500,9 +2342,7 @@ sprite * sprite_list::getByUID(int32_t uid)
 {
     if(uid==lastUIDRequested)
         return lastSpriteRequested;
-    
     map<int32_t, int32_t>::iterator it = containedUIDs.find(uid);
-    
     if(it != containedUIDs.end())
     {
         // Only update cache if requested sprite was found
@@ -2510,7 +2350,6 @@ sprite * sprite_list::getByUID(int32_t uid)
         lastSpriteRequested=spr(it->second);
         return lastSpriteRequested;
     }
-        
     return NULL;
 }
 
@@ -2518,7 +2357,6 @@ void sprite_list::checkConsistency()
 {
     assert((int32_t)containedUIDs.size() == count);
     assert(lastUIDRequested==0 || containedUIDs.find(lastUIDRequested)!=containedUIDs.end());
-    
     for(int32_t i=0; i<count; i++)
         assert(sprites[i] == getByUID(sprites[i]->getUID()));
 }
@@ -2526,7 +2364,6 @@ void sprite_list::checkConsistency()
 void sprite::explode(int32_t type)
 {
 	al_trace("Trying to explode enemy tile: %d\n",tile);
-	
 	/*
 	tiledata *temptilebuf = NULL;
 	memset(temptilebuf, 0, sizeof(temptilebuf));
@@ -2541,13 +2378,11 @@ void sprite::explode(int32_t type)
 	tempx=x;
 	tempy=y;
 	*/
-	
 	byte spritetilebuf[256];
 	int32_t ltile=0;
 	int32_t lflip=0;
 	unpack_tile(newtilebuf, tile, flip, true);
-	memcpy(spritetilebuf, unpackbuf, 256);	
-	
+	memcpy(spritetilebuf, unpackbuf, 256);
 	for(int32_t i=0; i<16; ++i)
 	{
                 for(int32_t j=0; j<16; ++j)
@@ -2563,14 +2398,12 @@ void sprite::explode(int32_t type)
 			    p->cset=cs;
 			    p->color= zc_oldrand()%4+1;
                         }
-                        
 			else if(type ==1)  // Sands of Hours
                         {
                             particles.add(new pTwilight(x+j, y-z-fakez+i, 5, 1, 2, (zc_oldrand()%16)+i*2));
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=4;
-                            
                             if(zc_oldrand()%10 < 2)
                             {
                                 p->color= zc_oldrand()%4+1;
@@ -2580,7 +2413,6 @@ void sprite::explode(int32_t type)
                         else //explode
                         {
                             particles.add(new pFaroresWindDust(x+j, y-z-fakez+i, 5, 6, spritetilebuf[i*16+j], zc_oldrand()%96));
-                            
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->angular=true;
@@ -2590,11 +2422,9 @@ void sprite::explode(int32_t type)
 			    p->color= zc_oldrand()%4+1;
 			    p->cset=cs;
                         }
-			
                     }
                 }
 	}
-	
 }
 
 bool sprite::getCanFlicker()
@@ -2637,7 +2467,6 @@ void sprite::explode(int32_t type)
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=4;
-                            
                             if(zc_oldrand()%10 < 2)
                             {
                                 p->color=1;
@@ -2647,7 +2476,6 @@ void sprite::explode(int32_t type)
                         else
                         {
                             particles.add(new pFaroresWindDust(x+j, y-z+i, 5, 6, herotilebuf[i*16+j], zc_oldrand()%96));
-                            
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->angular=true;
@@ -2661,7 +2489,7 @@ void sprite::explode(int32_t type)
 }
 */
 
-//Moving Block 
+//Moving Block
 
 movingblock::movingblock() : sprite(), blockLayer(0), step(0.5)
 {
@@ -2674,7 +2502,6 @@ void movingblock::draw(BITMAP *dest)
 	{
 		int32_t old_cs = cs;
 		int32_t old_tile = tile;
-		
 		wpndata& spr = wpnsbuf[QMisc.sprites[sprFALL]];
 		cs = spr.csets & 0xF;
 		int32_t fr = spr.frames ? spr.frames : 1;
@@ -2682,7 +2509,6 @@ void movingblock::draw(BITMAP *dest)
 		int32_t animclk = (PITFALL_FALL_FRAMES-fallclk);
 		tile = spr.tile + zc_min(animclk / spd, fr-1);
 		sprite::draw(dest);
-		
 		cs = old_cs;
 		tile = old_tile;
 	}
@@ -2690,8 +2516,7 @@ void movingblock::draw(BITMAP *dest)
 	{
 		int32_t old_cs = cs;
 		int32_t old_tile = tile;
-		
-		if (drownCombo && combobuf[drownCombo].usrflags&cflag1) 
+		if (drownCombo && combobuf[drownCombo].usrflags&cflag1)
 		{
 			wpndata &spr = wpnsbuf[QMisc.sprites[sprLAVADROWN]];
 			cs = spr.csets & 0xF;
@@ -2701,7 +2526,7 @@ void movingblock::draw(BITMAP *dest)
 			tile = spr.tile + zc_min(animclk / spd, fr-1);
 			sprite::draw(dest);
 		}
-		else 
+		else
 		{
 			wpndata &spr = wpnsbuf[QMisc.sprites[sprDROWN]];
 			cs = spr.csets & 0xF;
@@ -2711,7 +2536,6 @@ void movingblock::draw(BITMAP *dest)
 			tile = spr.tile + zc_min(animclk / spd, fr-1);
 			sprite::draw(dest);
 		}
-		
 		cs = old_cs;
 		tile = old_tile;
 	}
@@ -2857,17 +2681,15 @@ bool lineLineColl(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, in
 	 float denominator = ((x2 - x1) * (y4 - y3)) - ((y2 - y1) * (x4 - x3));
 	float numerator1 = ((y1 - y3) * (x4 - x3)) - ((x1 - x3) * (y4 - y3));
 	float numerator2 = ((y1 - y3) * (x2 - x1)) - ((x1 - x3) * (y2 - y1));
-	
-	if (denominator == 0) 
+	if (denominator == 0)
 	{
-		if (x3 >= x1 && x3 <= x2 || x3 <= x1 && x3 >= x2 
+		if (x3 >= x1 && x3 <= x2 || x3 <= x1 && x3 >= x2
 		|| x4 >= x1 && x4 <= x2 || x4 <= x1 && x4 >= x2)
 		{
 			return numerator1 == 0 && numerator2 == 0;
 		}
 		else return false;
 	}
-	    
 	float r = numerator1 / denominator;
 	float s = numerator2 / denominator;
 

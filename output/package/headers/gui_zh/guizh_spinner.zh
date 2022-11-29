@@ -41,7 +41,7 @@ void Spinner_Draw(int id, int x, int y)
 {
     int str[8];
     itoa(str, 0, GUI_Data[id+SPINNER_VALUE]);
-    
+
     Screen->Rectangle(GUI_DRAW_LAYER, x, y, x+55, y+7,
       GUI_Data[id+SPINNER_BG_COLOR], 1, 0, 0, 0, true, OP_OPAQUE);
     Screen->DrawString(GUI_DRAW_LAYER, x+56, y, FONT_Z1,

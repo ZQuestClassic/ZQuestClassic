@@ -22,11 +22,8 @@ public:
 	bool getChecked();
 
 	void setProcSet(int32_t newProcSet);
-	
 	int32_t getProcSet() const {return procset;}
-	
 	void setIndex(size_t newIndex);
-	
 	size_t getIndex() const {return index;}
 
 	template<typename T>

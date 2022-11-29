@@ -1,13 +1,13 @@
 // ghost.zh
 // Version 3.0.0 - Alpha 9
 
-// Debugging shell utility; runs as an item script. 
+// Debugging shell utility; runs as an item script.
 
 namespace ghost3
 {
-	/* A live shell that can be installed into a quest during development. 
+	/* A live shell that can be installed into a quest during development.
 		It will accept commands from the user that call things such as ghost2::cfg.init()
-		to re-initialise base values. 
+		to re-initialise base values.
 		This runs from an item script via the item configured in combo label GH2SHELL.
 	*/
 	namespace shell
@@ -23,7 +23,7 @@ namespace ghost3
 		{
 			shellSFX, shellITEMID, shellLAST
 		};
-		
+
 		//Initialise the shell
 		void init(int regs)
 		{
@@ -35,11 +35,11 @@ namespace ghost3
 				return;
 			}
 			else shellinfo = Game->LoadComboData(c);
-			
-			//Set up SFX here. 
+
+			//Set up SFX here.
 			regs[TYPESFX] = shellinfo->Attribytes[shellSFX];
 		}
-		
+
 		void launch()
 		{
 			combodata shellinfo;
@@ -52,44 +52,44 @@ namespace ghost3
 			else shellinfo = Game->LoadComboData(c);
 			itemdata shellitem = Game->LoadItemData(shellinfo->Attribytes[shellITEMID]);
 			shellitem->RunScript(2);
-			
+
 		}
-		
+
 		typedef const int CFG;
-	
+
 		//Stack and Queue
 		const int INSTRUCTION_SIZE 	= 1; //The number of stack registers that any given *instruction* requires.
-		const int MAX_INSTR_QUEUE 	= 20; //The number of instructions that can be enqueued. 
-		const int MAX_ARGS 		= 4; //The maximum number of args that any instruction can use/require. 
+		const int MAX_INSTR_QUEUE 	= 20; //The number of instructions that can be enqueued.
+		const int MAX_ARGS 		= 4; //The maximum number of args that any instruction can use/require.
 		const int STACK_SIZE 		= 2 + ((INSTRUCTION_SIZE+MAX_ARGS)*MAX_INSTR_QUEUE);  //+2 now includes TOP
 		const int MAX_TOKEN_LENGTH 	= 100;
 		const int BUFFER_LENGTH 	= 42;
-		
+
 		const int TOP 			= ((INSTRUCTION_SIZE+MAX_ARGS)*MAX_INSTR_QUEUE)+1;
-		
+
 		const int rERROR 		= 0;
 		const int rRAW 			= 1;
 		const int rENQUEUED 		= 2;
 		const int SEQUENCES 		= 10;
-		
-		enum winstattypes 
+
+		enum winstattypes
 		{
 			wsNONE, wsOPEN, wsCLOSING, wsCLEANUP, wsLAST
 		};
-		
-		
+
+
 		const int YES = 1;
 		const int NO = 0;
-		
+
 		//Configuration
-		
+
 		//Debugging
 		CFG log_actions 	= NO;
-		
+
 		//Window Settings
-		
-		CFG WINDOW_F_KEY 	= 53; //We use F7 to open the debug window. 
-		
+
+		CFG WINDOW_F_KEY 	= 53; //We use F7 to open the debug window.
+
 		CFG W_COLOUR 		= 0x03; //window colour (background), black
 		CFG W_S_COLOUR 		= 0xC5; //window colour (background), black
 		CFG WINDOW_X 		= 15; //window indent over screen
@@ -102,7 +102,7 @@ namespace ghost3
 		CFG WINDOW_S_W 		= 180; //CHAR_HEIGHT * 3;
 		CFG W_OPACITY 		= OP_OPAQUE; //Window translucency.
 		CFG W_LAYER 		= 6; //window draw layer
-		
+
 		//Font and Character Generator
 		CFG FONT 		= FONT_APPLE2; //Apple II
 		CFG F_COLOUR 		= 0x01; //font colour, white
@@ -113,14 +113,14 @@ namespace ghost3
 		CFG CHAR_HEIGHT 	= 9; //8 + one space
 		CFG CHAR_X 		= 2; //Initial x indent
 		CFG CHAR_Y 		= 2; //Initial y indent
-		
+
 		//Keyboard
 		CFG KEY_DELAY 		= 6; //frames between keystrokes
-		
+
 		//Misc
 		CFG INVISIBLE_COMBO = 1;
-		
-		
+
+
 		//Runs a saved/enqueued sequence.
 		void runsequence(int id, int stack, int regs, int sequences, int debug_buffer)
 		{
@@ -132,13 +132,13 @@ namespace ghost3
 			if ( log_actions ) printf("Tracing sequence stack (%d)\n", seq);
 			TraceStack(seq);
 			execute(seq, regs, debug_buffer, sequences); //run the temp stack.
-		} 
+		}
 		//Saves a queue.
 		int savesequence(int id, int stack, int reg, int sequences, int debug_buffer)
 		{
 			if ( log_actions ) printf("Saving sequence, ID: %d\n",id);
 			//int seq_max = (id*STACK_SIZE)+STACK_SIZE;
-			for ( int q = 0; q < STACK_SIZE; ++q ) 
+			for ( int q = 0; q < STACK_SIZE; ++q )
 			{
 				sequences[(id*(STACK_SIZE+1))+q] = stack[q];
 			}
@@ -148,26 +148,26 @@ namespace ghost3
 			abort(debug_buffer);
 			return id;
 		}
-		
+
 		//Run the Interpreter on a given script
 		void process(int stack, int regs, int sequences, int debug_buffer)
 		{
 			if ( Input->ReadKey[WINDOW_F_KEY] ) //46+WINDOW_F_KEY] )
 			{
 				if ( log_actions ) TraceS("Enabled Debug Shell\n");
-				int typeval = type(stack, regs, sequences, debug_buffer); //We want to read from the typing buffer, and store the type output. 
+				int typeval = type(stack, regs, sequences, debug_buffer); //We want to read from the typing buffer, and store the type output.
 				switch(typeval)
 				{
 					case rRAW: //maybe type should be int with 0 being no return, 1 being enqueued, and 2 being raw?
 					{
 						if ( log_actions ) TraceS("process(int stack, REG, sequences, debug_buffer) evaluated type() true\n");
-						unless ( regs[ENQUEUED] ) 
+						unless ( regs[ENQUEUED] )
 						{
 							int r = read(debug_buffer,false,stack,regs,debug_buffer);
 							regs[WINDOWSTATUS] = wsCLOSING;
 							if ( r ) execute(stack, regs, debug_buffer, sequences);
 						}
-						else 
+						else
 						{
 							regs[WINDOWSTATUS] = wsCLOSING;
 							execute(stack, regs, debug_buffer, sequences);
@@ -180,7 +180,7 @@ namespace ghost3
 						--regs[ENQUEUED];
 						execute(stack, regs, debug_buffer, sequences);
 					}
-					default: 
+					default:
 					{
 						if ( log_actions ) TraceS("type() returned: false");
 						regs[WINDOWSTATUS] = wsCLOSING;
@@ -191,7 +191,7 @@ namespace ghost3
 				}
 			}
 		}
-		
+
 		//Process user typing
 		int type(int stack, int reg, int sequences, int debug_buffer)
 		{
@@ -223,16 +223,16 @@ namespace ghost3
 					Link->PressDown = false;
 					e = enqueue(reg,debug_buffer, stack);
 					if ( log_actions ) printf("type() enqueued an instruction, queue ID: %d", e);
-					
+
 				}
-				else if ( Input->ReadKey[KEY_ENTER] || Input->ReadKey[KEY_ENTER_PAD] ) 
+				else if ( Input->ReadKey[KEY_ENTER] || Input->ReadKey[KEY_ENTER_PAD] )
 				{
 					Game->TypingMode = false;
 					//Link->PressStart = false;
 					//TraceNL(); TraceS("Read enter key, and buffer position is: "); Trace(buffer_pos); TraceNL();
-					unless ( buffer_pos ) 
+					unless ( buffer_pos )
 					{
-						unless ( reg[ENQUEUED] ) 
+						unless ( reg[ENQUEUED] )
 						{
 							reg[WINDOWSTATUS] = wsCLOSING;
 							return 0; //do not execute if there are no commands
@@ -241,11 +241,11 @@ namespace ghost3
 					}
 					else //we've typed something
 					{
-						if ( reg[ENQUEUED] ) 
+						if ( reg[ENQUEUED] )
 						{
 							e = enqueue(reg,debug_buffer, stack); return rENQUEUED; //also enqueue this line
 						}
-						else 
+						else
 						{
 							return rRAW;
 							reg[WINDOWSTATUS] = wsCLOSING;
@@ -259,41 +259,41 @@ namespace ghost3
 						if ( Input->ReadKey[KEY_0+q] ) { savesequence(q,stack,reg,sequences,debug_buffer); return 0; }
 					}
 				}
-				else if ( EscKey() ) 
+				else if ( EscKey() )
 				{
 					for ( int q = 0; q < BUFFER_LENGTH; ++q ) debug_buffer[q] = 0;
 					clearstack(stack, reg);
-					
+
 					Game->TypingMode = false;
 					reg[WINDOWSTATUS] = wsCLOSING;
 					return 0; //exit and do not process.
 				}
-				
+
 				else
 				{
 					//else normal key
-					int k; 
+					int k;
 					int LegalKeys[]= //wish that we had const arrays
 					{
-						KEY_A, KEY_B, KEY_C, KEY_D, KEY_E, KEY_F, KEY_G, KEY_H, 
-						KEY_I, KEY_J, KEY_K, KEY_L, KEY_M, KEY_N, KEY_O, KEY_P, 
-						KEY_Q, KEY_R, KEY_S, KEY_T, KEY_U, KEY_V, KEY_W, KEY_X, 
-						KEY_Y, KEY_Z, KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, 
-						KEY_6, KEY_7, KEY_8, KEY_9, KEY_0_PAD, KEY_1_PAD, KEY_2_PAD, 
+						KEY_A, KEY_B, KEY_C, KEY_D, KEY_E, KEY_F, KEY_G, KEY_H,
+						KEY_I, KEY_J, KEY_K, KEY_L, KEY_M, KEY_N, KEY_O, KEY_P,
+						KEY_Q, KEY_R, KEY_S, KEY_T, KEY_U, KEY_V, KEY_W, KEY_X,
+						KEY_Y, KEY_Z, KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5,
+						KEY_6, KEY_7, KEY_8, KEY_9, KEY_0_PAD, KEY_1_PAD, KEY_2_PAD,
 						KEY_3_PAD, KEY_4_PAD, KEY_5_PAD,
 						KEY_6_PAD, KEY_7_PAD, KEY_8_PAD, KEY_9_PAD, KEY_STOP, //period
-						KEY_TILDE, 
-						KEY_MINUS, 
+						KEY_TILDE,
+						KEY_MINUS,
 						KEY_EQUALS, KEY_OPENBRACE, KEY_CLOSEBRACE,
-						KEY_COLON, KEY_QUOTE, KEY_BACKSLASH, KEY_BACKSLASH2, 
-						KEY_COMMA, 
+						KEY_COLON, KEY_QUOTE, KEY_BACKSLASH, KEY_BACKSLASH2,
+						KEY_COMMA,
 						KEY_SEMICOLON, KEY_SLASH, KEY_SPACE, KEY_SLASH_PAD,
-						KEY_ASTERISK, 
+						KEY_ASTERISK,
 						KEY_MINUS_PAD,
-						KEY_PLUS_PAD, KEY_CIRCUMFLEX, KEY_COLON2, KEY_EQUALS_PAD, KEY_STOP 
+						KEY_PLUS_PAD, KEY_CIRCUMFLEX, KEY_COLON2, KEY_EQUALS_PAD, KEY_STOP
 					};
 
-					
+
 					for ( int kk = SizeOfArray(LegalKeys)-1; kk >= 0; --kk )
 					{
 						k = LegalKeys[kk];
@@ -307,10 +307,10 @@ namespace ghost3
 							break;
 						}
 					}
-					
+
 					//continue;
 				}
-				
+
 				//else { --key_timer; }
 				if ( e )
 				{
@@ -322,7 +322,7 @@ namespace ghost3
 				Waitframe();
 			}
 		}
-		
+
 		//Draws the Shell
 		void draw(int debug_buffer)
 		{
@@ -330,7 +330,7 @@ namespace ghost3
 			Screen->Rectangle(W_LAYER, WINDOW_X, WINDOW_Y, WINDOW_X+WINDOW_W, WINDOW_Y+WINDOW_H, W_COLOUR, 1, 0,0,0,true,W_OPACITY);
 			Screen->DrawString(F_LAYER,WINDOW_X+CHAR_X,WINDOW_Y+CHAR_Y,FONT,F_COLOUR,F_BCOLOUR,0,debug_buffer,F_OPACITY);
 		}
-		
+
 		void windowcleanup(int reg)
 		{
 			switch(reg[WINDOWSTATUS])
@@ -342,13 +342,13 @@ namespace ghost3
 					reg[WINDOWSTATUS] = wsNONE; break;
 			}
 		}
-			
-		
+
+
 		//List of instructions
 		enum instructions
 		{
 			//instruction	//variables
-			NONE,		//NONE 
+			NONE,		//NONE
 			WARP,		//dmap,screen
 			POS,		//x,y
 			MOVEX,		//pixels (+/-)
@@ -359,7 +359,7 @@ namespace ghost3
 			MAXHP,		//amount
 			MAXMP,		//amount
 			MAXCTR,		//counter, amount
-			
+
 			INVISIBLE,	//(BOOL) on / off
 			INVENTORY,	//item, (BOOL), on / off
 			SAVE,		//item, (BOOL), on / off
@@ -381,15 +381,15 @@ namespace ghost3
 			DIAGONALMOVE,	//level map, level id, true|false
 			LTRIFORCE,	//level map, level id, true|false
 			LCOMPASS,	//level map, level id, true|false
-			
+
 			RUNFFCSCRIPTID,
 			FSCRIPT,
 			FDATA,
-			
+
 			TINT,
 			HUE,
 			CLEARTINT,
-			
+
 			FCSET,
 			FX,
 			FY,
@@ -404,23 +404,23 @@ namespace ghost3
 			FEWIDTH,
 			FLINK,
 			FMISC,
-			
+
 			PLAYSOUND,
 			PLAYMIDI,
 			DMAPMIDI,
-			
+
 			SETLIFE,
 			SETMAGIC,
 			SETCOUNTER,
-			
+
 			SAVESEQUENCE,
 			RUNSEQUENCE,
-			
+
 			TRACE,
 			PRSTACK,
 			INSTRUCTIONSEND
 		};
-		
+
 		//Returns the number of args to grab from an instruction
 		int num_instruction_params(int instr, int debug_buffer)
 		{
@@ -438,7 +438,7 @@ namespace ghost3
 				case MAXHP: return 1;	//amount
 				case MAXMP: return 1;	//amount
 				case MAXCTR: return 2;	//counter, amount
-				
+
 				case INVISIBLE: return 1;	//(BOOL) on / off
 				case INVENTORY: return 2;	//item, (BOOL), on / off
 				case SAVE: return 0;	//item, (BOOL), on / off
@@ -446,7 +446,7 @@ namespace ghost3
 				case CREATENPC: return 3;	//item, (BOOL), on / off
 				case PALETTE: return 2;	//item, (BOOL), on / off
 				case MONOCHROME: return 1;	//item, (BOOL), on / off
-				
+
 				case BOMBS: return 1;
 				case MBOMBS: return 1;
 				case ARROWS: return 1;
@@ -464,11 +464,11 @@ namespace ghost3
 				case RUNFFCSCRIPTID: return 1;
 				case FSCRIPT: return 2;
 				case FDATA: return 2;
-				
+
 				case TINT: return 3;
 				case HUE: return 4;
 				case CLEARTINT: return 0;
-				
+
 				case FCSET: return 2;
 				case FX: return 2;
 				case FCSET: return 2;
@@ -485,42 +485,42 @@ namespace ghost3
 				case FEWIDTH: return 2;
 				case FLINK: return 2;
 				case FMISC: return 3;
-				
+
 				case PLAYSOUND: return 1;
 				case PLAYMIDI: return 1;
 				case DMAPMIDI: return 3;
-				
+
 				case SETLIFE: return 1;
 				case SETMAGIC: return 1;
 				case SETCOUNTER: return 2;
-				
+
 				case SAVESEQUENCE: return 1;
 				case RUNSEQUENCE: return 1;
 				case TRACE: return 0;
 				case PRSTACK: return 1;
-		
-				default: 
+
+				default:
 				{
-					
-					printf("Invalid instruction %d passed to stack",instr); 
-					clearbuffer(debug_buffer); 
+
+					printf("Invalid instruction %d passed to stack",instr);
+					clearbuffer(debug_buffer);
 					return 0;
 				}
 			}
 		}
-		
+
 		//Match token substring to an instruction
 		int match_instruction(char32 token, int debug_buffer)
 		{
 			#option STRING_SWITCH_CASE_INSENSITIVE on
-			if ( log_actions )  
-			{ 
-				printf("Input token into match_instruction is: %s\n", token); 
-				printf("match_instruction() token is: %s\n", token); 
+			if ( log_actions )
+			{
+				printf("Input token into match_instruction is: %s\n", token);
+				printf("match_instruction() token is: %s\n", token);
 			}
-			
+
 			int sc; //script command, not used at present.
-			
+
 			//check normal commands first
 			switch(token)
 			{
@@ -582,14 +582,14 @@ namespace ghost3
 				case "SETMAGIC": return SETMAGIC;
 				case "SETCOUNTER": return SETCOUNTER;
 				case "SAVESEQUENCE": return SAVESEQUENCE;
-				case "RUNSEQUENCE": 
+				case "RUNSEQUENCE":
 				{
 					TraceS("Found token RunSequence\n");
 					return RUNSEQUENCE;
 				}
 				case "TRACE": return TRACE;
 				case "PRSTACK": return PRSTACK;
-				
+
 			}
 			//do trace values
 			switch(token[0])
@@ -602,11 +602,11 @@ namespace ghost3
 						case 'S':
 						{
 							//TraceS(token);
-							int buf[MAX_TOKEN_LENGTH]; 
+							int buf[MAX_TOKEN_LENGTH];
 							//Trace(buf);
-							int offset = 2; 
+							int offset = 2;
 							for ( ; (token[offset] == ' ' || token[offset] == ':'); ++offset ) continue; //destroy leading spaces
-							
+
 							for ( int qq = offset; qq < MAX_TOKEN_LENGTH; ++qq )
 							{
 								buf[qq-offset] = token[qq];
@@ -619,17 +619,17 @@ namespace ghost3
 						case 'D':
 						{
 							int buf[MAX_TOKEN_LENGTH];
-							int offset = 2; 
+							int offset = 2;
 							for ( ; (token[offset] == ' ' || token[offset] == ':'); ++offset ) continue; //destroy leading spaces
-							
+
 							for ( int q = offset; q < MAX_TOKEN_LENGTH; ++q )
 							{
 								buf[q-offset] = token[q];
-							} 
+							}
 							int tmp = atof(buf);
-							
+
 							printf("%d\n",tmp);
-							
+
 							return TRACE;
 						}
 						default: printf("match_instruction(TOKEN) could not evaluate the instruction: %s\n",token); abort(debug_buffer); return 0;
@@ -640,15 +640,15 @@ namespace ghost3
 			//if we reach here, then we could not match the token
 			printf("match_instruction(TOKEN) could not evaluate the instruction: %s\n",token); abort(debug_buffer); return NONE;
 		}
-		
+
 		//Clears the stack
 		void clearstack(int stack, int reg)
 		{
-			for ( int q = 0; q <= stack[TOP]; ++q ) stack[q] = 0; 
+			for ( int q = 0; q <= stack[TOP]; ++q ) stack[q] = 0;
 			reg[SP] = 0;
 			stack[TOP] = 0;
 		}
-		
+
 		//Enqueue instruction into a script, instead of instantly running it.
 		int enqueue(int reg, int debug_buffer, int stack)
 		{
@@ -656,7 +656,7 @@ namespace ghost3
 			int r = read(debug_buffer,true,stack,reg,debug_buffer);
 			//clearbuffer(debug_buffer);
 			++reg[ENQUEUED];
-			if ( log_actions ) 
+			if ( log_actions )
 			{
 				printf("Enqueued is: %d\n", reg[ENQUEUED]);
 				TraceStack(stack);
@@ -664,14 +664,14 @@ namespace ghost3
 			}
 			return reg[ENQUEUED];
 		}
-		
+
 		//Prints the full contents of the main stack.
 		void TraceStack(int stack)
 		{
 			for ( int q = stack[TOP]; q >= 0; --q )
 			printf("Stack register [%d] had value: %d\n", q, stack[q]);
 		}
-		
+
 		//Aborts processing and resets out of the window.
 		void abort(int debug_buffer)
 		{
@@ -680,13 +680,13 @@ namespace ghost3
 			//Link->PressStart = false;
 			//Link->InputStart = false;
 		}
-		
+
 		//Clears the typing buffer.
 		void clearbuffer(int debug_buffer)
 		{
 			for ( int q = 0; q < BUFFER_LENGTH; ++q ) debug_buffer[q] = 0;
 		}
-		
+
 		//Interprets an instruction line, interprets the instruction token, and then reads
 		//the parameters from an instruction line and feeds them to the interpreter.
 		int read(char32 str, bool enqueued, int stack, int reg, int debug_buffer)
@@ -694,42 +694,42 @@ namespace ghost3
 			//debug
 			//if ( !enqueued ) {TraceNL(); TraceS("Starting read() with an initial buffer of: "); TraceS(str); TraceNL();}
 			//else {TraceNL(); TraceS("read() is running from enqueue(debug_buffer) with an initial buffer of: "); TraceS(str); TraceNL();}
-			int token[MAX_TOKEN_LENGTH]; int input_string_pos; 
+			int token[MAX_TOKEN_LENGTH]; int input_string_pos;
 			int e; int token_pos = 0; int current_param;
 			for ( input_string_pos = 0; input_string_pos < MAX_TOKEN_LENGTH; ++input_string_pos )
 			{
 				if (str[input_string_pos] == ',' ) { ++input_string_pos; break; }
 				if (str[input_string_pos] == NULL ) break;
-				
+
 				token[token_pos] = str[input_string_pos];
 				++token_pos;
-				
-				
+
+
 				//debug
-				
+
 				//++input_string_pos; //skip the comma now. If there are no params, we'll be on NULL.
 			}
 			//debug
-			printf("read() token: %s\n", token); 
-			
+			printf("read() token: %s\n", token);
+
 			//put the instruction onto the stack.
 			//Right now, we are only allowing one instruction at a time.
 			//This allows for future expansion.
 			stack[reg[SP]] = match_instruction(token,debug_buffer);
-			//TraceNL(); TraceS("SP is: "); Trace(stack[SP]); TraceNL(); 
+			//TraceNL(); TraceS("SP is: "); Trace(stack[SP]); TraceNL();
 			int num_params = num_instruction_params(stack[SP], debug_buffer);
-			//TraceNL(); TraceS("Number of expected params "); Trace(num_params); TraceNL(); 
-			
+			//TraceNL(); TraceS("Number of expected params "); Trace(num_params); TraceNL();
+
 			if ( num_params )
 			{
-				if ( str[input_string_pos] == NULL ) 
+				if ( str[input_string_pos] == NULL )
 				{
 					//no params.
 					printf("Input string is missing params. Token was: %s\n", token);
 					return 0;
 				}
 			}
-			
+
 			++reg[SP]; //get the stack ready for the next instruction.
 			stack[TOP] = reg[SP]+1;
 			//push the variables onto the stack.
@@ -737,7 +737,7 @@ namespace ghost3
 				//NOT a Do loop, because some instructions have no params!
 			{
 				for ( token_pos = MAX_TOKEN_LENGTH-1; token_pos >= 0; --token_pos ) token[token_pos] = 0; //clear the token
-				
+
 				//copy over new token
 				token_pos = 0;
 				//TraceNL(); TraceS("read() is seeking for params."); TraceNL();
@@ -746,13 +746,13 @@ namespace ghost3
 				{
 					if (str[input_string_pos] == ',' ) { ++input_string_pos; break; }
 					if (str[input_string_pos] == NULL ) break;
-					
+
 					token[token_pos] = str[input_string_pos];
 					++token_pos;
-					
-					
+
+
 					//debug
-					
+
 					//++input_string_pos; //skip the comma now. If there are no params, we'll be on NULL.
 				}
 				/*
@@ -766,7 +766,7 @@ namespace ghost3
 				int tval; //value of the param
 				//first check the boolean types:
 				//TraceNL(); TraceS("The arg token is: "); TraceS(token); TraceNL();
-				
+
 				//if the argument is not a numeric literal:
 				unless ( isNumber(token[0]) )
 				{
@@ -782,19 +782,19 @@ namespace ghost3
 						case "F":
 						case "FALSE":
 							tval = 0; break;
-						
+
 						case "lx":
 						case "LX":
 							if ( log_actions ) printf("tval set to Link->X: %d", Link->X);
 							tval = Link->X; break;
-						
+
 						case "ly":
-						case "LY": 
+						case "LY":
 						{
 							if ( log_actions ) printf("tval set to Link->Y: %d", Link->Y);
 							tval = Link->Y; break;
 						}
-						
+
 						default:
 						{
 							//no chatacter token, but we need to check for negative numbers and decimal numbers such as .123
@@ -802,50 +802,50 @@ namespace ghost3
 							{
 								case '-': tval = atof(token); break;
 								case '.': tval = atof(token); break;
-								
+
 								//no matching token at all
 								default: printf("Invalid token passed as an argument for instruction: %s", token); tval = 0; break;
 							}
 						}
-					
+
 					}
 				}
 				else //literals
 				{
-					
+
 					tval = atof(token);
 					//TraceNL(); TraceS("found a literal var of: "); Trace(tval); TraceNL();
-					
+
 				}
 				//push the token value onto the stack
-				stack[SP] = tval; 
-			
+				stack[SP] = tval;
+
 				//now out stack looks like:
-				
+
 				//: PARAMn where n is the loop iteration
 				//: PARAMn where n is the loop iteration
 				//: PARAMn where n is the loop iteration
 				//: INSTRUCTION
-				
+
 				++reg[SP]; //this is why the stack size must be +1 larger than the3 total number of instructions and
-				//params that it can hold. 
+				//params that it can hold.
 				++current_param;
-				
+
 			} //repeat this until we are out of params
 			return 1;
-			
+
 		}
-		
+
 		//void getVarValue(int str)
 		//{
 		//	variables[VP] = atof(str);
 		//	++VP;
 		//}
-		
+
 		//Executes an interpreted instrucftion from the stack. 's' is the script for enqueued/saved scripts
 		void execute(int s, int reg, int debug_buffer, int sequences)
 		{
-			if ( log_actions ) 
+			if ( log_actions )
 			{
 				TraceNL(); TraceS("Stack Trace\n");
 				for ( int q = s[TOP]; q >= 0; --q )
@@ -853,14 +853,14 @@ namespace ghost3
 					Trace(s[q]);
 				}
 			}
-			
-			
+
+
 			//TraceNL(); TraceS("Running execute(stack, REG, debug_buffer)"); TraceNL();
 			int reg_ptr = 0; //read the stack starting here, until we reach TOP.
 			int args[MAX_ARGS];
 			//evaluate the instruction:
-			int instr; 
-			int current_arg = 0; 
+			int instr;
+			int current_arg = 0;
 			int num_of_params = 0;
 			for ( ; reg[ENQUEUED] >= 0; --reg[ENQUEUED] )
 			{
@@ -876,111 +876,111 @@ namespace ghost3
 					//TraceNL(); TraceS("Putting an arg on the heap. Arg value: "); Trace(args[current_arg]); TraceNL();
 					++current_arg;
 					++reg_ptr;
-					
+
 				}
-				
-				if ( log_actions ) 
+
+				if ( log_actions )
 				{
-					printf("execute believes that the present instruction is: %d\n", instr); 
+					printf("execute believes that the present instruction is: %d\n", instr);
 					printf("args[0] is: (%d(, args[1] is: (%d)\n", args[0], args[1]);
 				}
 				switch(instr)
 				{
-					case NONE: 
-						printf("STACK INSTRUCTION IS INVALID: %d", instr); 
+					case NONE:
+						printf("STACK INSTRUCTION IS INVALID: %d", instr);
 						Game->TypingMode = false;
 						clearbuffer(debug_buffer);
 						break;
-					case WARP: 
+					case WARP:
 					{
-						Link->Warp(args[0],args[1]); 
+						Link->Warp(args[0],args[1]);
 						if ( log_actions ) printf("Cheat System Warped Link to dmap (%d),screen (%d).\n",args[0],args[1]);
 						break;
 					}
-					case POS: 
+					case POS:
 					{
 						Link->X = args[0];
 						Link->Y = args[1];
 						if ( log_actions ) printf("Cheat System repositioned Link to X (%d),Y (%d)\n",args[0],args[1]);
 						break;
 					}
-					
+
 					case MOVEX:
 					{
 						Link->X += args[0];
 						if ( log_actions ) printf("Cheat system moved Link on his X axis by %d\n", args[0]);
 						break;
 					}
-					case MOVEY: 
+					case MOVEY:
 					{
 						Link->Y += args[0];
 						if ( log_actions ) printf("Cheat system moved Link on his Y axis by %d\n", args[0]);
 						break;
 					}
-					case REFILLHP: 
+					case REFILLHP:
 					{
 						Link->HP =  Link->MaxHP;
 						if ( log_actions ) printf("Cheat system refilled Link's HP to %d\n", Link->MaxHP);
-						break; 
+						break;
 					}
-					case REFILLMP: 
+					case REFILLMP:
 					{
 						Link->MP =  Link->MaxMP;
 						if ( log_actions ) printf("Cheat system refilled Link's MP to %d\n", Link->MaxHP);
-						break; 
+						break;
 					}
-					case REFILLCTR: 
+					case REFILLCTR:
 					{
 						Game->Counter[args[0]] =  Game->MCounter[args[0]];
 						if ( log_actions ) printf("Cheat system refilled Counter %d\n", args[0]);
-						break; 
+						break;
 					}
 					case MAXHP:
 					{
 						Game->MCounter[CR_LIFE] = args[0];
 						if ( log_actions ) printf("Cheat system set Link's Max HP to %d\n",args[0]);
-						break; 
+						break;
 					}
 					case MAXMP:
 					{
 						Game->MCounter[CR_MAGIC] = args[0];
 						if ( log_actions ) printf("Cheat system set Link's Max MP to %d\n",args[0]);
-						break; 
+						break;
 					}
 					case MAXCTR:
 					{
 						Game->Counter[args[0]] = args[1];
 						if ( log_actions ) printf("Cheat system refilled Counter (id: %d, amount: %d)\n",args[0],args[1]);
-						break; 
+						break;
 					}
-					
+
 					case INVISIBLE:
 					{
 						Link->Invisible = (args[0]) ? true : false;
 						if ( log_actions ) printf("Cheat system set Link's Invisibility state to (%s)\n", ((args[0]) ? "true" : "false"));
 						break;
 					}
-					case INVENTORY: 
+					case INVENTORY:
 					{
 						itemdata id = Game->LoadItemData(args[0]);
 						if ( id->Keep )
 						{
 							Link->Item[args[0]] = (args[1]) ? true : false;
 							if ( log_actions ) printf("Cheat system set Link's Inventory Item [%d] to state (%s)\n", args[0],((args[1]) ? "true" : "false"));
-							break; 
+							break;
 						}
 						else break;
 					}
 					case SAVE:
 					{
-						TraceS("Cheat system is saving the game.\n"); 
+						TraceS("Cheat system is saving the game.\n");
 						clearbuffer(debug_buffer);
 						Game->Save();
 						break;
 					}
 					case CREATEITEM:
 					{
-						if ( log_actions ) 
+						if ( log_actions )
 						{
 							printf("Cheat system is creating item ID: %d, at x (%d), y (%d)\n", args[0], args[1], args[2]);
 						}
@@ -991,7 +991,7 @@ namespace ghost3
 					}
 					case CREATENPC:
 					{
-						if ( log_actions ) 
+						if ( log_actions )
 						{
 							printf("Cheat system is creating npc ID: %d, at x (%d), y (%d)\n", args[0], args[1], args[2]);
 						}
@@ -1016,46 +1016,46 @@ namespace ghost3
 					case KEYS: Game->Counter[CR_KEYS] = args[0]; break;
 					case RUPEES: Game->Counter[CR_RUPEES] = args[0]; break;
 					case MRUPEES: Game->MCounter[CR_RUPEES] = args[0]; break;
-					
+
 					case LKEYS: Game->LKeys[args[0]] = args[1]; break;
 					case DIAGONALMOVE: Link->Diagonal = (args[0] ? true : false); break;
 					case BIGHITBOX: Link->BigHitbox = (args[0] ? true : false); break;
-					
-					case LMAP: 
+
+					case LMAP:
 					{
 						( args[1] ) ? (Game->LItems[args[0]] |= LI_MAP) : (Game->LItems[args[0]] ~=LI_MAP);
 						break;
 					}
-					case LBOSSKEY: 
+					case LBOSSKEY:
 					{
 						( args[1] ) ? (Game->LItems[args[0]] |= LI_BOSSKEY) : (Game->LItems[args[0]] ~=LI_BOSSKEY);
 						break;
 					}
-					case LCOMPASS: 
+					case LCOMPASS:
 					{
 						( args[1] ) ? (Game->LItems[args[0]] |= LI_COMPASS) : (Game->LItems[args[0]] ~=LI_COMPASS);
 						break;
 					}
-					case LTRIFORCE: 
+					case LTRIFORCE:
 					{
 						( args[1] ) ? (Game->LItems[args[0]] |= LI_TRIFORCE) : (Game->LItems[args[0]] ~=LI_TRIFORCE);
 						break;
 					}
-					case FDATA: 
+					case FDATA:
 					{
 						Screen->LoadFFC(args[0])->Data = args[1];
 						break;
 					}
-					case FSCRIPT: 
+					case FSCRIPT:
 					{
 						Screen->LoadFFC(args[0])->Script = args[1];
 						break;
 					}
-					case RUNFFCSCRIPTID: 
+					case RUNFFCSCRIPTID:
 					{
 						ffc f; bool running;
 						for ( int q = 1; q < 33; ++q )
-						{	
+						{
 							f = Screen->LoadFFC(args[0]);
 							if ( !f->Script )
 							{
@@ -1068,25 +1068,25 @@ namespace ghost3
 						if ( !running ) TraceS("Cheat system could not find a free ffc for command RUN.\n");
 						break;
 					}
-					case CLEARTINT: 
+					case CLEARTINT:
 					{
 						if ( log_actions ) TraceS("Cheat shell is clearing all Tint()\n.");
 						Graphics->ClearTint();
 						break;
 					}
-					case TINT: 
+					case TINT:
 					{
-						if ( log_actions ) 
+						if ( log_actions )
 						{
 							printf("Cheat shell is setting Tint(): R[%d], G[%d], B[%d].\n",args[0],args[1],args[2]);
 						}
-						
+
 						Graphics->Tint(args[0],args[1],args[2]);
 						break;
 					}
-					case HUE: 
+					case HUE:
 					{
-						if ( log_actions ) 
+						if ( log_actions )
 						{
 							printf("Cheat shell is setting Hue(): R[%d], G[%d], B[%d].\n",args[0],args[1],args[2]);
 							printf("Hue(distribution) is: %s\n", ( ( args[3] ) ? "true" : "false" ));
@@ -1094,136 +1094,136 @@ namespace ghost3
 						Graphics->MonochromeHue(args[0],args[1],args[2],(args[3] ? true : false));
 						break;
 					}
-					case FCSET: 
+					case FCSET:
 					{
 						Screen->LoadFFC(args[0])->CSet = args[1];
 						break;
 					}
-					case FX: 
+					case FX:
 					{
 						Screen->LoadFFC(args[0])->X = args[1];
 						break;
-					}	
-					case FY: 
+					}
+					case FY:
 					{
 						Screen->LoadFFC(args[0])->Y = args[1];
 						break;
 					}
-					case FVX: 
+					case FVX:
 					{
 						Screen->LoadFFC(args[0])->Vx = args[1];
 						break;
-					}	
-					case FVY: 
+					}
+					case FVY:
 					{
 						Screen->LoadFFC(args[0])->Vy = args[1];
 						break;
-					}	
-					case FAX: 
+					}
+					case FAX:
 					{
 						Screen->LoadFFC(args[0])->Ax = args[1];
 						break;
-					}	
-					case FAY: 
+					}
+					case FAY:
 					{
 						Screen->LoadFFC(args[0])->Ay = args[1];
 						break;
-					}	
-					case FFLAGS: 
+					}
+					case FFLAGS:
 					{
 						Screen->LoadFFC(args[0])->Flags[args[1]] = (args[2]);
 						break;
-					}	
-					case FTHEIGHT: 
+					}
+					case FTHEIGHT:
 					{
 						Screen->LoadFFC(args[0])->TileHeight = args[1];
 						break;
-					}	
-					case FTWIDTH: 
+					}
+					case FTWIDTH:
 					{
 						Screen->LoadFFC(args[0])->TileWidth = args[1];
 						break;
-					}	
-					case FEHEIGHT: 
+					}
+					case FEHEIGHT:
 					{
 						Screen->LoadFFC(args[0])->EffectHeight = args[1];
 						break;
-					}	
-					case FEWIDTH: 
+					}
+					case FEWIDTH:
 					{
 						Screen->LoadFFC(args[0])->EffectWidth = args[1];
 						break;
-					}	
-					case FLINK: 
+					}
+					case FLINK:
 					{
 						Screen->LoadFFC(args[0])->Link = args[1];
 						break;
-					}	
-					case FMISC: 
+					}
+					case FMISC:
 					{
 						Screen->LoadFFC(args[0])->Misc[args[1]] = args[2];
 						break;
-					}	
-					
+					}
+
 					case PLAYSOUND: Game->PlaySound(args[0]); break;
 					case PLAYMIDI: Game->PlayMIDI(args[0]); break;
-					case DMAPMIDI: 
+					case DMAPMIDI:
 					{
-						
+
 						Game->DMapMIDI[ ( (args[0] < 0) ? (Game->GetCurDMap()) : (args[0]) ) ] = args[1];
-						if ( log_actions ) printf("Cheat system is setting the DMap MIDI for the DMap: [%d] to MIDI ID (%d)\n",( (args[0] < 0) ? (Game->GetCurDMap()) : (args[0]) ),args[1]); 
+						if ( log_actions ) printf("Cheat system is setting the DMap MIDI for the DMap: [%d] to MIDI ID (%d)\n",( (args[0] < 0) ? (Game->GetCurDMap()) : (args[0]) ),args[1]);
 						break;
 					}
-					
+
 					case SETLIFE: Game->Counter[CR_LIFE] = args[0]; break;
 					case SETMAGIC: Game->Counter[CR_MAGIC] = args[0]; break;
 					case SETCOUNTER: Game->Counter[args[0]] = args[1]; break;
 					case RUNSEQUENCE:  printf("Running Saved Sequence:%d\n", args[0]); runsequence(args[0],s,reg,sequences,debug_buffer); break;
 					case SAVESEQUENCE: printf("Saving Sequence %d\n", savesequence(args[0],s,reg,sequences,debug_buffer)); break;
-					
+
 					case TRACE: break; //It's handled in match_instruction()
-					
+
 					case PRSTACK: print_dissassembly(args[0],sequences,debug_buffer); break;
-					
-					default: 
+
+					default:
 					{
-						
-						printf("Invalid instruction (%d) passed to stack.\n",instr); 
+
+						printf("Invalid instruction (%d) passed to stack.\n",instr);
 						break;
 					}
-					
+
 				}
 			}
 			///-----later, we'll add this: //pop everything off of the stack
 			//just wipe the stack for now, as we only support one command at this time
-			for ( int q = 0; q <= s[TOP]; ++q ) s[q] = 0; 
+			for ( int q = 0; q <= s[TOP]; ++q ) s[q] = 0;
 			reg[SP] = 0;
-			
+
 			//clear the main buffer, too!
 			for ( int cl = 0; cl < BUFFER_LENGTH; ++cl ) debug_buffer[cl] = 0;
 			Game->TypingMode = false; //insurance clear
 			//Link->PressStart = false;
 			//Link->InputStart = false;
 			reg[ENQUEUED] = 0;
-			
-			
+
+
 		}
 		int print_dissassembly(int which_stack, int sequences, int debug_buffer)
 		{
-			
+
 			int seq[STACK_SIZE+1];
-			
+
 			for ( int q = 0; q < STACK_SIZE; ++q ) seq[q] = ( (which_stack >= 0) ? sequences[which_stack*(STACK_SIZE+1)+q] : which_stack[q]); //copy the sequence set to the temp stack.
-			
+
 			printf("Dissassembly of Stack [%d]\n", which_stack);
 			int numargs;
 			for ( int q = 0; q < seq[TOP]; ++q )
 			{
 				int asmid = seq[q];
-				//if and only if numargs is 0, and we aren't on the first instruction, 
-				//do we print arg values in registers; otherwise the register holds 
+				//if and only if numargs is 0, and we aren't on the first instruction,
+				//do we print arg values in registers; otherwise the register holds
 				//an instruction
-				
+
 				if ( numargs && q )
 				{
 					--numargs;
@@ -1298,7 +1298,7 @@ namespace ghost3
 				}
 			}
 		}
-		
+
 		itemdata script gh3shell
 		{
 			void run()
@@ -1310,10 +1310,10 @@ namespace ghost3
 				while(1)
 				{
 					process(stack, REG, sequences, debug_buffer);
-					Waitdraw(); 
+					Waitdraw();
 					Waitframe();
 				}
-				
+
 			}
 		}
 	}

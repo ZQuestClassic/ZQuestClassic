@@ -25,10 +25,8 @@ public:
     typedef typename base_type::const_reference		const_reference;
     typedef typename base_type::iterator			iterator;
     typedef typename base_type::const_iterator		const_iterator;
-    
     //for convenience
     typedef std::pair<iterator, bool>				insert_iterator_type;
-    
     using base_type::begin;
     using base_type::end;
     using base_type::rbegin;
@@ -44,17 +42,14 @@ public:
     using base_type::swap;
     using base_type::at;
     using base_type::operator[];
-    
     explicit vectorset(const Compare& comp = Compare(), const allocator_type& alloc = allocator_type())
         : base_type(alloc), _compare(comp)
     {
     }
-    
     vectorset(const this_type& v)
         : base_type(v), _compare(v._compare)
     {
     }
-    
     this_type& operator =(const this_type& v)
     {
         if(this != &v)
@@ -62,42 +57,33 @@ public:
             base_type::operator =(v);
             _compare = v._compare;
         }
-        
         return *this;
     }
-    
     void push_back(const value_type& val)
     {
         insert(val);
     }
-    
     std::pair<iterator, bool> insert(const value_type& val)
     {
         std::pair<iterator, bool> ret(end(), false);
-        
         iterator it = lower_bound(val);
-        
         if(it == end() || _compare(val, *it))
         {
             ret.first = base_type::insert(it, val);
             ret.second = true;
         }
-        
         return ret;
     }
-    
     iterator insert(iterator it, const value_type& val)
     {
         return insert(val).first;
     }
-    
     template <class Iter>
     void insert(Iter first, Iter last)
     {
         base_type::insert(first, last);
         sort();
     }
-    
     void erase(iterator it)
     {
         base_type::erase(it);
@@ -106,38 +92,31 @@ public:
     {
         base_type::erase(first, last);
     }
-    
     size_type erase(const key_type& key)
     {
         size_type n(0);
         iterator it = find(key);
-        
         if(it != end())
         {
             erase(it);
             ++n;
         }
-        
         return n;
     }
-    
     iterator find(const key_type& key)
     {
         iterator it = lower_bound(key);
         return it;
     }
-    
     const_iterator find(const key_type& key) const
     {
         const_iterator it = lower_bound(key);
         return it;
     }
-    
     size_type count(const key_type& key) const
     {
         return(find(key) != end() ? (size_type)1 : (size_type)0);
     }
-    
     key_compare key_comp() const
     {
         return _compare;
@@ -146,61 +125,48 @@ public:
     {
         return key_comp();
     }
-    
     std::pair<iterator, iterator> equal_range(const key_type& key)
     {
         iterator first = find(key);
         iterator last = end();
-        
         if(first != end())
             last = first + 1;
-            
         return std::pair<iterator, iterator>(first, last);
     }
-    
     std::pair<const_iterator, const_iterator> equal_range(const key_type& key) const
     {
         const_iterator first = find(key);
         const_iterator last = end();
-        
         if(first != end())
             last = first + 1;
-            
         return std::pair<const_iterator, const_iterator>(first, last);
     }
-    
     iterator lower_bound(const key_type& key)
     {
         return std::lower_bound(begin(), end(), key, _compare);
     }
-    
     const_iterator lower_bound(const key_type& key) const
     {
         return std::lower_bound(begin(), end(), key, _compare);
     }
-    
     iterator upper_bound(const key_type& key)
     {
         return std::upper_bound(begin(), end(), key, _compare);
     }
-    
     const_iterator upper_bound(const key_type& key) const
     {
         return std::upper_bound(begin(), end(), key, _compare);
     }
-    
     void sort()
     {
         if(size() > (size_type)1)
         {
             std::sort(begin(), end(), _compare);
             iterator it = std::unique(begin(), end());
-            
             if(it != end())
                 base_type::erase(it, end());
         }
     }
-    
 protected:
     key_compare _compare;
 };

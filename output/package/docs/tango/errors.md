@@ -46,4 +46,4 @@ will be logged only as ID numbers. These are all the possible error codes:
 **404**: The array passed to `Tango_SaveSlotState()` or `Tango_RestoreSlotState()` was too small
 
 **405**: The array passed to `Tango_SaveMenuState()` or `Tango_RestoreMenuState()` was too small
- 
+

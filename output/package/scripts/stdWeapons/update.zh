@@ -3,7 +3,7 @@
 //Returns TRUE, if lweapon pointer is still valid, otherwise returns FALSE.
 bool LweaponWaitframe(ffc f, lweapon l){
 	if (!(l->isValid())) return false;//Lweapon pointer is dangling. ouch...
-	
+
 	if (LweaponFlagIsSet(l, LWF_PENETRATING)) PenetratorUpdate(l);//Check if lweapon can pierce trough enemies.
 	if (!LweaponFlagIsSet(l, LWF_NO_FALL)) AffectedByGravity (f, l);	//Check gravity.
 	if (LweaponFlagIsSet(l, LWF_AUTO_POS_UPDATE)){
@@ -28,18 +28,18 @@ bool LweaponWaitframe(ffc f, lweapon l){
 	if (LweaponFlagIsSet(l, LWF_DRAW_SHADOW))FastShadow (f, l);//Draw shadow, if needed.
 	int DrawX = l->DrawXOffset; //Backup DrawXoffset prior to custom drawing function.
 	if ((l->HitWidth<=200)&&(l->HitHeight<=160))DrawCustomSprite(l); // Use custom drawing algorithm.
-	
+
 	Waitframe(); //Moment of truth!
-	
+
 	if (!(l->isValid())) return false;//Lweapon pointer is now dangling. ouch...
-	
+
 	if (DEBUG_DRAW_HITBOXES>0)DrawLweaponHitbox(l);//Debug line...
-	
+
 	if (LweaponFlagIsSet(l, LWF_PENETRATING)) PenetratorUpdate(l);//Check if lweapon can pierce trough enemies.
 	UpdateTimer(f);
 	if (l->DrawXOffset>=1000)l->DrawXOffset=DrawX; //Fix draw offset, if custom drawing is used.
-	
-	return true; //End of routine, return to main script. 
+
+	return true; //End of routine, return to main script.
 }
 
 void LweaponUpdate(ffc f, lweapon l){
@@ -68,16 +68,16 @@ void LweaponUpdate(ffc f, lweapon l){
 	if (LweaponFlagIsSet(l, LWF_DRAW_SHADOW))FastShadow (f, l);//Draw shadow, if needed.
 	l->Misc[LWEAPON_MISC_ORIGDRAWX] = l->DrawXOffset; //Backup DrawXoffset prior to custom drawing function.
 	DrawCustomSprite(l); // Use custom drawing algorithm.
-	
+
 	//Waitframe(); //Moment of truth!
-	
+
 	//if (!(l->isValid())) return;//Lweapon pointer is now dangling. ouch...
 	//DrawLweaponHitbox(l);
-	
+
 	//if (LweaponFlagIsSet(l, LWF_PENETRATING)) PenetratorUpdate(l);//Check if lweapon can pierce trough enemies.
 	//UpdateTimer(f);
 	//if (l->DrawXOffset>=1000)l->DrawXOffset=DrawX; //Fix draw offset, if custom drawing is used.
-	
+
 	//return; //End of routine, return to main script.
 }
 
@@ -86,7 +86,7 @@ void LweaponUpdatePostWaitframe(ffc f, lweapon l, bool debugDrawHitbox){
 	if (DEBUG_DRAW_HITBOXES>0)DrawLweaponHitbox(l);
 	if (LweaponFlagIsSet(l, LWF_PENETRATING)) PenetratorUpdate(l);//Check if lweapon can pierce trough enemies.
 	if (l->DrawXOffset>=1000)l->DrawXOffset=l->Misc[LWEAPON_MISC_ORIGDRAWX]; //Fix draw offset, if custom drawing is used.
-	
+
 	return; //End of routine, return to main script.
 }
 
@@ -151,7 +151,7 @@ void LweaponSpriteUpdate (lweapon l){
 		if ((dir<4)||((dir>7)&&(IsEven(dir)))) l->OriginalTile = l->Misc[LWEAPON_MISC_ORIGTILE];
 		else l->OriginalTile = l->Misc[LWEAPON_MISC_ORIGTILE]+ (l->TileWidth* l->NumFrames);
 	}
- 	if ((dir==DIR_UP)||(dir==8)) l->Flip=0;
+	if ((dir==DIR_UP)||(dir==8)) l->Flip=0;
 	else if ((dir==DIR_DOWN)||(dir==12)) l->Flip=2;
 	else if ((dir==DIR_LEFT)||(dir==14)) l->Flip=5;
 	else if ((dir==DIR_RIGHT)||(dir==10)) l->Flip=4;
@@ -224,12 +224,12 @@ void DrawShadow(ffc f, lweapon l, bool flickering, bool translucent, bool static
 	bool largeshadow = false;
 	if((LWEAPON_LARGE_SHADOW_TILE!=0)&&(ltx>=LWEAPON_LARGE_SHADOW_MIN_WIDTH)&&(lty>=LWEAPON_LARGE_SHADOW_MIN_HEIGHT)){
 		largeshadow = true;
-		}	
+		}
 	int aspeed = LWEAPON_SHADOW_ASPEED;
 	if (largeshadow) aspeed = LWEAPON_LARGE_SHADOW_ANIM_SPEED;
 	int numframes = LWEAPON_SHADOW_NUMFRAMES;
 	if (largeshadow) numframes = LWEAPON_LARGE_SHADOW_FRAMES;
-	counter%=(aspeed*numframes); 
+	counter%=(aspeed*numframes);
 	int tile = LWEAPON_SHADOW_TILE;
 	if (largeshadow) tile = LWEAPON_LARGE_SHADOW_TILE;
 	int Lx = l->X + l->DrawXOffset;

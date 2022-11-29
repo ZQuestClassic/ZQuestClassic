@@ -91,7 +91,7 @@ const char *itemclass_help_string_defaults[itype_max] =
 	"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
 	"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
 	"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
-	"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 
+	"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
 	"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
 	"", "", "", "", "",
 
@@ -143,7 +143,7 @@ const char *itemclass_help_string_defaults[itype_max] =
 		" with string control codes.", //Note
 	"When used, can refill up to 5 counters, and optionally cure sword jinxes."
 };
-const char default_ctype_strings[cMAX][255] = 
+const char default_ctype_strings[cMAX][255] =
 {
 	"(None)", "Stairs [A]", "Cave (Walk Down) [A]", "Liquid", "Armos",
 	"Grave", "Dock", "-UNDEF", "Push (Wait)", "Push (Heavy)",
@@ -273,21 +273,21 @@ const char weap_name_default_string[wMax][255] =
 	//wMax
 };
 
-const char default_itype_strings[itype_max][255] = 
-{ 
+const char default_itype_strings[itype_max][255] =
+{
 	"Swords", "Boomerangs", "Arrows", "Candles", "Whistles",
-	"Bait", "Letters", "Potions", "Wands", "Rings", 
+	"Bait", "Letters", "Potions", "Wands", "Rings",
 	"Wallets", "Amulets", "Shields", "Bows", "Rafts",
-	"Ladders", "Books", "Magic Keys", "Bracelets", "Flippers", 
-	"Boots", "Hookshots", "Lenses", "Hammers", "Din's Fire", 
-	"Farore's Wind", "Nayru's Love", "Bombs", "Super Bombs", "Clocks", 
-	"Keys", "Magic Containers", "Triforce Pieces", "Maps", "Compasses", 
-	"Boss Keys", "Quivers", "Level Keys", "Canes of Byrna", "Rupees", 
-	"Arrow Ammo", "Fairies", "Magic", "Hearts", "Heart Containers", 
-	"Heart Pieces", "Kill All Enemies", "Bomb Ammo", "Bomb Bags", "Roc Items", 
-	"Hover Boots", "Scroll: Spin Attack", "Scroll: Cross Beams", "Scroll: Quake Hammer","Whisp Rings", 
-	"Charge Rings", "Scroll: Peril Beam", "Wealth Medals", "Heart Rings", "Magic Rings", 
-	"Scroll: Hurricane Spin", "Scroll: Super Quake","Stones of Agony", "Stomp Boots", "Whimsical Rings", 
+	"Ladders", "Books", "Magic Keys", "Bracelets", "Flippers",
+	"Boots", "Hookshots", "Lenses", "Hammers", "Din's Fire",
+	"Farore's Wind", "Nayru's Love", "Bombs", "Super Bombs", "Clocks",
+	"Keys", "Magic Containers", "Triforce Pieces", "Maps", "Compasses",
+	"Boss Keys", "Quivers", "Level Keys", "Canes of Byrna", "Rupees",
+	"Arrow Ammo", "Fairies", "Magic", "Hearts", "Heart Containers",
+	"Heart Pieces", "Kill All Enemies", "Bomb Ammo", "Bomb Bags", "Roc Items",
+	"Hover Boots", "Scroll: Spin Attack", "Scroll: Cross Beams", "Scroll: Quake Hammer","Whisp Rings",
+	"Charge Rings", "Scroll: Peril Beam", "Wealth Medals", "Heart Rings", "Magic Rings",
+	"Scroll: Hurricane Spin", "Scroll: Super Quake","Stones of Agony", "Stomp Boots", "Whimsical Rings",
 	"Peril Rings", "Non-gameplay Items", "zz067", "zz068", "zz069",
 	"zz070", "zz071", "zz072", "zz073", "zz074",
 	"zz075", "zz076", "zz077", "zz078", "zz079",
@@ -328,7 +328,7 @@ const char counter_default_names[MAX_COUNTERS][255] =
 	"Custom 9","Custom 10","Custom 11","Custom 12",
 	"Custom 13","Custom 14","Custom 15","Custom 16","Custom 17",
 	"Custom 18","Custom 19","Custom 20","Custom 21","Custom 22",
-	"Custom 23","Custom 24","Custom 25"	
+	"Custom 23","Custom 24","Custom 25"
 };
 
 void assignchar(char** p, char const* str)
@@ -557,36 +557,29 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 	dword section_version=V_ZINFO;
 	dword section_cversion=CV_ZINFO;
 	dword section_size=0;
-	
 	//section id
 	if(!p_mputl(section_id,f))
 	{
 		new_return(1);
 	}
-	
 	//section version info
 	if(!p_iputw(section_version,f))
 	{
 		new_return(2);
 	}
-	
 	if(!p_iputw(section_cversion,f))
 	{
 		new_return(3);
 	}
-	
 	for(int32_t writecycle=0; writecycle<2; ++writecycle)
 	{
 		fake_pack_writing=(writecycle==0);
-		
 		//section size
 		if(!p_iputl(section_size,f))
 		{
 			new_return(5);
 		}
-		
 		writesize=0;
-		
 		if(!p_iputw(itype_max,f)) //num itemtypes
 		{
 			new_return(6);
@@ -594,7 +587,6 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 		for(auto q = 0; q < itype_max; ++q)
 		{
 			byte namesize = (byte)(vbound(valid_str(z.ic_name[q]) ? strlen(z.ic_name[q]) : 0,0,255));
-			
 			if(!p_putc(namesize,f))
 			{
 				new_return(7);
@@ -602,9 +594,7 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 			if(namesize)
 				if(!pfwrite(z.ic_name[q],namesize,f))
 					new_return(8);
-			
 			dword htxtsz = valid_str(z.ic_help_string[q]) ? strlen(z.ic_help_string[q]) : 0;
-			
 			if(!p_iputw(htxtsz,f))
 			{
 				new_return(9);
@@ -613,7 +603,6 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 				if(!pfwrite(z.ic_help_string[q],htxtsz,f))
 					new_return(10);
 		}
-		
 		if(!p_iputw(cMAX,f)) //num combotypes
 		{
 			new_return(11);
@@ -621,7 +610,6 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 		for(auto q = 0; q < cMAX; ++q)
 		{
 			byte namesize = (byte)(vbound(valid_str(z.ctype_name[q]) ? strlen(z.ctype_name[q]) : 0,0,255));
-			
 			if(!p_putc(namesize,f))
 			{
 				new_return(12);
@@ -629,9 +617,7 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 			if(namesize)
 				if(!pfwrite(z.ctype_name[q],namesize,f))
 					new_return(13);
-			
 			dword htxtsz = valid_str(z.ctype_help_string[q]) ? strlen(z.ctype_help_string[q]) : 0;
-			
 			if(!p_iputw(htxtsz,f))
 			{
 				new_return(14);
@@ -640,7 +626,6 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 				if(!pfwrite(z.ctype_help_string[q],htxtsz,f))
 					new_return(15);
 		}
-		
 		if(!p_iputw(mfMAX,f)) //num mapflags
 		{
 			new_return(16);
@@ -648,7 +633,6 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 		for(auto q = 0; q < mfMAX; ++q)
 		{
 			byte namesize = (byte)(vbound(valid_str(z.mf_name[q]) ? strlen(z.mf_name[q]) : 0,0,255));
-			
 			if(!p_putc(namesize,f))
 			{
 				new_return(17);
@@ -656,9 +640,7 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 			if(namesize)
 				if(!pfwrite(z.mf_name[q],namesize,f))
 					new_return(18);
-			
 			dword htxtsz = valid_str(z.mf_help_string[q]) ? strlen(z.mf_help_string[q]) : 0;
-			
 			if(!p_iputw(htxtsz,f))
 			{
 				new_return(19);
@@ -667,7 +649,6 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 				if(!pfwrite(z.mf_help_string[q],htxtsz,f))
 					new_return(20);
 		}
-		
 		if(!p_iputw(MAX_COUNTERS,f)) //num counters
 		{
 			new_return(21);
@@ -675,7 +656,6 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 		for(auto q = 0; q < MAX_COUNTERS; ++q)
 		{
 			byte namesize = (byte)(vbound(valid_str(z.ctr_name[q]) ? strlen(z.ctr_name[q]) : 0,0,255));
-			
 			if(!p_putc(namesize,f))
 			{
 				new_return(22);
@@ -684,7 +664,6 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 				if(!pfwrite(z.ctr_name[q],namesize,f))
 					new_return(23);
 		}
-		
 		if(!p_iputw(wMax,f)) //num counters
 		{
 			new_return(21);
@@ -692,7 +671,6 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 		for(auto q = 0; q < wMax; ++q)
 		{
 			byte namesize = (byte)(vbound(valid_str(z.weap_name[q]) ? strlen(z.weap_name[q]) : 0,0,255));
-			
 			if(!p_putc(namesize,f))
 			{
 				new_return(22);
@@ -701,20 +679,17 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 				if(!pfwrite(z.weap_name[q],namesize,f))
 					new_return(23);
 		}
-		
 		if(writecycle==0)
 		{
 			section_size=writesize;
 		}
 	}
-	
 	if(writesize!=int32_t(section_size))
 	{
 		char ebuf[80];
 		sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
 		jwin_alert("Error:  writezinfo()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
 	}
-	
 	new_return(0);
 }
 
@@ -725,20 +700,15 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 	z.clear();
 	if(!f)
 		return 0;
-	
 	if(!p_mgetl(&dummy,f,true))
 		return qe_invalid;
-	
 	//section version info
 	if(!p_igetw(&section_version,f,true))
 		return qe_invalid;
-	
 	if(!p_igetw(&section_cversion,f,true))
 		return qe_invalid;
-	
 	if(!p_igetl(&dummy,f,true))
 		return qe_invalid;
-	
 	word num_itemtypes = 512;
 	if(section_version > 0)
 		if(!p_igetw(&num_itemtypes,f,true))
@@ -756,7 +726,6 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 				return qe_invalid;
 			z.ic_name[q][namesize] = 0;
 		}
-		
 		word htxtsz;
 		if(!p_igetw(&htxtsz,f,true))
 			return qe_invalid;
@@ -770,7 +739,6 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 			z.ic_help_string[q] = p;
 		}
 	}
-	
 	if(section_version > 0)
 	{
 		word num_combotypes;
@@ -789,7 +757,6 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 				p[namesize] = 0;
 				z.ctype_name[q] = p;
 			}
-			
 			word htxtsz;
 			if(!p_igetw(&htxtsz,f,true))
 				return qe_invalid;
@@ -802,7 +769,6 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 				z.ctype_help_string[q] = p;
 			}
 		}
-		
 		word num_mapflags;
 		if(!p_igetw(&num_mapflags,f,true))
 			return qe_invalid;
@@ -819,7 +785,6 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 				p[namesize] = 0;
 				z.mf_name[q] = p;
 			}
-			
 			word htxtsz;
 			if(!p_igetw(&htxtsz,f,true))
 				return qe_invalid;
@@ -846,7 +811,6 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 					if (!z.mf_name[q]) return qe_nomem;
 					memcpy(z.mf_name[q], old_mapflag_strings[q], namesize);
 					z.mf_name[q][namesize] = 0;
-					
 					char const* scrdesc = "These flags have no built-in effect,"
 						" but can be given special significance with ZASM or ZScript.";
 					namesize = (byte)strlen(scrdesc);
@@ -857,7 +821,6 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 				}
 			}
 	}
-	
 	if(section_version > 1)
 	{
 		word num_counters;

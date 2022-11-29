@@ -5,7 +5,7 @@ namespace sram /* Ensure a uniue .sram. filename, per save slot */
 	const int FILE_CREATED 	= 1;
 	const int FILE_SUCCESS 	= 1;
 	const int FILE_EXISTS 	= 2;
-	
+
 	namespace version
 	{
 		const float ID 		= 1.0002;
@@ -15,7 +15,7 @@ namespace sram /* Ensure a uniue .sram. filename, per save slot */
 		const int DATE_HOUR 	= 2;
 		const int DATE_MINUTE 	= 30;
 	}
-	
+
 	int valid()
 	{
 		if ( hash[0] && File->FileExists(hash) )
@@ -40,13 +40,13 @@ namespace sram /* Ensure a uniue .sram. filename, per save slot */
 		{
 			hash[q] = qname[q]; //copy qname to global hash
 		}
-		
+
 		for(int q = eos; q < 512; ++q)
 		{
 			hsh(q) = Rand('A', 'z');
 			if ( hsh[q] >= CHAR_LBRACE && hsh[q] <= CHAR_GRAVE ) hsh[q] = Rand('0', '9');
 		}
-		
+
 		hash[511] = 0;
 		hash[510] = 'm';
 		hash[509] = 'a';
@@ -54,9 +54,9 @@ namespace sram /* Ensure a uniue .sram. filename, per save slot */
 		hash[507] = 's';
 		hash[506] = '.';
 		return 1;
-		
+
 		//Filename is nowhashed
-		
+
 		/*char32 hsh[256];
 		for(int q = 0; q < 256; ++q)
 		{
@@ -90,7 +90,7 @@ namespace sram /* Ensure a uniue .sram. filename, per save slot */
 			LoadSRAM(hash,0);
 			return FILE_SUCCESS;
 		}
-		else 
+		else
 		{
 			generatehash();
 			return FILE_FAIL;
@@ -103,12 +103,12 @@ namespace sram /* Ensure a uniue .sram. filename, per save slot */
 			LoadSRAM(hash,section);
 			return FILE_SUCCESS;
 		}
-		else 
+		else
 		{
 			generatehash();
 			return FILE_FAIL;
 		}
-		
+
 	}
-	
+
 }

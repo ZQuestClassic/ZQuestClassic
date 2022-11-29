@@ -9,7 +9,7 @@ npc script killchildrenondeath
 				for ( int q = Screen->NumNPCs(); q > 0; --q )
 				{
 					npc n = Screen->LoadNPC(q);
-					if ( n->ParentUID == this->UID ) 
+					if ( n->ParentUID == this->UID )
 					{
 						Remove(n);
 					}
@@ -17,12 +17,12 @@ npc script killchildrenondeath
 				for ( int w = Screen->NumEWeapons(); w > 0; --w )
 				{
 					eweapon n = Screen->LoadEWeapon(w);
-					if ( n->ParentUID == this->UID ) 
+					if ( n->ParentUID == this->UID )
 					{
 						Remove(n);
 					}
 				}
-				
+
 			}
 			Waitframe();
 		}

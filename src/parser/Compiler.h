@@ -37,9 +37,7 @@ namespace ZScript
 	// DataStructs.h
 	struct FunctionData;
 	struct IntermediateData;
-	
 	////////////////////////////////////////////////////////////////
-	
 	class Opcode
 	{
 	public:
@@ -57,10 +55,8 @@ namespace ZScript
 		std::string printLine(bool showlabel = false)
 		{
 			char buf[100];
-        
 			if(label == -1)
 				return " " + toString() + "\n";
-            
 			sprintf(&buf[0], "l%d:", label);
 			return (showlabel ? std::string(&buf[0]) : " ")+ toString() + "\n";
 		}

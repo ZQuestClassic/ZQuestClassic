@@ -79,7 +79,7 @@ Next: <a href="Optimize-Options.html#Optimize-Options" accesskey="n" rel="next">
 <a name="index-options_002c-debugging"></a>
 <a name="index-debugging-information-options"></a>
 
-<p>To tell GCC to emit extra information for use by a debugger, in almost 
+<p>To tell GCC to emit extra information for use by a debugger, in almost
 all cases you need only to add <samp>-g</samp> to your other options.
 </p>
 <p>GCC allows you to use <samp>-g</samp> with
@@ -93,7 +93,7 @@ Nevertheless it is possible to debug optimized output.  This makes
 it reasonable to use the optimizer for programs that might have bugs.
 </p>
 <p>If you are not using some other optimization option, consider
-using <samp>-Og</samp> (see <a href="Optimize-Options.html#Optimize-Options">Optimize Options</a>) with <samp>-g</samp>.  
+using <samp>-Og</samp> (see <a href="Optimize-Options.html#Optimize-Options">Optimize Options</a>) with <samp>-g</samp>.
 With no <samp>-O</samp> option at all, some compiler passes that collect
 information useful for debugging do not run at all, so that
 <samp>-Og</samp> may result in a better debugging experience.
@@ -320,10 +320,10 @@ debugging information.
 compiler that may affect code generation to be appended to the
 DW_AT_producer attribute in DWARF debugging information.  The options
 are concatenated with spaces separating them from each other and from
-the compiler version.  
+the compiler version.
 It is enabled by default.
 See also <samp>-frecord-gcc-switches</samp> for another
-way of storing compiler options into the object file.  
+way of storing compiler options into the object file.
 </p>
 </dd>
 <dt><code>-gstrict-dwarf</code></dt>
@@ -556,12 +556,12 @@ instead of using GAS <code>.cfi_*</code> directives.
 <dt><code>-fno-eliminate-unused-debug-types</code></dt>
 <dd><a name="index-feliminate_002dunused_002ddebug_002dtypes"></a>
 <a name="index-fno_002deliminate_002dunused_002ddebug_002dtypes"></a>
-<p>Normally, when producing DWARF output, GCC avoids producing debug symbol 
+<p>Normally, when producing DWARF output, GCC avoids producing debug symbol
 output for types that are nowhere used in the source file being compiled.
 Sometimes it is useful to have GCC emit debugging
 information for all types declared in a compilation
 unit, regardless of whether or not they are actually used
-in that compilation unit, for example 
+in that compilation unit, for example
 if, in the debugger, you want to cast a value to a type that is
 not actually used in your program (but is declared).  More often,
 however, this results in a significant amount of wasted space.

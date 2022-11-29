@@ -11,7 +11,7 @@ lweapon script ReplaceOnDeath
 {
 	void run(int newWeaponType, int requireItem, int requireCounter, int CounterAmount, bool flipOnDeath, bool newDirOnDeath, int newDir, int newScript) //could be flags here
 	{
-		
+
 		itemdata bomb; bool found; bool super; int x; int y; int pow;
 		if ( requireItem > 0 )
 		{
@@ -24,20 +24,20 @@ lweapon script ReplaceOnDeath
 			}
 			if ( !found ) Quit(); //quit if bombs not in a slot
 		}
-		
+
 		pow = bomb->Power;
 		if ( requireCounter )
 		{
 			if ( Game->Counter[requireCounter] < CounterAmount ) Quit(); //quit if not enough bombs
 				else Game->Counter[requireCounter] -=CounterAmount;
 		}
-		
-		
-		while(this->isValid()) 
-		{ 
-			x = this->X; y = this->Y; 
-			
-			if ( this->DeadState != WDS_ALIVE ) //When the arrow itself dies, make an explosion. 
+
+
+		while(this->isValid())
+		{
+			x = this->X; y = this->Y;
+
+			if ( this->DeadState != WDS_ALIVE ) //When the arrow itself dies, make an explosion.
 			{
 				lweapon boom = Screen->CreateLWeapon(newWeaponType);
 				boom->Damage = pow;
@@ -49,15 +49,15 @@ lweapon script ReplaceOnDeath
 				else if ( newDirOnDeath ) { boom->Dir = newDir; boom->Flip = AdjustFlip(this); }
 				boom->Damage = this->Damage; //need a new damage attribute; reduce param count to accomplish this
 				if ( Abs(newScript) < 511 ) boom->Script = newScript;
-				Quit(); //Spawn only one weapon. 
+				Quit(); //Spawn only one weapon.
 			}
-			
-			Waitframe(); 
+
+			Waitframe();
 		}
-		
+
 	}
 	//Returns the reverse f any of the eight cardinal directions.
-	int reversedirection(int dir) 
+	int reversedirection(int dir)
 	{
 		switch(dir)
 		{
@@ -78,7 +78,7 @@ lweapon script ReplaceOnDeath
 	/*
 	int FlipRev(lweapon l){
 		if ( l->Dir == DIR_DOWN || l->Dir == DIR_UP && !l->Flip ) return 2;
-		if ( l->Dir == DIR_DOWN || l->Dir == DIR_UP && l->Flip ) return 0; 
+		if ( l->Dir == DIR_DOWN || l->Dir == DIR_UP && l->Flip ) return 0;
 		if ( l->Dir == DIR_LEFT || l->Dir == DIR_RIGHT && !l->Flip ) return 1;
 		if ( l->Dir == DIR_LEFT || l->Dir == DIR_RIGHT && l->Flip ) return 0;
 		return -1;
@@ -99,7 +99,7 @@ lweapon script ReplaceOnDeath
 		l->Dir = reversedirection(l->Dir);
 		//l->Flip = FlipRev(l);
 		l->Angular = angular;
-		if ( angular ) 
+		if ( angular )
 		{
 			if (l->Angle >= 180 ) l->Angle -= 180;
 			else l->Angle += 180;

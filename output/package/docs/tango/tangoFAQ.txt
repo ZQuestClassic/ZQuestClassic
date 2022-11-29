@@ -81,13 +81,13 @@ int __Tango_SlotDefs[] = {
     0, 512,   // Occupies __Tango_Buffer[0] to __Tango_Buffer[511]
     0, 0,     // Draws to a region at 0, 0 on the bitmap
     192, 128, // Drawing region is 192x128 pixels
-    
+
     // Slot 1
     TANGO_SLOT_SMALL,
     512, 64, // Occupies __Tango_Buffer[512] to __Tango_Buffer[575]
     0, 128,  // Draws to a region at 0, 128 (just below slot 0)
     128, 32  // Drawing region is 128x32
-    
+
     // Slot 2
     TANGO_SLOT_SMALL,
     576, 64, // Occupies __Tango_Buffer[576] to __Tango_Buffer[639]

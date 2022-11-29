@@ -1,4 +1,4 @@
-ZCL Changelog 
+ZCL Changelog
 
 Version 2.7.x
 
@@ -10,7 +10,7 @@ Change code from commandlibe process to exec process.
 
 2.7.6
 Added Load Module (.zmod) butons to both the ZC Player and
-the ZQuest Editor config tabs. 
+the ZQuest Editor config tabs.
 	( ZoriaRPG, 9th October, 2019 )
 
 2.7.5
@@ -19,7 +19,7 @@ Added / replaced some tab icons (drivers, colours tabs, notes tab).
 	( ZoriaRPG, 9th October, 2019 )
 
 2.7.4
-Added User Theme Load Button, User Theme lister selection, 
+Added User Theme Load Button, User Theme lister selection,
 	and User theme preview image (using Legacy theme, small mode).
 	( ZoriaRPG, 9th October, 2019 )
 
@@ -29,17 +29,17 @@ Updated labels for tabs.
 Added a graphic for the save file button.
 Added a button to select the current .sav file for ZC Player.
 	( ZoriaRPG, 3rd October, 2019 )
-	
+
 2.7.2
 Fixed a bug where the zquest.cfg was being corrupted (in this version).
 Added DXGL Configuration to Video Drivers
 	( ZoriaRPG, 23rd September, 2019 )
-	
+
 2.7.1
 Fixed preview of Dark and October themes.
 Changed 'Default' theme to 'Classic' theme.
 	( ZoriaRPG, 19th September, 2019 )
-	
+
 2.7.0
 Segregated ZC Player and ZQ GFX Drivers
 	( ZoriaRPG, 18th July, 2019 )
@@ -49,16 +49,16 @@ Version 2.6.x
 2.6.12
 Removed extraneous 'Show Misaligns' option from ZQuest Options 2.
 ZQuest tab now defaults on Options 1, as intended.
-	( ZoriaRPG, 5th March, 2019 ) 	
+	( ZoriaRPG, 5th March, 2019 )
 
 2.6.11
 Fix 'Skip Logo' button and update 2.6.11
-	( ZoriaRPG, 19th February, 2019 ) 
-	
+	( ZoriaRPG, 19th February, 2019 )
+
 2.6.10
 Added Dark and October UI Themes
 Fixed initial page selection (was ZQuest, now ZC).
-	( ZoriaRPG, 29th January, 2019 ) 
+	( ZoriaRPG, 29th January, 2019 )
 
 2.6.9
 Removed extra instance of 'Til;e Protection' box.
@@ -66,9 +66,9 @@ Removed extra instance of 'Til;e Protection' box.
 2.6.8
 Changed the titlebar text to indicate that ZC 2.53.0 or higher is required for ZCL.
 Fixed the text set by GDI mode (was setting the .cfg string to GBID, not GDIB)
-Widened the pulldown combo-boxes under the drivers tab so that the options are completely visible. 
+Widened the pulldown combo-boxes under the drivers tab so that the options are completely visible.
 	( ZoriaRPG, 22nd January, 2018 )
-	
+
 2.6.7
 Added preliminary OSX support.
 
@@ -77,7 +77,7 @@ Added Linux video drivers, and MacOSX Video drivers.
 Streamlined the drivers interface to one TCombo pair. ( ZoriaRPG 16th December, 2017 )
 
 2.6.5
-Fixed 'Show Misaligns' in ZQuest Options 2 not setting the zquest.cfg value. 
+Fixed 'Show Misaligns' in ZQuest Options 2 not setting the zquest.cfg value.
 	( ZoriaRPG, 15th December, 2017 )
 
 2.6.4
@@ -96,7 +96,7 @@ Changelog: Added hardcoded agcfg.writestring() values for ['romview-graphics']. 
 2.6.2
 
 Changed calls to romview-w.exe and romview-l to romview.exe and romview, for Windows and Linux, respectively.
-Added write instructions for the [graphics] section (for video drivers) to write to all three config files. 
+Added write instructions for the [graphics] section (for video drivers) to write to all three config files.
 
 Segregated all calls to ag.cfg:
 	All calls to ag.cfg have been segregated as follows:

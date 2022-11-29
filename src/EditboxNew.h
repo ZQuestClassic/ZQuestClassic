@@ -280,7 +280,6 @@ protected:
 	int32_t view_width;
 	int32_t view_x;
 	int32_t view_y;
-	
 	CharPos findCharacter(int32_t x, int32_t y);
 	int32_t fgcolor;
 	int32_t bgcolor;
@@ -291,7 +290,6 @@ class EditboxVScrollView : public BasicEditboxView
 {
 public:
 	EditboxVScrollView(DIALOG *Host, FONT *TextFont, int32_t FGColor, int32_t BGColor, int32_t Highlight_Style=HSTYLE_EOLINE) : BasicEditboxView(Host, TextFont, FGColor, BGColor, Highlight_Style), sbarpattern(NULL) {}
-	
 	~EditboxVScrollView();
 	bool mouseClick(int32_t x, int32_t y);
 	bool mouseDrag(int32_t x, int32_t y);

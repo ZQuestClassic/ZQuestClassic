@@ -94,7 +94,6 @@ std::shared_ptr<GUI::Widget> ThemeEditor::view()
 	using namespace GUI::Key;
 	using namespace GUI::Props;
 	queue_revert = 0;
-	
 	memcpy(t_jwin_pal, jwin_pal, sizeof(jwin_pal));
 	memcpy(restore_jwin_pal, jwin_pal, sizeof(jwin_pal));
 	get_palette(restore_pal);
@@ -112,7 +111,6 @@ std::shared_ptr<GUI::Widget> ThemeEditor::view()
 	}
 	set_palette(temp_pal);
 	jwin_set_colors(jwin_pal);
-	
 	window = Window(
 		title = "Theme Editor",
 		width = 0_px + zq_screen_w,
@@ -258,7 +256,6 @@ bool ThemeEditor::handleMessage(const GUI::DialogMessage<message>& msg)
 				relativize_path(path, temppath);
 				if(saved_path)
 					strcpy(saved_path,path);
-				
 				for(auto q = strlen(temppath)-1; q > 0 && !(temppath[q] == '/' || temppath[q] == '\\'); --q)
 				{
 					temppath[q] = 0;

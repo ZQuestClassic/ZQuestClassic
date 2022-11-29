@@ -961,7 +961,6 @@ void replay_poll()
             _key[i] = key[i] = 0;
         }
         uninstall_keyboard_handlers();
-		
 		enter_sys_pal();
 		if (jwin_alert("Replay",
 					   "Would you like to halt the replay and",

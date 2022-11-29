@@ -57,7 +57,7 @@ eweapon script addtwoangularshots
 				dirs[1] = DIR_DOWN;
 				break;
 			}
-			default: 
+			default:
 			{
 				printf("Invalid Dir\n");
 				Quit();
@@ -84,9 +84,9 @@ eweapon script addtwoangularshots
 					//printf("shots[1]->Angle is: %f\n", shots[q]->Angle);
 					break;
 				}
-				
+
 			}
-			
+
 			else shots[q]->Dir = dirs[q];
 			//unless ( blockable && (this->Level&1)) shots[q]->Level |= 1;
 			//unless ( blockable ) shots[q]->Level |= 1;

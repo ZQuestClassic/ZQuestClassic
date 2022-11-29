@@ -13,7 +13,7 @@ void __Tango_LogError(int errorNum, int data)
 {
     int str[]="tango.zh error: ";
     TraceS(str);
-    
+
     if(errorNum==__TANGO_ERROR_OVERFLOW)
     {
         int str2[]="String too large for buffer";
@@ -36,7 +36,7 @@ void __Tango_LogError(int errorNum, int data)
     {
         int str2[]="More than %d arguments given to a function\n";
         printf(str2, __TANGO_MAX_FUNCTION_ARGS);
-        
+
         int str3[]="(%d is the maximum, not necessarily the correct number)\n";
         printf(str3, __TANGO_MAX_FUNCTION_ARGS);
     }
@@ -45,7 +45,7 @@ void __Tango_LogError(int errorNum, int data)
         int str2[]="Invalid style specified.";
         TraceS(str2);
         TraceNL();
-        
+
         int dataBuf[12];
         __Tango_FloatToASCII(dataBuf, data, true);
         int str3[]="Style was %s; valid styles are integers from 0 to %d\n";
@@ -56,7 +56,7 @@ void __Tango_LogError(int errorNum, int data)
         int str2[]="Invalid slot specified.";
         TraceS(str2);
         TraceNL();
-        
+
         int dataBuf[12];
         __Tango_FloatToASCII(dataBuf, data, true);
         int str3[]="Slot was %s; valid slots are integers from 0 to %d\n";
@@ -67,7 +67,7 @@ void __Tango_LogError(int errorNum, int data)
         int str2[]="The string contains an invalid or incomplete function call.";
         TraceS(str2);
         TraceNL();
-        
+
         int str3[]="Error occurred at position %d\n";
         printf(str3, data);
     }
@@ -76,7 +76,7 @@ void __Tango_LogError(int errorNum, int data)
         int str2[]="The string contains an invalid or incomplete character code.";
         TraceS(str2);
         TraceNL();
-        
+
         int str3[]="Error occurred at position %d\n";
         printf(str3, data);
     }
@@ -85,7 +85,7 @@ void __Tango_LogError(int errorNum, int data)
         int str2[]="The string contains an invalid function argument.";
         TraceS(str2);
         TraceNL();
-        
+
         int str3[]="Error occurred at position %d\n";
         printf(str3, data);
     }
@@ -94,7 +94,7 @@ void __Tango_LogError(int errorNum, int data)
         int str2[]="The argument to @string() was not a valid string.";
         TraceS(str2);
         TraceNL();
-        
+
         int dataBuf[12];
         __Tango_FloatToASCII(dataBuf, data, true);
         int str3[]="Pointer value was %s\n";
@@ -105,7 +105,7 @@ void __Tango_LogError(int errorNum, int data)
         int str2[]="Attempted to load an invalid string.";
         TraceS(str2);
         TraceNL();
-        
+
         int dataBuf[12];
         __Tango_FloatToASCII(dataBuf, data, true);
         int str3[]="Pointer value was %s\n";
@@ -116,7 +116,7 @@ void __Tango_LogError(int errorNum, int data)
         int str2[]="Attempted to load an invalid message.";
         TraceS(str2);
         TraceNL();
-        
+
         int dataBuf[12];
         __Tango_FloatToASCII(dataBuf, data, true);
         int str3[]="Message number was was %s\n";
@@ -133,7 +133,7 @@ void __Tango_LogError(int errorNum, int data)
         int str2[]="The message contains an incomplete string control code.";
         TraceS(str2);
         TraceNL();
-    
+
         int str3[]="Error occurred at position %d\n";
         printf(str3, data);
     }

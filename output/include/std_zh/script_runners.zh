@@ -18,7 +18,7 @@ npc RunNPCScript(int ID, int scriptNum, untyped args = NULL)
 	// Invalid script
 	if(scriptNum < MIN_NPCSCRIPT || scriptNum > MAX_NPCSCRIPT)
 		return NULL;
-	
+
 	npc obj = Screen->CreateNPC(ID);
 	obj->Script = scriptNum;
 	if (args)
@@ -56,7 +56,7 @@ lweapon RunLWeaponScript(int ID, int scriptNum, untyped args = NULL)
 	// Invalid script
 	if(scriptNum < MIN_LWEAPONSCRIPT || scriptNum > MAX_LWEAPONSCRIPT)
 		return NULL;
-	
+
 	lweapon obj = Screen->CreateLWeapon(ID);
 	obj->Script = scriptNum;
 	if (args)
@@ -94,7 +94,7 @@ eweapon RunEWeaponScript(int ID, int scriptNum, untyped args = NULL)
 	// Invalid script
 	if(scriptNum < MIN_EWEAPONSCRIPT || scriptNum > MAX_EWEAPONSCRIPT)
 		return NULL;
-	
+
 	eweapon obj = Screen->CreateEWeapon(ID);
 	obj->Script = scriptNum;
 	if (args)
@@ -132,7 +132,7 @@ itemsprite RunItemSpriteScript(int ID, int scriptNum, untyped args = NULL)
 	// Invalid script
 	if(scriptNum < MIN_ITEMSPRITESCRIPT || scriptNum > MAX_ITEMSPRITESCRIPT)
 		return NULL;
-	
+
 	itemsprite obj = Screen->CreateItem(ID);
 	obj->Script = scriptNum;
 	if (args)
@@ -170,7 +170,7 @@ genericdata RunGenericScript(int scriptNum, untyped args = NULL)
 	// Invalid script
 	if(scriptNum < MIN_GENERICSCRIPT || scriptNum > MAX_GENERICSCRIPT)
 		return NULL;
-	
+
 	genericdata obj = Game->LoadGenericData(scriptNum);
 	if (args)
 	{
@@ -185,7 +185,7 @@ genericdata RunGenericScriptFrz(int scriptNum, untyped args = NULL)
 	// Invalid script
 	if(scriptNum < MIN_GENERICSCRIPT || scriptNum > MAX_GENERICSCRIPT)
 		return NULL;
-	
+
 	genericdata obj = Game->LoadGenericData(scriptNum);
 	if (args)
 	{

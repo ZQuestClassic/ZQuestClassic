@@ -15,17 +15,17 @@ namespace ghost3
 	    int choice;
 	    int tries;
 	    npc otherNPC;
-	    
+
 	    // First, rate each tile for suitability. Lower is better,
 	    // but negative means it's strictly off-limits.
-	    
+
 	    // Tiles too close to other enemies are undesirable
 	    for(int i=Screen->NumNPCs(); i>0; --i)
 	    {
 		otherNPC=Screen->LoadNPC(i);
 		checkCombo=ComboAt(otherNPC->X, otherNPC->Y);
 		tileRatings[checkCombo]+=100;
-		
+
 		if(checkCombo>15)
 		    tileRatings[checkCombo-16]+=1;
 		if(checkCombo<160)
@@ -35,7 +35,7 @@ namespace ghost3
 		if(checkCombo%16<15)
 		    tileRatings[checkCombo+1]+=1;
 	    }
-	    
+
 	    // Mark prohibited tiles
 	    for(int i=0; i<176; i++)
 	    {
@@ -70,7 +70,7 @@ namespace ghost3
 		    {
 			checkX=ComboX(i);
 			checkY=ComboY(i);
-			
+
 			if(Screen->isSolid(checkX, checkY) ||
 			   Screen->isSolid(checkX+8, checkY) ||
 			   Screen->isSolid(checkX, checkY+8) ||
@@ -82,7 +82,7 @@ namespace ghost3
 		    {
 			checkX=ComboX(i);
 			checkY=ComboY(i);
-			
+
 			if(!Screen->isSolid(checkX, checkY) ||
 			   !Screen->isSolid(checkX+8, checkY) ||
 			   !Screen->isSolid(checkX, checkY+8) ||
@@ -94,7 +94,7 @@ namespace ghost3
 			tileRatings[i]=-1;
 		}
 	    }
-	    
+
 	    // Find the best rating and count the number of tiles with that rating
 	    bestRating=10000;
 	    bestCount=0;
@@ -102,7 +102,7 @@ namespace ghost3
 	    {
 		if(tileRatings[i]<0)
 		    continue;
-		
+
 		if(tileRatings[i]==bestRating)
 		    bestCount++;
 		else if(tileRatings[i]<bestRating)
@@ -111,11 +111,11 @@ namespace ghost3
 		    bestCount=1;
 		}
 	    }
-	    
+
 	    // The loop below might hang if every tile is unusable
 	    if(bestCount==0)
 		return 0;
-	    
+
 	    // Pick at random from the best rated tiles
 	    counter=Rand(bestCount)+1;
 	    for(choice=0; counter>0; choice++)
@@ -123,7 +123,7 @@ namespace ghost3
 		if(tileRatings[choice]==bestRating)
 		    counter--;
 	    }
-	    
+
 	    // Subtract 1 because the for loop overshot
 	    return choice-1;
 	}
@@ -140,14 +140,14 @@ namespace ghost3
 	    int choice;
 	    int tries;
 	    npc otherNPC;
-	    
+
 	    // Too close to other enemies
 	    for(int i=Screen->NumNPCs(); i>0; i--)
 	    {
 		otherNPC=Screen->LoadNPC(i);
 		checkCombo=ComboAt(otherNPC->X, otherNPC->Y);
 		tileRatings[checkCombo]+=100;
-		
+
 		if(checkCombo>15)
 		    tileRatings[checkCombo-16]+=1;
 		if(checkCombo<160)
@@ -157,7 +157,7 @@ namespace ghost3
 		if(checkCombo%16<15)
 		    tileRatings[checkCombo+1]+=1;
 	    }
-	    
+
 	    // Mark prohibited tiles
 	    for(int i=0; i<176; i++)
 	    {
@@ -167,19 +167,19 @@ namespace ghost3
 		    if(Screen->ComboT[i]!=type)
 			tileRatings[i]=-1;
 		}
-		
+
 		// Flag isn't present
 		if(flag>=0)
 		{
 		    if(Screen->ComboF[i]!=flag && Screen->ComboI[i]!=flag)
 			tileRatings[i]=-1;
 		}
-		
+
 		// Too close to Link
 		else if(Abs(ComboX(i)-Link->X)<32 && Abs(ComboY(i)-Link->Y)<32)
 		    tileRatings[i]=-1;
 	    }
-	    
+
 	    // Find the best rating and count the tiles
 	    bestRating=10000;
 	    bestCount=0;
@@ -187,7 +187,7 @@ namespace ghost3
 	    {
 		if(tileRatings[i]<0)
 		    continue;
-		
+
 		if(tileRatings[i]==bestRating)
 		    bestCount++;
 		else if(tileRatings[i]<bestRating)
@@ -196,10 +196,10 @@ namespace ghost3
 		    bestCount=1;
 		}
 	    }
-	    
+
 	    if(bestCount==0)
 		return 0;
-	    
+
 	    // Pick one at random
 	    counter=Rand(bestCount)+1;
 	    for(choice=0; counter>0; choice++)
@@ -207,22 +207,22 @@ namespace ghost3
 		if(tileRatings[choice]==bestRating)
 		    counter--;
 	    }
-	    
+
 	    return choice-1;
 	}
 
 	npc SpawnNPC(int id)
 	{
 	    npc theNPC;
-	    
+
 	    int spawnCombo=FindSpawnPoint(true, false, false, false);
-	    
+
 	    theNPC=Screen->CreateNPC(id);
 	    theNPC->X=ComboX(spawnCombo);
 	    theNPC->Y=ComboY(spawnCombo);
 	    return theNPC;
 	}
-	
+
 	bool isDead(npc n)
 	{
 		return n->HP <= 0 && !n->Immortal;
@@ -231,14 +231,14 @@ namespace ghost3
 	int FindUnusedFFC()
 	{
 	    ffc f;
-	    
+
 	    for(int i=1; i<33; ++i)
 	    {
 		f=Screen->LoadFFC(i);
-		
+
 		if((!(f->Data) || f->Data==Game->Ghost[GHV_SETTINGS_COMBO_ID]) )
 		{
-		
+
 		   if (!(f->Script))
 		   {
 			if(!(f->Flags[FFCF_CHANGER]))
@@ -248,7 +248,7 @@ namespace ghost3
 		    }
 		}
 	    }
-	    
+
 	    // Couldn't find one
 	    return 0;
 	}
@@ -256,14 +256,14 @@ namespace ghost3
 	int FindUnusedFFC(int startingFrom)
 	{
 	    ffc f;
-	    
+
 	    for(int i=Max(startingFrom+1, Game->Ghost[GHV_MIN_FFC]); i<=(Min(Game->Ghost[GHV_MAX_FFC],32)); ++i)
 	    {
 		f=Screen->LoadFFC(i);
-		
+
 		if((!(f->Data) || f->Data==Game->Ghost[GHV_SETTINGS_COMBO_ID]) )
 		{
-		
+
 		   if (!(f->Script))
 		   {
 			if(!(f->Flags[FFCF_CHANGER]))
@@ -273,7 +273,7 @@ namespace ghost3
 		    }
 		}
 	    }
-	    
+
 	    // Couldn't find one
 	    return 0;
 	}
@@ -312,9 +312,9 @@ namespace ghost3
 	{
 	    if(index<0 || index>11)
 		return 0;
-	    
+
 	    float attr=ghost->Attributes[index];
-	    
+
 	    if(attr==0)
 		return defaultVal;
 	    if(attr<min)
@@ -328,9 +328,9 @@ namespace ghost3
 	{
 	    if(index<0 || index>11)
 		return 0;
-	    
+
 	    float attr=ghost->Attributes[index];
-	    
+
 	    if(attr==0)
 		return defaultVal;
 	    return attr;
@@ -356,11 +356,11 @@ namespace ghost3
 	    lweapon explosion;
 	    int baseX=ghost->X+ghost->DrawXOffset;
 	    int baseY=(ghost->Y+ghost->DrawYOffset)-(ghost->Z+ghost->DrawZOffset);
-	    
+
 	    __DeathAnimStart(ghost);
 	    __DeathAnimSFX(ghost->ID);
-	    
-	    
+
+
 	    // One explosion every 16 frames, 15 times
 	    for(int i=0; i<15; ++i)
 	    {
@@ -368,13 +368,13 @@ namespace ghost3
 		explosion->X=baseX+Rand(16*ghost->TileWidth)-8;
 		explosion->Y=baseY+Rand(16*ghost->TileHeight)-8;
 		explosion->CollDetection=false;
-		
+
 		for(int j=0; j<16; ++j)
 		{
 		    Ghost_WaitframeLight(ghost);
 		}
 	    }
-	    
+
 	    __DeathAnimEnd(ghost, kill);
 	}
 
@@ -383,10 +383,10 @@ namespace ghost3
 	    lweapon explosion;
 	    int baseWidth=ghost->TileWidth*16;
 	    int baseHeight=ghost->TileHeight*16;
-	    
+
 	    __DeathAnimStart(ghost);
 	    //__Ghost_FlashCounter=0;
-	    
+
 	    for(int i=0; i<120; i++)
 	    {
 		float scale=Cos(i-30)/Cos(30);
@@ -394,30 +394,30 @@ namespace ghost3
 		float ySize=baseHeight*scale;
 		int xoff = (baseWidth-xSize)/2;
 		int yoff = (baseHeight-ySize)/2;
-		
+
 		if(i==30)
 		    __DeathAnimSFX(ghost->ID);
-		
+
 		ghost->Scale = scale;
 		ghost->DrawXOffset = xoff;
 		ghost->DrawYOffset = yoff;
-		
+
 		Ghost_WaitframeLight(ghost);
 	    }
-	    
+
 	    __DeathAnimEnd(ghost, kill);
 	}
 
 	void __DeathAnimStart(npc ghost)
 	{
-	    ghost->Immortal = true; 
+	    ghost->Immortal = true;
 	    ghost->CollDetection=false;
 	    ghost->SFX=0;
 	}
 
 	void __DeathAnimEnd(npc ghost, bool kill)
 	{
-	    ghost->Immortal = false; 
+	    ghost->Immortal = false;
 	    if(ghost->isValid() && kill)
 	    {
 		ghost->HP=HP_SILENT;

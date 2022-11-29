@@ -60,7 +60,7 @@ Finds the first occurrence of the entire string needle (not including the termin
 
 char *strtok(char *str, const char *delim)
 Breaks string str into a series of tokens separated by delim.
-***this will need internal vars to work. 
+***this will need internal vars to work.
 
 
 

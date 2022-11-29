@@ -90,7 +90,6 @@ namespace ZScript
 		void caseArrayLiteral(ASTArrayLiteral& host, void* param = NULL);
 		void caseStringLiteral(ASTStringLiteral& host, void* param = NULL);
 	protected:
-		
 		void doRegister(AST& host)
 		{
 			host.Register();
@@ -108,15 +107,12 @@ namespace ZScript
 		// Visit a group of nodes. Handle moving the nodes as needed, to accomodate order.
 		template <class Container>
 		void regvisit(AST& host, Container const& nodes, void* param = NULL);
-		
 		template <class Container>
 		void block_regvisit(AST& host, Container const& nodes, void* param = NULL);
 	private:
 		ZScript::Program& program;
-		
 		void analyzeUnaryExpr(ASTUnaryExpr& host);
 		void analyzeBinaryExpr(ASTBinaryExpr& host);
-		
 		bool hasChanged;
 	};
 }

@@ -69,21 +69,16 @@ struct process_manager : public io_manager
 	HANDLE wr_2;
 	HANDLE re_2;
 	PROCESS_INFORMATION pi;
-	
 	process_killer pk;
-	
 	bool kill_on_destructor;
-	
 	process_manager() : write_handle(NULL),
 		read_handle(NULL), kill_on_destructor(true),
 		wr_2(NULL), re_2(NULL)
 	{}
-	
 	void kill(uint32_t exitcode = 0)
 	{
 		pk.kill(exitcode);
 	}
-	
 	~process_manager()
 	{
 		if(write_handle)
@@ -109,7 +104,6 @@ struct process_manager : public io_manager
 		if(kill_on_destructor)
 			kill();
 	}
-	
 	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL)
 	{
 		if(!bytes_read) bytes_read = &__dummy_;
@@ -117,7 +111,6 @@ struct process_manager : public io_manager
 			return ReadFile((HANDLE)read_handle, (LPVOID)buf, (DWORD)bytes_to_read, (LPDWORD)bytes_read, NULL);
 		return false;
 	}
-	
 	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL)
 	{
 		if(!bytes_written) bytes_written = &__dummy_;
@@ -131,22 +124,17 @@ struct process_manager : public io_manager
 	int write_handle;
 	int read_handle;
 	process_killer pk;
-	
 	bool kill_on_destructor;
-	
 	process_manager() : kill_on_destructor(true) {}
-	
 	void kill(uint32_t exitcode = 0)
 	{
 		pk.kill(exitcode);
 	}
-	
 	~process_manager()
 	{
 		if(kill_on_destructor)
 			kill();
 	}
-	
 	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL)
 	{
 		if(!read_handle) return false;
@@ -154,7 +142,6 @@ struct process_manager : public io_manager
 		if(bytes_read) *bytes_read = ret;
 		return ret>0;
 	}
-	
 	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL)
 	{
 		if(!write_handle) return false;
@@ -172,19 +159,16 @@ struct child_process_handler : public io_manager
 	//{
 	HANDLE in;
 	HANDLE out;
-	
 	bool init()
 	{
 		out = GetStdHandle(STD_OUTPUT_HANDLE);
 		in = GetStdHandle(STD_INPUT_HANDLE);
 		return (out != INVALID_HANDLE_VALUE && in != INVALID_HANDLE_VALUE);
 	}
-	
 	child_process_handler()
 	{
 		init();
 	}
-	
 	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL)
 	{
 		if(!bytes_read) bytes_read = &__dummy_;
@@ -192,7 +176,6 @@ struct child_process_handler : public io_manager
 			return ReadFile((HANDLE)in, (LPVOID)buf, (DWORD)bytes_to_read, (LPDWORD)bytes_read, NULL);
 		return false;
 	}
-	
 	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL)
 	{
 		if(!bytes_written) bytes_written = &__dummy_;
@@ -204,19 +187,16 @@ struct child_process_handler : public io_manager
 	#else
 	//{
 	int read_handle, write_handle;
-	
 	bool init()
 	{
 		read_handle = fileno(stdin);
 		write_handle = fileno(stdout);
 		return true;
 	}
-	
 	child_process_handler()
 	{
 		init();
 	}
-	
 	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL)
 	{
 		if(!read_handle) return false;
@@ -224,7 +204,6 @@ struct child_process_handler : public io_manager
 		if(bytes_read) *bytes_read = ret;
 		return ret>0;
 	}
-	
 	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL)
 	{
 		if(!write_handle) return false;

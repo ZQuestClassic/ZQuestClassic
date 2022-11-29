@@ -30,7 +30,6 @@ ListData::ListData(::ListData const& jwinldata, int32_t valoffs)
 const char* ListData::jwinWrapper(int32_t index, int32_t* size, void* owner)
 {
 	ListData* cb=static_cast<ListData*>(owner);
-	
 	if(index >= 0)
 		return cb->getText(index).c_str();
 	else
@@ -51,7 +50,6 @@ ListData ListData::numbers(bool none, int32_t start, uint32_t count)
 	{
 		ls.add(std::to_string(start+i), start+i);
 	}
-	
 	return ls;
 }
 
@@ -79,7 +77,6 @@ ListData& ListData::filter(std::function<bool(ListItem&)> filt_func)
 	for(auto it = listItems.begin(); it != listItems.end();)
 	{
 		ListItem& itm = *it;
-		
 		if(filt_func(itm)) ++it;
 		else it = listItems.erase(it);
 	}

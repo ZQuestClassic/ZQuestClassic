@@ -50,7 +50,6 @@ void QRPanel::loadList(GUI::ListData qrlist)
 		qrCount = qrlist.size();
 	else if(qrlist.size() <= qrCount+1) //If it can fit without a tabpanel, allow it to
 		++qrCount;
-	
 	if(!qrlist.size())
 	{
 		std::shared_ptr<TabRef> tab = std::make_shared<TabRef>();
@@ -119,7 +118,6 @@ void QRPanel::loadList(GUI::ListData qrlist)
 				std::shared_ptr<Label> lbl = std::make_shared<Label>();
 				lbl->setHAlign(1.0);
 				content->add(lbl);
-				
 				if(scrollWidth > 0_px) //width forcing
 				{
 					//Calculate the width
@@ -133,15 +131,12 @@ void QRPanel::loadList(GUI::ListData qrlist)
 					lbl->minWidth(Size::pixels(lbl->getWidth()));
 					//Set the real text back
 					lbl->setText(getTagName(li->tag));
-					
 					//..and the button width
 					ibtn->calculateSize();
 					cbwid -= ibtn->getTotalWidth();
-					
 					//..and the padding on the cbox
 					cbox->calculateSize();
 					cbwid -= cbox->getTotalWidth()-cbox->getWidth();
-					
 					//Force the cbox width
 					cbox->overrideWidth(cbwid);
 				}
@@ -151,9 +146,7 @@ void QRPanel::loadList(GUI::ListData qrlist)
 				}
 			}
 		}
-		
 		std::shared_ptr<TabRef> tab = std::make_shared<TabRef>();
-		
 		content->setVAlign(0.0);
 		if(scrolling)
 		{
@@ -165,7 +158,6 @@ void QRPanel::loadList(GUI::ListData qrlist)
 				scrollpane->minHeight(scrollHeight);
 			if(scrollWidth > 0)
 				scrollpane->minWidth(scrollWidth);
-			
 			tab->setContent(scrollpane);
 			tab->setName(" ");
 		}

@@ -12,4 +12,3 @@ SFTEMP		D6			stack frame offset accumulator
 *unused		D8
 ZELDAVERSION	9			The current ZC version.
 SP 		10			stack pointer
-    

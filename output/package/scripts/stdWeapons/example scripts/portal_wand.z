@@ -26,19 +26,19 @@ const int SPR_PORTAL_WARP_PARTICLE = 0;//Sprite for particle to appear on openin
 //A magic wand that shoots projectiles that can open up portals on hitting flat solid walls. Flat means Fully solid combos.
 //Anything that enters one portal will be teleported to another one.
 
-//1. Set up 3 sprites. One for wand animation. one for projectile and a double-rowed one (2 animation sequences, 
+//1. Set up 3 sprites. One for wand animation. one for projectile and a double-rowed one (2 animation sequences,
 //   one right below another in tile sheet) for formed portals.
 //2. Import and compile the script. It requires stdWeapons.zh and all his dependencies. Assign 2 FFC script slots.
-//3. Set up 2 items for two different portal wand/gun colors (blue and orange). Assign default stuff, 
+//3. Set up 2 items for two different portal wand/gun colors (blue and orange). Assign default stuff,
 //   but make sure for items to have different item classes so they will be visible in subscreen.
-//4. D0 - Damage dealt to enemies on direct hit by projectile or wand strike. 
+//4. D0 - Damage dealt to enemies on direct hit by projectile or wand strike.
 //        Uses MAGIC or WAND MELEE enemy defense. Ignores enemy shields.
 //   D1 - Sprite for wand animation. Can be the same for both wands.
 //   D2 - Sprite for magic projectile.
 //   D3 - Color of portal to work with. 0 for blue and 1 for orange.
 //   D4 - Projectile flight speed.
 //   D5 - Sprite for portal formed on the wall. Open portal tile must be right below closed one.
-//   D6 - Portal connection fraquency. Must be the same for both items. 
+//   D6 - Portal connection fraquency. Must be the same for both items.
 //        Useful if you want create multiple different portal guns/pairs of portal wands.
 //   D7 - Script slot for "Portal Wand" script.
 //5. Assign "Weapon Launcher" action item script.
@@ -70,13 +70,13 @@ ffc script PortalWand{
 		PutFFCInFrontOfLink(magic, 16);
 		Game->PlaySound(sound);
 		MeleeWeaponEndStrike(this, wand, wand->Misc[LWEAPON_MISC_ORIGTILE], 12, 2, 2);
-	}	
+	}
 }
 
 ffc script PortalMagic{
 	void run(int damage, int sprite, int color, int speed, int portalsprite, int frequency){
 		int buffer[] = "PortalMagic";
-		int scr = Game->GetFFCScript(buffer);		
+		int scr = Game->GetFFCScript(buffer);
 		itemdata it = Game->LoadItemData(this->InitD[7]);
 		int sound = it->UseSound;
 		int oldcmb=-1;
@@ -85,24 +85,24 @@ ffc script PortalMagic{
 		if (color==0)this->Misc[FFC_MISC_PORTAL_COLOR] = CSET_PORTAL_BLUE;
 		else this->Misc[FFC_MISC_PORTAL_COLOR] = CSET_PORTAL_ORANGE;
 		this->Misc[FFC_MISC_PORTAL_FREQUENCY] = frequency;
-				
+
 		lweapon l = LweaponInit (this, LW_GHOSTED, damage, sprite, sound);
-		
+
 		LweaponSetFlag(l, LWF_AUTO_DIR_UPDATE);
 		LweaponSetFlag(l, LWF_AUTO_SPRITE_UPDATE);
 		LweaponSetFlag(l, LWF_NO_FALL);
 		LweaponSetFlag(l, LWF_IGNORE_ENEMY_SHIELDS);
-		
+
 		l->CSet= this->Misc[FFC_MISC_PORTAL_COLOR];
-		
+
 		this->Misc[FFC_MISC_EXIT_PORTAL_FFC_ID] = 0;
-		
+
 		SetEnemyDefense(l, NPCD_MAGIC);
 		SetLweaponHitboxOffsets(l,4,4,4,4);
 		int hitbox[4];
 		GetLweaponHitboxOffsets(l, hitbox);
 		SetStraightMotion4(this, speed);
-		
+
 		while(true){
 			if (this->Misc[FFC_MISC_PORTAL_STATE] == PORTAL_STATE_FIRED){
 				oldcmb=ReflectOffMirrors(oldcmb, this, l);
@@ -180,7 +180,7 @@ ffc script PortalMagic{
 					l->Misc[LWEAPON_MISC_ORIGTILE] +=20;
 					this->Misc[FFC_MISC_PORTAL_STATE] = PORTAL_STATE_ACTIVE;
 				}
-			} 
+			}
 			else if(this->Misc[FFC_MISC_PORTAL_STATE] ==PORTAL_STATE_ACTIVE){
 				this->Misc[FFC_MISC_EXIT_PORTAL_FFC_ID] = ConnectPortals(this);
 				if (this->Misc[FFC_MISC_EXIT_PORTAL_FFC_ID] == 0){
@@ -190,9 +190,9 @@ ffc script PortalMagic{
 				TeleportObjectsOnCollision(this->Misc[FFC_MISC_EXIT_PORTAL_FFC_ID], l);
 			}
 			else if(this->Misc[FFC_MISC_PORTAL_STATE] ==PORTAL_STATE_TERMINATED){
-				TerminateLweapon(this,l);				
+				TerminateLweapon(this,l);
 			}
-			//DrawLweaponHitbox(l);			
+			//DrawLweaponHitbox(l);
 			LweaponWaitframe(this, l, true);
 		}
 	}
@@ -216,7 +216,7 @@ int ConnectPortals(ffc n){
 		return FFCNum(f);
 	}
 	return 0;
-} 
+}
 
 //Sets up portal orientation and hitbox depending on direction.
 void SetupPortal(ffc f, lweapon l){
@@ -272,7 +272,7 @@ void TeleportObjectsOnCollision(int PortalFFC, lweapon l){
 		if ((GetBlockableDir(m->Dir)!=OppositeDir(l->Dir))&&(!m->Angular)) continue;
 		if (!Collision(l,m)) continue;
 		if (m->ID==LW_WHISTLE) continue;
-		if (m->ID==LW_PARTICLE) continue;		
+		if (m->ID==LW_PARTICLE) continue;
 		if (m->ID==LW_GHOSTED){
 			if (LweaponFlagIsSet(l, LWF_MELEE)) continue;
 			ffc master = Screen->LoadFFC(GetMasterFFCID(m));
@@ -441,9 +441,9 @@ int DirToRad(int dir){
 
 void EweaponSpriteUpdate(eweapon l){
 	if (l->NumFrames==0) l->NumFrames=1;
-	int dir = l->Dir; 
+	int dir = l->Dir;
 	dir &= ~8;
- 	if (dir==DIR_UP) l->Flip=0;
+	if (dir==DIR_UP) l->Flip=0;
 	else if (dir==DIR_DOWN) l->Flip=2;
 	else if (dir==DIR_LEFT) l->Flip=5;
 	else if (dir==DIR_RIGHT) l->Flip=4;

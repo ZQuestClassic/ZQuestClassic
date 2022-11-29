@@ -36,7 +36,6 @@ public:
 	{
 		onSelectFunc = newOnSelect;
 	}
-	
 	template<typename T>
 	RequireMessage<T> onSelectionChanged(T m)
 	{

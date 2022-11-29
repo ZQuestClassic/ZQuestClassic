@@ -98,15 +98,15 @@ If <var>dir</var> begins with &lsquo;<samp>=</samp>&rsquo; or <code>$SYSROOT</co
 or <code>$SYSROOT</code> is replaced by the sysroot prefix; see
 <samp>--sysroot</samp> and <samp>-isysroot</samp>.
 </p>
-<p>Directories specified with <samp>-iquote</samp> apply only to the quote 
+<p>Directories specified with <samp>-iquote</samp> apply only to the quote
 form of the directive, <code>#include&nbsp;&quot;<var>file</var>&quot;<!-- /@w --></code>.
-Directories specified with <samp>-I</samp>, <samp>-isystem</samp>, 
+Directories specified with <samp>-I</samp>, <samp>-isystem</samp>,
 or <samp>-idirafter</samp> apply to lookup for both the
 <code>#include&nbsp;&quot;<var>file</var>&quot;<!-- /@w --></code> and
 <code>#include&nbsp;&lt;<var>file</var>&gt;<!-- /@w --></code> directives.
 </p>
-<p>You can specify any number or combination of these options on the 
-command line to search for header files in several directories.  
+<p>You can specify any number or combination of these options on the
+command line to search for header files in several directories.
 The lookup order is as follows:
 </p>
 <ol>
@@ -131,7 +131,7 @@ left-to-right order.
 
 <p>You can use <samp>-I</samp> to override a system header
 file, substituting your own version, since these directories are
-searched before the standard system header file directories.  
+searched before the standard system header file directories.
 However, you should
 not use this option to add directories that contain vendor-supplied
 system header files; use <samp>-isystem</samp> for that.
@@ -205,7 +205,7 @@ target-specific C++ headers.
 <p>Do not search the standard system directories for header files.
 Only the directories explicitly specified with <samp>-I</samp>,
 <samp>-iquote</samp>, <samp>-isystem</samp>, and/or <samp>-idirafter</samp>
-options (and the directory of the current file, if appropriate) 
+options (and the directory of the current file, if appropriate)
 are searched.
 </p>
 </dd>
@@ -244,7 +244,7 @@ machine and compiler version.
 </p>
 <p>For each subprogram to be run, the compiler driver first tries the
 <samp>-B</samp> prefix, if any.  If that name is not found, or if <samp>-B</samp>
-is not specified, the driver tries two standard prefixes, 
+is not specified, the driver tries two standard prefixes,
 <samp>/usr/lib/gcc/</samp> and <samp>/usr/local/lib/gcc/</samp>.  If neither of
 those results in a file name that is found, the unmodified program
 name is searched for using the directories specified in your

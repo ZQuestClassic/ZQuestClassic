@@ -20,7 +20,7 @@ void Ghost_CanMoveAtAngle(float angle, float step, float imprecision, bool onlyc
 		}
 		return false;
 	}
-	else 
+	else
 	{
 		//bool can_move_imprecise;
 		for ( int q = Max((step*0.01), 1); q > 0; --q )

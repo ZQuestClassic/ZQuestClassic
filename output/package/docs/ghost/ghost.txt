@@ -94,7 +94,7 @@ float Ghost_Ay
 
 int Ghost_Dir
  * The direction the enemy is facing.
- 
+
 int Ghost_Data
 int Ghost_CSet
  * The current combo and CSet of the enemy.
@@ -212,81 +212,81 @@ void Ghost_SetFlag(int flag)
 void Ghost_UnsetFlag(int flag)
  * Set or unset a flag that controls details of the enemy's behavior.
  * Valid arguments are:
- * 
+ *
  * GHF_KNOCKBACK
  *    The enemy can be knocked back when hit.
- * 
+ *
  * GHF_KNOCKBACK_4WAY
  *    The enemy will be knocked back when hit, even if its direction and
  *    Link's are not suitably aligned. It is not necessary to use
  *    GHF_KNOCKBACK along with this flag.
- * 
+ *
  * GHF_REDUCED_KNOCKBACK
  *    The enemy will be knocked back 2 pixels per frame instead of 4.
  *    It is not necessary to use GHF_KNOCKBACK along with this flag.
- * 
+ *
  * GHF_STUN
  *    Stunning will be handled automatically; Waitframe functions will not
  *    return while the enemy is stunned.
- * 
+ *
  * GHF_CLOCK
  *    The enemy will be affected by clocks; Waitframe functions will not
  *    return while a clock is active. This requires that StartClock and
  *    UpdateClock be used in the active global script and GhostZHClockScript
  *    be set as the pickup script of any clocks.
- * 
+ *
  * GHF_NO_FALL
  *    ghost->Jump will be set to 0 each frame and Ghost_Jump will be ignored.
  *    If GHF_NO_FALL is not used, Ghost_CanMove(DIR_UP) will always be false
  *    on sideview screens.
- * 
+ *
  * GHF_SET_DIRECTION
  *    The enemy's direction will automatically be set based on which way
  *    it moves. Unless GHF_8WAY is set, this will only use up, down, left,
  *    and right.
- * 
+ *
  * GHF_SET_OVERLAY
  *    Set or unset the "Draw Over" flag each frame based on Z position. The
  *    height at which it changes is determined by GH_DRAW_OVER_THRESHOLD.
- * 
+ *
  * GHF_FAKE_Z
  *    Ghost_Z and Ghost_Jump will affect the enemy's position on the Y axis
  *    rather than Z. A shadow will be drawn under it according to the
  *    GH_SHADOW_ settings. If the global setting GH_FAKE_Z is enabled, all
  *    Z movement will behave this way, and this flag will have no effect.
- * 
+ *
  * GHF_4WAY
  *    Change the FFC's combo based on Ghost_Dir. This requires a particular
  *    setup. There must be four consecutive combos in the list, one for each
  *    direction: up, down, left, and right, in order. Set Ghost_Data to the
  *    upward-facing combo.
- * 
+ *
  * GHF_8WAY
  *    Set the FFC's combo based on direction, inclusing diagonals. This will
  *    also cause GHF_SET_DIRECTION to use all eight directions. The combo
  *    order is up, down, left, right, up-left, up-right, down-left, down-right.
- * 
+ *
  * GHF_MOVE_OFFSCREEN
  *    Movement functions will not stop the enemy at the screen edges.
- * 
+ *
  * GHF_NORMAL
  *    Combines GHF_KNOCKBACK, GHF_STUN, GHF_CLOCK, and GHF_SET_DIRECTION.
- * 
+ *
  * GHF_IGNORE_SOLIDITY
  *    The enemy can move over solid combos, as long as they are not pits or
  *    water. This only affects movement via the Ghost_Move functions and
  *    Ghost_Vx and Ghost_Vy; if Ghost_X and Ghost_Y are set directly, the
  *    enemy can move anywhere.
- * 
+ *
  * GHF_IGNORE_WATER
  *    The enemy can move over water, regardless of solidity.
- * 
+ *
  * GHF_IGNORE_PITS
  *    The enemy can move over direct warps, regardless of solidity.
- * 
+ *
  * GHF_IGNORE_ALL_TERRAIN
  *    Combines GHF_IGNORE_SOLIDITY, GHF_IGNORE_WATER, and GHF_IGNORE_PITS.
- * 
+ *
  * GHF_WATER_ONLY
  *    The enemy can only move in water, including shallow water. This overrides
  *    the above terrain flags.
@@ -294,19 +294,19 @@ void Ghost_UnsetFlag(int flag)
  * GHF_DEEP_WATER_ONLY
  *    The enemy can only move in deep water. This overrides the above
  *    terrain flags.
- * 
+ *
  * GHF_FULL_TILE_MOVEMENT
  *    The enemy will not walk onto a tile unless the entire tile is walkable.
  *    This is particularly useful for enemies using walking functions along
  *    with other movement.
- * 
+ *
  * GHF_FLYING_ENEMY
  *    The enemy will be blocked by the "No Flying Enemies" combo type.
  *    If this flag is not set, it will be blocked by "No Ground Enemies" if
  *    Ghost_Z == 0 or "No Jumping Enemies" if Ghost_Z > 0.
  *    This flag does not imply any others that a flying enemy would likely use,
  *    such as GHF_IGNORE_PITS or GHF_NO_FALL. Those must be set separately.
- * 
+ *
  * GHF_IGNORE_NO_ENEMY
  *    The enemy will ignore all enemy blocking flags and combos.
  *
@@ -395,7 +395,7 @@ void Ghost_MoveAtAngle(float angle, float step, int imprecision)
 void Ghost_MoveTowardLink(float step, int imprecision)
  * Makes the enemy move. Ghost_CanMove() will be checked automatically.
  * If the GHF_SETDIRECTION flag is set, the npc's direction will be changed
- * accordingly unless Ghost_ForceDir was called beforehand. 
+ * accordingly unless Ghost_ForceDir was called beforehand.
  * The step arguments are given in pixels.
  * Ghost_MoveAtAngle's angle argument is in degrees.
  * The imprecision argument makes the function ignore a couple of pixels at the
@@ -449,7 +449,7 @@ int Ghost_ConstantWalk4(int counter, int step, int rate, int homing, int hunger)
  * are the same as above. This function depends on Ghost_Dir and will set it
  * even if GHF_SET_DIRECTION is not used. It will also set Ghost_Dir to -1 if
  * the enemy is trapped.
- 
+
 int Ghost_ConstantWalk8(int counter, int step, int rate, int homing, int hunger)
  * This is the movement function used by Moldorms. The arguments are the same as
  * above.
@@ -617,14 +617,14 @@ void Ghost_DeathAnimation(ffc this, npc ghost, int type)
  * The type argument should be one of these:
  * GHD_EXPLODE
  *    A series of explosions appear randomly around the enemy.
- * 
+ *
  * GHD_EXPLODE_FLASH
  *    The same, plus the enemy flashes.
  *
  * GHD_SHRINK
  *    The enemy grows slightly and then shrinks away to nothing. This does not
  *    work with enemies that use additional combos.
- * 
+ *
  * Any other value will simply cause the enemy to disappear.
 
 void Ghost_SetPosition(ffc this, npc ghost)
@@ -666,7 +666,7 @@ void SuspendGhostZHScripts()
 
 void ResumeGhostZHScripts()
  * Resumes execution of ghost.zh scripts.
- 
+
 
 +----------+
 | EWEAPONS |
@@ -697,13 +697,13 @@ eweapon FireEWeapon(int weaponID, int x, int y, float angle, int step,
  *
  * EWF_SHADOW
  *    The weapon will cast a shadow if its Z position is greater than 0.
- * 
+ *
  * EWF_FLICKER
  *    The weapon will be invisible every other frame.
- * 
+ *
  * EWF_NO_COLLISION
  *    The weapon's collision detection will be disabled.
- * 
+ *
  * EWF_FAKE_Z
  *    The weapon's hitbox will always be on the ground.
  *    Note: This does not actually keep the weapon on the ground; it only
@@ -756,44 +756,44 @@ void SetEWeaponMovement(eweapon wpn, int type, float arg, float arg2)
  *    Move in a sine wave.
  *    arg: Amplitude
  *    arg2: Angular frequency in degrees per frame
- * 
+ *
  * EWM_HOMING
  *    Turn toward Link each frame.
  *    arg: Maximum rotation per frame in radians
  *    arg2: Homing time in frames - after this many frames, the weapon
  *          will die. Use -1 to home indefinitely.
- * 
+ *
  * EWM_HOMING_REAIM
  *   Move in straight lines, stopping and re-aiming at Link.
  *   arg: Number of re-aims
  *   arg2: Time between re-aims
- * 
+ *
  * EWM_RANDOM
  *   Turn randomly each frame.
  *   arg: Maximum rotation per frame in radians
  *   arg2: Rotation time in frames - after this many frames, the weapon
  *         will die. Use -1 to home indefinitely.
- * 
+ *
  * EWM_RANDOM_REAIM: Stop frequently and aim in a random direction
  *    arg: Number of re-aims
  *    arg2: Time between re-aims
- * 
+ *
  * EWM_VEER
  *    Accelerate in a given direction.
  *    arg: Direction of acceleration
  *    arg2: Rate of acceleration
- * 
+ *
  * EWM_DRIFT
  *    Drift in the given direction at a constant speed.
  *    arg: Drift direction
  *    arg2: Drift speed
- * 
+ *
  * EWM_DRIFT_WAIT
  *    Drift in the given direction at a constant speed and wait 16 frames before
  *    beginning normal movement. This mimics the behavior of boss fireballs.
  *    arg: Drift direction
  *    arg2: Drift speed
- * 
+ *
  * EWM_THROW
  *    Arc through the air as if thrown. The weapon stops moving when it hits
  *    the ground.
@@ -802,7 +802,7 @@ void SetEWeaponMovement(eweapon wpn, int type, float arg, float arg2)
  *    arg2: OR together these flags, or use 0 for none:
  *          EWMF_BOUNCE: The weapon will bounce on impact
  *          EWMF_DIE: The weapon will die on impact rather than simply stopping
- * 
+ *
  * EWM_FALL
  *    Fall straight down. The weapon stops moving when it hits the ground.
  *    arg: Initial height
@@ -815,15 +815,15 @@ void SetEWeaponLifespan(eweapon wpn, int type, int arg)
  * the weapon is removed, but that its scripted movement is no longer handled,
  * and, optionally, a death effect is activated. Use one of the EWL_ constants
  * for the type argument. The effect of arg depends on the type.
- * 
+ *
  * EWL_TIMER
  *    Die after a certain amount of time.
  *    arg: Time, in frames
- * 
+ *
  * EWL_NEAR_LINK
  *    Die when within a certain distance of Link.
  *    arg: Distance, in pixels
- * 
+ *
  * EWL_SLOW_TO_HALT
  *    Slow down until stopped, then die. This can behave oddly if movement
  *    is set.
@@ -836,62 +836,62 @@ void SetEWeaponDeathEffect(eweapon wpn, int type, int arg)
  * EWD_VANISH
  *    The weapon is removed.
  *    arg: No effect
- * 
+ *
  * EWD_AIM_AT_LINK
  *    The weapon pauses for a moment, then aims at Link.
  *    arg: Delay
- * 
+ *
  * EWD_EXPLODE
  *    The weapon explodes.
  *    arg: Explosion damage
- * 
+ *
  * EWD_SBOMB_EXPLODE
  *    The weapon explodes like a super bomb.
  *    arg: Explosion damage
- * 
+ *
  * EWD_4_FIREBALLS_HV
  *    Shoots fireballs horizontally and vertically.
  *    arg: Fireball sprite
- * 
+ *
  * EWD_4_FIREBALLS_DIAG
  *    Shoots fireballs at 45-degree angles.
  *    arg: Fireball sprite
- * 
+ *
  * EWD_4_FIREBALLS_RANDOM
  *    Randomly shoots fireballs either vertically and horizontally or at
  *    45-degree angles.
  *    arg: Fireball sprite
- * 
+ *
  * EWD_8_FIREBALLS
  *    Shoots fireballs horizontally, vertically, and at 45-degree angles
  *    arg: Fireball sprite
- * 
+ *
  * EWD_FIRE
  *    Leaves a single, immobile fire
  *    arg: Fire sprite
- * 
+ *
  * EWD_4_FIRES_HV
  *    Shoots fires horizontally and vertically.
  *    arg: Fire sprite
- * 
+ *
  * EWD_4_FIRES_DIAG
  *    Shoots fires at 45-degree angles.
  *    arg: Fire sprite
- * 
+ *
  * EWD_4_FIRES_RANDOM
  *    Randomly shoots fires either vertically and horizontally or at
  *    45-degree angles.
  *    arg: Fire sprite
- * 
+ *
  * EWD_8_FIRES
  *    Shoots fires horizontally, vertically, and at 45-degree angles
  *    arg: Fire sprite
- * 
+ *
  * EWD_SPAWN_NPC
  *    Creates an npc at the weapon's location. This is done without regard for
  *    the suitability of the location.
  *    arg: npc to spawn
- * 
+ *
  * EWD_RUN_SCRIPT
  *    Loads an unused FFC, positions it at the weapons position, and runs a
  *    script. The weapon will not be removed; it should be loaded by the script
@@ -906,15 +906,15 @@ void SetEWeaponDeathEffect(eweapon wpn, eweapon prototype, int numShots, int
  * This will make a weapon spawn copies of a prototype weapon when it dies.
  * The prototype must be a dummy eweapon.
  * spreadType is one of the following:
- * 
+ *
  * EWD_EVEN
  *    Weapons are evenly spaced
  *    angle: First weapon's offset from 0 in radians
- * 
+ *
  * EWD_AIMED
  *    Weapons are aimed at Link
  *    angle: Angle range of spawned weapons in radians
- * 
+ *
  * EWD_RANDOM
  *    Weapons are fired at random angles
  *    angle: No effect

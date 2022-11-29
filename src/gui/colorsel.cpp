@@ -41,7 +41,6 @@ void ColorSel::setOnValChanged(std::function<void(byte)> newOnValChanged)
 void ColorSel::realize(DialogRunner& runner)
 {
 	Widget::realize(runner);
-	
 	alDialog = runner.push(shared_from_this(), DIALOG {
 		newGUIProc<jwin_color_swatch>,
 		x+2, y+2, getWidth()-4, getHeight()-4,
@@ -78,7 +77,6 @@ int32_t ColorSel::onEvent(int32_t event, MessageDispatcher& sendMessage)
 	}
 	if(message < 0)
 		return -1;
-	
 	sendMessage(message, colorVal);
 
 	return -1;

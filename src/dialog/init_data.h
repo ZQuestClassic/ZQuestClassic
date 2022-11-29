@@ -41,7 +41,6 @@ private:
 	size_t levelsOffset;
 	GUI::ListData list_dmaps, list_items, list_genscr;
 	bool isZC;
-	
 	std::function<void(zinitdata const&)> setVals;
 
 	// Various helper functions to build the GUI.
@@ -72,7 +71,6 @@ private:
 	zinitdata& dest_zinit;
 	size_t index;
 	GUI::ListData list_dmaps, list_items;
-	
 	std::shared_ptr<GUI::Widget> GEN_INITD(int ind,zasm_meta const& meta);
 };
 #endif

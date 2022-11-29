@@ -41,10 +41,8 @@ protected:
 	subscreen_object *subref;
 	subscreen_object local_subref;
 	int32_t index;
-	
 	GUI::ListData list_font, list_shadtype, list_aligns, list_buttons, list_items,
 		list_counters, list_itemclass;
-	
 	void updateColors();
 	void update_wh();
 };

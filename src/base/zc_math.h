@@ -21,9 +21,7 @@ inline bool IsPowerOfTwo(uint32_t x)
 inline uint32_t NextPowerOfTwo(uint32_t x)
 {
     uint32_t y(1);
-    
     while(y < x) y <<= 1;
-    
     return y;
 }
 
@@ -53,7 +51,6 @@ inline float CalculateBezier(const float p1, const float t1, const float p2, flo
     const float A = a * a;
     const float B = 2.0f * a * t;
     const float C = t * t;
-    
     return ((p1 * A) + (t1 * B) + (p2 * C));
 }
 
@@ -64,7 +61,6 @@ inline float CalculateBezier(const float p1, const float t1, const float t2, con
     const float B = 3.0f * a * a * t;
     const float C = 3.0f * a * t * t;
     const float D = t * t * t;
-    
     return ((p1 * A) + (t1 * B) + (t2 * C) + (p2 * D));
 }
 
@@ -76,7 +72,6 @@ inline float CalculateBezier(const float p1, const float t1, const float t2, con
     const float C = 6.0f * b * c;
     const float D = 4.0f * d * c;
     const float E = c * c;
-    
     return ((p1 * A) + (t1 * B) + (t2 * C) + (t3 * D) + (p2 * E));
 }
 

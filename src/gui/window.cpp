@@ -133,7 +133,6 @@ void Window::realize(DialogRunner& runner)
 
 	if(content)
 		content->realize(runner);
-	
 	if(use_vsync)
 	{
 		void* tfunc = onTick ? ((void*)&onTick) : nullptr;
@@ -147,7 +146,6 @@ void Window::realize(DialogRunner& runner)
 			tfunc, nullptr, nullptr // dp, dp2, dp3
 		});
 	}
-	
 	realizeKeys(runner);
 }
 

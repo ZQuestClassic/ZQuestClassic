@@ -38,20 +38,16 @@ static const ListData miscCSList
 MiscCSetSel::MiscCSetSel(): onUpdate(NULL), c1(ssctMISC), c2(0)
 {
 	setFitParent(true);
-	
 	internal_grid = Grid::columns(2);
 	internal_grid->setPadding(0_px);
-	
 	labels[0] = std::make_shared<Label>();
 	labels[0]->setText("CSet:");
 	labels[0]->setHAlign(1.0);
 	labels[1] = std::make_shared<Label>();
 	labels[1]->setText("Type:");
 	labels[1]->setHAlign(1.0);
-	
 	internal_grid->add(labels[0]);
 	internal_grid->add(labels[1]);
-	
 	sel_list = std::make_shared<DropDownList>();
 	sel_list->setFitParent(true);
 	sel_list->setListData(csTyList);
@@ -59,7 +55,6 @@ MiscCSetSel::MiscCSetSel(): onUpdate(NULL), c1(ssctMISC), c2(0)
 		{
 			doUpdate(val,c2);
 		});
-	
 	misc_sel_list = std::make_shared<DropDownList>();
 	misc_sel_list->setFitParent(true);
 	misc_sel_list->setListData(miscCSList);
@@ -83,7 +78,6 @@ void MiscCSetSel::setC2(int32_t val)
 void MiscCSetSel::applyVisibility(bool visible)
 {
 	Widget::applyVisibility(visible);
-	
 	labels[0]->setExposed(visible);
 	labels[1]->setExposed(visible);
 	sel_list->setExposed(visible);
@@ -141,7 +135,6 @@ void MiscCSetSel::doUpdate(int32_t _c1, int32_t _c2)
 {
 	doVis(_c1);
 	c2 = _c2;
-	
 	if(onUpdate)
 		onUpdate(c1,c2);
 }

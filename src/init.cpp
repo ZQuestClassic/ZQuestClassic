@@ -95,28 +95,26 @@ int32_t d_line_proc(int32_t msg, DIALOG *d, int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
     c=c;
-    
     if(msg==MSG_DRAW)
     {
         int32_t fg = (d->flags & D_DISABLED) ? scheme[jcDISABLED_FG] : d->fg;
         line(screen, d->x, d->y, d->x+d->w, d->y+d->h, palette_color[fg]);
     }
-    
     return D_O_K;
 }
 
 static int32_t init_equipment_list[] =
 {
     // dialog control number
-    5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 
+    5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
 	41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, -1
 };
 
 static int32_t init_items_list[] =
 {
     // dialog control number
-    65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 
-	100, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 
+    65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99,
+	100, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127,
 	128, 129, 130, 131, 132, 133, 134, 135, 136, 1692, 1693, 1698, 1699, -1
 };
 
@@ -133,25 +131,21 @@ static int32_t init_scrcnt_list[] =
 	3284,3285,3286,3287,
 	3288,3289,3290,3291,
 	3292,3293,3294,3295,
-	
 	3296,3297,3298,3299,
 	3300,3301,3302,3303,
 	3304,3305,3306,3307,
 	3308,3309,3310,3311,
 	3312,3313,3314,3315,
-	
 	3316,3317,3318,3319,
 	3320,3321,3322,3323,
 	3324,3325,3326,3327,
 	3328,3329,3330,3331,
 	3332,3333,3334,3335,
-	
 	3336,3337,3338,3339,
 	3340,3341,3342,3343,
 	3344,3345,3346,3347,
 	3348,3349,3350,3351,
 	3352,3353,3354,3355,
-	
 	-1
 };
 
@@ -163,7 +157,6 @@ static int32_t init_scrcnt2_list[] =
 	3364,3365,3366,3367,
 	3368,3369,3370,3371,
 	3372,3373,3374,3375,
-	
 	-1
 };
 
@@ -743,7 +736,7 @@ static int32_t init_misc_list[] =
 
 static int32_t init_var_list[] =
 {
-    1700, 1701, 1702, 1703, 1704, 1705, 1706, 
+    1700, 1701, 1702, 1703, 1704, 1705, 1706,
 	3264, 3265, 3266, 3267,
 	3268, 3269, 3270, 3271, 3272, 3273, 3274, 3275,
 	-1
@@ -902,44 +895,35 @@ TABPANEL init_var_tabs[] =
 int32_t d_maxbombsedit_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     int32_t ret = jwin_edit_proc(msg,d,c);
-    
     if(msg==MSG_DRAW)
     {
         scare_mouse();
         int32_t div = atoi((char*)((d+1589)->dp));
-        
         if(div == 0)
             div = 4;
-            
         sprintf((char*)((d+6)->dp), "%d", atoi((char*)(d->dp))/div);
         (d+6)->proc(MSG_DRAW,d+6,0);
         unscare_mouse();
     }
-    
     return ret;
 }
 
 int32_t d_bombratioedit_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     int32_t ret = jwin_edit_proc(msg,d,c);
-    
     if(msg==MSG_DRAW)
     {
         int32_t sbombmax = 0;
         int32_t div = atoi((char*)(d->dp));
-        
         if(div == 0)
             div = 4;
-            
         if(atoi((char*)(d->dp)))
             sbombmax = atoi((char*)((d-1589)->dp))/div;
-            
         scare_mouse();
         sprintf((char*)((d-1583)->dp), "%d", sbombmax);
         (d-1583)->proc(MSG_DRAW,d-1583,0);
         unscare_mouse();
     }
-    
     return ret;
 }
 
@@ -952,7 +936,6 @@ char *walkstylelist(int32_t index, int32_t *list_size)
     {
         return (char *)walkstyles[index];
     }
-    
     *list_size=ws_max;
     return NULL;
 }
@@ -969,7 +952,7 @@ const char *itype_names[itype_max] = { "Swords", "Boomerangs", "Arrows", "Candle
                                        "Triforce Pieces", "Maps", "Compasses", "Boss Keys", "Quivers", "Level Keys", "Canes of Byrna", "Rupees", "Arrow Ammo",
                                        "Fairies", "Magic", "Hearts", "Heart Containers", "Heart Pieces", "Kill All Enemies",
                                        "Bomb Ammo", "Bomb Bags", "Roc Items", "Hover Boots", "Scroll: Spin Attack", "Scroll: Cross Beams", "Scroll: Quake Hammer",
-                                       "Whisp Rings", "Charge Rings", "Scroll: Peril Beam", "Wealth Medals", "Heart Rings", "Magic Rings", "Scroll: Hurricane Spin", 
+                                       "Whisp Rings", "Charge Rings", "Scroll: Peril Beam", "Wealth Medals", "Heart Rings", "Magic Rings", "Scroll: Hurricane Spin",
 					"Scroll: Super Quake",
                                        "Stones of Agony", "Stomp Boots", "Whimsical Rings", "Peril Rings", "Non-gameplay Items",
                                        "zz67", "zz68", "zz69", "zz70", "zz71",
@@ -978,10 +961,9 @@ const char *itype_names[itype_max] = { "Swords", "Boomerangs", "Arrows", "Candle
                                        "zz82", "zz83", "zz84", "zz85", "zz86",
                                        "Bow and Arrow (Subscreen Only)", "Letter or Potion (Subscreen Only)"
                                      };
-//New Item Classes dfor 2.54 andd above. 
+//New Item Classes dfor 2.54 andd above.
 const char *itype_new_names[itype_max] = { "Script 1","Script 2","Script 3","Script 4","Script 5","Script 6","Script 7","Script 8","Script 9","Script 10", "Ice Rod"
                                      };
-				     
 const char *familylist(int32_t index, int32_t *list_size);
 
 
@@ -993,7 +975,6 @@ void build_biic_list()
 	int32_t start=biic_cnt=0;
 	std::map<std::string, int32_t> fams;
 	std::set<std::string> famnames;
-	
 	for(int32_t i=start; i<itype_max; ++i)
 	{
 		if(!ZI.isUsableItemclass(i))
@@ -1009,18 +990,16 @@ void build_biic_list()
 			famnames.insert(sname);
 			delete[] name;
 		}
-		else 
+		else
 		{
 			char *name = new char[12];
 			sprintf(name, "zz%03d (%03d)", i, i);
 			std::string sname(name);
-			
 			fams[sname] = i;
 			famnames.insert(sname);
 			delete[] name;
 		}
 	}
-	
 	for(std::set<std::string>::iterator it = famnames.begin(); it != famnames.end(); ++it)
 	{
 		biic[biic_cnt].s = new char[(*it).length() + 1];
@@ -1046,7 +1025,6 @@ const char *item_class_list(int32_t index, int32_t *list_size)
         *list_size = biic_cnt;
         return NULL;
     }
-    
     return biic[index].s;
 }
 
@@ -1065,7 +1043,6 @@ const char *familylist(int32_t index, int32_t *list_size)
         *list_size = (int32_t)listidx2biic.size();
         return NULL;
     }
-    
     return biic[listidx2biic[index]].s;
 }
 
@@ -1085,7 +1062,6 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
     game2->set_maxarrows(zinit2->max_arrows);
     game2->set_maxcounter(zinit2->max_rupees, 1);
     game2->set_maxcounter(zinit2->max_keys, 5);
-    
     //set up the items
     for(int32_t i=0; i<MAXITEMS; i++)
     {
@@ -1096,27 +1072,19 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
         }
         else
             game2->set_item_no_flush(i,false);
-            
         game2->items_off[i] = 0;
-        
         // Fix them DMap items
         // Since resetItems() gets called before AND after init_dmap()...
         if(get_currdmap() > -1)
             game2->items_off[i] |= DMaps[get_currdmap()].disableditems[i];
     }
-    
     flushItemCache();
-    
     //Then set up the counters
     game2->set_bombs(zinit2->bombs);
-    
     if(zinit2->bombs > 0 && zinit2->max_bombs > 0) game2->set_item(iBombs, true);
-    
     game2->set_keys(zinit2->keys);
     game2->set_sbombs(zinit2->super_bombs);
-    
     if(zinit2->super_bombs > 0 && (zinit2->max_bombs/zc_max(1,zinit2->bomb_ratio)) > 0) game2->set_item(iSBomb, true);
-    
     game2->set_HCpieces(zinit2->hcp);
     game2->set_rupies(zinit2->rupies);
     game2->set_hcp_per_hc(zinit2->hcp_per_hc);
@@ -1139,7 +1107,6 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 	game2->set_sideswim_jump(zinit2->exitWaterJump);
 	game2->set_bunny_ltm(zinit2->bunny_ltm);
 	game2->set_switchhookstyle(zinit2->switchhookstyle);
-    
     for(int32_t i=0; i<MAXLEVELS; i++)
     {
         // Kludge to prevent two bits (liTRIFORCE and liBOSS) which aren't
@@ -1148,31 +1115,25 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
             game2->lvlitems[i]=0;
         else
             game2->lvlitems[i]&=~(liMAP|liCOMPASS|liBOSSKEY| (i>0 && i<=8 ? liTRIFORCE : 0));
-            
         game2->lvlitems[i]|=get_bit(zinit2->map,i)?liMAP:0;
         game2->lvlitems[i]|=get_bit(zinit2->compass,i)?liCOMPASS:0;
         game2->lvlitems[i]|=get_bit(zinit2->boss_key,i)?liBOSSKEY:0;
         game2->lvlkeys[i]=zinit2->level_keys[i];
     }
-    
     for(int32_t i=0; i<8; i++)
     {
         game2->lvlitems[i+1]|=get_bit(&zinit2->triforce,i)?liTRIFORCE:0;
     }
-    
     game2->set_magic(zc_min(zinit2->magic,zinit2->max_magic));
     game2->set_magicdrainrate(zinit2->magicdrainrate);
 	//zprint2("gd2: %d, zi2: %d\n", game2->get_magicdrainrate(), zinit2->magicdrainrate);
     game2->set_canslash(get_bit(zinit2->misc,idM_CANSLASH)?1:0);
-    
     game2->set_arrows(zinit2->arrows);
-    
 	for(int32_t q = 0; q < 25; ++q)
 	{
 		game2->set_counter(zinit2->scrcnt[q], q+7);
 		game2->set_maxcounter(zinit2->scrmaxcnt[q], q+7);
 	}
-	
 	if(freshquest)
 	{
 		memcpy(game2->gen_doscript, zinit2->gen_doscript, sizeof(game2->gen_doscript));
@@ -1184,7 +1145,6 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 			game2->gen_data[q] = zinit2->gen_data[q];
 		memcpy(game2->gen_eventstate, zinit2->gen_eventstate, sizeof(game2->gen_eventstate));
 	}
-	
     //flush the cache again (in case bombs became illegal to use by setting bombs to 0)
     flushItemCache();
 }

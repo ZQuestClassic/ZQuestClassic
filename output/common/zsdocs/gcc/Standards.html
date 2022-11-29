@@ -138,7 +138,7 @@ differences between these publications, although the sections of the
 ANSI standard were renumbered and became clauses in the ISO standard.
 The ANSI
 standard, but not the ISO standard, also came with a Rationale
-document.  
+document.
 This standard, in both its forms, is commonly known as <em>C89</em>, or
 occasionally as <em>C90</em>, from the dates of ratification.
 To select this standard in GCC, use one of the options
@@ -166,7 +166,7 @@ development, drafts of this standard version were referred to as
 <em>C9X</em>.)  GCC has substantially
 complete support for this standard version; see
 <a href="http://gcc.gnu.org/c99status.html">http://gcc.gnu.org/c99status.html</a> for details.  To select this
-standard, use <samp>-std=c99</samp> or <samp>-std=iso9899:1999</samp>.  
+standard, use <samp>-std=c99</samp> or <samp>-std=iso9899:1999</samp>.
 </p>
 <p>Errors in the 1999 ISO C standard were corrected in three Technical
 Corrigenda published in 2001, 2004 and 2007.  GCC does not support the
@@ -189,7 +189,7 @@ development; experimental and incomplete support for this is enabled
 with <samp>-std=c2x</samp>.
 </p>
 <p>By default, GCC provides some extensions to the C language that, on
-rare occasions conflict with the C standard.  See <a href="C-Extensions.html#C-Extensions">Extensions to the C Language Family</a>.  
+rare occasions conflict with the C standard.  See <a href="C-Extensions.html#C-Extensions">Extensions to the C Language Family</a>.
 Some features that are part of the C99 standard
 are accepted as extensions in C90 mode, and some features that are part
 of the C11 standard are accepted as extensions in C90 and C99 modes.
@@ -199,10 +199,10 @@ they conflict with the C standard version selected.  You may also
 select an extended version of the C language explicitly with
 <samp>-std=gnu90</samp> (for C90 with GNU extensions), <samp>-std=gnu99</samp>
 (for C99 with GNU extensions) or <samp>-std=gnu11</samp> (for C11 with GNU
-extensions).  
+extensions).
 </p>
 <p>The default, if no C language dialect options are given,
-is <samp>-std=gnu11</samp>.  
+is <samp>-std=gnu11</samp>.
 </p>
 <p>The ISO C standard defines (in clause 4) two classes of conforming
 implementation.  A <em>conforming hosted implementation</em> supports the
@@ -213,7 +213,7 @@ library facilities: those in <code>&lt;float.h&gt;</code>, <code>&lt;limits.h&gt
 <code>&lt;iso646.h&gt;</code>; since C99, also those in <code>&lt;stdbool.h&gt;</code> and
 <code>&lt;stdint.h&gt;</code>; and since C11, also those in <code>&lt;stdalign.h&gt;</code>
 and <code>&lt;stdnoreturn.h&gt;</code>.  In addition, complex types, added in C99, are not
-required for freestanding implementations.  
+required for freestanding implementations.
 </p>
 <p>The standard also defines two environments for programs, a
 <em>freestanding environment</em>, required of all implementations and
@@ -223,7 +223,7 @@ and termination are implementation-defined; and a <em>hosted
 environment</em>, which is not required, in which all the library
 facilities are provided and startup is through a function <code>int
 main (void)</code> or <code>int main (int, char *[])</code>.  An OS kernel is an example
-of a program running in a freestanding environment; 
+of a program running in a freestanding environment;
 a program using the facilities of an
 operating system is an example of a program running in a hosted environment.
 </p>
@@ -244,7 +244,7 @@ See <a href="C-Dialect-Options.html#C-Dialect-Options">Options Controlling C Dia
 </p>
 <p>GCC does not provide the library facilities required only of hosted
 implementations, nor yet all the facilities required by C99 of
-freestanding implementations on all platforms.  
+freestanding implementations on all platforms.
 To use the facilities of a hosted
 environment, you need to find them elsewhere (for example, in the
 GNU C library).  See <a href="Standard-Libraries.html#Standard-Libraries">Standard Libraries</a>.
@@ -315,7 +315,7 @@ select an extended version of the C++ language explicitly with
 <samp>-std=gnu++98</samp> (for C++98 with GNU extensions), or
 <samp>-std=gnu++11</samp> (for C++11 with GNU extensions), or
 <samp>-std=gnu++14</samp> (for C++14 with GNU extensions), or
-<samp>-std=gnu++17</samp> (for C++17 with GNU extensions).  
+<samp>-std=gnu++17</samp> (for C++17 with GNU extensions).
 </p>
 <p>The default, if
 no C++ language dialect options are given, is <samp>-std=gnu++14</samp>.
@@ -390,7 +390,7 @@ described at <a href="https://golang.org/doc/go1">https://golang.org/doc/go1</a>
 
 <p>GCC can compile the binary representation (BRIG) of the HSAIL text format as
 described in HSA Programmer&rsquo;s Reference Manual version 1.0.1. This
-capability is typically utilized to implement the HSA runtime API&rsquo;s HSAIL 
+capability is typically utilized to implement the HSA runtime API&rsquo;s HSAIL
 finalization extension for a gcc supported processor. HSA standards are
 freely available at <a href="http://www.hsafoundation.com/standards/">http://www.hsafoundation.com/standards/</a>.
 </p>

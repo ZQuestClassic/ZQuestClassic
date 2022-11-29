@@ -18,28 +18,28 @@ bool Ghost_Waitframe(ffc this, npc ghost, bool clearOnDeath, bool quitOnDeath)
                 // change the enemy's direction here
                 bool setDir=Ghost_FlagIsSet(GHF_SET_DIRECTION);
                 Ghost_UnsetFlag(GHF_SET_DIRECTION);
-                
+
                 // Jumping
                 if(Ghost_Jump>0)
                 {
                     // Set GHF_NO_FALL temporarily so Ghost_CanMove(DIR_UP) can return true
                     Ghost_SetFlag(GHF_NO_FALL);
-                    
+
                     Ghost_Move(DIR_UP, Ghost_Jump, __GH_DEFAULT_IMPRECISION);
                     Ghost_Jump=Max(Ghost_Jump-GH_GRAVITY, -GH_TERMINAL_VELOCITY);
-                    
+
                     // If it's still jumping, check if it can move any farther;
                     // if it can't, it's hit something and should start falling
                     if(Ghost_Jump>0 && !Ghost_CanMove(DIR_UP, 1, __GH_DEFAULT_IMPRECISION))
                         Ghost_Jump=0;
-                    
+
                     Ghost_UnsetFlag(GHF_NO_FALL);
                 }
                 // Falling
                 else
                 {
                     Ghost_Move(DIR_DOWN, -Ghost_Jump, __GH_DEFAULT_IMPRECISION);
-                    
+
                     // Can it fall farther?
                     if(Ghost_CanMove(DIR_DOWN, 1, __GH_DEFAULT_IMPRECISION))
                         Ghost_Jump=Max(Ghost_Jump-GH_GRAVITY, -GH_TERMINAL_VELOCITY);
@@ -47,7 +47,7 @@ bool Ghost_Waitframe(ffc this, npc ghost, bool clearOnDeath, bool quitOnDeath)
                     else
                         Ghost_Jump=0;
                 }
-                
+
                 // Restore the flag
                 if(setDir)
                     Ghost_SetFlag(GHF_SET_DIRECTION);
@@ -97,29 +97,29 @@ bool Ghost_Waitframe2(ffc this, npc ghost, bool clearOnDeath, bool quitOnDeath)
     Ghost_Y=ghost->Y;
     Ghost_Z=ghost->Z;
     Ghost_Jump=ghost->Jump;
-    
+
     this->X=Clamp(Ghost_X+ghost->DrawXOffset, -64, 256);
     this->Y=Clamp(Ghost_Y-Ghost_Z+ghost->DrawYOffset-ghost->DrawZOffset, -64, 176);
-    
+
     __Ghost_WaitframePart1(this, ghost, true);
     __Ghost_UpdateFlashing(this, ghost);
     Ghost_WaitframeLight(this, ghost);
     __Ghost_InternalFlags&=__GH_UNSET_FLAGS;
-    
+
     if(ghost->isValid())
     {
         Ghost_X=ghost->X;
         Ghost_Y=ghost->Y;
         Ghost_Z=ghost->Z;
     }
-    
+
     return __Ghost_WaitframePart2(this, ghost, clearOnDeath, quitOnDeath);
 }
 
 void Ghost_WaitframeLight(ffc this, npc ghost)
 {
     // Remember all the global variables
-    
+
     // Initializing the array is faster than setting it up afterward...
     // but the difference is probably negligible, realistically
     float tempGhostData[24] = {
@@ -156,11 +156,11 @@ void Ghost_WaitframeLight(ffc this, npc ghost)
         for(int i=0; i<21; i++)
             tempGhostAdditionalCombos[i]=__Ghost_AdditionalCombos[i];
     }
-    
+
     // Give ghost an array pointer so its data can be found by other scripts
     if(ghost->isValid())
         ghost->Misc[__GHI_NPC_DATA]=0x10000|tempGhostData;
-    
+
     // Position additional FFCs, set draw data, make FFCs invisible if flickering.
     do
     {
@@ -179,7 +179,7 @@ void Ghost_WaitframeLight(ffc this, npc ghost)
                     tempGhostData[23]=drawData;
                     __HideFFCAndWait(this);
                 }
-                
+
                 // DrawCombo and no additional combos
                 else
                 {
@@ -199,7 +199,7 @@ void Ghost_WaitframeLight(ffc this, npc ghost)
                     int drawData[28];
                     __SetUpDrawingArray(this, ghost, drawData);
                     tempGhostData[23]=drawData;
-                    
+
                     // Hide the FFC if the enemy is flickering.
                     if(__Ghost_IsFlickering(ghost) &&
                        (__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_FLICKER)!=0)
@@ -210,7 +210,7 @@ void Ghost_WaitframeLight(ffc this, npc ghost)
                     else
                         Waitframe();
                 }
-                
+
                 // No DrawCombo or additional combos
                 else
                 {
@@ -227,7 +227,7 @@ void Ghost_WaitframeLight(ffc this, npc ghost)
         }
         else // ghost is not valid
             __HideFFCAndWait(this);
-        
+
         // Restore the global variables
         Ghost_X=tempGhostData[0];
         Ghost_Y=tempGhostData[1];
@@ -252,7 +252,7 @@ void Ghost_WaitframeLight(ffc this, npc ghost)
         Ghost_HP=tempGhostData[20];
         __Ghost_XOffsets=tempGhostData[21];
         __Ghost_YOffsets=tempGhostData[22];
-        
+
         if(tempGhostAdditionalCombos[0]>0)
         {
             for(int i=0; i<21; i++)
@@ -260,9 +260,9 @@ void Ghost_WaitframeLight(ffc this, npc ghost)
         }
         else
             __Ghost_AdditionalCombos[0]=0;
-        
+
     } while((__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_SUSPEND)!=0);
-    
+
     if(ghost->isValid())
         ghost->Misc[__GHI_NPC_DATA]=0x10000;
 }
@@ -332,7 +332,7 @@ bool Ghost_Waitframe(ffc this, npc ghost, int deathAnimation, bool quitOnDeath)
             Quit();
         return false;
     }
-    
+
     return true;
 }
 
@@ -345,7 +345,7 @@ bool Ghost_Waitframe2(ffc this, npc ghost, int deathAnimation, bool quitOnDeath)
             Quit();
         return false;
     }
-    
+
     return true;
 }
 
@@ -359,17 +359,17 @@ void Ghost_CheckHit(ffc this, npc ghost)
         Ghost_HP=ghost->HP;
         if(__Ghost_FlashCounter<__GH_FLASH_TIME)
             __Ghost_FlashCounter=__GH_FLASH_TIME;
-        
+
         // Set knockback counter (but don't handle it yet)
         if(Ghost_FlagIsSet(GHF_KNOCKBACK))
         {
             int xDiff=Link->X-Ghost_X;
             int yDiff=Link->Y-Ghost_Y;
-            
+
             // The correct way to find the knockback direction would be to check
             // the direction of the weapon, but that's not possible. Instead,
             // Link's position and direction are used.
-            
+
             // If Link is close, use his direction
             if(Abs(xDiff)<(Ghost_TileWidth+1)*16 && Abs(yDiff)<(Ghost_TileHeight+1)*16)
             {
@@ -377,7 +377,7 @@ void Ghost_CheckHit(ffc this, npc ghost)
                    Ghost_FlagIsSet(GHF_KNOCKBACK_4WAY))
                     __Ghost_KnockbackCounter=Link->Dir<<12|__GH_KNOCKBACK_TIME; // Direction and timer are stored together
             }
-            
+
             // If Link is far, use the direction from him to the enemy
             else
             {
@@ -408,29 +408,29 @@ void Ghost_CheckHit(ffc this, npc ghost)
             }
         }
     }
-    
+
     // Handle knockback
     if(__Ghost_KnockbackCounter!=0)
     {
         int dir=__Ghost_KnockbackCounter>>12;
         int counter=__Ghost_KnockbackCounter&4095;
         int step=__GH_KNOCKBACK_STEP;
-        
+
         if(Ghost_FlagIsSet(GHF_REDUCED_KNOCKBACK))
             step/=2;
-        
+
         // Get knocked back
         if(Ghost_CanMove(dir, step, __GH_DEFAULT_IMPRECISION))
         {
             int dX=0;
             int dY=0;
-            
+
             counter--;
             if(counter>0)
                 __Ghost_KnockbackCounter=(dir<<12)|counter;
             else
                 __Ghost_KnockbackCounter=0;
-            
+
             if(dir==DIR_UP)
                 dY=-step;
             else if(dir==DIR_DOWN)
@@ -439,7 +439,7 @@ void Ghost_CheckHit(ffc this, npc ghost)
                 dX=-step;
             else // Right
                 dX=step;
-            
+
             // Adjust all relevant position variables so this isn't mistaken for normal movement
             if(dX!=0)
             {
@@ -454,16 +454,16 @@ void Ghost_CheckHit(ffc this, npc ghost)
                 Ghost_SetPosition(this, ghost);
             }
         }
-        
+
         // Can't move any farther; end knockback
         else
         {
             int newX=-1;
             int newY=-1;
-            
+
             __Ghost_KnockbackCounter=0;
             __Ghost_InternalFlags|=__GHFI_KNOCKBACK_INTERRUPTED;
-            
+
             if(dir==DIR_UP)
                 newY=Floor(Ghost_Y/8)*8;
             else if(dir==DIR_DOWN)
@@ -474,7 +474,7 @@ void Ghost_CheckHit(ffc this, npc ghost)
                 newX=Floor(Ghost_X/8)*8;
             else // Right
                 newX=Ceiling((Ghost_X<<0)/8)*8;
-            
+
             if(newX!=-1)
             {
                 __Ghost_PrevX+=newX-Ghost_X;
@@ -501,14 +501,14 @@ bool Ghost_CheckFreeze(ffc this, npc ghost)
         float vy=this->Vy;
         float ax=this->Ax;
         float ay=this->Ay;
-        
+
         this->Vx=0;
         this->Vy=0;
         this->Ax=0;
         this->Ay=0;
-        
+
         __Ghost_InternalFlags|=__GHFI_WAS_FROZEN;
-        
+
         // Do nothing except get hit until recovered
         while((Ghost_FlagIsSet(GHF_CLOCK) && ClockIsActive()) ||
               (Ghost_FlagIsSet(GHF_STUN) && ghost->Stun>0))
@@ -516,31 +516,31 @@ bool Ghost_CheckFreeze(ffc this, npc ghost)
             __Ghost_UpdateFlashing(this, ghost);
             __Ghost_DrawShadow(ghost);
             Ghost_WaitframeLight(this, ghost);
-            
+
             if(!ghost->isValid())
                 return false;
             else if(ghost->HP<=0)
                 return false;
-            
+
             Ghost_SetPosition(this, ghost);
-            
+
             if(Ghost_FlagIsSet(GHF_8WAY))
                 this->Data=Ghost_Data+__NormalizeDir(Ghost_Dir);
             else if(Ghost_FlagIsSet(GHF_4WAY))
                 this->Data=Ghost_Data+__NormalizeDir(Ghost_Dir);
             else
                 this->Data=Ghost_Data;
-            
+
             Ghost_CheckHit(this, ghost);
         }
-        
+
         // Restore movement
         this->Vx=vx;
         this->Vy=vy;
         this->Ax=ax;
         this->Ay=ay;
     }
-    
+
     return true;
 }
 
@@ -585,11 +585,11 @@ void __Ghost_WaitframePart1(ffc this, npc ghost, bool useNPCDir)
             }
         }
     }
-    
+
     ghost->Dir=Ghost_Dir;
     __Ghost_PrevX=Ghost_X;
     __Ghost_PrevY=Ghost_Y;
-    
+
     // Set combo
     if(Ghost_Data==0 || Ghost_Data==GH_INVISIBLE_COMBO)
     {
@@ -614,7 +614,7 @@ void __Ghost_WaitframePart1(ffc this, npc ghost, bool useNPCDir)
                 this->Data=Ghost_Data;
         }
     }
-    
+
     // Resize, if necessary.
     // This is a bit ugly; the npc and ffc should be handled together. That
     // causes problems if you set both the size and offsets before the first
@@ -627,7 +627,7 @@ void __Ghost_WaitframePart1(ffc this, npc ghost, bool useNPCDir)
         ghost->HitWidth=16*Ghost_TileWidth;
         ghost->HitXOffset=0;
     }
-    
+
     if(this->TileHeight!=Ghost_TileHeight)
         this->TileHeight=Ghost_TileHeight;
     if(ghost->TileHeight!=Ghost_TileHeight)
@@ -636,7 +636,7 @@ void __Ghost_WaitframePart1(ffc this, npc ghost, bool useNPCDir)
         ghost->HitHeight=16*Ghost_TileHeight;
         ghost->HitYOffset=0;
     }
-    
+
     // Draw over if high enough
     if(Ghost_FlagIsSet(GHF_SET_OVERLAY))
     {
@@ -645,9 +645,9 @@ void __Ghost_WaitframePart1(ffc this, npc ghost, bool useNPCDir)
         else if(Ghost_Z<GH_DRAW_OVER_THRESHOLD && this->Flags[FFCF_OVERLAY])
             this->Flags[FFCF_OVERLAY]=false;
     }
-    
+
     ghost->HP=Ghost_HP;
-    
+
     // Set CSet
     // ghost->CSet can't be forced; built-in flashing can't be prevented
     ghost->CSet=Ghost_CSet;
@@ -655,7 +655,7 @@ void __Ghost_WaitframePart1(ffc this, npc ghost, bool useNPCDir)
         this->CSet=Ghost_CSet;
     else if(__Ghost_FlashCounter<=0)
         this->CSet=Ghost_CSet;
-    
+
     __Ghost_DrawShadow(ghost);
 }
 
@@ -671,29 +671,29 @@ bool __Ghost_WaitframePart2(ffc this, npc ghost, bool clearOnDeath, bool quitOnD
             Ghost_Data=0;
             Ghost_ClearCombos();
         }
-        
+
         if(quitOnDeath)
             Quit();
-            
+
         Ghost_HP=0;
         return false;
     }
-    
+
     // Is it dead?
     bool dead=false;
-    
+
     if(ghost->HP<=0)
         dead=true;
-    
+
     // Not dead; was it hit, stunned, or frozen?
     if(!dead)
     {
         Ghost_CheckHit(this, ghost);
         dead=!Ghost_CheckFreeze(this, ghost);
     }
-    
+
     Ghost_HP=ghost->HP;
-    
+
     // Dead; clean up
     if(dead)
     {
@@ -707,13 +707,13 @@ bool __Ghost_WaitframePart2(ffc this, npc ghost, bool clearOnDeath, bool quitOnD
             __GhCleanUp(this);
             Ghost_Data=0;
         }
-        
+
         if(quitOnDeath)
             Quit();
 
         return false;
     }
-    
+
     return true;
 }
 
@@ -721,14 +721,14 @@ bool __Ghost_WaitframePart2(ffc this, npc ghost, bool clearOnDeath, bool quitOnD
 void __Ghost_UpdateFlashing(ffc this, npc ghost)
 {
     bool endFlash=false;
-    
+
     if(__Ghost_FlashCounter>=1)
     {
         __Ghost_FlashCounter--;
         if(__Ghost_FlashCounter==0)
             endFlash=true;
     }
-    
+
     if((__Ghost_InternalFlags&__GHFI_CSET_FORCED)==0)
     {
         if(__Ghost_FlashCounter>0 && GH_ENEMIES_FLICKER==0) // Got hit?

@@ -32,7 +32,6 @@ int32_t newg_cornersel_proc(int32_t msg,DIALOG *d,int32_t)
 			else if(mouse_in_rect(d->x+2+bw,d->y+2+bh,bw,bh))
 				bit = 0b1000;
 			else return D_O_K;
-			
 			if(ctrl) //toggle all bits
 				d->d1 ^= 0b1111;
 			else if(shift) //set all bits to opposite of clicked bit
@@ -49,7 +48,6 @@ int32_t newg_cornersel_proc(int32_t msg,DIALOG *d,int32_t)
 		{
 			BITMAP *buf = create_bitmap_ex(8,20,20);
 			BITMAP *bigbmp = create_bitmap_ex(8,d->h,d->h);
-			
 			if(buf && bigbmp)
 			{
 				clear_bitmap(buf);
@@ -62,7 +60,6 @@ int32_t newg_cornersel_proc(int32_t msg,DIALOG *d,int32_t)
 					rectfill(buf,  2, 10,  9, 17, d->fg);
 				if(d->d1 & 0b1000)
 					rectfill(buf, 10, 10, 17, 17, d->fg);
-					
 				stretch_blit(buf, bigbmp, 2,2, 17, 17, 2, 2, d->h-4, d->h-4);
 				destroy_bitmap(buf);
 				jwin_draw_frame(bigbmp,0,0,d->h,d->h,FR_DEEP);

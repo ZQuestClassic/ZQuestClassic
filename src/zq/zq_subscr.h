@@ -34,4 +34,3 @@ extern DIALOG sslist_dlg[];
 #endif
 
 /*** end of subscr.cc ***/
- 

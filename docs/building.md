@@ -5,7 +5,7 @@ TODO: document how to build from scratch on windows and osx
 Typically, on Windows you want to use Visual Studio as the cmake generator, but if you want to use Ninja here's how:
 
 > 1. Ensure you have installed the C++/CLI tools for C++ desktop development in the Visual Studio Installer [(reference)](https://gitlab.kitware.com/cmake/cmake/-/issues/19815#note_636971)
-> 
+>
 > 1. Launch `cmd.exe` and configure the environment to use the Microsoft toolchain: `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"`
 Change 64 to 32 if you want to build 32bit.
 > 1. Configure: `cmake -S . -B build -G "Ninja Multi-Config" -DCMAKE_WIN32_EXECUTABLE=1`

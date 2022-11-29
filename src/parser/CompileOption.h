@@ -8,21 +8,18 @@
 namespace ZScript
 {
 	typedef int32_t CompileOptionValue;
-	
 	class CompileOptionSetting : public SafeBool<CompileOptionSetting>
 	{
 	public:
 		static CompileOptionSetting Invalid;
 		static CompileOptionSetting Default;
 		static CompileOptionSetting Inherit;
-		
 		CompileOptionSetting();
 		CompileOptionSetting(CompileOptionValue value);
 
 		bool operator==(CompileOptionSetting const& rhs) const;
 
 		bool safe_bool() const;
-		
 		// Get the set value if we're not a special type.
 		std::optional<CompileOptionValue> getValue() const;
 
@@ -42,7 +39,6 @@ namespace ZScript
 
 		CompileOptionSetting(Type type);
 	};
-	
 	// This class has value semantics. Basically, just treat it like an
 	// enum.
 	class CompileOption
@@ -68,17 +64,14 @@ namespace ZScript
 			return id_ == rhs.id_;}
 		bool operator<(CompileOption const& rhs) const {
 			return id_ < rhs.id_;}
-		
 		// Is this a valid option id?
 		bool isValid() const;
 
 		// Get the name of the option.
 		std::string* getName() const;
-	
 		// Get the default option value.
 		std::optional<CompileOptionValue> getDefault() const;
 		void setDefault(CompileOptionValue value);
-	
 	private:
 		int32_t id_;
 

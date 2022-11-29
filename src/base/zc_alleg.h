@@ -23,7 +23,6 @@
 INLINE fix abs(fix f)
 {
     fix t;
-    
     if(f < 0)
     {
         t.v = -f.v;
@@ -32,7 +31,6 @@ INLINE fix abs(fix f)
     {
         t.v = f.v;
     }
-    
     return t;
 }
 #endif

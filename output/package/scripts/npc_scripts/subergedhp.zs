@@ -1,5 +1,5 @@
-/* A script to prevent riverfolk from restoring hp when 
-   they dive underwater. 
+/* A script to prevent riverfolk from restoring hp when
+   they dive underwater.
    v1.0
    25th February, 2020
    ZoriaRPG

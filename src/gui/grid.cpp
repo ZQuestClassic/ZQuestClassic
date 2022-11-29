@@ -49,7 +49,6 @@ void Grid::add(std::shared_ptr<Widget> child)
 			altspan = child->getColSpan();
 		}
 		children[q] = std::move(child);
-		
 		for(size_t altind = 0; altind < altspan; ++altind)
 		{
 			for(size_t ind = 0; ind < mainspan && ((q+ind)/growthLimit == (q/growthLimit)); ++ind)
@@ -74,7 +73,6 @@ void Grid::calculateSize()
 	if(growthType == type::ROWS)
 	{
 		// +growthLimit-1 to round up
-		
 		numRows = 1+(maxChildIndex() / growthLimit);
 		numCols = growthLimit;
 	}
@@ -86,7 +84,6 @@ void Grid::calculateSize()
 
 	totalRowSpacing = (numRows-1)*rowSpacing;
 	totalColSpacing = (numCols-1)*colSpacing;
-	
 	std::vector<int32_t> tempRowWidths, tempRowHeights;
 	std::vector<int32_t> tempColWidths, tempColHeights;
 	// Get the size of each row (first pass)
@@ -110,7 +107,6 @@ void Grid::calculateSize()
 				auto mw = child->getMinWidth();
 				if(mw > -1) total += mw;
 			}
-			
 			if(child->getRowSpan() == 1)
 			{
 				if(!child->getForceFitHei())
@@ -139,7 +135,6 @@ void Grid::calculateSize()
 				continue;
 
 			auto& child = children[index];
-			
 			if(child->getColSpan() == 1)
 			{
 				if(!child->getForceFitWid())
@@ -150,7 +145,6 @@ void Grid::calculateSize()
 					if(mw > -1) max = std::max(max, mw);
 				}
 			}
-			
 			if(!child->getForceFitHei())
 				total += child->getTotalHeight();
 			else
@@ -176,7 +170,6 @@ void Grid::calculateSize()
 				continue;
 
 			auto& child = children[index];
-			
 			if(child->getForceFitWid())
 			{
 				for(size_t q = 0; q < child->getColSpan(); ++q)
@@ -185,7 +178,6 @@ void Grid::calculateSize()
 			}
 			else
 				total += child->getTotalWidth();
-			
 			if(child->getForceFitHei())
 			{
 				max = std::max(max, tempRowHeights.at(row));
@@ -209,7 +201,6 @@ void Grid::calculateSize()
 		rowWidths.push_back(total);
 		rowHeights.push_back(max);
 	}
-	
 	// Get the size of each column (second pass)
 	for(size_t col = 0; col < numCols; ++col)
 	{
@@ -223,7 +214,6 @@ void Grid::calculateSize()
 				continue;
 
 			auto& child = children[index];
-			
 			if(child->getForceFitWid())
 			{
 				max = std::max(max, tempColWidths.at(col));
@@ -243,7 +233,6 @@ void Grid::calculateSize()
 					tempColWidths[rcol] = std::max(tempColWidths.at(rcol), child->getTotalWidth() - tmpwid);
 				}
 			}
-			
 			if(child->getForceFitHei())
 			{
 				for(size_t q = 0; q < child->getRowSpan(); ++q)
@@ -288,9 +277,7 @@ void Grid::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 	// This currently just assumes there's enough space for everything to be
 	// as big as it wants to be.
 	size_t numRows, numCols;
-	
 	Widget::arrange(contX, contY, contW, contH);
-	
 	if(growthType == type::ROWS)
 	{
 		numRows = 1+(maxChildIndex() / growthLimit);
@@ -317,7 +304,6 @@ void Grid::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 				continue;
 			}
 			auto& child = children[index];
-			
 			int32_t c_hei = rowSpacing * (child->getRowSpan()-1);
 			int32_t c_wid = colSpacing * (child->getColSpan()-1);
 			for(size_t q = 0; q < child->getRowSpan(); ++q)

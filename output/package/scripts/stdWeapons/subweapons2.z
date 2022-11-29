@@ -34,7 +34,7 @@ item script Subweapon{
 			RunFFCScriptOrQuit(ffcscript, D);
 		}
 	}
-} 
+}
 
 //An item that sets maximum projectiles that can be launched at once.
 //D0: New maximum.
@@ -98,7 +98,7 @@ ffc script Axe{
 					//debugValue (1, axe->Z);
 				}
 				LweaponWaitframe (this, axe, true);
-			}			
+			}
 		}
 		else{
 			while (true){
@@ -127,7 +127,7 @@ ffc script Knife{
 		lweapon knife = LweaponInit(this, LW_SCRIPT1, dam, sprite, sound);
 		LweaponSetFlag(knife, LWF_AUTO_DIR_UPDATE);
 		LweaponSetFlag(knife, LWF_AUTO_SPRITE_UPDATE);
-		SetStraightMotion4(this, speed);		
+		SetStraightMotion4(this, speed);
 		while (true){
 			TransformEnemyOnCollision (knife, NPC_GIBDO, NPC_STALFOS2, false, SFX_EDEAD);
 			LweaponWaitframe (this, knife, true);
@@ -172,16 +172,16 @@ ffc script CrossBoomerang{
 			if (this->Vy>0) Waitframe();
 			cross = CreateNewWeapon (this, LW_SCRIPT1, dam, sprite);
 			while (cross->isValid()){
-			     LweaponPosUpdate(this, cross);
-			     LweaponDirUpdate( this, cross);
-			     LweaponSpriteUpdate (cross);
-			     ItemPickup (cross, false);
-			     PenetratorUpdate(cross);
-			     Waitframe();
-		     }
+				 LweaponPosUpdate(this, cross);
+				 LweaponDirUpdate( this, cross);
+				 LweaponSpriteUpdate (cross);
+				 ItemPickup (cross, false);
+				 PenetratorUpdate(cross);
+				 Waitframe();
+			 }
 		}
 		ClearFFC(this);
-     	Game->PlaySound(SFX_FALL);
+		Game->PlaySound(SFX_FALL);
 	}
 }
 
@@ -231,17 +231,17 @@ ffc script HolyMolotov{
 				Quit();
 			}
 			if (bottle->isValid()){
-			    AffectedByGravity (this, bottle);
-			    LweaponDirUpdate(this, bottle);
-			    LweaponPosUpdate(this, bottle);
-			    PenetratorUpdate(bottle);
-			    if ((WallCollision8way(bottle))||(BlockedByEnemy(bottle))){
-			    	Game->PlaySound(SFX_FIRE);
-			    	KillMolotov( this, bottle, dam, 8, 60);
-			    	ClearFFC(this);
-			    	Quit();
-			    }
-			    Waitframe();
+				AffectedByGravity (this, bottle);
+				LweaponDirUpdate(this, bottle);
+				LweaponPosUpdate(this, bottle);
+				PenetratorUpdate(bottle);
+				if ((WallCollision8way(bottle))||(BlockedByEnemy(bottle))){
+					Game->PlaySound(SFX_FIRE);
+					KillMolotov( this, bottle, dam, 8, 60);
+					ClearFFC(this);
+					Quit();
+				}
+				Waitframe();
 			}
 			else bottle = CreateNewWeapon(this, LW_SCRIPT1, dam, sprite);
 		}
@@ -249,25 +249,25 @@ ffc script HolyMolotov{
 		else{
 			while (bottle->isValid()){
 				AffectedByGravity (this, bottle);
-			    LweaponDirUpdate(this, bottle);
-			    LweaponPosUpdate(this, bottle);
-			    PenetratorUpdate(bottle);
-			    FastShadow(this, bottle);
-			    if (bottle->Z <= 0){
+				LweaponDirUpdate(this, bottle);
+				LweaponPosUpdate(this, bottle);
+				PenetratorUpdate(bottle);
+				FastShadow(this, bottle);
+				if (bottle->Z <= 0){
 					Waitframe();
 					Game->PlaySound(SFX_FIRE);
 					KillMolotov( this, bottle, dam, 8, 60);
 					ClearFFC(this);
 					Quit();
 				}
-			    Waitframe();
+				Waitframe();
 			}
 		}
 		ClearFFC(this);
 		Game->PlaySound(SFX_FALL);
 	}
 }
-//An ancient HOLY BIBLE. Upon launching,i t starts moving in spiral pattern 
+//An ancient HOLY BIBLE. Upon launching,i t starts moving in spiral pattern
 //until disappearing after certain time. Additionally, it destroys EWeapons.
 //D0: Damage.
 //D1: Launch sound.
@@ -360,13 +360,13 @@ ffc script RicochetingDiamond{
 		while (gem->isValid()){
 			if (ric <= maxbounce){
 				if (bouncecooldown>0) bouncecooldown--;
-			     else if (WallCollision8way(gem)) {
-			     	MoveToSolidContactPosition(this, gem);
-			     	Bounce(this, gem, SFX_TAP1);
-			     	ric++;
-			     	bouncecooldown=bouncecooldown+1;
-			     	}
-			     }
+				else if (WallCollision8way(gem)) {
+					MoveToSolidContactPosition(this, gem);
+					Bounce(this, gem, SFX_TAP1);
+					ric++;
+					bouncecooldown=bouncecooldown+1;
+				}
+			}
 			else gem->DrawStyle=DS_PHANTOM;
 			LweaponPosUpdate(this,gem);
 			LweaponDirUpdate(this,gem);

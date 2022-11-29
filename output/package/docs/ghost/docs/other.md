@@ -4,7 +4,7 @@ void SetEnemyProperty(npc enemy, int property, float newValue)
 float GetEnemyProperty(npc enemy, int property)
 :   These functions allow some of the properties of ghost.zh scripts to be read
     and set from other scripts. property must be one of the following:
-    
+
     * `ENPROP_X`
     * `ENPROP_Y`
     * `ENPROP_Z`
@@ -12,7 +12,7 @@ float GetEnemyProperty(npc enemy, int property)
     * `ENPROP_DIR`
     * `ENPROP_HP`
     * `ENPROP_CSET`
-    
+
     These work for all enemies, not just scripted ones, so there's no need
     to check that beforehand.
 
@@ -22,13 +22,13 @@ int FindSpawnPoint(bool landOK, bool wallsOK, bool waterOK, bool pitsOK)
     a random position that ZC would not select itself. The result is undefined
     if no suitable location exists, but that will not happen unless there is
     almost no space abailable on the screen.
-    
+
     `landOK`: Walkable, non-water, non-pit combos are okay
-    
+
     `wallsOK`: Unwalkable, non-water, non-pit combos are okay
-    
+
     `waterOK`: All deep water combos are okay
-    
+
     `pitsOK`: Direct warps are okay
 
 int FindSpawnPoint(int type, int flag)

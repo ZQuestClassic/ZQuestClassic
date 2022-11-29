@@ -46,7 +46,7 @@ ffc script Bari
             shockChance *= -1;
             alwaysMove = true;
         }
-        
+
         //Spawn Animation
         Ghost_SpawnAnimationPuff(this, ghost);
 
@@ -137,44 +137,44 @@ ffc script Bari
                         int oldLinkY;
                         bool oldLinkInvis;
                         bool oldLinkColl;
-                        
+
                         // Set this so other Bari's don't activate
                         this->Misc[BARI_IDX_SHOCKING]=1;
-                        
+
                         // Remember Link's data
                         oldLinkX=Link->X;
                         oldLinkY=Link->Y;
                         oldLinkInvis=Link->Invisible;
                         oldLinkColl=Link->CollDetection;
-                        
+
                         // Hurt Link, hide him, draw the shock graphic, and play the sound
                         Link->HP-=4*ghost->WeaponDamage;
-                        
+
                         Link->Invisible=true;
                         Link->CollDetection=false;
-                        
+
                         lweapon graphic=Screen->CreateLWeapon(LW_SCRIPT1);
                         graphic->UseSprite(BARI_WPS_SHOCK);
                         graphic->X=Link->X;
                         graphic->Y=Link->Y;
                         graphic->CollDetection=false;
                         graphic->DeadState=BARI_SHOCK_TIME;
-                        
+
                         Game->PlaySound(BARI_SFX_SHOCK);
                         Screen->Quake=Max(Screen->Quake, 30);
-                        
+
                         for(int j=0; j<BARI_SHOCK_TIME; j++)
                         {
                             NoAction();
                             Link->X=oldLinkX;
                             Link->Y=oldLinkY;
                             Ghost_Waitframe(this, ghost, true, true);
-                            
+
                             // Make Link visible again if he died
                             if(Link->HP<=0)
                                 Link->Invisible=oldLinkInvis;
                         }
-                        
+
                         // Unhide Link, stop flashing
                         Link->Invisible=oldLinkInvis;
                         Link->CollDetection=oldLinkColl;
@@ -191,7 +191,7 @@ ffc script Bari
     bool AlreadyBeingShocked(ffc this)
     {
         ffc f;
-        
+
         // Check each other FFC
         for(int i = 1; i <= 32; i++)
         {
@@ -204,7 +204,7 @@ ffc script Bari
             if(f->Script == this->Script && f->Misc[BARI_IDX_SHOCKING] != 0)
                 return true;
         }
-        
+
         return false;
     }
 }

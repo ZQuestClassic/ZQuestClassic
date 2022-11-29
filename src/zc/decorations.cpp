@@ -60,7 +60,6 @@ dBushLeaves::dBushLeaves(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) :
 	if(!initialized)
 	{
 		initialized=true;
-		
 		ft[0][0][0]=6;
 		ft[0][0][1]=6;
 		ft[0][0][2]=0;
@@ -85,7 +84,6 @@ dBushLeaves::dBushLeaves(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) :
 		ft[0][7][0]=4;
 		ft[0][7][1]=19;
 		ft[0][7][2]=1;
-		
 		ft[1][0][0]=-4;
 		ft[1][0][1]=3;
 		ft[1][0][2]=0;
@@ -110,7 +108,6 @@ dBushLeaves::dBushLeaves(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) :
 		ft[1][7][0]=-9;
 		ft[1][7][1]=2;
 		ft[1][7][2]=1;
-		
 		ft[2][0][0]=10;
 		ft[2][0][1]=2;
 		ft[2][0][2]=1;
@@ -135,7 +132,6 @@ dBushLeaves::dBushLeaves(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) :
 		ft[2][7][0]=6;
 		ft[2][7][1]=16;
 		ft[2][7][2]=0;
-		
 		ft[3][0][0]=4;
 		ft[3][0][1]=-4;
 		ft[3][0][2]=0;
@@ -180,15 +176,12 @@ void dBushLeaves::draw(BITMAP *dest)
 	{
 		t=wpnsbuf[the_deco_sprite].tile;
 		cs=wpnsbuf[the_deco_sprite].csets&15;
-		
 	}
 	else
 	{
 		t=wpnsbuf[iwBushLeaves].tile;
 		cs=wpnsbuf[iwBushLeaves].csets&15;
-		
 	}
-	
 	for(int32_t i=0; i<4; ++i)
 	{
 		x=ox+ft[i][int32_t(float(clk-1)/3)][0];
@@ -205,7 +198,6 @@ comboSprite::comboSprite(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) :
 {
 	id=Id;
 	clk=Clk;
-	
 	the_deco_sprite = vbound(wpnSpr,0,255);
 	tframes = wpnsbuf[the_deco_sprite].frames;
 	spd = wpnsbuf[the_deco_sprite].speed;
@@ -246,16 +238,13 @@ void comboSprite::realdraw(BITMAP *dest, int32_t draw_what)
 	{
 		return;
 	}
-	
 	int32_t fb=the_deco_sprite;
 	int32_t t=wpnsbuf[fb].tile;
 	int32_t fr=zc_max(1,wpnsbuf[fb].frames);
 	int32_t spd=zc_max(1,wpnsbuf[fb].speed);
 	cs=wpnsbuf[fb].csets&15;
 	flip=0;
-	
 	tile = t+(((clk-1)/spd)%fr);
-	
 	//zprint2("Drawing comboSprite: %d / %d (tile %d)\n", clk-1, fr*spd, tile);
 	decoration::draw(dest);
 }
@@ -281,7 +270,6 @@ dFlowerClippings::dFlowerClippings(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t
 	if(!initialized)
 	{
 		initialized=true;
-		
 		ft[0][0][0]=6;
 		ft[0][0][1]=6;
 		ft[0][0][2]=0;
@@ -306,7 +294,6 @@ dFlowerClippings::dFlowerClippings(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t
 		ft[0][7][0]=4;
 		ft[0][7][1]=19;
 		ft[0][7][2]=1;
-		
 		ft[1][0][0]=-4;
 		ft[1][0][1]=3;
 		ft[1][0][2]=0;
@@ -331,7 +318,6 @@ dFlowerClippings::dFlowerClippings(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t
 		ft[1][7][0]=-9;
 		ft[1][7][1]=2;
 		ft[1][7][2]=1;
-		
 		ft[2][0][0]=10;
 		ft[2][0][1]=2;
 		ft[2][0][2]=1;
@@ -356,7 +342,6 @@ dFlowerClippings::dFlowerClippings(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t
 		ft[2][7][0]=6;
 		ft[2][7][1]=16;
 		ft[2][7][2]=0;
-		
 		ft[3][0][0]=4;
 		ft[3][0][1]=-4;
 		ft[3][0][2]=0;
@@ -396,23 +381,17 @@ void dFlowerClippings::draw(BITMAP *dest)
 		clk=128;
 		return;
 	}
-	
 	int32_t t=0;
-	
 	if ( the_deco_sprite )
 	{
 		t=wpnsbuf[the_deco_sprite].tile;
 		cs=wpnsbuf[the_deco_sprite].csets&15;
-		
 	}
 	else
 	{
 		t=wpnsbuf[iwFlowerClippings].tile;
 		cs=wpnsbuf[iwFlowerClippings].csets&15;
-		
 	}
-	
-	
 	for(int32_t i=0; i<4; ++i)
 	{
 		x=ox+ft[i][int32_t(float(clk-1)/3)][0];
@@ -434,7 +413,6 @@ dGrassClippings::dGrassClippings(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t w
 	if(!initialized)
 	{
 		initialized=true;
-		
 		ft[0][0][0]=1;
 		ft[0][0][1]=0;
 		ft[0][0][2]=1;
@@ -451,7 +429,6 @@ dGrassClippings::dGrassClippings(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t w
 		ft[0][3][1]=0;
 		ft[0][3][2]=0;
 		ft[0][3][3]=1;
-		
 		ft[1][0][0]=3;
 		ft[1][0][1]=-4;
 		ft[1][0][2]=0;
@@ -468,7 +445,6 @@ dGrassClippings::dGrassClippings(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t w
 		ft[1][3][1]=-5;
 		ft[1][3][2]=0;
 		ft[1][3][3]=1;
-		
 		ft[2][0][0]=8;
 		ft[2][0][1]=1;
 		ft[2][0][2]=0;
@@ -500,22 +476,17 @@ void dGrassClippings::draw(BITMAP *dest)
 		clk=128;
 		return;
 	}
-	
 	int32_t t=0;
-	
 	if ( the_deco_sprite )
 	{
 		t=wpnsbuf[the_deco_sprite].tile;
 		cs=wpnsbuf[the_deco_sprite].csets&15;
-		
 	}
 	else
 	{
 		t=wpnsbuf[iwGrassClippings].tile;
 		cs=wpnsbuf[iwGrassClippings].csets&15;
-		
 	}
-	
 	for(int32_t i=0; i<3; ++i)
 	{
 		x=ox+ft[i][int32_t(float(clk-1)/3)][0];
@@ -537,7 +508,6 @@ dHammerSmack::dHammerSmack(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr)
 	if(!initialized)
 	{
 		initialized=true;
-		
 		ft[0][0][0]=-5;
 		ft[0][0][1]=-4;
 		ft[0][0][2]=0;
@@ -550,7 +520,6 @@ dHammerSmack::dHammerSmack(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr)
 		ft[0][3][0]=-8;
 		ft[0][3][1]=-7;
 		ft[0][3][2]=1;
-		
 		ft[1][0][0]=3;
 		ft[1][0][1]=-4;
 		ft[1][0][2]=0;
@@ -564,7 +533,6 @@ dHammerSmack::dHammerSmack(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr)
 		ft[1][3][1]=-7;
 		ft[1][3][2]=1;
 	}
-	
 	wpnid=itemsbuf[current_item_id(itype_hammer)].wpn2;
 }
 
@@ -580,11 +548,9 @@ void dHammerSmack::draw(BITMAP *dest)
 		clk=128;
 		return;
 	}
-	
 	int32_t t=wpnsbuf[wpnid].tile;
 	cs=wpnsbuf[wpnid].csets&15;
 	flip=0;
-	
 	for(int32_t i=0; i<2; ++i)
 	{
 		x=ox+ft[i][int32_t(float(clk-1)/3)][0];
@@ -616,25 +582,20 @@ void dTallGrass::draw(BITMAP *dest)
 {
 	if(HeroGetDontDraw())
 		return;
-		
 	int32_t t=0;
 	if ( the_deco_sprite )
 	{
 		t=wpnsbuf[the_deco_sprite].tile*4;
 		cs=wpnsbuf[the_deco_sprite].csets&15;
-		
 	}
 	else
 	{
 		t=wpnsbuf[iwTallGrass].tile*4;
 		cs=wpnsbuf[iwTallGrass].csets&15;
-		
 	}
-	
 	flip=0;
 	x=HeroX();
 	y=HeroY()+10;
-	
 //  if (BSZ)
 	if(zinit.heroAnimationStyle==las_bszelda)
 	{
@@ -644,7 +605,6 @@ void dTallGrass::draw(BITMAP *dest)
 	{
 		tile=t+((HeroLStep()>=6)?2:0);
 	}
-	
 	decoration::draw8(dest);
 	x+=8;
 	++tile;
@@ -670,7 +630,6 @@ bool dRipples::animate(int32_t)
 			&& (FFORCOMBOTYPE(HeroX()+11,HeroY()+9)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(HeroX()+11,HeroY()+9)))
 			&& (FFORCOMBOTYPE(HeroX()+4,HeroY()+9)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(HeroX()+4,HeroY()+9))));
 			*/
-			
 			return !(iswaterex(FFORCOMBO(HeroX()+11,HeroY()+15), currmap, currscr, -1, HeroX()+11,HeroY()+15, false, false, true, true)
 			&& iswaterex(FFORCOMBO(HeroX()+4,HeroY()+15), currmap, currscr, -1, HeroX()+4,HeroY()+15, false, false, true, true)
 			&& iswaterex(FFORCOMBO(HeroX()+11,HeroY()+9), currmap, currscr, -1, HeroX()+11,HeroY()+9, false, false, true, true)
@@ -689,22 +648,17 @@ void dRipples::draw(BITMAP *dest)
 {
 	if(HeroGetDontDraw())
 		return;
-	
 	int32_t t=0;
-	
 	if ( the_deco_sprite )
 	{
 		t=wpnsbuf[the_deco_sprite].tile*4;
 		cs=wpnsbuf[the_deco_sprite].csets&15;
-		
 	}
 	else
 	{
 		t=wpnsbuf[iwRipples].tile*4;
 		cs=wpnsbuf[iwRipples].csets&15;
-		
 	}
-	
 	flip=0;
 	x=HeroX();
 	y=HeroY()+10;
@@ -760,7 +714,6 @@ void dNayrusLoveShield::realdraw(BITMAP *dest, int32_t draw_what)
 	{
 		return;
 	}
-	
 	int32_t fb=(misc==0?
 	        (itemsbuf[current_item_id(itype_nayruslove)].wpn5 ?
 	         itemsbuf[current_item_id(itype_nayruslove)].wpn5 : (byte) iwNayrusLoveShieldFront) :
@@ -773,19 +726,16 @@ void dNayrusLoveShield::realdraw(BITMAP *dest, int32_t draw_what)
 	flip=0;
 	bool flickering = (itemsbuf[current_item_id(itype_nayruslove)].flags & ITEM_FLAG4) != 0;
 	bool translucent = (itemsbuf[current_item_id(itype_nayruslove)].flags & ITEM_FLAG3) != 0;
-	
 	if(((HeroNayrusLoveShieldClk()&0x20)||(HeroNayrusLoveShieldClk()&0xF00))&&(!flickering ||((misc==1)?(frame&1):(!(frame&1)))))
 	{
 		drawstyle=translucent?1:0;
 		x=HeroX()-8;
 		y=HeroY()-8-HeroZ()-HeroFakeZ();
 		tile=t;
-		
 		if(fr>0&&spd>0)
 		{
 			tile+=((clk/spd)%fr);
 		}
-		
 		decoration::draw(dest);
 		x+=16;
 		tile+=fr;

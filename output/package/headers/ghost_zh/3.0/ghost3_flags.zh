@@ -42,7 +42,7 @@ namespace ghost3
 	void SetFlag(npc ghost, long flag)
 	{
 		int arr = ghost->Misc[GH_INTERNAL];
-		
+
 		arr[GHI_FLAGS]|=flag;
 	}
 
@@ -57,7 +57,7 @@ namespace ghost3
 	bool FlagIsSet(npc ghost, long flag)
 	{
 		int arr = ghost->Misc[GH_INTERNAL];
-		
+
 		return (arr[GHI_FLAGS]&flag)==flag;
 	}
 

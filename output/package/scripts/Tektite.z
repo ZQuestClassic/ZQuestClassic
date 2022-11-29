@@ -86,21 +86,21 @@ ffc script BigTektite
             Ghost_SetFlag(GHF_STUN);
             Ghost_SetFlag(GHF_CLOCK);
         }
-        
+
         this->Misc[BTEK_IDX_BASE_COMBO]=Ghost_Data;
-        
+
         int defenses[18];
         if((ghost->Attributes[BTEK_ATTR_FLAGS]&BTEK_FLAG_STUN_TO_HIT)!=0)
         {
             Ghost_StoreDefenses(ghost, defenses);
             Ghost_SetAllDefenses(ghost, NPCDT_BLOCK);
         }
-        
+
         Ghost_TileWidth=Ghost_GetAttribute(ghost, BTEK_ATTR_SIZE, BTEK_DEFAULT_SIZE, 1, 4);
         Ghost_TileHeight=Ghost_TileWidth;
         if(Ghost_TileHeight>1)
             Ghost_SetHitOffsets(ghost, 0.33, 0.1, 0, 0);
-            
+
         if((ghost->Attributes[BTEK_ATTR_FLAGS]&BTEK_FLAG_INTRO)!=0)
             DoIntro(this, ghost);
         else if(Ghost_Z==0)
@@ -110,9 +110,9 @@ ffc script BigTektite
             while(Ghost_Z>0)
                 BTWaitframe(this, ghost);
         }
-        
+
         int numJumps;
-        
+
         while(true)
         {
             // The for loop doesn't make much sense if super jumps are disabled,
@@ -120,7 +120,7 @@ ffc script BigTektite
             for(int i=Rand(3, 5); i>0; i--)
             {
                 Idle(this, ghost);
-                
+
                 // Number of successive jumps is based on halt rate
                 numJumps=Rand((16-ghost->Haltrate)*BTEK_MIN_JUMPS_FACTOR,
                               (16-ghost->Haltrate)*BTEK_MAX_JUMPS_FACTOR);
@@ -129,7 +129,7 @@ ffc script BigTektite
                 for(; numJumps>0; numJumps--)
                     Jump(this, ghost);
             }
-            
+
             if((ghost->Attributes[BTEK_ATTR_FLAGS]&BTEK_FLAG_NO_SJUMP)==0)
             {
                 Idle(this, ghost);
@@ -137,17 +137,17 @@ ffc script BigTektite
             }
         }
     }
-    
+
     // ========== Idle ==========
-    
+
     // Just stand in place, maybe shooting fireballs or something.
     void Idle(ffc this, npc ghost)
     {
         int idleTime=Rand(BTEK_MIN_IDLE_TIME, BTEK_MAX_IDLE_TIME);
         int fireTime=Rand(BTEK_MIN_FIRE_TIME, BTEK_MAX_FIRE_TIME);
-        
+
         Ghost_Data=this->Misc[BTEK_IDX_BASE_COMBO]+BTEK_CMB_IDLE;
-        
+
         // Wait until timer counts down or the tektite is hit
         for(; idleTime>0 && !Ghost_GotHit(); idleTime--)
         {
@@ -157,11 +157,11 @@ ffc script BigTektite
                 FireIdleWeapon(ghost);
                 fireTime=Rand(BTEK_MIN_FIRE_TIME, BTEK_MAX_FIRE_TIME);
             }
-            
+
             BTWaitframe(this, ghost);
         }
     }
-    
+
     // Fire any weapons used while standing on the ground
     void FireIdleWeapon(npc ghost)
     {
@@ -169,14 +169,14 @@ ffc script BigTektite
         int flags=0;
         if((ghost->Attributes[BTEK_ATTR_FLAGS]&BTEK_FLAG_UNBLOCKABLE)!=0)
             flags|=EWF_UNBLOCKABLE;
-            
+
 	    // Angular weapons
 	    if(weaponID==EW_FIREBALL || weaponID==EW_BRANG)
 	    {
 	        FireAimedEWeapon(weaponID, BTCenterX()-8, BTCenterY()-8,
 	                         0, 200, ghost->WeaponDamage, -1, -1, flags);
         }
-        
+
         // Fireball 2: 3-way
         else if(weaponID==EW_FIREBALL2)
         {
@@ -184,50 +184,50 @@ ffc script BigTektite
             fb=FireAimedEWeapon(weaponID, BTCenterX()-8, BTCenterY()-8,
 	                            0, 200, ghost->WeaponDamage, -1, -1, flags);
 	        SetEWeaponMovement(fb, EWM_DRIFT_WAIT, DIR_UP, 0);
-	        
+
 	        fb=FireAimedEWeapon(weaponID, BTCenterX()-8, BTCenterY()-8,
                                 0, 200, ghost->WeaponDamage, -1, -1, flags);
             SetEWeaponMovement(fb, EWM_DRIFT_WAIT, DIR_UP, 0.5);
-            
+
 	        fb=FireAimedEWeapon(weaponID, BTCenterX()-8, BTCenterY()-8,
                                 0, 200, ghost->WeaponDamage, -1, -1, flags);
             SetEWeaponMovement(fb, EWM_DRIFT_WAIT, DIR_DOWN, 0.5);
         }
-        
+
         // Non-angular weapons
         else if(weaponID==EW_WIND || weaponID==EW_ARROW || weaponID==EW_BEAM ||
                 weaponID==EW_ROCK || weaponID==EW_MAGIC)
         {
             if(!(weaponID==EW_WIND || weaponID==EW_ROCK))
                 flags|=EWF_ROTATE;
-            
+
             int dir=AngleDir4(Angle(BTCenterX(), BTCenterY(),
                                     Link->X+8, Link->Y+8));
             FireNonAngularEWeapon(weaponID, BTCenterX()-8, BTCenterY()-8,
                                   dir, 200, ghost->WeaponDamage, -1, -1, flags);
         }
     }
-    
+
     // ========== Jumping ==========
-    
+
     void Jump(ffc this, npc ghost)
     {
         float jumpHeight;
         float angle;
         lweapon bait;
-        
+
         // Find bait if there's any chance the tektite will go for it
         if(ghost->Hunger>0)
             bait=LoadLWeaponOf(LW_BAIT);
-        
+
         // Charge for a moment
         Ghost_Data=this->Misc[BTEK_IDX_BASE_COMBO]+BTEK_CMB_CROUCH;
-        
+
         for(int i=0; i<BTEK_JUMP_CHARGE_TIME; i++)
             BTWaitframe(this, ghost);
-        
+
         // Decide where to jump
-        
+
         // Go for bait?
         if(Rand(4)<ghost->Hunger && bait->isValid())
         {
@@ -235,7 +235,7 @@ ffc script BigTektite
             jumpHeight=GH_GRAVITY*dist/(ghost->Step/50);
             angle=Angle(BTCenterX(), BTCenterY(), bait->X+8, bait->Y+8);
         }
-        
+
         // Try to hit Link?
         else if(Rand(256)<ghost->Homing)
         {
@@ -244,17 +244,17 @@ ffc script BigTektite
             jumpHeight=GH_GRAVITY*dist/(ghost->Step/50);
             angle=Angle(BTCenterX(), BTCenterY(), Link->X+8, Link->Y+8);
         }
-        
+
         // Jump randomly
         else
         {
             jumpHeight=Rand(BTEK_MIN_JUMP_VEL, BTEK_MAX_JUMP_VEL);
             angle=Rand(360);
         }
-        
+
         // In case the target wasn't actually in range...
         jumpHeight=Clamp(jumpHeight, BTEK_MIN_JUMP_VEL, BTEK_MAX_JUMP_VEL);
-        
+
         // Jump
         Ghost_Data=this->Misc[BTEK_IDX_BASE_COMBO]+BTEK_CMB_JUMP;
         Game->PlaySound(ghost->Attributes[BTEK_ATTR_SFX_JUMP]);
@@ -262,24 +262,24 @@ ffc script BigTektite
         Ghost_Vx=VectorX(ghost->Step/100, angle);
         Ghost_Vy=VectorY(ghost->Step/100, angle);
         FireJumpingWeapon(ghost);
-        
+
         // And then just wait to land
         do
         {
             BounceOffScreenEdges();
             BTWaitframe(this, ghost);
         } while(Ghost_Z>0);
-        
+
         FireLandingWeapon(ghost);
         Ghost_Vx=0;
         Ghost_Vy=0;
     }
-    
+
     // Leave a weapon behind when jumping (bomb, super bomb, fire trail)
     void FireJumpingWeapon(npc ghost)
     {
         eweapon wpn;
-        
+
         if(ghost->Weapon==WPN_ENEMYLITBOMB)
         {
             // Always unblockable
@@ -305,7 +305,7 @@ ffc script BigTektite
                 SetEWeaponLifespan(wpn, EWL_TIMER, 30);
                 SetEWeaponDeathEffect(wpn, EWD_VANISH, 0);
             }
-            
+
             // 2x2 or bigger: One on each tile except on the top row
             else
             {
@@ -324,30 +324,30 @@ ffc script BigTektite
             }
         }
     }
-    
+
     // Use weapons when landing (fire, explosion)
     void FireLandingWeapon(npc ghost)
     {
         int weaponID;
-        
+
         // Explosions are disabled for other-type enemies in 2.50.
         // This should work in 2.50.1, though...
         if(ghost->Weapon==WPN_ENEMYBOMB || ghost->Weapon==WPN_ENEMYSBOMB)
         {
             eweapon wpn;
-            
+
             if(ghost->Weapon==WPN_ENEMYBOMB)
                 weaponID=EW_BOMBBLAST;
             else
                 weaponID=EW_SBOMBBLAST;
-            
+
             wpn=Screen->CreateEWeapon(weaponID);
             wpn->Damage=ghost->WeaponDamage;
             wpn->Dir=-1;
             wpn->X=BTCenterX()-8;
             wpn->Y=BTCenterY()-8;
         }
-        
+
         // 8-way fires
         // WPN_ENEMYFLAME2 is incorrect...
         else if(ghost->Weapon==WPN_ENEMYFLAME || ghost->Weapon==142)
@@ -356,12 +356,12 @@ ffc script BigTektite
             int flags=0;
             if((ghost->Attributes[BTEK_ATTR_FLAGS]&BTEK_FLAG_UNBLOCKABLE)!=0)
                 flags|=EWF_UNBLOCKABLE;
-            
+
             if(ghost->Weapon==WPN_ENEMYFLAME)
                 weaponID=EW_FIRE;
             else
                 weaponID=EW_FIRE2;
-                
+
             for(i=0; i<4; i++)
                 FireNonAngularEWeapon(weaponID,
                                       BTCenterX()-8, BTCenterY()-8,
@@ -373,22 +373,22 @@ ffc script BigTektite
             Game->PlaySound(SFX_FIRE);
         }
     }
-    
+
     void BounceOffScreenEdges()
     {
         if(Ghost_X<=16)
             Ghost_Vx=Abs(Ghost_Vx);
         else if(Ghost_X+16*Ghost_TileWidth>=240)
             Ghost_Vx=-Abs(Ghost_Vx);
-        
+
         if(Ghost_Y<=16)
             Ghost_Vy=Abs(Ghost_Vy);
         else if(Ghost_Y+16*Ghost_TileHeight>=160)
             Ghost_Vy=-Abs(Ghost_Vy);
     }
-    
+
     // ========== Super jump ==========
-    
+
     void SuperJump(ffc this, npc ghost, int defenses)
     {
         int timer;
@@ -397,12 +397,12 @@ ffc script BigTektite
         float dist;
         float targetVx;
         float targetVy;
-        
+
         // Charge up
         Ghost_Data=this->Misc[BTEK_IDX_BASE_COMBO]+BTEK_CMB_CROUCH;
         for(timer=0; timer<BTEK_SJUMP_CHARGE_TIME; timer++)
             BTWaitframe(this, ghost);
-        
+
         // Jump...
         Ghost_SetFlag(GHF_NO_FALL); // Override gravity handling
         Ghost_Data=this->Misc[BTEK_IDX_BASE_COMBO]+BTEK_CMB_JUMP;
@@ -412,12 +412,12 @@ ffc script BigTektite
             Ghost_Z+=BTEK_SJUMP_SPEED;
             BTWaitframe(this, ghost);
         }
-        
+
         // Follow Link around for a while
         for(timer=Rand(BTEK_SJUMP_MIN_TIME, BTEK_SJUMP_MAX_TIME); timer>0; timer--)
         {
             dist=BTDistanceTo(Link->X+8, Link->Y+8);
-            
+
             // If far from Link, adjust aim; otherwise, try to stop
             if(dist>4)
             {
@@ -426,24 +426,24 @@ ffc script BigTektite
             }
             else
                 targetSpeed=0;
-            
+
             // Don't change direction suddenly
             targetVx=targetSpeed*Cos(targetAngle);
             targetVy=targetSpeed*Sin(targetAngle);
-            
+
             if(Ghost_Vx<targetVx)
                 Ghost_Vx=Min(Ghost_Vx+0.05, targetVx);
             else if(Ghost_Vx>targetVx)
                 Ghost_Vx=Max(Ghost_Vx-0.05, targetVx);
-            
+
             if(Ghost_Vy<targetVy)
                 Ghost_Vy=Min(Ghost_Vy+0.05, targetVy);
             else if(Ghost_Vy>targetVy)
                 Ghost_Vy=Max(Ghost_Vy-0.05, targetVy);
-            
+
             BTWaitframe(this, ghost);
         }
-        
+
         // Fall
         Ghost_Vx=0;
         Ghost_Vy=0;
@@ -454,7 +454,7 @@ ffc script BigTektite
             Ghost_Z-=BTEK_SJUMP_SPEED;
             BTWaitframe(this, ghost);
         }
-        
+
         // Land
         Ghost_Z=0;
         ghost->Damage/=BTEK_SJUMP_DAMAGE_MULTIPLIER;
@@ -464,7 +464,7 @@ ffc script BigTektite
         Game->PlaySound(ghost->Attributes[BTEK_ATTR_SFX_LAND]);
         if((ghost->Attributes[BTEK_ATTR_FLAGS]&BTEK_FLAG_STUN_LINK)!=0 && Link->Z==0)
             this->Misc[BTEK_IDX_LINK_STUN_TIME]=BTEK_SJUMP_QUAKE_TIME;
-        
+
         // Be stunned for a bit
         if((ghost->Attributes[BTEK_ATTR_FLAGS]&BTEK_FLAG_STUN_TO_HIT)!=0)
             Ghost_SetDefenses(ghost, defenses);
@@ -472,18 +472,18 @@ ffc script BigTektite
         timer=Ghost_GetAttribute(ghost, BTEK_ATTR_STUN_TIME, BTEK_DEFAULT_STUN_TIME);
         for(; timer>0; timer--)
             BTWaitframe(this, ghost);
-        
+
         if((ghost->Attributes[BTEK_ATTR_FLAGS]&BTEK_FLAG_STUN_TO_HIT)!=0)
             Ghost_SetAllDefenses(ghost, NPCDT_BLOCK);
-        
+
         Ghost_UnsetFlag(GHF_NO_FALL);
     }
-    
+
     void LaunchDebris(npc ghost)
     {
         if((ghost->Attributes[BTEK_ATTR_FLAGS]&BTEK_FLAG_DEBRIS)==0)
             return;
-        
+
         int count=Rand(BTEK_MIN_DEBRIS_LAUNCHED, BTEK_MAX_DEBRIS_LAUNCHED);
         int sprite=Ghost_GetAttribute(ghost, BTEK_ATTR_DEBRIS_SPRITE,
                                       BTEK_DEFAULT_DEBRIS_SPRITE);
@@ -492,12 +492,12 @@ ffc script BigTektite
             damage=BTEK_DEFAULT_DEBRIS_DAMAGE;
         float angle;
         eweapon debris;
-        
+
         for(; count>0; count--)
         {
             angle=Randf(PI2);
             // Large function calls!
-            debris=FireEWeapon(BTEK_EW_DEBRIS, 
+            debris=FireEWeapon(BTEK_EW_DEBRIS,
                                BTCenterX()-8+8*RadianCos(angle),
                                BTCenterY()-8+8*RadianSin(angle),
                                angle,
@@ -513,18 +513,18 @@ ffc script BigTektite
             SetEWeaponDeathEffect(debris, EWD_VANISH, 0);
         }
     }
-    
+
     void DropObjects(npc ghost)
     {
         // Don't do anything if the flag isn't set.
         if((ghost->Attributes[BTEK_ATTR_FLAGS]&BTEK_FLAG_DROP_OBJECTS)==0)
             return;
-        
+
         // Or if the object to drop isn't valid.
         int objID=ghost->Attributes[BTEK_ATTR_DROPPED_OBJECT];
         if(objID!=0 && !(objID>=20 && objID<=511))
             return;
-        
+
         // Drop debris
         if(objID==0)
         {
@@ -535,7 +535,7 @@ ffc script BigTektite
             int damage=ghost->WeaponDamage;
             if(damage==0)
                 damage=BTEK_DEFAULT_DEBRIS_DAMAGE;
-            
+
             for(; count>0; count--)
             {
                 debris=FireEWeapon(BTEK_EW_DEBRIS, Rand(16, 224), Rand(16, 144),
@@ -545,19 +545,19 @@ ffc script BigTektite
                 SetEWeaponDeathEffect(debris, EWD_VANISH, 0);
             }
         }
-        
+
         // Drop enemies
         else
         {
             // Don't do anything if there are too many already
             if(Screen->NumNPCs()>=BTEK_ENEMY_LIMIT)
                 return;
-            
+
             npc enemy;
             int count=Rand(BTEK_MIN_ENEMIES_DROPPED, BTEK_MAX_ENEMIES_DROPPED);
             if(Screen->NumNPCs()+count>BTEK_ENEMY_LIMIT)
                 count=BTEK_ENEMY_LIMIT-Screen->NumNPCs();
-            
+
             for(; count>0; count--)
             {
                 enemy=SpawnNPC(objID);
@@ -565,9 +565,9 @@ ffc script BigTektite
             }
         }
     }
-    
+
     // ========== Other ==========
-    
+
     // Fall onto the screen at the start of the fight
     void DoIntro(ffc this, npc ghost)
     {
@@ -577,18 +577,18 @@ ffc script BigTektite
         Ghost_SetFlag(GHF_NO_FALL);
         Ghost_SetFlag(GHF_STATIC_SHADOW);
         ghost->CollDetection=false;
-        
+
         // Wait half a second, then fall
         Ghost_Data=this->Misc[BTEK_IDX_BASE_COMBO]+BTEK_CMB_JUMP;
         Ghost_Waitframes(this, ghost, true, true, 60);
-        
+
         Game->PlaySound(ghost->Attributes[BTEK_ATTR_SFX_FALL]);
         while(Ghost_Z>0)
         {
             Ghost_Z-=BTEK_SJUMP_SPEED;
             Ghost_Waitframe(this, ghost, true, true);
         }
-        
+
         // On impact, shake the screen and disable Link for a moment
         Screen->Quake=BTEK_SJUMP_QUAKE_TIME;
         Ghost_Data=this->Misc[BTEK_IDX_BASE_COMBO]+BTEK_CMB_CROUCH;
@@ -598,13 +598,13 @@ ffc script BigTektite
             NoAction();
             Ghost_Waitframe(this, ghost, true, true);
         }
-        
+
         // Back to normal
         Ghost_UnsetFlag(GHF_NO_FALL);
         Ghost_UnsetFlag(GHF_STATIC_SHADOW);
         ghost->CollDetection=true;
     }
-    
+
     void BTWaitframe(ffc this, npc ghost)
     {
         // Is Link stunned?
@@ -613,7 +613,7 @@ ffc script BigTektite
             NoAction();
             this->Misc[BTEK_IDX_LINK_STUN_TIME]--;
         }
-        
+
         bool noDeathAnim=ghost->Attributes[BTEK_ATTR_DEATH_TYPE]==0;
         if(!Ghost_Waitframe(this, ghost, noDeathAnim, noDeathAnim))
         {
@@ -621,12 +621,12 @@ ffc script BigTektite
             Quit();
         }
     }
-    
+
     float BTCenterX()
     {
         return Ghost_X+8*Ghost_TileWidth;
     }
-    
+
     // Doesn't really return the center unless the tektite is 1x1; if it's
     // bigger, it's actually the center of the shadow, which might be either
     // 1x1 or 2x2 depending on size and ghost.zh settings.
@@ -651,13 +651,13 @@ ffc script BigTektite
                 return Ghost_Y+16+8*(Ghost_TileHeight-1); // 24, 40, 56
         }
     }
-    
+
     // Distance from "center" to a given point
     float BTDistanceTo(float x, float y)
     {
         float dx=BTCenterX()-x;
         float dy=BTCenterY()-y;
-        
+
         return Sqrt(dx*dx+dy*dy);
     }
 }

@@ -22,7 +22,6 @@ public:
 	typedef typename base_type::reverse_iterator reverse_iterator;
 	typedef typename base_type::const_reverse_iterator const_reverse_iterator;
 	typedef typename base_type::size_type size_type;
-	
 	owning_vector() {}
 	template <class InputIterator>
 	owning_vector(InputIterator first, InputIterator last)
@@ -119,7 +118,6 @@ private:
 		for (iterator it = first; it != last; ++it)
 			delete *it;
 	}
-	
 	base_type vector_;
 };
 

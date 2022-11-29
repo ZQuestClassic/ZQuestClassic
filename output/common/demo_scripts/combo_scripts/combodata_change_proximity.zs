@@ -28,7 +28,7 @@ combodata script tempchange_proximity
 					}
 				}
 			}
-			if ( sol ) 
+			if ( sol )
 			{
 				Screen->ComboD[c] = transform_into;
 			}
@@ -38,8 +38,7 @@ combodata script tempchange_proximity
 			}
 			Waitframe();
 		}
-		
+
 	}
 }
-			
-			
+

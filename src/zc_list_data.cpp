@@ -24,7 +24,7 @@ const char *msgfont_str[font_max] =
 	"Zelda NES", "Link to the Past", "LttP Small", "Allegro Default", "GUI Font Bold", "GUI Font", "GUI Font Narrow", "Zelda NES (Matrix)", "BS Time (Incomplete)", "Small", "Small 2",
 	"S. Proportional", "SS 1 (Numerals)", "SS 2 (Incomplete)", "SS 3", "SS 4 (Numerals)", "Link's Awakening", "Goron", "Zoran", "Hylian 1", "Hylian 2",
 	"Hylian 3", "Hylian 4", "Oracle", "Oracle Proportional", "Phantom", "Phantom Proportional",
-	"Atari 800", 
+	"Atari 800",
 	"Acorn",
 	"ADOS",
 	"Allegro",
@@ -122,7 +122,6 @@ GUI::ListData GUI::ZCListData::fonts(bool ss_fonts)
 GUI::ListData GUI::ZCListData::ss_counters()
 {
 	GUI::ListData ls;
-	
 	ls.add("(None)", -1);
 	for(int32_t q = 0; q < sscMAX; ++q)
 	{
@@ -130,7 +129,6 @@ GUI::ListData GUI::ZCListData::ss_counters()
 		std::string name(module_str);
 		ls.add(name, q);
 	}
-	
 	return ls;
 }
 
@@ -175,7 +173,6 @@ GUI::ListData GUI::ZCListData::enemies(bool numbered, bool defaultFilter)
 {
 	map<std::string, int32_t> ids;
 	std::set<std::string> names;
-	
 	for(int32_t q=1; q < eMAXGUYS; ++q)
 	{
 		if(defaultFilter)
@@ -195,13 +192,11 @@ GUI::ListData GUI::ZCListData::enemies(bool numbered, bool defaultFilter)
 			npcname = name;
 		}
 		std::string sname(npcname);
-		
 		ids[sname] = q;
 		names.insert(sname);
 		if(numbered)
 			delete[] npcname;
 	}
-	
 	GUI::ListData ls;
 	ls.add("(None)", 0);
 	for(auto it = names.begin(); it != names.end(); ++it)
@@ -215,7 +210,6 @@ GUI::ListData GUI::ZCListData::items(bool numbered)
 {
 	map<std::string, int32_t> ids;
 	std::set<std::string> names;
-	
 	for(int32_t q=0; q < MAXITEMS; ++q)
 	{
 		char const* itname = item_string[q];
@@ -226,13 +220,11 @@ GUI::ListData GUI::ZCListData::items(bool numbered)
 			itname = name;
 		}
 		std::string sname(itname);
-		
 		ids[sname] = q;
 		names.insert(sname);
 		if(numbered)
 			delete[] itname;
 	}
-	
 	GUI::ListData ls;
 	ls.add("(None)", -1);
 	for(auto it = names.begin(); it != names.end(); ++it)
@@ -246,7 +238,6 @@ GUI::ListData GUI::ZCListData::itemclass(bool numbered, bool zero_none)
 {
 	map<std::string, int32_t> fams;
 	std::set<std::string> famnames;
-	
 	for(int32_t i=zero_none?1:0; i<itype_max; ++i)
 	{
 		if(!ZI.isUsableItemclass(i))
@@ -259,25 +250,22 @@ GUI::ListData GUI::ZCListData::itemclass(bool numbered, bool zero_none)
 				sprintf(name, "%s (%03d)", itname, i);
             else strcpy(name, itname);
 			std::string sname(name);
-			
 			fams[sname] = i;
 			famnames.insert(sname);
 			delete[] name;
 		}
-		else 
+		else
 		{
 			char *name = new char[12];
 			if(numbered)
 				sprintf(name, "zz%03d (%03d)", i, i);
 			else sprintf(name, "zz%03d", i);
 			std::string sname(name);
-			
 			fams[sname] = i;
 			famnames.insert(sname);
 			delete[] name;
 		}
 	}
-	
 	GUI::ListData ls;
 	if(zero_none)
 		ls.add("(None)", 0);
@@ -307,19 +295,17 @@ GUI::ListData GUI::ZCListData::combotype(bool numbered, bool skipNone)
 				sprintf(name, "%s (%03d)", module_str, i);
 			else strcpy(name, module_str);
 			std::string sname(name);
-			
 			types[sname] = i;
 			typenames.insert(sname);
 			delete[] name;
 		}
-		else 
+		else
 		{
 			char *name = new char[12];
 			if(numbered)
 				sprintf(name, "zz%03d (%03d)", i, i);
 			else sprintf(name, "zz%03d", i);
 			std::string sname(name);
-			
 			types[sname] = i;
 			typenames.insert(sname);
 			delete[] name;
@@ -338,7 +324,6 @@ GUI::ListData GUI::ZCListData::mapflag(int32_t numericalFlags, bool numbered, bo
 	GUI::ListData ls;
 	std::map<std::string, int32_t> vals;
 	std::set<std::string> names;
-	
 	if(!skipNone) ls.add("(None)", 0);
 	for(int32_t q = 1; q < mfMAX; ++q)
 	{
@@ -349,7 +334,6 @@ GUI::ListData GUI::ZCListData::mapflag(int32_t numericalFlags, bool numbered, bo
 		if(numbered)
 			sprintf(name, "%s (%03d)", module_str, q);
 		else strcpy(name, module_str);
-		
 		std::string sname(name);
 		if (numericalFlags)
 		{
@@ -360,7 +344,6 @@ GUI::ListData GUI::ZCListData::mapflag(int32_t numericalFlags, bool numbered, bo
 			vals[sname] = q;
 			names.insert(sname);
 		}
-		
 		delete[] name;
 	}
 	if (!numericalFlags)
@@ -370,14 +353,12 @@ GUI::ListData GUI::ZCListData::mapflag(int32_t numericalFlags, bool numbered, bo
 			ls.add(*it, vals[*it]);
 		}
 	}
-	
 	return ls;
 }
 
 GUI::ListData GUI::ZCListData::dmaps(bool numbered)
 {
 	GUI::ListData ls;
-	
 	for(int32_t q = 0; q < MAXDMAPS; ++q)
 	{
 		char const* dm_str = DMaps[q].name;
@@ -390,7 +371,6 @@ GUI::ListData GUI::ZCListData::dmaps(bool numbered)
 		}
 		else ls.add(dm_str, q);
 	}
-	
 	return ls;
 }
 
@@ -399,7 +379,6 @@ GUI::ListData GUI::ZCListData::counters(bool numbered, bool skipNone)
 	GUI::ListData ls;
 	// std::map<std::string, int32_t> vals;
 	// std::set<std::string> names;
-	
 	if(!skipNone) ls.add("(None)", crNONE);
 	for(int32_t q = 0; q < MAX_COUNTERS; ++q)
 	{
@@ -410,21 +389,16 @@ GUI::ListData GUI::ZCListData::counters(bool numbered, bool skipNone)
 		if(numbered)
 			sprintf(name, "%s (%02d)", module_str, q);
 		else strcpy(name, module_str);
-		
 		std::string sname(name);
-		
 		// vals[sname] = q;
 		// names.insert(sname);
 		ls.add(sname, q);
-		
 		delete[] name;
 	}
-	
 	// for(auto it = names.begin(); it != names.end(); ++it)
 	// {
 		// ls.add(*it, vals[*it]);
 	// }
-	
 	return ls;
 }
 
@@ -432,7 +406,6 @@ GUI::ListData GUI::ZCListData::miscsprites(bool skipNone, bool inclNegSpecialVal
 {
 	std::map<std::string, int32_t> ids;
 	std::set<std::string> sprnames;
-	
 	for(int32_t i=0; i<wMAX; ++i)
 	{
 		char buf[512];
@@ -441,11 +414,9 @@ GUI::ListData GUI::ZCListData::miscsprites(bool skipNone, bool inclNegSpecialVal
 			sprintf(buf, "%s (%03d)", weapon_string[i], i);
 		else ptr = weapon_string[i];
 		std::string sname(ptr);
-		
 		ids[sname] = i;
 		sprnames.insert(sname);
 	}
-	
 	GUI::ListData ls;
 	if(inclNegSpecialVals)
 	{
@@ -474,7 +445,6 @@ GUI::ListData GUI::ZCListData::miscsprites(bool skipNone, bool inclNegSpecialVal
 GUI::ListData GUI::ZCListData::bottletype()
 {
 	GUI::ListData ls;
-	
 	ls.add("(None)", 0);
 	for(int32_t q = 0; q < 64; ++q)
 	{
@@ -484,40 +454,33 @@ GUI::ListData GUI::ZCListData::bottletype()
 		{
 			char buf[8] = { 0 };
 			sprintf(buf, "%2d", q+1);
-			
 			ls.add(buf, q+1);
 		}
 	}
-	
 	return ls;
 }
 
 GUI::ListData GUI::ZCListData::lweaptypes()
 {
 	std::map<std::string, int32_t> vals;
-	
 	std::string none(moduledata.player_weapon_names[0]);
 	if(skipchar(moduledata.player_weapon_names[0][0]))
 		none = "(None)";
-	
 	GUI::ListData ls;
 	ls.add(none, 0);
 	for(int32_t i=1; i<41; ++i)
 	{
 		if(skipchar(moduledata.player_weapon_names[i][0]))
 			continue;
-		
 		std::string sname(moduledata.player_weapon_names[i]);
 		ls.add(sname, i);
 	}
-	
 	return ls;
 }
 
 GUI::ListData GUI::ZCListData::weaptypes(bool numbered)
 {
 	std::map<std::string, int32_t> vals;
-	
 	GUI::ListData ls;
 	ls.add("(None)", 0);
 	for(int32_t q=1; q<wMax; ++q)
@@ -529,21 +492,16 @@ GUI::ListData GUI::ZCListData::weaptypes(bool numbered)
 		if(numbered)
 			sprintf(name, "%s (%03d)", module_str, q);
 		else strcpy(name, module_str);
-		
 		std::string sname(name);
-		
 		ls.add(sname, q);
-		
 		delete[] name;
 	}
-	
 	return ls;
 }
 
 GUI::ListData GUI::ZCListData::sfxnames(bool numbered)
 {
 	std::map<std::string, int32_t> vals;
-	
 	GUI::ListData ls;
 	ls.add("(None)", 0);
 	for(int32_t i=1; i<WAV_COUNT; ++i)
@@ -556,13 +514,11 @@ GUI::ListData GUI::ZCListData::sfxnames(bool numbered)
 		ls.add(name, i);
 		delete[] name;
 	}
-	
 	return ls;
 }
 GUI::ListData GUI::ZCListData::midinames(bool numbered)
 {
 	std::map<std::string, int32_t> vals;
-	
 	GUI::ListData ls;
 	ls.add("(None)", 0);
 	for(int32_t i=0; i<MAXCUSTOMTUNES; ++i)
@@ -575,7 +531,6 @@ GUI::ListData GUI::ZCListData::midinames(bool numbered)
 		ls.add(name, i+1);
 		delete[] name;
 	}
-	
 	return ls;
 }
 
@@ -588,7 +543,6 @@ static void load_scriptnames(std::set<std::string> &names, std::map<std::string,
 			continue;
 		std::string sname(scrmap[i].scriptname);
 		sname += " (" + std::to_string(i+1) + ")";
-		
 		vals[sname] = i+1;
 		names.insert(sname);
 	}
@@ -598,9 +552,7 @@ GUI::ListData GUI::ZCListData::itemdata_script()
 {
 	std::map<std::string, int32_t> vals;
 	std::set<std::string> names;
-	
 	load_scriptnames(names,vals,itemmap,NUMSCRIPTITEM-1);
-	
 	GUI::ListData ls;
 	ls.add("(None)", 0);
 	ls.add(names,vals);
@@ -611,9 +563,7 @@ GUI::ListData GUI::ZCListData::itemsprite_script()
 {
 	std::map<std::string, int32_t> vals;
 	std::set<std::string> names;
-	
 	load_scriptnames(names,vals,itemspritemap,NUMSCRIPTSITEMSPRITE-1);
-	
 	GUI::ListData ls;
 	ls.add("(None)", 0);
 	ls.add(names,vals);
@@ -624,9 +574,7 @@ GUI::ListData GUI::ZCListData::ffc_script()
 {
 	std::map<std::string, int32_t> vals;
 	std::set<std::string> names;
-	
 	load_scriptnames(names,vals,ffcmap,NUMSCRIPTFFC-1);
-	
 	GUI::ListData ls;
 	ls.add("(None)", 0);
 	ls.add(names,vals);
@@ -637,9 +585,7 @@ GUI::ListData GUI::ZCListData::lweapon_script()
 {
 	std::map<std::string, int32_t> vals;
 	std::set<std::string> names;
-	
 	load_scriptnames(names,vals,lwpnmap,NUMSCRIPTWEAPONS-1);
-	
 	GUI::ListData ls;
 	ls.add("(None)", 0);
 	ls.add(names,vals);
@@ -650,9 +596,7 @@ GUI::ListData GUI::ZCListData::eweapon_script()
 {
 	std::map<std::string, int32_t> vals;
 	std::set<std::string> names;
-	
 	load_scriptnames(names,vals,ewpnmap,NUMSCRIPTWEAPONS-1);
-	
 	GUI::ListData ls;
 	ls.add("(None)", 0);
 	ls.add(names,vals);
@@ -663,9 +607,7 @@ GUI::ListData GUI::ZCListData::combodata_script()
 {
 	std::map<std::string, int32_t> vals;
 	std::set<std::string> names;
-	
 	load_scriptnames(names,vals,comboscriptmap,NUMSCRIPTSCOMBODATA-1);
-	
 	GUI::ListData ls;
 	ls.add("(None)", 0);
 	ls.add(names,vals);
@@ -676,9 +618,7 @@ GUI::ListData GUI::ZCListData::generic_script()
 {
 	std::map<std::string, int32_t> vals;
 	std::set<std::string> names;
-	
 	load_scriptnames(names,vals,genericmap,NUMSCRIPTSGENERIC-1);
-	
 	GUI::ListData ls;
 	ls.add("(None)", 0);
 	ls.add(names,vals);
@@ -710,14 +650,14 @@ static const GUI::ListData defense_types
 	{ "Trigger Screen Secrets", 20 },
 	// { "-freeze", 21 },
 	// { "-msgnotenabled", 22 },
-	// { "-msgline", 23 }, 
+	// { "-msgline", 23 },
 	// { "-lvldamage", 24 },
 	// { "-lvlreduction", 25 },
 	{ "Split", 26 },
 	{ "Transform", 27 },
 	// { "-lvlblock2", 28 },
 	// { "-lvlblock3", 29 },
-	// { "-lvlblock4", 30 }, 
+	// { "-lvlblock4", 30 },
 	// { "-lvlblock5", 31 },
 	// { "-shock", 32 },
 	{ "Bomb Explosion", 33 },

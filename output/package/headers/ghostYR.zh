@@ -41,7 +41,7 @@ const int GH_PREFER_GHOST_ZH_SHADOWS = 0; // 0 = No, 1 = Yes
 // Top-left corner of a 4x4 block of blank tiles
 const int GH_BLANK_TILE = 65456; // Min: 0, Max: 65456
 
-// For ZC Versions where Animation Style (None) does not set ->Tile, enable this. 
+// For ZC Versions where Animation Style (None) does not set ->Tile, enable this.
 const int GH_FIX_255_ANONE = 1;
 
 // Invisible combo with no properties set

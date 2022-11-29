@@ -55,7 +55,6 @@ StringEditorDialog::StringEditorDialog(size_t ind, int32_t templateID, int32_t a
 {
 	::ListData msgs_list(msgslist, &font);
 	list_nextstr = GUI::ListData(msgs_list, 0);
-	
 	if(ind == msg_count) //new str
 	{
 		if(templateID > 0 && templateID < msg_count)
@@ -129,7 +128,6 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	using GUI::Props::indx;
-	
 	char* start_text = encode_msg_str(tmpMsgStr.s);
 	std::shared_ptr<GUI::TabPanel> tpan;
 	if(is_large)
@@ -542,7 +540,6 @@ bool StringEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 					}
 					msglistcache.clear();
 				}
-				
 				++msg_count;
 				MsgStrings[msg_count].sfx = 18;
 				MsgStrings[msg_count].listpos = msg_count;

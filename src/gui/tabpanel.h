@@ -37,20 +37,16 @@ public:
 			return nullptr;
 		return children.at(index);
 	}
-	
 	size_t getSize() const {return children.size();}
 	const char* getName(size_t index) const
 	{
 		if(index >= children.size())
 			return "";
-		
 		return children.at(index)->getName().c_str();
 	}
-	
 	void setOnSwitch(std::function<void(size_t)> newOnSwitch);
 protected:
 	size_t* indexptr;
-	
 private:
 	std::vector<std::shared_ptr<TabRef>> children;
 	DialogRef alDialog;

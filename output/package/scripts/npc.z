@@ -1,4 +1,4 @@
-const int RESET_NPC_LAYER_ON_ENTRY = 0; //This fix will replace all CMB_NPC_SOLID tiles with CMB_NPC_HIDDEN 
+const int RESET_NPC_LAYER_ON_ENTRY = 0; //This fix will replace all CMB_NPC_SOLID tiles with CMB_NPC_HIDDEN
 										//when entering the screen. This should prevent problems with shared
 										//layers. If you don't want this fix, set it to 0.
 

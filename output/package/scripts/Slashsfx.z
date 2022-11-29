@@ -66,8 +66,8 @@ ffc script SCSA_Animations{
 					thisNum++;
 			}
 		}
-		
-		
+
+
 		if(type==0){ //Bush leaves
 			for(i=0; i<8; i++){
 				for(j=0; j<3; j++){
@@ -176,9 +176,9 @@ ffc script SCSA_Animations{
 						20, 4,  19, 9,  //Frame 6
 						21, 3,  22, 8,  //Frame 7
 						14, 1,  16, 7}; //Frame 8
-						
-						
-		int posY[32] = {11, 8,  7,   1, //Frame 1 
+
+
+		int posY[32] = {11, 8,  7,   1, //Frame 1
 						14, 9,  8,  -1, //Frame 2
 						16, 10, 10, -2, //Frame 3
 						18, 10, 10, -3, //Frame 4
@@ -186,7 +186,7 @@ ffc script SCSA_Animations{
 						21, 10, 14, -6, //Frame 6
 						23, 9,  14, -9, //Frame 7
 						24, 7,  21, -11};//Frame 8
-						
+
 		int flip[32] = {0,  0,  1,  0,  //Frame 1
 						0,  0,  1,  0,  //Frame 2
 						1,  0,  1,  0,  //Frame 3
@@ -195,7 +195,7 @@ ffc script SCSA_Animations{
 						0,  0,  0,  0,  //Frame 6
 						0,  0,  1,  0,  //Frame 7
 						1,  1,  0,  0}; //Frame 8
-		
+
 		for(int i=0; i<4; i++){
 			Screen->DrawTile(4, x+posX[frame*4+i]-4, y+posY[frame*4+i]-4, tile+i, 1, 1, cset, -1, -1, 0, 0, 0, flip[frame*4+i], true, 128);
 		}

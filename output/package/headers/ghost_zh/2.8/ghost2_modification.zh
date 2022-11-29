@@ -5,13 +5,13 @@
 void Ghost_Transform(ffc this, npc ghost, int combo, int cset, int tileWidth, int tileHeight)
 {
     int diff;
-    
+
     if(combo>=0)
     {
         Ghost_Data=combo;
         this->Data=combo;
     }
-    
+
     if(cset>=0)
     {
         Ghost_CSet=cset;
@@ -19,7 +19,7 @@ void Ghost_Transform(ffc this, npc ghost, int combo, int cset, int tileWidth, in
         ghost->CSet=cset;
 
     }
-    
+
     if(tileWidth>0)
     {
         diff=8*(Ghost_TileWidth-tileWidth);
@@ -31,7 +31,7 @@ void Ghost_Transform(ffc this, npc ghost, int combo, int cset, int tileWidth, in
         this->X=Ghost_X;
         ghost->X=Ghost_X;
     }
-    
+
     if(tileHeight>0)
     {
         diff=8*(Ghost_TileHeight-tileHeight);
@@ -43,7 +43,7 @@ void Ghost_Transform(ffc this, npc ghost, int combo, int cset, int tileWidth, in
         this->Y=Ghost_Y;
         ghost->Y=Ghost_Y;
     }
-    
+
     Ghost_SetHitOffsets(ghost, 0, 0, 0, 0);
 }
 
@@ -56,14 +56,14 @@ void Ghost_SetSize(ffc this, npc ghost, int tileWidth, int tileHeight)
         ghost->TileWidth=Ghost_TileWidth;
         this->TileWidth=Ghost_TileWidth;
     }
-    
+
     if(tileHeight>0)
     {
         Ghost_TileHeight=tileHeight;
         ghost->TileHeight=Ghost_TileHeight;
         this->TileHeight=Ghost_TileHeight;
     }
-    
+
     Ghost_SetHitOffsets(ghost, 0, 0, 0, 0);
 }
 
@@ -72,7 +72,7 @@ void Ghost_SetHitOffsets(npc ghost, float top, float bottom, float left, float r
 {
     ghost->TileHeight=Ghost_TileHeight;
     ghost->TileWidth=Ghost_TileWidth;
-    
+
     if(top>0 && top<1)
         top=Round(top*Ghost_TileHeight*16);
     if(bottom>0 && bottom<1)

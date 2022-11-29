@@ -66,13 +66,13 @@ TANGO_STYLE_ALT_COLOR_2
 TANGO_STYLE_ALT_COLOR_3
 TANGO_STYLE_ALT_COLOR_4
 :   Set highlight colors to use for double-bracketed text.
-    
+
     1 is `(( ))`
-    
+
     2 is `[[ ]]`
-    
+
     3 is `{{ }}`
-    
+
     4 is `<< >>`
 
 TANGO_STYLE_ALT_OFFSET_1
@@ -130,7 +130,7 @@ TANGO_FLAG_CARRY_OVER
 
 TANGO_FLAG_BLOCK_INPUT
 :   While the slot is active, all keys will be unpressed.
-    
+
     !!! caution
         Unpressing keys is handled by `Tango_Update1()`. FFC scripts and
         anything earlier in the global script will see the unmodified input.
@@ -152,8 +152,8 @@ TANGO_FLAG_CENTERED
 
 TANGO_FLAG_FREEZE_SCREEN
 :   The game is frozen while the slot is active.
-    
-    !!! note 
+
+    !!! note
         In order for this flag to work, you must implement the functions
         `__Tango_FreezeScreen()` and `__Tango_UnfreezeScreen()`.
 
@@ -169,13 +169,13 @@ TANGO_BACKDROP_CLEAR
 TANGO_BACKDROP_COLOR
 TANGO_BACKDROP_COLOR_TRANS
 :   A rectangle of a single color, either opaque or transparent.
-    
+
     Related attributes:
-    
+
     TANGO_STYLE_TEXT_CSET
     TANGO_STYLE_TEXT_COLOR
     :   The rectangle's CSet and color. The color is 0-15 within the CSet.
-    
+
     TANGO_STYLE_BACKDROP_WIDTH
     TANGO_STYLE_BACKDROP_HEIGHT
     :   The size of the rectangle in pixels.
@@ -183,15 +183,15 @@ TANGO_BACKDROP_COLOR_TRANS
 TANGO_BACKDROP_TILE
 TANGO_BACKDROP_TILE_TRANS
 :   A block of tiles, either opaque or transparent.
-    
+
     Related attributes:
-    
+
     TANGO_STYLE_BACKDROP_TILE
     :   The top-left tile of the block.
-    
+
     TANGO_STYLE_BACKDROP_CSET
     :   The CSet of the backdrop.
-    
+
     TANGO_STYLE_BACKDROP_WIDTH
     TANGO_STYLE_BACKDROP_HEIGHT
     :   The size of the backdrop in tiles.
@@ -199,24 +199,24 @@ TANGO_BACKDROP_TILE_TRANS
 TANGO_BACKDROP_COMBO
 TANGO_BACKDROP_COMBO_TRANS
 :   A block of tiles drawn from a combo, either opaque or transparent.
-    
+
     Related attributes:
-    
+
     TANGO_STYLE_BACKDROP_COMBO
     :   The combo using the top-left tile of the block.
-    
+
     TANGO_STYLE_BACKDROP_CSET
     :   The CSet of the backdrop.
-    
+
     TANGO_STYLE_BACKDROP_WIDTH
     TANGO_STYLE_BACKDROP_HEIGHT
     :   The size of the backdrop in tiles.
 
 TANGO_BACKDROP_COMPLEX
 :   A backdrop made up of multiple drawing commands.
-    
+
     Related attributes:
-    
+
     TANGO_STYLE_BACKDROP_DATA
     :   The array of data from which to draw the backdrop. For details, see
         [the complex backdrops section](dataFormats.md#complex-backdrops).

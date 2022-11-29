@@ -61,7 +61,7 @@ qr_OUCHBOMBS, 				/*<<	Items (>>>) Scripted Bomb LWeapons Hurt Link */
 
 //35
 qr_NOCLOCKS_DEP,			/*<<	DEPRECATED */
-qr_TEMPCLOCKS_DEP,			/*<<	DEPRECATED */ 
+qr_TEMPCLOCKS_DEP,			/*<<	DEPRECATED */
 qr_BRKBLSHLDS_DEP,			/*<<	DEPRECATED */
 qr_BRKNSHLDTILES, 			/*<<	Enemies (>>>) Broken Enemy Shield Tiles  */
 qr_MEANPLACEDTRAPS, 			/*<<	Enemies (>>>) Line-of-Sight Traps Can Move Across Entire Screen  */
@@ -69,7 +69,7 @@ qr_MEANPLACEDTRAPS, 			/*<<	Enemies (>>>) Line-of-Sight Traps Can Move Across En
 //40
 qr_PHANTOMPLACEDTRAPS, 			/*<<	Enemies (>>>) Constant Traps Can Pass Through Enemies */
 qr_ALLOWFASTMSG, 			/*<<	Misc (>>>) Messages Can Be Sped Up With The A Button */
-qr_LINKEDCOMBOS,			/*<<	DEPRECATED */ 
+qr_LINKEDCOMBOS,			/*<<	DEPRECATED */
 qr_NOGUYFIRES, 				/*<<	Misc (>>>) No Fires In Special Rooms */
 qr_HEARTRINGFIX, 			/*<<	Misc (>>>) Healing Fairy Heart Circle Is Centered Around Link */
 
@@ -95,7 +95,7 @@ qr_GHINI2BLINK_DEP, 			/*<<	DEPRECATED */
 qr_BITMAPOFFSETFIX, 			/*<<	Compatibility (>>>) Use DrawBitmap() Offsets Prior to 2.50.2  */
 
 //60
-qr_PHANTOMGHINI2_DEP,			/*<<	DEPRECATED */ 
+qr_PHANTOMGHINI2_DEP,			/*<<	DEPRECATED */
 qr_Z3BRANG_HSHOT, 			/*<<	Items (>>>) New Boomerang/Hookshot  */
 qr_NOITEMMELEE,				/*<<	Items (>>>) Wand Can't Be Used As Melee Weapon	/DEPRECATED/  */
 qr_SHADOWS, 				/*<<	Enemies (>>>) Show Shadows */
@@ -105,7 +105,7 @@ qr_TRANSSHADOWS, 			/*<<	Enemies (>>>) Translucent Shadows  */
 qr_QUICKSWORD, 				/*<<	Items (>>>) Quick Sword  */
 qr_BOMBHOLDFIX, 			/*<<	NES (>>>) Link Holds Special Bombs Over His Head  */
 qr_EXPANDEDLTM, 			/*<<	Animation (>>>) Expanded Link Tile Modifiers */
-qr_NOPOTIONCOMBINE_DEP,			/*<<	DEPRECATED */ 
+qr_NOPOTIONCOMBINE_DEP,			/*<<	DEPRECATED */
 qr_LINKFLICKER, 			/*<<	Animation (>>>) Invincible Link Flickers */
 
 //70
@@ -117,7 +117,7 @@ qr_PUSHBLOCKCSETFIX, 			/*<<	NES (>>>) Push Block CSet Fix */
 
 //75
 qr_TRANSLUCENTNAYRUSLOVEROCKET_DEP,	/*<<	DEPRECATED */
-qr_FLICKERINGNAYRUSLOVEROCKET_DEP,	/*<<	DEPRECATED */ 
+qr_FLICKERINGNAYRUSLOVEROCKET_DEP,	/*<<	DEPRECATED */
 qr_CMBCYCLELAYERS, 			/*<<	Combos (>>>) Combo Cycling On Layers */
 qr_DMGCOMBOPRI, 			/*<<	Combos (>>>) Full Priority Damage Combos */
 qr_WARPSIGNOREARRIVALPOINT, 		/*<<	Combos (>>>) Warps Ignore Arrival X/Y Position When Setting Continue Screen */
@@ -146,14 +146,14 @@ qr_RINGAFFECTDAMAGE, 			/*<<	Items (>>>) Rings Affect Damage Combos /DEPRECATED/
 //95
 qr_ALLOW10RUPEEDROPS_DEP, 		/*<<	DEPRECATED  */
 qr_TRAPPOSFIX, 				/*<<	NES (>>>) Trap Position Fix  */
-qr_TEMPCANDLELIGHT, 			/*<<	Items (>>>) Scripted and Enemy Fire Lights Temporarily */ 
+qr_TEMPCANDLELIGHT, 			/*<<	Items (>>>) Scripted and Enemy Fire Lights Temporarily */
 qr_REDPOTIONONCE_DEP,			/*<<	DEPRECATED  */
 qr_OLDSTYLEWARP, 			/*<<	Combos (>>>) Use Old-Style Warp Detection (NES Movement Only) */
 
 //100
 qr_NOBORDER, 				/*<<	NES (>>>) No Invisible Border on Non-Dungeon Dmaps */
 qr_OLDTRIBBLES_DEP,			/*<<	DEPRECATED */
-qr_REFLECTROCKS,			/*<<	DEPRECATED */ 
+qr_REFLECTROCKS,			/*<<	DEPRECATED */
 qr_OLDPICKUP, 				/*<<	NES (>>>) Items Disappear During Hold-Up */
 qr_ENEMIESZAXIS, 			/*<<	Enemies (>>>) Enemies Jump/Fly Through Z-Axis */
 
@@ -165,15 +165,15 @@ qr_HEARTPIECEINCR_DEP,			/*<<	DEPRECATED */
 qr_ITEMSONEDGES, 			/*<<	NES (>>>) Can Use Items/Weapons on Edge of Screen */
 
 //110
-qr_EATSMALLSHIELD_DEP,			/*<<	DEPRECATED */ 
+qr_EATSMALLSHIELD_DEP,			/*<<	DEPRECATED */
 qr_MSGFREEZE, 				/*<<	Misc (>>>) Messages Freeze All Action */
 qr_SLASHFLIPFIX,			/*<<	Items (>>>) Flip Right-Facing Slash /DEPRECATED/  */
-qr_FIREMAGICSPRITE_DEP, 		/*<<	DEPRECATED */ 
+qr_FIREMAGICSPRITE_DEP, 		/*<<	DEPRECATED */
 qr_SLOWCHARGINGWALK, 			/*<<	Items (>>>) Slow Walk While Charging /DEPRECATED/ */
 
 //115
 qr_NOWANDMELEE, 			/*<<	Items (>>>) Wand Can't Be Used As Melee Weapon /DEPRECATED/  */
-qr_SLOWBOMBFUSES_DEP,			/*<<	DEPRECATED */ 
+qr_SLOWBOMBFUSES_DEP,			/*<<	DEPRECATED */
 qr_SWORDMIRROR, 			/*<<	Combos (>>>) Magic Mirror/Prism Combos Reflect Enemy and Scripted Sword Beams */
 qr_SELECTAWPN, 				/*<<	Misc (>>>) Can Select A-Button Weapon On Subscreen  */
 qr_LENSSEESENEMIES,  			/*<<	Items (>>>) Lens Reveals Invisible Enemies /DEPRECATED/  */
@@ -186,7 +186,7 @@ qr_SUBSCREENOVERSPRITES, 		/*<<	NES (>>>) Subscreen Appears Above Sprites */
 qr_BOMBDARKNUTFIX, 			/*<<	NES (>>>) Correct Bomb/Darknut Interaction */
 
 //125
-qr_LONGBOMBBOOM_DEP,			/*<<	DEPRECATED */ 
+qr_LONGBOMBBOOM_DEP,			/*<<	DEPRECATED */
 qr_OFFSETEWPNCOLLISIONFIX, 		/*<<	NES (>>>) Correct Offset Enemy Weapon Collision Detection */
 qr_DMGCOMBOLAYERFIX, 			/*<<	Combos (>>>) Damage Combos Work On Layers 1 And 2 */
 qr_ITEMSINPASSAGEWAYS, 			/*<<	NES (>>>) Special Items Don't Appear In Passageways */
@@ -275,11 +275,11 @@ qr_OLD_SIDEVIEW_CEILING_COLLISON, 	/*<<	Compatibility (>>>) Old Sideview Ceiling
 qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES, /*<<	Compatibility (>>>) Items set to 0 AFrames ignore AFrame changes */
 qr_OLD_ENEMY_KNOCKBACK_COLLISION,	/*<<	Compatibility (>>>) Old Enemy Knockback Collision */
 qr_FADEBLACKWIPE, 			/*<<	Animation (>>>) Fade to/from Black Opening/Closing Wipes */
-qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT, 
+qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT,
 					/*<<	ZScript (>>>) Scripts (>>>) Passive Subscreen Script runs during Active Subscreen */
 qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT,
 					/*<<	ZScript (>>>) Scripts (>>>) DMap Active Script runs during Active Subscreen */
-					
+
 //190
 qr_ANIMATECUSTOMWEAPONS,
 qr_WEAPONSMOVEOFFSCREEN, 		/*<<	Compatibility (>>>) Weapons Can Go Out of Bounds (Offscreen) */
@@ -344,7 +344,7 @@ qr_PARSER_BOOL_TRUE_DECIMAL, 		/*<<	ZScript (>>>) Sprite Coordinates are Float *
 
 //645
 qr_PARSER_TRUE_INT_SIZE, 		/*<<	Compilation (>>>) True MAX_INT sizing */
-qr_WPNANIMFIX, 				/*<< 	Not Implemented : This was in 2.50.2, but never used. */ 
+qr_WPNANIMFIX, 				/*<< 	Not Implemented : This was in 2.50.2, but never used. */
 qr_NOSCRIPTSDURINGSCROLL, 		/*<< 	Not Implemented : This was in 2.50.2, but never used. */
 qr_OLDSPRITEDRAWS, 			/*<<	Compatibility (>>>) Old (Faster) Sprite Drawing */
 qr_WEAPONSHADOWS,  			/*<<	ZScript (>>>) Draw Shadows on Weapons */

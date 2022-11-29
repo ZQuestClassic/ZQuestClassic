@@ -70,7 +70,6 @@ int32_t Button::onEvent(int32_t event, MessageDispatcher& sendMessage)
 	assert(event == geCLICK);
 	// jwin_button_proc doesn't seem to allow for a non-toggle button...
 	alDialog->flags &= ~D_SELECTED;
-	
 	if(onPress)
 		onPress();
 	if(message >= 0)

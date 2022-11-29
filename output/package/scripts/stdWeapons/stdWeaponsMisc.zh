@@ -115,7 +115,7 @@ bool WallCollision8way(ffc f){
 }
 
 //Causes Lweapon to drag dropped items around or instantly deliver items straight to Link.
-//Called automatically on LweaponWaitframe, if LWF_CAN_PICKUP_ITEMS or 
+//Called automatically on LweaponWaitframe, if LWF_CAN_PICKUP_ITEMS or
 //LWF_CAN_INSTADELIVER_ITEMS lweapon flag is set.
 void ItemPickup (lweapon l, bool instant, int PickFlags){
 	for (int i=1; i<= Screen->NumItems(); i++){
@@ -233,7 +233,7 @@ void FullScreenAttack(ffc f, lweapon l, int flashcolor, int duration,int defense
 	LweaponSetFlag(l, LWF_AUTO_DIR_UPDATE);
 	LweaponSetFlag(l, LWF_AUTO_SPRITE_UPDATE);
 	l->HitWidth = 256;
-	l->HitHeight = 176;	
+	l->HitHeight = 176;
 	for (int i=1; i<=duration; i++){
 		if ((IsOdd(i))&&(flashcolor>0)) Screen->Rectangle(4, f->X, f->Y, l->HitWidth, l->HitHeight, flashcolor, 1, 0, 0, 0, true, OP_OPAQUE);
 		//debugValue(1, l->OriginalTile);
@@ -245,7 +245,7 @@ void FullScreenAttack(ffc f, lweapon l, int flashcolor, int duration,int defense
 	l->HitWidth = OrigWidth;
 	l->HitHeight = OrigHeight;
 	SetEnemyDefense(l,OrigDefense);
-	l->OriginalTile = OrigTile;	
+	l->OriginalTile = OrigTile;
 	l->Misc[LWEAPON_MISC_ORIGTILE]=OrigTile;
 }
 

@@ -56,8 +56,7 @@ public:
 	bool is_dragged;
 	int16_t from_dropset;
 	int8_t pickupexstate;
-    //int32_t weapoverrideFLAGS; 
-    
+    //int32_t weapoverrideFLAGS;
     //word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
 //Linker errors because this is shared with zquest. :( -Z
     #ifndef IS_ZQUEST
@@ -73,7 +72,6 @@ public:
     virtual bool animate(int32_t index);
     virtual void draw(BITMAP *dest);
 	virtual int32_t run_script(int32_t mode);
-	
 	void set_forcegrab(bool val)
 	{
 		if(force_grab && !val)
@@ -87,9 +85,7 @@ public:
 			drownclk = 0;
 		}
 	}
-	
 	bool get_forcegrab() {return force_grab;}
-	
 private:
 	bool force_grab;
 };

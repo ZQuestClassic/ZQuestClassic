@@ -8,7 +8,7 @@ const int SAND_ROD_MAGIC_COST=0;
 //1. Set up 2 sprites. One for wand animation and one for projectile.
 //2. Import and compile the script. It requires stdWeapons.zh and all his dependencies. Assign 3 FFC script slots.
 //3. Set up generic item settings on Item Editor.
-//4. D0 - Damage dealt to enemies on direct hit by projectile or wand strike. 
+//4. D0 - Damage dealt to enemies on direct hit by projectile or wand strike.
 //        Uses MAGIC or WAND MELEE enemy defense.
 //   D1 - Sprite for wand animation. Can be the same for both wands.
 //   D2 - Sprite for magic projectile.
@@ -37,13 +37,13 @@ ffc script SandRod{
 		PutFFCInFrontOfLink(magic, 16);
 		Game->PlaySound(sound);
 		MeleeWeaponEndStrike(this, wand, wand->Misc[LWEAPON_MISC_ORIGTILE], 12, 2, 2);
-	}	
+	}
 }
 
 ffc script SandMagic{
 	void run(int damage, int sprite,  int SandCombo, int SandReplace, int range, int speed){
 		lweapon l = LweaponInit (this, LW_GHOSTED, damage, sprite, 0);
-		
+
 		LweaponSetFlag(l, LWF_AUTO_DIR_UPDATE);
 		LweaponSetFlag(l, LWF_AUTO_SPRITE_UPDATE);
 		LweaponSetFlag(l, LWF_NO_FALL);
@@ -54,9 +54,9 @@ ffc script SandMagic{
 		SetStraightMotion4(this, speed);
 		int timer=range;
 		int oldcmb=-1;
-		
+
 		while(true){
-			oldcmb=ReflectOffMirrors(oldcmb, this, l);			
+			oldcmb=ReflectOffMirrors(oldcmb, this, l);
 			if (SandReplace>0)ReplaceCombosOnCollision( l, SandCombo, SandReplace, -1, 0);
 			else ChangeToNextOnCollision( l, SandCombo, -1, 0);
 			if (LweaponFlagIsSet(l, LWF_REFLECTED))TriggerUpdate (l, CF_REFMAGIC, SFX_SECRET, true);

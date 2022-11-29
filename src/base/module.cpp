@@ -12,13 +12,12 @@ bool ZModule::init(bool d) //bool default
 	memset(moduledata.datafiles, 0, sizeof(moduledata.datafiles));
 	memset(moduledata.enem_type_names, 0, sizeof(moduledata.enem_type_names));
 	memset(moduledata.enem_anim_type_names, 0, sizeof(moduledata.enem_anim_type_names));
-	
 	memset(moduledata.roomtype_names, 0, sizeof(moduledata.roomtype_names));
 	memset(moduledata.walkmisc7_names, 0, sizeof(moduledata.walkmisc7_names));
 	memset(moduledata.walkmisc9_names, 0, sizeof(moduledata.walkmisc9_names));
 	memset(moduledata.guy_type_names, 0, sizeof(moduledata.guy_type_names));
 	memset(moduledata.enemy_weapon_names, 0, sizeof(moduledata.enemy_weapon_names));
-	memset(moduledata.enemy_weapon_names, 0, sizeof(moduledata.enemy_scriptweaponweapon_names)); 
+	memset(moduledata.enemy_weapon_names, 0, sizeof(moduledata.enemy_scriptweaponweapon_names));
 	memset(moduledata.player_weapon_names, 0, sizeof(moduledata.player_weapon_names));
 	memset(moduledata.base_NSF_file, 0, sizeof(moduledata.base_NSF_file));
 	memset(moduledata.copyright_strings, 0, sizeof(moduledata.copyright_strings));
@@ -33,19 +32,17 @@ bool ZModule::init(bool d) //bool default
 	moduledata.animate_NES_title = 0;
 	moduledata.title_track = moduledata.tf_track = moduledata.gameover_track = moduledata.ending_track = moduledata.dungeon_track = moduledata.overworld_track = moduledata.lastlevel_track = 0;
 	moduledata.refresh_title_screen = 0;
-	
 	memset(moduledata.moduletitle, 0, sizeof(moduledata.moduletitle));
 	memset(moduledata.moduleauthor, 0, sizeof(moduledata.moduleauthor));
 	memset(moduledata.moduleinfo0, 0, sizeof(moduledata.moduleinfo0));
-	memset(moduledata.moduleinfo1, 0, sizeof(moduledata.moduleinfo1));	
+	memset(moduledata.moduleinfo1, 0, sizeof(moduledata.moduleinfo1));
 	memset(moduledata.moduleinfo2, 0, sizeof(moduledata.moduleinfo2));
 	memset(moduledata.moduleinfo3, 0, sizeof(moduledata.moduleinfo3));
 	memset(moduledata.moduleinfo4, 0, sizeof(moduledata.moduleinfo4));
 	memset(moduledata.moduletimezone, 0, sizeof(moduledata.moduletimezone));
 	//memset(moduledata.module_base_nsf, 0, sizeof(moduledata.module_base_nsf));
-	
 	moduledata.modver_1 = 0;
-	moduledata.modver_2 = 0;	
+	moduledata.modver_2 = 0;
 	moduledata.modver_3 = 0;
 	moduledata.modver_4 = 0;
 	moduledata.modbuild = 0;
@@ -55,13 +52,12 @@ bool ZModule::init(bool d) //bool default
 	moduledata.modyear = 0;
 	moduledata.modhour = 0;
 	moduledata.modminute = 0;
-	
 	//strcpy(moduledata.module_name,"default.zmod");
 	//al_trace("Module name set to %s\n",moduledata.module_name);
 	//We load the current module name from zc.cfg or zquest.cfg!
-	//Otherwise, we don't know what file to access to load the module vars! 
+	//Otherwise, we don't know what file to access to load the module vars!
 	strcpy(moduledata.module_name,zc_get_config("ZCMODULE","current_module","modules/classic.zmod"));
-	al_trace("The Current ZQuest Creator Module is: %s\n",moduledata.module_name); 
+	al_trace("The Current ZQuest Creator Module is: %s\n",moduledata.module_name);
 	if(!fileexists((char*)moduledata.module_name))
 	{
 		Z_error_fatal("ZQuest Creator I/O Error:\nNo module definitions found.\nZQuest Creator cannot run without these definitions,\nand is now exiting.\nPlease check your settings in %s.cfg.\n","zcl");
@@ -73,7 +69,6 @@ bool ZModule::init(bool d) //bool default
 		//zcm path
 		set_config_file(moduledata.module_name); //Switch to the module to load its config properties.
 		//al_trace("Module name set to %s\n",moduledata.module_name);
-		
 		//Metadata
 		strcpy(moduledata.moduletitle,zc_get_config("METADATA","title",""));
 		strcpy(moduledata.moduleauthor,zc_get_config("METADATA","author",""));
@@ -85,7 +80,7 @@ bool ZModule::init(bool d) //bool default
 		strcpy(moduledata.moduletimezone,zc_get_config("METADATA","timezone","GMT"));
 		//strcpy(moduledata.module_base_nsf,zc_get_config("METADATA","nsf",""));
 		moduledata.modver_1 = zc_get_config("METADATA","version_first",0);
-		moduledata.modver_2 = zc_get_config("METADATA","version_second",0);	
+		moduledata.modver_2 = zc_get_config("METADATA","version_second",0);
 		moduledata.modver_3 = zc_get_config("METADATA","version_third",0);
 		moduledata.modver_4 = zc_get_config("METADATA","version_fourth",0);
 		moduledata.modbuild = zc_get_config("METADATA","version_build",0);
@@ -94,8 +89,7 @@ bool ZModule::init(bool d) //bool default
 		moduledata.modday = zc_get_config("METADATA","version_day",0);
 		moduledata.modyear = zc_get_config("METADATA","version_year",0);
 		moduledata.modhour = zc_get_config("METADATA","version_hour",0);
-		moduledata.modminute = zc_get_config("METADATA","version_minute",0); 
-		
+		moduledata.modminute = zc_get_config("METADATA","version_minute",0);
 		//quests
 		moduledata.old_quest_serial_flow = zc_get_config("QUESTS","quest_flow",1);
 		moduledata.max_quest_files = vbound(zc_get_config("QUESTS","num_quest_files",0),0,10);
@@ -122,7 +116,6 @@ bool ZModule::init(bool d) //bool default
 		{
 			if ( moduledata.quests[q][0] == '-' ) strcpy(moduledata.quests[q],"");
 		}
-		
 		//quest skip names
 		moduledata.skipnames[0][0] = 0;
 		strcpy(moduledata.skipnames[1],zc_get_config("NAMEENTRY","second_qst_skip","-"));
@@ -134,7 +127,6 @@ bool ZModule::init(bool d) //bool default
 		strcpy(moduledata.skipnames[7],zc_get_config("NAMEENTRY","eighth_qst_skip","-"));
 		strcpy(moduledata.skipnames[8],zc_get_config("NAMEENTRY","ninth_qst_skip","-"));
 		strcpy(moduledata.skipnames[9],zc_get_config("NAMEENTRY","tenth_qst_skip","-"));
-		
 		//datafiles
 		strcpy(moduledata.datafiles[zelda_dat],zc_get_config("DATAFILES","zcplayer_datafile","zelda.dat"));
 		al_trace("Module zelda_dat set to %s\n",moduledata.datafiles[zelda_dat]);
@@ -146,11 +138,8 @@ bool ZModule::init(bool d) //bool default
 		al_trace("Module sfx_dat set to %s\n",moduledata.datafiles[sfx_dat]);
 		strcpy(moduledata.datafiles[qst_dat],zc_get_config("DATAFILES","quest_template_datafile","qst.dat"));
 		al_trace("Module qst_dat set to %s\n",moduledata.datafiles[qst_dat]);
-		
-		
 		strcpy(moduledata.base_NSF_file,zc_get_config("DATAFILES","base_NSF_file","zelda.nsf"));
 		al_trace("Base NSF file: %s\n", moduledata.base_NSF_file);
-		
 		moduledata.title_track = zc_get_config("DATAFILES","title_track",0);
 		moduledata.ending_track = zc_get_config("DATAFILES","ending_track",1);
 		moduledata.tf_track = zc_get_config("DATAFILES","tf_track",5);
@@ -158,7 +147,6 @@ bool ZModule::init(bool d) //bool default
 		moduledata.dungeon_track = zc_get_config("DATAFILES","dungeon_track",0);
 		moduledata.overworld_track = zc_get_config("DATAFILES","overworld_track",0);
 		moduledata.lastlevel_track = zc_get_config("DATAFILES","lastlevel_track",0);
-		
 		const char enemy_family_strings[eeMAX][255] =
 		{
 			"ee_family_guy","ee_family_walk","ee_family_shoot","ee_family_tek","ee_family_lev",
@@ -182,7 +170,6 @@ bool ZModule::init(bool d) //bool default
 			"Friendly_NPC_05", "Friendly_NPC_06", "Friendly_NPC_07",
 			"Friendly_NPC_08", "Friendly_NPC_09", "Friendly_NPC_10"
 		};
-		
 		const char default_enemy_types[eeMAX][255] =
 		{
 			"-Guy","Walking Enemy","-Unused","Tektite","Leever",
@@ -242,7 +229,6 @@ bool ZModule::init(bool d) //bool default
 			strcpy(moduledata.enem_anim_type_names[q],zc_get_config("ENEMIES",enemy_anim_strings[q],default_enemy_anims[q]));
 			//al_trace("Enemy animation type ID %d is: %s\n", q, moduledata.enem_anim_type_names[q]);
 		}
-		
 		const char roomtype_cats[rMAX][256] =
 		{
 			"rNONE","rSP_ITEM","rINFO","rMONEY","rGAMBLE","rREPAIR","rRP_HC","rGRUMBLE",
@@ -262,12 +248,10 @@ bool ZModule::init(bool d) //bool default
 			strcpy(moduledata.roomtype_names[q],zc_get_config("ROOMTYPES",roomtype_cats[q],roomtype_defaults[q]));
 			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.roomtype_names[q]);
 		}
-		
 		const char enemy_walk_type_defaults[e9tARMOS+1][255] =
 		{
 			"Normal", "Rope", "Vire", "Pols Voice", "Armos"
 		};
-		
 		const char enemy_walk_style_cats[e9tARMOS+1][255]=
 		{
 			"wsNormal","wsCharge","wsHopSplit","wsHop","wsStatue"
@@ -283,7 +267,6 @@ bool ZModule::init(bool d) //bool default
 			"gFIRE", "gFAIRY", "gGRUMBLE", "gPRINCESS", "gOLDMAN2",
 			"gEMPTY"
 		};
-		
 		const char guy_default_names[gDUMMY1][255]=
 		{
 			"(None)","Abei","Ama","Merchant","Moblin","Fire",
@@ -294,7 +277,6 @@ bool ZModule::init(bool d) //bool default
 			strcpy(moduledata.guy_type_names[q],zc_get_config("GUYS",guy_types[q],guy_default_names[q]));
 			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.guy_type_names[q]);
 		}
-		
 		const char enemy_weapon_cats[wMax-wEnemyWeapons][255]=
 		{
 			"ewNone",
@@ -316,7 +298,6 @@ bool ZModule::init(bool d) //bool default
 			"ewIce",
 			"ewFireball2"
 		};
-		
 		const char enemy_weapon_default_names[wMax-wEnemyWeapons][255]=
 		{
 			"(None)",
@@ -338,14 +319,11 @@ bool ZModule::init(bool d) //bool default
 			"-Ice <unused>",
 			"Fireball (Rising)"
 		};
-		
 		for ( int32_t q = 0; q < sizeof(enemy_weapon_default_names)/255; q++ )
 		{
 			strcpy(moduledata.enemy_weapon_names[q],zc_get_config("EWEAPONS",enemy_weapon_cats[q],enemy_weapon_default_names[q]));
 			//al_trace("EWeapon ID %d is: %s\n", q, moduledata.enemy_weapon_names[q]);
 		}
-		
-		
 		strcpy(moduledata.enemy_scriptweaponweapon_names[0],zc_get_config("EWEAPONS","Custom_1","Custom 01"));
 		strcpy(moduledata.enemy_scriptweaponweapon_names[1],zc_get_config("EWEAPONS","Custom_2","Custom 02"));
 		strcpy(moduledata.enemy_scriptweaponweapon_names[2],zc_get_config("EWEAPONS","Custom_3","Custom 03"));
@@ -356,23 +334,22 @@ bool ZModule::init(bool d) //bool default
 		strcpy(moduledata.enemy_scriptweaponweapon_names[7],zc_get_config("EWEAPONS","Custom_8","Custom 08"));
 		strcpy(moduledata.enemy_scriptweaponweapon_names[8],zc_get_config("EWEAPONS","Custom_9","Custom 09"));
 		strcpy(moduledata.enemy_scriptweaponweapon_names[9],zc_get_config("EWEAPONS","Custom_10","Custom 10"));
-		
 		const char lweapon_cats[wIce+1][255]=
 		{
 			"lwNone","lwSword","lwBeam","lwBrang","lwBomb","lwSBomb","lwLitBomb",
 			"lwLitSBomb","lwArrow","lwFire","lwWhistle","lwMeat","lwWand","lwMagic","lwCatching",
-			"lwWind","lwRefMagic","lwRefFireball","lwRefRock", "lwHammer","lwGrapple", "lwHSHandle", 
-			"lwHSChain", "lwSSparkle","lwFSparkle", "lwSmack", "lwPhantom", 
-			"lwCane","lwRefBeam", "lwStomp","","lwScript1", "lwScript2", "lwScript3", 
+			"lwWind","lwRefMagic","lwRefFireball","lwRefRock", "lwHammer","lwGrapple", "lwHSHandle",
+			"lwHSChain", "lwSSparkle","lwFSparkle", "lwSmack", "lwPhantom",
+			"lwCane","lwRefBeam", "lwStomp","","lwScript1", "lwScript2", "lwScript3",
 			"lwScript4","lwScript5", "lwScript6", "lwScript7", "lwScript8","lwScript9", "lwScript10", "lwIce"
 		};
 		const char lweapon_default_names[wIce+1][255]=
 		{
 			"(None)","Sword","Sword Beam","Boomerang","Bomb","Super Bomb","Lit Bomb",
 			"Lit Super Bomb","Arrow","Fire","Whistle","Bait","Wand","Magic","-Catching",
-			"Wind","Reflected Magic","Reflected Fireball","Reflected Rock", "Hammer","Hookshot", "-HSHandle", 
-			"-HSChain", "Sparkle","-FSparkle", "-Smack", "-Phantom", 
-			"Cane of Byrna","Reflected Sword Beam", "-Stomp","-lwmax","Script1", "Script2", "Script3", 
+			"Wind","Reflected Magic","Reflected Fireball","Reflected Rock", "Hammer","Hookshot", "-HSHandle",
+			"-HSChain", "Sparkle","-FSparkle", "-Smack", "-Phantom",
+			"Cane of Byrna","Reflected Sword Beam", "-Stomp","-lwmax","Script1", "Script2", "Script3",
 			"Script4","Script5", "Script6", "Script7", "Script8","Script9", "Script10", "Ice"
 		};
 		for ( int32_t q = 0; q < wIce+1; q++ )
@@ -380,22 +357,18 @@ bool ZModule::init(bool d) //bool default
 			strcpy(moduledata.player_weapon_names[q],(lweapon_cats[q][0] ? zc_get_config("LWEAPONS",lweapon_cats[q],lweapon_default_names[q]) : lweapon_default_names[q]));
 			//al_trace("LWeapon ID %d is: %s\n", q, moduledata.player_weapon_names[q]);
 		}
-		
 		al_trace("Module Title: %s\n", moduledata.moduletitle);
 		al_trace("Module Author: %s\n", moduledata.moduleauthor);
 		al_trace("Module Info: \n%s\n%s\n%s\n%s\n%s\n", moduledata.moduleinfo0, moduledata.moduleinfo1, moduledata.moduleinfo2, moduledata.moduleinfo3, moduledata.moduleinfo4);
 		//al_trace("Module Base NSF: %s\n", moduledata.module_base_nsf);
-		
 		al_trace("Module Version: %d.%d.%d.%d\n", moduledata.modver_1,moduledata.modver_2,moduledata.modver_3, moduledata.modver_4);
 		al_trace("Module Build: %d, %s: %d\n", moduledata.modbuild, (moduledata.modbeta<0) ? "Alpha" : "Beta", moduledata.modbeta );
-		
 		//al_trace("Build Day: %s\n",dayextension(moduledata.modday).c_str());
 		//al_trace("Build Month: %s\n",(char*)months[moduledata.modmonth]);
 		//al_trace("Build Year: %d\n",moduledata.modyear);
-		al_trace("Module Date: %s %s, %d at @ %d:%d %s\n", dayextension(moduledata.modday).c_str(), 
+		al_trace("Module Date: %s %s, %d at @ %d:%d %s\n", dayextension(moduledata.modday).c_str(),
 			(char*)months[moduledata.modmonth], moduledata.modyear, moduledata.modhour, moduledata.modminute, moduledata.moduletimezone);
 	}
-	
 	//shift back to the normal config file, when done
 	zc_set_config_standard();
 	return true;

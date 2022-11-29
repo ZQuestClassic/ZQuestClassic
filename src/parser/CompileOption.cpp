@@ -119,7 +119,6 @@ void CompileOption::initialize()
 		{
 			nameMap[entries[i].name] = CompileOption(i);
 		}
-		
 		initialized = true;
 	}
 	//Update default values, always:
@@ -136,7 +135,6 @@ void CompileOption::updateDefaults()
 				if(entries[i].defaultqr)
 					entries[i].defaultValue = get_bit(quest_rules, entries[i].defaultqr) ? 10000L : 0L;
 				break;
-			
 			case OPTTYPE_CONFIG:
 				int32_t val = zc_get_config("Compiler", entries[i].name.c_str(), int32_t(entries[i].defaultValue/10000L));
 				entries[i].defaultValue = val * 10000L;

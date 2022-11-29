@@ -7,7 +7,7 @@
 void __Tango_DrawComplexBackdrop(int backdrop, float x, float y)
 {
     int opacity;
-    
+
     for(int baseIndex=0;
       backdrop[baseIndex]!=TANGO_DRAW_END;
       baseIndex+=__TANGO_SIZEOF_DRAW_DATA)
@@ -21,7 +21,7 @@ void __Tango_DrawComplexBackdrop(int backdrop, float x, float y)
                 opacity=OP_OPAQUE;
             else
                 opacity=OP_TRANS;
-            
+
             if(backdrop[baseIndex]<=TANGO_DRAW_TILE_TRANS)
             {
                 Screen->DrawTile(__TANGO_DRAWING_LAYER,
@@ -52,7 +52,7 @@ void __Tango_DrawComplexBackdrop(int backdrop, float x, float y)
                 opacity=OP_OPAQUE;
             else
                 opacity=OP_TRANS;
-            
+
             Screen->Rectangle(__TANGO_DRAWING_LAYER,
                               x+backdrop[baseIndex+TANGO_RECT_X]+1,
                               y+backdrop[baseIndex+TANGO_RECT_Y]+1,
@@ -81,7 +81,7 @@ void __Tango_DrawFrameText(int str, int font, int cset, int color, int x, int y)
     for(int i=0; str[i]!=0; i++)
         x+=__Tango_PutChar(str[i], font, cset, color, x, y, __TANGO_DRAWING_LAYER);
 }
-                      
+
 // Draws a single character and returns the width of the character drawn.
 int __Tango_PutChar(int character, int font, int cset, int color, int x, int y, int layer)
 {
@@ -112,7 +112,7 @@ int __Tango_PutChar(int character, int font, int cset, int color, int x, int y, 
             Screen->FastTile(layer, x, y, tile, cset, OP_OPAQUE);
         }
     }
-    
+
     return __Tango_GetCharacterWidth(character, font);
 }
 
@@ -126,7 +126,7 @@ void __Tango_DrawToScreen()
     int backdrop=__Tango_Styles[styleStart+TANGO_STYLE_BACKDROP_TYPE];
     int screenX=__Tango_SlotData[dataStart+__TSDIDX_SCREEN_X];
     int screenY=__Tango_SlotData[dataStart+__TSDIDX_SCREEN_Y];
-    
+
     if(backdrop==TANGO_BACKDROP_COLOR ||
        backdrop==TANGO_BACKDROP_COLOR_TRANS)
     {
@@ -135,12 +135,12 @@ void __Tango_DrawToScreen()
         int width=__Tango_Styles[styleStart+TANGO_STYLE_BACKDROP_WIDTH];
         int height=__Tango_Styles[styleStart+TANGO_STYLE_BACKDROP_HEIGHT];
         int opacity;
-        
+
         if(backdrop==TANGO_BACKDROP_COLOR)
             opacity=OP_OPAQUE;
         else
             opacity=OP_TRANS;
-            
+
         Screen->Rectangle(__TANGO_DRAWING_LAYER, screenX+1, screenY+1,
                           screenX+width-2, screenY+height-2, color,
                           -1, 0, 0, 0, true, opacity);
@@ -154,13 +154,13 @@ void __Tango_DrawToScreen()
         int width=__Tango_Styles[styleStart+TANGO_STYLE_BACKDROP_WIDTH];
         int height=__Tango_Styles[styleStart+TANGO_STYLE_BACKDROP_HEIGHT];
         int opacity;
-        
+
         if(backdrop==TANGO_BACKDROP_TILE ||
            backdrop==TANGO_BACKDROP_COMBO)
             opacity=OP_OPAQUE;
         else
             opacity=OP_TRANS;
-        
+
         if(backdrop<=TANGO_BACKDROP_TILE_TRANS)
         {
             Screen->DrawTile(__TANGO_DRAWING_LAYER, screenX, screenY,
@@ -180,29 +180,29 @@ void __Tango_DrawToScreen()
             __Tango_Styles[styleStart+TANGO_STYLE_BACKDROP_DATA],
             screenX, screenY);
     }
-    
-    
+
+
     // Then draw the string
-    
+
     int stringX=screenX+__Tango_Styles[styleStart+TANGO_STYLE_TEXT_X];
     int stringY=screenY+__Tango_Styles[styleStart+TANGO_STYLE_TEXT_Y];
-    
+
     int bitmapX=__Tango_SlotDefs[defStart+__TSDEF_X];
     int bitmapY=__Tango_SlotDefs[defStart+__TSDEF_Y]+
                     __Tango_SlotData[dataStart+__TSDIDX_OFFSET];
-    
+
     int width=__Tango_Styles[styleStart+TANGO_STYLE_TEXT_WIDTH];
     int height=__Tango_Styles[styleStart+TANGO_STYLE_TEXT_HEIGHT];
-    
+
     if(__Tango_SlotData[dataStart+__TSDIDX_STATE]==__TANGO_STATE_ADVANCING)
         height-=__Tango_SlotData[dataStart+__TSDIDX_COUNTER];
-    
+
     // Copy the text to the screen.
     Screen->DrawBitmap(__TANGO_DRAWING_LAYER, __TANGO_BITMAP,
                        bitmapX, bitmapY, width, height,
                        stringX, stringY, width, height,
                        0, true);
-    
+
     // Centered text needs the current line copied separately.
     if((__Tango_Styles[styleStart+TANGO_STYLE_FLAGS]&TANGO_FLAG_CENTERED)!=0 &&
        __Tango_SlotData[dataStart+__TSDIDX_STATE]!=__TANGO_STATE_ADVANCING)
@@ -215,13 +215,13 @@ void __Tango_DrawToScreen()
                   __Tango_SlotData[dataStart+__TSDIDX_CHAR_Y]-
                   __Tango_SlotDefs[defStart+__TSDEF_Y]-
                   __Tango_SlotData[dataStart+__TSDIDX_OFFSET];
-        
+
         Screen->DrawBitmap(__TANGO_DRAWING_LAYER, __TANGO_BITMAP,
                            bitmapX, srcY, width, 16,
                            destX, destY, width, 16,
                            0, true);
     }
-    
+
     __Tango_DrawMoreIcon();
 }
 
@@ -230,14 +230,14 @@ void __Tango_DrawMoreIcon()
 {
     int dataStart=__Tango_Data[__TCS_DATA_START];
     bool doDraw=false;
-    
+
     int styleStart=__Tango_Data[__TCS_STYLE_START];
     int flags=__Tango_Styles[styleStart+TANGO_STYLE_FLAGS];
-    
+
     // Is the string waiting for A to be pressed?
     if(__Tango_SlotData[dataStart+__TSDIDX_STATE]==__TANGO_STATE_PRESS_A)
         doDraw=true;
-    
+
     // If the string is finished, draw the icon unless it's persistent
     // and there's no next string.
     else if(__Tango_SlotData[dataStart+__TSDIDX_STATE]==__TANGO_STATE_FINISHED)
@@ -246,23 +246,23 @@ void __Tango_DrawMoreIcon()
            __Tango_SlotData[dataStart+__TSDIDX_NEXT_STRING]!=0)
             doDraw=true;
     }
-    
+
     if(!doDraw)
         return;
-    
+
     // Is there a combo set at all?
     int combo=__Tango_Styles[styleStart+TANGO_STYLE_MORE_COMBO];
     if(combo<=0)
         return;
-    
+
     // The indicator needs drawn.
-    
+
     int cset=__Tango_Styles[styleStart+TANGO_STYLE_MORE_CSET];
     int x=__Tango_SlotData[dataStart+__TSDIDX_SCREEN_X]+
             __Tango_Styles[styleStart+TANGO_STYLE_MORE_X];
     int y=__Tango_SlotData[dataStart+__TSDIDX_SCREEN_Y]+
             __Tango_Styles[styleStart+TANGO_STYLE_MORE_Y];
-    
+
     Screen->FastCombo(__TANGO_DRAWING_LAYER, x, y, combo, cset, OP_OPAQUE);
 }
 
@@ -270,7 +270,7 @@ void __Tango_DrawMenuCursor()
 {
     int pos=__Tango_Data[__TDIDX_MENU_CURSOR_POS];
     int dataStart=__TDIDX_CHOICE_DATA+pos*__TANGO_SIZEOF_CHOICE;
-    
+
     Screen->DrawCombo(__TANGO_DRAWING_LAYER,
       __Tango_Data[dataStart+__TANGO_CHOICE_X],
       __Tango_Data[dataStart+__TANGO_CHOICE_Y],
@@ -289,7 +289,7 @@ void __Tango_ClearSlotBitmap(int slot)
     int y=__Tango_SlotDefs[defStart+__TSDEF_Y];
     int width=__Tango_SlotDefs[defStart+__TSDEF_WIDTH];
     int height=__Tango_SlotDefs[defStart+__TSDEF_HEIGHT];
-    
+
     Screen->SetRenderTarget(__TANGO_BITMAP);
     Screen->Rectangle(0, x+1, y+1, x+width-2, y+height-2,
                       0, -1, 0, 0, 0, true, OP_OPAQUE);
@@ -306,7 +306,7 @@ void __Tango_DrawCurrentLine(int x, int y)
                __Tango_SlotDefs[defStart+__TSDEF_HEIGHT]-16;
     int width=__Tango_GetCurrStyleData(TANGO_STYLE_TEXT_WIDTH);
     int destX=0;//srcX+(width-(__Tango_SlotData[dataStart+__TSDIDX_CHAR_X]-srcX))/2;
-    
+
     Screen->DrawBitmap(0, __TANGO_BITMAP, srcX, srcY, width, 16,
                        destX, 0,//__Tango_SlotData[dataStart+__TSDIDX_CHAR_Y],
                        width, 16, 0, true);

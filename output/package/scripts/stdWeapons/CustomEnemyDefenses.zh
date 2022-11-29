@@ -21,7 +21,7 @@ void SetCustomEnemyDefense(int EnemyID, int defense, int NewDefense){
 
 //Gets custom defense assigned to this NPC.
 int GetCustomEnemyDefense(int EnemyID, int defense){
-	int index = (EnemyID*NUM_CUSTOM_ENEMY_DEFENSES)+defense;	
+	int index = (EnemyID*NUM_CUSTOM_ENEMY_DEFENSES)+defense;
 	return CUSTOM_ENEMY_DEFENSES[index];
 }
 

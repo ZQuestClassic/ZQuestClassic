@@ -53,10 +53,8 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 {
 	EditboxModel *model= (EditboxModel *)d->dp;
 	int32_t ret = D_O_K;
-	
 	static clock_t ticks;
 	bool dontredraw=false;
-	
 	switch(msg)
 	{
 	case MSG_START:
@@ -65,7 +63,6 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 		model->getView()->initialize(model);
 		break;
 	}
-	
 	case MSG_IDLE:
 	{
 		if((d->flags & D_GOTFOCUS)&&(clock()>ticks))
@@ -74,26 +71,21 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 			ticks=clock()+(CLOCKS_PER_SEC/2);
 			model->getCursor().invertVisibility();
 		}
-		
 		break;
 	}
-	
 	case MSG_DRAW:
 	{
 		model->getView()->draw();
 		break;
 	}
-	
 	case MSG_WANTFOCUS:
 	{
 		ret = D_WANTFOCUS;
 		break;
 	}
-	
 	case MSG_CHAR:
 	{
 		//handle selecting (bah)
-		
 		switch(c>>8)
 		{
 		case KEY_LEFT:
@@ -113,7 +105,6 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 				model->getSelection().clearSelection();
 			}
 		}
-		
 		//normal event handling
 		switch(c>>8)
 		{
@@ -121,42 +112,34 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 			model->getCursor()--;
 			ret = D_USED_CHAR;
 			break;
-			
 		case KEY_RIGHT:
 			model->getCursor()++;
 			ret = D_USED_CHAR;
 			break;
-			
 		case KEY_UP:
 			model->getView()->lineUp();
 			ret = D_USED_CHAR;
 			break;
-			
 		case KEY_DOWN:
 			model->getView()->lineDown();
 			ret = D_USED_CHAR;
 			break;
-			
 		case KEY_HOME:
 			model->getView()->lineHome(key[KEY_LCONTROL]||key[KEY_RCONTROL]);
 			ret = D_USED_CHAR;
 			break;
-			
 		case KEY_END:
 			model->getView()->lineEnd(key[KEY_LCONTROL]||key[KEY_RCONTROL]);
 			ret = D_USED_CHAR;
 			break;
-			
 		case KEY_PGDN:
 			model->getView()->pageDown();
 			ret = D_USED_CHAR;
 			break;
-			
 		case KEY_PGUP:
 			model->getView()->pageUp();
 			ret = D_USED_CHAR;
 			break;
-			
 		case KEY_ENTER:
 		case KEY_ENTER_PAD:
 			model->set_undo();
@@ -164,7 +147,6 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 			model->getCursor().insertNewline();
 			ret = D_USED_CHAR;
 			break;
-			
 		case KEY_TAB:
 		{
 			model->set_undo();
@@ -174,7 +156,6 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 			ret = D_USED_CHAR;
 			break;
 		}
-		
 		case KEY_DEL:
 		case KEY_DEL_PAD:
 			model->set_undo();
@@ -182,10 +163,8 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 				model->clear();
 			else
 				model->getCursor().deleteChar();
-				
 			ret = D_USED_CHAR;
 			break;
-			
 		case KEY_BACKSPACE:
 			model->set_undo();
 			if(model->getSelection().hasSelection())
@@ -195,10 +174,8 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 				model->getCursor()--;
 				model->getCursor().deleteChar();
 			}
-			
 			ret = D_USED_CHAR;
 			break;
-			
 		case KEY_A:
 			if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
 			{
@@ -210,10 +187,8 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 				ret = D_USED_CHAR;
 				break;
 			}
-			
 			ret = D_O_K;
 			break;
-			
 		case KEY_C:
 			if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
 			{
@@ -221,10 +196,8 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 				ret = D_USED_CHAR;
 				break;
 			}
-			
 			ret = D_O_K;
 			break;
-			
 		case KEY_X:
 			if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
 			{
@@ -233,10 +206,8 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 				ret = D_USED_CHAR;
 				break;
 			}
-			
 			ret = D_O_K;
 			break;
-			
 		case KEY_V:
 			if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
 			{
@@ -246,7 +217,6 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 				ret = D_USED_CHAR;
 				break;
 			}
-			
 			ret = D_O_K;
 			break;
 		case KEY_Z:
@@ -256,20 +226,16 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 				ret = D_USED_CHAR;
 				break;
 			}
-			
 			ret = D_O_K;
 			break;
-			
 		case KEY_ESC:
 			return D_EXIT;
-			
 		case KEY_F1:
 			model->doHelp();
 			ret = D_USED_CHAR;
 			dontredraw=true;
 			break;
 		}
-		
 		//selection post-processing
 		if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
 		{
@@ -286,16 +252,13 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 				model->getSelection().adjustSelection(model->getCursor());
 			}
 		}
-		
 		break;
 	}
-	
 	case MSG_UCHAR:
 	{
 		if(model->isReadonly())
 			break;
 		ret = D_USED_CHAR;
-		
 		if((c >= ' ') && (uisok(c)))
 		{
 			model->set_undo();
@@ -304,22 +267,17 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 		}
 	}
 	break;
-	
 	case MSG_CLICK:
 	{
 		bool redraw = model->getView()->mouseClick(gui_mouse_x(), gui_mouse_y());
-		
 		if(model->getCursor().isVisible())
 			model->getCursor().invertVisibility();
-			
 		if(redraw)
 		{
 			object_message(d, MSG_DRAW, 0);
 		}
-		
 		while(gui_mouse_b())
 		{
-		
 			if(model->getView()->mouseDrag(gui_mouse_x(), gui_mouse_y()))
 			{
 				scare_mouse();
@@ -328,40 +286,31 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			rest(1);
 		}
-		
 		model->getView()->mouseRelease(gui_mouse_x(), gui_mouse_y());
-		
 		if(!model->getCursor().isVisible())
 			model->getCursor().invertVisibility();
-			
 		d->flags |= D_DIRTY;
 		break;
 	}
-	
 	case MSG_WHEEL:
 	{
 		if(c>0)
 			model->getView()->scrollUp();
 		else
 			model->getView()->scrollDown();
-			
 		d->flags |= D_DIRTY;
 		break;
 	}
-	
 	}
-	
 	if(ret == D_USED_CHAR && !dontredraw)
 	{
 		//redraw
 		if(!model->getCursor().isVisible())
 			model->getCursor().invertVisibility();
-			
 		ticks=clock()+(CLOCKS_PER_SEC/2);
 		model->getView()->ensureCursorOnScreen();
 		d->flags |= D_DIRTY;
 	}
-	
 	return ret;
 }
 

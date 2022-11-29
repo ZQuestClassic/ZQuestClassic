@@ -16,7 +16,7 @@ npc script stealitems
 					Audio->PlaySound(sfx);
 					//Don't roll over.
 					if ( (Game->Counter[sel] - num) >= 0 ) Game->Counter[sel] -= num;
-					else 
+					else
 					{
 						Game->Counter[sel] = ( num > 0 ) ? 0 : Game->Counter[sel];
 					}

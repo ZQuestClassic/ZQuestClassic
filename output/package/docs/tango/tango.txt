@@ -18,7 +18,7 @@ they may be changed or removed without warning in future versions.
 void Tango_Start()
  * Clears the menu and all text slots.
  * Call this in the active global script before the main loop.
- 
+
 void Tango_Update1()
  * Processes each text slot and the menu.
  * After calling this function, the render target will be set to RT_SCREEN.
@@ -236,7 +236,7 @@ void Tango_ScrollSlot(int slot, float amount)
 
 int Tango_GetCurrentSlot()
  * Returns the ID of the slot currently being processed. This should only
- * be used in __Tango_RunCustomFunction(), Tango_GetCustomVar(), and 
+ * be used in __Tango_RunCustomFunction(), Tango_GetCustomVar(), and
  * Tango_SetCustomVar(). At any other time, the value is meaningless.
 
 void Tango_SaveSlotState(int slot, int output[], int bitmap)
@@ -244,7 +244,7 @@ void Tango_SaveSlotState(int slot, int output[])
  * Store the state of a text slot into output. The current text, style,
  * position, state, and variables will be saved. The style's data
  * will not be saved.
- * If a bitmap is specified, the text already rendered will be copied to 
+ * If a bitmap is specified, the text already rendered will be copied to
  * that bitmap. The render target will be set to RT_SCREEN afterward.
  * The size of output must be at least the slot's length in the buffer + 21.
  * Later versions of tango.zh are likely to use more data; you may
@@ -717,12 +717,12 @@ TANGO_BACKDROP_CLEAR
 TANGO_BACKDROP_COLOR
 TANGO_BACKDROP_COLOR_TRANS
  * A rectangle of a single color, either opaque or transparent.
- * 
+ *
  * Related attributes:
  * TANGO_STYLE_TEXT_CSET
  * TANGO_STYLE_TEXT_COLOR
  *   The rectangle's CSet and color. The color is 0-15 within the CSet.
- * 
+ *
  * TANGO_STYLE_BACKDROP_WIDTH
  * TANGO_STYLE_BACKDROP_HEIGHT
  * The size of the rectangle in pixels.
@@ -730,14 +730,14 @@ TANGO_BACKDROP_COLOR_TRANS
 TANGO_BACKDROP_TILE
 TANGO_BACKDROP_TILE_TRANS
  * A block of tiles, either opaque or transparent.
- * 
+ *
  * Related attributes:
  * TANGO_STYLE_BACKDROP_TILE
  *   The top-left tile of the block.
- * 
+ *
  * TANGO_STYLE_BACKDROP_CSET
  *   The CSet of the backdrop.
- * 
+ *
  * TANGO_STYLE_BACKDROP_WIDTH
  * TANGO_STYLE_BACKDROP_HEIGHT
  *   The size of the backdrop in tiles.
@@ -745,21 +745,21 @@ TANGO_BACKDROP_TILE_TRANS
 TANGO_BACKDROP_COMBO
 TANGO_BACKDROP_COMBO_TRANS
  * A block of tiles drawn from a combo, either opaque or transparent.
- * 
+ *
  * Related attributes:
  * TANGO_STYLE_BACKDROP_COMBO
  *   The combo using the top-left tile of the block.
- * 
+ *
  * TANGO_STYLE_BACKDROP_CSET
  *   The CSet of the backdrop.
- * 
+ *
  * TANGO_STYLE_BACKDROP_WIDTH
  * TANGO_STYLE_BACKDROP_HEIGHT
  *   The size of the backdrop in tiles.
 
 TANGO_BACKDROP_COMPLEX
  * A backdrop made up of multiple drawing commands.
- * 
+ *
  * Related attributes:
  * TANGO_STYLE_BACKDROP_DATA
  *   The array of data from which to draw the backdrop. See the
@@ -780,7 +780,7 @@ what is being drawn.
 TANGO_DRAW_RECT
 TANGO_DRAW_RECT_TRANS
  * A plain rectangle, either opaque or transparent.
- * 
+ *
  * Data:
  *   CSet
  *   Color (0-15 within the CSet)
@@ -792,7 +792,7 @@ TANGO_DRAW_RECT_TRANS
 TANGO_DRAW_TILE
 TANGO_DRAW_TILE_TRANS
  * A block of tiles, either opaque or transparent.
- * 
+ *
  * Data:
  *   Starting tile
  *   CSet
@@ -804,7 +804,7 @@ TANGO_DRAW_TILE_TRANS
 TANGO_DRAW_COMBO
 TANGO_DRAW_COMBO_TRANS
  * A block of tiles drawn from a combo, either opaque or transparent.
- * 
+ *
  * Data:
  *   Starting combo
  *   CSet
@@ -818,7 +818,7 @@ TANGO_DRAW_TEXT
  * the slot is active. The font must be a Tango font, not a built-in one.
  * If you want to center the text, you can use Tango_GetStringWidth()
  * to find its width.
- * 
+ *
  * Data:
  *   String pointer
  *   Font

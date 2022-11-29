@@ -128,11 +128,11 @@ Epiphany targets:
 </p><div class="smallexample">
 <pre class="smallexample">void __attribute__ ((interrupt)) universal_handler ();
 void __attribute__ ((interrupt (&quot;dma1&quot;))) dma1_handler ();
-void __attribute__ ((interrupt (&quot;dma0, dma1&quot;))) 
+void __attribute__ ((interrupt (&quot;dma0, dma1&quot;)))
   universal_dma_handler ();
 void __attribute__ ((interrupt (&quot;timer0&quot;), disinterrupt))
   fast_timer_handler ();
-void __attribute__ ((interrupt (&quot;dma0, dma1&quot;), 
+void __attribute__ ((interrupt (&quot;dma0, dma1&quot;),
                      forwarder_section (&quot;tramp&quot;)))
   external_dma_handler ();
 </pre></div>

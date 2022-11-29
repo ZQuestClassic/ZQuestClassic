@@ -81,7 +81,7 @@ void RadioButton_OnMouseRelease(int id)
         GUI_Data[id+RADBTN_STATE]|=RBSTATE_SELECTED;
         RadioButtonGroup_SetSelected(GUI_Data[id+RADBTN_GROUP], id, true);
     }
-    
+
     GUI_Data[id+RADBTN_STATE]&=~CBSTATE_CLICKED;
 }
 
@@ -106,14 +106,14 @@ void RadioButtonGroup_SetSelected(int groupID, int buttonID, bool addEvent)
 {
     if(GUI_Data[groupID+RBGROUP_SELECTED]==buttonID)
         return;
-    
+
     if(GUI_Data[groupID+RBGROUP_SELECTED]!=-1)
     {
         int rb=GUI_Data[groupID+RBGROUP_SELECTED];
         GUI_Data[rb+RADBTN_STATE]&=~RBSTATE_SELECTED;
     }
     GUI_Data[groupID+RBGROUP_SELECTED]=buttonID;
-    
+
     if(addEvent)
         Event_Add(EVENT_RADIO_BUTTON_CHANGED, buttonID, GUI_Data[buttonID+RADBTN_USER_DATA]);
 }

@@ -55,7 +55,6 @@ void PaletteFrame::setPal(PALETTE* value)
 int32_t PaletteFrame::getSelection()
 {
 	if (alDialog) return alDialog->d2;
-	
 	return 0;
 }
 
@@ -99,7 +98,6 @@ void PaletteFrame::realize(DialogRunner& runner)
 int32_t PaletteFrame::onEvent(int32_t event, MessageDispatcher& sendMessage)
 {
 	assert(event == geCHANGE_SELECTION);
-	
 	if(onUpdate)
 		onUpdate();
 	return -1;

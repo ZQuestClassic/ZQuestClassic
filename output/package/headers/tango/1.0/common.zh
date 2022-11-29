@@ -102,7 +102,7 @@ void __Tango_SetCurrentSlot(int slot)
     int dataStart=slot*__TANGO_SIZEOF_DATA;
     int style=__Tango_SlotData[dataStart+__TSDIDX_STYLE];
     int styleStart=style*__TANGO_SIZEOF_STYLE;
-    
+
     __Tango_Data[__TCS_ID]=slot;
     __Tango_Data[__TCS_START]=
       __Tango_SlotDefs[defStart+__TSDEF_START];
@@ -135,7 +135,7 @@ bool __Tango_IsSpecialDataMarker(int character)
         return true;
     if(character==__TANGO_FLOW_MARKER)
         return true;
-    
+
     return false;
 }
 
@@ -144,7 +144,7 @@ void __Tango_IncScreenFreeze()
 {
     if(__Tango_Data[__TDIDX_SCREEN_FREEZE]==0)
         __Tango_FreezeScreen();
-    
+
     __Tango_Data[__TDIDX_SCREEN_FREEZE]++;
 }
 
@@ -152,7 +152,7 @@ void __Tango_IncScreenFreeze()
 void __Tango_DecScreenFreeze()
 {
     __Tango_Data[__TDIDX_SCREEN_FREEZE]--;
-    
+
     if(__Tango_Data[__TDIDX_SCREEN_FREEZE]==0)
         __Tango_UnfreezeScreen();
 }
@@ -166,19 +166,19 @@ int __Tango_FloatToASCII(int buffer, float value, bool allDigits)
     int digit;
     bool printZero=false;
     int storedZeroes=0;
-    
+
     if(value<0)
     {
         buffer[0]='-';
         pos=1;
         value=-value;
     }
-        
-    
+
+
     for(int i=0; i<10; i++)
     {
         digit=((value/place)<<0)%10;
-        
+
         // If the fractional part hasn't been reached yet,
         // or if all four of its digits are to be printed,
         // this is easy.
@@ -188,12 +188,12 @@ int __Tango_FloatToASCII(int buffer, float value, bool allDigits)
             {
                 buffer[pos]=digit+'0';
                 pos++;
-                
+
                 // Start printing 0 at the first non-zero digit.
                 printZero=true;
             }
         }
-        
+
         // Otherwise, it's trickier.
         else
         {
@@ -201,7 +201,7 @@ int __Tango_FloatToASCII(int buffer, float value, bool allDigits)
             // Don't print it, just keep count.
             if(digit==0)
                 storedZeroes++;
-            
+
             // Any other digit flushes the zeroes and then is printed.
             else
             {
@@ -210,25 +210,25 @@ int __Tango_FloatToASCII(int buffer, float value, bool allDigits)
                     buffer[pos]='0';
                     pos++;
                 }
-                
+
                 buffer[pos]=digit+'0';
                 pos++;
             }
         }
-        
+
         value%=place; // To make sure value/place doesn't overflow when place<1
         place/=10;
-        
+
         if(place==1) // Last digit before the decimal point
             printZero=true;
-        
+
         else if(place==0.1) // Reached the fractional part
         {
             buffer[pos]='.';
             pos++;
         }
     }
-    
+
     buffer[pos]=NULL;
     return pos;
 }

@@ -1,19 +1,19 @@
 namespace math
 {
 	//Truncates x to an integer
-	int Floor(float x) 
+	int Floor(float x)
 	{
 		return ( (x<0) ? ((x-.9999)<<0) : (x<<0) );
 	}
 
 	//Raises x to the nearest integer
-	int Ceiling(float x) 
+	int Ceiling(float x)
 	{
 		if(x < 0)
 			return x<<0;
 		return (x+.9999)<<0;
 	}
-	
+
 }
 
 

@@ -2,14 +2,14 @@ const int HOOKSHOT_STATE_FIRED = 0;
 const int HOOKSHOT_STATE_RETURNING = 1;
 const int HOOKSHOT_STATE_PULLING = 2;
 
-const int FFC_MISC_MASTER_FFC_ID = 1;//Misc variable used to tell HookshotHead FFC the ID of his handle. 
+const int FFC_MISC_MASTER_FFC_ID = 1;//Misc variable used to tell HookshotHead FFC the ID of his handle.
 
 const int CF_ICE_HOOKSHOT_TRIGGER = 98;//Ice Hookshot Only secret trigger flag.
 const int CT_ICE_HOOKSHOT_GRAB = 142;//Only Ice Hookshot can grapple onto this combo.
 
 //1.Set up 3 sprites according to hookshottilesetup.png
 //2.Import and compile the script. Assign 2 FFC script slots.
-//3.Set up item as usual. 
+//3.Set up item as usual.
 //4.D0-damage dealt by hookshot. Set to negative to turn on "Ice Hookshot" feture
 //  D1-Handle sprite.
 //  D2-Length of hookshot chain. 0 - infinite.
@@ -21,10 +21,10 @@ const int CT_ICE_HOOKSHOT_GRAB = 142;//Only Ice Hookshot can grapple onto this c
 //  UseSound (top right field in Action tab in item editor) - hookshot rattling SFX.
 
 ffc script IceHookshot{
-	void run (int damage, int handlesprite, int range, int numlinks, int speed, int sprite, int particle){		
+	void run (int damage, int handlesprite, int range, int numlinks, int speed, int sprite, int particle){
 		itemdata IHS = Game->LoadItemData(this->InitD[7]);
 		int sound = IHS->UseSound;//Get sound ID
-		
+
 		lweapon handle = LweaponInit (this, LW_GHOSTED, Abs(damage), handlesprite, sound);//Set up handle lweapon
 		LweaponSetFlag(handle,LWF_MOVE_OFFSCREEN);
 		LweaponSetFlag(handle,LWF_PENETRATING);
@@ -32,10 +32,10 @@ ffc script IceHookshot{
 		LweaponSetFlag(handle,LWF_AUTO_DIR_UPDATE);
 		LweaponSetFlag(handle,LWF_AUTO_SPRITE_UPDATE);
 		SetEnemyDefense(handle, NPCD_HOOKSHOT);
-		
-		if (Link->Dir<2)MeleeWeaponStab(this, handle, handle->OriginalTile, 2, 12, 87, 0, NPCD_HOOKSHOT, 0, 2);//Perform the stabbing 
+
+		if (Link->Dir<2)MeleeWeaponStab(this, handle, handle->OriginalTile, 2, 12, 87, 0, NPCD_HOOKSHOT, 0, 2);//Perform the stabbing
 		else MeleeWeaponStab(this, handle, handle->OriginalTile+1, 2, 12, 87, 0, NPCD_HOOKSHOT, 0, 2);//animation before firing hookshot.
-		
+
 		int it  = GetItemID(handle);//Launch secondary FFC script and transfer FFC`s ID to it.
 		int args[8] = {damage, sound, sprite, speed, particle, numlinks, range, it};
 		int buffer[] = "HookshotHead";
@@ -43,7 +43,7 @@ ffc script IceHookshot{
 		ffc head = LaunchScriptedLweapon(scr, args);
 		PutFFCInFrontOfLink(head, 12);
 		head->Misc[FFC_MISC_MASTER_FFC_ID] = FFCNum(this);
-		
+
 		while(CountFFCsRunning(scr)>0){//Wait until HookshotHead script finishes running.
 			Link->X = this->X;
 			Link->Y = this->Y;
@@ -65,11 +65,11 @@ ffc script HookshotHead{
 		int soundcounter = 0;
 		if (range>0) timer = range/speed;
 		ffc master = Screen->LoadFFC(this->Misc[FFC_MISC_MASTER_FFC_ID]);
-				
+
 		int state = HOOKSHOT_STATE_FIRED;
-		
+
 		lweapon l = CreateNewWeapon (this, LW_GHOSTED, Abs(damage), sprite);
-		
+
 		if(Link->Dir>1)l->OriginalTile++;
 		LweaponSetFlag(l,LWF_MOVE_OFFSCREEN);
 		LweaponSetFlag(l,LWF_PENETRATING);
@@ -77,17 +77,17 @@ ffc script HookshotHead{
 		LweaponSetFlag(l,LWF_AUTO_DIR_UPDATE);
 		LweaponSetFlag(l,LWF_AUTO_SPRITE_UPDATE);
 		SetEnemyDefense(l, NPCD_HOOKSHOT);
-		
+
 		lweapon particles[32];
 		for (int i=0; i<numlinks; i++){
 			particles[i] = CreateParticle (l->X, l->Y, particle, 0,0, 0, 0, -1, false);
 			if (Link->Dir>1) particles[i]->OriginalTile+=20;
 			if ((damage<0))SetAsDamagingParticle(particles[i], 2, 4, 4, 4, 4, NPCD_HOOKSHOT);
 		}
-		
+
 		SetLweaponHitboxOffsets(l,4,4,4,4);
 		SetStraightMotion4(this, speed);
-		
+
 		while(l->isValid()){
 			if (state == HOOKSHOT_STATE_FIRED){
 				if (timer>0){

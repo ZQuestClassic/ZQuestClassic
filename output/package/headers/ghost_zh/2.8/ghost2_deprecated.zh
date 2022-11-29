@@ -106,12 +106,12 @@ void Ghost_WaitframeLight()
     int tempGhostHP=Ghost_HP;
     int tempGhostXOffsets=__Ghost_XOffsets;
     int tempGhostYOffsets=__Ghost_YOffsets;
-    
+
     do
     {
         Waitframe();
     } while((__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_SUSPEND)!=0);
-    
+
     // Restore the global variables
     Ghost_X=tempGhostX;
     Ghost_Y=tempGhostY;

@@ -9,15 +9,15 @@ ffc script SimpleShop{
         while(true){
             while(!AgainstComboBase(loc) || !SelectPressInput(input)) Waitframe();
             SetInput(input,false);
-            	if(Game->Counter[CR_RUPEES] >= price){
-	    	Game->DCounter[CR_RUPEES] -= price;
-	    	item shpitm = CreateItemAt(itemID, Link->X, Link->Y);
+				if(Game->Counter[CR_RUPEES] >= price){
+			Game->DCounter[CR_RUPEES] -= price;
+			item shpitm = CreateItemAt(itemID, Link->X, Link->Y);
 	        shpitm->Pickup = IP_HOLDUP;
-            	Screen->Message(m);
+				Screen->Message(m);
 		}
 		else{
 		Screen->Message(n);
-		}		
+		}
             Waitframe();
         }
     }

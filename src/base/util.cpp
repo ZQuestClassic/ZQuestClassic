@@ -22,7 +22,6 @@ namespace util
 		for(int32_t q = str.size() - 1; q >= 0; --q)
 			str[q] = tolower(str[q]);
 	}
-	
 	string cropPath(string filepath)
 	{
 		size_t lastslash = filepath.find_last_of("/");
@@ -31,7 +30,6 @@ namespace util
 		if(last != string::npos) filepath = filepath.substr(last+1);
 		return filepath;
 	}
-	
 	void replstr(std::string& str, std::string const& from, std::string const& to)
 	{
 		for(int32_t q = str.size() - from.size(); q >= 0; --q)
@@ -43,7 +41,6 @@ namespace util
 			}
 		}
 	}
-	
 	std::string escape_characters(std::string const& str)
 	{
 		std::string temp = str;
@@ -89,7 +86,6 @@ namespace util
 		replstr(temp, "\\v", "\v");
 		return temp;
 	}
-	
 	void replchar(std::string& str, char from, char to)
 	{
 		for(int32_t q = str.size() - 1; q >= 0; --q)
@@ -98,7 +94,6 @@ namespace util
 				str[q] = to;
 		}
 	}
-	
 	void replchar(char* buf, char from, char to)
 	{
 		for(int32_t i = 0; buf[i]!=0; ++i)
@@ -107,7 +102,6 @@ namespace util
 				buf[i] = to;
 		}
 	}
-	
 	void removechar(std::string& str, char to_delete)
 	{
 		size_t pos = str.find_first_of(to_delete);
@@ -117,7 +111,6 @@ namespace util
 			pos = str.find_first_of(to_delete);
 		}
 	}
-	
 	string get_ext(string const& path)
 	{
 		size_t dot_pos = path.find_last_of(".");
@@ -128,7 +121,6 @@ namespace util
 		lowerstr(ext);
 		return ext;
 	}
-	
 	static bool valid_single_dir(string const& path)
 	{
 		if(path.find_first_of("<>|?*&^$#\"") != string::npos) return false; //Contains invalid chars
@@ -140,7 +132,6 @@ namespace util
 		if(path.find("...") != string::npos) return false; //cannot contain >2 consecutive dots
 		return true;
 	}
-	
 	bool valid_dir(string const& path)
 	{
 		size_t pos = path.find_first_not_of("/\\");
@@ -154,7 +145,6 @@ namespace util
 		}
 		return true;
 	}
-	
 	bool valid_file(string const& path)
 	{
 		if(path.find_first_of("<>|?*&^$#\"") != string::npos) return false; //Contains invalid chars
@@ -173,7 +163,6 @@ namespace util
 		if(fname.find("...") != string::npos) return false; //cannot contain >2 consecutive dots
 		return true;
 	}
-	
 	void regulate_path(char* buf)
 	{
 		for(int32_t q = 0; buf[q]; ++q)
@@ -181,7 +170,6 @@ namespace util
 			if (buf[q] == WRONG_PATH_SLASH) buf[q] = PATH_SLASH;
 		}
 	}
-	
 	void regulate_path(string& buf)
 	{
 		for(int32_t q = 0; buf[q]; ++q)
@@ -193,7 +181,6 @@ namespace util
 #endif
 		}
 	}
-	
 	int32_t do_mkdir(const char* path, int32_t mode)
 	{
 #ifdef _WIN32
@@ -248,7 +235,6 @@ namespace util
 			}
 		}
 	}
-	
 	char* zc_itoa(int32_t value, char* str, int32_t base)
 	{
 #ifdef _WIN32
@@ -261,13 +247,13 @@ namespace util
 		uint32_t v;
 		char* p, *q;
 		char c;
-		if (base == 10 && value < 0) 
+		if (base == 10 && value < 0)
 		{
 			value = -value;
 			neg = 1;
 		}
 		v = value;
-		do 
+		do
 		{
 			str[n++] = dig[v%base];
 			v /= base;
@@ -281,7 +267,6 @@ namespace util
 		return str;
 #endif
 	}
-	
 	int64_t zc_atoi64(const char *str)
 	{
 		int64_t val=0;
@@ -294,12 +279,9 @@ namespace util
 		while(isdigit(*str))
 		{
 			val*=10;
-			
 			val += *str-'0';
-			
 			++str;
 		}
-		
 		return neg ? -val : val;
 	}
 	int64_t zc_xtoi64(const char *hexstr)
@@ -314,16 +296,13 @@ namespace util
 		while(isxdigit(*hexstr))
 		{
 			val<<=4;
-			
 			if(*hexstr<='9')
 				val += (*hexstr-'0');
 			else val+= ((*hexstr)|0x20)-'a'+10;
 			++hexstr;
 		}
-		
 		return neg ? -val : val;
 	}
-	
 	int32_t zc_xtoi(const char *hexstr)
 	{
 		int32_t val=0;
@@ -336,44 +315,34 @@ namespace util
 		while(isxdigit(*hexstr))
 		{
 			val<<=4;
-			
 			if(*hexstr<='9')
 				val += *hexstr-'0';
 			else val+= ((*hexstr)|0x20)-'a'+10;
-			
 			++hexstr;
 		}
-		
 		return neg ? -val : val;
 	}
-	
 	int32_t ffparse2(const char *string) //bounds result safely between -214748.3648 and +214748.3647
 	{
 		char tempstring1[32] = {0};
 		strcpy(tempstring1, string);
-		
 		char *ptr=strchr(tempstring1, '.');
 		if(!ptr)
 		{
 			return vbound(atoi(tempstring1),-214748,214748)*10000;
 		}
-		
 		int32_t ret=0;
-		
 		for(int32_t i=0; i<4; ++i)
 		{
 			tempstring1[strlen(string)+i]='0';
 		}
-		
 		ptr=strchr(tempstring1, '.');
 		*ptr=0;
 		ret=vbound(atoi(tempstring1),-214748,214748)*10000;
-		
 		++ptr;
 		char *ptr2=ptr;
 		ptr2+=4;
 		*ptr2=0;
-		
 		int32_t decval = abs(atoi(ptr));
 		if(tempstring1[0] == '-')
 		{
@@ -387,38 +356,31 @@ namespace util
 				decval = vbound(decval, 0, 3647);
 			ret+=decval;
 		}
-		
 		return ret;
 	}
 	int32_t ffparseX(const char *string) //hex before '.', bounds result safely between -214748.3648 and +214748.3647
 	{
 		char tempstring1[32] = {0};
 		strcpy(tempstring1, string);
-		
 		char *ptr=strchr(tempstring1, '.');
 		if(!ptr)
 		{
 			return vbound(zc_xtoi(tempstring1),-214748,214748)*10000;
 		}
-		
 		int32_t ret=0;
 
 		strcpy(tempstring1, string);
-		
 		for(int32_t i=0; i<4; ++i)
 		{
 			tempstring1[strlen(string)+i]='0';
 		}
-		
 		ptr=strchr(tempstring1, '.');
 		*ptr=0;
 		ret=vbound(zc_xtoi(tempstring1),-214748,214748)*10000;
-		
 		++ptr;
 		char *ptr2=ptr;
 		ptr2+=4;
 		*ptr2=0;
-		
 		int32_t decval = abs(atoi(ptr));
 		if(tempstring1[0] == '-')
 		{
@@ -432,10 +394,8 @@ namespace util
 				decval = vbound(decval, 0, 3647);
 			ret+=decval;
 		}
-		
 		return ret;
 	}
-	
 	int32_t zc_chmod(const char* path, mode_t mode)
 	{
 #ifdef _WIN32
@@ -486,7 +446,6 @@ namespace util
 	    if(unsigned(c) > 255) return false;
 	    return isalpha((char)c);
 	}
-	
 	string escape_string(char const* str)
 	{
 		ostringstream oss;
@@ -553,7 +512,6 @@ namespace util
 		oss << "\"";
 		return oss.str();
 	}
-		
 	string unescape_string(char const* str)
 	{
 		ostringstream oss;
@@ -689,7 +647,6 @@ namespace util
 		if(!in_str) return 0;
 		return q-start+1;
 	}
-	
 	string stringify_vector(vector<int32_t> const& vec, bool dec)
 	{
 		ostringstream oss;
@@ -841,32 +798,31 @@ double vbound(double val, double low, double high)
 
 std::string dayextension(int32_t dy)
 {
-	char temp[6]; 
+	char temp[6];
 	switch(dy)
 	{
 		//st
 		case 1:
 		case 21:
 		case 31:
-			sprintf(temp,"%d%s",dy,"st"); 
+			sprintf(temp,"%d%s",dy,"st");
 			break;
 		//nd
 		case 2:
 		case 22:
-			sprintf(temp,"%d%s",dy,"nd"); 
+			sprintf(temp,"%d%s",dy,"nd");
 			break;
 		//rd
 		case 3:
 		case 23:
-			sprintf(temp,"%d%s",dy,"rd"); 
+			sprintf(temp,"%d%s",dy,"rd");
 			break;
 		//th
 		default:
 			sprintf(temp,"%d%s",dy,"th");
 			break;
 	}
-	
-	return std::string(temp); 
+	return std::string(temp);
 }
 
 bool fileexists(const char *filename)

@@ -15,7 +15,6 @@ class MiscCSetSel: public Widget
 {
 public:
 	MiscCSetSel();
-	
 	void setC1(int32_t val);
 	void setC2(int32_t val);
 	int32_t getC1() const {return c1;}
@@ -24,14 +23,11 @@ public:
 
 private:
 	std::function<void(int32_t,int32_t)> onUpdate;
-	
 	std::shared_ptr<Grid> internal_grid;
 	std::shared_ptr<Label> labels[2];
 	std::shared_ptr<DropDownList> sel_list;
 	std::shared_ptr<DropDownList> misc_sel_list;
-	
 	int32_t c1, c2;
-	
 	void doVis(int32_t _c1);
 	void doUpdate(int32_t _c1, int32_t _c2);
 	void applyVisibility(bool visible) override;

@@ -36,7 +36,7 @@ const int MF_HEXUPPER				= 8;	// '%X'
 //////////////////
 const int CHAR_*
  * A complete map of all ASCII characters.
- 
+
 ================================
 -- Single Character Functions --
 ================================
@@ -72,19 +72,19 @@ int LowerToUpper(int chr)
 
 int ConvertCase(int chr)
  * Converts lower case to upper case and upper case to lower case
- 
+
 bool isSpace(int chr)
  * Returns true if 'chr' is a space.
- 
+
 bool isVowel(int chr)
  * Returns true if 'chr' is a vowel (a, e, i, o , u, A, E, I, O, U)
- 
-int IsChar(int chr) 
+
+int IsChar(int chr)
  * Returns the numeric value of chr.
- 
+
 bool IsChar(int chr, int compare){
  * Returns true if character chr is identical to the value specified as 'compare'.
-	
+
 
 =========================
 -- Memory Manipulation --
@@ -95,17 +95,17 @@ bool IsChar(int chr, int compare){
 //////////////////
 void memset(int ptr[], int value, int n)
  * Sets block of memory of size 'n' pointed by 'ptr' to 'value'
- 
+
 void memset(int ptr, int pos, int value, int n)
  * As memset(), but with a specified starting position
- 
+
 ///////////////////
 /// Memory Copy ///
 ///////////////////
 int memcpy(int dest[], int src[], int n)
  * Copys block of memory pointed by 'src' of size 'n' to 'dest' and returns
  * 'dest'
- 
+
 void memcpy(int dest, int dpos, int src, int spos, int n)
  * As memcpy(), but with a specified starting position
 
@@ -130,13 +130,13 @@ void arrayset(int a[], int a0, int a1, int a2,...)
 ///////////////////
 void std::string::strcpy(int dest[], int src[])
  * Copys string 'src' into string 'dest' without checking for overflow in 'dest'
- 
-void strcpy(int dest, int dpos, int src, int spos) 
+
+void strcpy(int dest, int dpos, int src, int spos)
  * As strcpy(), but with a specified starting position
- 
+
 void strncpy(int dest[], int src[], int n)
  * As strcpy, but only takes the first 'n' characters from src
- 
+
 void strncpy(int dest, int dpos, int src, int spos, int n)
  * As strcpy, but only takes the first 'n' characters from src, from a starting position.
 
@@ -145,10 +145,10 @@ void strncpy(int dest, int dpos, int src, int spos, int n)
 /////////////////////////
 void remchr(int string[])
  * Remove all characters starting from pointer 'string'
- 
+
 void remnchr(int string[], int n)
  * Remove 'n' characters and shift the rest of the string back to pointer 'string'
- 
+
 void remnchr(int string, int pos, int n)
  * As remnchr(), but with a specified starting position
 
@@ -167,10 +167,10 @@ int strcat(int dest[], int src[])
 
 void strcat(int dest, int src, int spos)
  * As strcat(), but with a specified starting position
- 
+
 int strncat(int dest, int src, int n)
  * strcat for the first 'n' characters in src
- 
+
 void strncat(int dest, int src, int spos, int n)
  * As strncat(), but with a specified starting position.
 
@@ -184,19 +184,19 @@ void strncat(int dest, int src, int spos, int n)
 int strchr(int string[], int character)
  * Returns the position of the first occurence of 'character' in 'string',
  * or -1 if none are found
- 
+
 int strchr(int string, int pos, int chr)
  * As strchr(), but with a specified starting position.
- 
+
 bool ContainsChar(int chr, int buffer)
- * Returns true is string 'buffer' contains the character 'chr'. 
- 
+ * Returns true is string 'buffer' contains the character 'chr'.
+
 bool ContainsChar(int chr, int pos, int buffer)
  * As ContainsChar(), but with a specified starting position.
- 
+
 int ContainsCharPos(int chr, int buffer)
 * Returns the index position of the first occurrence of charcter 'chr' in string 'buffer'.
-* Returns -1 if the char was not present. 
+* Returns -1 if the char was not present.
 
 int ContainsCharPos(int chr, int pos, int buffer)
  * As ContainsCharPos(), but with a specified starting position.
@@ -206,58 +206,58 @@ int NumCharsOf(int str, int chr)
 
 int NumCharsOf(int str, int pos, int chr)
  * As NumCharsOf(), but with a specified starting position.
- 
+
 int ReturnStringCharPos(int str, int chr)
  * Returns the index of the first character matching 'chr', starting at index 0.
 
 int ReturnStringCharPos(int str, int pos, int chr)
  * As ReturnStringCharPos(), but with a specified starting position.
- 
+
 ////////////////////////////////
 /// String Reverse Character ///
 ////////////////////////////////
 int strrchr(int string[], int character)
  * Returns the position of the last occurence of 'character' in 'string'
  * starting from the end, or -1 if none are found
- 
+
 int strrchr(int string, int pos, int chr)
  * As strrchr(), but with a specified starting position.
- 
+
 bool ContainsCharRev(int chr, int buffer)
- * Returns true is string 'buffer' contains the character 'chr'. 
- * Searching is reversed, starting with the end of the string. 
+ * Returns true is string 'buffer' contains the character 'chr'.
+ * Searching is reversed, starting with the end of the string.
 
 bool ContainsCharRev(int chr, int pos, int buffer)
  * As ContainsCharRev(), but with a specified starting position.
 
 int ContainsCharPosRev(int chr, int buffer)
 * Returns the index position of the first occurrence of charcter 'chr' in string 'buffer'.
-* Returns -1 if the char was not present. 
-* Searching starts on the last character of the string. 
- 
+* Returns -1 if the char was not present.
+* Searching starts on the last character of the string.
+
 int ContainsCharPosRev(int chr, int pos, int buffer)
  * As ContainsCharPosRev(), but with a specified starting position.
- 
+
 int NumCharsOfRev(int str, int chr)
  * Returns the number of chracters of a given type in a specified string.
- * Searching starts at the end of the string. 
+ * Searching starts at the end of the string.
 
 int NumCharsOfRev(int str, int pos, int chr)
  * As NumCharsOfRev(), but with a specified starting position.
- 
+
 int ReturnStringCharPosRev(int str, int chr)
  * Returns the index of the first character matching 'chr', starting at the end of the string.
- 
+
 int ReturnStringCharPosRev(int str, int pos, int chr)
  * As ReturnStringCharPosRev(), but with a specified starting position.
- 
+
 /////////////////////////
 /// String Sub-String ///
 /////////////////////////
 int strstr(int string[], int sub[])
  * Returns the position of the first occurence of sub-string 'sub' in 'string,
  * or -1 if sub is not found
- 
+
 int strstr(int string, int pos, int sub)
  * As strstr(), but with a specified starting position.
 
@@ -267,18 +267,18 @@ int strstr(int string, int pos, int sub)
 int strspn(int str[], int keys[])
  * Returns the length of characters in 'str' before a character not contained in
  * 'keys' is found
- 
+
 int strspn(int str, int pos, int keys)
  * As strspn(), but with a specified starting position.
- 
+
  * String Complement Span
 int strcspn(int str[], int keys[])
  * Returns the length of characters in 'str' before a character contained in
  * 'keys' is found
- 
+
 int strcspn(int str, int pos, int keys)
  * As strcspn(), but with a specified starting position.
- 
+
 =======================
 -- String Comparison --
 =======================
@@ -290,16 +290,16 @@ int std::string::strcmp(int str1[], int str2[])
  * Iterates through str1 and str2 until a character is found which is not the same in
  * both strings, and then returns > 0 if the character is larger in str1, and < 0 if it is
  * larger in str2. Returns 0 if the strings are equal
- 
+
 int strcmp(int str1, int pos1, int str2, int pos2)
  * As strcmp(), but with a specified starting position for each string.
- 
+
 int std::string::strncmp(int str1[], int str2[], int n)
  * strcmp up to 'n' characters
- 
+
 int strncmp(int str1, int pos1, int str2, int pos2, int n)
  * As strncmp(), but with a specified starting position for each string.
- 
+
 ==============================================
 -- Converting between variables and strings --
 ==============================================
@@ -309,10 +309,10 @@ int strncmp(int str1, int pos1, int str2, int pos2, int n)
 ////////////////////////
 int atoi(int string[])
  * Returns the decimal integer pointed by 'string'
- 
+
 int atoi(int string, int pos)
  * As atoi(), but with a specified starting position.
- 
+
 //////////////////////
 /// Integer Length ///
 //////////////////////
@@ -321,7 +321,7 @@ int ilen(int string[])
 
 int ilen(int string, int pos)
  * As ilen(), but with a specified starting position.
- 
+
 ////////////////////////////////////
 /// Hexadecimal ASCII to Integer ///
 ////////////////////////////////////
@@ -330,7 +330,7 @@ int xtoi(int string[])
 
 int xtoi(int string, int pos)
  * As xtoi(), but with a specified starting position.
- 
+
 //////////////////////////
 /// Hexadecimal Length ///
 //////////////////////////
@@ -339,7 +339,7 @@ int xlen(int string[])
 
 int xlen(int string, int pos)
  * As xlen(), but with a specified starting position.
- 
+
 //////////////////////
 /// ASCII to Float ///#
 //////////////////////
@@ -348,7 +348,7 @@ float atof(int string[])
 
 float atof(int string, int pos)
  * As atof(), but with a specified starting position.
- 
+
 ////////////////////
 /// Float Length ///
 ////////////////////
@@ -357,7 +357,7 @@ int flen(int string[])
 
 int flen(int string, int pos)
  * As flen(), but with a specified starting position.
- 
+
 ///////////////////////
 /// ASCII to Number ///
 ///////////////////////
@@ -366,14 +366,14 @@ float aton(int string[])
 
 int aton(int string, int pos)
  * As aton(), but with a specified starting position.
- 
+
 /////////////////////
 /// Number Length ///
 /////////////////////
 int nlen(int string[])
  * Returns the length of characters of the number pointed by 'string', calling either
  * ilen or flen depending on context
- 
+
 int nlen(int string, int pos)
  * As nlen(), but with a specified starting position.
 
@@ -383,7 +383,7 @@ int nlen(int string, int pos)
 int itoa(int string[], int num)
  * Places integer 'num' into string 'string' without checking for overflow,
  * and returns the number of characters used
- 
+
 int itoa(int string, int pos, int num)
  * As itoa(), but with a specified starting position.
 
@@ -394,15 +394,15 @@ int ftoa(int string[], float num, bool printall)
  * Places float 'num' into string 'string' without checking for overflow,
  * and returns the number of characters used. If 'printall' is true, it will add 4 decimal places
  * regardless of the most significant digit
- 
+
 int ftoa(int string, int pos, float num, bool printall)
  * As ftoa(), but with a specified starting position.
- 
+
 int ftoa(int string, float num)
- * As ftoa(), except that 'printall' is false. 
- 
+ * As ftoa(), except that 'printall' is false.
+
 int ftoa(int string, int pos, float num)
- * As ftoa(), except that 'printall' is false, with a specified starting position. 
+ * As ftoa(), except that 'printall' is false, with a specified starting position.
 
 ////////////////////////////////////
 /// Hexadecimal Integer to ASCII ///
@@ -410,10 +410,10 @@ int ftoa(int string, int pos, float num)
 int xtoa(int string, int num)
  * Places integer 'num' into string 'string' in base 16 without checking for overflow,
  * and returns the number of characters used
- 
+
 int xtoa(int string, int num, bool upper)
  * Converts a hexadecimal value to a string. Set bool upper to force uppercase.
- 
+
 int xtoa(int string, int pos, int num, bool upper)
  * As xtoa(), but with a specified starting position.
 
@@ -435,7 +435,7 @@ int ntoa(int string, int pos, float num)
 /////////////////////////////////
 int strcatf(int dest[], int arg, int format)
  * Appends 'arg' onto 'dest' as the MF_ constant passed into 'format'
- 
+
 int strncatf(int dest[], int arg, int format, int n)
  * As strcatf, using only 'n' characters of 'arg'
 
@@ -467,4 +467,4 @@ void printf(int formatstr[], int a0, int a1, int a2,...)
  * Overloaded up to a maximum of 16 arguments
 
 bool sprintf_isMFCode(int chr)
- * Used to determine the format from sprintf and printf. 
+ * Used to determine the format from sprintf and printf.

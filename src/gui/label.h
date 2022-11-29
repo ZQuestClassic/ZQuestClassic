@@ -18,9 +18,7 @@ public:
 
 	/* Sets the maximum number of lines the text can be split into. */
 	void setMaxLines(size_t newMax);
-	
 	void setAlign(int32_t ta);
-	
 	void setNoHLine(bool noHLine)
 	{
 		nohline = noHLine;

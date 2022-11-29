@@ -23,7 +23,6 @@ void TabPanel::switchTo(size_t index)
 		return;
 
 	assert(index<children.size());
-	
 	children[visibleChild]->setExposed(false); //Hide the old child
 	visibleChild = index;
 	if(indexptr) *indexptr = index;
@@ -142,7 +141,6 @@ void TabPanel::realize(DialogRunner& runner)
 		0, 0, // d1, d2
 		this, widgFont, nullptr // dp, dp2, dp3
 	});
-	
 	for(auto& child: children)
 	{
 		child->realize(runner);
@@ -157,7 +155,6 @@ void TabPanel::realize(DialogRunner& runner)
 int32_t TabPanel::onEvent(int32_t event, MessageDispatcher& sendMessage)
 {
 	assert(event == geCHANGE_SELECTION);
-	
 	if(onSwitch)
 		onSwitch(visibleChild);
 	return -1;

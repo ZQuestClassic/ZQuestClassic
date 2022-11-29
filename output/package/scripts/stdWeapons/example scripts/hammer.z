@@ -8,16 +8,16 @@ const int SUPER_QUAKE_SECRET_TRIGGER = 99;//Super Quake direct hit secret trigge
 const int SUPER_QUAKE_DAMAGE_MODIFIER = 16;//Super Quake direct hit damage multiplier.
 
 //Custom simple scripted hammer. Or not. Expanded support for Quake Hammer techniques.
-//D0 - damage dealt by hammer 
+//D0 - damage dealt by hammer
 //D1 - Sprite used.
 //D2- lag time between Link drawing hammer and it`s landing pound.
-//D3- hammer animation speed. Higher-slower. 
+//D3- hammer animation speed. Higher-slower.
 
 ffc script CustomHammer{
 	void run(int damage, int sprite, int lag, int delay){
 		lweapon l = LweaponInit (this, LW_GHOSTED, damage, sprite, 0);
 		int origtile = l->Misc[LWEAPON_MISC_ORIGTILE];
-		SetLweaponHitboxOffsets(l, 0, 0, 4, 4);		
+		SetLweaponHitboxOffsets(l, 0, 0, 4, 4);
 		if (Link->Item[I_QUAKESCROLL1]){
 			MeleeWeaponDrawAboveHead(this, l, origtile, 1, 8);
 			int counter=0;
@@ -70,7 +70,7 @@ ffc script CustomHammer{
 				radius = SUPER_QUAKE_RADIUS;
 				duration = SUPER_QUAKE_STUN_DURATION;
 			}
-			for (int i=1; i<= Screen->NumNPCs(); i++){				
+			for (int i=1; i<= Screen->NumNPCs(); i++){
 				npc en = Screen->LoadNPC(i);
 				if (en->Z>0)continue;
 				int nx = en->X+en->HitXOffset;

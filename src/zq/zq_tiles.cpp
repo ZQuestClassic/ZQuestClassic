@@ -69,7 +69,7 @@ BITMAP *selecting_pattern;
 int32_t selecting_x1, selecting_x2, selecting_y1, selecting_y2;
 
 extern int32_t bidcomboscripts_cnt;
-extern script_struct bidcomboscripts[NUMSCRIPTSCOMBODATA]; 
+extern script_struct bidcomboscripts[NUMSCRIPTSCOMBODATA];
 
 BITMAP *intersection_pattern;
 
@@ -175,7 +175,6 @@ byte dungeon_carving_template[96][4]=
 	{  4,  3,  4,  3 },
 	{  4,  4,  4,  4 },
 	{  5,  5,  5,  5 },
-	
 	{  5,  5,  5,  5 },
 	{  6,  6,  6,  6 },
 	{  7,  7,  7,  7 },
@@ -243,7 +242,6 @@ struct tile_move_data
 	int32_t dest_width, dest_height;
 	int32_t rows, cols;
 	bool rect, move;
-	
 	tile_move_data()
 	{
 		copies = dest_first = dest_last = src_first = src_last = dest_top =
@@ -252,12 +250,10 @@ struct tile_move_data
 			dest_height = rows = cols = 0;
 		rect = move = false;
 	}
-	
 	tile_move_data(tile_move_data const& other)
 	{
 		copy(other);
 	}
-	
 	tile_move_data& operator=(tile_move_data const& other)
 	{
 		copy(other);
@@ -288,7 +284,6 @@ struct tile_move_data
 		rect = other.rect;
 		move = other.move;
 	}
-	
 	void flip()
 	{
 		zc_swap(src_first, dest_first);
@@ -325,7 +320,6 @@ struct combo_move_data
 		copy1 = other.copy1;
 		copycnt = other.copycnt;
 	}
-	
 	void flip()
 	{
 		int32_t tcnt = tile2-tile+1;
@@ -346,14 +340,11 @@ void merge_tiles(int32_t dest_tile, int32_t src_quarter1, int32_t src_quarter2, 
 {
 	int32_t size=tilesize(newtilebuf[dest_tile].format)>>4;
 	int32_t size2=size>>1;
-	
 	if(newtilebuf[dest_tile].data==NULL)
 	{
 		reset_tile(newtilebuf, dest_tile, newtilebuf[src_quarter1>>2].format);
 	}
-	
 	int32_t i=0;
-	
 	if((dest_tile<<2)+i!=src_quarter1)
 	{
 		for(int32_t j=0; j<8; ++j)
@@ -361,9 +352,7 @@ void merge_tiles(int32_t dest_tile, int32_t src_quarter1, int32_t src_quarter2, 
 			memcpy(&(newtilebuf[dest_tile].data[((j+((i&2)<<2))*size)+((i&1)*size2)]), &(newtilebuf[src_quarter1>>2].data[((j+((src_quarter1&2)<<2))*size)+((src_quarter1&1)*size2)]), size2);
 		}
 	}
-	
 	i=1;
-	
 	if((dest_tile<<2)+i!=src_quarter2)
 	{
 		for(int32_t j=0; j<8; ++j)
@@ -371,9 +360,7 @@ void merge_tiles(int32_t dest_tile, int32_t src_quarter1, int32_t src_quarter2, 
 			memcpy(&(newtilebuf[dest_tile].data[((j+((i&2)<<2))*size)+((i&1)*size2)]), &(newtilebuf[src_quarter2>>2].data[((j+((src_quarter2&2)<<2))*size)+((src_quarter2&1)*size2)]), size2);
 		}
 	}
-	
 	i=2;
-	
 	if((dest_tile<<2)+i!=src_quarter3)
 	{
 		for(int32_t j=0; j<8; ++j)
@@ -381,9 +368,7 @@ void merge_tiles(int32_t dest_tile, int32_t src_quarter1, int32_t src_quarter2, 
 			memcpy(&(newtilebuf[dest_tile].data[((j+((i&2)<<2))*size)+((i&1)*size2)]), &(newtilebuf[src_quarter3>>2].data[((j+((src_quarter3&2)<<2))*size)+((src_quarter3&1)*size2)]), size2);
 		}
 	}
-	
 	i=3;
-	
 	if((dest_tile<<2)+i!=src_quarter4)
 	{
 		for(int32_t j=0; j<8; ++j)
@@ -397,27 +382,21 @@ static void make_combos(int32_t startTile, int32_t endTile, int32_t cs)
 {
 	 al_trace("inside make_combos()\n");
 	int32_t startCombo=0;
-	
 	if(!select_combo_2(startCombo,cs))
 		return;
-	
 	int32_t temp=combobuf[startCombo].o_tile;
 	combobuf[startCombo].set_tile(startTile);
-	
 	if(!edit_combo(startCombo, false, cs))
 	{
 		combobuf[startCombo].set_tile(temp);
 		return;
 	}
-	
 	go_combos();
-	
 	for(int32_t i=0; i<=endTile-startTile; i++)
 	{
 		combobuf[startCombo+i]=combobuf[startCombo];
 		combobuf[startCombo+i].set_tile(startTile+i);
 	}
-	
 	setup_combo_animations();
 	setup_combo_animations2();
 }
@@ -426,21 +405,17 @@ static void make_combos_rect(int32_t top, int32_t left, int32_t numRows, int32_t
 {
 	//al_trace("inside make_combos_rect()\n");
 	int32_t startCombo=0;
-	
 	if(!select_combo_2(startCombo, cs))
 		return;
-	
 	int32_t startTile=top*TILES_PER_ROW+left;
 	int32_t temp=combobuf[startCombo].o_tile;
 	combobuf[startCombo].set_tile(startTile);
-	
 	if(!edit_combo(startCombo, false, cs))
 	{
 		al_trace("make_combos_rect() early return\n");
 		combobuf[startCombo].set_tile(temp);
 		return;
 	}
-	
 	bool smartWrap=false;
 	if(numCols!=4 && numRows>1)
 	{
@@ -453,9 +428,7 @@ static void make_combos_rect(int32_t top, int32_t left, int32_t numRows, int32_t
 		if(ret==1)
 			smartWrap=true;
 	}
-		
 	go_combos();
-	
 	int32_t combo=startCombo-1;
 	for(int32_t row=0; row<numRows; row++)
 	{
@@ -468,12 +441,10 @@ static void make_combos_rect(int32_t top, int32_t left, int32_t numRows, int32_t
 				combo=startCombo+4*row+(col&0xFC)*numRows+col%4;
 			else
 				combo++;
-			
 			combobuf[combo]=combobuf[startCombo];
 			combobuf[combo].set_tile(tile);
 		}
 	}
-	
 	setup_combo_animations();
 	setup_combo_animations2();
 }
@@ -494,23 +465,18 @@ void go_tiles()
 	for(int32_t i=0; i<NEWMAXTILES; ++i)
 	{
 		newundotilebuf[i].format=newtilebuf[i].format;
-		
 		if(newundotilebuf[i].data!=NULL)
 		{
 			free(newundotilebuf[i].data);
 		}
-		
 		newundotilebuf[i].data=(byte *)malloc(tilesize(newundotilebuf[i].format));
-		
 		if(newundotilebuf[i].data==NULL)
 		{
 			Z_error_fatal("Unable to initialize undo tile #%ld.\n", i);
 			exit(1);
 		}
-		
 		memcpy(newundotilebuf[i].data,newtilebuf[i].data,tilesize(newundotilebuf[i].format));
 	}
-	
 	/*
 	  int32_t *si = (int32_t*)tilebuf;
 	  int32_t *di = (int32_t*)undotilebuf;
@@ -527,20 +493,16 @@ void go_slide_tiles(int32_t columns, int32_t rows, int32_t top, int32_t left)
 		{
 			int32_t t=((top+r)*TILES_PER_ROW)+left+c;
 			newundotilebuf[t].format=newtilebuf[t].format;
-			
 			if(newundotilebuf[t].data!=NULL)
 			{
 				free(newundotilebuf[t].data);
 			}
-			
 			newundotilebuf[t].data=(byte *)malloc(tilesize(newundotilebuf[t].format));
-			
 			if(newundotilebuf[t].data==NULL)
 			{
 				Z_error_fatal("Unable to initialize undo tile #%ld.\n", t);
 				exit(1);
 			}
-			
 			memcpy(newundotilebuf[t].data,newtilebuf[t].data,tilesize(newundotilebuf[t].format));
 		}
 	}
@@ -561,23 +523,18 @@ void comeback_tiles()
 	for(dword i=0; i<NEWMAXTILES; ++i)
 	{
 		newtilebuf[i].format=newundotilebuf[i].format;
-		
 		if(newtilebuf[i].data!=NULL)
 		{
 			free(newtilebuf[i].data);
 		}
-		
 		newtilebuf[i].data=(byte *)malloc(tilesize(newtilebuf[i].format));
-		
 		if(newtilebuf[i].data==NULL)
 		{
 			Z_error_fatal("Unable to initialize tile #%ld.\n", i);
 			exit(1);
 		}
-		
 		memcpy(newtilebuf[i].data,newundotilebuf[i].data,tilesize(newtilebuf[i].format));
 	}
-	
 	/*
 	  int32_t *si = (int32_t*)undotilebuf;
 	  int32_t *di = (int32_t*)tilebuf;
@@ -598,7 +555,6 @@ void go_combos()
 	}
 	newcombo *si = combobuf;
 	newcombo *di = undocombobuf;
-	
 	for(int32_t i=0; i<MAXCOMBOS; i++)
 		*(di++) = *(si++);
 }
@@ -617,7 +573,6 @@ void comeback_combos()
 	}
 	newcombo *si = undocombobuf;
 	newcombo *di = combobuf;
-	
 	for(int32_t i=0; i<MAXCOMBOS; i++)
 		*(di++) = *(si++);
 }
@@ -643,14 +598,12 @@ bool has_selection()
 			}
 		}
 	}
-	
 	return false;
 }
 
 void draw_selection_outline(BITMAP *dest, int32_t x, int32_t y, int32_t scale2)
 {
 	drawing_mode(DRAW_MODE_COPY_PATTERN, selection_pattern, selection_anchor>>3, 0);
-	
 	for(int32_t i=1; i<18; ++i)
 	{
 		for(int32_t j=1; j<18; ++j)
@@ -660,14 +613,12 @@ void draw_selection_outline(BITMAP *dest, int32_t x, int32_t y, int32_t scale2)
 			{
 				_allegro_vline(dest, x+((i-1)*scale2), y+((j-1)*scale2), y+(j*scale2), 255);
 			}
-			
 			if(selection_grid[i][j-1]!=selection_grid[i][j])
 			{
 				_allegro_hline(dest, x+((i-1)*scale2), y+((j-1)*scale2), x+(i*scale2), 255);
 			}
 		}
 	}
-	
 	drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 	//  selection_anchor=(selection_anchor+1)%64;
 }
@@ -683,36 +634,30 @@ void draw_selecting_outline(BITMAP *dest, int32_t x, int32_t y, int32_t scale2)
 	int32_t x2=zc_max(selecting_x1,selecting_x2);
 	int32_t y1=zc_min(selecting_y1,selecting_y2);
 	int32_t y2=zc_max(selecting_y1,selecting_y2);
-	
 //  rect(dest, x+(x1*scale2), y+(y1*scale2), x+((x2+1)*scale2), y+((y2+1)*scale2), 255);
 	for(int32_t i=1; i<18; ++i)
 	{
 		for(int32_t j=1; j<18; ++j)
 		{
 			drawing_mode(DRAW_MODE_COPY_PATTERN, selecting_pattern, selection_anchor>>3, 0);
-			
 			if(((j>=y1+1)&&(j<=y2+1))&&((i==x1+1)||(i==x2+2)))
 			{
 				if(selection_grid[i-1][j]!=selection_grid[i][j])
 				{
 					drawing_mode(DRAW_MODE_COPY_PATTERN, intersection_pattern, selection_anchor>>3, 0);
 				}
-				
 				_allegro_vline(dest, x+((i-1)*scale2), y+((j-1)*scale2), y+(j*scale2), 255);
 			}
-			
 			if(((i>=x1+1)&&(i<=x2+1))&&((j==y1+1)||(j==y2+2)))
 			{
 				if(selection_grid[i][j-1]!=selection_grid[i][j])
 				{
 					drawing_mode(DRAW_MODE_COPY_PATTERN, intersection_pattern, selection_anchor>>3, 0);
 				}
-				
 				_allegro_hline(dest, x+((i-1)*scale2), y+((j-1)*scale2), x+(i*scale2), 255);
 			}
 		}
 	}
-	
 	drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 	//  selection_anchor=(selection_anchor+1)%64;
 }
@@ -786,15 +731,12 @@ void zoomtile16(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32
 	//  rectfill(dest,x,y,x+(16*m),y+(16*m),gridmode==gm_light?jwin_pal[jcMEDLT]:jwin_pal[jcDARK]);
 	rectfill(dest,x,y,x+(16*m),y+(16*m),gridmode==gm_light?vc(7):vc(8));
 	cset <<= 4;
-	
 	if(newtilebuf[tile].format>tf4Bit)
 	{
 		cset=0;
 	}
-	
 	unpack_tile(newtilebuf, tile, 0, false);
 	byte *si = unpackbuf;
-	
 	for(int32_t cy=0; cy<16; cy++)
 	{
 		for(int32_t cx=0; cx<16; cx++)
@@ -803,25 +745,20 @@ void zoomtile16(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32
 			int32_t dy = ((flip&2)?15-cy:cy)*m;
 			byte col = (floating_sel && floatsel[cx+(cy<<4)]) ? floatsel[cx+(cy<<4)] : *si;
 			rectfill(dest,x+dx+1,y+dy+1,x+dx+m-1,y+dy+m-1,col+cset);
-			
 			if(col==0)
 			{
 				little_x(dest,x+dx+m/4,y+dy+m/4,invcol,m/2);
 			}
-			
 			++si;
 		}
 	}
-	
 	if(has_selection()||is_selecting())
 	{
 		selection_anchor=(selection_anchor+1)%64;
-		
 		if(has_selection()||is_selecting())
 		{
 			draw_selection_outline(dest, x, y, m);
 		}
-		
 		if(is_selecting())
 		{
 			draw_selecting_outline(dest, x, y, m);
@@ -837,7 +774,6 @@ void draw_text_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,const
 		{
 			zc_swap(fg,bg);
 		}
-		
 		rect(dest,x+1,y+1,x+w-1,y+h-1,fg);
 		rectfill(dest,x+1,y+1,x+w-3,y+h-3,bg);
 		rect(dest,x,y,x+w-2,y+h-2,fg);
@@ -875,7 +811,6 @@ void draw_layer_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,cons
 bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *text, int32_t flags, bool toggleflag)
 {
 	bool over=false;
-	
 	while(gui_mouse_b())
 	{
 		//vsync();
@@ -888,7 +823,6 @@ bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *t
 				draw_layer_button(screen, x, y, w, h, text, flags^D_SELECTED);
 				unscare_mouse();
 				over=true;
-				
 				update_hw_screen();
 			}
 		}
@@ -901,34 +835,28 @@ bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *t
 				draw_layer_button(screen, x, y, w, h, text, flags);
 				unscare_mouse();
 				over=false;
-				
 				update_hw_screen();
 			}
 		}
 		rest(1);
 	}
-	
 	if(over)
 	{
 		vsync();
 		scare_mouse();
 		draw_layer_button(screen, x, y, w, h, text, toggleflag ? flags^D_SELECTED : flags);
 		unscare_mouse();
-		
 		update_hw_screen();
 	}
-	
 	return over;
 }
 
 bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t bg,int32_t fg,bool jwin)
 {
 	bool over=false;
-	
 	while(gui_mouse_b())
 	{
 		custom_vsync();
-		
 		if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+w-1,y+h-1))
 		{
 			if(!over)
@@ -950,18 +878,15 @@ bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int
 			}
 		}
 	}
-	
 	return over;
 }
 
 bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t bg,int32_t fg,bool jwin, bool sel)
 {
 	bool over=false;
-	
 	while(gui_mouse_b())
 	{
 		custom_vsync();
-		
 		if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+w-1,y+h-1))
 		{
 			if(!over)
@@ -983,7 +908,6 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
 			}
 		}
 	}
-	
 	if(over)
 	{
 		custom_vsync();
@@ -991,7 +915,6 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
 		draw_text_button(screen,x,y,w,h,text,fg,bg,sel?0:D_SELECTED,jwin);
 		unscare_mouse();
 	}
-	
 	return over;
 }
 
@@ -1003,12 +926,10 @@ void draw_graphics_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,B
 		{
 			zc_swap(fg,bg);
 		}
-		
 		rect(dest,x+1,y+1,x+w-1,y+h-1,fg);
 		rectfill(dest,x+1,y+1,x+w-3,y+h-3,bg);
 		rect(dest,x,y,x+w-2,y+h-2,fg);
 		int32_t g = (flags & D_SELECTED) ? 1 : 0;
-		
 		if(overlay)
 		{
 			masked_blit(bmp, dest, 0, 0, x+w/2+g, y+h/2-bmp->h/2+g, bmp->h, bmp->w);
@@ -1027,11 +948,9 @@ void draw_graphics_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,B
 bool do_graphics_button(int32_t x,int32_t y,int32_t w,int32_t h,BITMAP *bmp,BITMAP *bmp2,int32_t bg,int32_t fg,bool jwin,bool overlay)
 {
 	bool over=false;
-	
 	while(gui_mouse_b())
 	{
 		custom_vsync();
-		
 		if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+w-1,y+h-1))
 		{
 			if(!over)
@@ -1053,18 +972,15 @@ bool do_graphics_button(int32_t x,int32_t y,int32_t w,int32_t h,BITMAP *bmp,BITM
 			}
 		}
 	}
-	
 	return over;
 }
 
 bool do_graphics_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,BITMAP *bmp,BITMAP *bmp2,int32_t bg,int32_t fg,bool jwin,bool overlay)
 {
 	bool over=false;
-	
 	while(gui_mouse_b())
 	{
 		custom_vsync();
-		
 		if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+w-1,y+h-1))
 		{
 			if(!over)
@@ -1086,7 +1002,6 @@ bool do_graphics_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,BITMAP *bm
 			}
 		}
 	}
-	
 	if(over)
 	{
 		custom_vsync();
@@ -1094,7 +1009,6 @@ bool do_graphics_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,BITMAP *bm
 		draw_graphics_button(screen,x,y,w,h,bmp,bmp2,fg,bg,0,jwin,overlay);
 		unscare_mouse();
 	}
-	
 	return over;
 }
 //    circle(BITMAP *bmp, int32_t x, int32_t y, int32_t radius, int32_t color);
@@ -1105,9 +1019,7 @@ void draw_layerradio(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg, int
 	//these are here to bypass compiler warnings about unused arguments
 	bg=bg;
 	fg=fg;
-	
 	int32_t r, center;
-	
 	for(int32_t k=0; k<7; k++)
 	{
 		if((k==0)||(Map.CurrScr()->layermap[k-1]))
@@ -1116,21 +1028,17 @@ void draw_layerradio(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg, int
 			//      circlefill(dest, x+(k*25)+4, y+4, 2, (value==k)?fg:bg);
 			//*
 			r = 9/2;
-			
 			center = x+(k*25)+r;
 			rectfill(dest, x+(k*25), y, x+(k*25)+9-1, y+9-1, jwin_pal[jcBOX]);
-			
 			circlefill(dest, center, y+r, r, jwin_pal[jcLIGHT]);
 			arc(dest, center, y+r, itofix(32), itofix(160), r, jwin_pal[jcMEDDARK]);
 			circlefill(dest, center, y+r, r-1, jwin_pal[jcMEDLT]);
 			arc(dest, center, y+r, itofix(32), itofix(160), r-1, jwin_pal[jcDARK]);
 			circlefill(dest, center, y+r, r-2, jwin_pal[jcLIGHT]);
-			
 			if(value==k)
 			{
 				circlefill(dest, center, y+r, r-3, jwin_pal[jcDARK]);
 			}
-			
 			//*/
 		}
 	}
@@ -1141,7 +1049,6 @@ void do_layerradio(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg,int32_
 	while(gui_mouse_b())
 	{
 		custom_vsync();
-		
 		for(int32_t k=0; k<7; k++)
 		{
 			if((k==0)||(Map.CurrScr()->layermap[k-1]))
@@ -1165,20 +1072,16 @@ void draw_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_
 	//these are here to bypass compiler warnings about unused arguments
 	bg=bg;
 	fg=fg;
-	
 	//  rect(dest,x, y, x+8, y+8, fg);
 	//  line(dest,x+1,y+1,x+7,y+7,value?fg:bg);
 	//  line(dest,x+1,y+7,x+7,y+1,value?fg:bg);
-	
 	jwin_draw_frame(dest, x, y, sz, sz, FR_DEEP);
 	rectfill(dest, x+2, y+2, x+sz-3, y+sz-3, jwin_pal[jcTEXTBG]);
-	
 	if(value)
 	{
 		line(dest, x+2, y+2, x+sz-3, y+sz-3, jwin_pal[jcTEXTFG]);
 		line(dest, x+2, y+sz-3, x+sz-3, y+2, jwin_pal[jcTEXTFG]);
 	}
-	
 }
 
 
@@ -1186,11 +1089,9 @@ void draw_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_
 bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_t fg,int32_t &value)
 {
 	bool over=false;
-	
 	while(gui_mouse_b())
 	{
 		custom_vsync();
-		
 		if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+sz-1,y+sz-1))               //if on checkbox
 		{
 			if(!over)                                             //if wasn't here before
@@ -1216,7 +1117,6 @@ bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_t 
 			}
 		}
 	}
-	
 	return over;
 }
 
@@ -1231,20 +1131,16 @@ void tile_floodfill_rec(int32_t x,int32_t y)
 	{
 		while(x>0 && (unpackbuf[(y<<4)+x-1] == tf_u))
 			--x;
-			
 		while(x<=15 && (unpackbuf[(y<<4)+x] == tf_u))
 		{
 			if(is_in_selection(x,y))
 			{
 				unpackbuf[(y<<4)+x] = tf_c;
 			}
-			
 			if(y>0 && (unpackbuf[((y-1)<<4)+x] == tf_u))
 				tile_floodfill_rec(x,y-1);
-				
 			if(y<15 && (unpackbuf[((y+1)<<4)+x] == tf_u))
 				tile_floodfill_rec(x,y+1);
-				
 			++x;
 		}
 	}
@@ -1261,7 +1157,6 @@ void tile_floodfill(int32_t tile,int32_t x,int32_t y,byte c)
 		else unpack_tile(newtilebuf, tile, 0, false);
 		tf_c = c;
 		tf_u = unpackbuf[(y<<4)+x];
-		
 		if(tf_u != tf_c)
 			tile_floodfill_rec(x,y);
 		if(floating_sel)
@@ -1327,9 +1222,7 @@ void update_tool_cursor()
 //  int32_t temp_mouse_y=gui_mouse_y()-screen_yofs;
 	int32_t temp_mouse_x=gui_mouse_x();
 	int32_t temp_mouse_y=gui_mouse_y();
-	
 	int32_t type=0;
-	
 	if(has_selection())
 	{
 		switch(tool)
@@ -1340,30 +1233,25 @@ void update_tool_cursor()
 			break;
 		}
 	}
-	
 //  if(isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158)) //inside the zoomed tile window
 	if(isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y-(tool==t_fill ? (is_large ? 14 : 7) : 0),zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large ? 14 : 7) : 0))) //inside the zoomed tile window
 	{
 		if(tool_cur==-1)
 		{
 			set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][type]);
-			
 			switch(tool)
 			{
 			case t_fill:
 				set_mouse_sprite_focus(1, 14);
 				break;
-				
 			case t_move:
 				set_mouse_sprite_focus(8, 8);
 				break;
-				
 			default:
 				set_mouse_sprite_focus(1, 1);
 				break;
 			}
 		}
-		
 		tool_cur=tool;
 	}
 	else if(tool_cur != -1)
@@ -1406,14 +1294,12 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 		status_info_x=604;
 		status_info_y=268;
 	}
-	
 	PALETTE tpal;
 	static BITMAP *tbar = create_bitmap_ex(8,zq_screen_w-6, 18);
 	static BITMAP *preview_bmp = create_bitmap_ex(8, 64, 64);
 //  int32_t screen_xofs=(zq_screen_w-320)>>1;
 //  int32_t screen_yofs=(zq_screen_h-240)>>1;
 	jwin_draw_win(screen2, 0, 0, zq_screen_w, zq_screen_h, FR_WIN);
-	
 	/*
 	  FONT *oldfont = font;
 	  if (!create_tbar)
@@ -1439,22 +1325,17 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 		jwin_draw_titlebar(tbar, 0, 0, zq_screen_w-6, 18, "", true);
 		blit(tbar, screen2, 0, 0, 3, 3, zq_screen_w-6, 18);
 	}
-	
 	textprintf_ex(screen2,lfont,5,5,jwin_pal[jcTITLEFG],-1,"Tile Editor (%d)",tile);
-	
 	clear_to_color(preview_bmp, 0);
-	
 	zc_swap(oldtile,newtilebuf[tile].data); //Put oldtile in the tile buffer
 	jwin_draw_win(screen2, preview_tiles_x-2,preview_tiles_y-2, (16*preview_tiles_scale)+4, (16*preview_tiles_scale)+4, FR_DEEP);
 	puttile16(preview_bmp,tile,0,0,cs,flip);
 	stretch_blit(preview_bmp, screen2, 0, 0, 16, 16, preview_tiles_x, preview_tiles_y, 16*preview_tiles_scale, 16*preview_tiles_scale);
-	
 	clear_to_color(preview_bmp, 0);
 	jwin_draw_win(screen2, preview_tiles_x+(16*preview_tiles_scale)+8-2,preview_tiles_y-2, (16*preview_tiles_scale)+4, (16*preview_tiles_scale)+4, FR_DEEP);
 	overtile16(preview_bmp,tile,0,0,cs,flip);
 	masked_stretch_blit(preview_bmp, screen2, 0, 0, 16, 16, preview_tiles_x+(16*preview_tiles_scale)+8, preview_tiles_y, 16*preview_tiles_scale, 16*preview_tiles_scale);
 	zc_swap(oldtile,newtilebuf[tile].data); //Swap the real tile back to the buffer
-	
 	unpack_tile(newtilebuf, tile, 0, false);
 	if(floating_sel)
 		for(auto q = 0; q < 256; ++q)
@@ -1468,16 +1349,13 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 	jwin_draw_win(screen2, preview_tiles_x-2, preview_tiles_y+(16*preview_tiles_scale)+8-2, (16*preview_tiles_scale)+4, (16*preview_tiles_scale)+4, FR_DEEP);
 	puttile16(preview_bmp,tile,0,0,cs,flip);
 	stretch_blit(preview_bmp, screen2, 0, 0, 16, 16, preview_tiles_x, preview_tiles_y+(16*preview_tiles_scale)+8, 16*preview_tiles_scale, 16*preview_tiles_scale);
-	
 	clear_to_color(preview_bmp, 0);
 	jwin_draw_win(screen2, preview_tiles_x+(16*preview_tiles_scale)+8-2, preview_tiles_y+(16*preview_tiles_scale)+8-2, (16*preview_tiles_scale)+4, (16*preview_tiles_scale)+4, FR_DEEP);
 	overtile16(preview_bmp,tile,0,0,cs,flip);
 	masked_stretch_blit(preview_bmp, screen2, 0, 0, 16, 16, preview_tiles_x+(16*preview_tiles_scale)+8, preview_tiles_y+(16*preview_tiles_scale)+8, 16*preview_tiles_scale, 16*preview_tiles_scale);
 	zc_swap(tmpptr,newtilebuf[tile].data); //Swap the real tile back to the buffer
-	
 	jwin_draw_win(screen2, zoom_tile_x-3, zoom_tile_y-3, (16*zoom_tile_scale)+5, (16*zoom_tile_scale)+5, FR_DEEP);
 	zoomtile16(screen2,tile,zoom_tile_x-1,zoom_tile_y-1,cs,flip,zoom_tile_scale);
-	
 	if(floating_sel)
 		textprintf_ex(screen2,font,status_info_x,status_info_y-10,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Floating selection");
 	textprintf_ex(screen2,font,status_info_x,status_info_y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"tile: %d",tile);
@@ -1485,16 +1363,13 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 		textprintf_ex(screen2,font,status_info_x,status_info_y+8,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"8-bit");
 	else
 		textprintf_ex(screen2,font,status_info_x,status_info_y+8,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"cset: %d",cs);
-	
 	PALETTE temppal;
-	
 	//palette and mouse
 	switch(newtilebuf[tile].format)
 	{
 	case tf4Bit:
 		jwin_draw_win(screen2, palette_x-2, palette_y-2, (palette_scale*16)+4, (palette_scale*16)+4, FR_DEEP);
 		get_palette(temppal);
-		
 		for(int32_t i=0; i<16; i++)
 		{
 			int32_t x=((i&3)*palette_scale*4)+palette_x;
@@ -1502,43 +1377,34 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 			int32_t c=CSET(cs)+i;
 			rectfill(screen2,x,y,x+(palette_scale*4)-1,y+(palette_scale*4)-1,c);
 		}
-		
 		little_x(screen2,palette_x+palette_scale,palette_y+palette_scale,invcol,(palette_scale*2)-1);
 		break;
-		
 	case tf8Bit:
 		jwin_draw_win(screen2, palette_x-2, palette_y-2+palette_scale, (palette_scale*16)+4, (palette_scale*15)+4, FR_DEEP);
-		
 		for(int32_t i=0; i<240; i++)
 		{
 			int32_t x=((i&15)*palette_scale)+palette_x;
 			int32_t y=(((i>>4)+1)*palette_scale)+palette_y;
 			rectfill(screen2,x,y,x+palette_scale-1,y+palette_scale-1,i);
 		}
-		
 //      little_x(screen2,94,172,210,2);
 		little_x(screen2,palette_x+1,palette_y+palette_scale+1,invcol,(palette_scale/2)-1);
 		break;
 	}
-	
 	rect(screen2, fgbg_btn_x+fgbg_btn_offset, fgbg_btn_y+fgbg_btn_offset, fgbg_btn_x+fgbg_btn_offset+fgbg_btn_size-1, fgbg_btn_y+fgbg_btn_offset+fgbg_btn_size-1, jwin_pal[jcTEXTFG]);
 	rectfill(screen2, fgbg_btn_x+fgbg_btn_offset+1, fgbg_btn_y+fgbg_btn_offset+1, fgbg_btn_x+fgbg_btn_offset+fgbg_btn_size-2, fgbg_btn_y+fgbg_btn_offset+fgbg_btn_size-2, jwin_pal[jcTEXTBG]);
 	rectfill(screen2, fgbg_btn_x+fgbg_btn_offset+1+2, fgbg_btn_y+fgbg_btn_offset+1+2, fgbg_btn_x+fgbg_btn_offset+fgbg_btn_size-2-2, fgbg_btn_y+fgbg_btn_offset+fgbg_btn_size-2-2, c2+((newtilebuf[tile].format==tf4Bit)?CSET(cs):0));
-	
 	if(c2==0)
 	{
 		little_x(screen2, fgbg_btn_x+fgbg_btn_offset+fgbg_btn_size/4, fgbg_btn_y+fgbg_btn_offset+fgbg_btn_size/4, invcol, fgbg_btn_size/2);
 	}
-	
 	rect(screen2, fgbg_btn_x, fgbg_btn_y, fgbg_btn_x+fgbg_btn_size-1, fgbg_btn_y+fgbg_btn_size-1, jwin_pal[jcTEXTFG]);
 	rectfill(screen2, fgbg_btn_x+1, fgbg_btn_y+1, fgbg_btn_x+fgbg_btn_size-2, fgbg_btn_y+fgbg_btn_size-2, jwin_pal[jcTEXTBG]);
 	rectfill(screen2, fgbg_btn_x+1+2, fgbg_btn_y+1+2, fgbg_btn_x+fgbg_btn_size-2-2, fgbg_btn_y+fgbg_btn_size-2-2, c1+((newtilebuf[tile].format==tf4Bit)?CSET(cs):0));
-	
 	if(c1==0)
 	{
 		little_x(screen2, fgbg_btn_x+fgbg_btn_size/4, fgbg_btn_y+fgbg_btn_size/4, invcol, fgbg_btn_size/2);
 	}
-	
 //  masked_blit((BITMAP *)zcdata[is_large?BMP_MOUSELARGE:BMP_MOUSESMALL].dat, screen2, 0, 0, mouse_pic_x, mouse_pic_y, mouse_pic_w, mouse_pic_h);
 //  little_x(screen2,mouse_pic_x+mouse_lb_x,mouse_pic_y+mouse_lb_y,c1==0?210:208,2);
 //  little_x(screen2,mouse_pic_x+mouse_rb_x,mouse_pic_y+mouse_rb_y,c2==0?210:209,2);
@@ -1546,11 +1412,9 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 	//masked_blit((BITMAP *)zcdata[BMP_MOUSESMALL].dat, screen2, 0, 0, 144, 172, 42, 39);
 	//little_x(screen2,149,179,c1==0?210:208,2);
 	//little_x(screen2,159,176,c2==0?210:209,2);
-	
 	draw_text_button(screen2,ok_button_x,ok_button_y,61,21,"OK",vc(1),vc(14),0,true);
 	draw_text_button(screen2,cancel_button_x,cancel_button_y,61,21,"Cancel",vc(1),vc(14),0,true);
 	draw_text_button(screen2,edit_button_x,edit_button_y,61,21,"Edit",vc(1),vc(14),0,true);
-	
 	//tool buttons
 	for(int32_t i=MOUSE_BMP_SWORD; i<MOUSE_BMP_BLANK; i++)
 	{
@@ -1560,7 +1424,6 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 		jwin_draw_button(screen2,tool_buttons_left+(column*23),tool_buttons_top+(row*23),22,22,tool==(i-MOUSE_BMP_SWORD)?2:0,0);
 		masked_blit(mouse_bmp_1x[i][0],screen2,0,0,tool_buttons_left+(column*23)+3+(tool==(i-MOUSE_BMP_SWORD)?1:0),tool_buttons_top+3+(row*23)+(tool==(i-MOUSE_BMP_SWORD)?1:0),16,16);
 	}
-	
 	//coordinates
 	//if(isinRect(gui_mouse_x(),gui_mouse_y(),80,32,206,158))
 	//if(isinRect(gui_mouse_x(),gui_mouse_y(),zoom_tile_x,zoom_tile_y,zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2)) //inside the zoomed tile window
@@ -1571,7 +1434,6 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 		//int32_t temp_y=(gui_mouse_y()-zoom_tile_y)/(zoom_tile_scale/zoom_tile_size);
 		int32_t temp_x=zoom_tile_size*(gui_mouse_x()-zoom_tile_x)/zoom_tile_scale;
 		int32_t temp_y=zoom_tile_size*(gui_mouse_y()-zoom_tile_y)/zoom_tile_scale;
-		
 		//if(isinRect(gui_mouse_x(),gui_mouse_y(),80,32,206,158))
 		if((temp_x>=0&&temp_x<=(16*zoom_tile_size)-1)&&(temp_y>=0&&temp_y<=(16*zoom_tile_size)-1))
 		{
@@ -1594,7 +1456,6 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 			gui_textout_ln(screen2,font,(unsigned char*)buf,status_info_x,status_info_y+32,jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 		}
 	}
-	
 	custom_vsync();
 	scare_mouse();
 //  blit(screen2,screen,0,0,screen_xofs,screen_yofs,zq_screen_w,zq_screen_w);
@@ -1611,26 +1472,21 @@ void normalize(int32_t tile,int32_t tile2, bool rect_sel, int32_t flip)
 	{
 		zc_swap(tile, tile2);
 	}
-	
 	int32_t left=zc_min(TILECOL(tile), TILECOL(tile2));
 	int32_t columns=zc_max(TILECOL(tile), TILECOL(tile2))-left+1;
-	
 	int32_t start=tile;
 	int32_t end=tile2;
-	
 	// Might have top-right and bottom-left corners selected...
 	if(rect_sel && TILECOL(tile)>TILECOL(tile2))
 	{
 		start=tile-(TILECOL(tile)-TILECOL(tile2));
 		end=tile2+(TILECOL(tile)-TILECOL(tile2));
 	}
-	
 	for(int32_t temptile=start; temptile<=end; temptile++)
 	{
 		if(!rect_sel || ((TILECOL(temptile)>=left) && (TILECOL(temptile)<=left+columns-1)))
 		{
 			unpack_tile(newtilebuf, temptile, 0, false);
-			
 			if(flip&1)
 			{
 				for(int32_t y=0; y<16; y++)
@@ -1641,7 +1497,6 @@ void normalize(int32_t tile,int32_t tile2, bool rect_sel, int32_t flip)
 					}
 				}
 			}
-			
 			if(flip&2)
 			{
 				for(int32_t y=0; y<8; y++)
@@ -1652,7 +1507,6 @@ void normalize(int32_t tile,int32_t tile2, bool rect_sel, int32_t flip)
 					}
 				}
 			}
-			
 			pack_tile(newtilebuf,unpackbuf,temptile);
 		}
 	}
@@ -1664,7 +1518,6 @@ void rotate_tile(int32_t tile, bool backward)
 	unpack_tile(newtilebuf, tile, 0, false);
 	byte tempunpackbuf[256];
 	byte tempx, tempy;
-	
 	for(tempx=0; tempx<16; tempx++)
 	{
 		for(tempy=0; tempy<16; tempy++)
@@ -1679,7 +1532,6 @@ void rotate_tile(int32_t tile, bool backward)
 			}
 		}
 	}
-	
 	pack_tile(newtilebuf,tempunpackbuf,tile);
 }
 
@@ -1689,25 +1541,20 @@ byte undotile[256];
 void wrap_tile(int32_t tile, int32_t vertical, int32_t horizontal, bool clear)
 {
 	byte buf[256];
-	
 	for(int32_t i=0; i<undocount; i++)
 	{
 		newtilebuf[tile].data[i]=undotile[i];
 	}
-	
 	if(!(horizontal||vertical))
 	{
 		return;
 	}
-	
 	unpack_tile(newtilebuf, tile, 0, true);
-	
 	for(int32_t i=0; i<256; i++)
 	{
 		auto shift_ind = ((i+horizontal)&0x0F)|((i+(vertical*0x10))&0xF0);
 		buf[shift_ind] = unpackbuf[i];
 	}
-	
 	if(clear)
 	{
 		for(int32_t r=0; r<abs(vertical); r++)
@@ -1717,7 +1564,6 @@ void wrap_tile(int32_t tile, int32_t vertical, int32_t horizontal, bool clear)
 				buf[(vertical>0?r:15-r)*16+c]=0;
 			}
 		}
-		
 		for(int32_t r=0; r<16; r++)
 		{
 			for(int32_t c=0; c<abs(horizontal); c++)
@@ -1726,21 +1572,17 @@ void wrap_tile(int32_t tile, int32_t vertical, int32_t horizontal, bool clear)
 			}
 		}
 	}
-	
 	pack_tile(newtilebuf,buf,tile);
 }
 
 void wrap_sel_tile(int32_t vertical, int32_t horizontal)
 {
 	byte buf[256];
-	
 	if(!(horizontal||vertical))
 	{
 		return;
 	}
-	
 	memset(buf,0,256);
-	
 	for(int32_t i=0; i<256; i++)
 	{
 		if(is_in_selection(i%16,i/16))
@@ -1749,7 +1591,6 @@ void wrap_sel_tile(int32_t vertical, int32_t horizontal)
 			buf[shift_ind] = floatsel[i];
 		}
 	}
-	
 	memcpy(floatsel,buf,256);
 }
 
@@ -1758,9 +1599,7 @@ void float_selection(int32_t tile, bool clear)
 	if(floating_sel) return;
 	floating_sel = true;
 	floating_tile = tile;
-	
 	unpack_tile(newtilebuf, tile, 0, true);
-	
 	for(auto q = 0; q < 256; ++q)
 	{
 		if(is_in_selection(q%16,q/16))
@@ -1770,7 +1609,6 @@ void float_selection(int32_t tile, bool clear)
 		}
 		else floatsel[q] = 0;
 	}
-	
 	pack_tile(newtilebuf,unpackbuf,tile);
 }
 
@@ -1778,9 +1616,7 @@ void unfloat_selection()
 {
 	if(!floating_sel) return;
 	floating_sel = false;
-	
 	unpack_tile(newtilebuf, floating_tile, 0, true);
-	
 	for(auto q = 0; q < 256; ++q)
 	{
 		if(floatsel[q])
@@ -1788,7 +1624,6 @@ void unfloat_selection()
 			unpackbuf[q] = floatsel[q];
 		}
 	}
-	
 	pack_tile(newtilebuf,unpackbuf,floating_tile);
 	floating_tile = -1;
 }
@@ -1805,28 +1640,22 @@ void shift_tile_colors(int32_t tile, int32_t amount, bool ignore_transparent)
 		}
 		return;
 	}
-	
 	byte buf[256];
 	unpack_tile(newtilebuf, tile, 0, true);
-	
 	for(int32_t i=0; i<256; i++)
 	{
 		buf[i]=unpackbuf[i];
-		
 		if(!is_in_selection(i&0x0F, (i&0xF0)>>4))
 			continue;
-			
 		if(ignore_transparent)
 		{
 			if(buf[i]==0)
 				continue;
-				
 			buf[i]=wrap(buf[i]+amount, 1, newtilebuf[tile].format==tf8Bit ? 191 : 15);
 		}
 		else // Don't ignore transparent
 			buf[i]=wrap(buf[i]+amount, 0, newtilebuf[tile].format==tf8Bit ? 191 : 15);
 	}
-	
 	pack_tile(newtilebuf,buf,tile);
 }
 
@@ -1883,7 +1712,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	undocount = tilesize(newtilebuf[tile].format);
 	clear_selection_grid();
 	selecting_x1=selecting_x2=selecting_y1=selecting_y2=-1;
-	
 	//PALETTE opal;
 	PALETTE tpal;
 	//get_palette(opal);
@@ -1897,10 +1725,8 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	set_palette(tpal);
 	*/
 	byte oldtile[256];
-	
 	memset(&tpal, 0, sizeof(PALETTE));
 	memset(oldtile, 0, 256);
-	
 	for(int32_t i=0; i<undocount; i++)
 	{
 		oldtile[i]=undotile[i]=newtilebuf[tile].data[i];
@@ -1916,16 +1742,13 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		floating_sel = false;
 		undo_is_floatsel = false;
 	}
-	
 	int32_t tile_x=-1, tile_y=-1;
 	int32_t temp_x=-1, temp_y=-1;
 	bool bdown=false;
 	int32_t done=0;
 	drawing=0;
 	tool_cur = -1;
-	
 	get_palette(tpal);
-	
 	if(newtilebuf[tile].format==tf4Bit)
 	{
 		invcol=makecol8((63-tpal[CSET(cs)].r)*255/63,(63-tpal[CSET(cs)].g)*255/63,(63-tpal[CSET(cs)].b)*255/63);
@@ -1934,22 +1757,16 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	{
 		invcol=makecol8((63-tpal[0].r)*255/63,(63-tpal[0].g)*255/63,(63-tpal[0].b)*255/63);
 	}
-	
 	custom_vsync();
 	set_palette(tpal);
 	draw_edit_scr(tile,flip,cs,oldtile, true);
-	
 	while(gui_mouse_b())
 	{
 		/* do nothing */
 		rest(1);
 	}
-	
 	int32_t move_origin_x=-1, move_origin_y=-1;
 	int32_t prev_x=-1, prev_y=-1;
-	
-	
-	
 	byte selection_pattern_source[8][8]=
 	{
 		{1, 1, 1, 1, 0, 0, 0, 0},
@@ -1961,7 +1778,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		{0, 0, 1, 1, 1, 1, 0, 0},
 		{0, 1, 1, 1, 1, 0, 0, 0},
 	};
-	
 	byte selecting_pattern_source[8][8]=
 	{
 		{1, 1, 0, 0, 0, 0, 1, 1},
@@ -1973,7 +1789,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		{1, 1, 1, 1, 0, 0, 0, 0},
 		{1, 1, 1, 0, 0, 0, 0, 1},
 	};
-	
 	byte intersection_pattern_source[8][8]=
 	{
 		{0, 0, 1, 1, 0, 0, 1, 1},
@@ -1985,9 +1800,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		{1, 1, 0, 0, 1, 1, 0, 0},
 		{1, 0, 0, 1, 1, 0, 0, 1},
 	};
-	
 	selection_pattern=create_bitmap_ex(8, 8, 8);
-	
 	for(int32_t x=0; x<8; ++x)
 	{
 		for(int32_t y=0; y<8; ++y)
@@ -1996,9 +1809,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			selection_pattern->line[y][x]=selection_pattern_source[x][y]?vc(0):vc(15);
 		}
 	}
-	
 	selecting_pattern=create_bitmap_ex(8, 8, 8);
-	
 	for(int32_t x=0; x<8; ++x)
 	{
 		for(int32_t y=0; y<8; ++y)
@@ -2007,9 +1818,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			selecting_pattern->line[y][x]=selecting_pattern_source[x][y]?vc(0):vc(15);
 		}
 	}
-	
 	intersection_pattern=create_bitmap_ex(8, 8, 8);
-	
 	for(int32_t x=0; x<8; ++x)
 	{
 		for(int32_t y=0; y<8; ++y)
@@ -2018,7 +1827,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			intersection_pattern->line[y][x]=intersection_pattern_source[x][y]?vc(0):vc(15);
 		}
 	}
-	
 	// int32_t screen_xofs=(zq_screen_w-320)>>1;
 	// int32_t screen_yofs=(zq_screen_h-240)>>1;
 
@@ -2031,13 +1839,11 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		rest(4);
 		bool redraw=false;
 		bool did_wand_select=false;
-		
 		if((tooltip_trigger.x>-1&&tooltip_trigger.y>-1)&&(!isinRect(temp_mouse_x,temp_mouse_y,tooltip_trigger.x,tooltip_trigger.y,tooltip_trigger.x+tooltip_trigger.w-1,tooltip_trigger.y+tooltip_trigger.h-1)))
 		{
 			clear_tooltip();
 			redraw=true;
 		}
-		
 		if(keypressed())
 		{
 			switch(readkey()>>8)
@@ -2047,12 +1853,10 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				unfloat_selection();
 				done=2;
 				break;
-				
 			case KEY_ESC:
 				unfloat_selection();
 				done=1;
 				break;
-			
 			case KEY_DEL:
 			{
 				unpack_tile(newtilebuf, tile, 0, false);
@@ -2081,7 +1885,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 								}
 				}
 				if(!canDel) break; //don't delete (and thus reset undo) if nothing would change!
-				
 				for(int32_t i=0; i<undocount; i++)
 				{
 					undotile[i]=newtilebuf[tile].data[i];
@@ -2092,7 +1895,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				for(auto q = 0; q < 256; ++q)
 					undofloatsel[q] = floatsel[q];
 				undo_is_floatsel = floating_sel;
-				
 				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] || !has_selection())
 				{
 					//Delete all
@@ -2122,41 +1924,34 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				redraw=true;
 			}
 			break;
-				
 			case KEY_A:
 				clear_selection_grid();
 				invert_selection_grid();
 				redraw=true;
 				break;
-				
 			case KEY_D:
 				clear_selection_grid();
 				redraw=true;
 				break;
-				
 			case KEY_I:
 				invert_selection_grid();
 				redraw=true;
 				break;
-				
 			case KEY_H:
 				flip^=1;
 				normalize(tile,tile,0,flip);
 				flip=0;
 				redraw=true;
 				break;
-				
 			case KEY_V:
 				flip^=2;
 				normalize(tile,tile,0,flip);
 				flip=0;
 				redraw=true;
 				break;
-				
 			case KEY_F12:
 				onSnapshot();
 				break;
-				
 			case KEY_R:
 			{
 				//if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
@@ -2171,7 +1966,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				saved=false;
 				break;
 			}
-			
 			case KEY_EQUALS:
 			case KEY_PLUS_PAD:
 			{
@@ -2186,7 +1980,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					for(auto q = 0; q < 256; ++q)
 						undofloatsel[q] = floatsel[q];
 					undo_is_floatsel = floating_sel;
-						
 					if(key[KEY_ALT] || key[KEY_ALTGR])
 						shift_tile_colors(tile, 16, false);
 					else
@@ -2194,11 +1987,9 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				}
 				else
 					cs = (cs<11) ? cs+1:0;
-					
 				redraw=true;
 				break;
 			}
-			
 			case KEY_MINUS:
 			case KEY_MINUS_PAD:
 			{
@@ -2213,7 +2004,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					for(auto q = 0; q < 256; ++q)
 						undofloatsel[q] = floatsel[q];
 					undo_is_floatsel = floating_sel;
-						
 					if(key[KEY_ALT] || key[KEY_ALTGR])
 						shift_tile_colors(tile, -16, false);
 					else
@@ -2221,31 +2011,24 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				}
 				else
 					cs = (cs>0) ? cs-1:11;
-					
 				redraw=true;
 				break;
 			}
-			
 			case KEY_SPACE:
 				gridmode=(gridmode+1)%gm_max;
 				redraw=true;
 				break;
-				
 			case KEY_U:
 				for(int32_t i=0; i<undocount; i++)
 					zc_swap(undotile[i],newtilebuf[tile].data[i]);
-				
 				for(auto x = 0; x < 16; ++x)
 					for(auto y = 0; y < 16; ++y)
 						zc_swap(selection_grid[x+1][y+1], undoselgrid[x][y]);
-					
 				for(auto q = 0; q < 256; ++q)
 					zc_swap(undofloatsel[q], floatsel[q]);
 				zc_swap(undo_is_floatsel, floating_sel);
-				
 				redraw=true;
 				break;
-				
 			case KEY_S:
 				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 				{
@@ -2259,9 +2042,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					for(auto q = 0; q < 256; ++q)
 						undofloatsel[q] = floatsel[q];
 					undo_is_floatsel = floating_sel;
-					
 					unpack_tile(newtilebuf, tile, 0, false);
-					
 					if(has_selection())
 					{
 						for(int32_t i=0; i<256; i++)
@@ -2303,27 +2084,22 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 							}
 						}
 					}
-					
 					pack_tile(newtilebuf, unpackbuf,tile);
 				}
-				
 				zc_swap(c1,c2);
 				redraw=true;
 				break;
-				
 			case KEY_UP:
 				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 				{
 					unfloat_selection();
 					tile=zc_max(0,tile-TILES_PER_ROW);
 					undocount = tilesize(newtilebuf[tile].format);
-					
 					for(int32_t i=0; i<undocount; i++)
 					{
 						undotile[i]=newtilebuf[tile].data[i];
 						oldtile[i]=undotile[i];
 					}
-					
 					redraw=true;
 				}
 				else
@@ -2347,22 +2123,18 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					else wrap_tile(tile, -1, 0, false);
 					redraw=true;
 				}
-				
 				break;
-				
 			case KEY_DOWN:
 				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 				{
 					unfloat_selection();
 					tile=zc_min(tile+TILES_PER_ROW,NEWMAXTILES-1);
 					undocount = tilesize(newtilebuf[tile].format);
-					
 					for(int32_t i=0; i<undocount; i++)
 					{
 						undotile[i]=newtilebuf[tile].data[i];
 						oldtile[i]=undotile[i];
 					}
-					
 					redraw=true;
 				}
 				else
@@ -2386,22 +2158,18 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					else wrap_tile(tile, 1, 0, false);
 					redraw=true;
 				}
-				
 				break;
-				
 			case KEY_LEFT:
 				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 				{
 					unfloat_selection();
 					tile=zc_max(0,tile-1);
 					undocount = tilesize(newtilebuf[tile].format);
-					
 					for(int32_t i=0; i<undocount; i++)
 					{
 						undotile[i]=newtilebuf[tile].data[i];
 						oldtile[i]=undotile[i];
 					}
-					
 					redraw=true;
 				}
 				else
@@ -2425,22 +2193,18 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					else wrap_tile(tile, 0, -1, false);
 					redraw=true;
 				}
-				
 				break;
-				
 			case KEY_RIGHT:
 				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 				{
 					unfloat_selection();
 					tile=zc_min(tile+1, NEWMAXTILES-1);
 					undocount = tilesize(newtilebuf[tile].format);
-					
 					for(int32_t i=0; i<undocount; i++)
 					{
 						undotile[i]=newtilebuf[tile].data[i];
 						oldtile[i]=undotile[i];
 					}
-					
 					redraw=true;
 				}
 				else
@@ -2464,13 +2228,10 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					else wrap_tile(tile, 0, 1, false);
 					redraw=true;
 				}
-				
 				break;
 			}
-			
 			clear_keybuf();
 		}
-		
 		/*
 		  if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT] &&
 		  !key[KEY_ZC_LCONTROL] && !key[KEY_ZC_RCONTROL] &&
@@ -2490,7 +2251,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				// zq_set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
 			}
 		}*/
-		
 		if(!gui_mouse_b())
 		{
 			if(is_selecting())
@@ -2500,12 +2260,10 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				int32_t x2=zc_max(selecting_x1,selecting_x2);
 				int32_t y1=zc_min(selecting_y1,selecting_y2);
 				int32_t y2=zc_max(selecting_y1,selecting_y2);
-				
 				if(select_mode==0)
 				{
 					clear_selection_grid();
 				}
-				
 				for(int32_t x=x1; x<=x2; ++x)
 				{
 					for(int32_t y=y1; y<=y2; ++y)
@@ -2513,7 +2271,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 						selection_grid[x+1][y+1]=((select_mode<2)?(1):(((select_mode==2)?(0):(selection_grid[x+1][y+1]))));
 					}
 				}
-				
 				if(select_mode==3)
 				{
 					for(int32_t y=0; y<16; ++y)
@@ -2522,20 +2279,17 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 						{
 							selection_grid[x+1][y+1]=0;
 						}
-						
 						for(int32_t x=x2+1; x<16; ++x)
 						{
 							selection_grid[x+1][y+1]=0;
 						}
 					}
-					
 					for(int32_t x=x1; x<=x2; ++x)
 					{
 						for(int32_t y=0; y<y1; ++y)
 						{
 							selection_grid[x+1][y+1]=0;
 						}
-						
 						for(int32_t y=y2+1; y<16; ++y)
 						{
 							selection_grid[x+1][y+1]=0;
@@ -2543,39 +2297,32 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					}
 				}
 			}
-			
 			selecting_x1=selecting_x2=selecting_y1=selecting_y2=-1;
 			did_wand_select=false;
 		}
-		
 		bool alt=(key[KEY_ALT]||key[KEY_ALTGR]);
 		bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
 		bool ctrl=(key[KEY_LCONTROL] || key[KEY_RCONTROL]);
 		static int32_t last_tool_val = 0;
-		
 		if(tool==t_select||tool==t_wand)
 		{
 			if(!drawing)
 			{
 				int32_t type=0;
-				
 				if(has_selection())
 				{
 					if(shift)
 					{
 						type+=1;
 					}
-					
 					if(alt)
 					{
 						type+=2;
 					}
 				}
-				
 				if(type!=select_mode)
 				{
 					select_mode=type;
-					
 					// if(isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158)) //inside the zoomed tile window
 					if(isinRect(temp_mouse_x,temp_mouse_y-(tool==t_fill ? (is_large ? 14 : 7) : 0),zoom_tile_x,zoom_tile_y,zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large ? 14 : 7) : 0))) //inside the zoomed tile window
 					{
@@ -2613,7 +2360,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			unscare_mouse();
 			last_tool_val = tool;
 		}
-		
 		if(!bdown)
 		{
 			// move_origin_x=prev_x=(temp_mouse_x-80)>>3;
@@ -2621,7 +2367,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			move_origin_x=prev_x=(temp_mouse_x-zoom_tile_x)/zoom_tile_scale;
 			move_origin_y=prev_y=(temp_mouse_y-zoom_tile_y)/zoom_tile_scale;
 		}
-		
 		if(gui_mouse_b()==1 && !bdown) //pressed the left mouse button
 		{
 			// if(isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158))
@@ -2630,7 +2375,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				if(tool==t_move || tool==t_fill)
 				{
 					scare_mouse();
-					
 					if(tool==t_fill)
 					{
 						set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][0]);
@@ -2641,14 +2385,12 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 						set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][1]);
 						set_mouse_sprite_focus(8, 8);
 					}
-					
 					unscare_mouse();
 					move_origin_x=prev_x=(temp_mouse_x-zoom_tile_x)/zoom_tile_scale;
 					move_origin_y=prev_y=(temp_mouse_y-zoom_tile_y)/zoom_tile_scale;
 					// move_origin_x=prev_x=(temp_mouse_x-80)>>3;
 					// move_origin_y=prev_y=(temp_mouse_y-32)>>3;
 				}
-				
 				for(int32_t i=0; i<undocount; i++)
 				{
 					undotile[i]=newtilebuf[tile].data[i];
@@ -2659,10 +2401,8 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				for(auto q = 0; q < 256; ++q)
 					undofloatsel[q] = floatsel[q];
 				undo_is_floatsel = floating_sel;
-				
 				drawing=1;
 			}
-			
 			if(isinRect(temp_mouse_x,temp_mouse_y,ok_button_x,ok_button_y,ok_button_x+61,ok_button_y+21))
 			{
 				// if(do_text_button(224+screen_xofs,168+screen_yofs,61,21,"OK",vc(1),vc(14),true))
@@ -2671,7 +2411,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					done=2;
 				}
 			}
-			
 			if(isinRect(temp_mouse_x,temp_mouse_y,cancel_button_x,cancel_button_y,cancel_button_x+61,cancel_button_y+21))
 			{
 				// if(do_text_button(224+screen_xofs,192+screen_yofs,61,21,"Cancel",vc(1),vc(14),true))
@@ -2680,7 +2419,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					done=1;
 				}
 			}
-			
 			if(isinRect(temp_mouse_x,temp_mouse_y,edit_button_x,edit_button_y,edit_button_x+61,edit_button_y+21))
 			{
 				// if(do_text_button(24+screen_xofs,184+screen_yofs,61,21,"Edit",vc(1),vc(14),true))
@@ -2689,7 +2427,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					// popup_menu(colors_menu,26+screen_xofs,144+screen_yofs);
 					popup_menu(colors_menu,edit_button_x+2,edit_button_y-40);
 					get_palette(tpal);
-					
 					if(newtilebuf[tile].format==tf4Bit)
 					{
 						invcol=makecol8((63-tpal[CSET(cs)].r)*255/63,(63-tpal[CSET(cs)].g)*255/63,(63-tpal[CSET(cs)].b)*255/63);
@@ -2698,15 +2435,12 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					{
 						invcol=makecol8((63-tpal[0].r)*255/63,(63-tpal[0].g)*255/63,(63-tpal[0].b)*255/63);
 					}
-					
 					redraw=true;
 				}
 			}
-			
 			switch(newtilebuf[tile].format)
 			{
 			case tf4Bit:
-			
 				// if(isinRect(temp_mouse_x,temp_mouse_y,104,176,135,207))
 				if(isinRect(temp_mouse_x,temp_mouse_y,palette_x,palette_y,palette_x+(palette_scale*16)-1,palette_y+(palette_scale*16)-1))
 				{
@@ -2717,11 +2451,8 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					c1 = (y<<2)+x;
 					redraw=true;
 				}
-				
 				break;
-				
 			case tf8Bit:
-			
 				// if(isinRect(temp_mouse_x,temp_mouse_y,94,172,157,231))
 				if(isinRect(temp_mouse_x,temp_mouse_y,palette_x, palette_y+palette_scale,palette_x+(palette_scale*16)-1,palette_y+(palette_scale*15)-1))
 				{
@@ -2732,17 +2463,13 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					c1 = (y<<4)+x;
 					redraw=true;
 				}
-				
 				break;
 			}
-			
-			
 			for(int32_t i=0; i<t_max; i++)
 			{
 				int32_t column=tool_buttons_columns*i/(t_max+1);
 				int32_t rows=(t_max+2)/tool_buttons_columns;
 				int32_t row=i-(column*rows);
-				
 				// if(isinRect(temp_mouse_x,temp_mouse_y,tool_buttons_left,(i*23)+tool_buttons_top,tool_buttons_left+21,(i*23)+tool_buttons_top+21))
 				if(isinRect(temp_mouse_x,temp_mouse_y,tool_buttons_left+(column*23),tool_buttons_top+(row*23),tool_buttons_left+(column*23)+21,tool_buttons_top+(row*23)+21))
 				{
@@ -2750,7 +2477,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					redraw=true;
 				}
 			}
-			
 			if(isinRect(temp_mouse_x,temp_mouse_y,zq_screen_w - 21, 5, zq_screen_w - 21 + 15, 5 + 13))
 			{
 				// if(do_x_button(screen, 320+screen_xofs - 21, 5+screen_yofs))
@@ -2759,10 +2485,8 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					done=1;
 				}
 			}
-			
 			bdown=true;
 		}
-		
 		if(gui_mouse_b()&2 && !bdown) //pressed the left mouse button
 		{
 			// if(isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158))
@@ -2771,7 +2495,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				if(tool==t_move || tool==t_fill)
 				{
 					scare_mouse();
-					
 					if(tool==t_fill)
 					{
 						set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][0]);
@@ -2782,14 +2505,12 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 						set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][1]);
 						set_mouse_sprite_focus(8, 8);
 					}
-					
 					unscare_mouse();
 					move_origin_x=prev_x=(temp_mouse_x-zoom_tile_x)/zoom_tile_scale;
 					move_origin_y=prev_y=(temp_mouse_y-zoom_tile_y)/zoom_tile_scale;
 					// move_origin_x=prev_x=(temp_mouse_x-80)>>3;
 					// move_origin_y=prev_y=(temp_mouse_y-32)>>3;
 				}
-				
 				for(int32_t i=0; i<undocount; i++)
 				{
 					undotile[i]=newtilebuf[tile].data[i];
@@ -2800,14 +2521,11 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				for(auto q = 0; q < 256; ++q)
 					undofloatsel[q] = floatsel[q];
 				undo_is_floatsel = floating_sel;
-				
 				drawing=2;
 			}
-			
 			switch(newtilebuf[tile].format)
 			{
 			case tf4Bit:
-			
 				// if(isinRect(temp_mouse_x,temp_mouse_y,104,176,135,207))
 				if(isinRect(temp_mouse_x,temp_mouse_y,palette_x,palette_y,palette_x+(palette_scale*16)-1,palette_y+(palette_scale*16)-1))
 				{
@@ -2818,9 +2536,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					c2 = (y<<2)+x;
 					redraw=true;
 				}
-				
 				break;
-				
 			case tf8Bit:
 				// if(isinRect(temp_mouse_x,temp_mouse_y,94,172,157,231))
 				if(isinRect(temp_mouse_x,temp_mouse_y,palette_x, palette_y+palette_scale,palette_x+(palette_scale*16)-1,palette_y+(palette_scale*15)-1))
@@ -2832,13 +2548,10 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					c2 = (y<<4)+x;
 					redraw=true;
 				}
-				
 				break;
 			}
-			
 			bdown=true;
 		}
-		
 		if(bdown&&!gui_mouse_b())  //released the buttons
 		{
 			// if(isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158))
@@ -2848,7 +2561,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				{
 					scare_mouse();
 					set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][0]);
-					
 					if(tool==t_fill)
 					{
 						set_mouse_sprite_focus(1, 14);
@@ -2857,35 +2569,27 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					{
 						set_mouse_sprite_focus(8, 8);
 					}
-					
 					unscare_mouse();
 				}
 			}
 		}
-		
 		// if(drawing && isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158))
 		if(drawing && isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y-(tool==t_fill ? (is_large ? 14 : 7) : 0),zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2-(tool==t_fill ? (is_large ? 14 : 7) : 0))) //inside the zoomed tile window
 		{
-		
 			int32_t mx = gui_mouse_x();
 			int32_t my = gui_mouse_y();
-			
 			if(tool==t_fill)  //&& is_windowed_mode()) // Sigh... -L
 			{
 				mx += 1;
 				my += is_large ? 14 : 7;
 			}
-			
 			int32_t x=(mx-zoom_tile_x)/(zoom_tile_scale/zoom_tile_size);
 			int32_t y=(my-zoom_tile_y)/(zoom_tile_scale/zoom_tile_size);
-			
 			switch(tool)
 			{
 			case t_pen:
 				if(flip&1) x=15-x;
-				
 				if(flip&2) y=15-y;
-				
 				if(is_in_selection(x,y))
 				{
 					if(floating_sel)
@@ -2899,18 +2603,14 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 						pack_tile(newtilebuf, unpackbuf,tile);
 					}
 				}
-				
 				break;
-				
 			case t_fill:
 				if(is_in_selection(x,y))
 				{
 					tile_floodfill(tile,x,y,(drawing==1)?c1:c2);
 					drawing=0;
 				}
-				
 				break;
-				
 			case t_recolor:
 				if(is_in_selection(x,y))
 				{
@@ -2932,7 +2632,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					{
 						unpack_tile(newtilebuf, tile, 0, false);
 						tf_u = unpackbuf[(y<<4)+x];
-						
 						for(int32_t i=0; i<256; i++)
 						{
 							if(is_in_selection(i&15,i>>4))
@@ -2943,31 +2642,24 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 								}
 							}
 						}
-						
 						pack_tile(newtilebuf, unpackbuf,tile);
 					}
 					drawing=0;
 				}
-				
 				break;
-				
 			case t_eyedropper:
 				if(floating_sel)
 					memcpy(unpackbuf, floatsel, 256);
 				else unpack_tile(newtilebuf, tile, 0, false);
-				
 				if(gui_mouse_b()&1)
 				{
 					c1=unpackbuf[((y<<4)+x)];
 				}
-				
 				if(gui_mouse_b()&2)
 				{
 					c2=unpackbuf[((y<<4)+x)];
 				}
-				
 				break;
-				
 			case t_move:
 				if((prev_x!=x)||(prev_y!=y))
 				{
@@ -2981,15 +2673,11 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					prev_x=x;
 					prev_y=y;
 				}
-				
 				break;
-				
 			case t_select:
 				unfloat_selection();
 				if(flip&1) x=15-x;
-				
 				if(flip&2) y=15-y;
-				
 				if(selecting_x1==-1||selecting_y1==-1)
 				{
 					selecting_x1=x;
@@ -3000,78 +2688,62 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					selecting_x2=x;
 					selecting_y2=y;
 				}
-				
 				break;
-				
 			case t_wand:
 				unfloat_selection();
 				if(flip&1) x=15-x;
-				
 				if(flip&2) y=15-y;
-				
 				switch(select_mode)
 				{
 				case 0:
 					clear_selection_grid();
 					add_color_to_selection(unpackbuf[((y<<4)+x)]);
 					break;
-					
 				case 1:
 					add_color_to_selection(unpackbuf[((y<<4)+x)]);
 					break;
-					
 				case 2:
 					remove_color_from_selection(unpackbuf[((y<<4)+x)]);
 					break;
-					
 				case 3:
 					intersect_color_with_selection(unpackbuf[((y<<4)+x)]);
 					break;
 				}
-				
 				drawing=0;
 				break;
 			}
-			
 			redraw=true;
 		}
-		
 		if(gui_mouse_b()==0)
 		{
 			bdown=false;
 			drawing=0;
 		}
-		
 		// temp_x=(temp_mouse_x-80)/8;
 		// temp_y=(temp_mouse_y-32)/8;
 		temp_x=zoom_tile_size*(gui_mouse_x()-zoom_tile_x)/zoom_tile_scale;
 		temp_y=zoom_tile_size*(gui_mouse_y()-zoom_tile_y)/zoom_tile_scale;
-		
 		// if(!isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158))
 		// if(!isinRect(temp_mouse_x,temp_mouse_y,zoom_tile_x,zoom_tile_y,zoom_tile_x+(16*zoom_tile_scale/zoom_tile_size)-2,zoom_tile_y+(16*zoom_tile_scale/zoom_tile_size)-2)) //inside the zoomed tile window
 		// {
 			// temp_x=-1;
 			// temp_y=-1;
 		// }
-		
 		// if (temp_x!=tile_x||temp_y!=tile_y)
 		{
 			tile_x=temp_x;
 			tile_y=temp_y;
 			redraw=true;
 		}
-		
 		const char *toolnames[t_max]=
 		{
 			"Pencil", "Fill", "Replace Color", "Grab Color", "Move", "Select", "Select Color"
 		};
-		
 		for(int32_t i=0; i<t_max; i++)
 		{
 			int32_t column=tool_buttons_columns*i/(t_max+1);
 			int32_t rows=(t_max+2)/tool_buttons_columns;
 			int32_t row=i-(column*rows);
-			
 			if(isinRect(temp_mouse_x,temp_mouse_y,tool_buttons_left+(column*23),tool_buttons_top+(row*23),tool_buttons_left+(column*23)+21,tool_buttons_top+(row*23)+21))
 			{
 				char msg[80];
@@ -3080,11 +2752,9 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				redraw=true;
 			}
 		}
-		
 		if(redraw)
 		{
 			get_palette(tpal);
-			
 			if(newtilebuf[tile].format==tf4Bit)
 			{
 				tpal[208]=tpal[CSET(cs)+c1];
@@ -3097,11 +2767,9 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				tpal[209]=tpal[c2];
 				tpal[210]=invRGB(tpal[0]);
 			}
-			
 			custom_vsync();
 			set_palette(tpal);
 			draw_edit_scr(tile,flip,cs,oldtile, false);
-			
 			if((tooltip_timer>=tooltip_maxtimer)&&(tooltip_box.x>=0&&tooltip_box.y>=0))
 			{
 				masked_blit(tooltipbmp, screen, 0, 0, tooltip_box.x, tooltip_box.y, tooltip_box.w, tooltip_box.h);
@@ -3110,39 +2778,31 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		else
 		{
 			bool hs=has_selection();
-			
 			if(hs)
 			{
 				// zoomtile16(screen2,tile,79,31,cs,flip,8);
 				zoomtile16(screen2,tile,zoom_tile_x-1,zoom_tile_y-1,cs,flip,zoom_tile_scale);
 			}
-			
 			custom_vsync();
 			scare_mouse();
-			
 			if(hs)
 			{
 				// blit(screen2, screen, 79, 31, 79, 31, 129, 129);
 				blit(screen2, screen, zoom_tile_x-1,zoom_tile_y-1, zoom_tile_x-1,zoom_tile_y-1, (16*zoom_tile_scale/zoom_tile_size)+1, (16*zoom_tile_scale/zoom_tile_size)+1);
 			}
-			
 			update_tool_cursor();
 			unscare_mouse();
 			SCRFIX();
 		}
-		
 	}
 	while(!done);
-	
 	unfloat_selection();
 	clear_selection_grid();
-	
 	while(gui_mouse_b())
 	{
 		/* do nothing */
 		rest(1);
 	}
-	
 	if(done==1)
 	{
 		for(int32_t i=0; i<undocount; i++)
@@ -3153,32 +2813,26 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	else
 	{
 		byte *buf = new byte[undocount];
-		
 		// put back old tile
 		for(int32_t i=0; i<undocount; i++)
 		{
 			buf[i] = newtilebuf[tile].data[i];
 			newtilebuf[tile].data[i] = oldtile[i];
 		}
-		
 		// go
 		go_tiles();
-		
 		// replace old tile with new one again
 		for(int32_t i=0; i<undocount; i++)
 		{
 			newtilebuf[tile].data[i] = buf[i];
 		}
-		
 		//   usetiles=true;
 		saved=false;
-		
 		if(buf!=NULL)
 		{
 			delete[] buf;
 		}
 	}
-	
 	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
 	register_blank_tiles();
 	register_used_tiles();
@@ -3213,11 +2867,9 @@ int32_t bestfit_cset_color(int32_t cs, int32_t r, int32_t g, int32_t b)
 	int32_t bestMatch = 0; // Color with the lowest total difference so far
 	float bestTotalDiff = 100000; // Total difference between requested color and bestMatch
 	float bestHighDiff = 100000; // Greatest difference of R, G, B between requested color and bestMatch
-	
 	for(int32_t i = 0; i < CSET_SIZE; i++)
 	{
 		byte *rgbByte;
-		
 		// This seems to be right...
 		if(cs==2 || cs==3 || cs==4)
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + (cs-2) + pdFULL) + i) * 3;
@@ -3233,11 +2885,9 @@ int32_t bestfit_cset_color(int32_t cs, int32_t r, int32_t g, int32_t b)
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + poNEWCSETS + 3) + i) * 3;
 		else
 			rgbByte = colordata + (CSET(cs)+i)*3;
-			
 		int32_t dr=r-*rgbByte;
 		int32_t dg=g-*(rgbByte+1);
 		int32_t db=b-*(rgbByte+2);
-		
 		// Track both the total color difference and the single greatest
 		// difference of R, G, B. The idea is that it's better to have
 		// two or three small differences than one big one.
@@ -3245,11 +2895,9 @@ int32_t bestfit_cset_color(int32_t cs, int32_t r, int32_t g, int32_t b)
 		// for the differences in perceived brightness of the three colors.
 		float totalDiff = sqrt(dr*dr*0.241 + dg*dg*0.691 + db*db*0.068);
 		float highDiff = zc_max(zc_max(sqrt(dr*dr*0.241), sqrt(dg*dg*0.691)), sqrt(db*db*0.068));
-		
 		// Perfect match? Just stop here.
 		if(totalDiff==0)
 			return i;
-			
 		if(totalDiff < bestTotalDiff || // Best match so far?
 				(totalDiff == bestTotalDiff && highDiff < bestHighDiff)) // Equally good match with lower high difference?
 		{
@@ -3258,7 +2906,6 @@ int32_t bestfit_cset_color(int32_t cs, int32_t r, int32_t g, int32_t b)
 			bestHighDiff=highDiff;
 		}
 	}
-	
 	return bestMatch;
 }
 
@@ -3268,11 +2915,9 @@ int32_t bestfit_cset_color_8bit(int32_t r, int32_t g, int32_t b)
 	int32_t bestMatch = 0;
 	float bestTotalDiff = 100000;
 	float bestHighDiff = 100000;
-	
 	for(int32_t i = 0; i < 192; i++) // 192 colors in CSets 0-11
 	{
 		byte *rgbByte;
-		
 		int32_t cs=i>>4;
 		if(cs==2 || cs==3 || cs==4)
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + (cs-2) + pdFULL) + (i%16)) * 3;
@@ -3288,17 +2933,13 @@ int32_t bestfit_cset_color_8bit(int32_t r, int32_t g, int32_t b)
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + poNEWCSETS + 3) + (i%16)) * 3;
 		else
 			rgbByte = colordata + i * 3;
-			
 		int32_t dr=r-*rgbByte;
 		int32_t dg=g-*(rgbByte+1);
 		int32_t db=b-*(rgbByte+2);
-		
 		float totalDiff = sqrt(dr*dr*0.241 + dg*dg*0.691 + db*db*0.068);
 		float highDiff = zc_max(zc_max(sqrt(dr*dr*0.241), sqrt(dg*dg*0.691)), sqrt(db*db*0.068));
-		
 		if(totalDiff==0) // Perfect match?
 			return i;
-			
 		if(totalDiff < bestTotalDiff || // Best match so far?
 		   (totalDiff == bestTotalDiff && highDiff < bestHighDiff)) // Equally good match with lower high difference?
 		{
@@ -3307,7 +2948,6 @@ int32_t bestfit_cset_color_8bit(int32_t r, int32_t g, int32_t b)
 			bestHighDiff=highDiff;
 		}
 	}
-	
 	return bestMatch;
 }
 
@@ -3335,7 +2975,6 @@ void puttileROM(BITMAP *dest,int32_t x,int32_t y,byte *src,int32_t cs)
 	byte buf[64];
 	memset(buf,0,64);
 	byte *oldsrc=src;
-	
 	//for 8 lines in the source image...
 	for(int32_t line=0; line<(nesmode?4:8); line++)
 	{
@@ -3343,7 +2982,6 @@ void puttileROM(BITMAP *dest,int32_t x,int32_t y,byte *src,int32_t cs)
 		int32_t  bx=line<<(nesmode?4:3);
 		//b is a byte in the source image (either an entire line in 1bp or the start of a line in others)
 		byte b=src[(bp&1)?line:line<<1];
-		
 		//fill the storage buffer with data from the source image
 		for(int32_t i=7; i>=0; --i)
 		{
@@ -3351,16 +2989,13 @@ void puttileROM(BITMAP *dest,int32_t x,int32_t y,byte *src,int32_t cs)
 			b>>=1;
 		}
 	}
-	
 	++src;
-	
 	for(int32_t p=1; p<bp; p++)
 	{
 		for(int32_t line=0; line<(nesmode?4:8); line++)
 		{
 			int32_t  bx=line<<(nesmode?4:3);
 			byte b=src[(bp&1)?line:line<<1];
-			
 			for(int32_t i=7; i>=0; --i)
 			{
 				if(nesmode)
@@ -3371,11 +3006,9 @@ void puttileROM(BITMAP *dest,int32_t x,int32_t y,byte *src,int32_t cs)
 				{
 					buf[bx+i] |= (b&1)<<p;
 				}
-				
 				b>>=1;
 			}
 		}
-		
 		if(p&1)
 		{
 			src+=15;
@@ -3385,12 +3018,9 @@ void puttileROM(BITMAP *dest,int32_t x,int32_t y,byte *src,int32_t cs)
 			++src;
 		}
 	}
-	
-	
 	if(nesmode)
 	{
 		src=oldsrc;
-		
 		for(int32_t counter=0; counter<2; ++counter, ++src)
 		{
 			//for 8 lines in the source image...
@@ -3400,7 +3030,6 @@ void puttileROM(BITMAP *dest,int32_t x,int32_t y,byte *src,int32_t cs)
 				int32_t  bx=line<<4;
 				//b is a byte in the source image (either an entire line in 1bp or the start of a line in others)
 				byte b=src[(line+4)<<1];
-				
 				//fill the storage buffer with data from the source image
 				for(int32_t i=7; i>=0; --i)
 				{
@@ -3411,9 +3040,7 @@ void puttileROM(BITMAP *dest,int32_t x,int32_t y,byte *src,int32_t cs)
 			}
 		}
 	}
-	
 	int32_t c=0;
-	
 	switch(romtilemode)
 	{
 	case 0:
@@ -3426,9 +3053,7 @@ void puttileROM(BITMAP *dest,int32_t x,int32_t y,byte *src,int32_t cs)
 				putpixel(dest,x+i,y+j,buf[c++]);
 			}
 		}
-		
 		break;
-		
 	case 3:
 		for(int32_t j=0; j<4; j++)
 		{
@@ -3437,7 +3062,6 @@ void puttileROM(BITMAP *dest,int32_t x,int32_t y,byte *src,int32_t cs)
 				putpixel(dest,x+i,y+j,buf[c++]);
 			}
 		}
-		
 		break;
 	}
 }
@@ -3456,7 +3080,6 @@ void draw_grab_window()
 	scare_mouse();
 	jwin_draw_win(screen, window_xofs, window_yofs, w+6+6, h+25+6, FR_WIN);
 	jwin_draw_frame(screen, window_xofs+4, window_yofs+23, w+2+2, h+2+2-(82*(is_large+1)),  FR_DEEP);
-	
 	FONT *oldfont = font;
 	font = lfont;
 	jwin_draw_titlebar(screen, window_xofs+3, window_yofs+3, w+6, 18, "Grab Tile(s)", true);
@@ -3470,12 +3093,10 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	width=width;
 	height=height;
 	white=white; // happy birthday compiler
-	
 	int32_t yofs=0;
 	//clear_to_color(screen2,bg);
 	rectfill(screen2, 0, 0, 319, 159, black);
 	//jwin_draw_win(screen2, 0, 160, 320, 80, FR_WIN);
-	
 	if(is_large)
 	{
 //    jwin_draw_frame(screen2,-2,-2,324,212,FR_DEEP);
@@ -3488,10 +3109,8 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	{
 		jwin_draw_win(screen2, 0, 160, 320, 80, FR_WIN);
 	}
-	
 	// text_mode(-1);
 	int32_t tileromcolumns=20;
-	
 	switch(imagetype)
 	{
 	case ftBMP:
@@ -3503,21 +3122,18 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 		{
 			int32_t maxy=zc_min(160,((BITMAP*)imagebuf)->h);
 			int32_t maxx=zc_min(320,((BITMAP*)imagebuf)->w);
-			
 			for(int32_t y=0; y<maxy; y++)
 			{
 				if((imagey<<4)+y>=((BITMAP*)imagebuf)->h)
 				{
 					break;
 				}
-				
 				for(int32_t x=0; x<maxx; x++)
 				{
 					if((imagex<<4)+x>=((BITMAP*)imagebuf)->w)
 					{
 						break;
 					}
-					
 					if(recolor==rc8Bit)
 						screen2->line[y][x]=cset_reduce_table[((BITMAP*)imagebuf)->line[(imagey<<4)+y][(imagex<<4)+x]];
 					else
@@ -3525,9 +3141,7 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 				}
 			}
 		}
-		
 		break;
-		
 	case ftZGP:
 	case ftQST:
 	case ftZQT:
@@ -3539,27 +3153,22 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 		//fixme
 	imagey = vbound(imagey, 0, MAXTILEROWS); //fixed -Z This can no longer crash if you scroll past the end of the tile pages. 6th June, 2020
 		int32_t t=imagey*TILES_PER_ROW;
-		
 		for(int32_t i=0; i<200; i++)                              // 10 rows, down to y=160
 		{
 			if(t <= tilecount)
 			{
 				puttile16(screen2,t,(i%TILES_PER_ROW)<<4,(i/TILES_PER_ROW)<<4,cs,0);
 			}
-			
 			++t;
 		}
-		
 		newtilebuf = hold;
 		//fixme
 	}
 	break;
-	
 	case ftBIN:
 	{
 		int32_t ofs = (tileromcolumns*imagex + imagey) * 128*bp + romofs;
 		byte *buf = (byte*)imagebuf;
-		
 		switch(romtilemode)
 		{
 		case 0:
@@ -3571,7 +3180,6 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 					ofs+=8*bp;
 				}
 			}
-			
 			for(int32_t y=0; y<160; y+=8)
 			{
 				for(int32_t x=0; ((x<128)&&(ofs<=imagesize-8*bp)); x+=8)
@@ -3580,9 +3188,7 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 					ofs+=8*bp;
 				}
 			}
-			
 			break;
-			
 		case 1:
 			for(int32_t y=0; y<160; y+=16)
 			{
@@ -3594,7 +3200,6 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 					ofs+=8*bp;
 				}
 			}
-			
 			for(int32_t y=0; y<160; y+=16)
 			{
 				for(int32_t x=0; ((x<128)&&(ofs<=imagesize-8*bp)); x+=8)
@@ -3605,9 +3210,7 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 					ofs+=8*bp;
 				}
 			}
-			
 			break;
-			
 		case 2:
 			for(int32_t y=0; y<160; y+=16)
 			{
@@ -3623,7 +3226,6 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 					ofs+=8*bp;
 				}
 			}
-			
 			for(int32_t y=0; y<160; y+=16)
 			{
 				for(int32_t x=0; ((x<128)&&(ofs<=imagesize-8*bp)); x+=16)
@@ -3638,9 +3240,7 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 					ofs+=8*bp;
 				}
 			}
-			
 			break;
-			
 		case 3:
 			for(int32_t y=0; y<160; y+=16)
 			{
@@ -3656,7 +3256,6 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 					ofs+=8*bp;
 				}
 			}
-			
 			for(int32_t y=0; y<160; y+=16)
 			{
 				for(int32_t x=0; ((x<128)&&(ofs<=imagesize-8*bp)); x+=16)
@@ -3671,15 +3270,12 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 					ofs+=8*bp;
 				}
 			}
-			
 			break;
 		}
 	}
 	break;
 	}
-	
 	tiledata hold;
-	
 	if(is_valid_format(newtilebuf[0].format))
 	{
 		hold.format = newtilebuf[0].format;
@@ -3691,18 +3287,14 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 		hold.format=tfInvalid;
 		hold.data=NULL;
 	}
-	
 	newtilebuf[0].format=newformat[0];
-	
 	if(newtilebuf[0].data!=NULL)
 	{
 		free(newtilebuf[0].data);
 	}
-	
 	if(is_valid_format(newtilebuf[0].format))
 	{
 		newtilebuf[0].data = (byte *)malloc(tilesize(newtilebuf[0].format));
-		
 		for(int32_t i=0; i<tilesize(newtilebuf[0].format); i++)
 		{
 			newtilebuf[0].data[i]=newtile[i];
@@ -3712,20 +3304,16 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	{
 		newtilebuf[0].data=NULL;
 	}
-	
 	puttile16(screen2,0,208,168+yofs,cs,0);
 	overtile16(screen2,0,232,168+yofs,cs,0);
 	newtilebuf[0].format=hold.format;
-	
 	if(newtilebuf[0].data!=NULL)
 	{
 		free(newtilebuf[0].data);
 	}
-	
 	if(is_valid_format(newtilebuf[0].format))
 	{
 		newtilebuf[0].data = (byte *)malloc(tilesize(newtilebuf[0].format));
-		
 		for(int32_t i=0; i<newtilebuf[0].format*128; i++)
 		{
 			newtilebuf[0].data[i]=hold.data[i];
@@ -3735,26 +3323,21 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	{
 		newtilebuf[0].data=NULL;
 	}
-	
 	if(hold.data!=NULL)
 	{
 		free(hold.data);
 	}
-	
 	puttile16(screen2,tile,208,192+yofs,cs,0);
 	overtile16(screen2,tile,232,192+yofs,cs,0);
-	
 	rectfill(screen2,184,168+yofs,191,175+yofs,grabmask&1?vc(12):vc(7));
 	rectfill(screen2,192,168+yofs,199,175+yofs,grabmask&2?vc(12):vc(7));
 	rectfill(screen2,184,176+yofs,191,183+yofs,grabmask&4?vc(12):vc(7));
 	rectfill(screen2,192,176+yofs,199,183+yofs,grabmask&8?vc(12):vc(7));
-	
 	// rect(screen2,183,167,200,184,dvc(7*2));
 	// rect(screen2,207,167,224,184,dvc(7*2));
 	// rect(screen2,231,167,248,184,dvc(7*2));
 	// rect(screen2,207,191,224,208,dvc(7*2));
 	// rect(screen2,231,191,248,208,dvc(7*2));
-	
 	/*
 	  rect(screen2,183,167,200,184,vc(14));
 	  rect(screen2,207,167,224,184,vc(14));
@@ -3772,7 +3355,6 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	int32_t screen_xofs=0;
 	int32_t screen_yofs=0;
 	int32_t mul = 1;
-	
 	if(is_large)
 	{
 		mul = 2;
@@ -3782,34 +3364,27 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 		screen_xofs=window_xofs+6;
 		screen_yofs=window_yofs+25;
 	}
-	
 	custom_vsync();
 	scare_mouse();
-	
 	if(is_large)
 		stretch_blit(screen2,screen,0,0,320,240,screen_xofs,screen_yofs,640,480);
 	else blit(screen2,screen,0,0,screen_xofs,screen_yofs,320,240);
-	
 	// Suspend the current font while draw_text_button does its work
 	FONT* oldfont = font;
-	
 	if(is_large)
 		font = lfont_l;
-		
 	// Interface
 	switch(imagetype)
 	{
 	case 0:
 		textprintf_ex(screen,font,window_xofs+8*mul,window_yofs+(216+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",imgstr[imagetype]);
 		break;
-		
 	case ftBMP:
 	{
 		textprintf_ex(screen,font,window_xofs+8*mul,window_yofs+(216+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s  %dx%d",imgstr[imagetype],((BITMAP*)imagebuf)->w,((BITMAP*)imagebuf)->h);
 		draw_text_button(screen,window_yofs+141*mul,window_yofs+(192+yofs)*mul,int32_t(61*(is_large?1.5:1)),int32_t(20*(is_large?1.5:1)),"Recolor",vc(1),vc(14),0,true);
 		break;
 	}
-	
 	case ftZGP:
 	case ftQST:
 	case ftZQT:
@@ -3819,30 +3394,25 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 		textprintf_ex(screen,is_large? lfont_l : font,window_xofs+8*mul,window_yofs+(216+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s  %d KB",imgstr[imagetype],imagesize>>10);
 		break;
 	}
-	
 	textprintf_ex(screen,font,window_xofs+8*mul,window_yofs+(168+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"sel: %d %d",selx,sely);
 	textprintf_ex(screen,font,window_xofs+8*mul,window_yofs+(176+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"pos: %d %d",imagex,imagey);
-	
 	if(bp==8)
 		textprintf_ex(screen,font,window_xofs+8*mul,window_yofs+(192+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"8-bit");
 	else
 		textprintf_ex(screen,font,window_xofs+8*mul,window_yofs+(192+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"cset: %d",cs);
 	textprintf_ex(screen,font,window_xofs+8*mul,window_yofs+(200+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"step: %d",grabmode);
-	
 	if(imagetype==ftBIN)
 	{
 		textprintf_ex(screen,font,window_xofs+104*mul,window_yofs+(192+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"bp:  %d%s",bp,nesmode?" (NES)":"");
 		textprintf_ex(screen,font,window_xofs+104*mul,window_yofs+(200+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"ofs: %Xh",romofs);
 		textprintf_ex(screen,font,window_xofs+104*mul,window_yofs+(208+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"m: %d",romtilemode);
 	}
-	
 	textprintf_ex(screen,font,window_xofs+8*mul,window_yofs+(224+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",imagepath);
 //  rectfill(screen2,256,224,319,231,black);
 	draw_text_button(screen,window_xofs+255*mul,window_yofs+(168+yofs)*mul,int32_t(61*(is_large?1.5:1)),int32_t(20*(is_large?1.5:1)),"OK",vc(1),vc(14),0,true);
 	draw_text_button(screen,window_xofs+255*mul,window_yofs+(192+yofs)*mul,int32_t(61*(is_large?1.5:1)),int32_t(20*(is_large?1.5:1)),"Cancel",vc(1),vc(14),0,true);
 	draw_text_button(screen,window_xofs+255*mul,window_yofs+(216+yofs)*mul,int32_t(61*(is_large?1.5:1)),int32_t(20*(is_large?1.5:1)),"File",vc(1),vc(14),0,true);
 	draw_text_button(screen,window_xofs+117*mul,window_yofs+(166+yofs)*mul,int32_t(61*(is_large?1.5:1)),int32_t(20*(is_large?1.5:1)),"Leech",vc(1),vc(14),0,true);
-	
 	//int32_t rectw = 16*mul;
 	//rect(screen,selx+screen_xofs,sely+screen_yofs,selx+screen_xofs+((width-1)*rectw)+rectw-1,sely+screen_yofs+((height-1)*rectw)+rectw-1,white);
 	unscare_mouse();
@@ -3858,7 +3428,6 @@ extern void return_RAMpal_color(AL_CONST PALETTE pal, int32_t x, int32_t y, RGB 
 {
 	//these are here to bypass compiler warnings about unused arguments
 	x=x;
-	
 	rgb->r = pal[y].r;
 	rgb->g = pal[y].g;
 	rgb->b = pal[y].b;
@@ -3871,7 +3440,7 @@ void load_imagebuf()
 	//cache QRS
 	//byte cached_rules[QUESTRULES_NEW_SIZE] = { 0 };
 	//for ( int32_t q = 0; q < QUESTRULES_NEW_SIZE; ++q )
-	// { 
+	// {
 	//	cached_rules[q] = quest_rules[q];
 	// }
 	bool compressed=false;
@@ -3879,7 +3448,6 @@ void load_imagebuf()
 	tiledata *hold=newtilebuf;
 	zquestheader tempheader;
 	memset(&tempheader, 0, sizeof(zquestheader));
-	
 	if(imagebuf)
 	{
 		switch(imagetype)
@@ -3887,7 +3455,6 @@ void load_imagebuf()
 		case ftBMP:
 			destroy_bitmap((BITMAP*)imagebuf);
 			break;
-			
 		case ftZGP:
 		case ftQST:
 		case ftZQT:
@@ -3895,23 +3462,18 @@ void load_imagebuf()
 		case ftTIL:
 			clear_tiles(grabtilebuf);
 			break;
-			
 		case ftBIN:
 			free(imagebuf);
 			break;
 		}
-		
 		imagebuf=NULL;
 	}
-	
 	selx=sely=romofs=0;
 	bp=4;
 	imagetype=filetype(imagepath);
-	
 	dword section_id;
 	dword section_version;
 	dword section_cversion;
-	
 	switch(imagetype)
 	{
 	case ftBMP:
@@ -3923,23 +3485,18 @@ void load_imagebuf()
 		create_rgb_table(&rgb_table, imagepal, NULL);
 		rgb_map = &rgb_table;
 		create_color_table(&imagepal_table, RAMpal, return_RAMpal_color, NULL);
-		
 		if(!imagebuf)
 		{
 			imagetype=0;
 		}
-		
 		break;
-		
 	case ftBIN:
 	packfile_password("");
 		imagesize = file_size_ex_password(imagepath, "");
 		tilecount=0;
-		
 		if(imagesize)
 		{
 			imagebuf = malloc(imagesize);
-			
 			if(!readfile(imagepath,imagebuf,imagesize))
 			{
 				free(imagebuf);
@@ -3947,24 +3504,19 @@ void load_imagebuf()
 				imagetype=0;
 			}
 		}
-		
 		break;
-		
 	case ftTIL:
 	packfile_password("");
 		imagesize = file_size_ex_password(imagepath,"");
 		f = pack_fopen_password(imagepath,F_READ,"");
-		
 		if(!f)
 		{
 			goto error;
 		}
-		
 		if(!p_mgetl(&section_id,f,true))
 		{
 			goto error;
 		}
-		
 		if(section_id==ID_TILES)
 		{
 			if(readtiles(f, grabtilebuf, NULL, ZELDA_VERSION, VERSION_BUILD, 0, NEWMAXTILES, false, true)==0)
@@ -3972,49 +3524,40 @@ void load_imagebuf()
 				goto error;
 			}
 		}
-		
 error:
 		pack_fclose(f);
 		tilecount=count_tiles(grabtilebuf);
 		break;
-		
 	case ftZGP:
 	packfile_password("");
 		imagesize = file_size_ex_password(imagepath, "");
 		f=pack_fopen_password(imagepath,F_READ,"");
-		
 		if(!f)
 		{
 			goto error2;
 		}
-		
 		if(!p_mgetl(&section_id,f,true))
 		{
 			goto error2;
 		}
-		
 		if(section_id!=ID_GRAPHICSPACK)
 		{
 			goto error2;
 		}
-		
 		//section version info
 		if(!p_igetw(&section_version,f,true))
 		{
 			goto error2;
 		}
-		
 		if(!p_igetw(&section_cversion,f,true))
 		{
 			goto error2;
 		}
-		
 		//tiles
 		if(!p_mgetl(&section_id,f,true))
 		{
 			goto error2;
 		}
-		
 		if(section_id==ID_TILES)
 		{
 			if(readtiles(f, grabtilebuf, NULL, ZELDA_VERSION, VERSION_BUILD, 0, NEWMAXTILES, false, true)!=0)
@@ -4022,31 +3565,25 @@ error:
 				goto error2;
 			}
 		}
-		
 error2:
 		pack_fclose(f);
 		tilecount=count_tiles(grabtilebuf);
 		break;
-		
 	case ftQST:
 	packfile_password("");
 		encrypted=true;
-		
 	case ftZQT:
 	packfile_password("");
 		compressed=true;
-		
 	case ftQSU:
 	packfile_password("");
 		imagesize = file_size_ex_password(imagepath, encrypted ? datapwd : "");
 		newtilebuf=grabtilebuf;
 		byte skip_flags[4];
-		
 		for(int32_t i=0; i<skip_max; ++i)
 		{
 			set_bit(skip_flags,i,1);
 		}
-		
 		set_bit(skip_flags,skip_tiles,0);
 		set_bit(skip_flags,skip_header,0);
 		//if(encrypted)
@@ -4054,7 +3591,6 @@ error2:
 		loadquest(imagepath,&tempheader,&misc,customtunes,false,compressed,encrypted,true,skip_flags);
 		//loadquest(imagepath,&tempheader,&misc,customtunes,false,compressed,encrypted,false,skip_flags);
 	//fails to keep quest password data / header
-		
 		if(encrypted&&compressed)
 		{
 			if(quest_access(imagepath, &tempheader, compressed) != 1)
@@ -4065,18 +3601,15 @@ error2:
 				chop_path(imagepath);
 			}
 		}
-		
 		//setPackfilePassword(NULL);
 		newtilebuf=hold;
 		tilecount=count_tiles(grabtilebuf);
 		break;
 	}
-	
 	rgb_map = &zq_rgb_table;
 	//restore cashed QRs / rules
-	
 	//for ( int32_t q = 0; q < QUESTRULES_NEW_SIZE; ++q )
-	// { 
+	// {
 	//	quest_rules[q] = cached_rules[q];
 	// }
 }
@@ -4087,11 +3620,9 @@ bool leeching_from_tiles=false;
 const char *bitlist(int32_t index, int32_t *list_size)
 {
 	int32_t imported=2;
-	
 	if(index>=0)
 	{
 		bound(index,0,leeching_from_tiles?2:1);
-		
 		if(index==imported)
 		{
 			sprintf(bitstrbuf,"Imported");
@@ -4100,10 +3631,8 @@ const char *bitlist(int32_t index, int32_t *list_size)
 		{
 			sprintf(bitstrbuf,"%d",4<<index);
 		}
-		
 		return bitstrbuf;
 	}
-	
 	*list_size=leeching_from_tiles?3:2;
 	return NULL;
 }
@@ -4127,7 +3656,6 @@ static DIALOG leech_dlg[] =
 	//9
 	{ jwin_frame_proc,      14,   63-2,   176+70,  50+30,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_ETCHED,             0,       NULL, NULL, NULL },
 	{ jwin_text_proc,       14+8, 60-2,   80,   8,    vc(15),  vc(1),  0,       0,          0,             0, (void *) " Duplicates ", NULL, NULL },
-	
 	{ jwin_check_proc,       20,   70,  168,   8+1,    vc(15),  vc(1),  0,       0,          1,             0, (void *) "Only check new tiles", NULL, NULL },
 	{ jwin_text_proc,       20,   90,   72,   8,    vc(15),  vc(1),  0,       0,          0,             0, (void *) "Normal:", NULL, NULL },
 	{ jwin_text_proc,       20,  100,   72,   8,    vc(15),  vc(1),  0,       0,          0,             0, (void *) "Horizontal Flip:", NULL, NULL },
@@ -4137,19 +3665,15 @@ static DIALOG leech_dlg[] =
 	{ jwin_radio_proc,      144,  90,   64+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
 	{ jwin_radio_proc,      184,  90,   56+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
 	{ jwin_radio_proc,      224,  90,   72+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0,       NULL, NULL, NULL },
-	
 	{ jwin_radio_proc,      144, 100,   64+1,   8+1,    vc(14),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
 	{ jwin_radio_proc,      184, 100,   56+1,   8+1,    vc(14),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
 	{ jwin_radio_proc,      224, 100,   72+1,   8+1,    vc(14),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
-	
 	{ jwin_radio_proc,      144, 110,   64+1,   8+1,    vc(14),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
 	{ jwin_radio_proc,      184, 110,   56+1,   8+1,    vc(14),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
 	{ jwin_radio_proc,      224, 110,   72+1,   8+1,    vc(14),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-	
 	{ jwin_radio_proc,      144, 120,   64+1,   8+1,    vc(14),  vc(1),  0,       0,          4,             0,       NULL, NULL, NULL },
 	{ jwin_radio_proc,      184, 120,   56+1,   8+1,    vc(14),  vc(1),  0,       0,          4,             0,       NULL, NULL, NULL },
 	{ jwin_radio_proc,      224, 120,   72+1,   8+1,    vc(14),  vc(1),  0,       0,          4,             0,       NULL, NULL, NULL },
-	
 	{ jwin_ctext_proc,      144+4,  80,   64+1,   8+1,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Ignore", NULL, NULL },
 	{ jwin_ctext_proc,      184+4,  80,   56+1,   8+1,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Check", NULL, NULL },
 	{ jwin_ctext_proc,      224+4,  80,   72+1,   8+1,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Discard", NULL, NULL },
@@ -4181,44 +3705,33 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 	sprintf(updatestring, "%d", LeechUpdate);
 	leech_dlg[0].dp2=lfont;
 	leech_dlg[6].dp=updatestring;
-	
 	leech_dlg[10].flags=(OnlyCheckNewTilesForDuplicates!=0) ? D_SELECTED : 0;
-	
 	for(int32_t i=0; i<2; i++)
 	{
 		leech_dlg[i+7].flags=0;
 	}
-	
 	leech_dlg[7+((LeechUpdateTiles==0) ? 1 : 0)].flags=D_SELECTED;
-	
 	for(int32_t i=0; i<12; i++)
 	{
 		leech_dlg[i+16].flags=0;
 	}
-	
 	for(int32_t i=0; i<4; i++)
 	{
 		leech_dlg[(DuplicateAction[i])+16+(i*3)].flags=D_SELECTED;
 	}
-	
 	leech_dlg[31].d1=0;
-	
 	if(is_large)
 		large_dialog(leech_dlg);
-		
 	int32_t ret = zc_popup_dialog(leech_dlg,3);
-	
 	if(ret==2)
 	{
 		delete[] testtile;
 		return false;
 	}
-	
 	int32_t cdepth=leech_dlg[31].d1+1;
 	int32_t newformat=0;
 	LeechUpdate=atoi(updatestring);
 	LeechUpdateTiles=(leech_dlg[7].flags&D_SELECTED)?1:0;
-	
 	for(int32_t j=0; j<4; j++)
 	{
 		for(int32_t i=0; i<3; i++)
@@ -4229,18 +3742,14 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 			}
 		}
 	}
-	
 	OnlyCheckNewTilesForDuplicates=leech_dlg[10].flags&D_SELECTED?1:0;
-	
 	leeching_from_tiles=false;
-	
 	switch(imagetype)
 	{
 	case ftBIN:
 		width=imagesize/128;
 		height=1;
 		break;
-		
 	case ftZGP:
 	case ftQST:
 	case ftZQT:
@@ -4250,13 +3759,11 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 		width=count_tiles(grabtilebuf);
 		height=1;
 		break;
-		
 	case ftBMP:
 		width=((((BITMAP*)imagebuf)->w)+15)/16;
 		height=((((BITMAP*)imagebuf)->h)+15)/16;
 		break;
 	}
-	
 	if(currtile+(width*height)>NEWMAXTILES)
 	{
 		if(jwin_alert("Confirm Truncation","Too many tiles.","Truncation may occur.",NULL,"&OK","&Cancel",'o','c',lfont)==2)
@@ -4265,10 +3772,8 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 			return false;
 		}
 	}
-	
 	go_tiles();
 	saved=false;
-	
 	//  usetiles=true;
 	for(int32_t ty=0; ty<height; ty++)                            //for every row
 	{
@@ -4280,7 +3785,6 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 				static BITMAP *tbar = create_bitmap_ex(8,240-6, 18);
 				static bool created_tbar=false;
 				jwin_draw_win(status, 0, 0, 240, 140, FR_WIN);
-				
 				if(created_tbar)
 				{
 					blit(tbar, status, 0, 0, 3, 3, 240-6, 18);
@@ -4293,7 +3797,6 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 					created_tbar=true;
 					blit(tbar, status, 0, 0, 3, 3, 320-6, 18);
 				}
-				
 				textprintf_centre_ex(status,font,120,24,jwin_pal[jcTEXTFG],-1,"Checking %d of %d",((ty*width)+tx), (width*height));
 				textprintf_centre_ex(status,font,120,34,jwin_pal[jcTEXTFG],-1,"%d tiles imported",currtile-start);
 				jwin_draw_frame(status, 40, 49, 160, 70, FR_ETCHED);
@@ -4309,20 +3812,16 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 				unscare_mouse();
 				SCRFIX();
 			}
-			
 			canadd=true;
-			
 			if(currtile>=NEWMAXTILES)                             //if we've maxed out on our tiles...
 			{
 				delete[] testtile;
 				return true;
 			}
-			
 			switch(imagetype)
 			{
 			case ftBIN:
 				break;
-				
 			case ftZGP:
 			case ftQST:
 			case ftZQT:
@@ -4330,18 +3829,15 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 			case ftTIL:
 				memset(testtile, 0, tilesize(tf32Bit));
 				imported_format=grabtilebuf[tx].format;
-				
 				switch(cdepth)
 				{
 				case 1:  //4-bit
 					newformat=tf4Bit;
-					
 					switch(imported_format)
 					{
 					case tf4Bit:
 						memcpy(testtile,grabtilebuf[tx].data,tilesize(imported_format));
 						break;
-						
 					case tf8Bit:
 						for(int32_t y=0; y<16; y++)                           //snag a tile
 						{
@@ -4352,22 +3848,17 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 									((grabtilebuf[tx].data[y*16+x+1]&15)<<4);
 							}
 						}
-						
 						break;
 					}
-					
 					break;
-					
 				case 2:  //8-bit
 					newformat=tf8Bit;
-					
 					switch(imported_format)
 					{
 					case tf4Bit:
 						unpack_tile(grabtilebuf, tx, 0, true);
 						cst = cs&15;
 						cst <<= CSET_SHFT;
-						
 						for(int32_t i=0; i<256; i++)
 						{
 							if(!shift||unpackbuf[i]!=0)
@@ -4375,28 +3866,21 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 								unpackbuf[i]+=cst;
 							}
 						}
-						
 						pack_tiledata(testtile, unpackbuf, tf8Bit);
 						break;
-						
 					case tf8Bit:
 						memcpy(testtile,grabtilebuf[tx].data,tilesize(imported_format));
 						break;
 					}
-					
 					break;
-					
 				case 3:  //original tile's bit depth
 					newformat=imported_format;
 					memcpy(testtile,grabtilebuf[tx].data,tilesize(imported_format));
 					break;
 				}
-				
 				break;
-				
 			case ftBMP:
 				newformat=cdepth;
-				
 				for(int32_t y=0; y<16; y++)                           //snag a tile
 				{
 					for(int32_t x=0; x<16; x+=2)
@@ -4408,7 +3892,6 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 								(getpixel(((BITMAP*)imagebuf),(tx*16)+x,(ty*16)+y)&15)+
 								((getpixel(((BITMAP*)imagebuf),(tx*16)+x+1,(ty*16)+y)&15)<<4);
 							break;
-							
 						case tf8Bit:
 							testtile[(y*16)+x]=getpixel(((BITMAP*)imagebuf),(tx*16)+x,(ty*16)+y);
 							testtile[(y*16)+x+1]=getpixel(((BITMAP*)imagebuf),(tx*16)+x+1,(ty*16)+y);
@@ -4416,14 +3899,11 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 						}
 					}
 				}
-				
 				break;
 			}
-			
 			if(DuplicateAction[0]+DuplicateAction[1]+DuplicateAction[2]+DuplicateAction[3]>0)
 			{
 				temp_canadd=true;
-				
 				//check all tiles before this one
 				for(int32_t checktile=((OnlyCheckNewTilesForDuplicates!=0)?start:0); ((temp_canadd==true)&&(checktile<currtile)); checktile++)
 				{
@@ -4436,9 +3916,7 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 								delete[] testtile;
 								return true;
 							}
-							
 							duplicate=(newformat==imported_format);
-							
 							if(duplicate)
 							{
 								switch(flipping)
@@ -4458,9 +3936,7 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 											}
 										}
 									}
-									
 									break;
-									
 								case 1:                                     //horizontal
 									if(dest[checktile].data!=NULL)
 									{
@@ -4476,9 +3952,7 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 											}
 										}
 									}
-									
 									break;
-									
 								case 2:                                     //vertical
 									if(dest[checktile].data!=NULL)
 									{
@@ -4494,9 +3968,7 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 											}
 										}
 									}
-									
 									break;
-									
 								case 3:                                     //both
 									if(dest[checktile].data!=NULL)
 									{
@@ -4512,16 +3984,13 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 											}
 										}
 									}
-									
 									break;
 								}
 							}
-							
 							if(duplicate==true)
 							{
 								++duplicates_found[flipping];
 								++total_duplicates_found;
-								
 								if(DuplicateAction[flipping]>1)
 								{
 									++total_duplicates_discarded;
@@ -4529,27 +3998,21 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 								}
 							}
 						}
-						
 						canadd=canadd&&temp_canadd;
 					}
 				}
 			}
-			
 //      dest[currtile].format=(cdepth==3?imported_format:cdepth);
 			dest[currtile].format=newformat;
-			
 			if(dest[currtile].data!=NULL)
 			{
 				free(dest[currtile].data);
 			}
-			
 			dest[currtile].data=(byte *)malloc(tilesize(dest[currtile].format));
-			
 			if(dest[currtile].data==NULL)
 			{
 				Z_error_fatal("Unable to initialize tile #%d.\n", currtile);
 			}
-			
 			if(canadd==true)
 			{
 				/*
@@ -4566,7 +4029,6 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 			}
 		}
 	}
-	
 	destroy_bitmap(status);
 	delete[] testtile;
 	return true;
@@ -4578,7 +4040,6 @@ void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t ofo
 	byte defFormat=(bp==8) ? tf8Bit : tf4Bit;
 	byte format=defFormat;
 	int32_t stile = ((imagey*TILES_PER_ROW)+imagex)+(((sely/16)*TILES_PER_ROW)+(selx/16));
-	
 	switch(imagetype)
 	{
 	case ftZGP:
@@ -4593,7 +4054,6 @@ void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t ofo
 			for(int32_t tx=0; tx<width; tx++)
 			{
 				format=defFormat;
-				
 				switch(imagetype)
 				{
 				case ftZGP:
@@ -4604,7 +4064,6 @@ void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t ofo
 					format=grabtilebuf[stile+((ty*TILES_PER_ROW)+tx)].format;
 					break;
 				}
-				
 				for(int32_t y=0; y<16; y++)
 				{
 					for(int32_t x=0; x<16; x+=2)
@@ -4619,28 +4078,23 @@ void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t ofo
 								case tf4Bit:
 									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=def[(y*8)+(x/2)];
 									break;
-									
 								case tf8Bit:
 									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*8)+(x/2)]&15;
 									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*8)+(x/2)]>>4;
 									break;
 								}
-								
 								break;
-								
 							case tf8Bit:
 								switch(format)
 								{
 								case tf4Bit:
 									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=(def[(y*16)+(x)]&15)+(def[(y*16)+(x+1)]<<4);
 									break;
-									
 								case tf8Bit:
 									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*16)+(x)];
 									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*16)+(x+1)];
 									break;
 								}
-								
 								break;
 							}
 						}
@@ -4654,28 +4108,23 @@ void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t ofo
 								case tf4Bit:
 									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=def[(y*8)+(x/2)];
 									break;
-									
 								case tf8Bit:
 									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*8)+(x/2)]&15;
 									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*8)+(x/2)]>>4;
 									break;
 								}
-								
 								break;
-								
 							case tf8Bit:
 								switch(format)
 								{
 								case tf4Bit:
 									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=(def[(y*16)+(x)]&15)+(def[(y*16)+(x+1)]<<4);
 									break;
-									
 								case tf8Bit:
 									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*16)+(x)];
 									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*16)+(x+1)];
 									break;
 								}
-								
 								break;
 							}
 						}
@@ -4689,28 +4138,23 @@ void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t ofo
 								case tf4Bit:
 									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=def[(y*8)+(x/2)];
 									break;
-									
 								case tf8Bit:
 									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*8)+(x/2)]&15;
 									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*8)+(x/2)]>>4;
 									break;
 								}
-								
 								break;
-								
 							case tf8Bit:
 								switch(format)
 								{
 								case tf4Bit:
 									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=(def[(y*16)+(x)]&15)+(def[(y*16)+(x+1)]<<4);
 									break;
-									
 								case tf8Bit:
 									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*16)+(x)];
 									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*16)+(x+1)];
 									break;
 								}
-								
 								break;
 							}
 						}
@@ -4724,28 +4168,23 @@ void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t ofo
 								case tf4Bit:
 									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=def[(y*8)+(x/2)];
 									break;
-									
 								case tf8Bit:
 									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*8)+(x/2)]&15;
 									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*8)+(x/2)]>>4;
 									break;
 								}
-								
 								break;
-								
 							case tf8Bit:
 								switch(format)
 								{
 								case tf4Bit:
 									dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=(def[(y*16)+(x)]&15)+(def[(y*16)+(x+1)]<<4);
 									break;
-									
 								case tf8Bit:
 									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x)]=def[(y*16)+(x)];
 									dest[(ty*TILES_PER_ROW)+tx][(y*16)+(x+1)]=def[(y*16)+(x+1)];
 									break;
 								}
-								
 								break;
 							}
 						}
@@ -4758,7 +4197,6 @@ void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t ofo
 								dest[(ty*TILES_PER_ROW)+tx][(y*16)+x+1]=getpixel(screen2,(tx*16)+x+1+selx,(ty*16)+y+sely);
 								newformat[(ty*TILES_PER_ROW)+tx] = tf8Bit;
 								break;
-								
 							case tf4Bit:
 							default:
 								dest[(ty*TILES_PER_ROW)+tx][(y*8)+(x/2)]=(getpixel(screen2,(tx*16)+x+selx,(ty*16)+y+sely)&15)+((getpixel(screen2,(tx*16)+x+1+selx,(ty*16)+y+sely)&15)<<4);
@@ -4770,9 +4208,7 @@ void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t ofo
 				}
 			}
 		}
-		
 		break;
-		
 	default:
 		for(int32_t i=0; i<200; i++)
 		{
@@ -4780,15 +4216,13 @@ void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t ofo
 			{
 				dest[i][j]=0;
 			}
-			
 			newformat[i] = tf4Bit;
 		}
-		
 		break;
 	}
 }
 
-//Grabber is not grabbing to tile pages beyond pg. 252 right now. -ZX 18th June, 2019 
+//Grabber is not grabbing to tile pages beyond pg. 252 right now. -ZX 18th June, 2019
 void grab_tile(int32_t tile,int32_t &cs)
 {
 	int32_t window_xofs=0;
@@ -4807,7 +4241,6 @@ void grab_tile(int32_t tile,int32_t &cs)
 	int32_t file_button_y = 216;
 	int32_t rec_button_x = 141;
 	int32_t rec_button_y = 192;
-	
 	if(is_large)
 	{
 		window_xofs=(zq_screen_w-640-12)>>1;
@@ -4827,15 +4260,12 @@ void grab_tile(int32_t tile,int32_t &cs)
 		bwidth = int32_t(bwidth*1.5);
 		bheight = int32_t(bheight*1.5);
 	}
-	
 	byte newtile[200][256];
 	BITMAP *screen3=create_bitmap_ex(8, zq_screen_w, zq_screen_h);
 	clear_bitmap(screen3);
 	byte newformat[200];
-	
 	memset(newtile, 0, 200*256);
 	memset(newformat, 0, 200);
-	
 	static EXT_LIST list[] =
 	{
 		{ (char *)"All Files (*.*)",                   NULL },
@@ -4853,8 +4283,6 @@ void grab_tile(int32_t tile,int32_t &cs)
 		{ (char *)"Gameboy Advance ROM Image (*.gba)", (char *)"gba" },
 		{ NULL,                                        NULL }
 	};
-	
-	
 	memset(cset_reduce_table, 0, 256);
 	memset(col_diff,0,3*128);
 	bool bdown=false;
@@ -4866,46 +4294,36 @@ void grab_tile(int32_t tile,int32_t &cs)
 	int32_t selx2=0, sely2=0;
 	bool xreversed=false, yreversed=false;
 	bool doleech=false, dofile=false, dopal=false;
-	
 	int32_t jwin_pal2[jcMAX];
 	memcpy(jwin_pal2, jwin_pal, sizeof(int32_t)*jcMAX);
-	
-	
 	if(imagebuf==NULL)
 		load_imagebuf();
-		
 	calc_cset_reduce_table(imagepal, cs);
 	calc_cset_reduce_table_8bit(imagepal);
 	draw_grab_window();
 	draw_grab_scr(tile,cs,newtile[0],black,white, selwidth, selheight, newformat);
 	grab(newtile,newtilebuf[tile].data, selwidth, selheight, newtilebuf[tile].format, newformat);
 	draw_grab_scr(tile,cs,newtile[0],black,white, selwidth, selheight, newformat);
-	
 	while(gui_mouse_b())
 	{
 		/* do nothing */
 		rest(1);
 	}
-	
 	do
 	{
 		rest(4);
 		bool redraw=false;
-		
 		if(keypressed())
 		{
 			redraw=true;
-			
 			switch(readkey()>>8)
 			{
 			case KEY_F:
 				dofile=true;
 				break;
-				
 			case KEY_L:
 				doleech=true;
 				break;
-				
 			case KEY_P:
 				if(imagetype==ftBMP)
 				{
@@ -4913,75 +4331,56 @@ void grab_tile(int32_t tile,int32_t &cs)
 					recolor=rcNone;
 					calc_cset_reduce_table(imagepal, cs);
 				}
-				
 				break;
-				
 			case KEY_ESC:
 				done=1;
 				break;
-				
 			case KEY_ENTER_PAD:
 			case KEY_ENTER:
 				done=2;
 				break;
-				
 			case KEY_DOWN:
 				if(key[KEY_ZC_LCONTROL]||key[KEY_ZC_LCONTROL]) sely=zc_min(sely+1,144);
 				else ++imagey;
-				
 				break;
-				
 			case KEY_UP:
 				if(key[KEY_ZC_LCONTROL]||key[KEY_ZC_LCONTROL]) sely=zc_max(sely-1,0);
 				else --imagey;
-				
 				break;
-				
 			case KEY_RIGHT:
 				if(key[KEY_ZC_LCONTROL]||key[KEY_ZC_LCONTROL]) selx=zc_min(selx+1,304);
 				else ++imagex;
-				
 				break;
-				
 			case KEY_LEFT:
 				if(key[KEY_ZC_LCONTROL]||key[KEY_ZC_LCONTROL]) selx=zc_max(selx-1,0);
 				else --imagex;
-				
 				break;
-				
 			case KEY_PGDN:
 				imagey+=10;
 				break;
-				
 			case KEY_PGUP:
 				imagey-=10;
 				break;
-				
 			case KEY_HOME:
 				imagex=imagey=0;
 				break;
-				
 			case KEY_EQUALS:
 			case KEY_PLUS_PAD:
 				cs = (cs<11) ? cs+1:0;
 				if(recolor==rc4Bit)
 					calc_cset_reduce_table(imagepal, cs);
 				break;
-				
 			case KEY_MINUS:
 			case KEY_MINUS_PAD:
 				cs = (cs>0)  ? cs-1:11;
 				if(recolor==rc4Bit)
 					calc_cset_reduce_table(imagepal, cs);
 				break;
-				
 			case KEY_S:
 				if(grabmode==1) grabmode=8;
 				else if(grabmode==8) grabmode=16;
 				else grabmode=1;
-				
 				break;
-				
 			case KEY_1:
 				if(recolor==rc8Bit)
 					recolor=rcNone;
@@ -4990,7 +4389,6 @@ void grab_tile(int32_t tile,int32_t &cs)
 				//imagex<<=3;
 				nesmode=false;
 				break;
-				
 			case KEY_2:
 				if(recolor==rc8Bit)
 					recolor=rcNone;
@@ -4999,7 +4397,6 @@ void grab_tile(int32_t tile,int32_t &cs)
 				//imagex<<=2;
 				nesmode=false;
 				break;
-				
 			case KEY_N:
 				if(recolor==rc8Bit)
 					recolor=rcNone;
@@ -5008,7 +4405,6 @@ void grab_tile(int32_t tile,int32_t &cs)
 				//imagex<<=2;
 				nesmode=true;
 				break;
-				
 			case KEY_4:
 				if(recolor==rc8Bit)
 					recolor=rcNone;
@@ -5017,12 +4413,10 @@ void grab_tile(int32_t tile,int32_t &cs)
 				//imagex<<=1;
 				nesmode=false;
 				break;
-				
 			case KEY_8:
 				//imagex=(imagex*bp)>>3;
 				bp=8;
 				break;
-				
 			case KEY_B:
 				if(bp==2&&!nesmode)
 				{
@@ -5032,7 +4426,6 @@ void grab_tile(int32_t tile,int32_t &cs)
 				{
 					nesmode=false;
 					bp<<=1;
-					
 					if(bp==16)
 					{
 						bp=1;
@@ -5043,28 +4436,21 @@ void grab_tile(int32_t tile,int32_t &cs)
 						//imagex>>=1;
 					}
 				}
-				
 				break;
-				
 			case KEY_M:
 				romtilemode=(romtilemode+1)%4;
 				break;
-				
 			case KEY_Z:
 				if(romofs>0) --romofs;
-				
 				break;
-				
 			case KEY_X:
 				++romofs;
 				break;
-				
 			case KEY_R:
 				if(pal)
 				{
 					dopal=true;
 				}
-				
 				if(recolor!=rcNone)
 					recolor=rcNone;
 				else if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
@@ -5081,21 +4467,15 @@ void grab_tile(int32_t tile,int32_t &cs)
 					calc_cset_reduce_table(imagepal, cs);
 				}
 				break;
-				
 			default:
 				redraw=false;
 			}
-			
 			clear_keybuf();
-			
 			if(imagex<0) imagex=0;
-			
 			if(imagey<0) imagey=0;
-			
 			draw_grab_scr(tile,cs,newtile[0],black,white, selwidth, selheight, newformat);
 			grab(newtile,newtilebuf[tile].data, selwidth, selheight, newtilebuf[tile].format, newformat);
 		}
-		
 		//boogie!
 		if(gui_mouse_b()==1 && !bdown)
 		{
@@ -5109,7 +4489,6 @@ void grab_tile(int32_t tile,int32_t &cs)
 					}
 				}
 			}
-			
 			if(!bdown)
 			{
 				bool regrab=false;
@@ -5118,17 +4497,14 @@ void grab_tile(int32_t tile,int32_t &cs)
 				int32_t y=gui_mouse_y()-window_xofs;
 				// Large Mode: change font temporarily
 				FONT* oldfont = font;
-				
 				if(is_large)
 					font = lfont_l;
-					
 				if(y>=0 && y<=160*mul)
 				{
 					while(gui_mouse_b())
 					{
 						x=(gui_mouse_x()-screen_xofs) / mul;
 						y=(gui_mouse_y()-screen_yofs) / mul;
-						
 						if(!(key[KEY_LSHIFT] || key[KEY_RSHIFT]))
 						{
 							selx=vbound((x/grabmode)*grabmode,0,304);
@@ -5147,31 +4523,26 @@ void grab_tile(int32_t tile,int32_t &cs)
 								zc_swap(selx, selx2);
 								xreversed=false;
 							}
-							
 							if(yreversed)
 							{
 								zc_swap(sely, sely2);
 								yreversed=false;
 							}
-							
 							selx2=vbound((x/grabmode)*grabmode,0,304);
 							sely2=vbound((y/grabmode)*grabmode,0,144);
 							selwidth=1+(abs(selx2-selx))/16;
 							selheight=1+(abs(sely2-sely))/16;
-							
 							if(selx2<selx)
 							{
 								zc_swap(selx, selx2);
 								xreversed=true;
 							}
-							
 							if(sely2<sely)
 							{
 								zc_swap(sely, sely2);
 								yreversed=true;
 							}
 						}
-						
 						//selx*=mul;
 						//sely*=mul;
 						//         grab(newtile,tilebuf+(tile<<7), 1, 1);
@@ -5211,7 +4582,6 @@ void grab_tile(int32_t tile,int32_t &cs)
 						{
 							dopal = true;
 						}
-						
 						if(recolor!=rcNone)
 							recolor=rcNone;
 						else if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
@@ -5250,24 +4620,19 @@ void grab_tile(int32_t tile,int32_t &cs)
 					regrab=true;
 					grabmask^=8;
 				}
-				
 				if(regrab)
 				{
 					//       grab(newtile,tilebuf+(tile<<7), 1, 1);
 					grab(newtile,newtilebuf[tile].data, selwidth, selheight, newtilebuf[tile].format, newformat);
 					redraw=true;
 				}
-				
 				font = oldfont;
 			}
 		}
-		
 		if(gui_mouse_b()==0)
 			bdown=false;
-			
 		if(dofile)
 		{
-		
 			if(getname_nogo("Load File",NULL,list,imagepath,true))
 			{
 				set_palette(RAMpal);
@@ -5282,18 +4647,15 @@ void grab_tile(int32_t tile,int32_t &cs)
 				//           grab(newtile,tilebuf+(tile<<7), 1, 1);
 				grab(newtile,newtilebuf[tile].data, selwidth, selheight, newtilebuf[tile].format, newformat);
 			}
-			
 			while(key[KEY_ESC])
 			{
 				/* do nothing */
 				rest(1);
 			}
-			
 			clear_keybuf();
 			dofile=false;
 			redraw=true;
 		}
-		
 		if(doleech)
 		{
 			if(leech_tiles(newtilebuf,tile,cs))
@@ -5307,22 +4669,17 @@ void grab_tile(int32_t tile,int32_t &cs)
 					/* do nothing */
 					rest(1);
 				}
-				
 				clear_keybuf();
 				redraw=true;
 			}
-			
 			doleech=false;
 		}
-		
 		if(dopal)
 		{
 			pal^=1;
-			
 			if(pal)
 			{
 				get_bw(imagepal,black,white);
-				
 				jwin_pal[jcBOX]    =imagepal_table.data[0][jwin_pal[jcBOX]];
 				jwin_pal[jcLIGHT]  =imagepal_table.data[0][jwin_pal[jcLIGHT]];
 				jwin_pal[jcMEDLT]  =imagepal_table.data[0][jwin_pal[jcMEDLT]];
@@ -5344,19 +4701,15 @@ void grab_tile(int32_t tile,int32_t &cs)
 			{
 				white=vc(15);
 				black=vc(0);
-				
 				memcpy(jwin_pal, jwin_pal2, sizeof(int32_t)*jcMAX);
 				gui_bg_color=jwin_pal[jcBOX];
 				gui_fg_color=jwin_pal[jcBOXFG];
 				jwin_set_colors(jwin_pal);
 			}
-			
 			set_palette_range(pal?imagepal:RAMpal,0,255,false);
-			
 			dopal=false;
 			redraw=true;
 		}
-		
 		if(redraw)
 		{
 			draw_grab_scr(tile,cs,newtile[0],black,white, selwidth, selheight, newformat);
@@ -5365,45 +4718,35 @@ void grab_tile(int32_t tile,int32_t &cs)
 		{
 			custom_vsync();
 		}
-		
 		if((f%8)==0)
 		{
 			if(is_large)
 				stretch_blit(screen2,screen3,0, 0, zq_screen_w, zq_screen_h, 0, 0, zq_screen_w*2, zq_screen_h*2);
 			else
 				blit(screen2,screen3,0, 0, 0, 0, zq_screen_w, zq_screen_h);
-				
 			int32_t selxl = selx* mul;
 			int32_t selyl = sely* mul;
 			int32_t w = 16*mul;
-			
 			if(f&8)
 			{
 				rect(screen3,selxl,selyl,selxl+((selwidth-1)*w)+(w-1),selyl+((selheight-1)*w)+(w-1),white);
 			}
-			
 			scare_mouse();
 			blit(screen3,screen,selxl,selyl,selxl+screen_xofs,selyl+screen_yofs,selwidth*w,selheight*w);
 			unscare_mouse();
 		}
-		
 		//    SCRFIX();
 		++f;
-		
 	}
 	while(!done);
-	
 	memcpy(jwin_pal, jwin_pal2, sizeof(int32_t)*jcMAX);
 	gui_bg_color=jwin_pal[jcBOX];
 	gui_fg_color=jwin_pal[jcBOXFG];
 	jwin_set_colors(jwin_pal);
-	
-	
 	if(done==2)
 	{
 		go_tiles();
 		saved=false;
-			
 		//   usetiles=true;
 		for(int32_t y=0; y<selheight; y++)
 		{
@@ -5411,22 +4754,16 @@ void grab_tile(int32_t tile,int32_t &cs)
 			{
 				int32_t temptile=tile+((TILES_PER_ROW*y)+x);
 				int32_t format=(bp==8) ? tf8Bit : tf4Bit;
-				
 				if(newtilebuf[temptile].data!=NULL)
 					free(newtilebuf[temptile].data);
-				
 				newtilebuf[temptile].format=format;
 				newtilebuf[temptile].data=(byte *)malloc(tilesize(format));
-				
 				//newtilebuf[temptile].format=newformat[(TILES_PER_ROW*y)+x];
-				
-				
 				if(newtilebuf[temptile].data==NULL)
 				{
 					Z_error_fatal("Unable to initialize tile #%d.\n", temptile);
 					break;
 				}
-				
 				for(int32_t i=0; i<((format==tf8Bit) ? 256 : 128); i++)
 				{
 					newtilebuf[temptile].data[i] = newtile[(TILES_PER_ROW*y)+x][i];
@@ -5434,12 +4771,9 @@ void grab_tile(int32_t tile,int32_t &cs)
 			}
 		}
 	}
-	
 	destroy_bitmap(screen3);
-	
 	if(pal)
 		set_palette(RAMpal);
-	
 	recolor=rcNone;
 	calc_cset_reduce_table(imagepal, cs);
 	register_blank_tiles();
@@ -5458,31 +4792,25 @@ void draw_tiles(BITMAP* dest,int32_t first,int32_t cs, int32_t f, bool large, bo
 {
 	clear_bitmap(dest);
 	BITMAP *buf = create_bitmap_ex(8,16,16);
-	
 	int32_t w = 16;
 	int32_t h = 16;
-	
 	if(large)
 	{
 		w *=2;
 		h *=2;
 	}
-	
 	for(int32_t i=0; i<TILES_PER_PAGE; i++)                       // 13 rows, leaving 32 pixels from y=208 to y=239
 	{
 		int32_t x = (i%TILES_PER_ROW)<<4;
 		int32_t y = (i/TILES_PER_ROW)<<4;
 		int32_t l = 16;
-		
 		if(large)
 		{
 			x*=2;
 			y*=2;
 			l*=2;
 		}
-		
 		l-=2;
-		
 		if((HIDE_USED && tile_is_used(first+i) && !blank_tile_table[first+i])   // 1 bit: hide used
 				|| (HIDE_UNUSED && !tile_is_used(first+i) && !blank_tile_table[first+i]) // 2 bit: hide unused
 				|| (HIDE_BLANK && blank_tile_table[first+i]))	// 4 bit: hide blank
@@ -5519,13 +4847,11 @@ void draw_tiles(BITMAP* dest,int32_t first,int32_t cs, int32_t f, bool large, bo
 			puttile16(buf,first+i,0,0,cs,0);
 			stretch_blit(buf,dest,0,0,16,16,x,y,w,h);
 		}
-		
 		if((f%32)<=16 && large && !HIDE_8BIT_MARKER && newtilebuf[first+i].format==tf8Bit)
 		{
 			textprintf_ex(dest,z3smallfont,(x)+l-3,(y)+l-3,vc(int32_t((f%32)/6)+10),-1,"8");
 		}
 	}
-	
 	destroy_bitmap(buf);
 }
 
@@ -5535,7 +4861,6 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	BITMAP *buf = create_bitmap_ex(8,16,16);
 	int32_t mul = is_large + 1;
 	FONT *tfont = pfont;
-	
 	if(is_large)
 	{
 //    jwin_draw_frame(screen2,-2,-2,324,212,FR_DEEP);
@@ -5549,7 +4874,6 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	{
 		jwin_draw_win(screen2,0, 208, 320, 32, FR_WIN);
 	}
-	
 	// Copied tile and numbers
 	jwin_draw_frame(screen2,(34*mul)-2,((216*mul)+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
 	int32_t coldiff=TILECOL(copy)-TILECOL(copy+copycnt-1);
@@ -5557,7 +4881,6 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	{
 		puttile16(buf,rect_sel&&coldiff>0?copy-coldiff:copy,0,0,cs,0);
 		stretch_blit(buf,screen2,0,0,16,16,34*mul,216*mul+yofs,16*mul,16*mul);
-		
 		if(copycnt>1)
 		{
 			textprintf_right_ex(screen2,tfont,28*mul,(216*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d-",copy);
@@ -5588,58 +4911,45 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 			line(screen2, 34*mul, ((216+15)*mul)+yofs, (34+15)*mul, (216*mul)+yofs, vc(15));
 		}
 	}
-	
-	
 	// Current tile
 	jwin_draw_frame(screen2,(104*mul)-2,(216*mul+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
 	puttile16(buf,tile,0,0,cs,0);
 	stretch_blit(buf,screen2,0,0,16,16,104*mul,216*mul+yofs,16*mul,16*mul);
-	
 	// Current selection mode
 	jwin_draw_frame(screen2,(127*mul)-2,(216*mul+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
 	stretch_blit(select_bmp[rect_sel?1:0],screen2,0,0,16,16,127*mul,216*mul+yofs,16*mul,16*mul);
-	
 	if(tile>tile2)
 	{
 		zc_swap(tile,tile2);
 	}
-	
 	char tbuf[8];
 	tbuf[0]=0;
-	
 	if(tile2!=tile)
 	{
 		sprintf(tbuf,"-%d",tile2);
 	}
-	
 	// Current tile and CSet text
 	textprintf_ex(screen2,tfont,55*mul,216*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"cs: %d",cs);
 	textprintf_right_ex(screen2,tfont,99*mul,216*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"tile:");
 	textprintf_right_ex(screen2,tfont,99*mul,224*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d%s",tile,tbuf);
-	
 	FONT *tf = font;
 	font = tfont;
-	
 	draw_text_button(screen2,150*mul,213*mul+yofs,28*mul,21*mul,"Grab",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
 	draw_text_button(screen2,(150+28)*mul,213*mul+yofs,28*mul,21*mul,"Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
 	draw_text_button(screen2,(150+28*2)*mul,213*mul+yofs,28*mul,21*mul,"Export",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
 	draw_text_button(screen2,(150+28*3)*mul,213*mul+yofs,28*mul,21*mul,"Recolor",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
 	draw_text_button(screen2,(150+28*4)*mul,213*mul+yofs,28*mul,21*mul,"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
-	
 	textprintf_ex(screen2,font,305*mul,212*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x88");
 	textprintf_ex(screen2,tfont,293*mul,220*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"p:");
 	textprintf_centre_ex(screen2,tfont,(305*mul+4),220*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",page);
 	textprintf_ex(screen2,font,305*mul,228*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x89");
-	
 	font = tf;
-	
 	int32_t window_xofs=0;
 	int32_t window_yofs=0;
 	int32_t screen_xofs=0;
 	int32_t screen_yofs=0;
 	int32_t w = 320*mul;
 	int32_t h = 240*mul;
-	
 	if(is_large)
 	{
 		window_xofs=(zq_screen_w-w-12)>>1;
@@ -5647,7 +4957,6 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 		screen_xofs=window_xofs+6;
 		screen_yofs=window_yofs+25;
 	}
-	
 	custom_vsync();
 	scare_mouse();
 	blit(screen2,screen,0,0,screen_xofs,screen_yofs,w,h);
@@ -5662,7 +4971,6 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 	BITMAP *buf = create_bitmap_ex(8,16,16);
 	int32_t mul = is_large + 1;
 	FONT *tfont = pfont;
-	
 	if(is_large)
 	{
 //    jwin_draw_frame(screen2,-2,-2,324,212,FR_DEEP);
@@ -5676,9 +4984,7 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 	{
 		jwin_draw_win(screen2,0, 208, 320, 32, FR_WIN);
 	}
-	
 	jwin_draw_frame(screen2,(124*mul)-2,((216*mul)+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
-	
 	if(copy>=0)
 	{
 		puttile16(buf,copy,0,0,cs,flip);
@@ -5704,52 +5010,41 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 			line(screen2, 124*mul, ((216+15)*mul)+yofs, (124+15)*mul, (216*mul)+yofs, vc(15));
 		}
 	}
-	
 	jwin_draw_frame(screen2,(8*mul)-2,(216*mul+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
 	puttile16(buf,oldtile,0,0, oldcs, oldflip);
 	stretch_blit(buf,screen2,0,0,16,16,8*mul,216*mul+yofs,16*mul,16*mul);
-	
 	textprintf_right_ex(screen2,tfont,56*mul,212*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old Tile:");
 	textprintf_ex(screen2,tfont,60*mul,212*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",oldtile);
-	
 	textprintf_right_ex(screen2,tfont,56*mul,220*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet:");
 	textprintf_ex(screen2,tfont,60*mul,220*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",oldcs);
-	
 	if(oldflip > 0 || always_use_flip)  // Suppress Flip for this usage
 	{
 		textprintf_right_ex(screen2,tfont,56*mul,228*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Flip:");
 		textprintf_ex(screen2,tfont,60*mul,228*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",oldflip);
 	}
-	
 	jwin_draw_frame(screen2,(148*mul)-2,(216*mul+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
 	puttile16(buf,tile,0,0, cs,
 			  (oldflip>0 || always_use_flip)?flip:0); // Suppress Flip for this usage
 	stretch_blit(buf,screen2,0,0,16,16,148*mul,216*mul+yofs,16*mul,16*mul);
-	
 	textprintf_right_ex(screen2,tfont,201*mul,212*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New Tile:");
 	textprintf_ex(screen2,tfont,205*mul,212*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",tile);
 	textprintf_right_ex(screen2,tfont,201*mul,220*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet:");
 	textprintf_ex(screen2,tfont,205*mul,220*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",cs);
-	
 	if(oldflip > 0 || always_use_flip)  // Suppress Flip for this usage
 	{
 		textprintf_right_ex(screen2,tfont,201*mul,228*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Flip:");
 		textprintf_ex(screen2,tfont,205*mul,228*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",flip);
 	}
-	
 	textprintf_ex(screen2,font,305*mul,212*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x88");
 	textprintf_ex(screen2,tfont,293*mul,220*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"p:");
 	textprintf_centre_ex(screen2,tfont,309*mul,220*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",page);
 	textprintf_ex(screen2,font,305*mul,228*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x89");
-	
-	
 	int32_t window_xofs=0;
 	int32_t window_yofs=0;
 	int32_t screen_xofs=0;
 	int32_t screen_yofs=0;
 	int32_t w = 320;
 	int32_t h = 240;
-	
 	if(is_large)
 	{
 		w*=2;
@@ -5759,7 +5054,6 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 		screen_xofs=window_xofs+6;
 		screen_yofs=window_yofs+25;
 	}
-	
 	custom_vsync();
 	scare_mouse();
 	blit(screen2,screen,0,0,screen_xofs,screen_yofs,w,h);
@@ -5877,12 +5171,10 @@ int32_t move_intersection_ss(newcombo &cmb, int32_t selection_first, int32_t sel
 	reset_combo_animation(cmb);
 	cmb_first += offset;
 	cmb_last += offset;
-	
 	if(cmb_first > selection_last || cmb_last < selection_first)
 		return ti_none;
 	if(cmb_first >= selection_first && cmb_last <= selection_last)
 		return ti_encompass;
-	
 	do
 	{
 		if(cmb.tile+offset >= selection_first && cmb.tile+offset <= selection_last)
@@ -5903,13 +5195,11 @@ int32_t move_intersection_ss(int32_t check_first, int32_t check_last, int32_t se
 	{
 		return ti_none;
 	}
-	
 	// if selection envelopes check
 	if((selection_first<=check_first)&&(selection_last>=check_last))
 	{
 		return ti_encompass;  //encompass
 	}
-	
 	//everything else is a break
 	return ti_broken;  //intersect
 }
@@ -5920,21 +5210,17 @@ int32_t move_intersection_ss(int32_t check_first, int32_t check_last, int32_t se
 int32_t move_intersection_rs(int32_t check_left, int32_t check_top, int32_t check_width, int32_t check_height, int32_t selection_first, int32_t selection_last)
 {
 	int32_t ret1=-1, ret2=-1;
-	
 	for(int32_t i=0; i<check_height; ++i)
 	{
 		int32_t check_first=((check_top+i)*TILES_PER_ROW)+check_left;
 		int32_t check_last=check_first+check_width-1;
 		ret2=move_intersection_ss(check_first, check_last, selection_first, selection_last);
-		
 		if(ret2==ti_broken)
 		{
 			return ti_broken;
 		}
-		
 		ret1=(ret2==ti_encompass?ti_encompass:ret1);
 	}
-	
 	if(ret1==ti_encompass)
 	{
 		if((TILEROW(selection_first)<=check_top) &&
@@ -5947,7 +5233,6 @@ int32_t move_intersection_rs(int32_t check_left, int32_t check_top, int32_t chec
 			return ti_broken;
 		}
 	}
-	
 	return ti_none;
 }
 
@@ -5968,7 +5253,6 @@ int32_t move_intersection_sr(newcombo &cmb, int32_t selection_left, int32_t sele
 		reset_combo_animation(cmb);
 		cmb_first += offset;
 		cmb_last += offset;
-		
 		if((TILEROW(cmb_first)>=selection_top) &&
 				(TILEROW(cmb_last)<=selection_top+selection_height-1) &&
 				(TILECOL(cmb_first)>=selection_left) &&
@@ -5981,12 +5265,10 @@ int32_t move_intersection_sr(newcombo &cmb, int32_t selection_left, int32_t sele
 		{
 			return ti_none;
 		}
-		
 		if(TILEROW(cmb_first) == TILEROW(cmb_last))
 		{
 			int32_t firstcol = TILECOL(cmb_first);
 			int32_t lastcol = TILECOL(cmb_last);
-			
 			if(lastcol < selection_left || firstcol >= selection_left+selection_width)
 				return ti_none;
 			else //handle skip x
@@ -6008,7 +5290,6 @@ int32_t move_intersection_sr(newcombo &cmb, int32_t selection_left, int32_t sele
 		else //multi-row combo...
 		{
 			int32_t row = TILEROW(cmb_first);
-			
 			do
 			{
 				if(row < selection_top || row > selection_top+selection_height-1)
@@ -6023,7 +5304,6 @@ int32_t move_intersection_sr(newcombo &cmb, int32_t selection_left, int32_t sele
 					row = TILEROW(cmb.tile);
 					continue;
 				}
-				
 				//This row IS in the selection; check each tile.
 				do
 				{
@@ -6039,11 +5319,9 @@ int32_t move_intersection_sr(newcombo &cmb, int32_t selection_left, int32_t sele
 				row = TILEROW(cmb.tile);
 			}
 			while(cmb.tile != cmb.o_tile);
-			
 			return ti_none; //...Theoretically unreachable, but if it DOES get here, it's done.
 		}
 	}
-	
 	return move_intersection_ss(cmb, selection_top*TILES_PER_ROW+selection_left, (selection_top+selection_height-1)*TILES_PER_ROW+selection_left+selection_width-1, offset);
 }
 int32_t move_intersection_sr(int32_t check_first, int32_t check_last, int32_t selection_left, int32_t selection_top, int32_t selection_width, int32_t selection_height)
@@ -6063,15 +5341,12 @@ int32_t move_intersection_sr(int32_t check_first, int32_t check_last, int32_t se
 		{
 			return ti_none;
 		}
-		
 		//else if (selection_top*TILES_PER_ROW+selection_left<check_first && (selection_top+1)*TILES_PER_ROW+selection_left>check_last)
-		
 		//one last base case: the strip we're interested in only lies along one row
 		if(check_first/TILES_PER_ROW == check_last/TILES_PER_ROW)
 		{
 			int32_t cfcol = check_first%TILES_PER_ROW;
 			int32_t clcol = check_last%TILES_PER_ROW;
-			
 			if(clcol < selection_left || cfcol >= selection_left+selection_width)
 				return ti_none;
 			else
@@ -6084,21 +5359,16 @@ int32_t move_intersection_sr(int32_t check_first, int32_t check_last, int32_t se
 			int32_t endrow = check_last/TILES_PER_ROW;
 			int32_t accum = 0;
 			accum |= move_intersection_sr(check_first,(currow+1)*TILES_PER_ROW-1,selection_left,selection_top,selection_width,selection_height);
-			
 			for(++currow; currow<endrow; currow++)
 			{
 				accum |= move_intersection_sr(currow*TILES_PER_ROW,(currow+1)*TILES_PER_ROW-1,selection_left,selection_top,selection_width,selection_height);
 			}
-			
 			accum |= move_intersection_sr(currow*TILES_PER_ROW, check_last,selection_left,selection_top,selection_width,selection_height);
-			
 			if(accum > 0)
 				return ti_broken;
-				
 			return ti_none;
 		}
 	}
-	
 	return move_intersection_ss(check_first, check_last, selection_top*TILES_PER_ROW+selection_left, (selection_top+selection_height-1)*TILES_PER_ROW+selection_left+selection_width-1);
 }
 
@@ -6122,7 +5392,6 @@ int32_t move_intersection_rr(int32_t check_left, int32_t check_top, int32_t chec
 			}
 		}
 	}
-	
 	return ti_none;
 }
 
@@ -6352,81 +5621,69 @@ int32_t quick_select_3(int32_t a, int32_t b, int32_t c, int32_t d)
 void setup_hero_sprite_items()
 {
 	int32_t a_style=(zinit.heroAnimationStyle);
-	
 	for(int32_t i=0; i<4; ++i)
 	{
 		hero_sprite_items[i].tile=walkspr[i][spr_tile]-(walkspr[i][spr_extend]<2?0:1)-(walkspr[i][spr_extend]<1?0:TILES_PER_ROW);
 		hero_sprite_items[i].width=(walkspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, (i==0?1:2), 3, 9) + (walkspr[i][spr_extend]<2?0:1);
 		hero_sprite_items[i].height=walkspr[i][spr_extend]<2?1:2;
 	}
-	
 	for(int32_t i=0; i<4; ++i)
 	{
 		hero_sprite_items[4+i].tile=slashspr[i][spr_tile]-(slashspr[i][spr_extend]<2?0:1)-(slashspr[i][spr_extend]<1?0:TILES_PER_ROW);
 		hero_sprite_items[4+i].width=(slashspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 1, 1, 6) + (slashspr[i][spr_extend]<2?0:1);;
 		hero_sprite_items[4+i].height=slashspr[i][spr_extend]<2?1:2;
 	}
-	
 	for(int32_t i=0; i<4; ++i)
 	{
 		hero_sprite_items[8+i].tile=stabspr[i][spr_tile]-(stabspr[i][spr_extend]<2?0:1)-(stabspr[i][spr_extend]<1?0:TILES_PER_ROW);
 		hero_sprite_items[8+i].width=(stabspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 1, 1, 3) + (stabspr[i][spr_extend]<2?0:1);;
 		hero_sprite_items[8+i].height=stabspr[i][spr_extend]<2?1:2;
 	}
-	
 	for(int32_t i=0; i<4; ++i)
 	{
 		hero_sprite_items[12+i].tile=poundspr[i][spr_tile]-(poundspr[i][spr_extend]<2?0:1)-(poundspr[i][spr_extend]<1?0:TILES_PER_ROW);
 		hero_sprite_items[12+i].width=(poundspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 1, 1, 3) + (poundspr[i][spr_extend]<2?0:1);;
 		hero_sprite_items[12+i].height=poundspr[i][spr_extend]<2?1:2;
 	}
-	
 	for(int32_t i=0; i<2; ++i)
 	{
 		hero_sprite_items[16+i].tile=holdspr[0][i][spr_tile]-(holdspr[0][i][spr_extend]<2?0:1)-(holdspr[0][i][spr_extend]<1?0:TILES_PER_ROW);
 		hero_sprite_items[16+i].width=(holdspr[0][i][spr_extend]<2?1:2) + (holdspr[0][i][spr_extend]<2?0:1);;
 		hero_sprite_items[16+i].height=holdspr[0][i][spr_extend]<2?1:2;
 	}
-	
 	hero_sprite_items[18].tile=castingspr[spr_tile]-(castingspr[spr_extend]<2?0:1)-(castingspr[spr_extend]<1?0:TILES_PER_ROW);
 	hero_sprite_items[18].width=(castingspr[spr_extend]<2?1:2) + (castingspr[spr_extend]<2?0:1);;
 	hero_sprite_items[18].height=castingspr[spr_extend]<2?1:2;
-	
 	for(int32_t i=0; i<4; ++i)
 	{
 		hero_sprite_items[19+i].tile=floatspr[i][spr_tile]-(floatspr[i][spr_extend]<2?0:1)-(floatspr[i][spr_extend]<1?0:TILES_PER_ROW);
 		hero_sprite_items[19+i].width=(floatspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 2, 3, 4) + (floatspr[i][spr_extend]<2?0:1);;
 		hero_sprite_items[19+i].height=floatspr[i][spr_extend]<2?1:2;
 	}
-	
 	for(int32_t i=0; i<4; ++i)
 	{
 		hero_sprite_items[23+i].tile=swimspr[i][spr_tile]-(swimspr[i][spr_extend]<2?0:1)-(swimspr[i][spr_extend]<1?0:TILES_PER_ROW);
 		hero_sprite_items[23+i].width=(swimspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 2, 3, 4) + (swimspr[i][spr_extend]<2?0:1);;
 		hero_sprite_items[23+i].height=swimspr[i][spr_extend]<2?1:2;
 	}
-	
 	for(int32_t i=0; i<4; ++i)
 	{
 		hero_sprite_items[27+i].tile=divespr[i][spr_tile]-(divespr[i][spr_extend]<2?0:1)-(divespr[i][spr_extend]<1?0:TILES_PER_ROW);
 		hero_sprite_items[27+i].width=(divespr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 2, 3, 4) + (divespr[i][spr_extend]<2?0:1);;
 		hero_sprite_items[27+i].height=divespr[i][spr_extend]<2?1:2;
 	}
-	
 	for(int32_t i=0; i<2; ++i)
 	{
 		hero_sprite_items[31+i].tile=holdspr[1][i][spr_tile]-(holdspr[1][i][spr_extend]<2?0:1)-(holdspr[1][i][spr_extend]<1?0:TILES_PER_ROW);
 		hero_sprite_items[31+i].width=(holdspr[1][i][spr_extend]<2?1:2) + (holdspr[1][i][spr_extend]<2?0:1);;
 		hero_sprite_items[31+i].height=holdspr[1][i][spr_extend]<2?1:2;
 	}
-	
 	for(int32_t i=0; i<4; ++i)
 	{
 		hero_sprite_items[33+i].tile=jumpspr[i][spr_tile]-(jumpspr[i][spr_extend]<2?0:1)-(jumpspr[i][spr_extend]<1?0:TILES_PER_ROW);
 		hero_sprite_items[33+i].width=(jumpspr[i][spr_extend]<2?1:2) * 3 + (jumpspr[i][spr_extend]<2?0:1);
 		hero_sprite_items[33+i].height=jumpspr[i][spr_extend]<2?1:2;
 	}
-	
 	for(int32_t i=0; i<4; ++i)
 	{
 		hero_sprite_items[37+i].tile=chargespr[i][spr_tile]-(chargespr[i][spr_extend]<2?0:1)-(chargespr[i][spr_extend]<1?0:TILES_PER_ROW);
@@ -6521,7 +5778,6 @@ void setup_hero_sprite_items()
 void register_used_tiles()
 {
 	bool ignore_frames=false;
-	
 	for(int32_t t=0; t<NEWMAXTILES; ++t)
 	{
 		used_tile_table[t]=false;
@@ -6542,7 +5798,6 @@ void register_used_tiles()
 		}
 		while(combobuf[u].tile != combobuf[u].o_tile);
 	}
-	
 	for(int32_t u=0; u<iLast; u++)
 	{
 		for(int32_t t=zc_max(itemsbuf[u].tile,0); t<zc_min(itemsbuf[u].tile+zc_max(itemsbuf[u].frames,1),NEWMAXTILES); ++t)
@@ -6550,14 +5805,11 @@ void register_used_tiles()
 			used_tile_table[t]=true;
 		}
 	}
-	
 	bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
-	
 	for(int32_t u=0; u<wLast; u++)
 	{
 		int32_t m=0;
 		ignore_frames=false;
-		
 		switch(u)
 		{
 		case wSWORD:
@@ -6566,24 +5818,20 @@ void register_used_tiles()
 		case wXSWORD:
 			m=3+((wpnsbuf[u].type==3)?1:0);
 			break;
-			
 		case wSWORDSLASH:
 		case wWSWORDSLASH:
 		case wMSWORDSLASH:
 		case wXSWORDSLASH:
 			m=4;
 			break;
-			
 		case iwMMeter:
 			m=9;
 			break;
-			
 		case wBRANG:
 		case wMBRANG:
 		case wFBRANG:
 			m=BSZ2?1:3;
 			break;
-			
 		case wBOOM:
 		case wSBOOM:
 		case ewBOOM:
@@ -6591,66 +5839,51 @@ void register_used_tiles()
 			ignore_frames=true;
 			m=2;
 			break;
-			
 		case wWAND:
 			m=1;
 			break;
-			
 		case wMAGIC:
 			m=1;
 			break;
-			
 		case wARROW:
 		case wSARROW:
 		case wGARROW:
 		case ewARROW:
 			m=1;
 			break;
-			
 		case wHAMMER:
 			m=8;
 			break;
-			
 		case wHSHEAD:
 			m=1;
 			break;
-			
 		case wHSCHAIN_H:
 			m=1;
 			break;
-			
 		case wHSCHAIN_V:
 			m=1;
 			break;
-			
 		case wHSHANDLE:
 			m=1;
 			break;
-			
 		case iwDeath:
 			m=BSZ2?4:2;
 			break;
-			
 		case iwSpawn:
 			m=3;
 			break;
-			
 		default:
 			m=0;
 			break;
 		}
-		
 		for(int32_t t=zc_max(wpnsbuf[u].tile,0); t<zc_min(wpnsbuf[u].tile+zc_max((ignore_frames?0:wpnsbuf[u].frames),1)+m,NEWMAXTILES); ++t)
 		{
 			used_tile_table[t]=true;
 		}
-		
 		used_tile_table[54]=true;
 		used_tile_table[55]=true;
 	}
-	
 	setup_hero_sprite_items();
-	
 //  i=move_intersection_rs(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, selection_first, selection_last);
 	for(int32_t u=0; u<num_hspr; u++)
 	{
@@ -6662,7 +5895,6 @@ void register_used_tiles()
 			}
 		}
 	}
-	
 	BSZ2=(zinit.subscreen>2);
 	map_styles_items[0].tile=misc.colors.blueframe_tile;
 	map_styles_items[1].tile=misc.colors.HCpieces_tile;
@@ -6675,7 +5907,6 @@ void register_used_tiles()
 	map_styles_items[3].height=BSZ2?7:3;
 	map_styles_items[4].tile=misc.colors.overworld_map_tile;
 	map_styles_items[5].tile=misc.colors.dungeon_map_tile;
-	
 	for(int32_t u=0; u<6; u++)
 	{
 		for(int32_t r=zc_max(TILEROW(map_styles_items[u].tile),0); r<zc_min(TILEROW(map_styles_items[u].tile)+zc_max(map_styles_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
@@ -6686,7 +5917,6 @@ void register_used_tiles()
 			}
 		}
 	}
-	
 	for(int32_t u=0; u<4; u++)
 	{
 		for(int32_t t=zc_max(misc.icons[u],0); t<zc_min(misc.icons[u]+1,NEWMAXTILES); ++t)
@@ -6694,9 +5924,7 @@ void register_used_tiles()
 			used_tile_table[t]=true;
 		}
 	}
-	
 	BSZ2=(zinit.subscreen>2);
-	
 	for(int32_t d=0; d<MAXDMAPS; d++)
 	{
 		dmap_map_items[0].tile=DMaps[d].minimap_1_tile;
@@ -6705,7 +5933,6 @@ void register_used_tiles()
 		dmap_map_items[2].width=BSZ2?7:9;
 		dmap_map_items[3].tile=DMaps[d].largemap_2_tile;
 		dmap_map_items[3].width=BSZ2?7:9;
-		
 		for(int32_t u=0; u<4; u++)
 		{
 			for(int32_t r=zc_max(TILEROW(dmap_map_items[u].tile),0); r<zc_min(TILEROW(dmap_map_items[u].tile)+zc_max(dmap_map_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
@@ -6717,15 +5944,12 @@ void register_used_tiles()
 			}
 		}
 	}
-	
 	bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
 	int32_t u;
-	
 	for(u=0; u<eMAXGUYS; u++)
 	{
 		bool darknut=false;
 		int32_t gleeok=0;
-		
 		switch(u)
 		{
 		case eDKNUT1:
@@ -6735,7 +5959,6 @@ void register_used_tiles()
 			darknut=true;
 			break;
 		}
-		
 		if(u>=eGLEEOK1 && u<=eGLEEOK4)
 		{
 			gleeok=1;
@@ -6744,14 +5967,12 @@ void register_used_tiles()
 		{
 			gleeok=2;
 		}
-		
 		if(newtiles)
 		{
 			if(guysbuf[u].e_tile==0)
 			{
 				continue;
 			}
-			
 			if(guysbuf[u].e_height==0)
 			{
 				for(int32_t t=zc_max(guysbuf[u].e_tile,0); t<zc_min(guysbuf[u].e_tile+zc_max(guysbuf[u].e_width, 0),NEWMAXTILES); ++t)
@@ -6769,7 +5990,6 @@ void register_used_tiles()
 					}
 				}
 			}
-			
 			if(darknut)
 			{
 				for(int32_t r=zc_max(TILEROW(guysbuf[u].e_tile+120),0); r<zc_min(TILEROW(guysbuf[u].e_tile+120)+zc_max(guysbuf[u].e_height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
@@ -6802,10 +6022,8 @@ void register_used_tiles()
 						}
 					}
 				}
-				
 				int32_t c3=TILECOL(guysbuf[u].e_tile)+(gleeok>1?-12:0);
 				int32_t r3=TILEROW(guysbuf[u].e_tile)+(gleeok>1?17:8);
-				
 				for(int32_t r=zc_max(r3,0); r<zc_min(r3+3,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
 				{
 					for(int32_t c=zc_max(c3,0); c<zc_min(c3+20,TILES_PER_ROW); ++c)
@@ -6813,7 +6031,6 @@ void register_used_tiles()
 						used_tile_table[(r*TILES_PER_ROW)+c]=true;
 					}
 				}
-				
 				for(int32_t r=zc_max(r3+3,0); r<zc_min(r3+3+6,TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
 				{
 					for(int32_t c=zc_max(c3,0); c<zc_min(c3+16,TILES_PER_ROW); ++c)
@@ -6829,7 +6046,6 @@ void register_used_tiles()
 			{
 				continue;
 			}
-			
 			if(guysbuf[u].height==0)
 			{
 				for(int32_t t=zc_max(guysbuf[u].tile,0); t<zc_min(guysbuf[u].tile+zc_max(guysbuf[u].width, 0),NEWMAXTILES); ++t)
@@ -6847,7 +6063,6 @@ void register_used_tiles()
 					}
 				}
 			}
-			
 			if(guysbuf[u].s_tile!=0)
 			{
 				if(guysbuf[u].s_height==0)
@@ -6877,12 +6092,10 @@ bool overlay_tiles(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, 
 	bool ctrl=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
 	bool copied=false;
 	copied=overlay_tiles_united(tile,tile2,copy,copycnt,rect_sel,move,cs,backwards);
-	
 	if(copied)
 	{
 		saved=false;
 	}
-	
 	return copied;
 }
 
@@ -6891,7 +6104,6 @@ bool overlay_tiles_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copy
 	bool ctrl=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
 	bool copied=false;
 	copied=overlay_tile_united_mass(tile,tile2,copy,copycnt,rect_sel,move,cs,backwards);
-	
 	if(copied)
 	{
 		if(!ctrl)
@@ -6899,10 +6111,8 @@ bool overlay_tiles_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copy
 			copy=-1;
 			tile2=tile;
 		}
-		
 		saved=false;
 	}
-	
 	return copied;
 }
 
@@ -6918,54 +6128,43 @@ void handle_hero_sprite_move(bool* move_hero_sprites_list, int32_t diff)
 				case hspr_walk_left: case hspr_walk_right:
 					walkspr[u][spr_tile]+=diff;
 					break;
-					
 				case hspr_slash_up: case hspr_slash_down:
 				case hspr_slash_left: case hspr_slash_right:
 					slashspr[u-hspr_slash_up][spr_tile]+=diff;
 					break;
-					
 				case hspr_stab_up: case hspr_stab_down:
 				case hspr_stab_left: case hspr_stab_right:
 					stabspr[u-hspr_stab_up][spr_tile]+=diff;
 					break;
-					
 				case hspr_pound_up: case hspr_pound_down:
 				case hspr_pound_left: case hspr_pound_right:
 					poundspr[u-hspr_pound_up][spr_tile]+=diff;
 					break;
-					
 				case hspr_holdland_1: case hspr_holdland_2:
 					holdspr[0][u-hspr_holdland_1][spr_tile]+=diff;
 					break;
-					
 				case hspr_casting:
 					castingspr[spr_tile]+=diff;
 					break;
-					
 				case hspr_float_up: case hspr_float_down:
 				case hspr_float_left: case hspr_float_right:
 					floatspr[u-hspr_float_up][spr_tile]+=diff;
 					break;
-					
 				case hspr_swim_up: case hspr_swim_down:
-				case hspr_swim_left: case hspr_swim_right: 
+				case hspr_swim_left: case hspr_swim_right:
 					swimspr[u-hspr_swim_up][spr_tile]+=diff;
 					break;
-					
 				case hspr_dive_up: case hspr_dive_down:
 				case hspr_dive_left: case hspr_dive_right:
 					divespr[u-hspr_dive_up][spr_tile]+=diff;
 					break;
-					
 				case hspr_holdwater_1: case hspr_holdwater_2:
 					holdspr[1][u-hspr_holdwater_1][spr_tile]+=diff;
 					break;
-					
 				case hspr_jump_up: case hspr_jump_down:
 				case hspr_jump_left: case hspr_jump_right:
 					jumpspr[u-hspr_jump_up][spr_tile]+=diff;
 					break;
-					
 				case hspr_charge_up: case hspr_charge_down:
 				case hspr_charge_left: case hspr_charge_right:
 					chargespr[u-hspr_charge_up][spr_tile]+=diff;
@@ -7014,13 +6213,13 @@ void handle_hero_sprite_move(bool* move_hero_sprites_list, int32_t diff)
 				case hspr_sidecharge_left: case hspr_sidecharge_right:
 					sideswimchargespr[u-hspr_sidecharge_up][spr_tile]+=diff;
 					break;
-				case hspr_holdsidewater_1: case hspr_holdsidewater_2: 
+				case hspr_holdsidewater_1: case hspr_holdsidewater_2:
 					sideswimholdspr[u-hspr_holdsidewater_1][spr_tile]+=diff;
 					break;
 				case hspr_sideswimcasting:
 					sideswimcastingspr[spr_tile]+=diff;
 					break;
-				case hspr_sidedrowning: 
+				case hspr_sidedrowning:
 					sidedrowningspr[down][spr_tile]+=diff;
 					break;
 			}
@@ -7033,22 +6232,18 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 	bool alt=(key[KEY_ALT]||key[KEY_ALTGR]);
 	bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
 	bool ignore_frames=false;
-	
 	// if tile>tile2 then swap them
 	if(tile>tile2)
 	{
 		zc_swap(tile, tile2);
 	}
-	
 	// alt=copy from right
 	// shift=copy from bottom
-	
 	int32_t copies=copycnt;
 	int32_t dest_first=tile;
 	int32_t dest_last=tile2;
 	int32_t src_first=copy;
 	int32_t src_last=copy+copies-1;
-	
 	int32_t dest_top=0;
 	int32_t dest_bottom=0;
 	int32_t src_top=0;
@@ -7058,24 +6253,20 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 	int32_t dest_left=0, dest_right=0;
 	int32_t dest_width=0, dest_height=0;
 	int32_t rows=0, cols=0;
-	
 	if(rect)
 	{
 		dest_top=TILEROW(dest_first);
 		dest_bottom=TILEROW(dest_last);
 		src_top=TILEROW(src_first);
 		src_bottom=TILEROW(src_last);
-		
 		src_left= zc_min(TILECOL(src_first),TILECOL(src_last));
 		src_right=zc_max(TILECOL(src_first),TILECOL(src_last));
 		src_first=(src_top  * TILES_PER_ROW)+src_left;
 		src_last= (src_bottom*TILES_PER_ROW)+src_right;
-		
 		dest_left= zc_min(TILECOL(dest_first),TILECOL(dest_last));
 		dest_right=zc_max(TILECOL(dest_first),TILECOL(dest_last));
 		dest_first=(dest_top  * TILES_PER_ROW)+dest_left;
 		dest_last= (dest_bottom*TILES_PER_ROW)+dest_right;
-		
 		//if no dest range set, then set one
 		if((dest_first==dest_last)&&(src_first!=src_last))
 		{
@@ -7087,7 +6278,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 			{
 				dest_right=dest_left+(src_right-src_left);
 			}
-			
 			if(shift)
 			{
 				dest_top=dest_bottom-(src_bottom-src_top);
@@ -7096,7 +6286,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 			{
 				dest_bottom=dest_top+(src_bottom-src_top);
 			}
-			
 			dest_first=(dest_top  * TILES_PER_ROW)+dest_left;
 			dest_last= (dest_bottom*TILES_PER_ROW)+dest_right;
 		}
@@ -7124,7 +6313,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					dest_right=dest_left+(src_right-src_left);
 				}
 			}
-			
 			if(dest_bottom-dest_top<src_bottom-src_top) //destination is shorter than source
 			{
 				if(shift) //copy from bottom tile instead of top
@@ -7147,21 +6335,17 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					dest_bottom=dest_top+(src_bottom-src_top);
 				}
 			}
-			
 			src_first=(src_top  * TILES_PER_ROW)+src_left;
 			src_last= (src_bottom*TILES_PER_ROW)+src_right;
 			dest_first=(dest_top  * TILES_PER_ROW)+dest_left;
 			dest_last= (dest_bottom*TILES_PER_ROW)+dest_right;
 		}
-		
 		cols=src_right-src_left+1;
 		rows=src_bottom-src_top+1;
-		
 		dest_width=dest_right-dest_left+1;
 		dest_height=dest_bottom-dest_top+1;
 		src_width=src_right-src_left+1;
 		src_height=src_bottom-src_top+1;
-		
 	}
 	else  //!rect
 	{
@@ -7202,21 +6386,15 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				}
 			}
 		}
-		
 		copies=dest_last-dest_first+1;
 	}
-	
-	
-	
 	char buf[80], buf2[80], buf3[80], buf4[80];
 	sprintf(buf, " ");
 	sprintf(buf2, " ");
 	sprintf(buf3, " ");
 	sprintf(buf4, " ");
-	
 	// warn if range extends beyond last tile
 	sprintf(buf4, "Some tiles will not be %s", move?"moved.":"copied.");
-	
 	if(dest_last>=NEWMAXTILES)
 	{
 		sprintf(buf4, "%s operation cancelled.", move?"Move":"Copy");
@@ -7228,16 +6406,13 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 		//  return false;
 		// }
 	}
-	
 	char *tile_move_list_text = new char[65535];
 	char temptext[80];
-	
 	sprintf(buf, "Destination Warning");
 	tile_move_list_dlg[0].dp=buf;
 	tile_move_list_dlg[0].dp2=lfont;
 	bool found;
 	bool flood;
-	
 	int32_t i;
 	bool *move_combo_list = new bool[MAXCOMBOS];
 	bool *move_items_list = new bool[iMax];
@@ -7248,15 +6423,12 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 	bool move_game_icons_list[4];
 	bool move_dmap_maps_list[MAXDMAPS][4];
 	//    bool move_enemies_list[eMAXGUYS];  //to be implemented once custom enemies are in
-	
 	// warn if paste overwrites other defined tiles or
 	// if delete erases other defined tiles
 	int32_t selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
 	bool done = false;
-	
 	for(int32_t q=0; q<2 && !done; ++q)
 	{
-	
 		switch(q)
 		{
 		case 0:
@@ -7267,7 +6439,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 			selection_width=dest_width;
 			selection_height=dest_height;
 			break;
-			
 		case 1:
 			selection_first=src_first;
 			selection_last=src_last;
@@ -7277,7 +6448,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 			selection_height=src_height;
 			break;
 		}
-		
 		if(move||q==0)
 		{
 			//check combos
@@ -7287,11 +6457,9 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				tile_move_list_text[0]=0;
 				found=false;
 				flood=false;
-				
 				for(int32_t u=0; u<MAXCOMBOS; u++)
 				{
 					move_combo_list[u]=false;
-					
 					if(rect)
 					{
 						i = move_intersection_sr(combobuf[u], selection_left, selection_top, selection_width, selection_height);
@@ -7300,13 +6468,11 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					{
 						i = move_intersection_ss(combobuf[u], selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(combobuf[u].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%d\n", u);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -7319,7 +6485,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -7328,11 +6493,9 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following combos");
-					
 					if(move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -7343,21 +6506,17 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 						sprintf(buf3, "will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -7365,7 +6524,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					}
 				}
 			}
-			
 			//check items
 			if(!done)
 			{
@@ -7374,11 +6532,9 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				found=false;
 				flood=false;
 				build_bii_list(false);
-				
 				for(int32_t u=0; u<iMax; u++)
 				{
 					move_items_list[u]=false;
-					
 					if(rect)
 					{
 						i=move_intersection_sr(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, selection_left, selection_top, selection_width, selection_height);
@@ -7387,13 +6543,11 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					{
 						i=move_intersection_ss(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(itemsbuf[bii[u].i].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%s\n", bii[u].s);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -7406,7 +6560,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -7415,11 +6568,9 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following items");
-					
 					if(move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -7430,21 +6581,17 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 						sprintf(buf3, "will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -7452,7 +6599,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					}
 				}
 			}
-			
 			//check weapons/misc
 			if(!done)
 			{
@@ -7462,13 +6608,11 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				flood=false;
 				build_biw_list();
 				bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
-				
 				for(int32_t u=0; u<wMAX; u++)
 				{
 					ignore_frames=false;
 					move_weapons_list[u]=false;
 					int32_t m=0;
-					
 					switch(biw[u].i)
 					{
 					case wSWORD:
@@ -7477,24 +6621,20 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					case wXSWORD:
 						m=3+((wpnsbuf[biw[u].i].type==3)?1:0);
 						break;
-						
 					case wSWORDSLASH:
 					case wWSWORDSLASH:
 					case wMSWORDSLASH:
 					case wXSWORDSLASH:
 						m=4;
 						break;
-						
 					case iwMMeter:
 						m=9;
 						break;
-						
 					case wBRANG:
 					case wMBRANG:
 					case wFBRANG:
 						m=BSZ2?1:3;
 						break;
-						
 					case wBOOM:
 					case wSBOOM:
 					case ewBOOM:
@@ -7502,55 +6642,43 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 						ignore_frames=true;
 						m=2;
 						break;
-						
 					case wWAND:
 						m=1;
 						break;
-						
 					case wMAGIC:
 						m=1;
 						break;
-						
 					case wARROW:
 					case wSARROW:
 					case wGARROW:
 					case ewARROW:
 						m=1;
 						break;
-						
 					case wHAMMER:
 						m=8;
 						break;
-						
 					case wHSHEAD:
 						m=1;
 						break;
-						
 					case wHSCHAIN_H:
 						m=1;
 						break;
-						
 					case wHSCHAIN_V:
 						m=1;
 						break;
-						
 					case wHSHANDLE:
 						m=1;
 						break;
-						
 					case iwDeath:
 						m=BSZ2?4:2;
 						break;
-						
 					case iwSpawn:
 						m=3;
 						break;
-						
 					default:
 						m=0;
 						break;
 					}
-					
 					if(rect)
 					{
 						i=move_intersection_sr(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_left, selection_top, selection_width, selection_height);
@@ -7559,13 +6687,11 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					{
 						i=move_intersection_ss(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(wpnsbuf[biw[u].i].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%s\n", biw[u].s);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -7578,7 +6704,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -7586,7 +6711,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 							move_weapons_list[u]=true;
 						}
 					}
-					
 					if((u==3)||(u==9))
 					{
 						if(rect)
@@ -7597,11 +6721,9 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 						{
 							i=move_intersection_ss(54, 55, selection_first, selection_last);
 						}
-						
 						if(i!=ti_none)
 						{
 							sprintf(temptext, "%s Impact (not shown in sprite list)\n", (u==3)?"Arrow":"Boomerang");
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -7614,16 +6736,13 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following weapons");
-					
 					if(move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -7634,21 +6753,17 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 						sprintf(buf3, "will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -7656,7 +6771,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					}
 				}
 			}
-			
 			//check Player sprites
 			if(!done)
 			{
@@ -7665,11 +6779,9 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				found=false;
 				flood=false;
 				setup_hero_sprite_items();
-				
 				for(int32_t u=0; u<num_hspr; u++)
 				{
 					move_hero_sprites_list[u]=false;
-					
 					if(rect)
 					{
 						i=move_intersection_rr(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, selection_left, selection_top, selection_width, selection_height);
@@ -7678,13 +6790,11 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					{
 						i=move_intersection_rs(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(hero_sprite_items[u].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%s\n", hero_sprite_items[u].name);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -7697,7 +6807,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -7706,11 +6815,9 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following Player sprites");
-					
 					if(move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -7721,21 +6828,17 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 						sprintf(buf3, "sprites will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done =true;
@@ -7743,7 +6846,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					}
 				}
 			}
-			
 			//Check subscreen objects
 			//Tried to have a go at this but I think it's a bit too complicated for me at the moment.
 			//Might come back to it another time and see what I can do ~Joe123
@@ -7758,7 +6860,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					 }
 				 }
 			}*/
-			
 			//check map styles
 			if(!done)
 			{
@@ -7778,11 +6879,9 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				map_styles_items[3].height=BSZ2?7:3;
 				map_styles_items[4].tile=misc.colors.overworld_map_tile;
 				map_styles_items[5].tile=misc.colors.dungeon_map_tile;
-				
 				for(int32_t u=0; u<6; u++)
 				{
 					move_mapstyles_list[u]=false;
-					
 					if(rect)
 					{
 						i=move_intersection_rr(TILECOL(map_styles_items[u].tile), TILEROW(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_left, selection_top, selection_width, selection_height);
@@ -7791,13 +6890,11 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					{
 						i=move_intersection_rs(TILECOL(map_styles_items[u].tile), TILEROW(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(map_styles_items[u].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%s\n", map_styles_items[u].name);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -7810,7 +6907,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -7819,11 +6915,9 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following map style");
-					
 					if(move)
 					{
 						sprintf(buf3, "items will be partially cleared by the move.");
@@ -7834,21 +6928,17 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 						sprintf(buf3, "items will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -7856,7 +6946,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					}
 				}
 			}
-			
 			//check game icons
 			if(!done)
 			{
@@ -7868,11 +6957,9 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				{
 					"No Ring / Green Ring", "Blue Ring", "Red Ring", "Golden Ring"
 				};
-				
 				for(int32_t u=0; u<4; u++)
 				{
 					move_game_icons_list[u]=false;
-					
 					if(rect)
 					{
 						i=move_intersection_sr(misc.icons[u], misc.icons[u], selection_left, selection_top, selection_width, selection_height);
@@ -7881,13 +6968,11 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					{
 						i=move_intersection_ss(misc.icons[u], misc.icons[u], selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(misc.icons[u]!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%s\n", icon_title[u]);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -7900,7 +6985,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -7909,7 +6993,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 						}
 					}
 				}
-				
 				if(rect)
 				{
 					i=move_intersection_sr(41, 41, selection_left, selection_top, selection_width, selection_height);
@@ -7918,11 +7001,9 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				{
 					i=move_intersection_ss(41, 41, selection_first, selection_last);
 				}
-				
 				if((i!=ti_none)) // &&(41!=0))  //this is for when the quest sword can change
 				{
 					sprintf(temptext, "Quest Sword");
-					
 					if(strlen(tile_move_list_text)<65000)
 					{
 						strcat(tile_move_list_text, temptext);
@@ -7935,14 +7016,11 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 							flood=true;
 						}
 					}
-					
 					found=true;
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following quest icons");
-					
 					if(move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -7953,21 +7031,17 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 						sprintf(buf3, "will be overwritten by this process.  Proceed?");
 						sprintf(buf4, " ");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -7975,7 +7049,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					}
 				}
 			}
-			
 			//check dmap maps
 			if(!done)
 			{
@@ -7984,7 +7057,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				found=false;
 				flood=false;
 				bool BSZ2=(zinit.subscreen>2);
-				
 				for(int32_t t=0; t<MAXDMAPS; t++)
 				{
 					dmap_map_items[0].tile=DMaps[t].minimap_1_tile;
@@ -7993,11 +7065,9 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					dmap_map_items[2].width=BSZ2?7:9;
 					dmap_map_items[3].tile=DMaps[t].largemap_2_tile;
 					dmap_map_items[3].width=BSZ2?7:9;
-					
 					for(int32_t u=0; u<4; u++)
 					{
 						move_dmap_maps_list[t][u]=false;
-						
 						if(rect)
 						{
 							i=move_intersection_rr(TILECOL(dmap_map_items[u].tile), TILEROW(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_left, selection_top, selection_width, selection_height);
@@ -8006,13 +7076,11 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 						{
 							i=move_intersection_rs(TILECOL(dmap_map_items[u].tile), TILEROW(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_first, selection_last);
 						}
-						
 						if((i!=ti_none)&&(dmap_map_items[u].tile!=0))
 						{
 							if(i==ti_broken || q==0)
 							{
 								sprintf(temptext, "DMap %d %s\n", t, dmap_map_items[u].name);
-								
 								if(strlen(tile_move_list_text)<65000)
 								{
 									strcat(tile_move_list_text, temptext);
@@ -8025,7 +7093,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 										flood=true;
 									}
 								}
-								
 								found=true;
 							}
 							else if(i==ti_encompass)
@@ -8035,11 +7102,9 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following dmap-specific");
-					
 					if(move)
 					{
 						sprintf(buf3, "subscreen maps will be partially cleared by the move.");
@@ -8050,21 +7115,17 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 						sprintf(buf3, "subscreen maps will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -8072,7 +7133,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					}
 				}
 			}
-			
 			//check enemies
 			if(!done)
 			{
@@ -8083,13 +7143,11 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				build_bie_list(false);
 				bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
 				int32_t u;
-				
 				for(u=0; u<eMAXGUYS; u++)
 				{
 					const guydata& enemy=guysbuf[bie[u].i];
 					bool darknut=false;
 					int32_t gleeok=0;
-					
 					if(enemy.family==eeWALK && ((enemy.flags&(inv_back|inv_front|inv_left|inv_right))!=0))
 						darknut=true;
 					else if(enemy.family==eeGLEEOK)
@@ -8100,7 +7158,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 						else
 							gleeok=2;
 					}
-					
 					// Dummied out enemies
 					if(bie[u].i>=eOCTO1S && bie[u].i<e177)
 					{
@@ -8109,14 +7166,12 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 							continue;
 						}
 					}
-					
 					if(newtiles)
 					{
 						if(guysbuf[bie[u].i].e_tile==0)
 						{
 							continue;
 						}
-						
 						if(guysbuf[bie[u].i].e_height==0)
 						{
 							if(rect)
@@ -8139,11 +7194,9 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
 							}
 						}
-						
 						if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 						{
 							sprintf(temptext, "%s\n", bie[u].s);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -8156,10 +7209,8 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
-						
 						if(darknut)
 						{
 							if(rect)
@@ -8170,11 +7221,9 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 							{
 								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile+120), TILEROW(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
 							}
-							
 							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 							{
 								sprintf(temptext, "%s (broken shield)\n", bie[u].s);
-								
 								if(strlen(tile_move_list_text)<65000)
 								{
 									strcat(tile_move_list_text, temptext);
@@ -8187,7 +7236,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 										flood=true;
 									}
 								}
-								
 								found=true;
 							}
 						}
@@ -8201,11 +7249,9 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 							{
 								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_first, selection_last);
 							}
-							
 							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 							{
 								sprintf(temptext, "%s\n", bie[u].s);
-								
 								if(strlen(tile_move_list_text)<65000)
 								{
 									strcat(tile_move_list_text, temptext);
@@ -8218,7 +7264,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 										flood=true;
 									}
 								}
-								
 								found=true;
 							}
 						}
@@ -8235,12 +7280,10 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 									i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), TILEROW(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_first, selection_last);
 								}
 							}
-							
 							if(i==ti_none)
 							{
 								int32_t c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
 								int32_t r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
-								
 								if(rect)
 								{
 									i=move_intersection_rr(c, r, 20, 3, selection_left, selection_top, selection_width, selection_height);
@@ -8249,7 +7292,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 								{
 									i=move_intersection_rs(c, r, 20, 3, selection_first, selection_last);
 								}
-								
 								if(i==ti_none)
 								{
 									if(rect)
@@ -8262,11 +7304,9 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 									}
 								}
 							}
-							
 							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 							{
 								sprintf(temptext, "%s\n", bie[u].s);
-								
 								if(strlen(tile_move_list_text)<65000)
 								{
 									strcat(tile_move_list_text, temptext);
@@ -8279,7 +7319,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 										flood=true;
 									}
 								}
-								
 								found=true;
 							}
 						}
@@ -8312,11 +7351,9 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].tile), TILEROW(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_first, selection_last);
 							}
 						}
-						
 						if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 						{
 							sprintf(temptext, "%s\n", bie[u].s);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -8329,10 +7366,8 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
-						
 						if(guysbuf[bie[u].i].s_tile!=0)
 						{
 							if(guysbuf[bie[u].i].s_height==0)
@@ -8357,11 +7392,9 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 									i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].s_tile), TILEROW(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_first, selection_last);
 								}
 							}
-							
 							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 							{
 								sprintf(temptext, "%s (%s)\n", bie[u].s, darknut?"broken shield":"secondary tiles");
-								
 								if(strlen(tile_move_list_text)<65000)
 								{
 									strcat(tile_move_list_text, temptext);
@@ -8374,17 +7407,14 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 										flood=true;
 									}
 								}
-								
 								found=true;
 							}
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following enemies");
-					
 					if(move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -8395,21 +7425,17 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 						sprintf(buf3, "will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -8419,16 +7445,12 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 			}
 		}
 	}
-	
 	//
 	// copy tiles and delete if needed (move)
-	
 	if(!done)
 	{
 		go_tiles();
-		
 		int32_t diff=dest_first-src_first;
-		
 		if(rect)
 		{
 			for(int32_t r=0; r<rows; ++r)
@@ -8437,12 +7459,9 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				{
 					int32_t dt=(dest_first+((r*TILES_PER_ROW)+c));
 					int32_t st=(src_first+((r*TILES_PER_ROW)+c));
-					
 					if(dt>=NEWMAXTILES)
 						continue;
-					
 			overlay_tile(newtilebuf,dt,st,cs,backwards);
-			
 				}
 			}
 		}
@@ -8452,12 +7471,9 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 			{
 				int32_t dt=(dest_first+c);
 				int32_t st=(src_first+c);
-				
 				if(dt>=NEWMAXTILES)
 					continue;
-		
 		overlay_tile(newtilebuf,dt,st,cs,backwards);
-		
 				if(move)
 				{
 					if(st<dest_first||st>(dest_first+c-1))
@@ -8465,7 +7481,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				}
 			}
 		}
-		
 		if(move)
 		{
 			for(int32_t u=0; u<MAXCOMBOS; u++)
@@ -8475,7 +7490,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					combobuf[u].tile+=diff;
 				}
 			}
-			
 			for(int32_t u=0; u<iMax; u++)
 			{
 				if(move_items_list[u])
@@ -8483,7 +7497,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					itemsbuf[bii[u].i].tile+=diff;
 				}
 			}
-			
 			for(int32_t u=0; u<wMAX; u++)
 			{
 				if(move_weapons_list[u])
@@ -8491,9 +7504,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					wpnsbuf[biw[u].i].tile+=diff;
 				}
 			}
-			
 			handle_hero_sprite_move(move_hero_sprites_list,diff);
-			
 			for(int32_t u=0; u<6; u++)
 			{
 				if(move_mapstyles_list[u])
@@ -8503,30 +7514,24 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					case 0:
 						misc.colors.blueframe_tile+=diff;
 						break;
-						
 					case 1:
 						misc.colors.HCpieces_tile+=diff;
 						break;
-						
 					case 2:
 						misc.colors.triforce_tile+=diff;
 						break;
-						
 					case 3:
 						misc.colors.triframe_tile+=diff;
 						break;
-						
 					case 4:
 						misc.colors.overworld_map_tile+=diff;
 						break;
-						
 					case 5:
 						misc.colors.dungeon_map_tile+=diff;
 						break;
 					}
 				}
 			}
-			
 			for(int32_t u=0; u<4; u++)
 			{
 				if(move_game_icons_list[u])
@@ -8534,13 +7539,11 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					misc.icons[u]+=diff;
 				}
 			}
-			
 			for(int32_t t=0; t<MAXDMAPS; t++)
 			{
 				for(int32_t u=0; u<4; u++)
 				{
 					move_dmap_maps_list[t][u]=false;
-					
 					if(move_dmap_maps_list[t][u])
 					{
 						switch(u)
@@ -8548,15 +7551,12 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 						case 0:
 							DMaps[t].minimap_1_tile+=diff;
 							break;
-							
 						case 1:
 							DMaps[t].minimap_2_tile+=diff;
 							break;
-							
 						case 2:
 							DMaps[t].largemap_1_tile+=diff;
 							break;
-							
 						case 3:
 							DMaps[t].largemap_2_tile+=diff;
 							break;
@@ -8566,19 +7566,15 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 			}
 		}
 	}
-	
 	//now that tiles have moved, fix these buffers -DD
 	register_blank_tiles();
 	register_used_tiles();
-	
 	delete[] tile_move_list_text;
 	delete[] move_combo_list;
 	delete[] move_items_list;
 	delete[] move_weapons_list;
-	
 	if(done)
 		return false;
-		
 	return true;
 }
 //
@@ -8588,22 +7584,18 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 	bool alt=(key[KEY_ALT]||key[KEY_ALTGR]);
 	bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
 	bool ignore_frames=false;
-	
 	// if tile>tile2 then swap them
 	if(tile>tile2)
 	{
 		zc_swap(tile, tile2);
 	}
-	
 	// alt=copy from right
 	// shift=copy from bottom
-	
 	int32_t copies=copycnt;
 	int32_t dest_first=tile;
 	int32_t dest_last=tile2;
 	int32_t src_first=copy;
 	int32_t src_last=copy+copies-1;
-	
 	int32_t dest_top=0;
 	int32_t dest_bottom=0;
 	int32_t src_top=0;
@@ -8613,24 +7605,20 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 	int32_t dest_left=0, dest_right=0;
 	int32_t dest_width=0, dest_height=0;
 	int32_t rows=0, cols=0;
-	
 	if(rect)
 	{
 		dest_top=TILEROW(dest_first);
 		dest_bottom=TILEROW(dest_last);
 		src_top=TILEROW(src_first);
 		src_bottom=TILEROW(src_last);
-		
 		src_left= zc_min(TILECOL(src_first),TILECOL(src_last));
 		src_right=zc_max(TILECOL(src_first),TILECOL(src_last));
 		src_first=(src_top  * TILES_PER_ROW)+src_left;
 		src_last= (src_bottom*TILES_PER_ROW)+src_right;
-		
 		dest_left= zc_min(TILECOL(dest_first),TILECOL(dest_last));
 		dest_right=zc_max(TILECOL(dest_first),TILECOL(dest_last));
 		dest_first=(dest_top  * TILES_PER_ROW)+dest_left;
 		dest_last= (dest_bottom*TILES_PER_ROW)+dest_right;
-		
 		//if no dest range set, then set one
 		if((dest_first==dest_last)&&(src_first!=src_last))
 		{
@@ -8642,7 +7630,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 			{
 				dest_right=dest_left+(src_right-src_left);
 			}
-			
 			if(shift)
 			{
 				dest_top=dest_bottom-(src_bottom-src_top);
@@ -8651,7 +7638,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 			{
 				dest_bottom=dest_top+(src_bottom-src_top);
 			}
-			
 			dest_first=(dest_top  * TILES_PER_ROW)+dest_left;
 			dest_last= (dest_bottom*TILES_PER_ROW)+dest_right;
 		}
@@ -8679,7 +7665,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					dest_right=dest_left+(src_right-src_left);
 				}
 			}
-			
 			if(dest_bottom-dest_top<src_bottom-src_top) //destination is shorter than source
 			{
 				if(shift) //copy from bottom tile instead of top
@@ -8702,21 +7687,17 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					dest_bottom=dest_top+(src_bottom-src_top);
 				}
 			}
-			
 			src_first=(src_top  * TILES_PER_ROW)+src_left;
 			src_last= (src_bottom*TILES_PER_ROW)+src_right;
 			dest_first=(dest_top  * TILES_PER_ROW)+dest_left;
 			dest_last= (dest_bottom*TILES_PER_ROW)+dest_right;
 		}
-		
 		cols=src_right-src_left+1;
 		rows=src_bottom-src_top+1;
-		
 		dest_width=dest_right-dest_left+1;
 		dest_height=dest_bottom-dest_top+1;
 		src_width=src_right-src_left+1;
 		src_height=src_bottom-src_top+1;
-		
 	}
 	else  //!rect
 	{
@@ -8757,21 +7738,15 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				}
 			}
 		}
-		
 		copies=dest_last-dest_first+1;
 	}
-	
-	
-	
 	char buf[80], buf2[80], buf3[80], buf4[80];
 	sprintf(buf, " ");
 	sprintf(buf2, " ");
 	sprintf(buf3, " ");
 	sprintf(buf4, " ");
-	
 	// warn if range extends beyond last tile
 	sprintf(buf4, "Some tiles will not be %s", move?"moved.":"copied.");
-	
 	if(dest_last>=NEWMAXTILES)
 	{
 		sprintf(buf4, "%s operation cancelled.", move?"Move":"Copy");
@@ -8783,16 +7758,13 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 		//  return false;
 		// }
 	}
-	
 	char *tile_move_list_text = new char[65535];
 	char temptext[80];
-	
 	sprintf(buf, "Destination Warning");
 	tile_move_list_dlg[0].dp=buf;
 	tile_move_list_dlg[0].dp2=lfont;
 	bool found;
 	bool flood;
-	
 	int32_t i;
 	bool *move_combo_list = new bool[MAXCOMBOS];
 	bool *move_items_list = new bool[iMax];
@@ -8803,15 +7775,12 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 	bool move_game_icons_list[4];
 	bool move_dmap_maps_list[MAXDMAPS][4];
 	//    bool move_enemies_list[eMAXGUYS];  //to be implemented once custom enemies are in
-	
 	// warn if paste overwrites other defined tiles or
 	// if delete erases other defined tiles
 	int32_t selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
 	bool done = false;
-	
 	for(int32_t q=0; q<2 && !done; ++q)
 	{
-	
 		switch(q)
 		{
 		case 0:
@@ -8822,7 +7791,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 			selection_width=dest_width;
 			selection_height=dest_height;
 			break;
-			
 		case 1:
 			selection_first=src_first;
 			selection_last=src_last;
@@ -8832,7 +7800,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 			selection_height=src_height;
 			break;
 		}
-		
 		if(move||q==0)
 		{
 			//check combos
@@ -8842,11 +7809,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				tile_move_list_text[0]=0;
 				found=false;
 				flood=false;
-				
 				for(int32_t u=0; u<MAXCOMBOS; u++)
 				{
 					move_combo_list[u]=false;
-					
 					if(rect)
 					{
 						i = move_intersection_sr(combobuf[u], selection_left, selection_top, selection_width, selection_height);
@@ -8855,13 +7820,11 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					{
 						i = move_intersection_ss(combobuf[u], selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(combobuf[u].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%d\n", u);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -8874,7 +7837,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -8883,11 +7845,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following combos");
-					
 					if(move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -8898,21 +7858,17 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 						sprintf(buf3, "will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -8920,7 +7876,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					}
 				}
 			}
-			
 			//check items
 			if(!done)
 			{
@@ -8929,11 +7884,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				found=false;
 				flood=false;
 				build_bii_list(false);
-				
 				for(int32_t u=0; u<iMax; u++)
 				{
 					move_items_list[u]=false;
-					
 					if(rect)
 					{
 						i=move_intersection_sr(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, selection_left, selection_top, selection_width, selection_height);
@@ -8942,13 +7895,11 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					{
 						i=move_intersection_ss(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(itemsbuf[bii[u].i].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%s\n", bii[u].s);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -8961,7 +7912,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -8970,11 +7920,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following items");
-					
 					if(move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -8985,21 +7933,17 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 						sprintf(buf3, "will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -9007,7 +7951,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					}
 				}
 			}
-			
 			//check weapons/misc
 			if(!done)
 			{
@@ -9017,13 +7960,11 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				flood=false;
 				build_biw_list();
 				bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
-				
 				for(int32_t u=0; u<wMAX; u++)
 				{
 					ignore_frames=false;
 					move_weapons_list[u]=false;
 					int32_t m=0;
-					
 					switch(biw[u].i)
 					{
 					case wSWORD:
@@ -9032,24 +7973,20 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					case wXSWORD:
 						m=3+((wpnsbuf[biw[u].i].type==3)?1:0);
 						break;
-						
 					case wSWORDSLASH:
 					case wWSWORDSLASH:
 					case wMSWORDSLASH:
 					case wXSWORDSLASH:
 						m=4;
 						break;
-						
 					case iwMMeter:
 						m=9;
 						break;
-						
 					case wBRANG:
 					case wMBRANG:
 					case wFBRANG:
 						m=BSZ2?1:3;
 						break;
-						
 					case wBOOM:
 					case wSBOOM:
 					case ewBOOM:
@@ -9057,55 +7994,43 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 						ignore_frames=true;
 						m=2;
 						break;
-						
 					case wWAND:
 						m=1;
 						break;
-						
 					case wMAGIC:
 						m=1;
 						break;
-						
 					case wARROW:
 					case wSARROW:
 					case wGARROW:
 					case ewARROW:
 						m=1;
 						break;
-						
 					case wHAMMER:
 						m=8;
 						break;
-						
 					case wHSHEAD:
 						m=1;
 						break;
-						
 					case wHSCHAIN_H:
 						m=1;
 						break;
-						
 					case wHSCHAIN_V:
 						m=1;
 						break;
-						
 					case wHSHANDLE:
 						m=1;
 						break;
-						
 					case iwDeath:
 						m=BSZ2?4:2;
 						break;
-						
 					case iwSpawn:
 						m=3;
 						break;
-						
 					default:
 						m=0;
 						break;
 					}
-					
 					if(rect)
 					{
 						i=move_intersection_sr(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_left, selection_top, selection_width, selection_height);
@@ -9114,13 +8039,11 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					{
 						i=move_intersection_ss(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(wpnsbuf[biw[u].i].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%s\n", biw[u].s);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -9133,7 +8056,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -9141,7 +8063,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 							move_weapons_list[u]=true;
 						}
 					}
-					
 					if((u==3)||(u==9))
 					{
 						if(rect)
@@ -9152,11 +8073,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 						{
 							i=move_intersection_ss(54, 55, selection_first, selection_last);
 						}
-						
 						if(i!=ti_none)
 						{
 							sprintf(temptext, "%s Impact (not shown in sprite list)\n", (u==3)?"Arrow":"Boomerang");
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -9169,16 +8088,13 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following weapons");
-					
 					if(move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -9189,21 +8105,17 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 						sprintf(buf3, "will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -9211,7 +8123,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					}
 				}
 			}
-			
 			//check Player sprites
 			if(!done)
 			{
@@ -9220,11 +8131,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				found=false;
 				flood=false;
 				setup_hero_sprite_items();
-				
 				for(int32_t u=0; u<num_hspr; u++)
 				{
 					move_hero_sprites_list[u]=false;
-					
 					if(rect)
 					{
 						i=move_intersection_rr(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, selection_left, selection_top, selection_width, selection_height);
@@ -9233,13 +8142,11 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					{
 						i=move_intersection_rs(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(hero_sprite_items[u].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%s\n", hero_sprite_items[u].name);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -9252,7 +8159,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -9261,11 +8167,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following Player sprites");
-					
 					if(move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -9276,21 +8180,17 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 						sprintf(buf3, "sprites will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done =true;
@@ -9298,7 +8198,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					}
 				}
 			}
-			
 			//Check subscreen objects
 			//Tried to have a go at this but I think it's a bit too complicated for me at the moment.
 			//Might come back to it another time and see what I can do ~Joe123
@@ -9313,7 +8212,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					 }
 				 }
 			}*/
-			
 			//check map styles
 			if(!done)
 			{
@@ -9333,11 +8231,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				map_styles_items[3].height=BSZ2?7:3;
 				map_styles_items[4].tile=misc.colors.overworld_map_tile;
 				map_styles_items[5].tile=misc.colors.dungeon_map_tile;
-				
 				for(int32_t u=0; u<6; u++)
 				{
 					move_mapstyles_list[u]=false;
-					
 					if(rect)
 					{
 						i=move_intersection_rr(TILECOL(map_styles_items[u].tile), TILEROW(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_left, selection_top, selection_width, selection_height);
@@ -9346,13 +8242,11 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					{
 						i=move_intersection_rs(TILECOL(map_styles_items[u].tile), TILEROW(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(map_styles_items[u].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%s\n", map_styles_items[u].name);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -9365,7 +8259,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -9374,11 +8267,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following map style");
-					
 					if(move)
 					{
 						sprintf(buf3, "items will be partially cleared by the move.");
@@ -9389,21 +8280,17 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 						sprintf(buf3, "items will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -9411,7 +8298,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					}
 				}
 			}
-			
 			//check game icons
 			if(!done)
 			{
@@ -9423,11 +8309,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				{
 					"No Ring / Green Ring", "Blue Ring", "Red Ring", "Golden Ring"
 				};
-				
 				for(int32_t u=0; u<4; u++)
 				{
 					move_game_icons_list[u]=false;
-					
 					if(rect)
 					{
 						i=move_intersection_sr(misc.icons[u], misc.icons[u], selection_left, selection_top, selection_width, selection_height);
@@ -9436,13 +8320,11 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					{
 						i=move_intersection_ss(misc.icons[u], misc.icons[u], selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(misc.icons[u]!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%s\n", icon_title[u]);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -9455,7 +8337,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -9464,7 +8345,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 						}
 					}
 				}
-				
 				if(rect)
 				{
 					i=move_intersection_sr(41, 41, selection_left, selection_top, selection_width, selection_height);
@@ -9473,11 +8353,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				{
 					i=move_intersection_ss(41, 41, selection_first, selection_last);
 				}
-				
 				if((i!=ti_none)) // &&(41!=0))  //this is for when the quest sword can change
 				{
 					sprintf(temptext, "Quest Sword");
-					
 					if(strlen(tile_move_list_text)<65000)
 					{
 						strcat(tile_move_list_text, temptext);
@@ -9490,14 +8368,11 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 							flood=true;
 						}
 					}
-					
 					found=true;
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following quest icons");
-					
 					if(move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -9508,21 +8383,17 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 						sprintf(buf3, "will be overwritten by this process.  Proceed?");
 						sprintf(buf4, " ");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -9530,7 +8401,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					}
 				}
 			}
-			
 			//check dmap maps
 			if(!done)
 			{
@@ -9539,7 +8409,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				found=false;
 				flood=false;
 				bool BSZ2=(zinit.subscreen>2);
-				
 				for(int32_t t=0; t<MAXDMAPS; t++)
 				{
 					dmap_map_items[0].tile=DMaps[t].minimap_1_tile;
@@ -9548,11 +8417,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					dmap_map_items[2].width=BSZ2?7:9;
 					dmap_map_items[3].tile=DMaps[t].largemap_2_tile;
 					dmap_map_items[3].width=BSZ2?7:9;
-					
 					for(int32_t u=0; u<4; u++)
 					{
 						move_dmap_maps_list[t][u]=false;
-						
 						if(rect)
 						{
 							i=move_intersection_rr(TILECOL(dmap_map_items[u].tile), TILEROW(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_left, selection_top, selection_width, selection_height);
@@ -9561,13 +8428,11 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 						{
 							i=move_intersection_rs(TILECOL(dmap_map_items[u].tile), TILEROW(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_first, selection_last);
 						}
-						
 						if((i!=ti_none)&&(dmap_map_items[u].tile!=0))
 						{
 							if(i==ti_broken || q==0)
 							{
 								sprintf(temptext, "DMap %d %s\n", t, dmap_map_items[u].name);
-								
 								if(strlen(tile_move_list_text)<65000)
 								{
 									strcat(tile_move_list_text, temptext);
@@ -9580,7 +8445,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 										flood=true;
 									}
 								}
-								
 								found=true;
 							}
 							else if(i==ti_encompass)
@@ -9590,11 +8454,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following dmap-specific");
-					
 					if(move)
 					{
 						sprintf(buf3, "subscreen maps will be partially cleared by the move.");
@@ -9605,21 +8467,17 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 						sprintf(buf3, "subscreen maps will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -9627,7 +8485,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					}
 				}
 			}
-			
 			//check enemies
 			if(!done)
 			{
@@ -9638,13 +8495,11 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				build_bie_list(false);
 				bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
 				int32_t u;
-				
 				for(u=0; u<eMAXGUYS; u++)
 				{
 					const guydata& enemy=guysbuf[bie[u].i];
 					bool darknut=false;
 					int32_t gleeok=0;
-					
 					if(enemy.family==eeWALK && ((enemy.flags&(inv_back|inv_front|inv_left|inv_right))!=0))
 						darknut=true;
 					else if(enemy.family==eeGLEEOK)
@@ -9655,7 +8510,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 						else
 							gleeok=2;
 					}
-					
 					// Dummied out enemies
 					if(bie[u].i>=eOCTO1S && bie[u].i<e177)
 					{
@@ -9664,14 +8518,12 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 							continue;
 						}
 					}
-					
 					if(newtiles)
 					{
 						if(guysbuf[bie[u].i].e_tile==0)
 						{
 							continue;
 						}
-						
 						if(guysbuf[bie[u].i].e_height==0)
 						{
 							if(rect)
@@ -9694,11 +8546,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
 							}
 						}
-						
 						if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 						{
 							sprintf(temptext, "%s\n", bie[u].s);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -9711,10 +8561,8 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
-						
 						if(darknut)
 						{
 							if(rect)
@@ -9725,11 +8573,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 							{
 								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile+120), TILEROW(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
 							}
-							
 							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 							{
 								sprintf(temptext, "%s (broken shield)\n", bie[u].s);
-								
 								if(strlen(tile_move_list_text)<65000)
 								{
 									strcat(tile_move_list_text, temptext);
@@ -9742,7 +8588,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 										flood=true;
 									}
 								}
-								
 								found=true;
 							}
 						}
@@ -9756,11 +8601,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 							{
 								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_first, selection_last);
 							}
-							
 							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 							{
 								sprintf(temptext, "%s\n", bie[u].s);
-								
 								if(strlen(tile_move_list_text)<65000)
 								{
 									strcat(tile_move_list_text, temptext);
@@ -9773,7 +8616,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 										flood=true;
 									}
 								}
-								
 								found=true;
 							}
 						}
@@ -9790,12 +8632,10 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 									i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), TILEROW(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_first, selection_last);
 								}
 							}
-							
 							if(i==ti_none)
 							{
 								int32_t c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
 								int32_t r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
-								
 								if(rect)
 								{
 									i=move_intersection_rr(c, r, 20, 3, selection_left, selection_top, selection_width, selection_height);
@@ -9804,7 +8644,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 								{
 									i=move_intersection_rs(c, r, 20, 3, selection_first, selection_last);
 								}
-								
 								if(i==ti_none)
 								{
 									if(rect)
@@ -9817,11 +8656,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 									}
 								}
 							}
-							
 							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 							{
 								sprintf(temptext, "%s\n", bie[u].s);
-								
 								if(strlen(tile_move_list_text)<65000)
 								{
 									strcat(tile_move_list_text, temptext);
@@ -9834,7 +8671,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 										flood=true;
 									}
 								}
-								
 								found=true;
 							}
 						}
@@ -9867,11 +8703,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].tile), TILEROW(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_first, selection_last);
 							}
 						}
-						
 						if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 						{
 							sprintf(temptext, "%s\n", bie[u].s);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -9884,10 +8718,8 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
-						
 						if(guysbuf[bie[u].i].s_tile!=0)
 						{
 							if(guysbuf[bie[u].i].s_height==0)
@@ -9912,11 +8744,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 									i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].s_tile), TILEROW(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_first, selection_last);
 								}
 							}
-							
 							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 							{
 								sprintf(temptext, "%s (%s)\n", bie[u].s, darknut?"broken shield":"secondary tiles");
-								
 								if(strlen(tile_move_list_text)<65000)
 								{
 									strcat(tile_move_list_text, temptext);
@@ -9929,17 +8759,14 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 										flood=true;
 									}
 								}
-								
 								found=true;
 							}
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following enemies");
-					
 					if(move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -9950,21 +8777,17 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 						sprintf(buf3, "will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -9974,16 +8797,12 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 			}
 		}
 	}
-	
 	//
 	// copy tiles and delete if needed (move)
-	
 	if(!done)
 	{
 		go_tiles();
-		
 		int32_t diff=dest_first-src_first;
-		
 		if(rect)
 		{
 			for(int32_t r=0; r<rows; ++r)
@@ -9992,12 +8811,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				{
 					int32_t dt=(dest_first+((r*TILES_PER_ROW)+c));
 					int32_t st=(src_first);
-					
 					if(dt>=NEWMAXTILES)
 						continue;
-					
 			overlay_tile(newtilebuf,dt,st,cs,backwards);
-			
 				}
 			}
 		}
@@ -10007,12 +8823,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 			{
 				int32_t dt=(dest_first+c);
 				int32_t st=(src_first);
-				
 				if(dt>=NEWMAXTILES)
 					continue;
-		
 		overlay_tile(newtilebuf,dt,st,cs,backwards);
-		
 				if(move)
 				{
 					if(st<dest_first||st>(dest_first+c-1))
@@ -10020,7 +8833,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				}
 			}
 		}
-		
 		if(move)
 		{
 			for(int32_t u=0; u<MAXCOMBOS; u++)
@@ -10030,7 +8842,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					combobuf[u].tile+=diff;
 				}
 			}
-			
 			for(int32_t u=0; u<iMax; u++)
 			{
 				if(move_items_list[u])
@@ -10038,7 +8849,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					itemsbuf[bii[u].i].tile+=diff;
 				}
 			}
-			
 			for(int32_t u=0; u<wMAX; u++)
 			{
 				if(move_weapons_list[u])
@@ -10046,9 +8856,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					wpnsbuf[biw[u].i].tile+=diff;
 				}
 			}
-			
 			handle_hero_sprite_move(move_hero_sprites_list,diff);
-			
 			for(int32_t u=0; u<6; u++)
 			{
 				if(move_mapstyles_list[u])
@@ -10058,30 +8866,24 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					case 0:
 						misc.colors.blueframe_tile+=diff;
 						break;
-						
 					case 1:
 						misc.colors.HCpieces_tile+=diff;
 						break;
-						
 					case 2:
 						misc.colors.triforce_tile+=diff;
 						break;
-						
 					case 3:
 						misc.colors.triframe_tile+=diff;
 						break;
-						
 					case 4:
 						misc.colors.overworld_map_tile+=diff;
 						break;
-						
 					case 5:
 						misc.colors.dungeon_map_tile+=diff;
 						break;
 					}
 				}
 			}
-			
 			for(int32_t u=0; u<4; u++)
 			{
 				if(move_game_icons_list[u])
@@ -10089,13 +8891,11 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					misc.icons[u]+=diff;
 				}
 			}
-			
 			for(int32_t t=0; t<MAXDMAPS; t++)
 			{
 				for(int32_t u=0; u<4; u++)
 				{
 					move_dmap_maps_list[t][u]=false;
-					
 					if(move_dmap_maps_list[t][u])
 					{
 						switch(u)
@@ -10103,15 +8903,12 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 						case 0:
 							DMaps[t].minimap_1_tile+=diff;
 							break;
-							
 						case 1:
 							DMaps[t].minimap_2_tile+=diff;
 							break;
-							
 						case 2:
 							DMaps[t].largemap_1_tile+=diff;
 							break;
-							
 						case 3:
 							DMaps[t].largemap_2_tile+=diff;
 							break;
@@ -10121,19 +8918,15 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 			}
 		}
 	}
-	
 	//now that tiles have moved, fix these buffers -DD
 	register_blank_tiles();
 	register_used_tiles();
-	
 	delete[] tile_move_list_text;
 	delete[] move_combo_list;
 	delete[] move_items_list;
 	delete[] move_weapons_list;
-	
 	if(done)
 		return false;
-		
 	return true;
 }
 //
@@ -10145,10 +8938,8 @@ bool do_movetile_united(tile_move_data const& tmd)
 	sprintf(buf2, " ");
 	sprintf(buf3, " ");
 	sprintf(buf4, " ");
-	
 	// warn if range extends beyond last tile
 	sprintf(buf4, "Some tiles will not be %s", tmd.move?"moved.":"copied.");
-	
 	if(tmd.dest_last>=NEWMAXTILES)
 	{
 		sprintf(buf4, "%s operation cancelled.", tmd.move?"Move":"Copy");
@@ -10160,16 +8951,13 @@ bool do_movetile_united(tile_move_data const& tmd)
 		//  return false;
 		// }
 	}
-	
 	char *tile_move_list_text = new char[65535];
 	char temptext[80];
-	
 	sprintf(buf, "Destination Warning");
 	tile_move_list_dlg[0].dp=buf;
 	tile_move_list_dlg[0].dp2=lfont;
 	bool found;
 	bool flood;
-	
 	int32_t i;
 	bool *move_combo_list = new bool[MAXCOMBOS];
 	bool *move_items_list = new bool[iMax];
@@ -10181,7 +8969,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 	bool move_game_icons_list[4];
 	bool move_dmap_maps_list[MAXDMAPS][4];
 	//    bool move_enemies_list[eMAXGUYS];  //to be implemented once custom enemies are in
-	
 	// warn if paste overwrites other defined tiles or
 	// if delete erases other defined tiles
 	int32_t selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
@@ -10203,7 +8990,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 				selection_width=tmd.dest_width;
 				selection_height=tmd.dest_height;
 				break;
-				
 			case 1: case 2:
 				selection_first=tmd.src_first;
 				selection_last=tmd.src_last;
@@ -10213,7 +8999,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 				selection_height=tmd.src_height;
 				break;
 		}
-		
 		{
 			//check combos
 			if(!done)
@@ -10222,12 +9007,10 @@ bool do_movetile_united(tile_move_data const& tmd)
 				tile_move_list_text[0]=0;
 				found=false;
 				flood=false;
-				
 				for(int32_t u=0; u<MAXCOMBOS; u++)
 				{
 					if(first) move_combo_list[u]=false;
 					else if(move_combo_list[u]) continue;
-					
 					if(tmd.rect)
 					{
 						i=move_intersection_sr(combobuf[u], selection_left, selection_top, selection_width, selection_height);
@@ -10236,13 +9019,11 @@ bool do_movetile_united(tile_move_data const& tmd)
 					{
 						i=move_intersection_ss(combobuf[u], selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(combobuf[u].o_tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%d\n", u);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -10255,7 +9036,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if (i == ti_encompass)
@@ -10264,11 +9044,9 @@ bool do_movetile_united(tile_move_data const& tmd)
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following combos");
-					
 					if(tmd.move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -10279,21 +9057,17 @@ bool do_movetile_united(tile_move_data const& tmd)
 						sprintf(buf3, "will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -10301,7 +9075,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 					}
 				}
 			}
-			
 			//check items
 			if(!done)
 			{
@@ -10310,12 +9083,10 @@ bool do_movetile_united(tile_move_data const& tmd)
 				found=false;
 				flood=false;
 				build_bii_list(false);
-				
 				for(int32_t u=0; u<iMax; u++)
 				{
 					if(first) move_items_list[u]=false;
 					else if(move_items_list[u]) continue;
-					
 					if(tmd.rect)
 					{
 						i=move_intersection_sr(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, selection_left, selection_top, selection_width, selection_height);
@@ -10324,13 +9095,11 @@ bool do_movetile_united(tile_move_data const& tmd)
 					{
 						i=move_intersection_ss(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(itemsbuf[bii[u].i].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%s\n", bii[u].s);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -10343,7 +9112,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -10352,11 +9120,9 @@ bool do_movetile_united(tile_move_data const& tmd)
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following items");
-					
 					if(tmd.move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -10367,21 +9133,17 @@ bool do_movetile_united(tile_move_data const& tmd)
 						sprintf(buf3, "will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -10389,7 +9151,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 					}
 				}
 			}
-			
 			//check weapons/misc
 			if(!done)
 			{
@@ -10399,15 +9160,12 @@ bool do_movetile_united(tile_move_data const& tmd)
 				flood=false;
 				build_biw_list();
 				bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
-				
 				for(int32_t u=0; u<wMAX; u++)
 				{
 					ignore_frames=false;
 					if(first) move_weapons_list[u]=false;
 					else if(move_weapons_list[u]) continue;
-					
 					int32_t m=0;
-					
 					switch(biw[u].i)
 					{
 					case wSWORD:
@@ -10416,24 +9174,20 @@ bool do_movetile_united(tile_move_data const& tmd)
 					case wXSWORD:
 						m=3+((wpnsbuf[biw[u].i].type==3)?1:0);
 						break;
-						
 					case wSWORDSLASH:
 					case wWSWORDSLASH:
 					case wMSWORDSLASH:
 					case wXSWORDSLASH:
 						m=4;
 						break;
-						
 					case iwMMeter:
 						m=9;
 						break;
-						
 					case wBRANG:
 					case wMBRANG:
 					case wFBRANG:
 						m=BSZ2?1:3;
 						break;
-						
 					case wBOOM:
 					case wSBOOM:
 					case ewBOOM:
@@ -10441,55 +9195,43 @@ bool do_movetile_united(tile_move_data const& tmd)
 						ignore_frames=true;
 						m=2;
 						break;
-						
 					case wWAND:
 						m=1;
 						break;
-						
 					case wMAGIC:
 						m=1;
 						break;
-						
 					case wARROW:
 					case wSARROW:
 					case wGARROW:
 					case ewARROW:
 						m=1;
 						break;
-						
 					case wHAMMER:
 						m=8;
 						break;
-						
 					case wHSHEAD:
 						m=1;
 						break;
-						
 					case wHSCHAIN_H:
 						m=1;
 						break;
-						
 					case wHSCHAIN_V:
 						m=1;
 						break;
-						
 					case wHSHANDLE:
 						m=1;
 						break;
-						
 					case iwDeath:
 						m=BSZ2?4:2;
 						break;
-						
 					case iwSpawn:
 						m=3;
 						break;
-						
 					default:
 						m=0;
 						break;
 					}
-					
 					if(tmd.rect)
 					{
 						i=move_intersection_sr(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_left, selection_top, selection_width, selection_height);
@@ -10498,13 +9240,11 @@ bool do_movetile_united(tile_move_data const& tmd)
 					{
 						i=move_intersection_ss(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(wpnsbuf[biw[u].i].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%s\n", biw[u].s);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -10517,7 +9257,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -10525,7 +9264,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 							move_weapons_list[u]=true;
 						}
 					}
-					
 					if((u==3)||(u==9))
 					{
 						if(tmd.rect)
@@ -10536,11 +9274,9 @@ bool do_movetile_united(tile_move_data const& tmd)
 						{
 							i=move_intersection_ss(54, 55, selection_first, selection_last);
 						}
-						
 						if(i!=ti_none)
 						{
 							sprintf(temptext, "%s Impact (not shown in sprite list)\n", (u==3)?"Arrow":"Boomerang");
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -10553,16 +9289,13 @@ bool do_movetile_united(tile_move_data const& tmd)
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following weapons");
-					
 					if(tmd.move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -10573,21 +9306,17 @@ bool do_movetile_united(tile_move_data const& tmd)
 						sprintf(buf3, "will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -10595,7 +9324,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 					}
 				}
 			}
-			
 			//check Player sprites
 			if(!done)
 			{
@@ -10604,12 +9332,10 @@ bool do_movetile_united(tile_move_data const& tmd)
 				found=false;
 				flood=false;
 				setup_hero_sprite_items();
-				
 				for(int32_t u=0; u<num_hspr; u++)
 				{
 					if(first) move_hero_sprites_list[u]=false;
 					else if(move_hero_sprites_list[u]) continue;
-					
 					if(tmd.rect)
 					{
 						i=move_intersection_rr(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, selection_left, selection_top, selection_width, selection_height);
@@ -10618,13 +9344,11 @@ bool do_movetile_united(tile_move_data const& tmd)
 					{
 						i=move_intersection_rs(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(hero_sprite_items[u].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%s\n", hero_sprite_items[u].name);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -10637,7 +9361,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -10646,11 +9369,9 @@ bool do_movetile_united(tile_move_data const& tmd)
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following Player sprites");
-					
 					if(tmd.move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -10661,21 +9382,17 @@ bool do_movetile_united(tile_move_data const& tmd)
 						sprintf(buf3, "sprites will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done =true;
@@ -10683,7 +9400,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 					}
 				}
 			}
-			
 			//Check subscreen objects
 			//Tried to have a go at this but I think it's a bit too complicated for me at the moment.
 			//Might come back to it another time and see what I can do ~Joe123
@@ -10698,7 +9414,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 					 }
 				 }
 			}*/
-			
 			//check map styles
 			if(!done)
 			{
@@ -10718,12 +9433,10 @@ bool do_movetile_united(tile_move_data const& tmd)
 				map_styles_items[3].height=BSZ2?7:3;
 				map_styles_items[4].tile=misc.colors.overworld_map_tile;
 				map_styles_items[5].tile=misc.colors.dungeon_map_tile;
-				
 				for(int32_t u=0; u<6; u++)
 				{
 					if(first) move_mapstyles_list[u]=false;
 					else if(move_mapstyles_list[u]) continue;
-					
 					if(tmd.rect)
 					{
 						i=move_intersection_rr(TILECOL(map_styles_items[u].tile), TILEROW(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_left, selection_top, selection_width, selection_height);
@@ -10732,13 +9445,11 @@ bool do_movetile_united(tile_move_data const& tmd)
 					{
 						i=move_intersection_rs(TILECOL(map_styles_items[u].tile), TILEROW(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(map_styles_items[u].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%s\n", map_styles_items[u].name);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -10751,7 +9462,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -10760,11 +9470,9 @@ bool do_movetile_united(tile_move_data const& tmd)
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following map style");
-					
 					if(tmd.move)
 					{
 						sprintf(buf3, "items will be partially cleared by the move.");
@@ -10775,21 +9483,17 @@ bool do_movetile_united(tile_move_data const& tmd)
 						sprintf(buf3, "items will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -10797,7 +9501,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 					}
 				}
 			}
-			
 			//check game icons
 			if(!done)
 			{
@@ -10809,12 +9512,10 @@ bool do_movetile_united(tile_move_data const& tmd)
 				{
 					"No Ring / Green Ring", "Blue Ring", "Red Ring", "Golden Ring"
 				};
-				
 				for(int32_t u=0; u<4; u++)
 				{
 					if(first) move_game_icons_list[u]=false;
 					else if(move_game_icons_list[u]) continue;
-					
 					if(tmd.rect)
 					{
 						i=move_intersection_sr(misc.icons[u], misc.icons[u], selection_left, selection_top, selection_width, selection_height);
@@ -10823,13 +9524,11 @@ bool do_movetile_united(tile_move_data const& tmd)
 					{
 						i=move_intersection_ss(misc.icons[u], misc.icons[u], selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(misc.icons[u]!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%s\n", icon_title[u]);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -10842,7 +9541,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -10851,7 +9549,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 						}
 					}
 				}
-				
 				if(tmd.rect)
 				{
 					i=move_intersection_sr(41, 41, selection_left, selection_top, selection_width, selection_height);
@@ -10860,11 +9557,9 @@ bool do_movetile_united(tile_move_data const& tmd)
 				{
 					i=move_intersection_ss(41, 41, selection_first, selection_last);
 				}
-				
 				if((i!=ti_none)) // &&(41!=0))  //this is for when the quest sword can change
 				{
 					sprintf(temptext, "Quest Sword");
-					
 					if(strlen(tile_move_list_text)<65000)
 					{
 						strcat(tile_move_list_text, temptext);
@@ -10877,14 +9572,11 @@ bool do_movetile_united(tile_move_data const& tmd)
 							flood=true;
 						}
 					}
-					
 					found=true;
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following quest icons");
-					
 					if(tmd.move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -10895,21 +9587,17 @@ bool do_movetile_united(tile_move_data const& tmd)
 						sprintf(buf3, "will be overwritten by this process.  Proceed?");
 						sprintf(buf4, " ");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -10917,7 +9605,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 					}
 				}
 			}
-			
 			//check dmap maps
 			if(!done)
 			{
@@ -10926,7 +9613,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 				found=false;
 				flood=false;
 				bool BSZ2=(zinit.subscreen>2);
-				
 				for(int32_t t=0; t<MAXDMAPS; t++)
 				{
 					dmap_map_items[0].tile=DMaps[t].minimap_1_tile;
@@ -10935,12 +9621,10 @@ bool do_movetile_united(tile_move_data const& tmd)
 					dmap_map_items[2].width=BSZ2?7:9;
 					dmap_map_items[3].tile=DMaps[t].largemap_2_tile;
 					dmap_map_items[3].width=BSZ2?7:9;
-					
 					for(int32_t u=0; u<4; u++)
 					{
 						if(first) move_dmap_maps_list[t][u]=false;
 						else if(move_dmap_maps_list[t][u]) continue;
-						
 						if(tmd.rect)
 						{
 							i=move_intersection_rr(TILECOL(dmap_map_items[u].tile), TILEROW(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_left, selection_top, selection_width, selection_height);
@@ -10949,13 +9633,11 @@ bool do_movetile_united(tile_move_data const& tmd)
 						{
 							i=move_intersection_rs(TILECOL(dmap_map_items[u].tile), TILEROW(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_first, selection_last);
 						}
-						
 						if((i!=ti_none)&&(dmap_map_items[u].tile!=0))
 						{
 							if(i==ti_broken || q==0)
 							{
 								sprintf(temptext, "DMap %d %s\n", t, dmap_map_items[u].name);
-								
 								if(strlen(tile_move_list_text)<65000)
 								{
 									strcat(tile_move_list_text, temptext);
@@ -10968,7 +9650,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 										flood=true;
 									}
 								}
-								
 								found=true;
 							}
 							else if(i==ti_encompass)
@@ -10978,11 +9659,9 @@ bool do_movetile_united(tile_move_data const& tmd)
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following dmap-specific");
-					
 					if(tmd.move)
 					{
 						sprintf(buf3, "subscreen maps will be partially cleared by the move.");
@@ -10993,21 +9672,17 @@ bool do_movetile_united(tile_move_data const& tmd)
 						sprintf(buf3, "subscreen maps will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -11015,7 +9690,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 					}
 				}
 			}
-			
 			//check enemies
 			if(!done)
 			{
@@ -11025,7 +9699,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 				flood=false;
 				build_bie_list(false);
 				int32_t u;
-				
 				for(u=0; u<eMAXGUYS; u++)
 				{
 					if(first) move_enemy_list[u] = false;
@@ -11033,7 +9706,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 					const guydata& enemy=guysbuf[bie[u].i];
 					bool darknut=false;
 					int32_t gleeok=0;
-					
 					if(enemy.family==eeWALK && ((enemy.flags&(inv_back|inv_front|inv_left|inv_right))!=0))
 						darknut=true;
 					else if(enemy.family==eeGLEEOK)
@@ -11044,7 +9716,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 						else
 							gleeok=2;
 					}
-					
 					// Dummied out enemies
 					if(bie[u].i>=eOCTO1S && bie[u].i<e177)
 					{
@@ -11053,14 +9724,12 @@ bool do_movetile_united(tile_move_data const& tmd)
 							continue;
 						}
 					}
-					
 					if(newtiles)
 					{
 						if(guysbuf[bie[u].i].e_tile==0)
 						{
 							continue;
 						}
-						
 						if(guysbuf[bie[u].i].e_height==0)
 						{
 							if(tmd.rect)
@@ -11083,11 +9752,9 @@ bool do_movetile_united(tile_move_data const& tmd)
 								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
 							}
 						}
-						
 						if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 						{
 							sprintf(temptext, "%s\n", bie[u].s);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -11100,12 +9767,10 @@ bool do_movetile_united(tile_move_data const& tmd)
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i == ti_encompass)
 							move_enemy_list[u] = true;
-						
 						if(darknut)
 						{
 							bool did_move = move_enemy_list[u];
@@ -11118,11 +9783,9 @@ bool do_movetile_united(tile_move_data const& tmd)
 							{
 								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile+120), TILEROW(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
 							}
-							
 							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 							{
 								sprintf(temptext, "%s (broken shield)\n", bie[u].s);
-								
 								if(strlen(tile_move_list_text)<65000)
 								{
 									strcat(tile_move_list_text, temptext);
@@ -11135,7 +9798,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 										flood=true;
 									}
 								}
-								
 								found=true;
 							}
 							else if(i == ti_encompass && did_move)
@@ -11153,11 +9815,9 @@ bool do_movetile_united(tile_move_data const& tmd)
 							{
 								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_first, selection_last);
 							}
-							
 							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 							{
 								sprintf(temptext, "%s\n", bie[u].s);
-								
 								if(strlen(tile_move_list_text)<65000)
 								{
 									strcat(tile_move_list_text, temptext);
@@ -11170,7 +9830,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 										flood=true;
 									}
 								}
-								
 								found=true;
 							}
 							else if(i == ti_encompass && did_move)
@@ -11191,12 +9850,10 @@ bool do_movetile_united(tile_move_data const& tmd)
 									i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), TILEROW(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_first, selection_last);
 								}
 							}
-							
 							if(i==ti_none)
 							{
 								int32_t c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
 								int32_t r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
-								
 								if(tmd.rect)
 								{
 									i=move_intersection_rr(c, r, 20, 3, selection_left, selection_top, selection_width, selection_height);
@@ -11205,7 +9862,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 								{
 									i=move_intersection_rs(c, r, 20, 3, selection_first, selection_last);
 								}
-								
 								if(i==ti_none)
 								{
 									if(tmd.rect)
@@ -11218,11 +9874,9 @@ bool do_movetile_united(tile_move_data const& tmd)
 									}
 								}
 							}
-							
 							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 							{
 								sprintf(temptext, "%s\n", bie[u].s);
-								
 								if(strlen(tile_move_list_text)<65000)
 								{
 									strcat(tile_move_list_text, temptext);
@@ -11235,7 +9889,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 										flood=true;
 									}
 								}
-								
 								found=true;
 							}
 							else if(i == ti_encompass && did_move)
@@ -11270,11 +9923,9 @@ bool do_movetile_united(tile_move_data const& tmd)
 								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].tile), TILEROW(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_first, selection_last);
 							}
 						}
-						
 						if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 						{
 							sprintf(temptext, "%s\n", bie[u].s);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -11287,12 +9938,10 @@ bool do_movetile_united(tile_move_data const& tmd)
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i == ti_encompass)
 							move_enemy_list[u] = true;
-						
 						if(guysbuf[bie[u].i].s_tile!=0)
 						{
 							bool did_move = move_enemy_list[u];
@@ -11319,11 +9968,9 @@ bool do_movetile_united(tile_move_data const& tmd)
 									i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].s_tile), TILEROW(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_first, selection_last);
 								}
 							}
-							
 							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 							{
 								sprintf(temptext, "%s (%s)\n", bie[u].s, darknut?"broken shield":"secondary tiles");
-								
 								if(strlen(tile_move_list_text)<65000)
 								{
 									strcat(tile_move_list_text, temptext);
@@ -11336,7 +9983,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 										flood=true;
 									}
 								}
-								
 								found=true;
 							}
 							else if(i == ti_encompass && did_move)
@@ -11344,11 +9990,9 @@ bool do_movetile_united(tile_move_data const& tmd)
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following enemies");
-					
 					if(tmd.move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -11359,21 +10003,17 @@ bool do_movetile_united(tile_move_data const& tmd)
 						sprintf(buf3, "will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -11384,16 +10024,12 @@ bool do_movetile_united(tile_move_data const& tmd)
 		}
 		first = false;
 	}
-	
 	//
 	// copy tiles and delete if needed (tmd.move)
-	
 	if(!done)
 	{
 		go_tiles();
-		
 		int32_t diff=tmd.dest_first-tmd.src_first;
-		
 		if(tmd.rect)
 		{
 			for(int32_t r=0; r<tmd.rows; ++r)
@@ -11402,17 +10038,13 @@ bool do_movetile_united(tile_move_data const& tmd)
 				{
 					int32_t dt=(tmd.dest_first+((r*TILES_PER_ROW)+c));
 					int32_t st=(tmd.src_first+((r*TILES_PER_ROW)+c));
-					
 					if(dt>=NEWMAXTILES)
 						continue;
-						
 					reset_tile(newtilebuf, dt, newundotilebuf[st].format);
-					
 					for(int32_t j=0; j<tilesize(newundotilebuf[st].format); j++)
 					{
 						newtilebuf[dt].data[j]=newundotilebuf[st].data[j];
 					}
-					
 					if(tmd.move)
 					{
 						if((st<tmd.dest_first||st>tmd.dest_first+((tmd.rows-1)*TILES_PER_ROW)+(tmd.cols-1)))
@@ -11442,17 +10074,13 @@ bool do_movetile_united(tile_move_data const& tmd)
 			{
 				int32_t dt=(tmd.dest_first+c);
 				int32_t st=(tmd.src_first+c);
-				
 				if(dt>=NEWMAXTILES)
 					continue;
-					
 				reset_tile(newtilebuf, dt, newundotilebuf[st].format);
-				
 				for(int32_t j=0; j<tilesize(newundotilebuf[st].format); j++)
 				{
 					newtilebuf[dt].data[j]=newundotilebuf[st].data[j];
 				}
-				
 				if(tmd.move)
 				{
 					if(st<tmd.dest_first||st>(tmd.dest_first+c-1))
@@ -11460,7 +10088,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 				}
 			}
 		}
-		
 		if(tmd.move)
 		{
 			for(int32_t u=0; u<MAXCOMBOS; u++)
@@ -11470,7 +10097,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 					combobuf[u].set_tile(combobuf[u].o_tile+diff);
 				}
 			}
-			
 			for(int32_t u=0; u<iMax; u++)
 			{
 				if(move_items_list[u])
@@ -11478,7 +10104,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 					itemsbuf[bii[u].i].tile+=diff;
 				}
 			}
-			
 			for(int32_t u=0; u<wMAX; u++)
 			{
 				if(move_weapons_list[u])
@@ -11486,9 +10111,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					wpnsbuf[biw[u].i].tile+=diff;
 				}
 			}
-			
 			handle_hero_sprite_move(move_hero_sprites_list,diff);
-			
 			for(int32_t u=0; u<6; u++)
 			{
 				if(move_mapstyles_list[u])
@@ -11498,30 +10121,24 @@ bool do_movetile_united(tile_move_data const& tmd)
 					case 0:
 						misc.colors.blueframe_tile+=diff;
 						break;
-						
 					case 1:
 						misc.colors.HCpieces_tile+=diff;
 						break;
-						
 					case 2:
 						misc.colors.triforce_tile+=diff;
 						break;
-						
 					case 3:
 						misc.colors.triframe_tile+=diff;
 						break;
-						
 					case 4:
 						misc.colors.overworld_map_tile+=diff;
 						break;
-						
 					case 5:
 						misc.colors.dungeon_map_tile+=diff;
 						break;
 					}
 				}
 			}
-			
 			for(int32_t u=0; u<4; u++)
 			{
 				if(move_game_icons_list[u])
@@ -11529,13 +10146,11 @@ bool do_movetile_united(tile_move_data const& tmd)
 					misc.icons[u]+=diff;
 				}
 			}
-			
 			for(int32_t t=0; t<MAXDMAPS; t++)
 			{
 				for(int32_t u=0; u<4; u++)
 				{
 					move_dmap_maps_list[t][u]=false;
-					
 					if(move_dmap_maps_list[t][u])
 					{
 						switch(u)
@@ -11543,15 +10158,12 @@ bool do_movetile_united(tile_move_data const& tmd)
 						case 0:
 							DMaps[t].minimap_1_tile+=diff;
 							break;
-							
 						case 1:
 							DMaps[t].minimap_2_tile+=diff;
 							break;
-							
 						case 2:
 							DMaps[t].largemap_1_tile+=diff;
 							break;
-							
 						case 3:
 							DMaps[t].largemap_2_tile+=diff;
 							break;
@@ -11559,7 +10171,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 					}
 				}
 			}
-		
 			for(int32_t u=0; u<eMAXGUYS; u++)
 			{
 				if(move_enemy_list[u])
@@ -11577,20 +10188,16 @@ bool do_movetile_united(tile_move_data const& tmd)
 			}
 		}
 	}
-	
 	//now that tiles have moved, fix these buffers -DD
 	register_blank_tiles();
 	register_used_tiles();
-	
 	delete[] tile_move_list_text;
 	delete[] move_combo_list;
 	delete[] move_items_list;
 	delete[] move_weapons_list;
 	delete[] move_enemy_list;
-	
 	if(done)
 		return false;
-		
 	return true;
 }
 
@@ -11598,17 +10205,14 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 {
 	bool alt=(key[KEY_ALT]||key[KEY_ALTGR]);
 	bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
-	
 	// if tile>tile2 then swap them
 	if(tile>tile2)
 	{
 		zc_swap(tile, tile2);
 	}
-	
 	// alt=copy from right
 	// shift=copy from bottom
 	tile_move_data tmd;
-	
 	tmd.copies=copycnt;
 	tmd.dest_first=tile;
 	tmd.dest_last=tile2;
@@ -11616,24 +10220,20 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 	tmd.src_last=copy+tmd.copies-1;
 	tmd.rect = rect;
 	tmd.move = move;
-	
 	if(rect)
 	{
 		tmd.dest_top=TILEROW(tmd.dest_first);
 		tmd.dest_bottom=TILEROW(tmd.dest_last);
 		tmd.src_top=TILEROW(tmd.src_first);
 		tmd.src_bottom=TILEROW(tmd.src_last);
-		
 		tmd.src_left= zc_min(TILECOL(tmd.src_first),TILECOL(tmd.src_last));
 		tmd.src_right=zc_max(TILECOL(tmd.src_first),TILECOL(tmd.src_last));
 		tmd.src_first=(tmd.src_top  * TILES_PER_ROW)+tmd.src_left;
 		tmd.src_last= (tmd.src_bottom*TILES_PER_ROW)+tmd.src_right;
-		
 		tmd.dest_left= zc_min(TILECOL(tmd.dest_first),TILECOL(tmd.dest_last));
 		tmd.dest_right=zc_max(TILECOL(tmd.dest_first),TILECOL(tmd.dest_last));
 		tmd.dest_first=(tmd.dest_top  * TILES_PER_ROW)+tmd.dest_left;
 		tmd.dest_last= (tmd.dest_bottom*TILES_PER_ROW)+tmd.dest_right;
-		
 		//if no dest range set, then set one
 		if((tmd.dest_first==tmd.dest_last)&&(tmd.src_first!=tmd.src_last))
 		{
@@ -11645,7 +10245,6 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 			{
 				tmd.dest_right=tmd.dest_left+(tmd.src_right-tmd.src_left);
 			}
-			
 			if(shift)
 			{
 				tmd.dest_top=tmd.dest_bottom-(tmd.src_bottom-tmd.src_top);
@@ -11654,7 +10253,6 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 			{
 				tmd.dest_bottom=tmd.dest_top+(tmd.src_bottom-tmd.src_top);
 			}
-			
 			tmd.dest_first=(tmd.dest_top  * TILES_PER_ROW)+tmd.dest_left;
 			tmd.dest_last= (tmd.dest_bottom*TILES_PER_ROW)+tmd.dest_right;
 		}
@@ -11682,7 +10280,6 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 					tmd.dest_right=tmd.dest_left+(tmd.src_right-tmd.src_left);
 				}
 			}
-			
 			if(tmd.dest_bottom-tmd.dest_top<tmd.src_bottom-tmd.src_top) //destination is shorter than source
 			{
 				if(shift) //copy from bottom tile instead of top
@@ -11705,21 +10302,17 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 					tmd.dest_bottom=tmd.dest_top+(tmd.src_bottom-tmd.src_top);
 				}
 			}
-			
 			tmd.src_first=(tmd.src_top  * TILES_PER_ROW)+tmd.src_left;
 			tmd.src_last= (tmd.src_bottom*TILES_PER_ROW)+tmd.src_right;
 			tmd.dest_first=(tmd.dest_top  * TILES_PER_ROW)+tmd.dest_left;
 			tmd.dest_last= (tmd.dest_bottom*TILES_PER_ROW)+tmd.dest_right;
 		}
-		
 		tmd.cols=tmd.src_right-tmd.src_left+1;
 		tmd.rows=tmd.src_bottom-tmd.src_top+1;
-		
 		tmd.dest_width=tmd.dest_right-tmd.dest_left+1;
 		tmd.dest_height=tmd.dest_bottom-tmd.dest_top+1;
 		tmd.src_width=tmd.src_right-tmd.src_left+1;
 		tmd.src_height=tmd.src_bottom-tmd.src_top+1;
-		
 	}
 	else  //!rect
 	{
@@ -11760,10 +10353,8 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 				}
 			}
 		}
-		
 		tmd.copies=tmd.dest_last-tmd.dest_first+1;
 	}
-	
 	bool ret = do_movetile_united(tmd);
 	if(ret)
 	{
@@ -11779,69 +10370,50 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect, bool move)
 {
 	bool ignore_frames=false;
-	
 	// if tile>tile2 then swap them
 	if(tile>tile2)
 	{
 		zc_swap(tile, tile2);
 	}
-		
 	tile_move_data tmd;
 	tmd.copies=copycnt;
 	tmd.dest_first=tile;
 	tmd.dest_last=tile2;
 	tmd.src_first=copy;
 	tmd.src_last=copy+tmd.copies-1;
-	
-	
-	
 	if(rect)
 	{
 		tmd.dest_top=TILEROW(tmd.dest_first);
 		tmd.dest_bottom=TILEROW(tmd.dest_last);
 		//tmd.src_top=TILEROW(tmd.src_first);
 		//tmd.src_bottom=TILEROW(tmd.src_last);
-		
 		//tmd.src_left= zc_min(TILECOL(tmd.src_first),TILECOL(tmd.src_last));
 		//tmd.src_right=zc_max(TILECOL(tmd.src_first),TILECOL(tmd.src_last));
 		//tmd.src_first=(tmd.src_top  * TILES_PER_ROW)+tmd.src_left;
 		//tmd.src_last= (tmd.src_bottom*TILES_PER_ROW)+tmd.src_right;
-		
 		tmd.dest_left= zc_min(TILECOL(tmd.dest_first),TILECOL(tmd.dest_last));
 		tmd.dest_right=zc_max(TILECOL(tmd.dest_first),TILECOL(tmd.dest_last));
 		tmd.dest_first=(tmd.dest_top  * TILES_PER_ROW)+tmd.dest_left;
 		tmd.dest_last= (tmd.dest_bottom*TILES_PER_ROW)+tmd.dest_right;
-		
-		
-		
-		
 		tmd.dest_width=tmd.dest_right-tmd.dest_left;
 		tmd.dest_height=tmd.dest_bottom-tmd.dest_top;
-		
 	tmd.cols=tmd.dest_width+1;
 		tmd.rows=tmd.dest_height+1;
-	
 	al_trace("tmd.rows: %d\n", tmd.rows);
 	al_trace("tmd.cols: %d\n", tmd.cols);
 
-		
 	}
 	else  //!rect
 	{
 		tmd.copies=tmd.dest_last-tmd.dest_first+1;
 	}
-	
-	
-	
 	char buf[80], buf2[80], buf3[80], buf4[80];
 	sprintf(buf, " ");
 	sprintf(buf2, " ");
 	sprintf(buf3, " ");
 	sprintf(buf4, " ");
-	
 	// warn if range extends beyond last tile
 	sprintf(buf4, "Some tiles will not be %s", move?"moved.":"copied.");
-	
 	if(tmd.dest_last>=NEWMAXTILES)
 	{
 		sprintf(buf4, "%s operation cancelled.", move?"Move":"Copy");
@@ -11853,16 +10425,13 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 		//  return false;
 		// }
 	}
-	
 	char *tile_move_list_text = new char[65535];
 	char temptext[80];
-	
 	sprintf(buf, "Destination Warning");
 	tile_move_list_dlg[0].dp=buf;
 	tile_move_list_dlg[0].dp2=lfont;
 	bool found;
 	bool flood;
-	
 	int32_t i;
 	bool *move_combo_list = new bool[MAXCOMBOS];
 	bool *move_items_list = new bool[iMax];
@@ -11873,15 +10442,12 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	bool move_game_icons_list[4];
 	bool move_dmap_maps_list[MAXDMAPS][4];
 	//    bool move_enemies_list[eMAXGUYS];  //to be implemented once custom enemies are in
-	
 	// warn if paste overwrites other defined tiles or
 	// if delete erases other defined tiles
 	int32_t selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
 	bool done = false;
-	
 	for(int32_t q=0; q<2 && !done; ++q)
 	{
-	
 		switch(q)
 		{
 		case 0:
@@ -11892,7 +10458,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 			selection_width=tmd.dest_width;
 			selection_height=tmd.dest_height;
 			break;
-			
 		case 1:
 			selection_first=tmd.src_first;
 			selection_last=tmd.src_last;
@@ -11902,7 +10467,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 			selection_height=tmd.src_height;
 			break;
 		}
-		
 		if(move||q==0)
 		{
 			//check combos
@@ -11912,11 +10476,9 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				tile_move_list_text[0]=0;
 				found=false;
 				flood=false;
-				
 				for(int32_t u=0; u<MAXCOMBOS; u++)
 				{
 					move_combo_list[u]=false;
-					
 					if(rect)
 					{
 						i = move_intersection_sr(combobuf[u], selection_left, selection_top, selection_width, selection_height);
@@ -11925,13 +10487,11 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					{
 						i = move_intersection_ss(combobuf[u], selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(combobuf[u].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%d\n", u);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -11944,7 +10504,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -11953,11 +10512,9 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following combos");
-					
 					if(move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -11968,21 +10525,17 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 						sprintf(buf3, "will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -11990,7 +10543,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					}
 				}
 			}
-			
 			//check items
 			if(!done)
 			{
@@ -11999,11 +10551,9 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				found=false;
 				flood=false;
 				build_bii_list(false);
-				
 				for(int32_t u=0; u<iMax; u++)
 				{
 					move_items_list[u]=false;
-					
 					if(rect)
 					{
 						i=move_intersection_sr(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, selection_left, selection_top, selection_width, selection_height);
@@ -12012,13 +10562,11 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					{
 						i=move_intersection_ss(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(itemsbuf[bii[u].i].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%s\n", bii[u].s);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -12031,7 +10579,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -12040,11 +10587,9 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following items");
-					
 					if(move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -12055,21 +10600,17 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 						sprintf(buf3, "will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -12077,7 +10618,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					}
 				}
 			}
-			
 			//check weapons/misc
 			if(!done)
 			{
@@ -12087,13 +10627,11 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				flood=false;
 				build_biw_list();
 				bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
-				
 				for(int32_t u=0; u<wMAX; u++)
 				{
 					ignore_frames=false;
 					move_weapons_list[u]=false;
 					int32_t m=0;
-					
 					switch(biw[u].i)
 					{
 					case wSWORD:
@@ -12102,24 +10640,20 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					case wXSWORD:
 						m=3+((wpnsbuf[biw[u].i].type==3)?1:0);
 						break;
-						
 					case wSWORDSLASH:
 					case wWSWORDSLASH:
 					case wMSWORDSLASH:
 					case wXSWORDSLASH:
 						m=4;
 						break;
-						
 					case iwMMeter:
 						m=9;
 						break;
-						
 					case wBRANG:
 					case wMBRANG:
 					case wFBRANG:
 						m=BSZ2?1:3;
 						break;
-						
 					case wBOOM:
 					case wSBOOM:
 					case ewBOOM:
@@ -12127,55 +10661,43 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 						ignore_frames=true;
 						m=2;
 						break;
-						
 					case wWAND:
 						m=1;
 						break;
-						
 					case wMAGIC:
 						m=1;
 						break;
-						
 					case wARROW:
 					case wSARROW:
 					case wGARROW:
 					case ewARROW:
 						m=1;
 						break;
-						
 					case wHAMMER:
 						m=8;
 						break;
-						
 					case wHSHEAD:
 						m=1;
 						break;
-						
 					case wHSCHAIN_H:
 						m=1;
 						break;
-						
 					case wHSCHAIN_V:
 						m=1;
 						break;
-						
 					case wHSHANDLE:
 						m=1;
 						break;
-						
 					case iwDeath:
 						m=BSZ2?4:2;
 						break;
-						
 					case iwSpawn:
 						m=3;
 						break;
-						
 					default:
 						m=0;
 						break;
 					}
-					
 					if(rect)
 					{
 						i=move_intersection_sr(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_left, selection_top, selection_width, selection_height);
@@ -12184,13 +10706,11 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					{
 						i=move_intersection_ss(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(wpnsbuf[biw[u].i].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%s\n", biw[u].s);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -12203,7 +10723,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -12211,7 +10730,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 							move_weapons_list[u]=true;
 						}
 					}
-					
 					if((u==3)||(u==9))
 					{
 						if(rect)
@@ -12222,11 +10740,9 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 						{
 							i=move_intersection_ss(54, 55, selection_first, selection_last);
 						}
-						
 						if(i!=ti_none)
 						{
 							sprintf(temptext, "%s Impact (not shown in sprite list)\n", (u==3)?"Arrow":"Boomerang");
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -12239,16 +10755,13 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following weapons");
-					
 					if(move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -12259,21 +10772,17 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 						sprintf(buf3, "will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -12281,7 +10790,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					}
 				}
 			}
-			
 			//check Player sprites
 			if(!done)
 			{
@@ -12290,11 +10798,9 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				found=false;
 				flood=false;
 				setup_hero_sprite_items();
-				
 				for(int32_t u=0; u<num_hspr; u++)
 				{
 					move_hero_sprites_list[u]=false;
-					
 					if(rect)
 					{
 						i=move_intersection_rr(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, selection_left, selection_top, selection_width, selection_height);
@@ -12303,13 +10809,11 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					{
 						i=move_intersection_rs(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(hero_sprite_items[u].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%s\n", hero_sprite_items[u].name);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -12322,7 +10826,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -12331,11 +10834,9 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following Player sprites");
-					
 					if(move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -12346,21 +10847,17 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 						sprintf(buf3, "sprites will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done =true;
@@ -12368,7 +10865,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					}
 				}
 			}
-			
 			//Check subscreen objects
 			//Tried to have a go at this but I think it's a bit too complicated for me at the moment.
 			//Might come back to it another time and see what I can do ~Joe123
@@ -12383,7 +10879,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					 }
 				 }
 			}*/
-			
 			//check map styles
 			if(!done)
 			{
@@ -12403,11 +10898,9 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				map_styles_items[3].height=BSZ2?7:3;
 				map_styles_items[4].tile=misc.colors.overworld_map_tile;
 				map_styles_items[5].tile=misc.colors.dungeon_map_tile;
-				
 				for(int32_t u=0; u<6; u++)
 				{
 					move_mapstyles_list[u]=false;
-					
 					if(rect)
 					{
 						i=move_intersection_rr(TILECOL(map_styles_items[u].tile), TILEROW(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_left, selection_top, selection_width, selection_height);
@@ -12416,13 +10909,11 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					{
 						i=move_intersection_rs(TILECOL(map_styles_items[u].tile), TILEROW(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(map_styles_items[u].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%s\n", map_styles_items[u].name);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -12435,7 +10926,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -12444,11 +10934,9 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following map style");
-					
 					if(move)
 					{
 						sprintf(buf3, "items will be partially cleared by the move.");
@@ -12459,21 +10947,17 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 						sprintf(buf3, "items will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -12481,7 +10965,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					}
 				}
 			}
-			
 			//check game icons
 			if(!done)
 			{
@@ -12493,11 +10976,9 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				{
 					"No Ring / Green Ring", "Blue Ring", "Red Ring", "Golden Ring"
 				};
-				
 				for(int32_t u=0; u<4; u++)
 				{
 					move_game_icons_list[u]=false;
-					
 					if(rect)
 					{
 						i=move_intersection_sr(misc.icons[u], misc.icons[u], selection_left, selection_top, selection_width, selection_height);
@@ -12506,13 +10987,11 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					{
 						i=move_intersection_ss(misc.icons[u], misc.icons[u], selection_first, selection_last);
 					}
-					
 					if((i!=ti_none)&&(misc.icons[u]!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
 							sprintf(temptext, "%s\n", icon_title[u]);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -12525,7 +11004,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
 						else if(i==ti_encompass)
@@ -12534,7 +11012,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 						}
 					}
 				}
-				
 				if(rect)
 				{
 					i=move_intersection_sr(41, 41, selection_left, selection_top, selection_width, selection_height);
@@ -12543,11 +11020,9 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				{
 					i=move_intersection_ss(41, 41, selection_first, selection_last);
 				}
-				
 				if((i!=ti_none)) // &&(41!=0))  //this is for when the quest sword can change
 				{
 					sprintf(temptext, "Quest Sword");
-					
 					if(strlen(tile_move_list_text)<65000)
 					{
 						strcat(tile_move_list_text, temptext);
@@ -12560,14 +11035,11 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 							flood=true;
 						}
 					}
-					
 					found=true;
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following quest icons");
-					
 					if(move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -12578,21 +11050,17 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 						sprintf(buf3, "will be overwritten by this process.  Proceed?");
 						sprintf(buf4, " ");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -12600,7 +11068,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					}
 				}
 			}
-			
 			//check dmap maps
 			if(!done)
 			{
@@ -12609,7 +11076,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				found=false;
 				flood=false;
 				bool BSZ2=(zinit.subscreen>2);
-				
 				for(int32_t t=0; t<MAXDMAPS; t++)
 				{
 					dmap_map_items[0].tile=DMaps[t].minimap_1_tile;
@@ -12618,11 +11084,9 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					dmap_map_items[2].width=BSZ2?7:9;
 					dmap_map_items[3].tile=DMaps[t].largemap_2_tile;
 					dmap_map_items[3].width=BSZ2?7:9;
-					
 					for(int32_t u=0; u<4; u++)
 					{
 						move_dmap_maps_list[t][u]=false;
-						
 						if(rect)
 						{
 							i=move_intersection_rr(TILECOL(dmap_map_items[u].tile), TILEROW(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_left, selection_top, selection_width, selection_height);
@@ -12631,13 +11095,11 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 						{
 							i=move_intersection_rs(TILECOL(dmap_map_items[u].tile), TILEROW(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_first, selection_last);
 						}
-						
 						if((i!=ti_none)&&(dmap_map_items[u].tile!=0))
 						{
 							if(i==ti_broken || q==0)
 							{
 								sprintf(temptext, "DMap %d %s\n", t, dmap_map_items[u].name);
-								
 								if(strlen(tile_move_list_text)<65000)
 								{
 									strcat(tile_move_list_text, temptext);
@@ -12650,7 +11112,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 										flood=true;
 									}
 								}
-								
 								found=true;
 							}
 							else if(i==ti_encompass)
@@ -12660,11 +11121,9 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following dmap-specific");
-					
 					if(move)
 					{
 						sprintf(buf3, "subscreen maps will be partially cleared by the move.");
@@ -12675,21 +11134,17 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 						sprintf(buf3, "subscreen maps will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -12697,7 +11152,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					}
 				}
 			}
-			
 			//check enemies
 			if(!done)
 			{
@@ -12708,13 +11162,11 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				build_bie_list(false);
 				bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
 				int32_t u;
-				
 				for(u=0; u<eMAXGUYS; u++)
 				{
 					const guydata& enemy=guysbuf[bie[u].i];
 					bool darknut=false;
 					int32_t gleeok=0;
-					
 					if(enemy.family==eeWALK && ((enemy.flags&(inv_back|inv_front|inv_left|inv_right))!=0))
 						darknut=true;
 					else if(enemy.family==eeGLEEOK)
@@ -12725,7 +11177,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 						else
 							gleeok=2;
 					}
-					
 					// Dummied out enemies
 					if(bie[u].i>=eOCTO1S && bie[u].i<e177)
 					{
@@ -12734,14 +11185,12 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 							continue;
 						}
 					}
-					
 					if(newtiles)
 					{
 						if(guysbuf[bie[u].i].e_tile==0)
 						{
 							continue;
 						}
-						
 						if(guysbuf[bie[u].i].e_height==0)
 						{
 							if(rect)
@@ -12764,11 +11213,9 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
 							}
 						}
-						
 						if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 						{
 							sprintf(temptext, "%s\n", bie[u].s);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -12781,10 +11228,8 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
-						
 						if(darknut)
 						{
 							if(rect)
@@ -12795,11 +11240,9 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 							{
 								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile+120), TILEROW(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_first, selection_last);
 							}
-							
 							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 							{
 								sprintf(temptext, "%s (broken shield)\n", bie[u].s);
-								
 								if(strlen(tile_move_list_text)<65000)
 								{
 									strcat(tile_move_list_text, temptext);
@@ -12812,7 +11255,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 										flood=true;
 									}
 								}
-								
 								found=true;
 							}
 						}
@@ -12826,11 +11268,9 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 							{
 								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_first, selection_last);
 							}
-							
 							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 							{
 								sprintf(temptext, "%s\n", bie[u].s);
-								
 								if(strlen(tile_move_list_text)<65000)
 								{
 									strcat(tile_move_list_text, temptext);
@@ -12843,7 +11283,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 										flood=true;
 									}
 								}
-								
 								found=true;
 							}
 						}
@@ -12860,12 +11299,10 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 									i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), TILEROW(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_first, selection_last);
 								}
 							}
-							
 							if(i==ti_none)
 							{
 								int32_t c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
 								int32_t r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
-								
 								if(rect)
 								{
 									i=move_intersection_rr(c, r, 20, 3, selection_left, selection_top, selection_width, selection_height);
@@ -12874,7 +11311,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 								{
 									i=move_intersection_rs(c, r, 20, 3, selection_first, selection_last);
 								}
-								
 								if(i==ti_none)
 								{
 									if(rect)
@@ -12887,11 +11323,9 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 									}
 								}
 							}
-							
 							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 							{
 								sprintf(temptext, "%s\n", bie[u].s);
-								
 								if(strlen(tile_move_list_text)<65000)
 								{
 									strcat(tile_move_list_text, temptext);
@@ -12904,7 +11338,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 										flood=true;
 									}
 								}
-								
 								found=true;
 							}
 						}
@@ -12937,11 +11370,9 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 								i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].tile), TILEROW(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_first, selection_last);
 							}
 						}
-						
 						if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 						{
 							sprintf(temptext, "%s\n", bie[u].s);
-							
 							if(strlen(tile_move_list_text)<65000)
 							{
 								strcat(tile_move_list_text, temptext);
@@ -12954,10 +11385,8 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 									flood=true;
 								}
 							}
-							
 							found=true;
 						}
-						
 						if(guysbuf[bie[u].i].s_tile!=0)
 						{
 							if(guysbuf[bie[u].i].s_height==0)
@@ -12982,11 +11411,9 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 									i=move_intersection_rs(TILECOL(guysbuf[bie[u].i].s_tile), TILEROW(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_first, selection_last);
 								}
 							}
-							
 							if(((q==1) && i==ti_broken) || (q==0 && i!=ti_none))
 							{
 								sprintf(temptext, "%s (%s)\n", bie[u].s, darknut?"broken shield":"secondary tiles");
-								
 								if(strlen(tile_move_list_text)<65000)
 								{
 									strcat(tile_move_list_text, temptext);
@@ -12999,17 +11426,14 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 										flood=true;
 									}
 								}
-								
 								found=true;
 							}
 						}
 					}
 				}
-				
 				if(found)
 				{
 					sprintf(buf2, "The tiles used by the following enemies");
-					
 					if(move)
 					{
 						sprintf(buf3, "will be partially cleared by the move.");
@@ -13020,21 +11444,17 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 						sprintf(buf3, "will be partially or completely");
 						sprintf(buf4, "overwritten by this process.  Proceed?");
 					}
-					
 					tile_move_list_dlg[1].dp=buf2;
 					tile_move_list_dlg[2].dp=buf3;
 					tile_move_list_dlg[3].dp=buf4;
 					tile_move_list_dlg[4].dp=tile_move_list_text;
 					tile_move_list_dlg[4].d2=0;
-					
 					if(TileProtection)
 					{
 						if(is_large)
 							large_dialog(tile_move_list_dlg);
-							
 						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
-						
 						if(ret!=5)
 						{
 							done = true;
@@ -13044,16 +11464,12 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 			}
 		}
 	}
-	
 	//
 	// copy tiles and delete if needed (move)
-	
 	if(!done)
 	{
 		go_tiles();
-		
 		int32_t diff=tmd.dest_first-tmd.src_first;
-		
 		if(rect)
 		{
 		al_trace("floodfill, rect\n");
@@ -13065,12 +11481,9 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				{
 					int32_t dt=(tmd.dest_first+((r*TILES_PER_ROW)+c));
 					//int32_t st=(tmd.src_first+((r*TILES_PER_ROW)+c));
-					
 					if(dt>=NEWMAXTILES)
 						continue;
-						
 					reset_tile(newtilebuf, dt, newundotilebuf[copy].format);
-					
 					for(int32_t j=0; j<tilesize(newundotilebuf[copy].format); j++)
 					{
 						newtilebuf[dt].data[j]=newundotilebuf[copy].data[j];
@@ -13084,33 +11497,25 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 			{
 				int32_t dt=(tmd.dest_first+c);
 				int32_t st=(tmd.src_first+c);
-				
 				if(dt>=NEWMAXTILES)
 					continue;
-					
 				reset_tile(newtilebuf, dt, newundotilebuf[copy].format);
-				
 				for(int32_t j=0; j<tilesize(newundotilebuf[copy].format); j++)
 				{
 					newtilebuf[dt].data[j]=newundotilebuf[copy].data[j];
 				}
-				
 			}
 		}
 	}
-	
 	//now that tiles have moved, fix these buffers -DD
 	register_blank_tiles();
 	register_used_tiles();
-	
 	delete[] tile_move_list_text;
 	delete[] move_combo_list;
 	delete[] move_items_list;
 	delete[] move_weapons_list;
-	
 	if(done)
 		return false;
-		
 	return true;
 }
 //
@@ -13121,7 +11526,6 @@ bool copy_tiles_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 	bool ctrl=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
 	bool copied=false;
 	copied=copy_tiles_united_floodfill(tile,tile2,copy,copycnt,rect_sel,move);
-	
 	if(copied)
 	{
 		if(!ctrl)
@@ -13129,10 +11533,8 @@ bool copy_tiles_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 			copy=-1;
 			tile2=tile;
 		}
-		
 		saved=false;
 	}
-	
 	return copied;
 }
 
@@ -13141,7 +11543,6 @@ bool copy_tiles(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, boo
 	bool ctrl=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
 	bool copied=false;
 	copied=copy_tiles_united(tile,tile2,copy,copycnt,rect_sel,move);
-	
 	if(copied)
 	{
 		if(!ctrl)
@@ -13149,10 +11550,8 @@ bool copy_tiles(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, boo
 			copy=-1;
 			tile2=tile;
 		}
-		
 		saved=false;
 	}
-	
 	return copied;
 }
 
@@ -13169,7 +11568,6 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 	int32_t src_right = zc_max(TILECOL(tile),TILECOL(tile2));
 	int32_t src_first = (src_top  * TILES_PER_ROW)+src_left;
 	int32_t src_last = (src_bottom*TILES_PER_ROW)+src_right;
-	
 	int32_t src_width = src_right-src_left+1,
 		src_height = src_bottom-src_top+1;
 	int32_t dest_width = src_width, dest_height = src_height;
@@ -13177,21 +11575,17 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 	if(dest_width == src_width && dest_height == src_height) return false; //no scaling
 	dest_width = vbound(dest_width, 1, 20);
 	dest_height = vbound(dest_height, 1, 20);
-	
 	int32_t dest_top = src_top;
 	int32_t dest_bottom = src_top+dest_height-1;
 	int32_t dest_left = src_left;
 	int32_t dest_right = src_left+dest_width-1;
 	int32_t dest_first = src_first;
 	int32_t dest_last = (dest_bottom*TILES_PER_ROW)+dest_right;
-	
-	
 	if(dest_last>=NEWMAXTILES)
 	{
 		InfoDialog("Destination Error", "The destination extends beyond the last available tile row. Scale operation cancelled.").show();
 		return false;
 	}
-	
 	//{ Overwrite warnings
 	char buf[80], buf2[80], buf3[80], buf4[80];
 	sprintf(buf, " ");
@@ -13200,17 +11594,14 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 	sprintf(buf4, " ");
 	char *tile_move_list_text = new char[65535];
 	char temptext[80];
-	
 	sprintf(buf, "Destination Warning");
 	tile_move_list_dlg[0].dp=buf;
 	tile_move_list_dlg[0].dp2=lfont;
 	bool found;
 	bool flood;
-	
 	int32_t i;
 	bool done = false;
 	bool ignore_frames=false;
-	
 	//check combos
 	if(!done)
 	{
@@ -13218,15 +11609,12 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		tile_move_list_text[0]=0;
 		found=false;
 		flood=false;
-		
 		for(int32_t u=0; u<MAXCOMBOS; u++)
 		{
 			i=move_intersection_sr(combobuf[u], dest_left, dest_top, dest_width, dest_height);
-			
 			if((i!=ti_none)&&(combobuf[u].o_tile!=0))
 			{
 				sprintf(temptext, "%d\n", u);
-				
 				if(strlen(tile_move_list_text)<65000)
 				{
 					strcat(tile_move_list_text, temptext);
@@ -13239,31 +11627,25 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 						flood=true;
 					}
 				}
-				
 				found=true;
 			}
 		}
-		
 		if(found)
 		{
 			sprintf(buf2, "The tiles used by the following combos");
 			sprintf(buf3, "will be partially or completely");
 			sprintf(buf4, "overwritten by this process.  Proceed?");
-			
 			tile_move_list_dlg[1].dp=buf2;
 			tile_move_list_dlg[2].dp=buf3;
 			tile_move_list_dlg[3].dp=buf4;
 			tile_move_list_dlg[4].dp=tile_move_list_text;
 			tile_move_list_dlg[4].d2=0;
-			
 			if(TileProtection)
 			{
 				if(is_large)
 					large_dialog(tile_move_list_dlg);
-					
 				int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 				position_mouse_z(0);
-				
 				if(ret!=5)
 				{
 					done = true;
@@ -13271,7 +11653,6 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 			}
 		}
 	}
-	
 	//check items
 	if(!done)
 	{
@@ -13280,15 +11661,12 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		found=false;
 		flood=false;
 		build_bii_list(false);
-		
 		for(int32_t u=0; u<iMax; u++)
 		{
 			i=move_intersection_sr(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, dest_left, dest_top, dest_width, dest_height);
-			
 			if((i!=ti_none)&&(itemsbuf[bii[u].i].tile!=0))
 			{
 				sprintf(temptext, "%s\n", bii[u].s);
-				
 				if(strlen(tile_move_list_text)<65000)
 				{
 					strcat(tile_move_list_text, temptext);
@@ -13301,31 +11679,25 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 						flood=true;
 					}
 				}
-				
 				found=true;
 			}
 		}
-		
 		if(found)
 		{
 			sprintf(buf2, "The tiles used by the following items");
 			sprintf(buf3, "will be partially or completely");
 			sprintf(buf4, "overwritten by this process.  Proceed?");
-			
 			tile_move_list_dlg[1].dp=buf2;
 			tile_move_list_dlg[2].dp=buf3;
 			tile_move_list_dlg[3].dp=buf4;
 			tile_move_list_dlg[4].dp=tile_move_list_text;
 			tile_move_list_dlg[4].d2=0;
-			
 			if(TileProtection)
 			{
 				if(is_large)
 					large_dialog(tile_move_list_dlg);
-					
 				int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 				position_mouse_z(0);
-				
 				if(ret!=5)
 				{
 					done = true;
@@ -13333,7 +11705,6 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 			}
 		}
 	}
-	
 	//check weapons/misc
 	if(!done)
 	{
@@ -13343,12 +11714,10 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		flood=false;
 		build_biw_list();
 		bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
-		
 		for(int32_t u=0; u<wMAX; u++)
 		{
 			ignore_frames=false;
 			int32_t m=0;
-			
 			switch(biw[u].i)
 			{
 			case wSWORD:
@@ -13357,24 +11726,20 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 			case wXSWORD:
 				m=3+((wpnsbuf[biw[u].i].type==3)?1:0);
 				break;
-				
 			case wSWORDSLASH:
 			case wWSWORDSLASH:
 			case wMSWORDSLASH:
 			case wXSWORDSLASH:
 				m=4;
 				break;
-				
 			case iwMMeter:
 				m=9;
 				break;
-				
 			case wBRANG:
 			case wMBRANG:
 			case wFBRANG:
 				m=BSZ2?1:3;
 				break;
-				
 			case wBOOM:
 			case wSBOOM:
 			case ewBOOM:
@@ -13382,61 +11747,47 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 				ignore_frames=true;
 				m=2;
 				break;
-				
 			case wWAND:
 				m=1;
 				break;
-				
 			case wMAGIC:
 				m=1;
 				break;
-				
 			case wARROW:
 			case wSARROW:
 			case wGARROW:
 			case ewARROW:
 				m=1;
 				break;
-				
 			case wHAMMER:
 				m=8;
 				break;
-				
 			case wHSHEAD:
 				m=1;
 				break;
-				
 			case wHSCHAIN_H:
 				m=1;
 				break;
-				
 			case wHSCHAIN_V:
 				m=1;
 				break;
-				
 			case wHSHANDLE:
 				m=1;
 				break;
-				
 			case iwDeath:
 				m=BSZ2?4:2;
 				break;
-				
 			case iwSpawn:
 				m=3;
 				break;
-				
 			default:
 				m=0;
 				break;
 			}
-			
 			i=move_intersection_sr(wpnsbuf[biw[u].i].tile, wpnsbuf[biw[u].i].tile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, dest_left, dest_top, dest_width, dest_height);
-			
 			if((i!=ti_none)&&(wpnsbuf[biw[u].i].tile!=0))
 			{
 				sprintf(temptext, "%s\n", biw[u].s);
-					
 				if(strlen(tile_move_list_text)<65000)
 				{
 					strcat(tile_move_list_text, temptext);
@@ -13449,18 +11800,14 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 						flood=true;
 					}
 				}
-					
 				found=true;
 			}
-			
 			if((u==3)||(u==9))
 			{
 				i=move_intersection_sr(54, 55, dest_left, dest_top, dest_width, dest_height);
-				
 				if(i!=ti_none)
 				{
 					sprintf(temptext, "%s Impact (not shown in sprite list)\n", (u==3)?"Arrow":"Boomerang");
-					
 					if(strlen(tile_move_list_text)<65000)
 					{
 						strcat(tile_move_list_text, temptext);
@@ -13473,32 +11820,26 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 							flood=true;
 						}
 					}
-					
 					found=true;
 				}
 			}
 		}
-		
 		if(found)
 		{
 			sprintf(buf2, "The tiles used by the following weapons");
 			sprintf(buf3, "will be partially or completely");
 			sprintf(buf4, "overwritten by this process.  Proceed?");
-			
 			tile_move_list_dlg[1].dp=buf2;
 			tile_move_list_dlg[2].dp=buf3;
 			tile_move_list_dlg[3].dp=buf4;
 			tile_move_list_dlg[4].dp=tile_move_list_text;
 			tile_move_list_dlg[4].d2=0;
-			
 			if(TileProtection)
 			{
 				if(is_large)
 					large_dialog(tile_move_list_dlg);
-					
 				int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 				position_mouse_z(0);
-				
 				if(ret!=5)
 				{
 					done = true;
@@ -13506,7 +11847,6 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 			}
 		}
 	}
-	
 	//check Player sprites
 	if(!done)
 	{
@@ -13515,15 +11855,12 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		found=false;
 		flood=false;
 		setup_hero_sprite_items();
-		
 		for(int32_t u=0; u<num_hspr; u++)
 		{
 			i=move_intersection_rr(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, dest_left, dest_top, dest_width, dest_height);
-			
 			if((i!=ti_none)&&(hero_sprite_items[u].tile!=0))
 			{
 				sprintf(temptext, "%s\n", hero_sprite_items[u].name);
-				
 				if(strlen(tile_move_list_text)<65000)
 				{
 					strcat(tile_move_list_text, temptext);
@@ -13536,31 +11873,25 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 						flood=true;
 					}
 				}
-				
 				found=true;
 			}
 		}
-		
 		if(found)
 		{
 			sprintf(buf2, "The tiles used by the following Player sprites");
 			sprintf(buf3, "sprites will be partially or completely");
 			sprintf(buf4, "overwritten by this process.  Proceed?");
-			
 			tile_move_list_dlg[1].dp=buf2;
 			tile_move_list_dlg[2].dp=buf3;
 			tile_move_list_dlg[3].dp=buf4;
 			tile_move_list_dlg[4].dp=tile_move_list_text;
 			tile_move_list_dlg[4].d2=0;
-			
 			if(TileProtection)
 			{
 				if(is_large)
 					large_dialog(tile_move_list_dlg);
-					
 				int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 				position_mouse_z(0);
-				
 				if(ret!=5)
 				{
 					done =true;
@@ -13568,7 +11899,6 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 			}
 		}
 	}
-		
 	//check map styles
 	if(!done)
 	{
@@ -13588,15 +11918,12 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		map_styles_items[3].height=BSZ2?7:3;
 		map_styles_items[4].tile=misc.colors.overworld_map_tile;
 		map_styles_items[5].tile=misc.colors.dungeon_map_tile;
-		
 		for(int32_t u=0; u<6; u++)
 		{
 			i=move_intersection_rr(TILECOL(map_styles_items[u].tile), TILEROW(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, dest_left, dest_top, dest_width, dest_height);
-			
 			if((i!=ti_none)&&(map_styles_items[u].tile!=0))
 			{
 				sprintf(temptext, "%s\n", map_styles_items[u].name);
-				
 				if(strlen(tile_move_list_text)<65000)
 				{
 					strcat(tile_move_list_text, temptext);
@@ -13609,31 +11936,25 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 						flood=true;
 					}
 				}
-				
 				found=true;
 			}
 		}
-		
 		if(found)
 		{
 			sprintf(buf2, "The tiles used by the following map style");
 			sprintf(buf3, "items will be partially or completely");
 			sprintf(buf4, "overwritten by this process.  Proceed?");
-			
 			tile_move_list_dlg[1].dp=buf2;
 			tile_move_list_dlg[2].dp=buf3;
 			tile_move_list_dlg[3].dp=buf4;
 			tile_move_list_dlg[4].dp=tile_move_list_text;
 			tile_move_list_dlg[4].d2=0;
-			
 			if(TileProtection)
 			{
 				if(is_large)
 					large_dialog(tile_move_list_dlg);
-					
 				int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 				position_mouse_z(0);
-				
 				if(ret!=5)
 				{
 					done = true;
@@ -13641,7 +11962,6 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 			}
 		}
 	}
-	
 	//check game icons
 	if(!done)
 	{
@@ -13653,15 +11973,12 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		{
 			"No Ring / Green Ring", "Blue Ring", "Red Ring", "Golden Ring"
 		};
-		
 		for(int32_t u=0; u<4; u++)
 		{
 			i=move_intersection_sr(misc.icons[u], misc.icons[u], dest_left, dest_top, dest_width, dest_height);
-			
 			if((i!=ti_none)&&(misc.icons[u]!=0))
 			{
 				sprintf(temptext, "%s\n", icon_title[u]);
-				
 				if(strlen(tile_move_list_text)<65000)
 				{
 					strcat(tile_move_list_text, temptext);
@@ -13674,17 +11991,13 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 						flood=true;
 					}
 				}
-				
 				found=true;
 			}
 		}
-		
 		i=move_intersection_sr(41, 41, dest_left, dest_top, dest_width, dest_height);
-		
 		if((i!=ti_none)) // &&(41!=0))  //this is for when the quest sword can change
 		{
 			sprintf(temptext, "Quest Sword");
-			
 			if(strlen(tile_move_list_text)<65000)
 			{
 				strcat(tile_move_list_text, temptext);
@@ -13697,30 +12010,24 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 					flood=true;
 				}
 			}
-			
 			found=true;
 		}
-		
 		if(found)
 		{
 			sprintf(buf2, "The tiles used by the following quest icons");
 			sprintf(buf3, "will be overwritten by this process.  Proceed?");
 			sprintf(buf4, " ");
-			
 			tile_move_list_dlg[1].dp=buf2;
 			tile_move_list_dlg[2].dp=buf3;
 			tile_move_list_dlg[3].dp=buf4;
 			tile_move_list_dlg[4].dp=tile_move_list_text;
 			tile_move_list_dlg[4].d2=0;
-			
 			if(TileProtection)
 			{
 				if(is_large)
 					large_dialog(tile_move_list_dlg);
-					
 				int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 				position_mouse_z(0);
-				
 				if(ret!=5)
 				{
 					done = true;
@@ -13728,7 +12035,6 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 			}
 		}
 	}
-	
 	//check dmap maps
 	if(!done)
 	{
@@ -13737,7 +12043,6 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		found=false;
 		flood=false;
 		bool BSZ2=(zinit.subscreen>2);
-		
 		for(int32_t t=0; t<MAXDMAPS; t++)
 		{
 			dmap_map_items[0].tile=DMaps[t].minimap_1_tile;
@@ -13746,15 +12051,12 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 			dmap_map_items[2].width=BSZ2?7:9;
 			dmap_map_items[3].tile=DMaps[t].largemap_2_tile;
 			dmap_map_items[3].width=BSZ2?7:9;
-			
 			for(int32_t u=0; u<4; u++)
 			{
 				i=move_intersection_rr(TILECOL(dmap_map_items[u].tile), TILEROW(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, dest_left, dest_top, dest_width, dest_height);
-				
 				if((i!=ti_none)&&(dmap_map_items[u].tile!=0))
 				{
 					sprintf(temptext, "DMap %d %s\n", t, dmap_map_items[u].name);
-					
 					if(strlen(tile_move_list_text)<65000)
 					{
 						strcat(tile_move_list_text, temptext);
@@ -13767,32 +12069,26 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 							flood=true;
 						}
 					}
-					
 					found=true;
 				}
 			}
 		}
-		
 		if(found)
 		{
 			sprintf(buf2, "The tiles used by the following dmap-specific");
 			sprintf(buf3, "subscreen maps will be partially or completely");
 			sprintf(buf4, "overwritten by this process.  Proceed?");
-			
 			tile_move_list_dlg[1].dp=buf2;
 			tile_move_list_dlg[2].dp=buf3;
 			tile_move_list_dlg[3].dp=buf4;
 			tile_move_list_dlg[4].dp=tile_move_list_text;
 			tile_move_list_dlg[4].d2=0;
-			
 			if(TileProtection)
 			{
 				if(is_large)
 					large_dialog(tile_move_list_dlg);
-					
 				int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 				position_mouse_z(0);
-				
 				if(ret!=5)
 				{
 					done = true;
@@ -13800,7 +12096,6 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 			}
 		}
 	}
-	
 	//check enemies
 	if(!done)
 	{
@@ -13811,13 +12106,11 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		build_bie_list(false);
 		bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
 		int32_t u;
-		
 		for(u=0; u<eMAXGUYS; u++)
 		{
 			const guydata& enemy=guysbuf[bie[u].i];
 			bool darknut=false;
 			int32_t gleeok=0;
-			
 			if(enemy.family==eeWALK && ((enemy.flags&(inv_back|inv_front|inv_left|inv_right))!=0))
 				darknut=true;
 			else if(enemy.family==eeGLEEOK)
@@ -13828,7 +12121,6 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 				else
 					gleeok=2;
 			}
-			
 			// Dummied out enemies
 			if(bie[u].i>=eOCTO1S && bie[u].i<e177)
 			{
@@ -13837,14 +12129,12 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 					continue;
 				}
 			}
-			
 			if(newtiles)
 			{
 				if(guysbuf[bie[u].i].e_tile==0)
 				{
 					continue;
 				}
-				
 				if(guysbuf[bie[u].i].e_height==0)
 				{
 					i=move_intersection_sr(guysbuf[bie[u].i].e_tile, guysbuf[bie[u].i].e_tile+zc_max(guysbuf[bie[u].i].e_width-1, 0), dest_left, dest_top, dest_width, dest_height);
@@ -13853,11 +12143,9 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 				{
 					i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, dest_left, dest_top, dest_width, dest_height);
 				}
-				
 				if(i!=ti_none)
 				{
 					sprintf(temptext, "%s\n", bie[u].s);
-					
 					if(strlen(tile_move_list_text)<65000)
 					{
 						strcat(tile_move_list_text, temptext);
@@ -13870,18 +12158,14 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 							flood=true;
 						}
 					}
-					
 					found=true;
 				}
-				
 				if(darknut)
 				{
 					i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile+120), TILEROW(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, dest_left, dest_top, dest_width, dest_height);
-					
 					if(i!=ti_none)
 					{
 						sprintf(temptext, "%s (broken shield)\n", bie[u].s);
-						
 						if(strlen(tile_move_list_text)<65000)
 						{
 							strcat(tile_move_list_text, temptext);
@@ -13894,18 +12178,15 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 								flood=true;
 							}
 						}
-						
 						found=true;
 					}
 				}
 				else if(enemy.family==eeGANON && i==ti_none)
 				{
 					i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile)+2, 20, 4, dest_left, dest_top, dest_width, dest_height);
-					
 					if(i!=ti_none)
 					{
 						sprintf(temptext, "%s\n", bie[u].s);
-						
 						if(strlen(tile_move_list_text)<65000)
 						{
 							strcat(tile_move_list_text, temptext);
@@ -13918,7 +12199,6 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 								flood=true;
 							}
 						}
-						
 						found=true;
 					}
 				}
@@ -13928,24 +12208,19 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 					{
 						i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), TILEROW(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, dest_left, dest_top, dest_width, dest_height);
 					}
-					
 					if(i==ti_none)
 					{
 						int32_t c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
 						int32_t r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
-						
 						i=move_intersection_rr(c, r, 20, 3, dest_left, dest_top, dest_width, dest_height);
-						
 						if(i==ti_none)
 						{
 							i=move_intersection_rr(c, r+3, 16, 6, dest_left, dest_top, dest_width, dest_height);
 						}
 					}
-					
 					if(i!=ti_none)
 					{
 						sprintf(temptext, "%s\n", bie[u].s);
-						
 						if(strlen(tile_move_list_text)<65000)
 						{
 							strcat(tile_move_list_text, temptext);
@@ -13958,7 +12233,6 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 								flood=true;
 							}
 						}
-						
 						found=true;
 					}
 				}
@@ -13977,11 +12251,9 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 				{
 					i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].tile), TILEROW(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, dest_left, dest_top, dest_width, dest_height);
 				}
-				
 				if(i!=ti_none)
 				{
 					sprintf(temptext, "%s\n", bie[u].s);
-					
 					if(strlen(tile_move_list_text)<65000)
 					{
 						strcat(tile_move_list_text, temptext);
@@ -13994,10 +12266,8 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 							flood=true;
 						}
 					}
-					
 					found=true;
 				}
-				
 				if(guysbuf[bie[u].i].s_tile!=0)
 				{
 					if(guysbuf[bie[u].i].s_height==0)
@@ -14008,11 +12278,9 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 					{
 						i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].s_tile), TILEROW(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, dest_left, dest_top, dest_width, dest_height);
 					}
-					
 					if(i!=ti_none)
 					{
 						sprintf(temptext, "%s (%s)\n", bie[u].s, darknut?"broken shield":"secondary tiles");
-						
 						if(strlen(tile_move_list_text)<65000)
 						{
 							strcat(tile_move_list_text, temptext);
@@ -14025,33 +12293,27 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 								flood=true;
 							}
 						}
-						
 						found=true;
 					}
 				}
 			}
 		}
-		
 		if(found)
 		{
 			sprintf(buf2, "The tiles used by the following enemies");
 			sprintf(buf3, "will be partially or completely");
 			sprintf(buf4, "overwritten by this process.  Proceed?");
-			
 			tile_move_list_dlg[1].dp=buf2;
 			tile_move_list_dlg[2].dp=buf3;
 			tile_move_list_dlg[3].dp=buf4;
 			tile_move_list_dlg[4].dp=tile_move_list_text;
 			tile_move_list_dlg[4].d2=0;
-			
 			if(TileProtection)
 			{
 				if(is_large)
 					large_dialog(tile_move_list_dlg);
-					
 				int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
 				position_mouse_z(0);
-				
 				if(ret!=5)
 				{
 					done = true;
@@ -14060,11 +12322,9 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		}
 	}
 	//}
-	
 	if(!done)
 	{
 		go_tiles();
-		
 		int32_t diff=dest_first-src_first;
 		BITMAP *srcbmp = create_bitmap_ex(8,src_width*16,src_height*16),
 			*destbmp = create_bitmap_ex(8,dest_width*16,dest_height*16);
@@ -14080,7 +12340,6 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 			for(int32_t c=0; c<mwid; ++c)
 			{
 				int32_t dt=(dest_first+((r*TILES_PER_ROW)+c));
-				
 				if(dt>=NEWMAXTILES)
 					continue;
 				if(r < dest_height && c < dest_width)
@@ -14091,7 +12350,6 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 			}
 		}
 	}
-	
 	register_blank_tiles();
 	register_used_tiles();
 	return !done;
@@ -14102,12 +12360,10 @@ void copy_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bo
 	//these 2 shouldn't be needed, but just to be safe...
 	reset_combo_animations();
 	reset_combo_animations2();
-	
 	if(tile2<tile)
 	{
 		zc_swap(tile,tile2);
 	}
-	
 	if(!masscopy)
 	{
 		if(tile==copy)
@@ -14116,7 +12372,6 @@ void copy_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bo
 			tile2=tile;
 			return;
 		}
-		
 		// go_combos(); // commented because caller does it for us
 		//if copying to an earlier combo, copy from left to right
 		//otherwise, copy from right to left
@@ -14127,7 +12382,6 @@ void copy_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bo
 				combobuf[tile+t]=combobuf[copy+t];
 			}
 		}
-		
 		copy=-1;
 		tile2=tile;
 		saved=false;
@@ -14136,22 +12390,18 @@ void copy_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bo
 	{
 		// go_combos();
 		int32_t src=copy, dest=tile;
-		
 		do
 		{
 			combobuf[dest]=combobuf[src];
 			++src;
 			++dest;
-			
 			if((src-copy)==copycnt) src=copy;
 		}
 		while(dest<=tile2);
-		
 		copy=-1;
 		tile2=tile;
 		saved=false;
 	}
-	
 	setup_combo_animations();
 	setup_combo_animations2();
 	return;
@@ -14162,7 +12412,6 @@ void do_movecombo(combo_move_data const& cmd)
 	reset_combo_animations();
 	reset_combo_animations2();
 	go_combos();
-	
 	for(int32_t t=(cmd.tile<cmd.copy1)?0:(cmd.copycnt-1); (cmd.tile<cmd.copy1)?(t<cmd.copycnt):(t>=0); (cmd.tile<cmd.copy1)?(t++):(t--))
 	{
 		if(cmd.tile+t < MAXCOMBOS)
@@ -14184,7 +12433,6 @@ void do_movecombo(combo_move_data const& cmd)
 					scr.data[k] += diff;
 				}
 			}
-			
 			for(int32_t k=0; k<128; k++)
 			{
 				if((scr.secretcombo[k]>=cmd.copy1)&& (scr.secretcombo[k]<cmd.copy1+cmd.copycnt))
@@ -14192,12 +12440,10 @@ void do_movecombo(combo_move_data const& cmd)
 					scr.secretcombo[k] += diff;
 				}
 			}
-			
 			if((scr.undercombo>=cmd.copy1)&&(scr.undercombo<cmd.copy1+cmd.copycnt))
 			{
 				scr.undercombo += diff;
 			}
-			
 			word maxffc = scr.numFFC();
 			for(word k=0; k<maxffc; k++)
 			{
@@ -14210,7 +12456,6 @@ void do_movecombo(combo_move_data const& cmd)
 			}
 		}
 	}
-	
 	for(int32_t i=0; i<MAXDOORCOMBOSETS; i++)
 	{
 		for(int32_t j=0; j<9; j++)
@@ -14221,7 +12466,6 @@ void do_movecombo(combo_move_data const& cmd)
 				{
 					DoorComboSets[i].walkthroughcombo[j] += diff;
 				}
-				
 				if(j<3)
 				{
 					if(j<2)
@@ -14230,25 +12474,21 @@ void do_movecombo(combo_move_data const& cmd)
 						{
 							DoorComboSets[i].bombdoorcombo_u[j] += diff;
 						}
-						
 						if((DoorComboSets[i].bombdoorcombo_d[j]>=cmd.copy1)&&(DoorComboSets[i].bombdoorcombo_d[j]<cmd.copy1+cmd.copycnt))
 						{
 							DoorComboSets[i].bombdoorcombo_d[j] += diff;
 						}
 					}
-					
 					if((DoorComboSets[i].bombdoorcombo_l[j]>=cmd.copy1)&&(DoorComboSets[i].bombdoorcombo_l[j]<cmd.copy1+cmd.copycnt))
 					{
 						DoorComboSets[i].bombdoorcombo_l[j] += diff;
 					}
-					
 					if((DoorComboSets[i].bombdoorcombo_r[j]>=cmd.copy1)&&(DoorComboSets[i].bombdoorcombo_r[j]<cmd.copy1+cmd.copycnt))
 					{
 						DoorComboSets[i].bombdoorcombo_r[j] += diff;
 					}
 				}
 			}
-			
 			for(int32_t k=0; k<6; k++)
 			{
 				if(k<4)
@@ -14257,18 +12497,15 @@ void do_movecombo(combo_move_data const& cmd)
 					{
 						DoorComboSets[i].doorcombo_u[j][k] += diff;
 					}
-					
 					if((DoorComboSets[i].doorcombo_d[j][k]>=cmd.copy1)&&(DoorComboSets[i].doorcombo_d[j][k]<cmd.copy1+cmd.copycnt))
 					{
 						DoorComboSets[i].doorcombo_d[j][k] += diff;
 					}
 				}
-				
 				if((DoorComboSets[i].doorcombo_l[j][k]>=cmd.copy1)&&(DoorComboSets[i].doorcombo_l[j][k]<cmd.copy1+cmd.copycnt))
 				{
 					DoorComboSets[i].doorcombo_l[j][k] += diff;
 				}
-				
 				if((DoorComboSets[i].doorcombo_r[j][k]>=cmd.copy1)&&(DoorComboSets[i].doorcombo_r[j][k]<cmd.copy1+cmd.copycnt))
 				{
 					DoorComboSets[i].doorcombo_r[j][k] += diff;
@@ -14276,7 +12513,6 @@ void do_movecombo(combo_move_data const& cmd)
 			}
 		}
 	}
-	
 	for(int32_t i=0; i<MAXCOMBOS; i++)
 	{
 		newcombo& cmb = combobuf[i];
@@ -14308,28 +12544,23 @@ void do_movecombo(combo_move_data const& cmd)
 			}
 		}
 	}
-	
 	for(int32_t i=0; i<MAXCOMBOALIASES; i++)
 	{
 		//dimensions are 1 less than you would expect -DD
 		int32_t count=(comboa_lmasktotal(combo_aliases[i].layermask)+1)*(combo_aliases[i].width+1)*(combo_aliases[i].height+1);
-		
 		for(int32_t j=0; j<count; j++)
 		{
-		
 			if((combo_aliases[i].combos[j]>=cmd.copy1)&&(combo_aliases[i].combos[j]<cmd.copy1+cmd.copycnt)&&(combo_aliases[i].combos[j]!=0))
 			{
 				combo_aliases[i].combos[j] += diff;
 			}
 		}
 	}
-	
 	for(int32_t i=0; i<MAXFAVORITECOMBOS; i++)
 	{
 		if(favorite_combos[i]>=cmd.copy1 && favorite_combos[i]<cmd.copy1+cmd.copycnt)
 			favorite_combos[i] += diff;
 	}
-	
 	for(auto q = 0; q < 256; ++q)
 	{
 		for(auto p = 0; p < 3; ++p)
@@ -14338,7 +12569,6 @@ void do_movecombo(combo_move_data const& cmd)
 				misc.bottle_shop_types[q].comb[p] += diff;
 		}
 	}
-	
 	setup_combo_animations();
 	setup_combo_animations2();
 	saved=false;
@@ -14350,20 +12580,17 @@ void move_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt)
 	{
 		zc_swap(tile,tile2);
 	}
-	
 	if(tile==copy)
 	{
 		copy=-1;
 		tile2=tile;
 		return;
 	}
-	
 	combo_move_data cmd;
 	cmd.tile = tile;
 	cmd.tile2 = tile2;
 	cmd.copy1 = copy;
 	cmd.copycnt = copycnt;
-	
 	do_movecombo(cmd);
 	if(last_combo_move)
 		delete last_combo_move;
@@ -14395,7 +12622,6 @@ void do_delete_tiles(int32_t firsttile, int32_t lasttile, bool rect_sel)
 void delete_tiles(int32_t &tile,int32_t &tile2,bool rect_sel)
 {
 	char buf[40];
-	
 	if(tile==tile2)
 	{
 		sprintf(buf,"Delete tile %d?",tile);
@@ -14404,17 +12630,13 @@ void delete_tiles(int32_t &tile,int32_t &tile2,bool rect_sel)
 	{
 		sprintf(buf,"Delete tiles %d-%d?",zc_min(tile,tile2),zc_max(tile,tile2));
 	}
-	
 	if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
 	{
 		int32_t firsttile=zc_min(tile,tile2), lasttile=zc_max(tile,tile2), coldiff=0;
-		
 		go_tiles();
-		
 		//if copying to an earlier tile, copy from left to right
 		//otherwise, copy from right to left
 		do_delete_tiles(firsttile, lasttile, rect_sel);
-				
 		tile=tile2=zc_min(tile,tile2);
 		saved=false;
 		register_blank_tiles();
@@ -14425,22 +12647,16 @@ void overlay_tile2(int32_t dest,int32_t src,int32_t cs,bool backwards)
 {
 	byte buf[256];
 	go_tiles();
-	
 	unpack_tile(newtilebuf, dest, 0, false);
-	
 	for(int32_t i=0; i<256; i++)
 		buf[i] = unpackbuf[i];
-		
 	unpack_tile(newtilebuf, src, 0, false);
-	
 	if(newtilebuf[src].format>tf4Bit)
 	{
 		cs=0;
 	}
-	
 	cs &= 15;
 	cs <<= CSET_SHFT;
-	
 	for(int32_t i=0; i<256; i++)
 	{
 		if(backwards)
@@ -14458,7 +12674,6 @@ void overlay_tile2(int32_t dest,int32_t src,int32_t cs,bool backwards)
 			}
 		}
 	}
-	
 	pack_tile(newtilebuf, buf,dest);
 	saved=false;
 }
@@ -14467,18 +12682,13 @@ void mass_overlay_tile(int32_t dest1, int32_t dest2, int32_t src, int32_t cs, bo
 {
 	//byte buf[256];
 	go_tiles();
-	
 	/*unpack_tile(newtilebuf, src, 0, false);
-	
 	for(int32_t i=0; i<256; i++)
 		buf[i] = unpackbuf[i];
-		
 	if(newtilebuf[src].format>tf4Bit)
 	{
 		cs=0;
 	}
-	
-	
 	cs &= 15;
 	cs <<= CSET_SHFT;
 	*/
@@ -14487,7 +12697,6 @@ void mass_overlay_tile(int32_t dest1, int32_t dest2, int32_t src, int32_t cs, bo
 		for(int32_t d=dest1; d <= dest2; ++d)
 		{
 			/*unpack_tile(newtilebuf, d, 0, false);
-			
 			for(int32_t i=0; i<256; i++)
 			{
 				if(!backwards)
@@ -14505,12 +12714,9 @@ void mass_overlay_tile(int32_t dest1, int32_t dest2, int32_t src, int32_t cs, bo
 					}
 				}
 			}
-			
 			pack_tile(newtilebuf, buf,d);
 		*/
-		
 		overlay_tile(newtilebuf,d,src,cs,backwards);
-			
 			if(!blank_tile_table[src])
 			{
 				blank_tile_table[d]=false;
@@ -14524,14 +12730,12 @@ void mass_overlay_tile(int32_t dest1, int32_t dest2, int32_t src, int32_t cs, bo
 		int32_t cmin=zc_min(TILECOL(dest1),TILECOL(dest2));
 		int32_t cmax=zc_max(TILECOL(dest1),TILECOL(dest2));
 		int32_t d=0;
-		
 		for(int32_t j=cmin; j<=cmax; ++j)
 		{
 			for(int32_t k=rmin; k<=rmax; ++k)
 			{
 				d=j+TILES_PER_ROW*k;
 				/*unpack_tile(newtilebuf, d, 0, false);
-				
 				for(int32_t i=0; i<256; i++)
 				{
 					if(!backwards)
@@ -14549,12 +12753,9 @@ void mass_overlay_tile(int32_t dest1, int32_t dest2, int32_t src, int32_t cs, bo
 						}
 					}
 				}
-			
 				pack_tile(newtilebuf, buf,d);
 				*/
-		
 		overlay_tile(newtilebuf,d,src,cs,backwards);
-		
 				if(!blank_tile_table[src])
 				{
 					blank_tile_table[d]=false;
@@ -14562,7 +12763,6 @@ void mass_overlay_tile(int32_t dest1, int32_t dest2, int32_t src, int32_t cs, bo
 			}
 		}
 	}
-	
 	return;
 }
 
@@ -14570,17 +12770,14 @@ void sel_tile(int32_t &tile, int32_t &tile2, int32_t &first, int32_t type, int32
 {
 	tile+=s;
 	bound(tile,0,NEWMAXTILES-1);
-	
 	if(type!=0 || !(key[KEY_LSHIFT] || key[KEY_RSHIFT]))
 		tile2 = tile;
-		
 	first = tile - (tile%TILES_PER_PAGE);
 }
 
 void convert_tile(int32_t t, int32_t bp2, int32_t cs, bool shift, bool alt)
 {
 	int32_t cst;
-	
 	switch(bp2)
 	{
 	case tf4Bit:
@@ -14589,10 +12786,8 @@ void convert_tile(int32_t t, int32_t bp2, int32_t cs, bool shift, bool alt)
 		case tf4Bit:
 			//already in the right format
 			break;
-			
 		case tf8Bit:
 			unpack_tile(newtilebuf, t, 0, true);
-			
 			if(alt)  //reduce
 			{
 				for(int32_t i=0; i<256; i++)
@@ -14610,14 +12805,11 @@ void convert_tile(int32_t t, int32_t bp2, int32_t cs, bool shift, bool alt)
 					unpackbuf[i]&=15;
 				}
 			}
-			
 			reset_tile(newtilebuf, t, tf4Bit);
 			pack_tile(newtilebuf, unpackbuf, t);
 			break;
 		}
-		
 		break;
-		
 	case tf8Bit:
 		switch(newtilebuf[t].format)
 		{
@@ -14625,7 +12817,6 @@ void convert_tile(int32_t t, int32_t bp2, int32_t cs, bool shift, bool alt)
 			unpack_tile(newtilebuf, t, 0, true);
 			cst = cs&15;
 			cst <<= CSET_SHFT;
-			
 			for(int32_t i=0; i<256; i++)
 			{
 				if(!shift||unpackbuf[i]!=0)
@@ -14633,16 +12824,13 @@ void convert_tile(int32_t t, int32_t bp2, int32_t cs, bool shift, bool alt)
 					unpackbuf[i]+=cst;
 				}
 			}
-			
 			reset_tile(newtilebuf, t, tf8Bit);
 			pack_tile(newtilebuf, unpackbuf, t);
 			break;
-			
 		case tf8Bit:
 			//already in the right format
 			break;
 		}
-		
 		break;
 	}
 }
@@ -14665,19 +12853,16 @@ void draw_tile_list_window()
 {
 	int32_t w = 320;
 	int32_t h = 240;
-	
 	if(is_large)
 	{
 		w *= 2;
 		h *= 2;
 	}
-	
 	int32_t window_xofs=(zq_screen_w-w-12)>>1;
 	int32_t window_yofs=(zq_screen_h-h-25-6)>>1;
 	scare_mouse();
 	jwin_draw_win(screen, window_xofs, window_yofs, w+6+6, h+25+6, FR_WIN);
 	jwin_draw_frame(screen, window_xofs+4, window_yofs+23, w+2+2, h+4+2-64,  FR_DEEP);
-	
 	FONT *oldfont = font;
 	font = lfont;
 	jwin_draw_titlebar(screen, window_xofs+3, window_yofs+3, w+6, 18, "Select Tile", true);
@@ -14699,34 +12884,28 @@ void do_convert_tile(int32_t tile, int32_t tile2, int32_t cs, bool rect_sel, boo
 {
 	char buf[80];
 	sprintf(buf, "Do you want to convert the selected %s to %d-bit color?", tile==tile2?"tile":"tiles",fourbit?4:8);
-	
 	if(jwin_alert("Convert Tile?",buf,NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
 	{
 		go_tiles();
 		saved=false;
-		
 		if(fourbit)
 		{
 			memset(cset_reduce_table, 0, 256);
 			memset(col_diff,0,3*128);
 			calc_cset_reduce_table(RAMpal, cs);
 		}
-		
 		int32_t firsttile=zc_min(tile,tile2), lasttile=zc_max(tile,tile2), coldiff=0;
-		
 		if(rect_sel && TILECOL(firsttile)>TILECOL(lasttile))
 		{
 			coldiff=TILECOL(firsttile)-TILECOL(lasttile);
 			firsttile-=coldiff;
 			lasttile+=coldiff;
 		}
-		
 		for(int32_t t=firsttile; t<=lasttile; t++)
 			if(!rect_sel ||
 					((TILECOL(t)>=TILECOL(firsttile)) &&
 					 (TILECOL(t)<=TILECOL(lasttile))))
 				convert_tile(t, fourbit?tf4Bit:tf8Bit, cs, shift, alt);
-				
 		tile=tile2=zc_min(tile,tile2);
 	}
 }
@@ -14738,7 +12917,6 @@ int32_t readtilefile(PACKFILE *f)
 	dword section_cversion=0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
-	
 	if(!p_igetl(&zversion,f,true))
 	{
 		return 0;
@@ -14763,37 +12941,29 @@ int32_t readtilefile(PACKFILE *f)
 		al_trace("Cannot read .ztile packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
 		return 0;
 	}
-	
 	else if ( ( section_version > V_TILES ) || ( section_version == V_TILES && section_cversion < CV_TILES ) )
 	{
 		al_trace("Cannot read .ztile packfile made using V_TILES (%d) subversion (%d)\n", section_version, section_cversion);
 		return 0;
-		
 	}
 	else
 	{
 		al_trace("Reading a .ztile packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
 	}
-	
 	int32_t index = 0;
 	int32_t count = 0;
-	
 	//tile id
 	if(!p_igetl(&index,f,true))
 	{
 		return 0;
 	}
 	al_trace("Reading tile: index(%d)\n", index);
-	
 	//tile count
 	if(!p_igetl(&count,f,true))
 	{
 		return 0;
 	}
 	al_trace("Reading tile: count(%d)\n", count);
-	
-	
-	
 
 	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
@@ -14806,26 +12976,19 @@ int32_t readtilefile(PACKFILE *f)
 			return 0;
 		}
 
-				
 		if(!pfread(temp_tile,tilesize(format),f,true))
 		{
 			delete[] temp_tile;
 			return 0;
 		}
-				
 		reset_tile(newtilebuf, index+(tilect), format);
 		memcpy(newtilebuf[index+(tilect)].data,temp_tile,tilesize(newtilebuf[index+(tilect)].format));
 		delete[] temp_tile;
 	}
-	
-	
 	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
-	
 	register_blank_tiles();
 	register_used_tiles();
-			
 	return 1;
-	
 }
 
 int32_t readtilefile_to_location(PACKFILE *f, int32_t start, int32_t skip)
@@ -14834,7 +12997,6 @@ int32_t readtilefile_to_location(PACKFILE *f, int32_t start, int32_t skip)
 	dword section_cversion=0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
-	
 	if(!p_igetl(&zversion,f,true))
 	{
 		return 0;
@@ -14859,35 +13021,29 @@ int32_t readtilefile_to_location(PACKFILE *f, int32_t start, int32_t skip)
 		al_trace("Cannot read .ztile packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
 		return 0;
 	}
-	
 	else if ( ( section_version > V_TILES ) || ( section_version == V_TILES && section_cversion < CV_TILES ) )
 	{
 		al_trace("Cannot read .ztile packfile made using V_TILES (%d) subversion (%d)\n", section_version, section_cversion);
 		return 0;
-		
 	}
 	else
 	{
 		al_trace("Reading a .ztile packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
 	}
-	
 	int32_t index = 0;
 	int32_t count = 0;
-	
 	//tile id
 	if(!p_igetl(&index,f,true))
 	{
 		return 0;
 	}
 	al_trace("Reading tile: index(%d)\n", index);
-	
 	//tile count
 	if(!p_igetl(&count,f,true))
 	{
 		return 0;
 	}
 	al_trace("Reading tile: count(%d)\n", count);
-	
 
 	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
@@ -14900,39 +13056,30 @@ int32_t readtilefile_to_location(PACKFILE *f, int32_t start, int32_t skip)
 			return 0;
 		}
 
-				
 		if(!pfread(temp_tile,tilesize(format),f,true))
 		{
 			delete[] temp_tile;
 			return 0;
 		}
-				
 		reset_tile(newtilebuf, start+(tilect), format);
 		if ( skip )
 		{
-			if ( (start+(tilect)) < skip ) 
+			if ( (start+(tilect)) < skip )
 			{
 				delete[] temp_tile;
 				continue;
 			}
-			
 		}
 		if ( start+(tilect) < NEWMAXTILES )
 		{
 			memcpy(newtilebuf[start+(tilect)].data,temp_tile,tilesize(newtilebuf[start+(tilect)].format));
 		}
 		delete[] temp_tile;
-		
 	}
-	
-	
 	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
-	
 	register_blank_tiles();
 	register_used_tiles();
-			
 	return 1;
-	
 }
 
 
@@ -14942,7 +13089,6 @@ int32_t readtilefile_to_location(PACKFILE *f, int32_t start)
 	dword section_cversion=0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
-	
 	if(!p_igetl(&zversion,f,true))
 	{
 		return 0;
@@ -14967,57 +13113,46 @@ int32_t readtilefile_to_location(PACKFILE *f, int32_t start)
 		al_trace("Cannot read .ztile packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
 		return 0;
 	}
-	
 	else if ( ( section_version > V_TILES ) || ( section_version == V_TILES && section_cversion < CV_TILES ) )
 	{
 		al_trace("Cannot read .ztile packfile made using V_TILES (%d) subversion (%d)\n", section_version, section_cversion);
 		return 0;
-		
 	}
 	else
 	{
 		al_trace("Reading a .ztile packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
 	}
-	
 	int32_t index = 0;
 	int32_t count = 0;
-	
 	//tile id
 	if(!p_igetl(&index,f,true))
 	{
 		return 0;
 	}
 	al_trace("Reading tile: index(%d)\n", index);
-	
 	//tile count
 	if(!p_igetl(&count,f,true))
 	{
 		return 0;
 	}
 	al_trace("Reading tile: count(%d)\n", count);
-	
-	
-	
 
 	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
 		byte *temp_tile = new byte[tilesize(tf32Bit)];
 		byte format=tf4Bit;
 		memset(temp_tile, 0, tilesize(tf32Bit));
-		
 		if(!p_getc(&format,f,true))
 		{
 			delete[] temp_tile;
 			return 0;
 		}
 
-				
 		if(!pfread(temp_tile,tilesize(format),f,true))
 		{
 			delete[] temp_tile;
 			return 0;
 		}
-				
 		reset_tile(newtilebuf, start+(tilect), format);
 		if ( start+(tilect) < NEWMAXTILES )
 		{
@@ -15025,15 +13160,10 @@ int32_t readtilefile_to_location(PACKFILE *f, int32_t start)
 		}
 		delete[] temp_tile;
 	}
-	
-	
 	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
-	
 	register_blank_tiles();
 	register_used_tiles();
-			
 	return 1;
-	
 }
 int32_t writetilefile(PACKFILE *f, int32_t index, int32_t count)
 {
@@ -15041,7 +13171,6 @@ int32_t writetilefile(PACKFILE *f, int32_t index, int32_t count)
 	dword section_cversion=CV_TILES;
 	int32_t zversion = ZELDA_VERSION;
 	int32_t zbuild = VERSION_BUILD;
-	
 	if(!p_iputl(zversion,f))
 	{
 		return 0;
@@ -15054,24 +13183,20 @@ int32_t writetilefile(PACKFILE *f, int32_t index, int32_t count)
 	{
 		return 0;
 	}
-	
 	if(!p_iputw(section_cversion,f))
 	{
 		return 0;
 	}
-	
 	//start tile id
 	if(!p_iputl(index,f))
 	{
 		return 0;
 	}
-	
 	//count
 	if(!p_iputl(count,f))
 	{
 		return 0;
 	}
-	
 	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
 		//al_trace("Tile id: %d\n",index+(tilect));
@@ -15085,9 +13210,7 @@ int32_t writetilefile(PACKFILE *f, int32_t index, int32_t count)
 			return 0;
 		}
 	}
-	
 	return 1;
-	
 }
 
 static int32_t _selected_tile=-1, _selected_tcset=-1;
@@ -15108,9 +13231,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 	bool rect_sel=true;
 	bound(first,0,(TILES_PER_PAGE*TILE_PAGES)-1);
 	position_mouse_z(0);
-	
 	go();
-	
 	register_used_tiles();
 	int32_t window_xofs=0;
 	int32_t window_yofs=0;
@@ -15121,7 +13242,6 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 	int32_t h = 240;
 	int32_t mul = 1;
 	FONT *tfont = pfont;
-	
 	if(is_large)
 	{
 		w *= 2;
@@ -15134,11 +13254,9 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 		panel_yofs=3;
 		tfont = lfont_l;
 	}
-	
 	draw_tile_list_window();
 	int32_t f=0;
 	draw_tiles(first,cs,f);
-	
 	if(type==0)
 	{
 		tile_info_0(tile,tile2,cs,copy,copycnt,first/TILES_PER_PAGE,rect_sel);
@@ -15147,17 +13265,13 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 	{
 		tile_info_1(otile,oflip,ocs,tile,flip,cs,copy,first/TILES_PER_PAGE, always_use_flip);
 	}
-	
 	go_tiles();
-	
 	while(gui_mouse_b())
 	{
 		/* do nothing */
 		rest(1);
 	}
-	
 	bool bdown=false;
-	
 	#define FOREACH_START(_t) \
 	{ \
 		int32_t _first, _last; \
@@ -15181,12 +13295,12 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				int32_t col=TILECOL(_t); \
 				if(col<left || col>=left+columns) \
 					continue; \
-			} \
-		
+			}
+
 	#define FOREACH_END\
 		} \
 	}
-	
+
 	bool did_snap = false;
 	do
 	{
@@ -15197,14 +13311,12 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 		int32_t columns=zc_max(TILECOL(tile), TILECOL(tile2))-left+1;
 		bool is_rect=(rows==1)||(columns==TILES_PER_ROW)||rect_sel;
 		bool redraw=false;
-		
 		if(mouse_z!=0)
 		{
 			sel_tile(tile,tile2,first,type,((mouse_z/abs(mouse_z))*(-1)*TILES_PER_PAGE));
 			position_mouse_z(0);
 			redraw=true;
 		}
-		
 		if(keypressed())
 		{
 			switch(readkey()>>8)
@@ -15213,15 +13325,12 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				case KEY_ENTER:
 					done=2;
 					break;
-				
 				case KEY_ESC:
 					done=1;
 					break;
-				
 				case KEY_F1:
 					onHelp();
 					break;
-				
 				case KEY_EQUALS:
 				case KEY_PLUS_PAD:
 				{
@@ -15234,12 +13343,10 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 							else
 								shift_tile_colors(t, 1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
 						FOREACH_END
-						
 						register_blank_tiles();
 					}
 					else if(edit_cs)
 						cs = (cs<11) ? cs+1:0;
-						
 					redraw=true;
 					break;
 				}
@@ -15256,7 +13363,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				case KEY_S:
 				{
 					if(!getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
-						break;   
+						break;
 					PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 					if(!f) break;
 					al_trace("Saving tile: %d\n", tile);
@@ -15267,7 +13374,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				case KEY_L:
 				{
 					if(!getname("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
-						break;   
+						break;
 					PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 					if(!f) break;
 					al_trace("Saving tile: %d\n", tile);
@@ -15280,7 +13387,6 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					{
 						jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
 					}
-				
 					pack_fclose(f);
 					//register_blank_tiles();
 					//register_used_tiles();
@@ -15299,16 +13405,13 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 							else
 								shift_tile_colors(t, -1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
 						FOREACH_END
-						
 						register_blank_tiles();
 					}
 					else if(edit_cs)
 						cs = (cs>0)  ? cs-1:11;
-						
 					redraw=true;
 					break;
 				}
-				
 				case KEY_UP:
 				{
 					switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
@@ -15321,19 +13424,15 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 								go_slide_tiles(columns, rows, top, left);
 								int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
 								bool same = true;
-								
 								for(int32_t d=0; d<columns; d++)
 								{
 									for(int32_t s=0; s<rows; s++)
 									{
 										int32_t t=((top+s)*TILES_PER_ROW)+left+d;
-										
 										if(newtilebuf[t].format!=bitcheck) same = false;
 									}
 								}
-								
 								if(!same) break;
-								
 								for(int32_t c=0; c<columns; c++)
 								{
 									for(int32_t r=0; r<rows; r++)
@@ -15341,7 +13440,6 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 										int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
 										qword *src_pixelrow=(qword*)(newundotilebuf[temptile].data+(8*bitcheck));
 										qword *dest_pixelrow=(qword*)(newtilebuf[temptile].data);
-										
 										for(int32_t pixelrow=0; pixelrow<16*bitcheck; pixelrow++)
 										{
 											if(pixelrow==15*bitcheck)
@@ -15351,15 +13449,12 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 													srctile-=rows*TILES_PER_ROW;
 												src_pixelrow=(qword*)(newtilebuf[srctile].data);
 											}
-											
 											*dest_pixelrow=*src_pixelrow;
 											dest_pixelrow++;
 											src_pixelrow++;
 										}
 									}
-									
 									qword *dest_pixelrow=(qword*)(newtilebuf[((top+rows-1)*TILES_PER_ROW)+left+c].data+(120*bitcheck));
-									
 									for(int32_t b=0; b<bitcheck; b++,dest_pixelrow++)
 									{
 										if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
@@ -15374,22 +13469,18 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 									}
 								}
 							}
-							
 							register_blank_tiles();
 							redraw=true;
 							break;
-							
 						case 1:  //CTRL
 						case 0:  //None
 							sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-1*(tile_page_row(tile)*TILES_PER_ROW):-TILES_PER_ROW);
 							redraw=true;
-							
 						default: //Others
 							break;
 					}
 				}
 				break;
-				
 				case KEY_DOWN:
 				{
 					switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
@@ -15402,19 +13493,15 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 								go_slide_tiles(columns, rows, top, left);
 								int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
 								bool same = true;
-								
 								for(int32_t c=0; c<columns; c++)
 								{
 									for(int32_t r=0; r<rows; r++)
 									{
 										int32_t t=((top+r)*TILES_PER_ROW)+left+c;
-										
 										if(newtilebuf[t].format!=bitcheck) same = false;
 									}
 								}
-								
 								if(!same) break;
-								
 								for(int32_t c=0; c<columns; c++)
 								{
 									for(int32_t r=rows-1; r>=0; r--)
@@ -15422,7 +13509,6 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 										int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
 										qword *src_pixelrow=(qword*)(newundotilebuf[temptile].data+(112*bitcheck)+(8*(bitcheck-1)));
 										qword *dest_pixelrow=(qword*)(newtilebuf[temptile].data+(120*bitcheck)+(8*(bitcheck-1)));
-										
 										for(int32_t pixelrow=(8<<bitcheck)-1; pixelrow>=0; pixelrow--)
 										{
 											if(pixelrow<bitcheck)
@@ -15438,15 +13524,12 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 											{
 												*dest_pixelrow=*src_pixelrow;
 											}
-											
 											dest_pixelrow--;
 											src_pixelrow--;
 										}
 									}
-									
 									qword *dest_pixelrow=(qword*)(newtilebuf[(top*TILES_PER_ROW)+left+c].data);
 									qword *src_pixelrow=(qword*)(newundotilebuf[((top+rows-1)*TILES_PER_ROW)+left+c].data+(120*bitcheck));
-									
 									for(int32_t b=0; b<bitcheck; b++)
 									{
 										if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
@@ -15457,28 +13540,23 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 										{
 											*dest_pixelrow=*src_pixelrow;
 										}
-										
 										dest_pixelrow++;
 										src_pixelrow++;
 									}
 								}
 							}
-							
 							register_blank_tiles();
 							redraw=true;
 							break;
-							
 						case 1:  //CTRL
 						case 0:  //None
 							sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?((TILE_ROWS_PER_PAGE-1)-tile_page_row(tile))*TILES_PER_ROW:TILES_PER_ROW);
 							redraw=true;
-							
 						default: //Others
 							break;
 					}
 				}
 				break;
-				
 				case KEY_LEFT:
 				{
 					switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
@@ -15491,30 +13569,24 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 								go_slide_tiles(columns, rows, top, left);
 								int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
 								bool same = true;
-								
 								for(int32_t c=0; c<columns; c++)
 								{
 									for(int32_t r=0; r<rows; r++)
 									{
 										int32_t t=((top+r)*TILES_PER_ROW)+left+c;
-										
 										if(newtilebuf[t].format!=bitcheck) same = false;
 									}
 								}
-								
 								if(!same) break;
-								
 								for(int32_t r=0; r<rows; r++)
 								{
 									for(int32_t c=0; c<columns; c++)
 									{
 										int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
 										byte *dest_pixelrow=(newtilebuf[temptile].data);
-										
 										for(int32_t pixelrow=0; pixelrow<16; pixelrow++)
 										{
 		#ifdef ALLEGRO_LITTLE_ENDIAN
-										
 											//if(bitcheck==tf4Bit)
 											// {
 											for(int32_t p=0; p<(8*bitcheck)-1; p++)
@@ -15523,95 +13595,72 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 												{
 													*dest_pixelrow=*dest_pixelrow>>4;
 													*dest_pixelrow|=(*(dest_pixelrow+1)<<4);
-													
 													if(p==6) *(dest_pixelrow+1)=*(dest_pixelrow+1)>>4;
 												}
 												else
 												{
 													*dest_pixelrow=*(dest_pixelrow+1);
 												}
-												
 												dest_pixelrow++;
 											}
-											
 		#else
-											
 											for(int32_t p=0; p<(8*bitcheck)-1; p++)
 											{
 												if(bitcheck==tf4Bit)
 												{
 													*dest_pixelrow=*dest_pixelrow<<4;
 													*dest_pixelrow|=(*(dest_pixelrow+1)>>4);
-											
 													if(p==6) *(dest_pixelrow+1)=*(dest_pixelrow+1)<<4;
 												}
 												else
 												{
 													*dest_pixelrow=*(dest_pixelrow+1);
 												}
-											
 												dest_pixelrow++;
 											}
-											
 		#endif
-											
 											if(c==columns-1)
 											{
 												if(!(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
 												{
 													byte *tempsrc=(newundotilebuf[((top+r)*TILES_PER_ROW)+left].data+(pixelrow*8*bitcheck));
 		#ifdef ALLEGRO_LITTLE_ENDIAN
-													
 													if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
 													else *dest_pixelrow=*tempsrc;
-													
 		#else
-													
 													if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
 													else *dest_pixelrow=*tempsrc;
-													
 		#endif
 												}
 											}
 											else
-											
 											{
 												byte *tempsrc=(newtilebuf[temptile+1].data+(pixelrow*8*bitcheck));
 		#ifdef ALLEGRO_LITTLE_ENDIAN
-												
 												if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
 												else *dest_pixelrow=*tempsrc;
-												
 		#else
-												
 												if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
 												else *dest_pixelrow=*tempsrc;
-												
 		#endif
 											}
-											
 											dest_pixelrow++;
 										}
 									}
 								}
-								
 								register_blank_tiles();
 								redraw=true;
 							}
-							
 							break;
-							
 						case 1:  //CTRL
 						case 0:  //None
 							sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-(tile%TILES_PER_ROW):-1);
 							redraw=true;
-							
 						default: //Others
 							break;
 					}
 				}
 				break;
-			
 				case KEY_RIGHT:
 				{
 					switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
@@ -15624,30 +13673,24 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 								go_slide_tiles(columns, rows, top, left);
 								int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
 								bool same = true;
-								
 								for(int32_t c=0; c<columns; c++)
 								{
 									for(int32_t r=0; r<rows; r++)
 									{
 										int32_t t=((top+r)*TILES_PER_ROW)+left+c;
-										
 										if(newtilebuf[t].format!=bitcheck) same = false;
 									}
 								}
-								
 								if(!same) break;
-								
 								for(int32_t r=0; r<rows; r++)
 								{
 									for(int32_t c=columns-1; c>=0; c--)
 									{
 										int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
 										byte *dest_pixelrow=(newtilebuf[temptile].data)+(128*bitcheck)-1;
-										
 										for(int32_t pixelrow=15; pixelrow>=0; pixelrow--)
 										{
 		#ifdef ALLEGRO_LITTLE_ENDIAN
-										
 											//*dest_pixelrow=(*dest_pixelrow)<<4;
 											for(int32_t p=0; p<(8*bitcheck)-1; p++)
 											{
@@ -15655,53 +13698,41 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 												{
 													*dest_pixelrow=*dest_pixelrow<<4;
 													*dest_pixelrow|=(*(dest_pixelrow-1)>>4);
-													
 													if(p==6) *(dest_pixelrow-1)=*(dest_pixelrow-1)<<4;
 												}
 												else
 												{
 													*dest_pixelrow=*(dest_pixelrow-1);
 												}
-												
 												dest_pixelrow--;
 											}
-											
 		#else
-											
 											for(int32_t p=0; p<(8*bitcheck)-1; p++)
 											{
 												if(bitcheck==tf4Bit)
 												{
 													*dest_pixelrow=*dest_pixelrow>>4;
 													*dest_pixelrow|=(*(dest_pixelrow-1)<<4);
-											
 													if(p==6) *(dest_pixelrow-1)=*(dest_pixelrow-1)>>4;
 												}
 												else
 												{
 													*dest_pixelrow=*(dest_pixelrow-1);
 												}
-											
 												dest_pixelrow--;
 											}
-											
 		#endif
-											
 											if(c==0)
 											{
 												if(!(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
 												{
 													byte *tempsrc=(newundotilebuf[(((top+r)*TILES_PER_ROW)+left+columns-1)].data+(pixelrow*8*bitcheck)+(8*bitcheck)-1);
 		#ifdef ALLEGRO_LITTLE_ENDIAN
-													
 													if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
 													else *dest_pixelrow=*tempsrc;
-													
 		#else
-													
 													if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
 													else *dest_pixelrow=*tempsrc;
-													
 		#endif
 												}
 											}
@@ -15709,76 +13740,58 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 											{
 												byte *tempsrc=(newtilebuf[temptile-1].data+(pixelrow*8*bitcheck)+(8*bitcheck)-1);
 		#ifdef ALLEGRO_LITTLE_ENDIAN
-												
 												// (*dest_pixelrow)|=((*(dest_pixelrow-16))&0xF000000000000000ULL)>>60;
 												if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
 												else *dest_pixelrow=*tempsrc;
-												
 		#else
-												
 												if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
 												else *dest_pixelrow=*tempsrc;
-												
 		#endif
 											}
-											
 											dest_pixelrow--;
 										}
 									}
 								}
-								
 								register_blank_tiles();
 								redraw=true;
 							}
-							
 							break;
-							
 						case 1:  //CTRL
 						case 0:  //None
 							sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?(TILES_PER_ROW)-(tile%TILES_PER_ROW)-1:1);
 							redraw=true;
-							
 						default: //Others
 							break;
 					}
 				}
 				break;
-			
 				case KEY_PGUP:
 					sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-1*(TILEROW(tile)*TILES_PER_ROW):-TILES_PER_PAGE);
 					redraw=true;
 					break;
-				
 				case KEY_PGDN:
 					sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?((TILE_PAGES*TILE_ROWS_PER_PAGE)-TILEROW(tile)-1)*TILES_PER_ROW:TILES_PER_PAGE);
 					redraw=true;
 					break;
-				
 				case KEY_HOME:
 					sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-(tile):-(tile%TILES_PER_PAGE));
 					redraw=true;
 					break;
-				
 				case KEY_END:
 					sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?(TILE_PAGES)*(TILES_PER_PAGE)-tile-1:(TILES_PER_PAGE)-(tile%TILES_PER_PAGE)-1);
 					redraw=true;
 					break;
-				
 				case KEY_P:
 				{
 					int32_t whatPage = gettilepagenumber("Goto Page", (PreFillTileEditorPage?(first/TILES_PER_PAGE):0));
-					
 					if(whatPage >= 0)
 						sel_tile(tile,tile2,first,type,((whatPage-TILEPAGE(tile))*TILE_ROWS_PER_PAGE)*TILES_PER_ROW);
-						
 					break;
 				}
-				
 				case KEY_O:
 					if(type==0 && copy>=0)
 					{
 						go_tiles();
-						
 						if(key[KEY_LSHIFT] ||key[KEY_RSHIFT])
 						{
 							mass_overlay_tile(zc_min(tile,tile2),zc_max(tile,tile2),copy,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]), rect_sel);
@@ -15789,13 +13802,10 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 							saved = !overlay_tiles(tile,tile2,copy,copycnt,rect_sel,false,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]));
 							//overlay_tile(newtilebuf,tile,copy,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]));
 						}
-						
 						saved=false;
 						redraw=true;
 					}
-					
 					break;
-				
 				case KEY_E:
 					if(type==0)
 					{
@@ -15803,9 +13813,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						draw_tile_list_window();
 						redraw=true;
 					}
-					
 					break;
-				
 				case KEY_G:
 					if(type==0)
 					{
@@ -15813,23 +13821,18 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						draw_tile_list_window();
 						redraw=true;
 					}
-					
 					break;
-				
 				case KEY_C:
 					copy=zc_min(tile,tile2);
 					copycnt=abs(tile-tile2)+1;
 					redraw=true;
 					break;
-				
 				case KEY_X:
 					if(type==2)
 					{
 						ex=(ex+1)%3;
 					}
-					
 					break;
-				
 				//usetiles=true;
 				case KEY_R:
 					if(type==2)
@@ -15840,9 +13843,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						redraw=true;
 						break;
 					}
-						
 					go_tiles();
-					
 					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 					{
 						bool go=false;
@@ -15850,13 +13851,11 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 							go=true;
 						else if(massRecolorSetup(cs))
 							go=true;
-						
 						if(go)
 						{
 							FOREACH_START(t)
 								massRecolorApply(t);
 							FOREACH_END
-							
 							register_blank_tiles();
 						}
 					}
@@ -15866,35 +13865,28 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 							rotate_tile(t,(key[KEY_LSHIFT] || key[KEY_RSHIFT]));
 						FOREACH_END
 					}
-					
 					redraw=true;
 					saved=false;
 					break;
-				
 				case KEY_SPACE:
 					rect_sel=!rect_sel;
 					copy=-1;
 					redraw=true;
 					break;
-				
 				//     case KEY_N:     go_tiles(); normalize(tile,tile2,flip); flip=0; redraw=true; saved=false; usetiles=true; break;
 				case KEY_H:
 					flip^=1;
 					go_tiles();
-					
 					if(type==0)
 					{
 						normalize(tile,tile2,rect_sel,flip);
 						flip=0;
 					}
-					
 					redraw=true;
 					break;
-				
 				case KEY_F12:
 					onSnapshot();
 					break;
-				
 				case KEY_V:
 					if(copy==-1)
 					{
@@ -15902,7 +13894,6 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						{
 							flip^=2;
 							go_tiles();
-							
 							if(type==0)
 							{
 								normalize(tile,tile2,rect_sel,flip);
@@ -15916,10 +13907,8 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						go_tiles();
 						saved = !copy_tiles(tile,tile2,copy,copycnt,rect_sel,false);
 					}
-					
 					redraw=true;
 					break;
-				
 				case KEY_F:
 					if(copy==-1)
 					{
@@ -15932,15 +13921,12 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 							saved = !copy_tiles_floodfill(tile,tile2,copy,copycnt,rect_sel,false);
 						}
 					}
-					
 					redraw=true;
 					break;
-			
 				case KEY_DEL:
 					delete_tiles(tile,tile2,rect_sel);
 					redraw=true;
 					break;
-				
 				case KEY_U:
 				{
 					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
@@ -15952,16 +13938,13 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					{
 						comeback_tiles();
 					}
-					
 					redraw=true;
 				}
 				break;
-				
 				case KEY_8:
 				case KEY_8_PAD:
 					hide_8bit_marker();
 					break;
-				
 				case KEY_I: //insert tiles
 					if(type==0)
 					{
@@ -15974,16 +13957,13 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						tile2=NEWMAXTILES;
 						copy = tile + count;
 						copycnt = NEWMAXTILES-copy;
-						
 						if(key[KEY_LSHIFT]||key[KEY_RSHIFT]) //Remove
 						{
 							char buf[64];
-							
 							if(count>1)
 								sprintf(buf,"Remove tiles %d - %d?",tile, copy-1);
 							else
 								sprintf(buf,"Remove tile %d?",tile);
-								
 							AlertDialog("Remove Tiles", std::string(buf)
 								+"\nThis will offset the tiles that follow!"
 								+(warn?"\nRemoving tiles ignores rectangular selections!":""),
@@ -16003,12 +13983,10 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						else
 						{
 							char buf[64];
-							
 							if(count>1)
 								sprintf(buf,"Insert %d blank tiles?",count);
 							else
 								sprintf(buf,"Insert a blank tile?");
-								
 							AlertDialog("Insert Tiles", std::string(buf)
 								+"\nThis will offset the tiles that follow!"
 								+(warn?"\nInserting tiles ignores rectangular selections!":""),
@@ -16025,7 +14003,6 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 									}
 								}).show();
 						}
-						
 						copy=-1;
 						tile2=tile=z;
 					}
@@ -16052,11 +14029,9 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 								make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
 							}
 						}
-						
 						redraw=true;
 					}
 					break;
-				
 				case KEY_D:
 				{
 					int32_t frames=1;
@@ -16064,40 +14039,32 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					sprintf(buf, "%d", frames);
 					create_relational_tiles_dlg[0].dp2=lfont;
 					create_relational_tiles_dlg[2].dp=buf;
-					
 					if(is_large)
 						large_dialog(create_relational_tiles_dlg);
-						
 					int32_t ret=zc_popup_dialog(create_relational_tiles_dlg,2);
-					
 					if(ret==5)
 					{
 						frames=zc_max(atoi(buf),1);
 						bool same = true;
 						int32_t bitcheck=newtilebuf[tile].format;
-						
 						for(int32_t t=1; t<frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); ++t)
 						{
 							if(newtilebuf[tile+t].format!=bitcheck) same = false;
 						}
-						
 						if(!same)
 						{
 							jwin_alert("Error","The source tiles are not","in the same format.",NULL,"&OK",NULL,13,27,lfont);
 							break;
 						}
-						
 						if(tile+(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96))>NEWMAXTILES)
 						{
 							jwin_alert("Error","Too many tiles will be created",NULL,NULL,"&OK",NULL,13,27,lfont);
 							break;
 						}
-						
 						for(int32_t i=frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); i<(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96)); ++i)
 						{
 							reset_tile(newtilebuf, tile+i, bitcheck);
 						}
-						
 						if(create_relational_tiles_dlg[3].flags&D_SELECTED)
 						{
 							for(int32_t i=create_relational_tiles_dlg[3].flags&D_SELECTED?47:95; i>0; --i)
@@ -16125,24 +14092,19 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					saved=false;
 					break;
 				}
-				
 				case KEY_B:
 				{
 					bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
 					bool control=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
 					bool alt=(key[KEY_ALT] || key[KEY_ALTGR]);
-					
 					do_convert_tile(tile, tile2, cs, rect_sel, control, shift, alt);
 					register_blank_tiles();
 				}
 				break;
 			}
-			
 			clear_keybuf();
 		}
-		
 		if(!key[KEY_Z]) did_snap = false;
-		
 		if(gui_mouse_b()&1)
 		{
 			if(is_large)
@@ -16155,15 +14117,12 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					}
 				}
 			}
-			
 			int32_t x=gui_mouse_x()-screen_xofs;
 			int32_t y=gui_mouse_y()-screen_yofs;
-			
 			if(y>=0 && y<208*mul)
 			{
 				x=zc_min(zc_max(x,0),(320*mul)-1);
 				int32_t t = (y>>(4+is_large))*TILES_PER_ROW + (x>>(4+is_large)) + first;
-				
 				if(type==0 && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
 				{
 					tile2=t;
@@ -16172,7 +14131,6 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				{
 					tile=tile2=t;
 				}
-				
 				if(tile_clicked!=t)
 				{
 					dclick_status=DCLICK_NOT;
@@ -16184,7 +14142,6 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						/* do nothing */
 						rest(1);
 					}
-					
 					if(((y>>(4+is_large))*TILES_PER_ROW + (x>>(4+is_large)) + first)!=t)
 					{
 						dclick_status=DCLICK_NOT;
@@ -16203,7 +14160,6 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						}
 					}
 				}
-				
 				tile_clicked=t;
 			}
 			else if(x>300*mul && !bdown)
@@ -16213,21 +14169,17 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					first-=TILES_PER_PAGE;
 					redraw=true;
 				}
-				
 				if(y>=224*mul && first<TILES_PER_PAGE*(TILE_PAGES-1))
 				{
 					first+=TILES_PER_PAGE;
 					redraw=true;
 				}
-				
 				bdown=true;
 			}
-			
 			if(type==1||type==2)
 			{
 				if(!bdown && isinRect(x,y,8*mul,216*mul+panel_yofs,23*mul,231*mul+panel_yofs))
 					done=1;
-					
 				if(!bdown && isinRect(x,y,148*mul,216*mul+panel_yofs,163*mul,231*mul+panel_yofs))
 					done=2;
 			}
@@ -16241,7 +14193,6 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 			{
 				FONT *tf = font;
 				font = tfont;
-				
 				if(do_text_button(150*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Grab",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
 				{
 					font = tf;
@@ -16250,14 +14201,12 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					position_mouse_z(0);
 					redraw=true;
 				}
-				
 				font = tf;
 			}
 			else if(!bdown && isinRect(x,y,(150+28)*mul,213*mul+panel_yofs,(150+28*2)*mul,(213+21)*mul+panel_yofs+21))
 			{
 				FONT *tf = font;
 				font = tfont;
-				
 				if(do_text_button((150+28)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
 				{
 					font = tf;
@@ -16265,14 +14214,12 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					draw_tile_list_window();
 					redraw=true;
 				}
-				
 				font = tf;
 			}
 			else if(!bdown && isinRect(x,y,(150+28*2)*mul,213*mul+panel_yofs,(150+28*3)*mul,(213+21)*mul+panel_yofs))
 			{
 				FONT *tf = font;
 				font = tfont;
-				
 				if(do_text_button((150+28*2)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Export",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
 				{
 					strcpy(datapath, "tileset.png");
@@ -16286,76 +14233,59 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						destroy_bitmap(tempbmp);
 					}
 				}
-				
 				font = tf;
 			}
 			else if(!bdown && isinRect(x,y,(150+28*3)*mul,213*mul+panel_yofs,(150+28*4)*mul,(213+21)*mul+panel_yofs))
 			{
 				FONT *tf = font;
 				font = tfont;
-				
 				if(do_text_button((150+28*3)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Recolor",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
 				{
 					if(massRecolorSetup(cs))
 					{
 						go_tiles();
-						
 						FOREACH_START(t)
 							massRecolorApply(t);
 						FOREACH_END
-						
 						register_blank_tiles();
 					}
 				}
-				
 				font = tf;
 			}
 			else if(!bdown && isinRect(x,y,(150+28*4)*mul,213*mul+panel_yofs,(150+28*5)*mul,(213+21)*mul+panel_yofs))
 			{
 				FONT *tf = font;
 				font = tfont;
-				
 				if(do_text_button((150+28*4)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
 				{
 					done=1;
 				}
-				
 				font = tf;
 			}
-			
 			bdown=true;
 		}
-		
 		bool r_click = false;
-		
 		if(gui_mouse_b()&2 && !bdown && type==0)
 		{
 			int32_t x=(gui_mouse_x()-screen_xofs);//&0xFF0;
 			int32_t y=(gui_mouse_y()-screen_yofs);//&0xF0;
-			
 			if(y>=0 && y<208*mul)
 			{
 				x=zc_min(zc_max(x,0),(320*mul)-1);
 				int32_t t = ((y)>>(4+is_large))*TILES_PER_ROW + ((x)>>(4+is_large)) + first;
-				
 				if(t<zc_min(tile,tile2) || t>zc_max(tile,tile2))
 					tile=tile2=t;
 			}
-			
 			bdown = r_click = true;
 			f=8;
 		}
-		
 		if(gui_mouse_b()==0)
 			bdown=false;
-			
 		position_mouse_z(0);
-		
 REDRAW:
 
 		if((f%16)==0 || InvalidStatic)
 			redraw=true;
-			
 		if(redraw)
 		{
 			draw_tiles(first,cs,f);
@@ -16392,21 +14322,17 @@ REDRAW:
 				}
 			}
 		}
-		
 		if(type==0)
 			tile_info_0(tile,tile2,cs,copy,copycnt,first/TILES_PER_PAGE,rect_sel);
 		else
 			tile_info_1(otile,oflip,ocs,tile,flip,cs,copy,first/TILES_PER_PAGE, always_use_flip);
-			
 		if(type==2)
 		{
 			char cbuf[16];
 			sprintf(cbuf, "E&xtend: %s",ex==2 ? "32x32" : ex==1 ? "32x16" : "16x16");
 			gui_textout_ln(screen, is_large?lfont_l:pfont, (uint8_t *)cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 		}
-		
 		++f;
-		
 		if(r_click)
 		{
 			select_tile_rc_menu[1].flags = (copy==-1) ? D_DISABLED : 0;
@@ -16418,14 +14344,12 @@ REDRAW:
 			select_tile_rc_menu[7].flags = (type!=0) ? D_DISABLED : 0;
 			int32_t m = popup_menu(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
 			redraw=true;
-			
 			switch(m)
 			{
 				case 0:
 					copy=zc_min(tile,tile2);
 					copycnt=abs(tile-tile2)+1;
 					break;
-					
 				case 2:
 				case 1:
 				{
@@ -16439,51 +14363,41 @@ REDRAW:
 					if(saved) saved = !b;
 					break;
 				}
-					
 				case 3:
 					delete_tiles(tile,tile2,rect_sel);
 					break;
-					
 				case 5:
 					edit_tile(tile,flip,cs);
 					draw_tile_list_window();
 					break;
-					
 				case 8:
 				{
 					do_convert_tile(tile,tile2,cs,rect_sel,(newtilebuf[tile].format!=tf4Bit),false,false);
 					break;
 				}
-				
 				case 6:
 					grab_tile(tile,cs);
 					draw_tile_list_window();
 					position_mouse_z(0);
 					break;
-					
 				case 10:
 					show_blank_tile(tile);
 					break;
-				
 				case 13: //overlay
 					overlay_tile(newtilebuf,tile,copy,cs,0);
 					break;
-				
 				case 14: //h-flip
 				{
 					flip^=1;
 					go_tiles();
-					
 					if(type==0)
 					{
 						normalize(tile,tile2,rect_sel,flip);
 						flip=0;
 					}
-					
-					redraw=true;   
+					redraw=true;
 					break;
 				}
-				
 				case 15: //h-flip
 				{
 					if(copy==-1)
@@ -16492,7 +14406,6 @@ REDRAW:
 						{
 							flip^=2;
 							go_tiles();
-							
 							if(type==0)
 							{
 								normalize(tile,tile2,rect_sel,flip);
@@ -16505,12 +14418,9 @@ REDRAW:
 						go_tiles();
 						saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,false);
 					}
-					
 					redraw=true;
 					break;
 				}
-				
-				
 				case 16: //mass combo
 				{
 					if(type==0)
@@ -16534,12 +14444,10 @@ REDRAW:
 								make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
 							}
 						}
-						
 						redraw=true;
 					}
 				}
 				break;
-				
 				case 17:
 					if(type==0)
 					{
@@ -16552,16 +14460,13 @@ REDRAW:
 						tile2=NEWMAXTILES;
 						copy = tile + count;
 						copycnt = NEWMAXTILES-copy;
-						
 						if(key[KEY_LSHIFT]||key[KEY_RSHIFT]) //Remove
 						{
 							char buf[64];
-							
 							if(count>1)
 								sprintf(buf,"Remove tiles %d - %d?",tile, copy-1);
 							else
 								sprintf(buf,"Remove tile %d?",tile);
-								
 							AlertDialog("Remove Tiles", std::string(buf)
 								+"\nThis will offset the tiles that follow!"
 								+(warn?"\nRemoving tiles ignores rectangular selections!":""),
@@ -16581,12 +14486,10 @@ REDRAW:
 						else
 						{
 							char buf[64];
-							
 							if(count>1)
 								sprintf(buf,"Insert %d blank tiles?",count);
 							else
 								sprintf(buf,"Insert a blank tile?");
-								
 							AlertDialog("Insert Tiles", std::string(buf)
 								+"\nThis will offset the tiles that follow!"
 								+(warn?"\nInserting tiles ignores rectangular selections!":""),
@@ -16603,30 +14506,25 @@ REDRAW:
 									}
 								}).show();
 						}
-						
 						copy=-1;
 						tile2=tile=z;
 					}
 					break;
-					
 				default:
 					redraw=false;
 					break;
 			}
-			
 			r_click = false;
 			goto REDRAW;
 		}
 		update_hw_screen();
 	}
 	while(!done);
-	
 	while(gui_mouse_b())
 	{
 		/* do nothing */
 		rest(1);
 	}
-	
 	comeback();
 	register_blank_tiles();
 	register_used_tiles();
@@ -16689,18 +14587,15 @@ void draw_combos(int32_t page,int32_t cs,bool cols)
 {
 	clear_bitmap(screen2);
 	BITMAP *buf = create_bitmap_ex(8,16,16);
-	
 	int32_t w = 16;
 	int32_t h = 16;
 	int32_t mul = 1;
-	
 	if(is_large)
 	{
 		w *=2;
 		h *=2;
 		mul = 2;
 	}
-	
 	if(cols==false)
 	{
 		for(int32_t i=0; i<256; i++)                                // 13 rows, leaving 32 pixels from y=208 to y=239
@@ -16708,13 +14603,11 @@ void draw_combos(int32_t page,int32_t cs,bool cols)
 //      draw_combo((i%COMBOS_PER_ROW)<<4,(i/COMBOS_PER_ROW)<<4,i+(page<<8),cs);
 			int32_t x = (i%COMBOS_PER_ROW)<<(4+is_large);
 			int32_t y = (i/COMBOS_PER_ROW)<<(4+is_large);
-			
 			if(is_large)
 			{
 				//x*=2;
 				//y*=2;
 			}
-			
 			draw_combo(buf,0,0,i+(page<<8),cs);
 			stretch_blit(buf,screen2,0,0,16,16,x,y,w,h);
 		}
@@ -16722,7 +14615,6 @@ void draw_combos(int32_t page,int32_t cs,bool cols)
 	else
 	{
 		int32_t c = 0;
-		
 		for(int32_t i=0; i<256; i++)
 		{
 			int32_t x = (i%COMBOS_PER_ROW)<<(4+is_large);
@@ -16730,20 +14622,16 @@ void draw_combos(int32_t page,int32_t cs,bool cols)
 			draw_combo(buf,0,0,c+(page<<8),cs);
 			stretch_blit(buf,screen2,0,0,16,16,x,y,w,h);
 			++c;
-			
 			if((i&3)==3)
 				c+=48;
-				
 			if((i%COMBOS_PER_ROW)==(COMBOS_PER_ROW-1))
 				c-=256;
 		}
 	}
-	
 	for(int32_t x=(64*mul); x<(320*mul); x+=(64*mul))
 	{
 		_allegro_vline(screen2,x,0,(208*mul)-1,vc(15));
 	}
-	
 	destroy_bitmap(buf);
 }
 
@@ -16753,7 +14641,6 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 	static BITMAP *buf = create_bitmap_ex(8,16,16);
 	int32_t mul = is_large + 1;
 	FONT *tfont = pfont;
-	
 	if(is_large)
 	{
 //    jwin_draw_frame(screen2,-2,-2,324,212,FR_DEEP);
@@ -16767,14 +14654,11 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 	{
 		jwin_draw_win(screen2,0, 208, 320, 32, FR_WIN);
 	}
-	
 	jwin_draw_frame(screen2,(31*mul)-2,((216*mul)+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
-	
 	if(copy>=0)
 	{
 		put_combo(buf,0,0,copy,cs,0,0);
 		stretch_blit(buf,screen2,0,0,16,16,31*mul,216*mul+yofs,16*mul,16*mul);
-		
 		if(copycnt>1)
 		{
 			textprintf_right_ex(screen2,tfont,28*mul,(216*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d-",copy);
@@ -16805,33 +14689,26 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 			line(screen2, (31*mul), (216*mul)+yofs+15, (31*mul)+15, (216*mul)+yofs, vc(15));
 		}
 	}
-	
 	jwin_draw_frame(screen2,(53*mul)-2,(216*mul)+yofs-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
 	put_combo(buf,0,0,tile,cs,0,0);
 	stretch_blit(buf,screen2,0,0,16,16,53*mul,216*mul+yofs,16*mul,16*mul);
-	
 	if(tile>tile2)
 	{
 		zc_swap(tile,tile2);
 	}
-	
 	char cbuf[8];
 	cbuf[0]=0;
-	
 	if(tile2!=tile)
 	{
 		sprintf(cbuf,"-%d",tile2);
 	}
-	
 	textprintf_ex(screen2,tfont,(73*mul),(216*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"combo:");
 	textprintf_ex(screen2,tfont,(73*mul),(224*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d%s",tile,cbuf);
-	
 	if(tile2==tile)
 	{
 		int32_t nextcombo=combobuf[tile].nextcombo;
 		int32_t nextcset=(combobuf[tile].animflags & AF_CYCLENOCSET) ? cs : combobuf[tile].nextcset;
 		jwin_draw_frame(screen2,(136*mul)-2,(216*mul)+yofs-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
-		
 		if(nextcombo>0)
 		{
 			put_combo(buf,0,0,nextcombo,nextcset,0,0);
@@ -16857,39 +14734,30 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 				line(screen2, (136*mul), (216*mul)+yofs+15, (136*mul)+15, (216*mul)+yofs, vc(15));
 			}
 		}
-		
 		textprintf_right_ex(screen2,tfont,(132*mul),(216*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Cycle:");
 		textprintf_right_ex(screen2,tfont,(132*mul),(224*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",nextcombo);
 	}
-	
-	
 	FONT *tf = font;
 	font = tfont;
-	
 	if(buttons&2)
 	{
 		draw_text_button(screen2,((202)*mul),(213*mul)+yofs,(44*mul),(21*mul),"Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
 	}
-	
 	if(buttons&4)
 	{
 		draw_text_button(screen2,((247)*mul),(213*mul)+yofs,(44*mul),(21*mul),"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
 	}
-	
 	font = tf;
-	
 	textprintf_ex(screen2,font,(305*mul),(212*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x88");
 	textprintf_ex(screen2,tfont,(293*mul),(220*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"p:");
 	textprintf_centre_ex(screen2,tfont,(309*mul),(220*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",page);
 	textprintf_ex(screen2,font,(305*mul),(228*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x89");
-	
 	int32_t window_xofs=0;
 	int32_t window_yofs=0;
 	int32_t screen_xofs=0;
 	int32_t screen_yofs=0;
 	int32_t w = 320*mul;
 	int32_t h = 240*mul;
-	
 	if(is_large)
 	{
 		window_xofs=(zq_screen_w-w-12)>>1;
@@ -16897,7 +14765,6 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 		screen_xofs=window_xofs+6;
 		screen_yofs=window_yofs+25;
 	}
-	
 	custom_vsync();
 	scare_mouse();
 	blit(screen2,screen,0,0,screen_xofs,screen_yofs,w,h);
@@ -16910,24 +14777,19 @@ void sel_combo(int32_t &tile, int32_t &tile2, int32_t s, bool cols)
 {
 	int32_t page = tile&0xFF00;
 	tile &= 0xFF;
-	
 	if(!cols)
 		tile += s;
 	else
 	{
 		if(s==-COMBOS_PER_ROW)
 			tile-=4;
-			
 		if(s==COMBOS_PER_ROW)
 			tile+=4;
-			
 		if(s==-1)
 			tile-=1;
-			
 		if(s==1)
 			tile+=1;
 	}
-	
 	/*
 	  if(s==1)
 	  {
@@ -16947,7 +14809,6 @@ void sel_combo(int32_t &tile, int32_t &tile2, int32_t s, bool cols)
 	  */
 	bound(tile,0,255);
 	tile += page;
-	
 	if(!(key[KEY_LSHIFT] || key[KEY_RSHIFT]))
 		tile2 = tile;
 }
@@ -16960,13 +14821,11 @@ void draw_combo_list_window()
 	int32_t window_yofs=0;
 	int32_t w = 320;
 	int32_t h = 240;
-	
 	if(is_large)
 	{
 		w *= 2;
 		h *= 2;
 	}
-	
 	window_xofs=(zq_screen_w-w-12)>>1;
 	window_yofs=(zq_screen_h-h-25-6)>>1;
 	scare_mouse();
@@ -16994,13 +14853,10 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 	// int32_t cs = CSet;
 	int32_t copy=-1;
 	int32_t copycnt=0;
-	
 	position_mouse_z(0);
-	
 	for(int32_t i=0; i<MAXCOMBOS; i++)
 		//   for (int32_t x=0; x<9; x++)
 		combobuf[i].foo=i;
-		
 	go();
 	int32_t window_xofs=0;
 	int32_t window_yofs=0;
@@ -17011,7 +14867,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 	int32_t h = 240;
 	int32_t mul = 1;
 	FONT *tfont = pfont;
-	
 	if(is_large)
 	{
 		w *= 2;
@@ -17024,26 +14879,21 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 		panel_yofs=3;
 		tfont = lfont_l;
 	}
-	
 	draw_combo_list_window();
 	draw_combos(page,cs,combo_cols);
 	combo_info(cmb,tile2,cs,copy,copycnt,page,4);
 	unscare_mouse();
-	
 	while(gui_mouse_b())
 	{
 		/* do nothing */
 		rest(1);
 	}
-	
 	bool bdown=false;
 	int32_t f=0;
-	
 	do
 	{
 		rest(4);
 		bool redraw=false;
-		
 		if(mouse_z<0)
 		{
 			if(page<COMBO_PAGES-1)
@@ -17051,7 +14901,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 				++page;
 				cmb=tile2=(page<<8)+(cmb&0xFF);
 			}
-			
 			position_mouse_z(0);
 			redraw=true;
 		}
@@ -17062,11 +14911,9 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 				--page;
 				cmb=tile2=(page<<8)+(cmb&0xFF);
 			}
-			
 			position_mouse_z(0);
 			redraw=true;
 		}
-		
 		if(keypressed())
 		{
 			switch(readkey()>>8)
@@ -17075,93 +14922,74 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 				cmb=0;
 				done=2;
 				break;
-				
 			case KEY_ENTER_PAD:
 			case KEY_ENTER:
 				done=2;
 				break;
-				
 			case KEY_ESC:
 				done=1;
 				break;
-				
 			case KEY_F1:
 				onHelp();
 				break;
-				
 			case KEY_SPACE:
 				combo_cols=!combo_cols;
 				redraw=true;
 				break;
-				
 			case KEY_EQUALS:
 			case KEY_PLUS_PAD:
 				cs = (cs<11) ? cs+1:0;
 				redraw=true;
 				break;
-				
 			case KEY_MINUS:
 			case KEY_MINUS_PAD:
 				cs = (cs>0)  ? cs-1:11;
 				redraw=true;
 				break;
-				
 			case KEY_UP:
 				sel_combo(cmb,tile2,-COMBOS_PER_ROW,combo_cols);
 				redraw=true;
 				break;
-				
 			case KEY_DOWN:
 				sel_combo(cmb,tile2,COMBOS_PER_ROW,combo_cols);
 				redraw=true;
 				break;
-				
 			case KEY_LEFT:
 				sel_combo(cmb,tile2,-1,combo_cols);
 				redraw=true;
 				break;
-				
 			case KEY_RIGHT:
 				sel_combo(cmb,tile2,1,combo_cols);
 				redraw=true;
 				break;
-				
 			case KEY_PGUP:
 				if(page>0)
 				{
 					--page;
 					cmb=tile2=(page<<8)+(cmb&0xFF);
 				}
-				
 				redraw=true;
 				break;
-				
 			case KEY_PGDN:
 				if(page<COMBO_PAGES-1)
 				{
 					++page;
 					cmb=tile2=(page<<8)+(cmb&0xFF);
 				}
-				
 				redraw=true;
 				break;
-				
 			case KEY_P:
 			{
 				int32_t choosepage=getnumber("Goto Page", (PreFillComboEditorPage?page:0));
-				
 				if(!cancelgetnum)
 					page=(zc_min(choosepage,COMBO_PAGES-1));
-					
 				cmb=tile2=(page<<8)+(cmb&0xFF);
 				redraw=true;
 				break;
 			}
 			}
-			
 			clear_keybuf();
 		}
-		
 		if(gui_mouse_b()&1)
 		{
 			if(is_large)
@@ -17174,15 +15002,12 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 					}
 				}
 			}
-			
 			int32_t x=gui_mouse_x()-screen_xofs;
 			int32_t y=gui_mouse_y()-screen_yofs;
-			
 			if(y>=0 && y<208*mul)
 			{
 				x=zc_min(zc_max(x,0),(320*mul)-1);
 				int32_t t;
-				
 				if(!combo_cols)
 				{
 					t = (y>>(4+is_large))*COMBOS_PER_ROW + (x>>(4+is_large));
@@ -17191,11 +15016,9 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 				{
 					t = ((x>>(6+is_large))*52) + ((x>>(4+is_large))&3) + ((y>>(4+is_large))<<2);
 				}
-				
 				bound(t,0,255);
 				t+=page<<8;
 				cmb=tile2=t;
-				
 				if(tile_clicked!=t)
 				{
 					dclick_status=DCLICK_NOT;
@@ -17206,7 +15029,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 					{
 						/* do nothing */
 					}
-					
 					if(!combo_cols)
 					{
 						t2 = (y>>(4+is_large))*COMBOS_PER_ROW + (x>>(4+is_large));
@@ -17215,7 +15037,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 					{
 						t2 = ((x>>(6+is_large))*52) + ((x>>(4+is_large))&3) + ((y>>(4+is_large))<<2);
 					}
-					
 					if(t2!=t)
 					{
 						dclick_status=DCLICK_NOT;
@@ -17225,7 +15046,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 						done=2;
 					}
 				}
-				
 				tile_clicked=t;
 			}
 			else if(y>=(208*mul) && x>(300*mul) && !bdown)
@@ -17235,79 +15055,60 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 					--page;
 					redraw=true;
 				}
-				
 				if(y>=(224*mul)+panel_yofs && page<COMBO_PAGES-1)
 				{
 					++page;
 					redraw=true;
 				}
-				
 				bdown=true;
 			}
-			
 			if(!bdown && isinRect(x,y,(247*mul),(213*mul),((247+44)*mul),((213+21)*mul)))
 			{
 				FONT *tf = font;
 				font = tfont;
-				
 				if(do_text_button((247*mul)+screen_xofs,(213*mul)+screen_yofs+panel_yofs,(44*mul),(21*mul),"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
 				{
 					done=2;
 				}
-				
 				font = tf;
 			}
-			
 			bdown=true;
 		}
-		
 		bool r_click = false;
-		
 		if(gui_mouse_b()&2 && !bdown)
 		{
 			int32_t x=gui_mouse_x()+screen_xofs;
 			int32_t y=gui_mouse_y()+screen_yofs;
-			
 			if(y>=0 && y<208*mul)
 			{
 				x=zc_min(zc_max(x,0),(320*mul)-1);
 				int32_t t;
-				
 				if(!combo_cols)
 					t = (y>>(4+is_large))*COMBOS_PER_ROW + (x>>(4+is_large));
 				else
 					t = ((x>>(6+is_large))*52) + ((x>>(4+is_large))&3) + ((y>>(4+is_large))<<2);
-					
 				bound(t,0,255);
 				t+=page<<8;
-				
 				if(t<zc_min(cmb,tile2) || t>zc_max(cmb,tile2))
 					cmb=tile2=t;
 			}
-			
 			bdown = r_click = true;
 			f=8;
 		}
-		
 		if(gui_mouse_b()==0)
 			bdown=false;
-			
 		if(redraw)
 			draw_combos(page,cs,combo_cols);
-			
 		combo_info(cmb,tile2,cs,copy,copycnt,page,4);
-		
 		if(f&8)
 		{
 			int32_t x,y;
 			scare_mouse();
-			
 			for(int32_t i=zc_min(cmb,tile2); i<=zc_max(cmb,tile2); i++)
 			{
 				if((i>>8)==page)
 				{
 					int32_t t=i&255;
-					
 					if(!combo_cols)
 					{
 						x=(t%COMBOS_PER_ROW)<<(4+is_large);
@@ -17318,26 +15119,20 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 						x=((t&3) + ((t/52)<<2)) << (4+is_large);
 						y=((t%52)>>2) << (4+is_large);
 					}
-					
 					rect(screen,x+screen_xofs,y+screen_yofs,x+screen_xofs+(16*mul)-1,y+screen_yofs+(16*mul)-1,vc(15));
 				}
 			}
-			
 			unscare_mouse();
 			SCRFIX();
 		}
-		
 		++f;
-		
 	}
 	while(!done);
-	
 	for(int32_t p=0; p<MAXCOMBOS; p+=256)
 	{
 		for(int32_t i=0; i<256; i++)
 		{
 			int32_t pos=0;
-			
 			for(int32_t j=0; j<256; j++)
 			{
 				if(combobuf[j+p].foo==i+p)
@@ -17346,29 +15141,24 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 					goto down;
 				}
 			}
-			
 down:
 			ctable[i+p]=pos;
 		}
 	}
-	
 	while(gui_mouse_b())
 	{
 		/* do nothing */
 		rest(1);
 	}
-	
 	comeback();
 	setup_combo_animations();
 	setup_combo_animations2();
-	
 	bool ret = done==2;
 	if(ret)
 	{
 		_selected_combo = cmb;
 		_selected_cset = cs;
 	}
-	
 	return ret;
 }
 
@@ -17390,7 +15180,6 @@ static DIALOG advpaste_dlg[] =
 	{ jwin_win_proc,         0,    0,   200,  161,   vc(14),   vc(1),       0,     D_EXIT,       0,             0, (void *) "Advanced Paste", NULL, NULL },
 	{ jwin_button_proc,     27,   130,  61,   21,   vc(14),  vc(1),  'k',     D_EXIT,     0,             0, (void *) "O&K", NULL, NULL },
 	{ jwin_button_proc,     112,  130,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-	
 	{ jwin_check_proc,		 10,	   30,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Tile", NULL, NULL },
 	{ jwin_check_proc,		 10,	   40,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Cset2", NULL, NULL },
 	{ jwin_check_proc,		 10,	   50,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Walkability", NULL, NULL },
@@ -17406,24 +15195,18 @@ static DIALOG advpaste_dlg[] =
 	{ jwin_check_proc,		110,	   50,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Script", NULL, NULL },
 	{ jwin_check_proc,		110,	   60,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Effect", NULL, NULL },
 	{ jwin_check_proc,		110,	   70,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Lift", NULL, NULL },
-	
 	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
 int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 {
 	advpaste_dlg[0].dp2=lfont;
-	
 	if(is_large)
 		large_dialog(advpaste_dlg);
-	
 	int32_t ret = zc_popup_dialog(advpaste_dlg,-1);
-	
 	if(ret!=1) return ret;
-	
 	// save original in case it's in paste range
 	newcombo combo=combobuf[copy];
-	
 	for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); ++i)
 	{
 		if(advpaste_dlg[3].flags & D_SELECTED)   // tile
@@ -17434,17 +15217,14 @@ int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 			setup_combo_animations();
 			setup_combo_animations2();
 		}
-		
 		if(advpaste_dlg[4].flags & D_SELECTED)   // cset2
 		{
 			combobuf[i].csets=combo.csets;
 		}
-		
 		if(advpaste_dlg[5].flags & D_SELECTED)   // walk
 		{
 			combobuf[i].walk=(combobuf[i].walk&0xF0) | (combo.walk&0x0F);
 		}
-		
 		if(advpaste_dlg[6].flags & D_SELECTED)   // anim
 		{
 			combobuf[i].frames=combo.frames;
@@ -17456,46 +15236,38 @@ int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 			combobuf[i].skipanimy=combo.skipanimy;
 			combobuf[i].animflags=combo.animflags;
 		}
-		
 		if(advpaste_dlg[7].flags & D_SELECTED)   // type
 		{
 			combobuf[i].type=combo.type;
 		}
-		
 		if(advpaste_dlg[8].flags & D_SELECTED)   // flag
 		{
 			combobuf[i].flag=combo.flag;
 		}
-		
 		if(advpaste_dlg[9].flags & D_SELECTED)   // attribytes
 		{
 			for(int32_t q = 0; q < 8; ++q)
 				combobuf[i].attribytes[q] = combo.attribytes[q];
 		}
-		
 		if(advpaste_dlg[10].flags & D_SELECTED)   // attribytes
 		{
 			for(int32_t q = 0; q < 8; ++q)
 				combobuf[i].attrishorts[q] = combo.attrishorts[q];
 		}
-		
 		if(advpaste_dlg[11].flags & D_SELECTED)   // attributes
 		{
 			for(int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
 				combobuf[i].attributes[q] = combo.attributes[q];
 		}
-		
 		if(advpaste_dlg[12].flags & D_SELECTED)   // flags
 		{
 			combobuf[i].usrflags = combo.usrflags;
 		}
-		
 		if(advpaste_dlg[13].flags & D_SELECTED)   // label
 		{
 			for(int32_t q = 0; q < 11; ++q)
 				combobuf[i].label[q] = combo.label[q];
 		}
-		
 		if(advpaste_dlg[14].flags & D_SELECTED)   // triggered by
 		{
 			for(int32_t q = 0; q < 3; ++q)
@@ -17518,19 +15290,16 @@ int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 			combobuf[i].trigcopycat = combo.trigcopycat;
 			combobuf[i].trigcooldown = combo.trigcooldown;
 		}
-		
 		if(advpaste_dlg[15].flags & D_SELECTED)   // script
 		{
 			combobuf[i].script = combo.script;
 			for(int32_t q = 0; q < 2; ++q)
 				combobuf[i].initd[q] = combo.initd[q];
 		}
-		
 		if(advpaste_dlg[16].flags & D_SELECTED)   // effect
 		{
 			combobuf[i].walk=(combobuf[i].walk&0x0F) | (combo.walk&0xF0);
 		}
-		
 		if(advpaste_dlg[17].flags & D_SELECTED)   // lift
 		{
 			combobuf[i].liftcmb = combo.liftcmb;
@@ -17550,7 +15319,6 @@ int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 			combobuf[i].lifttime = combo.lifttime;
 		}
 	}
-	
 	return ret;
 }
 
@@ -17560,29 +15328,22 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 	reset_combo_animations2();
 	static int32_t tile=0;
 	static int32_t page=0;
-	
 	if(pg>-1)
 		page = pg;
-		
 	if(tl>-1)
 		tile = tl;
-		
 	int32_t tile2=tile;
 	int32_t done=0;
 	int32_t cs = CSet;
 	int32_t copy=-1;
 	int32_t copycnt=0;
-	
 	int32_t tile_clicked=-1;
 	int32_t t2;
-	
 	bool masscopy;
-	
 	for(int32_t i=0; i<MAXCOMBOS; i++)
 	{
 		combobuf[i].foo=i;
 	}
-	
 	go();
 	int32_t window_xofs=0;
 	int32_t window_yofs=0;
@@ -17593,7 +15354,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 	int32_t h = 240;
 	int32_t mul = 1;
 	FONT *tfont = pfont;
-	
 	if(is_large)
 	{
 		w *= 2;
@@ -17606,27 +15366,22 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 		panel_yofs=3;
 		tfont = lfont_l;
 	}
-	
 	draw_combo_list_window();
 	draw_combos(page,cs,combo_cols);
 	combo_info(tile,tile2,cs,copy,copycnt,page,6);
 	unscare_mouse();
 	go_combos();
 	position_mouse_z(0);
-	
 	while(gui_mouse_b())
 	{
 		/* do nothing */
 	}
-	
 	bool bdown=false;
 	int32_t f=0;
-	
 	do
 	{
 		rest(4);
 		bool redraw=false;
-		
 		if(mouse_z<0)
 		{
 			if(page<COMBO_PAGES-1)
@@ -17634,7 +15389,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				++page;
 				tile=tile2=(page<<8)+(tile&0xFF);
 			}
-			
 			position_mouse_z(0);
 			redraw=true;
 		}
@@ -17645,11 +15399,9 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				--page;
 				tile=tile2=(page<<8)+(tile&0xFF);
 			}
-			
 			position_mouse_z(0);
 			redraw=true;
 		}
-		
 		if(keypressed())
 		{
 			switch(readkey()>>8)
@@ -17658,20 +15410,16 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 			case KEY_ENTER:
 				done=2;
 				break;
-				
 			case KEY_ESC:
 				done=1;
 				break;
-				
 			case KEY_F1:
 				onHelp();
 				break;
-				
 			case KEY_SPACE:
 				combo_cols=!combo_cols;
 				redraw=true;
 				break;
-				
 			case KEY_EQUALS:
 			case KEY_PLUS_PAD:
 				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
@@ -17679,13 +15427,11 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					int32_t amnt = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ?
 							   ((key[KEY_ALT] || key[KEY_ALTGR]) ? TILES_PER_PAGE*10 : TILES_PER_ROW)
 							   : ((key[KEY_ALT] || key[KEY_ALTGR]) ? TILES_PER_PAGE : 1);
-					
 					for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); ++i)
 					{
 						combobuf[i].set_tile(wrap(combobuf[i].tile + amnt,
 												0, NEWMAXTILES-1));
 					}
-					
 					setup_combo_animations();
 					redraw=true;
 				}
@@ -17694,9 +15440,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					cs = (cs<11)  ? cs+1:0;
 					redraw=true;
 				}
-				
 				break;
-				
 			case KEY_MINUS:
 			case KEY_MINUS_PAD:
 				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
@@ -17704,13 +15448,11 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					int32_t amnt = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ?
 							   ((key[KEY_ALT] || key[KEY_ALTGR]) ? TILES_PER_PAGE*10 : TILES_PER_ROW)
 							   : ((key[KEY_ALT] || key[KEY_ALTGR]) ? TILES_PER_PAGE : 1);
-					
 					for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); ++i)
 					{
 						combobuf[i].set_tile(wrap(combobuf[i].tile - amnt,
 												0, NEWMAXTILES-1));
 					}
-					
 					setup_combo_animations();
 					redraw=true;
 				}
@@ -17719,75 +15461,59 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					cs = (cs>0)  ? cs-1:11;
 					redraw=true;
 				}
-				
 				break;
-				
 			case KEY_UP:
 				sel_combo(tile,tile2,-COMBOS_PER_ROW,combo_cols);
 				redraw=true;
 				break;
-				
 			case KEY_DOWN:
 				sel_combo(tile,tile2,COMBOS_PER_ROW,combo_cols);
 				redraw=true;
 				break;
-				
 			case KEY_LEFT:
 				sel_combo(tile,tile2,-1,combo_cols);
 				redraw=true;
 				break;
-				
 			case KEY_RIGHT:
 				sel_combo(tile,tile2,1,combo_cols);
 				redraw=true;
 				break;
-				
 			case KEY_PGUP:
 				if(page>0)
 				{
 					--page;
 					tile=tile2=(page<<8)+(tile&0xFF);
 				}
-				
 				redraw=true;
 				break;
-				
 			case KEY_PGDN:
 				if(page<COMBO_PAGES-1)
 				{
 					++page;
 					tile=tile2=(page<<8)+(tile&0xFF);
 				}
-				
 				redraw=true;
 				break;
-				
 			case KEY_A:
 			{
 				tile=(page<<8);
 				tile2=(page<<8)+(0xFF);
 			}
-			
 			redraw=true;
 			break;
-			
 			case KEY_P:
 			{
 				int32_t choosepage = getnumber("Goto Page", (PreFillComboEditorPage?page:0));
-				
 				if(!cancelgetnum)
 					page=(zc_min(choosepage,COMBO_PAGES-1));
-					
 				tile=tile2=(page<<8)+(tile&0xFF);
 				redraw=true;
 			}
 			break;
-			
 			case KEY_U:
 				comeback_combos();
 				redraw=true;
 				break;
-				
 			case KEY_E:
 				go_combos();
 				edit_combo(tile,false,cs);
@@ -17795,14 +15521,12 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				setup_combo_animations();
 				setup_combo_animations2();
 				break;
-				
 			case KEY_C:
 				go_combos();
 				copy=zc_min(tile,tile2);
 				copycnt=abs(tile-tile2)+1;
 				redraw=true;
 				break;
-				
 			case KEY_H:
 				for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
 				{
@@ -17812,42 +15536,33 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					w2=combobuf[i].csets;
 					combobuf[i].csets= (((w2& ~0x50)>>1 | (w2&0x50)<<1) & ~0x0F) | (w2 & 0x0F);
 				}
-				
 				redraw=true;
 				saved=false;
 				break;
-				
 			case KEY_M:
 				if((copy!=-1)&&(copy!=zc_min(tile,tile2)))
 				{
 					move_combos(tile,tile2,copy,copycnt);
 					saved=false;
 				}
-				
 				redraw=true;
 				break;
-				
 			case KEY_S:
 				tile=tile2=zc_min(tile,tile2);
-				
 				if(copy>=0 && tile!=copy)
 				{
 					go_combos();
-					
 					for(int32_t i=0; i<copycnt; i++)
 					{
 						zc_swap(combobuf[copy+i],combobuf[tile+i]);
 					}
-					
 					saved=false;
 					setup_combo_animations();
 					setup_combo_animations2();
 				}
-				
 				redraw=true;
 				copy=-1;
 				break;
-				
 			case KEY_V:
 				if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]) && copy != -1)
 				{
@@ -17857,16 +15572,12 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 						redraw=true;
 						copy=-1;
 					}
-					
 					break;
 				}
-				
 				masscopy=(key[KEY_LSHIFT] || key[KEY_RSHIFT])?1:0;
-				
 				if(copy==-1)
 				{
 					go_combos();
-					
 					for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
 					{
 						combobuf[i].flip^=2;
@@ -17875,7 +15586,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 						w2=combobuf[i].csets;
 						combobuf[i].csets= (((w2&0x30)<<2 | (w2& ~0x30)>>2) & ~0x0F) | (w2 & 0x0F);
 					}
-					
 					saved=false;
 				}
 				else
@@ -17886,7 +15596,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					setup_combo_animations2();
 					saved=false;
 				}
-				
 				redraw=true;
 				break;
 			case KEY_R:
@@ -17896,11 +15605,9 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					combobuf[i].walk = rotate_walk(combobuf[i].walk);
 					combobuf[i].csets = rotate_cset(combobuf[i].csets);
 				}
-				
 				redraw=true;
 				saved=false;
 				break;
-				
 			case KEY_I:
 			{
 				// rev.1509; Can now insert/remove all selected combos
@@ -17910,16 +15617,13 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				tile2=MAXCOMBOS;
 				copy = tile + numSelected; // copy=tile+1;
 				copycnt = MAXCOMBOS-tile-numSelected; // copycnt=MAXCOMBOS-tile;
-				
 				if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
 				{
 					char buf[64];
-					
 					if(numSelected>1)
 						sprintf(buf,"Remove combos %d - %d?",tile, copy-1);
 					else
 						sprintf(buf,"Remove combo %d?",tile);
-						
 					if(jwin_alert("Confirm Remove",buf,"This will offset all of the combos that follow!",NULL,"&Yes","&No",'y','n',lfont)==1)
 					{
 						move_combos(tile,tile2,copy, copycnt);
@@ -17932,12 +15636,10 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				else
 				{
 					char buf[64];
-					
 					if(numSelected>1)
 						sprintf(buf,"Insert %d blank combos?",numSelected);
 					else
 						sprintf(buf,"Insert a blank combo?");
-						
 					if(jwin_alert("Confirm Insert",buf,"This will offset all of the combos that follow!",NULL,"&Yes","&No",'y','n',lfont)==1)
 					{
 						move_combos(copy,tile2,tile, copycnt);
@@ -17946,16 +15648,13 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 						saved=false;
 					}
 				}
-				
 				copy=-1;
 				tile2=tile=z;
 			}
 			break;
-			
 			case KEY_DEL:
 			{
 				char buf[40];
-				
 				if(tile==tile2)
 				{
 					sprintf(buf,"Delete combo %d?",tile);
@@ -17964,16 +15663,13 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				{
 					sprintf(buf,"Delete combos %d-%d?",zc_min(tile,tile2),zc_max(tile,tile2));
 				}
-				
 				if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
 				{
 					go_combos();
-					
 					for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
 					{
 						clear_combo(i);
 					}
-					
 					tile=tile2=zc_min(tile,tile2);
 					redraw=true;
 					saved=false;
@@ -17983,10 +15679,8 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 			}
 			break;
 			}
-			
 			clear_keybuf();
 		}
-		
 		if(gui_mouse_b()&1)
 		{
 			if(is_large)
@@ -17999,15 +15693,12 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					}
 				}
 			}
-			
 			int32_t x=gui_mouse_x()-screen_xofs;
 			int32_t y=gui_mouse_y()-screen_yofs;
-			
 			if(y>=0 && y<(208*mul))
 			{
 				x=zc_min(zc_max(x,0),(320*mul)-1);
 				int32_t t;
-				
 				if(!combo_cols)
 				{
 					t = (y>>(4+is_large))*COMBOS_PER_ROW + (x>>(4+is_large));
@@ -18016,10 +15707,8 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				{
 					t = ((x>>(6+is_large))*52) + ((x>>(4+is_large))&3) + ((y>>(4+is_large))<<2);
 				}
-				
 				bound(t,0,255);
 				t+=page<<8;
-				
 				if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
 				{
 					tile2=t;
@@ -18028,7 +15717,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				{
 					tile=tile2=t;
 				}
-				
 				if(tile_clicked!=t)
 				{
 					dclick_status=DCLICK_NOT;
@@ -18040,7 +15728,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 						/* do nothing */
 						rest(1);
 					}
-					
 					if(!combo_cols)
 					{
 						t2 = (y>>4)*COMBOS_PER_ROW + (x>>4);
@@ -18049,10 +15736,8 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					{
 						t2 = ((x>>6)*52) + ((x>>4)&3) + ((y>>4)<<2);
 					}
-					
 					bound(t2,0,255);
 					t2+=page<<8;
-					
 					if(t2!=t)
 					{
 						dclick_status=DCLICK_NOT;
@@ -18066,7 +15751,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 						setup_combo_animations2();
 					}
 				}
-				
 				tile_clicked=t;
 			}
 			else if(x>(300*mul) && !bdown)
@@ -18076,58 +15760,46 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					--page;
 					redraw=true;
 				}
-				
 				if(y>=(224*mul)+panel_yofs && page<COMBO_PAGES-1)
 				{
 					++page;
 					redraw=true;
 				}
-				
 				bdown=true;
 			}
-			
 			if(!bdown && isinRect(x,y,(202*mul),(213*mul)+panel_yofs,(202+44)*mul,(213+21)*mul))
 			{
 				FONT *tf = font;
 				font = tfont;
-				
 				if(do_text_button((202*mul)+screen_xofs,(213*mul)+screen_yofs+panel_yofs,(44*mul),(21*mul),"Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
 				{
 					font = tf;
 					edit_combo(tile,false,cs);
 					redraw=true;
 				}
-				
 				font = tf;
 			}
 			else if(!bdown && isinRect(x,y,(247*mul),(213*mul)+panel_yofs,(247+44)*mul,(213+21)*mul))
 			{
 				FONT *tf = font;
 				font = tfont;
-				
 				if(do_text_button((247*mul)+screen_xofs,(213*mul)+screen_yofs+panel_yofs,(44*mul),(21*mul),"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
 				{
 					done=1;
 				}
-				
 				font = tf;
 			}
-			
 			bdown=true;
 		}
-		
 		bool r_click = false;
-		
 		if(gui_mouse_b()&2 && !bdown)
 		{
 			int32_t x=gui_mouse_x()-screen_xofs;
 			int32_t y=gui_mouse_y()-screen_yofs;
-			
 			if(y>=0 && y<(208*mul))
 			{
 				x=zc_min(zc_max(x,0),(320*mul)-1);
 				int32_t t;
-				
 				if(!combo_cols)
 				{
 					t = (y>>(4+is_large))*COMBOS_PER_ROW + (x>>(4+is_large));
@@ -18136,45 +15808,36 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				{
 					t = ((x>>(6+is_large))*52) + ((x>>(4+is_large))&3) + ((y>>(4+is_large))<<2);
 				}
-				
 				bound(t,0,255);
 				t+=page<<8;
-				
 				if(t<zc_min(tile,tile2) || t>zc_max(tile,tile2))
 				{
 					tile=tile2=t;
 				}
 			}
-			
 			bdown = r_click = true;
 			f=8;
 		}
-		
 REDRAW:
 
 		if(gui_mouse_b()==0)
 		{
 			bdown=false;
 		}
-		
 		if(redraw)
 		{
 			draw_combos(page,cs,combo_cols);
 		}
-		
 		combo_info(tile,tile2,cs,copy,copycnt,page,6);
-		
 		if(f&8)
 		{
 			int32_t x,y;
 			scare_mouse();
-			
 			for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
 			{
 				if((i>>8)==page)
 				{
 					int32_t t=i&255;
-					
 					if(!combo_cols)
 					{
 						x=(t%COMBOS_PER_ROW)<<(4+is_large);
@@ -18185,23 +15848,18 @@ REDRAW:
 						x=((t&3) + ((t/52)<<2)) << (4+is_large);
 						y=((t%52)>>2) << (4+is_large);
 					}
-					
 					rect(screen,x+screen_xofs,y+screen_yofs,x+screen_xofs+(16*mul)-1,y+screen_yofs+(16*mul)-1,vc(15));
 				}
 			}
-			
 			unscare_mouse();
 			SCRFIX();
 		}
-		
 		++f;
-		
 		//Seriously? There is duplicate code for the r-click menu? -Gleeok
 		if(r_click)
 		{
 			int32_t m = popup_menu(select_combo_rc_menu,gui_mouse_x(),gui_mouse_y());
 			redraw=true;
-			
 			switch(m)
 			{
 			case 0:
@@ -18209,7 +15867,6 @@ REDRAW:
 				copy=zc_min(tile,tile2);
 				copycnt=abs(tile-tile2)+1;
 				break;
-				
 			case 1:
 				if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]) && copy != -1)
 				{
@@ -18219,16 +15876,12 @@ REDRAW:
 						redraw=true;
 						copy=-1;
 					}
-					
 					break;
 				}
-				
 				masscopy=(key[KEY_LSHIFT] || key[KEY_RSHIFT])?1:0;
-				
 				if(copy==-1)
 				{
 					go_combos();
-					
 					for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
 					{
 						combobuf[i].flip^=2;
@@ -18237,7 +15890,6 @@ REDRAW:
 						w2=combobuf[i].csets;
 						combobuf[i].csets=(w2&0x30)<<2 | (w2& ~0x30)>>2;
 					}
-					
 					saved=false;
 				}
 				else
@@ -18248,61 +15900,48 @@ REDRAW:
 					setup_combo_animations2();
 					saved=false;
 				}
-				
 				redraw=true;
 				break;
-				
 			case 2:
 			{
 				tile=tile2=zc_min(tile,tile2);
-				
 				if(copy>=0 && tile!=copy)
 				{
 					go_combos();
-					
 					for(int32_t i=0; i<copycnt; i++)
 					{
 						zc_swap(combobuf[copy+i],combobuf[tile+i]);
 					}
-					
 					saved=false;
 					setup_combo_animations();
 					setup_combo_animations2();
 				}
-				
 				redraw=true;
 				copy=-1;
 			}
 			break;
-			
 			case 3:
 			{
 				char buf[40];
-				
 				if(tile==tile2)
 					sprintf(buf,"Delete combo %d?",tile);
 				else
 					sprintf(buf,"Delete combos %d-%d?",zc_min(tile,tile2),zc_max(tile,tile2));
-					
 				if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
 				{
 					go_combos();
-					
 					for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
 						clear_combo(i);
-						
 					tile=tile2=zc_min(tile,tile2);
 					redraw=true;
 					saved=false;
 				}
 			}
 			break;
-			
 			case 5:
 				go_combos();
 				edit_combo(tile,false,cs);
 				break;
-				
 			case 6:
 			case 7:
 			{
@@ -18311,12 +15950,10 @@ REDRAW:
 				tile2=MAXCOMBOS;
 				copy=tile+1;
 				copycnt=MAXCOMBOS-tile;
-				
 				if(m==7)
 				{
 					char buf[40];
 					sprintf(buf,"Remove combo %d?",tile);
-					
 					if(jwin_alert("Confirm Remove",buf,"This will offset all of the combos that follow!",NULL,"&Yes","&No",'y','n',lfont)==1)
 					{
 						move_combos(tile,tile2,copy, copycnt);
@@ -18327,18 +15964,14 @@ REDRAW:
 				{
 					move_combos(copy,tile2,tile, copycnt);
 				}
-				
 				copy=-1;
 				tile2=tile=z;
-				
 				//don't allow the user to undo; quest combo references are incorrect -DD
 				go_combos();
-				
 				redraw=true;
 				saved=false;
 			}
 			break;
-			
 			case 9:
 			{
 				int32_t z = Combo;
@@ -18347,19 +15980,15 @@ REDRAW:
 				Combo = z;
 			}
 			break;
-			
 			default:
 				redraw=false;
 				break;
 			}
-			
 			r_click = false;
 			goto REDRAW;
 		}
-		
 	}
 	while(!done);
-	
 	while(gui_mouse_b())
 	{
 		/* do nothing */
@@ -18387,12 +16016,10 @@ int32_t d_ctile_proc(int32_t msg,DIALOG *d,int32_t c)
 	//these are here to bypass compiler warnings about unused arguments
 	d=d;
 	c=c;
-	
 	if(msg==MSG_CLICK)
 	{
 		int32_t t=curr_combo.o_tile;
 		int32_t f=curr_combo.flip;
-		
 		if(select_tile(t,f,1,CSet,true,0,true))
 		{
 			curr_combo.tile=t;
@@ -18401,7 +16028,6 @@ int32_t d_ctile_proc(int32_t msg,DIALOG *d,int32_t c)
 			return D_REDRAW;
 		}
 	}
-	
 	return D_O_K;
 }
 
@@ -18409,7 +16035,6 @@ int32_t d_combo_loader(int32_t msg,DIALOG *d,int32_t c)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	c=c;
-	
 	if(msg==MSG_DRAW)
 	{
 		FONT *f = is_large ? lfont_l : font;
@@ -18419,7 +16044,6 @@ int32_t d_combo_loader(int32_t msg,DIALOG *d,int32_t c)
 		textprintf_ex(screen,f,d->x+((!is_large ? 1 : 1.5)*36),d->y+(!is_large ? 8 : 14),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",curr_combo.flip);
 		textprintf_ex(screen,f,d->x,d->y+(!is_large ? 24 : 36),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet2:");
 	}
-	
 	return D_O_K;
 }
 
@@ -18438,7 +16062,6 @@ const char *comboscriptdroplist(int32_t index, int32_t *list_size)
 		*list_size = bidcomboscripts_cnt;
 		return NULL;
 	}
-	
 	return bidcomboscripts[index].first.c_str();
 }
 ListData comboscript_list(comboscriptdroplist, &font);
@@ -18452,15 +16075,12 @@ bool edit_combo(int32_t c,bool freshen,int32_t cs)
 	reset_combo_animations2();
 	bool edited = call_combo_editor(c);
 	font = ofont;
-	
 	if(freshen)
 	{
 		refresh(rALL);
 	}
-	
 	setup_combo_animations();
 	setup_combo_animations2();
-	
 	return edited;
 }
 
@@ -18472,33 +16092,27 @@ int32_t d_itile_proc(int32_t msg,DIALOG *d,int32_t)
 	{
 		int32_t cs = d->d2;
 		int32_t f  = 0;
-		
 		if(select_tile(d->d1,f,1,cs,true))
 		{
 			int32_t ok=1;
-			
 			if(newtilebuf[d->d1].format==tf8Bit)
 				jwin_alert("Warning",
 						   "You have selected an 8-bit tile.",
 						   "It will not be drawn correctly",
 						   "on the file select screen.",
 						   "&OK",NULL,'o',0,lfont);
-						   
 			return D_REDRAW;
 		}
 	}
 	break;
-	
 	case MSG_DRAW:
 		if(is_large)
 		{
 			d->w = 32+4;
 			d->h = 32+4;
 		}
-		
 		BITMAP *buf = create_bitmap_ex(8,16,16);
 		BITMAP *bigbmp = create_bitmap_ex(8,d->w,d->h);
-		
 		if(buf && bigbmp)
 		{
 			clear_bitmap(buf);
@@ -18509,10 +16123,8 @@ int32_t d_itile_proc(int32_t msg,DIALOG *d,int32_t)
 			blit(bigbmp,screen,0,0,d->x-is_large,d->y-is_large,d->w,d->h);
 			destroy_bitmap(bigbmp);
 		}
-		
 		break;
 	}
-	
 	return D_O_K;
 }
 
@@ -18541,21 +16153,16 @@ int32_t onIcons()
 	//  pal = RAMpal;
 	memcpy(pal,RAMpal,sizeof(RAMpal));
 	icon_dlg[0].dp2=lfont;
-	
 	for(int32_t i=0; i<4; i++)
 	{
 		icon_dlg[i+2].d1 = misc.icons[i];
 		icon_dlg[i+2].fg = i+6;
 		load_cset(pal, i+6, pSprite(i+spICON1));
 	}
-	
 	set_palette(pal);
-	
 	if(is_large)
 		large_dialog(icon_dlg);
-		
 	int32_t ret = zc_popup_dialog(icon_dlg,7);
-	
 	if(ret==6)
 	{
 		for(int32_t i=0; i<4; i++)
@@ -18567,7 +16174,6 @@ int32_t onIcons()
 			}
 		}
 	}
-	
 	set_palette(RAMpal);
 	return D_O_K;
 }
@@ -18577,12 +16183,10 @@ int32_t d_comboframe_proc(int32_t msg, DIALOG *d, int32_t c)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	c=c;
-	
 	if(msg == MSG_DRAW)
 	{
 		jwin_draw_frame(screen, d->x, d->y, d->w, d->h, d->d1);
 	}
-	
 	return D_O_K;
 }
 
@@ -18590,7 +16194,6 @@ int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	c=c;
-	
 	switch(msg)
 	{
 	case MSG_CLICK:
@@ -18599,26 +16202,21 @@ int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c)
 		{
 			break;
 		}
-		
 		int32_t ret = (d->flags & D_EXIT) ? D_CLOSE : D_O_K;
 		int32_t combo2;
 		int32_t cs;
-		
 		if(key[KEY_LSHIFT])
 		{
 			if(gui_mouse_b()&1)
 			{
 				d->d1++;
-				
 				if(d->d1>=MAXCOMBOS) d->d1=0;
 			}
 			else if(gui_mouse_b()&2)
 			{
 				d->d1--;
-				
 				if(d->d1<0) d->d1=MAXCOMBOS-1;
 			}
-			
 			return ret|D_REDRAW;
 		}
 		else if(key[KEY_RSHIFT])
@@ -18626,16 +16224,13 @@ int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c)
 			if(gui_mouse_b()&1)
 			{
 				d->fg++;
-				
 				if(d->fg>11) d->fg=0;
 			}
 			else if(gui_mouse_b()&2)
 			{
 				d->fg--;
-				
 				if(d->fg<0) d->fg=11;
 			}
-			
 			return ret|D_REDRAW;
 		}
 		else if(key[KEY_ALT])
@@ -18645,7 +16240,6 @@ int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c)
 				d->d1 = Combo;
 				d->fg = CSet;
 			}
-			
 			return ret|D_REDRAW;
 		}
 		else if(gui_mouse_b()&2||nextcombo_fake_click==2)  //right mouse button
@@ -18654,7 +16248,6 @@ int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c)
 			{
 				return ret;
 			}
-			
 			d->d1=0;
 			d->fg=0;
 			return ret|D_REDRAW;
@@ -18663,13 +16256,11 @@ int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c)
 		{
 			combo2=d->d1;
 			cs=d->fg;
-			
 			if(select_combo_2(combo2, cs))
 			{
 				d->d1=combo2;
 				d->fg=cs;
 			}
-			
 			return ret|D_REDRAW;
 		}
 		else
@@ -18677,23 +16268,18 @@ int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c)
 			return ret|D_REDRAWME;
 		}
 	}
-	
 	break;
-	
 	case MSG_DRAW:
 		if(is_large)
 		{
 			d->w = 32;
 			d->h = 32;
 		}
-		
 		BITMAP *buf = create_bitmap_ex(8,16,16);
 		BITMAP *bigbmp = create_bitmap_ex(8,d->w,d->h);
-		
 		if(buf && bigbmp)
 		{
 			clear_bitmap(buf);
-			
 			if(d->d1==-1) // Display curr_combo instead of combobuf
 			{
 				newcombo *hold = combobuf;
@@ -18705,14 +16291,12 @@ int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c)
 			{
 				putcombo(buf,0,0,d->d1,d->fg);
 			}
-			
 			stretch_blit(buf, bigbmp, 0,0, 16, 16, 0, 0, d->w, d->h);
 			destroy_bitmap(buf);
 			blit(bigbmp,screen,0,0,d->x-is_large,d->y-is_large,d->w,d->h);
 			destroy_bitmap(bigbmp);
 		}
 	}
-	
 	return D_O_K;
 }
 
@@ -18749,13 +16333,11 @@ int32_t d_mr_cset_proc(int32_t msg, DIALOG* d, int32_t)
 	BITMAP* bmp=gui_get_screen();
 	int32_t colorWidth=(d->w-4)/16;
 	byte* colors=static_cast<byte*>(d->dp);
-	
 	switch(msg)
 	{
 	case MSG_DRAW:
 		{
 			jwin_draw_frame(bmp, d->x, d->y, d->w, d->h, FR_DEEP);
-			
 			int32_t baseColor=((d->flags&D_CSET)!=0) ? massRecolorCSet*16 : 0;
 			for(int32_t c=0; c<16; c++)
 			{
@@ -18766,18 +16348,15 @@ int32_t d_mr_cset_proc(int32_t msg, DIALOG* d, int32_t)
 			}
 		}
 		break;
-		
 	case MSG_LPRESS:
 		{
 			int32_t x=(gui_mouse_x()-(d->x+2))/colorWidth;
-			
 			if(x >= 0 && x < 16) //sanity check!
 			{
 				massRecolorDraggedColor=colors[x];
 			}
 		}
 		break;
-		
 	case MSG_LRELEASE: // This isn't exactly right, but it'll do...
 		if((d->flags&D_SETTABLE)!=0 && massRecolorDraggedColor>=0)
 		{
@@ -18791,7 +16370,6 @@ int32_t d_mr_cset_proc(int32_t msg, DIALOG* d, int32_t)
 		massRecolorDraggedColor=-1;
 		break;
 	}
-	
 	return D_O_K;
 }
 
@@ -18801,7 +16379,6 @@ static int32_t d_mr_palette_proc(int32_t msg, DIALOG* d, int32_t)
 	BITMAP* bmp=gui_get_screen();
 	int32_t colorWidth=(d->w-4)/16;
 	int32_t colorHeight=(d->h-4)/12;
-	
 	switch(msg)
 	{
 	case MSG_DRAW:
@@ -18821,7 +16398,6 @@ static int32_t d_mr_palette_proc(int32_t msg, DIALOG* d, int32_t)
 			}
 		}
 		break;
-		
 	case MSG_LPRESS:
 		{
 			int32_t cset=(gui_mouse_y()-(d->y+2))/colorHeight;
@@ -18830,7 +16406,6 @@ static int32_t d_mr_palette_proc(int32_t msg, DIALOG* d, int32_t)
 		}
 		break;
 	}
-	
 	return D_O_K;
 }
 
@@ -18838,13 +16413,11 @@ static DIALOG recolor_4bit_dlg[] =
 {
 	// (dialog proc)         (x)   (y) (w)  (h)    (fg)   (bg) (key)            (flags) (d1) (d2)  (dp)
 	{ jwin_win_proc,           0,   0, 216, 224,      0,     0,    0,            D_EXIT,   0,   0, (void *) "Recolor setup", NULL, NULL },
-	
 	// 1
 	{ jwin_text_proc,         12,  32, 176,   8, vc(15), vc(1),    0,                 0,   0,   0, (void *) "From", NULL, NULL },
 	{ d_mr_cset_proc,         10,  42, 196,  16,      0,     0,    0,            D_CSET,   0,   0, (void *)massRecolorSrc4Bit, NULL, NULL },
 	{ jwin_text_proc,         12,  60, 176,   8, vc(15), vc(1),    0,                 0,   0,   0, (void *) "To", NULL, NULL },
 	{ d_mr_cset_proc,         10,  70, 196,  16,      0,     0,    0, D_CSET|D_SETTABLE,   0,   0, (void *)massRecolorDest4Bit, NULL, NULL },
-	
 	// 5
 	{ jwin_text_proc,         12,  96, 176,   8, vc(15), vc(1),    0,                 0,   0,   0, (void *) "Apply to which CSets in 8-bit tiles?", NULL, NULL },
 	{ jwin_check_proc,        12, 112, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "0", NULL, NULL },
@@ -18859,14 +16432,12 @@ static DIALOG recolor_4bit_dlg[] =
 	{ jwin_check_proc,        84, 128, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "9", NULL, NULL },
 	{ jwin_check_proc,       108, 128, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "10", NULL, NULL },
 	{ jwin_check_proc,       132, 128, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "11", NULL, NULL },
-	
 	// 18
 	{ jwin_check_proc,        12, 144, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "Ignore blank tiles", NULL, NULL },
 	{ jwin_func_button_proc,  14, 160,  60,  20, vc(14), vc(1),    0,                 0,   0,   0, (void *) "Reset", NULL, (void*)massRecolorReset4Bit },
 	{ jwin_button_proc,       82, 160, 120,  20, vc(14), vc(1),    0,            D_EXIT,   0,   0, (void *) "Switch to 8-bit mode", NULL, NULL },
 	{ jwin_button_proc,       44, 188,  60,  20, vc(14), vc(1),    0,            D_EXIT,   0,   0, (void *) "OK", NULL, NULL },
 	{ jwin_button_proc,      112, 188,  60,  20, vc(14), vc(1),    0,            D_EXIT,   0,   0, (void *) "Cancel", NULL, NULL },
-	
 	{ NULL,                    0,   0,   0,   0,   0,        0,    0,                 0,   0,   0, NULL, NULL,  NULL }
 };
 
@@ -18883,21 +16454,18 @@ static DIALOG recolor_8bit_dlg[] =
 {
 	// (dialog proc)         (x)  (y)  (w)  (h)   (fg)    (bg) (key)     (flags) (d1) (d2) (dp)
 	{ jwin_win_proc,           0,   0, 288, 224,     0,      0,    0,     D_EXIT,   0,  0, (void *) "Recolor setup", NULL, NULL },
-	
 	// 1
 	{ jwin_text_proc,         12,  32, 176,   8, vc(15), vc(1),    0,          0,   0,  0, (void *) "From", NULL, NULL },
 	{ d_mr_cset_proc,         10,  42, 132,  12,      0,     0,    0, D_SETTABLE,   0,  0, (void *)massRecolorSrc8Bit, NULL, NULL },
 	{ jwin_text_proc,         12,  60, 176,   8, vc(15), vc(1),    0,          0,   0,  0, (void *) "To", NULL, NULL },
 	{ d_mr_cset_proc,         10,  70, 132,  12,      0,     0,    0, D_SETTABLE,   0,  0, (void *)massRecolorDest8Bit, NULL, NULL },
 	{ d_mr_palette_proc,     144,  32, 132, 100, vc(15), vc(1),    0,          0,   0,  0, (void *) NULL, NULL, NULL },
-	
 	// 6
 	{ jwin_check_proc,        12, 144, 168,   8, vc(15), vc(1),    0,          0,   1,  0, (void *) "Ignore blank tiles", NULL, NULL },
 	{ jwin_func_button_proc,  50, 160,  60,  20, vc(14), vc(1),    0,          0,   0,  0, (void *) "Reset", NULL, (void*)massRecolorReset8Bit },
 	{ jwin_button_proc,      118, 160, 120,  20, vc(14), vc(1),    0,     D_EXIT,   0,  0, (void *) "Switch to 4-bit mode", NULL, NULL },
 	{ jwin_button_proc,       80, 188,  60,  20, vc(14), vc(1),    0,     D_EXIT,   0,  0, (void *) "OK", NULL, NULL },
 	{ jwin_button_proc,      148, 188,  60,  20, vc(14), vc(1),    0,     D_EXIT,   0,  0, (void *) "Cancel", NULL, NULL },
-	
 	{ NULL,                    0,   0,   0,   0,      0,     0,    0,          0,   0,  0,       NULL,                           NULL,  NULL }
 };
 
@@ -18914,10 +16482,8 @@ static void massRecolorInit(int32_t cset)
 {
 	massRecolorDraggedColor=-1;
 	massRecolorCSet=cset;
-	
 	recolor_4bit_dlg[0].dp2=lfont;
 	recolor_8bit_dlg[0].dp2=lfont;
-	
 	for(int32_t i=0; i<=11; i++)
 	{
 		if((massRecolor8BitCSets&(1<<i))!=0)
@@ -18925,7 +16491,6 @@ static void massRecolorInit(int32_t cset)
 		else
 			recolor_4bit_dlg[MR4_8BIT_EFFECT_START+i].flags&=~D_SELECTED;
 	}
-	
 	if(massRecolorIgnoreBlank)
 	{
 		recolor_4bit_dlg[MR4_IGNORE_BLANK].flags|=D_SELECTED;
@@ -18936,12 +16501,10 @@ static void massRecolorInit(int32_t cset)
 		recolor_4bit_dlg[MR4_IGNORE_BLANK].flags&=~D_SELECTED;
 		recolor_8bit_dlg[MR8_IGNORE_BLANK].flags&=~D_SELECTED;
 	}
-	
 	if(is_large)
 	{
 		large_dialog(recolor_4bit_dlg);
 		large_dialog(recolor_8bit_dlg);
-		
 		// Quick fix for large_dialog() screwing these up. It's ugly. Whatever.
 		if((recolor_4bit_dlg[MR4_DEST_COLORS].w-4)%4!=0)
 		{
@@ -18949,7 +16512,6 @@ static void massRecolorInit(int32_t cset)
 			recolor_4bit_dlg[MR4_SRC_COLORS].w-=2;
 			recolor_4bit_dlg[MR4_DEST_COLORS].x++;
 			recolor_4bit_dlg[MR4_DEST_COLORS].w-=2;
-			
 			recolor_8bit_dlg[MR8_SRC_COLORS].x++;
 			recolor_8bit_dlg[MR8_SRC_COLORS].w-=2;
 			recolor_8bit_dlg[MR8_DEST_COLORS].x++;
@@ -18970,7 +16532,6 @@ static void massRecolorApplyChanges()
 		if((recolor_4bit_dlg[MR4_8BIT_EFFECT_START+i].flags&D_SELECTED)!=0)
 			massRecolor8BitCSets|=1<<i;
 	}
-	
 	if(massRecolorType==MR_4BIT)
 		massRecolorIgnoreBlank=(recolor_4bit_dlg[MR4_IGNORE_BLANK].flags&D_SELECTED)!=0;
 	else
@@ -18980,7 +16541,6 @@ static void massRecolorApplyChanges()
 static bool massRecolorSetup(int32_t cset)
 {
 	massRecolorInit(cset);
-	
 	// Remember the current colors in case the user cancels.
 	int32_t oldDest4Bit[16], oldSrc8Bit[16], oldDest8Bit[16];
 	for(int32_t i=0; i<16; i++)
@@ -18989,7 +16549,6 @@ static bool massRecolorSetup(int32_t cset)
 		oldSrc8Bit[i]=massRecolorSrc8Bit[i];
 		oldDest8Bit[i]=massRecolorDest8Bit[i];
 	}
-	
 	byte type=massRecolorType;
 	int32_t ret;
 	do
@@ -19007,7 +16566,6 @@ static bool massRecolorSetup(int32_t cset)
 				type=MR_4BIT;
 		}
 	} while(ret==MR4_SWITCH || ret==MR8_SWITCH);
-	
 	if(ret!=MR4_OK && ret!=MR8_OK) // Canceled
 	{
 		for(int32_t i=0; i<16; i++)
@@ -19018,7 +16576,6 @@ static bool massRecolorSetup(int32_t cset)
 		}
 		return false;
 	}
-	
 	// OK
 	massRecolorType=type;
 	massRecolorApplyChanges();
@@ -19029,7 +16586,6 @@ static void massRecolorApply4Bit(int32_t tile)
 {
 	byte buf[256];
 	unpack_tile(newtilebuf, tile, 0, true);
-	
 	if(newtilebuf[tile].format==tf4Bit)
 	{
 		for(int32_t i=0; i<256; i++)
@@ -19049,7 +16605,6 @@ static void massRecolorApply4Bit(int32_t tile)
 				buf[i]=unpackbuf[i];
 		}
 	}
-	
 	pack_tile(newtilebuf, buf, tile);
 }
 
@@ -19057,7 +16612,6 @@ static void massRecolorApply8Bit(int32_t tile)
 {
 	byte buf[256];
 	unpack_tile(newtilebuf, tile, 0, true);
-	
 	for(int32_t i=0; i<256; i++)
 	{
 		byte color=unpackbuf[i];
@@ -19071,7 +16625,6 @@ static void massRecolorApply8Bit(int32_t tile)
 		}
 		buf[i]=color;
 	}
-	
 	pack_tile(newtilebuf, buf, tile);
 }
 
@@ -19079,7 +16632,6 @@ static void massRecolorApply(int32_t tile)
 {
 	if(massRecolorIgnoreBlank && blank_tile_table[tile])
 		return;
-	
 	if(massRecolorType==MR_4BIT)
 		massRecolorApply4Bit(tile);
 	else // 8-bit
@@ -19104,7 +16656,6 @@ static void massRecolorReset8Bit()
 		massRecolorSrc8Bit[i]=0;
 		massRecolorDest8Bit[i]=0;
 	}
-	
 	recolor_8bit_dlg[MR8_SRC_COLORS].flags|=D_DIRTY;
 	recolor_8bit_dlg[MR8_DEST_COLORS].flags|=D_DIRTY;
 }
@@ -19136,72 +16687,58 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 			return 0;
 		}
 		temp_combo.o_tile = temp_combo.tile;
-			
 		if(!p_getc(&temp_combo.flip,f,true))
 		{
 			return 0;
 		}
-			
 		if(!p_getc(&temp_combo.walk,f,true))
 		{
 			return 0;
 		}
-			
 		if(!p_getc(&temp_combo.type,f,true))
 		{
 			return 0;
 		}
-			
 		if(!p_getc(&temp_combo.csets,f,true))
 		{
 			return 0;
 		}
-			
 		if(!p_getc(&temp_combo.frames,f,true))
 		{
 			return 0;
 		}
-			
 		if(!p_getc(&temp_combo.speed,f,true))
 		{
 			return 0;
 		}
-			
 		if(!p_igetw(&temp_combo.nextcombo,f,true))
 		{
 			return 0;
 		}
-			
 		if(!p_getc(&temp_combo.nextcset,f,true))
 		{
 			return 0;
 		}
-			
 		if(!p_getc(&temp_combo.flag,f,true))
 		{
 			return 0;
 		}
-			
 		if(!p_getc(&temp_combo.skipanim,f,true))
 		{
 			return 0;
 		}
-			
 		if(!p_igetw(&temp_combo.nexttimer,f,true))
 		{
 			return 0;
 		}
-			
 		if(!p_getc(&temp_combo.skipanimy,f,true))
 		{
 			return 0;
 		}
-			
 		if(!p_getc(&temp_combo.animflags,f,true))
 		{
 			return 0;
 		}
-		
 		//2.55 starts here
 		if ( zversion >= 0x255 )
 		{
@@ -19217,15 +16754,14 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 				if(!p_igetl(&temp_combo.usrflags,f,true))
 				{
 						return 0;
-				}	 
-				for ( int32_t q = 0; q < 3; q++ ) 
+				}
+				for ( int32_t q = 0; q < 3; q++ )
 				{
 					if(!p_igetl(&temp_combo.triggerflags[q],f,true))
 					{
 						return 0;
 					}
 				}
-				   
 				if(!p_igetl(&temp_combo.triggerlevel,f,true))
 				{
 						return 0;
@@ -19376,7 +16912,7 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 				{
 					temp_combo.trigcooldown = 0;
 				}
-				for ( int32_t q = 0; q < 11; q++ ) 
+				for ( int32_t q = 0; q < 11; q++ )
 				{
 					if(!p_getc(&temp_combo.label[q],f,true))
 					{
@@ -19393,10 +16929,8 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 						return 0;
 					}
 				}
-				
 			}
 		}
-		
 		if ( !(skip && (index+(tilect-1)) < skip) ) //is -1 still needed here?
 		{
 			if ( !nooverwrite || combobuf[index+tilect].is_blank() )
@@ -19405,7 +16939,6 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 			}
 		}
 	}
-	
 	return 1;
 }
 
@@ -19415,7 +16948,6 @@ int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t start
 	dword section_cversion=0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
-	
 	if(!p_igetl(&zversion,f,true))
 	{
 		return 0;
@@ -19432,27 +16964,22 @@ int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t start
 	{
 		return 0;
 	}
-	
 	if ( zversion > ZELDA_VERSION )
 	{
 		al_trace("Cannot read .zcombo packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
 		return 0;
 	}
-	
 	else if ( ( section_version > V_COMBOS ) || ( section_version == V_COMBOS && section_cversion > CV_COMBOS ) )
 	{
 		al_trace("Cannot read .zcombo packfile made using V_COMBOS (%d) subversion (%d)\n", section_version, section_cversion);
 		return 0;
-		
 	}
 	else
 	{
 		al_trace("Reading a .zcombo packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
 	}
-	
 	int32_t index = 0;
 	int32_t count = 0;
-	
 	//tile id
 	if(!p_igetl(&index,f,true))
 	{
@@ -19460,7 +16987,6 @@ int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t start
 	}
 	if(start > -1) index = start;
 	// al_trace("Reading combo: index(%d)\n", index);
-	
 	//tile count
 	if(!p_igetl(&count,f,true))
 	{
@@ -19469,17 +16995,14 @@ int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t start
 	// al_trace("Reading combo: count(%d)\n", count);
 	reset_combo_animations();
 	reset_combo_animations2();
-	
 	if(section_version < 33)
 		return readcombofile_old(f,skip,nooverwrite,zversion,section_version,section_cversion,index,count);
-	
 	newcombo temp_combo;
 	size_t end = index+count;
 	for ( size_t q = index; q < end; q++ )
 	{
 		auto ret = readcombo_loop(f,section_version,temp_combo);
 		if(ret) return 0;
-		
 		if ( !(skip && q-1 < skip) )
 		{
 			if ( !nooverwrite || combobuf[q].is_blank() )
@@ -19488,7 +17011,6 @@ int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t start
 			}
 		}
 	}
-	
 	return 1;
 }
 int32_t readcombofile_to_location(PACKFILE *f, int32_t start, byte nooverwrite, int32_t skip)
@@ -19501,7 +17023,6 @@ int32_t writecombofile(PACKFILE *f, int32_t index, int32_t count)
 	dword section_cversion=CV_COMBOS;
 	int32_t zversion = ZELDA_VERSION;
 	int32_t zbuild = VERSION_BUILD;
-	
 	if(!p_iputl(zversion,f))
 	{
 		return 0;
@@ -19514,18 +17035,15 @@ int32_t writecombofile(PACKFILE *f, int32_t index, int32_t count)
 	{
 		return 0;
 	}
-	
 	if(!p_iputw(section_cversion,f))
 	{
 		return 0;
 	}
-	
 	//start tile id
 	if(!p_iputl(index,f))
 	{
 		return 0;
 	}
-	
 	//count
 	if(!p_iputl(count,f))
 	{
@@ -19539,9 +17057,7 @@ int32_t writecombofile(PACKFILE *f, int32_t index, int32_t count)
 		if(writecombo_loop(f, section_version, combobuf[q]))
 			return 0;
 	}
-	
 	return 1;
-	
 }
 
 //.ZALIAS
@@ -19556,7 +17072,6 @@ int32_t readcomboaliasfile(PACKFILE *f)
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	word tempword = 0;
-	
 	if(!p_igetl(&zversion,f,true))
 	{
 		return 0;
@@ -19581,37 +17096,31 @@ int32_t readcomboaliasfile(PACKFILE *f)
 		al_trace("Cannot read .zalias packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
 		return 0;
 	}
-	
 	else if ( ( section_version > V_COMBOALIASES ) || ( section_version == V_COMBOALIASES && section_cversion > CV_COMBOALIASES ) )
 	{
 		al_trace("Cannot read .zalias packfile made using V_COMBOALIASES (%d) subversion (%d)\n", section_version, section_cversion);
 		return 0;
-		
 	}
 	else
 	{
 		al_trace("Reading a .zalias packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
 	}
-	
 	int32_t index = 0;
 	int32_t count = 0;
 	int32_t count2 = 0;
 	byte tempcset = 0;
-	
 	//tile id
 	if(!p_igetl(&index,f,true))
 	{
 		return 0;
 	}
 	al_trace("Reading combo: index(%d)\n", index);
-	
 	//tile count
 	if(!p_igetl(&count,f,true))
 	{
 		return 0;
 	}
 	al_trace("Reading combo: count(%d)\n", count);
-	
 	combo_alias temp_alias;
 	memset(&temp_alias, 0, sizeof(temp_alias));
 
@@ -19622,14 +17131,10 @@ int32_t readcomboaliasfile(PACKFILE *f)
 			{
 				return 0;
 			}
-			
 			if(!p_getc(&temp_alias.cset,f,true))
 			{
 				return 0;
 			}
-			
-			
-		
 		if(!p_igetl(&count2,f,true))
 			{
 				return 0;
@@ -19639,18 +17144,16 @@ int32_t readcomboaliasfile(PACKFILE *f)
 			{
 				return 0;
 			}
-			
 			if(!p_getc(&temp_alias.height,f,true))
 			{
 				return 0;
 			}
-			
 			if(!p_getc(&temp_alias.layermask,f,true))
 			{
 				return 0;
 			}
-			//These values are flexible, and may differ in size, so we delete them 
-		//and recreate them at the correct size on the pointer. 
+			//These values are flexible, and may differ in size, so we delete them
+		//and recreate them at the correct size on the pointer.
 		delete[] temp_alias.combos;
 		temp_alias.combos = new word[count2];
 		delete[] temp_alias.csets;
@@ -19665,15 +17168,12 @@ int32_t readcomboaliasfile(PACKFILE *f)
 		else
 		{
 			//al_trace("Read Combo Alias Combo [%d] as: %d\n", k, tempword);
-			
-			
 			//al_trace("tempword is: %d\n", tempword);
 			temp_alias.combos[k] = tempword;
 			//al_trace("Combo Alias Combo [%d] is: %d\n", k, temp_alias.combos[k]);
 		}
 			}
 		//al_trace("Read alias combos.\n");
-			
 			for(int32_t k=0; k<count2; k++)
 			{
 				if(!p_getc(&tempcset,f,true))
@@ -19684,7 +17184,6 @@ int32_t readcomboaliasfile(PACKFILE *f)
 		else
 		{
 			//al_trace("Read Combo Alias CSet [%d] as: %d\n", k, tempcset);
-			
 			temp_alias.csets[k] = tempcset;
 			//al_trace("Combo Alias CSet [%d] is: %d\n", k, temp_alias.csets[k]);
 		}
@@ -19693,12 +17192,8 @@ int32_t readcomboaliasfile(PACKFILE *f)
 		//al_trace("About to memcpy a combo alias\n");
 		memcpy(&combo_aliases[index+(tilect)],&temp_alias,sizeof(combo_alias));
 	}
-	
 	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
-	
-			
 	return 1;
-	
 }
 
 int32_t readcomboaliasfile_to_location(PACKFILE *f, int32_t start)
@@ -19707,7 +17202,6 @@ int32_t readcomboaliasfile_to_location(PACKFILE *f, int32_t start)
 	dword section_cversion=0;
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
-	
 	if(!p_igetl(&zversion,f,true))
 	{
 		return 0;
@@ -19732,42 +17226,34 @@ int32_t readcomboaliasfile_to_location(PACKFILE *f, int32_t start)
 		al_trace("Cannot read .zalias packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
 		return 0;
 	}
-	
 	else if ( ( section_version > V_COMBOALIASES ) || ( section_version == V_COMBOALIASES && section_cversion > CV_COMBOALIASES ) )
 	{
 		al_trace("Cannot read .zalias packfile made using V_COMBOALIASES (%d) subversion (%d)\n", section_version, section_cversion);
 		return 0;
-		
 	}
 	else
 	{
 		al_trace("Reading a .zalias packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
 	}
-	
 	int32_t index = 0;
 	int32_t count = 0;
 	int32_t count2 = 0;
 	byte tempcset = 0;
 	word tempword = 0;
-	
-	
 	//tile id
 	if(!p_igetl(&index,f,true))
 	{
 		return 0;
 	}
 	al_trace("Reading tile: index(%d)\n", index);
-	
 	//tile count
 	if(!p_igetl(&count,f,true))
 	{
 		return 0;
 	}
 	al_trace("Reading tile: count(%d)\n", count);
-	
-	
 	combo_alias temp_alias;
-	memset(&temp_alias, 0, sizeof(temp_alias)); 
+	memset(&temp_alias, 0, sizeof(temp_alias));
 
 	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
@@ -19776,40 +17262,33 @@ int32_t readcomboaliasfile_to_location(PACKFILE *f, int32_t start)
 			{
 				return 0;
 			}
-			
 			if(!p_getc(&temp_alias.cset,f,true))
 			{
 				return 0;
 			}
-			
 			int32_t count2 = 0;
-		
 		if(!p_igetl(&count2,f,true))
 			{
 				return 0;
 			}
-		
 			if(!p_getc(&temp_alias.width,f,true))
 			{
 				return 0;
 			}
-			
 			if(!p_getc(&temp_alias.height,f,true))
 			{
 				return 0;
 			}
-			
 			if(!p_getc(&temp_alias.layermask,f,true))
 			{
 				return 0;
 			}
-		//These values are flexible, and may differ in size, so we delete them 
-		//and recreate them at the correct size on the pointer. 
+		//These values are flexible, and may differ in size, so we delete them
+		//and recreate them at the correct size on the pointer.
 			delete[] temp_alias.combos;
 		temp_alias.combos = new word[count2];
 		delete[] temp_alias.csets;
 		temp_alias.csets = new byte[count2];
-		
 			for(int32_t k=0; k<count2; k++)
 			{
 				if(!p_igetw(&tempword,f,true))
@@ -19821,7 +17300,6 @@ int32_t readcomboaliasfile_to_location(PACKFILE *f, int32_t start)
 			temp_alias.combos[k] = tempword;
 		}
 			}
-			
 			for(int32_t k=0; k<count2; k++)
 			{
 				if(!p_getc(&tempcset,f,true))
@@ -19833,20 +17311,13 @@ int32_t readcomboaliasfile_to_location(PACKFILE *f, int32_t start)
 			temp_alias.csets[k] = tempcset;
 		}
 			}
-		
-		
 		if ( start+(tilect) < MAXCOMBOALIASES )
 		{
 			memcpy(&combo_aliases[start+(tilect)],&temp_alias,sizeof(temp_alias));
 		}
 	}
-	
-	
 	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
-	
-			
 	return 1;
-	
 }
 int32_t writecomboaliasfile(PACKFILE *f, int32_t index, int32_t count)
 {
@@ -19855,7 +17326,6 @@ int32_t writecomboaliasfile(PACKFILE *f, int32_t index, int32_t count)
 	dword section_cversion=CV_COMBOALIASES;
 	int32_t zversion = ZELDA_VERSION;
 	int32_t zbuild = VERSION_BUILD;
-	
 	if(!p_iputl(zversion,f))
 	{
 		return 0;
@@ -19868,60 +17338,48 @@ int32_t writecomboaliasfile(PACKFILE *f, int32_t index, int32_t count)
 	{
 		return 0;
 	}
-	
 	if(!p_iputw(section_cversion,f))
 	{
 		return 0;
 	}
-	
 	//start tile id
 	if(!p_iputl(index,f))
 	{
 		return 0;
 	}
-	
 	//count
 	if(!p_iputl(count,f))
 	{
 		return 0;
 	}
-	
 	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
-	
 		if(!p_iputw(combo_aliases[index+(tilect)].combo,f))
 			{
 				return 0;
 			}
-			
 			if(!p_putc(combo_aliases[index+(tilect)].cset,f))
 			{
 				return 0;
 			}
-			
 			int32_t count2 = ((combo_aliases[index+(tilect)].width+1)*(combo_aliases[index+(tilect)].height+1))*(comboa_lmasktotal(combo_aliases[index+(tilect)].layermask)+1);
-			
 		if(!p_iputl(count2,f))
 			{
 				return 0;
 			}
 		al_trace("Write`, Combo alias count is: %d\n", count2);
-		
 			if(!p_putc(combo_aliases[index+(tilect)].width,f))
 			{
 				return 0;
 			}
-			
 			if(!p_putc(combo_aliases[index+(tilect)].height,f))
 			{
 				return 0;
 			}
-			
 			if(!p_putc(combo_aliases[index+(tilect)].layermask,f))
 			{
 				return 0;
 			}
-			
 			for(int32_t k=0; k<count2; k++)
 			{
 				if(!p_iputw(combo_aliases[index+(tilect)].combos[k],f))
@@ -19929,7 +17387,6 @@ int32_t writecomboaliasfile(PACKFILE *f, int32_t index, int32_t count)
 					return 0;
 				}
 			}
-			
 			for(int32_t k=0; k<count2; k++)
 			{
 				if(!p_putc(combo_aliases[index+(tilect)].csets[k],f))
@@ -19938,9 +17395,7 @@ int32_t writecomboaliasfile(PACKFILE *f, int32_t index, int32_t count)
 				}
 			}
 	}
-	
 	return 1;
-	
 }
 
 int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs,int32_t exnow, bool always_use_flip)
@@ -19961,9 +17416,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 	bool rect_sel=true;
 	bound(first,0,(TILES_PER_PAGE*TILE_PAGES)-1);
 	position_mouse_z(0);
-	
 	go();
-	
 	register_used_tiles();
 	int32_t window_xofs=0;
 	int32_t window_yofs=0;
@@ -19974,7 +17427,6 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 	int32_t h = 240;
 	int32_t mul = 1;
 	FONT *tfont = pfont;
-	
 	if(is_large)
 	{
 		w *= 2;
@@ -19987,11 +17439,9 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 		panel_yofs=3;
 		tfont = lfont_l;
 	}
-	
 	draw_tile_list_window();
 	int32_t f=0;
 	draw_tiles(first,cs,f);
-	
 	if(type==0)
 	{
 		tile_info_0(tile,tile2,cs,copy,copycnt,first/TILES_PER_PAGE,rect_sel);
@@ -20000,17 +17450,13 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 	{
 		tile_info_1(otile,oflip,ocs,tile,flip,cs,copy,first/TILES_PER_PAGE, always_use_flip);
 	}
-	
 	go_tiles();
-	
 	while(gui_mouse_b())
 	{
 		/* do nothing */
 		rest(1);
 	}
-	
 	bool bdown=false;
-	
 	#define FOREACH_START_DMAPTILE(_t) \
 	{ \
 		int32_t _first, _last; \
@@ -20034,12 +17480,11 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 				int32_t col=TILECOL(_t); \
 				if(col<left || col>=left+columns) \
 					continue; \
-			} \
-		
+			}
+
 	#define FOREACH_DMAPTILE_END\
 		} \
 	}
-	
 	bool did_snap = false;
 	do
 	{
@@ -20050,14 +17495,12 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 		int32_t columns=zc_max(TILECOL(tile), TILECOL(tile2))-left+1;
 		bool is_rect=(rows==1)||(columns==TILES_PER_ROW)||rect_sel;
 		bool redraw=false;
-		
 		if(mouse_z!=0)
 		{
 			sel_tile(tile,tile2,first,type,((mouse_z/abs(mouse_z))*(-1)*TILES_PER_PAGE));
 			position_mouse_z(0);
 			redraw=true;
 		}
-		
 		if(keypressed())
 		{
 			switch(readkey()>>8)
@@ -20066,15 +17509,12 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 			case KEY_ENTER:
 				done=2;
 				break;
-				
 			case KEY_ESC:
 				done=1;
 				break;
-				
 			case KEY_F1:
 				onHelp();
 				break;
-				
 			case KEY_EQUALS:
 			case KEY_PLUS_PAD:
 			{
@@ -20087,12 +17527,10 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 						else
 							shift_tile_colors(t, 1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
 					FOREACH_DMAPTILE_END
-					
 					register_blank_tiles();
 				}
 				else if(edit_cs)
 					cs = (cs<11) ? cs+1:0;
-					
 				redraw=true;
 				break;
 			}
@@ -20109,7 +17547,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 			case KEY_S:
 		{
 		if(!getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
-			break;   
+			break;
 		PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 		if(!f) break;
 		al_trace("Saving tile: %d\n", tile);
@@ -20120,7 +17558,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 		case KEY_L:
 		{
 		if(!getname("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
-			break;   
+			break;
 		PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 		if(!f) break;
 		al_trace("Saving tile: %d\n", tile);
@@ -20133,7 +17571,6 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 		{
 			jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
 		}
-	
 		pack_fclose(f);
 		//register_blank_tiles();
 		//register_used_tiles();
@@ -20152,16 +17589,13 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 						else
 							shift_tile_colors(t, -1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
 					FOREACH_DMAPTILE_END
-					
 					register_blank_tiles();
 				}
 				else if(edit_cs)
 					cs = (cs>0)  ? cs-1:11;
-					
 				redraw=true;
 				break;
 			}
-			
 			case KEY_UP:
 			{
 				switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
@@ -20174,19 +17608,15 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 						go_slide_tiles(columns, rows, top, left);
 						int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
 						bool same = true;
-						
 						for(int32_t d=0; d<columns; d++)
 						{
 							for(int32_t s=0; s<rows; s++)
 							{
 								int32_t t=((top+s)*TILES_PER_ROW)+left+d;
-								
 								if(newtilebuf[t].format!=bitcheck) same = false;
 							}
 						}
-						
 						if(!same) break;
-						
 						for(int32_t c=0; c<columns; c++)
 						{
 							for(int32_t r=0; r<rows; r++)
@@ -20194,7 +17624,6 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 								int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
 								qword *src_pixelrow=(qword*)(newundotilebuf[temptile].data+(8*bitcheck));
 								qword *dest_pixelrow=(qword*)(newtilebuf[temptile].data);
-								
 								for(int32_t pixelrow=0; pixelrow<16*bitcheck; pixelrow++)
 								{
 									if(pixelrow==15*bitcheck)
@@ -20204,15 +17633,12 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 											srctile-=rows*TILES_PER_ROW;
 										src_pixelrow=(qword*)(newtilebuf[srctile].data);
 									}
-									
 									*dest_pixelrow=*src_pixelrow;
 									dest_pixelrow++;
 									src_pixelrow++;
 								}
 							}
-							
 							qword *dest_pixelrow=(qword*)(newtilebuf[((top+rows-1)*TILES_PER_ROW)+left+c].data+(120*bitcheck));
-							
 							for(int32_t b=0; b<bitcheck; b++,dest_pixelrow++)
 							{
 								if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
@@ -20227,22 +17653,18 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 							}
 						}
 					}
-					
 					register_blank_tiles();
 					redraw=true;
 					break;
-					
 				case 1:  //CTRL
 				case 0:  //None
 					sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-1*(tile_page_row(tile)*TILES_PER_ROW):-TILES_PER_ROW);
 					redraw=true;
-					
 				default: //Others
 					break;
 				}
 			}
 			break;
-			
 			case KEY_DOWN:
 			{
 				switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
@@ -20255,19 +17677,15 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 						go_slide_tiles(columns, rows, top, left);
 						int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
 						bool same = true;
-						
 						for(int32_t c=0; c<columns; c++)
 						{
 							for(int32_t r=0; r<rows; r++)
 							{
 								int32_t t=((top+r)*TILES_PER_ROW)+left+c;
-								
 								if(newtilebuf[t].format!=bitcheck) same = false;
 							}
 						}
-						
 						if(!same) break;
-						
 						for(int32_t c=0; c<columns; c++)
 						{
 							for(int32_t r=rows-1; r>=0; r--)
@@ -20275,7 +17693,6 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 								int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
 								qword *src_pixelrow=(qword*)(newundotilebuf[temptile].data+(112*bitcheck)+(8*(bitcheck-1)));
 								qword *dest_pixelrow=(qword*)(newtilebuf[temptile].data+(120*bitcheck)+(8*(bitcheck-1)));
-								
 								for(int32_t pixelrow=(8<<bitcheck)-1; pixelrow>=0; pixelrow--)
 								{
 									if(pixelrow<bitcheck)
@@ -20291,15 +17708,12 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 									{
 										*dest_pixelrow=*src_pixelrow;
 									}
-									
 									dest_pixelrow--;
 									src_pixelrow--;
 								}
 							}
-							
 							qword *dest_pixelrow=(qword*)(newtilebuf[(top*TILES_PER_ROW)+left+c].data);
 							qword *src_pixelrow=(qword*)(newundotilebuf[((top+rows-1)*TILES_PER_ROW)+left+c].data+(120*bitcheck));
-							
 							for(int32_t b=0; b<bitcheck; b++)
 							{
 								if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
@@ -20310,28 +17724,23 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 								{
 									*dest_pixelrow=*src_pixelrow;
 								}
-								
 								dest_pixelrow++;
 								src_pixelrow++;
 							}
 						}
 					}
-					
 					register_blank_tiles();
 					redraw=true;
 					break;
-					
 				case 1:  //CTRL
 				case 0:  //None
 					sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?((TILE_ROWS_PER_PAGE-1)-tile_page_row(tile))*TILES_PER_ROW:TILES_PER_ROW);
 					redraw=true;
-					
 				default: //Others
 					break;
 				}
 			}
 			break;
-			
 			case KEY_LEFT:
 			{
 				switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
@@ -20344,30 +17753,24 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 						go_slide_tiles(columns, rows, top, left);
 						int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
 						bool same = true;
-						
 						for(int32_t c=0; c<columns; c++)
 						{
 							for(int32_t r=0; r<rows; r++)
 							{
 								int32_t t=((top+r)*TILES_PER_ROW)+left+c;
-								
 								if(newtilebuf[t].format!=bitcheck) same = false;
 							}
 						}
-						
 						if(!same) break;
-						
 						for(int32_t r=0; r<rows; r++)
 						{
 							for(int32_t c=0; c<columns; c++)
 							{
 								int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
 								byte *dest_pixelrow=(newtilebuf[temptile].data);
-								
 								for(int32_t pixelrow=0; pixelrow<16; pixelrow++)
 								{
 #ifdef ALLEGRO_LITTLE_ENDIAN
-								
 									//if(bitcheck==tf4Bit)
 									// {
 									for(int32_t p=0; p<(8*bitcheck)-1; p++)
@@ -20376,95 +17779,72 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 										{
 											*dest_pixelrow=*dest_pixelrow>>4;
 											*dest_pixelrow|=(*(dest_pixelrow+1)<<4);
-											
 											if(p==6) *(dest_pixelrow+1)=*(dest_pixelrow+1)>>4;
 										}
 										else
 										{
 											*dest_pixelrow=*(dest_pixelrow+1);
 										}
-										
 										dest_pixelrow++;
 									}
-									
 #else
-									
 									for(int32_t p=0; p<(8*bitcheck)-1; p++)
 									{
 										if(bitcheck==tf4Bit)
 										{
 											*dest_pixelrow=*dest_pixelrow<<4;
 											*dest_pixelrow|=(*(dest_pixelrow+1)>>4);
-									
 											if(p==6) *(dest_pixelrow+1)=*(dest_pixelrow+1)<<4;
 										}
 										else
 										{
 											*dest_pixelrow=*(dest_pixelrow+1);
 										}
-									
 										dest_pixelrow++;
 									}
-									
 #endif
-									
 									if(c==columns-1)
 									{
 										if(!(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
 										{
 											byte *tempsrc=(newundotilebuf[((top+r)*TILES_PER_ROW)+left].data+(pixelrow*8*bitcheck));
 #ifdef ALLEGRO_LITTLE_ENDIAN
-											
 											if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
 											else *dest_pixelrow=*tempsrc;
-											
 #else
-											
 											if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
 											else *dest_pixelrow=*tempsrc;
-											
 #endif
 										}
 									}
 									else
-									
 									{
 										byte *tempsrc=(newtilebuf[temptile+1].data+(pixelrow*8*bitcheck));
 #ifdef ALLEGRO_LITTLE_ENDIAN
-										
 										if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
 										else *dest_pixelrow=*tempsrc;
-										
 #else
-										
 										if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
 										else *dest_pixelrow=*tempsrc;
-										
 #endif
 									}
-									
 									dest_pixelrow++;
 								}
 							}
 						}
-						
 						register_blank_tiles();
 						redraw=true;
 					}
-					
 					break;
-					
 				case 1:  //CTRL
 				case 0:  //None
 					sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-(tile%TILES_PER_ROW):-1);
 					redraw=true;
-					
 				default: //Others
 					break;
 				}
 			}
 			break;
-			
 			case KEY_RIGHT:
 			{
 				switch(((key[KEY_ALT] || key[KEY_ALTGR])?2:0)+((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?1:0))
@@ -20477,30 +17857,24 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 						go_slide_tiles(columns, rows, top, left);
 						int32_t bitcheck = newtilebuf[((top)*TILES_PER_ROW)+left].format;
 						bool same = true;
-						
 						for(int32_t c=0; c<columns; c++)
 						{
 							for(int32_t r=0; r<rows; r++)
 							{
 								int32_t t=((top+r)*TILES_PER_ROW)+left+c;
-								
 								if(newtilebuf[t].format!=bitcheck) same = false;
 							}
 						}
-						
 						if(!same) break;
-						
 						for(int32_t r=0; r<rows; r++)
 						{
 							for(int32_t c=columns-1; c>=0; c--)
 							{
 								int32_t temptile=((top+r)*TILES_PER_ROW)+left+c;
 								byte *dest_pixelrow=(newtilebuf[temptile].data)+(128*bitcheck)-1;
-								
 								for(int32_t pixelrow=15; pixelrow>=0; pixelrow--)
 								{
 #ifdef ALLEGRO_LITTLE_ENDIAN
-								
 									//*dest_pixelrow=(*dest_pixelrow)<<4;
 									for(int32_t p=0; p<(8*bitcheck)-1; p++)
 									{
@@ -20508,53 +17882,41 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 										{
 											*dest_pixelrow=*dest_pixelrow<<4;
 											*dest_pixelrow|=(*(dest_pixelrow-1)>>4);
-											
 											if(p==6) *(dest_pixelrow-1)=*(dest_pixelrow-1)<<4;
 										}
 										else
 										{
 											*dest_pixelrow=*(dest_pixelrow-1);
 										}
-										
 										dest_pixelrow--;
 									}
-									
 #else
-									
 									for(int32_t p=0; p<(8*bitcheck)-1; p++)
 									{
 										if(bitcheck==tf4Bit)
 										{
 											*dest_pixelrow=*dest_pixelrow>>4;
 											*dest_pixelrow|=(*(dest_pixelrow-1)<<4);
-									
 											if(p==6) *(dest_pixelrow-1)=*(dest_pixelrow-1)>>4;
 										}
 										else
 										{
 											*dest_pixelrow=*(dest_pixelrow-1);
 										}
-									
 										dest_pixelrow--;
 									}
-									
 #endif
-									
 									if(c==0)
 									{
 										if(!(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
 										{
 											byte *tempsrc=(newundotilebuf[(((top+r)*TILES_PER_ROW)+left+columns-1)].data+(pixelrow*8*bitcheck)+(8*bitcheck)-1);
 #ifdef ALLEGRO_LITTLE_ENDIAN
-											
 											if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
 											else *dest_pixelrow=*tempsrc;
-											
 #else
-											
 											if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
 											else *dest_pixelrow=*tempsrc;
-											
 #endif
 										}
 									}
@@ -20562,76 +17924,58 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 									{
 										byte *tempsrc=(newtilebuf[temptile-1].data+(pixelrow*8*bitcheck)+(8*bitcheck)-1);
 #ifdef ALLEGRO_LITTLE_ENDIAN
-										
 										// (*dest_pixelrow)|=((*(dest_pixelrow-16))&0xF000000000000000ULL)>>60;
 										if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc>>4;
 										else *dest_pixelrow=*tempsrc;
-										
 #else
-										
 										if(bitcheck==tf4Bit) *dest_pixelrow|=*tempsrc<<4;
 										else *dest_pixelrow=*tempsrc;
-										
 #endif
 									}
-									
 									dest_pixelrow--;
 								}
 							}
 						}
-						
 						register_blank_tiles();
 						redraw=true;
 					}
-					
 					break;
-					
 				case 1:  //CTRL
 				case 0:  //None
 					sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?(TILES_PER_ROW)-(tile%TILES_PER_ROW)-1:1);
 					redraw=true;
-					
 				default: //Others
 					break;
 				}
 			}
 			break;
-			
 			case KEY_PGUP:
 				sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-1*(TILEROW(tile)*TILES_PER_ROW):-TILES_PER_PAGE);
 				redraw=true;
 				break;
-				
 			case KEY_PGDN:
 				sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?((TILE_PAGES*TILE_ROWS_PER_PAGE)-TILEROW(tile)-1)*TILES_PER_ROW:TILES_PER_PAGE);
 				redraw=true;
 				break;
-				
 			case KEY_HOME:
 				sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?-(tile):-(tile%TILES_PER_PAGE));
 				redraw=true;
 				break;
-				
 			case KEY_END:
 				sel_tile(tile,tile2,first,type,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])?(TILE_PAGES)*(TILES_PER_PAGE)-tile-1:(TILES_PER_PAGE)-(tile%TILES_PER_PAGE)-1);
 				redraw=true;
 				break;
-				
 			case KEY_P:
 			{
 				int32_t whatPage = gettilepagenumber("Goto Page", (PreFillTileEditorPage?(first/TILES_PER_PAGE):0));
-				
 				if(whatPage >= 0)
 					sel_tile(tile,tile2,first,type,((whatPage-TILEPAGE(tile))*TILE_ROWS_PER_PAGE)*TILES_PER_ROW);
-					
 				break;
 			}
-			
 			case KEY_O:
 				if(type==0 && copy>=0)
 				{
 					go_tiles();
-					
 					if(key[KEY_LSHIFT] ||key[KEY_RSHIFT])
 					{
 						mass_overlay_tile(zc_min(tile,tile2),zc_max(tile,tile2),copy,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]), rect_sel);
@@ -20642,13 +17986,10 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 						saved = !overlay_tiles(tile,tile2,copy,copycnt,rect_sel,false,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]));
 						//overlay_tile(newtilebuf,tile,copy,cs,(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]));
 					}
-					
 					saved=false;
 					redraw=true;
 				}
-				
 				break;
-				
 			case KEY_E:
 				if(type==0)
 				{
@@ -20656,9 +17997,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 					draw_tile_list_window();
 					redraw=true;
 				}
-				
 				break;
-				
 			case KEY_G:
 				if(type==0)
 				{
@@ -20666,30 +18005,23 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 					draw_tile_list_window();
 					redraw=true;
 				}
-				
 				break;
-				
 			case KEY_C:
 				copy=zc_min(tile,tile2);
 				copycnt=abs(tile-tile2)+1;
 				redraw=true;
 				break;
-				
 			case KEY_X:
 				if(type==2)
 				{
 					ex=(ex+1)%3;
 				}
-				
 				break;
-				
 				//usetiles=true;
 			case KEY_R:
 				if(type==2)
 					break;
-					
 				go_tiles();
-				
 				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 				{
 					bool go=false;
@@ -20697,13 +18029,11 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 						go=true;
 					else if(massRecolorSetup(cs))
 						go=true;
-					
 					if(go)
 					{
 						FOREACH_START_DMAPTILE(t)
 							massRecolorApply(t);
 						FOREACH_DMAPTILE_END
-						
 						register_blank_tiles();
 					}
 				}
@@ -20713,35 +18043,28 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 						rotate_tile(t,(key[KEY_LSHIFT] || key[KEY_RSHIFT]));
 					FOREACH_DMAPTILE_END
 				}
-				
 				redraw=true;
 				saved=false;
 				break;
-				
 			case KEY_SPACE:
 				rect_sel=!rect_sel;
 				copy=-1;
 				redraw=true;
 				break;
-				
 				//     case KEY_N:     go_tiles(); normalize(tile,tile2,flip); flip=0; redraw=true; saved=false; usetiles=true; break;
 			case KEY_H:
 				flip^=1;
 				go_tiles();
-				
 				if(type==0)
 				{
 					normalize(tile,tile2,rect_sel,flip);
 					flip=0;
 				}
-				
 				redraw=true;
 				break;
-				
 			case KEY_F12:
 				onSnapshot();
 				break;
-				
 			case KEY_V:
 				if(copy==-1)
 				{
@@ -20749,7 +18072,6 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 					{
 						flip^=2;
 						go_tiles();
-						
 						if(type==0)
 						{
 							normalize(tile,tile2,rect_sel,flip);
@@ -20763,12 +18085,8 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 			go_tiles();
 					saved = !copy_tiles(tile,tile2,copy,copycnt,rect_sel,false);
 				}
-				
 				redraw=true;
 				break;
-				
-		
-		
 		case KEY_F:
 				if(copy==-1)
 				{
@@ -20781,15 +18099,12 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 				saved = !copy_tiles_floodfill(tile,tile2,copy,copycnt,rect_sel,false);
 			}
 				}
-				
 				redraw=true;
 				break;
-		
 			case KEY_DEL:
 				delete_tiles(tile,tile2,rect_sel);
 				redraw=true;
 				break;
-				
 			case KEY_U:
 			{
 				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
@@ -20801,16 +18116,13 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 				{
 					comeback_tiles();
 				}
-				
 				redraw=true;
 			}
 			break;
-			
 			case KEY_8:
 			case KEY_8_PAD:
 				hide_8bit_marker();
 				break;
-			
 			case KEY_M:
 			//al_trace("mass combo key pressed, type == %d\n",type);
 				if(type==0)
@@ -20834,12 +18146,9 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 							make_combos(zc_min(tile, tile2), zc_max(tile, tile2), cs);
 			}
 					}
-					
 					redraw=true;
 				}
-				
 				break;
-				
 			case KEY_D:
 			{
 				int32_t frames=1;
@@ -20847,40 +18156,32 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 				sprintf(buf, "%d", frames);
 				create_relational_tiles_dlg[0].dp2=lfont;
 				create_relational_tiles_dlg[2].dp=buf;
-				
 				if(is_large)
 					large_dialog(create_relational_tiles_dlg);
-					
 				int32_t ret=zc_popup_dialog(create_relational_tiles_dlg,2);
-				
 				if(ret==5)
 				{
 					frames=zc_max(atoi(buf),1);
 					bool same = true;
 					int32_t bitcheck=newtilebuf[tile].format;
-					
 					for(int32_t t=1; t<frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); ++t)
 					{
 						if(newtilebuf[tile+t].format!=bitcheck) same = false;
 					}
-					
 					if(!same)
 					{
 						jwin_alert("Error","The source tiles are not","in the same format.",NULL,"&OK",NULL,13,27,lfont);
 						break;
 					}
-					
 					if(tile+(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96))>NEWMAXTILES)
 					{
 						jwin_alert("Error","Too many tiles will be created",NULL,NULL,"&OK",NULL,13,27,lfont);
 						break;
 					}
-					
 					for(int32_t i=frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?6:19); i<(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96)); ++i)
 					{
 						reset_tile(newtilebuf, tile+i, bitcheck);
 					}
-					
 					if(create_relational_tiles_dlg[3].flags&D_SELECTED)
 					{
 						for(int32_t i=create_relational_tiles_dlg[3].flags&D_SELECTED?47:95; i>0; --i)
@@ -20903,19 +18204,16 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 					}
 				}
 			}
-			
 			register_blank_tiles();
 			register_used_tiles();
 			redraw=true;
 			saved=false;
 			break;
-			
 			case KEY_B:
 			{
 				bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
 				bool control=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
 				bool alt=(key[KEY_ALT] || key[KEY_ALTGR]);
-				
 				do_convert_tile(tile, tile2, cs, rect_sel, control, shift, alt);
 				register_blank_tiles();
 			}
@@ -20923,9 +18221,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 			}
 			clear_keybuf();
 		}
-		
 		if(!key[KEY_Z]) did_snap = false;
-		
 		if(gui_mouse_b()&1)
 		{
 			if(is_large)
@@ -20938,15 +18234,12 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 					}
 				}
 			}
-			
 			int32_t x=gui_mouse_x()-screen_xofs;
 			int32_t y=gui_mouse_y()-screen_yofs;
-			
 			if(y>=0 && y<208*mul)
 			{
 				x=zc_min(zc_max(x,0),(320*mul)-1);
 				int32_t t = (y>>(4+is_large))*TILES_PER_ROW + (x>>(4+is_large)) + first;
-				
 				if(type==0 && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
 				{
 					tile2=t;
@@ -20955,7 +18248,6 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 				{
 					tile=tile2=t;
 				}
-				
 				if(tile_clicked!=t)
 				{
 					dclick_status=DCLICK_NOT;
@@ -20966,7 +18258,6 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 					{
 						/* do nothing */
 					}
-					
 					if(((y>>(4+is_large))*TILES_PER_ROW + (x>>(4+is_large)) + first)!=t)
 					{
 						dclick_status=DCLICK_NOT;
@@ -20985,7 +18276,6 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 						}
 					}
 				}
-				
 				tile_clicked=t;
 			}
 			else if(x>300*mul && !bdown)
@@ -20995,21 +18285,17 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 					first-=TILES_PER_PAGE;
 					redraw=true;
 				}
-				
 				if(y>=224*mul && first<TILES_PER_PAGE*(TILE_PAGES-1))
 				{
 					first+=TILES_PER_PAGE;
 					redraw=true;
 				}
-				
 				bdown=true;
 			}
-			
 			if(type==1||type==2)
 			{
 				if(!bdown && isinRect(x,y,8*mul,216*mul+panel_yofs,23*mul,231*mul+panel_yofs))
 					done=1;
-					
 				if(!bdown && isinRect(x,y,148*mul,216*mul+panel_yofs,163*mul,231*mul+panel_yofs))
 					done=2;
 			}
@@ -21023,7 +18309,6 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 			{
 				FONT *tf = font;
 				font = tfont;
-				
 				if(do_text_button(150*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Grab",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
 				{
 					font = tf;
@@ -21032,14 +18317,12 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 					position_mouse_z(0);
 					redraw=true;
 				}
-				
 				font = tf;
 			}
 			else if(!bdown && isinRect(x,y,(150+28)*mul,213*mul+panel_yofs,(150+28*2)*mul,(213+21)*mul+panel_yofs+21))
 			{
 				FONT *tf = font;
 				font = tfont;
-				
 				if(do_text_button((150+28)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
 				{
 					font = tf;
@@ -21047,14 +18330,12 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 					draw_tile_list_window();
 					redraw=true;
 				}
-				
 				font = tf;
 			}
 			else if(!bdown && isinRect(x,y,(150+28*2)*mul,213*mul+panel_yofs,(150+28*3)*mul,(213+21)*mul+panel_yofs))
 			{
 				FONT *tf = font;
 				font = tfont;
-				
 				if(do_text_button((150+28*2)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Export",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
 				{
 					if(getname("Export Tile Page (.png)","png",NULL,datapath,false))
@@ -21067,76 +18348,59 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 						destroy_bitmap(tempbmp);
 					}
 				}
-				
 				font = tf;
 			}
 			else if(!bdown && isinRect(x,y,(150+28*3)*mul,213*mul+panel_yofs,(150+28*4)*mul,(213+21)*mul+panel_yofs))
 			{
 				FONT *tf = font;
 				font = tfont;
-				
 				if(do_text_button((150+28*3)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Recolor",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
 				{
 					if(massRecolorSetup(cs))
 					{
 						go_tiles();
-						
 						FOREACH_START_DMAPTILE(t)
 							massRecolorApply(t);
 						FOREACH_DMAPTILE_END
-						
 						register_blank_tiles();
 					}
 				}
-				
 				font = tf;
 			}
 			else if(!bdown && isinRect(x,y,(150+28*4)*mul,213*mul+panel_yofs,(150+28*5)*mul,(213+21)*mul+panel_yofs))
 			{
 				FONT *tf = font;
 				font = tfont;
-				
 				if(do_text_button((150+28*4)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
 				{
 					done=1;
 				}
-				
 				font = tf;
 			}
-			
 			bdown=true;
 		}
-		
 		bool r_click = false;
-		
 		if(gui_mouse_b()&2 && !bdown && type==0)
 		{
 			int32_t x=(gui_mouse_x()-screen_xofs);//&0xFF0;
 			int32_t y=(gui_mouse_y()-screen_yofs);//&0xF0;
-			
 			if(y>=0 && y<208*mul)
 			{
 				x=zc_min(zc_max(x,0),(320*mul)-1);
 				int32_t t = ((y)>>(4+is_large))*TILES_PER_ROW + ((x)>>(4+is_large)) + first;
-				
 				if(t<zc_min(tile,tile2) || t>zc_max(tile,tile2))
 					tile=tile2=t;
 			}
-			
 			bdown = r_click = true;
 			f=8;
 		}
-		
 		if(gui_mouse_b()==0)
 			bdown=false;
-			
 		position_mouse_z(0);
-		
 REDRAW_DMAP_SELTILE:
 
 		if((f%16)==0 || InvalidStatic)
 			redraw=true;
-			
 		if(redraw)
 		{
 			draw_tiles(first,cs,f);
@@ -21173,21 +18437,17 @@ REDRAW_DMAP_SELTILE:
 				}
 			}
 		}
-		
 		if(type==0)
 			tile_info_0(tile,tile2,cs,copy,copycnt,first/TILES_PER_PAGE,rect_sel);
 		else
 			tile_info_1(otile,oflip,ocs,tile,flip,cs,copy,first/TILES_PER_PAGE, always_use_flip);
-			
 		if(type==2)
 		{
 			char cbuf[16];
 			sprintf(cbuf, "E&xtend: %s",ex==2 ? "32x32" : ex==1 ? "32x16" : "16x16");
 			gui_textout_ln(screen, is_large?lfont_l:pfont, (uint8_t *)cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 		}
-		
 		++f;
-		
 		if(r_click)
 		{
 			select_tile_rc_menu[1].flags = (copy==-1) ? D_DISABLED : 0;
@@ -21199,14 +18459,12 @@ REDRAW_DMAP_SELTILE:
 			select_tile_rc_menu[7].flags = (type!=0) ? D_DISABLED : 0;
 			int32_t m = popup_menu(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
 			redraw=true;
-			
 			switch(m)
 			{
 			case 0:
 				copy=zc_min(tile,tile2);
 				copycnt=abs(tile-tile2)+1;
 				break;
-				
 			case 2:
 			case 1:
 			{
@@ -21220,52 +18478,41 @@ REDRAW_DMAP_SELTILE:
 				if(saved) saved = !b;
 				break;
 			}
-				
 			case 3:
 				delete_tiles(tile,tile2,rect_sel);
 				break;
-				
 			case 5:
 				edit_tile(tile,flip,cs);
 				draw_tile_list_window();
 				break;
-				
 			case 8:
 			{
 				do_convert_tile(tile,tile2,cs,rect_sel,(newtilebuf[tile].format!=tf4Bit),false,false);
 				break;
 			}
-			
 			case 6:
 				grab_tile(tile,cs);
 				draw_tile_list_window();
 				position_mouse_z(0);
 				break;
-				
 			case 10:
 				show_blank_tile(tile);
 				break;
-		
 		case 13: //overlay
 			overlay_tile(newtilebuf,tile,copy,cs,0);
 			break;
-		
 		case 14: //h-flip
 		{
 		flip^=1;
 		go_tiles();
-		
 		if(type==0)
 		{
 			normalize(tile,tile2,rect_sel,flip);
 			flip=0;
 		}
-		
-		redraw=true;   
+		redraw=true;
 		break;
-			
 		  }
-		  
 		  case 15: //h-flip
 		  {
 			if(copy==-1)
@@ -21274,7 +18521,6 @@ REDRAW_DMAP_SELTILE:
 				{
 				flip^=2;
 				go_tiles();
-				
 				if(type==0)
 				{
 					normalize(tile,tile2,rect_sel,flip);
@@ -21287,13 +18533,9 @@ REDRAW_DMAP_SELTILE:
 				go_tiles();
 				saved=!copy_tiles(tile,tile2,copy,copycnt,rect_sel,false);
 			}
-			
 			redraw=true;
 		break;
-			
 		  }
-			
-		
 			case 16: //mass combo
 			{
 				if(type==0)
@@ -21321,7 +18563,6 @@ REDRAW_DMAP_SELTILE:
 				}
 			}
 			break;
-				
 			case 17:
 				if(type==0)
 				{
@@ -21334,16 +18575,13 @@ REDRAW_DMAP_SELTILE:
 					tile2=NEWMAXTILES;
 					copy = tile + count;
 					copycnt = NEWMAXTILES-copy;
-					
 					if(key[KEY_LSHIFT]||key[KEY_RSHIFT]) //Remove
 					{
 						char buf[64];
-						
 						if(count>1)
 							sprintf(buf,"Remove tiles %d - %d?",tile, copy-1);
 						else
 							sprintf(buf,"Remove tile %d?",tile);
-							
 						AlertDialog("Remove Tiles", std::string(buf)
 							+"\nThis will offset the tiles that follow!"
 							+(warn?"\nRemoving tiles ignores rectangular selections!":""),
@@ -21363,12 +18601,10 @@ REDRAW_DMAP_SELTILE:
 					else
 					{
 						char buf[64];
-						
 						if(count>1)
 							sprintf(buf,"Insert %d blank tiles?",count);
 						else
 							sprintf(buf,"Insert a blank tile?");
-							
 						AlertDialog("Insert Tiles", std::string(buf)
 							+"\nThis will offset the tiles that follow!"
 							+(warn?"\nInserting tiles ignores rectangular selections!":""),
@@ -21385,30 +18621,24 @@ REDRAW_DMAP_SELTILE:
 								}
 							}).show();
 					}
-					
 					copy=-1;
 					tile2=tile=z;
 				}
 				break;
-				
 			default:
 				redraw=false;
 				break;
 			}
-			
 			r_click = false;
 			goto REDRAW_DMAP_SELTILE;
 		}
-		
 	}
 	while(!done);
-	
 	while(gui_mouse_b())
 	{
 		/* do nothing */
 		rest(1);
 	}
-	
 	comeback();
 	register_blank_tiles();
 	register_used_tiles();

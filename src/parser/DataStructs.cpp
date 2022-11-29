@@ -37,7 +37,6 @@ FunctionData::FunctionData(Program& program)
 		globalVariables.insert(globalVariables.end(),
 		                       data.begin(), data.end());
 	}
-	
 	for (vector<Namespace*>::const_iterator it = program.namespaces.begin();
 		it != program.namespaces.end(); ++it)
 	{

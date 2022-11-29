@@ -29,7 +29,6 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	if(loaded_zi)
 	{
 		lzinfo.copyFrom(tmp_zinfo);
@@ -37,7 +36,6 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 		tmp_zinfo.clear();
 	}
 	else lzinfo.copyFrom(ZI); //Load ZInfo Data
-	
 	static int32_t selic = 0, selct = 0, selmf = 0, selctr = 0, selwpn = 0;
 	static char **icnameptr = nullptr, **ichelpptr = nullptr, **ctnameptr = nullptr,
 	            **cthelpptr = nullptr, **mfnameptr = nullptr, **mfhelpptr = nullptr,
@@ -528,7 +526,6 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 			)
 		)
 	);
-	
 	fields[FLD_IC_NAME]->setText((*icnameptr) ? (*icnameptr) : "");
 	fields[FLD_IC_NAME]->setDisabled(!(*icnameptr));
 	defcheck[FLD_IC_NAME]->setChecked(!(*icnameptr));
@@ -567,7 +564,6 @@ bool load_zi(zinfo& tzi)
 		// { "Quest Files (*.qst)", "qst" }, //! Maybe todo? bleh
 		{ NULL, NULL }
 	};
-	
 	if(!getname("Load File",NULL,extlist,filepath,true))
 		return false;
 	PACKFILE *inf=pack_fopen_password(temppath, F_READ, "");
@@ -581,7 +577,6 @@ bool save_zi(zinfo const& tzi)
 {
 	if(!getname("Save ZInfo (.zinfo)","zinfo",NULL,filepath,true))
         return false;
-        
     if(exists(temppath))
     {
         if(jwin_alert("Confirm Overwrite",temppath,"already exists.","Write over existing file?","&Yes","&No",'y','n',lfont)==2)
@@ -589,7 +584,6 @@ bool save_zi(zinfo const& tzi)
             return false;
         }
     }
-    
 	PACKFILE *inf = pack_fopen_password(temppath, F_WRITE, "");
 	if(!inf) return false;
 	if(writezinfo(inf,tzi)!=0)

@@ -27,7 +27,6 @@ private:
 	std::vector<int32_t>& dest_vec;
 	size_t min,max;
 	bool zsint;
-	
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::Button> pastebtn;
 };

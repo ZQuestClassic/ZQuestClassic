@@ -32,7 +32,7 @@ jobs:
       uses: crazy-max/ghaction-chocolatey@v1
       with:
         args: install .github/dependencies.config -y
-    
+
     # Setup build cache via ccache.
     - name: ccache cache files
       uses: actions/cache@v3
@@ -58,13 +58,13 @@ jobs:
     - run: cmake --build . --config Release --target zscript -j 4
     - run: cmake --build . --config Release --target zlauncher -j 4
     - run: ccache -s
-    
+
     # Check ZScript
     - run: ./buildpack.bat N
       working-directory: output/_auto
     - run: ./zscript.exe -input "include/std.zh" -unlinked
       working-directory: output/_auto/buildpack
-    
+
     # Run replay tests.
     - run: python3 -Xutf8 ${{ github.workspace }}/tests/run_replay_tests.py --build_folder=. --retries=1 --ci windows
       working-directory: output/_auto/buildpack
@@ -82,7 +82,7 @@ jobs:
     steps:
     - name: git clone
       uses: nschloe/action-cached-lfs-checkout@v1
-    
+
     - run: brew install ninja dylibbundler create-dmg ccache
     - name: Install Bison
       run: |
@@ -112,13 +112,13 @@ jobs:
     #Build
     - run: cmake --build build --config Release
     - run: ccache -s
-    
+
     # Check ZScript
     - run: ./buildpack_osx.sh
       working-directory: output/_auto
     - run: ./zscript -input "include/std.zh" -unlinked
       working-directory: output/_auto/zelda-classic-mac/ZeldaClassic.app/Contents/Resources
-    
+
     # Run replay tests.
     - run: python3 ${{ github.workspace }}/tests/run_replay_tests.py --build_folder=. --retries=1 --ci osx
       working-directory: output/_auto/zelda-classic-mac/ZeldaClassic.app/Contents/Resources

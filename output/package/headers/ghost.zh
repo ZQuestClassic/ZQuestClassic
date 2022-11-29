@@ -100,7 +100,7 @@ const int __GH_DEFAULT_IMPRECISION = 2;
 // ZC version than 2.50.3 RC1.
 const int __GH_CLEAR_FFC_LINK = 0;
 
-// For ZC Versions where Animation Style (None) does not set ->Tile, enable this. 
+// For ZC Versions where Animation Style (None) does not set ->Tile, enable this.
 const int __GH_FIX_255_ANONE = 1;
 
 // Set to 1 to make ghost ffcs Ethereal so that they cannot block
@@ -172,7 +172,7 @@ bool __HaveAmulet()
 }
 
 //Used to determine if a weapon hit a platform in sideview.
-bool ghost2__OnSidePlatform(int x, int y, int xOff, int yOff, int h, int w) 
+bool ghost2__OnSidePlatform(int x, int y, int xOff, int yOff, int h, int w)
 {
 	for(int i = 0; i <= (w-1); ++i)
 	{
@@ -183,7 +183,7 @@ bool ghost2__OnSidePlatform(int x, int y, int xOff, int yOff, int h, int w)
 				return true;
 			}
 		}
-           
+
 	}
 	return false;
 }

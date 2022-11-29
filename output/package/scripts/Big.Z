@@ -25,7 +25,7 @@ ffc script BigEnemyDX{
        while (Boss->isValid()){
            CustomAnimation(Boss, animoverride);
            Waitframe();
-       } 
+       }
     }
 }
 
@@ -73,7 +73,7 @@ void CustomAnimation(npc b, int animflags){
           if (b->Misc[NPC_MISC_HALTCOUNTER]>HaltThreshold){
          if ((animflags&2)>0) HaltTileOffset=  OrigTileOffset*8; //Check diagonal allowance flag
          else HaltTileOffset=  OrigTileOffset*4; //And set tile offset accordingly.
-         if (b->Misc[NPC_MISC_HALTCOUNTER] >= 24) HaltTileOffset *= 2; 
+         if (b->Misc[NPC_MISC_HALTCOUNTER] >= 24) HaltTileOffset *= 2;
           }
     }
      else b->Misc[NPC_MISC_HALTCOUNTER] = 0; //Reset halt counter
@@ -83,4 +83,4 @@ void CustomAnimation(npc b, int animflags){
      b->OriginalTile = OrigTile + HaltTileOffset+ (OrigTileOffset * andir); //And, finally, set npc`s Original Tile
      //debugValue(1, (b->Misc[NPC_MISC_HALTCOUNTER]));
      //debugValue(2, HaltThreshold);
-} 
+}

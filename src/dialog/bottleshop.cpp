@@ -33,7 +33,6 @@ std::shared_ptr<GUI::Widget> BottleShopDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Key;
 	using namespace GUI::Props;
-	
 	char titlebuf[256];
 	sprintf(titlebuf, "Bottle Shop (%d): %s", index, tempBottleShop.name);
 	window = Window(

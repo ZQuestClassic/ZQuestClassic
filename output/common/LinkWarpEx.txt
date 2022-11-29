@@ -14,23 +14,23 @@ type:
 		wtIWARP: Acts like a tile warp.
 		wtExit: An entrance/exit warp.
 		wtSCROLL: A scrolling warp.
-		wtNONE: A cancel warp. 
-		
+		wtNONE: A cancel warp.
+
 dmap:
 	The Destination DMap
-	
-screen: 
+
+screen:
 	The Destination Screen
-	
+
 x, y:
 	Either raw pixel coordinates, or a warp return square ID.
-	
+
 		Link->WarpEx() Coordinates Versus Warp Return Square:
 			If 'x' and 'y' are both > -1, then they are raw coordinates as always.
 			If 'x' < 0, THEN 'y' is the warp return square type, using positive integers.
 
-			This allows using the warp return constants in std.zh, and it prevents a 
-			possible ID clash from both values trying to establish the square ID. 
+			This allows using the warp return constants in std.zh, and it prevents a
+			possible ID clash from both values trying to establish the square ID.
 
 effect:
 	Warp Effects are:

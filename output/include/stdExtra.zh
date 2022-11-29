@@ -253,7 +253,7 @@ bool moveLink ( int dir, int dist, bool walkable, bool preventOffScreen )
 	//Can't move
 	if ( walkable && !CanWalk(Link->X, Link->Y, dir, dist, false) )
 		return false;
-	
+
 	//Otherwise, check direction
 	if ( dir == DIR_UP && (!preventOffScreen || Link->Y - dist > 0) )
 		Link->Y -= dist;
@@ -265,7 +265,7 @@ bool moveLink ( int dir, int dist, bool walkable, bool preventOffScreen )
 		Link->X += dist;
 	else
 		return false;
-		
+
 	return true;
 }
 bool move ( ffc this, int dir, int dist, bool walkable, bool preventOffScreen )
@@ -273,7 +273,7 @@ bool move ( ffc this, int dir, int dist, bool walkable, bool preventOffScreen )
 	//Can't move
 	if ( walkable && !CanWalk(this->X, this->Y, dir, dist, false) )
 		return false;
-	
+
 	//Otherwise, check direction
 	if ( dir == DIR_UP && (!preventOffScreen || this->Y - dist > 0) )
 		this->Y -= dist;
@@ -285,7 +285,7 @@ bool move ( ffc this, int dir, int dist, bool walkable, bool preventOffScreen )
 		this->X += dist;
 	else
 		return false;
-	
+
 	return true;
 }
 bool move ( npc enem, int dir, int dist, bool walkable, bool preventOffScreen )
@@ -293,7 +293,7 @@ bool move ( npc enem, int dir, int dist, bool walkable, bool preventOffScreen )
 	//Can't move
 	if ( walkable && !CanWalk(enem->X, enem->Y, dir, dist, false) )
 		return false;
-	
+
 	//Otherwise, check direction
 	if ( dir == DIR_UP && (!preventOffScreen || enem->Y - dist > 0) )
 		enem->Y -= dist;
@@ -305,7 +305,7 @@ bool move ( npc enem, int dir, int dist, bool walkable, bool preventOffScreen )
 		enem->X += dist;
 	else
 		return false;
-	
+
 	return true;
 }
 bool move ( lweapon weap, int dir, int dist, bool walkable, bool preventOffScreen )
@@ -313,7 +313,7 @@ bool move ( lweapon weap, int dir, int dist, bool walkable, bool preventOffScree
 	//Can't move
 	if ( walkable && !CanWalk(weap->X, weap->Y, dir, dist, false) )
 		return false;
-	
+
 	//Otherwise, check direction
 	if ( dir == DIR_UP && (!preventOffScreen || weap->Y - dist > 0) )
 		weap->Y -= dist;
@@ -325,7 +325,7 @@ bool move ( lweapon weap, int dir, int dist, bool walkable, bool preventOffScree
 		weap->X += dist;
 	else
 		return false;
-	
+
 	return true;
 }
 bool move ( eweapon weap, int dir, int dist, bool walkable, bool preventOffScreen )
@@ -333,7 +333,7 @@ bool move ( eweapon weap, int dir, int dist, bool walkable, bool preventOffScree
 	//Can't move
 	if ( walkable && !CanWalk(weap->X, weap->Y, dir, dist, false) )
 		return false;
-	
+
 	//Otherwise, check direction
 	if ( dir == DIR_UP && (!preventOffScreen || weap->Y - dist > 0) )
 		weap->Y -= dist;
@@ -345,7 +345,7 @@ bool move ( eweapon weap, int dir, int dist, bool walkable, bool preventOffScree
 		weap->X += dist;
 	else
 		return false;
-		
+
 	return true;
 }
 bool move ( item theItem, int dir, int dist, bool walkable, bool preventOffScreen )
@@ -353,7 +353,7 @@ bool move ( item theItem, int dir, int dist, bool walkable, bool preventOffScree
 	//Can't move
 	if ( walkable && !CanWalk(theItem->X, theItem->Y, dir, dist, false) )
 		return false;
-	
+
 	//Otherwise, check direction
 	if ( dir == DIR_UP && (!preventOffScreen || theItem->Y - dist > 0) )
 		theItem->Y -= dist;
@@ -365,7 +365,7 @@ bool move ( item theItem, int dir, int dist, bool walkable, bool preventOffScree
 		theItem->X += dist;
 	else
 		return false;
-		
+
 	return true;
 }
 
@@ -376,7 +376,7 @@ bool move ( item theItem, int dir, int dist, bool walkable, bool preventOffScree
 //Returns true if Link is pressing the button for an item
 bool pressingItem(int id)
 {
-	return ( (GetEquipmentA()==id && Link->PressA) 
+	return ( (GetEquipmentA()==id && Link->PressA)
 		   ||(GetEquipmentB()==id && Link->PressB) );
 }
 
@@ -414,7 +414,7 @@ void holdUpItem(int id, bool keep, bool twoHand, bool sfx)
 	else
 		Link->Action = LA_HOLD1LAND;
 	Link->HeldItem = id;
-	
+
 	//Give the item and its counter effects
 	if(keep){
 		Link->Item[id] = true;
@@ -474,7 +474,7 @@ int toggleBlock (int dir)
 		return 13;
 	if(dir == DIR_RIGHTDOWN)
 		return 11;
-	
+
 	if(dir==8)
         return DIR_UP;
     if(dir==9)
@@ -491,7 +491,7 @@ int toggleBlock (int dir)
         return DIR_LEFT;
     if(dir==15)
         return DIR_LEFTUP;
-	
+
 	return dir;
 }
 
@@ -623,14 +623,14 @@ ffc loadUnusedFFC(bool force){
 	ffc theFFC;
 	for(int i = FFCS_MIN_FFC; i <= FFCS_MAX_FFC; i++){
         theFFC=Screen->LoadFFC(i); //Check each FFC
-        
+
         if ( ffcIsBlank(theFFC) )
             return theFFC; //Return it
-		
+
 		if ( force && i == FFCS_MAX_FFC ) //Force last FFC
 			return theFFC;
 	}
-	
+
 	//No FFC found; return an invalid one
 	ffc invalidFFC;
 	return invalidFFC;
@@ -652,7 +652,7 @@ void drawTime(int layer, int x, int y, int font, int color, int bgcolor, int for
 	int seconds = Div(frames, 60); //Total seconds
 	int minutes = Div(seconds, 60); //Total minutes
 	seconds %= 60; //Remaining seconds (0 - 59)
-	
+
 	int string[5]; //Create an array of characters.
 	itoa(string, 0, minutes); //Add the minutes to the array.
 	string[strlen(string)] = ':'; //Add the : after the minutes.

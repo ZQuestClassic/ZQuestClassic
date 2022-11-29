@@ -270,8 +270,8 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "ZAPOUT",			   0,   0,   0,   0},
 	{ "OPENWIPE",			   0,   0,   0,   0},
 	{ "FREE0x00F1",			   0,   0,   0, 0  },
-	{ "FREE0x00F2",			   0,   0,   0, 0},  
-	{ "FREE0x00F3",			   0,   0,   0,0},  
+	{ "FREE0x00F2",			   0,   0,   0, 0},
+	{ "FREE0x00F3",			   0,   0,   0,0},
 	{ "SETMESSAGE",          2,   0,   0,   0},
 	{ "SETDMAPNAME",          2,   0,   0,   0},
 	{ "SETDMAPTITLE",          2,   0,   0,   0},
@@ -446,76 +446,76 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "GCDBLOCKTRIG",           2,   0,   0,   0},
 	{ "GCDCONVEYSPDX",           2,   0,   0,   0},
 	{ "GCDCONVEYSPDY",           2,   0,   0,   0},
-	{ "GCDCREATEENEM",           2,   0,   0,   0},  
-	{ "GCDCREATEENEMWH",           2,   0,   0,   0},  
-	{ "GCDCREATEENEMCH",           2,   0,   0,   0},  
-	{ "GCDDIRCHTYPE",           2,   0,   0,   0},  
-	{ "GCDDISTCHTILES",           2,   0,   0,   0},  
-	{ "GCDDIVEITEM",           2,   0,   0,   0},  
-	{ "GCDDOCK",           2,   0,   0,   0},  
-	{ "GCDFAIRY",           2,   0,   0,   0},  
-	{ "GCDFFCOMBOATTRIB",           2,   0,   0,   0},  
-	{ "GCDFOOTDECOTILE",           2,   0,   0,   0},  
-	{ "GCDFOOTDECOTYPE",           2,   0,   0,   0},  
-	{ "GCDHOOKSHOTGRAB",           2,   0,   0,   0},  
-	{ "GCDLADDERPASS",           2,   0,   0,   0},  
-	{ "GCDLOCKBLOCKTYPE",           2,   0,   0,   0},  
-	{ "GCDLOCKBLOCKCHANGE",           2,   0,   0,   0},  
-	{ "GCDMAGICMIRRORTYPE",           2,   0,   0,   0},  
-	{ "GCDMODIFYHPAMOUNT",           2,   0,   0,   0},  
-	{ "GCDMODIFYHPDELAY",           2,   0,   0,   0},  
-	{ "GCDMODIFYHPTYPE",           2,   0,   0,   0},  
-	{ "GCDMODIFYMPAMOUNT",           2,   0,   0,   0},  
-	{ "GCDMODIFYMPDELAY",           2,   0,   0,   0},  
-	{ "GCDMODIFYMPTYPE",           2,   0,   0,   0},  
-	{ "GCDNOPUSHBLOCKS",           2,   0,   0,   0},  
-	{ "GCDOVERHEAD",           2,   0,   0,   0},  
-	{ "GCDPLACEENEMY",           2,   0,   0,   0},  
-	{ "GCDPUSHDIR",           2,   0,   0,   0},  
-	{ "GCDPUSHWEIGHT",           2,   0,   0,   0},  
-	{ "GCDPUSHWAIT",           2,   0,   0,   0},  
-	{ "GCDPUSHED",           2,   0,   0,   0},  
-	{ "GCDRAFT",           2,   0,   0,   0},  
-	{ "GCDRESETROOM",           2,   0,   0,   0},  
-	{ "GCDSAVEPOINT",           2,   0,   0,   0},  
-	{ "GCDSCREENFREEZE",           2,   0,   0,   0},  
-	{ "GCDSECRETCOMBO",           2,   0,   0,   0},  
-	{ "GCDSINGULAR",           2,   0,   0,   0},  
-	{ "GCDSLOWMOVE",           2,   0,   0,   0},  
-	{ "GCDSTATUE",           2,   0,   0,   0},  
-	{ "GCDSTEPTYPE",           2,   0,   0,   0},  
-	{ "GCDSTEPCHANGETO",           2,   0,   0,   0},  
-	{ "GCDSTRIKEREMNANTS",           2,   0,   0,   0},  
-	{ "GCDSTRIKEREMNANTSTYPE",           2,   0,   0,   0},  
-	{ "GCDSTRIKECHANGE",           2,   0,   0,   0},  
-	{ "GCDSTRIKECHANGEITEM",           2,   0,   0,   0},  
-	{ "GCDTOUCHITEM",           2,   0,   0,   0},  
-	{ "GCDTOUCHSTAIRS",           2,   0,   0,   0},  
-	{ "GCDTRIGGERTYPE",           2,   0,   0,   0},  
-	{ "GCDTRIGGERSENS",           2,   0,   0,   0},  
-	{ "GCDWARPTYPE",           2,   0,   0,   0},  
-	{ "GCDWARPSENS",           2,   0,   0,   0},  
-	{ "GCDWARPDIRECT",           2,   0,   0,   0},  
-	{ "GCDWARPLOCATION",           2,   0,   0,   0},  
-	{ "GCDWATER",           2,   0,   0,   0},  
-	{ "GCDWHISTLE",           2,   0,   0,   0},  
-	{ "GCDWINGAME",           2,   0,   0,   0},  
-	{ "GCDBLOCKWEAPLVL",           2,   0,   0,   0},  
-	{ "GCDTILE",           2,   0,   0,   0},  
-	{ "GCDFLIP",           2,   0,   0,   0},  
-	{ "GCDWALK",           2,   0,   0,   0},  
-	{ "GCDTYPE",           2,   0,   0,   0},  
-	{ "GCDCSETS",           2,   0,   0,   0},  
-	{ "GCDFOO",           2,   0,   0,   0},  
-	{ "GCDFRAMES",           2,   0,   0,   0},  
-	{ "GCDSPEED",           2,   0,   0,   0},  
-	{ "GCDNEXTCOMBO",           2,   0,   0,   0},  
-	{ "GCDNEXTCSET",           2,   0,   0,   0},  
-	{ "GCDFLAG",           2,   0,   0,   0},  
-	{ "GCDSKIPANIM",           2,   0,   0,   0},  
-	{ "GCDNEXTTIMER",           2,   0,   0,   0},  
-	{ "GCDSKIPANIMY",           2,   0,   0,   0},  
-	{ "GCDANIMFLAGS",           2,   0,   0,   0},  
+	{ "GCDCREATEENEM",           2,   0,   0,   0},
+	{ "GCDCREATEENEMWH",           2,   0,   0,   0},
+	{ "GCDCREATEENEMCH",           2,   0,   0,   0},
+	{ "GCDDIRCHTYPE",           2,   0,   0,   0},
+	{ "GCDDISTCHTILES",           2,   0,   0,   0},
+	{ "GCDDIVEITEM",           2,   0,   0,   0},
+	{ "GCDDOCK",           2,   0,   0,   0},
+	{ "GCDFAIRY",           2,   0,   0,   0},
+	{ "GCDFFCOMBOATTRIB",           2,   0,   0,   0},
+	{ "GCDFOOTDECOTILE",           2,   0,   0,   0},
+	{ "GCDFOOTDECOTYPE",           2,   0,   0,   0},
+	{ "GCDHOOKSHOTGRAB",           2,   0,   0,   0},
+	{ "GCDLADDERPASS",           2,   0,   0,   0},
+	{ "GCDLOCKBLOCKTYPE",           2,   0,   0,   0},
+	{ "GCDLOCKBLOCKCHANGE",           2,   0,   0,   0},
+	{ "GCDMAGICMIRRORTYPE",           2,   0,   0,   0},
+	{ "GCDMODIFYHPAMOUNT",           2,   0,   0,   0},
+	{ "GCDMODIFYHPDELAY",           2,   0,   0,   0},
+	{ "GCDMODIFYHPTYPE",           2,   0,   0,   0},
+	{ "GCDMODIFYMPAMOUNT",           2,   0,   0,   0},
+	{ "GCDMODIFYMPDELAY",           2,   0,   0,   0},
+	{ "GCDMODIFYMPTYPE",           2,   0,   0,   0},
+	{ "GCDNOPUSHBLOCKS",           2,   0,   0,   0},
+	{ "GCDOVERHEAD",           2,   0,   0,   0},
+	{ "GCDPLACEENEMY",           2,   0,   0,   0},
+	{ "GCDPUSHDIR",           2,   0,   0,   0},
+	{ "GCDPUSHWEIGHT",           2,   0,   0,   0},
+	{ "GCDPUSHWAIT",           2,   0,   0,   0},
+	{ "GCDPUSHED",           2,   0,   0,   0},
+	{ "GCDRAFT",           2,   0,   0,   0},
+	{ "GCDRESETROOM",           2,   0,   0,   0},
+	{ "GCDSAVEPOINT",           2,   0,   0,   0},
+	{ "GCDSCREENFREEZE",           2,   0,   0,   0},
+	{ "GCDSECRETCOMBO",           2,   0,   0,   0},
+	{ "GCDSINGULAR",           2,   0,   0,   0},
+	{ "GCDSLOWMOVE",           2,   0,   0,   0},
+	{ "GCDSTATUE",           2,   0,   0,   0},
+	{ "GCDSTEPTYPE",           2,   0,   0,   0},
+	{ "GCDSTEPCHANGETO",           2,   0,   0,   0},
+	{ "GCDSTRIKEREMNANTS",           2,   0,   0,   0},
+	{ "GCDSTRIKEREMNANTSTYPE",           2,   0,   0,   0},
+	{ "GCDSTRIKECHANGE",           2,   0,   0,   0},
+	{ "GCDSTRIKECHANGEITEM",           2,   0,   0,   0},
+	{ "GCDTOUCHITEM",           2,   0,   0,   0},
+	{ "GCDTOUCHSTAIRS",           2,   0,   0,   0},
+	{ "GCDTRIGGERTYPE",           2,   0,   0,   0},
+	{ "GCDTRIGGERSENS",           2,   0,   0,   0},
+	{ "GCDWARPTYPE",           2,   0,   0,   0},
+	{ "GCDWARPSENS",           2,   0,   0,   0},
+	{ "GCDWARPDIRECT",           2,   0,   0,   0},
+	{ "GCDWARPLOCATION",           2,   0,   0,   0},
+	{ "GCDWATER",           2,   0,   0,   0},
+	{ "GCDWHISTLE",           2,   0,   0,   0},
+	{ "GCDWINGAME",           2,   0,   0,   0},
+	{ "GCDBLOCKWEAPLVL",           2,   0,   0,   0},
+	{ "GCDTILE",           2,   0,   0,   0},
+	{ "GCDFLIP",           2,   0,   0,   0},
+	{ "GCDWALK",           2,   0,   0,   0},
+	{ "GCDTYPE",           2,   0,   0,   0},
+	{ "GCDCSETS",           2,   0,   0,   0},
+	{ "GCDFOO",           2,   0,   0,   0},
+	{ "GCDFRAMES",           2,   0,   0,   0},
+	{ "GCDSPEED",           2,   0,   0,   0},
+	{ "GCDNEXTCOMBO",           2,   0,   0,   0},
+	{ "GCDNEXTCSET",           2,   0,   0,   0},
+	{ "GCDFLAG",           2,   0,   0,   0},
+	{ "GCDSKIPANIM",           2,   0,   0,   0},
+	{ "GCDNEXTTIMER",           2,   0,   0,   0},
+	{ "GCDSKIPANIMY",           2,   0,   0,   0},
+	{ "GCDANIMFLAGS",           2,   0,   0,   0},
 	//combodata two input, one return
 	{ "GCDBLOCKWEAPON",             1,   0,   0,   0},
 	{ "GCDEXPANSION",             1,   0,   0,   0},
@@ -526,131 +526,123 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "SCDBLOCKTRIG",           2,   0,   0,   0},
 	{ "SCDCONVEYSPDX",           2,   0,   0,   0},
 	{ "SCDCONVEYSPDY",           2,   0,   0,   0},
-	{ "SCDCREATEENEM",           2,   0,   0,   0},  
-	{ "SCDCREATEENEMWH",           2,   0,   0,   0},  
-	{ "SCDCREATEENEMCH",           2,   0,   0,   0},  
-	{ "SCDDIRCHTYPE",           2,   0,   0,   0},  
-	{ "SCDDISTCHTILES",           2,   0,   0,   0},  
-	{ "SCDDIVEITEM",           2,   0,   0,   0},  
-	{ "SCDDOCK",           2,   0,   0,   0},  
-	{ "SCDFAIRY",           2,   0,   0,   0},  
-	{ "SCDFFCOMBOATTRIB",           2,   0,   0,   0},  
-	{ "SCDFOOTDECOTILE",           2,   0,   0,   0},  
-	{ "SCDFOOTDECOTYPE",           2,   0,   0,   0},  
-	{ "SCDHOOKSHOTGRAB",           2,   0,   0,   0},  
-	{ "SCDLADDERPASS",           2,   0,   0,   0},  
-	{ "SCDLOCKBLOCKTYPE",           2,   0,   0,   0},  
-	{ "SCDLOCKBLOCKCHANGE",           2,   0,   0,   0},  
-	{ "SCDMAGICMIRRORTYPE",           2,   0,   0,   0},  
-	{ "SCDMODIFYHPAMOUNT",           2,   0,   0,   0},  
-	{ "SCDMODIFYHPDELAY",           2,   0,   0,   0},  
-	{ "SCDMODIFYHPTYPE",           2,   0,   0,   0},  
-	{ "SCDMODIFYMPAMOUNT",           2,   0,   0,   0},  
-	{ "SCDMODIFYMPDELAY",           2,   0,   0,   0},  
-	{ "SCDMODIFYMPTYPE",           2,   0,   0,   0},  
-	{ "SCDNOPUSHBLOCKS",           2,   0,   0,   0},  
-	{ "SCDOVERHEAD",           2,   0,   0,   0},  
-	{ "SCDPLACEENEMY",           2,   0,   0,   0},  
-	{ "SCDPUSHDIR",           2,   0,   0,   0},  
-	{ "SCDPUSHWEIGHT",           2,   0,   0,   0},  
-	{ "SCDPUSHWAIT",           2,   0,   0,   0},  
-	{ "SCDPUSHED",           2,   0,   0,   0},  
-	{ "SCDRAFT",           2,   0,   0,   0},  
-	{ "SCDRESETROOM",           2,   0,   0,   0},  
-	{ "SCDSAVEPOINT",           2,   0,   0,   0},  
-	{ "SCDSCREENFREEZE",           2,   0,   0,   0},  
-	{ "SCDSECRETCOMBO",           2,   0,   0,   0},  
-	{ "SCDSINGULAR",           2,   0,   0,   0},  
-	{ "SCDSLOWMOVE",           2,   0,   0,   0},  
-	{ "SCDSTATUE",           2,   0,   0,   0},  
-	{ "SCDSTEPTYPE",           2,   0,   0,   0},  
-	{ "SCDSTEPCHANGETO",           2,   0,   0,   0},  
-	{ "SCDSTRIKEREMNANTS",           2,   0,   0,   0},  
-	{ "SCDSTRIKEREMNANTSTYPE",           2,   0,   0,   0},  
-	{ "SCDSTRIKECHANGE",           2,   0,   0,   0},  
-	{ "SCDSTRIKECHANGEITEM",           2,   0,   0,   0},  
-	{ "SCDTOUCHITEM",           2,   0,   0,   0},  
-	{ "SCDTOUCHSTAIRS",           2,   0,   0,   0},  
-	{ "SCDTRIGGERTYPE",           2,   0,   0,   0},  
-	{ "SCDTRIGGERSENS",           2,   0,   0,   0},  
-	{ "SCDWARPTYPE",           2,   0,   0,   0},  
-	{ "SCDWARPSENS",           2,   0,   0,   0},  
-	{ "SCDWARPDIRECT",           2,   0,   0,   0},  
-	{ "SCDWARPLOCATION",           2,   0,   0,   0},  
-	{ "SCDWATER",           2,   0,   0,   0},  
-	{ "SCDWHISTLE",           2,   0,   0,   0},  
-	{ "SCDWINGAME",           2,   0,   0,   0},  
-	{ "SCDBLOCKWEAPLVL",           2,   0,   0,   0},  
-	{ "SCDTILE",           2,   0,   0,   0},  
-	{ "SCDFLIP",           2,   0,   0,   0},  
-	{ "SCDWALK",           2,   0,   0,   0},  
-	{ "SCDTYPE",           2,   0,   0,   0},  
-	{ "SCDCSETS",           2,   0,   0,   0},  
-	{ "SCDFOO",           2,   0,   0,   0},  
-	{ "SCDFRAMES",           2,   0,   0,   0},  
-	{ "SCDSPEED",           2,   0,   0,   0},  
-	{ "SCDNEXTCOMBO",           2,   0,   0,   0},  
-	{ "SCDNEXTCSET",           2,   0,   0,   0},  
-	{ "SCDFLAG",           2,   0,   0,   0},  
-	{ "SCDSKIPANIM",           2,   0,   0,   0},  
-	{ "SCDNEXTTIMER",           2,   0,   0,   0},  
-	{ "SCDSKIPANIMY",           2,   0,   0,   0},  
-	{ "SCDANIMFLAGS",           2,   0,   0,   0},  
+	{ "SCDCREATEENEM",           2,   0,   0,   0},
+	{ "SCDCREATEENEMWH",           2,   0,   0,   0},
+	{ "SCDCREATEENEMCH",           2,   0,   0,   0},
+	{ "SCDDIRCHTYPE",           2,   0,   0,   0},
+	{ "SCDDISTCHTILES",           2,   0,   0,   0},
+	{ "SCDDIVEITEM",           2,   0,   0,   0},
+	{ "SCDDOCK",           2,   0,   0,   0},
+	{ "SCDFAIRY",           2,   0,   0,   0},
+	{ "SCDFFCOMBOATTRIB",           2,   0,   0,   0},
+	{ "SCDFOOTDECOTILE",           2,   0,   0,   0},
+	{ "SCDFOOTDECOTYPE",           2,   0,   0,   0},
+	{ "SCDHOOKSHOTGRAB",           2,   0,   0,   0},
+	{ "SCDLADDERPASS",           2,   0,   0,   0},
+	{ "SCDLOCKBLOCKTYPE",           2,   0,   0,   0},
+	{ "SCDLOCKBLOCKCHANGE",           2,   0,   0,   0},
+	{ "SCDMAGICMIRRORTYPE",           2,   0,   0,   0},
+	{ "SCDMODIFYHPAMOUNT",           2,   0,   0,   0},
+	{ "SCDMODIFYHPDELAY",           2,   0,   0,   0},
+	{ "SCDMODIFYHPTYPE",           2,   0,   0,   0},
+	{ "SCDMODIFYMPAMOUNT",           2,   0,   0,   0},
+	{ "SCDMODIFYMPDELAY",           2,   0,   0,   0},
+	{ "SCDMODIFYMPTYPE",           2,   0,   0,   0},
+	{ "SCDNOPUSHBLOCKS",           2,   0,   0,   0},
+	{ "SCDOVERHEAD",           2,   0,   0,   0},
+	{ "SCDPLACEENEMY",           2,   0,   0,   0},
+	{ "SCDPUSHDIR",           2,   0,   0,   0},
+	{ "SCDPUSHWEIGHT",           2,   0,   0,   0},
+	{ "SCDPUSHWAIT",           2,   0,   0,   0},
+	{ "SCDPUSHED",           2,   0,   0,   0},
+	{ "SCDRAFT",           2,   0,   0,   0},
+	{ "SCDRESETROOM",           2,   0,   0,   0},
+	{ "SCDSAVEPOINT",           2,   0,   0,   0},
+	{ "SCDSCREENFREEZE",           2,   0,   0,   0},
+	{ "SCDSECRETCOMBO",           2,   0,   0,   0},
+	{ "SCDSINGULAR",           2,   0,   0,   0},
+	{ "SCDSLOWMOVE",           2,   0,   0,   0},
+	{ "SCDSTATUE",           2,   0,   0,   0},
+	{ "SCDSTEPTYPE",           2,   0,   0,   0},
+	{ "SCDSTEPCHANGETO",           2,   0,   0,   0},
+	{ "SCDSTRIKEREMNANTS",           2,   0,   0,   0},
+	{ "SCDSTRIKEREMNANTSTYPE",           2,   0,   0,   0},
+	{ "SCDSTRIKECHANGE",           2,   0,   0,   0},
+	{ "SCDSTRIKECHANGEITEM",           2,   0,   0,   0},
+	{ "SCDTOUCHITEM",           2,   0,   0,   0},
+	{ "SCDTOUCHSTAIRS",           2,   0,   0,   0},
+	{ "SCDTRIGGERTYPE",           2,   0,   0,   0},
+	{ "SCDTRIGGERSENS",           2,   0,   0,   0},
+	{ "SCDWARPTYPE",           2,   0,   0,   0},
+	{ "SCDWARPSENS",           2,   0,   0,   0},
+	{ "SCDWARPDIRECT",           2,   0,   0,   0},
+	{ "SCDWARPLOCATION",           2,   0,   0,   0},
+	{ "SCDWATER",           2,   0,   0,   0},
+	{ "SCDWHISTLE",           2,   0,   0,   0},
+	{ "SCDWINGAME",           2,   0,   0,   0},
+	{ "SCDBLOCKWEAPLVL",           2,   0,   0,   0},
+	{ "SCDTILE",           2,   0,   0,   0},
+	{ "SCDFLIP",           2,   0,   0,   0},
+	{ "SCDWALK",           2,   0,   0,   0},
+	{ "SCDTYPE",           2,   0,   0,   0},
+	{ "SCDCSETS",           2,   0,   0,   0},
+	{ "SCDFOO",           2,   0,   0,   0},
+	{ "SCDFRAMES",           2,   0,   0,   0},
+	{ "SCDSPEED",           2,   0,   0,   0},
+	{ "SCDNEXTCOMBO",           2,   0,   0,   0},
+	{ "SCDNEXTCSET",           2,   0,   0,   0},
+	{ "SCDFLAG",           2,   0,   0,   0},
+	{ "SCDSKIPANIM",           2,   0,   0,   0},
+	{ "SCDNEXTTIMER",           2,   0,   0,   0},
+	{ "SCDSKIPANIMY",           2,   0,   0,   0},
+	{ "SCDANIMFLAGS",           2,   0,   0,   0},
 	{ "GETNPCDATATILE",           2,   0,   0,   0},
 	{ "GETNPCDATAEHEIGHT",           2,   0,   0,   0},
 	{ "SETNPCDATATILE",        2,   0,   0,   0},
 	{ "SETNPCDATAEHEIGHT",        2,   0,   0,   0},
 	{ "GETSPRITEDATASTRING",        2,   0,   0,   0},
 	//SpriteData
-	{ "GETSPRITEDATATILE",           2,   0,   0,   0},  
-	{ "GETSPRITEDATAMISC",           2,   0,   0,   0},  
-	{ "GETSPRITEDATACGETS",           2,   0,   0,   0},  
-	{ "GETSPRITEDATAFRAMES",           2,   0,   0,   0},  
-	{ "GETSPRITEDATASPEED",           2,   0,   0,   0},  
-	{ "GETSPRITEDATATYPE",           2,   0,   0,   0},  
-	{ "SETSPRITEDATASTRING",           2,   0,   0,   0},  
-	{ "SETSPRITEDATATILE",           2,   0,   0,   0},  
-	{ "SETSPRITEDATAMISC",           2,   0,   0,   0},  
-	{ "SETSPRITEDATACSETS",           2,   0,   0,   0},  
-	{ "SETSPRITEDATAFRAMES",           2,   0,   0,   0},  
-	{ "SETSPRITEDATASPEED",           2,   0,   0,   0},  
-	{ "SETSPRITEDATATYPE",           2,   0,   0,   0},  
+	{ "GETSPRITEDATATILE",           2,   0,   0,   0},
+	{ "GETSPRITEDATAMISC",           2,   0,   0,   0},
+	{ "GETSPRITEDATACGETS",           2,   0,   0,   0},
+	{ "GETSPRITEDATAFRAMES",           2,   0,   0,   0},
+	{ "GETSPRITEDATASPEED",           2,   0,   0,   0},
+	{ "GETSPRITEDATATYPE",           2,   0,   0,   0},
+	{ "SETSPRITEDATASTRING",           2,   0,   0,   0},
+	{ "SETSPRITEDATATILE",           2,   0,   0,   0},
+	{ "SETSPRITEDATAMISC",           2,   0,   0,   0},
+	{ "SETSPRITEDATACSETS",           2,   0,   0,   0},
+	{ "SETSPRITEDATAFRAMES",           2,   0,   0,   0},
+	{ "SETSPRITEDATASPEED",           2,   0,   0,   0},
+	{ "SETSPRITEDATATYPE",           2,   0,   0,   0},
 	//Game->SetContinueScreenSetting
-	{ "SETCONTINUESCREEN",           2,   0,   0,   0}, 
+	{ "SETCONTINUESCREEN",           2,   0,   0,   0},
 	//Game->SetContinueScreenString
-	{ "SETCONTINUESTRING",           2,   0,   0,   0}, 
-	
+	{ "SETCONTINUESTRING",           2,   0,   0,   0},
 	{ "LOADNPCDATAR",       1,   0,   0,   0},
 	{ "LOADNPCDATAV",       1,   1,   0,   0},
-	
 	{ "LOADCOMBODATAR",       1,   0,   0,   0},
 	{ "LOADCOMBODATAV",       1,   1,   0,   0},
-	
 	{ "LOADMAPDATAR",       1,   0,   0,   0},
 	{ "LOADMAPDATAV",       1,   1,   0,   0},
-	
 	{ "LOADSPRITEDATAR",       1,   0,   0,   0},
 	{ "LOADSPRITEDATAV",       1,   1,   0,   0},
-   
 	{ "LOADSCREENDATAR",       1,   0,   0,   0},
 	{ "LOADSCREENDATAV",       1,   1,   0,   0},
 
 	{ "LOADBITMAPDATAR",       1,   0,   0,   0},
 	{ "LOADBITMAPDATAV",       1,   1,   0,   0},
-	
 	{ "LOADSHOPR",       1,   0,   0,   0},
 	{ "LOADSHOPV",       1,   1,   0,   0},
 
 	{ "LOADINFOSHOPR",       1,   0,   0,   0},
 	{ "LOADINFOSHOPV",       1,   1,   0,   0},
-	
 	{ "LOADMESSAGEDATAR",       1,   0,   0,   0},
 	{ "LOADMESSAGEDATAV",       1,   1,   0,   0},
 	{ "MESSAGEDATASETSTRINGR",       1,   0,   0,   0},
 	{ "MESSAGEDATASETSTRINGV",       1,   1,   0,   0},
 	{ "MESSAGEDATAGETSTRINGR",       1,   0,   0,   0},
 	{ "MESSAGEDATAGETSTRINGV",       1,   1,   0,   0},
-	
 	{ "LOADDMAPDATAR",       1,   0,   0,   0},
 	{ "LOADDMAPDATAV",       1,   1,   0,   0},
 	{ "DMAPDATAGETNAMER",       1,   0,   0,   0},
@@ -661,7 +653,6 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "DMAPDATAGETTITLEV",       1,   1,   0,   0},
 	{ "DMAPDATASETTITLER",       1,   0,   0,   0},
 	{ "DMAPDATASETTITLEV",       1,   1,   0,   0},
-	
 	{ "DMAPDATAGETINTROR",       1,   0,   0,   0},
 	{ "DMAPDATAGETINTROV",       1,   1,   0,   0},
 	{ "DMAPDATANSETITROR",       1,   0,   0,   0},
@@ -670,19 +661,14 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "DMAPDATAGETMUSICV",       1,   1,   0,   0},
 	{ "DMAPDATASETMUSICR",       1,   0,   0,   0},
 	{ "DMAPDATASETMUSICV",       1,   1,   0,   0},
-	
 	{ "ADJUSTSFXVOLUMER",          1,   0,   0,   0},
 	{ "ADJUSTSFXVOLUMEV",          1,   1,   0,   0},
-	
 	{ "ADJUSTVOLUMER",          1,   0,   0,   0},
 	{ "ADJUSTVOLUMEV",          1,   1,   0,   0},
-	
 	{ "FXWAVYR",             1,   0,   0,   0},
 	{ "FXWAVYV",             1,   1,   0,   0},
-	
 	{ "FXZAPR",             1,   0,   0,   0},
 	{ "FXZAPV",             1,   1,   0,   0},
-	
 	{ "GREYSCALER",             1,   0,   0,   0},
 	{ "GREYSCALEV",             1,   1,   0,   0},
 	{ "RETURN",			0,	0,	0,	0},
@@ -691,7 +677,6 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "CLEARTINT",              0,   0,   0,   0},
 	{ "TINT",         0,   0,   0,   0},
 	{ "MONOHUE",         0,   0,   0,   0},
-	
 	{ "BMPRECTR",                0,   0,   0,   0},
 	{ "BMPCIRCLER",                0,   0,   0,   0},
 	{ "BMPARCR",                0,   0,   0,   0},
@@ -714,14 +699,12 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "BMPDRAWLAYERR",                0,   0,   0,   0},
 	{ "BMPDRAWSCREENR",                0,   0,   0,   0},
 	{ "BMPBLIT",                0,   0,   0,   0},
-	
 	{ "LINKWARPEXR",             1,   0,   0,   0},
 	{ "LINKWARPEXV",             1,   1,   0,   0},
 	{ "LINKEXPLODER",             1,   0,   0,   0},
 	{ "LINKEXPLODEV",             1,   1,   0,   0},
 	{ "NPCEXPLODER",             1,   0,   0,   0},
 	{ "NPCEXPLODEV",             1,   1,   0,   0},
-	
 	{ "ITEMEXPLODER",             1,   0,   0,   0},
 	{ "ITEMEXPLODEV",             1,   1,   0,   0},
 	{ "LWEAPONEXPLODER",             1,   0,   0,   0},
@@ -731,7 +714,6 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "RUNITEMSCRIPT",			   1,   0,   0,   0},
 	{ "GETRTCTIMER",             1,   0,   0,   0},
 	{ "GETRTCTIMEV",             1,   1,   0,   0},
-	
 	//new npc functions for npc scripts
 	{ "NPCDEAD",                1,   0,   0,   0},
 	{ "NPCKICKBUCKET",                0,   0,   0,   0},
@@ -772,14 +754,12 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "CLEARBITMAP",        0,   0,   0,   0},
 	{ "REGENERATEBITMAP",        0,   0,   0,   0},
 	{ "BMPBLITTO",                0,   0,   0,   0},
-	
 	{ "BMPDRAWSCREENSOLIDR",                0,   0,   0,   0},
 	{ "BMPDRAWSCREENCOMBOFR",                0,   0,   0,   0},
 	{ "BMPDRAWSCREENCOMBOIR",                0,   0,   0,   0},
 	{ "BMPDRAWSCREENCOMBOTR",                0,   0,   0,   0},
 	{ "BMPDRAWSCREENSOLID2R",                0,   0,   0,   0},
 	{ "GRAPHICSGETPIXEL",     1,   0,   0,   0},
-	
 	{ "BMPDRAWLAYERSOLIDR",     0,   0,   0,   0},
 	{ "BMPDRAWLAYERCFLAGR",     0,   0,   0,   0},
 	{ "BMPDRAWLAYERCTYPER",     0,   0,   0,   0},
@@ -798,22 +778,18 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "SETFALSEI",            1,   0,   0,   0},
 	{ "SETMOREI",             1,   0,   0,   0},
 	{ "SETLESSI",             1,   0,   0,   0},
-	
 	{ "ARRAYCOPY",          2,   0,   0,   0},
 	{ "ARRAYNCOPY",		       1,   0,   0,   0},
-	
-	//1 INPUT, NO RETURN 
+	//1 INPUT, NO RETURN
 	{ "REMCHR",                2,   0,   0,   0},
 	{ "STRINGUPPERLOWER",                2,   0,   0,   0},
 	{ "STRINGLOWERUPPER",                2,   0,   0,   0},
 	{ "STRINGCONVERTCASE",                2,   0,   0,   0},
-	
 	//1 input, 1 ret
 	{ "XLEN",                2,   0,   0,   0},
 	{ "XTOI",                2,   0,   0,   0},
 	{ "ILEN",                2,   0,   0,   0},
 	{ "ATOI",                2,   0,   0,   0},
-   
 	//2 INPUT, 1 RET, based on strcmp
 	{ "STRCSPN",                1,   0,   0,   0},
 	{ "STRSTR",                1,   0,   0,   0},
@@ -829,8 +805,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "ILEN2",                1,   0,   0,   0},
 	{ "ATOI2",                1,   0,   0,   0},
 	{ "REMCHR2",                1,   0,   0,   0},
-	
-	//3 INPUT 1 RET 
+	//3 INPUT 1 RET
 	{ "XTOA3",		       1,   0,   0,   0},
 	{ "STRCATF",		       1,   0,   0,   0},
 	{ "ITOA3",		       1,   0,   0,   0},
@@ -842,7 +817,6 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "STRRCHR3",		       1,   0,   0,   0},
 	{ "STRSPN3",		       1,   0,   0,   0},
 	{ "STRCSPN3",		       1,   0,   0,   0},
-	
 	{ "UPPERTOLOWER",                2,   0,   0,   0},
 	{ "LOWERTOUPPER",                2,   0,   0,   0},
 	{ "CONVERTCASE",                2,   0,   0,   0},
@@ -861,7 +835,6 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "GETITEMBYNAME",                1,   0,   0,   0},
 	{ "GETCOMBOBYNAME",                1,   0,   0,   0},
 	{ "GETDMAPBYNAME",                1,   0,   0,   0},
-	
 	{ "SRNDR",                1,   0,   0,   0},
 	{ "SRNDV",                1,   1,   0,   0},
 	{ "SRNDRND",              1,   0,   0,   0},
@@ -914,7 +887,6 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "TOINTEGER",           1,   0,   0,   0},
 	{ "FLOOR",           1,   0,   0,   0},
 	{ "CEILING",           1,   0,   0,   0},
-	
 	{ "FILECLOSE",           0,   0,   0,   0},
 	{ "FILEFREE",           0,   0,   0,   0},
 	{ "FILEISALLOCATED",           0,   0,   0,   0},
@@ -924,14 +896,12 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "FILEGETCHAR",           0,   0,   0,   0},
 	{ "FILEREWIND",           0,   0,   0,   0},
 	{ "FILECLEARERR",           0,   0,   0,   0},
-	
 	{ "FILEOPEN",           1,   0,   0,   0},
 	{ "FILECREATE",           1,   0,   0,   0},
 	{ "FILEREADSTR",           1,   0,   0,   0},
 	{ "FILEWRITESTR",           1,   0,   0,   0},
 	{ "FILEPUTCHAR",           1,   0,   0,   0},
 	{ "FILEUNGETCHAR",           1,   0,   0,   0},
-	
 	{ "FILEREADCHARS",           2,   0,   0,   0},
 	{ "FILEREADINTS",           2,   0,   0,   0},
 	{ "FILEWRITECHARS",           2,   0,   0,   0},
@@ -939,39 +909,29 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "FILESEEK",           2,   0,   0,   0},
 	{ "FILEOPENMODE",           2,   0,   0,   0},
 	{ "FILEGETERROR",           1,   0,   0,   0},
-	
 	{ "BITMAPFREE",           0,   0,   0,   0},
-	
 	{ "POPARGS",           2,   0,   1,   0},
 	{ "GAMERELOAD",           0,   0,   0,   0},
-	
 	{ "READPODARRAYR",           2,   0,   0,   0},
 	{ "READPODARRAYV",           2,   0,   1,   0},
 	{ "WRITEPODARRAYRR",           2,   0,   0,   0},
 	{ "WRITEPODARRAYRV",           2,   0,   1,   0},
 	{ "WRITEPODARRAYVR",           2,   1,   0,   0},
 	{ "WRITEPODARRAYVV",           2,   1,   1,   0},
-	
 	{ "PRINTFV",           1,   1,   0,   0},
 	{ "SPRINTFV",           1,   1,   0,   0},
-	
 	{ "STRCMPR",           2,   0,   0,   0},
 	{ "STRICMPR",           2,   0,   0,   0},
 	{ "STRINGICOMPARE",		       1,   0,   0,   0},
 	{ "STRINGNICOMPARE",		       1,   0,   0,   0},
-	
 	{ "FILEREMOVE",		       0,   0,   0,   0},
 	{ "FILESYSREMOVE",		       1,   0,   0,   0},
-	
 	{ "DRAWSTRINGR2",		       0,   0,   0,   0},
 	{ "BMPDRAWSTRINGR2",		       0,   0,   0,   0},
-	
 	{ "MODULEGETIC",             2,   0,   0,   0},
 	{ "ITOACAT",                2,   0,   0,   0},
-	
 	{ "FRAMER",                0,   0,   0,   0},
 	{ "BMPFRAMER",                0,   0,   0,   0},
-	
 	{ "LOADDIRECTORYR",                1,   0,   0,   0},
 	{ "DIRECTORYGET",                2,   0,   0,   0},
 	{ "DIRECTORYRELOAD",                0,   0,   0,   0},
@@ -979,7 +939,6 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "FILEWRITEBYTES",           2,   0,   0,   0},
 	{ "GETCOMBOSCRIPT",        1,   0,   0,   0},
 	{ "FILEREADBYTES",           2,   0,   0,   0},
-	
 	{ "LOADRNG",           0,   0,   0,   0},
 	{ "RNGRAND1",           0,   0,   0,   0},
 	{ "RNGRAND2",           1,   0,   0,   0},
@@ -1606,7 +1565,6 @@ script_variable variable_list[]=
 	{ "IDATAWRANGE", IDATAWRANGE, 0, 0 }, //Range
 	{ "IDATAUSEMVT", IDATAUSEMVT, 0, 0 }, //Movement[]
 	{ "IDATADURATION", IDATADURATION, 0, 0 }, //Duration
-	
 	{ "IDATADUPLICATES", IDATADUPLICATES, 0, 0 }, //Duplicates
 	{ "IDATADRAWLAYER", IDATADRAWLAYER, 0, 0 }, //DrawLayer
 	{ "IDATACOLLECTFLAGS", IDATACOLLECTFLAGS, 0, 0 }, //CollectFlags
@@ -1621,9 +1579,7 @@ script_variable variable_list[]=
 	{ "IDATAWEAPYOFS", IDATAWEAPYOFS, 0, 0 }, //WeaponDrawYOffset
 	{ "IDATAWEAPZOFS", IDATAWEAPZOFS, 0, 0 }, //WeaponDrawZOffset
 	{ "IDATAWPNINITD", IDATAWPNINITD, 0, 0 }, //WeaponD[8]
-	
 	{ "NPCWEAPSPRITE", NPCWEAPSPRITE, 0, 0 }, //WeaponSprite
-	
 	{ "DEBUGREFFFC", DEBUGREFFFC, 0, 0 }, //REFFFC
 	{ "DEBUGREFITEM", DEBUGREFITEM, 0, 0 }, //REFITEM
 	{ "DEBUGREFNPC", DEBUGREFNPC, 0, 0 }, //REFNPC
@@ -1658,27 +1614,23 @@ script_variable variable_list[]=
 	{"GAMESUBSCHEIGHT", GAMESUBSCHEIGHT, 0, 0 },
 	{"GAMEPLAYFIELDOFS", GAMEPLAYFIELDOFS, 0, 0 },
 	{"PASSSUBOFS", PASSSUBOFS, 0, 0 },
-	
 	{"COMBODATAID", COMBODATAID, 0, 0 },
 	{"REFFILE", REFFILE, 0, 0 },
 	{"REFSUBSCREEN", REFSUBSCREEN, 0, 0 },
 	// {"MAPDATAID", MAPDATAID, 0, 0 },
 	// {"MAPDATAID", MAPDATAID, 0, 0 },
-	
 
 	//NPCData
 	{"SETNPCDATASCRIPTDEF", SETNPCDATASCRIPTDEF, 0, 0 },
 	{"SETNPCDATADEFENSE", SETNPCDATADEFENSE, 0, 0 },
 	{"SETNPCDATASIZEFLAG", SETNPCDATASIZEFLAG, 0, 0 },
 	{"SETNPCDATAATTRIBUTE", SETNPCDATAATTRIBUTE, 0, 0 },
-	
 	{"SCDBLOCKWEAPON", SCDBLOCKWEAPON, 0, 0 },
 	{"SCDSTRIKEWEAPONS", SCDSTRIKEWEAPONS, 0, 0 },
 	{"SCDEXPANSION", SCDEXPANSION, 0, 0 },
 	{"SETGAMEOVERELEMENT", SETGAMEOVERELEMENT, 0, 0 },
 	{"SETGAMEOVERSTRING", SETGAMEOVERSTRING, 0, 0 },
 	{"MOUSEARR", MOUSEARR, 0, 0 },
-	
 	{"IDATAOVERRIDEFLWEAP", IDATAOVERRIDEFLWEAP, 0, 0 },
 	{"IDATATILEHWEAP", IDATATILEHWEAP, 0, 0 },
 	{"IDATATILEWWEAP", IDATATILEWWEAP, 0, 0 },
@@ -1707,7 +1659,6 @@ script_variable variable_list[]=
 	{"SPRITEDATAFRAMES", SPRITEDATAFRAMES, 0, 0 },
 	{"SPRITEDATASPEED", SPRITEDATASPEED, 0, 0 },
 	{"SPRITEDATATYPE", SPRITEDATATYPE, 0, 0 },
-	
 	//npcdata nd->
 	{"NPCDATATILE", NPCDATATILE, 0, 0 },
 	{"NPCDATAHEIGHT", NPCDATAHEIGHT, 0, 0 },
@@ -1753,10 +1704,8 @@ script_variable variable_list[]=
 	{"NPCDATADEFENSE", NPCDATADEFENSE, 0, 0 },
 	{"NPCDATASIZEFLAG", NPCDATASIZEFLAG, 0, 0 },
 	{"NPCDATAATTRIBUTE", NPCDATAATTRIBUTE, 0, 0 },
-	
 	{"NPCDATAFROZENTILE", NPCDATAFROZENTILE, 0, 0 },
 	{"NPCDATAFROZENCSET", NPCDATAFROZENCSET, 0, 0 },
-	
 	//mapdata md->
 	{"MAPDATAVALID", MAPDATAVALID, 0, 0 },
 	{"MAPDATAGUY", MAPDATAGUY, 0, 0 },
@@ -1838,20 +1787,15 @@ script_variable variable_list[]=
 	{"MAPDATASCREENMIDI", MAPDATASCREENMIDI, 0, 0 },
 	{"MAPDATALENSLAYER", MAPDATALENSLAYER, 0, 0 },
 	{"MAPDATAMISCD", MAPDATAMISCD, 0, 0},
-	
 	{"MAPDATASCREENSTATED", MAPDATASCREENSTATED, 0, 0},
 	{"MAPDATASCREENFLAGSD", MAPDATASCREENFLAGSD, 0, 0},
 	{"MAPDATASCREENEFLAGSD", MAPDATASCREENEFLAGSD, 0, 0},
-	
-	
-	
 	{"MAPDATACOMBODD", MAPDATACOMBODD, 0, 0},
 	{"MAPDATACOMBOCD", MAPDATACOMBOCD, 0, 0},
 	{"MAPDATACOMBOFD", MAPDATACOMBOFD, 0, 0},
 	{"MAPDATACOMBOTD", MAPDATACOMBOTD, 0, 0},
 	{"MAPDATACOMBOID", MAPDATACOMBOID, 0, 0},
 	{"MAPDATACOMBOSD", MAPDATACOMBOSD, 0, 0},
-	
 	{"SCREENDATAVALID", SCREENDATAVALID, 0, 0 },
 	{"SCREENDATAGUY", SCREENDATAGUY, 0, 0 },
 	{"SCREENDATASTRING", SCREENDATASTRING, 0, 0 },
@@ -1931,38 +1875,31 @@ script_variable variable_list[]=
 	{"SCREENDATAHOLDUPSFX", SCREENDATAHOLDUPSFX, 0, 0 },
 	{"SCREENDATASCREENMIDI", SCREENDATASCREENMIDI, 0, 0 },
 	{"SCREENDATALENSLAYER", SCREENDATALENSLAYER, 0, 0 },
-	
 	{"LINKSCRIPTTILE", LINKSCRIPTTILE, 0, 0 },
 	{"LINKSCRIPFLIP", LINKSCRIPFLIP, 0, 0 },
 	{"MAPDATAITEMX", MAPDATAITEMX, 0, 0 },
 	{"MAPDATAITEMY", MAPDATAITEMY, 0, 0 },
 	{"SCREENDATAITEMX", SCREENDATAITEMX, 0, 0 },
 	{"SCREENDATAITEMY", SCREENDATAITEMY, 0, 0 },
-	
 	{"MAPDATAFFEFFECTWIDTH", MAPDATAFFEFFECTWIDTH, 0, 0 },
 	{"MAPDATAFFEFFECTHEIGHT", MAPDATAFFEFFECTHEIGHT, 0, 0 },
 	{"SCREENDATAFFEFFECTWIDTH", SCREENDATAFFEFFECTWIDTH, 0, 0 },
 	{"SCREENDATAFFEFFECTHEIGHT", SCREENDATAFFEFFECTHEIGHT, 0, 0 },
-	
 	{"LOADMAPDATA", LOADMAPDATA, 0, 0 },
 	{"LWPNPARENT", LWPNPARENT, 0, 0 },
 	{"LWPNLEVEL", LWPNLEVEL, 0, 0 },
 	{"EWPNLEVEL", EWPNLEVEL, 0, 0 },
 	{"EWPNPARENT", EWPNPARENT, 0, 0 },
 	{"NPCPARENTUID", NPCPARENTUID, 0, 0 },
-	
-	
 	{"SHOPDATANAME", SHOPDATANAME, 0, 0 },
 	{"SHOPDATAITEM", SHOPDATAITEM, 0, 0 },
 	{"SHOPDATAHASITEM", SHOPDATAHASITEM, 0, 0 },
 	{"SHOPDATAPRICE", SHOPDATAPRICE, 0, 0 },
 	{"SHOPDATASTRING", SHOPDATASTRING, 0, 0 },
-	
 	{"NPCDATASHIELD", NPCDATASHIELD, 0, 0 },
 	{"NPCSHIELD", NPCSHIELD, 0, 0 },
 	{"AUDIOVOLUME", AUDIOVOLUME, 0, 0 },
 	{"AUDIOPAN", AUDIOPAN, 0, 0 },
-	
 	{"MESSAGEDATANEXT", MESSAGEDATANEXT, 0, 0 },
 	{"MESSAGEDATATILE", MESSAGEDATATILE, 0, 0 },
 	{"MESSAGEDATACSET", MESSAGEDATACSET, 0, 0 },
@@ -1977,7 +1914,6 @@ script_variable variable_list[]=
 	{"MESSAGEDATAVSPACE", MESSAGEDATAVSPACE, 0, 0 },
 	{"MESSAGEDATAHSPACE", MESSAGEDATAHSPACE, 0, 0 },
 	{"MESSAGEDATAFLAGS", MESSAGEDATAFLAGS, 0, 0 },
-	
 	{"DMAPDATAMAP", DMAPDATAMAP, 0, 0 },
 	{"DMAPDATALEVEL", DMAPDATALEVEL, 0, 0 },
 	{"DMAPDATAOFFSET", DMAPDATAOFFSET, 0, 0 },
@@ -1997,11 +1933,9 @@ script_variable variable_list[]=
 	{"DMAPDATADISABLEDITEMS", DMAPDATADISABLEDITEMS, 0, 0 },
 	{"DMAPDATAFLAGS", DMAPDATAFLAGS, 0, 0 },
 	{"DMAPDATAID", DMAPDATAID, 0, 0 },
-	
 	{"NPCFROZEN", NPCFROZEN, 0, 0 },
 	{"NPCFROZENTILE", NPCFROZENTILE, 0, 0 },
 	{"NPCFROZENCSET", NPCFROZENCSET, 0, 0 },
-	
 	{"ITEMPSTRING", ITEMPSTRING, 0, 0 },
 	{"ITEMPSTRINGFLAGS", ITEMPSTRINGFLAGS, 0, 0 },
 	{"ITEMOVERRIDEFLAGS", ITEMOVERRIDEFLAGS, 0, 0 },
@@ -2013,7 +1947,6 @@ script_variable variable_list[]=
 //	{"DMAPDATAJUMPLAYER", DMAPDATAJUMPLAYER, 0, 0 },
 	//end ffscript vars
 	//END VARS END OF BYTECODE
-	
 	//newcombo
 	{"COMBODTILE", COMBODTILE, 0, 0 },
 	{"COMBODFLIP", COMBODFLIP, 0, 0 },
@@ -2111,9 +2044,7 @@ script_variable variable_list[]=
 	{"LWEAPONSCRIPTUID", LWEAPONSCRIPTUID, 0, 0 },
 	{"EWEAPONSCRIPTUID", EWEAPONSCRIPTUID, 0, 0 },
 	{"ITEMSCRIPTUID", ITEMSCRIPTUID, 0, 0 },
-	
 	{"DMAPDATASIDEVIEW", DMAPDATASIDEVIEW, 0, 0 },
-	
 	{"DONULL", DONULL, 0, 0 },
 	{"DEBUGD", DEBUGD, 0, 0 },
 	{"GETPIXEL", GETPIXEL, 0, 0 },
@@ -2125,7 +2056,6 @@ script_variable variable_list[]=
 	{"NPCINITD", NPCINITD, 0, 0 },
 	{"NPCCOLLISION", NPCCOLLISION, 0, 0 },
 	{"NPCLINEDUP", NPCLINEDUP, 0, 0 },
-	
 	{"NPCDATAINITD", NPCLINEDUP, 0, 0 },
 	{"NPCDATASCRIPT", NPCDATASCRIPT, 0, 0 },
 	{"NPCMATCHINITDLABEL", NPCMATCHINITDLABEL, 0, 0 },
@@ -2134,29 +2064,22 @@ script_variable variable_list[]=
 	{"LWPNINITD", LWPNINITD, 0, 0 },
 	{"ITEMFAMILY", ITEMFAMILY, 0, 0 },
 	{"ITEMLEVEL", ITEMLEVEL, 0, 0 },
-	
 	{"EWPNSCRIPT", EWPNSCRIPT, 0, 0 },
 	{"EWPNINITD", EWPNINITD, 0, 0 },
-	
 	{"NPCSCRIPT", NPCSCRIPT, 0, 0 },
-	
 	{"DMAPSCRIPT", DMAPSCRIPT, 0, 0 },
 	{"DMAPINITD", DMAPINITD, 0, 0 },
-	
 	{"SCREENSCRIPT", SCREENSCRIPT, 0, 0 },
 	{"SCREENINITD", SCREENINITD, 0, 0 },
-	
 	{"LINKINITD", LINKINITD, 0, 0 },
 	{"NPCDATAWEAPONINITD", NPCDATAWEAPONINITD, 0, 0 },
 	{"NPCDATAWEAPONSCRIPT", NPCDATAWEAPONSCRIPT, 0, 0 },
-	
 	{"NPCSCRIPTTILE", NPCSCRIPTTILE, 0, 0 },
 	{"NPCSCRIPTFLIP", NPCSCRIPTFLIP, 0, 0 },
 	{"LWPNSCRIPTTILE", LWPNSCRIPTTILE, 0, 0 },
 	{"LWPNSCRIPTFLIP", LWPNSCRIPTFLIP, 0, 0 },
 	{"EWPNSCRIPTTILE", EWPNSCRIPTTILE, 0, 0 },
 	{"EWPNSCRIPTFLIP", EWPNSCRIPTFLIP, 0, 0 },
-	
 	{"LINKENGINEANIMATE", LINKENGINEANIMATE, 0, 0 },
 	{"NPCENGINEANIMATE", NPCENGINEANIMATE, 0, 0 },
 	{"LWPNENGINEANIMATE", LWPNENGINEANIMATE, 0, 0 },
@@ -2165,10 +2088,10 @@ script_variable variable_list[]=
 	{"SKIPF6", SKIPF6, 0, 0 },
 	{"LWPNUSEWEAPON", LWPNUSEWEAPON, 0, 0 },
 	{"LWPNUSEDEFENCE", LWPNUSEDEFENCE, 0, 0 },
-	{"LWPNROTATION", LWPNROTATION, 0, 0 },	
-	{"EWPNROTATION", EWPNROTATION, 0, 0 },	
-	{"NPCROTATION", NPCROTATION, 0, 0 },	
-	{"ITEMROTATION", ITEMROTATION, 0, 0 },	
+	{"LWPNROTATION", LWPNROTATION, 0, 0 },
+	{"EWPNROTATION", EWPNROTATION, 0, 0 },
+	{"NPCROTATION", NPCROTATION, 0, 0 },
+	{"ITEMROTATION", ITEMROTATION, 0, 0 },
 	{"LINKROTATION", LINKROTATION, 0, 0 },
 	{"LWPNSCALE", LWPNSCALE, 0, 0 },
 	{"EWPNSCALE", EWPNSCALE, 0, 0 },
@@ -2185,7 +2108,6 @@ script_variable variable_list[]=
 	{"KEYMODIFIERS", KEYMODIFIERS, 0, 0 },
 	{"SIMULATEKEYPRESS", SIMULATEKEYPRESS, 0, 0 },
 	{"KEYBINDINGS", KEYBINDINGS, 0, 0 },
-	
 	{"SCREENSCRIPT", SCREENSCRIPT, 0, 0 },
 	{"SCREENINITD", SCREENINITD, 0, 0 },
 	{"MAPDATASCRIPT", MAPDATASCRIPT, 0, 0 },
@@ -2194,7 +2116,6 @@ script_variable variable_list[]=
 	{"EWPNGRAVITY", EWPNGRAVITY, 0, 0 },
 	{"NPCGRAVITY", NPCGRAVITY, 0, 0 },
 	{"ITEMGRAVITY", ITEMGRAVITY, 0, 0 },
-	
 	{"MAPDATASIDEWARPID", MAPDATASIDEWARPID, 0, 0 },
 	{"SCREENSIDEWARPID", SCREENSIDEWARPID, 0, 0 },
 	{"LINKGRAVITY", LINKGRAVITY, 0, 0 },
@@ -2202,7 +2123,6 @@ script_variable variable_list[]=
 	{"SCREENDATASCRIPTDRAWS", SCREENDATASCRIPTDRAWS, 0, 0 },
 	{"MAPDATALAYERINVIS", MAPDATALAYERINVIS, 0, 0 },
 	{"MAPDATASCRIPTDRAWS", MAPDATASCRIPTDRAWS, 0, 0 },
-	
 	{"ITEMSCRIPTTILE", ITEMSCRIPTTILE, 0, 0 },
 	{"ITEMSCRIPTFLIP", ITEMSCRIPTFLIP, 0, 0 },
 	{"MAPDATAMAP", MAPDATAMAP, 0, 0 },
@@ -2214,7 +2134,6 @@ script_variable variable_list[]=
 	{ "LINKOTILE",		LINKOTILE,        0,             0 },
 	{ "LINKOFLIP",		LINKOFLIP,        0,             0 },
 	{ "ITEMSPRITEINITD",		ITEMSPRITEINITD,        0,             0 },
-	
 	{ "ZSCRIPTVERSION",		ZSCRIPTVERSION,        0,             0 },
 	{ "REFFILE",		REFFILE,        0,             0 },
 	{ "LINKCLIMBING",		LINKCLIMBING,        0,             0 },
@@ -2327,13 +2246,11 @@ script_variable variable_list[]=
 	{ "COMBODEFFECT", COMBODEFFECT, 0, 0 },
 	{ "SCREENSECRETSTRIGGERED", SCREENSECRETSTRIGGERED, 0, 0 },
 	{ "ITEMDIR", ITEMDIR, 0, 0 },
-	
 	{ "NPCFRAME", NPCFRAME, 0, 0 },
 	{ "LINKITEMX",           LINKITEMX,            0,             0 },
 	{ "LINKITEMY",           LINKITEMY,            0,             0 },
 	{ "ACTIVESSSPEED",           ACTIVESSSPEED,            0,             0 },
 	{ "HEROISWARPING",           HEROISWARPING,            0,             0 },
-	
 	{ "ITEMGLOWRAD",           ITEMGLOWRAD,            0,             0 },
 	{ "NPCGLOWRAD",           NPCGLOWRAD,            0,             0 },
 	{ "LWPNGLOWRAD",           LWPNGLOWRAD,            0,             0 },
@@ -2355,17 +2272,13 @@ script_variable variable_list[]=
 	{ "NPCDSHADOWSPR",           NPCDSHADOWSPR,            0,             0 },
 	{ "NPCDSPAWNSPR",           NPCDSPAWNSPR,            0,             0 },
 	{ "NPCDDEATHSPR",           NPCDDEATHSPR,            0,             0 },
-	
 	{ "COMBOLAYERR",           COMBOLAYERR,            0,             0 },
 	{ "COMBODATTRISHORTS",           COMBODATTRISHORTS,            0,             0 },
-	
 	{ "PUSHBLOCKLAYER",           PUSHBLOCKLAYER,            0,             0 },
 	{ "LINKGRABBED",           LINKGRABBED,            0,             0 },
 	{ "HEROBUNNY",           HEROBUNNY,            0,             0 },
-	
 	{ "GAMELSWITCH",           GAMELSWITCH,            0,             0 },
 	{ "GAMEBOTTLEST",           GAMEBOTTLEST,            0,             0 },
-	
 	{ "REFBOTTLETYPE",           REFBOTTLETYPE,            0,             0 },
 	{ "REFBOTTLESHOP",           REFBOTTLESHOP,            0,             0 },
 	{ "BOTTLECOUNTER",           BOTTLECOUNTER,            0,             0 },
@@ -2476,7 +2389,6 @@ script_variable variable_list[]=
 	{ "GAMEEVENTDATA", GAMEEVENTDATA, 0, 0 },
 	{ "ITEMDROPPEDBY", ITEMDROPPEDBY, 0, 0 },
 	{ "GAMEGSWITCH", GAMEGSWITCH, 0, 0 },
-	
 	{ "COMBODTRIGGERCOOLDOWN", COMBODTRIGGERCOOLDOWN, 0, 0 },
 	{ "COMBODTRIGGERCOPYCAT", COMBODTRIGGERCOPYCAT, 0, 0 },
 	{ "COMBODTRIGITEMPICKUP", COMBODTRIGITEMPICKUP, 0, 0 },
@@ -2530,7 +2442,6 @@ script_variable variable_list[]=
 	{ "RESRVD_VAR_EMILY28", RESRVD_VAR_EMILY28, 0, 0 },
 	{ "RESRVD_VAR_EMILY29", RESRVD_VAR_EMILY29, 0, 0 },
 	{ "RESRVD_VAR_EMILY30", RESRVD_VAR_EMILY30, 0, 0 },
-	
 	{ "REFPALDATA", REFPALDATA, 0, 0 },
 	{ "PALDATACOLOR", PALDATACOLOR, 0, 0 },
 	{ "PALDATAR", PALDATAR, 0, 0 },
@@ -2576,42 +2487,33 @@ script_variable variable_list[]=
 int32_t ffparse(char *string)
 {
 	//return int32_t(atof(string)*10000);
-	
 	//this function below isn't working too well yet
 	//clean_numeric_string(string);
 	double negcheck = atof(string);
-	
 	//if no decimal point, ascii to int32_t conversion
 	char *ptr=strchr(string, '.');
-	
 	if(!ptr)
 	{
 		return atoi(string)*10000;
 	}
-	
 	int32_t ret=0;
 	char *tempstring1;
 	tempstring1=(char *)malloc(strlen(string)+5);
 	strcpy(tempstring1, string);
-	
 	for(int32_t i=0; i<4; ++i)
 	{
 		tempstring1[strlen(string)+i]='0';
 	}
-	
 	ptr=strchr(tempstring1, '.');
 	*ptr=0;
 	ret=atoi(tempstring1)*10000;
-	
 	++ptr;
 	char *ptr2=ptr;
 	ptr2+=4;
 	*ptr2=0;
-	
 	if(negcheck<0)
 		ret-=atoi(ptr);
 	else ret+=atoi(ptr);
-	
 	if(tempstring1) //may be safer
 		free(tempstring1);
 	return ret;
@@ -2639,7 +2541,6 @@ bool ffcheck(char *arg)
 			i=0x100;
 		}
 	}
-	
 	return true;
 }
 
@@ -2652,7 +2553,6 @@ int32_t parse_script(script_data **script)
 		return D_CLOSE;
 	labels.clear();
 	FILE *zscript = fopen(temppath,"r");
-			
 	if(zscript == NULL)
 	{
 		jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -2685,7 +2585,6 @@ int32_t get_script_type(string const& name)
 		return SCRIPT_ITEMSPRITE;
 	else if(name=="COMBO" || name=="COMBODATA")
 		return SCRIPT_COMBO;
-	
 	return SCRIPT_NONE;
 }
 
@@ -2807,7 +2706,6 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 	size_t endpos = val.find_last_not_of(" \t\r\n\0");
 	if(endpos != string::npos) ++endpos;
 	val = val.substr(0, endpos); //trim trailing whitespace
-	
 	if(cmd == "#ZASM_VERSION")
 	{
 		meta.zasm_v = atoi(val.c_str());
@@ -2990,7 +2888,6 @@ bool parse_meta(zasm_meta& meta, const char *buffer)
 		else return false;
 	}
 	else return false;
-	
 	return true;
 }
 
@@ -3012,23 +2909,19 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 	bool success=true;
 	bool meta_done=false;
 	int32_t num_commands;
-	
 	for(int32_t i=0;; i++)
 	{
 		buffer[0]=0;
-		
 		if(stop)
 		{
 			num_commands=i+1;
 			break;
 		}
-		
 		bool meta = false;
 		for(int32_t j=0; j<0x400; j++)
 		{
 			char temp;
 			temp = getc(fscript);
-			
 			if(feof(fscript))
 			{
 				stop=true;
@@ -3119,17 +3012,13 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 		if(meta) continue;
 		else meta_done = true;
 		int32_t k=0;
-		
 		while(buffer[k] == ' ' || buffer[k] == '\t') k++;
-		
 		if(buffer[k] == '\0')
 		{
 			--i;
 			continue;
 		}
-		
 		k=0;
-		
 		if(buffer[k] != ' ' && buffer[k] !='\t' && buffer[k] != '\0')
 		{
 			char lbuf[80] = {0};
@@ -3165,20 +3054,16 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 			}
 		}
 	}
-	
 	fseek(fscript, 0, SEEK_SET);
 	stop = false;
 	meta_done = false;
-	
 	if((*script)!=NULL) delete (*script);
 	(*script) = new script_data(num_commands);
 	for(int32_t i=0; i<num_commands; i++)
 	{
 		(*script)->zasm[i].clear();
 	}
-	
 	//(*script) = new ffscript[num_commands];
-	
 	for(int32_t i=0; i<num_commands; i++)
 	{
 		if(stop)
@@ -3201,12 +3086,10 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 			bool meta_mode = false;
 			std::vector<int32_t> *arr_vec = nullptr;
 			std::string *arr_str = nullptr;
-			
 			for(int32_t j=0; j<0x400; j++)
 			{
 				char temp;
 				temp = getc(fscript);
-				
 				if(feof(fscript))
 				{
 					stop=true;
@@ -3305,48 +3188,36 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 					}
 				}
 			}
-			
 			if(meta_mode)
 			{
 				parse_meta((*script)->meta, buffer);
 				--i; continue;
 			}
 			meta_done = true;
-			
 			int32_t k=0, l=0;
-			
 			while(buffer[k] == ' ' || buffer[k] == '\t') k++;
-			
 			if(buffer[k] == '\0')
 			{
 				--i;
 				continue;
 			}
-			
 			k=0;
-			
 			while(buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0') k++; //label
-			
 			while((buffer[k] == ' ' || buffer[k] == '\t') && buffer[k] != '\0')  k++; //ws
-			
 			while(buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0') //command
 			{
 				combuf[l] = buffer[k];
 				k++;
 				l++;
 			}
-			
 			if(l == 0) //No command
 			{
 				--i;
 				continue;
 			}
-			
 			combuf[l] = '\0';
 			l=0;
-			
 			while((buffer[k] == ' ' || buffer[k] == '\t') && buffer[k] != '\0') k++; //ws
-			
 			if(buffer[k] == '"') //string
 			{
 				arr_str = new std::string(unescape_string(buffer+k));
@@ -3364,12 +3235,9 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 				k++;
 				l++;
 			}
-			
 			arg1buf[l] = '\0';
 			l=0;
-			
 			while((buffer[k] == ' ' || buffer[k] == '\t' || buffer[k] == ',') && buffer[k] != '\0') k++; //ws/comma
-			
 			bool bad_dstr = false;
 			bool bad_dvec = false;
 			if(buffer[k] == '"') //string
@@ -3397,11 +3265,8 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 				k++;
 				l++;
 			}
-			
 			arg2buf[l] = '\0';
-			
 			while((buffer[k] == ' ' || buffer[k] == '\t' || buffer[k] == ',') && buffer[k] != '\0') k++; //ws/comma
-			
 			if(buffer[k] == '"') //string
 			{
 				if(arr_str) bad_dstr = true;
@@ -3421,9 +3286,7 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 				}
 				k += vecstr_size(buffer+k);
 			}
-			
 			while((buffer[k] == ' ' || buffer[k] == '\t' || buffer[k] == ',') && buffer[k] != '\0') k++; //ws/comma
-			
 			if(buffer[k] == '"') //string
 			{
 				if(arr_str) bad_dstr = true;
@@ -3443,7 +3306,6 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 				}
 				k += vecstr_size(buffer+k);
 			}
-			
 			int32_t parse_err;
 			if(bad_dstr || bad_dvec ||
 				!(parse_script_section(combuf, arg1buf, arg2buf, script, i, parse_err, arr_vec, arr_str)))
@@ -3485,7 +3347,6 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 			}
 		}
 	}
-	
 	if(report_success && success) //(!stop) // stop is never true here
 	{
 		char buf[80],name[13];
@@ -3504,7 +3365,6 @@ zasmfile_fail:
 int32_t set_argument(char *argbuf, script_data **script, int32_t com, int32_t argument)
 {
 	int32_t *arg;
-	
 	if(argument)
 	{
 		arg = &((*script)->zasm[com].arg2);
@@ -3513,10 +3373,8 @@ int32_t set_argument(char *argbuf, script_data **script, int32_t com, int32_t ar
 	{
 		arg = &((*script)->zasm[com].arg1);
 	}
-	
 	int32_t i=0;
 	char tempvar[80];
-	
 	while(variable_list[i].id>-1)
 	{
 		if(variable_list[i].maxcount>1)
@@ -3526,7 +3384,6 @@ int32_t set_argument(char *argbuf, script_data **script, int32_t com, int32_t ar
 				if(strcmp(variable_list[i].name,"A")==0)
 					sprintf(tempvar, "%s%d", variable_list[i].name, j+1);
 				else sprintf(tempvar, "%s%d", variable_list[i].name, j);
-				
 				if(stricmp(argbuf,tempvar)==0)
 				{
 					int32_t temp = variable_list[i].id+(j*zc_max(1,variable_list[i].multiple));
@@ -3543,10 +3400,8 @@ int32_t set_argument(char *argbuf, script_data **script, int32_t com, int32_t ar
 				return 1;
 			}
 		}
-		
 		++i;
 	}
-	
 	return 0;
 }
 
@@ -3563,15 +3418,13 @@ int32_t parse_script_section(char *combuf, char *arg1buf, char *arg2buf, script_
 	zas.arg2 = 0;
 	zas.vecptr = vptr;
 	zas.strptr = sptr;
-	bool found_command=false;	
-	
+	bool found_command=false;
 	for(int32_t i=0; i<NUMCOMMANDS&&!found_command; ++i)
 	{
 		if(strcmp(combuf,command_list[i].name)==0)
 		{
 			found_command=true;
 			zas.command = i;
-			
 			if(((ustrnicmp(combuf,"GOTO",4)==0)||(ustrnicmp(combuf,"LOOP",4)==0)) && ustricmp(combuf, "GOTOR"))
 			{
 				string lbl(arg1buf);
@@ -3584,8 +3437,6 @@ int32_t parse_script_section(char *combuf, char *arg1buf, char *arg2buf, script_
 				{
 					(*script)->zasm[com].arg1 = atoi(arg1buf)-1;
 				}
-				
-				
 				if(ustrnicmp(combuf,"LOOP",4)==0)
 				{
 					if(command_list[i].arg2_type==1)  //this should NEVER happen with a loop, as arg2 needs to be a variable
@@ -3595,7 +3446,6 @@ int32_t parse_script_section(char *combuf, char *arg1buf, char *arg2buf, script_
 							retcode=ERR_PARAM2;
 							return 0;
 						}
-						
 						(*script)->zasm[com].arg2 = ffparse(arg2buf);
 					}
 					else
@@ -3619,7 +3469,6 @@ int32_t parse_script_section(char *combuf, char *arg1buf, char *arg2buf, script_
 							retcode=ERR_PARAM1;
 							return 0;
 						}
-						
 						(*script)->zasm[com].arg1 = ffparse(arg1buf);
 					}
 					else
@@ -3630,7 +3479,6 @@ int32_t parse_script_section(char *combuf, char *arg1buf, char *arg2buf, script_
 							return 0;
 						}
 					}
-					
 					if(command_list[i].args>1)
 					{
 						if(command_list[i].arg2_type==1)
@@ -3640,7 +3488,6 @@ int32_t parse_script_section(char *combuf, char *arg1buf, char *arg2buf, script_
 								retcode=ERR_PARAM2;
 								return 0;
 							}
-							
 							(*script)->zasm[com].arg2 = ffparse(arg2buf);
 						}
 						else
@@ -3667,12 +3514,10 @@ int32_t parse_script_section(char *combuf, char *arg1buf, char *arg2buf, script_
 			}
 		}
 	}
-	
 	if(found_command)
 	{
 		return 1;
 	}
-	
 	retcode=ERR_INSTRUCTION;
 	return 0;
 }

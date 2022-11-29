@@ -7,9 +7,7 @@
  * @file sin1.cpp
  * @author stfwi
  **/
- 
 #include "sin1.h"
- 
 /*
  * The number of bits of our data type: here 16 (sizeof operator returns bytes).
  */
@@ -17,7 +15,6 @@
 #ifndef INT16_MAX
 #define INT16_MAX   ((1<<(INT16_BITS-1))-1)
 #endif
- 
 /*
  * "5 bit" large table = 32 values. The mask: all bit belonging to the table
  * are 1, the all above 0.
@@ -25,7 +22,6 @@
 #define TABLE_BITS  (5)
 #define TABLE_SIZE  (1<<TABLE_BITS)
 #define TABLE_MASK  (TABLE_SIZE-1)
- 
 /*
  * The lookup table is to 90DEG, the input can be -360 to 360 DEG, where negative
  * values are transformed to positive before further processing. We need two
@@ -37,7 +33,6 @@
 #define NEGATE_BIT  (1<<(TABLE_BITS+1))
 #define INTERP_BITS (INT16_BITS-1-LOOKUP_BITS)
 #define INTERP_MASK ((1<<INTERP_BITS)-1)
- 
 /**
  * "5 bit" lookup table for the offsets. These are the sines for exactly
  * at 0deg, 11.25deg, 22.5deg etc. The values are from -1 to 1 in Q15.
@@ -49,7 +44,6 @@ static int16_t sin90[TABLE_SIZE+1] = {
   0x7640,0x7883,0x7a7c,0x7c29,0x7d89,0x7e9c,0x7f61,0x7fd7,
   0x7fff
 };
- 
 /**
  * Sine calculation using interpolated table lookup.
  * Instead of radiants or degrees we use "turns" here. Means this
@@ -74,7 +68,6 @@ int16_t sin1(int16_t angle)
   if((angle >> INTERP_BITS) & NEGATE_BIT) v1 = -v1;
   return v1;
 }
- 
 /**
  * Cosine calculation using interpolated table lookup.
  * Instead of radiants or degrees we use "turns" here. Means this

@@ -1,12 +1,12 @@
 namespace dmapinfo
 {
 	enum dmapgridpositions
-	{ 
+	{
 		/*The Grid[index] is the row, with leftmost being 0.
-		/ The grid values are OR'd together, with MSB at left, and LSB at right, so, 
-		/ if the top-rightmost screen is marked visible, then Grid[0] will == 1, 
+		/ The grid values are OR'd together, with MSB at left, and LSB at right, so,
+		/ if the top-rightmost screen is marked visible, then Grid[0] will == 1,
 		/ if the bottom-leftmost screen is marked visible, then Grid[7] will == 128
-		/ if both the top-leftmost and top-rightmost screens are marked visible, then 
+		/ if both the top-leftmost and top-rightmost screens are marked visible, then
 		/ Grid[0] will == 129
 		*/
 		dmMAPGRID_ROW_0, dmMAPGRID_ROW_1, dmMAPGRID_ROW_2, dmMAPGRID_ROW_3,
@@ -27,7 +27,7 @@ namespace dmapinfo
 			case 6: return dmMAPGRID_COL_6;
 			case 7: return dmMAPGRID_COL_7;
 			default:
-			{ 
+			{
 				printf("Invalid Column ID (%d) passed to dmapinfo::GetGridColumnValue().\nLegal values are 0 to 7.\n", c);
 				return -1;
 			}

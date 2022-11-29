@@ -18,17 +18,17 @@ npc script wolfie
 		while(1)
 		{
 			this->ConstantWalk({this->Rate, this->Homing, this->Hunger});
-			unless(bite->isValid()) 
+			unless(bite->isValid())
 			{
 				bite = Screen->CreateLWeapon(EW_SCRIPT1);
 				bite->DrawYOffset = -32768;
 				bite->Damage = 2;
 			}
-			if(bite->isValid()) 
+			if(bite->isValid())
 			{
 				wolfnme::positionbite(this, bite);
 				wolfnme::transformbite(this, bite);
-				
+
 			}
 			Waitdraw();
 			wolfnme::transform2x1(this,clks);
@@ -38,7 +38,7 @@ npc script wolfie
 }
 
 namespace wolfnme
-{		
+{
 	void positionbite(npc n, lweapon bite)
 	{
 		switch(n->Dir)

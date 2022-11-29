@@ -106,7 +106,7 @@ void solid_object::copy(solid_object const& other)
 	setSolid(other.solid);
 }
 
-solid_object::solid_object(solid_object const& other) 
+solid_object::solid_object(solid_object const& other)
 {
 	copy(other);
 }
@@ -213,12 +213,10 @@ void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy, in
 	     obj_oy = obj->old_y + obj->hyofs + obj->sysz_ofs;
 	int32_t obj_w = obj->hxsz + obj->sxsz_ofs,
 	        obj_h = obj->hysz + obj->sysz_ofs;
-	
 	zfix rx = x+hxofs+sxofs, ry = y+hyofs+syofs,
 		 rw = hxsz+sxsz_ofs, rh = hysz+sysz_ofs;
 	bool sideview_slim = false;
 	#define ZF_TO_INT(zf) (zf).getFloor()
-	
 	if(sideview_mode())
 	{
 		bool ride_platform = false;
@@ -257,7 +255,6 @@ void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy, in
 			sxsz_ofs -= 8;
 		}
 	}
-	
 	if(odx && ody)
 	{
 		//first lets see if the object is even in range; if not we can skip all these checks
@@ -301,10 +298,8 @@ void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy, in
 			rightx = leftx + obj_w - 1;
 			bottomy = topy + obj_h - 1;
 
-			
 			//however, depending on the direction, we want to use different corners of the object.
 			//thankfully, we can tell the direction by getting the signs of the velocity. if they're both equal, it's upleft and downright instead.
-			
 			zfix lefty = (sign(odx) == sign(ody)) ? bottomy : topy;
 			zfix righty = (sign(odx) == sign(ody)) ? topy : bottomy;
 			zfix side = 0;
@@ -319,7 +314,7 @@ void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy, in
 			{
 				bool check = true;
 				side = 0;
-				if (lineBoxCollision(leftx, lefty, leftx+todx, lefty+abs(ody), rx, ry, rw, rh)) 
+				if (lineBoxCollision(leftx, lefty, leftx+todx, lefty+abs(ody), rx, ry, rw, rh))
 				{
 					--side;
 					check = false;
@@ -347,7 +342,7 @@ void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy, in
 					if (obj->collide(rx, ry, rw, rh))
 					{
 						double val = comparePointLine(rx+rw/2, ry+rh/2, ox, oy, nx, ny);
-						if (abs(val) > 6) 
+						if (abs(val) > 6)
 						{
 							switch(pdir)
 							{
@@ -455,7 +450,6 @@ void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy, in
 			dy = ry - ory;
 			// if (collide(obj_x, obj_y, obj_w, obj_h))
 			// {
-				
 				// if (abs(obj_x+sxofs - rx) > abs(obj_y + ((ry - obj_y) < 0? syofs:0) - ry))
 				// {
 					// if ((rx - obj_x) > 0) dx = obj_x + obj_w - rx;

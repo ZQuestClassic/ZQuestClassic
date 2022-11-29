@@ -89,20 +89,20 @@ can be described by a series of letters for each operand.  The overall
 constraint for an operand is made from the letters for this operand
 from the first alternative, a comma, the letters for this operand from
 the second alternative, a comma, and so on until the last alternative.
-All operands for a single instruction must have the same number of 
+All operands for a single instruction must have the same number of
 alternatives.
 </p>
-<p>So the first alternative for the 68000&rsquo;s logical-or could be written as 
-<code>&quot;+m&quot; (output) : &quot;ir&quot; (input)</code>.  The second could be <code>&quot;+r&quot; 
-(output): &quot;irm&quot; (input)</code>.  However, the fact that two memory locations 
-cannot be used in a single instruction prevents simply using <code>&quot;+rm&quot; 
-(output) : &quot;irm&quot; (input)</code>.  Using multi-alternatives, this might be 
+<p>So the first alternative for the 68000&rsquo;s logical-or could be written as
+<code>&quot;+m&quot; (output) : &quot;ir&quot; (input)</code>.  The second could be <code>&quot;+r&quot;
+(output): &quot;irm&quot; (input)</code>.  However, the fact that two memory locations
+cannot be used in a single instruction prevents simply using <code>&quot;+rm&quot;
+(output) : &quot;irm&quot; (input)</code>.  Using multi-alternatives, this might be
 written as <code>&quot;+m,r&quot; (output) : &quot;ir,irm&quot; (input)</code>.  This describes
-all the available alternatives to the compiler, allowing it to choose 
+all the available alternatives to the compiler, allowing it to choose
 the most efficient one for the current conditions.
 </p>
-<p>There is no way within the template to determine which alternative was 
-chosen.  However you may be able to wrap your <code>asm</code> statements with 
+<p>There is no way within the template to determine which alternative was
+chosen.  However you may be able to wrap your <code>asm</code> statements with
 builtins such as <code>__builtin_constant_p</code> to achieve the desired results.
 </p>
 

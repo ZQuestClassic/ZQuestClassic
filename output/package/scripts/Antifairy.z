@@ -12,13 +12,13 @@ ffc script WallBouncer
         float step;
         float xStep;
         float yStep;
-        
+
         // Initialize
         ghost=Ghost_InitAutoGhost(this, enemyID, GHF_NO_FALL);
         Ghost_TileWidth=Ghost_GetAttribute(ghost, WB_ATTR_TILE_WIDTH, 1, 1, 4);
         Ghost_TileHeight=Ghost_GetAttribute(ghost, WB_ATTR_TILE_HEIGHT, 1, 1, 4);
         Ghost_SpawnAnimationPuff(this, ghost);
-        
+
         // Set flags
         flags=GHF_STUN|GHF_CLOCK;
         if(ghost->Attributes[WB_ATTR_IGNORE_WATER]>0)
@@ -26,15 +26,15 @@ ffc script WallBouncer
         if(ghost->Attributes[WB_ATTR_IGNORE_PITS]>0)
             flags|=GHF_IGNORE_PITS;
         Ghost_SetFlags(flags);
-        
+
         // Get initial movement
         angle=45+90*Rand(4);
         step=ghost->Step/100;
         ghost->Step=0; // In case it's a walker
-        
+
         xStep=step*Cos(angle);
         yStep=step*Sin(angle);
-        
+
         while(true)
         {
             // Bounce
@@ -48,7 +48,7 @@ ffc script WallBouncer
                 if(!Ghost_CanMove(DIR_RIGHT, xStep, 3))
                    xStep*=-1;
             }
-            
+
             if(yStep<0)
             {
                 if(!Ghost_CanMove(DIR_UP, -yStep, 3))
@@ -59,7 +59,7 @@ ffc script WallBouncer
                 if(!Ghost_CanMove(DIR_DOWN, yStep, 3))
                    yStep*=-1;
             }
-            
+
             // And move
             Ghost_MoveXY(xStep, yStep, 3);
             Ghost_Waitframe(this, ghost, true, true);

@@ -23,7 +23,7 @@ Almost all pull requests should be posted to the **master branch** of the offici
 Please use the following as a guide for where to submit your patch:
 
  - If you are adding a **new feature**, submit your patch to the master branch only.
- - If you are fixing a bug that affects the latest version of the code, submit it to the master branch. 
+ - If you are fixing a bug that affects the latest version of the code, submit it to the master branch.
  - If you are fixing a bug that also affects an older version of ZC, you may optionally also submit a patch for that older version **in addition to** your patch of master.
  - If you are fixing a bug that only affects an old version of ZC (because the bug was fixed by an unrelated change in the master branch), you may submit a patch only to an old version's branch. This is the **only case** where you should be committing a patch solely to a non-master branch of the repository.
 
@@ -48,4 +48,4 @@ If you want to report a bug or ask for help, you can do so on the "Issues" page 
 
 ## Becoming an Official Developer
 
-We are always looking for competent new developers to replace those that retire or move on from the project. New developers will be added to the project by the unanimous consent of the existing developers. If you have a history of successfully submitting patches to the repository, an understanding of the project and its philosophy, and evidence of good communication and collaboration skills, we encourage you to get in touch. 
+We are always looking for competent new developers to replace those that retire or move on from the project. New developers will be added to the project by the unanimous consent of the existing developers. If you have a history of successfully submitting patches to the repository, an understanding of the project and its philosophy, and evidence of good communication and collaboration skills, we encourage you to get in touch.

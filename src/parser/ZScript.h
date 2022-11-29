@@ -29,10 +29,8 @@ namespace ZScript
 	class ScriptScope;
 	class NamespaceScope;
 	class FunctionScope;
-	
 	////////////////////////////////////////////////////////////////
 	// Program
-	
 	class Program : private NoCopy
 	{
 	public:
@@ -76,7 +74,6 @@ namespace ZScript
 		std::map<ASTScript*, Script*> scriptsByNode_;
 		std::map<std::string, UserClass*> classesByName_;
 		std::map<ASTClass*, UserClass*> classesByNode_;
-		
 		TypeStore typeStore_;
 		RootScope* rootScope_;
 		ASTFile& root_;
@@ -90,7 +87,6 @@ namespace ZScript
 
 	class UserScript;
 	class BuiltinScript;
-	
 	class Script
 	{
 	public:
@@ -103,12 +99,9 @@ namespace ZScript
 		virtual ASTScript* getNode() const = 0;
 		virtual ScriptScope& getScope() = 0;
 		virtual ScriptScope const& getScope() const = 0;
-		
 		void setRun(Function* func) {runFunc = func;}
 		Function* getRun() const {return runFunc;}
-		
 		bool isPrototypeRun() const;
-		
 		std::vector<std::shared_ptr<Opcode>> code;
 
 	protected:
@@ -158,11 +151,9 @@ namespace ZScript
 		ASTScript* getNode() const /*override*/ {return NULL;};
 		ScriptScope& getScope() /*override*/ {return *scope;}
 		ScriptScope const& getScope() const /*override*/ {return *scope;}
-		
 	private:
 		BuiltinScript(Program&, ScriptType, std::string const& name);
 		static const std::string builtin_author;
-		
 		ScriptType type;
 		std::string name;
 		ScriptScope* scope;
@@ -173,7 +164,6 @@ namespace ZScript
 	BuiltinScript* createScript(
 			Program&, Scope&, ScriptType, std::string const& name,
 			CompileErrorHandler* = NULL);
-	
 	std::optional<int32_t> getLabel(Script const&);
 
 	////////////////////////////////////////////////////////////////
@@ -192,7 +182,6 @@ namespace ZScript
 		ClassScope const& getScope() const {return *scope;}
 		DataType* getType() {return classType;}
 		void setType(DataType* t) {classType = t;}
-		
 		std::vector<int32_t> members;
 	protected:
 		UserClass(Program& program, ASTClass& user_class);
@@ -206,32 +195,24 @@ namespace ZScript
 
 	UserClass* createClass(Program&, Scope&, ASTClass&, CompileErrorHandler* = NULL);
 
-	
 	////////////////////////////////////////////////////////////////
 	// Namespace
-	
 	class Namespace
 	{
 		friend Namespace* createNamespace(Program& program, Scope& parentScope, ASTNamespace& node, CompileErrorHandler* errorHandler);
-		
 	public:
 		Namespace(ASTNamespace& namesp);
 		std::string const& getName() const {return name;}
 		NamespaceScope& getScope() {return *scope;}
 		NamespaceScope const& getScope() const {return *scope;}
 		void setScope(NamespaceScope* newscope) {scope = newscope;}
-		
 	private:
-		
 		NamespaceScope* scope;
 		std::string name;
 	};
-	
 	Namespace* createNamespace(Program& program, Scope& parentScope, ASTNamespace& node, CompileErrorHandler* errorHandler = NULL);
-	
 	////////////////////////////////////////////////////////////////
 	// Datum
-	
 	// Something that can be resolved to a data value.
 	class Datum
 	{
@@ -247,18 +228,14 @@ namespace ZScript
 
 		// Get the data's name.
 		virtual std::optional<std::string> getName() const {return std::nullopt;}
-		
 		// Get the value at compile time.
 		virtual std::optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return std::nullopt;}
 
 		// Get the declaring node.
 		virtual AST* getNode() const {return NULL;}
-		
 		// Get the global register this uses.
 		virtual std::optional<int32_t> getGlobalId() const {return std::nullopt;}
-		
 		virtual bool isBuiltIn() const {return false;}
-		
 	protected:
 		Datum(Scope& scope, DataType const& type);
 
@@ -279,7 +256,6 @@ namespace ZScript
 		static Literal* create(
 				Scope&, ASTLiteral&, DataType const&,
 				CompileErrorHandler* = NULL);
-		
 		ASTLiteral* getNode() const {return &node;}
 
 	private:
@@ -306,7 +282,6 @@ namespace ZScript
 		ASTDataDecl& node;
 		std::optional<int32_t> globalId;
 	};
-	
 	//A UserClass variable
 	class UserClassVar : public Datum
 	{
@@ -320,11 +295,9 @@ namespace ZScript
 		UserClass* getClass() const {return &(scope.getClass()->user_class);}
 		int32_t getIndex() const {return _index;}
 		void setIndex(int32_t ind) {_index = ind;}
-		
 		bool is_arr;
 	private:
 		UserClassVar(Scope& scope, ASTDataDecl& node, DataType const& type);
-		
 		int32_t _index;
 		ASTDataDecl& node;
 	};
@@ -341,7 +314,6 @@ namespace ZScript
 		std::optional<int32_t> getGlobalId() const {return globalId;}
 
 		virtual bool isBuiltIn() const {return true;}
-		
 	private:
 		BuiltinVariable(Scope&, DataType const&, std::string const& name);
 
@@ -362,7 +334,6 @@ namespace ZScript
 		std::optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return value;}
 
 		ASTDataDecl* getNode() const {return &node;}
-	
 	private:
 		Constant(Scope&, ASTDataDecl&, DataType const&, int32_t value);
 
@@ -382,7 +353,6 @@ namespace ZScript
 		std::optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return value;}
 
 		virtual bool isBuiltIn() const {return true;}
-		
 	private:
 		BuiltinConstant(Scope&, DataType const&,
 		                std::string const& name, int32_t value);
@@ -413,11 +383,8 @@ namespace ZScript
 		bool prefix;
 		std::vector<DataType const*> parameterTypes;
 	};
-	
-	
 	////////////////////////////////////////////////////////////////
 	// Function
-	
 	class Function
 	{
 	public:
@@ -425,7 +392,6 @@ namespace ZScript
 		         std::vector<DataType const*> paramTypes, std::vector<std::string const*> paramNames,
 		         int32_t id, int32_t flags = 0, int32_t internal_flags = 0, bool prototype = false, ASTExprConst* defaultReturn = NULL);
 		~Function();
-		
 		DataType const* returnType;
 		std::string name;
 		bool hasPrefixType;
@@ -445,10 +411,8 @@ namespace ZScript
 		// Add code for this function, transferring ownership.
 		// Clears the input vector.
 		void giveCode(std::vector<std::shared_ptr<Opcode>>& code);
-		
 		FunctionSignature getSignature() const {
 			return FunctionSignature(*this);}
-		
 		// If this is a script level function, return that script.
 		Script* getScript() const;
 		UserClass* getClass() const;
@@ -462,15 +426,12 @@ namespace ZScript
 			state ? flags |= flag : flags &= ~flag;
 		}
 		bool getFlag(int32_t flag) const {return (flags & flag) != 0;}
-		
 		bool isInternal() const {return !node;};
-		
 		// If this is a tracing function (disabled by `#option LOGGING false`)
 		bool isTracing() const;
 		int32_t internal_flags;
 		bool prototype;
 		ASTExprConst* defaultReturn;
-		
 	private:
 		mutable std::optional<int32_t> label;
 		mutable std::optional<int32_t> altlabel;

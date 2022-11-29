@@ -6,8 +6,8 @@
 void InduceEnemyStatusEffect(ffc f, int scriptNum, int args, npc n){
 	if (n->HP<=0) return;
 	    // Invalid script
-    if(scriptNum<0 || scriptNum>511) return;    
-    ffc theFFC;    
+    if(scriptNum<0 || scriptNum>511) return;
+    ffc theFFC;
     // Find an FFC not already in use
     for(int i=FFCS_MIN_FFC; i<=FFCS_MAX_FFC; i++) {
         theFFC=Screen->LoadFFC(i);
@@ -15,20 +15,20 @@ void InduceEnemyStatusEffect(ffc f, int scriptNum, int args, npc n){
         if(theFFC->Script!=0 ||
          (theFFC->Data!=0 && theFFC->Data!=FFCS_INVISIBLE_COMBO) ||
          theFFC->Flags[FFCF_CHANGER]) continue;
-         if (FFCNum(f)>=FFCNum(theFFC)) continue;      
+         if (FFCNum(f)>=FFCNum(theFFC)) continue;
         // Found an unused one; set it up
         theFFC->Data=FFCS_INVISIBLE_COMBO;
-        theFFC->Script=scriptNum;        
+        theFFC->Script=scriptNum;
         if(args!=NULL)
         {
             for(int j=Min(SizeOfArray(args), 7)-1; j>=0; j--)
                 theFFC->InitD[j]=args[j];
-        }    
-        theFFC->InitD[7] = NpcNum(n);    
+        }
+        theFFC->InitD[7] = NpcNum(n);
         return;
     }
     // No FFCs available
-    return;	
+    return;
 }
 
 //Shortcut for inducing given status effect on any enemy hit by lweapon (defenses and shields are accounted).

@@ -43,7 +43,7 @@ The constants look similar to this:
 const int CONSTANT_NAME = ###; // And sometimes there's a note here
 ```
 
-The ### part is what you need to change. Be careful to leave the semicolon in place. 
+The ### part is what you need to change. Be careful to leave the semicolon in place.
 
 These are the standard settings:
 
@@ -82,7 +82,7 @@ AUTOGHOST_MAX_FFC
 :   Every scripted enemy uses at least one FFC. Set these to limit the range of
     FFCs they will use automatically. Use these if you want to reserve some FFCs
     for other purposes. Both must be between 1 and 32.
-    
+
     !!! attention
         If all FFCs in this range are in use when an enemy appears, the script
         won't be able to run, so you shouldn't limit the range more than necessary.
@@ -98,7 +98,7 @@ GH_DRAW_OVER_THRESHOLD
 :   Some scripts set the FFC's **Draw Over** flag automatically as the enemy moves
     up and down. This determines the Z value at which it changes. This is similar
     to the setting **Jumping Sprite Layer Threshold** in the quest's initialization data.
-   
+
 GH_GRAVITY
 GH_TERMINAL_VELOCITY
 :   These should match the numbers set for gravity and terminal velocity in
@@ -147,12 +147,12 @@ __GH_ETHEREAL
 
 __GH_FIX_EWM_FALL
 :    This is a bugfix setting that prevents inappropriate removal of falling weapons
-     on sideview screens. 
+     on sideview screens.
      this to 0 if you are using legacy scripts that are incompatible with this option.
 
 __GH_FIX_EWM_THROW
 :    This is a bugfix setting that prevents inappropriate removal of thrown weapons
-     on sideview screens. 
+     on sideview screens.
      Set this to 0 if you are using legacy scripts that are incompatible with this option.
 
 __GH_WEAPONS_HIT_PLATFORMS
@@ -163,8 +163,8 @@ __GH_WEAPONS_HIT_PLATFORMS
 
 __GH_FIX_255_ANONE
 :    If you are using 2.53.1 or 2.55.0, set this to `1` to ensure that the ->Tile attribute is
-     updated along with ->OriginalTile for enemies that use the Animation Style 'None'.  
-     
+     updated along with ->OriginalTile for enemies that use the Animation Style 'None'.
+
 If you're making multiple quests at once that use different settings, you
 should use a different copy of ghost.zh for each one. You only need to copy
 ghost.zh itself, not the ghost_zh folder.
@@ -179,7 +179,7 @@ need to appear once each. Enter any line that isn't already there.
 #include "ghost.zh"
 ```
 
-This assumes that all these files are in the default location. 
+This assumes that all these files are in the default location.
 Ghost.zh is normally in './headers' and its sub-files are in #./headers/ghost_zh/2.8'.
 If you put ghost.zh files in a other paths, you'll have to specify that, for instance:
 
@@ -257,7 +257,7 @@ For example, using the Armos_LttP script, these names will work:
 
 * Armos (LttP)   @Armos_LttP
 * Armos (L1, @Armos_LttP)
-  
+
 These names will not work:
 
 * Armos  @armos_lttp

@@ -129,7 +129,7 @@ NEWS
     the moment).
   - Removed map-generation utility.
   - Removed linked-cels (were complex for the end-user).
- 
+
 0.5
 ---
 

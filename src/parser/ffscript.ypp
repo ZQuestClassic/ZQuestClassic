@@ -1141,7 +1141,6 @@ Annotated_Script :
 					continue;
 				}
 			}
-			
 			//continue before here for valid annotation
 			if(!goodKey)
 				yyerrmsg("ERROR: Bad Annotation Key: '"+annot_str+"'", err_row, err_col, err_txt);

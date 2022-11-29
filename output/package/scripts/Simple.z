@@ -56,7 +56,7 @@ ffc script ButtonDisabler
 {
     void run()
     {
-   
+
         while(true)
     {
 		 Game->SkipF6 = true;
@@ -90,14 +90,14 @@ const int COMPASS_BEEP = 77; //Set this to the SFX id you want to hear when you 
 
 //Instructions:
 //1.- Compile and add this to your ZQuest buffer.
-//2.- Add an FFC with this script attached to the screen where you want to hear the compass beep. 
+//2.- Add an FFC with this script attached to the screen where you want to hear the compass beep.
 //3.- Let the script do the rest.
 
 //How does it work:
 //The script checks if ANY of the following has been done:
 //a) Item or Special Item has been picked up.
 //b) Any type of chest has been opened.
-//c) If NOTHING of the above has been done, the script runs. Otherwise, no SFX is heard. 
+//c) If NOTHING of the above has been done, the script runs. Otherwise, no SFX is heard.
 
 ffc script CompassBeep{
      void run(){
@@ -105,7 +105,7 @@ ffc script CompassBeep{
              !Screen->State[ST_CHEST] &&
              !Screen->State[ST_LOCKEDCHEST] &&
              !Screen->State[ST_BOSSCHEST] &&
-             !Screen->State[ST_SPECIALITEM] && (Game->LItems[Game->GetCurLevel()] & LI_COMPASS)){ 
+             !Screen->State[ST_SPECIALITEM] && (Game->LItems[Game->GetCurLevel()] & LI_COMPASS)){
                Game->PlaySound(COMPASS_BEEP);
           }
      }

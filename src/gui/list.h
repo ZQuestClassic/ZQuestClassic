@@ -40,7 +40,6 @@ public:
 	{
 		onSelectFunc = newOnSelect;
 	}
-	
 	void setIsABC(bool abc);
 
 	template<typename T>

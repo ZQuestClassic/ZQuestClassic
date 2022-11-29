@@ -77,7 +77,6 @@ void Matrix(int32_t speed, int32_t density, int32_t mousedelay)
     int h = al_get_bitmap_height(rti_game.bitmap);
     target_bitmap = create_bitmap_ex(8, w, h);
     clear_bitmap(target_bitmap);
-    
     if (rti_matrix.bitmap)
         al_destroy_bitmap(rti_matrix.bitmap);
     rti_matrix.bitmap = al_create_bitmap(w, h);
@@ -86,10 +85,8 @@ void Matrix(int32_t speed, int32_t density, int32_t mousedelay)
     // speed 0-6, density 0-6
     _density = zc_max(zc_min(density, 6), 0);
     _speed = zc_max(zc_min(speed, 6), 0);
-    
     InitMatrix();
     input_idle(true);
-    
     for(;;)
     {
         //vsync();
@@ -106,11 +103,8 @@ void Matrix(int32_t speed, int32_t density, int32_t mousedelay)
         rti_matrix.transform.scale = rti_game.transform.scale;
 
         update_hw_screen();
-        
         poll_joystick();
-        
         int32_t idle;
-        
         if(mousedelay > 0)
         {
             mousedelay--;
@@ -120,17 +114,14 @@ void Matrix(int32_t speed, int32_t density, int32_t mousedelay)
         {
             idle = input_idle(true);
         }
-        
         if(!idle)
             break;
     }
 
     rti_root.children.erase(std::find(rti_root.children.begin(), rti_root.children.end(), &rti_matrix));
     destroy_bitmap(target_bitmap);
-    
     if(linebmp != NULL)
         destroy_bitmap(linebmp);
-        
     clear_keybuf();
 }
 
@@ -140,43 +131,34 @@ static void InitMatrix()
     RGB c_lgrn = {0,255,0,0};
     RGB c_mgrn = {0,170,0,0};
     RGB c_dgrn = {0,85,0,0};
-    
     set_color(BLACK, &c_blck);
     set_color(LIGHT_GREEN, &c_lgrn);
     set_color(MED_GREEN, &c_mgrn);
     set_color(DARK_GREEN, &c_dgrn);
-    
     cols = zc_max(zc_min(target_bitmap->w / 8, MAX_COLS), 1);
     rows = zc_max(zc_min(target_bitmap->h / 8, MAX_COLS), 1);
-    
     linebmp = create_bitmap_ex(8,8, rows*8);
-    
     maxtracers = ((_density + 2) * cols) / 4;
-    
     for(int32_t i=0; i<maxtracers; i++)
     {
         tracer[i].speed = 0;
         eraser[i].speed = 0;
     }
-    
     for(int32_t i=0; i<cols; i++)
     {
         column[i].speed = ((zc_oldrand() % (_speed + 8)) * (7 - _speed)) + (7 - _speed) * 6;
         column[i].cnt = 0;
         activecol[i] = 0;
     }
-    
     clear_keybuf();
 }
 
 static void AddTracer()
 {
     static int32_t delay = 0;
-    
     if(--delay <= 0)
     {
         delay = zc_oldrand() % (32 - _density*3 - _speed*2);
-        
         for(int32_t i=0; i<maxtracers; i++)
         {
             if(tracer[i].speed == 0)
@@ -221,7 +203,6 @@ static void UpdateTracers()
             if(++tracer[i].cnt >= tracer[i].speed)
             {
                 DrawLetter(tracer[i].x, tracer[i].y, MED_GREEN);
-                
                 if(tracer[i].y >= rows-1)
                     tracer[i].speed = 0;
                 else
@@ -243,7 +224,6 @@ static void UpdateErasers()
             if(++eraser[i].cnt >= eraser[i].speed)
             {
                 DrawEraser(eraser[i].x, eraser[i].y, 0);
-                
                 if(eraser[i].y >= rows-1)
                     eraser[i].speed = 0;
                 else
@@ -260,12 +240,9 @@ static void DrawLetter(int32_t x, int32_t y, int32_t color)
 {
     int32_t r = zc_oldrand();
     int32_t letter = r & 255;
-    
     if(letter < 32)
         letter += (r>>10) % 224;
-        
     FONT *fnt = (r&512) || ((letter&0xE0)==0x80) ? mfont : deffont;
-    
     textprintf_ex(target_bitmap, fnt, x<<3, y<<3, color, BLACK, "%c", letter);
 }
 
@@ -273,7 +250,6 @@ static void DrawEraser(int32_t x, int32_t y, int32_t type)
 {
     x <<= 3;
     y <<= 3;
-    
     if(type == 0)
     {
         rectfill(target_bitmap, x, y, x+7, y+7, BLACK);
@@ -284,7 +260,6 @@ static void DrawEraser(int32_t x, int32_t y, int32_t type)
             for(int32_t j=0; j<8; j++)
             {
                 int32_t pix = getpixel(target_bitmap, x+i, y+j);
-                
                 if(pix == LIGHT_GREEN || pix == MED_GREEN)
                     putpixel(target_bitmap, x+i, y+j, DARK_GREEN);
             }
@@ -298,7 +273,6 @@ static void UpdateColumns()
         if(++column[i].cnt >= column[i].speed)
         {
             column[i].cnt = 0;
-            
             for(int32_t j=0; j<maxtracers; j++)
             {
                 if(tracer[j].x == i)
@@ -307,7 +281,6 @@ static void UpdateColumns()
                     if(tracer[j].y >= rows)
                         tracer[j].speed = 0;
                 }
-                    
                 if(eraser[j].x == i)
                 {
                     eraser[j].y++;
@@ -315,14 +288,11 @@ static void UpdateColumns()
                         eraser[j].speed = 0;
                 }
             }
-            
             blit(target_bitmap, linebmp, i*8, 0, 0, 0, 8, rows*8 - 8);
             blit(linebmp, target_bitmap, 0, 0, i*8, 8, 8, rows*8 - 8);
-            
             if(activecol[i])
             {
                 DrawLetter(i, 0, MED_GREEN);
-                
                 if(++activecol[i] >= rows/3)
                 {
                     if(zc_oldrand()&15)

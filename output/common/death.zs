@@ -11,5 +11,4 @@ namespace death
 }
 
 //call death::SkipAnimation(bool) in any scrip.
-			
-			
+

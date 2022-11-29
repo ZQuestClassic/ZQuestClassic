@@ -21,7 +21,7 @@ eweapon script eZigZagwhoneedssine
 			case DIR_LEFT: baseline = this->Y+(this->TileHeight*0.5); break;
 			case DIR_DOWN: baseline = this->X+(this->TileWidth*0.5)+1; break;
 			case DIR_RIGHT: baseline = this->Y+(this->TileHeight*0.5)+1; break;
-				
+
 		}
 		while(this->isValid())
 		{
@@ -35,7 +35,7 @@ eweapon script eZigZagwhoneedssine
 					{
 						if ( !(frame%speed) )
 						{
-							if ((baseline - this->X) < dist ) 
+							if ((baseline - this->X) < dist )
 							{
 								this->X-=px;
 							}
@@ -46,16 +46,16 @@ eweapon script eZigZagwhoneedssine
 					{
 						if ( !(frame%speed) )
 						{
-							if ( (this->X - baseline) < dist ) 
-							{ 
+							if ( (this->X - baseline) < dist )
+							{
 								this->X+=px;
 							}
 							else initial = !initial;
 						}
 					}
-					break;	
+					break;
 				}
-				
+
 				case DIR_LEFT:
 				case DIR_RIGHT:
 				{
@@ -63,7 +63,7 @@ eweapon script eZigZagwhoneedssine
 					{
 						if ( !(frame%speed) )
 						{
-							if ((baseline - this->Y) < dist ) 
+							if ((baseline - this->Y) < dist )
 							{
 								this->Y-=px;
 							}
@@ -74,14 +74,14 @@ eweapon script eZigZagwhoneedssine
 					{
 						if ( !(frame%speed) )
 						{
-							if ( (this->Y - baseline) < dist ) 
-							{ 
+							if ( (this->Y - baseline) < dist )
+							{
 								this->Y+=px;
 							}
 							else initial = !initial;
 						}
 					}
-					break;	
+					break;
 				}
 			}
 			Waitframe();

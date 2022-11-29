@@ -19,8 +19,8 @@ void SetLinkTileModifier(item i, int mod)
 	ii->Modifier = mod;
 }
 
-//Possible conflicts with item->Tile, item->Cset, and similar. 
-//We need separate functions for these between class item and class itemdats. 
+//Possible conflicts with item->Tile, item->Cset, and similar.
+//We need separate functions for these between class item and class itemdats.
 //perhaps bool global to chose between a screen item, and the global itemdata?
 int GetItemTile(item i)
 {
@@ -103,7 +103,7 @@ int GetItemScript(item i)
 void SetItemScript(item i, int a)
 {
 	itemdata ii = Game->LoadItemData(i->ID);
-	//Game->GetItemScript(int str) would be usefiul here. 
+	//Game->GetItemScript(int str) would be usefiul here.
 	ii->Script = a;
 }
 
@@ -116,7 +116,7 @@ int GetItemPickupScript(item i)
 void SetItemPickupScript(item i, int a)
 {
 	itemdata ii = Game->LoadItemData(i->ID);
-	//Game->GetItemScript(int str) would be usefiul here. 
+	//Game->GetItemScript(int str) would be usefiul here.
 	ii->PScript = a;
 }
 
@@ -473,7 +473,7 @@ int GetItemScript(int i)
 void SetItemScript(int i, int a)
 {
 	itemdata ii = Game->LoadItemData(i);
-	//Game->GetItemScript(int str) would be usefiul here. 
+	//Game->GetItemScript(int str) would be usefiul here.
 	ii->Script = a;
 }
 
@@ -486,7 +486,7 @@ int GetItemPickupScript(int i)
 void SetItemPickupScript(int i, int a)
 {
 	itemdata ii = Game->LoadItemData(i);
-	//Game->GetItemScript(int str) would be usefiul here. 
+	//Game->GetItemScript(int str) would be usefiul here.
 	ii->PScript = a;
 }
 

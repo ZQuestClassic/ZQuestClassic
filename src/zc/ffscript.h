@@ -61,7 +61,7 @@
 
 
 //Visual Warp Effect Types for Hero->WarpEx()
-enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectOpen, warpEffectMozaic }; 
+enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectOpen, warpEffectMozaic };
 void doWarpEffect(int32_t warpEffect, bool out);
 
 #define svALL 		0
@@ -77,9 +77,9 @@ enum herospritetype
 	LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr,
 	LSprswimspr, LSprdivespr, LSprpoundspr, LSprjumpspr,
 	LSprchargespr, LSprcastingspr, LSprholdspr1, LSprholdspr2,
-	LSprholdsprw1, LSprholdsprw2, LSprdrownspr, LSprlavadrownspr, 
-	LSprsideswimspr, LSprsideswimslashspr, LSprsideswimstabspr, 
-	LSprsideswimpoundspr, LSprsideswimchargespr, LSprholdsprSw1, 
+	LSprholdsprw1, LSprholdsprw2, LSprdrownspr, LSprlavadrownspr,
+	LSprsideswimspr, LSprsideswimslashspr, LSprsideswimstabspr,
+	LSprsideswimpoundspr, LSprsideswimchargespr, LSprholdsprSw1,
 	LSprholdsprSw2, LSprsideswimcastingspr, LSprsidedrownspr, LSprrevslashspr, LSprlast
 };
 
@@ -94,24 +94,18 @@ enum zasmBreak
 #define SKIPZASMPRINT() (FFCore.zasm_break_mode == ZASM_BREAK_SKIP_SCRIPT || FFCore.zasm_break_mode == ZASM_BREAK_SKIP)
 
 //suspend types
-enum { 
+enum {
 	//Typical processes that we want to pause, similar to ALLOFF()
-	
 	//0 : Combo animation
 	susptCOMBOANIM,
-	
 	//1->5 Main Sprite animation by type
-	susptGUYS, susptLWEAPONS, susptEWEAPONS, susptITEMS, susptHERO, 
-	
+	susptGUYS, susptLWEAPONS, susptEWEAPONS, susptITEMS, susptHERO,
 	//6 : FFC (e.g. movement, changers, but not scripts)
 	susptUPDATEFFC, //ffcs
-	
 	//7->8 : Sprite subclasses
 	susptDECORATIONS, susptPARTICLES, //sprite subclasses
-	
 	//9->10: Palette events
 	susptPALCYCLE, susptLAKES, //lake dries up
-	
 	//11->15 : game system events
 	susptCOLLISIONS, susptCONTROLSTATE, susptONEFRAMECONDS, susptSCRIPDRAWCLEAR, susptQUAKE,
 
@@ -120,9 +114,7 @@ enum {
 	//21
 	susptFFCSCRIPTS, susptHEROACTIVE, susptITEMSCRIPTENGINE, susptDMAPSCRIPT, susptSCREENSCRIPTS,
 	susptSUBSCREENSCRIPTS, susptCOMBOSCRIPTS, //27
-	
 	//28->59: Reserved padding
-	
 	//60->42 : Moving items
 	susptCONVEYORSITEMS = 60, susptDRAGGINGITEM, susptROAMINGITEM,
 	//63->67 : Misc
@@ -133,14 +125,13 @@ enum {
 //npc function enums
 // npc_collision()
 	//bool npc->Collision
-enum { obj_type_lweapon, obj_type_eweapon, obj_type_npc, obj_type_player, 
+enum { obj_type_lweapon, obj_type_eweapon, obj_type_npc, obj_type_player,
 	obj_type_ffc, obj_type_combo_pos, obj_type_item, obj_type_LAST };
-	
 //do_npc_simulate_hit
 	//npc->SimulateHit()
-enum { simulate_hit_type_weapon, simulate_hit_type_sprite };	
+enum { simulate_hit_type_weapon, simulate_hit_type_sprite };
 
-//Flags for SetVolume() and GetVolume() that are set in FFCoreFlags[] 
+//Flags for SetVolume() and GetVolume() that are set in FFCoreFlags[]
 //these determine what is under script control and are used for automatic restoration
 //of user volume settings on quest exit.
 enum {
@@ -152,15 +143,14 @@ enum {
 };
 
 //SYstem Date and Time Categories for GetSystemTime()
-enum { curyear, curmonth, curday_month, curday_week, curhour, 
+enum { curyear, curmonth, curday_month, curday_week, curhour,
 	curminute, cursecond, curdayyear, curDST, curTimeLAST };
 
-	
 enum { wexType, wexDMap, wexScreen, wexX, wexY, wexEffect, wexSound, wexFlags, wexDir, wexActive, wexLast };
 
 
 //Script drawing: (t/b/a)
-//Allow or forbid drawing during specific game events. 
+//Allow or forbid drawing during specific game events.
 enum{
 	scdrDRAW_WHILE_SCROLLING, scdrDRAW_DURING_SCREEN_TRANSITION, scdrDRAW_DURING_WARP,
 	scdrDRAW_DURING_WIPES, scdrLAST
@@ -174,7 +164,7 @@ enum
 
 //Quest Version Information Categories
 //These reflect the version details from when the quest was last saved.
-enum 
+enum
 {
 	vZelda, qQuestNumber, vBuild, vBeta, vHeader, vRules, vStrings, vMisc,
 	vTiles, vCombos, vCSets, vMaps, vDMaps, vDoors, vItems, vWeaponSprites,
@@ -182,7 +172,6 @@ enum
 	vComboAliases, vHeroSprites, vSubscreen, vItemDropsets, vFFScript, vSFX, vFavourites,
 	qMapCount, vLastCompile, vCompatRule,
 	versiontypesLAST
-	
 };
 
 //Quest Header 'User Set Version' categories. Not in use at present.
@@ -204,45 +193,33 @@ enum mapflagtype
 {
 	// Room Types
 	MSF_INTERIOR, MSF_DUNGEON, MSF_SIDEVIEW,
-	
 	// View
 	MSF_INVISHERO, MSF_NOHEROMARKER, MSF_NOSUBSCREEN, MSF_NOOFFSET,
 	MSF_LAYER2BG, MSF_LAYER3BG, MSF_DARKROOM,
-	
 	// Secrets
 	MSF_BLOCKSHUT, MSF_TEMPSECRETS, MSF_TRIGPERM, MSF_ALLTRIGFLAGS,
-	
 	// Warp
 	MSF_AUTODIRECT, MSF_SENDSIRECT, MSF_MAZEPATHS, MSF_MAZEOVERRIDE,
 	MSF_SPRITECARRY, MSF_DIRECTTIMEDWARPS, MSF_SECRETSISABLETIMEWRP, MSF_RANDOMTIMEDWARP,
-	
 	// Item
 	MSF_HOLDUP, MSF_FALLS,
-	
 	// Combo
 	MSF_MIDAIR, MSF_CYCLEINIT, MSF_IGNOREBOOTS, MSF_TOGGLERINGS,
-	
 	// Save
 	MSF_SAVECONTHERE, MSF_SAVEONENTRY, MSF_CONTHERE, MSF_NOCONTINUEWARP,
-	
 	// FFC
-	MSF_WRAPFFC, MSF_NOCARRYOVERFFC, 
-	
+	MSF_WRAPFFC, MSF_NOCARRYOVERFFC,
 	// Whistle
-	MSF_STAIRS, MSF_PALCHANGE, MSF_DRYLAKE, 
-	
+	MSF_STAIRS, MSF_PALCHANGE, MSF_DRYLAKE,
 	// Enemies
 	MSF_INVISIBLEENEMIES, MSF_TRAPS_IGNORE_SOLID, MSF_EMELIESALWAYSRETURN, MSF_ENEMIES_ITEM, MSF_ENEMEIS_SECRET,
-	MSF_ENEMIES_SECRET_PERM,  
-	
+	MSF_ENEMIES_SECRET_PERM,
 		//->enemyflags
 		MSF_SPAWN_ZORA, MSF_SPAWN_CORNERTRAP, MSF_SPAWN_MIDDLETRAP, MSF_SPAWN_ROCK, MSF_SPAWN_SHOOTER,
-		MSF_RINGLEADER, MSF_ENEMYHASITEM, MSF_ENEMYISBOSS, 
-	
+		MSF_RINGLEADER, MSF_ENEMYHASITEM, MSF_ENEMYISBOSS,
 	// Misc
 	MSF_ALLOW_LADDER, MSF_NO_DIVING, MSF_SFXONENTRY, MSF_LENSEFFECT,
-		 
-	//Custom / Script 
+	//Custom / Script
 	MSF_SCRIPT1,
 	MSF_CUSTOM1 = MSF_SCRIPT1,
 	MSF_SCRIPT2,
@@ -253,10 +230,8 @@ enum mapflagtype
 	MSF_CUSTOM4 = MSF_SCRIPT4,
 	MSF_SCRIPT5,
 	MSF_CUSTOM5 = MSF_SCRIPT5,
-	
-	MSF_DUMMY_8, 
+	MSF_DUMMY_8,
 	MSF_LAST
-	
 };
 
 //User-generated / Script-Generated bitmap object
@@ -269,13 +244,10 @@ struct user_bitmap
 	int32_t height;
 	int32_t depth;
 	byte flags;
-	
 	int32_t owned_type, owned_i;
-	
 	user_bitmap() : u_bmp(NULL), width(0), height(0), depth(0), flags(0),
 		owned_type(-1), owned_i(0)
 	{}
-	
 	void destroy()
 	{
 		if(u_bmp != NULL)
@@ -329,14 +301,13 @@ struct user_bitmap
 
 
 //Old, 2.50 bitmap IDs
-enum { rtSCREEN = -1, rtBMP0 = 0, rtBMP1, 
+enum { rtSCREEN = -1, rtBMP0 = 0, rtBMP1,
 	rtBMP2, rtBMP3, rtBMP4, rtBMP5, rtBMP6, firstUserGeneratedBitmap };
 //bitmap constants
 #define MAX_USER_BITMAPS 256
 #define MIN_USER_BITMAPS 7 //starts at rtBMP6 +1
 #define MIN_OLD_RENDERTARGETS -1 //old script drawing
 #define MAX_OLD_RENDERTARGETS 6
-	
 //Holds all of the user-generated / script-generated bitmaps and their information.
 	//User bitmap lowest viable ID is 'rtBMP6+1' (firstUserGeneratedBitmap)
 struct script_bitmaps
@@ -364,13 +335,10 @@ struct user_file
 	FILE* file;
 	std::string filepath;
 	bool reserved;
-	
 	int32_t owned_type, owned_i;
-	
 	user_file() : file(NULL), reserved(false), filepath(""),
 		owned_type(-1), owned_i(0)
 	{}
-	
 	void clear()
 	{
 		if(file) fclose(file); //Never leave a hanging FILE*!
@@ -380,14 +348,12 @@ struct user_file
 		owned_type = -1;
 		owned_i = 0;
 	}
-	
 	void close()
 	{
 		if(file) fclose(file);
 		file = NULL;
 		filepath = "";
 	}
-	
 	int32_t do_remove()
 	{
 		if(file) fclose(file);
@@ -396,14 +362,12 @@ struct user_file
 		filepath = "";
 		return r;
 	}
-	
 	void setPath(char* buf)
 	{
 		if(buf)
 			filepath = buf;
 		else filepath = "";
 	}
-	
 	void own(int32_t type, int32_t i)
 	{
 		owned_type = type;
@@ -427,13 +391,10 @@ struct user_dir
 	FLIST* list;
 	std::string filepath;
 	bool reserved;
-	
 	int32_t owned_type, owned_i;
-	
 	user_dir() : list(NULL), reserved(false), filepath(""),
 		owned_type(-1), owned_i(0)
 	{}
-	
 	void clear();
 	void setPath(const char* buf);
 	void refresh()
@@ -450,7 +411,6 @@ struct user_dir
 	{
 		return list->get(index, buf);
 	}
-	
 	void own(int32_t type, int32_t i)
 	{
 		owned_type = type;
@@ -476,11 +436,9 @@ struct user_stack
 	bool reserved;
 	int32_t owned_type, owned_i;
 	std::deque<int32_t> theStack;
-	
 	user_stack() : reserved(false),
 		owned_type(-1), owned_i(0)
 	{}
-	
 	void clear()
 	{
 		clearStack();
@@ -545,7 +503,6 @@ struct user_stack
 		theStack.clear();
 		theStack.shrink_to_fit();
 	}
-	
 	void own(int32_t type, int32_t i)
 	{
 		owned_type = type;
@@ -568,9 +525,7 @@ struct user_rng
 {
 	zc_randgen* gen;
 	bool reserved;
-	
 	int32_t owned_type, owned_i;
-	
 	void clear()
 	{
 		reserved = false;
@@ -603,7 +558,6 @@ struct user_rng
 	user_rng() : gen(NULL), reserved(false),
 		owned_type(-1), owned_i(0)
 	{}
-	
 	void own(int32_t type, int32_t i)
 	{
 		owned_type = type;
@@ -643,7 +597,6 @@ struct user_paldata
 		owned_type = -1;
 		owned_i = 0;
 	}
-	
 	//Sets a color index on the paldata
 	void set_color(int32_t ind, RGB c)
 	{
@@ -710,7 +663,7 @@ typedef struct ZSCRIPT_CONFIG_HOOK
    int32_t (*intgetter)(AL_CONST char *name, int32_t def);
    AL_CONST char *(*stringgetter)(AL_CONST char *name, AL_CONST char *def);
    void (*stringsetter)(AL_CONST char *name, AL_CONST char *value);
-   struct ZSCRIPT_CONFIG_HOOK *next; 
+   struct ZSCRIPT_CONFIG_HOOK *next;
 } ZSCRIPT_CONFIG_HOOK;
 
 
@@ -863,7 +816,6 @@ public:
 	int32_t indx;
 	refInfo ri;
 	int32_t stack[MAX_SCRIPT_REGISTERS];
-	
 	user_genscript(){clear();}
 	void clear()
 	{
@@ -926,8 +878,6 @@ void save_genscript(gamedata& gd);
 
 class FFScript
 {
-	
-    
 public:
 //FFScript();
 void init();
@@ -980,7 +930,7 @@ void do_strcmp();
 void do_strncmp();
 void do_strcpy(const bool a, const bool b);
 void do_strlen(const bool v);
-//More string.h functions, 19th May, 2019 
+//More string.h functions, 19th May, 2019
 void do_arraycpy(const bool a, const bool b);
 void AlloffLimited(int32_t flagset);
 void do_xlen(const bool v);
@@ -1215,14 +1165,14 @@ int32_t coreflags;
 int32_t script_UIDs[UID_TYPES];
 int32_t usr_midi_volume, usr_digi_volume, usr_sfx_volume, usr_music_volume, usr_panstyle;
 
-byte FF_hero_action; //This way, we can make safe replicas of internal Hero actions to be set by script. 
-bool kb_typing_mode; //script only, for disbaling key presses affecting Hero, etc. 
-int32_t FF_screenbounds[4]; //edges of the screen, left, right, top, bottom used for where to scroll. 
+byte FF_hero_action; //This way, we can make safe replicas of internal Hero actions to be set by script.
+bool kb_typing_mode; //script only, for disbaling key presses affecting Hero, etc.
+int32_t FF_screenbounds[4]; //edges of the screen, left, right, top, bottom used for where to scroll.
 int32_t FF_screen_dimensions[4]; //height, width, displaywidth, displayheight
 int32_t FF_subscreen_dimensions[4];
 int32_t numscriptdraws;
-int32_t FF_eweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic eweapon removal. 
-int32_t FF_lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic lweapon removal. 
+int32_t FF_eweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic eweapon removal.
+int32_t FF_lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic lweapon removal.
 
 std::vector<std::string> includePaths;
 char includePathString[MAX_INCLUDE_PATH_CHARS];
@@ -1233,13 +1183,13 @@ int32_t GhostArray[256];
 int32_t TangoArray[256];
 
 #define FFSCRIPTCLASS_CLOCKS 10
-int32_t FF_clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Heroaction, anims, and so forth 
+int32_t FF_clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Heroaction, anims, and so forth
 
 #define SCRIPT_DRAWING_RULES 20
 byte ScriptDrawingRules[SCRIPT_DRAWING_RULES];
 
 #define NUM_USER_MIDI_OVERRIDES 6
-int32_t FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and similar to override system defaults. 
+int32_t FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and similar to override system defaults.
 
 byte zasm_break_mode;
 
@@ -1248,7 +1198,7 @@ int32_t enemy_removal_point[6];
 
 //Disable stepforward on dungeon dmaps
 byte nostepforward;
-byte temp_no_stepforward; 
+byte temp_no_stepforward;
 
 byte subscreen_scroll_speed;
 
@@ -1292,14 +1242,12 @@ int32_t getCombodataX(int32_t c, int32_t scripttype);
 //void deallocateComboArrays();
 
 int32_t GetScriptObjectUID(int32_t type);
-    
 //byte item_messages_played[MAXITEMS]; //Each field is set when an item pickup message plays the first time per session
 				//so that they do not play every time an item is collected, unless one of the flags is set for it.
 
 void SetFFEngineFlag(int32_t flag, bool v);
 void SetItemMessagePlayed(int32_t itm);
 bool GetItemMessagePlayed(int32_t itm);
-	
 int32_t do_getpixel();
 void do_bmpcollision();
 int32_t GetDefaultWeaponSprite(int32_t w);
@@ -1357,7 +1305,6 @@ bool do_itemsprite_delete();
 //int32_t do_get_internal_uid
 
     //virtual ~FFScript();
-    
     /*
     static item *temp_ff_item
     static enemy *temp_ff_enemy;
@@ -1367,26 +1314,20 @@ bool do_itemsprite_delete();
     static int32_t load_enemy(const int32_t eid, const char * const funcvar)
     {
         temp_ff_enemy = (enemy *) guys.getByUID(eid);
-        
         if(temp_ff_enemy == NULL)
         {
             Z_scripterrlog("Invalid NPC with UID %ld passed to %s\nNPCs on screen have UIDs ", eid, funcvar);
-            
             for(word i = 0; i < guys.Count(); i++)
                 Z_scripterrlog("%ld ", guys.spr(i)->getUID());
-                
             Z_scripterrlog("\n");
             return _InvalidSpriteUID;
         }
-        
         return _NoError;
     }
-    
     static INLINE enemy *get_enemy()
     {
         return temp_ff_enemy;
     }
-    
     // Currently only used in a context where the enemy is known to be valid,
     // so there's no need to print an error
     static int32_t get_enemy_Index(const int32_t eid)
@@ -1396,10 +1337,8 @@ bool do_itemsprite_delete();
             if(guys.spr(i)->getUID() == eid)
                 return i;
         }
-        
         return -1;
     }
-    
     static int32_t get_enemy_Misc(const byte a)
     {
         switch(a)
@@ -1437,21 +1376,16 @@ bool do_itemsprite_delete();
         case 30: return temp_ff_enemy->dmisc31;
         case 31: return temp_ff_enemy->dmisc32;
         }
-        
         return 0;
     }
-    
     static bool enemy_hasHero()
     {
         if(temp_ff_enemy->family == eeWALLM)
             return ((eWallM *) temp_ff_enemy)->hashero;
-            
         if(temp_ff_enemy->family == eeWALK)
             return ((eStalfos *) temp_ff_enemy)->hashero;
-            
         return false;
     }
-    
     static int32_t get_enemy_Misc_Flags()
     {
         flagpos = 5;
@@ -1467,33 +1401,26 @@ bool do_itemsprite_delete();
                | ornextflag(temp_ff_enemy->flags&(inv_back))
                | ornextflag(temp_ff_enemy->flags&(guy_bkshield));
     }
-    
     static INLINE void cleartemp_ff_enemy()
     {
         temp_ff_enemy = NULL;
     }
-    
 
 
 
     static int32_t load_Item(const int32_t iid, const char * const funcvar)
     {
         temp_ff_item = (item *) items.getByUID(iid);
-        
         if(temp_ff_item == NULL)
         {
             Z_scripterrlog("Invalid item with UID %ld passed to %s\nItems on screen have UIDs ", iid, funcvar);
-            
             for(word i = 0; i < items.Count(); i++)
                 Z_scripterrlog("%ld ", items.spr(i)->getUID());
-                
             Z_scripterrlog("\n");
             return _InvalidSpriteUID;
         }
-        
         return _NoError;
     }
-    
     static int32_t getItemIndex(const int32_t iid)
     {
         for(word i = 0; i < items.Count(); i++)
@@ -1501,41 +1428,32 @@ bool do_itemsprite_delete();
             if(items.spr(i)->getUID() == iid)
                 return i;
         }
-        
         return -1;
     }
-    
     static INLINE item* get_Item()
     {
         return tempitem;
     }
-    
     static INLINE void clearTempItem()
     {
         temp_ff_item = NULL;
     }
-    
 
 
 
     static int32_t load_LWeapon(const int32_t wid, const char * const funcvar)
     {
         temp_ff_lweapon = (weapon *) Lwpns.getByUID(wid);
-        
         if(temp_ff_lweapon == NULL)
         {
             Z_scripterrlog("Invalid lweapon with UID %ld passed to %s\nLWeapons on screen have UIDs ", wid, funcvar);
-            
             for(word i = 0; i < Lwpns.Count(); i++)
                 Z_scripterrlog("%ld ", Lwpns.spr(i)->getUID());
-                
             Z_scripterrlog("\n");
             return _InvalidSpriteUID;
         }
-        
         return _NoError;
     }
-    
     static int32_t getLWeaponIndex(const int32_t lwid)
     {
         for(word i = 0; i < Lwpns.Count(); i++)
@@ -1543,15 +1461,12 @@ bool do_itemsprite_delete();
             if(Lwpns.spr(i)->getUID() == lwid)
                 return i;
         }
-        
         return -1;
     }
-    
     static INLINE weapon *get_LWeapon()
     {
         return temp_ff_lweapon;
     }
-    
     //eweapon
     static INLINE void clearTempLWeapon()
     {
@@ -1560,21 +1475,16 @@ bool do_itemsprite_delete();
     static int32_t load_EWeapon(const int32_t wid, const char * const funcvar)
     {
         temp_ff_eweapon = (weapon *) Ewpns.getByUID(wid);
-        
         if(temp_ff_eweapon == NULL)
         {
             Z_scripterrlog("Invalid eweapon with UID %ld passed to %s\nEWeapons on screen have UIDs ", wid, funcvar);
-            
             for(word i = 0; i < Ewpns.Count(); i++)
                 Z_scripterrlog("%ld ", Ewpns.spr(i)->getUID());
-                
             Z_scripterrlog("\n");
             return _InvalidSpriteUID;
         }
-        
         return _NoError;
     }
-    
     static int32_t getEWeaponIndex(const int32_t lwid)
     {
         for(word i = 0; i < Ewpns.Count(); i++)
@@ -1582,19 +1492,16 @@ bool do_itemsprite_delete();
             if(Ewpns.spr(i)->getUID() == lwid)
                 return i;
         }
-        
         return -1;
     }
-    
     static INLINE weapon *get_EWeapon()
     {
         return temp_ff_eweapon;
     }
-    
     static INLINE void clearTempEWeapon()
     {
         temp_ff_eweapon = NULL;
-    }	
+    }
     */
 
 
@@ -1622,7 +1529,6 @@ bool do_itemsprite_delete();
 	{
 		return vbound(val,0,ZS_FIX);
 	}
-	
 static void set_screenwarpReturnY(mapscr *m, int32_t d, int32_t value);
 static void set_screendoor(mapscr *m, int32_t d, int32_t value);
 static void set_screenenemy(mapscr *m, int32_t index, int32_t value);
@@ -1767,12 +1673,10 @@ static void setHeroBigHitbox(bool v);
 	static void setNPCData_defense(int32_t v); //extra arg
 	static void setNPCData_SIZEflags(int32_t v);
 	static void setNPCData_misc(int32_t val);
-	
 	static void setNPCData_tile();
 	static void setNPCData_e_height();
 	static void getNPCData_tile();
 	static void getNPCData_e_height();
-	
 	//one input, one return
 	static void getComboData_block_enemies();
 	static void getComboData_block_hole();
@@ -1942,7 +1846,6 @@ static void setHeroBigHitbox(bool v);
 	static void setComboData_block_weapon(int32_t v);
 	static void setComboData_expansion(int32_t v);
 	static void setComboData_strike_weapons(int32_t v);
-	
 	//SpriteData
 	static void getSpriteDataTile();
 	static void getSpriteDataMisc();
@@ -1962,9 +1865,7 @@ static void setHeroBigHitbox(bool v);
 	//Change Save/Continue and Retry screen settings:
 	static void FFSetSaveScreenSetting();
 	static void FFChangeSubscreenText();
-	
 	static void do_typedpointer_typecast(const bool v);
-	
 	//New Datatypes
 	static void do_loadnpcdata(const bool v);
 	static void do_loadcombodata(const bool v);
@@ -1984,17 +1885,14 @@ static void setHeroBigHitbox(bool v);
 	static void do_setDIGI_volume(int32_t m);
 	static void do_setSFX_volume(int32_t m);
 	static void do_setSFX_pan(int32_t m);
-	
 	static int32_t do_getMIDI_volume();
 	static int32_t do_getMusic_volume();
 	static int32_t do_getDIGI_volume();
 	static int32_t do_getSFX_volume();
 	static int32_t do_getSFX_pan();
-	
 	static void do_loadmessagedata(const bool v);
 	static void do_messagedata_setstring(const bool v);
 	static void do_messagedata_getstring(const bool v);
-	
 	static void do_loaddmapdata(const bool v);
 	static void do_loaddropset(const bool v);
 	static void do_loadbottle(const bool v);
@@ -2008,7 +1906,6 @@ static void setHeroBigHitbox(bool v);
 	static void do_setDMapData_dmapintro(const bool v);
 	static void do_getDMapData_music(const bool v);
 	static void do_setDMapData_music(const bool v);
-	
 	static void do_checkdir(const bool is_dir);
 	static void do_fs_remove();
 
@@ -2022,8 +1919,6 @@ enum __Error
         _OutOfBounds, //library array out of bounds
         _InvalidSpriteUID //bad npc, ffc, etc.
     };
-    
-    
     int32_t checkUserArrayIndex(const int32_t index, const dword size)
     {
         if(index < 0 || index >= int32_t(size))
@@ -2031,25 +1926,20 @@ enum __Error
           //  Z_scripterrlog("Invalid index (%ld) to local array of size %ld\n", index, size);
             return _OutOfBounds;
         }
-        
         return _NoError;
     }
 
-    
-    
     //only if the player is messing with their pointers...
     ZScriptArray& InvalidError(const int32_t ptr)
     {
         Z_scripterrlog("FFSScript::InvalidError - Invalid pointer (%i) passed to array (don't change the values of your array pointers)\n", ptr);
         return INVALIDARRAY;
     }
-    
     //Returns a reference to the correct array based on pointer passed
     ZScriptArray& getArray(const int32_t ptr)
     {
         if(!ptr)
             return InvalidError(ptr);
-		
 		if(ptr < 0) //An object array?
 		{
 			int32_t objptr = -ptr;
@@ -2061,77 +1951,59 @@ enum __Error
         else if(ptr >= NUM_ZSCRIPT_ARRAYS) //Then it's a global
         {
             int32_t gptr = ptr - NUM_ZSCRIPT_ARRAYS;
-            
             if(gptr > (int32_t)game->globalRAM.size())
                 return InvalidError(ptr);
-                
             return game->globalRAM[gptr];
         }
         else
         {
             if(localRAM[ptr].Size() == 0)
                 return InvalidError(ptr);
-                
             return localRAM[ptr];
         }
     }
-    
     size_t getSize(const int32_t ptr)
     {
         ZScriptArray& a = getArray(ptr);
-        
 		if (&a == &INVALIDARRAY)
             return size_t(-1);
-            
         return a.Size();
     }
-    
     //Can't you get the std::string and then check its length?
     int32_t strlen(const int32_t ptr)
     {
         ZScriptArray& a = getArray(ptr);
-        
 		if (&a == &INVALIDARRAY)
             return -1;
-            
         word count;
-        
         for(count = 0; checkUserArrayIndex(count, a.Size()) == _NoError && a[count] != '\0'; count++) ;
-        
         return count;
     }
-    
     //Returns values of a zscript array as an std::string.
     void getString(const int32_t ptr, std::string &str, dword num_chars = ZSCRIPT_MAX_STRING_CHARS)
     {
         ZScriptArray& a = getArray(ptr);
-        
 		if (&a == &INVALIDARRAY)
         {
             str.clear();
             return;
         }
-        
         str.clear();
-        
         for(word i = 0; checkUserArrayIndex(i, a.Size()) == _NoError && a[i] != '\0' && num_chars != 0; i++)
         {
             str += char(a[i] / 10000);
             num_chars--;
         }
     }
-    //Copies clues for ZS array b to a. 
+    //Copies clues for ZS array b to a.
     void copyValues(const int32_t ptr, const int32_t ptr2, size_t num_values)
     {
         ZScriptArray& a = getArray(ptr);
         ZScriptArray& b = getArray(ptr2);
-        
 		if (&a == &INVALIDARRAY)
             return;
-	
 	if(b == INVALIDARRAY)
             return;
-            
         for(word i = 0; ((checkUserArrayIndex(i, b.Size()) == _NoError) && (checkUserArrayIndex(i, a.Size()) == _NoError) ) && num_values != 0; i++)
         {
             a[i] = b[i];
@@ -2142,10 +2014,8 @@ enum __Error
     void getValues(const int32_t ptr, int32_t* arrayPtr, word num_values)
     {
         ZScriptArray& a = getArray(ptr);
-        
 		if (&a == &INVALIDARRAY)
             return;
-            
         for(word i = 0; checkUserArrayIndex(i, a.Size()) == _NoError && num_values != 0; i++)
         {
             arrayPtr[i] = (a[i] / 10000);
@@ -2155,7 +2025,6 @@ enum __Error
     void getValues(const int32_t ptr, int32_t* arrayPtr, word num_values, int32_t min_size)
     {
         ZScriptArray& a = getArray(ptr);
-        
 		if (&a == &INVALIDARRAY)
             return;
 	if ( getSize(ptr) < (unsigned)min_size )
@@ -2167,64 +2036,50 @@ enum __Error
             arrayPtr[i] = (a[i] / 10000);
         }
     }
-    
     //Get element from array
     int32_t getElement(const int32_t ptr, const int32_t offset)
     {
         ZScriptArray& a = getArray(ptr);
-        
 		if (&a == &INVALIDARRAY)
             return -10000;
-            
         if(checkUserArrayIndex(offset, a.Size()) == _NoError)
             return a[offset];
         else
             return -10000;
     }
-    
     //Set element in array
     void setElement(const int32_t ptr, const int32_t offset, const int32_t value)
     {
         ZScriptArray& a = getArray(ptr);
-        
 		if (&a == &INVALIDARRAY)
             return;
-            
         if(checkUserArrayIndex(offset, a.Size()) == _NoError)
             a[offset] = value;
     }
-    
     //Puts values of a zscript array into a client <type> array. returns 0 on success. Overloaded
     template <typename T>
     int32_t getArray(const int32_t ptr, T *refArray)
     {
         return getArray(ptr, getArray(ptr).Size(), 0, 0, 0, refArray);
     }
-    
     template <typename T>
     int32_t getArray(const int32_t ptr, const word size, T *refArray)
     {
         return getArray(ptr, size, 0, 0, 0, refArray);
     }
-    
     template <typename T>
     int32_t getArray(const int32_t ptr, const word size, word userOffset, const word userStride, const word refArrayOffset, T *refArray)
     {
         ZScriptArray& a = getArray(ptr);
-        
 		if (&a == &INVALIDARRAY)
             return _InvalidPointer;
-            
         word j = 0, k = userStride;
-        
         for(word i = 0; j < size; i++)
         {
             if(i >= a.Size())
                 return _Overflow;
-                
             if(userOffset-- > 0)
                 continue;
-                
             if(k > 0)
                 k--;
             else if (checkUserArrayIndex(i, a.Size()) == _NoError)
@@ -2234,13 +2089,10 @@ enum __Error
                 j++;
             }
         }
-        
         return _NoError;
     }
-    
 	static void deallocateAllArrays(const byte scriptType, const int32_t UID, bool requireAlways = true);
 	static void deallocateAllArrays();
-	
     private:
     int32_t sid;
 };
@@ -2597,7 +2449,7 @@ enum ASM_DEFINE
 	BOOLARRPTR2,	//0x0114
 	NPCARRPTR2,	//0x0115
 	ARRAYSIZEB,            //0x0116
-	ARRAYSIZEF,            //0x0117 
+	ARRAYSIZEF,            //0x0117
 	ARRAYSIZEN,            //0x0118
 	ARRAYSIZEL,            //0x0119
 	ARRAYSIZEE,            //0x011A
@@ -2651,7 +2503,6 @@ enum ASM_DEFINE
 	TRIGGERSECRETV,
 	NIL_UNUSED_1,
 	NIL_UNUSED_2,
-	
 	//NPCData
 	GETNPCDATAFLAGS,
 	GETNPCDATAFLAGS2,
@@ -2929,7 +2780,6 @@ enum ASM_DEFINE
 	LOADSHOPV,
 	LOADINFOSHOPR,
 	LOADINFOSHOPV,
-	
 	LOADMESSAGEDATAR, //COMMAND
 	LOADMESSAGEDATAV,//COMMAND
 
@@ -2937,7 +2787,6 @@ enum ASM_DEFINE
 	MESSAGEDATASETSTRINGV, //command
 	MESSAGEDATAGETSTRINGR, //command
 	MESSAGEDATAGETSTRINGV, //command
-	
 	LOADDMAPDATAR,
 	LOADDMAPDATAV,
 	DMAPDATAGETNAMER,
@@ -2956,12 +2805,10 @@ enum ASM_DEFINE
 	DMAPDATAGETMUSICV,
 	DMAPDATASETMUSICR,
 	DMAPDATASETMUSICV,
-	
-	ADJUSTSFXVOLUMER,		
-	ADJUSTSFXVOLUMEV,		
-	ADJUSTVOLUMER,		
-	ADJUSTVOLUMEV,	
-	
+	ADJUSTSFXVOLUMER,
+	ADJUSTSFXVOLUMEV,
+	ADJUSTVOLUMER,
+	ADJUSTVOLUMEV,
 	FXWAVYR,
 	FXWAVYV,
 	FXZAPR,
@@ -2975,7 +2822,6 @@ enum ASM_DEFINE
 	CLEARTINT,
 	TINT,
 	MONOHUE,
-	
 	BMPRECTR,
 	BMPCIRCLER,
 	BMPARCR,
@@ -3013,7 +2859,6 @@ enum ASM_DEFINE
 	RUNITEMSCRIPT,
 	GETRTCTIMER,
 	GETRTCTIMEV,
-	
 	//new npc functions for npc scripts
 	NPCDEAD,
 	NPCKICKBUCKET,
@@ -3037,7 +2882,7 @@ enum ASM_DEFINE
 	NPCCANSLIDE,
 	NPCSLIDE,
 	NPCHITWITH,
-	// moved to a var: NPCCOLLISION 
+	// moved to a var: NPCCOLLISION
 	NPCGETINITDLABEL,
 	GAMECONTINUE,
 	MAPDATAISSOLID,
@@ -3060,7 +2905,6 @@ enum ASM_DEFINE
 	BMPDRAWSCREENCOMBOTR,
 	BMPDRAWSCREENSOLID2R,
 	GRAPHICSGETPIXEL,
-	
 	BMPDRAWLAYERSOLIDR,
 	BMPDRAWLAYERCFLAGR,
 	BMPDRAWLAYERCTYPER,
@@ -3079,10 +2923,10 @@ enum ASM_DEFINE
 	SETFALSEI,
 	SETMOREI,
 	SETLESSI,
-		//2 INPUT 0 RETURN 
+		//2 INPUT 0 RETURN
 	ARRAYCOPY,
 	ARRAYNCOPY,
-	    //1 INPUT, NO RETURN 
+	    //1 INPUT, NO RETURN
 	REMCHR,
 	STRINGUPPERLOWER,
 	STRINGLOWERUPPER,
@@ -3106,8 +2950,8 @@ enum ASM_DEFINE
 	XTOI2,
 	ILEN2,
 	ATOI2,
-	REMCHR2,    
-	    //3 INPUT 1 RET 
+	REMCHR2,
+	    //3 INPUT 1 RET
 	XTOA3,
 	STRCATF,
 	ITOA3,
@@ -3137,13 +2981,11 @@ enum ASM_DEFINE
 	GETITEMBYNAME,
 	GETCOMBOBYNAME,
 	GETDMAPBYNAME,
-	
 	SRNDR,
 	SRNDV,
 	SRNDRND,
 	SAVEGAMESTRUCTS,
 	READGAMESTRUCTS,
-	
 	ANDR32,
 	ANDV32,
 	ORR32,
@@ -3192,7 +3034,6 @@ enum ASM_DEFINE
 	TOINTEGER,
 	FLOOR,
 	CEILING,
-	
 	FILECLOSE,
 	FILEFREE,
 	FILEISALLOCATED,
@@ -3202,14 +3043,12 @@ enum ASM_DEFINE
 	FILEGETCHAR,
 	FILEREWIND,
 	FILECLEARERR,
-	
 	FILEOPEN,
 	FILECREATE,
 	FILEREADSTR,
 	FILEWRITESTR,
 	FILEPUTCHAR,
 	FILEUNGETCHAR,
-	
 	FILEREADCHARS,
 	FILEREADINTS,
 	FILEWRITECHARS,
@@ -3217,47 +3056,36 @@ enum ASM_DEFINE
 	FILESEEK,
 	FILEOPENMODE,
 	FILEGETERROR,
-	
 	BITMAPFREE,
-	
 	POPARGS,
 	GAMERELOAD,
-	
 	READPODARRAYR,
 	READPODARRAYV,
 	WRITEPODARRAYRR,
 	WRITEPODARRAYRV,
 	WRITEPODARRAYVR,
 	WRITEPODARRAYVV,
-	
 	PRINTFV,
 	SPRINTFV,
-	
 	STRCMPR,
 	STRICMPR,
 	STRINGICOMPARE,
 	STRINGNICOMPARE,
-	
 	FILEREMOVE,
 	FILESYSREMOVE,
-	
 	DRAWSTRINGR2,
 	BMPDRAWSTRINGR2,
-	
 	MODULEGETIC,
 	ITOACAT,
-	
 	FRAMER,
 	BMPFRAMER,
-	
 	LOADDIRECTORYR,
 	DIRECTORYGET,
 	DIRECTORYRELOAD,
 	DIRECTORYFREE,
 	FILEWRITEBYTES,
-	GETCOMBOSCRIPT,  
+	GETCOMBOSCRIPT,
 	FILEREADBYTES,
-	
 	LOADRNG,
 	RNGRAND1,
 	RNGRAND2,
@@ -3271,21 +3099,18 @@ enum ASM_DEFINE
 	LWPNDEL,
 	EWPNDEL,
 	ITEMDEL,
-	
 	BMPWRITETILE,
 	BMPDITHER,
 	BMPREPLCOLOR,
 	BMPSHIFTCOLOR,
 	BMPMASKDRAW,
 	RESIZEARRAYR,
-	
 	BSHOPNAMEGET,
 	BSHOPNAMESET,
 	BOTTLENAMEGET,
 	BOTTLENAMESET,
 	LOADBOTTLETYPE,
 	LOADBSHOPDATA,
-	
 	SWITCHNPC,
 	SWITCHCMB,
 	SWITCHITM,
@@ -3299,7 +3124,6 @@ enum ASM_DEFINE
 	NPCCANMOVEDIR,
 	NPCCANMOVEANGLE,
 	NPCCANMOVEXY,
-	
 	SELECTXWPNR,
 	SELECTYWPNR,
 	BITMAPOWN,
@@ -3326,7 +3150,6 @@ enum ASM_DEFINE
 	DIVV2,
 	COMPAREV2,
 	MODV2,
-	
 	STACKFREE,
 	STACKOWN,
 	STACKGET,
@@ -3381,8 +3204,6 @@ enum ASM_DEFINE
 	RESRVD_OP_EMILY28,
 	RESRVD_OP_EMILY29,
 	RESRVD_OP_EMILY30,
-	
-	
 	CREATEPALDATA,
 	CREATEPALDATACLR,
 	MIXCLR,
@@ -3410,7 +3231,6 @@ enum ASM_DEFINE
 	PALDATACOPYCSET,
 	PALDATAFREE,
 	PALDATAOWN,
-	
 	NUMCOMMANDS           //0x01F6
 };
 
@@ -3627,7 +3447,7 @@ enum ASM_DEFINE
 #define NPCSTUN              0x02E1
 #define NPCHUNGER            0x02E2
 //0x02E3-0x02EB are reserved for future NPC variables
-//#define             0x02E2 //This was a duplicate define value in the old source. 
+//#define             0x02E2 //This was a duplicate define value in the old source.
 #define NPCSUPERMAN            0x02E3
 #define NPCHASITEM            0x02E4
 #define NPCRINGLEAD            0x02E5
@@ -4017,7 +3837,7 @@ enum ASM_DEFINE
 #define RESVD112D 0x112D
 #define RESVD112E 0x112E
 
-//Reserved values to use for cooperative editing. 
+//Reserved values to use for cooperative editing.
 #define RESVD112F 0x112F
 #define RESVD1130 0x1130
 #define RESVD1131 0x1131
@@ -4112,7 +3932,7 @@ enum ASM_DEFINE
 //NPCData
 #define SETNPCDATASCRIPTDEF  0x1186
 #define SETNPCDATADEFENSE 0x1187
-#define SETNPCDATASIZEFLAG 0x118 
+#define SETNPCDATASIZEFLAG 0x118
 #define SETNPCDATAATTRIBUTE 0x1189
 
 #define SCDBLOCKWEAPON 0x118A
@@ -4261,7 +4081,7 @@ enum ASM_DEFINE
 #define MAPDATAFFHEIGHT 	0x1214	//B, 32 OF THESE
 #define MAPDATAFFLINK 		0x1215	//B, 32 OF THESE
 #define MAPDATAFFSCRIPT 	0x1216	//W, 32 OF THESE
-#define MAPDATAINTID 		0x1217	//INT32 , 32 OF THESE, EACH WITH 10 INDICES. 
+#define MAPDATAINTID 		0x1217	//INT32 , 32 OF THESE, EACH WITH 10 INDICES.
 #define MAPDATAINITA 		0x1218	//INT32, 32 OF THESE, EACH WITH 2
 #define MAPDATAFFINITIALISED 	0x1219	//BOOL, 32 OF THESE
 #define MAPDATASCRIPTENTRY 	0x121A	//W
@@ -4341,7 +4161,7 @@ enum ASM_DEFINE
 #define SCREENDATAFFHEIGHT 		0x1263	//B, 32 OF THESE
 #define SCREENDATAFFLINK 		0x1264	//B, 32 OF THESE
 #define SCREENDATAFFSCRIPT 		0x1265	//W, 32 OF THESE
-#define SCREENDATAINTID 		0x1266	//INT32 , 32 OF THESE, EACH WITH 10 INDICES. 
+#define SCREENDATAINTID 		0x1266	//INT32 , 32 OF THESE, EACH WITH 10 INDICES.
 #define SCREENDATAINITA 		0x1267	//INT32, 32 OF THESE, EACH WITH 2
 #define SCREENDATAFFINITIALISED 	0x1268	//BOOL, 32 OF THESE
 #define SCREENDATASCRIPTENTRY 		0x1269	//W
@@ -4506,7 +4326,7 @@ enum ASM_DEFINE
 #define COMBODSTATUETYPE	0x12F6	//C
 #define COMBODSTEPTYPE		0x12F7	//C
 #define COMBODSTEPCHANGEINTO	0x12F8	//LONG
-#define COMBODSTRIKEWEAPONS	0x12F9	//BYTE, 32 INDICES. 
+#define COMBODSTRIKEWEAPONS	0x12F9	//BYTE, 32 INDICES.
 #define COMBODSTRIKEREMNANTS	0x12FA	//LONG
 #define COMBODSTRIKEREMNANTSTYPE	0x12FB	//C
 #define COMBODSTRIKECHANGE	0x12FC	//LONG
@@ -4533,35 +4353,35 @@ enum ASM_DEFINE
 #define ITEMSCRIPTUID		0x1311	//byte[4]
 #define DMAPDATASIDEVIEW	0x1312	//byte[4]
 
-#define DONULL			0x1313	
-#define DEBUGD			0x1314	
-#define GETPIXEL			0x1315	
-#define DOUNTYPE			0x1316	
+#define DONULL			0x1313
+#define DEBUGD			0x1314
+#define GETPIXEL			0x1315
+#define DOUNTYPE			0x1316
 #define NPCBEHAVIOUR			0x1317
-#define NPCDATABEHAVIOUR			0x1318	
-#define GRAPHICSMONO			0x1319	
-#define GRAPHICSTINT			0x131A	
-#define CREATEBITMAP			0x131B	
-#define LINKTILEMOD			0x131C	
-#define NPCINITD			0x131D	
-#define NPCCOLLISION			0x131E	
-#define NPCLINEDUP			0x131F	
+#define NPCDATABEHAVIOUR			0x1318
+#define GRAPHICSMONO			0x1319
+#define GRAPHICSTINT			0x131A
+#define CREATEBITMAP			0x131B
+#define LINKTILEMOD			0x131C
+#define NPCINITD			0x131D
+#define NPCCOLLISION			0x131E
+#define NPCLINEDUP			0x131F
 #define NPCDATAINITD			0x1320
-#define NPCDATASCRIPT			0x1321	
-#define NPCMATCHINITDLABEL			0x1322	
+#define NPCDATASCRIPT			0x1321
+#define NPCMATCHINITDLABEL			0x1322
 #define LWPNSCRIPT			0x1323
-#define LWPNINITD			0x1324	
-#define ITEMFAMILY			0x1325	
-#define ITEMLEVEL			0x1326	
+#define LWPNINITD			0x1324
+#define ITEMFAMILY			0x1325
+#define ITEMLEVEL			0x1326
 
-#define EWPNSCRIPT			0x1327	
-#define EWPNINITD			0x1328	
+#define EWPNSCRIPT			0x1327
+#define EWPNINITD			0x1328
 #define NPCSCRIPT			0x1329
-#define DMAPSCRIPT			0x132A	
-#define DMAPINITD			0x132B	
-#define SCREENSCRIPT			0x132C	
-#define SCREENINITD			0x132D	
-#define LINKINITD			0x132E	
+#define DMAPSCRIPT			0x132A
+#define DMAPINITD			0x132B
+#define SCREENSCRIPT			0x132C
+#define SCREENINITD			0x132D
+#define LINKINITD			0x132E
 
 #define NPCDATAWEAPONINITD 		0x132F
 #define NPCDATAWEAPONSCRIPT 		0x1330

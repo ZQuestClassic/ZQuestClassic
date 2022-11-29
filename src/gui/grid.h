@@ -61,13 +61,10 @@ private:
 	//std::vector<std::shared_ptr<Widget>> children;
 	std::vector<int32_t> rowWidths, colWidths, rowHeights, colHeights;
 	size_t rowSpacing, colSpacing;
-	
 	std::map<size_t, std::shared_ptr<Widget>> children;
 	std::map<size_t, bool> usedIndexes;
-	
 	type growthType;
 	size_t growthLimit;
-	
 	size_t maxChildIndex()
 	{
 		return children.rbegin()->first;

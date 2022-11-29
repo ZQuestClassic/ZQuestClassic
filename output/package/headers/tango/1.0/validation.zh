@@ -8,30 +8,30 @@
 bool __Tango_ValidateSlot(int slot)
 {
     bool ret=true;
-    
+
     if(slot<0 || slot>__TANGO_NUM_SLOTS-1)
         ret=false;
     if(slot!=(slot<<0)) // Not an integer?
         ret=false;
-    
+
     if(!ret)
         __Tango_LogError(__TANGO_ERROR_INVALID_SLOT, slot);
-    
+
     return ret;
 }
 
 bool __Tango_ValidateStyle(int style)
 {
     bool ret=true;
-    
+
     if(style<0 || style>__TANGO_NUM_STYLES-1)
         ret=false;
     if(style!=(style<<0)) // Not an integer?
         ret=false;
-    
+
     if(!ret)
         __Tango_LogError(__TANGO_ERROR_INVALID_STYLE, style);
-    
+
     return ret;
 }
 
@@ -41,7 +41,7 @@ bool __Tango_ValidateString(int str)
         return false;
     else if(SizeOfArray(str)<=0)
         return false;
-    
+
     return true;
 }
 
@@ -49,7 +49,7 @@ bool __Tango_ValidateMessage(int msg)
 {
     if(msg<=0 || msg!=(msg<<0)) // Integer greater than 0
         return false;
-    
+
     return true;
 }
 

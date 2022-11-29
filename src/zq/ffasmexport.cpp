@@ -22,7 +22,6 @@ std::string varToString(int32_t arg)
 				for(int32_t w = 0; w < variable_list[q].maxcount; ++w)
 				{
 					if(arg!=start+(w*mult)) continue;
-					
 					char buf[64];
 					if(strcmp(variable_list[q].name, "A")==0)
 						sprintf(buf, "%s%d", variable_list[q].name, w+1);

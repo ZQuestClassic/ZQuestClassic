@@ -53,7 +53,6 @@ int32_t color_index=0, color_copy=-1;
 void get_cset(int32_t dataset,int32_t row,RGB *pal)
 {
     saved=false;
-    
     for(int32_t i=0; i<16; i++)
     {
         colordata[(CSET(dataset)+i)*3]   = pal[(row<<4)+i].r;
@@ -109,7 +108,6 @@ static DIALOG edit_cset_dlg[] =
     { jwin_edit_proc,       24,   50,   48,   16,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          6,             0,       NULL, NULL, NULL },
 	{ jwin_func_button_proc,16,   70,   40,   21,    vc(14),   vc(1),      0,      0,          0,             0, (void *) "Insert", NULL, (void*) onInsertColor_Hex },
 	{ jwin_func_button_proc,16,   95,   40,   21,    vc(14),   vc(1),      0,      0,          0,             0, (void *) "Jump", NULL, (void*) onJumpHex },
-	
 	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -265,7 +263,6 @@ int32_t jwin_cset_proc(int32_t msg, DIALOG* d, int32_t c)
 		char* c2 = (char*)edit_cset_dlg[11].dp;
 		char* c3 = (char*)edit_cset_dlg[12].dp;
 		int32_t r = atoi(c1), g = atoi(c2), b = atoi(c3);
-		
 		if(!lastshow16) //Just turned off
 		{
 			r /= 4;
@@ -308,7 +305,6 @@ int32_t jwin_cset_proc(int32_t msg, DIALOG* d, int32_t c)
 			if(gui_mouse_b()==1)
 			{
 				int32_t new_index=vbound((int32_t)((x-d->x)/(is_large?1.5:1))>>3,0,15);
-                
                 if(color_index!=new_index && (d->d1 > -1 || isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y + d->h - 1)))
                 {
 					if(d->d1 > -1)
@@ -351,14 +347,11 @@ int32_t jwin_cset_proc(int32_t msg, DIALOG* d, int32_t c)
 			}
 			//Text
 			rectfill(screen,d->x,d->y + d->h + 3,d->x + d->w - 1,int32_t(d->y + d->h + (32*(is_large?1.5:1))),jwin_pal[jcBOX]);
-			
 			if(color_copy>=0)
 			{
 				textout_ex(screen,(is_large?lfont_l:font),"\x81",int32_t((color_copy<<3)*(is_large?1.5:1)+d->x),d->y + d->h + 3,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 			}
-			
 			textout_ex(screen,(is_large?lfont_l:font),"\x88",int32_t((color_index<<3)*(is_large?1.5:1)+d->x),d->y + d->h + 3,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-			
 			if((edit_cset_dlg[19].flags & D_SELECTED))
 			{
 				textprintf_centre_ex(screen,(is_large?lfont_l:font),d->x + d->w/2,d->y + d->h + int32_t(12*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %3d %3d %3d",color_index, RAMpal[12*16+color_index].r*4,RAMpal[12*16+color_index].g*4,RAMpal[12*16+color_index].b*4);
@@ -418,7 +411,6 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 					RAMpal[14*16+color_index].r&=0x3F;
 					edit_cset_dlg[9].flags |= D_DIRTY;
 					break;
-					
 				case KEY_END:
 				case KEY_1:
 				case KEY_1_PAD:
@@ -426,7 +418,6 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 					RAMpal[14*16+color_index].r&=0x3F;
 					edit_cset_dlg[9].flags |= D_DIRTY;
 					break;
-					
 				case KEY_UP:
 				case KEY_8:
 				case KEY_8_PAD:
@@ -434,7 +425,6 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 					RAMpal[14*16+color_index].g&=0x3F;
 					edit_cset_dlg[9].flags |= D_DIRTY;
 					break;
-					
 				case KEY_DOWN:
 				case KEY_2:
 				case KEY_2_PAD:
@@ -442,7 +432,6 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 					RAMpal[14*16+color_index].g&=0x3F;
 					edit_cset_dlg[9].flags |= D_DIRTY;
 					break;
-					
 				case KEY_PGUP:
 				case KEY_9:
 				case KEY_9_PAD:
@@ -450,7 +439,6 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 					RAMpal[14*16+color_index].b&=0x3F;
 					edit_cset_dlg[9].flags |= D_DIRTY;
 					break;
-					
 				case KEY_PGDN:
 				case KEY_3:
 				case KEY_3_PAD:
@@ -458,12 +446,10 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 					RAMpal[14*16+color_index].b&=0x3F;
 					edit_cset_dlg[9].flags |= D_DIRTY;
 					break;
-					
 				case KEY_C:
 					color_copy=color_index;
 					edit_cset_dlg[9].flags |= D_DIRTY;
 					break;
-					
 				case KEY_V:
 					if(color_copy>=0)
 					{
@@ -472,7 +458,6 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 						edit_cset_dlg[9].flags |= D_DIRTY;
 					}
 					break;
-					
 				case KEY_M:
 					if(color_copy>=0)
 					{
@@ -483,13 +468,11 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 						edit_cset_dlg[9].flags |= D_DIRTY;
 					}
 					break;
-					
 				case KEY_I:
 				case KEY_INSERT:
 					RAMpal[14*16+color_index]=RAMpal[edc];
 					edit_cset_dlg[9].flags |= D_DIRTY;
 					break;
-					
 				case KEY_S:
 					onSnapshot();
 					break;
@@ -503,52 +486,42 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 							{
 								zc_swap(RAMpal[14*16+color_index], RAMpal[14*16+((color_index-1)&15)]);
 							}
-							
 							color_index=(color_index-1)&15;
 							break;
 						}
-						
 						case '6':
 						{
 							if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 							{
 								zc_swap(RAMpal[14*16+color_index], RAMpal[14*16+((color_index+1)&15)]);
 							}
-							
 							color_index=(color_index+1)&15;
 							break;
 						}
-						
 						case '7':
 							++RAMpal[14*16+color_index].r;
 							RAMpal[14*16+color_index].r&=0x3F;
 							break;
-							
 						case '1':
 							--RAMpal[14*16+color_index].r;
 							RAMpal[14*16+color_index].r&=0x3F;
 							break;
-							
 						case '8':
 							++RAMpal[14*16+color_index].g;
 							RAMpal[14*16+color_index].g&=0x3F;
 							break;
-							
 						case '2':
 							--RAMpal[14*16+color_index].g;
 							RAMpal[14*16+color_index].g&=0x3F;
 							break;
-							
 						case '9':
 							++RAMpal[14*16+color_index].b;
 							RAMpal[14*16+color_index].b&=0x3F;
 							break;
-							
 						case '3':
 							--RAMpal[14*16+color_index].b;
 							RAMpal[14*16+color_index].b&=0x3F;
 							break;
-						
 						default:
 							return ret;
 					}
@@ -557,7 +530,6 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 			}
 			ret |= D_USED_CHAR;
 			broadcast_dialog_message(MSG_IDLE,0);
-			
 	}
 	return ret;
 }
@@ -629,7 +601,6 @@ void onInsertColor_Hex()
 	auto r = (col&0xFF0000)>>16;
 	auto g = (col&0x00FF00)>>8;
 	auto b = (col&0x0000FF)>>0;
-	
 	r = vbound(r, 0, 252)/4;
 	g = vbound(g, 0, 252)/4;
 	b = vbound(b, 0, 252)/4;
@@ -657,7 +628,6 @@ void onJumpHex()
 
 void onJumpHSL()
 {
-	
 }
 
 void init_gfxpal()
@@ -676,19 +646,16 @@ bool edit_dataset(int32_t dataset)
 {
 	PALETTE holdpal;
 	memcpy(holdpal,RAMpal,sizeof(RAMpal));
-	
 	if(is_large)
 	{
 		rectfill(screen, 0, 0, screen->w, screen->h, 128);
 		large_dialog(edit_cset_dlg);
 	}
-	
 	load_cset(RAMpal,12,dataset);
 	load_cset(RAMpal,14,dataset);
 	set_palette_range(RAMpal,0,255,false);
 	FONT* old = font;
 	font = is_large?lfont_l:nfont;
-	
 	init_gfxpal();
 	char bufr[4] = "0", bufg[4] = "0", bufb[4] = "0";
 	edit_cset_dlg[10].dp = (void*)bufr;
@@ -696,7 +663,6 @@ bool edit_dataset(int32_t dataset)
 	edit_cset_dlg[12].dp = (void*)bufb;
 	char bufhex[7] = "000000";
 	edit_cset_dlg[21].dp = (void*)bufhex;
-	
 	while(gui_mouse_b()) {
 		rest(1);
 	} //Do nothing
@@ -712,9 +678,7 @@ bool edit_dataset(int32_t dataset)
 			saved=false;
 			break;
 	}
-	
 	memcpy(RAMpal, holdpal, sizeof(holdpal));
-	
 	set_palette(RAMpal);
 	rectfill(screen, 0, 0, screen->w, screen->h, BLACK);
 	while(gui_mouse_b()) {
@@ -729,7 +693,6 @@ int32_t pal_index(RGB *pal,RGB c)
     for(int32_t i=0; i<256; i++)
         if(pal[i].r==c.r && pal[i].g==c.g && pal[i].b==c.b)
             return i;
-            
     return -1;
 }
 
@@ -744,7 +707,6 @@ bool grab_dataset(int32_t dataset)
     int32_t buttony=195;
     int32_t filenamex=0;
     int32_t filenamey=232;
-    
     if(is_large)
     {
         palx=665;
@@ -756,21 +718,15 @@ bool grab_dataset(int32_t dataset)
         filenamex=4;
         filenamey=583;
     }
-    
     PALETTE tmp;
-    
     if(!pic && load_the_pic(&pic,picpal))
         return false;
-        
     get_palette(imagepal);
-    
     create_rgb_table(&rgb_table, imagepal, NULL);
     rgb_map = &rgb_table;
     create_color_table(&imagepal_table, RAMpal, return_RAMpal_color, NULL);
-    
     int32_t jwin_pal2[jcMAX];
     memcpy(jwin_pal2, jwin_pal, sizeof(int32_t)*jcMAX);
-    
     jwin_pal[jcBOX]    =imagepal_table.data[0][jwin_pal[jcBOX]];
     jwin_pal[jcLIGHT]  =imagepal_table.data[0][jwin_pal[jcLIGHT]];
     jwin_pal[jcMEDLT]  =imagepal_table.data[0][jwin_pal[jcMEDLT]];
@@ -787,44 +743,35 @@ bool grab_dataset(int32_t dataset)
     gui_bg_color=jwin_pal[jcBOX];
     gui_fg_color=jwin_pal[jcBOXFG];
     jwin_set_colors(jwin_pal);
-    
     get_bw(picpal,pblack,pwhite);
     int32_t bg = gui_bg_color;
     int32_t fg = gui_fg_color;
     gui_bg_color = pblack;
     gui_fg_color = pwhite;
-    
     char fname[13];
     extract_name(imagepath,fname,FILENAME8_3);
-    
     draw_bw_mouse(pwhite, MOUSE_BMP_NORMAL, MOUSE_BMP_BLANK);
     scare_mouse();
     clear_bitmap(screen2);
     set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
     unscare_mouse();
     set_palette(picpal);
-    
     bool redraw=true;
     bool reload=false;
     int32_t done=0;
     int32_t f=0;
     FONT *fnt = font;
-    
     if(is_large)
         font = lfont_l;
-        
     do
     {
         rest(1);
         int32_t x=gui_mouse_x();
         int32_t y=gui_mouse_y();
-        
         custom_vsync();
-        
         if(reload)
         {
             reload=false;
-            
             if(load_the_pic(&pic,picpal)==2)
                 done=1;
             else
@@ -834,20 +781,17 @@ bool grab_dataset(int32_t dataset)
                 redraw=true;
             }
         }
-        
         if(redraw)
         {
             redraw=false;
             scare_mouse();
             clear_to_color(screen2,is_large?jwin_pal[jcBOX]:pblack);
-            
             if(is_large)
             {
                 jwin_draw_frame(screen2,imagex-2,imagey-2,658,551,FR_DEEP);
                 rectfill(screen2, imagex, imagey, imagex+654-1, imagey+547-1, jwin_pal[jcBOXFG]);
                 jwin_draw_frame(screen2,palx-3,paly-3,134,134,FR_DEEP);
             }
-            
             blit(pic,screen2,0,0,imagex,imagey,pic->w,pic->h);
             textout_ex(screen2,is_large?lfont_l:font,fname,filenamex,filenamey,is_large?jwin_pal[jcBOXFG]:pwhite,is_large?jwin_pal[jcBOX]:pblack);
             draw_text_button(screen2,buttonx,buttony+(is_large?36:24),(is_large?90:60),(is_large?31:21),"File",pblack,pwhite,0,true);
@@ -857,12 +801,10 @@ bool grab_dataset(int32_t dataset)
                              (is_large?90:60),(is_large?31:21),"Cancel",pblack,pwhite,0,true);
             unscare_mouse();
         }
-        
         if((gui_mouse_b()&1) && isinRect(x,y,palx,paly,palx+127,paly+127))
         {
             row=((y-paly)>>3);
         }
-        
         if((gui_mouse_b()&1) && isinRect(x,y,buttonx,buttony+(is_large?36:24),buttonx+(is_large?90:60),buttony+(is_large?36+31:24+21)))
         {
             if(do_text_button(buttonx,buttony+(is_large?36:24),(is_large?90:60),(is_large?31:21),"File",pblack,pwhite,true))
@@ -870,7 +812,6 @@ bool grab_dataset(int32_t dataset)
                 reload=true;
             }
         }
-        
         if((gui_mouse_b()&1) && isinRect(x,y,buttonx+(is_large?114:76),buttony,buttonx+(is_large?114+90:76+60),buttony+(is_large?31:21)))
         {
             if(do_text_button(buttonx+(is_large?114:76),buttony,(is_large?90:60),(is_large?31:21),"OK",pblack,pwhite,true))
@@ -878,7 +819,6 @@ bool grab_dataset(int32_t dataset)
                 done=2;
             }
         }
-        
         if((gui_mouse_b()&1) && isinRect(x,y,buttonx+(is_large?114:76),buttony+(is_large?36:24),buttonx+(is_large?114+90:76+60),buttony+(is_large?36+31:24+21)))
         {
             if(do_text_button(buttonx+(is_large?114:76),buttony+(is_large?36:24),(is_large?90:60),(is_large?31:21),"Cancel",pblack,pwhite,true))
@@ -886,7 +826,6 @@ bool grab_dataset(int32_t dataset)
                 done=1;
             }
         }
-        
         if(keypressed())
         {
             switch(readkey()>>8)
@@ -894,23 +833,18 @@ bool grab_dataset(int32_t dataset)
             case KEY_ESC:
                 done=1;
                 break;
-                
             case KEY_ENTER:
                 done=2;
                 break;
-                
             case KEY_SPACE:
                 reload=true;
                 break;
-                
             case KEY_UP:
                 row=(row-1)&15;
                 break;
-                
             case KEY_DOWN:
                 row=(row+1)&15;
                 break;
-                
             case KEY_LEFT:
             case KEY_RIGHT:
                 if(!is_large)
@@ -918,39 +852,30 @@ bool grab_dataset(int32_t dataset)
                     palx = 192-palx;
                     redraw=true;
                 }
-                
                 break;
-                
             case KEY_TAB:
                 //        tmp = picpal;
                 memcpy(tmp,picpal,sizeof(picpal));
-                
                 for(int32_t i=0; i<16; i++)
                     tmp[(row<<4)+i] = invRGB(tmp[(row<<4)+i]);
-                    
                 for(int32_t i=0; i<12; i++)
                 {
                     custom_vsync();
-                    
                     if(i&2)
                         set_palette(picpal);
                     else
                         set_palette(tmp);
                 }
-                
                 break;
             }
         }
-        
         scare_mouse();
-        
         for(int32_t i=0; i<256; i++)
         {
             int32_t x2=((i&15)<<3)+palx;
             int32_t y2=((i>>4)<<3)+paly;
             rectfill(screen2,x2,y2,x2+7,y2+7,i);
         }
-        
         ++f;
         rect(screen2,palx-1,paly-1,palx+128,paly+128,is_large?pblack:pwhite);
         rect(screen2,palx-1,(row<<3)+paly-1,palx+128,(row<<3)+paly+8,(f&2)?pwhite:pblack);
@@ -959,31 +884,23 @@ bool grab_dataset(int32_t dataset)
         SCRFIX();
     }
     while(!done);
-    
     if(done==2)
         get_cset(dataset,row,picpal);
-        
     font = fnt;
-    
     gui_bg_color = bg;
     gui_fg_color = fg;
-    
     while(gui_mouse_b())
     {
         /* do nothing */
 				rest(1);
     }
-    
     scare_mouse();
-    
     set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
     clear_to_color(mouse_bmp[MOUSE_BMP_BLANK][0],0);
     memcpy(jwin_pal, jwin_pal2, sizeof(int32_t)*jcMAX);
-    
     gui_bg_color=jwin_pal[jcBOX];
     gui_fg_color=jwin_pal[jcBOXFG];
     jwin_set_colors(jwin_pal);
-    
     rgb_map = &zq_rgb_table;
     unscare_mouse();
     return (done == 2);
@@ -1010,7 +927,6 @@ void undo_pal()
 	}
 	for(int32_t i=0; i<cset_count; i++)
 		get_cset(cset_first+i,i,undopal);
-	
 	memcpy(undopal,pal,sizeof(pal));
 }
 
@@ -1018,23 +934,16 @@ void calc_dark(int32_t first)
 {
     //  undopal=pal;
     memcpy(undopal,pal,sizeof(pal));
-    
     PALETTE tmp;
     //  tmp = black_palette;
     memcpy(tmp,black_palette,sizeof(black_palette));
-    
     fade_interpolate(pal,black_palette,tmp,16,0,47);
-    
     for(int32_t i=0; i<48; i++)
         tmp[i+64] = tmp[i];
-        
     fade_interpolate(pal,black_palette,tmp,32,0,47);
-    
     for(int32_t i=0; i<48; i++)
         tmp[i+112] = tmp[i];
-        
     tmp[160+3] = tmp[3];
-    
     for(int32_t i=4; i<11; i++)
         get_cset(first+i,i,tmp);
 }
@@ -1058,19 +967,16 @@ static DIALOG cycle_dlg[] =
     { d_hexedit_proc,    152,  120,  24,   16,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          1,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,       152,  136,  24,   16,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          3,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,       152,  152,  24,   16,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          3,             0,       NULL, NULL, NULL },
-    
     { jwin_edit_proc,       184,  88,   24,   16,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          1,             0,       NULL, NULL, NULL },
     { d_hexedit_proc,    184,  104,  24,   16,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          1,             0,       NULL, NULL, NULL },
     { d_hexedit_proc,    184,  120,  24,   16,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          1,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,       184,  136,  24,   16,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          3,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,       184,  152,  24,   16,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          3,             0,       NULL, NULL, NULL },
-    
     { jwin_edit_proc,       216,  88,   24,   16,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          1,             0,       NULL, NULL, NULL },
     { d_hexedit_proc,    216,  104,  24,   16,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          1,             0,       NULL, NULL, NULL },
     { d_hexedit_proc,    216,  120,  24,   16,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          1,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,       216,  136,  24,   16,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          3,             0,       NULL, NULL, NULL },
     { jwin_edit_proc,       216,  152,  24,   16,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          3,             0,       NULL, NULL, NULL },
-    
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -1078,7 +984,7 @@ void edit_cycles(int32_t level)
 {
     char buf[15][8];
     palcycle cycle_none[1][3];  //create a null palette cycle here. -Z
-	memset(cycle_none, 0, sizeof(cycle_none)); 
+	memset(cycle_none, 0, sizeof(cycle_none));
     for(int32_t i=0; i<3; i++)
     {
         palcycle c = ( level < 256 ) ? misc.cycles[level][i] : cycle_none[0][i]; //Only level palettes 0 through 255 have valid data in 2.50.x. -Z
@@ -1088,18 +994,14 @@ void edit_cycles(int32_t level)
         sprintf(buf[i*5+3],"%d",c.count>>4);
         sprintf(buf[i*5+4],"%d",c.speed);
     }
-    
     for(int32_t i=0; i<15; i++)
         cycle_dlg[i+10].dp = buf[i];
-        
     if(is_large)
         large_dialog(cycle_dlg);
-        
     if(zc_popup_dialog(cycle_dlg,3)==2)
     {
         saved=false;
         reset_pal_cycling();
-        
         for(int32_t i=0; i<3; i++)
         {
             palcycle c;
@@ -1117,20 +1019,15 @@ void draw_cset_proc(DIALOG *d)
 {
     int32_t d1 = zc_min(d->d1, d->d2);
     int32_t d2 = zc_max(d->d1, d->d2);
-    
-    
     d_bitmap_proc(MSG_DRAW,d,0);
     //  text_mode(d->bg);
-    
     //  rect(screen,d->x,(d1<<3)+d->y,d->x+d->w-1,(d2<<3)+d->y+7,FLASH);
     rect(screen,d->x,int32_t((d1<<3)*(is_large?1.5:1)+d->y),d->x+d->w-1,int32_t((d2<<3)*(is_large?1.5:1)+d->y+(is_large?11:7)),dvc(0)); //highlights currently selected cset
     int32_t drc;
-    
     if((d->flags & D_GOTFOCUS))
         drc = (d->flags & D_DISABLED) ? jwin_pal[jcDISABLED_FG] : d->fg;
     else
         drc = d->bg;
-        
     dotted_rect(d->x-1, d->y-1, d->x+d->w, d->y+d->h, drc, d->bg);
 }
 
@@ -1141,27 +1038,22 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 		case MSG_START:
 			d->d2 = d->d1;
 			break;
-			
 		case MSG_WANTFOCUS:
 			return D_WANTFOCUS;
-			
 		case MSG_DRAW:
 			draw_cset_proc(d);
 			break;
-			
 		case MSG_CLICK:
 		{
 			bool dragging=false;
 			int32_t src=0;
 			int32_t x;
 			int32_t y;
-			
 			// Start dragging?
 			if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 			{
 				x=gui_mouse_x();
 				y=gui_mouse_y();
-				
 				if(isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
 				{
 					dragging=true;
@@ -1169,20 +1061,16 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 						vbound((int32_t)((x-d->x) / (is_large?1.5:1))>>3,0,15);
 				}
 			}
-			
 			do
 			{
 				x=gui_mouse_x();
 				y=gui_mouse_y();
-				
 				if(!dragging && isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
 				{
 					d->d2 = vbound((int32_t)((y-d->y)/(is_large?1.5:1))>>3,0,15);
-					
 					if(!(key_shifts&KB_SHIFT_FLAG))
 						d->d1 = d->d2;
 				}
-				
 				custom_vsync();
 				scare_mouse();
 				draw_cset_proc(d);
@@ -1194,18 +1082,15 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 				set_palette_range(((RGB*)d->dp3),dvc(0),dvc(0),false);
 			}
 			while(gui_mouse_b());
-			
 			if(dragging && isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
 			{
 				int32_t dest=vbound((int32_t)((y-d->y) / (is_large?1.5:1))>>3,0,15) * 16 +
 						 vbound((int32_t)((x-d->x) / (is_large?1.5:1))>>3,0,15);
-						 
 				if(src!=dest)
 				{
 					if(gUndoPal)
 						memcpy(*gUndoPal, pal, sizeof(RGB)*16*cset_count);
 					else memcpy(undopal,pal,sizeof(pal));
-					
 					if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
 					{
 						for(int32_t i=0; i<3; i++)
@@ -1216,10 +1101,8 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 						for(int32_t i=0; i<3; i++)
 							*(((byte*)d->dp2)+dest*3+i) = *(((byte*)d->dp2)+src*3+i);
 					}
-					
 					for(int32_t i=0; i<cset_count; i++)
 						load_cset(pal,i,cset_first+i);
-						
 					set_palette(pal);
 					saved=false;
 				}
@@ -1227,59 +1110,40 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 			GUI_EVENT(d, geCHANGE_SELECTION);
 		}
 		break;
-		
 		case MSG_CHAR:
 		{
 			int32_t shift = (key_shifts&KB_SHIFT_FLAG);
 			int32_t k=c>>8;
-			
 			switch(k)
 			{
 				case KEY_UP:
 					if(d->d2>0) --d->d2;
-					
 					if(!shift) d->d1 = d->d2;
-					
 					break;
-					
 				case KEY_DOWN:
 					if(d->d2<((int32_t)ceil((d->h)/(is_large?1.5:1))>>3)-1)
 						++d->d2;
-						
 					if(!shift) d->d1 = d->d2;
-					
 					break;
-					
 				case KEY_PGUP:
 					d->d2=0;
-					
 					if(!shift) d->d1 = d->d2;
-					
 					break;
-					
 				case KEY_PGDN:
 					d->d2=((int32_t)ceil((d->h)/(is_large?1.5:1))>>3)-1;
-					
 					if(!shift) d->d1 = d->d2;
-					
 					break;
-					
 				case KEY_C:
 					cset_hold_cnt=0;
-					
 					for(int32_t row=0; row <= abs(d->d1 - d->d2); row++)
 					{
 						int32_t d1 = zc_min(d->d1,d->d2);
 						++cset_hold_cnt;
-						
 						for(int32_t i=0; i<16*3; i++)
 							cset_hold[row][i] = *(((byte*)d->dp2)+CSET(d1+row)*3+i);
 					}
-					
 					cset_ready=true;
 					break;
-					
-					
 				case KEY_V:
 					if(cset_ready)
 					{
@@ -1292,29 +1156,21 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 							for(int32_t i=0; i<16*3; i++)
 								*(((byte*)d->dp2)+CSET(d1+row)*3+i) = cset_hold[row][i];
 						}
-						
 						for(int32_t i=0; i<cset_count; i++)
 							load_cset(pal,i,cset_first+i);
-							
 						set_palette(pal);
 						saved=false;
 					}
-					
 					break;
-					
 				case KEY_U:
 					undo_pal();
-					
 					for(int32_t i=0; i<cset_count; i++)
 						load_cset(pal,i,cset_first+i);
-						
 					set_palette(pal);
 					break;
-					
 				default:
 					return D_O_K;
 			}
-			
 			custom_vsync();
 			scare_mouse();
 			draw_cset_proc(d);
@@ -1323,7 +1179,6 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 			return D_USED_CHAR;
 		}
 	}
-	
 	return D_O_K;
 }
 
@@ -1337,10 +1192,8 @@ static DIALOG colors_dlg[] =
 {
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
     { jwin_win_proc,     40,   16,   240+1,  216+1,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
-    
     { jwin_frame_proc,   103,  48,   96,  256,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          FR_DEEP,             0,       NULL, NULL, NULL },
     { d_cset_proc,       106,  51,   256,  96,   jwin_pal[jcBOXFG],  jwin_pal[jcLIGHT],  0,       0,          0,             0,       NULL, NULL, NULL },
-    
     { jwin_rtext_proc,      102,   0,    16,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       NULL, NULL, NULL },
     { jwin_rtext_proc,      102,   0,    16,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       NULL, NULL, NULL },
     { jwin_rtext_proc,      102,   0,    16,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       NULL, NULL, NULL },
@@ -1356,18 +1209,14 @@ static DIALOG colors_dlg[] =
     { jwin_rtext_proc,      102,   0,    16,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       NULL, NULL, NULL },
     { jwin_rtext_proc,      102,   0,    16,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       NULL, NULL, NULL },
     { jwin_rtext_proc,      102,   0,    16,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0,       NULL, NULL, NULL },
-    
     { d_dummy_proc,       104,  39,   128,  8,    jwin_pal[jcBOXFG],   jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "0123456789ABCDEF", NULL, NULL },
     // 19
-    
     { jwin_button_proc,     60,   178,  61,   21,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  'e',     D_EXIT,     0,             0, (void *) "&Edit", NULL, NULL },
     { jwin_button_proc,     130,  178,  61,   21,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  'g',     D_EXIT,     0,             0, (void *) "&Grab", NULL, NULL },
     { jwin_button_proc,     200,  178,  61,   21,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       D_EXIT,     0,             0, (void *) "Cycle", NULL, NULL },
     { jwin_button_proc,     244,  152,  25,   21,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  'u',     D_EXIT,     0,             0, (void *) "&U", NULL, NULL },
     // 23
-    
     { jwin_button_proc,     60,   204,  131,  21,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  'l',     D_EXIT,     0,             0, (void *) "&Load to CS 9", NULL, NULL },
-    
     { jwin_button_proc,     200,  204,  61,   21,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
     { jwin_rtext_proc,      60,   164,  48,   8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "Name: ", NULL, NULL },
     { jwin_edit_proc,       88,  160, 136,   16,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          16,            0,       NULL, NULL, NULL },
@@ -1389,7 +1238,6 @@ static DIALOG colors_dlg[] =
     { jwin_ctext_proc,       230,  39,   0,  8,    jwin_pal[jcBOXFG],   jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "F", NULL, NULL },
     //43
     { jwin_button_proc,     244,  125,  25,   21,   jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  's',     D_EXIT,     0,             0, (void *) "Save", NULL, NULL },
-    
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -1399,35 +1247,27 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
     char tempstuff[17];
     cset_first=first;
     cset_count=count;
-    
     for(int32_t i=240; i<256; i++)
     {
         pal[i] = RAMpal[i];
     }
-    
     go();
-    
     int32_t bw = 128;
     int32_t bh = count*8;
-    
     if(colors_dlg[0].d1)
     {
         bw = (is_large?192:128);
         bh = count*(is_large?12:8);
     }
-    
     BITMAP *bmp = create_bitmap_ex(8,(is_large?192:128),count*(is_large?12:8));
-    
     if(!bmp)
         return 0;
-        
     for(int32_t i=0; i<16*count; i++)
     {
         int32_t x=int32_t(((i&15)<<3)*(is_large?1.5:1));
         int32_t y=int32_t(((i>>4)<<3)*(is_large?1.5:1));
         rectfill(bmp,x,y,x+(is_large ? 15:7),y+(is_large ? 15:7),i);
     }
-    
     colors_dlg[2].dp = bmp;
     colors_dlg[2].w  = bw;
     colors_dlg[2].h  = bh;
@@ -1448,10 +1288,8 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
     colors_dlg[26].w    =(count==pdLEVEL)?134:0;
     colors_dlg[26].d1   =(count==pdLEVEL)?16:0;
     colors_dlg[26].dp   =(count==pdLEVEL)?palnames[(first-poLEVEL)/pdLEVEL]:NULL;
-    
     //char (*buf)[4]= new char[count][4];
     char buf[50][4];
-    
     for(int32_t i=0; i<15; i++)
     {
         if(i<count)
@@ -1462,34 +1300,27 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
         {
             buf[i][0]=0;
         }
-        
         colors_dlg[3+i].dp=buf[i];
         colors_dlg[3+i].y=colors_dlg[0].y+int32_t(((i<<3)+36-(is_large?3:0))*((is_large && colors_dlg[0].d1)?1.5:1));
         //sniggles
         //    colors_dlg[3+i].fg=rc[label[i+count]];
     }
-    
     colors_dlg[0].dp  = (void *)caption;
     colors_dlg[0].dp2 = lfont;
-    
     for(int32_t i=0; i<count; i++)
     {
         load_cset(pal,i,i+first);
     }
-    
     memcpy(undopal,pal,sizeof(pal));
 	gUndoPal = NULL;
     int32_t ret=0;
-    
     do
     {
         rest(4);
-        
         for(int32_t i=0; i<count; i++)
         {
             load_cset(pal,i,i+first);
         }
-        
         scare_mouse();
         clear_to_color(screen,0);
         set_palette(pal);
@@ -1497,7 +1328,6 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
         colors_dlg[19].flags =
             colors_dlg[20].flags =
                 colors_dlg[23].flags = D_EXIT;
-                
         if(is_large)
         {
             if(!colors_dlg[0].d1)
@@ -1505,13 +1335,10 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
                 colors_dlg[2].x  += 0;
                 colors_dlg[2].y  -= 1;
             }
-            
             large_dialog(colors_dlg);
         }
-        
         DIALOG_PLAYER *p = init_dialog(colors_dlg,2);
         bool enable = true;
-        
         while(update_dialog(p))
         {
             custom_vsync();
@@ -1519,9 +1346,7 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
             //      pal[FLASH]=pal[rc[(fc++)&15]];
             pal[dvc(0)]=pal[zc_oldrand()%14+dvc(1)];
             set_palette_range(pal,dvc(0),dvc(0),false);
-            
             bool en = (colors_dlg[2].d1 == colors_dlg[2].d2);
-            
             if(en!=enable)
             {
                 colors_dlg[19].flags =
@@ -1531,39 +1356,31 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
                 enable = en;
             }
         }
-        
         ret = shutdown_dialog(p);
-        
         if(ret==19)
         {
             memcpy(undopal,pal,sizeof(pal));
             edit_dataset(first+colors_dlg[2].d2);
         }
-        
         if(ret==20)
         {
             memcpy(undopal,pal,sizeof(pal));
             grab_dataset(first+colors_dlg[2].d2);
         }
-        
         if(ret==21)
         {
-		int32_t curpal = (first/pdLEVEL+poLEVEL)-10; 
-		
-		
+		int32_t curpal = (first/pdLEVEL+poLEVEL)-10;
 		    if(!get_bit(quest_rules,qr_FADE))
 		    {
 			calc_dark(first);
 		    }
 		    else
 		    {
-			if ( curpal < 256 ) //don't display cycle data for palettes 256 through 511. They don't have valid cycle data. 
+			if ( curpal < 256 ) //don't display cycle data for palettes 256 through 511. They don't have valid cycle data.
 				edit_cycles((first-poLEVEL)/pdLEVEL);
 			else jwin_alert("Notice","Palettes above 0xFF do not have Palette Cycles",NULL,NULL,"O&K",NULL,'k',0,lfont);
 		    }
-		
         }
-        
         if(ret==22)
         {
             undo_pal();
@@ -1582,28 +1399,22 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 	}
     }
     while(ret<23&&ret!=0);
-    
     while(gui_mouse_b())
     {
         /* do nothing */
 				rest(1);
     }
-    
     clear_to_color(screen,vc(0));
     set_palette(RAMpal);
-    
     loadlvlpal(Color);
-    
     if(ret==23)
     {
         load_cset(RAMpal,9,first+colors_dlg[2].d2);
         set_pal();
     }
-    
     saved=false; //It's just easier this way :)
     //  gui_fg_color = vc(14);
     //  gui_bg_color = vc(1);
-    
     comeback();
     destroy_bitmap(bmp);
     //delete[] buf;
@@ -1613,27 +1424,20 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 int32_t onColors_Main()
 {
     int32_t l9 = EditColors("Main Palette",0,pdFULL-3,mainpal_csets);
-    
     // copy main to level 0
     int32_t di = CSET(poLEVEL)*3;
     int32_t si = CSET(2)*3;
-    
     for(int32_t i=0; i<CSET(3)*3; i++)
         colordata[di++] = colordata[si++];
-        
     si = CSET(9)*3;
-    
     for(int32_t i=0; i<16*3; i++)
         colordata[di++] = colordata[si++];
-        
     loadlvlpal(Color);
-    
     if(l9)
     {
         load_cset(RAMpal,9,colors_dlg[2].d2);
         set_pal();
     }
-    
     return D_O_K;
 }
 
@@ -1641,7 +1445,6 @@ void copyPal(int32_t src, int32_t dest)
 {
     int32_t srcStart=CSET(src*pdLEVEL+poLEVEL)*3;
     int32_t destStart=CSET(dest*pdLEVEL+poLEVEL)*3;
-    
     for(int32_t i=0; i<pdLEVEL*16*3; i++)
         colordata[destStart+i]=colordata[srcStart+i];
 }
@@ -1650,7 +1453,6 @@ int32_t onColors_Levels()
 {
 	int32_t cycle = get_bit(quest_rules,qr_FADE);
 	int32_t index=Map.getcolor();
-	
 	while((index=select_data("Select Level",index,levelnumlist,"Edit","Done",lfont, copyPal))!=-1)
 	{
 		char buf[40];
@@ -1658,50 +1460,39 @@ int32_t onColors_Levels()
 		bool l9 = call_paledit_dlg(palnames[index], colordata+CSET(index*pdLEVEL+poLEVEL)*3, &pal, index*pdLEVEL+poLEVEL, index);
 		//int32_t l9 = EditColors(buf,index*pdLEVEL+poLEVEL,pdLEVEL,cycle?levelpal2_csets:levelpal_csets);
 		setup_lcolors();
-		
 		if(index==0)
 		{
 			// copy level 0 to main
 			int32_t si = CSET(poLEVEL)*3;
 			int32_t di = CSET(2)*3;
-			
 			for(int32_t i=0; i<CSET(3)*3; i++)
 				colordata[di++] = colordata[si++];
-				
 			di = CSET(9)*3;
-			
 			for(int32_t i=0; i<16*3; i++)
 				colordata[di++] = colordata[si++];
 		}
-		
 		loadlvlpal(Color);
-		
 		if(l9)
 		{
 			load_cset(RAMpal,9,index*pdLEVEL+poLEVEL+colors_dlg[2].d2);
 			set_pal();
 		}
 	}
-	
 	return D_O_K;
 }
 
 int32_t onColors_Sprites()
 {
     int32_t index;
-    
     do
     {
         index = jwin_alert3("Edit Palette", "Select an extra sprite","palette set to edit",NULL,"&1","&2","&Done",'1','2','d', lfont);
-        
         if(index==1)
             EditColors("Extra Sprite Palettes 1",poSPRITE255,15,spritepal_csets);
-            
         if(index==2)
             EditColors("Extra Sprite Palettes 2",poSPRITE255+15,15,spritepal2_csets);
     }
     while(index==1 || index==2);
-    
     return D_O_K;
 }
 

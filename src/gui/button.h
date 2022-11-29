@@ -15,7 +15,6 @@ public:
 
 	/* Sets the text to appear on the button. */
 	void setText(std::string newText);
-	
 	/* Sets a function to be called on press. */
 	void setOnPress(std::function<void()> newOnPress);
 
@@ -24,7 +23,6 @@ public:
 	{
 		message = static_cast<int32_t>(m);
 	}
-	
 	/*static std::shared_ptr<Button> infoButton(std::string title, std::string text)
 	{
 		std::shared_ptr<Button> b = std::make_shared<Button>();

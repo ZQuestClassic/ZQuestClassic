@@ -1,5 +1,5 @@
 int DrawShadow(lweapon l){
-	
+
 }
 
 //Returns true if Link has enough ammo (also subtracting cost) or has an item that allows infinite ammo.

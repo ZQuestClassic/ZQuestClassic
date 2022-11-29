@@ -244,7 +244,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 		title = titlebuf,
 		onEnter = message::OK,
 		onClose = message::CANCEL,
-		hPadding = 0_px, 
+		hPadding = 0_px,
 		Column(
 			windowRow = Row(padding = 0_px),
 			Row(
@@ -262,7 +262,6 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			)
 		)
 	);
-	
 	std::shared_ptr<GUI::Grid> loc_grid;
 	//Generate 'location' grid
 	{
@@ -362,9 +361,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 		{
 			g1->add(DummyWidget());
 		}
-		
 	}
-	
 	std::shared_ptr<GUI::Grid> col_grid = Column();
 	bool addcolor = true;
 	//Generate 'color' grid
@@ -519,7 +516,6 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 		}
 	}
-	
 	std::shared_ptr<GUI::Grid> attrib_grid;
 	bool addattrib = true;
 	enum { mtNONE, mtFORCE_TAB, mtLOCTOP };
@@ -919,7 +915,6 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								local_subref.d3 = crn;
 								return;
 							}
-							
 							if(local_subref.colortype1 != ssctMISC)
 							{
 								local_subref.colortype1 = c;

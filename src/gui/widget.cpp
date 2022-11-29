@@ -65,7 +65,6 @@ void Widget::minHeight(Size newHeight) noexcept
 void Widget::setPreferredWidth(Size newWidth) noexcept
 {
 	if(flags&f_WIDTH_OVERRIDDEN) return;
-	
 	width = newWidth.resolve();
 	if(maxwidth > -1 && width > maxwidth)
 		width = maxwidth;
@@ -76,7 +75,6 @@ void Widget::setPreferredWidth(Size newWidth) noexcept
 void Widget::setPreferredHeight(Size newHeight) noexcept
 {
 	if(flags&f_HEIGHT_OVERRIDDEN) return;
-	
 	height = newHeight.resolve();
 	if(maxheight > -1 && height > maxheight)
 		height = maxheight;
@@ -202,18 +200,15 @@ void Widget::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 		setPreferredWidth(Size::pixels(contW));
 		setPreferredHeight(Size::pixels(contH));
 	}
-	
 	if(width > contW)
 		width = contW;
 	if(height > contH)
 		height = contH;
-	
 	if(isTopLevel())
 	{
 		origw = contW;
 		origh = contH;
 	}
-	
 	auto hExcess = origw-width;
 	x = contX+hExcess*hAlign;
 	auto vExcess = origh-height;

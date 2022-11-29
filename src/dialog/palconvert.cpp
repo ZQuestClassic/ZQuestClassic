@@ -39,7 +39,6 @@ std::shared_ptr<GUI::Widget> PaletteConvertDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	return Window(
 		title = "Convert Palette",
 		onEnter = message::OK,

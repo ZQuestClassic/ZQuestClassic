@@ -112,7 +112,7 @@ def run_replay_test(replay_file):
         exe_args.extend(['-frame', str(args.frame)])
     if args.snapshot is not None:
         exe_args.extend(['-snapshot', args.snapshot])
-    
+
     last_step = read_last_contentful_line(replay_file)
     num_frames = int(last_step.split(' ')[1])
     num_frames_checked = num_frames

@@ -4,13 +4,13 @@ lweapon script MovingBait
 	{
 		int clk = Rand(minTime, maxTime);
 		int dist; int dir;
-		
+
 		minTime = ( minTime > 0 ) ? minTime : 10;
 		maxTime = ( maxTime > 0 ) ? maxTime : 100;
 		minDist = ( minDist > 0 ) ? minDist : 8;
 		maxDist = ( maxDist > 0 ) ? maxDist : 30;
 		step_delay = ( step_delay > 0 ) ? step_delay : 2;
-		
+
 		while(this->isValid())
 		{
 			--clk;
@@ -36,4 +36,3 @@ lweapon script MovingBait
 		}
 	}
 }
-				

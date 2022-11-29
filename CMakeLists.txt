@@ -14,7 +14,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # This allows outputs to be run where they are by putting their libaries in
-# the same folder. 
+# the same folder.
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
@@ -252,7 +252,7 @@ if(MSVC)
 	add_compile_options(/W0)
 
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-	
+
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /OPT:NOICF")
 	set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/DEBUG")
 

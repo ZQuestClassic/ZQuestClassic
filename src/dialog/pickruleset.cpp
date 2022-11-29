@@ -47,7 +47,6 @@ std::shared_ptr<GUI::Widget> PickRulesetDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	return Window(
 		title = "Pick Ruleset",
 		onEnter = message::OK,
@@ -112,7 +111,7 @@ bool PickRulesetDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		{
 			rulesetInfo->setText(rulesetsList.findInfo(msg.argument));
 			return false;
-		}	
+		}
 		//Exiting messages
 		case message::OK:
 			setRuleset(rulesetChoice->getChecked());

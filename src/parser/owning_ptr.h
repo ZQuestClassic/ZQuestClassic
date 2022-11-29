@@ -10,7 +10,6 @@ class owning_ptr
 	// Safe bool idiom.
 	typedef void (owning_ptr::*safe_bool_type) () const;
 	void safe_bool_func() const {}
-	
 public:
 	explicit owning_ptr(Type* p = NULL) : data_(p) {}
 	owning_ptr(owning_ptr const& other) : data_(other.clone()) {}
@@ -60,7 +59,6 @@ public:
 		delete data_;
 		data_ = p;
 	}
-	
 private:
 	Type* data_;
 };

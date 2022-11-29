@@ -35,7 +35,7 @@ ffc script HealthBar_Single{
 		npc n = HealthBar_GetNPC(npcid, npcNumber);
 		if(!n->isValid()) //If an enemy isn't found, quit out
 			Quit();
-		
+
 		int hp = n->HP;
 		int maxHP = n->HP;
 		int lastHP = n->HP;
@@ -43,8 +43,8 @@ ffc script HealthBar_Single{
 		int lastDrainHP = n->HP;
 		int damage;
 		int damageCounter;
-		
-		//If there's more than one enemy with health bars on the screen, offset them by the 
+
+		//If there's more than one enemy with health bars on the screen, offset them by the
 		int ffcCount;
 		for(int i=1; i<=32; i++){
 			ffc f = Screen->LoadFFC(i);
@@ -55,8 +55,8 @@ ffc script HealthBar_Single{
 					ffcCount++;
 			}
 		}
-		
-		
+
+
 		int nameString[256];
 		if(str>0){ //Get nameString from the string editor
 			Game->GetMessage(str, nameString);
@@ -64,20 +64,20 @@ ffc script HealthBar_Single{
 		else{ //Get nameString from the enemy editor
 			n->GetName(nameString);
 		}
-		
+
 		HealthBar_CapString(nameString);
 		this->InitD[0] = 0; //Mark the FFC as "Alive"
-		
+
 		//Begin main loop that runs until HP drains to 0
 		while(drainHP>0){
 			if(n->isValid()) //If the enemy isn't there, assume it's dead
 				hp = Max(n->HP, 0);
 			else
 				hp = 0;
-			
+
 			if(damageCounter>0)
 				damageCounter--;
-			
+
 			//Keep track of when the enemy takes damage
 			if(hp!=lastHP){
 				if(hp<lastHP){
@@ -90,7 +90,7 @@ ffc script HealthBar_Single{
 				lastDrainHP = lastHP;
 				lastHP = hp;
 			}
-			
+
 			//Decrease drainHP towards the current HP
 			if(drainHP!=hp){
 				if(drainHP>hp){
@@ -99,18 +99,18 @@ ffc script HealthBar_Single{
 				else
 					drainHP = hp;
 			}
-			
+
 			HealthBar_Draw(nameString, hp, maxHP, drainHP, damage, damageCounter, HEALTHBAR_DUPE_OFFSET*ffcCount);
 			Waitframe();
 		}
-		
+
 		this->InitD[0] = 1; //Mark the FFC as "Dead"
-		
-		while(true){ 
+
+		while(true){
 			if(damageCounter>0)
 				damageCounter--;
 			HealthBar_Draw(nameString, 0, maxHP, 0, damage, damageCounter, HEALTHBAR_DUPE_OFFSET*ffcCount);
-			
+
 			//If marked to disappear, wait until all health bars are "Dead" before removing
 			if(disappearOnDeath){
 				if(HealthBar_CheckDone(this)){
@@ -119,7 +119,7 @@ ffc script HealthBar_Single{
 			}
 			Waitframe();
 		}
-		
+
 		//Wait extra frames before quitting out so it doesn't look as abrupt
 		for(int i=0; i<HEALTHBAR_ENDDELAY; i++){
 			if(damageCounter>0)
@@ -157,7 +157,7 @@ ffc script HealthBar_Single{
 		Screen->DrawString(layer, x, y+1, font, c2, -1, format, str, 128);
 		Screen->DrawString(layer, x-1, y, font, c2, -1, format, str, 128);
 		Screen->DrawString(layer, x+1, y, font, c2, -1, format, str, 128);
-		
+
 		Screen->DrawString(layer, x, y, font, c1, -1, format, str, 128);
 	}
 	//Draws damage numbers as a string
@@ -194,7 +194,7 @@ ffc script HealthBar_Single{
 		int y2 = HEALTHBAR_Y+HEALTHBAR_HEIGHT-1+offset;
 		int hpLength = (x2-x1-2)*(HP/maxHP);
 		int drainLength = (x2-x1-2)*(drainHP/maxHP);
-		
+
 		//Draws the main body of the health bar
 		Screen->Rectangle(6, x1, y1, x2, y2, C_HEALTHBAR_BG, 1, 0, 0, 0, true, 128);
 		if(drainHP>0&&HEALTHBAR_DRAW_CHIP)
@@ -202,12 +202,12 @@ ffc script HealthBar_Single{
 		if(HP>0)
 			Screen->Rectangle(6, x1+1, y1+1, x1+1+Clamp(hpLength, 0, x2-x1-2), y2-1, C_HEALTHBAR_BAR, 1, 0, 0, 0, true, 128);
 		Screen->Rectangle(6, x1, y1, x2, y2, C_HEALTHBAR_OUTLINE, 1, 0, 0, 0, false, 128);
-	
+
 		//Draw the string
 		if(str>0){
 			HealthBar_DrawString(6, x1+HEALTHBAR_FONT_X_OFFSET, y1+HEALTHBAR_FONT_Y_OFFSET, FONT_HEALTHBAR_TITLE, C_HEALTHBAR_FONT, C_HEALTHBAR_FONTBG, TF_NORMAL, str);
 		}
-		
+
 		//Draw the damage
 		if(HEALTHBAR_DRAW_DAMAGE){
 			if(damageCounter>0){
@@ -231,7 +231,7 @@ ffc script HealthBar_Group{
 		Waitframes(4);
 		if(HealthBar_GetHPTotal(npcid1, npcid2, npcid3, npcid4, npcid5, npcid6)==0) //If none of the enemies are found, quit out
 			Quit();
-		
+
 		int hp = HealthBar_GetHPTotal(npcid1, npcid2, npcid3, npcid4, npcid5, npcid6);
 		int maxHP = hp;
 		int lastHP = hp;
@@ -239,26 +239,26 @@ ffc script HealthBar_Group{
 		int lastDrainHP = hp;
 		int damage;
 		int damageCounter;
-		
+
 		int nameString[256];
 		if(str>0){ //Get nameString from the string editor
 			Game->GetMessage(str, nameString);
 		}
-		
+
 		HealthBar_CapString(nameString);
-		
+
 		//Begin main loop that runs until HP drains to 0
 		while(drainHP>0){
 			hp = HealthBar_GetHPTotal(npcid1, npcid2, npcid3, npcid4, npcid5, npcid6);
-			
+
 			//There's really no clean way I can think of to handle enemies that summon more of themselves
 			//so in this case we'll count this as healing and increase maxHP when necessary
 			if(maxHP<hp)
 				maxHP = hp;
-			
+
 			if(damageCounter>0)
 				damageCounter--;
-			
+
 			//Keep track of when the enemy takes damage
 			if(hp!=lastHP){
 				if(hp<lastHP){
@@ -271,7 +271,7 @@ ffc script HealthBar_Group{
 				lastDrainHP = lastHP;
 				lastHP = hp;
 			}
-			
+
 			//Decrease drainHP towards the current HP
 			if(drainHP!=hp){
 				if(drainHP>hp){
@@ -280,21 +280,21 @@ ffc script HealthBar_Group{
 				else
 					drainHP = hp;
 			}
-			
+
 			HealthBar_Draw(nameString, hp, maxHP, drainHP, damage, damageCounter, 0);
 			Waitframe();
 		}
-		
+
 		//If the enemy isn't set to disappear, keep running the empty health bar forever
 		if(!disappearOnDeath){
-			while(true){ 
+			while(true){
 				if(damageCounter>0)
 					damageCounter--;
 				HealthBar_Draw(nameString, 0, maxHP, 0, damage, damageCounter, 0);
 				Waitframe();
 			}
 		}
-		
+
 		//Wait extra frames before quitting out so it doesn't look as abrupt
 		for(int i=0; i<HEALTHBAR_ENDDELAY; i++){
 			if(damageCounter>0)
@@ -329,7 +329,7 @@ ffc script HealthBar_Group{
 		Screen->DrawString(layer, x, y+1, font, c2, -1, format, str, 128);
 		Screen->DrawString(layer, x-1, y, font, c2, -1, format, str, 128);
 		Screen->DrawString(layer, x+1, y, font, c2, -1, format, str, 128);
-		
+
 		Screen->DrawString(layer, x, y, font, c1, -1, format, str, 128);
 	}
 	//Draws damage numbers as a string
@@ -366,7 +366,7 @@ ffc script HealthBar_Group{
 		int y2 = HEALTHBAR_Y+HEALTHBAR_HEIGHT-1+offset;
 		int hpLength = (x2-x1-2)*(HP/maxHP);
 		int drainLength = (x2-x1-2)*(drainHP/maxHP);
-		
+
 		//Draws the main body of the health bar
 		Screen->Rectangle(6, x1, y1, x2, y2, C_HEALTHBAR_BG, 1, 0, 0, 0, true, 128);
 		if(drainHP>0&&HEALTHBAR_DRAW_CHIP)
@@ -374,12 +374,12 @@ ffc script HealthBar_Group{
 		if(HP>0)
 			Screen->Rectangle(6, x1+1, y1+1, x1+1+Clamp(hpLength, 0, x2-x1-2), y2-1, C_HEALTHBAR_BAR, 1, 0, 0, 0, true, 128);
 		Screen->Rectangle(6, x1, y1, x2, y2, C_HEALTHBAR_OUTLINE, 1, 0, 0, 0, false, 128);
-	
+
 		//Draw the string
 		if(str>0){
 			HealthBar_DrawString(6, x1+HEALTHBAR_FONT_X_OFFSET, y1+HEALTHBAR_FONT_Y_OFFSET, FONT_HEALTHBAR_TITLE, C_HEALTHBAR_FONT, C_HEALTHBAR_FONTBG, TF_NORMAL, str);
 		}
-		
+
 		//Draw the damage
 		if(HEALTHBAR_DRAW_DAMAGE){
 			if(damageCounter>0){
@@ -445,7 +445,7 @@ ffc script HealthBar_Tiled_Single{
 		npc n = HealthBar_GetNPC(npcid, npcNumber);
 		if(!n->isValid()) //If an enemy isn't found, quit out
 			Quit();
-		
+
 		int hp = n->HP;
 		int maxHP = n->HP;
 		int lastHP = n->HP;
@@ -453,8 +453,8 @@ ffc script HealthBar_Tiled_Single{
 		int lastDrainHP = n->HP;
 		int damage;
 		int damageCounter;
-		
-		//If there's more than one enemy with health bars on the screen, offset them by the 
+
+		//If there's more than one enemy with health bars on the screen, offset them by the
 		int ffcCount;
 		for(int i=1; i<=32; i++){
 			ffc f = Screen->LoadFFC(i);
@@ -465,8 +465,8 @@ ffc script HealthBar_Tiled_Single{
 					ffcCount++;
 			}
 		}
-		
-		
+
+
 		int nameString[256];
 		if(str>0){ //Get nameString from the string editor
 			Game->GetMessage(str, nameString);
@@ -474,20 +474,20 @@ ffc script HealthBar_Tiled_Single{
 		else{ //Get nameString from the enemy editor
 			n->GetName(nameString);
 		}
-		
+
 		HealthBar_CapString(nameString);
 		this->InitD[0] = 0; //Mark the FFC as "Alive"
-		
+
 		//Begin main loop that runs until HP drains to 0
 		while(drainHP>0){
 			if(n->isValid()) //If the enemy isn't there, assume it's dead
 				hp = Max(n->HP, 0);
 			else
 				hp = 0;
-			
+
 			if(damageCounter>0)
 				damageCounter--;
-			
+
 			//Keep track of when the enemy takes damage
 			if(hp!=lastHP){
 				if(hp<lastHP){
@@ -500,7 +500,7 @@ ffc script HealthBar_Tiled_Single{
 				lastDrainHP = lastHP;
 				lastHP = hp;
 			}
-			
+
 			//Decrease drainHP towards the current HP
 			if(drainHP!=hp){
 				if(drainHP>hp){
@@ -509,18 +509,18 @@ ffc script HealthBar_Tiled_Single{
 				else
 					drainHP = hp;
 			}
-			
+
 			HealthBar_Draw(nameString, hp, maxHP, drainHP, damage, damageCounter, HEALTHBAR_TILED_DUPE_OFFSET*ffcCount);
 			Waitframe();
 		}
-		
+
 		this->InitD[0] = 1; //Mark the FFC as "Dead"
-		
-		while(true){ 
+
+		while(true){
 			if(damageCounter>0)
 				damageCounter--;
 			HealthBar_Draw(nameString, 0, maxHP, 0, damage, damageCounter, HEALTHBAR_TILED_DUPE_OFFSET*ffcCount);
-			
+
 			//If marked to disappear, wait until all health bars are "Dead" before removing
 			if(disappearOnDeath){
 				if(HealthBar_CheckDone(this)){
@@ -529,7 +529,7 @@ ffc script HealthBar_Tiled_Single{
 			}
 			Waitframe();
 		}
-		
+
 		//Wait extra frames before quitting out so it doesn't look as abrupt
 		for(int i=0; i<HEALTHBAR_ENDDELAY; i++){
 			if(damageCounter>0)
@@ -567,7 +567,7 @@ ffc script HealthBar_Tiled_Single{
 		Screen->DrawString(layer, x, y+1, font, c2, -1, format, str, 128);
 		Screen->DrawString(layer, x-1, y, font, c2, -1, format, str, 128);
 		Screen->DrawString(layer, x+1, y, font, c2, -1, format, str, 128);
-		
+
 		Screen->DrawString(layer, x, y, font, c1, -1, format, str, 128);
 	}
 	//Draws damage numbers as a string
@@ -603,11 +603,11 @@ ffc script HealthBar_Tiled_Single{
 		int currentBlock = Clamp(Floor(HP/blockMaxHP), 0, HEALTHBAR_TILED_NUM_BLOCKS); //Which tile of the health bar the enemy's HP falls under
 		int blockHP = HP%blockMaxHP; //The HP of the current block
 		int blockTil = Clamp(((blockMaxHP-blockHP)/blockMaxHP)*HEALTHBAR_TILED_STATES, 0, HEALTHBAR_TILED_STATES-1); //The tile offset for the current block based on its HP
-		
+
 		//Prevent the last tile from appearing as "empty" if the enemy is close to dead
 		if(blockTil==HEALTHBAR_TILED_STATES-1&&HP>0&& currentBlock==0)
 			blockTil = HEALTHBAR_TILED_STATES-2;
-		
+
 		//Cycle through all the blocks
 		for(int i=0; i<HEALTHBAR_TILED_NUM_BLOCKS; i++){
 			x = startX;
@@ -661,18 +661,18 @@ ffc script HealthBar_Tiled_Single{
 		int x1 = HEALTHBAR_TILED_X;
 		int y1 = HEALTHBAR_TILED_Y;
 		int x2 = x1+HEALTHBAR_TILED_SPACING*HEALTHBAR_TILED_NUM_BLOCKS-1;
-		
+
 		//Draws the main body of the health bar
 		if(HEALTHBAR_DRAW_CHIP)
 			HealthBar_DrawTiledHealthBar(6, x1, y1+offset, CS_HEALTHBAR_TILED, TIL_HEALTHBAR_TILED_DRAIN_FIRST, TIL_HEALTHBAR_TILED_DRAIN_MAIN, TIL_HEALTHBAR_TILED_DRAIN_LAST, TIL_HEALTHBAR_TILED_DRAIN_FIRSTCAP, TIL_HEALTHBAR_TILED_DRAIN_LASTCAP, drainHP, maxHP);
 		HealthBar_DrawTiledHealthBar(6, x1, y1+offset, CS_HEALTHBAR_TILED, TIL_HEALTHBAR_TILED_FIRST, TIL_HEALTHBAR_TILED_MAIN, TIL_HEALTHBAR_TILED_LAST, TIL_HEALTHBAR_TILED_FIRSTCAP, TIL_HEALTHBAR_TILED_LASTCAP, HP, maxHP);
-		
+
 		if(!HEALTHBAR_TILED_VERTICAL){
 			//Draw the string
 			if(str>0){
 				HealthBar_DrawString(6, x1+HEALTHBAR_TILED_FONT_X_OFFSET, y1+HEALTHBAR_TILED_FONT_Y_OFFSET+offset, FONT_HEALTHBAR_TILED_TITLE, C_HEALTHBAR_TILED_FONT, C_HEALTHBAR_TILED_FONTBG, TF_NORMAL, str);
 			}
-			
+
 			//Draw the damage
 			if(HEALTHBAR_DRAW_DAMAGE){
 				if(damageCounter>0){
@@ -697,7 +697,7 @@ ffc script HealthBar_Tiled_Group{
 		Waitframes(4);
 		if(HealthBar_GetHPTotal(npcid1, npcid2, npcid3, npcid4, npcid5, npcid6)==0) //If none of the enemies are found, quit out
 			Quit();
-		
+
 		int hp = HealthBar_GetHPTotal(npcid1, npcid2, npcid3, npcid4, npcid5, npcid6);
 		int maxHP = hp;
 		int lastHP = hp;
@@ -705,27 +705,27 @@ ffc script HealthBar_Tiled_Group{
 		int lastDrainHP = hp;
 		int damage;
 		int damageCounter;
-		
-		
+
+
 		int nameString[256];
 		if(str>0){ //Get nameString from the string editor
 			Game->GetMessage(str, nameString);
 		}
-		
+
 		HealthBar_CapString(nameString);
-		
+
 		//Begin main loop that runs until HP drains to 0
 		while(drainHP>0){
 			hp = HealthBar_GetHPTotal(npcid1, npcid2, npcid3, npcid4, npcid5, npcid6);
-			
+
 			//There's really no clean way I can think of to handle enemies that summon more of themselves
 			//so in this case we'll count this as healing and increase maxHP when necessary
 			if(maxHP<hp)
 				maxHP = hp;
-			
+
 			if(damageCounter>0)
 				damageCounter--;
-			
+
 			//Keep track of when the enemy takes damage
 			if(hp!=lastHP){
 				if(hp<lastHP){
@@ -738,7 +738,7 @@ ffc script HealthBar_Tiled_Group{
 				lastDrainHP = lastHP;
 				lastHP = hp;
 			}
-			
+
 			//Decrease drainHP towards the current HP
 			if(drainHP!=hp){
 				if(drainHP>hp){
@@ -747,21 +747,21 @@ ffc script HealthBar_Tiled_Group{
 				else
 					drainHP = hp;
 			}
-			
+
 			HealthBar_Draw(nameString, hp, maxHP, drainHP, damage, damageCounter, 0);
 			Waitframe();
 		}
-		
+
 		if(!disappearOnDeath){
-			while(true){ 
+			while(true){
 				if(damageCounter>0)
 					damageCounter--;
 				HealthBar_Draw(nameString, 0, maxHP, 0, damage, damageCounter, 0);
-				
+
 				Waitframe();
 			}
 		}
-		
+
 		//Wait extra frames before quitting out so it doesn't look as abrupt
 		for(int i=0; i<HEALTHBAR_ENDDELAY; i++){
 			if(damageCounter>0)
@@ -796,7 +796,7 @@ ffc script HealthBar_Tiled_Group{
 		Screen->DrawString(layer, x, y+1, font, c2, -1, format, str, 128);
 		Screen->DrawString(layer, x-1, y, font, c2, -1, format, str, 128);
 		Screen->DrawString(layer, x+1, y, font, c2, -1, format, str, 128);
-		
+
 		Screen->DrawString(layer, x, y, font, c1, -1, format, str, 128);
 	}
 	//Draws damage numbers as a string
@@ -832,11 +832,11 @@ ffc script HealthBar_Tiled_Group{
 		int currentBlock = Clamp(Floor(HP/blockMaxHP), 0, HEALTHBAR_TILED_NUM_BLOCKS); //Which tile of the health bar the enemy's HP falls under
 		int blockHP = HP%blockMaxHP; //The HP of the current block
 		int blockTil = Clamp(((blockMaxHP-blockHP)/blockMaxHP)*HEALTHBAR_TILED_STATES, 0, HEALTHBAR_TILED_STATES-1); //The tile offset for the current block based on its HP
-		
+
 		//Prevent the last tile from appearing as "empty" if the enemy is close to dead
 		if(blockTil==HEALTHBAR_TILED_STATES-1&&HP>0&& currentBlock==0)
 			blockTil = HEALTHBAR_TILED_STATES-2;
-		
+
 		//Cycle through all the blocks
 		for(int i=0; i<HEALTHBAR_TILED_NUM_BLOCKS; i++){
 			x = startX;
@@ -890,18 +890,18 @@ ffc script HealthBar_Tiled_Group{
 		int x1 = HEALTHBAR_TILED_X;
 		int y1 = HEALTHBAR_TILED_Y;
 		int x2 = x1+HEALTHBAR_TILED_SPACING*HEALTHBAR_TILED_NUM_BLOCKS-1;
-		
+
 		//Draws the main body of the health bar
 		if(HEALTHBAR_DRAW_CHIP)
 			HealthBar_DrawTiledHealthBar(6, x1, y1+offset, CS_HEALTHBAR_TILED, TIL_HEALTHBAR_TILED_DRAIN_FIRST, TIL_HEALTHBAR_TILED_DRAIN_MAIN, TIL_HEALTHBAR_TILED_DRAIN_LAST, TIL_HEALTHBAR_TILED_DRAIN_FIRSTCAP, TIL_HEALTHBAR_TILED_DRAIN_LASTCAP, drainHP, maxHP);
 		HealthBar_DrawTiledHealthBar(6, x1, y1+offset, CS_HEALTHBAR_TILED, TIL_HEALTHBAR_TILED_FIRST, TIL_HEALTHBAR_TILED_MAIN, TIL_HEALTHBAR_TILED_LAST, TIL_HEALTHBAR_TILED_FIRSTCAP, TIL_HEALTHBAR_TILED_LASTCAP, HP, maxHP);
-		
+
 		if(!HEALTHBAR_TILED_VERTICAL){
 			//Draw the string
 			if(str>0){
 				HealthBar_DrawString(6, x1+HEALTHBAR_TILED_FONT_X_OFFSET, y1+HEALTHBAR_TILED_FONT_Y_OFFSET+offset, FONT_HEALTHBAR_TILED_TITLE, C_HEALTHBAR_TILED_FONT, C_HEALTHBAR_TILED_FONTBG, TF_NORMAL, str);
 			}
-			
+
 			//Draw the damage
 			if(HEALTHBAR_DRAW_DAMAGE){
 				if(damageCounter>0){

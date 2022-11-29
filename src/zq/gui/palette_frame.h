@@ -20,7 +20,6 @@ public:
 	void setCount(uint8_t value);
 	void setOnUpdate(std::function<void()> newOnUpdate);
 	int32_t getSelection();
-	
 private:
 	BITMAP* bmp;
 	byte* ColorData;
@@ -28,7 +27,6 @@ private:
 	uint8_t count;
 	DialogRef alDialog;
 	std::function<void()> onUpdate;
-	
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;
 	void calculateSize() override;

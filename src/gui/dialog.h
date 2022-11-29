@@ -19,10 +19,8 @@ public:
 
 	/* Creates and initializes the dialog's window. */
 	virtual std::shared_ptr<Widget> view()=0;
-	
 	DialogRunner runner;
 	bool rerun_dlg;
-	
 	inline void show()
 	{
 		auto oz = gui_mouse_z();
@@ -39,17 +37,14 @@ public:
 		popup_zqdialog_end();
 		position_mouse_z(oz);
 	}
-	
 	inline void pendDraw()
 	{
 		runner.pendDraw();
 	}
-	
 	inline void forceDraw()
 	{
 		runner.forceDraw();
 	}
-	
 	inline void close()
 	{
 		runner.done = true;

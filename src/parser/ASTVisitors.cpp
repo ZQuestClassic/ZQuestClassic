@@ -70,9 +70,7 @@ void RecursiveVisitor::handleError(CompileError const& error)
 	std::string err_str = error.toString();
 	char const* err_str_ptr = err_str.c_str();
 	while(err_str_ptr[0]==' '||err_str_ptr[0]=='\r'||err_str_ptr[0]=='\n') ++err_str_ptr;
-	
 	zscript_had_warn_err = true;
-	
 	if (error.isStrict())
 	{
 		if(hard_error) failure_halt = true;

@@ -137,7 +137,7 @@ code generation is forced, final binary is produced and the intermediate code
 for later link-time optimization is stripped. When multiple object files are
 linked together the resulting code will be optimized better than with link time
 optimizations disabled (for example, the cross-module inlining will happen),
-most of benefits of whole program optimizations are however lost. 
+most of benefits of whole program optimizations are however lost.
 </p>
 <p>During the incremental link (by <samp>-r</samp>) the linker plugin will default to
 <samp>rel</samp>. With current interfaces to GNU Binutils it is however not
@@ -174,7 +174,7 @@ POSIX compliance and is not recommended.)
 </p>
 <p>The <samp>-l</samp> option is passed directly to the linker by GCC.  Refer
 to your linker documentation for exact details.  The general
-description below applies to the GNU linker.  
+description below applies to the GNU linker.
 </p>
 <p>The linker searches a standard list of directories for the library.
 The directories searched include several standard system directories
@@ -212,9 +212,9 @@ The standard system libraries are used normally, unless <samp>-nostdlib</samp>,
 <p>Do not use the standard system libraries when linking.
 Only the libraries you specify are passed to the linker, and options
 specifying linkage of the system libraries, such as <samp>-static-libgcc</samp>
-or <samp>-shared-libgcc</samp>, are ignored.  
+or <samp>-shared-libgcc</samp>, are ignored.
 The standard startup files are used normally, unless <samp>-nostartfiles</samp>
-is used.  
+is used.
 </p>
 <p>The compiler may generate calls to <code>memcmp</code>,
 <code>memset</code>, <code>memcpy</code> and <code>memmove</code>.
@@ -306,9 +306,9 @@ suboptions) when you specify this linker option.
 </dd>
 <dt><code>-pthread</code></dt>
 <dd><a name="index-pthread-1"></a>
-<p>Link with the POSIX threads library.  This option is supported on 
-GNU/Linux targets, most other Unix derivatives, and also on 
-x86 Cygwin and MinGW targets.  On some targets this option also sets 
+<p>Link with the POSIX threads library.  This option is supported on
+GNU/Linux targets, most other Unix derivatives, and also on
+x86 Cygwin and MinGW targets.  On some targets this option also sets
 flags for the preprocessor, so it should be used consistently for both
 compilation and linking.
 </p>

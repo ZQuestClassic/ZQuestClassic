@@ -20,12 +20,12 @@ npc script DairaNPC
 		int rate = this->Rate;
 		int homing = this->Homing;
 		int hunger = this->Hunger;
-		
+
 		//Weapon Variables
 		eweapon wpn;
 		int damage = this->WeaponDamage;
 		int attackTimer;
-		int attackWait; //Time between swings. 
+		int attackWait; //Time between swings.
 		bool throw = (this->BFlags[4]); //Behavioural FLag 4
 		//bool shielded = this->Attributes[0]&4;
 		int wSprite = this->WeaponSprite; //Ghost_GetAttribute(ghost,1,-1);
@@ -42,7 +42,7 @@ npc script DairaNPC
 					bool LoS = false;
 					switch(this->Dir)
 					{
-						
+
 						case DIR_UP:
 						{
 							if ( Link->Y > this->Y ) break; //Facing Link
@@ -65,7 +65,7 @@ npc script DairaNPC
 						}
 						default: break;
 					}
-						
+
 					if ( LoS )
 					{
 						attackWait--;
@@ -141,7 +141,7 @@ npc script DairaNPC
 					wpn->Damage=damage;
 					wpn->Angular=false;
 					wpn->Script = 1; //daira axe
-					
+
 					this->OriginalTile = this->OriginalTile + 80 + (this->Dir*4);
 				}
 				else wpn->DeadState = WDS_DEAD;
@@ -189,7 +189,7 @@ npc script DairaNPC
 				else
 					wpn->HitWidth = 8;
 				if(dir == DIR_LEFT)
-				wpn->HitXOffset = 8; 
+				wpn->HitXOffset = 8;
 				break;
 			}
 			case 3:

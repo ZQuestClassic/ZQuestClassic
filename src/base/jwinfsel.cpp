@@ -104,7 +104,6 @@ static int32_t fs_dummy_proc(int32_t msg, DIALOG *d, int32_t c)
     msg=msg;
     d=d;
     c=c;
-    
     return D_O_K;
 }
 
@@ -127,9 +126,7 @@ static DIALOG file_selector[] =
     { fs_flist_proc,        16,   46,   177,  100,  0,    0,    0,    D_EXIT,  0,    0, (void *) &fs_flist__getter,  NULL, NULL  },
     { fs_dlist_proc,        208,  46,   81,   52,   0,    0,    0,    D_EXIT,  0,    0, (void *) &fs_dlist__getter,  NULL, NULL  },
     { d_yield_proc,         0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,                      NULL, NULL  },
-    
 #else
-    
     /* (dialog proc)        (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)                       (dp2) (dp3) */
     { jwin_win_proc,        0,    0,    305,  189,  0,    0,    0,    D_EXIT,  0,    0,    NULL,                      NULL, NULL  },
     { jwin_button_proc,     64,   160,  81,   17,   0,    0,    0,    D_EXIT,  0,    0,    NULL,                      NULL, NULL  },
@@ -139,7 +136,6 @@ static DIALOG file_selector[] =
     { fs_flist_proc,        16,   46,   273,  100,  0,    0,    0,    D_EXIT,  0,    0, (void *) &fs_flist__getter,  NULL, NULL  },
     { d_yield_proc,         0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,                      NULL, NULL  },
 #endif
-    
     { NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL }
 };
 
@@ -165,13 +161,10 @@ static DIALOG file_selector[] =
 static int32_t count_disks(void)
 {
     int32_t c, i;
-    
     c = 0;
-    
     for(i=0; i<26; i++)
         if(_al_drive_exists(i))
             c++;
-            
     return c;
 }
 
@@ -181,20 +174,16 @@ static int32_t count_disks(void)
 static int32_t get_x_drive(int32_t index)
 {
     int32_t c, i;
-    
     c = 0;
-    
     for(i=0; i<26; i++)
     {
         if(_al_drive_exists(i))
         {
             c++;
-            
             if(c==index)
                 return i;
         }
     }
-    
     return -1;
 }
 
@@ -205,25 +194,19 @@ static const char *fs_dlist_getter(int32_t index, int32_t *list_size)
 {
     static char d[8];
     int32_t pos, c;
-    
     if(index < 0)
     {
         if(list_size)
             *list_size = count_disks();
-            
         return NULL;
     }
-    
     c = 'A' + get_x_drive(index+1);
-    
     if((c < 'A') || (c > 'Z'))
         c = 'C';
-        
     pos = usetc(d, c);
     pos += usetc(d+pos, DEVICE_SEPARATOR);
     pos += usetc(d+pos, OTHER_PATH_SEPARATOR);
     usetc(d+pos, 0);
-    
     return d;
 }
 
@@ -234,44 +217,34 @@ static int32_t fs_dlist_proc(int32_t msg, DIALOG *d, int32_t c)
 {
     char *s = (char *) file_selector[FS_EDIT].dp;
     int32_t ret, i, temp;
-    
     if(msg == MSG_START)
     {
         d->d1 = d->d2 = 0;
         temp = utoupper(ugetc(s));
-        
         if(((temp >= 'A') && (temp <= 'Z')) && (ugetat(s, 1) == DEVICE_SEPARATOR))
         {
             temp -= 'A';
-            
             for(i=0; i<temp; i++)
                 if(_al_drive_exists(i))
                     d->d1++;
         }
     }
-    
     ret = jwin_droplist_proc(msg, d, c);
-    
     if(ret & D_CLOSE)
     {
         temp = 'A' + get_x_drive(d->d1+1);
-        
         if((temp < 'A') || (temp > 'Z'))
             temp = 'C';
-            
         s += usetc(s, temp);
         s += usetc(s, DEVICE_SEPARATOR);
         s += usetc(s, OTHER_PATH_SEPARATOR);
         usetc(s, 0);
-        
         object_message(file_selector+FS_FILES, MSG_START, 0);
         object_message(file_selector+FS_FILES, MSG_DRAW, 0);
         object_message(file_selector+FS_EDIT, MSG_START, 0);
         object_message(file_selector+FS_EDIT, MSG_DRAW, 0);
-        
         return ret - D_CLOSE + D_O_K;
     }
-    
     return ret;
 }
 
@@ -292,23 +265,18 @@ static int32_t fs_edit_proc(int32_t msg, DIALOG *d, int32_t c)
     char b[1024], tmp[16];
     int32_t ch, attr;
     int32_t i;
-    
     if(msg == MSG_START)
     {
         canonicalize_filename(b, s, sizeof(b));
         ustrzcpy(s, size, b);
     }
-    
     if(msg == MSG_KEY)
     {
         if((!ugetc(s)) || (ugetat(s, -1) == DEVICE_SEPARATOR))
             ustrzcat(s, size, uconvert_ascii("./", tmp));
-            
         canonicalize_filename(b, s, sizeof(b));
         ustrzcpy(s, size - ucwidth(OTHER_PATH_SEPARATOR), b);
-        
         ch = ugetat(s, -1);
-        
         if((ch != '/') && (ch != OTHER_PATH_SEPARATOR))
         {
             if(file_exists(s, FA_RDONLY | FA_HIDDEN | FA_DIREC, &attr))
@@ -321,9 +289,7 @@ static int32_t fs_edit_proc(int32_t msg, DIALOG *d, int32_t c)
             else
                 return D_CLOSE;
         }
-        
         object_message(file_selector+FS_FILES, MSG_START, 0);
-        
         /* did we `cd ..' ? */
         if(ustrlen(updir))
         {
@@ -336,17 +302,14 @@ static int32_t fs_edit_proc(int32_t msg, DIALOG *d, int32_t c)
                     /* we have to know the number of visible lines in the filelist */
                     /* -1 to avoid an off-by-one problem */
                     list_size = (file_selector[FS_FILES].h-4) / text_height(font) - 1;
-                    
                     if(i>list_size)
                         file_selector[FS_FILES].d2 = i-list_size;
                     else
                         file_selector[FS_FILES].d2 = 0;
-                        
                     found = 1;
                     break;                                            /* ok, our work is done... */
                 }
             }
-            
             /* by some strange reason, we didn't find the old directory... */
             if(!found)
             {
@@ -354,17 +317,13 @@ static int32_t fs_edit_proc(int32_t msg, DIALOG *d, int32_t c)
                 file_selector[FS_FILES].d2 = 0;
             }
         }
-        
         /* and continue... */
         object_message(file_selector+FS_FILES, MSG_DRAW, 0);
         object_message(d, MSG_START, 0);
         object_message(d, MSG_DRAW, 0);
-        
         return D_O_K;
     }
-    
     int32_t allegro_lfn = ALLEGRO_LFN; //removes compiler warning
-    
     if(msg == MSG_UCHAR)
     {
         if((c >= 'a') && (c <= 'z'))
@@ -389,7 +348,6 @@ static int32_t fs_edit_proc(int32_t msg, DIALOG *d, int32_t c)
                 return D_O_K;
         }
     }
-    
     //   return _gui_edit_proc(msg, d, c);
     return jwin_edit_proc(msg, d, c);
 }
@@ -403,22 +361,18 @@ static int32_t ustrfilecmp(AL_CONST char *s1, AL_CONST char *s2)
     int32_t c1, c2;
     int32_t x1, x2;
     char *t1, *t2;
-    
     for(;;)
     {
         c1 = utolower(ugetxc(&s1));
         c2 = utolower(ugetxc(&s2));
-        
         if((c1 >= '0') && (c1 <= '9') && (c2 >= '0') && (c2 <= '9'))
         {
             x1 = ustrtol(s1 - ucwidth(c1), &t1, 10);
             x2 = ustrtol(s2 - ucwidth(c2), &t2, 10);
-            
             if(x1 != x2)
                 return x1 - x2;
             else if(t1 - s1 != t2 - s2)
                 return (t2 - s2) - (t1 - s1);
-                
             s1 = t1;
             s2 = t2;
         }
@@ -432,10 +386,8 @@ static int32_t ustrfilecmp(AL_CONST char *s1, AL_CONST char *s2)
                 return -1;
             else if(c2 == '.')
                 return 1;
-                
             return c1 - c2;
         }
-        
         if(!c1)
             return 0;
     }
@@ -448,26 +400,21 @@ static int32_t fs_flist_putter(AL_CONST char *str, int32_t attrib, void *check_a
 {
     char *s, *ext, *name;
     int32_t c, c2;
-    
     s = get_filename(str);
     fix_filename_case(s);
-    
     if(!(attrib & FA_DIREC))
     {
         /* Check if file extension matches. */
         if(fext_p)
         {
             ext = get_extension(s);
-            
             for(c=0; c<fext_size; c++)
             {
                 if(ustricmp(ext, fext_p[c]) == 0)
                     goto Next;
             }
-            
             return 0;
         }
-        
 Next:
 
         /* Check if file attributes match. */
@@ -477,26 +424,20 @@ Next:
             {
                 if((attrb_state[c] == ATTRB_SET) && (!(attrib & attrb_flag[c])))
                     return 0;
-                    
                 if((attrb_state[c] == ATTRB_UNSET) && (attrib & attrb_flag[c]))
                     return 0;
             }
         }
     }
-    
     if((flist->size < FLIST_SIZE) && ((ugetc(s) != '.') || (ugetat(s, 1))))
     {
         int32_t size = ustrsizez(s) + ((attrib & FA_DIREC) ? ucwidth(OTHER_PATH_SEPARATOR) : 0);
         name = (char *) malloc(size);
-        
         if(!name)
             return -1;
-            
         ustrzcpy(name, size, s);
-        
         if(attrib & FA_DIREC)
             put_backslash(name);
-            
         /* Sort alphabetically with directories first. */
         for(c=0; c<flist->size; c++)
         {
@@ -510,21 +451,17 @@ Next:
             {
                 if(attrib & FA_DIREC)
                     break;
-                    
                 if(ustrfilecmp(name, flist->name[c]) < 0)
                     break;
             }
         }
-        
         /* Shift in preparation for inserting the new entry. */
         for(c2=flist->size; c2>c; c2--)
             flist->name[c2] = flist->name[c2-1];
-            
         /* Insert the new entry. */
         flist->name[c] = name;
         flist->size++;
     }
-    
     return 0;
 }
 
@@ -537,10 +474,8 @@ static const char *fs_flist_getter(int32_t index, int32_t *list_size)
     {
         if(list_size)
             *list_size = flist->size;
-            
         return NULL;
     }
-    
     return flist->name[index];
 }
 
@@ -550,13 +485,11 @@ static const char *fs_flist_getter(int32_t index, int32_t *list_size)
 static int32_t build_attrb_flag(attrb_state_t state)
 {
     int32_t i, flag = 0;
-    
     for(i = 0; i < ATTRB_MAX; i++)
     {
         if(attrb_state[i] == state)
             flag |= attrb_flag[i];
     }
-    
     return flag;
 }
 
@@ -573,13 +506,11 @@ static int32_t fs_flist_proc(int32_t msg, DIALOG *d, int32_t c)
     int32_t sel = d->d1;
     int32_t i, ret;
     int32_t ch, count;
-    
     if(msg == MSG_START)
     {
         if(!flist)
         {
             flist = (FLIST *) malloc(sizeof(FLIST));
-            
             if(!flist)
             {
                 *allegro_errno = ENOMEM;
@@ -592,11 +523,8 @@ static int32_t fs_flist_proc(int32_t msg, DIALOG *d, int32_t c)
                 if(flist->name[i])
                     free(flist->name[i]);
         }
-        
         flist->size = 0;
-        
         replace_filename(flist->dir, s, uconvert_ascii("*.*", tmp), sizeof(flist->dir));
-        
         /* The semantics of the attributes passed to file_select_ex() is
           * different from that of for_each_file_ex() in one case: when
           * the 'd' attribute is not mentioned in the set of characters,
@@ -610,12 +538,10 @@ static int32_t fs_flist_proc(int32_t msg, DIALOG *d, int32_t c)
         else
             /* don't check */
             for_each_file_ex(flist->dir, build_attrb_flag(ATTRB_SET), build_attrb_flag(ATTRB_UNSET) | FA_LABEL, fs_flist_putter, (void *)0UL);
-            
         usetc(get_filename(flist->dir), 0);
         d->d1 = d->d2 = 0;
         sel = 0;
     }
-    
     if(msg == MSG_END)
     {
         if(flist)
@@ -623,21 +549,16 @@ static int32_t fs_flist_proc(int32_t msg, DIALOG *d, int32_t c)
             for(i=0; i<flist->size; i++)
                 if(flist->name[i])
                     free(flist->name[i]);
-                    
             free(flist);
             flist = NULL;
         }
     }
-    
     recurse_flag++;
     ret = jwin_abclist_proc(msg,d,c);                         /* call the parent procedure */
-    
     recurse_flag--;
-    
     if(((sel != d->d1) || (ret == D_CLOSE)) && (recurse_flag == 0))
     {
         replace_filename(s, flist->dir, flist->name[d->d1], size);
-        
         /* check if we want to `cd ..' */
         if((!ustrncmp(flist->name[d->d1], uconvert_ascii("..", tmp), 2)) && (ret == D_CLOSE))
         {
@@ -645,35 +566,28 @@ static int32_t fs_flist_proc(int32_t msg, DIALOG *d, int32_t c)
             usetc(updir, 0);
             i = ustrlen(flist->dir);
             count = 0;
-            
             while(i>0)
             {
                 ch = ugetat(flist->dir, i);
-                
                 if((ch == '/') || (ch == OTHER_PATH_SEPARATOR))
                 {
                     if(++count == 2)
                         break;
                 }
-                
                 uinsert(updir, 0, ch);
                 i--;
             }
-            
             /* ok, we have the dirname in updir */
         }
         else
         {
             usetc(updir, 0);
         }
-        
         object_message(file_selector+FS_EDIT, MSG_START, 0);
         object_message(file_selector+FS_EDIT, MSG_DRAW, 0);
-        
         if(ret == D_CLOSE)
             return object_message(file_selector+FS_EDIT, MSG_KEY, 0);
     }
-    
     return ret;
 }
 
@@ -686,17 +600,13 @@ static void parse_extension_string(AL_CONST char *ext)
     char ext_tokens[32], attrb_char[32];
     char *last, *p, *attrb_p;
     int32_t c, c2, i;
-    
     i = 0;
     fext_size = 0;
     fext_p = NULL;
     attrb_p = NULL;
-    
     if(!ext)
         return;
-        
     fext = ustrdup(ext);
-    
     /* Tokenize the extension string and record the pointers to the
       * beginning of each token in a dynamically growing array.
       * ???? We rely on the implementation of ustrtok_r() which writes
@@ -706,12 +616,9 @@ static void parse_extension_string(AL_CONST char *ext)
     c += usetc(ext_tokens+c, ',');
     c += usetc(ext_tokens+c, ';');
     usetc(ext_tokens+c, 0);
-    
     p = ustrtok_r(fext, ext_tokens, &last);
-    
     if(p == NULL || !ugetc(p))
         return;
-        
     do
     {
         /* Set of attribute characters. */
@@ -720,23 +627,18 @@ static void parse_extension_string(AL_CONST char *ext)
             attrb_p = p + ucwidth('/');
             continue;
         }
-        
         /* Dynamically grow the array if needed. */
         if(i >= fext_size)
         {
             fext_size = (fext_size ? fext_size*2 : 2);
             fext_p = (char **)_al_sane_realloc(fext_p, fext_size * sizeof(char *));
         }
-        
         /* Record a pointer to the beginning of the token. */
         fext_p[i++] = p;
-        
     }
     while((p = ustrtok_r(NULL, ext_tokens, &last))!=NULL);
-    
     /* This is the meaningful size now. */
     fext_size = i;
-    
     if(attrb_p)
     {
         state = ATTRB_SET;
@@ -748,12 +650,10 @@ static void parse_extension_string(AL_CONST char *ext)
         c += usetc(attrb_char+c, '+');
         c += usetc(attrb_char+c, '-');
         usetc(attrb_char+c, 0);
-        
         /* Scan the string. */
         while((c = utolower(ugetx(&attrb_p)))!=0)
         {
             p = attrb_char;
-            
             for(i = 0; (c2 = ugetx(&p))!=0; i++)
             {
                 if(c == c2)
@@ -762,7 +662,6 @@ static void parse_extension_string(AL_CONST char *ext)
                         attrb_state[i] = state;
                     else
                         state = (i == ATTRB_MAX) ? ATTRB_SET : ATTRB_UNSET;
-                        
                     break;
                 }
             }
@@ -779,17 +678,12 @@ static void stretch_dialog(DIALOG *d, int32_t width, int32_t height, int32_t sho
 {
     int32_t font_w, font_h, hpad, vpad;
     char tmp[16];
-    
 #ifdef HAVE_DIR_LIST
-    
     /* horizontal settings */
     font_w = text_length(font, uconvert_ascii("A", tmp));
-    
     if(width == 0)
         width = (int32_t)(0.95*screen->w);
-        
     hpad = (int32_t)(0.05*width);
-    
     d[FS_WIN].w     = width;
     d[FS_WIN].x     = 0;
     d[FS_EDIT].w    = d[FS_WIN].w - 2*hpad;
@@ -805,15 +699,11 @@ static void stretch_dialog(DIALOG *d, int32_t width, int32_t height, int32_t sho
     d[FS_DISKS].w   = d[FS_OK].w;
     d[FS_DISKS].x   = d[FS_OK].x;
     d[FS_YIELD].x   = 0;
-    
     /* vertical settings */
     font_h = text_height(font);
-    
     if(height == 0)
         height = (int32_t)(0.80*SCREEN_H);
-        
     vpad = (int32_t)(0.05*height);
-    
     d[FS_WIN].h     = height;
     d[FS_WIN].y     = 0;
     d[FS_EDIT].h    = font_h+6;
@@ -829,17 +719,12 @@ static void stretch_dialog(DIALOG *d, int32_t width, int32_t height, int32_t sho
     d[FS_DISKS].y   = d[FS_FILES].y;
     d[FS_DISKS].h   = font_h+8;
     d[FS_YIELD].y   = 0;
-    
 #else
-    
     /* horizontal settings */
     font_w = text_length(font, uconvert_ascii("A", tmp));
-    
     if(width == 0)
         width = (int32_t)(0.95*screen->w);
-    
     hpad = (int32_t)(0.05*width);
-    
     d[FS_WIN].w     = width;
     d[FS_WIN].x     = 0;
     d[FS_EDIT].w    = d[FS_WIN].w - 2*hpad;
@@ -853,15 +738,11 @@ static void stretch_dialog(DIALOG *d, int32_t width, int32_t height, int32_t sho
     d[FS_FILES].x   = d[FS_TYPES].x;
     d[FS_FILES].w   = d[FS_TYPES].w;
     d[FS_YIELD].x   = 0;
-    
     /* vertical settings */
     font_h = text_height(font);
-    
     if(height == 0)
         height = (int32_t)(0.95*SCREEN_H);
-    
     vpad = (int32_t)(0.04*height);
-    
     d[FS_WIN].h     = height;
     d[FS_WIN].y     = 0;
     d[FS_EDIT].h    = font_h+6;
@@ -887,9 +768,7 @@ void enlarge_file_selector(int32_t width, int32_t height)
     {
         stretch_dialog(file_selector, width, height, 1);
     }
-    
     bool show_extlist = file_selector[FS_TYPES].proc != fs_dummy_proc;
-    
     if(is_large)
     {
         large_dialog(file_selector);
@@ -942,105 +821,81 @@ int32_t jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *e
     char tmp[32];
     ASSERT(message);
     ASSERT(path);
-    
     if(title_font)
     {
         file_selector[0].dp2=title_font;
     }
-    
     if(width == OLD_FILESEL_WIDTH)
         width = 304;
-        
 #ifdef HAVE_DIR_LIST
-        
     if(height == OLD_FILESEL_HEIGHT)
         height = 160;
-        
 #else
-        
     if(height == OLD_FILESEL_HEIGHT)
         height = 188;
-        
 #endif
-        
     /* for fs_dlist_proc() */
     ASSERT(size >= 4 * uwidth_max(U_CURRENT));
-    
     usetc(updir, 0);
     file_selector[FS_WIN].dp = (char *)message;
     file_selector[FS_EDIT].d1 = size/uwidth_max(U_CURRENT) - 1;
     file_selector[FS_EDIT].dp = path;
     file_selector[FS_OK].dp = (void*)get_config_text("OK");
     file_selector[FS_CANCEL].dp = (void*)get_config_text("Cancel");
-    
     /* Set default attributes. */
     memcpy(attrb_state, default_attrb_state, sizeof(default_attrb_state));
-    
     /* Parse extension string. */
 //  if (ext)// && ugetc(ext))
     {
         parse_extension_string(ext);
     }
-    
     if(!ugetc(path))
     {
         get_root_path(path, size);
     }
-    
     clear_keybuf();
-    
     do
     {
         rest(1);
     }
     while(gui_mouse_b());
-    
     file_selector[FS_TYPES].proc = fs_dummy_proc;
 	// Z_message("Calling enlarge_file_selector(%d,%d)\n", width, height);
     enlarge_file_selector(width, height);
     ret = popup_zqdialog(file_selector, FS_EDIT);
-    
     if(fext)
     {
         free(fext);
         fext = NULL;
     }
-    
     if(fext_p)
     {
         _al_free(fext_p);
         fext_p = NULL;
     }
-    
     if((ret == FS_CANCEL) || (ret == FS_WIN) || (!ugetc(get_filename(path))))
         return FALSE;
-        
     p = get_extension(path);
-    
     if((!ugetc(p)) && (ext) && (!ustrpbrk(ext, uconvert_ascii(" ,;", tmp))))
     {
         size -= ((int32_t)(size_t)p - (int32_t)(size_t)path + ucwidth('.'));
-        
         if(size >= uwidth_max(U_CURRENT) + ucwidth(0))          /* do not end with '.' */
         {
             p += usetc(p, '.');
             ustrzcpy(p, size, ext);
         }
     }
-    
     return TRUE;
 }
 
 static int32_t count_ext_list()
 {
     int32_t c = 0;
-    
     if(fext_list)
     {
         while(fext_list[c].text)
             c++;
     }
-    
     return c;
 }
 
@@ -1053,10 +908,8 @@ static const char *fs_elist_getter(int32_t index, int32_t *list_size)
     {
         if(list_size)
             *list_size = count_ext_list();
-            
         return NULL;
     }
-    
     return fext_list[index].text;
 }
 
@@ -1070,16 +923,12 @@ static int32_t fs_elist_proc(int32_t msg, DIALOG *d, int32_t c)
     char *s, *tok;
     char tmp[80], ext[80];
     static char ext_tokens[] = " ,;";
-    
     s = (char *) file_selector[FS_EDIT].dp;
-    
     if(msg == MSG_START)
     {
         d->d2 = 0;
     }
-    
     ret = jwin_droplist_proc(msg, d, c);
-    
     if((sel != d->d1) || (ret & D_CLOSE))
     {
         // change the extension(s)
@@ -1088,38 +937,31 @@ static int32_t fs_elist_proc(int32_t msg, DIALOG *d, int32_t c)
         {
             parse_extension_string(fext);
         }
-        
         // check whether the extension on the current file name is still valid
         if((fext) && (strlen(get_filename(s))))
         {
             strcpy(tmp, fext);
             strcpy(ext, get_extension(s));
             tok = strtok(tmp, ext_tokens);
-            
             while(tok)
             {
                 if(stricmp(ext, tok) == 0)
                     break;
-                    
                 tok = strtok(NULL, ext_tokens);
             }
-            
             // not valid, replace file name
             if(!tok)
                 replace_filename(s, flist->dir, "", 256);
         }
-        
         scare_mouse();
         SEND_MESSAGE(file_selector+FS_FILES, MSG_START, 0);
         SEND_MESSAGE(file_selector+FS_FILES, MSG_DRAW, 0);
         SEND_MESSAGE(file_selector+FS_EDIT, MSG_START, 0);
         SEND_MESSAGE(file_selector+FS_EDIT, MSG_DRAW, 0);
         unscare_mouse();
-        
         if(ret & D_CLOSE)
             return (ret | SEND_MESSAGE(file_selector+FS_EDIT, MSG_KEY, 0)) & ~D_CLOSE;
     }
-    
     return ret;
 }
 
@@ -1136,94 +978,71 @@ int32_t jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *
     char tmp[32];
     ASSERT(message);
     ASSERT(path);
-    
     if(title_font)
     {
         file_selector[0].dp2=title_font;
     }
-    
     if(width == OLD_FILESEL_WIDTH)
         width = 304;
-        
 #ifdef HAVE_DIR_LIST
-        
     if(height == OLD_FILESEL_HEIGHT)
         height = 160;
-        
 #else
-        
     if(height == OLD_FILESEL_HEIGHT)
         height = 188;
-        
 #endif
-        
     /* for fs_dlist_proc() */
     ASSERT(size >= 4 * uwidth_max(U_CURRENT));
-    
     usetc(updir, 0);
     file_selector[FS_WIN].dp = (char *)message;
     file_selector[FS_EDIT].d1 = size/uwidth_max(U_CURRENT) - 1;
     file_selector[FS_EDIT].dp = path;
     file_selector[FS_OK].dp = (void*)get_config_text("OK");
     file_selector[FS_CANCEL].dp = (void*)get_config_text("Cancel");
-    
     /* Set default attributes. */
     memcpy(attrb_state, default_attrb_state, sizeof(default_attrb_state));
-    
     /* Parse extension string. */
 //  if (ext)// && ugetc(ext))
     {
         parse_extension_string(ext);
     }
-    
     if(!ugetc(path))
     {
         get_root_path(path, size);
     }
-    
     clear_keybuf();
-    
     do
     {
         rest(1);
     }
     while(gui_mouse_b());
-    
     file_selector[FS_TYPES].proc = fs_dummy_proc;
     enlarge_file_selector(width, height);
     ret = popup_zqdialog(file_selector, FS_EDIT);
-    
     if(fext)
     {
         free(fext);
         fext = NULL;
     }
-    
     if(fext_p)
     {
         _al_free(fext_p);
         fext_p = NULL;
     }
-    
     if((ret == FS_CANCEL) || (ret == FS_WIN))
         return FALSE;
-        
     if(!ugetc(get_filename(path)))
         return TRUE;
-        
     p = get_extension(path);
-    
     if((!ugetc(p)) && (ext) && (!ustrpbrk(ext, uconvert_ascii(" ,;", tmp))))
     {
         size -= ((int32_t)(size_t)p - (int32_t)(size_t)path + ucwidth('.'));
-        
         if(size >= uwidth_max(U_CURRENT) + ucwidth(0))          /* do not end with '.' */
         {
             p += usetc(p, '.');
             ustrzcpy(p, size, ext);
         }
     }
-    
     return TRUE;
 }
 
@@ -1287,97 +1106,73 @@ int32_t jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, 
     char tmp[32];
     ASSERT(message);
     ASSERT(path);
-    
     if(title_font)
     {
         file_selector[0].dp2=title_font;
     }
-    
     if(width == OLD_FILESEL_WIDTH)
         width = 304;
-        
 #ifdef HAVE_DIR_LIST
-        
     if(height == OLD_FILESEL_HEIGHT)
         height = 160;
-        
 #else
-        
     if(height == OLD_FILESEL_HEIGHT)
         height = 188;
-        
 #endif
-        
     /* for fs_dlist_proc() */
     ASSERT(size >= 4 * uwidth_max(U_CURRENT));
-    
     usetc(updir, 0);
     file_selector[FS_WIN].dp = (char *)message;
     file_selector[FS_EDIT].d1 = size/uwidth_max(U_CURRENT) - 1;
     file_selector[FS_EDIT].dp = path;
     file_selector[FS_OK].dp = (void*)get_config_text("OK");
     file_selector[FS_CANCEL].dp = (void*)get_config_text("Cancel");
-    
     fext_list = list;
     fext = list[*list_sel].ext;
     file_selector[FS_TYPES].d1 = *list_sel;
-    
     /* Set default attributes. */
     memcpy(attrb_state, default_attrb_state, sizeof(default_attrb_state));
-    
     /* Parse extension string. */
 //  if (fext)// && ugetc(fext))
     {
         parse_extension_string(fext);
     }
-    
     if(!ugetc(path))
     {
         get_root_path(path, size);
     }
-    
     clear_keybuf();
-    
     do
     {
         rest(1);
     }
     while(gui_mouse_b());
-    
     file_selector[FS_TYPES].proc = fs_elist_proc;
     enlarge_file_selector(width,height);
     ret = popup_zqdialog(file_selector, FS_EDIT);
-    
     if(fext)
     {
         free(fext);
         fext = NULL;
     }
-    
     if(fext_p)
     {
         _al_free(fext_p);
         fext_p = NULL;
     }
-    
     if((ret == FS_CANCEL) || (ret == FS_WIN) || (!ugetc(get_filename(path))))
         return FALSE;
-        
     *list_sel = file_selector[FS_TYPES].d1;
-    
     p = get_extension(path);
-    
     if((!ugetc(p)) && (fext) && (!ustrpbrk(fext, uconvert_ascii(" ,;", tmp))))
     {
         size -= ((int32_t)(size_t)p - (int32_t)(size_t)path + ucwidth('.'));
-        
         if(size >= uwidth_max(U_CURRENT) + ucwidth(0))          /* do not end with '.' */
         {
             p += usetc(p, '.');
             ustrzcpy(p, size, fext);
         }
     }
-    
     return TRUE;
 }
 
@@ -1392,7 +1187,6 @@ void FLIST::load(const char* path)
 	size = 0;
 
 	replace_filename(dir, path, uconvert_ascii("*.*", tmp), sizeof(dir));
-	
 	FLIST* tmplist = flist;
 	flist = this;
 
@@ -1409,9 +1203,7 @@ void FLIST::load(const char* path)
 	else
 		/* don't check */
 		for_each_file_ex(dir, build_attrb_flag(ATTRB_SET), build_attrb_flag(ATTRB_UNSET) | FA_LABEL, fs_flist_putter, (void *)0UL);
-	
 	flist = tmplist;
-	
 	usetc(get_filename(dir), 0);
 }
 
@@ -1428,7 +1220,6 @@ void FLIST::clear()
 	for(int32_t i=0; i<size; i++)
 		if(name[i])
 			free(name[i]);
-	
 	size = 0;
 }
 

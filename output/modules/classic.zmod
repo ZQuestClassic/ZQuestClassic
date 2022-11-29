@@ -4,8 +4,8 @@ author = Armageddon Games
 info_0 = The 'Zelda Classic Module' for ZC Player
 info_1 = and ZQ Editor, featuring the classic
 info_2 = first through tenth quests by Armageddon
-info_3 = Games, and various contest contributors. 
-info_4 = 
+info_3 = Games, and various contest contributors.
+info_4 =
 
 version_first = 2
 version_second = 0
@@ -37,26 +37,26 @@ first_startdmap = 0
 second_startdmap = 0
 third_startdmap = 0
 fourth_startdmap = 0
-fifth_startdmap = 
-sixth_startdmap = 
-seventh_startdmap = 
-eighth_startdmap = 
-ninth_startdmap = 
-tenth_startdmap = 
+fifth_startdmap =
+sixth_startdmap =
+seventh_startdmap =
+eighth_startdmap =
+ninth_startdmap =
+tenth_startdmap =
 
 first_startscreen = 119
 second_startscreen = 119
 third_startscreen = 119
 fourth_startscreen = 119
-fifth_startscreen = 
-sixth_startscreen = 
-seventh_startscreen = 
-eighth_startscreen = 
-ninth_startscreen = 
-tenth_startscreen = 
+fifth_startscreen =
+sixth_startscreen =
+seventh_startscreen =
+eighth_startscreen =
+ninth_startscreen =
+tenth_startscreen =
 
 [NAMEENTRY]
-first_qst_skip = 
+first_qst_skip =
 second_qst_skip = ZELDA
 third_qst_skip = GANON
 fourth_qst_skip = JEAN
@@ -73,9 +73,9 @@ sels_tile_questicon_1A = 0
 sels_tile_questicon_1B = 0
 sels_tile_questicon_2A = 41
 sels_tile_questicon_2B = 0
-sels_tile_questicon_3A = 41 
+sels_tile_questicon_3A = 41
 sels_tile_questicon_3B = 41
-sels_tile_questicon_4A = 176 
+sels_tile_questicon_4A = 176
 sels_tile_questicon_4B = 175
 sels_tile_questicon_5A = 176
 sels_tile_questicon_5B = 175
@@ -112,7 +112,7 @@ sels_tile_questicon_10A_X = 52
 sels_tile_questicon_10B_X = 52
 
 sels_tile_frame_cset = 0
-sels_tile_questicon_1A_cset = 9 
+sels_tile_questicon_1A_cset = 9
 sels_tile_questicon_1B_cset = 9
 sels_tile_questicon_2A_cset = 9
 sels_tile_questicon_2B_cset = 9
@@ -144,14 +144,14 @@ sels_linktile = 0
 draw_link_first = 0
 
 //If these values are < 15, then the tile will be drawn in the specificed cset
-sels_cusror_cset = 16 
+sels_cusror_cset = 16
 sels_link_cset = 16
 
 [DATAFILES]
-zcplayer_datafile = modules/classic/classic_zelda.dat	
+zcplayer_datafile = modules/classic/classic_zelda.dat
 zquest_datafile = modules/classic/classic_zquest.dat
 fonts_datafile = modules/classic/classic_fonts.dat
-quest_template_datafile = modules/classic/classic_qst.dat 
+quest_template_datafile = modules/classic/classic_qst.dat
 base_NSF_file = modules/classic/zelda.nsf
 title_track = 0
 ending_track = 1
@@ -282,7 +282,7 @@ Friendly_NPC_09 = Friendly NPC 09
 Friendly_NPC_10 = Friendly NPC 10
 
 //Enemy Animation
-ea_none = (None) 
+ea_none = (None)
 ea_flip = Flip
 ea_unused1 = -Unused
 ea_2frame = 2-Frame
@@ -497,7 +497,7 @@ cCUSTOM10ATTRIB3 =
 cCUSTOM11ATTRIB0 =
 cCUSTOM11ATTRIB1 =
 cCUSTOM11ATTRIB2 =
-cCUSTOM11ATTRIB3 = 
+cCUSTOM11ATTRIB3 =
 cCUSTOM12ATTRIB0 =
 cCUSTOM12ATTRIB1 =
 cCUSTOM12ATTRIB2 =
@@ -509,7 +509,7 @@ cCUSTOM13ATTRIB3  =
 cCUSTOM14ATTRIB0 =
 cCUSTOM14ATTRIB1 =
 cCUSTOM14ATTRIB2 =
-#cCUSTOM14ATTRIB3 = 
+#cCUSTOM14ATTRIB3 =
 cCUSTOM15ATTRIB0 =
 cCUSTOM15ATTRIB1 =
 cCUSTOM15ATTRIB2 =
@@ -537,7 +537,7 @@ cCUSTOM20ATTRIB3 =
 
 [CUSTOMCOMBOFLAGS]
 
-cCust1F0 = 
+cCust1F0 =
 cCust1F1 =
 cCust1F2 =
 cCust1F3 =
@@ -712,7 +712,7 @@ cCust11F11 =
 cCust11F12 =
 cCust11F13 =
 cCust11F14 =
-cCust11F15 
+cCust11F15
 cCust12F0 =
 cCust12F1 =
 cCust12F2 =

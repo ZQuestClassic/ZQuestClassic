@@ -22,4 +22,3 @@ void endingpal();
 void ending();
 void ending_scripted();
 #endif
- 

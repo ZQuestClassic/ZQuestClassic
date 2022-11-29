@@ -10,7 +10,7 @@
 #include "CompilerUtils.h"
 
 #define MAXDMAPS         512
-#define MAXLEVELS        512	
+#define MAXLEVELS        512
 
 using namespace ZScript;
 using std::shared_ptr;
@@ -172,7 +172,6 @@ function->internal_flags |= IFUNCFLAG_REASSIGNPTR
         RETURN(); \
         function->giveCode(code); \
 } \
-    
 //Guydata member with one input, one return
 #define GET_GUYDATA_MEMBER(flabel, ffins) \
 { \
@@ -220,7 +219,7 @@ function->internal_flags |= IFUNCFLAG_REASSIGNPTR
 	function->giveCode(code); \
 } \
 
-//Dataclass member with two inputs, one return 
+//Dataclass member with two inputs, one return
 #define GET_DATACLASS_MEMBER(flabel, ffins) \
 { \
 	Function* function = getFunction(flabel, 3); \
@@ -294,9 +293,6 @@ function->internal_flags |= IFUNCFLAG_REASSIGNPTR
         RETURN();                                  \
         function->giveCode(code); \
 } \
-    
-	
-	
 //int32_t function(int32_t, int32_t)
 #define TWO_INPUT_ONE_RETURN(flabel, ocode) \
 { \
@@ -328,7 +324,7 @@ function->internal_flags |= IFUNCFLAG_REASSIGNPTR
         function->giveCode(code); \
 } \
 
-//Three Inputs, One Return -- based on int32_t GetScreenEFlags(int32_t map, int32_t screen, int32_t flagset);	
+//Three Inputs, One Return -- based on int32_t GetScreenEFlags(int32_t map, int32_t screen, int32_t flagset);
 #define THREE_INPUTS_ONE_RETURN(flabel, ocode, numparam) \
 { \
 	Function* function = getFunction(flabel, numparam); \
@@ -344,7 +340,7 @@ function->internal_flags |= IFUNCFLAG_REASSIGNPTR
 	function->giveCode(code); \
 } \
 
-//This will trace the float value of any pointer type to allegro.log. 
+//This will trace the float value of any pointer type to allegro.log.
 #define TRACING_FUNCTION(flabel, numparam) \
 { \
 	Function* function = getFunction(flabel, numparam); \
@@ -479,7 +475,6 @@ void setBoolVariable(int32_t refVar, Function* function, int32_t var)
 	LABELBACK(label);
 	//renormalize true to 1
 	addOpcode2 (code, new OCastBoolI(new VarArgument(EXP1)));
-	
 	POPREF();
 	addOpcode2 (code, new OSetRegister(new VarArgument(var), new VarArgument(EXP1)));
 	RETURN();
@@ -507,21 +502,16 @@ void setIndexedVariable(int32_t refVar, Function* function, int32_t var)
 void LibrarySymbols::addSymbolsToScope(Scope& scope)
 {
 	TypeStore& typeStore = scope.getTypeStore();
-	
 	vector<string const*> blankParams;
-	
 	for (int32_t i = 0; table[i].name != ""; i++)
 	{
 		AccessorTable& entry = table[i];
-		
 		DataType const* returnType = typeStore.getType(entry.rettype);
 		vector<DataType const*> paramTypes;
 		for (int32_t k = 0; entry.params[k] != -1 && k < 20; k++)
 			paramTypes.push_back(typeStore.getType(entry.params[k]));
-				
 		std::string const& name = entry.name;
 		std::string varName = name;
-			
 		// Strip out the array at the end.
 		bool isArray = name.substr(name.size() - 2) == "[]";
 		if (isArray)
@@ -562,9 +552,7 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 			else
 				setVariable(refVar, function, entry.var);
 		}
-			
 	}
-	
 	generateCode();
 	functions.clear();
 }
@@ -630,7 +618,6 @@ static AccessorTable GlobalTable[] =
 //  { "CollisionRect",          ZVARTYPEID_BOOL,             FUNCTION,     0,     1,          0,                                    8,           { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 //  { "CollisionBox",           ZVARTYPEID_BOOL,             FUNCTION,     0,     1,          0,                                    12,          { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "CopyTile",               ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "SwapTile",               ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "ClearTile",              ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "GetScriptRAM",           ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           { ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -666,7 +653,6 @@ static AccessorTable GlobalTable[] =
 	{ "Floor",                  ZVARTYPEID_UNTYPED,          FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Ceiling",                ZVARTYPEID_UNTYPED,          FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "GetSystemTime",          ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "Distance",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    4,           { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Distance",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    5,           { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "LongDistance",                 ZVARTYPEID_LONG,            FUNCTION,     0,     1,          0,                                    5,           { ZVARTYPEID_LONG, ZVARTYPEID_LONG, ZVARTYPEID_LONG, ZVARTYPEID_LONG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -700,19 +686,15 @@ static AccessorTable GlobalTable[] =
 	{ "xtoi",                   ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           { ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SaveSRAM",               ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "LoadSRAM",               ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "strcat",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "strchr",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "strcspn",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "strspn",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "strstr",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "strrchr",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "SRand",                  ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_LONG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SRand",                  ZVARTYPEID_LONG,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "IsValidArray",           ZVARTYPEID_BOOL,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    1,           { ZVARTYPEID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    2,           { ZVARTYPEID_CHAR, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    3,           { ZVARTYPEID_CHAR, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -730,7 +712,6 @@ static AccessorTable GlobalTable[] =
 	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                   15,           { ZVARTYPEID_CHAR, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1 } },
 	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                   16,           { ZVARTYPEID_CHAR, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, -1, -1, -1, -1 } },
 	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                   17,           { ZVARTYPEID_CHAR, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, -1, -1, -1 } },
-	
 	{ "sprintf",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           { ZVARTYPEID_CHAR, ZVARTYPEID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "sprintf",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    3,           {  ZVARTYPEID_CHAR, ZVARTYPEID_CHAR,ZVARTYPEID_UNTYPED,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1 } },
 	{ "sprintf",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    4,           {  ZVARTYPEID_CHAR, ZVARTYPEID_CHAR,ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1 } },
@@ -749,7 +730,6 @@ static AccessorTable GlobalTable[] =
 	{ "sprintf",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                   17,           {  ZVARTYPEID_CHAR, ZVARTYPEID_CHAR,ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED,                 -1,                 -1,                 -1 } },
 	{ "sprintf",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                   18,           {  ZVARTYPEID_CHAR, ZVARTYPEID_CHAR,ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED,                 -1,                 -1 } },
 //	TYPE_UNTYPED
-	
 	 { "EngineDegtoRad",                    ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "EngineRadtoDeg",                    ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "DegtoRad",                          ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -781,7 +761,6 @@ void GlobalSymbols::generateCode()
         function->giveCode(code);
     }
 	*/
-    
     //one input, one return
     //untyped Untype(untype)
     {
@@ -825,7 +804,6 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
 		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-		
 		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(DISTANCESCALE)));
 		RETURN();
 		function->giveCode(code);
@@ -857,12 +835,10 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
 		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-		
 		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(LONGDISTANCESCALE)));
 		RETURN();
 		function->giveCode(code);
 	}
-	
     //int32_t Rand(int32_t maxval)
     {
 	    Function* function = getFunction("Rand", 1);
@@ -875,7 +851,6 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-	
     //int_full SRand(int_full seed)
     {
 	    Function* function = getFunction("SRand", 1);
@@ -888,7 +863,6 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-	
     //int_full SRand()
     {
 	    Function* function = getFunction("SRand", 0);
@@ -899,7 +873,6 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
 	//bool IsValidArray(untyped)
 	{
 		Function* function = getFunction("IsValidArray", 1);
@@ -912,7 +885,6 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-    
     //int32_t GetSystemTime(int32_t category)
     {
 	    Function* function = getFunction("GetSystemTime", 1);
@@ -924,7 +896,6 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //void Quit()
     {
 	    Function* function = getFunction("Quit", 0);
@@ -988,22 +959,22 @@ void GlobalSymbols::generateCode()
         function->giveCode(code);
     }
     {
-	 TRACING_FUNCTION("TraceLWeapon", 1);   
+	 TRACING_FUNCTION("TraceLWeapon", 1);
     }
     {
-	 TRACING_FUNCTION("TraceEWeapon", 1);   
+	 TRACING_FUNCTION("TraceEWeapon", 1);
     }
     {
-	 TRACING_FUNCTION("TraceNPC", 1);   
+	 TRACING_FUNCTION("TraceNPC", 1);
     }
     {
-	 TRACING_FUNCTION("TraceFFC", 1);   
+	 TRACING_FUNCTION("TraceFFC", 1);
     }
     {
-	 TRACING_FUNCTION("TraceItem", 1);   
+	 TRACING_FUNCTION("TraceItem", 1);
     }
     {
-	 TRACING_FUNCTION("TraceItemData", 1);   
+	 TRACING_FUNCTION("TraceItemData", 1);
     }
     //void TraceB(bool val)
     {
@@ -1055,7 +1026,6 @@ void GlobalSymbols::generateCode()
         addOpcode2 (code, new OTrace5Register());
         LABELBACK(label);
 		POP_ARGS(3, NUL);
-        
         RETURN();
         function->giveCode(code);
     }
@@ -1150,7 +1120,6 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //int32_t RadianTan(int32_t val)
     {
 	    Function* function = getFunction("RadianTan", 1);
@@ -1278,8 +1247,6 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
-    
     //int32_t CopyTile(int32_t source, int32_t dest)
     {
 	    Function* function = getFunction("CopyTile", 2);
@@ -1292,8 +1259,6 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
-    
     //int32_t SwapTile(int32_t first, int32_t second)
     {
 	    Function* function = getFunction("SwapTile", 2);
@@ -1306,7 +1271,6 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //int32_t OverlayTile(int32_t first, int32_t second)
     {
 	    Function* function = getFunction("OverlayTile", 2);
@@ -1319,7 +1283,6 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //void ClearTile(int32_t tile)
     {
 	    Function* function = getFunction("ClearTile", 1);
@@ -1505,7 +1468,6 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     {
 	    Function* function = getFunction("Byte", 1);
         int32_t label = function->getLabel();
@@ -1607,7 +1569,6 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
      //int32_t SizeOfArrayNPC(npc *ptr)
     {
 	    Function* function = getFunction("SizeOfArrayNPC", 1);
@@ -1618,8 +1579,7 @@ void GlobalSymbols::generateCode()
         addOpcode2 (code, new OArraySizeN(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
-    } 
-    
+    }
     //int32_t SizeOfArrayBool(bool *ptr)
     {
 	    Function* function = getFunction("SizeOfArrayBool", 1);
@@ -1660,7 +1620,7 @@ void GlobalSymbols::generateCode()
         addOpcode2 (code, new OArraySizeL(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
-    } 
+    }
     //int32_t SaveSRAM(eweapon *ptr)
     {
 	    Function* function = getFunction("SaveSRAM", 2);
@@ -1697,7 +1657,7 @@ void GlobalSymbols::generateCode()
         function->giveCode(code);
     }
     //String and Array Functions (String.h, Array.h)
-    	//int32_t strlen(*p)
+		//int32_t strlen(*p)
 	{
 		Function* function = getFunction("strlen", 1);
 		int32_t label = function->getLabel();
@@ -1782,7 +1742,6 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-    
 	//int32_t ArrayCopy(int32_t source, int32_t dest)
 	{
 		Function* function = getFunction("ArrayCopy", 2);
@@ -1818,7 +1777,6 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}*/
-	
 	//int32_t ilen(*p)
 	{
 		Function* function = getFunction("ilen", 1);
@@ -1877,8 +1835,6 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 	*/
-    
-	
 	//void itoa_c(str* dest, int32_t)
 	{
 		Function* function = getFunction("itoa", 2);
@@ -2058,7 +2014,6 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 	*/
-	
 	//void printf(str* format, untyped args...)
 	for(int32_t q = 0; q <= 16; ++q) //16 args max
 	{
@@ -2434,7 +2389,6 @@ static AccessorTable HeroSTable[] =
 	{ "getCSet",                ZVARTYPEID_FLOAT,         GETTER,       LINKCSET,             1,           0,                                    1,           { ZVARTYPEID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setCSet",                ZVARTYPEID_VOID,          SETTER,       LINKCSET,             1,           0,                                    2,           { ZVARTYPEID_PLAYER, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getIsWarping",           ZVARTYPEID_BOOL,          GETTER,       HEROISWARPING,        1,           0,                                    1,           { ZVARTYPEID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getRespawnX",            ZVARTYPEID_FLOAT,         GETTER,       HERORESPAWNX,         1,           0,                                    1,           { ZVARTYPEID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setRespawnX",            ZVARTYPEID_VOID,          SETTER,       HERORESPAWNX,         1,           0,                                    2,           { ZVARTYPEID_PLAYER, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getRespawnY",            ZVARTYPEID_FLOAT,         GETTER,       HERORESPAWNY,         1,           0,                                    1,           { ZVARTYPEID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -2464,7 +2418,6 @@ static AccessorTable HeroSTable[] =
 	{ "getShadowYOffset",           ZVARTYPEID_FLOAT,         GETTER,       HEROSHADOWYOFS,          1,           0,                                    1,           { ZVARTYPEID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setShadowYOffset",           ZVARTYPEID_VOID,          SETTER,       HEROSHADOWYOFS,          1,           0,                                    2,           { ZVARTYPEID_PLAYER, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getStanding",                ZVARTYPEID_BOOL,          GETTER,       HEROSTANDING,            1,           0,                                    1,           { ZVARTYPEID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,                   -1,          0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 };
 
@@ -2503,7 +2456,7 @@ void HeroSymbols::generateCode()
         POPREF();
         addOpcode2 (code, new OHeroWarpExRegister(new VarArgument(EXP1)));
         RETURN();
-        function->giveCode(code);    
+        function->giveCode(code);
     }
     {
 	Function* function = getFunction("Warp", 2);
@@ -2516,7 +2469,7 @@ void HeroSymbols::generateCode()
         POPREF();
         addOpcode2 (code, new OHeroWarpExRegister(new VarArgument(EXP1)));
         RETURN();
-        function->giveCode(code);    
+        function->giveCode(code);
     }
     {
 	Function* function = getFunction("Explode", 2);
@@ -2529,7 +2482,7 @@ void HeroSymbols::generateCode()
         POPREF();
         addOpcode2 (code, new OHeroExplodeRegister(new VarArgument(EXP1)));
         RETURN();
-        function->giveCode(code);        
+        function->giveCode(code);
     }
        //void SetItemSlot(link, int32_t item, int32_t slot, int32_t force)
     {
@@ -2547,7 +2500,6 @@ void HeroSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //void SetItemA(link, int32_t)
     {
 	    Function* function = getFunction("SetItemA", 2);
@@ -2574,7 +2526,6 @@ void HeroSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //PitWarp(link, int32_t, int32_t)
     {
 	    Function* function = getFunction("PitWarp", 3);
@@ -2761,7 +2712,6 @@ static AccessorTable ScreenTable[] =
 	{ "DrawTiles",                    ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    3,           {  ZVARTYPEID_SCREEN,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         -1,     -1,     -1,     -1,     -1,     -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                              } },
 	{ "DrawCombos",                   ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    3,           {  ZVARTYPEID_SCREEN,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         -1,     -1,     -1,     -1,     -1,     -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                              } },
 	{ "Lines",                        ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    3,           {  ZVARTYPEID_SCREEN,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         -1,     -1,     -1,     -1,     -1,     -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                              } },
-	
 	{ "DrawCharacter",                ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    11,          {  ZVARTYPEID_SCREEN,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                              } },
 	{ "DrawInteger",                  ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    12,          {  ZVARTYPEID_SCREEN,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                              } },
 	{ "DrawTile",                     ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    16,          {  ZVARTYPEID_SCREEN,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,      ZVARTYPEID_BOOL,    ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           } },
@@ -2838,246 +2788,169 @@ static AccessorTable ScreenTable[] =
 	 { "CreateLWeaponDx",              ZVARTYPEID_LWPN,          FUNCTION,     0,                                1,            FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Polygon",                      ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    6,           {  ZVARTYPEID_SCREEN,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,     -1,     -1,     -1,         -1,     -1,     -1,     -1,     -1,  -1,                         -1,                           -1,                           -1,                           -1,                           } },
 	{ "TriggerSecret",                ZVARTYPEID_VOID,          FUNCTION,     0,                                1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 //	mapdata m-> class variables copied to Screen->
 	{ "getValid",                     ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAVALID,                  1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setValid",                     ZVARTYPEID_VOID,          SETTER,       SCREENDATAVALID,                  1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getGuy",                       ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAGUY,                    1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setGuy",                       ZVARTYPEID_VOID,          SETTER,       SCREENDATAGUY,                    1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getString",                    ZVARTYPEID_FLOAT,         GETTER,       SCREENDATASTRING,                 1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setString",                    ZVARTYPEID_VOID,          SETTER,       SCREENDATASTRING,                 1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-/*	
+/*
 	{ "getRoomType",                  ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAROOM,                   1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setRoomType",                  ZVARTYPEID_VOID,          SETTER,       SCREENDATAROOM,                   1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-*/	
-	
+*/
 	{ "getItem",                      ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAITEM,                   1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setItem",                      ZVARTYPEID_VOID,          SETTER,       SCREENDATAITEM,                   1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getHasItem",                   ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAHASITEM,                1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setHasItem",                   ZVARTYPEID_VOID,          SETTER,       SCREENDATAHASITEM,                1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getTileWarpType[]",            ZVARTYPEID_FLOAT,         GETTER,       SCREENDATATILEWARPTYPE,           4,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setTileWarpType[]",            ZVARTYPEID_VOID,          SETTER,       SCREENDATATILEWARPTYPE,           4,            0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getTileWarpOverlay[]",         ZVARTYPEID_BOOL,          GETTER,       SCREENDATATILEWARPOVFLAGS,        4,            0,                                    1,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setTileWarpOverlay[]",         ZVARTYPEID_VOID,          SETTER,       SCREENDATATILEWARPOVFLAGS,        4,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getDoorComboSet",              ZVARTYPEID_FLOAT,         GETTER,       SCREENDATADOORCOMBOSET,           1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setDoorComboSet",              ZVARTYPEID_VOID,          SETTER,       SCREENDATADOORCOMBOSET,           1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getWarpReturnX[]",             ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAWARPRETX,               4,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWarpReturnX[]",             ZVARTYPEID_VOID,          SETTER,       SCREENDATAWARPRETX,               4,            0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getWarpReturnY[]",             ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAWARPRETY,               4,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWarpReturnY[]",             ZVARTYPEID_VOID,          SETTER,       SCREENDATAWARPRETY,               4,            0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getWarpReturnC",               ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAWARPRETURNC,            1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setWarpReturnC",               ZVARTYPEID_VOID,          SETTER,       SCREENDATAWARPRETURNC,            1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getStairsX",                   ZVARTYPEID_FLOAT,         GETTER,       SCREENDATASTAIRX,                 1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setStairsX",                   ZVARTYPEID_VOID,          SETTER,       SCREENDATASTAIRX,                 1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getStairsY",                   ZVARTYPEID_FLOAT,         GETTER,       SCREENDATASTAIRY,                 1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setStairsY",                   ZVARTYPEID_VOID,          SETTER,       SCREENDATASTAIRY,                 1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getItemX",                     ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAITEMX,                  1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setItemX",                     ZVARTYPEID_VOID,          SETTER,       SCREENDATAITEMX,                  1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getItemY",                     ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAITEMY,                  1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setItemY",                     ZVARTYPEID_VOID,          SETTER,       SCREENDATAITEMY,                  1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getCSet",                      ZVARTYPEID_FLOAT,         GETTER,       SCREENDATACOLOUR,                 1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setCSet",                      ZVARTYPEID_VOID,          SETTER,       SCREENDATACOLOUR,                 1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getPalette",                      ZVARTYPEID_FLOAT,         GETTER,       SCREENDATACOLOUR,                 1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setPalette",                      ZVARTYPEID_VOID,          SETTER,       SCREENDATACOLOUR,                 1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getEnemyFlags",                ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAENEMYFLAGS,             1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setEnemyFlags",                ZVARTYPEID_VOID,          SETTER,       SCREENDATAENEMYFLAGS,             1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getTileWarpDMap[]",            ZVARTYPEID_FLOAT,         GETTER,       SCREENDATATILEWARPDMAP,           4,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setTileWarpDMap[]",            ZVARTYPEID_VOID,          SETTER,       SCREENDATATILEWARPDMAP,           4,            0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getTileWarpScreen[]",          ZVARTYPEID_FLOAT,         GETTER,       SCREENDATATILEWARPSCREEN,         4,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setTileWarpScreen[]",          ZVARTYPEID_VOID,          SETTER,       SCREENDATATILEWARPSCREEN,         4,            0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getExitDir",                   ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAEXITDIR,                1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setExitDir",                   ZVARTYPEID_VOID,          SETTER,       SCREENDATAEXITDIR,                1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getEnemy[]",                   ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAENEMY,                  10,           0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setEnemy[]",                   ZVARTYPEID_VOID,          SETTER,       SCREENDATAENEMY,                  10,           0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getPattern",                   ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAPATTERN,                1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setPattern",                   ZVARTYPEID_VOID,          SETTER,       SCREENDATAPATTERN,                1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getSideWarpType[]",            ZVARTYPEID_FLOAT,         GETTER,       SCREENDATASIDEWARPTYPE,           4,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSideWarpType[]",            ZVARTYPEID_VOID,          SETTER,       SCREENDATASIDEWARPTYPE,           4,            0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getSideWarpOverlay[]",        ZVARTYPEID_BOOL,          GETTER,       SCREENDATASIDEWARPOVFLAGS,        4,            0,                                    1,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSideWarpOverlay[]",        ZVARTYPEID_VOID,          SETTER,       SCREENDATASIDEWARPOVFLAGS,        4,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getWarpArrivalX",              ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAWARPARRIVALX,           1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setWarpArrivalX",              ZVARTYPEID_VOID,          SETTER,       SCREENDATAWARPARRIVALX,           1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getWarpArrivalY",              ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAWARPARRIVALY,           1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setWarpArrivalY",              ZVARTYPEID_VOID,          SETTER,       SCREENDATAWARPARRIVALY,           1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getMazePath[]",                ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAPATH,                   4,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setMazePath[]",                ZVARTYPEID_VOID,          SETTER,       SCREENDATAPATH,                   4,            0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getSideWarpScreen[]",          ZVARTYPEID_FLOAT,         GETTER,       SCREENDATASIDEWARPSC,             4,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSideWarpScreen[]",          ZVARTYPEID_VOID,          SETTER,       SCREENDATASIDEWARPSC,             4,            0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getSideWarpID[]",              ZVARTYPEID_FLOAT,         GETTER,       SCREENSIDEWARPID,             4,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSideWarpID[]",              ZVARTYPEID_VOID,          SETTER,       SCREENSIDEWARPID,             4,            0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getTileWarpReturnSquare[]",          ZVARTYPEID_FLOAT,         GETTER,       SCREENDATATWARPRETSQR,             4,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setTileWarpReturnSquare[]",          ZVARTYPEID_VOID,          SETTER,       SCREENDATATWARPRETSQR,             4,            0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getSideWarpReturnSquare[]",          ZVARTYPEID_FLOAT,         GETTER,       SCREENDATASWARPRETSQR,             4,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSideWarpReturnSquare[]",          ZVARTYPEID_VOID,          SETTER,       SCREENDATASWARPRETSQR,             4,            0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getSideWarpDMap[]",            ZVARTYPEID_FLOAT,         GETTER,       SCREENDATASIDEWARPDMAP,           4,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSideWarpDMap[]",            ZVARTYPEID_VOID,          SETTER,       SCREENDATASIDEWARPDMAP,           4,            0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getSideWarpIndex",             ZVARTYPEID_FLOAT,         GETTER,       SCREENDATASIDEWARPINDEX,          1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setSideWarpIndex",             ZVARTYPEID_VOID,          SETTER,       SCREENDATASIDEWARPINDEX,          1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-/*	
+/*
 	{ "getUnderCombo",                ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAUNDERCOMBO,             1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setUnderCombo",                ZVARTYPEID_VOID,          SETTER,       SCREENDATAUNDERCOMBO,             1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-*/	
-	
-/*	
+*/
+/*
 	{ "getUnderCSet",                 ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAUNDERCSET,              1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setUnderCSet",                 ZVARTYPEID_VOID,          SETTER,       SCREENDATAUNDERCSET,              1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-*/	
-	
+*/
 	{ "getCatchall",                  ZVARTYPEID_FLOAT,         GETTER,       SCREENDATACATCHALL,               1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setCatchall",                  ZVARTYPEID_VOID,          SETTER,       SCREENDATACATCHALL,               1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getCSensitive",                ZVARTYPEID_FLOAT,         GETTER,       SCREENDATACSENSITIVE,             1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setCSensitive",                ZVARTYPEID_VOID,          SETTER,       SCREENDATACSENSITIVE,             1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getNoReset",                   ZVARTYPEID_FLOAT,         GETTER,       SCREENDATANORESET,                1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setNoReset",                   ZVARTYPEID_VOID,          SETTER,       SCREENDATANORESET,                1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getNoCarry",                   ZVARTYPEID_FLOAT,         GETTER,       SCREENDATANOCARRY,                1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setNoCarry",                   ZVARTYPEID_VOID,          SETTER,       SCREENDATANOCARRY,                1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getLayerMap[]",                ZVARTYPEID_FLOAT,         GETTER,       SCREENDATALAYERMAP,               7,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setLayerMap[]",                ZVARTYPEID_VOID,          SETTER,       SCREENDATALAYERMAP,               7,            0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getLayerScreen[]",             ZVARTYPEID_FLOAT,         GETTER,       SCREENDATALAYERSCREEN,            7,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setLayerScreen[]",             ZVARTYPEID_VOID,          SETTER,       SCREENDATALAYERSCREEN,            7,            0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getLayerOpacity[]",            ZVARTYPEID_FLOAT,         GETTER,       SCREENDATALAYEROPACITY,           7,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setLayerOpacity[]",            ZVARTYPEID_VOID,          SETTER,       SCREENDATALAYEROPACITY,           7,            0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getLayerInvisible[]",          ZVARTYPEID_BOOL,          GETTER,       SCREENDATALAYERINVIS,             7,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setLayerInvisible[]",          ZVARTYPEID_VOID,          SETTER,       SCREENDATALAYERINVIS,             7,            0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getScriptDraws[]",             ZVARTYPEID_BOOL,          GETTER,       SCREENDATASCRIPTDRAWS,            8,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setScriptDraws[]",             ZVARTYPEID_VOID,          SETTER,       SCREENDATASCRIPTDRAWS,            8,            0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getTimedWarpTimer",            ZVARTYPEID_FLOAT,         GETTER,       SCREENDATATIMEDWARPTICS,          1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setTimedWarpTimer",            ZVARTYPEID_VOID,          SETTER,       SCREENDATATIMEDWARPTICS,          1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getNextMap",                   ZVARTYPEID_FLOAT,         GETTER,       SCREENDATANEXTMAP,                1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setNextMap",                   ZVARTYPEID_VOID,          SETTER,       SCREENDATANEXTMAP,                1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getNextScreen",                ZVARTYPEID_FLOAT,         GETTER,       SCREENDATANEXTSCREEN,             1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setNextScreen",                ZVARTYPEID_VOID,          SETTER,       SCREENDATANEXTSCREEN,             1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	
 	{ "getCarryoverMap",              ZVARTYPEID_FLOAT,         GETTER,       SCREENDATANEXTMAP,                1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setCarryoverMap",               ZVARTYPEID_VOID,          SETTER,       SCREENDATANEXTMAP,                1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getCarryoverScreen",           ZVARTYPEID_FLOAT,         GETTER,       SCREENDATANEXTSCREEN,             1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setCarryoverScreen",           ZVARTYPEID_VOID,          SETTER,       SCREENDATANEXTSCREEN,             1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getSecretCombo[]",             ZVARTYPEID_FLOAT,         GETTER,       SCREENDATASECRETCOMBO,            128,          0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSecretCombo[]",             ZVARTYPEID_VOID,          SETTER,       SCREENDATASECRETCOMBO,            128,          0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getSecretCSet[]",              ZVARTYPEID_FLOAT,         GETTER,       SCREENDATASECRETCSET,             128,          0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSecretCSet[]",              ZVARTYPEID_VOID,          SETTER,       SCREENDATASECRETCSET,             128,          0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getSecretFlags[]",             ZVARTYPEID_FLOAT,         GETTER,       SCREENDATASECRETFLAG,             128,          0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSecretFlags[]",             ZVARTYPEID_VOID,          SETTER,       SCREENDATASECRETFLAG,             128,          0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getViewX",                     ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAVIEWX,                  1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setViewX",                     ZVARTYPEID_VOID,          SETTER,       SCREENDATAVIEWX,                  1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getViewY",                     ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAVIEWY,                  1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setViewY",                     ZVARTYPEID_VOID,          SETTER,       SCREENDATAVIEWY,                  1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getWidth",                     ZVARTYPEID_FLOAT,         GETTER,       SCREENDATASCREENWIDTH,            1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setWidth",                     ZVARTYPEID_VOID,          SETTER,       SCREENDATASCREENWIDTH,            1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getHeight",                    ZVARTYPEID_FLOAT,         GETTER,       SCREENDATASCREENHEIGHT,           1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setHeight",                    ZVARTYPEID_VOID,          SETTER,       SCREENDATASCREENHEIGHT,           1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getEntryX",                    ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAENTRYX,                 1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setEntryX",                    ZVARTYPEID_VOID,          SETTER,       SCREENDATAENTRYX,                 1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getEntryY",                    ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAENTRYY,                 1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setEntryY",                    ZVARTYPEID_VOID,          SETTER,       SCREENDATAENTRYY,                 1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getNumFFCs[]",                 ZVARTYPEID_BOOL,          GETTER,       SCREENDATANUMFF,                 33,           0,                                    1,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	//read-only, for now?
 	 { "setNumFFCs[]",                 ZVARTYPEID_VOID,          SETTER,       SCREENDATANUMFF,                 33,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getScriptEntry",               ZVARTYPEID_FLOAT,         GETTER,       SCREENDATASCRIPTENTRY,            1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setScriptEntry",               ZVARTYPEID_VOID,          SETTER,       SCREENDATASCRIPTENTRY,            1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getScriptOccupancy",           ZVARTYPEID_FLOAT,         GETTER,       SCREENDATASCRIPTOCCUPANCY,        1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setScriptOccupancy",           ZVARTYPEID_VOID,          SETTER,       SCREENDATASCRIPTOCCUPANCY,        1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getExitScript",                ZVARTYPEID_FLOAT,         GETTER,       SCREENDATASCRIPTEXIT,             1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setExitScript",                ZVARTYPEID_VOID,          SETTER,       SCREENDATASCRIPTEXIT,             1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getOceanSFX",                  ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAOCEANSFX,               1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setOceanSFX",                  ZVARTYPEID_VOID,          SETTER,       SCREENDATAOCEANSFX,               1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getAmbientSFX",                ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAOCEANSFX,               1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setAmbientSFX",                ZVARTYPEID_VOID,          SETTER,       SCREENDATAOCEANSFX,               1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getBossSFX",                   ZVARTYPEID_FLOAT,         GETTER,       SCREENDATABOSSSFX,                1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setBossSFX",                   ZVARTYPEID_VOID,          SETTER,       SCREENDATABOSSSFX,                1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getSecretSFX",                 ZVARTYPEID_FLOAT,         GETTER,       SCREENDATASECRETSFX,              1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSecretSFX",                 ZVARTYPEID_VOID,          SETTER,       SCREENDATASECRETSFX,              1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getItemSFX",                   ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAHOLDUPSFX,              1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setItemSFX",                   ZVARTYPEID_VOID,          SETTER,       SCREENDATAHOLDUPSFX,              1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getMIDI",                      ZVARTYPEID_FLOAT,         GETTER,       SCREENDATASCREENMIDI,             1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setMIDI",                      ZVARTYPEID_VOID,          SETTER,       SCREENDATASCREENMIDI,             1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getLensLayer",                 ZVARTYPEID_FLOAT,         GETTER,       SCREENDATALENSLAYER,              1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setLensLayer",                 ZVARTYPEID_VOID,          SETTER,       SCREENDATALENSLAYER,              1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getScreenFlags[]",             ZVARTYPEID_FLOAT,         GETTER,       SCREENDATAFLAGS,                  10,           0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setScreenFlags[]",             ZVARTYPEID_VOID,          SETTER,       SCREENDATAFLAGS,                  10,           0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getScript",	                  ZVARTYPEID_FLOAT,         GETTER,       SCREENSCRIPT, 	             1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setScript",                    ZVARTYPEID_VOID,          SETTER,       SCREENSCRIPT, 	             1,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getInitD[]",            	      ZVARTYPEID_UNTYPED,       GETTER,       SCREENINITD,                   8,            0,                                    2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setInitD[]",            	      ZVARTYPEID_VOID,          SETTER,       SCREENINITD,                   8,            0,                                    3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "LoadNPCByUID",                 ZVARTYPEID_NPC,           FUNCTION,     0,                             1,            FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "LoadLWeaponByUID",             ZVARTYPEID_LWPN,          FUNCTION,     0,                             1,            FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "LoadEWeaponByUID",             ZVARTYPEID_EWPN,          FUNCTION,     0,                             1,            FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "DrawFrame",                    ZVARTYPEID_VOID,          FUNCTION,     0,                             1,            FUNCFLAG_INLINE,                     10,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "SecretsTriggered",             ZVARTYPEID_BOOL,          GETTER,       SCREENSECRETSTRIGGERED,        1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "SpawnScreenEnemies",           ZVARTYPEID_BOOL,          FUNCTION,     0,                             1,            FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "TriggerCombo",                 ZVARTYPEID_BOOL,          FUNCTION,     0,                             1,            FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                             -1,                       -1,           -1,                               -1,           0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -3109,7 +2982,6 @@ void ScreenSymbols::generateCode()
     //item CreateItem(screen, int32_t)
     {
 	    Function* function = getFunction("CreateItem", 2);
-        
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the param
@@ -3125,7 +2997,6 @@ void ScreenSymbols::generateCode()
     //ffc LoadFFC(screen, int32_t)
     {
 	    Function* function = getFunction("LoadFFC", 2);
-        
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the param
@@ -3158,7 +3029,6 @@ void ScreenSymbols::generateCode()
     //npc CreateNPC(screen, int32_t)
     {
 	    Function* function = getFunction("CreateNPC", 2);
-        
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the param
@@ -3191,7 +3061,6 @@ void ScreenSymbols::generateCode()
     //npc CreateLWeapon(screen, int32_t)
     {
 	    Function* function = getFunction("CreateLWeapon", 2);
-        
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the param
@@ -3204,7 +3073,6 @@ void ScreenSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //lweapon CreateLWeaponDX(screen, int32_t type, int32_t itemid)
     {
 	    Function* function = getFunction("CreateLWeaponDx", 3);
@@ -3220,7 +3088,6 @@ void ScreenSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-     
     //ewpn LoadEWeapon(screen, int32_t)
     {
 	    Function* function = getFunction("LoadEWeapon", 2);
@@ -3248,13 +3115,11 @@ void ScreenSymbols::generateCode()
         LABELBACK(label);
         //pop pointer, and ignore it
         POPREF();
-        
         addOpcode2 (code, new OLoadNPCBySUIDRegister(new VarArgument(EXP1)));
         addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFNPC)));
         RETURN();
         function->giveCode(code);
     }
-    
      //npc LoadLWeaponByUID(screen, int32_t)
     {
 	    Function* function = getFunction("LoadLWeaponByUID", 2);
@@ -3270,7 +3135,6 @@ void ScreenSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //ewpn LoadEWeaponByUID(screen, int32_t)
     {
 	    Function* function = getFunction("LoadEWeaponByUID", 2);
@@ -3289,7 +3153,6 @@ void ScreenSymbols::generateCode()
     //ewpn CreateEWeapon(screen, int32_t)
     {
 	    Function* function = getFunction("CreateEWeapon", 2);
-        
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the param
@@ -3305,7 +3168,6 @@ void ScreenSymbols::generateCode()
     //void ClearSprites(screen, int32_t)
     {
 	    Function* function = getFunction("ClearSprites", 2);
-        
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the param
@@ -3329,7 +3191,6 @@ void ScreenSymbols::generateCode()
         //pop pointer, and ignore it
         POPREF();
         RETURN();
-        
         function->giveCode(code);
     }
 	//void DrawFrame(screen, float, float, float, float, float, float, float, bool, float)
@@ -3343,7 +3204,6 @@ void ScreenSymbols::generateCode()
 		//pop pointer, and ignore it
         POPREF();
 		RETURN();
-        
 		function->giveCode(code);
 	}
     //void Circle(screen, float, float, float, float, float, float, float, float, float, bool, float)
@@ -3356,7 +3216,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(11, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3370,7 +3229,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(14, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3384,7 +3242,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(12, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3398,7 +3255,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(11, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3412,7 +3268,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(11, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3426,7 +3281,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(8, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3440,7 +3294,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(5, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3454,7 +3307,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(2, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3468,7 +3320,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(2, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3482,7 +3333,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(2, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3496,7 +3346,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(10, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3510,7 +3359,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(11, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3524,7 +3372,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(15, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3538,7 +3385,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(7, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3552,7 +3398,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(16, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3566,7 +3411,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(7, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3580,12 +3424,10 @@ void ScreenSymbols::generateCode()
         POP_ARGS(15, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
     //void Polygon(screen, float, float, float, float, float)
-    
     {
 	    Function* function = getFunction("Polygon", 6);
         int32_t label = function->getLabel();
@@ -3595,11 +3437,9 @@ void ScreenSymbols::generateCode()
         POP_ARGS(5, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
-    
     //void Triangle(screen, float, float, float, float, float, float, float, float, float)
     {
 	Function* function = getFunction("Triangle", 14);
@@ -3610,11 +3450,9 @@ void ScreenSymbols::generateCode()
         POP_ARGS(13, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
-    
     //void Quad3D(screen, float, float, float, float, float, float, float, float, float)
     {
 	    Function* function = getFunction("Quad3D", 9);
@@ -3625,7 +3463,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(8, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3639,11 +3476,9 @@ void ScreenSymbols::generateCode()
         POP_ARGS(8, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
-    
     //void FastTile(screen, float, float, float, float, float)
     {
 	    Function* function = getFunction("FastTile", 7);
@@ -3654,7 +3489,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(6, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3668,7 +3502,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(6, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3682,7 +3515,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(9, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3696,7 +3528,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(11, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3710,7 +3541,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(8, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3724,7 +3554,6 @@ void ScreenSymbols::generateCode()
         POP_ARGS(6, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3738,11 +3567,9 @@ void ScreenSymbols::generateCode()
         POP_ARGS(12, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
-    
     //void DrawBitmapEx(screen, float, float, float, float, float, float, float, float, float, float, bool)
     {
 	    Function* function = getFunction("DrawBitmapEx", 17);
@@ -3753,11 +3580,9 @@ void ScreenSymbols::generateCode()
         POP_ARGS(16, NUL);
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
-    
     //void SetRenderTarget(bitmap)
     {
 	    Function* function = getFunction("SetRenderTarget", 2);
@@ -3768,7 +3593,6 @@ void ScreenSymbols::generateCode()
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3829,7 +3653,6 @@ void ScreenSymbols::generateCode()
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3846,7 +3669,6 @@ void ScreenSymbols::generateCode()
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -3899,7 +3721,6 @@ void ScreenSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-      
 
 	//void ZapOut(screen)
     {
@@ -3913,7 +3734,6 @@ void ScreenSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
      //void OpeningWipe(screen)
     {
 	    Function* function = getFunction("OpeningWipe", 1);
@@ -3939,7 +3759,6 @@ void ScreenSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-            
 	//void WavyOut(screen)
     {
 	    Function* function = getFunction("WavyOut", 1);
@@ -3952,7 +3771,6 @@ void ScreenSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //int32_t GetSideWarpDMap(screen, int32_t)
     {
 	    Function* function = getFunction("GetSideWarpDMap", 2);
@@ -4031,7 +3849,6 @@ void ScreenSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //void ZapIn(screen)
     {
 	    Function* function = getFunction("ZapIn", 1);
@@ -4044,7 +3861,6 @@ void ScreenSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
      //void ClosingWipe(screen)
     {
 	    Function* function = getFunction("ClosingWipe", 1);
@@ -4057,7 +3873,6 @@ void ScreenSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
      //void OpeningWipe(screen, int32_t)
     {
 	    Function* function = getFunction("OpeningWipe", 2);
@@ -4071,7 +3886,6 @@ void ScreenSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //void ClosingWipe(screen, int32_t)
     {
 	    Function* function = getFunction("ClosingWipe", 2);
@@ -4194,7 +4008,6 @@ static AccessorTable itemTable[] =
 	{ "setInitD[]",             ZVARTYPEID_VOID,          SETTER,       ITEMSPRITEINITD,      8,            0,                                    3,           { ZVARTYPEID_ITEM, ZVARTYPEID_FLOAT, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getAClock",              ZVARTYPEID_FLOAT,         GETTER,       ITEMACLK,             1,             0,                                    1,           { ZVARTYPEID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setAClock",              ZVARTYPEID_VOID,          SETTER,       ITEMACLK,             1,             0,                                    2,           { ZVARTYPEID_ITEM, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getPickupString",        ZVARTYPEID_FLOAT,         GETTER,       ITEMPSTRING,          1,             0,                                    1,           { ZVARTYPEID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setPickupString",        ZVARTYPEID_VOID,          SETTER,       ITEMPSTRING,          1,             0,                                    2,           { ZVARTYPEID_ITEM, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getPickupStringFlags",   ZVARTYPEID_FLOAT,         GETTER,       ITEMPSTRINGFLAGS,     1,             0,                                    1,           { ZVARTYPEID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -4246,7 +4059,6 @@ static AccessorTable itemTable[] =
 	{ "setShadowYOffset",       ZVARTYPEID_VOID,          SETTER,       ITEMSHADOWYOFS,       1,           0,                                    2,           { ZVARTYPEID_ITEM, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getForceGrab",           ZVARTYPEID_BOOL,          GETTER,       ITEMFORCEGRAB,        1,           0,                                    1,           { ZVARTYPEID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setForceGrab",           ZVARTYPEID_VOID,          SETTER,       ITEMFORCEGRAB,        1,           0,                                    2,           { ZVARTYPEID_ITEM, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -4342,55 +4154,53 @@ static AccessorTable itemclassTable[] =
 	{ "getUseSound2",               ZVARTYPEID_FLOAT,         GETTER,       IDATAUSESOUND2,       1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setUseSound2",               ZVARTYPEID_VOID,          SETTER,       IDATAUSESOUND2,       1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getID",                      ZVARTYPEID_FLOAT,         GETTER,       ITEMCLASSID,          1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "getPower",                   ZVARTYPEID_FLOAT,         GETTER,       ITEMCLASSPOWER,       1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getPower",                   ZVARTYPEID_FLOAT,         GETTER,       ITEMCLASSPOWER,       1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setPower",                   ZVARTYPEID_VOID,          SETTER,       ITEMCLASSPOWER,       1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDamage",                  ZVARTYPEID_FLOAT,         GETTER,       ITEMCLASSPOWER,       1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getDamage",                  ZVARTYPEID_FLOAT,         GETTER,       ITEMCLASSPOWER,       1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setDamage",                  ZVARTYPEID_VOID,          SETTER,       ITEMCLASSPOWER,       1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getInitD[]",                 ZVARTYPEID_UNTYPED,       GETTER,       ITEMCLASSINITDD,      2,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setInitD[]",                 ZVARTYPEID_VOID,          SETTER,       ITEMCLASSINITDD,      2,             0,                                    3,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "GetName",                    ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "RunScript",                  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "getModifier",                ZVARTYPEID_FLOAT,         GETTER,       IDATALTM,             1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getModifier",                ZVARTYPEID_FLOAT,         GETTER,       IDATALTM,             1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setModifier",                ZVARTYPEID_VOID,          SETTER,       IDATALTM,             1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTileMod",                 ZVARTYPEID_FLOAT,         GETTER,       IDATALTM,             1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getTileMod",                 ZVARTYPEID_FLOAT,         GETTER,       IDATALTM,             1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setTileMod",                 ZVARTYPEID_VOID,          SETTER,       IDATALTM,             1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScript",                  ZVARTYPEID_FLOAT,         GETTER,       IDATASCRIPT,          1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getScript",                  ZVARTYPEID_FLOAT,         GETTER,       IDATASCRIPT,          1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setScript",                  ZVARTYPEID_VOID,          SETTER,       IDATASCRIPT,          1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getPScript",                 ZVARTYPEID_FLOAT,         GETTER,       IDATAPSCRIPT,         1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getPScript",                 ZVARTYPEID_FLOAT,         GETTER,       IDATAPSCRIPT,         1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setPScript",                 ZVARTYPEID_VOID,          SETTER,       IDATAPSCRIPT,         1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getPString",                 ZVARTYPEID_FLOAT,         GETTER,       IDATAPSTRING,         1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getPString",                 ZVARTYPEID_FLOAT,         GETTER,       IDATAPSTRING,         1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setPString",                 ZVARTYPEID_VOID,          SETTER,       IDATAPSTRING,         1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getPickupString",                 ZVARTYPEID_FLOAT,         GETTER,       IDATAPSTRING,         1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getPickupString",                 ZVARTYPEID_FLOAT,         GETTER,       IDATAPSTRING,         1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setPickupString",                 ZVARTYPEID_VOID,          SETTER,       IDATAPSTRING,         1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getPickupStringFlags",                 ZVARTYPEID_FLOAT,         GETTER,       IDATAPFLAGS,         1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getPickupStringFlags",                 ZVARTYPEID_FLOAT,         GETTER,       IDATAPFLAGS,         1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setPickupStringFlags",                 ZVARTYPEID_VOID,          SETTER,       IDATAPFLAGS,         1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMagicCost",               ZVARTYPEID_FLOAT,         GETTER,       IDATAMAGCOST,         1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getMagicCost",               ZVARTYPEID_FLOAT,         GETTER,       IDATAMAGCOST,         1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setMagicCost",               ZVARTYPEID_VOID,          SETTER,       IDATAMAGCOST,         1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getCost",                    ZVARTYPEID_FLOAT,         GETTER,       IDATAMAGCOST,         1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getCost",                    ZVARTYPEID_FLOAT,         GETTER,       IDATAMAGCOST,         1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setCost",                    ZVARTYPEID_VOID,          SETTER,       IDATAMAGCOST,         1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getCost2",                   ZVARTYPEID_FLOAT,         GETTER,       IDATACOST2,           1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getCost2",                   ZVARTYPEID_FLOAT,         GETTER,       IDATACOST2,           1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setCost2",                   ZVARTYPEID_VOID,          SETTER,       IDATACOST2,           1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getCostCounter",             ZVARTYPEID_FLOAT,         GETTER,       IDATACOSTCOUNTER,     1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getCostCounter",             ZVARTYPEID_FLOAT,         GETTER,       IDATACOSTCOUNTER,     1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setCostCounter",             ZVARTYPEID_VOID,          SETTER,       IDATACOSTCOUNTER,     1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getCostCounter2",            ZVARTYPEID_FLOAT,         GETTER,       IDATACOSTCOUNTER2,    1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getCostCounter2",            ZVARTYPEID_FLOAT,         GETTER,       IDATACOSTCOUNTER2,    1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setCostCounter2",            ZVARTYPEID_VOID,          SETTER,       IDATACOSTCOUNTER2,    1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMinHearts",               ZVARTYPEID_FLOAT,         GETTER,       IDATAMINHEARTS,       1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getMinHearts",               ZVARTYPEID_FLOAT,         GETTER,       IDATAMINHEARTS,       1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setMinHearts",               ZVARTYPEID_VOID,          SETTER,       IDATAMINHEARTS,       1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTile",                    ZVARTYPEID_FLOAT,         GETTER,       IDATATILE,            1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getTile",                    ZVARTYPEID_FLOAT,         GETTER,       IDATATILE,            1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setTile",                    ZVARTYPEID_VOID,          SETTER,       IDATATILE,            1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFlash",                   ZVARTYPEID_FLOAT,         GETTER,       IDATAMISC,            1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getFlash",                   ZVARTYPEID_FLOAT,         GETTER,       IDATAMISC,            1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFlash",                   ZVARTYPEID_VOID,          SETTER,       IDATAMISC,            1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getCSet",                    ZVARTYPEID_FLOAT,         GETTER,       IDATACSET,            1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getCSet",                    ZVARTYPEID_FLOAT,         GETTER,       IDATACSET,            1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setCSet",                    ZVARTYPEID_VOID,          SETTER,       IDATACSET,            1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-//	{ "getFrame",                   ZVARTYPEID_FLOAT,         GETTER,       IDATAFRAME,           1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+//	{ "getFrame",                   ZVARTYPEID_FLOAT,         GETTER,       IDATAFRAME,           1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 //	{ "setFrame",                   ZVARTYPEID_VOID,          SETTER,       IDATAFRAME,           1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getAFrames",                 ZVARTYPEID_FLOAT,         GETTER,       IDATAFRAMES,          1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getAFrames",                 ZVARTYPEID_FLOAT,         GETTER,       IDATAFRAMES,          1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setAFrames",                 ZVARTYPEID_VOID,          SETTER,       IDATAFRAMES,          1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getASpeed",                  ZVARTYPEID_FLOAT,         GETTER,       IDATAASPEED,          1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getASpeed",                  ZVARTYPEID_FLOAT,         GETTER,       IDATAASPEED,          1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setASpeed",                  ZVARTYPEID_VOID,          SETTER,       IDATAASPEED,          1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDelay",                   ZVARTYPEID_FLOAT,         GETTER,       IDATADELAY,           1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getDelay",                   ZVARTYPEID_FLOAT,         GETTER,       IDATADELAY,           1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setDelay",                   ZVARTYPEID_VOID,          SETTER,       IDATADELAY,           1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getCombine",                 ZVARTYPEID_BOOL,          GETTER,       IDATACOMBINE,         1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setCombine",                 ZVARTYPEID_VOID,          SETTER,       IDATACOMBINE,         1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -4412,116 +4222,87 @@ static AccessorTable itemclassTable[] =
 	{ "setMisc[]",                  ZVARTYPEID_VOID,          SETTER,       IDATAATTRIB,          10,            0,                                    3,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getFlags[]",                 ZVARTYPEID_BOOL,          GETTER,       IDATAFLAGS,           16,            0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFlags[]",                 ZVARTYPEID_VOID,          SETTER,       IDATAFLAGS,           16,            0,                                    3,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getSprites[]",               ZVARTYPEID_FLOAT,         GETTER,       IDATASPRITE,          10,            0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSprites[]",               ZVARTYPEID_VOID,          SETTER,       IDATASPRITE,          10,            0,                                    3,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "getWeapon",                  ZVARTYPEID_FLOAT,         GETTER,       IDATAUSEWPN,          1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getWeapon",                  ZVARTYPEID_FLOAT,         GETTER,       IDATAUSEWPN,          1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWeapon",                  ZVARTYPEID_VOID,          SETTER,       IDATAUSEWPN,          1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDefense",                 ZVARTYPEID_FLOAT,         GETTER,       IDATAUSEDEF,          1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getDefense",                 ZVARTYPEID_FLOAT,         GETTER,       IDATAUSEDEF,          1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setDefense",                 ZVARTYPEID_VOID,          SETTER,       IDATAUSEDEF,          1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDefence",                 ZVARTYPEID_FLOAT,         GETTER,       IDATAUSEDEF,          1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getDefence",                 ZVARTYPEID_FLOAT,         GETTER,       IDATAUSEDEF,          1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setDefence",                 ZVARTYPEID_VOID,          SETTER,       IDATAUSEDEF,          1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getRange",                   ZVARTYPEID_FLOAT,         GETTER,       IDATAWRANGE,          1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getRange",                   ZVARTYPEID_FLOAT,         GETTER,       IDATAWRANGE,          1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setRange",                   ZVARTYPEID_VOID,          SETTER,       IDATAWRANGE,          1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "getDuration",                ZVARTYPEID_FLOAT,         GETTER,       IDATADURATION,        1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getDuration",                ZVARTYPEID_FLOAT,         GETTER,       IDATADURATION,        1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setDuration",                ZVARTYPEID_VOID,          SETTER,       IDATADURATION,        1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	
-	
 //	{ "getMovement[]",              ZVARTYPEID_FLOAT,         GETTER,       IDATAUSEMVT,          ITEM_MOVEMENT_PATTERNS,     { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 //	{ "setMovement[]",              ZVARTYPEID_VOID,          SETTER,       IDATAUSEMVT,          ITEM_MOVEMENT_PATTERNS,     { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getWeaponInitD[]",           ZVARTYPEID_UNTYPED,       GETTER,       IDATAWPNINITD,        8,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWeaponInitD[]",           ZVARTYPEID_VOID,          SETTER,       IDATAWPNINITD,        8,             0,                                    3,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getWeaponMisc[]",            ZVARTYPEID_UNTYPED,       GETTER,       IDATAMISCD,           32,            0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWeaponMisc[]",            ZVARTYPEID_VOID,          SETTER,       IDATAMISCD,           32,            0,                                    3,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "getDuplicates",              ZVARTYPEID_FLOAT,         GETTER,       IDATADUPLICATES,      1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getDuplicates",              ZVARTYPEID_FLOAT,         GETTER,       IDATADUPLICATES,      1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setDuplicates",              ZVARTYPEID_VOID,          SETTER,       IDATADUPLICATES,      1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "getDrawLayer",               ZVARTYPEID_FLOAT,         GETTER,       IDATADRAWLAYER,       1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getDrawLayer",               ZVARTYPEID_FLOAT,         GETTER,       IDATADRAWLAYER,       1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setDrawLayer",               ZVARTYPEID_VOID,          SETTER,       IDATADRAWLAYER,       1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "getCollectFlags",            ZVARTYPEID_FLOAT,         GETTER,       IDATACOLLECTFLAGS,    1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getCollectFlags",            ZVARTYPEID_FLOAT,         GETTER,       IDATACOLLECTFLAGS,    1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setCollectFlags",            ZVARTYPEID_VOID,          SETTER,       IDATACOLLECTFLAGS,    1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "getWeaponScript",            ZVARTYPEID_FLOAT,         GETTER,       IDATAWEAPONSCRIPT,    1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getWeaponScript",            ZVARTYPEID_FLOAT,         GETTER,       IDATAWEAPONSCRIPT,    1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWeaponScript",            ZVARTYPEID_VOID,          SETTER,       IDATAWEAPONSCRIPT,    1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "getWeaponHitXOffset",        ZVARTYPEID_FLOAT,         GETTER,       IDATAWEAPHXOFS,       1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getWeaponHitXOffset",        ZVARTYPEID_FLOAT,         GETTER,       IDATAWEAPHXOFS,       1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWeaponHitXOffset",        ZVARTYPEID_VOID,          SETTER,       IDATAWEAPHXOFS,       1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWeaponHitYOffset",        ZVARTYPEID_FLOAT,         GETTER,       IDATAWEAPHYOFS,       1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getWeaponHitYOffset",        ZVARTYPEID_FLOAT,         GETTER,       IDATAWEAPHYOFS,       1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWeaponHitYOffset",        ZVARTYPEID_VOID,          SETTER,       IDATAWEAPHYOFS,       1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "getWeaponHitWidth",          ZVARTYPEID_FLOAT,         GETTER,       IDATAWEAPHXSZ,        1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getWeaponHitWidth",          ZVARTYPEID_FLOAT,         GETTER,       IDATAWEAPHXSZ,        1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWeaponHitWidth",          ZVARTYPEID_VOID,          SETTER,       IDATAWEAPHXSZ,        1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "getWeaponHitHeight",         ZVARTYPEID_FLOAT,         GETTER,       IDATAWEAPHYSZ,        1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getWeaponHitHeight",         ZVARTYPEID_FLOAT,         GETTER,       IDATAWEAPHYSZ,        1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWeaponHitHeight",         ZVARTYPEID_VOID,          SETTER,       IDATAWEAPHYSZ,        1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "getWeaponHitZHeight",        ZVARTYPEID_FLOAT,         GETTER,       IDATAWEAPHZSZ,        1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getWeaponHitZHeight",        ZVARTYPEID_FLOAT,         GETTER,       IDATAWEAPHZSZ,        1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWeaponHitZHeight",        ZVARTYPEID_VOID,          SETTER,       IDATAWEAPHZSZ,        1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "getWeaponDrawXOffset",       ZVARTYPEID_FLOAT,         GETTER,       IDATAWEAPXOFS,        1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getWeaponDrawXOffset",       ZVARTYPEID_FLOAT,         GETTER,       IDATAWEAPXOFS,        1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWeaponDrawXOffset",       ZVARTYPEID_VOID,          SETTER,       IDATAWEAPXOFS,        1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWeaponDrawYOffset",       ZVARTYPEID_FLOAT,         GETTER,       IDATAWEAPYOFS,        1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getWeaponDrawYOffset",       ZVARTYPEID_FLOAT,         GETTER,       IDATAWEAPYOFS,        1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWeaponDrawYOffset",       ZVARTYPEID_VOID,          SETTER,       IDATAWEAPYOFS,        1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWeaponDrawZOffset",       ZVARTYPEID_FLOAT,         GETTER,       IDATAWEAPZOFS,        1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getWeaponDrawZOffset",       ZVARTYPEID_FLOAT,         GETTER,       IDATAWEAPZOFS,        1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWeaponDrawZOffset",       ZVARTYPEID_VOID,          SETTER,       IDATAWEAPZOFS,        1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMagicCostTimer",          ZVARTYPEID_FLOAT,         GETTER,       IDATAMAGICTIMER,      1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getMagicCostTimer",          ZVARTYPEID_FLOAT,         GETTER,       IDATAMAGICTIMER,      1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setMagicCostTimer",          ZVARTYPEID_VOID,          SETTER,       IDATAMAGICTIMER,      1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getCostTimer",               ZVARTYPEID_FLOAT,         GETTER,       IDATAMAGICTIMER,      1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getCostTimer",               ZVARTYPEID_FLOAT,         GETTER,       IDATAMAGICTIMER,      1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setCostTimer",               ZVARTYPEID_VOID,          SETTER,       IDATAMAGICTIMER,      1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getCostTimer2",              ZVARTYPEID_FLOAT,         GETTER,       IDATAMAGICTIMER2,      1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getCostTimer2",              ZVARTYPEID_FLOAT,         GETTER,       IDATAMAGICTIMER2,      1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setCostTimer2",              ZVARTYPEID_VOID,          SETTER,       IDATAMAGICTIMER2,      1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	
-	
-	{ "getHitXOffset",              ZVARTYPEID_FLOAT,         GETTER,       IDATAHXOFS,           1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getHitXOffset",              ZVARTYPEID_FLOAT,         GETTER,       IDATAHXOFS,           1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setHitXOffset",              ZVARTYPEID_VOID,          SETTER,       IDATAHXOFS,           1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitYOffset",              ZVARTYPEID_FLOAT,         GETTER,       IDATAHYOFS,           1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getHitYOffset",              ZVARTYPEID_FLOAT,         GETTER,       IDATAHYOFS,           1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setHitYOffset",              ZVARTYPEID_VOID,          SETTER,       IDATAHYOFS,           1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "getDrawXOffset",             ZVARTYPEID_FLOAT,         GETTER,       IDATADXOFS,           1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getDrawXOffset",             ZVARTYPEID_FLOAT,         GETTER,       IDATADXOFS,           1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setDrawXOffset",             ZVARTYPEID_VOID,          SETTER,       IDATADXOFS,           1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "getDrawYOffset",             ZVARTYPEID_FLOAT,         GETTER,       IDATADYOFS,           1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getDrawYOffset",             ZVARTYPEID_FLOAT,         GETTER,       IDATADYOFS,           1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setDrawYOffset",             ZVARTYPEID_VOID,          SETTER,       IDATADYOFS,           1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "getHitWidth",                ZVARTYPEID_FLOAT,         GETTER,       IDATAHXSZ,            1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getHitWidth",                ZVARTYPEID_FLOAT,         GETTER,       IDATAHXSZ,            1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setHitWidth",                ZVARTYPEID_VOID,          SETTER,       IDATAHXSZ,            1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitHeight",               ZVARTYPEID_FLOAT,         GETTER,       IDATAHYSZ,            1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getHitHeight",               ZVARTYPEID_FLOAT,         GETTER,       IDATAHYSZ,            1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setHitHeight",               ZVARTYPEID_VOID,          SETTER,       IDATAHYSZ,            1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitZHeight",              ZVARTYPEID_FLOAT,         GETTER,       IDATAHZSZ,            1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getHitZHeight",              ZVARTYPEID_FLOAT,         GETTER,       IDATAHZSZ,            1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setHitZHeight",              ZVARTYPEID_VOID,          SETTER,       IDATAHZSZ,            1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "getTileWidth",               ZVARTYPEID_FLOAT,         GETTER,       IDATATILEW,           1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getTileWidth",               ZVARTYPEID_FLOAT,         GETTER,       IDATATILEW,           1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setTileWidth",               ZVARTYPEID_VOID,          SETTER,       IDATATILEW,           1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTileHeight",              ZVARTYPEID_FLOAT,         GETTER,       IDATATILEH,           1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getTileHeight",              ZVARTYPEID_FLOAT,         GETTER,       IDATATILEH,           1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setTileHeight",              ZVARTYPEID_VOID,          SETTER,       IDATATILEH,           1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "getPickup",                  ZVARTYPEID_FLOAT,         GETTER,       IDATAPICKUP,          1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getPickup",                  ZVARTYPEID_FLOAT,         GETTER,       IDATAPICKUP,          1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setPickup",                  ZVARTYPEID_VOID,          SETTER,       IDATAPICKUP,          1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "getOverrideFlags",           ZVARTYPEID_FLOAT,         GETTER,       IDATAOVERRIDEFL,      1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getOverrideFlags",           ZVARTYPEID_FLOAT,         GETTER,       IDATAOVERRIDEFL,      1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setOverrideFlags",           ZVARTYPEID_VOID,          SETTER,       IDATAOVERRIDEFL,      1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 //	Weapon-forwarded Variables
-	
-	{ "getWeaponTileWidth",         ZVARTYPEID_FLOAT,         GETTER,       IDATATILEWWEAP,       1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getWeaponTileWidth",         ZVARTYPEID_FLOAT,         GETTER,       IDATATILEWWEAP,       1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWeaponTileWidth",         ZVARTYPEID_VOID,          SETTER,       IDATATILEWWEAP,       1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWeaponTileHeight",        ZVARTYPEID_FLOAT,         GETTER,       IDATATILEHWEAP,       1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getWeaponTileHeight",        ZVARTYPEID_FLOAT,         GETTER,       IDATATILEHWEAP,       1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWeaponTileHeight",        ZVARTYPEID_VOID,          SETTER,       IDATATILEHWEAP,       1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "getWeaponOverrideFlags",     ZVARTYPEID_FLOAT,         GETTER,       IDATAOVERRIDEFLWEAP,  1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getWeaponOverrideFlags",     ZVARTYPEID_FLOAT,         GETTER,       IDATAOVERRIDEFLWEAP,  1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWeaponOverrideFlags",     ZVARTYPEID_VOID,          SETTER,       IDATAOVERRIDEFLWEAP,  1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getValidate",                ZVARTYPEID_BOOL,          GETTER,       IDATAVALIDATE,        1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setValidate",                ZVARTYPEID_VOID,          SETTER,       IDATAVALIDATE,        1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getValidate2",               ZVARTYPEID_BOOL,          GETTER,       IDATAVALIDATE2,       1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setValidate2",               ZVARTYPEID_VOID,          SETTER,       IDATAVALIDATE2,       1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                           -1,                       -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -4561,7 +4342,6 @@ void ItemclassSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
 }
 
 GameSymbols GameSymbols::singleton = GameSymbols();
@@ -4745,7 +4525,7 @@ static AccessorTable gameTable[] =
 //	Read or change the palette (level palette) for any given DMap
 	{ "getDMapPalette[]",              ZVARTYPEID_FLOAT,         GETTER,       DMAPLEVELPAL,         512,            0,                                    2,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setDMapPalette[]",              ZVARTYPEID_VOID,          SETTER,       DMAPLEVELPAL,         512,            0,                                    3,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-//	Get the map count 
+//	Get the map count
 	{ "MapCount",                      ZVARTYPEID_FLOAT,         GETTER,       GAMEMAXMAPS,          1,              0,                                    1,           { ZVARTYPEID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 //	Versioning
 	{ "getZScriptVersion",             ZVARTYPEID_FLOAT,         GETTER,       ZSCRIPTVERSION,         1,              0,                                    1,           { ZVARTYPEID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -4762,7 +4542,6 @@ static AccessorTable gameTable[] =
 	{ "SetScreenEnemy",                ZVARTYPEID_VOID,          FUNCTION,     0,                    1,              0,                                    5,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "GetScreenDoor",                 ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    4,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SetScreenDoor",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,              0,                                    5,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "SetScreenWidth",                ZVARTYPEID_VOID,          FUNCTION,     0,                    1,              0,                                    4,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "GetScreenWidth",                ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    3,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SetScreenHeight",               ZVARTYPEID_VOID,          FUNCTION,     0,                    1,              0,                                    4,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -4779,7 +4558,6 @@ static AccessorTable gameTable[] =
 	{ "GetScreenRoomType",             ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    3,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SetScreenEntryX",               ZVARTYPEID_VOID,          FUNCTION,     0,                    1,              0,                                    4,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "GetScreenEntryX",               ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    3,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "SetScreenEntryY",               ZVARTYPEID_VOID,          FUNCTION,     0,                    1,              0,                                    4,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "GetScreenEntryY",               ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    3,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SetScreenItem",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,              0,                                    4,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -4810,13 +4588,11 @@ static AccessorTable gameTable[] =
 	{ "GetScreenWarpReturnY",          ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              0,                                    4,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getHighestStringID",            ZVARTYPEID_FLOAT,         GETTER,       GAMENUMMESSAGES,      1,              0,                                    1,           { ZVARTYPEID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getNumMessages",                ZVARTYPEID_FLOAT,         GETTER,       GAMENUMMESSAGES,      1,              0,                                    1,           { ZVARTYPEID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "setGameOverScreen[]",           ZVARTYPEID_VOID,          SETTER,       SETGAMEOVERELEMENT,   12,             0,                                    3,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setGameOverStrings[]",          ZVARTYPEID_VOID,          SETTER,       SETGAMEOVERSTRING,    3,              0,                                    3,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 //	{ "SetContinueScreen[]",           ZVARTYPEID_VOID,          FUNCTION,     0,                    1,              0,                                    3,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 //	{ "SetContinueString[]",           ZVARTYPEID_VOID,          FUNCTION,     0,                    1,              0,                                    3,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-/*	
+/*
 	{ "getJoypad[]",                   ZVARTYPEID_FLOAT,         GETTER,       JOYPADPRESS,          18,             0,                                    2,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getPress[]",                    ZVARTYPEID_BOOL,          GETTER,       BUTTONPRESS,          18,             0,                                    2,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setPress[]",                    ZVARTYPEID_VOID,          SETTER,       BUTTONPRESS,          18,             0,                                    3,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -4829,7 +4605,7 @@ static AccessorTable gameTable[] =
 	{ "setKey[]",                      ZVARTYPEID_VOID,          SETTER,       RAWKEY,             127,            0,                                    3,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getMouse[]",                    ZVARTYPEID_FLOAT,         GETTER,       MOUSEARR,             6,              0,                                    2,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setMouse[]",                    ZVARTYPEID_VOID,          SETTER,       MOUSEARR,             6,              0,                                    3,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-*/	
+*/
 //	New Datatypes
 	{ "LoadNPCData",                   ZVARTYPEID_NPCDATA,       FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "LoadComboData",                 ZVARTYPEID_COMBOS,        FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -4865,7 +4641,6 @@ static AccessorTable gameTable[] =
 	{ "setMiscSFX[]",                  ZVARTYPEID_VOID,          SETTER,       GAMEMISCSFX,          256,            0,                                    3,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getEventData[]",                ZVARTYPEID_UNTYPED,       GETTER,       GAMEEVENTDATA,        214748,         0,                                    2,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setEventData[]",                ZVARTYPEID_VOID,          SETTER,       GAMEEVENTDATA,        214748,         0,                                    3,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                              -1,                       -1,           -1,                   -1,             0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -4907,7 +4682,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //DMapdata
     {
 	    Function* function = getFunction("LoadDMapData", 2);
@@ -4923,7 +4697,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //Dropset
     {
 	    Function* function = getFunction("LoadDropset", 2);
@@ -4939,7 +4712,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //randgen LoadRNG(Game)
     {
 	    Function* function = getFunction("LoadRNG", 1);
@@ -4952,7 +4724,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-	
 	//stack LoadStack(Game)
     {
 	    Function* function = getFunction("LoadStack", 1);
@@ -5010,7 +4781,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-	
 	//Messagedata
     {
 	    Function* function = getFunction("LoadMessageData", 2);
@@ -5039,7 +4809,7 @@ void GameSymbols::generateCode()
         addOpcode2 (code, new OLoadComboDataRegister(new VarArgument(EXP1)));
         addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFCOMBODATA)));
         RETURN();
-        function->giveCode(code); 
+        function->giveCode(code);
     }
     //MapData
     /*
@@ -5056,11 +4826,10 @@ void GameSymbols::generateCode()
         addOpcode2 (code, new OLoadMapDataRegister(new VarArgument(EXP1), new VarArgument(INDEX)));
         addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFMAPDATA)));
         RETURN();
-        function->giveCode(code);     
+        function->giveCode(code);
 	//LOAD_REFDATA("LoadMapData", OLoadMapDataRegister, REFMAPDATA);
     }
     */
-    
     //int32_t LoadMapData(mapdata, int32_t map,int32_t scr)
     {
         Function* function = getFunction("LoadMapData", 3);
@@ -5076,7 +4845,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //int32_t LoadTempScreen(game, int32_t layer)
     {
         Function* function = getFunction("LoadTempScreen", 2);
@@ -5091,7 +4859,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //int32_t LoadScrollingScreen(game, int32_t layer)
     {
         Function* function = getFunction("LoadScrollingScreen", 2);
@@ -5106,7 +4873,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-	
     //int32_t Create(bitmap, int32_t map,int32_t scr)
 	{
 		Function* function = getFunction("CreateBitmap", 3);
@@ -5122,10 +4888,8 @@ void GameSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-   
     //SpriteData
     {
-	    
 	Function* function = getFunction("LoadSpriteData", 2);
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
@@ -5137,7 +4901,7 @@ void GameSymbols::generateCode()
         addOpcode2 (code, new OLoadSpriteDataRegister(new VarArgument(EXP1)));
         addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFSPRITEDATA)));
         RETURN();
-        function->giveCode(code);    
+        function->giveCode(code);
     }
     //ShopData
     {
@@ -5152,7 +4916,7 @@ void GameSymbols::generateCode()
         addOpcode2 (code, new OLoadShopDataRegister(new VarArgument(EXP1)));
         addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFSHOPDATA)));
         RETURN();
-        function->giveCode(code);    
+        function->giveCode(code);
     }
     //InfoShopData
     {
@@ -5167,7 +4931,7 @@ void GameSymbols::generateCode()
         addOpcode2 (code, new OLoadInfoShopDataRegister(new VarArgument(EXP1)));
         addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFSHOPDATA)));
         RETURN();
-        function->giveCode(code);    
+        function->giveCode(code);
     }
     //ScreenData
     /*
@@ -5188,9 +4952,8 @@ void GameSymbols::generateCode()
         addOpcode2 (code, new OLoadBitmapDataRegister(new VarArgument(EXP1)));
         addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFBITMAP)));
         RETURN();
-        function->giveCode(code);   
+        function->giveCode(code);
     }
-    
     //bool GetScreenState(game, int32_t,int32_t,int32_t)
     {
         Function* function = getFunction("GetScreenState", 4);
@@ -5388,7 +5151,6 @@ void GameSymbols::generateCode()
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
         //pop pointer, and ignore it
         POPREF();
-        
         RETURN();
         function->giveCode(code);
     }
@@ -5646,7 +5408,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //void Continue(game)
     {
 	    Function* function = getFunction("Continue", 1);
@@ -5659,7 +5420,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //void SaveAndQuit(game)
     {
 	    Function* function = getFunction("SaveAndQuit", 1);
@@ -5672,7 +5432,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //void SaveAndContinue(game)
     {
 	    Function* function = getFunction("SaveAndContinue", 1);
@@ -5798,9 +5557,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
-    
-    
     //void GreyscaleOn(game)
     {
 	    Function* function = getFunction("GreyscaleOn", 1);
@@ -5813,7 +5569,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-            
 	//void GreyscaleOff(game)
     {
 	    Function* function = getFunction("GreyscaleOff", 1);
@@ -5826,8 +5581,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
-    
    // SetMessage(game, int32_t, int32_t)
     {
 	    Function* function = getFunction("SetMessage", 3);
@@ -5888,7 +5641,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //bool ShowSaveScreen(game)
     {
 	    Function* function = getFunction("ShowSaveScreen", 1);
@@ -5901,7 +5653,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //void ShowSaveQuitScreen(game)
     {
 	    Function* function = getFunction("ShowSaveQuitScreen", 1);
@@ -5914,7 +5665,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //int32_t GetFFCScript(game, int32_t)
     {
 	    Function* function = getFunction("GetFFCScript", 2);
@@ -5929,7 +5679,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //int32_t GetComboScript(game, int32_t)
     {
 	    Function* function = getFunction("GetComboScript", 2);
@@ -5944,8 +5693,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
-    
      //int32_t GetItemScript(game, int32_t)
     {
 	    Function* function = getFunction("GetItemScript", 2);
@@ -5960,7 +5707,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
      //int32_t GetNPCScript(game, int32_t)
     {
 	    Function* function = getFunction("GetNPCScript", 2);
@@ -6199,7 +5945,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
      //int32_t GetScreenEnemy(game,int32_t,int32_t,int32_t)
     {
 	    Function* function = getFunction("GetScreenEnemy", 4);
@@ -6266,7 +6011,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //void SetScreenWidth(game, int32_t,int32_t,int32_t)
     {
 	    Function* function = getFunction("SetScreenWidth", 4);
@@ -6298,7 +6042,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //void SetScreenHeight(game, int32_t,int32_t,int32_t)
     {
 	    Function* function = getFunction("SetScreenHeight", 4);
@@ -6671,7 +6414,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //void SetScreenLayerOpacity(int32_t,int32_t,int32_t,int32_t)
     {
 	    Function* function = getFunction("SetScreenLayerOpacity", 5);
@@ -6841,7 +6583,6 @@ void GameSymbols::generateCode()
         function->giveCode(code);
     }
 
-    
     //void SetScreenLayerScreen(int32_t,int32_t,int32_t,int32_t)
     {
 	    Function* function = getFunction("SetScreenLayerScreen", 5);
@@ -7026,7 +6767,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //void SetOggSpeed(game, int32_t)
     {
 	    Function* function = getFunction("SetOggSpeed", 2);
@@ -7041,7 +6781,6 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-	
 	//void Reload(game)
     {
 	    Function* function = getFunction("Reload", 1);
@@ -7155,7 +6894,6 @@ static AccessorTable npcTable[] =
 	{ "setHitYOffset",          ZVARTYPEID_VOID,          SETTER,       NPCHYOFS,             1,             0,                                    2,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "isValid",                ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Explode",                ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getMisc[]",              ZVARTYPEID_UNTYPED,       GETTER,       NPCMISCD,             32,            0,                                    2,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setMisc[]",              ZVARTYPEID_VOID,          SETTER,       NPCMISCD,             32,            0,                                    3,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getInitD[]",             ZVARTYPEID_UNTYPED,       GETTER,       NPCINITD,             8,             0,                                    2,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -7188,8 +6926,6 @@ static AccessorTable npcTable[] =
 //	2.future srit compatibility. -Z
 	{ "getScriptDefense[]",     ZVARTYPEID_FLOAT,         GETTER,       NPCSCRDEFENSED,       10,            0,                                    2,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setScriptDefense[]",     ZVARTYPEID_VOID,          SETTER,       NPCSCRDEFENSED,       10,            0,                                    3,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	
 	{ "getInvFrames",           ZVARTYPEID_FLOAT,         GETTER,       NPCINVINC,            1,             0,                                    1,           { ZVARTYPEID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setInvFrames",           ZVARTYPEID_VOID,          SETTER,       NPCINVINC,            1,             0,                                    2,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getInvincible",          ZVARTYPEID_FLOAT,         GETTER,       NPCSUPERMAN,          1,             0,                                    1,           { ZVARTYPEID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -7202,25 +6938,20 @@ static AccessorTable npcTable[] =
 	{ "setShield[]",            ZVARTYPEID_VOID,          SETTER,       NPCSHIELD,            5,             0,                                    3,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getBFlags[]",            ZVARTYPEID_BOOL,          GETTER,       NPCBEHAVIOUR,         16,            0,                                    2,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setBFlags[]",            ZVARTYPEID_VOID,          SETTER,       NPCBEHAVIOUR,         16,            0,                                    3,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getFrozen",              ZVARTYPEID_FLOAT,         GETTER,       NPCFROZEN,            1,             0,                                    1,           { ZVARTYPEID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFrozen",              ZVARTYPEID_VOID,          SETTER,       NPCFROZEN,            1,             0,                                    2,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getUID",                 ZVARTYPEID_FLOAT,         GETTER,       NPCSCRIPTUID,         1,             0,                                    1,           { ZVARTYPEID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 //	{ "setUID",                 ZVARTYPEID_VOID,          SETTER,       NPCSCRIPTUID,         1,             0,                                    2,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getFrozenTile",          ZVARTYPEID_FLOAT,         GETTER,       NPCFROZENTILE,        1,             0,                                    1,           { ZVARTYPEID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFrozenTile",          ZVARTYPEID_VOID,          SETTER,       NPCFROZENTILE,        1,             0,                                    2,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getParentUID",          ZVARTYPEID_FLOAT,         GETTER,       NPCPARENTUID,        1,             0,                                    1,           { ZVARTYPEID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setParentUID",          ZVARTYPEID_VOID,          SETTER,       NPCPARENTUID,        1,             0,                                    2,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getFrozenCSet",          ZVARTYPEID_FLOAT,         GETTER,       NPCFROZENCSET,        1,             0,                                    1,           { ZVARTYPEID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFrozenCSet",          ZVARTYPEID_VOID,          SETTER,       NPCFROZENCSET,        1,             0,                                    2,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getHitDir",              ZVARTYPEID_FLOAT,         GETTER,       NPCHITDIR,            1,             0,                                    1,           { ZVARTYPEID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setHitDir",          ZVARTYPEID_VOID,          SETTER,       NPCHITDIR,        1,             0,                                    2,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getScript",              ZVARTYPEID_FLOAT,         GETTER,       NPCSCRIPT,            1,             0,                                    1,           { ZVARTYPEID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setScript",              ZVARTYPEID_VOID,          SETTER,       NPCSCRIPT,            1,             0,                                    2,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "isDead",                 ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "CanSlide",               ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Slide",                  ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -7296,8 +7027,6 @@ static AccessorTable npcTable[] =
 	{ "setShadowXOffset",           ZVARTYPEID_VOID,          SETTER,       NPCSHADOWXOFS,          1,           0,                                    2,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getShadowYOffset",           ZVARTYPEID_FLOAT,         GETTER,       NPCSHADOWYOFS,          1,           0,                                    1,           { ZVARTYPEID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setShadowYOffset",           ZVARTYPEID_VOID,          SETTER,       NPCSHADOWYOFS,          1,           0,                                    2,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -7469,7 +7198,6 @@ void NPCSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	
 	//void ConstantWalk8(int32_t arr[])
 	{
 		Function* function = getFunction("ConstantWalk8", 2);
@@ -7484,7 +7212,6 @@ void NPCSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	
 	//void VariableWalk(int32_t arr[])
 	{
 		Function* function = getFunction("VariableWalk", 2);
@@ -7626,11 +7353,9 @@ void NPCSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-    
 	//npc Create(int32_t array[])
 	{
 		Function* function = getFunction("Create", 2);
-        
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -7915,7 +7640,6 @@ static AccessorTable lwpnTable[] =
 	{ "setDefence",             ZVARTYPEID_VOID,          SETTER,       LWPNUSEDEFENCE,       1,             0,                                    2,           { ZVARTYPEID_LWPN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getInitD[]",             ZVARTYPEID_UNTYPED,       GETTER,       LWPNINITD,            8,             0,                                    2,           { ZVARTYPEID_LWPN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setInitD[]",             ZVARTYPEID_VOID,          SETTER,       LWPNINITD,            8,             0,                                    3,           { ZVARTYPEID_LWPN, ZVARTYPEID_FLOAT, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getUID",                 ZVARTYPEID_FLOAT,         GETTER,       LWEAPONSCRIPTUID,     1,             0,                                    1,           { ZVARTYPEID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Explode",                ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_LWPN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getRotation",            ZVARTYPEID_FLOAT,         GETTER,       LWPNROTATION,         1,             0,                                    1,           { ZVARTYPEID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -7966,7 +7690,6 @@ static AccessorTable lwpnTable[] =
 	{ "MakeDirectional",        ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getFlags[]",             ZVARTYPEID_BOOL,          GETTER,       LWPNFLAGS,            1,             0,                                    2,           { ZVARTYPEID_LWPN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFlags[]",             ZVARTYPEID_VOID,          SETTER,       LWPNFLAGS,            1,             0,                                    3,           { ZVARTYPEID_LWPN, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -8181,7 +7904,6 @@ static AccessorTable ewpnTable[] =
 	{ "setScript",              ZVARTYPEID_VOID,          SETTER,       EWPNSCRIPT,           1,             0,                                    2,           { ZVARTYPEID_EWPN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getInitD[]",             ZVARTYPEID_UNTYPED,       GETTER,       EWPNINITD,            8,             0,                                    2,           { ZVARTYPEID_EWPN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setInitD[]",             ZVARTYPEID_VOID,          SETTER,       EWPNINITD,            8,             0,                                    3,           { ZVARTYPEID_EWPN, ZVARTYPEID_FLOAT, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "Explode",                ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_EWPN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getRotation",            ZVARTYPEID_FLOAT,         GETTER,       EWPNROTATION,         1,             0,                                    1,           { ZVARTYPEID_EWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setRotation",            ZVARTYPEID_VOID,          SETTER,       EWPNROTATION,         1,             0,                                    2,           { ZVARTYPEID_EWPN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -8231,7 +7953,6 @@ static AccessorTable ewpnTable[] =
 	{ "MakeDirectional",    	ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_EWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getFlags[]",             ZVARTYPEID_BOOL,          GETTER,       EWPNFLAGS,            1,             0,                                    2,           { ZVARTYPEID_EWPN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFlags[]",             ZVARTYPEID_VOID,          SETTER,       EWPNFLAGS,            1,             0,                                    3,           { ZVARTYPEID_EWPN, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -8357,7 +8078,6 @@ static AccessorTable TextTable[] =
 	{ "FontHeight",             ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_TEXT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "MessageWidth",           ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_TEXT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "MessageHeight",          ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_TEXT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,                     -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -8487,281 +8207,189 @@ static AccessorTable MapDataTable[] =
 //	  name,                                     rettype,          setorget,     var,                 numindex,             funcFlags,                            numParams,   params
 	{ "isSolid",                        ZVARTYPEID_BOOL,          FUNCTION,     0,                          1,             FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "isSolidLayer",                   ZVARTYPEID_BOOL,          FUNCTION,     0,                          1,             0,                                    4,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getValid",                       ZVARTYPEID_FLOAT,         GETTER,       MAPDATAVALID,               1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setValid",                       ZVARTYPEID_VOID,          SETTER,       MAPDATAVALID,               1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getGuy",                         ZVARTYPEID_FLOAT,         GETTER,       MAPDATAGUY,                 1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setGuy",                         ZVARTYPEID_VOID,          SETTER,       MAPDATAGUY,                 1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getString",                      ZVARTYPEID_FLOAT,         GETTER,       MAPDATASTRING,              1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setString",                      ZVARTYPEID_VOID,          SETTER,       MAPDATASTRING,              1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getRoomType",                    ZVARTYPEID_FLOAT,         GETTER,       MAPDATAROOM,                1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setRoomType",                    ZVARTYPEID_VOID,          SETTER,       MAPDATAROOM,                1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getItem",                        ZVARTYPEID_FLOAT,         GETTER,       MAPDATAITEM,                1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setItem",                        ZVARTYPEID_VOID,          SETTER,       MAPDATAITEM,                1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getHasItem",                     ZVARTYPEID_FLOAT,         GETTER,       MAPDATAHASITEM,             1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setHasItem",                     ZVARTYPEID_VOID,          SETTER,       MAPDATAHASITEM,             1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getTileWarpType[]",              ZVARTYPEID_FLOAT,         GETTER,       MAPDATATILEWARPTYPE,        4,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setTileWarpType[]",              ZVARTYPEID_VOID,          SETTER,       MAPDATATILEWARPTYPE,        4,             0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getScript",                      ZVARTYPEID_FLOAT,         GETTER,       MAPDATASCRIPT,              1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setScript",                      ZVARTYPEID_VOID,          SETTER,       MAPDATASCRIPT,              1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getInitD[]",                     ZVARTYPEID_UNTYPED,       GETTER,       MAPDATAINITDARRAY,          8,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setInitD[]",                     ZVARTYPEID_VOID,          SETTER,       MAPDATAINITDARRAY,          8,             0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getTileWarpOverlay[]",           ZVARTYPEID_BOOL,          GETTER,       MAPDATATILEWARPOVFLAGS,     4,             0,                                    1,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setTileWarpOverlay[]",           ZVARTYPEID_VOID,          SETTER,       MAPDATATILEWARPOVFLAGS,     4,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getDoorComboSet",                ZVARTYPEID_FLOAT,         GETTER,       MAPDATADOORCOMBOSET,        1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setDoorComboSet",                ZVARTYPEID_VOID,          SETTER,       MAPDATADOORCOMBOSET,        1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getWarpReturnX[]",               ZVARTYPEID_FLOAT,         GETTER,       MAPDATAWARPRETX,            4,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWarpReturnX[]",               ZVARTYPEID_VOID,          SETTER,       MAPDATAWARPRETX,            4,             0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getWarpReturnY[]",               ZVARTYPEID_FLOAT,         GETTER,       MAPDATAWARPRETY,            4,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWarpReturnY[]",               ZVARTYPEID_VOID,          SETTER,       MAPDATAWARPRETY,            4,             0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getWarpReturnC",                 ZVARTYPEID_FLOAT,         GETTER,       MAPDATAWARPRETURNC,         1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setWarpReturnC",                 ZVARTYPEID_VOID,          SETTER,       MAPDATAWARPRETURNC,         1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getStairsX",                     ZVARTYPEID_FLOAT,         GETTER,       MAPDATASTAIRX,              1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setStairsX",                     ZVARTYPEID_VOID,          SETTER,       MAPDATASTAIRX,              1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getStairsY",                     ZVARTYPEID_FLOAT,         GETTER,       MAPDATASTAIRY,              1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setStairsY",                     ZVARTYPEID_VOID,          SETTER,       MAPDATASTAIRY,              1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getItemX",                       ZVARTYPEID_FLOAT,         GETTER,       MAPDATAITEMX,               1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setItemX",                       ZVARTYPEID_VOID,          SETTER,       MAPDATAITEMX,               1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getItemY",                       ZVARTYPEID_FLOAT,         GETTER,       MAPDATAITEMY,               1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setItemY",                       ZVARTYPEID_VOID,          SETTER,       MAPDATAITEMY,               1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getCSet",                        ZVARTYPEID_FLOAT,         GETTER,       MAPDATACOLOUR,              1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setCSet",                        ZVARTYPEID_VOID,          SETTER,       MAPDATACOLOUR,              1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getPalette",                     ZVARTYPEID_FLOAT,         GETTER,       MAPDATACOLOUR,              1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setPalette",                     ZVARTYPEID_VOID,          SETTER,       MAPDATACOLOUR,              1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getEnemyFlags",                  ZVARTYPEID_FLOAT,         GETTER,       MAPDATAENEMYFLAGS,          1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setEnemyFlags",                  ZVARTYPEID_VOID,          SETTER,       MAPDATAENEMYFLAGS,          1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getDoor[]",                      ZVARTYPEID_FLOAT,         GETTER,       MAPDATADOOR,                4,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setDoor[]",                      ZVARTYPEID_VOID,          SETTER,       MAPDATADOOR,                4,             0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getTileWarpDMap[]",              ZVARTYPEID_FLOAT,         GETTER,       MAPDATATILEWARPDMAP,        4,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setTileWarpDMap[]",              ZVARTYPEID_VOID,          SETTER,       MAPDATATILEWARPDMAP,        4,             0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getTileWarpScreen[]",            ZVARTYPEID_FLOAT,         GETTER,       MAPDATATILEWARPSCREEN,      4,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setTileWarpScreen[]",            ZVARTYPEID_VOID,          SETTER,       MAPDATATILEWARPSCREEN,      4,             0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getExitDir",                     ZVARTYPEID_FLOAT,         GETTER,       MAPDATAEXITDIR,             1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setExitDir",                     ZVARTYPEID_VOID,          SETTER,       MAPDATAEXITDIR,             1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getEnemy[]",                     ZVARTYPEID_FLOAT,         GETTER,       MAPDATAENEMY,               10,            0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setEnemy[]",                     ZVARTYPEID_VOID,          SETTER,       MAPDATAENEMY,               10,            0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getPattern",                     ZVARTYPEID_FLOAT,         GETTER,       MAPDATAPATTERN,             1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setPattern",                     ZVARTYPEID_VOID,          SETTER,       MAPDATAPATTERN,             1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getSideWarpType[]",              ZVARTYPEID_FLOAT,         GETTER,       MAPDATASIDEWARPTYPE,        4,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSideWarpType[]",              ZVARTYPEID_VOID,          SETTER,       MAPDATASIDEWARPTYPE,        4,             0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getSideWarpOverlay[]",           ZVARTYPEID_FLOAT,         GETTER,       MAPDATASIDEWARPOVFLAGS,     4,             0,                                    1,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSideWarpOverlay[]",           ZVARTYPEID_VOID,          SETTER,       MAPDATASIDEWARPOVFLAGS,     4,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getWarpArrivalX",                ZVARTYPEID_FLOAT,         GETTER,       MAPDATAWARPARRIVALX,        1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWarpArrivalX",                ZVARTYPEID_VOID,          SETTER,       MAPDATAWARPARRIVALX,        1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getWarpArrivalY",                ZVARTYPEID_FLOAT,         GETTER,       MAPDATAWARPARRIVALY,        1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWarpArrivalY",                ZVARTYPEID_VOID,          SETTER,       MAPDATAWARPARRIVALY,        1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getMazePath[]",                  ZVARTYPEID_FLOAT,         GETTER,       MAPDATAPATH,                4,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setMazePath[]",                  ZVARTYPEID_VOID,          SETTER,       MAPDATAPATH,                4,             0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getSideWarpScreen[]",            ZVARTYPEID_FLOAT,         GETTER,       MAPDATASIDEWARPSC,          4,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSideWarpScreen[]",            ZVARTYPEID_VOID,          SETTER,       MAPDATASIDEWARPSC,          4,             0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getSideWarpID[]",            ZVARTYPEID_FLOAT,         GETTER,       MAPDATASIDEWARPID,          4,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSideWarpID[]",            ZVARTYPEID_VOID,          SETTER,       MAPDATASIDEWARPID,          4,             0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getTileWarpReturnSquare[]",            ZVARTYPEID_FLOAT,         GETTER,       MAPDATATWARPRETSQR,          4,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setTileWarpReturnSquare[]",            ZVARTYPEID_VOID,          SETTER,       MAPDATATWARPRETSQR,          4,             0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getSideWarpReturnSquare[]",            ZVARTYPEID_FLOAT,         GETTER,       MAPDATASWARPRETSQR,          4,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSideWarpReturnSquare[]",            ZVARTYPEID_VOID,          SETTER,       MAPDATASWARPRETSQR,          4,             0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getSideWarpDMap[]",              ZVARTYPEID_FLOAT,         GETTER,       MAPDATASIDEWARPDMAP,        4,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSideWarpDMap[]",              ZVARTYPEID_VOID,          SETTER,       MAPDATASIDEWARPDMAP,        4,             0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getSideWarpIndex",               ZVARTYPEID_FLOAT,         GETTER,       MAPDATASIDEWARPINDEX,       1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setSideWarpIndex",               ZVARTYPEID_VOID,          SETTER,       MAPDATASIDEWARPINDEX,       1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getUnderCombo",                  ZVARTYPEID_FLOAT,         GETTER,       MAPDATAUNDERCOMBO,          1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setUnderCombo",                  ZVARTYPEID_VOID,          SETTER,       MAPDATAUNDERCOMBO,          1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getUnderCSet",                   ZVARTYPEID_FLOAT,         GETTER,       MAPDATAUNDERCSET,           1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setUnderCSet",                   ZVARTYPEID_VOID,          SETTER,       MAPDATAUNDERCSET,           1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getCatchall",                    ZVARTYPEID_FLOAT,         GETTER,       MAPDATACATCHALL,            1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setCatchall",                    ZVARTYPEID_VOID,          SETTER,       MAPDATACATCHALL,            1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getCSensitive",                  ZVARTYPEID_FLOAT,         GETTER,       MAPDATACSENSITIVE,          1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setCSensitive",                  ZVARTYPEID_VOID,          SETTER,       MAPDATACSENSITIVE,          1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getNoReset",                     ZVARTYPEID_FLOAT,         GETTER,       MAPDATANORESET,             1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setNoReset",                     ZVARTYPEID_VOID,          SETTER,       MAPDATANORESET,             1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getNoCarry",                     ZVARTYPEID_FLOAT,         GETTER,       MAPDATANOCARRY,             1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setNoCarry",                     ZVARTYPEID_VOID,          SETTER,       MAPDATANOCARRY,             1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getLayerMap[]",                  ZVARTYPEID_FLOAT,         GETTER,       MAPDATALAYERMAP,            7,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setLayerMap[]",                  ZVARTYPEID_VOID,          SETTER,       MAPDATALAYERMAP,            7,             0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getLayerScreen[]",               ZVARTYPEID_FLOAT,         GETTER,       MAPDATALAYERSCREEN,         7,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setLayerScreen[]",               ZVARTYPEID_VOID,          SETTER,       MAPDATALAYERSCREEN,         7,             0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getLayerOpacity[]",              ZVARTYPEID_FLOAT,         GETTER,       MAPDATALAYEROPACITY,        7,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setLayerOpacity[]",              ZVARTYPEID_VOID,          SETTER,       MAPDATALAYEROPACITY,        7,             0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getLayerInvisible[]",            ZVARTYPEID_BOOL,          GETTER,       MAPDATALAYERINVIS,          7,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setLayerInvisible[]",            ZVARTYPEID_VOID,          SETTER,       MAPDATALAYERINVIS,          7,             0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getScriptDraws[]",               ZVARTYPEID_BOOL,          GETTER,       MAPDATASCRIPTDRAWS,         8,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setScriptDraws[]",               ZVARTYPEID_VOID,          SETTER,       MAPDATASCRIPTDRAWS,         8,             0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	
 	{ "getTimedWarpTimer",              ZVARTYPEID_FLOAT,         GETTER,       MAPDATATIMEDWARPTICS,       1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setTimedWarpTimer",              ZVARTYPEID_VOID,          SETTER,       MAPDATATIMEDWARPTICS,       1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getNextMap",                     ZVARTYPEID_FLOAT,         GETTER,       MAPDATANEXTMAP,             1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setNextMap",                     ZVARTYPEID_VOID,          SETTER,       MAPDATANEXTMAP,             1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getNextScreen",                  ZVARTYPEID_FLOAT,         GETTER,       MAPDATANEXTSCREEN,          1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setNextScreen",                  ZVARTYPEID_VOID,          SETTER,       MAPDATANEXTSCREEN,          1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	
 	{ "getCarryoverMap",                ZVARTYPEID_FLOAT,         GETTER,       MAPDATANEXTMAP,             1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setCarryoverMap",                ZVARTYPEID_VOID,          SETTER,       MAPDATANEXTMAP,             1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getCarryoverScreen",             ZVARTYPEID_FLOAT,         GETTER,       MAPDATANEXTSCREEN,          1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setCarryoverSreen",              ZVARTYPEID_VOID,          SETTER,       MAPDATANEXTSCREEN,          1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getSecretCombo[]",               ZVARTYPEID_FLOAT,         GETTER,       MAPDATASECRETCOMBO,         128,           0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSecretCombo[]",               ZVARTYPEID_VOID,          SETTER,       MAPDATASECRETCOMBO,         128,           0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getSecretCSet[]",                ZVARTYPEID_FLOAT,         GETTER,       MAPDATASECRETCSET,          128,           0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSecretCSet[]",                ZVARTYPEID_VOID,          SETTER,       MAPDATASECRETCSET,          128,           0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getSecretFlags[]",               ZVARTYPEID_FLOAT,         GETTER,       MAPDATASECRETFLAG,          128,           0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSecretFlags[]",               ZVARTYPEID_VOID,          SETTER,       MAPDATASECRETFLAG,          128,           0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getViewX",                       ZVARTYPEID_FLOAT,         GETTER,       MAPDATAVIEWX,               1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setViewX",                       ZVARTYPEID_VOID,          SETTER,       MAPDATAVIEWX,               1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getViewY",                       ZVARTYPEID_FLOAT,         GETTER,       MAPDATAVIEWY,               1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setViewY",                       ZVARTYPEID_VOID,          SETTER,       MAPDATAVIEWY,               1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getWidth",                       ZVARTYPEID_FLOAT,         GETTER,       MAPDATASCREENWIDTH,         1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setWidth",                       ZVARTYPEID_VOID,          SETTER,       MAPDATASCREENWIDTH,         1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getHeight",                      ZVARTYPEID_FLOAT,         GETTER,       MAPDATASCREENHEIGHT,        1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setHeight",                      ZVARTYPEID_VOID,          SETTER,       MAPDATASCREENHEIGHT,        1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getEntryX",                      ZVARTYPEID_FLOAT,         GETTER,       MAPDATAENTRYX,              1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setEntryX",                      ZVARTYPEID_VOID,          SETTER,       MAPDATAENTRYX,              1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getEntryY",                      ZVARTYPEID_FLOAT,         GETTER,       MAPDATAENTRYY,              1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setEntryY",                      ZVARTYPEID_VOID,          SETTER,       MAPDATAENTRYY,              1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getNumFFCs[]",                   ZVARTYPEID_BOOL,          GETTER,       MAPDATANUMFF,              33,            0,                                    1,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	//read-only, for now?
 	 { "setNumFFCs[]",                   ZVARTYPEID_VOID,          SETTER,       MAPDATANUMFF,              33,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getFFCData[]",                   ZVARTYPEID_FLOAT,         GETTER,       MAPDATAFFDATA,              33,            0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFFCData[]",                   ZVARTYPEID_VOID,          SETTER,       MAPDATAFFDATA,              33,            0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getFFCCSet[]",                   ZVARTYPEID_FLOAT,         GETTER,       MAPDATAFFCSET,              33,            0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFFCCSet[]",                   ZVARTYPEID_VOID,          SETTER,       MAPDATAFFCSET,              33,            0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getFFCDelay[]",                  ZVARTYPEID_FLOAT,         GETTER,       MAPDATAFFDELAY,             33,            0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFFCDelay[]",                  ZVARTYPEID_VOID,          SETTER,       MAPDATAFFDELAY,             33,            0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getFFCX[]",                      ZVARTYPEID_FLOAT,         GETTER,       MAPDATAFFX,                 33,            0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFFCX[]",                      ZVARTYPEID_VOID,          SETTER,       MAPDATAFFX,                 33,            0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getFFCY[]",                      ZVARTYPEID_FLOAT,         GETTER,       MAPDATAFFY,                 33,            0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFFCY[]",                      ZVARTYPEID_VOID,          SETTER,       MAPDATAFFY,                 33,            0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getFFCVx[]",                     ZVARTYPEID_FLOAT,         GETTER,       MAPDATAFFXDELTA,            33,            0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFFCVx[]",                     ZVARTYPEID_VOID,          SETTER,       MAPDATAFFXDELTA,            33,            0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getFFCVy[]",                     ZVARTYPEID_FLOAT,         GETTER,       MAPDATAFFYDELTA,            33,            0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFFCVy[]",                     ZVARTYPEID_VOID,          SETTER,       MAPDATAFFYDELTA,            33,            0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getFFCAx[]",                     ZVARTYPEID_FLOAT,         GETTER,       MAPDATAFFXDELTA2,           33,            0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFFCAx[]",                     ZVARTYPEID_VOID,          SETTER,       MAPDATAFFXDELTA2,           33,            0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getFFCAy[]",                     ZVARTYPEID_FLOAT,         GETTER,       MAPDATAFFYDELTA2,           33,            0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFFCAy[]",                     ZVARTYPEID_VOID,          SETTER,       MAPDATAFFYDELTA2,           33,            0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getFFCFlags[]",                  ZVARTYPEID_FLOAT,         GETTER,       MAPDATAFFFLAGS,             33,            0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFFCFlags[]",                  ZVARTYPEID_VOID,          SETTER,       MAPDATAFFFLAGS,             33,            0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getFFCEffectWidth[]",            ZVARTYPEID_FLOAT,         GETTER,       MAPDATAFFEFFECTWIDTH,       33,            0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFFCEffectWidth[]",            ZVARTYPEID_VOID,          SETTER,       MAPDATAFFEFFECTWIDTH,       33,            0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getFFCEffectHeight[]",           ZVARTYPEID_FLOAT,         GETTER,       MAPDATAFFEFFECTHEIGHT,      33,            0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFFCEffectHeight[]",           ZVARTYPEID_VOID,          SETTER,       MAPDATAFFEFFECTHEIGHT,      33,            0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getFFCTileWidth[]",              ZVARTYPEID_FLOAT,         GETTER,       MAPDATAFFWIDTH,             33,            0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFFCTileWidth[]",              ZVARTYPEID_VOID,          SETTER,       MAPDATAFFWIDTH,             33,            0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getFFCTileHeight[]",             ZVARTYPEID_FLOAT,         GETTER,       MAPDATAFFHEIGHT,            33,            0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFFCTileHeight[]",             ZVARTYPEID_VOID,          SETTER,       MAPDATAFFHEIGHT,            33,            0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getFFCLink[]",                   ZVARTYPEID_FLOAT,         GETTER,       MAPDATAFFLINK,              33,            0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFFCLink[]",                   ZVARTYPEID_VOID,          SETTER,       MAPDATAFFLINK,              33,            0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getFFCScript[]",                 ZVARTYPEID_FLOAT,         GETTER,       MAPDATAFFSCRIPT,            33,            0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFFCScript[]",                 ZVARTYPEID_VOID,          SETTER,       MAPDATAFFSCRIPT,            33,            0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getFFCRunning[]",                ZVARTYPEID_BOOL,          GETTER,       MAPDATAFFINITIALISED,       33,            0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setFFCRunning[]",                ZVARTYPEID_VOID,          SETTER,       MAPDATAFFINITIALISED,       33,            0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getScriptEntry",                 ZVARTYPEID_FLOAT,         GETTER,       MAPDATASCRIPTENTRY,         1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setScriptEntry",                 ZVARTYPEID_VOID,          SETTER,       MAPDATASCRIPTENTRY,         1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getScriptOccupancy",             ZVARTYPEID_FLOAT,         GETTER,       MAPDATASCRIPTOCCUPANCY,     1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setScriptOccupancy",             ZVARTYPEID_VOID,          SETTER,       MAPDATASCRIPTOCCUPANCY,     1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getExitScript",                  ZVARTYPEID_FLOAT,         GETTER,       MAPDATASCRIPTEXIT,          1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setExitScript",                  ZVARTYPEID_VOID,          SETTER,       MAPDATASCRIPTEXIT,          1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	 { "getOceanSFX",                    ZVARTYPEID_FLOAT,         GETTER,       MAPDATAOCEANSFX,            1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setOceanSFX",                    ZVARTYPEID_VOID,          SETTER,       MAPDATAOCEANSFX,            1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getAmbientSFX",                  ZVARTYPEID_FLOAT,         GETTER,       MAPDATAOCEANSFX,            1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setAmbientSFX",                  ZVARTYPEID_VOID,          SETTER,       MAPDATAOCEANSFX,            1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getBossSFX",                     ZVARTYPEID_FLOAT,         GETTER,       MAPDATABOSSSFX,             1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setBossSFX",                     ZVARTYPEID_VOID,          SETTER,       MAPDATABOSSSFX,             1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getSecretSFX",                   ZVARTYPEID_FLOAT,         GETTER,       MAPDATASECRETSFX,           1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSecretSFX",                   ZVARTYPEID_VOID,          SETTER,       MAPDATASECRETSFX,           1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getItemSFX",                     ZVARTYPEID_FLOAT,         GETTER,       MAPDATAHOLDUPSFX,           1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setItemSFX",                     ZVARTYPEID_VOID,          SETTER,       MAPDATAHOLDUPSFX,           1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getMIDI",                        ZVARTYPEID_FLOAT,         GETTER,       MAPDATASCREENMIDI,          1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setMIDI",                        ZVARTYPEID_VOID,          SETTER,       MAPDATASCREENMIDI,          1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getLensLayer",                   ZVARTYPEID_FLOAT,         GETTER,       MAPDATALENSLAYER,           1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setLensLayer",                   ZVARTYPEID_VOID,          SETTER,       MAPDATALENSLAYER,           1,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getFlags[]",                     ZVARTYPEID_FLOAT,         GETTER,       MAPDATAFLAGS,               10,            0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFlags[]",                     ZVARTYPEID_VOID,          SETTER,       MAPDATAFLAGS,               10,            0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 //	array of 11
@@ -8792,21 +8420,17 @@ static AccessorTable MapDataTable[] =
 	{ "getEFlags[]",                    ZVARTYPEID_FLOAT,         GETTER,       MAPDATASCREENEFLAGSD,       3,             0,                                    2,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 //	This is read-only, but it was not previously blocked! -Z
 //	{ "setEFlags[]",                    ZVARTYPEID_VOID,          SETTER,       MAPDATASCREENEFLAGSD,       3,             0,                                    3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 //	Functions
 
 	{ "GetFFCInitD",                    ZVARTYPEID_UNTYPED,       FUNCTION,     0,                          1,             FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SetFFCInitD",                    ZVARTYPEID_VOID,          FUNCTION,     0,                          1,             0,                                    4,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "GetFFCInitA",                    ZVARTYPEID_FLOAT,         FUNCTION,     0,                          1,             FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SetFFCInitA",                    ZVARTYPEID_FLOAT,         FUNCTION,     0,                          1,             0,                                    4,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getMap",                         ZVARTYPEID_FLOAT,         GETTER,       MAPDATAMAP,                 1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setMap",                         ZVARTYPEID_FLOAT,         SETTER,       MAPDATAMAP,                 1,             0,                                    1,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getScreen",                      ZVARTYPEID_FLOAT,         GETTER,       MAPDATASCREEN,              1,             0,                                    1,           { ZVARTYPEID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setScreen",                      ZVARTYPEID_FLOAT,         SETTER,       MAPDATASCREEN,              1,             0,                                    1,           { ZVARTYPEID_MAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 //	Get/SetFFCMiscD
-	
 	{ "",                               -1,                       -1,           -1,                         -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -8833,7 +8457,6 @@ void MapDataSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	
 	//bool isSolidLayer(screen, int32_t, int32_t, int32_t)
 	{
 		Function* function = getFunction("isSolidLayer", 4);
@@ -8865,9 +8488,7 @@ void MapDataSymbols::generateCode()
 		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(MAPDATAINTID)));
 		RETURN();
 		function->giveCode(code);
-	
 	}
-    
 	//void SetFFCInitD(mapsc, int32_t,int32_t,int32_t,int32_t)
 	{
 		Function* function = getFunction("SetFFCInitD", 4);
@@ -8884,8 +8505,6 @@ void MapDataSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-    
-    
 	//int32_t GetFFCInitA(mapscr, int32_t,int32_t,int32_t)
 	{
 		Function* function = getFunction("GetFFCInitA", 3);
@@ -8900,9 +8519,7 @@ void MapDataSymbols::generateCode()
 		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(MAPDATAINITA)));
 		RETURN();
 		function->giveCode(code);
-	
 	}
-    
 	//void SetFFCInitA(mapsc, int32_t,int32_t,int32_t,int32_t)
 	{
 		Function* function = getFunction("SetFFCInitA", 4);
@@ -8951,12 +8568,10 @@ static AccessorTable InputTable[] =
 	{ "setKeyBindings[]",       ZVARTYPEID_VOID,          SETTER,       KEYBINDINGS,      14,            0,                                    3,           { ZVARTYPEID_INPUT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getModifierKeys",        ZVARTYPEID_FLOAT,         GETTER,       KEYMODIFIERS,     1,             0,                                    1,           { ZVARTYPEID_INPUT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setModifierKeys",        ZVARTYPEID_VOID,          SETTER,       KEYMODIFIERS,     1,             0,                                    2,           { ZVARTYPEID_INPUT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getDisableKey[]",        ZVARTYPEID_BOOL,          GETTER,       DISABLEKEY,       127,           0,                                    2,           { ZVARTYPEID_INPUT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setDisableKey[]",        ZVARTYPEID_VOID,          SETTER,       DISABLEKEY,       127,           0,                                    3,           { ZVARTYPEID_INPUT, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getDisableButton[]",     ZVARTYPEID_BOOL,          GETTER,       DISABLEBUTTON,    18,            0,                                    2,           { ZVARTYPEID_INPUT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setDisableButton[]",     ZVARTYPEID_VOID,          SETTER,       DISABLEBUTTON,    18,            0,                                    3,           { ZVARTYPEID_INPUT, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -9016,7 +8631,6 @@ void GraphicsSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	
 	//int32_t GetPixel(graphics,bitmap,int32_t,int32_t)
 	{
 		Function* function = getFunction("GetPixel", 4);
@@ -9085,7 +8699,6 @@ void GraphicsSymbols::generateCode()
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
 		//pop pointer, and ignore it
 		POPREF();
-		
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9102,11 +8715,9 @@ void GraphicsSymbols::generateCode()
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
 		//pop pointer, and ignore it
 		POPREF();
-		
 		RETURN();
 		function->giveCode(code);
 	}
-	
 	//void ClearTint()
 	{
 		 Function* function = getFunction("ClearTint", 1);
@@ -9251,7 +8862,6 @@ static AccessorTable BitmapTable[] =
 	{ "Own",                    ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_BITMAP, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "DrawFrame",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                     10,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "WriteTile",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      7,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "Dither",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      6,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_UNTYPED, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "ReplaceColors",          ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      5,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "ShiftColors",            ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      5,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -9261,7 +8871,6 @@ static AccessorTable BitmapTable[] =
 	{ "MaskedBlit",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      5,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_BITMAP, ZVARTYPEID_BITMAP, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "MaskedBlit",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      6,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_BITMAP, ZVARTYPEID_BITMAP, ZVARTYPEID_BOOL, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "MaskedBlit",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      7,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_BITMAP, ZVARTYPEID_BITMAP, ZVARTYPEID_BOOL, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
@@ -9329,7 +8938,6 @@ void BitmapSymbols::generateCode()
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
 		RETURN();
-        
 		function->giveCode(code);
 	}
 	//void DrawFrame(bitmap, float, float, float, float, float, float, float, bool, float)
@@ -9343,13 +8951,11 @@ void BitmapSymbols::generateCode()
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
 		RETURN();
-        
 		function->giveCode(code);
 	}
 	//void Read(bitmap, layer, "filename")
 	{
 		Function* function = getFunction("Read", 3);
-		
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OReadBitmap());
@@ -9365,7 +8971,6 @@ void BitmapSymbols::generateCode()
 	//void Clear(bitmap, layer)
 	{
 		Function* function = getFunction("Clear", 2);
-		
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OClearBitmap());
@@ -9373,7 +8978,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(1, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-		
 		RETURN();
 		function->giveCode(code);
 
@@ -9381,7 +8985,6 @@ void BitmapSymbols::generateCode()
 	//void Create(bitmap, layer, int32_t h, int32_t w)
 	{
 		Function* function = getFunction("Create", 4);
-		
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new ORegenerateBitmap());
@@ -9390,7 +8993,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(3, NUL);
 		//pop pointer, and ignore it
 		POPREF();
-		
 		RETURN();
 		function->giveCode(code);
 
@@ -9406,7 +9008,6 @@ void BitmapSymbols::generateCode()
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
 		RETURN();
-        
 		function->giveCode(code);
 	}
 	//void Circle(bitmap, float, float, float, float, float, float, float, float, float, bool, float)
@@ -9419,7 +9020,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(11, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9433,7 +9033,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(14, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9447,7 +9046,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(12, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9461,7 +9059,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(11, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9475,7 +9072,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(11, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9489,7 +9085,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(8, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9503,7 +9098,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(10, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9517,7 +9111,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(11, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9531,7 +9124,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(15, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9545,7 +9137,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(7, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9559,7 +9150,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(16, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9573,7 +9163,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(7, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9587,12 +9176,10 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(16, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
 	//void Polygon(bitmap, float, float, float, float, float)
-	
 	{
 		Function* function = getFunction("Polygon", 6);
 		int32_t label = function->getLabel();
@@ -9602,11 +9189,9 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(5, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
-    
 	//void Triangle(bitmap, float, float, float, float, float, float, float, float, float, bitmap)
 	{
 		Function* function = getFunction("Triangle", 15);
@@ -9617,11 +9202,9 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(14, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
-    
 	//void Quad3D(bitmap, float, float, float, float, float, float, float, float, float, bitmap)
 	{
 		Function* function = getFunction("Quad3D", 10);
@@ -9632,7 +9215,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(9, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9646,11 +9228,9 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(9, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
-    
 	//void FastTile(bitmap, float, float, float, float, float)
 	{
 		Function* function = getFunction("FastTile", 7);
@@ -9661,7 +9241,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(6, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9675,7 +9254,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(6, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9689,7 +9267,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(9, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9703,7 +9280,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(11, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9717,7 +9293,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(8, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9731,7 +9306,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(8, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9745,7 +9319,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(8, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9759,7 +9332,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(8, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9773,11 +9345,9 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(8, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
-	
 	//void DrawLayerSolidity(bitmap, float, float, float, float, float, float, float, float)
 	{
 		Function* function = getFunction("DrawLayerSolidity", 9);
@@ -9788,7 +9358,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(8, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9802,11 +9371,9 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(6, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
-	
 	//void DrawScreenSolidity(bitmap, float, float, float, float, float, float)
 	{
 		Function* function = getFunction("DrawScreenSolidity", 7);
@@ -9817,11 +9384,9 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(6, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
-	
 	//void DrawScreenSolid(bitmap, float, float, float, float, float, float)
 	{
 		Function* function = getFunction("DrawScreenSolid", 7);
@@ -9832,7 +9397,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(6, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9846,7 +9410,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(6, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9860,7 +9423,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(6, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9874,12 +9436,9 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(6, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
-	
-    
 	//void DrawBitmapEx(bitmap, float, float, float, float, float, float, float, float, float, float, bool)
 	{
 		Function* function = getFunction("Blit", 17);
@@ -9890,7 +9449,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(16, NUL);
 		//pop pointer, and ignore it
 		POPREF();
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9904,7 +9462,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(13, NUL);
 		//pop pointer, and ignore it
 		POPREF();
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9918,7 +9475,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(16, NUL);
 		//pop pointer, and ignore it
 		POPREF();
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9932,7 +9488,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(16, NUL);
 		//pop pointer, and ignore it
 		POPREF();
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -9972,7 +9527,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(2, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-		
 		RETURN();
 		function->giveCode(code);
 
@@ -10003,7 +9557,6 @@ void BitmapSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	
 	//void WriteTile(bitmap, int32_t, int32_t, int32_t, int32_t, bool, bool)
 	{
 		Function* function = getFunction("WriteTile", 7);
@@ -10014,11 +9567,9 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(6, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
-	
 	//void Dither(bitmap, int32_t, int32_t, int32_t, int32_t, int32_t)
 	{
 		Function* function = getFunction("Dither", 6);
@@ -10029,11 +9580,9 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(5, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
-	
 	//void ReplaceColors(bitmap, int32_t, int32_t, int32_t, int32_t)
 	{
 		Function* function = getFunction("ReplaceColors", 5);
@@ -10044,11 +9593,9 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(4, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
-	
 	//void ShiftColors(bitmap, int32_t, int32_t, int32_t, int32_t)
 	{
 		Function* function = getFunction("ShiftColors", 5);
@@ -10059,11 +9606,9 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(4, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
-	
 	//void MaskedDraw(bitmap, int32_t, bitmap, int32_t)
 	{
 		Function* function = getFunction("MaskedDraw", 4);
@@ -10074,7 +9619,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(3, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -10088,7 +9632,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(4, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -10102,7 +9645,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(5, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -10116,7 +9658,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(4, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -10130,7 +9671,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(5, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -10144,7 +9684,6 @@ void BitmapSymbols::generateCode()
 		POP_ARGS(6, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        
 		RETURN();
 		function->giveCode(code);
 	}
@@ -10156,23 +9695,21 @@ static AccessorTable SpriteDataTable[] =
 {
 //	All of these return a function label error when used:
 //	  name,                     rettype,                  setorget,     var,                  numindex,      params
-/*	
+/*
 	{ "GetTile",                ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             0,                                    2,           { ZVARTYPEID_SPRITEDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "GetMisc",                ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             0,                                    2,           { ZVARTYPEID_SPRITEDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "GetCSets",               ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             0,                                    2,           { ZVARTYPEID_SPRITEDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "GetFrames",              ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             0,                                    2,           { ZVARTYPEID_SPRITEDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "GetSpeed",               ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             0,                                    2,           { ZVARTYPEID_SPRITEDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "GetType",                ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             0,                                    2,           { ZVARTYPEID_SPRITEDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "SetTile",                ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    3,           { ZVARTYPEID_SPRITEDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SetMisc",                ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    3,           { ZVARTYPEID_SPRITEDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SetCSets",               ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    3,           { ZVARTYPEID_SPRITEDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SetFrames",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    3,           { ZVARTYPEID_SPRITEDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SetSpeed",               ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    3,           { ZVARTYPEID_SPRITEDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SetType",                ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    3,           { ZVARTYPEID_SPRITEDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-*/	
+*/
 //	Datatype variables spritedata sd->Var;
-	
 	{ "getTile",                ZVARTYPEID_FLOAT,         GETTER,       SPRITEDATATILE,       1,             0,                                    1,           { ZVARTYPEID_SPRITEDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setTile",                ZVARTYPEID_VOID,          SETTER,       SPRITEDATATILE,       1,             0,                                    2,           { ZVARTYPEID_SPRITEDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getMisc",                ZVARTYPEID_FLOAT,         GETTER,       SPRITEDATAMISC,       1,             0,                                    1,           { ZVARTYPEID_SPRITEDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -10185,14 +9722,13 @@ static AccessorTable SpriteDataTable[] =
 	{ "setSpeed",               ZVARTYPEID_VOID,          SETTER,       SPRITEDATASPEED,      1,             0,                                    2,           { ZVARTYPEID_SPRITEDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getType",                ZVARTYPEID_FLOAT,         GETTER,       SPRITEDATATYPE,       1,             0,                                    1,           { ZVARTYPEID_SPRITEDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setType",                ZVARTYPEID_VOID,          SETTER,       SPRITEDATATYPE,       1,             0,                                    2,           { ZVARTYPEID_SPRITEDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
 SpriteDataSymbols::SpriteDataSymbols()
 {
     table = SpriteDataTable;
-    refVar = REFSPRITEDATA; //NUL;// 
+    refVar = REFSPRITEDATA; //NUL;//
 }
 
 void SpriteDataSymbols::generateCode()
@@ -10386,7 +9922,6 @@ CombosPtrSymbols CombosPtrSymbols::singleton = CombosPtrSymbols();
 static AccessorTable CombosTable[] =
 {
 //	  name,                       rettype,                  setorget,     var,                          numindex,      funcFlags,                            numParams,   params
-	
 //	newcombo struct
 	{ "PosX",                     ZVARTYPEID_FLOAT,         GETTER,       COMBOXR,                      1,             0,                                    1,           { ZVARTYPEID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getX",                     ZVARTYPEID_FLOAT,         GETTER,       COMBOXR,                      1,             0,                                    1,           { ZVARTYPEID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -10525,9 +10060,6 @@ static AccessorTable CombosTable[] =
 	{ "setLiftHeight",            ZVARTYPEID_VOID,          SETTER,       COMBODLIFTHEIGHT,             1,             0,                                    2,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getLiftTime",              ZVARTYPEID_FLOAT,         GETTER,       COMBODLIFTTIME,               1,             0,                                    1,           { ZVARTYPEID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setLiftTime",              ZVARTYPEID_VOID,          SETTER,       COMBODLIFTTIME,               1,             0,                                    2,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	
-	
 //	comboclass struct
 //	"Name" -> Needs to be a function, GetName(int32_t string[])
 	{ "getBlockNPC",              ZVARTYPEID_FLOAT,         GETTER,       COMBODBLOCKNPC,               1,             0,                                    1,           { ZVARTYPEID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -10654,12 +10186,9 @@ static AccessorTable CombosTable[] =
 	{ "setWinGame",               ZVARTYPEID_VOID,          SETTER,       COMBODWINGAME,                1,             0,                                    2,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getBlockWeaponLevel",      ZVARTYPEID_FLOAT,         GETTER,       COMBODBLOCKWPNLEVEL,          1,             0,                                    1,           { ZVARTYPEID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setBlockWeaponLevel",      ZVARTYPEID_VOID,          SETTER,       COMBODBLOCKWPNLEVEL,          1,             0,                                    2,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 //	Functions
 //	{ "GetName",                  ZVARTYPEID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 //	{ "SetName",                  ZVARTYPEID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	
 //	one input, one return
 	{ "GetBlockEnemies",          ZVARTYPEID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "GetBlockHole",             ZVARTYPEID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -10736,12 +10265,10 @@ static AccessorTable CombosTable[] =
 	{ "GetNextTimer",             ZVARTYPEID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "GetSkipAnimY",             ZVARTYPEID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "GetAnimFlags",             ZVARTYPEID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 //	two inputs, one return
 	{ "GetBlockWeapon",           ZVARTYPEID_FLOAT,         FUNCTION,     0,                            1,             0,                                    3,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "GetExpansion",             ZVARTYPEID_FLOAT,         FUNCTION,     0,                            1,             0,                                    3,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "GetStrikeWeapons",         ZVARTYPEID_FLOAT,         FUNCTION,     0,                            1,             0,                                    3,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 //	two inputs, no return
 	{ "SetBlockEnemies",          ZVARTYPEID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SetBlockHole",             ZVARTYPEID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -10818,13 +10345,10 @@ static AccessorTable CombosTable[] =
 	{ "SetNextTimer",             ZVARTYPEID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SetSkipAnimY",             ZVARTYPEID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SetAnimFlags",             ZVARTYPEID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 //	three inputs, no return
 	{ "SetBlockWeapon",           ZVARTYPEID_VOID,          FUNCTION,     0,                            1,             0,                                    4,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "GetExpansion",             ZVARTYPEID_VOID,          FUNCTION,     0,                            1,             0,                                    4,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SetStrikeWeapons",         ZVARTYPEID_VOID,          FUNCTION,     0,                            1,             0,                                    4,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	
 	{ "",                         -1,                       -1,           -1,                           -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -11061,7 +10585,6 @@ void CombosPtrSymbols::generateCode()
     {
         ONE_INPUT_ONE_RETURN("GetAnimFlags",OCDataAnimFlags);
     }
-    
     {
         TWO_INPUT_NO_RETURN("SetBlockEnemies",OCSetDataBlockEnemy);
     }
@@ -11287,7 +10810,6 @@ void CombosPtrSymbols::generateCode()
     {
         TWO_INPUT_NO_RETURN("SetAnimFlags",OCSetDataAnimFlags);
     }
-    
     {
         TWO_INPUT_ONE_RETURN("GetBlockWeapon",OCDataBlockWeapon);
     }
@@ -11325,7 +10847,6 @@ static AccessorTable AudioTable[] =
 	{ "AdjustSound",          ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    4,           { ZVARTYPEID_AUDIO, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "PauseCurMIDI",         ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_AUDIO, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "ResumeCurMIDI",        ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_AUDIO, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "PlayMIDI",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_AUDIO, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "PlayEnhancedMusic",    ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_AUDIO, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "PlayOgg",              ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_AUDIO, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -11333,12 +10854,10 @@ static AccessorTable AudioTable[] =
 	 { "SetOggPos",            ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_AUDIO, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "SetOggSpeed",          ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_AUDIO, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 
-	
 	 { "getVolume[]",          ZVARTYPEID_FLOAT,         GETTER,       AUDIOVOLUME,          4,             0,                                    2,           { ZVARTYPEID_AUDIO, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "setVolume[]",          ZVARTYPEID_VOID,          SETTER,       AUDIOVOLUME,          4,             0,                                    3,           { ZVARTYPEID_AUDIO, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getPanStyle",          ZVARTYPEID_FLOAT,         GETTER,       AUDIOPAN,             1,             0,                                    1,           { ZVARTYPEID_AUDIO, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setPanStyle",          ZVARTYPEID_VOID,          SETTER,       AUDIOPAN,             1,             0,                                    2,           { ZVARTYPEID_AUDIO, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                     -1,                       -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -11378,7 +10897,6 @@ void AudioSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //void AdjustSound(game, int32_t,int32_t,bool)
     {
         Function* function = getFunction("AdjustSound", 4);
@@ -11409,7 +10927,6 @@ void AudioSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //void EndSound(game, int32_t)
     {
         Function* function = getFunction("EndSound", 2);
@@ -11424,7 +10941,6 @@ void AudioSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //void PauseSound(game, int32_t)
     {
         Function* function = getFunction("PauseSound", 2);
@@ -11439,7 +10955,6 @@ void AudioSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //void ContinueSound(game, int32_t)
     {
         Function* function = getFunction("ContinueSound", 2);
@@ -11454,7 +10969,6 @@ void AudioSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //void ResumeSound(game, int32_t)
     {
         Function* function = getFunction("ResumeSound", 2);
@@ -11469,7 +10983,6 @@ void AudioSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //void PauseCurMIDI(game)
     {
         Function* function = getFunction("PauseCurMIDI", 1);
@@ -11482,7 +10995,6 @@ void AudioSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //void ResumeCurMIDI(game)
     {
         Function* function = getFunction("ResumeCurMIDI", 1);
@@ -11606,9 +11118,8 @@ static AccessorTable DebugTable[] =
 	{ "setSP",                   ZVARTYPEID_FLOAT,         SETTER,       DEBUGSP,              1,             0,                                    1,           { ZVARTYPEID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getGDR[]",                ZVARTYPEID_FLOAT,         GETTER,       DEBUGGDR,             256,           0,                                    2,           { ZVARTYPEID_DEBUG, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setGDR[]",                ZVARTYPEID_VOID,          SETTER,       DEBUGGDR,             256,           0,                                    3,           { ZVARTYPEID_DEBUG, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-//	These all work, but may not be permitted by the rest of the dev team. 
-//	At least they are now in a pointer class that denotes that they can be dangerous. 
+//	These all work, but may not be permitted by the rest of the dev team.
+//	At least they are now in a pointer class that denotes that they can be dangerous.
 	{ "GetBoolPointer",          ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             0,                                    2,           { ZVARTYPEID_DEBUG, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SetBoolPointer",          ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,             0,                                    2,           { ZVARTYPEID_DEBUG, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "GetNPCPointer",           ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             0,                                    2,           { ZVARTYPEID_DEBUG, ZVARTYPEID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -11623,11 +11134,9 @@ static AccessorTable DebugTable[] =
 	{ "SetItemPointer",          ZVARTYPEID_ITEM,          FUNCTION,     0,                    1,             0,                                    2,           { ZVARTYPEID_DEBUG, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "GetItemdataPointer",      ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             0,                                    2,           { ZVARTYPEID_DEBUG, ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SetItemdataPointer",      ZVARTYPEID_ITEMCLASS,     FUNCTION,     0,                    1,             0,                                    2,           { ZVARTYPEID_DEBUG, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getPlayfieldOffset",      ZVARTYPEID_FLOAT,         GETTER,       GAMEPLAYFIELDOFS,     1,             0,                                    1,           { ZVARTYPEID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "TriggerSecret",           ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    2,           { ZVARTYPEID_DEBUG, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "ChangeFFCScript",         ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    2,           { ZVARTYPEID_DEBUG, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getD[]",                     ZVARTYPEID_FLOAT,         GETTER,       DEBUGD,               256,           0,                                    2,           { ZVARTYPEID_DEBUG, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setD[]",                     ZVARTYPEID_FLOAT,         SETTER,       DEBUGD,               256,           0,                                    3,           { ZVARTYPEID_DEBUG, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "NULL",                    ZVARTYPEID_UNTYPED,       GETTER,       DONULL,               1,             0,                                    1,           { ZVARTYPEID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -11636,7 +11145,6 @@ static AccessorTable DebugTable[] =
 	{ "getNull",                 ZVARTYPEID_UNTYPED,       GETTER,       DONULL,               1,             0,                                    1,           { ZVARTYPEID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Breakpoint",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_DEBUG, ZVARTYPEID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getTesting",              ZVARTYPEID_BOOL,          GETTER,       DEBUGTESTING,         1,             0,                                    1,           { ZVARTYPEID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                        -1,                       -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -11661,7 +11169,6 @@ void DebugSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //int32_t SetPointer(itemclass, float)
     {
         Function* function = getFunction("SetItemdataPointer", 2);
@@ -11688,7 +11195,6 @@ void DebugSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //int32_t SetPointer(item, float)
     {
         Function* function = getFunction("SetItemPointer", 2);
@@ -11701,7 +11207,7 @@ void DebugSymbols::generateCode()
         addOpcode2 (code, new OSetItemPointer(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
-    }    
+    }
     //int32_t GetPointer(ffc, ffc)
     {
         Function* function = getFunction("GetFFCPointer", 2);
@@ -11715,7 +11221,6 @@ void DebugSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //int32_t SetPointer(ffc, float)
     {
         Function* function = getFunction("SetFFCPointer", 2);
@@ -11742,7 +11247,6 @@ void DebugSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //int32_t SetPointer(eweapon, float)
     {
         Function* function = getFunction("SetEWeaponPointer", 2);
@@ -11769,7 +11273,6 @@ void DebugSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //int32_t SetPointer(lweapon, float)
     {
         Function* function = getFunction("SetLWeaponPointer", 2);
@@ -11796,7 +11299,6 @@ void DebugSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //int32_t SetPointer(npc, float)
     {
         Function* function = getFunction("SetNPCPointer", 2);
@@ -11823,7 +11325,6 @@ void DebugSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
     //int32_t SetPointer(game, float)
     {
         Function* function = getFunction("SetBoolPointer", 2);
@@ -11837,8 +11338,6 @@ void DebugSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
-    
     //void TriggerSecret(game, int32_t)
     {
         Function* function = getFunction("TriggerSecret", 2);
@@ -11853,7 +11352,6 @@ void DebugSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
 	//void Breakpoint(debug, char)
 	{
 	    Function* function = getFunction("Breakpoint", 2);
@@ -11977,23 +11475,19 @@ static AccessorTable NPCDataTable[] =
 	{ "setScript",                ZVARTYPEID_VOID,         SETTER,       NPCDATASCRIPT,        1,             0,                                    2,           { ZVARTYPEID_NPCDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getInitD[]",               ZVARTYPEID_FLOAT,        GETTER,       NPCDATAINITD,         8,             0,                                    2,           { ZVARTYPEID_NPCDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setInitD[]",               ZVARTYPEID_VOID,         SETTER,       NPCDATAINITD,         8,             0,                                    3,           { ZVARTYPEID_NPCDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getWeaponScript",          ZVARTYPEID_FLOAT,        GETTER,       NPCDATAWEAPONSCRIPT,  1,             0,                                    1,           { ZVARTYPEID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWeaponScript",          ZVARTYPEID_VOID,         SETTER,       NPCDATAWEAPONSCRIPT,  1,             0,                                    2,           { ZVARTYPEID_NPCDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getWeaponInitD[]",         ZVARTYPEID_FLOAT,        GETTER,       NPCDATAWEAPONINITD,   8,             0,                                    2,           { ZVARTYPEID_NPCDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setWeaponInitD[]",         ZVARTYPEID_VOID,         SETTER,       NPCDATAWEAPONINITD,   8,             0,                                    3,           { ZVARTYPEID_NPCDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getShadowSprite",        ZVARTYPEID_FLOAT,         GETTER,       NPCDSHADOWSPR,         1,           0,                                    1,           { ZVARTYPEID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setShadowSprite",        ZVARTYPEID_VOID,          SETTER,       NPCDSHADOWSPR,         1,           0,                                    2,           { ZVARTYPEID_NPCDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getSpawnSprite",         ZVARTYPEID_FLOAT,         GETTER,       NPCDSPAWNSPR,          1,           0,                                    1,           { ZVARTYPEID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSpawnSprite",         ZVARTYPEID_VOID,          SETTER,       NPCDSPAWNSPR,          1,           0,                                    2,           { ZVARTYPEID_NPCDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getDeathSprite",         ZVARTYPEID_FLOAT,         GETTER,       NPCDDEATHSPR,          1,           0,                                    1,           { ZVARTYPEID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setDeathSprite",         ZVARTYPEID_VOID,          SETTER,       NPCDDEATHSPR,          1,           0,                                    2,           { ZVARTYPEID_NPCDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "GetInitDLabel",            ZVARTYPEID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZVARTYPEID_NPCDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "MatchInitDLabel",          ZVARTYPEID_BOOL,         FUNCTION,     0,                    1,             0,                                    3,           { ZVARTYPEID_NPCDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "GetName",                  ZVARTYPEID_VOID,         FUNCTION,     0,                    1,             0,                                    2,           { ZVARTYPEID_NPCDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 //{	Functions
 //	one inout, no return
 	{ "GetTile",                  ZVARTYPEID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZVARTYPEID_NPCDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -12096,10 +11590,8 @@ static AccessorTable NPCDataTable[] =
 	Use functions that accept two args (ID, value) per field for setters
 	use functions that accept one arg (ID) per field as getters
 	Plus One master function to set all attriutes using an array?
-*/   
-	
+*/
 //}
-	
 	{ "",                         -1,                      -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -12113,7 +11605,6 @@ void NPCDataSymbols::generateCode()
 {
 	//GetTile(NPCData, int32_t)
     {
-	
         Function* function = getFunction("GetTile", 2);
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
@@ -12124,10 +11615,8 @@ void NPCDataSymbols::generateCode()
         addOpcode2 (code, new ONDataBaseTile(new VarArgument(EXP1),new VarArgument(EXP2)));
         RETURN();
         function->giveCode(code);
-    
 	//GET_GUYDATA_MEMBER("Tile", ONDataBaseTile);
     }
-    
     //void GetName(npcdata, int32_t)
 	{
 		Function* function = getFunction("GetName", 2);
@@ -12172,14 +11661,11 @@ void NPCDataSymbols::generateCode()
 		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(NPCMATCHINITDLABEL)));
 		RETURN();
 		function->giveCode(code);
-	
 	}
-    
     //GetEHeight(NPCData, int32_t)
      {
 	GET_GUYDATA_MEMBER("GetEHeight", ONDataEHeight);
      }
-	
 
 	//int32_t GetScriptDefense((NPCData, int32_t, int32_t)
     {
@@ -12241,10 +11727,7 @@ void NPCDataSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
-    
       //three inputs, no return
-    
       //void SetScriptDefense(NPCData, int32_t,int32_t,int32_t)
     {
         Function* function = getFunction("SetScriptDefense", 4);
@@ -12262,7 +11745,6 @@ void NPCDataSymbols::generateCode()
         function->giveCode(code);
     }
       //three inputs, no return
-    
       //void SetDefense(NPCData, int32_t,int32_t,int32_t)
     {
         Function* function = getFunction("SetDefense", 4);
@@ -12280,7 +11762,6 @@ void NPCDataSymbols::generateCode()
         function->giveCode(code);
     }
       //three inputs, no return
-    
       //void SetSizeFlag(NPCData, int32_t,int32_t,int32_t)
     {
         Function* function = getFunction("SetSizeFlag", 4);
@@ -12298,7 +11779,6 @@ void NPCDataSymbols::generateCode()
         function->giveCode(code);
     }
       //three inputs, no return
-    
       //void SetAttribute(NPCData, int32_t,int32_t,int32_t)
     {
         Function* function = getFunction("SetAttribute", 4);
@@ -12638,7 +12118,7 @@ void NPCDataSymbols::generateCode()
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
         LABELBACK(label);
         //pop pointer, and ignore it
-        POPREF(); 
+        POPREF();
         addOpcode2 (code, new ONDataDeathSound(new VarArgument(EXP1),new VarArgument(EXP2)));
         RETURN();
         function->giveCode(code);
@@ -13064,7 +12544,6 @@ static AccessorTable DMapDataTable[] =
 	{ "setMiniMapTile[]",       ZVARTYPEID_VOID,          SETTER,       DMAPDATAMINIMAPTILE,        2,             0,                                    3,           { ZVARTYPEID_DMAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getMiniMapCSet[]",       ZVARTYPEID_FLOAT,         GETTER,       DMAPDATAMINIMAPCSET,        2,             0,                                    2,           { ZVARTYPEID_DMAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setMiniMapCSet[]",       ZVARTYPEID_VOID,          SETTER,       DMAPDATAMINIMAPCSET,        2,             0,                                    3,           { ZVARTYPEID_DMAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getInitD[]",             ZVARTYPEID_FLOAT,         GETTER,       DMAPINITD,                  8,             0,                                    2,           { ZVARTYPEID_DMAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setInitD[]",             ZVARTYPEID_VOID,          SETTER,       DMAPINITD,                  8,             0,                                    3,           { ZVARTYPEID_DMAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getMapTile[]",           ZVARTYPEID_FLOAT,         GETTER,       DMAPDATALARGEMAPTILE,       2,             0,                                    2,           { ZVARTYPEID_DMAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -13077,23 +12556,20 @@ static AccessorTable DMapDataTable[] =
 	{ "setFlags",               ZVARTYPEID_VOID,          SETTER,       DMAPDATAFLAGS,              1,             0,                                    2,           { ZVARTYPEID_DMAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getFlagset[]",     ZVARTYPEID_FLOAT,         GETTER,       DMAPDATAFLAGARR,      32,           0,                                    2,           { ZVARTYPEID_DMAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFlagset[]",     ZVARTYPEID_VOID,          SETTER,       DMAPDATAFLAGARR,      32,           0,                                    3,           { ZVARTYPEID_DMAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getSideview",            ZVARTYPEID_BOOL,          GETTER,       DMAPDATASIDEVIEW,           1,             0,                                    1,           { ZVARTYPEID_DMAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSideview",            ZVARTYPEID_VOID,          SETTER,       DMAPDATASIDEVIEW,           1,             0,                                    2,           { ZVARTYPEID_DMAPDATA, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "getASubScript",          ZVARTYPEID_FLOAT,         GETTER,       DMAPDATAASUBSCRIPT,         1,             0,                                    1,           { ZVARTYPEID_DMAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getASubScript",          ZVARTYPEID_FLOAT,         GETTER,       DMAPDATAASUBSCRIPT,         1,             0,                                    1,           { ZVARTYPEID_DMAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setASubScript",          ZVARTYPEID_VOID,          SETTER,       DMAPDATAASUBSCRIPT,         1,             0,                                    2,           { ZVARTYPEID_DMAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getPSubScript",          ZVARTYPEID_FLOAT,         GETTER,       DMAPDATAPSUBSCRIPT,         1,             0,                                    1,           { ZVARTYPEID_DMAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getPSubScript",          ZVARTYPEID_FLOAT,         GETTER,       DMAPDATAPSUBSCRIPT,         1,             0,                                    1,           { ZVARTYPEID_DMAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setPSubScript",          ZVARTYPEID_VOID,          SETTER,       DMAPDATAPSUBSCRIPT,         1,             0,                                    2,           { ZVARTYPEID_DMAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getSubInitD[]",          ZVARTYPEID_UNTYPED,       GETTER,       DMAPDATASUBINITD,           8,             0,                                    2,           { ZVARTYPEID_DMAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSubInitD[]",          ZVARTYPEID_VOID,          SETTER,       DMAPDATASUBINITD,           8,             0,                                    3,           { ZVARTYPEID_DMAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMapScript",           ZVARTYPEID_FLOAT,         GETTER,       DMAPDATAMAPSCRIPT,          1,             0,                                    1,           { ZVARTYPEID_DMAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "getMapScript",           ZVARTYPEID_FLOAT,         GETTER,       DMAPDATAMAPSCRIPT,          1,             0,                                    1,           { ZVARTYPEID_DMAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setMapScript",           ZVARTYPEID_VOID,          SETTER,       DMAPDATAMAPSCRIPT,          1,             0,                                    2,           { ZVARTYPEID_DMAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getMapInitD[]",          ZVARTYPEID_UNTYPED,       GETTER,       DMAPDATAMAPINITD,           8,             0,                                    2,           { ZVARTYPEID_DMAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setMapInitD[]",          ZVARTYPEID_VOID,          SETTER,       DMAPDATAMAPINITD,           8,             0,                                    3,           { ZVARTYPEID_DMAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getCharted[]",           ZVARTYPEID_FLOAT,         GETTER,       DMAPDATACHARTED,            128,           0,                                    2,           { ZVARTYPEID_DMAPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setCharted[]",           ZVARTYPEID_VOID,          SETTER,       DMAPDATACHARTED,            128,           0,                                    3,           { ZVARTYPEID_DMAPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,                         -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -13117,16 +12593,12 @@ static AccessorTable ShopDataTable[] =
 	{ "getType",                ZVARTYPEID_FLOAT,         GETTER,       SHOPDATATYPE,       1,             0,                                    1,           { ZVARTYPEID_SHOPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getItem[]",              ZVARTYPEID_FLOAT,         GETTER,       SHOPDATAITEM,      3,             0,                                    2,           { ZVARTYPEID_SHOPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setItem[]",              ZVARTYPEID_VOID,          SETTER,       SHOPDATAITEM,      3,             0,                                    3,           { ZVARTYPEID_SHOPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getHasItem[]",           ZVARTYPEID_BOOL,          GETTER,       SHOPDATAHASITEM,   3,             0,                                    2,           { ZVARTYPEID_SHOPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setHasItem[]",           ZVARTYPEID_VOID,          SETTER,       SHOPDATAHASITEM,   3,             0,                                    3,           { ZVARTYPEID_SHOPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getPrice[]",             ZVARTYPEID_FLOAT,         GETTER,       SHOPDATAPRICE,     3,             0,                                    2,           { ZVARTYPEID_SHOPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setPrice[]",             ZVARTYPEID_VOID,          SETTER,       SHOPDATAPRICE,     3,             0,                                    3,           { ZVARTYPEID_SHOPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getString[]",            ZVARTYPEID_FLOAT,         GETTER,       SHOPDATASTRING,    3,             0,                                    2,           { ZVARTYPEID_SHOPDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setString[]",            ZVARTYPEID_VOID,          SETTER,       SHOPDATASTRING,    3,             0,                                    3,           { ZVARTYPEID_SHOPDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,                -1,            0,                                    1,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -13149,7 +12621,6 @@ static AccessorTable MessageDataTable[] =
 //	  name,                     rettype,                  setorget,     var,                  numindex,     funcFlags,                            numParams,   params
 	{ "Get",                    ZVARTYPEID_VOID,          FUNCTION,     0,                    1,            FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_ZMESSAGE, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Set",                    ZVARTYPEID_VOID,          FUNCTION,     0,                    1,            0,                                    2,           { ZVARTYPEID_ZMESSAGE, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "getNext",                ZVARTYPEID_FLOAT,         GETTER,       MESSAGEDATANEXT,      1,            0,                                    1,           { ZVARTYPEID_ZMESSAGE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setNext",                ZVARTYPEID_VOID,          SETTER,       MESSAGEDATANEXT,      1,            0,                                    2,           { ZVARTYPEID_ZMESSAGE, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getTile",                ZVARTYPEID_FLOAT,         GETTER,       MESSAGEDATATILE,      1,            0,                                    1,           { ZVARTYPEID_ZMESSAGE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -13198,7 +12669,6 @@ static AccessorTable MessageDataTable[] =
 	{ "TextWidth",              ZVARTYPEID_FLOAT,         GETTER,       MESSAGEDATATEXTWID,   1,            0,                                    1,           { ZVARTYPEID_ZMESSAGE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getLength",              ZVARTYPEID_FLOAT,         GETTER,       MESSAGEDATATEXTLEN,   1,            0,                                    1,           { ZVARTYPEID_ZMESSAGE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setLength",              ZVARTYPEID_VOID,          SETTER,       MESSAGEDATATEXTLEN,   1,            0,                                    2,           { ZVARTYPEID_ZMESSAGE, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,                   -1,           0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -13212,40 +12682,39 @@ void MessageDataSymbols::generateCode()
 {
     // Get("dest_string[]")
     {
-	    Function* function = getFunction("Get", 2); 
-	    int32_t label = function->getLabel(); 
+	    Function* function = getFunction("Get", 2);
+	    int32_t label = function->getLabel();
 	    vector<shared_ptr<Opcode>> code;
 	    addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
 	    LABELBACK(label);
 		POPREF();
-	    addOpcode2 (code, new OMessageDataGetStringRegister(new VarArgument(EXP2))); 
-	    RETURN(); 
+	    addOpcode2 (code, new OMessageDataGetStringRegister(new VarArgument(EXP2)));
+	    RETURN();
         function->giveCode(code);
     }
     // Set("src_string[]")
     {
-	    Function* function = getFunction("Set", 2); 
-	    int32_t label = function->getLabel(); 
-	    vector<shared_ptr<Opcode>> code; 
+	    Function* function = getFunction("Set", 2);
+	    int32_t label = function->getLabel();
+	    vector<shared_ptr<Opcode>> code;
 	    addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-	    LABELBACK(label); 
+	    LABELBACK(label);
 		POPREF();
-	    addOpcode2 (code, new OMessageDataSetStringRegister(new VarArgument(EXP2))); 
-	    RETURN(); 
+	    addOpcode2 (code, new OMessageDataSetStringRegister(new VarArgument(EXP2)));
+	    RETURN();
         function->giveCode(code);
     }
-    
     //void TriggerSecret(game, int32_t)
     /*
     {
 	    Function* function = getFunction("TriggerSecret", 2);
 	    int32_t label = function->getLabel();
-	    vector<shared_ptr<Opcode>> code; 
+	    vector<shared_ptr<Opcode>> code;
 	    addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-	    LABELBACK(label); 
-	    addOpcode2 (code, new OMessageDataSetStringRegister(new VarArgument(EXP2))); 
-	    RETURN(); 
-	    function->giveCode(code); 
+	    LABELBACK(label);
+	    addOpcode2 (code, new OMessageDataSetStringRegister(new VarArgument(EXP2)));
+	    RETURN();
+	    function->giveCode(code);
     }
     */
 }
@@ -13257,7 +12726,6 @@ static AccessorTable NilTable[] =
 //	All of these return a function label error when used:
 //	  name,                     rettype,                    setorget,     var,              numindex,      funcFlags,                            numParams,   params
 //	{ "getTest",                ZVARTYPEID_UNTYPED,         GETTER,       DEBUGREFFFC,      1,             0,                                    1,           { ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                         -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -13288,7 +12756,6 @@ static AccessorTable DropsetTable[] =
 	{ "Choose",                 ZVARTYPEID_FLOAT,         GETTER,       DROPSETCHOOSE,         1,             0,                                    1,           { ZVARTYPEID_DROPSET, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 //	{ "Create",                 ZVARTYPEID_ITEM,          FUNCTION,     0,                     1,             0,                                    3,           { ZVARTYPEID_DROPSET, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 //	{ "Create",                 ZVARTYPEID_ITEM,          FUNCTION,     0,                     1,             0,                                    4,           { ZVARTYPEID_DROPSET, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,                    -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -13309,7 +12776,6 @@ static AccessorTable PondsTable[] =
 //	All of these return a function label error when used:
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
 	 { "getTest",                ZVARTYPEID_FLOAT,         GETTER,       DEBUGREFFFC,      1,             0,                                    1,           { ZVARTYPEID_PONDS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    1,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -13330,7 +12796,6 @@ static AccessorTable WarpringTable[] =
 //	All of these return a function label error when used:
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
 	 { "getTest",                ZVARTYPEID_FLOAT,         GETTER,       DEBUGREFFFC,      1,             0,                                    1,           { ZVARTYPEID_WARPRING, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -13351,7 +12816,6 @@ static AccessorTable DoorsetTable[] =
 //	All of these return a function label error when used:
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
 	 { "getTest",                ZVARTYPEID_FLOAT,         GETTER,       DEBUGREFFFC,      1,             0,                                    1,           { ZVARTYPEID_DOORSET, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -13372,7 +12836,6 @@ static AccessorTable MiscColoursTable[] =
 //	All of these return a function label error when used:
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
 	 { "getTest",                ZVARTYPEID_FLOAT,         GETTER,       DEBUGREFFFC,      1,             0,                                    1,           { ZVARTYPEID_ZUICOLOURS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -13403,7 +12866,6 @@ RGBSymbolsOld::RGBSymbolsOld()
 
 void RGBSymbolsOld::generateCode()
 {
-	
 }
 
 PaletteSymbolsOld PaletteSymbolsOld::singleton = PaletteSymbolsOld();
@@ -13413,7 +12875,6 @@ static AccessorTable PaletteTable[] =
 //	All of these return a function label error when used:
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
 	 { "getTest",                ZVARTYPEID_FLOAT,         GETTER,       DEBUGREFFFC,      1,             0,                                    1,           { ZVARTYPEID_PALETTEOLD, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -13434,7 +12895,6 @@ static AccessorTable TunesTable[] =
 //	All of these return a function label error when used:
 //	  name,                     rettype,                  setorget,     var,             numindex,      funcFlags,                            numParams,       params
 	 { "getTest",                ZVARTYPEID_FLOAT,         GETTER,       DEBUGREFFFC,     1,             0,                                    1,           { ZVARTYPEID_TUNES, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,              -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -13455,7 +12915,6 @@ static AccessorTable PalCycleTable[] =
 //	All of these return a function label error when used:
 //	  name,                     rettype,                  setorget,     var,               numindex,      funcFlags,                            numParams,   params
 	 { "getTest",                ZVARTYPEID_FLOAT,         GETTER,       DEBUGREFFFC,       1,             0,                                    1,           { ZVARTYPEID_PALCYCLE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,                -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -13476,7 +12935,6 @@ static AccessorTable GameDataTable[] =
 //	All of these return a function label error when used:
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
 	 { "getTest",                ZVARTYPEID_FLOAT,         GETTER,       DEBUGREFFFC,      1,             0,                                    1,           { ZVARTYPEID_GAMEDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -13497,7 +12955,6 @@ static AccessorTable CheatTable[] =
 //	All of these return a function label error when used:
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
 	 { "getTest",                ZVARTYPEID_FLOAT,         GETTER,       DEBUGREFFFC,      1,             0,                                    1,           { ZVARTYPEID_CHEATS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -13520,7 +12977,6 @@ static AccessorTable FileSystemTable[] =
 	{ "FileExists",             ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_FILESYSTEM, ZVARTYPEID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Remove",                 ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_FILESYSTEM, ZVARTYPEID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "LoadDirectory",          ZVARTYPEID_DIRECTORY,     FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_FILESYSTEM, ZVARTYPEID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -13624,7 +13080,6 @@ static AccessorTable FileTable[] =
 	{ "Remove",                 ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_FILE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "WriteBytes",             ZVARTYPEID_FLOAT,         FUNCTION,     0,                1,             0,                                    4,           { ZVARTYPEID_FILE, ZVARTYPEID_CHAR, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "ReadBytes",              ZVARTYPEID_FLOAT,         FUNCTION,     0,                1,             0,                                    4,           { ZVARTYPEID_FILE, ZVARTYPEID_CHAR, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -14006,7 +13461,6 @@ static AccessorTable DirectoryTable[] =
 	{ "Reload",                 ZVARTYPEID_VOID,          FUNCTION,     0,                1,             0,                                    1,           { ZVARTYPEID_DIRECTORY, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Free",                   ZVARTYPEID_VOID,          FUNCTION,     0,                1,             0,                                    1,           { ZVARTYPEID_DIRECTORY, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Own",                    ZVARTYPEID_VOID,          FUNCTION,     0,                1,             0,                                    1,           { ZVARTYPEID_DIRECTORY, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -14092,7 +13546,6 @@ static AccessorTable StackTable[] =
 	{ "PeekFront",              ZVARTYPEID_UNTYPED,       FUNCTION,     0,                1,             0,                                    1,           { ZVARTYPEID_STACK, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Get",                    ZVARTYPEID_UNTYPED,       FUNCTION,     0,                1,             0,                                    2,           { ZVARTYPEID_STACK, ZVARTYPEID_LONG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Set",                    ZVARTYPEID_VOID,          FUNCTION,     0,                1,             0,                                    3,           { ZVARTYPEID_STACK, ZVARTYPEID_LONG, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -14256,7 +13709,6 @@ static AccessorTable SubscreenDataTable[] =
 {
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
 //	{ "DirExists",              ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             0,                                    2,           { ZVARTYPEID_FILESYSTEM, ZVARTYPEID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -14287,7 +13739,6 @@ static AccessorTable RNGTable[] =
 	{ "SRand",                  ZVARTYPEID_LONG,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_RNG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Free",                   ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_RNG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Own",                    ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_RNG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 
@@ -14729,7 +14180,6 @@ void PalDataSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	
 	//void Copy(paldata, paldata)
 	{
 		Function* function = getFunction("Copy", 2);

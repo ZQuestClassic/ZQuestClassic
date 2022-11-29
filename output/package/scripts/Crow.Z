@@ -1,16 +1,16 @@
 ffc script Crow{
 	void run(int enemyID){
 		npc ghost = Ghost_InitAutoGhost(this, enemyID);
-		
+
 		Ghost_SetFlag(GHF_IGNORE_ALL_TERRAIN);
 		Ghost_SetFlag(GHF_FLYING_ENEMY);
 		Ghost_SetFlag(GHF_4WAY);
 		Ghost_SetFlag(GHF_SET_DIRECTION);
-		
+
 		int FlyingCombo = ghost->Attributes[10]+4;
 		bool Docile = true;
 		int MaxHP = Ghost_HP;
-		
+
 		while(Docile){
 			if(Ghost_HP!=MaxHP)Docile=false;
 			if(Distance(Ghost_X, Ghost_Y, Link->X, Link->Y)<=ghost->Attributes[0])Docile=false;

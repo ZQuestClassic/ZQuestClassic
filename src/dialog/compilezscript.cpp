@@ -102,7 +102,6 @@ std::shared_ptr<GUI::Widget> CompileZScriptDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	window = Window(
 		title = "Compile ZScript",
 		onEnter = message::COMPILE,
@@ -140,80 +139,62 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			{
 				if(jwin_alert("Confirm Overwrite","Loading will erase the current buffer.","Proceed anyway?",NULL,"Yes","No",'y','n',lfont)==2)
 					return false;
-					
 				zScript.clear();
 				updateLabels();
 				saved = false;
 			}
-			
 			if(!getname("Load ZScript (.z, .zh, .zs, .zlib, etc.)", (char *)"z,zh,zs,zlib,zasm,zscript,squid" ,NULL,datapath,false))
 				return false;
-				
 			FILE *zscript = fopen(temppath,"r");
-			
 			if(zscript == NULL)
 			{
 				jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
 				return false;
 			}
-			
 			char c = fgetc(zscript);
-			
 			while(!feof(zscript))
 			{
 				zScript += c;
 				c = fgetc(zscript);
 			}
-			
 			fclose(zscript);
 			saved = false;
 			updateLabels();
 			return false;
 		}
-		
 		case message::EXPORT:
 		{
 			if(!getname("Save ZScript (.zs)", "zs", NULL,datapath,false))
 				break;
-				
 			if(exists(temppath))
 			{
 				if(jwin_alert("Confirm Overwrite","File already exists.","Overwrite?",NULL,"Yes","No",'y','n',lfont)==2)
 					break;
 			}
-			
 			FILE *zscript = fopen(temppath,"w");
-			
 			if(!zscript)
 			{
 				jwin_alert("Error","Unable to open file for writing!",NULL,NULL,"O&K",NULL,'k',0,lfont);
 				break;
 			}
-			
 			int32_t written = (int32_t)fwrite(zScript.c_str(), sizeof(char), zScript.size(), zscript);
-			
 			if(written != (int32_t)zScript.size())
 				jwin_alert("Error","IO error while writing script to file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-				
 			fclose(zscript);
 			return false;
 		}
-		
 		case message::EDIT:
 			doEditZScript(vc(15),vc(0));
 			updateLabels();
 			return false;
-		
 		case message::DOCS:
 			if(fileexists("docs/ZScript_Docs.html"))
 				launch_file("docs/ZScript_Docs.html");
 			return false;
-		
 		case message::STD_ZH:
 			if(util::checkPath("include/std_zh",true))
 				launch_file("include/std_zh");
 			return false;
-		
 		case message::COMPILE:
 		{
 			char tmpfilename[L_tmpnam];
@@ -228,15 +209,12 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
 				return true;
 			}
-			
 			fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
 			fclose(tempfile);
-			
 			script_data old_init_script(*globalscripts[0]);
 			uint32_t lastInitSize = old_init_script.size();
 			map<string, ZScript::ScriptTypeID> stypes;
 			map<string, disassembled_script_data> scripts;
-			
 			std::string quest_rules_hex = get_qr_hexstr();
 			clock_t start_compile_time = clock();
 			bool hasWarnErr = false;
@@ -250,7 +228,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				return false;
 			}
 			parser_console.kill();
-			if (!DisableCompileConsole) 
+			if (!DisableCompileConsole)
 			{
 				parser_console.Create("ZScript Parser Output", 600, 200, NULL, "zconsole.exe");
 				parser_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
@@ -280,7 +258,6 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				InfoDialog("Parser","Failed to launch " ZSCRIPT_FILE).show();
 				return false;
 			}
-			
 			int current = 0, last = 0;
 			int syncthing = 0;
 			pm->read(&syncthing, sizeof(int32_t));
@@ -288,7 +265,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			FILE *console = fopen(consolefilename, "r");
 			char buf4[512];
 			bool running = true;
-			if (console) 
+			if (console)
 			{
 				while(running)
 				{
@@ -324,7 +301,6 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			delete pm;
 #endif
 			clock_t end_compile_time = clock();
-			
 			char tmp[128] = {0};
 			sprintf(tmp,"%lf",(end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC));
 			for(size_t ind = strlen(tmp)-1; ind > 0; --ind)
@@ -338,11 +314,10 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				code, code ? "failure" : "success",
 				tmp, (long)end_compile_time - start_compile_time,
 				code ? (!DisableCompileConsole?"\nCompilation failed. See console for details.":"\nCompilation failed.") : "");
-			
 			if(!code)
 			{
 				read_compile_data(stypes, scripts);
-				if (!(DisableCompileConsole || hasWarnErr)) 
+				if (!(DisableCompileConsole || hasWarnErr))
 				{
 					parser_console.kill();
 				}
@@ -358,9 +333,8 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			}
 			compile_sfx(!code);
 			if (DisableCompileConsole) box_end(true);
-			
 			bool cancel = code;
-			if (!DisableCompileConsole) 
+			if (!DisableCompileConsole)
 			{
 				if(code)
 					InfoDialog("ZScript Parser", buf).show();
@@ -387,10 +361,8 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				}
 			}
 			//refresh(rALL);
-			
 			if(cancel)
 				return false;
-			
 			asffcscripts.clear();
 			asffcscripts.push_back("<none>");
 			asglobalscripts.clear();
@@ -417,7 +389,6 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			asgenericscripts.push_back("<none>");
 			clear_map_states();
 			globalmap[0].updateName("~Init"); //force name to ~Init
-			
 			using namespace ZScript;
 			for (auto it = stypes.begin(); it != stypes.end(); ++it)
 			{
@@ -465,17 +436,13 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 						break;
 				}
 			}
-		
 			//scripts are compiled without error, so store the zscript version here: -Z, 25th July 2019, A29
 			misc.zscript_last_compiled_version = V_FFSCRIPT;
 			FFCore.quest_format[vLastCompile] = V_FFSCRIPT;
 			zprint2("Compiled scripts in version: %d\n", misc.zscript_last_compiled_version);
-						
 			do_script_disassembly(scripts, true);
-			
 			//assign scripts to slots
 			do_slots(scripts);
-			
 			if(WarnOnInitChanged)
 			{
 				script_data const& new_init_script = *globalscripts[0];
@@ -497,7 +464,6 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			}
 			return true;
 		}
-		
 		case message::CANCEL:
 		default:
 			return true;

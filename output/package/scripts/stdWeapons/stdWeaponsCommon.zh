@@ -101,7 +101,7 @@ void ClearFFC( ffc f){
 //Usually placed in the init phase of the script before Lweapon initialization.
 //Call ClearFFC(this) then Quit() if this function returns "false" (not enough ammo).
 //Or execute something cruel, like weapon backfiring. :-)
-//If "drain" boolean is set to TRUE, the counter updates gradually. 
+//If "drain" boolean is set to TRUE, the counter updates gradually.
 //bool AmmoManager(int counter, int cost, int infiniteitem, bool drain){
 //	int cn;
 //	if ((Game->Generic[1]>0)&&(counter==CR_MAGIC)) cn=cost/2; //Pay attention to "/2 magic" upgrade.
@@ -138,7 +138,7 @@ int counter3, int cost3, int infiniteitem3, int counter4, int cost4, int infinit
 
 void AmmoManager(ffc f, int counter1, int cost1, int infiniteitem1, int counter2, int cost2, int infiniteitem2,
 int counter3, int cost3, int infiniteitem3, int counter4, int cost4, int infiniteitem4, bool drain){
-	if (!AmmoManager(counter1, cost1, infiniteitem1, counter2, cost2, infiniteitem2,counter3, cost3, 
+	if (!AmmoManager(counter1, cost1, infiniteitem1, counter2, cost2, infiniteitem2,counter3, cost3,
 	infiniteitem3, counter4, cost4, infiniteitem4, drain)){
 		ClearFFC(f);
 		Quit();
@@ -147,13 +147,13 @@ int counter3, int cost3, int infiniteitem3, int counter4, int cost4, int infinit
 
 bool AmmoManager(int counter1, int cost1, int infiniteitem1, int counter2, int cost2, int infiniteitem2,
 int counter3, int cost3, int infiniteitem3, bool drain){
-	return AmmoManager(counter1, cost1, infiniteitem1, counter2, cost2, infiniteitem2,counter3, cost3, 
+	return AmmoManager(counter1, cost1, infiniteitem1, counter2, cost2, infiniteitem2,counter3, cost3,
 	infiniteitem3, 0,0,0, drain);
 }
 
 void AmmoManager(ffc f, int counter1, int cost1, int infiniteitem1, int counter2, int cost2, int infiniteitem2,
 int counter3, int cost3, int infiniteitem3, bool drain){
-	if (!AmmoManager(counter1, cost1, infiniteitem1, counter2, cost2, infiniteitem2,counter3, cost3, 
+	if (!AmmoManager(counter1, cost1, infiniteitem1, counter2, cost2, infiniteitem2,counter3, cost3,
 	infiniteitem3, 0, 0, 0, drain)){
 		ClearFFC(f);
 		Quit();
@@ -165,9 +165,9 @@ bool drain){
 	return AmmoManager(counter1, cost1, infiniteitem1, counter2, cost2, infiniteitem2, 0,0,0, 0,0,0, drain);
 }
 
-void AmmoManager(ffc f, int counter1, int cost1, int infiniteitem1, int counter2, int cost2, 
+void AmmoManager(ffc f, int counter1, int cost1, int infiniteitem1, int counter2, int cost2,
 int infiniteitem2, bool drain){
-	if (!AmmoManager(counter1, cost1, infiniteitem1, counter2, cost2, infiniteitem2, 
+	if (!AmmoManager(counter1, cost1, infiniteitem1, counter2, cost2, infiniteitem2,
 	0,0,0, 0,0,0, drain)){
 		ClearFFC(f);
 		Quit();

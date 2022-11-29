@@ -1,5 +1,5 @@
 2.8.5 (2019-12-12)
-* Renamed files to comply with HEADER_GUARD option in 2.53.1 
+* Renamed files to comply with HEADER_GUARD option in 2.53.1
 	and 2.55.x.
 
 2.8.4 (2019-07-15)
@@ -128,7 +128,7 @@
 * Added a setting to make enemies flicker instead of flash.
 * You can now use an alternate number (-1 by default) instead of
     GH_INVISIBLE_COMBO to make enemies use the invisible combo.
-* Added GHF_FLYING_ENEMY, GHF_IGNORE_NO_ENEMY, GHF_WATER_ONLY, and 
+* Added GHF_FLYING_ENEMY, GHF_IGNORE_NO_ENEMY, GHF_WATER_ONLY, and
     GHF_DEEP_WATER_ONLY
 * GHF_ flags can no longer be ORed together; they must be set individually.
 * Ghost_SetFlags() and the init functions with a flags argument are deprecated.

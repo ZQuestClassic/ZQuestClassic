@@ -173,12 +173,12 @@ instructions.
 </p>
 </dd>
 <dt>&lsquo;<samp>arc600_mul32x16</samp>&rsquo;</dt>
-<dd><p>Compile for ARC 600 CPU with <code>norm</code> and 32x16-bit multiply 
+<dd><p>Compile for ARC 600 CPU with <code>norm</code> and 32x16-bit multiply
 instructions enabled.
 </p>
 </dd>
 <dt>&lsquo;<samp>arc600_mul64</samp>&rsquo;</dt>
-<dd><p>Compile for ARC 600 CPU with <code>norm</code> and <code>mul64</code>-family 
+<dd><p>Compile for ARC 600 CPU with <code>norm</code> and <code>mul64</code>-family
 instructions enabled.
 </p>
 </dd>
@@ -250,7 +250,7 @@ deprecated.
 </dd>
 <dt><code>-mmul64</code></dt>
 <dd><a name="index-mmul64"></a>
-<p>Generate <code>mul64</code> and <code>mulu64</code> instructions.  
+<p>Generate <code>mul64</code> and <code>mulu64</code> instructions.
 Only valid for <samp>-mcpu=ARC600</samp>.
 </p>
 </dd>
@@ -309,7 +309,7 @@ EM cores.
 </dd>
 <dt><code>-mcode-density</code></dt>
 <dd><a name="index-mcode_002ddensity"></a>
-<p>Enable code density instructions for ARC EM.  
+<p>Enable code density instructions for ARC EM.
 This option is on by default for ARC HS.
 </p>
 </dd>
@@ -325,8 +325,8 @@ This option is on by default for ARC HS.
 </dd>
 <dt><code>-mmpy-option=<var>multo</var></code></dt>
 <dd><a name="index-mmpy_002doption"></a>
-<p>Compile ARCv2 code with a multiplier design option.  You can specify 
-the option using either a string or numeric value for <var>multo</var>.  
+<p>Compile ARCv2 code with a multiplier design option.  You can specify
+the option using either a string or numeric value for <var>multo</var>.
 &lsquo;<samp>wlh1</samp>&rsquo; is the default value.  The recognized values are:
 </p>
 <dl compact="compact">
@@ -423,7 +423,7 @@ only available for ARC EM.
 <dt>&lsquo;<samp>fpuda_div</samp>&rsquo;</dt>
 <dd><p>Enables support for double-precision floating-point hardware
 extensions using double-precision assist instructions.
-The single-precision floating-point, square-root, and divide 
+The single-precision floating-point, square-root, and divide
 extensions are also enabled.  This option is
 only available for ARC EM.
 </p>
@@ -431,7 +431,7 @@ only available for ARC EM.
 <dt>&lsquo;<samp>fpuda_fma</samp>&rsquo;</dt>
 <dd><p>Enables support for double-precision floating-point hardware
 extensions using double-precision assist instructions.
-The single-precision floating-point and fused multiply and add 
+The single-precision floating-point and fused multiply and add
 hardware extensions are also enabled.  This option is
 only available for ARC EM.
 </p>
@@ -444,23 +444,23 @@ enabled.  This option is only available for ARC EM.
 </p>
 </dd>
 <dt>&lsquo;<samp>fpus_div</samp>&rsquo;</dt>
-<dd><p>Enables support for single-precision floating-point, square-root and divide 
+<dd><p>Enables support for single-precision floating-point, square-root and divide
 hardware extensions.
 </p>
 </dd>
 <dt>&lsquo;<samp>fpud_div</samp>&rsquo;</dt>
-<dd><p>Enables support for double-precision floating-point, square-root and divide 
+<dd><p>Enables support for double-precision floating-point, square-root and divide
 hardware extensions.  This option
 includes option &lsquo;<samp>fpus_div</samp>&rsquo;. Not available for ARC EM.
 </p>
 </dd>
 <dt>&lsquo;<samp>fpus_fma</samp>&rsquo;</dt>
-<dd><p>Enables support for single-precision floating-point and 
+<dd><p>Enables support for single-precision floating-point and
 fused multiply and add hardware extensions.
 </p>
 </dd>
 <dt>&lsquo;<samp>fpud_fma</samp>&rsquo;</dt>
-<dd><p>Enables support for double-precision floating-point and 
+<dd><p>Enables support for double-precision floating-point and
 fused multiply and add hardware extensions.  This option
 includes option &lsquo;<samp>fpus_fma</samp>&rsquo;.  Not available for ARC EM.
 </p>
@@ -698,7 +698,7 @@ default.
 <dt><code>-mno-brcc</code></dt>
 <dd><a name="index-mno_002dbrcc"></a>
 <p>This option disables a target-specific pass in <samp>arc_reorg</samp> to
-generate compare-and-branch (<code>br<var>cc</var></code>) instructions.  
+generate compare-and-branch (<code>br<var>cc</var></code>) instructions.
 It has no effect on
 generation of these instructions driven by the combiner pass.
 </p>
@@ -717,7 +717,7 @@ and only available for ARCv1 cores.  This option is deprecated.
 </dd>
 <dt><code>-mno-cond-exec</code></dt>
 <dd><a name="index-mno_002dcond_002dexec"></a>
-<p>Disable the ARCompact-specific pass to generate conditional 
+<p>Disable the ARCompact-specific pass to generate conditional
 execution instructions.
 </p>
 <p>Due to delay slot scheduling and interactions between operand numbers,
@@ -806,14 +806,14 @@ This is the default for <samp>-Os</samp>.
 </dd>
 <dt><code>-mRcq</code></dt>
 <dd><a name="index-mRcq"></a>
-<p>Enable &lsquo;<samp>Rcq</samp>&rsquo; constraint handling.  
+<p>Enable &lsquo;<samp>Rcq</samp>&rsquo; constraint handling.
 Most short code generation depends on this.
 This is the default.
 </p>
 </dd>
 <dt><code>-mRcw</code></dt>
 <dd><a name="index-mRcw"></a>
-<p>Enable &lsquo;<samp>Rcw</samp>&rsquo; constraint handling.  
+<p>Enable &lsquo;<samp>Rcw</samp>&rsquo; constraint handling.
 Most ccfsm condexec mostly depends on this.
 This is the default.
 </p>
@@ -924,7 +924,7 @@ for which big endian is the default.
 <dt><code>-EL</code></dt>
 <dd><a name="index-EL"></a>
 <p>Compile code for little-endian targets.  Use of these options is now
-deprecated.  Little-endian code is supported by configuring GCC to build 
+deprecated.  Little-endian code is supported by configuring GCC to build
 <code><span class="nolinebreak">arc-elf32</span></code><!-- /@w --> and <code><span class="nolinebreak">arc-linux-uclibc</span></code><!-- /@w --> targets,
 for which little endian is the default.
 </p>

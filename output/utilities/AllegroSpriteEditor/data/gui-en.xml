@@ -78,7 +78,7 @@
 	    <key tool="pencil" shortcut="B" />
 	    <key tool="brush" shortcut="B" />
 	    <key tool="spray" shortcut="S" />
- 	    <key tool="paint_bucket" shortcut="G" />
+	    <key tool="paint_bucket" shortcut="G" />
 	    <key tool="line" shortcut="L" />
 	    <key tool="curve" shortcut="V" />
 	    <key tool="rectangle" shortcut="U" />

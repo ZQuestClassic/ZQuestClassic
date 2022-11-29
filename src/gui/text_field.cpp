@@ -41,11 +41,9 @@ void TextField::setText(std::string_view newText)
 		buffer[std::min(maxLength, newText.size())] = '\0';
 	}
 	else buffer[0] = '\0';
-	
 	Size nsz = Size::largePixels(isSwapType() ? 16 : 0) + Size::pixels(gui_text_width(widgFont, &buffer[0]));
 	if(getWidth() < nsz)
 		setPreferredWidth(nsz);
-	
 	valSet = true;
 	pendDraw();
 }
@@ -110,9 +108,7 @@ void TextField::setVal(int32_t val)
 			}
 			break;
 		}
-		
 	}
-	
 	std::string v(buf);
 	//
 	size_t s = 1;
@@ -144,17 +140,14 @@ void TextField::setVal(int32_t val)
 	check_len(s);
 	//
 	strcpy(buffer.get(), v.c_str());
-	
 	Size nsz = Size::largePixels(isSwapType() ? 16 : 0) + Size::pixels(gui_text_width(widgFont, &buffer[0]));
 	if(getWidth() < nsz)
 		setPreferredWidth(nsz);
-	
 	if(isSwapType() && alDialog)
 	{
 		alDialog->fg = startVal;
 		swapBtnDialog->d1 &= 0xF;
 	}
-	
 	valSet = true;
 	pendDraw();
 }
@@ -200,7 +193,6 @@ int32_t TextField::getVal()
 			try { value = std::stoi(buffer.get(), nullptr, 16); }
 			catch(std::exception) { value = 0; }
 			break;
-			
 		case type::SWAP_BYTE:
 		case type::SWAP_SSHORT:
 		case type::SWAP_ZSINT:
@@ -210,7 +202,6 @@ int32_t TextField::getVal()
 				value = alDialog->fg;
 			else value = startVal;
 			break;
-			
 		case type::FIXED_DECIMAL:
 		{
 			int32_t scale = int32_t(pow(10, fixedPlaces));
@@ -294,7 +285,6 @@ void TextField::setMaxLength(size_t newMax)
 		return;
 	}
 	forced_length = true;
-	
 	_updateBuf(newMax);
 }
 
@@ -330,7 +320,6 @@ void TextField::_updateBuf(size_t sz)
 	buffer[sz] = 0;
 	if(z) buffer[0] = 0;
 	maxLength = sz;
-	
 	setPreferredWidth(Size::largePixels(isSwapType() ? 16 : 0)+Size::em(std::min((sz+sized(2,1))*0.75, 20.0)));
 	if(alDialog)
 	{
@@ -358,9 +347,7 @@ void TextField::setFixedPlaces(size_t places)
 void TextField::applyReadableFont()
 {
 	if(GUI_DEF_FONT == GUI_READABLE_FONT) return;
-	
 	bool use_readable = getReadOnly() || getDisabled();
-	
 	if(use_readable && widgFont == GUI_DEF_FONT)
 	{
 		applyFont(GUI_READABLE_FONT);
@@ -384,7 +371,6 @@ void TextField::realize(DialogRunner& runner)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	if(widgFont == GUI_DEF_FONT && getReadOnly())
 		widgFont = GUI_READABLE_FONT;
 	Widget::realize(runner);
@@ -414,7 +400,6 @@ void TextField::realize(DialogRunner& runner)
 				if(unsigned(swap_type_start) > 3)
 					swap_type_start = 0;
 				break;
-			
 			case type::SWAP_ZSINT_NO_DEC:
 				proc = newGUIProc<jwin_numedit_swap_zsint_nodec_proc>;
 				if(unsigned(swap_type_start) > 1)
@@ -431,11 +416,9 @@ void TextField::realize(DialogRunner& runner)
 			default:
 				break;
 		}
-		
 		int32_t totalwid = getWidth();
 		int32_t btnwid = (24_lpx).resolve();
 		int32_t txtfwid = totalwid-btnwid;
-		
 		alDialog = runner.push(shared_from_this(), DIALOG {
 			proc,
 			x, y, txtfwid, getHeight(),
@@ -559,7 +542,6 @@ int32_t TextField::onEvent(int32_t event, MessageDispatcher& sendMessage)
 				if(onValChanged) onValChanged(tfType, getText(), getVal());
 			}
 			break;
-			
 		case geUPDATE_SWAP:
 			if(isSwapType())
 			{
@@ -571,7 +553,6 @@ int32_t TextField::onEvent(int32_t event, MessageDispatcher& sendMessage)
 				}
 			}
 			break;
-		
 		case geCLICK:
 			break;
 

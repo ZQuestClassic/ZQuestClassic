@@ -8,9 +8,9 @@ const int D_CUTSCENETRIGGER = 0; //Screen->D used for cutscene triggers
 //	  in decimal, so you'll have to convert.
 //D2: Width of the trigger hitbox
 //D3: Height of the trigger hitbox
-//D4: Set this to a number 1-17 to make the cutscene only play once. By giving FFCs different D4 arguments, 
+//D4: Set this to a number 1-17 to make the cutscene only play once. By giving FFCs different D4 arguments,
 //	  you can have multiple triggers for different permanent cutscenes on a screen.
-//D5: If you want the trigger to check for a flag under Link, set this to the number of the flag. 
+//D5: If you want the trigger to check for a flag under Link, set this to the number of the flag.
 //	  If you want it to check for an item, set this to a negative Item ID.
 //D6: The X position to try to walk Link to. 0 for no target point.
 //D7: The Y position to try to walk Link to. 0 for no target point.
@@ -67,7 +67,7 @@ ffc script CutsceneTrigger{
 				Link->InputStart = false; Link->PressStart = false;
 				Link->InputMap = false; Link->PressMap = false;
 				NoAction();
-				
+
 				//Apply inputs that should be active
 				if(Abs(Link->X-targetX)<=2){
 					Link->X = targetX;

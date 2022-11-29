@@ -42,7 +42,7 @@ static std::vector<char*> create_argv_unix(std::string file, const std::vector<s
 	std::transform(args.begin(), args.end(), std::back_inserter(argv), [](const std::string& s) {
 		char *pc = new char[s.size()+1];
 		std::strcpy(pc, s.c_str());
-		return pc; 
+		return pc;
 	});
 	argv.push_back(nullptr);
 	return argv;
@@ -87,21 +87,17 @@ process_manager* launch_piped_process(std::string file, const std::vector<std::s
 	if ( !CreatePipe(&(pm->read_handle), &(pm->re_2), &saAttr, 0))
 		ERR_EXIT("Failed to create child output pipe", pm);
 	if ( !SetHandleInformation(pm->read_handle, HANDLE_FLAG_INHERIT, 0))
-		ERR_EXIT("Failed to set handle information for child output", pm); 
+		ERR_EXIT("Failed to set handle information for child output", pm);
 	if ( !CreatePipe(&(pm->wr_2), &(pm->write_handle), &saAttr, 0))
 		ERR_EXIT("Failed to create child input pipe", pm);
 	if ( !SetHandleInformation(pm->write_handle, HANDLE_FLAG_INHERIT, 0))
-		ERR_EXIT("Failed to set handle information for child input", pm); 
-	
-	
+		ERR_EXIT("Failed to set handle information for child input", pm);
 	PROCESS_INFORMATION pi;
 	STARTUPINFO si;
 	BOOL bSuccess = FALSE;
-	
 	ZeroMemory(&pi,sizeof(PROCESS_INFORMATION));
 	ZeroMemory(&si,sizeof(STARTUPINFO));
 	si.cb = sizeof(STARTUPINFO);
-	
 	si.hStdError = pm->re_2;
 	si.hStdOutput = pm->re_2;
 	si.hStdInput = pm->wr_2;
@@ -114,14 +110,14 @@ process_manager* launch_piped_process(std::string file, const std::vector<std::s
 		strcat(path_buf, q.c_str());
 		strcat(path_buf, "\"");
 	}
-	bSuccess = CreateProcess(NULL, 
-		(LPSTR)path_buf, // command line 
-		NULL,          // process security attributes 
-		NULL,          // primary thread security attributes 
-		TRUE,          // handles are inherited 
-		0,             // creation flags 
-		NULL,          // use parent's environment 
-		NULL,          // use parent's current directory 
+	bSuccess = CreateProcess(NULL,
+		(LPSTR)path_buf, // command line
+		NULL,          // process security attributes
+		NULL,          // primary thread security attributes
+		TRUE,          // handles are inherited
+		0,             // creation flags
+		NULL,          // use parent's environment
+		NULL,          // use parent's current directory
 		&si, &pi);
 	if(!bSuccess)
 		ERR_EXIT("Failed to create process", pm);
@@ -137,7 +133,6 @@ process_manager* launch_piped_process(std::string file, const std::vector<std::s
 
 	s = posix_spawn_file_actions_init(&file_actions);
 	if (s != 0) ERR_EXIT("Failed posix_spawn_file_actions_init", pm);
-	
 	posix_spawn_file_actions_adddup2(&file_actions, pdes_r[1], fileno(stdout));
 	posix_spawn_file_actions_addclose(&file_actions, pdes_r[1]);
 	posix_spawn_file_actions_addclose(&file_actions, pdes_r[0]);
@@ -150,7 +145,6 @@ process_manager* launch_piped_process(std::string file, const std::vector<std::s
 	pid_t child_pid;
 	s = posix_spawn(&child_pid, file.c_str(), &file_actions, NULL, argv.data(), NULL);
 	if (s != 0) ERR_EXIT("Failed posix_spawn", pm);
-	
 	pm->read_handle = pdes_r[0];
 	pm->write_handle = pdes_w[1];
 	close(pdes_r[1]);

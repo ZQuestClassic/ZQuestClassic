@@ -11,10 +11,8 @@ class CornerSwatch: public Widget
 {
 public:
 	CornerSwatch();
-	
 	void setVal(int32_t value);
 	void setColor(int32_t value);
-	
 	int32_t getVal();
 	int32_t getColor();
 
@@ -22,7 +20,6 @@ public:
 	{
 		onSelectFunc = newOnSelect;
 	}
-	
 	template<typename T>
 	RequireMessage<T> onSelectionChanged(T m)
 	{
@@ -34,7 +31,6 @@ private:
 	int32_t val;
 	DialogRef alDialog;
 	std::function<void(int32_t)> onSelectFunc;
-	
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;
 	void realize(DialogRunner& runner) override;

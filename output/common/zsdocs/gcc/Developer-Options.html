@@ -103,14 +103,14 @@ phase letter, and pass name.  The base dump file name is the name of
 output file produced by the compiler if explicitly specified and not
 an executable; otherwise it is the source file name.
 The pass number is determined by the order passes are registered with
-the compiler&rsquo;s pass manager. 
+the compiler&rsquo;s pass manager.
 This is generally the same as the order of execution, but passes
 registered by plugins, target-specific passes, or passes that are
 otherwise registered late are numbered higher than the pass named
 &lsquo;<samp>final</samp>&rsquo;, even if they are executed earlier.  The phase letter is
 one of &lsquo;<samp>i</samp>&rsquo; (inter-procedural analysis), &lsquo;<samp>l</samp>&rsquo;
-(language-specific), &lsquo;<samp>r</samp>&rsquo; (RTL), or &lsquo;<samp>t</samp>&rsquo; (tree). 
-The files are created in the directory of the output file. 
+(language-specific), &lsquo;<samp>r</samp>&rsquo; (RTL), or &lsquo;<samp>t</samp>&rsquo; (tree).
+The files are created in the directory of the output file.
 </p>
 <dl compact="compact">
 <dt><code>-d<var>letters</var></code></dt>
@@ -730,7 +730,7 @@ from one version of GCC to another.
 <p>Controls optimization dumps from various optimization passes. If the
 &lsquo;<samp>-<var>options</var></samp>&rsquo; form is used, <var>options</var> is a list of
 &lsquo;<samp>-</samp>&rsquo; separated option keywords to select the dump details and
-optimizations.  
+optimizations.
 </p>
 <p>The <var>options</var> can be divided into three groups:
 </p><ol>
@@ -741,7 +741,7 @@ optimizations.
 <p>The options from each group can be freely mixed as they are
 non-overlapping. However, in case of any conflicts,
 the later options override the earlier options on the command
-line. 
+line.
 </p>
 <p>The following options control which kinds of messages should be emitted:
 </p>
@@ -754,7 +754,7 @@ successfully vectorized.
 </p></dd>
 <dt>&lsquo;<samp>missed</samp>&rsquo;</dt>
 <dd><p>Print information about missed optimizations. Individual passes
-control which information to include in the output. 
+control which information to include in the output.
 </p></dd>
 <dt>&lsquo;<samp>note</samp>&rsquo;</dt>
 <dd><p>Print verbose information about optimizations, such as certain
@@ -838,8 +838,8 @@ instead.
 </pre></div>
 
 <p>prints information about missed optimization opportunities from
-vectorization passes on <samp>stderr</samp>.  
-Note that <samp>-fopt-info-vec-missed</samp> is equivalent to 
+vectorization passes on <samp>stderr</samp>.
+Note that <samp>-fopt-info-vec-missed</samp> is equivalent to
 <samp>-fopt-info-missed-vec</samp>.  The order of the optimization group
 names and message types listed after <samp>-fopt-info</samp> does not matter.
 </p>
@@ -941,7 +941,7 @@ appended with a sequential number starting from 1.
 <dt><code>-fdisable-rtl-<var>pass</var>=<var>range-list</var></code></dt>
 <dd><p>Disable RTL pass <var>pass</var>.  <var>pass</var> is the pass name.  If the same pass is
 statically invoked in the compiler multiple times, the pass name should be
-appended with a sequential number starting from 1.  <var>range-list</var> is a 
+appended with a sequential number starting from 1.  <var>range-list</var> is a
 comma-separated list of function ranges or assembler names.  Each range is a number
 pair separated by a colon.  The range is inclusive in both ends.  If the range
 is trivial, the number pair can be simplified as a single number.  If the

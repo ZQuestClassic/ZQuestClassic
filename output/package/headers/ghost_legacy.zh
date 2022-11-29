@@ -21,7 +21,7 @@ const int EWI_YPOS         = 6;
 const int EWI_WORK         = 7;
 const int EWI_WORK_2       = 8;
 const int EWI_MOVEMENT     = 9;
-const int EWI_MOVEMENT_ARG = 10; 
+const int EWI_MOVEMENT_ARG = 10;
 const int EWI_LIFESPAN     = 11;
 const int EWI_LIFESPAN_ARG = 12;
 const int EWI_ON_DEATH     = 13;
@@ -57,7 +57,7 @@ npc GhostInitWait(ffc this, int enemyIndex, bool useEnemyPos)
     int combo=this->Data;
     this->Data=0;
     npc ghost;
-    
+
     for(int i=0; i<4; i++)
     {
         if(Screen->NumNPCs()>=enemyIndex)
@@ -78,7 +78,7 @@ npc GhostInitWait(ffc this, int enemyIndex, bool useEnemyPos)
             ghost->Misc[GHI_PREV_HP]=ghost->HP;
             ghost->Misc[GHI_IN_USE]=1;
             this->Data=combo;
-            
+
             if(useEnemyPos)
             {
                 this->X=ghost->X;
@@ -89,7 +89,7 @@ npc GhostInitWait(ffc this, int enemyIndex, bool useEnemyPos)
                 ghost->X=this->X;
                 ghost->Y=this->Y;
             }
-            
+
             return ghost;
         }
         Waitframe();
@@ -103,7 +103,7 @@ npc GhostInitWait2(ffc this, int enemyID, bool useEnemyPos)
     int combo=this->Data;
     this->Data=0;
     npc ghost;
-    
+
     for(int i=0; i<4; i++)
     {
         // Cycle through enemies to find the right one
@@ -116,7 +116,7 @@ npc GhostInitWait2(ffc this, int enemyID, bool useEnemyPos)
             // Already in use?
             if((ghost->Misc[GHI_IN_USE])!=0)
                 continue;
-            
+
             // Found it; initialize
             if(ghost->ASpeed==256 && GH_BLANK_TILE>0)
                 ghost->OriginalTile=GH_BLANK_TILE;
@@ -130,7 +130,7 @@ npc GhostInitWait2(ffc this, int enemyID, bool useEnemyPos)
             ghost->Misc[GHI_PREV_HP]=ghost->HP;
             ghost->Misc[GHI_IN_USE]=1;
             this->Data=combo;
-            
+
             if(useEnemyPos)
             {
                 this->X=ghost->X;
@@ -141,7 +141,7 @@ npc GhostInitWait2(ffc this, int enemyID, bool useEnemyPos)
                 ghost->X=this->X;
                 ghost->Y=this->Y;
             }
-            
+
             return ghost;
         }
         Waitframe();
@@ -164,7 +164,7 @@ npc GhostInitSpawn(ffc this, int enemyID)
     ghost->Misc[GHI_FLASH_COUNTER]=0;
     ghost->Misc[GHI_PREV_HP]=ghost->HP;
     ghost->Misc[GHI_IN_USE]=1;
-    
+
     return ghost;
 }
 
@@ -214,12 +214,12 @@ void DrawSpawnAnimation(ffc this, npc ghost)
     int i;
     int j;
     lweapon graphic;
-    
+
     int combo=this->Data;
     this->Data=0;
     ghost->CollDetection=false;
     ghost->DrawXOffset=32768;
-    
+
     for(i=0; i<this->TileWidth; i++)
     {
         for(j=0; j<this->TileHeight; j++)
@@ -229,18 +229,18 @@ void DrawSpawnAnimation(ffc this, npc ghost)
             graphic->UseSprite(GH_SPAWN_SPRITE);
             graphic->X=this->X+16*i;
             graphic->Y=this->Y+16*j;
-            
+
             if(graphic->NumFrames==0)
                 graphic->NumFrames=3;
             if(graphic->ASpeed==0)
                 graphic->ASpeed=4;
-            
+
             graphic->DeadState=graphic->NumFrames*graphic->ASpeed;
         }
     }
-    
+
     Waitframes(graphic->NumFrames*graphic->ASpeed);
-    
+
     this->Data=combo;
     ghost->CollDetection=true;
     ghost->DrawXOffset=0;
@@ -253,7 +253,7 @@ bool GhostWaitframeM(ffc this, npc ghost, float x, float y, float z, bool clearO
     {
         // Figure out the base combo, in case GHF_4WAY is set
         int baseCombo=this->Data-ghost->Dir;
-        
+
         if(Abs(this->X-x)>Abs((this->Y+ghost->Z)-y))
         {
             if(this->X>x)
@@ -268,12 +268,12 @@ bool GhostWaitframeM(ffc this, npc ghost, float x, float y, float z, bool clearO
             else
                 ghost->Dir=DIR_DOWN;
         }
-        
+
         // Change combo to match
         if((ghost->Misc[GHI_FLAGS]&GHF_4WAY)!=0)
             this->Data=baseCombo+ghost->Dir;
     }
-    
+
     // Draw over if high enough
 
     if((ghost->Misc[GHI_FLAGS]&GHF_SET_OVERLAY)!=0)
@@ -283,7 +283,7 @@ bool GhostWaitframeM(ffc this, npc ghost, float x, float y, float z, bool clearO
         else if(z<GH_DRAW_OVER_THRESHOLD && this->Flags[FFCF_OVERLAY])
             this->Flags[FFCF_OVERLAY]=false;
     }
-    
+
     do
     {
         // Stop falling and set position
@@ -291,17 +291,17 @@ bool GhostWaitframeM(ffc this, npc ghost, float x, float y, float z, bool clearO
         {
             if((ghost->Misc[GHI_FLAGS]&GHF_NO_FALL)!=0)
                 ghost->Jump=0;
-            
+
             ghost->X=x;
             ghost->Y=y;
             ghost->Z=z;
         }
         this->X=Max(-64, Min(256, x)); // The FFC shouldn't go too far offscreen, or it will disappear
         this->Y=Max(-64, Min(176, y-z));
-        
+
         Waitframe();
     } while((__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_SUSPEND)!=0);
-    
+
     // Dead?
     if(!ghost->isValid())
     {
@@ -311,7 +311,7 @@ bool GhostWaitframeM(ffc this, npc ghost, float x, float y, float z, bool clearO
             Quit();
         return false;
     }
-    
+
     if(ghost->HP<=0)
     {
         if(clearOnDeath)
@@ -322,17 +322,17 @@ bool GhostWaitframeM(ffc this, npc ghost, float x, float y, float z, bool clearO
             ghost->Y=this->Y+8*(this->TileHeight-1);
             this->Data=0;
         }
-        
+
         if(quitOnDeath)
             Quit();
         return false;
     }
-    
+
     // Hit?
     CheckHit(this, ghost);
     if((ghost->Misc[GHI_FLAGS]&GHF_STUN)!=0)
         CheckStun(this, ghost);
-    
+
     return true;
 }
 
@@ -384,15 +384,15 @@ void CheckHit(ffc this, npc ghost)
         ghost->Misc[GHI_FLAGS]|=GHF_GOT_HIT;
         ghost->Misc[GHI_PREV_HP]=ghost->HP;
         ghost->Misc[GHI_FLASH_COUNTER]=32;
-        
+
         // Set knockback
         if((ghost->Misc[GHI_FLAGS]&GHF_KNOCKBACK)!=0)
         {
             int xDiff=Link->X-ghost->X;
             int yDiff=Link->Y-ghost->Y;
-            
+
             // The direction can't be checked the proper way, so guess based on Link's position
-            
+
             // If close, use Link's direction
             if(Sqrt(xDiff*xDiff+yDiff*yDiff)<32)
             {
@@ -428,7 +428,7 @@ void CheckHit(ffc this, npc ghost)
     // Not hit; unset flag
     else if((ghost->Misc[GHI_FLAGS]&GHF_GOT_HIT)!=0)
         ghost->Misc[GHI_FLAGS]&=(~GHF_GOT_HIT);
-    
+
     // Flash
     if(ghost->Misc[GHI_FLASH_COUNTER]>1)
     {
@@ -441,13 +441,13 @@ void CheckHit(ffc this, npc ghost)
         ghost->Misc[GHI_FLASH_COUNTER]=0;
         this->CSet=ghost->CSet;
     }
-    
+
     // Handle knockback
     if(ghost->Misc[GHI_KNOCKBACK_COUNTER]!=0)
     {
         int dir=ghost->Misc[GHI_KNOCKBACK_COUNTER]>>5;
         int counter=ghost->Misc[GHI_KNOCKBACK_COUNTER]&31;
-        
+
         // Get knocked back
         if(CanMove(this, ghost, dir, 4, 0))
         {
@@ -456,7 +456,7 @@ void CheckHit(ffc this, npc ghost)
                 ghost->Misc[GHI_KNOCKBACK_COUNTER]=(dir<<5)|counter;
             else
                 ghost->Misc[GHI_KNOCKBACK_COUNTER]=0;
-            
+
             if(dir==DIR_UP)
             {
                 this->Y-=4;
@@ -478,12 +478,12 @@ void CheckHit(ffc this, npc ghost)
                 ghost->X+=4;
             }
         }
-        
+
         // Can't go any farther; end knockback
         else
         {
             ghost->Misc[GHI_KNOCKBACK_COUNTER]=0;
-            
+
             if(dir==DIR_UP)
             {
                 ghost->Y&=~7;
@@ -523,12 +523,12 @@ bool CheckStun(ffc this, npc ghost)
         float vy=this->Vy;
         float ax=this->Ax;
         float ay=this->Ay;
-        
+
         this->Vx=0;
         this->Vy=0;
         this->Ax=0;
         this->Ay=0;
-        
+
         // Do nothing except get hit until recovered
         while(ghost->Stun>0)
         {
@@ -536,7 +536,7 @@ bool CheckStun(ffc this, npc ghost)
             if(!ghost->isValid() || ghost->HP<=0)
                 return false;
             CheckHit(this, ghost);
-            
+
             // If the ghost shouldn't get knocked back, make sure it doesn't
             if((ghost->Misc[GHI_FLAGS]&GHF_KNOCKBACK)==0)
             {
@@ -544,7 +544,7 @@ bool CheckStun(ffc this, npc ghost)
                 ghost->Y=this->Y+ghost->Z;
             }
         }
-        
+
         // Restore movement
         this->Vx=vx;
         this->Vy=vy;
@@ -557,7 +557,7 @@ bool CheckStun(ffc this, npc ghost)
 bool CanMove(ffc this, npc ghost, int dir, float step, int imprecision)
 {
     int y=this->Y+ghost->Z;
-    
+
     if(dir==DIR_UP)
     {
         // Screen edges
@@ -565,21 +565,21 @@ bool CanMove(ffc this, npc ghost, int dir, float step, int imprecision)
             return false;
         else if(y-step<0)
             return false;
-        
+
         int y2=y-step;
         int flags=ghost->Misc[GHI_FLAGS];
-        
+
         // Check every 8 pixels for solid, pit, or water
         for(int i=imprecision; i<this->TileWidth*16-imprecision; i+=8)
         {
             if(!CanMovePixel(this->X+i, y2, flags))
                 return false;
         }
-        
+
         // One last pixel...
         if(!CanMovePixel(this->X+16*this->TileWidth-1-imprecision, y2, flags))
             return false;
-        
+
         return true;
     }
     else if(dir==DIR_DOWN)
@@ -588,19 +588,19 @@ bool CanMove(ffc this, npc ghost, int dir, float step, int imprecision)
             return false;
         else if(y+16*this->TileHeight+step>=176)
             return false;
-        
+
         int y2=y+16*this->TileHeight+step;
         int flags=ghost->Misc[GHI_FLAGS];
-        
+
         for(int i=imprecision; i<this->TileWidth*16-imprecision; i+=8)
         {
             if(!CanMovePixel(this->X+i, y2, flags))
                 return false;
         }
-        
+
         if(!CanMovePixel(this->X+16*this->TileWidth-1-imprecision, y2, flags))
             return false;
-        
+
         return true;
     }
     else if(dir==DIR_LEFT)
@@ -609,19 +609,19 @@ bool CanMove(ffc this, npc ghost, int dir, float step, int imprecision)
             return false;
         else if(this->X-step<0)
             return false;
-        
+
         int x2=this->X-step;
         int flags=ghost->Misc[GHI_FLAGS];
-        
+
         for(int i=imprecision; i<this->TileHeight*16-imprecision; i+=8)
         {
             if(!CanMovePixel(x2, y+i, flags))
                 return false;
         }
-        
+
         if(!CanMovePixel(x2, y+16*this->TileHeight-1-imprecision, flags))
             return false;
-        
+
         return true;
     }
     else if(dir==DIR_RIGHT)
@@ -630,19 +630,19 @@ bool CanMove(ffc this, npc ghost, int dir, float step, int imprecision)
             return false;
         else if(this->X+16*this->TileWidth+step>=256)
             return false;
-        
+
         int x2=this->X+16*this->TileWidth+step;
         int flags=ghost->Misc[GHI_FLAGS];
-        
+
         for(int i=imprecision; i<this->TileHeight*16-imprecision; i+=8)
         {
             if(!CanMovePixel(x2, y+i, flags))
                 return false;
         }
-        
+
         if(!CanMovePixel(x2, y+16*this->TileHeight-1-imprecision, flags))
             return false;
-        
+
         return true;
     }
     else // Invalid direction
@@ -652,7 +652,7 @@ bool CanMove(ffc this, npc ghost, int dir, float step, int imprecision)
 bool CanMovePixel(int x, int y, int flags)
 {
     int combo=ComboAt(x, y);
-    
+
     // "No enemy" flags and combos
     if(Screen->ComboT[combo]==CT_NOENEMY)
         return false;
@@ -660,7 +660,7 @@ bool CanMovePixel(int x, int y, int flags)
         return false;
     if(Screen->ComboI[combo]==CF_NOENEMY)
         return false;
-    
+
     // Water and pit walkability override solidity checking
     if(IsWater(combo))
     {
@@ -677,7 +677,7 @@ bool CanMovePixel(int x, int y, int flags)
         if((flags&GHF_IGNORE_SOLIDITY)==0)
             return false;
     }
-    
+
     return true;
 }
 
@@ -687,7 +687,7 @@ void Move(ffc this, npc ghost, float xStep, float yStep, int imprecision)
     {
         // Figure out the base combo, in case GHF_4WAY is set
         int baseCombo=this->Data-ghost->Dir;
-        
+
         if(Abs(yStep)>Abs(xStep))
         {
             if(yStep<0)
@@ -702,7 +702,7 @@ void Move(ffc this, npc ghost, float xStep, float yStep, int imprecision)
             else
                 ghost->Dir=DIR_RIGHT;
         }
-        
+
         if((ghost->Misc[GHI_FLAGS]&GHF_4WAY)!=0)
             this->Data=baseCombo+ghost->Dir;
     }
@@ -755,7 +755,7 @@ void MoveTowardLink(ffc this, npc ghost, float step, int imprecision)
 void Transform(ffc this, npc ghost, int combo, int cset, int tileWidth, int tileHeight)
 {
     int diff;
-    
+
     if(combo>=0)
         this->Data=combo;
 
@@ -764,7 +764,7 @@ void Transform(ffc this, npc ghost, int combo, int cset, int tileWidth, int tile
         this->CSet=cset;
         ghost->CSet=cset;
     }
-    
+
     if(tileWidth>0)
     {
         diff=8*(this->TileWidth-tileWidth);
@@ -773,7 +773,7 @@ void Transform(ffc this, npc ghost, int combo, int cset, int tileWidth, int tile
         this->TileWidth=tileWidth;
         ghost->X=ghost->X+diff;
     }
-    
+
     if(tileHeight>0)
     {
         diff=8*(this->TileHeight-tileHeight);
@@ -782,7 +782,7 @@ void Transform(ffc this, npc ghost, int combo, int cset, int tileWidth, int tile
         this->TileHeight=tileHeight;
         ghost->Y=ghost->Y+diff;
     }
-    
+
     SetOffsets(this, ghost, 0, 0, 0, 0);
 }
 
@@ -793,7 +793,7 @@ void SwapGhost(npc oldGhost, npc newGhost, bool copyHP)
     newGhost->Z=oldGhost->Z;
     newGhost->Jump=oldGhost->Jump;
     newGhost->Dir=oldGhost->Dir;
-    
+
     newGhost->Extend=oldGhost->Extend;
     newGhost->TileWidth=oldGhost->TileWidth;
     newGhost->TileHeight=oldGhost->TileHeight;
@@ -803,13 +803,13 @@ void SwapGhost(npc oldGhost, npc newGhost, bool copyHP)
     newGhost->HitYOffset=oldGhost->HitYOffset;
     newGhost->CSet=oldGhost->CSet;
     newGhost->CollDetection=oldGhost->CollDetection;
-    
+
     for(int i=0; i<16; i++)
         newGhost->Misc[i]=oldGhost->Misc[i];
-    
+
     if(copyHP)
         newGhost->HP=oldGhost->HP;
-    
+
     // Move the old ghost out of the way
     oldGhost->CollDetection=false;
     oldGhost->HitXOffset=32768;
@@ -818,7 +818,7 @@ void SwapGhost(npc oldGhost, npc newGhost, bool copyHP)
 void ReplaceGhost(npc oldGhost, npc newGhost, bool copyHP)
 {
     SwapGhost(oldGhost, newGhost, copyHP);
-    
+
     oldGhost->X=384;
     oldGhost->HP=-1000;
 }
@@ -833,7 +833,7 @@ void SetOffsets(ffc this, npc ghost, float top, float bottom, float left, float 
         left=Round(left*this->TileWidth*16);
     if(right>0 && right<1)
         right=Round(right*this->TileWidth*16);
-    
+
     ghost->HitXOffset=left;
     ghost->HitYOffset=top;
     ghost->HitWidth=16*this->TileWidth-(left+right);

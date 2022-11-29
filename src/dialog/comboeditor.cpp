@@ -420,7 +420,6 @@ std::string getComboTypeHelpText(int32_t id)
 			typehelp = buf;
 			break;
 		}
-		
 		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
 			typehelp = "If no button is assigned, the chest opens when pushed against from a valid side. If buttons are assigned,"
 				" then when the button is pressed while facing the chest from a valid side.\n"
@@ -444,19 +443,15 @@ std::string getComboTypeHelpText(int32_t id)
 		case cBOSSCHEST2:
 			typehelp = "Acts as a chest that can't be opened. Becomes 'opened' (advancing to the next combo) when any 'Treasure Chest (Boss)' is opened on the screen.";
 			break;
-		
 		case cHSBRIDGE: case cZELDA: case cUNDEF: case cCHANGE: case cSPINTILE2:
 			typehelp = "Unimplemented type, do not use!";
 			break;
-		
 		case cSPOTLIGHT:
 			typehelp = "Shoots a beam of light which reflects off of mirrors, and can trigger light triggers.";
 			break;
-		
 		case cGLASS:
 			typehelp = "Does not block light beams, even if solid";
 			break;
-		
 		case cLIGHTTARGET:
 			typehelp = "If all targets onscreen are lit by light beams, secrets will be triggered.";
 			break;
@@ -1314,17 +1309,14 @@ void ComboEditorDialog::loadComboType()
 			l_attribyte[5] = "Script:";
 			h_attribyte[5] = "LWeapon or EWeapon script ID to attach to the fired weapons."
 				"\nNote that there is no way to supply InitD to such scripts.";
-			
 			//short[0],[1] : Rate
 			l_attrishort[2] = "Damage:";
 			h_attrishort[2] = "The damage of the spawned weapon";
-			
 			//bute[0] : Angle/Dir
 			//bute[1] : Prox Limit
 			//bute[3] : Multishot Spread
 			l_attribute[2] = "Step Speed:";
 			h_attribute[2] = "The speed of the weapon, in 100ths px/frame";
-			
 			l_flag[0] = "Angular";
 			h_flag[0] = "Specify an angle (in degrees) instead of a direction (8dir)";
 			l_flag[1] = "Variable Rate";
@@ -1615,7 +1607,6 @@ void ComboEditorDialog::loadComboType()
 				l_attribyte[4] = "Enemy ID";
 				h_attribyte[4] = "The Enemy ID to spawn";
 			}
-			
 			l_flag[6] = "Trigger Singular Secret";
 			h_flag[6] = "Triggers a single secret flag temporarily";
 			if(FL(cflag7|cflag4))
@@ -1712,7 +1703,6 @@ void ComboEditorDialog::loadComboType()
 			h_flag[0] = "Destroy the weapon that triggers the combo";
 			l_flag[7] = "Skip Cycle on Screen Entry";
 			h_flag[7] = "Combo cycle the switch combo on screen entry, to skip any switching animation";
-			
 			l_attribute[0] = "Combo Change:";
 			h_attribute[0] = "Value to add to the combo ID when triggered";
 			l_attribute[1] = "CSet Change:";
@@ -1978,7 +1968,6 @@ static std::shared_ptr<GUI::Widget> NUM_FIELD_IMPL(word* data, word min, word ma
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	return TextField(
 		type = GUI::TextField::type::INT_DECIMAL,
 		maxLength = 5,
@@ -1999,7 +1988,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::ANIM_FIELD_IMPL(byte* data, byte
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	return TextField(
 		type = GUI::TextField::type::INT_DECIMAL,
 		maxLength = 5,
@@ -2021,7 +2009,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_FLAG(int index)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	return Row(padding = 0_px, colSpan=2,
 		ib_flags[index] = Button(forceFitH = true, text = "?",
 			disabled = true,
@@ -2055,7 +2042,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRIBYTE(int index)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	return Row(padding = 0_px, colSpan = 3,
 		l_attribytes[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
 		ib_attribytes[index] = Button(forceFitH = true, text = "?",
@@ -2079,7 +2065,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRISHORT(int index)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	return Row(padding = 0_px, colSpan = 3,
 		l_attrishorts[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
 		ib_attrishorts[index] = Button(forceFitH = true, text = "?",
@@ -2103,7 +2088,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_ATTRIBUTE(int index)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	return Row(padding = 0_px, colSpan = 3,
 		l_attributes[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
 		ib_attributes[index] = Button(forceFitH = true, text = "?",
@@ -2127,7 +2111,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_INITD(int index)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	return Row(padding = 0_px,
 		l_initds[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
 		ib_initds[index] = Button(forceFitH = true, text = "?",
@@ -2151,7 +2134,6 @@ std::shared_ptr<GUI::Checkbox> ComboEditorDialog::TRIGFLAG(int index, const char
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	return Checkbox(
 		text = str, hAlign = 0.0,
 		checked = (local_comboref.triggerflags[index/32] & (1<<(index%32))),
@@ -2192,7 +2174,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 #ifdef EMSCRIPTEN_DEBUG
 	return std::shared_ptr<GUI::Widget>(nullptr);
 #endif
- 	
 	char titlebuf[256];
 	sprintf(titlebuf, "Combo Editor (%d)", index);
 	if(is_large)
@@ -3230,7 +3211,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										local_comboref.lifttime = val;
 									}),
 								INFOBTN("The time, in frames, it takes to lift the combo")
-								
 							)
 						)
 					)),
@@ -4467,7 +4447,6 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				}).show();
 			if(cleared) return true;
 			break;
-		
 		case message::WIZARD:
 			if(hasComboWizard(local_comboref.type))
 			{
@@ -4476,7 +4455,6 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				return true;
 			}
 			break;
-		
 		case message::OK:
 			saved = false;
 			if(!hasCTypeEffects(local_comboref.type))

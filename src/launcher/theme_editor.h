@@ -22,7 +22,6 @@ public:
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
-	
 private:
 	std::shared_ptr<GUI::Window> window;
 	char* saved_path;

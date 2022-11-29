@@ -39,7 +39,7 @@ void TriggerUpdate (lweapon l, int flag, int sound, bool perm, int cmb, int SCSe
 						if (cmb==0) Screen->ComboC[i] = Screen->UnderCSet;
 						else Screen->ComboC[i] = SCSet;
 						Screen->ComboF[i] = 0;
-					} 
+					}
 				}
 				Screen->TriggerSecrets();
 				if (perm) Screen->State[ST_SECRET] = true;
@@ -82,7 +82,7 @@ bool HitSecretTrigger (lweapon l, int flag, int sound, bool perm, int cmb, int S
 						if (SCSet<0) Screen->ComboC[i] = Screen->UnderCSet;
 						else Screen->ComboC[i] = SCSet;
 						Screen->ComboF[i] = 0;
-					} 
+					}
 				}
 				Screen->TriggerSecrets();
 				if (perm) Screen->State[ST_SECRET] = true;
@@ -151,7 +151,7 @@ void ReplaceFlaggedCombos( lweapon l, int flag, int newcombo, int newcset, int s
 	}
 }
 
-//Destroys combos on collision by replacing them with screen`s undercombo. 
+//Destroys combos on collision by replacing them with screen`s undercombo.
 //Sound - sound to play on destruction.
 void DestroyCombosOnCollision( lweapon l, int type, int sound){
 	int cmb = Screen->UnderCombo;

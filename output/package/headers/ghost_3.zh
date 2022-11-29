@@ -22,13 +22,13 @@ namespace ghost3
 		[1] Max ffc used by ghost, must be 1-32 and greater or equal to [0].
 		[2] Spawn sprite, 0 to 255
 		[3] Default enemy walking imprecision. (usually set to '2')
-	
+
 		ATTRIBUTES
 		[0] The sprite->Misc[] index to use for storing data[] array pointers (0 to 31)
 		[1] (Unused)
 		[2] (Unused)
 		[3] (Unused)
-	
+
 		FLAGS
 		Flag 1: Fake Z (if ENABLED), Engine Z (if NOT ENABLED)
 		Flag 2: Enemies flicker (if ENABLED), Engine hit effect (if NOT ENABLED)
@@ -47,9 +47,9 @@ namespace ghost3
 		Flag 15
 		Flag 16
 	*/
-	
+
 	const int GH_INTERNAL = 31;
-	
+
 	// Registers of the data[] array, used for every script
 	enum DataRegisters
 	{
@@ -119,26 +119,26 @@ namespace ghost3
 
 	// npc->Misc[] index
 	// Set this so it doesn't conflict with other scripts. Legal values are 0-31.
-	
+
 	enum InitTypes
 	{
 		INIT_FAIL, INIT_SUCCESS, INIT_ALREADY, INIT_LAST
 	};
-	
+
 	// Game->Ghost[] Values
-	
+
 	CONFIGB GHOST_DEBUG = true;
-	
+
 	enum GhostArrayValues
 	{
 		//Init
 		GHV_INITIALISED, //int: Used to check if ghost was initialised already. Only one bit of this us used.
-		
-		//Combos	
+
+		//Combos
 		GHV_SETTINGS_COMBO, // combodata, Also used for blank combo
 		GHV_SETTINGS_COMBO_ID, // int, Also used for blank combo ID
 		GHV_BLANK_TILE, // int
-		
+
 		//Shadows
 		GHV_SHADOW_TILE, //int
 		GHV_SHADOW_CSET, //int
@@ -154,7 +154,7 @@ namespace ghost3
 		GHV_LARGE_SHADOW_FLICKER, //int
 		GHV_LARGE_SHADOW_MIN_WIDTH, //int
 		GHV_LARGE_SHADOW_MIN_HEIGHT, //int
-		
+
 		//Other settings
 		GHV_MIN_FFC, //byte
 		GHV_MAX_FFC, //byte
@@ -166,7 +166,7 @@ namespace ghost3
 		GHV_FIX_255_ANONE, //flag
 		GHV_WEAPONS_HIT_PLATFORMS, //flag
 		GHV_SPRITE_ARRAY_MISC_INDEX, //int
-		
+
 		//Legacy
 		GHV_FLASH_TIME, //byte
 		GHV_KNOCKBACK_TIME, //byte
@@ -177,20 +177,20 @@ namespace ghost3
 		GHV_LEG_INVISIBLE_ALT, //int
 		GHV_LEG_INVISIBLE_EXTEND, //int
 		GHV_LEG_USE_DRAWCOMBO, //flag
-		
+
 		//Bugfix
 		GHV_LEG_ETHEREAL, //flag
 		GHV_CLEAR_FFC_LINK_DEP, //flag
 		GHV_FIX_EWM_FALL_DEP, //flag
 		GHV_FIX_EWM_THROW_DEP, //flag
-		
+
 		//Metadata
 		GHV_PRINT_METADATA, //flag
-		
+
 		GHV_LAST
-		
+
 	};
-	
+
 	// Call at the begin of every script immediately following the data[] array declaration.
 	void init(npc ghost, untyped ptr)
 	{
@@ -205,7 +205,7 @@ namespace ghost3
 			ghost->Remove();
 		}
 	}
-	
+
 	// Initialises the environment.
 	int sysinit()
 	{
@@ -223,19 +223,19 @@ namespace ghost3
 		// More System Values Here. All settings ^^ABOVE^^ to be moved to combodata.
 		// so that they are tileset-based!!!
 		Game->Ghost[GHV_INITIALISED] |= 0x1;
-		if ( Game->Ghost[GHV_PRINT_METADATA] ) 
+		if ( Game->Ghost[GHV_PRINT_METADATA] )
 		{
 			Metadata.print();
 		}
 		return INIT_SUCCESS;
 	}
-	
-	// Constructs the environmental settings. 
+
+	// Constructs the environmental settings.
 	int RunSetupCombo()
 	{
 		int cid = Game->GetCombo("GHOST");
-		
-		unless(cid > 0) 
+
+		unless(cid > 0)
 		{
 			printf("No combo has the label GHOST.\n");
 			return INIT_FAIL;
@@ -243,9 +243,9 @@ namespace ghost3
 		combodata cd = Game->LoadComboData(cid);
 		Game->Ghost[GHV_SETTINGS_COMBO] = cd; //cache the combodata
 		Game->Ghost[GHV_SETTINGS_COMBO_ID] = cd->ID;
-		Game->Ghost[GHV_BLANK_TILE] = cd->OriginalTile; 
+		Game->Ghost[GHV_BLANK_TILE] = cd->OriginalTile;
 		//if ^^this^^ fails, do Game->Ghost[GHV_BLANK_TILE] = GetInvisibleComboTile(Game->Ghost[GHV_BLANK_COMBO]);
-		
+
 		Game->Ghost[GHV_MIN_FFC] = Clamp(cd->Attribytes[0],1,32);
 		Game->Ghost[GHV_MAX_FFC] = Clamp(cd->Attribytes[1],1,32);
 		if ( Game->Ghost[GHV_MAX_FFC] < Game->Ghost[GHV_MIN_FFC] )
@@ -255,13 +255,13 @@ namespace ghost3
 		}
 		Game->Ghost[GHV_SPAWN_SPRITE] = cd->Attribytes[2];
 		Game->Ghost[GHV_DEFAULT_IMPRECISION] = cd->Attribytes[3];
-		
+
 		Game->Ghost[GHV_FAKE_Z] = (cd->UserFlags&0x1) ? 1 : 0;
 		Game->Ghost[GHV_ENEMIES_FLICKER] = (cd->UserFlags&0x2) ? 1 : 0;
 		Game->Ghost[GHV_PREFER_GHOST_ZH_SHADOWS] = (cd->UserFlags&0x4) ? 1 : 0;
 		Game->Ghost[GHV_FIX_255_ANONE] = (cd->UserFlags&0x8) ? 1 : 0;
 		Game->Ghost[GHV_WEAPONS_HIT_PLATFORMS] = (cd->UserFlags&0x10) ? 1 : 0;
-		
+
 		//Fixes
 		Game->Ghost[GHV_LEG_ETHEREAL] = (cd->UserFlags&0x20) ? 0 : 1; //default on
 		Game->Ghost[GHV_CLEAR_FFC_LINK_DEP] = (cd->UserFlags&0x40) ? 0 : 1; //default on
@@ -269,50 +269,50 @@ namespace ghost3
 		Game->Ghost[GHV_FIX_EWM_THROW_DEP] = (cd->UserFlags&0x100) ? 0 : 1; //default on
 		Game->Ghost[GHV_FAKE_EWEAPON_Z] = (cd->UserFlags&0x200) ? 1 : 0; //default off
 		Game->Ghost[GHV_PRINT_METADATA] = (cd->UserFlags&0x400) ? 0 : 1; //default on
-		
+
 		Game->Ghost[GHV_SPRITE_ARRAY_MISC_INDEX] = cd->Attribytes[0];
-		
+
 		return INIT_SUCCESS;
 	}
-	
-	// Returns whether the system has been initialised. 
+
+	// Returns whether the system has been initialised.
 	bool initialised()
 	{
 		return (Game->Ghost[GHV_INITIALISED]&0x1);
 	}
-	
-	// Gets the ID of the settings combo as combodata. 
+
+	// Gets the ID of the settings combo as combodata.
 	combodata GetSettingsCombo()
 	{
 		int cd = Game->GetCombo("GHOST");
 		if(cd>0) return Game->LoadComboData(cd);
-		else 
+		else
 		{
 			printf("No combo has the label GHOST.\n");
 			return NULL;
 		}
 		return Game->Ghost[GHV_SETTINGS_COMBO];
 	}
-	
+
 	// Easy to remember way to get an invisible combo.
 	int GetInvisibleComboID()
 	{
 		return Game->Ghost[GHV_SETTINGS_COMBO_ID];
 	}
-	
-	//Easy way to get an invisible tile block. 
+
+	//Easy way to get an invisible tile block.
 	int GetInvisibleComboTile()
 	{
 		return Game->Ghost[GHV_BLANK_TILE];
 	}
-	
+
 	// Used for old ffc setup. Will be in 2.9, so I am putting it here for now so that I do not forget it int he 2.9 refactor.
 	// Please do not delete this. -Z
 	int RunLegacySetup()
 	{
 		int cid = Game->GetCombo("GHFFC");
 		unless(cid > 0)
-		{	
+		{
 			printf("No combo has the label GHFFC\n");
 			return INIT_FAIL;
 		}
@@ -327,27 +327,27 @@ namespace ghost3
 		Game->Ghost[GHV_LEG_USE_DRAWCOMBO] = (leg->UserFlags&0x1) ? 1 : 0;
 		//Game->Ghost[GHV_LEG_USE_DRAWCOMBO] = (leg->UserFlags&0x2) ? 1 : 0; //Did I miss one?
 		return INIT_SUCCESS;
-		
+
 	}
-	
-	// Sets up Ghost 2.9.x shadow tiles, if we use those at all. 
+
+	// Sets up Ghost 2.9.x shadow tiles, if we use those at all.
 	int SetupShadowTiles()
 	{
 		combodata shad1, shad2;
 		int cid1, cid2;
 		cid1 = Game->GetCombo("GHSHAD1");
 		cid2 = Game->GetCombo("GHSHAD2");
-		unless(cid1 > 0) 
+		unless(cid1 > 0)
 		{
 			printf("No combo has the label GHSHAD1.\n");
 			return INIT_FAIL;
 		}
-		unless(cid2 > 0) 
+		unless(cid2 > 0)
 		{
 			printf("No combo has the label GHSHAD2.\n");
 			return INIT_FAIL;
 		}
-			
+
 		shad1 = Game->LoadComboData(cid1);
 		shad2 = Game->LoadComboData(cid2);
 		Game->Ghost[GHV_SHADOW_TILE] = shad1->OriginalTile;
@@ -356,7 +356,7 @@ namespace ghost3
 		Game->Ghost[GHV_SHADOW_ANIM_SPEED] = shad1->ASpeed;
 		Game->Ghost[GHV_SHADOW_TRANSLUCENT] = ((shad1->UserFlags&0x1) ? 1 : 0);
 		Game->Ghost[GHV_SHADOW_FLICKER] = ((shad1->UserFlags&0x2) ? 1 : 0);
-		
+
 		Game->Ghost[GHV_LARGE_SHADOW_TILE] = shad2->OriginalTile;
 		Game->Ghost[GHV_LARGE_SHADOW_CSET] = shad2->CSet;
 		Game->Ghost[GHV_LARGE_SHADOW_FRAMES] = shad2->Frames;
@@ -366,7 +366,7 @@ namespace ghost3
 		Game->Ghost[GHV_LARGE_SHADOW_MIN_HEIGHT] = shad2->Attributes[1];
 		return INIT_SUCCESS;
 	}
-	
+
 	// Returns true if enemies are visible on screens with the
 	// "All Enemies Are Invisible" flag enabled
 	bool HaveAmulet()
@@ -381,9 +381,9 @@ namespace ghost3
 	    }
 	    return false;
 	}
-	
+
 	// Used to determine if a weapon hit a platform in sideview.
-	bool OnSidePlatform(int x, int y, int xOff, int yOff, int h, int w) 
+	bool OnSidePlatform(int x, int y, int xOff, int yOff, int h, int w)
 	{
 		unless (IsSideview()) return false;
 		for(int i = 0; i <= (w-1); ++i)
@@ -392,11 +392,11 @@ namespace ghost3
 			{
 				return true;
 			}
-		   
+
 		}
 		return false;
 	}
-	
+
 }
 
 #include "std.zh"

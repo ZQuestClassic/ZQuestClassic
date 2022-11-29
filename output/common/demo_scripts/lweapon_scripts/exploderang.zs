@@ -27,6 +27,5 @@ lweapon script exploderang
 			Waitframe();
 		}
 	}
-}		
-			
-					
+}
+

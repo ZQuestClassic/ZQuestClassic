@@ -81,7 +81,7 @@ ffc script Axe{
 					axe->CollDetection = false;
 				}
 				LweaponWaitframe (this, axe, true);
-			}			
+			}
 		}
 		else{
 			while (true){
@@ -112,7 +112,7 @@ ffc script Knife{
 		LweaponSetFlag(knife, LWF_AUTO_SPRITE_UPDATE);
 		LweaponSetFlag(knife, LWF_NO_FALL);
 		SetEnemyDefense(knife, NPCD_ARROW);
-		SetStraightMotion4(this, speed);		
+		SetStraightMotion4(this, speed);
 		while (true){
 			//UseEnemyDefense(knife, 0, NPCD_ARROW);
 			TransformEnemyOnCollision (knife, NPC_GIBDO, NPC_STALFOS2, false, SFX_EDEAD);
@@ -155,7 +155,7 @@ ffc script CrossBoomerang{
 			TransformEnemyOnCollision (cross, NPC_GIBDO, NPC_STALFOS2, false, SFX_EDEAD);
 			if (cooldown==0){
 			if ((OnScreenEdge(cross))||(BlockedByEnemy(cross))){
-				if (bouncecounter<maxbounce){					
+				if (bouncecounter<maxbounce){
 					if (this->Vx!=0) this->Vx= -(this->Vx);
 					if (this->Vy!=0) this->Vy= -(this->Vy);
 					if (BlockedByEnemy(cross)){
@@ -172,7 +172,7 @@ ffc script CrossBoomerang{
 					if(IsSideview())LweaponUnSetFlag(cross, LWF_NO_FALL);
 					else timer = 30;
 				}
-				
+
 			}
 			}
 			if (cooldown >0){
@@ -262,7 +262,7 @@ ffc script HolyMolotov{
 		}
 	}
 }
-//An ancient HOLY BIBLE. Upon launching,it starts moving in spiral pattern 
+//An ancient HOLY BIBLE. Upon launching,it starts moving in spiral pattern
 //until disappearing after certain time. Additionally, it destroys EWeapons.
 //Uses BYRNA BEAM enemy defense.
 //D0: Damage.
@@ -363,13 +363,13 @@ ffc script RicochetingDiamond{
 			//UseEnemyDefense(gem, 0, NPCD_REFROCK);
 			if (ric <= maxbounce){
 				if (bouncecooldown>0) bouncecooldown--;
-			     else if (WallCollision8way(gem)) {
-			     	MoveToSolidContactPosition(this, gem);
-			     	Bounce(this, gem, SFX_TAP1);
-			     	ric++;
-			     	bouncecooldown++;
-			     	}
-			     }
+					else if (WallCollision8way(gem)) {
+						MoveToSolidContactPosition(this, gem);
+						Bounce(this, gem, SFX_TAP1);
+						ric++;
+						bouncecooldown++;
+					}
+				}
 			else gem->DrawStyle=DS_PHANTOM;
 			if (!InsideScreen(gem)) TerminateLweapon (this, gem);
 			LweaponWaitframe (this, gem, true);

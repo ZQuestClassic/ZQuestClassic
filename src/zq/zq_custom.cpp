@@ -75,7 +75,6 @@ int32_t d_cstile_proc(int32_t msg,DIALOG *d,int32_t c)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	c=c;
-	
 	switch(msg)
 	{
 	case MSG_CLICK:
@@ -83,7 +82,6 @@ int32_t d_cstile_proc(int32_t msg,DIALOG *d,int32_t c)
 		int32_t f = 0;
 		int32_t t = d->d1;
 		int32_t cs = d->d2;
-		
 		if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 			? select_tile_2(t,f,1,cs,true)
 			: select_tile(t,f,1,cs,true))
@@ -94,38 +92,31 @@ int32_t d_cstile_proc(int32_t msg,DIALOG *d,int32_t c)
 		}
 	}
 	break;
-	
 	case MSG_DRAW:
 		if(is_large)
 		{
 			d->w = 36;
 			d->h = 36;
 		}
-		
 		BITMAP *buf = create_bitmap_ex(8,20,20);
 		BITMAP *bigbmp = create_bitmap_ex(8,d->w,d->h);
-		
 		if(buf && bigbmp)
 		{
 			clear_bitmap(buf);
-			
 			if(d->d1)
 				overtile16(buf,d->d1,2,2,d->d2,0);
-				
 			stretch_blit(buf, bigbmp, 2,2, 17, 17, 2, 2, d->w-2, d->h-2);
 			destroy_bitmap(buf);
 			jwin_draw_frame(bigbmp,0,0,d->w,d->h,FR_DEEP);
 			blit(bigbmp,screen,0,0,d->x,d->y,d->w,d->h);
 			destroy_bitmap(bigbmp);
 		}
-		
 		//    text_mode(d->bg);
 		FONT *fonty = is_large ? font : pfont;
 		textprintf_ex(screen,fonty,d->x+d->w,d->y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Tile: %d",d->d1);
 		textprintf_ex(screen,fonty,d->x+d->w,d->y+text_height(fonty)+3,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet: %d",d->d2);
 		break;
 	}
-	
 	return D_O_K;
 }
 
@@ -147,13 +138,11 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 		d[0].y -= int32_t(float(d[0].h)/RESIZE_AMT);
 		d[0].w = int32_t(float(d[0].w)*RESIZE_AMT);
 		d[0].h = int32_t(float(d[0].h)*RESIZE_AMT);
-		
 		for(int32_t i=1; d[i].proc!=NULL; i++)
 		{
 			// Place elements horizontally
 			double xpc = ((double)(d[i].x - oldx) / (double)oldwidth);
 			d[i].x = int32_t(d[0].x + (xpc*double(d[0].w)));
-			
 			// Horizontally resize elements
 			if((d[i].proc == d_maptile_proc && d[i].dp2!=(void*)1) || d[i].proc==d_intro_edit_proc || d[i].proc==d_title_edit_proc)
 			{
@@ -171,11 +160,9 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			else if(d[i].proc == jwin_button_proc || d[i].proc == jwin_swapbtn_proc)
 				d[i].w = int32_t(d[i].w*1.5);
 			else d[i].w = int32_t(float(d[i].w)*RESIZE_AMT);
-			
 			// Place elements vertically
 			double ypc = ((double)(d[i].y - oldy) / (double)oldheight);
 			d[i].y = int32_t(d[0].y + (ypc*double(d[0].h)));
-			
 			// Vertically resize elements
 			if((d[i].proc == d_maptile_proc && d[i].dp2!=(void*)1) || d[i].proc==d_intro_edit_proc || d[i].proc==d_title_edit_proc)
 			{
@@ -203,7 +190,6 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			else if(d[i].proc == jwin_button_proc || d[i].proc == jwin_swapbtn_proc)
 				d[i].h = int32_t(d[i].h*1.5);
 			else d[i].h = int32_t(float(d[i].h)*RESIZE_AMT);
-			
 			// Fix frames
 			if(d[i].proc == jwin_frame_proc)
 			{
@@ -212,7 +198,6 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 				d[i].w-=4;
 				d[i].h-=4;
 			}
-			
 			// Fix menus
 			if(d[i].proc == jwin_menu_proc)
 			{
@@ -221,18 +206,15 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			}
 		}
 	}
-	
 	for(int32_t i=1; d[i].proc != NULL; i++)
 	{
 		if(d[i].proc==jwin_slider_proc)
 			continue;
-			
 		// Bigger font
 		bool bigfontproc = (d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != d_ilist_proc && d[i].proc != d_wlist_proc && d[i].proc != jwin_list_proc && d[i].proc != d_dmaplist_proc
 							&& d[i].proc != d_dropdmaplist_proc && d[i].proc != d_xmaplist_proc && d[i].proc != d_dropdmaptypelist_proc && d[i].proc != d_warplist_proc && d[i].proc != d_warplist_proc && d[i].proc != d_wclist_proc && d[i].proc != d_ndroplist_proc
 							&& d[i].proc != d_idroplist_proc && d[i].proc != d_nidroplist_proc && d[i].proc != jwin_as_droplist_proc && d[i].proc != d_ffcombolist_proc && d[i].proc != d_enelist_proc && d[i].proc != sstype_drop_proc && d[i].proc !=  d_ctl_proc
 							&& d[i].proc != jwin_fontdrop_proc && d[i].proc != d_csl_proc && d[i].proc != d_csl2_proc && d[i].proc != d_stilelist_proc && d[i].proc != d_comboalist_proc);
-							
 		if(bigfontproc && !d[i].dp2)
 		{
 			//d[i].dp2 = (d[i].proc == jwin_edit_proc) ? sfont3 : lfont_l;
@@ -243,14 +225,12 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 //      ((ListData *)d[i].dp)->font = &sfont3;
 			((ListData *) d[i].dp)->font = &lfont_l;
 		}
-		
 		// Make checkboxes work
 		if(d[i].proc == jwin_check_proc)
 			d[i].proc = jwin_checkfont_proc;
 		else if(d[i].proc == jwin_radio_proc)
 			d[i].proc = jwin_radiofont_proc;
 	}
-	
 	jwin_center_dialog(d);
 }
 
@@ -265,7 +245,6 @@ const char *defenselist(int32_t index, int32_t *list_size)
 	if(index>=0)
 	{
 		bound(index,0,edLAST-1);
-		
 		switch(index)
 		{
 			case 0:
@@ -332,36 +311,34 @@ const char *defenselist(int32_t index, int32_t *list_size)
 			case edHEAL: //recover the weapon damage in HP
 				return "Enemy Gains HP = Damage";
 
-			case edTRIGGERSECRETS: //Triggers screen secrets. 
+			case edTRIGGERSECRETS: //Triggers screen secrets.
 				return "Trigger Screen Secrets";
 
-			case edSPLIT: 
+			case edSPLIT:
 				return "Split";
 			case edREPLACE:
 				return "Transform";
 
-			case edSUMMON: 
+			case edSUMMON:
 				return "Summon";
 
-			case edEXPLODESMALL: 
+			case edEXPLODESMALL:
 				return "Bomb Explosion";
 
-			case edEXPLODELARGE: 
+			case edEXPLODELARGE:
 				return "Superbomb Explosion";
 
-			case edEXPLODEHARMLESS: 
+			case edEXPLODEHARMLESS:
 				return "Harmless Explosion";
 
-			case edFREEZE: //Hit by ice.. 
+			case edFREEZE: //Hit by ice..
 				return "Freeze Solid";
-				
 			case edSWITCH:
 				return "Switch w/ Player";
 			default:
 				return "[reserved]";
 		}
 	}
-	
 	*list_size = edLAST;
 	return NULL;
 }
@@ -375,7 +352,6 @@ const char *itemscriptdroplist(int32_t index, int32_t *list_size)
 		*list_size = biitems_cnt;
 		return NULL;
 	}
-	
 	return biitems[index].first.c_str();
 }
 
@@ -388,7 +364,6 @@ const char *itemspritescriptdroplist(int32_t index, int32_t *list_size)
 		*list_size = biitemsprites_cnt;
 		return NULL;
 	}
-	
 	return biditemsprites[index].first.c_str();
 }
 
@@ -401,7 +376,6 @@ const char *lweaponscriptdroplist(int32_t index, int32_t *list_size)
 		*list_size = bilweapons_cnt;
 		return NULL;
 	}
-	
 	return bilweapons[index].first.c_str();
 }
 
@@ -431,8 +405,6 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 	itemdata tempitem;
 	memset(&tempitem, 0, sizeof(itemdata));
 		//reset_itembuf(&tempitem,i);
-	
-   
 	char istring[64]={0};
 	//section version info
 	if(!p_igetl(&zversion,f,true))
@@ -443,19 +415,16 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 	{
 		return 0;
 	}
-	
 	if(!p_igetw(&section_version,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_igetw(&section_cversion,f,true))
 	{
 		return 0;
 	}
 	al_trace("readoneitem section_version: %d\n", section_version);
 	al_trace("readoneitem section_cversion: %d\n", section_cversion);
-	
 	if ( zversion > ZELDA_VERSION )
 	{
 		al_trace("Cannot read .zitem packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
@@ -465,108 +434,87 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 	{
 		al_trace("Cannot read .zitem packfile made using V_ITEMS (%d) subversion (%d)\n", section_version, section_cversion);
 		return 0;
-		
 	}
 	else
 	{
 		al_trace("Reading a .zitem packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
 	}
-   
 	if(!pfread(&istring, 64, f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_igetl(&tempitem.tile,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_getc(&tempitem.misc_flags,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_getc(&tempitem.csets,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_getc(&tempitem.frames,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_getc(&tempitem.speed,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_getc(&tempitem.delay,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_igetl(&tempitem.ltm,f,true))
-	{	
+	{
 		return 0;
 	}
-	
 	if(!p_igetl(&tempitem.family,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_getc(&tempitem.fam_type,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_igetl(&tempitem.power,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_igetl(&tempitem.flags,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_igetw(&tempitem.script,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_getc(&tempitem.count,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_igetw(&tempitem.amount,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_igetw(&tempitem.collect_script,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_igetw(&tempitem.setmax,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_igetw(&tempitem.max,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_getc(&tempitem.playsound,f,true))
 	{
 		return 0;
 	}
-	
 	for(int32_t j=0; j<8; j++)
 	{
 		if(!p_igetl(&tempitem.initiald[j],f,true))
@@ -574,7 +522,6 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 		return 0;
 		}
 	}
-	
 	for(int32_t j=0; j<2; j++)
 	{
 		if(!p_getc(&tempitem.initiala[j],f,true))
@@ -582,72 +529,58 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 			return 0;
 		}
 	}
-	
 	if(!p_getc(&tempitem.wpn,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_getc(&tempitem.wpn2,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_getc(&tempitem.wpn3,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_getc(&tempitem.wpn4,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_getc(&tempitem.wpn5,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_getc(&tempitem.wpn6,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_getc(&tempitem.wpn7,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_getc(&tempitem.wpn8,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_getc(&tempitem.wpn9,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_getc(&tempitem.wpn10,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_getc(&tempitem.pickup_hearts,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_igetl(&tempitem.misc1,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_igetl(&tempitem.misc2,f,true))
 	{
 		return 0;
 	}
-	
 	if(section_version < 53)
 	{
 		byte tempbyte;
@@ -677,64 +610,52 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 			}
 		}
 	}
-	
 	if(!p_igetl(&tempitem.misc3,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_igetl(&tempitem.misc4,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_igetl(&tempitem.misc5,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_igetl(&tempitem.misc6,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_igetl(&tempitem.misc7,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_igetl(&tempitem.misc8,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_igetl(&tempitem.misc9,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_igetl(&tempitem.misc10,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_getc(&tempitem.usesound,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_getc(&tempitem.usesound2,f,true))
 	{
 		return 0;
 	}
-	
 	if ( zversion >= 0x255 )
 	{
 		if  ( section_version >= 45 )
 		{
 			//New itemdata vars -Z
 			//! version 27
-			
 		if(!p_getc(&tempitem.useweapon,f,true))
 			{
 			return 0;
@@ -891,7 +812,6 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 			{
 				return 0;
 			}
-			
 			size_t num_cost_ctr = (section_version > 52 ? 2 : 1);
 			for(size_t q = 0; q < num_cost_ctr; ++q)
 			{
@@ -900,7 +820,6 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 					return 0;
 				}
 			}
-			
 			//InitD[] labels
 			for ( int32_t q = 0; q < 8; q++ )
 			{
@@ -909,65 +828,59 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 					if(!p_getc(&tempitem.initD_label[q][w],f,true))
 					{
 						return 0;
-					} 
+					}
 				}
 				for ( int32_t w = 0; w < 65; w++ )
 				{
 					if(!p_getc(&tempitem.weapon_initD_label[q][w],f,true))
 					{
 						return 0;
-					} 
+					}
 				}
 				for ( int32_t w = 0; w < 65; w++ )
 				{
 					if(!p_getc(&tempitem.sprite_initD_label[q][w],f,true))
 					{
 						return 0;
-					} 
+					}
 				}
 				if(!p_igetl(&tempitem.sprite_initiald[q],f,true))
 				{
 					return 0;
-				} 
+				}
 			}
 			for ( int32_t q = 0; q < 2; q++ )
 			{
 				if(!p_getc(&tempitem.sprite_initiala[q],f,true))
 				{
 					return 0;
-				} 
-				
+				}
 			}
 			if(!p_igetw(&tempitem.sprite_script,f,true))
 			{
 				return 0;
-			} 
-			
+			}
 			if  ( section_version >= 47 )
 			{
 				if(!p_getc(&tempitem.pickupflag,f,true))
 				{
 					return 0;
-				} 
-			}	
+				}
+			}
 			//read it into an item
 		}
 	}
 	itemsbuf[bii[index].i] = tempitem;
 	strcpy(item_string[bii[index].i], istring);
-	   
 	return 1;
 }
 
 int32_t writeoneitem(PACKFILE *f, int32_t i)
 {
-	
 	dword section_version=V_ITEMS;
 	dword section_cversion=CV_ITEMS;
 	int32_t zversion = ZELDA_VERSION;
 	int32_t zbuild = VERSION_BUILD;
-	
-  
 	//section version info
 	if(!p_iputl(zversion,f))
 	{
@@ -981,111 +894,87 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 	{
 		new_return(2);
 	}
-	
 	if(!p_iputw(section_cversion,f))
 	{
 		new_return(3);
 	}
-	
-   
-		
-	   //section data        
-		
+	   //section data
 			if(!pfwrite(item_string[i], 64, f))
 			{
 				new_return(5);
 			}
-		
 		if(!p_iputl(itemsbuf[i].tile,f))
 			{
 				new_return(6);
 			}
-			
 			if(!p_putc(itemsbuf[i].misc_flags,f))
 			{
 				new_return(7);
 			}
-			
 			if(!p_putc(itemsbuf[i].csets,f))
 			{
 				new_return(8);
 			}
-			
 			if(!p_putc(itemsbuf[i].frames,f))
 			{
 				new_return(9);
 			}
-			
 			if(!p_putc(itemsbuf[i].speed,f))
 			{
 				new_return(10);
 			}
-			
 			if(!p_putc(itemsbuf[i].delay,f))
 			{
 				new_return(11);
 			}
-			
 			if(!p_iputl(itemsbuf[i].ltm,f))
 			{
 				new_return(12);
 			}
-			
 			if(!p_iputl(itemsbuf[i].family,f))
 			{
 				new_return(13);
 			}
-			
 			if(!p_putc(itemsbuf[i].fam_type,f))
 			{
 				new_return(14);
 			}
-			
 			if(!p_iputl(itemsbuf[i].power,f))
 			{
 				new_return(14);
 			}
-			
 			if(!p_iputl(itemsbuf[i].flags,f))
 			{
 				new_return(15);
 			}
-			
 			if(!p_iputw(itemsbuf[i].script,f))
 			{
 				new_return(16);
 			}
-			
 			if(!p_putc(itemsbuf[i].count,f))
 			{
 				new_return(17);
 			}
-			
 			if(!p_iputw(itemsbuf[i].amount,f))
 			{
 				new_return(18);
 			}
-			
 			if(!p_iputw(itemsbuf[i].collect_script,f))
 			{
 				new_return(19);
 			}
-			
 			if(!p_iputw(itemsbuf[i].setmax,f))
 			{
 				new_return(21);
 			}
-			
 			if(!p_iputw(itemsbuf[i].max,f))
 			{
 				new_return(22);
 			}
-			
 			if(!p_putc(itemsbuf[i].playsound,f))
 			{
 				new_return(23);
 			}
-			
 			for(int32_t j=0; j<8; j++)
 			{
 				if(!p_iputl(itemsbuf[i].initiald[j],f))
@@ -1093,7 +982,6 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 					new_return(24);
 				}
 			}
-			
 			for(int32_t j=0; j<2; j++)
 			{
 				if(!p_putc(itemsbuf[i].initiala[j],f))
@@ -1101,72 +989,58 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 					new_return(25);
 				}
 			}
-			
 			if(!p_putc(itemsbuf[i].wpn,f))
 			{
 				new_return(26);
 			}
-			
 			if(!p_putc(itemsbuf[i].wpn2,f))
 			{
 				new_return(27);
 			}
-			
 			if(!p_putc(itemsbuf[i].wpn3,f))
 			{
 				new_return(28);
 			}
-			
 			if(!p_putc(itemsbuf[i].wpn4,f))
 			{
 				new_return(29);
 			}
-			
 			if(!p_putc(itemsbuf[i].wpn5,f))
 			{
 				new_return(30);
 			}
-			
 			if(!p_putc(itemsbuf[i].wpn6,f))
 			{
 				new_return(31);
 			}
-			
 			if(!p_putc(itemsbuf[i].wpn7,f))
 			{
 				new_return(32);
 			}
-			
 			if(!p_putc(itemsbuf[i].wpn8,f))
 			{
 				new_return(33);
 			}
-			
 			if(!p_putc(itemsbuf[i].wpn9,f))
 			{
 				new_return(34);
 			}
-			
 			if(!p_putc(itemsbuf[i].wpn10,f))
 			{
 				new_return(35);
 			}
-			
 			if(!p_putc(itemsbuf[i].pickup_hearts,f))
 			{
 				new_return(36);
 			}
-			
 			if(!p_iputl(itemsbuf[i].misc1,f))
 			{
 				new_return(37);
 			}
-			
 			if(!p_iputl(itemsbuf[i].misc2,f))
 			{
 				new_return(38);
 			}
-			
 			for(auto q = 0; q < 2; ++q)
 			{
 				if(!p_iputw(itemsbuf[i].cost_amount[q],f))
@@ -1174,60 +1048,48 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 					new_return(39);
 				}
 			}
-			
 			if(!p_iputl(itemsbuf[i].misc3,f))
 			{
 				new_return(40);
 			}
-			
 			if(!p_iputl(itemsbuf[i].misc4,f))
 			{
 				new_return(41);
 			}
-			
 			if(!p_iputl(itemsbuf[i].misc5,f))
 			{
 				new_return(42);
 			}
-			
 			if(!p_iputl(itemsbuf[i].misc6,f))
 			{
 				new_return(43);
 			}
-			
 			if(!p_iputl(itemsbuf[i].misc7,f))
 			{
 				new_return(44);
 			}
-			
 			if(!p_iputl(itemsbuf[i].misc8,f))
 			{
 				new_return(45);
 			}
-			
 			if(!p_iputl(itemsbuf[i].misc9,f))
 			{
 				new_return(46);
 			}
-			
 			if(!p_iputl(itemsbuf[i].misc10,f))
 			{
 				new_return(47);
 			}
-			
 			if(!p_putc(itemsbuf[i].usesound,f))
 			{
 				new_return(48);
 			}
-			
 			if(!p_putc(itemsbuf[i].usesound2,f))
 			{
 				new_return(48);
 			}
-		
 		//New itemdata vars -Z
 		//! version 27
-		
 		if(!p_putc(itemsbuf[i].useweapon,f))
 			{
 				new_return(49);
@@ -1340,7 +1202,6 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 		{
 			new_return(73);
 		}
-		
 		for(auto q = 0; q < 2; ++q)
 		{
 			if(!p_iputl(itemsbuf[i].magiccosttimer[q],f))
@@ -1384,7 +1245,6 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 		{
 			new_return(83);
 		}
-		
 		for(auto q = 0; q < 2; ++q)
 		{
 			if(!p_putc(itemsbuf[i].cost_counter[q],f))
@@ -1392,7 +1252,6 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 				new_return(84);
 			}
 		}
-		
 		//InitD[] labels
 		for ( int32_t q = 0; q < 8; q++ )
 		{
@@ -1401,43 +1260,42 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 				if(!p_putc(itemsbuf[i].initD_label[q][w],f))
 				{
 					new_return(85);
-				} 
+				}
 			}
 			for ( int32_t w = 0; w < 65; w++ )
 			{
 				if(!p_putc(itemsbuf[i].weapon_initD_label[q][w],f))
 				{
 					new_return(86);
-				} 
+				}
 			}
 			for ( int32_t w = 0; w < 65; w++ )
 			{
 				if(!p_putc(itemsbuf[i].sprite_initD_label[q][w],f))
 				{
 					new_return(87);
-				} 
+				}
 			}
 			if(!p_iputl(itemsbuf[i].sprite_initiald[q],f))
 			{
 				new_return(88);
-			} 
+			}
 		}
 		for ( int32_t q = 0; q < 2; q++ )
 		{
 			if(!p_putc(itemsbuf[i].sprite_initiala[q],f))
 			{
 				new_return(89);
-			} 
-			
+			}
 		}
 		if(!p_iputw(itemsbuf[i].sprite_script,f))
 		{
 			new_return(90);
-		} 
+		}
 		if(!p_putc(itemsbuf[i].pickupflag,f))
 		{
 			new_return(91);
-		} 
+		}
 		return 1;
 }
 
@@ -1467,7 +1325,6 @@ void save_item(int32_t index)
 	if(!getname("Save Item(.zitem)", "zitem", NULL,datapath,false))
 		return;
 	int32_t iid = bii[index].i;
-	
 	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 	if(!f) return;
 	if (!writeoneitem(f,iid))
@@ -1486,13 +1343,11 @@ void load_item(int32_t index)
 		return;
 	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 	if(!f) return;
-	
 	if (!readoneitem(f,index))
 	{
 		Z_error("Could not read from .zitem packfile %s\n", temppath);
 		InfoDialog("ZItem Error", "Could not load the specified item.").show();
 	}
-	
 	pack_fclose(f);
 	ilist_dlg[2].flags|=D_DIRTY;
 	saved=false;
@@ -1503,14 +1358,11 @@ void ilist_rclick_func(int32_t index, int32_t x, int32_t y)
 {
 	if(bii[index].i<0) // Clicked (none)?
 		return;
-	
 	if(copiedItem<0)
 		ilist_rclick_menu[1].flags|=D_DISABLED;
 	else
 		ilist_rclick_menu[1].flags&=~D_DISABLED;
-	
 	int32_t ret=popup_menu(ilist_rclick_menu, x, y);
-	
 	if(ret==0) // copy
 		copy_item(index);
 	else if(ret==1) // paste
@@ -1527,19 +1379,16 @@ int32_t onCustomItems()
 	  char *hold = item_string[0];
 	  item_string[0] = "rupee (1)";
 	  */
-	
 	build_bii_list(false);
 	int32_t foo;
 	int32_t index = select_item("Select Item",bii[0].i,true,foo);
 	copiedItem=-1;
-	
 	while(index >= 0)
 	{
 		build_biw_list();
 		edit_itemdata(index);
 		index = select_item("Select Item",index,true,foo);
 	}
-	
 	refresh(rMAP+rCOMBOS);
 	return D_O_K;
 }
@@ -1586,18 +1435,14 @@ void edit_weapondata(int32_t index)
 	char frm[8], spd[8], fcs[8], typ[8];
 	char name[64];
 	char wpnnumstr[75];
-	
 	sprintf(wpnnumstr, "Sprite %d: %s", index, weapon_string[index]);
 	wpndata_dlg[0].dp  = wpnnumstr;
 	wpndata_dlg[0].dp2 = lfont;
 	wpndata_dlg[2].d1  = wpnsbuf[index].tile;
 	wpndata_dlg[2].d2  = wpnsbuf[index].csets&15;
-	
 	for(int32_t i=0; i<4; i++)
 		wpndata_dlg[i+5].flags = (wpnsbuf[index].misc&(1<<i)) ? D_SELECTED : 0;
-		
 	wpndata_dlg[17].flags = (wpnsbuf[index].misc & WF_BEHIND) ? D_SELECTED : 0;
-	
 	sprintf(fcs,"%d",wpnsbuf[index].csets>>4);
 	sprintf(frm,"%d",wpnsbuf[index].frames);
 	sprintf(spd,"%d",wpnsbuf[index].speed);
@@ -1608,30 +1453,22 @@ void edit_weapondata(int32_t index)
 	wpndata_dlg[16].dp = typ;
 	sprintf(name,"%s",weapon_string[index]);
 	wpndata_dlg[18].dp = name;
-	
 	if(is_large)
 	{
 		large_dialog(wpndata_dlg);
 	}
-	
 	int32_t ret;
 	wpndata test;
-	
 	do
 	{
 		ret = zc_popup_dialog(wpndata_dlg,3);
-		
 		test.tile  = wpndata_dlg[2].d1;
 		test.csets = wpndata_dlg[2].d2;
-		
 		test.misc  = 0;
-		
 		for(int32_t i=0; i<4; i++)
 			if(wpndata_dlg[i+5].flags & D_SELECTED)
 				test.misc |= 1<<i;
-				
 		test.misc |= (wpndata_dlg[17].flags & D_SELECTED) ? WF_BEHIND : 0;
-		
 		test.csets  |= (atoi(fcs)&15)<<4;
 		test.frames = atoi(frm);
 		test.speed  = atoi(spd);
@@ -1639,14 +1476,12 @@ void edit_weapondata(int32_t index)
 		test.script = 0; // Not used yet
 	}
 	while(ret==17);
-	
 	if(ret==3)
 	{
 		strcpy(weapon_string[index],name);
 		wpnsbuf[index] = test;
 		saved = false;
 	}*/
-	
 }
 
 int32_t onCustomWpns()
@@ -1655,17 +1490,13 @@ int32_t onCustomWpns()
 	  char *hold = item_string[0];
 	  item_string[0] = "rupee (1)";
 	  */
-	
 	build_biw_list();
-	
 	int32_t index = select_weapon("Select Weapon",biw[0].i);
-	
 	while(index >= 0)
 	{
 		edit_weapondata(index);
 		index = select_weapon("Select Weapon",index);
 	}
-	
 	refresh(rMAP+rCOMBOS);
 	return D_O_K;
 }
@@ -1810,7 +1641,6 @@ static int32_t enemy_script_tabs_list[] =
 
 static int32_t enemy_scripts_list[] =
 {
-	
 	334,335,336,337,338,339,340,341,342,343,344,345,346,347,348,349,350,351,352,
 	377,378,379,380,381,382,383,384,
 	-1
@@ -1932,18 +1762,18 @@ static int32_t enedata_defense_script_list[] =
 static int32_t enedata_defense_melee_list[] =
 {
 	//melee
-	//sword, 	bomb, 		sbomb, 		wand, 
+	//sword, 	bomb, 		sbomb, 		wand,
 	153, 170, 	145, 162,	146, 163, 	149, 166,
 	//hammer, 	boots, 		hookshot
-	152, 169, 	159, 176, 	151, 168, 
+	152, 169, 	159, 176, 	151, 168,
 	//set all
-	178, 
+	178,
 };
 
 static int32_t enedata_defense_reflected_list[] =
 {
 	//reflected
-	//ref beam, 	ref magic, 	ref fireball, 	refl rock, 
+	//ref beam, 	ref magic, 	ref fireball, 	refl rock,
 	155, 172,	156, 173,	157, 174,	158, 175,
 	-1
 };
@@ -1964,11 +1794,9 @@ static TABPANEL enemy_script_tabs[] =
 
 static TABPANEL enemy_defence_tabs[] =
 {
-	
 	{ (char *)"Defs 1",	 D_SELECTED,               enedata_defense_list,   0, NULL },
 	{ (char *)"Defs 2",	 0,               enedata_defense2_list,   0, NULL },
 	{ (char *)"Script",	 0,               enedata_defense3_list,   0, NULL },
-	
 	/*
 	{ (char *)"Melee",	 D_SELECTED,               enedata_defense_melee_list,   0, NULL },
 	{ (char *)"Ranged",	 0,               enedata_defense_ranged_list,   0, NULL },
@@ -2028,7 +1856,6 @@ int32_t bief_cnt=-1;
 void build_bief_list()
 {
 	int32_t start=bief_cnt=0;
-	
 	for(int32_t i=start; i<eeMAX; i++)
 	{
 	//Load enemy names from the module
@@ -2056,11 +1883,8 @@ void build_bief_list()
 			bief[bief_cnt].i = i;
 			++bief_cnt;
 		}
-		
 	}
-		
 	}
-	
 	// No alphabetic sorting for this list
 	for(int32_t j=start+1; j<bief_cnt-1; j++)
 	{
@@ -2068,7 +1892,6 @@ void build_bief_list()
 		{
 			for(int32_t i=j; i>0; i--)
 				zc_swap(bief[i],bief[i-1]);
-				
 			break;
 		}
 	}
@@ -2081,7 +1904,6 @@ const char *enetypelist(int32_t index, int32_t *list_size)
 		*list_size = bief_cnt;
 		return NULL;
 	}
-	
 	return bief[index].s;
 }
 
@@ -2091,10 +1913,8 @@ int32_t biea_cnt=-1;
 void build_biea_list()
 {
 	int32_t start=biea_cnt=0;
-	
 	for(int32_t i=start; i<aMAX; i++)
 	{
-		
 	if ( moduledata.enem_anim_type_names[1][0] != 0 )
 	{
 		if(eneanim_string[i][0]!='-')
@@ -2114,7 +1934,6 @@ void build_biea_list()
 		}
 	}
 	}
-	
 	for(int32_t i=start; i<biea_cnt-1; i++)
 		for(int32_t j=i+1; j<biea_cnt; j++)
 			if(stricmp(biea[i].s,biea[j].s)>0 && strcmp(biea[j].s,""))
@@ -2129,7 +1948,6 @@ const char *eneanimlist(int32_t index, int32_t *list_size)
 		*list_size = biea_cnt;
 		return NULL;
 	}
-	
 	return biea[index].s;
 }
 
@@ -2141,7 +1959,6 @@ const char *itemsetlist(int32_t index, int32_t *list_size)
 		return item_drop_sets[index].name;
 		//  return itemset_string[index];
 	}
-	
 	*list_size=count_item_drop_sets();
 	return NULL;
 }
@@ -2160,7 +1977,6 @@ static int32_t enemy_weapon_types[]=
 	ewWind,ewFlame2,ewFlame2Trail,
 	//145
 	ewIce,ewFireball2
-	
 };
 
 static int32_t enemy_script_weapon_types[]=
@@ -2170,7 +1986,6 @@ static int32_t enemy_script_weapon_types[]=
 	wScript5, wScript6, wScript7, wScript8,
 	//39
 	wScript9, wScript10
-	
 };
 
 void build_biew_list()
@@ -2178,7 +1993,6 @@ void build_biew_list()
 	biew_cnt=0;
 
 	memset(temp_custom_ew_strings, 0, sizeof(temp_custom_ew_strings));
-	
 	for(int32_t i=0; i<wMax-wEnemyWeapons; i++)
 	{
 		//if(eweapon_string[i][0]!='-')
@@ -2200,22 +2014,18 @@ void build_biew_list()
 	for ( int32_t i = 0; i < biew_cnt; i++ )
 	{
 	al_trace("biew[%d] id is (%d) and string is (%s)\n", i, biew[i].i, biew[i].s);
-		
 	}
-	
 }
 
 const char *eweaponlist(int32_t index, int32_t *list_size)
 {
 	if(biew_cnt==-1)
 		build_biew_list();
-		
 	if(index>=0)
 	{
 		bound(index,0,biew_cnt-1);
 		return biew[index].s;
 	}
-	
 	*list_size=biew_cnt;
 	return NULL;
 }
@@ -2231,7 +2041,6 @@ struct EnemyNameInfo
 	void* list[32];
 	char *flags[16];
 	char *attributes[32];
-  
 };
 
 const char *walkmisc1list(int32_t index, int32_t *list_size)
@@ -2241,7 +2050,6 @@ const char *walkmisc1list(int32_t index, int32_t *list_size)
 		bound(index,0,e1tLAST-1);
 		return walkmisc1_string[index];
 	}
-	
 	*list_size = e1tLAST;
 	return NULL;
 }
@@ -2253,7 +2061,6 @@ const char *walkmisc2list(int32_t index, int32_t *list_size)
 		bound(index,0,e2tTRIBBLE);
 		return walkmisc2_string[index];
 	}
-	
 	*list_size = e2tTRIBBLE+1;
 	return NULL;
 }
@@ -2265,7 +2072,6 @@ const char *walkmisc7list(int32_t index, int32_t *list_size)
 		bound(index,0,e7tEATHURT);
 		return walkmisc7_string[index];
 	}
-	
 	*list_size = e7tEATHURT+1;
 	return NULL;
 }
@@ -2278,7 +2084,6 @@ const char *walkmisc9list(int32_t index, int32_t *list_size)
 		//return walkmisc9_string[index];
 		return (char *)moduledata.walkmisc9_names[index];
 	}
-	
 	*list_size = e9tARMOS+1;
 	return NULL;
 }
@@ -2289,7 +2094,6 @@ const char *gleeokmisc3list(int32_t index, int32_t *list_size)
 	{
 		return (index ? "Breath" : "1 Shot");
 	}
-	
 	*list_size = 2;
 	return NULL;
 }
@@ -2300,7 +2104,6 @@ const char *gohmamisc1list(int32_t index, int32_t *list_size)
 	{
 		return (index==2 ? "Breath" : index==1 ? "3 Shots" : "1 Shot");
 	}
-	
 	*list_size = 3;
 	return NULL;
 }
@@ -2311,7 +2114,6 @@ const char *manhandlamisc2list(int32_t index, int32_t *list_size)
 	{
 		return (index ? "2x2 (8 Heads)" : "1x1 (4 Heads)");
 	}
-	
 	*list_size = 2;
 	return NULL;
 }
@@ -2322,7 +2124,6 @@ const char *aquamisc1list(int32_t index, int32_t *list_size)
 	{
 		return (index ? "Left (Facing Right)" : "Right (Facing Left)");
 	}
-	
 	*list_size = 2;
 	return NULL;
 }
@@ -2333,7 +2134,6 @@ const char *patramisc4list(int32_t index, int32_t *list_size)
 	{
 		return (index ? "Oval" : "Big Circle");
 	}
-	
 	*list_size = 2;
 	return NULL;
 }
@@ -2344,7 +2144,6 @@ const char *patramisc5list(int32_t index, int32_t *list_size)
 	{
 		return (index==3 ? "Inner + Center" : index==2 ? "Inner Eyes" : index==1 ? "Center Eye" : "None");
 	}
-	
 	*list_size = 4;
 	return NULL;
 }
@@ -2355,7 +2154,6 @@ const char *patramisc10list(int32_t index, int32_t *list_size)
 	{
 		return (index ? "2x2 Patra" : "1x1 Patra");
 	}
-	
 	*list_size = 2;
 	return NULL;
 }
@@ -2378,7 +2176,6 @@ const char *patramisc20list(int32_t index, int32_t *list_size)
 				return "Random (Any)";
 		}
 	}
-	
 	*list_size = 5;
 	return NULL;
 }
@@ -2397,7 +2194,6 @@ const char *patramisc22list(int32_t index, int32_t *list_size)
 				return "Never";
 		}
 	}
-	
 	*list_size = 3;
 	return NULL;
 }
@@ -2418,7 +2214,6 @@ const char *patramisc25list(int32_t index, int32_t *list_size)
 				return "Always";
 		}
 	}
-	
 	*list_size = 4;
 	return NULL;
 }
@@ -2437,7 +2232,6 @@ const char *patramisc26list(int32_t index, int32_t *list_size)
 				return "Always";
 		}
 	}
-	
 	*list_size = 3;
 	return NULL;
 }
@@ -2449,7 +2243,6 @@ const char *patramisc28list(int32_t index, int32_t *list_size)
 		bound(index,0,patratLAST-1);
 		return patramisc28_string[index];
 	}
-	
 	*list_size = patratLAST;
 	return NULL;
 }
@@ -2460,7 +2253,6 @@ const char *dodongomisc10list(int32_t index, int32_t *list_size)
 	{
 		return (index ? "BS-Zelda" : "NES");
 	}
-	
 	*list_size = 2;
 	return NULL;
 }
@@ -2471,7 +2263,6 @@ const char *digdoggermisc10list(int32_t index, int32_t *list_size)
 	{
 		return (index ? "Kid" : "Digdogger");
 	}
-	
 	*list_size = 2;
 	return NULL;
 }
@@ -2482,7 +2273,6 @@ const char *walkerspawnlist(int32_t index, int32_t *list_size)
 	{
 		return (index==2 ? "Instant" : index==1 ? "Flicker" : "Puff");
 	}
-	
 	*list_size = 3;
 	return NULL;
 }
@@ -2493,7 +2283,6 @@ const char *wizzrobemisc1list(int32_t index, int32_t *list_size)
 	{
 		return (index ? "Phase" : "Teleport");
 	}
-	
 	*list_size = 2;
 	return NULL;
 }
@@ -2504,7 +2293,6 @@ const char *wizzrobemisc2list(int32_t index, int32_t *list_size)
 	{
 		return (index==3 ? "Summon (Layer)" : index==2 ? "Summon" : index==1 ? "8 Shots" : "1 Shot");
 	}
-	
 	*list_size = 4;
 	return NULL;
 }
@@ -2515,7 +2303,6 @@ const char *keesemisc1list(int32_t index, int32_t *list_size)
 	{
 		return (index > 1 ? "Keese (Fast)" : index > 0 ? "Bat" : "Keese");
 	}
-	
 	*list_size = 3;
 	return NULL;
 }
@@ -2526,7 +2313,6 @@ const char *keesemisc2list(int32_t index, int32_t *list_size)
 	{
 		return (index ? "Tribble" : "Normal");
 	}
-	
 	*list_size = 2;
 	return NULL;
 }
@@ -2537,7 +2323,6 @@ const char *trapmisc2list(int32_t index, int32_t *list_size)
 	{
 		return (index ? "Constant" : "Line Of Sight");
 	}
-	
 	*list_size = 2;
 	return NULL;
 }
@@ -2548,7 +2333,6 @@ const char *trapmisc1list(int32_t index, int32_t *list_size)
 	{
 		return (index==2 ? "Vertical" : index==1 ? "Horizontal" : "4-Way");
 	}
-	
 	*list_size = 3;
 	return NULL;
 }
@@ -2564,7 +2348,6 @@ const char *leevermisc1list(int32_t index, int32_t *list_size)
 		else if(index==2)
 			return "Player's path + second";
 	}
-	
 	*list_size = 3;
 	return NULL;
 }
@@ -2575,7 +2358,6 @@ const char *rockmisc1list(int32_t index, int32_t *list_size)
 	{
 		return (index ? "2x2" : "1x1");
 	}
-	
 	*list_size = 2;
 	return NULL;
 }
@@ -2587,7 +2369,6 @@ const char *yesnomisclist(int32_t index, int32_t *list_size)
 	{
 		return (index ? "Yes" : "No");
 	}
-	
 	*list_size = 2;
 	return NULL;
 }
@@ -2599,7 +2380,6 @@ const char *noyesmisclist(int32_t index, int32_t *list_size)
 	{
 		return (index ? "No" : "Yes");
 	}
-	
 	*list_size = 2;
 	return NULL;
 }
@@ -2676,7 +2456,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeDIG, { "Enemy 1 ID:", "Enemy 2 ID:", "Enemy 3 ID:", "Enemy 4 ID:", "Enemy 1 Qty:", "Enemy 2 Qty:", "Enemy 3 Qty:", "Enemy 4 Qty:", "Unused:", "Type:" },
@@ -2692,7 +2472,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eePATRA, { "Outer Eyes:", "Inner Eyes:", "Eyes' HP:", "Eye Movement:", "Shooters:", "Pattern Odds:", "Pattern Cycles:", "Eye Offset:", "Eye CSet:", "Type:" },
@@ -2708,7 +2488,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Warning Spins:",(char *)"Stays still:",(char *)"Outer Ring Loss Speed Boost:",(char *)"Inner Ring Loss Speed Boost:",
 		(char *)"Can Fire:",(char *)"Can Expand:",(char *)"Inner Eye HP:",(char *)"Center Eye Firing Pattern:",
 		(char *)"Outer Eye Radius:",(char *)"Inner Eye Radius:",(char *)"Outer Eye Expand Radius:",(char *)"Inner Eye Expand Radius:",
-	}	
+	}
 	},
 	{
 		eePROJECTILE, { "Shot Type:",  NULL, "Shot Attr. 1:", "Shot Attr. 2:", NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -2724,7 +2504,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeGHOMA, { "Shot Type:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -2740,7 +2520,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeAQUA, { "Side:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -2756,7 +2536,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeMANHAN, { "Frame rate:",  "Size:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -2772,7 +2552,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeLANM, { "Segments:",  "Segment Lag:", "Item per segment:", NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -2788,7 +2568,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeMOLD, { "Segments:",  "Item per segment:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -2804,7 +2584,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeWIZZ, { "Walk Style:",  "Shot Type:", "Shot Attr. 1:", "Solid Combos OK:", "Teleport Delay:", NULL, NULL, NULL, NULL, NULL  },
@@ -2820,7 +2600,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeDONGO,{ NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Type :"  },
@@ -2836,7 +2616,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeKEESE, { "Walk Style:",  "Death Type:", "Enemy ID:", NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -2852,7 +2632,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeTEK,  { "1/n jump start:",  "1/n jump cont.:", "Jump Z velocity:", NULL, NULL, NULL, NULL, NULL, NULL, NULL },
@@ -2868,7 +2648,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeLEV,  { "Emerge style:",  "Submerged CSet:", "Emerging step:", NULL, NULL, NULL, NULL, NULL, NULL, NULL },
@@ -2884,7 +2664,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeWALLM,{ "Fixed distance:",  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
@@ -2900,7 +2680,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeTRAP, { "Direction:",  "Move Style:", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -2916,7 +2696,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeROCK, { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Rock size:" },
@@ -2932,7 +2712,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeNONE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "Boss Death Trigger:"  },
@@ -2948,7 +2728,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeGHINI, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -2964,7 +2744,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eePEAHAT, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -2980,7 +2760,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeZORA, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -2996,7 +2776,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeSPINTILE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3012,7 +2792,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeFIRE, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3028,7 +2808,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeOTHER, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3044,7 +2824,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeSCRIPT01, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3060,7 +2840,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeSCRIPT02, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3076,7 +2856,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeSCRIPT03, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3092,7 +2872,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeSCRIPT04, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3108,7 +2888,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeSCRIPT05, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3124,7 +2904,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeSCRIPT06, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3140,7 +2920,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeSCRIPT07, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3156,7 +2936,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeSCRIPT08, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3172,7 +2952,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeSCRIPT09, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3188,7 +2968,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeSCRIPT10, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3204,7 +2984,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeSCRIPT11, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3220,7 +3000,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeSCRIPT12, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3236,7 +3016,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeSCRIPT13, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3252,7 +3032,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeSCRIPT14, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3268,7 +3048,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeSCRIPT15, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3284,7 +3064,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeSCRIPT16, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3300,7 +3080,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeSCRIPT17, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3316,7 +3096,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeSCRIPT18, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3332,7 +3112,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeSCRIPT19, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3348,7 +3128,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeSCRIPT20, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3364,7 +3144,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeFFRIENDLY01, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3380,7 +3160,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeFFRIENDLY02, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3396,7 +3176,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeFFRIENDLY03, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3412,7 +3192,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeFFRIENDLY04, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3428,7 +3208,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeFFRIENDLY05, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3444,7 +3224,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeFFRIENDLY06, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3460,7 +3240,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeFFRIENDLY07, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3476,7 +3256,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeFFRIENDLY08, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3492,7 +3272,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeFFRIENDLY09, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3508,7 +3288,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeFFRIENDLY10, { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3524,7 +3304,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeGUY,  { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL  },
@@ -3540,7 +3320,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		eeGANON,  { NULL,  NULL, NULL, NULL, NULL, NULL, NULL, NULL
@@ -3557,7 +3337,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	},
 	{
 		-1,		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
@@ -3573,7 +3353,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
-	}	
+	}
 	}
 };
 
@@ -3584,18 +3364,14 @@ std::map<int32_t, EnemyNameInfo *> *getEnemyNameMap()
 	if(enamemap == NULL)
 	{
 		enamemap = new std::map<int32_t, EnemyNameInfo *>();
-		
 		for(int32_t i=0;; i++)
 		{
 			EnemyNameInfo *inf = &enameinf[i];
-			
 			if(inf->family == -1)
 				break;
-				
 			(*enamemap)[inf->family] = inf;
 		}
 	}
-	
 	return enamemap;
 }
 
@@ -3606,7 +3382,6 @@ const char *npcscriptdroplist(int32_t index, int32_t *list_size)
 		*list_size = binpcs_cnt;
 		return NULL;
 	}
-	
 	return binpcs[index].first.c_str();
 }
 ListData npcscript_list(npcscriptdroplist, &font);
@@ -3624,7 +3399,6 @@ const char *eweaponscriptdroplist(int32_t index, int32_t *list_size)
 		*list_size = bieweapons_cnt;
 		return NULL;
 	}
-	
 	return bieweapons[index].first.c_str();
 }
 
@@ -3858,7 +3632,6 @@ static DIALOG enedata_dlg[] =
 	{  jwin_text_proc,         160,    144,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 12:",                                  NULL,   NULL                 },
 	{  jwin_edit_proc,         242,    122,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 	{  jwin_edit_proc,         242,    140,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
-	
 	// 191
 	{  jwin_text_proc,           6,    198,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Script Weapon Defense:",                              NULL,   NULL                 },
 	{  jwin_droplist_proc,      126, 198-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
@@ -3876,11 +3649,9 @@ static DIALOG enedata_dlg[] =
 	{  jwin_tab_proc,             4,     32,    312,    204,    0,                      0,                       0,    0,          0,          0, (void *) enemy_basic_tabs,     NULL, (void *) enedata_dlg   },
 	{  jwin_tab_proc,             4,     32,    312,    204,    0,                      0,                       0,    0,          0,          0, (void *) enemy_flags_tabs,     NULL, (void *) enedata_dlg   },
 // {  d_ecstile_proc,          16,     62,     20,     20,    vc(11),                 vc(1),                   0,    0,           0,    6,  NULL,                                                           NULL,   (void *)enedata_dlg },
-	
 	//5
 	{  d_dummy_proc,             9904,     32,    1,    1,    0,                      0,                       0,    0,          0,          0, NULL,     NULL, NULL   },
 	{  jwin_tab_proc,             4,     32,    312,    204,    0,                      0,                       0,    0,          0,          0, (void *) enemy_graphics_tabs,     NULL, (void *) enedata_dlg   },
- 
 	//Attributes Tab
 	// {  jwin_button_proc,        86,    220,     61,     16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void *) "OK",                                                  NULL,   NULL                 },
 	// {  jwin_button_proc,       166,    220,     61,     16,    vc(14),                 vc(1),                  27,    D_EXIT,      0,    0, (void *) "Cancel",                                              NULL,   NULL                 },
@@ -3953,7 +3724,7 @@ static DIALOG enedata_dlg[] =
 	{  jwin_text_proc,         120+40,     72,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 8:",                                   NULL,   NULL                 },
 	{  jwin_text_proc,         120+40,     90,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 9:",                                   NULL,   NULL                 },
 	{  jwin_text_proc,         120+40,    108,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 10:",                                  NULL,   NULL                 },
-	//64 : Misc Attribute boxes. 
+	//64 : Misc Attribute boxes.
 	{  jwin_edit_proc,          86,     50,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 	{  jwin_edit_proc,          86,     68,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 	{  jwin_edit_proc,          86,     86,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
@@ -4091,12 +3862,11 @@ static DIALOG enedata_dlg[] =
 	{  jwin_droplist_proc,      86,    187,     100,     16,   jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &sfx__list,                                           NULL,   NULL                 },
 	{  jwin_text_proc,          6,     214,     95,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawn Animation:",                               NULL,   NULL                 },
 	{  jwin_droplist_proc,      86,    210,     85,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &walkerspawn_list,                                     NULL,   NULL                 },
-//moved to attributes tabs  
+//moved to attributes tabs
 	{  d_dummy_proc,         160,    126-4,     50+30,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 11:",                                  NULL,   NULL                 },
 	{  d_dummy_proc,         160,    144-4,     50+30,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 12:",                                  NULL,   NULL                 },
 	{  d_dummy_proc,         242,    122-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 	{  d_dummy_proc,         242,    140-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
-	
 	// 191
 	{  jwin_text_proc,           6,    198,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Whistle Weapon Defense:",                              NULL,   NULL                 },
 	{  jwin_droplist_proc,      126, 198-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
@@ -4112,7 +3882,6 @@ static DIALOG enedata_dlg[] =
 	{  jwin_text_proc,           6,    179,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Custom Weapon 9 Defense:",                              NULL,   NULL                 },
 	{  jwin_text_proc,           6,    196,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Custom Weapon 10 Defense:",                              NULL,   NULL                 },
 	//203 script 1 pulldown
-	
 	 /* (dialog proc)           (x)   (y)     (w)     (h)      (fg)                   (bg)                    (key) (flags)      (d1)  (d2)  (dp)                                                         (dp2)  (dp3) */
 	{  jwin_droplist_proc,      126, 51-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
 	{  jwin_droplist_proc,      126, 67-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
@@ -4151,7 +3920,7 @@ static DIALOG enedata_dlg[] =
 	//231 DrawYOffset
 	{  jwin_text_proc,         12,      195,       80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "DrawYOffset:",                                  NULL,   NULL                 },
 	{  jwin_edit_proc,         60,    195-4,     65,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
-	//233 'Tiles' annotation. 
+	//233 'Tiles' annotation.
 	{ jwin_text_proc,         96,      51,       80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "(Tiles)",                                  NULL,   NULL                 },
 	{ jwin_text_proc,         96,      67,       80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "(Tiles)",                                  NULL,   NULL                 },
 	//235 : Weapon Sprite Pulldown
@@ -4184,14 +3953,13 @@ static DIALOG enedata_dlg[] =
 	 {  d_ecstile_proc,          52,     62,     20,     20,    vc(11),                 vc(1),                   0,    0,           0,    6,  NULL,                                                           NULL,   (void *)enedata_dlg },
 	//249 used to be 4
 	 {  d_ecstile_proc,          88,     62,     20,     20,    vc(11),                 vc(1),                   0,    0,           0,    6,  NULL,                                                           NULL,   (void *)enedata_dlg },
-	
 	 /* (dialog proc)     		(x)   (y)     (w)     (h)    (fg)                   (bg)                    (key) (flags)      (d1)        (d2)  (dp)                           (dp2)  (dp3) */
 	 // 250 Movement tabs
 	 {  jwin_tab_proc,             4,     32,    312,    204,    0,                      0,                       0,    0,          0,          0, (void *) enemy_movement_tabs ,     NULL, (void *) enedata_dlg   },
 	 //251 Scripts tabs
 	 {  jwin_tab_proc,             4,     32,    312,    204,    0,                      0,                       0,    0,          0,          0, (void *) enemy_script_tabs ,     NULL, (void *) enedata_dlg   },
 	// {  d_timer_proc,             0,      0,      0,      0,    0,                      0,                       0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
-	//252 --was 5, OK button. 
+	//252 --was 5, OK button.
 	 {  jwin_button_proc,        86,    240,     61,     16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void *) "OK",                                                  NULL,   NULL                 },
 	//253 -- CANCEL  BUTTON
 	 {  jwin_button_proc,       166,    240,     61,     16,    vc(14),                 vc(1),                  27,    D_EXIT,      0,    0, (void *) "Cancel",                                              NULL,   NULL                 },
@@ -4202,7 +3970,7 @@ static DIALOG enedata_dlg[] =
 	{ jwin_check_proc,        6,     82,     250,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[3]",                        NULL,   NULL                  },
 	{ jwin_check_proc,        6,     92,     250,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[4]",                        NULL,   NULL                  },
 	{ jwin_check_proc,        6,     102,     250,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[5]",                        NULL,   NULL                  },
-	//260  
+	//260
 	{ jwin_check_proc,        6,    112,     250,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[6]",                        NULL,   NULL                  },
 	{ jwin_check_proc,        6,     122,     250,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[7]",                        NULL,   NULL                  },
 	{ jwin_check_proc,        6,     132,     250,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Flags[8]",                        NULL,   NULL                  },
@@ -4224,7 +3992,7 @@ static DIALOG enedata_dlg[] =
 	{  d_dummy_proc,           9970,    58+(18*5),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[5]",                                   NULL,   NULL                 },
 	{  d_dummy_proc,         9970,     58+(18*6),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[6]",                                   NULL,   NULL                 },
 	{  d_dummy_proc,         9970,     58+(18*7),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[7]",                                   NULL,   NULL                 },
-	  //278 : Misc Attribute boxes. 
+	  //278 : Misc Attribute boxes.
 	{  d_dummy_proc,         9906,     56,     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 	{  d_dummy_proc,          9906,     56+(18),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 	{  d_dummy_proc,          9906,     56+(18*2),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
@@ -4233,7 +4001,7 @@ static DIALOG enedata_dlg[] =
 	{  d_dummy_proc,          9906,    56+(18*5),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 	{  d_dummy_proc,        9906,     56+(18*6),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 	{  d_dummy_proc,         9906,     56+(18*7),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
-//286 
+//286
 	//attributes page 2, attrib 9 to 16
 	 {  d_dummy_proc,           9970,   58,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[8]",                                   NULL,   NULL                 },
 	{  d_dummy_proc,           9906,     58+(18),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Lower Attributes are on Basic->Data 2",                                   NULL,   NULL                 },
@@ -4245,7 +4013,7 @@ static DIALOG enedata_dlg[] =
 	{  jwin_text_proc,           6,    58+(18),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 14:",                                   NULL,   NULL                 },
 	{  jwin_text_proc,         6,     58+(18*2),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 15:",                                   NULL,   NULL                 },
 	{  jwin_text_proc,         6,     58+(18*3),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 16:",                                   NULL,   NULL                 },
-	  //294 : Misc Attribute boxes. 
+	  //294 : Misc Attribute boxes.
 	{  d_dummy_proc,         9986,     56,     80,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 	{  d_dummy_proc,          9986,     56+(18),     80,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 	//296
@@ -4267,7 +4035,7 @@ static DIALOG enedata_dlg[] =
 	//308
 	{  jwin_text_proc,         6,     58,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 23:",                                   NULL,   NULL                 },
 	{  jwin_text_proc,         6,     58+(18),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 24:",                                   NULL,   NULL                 },
-	  //310 : Misc Attribute boxes. 
+	  //310 : Misc Attribute boxes.
 	{  jwin_edit_proc,         126,     56+(18*4),     95,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 	{  jwin_edit_proc,          126,     56+(18*5),     95,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 	{  jwin_edit_proc,          126,     56+(18*6),     95,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
@@ -4287,7 +4055,7 @@ static DIALOG enedata_dlg[] =
 	{  jwin_text_proc,           6,    58+(18*7),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 30:",                                   NULL,   NULL                 },
 	{  jwin_text_proc,         6,     58+(18*8),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 31:",                                   NULL,   NULL                 },
 	{  jwin_text_proc,         6,     58+(18*9),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 32:",                                   NULL,   NULL                 },
-	  //327 : Misc Attribute boxes. 
+	  //327 : Misc Attribute boxes.
 	{  jwin_edit_proc,         126,     56+(18*2),     95,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 	{  jwin_edit_proc,          126,     56+(18*3),     95,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 	{  jwin_edit_proc,          126,     56+(18*4),     95,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
@@ -4298,7 +4066,6 @@ static DIALOG enedata_dlg[] =
 	{  jwin_edit_proc,         126,     56+(18*9),     95,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 //334
 	{ d_dummy_proc,           112+10,  47+38+10 + 18,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
-	
 	{ jwin_droplist_proc,      182,  66,     130,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &npcscript_list,                   NULL,   NULL 				   },
 	{ jwin_text_proc,           182,   58,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "NPC Action Script:",                      NULL,   NULL                  },
 	//337
@@ -4311,7 +4078,6 @@ static DIALOG enedata_dlg[] =
 	// { jwin_text_proc,       6+10,  10+119+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D5:", NULL, NULL },
 	// { jwin_text_proc,       6+10,  10+137+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D6:", NULL, NULL },
 	// { jwin_text_proc,       6+10,  10+155+20,   24,    12,   0,        0,       0,       0,          0,             0, (void *) "D7:", NULL, NULL },
-	
 	//editable npc script InitD fields
 	//337
 	{  jwin_edit_proc,         6+10,     10+29+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
@@ -4322,7 +4088,6 @@ static DIALOG enedata_dlg[] =
 	{  jwin_edit_proc,         6+10,     10+119+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
 	{  jwin_edit_proc,         6+10,     10+137+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
 	{  jwin_edit_proc,         6+10,     10+155+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-	
 	// { jwin_edit_proc,       6+10,   10+29+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
 	// { jwin_edit_proc,       6+10,   10+47+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
 	// { jwin_edit_proc,       6+10,   10+65+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
@@ -4331,7 +4096,6 @@ static DIALOG enedata_dlg[] =
 	// { jwin_edit_proc,       6+10,  10+119+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
 	// { jwin_edit_proc,       6+10,  10+137+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
 	// { jwin_edit_proc,       6+10,  10+155+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
-   
 	//NPC InitD Data fields
 	//345
 	{ jwin_numedit_swap_zsint_proc,      (90-24)+34+10,   10+29+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
@@ -4453,10 +4217,8 @@ void setEnemyLabels(int32_t family)
 	std::map<int32_t, EnemyNameInfo *> *nmap = getEnemyNameMap();
 	std::map<int32_t, EnemyNameInfo *>::iterator it = nmap->find(family);
 	EnemyNameInfo *inf = NULL;
-	
 	if(it != nmap->end())
 		inf = it->second;
-		
 	// Default labels
 	enedata_dlg[54].dp = (void*)"Misc. Attr. 1:";
 	enedata_dlg[55].dp = (void*)"Misc. Attr. 2:";
@@ -4468,13 +4230,11 @@ void setEnemyLabels(int32_t family)
 	enedata_dlg[61].dp = (void*)"Misc. Attr. 8:";
 	enedata_dlg[62].dp = (void*)"Misc. Attr. 9:";
 	enedata_dlg[63].dp = (void*)"Misc. Attr. 10:";
-	
 	if(family==eeKEESE || family==eeGHINI || family==eePEAHAT || family==eeMANHAN
 			|| family==eeGLEEOK || family==eePATRA || family==eeDIG)
 		enedata_dlg[22].dp = (void*)"Turn Freq.:";
 	else
 		enedata_dlg[22].dp = (void*)"Halt Rate:";
-		
 	//set enemy editor new 2.55 flags 1 to 16 label
 	for(int32_t i = 0; i < 16; i++)
 	{
@@ -4489,9 +4249,7 @@ void setEnemyLabels(int32_t family)
 				//enedata_dlg[64+i].flags = enedata_dlg[54+i].flags = D_DISABLED;
 			}
 		}
-	
 	}
-	
 	//Enemy Attribute Labels, starting at 11
 	for ( int32_t q = 10; q < 16; q++ ) //check these numbers! -Z
 	{
@@ -4574,7 +4332,6 @@ void setEnemyLabels(int32_t family)
 			enedata_dlg[326+(q-24)].dp2 = (is_large ? lfont_l : font);
 		}
 	}
-	
 	for(int32_t i = 0; i < 10; i++)
 	{
 		if(inf != NULL)
@@ -4589,7 +4346,6 @@ void setEnemyLabels(int32_t family)
 				//enedata_dlg[64+i].flags = enedata_dlg[54+i].flags = D_DISABLED;
 			}
 		}
-		
 		if(inf != NULL && inf->list[i] != NULL)
 		{
 			enedata_dlg[64+i].proc = jwin_droplist_proc;
@@ -4611,20 +4367,16 @@ void setEnemyLabels(int32_t family)
 			enedata_dlg[64+i].dp2 = (is_large ? lfont_l : font);
 		}
 	}
-	
 	bool r = 0 != get_bit(quest_rules,qr_NEWENEMYTILES);
 	enedata_dlg[r ? 47 : 48].flags |= D_DISABLED;
 	enedata_dlg[r ? 48 : 47].flags &= ~D_DISABLED;
 	enedata_dlg[r ? 140 : 141].flags |= D_DISABLED;
 	enedata_dlg[r ? 141 : 140].flags &= ~D_DISABLED;
-	
 	if(family==eeTRAP || family==eeROCK || family==eeDONGO ) //|| family==eeGANON)
 	{
 		for(int32_t j=0; j <= edefBYRNA+1 /* + the Set All button*/; j++) enedata_dlg[j+161].flags |= D_DISABLED;
-		
-		enedata_dlg[192].flags |= D_DISABLED; //Defenses disabled for Traps. rocks,. Dodongos and Ganon. 
+		enedata_dlg[192].flags |= D_DISABLED; //Defenses disabled for Traps. rocks,. Dodongos and Ganon.
 		//We will need to remove Ganon from this list once we give him defence properties in the EE. -Z
-		
 	enedata_dlg[203].d1 |= D_DISABLED;
 		 enedata_dlg[204].d1 |= D_DISABLED;
 		 enedata_dlg[205].d1 |= D_DISABLED;
@@ -4639,7 +4391,6 @@ void setEnemyLabels(int32_t family)
 	else
 	{
 		for(int32_t j=0; j <= edefBYRNA+1 /* + the Set All button*/; j++) enedata_dlg[j+161].flags &= ~D_DISABLED;
-		
 		enedata_dlg[192].flags &= ~D_DISABLED;
 		enedata_dlg[203].d1 &= ~D_DISABLED;
 		 enedata_dlg[204].d1 &= ~D_DISABLED;
@@ -4652,7 +4403,6 @@ void setEnemyLabels(int32_t family)
 		 enedata_dlg[211].d1 &= ~D_DISABLED;
 		 enedata_dlg[212].d1 &= ~D_DISABLED;
 	}
-	
 	if(!(family==eeWALK || family==eeFIRE || family==eeOTHER))
 	{
 		enedata_dlg[98].flags |= D_DISABLED;
@@ -4679,7 +4429,6 @@ int32_t d_ecstile_proc(int32_t msg,DIALOG *d,int32_t c)
 	c=c;
 	int32_t *tempint=enedata_flags2_list;
 	tempint=tempint;
-	
 	switch(msg)
 	{
 	case MSG_CLICK:
@@ -4687,7 +4436,6 @@ int32_t d_ecstile_proc(int32_t msg,DIALOG *d,int32_t c)
 		int32_t f = -8; // Suppress Flip, but in a way that the lowest 3 bits are 0. (Trust me here.) -L
 		int32_t t = d->d1;
 		int32_t cs = d->d2;
-		
 		if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 			? select_tile_2(t,f,1,cs,true)
 			: select_tile(t,f,1,cs,true))
@@ -4700,35 +4448,28 @@ int32_t d_ecstile_proc(int32_t msg,DIALOG *d,int32_t c)
 		}
 	}
 	break;
-	
 	case MSG_DRAW:
 		if(is_large)
 		{
 			d->w = 36;
 			d->h = 36;
 		}
-		
 		BITMAP *buf = create_bitmap_ex(8,20,20);
 		BITMAP *bigbmp = create_bitmap_ex(8,d->w,d->h);
-		
 		if(buf && bigbmp)
 		{
 			clear_bitmap(buf);
-			
 			if(d->d1)
 				overtile16(buf,d->d1,2,2,d->d2,0);
-				
 			stretch_blit(buf, bigbmp, 2,2, 17, 17, 2, 2, d->w-3, d->h-3);
 			destroy_bitmap(buf);
 			jwin_draw_frame(bigbmp,0,0,d->w,d->h,FR_DEEP);
 			blit(bigbmp,screen,0,0,d->x,d->y,d->w,d->h);
 			destroy_bitmap(bigbmp);
 		}
-		
 		//    text_mode(d->bg);
 		break;
 	}
-	
 	return D_O_K;
 }
 
@@ -4746,7 +4487,6 @@ void edit_enemydata(int32_t index)
 	char npc_initd_labels[8][65];
 	char weapon_initd_labels[8][65];
 	char weap_initdvals[8][13];
-	
 	char initdvals[8][13];
 	//begin npc script
 	int32_t j = 0; build_binpcs_list(); //npc scripts lister
@@ -4754,22 +4494,20 @@ void edit_enemydata(int32_t index)
 	{
 		if(binpcs[j].second == guysbuf[index].script -1)
 		{
-			enedata_dlg[335].d1 = j; 
+			enedata_dlg[335].d1 = j;
 			break;
-		} 
+		}
 	}
-	
-	int32_t j2 = 0; 
+	int32_t j2 = 0;
 	build_bieweapons_list(); //lweapon scripts lister
 	for(j2 = 0; j2 < bieweapons_cnt; j2++)
 	{
 		if(bieweapons[j2].second == guysbuf[index].weaponscript -1)
 		{
-			enedata_dlg[370].d1 = j2; 
+			enedata_dlg[370].d1 = j2;
 			break;
 		}
 	}
-	
 	for ( int32_t q = 0; q < 8; q++ )
 	{
 		//NPC InitD / WeaponInitD
@@ -4779,19 +4517,16 @@ void edit_enemydata(int32_t index)
 		enedata_dlg[361+q].fg = guysbuf[index].weap_initiald[q];
 		enedata_dlg[345+q].dp3 = &(enedata_dlg[377+q]);
 		enedata_dlg[361+q].dp3 = &(enedata_dlg[385+q]);
-		
 		//InitD Labels
 		strcpy(npc_initd_labels[q], guysbuf[index].initD_label[q]);
 		if ( npc_initd_labels[q][0] == 0 ) sprintf(npc_initd_labels[q],"InitD[%d]",q);
 		enedata_dlg[337+q].dp = npc_initd_labels[q];
-		
 		strcpy(weapon_initd_labels[q], guysbuf[index].weapon_initD_label[q]);
 		if ( weapon_initd_labels[q][0] == 0 ) sprintf(weapon_initd_labels[q],"InitD[%d]",q);
 		enedata_dlg[353+q].dp = weapon_initd_labels[q];
 	}
 
 	//end npc script
-	
 	//disable the missing dialog items!
 	//else they will lurk in the background
 	//stealing mouse focus -DD
@@ -4803,7 +4538,6 @@ void edit_enemydata(int32_t index)
 		enedata_dlg[enedata_flags2_list[i]].w = 0;
 		enedata_dlg[enedata_flags2_list[i]].h = 0;
 	}
-	
 	sprintf(enemynumstr,"Enemy %d: %s", index, guy_string[index]);
 	enedata_dlg[0].dp = enemynumstr;
 	enedata_dlg[0].dp2 = lfont;
@@ -4813,7 +4547,6 @@ void edit_enemydata(int32_t index)
 	enedata_dlg[248].d2 = guysbuf[index].cset;
 	enedata_dlg[249].d1 = guysbuf[index].e_tile;
 	enedata_dlg[249].d2 = guysbuf[index].cset;
-	
 	// Enemy weapon list
 	if(guysbuf[index].weapon==wNone)
 	{
@@ -4825,44 +4558,35 @@ void edit_enemydata(int32_t index)
 		{
 			build_biew_list();
 		}
-		
 		for(int32_t j=0; j<biew_cnt; j++)
 		{
 			if(biew[j].i == guysbuf[index].weapon /*- wEnemyWeapons*/)
 				enedata_dlg[45].d1 = j;
 		}
 	}
-	
 	// Enemy family list
 	if(bief_cnt==-1)
 	{
 		build_bief_list();
 	}
-	
 	for(int32_t j=0; j<bief_cnt; j++)
 	{
 		if(bief[j].i == guysbuf[index].family)
 			enedata_dlg[46].d1 = j;
 	}
-	
 	// Enemy animation list
 	if(biea_cnt==-1)
 	{
 		build_biea_list();
 	}
-	
 	for(int32_t j=0; j<biea_cnt; j++)
 	{
 		if(biea[j].i == guysbuf[index].anim)
 			enedata_dlg[47].d1 = j;
-			
 		if(biea[j].i == guysbuf[index].e_anim)
 			enedata_dlg[48].d1 = j;
 	}
-	
-	
 	enedata_dlg[49].d1 = guysbuf[index].item_set;
-	
 	sprintf(w,"%d",guysbuf[index].width);
 	sprintf(h,"%d",guysbuf[index].height);
 	sprintf(sw,"%d",guysbuf[index].s_width);
@@ -4875,7 +4599,6 @@ void edit_enemydata(int32_t index)
 	enedata_dlg[33].dp = sh;
 	enedata_dlg[34].dp = ew;
 	enedata_dlg[35].dp = eh;
-	
 	sprintf(hp,"%d",guysbuf[index].hp);
 	sprintf(dp,"%d",guysbuf[index].dp);
 	sprintf(wdp,"%d",guysbuf[index].wdp);
@@ -4884,7 +4607,6 @@ void edit_enemydata(int32_t index)
 	enedata_dlg[38].dp = dp;
 	enedata_dlg[39].dp = wdp;
 	enedata_dlg[40].dp = grm;
-	
 	sprintf(rat,"%d",guysbuf[index].rate);
 	sprintf(hrt,"%d",guysbuf[index].hrate);
 	sprintf(hom,"%d",guysbuf[index].homing);
@@ -4893,10 +4615,8 @@ void edit_enemydata(int32_t index)
 	enedata_dlg[42].dp = hrt;
 	enedata_dlg[43].dp = hom;
 	enedata_dlg[44].dp = spd;
-	
 	sprintf(name,"%s",guy_string[index]);
 	enedata_dlg[36].dp = name;
-	
 	sprintf(ms[0],"%d",guysbuf[index].misc1);
 	sprintf(ms[1],"%d",guysbuf[index].misc2);
 	sprintf(ms[2],"%d",guysbuf[index].misc3);
@@ -4909,7 +4629,6 @@ void edit_enemydata(int32_t index)
 	sprintf(ms[9],"%d",guysbuf[index].misc10);
 	sprintf(ms[10],"%d",guysbuf[index].misc11);
 	sprintf(ms[11],"%d",guysbuf[index].misc12);
-	
 	//four pages of attributes, 1 through 32
 	sprintf(attribs[0],"%d",guysbuf[index].misc1);
 	sprintf(attribs[1],"%d",guysbuf[index].misc2);
@@ -4943,16 +4662,12 @@ void edit_enemydata(int32_t index)
 	sprintf(attribs[29],"%d",guysbuf[index].misc30);
 	sprintf(attribs[30],"%d",guysbuf[index].misc31);
 	sprintf(attribs[31],"%d",guysbuf[index].misc32);
-	
 	for(int32_t j=0; j <= edefBYRNA; j++)
 	{
 		enedata_dlg[j+161].d1 = guysbuf[index].defense[j];
 	}
-	
 	enedata_dlg[192].d1 = guysbuf[index].defense[edefWhistle];
 	enedata_dlg[416].d1 = guysbuf[index].defense[edefSwitchHook];
-	
-	
 	//Script Defenses
 	enedata_dlg[203].d1 = guysbuf[index].defense[edefSCRIPT01];
 	enedata_dlg[204].d1 = guysbuf[index].defense[edefSCRIPT02];
@@ -4964,33 +4679,28 @@ void edit_enemydata(int32_t index)
 	enedata_dlg[210].d1 = guysbuf[index].defense[edefSCRIPT08];
 	enedata_dlg[211].d1 = guysbuf[index].defense[edefSCRIPT09];
 	enedata_dlg[212].d1 = guysbuf[index].defense[edefSCRIPT10];
-	
 	//tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
 	sprintf(tilex,"%d",guysbuf[index].txsz);
 	sprintf(tiley,"%d",guysbuf[index].tysz);
 	sprintf(hitx,"%d",guysbuf[index].hxsz);
 	sprintf(hity,"%d",guysbuf[index].hysz);
 	sprintf(hitz,"%d",guysbuf[index].hzsz);
-  
 	enedata_dlg[214].dp = tilex;
 	enedata_dlg[216].dp = tiley;
 	enedata_dlg[218].dp = hitx;
 	enedata_dlg[220].dp = hity;
 	enedata_dlg[222].dp = hitz;
-	
 	//HitXOffset, HitYOFfset, hitZOffset, DrawXOffsrt, DrawYOffset
 	sprintf(hitofsx,"%d",guysbuf[index].hxofs);
 	sprintf(hitofsy,"%d",guysbuf[index].hyofs);
 	sprintf(hitofsz,"%d",guysbuf[index].zofs);
 	sprintf(drawofsx,"%d",guysbuf[index].xofs);
 	sprintf(drawofsy,"%d",guysbuf[index].yofs); //This seems to be setting to +48 or something with any value set?! -Z
-	
 	enedata_dlg[224].dp = hitofsx;
 	enedata_dlg[226].dp = hitofsy;
 	enedata_dlg[228].dp = hitofsz;
 	enedata_dlg[230].dp = drawofsx;
 	enedata_dlg[232].dp = drawofsy; //This seems to be setting to +48 or something with any value set?! -Z
-	
 	//Override flags
 	enedata_dlg[237].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? D_SELECTED : 0;
 	enedata_dlg[238].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? D_SELECTED : 0;
@@ -5002,7 +4712,6 @@ void edit_enemydata(int32_t index)
 	enedata_dlg[244].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) ? D_SELECTED : 0;
 	enedata_dlg[245].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_TILE_WIDTH) ? D_SELECTED : 0;
 	enedata_dlg[246].flags = (guysbuf[index].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) ? D_SELECTED : 0;
-	
 	//New Misc FLags (2.55, flag1 to flag16)
 	enedata_dlg[254].flags = (guysbuf[index].editorflags&ENEMY_FLAG1) ? D_SELECTED : 0;
 	enedata_dlg[255].flags = (guysbuf[index].editorflags&ENEMY_FLAG2) ? D_SELECTED : 0;
@@ -5020,25 +4729,20 @@ void edit_enemydata(int32_t index)
 	enedata_dlg[267].flags = (guysbuf[index].editorflags&ENEMY_FLAG14) ? D_SELECTED : 0;
 	enedata_dlg[268].flags = (guysbuf[index].editorflags&ENEMY_FLAG15) ? D_SELECTED : 0;
 	enedata_dlg[269].flags = (guysbuf[index].editorflags&ENEMY_FLAG16) ? D_SELECTED : 0;
-  
-	
 	sprintf(frt,"%d",guysbuf[index].frate);
 	sprintf(efr,"%d",guysbuf[index].e_frate);
 	enedata_dlg[140].dp = frt;
 	enedata_dlg[141].dp = efr;
-	
 	//sprintf(sfx,"%d",guysbuf[index].bgsfx);
 	enedata_dlg[182].d1= (int32_t)guysbuf[index].bgsfx;
 	enedata_dlg[183].d1= (int32_t)guysbuf[index].hitsfx;
 	if ( ( enedata_dlg[183].d1 == 0 ) && FFCore.getQuestHeaderInfo(vZelda) < 0x250 || (( FFCore.getQuestHeaderInfo(vZelda) == 0x250 ) && FFCore.getQuestHeaderInfo(vBuild) < 32 ) )
 	{
 		//If no user-set hit sound was in place, and the quest was made in a version before 2.53.0 Gamma 2:
-		enedata_dlg[183].d1 = WAV_EHIT; //Fix quests using the wrong hit sound when loading this. 
-		//Force SFX_HIT here. 
-		
+		enedata_dlg[183].d1 = WAV_EHIT; //Fix quests using the wrong hit sound when loading this.
+		//Force SFX_HIT here.
 	}
 	enedata_dlg[184].d1= (int32_t)guysbuf[index].deadsfx;
-	
 	// Sprites
 	if(biw_cnt==-1)
 	{
@@ -5055,9 +4759,7 @@ void edit_enemydata(int32_t index)
 		if(biw[j].i == guysbuf[index].spr_spawn)
 			enedata_dlg[398].d1  = j;
 	}
-	
 	sprintf(bsp,"%d",guysbuf[index].bosspal);
-	
 	if(guysbuf[index].cset == 14)
 	{
 		enedata_dlg[143].flags = D_SELECTED;
@@ -5066,21 +4768,15 @@ void edit_enemydata(int32_t index)
 	{
 		enedata_dlg[143].flags = 0;
 	}
-	
 	enedata_dlg[53].dp = bsp;
-	
 	for(int32_t i=0; i<32; i++)
 		enedata_dlg[74+i].flags = (guysbuf[index].flags & (1<<i)) ? D_SELECTED : 0;
-		
 	enedata_dlg[186].d1 = (guysbuf[index].flags & guy_fadeinstant ? 2
 						   : guysbuf[index].flags & guy_fadeflicker ? 1 : 0);
-						   
 	for(int32_t i=0; i<16; i++)
 		enedata_dlg[106+i].flags = (guysbuf[index].flags2 & (1<<i)) ? D_SELECTED : 0;
-	
 	for(int32_t i=0; i<16; i++)
 		enedata_dlg[399+i].flags = (guysbuf[index].flags2 & (1<<(i+16))) ? D_SELECTED : 0;
-	
 	enedata_dlg[371].flags = (guysbuf[index].moveflags & FLAG_OBEYS_GRAV) ? D_SELECTED : 0;
 	enedata_dlg[372].flags = (guysbuf[index].moveflags & FLAG_CAN_PITFALL) ? D_SELECTED : 0;
 	enedata_dlg[373].flags = (guysbuf[index].moveflags & FLAG_CAN_PITWALK) ? D_SELECTED : 0;
@@ -5094,18 +4790,14 @@ void edit_enemydata(int32_t index)
 	enedata_dlg[422].flags = (guysbuf[index].moveflags & FLAG_IGNORE_SCREENEDGE) ? D_SELECTED : 0;
 	enedata_dlg[423].flags = (guysbuf[index].moveflags & FLAG_USE_NEW_MOVEMENT) ? D_SELECTED : 0;
 	enedata_dlg[424].flags = (guysbuf[index].moveflags & FLAG_NOT_PUSHABLE) ? D_SELECTED : 0;
-	
 	int32_t ret;
 	guydata test;
 	memset(&test, 0, sizeof(guydata));
-	
 	if(is_large)
 	{
 		large_dialog(enedata_dlg);
 	}
-	
 	setEnemyLabels(guysbuf[index].family);
-	
 	popup_zqdialog_start();
 	do
 	{
@@ -5131,7 +4823,7 @@ void edit_enemydata(int32_t index)
 				sprintf(attribs[q],"%d",vbound(atoi(attribs[q]), 0, size));
 				enedata_dlg[296+(q-10)].d1 = atoi(attribs[q]);
 			}
-			else 
+			else
 				enedata_dlg[296+(q-10)].dp = attribs[q];
 		}
 		for ( int32_t q = 16; q < 24; q++ )
@@ -5143,7 +4835,7 @@ void edit_enemydata(int32_t index)
 				sprintf(attribs[q],"%d",vbound(atoi(attribs[q]), 0, size));
 				enedata_dlg[310+(q-16)].d1 = atoi(attribs[q]);
 			}
-			else 
+			else
 				enedata_dlg[310+(q-16)].dp = attribs[q];
 		}
 		for ( int32_t q = 24; q < 32; q++ )
@@ -5155,14 +4847,11 @@ void edit_enemydata(int32_t index)
 				sprintf(attribs[q],"%d",vbound(atoi(attribs[q]), 0, size));
 				enedata_dlg[326+(q-24)].d1 = atoi(attribs[q]);
 			}
-			else 
+			else
 				enedata_dlg[326+(q-24)].dp = attribs[q];
 		}
-		
 		enedata_dlg[189].dp = ms[10]; //These two are unused. Misc 11 and Misc 12 use attribs now
 		enedata_dlg[190].dp = ms[11];
-		
-		
 		enedata_dlg[278].dp = attribs[0];
 		enedata_dlg[279].dp = attribs[1];
 		enedata_dlg[280].dp = attribs[2];
@@ -5171,7 +4860,6 @@ void edit_enemydata(int32_t index)
 		enedata_dlg[283].dp = attribs[5];
 		enedata_dlg[284].dp = attribs[6];
 		enedata_dlg[285].dp = attribs[7];
-		
 		enedata_dlg[294].dp = attribs[8];
 		enedata_dlg[295].dp = attribs[9];
 		/*
@@ -5181,7 +4869,6 @@ void edit_enemydata(int32_t index)
 		enedata_dlg[299].dp = attribs[13];
 		enedata_dlg[300].dp = attribs[14];
 		enedata_dlg[301].dp = attribs[15];
-		
 		enedata_dlg[310].dp = attribs[16];
 		enedata_dlg[311].dp = attribs[17];
 		enedata_dlg[312].dp = attribs[18];
@@ -5190,7 +4877,6 @@ void edit_enemydata(int32_t index)
 		enedata_dlg[315].dp = attribs[21];
 		enedata_dlg[316].dp = attribs[22];
 		enedata_dlg[317].dp = attribs[23];
-		
 		enedata_dlg[326].dp = attribs[24];
 		enedata_dlg[327].dp = attribs[25];
 		enedata_dlg[328].dp = attribs[26];
@@ -5199,46 +4885,36 @@ void edit_enemydata(int32_t index)
 		enedata_dlg[331].dp = attribs[29];
 		enedata_dlg[332].dp = attribs[30];
 		enedata_dlg[333].dp = attribs[31];*/
-		
 		ret = do_zqdialog(enedata_dlg,3);
-		
-		
-		
 		test.tile  = enedata_dlg[247].d1;
 		test.cset = enedata_dlg[247].d2;
 		test.s_tile  = enedata_dlg[248].d1;
 		test.e_tile  = enedata_dlg[249].d1;
-		
 		test.width = vbound(atoi(w),0,20);
 		test.height = vbound(atoi(h),0,20);
 		test.s_width = vbound(atoi(sw),0,20);
 		test.s_height = vbound(atoi(sh),0,20);
 		test.e_width = vbound(atoi(ew),0,20);
 		test.e_height = vbound(atoi(eh),0,20);
-		
 		test.weapon = enedata_dlg[45].d1 != 0 ? biew[enedata_dlg[45].d1].i /*+ wEnemyWeapons*/ : wNone;
 		test.family = bief[enedata_dlg[46].d1].i;
 		test.anim = biea[enedata_dlg[47].d1].i;
 		test.e_anim = biea[enedata_dlg[48].d1].i;
 		test.item_set = enedata_dlg[49].d1;
-		
 		test.hp = vbound(atoi(hp), 0, 32767); //0x7FFF, not 0xFFFF?
 		test.dp = vbound(atoi(dp), 0, 32767);
 		test.wdp = vbound(atoi(wdp), 0, 32767);
 		test.grumble = vbound(atoi(grm), -4, 4);
-		
 		test.rate = vbound(atoi(rat), 0, (test.family == eeFIRE || test.family == eeOTHER)?32767:16);
 		test.hrate = vbound(atoi(hrt), 0, (test.family == eeFIRE || test.family == eeOTHER)?32767:16);
 		test.homing = vbound(atoi(hom), -256, (test.family == eeFIRE || test.family == eeOTHER)?32767:256);
 		test.step = vbound(atoi(spd),0, (test.family == eeFIRE || test.family == eeOTHER)?32767:1000);
-		
 		test.frate = vbound(atoi(frt),0,256);
 		test.e_frate = vbound(atoi(efr),0,256);
 		test.bosspal = vbound(atoi(bsp),-1,29);
 		test.bgsfx = enedata_dlg[182].d1;
 		test.hitsfx = enedata_dlg[183].d1;
 		test.deadsfx = enedata_dlg[184].d1;
-		
 		// Sprites
 		for(int32_t j=0; j<biw_cnt; j++)
 		{
@@ -5251,7 +4927,6 @@ void edit_enemydata(int32_t index)
 			if(enedata_dlg[398].d1 == j)
 				test.spr_spawn = biw[j].i;
 		}
-		
 		test.misc1 = (enedata_dlg[64].proc==jwin_droplist_proc) ? enedata_dlg[64].d1 : atol(ms[0]);
 		test.misc2 = (enedata_dlg[65].proc==jwin_droplist_proc) ? enedata_dlg[65].d1 : atol(ms[1]);
 		test.misc3 = (enedata_dlg[66].proc==jwin_droplist_proc) ? enedata_dlg[66].d1 : atol(ms[2]);
@@ -5263,52 +4938,42 @@ void edit_enemydata(int32_t index)
 		test.misc9 = (enedata_dlg[72].proc==jwin_droplist_proc) ? enedata_dlg[72].d1 : atol(ms[8]);
 		test.misc10 = (enedata_dlg[73].proc==jwin_droplist_proc) ? enedata_dlg[73].d1 : atol(ms[9]);
 		test.misc11 = (enedata_dlg[296].proc==jwin_droplist_proc) ? enedata_dlg[296].d1 : atol(attribs[10]);
-		test.misc12 = (enedata_dlg[297].proc==jwin_droplist_proc) ? enedata_dlg[297].d1 : atol(attribs[11]); 
+		test.misc12 = (enedata_dlg[297].proc==jwin_droplist_proc) ? enedata_dlg[297].d1 : atol(attribs[11]);
 		test.misc13 = (enedata_dlg[298].proc==jwin_droplist_proc) ? enedata_dlg[298].d1 : atol(attribs[12]);
-		test.misc14 = (enedata_dlg[299].proc==jwin_droplist_proc) ? enedata_dlg[299].d1 : atol(attribs[13]); 
+		test.misc14 = (enedata_dlg[299].proc==jwin_droplist_proc) ? enedata_dlg[299].d1 : atol(attribs[13]);
 		test.misc15 = (enedata_dlg[300].proc==jwin_droplist_proc) ? enedata_dlg[300].d1 : atol(attribs[14]);
-		test.misc16 = (enedata_dlg[301].proc==jwin_droplist_proc) ? enedata_dlg[301].d1 : atol(attribs[15]); 
-		test.misc17 = (enedata_dlg[310].proc==jwin_droplist_proc) ? enedata_dlg[310].d1 : atol(attribs[16]); 
-		test.misc18 = (enedata_dlg[311].proc==jwin_droplist_proc) ? enedata_dlg[311].d1 : atol(attribs[17]); 
-		test.misc19 = (enedata_dlg[312].proc==jwin_droplist_proc) ? enedata_dlg[312].d1 : atol(attribs[18]); 
-		test.misc20 = (enedata_dlg[313].proc==jwin_droplist_proc) ? enedata_dlg[313].d1 : atol(attribs[19]); 
-		test.misc21 = (enedata_dlg[314].proc==jwin_droplist_proc) ? enedata_dlg[314].d1 : atol(attribs[20]); 
-		test.misc22 = (enedata_dlg[315].proc==jwin_droplist_proc) ? enedata_dlg[315].d1 : atol(attribs[21]); 
-		test.misc23 = (enedata_dlg[316].proc==jwin_droplist_proc) ? enedata_dlg[316].d1 : atol(attribs[22]); 
-		test.misc24 = (enedata_dlg[317].proc==jwin_droplist_proc) ? enedata_dlg[317].d1 : atol(attribs[23]); 
-		test.misc25 = (enedata_dlg[326].proc==jwin_droplist_proc) ? enedata_dlg[326].d1 : atol(attribs[24]); 
-		test.misc26 = (enedata_dlg[327].proc==jwin_droplist_proc) ? enedata_dlg[327].d1 : atol(attribs[25]); 
-		test.misc27 = (enedata_dlg[328].proc==jwin_droplist_proc) ? enedata_dlg[328].d1 : atol(attribs[26]); 
-		test.misc28 = (enedata_dlg[329].proc==jwin_droplist_proc) ? enedata_dlg[329].d1 : atol(attribs[27]); 
-		test.misc29 = (enedata_dlg[330].proc==jwin_droplist_proc) ? enedata_dlg[330].d1 : atol(attribs[28]); 
-		test.misc30 = (enedata_dlg[331].proc==jwin_droplist_proc) ? enedata_dlg[331].d1 : atol(attribs[29]); 
-		test.misc31 = (enedata_dlg[332].proc==jwin_droplist_proc) ? enedata_dlg[332].d1 : atol(attribs[30]); 
-		test.misc32 = (enedata_dlg[333].proc==jwin_droplist_proc) ? enedata_dlg[333].d1 : atol(attribs[31]); 
-		
-	
-	
+		test.misc16 = (enedata_dlg[301].proc==jwin_droplist_proc) ? enedata_dlg[301].d1 : atol(attribs[15]);
+		test.misc17 = (enedata_dlg[310].proc==jwin_droplist_proc) ? enedata_dlg[310].d1 : atol(attribs[16]);
+		test.misc18 = (enedata_dlg[311].proc==jwin_droplist_proc) ? enedata_dlg[311].d1 : atol(attribs[17]);
+		test.misc19 = (enedata_dlg[312].proc==jwin_droplist_proc) ? enedata_dlg[312].d1 : atol(attribs[18]);
+		test.misc20 = (enedata_dlg[313].proc==jwin_droplist_proc) ? enedata_dlg[313].d1 : atol(attribs[19]);
+		test.misc21 = (enedata_dlg[314].proc==jwin_droplist_proc) ? enedata_dlg[314].d1 : atol(attribs[20]);
+		test.misc22 = (enedata_dlg[315].proc==jwin_droplist_proc) ? enedata_dlg[315].d1 : atol(attribs[21]);
+		test.misc23 = (enedata_dlg[316].proc==jwin_droplist_proc) ? enedata_dlg[316].d1 : atol(attribs[22]);
+		test.misc24 = (enedata_dlg[317].proc==jwin_droplist_proc) ? enedata_dlg[317].d1 : atol(attribs[23]);
+		test.misc25 = (enedata_dlg[326].proc==jwin_droplist_proc) ? enedata_dlg[326].d1 : atol(attribs[24]);
+		test.misc26 = (enedata_dlg[327].proc==jwin_droplist_proc) ? enedata_dlg[327].d1 : atol(attribs[25]);
+		test.misc27 = (enedata_dlg[328].proc==jwin_droplist_proc) ? enedata_dlg[328].d1 : atol(attribs[26]);
+		test.misc28 = (enedata_dlg[329].proc==jwin_droplist_proc) ? enedata_dlg[329].d1 : atol(attribs[27]);
+		test.misc29 = (enedata_dlg[330].proc==jwin_droplist_proc) ? enedata_dlg[330].d1 : atol(attribs[28]);
+		test.misc30 = (enedata_dlg[331].proc==jwin_droplist_proc) ? enedata_dlg[331].d1 : atol(attribs[29]);
+		test.misc31 = (enedata_dlg[332].proc==jwin_droplist_proc) ? enedata_dlg[332].d1 : atol(attribs[30]);
+		test.misc32 = (enedata_dlg[333].proc==jwin_droplist_proc) ? enedata_dlg[333].d1 : atol(attribs[31]);
 		for(int32_t j=0; j <= edefBYRNA; j++)
 		{
 			test.defense[j] = enedata_dlg[j+161].d1;
 		}
-		
 		test.defense[edefWhistle] = enedata_dlg[192].d1;
 		test.defense[edefSwitchHook] = enedata_dlg[416].d1;
 		//Are the new defs missing here? -Z
-		
-		
 		for(int32_t i=0; i<32; i++)
 			test.flags |= (enedata_dlg[74+i].flags & D_SELECTED) ? (1<<i) : 0;
-			
 		test.flags &= ~(guy_fadeinstant|guy_fadeflicker);
 		test.flags |= (enedata_dlg[186].d1==2 ? guy_fadeinstant : enedata_dlg[186].d1==1 ? guy_fadeflicker : 0);
-		
 		for(int32_t i=0; i<16; i++)
 			test.flags2 |= (enedata_dlg[106+i].flags & D_SELECTED) ? (1<<i) : 0;
-		
 		for(int32_t i=0; i<16; i++)
 			test.flags2 |= (enedata_dlg[399+i].flags & D_SELECTED) ? (1<<(i+16)) : 0;
-			
 		if(enedata_dlg[143].flags & D_SELECTED)
 		{
 			test.cset = 14;
@@ -5328,8 +4993,7 @@ void edit_enemydata(int32_t index)
 		test.defense[edefSCRIPT08] = enedata_dlg[210].d1;
 		test.defense[edefSCRIPT09] = enedata_dlg[211].d1;
 		test.defense[edefSCRIPT10] = enedata_dlg[212].d1;
-		
-		//tilewidth, tileheight, hitwidth, hitheight, 
+		//tilewidth, tileheight, hitwidth, hitheight,
 		test.txsz = atoi(tilex);
 		test.tysz = atoi(tiley);
 		test.hxsz = atoi(hitx);
@@ -5340,28 +5004,21 @@ void edit_enemydata(int32_t index)
 		test.zofs = atoi(hitofsz);
 		test.xofs = atoi(drawofsx);
 		test.yofs = atoi(drawofsy); //This seems to be setting to +48 or something with any value set?! -Z
-		
 		//override flags
 		if(enedata_dlg[237].flags & D_SELECTED)
 			test.SIZEflags |= guyflagOVERRIDE_HIT_WIDTH;
-			
 		if(enedata_dlg[238].flags & D_SELECTED)
 			test.SIZEflags |= guyflagOVERRIDE_HIT_HEIGHT;
-			
 		if(enedata_dlg[239].flags & D_SELECTED)
 			test.SIZEflags |= guyflagOVERRIDE_HIT_Z_HEIGHT;
-			
 		if(enedata_dlg[240].flags & D_SELECTED)
 			test.SIZEflags |= guyflagOVERRIDE_HIT_X_OFFSET;
-			
 		if(enedata_dlg[241].flags & D_SELECTED)
 			test.SIZEflags |= guyflagOVERRIDE_HIT_Y_OFFSET;
-			
 		if(enedata_dlg[242].flags & D_SELECTED)
 			test.SIZEflags |= guyflagOVERRIDE_DRAW_Z_OFFSET;
 		if(enedata_dlg[243].flags & D_SELECTED)
 			test.SIZEflags |= guyflagOVERRIDE_DRAW_X_OFFSET;
-			
 		if(enedata_dlg[244].flags & D_SELECTED)
 			test.SIZEflags |= guyflagOVERRIDE_DRAW_Y_OFFSET;
 		if(enedata_dlg[245].flags & D_SELECTED)
@@ -5402,20 +5059,17 @@ void edit_enemydata(int32_t index)
 			test.editorflags |= ENEMY_FLAG15;
 		if(enedata_dlg[269].flags & D_SELECTED)
 			test.editorflags |= ENEMY_FLAG16;
-		
 		//begin npc scripts
-		test.script = binpcs[enedata_dlg[335].d1].second + 1; 
+		test.script = binpcs[enedata_dlg[335].d1].second + 1;
 		for ( int32_t q = 0; q < 8; q++ )
 		{
 			test.initD[q] = enedata_dlg[345+q].fg;
 			test.weap_initiald[q] = enedata_dlg[361+q].fg;
-			
 			strcpy(test.initD_label[q], npc_initd_labels[q]);
 			strcpy(test.weapon_initD_label[q], weapon_initd_labels[q]);
 		}
 		//eweapon script
-		test.weaponscript = bieweapons[enedata_dlg[370].d1].second + 1; 
-		
+		test.weaponscript = bieweapons[enedata_dlg[370].d1].second + 1;
 		test.moveflags = 0;
 		if(enedata_dlg[371].flags & D_SELECTED)
 			test.moveflags |= FLAG_OBEYS_GRAV;
@@ -5443,9 +5097,7 @@ void edit_enemydata(int32_t index)
 			test.moveflags |= FLAG_USE_NEW_MOVEMENT;
 		if(enedata_dlg[424].flags & D_SELECTED)
 			test.moveflags |= FLAG_NOT_PUSHABLE;
-	
 		//end npc scripts
-	
 		if(ret==252) //OK Button
 		{
 			strcpy(guy_string[index],name);
@@ -5462,7 +5114,6 @@ void edit_enemydata(int32_t index)
 			{
 				enedata_dlg[j+161].d1 = enedata_dlg[161].d1;
 			}
-			
 			enedata_dlg[192].d1 = enedata_dlg[161].d1;
 			 //Clear to 0
 			enedata_dlg[203].d1 = enedata_dlg[161].d1;
@@ -5502,8 +5153,6 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 	guydata tempguy;
 	memset(&tempguy, 0, sizeof(guydata));
 		//reset_itembuf(&tempitem,i);
-	
-   
 	char npcstring[64]={0}; //guy_string[]
 	//section version info
 	if(!p_igetl(&zversion,f,true))
@@ -5514,19 +5163,16 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 	{
 		return 0;
 	}
-	
 	if(!p_igetw(&section_version,f,true))
 	{
 		return 0;
 	}
-	
 	if(!p_igetw(&section_cversion,f,true))
 	{
 		return 0;
 	}
 	al_trace("readonenpc section_version: %d\n", section_version);
 	al_trace("readonenpc section_cversion: %d\n", section_cversion);
-	
 	if ( zversion > ZELDA_VERSION )
 	{
 		al_trace("Cannot read .znpc packfile made in ZC version (%x) in this version of ZC (%x)\n", zversion, ZELDA_VERSION);
@@ -5536,219 +5182,176 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 	{
 		al_trace("Cannot read .znpc packfile made using V_GUYS (%d) subversion (%d)\n", section_version, section_cversion);
 		return 0;
-		
 	}
 	else
 	{
 		al_trace("Reading a .znpc packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
 	}
-   
 	if(!pfread(&npcstring, 64, f,true))
 	{
 		return 0;
 	}
-	
 	//section data
 	if(!p_igetl(&tempguy.flags,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetl(&tempguy.flags2,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetl(&tempguy.tile,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_getc(&tempguy.width,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_getc(&tempguy.height,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetl(&tempguy.s_tile,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_getc(&tempguy.s_width,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_getc(&tempguy.s_height,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetl(&tempguy.e_tile,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_getc(&tempguy.e_width,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_getc(&tempguy.e_height,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetw(&tempguy.hp,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetw(&tempguy.family,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetw(&tempguy.cset,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetw(&tempguy.anim,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetw(&tempguy.e_anim,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetw(&tempguy.frate,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetw(&tempguy.e_frate,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetw(&tempguy.dp,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetw(&tempguy.wdp,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetw(&tempguy.weapon,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetw(&tempguy.rate,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetw(&tempguy.hrate,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetw(&tempguy.step,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetw(&tempguy.homing,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetw(&tempguy.grumble,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetw(&tempguy.item_set,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetl(&tempguy.misc1,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetl(&tempguy.misc2,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetl(&tempguy.misc3,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetl(&tempguy.misc4,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetl(&tempguy.misc5,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetl(&tempguy.misc6,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetl(&tempguy.misc7,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetl(&tempguy.misc8,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetl(&tempguy.misc9,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetl(&tempguy.misc10,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetw(&tempguy.bgsfx,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetw(&tempguy.bosspal,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetw(&tempguy.extend,f,true))
 			{
 			return 0;
 			}
-			
 			for(int32_t j=0; j < edefLAST; j++)
 			{
 			if(!p_getc(&tempguy.defense[j],f,true))
@@ -5756,35 +5359,28 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 			   return 0;
 			}
 			}
-			
 			if(!p_getc(&tempguy.hitsfx,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_getc(&tempguy.deadsfx,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetl(&tempguy.misc11,f,true))
 			{
 			return 0;
 			}
-			
 			if(!p_igetl(&tempguy.misc12,f,true))
 			{
 			return 0;
 			}
-			
-	
 	if ( zversion >= 0x255 )
 	{
 		if  ( section_version >= 41 )
 		{
 			//New itemdata vars -Z
 			//! version 27
-			
 			//2.55 starts here
 			for(int32_t j=edefLAST; j < edefLAST255; j++)
 			{
@@ -5793,7 +5389,6 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 				return 0;
 			}
 			}
-			
 			//tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
 			if(!p_igetl(&tempguy.txsz,f,true))
 			{
@@ -5815,7 +5410,7 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 			{
 			return 0;
 			}
-			// These are not fixed types, but ints, so they are safe to use here. 
+			// These are not fixed types, but ints, so they are safe to use here.
 			if(!p_igetl(&tempguy.hxofs,f,true))
 			{
 			return 0;
@@ -5856,8 +5451,7 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 			{
 			return 0;
 			}
-			
-			for ( int32_t q = 0; q < 10; q++ ) 
+			for ( int32_t q = 0; q < 10; q++ )
 			{
 			if(!p_igetw(&tempguy.frozenmisc[q],f,true))
 			{
@@ -5986,7 +5580,6 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 			{
 			return 0;
 			}
-			
 			//Enemy Editor InitD[] labels
 			for ( int32_t q = 0; q < 8; q++ )
 			{
@@ -6023,19 +5616,15 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 	//strcpy(item_string[index], istring);
 	guysbuf[bie[index].i] = tempguy;
 	strcpy(guy_string[bie[index].i], npcstring);
-	   
 	return 1;
 }
 
 int32_t writeonenpc(PACKFILE *f, int32_t i)
 {
-	
 	dword section_version=V_GUYS;
 	dword section_cversion=CV_GUYS;
 	int32_t zversion = ZELDA_VERSION;
 	int32_t zbuild = VERSION_BUILD;
-	
-  
 	//section version info
 	if(!p_iputl(zversion,f))
 	{
@@ -6049,217 +5638,174 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 	{
 		new_return(2);
 	}
-	
 	if(!p_iputw(section_cversion,f))
 	{
 		new_return(3);
 	}
-	
 	if(!pfwrite(guy_string[i], 64, f))
 			{
 				new_return(5);
 			}
-		
 	   if(!p_iputl(guysbuf[i].flags,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputl(guysbuf[i].flags2,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputl(guysbuf[i].tile,f))
 		{
 		return 0;
 		}
-		
 		if(!p_putc(guysbuf[i].width,f))
 		{
 		return 0;
 		}
-		
 		if(!p_putc(guysbuf[i].height,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputl(guysbuf[i].s_tile,f))
 		{
 		return 0;
 		}
-		
 		if(!p_putc(guysbuf[i].s_width,f))
 		{
 		return 0;
 		}
-		
 		if(!p_putc(guysbuf[i].s_height,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputl(guysbuf[i].e_tile,f))
 		{
 		return 0;
 		}
-		
 		if(!p_putc(guysbuf[i].e_width,f))
 		{
 		return 0;
 		}
-		
 		if(!p_putc(guysbuf[i].e_height,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputw(guysbuf[i].hp,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputw(guysbuf[i].family,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputw(guysbuf[i].cset,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputw(guysbuf[i].anim,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputw(guysbuf[i].e_anim,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputw(guysbuf[i].frate,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputw(guysbuf[i].e_frate,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputw(guysbuf[i].dp,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputw(guysbuf[i].wdp,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputw(guysbuf[i].weapon,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputw(guysbuf[i].rate,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputw(guysbuf[i].hrate,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputw(guysbuf[i].step,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputw(guysbuf[i].homing,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputw(guysbuf[i].grumble,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputw(guysbuf[i].item_set,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputl(guysbuf[i].misc1,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputl(guysbuf[i].misc2,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputl(guysbuf[i].misc3,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputl(guysbuf[i].misc4,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputl(guysbuf[i].misc5,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputl(guysbuf[i].misc6,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputl(guysbuf[i].misc7,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputl(guysbuf[i].misc8,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputl(guysbuf[i].misc9,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputl(guysbuf[i].misc10,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputw(guysbuf[i].bgsfx,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputw(guysbuf[i].bosspal,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputw(guysbuf[i].extend,f))
 		{
 		return 0;
 		}
-		
 		for(int32_t j=0; j < edefLAST; j++)
 		{
 		if(!p_putc(guysbuf[i].defense[j],f))
@@ -6267,27 +5813,22 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 		   return 0;
 		}
 		}
-		
 		if(!p_putc(guysbuf[i].hitsfx,f))
 		{
 		return 0;
 		}
-		
 		if(!p_putc(guysbuf[i].deadsfx,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputl(guysbuf[i].misc11,f))
 		{
 		return 0;
 		}
-		
 		if(!p_iputl(guysbuf[i].misc12,f))
 		{
 		return 0;
 		}
-		
 		//2.55 starts here
 		for(int32_t j=edefLAST; j < edefLAST255; j++)
 		{
@@ -6296,7 +5837,6 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 			return 0;
 		}
 		}
-		
 		//tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
 		if(!p_iputl(guysbuf[i].txsz,f))
 		{
@@ -6318,7 +5858,7 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 		{
 		return 0;
 		}
-		// These are not fixed types, but ints, so they are safe to use here. 
+		// These are not fixed types, but ints, so they are safe to use here.
 		if(!p_iputl(guysbuf[i].hxofs,f))
 		{
 		return 0;
@@ -6359,8 +5899,7 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 		{
 		return 0;
 		}
-		
-		for ( int32_t q = 0; q < 10; q++ ) 
+		for ( int32_t q = 0; q < 10; q++ )
 		{
 		if(!p_iputw(guysbuf[i].frozenmisc[q],f))
 		{
@@ -6489,7 +6028,6 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 		{
 		return 0;
 		}
-		
 		//Enemy Editor InitD[] labels
 		for ( int32_t q = 0; q < 8; q++ )
 		{
@@ -6554,7 +6092,6 @@ void save_enemy(int32_t index)
 	if(!getname("Save NPC(.znpc)", "znpc", NULL,datapath,false))
 		return;
 	int32_t iid = bie[index].i;
-	
 	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 	if(!f) return;
 	if (!writeonenpc(f,iid))
@@ -6573,13 +6110,11 @@ void load_enemy(int32_t index)
 		return;
 	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 	if(!f) return;
-	
 	if (!readonenpc(f,index))
 	{
 		al_trace("Could not read from .znpc packfile %s\n", temppath);
 		InfoDialog("ZNPC Error", "Could not load the specified enemy.").show();
 	}
-	
 	pack_fclose(f);
 	elist_dlg[2].flags|=D_DIRTY;
 	saved=false;
@@ -6590,14 +6125,11 @@ void elist_rclick_func(int32_t index, int32_t x, int32_t y)
 {
 	if(index==0)
 		return;
-	
 	if(copiedGuy<=0)
 		elist_rclick_menu[1].flags|=D_DISABLED;
 	else
 		elist_rclick_menu[1].flags&=~D_DISABLED;
-	
 	int32_t ret=popup_menu(elist_rclick_menu, x, y);
-	
 	if(ret==0) // copy
 		copy_enemy(index);
 	else if(ret==1) // paste
@@ -6614,10 +6146,8 @@ int32_t onCustomEnemies()
 	  char *hold = item_string[0];
 	  item_string[0] = "rupee (1)";
 	  */
-	
 	int32_t foo;
 	int32_t index = select_enemy("Select Enemy",bie[0].i,true,true,foo);
-	
 	while(index >= 0)
 	{
 		//I can't get the fucking dialog to handle a simple copy paste so I stuck it here else I'm going to rage kill something.
@@ -6644,10 +6174,8 @@ int32_t onCustomEnemies()
 				edit_enemydata(index);
 			}
 		}
-		
 		index = select_enemy("Select Enemy",index,true,true,foo);
 	}
-	
 	refresh(rMAP+rCOMBOS);
 	return D_O_K;
 }
@@ -6918,7 +6446,7 @@ static TABPANEL herotile_tabs[] =
 	{ (char *)"Sprites (Liquid)",      0,            herotile_water_list, 0, NULL },
 	{ (char *)"Sprites (Side Liquid)",      0,            herotile_sidewater_list, 0, NULL },
 	{ (char *)"Defenses",             0,            herotile_defense_list, 0, NULL},
-	{ (char *)"Options",              0,            herotile_option_list, 0, NULL  }, 
+	{ (char *)"Options",              0,            herotile_option_list, 0, NULL  },
 	{ NULL,                 0,            NULL,                0, NULL }
 };
 
@@ -6930,7 +6458,6 @@ const char *animationstylelist(int32_t index, int32_t *list_size)
 	{
 		return animationstyles[index];
 	}
-	
 	*list_size=las_max;
 	return NULL;
 }
@@ -6943,7 +6470,6 @@ const char *swimspeedlist(int32_t index, int32_t *list_size)
 	{
 		return swimspeeds[index];
 	}
-	
 	*list_size=2;
 	return NULL;
 }
@@ -6951,13 +6477,11 @@ const char *swimspeedlist(int32_t index, int32_t *list_size)
 int32_t jwin_as_droplist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
 	int32_t ret = jwin_droplist_proc(msg,d,c);
-	
 	switch(msg)
 	{
 	case MSG_CHAR:
 	case MSG_CLICK:
 		zinit.heroAnimationStyle=d->d1;
-		
 		if(zinit.heroAnimationStyle==las_zelda3slow)
 		{
 			hero_animation_speed=2;
@@ -6967,7 +6491,6 @@ int32_t jwin_as_droplist_proc(int32_t msg,DIALOG *d,int32_t c)
 			hero_animation_speed=1;
 		}
 	}
-	
 	return ret;
 }
 
@@ -7038,7 +6561,6 @@ static DIALOG herotile_dlg[] =
 	{  d_ltile_proc,                        70,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          left,       ls_landhold2,    NULL,                            NULL,   NULL                   },
 	// 47 (casting sprites)
 	{  d_ltile_proc,                        70,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          up,         ls_cast,         NULL,                            NULL,   NULL                   },
-	
 	// 48 (float sprite titles)
 	{  jwin_rtext_proc,                     33,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Up",                   NULL,   NULL                   },
 	{  jwin_rtext_proc,                    101,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Down",                 NULL,   NULL                   },
@@ -7132,7 +6654,6 @@ static DIALOG herotile_dlg[] =
 	{  d_ltile_proc,                       104,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          down,       ls_lavadrown,         NULL,                            NULL,   NULL                   },
 	{  d_ltile_proc,                        36,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          left,       ls_lavadrown,         NULL,                            NULL,   NULL                   },
 	{  d_ltile_proc,                       104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_lavadrown,         NULL,                            NULL,   NULL                   },
-	
 	// DEFENSE TAB BEGINS
 	// 121 (Player defenses)
 	{ jwin_tab_proc,                        7,      33,    305,    183,    0,                      0,                       0,    0,          0,          0, (void*)herotile_defense_tabs,    NULL, (void*)herotile_dlg },
@@ -7162,7 +6683,7 @@ static DIALOG herotile_dlg[] =
 	{ jwin_text_proc,           9,    108,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Refl. Fireball Defense:",                              NULL,   NULL },
 	{ jwin_text_proc,           9,    126,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Refl. Rock Defense:",                              NULL,   NULL },
 	{ jwin_text_proc,           9,    144,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Refl. Sword Beam Defense:",                              NULL,   NULL },
-	// 145 - Enemy weapons pulldown 
+	// 145 - Enemy weapons pulldown
 	{ jwin_droplist_proc,         126,   54 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
 	{ jwin_droplist_proc,         126,   72 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
 	{ jwin_droplist_proc,         126,   90 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
@@ -7190,8 +6711,6 @@ static DIALOG herotile_dlg[] =
 	{ jwin_droplist_proc,         126,  144 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
 	// 168 - Set all button
 	{ jwin_button_proc,           255,    54 - 4,     48,     16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void*)"Set All",                                            NULL,   NULL },
-	
-	
 	// 169 - Script 1
 	{ jwin_text_proc,           9,    51,      80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Custom Weapon 1 Defense:",                              NULL,   NULL },
 	{ jwin_text_proc,           9,    67,      80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Custom Weapon 2 Defense:",                              NULL,   NULL },
@@ -7338,8 +6857,7 @@ static DIALOG herotile_dlg[] =
 	// 284 (lift speed preview value)
 	{  jwin_rtext_proc,                     60,     58,     64,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Preview Speed",                NULL,   NULL                   },
 	{  jwin_edit_proc,                      63,     55,     20,     16,    vc(12),                 vc(1),                   0,       0,           4,    0,  NULL,                                           NULL,   NULL                  },
-	
-	{  NULL,                                 0,      0,      0,      0,    0,                      0,                       0,    0,          0,          0,               NULL,                            NULL,   NULL                   }    
+	{  NULL,                                 0,      0,      0,      0,    0,                      0,                       0,    0,          0,          0,               NULL,                            NULL,   NULL                   }
 
 };
 
@@ -7354,7 +6872,6 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 	int32_t *p=(int32_t*)d->dp3;
 	int32_t oldtile=0;
 	int32_t oldflip=0;
-	
 	switch(msg)
 	{
 		case MSG_START:
@@ -7371,7 +6888,6 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 				p[lt_frames] = vbound(atoi((char*)herotile_dlg[280+d->d1].dp),1,255);
 			break;
 		}
-		
 		case MSG_CLICK:
 		{
 			int32_t t;
@@ -7379,7 +6895,6 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 			int32_t extend;
 			int32_t cs = 6;
 			herotile(&t, &f, &extend, d->d2, d->d1, zinit.heroAnimationStyle);
-			
 			switch(extend)
 			{
 				case 0:
@@ -7387,26 +6902,20 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 					{
 						return D_O_K;
 					}
-					
 					break;
-					
 				case 1:
 					if(!isinRect(gui_mouse_x(),gui_mouse_y(),d->x+2+8, d->y+2+4, d->x+(16*(is_large+1))+8+2, d->y+(4+32*(is_large+1))+2))
 					{
 						return D_O_K;
 					}
-					
 					break;
-					
 				case 2:
 					if(!isinRect(gui_mouse_x(),gui_mouse_y(),d->x+2+8, d->y+4, d->x+(32*(is_large+1))+8+2, d->y+(4+32*(is_large+1))+2))
 					{
 						return D_O_K;
 					}
-					
 					break;
 			}
-			
 			if((key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 				? select_tile_2(t,f,2,cs,false,extend,true)
 				: select_tile(t,f,2,cs,false,extend,true))
@@ -7417,7 +6926,6 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 			}
 		}
 		break;
-		
 		case MSG_VSYNC:
 		{
 			oldtile=p[lt_tile];
@@ -7426,7 +6934,6 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 			auto lspeed = vbound(atoi(liftspeed),1,255);
 			if(d->d2 == ls_lifting)
 				p[lt_frames] = vbound(atoi((char*)herotile_dlg[280+d->d1].dp),1,255);
-			
 			switch(zinit.heroAnimationStyle)
 			{
 				case las_original:                                             //2-frame
@@ -7436,7 +6943,6 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 						case ls_walk:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.heroAnimationStyle);
-							
 							if(p[lt_clock]>=6)
 							{
 								if(d->d1==up&&d->d2==ls_walk)
@@ -7448,20 +6954,16 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 									p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;               //tile++
 								}
 							};
-							
 							if(p[lt_clock]>=11)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-							
 						case ls_sideswim:
 						case ls_sideswimcharge:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.heroAnimationStyle);
-							
 							if(p[lt_clock]>=6)
 							{
 								if(d->d1==up&&d->d2==ls_sideswim)
@@ -7473,15 +6975,12 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 									p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;			   //tile++
 								}
 							};
-							
 							if(p[lt_clock]>=11)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-					
 						case ls_sideswimslash:
 						{
 							if(p[lt_clock]<6)
@@ -7500,16 +6999,13 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.heroAnimationStyle);
 								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;				  //tile++
-								
 								if(p[lt_clock]>=16)
 								{
 									p[lt_clock]=-1;
 								}
 							};
-							
 							break;
 						}
-							
 						case ls_sideswimstab:
 						{
 							if(p[lt_clock]<12)
@@ -7524,16 +7020,13 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.heroAnimationStyle);
 								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;				  //tile++
-								
 								if(p[lt_clock]>=16)
 								{
 									p[lt_clock]=-1;
 								}
 							};
-							
 							break;
 						}
-							
 						case ls_sideswimpound:
 						{
 							if(p[lt_clock]<12)
@@ -7547,22 +7040,18 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							else
 							{
 								herotile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.heroAnimationStyle);
-								
 								if(p[lt_clock]>=31)
 								{
 									p[lt_clock]=-1;
 								}
 							};
-							
 							break;
 						}
-					
 						case ls_jump:
 						{
 							if(p[lt_clock]>=24)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
-								
 								if(p[lt_clock]>=36)
 								{
 									p[lt_clock]=-1;
@@ -7573,10 +7062,8 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.heroAnimationStyle);
 								p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
 							}
-							
 							break;
 						}
-							
 						case ls_slash:
 						{
 							if(p[lt_clock]<6)
@@ -7595,16 +7082,13 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
 								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
-								
 								if(p[lt_clock]>=16)
 								{
 									p[lt_clock]=-1;
 								}
 							};
-							
 							break;
 						}
-							
 						case ls_revslash:
 						{
 							if(p[lt_clock]<6)
@@ -7623,16 +7107,13 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
 								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
-								
 								if(p[lt_clock]>=16)
 								{
 									p[lt_clock]=-1;
 								}
 							};
-							
 							break;
 						}
-							
 						case ls_stab:
 						{
 							if(p[lt_clock]<12)
@@ -7647,16 +7128,13 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
 								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
-								
 								if(p[lt_clock]>=16)
 								{
 									p[lt_clock]=-1;
 								}
 							};
-							
 							break;
 						}
-							
 						case ls_pound:
 						{
 							if(p[lt_clock]<12)
@@ -7670,108 +7148,84 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							else
 							{
 								herotile(&p[lt_tile], &p[lt_flip], ls_walk, d->d1, zinit.heroAnimationStyle);
-								
 								if(p[lt_clock]>=31)
 								{
 									p[lt_clock]=-1;
 								}
 							};
-							
 							break;
 						}
-							
 						case ls_float:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
-							
 							if(p[lt_clock]>=12)
 							{
 								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
 							};
-							
 							if(p[lt_clock]>=23)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-							
 						case ls_swim:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_swim, d->d1, zinit.heroAnimationStyle);
-							
 							if(p[lt_clock]>=12)
 							{
 								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
 							};
-							
 							if(p[lt_clock]>=23)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-							
 						case ls_dive:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_dive, d->d1, zinit.heroAnimationStyle);
-							
 							if(p[lt_clock]>=50)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
 							};
-							
 							if((p[lt_clock]/12)&1)
 							{
 								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
 							};
-							
 							if(p[lt_clock]>=81)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-						
 						case ls_drown:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_drown, d->d1, zinit.heroAnimationStyle);
-							
 							if(p[lt_clock]<=4)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
 							};
-							
 							if((p[lt_clock]/12)&1)
 							{
 								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
 							};
-							
 							if(p[lt_clock]>=81)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
 						case ls_sidedrown:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sidedrown, d->d1, zinit.heroAnimationStyle);
-							
-							
 							if((p[lt_clock]/12)&1)
 							{
 								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
 							};
-							
 							if(p[lt_clock]>=81)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							if(p[lt_clock]<=4)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.heroAnimationStyle);
@@ -7779,106 +7233,85 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							};
 							break;
 						}
-					
 						case ls_lavadrown:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_lavadrown, d->d1, zinit.heroAnimationStyle);
-							
 							if(p[lt_clock]<=4)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
 							};
-							
 							if((p[lt_clock]/12)&1)
 							{
 								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
 							};
-							
 							if(p[lt_clock]>=81)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-							
 						case ls_falling:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_falling, d->d1, zinit.heroAnimationStyle);
 							p[lt_tile] += ((p[lt_clock]%70)/10)*(p[lt_extend]==2 ? 2 : 1);
 							break;
 						}
-							
 						case ls_landhold1:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_landhold1, d->d1, zinit.heroAnimationStyle);
 							break;
 						}
-							
 						case ls_landhold2:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_landhold2, d->d1, zinit.heroAnimationStyle);
 							break;
 						}
-							
 						case ls_waterhold1:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_waterhold1, d->d1, zinit.heroAnimationStyle);
 							break;
 						}
-							
 						case ls_waterhold2:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_waterhold2, d->d1, zinit.heroAnimationStyle);
 							break;
 						}
-						
 						case ls_sidewaterhold1:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold1, d->d1, zinit.heroAnimationStyle);
 							break;
 						}
-							
 						case ls_sidewaterhold2:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold2, d->d1, zinit.heroAnimationStyle);
 							break;
 						}
-							
 						case ls_cast:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_cast, d->d1, zinit.heroAnimationStyle);
-							
 							if(p[lt_clock]<96)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], ls_landhold2, d->d1, zinit.heroAnimationStyle);
 							};
-							
 							if(p[lt_clock]>=194)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-						
 						case ls_sideswimcast:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_sideswimcast, d->d1, zinit.heroAnimationStyle);
-							
 							if(p[lt_clock]<96)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold2, d->d1, zinit.heroAnimationStyle);
 							};
-							
 							if(p[lt_clock]>=194)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-						
 						case ls_lifting:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_lifting, d->d1, zinit.heroAnimationStyle);
@@ -7905,20 +7338,16 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 									p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;               //tile++
 								}
 							};
-							
 							if(p[lt_clock]>=11)
 							{
 								p[lt_clock]=-1;
 							}
 							break;
 						}
-							
 						default:
 							break;
 					}
-					
 					break;
-				
 				case las_bszelda:                                             //3-frame BS
 					switch(d->d2)
 					{
@@ -7927,29 +7356,23 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.heroAnimationStyle);
 							p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
-							
 							if(p[lt_clock]>=27)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-						
 						case ls_sideswim:
 						case ls_sideswimcharge:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.heroAnimationStyle);
 							p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
-							
 							if(p[lt_clock]>=27)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-						
 						case ls_sideswimslash:
 						{
 							if(p[lt_clock]<6)
@@ -7968,16 +7391,13 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.heroAnimationStyle);
 								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;				  //tile++
-								
 								if(p[lt_clock]>=16)
 								{
 									p[lt_clock]=-1;
 								}
 							};
-							
 							break;
 						}
-						
 						case ls_sideswimstab:
 						{
 							if(p[lt_clock]<12)
@@ -7992,16 +7412,13 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.heroAnimationStyle);
 								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;				  //tile++
-								
 								if(p[lt_clock]>=16)
 								{
 									p[lt_clock]=-1;
 								}
 							};
-							
 							break;
 						}
-						
 						case ls_sideswimpound:
 						{
 							if(p[lt_clock]<12)
@@ -8015,22 +7432,18 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							else
 							{
 								herotile(&p[lt_tile], &p[lt_flip], ls_sideswim, d->d1, zinit.heroAnimationStyle);
-								
 								if(p[lt_clock]>=31)
 								{
 									p[lt_clock]=-1;
 								}
 							};
-							
 							break;
 						}
-						
 						case ls_jump:
 						{
 							if(p[lt_clock]>=24)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
-								
 								if(p[lt_clock]>=36)
 								{
 									p[lt_clock]=-1;
@@ -8041,10 +7454,8 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.heroAnimationStyle);
 								p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
 							}
-							
 							break;
 						}
-						
 						case ls_slash:
 						{
 							if(p[lt_clock]<6)
@@ -8063,16 +7474,13 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
 								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
-								
 								if(p[lt_clock]>=16)
 								{
 									p[lt_clock]=-1;
 								}
 							};
-							
 							break;
 						}
-						
 						case ls_revslash:
 						{
 							if(p[lt_clock]<6)
@@ -8091,16 +7499,13 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
 								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
-								
 								if(p[lt_clock]>=16)
 								{
 									p[lt_clock]=-1;
 								}
 							};
-							
 							break;
 						}
-						
 						case ls_stab:
 						{
 							if(p[lt_clock]<12)
@@ -8115,16 +7520,13 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
 								p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
-								
 								if(p[lt_clock]>=16)
 								{
 									p[lt_clock]=-1;
 								}
 							};
-							
 							break;
 						}
-						
 						case ls_pound:
 						{
 							if(p[lt_clock]<12)
@@ -8138,196 +7540,152 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							else
 							{
 								herotile(&p[lt_tile], &p[lt_flip], ls_walk, d->d1, zinit.heroAnimationStyle);
-								
 								if(p[lt_clock]>=31)
 								{
 									p[lt_clock]=-1;
 								}
 							};
-							
 							break;
 						}
-						
 						case ls_float:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
 							p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
-							
 							if(p[lt_clock]>=55)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-						
 						case ls_swim:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_swim, d->d1, zinit.heroAnimationStyle);
 							p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
-							
 							if(p[lt_clock]>=55)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-						
 						case ls_dive:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_dive, d->d1, zinit.heroAnimationStyle);
-							
 							if(p[lt_clock]>=50)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
 							};
-							
 							p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
-							
 							if(p[lt_clock]>=81)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-						
 						case ls_drown:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_drown, d->d1, zinit.heroAnimationStyle);
-							
 							if(p[lt_clock]<=4)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
 							};
-							
 							p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
-							
 							if(p[lt_clock]>=81)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-						
 						case ls_sidedrown:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sidedrown, d->d1, zinit.heroAnimationStyle);
 							p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
-							
 							if(p[lt_clock]<=4)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.heroAnimationStyle);
 								p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
 							};
-							
-							
 							if(p[lt_clock]>=81)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-						
 						case ls_lavadrown:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_lavadrown, d->d1, zinit.heroAnimationStyle);
-							
 							if(p[lt_clock]<=4)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
 							};
-							
 							p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
-							
 							if(p[lt_clock]>=81)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-						
 						case ls_falling:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_falling, d->d1, zinit.heroAnimationStyle);
 							p[lt_tile] += ((p[lt_clock]%70)/10)*(p[lt_extend]==2 ? 2 : 1);
 							break;
 						}
-						
 						case ls_landhold1:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_landhold1, d->d1, zinit.heroAnimationStyle);
 							break;
 						}
-						
 						case ls_landhold2:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_landhold2, d->d1, zinit.heroAnimationStyle);
 							break;
 						}
-						
 						case ls_waterhold1:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_waterhold1, d->d1, zinit.heroAnimationStyle);
 							break;
 						}
-						
 						case ls_waterhold2:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_waterhold2, d->d1, zinit.heroAnimationStyle);
 							break;
 						}
-						
 						case ls_sidewaterhold1:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold1, d->d1, zinit.heroAnimationStyle);
 							break;
 						}
-						
 						case ls_sidewaterhold2:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold2, d->d1, zinit.heroAnimationStyle);
 							break;
 						}
-						
 						case ls_cast:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_cast, d->d1, zinit.heroAnimationStyle);
-							
 							if(p[lt_clock]<96)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], ls_landhold2, d->d1, zinit.heroAnimationStyle);
 							}
-							
 							if(p[lt_clock]>=194)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-						
 						case ls_sideswimcast:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_sideswimcast, d->d1, zinit.heroAnimationStyle);
-							
 							if(p[lt_clock]<96)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold2, d->d1, zinit.heroAnimationStyle);
 							};
-							
 							if(p[lt_clock]>=194)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-						
 						case ls_lifting:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_lifting, d->d1, zinit.heroAnimationStyle);
@@ -8344,19 +7702,16 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_liftwalk, d->d1, zinit.heroAnimationStyle);
 							p[lt_tile]+=anim_3_4(p[lt_clock],7)*(p[lt_extend]==2?2:1);
-							
 							if(p[lt_clock]>=27)
 							{
 								p[lt_clock]=-1;
 							}
 							break;
 						}
-							
 						default:
 							break;
 					}
 					break;
-				
 				case las_zelda3slow:                                         //multi-frame Zelda 3 (slow)
 				case las_zelda3:                                             //multi-frame Zelda 3
 					switch(d->d2)
@@ -8365,53 +7720,43 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 						case ls_walk:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.heroAnimationStyle);
-							
 							if(p[lt_clock]>=(64*(hero_animation_speed)))
 							{
 								p[lt_tile]+=(p[lt_extend]==2?2:1);
-								
 								int32_t l=((p[lt_clock]/hero_animation_speed)&15);
 								l-=((l>3)?1:0)+((l>12)?1:0);
 								p[lt_tile]+=(l/2)*(p[lt_extend]==2?2:1);
-								
 								//p[lt_tile]+=(((p[lt_clock]>>2)%8)*(p[lt_extend]==2?2:1));
 								if(p[lt_clock]>=255)
 								{
 									p[lt_clock]=-1;
 								}
 							}
-							
 							break;
 						}
 						case ls_sideswim:
 						case ls_sideswimcharge:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], d->d2, d->d1, zinit.heroAnimationStyle);
-							
 							if(p[lt_clock]>=(64*(hero_animation_speed)))
 							{
 								p[lt_tile]+=(p[lt_extend]==2?2:1);
-								
 								int32_t l=((p[lt_clock]/hero_animation_speed)&15);
 								l-=((l>3)?1:0)+((l>12)?1:0);
 								p[lt_tile]+=(l/2)*(p[lt_extend]==2?2:1);
-								
 								//p[lt_tile]+=(((p[lt_clock]>>2)%8)*(p[lt_extend]==2?2:1));
 								if(p[lt_clock]>=255)
 								{
 									p[lt_clock]=-1;
 								}
 							}
-							
 							break;
-						 
 						case ls_sideswimstab:
 						{
 							if(p[lt_clock]>35)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswimstab, d->d1, zinit.heroAnimationStyle);
 								p[lt_tile]+=(((p[lt_clock]>>2)%3)*(p[lt_extend]==2?2:1));
-								
 								if(p[lt_clock]>=47)
 								{
 									p[lt_clock]=-1;
@@ -8421,17 +7766,14 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.heroAnimationStyle);
 							}
-							
 							break;
 						}
-						
 						case ls_sideswimslash:
 						{
 							if(p[lt_clock]>23)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswimslash, d->d1, zinit.heroAnimationStyle);
 								p[lt_tile]+=(((p[lt_clock]>>2)%6)*(p[lt_extend]==2?2:1));
-								
 								if(p[lt_clock]>=47)
 								{
 									p[lt_clock]=-1;
@@ -8441,17 +7783,14 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.heroAnimationStyle);
 							}
-							
 							break;
 						}
-						
 						case ls_sideswimpound:
 						{
 							if(p[lt_clock]>35)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswimpound, d->d1, zinit.heroAnimationStyle);
 								p[lt_tile]+=(((p[lt_clock]>>2)%3)*(p[lt_extend]==2?2:1));
-								
 								if(p[lt_clock]>=47)
 								{
 									p[lt_clock]=-1;
@@ -8461,16 +7800,13 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sideswim, d->d1, zinit.heroAnimationStyle);
 							}
-							
 							break;
 						}
-						
 						case ls_jump:
 						{
 							if(p[lt_clock]>=24)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
-								
 								if(p[lt_clock]>=36)
 								{
 									p[lt_clock]=-1;
@@ -8481,17 +7817,14 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.heroAnimationStyle);
 								p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
 							}
-							
 							break;
 						}
-						
 						case ls_slash:
 						{
 							if(p[lt_clock]>23) //24 frames, advances by one every 4 frames, 6 tiles total
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_slash, d->d1, zinit.heroAnimationStyle);
 								p[lt_tile]+=(((p[lt_clock]>>2)%6)*(p[lt_extend]==2?2:1));
-								
 								if(p[lt_clock]>=47)
 								{
 									p[lt_clock]=-1;
@@ -8501,17 +7834,14 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
 							}
-							
 							break;
 						}
-						
 						case ls_revslash:
 						{
 							if(p[lt_clock]>23) //24 frames, advances by one every 4 frames, 6 tiles total
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_revslash, d->d1, zinit.heroAnimationStyle);
 								p[lt_tile]+=(((p[lt_clock]>>2)%6)*(p[lt_extend]==2?2:1));
-								
 								if(p[lt_clock]>=47)
 								{
 									p[lt_clock]=-1;
@@ -8521,16 +7851,13 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
 							}
-							
 							break;
 						}
-						
 						case ls_stab: //12 frames, advances by one every 4 frames, 3 tiles total.
 							if(p[lt_clock]>35)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_stab, d->d1, zinit.heroAnimationStyle);
 								p[lt_tile]+=(((p[lt_clock]>>2)%3)*(p[lt_extend]==2?2:1));
-								
 								if(p[lt_clock]>=47)
 								{
 									p[lt_clock]=-1;
@@ -8540,17 +7867,14 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
 							}
-							
 							break;
 						}
-						
 						case ls_pound:
 						{
 							if(p[lt_clock]>35)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_pound, d->d1, zinit.heroAnimationStyle);
 								p[lt_tile]+=(((p[lt_clock]>>2)%3)*(p[lt_extend]==2?2:1));
-								
 								if(p[lt_clock]>=47)
 								{
 									p[lt_clock]=-1;
@@ -8560,190 +7884,147 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
 							}
-							
 							break;
 						}
-						
 						case ls_float:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
 							p[lt_tile]+=((p[lt_clock]/6)%4)<<(p[lt_extend]==2?1:0);
-							
 							if(p[lt_clock]>=23)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-						
 						case ls_swim:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_swim, d->d1, zinit.heroAnimationStyle);
 							p[lt_tile]+=((p[lt_clock]/12)%4)<<(p[lt_extend]==2?1:0);
-							
 							if(p[lt_clock]>=47)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-						
 						case ls_dive:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_dive, d->d1, zinit.heroAnimationStyle);
-							
 							if(p[lt_clock]>=50)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
 							};
-							
 							p[lt_tile]+=((p[lt_clock]/6)%4)<<(p[lt_extend]==2?1:0);
-							
 							if(p[lt_clock]>=81)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-						
 						case ls_drown:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_drown, d->d1, zinit.heroAnimationStyle);
-							
 							if(p[lt_clock]<=4)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
 							};
-							
 							p[lt_tile]+=((p[lt_clock]/6)%4)<<(p[lt_extend]==2?1:0);
-							
 							if(p[lt_clock]>=81)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-						
 						case ls_sidedrown:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_sidedrown, d->d1, zinit.heroAnimationStyle);
 							p[lt_tile]+=((p[lt_clock]/6)%4)<<(p[lt_extend]==2?1:0);
-							
 							if(p[lt_clock]<=4)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_jump, d->d1, zinit.heroAnimationStyle);
 								p[lt_tile]+=p[lt_extend]==2?((int32_t)p[lt_clock]/8)*2:((int32_t)p[lt_clock]/8);
 							};
-							
-							
 							if(p[lt_clock]>=81)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-						
 						case ls_lavadrown:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_lavadrown, d->d1, zinit.heroAnimationStyle);
-							
 							if(p[lt_clock]<=4)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_float, d->d1, zinit.heroAnimationStyle);
 							};
-							
 							p[lt_tile]+=((p[lt_clock]/6)%4)<<(p[lt_extend]==2?1:0);
-							
 							if(p[lt_clock]>=81)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-						
 						case ls_falling:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_falling, d->d1, zinit.heroAnimationStyle);
 							p[lt_tile] += ((p[lt_clock]%70)/10)*(p[lt_extend]==2 ? 2 : 1);
 							break;
 						}
-						
 						case ls_landhold1:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_landhold1, d->d1, zinit.heroAnimationStyle);
 							break;
 						}
-						
 						case ls_landhold2:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_landhold2, d->d1, zinit.heroAnimationStyle);
 							break;
 						}
-						
 						case ls_waterhold1:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_waterhold1, d->d1, zinit.heroAnimationStyle);
 							break;
 						}
-						
 						case ls_waterhold2:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_waterhold2, d->d1, zinit.heroAnimationStyle);
 							break;
 						}
-						
 						case ls_sidewaterhold1:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold1, d->d1, zinit.heroAnimationStyle);
 							break;
 						}
-						
 						case ls_sidewaterhold2:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold2, d->d1, zinit.heroAnimationStyle);
 							break;
 						}
-						
 						case ls_cast:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_cast, d->d1, zinit.heroAnimationStyle);
-							
 							if(p[lt_clock]<96)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], ls_landhold2, d->d1, zinit.heroAnimationStyle);
 							};
-							
 							if(p[lt_clock]>=194)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-						
 						case ls_sideswimcast:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_sideswimcast, d->d1, zinit.heroAnimationStyle);
-							
 							if(p[lt_clock]<96)
 							{
 								herotile(&p[lt_tile], &p[lt_flip], ls_sidewaterhold2, d->d1, zinit.heroAnimationStyle);
 							};
-							
 							if(p[lt_clock]>=194)
 							{
 								p[lt_clock]=-1;
 							}
-							
 							break;
 						}
-						
 						case ls_lifting:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_lifting, d->d1, zinit.heroAnimationStyle);
@@ -8759,15 +8040,12 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 						case ls_liftwalk:
 						{
 							herotile(&p[lt_tile], &p[lt_flip], ls_liftwalk, d->d1, zinit.heroAnimationStyle);
-							
 							if(p[lt_clock]>=(64*(hero_animation_speed)))
 							{
 								p[lt_tile]+=(p[lt_extend]==2?2:1);
-								
 								int32_t l=((p[lt_clock]/hero_animation_speed)&15);
 								l-=((l>3)?1:0)+((l>12)?1:0);
 								p[lt_tile]+=(l/2)*(p[lt_extend]==2?2:1);
-								
 								if(p[lt_clock]>=255)
 								{
 									p[lt_clock]=-1;
@@ -8775,24 +8053,19 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 							}
 							break;
 						}
-							
 						default:
 							break;
 					}
 					break;
-				
 				default:
 					break;
 			}
-			
 			if((p[lt_tile]!=oldtile)||(p[lt_flip]!=oldflip))
 			{
 				d->flags|=D_DIRTY;
 			}
-			
 			break;
 		}
-			
 		case MSG_DRAW:
 		{
 			BITMAP *buf=create_bitmap_ex(8,1,1);
@@ -8802,40 +8075,31 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 			herotile(&dummy1, &dummy2, &extend, d->d2, d->d1, zinit.heroAnimationStyle);
 			int32_t w = 16;
 			int32_t h = 16;
-			
 			switch(extend)
 			{
 				case 0: //16x16
 					break;
-					
 				case 1: //16x32
 					w = 16;
 					h = 32;
 					break;
-					
 				case 2: //32x32
 					w = 32;
 					h = 32;
 					break;
-					
 				default:
 					break;
 			}
-			
 			buf = create_bitmap_ex(8,w,h);
-			
 			if(is_large)
 			{
 				w *= 2;
 				h *= 2;
 			}
-			
 			BITMAP *bigbmp = create_bitmap_ex(8,w+4,h+4);
-			
 			if(buf && bigbmp)
 			{
 				clear_to_color(buf, bg);
-				
 				switch(extend)
 				{
 					case 0:
@@ -8844,7 +8108,6 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 						jwin_draw_frame(bigbmp,0, 0, w+4, h+4, FR_DEEP);
 						blit(bigbmp,screen,0,0,d->x+8,d->y+4,w+4,h+4);
 						break;
-						
 					case 1:
 						overtile16(buf,p[lt_tile]-TILES_PER_ROW,0,0,6,p[lt_flip]);
 						overtile16(buf,p[lt_tile],0,16,6,p[lt_flip]);
@@ -8852,7 +8115,6 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 						jwin_draw_frame(bigbmp,0, 0, w+4, h+4, FR_DEEP);
 						blit(bigbmp,screen,0,0,d->x+8,d->y+4,w+4,h+4);
 						break;
-						
 					case 2:
 						overtile16(buf,p[lt_tile]-TILES_PER_ROW,8,0,6,p[lt_flip]); //top middle
 						overtile16(buf,p[lt_tile]-TILES_PER_ROW-(p[lt_flip]?-1:1),-8,0,6,p[lt_flip]); //top left
@@ -8864,25 +8126,21 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t)
 						jwin_draw_frame(bigbmp,0, 0, w+4, h+4, FR_DEEP);
 						blit(bigbmp,screen,0,0,d->x+8,d->y+4,w+4,h+4);
 						break;
-						
 					default:
 						break;
 				}
-				
 				destroy_bitmap(bigbmp);
 				destroy_bitmap(buf);
 				destroy_bitmap(buf2);
 			}
 		}
 		break;
-		
 		case MSG_END:
 		{
 			free(d->dp3);
 			break;
 		}
 	}
-	
 	return D_O_K;
 }
 
@@ -8897,16 +8155,13 @@ int32_t onCustomHero()
 	{
 		hero_animation_speed=1;
 	}
-	
 	herotile_dlg[0].dp2=lfont;
 	herotile_dlg[189].flags = get_bit(quest_rules, qr_LTTPCOLLISION)? D_SELECTED : 0;
 	herotile_dlg[192].flags = get_bit(quest_rules, qr_LTTPWALK)? D_SELECTED : 0;
 	herotile_dlg[194].d1=(zinit.hero_swim_speed<60)?0:1;
 	herotile_dlg[191].d1=zinit.heroAnimationStyle;
-	
 	if(is_large)
 		large_dialog(herotile_dlg, 2.0);
-		
 	int32_t oldWalkSpr[4][3];
 	int32_t oldStabSpr[4][3];
 	int32_t oldSlashSpr[4][3];
@@ -8982,7 +8237,6 @@ int32_t onCustomHero()
 	memcpy(oldSideSwimHoldSpr, sideswimholdspr, 3*3*sizeof(int32_t));
 	memcpy(oldLiftingSpr, liftingspr, 4*4*sizeof(int32_t));
 	memcpy(oldLiftingWalkSpr, liftingwalkspr, 4*3*sizeof(int32_t));
-	
 	//Populate Player defenses
 	for (int32_t i = 0; i < wMax - wEnemyWeapons - 1; i++)
 	{
@@ -9089,7 +8343,6 @@ int32_t onCustomHero()
 			memcpy(liftingwalkspr, oldLiftingWalkSpr, 4 * 3 * sizeof(int32_t));
 		}
 	} while (ret == 168);
-	
 	return D_O_K;
 }
 

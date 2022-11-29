@@ -30,7 +30,6 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 				int32_t t = d->d1;
 				int32_t cs = d->d2;
 				bool showflip = d->bg & 0b10;
-				
 				if(select_tile(t,f,1,cs,true,0,showflip))
 				{
 					d->d1 = t;
@@ -54,7 +53,6 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 				int32_t crn = ((my&1)<<1) | (mx&1);
 				if(tw > 1 || th > 1)
 					crn += ((mx/2)+((my/2)*tw))<<2;
-				
 				ptr->setMiniCrn(crn);
 				if(old != crn)
 				{
@@ -72,7 +70,6 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 			int32_t th = (ptr ? ptr->getTileHei() : 1);
 			BITMAP *buf = create_bitmap_ex(8,16*tw+4,16*th+4);
 			BITMAP *bigbmp = create_bitmap_ex(8,d->w,d->h);
-			
 			if(buf && bigbmp)
 			{
 				clear_bitmap(buf);
@@ -84,7 +81,6 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 						overtileblock16(buf,tile,2,2,tw,th,cset,d->fg);
 					else overtile16(buf,tile,2,2,cset,d->fg);
 				}
-				
 				if(ptr->getIsMini()) //Minitile corner
 				{
 					int32_t crn = ptr->getMiniCrn()% 4;
@@ -95,14 +91,12 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 					cy += (toffs/tw) * 16;
 					rect(buf,cx,cy,cx+7,cy+7,ptr->sel_color);
 				}
-				
 				stretch_blit(buf, bigbmp, 2,2, (16*tw), (16*th), 2, 2, d->w-4, d->h-4);
 				destroy_bitmap(buf);
 				jwin_draw_frame(bigbmp,0,0,d->w,d->h,FR_DEEP);
 				blit(bigbmp,screen,0,0,d->x,d->y,d->w,d->h);
 				destroy_bitmap(bigbmp);
 			}
-			
 			//    text_mode(d->bg);
 			if(d->bg & 0b1)
 			{
@@ -301,13 +295,11 @@ void SelTileSwatch::calc_selcolor()
 	if(!alDialog) return;
 	if(!isMini) return;
 	BITMAP* buf = create_bitmap_ex(8,8,8);
-	
 	RGB col;
 	int32_t tile = (alDialog->d1 ? alDialog->d1 : deftile);
 	int32_t cset = (alDialog->d1 ? alDialog->d2 : defcs);
 	if(tile || showT0)
 	{
-		
 		int32_t crn = mini_crn % 4;
 		int32_t cx = (2+((crn&1)?8:0));
 		int32_t cy = (2+((crn&2)?8:0));
@@ -337,7 +329,6 @@ void SelTileSwatch::calc_selcolor()
 		col.b = b/count;
 	}
 	else get_color(0, &col);
-	
 	sel_color = getHighlightColor(col);
 }
 

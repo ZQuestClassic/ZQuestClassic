@@ -12,29 +12,29 @@ bool Tango_ValidateConfiguration()
     int tangoSlotDataName[]="__Tango_SlotData[]";
     int tangoSlotDefsName[]="__Tango_SlotDefs[]";
     int tangoStylesName[]="__Tango_Styles[]";
-    
+
     int separator[]="\n================================\n\n";
     int header[]="tango.zh configuration report:\n";
     printf(separator);
     printf(header);
-    
+
     if(__TANGO_FULL_LOGGING==1 && __TANGO_LOGGING_LEVEL<1)
     {
         int info[]="loggingFull.zh is in use, but error logging is disabled.\n";
         printf(info);
     }
-    
+
     // Menu items
     if(__TANGO_MAX_MENU_ITEMS<=0)
     {
         int info[]="__TANGO_MAX_MENU_ITEMS is %d. Menus will be disabled.\n";
         printf(info, __TANGO_MAX_MENU_ITEMS);
     }
-    
+
     // __Tango_Data[]
     ok&&=__Tango_ValidateArraySize(__Tango_Data, tangoDataName,
       __TDIDX_CHOICE_DATA+__TANGO_SIZEOF_CHOICE*__TANGO_MAX_MENU_ITEMS);
-    
+
     // Slots and styles
     if(__TANGO_NUM_SLOTS<=0)
     {
@@ -54,26 +54,26 @@ bool Tango_ValidateConfiguration()
             ok&&=__Tango_ValidateArraySize(__Tango_Styles, tangoStylesName,
               __TANGO_SIZEOF_STYLE*__TANGO_NUM_STYLES);
         }
-        
+
         bool defsOK;
         ok&&=__Tango_ValidateArraySize(__Tango_SlotData, tangoSlotDataName,
           __TANGO_SIZEOF_DATA*__TANGO_NUM_SLOTS);
         defsOK=__Tango_ValidateArraySize(__Tango_SlotDefs, tangoSlotDefsName,
           __TANGO_SIZEOF_SLOTDEF*__TANGO_NUM_SLOTS);
         ok&&=defsOK;
-        
+
         if(defsOK)
             ok&&=__Tango_ValidateSlotDefs();
         __Tango_CheckOverlappingSlots(); // Not an error if there are any
     }
-    
+
     // All done
     if(ok)
     {
         int allOK[]="No errors detected.\n";
         printf(allOK);
     }
-    
+
     printf(separator);
     return ok;
 }
@@ -92,7 +92,7 @@ bool __Tango_ValidateArraySize(int arr, int name, int targetSize)
         int info[]="%s is larger than necessary. The size can be reduced to %d.\n";
         printf(info, name, Max(targetSize, 1));
     }
-    
+
     return true;
 }
 
@@ -100,25 +100,25 @@ bool __Tango_ValidateSlotDefs()
 {
     bool ok=true;
     int bufSize=SizeOfArray(__Tango_Buffer);
-    
+
     if(bufSize<2)
     {
         int error[]="__Tango_Buffer[] is too small to store any text.\n";
         printf(error);
         return false; // Won't even bother checking the rest...
     }
-    
+
     for(int i=0; i<__TANGO_NUM_SLOTS; i++)
     {
         int dataStart=i*__TANGO_SIZEOF_SLOTDEF;
-        
+
         if(__Tango_SlotDefs[dataStart+__TSDEF_TYPE]<0)
         {
             int error[]="Slot %d's type is less than 0. Slot types must not be negative.\n";
             printf(error, i);
             ok=false;
         }
-        
+
         if(__Tango_SlotDefs[dataStart+__TSDEF_START]<0 ||
           __Tango_SlotDefs[dataStart+__TSDEF_START]>=bufSize-1)
         {
@@ -134,7 +134,7 @@ bool __Tango_ValidateSlotDefs()
                 printf(error, i);
                 ok=false;
             }
-            
+
             if(__Tango_SlotDefs[dataStart+__TSDEF_START]+
               __Tango_SlotDefs[dataStart+__TSDEF_LENGTH]>bufSize)
             {
@@ -145,7 +145,7 @@ bool __Tango_ValidateSlotDefs()
                 ok=false;
             }
         }
-        
+
         if(__Tango_SlotDefs[dataStart+__TSDEF_WIDTH]<1 ||
           __Tango_SlotDefs[dataStart+__TSDEF_HEIGHT]<1)
         {
@@ -163,7 +163,7 @@ bool __Tango_ValidateSlotDefs()
             ok=false;
         }
     }
-    
+
     return ok;
 }
 
@@ -172,11 +172,11 @@ void __Tango_CheckOverlappingSlots()
     for(int i=0; i<__TANGO_NUM_SLOTS-1; i++)
     {
         int ds1=i*__TANGO_SIZEOF_SLOTDEF;
-        
+
         for(int j=i+1; j<__TANGO_NUM_SLOTS; j++)
         {
             int ds2=j*__TANGO_SIZEOF_SLOTDEF;
-            
+
             if((__Tango_SlotDefs[ds1+__TSDEF_START]<__Tango_SlotDefs[ds2+__TSDEF_START] &&
               __Tango_SlotDefs[ds1+__TSDEF_START]+__Tango_SlotDefs[ds1+__TSDEF_LENGTH]>__Tango_SlotDefs[ds2+__TSDEF_START]) ||
               (__Tango_SlotDefs[ds2+__TSDEF_START]<__Tango_SlotDefs[ds1+__TSDEF_START] &&
@@ -185,7 +185,7 @@ void __Tango_CheckOverlappingSlots()
                 int info[]="Slots %d and %d overlap in the buffer.\n";
                 printf(info, i, j);
             }
-            
+
             if(RectCollision(
               __Tango_SlotDefs[ds1+__TSDEF_X], __Tango_SlotDefs[ds1+__TSDEF_Y],
               __Tango_SlotDefs[ds1+__TSDEF_X]+__Tango_SlotDefs[ds1+__TSDEF_WIDTH]-1,
@@ -204,30 +204,30 @@ void __Tango_CheckOverlappingSlots()
 bool __Tango_ValidateSlot(int slot)
 {
     bool ret=true;
-    
+
     if(slot<0 || slot>__TANGO_NUM_SLOTS-1)
         ret=false;
     if(slot!=(slot<<0)) // Not an integer?
         ret=false;
-    
+
     if(!ret)
         __Tango_LogError(__TANGO_ERROR_INVALID_SLOT, slot);
-    
+
     return ret;
 }
 
 bool __Tango_ValidateStyle(int style)
 {
     bool ret=true;
-    
+
     if(style<0 || style>__TANGO_NUM_STYLES-1)
         ret=false;
     if(style!=(style<<0)) // Not an integer?
         ret=false;
-    
+
     if(!ret)
         __Tango_LogError(__TANGO_ERROR_INVALID_STYLE, style);
-    
+
     return ret;
 }
 
@@ -237,7 +237,7 @@ bool __Tango_ValidateString(int str)
         return false;
     else if(SizeOfArray(str)<=0)
         return false;
-    
+
     return true;
 }
 
@@ -245,7 +245,7 @@ bool __Tango_ValidateMessage(int msg)
 {
     if(msg<=0 || msg!=(msg<<0)) // Must be an integer greater than 0
         return false;
-    
+
     return true;
 }
 

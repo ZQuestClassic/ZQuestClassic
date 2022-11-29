@@ -118,7 +118,7 @@ Using the attribute overrides the effect of the <samp>-falign-functions</samp>
 (see <a href="Optimize-Options.html#Optimize-Options">Optimize Options</a>) option for this function.
 </p>
 <p>Note that the effectiveness of <code>aligned</code> attributes may be
-limited by inherent limitations in the system linker 
+limited by inherent limitations in the system linker
 and/or object file format.  On some systems, the
 linker is only able to arrange for functions to be aligned up to a
 certain maximum alignment.  (For some linkers, the maximum supported
@@ -385,10 +385,10 @@ the <samp>-fmessage-length</samp> option.
 <dt><code>warning (&quot;<var>message</var>&quot;)</code></dt>
 <dd><a name="index-error-function-attribute"></a>
 <a name="index-warning-function-attribute"></a>
-<p>If the <code>error</code> or <code>warning</code> attribute 
+<p>If the <code>error</code> or <code>warning</code> attribute
 is used on a function declaration and a call to such a function
-is not eliminated through dead code elimination or other optimizations, 
-an error or warning (respectively) that includes <var>message</var> is diagnosed.  
+is not eliminated through dead code elimination or other optimizations,
+an error or warning (respectively) that includes <var>message</var> is diagnosed.
 This is useful
 for compile-time checking, especially together with <code>__builtin_constant_p</code>
 and inline functions where checking the inline function arguments is not
@@ -408,10 +408,10 @@ functions or when not emitting debugging information.
 the effect of the <samp>-fwhole-program</samp> command-line option, so the
 object remains visible outside the current compilation unit.
 </p>
-<p>If <samp>-fwhole-program</samp> is used together with <samp>-flto</samp> and 
-<code>gold</code> is used as the linker plugin, 
-<code>externally_visible</code> attributes are automatically added to functions 
-(not variable yet due to a current <code>gold</code> issue) 
+<p>If <samp>-fwhole-program</samp> is used together with <samp>-flto</samp> and
+<code>gold</code> is used as the linker plugin,
+<code>externally_visible</code> attributes are automatically added to functions
+(not variable yet due to a current <code>gold</code> issue)
 that are accessed outside of LTO objects according to resolution file
 produced by <code>gold</code>.
 For other linkers that cannot generate resolution file,
@@ -782,7 +782,7 @@ semantically equivalent function.
 <a name="index-finstrument_002dfunctions-1"></a>
 <a name="index-p-1"></a>
 <a name="index-pg-1"></a>
-<p>If any of <samp>-finstrument-functions</samp>, <samp>-p</samp>, or <samp>-pg</samp> are 
+<p>If any of <samp>-finstrument-functions</samp>, <samp>-p</samp>, or <samp>-pg</samp> are
 given, profiling function calls are
 generated at entry and exit of most user-compiled functions.
 Functions with this attribute are not so instrumented.
@@ -1215,7 +1215,7 @@ switch is specified, then the attribute is ignored.
 </dd>
 <dt><code>stack_protect</code></dt>
 <dd><a name="index-stack_005fprotect-function-attribute"></a>
-<p>This attribute adds stack protection code to the function if 
+<p>This attribute adds stack protection code to the function if
 flags <samp>-fstack-protector</samp>, <samp>-fstack-protector-strong</samp>
 or <samp>-fstack-protector-explicit</samp> are set.
 </p>

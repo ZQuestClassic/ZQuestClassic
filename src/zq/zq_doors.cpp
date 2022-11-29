@@ -59,10 +59,8 @@ const char *doorslist(int32_t index, int32_t *list_size)
     {
         if(index>7)
             index=7;
-            
         return doors_string[index];
     }
-    
     *list_size=8;
     return NULL;
 }
@@ -76,23 +74,17 @@ int32_t door_to_index(int32_t door)
     case 1:
     case 2:
         return door;
-        
     case 4:
         return 3;
-        
     case 6:
         return 4;
-        
     case 8:
         return 5;
-        
     case 14:
         return 6;
-        
     case 10:
         return 7;
     }
-    
     return 0;
 }
 
@@ -102,7 +94,6 @@ void edit_door(int32_t side)
     char sidename[80];
     sprintf(sidename, "Select %s Door Type", sidestr[side]);
     int32_t ret=select_data(sidename,index,doorslist,lfont);
-    
     if(ret!=-1)
     {
         switch(ret)
@@ -112,31 +103,24 @@ void edit_door(int32_t side)
         case 2:
             index=ret;
             break;
-            
         case 3:
             index=4;
             break;
-            
         case 4:
             index=6;
             break;
-            
         case 5:
             index=8;
             break;
-            
         case 6:
             index=14;
             break;
-            
         case 7:
             index=10;
             break;
-            
         default:
             index=0;
         }
-        
         saved=false;
         Map.DoSetDoorCommand(side, index);
     }
@@ -168,38 +152,29 @@ int32_t onDoors()
 {
     restore_mouse();
     door_select_dlg[0].dp2 = lfont;
-    
     if(Map.getCurrScr()==TEMPLATE)
         return D_O_K;
-        
     if(Map.getCurrMap()>=Map.getMapCount())
         return D_O_K;
-    
     bool done=false;
     int32_t ret=0;
     door_select_dlg[9].d1=Map.CurrScr()->door_combo_set;
-    
     // Put the names of the door types on the buttons.
     for(int32_t i=0; i<4; i++)
     {
         door_select_dlg[i+2].dp = (void *)doors_string[door_to_index(Map.CurrScr()->door[i])];
     }
-    
     // so as not to always override other combos if there was no change in door type
     byte old_door[4];
-    
     for(int32_t i=0; i<4; i++)
         old_door[i] = Map.CurrScr()->door[i];
-        
     if(is_large)
         large_dialog(door_select_dlg, 1.5);
-    
     Map.StartListCommand();
     do
     {
         ret = zc_popup_dialog(door_select_dlg,-1);
         Map.CurrScr()->door_combo_set=door_select_dlg[9].d1;
-        
         switch(ret)
         {
         case 2:
@@ -209,31 +184,26 @@ int32_t onDoors()
             edit_door(ret-2);
             door_select_dlg[ret].dp = (void *)doors_string[door_to_index(Map.CurrScr()->door[ret-2])];
             break;
-            
         case 6:
             for(int32_t i=0; i<4; i++)
             {
                 if(old_door[i] != Map.CurrScr()->door[i])
                     Map.putdoor(i,Map.CurrScr()->door[i]);
             }
-            
             Map.FinishListCommand();
             done=true;
             break;
-            
         case 0:
         case 7:
             for(int32_t i=0; i<4; i++)
             {
                 Map.putdoor(i,Map.CurrScr()->door[i]);
             }
-            
             Map.RevokeListCommand();
             done=true;
         }
     }
     while(!done);
-    
     return D_O_K;
 }
 
@@ -279,33 +249,27 @@ void fix_dcs(int32_t dir)
                 {
                     working_dcs.doorcombo_u[i+1][0]=working_dcs.doorcombo_u[i][0];
                 }
-                
                 working_dcs.doorcset_u[i+1][0]=working_dcs.doorcset_u[i][0];
             }
-            
             if(working_dcs.doorcombo_u[i+1][1]==0)     //copy door top
             {
                 if(i<dt_max-4)                                    //don't copy combo to bomb door, just cset
                 {
                     working_dcs.doorcombo_u[i+1][1]=working_dcs.doorcombo_u[i][1];
                 }
-                
                 working_dcs.doorcset_u[i+1][1]=working_dcs.doorcset_u[i][1];
             }
         }
-        
         if(working_dcs.doorcombo_u[dt_bomb][0]==0)   //copy door top
         {
             working_dcs.doorcombo_u[dt_bomb][0]=working_dcs.doorcombo_u[dt_wall][0];
             working_dcs.doorcset_u[dt_bomb][0]=working_dcs.doorcset_u[dt_wall][0];
         }
-        
         if(working_dcs.doorcombo_u[dt_bomb][1]==0)   //copy door top
         {
             working_dcs.doorcombo_u[dt_bomb][1]=working_dcs.doorcombo_u[dt_wall][1];
             working_dcs.doorcset_u[dt_bomb][1]=working_dcs.doorcset_u[dt_wall][1];
         }
-        
         //combo matching
         for(int32_t i=0; i<dt_max-1; i++)
         {
@@ -315,7 +279,6 @@ void fix_dcs(int32_t dir)
                 working_dcs.doorcombo_u[i][1]=working_dcs.doorcombo_u[i][0]+1;
                 working_dcs.doorcset_u[i][1]=working_dcs.doorcset_u[i][0];
             }
-            
             if((working_dcs.doorcombo_u[i][2]!=0)&&
                     (working_dcs.doorcombo_u[i][3]==0))      //match bottom half
             {
@@ -323,7 +286,6 @@ void fix_dcs(int32_t dir)
                 working_dcs.doorcset_u[i][3]=working_dcs.doorcset_u[i][2];
             }
         }
-        
         if(working_dcs.bombdoorcombo_u[0]!=0)        //match top half
         {
             if(working_dcs.bombdoorcombo_u[1]==0)
@@ -332,7 +294,6 @@ void fix_dcs(int32_t dir)
                 working_dcs.bombdoorcset_u[1]=working_dcs.bombdoorcset_u[0];
             }
         }
-        
         //local cset fix
         for(int32_t i=0; i<2; i++)
         {
@@ -348,7 +309,6 @@ void fix_dcs(int32_t dir)
                 }
             }
         }
-        
         for(int32_t i=0; i<dt_max-1; i++)
         {
             for(int32_t j=1; j<4; j++)
@@ -361,7 +321,6 @@ void fix_dcs(int32_t dir)
         }
     }
     break;
-    
     case down:
     {
         //first combo copying
@@ -373,33 +332,27 @@ void fix_dcs(int32_t dir)
                 {
                     working_dcs.doorcombo_d[i+1][2]=working_dcs.doorcombo_d[i][2];
                 }
-                
                 working_dcs.doorcset_d[i+1][2]=working_dcs.doorcset_d[i][2];
             }
-            
             if(working_dcs.doorcombo_d[i+1][3]==0)     //copy door top
             {
                 if(i<dt_max-4)                                    //don't copy combo to bomb door, just cset
                 {
                     working_dcs.doorcombo_d[i+1][3]=working_dcs.doorcombo_d[i][3];
                 }
-                
                 working_dcs.doorcset_d[i+1][3]=working_dcs.doorcset_d[i][3];
             }
         }
-        
         if(working_dcs.doorcombo_d[dt_bomb][2]==0)   //copy door top
         {
             working_dcs.doorcombo_d[dt_bomb][2]=working_dcs.doorcombo_d[dt_wall][2];
             working_dcs.doorcset_d[dt_bomb][2]=working_dcs.doorcset_d[dt_wall][2];
         }
-        
         if(working_dcs.doorcombo_d[dt_bomb][3]==0)   //copy door top
         {
             working_dcs.doorcombo_d[dt_bomb][3]=working_dcs.doorcombo_d[dt_wall][3];
             working_dcs.doorcset_d[dt_bomb][3]=working_dcs.doorcset_d[dt_wall][3];
         }
-        
         //combo matching
         for(int32_t i=0; i<dt_max-1; i++)
         {
@@ -409,7 +362,6 @@ void fix_dcs(int32_t dir)
                 working_dcs.doorcombo_d[i][1]=working_dcs.doorcombo_d[i][0]+1;
                 working_dcs.doorcset_d[i][1]=working_dcs.doorcset_d[i][0];
             }
-            
             if((working_dcs.doorcombo_d[i][2]!=0)&&
                     (working_dcs.doorcombo_d[i][3]==0))      //match bottom half
             {
@@ -417,7 +369,6 @@ void fix_dcs(int32_t dir)
                 working_dcs.doorcset_d[i][3]=working_dcs.doorcset_d[i][2];
             }
         }
-        
         if(working_dcs.bombdoorcombo_d[0]!=0)        //match top half
         {
             if(working_dcs.bombdoorcombo_d[1]==0)
@@ -426,7 +377,6 @@ void fix_dcs(int32_t dir)
                 working_dcs.bombdoorcset_d[1]=working_dcs.bombdoorcset_d[0];
             }
         }
-        
         //local cset fix
         for(int32_t i=0; i<2; i++)
         {
@@ -442,11 +392,9 @@ void fix_dcs(int32_t dir)
                 }
             }
         }
-        
         for(int32_t i=0; i<dt_max-1; i++)
         {
             for(int32_t j=0; j<3; j++)
-            
             {
                 if(working_dcs.doorcombo_d[i][j]==0)     //fix cset for doors
                 {
@@ -456,7 +404,6 @@ void fix_dcs(int32_t dir)
         }
     }
     break;
-    
     case left:
     {
         //first combo copying
@@ -468,61 +415,50 @@ void fix_dcs(int32_t dir)
                 {
                     working_dcs.doorcombo_l[i+1][0]=working_dcs.doorcombo_l[i][0];
                 }
-                
                 working_dcs.doorcset_l[i+1][0]=working_dcs.doorcset_l[i][0];
             }
-            
             if(working_dcs.doorcombo_l[i+1][2]==0)     //copy door top
             {
                 if(i<dt_max-4)                                    //don't copy combo to bomb door, just cset
                 {
                     working_dcs.doorcombo_l[i+1][2]=working_dcs.doorcombo_l[i][2];
                 }
-                
                 working_dcs.doorcset_l[i+1][2]=working_dcs.doorcset_l[i][2];
             }
-            
             if(working_dcs.doorcombo_l[i+1][4]==0)     //copy door top
             {
                 if(i<dt_max-3)                                    //don't copy combo to bomb door, just cset
                 {
                     working_dcs.doorcombo_l[i+1][4]=working_dcs.doorcombo_l[i][4];
                 }
-                
                 working_dcs.doorcset_l[i+1][4]=working_dcs.doorcset_l[i][4];
             }
         }
-        
         if(working_dcs.doorcombo_l[dt_bomb][0]==0)   //copy door top
         {
             working_dcs.doorcombo_l[dt_bomb][0]=working_dcs.doorcombo_l[dt_wall][0];
             working_dcs.doorcset_l[dt_bomb][0]=working_dcs.doorcset_l[dt_wall][0];
         }
-        
         if(working_dcs.doorcombo_l[dt_bomb][1]==0)   //copy door top
         {
             working_dcs.doorcombo_l[dt_bomb][1]=working_dcs.doorcombo_l[dt_wall][1];
             working_dcs.doorcset_l[dt_bomb][1]=working_dcs.doorcset_l[dt_wall][1];
         }
-        
         if(working_dcs.doorcombo_l[dt_bomb][2]==0)   //copy door top
         {
             working_dcs.doorcombo_l[dt_bomb][2]=working_dcs.doorcombo_l[dt_wall][2];
             working_dcs.doorcset_l[dt_bomb][2]=working_dcs.doorcset_l[dt_wall][2];
         }
-        
         if(working_dcs.doorcombo_l[dt_bomb][4]==0)   //copy door top
         {
             working_dcs.doorcombo_l[dt_bomb][4]=working_dcs.doorcombo_l[dt_wall][4];
             working_dcs.doorcset_l[dt_bomb][4]=working_dcs.doorcset_l[dt_wall][4];
         }
-        
         if(working_dcs.doorcombo_l[dt_bomb][5]==0)   //copy door top
         {
             working_dcs.doorcombo_l[dt_bomb][5]=working_dcs.doorcombo_l[dt_wall][5];
             working_dcs.doorcset_l[dt_bomb][5]=working_dcs.doorcset_l[dt_wall][5];
         }
-        
         //combo matching
         for(int32_t i=0; i<dt_max-1; i++)
         {
@@ -532,21 +468,18 @@ void fix_dcs(int32_t dir)
                 working_dcs.doorcombo_l[i][2]=working_dcs.doorcombo_l[i][0]+4;
                 working_dcs.doorcset_l[i][2]=working_dcs.doorcset_l[i][0];
             }
-            
             if((working_dcs.doorcombo_l[i][2]!=0)&&
                     (working_dcs.doorcombo_l[i][4]==0))      //match left half - b
             {
                 working_dcs.doorcombo_l[i][4]=working_dcs.doorcombo_l[i][2]+4;
                 working_dcs.doorcset_l[i][4]=working_dcs.doorcset_l[i][2];
             }
-            
             if((working_dcs.doorcombo_l[i][1]!=0)&&
                     (working_dcs.doorcombo_l[i][3]==0))      //match right half - a
             {
                 working_dcs.doorcombo_l[i][3]=working_dcs.doorcombo_l[i][1]+4;
                 working_dcs.doorcset_l[i][3]=working_dcs.doorcset_l[i][1];
             }
-            
             if((working_dcs.doorcombo_l[i][3]!=0)&&
                     (working_dcs.doorcombo_l[i][5]==0))      //match right half - b
             {
@@ -554,14 +487,12 @@ void fix_dcs(int32_t dir)
                 working_dcs.doorcset_l[i][5]=working_dcs.doorcset_l[i][3];
             }
         }
-        
         if((working_dcs.bombdoorcombo_l[0]!=0)&&
                 (working_dcs.bombdoorcombo_l[1]==0))       //match rubble - a
         {
             working_dcs.bombdoorcombo_l[1]=working_dcs.bombdoorcombo_l[0]+4;
             working_dcs.bombdoorcset_l[1]=working_dcs.bombdoorcset_l[0];
         }
-        
         if((working_dcs.bombdoorcombo_l[0]!=0)&&
                 (working_dcs.bombdoorcombo_l[1]!=0)&&
                 (working_dcs.bombdoorcombo_l[2]==0))       //match rubble - b
@@ -569,7 +500,6 @@ void fix_dcs(int32_t dir)
             working_dcs.bombdoorcombo_l[2]=working_dcs.bombdoorcombo_l[1]+4;
             working_dcs.bombdoorcset_l[2]=working_dcs.bombdoorcset_l[1];
         }
-        
         //local cset fix
         for(int32_t i=0; i<3; i++)
         {
@@ -585,7 +515,6 @@ void fix_dcs(int32_t dir)
                 }
             }
         }
-        
         for(int32_t i=0; i<dt_max-1; i++)
         {
             for(int32_t j=1; j<6; j++)
@@ -598,7 +527,6 @@ void fix_dcs(int32_t dir)
         }
     }
     break;
-    
     case right:
     {
         //first combo copying
@@ -606,68 +534,54 @@ void fix_dcs(int32_t dir)
         {
             if(working_dcs.doorcombo_r[i+1][1]==0)     //copy door top
             {
-            
-            
                 if(i<dt_max-4)                                    //don't copy combo to bomb door, just cset
                 {
                     working_dcs.doorcombo_r[i+1][1]=working_dcs.doorcombo_r[i][1];
                 }
-                
                 working_dcs.doorcset_r[i+1][1]=working_dcs.doorcset_r[i][1];
             }
-            
             if(working_dcs.doorcombo_r[i+1][3]==0)     //copy door top
             {
                 if(i<dt_max-4)                                    //don't copy combo to bomb door, just cset
                 {
                     working_dcs.doorcombo_r[i+1][3]=working_dcs.doorcombo_r[i][3];
                 }
-                
                 working_dcs.doorcset_r[i+1][3]=working_dcs.doorcset_r[i][3];
             }
-            
             if(working_dcs.doorcombo_r[i+1][5]==0)     //copy door top
             {
                 if(i<dt_max-3)                                    //don't copy combo to bomb door, just cset
                 {
                     working_dcs.doorcombo_r[i+1][5]=working_dcs.doorcombo_r[i][5];
                 }
-                
                 working_dcs.doorcset_r[i+1][5]=working_dcs.doorcset_r[i][5];
             }
         }
-        
         if(working_dcs.doorcombo_r[dt_bomb][0]==0)   //copy wall top
         {
             working_dcs.doorcombo_r[dt_bomb][0]=working_dcs.doorcombo_r[dt_wall][0];
             working_dcs.doorcset_r[dt_bomb][0]=working_dcs.doorcset_r[dt_wall][0];
         }
-        
         if(working_dcs.doorcombo_r[dt_bomb][1]==0)   //copy wall top
         {
             working_dcs.doorcombo_r[dt_bomb][1]=working_dcs.doorcombo_r[dt_wall][1];
             working_dcs.doorcset_r[dt_bomb][1]=working_dcs.doorcset_r[dt_wall][1];
         }
-        
         if(working_dcs.doorcombo_r[dt_bomb][3]==0)   //copy wall top
         {
             working_dcs.doorcombo_r[dt_bomb][3]=working_dcs.doorcombo_r[dt_wall][3];
             working_dcs.doorcset_r[dt_bomb][3]=working_dcs.doorcset_r[dt_wall][3];
         }
-        
         if(working_dcs.doorcombo_r[dt_bomb][4]==0)   //copy wall top
         {
             working_dcs.doorcombo_r[dt_bomb][4]=working_dcs.doorcombo_r[dt_wall][4];
             working_dcs.doorcset_r[dt_bomb][4]=working_dcs.doorcset_r[dt_wall][4];
         }
-        
         if(working_dcs.doorcombo_r[dt_bomb][5]==0)   //copy wall top
         {
             working_dcs.doorcombo_r[dt_bomb][5]=working_dcs.doorcombo_r[dt_wall][5];
             working_dcs.doorcset_r[dt_bomb][5]=working_dcs.doorcset_r[dt_wall][5];
         }
-        
-        
         //combo matching
         for(int32_t i=0; i<dt_max-1; i++)
         {
@@ -677,21 +591,18 @@ void fix_dcs(int32_t dir)
                 working_dcs.doorcombo_r[i][2]=working_dcs.doorcombo_r[i][0]+4;
                 working_dcs.doorcset_r[i][2]=working_dcs.doorcset_r[i][0];
             }
-            
             if((working_dcs.doorcombo_r[i][2]!=0)&&
                     (working_dcs.doorcombo_r[i][4]==0))      //match left half - b
             {
                 working_dcs.doorcombo_r[i][4]=working_dcs.doorcombo_r[i][2]+4;
                 working_dcs.doorcset_r[i][4]=working_dcs.doorcset_r[i][2];
             }
-            
             if((working_dcs.doorcombo_r[i][1]!=0)&&
                     (working_dcs.doorcombo_r[i][3]==0))      //match right half - a
             {
                 working_dcs.doorcombo_r[i][3]=working_dcs.doorcombo_r[i][1]+4;
                 working_dcs.doorcset_r[i][3]=working_dcs.doorcset_r[i][1];
             }
-            
             if((working_dcs.doorcombo_r[i][3]!=0)&&
                     (working_dcs.doorcombo_r[i][5]==0))      //match right half - b
             {
@@ -699,14 +610,12 @@ void fix_dcs(int32_t dir)
                 working_dcs.doorcset_r[i][5]=working_dcs.doorcset_r[i][3];
             }
         }
-        
         if((working_dcs.bombdoorcombo_r[0]!=0)&&
                 (working_dcs.bombdoorcombo_r[1]==0))       //match rubble - a
         {
             working_dcs.bombdoorcombo_r[1]=working_dcs.bombdoorcombo_r[0]+4;
             working_dcs.bombdoorcset_r[1]=working_dcs.bombdoorcset_r[0];
         }
-        
         if((working_dcs.bombdoorcombo_r[0]!=0)&&
                 (working_dcs.bombdoorcombo_r[1]!=0)&&
                 (working_dcs.bombdoorcombo_r[2]==0))       //match rubble - b
@@ -714,7 +623,6 @@ void fix_dcs(int32_t dir)
             working_dcs.bombdoorcombo_r[2]=working_dcs.bombdoorcombo_r[1]+4;
             working_dcs.bombdoorcset_r[2]=working_dcs.bombdoorcset_r[1];
         }
-        
         //local cset fix
         for(int32_t i=0; i<3; i++)
         {
@@ -730,7 +638,6 @@ void fix_dcs(int32_t dir)
                 }
             }
         }
-        
         for(int32_t i=0; i<dt_max-1; i++)
         {
             for(int32_t j=0; j<6; j++)
@@ -749,7 +656,6 @@ void fix_dcs(int32_t dir)
 void auto_generate_dcs(int32_t dir)
 {
     DoorComboSet & d = working_dcs;
-    
     switch(dir)
     {
     case up:
@@ -762,7 +668,6 @@ void auto_generate_dcs(int32_t dir)
             }
     }
     break;
-    
     case down:
     {
         for(int32_t i(1); i < 9; ++i)
@@ -773,7 +678,6 @@ void auto_generate_dcs(int32_t dir)
             }
     }
     break;
-    
     case left:
     {
         for(int32_t i(1); i < 9; ++i)
@@ -784,7 +688,6 @@ void auto_generate_dcs(int32_t dir)
             }
     }
     break;
-    
     case right:
     {
         for(int32_t i(1); i < 9; ++i)
@@ -853,7 +756,6 @@ static DIALOG doorcomboset_dlg[] =
     { jwin_ctext_proc,      160,  64+8,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Shuttered", NULL, NULL },
     { jwin_ctext_proc,      208,  64+8,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Boss", NULL, NULL },
     { jwin_ctext_proc,      256,  64+8,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Bomb", NULL, NULL },
-    
     { jwin_ctext_proc,      64,   136+8,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Open", NULL, NULL },
     { jwin_ctext_proc,      112,  136+8,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Unlocked", NULL, NULL },
     { jwin_ctext_proc,      160,  136,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Open", NULL, NULL },
@@ -862,7 +764,6 @@ static DIALOG doorcomboset_dlg[] =
     { jwin_ctext_proc,      208,  136+8,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Boss", NULL, NULL },
     { jwin_ctext_proc,      256,  136,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Walk-", NULL, NULL },
     { jwin_ctext_proc,      256,  136+8,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Through", NULL, NULL },
-    
     //21
     { jwin_frame_proc,   46,    152,      36,   36,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
     { jwin_frame_proc,   94,    80,      36,   36,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
@@ -874,78 +775,63 @@ static DIALOG doorcomboset_dlg[] =
     { jwin_frame_proc,   46,    80,      36,   36,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
     { jwin_frame_proc,   238,   80,      36,   52,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
     { jwin_frame_proc,   246,   168,      20,   20,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
-    
     //31
     //Passage
     { d_combo_proc,      48,  144+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      64,  144+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      48,  160+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      64,  160+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Locked
     { d_combo_proc,      96,   72+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     112,   72+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      96,   88+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     112,   88+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Shuttered
     { d_combo_proc,     144,   72+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     160,   72+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     144,   88+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     160,   88+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Boss
     { d_combo_proc,     192,   72+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     208,   72+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     192,   88+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     208,   88+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Unlocked
     { d_combo_proc,      96,  144+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     112,  144+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      96,  160+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     112,  160+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Open Shuttered
     { d_combo_proc,     144,  144+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     160,  144+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     144,  160+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     160,  160+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Open Boss
     { d_combo_proc,     192,  144+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     208,  144+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     192,  160+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     208,  160+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Wall
     { d_combo_proc,      48,   72+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      64,   72+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      48,   88+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      64,   88+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Bombed
     { d_combo_proc,     240,   72+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     256,   72+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     240,   88+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     256,   88+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Bomb Rubble
     { d_combo_proc,     240,  104+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     256,  104+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Walkthrough
     { d_combo_proc,     248,  160+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
-    
-    
     //70
     { jwin_ctext_proc,      64,   64+8,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Wall", NULL, NULL },
     { jwin_ctext_proc,      112,  64+8,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Locked", NULL, NULL },
     { jwin_ctext_proc,      160,  64+8,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Shuttered", NULL, NULL },
     { jwin_ctext_proc,      208,  64+8,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Boss", NULL, NULL },
     { jwin_ctext_proc,      256,  64+8,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Bomb", NULL, NULL },
-    
     { jwin_ctext_proc,      64,   136+8,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Open", NULL, NULL },
     { jwin_ctext_proc,      112,  136+8,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Unlocked", NULL, NULL },
     { jwin_ctext_proc,      160,  136,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Open", NULL, NULL },
@@ -954,7 +840,6 @@ static DIALOG doorcomboset_dlg[] =
     { jwin_ctext_proc,      208,  136+8,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Boss", NULL, NULL },
     { jwin_ctext_proc,      256,  136,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Walk-", NULL, NULL },
     { jwin_ctext_proc,      256,  136+8,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Through", NULL, NULL },
-    
     { jwin_frame_proc,   46,    152,      36,   36,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
     { jwin_frame_proc,   94,    96,      36,   36,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
     { jwin_frame_proc,   142,   96,      36,   36,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
@@ -965,57 +850,47 @@ static DIALOG doorcomboset_dlg[] =
     { jwin_frame_proc,   46,    96,      36,   36,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
     { jwin_frame_proc,   238,   80,      36,   52,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
     { jwin_frame_proc,   246,   152,      20,   20,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
-    
     //93
     //Passage
     { d_combo_proc,      48,  144+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      64,  144+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      48,  160+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      64,  160+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Locked
     { d_combo_proc,      96,   88+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     112,   88+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      96,  104+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     112,  104+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Shuttered
-    
     { d_combo_proc,     144,   88+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     160,   88+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     144,  104+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     160,  104+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Boss
     { d_combo_proc,     192,   88+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     208,   88+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     192,  104+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     208,  104+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Unlocked
     { d_combo_proc,      96,  144+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     112,  144+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      96,  160+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     112,  160+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Open Shuttered
     { d_combo_proc,     144,  144+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     160,  144+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     144,  160+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     160,  160+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Open Boss
     { d_combo_proc,     192,  144+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     208,  144+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     192,  160+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     208,  160+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Wall
     { d_combo_proc,      48,   88+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      64,   88+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      48,  104+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      64,  104+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Bombed
     { d_combo_proc,     240,   88+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     256,   88+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
@@ -1024,20 +899,14 @@ static DIALOG doorcomboset_dlg[] =
     //Bomb Rubble
     { d_combo_proc,     240,   72+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     256,   72+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Walkthrough
     { d_combo_proc,     248,  144+8+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
-    
-    
-    
     //132
     { jwin_ctext_proc,      56,   64,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Wall", NULL, NULL },
     { jwin_ctext_proc,      104,  64,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Locked", NULL, NULL },
     { jwin_ctext_proc,      152,  64,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Shuttered", NULL, NULL },
     { jwin_ctext_proc,      200,  64,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Boss", NULL, NULL },
     { jwin_ctext_proc,      256,  64,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Bombed", NULL, NULL },
-    
     { jwin_ctext_proc,      56,   136,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Open", NULL, NULL },
     { jwin_ctext_proc,      104,  136,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Unlocked", NULL, NULL },
     { jwin_ctext_proc,      152,  136-8,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Open", NULL, NULL },
@@ -1046,7 +915,6 @@ static DIALOG doorcomboset_dlg[] =
     { jwin_ctext_proc,      200,  136,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Boss", NULL, NULL },
     { jwin_ctext_proc,      256,  136-8,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Walk-", NULL, NULL },
     { jwin_ctext_proc,      256,  136,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Through", NULL, NULL },
-    
     { jwin_frame_proc,   38,    144,      36,   52,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
     { jwin_frame_proc,   86,    72,      36,   52,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
     { jwin_frame_proc,   134,   72,      36,   52,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
@@ -1057,7 +925,6 @@ static DIALOG doorcomboset_dlg[] =
     { jwin_frame_proc,   38,    72,      36,   52,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
     { jwin_frame_proc,   230,   72,      52,   52,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
     { jwin_frame_proc,   246,   160,      20,   20,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
-    
     //155
     //Passage
     { d_combo_proc,      40,  144+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
@@ -1066,7 +933,6 @@ static DIALOG doorcomboset_dlg[] =
     { d_combo_proc,      56,  160+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      40,  176+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      56,  176+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Locked
     { d_combo_proc,      88,   72+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     104,   72+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
@@ -1074,7 +940,6 @@ static DIALOG doorcomboset_dlg[] =
     { d_combo_proc,     104,   88+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      88,   104+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     104,   104+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Shuttered
     { d_combo_proc,     136,   72+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     152,   72+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
@@ -1082,7 +947,6 @@ static DIALOG doorcomboset_dlg[] =
     { d_combo_proc,     152,   88+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     136,   104+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     152,   104+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Boss
     { d_combo_proc,     184,   72+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     200,   72+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
@@ -1090,7 +954,6 @@ static DIALOG doorcomboset_dlg[] =
     { d_combo_proc,     200,   88+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     184,   104+2,  16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     200,   104+2,  16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Unlocked
     { d_combo_proc,      88,  144+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     104,  144+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
@@ -1098,7 +961,6 @@ static DIALOG doorcomboset_dlg[] =
     { d_combo_proc,     104,  160+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      88,  176+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     104,  176+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Open Shuttered
     { d_combo_proc,     136,  144+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     152,  144+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
@@ -1106,7 +968,6 @@ static DIALOG doorcomboset_dlg[] =
     { d_combo_proc,     152,  160+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     136,  176+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     152,  176+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Open Boss
     { d_combo_proc,     184,  144+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     200,  144+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
@@ -1114,7 +975,6 @@ static DIALOG doorcomboset_dlg[] =
     { d_combo_proc,     200,  160+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     184,  176+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     200,  176+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Wall
     { d_combo_proc,      40,   72+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      56,   72+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
@@ -1122,7 +982,6 @@ static DIALOG doorcomboset_dlg[] =
     { d_combo_proc,      56,   88+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      40,   104+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      56,   104+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Bombed
     { d_combo_proc,     232,   72+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     248,   72+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
@@ -1130,24 +989,18 @@ static DIALOG doorcomboset_dlg[] =
     { d_combo_proc,     248,   88+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     232,   104+2,  16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     248,   104+2,  16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Bomb Rubble
     { d_combo_proc,     264,   72+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     264,   88+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     264,   104+2,  16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Walkthrough
     { d_combo_proc,     248,  160+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
-    
-    
     //213
     { jwin_ctext_proc,      56,   64,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Wall", NULL, NULL },
     { jwin_ctext_proc,      104,  64,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Locked", NULL, NULL },
     { jwin_ctext_proc,      152,  64,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Shuttered", NULL, NULL },
     { jwin_ctext_proc,      200,  64,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Boss", NULL, NULL },
     { jwin_ctext_proc,      256,  64,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Bombed", NULL, NULL },
-    
     { jwin_ctext_proc,      56,   136,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Open", NULL, NULL },
     { jwin_ctext_proc,      104,  136,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Unlocked", NULL, NULL },
     { jwin_ctext_proc,      152,  136-8,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Open", NULL, NULL },
@@ -1156,7 +1009,6 @@ static DIALOG doorcomboset_dlg[] =
     { jwin_ctext_proc,      200,  136,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Boss", NULL, NULL },
     { jwin_ctext_proc,      256,  136-8,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Walk-", NULL, NULL },
     { jwin_ctext_proc,      256,  136,    0,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Through", NULL, NULL },
-    
     { jwin_frame_proc,   38,    144,      36,   52,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
     { jwin_frame_proc,   86,    72,      36,   52,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
     { jwin_frame_proc,   134,   72,      36,   52,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
@@ -1167,7 +1019,6 @@ static DIALOG doorcomboset_dlg[] =
     { jwin_frame_proc,   38,    72,      36,   52,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
     { jwin_frame_proc,   230,   72,      52,   52,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
     { jwin_frame_proc,   246,   160,      20,   20,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
-    
     //235
     //Passage
     { d_combo_proc,      40,  144+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
@@ -1176,16 +1027,13 @@ static DIALOG doorcomboset_dlg[] =
     { d_combo_proc,      56,  160+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      40,  176+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      56,  176+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Locked
     { d_combo_proc,      88,   72+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     104,   72+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      88,   88+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     104,   88+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      88,   104+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     { d_combo_proc,     104,   104+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Shuttered
     { d_combo_proc,     136,   72+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     152,   72+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
@@ -1193,7 +1041,6 @@ static DIALOG doorcomboset_dlg[] =
     { d_combo_proc,     152,   88+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     136,   104+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     152,   104+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Boss
     { d_combo_proc,     184,   72+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     200,   72+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
@@ -1201,7 +1048,6 @@ static DIALOG doorcomboset_dlg[] =
     { d_combo_proc,     200,   88+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     184,   104+2,  16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     200,   104+2,  16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Unlocked
     { d_combo_proc,      88,  144+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     104,  144+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
@@ -1209,7 +1055,6 @@ static DIALOG doorcomboset_dlg[] =
     { d_combo_proc,     104,  160+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      88,  176+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     104,  176+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Open Shuttered
     { d_combo_proc,     136,  144+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     152,  144+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
@@ -1217,8 +1062,6 @@ static DIALOG doorcomboset_dlg[] =
     { d_combo_proc,     152,  160+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     136,  176+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     152,  176+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
-    
     //Open Boss
     { d_combo_proc,     184,  144+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     200,  144+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
@@ -1226,7 +1069,6 @@ static DIALOG doorcomboset_dlg[] =
     { d_combo_proc,     200,  160+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     184,  176+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     200,  176+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Wall
     { d_combo_proc,      40,   72+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      56,   72+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
@@ -1234,7 +1076,6 @@ static DIALOG doorcomboset_dlg[] =
     { d_combo_proc,      56,   88+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      40,   104+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,      56,   104+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Bombed
     { d_combo_proc,     248,   72+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     264,   72+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
@@ -1242,17 +1083,13 @@ static DIALOG doorcomboset_dlg[] =
     { d_combo_proc,     264,   88+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     248,   104+2,  16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     264,   104+2,  16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Bomb Rubble
     { d_combo_proc,     232,   72+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     232,   88+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
     { d_combo_proc,     232,   104+2,  16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     //Walkthrough
     { d_combo_proc,     248,  160+2,   16,   16,   2,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-    
     { jwin_check_proc,  184,  202, 112,  9,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Overlay Walkthrough", NULL, NULL },
-    
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
@@ -1269,17 +1106,13 @@ void fill_dcs_dlg()
             doorcomboset_dlg[(x*4)+y+31].fg = working_dcs.doorcset_u[x][y];
         }
     }
-    
     for(int32_t x=0; x<2; x++)
     {
         doorcomboset_dlg[x+67].d1 = working_dcs.bombdoorcombo_u[x];
         doorcomboset_dlg[x+67].fg = working_dcs.bombdoorcset_u[x];
     }
-    
     doorcomboset_dlg[69].d1 = working_dcs.walkthroughcombo[0];
     doorcomboset_dlg[69].fg = working_dcs.walkthroughcset[0];
-    
-    
     //south doors
     for(int32_t x=0; x<dt_max-1; x++)
     {
@@ -1289,17 +1122,13 @@ void fill_dcs_dlg()
             doorcomboset_dlg[(x*4)+y+93].fg = working_dcs.doorcset_d[x][y];
         }
     }
-    
     for(int32_t x=0; x<2; x++)
     {
         doorcomboset_dlg[x+129].d1 = working_dcs.bombdoorcombo_d[x];
         doorcomboset_dlg[x+129].fg = working_dcs.bombdoorcset_d[x];
     }
-    
     doorcomboset_dlg[131].d1 = working_dcs.walkthroughcombo[1];
     doorcomboset_dlg[131].fg = working_dcs.walkthroughcset[1];
-    
-    
     //east doors
     for(int32_t x=0; x<dt_max-1; x++)
     {
@@ -1309,17 +1138,13 @@ void fill_dcs_dlg()
             doorcomboset_dlg[(x*6)+y+155].fg = working_dcs.doorcset_l[x][y];
         }
     }
-    
     for(int32_t x=0; x<3; x++)
     {
         doorcomboset_dlg[x+209].d1 = working_dcs.bombdoorcombo_l[x];
         doorcomboset_dlg[x+209].fg = working_dcs.bombdoorcset_l[x];
     }
-    
     doorcomboset_dlg[212].d1 = working_dcs.walkthroughcombo[2];
     doorcomboset_dlg[212].fg = working_dcs.walkthroughcset[2];
-    
-    
     //west doors
     for(int32_t x=0; x<dt_max-1; x++)
     {
@@ -1329,14 +1154,11 @@ void fill_dcs_dlg()
             doorcomboset_dlg[(x*6)+y+236].fg = working_dcs.doorcset_r[x][y];
         }
     }
-    
-    
     for(int32_t x=0; x<3; x++)
     {
         doorcomboset_dlg[x+290].d1 = working_dcs.bombdoorcombo_r[x];
         doorcomboset_dlg[x+290].fg = working_dcs.bombdoorcset_r[x];
     }
-    
     doorcomboset_dlg[293].d1 = working_dcs.walkthroughcombo[3];
     doorcomboset_dlg[293].fg = working_dcs.walkthroughcset[3];
 }
@@ -1353,17 +1175,13 @@ void extract_dcs_dlg()
             working_dcs.doorcset_u[x][y] = doorcomboset_dlg[(x*4)+y+31].fg;
         }
     }
-    
     for(int32_t x=0; x<2; x++)
     {
         working_dcs.bombdoorcombo_u[x] = doorcomboset_dlg[x+67].d1;
         working_dcs.bombdoorcset_u[x] = doorcomboset_dlg[x+67].fg;
     }
-    
     working_dcs.walkthroughcombo[0] = doorcomboset_dlg[69].d1;
     working_dcs.walkthroughcset[0] = doorcomboset_dlg[69].fg;
-    
-    
     //south doors
     for(int32_t x=0; x<dt_max-1; x++)
     {
@@ -1373,17 +1191,13 @@ void extract_dcs_dlg()
             working_dcs.doorcset_d[x][y] = doorcomboset_dlg[(x*4)+y+93].fg;
         }
     }
-    
     for(int32_t x=0; x<2; x++)
     {
         working_dcs.bombdoorcombo_d[x] = doorcomboset_dlg[x+129].d1;
         working_dcs.bombdoorcset_d[x] = doorcomboset_dlg[x+129].fg;
     }
-    
     working_dcs.walkthroughcombo[1] = doorcomboset_dlg[131].d1;
     working_dcs.walkthroughcset[1] = doorcomboset_dlg[131].fg;
-    
-    
     //east doors
     for(int32_t x=0; x<dt_max-1; x++)
     {
@@ -1393,17 +1207,13 @@ void extract_dcs_dlg()
             working_dcs.doorcset_l[x][y] = doorcomboset_dlg[(x*6)+y+155].fg;
         }
     }
-    
     for(int32_t x=0; x<3; x++)
     {
         working_dcs.bombdoorcombo_l[x] = doorcomboset_dlg[x+209].d1;
         working_dcs.bombdoorcset_l[x] = doorcomboset_dlg[x+209].fg;
     }
-    
     working_dcs.walkthroughcombo[2] = doorcomboset_dlg[212].d1;
     working_dcs.walkthroughcset[2] = doorcomboset_dlg[212].fg;
-    
-    
     //west doors
     for(int32_t x=0; x<dt_max-1; x++)
     {
@@ -1413,13 +1223,11 @@ void extract_dcs_dlg()
             working_dcs.doorcset_r[x][y] = doorcomboset_dlg[(x*6)+y+236].fg;
         }
     }
-    
     for(int32_t x=0; x<3; x++)
     {
         working_dcs.bombdoorcombo_r[x] = doorcomboset_dlg[x+290].d1;
         working_dcs.bombdoorcset_r[x] = doorcomboset_dlg[x+290].fg;
     }
-    
     working_dcs.walkthroughcombo[3] = doorcomboset_dlg[293].d1;
     working_dcs.walkthroughcset[3] = doorcomboset_dlg[293].fg;
 }
@@ -1431,27 +1239,20 @@ int32_t edit_dcs(int32_t index)
     sprintf(door_combo_set_name,"%s",working_dcs.name);
     doorcomboset_dlg[0].dp2 = lfont;
     doorcomboset_dlg[6].dp = door_combo_set_name;
-    
     fill_dcs_dlg();
-    
     doorcomboset_dlg[294].flags = get_bit(working_dcs.flags,df_walktrans) ? D_SELECTED : 0;
-    
     if(is_large)
     {
         large_dialog(doorcomboset_dlg, 2.0);
     }
-    
     int32_t ret;
-    
     do
     {
         ret = zc_popup_dialog(doorcomboset_dlg,4);
-        
         if(ret==1)
         {
             extract_dcs_dlg();
             int32_t selected = -1;
-            
             for(int32_t i=0; door_tabs[i].text; i++)
             {
                 if(door_tabs[i].flags&D_SELECTED)
@@ -1460,36 +1261,30 @@ int32_t edit_dcs(int32_t index)
                     break;
                 }
             }
-            
             // shortcut: (Shift + Auto), will *mostly* automate a dcs by duplicating the first door.
             // this isn't perfect, but it an indespensible tool for users putting together tilesets.
             if(key[KEY_RSHIFT] || key[KEY_LSHIFT])
             {
                 auto_generate_dcs(selected);
             }
-            
             fix_dcs(selected);
             fill_dcs_dlg();
             object_message(doorcomboset_dlg+7,MSG_DRAW,0);
         }
     }
     while(ret==1);
-    
     if(ret==2)
     {
         sprintf(working_dcs.name, "%s", door_combo_set_name);
         extract_dcs_dlg();
         set_bit(working_dcs.flags,df_walktrans,doorcomboset_dlg[294].flags);
         DoorComboSets[index]=working_dcs;
-        
         if(index==door_combo_set_count)
         {
             door_combo_set_count++;
         }
-        
         saved=false;
     }
-    
     return D_O_K;
 }
 
@@ -1509,10 +1304,8 @@ const char *doorcombosetlist(int32_t index, int32_t *list_size)
     {
         if(index>=door_combo_set_count)
             index=door_combo_set_count-1;
-            
         return DoorComboSets[index].name;
     }
-    
     *list_size=door_combo_set_count;
     return NULL;
 }
@@ -1555,15 +1348,12 @@ void doorlist_rclick_func(int32_t index, int32_t x, int32_t y)
     //if(bii[index].i<0) // Clicked (none)?
     if(index < 0) // Clicked (none)?
         return;
-    
     //if(copiedItem<0)
     //    doorlist_rclick_menu[1].flags|=D_DISABLED;
     //else
     //    doorlist_rclick_menu[1].flags&=~D_DISABLED;
-    
     int32_t ret=popup_menu(doorlist_rclick_menu, x, y);
     char name[256] = {0};
-    
     if(ret==0) // save
     {
 	if(!getname("Save Doorset(.zdoors)", "zdoors", NULL,datapath,false))
@@ -1572,7 +1362,6 @@ void doorlist_rclick_func(int32_t index, int32_t x, int32_t y)
 	}
 	//int32_t iid = bii[index].i; //the item id is not the sajme as the editor index
 	//the editor index is the position in the current LIST. -Z
-	
 	//al_trace("Saving item index: %d\n",index);
 	//al_trace("Saving item id: %d\n",iid);
 	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
@@ -1597,7 +1386,6 @@ void doorlist_rclick_func(int32_t index, int32_t x, int32_t y)
 		sprintf(tmpbuf,"Failed to save %s",name);
 		jwin_alert("Error!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 	}
-        
     }
     else if(ret==1) // load
     {
@@ -1607,7 +1395,6 @@ void doorlist_rclick_func(int32_t index, int32_t x, int32_t y)
 	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 	if(!f) return;
 	int32_t ret = readonezdoorset(f,index);
-				
 	if (!ret)
 	{
 		al_trace("Could not read from .zdoors packfile %s\n", temppath);
@@ -1637,33 +1424,26 @@ int32_t doorcombosetlist_del()
 {
     char buf[25];
     int32_t d=doorcombosetlist_dlg[2].d1;
-    
     if((d>0 || door_combo_set_count>2) && d<door_combo_set_count-1)
     {
         strncpy(buf,DoorComboSets[d].name,sizeof(DoorComboSets[d].name));
-        
         if(jwin_alert("Confirm Delete","Delete this door combo set?",buf,NULL,"Yes","No",'y',27,lfont)==1)
         {
             saved=false;
-            
             for(int32_t i=d; i<MAXDOORCOMBOSETS-1; i++)
             {
                 DoorComboSets[i]=DoorComboSets[i+1];
             }
-            
             reset_doorcomboset(MAXDOORCOMBOSETS-1);
             --door_combo_set_count;
             int32_t sc = vbound(map_count,0,Map.getMapCount())*MAPSCRS;
-            
             for(int32_t s=0; s<sc; s++)
             {
                 fix_door_combo_set(TheMaps[s].door_combo_set, d);
             }
         }
-        
         return D_CLOSE;
     }
-    
     return D_O_K;
 }
 
@@ -1679,7 +1459,6 @@ int32_t pastedcs()
     {
         return D_O_K;
     }
-    
     DoorComboSets[doorcombosetlist_dlg[2].d1]=DoorComboSets[doorcombosetlist_dlg[5].d1];
     doorcombosetlist_dlg[5].d1=-1;
     return D_CLOSE;
@@ -1690,12 +1469,9 @@ int32_t replacedcs()
     if(doorcombosetlist_dlg[5].d1==-1)
     {
         return D_O_K;
-        
     }
-    
     DoorComboSets[doorcombosetlist_dlg[2].d1]=DoorComboSets[doorcombosetlist_dlg[5].d1];
     int32_t sc = vbound(map_count,0,Map.getMapCount())*MAPSCRS;
-    
     for(int32_t s=0; s<sc; s++)
     {
         if(TheMaps[s].door_combo_set==doorcombosetlist_dlg[5].d1)
@@ -1703,7 +1479,6 @@ int32_t replacedcs()
             TheMaps[s].door_combo_set=doorcombosetlist_dlg[2].d1;
         }
     }
-    
     doorcombosetlist_dlg[5].d1=-1;
     return D_O_K;
 }
@@ -1727,7 +1502,6 @@ void init_doorcombosets()
 {
     for(int32_t i=0; i<MAXDOORCOMBOSETS; i++)
         reset_doorcomboset(i);
-        
     door_combo_set_count=0;
 }
 
@@ -1738,48 +1512,38 @@ int32_t onDoorCombos()
     doorcombosetlist_dlg[0].dp2=lfont;
     doorcombosetlist_dlg[2].dp3 = (void *)&doorlist_rclick_func;
     doorcombosetlist_dlg[2].flags|=(D_USER<<1);
-    
     while(index!=-1)
     {
         bool hasroom=false;
-        
         if(door_combo_set_count<MAXDOORCOMBOSETS)
         {
             hasroom=true;
             strcpy(DoorComboSets[door_combo_set_count++].name,"<New Door Combo Set>");
         }
-        
         if(is_large)
             large_dialog(doorcombosetlist_dlg,1.5);
-            
         int32_t ret=zc_popup_dialog(doorcombosetlist_dlg,2);
         index=doorcombosetlist_dlg[2].d1;
-        
         int32_t doedit=false;
-        
         switch(ret)
         {
         case 2:
         case 3:
             doedit=true;
             break;
-            
         case 0:
         case 4:
             index=-1;
             break;
         }
-        
         if(hasroom)
             memset(DoorComboSets[--door_combo_set_count].name,0,sizeof(DoorComboSets[0].name));
-            
         if(doedit)
         {
             editdoorcomboset(index);
             refresh(rMENU);
         }
     }
-    
     comeback();
     return D_O_K;
 }

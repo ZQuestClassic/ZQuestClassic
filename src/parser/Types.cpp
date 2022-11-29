@@ -77,7 +77,6 @@ std::optional<DataTypeId> TypeStore::getOrAssignTypeId(DataType const& type)
 
 	if (std::optional<DataTypeId> typeId = find<DataTypeId>(typeIdMap, &type))
 		return typeId;
-	
 	DataTypeId id = ownedTypes.size();
 	DataType* storedType = type.clone();
 	ownedTypes.push_back(storedType);
@@ -393,7 +392,6 @@ DataType const& ZScript::getNaiveType(DataType const& type, Scope* scope)
 		DataTypeArray const* ta = static_cast<DataTypeArray const*>(t);
 		t = &ta->getElementType();
 	}
-	
 	//Convert constant types to their variable counterpart
 	if(t->isConstant())
 	{
@@ -401,12 +399,10 @@ DataType const& ZScript::getNaiveType(DataType const& type, Scope* scope)
 		{
 			t = DataType::get(ts->getId());
 		}
-		
 		if(DataTypeClassConst const* tc = dynamic_cast<DataTypeClassConst const*>(t))
 		{
 			t = DataType::getClass(tc->getClassId());
 		}
-		
 		if(DataTypeCustomConst const* tcu = dynamic_cast<DataTypeCustomConst const*>(t))
 		{
 			t = DataType::getCustom(tcu->getCustomId());
@@ -455,7 +451,6 @@ DataType* DataTypeUnresolved::resolve(Scope& scope, CompileErrorHandler* errorHa
 		return type->clone();
 	return NULL;
 }
- 
 std::string DataTypeUnresolved::getName() const
 {
 	return name;
@@ -505,13 +500,12 @@ bool DataTypeSimple::canCastTo(DataType const& target) const
 		if (simpleId == ZVARTYPEID_FLOAT && t->simpleId == ZVARTYPEID_BOOL)
 			return true;
 	}
-	
 	return false;
 }
 
 bool DataTypeSimple::canBeGlobal() const
 {
-	return true; //All types can be global, now. 
+	return true; //All types can be global, now.
 	//return simpleId == ZVARTYPEID_FLOAT || simpleId == ZVARTYPEID_BOOL;
 }
 
@@ -556,7 +550,6 @@ bool DataTypeClass::canCastTo(DataType const& target) const
 {
 	if (target.isVoid()) return false;
 	if (target.isUntyped()) return true;
-	
 	if (DataTypeArray const* t =
 			dynamic_cast<DataTypeArray const*>(&target))
 		return canCastTo(getBaseType(*t));
@@ -564,7 +557,6 @@ bool DataTypeClass::canCastTo(DataType const& target) const
 	if (DataTypeClass const* t =
 			dynamic_cast<DataTypeClass const*>(&target))
 		return classId == t->classId;
-		
 	return false;
 }
 
@@ -588,11 +580,9 @@ bool DataTypeArray::canCastTo(DataType const& target) const
 {
 	if (target.isVoid()) return false;
 	if (target.isUntyped()) return true;
-	
 	if (DataTypeArray const* t =
 			dynamic_cast<DataTypeArray const*>(&target))
 		return canCastTo(getBaseType(*t));
-	
 	return getBaseType(*this).canCastTo(target);
 }
 
@@ -621,7 +611,6 @@ bool DataTypeCustom::canCastTo(DataType const& target) const
 	if (DataTypeArray const* t =
 			dynamic_cast<DataTypeArray const*>(&target))
 		return canCastTo(getBaseType(*t));
-	
 	if(!isClass())
 	{
 		if (DataTypeSimple const* t =
@@ -635,7 +624,6 @@ bool DataTypeCustom::canCastTo(DataType const& target) const
 				|| t->getId() == ZVARTYPEID_CHAR);
 		}
 	}
-	
 	if (DataTypeCustom const* t =
 			dynamic_cast<DataTypeCustom const*>(&target))
 	{
@@ -643,7 +631,6 @@ bool DataTypeCustom::canCastTo(DataType const& target) const
 		//only within themselves
 		return id == t->id;
 	}
-	
 	return false;
 }
 

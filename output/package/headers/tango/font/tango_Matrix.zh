@@ -8,7 +8,7 @@ int TANGO_FONT_MATRIX[] = {
     8, // Character height
     0, // Space between lines,
     8  // Width of each character, including trailing space
-    
+
     // Note: There is a single character in this font that is 7 pixels wide.
     // This appears to be unintentional, so it is considered monospaced.
 };

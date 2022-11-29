@@ -30,20 +30,20 @@ int Tango_GetStringWidth(int str, int font)
 {
     int width=0;
     int character;
-    
+
     for(int i=0; str[i]!=0; i++)
     {
         character=str[i];
-        
+
         if(character<' ')
             continue;
-        
+
         if(font[__TANGO_FONT_PROPORTION]==TANGO_FONT_MONOSPACE)
             width+=font[__TANGO_FONT_WIDTH];
         else
             width+=font[character+__TANGO_FONT_ASCII_TO_TANGO];
     }
-    
+
     return width;
 }
 
@@ -54,25 +54,25 @@ int __Tango_GetWordWidth(int ptr, int font)
 {
     int width=0;
     int character;
-    
+
     while(true)
     {
         character=__Tango_Buffer[ptr];
-        
+
         if(character==NULL ||
            character==' ' ||
            character==TANGO_CHAR_NEWLINE)
             break;
-        
+
         if(character>=' ')
             width+=__Tango_GetCharacterWidth(character, font);
-        
+
         if(__Tango_IsSpecialDataMarker(character))
             ptr++; // Skip it
-        
+
         ptr++;
     }
-    
+
     return width;
 }
 

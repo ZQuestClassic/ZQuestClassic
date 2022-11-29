@@ -117,7 +117,6 @@ void RegistrationVisitor::caseSetOption(ASTSetOption& host, void* param)
 {
 	visit(host.expr.get(), param);
 	if(!registered(host.expr.get())) return; //Non-initialized constant
-	
 	// If the option name is "default", set the default option instead.
 	if (host.name == "default")
 	{
@@ -126,7 +125,6 @@ void RegistrationVisitor::caseSetOption(ASTSetOption& host, void* param)
 		scope->setDefaultOption(setting);
 		return;
 	}
-	
 	// Make sure the option is valid.
 	if (!host.option.isValid())
 	{
@@ -147,10 +145,8 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 {
 	visit(host.type.get());
 	if(!registered(host.type.get())) return;
-	
 	Script& script = host.script ? *host.script : *(host.script = program.addScript(host, *scope, this));
 	if (breakRecursion(host)) return;
-	
 	string name = script.getName();
 
 	// Recurse on script elements with its scope.
@@ -172,7 +168,6 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 	{
 		return;
 	}
-	
 	if(script.getType() == ScriptType::untyped)
 	{
 		doRegister(host);
@@ -208,7 +203,6 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 	UserClass& user_class = host.user_class ? *host.user_class : *(host.user_class = program.addClass(host, *scope, this));
 	if (breakRecursion(host)) return;
 	string name = user_class.getName();
-	
 	if(!host.type)
 	{
 		//Don't allow use of a name that already exists
@@ -223,22 +217,17 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 			return;
 		}
 		temp.reset();
-		
 		//Construct a new constant type
 		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name, &user_class);
 		//Construct the base type
 		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, &user_class, newConstType->getCustomId());
-		
 		//Set the type to the base type
 		host.type.reset(new ASTDataType(newBaseType, host.location));
-		
 		DataType::addCustom(newBaseType);
 		user_class.setType(newBaseType);
-		
 		//This call should never fail, because of the error check above.
 		scope->addDataType(host.name, newBaseType, &host);
 		if (breakRecursion(*host.type.get())) return;
-		
 		for (auto it = host.constructors.begin();
 			 it != host.constructors.end(); ++it)
 		{
@@ -279,7 +268,6 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 	{
 		return;
 	}
-	
 	doRegister(host);
 }
 
@@ -397,19 +385,15 @@ void RegistrationVisitor::caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void
 			return;
 		}
 		temp.reset();
-		
 		//Construct a new constant type
 		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name);
 		//Construct the base type
 		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, nullptr, newConstType->getCustomId());
-		
 		//Set the type to the base type
 		host.type.reset(new ASTDataType(newBaseType, host.location));
 		//Set the enum type to the const type
 		host.definition->baseType.reset(new ASTDataType(newConstType, host.location));
-		
 		DataType::addCustom(newBaseType);
-		
 		//This call should never fail, because of the error check above.
 		scope->addDataType(host.name, newBaseType, &host);
 		if (breakRecursion(*host.type.get())) return;
@@ -533,7 +517,6 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 	DataType const& type = *host.resolveType(scope, this);
 	if (breakRecursion(host)) return;
 	if (!type.isResolved()) return;
-	
 	doRegister(host);
 
 	// Don't allow void type.
@@ -595,7 +578,6 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 			handleError(CompileError::VarRedef(&host, host.name));
 			return;
 		}
-		
 		int32_t value = *host.getInitializer()->getCompileTimeValue(this, scope);
 		Constant::create(*scope, host, type, value, this);
 	}
@@ -625,7 +607,6 @@ void RegistrationVisitor::caseDataDeclExtraArray(ASTDataDeclExtraArray& host, vo
 	if (breakRecursion(host)) return;
 	if(!registered(host, host.dimensions)) return;
 	doRegister(host);
-	
 	// Iterate over sizes.
 	for (vector<ASTExpr*>::const_iterator it = host.dimensions.begin();
 		 it != host.dimensions.end(); ++it)
@@ -645,7 +626,6 @@ void RegistrationVisitor::caseDataDeclExtraArray(ASTDataDeclExtraArray& host, vo
 			handleError(CompileError::ExprNotConstant(&host));
 			return;
 		}
-		
 		if(std::optional<int32_t> theSize = size.getCompileTimeValue(this, scope))
 		{
 			if(*theSize % 10000)
@@ -665,13 +645,11 @@ void RegistrationVisitor::caseDataDeclExtraArray(ASTDataDeclExtraArray& host, vo
 void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 {
 	Scope* oldScope = scope;
-	
 	if(host.parentScope)
 		scope = host.parentScope;
 	else if(host.iden->components.size() > 1)
 	{
 		ASTExprIdentifier const& id = *(host.iden);
-		
 		vector<string> scopeNames(id.components.begin(), --id.components.end());
 		vector<string> scopeDelimiters(id.delimiters.begin(), id.delimiters.end());
 		host.parentScope = lookupScope(*scope, scopeNames, scopeDelimiters, id.noUsing, host, this);
@@ -682,7 +660,6 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		scope = host.parentScope;
 	}
 	else host.parentScope = scope;
-	
 	if(host.getFlag(FUNCFLAG_INVALID))
 	{
 		handleError(CompileError::BadFuncModifiers(&host, host.invalidMsg));
@@ -731,7 +708,6 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		visit(host.defaultReturn.get(), param);
 		if(breakRecursion(host.defaultReturn.get())) {scope = oldScope; return;}
 		if(!(registered(host.defaultReturn.get()))) {scope = oldScope; return;}
-		
 		DataType const& defValType = *host.defaultReturn->getReadType(scope, this);
 		if(!defValType.isResolved()) {scope = oldScope; return;}
 		//Check type validity of default return
@@ -743,11 +719,9 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		}
 		else checkCast(defValType, returnType, &host);
 	}
-	
 	if(breakRecursion(host)) {scope = oldScope; return;}
 	visit(host, host.optparams, param);
 	if(breakRecursion(host)) {scope = oldScope; return;}
-	
 	auto parcnt = paramTypes.size() - host.optparams.size();
 	for(auto it = host.optparams.begin(); it != host.optparams.end() && parcnt < paramTypes.size(); ++it, ++parcnt)
 	{
@@ -760,14 +734,11 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		host.optvals.push_back(*optVal);
 	}
 	if(breakRecursion(host)) {scope = oldScope; return;}
-	
 	doRegister(host);
-	
 	// Add the function to the scope.
 	Function* function = scope->addFunction(
 			&returnType, host.name, paramTypes, paramNames, host.getFlags(), &host, this);
 	host.func = function;
-	
 	scope = oldScope;
 	if(breakRecursion(host)) return;
 	// If adding it failed, it means this scope already has a function with
@@ -808,7 +779,7 @@ void RegistrationVisitor::caseExprAssign(ASTExprAssign& host, void* param)
 	visit(host.left.get(), paramWrite);
 	if (breakRecursion(host)) return;
 	visit(host.right.get(), paramRead);
-	if (breakRecursion(host)) return;	
+	if (breakRecursion(host)) return;
 	if(!(registered(host.left.get()) && registered(host.right.get()))) return;
 	doRegister(host);
 	DataType const* ltype = host.left->getWriteType(scope, this);

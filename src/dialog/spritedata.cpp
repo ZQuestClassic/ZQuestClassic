@@ -59,8 +59,6 @@ std::shared_ptr<GUI::Widget> SpriteDataDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Key;
 	using namespace GUI::Props;
-	
-	
 	char titlebuf[256];
 	sprintf(titlebuf, "Sprite %d: %s", index, localName);
 	window = Window(

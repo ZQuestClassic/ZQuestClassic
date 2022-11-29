@@ -2,8 +2,8 @@
 
 /**
 *	This namespace contains functions used for handling bitmap
-*	allocation, for freeing bitmaps, and for determining if 
-*	bitmaps are available for use. 
+*	allocation, for freeing bitmaps, and for determining if
+*	bitmaps are available for use.
 */
 namespace bitmaps
 {
@@ -42,7 +42,7 @@ namespace bitmaps
 		{
 			int ww = h;
 			h = w;
-			w = ww; 
+			w = ww;
 		}
 		//Find an index not in use
 		for ( int q = 0; q < NUM_BITMAPS*2; q+=2 )
@@ -75,7 +75,7 @@ namespace bitmaps
 		return release(b, 0);
 	}
 	/*!
-	*	Locks a bitmap so that it cannot be released. 
+	*	Locks a bitmap so that it cannot be released.
 	*	@param b a bitmap datatype of the bitmap pointer
 	*/
 	bool lock(bitmap b)
@@ -91,7 +91,7 @@ namespace bitmaps
 		return false;
 	}
 	/*!
-	*	Unlocks a bitmap so that it cannot be released. 
+	*	Unlocks a bitmap so that it cannot be released.
 	*	@param b a bitmap datatype of the bitmap pointer
 	*	@param free determines if it is unlocked to an INUSE (true) state, or a FREEING (false) state.
 	*/
@@ -144,7 +144,7 @@ namespace bitmaps
 		return false;
 	}
 	/*!
-	*	Returns if a bitmap allocation slot <b> is free. 
+	*	Returns if a bitmap allocation slot <b> is free.
 	*	@param b a bitmap datatype of the bitmap pointer
 	*/
 	bool freed(bitmap b)
@@ -221,14 +221,14 @@ namespace bitmaps
 			return tm;
 		}
 		/*!
-		*	Returns the version ID as a wrapper. 
+		*	Returns the version ID as a wrapper.
 		*/
 		float Get()
 		{
 			return VERSION;
 		}
 		/*!
-		*	Prints all header version metadata to the logfile and to the console. 
+		*	Prints all header version metadata to the logfile and to the console.
 		*/
 		void Print()
 		{
@@ -241,7 +241,7 @@ namespace bitmaps
 			PrintDate();
 		}
 		/*!
-		*	Generic function for printing the date in a human-friendly manner. 
+		*	Generic function for printing the date in a human-friendly manner.
 		* 	Prints as "0th, Nonetober, 9999"
 		*/
 		void PrintDate()

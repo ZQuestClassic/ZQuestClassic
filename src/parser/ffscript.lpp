@@ -272,7 +272,6 @@ appx_equal	TOKEN( APPXEQUAL );
  /* these would need to see if they are LH values. */
  /* https://stackoverflow.com/questions/23529298/how-to-make-bison-to-use-a-rule-if-two-rules-matches */
  /* "**" pointer/poiters */
- 
  zstruct		TOKEN( SCRIPTSTRUCT );
 
  /* Line Comments */
@@ -283,9 +282,9 @@ appx_equal	TOKEN( APPXEQUAL );
 "/*"[^*\n]*			{
 	srow = yyrow;
 	scol = yycol;
-	ADVANCE; 
+	ADVANCE;
 	BEGIN( COMMENT );
-} 
+}
 <COMMENT>{
 	[^*\n]*			ADVANCE;
 	[^*\n]*\n		NEWLINE;
@@ -302,7 +301,7 @@ appx_equal	TOKEN( APPXEQUAL );
 <HASH>{
 	\\\n			NEWLINE;
 	[ \t\r]+		ADVANCE;
-	[ \t\r]*\n		NEWLINE; BEGIN( INITIAL ); TOKEN ( ENDLINE ); 
+	[ \t\r]*\n		NEWLINE; BEGIN( INITIAL ); TOKEN ( ENDLINE );
 	"option"		TOKEN( OPTION );
 	"ignore error"		TOKEN( EXPECTERROR );
 	"IGNORE ERROR"		TOKEN( EXPECTERROR );
@@ -428,7 +427,6 @@ appx_equal	TOKEN( APPXEQUAL );
 		ADVANCE;
 	}
  }
- 
  <IMPORTSTR>{
 	<<EOF>>			{
 		yyerrmsg("ERROR: String does not end.", srow, scol);

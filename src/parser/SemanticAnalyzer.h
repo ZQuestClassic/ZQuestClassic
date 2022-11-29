@@ -96,7 +96,6 @@ namespace ZScript
 		ZScript::DataType const* returnType;
 
 		std::vector<Function*> inlineStack;
-		
 		bool deprecateGlobals;
 
 		void analyzeFunctionInternals(ZScript::Function& function);
@@ -111,5 +110,5 @@ namespace ZScript
 				ZScript::DataType const& rightType);
 
 	};
-}	
+}
 #endif

@@ -202,11 +202,11 @@ others.
 following options:
 </p>
 <div class="smallexample">
-<pre class="smallexample">-maltivec  -mfprnd  -mhard-float  -mmfcrf  -mmultiple 
--mpopcntb  -mpopcntd  -mpowerpc64 
--mpowerpc-gpopt  -mpowerpc-gfxopt 
--mmulhw  -mdlmzb  -mmfpgpr  -mvsx 
--mcrypto  -mhtm  -mpower8-fusion  -mpower8-vector 
+<pre class="smallexample">-maltivec  -mfprnd  -mhard-float  -mmfcrf  -mmultiple
+-mpopcntb  -mpopcntd  -mpowerpc64
+-mpowerpc-gpopt  -mpowerpc-gfxopt
+-mmulhw  -mdlmzb  -mmfpgpr  -mvsx
+-mcrypto  -mhtm  -mpower8-fusion  -mpower8-vector
 -mquad-memory  -mquad-memory-atomic  -mfloat128  -mfloat128-hardware
 </pre></div>
 
@@ -266,7 +266,7 @@ the AltiVec instruction set.  You may also need to set
 enhancements.
 </p>
 <p>When <samp>-maltivec</samp> is used, the element order for AltiVec intrinsics
-such as <code>vec_splat</code>, <code>vec_extract</code>, and <code>vec_insert</code> 
+such as <code>vec_splat</code>, <code>vec_extract</code>, and <code>vec_insert</code>
 match array element order corresponding to the endianness of the
 target.  That is, element zero identifies the leftmost element in a
 vector register when targeting a big-endian platform, and identifies
@@ -686,7 +686,7 @@ before execution begins.
 <p>This option controls the priority that is assigned to
 dispatch-slot restricted instructions during the second scheduling
 pass.  The argument <var>priority</var> takes the value &lsquo;<samp>0</samp>&rsquo;, &lsquo;<samp>1</samp>&rsquo;,
-or &lsquo;<samp>2</samp>&rsquo; to assign no, highest, or second-highest (respectively) 
+or &lsquo;<samp>2</samp>&rsquo; to assign no, highest, or second-highest (respectively)
 priority to dispatch-slot restricted
 instructions.
 </p>
@@ -715,7 +715,7 @@ by the target during instruction scheduling.  The argument
 </p>
 </dd>
 <dt><var>number</var></dt>
-<dd><p>Any dependence for which the latency is greater than or equal to 
+<dd><p>Any dependence for which the latency is greater than or equal to
 <var>number</var> is costly.
 </p></dd>
 </dl>
@@ -1157,7 +1157,7 @@ be preceded by a <code>!</code> to invert the option:
 </p>
 </dd>
 <dt>&lsquo;<samp>div</samp>&rsquo;</dt>
-<dd><p>Enable the reciprocal approximation instructions for both 
+<dd><p>Enable the reciprocal approximation instructions for both
 single and double precision.
 </p>
 </dd>

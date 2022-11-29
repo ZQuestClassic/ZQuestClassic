@@ -1,5 +1,5 @@
-//Main weapon launcher item script. 
-//D0-D6 are passed to host FFC as arguments (7 arguments). 
+//Main weapon launcher item script.
+//D0-D6 are passed to host FFC as arguments (7 arguments).
 //D7 - Script slot for FFC.
 //When FFC script is run, it can access item ID that launched this lweapon via this->InitD[7].
 //This allows FFC script to obtain itemdata of the said item and use it for his own purposes.

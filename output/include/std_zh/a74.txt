@@ -11,14 +11,14 @@ Fix crashes relating to combo scripts
 Fix 'bitmap->Create()' reassigning null
 Fix WarpEx ignoring dmap offset when calculating warp return
 Fix 'npc->Remove()' not using refvar
-Fixed a bug where npc->Step with the rule qr_STEP_IS_FLOAT **DISABLED** 
+Fixed a bug where npc->Step with the rule qr_STEP_IS_FLOAT **DISABLED**
 	was returning wildly incorrect values.
 Fixed a bug where old quests were trying to set emulation[qr_STEP_IS_FLOAT],
 	not set_bit(quest_rules,qr_STEP_IS_FLOAT).
 Fixed a crash reported by ywkls,that when trying to use the
-	tile grabber on .qst and .qsu files, where the tile 
-	grabber would allow the user to scroll outside the 
-	bounds of the .qst tile buffer. 
+	tile grabber on .qst and .qsu files, where the tile
+	grabber would allow the user to scroll outside the
+	bounds of the .qst tile buffer.
 	It is now clamped to MAXTILEROWS.
 Fixed issues where the old system for calculating STEP for sprites from
 	scripts produced incorrect values, including slow projectiles and
@@ -29,10 +29,10 @@ Made a slight reversion to fix Module>>Ignore.
 	This still creates a visual glitch when creating a quest slot
 	that uses a quest keyword, however this lasts for only the duration
 	of the popup dialogue, and can probably be fixed in the section
-	where special quest icons (e.g. 2nd, 3rd, 4th) are loaded.	
-	
+	where special quest icons (e.g. 2nd, 3rd, 4th) are loaded.
 
-	
+
+
 
 /.imp
 Moved the config to ignore internal quests to moduledata, and added
@@ -51,7 +51,7 @@ ZC GUI snapshot (Shift+F12) uses correct ame colours, as long as the
 	menu isn't active.
 Added a way to detect if the system menu is open (bool MenuOpen).
 	This is enabled and disabled exclusively in System() and
-	writing to it elsewhere is **unefined**. 
+	writing to it elsewhere is **unefined**.
 	In theory, alt+tab could call System() to force-pause ZC Player,
 	but win32.cpp cannot access System() during its callbacks.
 Allow taking a screenshot in ZC that shows the subscreen area
@@ -69,7 +69,7 @@ Add raft speed modifiers for faster/slower moving raft
 Implemented a request from ShadowTiger, whereby when you edit a
 	DMap, and select a map tile, when you go to edit further
 	DMap map tiles within the same session, the DMap editor will
-	remember the last tile that you used. 
+	remember the last tile that you used.
 
 
 //scipt
@@ -85,7 +85,7 @@ Fixed FFScript::getLWeaponByScriptUID(int sUID) and
 	FFScript::getEWeaponByScriptUID(int sUID).
 	They were iterating based on guys.count() and returning -1
 	when they should have been latching onto a weapon UID.
-	
+
 Add 'FileSystem->Remove(char32)' and 'file->Remove()
 <std 1.7055>
 	Added GetMapscreenEFlags(). This is like GetScreenEFlags, but for mapdata.
@@ -95,11 +95,11 @@ Add 'FileSystem->Remove(char32)' and 'file->Remove()
 	the player has a map item, or explores the screen.
 
 	The calcs for dmap offset might be backwards. Untested.
-	
+
 Added mapdata->SFlags[] to replicate how Screen->Flags works.
 	Added a rule bit (not implemented in GUI) to make reading
 	mapdata-Flags work in the same way as SFlags[]
-<std> 1.7054 
+<std> 1.7054
 	Added enum mapscreenflags to std_constants.
 	Added GetMapscreenFlag, and SetMapscreenFlag to std_functions.
 	Added files (to inspect, and later merge):

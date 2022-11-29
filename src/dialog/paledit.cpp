@@ -75,11 +75,9 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	cls();
 	bool interpfad = get_bit(quest_rules, qr_FADE);
 	loadPal();
-	
 	if (is_large)
 	{
 		return Window(
@@ -229,9 +227,9 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 					Label(text = "Name:"),
 					TextField(
 						type = GUI::TextField::type::TEXT,
-						text = std::string(namebuf), 
-						maxLength = 16, 
-						colSpan = 3, 
+						text = std::string(namebuf),
+						maxLength = 16,
+						colSpan = 3,
 						fitParent = true,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view text,int32_t)
 						{
@@ -288,7 +286,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 							}
 							else
 							{
-								if ( index < 256 ) //don't display cycle data for palettes 256 through 511. They don't have valid cycle data. 
+								if ( index < 256 ) //don't display cycle data for palettes 256 through 511. They don't have valid cycle data.
 									edit_cycles(index);
 								else jwin_alert("Notice","Palettes above 0xFF do not have Palette Cycles",NULL,NULL,"O&K",NULL,'k',0,lfont);
 							}
@@ -335,7 +333,6 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 			},
 			Columns<2>(
 				tabpan = TabPanel(
-				
 					ptr = &paltab,
 					onSwitch = [&](size_t tab)
 					{
@@ -418,9 +415,9 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 					Label(text = "Name:"),
 					TextField(
 						type = GUI::TextField::type::TEXT,
-						text = std::string(namebuf), 
-						maxLength = 16, 
-						colSpan = 3, 
+						text = std::string(namebuf),
+						maxLength = 16,
+						colSpan = 3,
 						fitParent = true,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view text,int32_t)
 						{
@@ -544,7 +541,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 							}
 							else
 							{
-								if ( index < 256 ) //don't display cycle data for palettes 256 through 511. They don't have valid cycle data. 
+								if ( index < 256 ) //don't display cycle data for palettes 256 through 511. They don't have valid cycle data.
 									edit_cycles(index);
 								else jwin_alert("Notice","Palettes above 0xFF do not have Palette Cycles",NULL,NULL,"O&K",NULL,'k',0,lfont);
 							}

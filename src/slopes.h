@@ -13,10 +13,8 @@ void draw_slopes(BITMAP *dest, int32_t x, int32_t y, int32_t col);
 struct slope_info
 {
 	zfix x1,y1,x2,y2;
-	
 	zfix slope()        const;
 	zfix slipperiness() const;
-	
 	bool stairs()       const;
 	bool ignorebottom() const;
 	bool ignoretop()    const;
@@ -24,12 +22,9 @@ struct slope_info
 	bool ignoreright()  const;
 	bool falldown()     const;
 	bool ignore(double lineangle, bool canfall = false, bool onplatform = false) const;
-	
 	zfix getX(zfix const& y) const;
 	zfix getY(zfix const& x) const;
-	
 	void draw(BITMAP* dest, int32_t x, int32_t y, int32_t col) const;
-	
 	slope_info(newcombo const& cmb, zfix const& xoffs = 0, zfix const& yoffs = 0);
 	slope_info();
 private:
@@ -45,9 +40,7 @@ struct slope_object
 	zfix ox1,oy1,ox2,oy2;
 	int32_t id;
 	zfix xoffs,yoffs;
-	
 	slope_info get_info() const;
-	
 	void updateslope();
 	slope_object(word* cid = nullptr, ffcdata* ff = nullptr, int32_t id = -1, word cpos = 0);
 	slope_object(slope_object const& other) = delete;

@@ -12,7 +12,7 @@ namespace std
 	namespace versioninfo
 	{
 		float Get() { return STD_VERSION; }
-		
+
 		float GetDatestamp()
 		{
 			float dt = STD_DATE_MONTH;

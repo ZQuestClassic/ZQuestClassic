@@ -84,10 +84,10 @@ Next: <a href="x86-Windows-Options.html#x86-Windows-Options" accesskey="n" rel="
 <dt><code>-march=<var>cpu-type</var></code></dt>
 <dd><a name="index-march-14"></a>
 <p>Generate instructions for the machine type <var>cpu-type</var>.  In contrast to
-<samp>-mtune=<var>cpu-type</var></samp>, which merely tunes the generated code 
+<samp>-mtune=<var>cpu-type</var></samp>, which merely tunes the generated code
 for the specified <var>cpu-type</var>, <samp>-march=<var>cpu-type</var></samp> allows GCC
 to generate code that may not run at all on processors other than the one
-indicated.  Specifying <samp>-march=<var>cpu-type</var></samp> implies 
+indicated.  Specifying <samp>-march=<var>cpu-type</var></samp> implies
 <samp>-mtune=<var>cpu-type</var></samp>.
 </p>
 <p>The choices for <var>cpu-type</var> are:
@@ -99,7 +99,7 @@ the processor type of the compiling machine.  Using <samp>-march=native</samp>
 enables all instruction subsets supported by the local machine (hence
 the result might not run on different machines).  Using <samp>-mtune=native</samp>
 produces code optimized for the local machine under the constraints
-of the selected instruction set.  
+of the selected instruction set.
 </p>
 </dd>
 <dt>&lsquo;<samp>x86-64</samp>&rsquo;</dt>
@@ -349,19 +349,19 @@ SSSE3, SSE4.1, SSE4.2, ABM and 64-bit instruction set extensions.)
 <dt>&lsquo;<samp>bdver2</samp>&rsquo;</dt>
 <dd><p>AMD Family 15h core based CPUs with x86-64 instruction set support.  (This
 supersets BMI, TBM, F16C, FMA, FMA4, AVX, XOP, LWP, AES, PCL_MUL, CX16, MMX,
-SSE, SSE2, SSE3, SSE4A, SSSE3, SSE4.1, SSE4.2, ABM and 64-bit instruction set 
+SSE, SSE2, SSE3, SSE4A, SSSE3, SSE4.1, SSE4.2, ABM and 64-bit instruction set
 extensions.)
 </p></dd>
 <dt>&lsquo;<samp>bdver3</samp>&rsquo;</dt>
 <dd><p>AMD Family 15h core based CPUs with x86-64 instruction set support.  (This
-supersets BMI, TBM, F16C, FMA, FMA4, FSGSBASE, AVX, XOP, LWP, AES, 
-PCL_MUL, CX16, MMX, SSE, SSE2, SSE3, SSE4A, SSSE3, SSE4.1, SSE4.2, ABM and 
+supersets BMI, TBM, F16C, FMA, FMA4, FSGSBASE, AVX, XOP, LWP, AES,
+PCL_MUL, CX16, MMX, SSE, SSE2, SSE3, SSE4A, SSSE3, SSE4.1, SSE4.2, ABM and
 64-bit instruction set extensions.
 </p></dd>
 <dt>&lsquo;<samp>bdver4</samp>&rsquo;</dt>
 <dd><p>AMD Family 15h core based CPUs with x86-64 instruction set support.  (This
-supersets BMI, BMI2, TBM, F16C, FMA, FMA4, FSGSBASE, AVX, AVX2, XOP, LWP, 
-AES, PCL_MUL, CX16, MOVBE, MMX, SSE, SSE2, SSE3, SSE4A, SSSE3, SSE4.1, 
+supersets BMI, BMI2, TBM, F16C, FMA, FMA4, FSGSBASE, AVX, AVX2, XOP, LWP,
+AES, PCL_MUL, CX16, MOVBE, MMX, SSE, SSE2, SSE3, SSE4A, SSSE3, SSE4.1,
 SSE4.2, ABM and 64-bit instruction set extensions.
 </p>
 </dd>
@@ -489,7 +489,7 @@ instruction set support.
 <dt><code>-mtune=<var>cpu-type</var></code></dt>
 <dd><a name="index-mtune-16"></a>
 <p>Tune to <var>cpu-type</var> everything applicable about the generated code, except
-for the ABI and the set of available instructions.  
+for the ABI and the set of available instructions.
 While picking a specific <var>cpu-type</var> schedules things appropriately
 for that particular chip, the compiler does not generate any code that
 cannot run on the default machine type unless you use a
@@ -711,7 +711,7 @@ its ABI specifies that <code>long double</code> is aligned on 16-byte boundary.
 standard of 80 bits for a <code>long double</code>.
 </p>
 <p><strong>Warning:</strong> if you override the default value for your target ABI, this
-changes the size of 
+changes the size of
 structures and arrays containing <code>long double</code> variables,
 as well as modifying the function calling convention for functions taking
 <code>long double</code>.  Hence they are not binary-compatible
@@ -1149,8 +1149,8 @@ these options.
 </dd>
 <dt><code>-mdump-tune-features</code></dt>
 <dd><a name="index-mdump_002dtune_002dfeatures"></a>
-<p>This option instructs GCC to dump the names of the x86 performance 
-tuning features and default settings. The names can be used in 
+<p>This option instructs GCC to dump the names of the x86 performance
+tuning features and default settings. The names can be used in
 <samp>-mtune-ctrl=<var>feature-list</var></samp>.
 </p>
 </dd>
@@ -1159,7 +1159,7 @@ tuning features and default settings. The names can be used in
 <p>This option is used to do fine grain control of x86 code generation features.
 <var>feature-list</var> is a comma separated list of <var>feature</var> names. See also
 <samp>-mdump-tune-features</samp>. When specified, the <var>feature</var> is turned
-on if it is not preceded with &lsquo;<samp>^</samp>&rsquo;, otherwise, it is turned off. 
+on if it is not preceded with &lsquo;<samp>^</samp>&rsquo;, otherwise, it is turned off.
 <samp>-mtune-ctrl=<var>feature-list</var></samp> is intended to be used by GCC
 developers. Using it may lead to code paths not covered by testing and can
 potentially result in compiler ICEs or runtime errors.
@@ -1167,7 +1167,7 @@ potentially result in compiler ICEs or runtime errors.
 </dd>
 <dt><code>-mno-default</code></dt>
 <dd><a name="index-mno_002ddefault"></a>
-<p>This option instructs GCC to turn off all tunable features. See also 
+<p>This option instructs GCC to turn off all tunable features. See also
 <samp>-mtune-ctrl=<var>feature-list</var></samp> and <samp>-mdump-tune-features</samp>.
 </p>
 </dd>
@@ -1333,11 +1333,11 @@ all of the reciprocal approximations, except for square root.
 <dt><code>-mveclibabi=<var>type</var></code></dt>
 <dd><a name="index-mveclibabi-1"></a>
 <p>Specifies the ABI type to use for vectorizing intrinsics using an
-external library.  Supported values for <var>type</var> are &lsquo;<samp>svml</samp>&rsquo; 
+external library.  Supported values for <var>type</var> are &lsquo;<samp>svml</samp>&rsquo;
 for the Intel short
 vector math library and &lsquo;<samp>acml</samp>&rsquo; for the AMD math core library.
 To use this option, both <samp>-ftree-vectorize</samp> and
-<samp>-funsafe-math-optimizations</samp> have to be enabled, and an SVML or ACML 
+<samp>-funsafe-math-optimizations</samp> have to be enabled, and an SVML or ACML
 ABI-compatible library must be specified at link time.
 </p>
 <p>GCC currently emits calls to <code>vmldExp2</code>,
@@ -1355,7 +1355,7 @@ function type when <samp>-mveclibabi=svml</samp> is used, and <code>__vrd2_sin</
 <code>__vrd2_log10</code>, <code>__vrs4_sinf</code>, <code>__vrs4_cosf</code>,
 <code>__vrs4_expf</code>, <code>__vrs4_logf</code>, <code>__vrs4_log2f</code>,
 <code>__vrs4_log10f</code> and <code>__vrs4_powf</code> for the corresponding function type
-when <samp>-mveclibabi=acml</samp> is used.  
+when <samp>-mveclibabi=acml</samp> is used.
 </p>
 </dd>
 <dt><code>-mabi=<var>name</var></code></dt>
@@ -1438,7 +1438,7 @@ on thread-safe exception handling must compile and link all code with the
 <a name="index-mno_002dms_002dbitfields"></a>
 
 <p>Enable/disable bit-field layout compatible with the native Microsoft
-Windows compiler.  
+Windows compiler.
 </p>
 <p>If <code>packed</code> is used on a structure, or if bit-fields are used,
 it may be that the Microsoft ABI lays out the structure differently
@@ -1453,8 +1453,8 @@ or type attributes.  For more information, see <a href="x86-Variable-Attributes.
 and <a href="x86-Type-Attributes.html#x86-Type-Attributes">x86 Type Attributes</a>.
 </p>
 <p>The Microsoft structure layout algorithm is fairly simple with the exception
-of the bit-field packing.  
-The padding and alignment of members of structures and whether a bit-field 
+of the bit-field packing.
+The padding and alignment of members of structures and whether a bit-field
 can straddle a storage-unit boundary are determine by these rules:
 </p>
 <ol>
@@ -1575,8 +1575,8 @@ but GCC doesn&rsquo;t know about it.
 </dd>
 <dt><code>-minline-all-stringops</code></dt>
 <dd><a name="index-minline_002dall_002dstringops"></a>
-<p>By default GCC inlines string operations only when the destination is 
-known to be aligned to least a 4-byte boundary.  
+<p>By default GCC inlines string operations only when the destination is
+known to be aligned to least a 4-byte boundary.
 This enables more inlining and increases code
 size, but may improve performance of code that depends on fast
 <code>memcpy</code>, <code>strlen</code>,
@@ -1617,13 +1617,13 @@ for inlining string operations.  The allowed values for <var>alg</var> are:
 <dd><a name="index-mmemcpy_002dstrategy_003dstrategy"></a>
 <p>Override the internal decision heuristic to decide if <code>__builtin_memcpy</code>
 should be inlined and what inline algorithm to use when the expected size
-of the copy operation is known. <var>strategy</var> 
-is a comma-separated list of <var>alg</var>:<var>max_size</var>:<var>dest_align</var> triplets. 
+of the copy operation is known. <var>strategy</var>
+is a comma-separated list of <var>alg</var>:<var>max_size</var>:<var>dest_align</var> triplets.
 <var>alg</var> is specified in <samp>-mstringop-strategy</samp>, <var>max_size</var> specifies
 the max byte size with which inline algorithm <var>alg</var> is allowed.  For the last
 triplet, the <var>max_size</var> must be <code>-1</code>. The <var>max_size</var> of the triplets
-in the list must be specified in increasing order.  The minimal byte size for 
-<var>alg</var> is <code>0</code> for the first triplet and <code><var>max_size</var> + 1</code> of the 
+in the list must be specified in increasing order.  The minimal byte size for
+<var>alg</var> is <code>0</code> for the first triplet and <code><var>max_size</var> + 1</code> of the
 preceding range.
 </p>
 </dd>

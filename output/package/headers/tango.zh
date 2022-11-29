@@ -127,7 +127,7 @@ int __Tango_SlotDefs[] = {
     0, 1024,  // Starting index and length in __Tango_Buffer
     0, 0,     // X, Y on offscreen bitmap
     256, 512, // Width, height on offscreen bitmap
-    
+
     // 1
     TANGO_SLOT_NORMAL,
     1024, 1024,

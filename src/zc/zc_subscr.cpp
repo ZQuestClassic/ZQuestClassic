@@ -44,48 +44,37 @@ void put_active_subscr(miscQdata *misc, int32_t y, int32_t pos)
 void dosubscr(miscQdata *misc)
 {
     PALETTE temppal;
-    
     if(tmpscr->flags3&fNOSUBSCR)
     {
         return;
     }
-    
     if(usebombpal)
     {
         memcpy(temppal, RAMpal, PAL_SIZE*sizeof(RGB));
         memcpy(RAMpal, tempbombpal, PAL_SIZE*sizeof(RGB));
         refreshpal=true;
     }
-    
     int32_t miny;
     bool showtime = game->should_show_time();
     load_Sitems(misc);
-    
     pause_sfx(WAV_BRANG);
-    
     if(current_item_id(itype_brang)>=0)
         pause_sfx(itemsbuf[current_item_id(itype_brang)].usesound);
-        
     if(current_item_id(itype_hookshot)>=0)
         pause_sfx(itemsbuf[current_item_id(itype_hookshot)].usesound);
-        
     adjust_sfx(QMisc.miscsfx[sfxLOWHEART],128,false);
     adjust_sfx(QMisc.miscsfx[sfxREFILL],128,false);
     adjust_sfx(QMisc.miscsfx[sfxDRAIN],128,false);
-    
     set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
     set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
-    
     //make a copy of the blank playing field on the right side of scrollbuf
     blit(scrollbuf,scrollbuf,0,playing_field_offset,256,0,256,176);
     //make a copy of the complete playing field on the bottom of scrollbuf
     blit(framebuf,scrollbuf,0,playing_field_offset,0,176,256,176);
     miny = 6;
-    
 	bool use_a = get_bit(quest_rules,qr_SELECTAWPN), use_x = get_bit(quest_rules,qr_SET_XBUTTON_ITEMS),
 	     use_y = get_bit(quest_rules,qr_SET_YBUTTON_ITEMS);
 	bool b_only = !(use_a||use_x||use_y);
-	
     //Set the selector to the correct position before bringing up the subscreen -DD
 	{
 		if(Bwpn)
@@ -98,14 +87,12 @@ void dosubscr(miscQdata *misc)
 			Bpos = zc_max(game->ywpn,0);
 		else Bpos = 0;
 	}
-        
     for(int32_t y=176-2; y>=6; y-=3*Hero.subscr_speed)
     {
         do_dcounters();
         Hero.refill();
         //fill in the screen with black to prevent the hall of mirrors effect
         rectfill(framebuf, 0, 0, 255, 223, 0);
-        
         if(COOLSCROLL)
         {
             //copy the playing field back onto the screen
@@ -116,25 +103,19 @@ void dosubscr(miscQdata *misc)
             //scroll the playing field (copy the copy we made)
             blit(scrollbuf,framebuf,256,0,0,176-2-y+passive_subscreen_height,256,y);
         }
-        
         //throw the passive subscreen onto the screen
         put_passive_subscr(framebuf,misc,0,176-2-y,showtime,sspSCROLLING);
         //put the active subscreen above the passive subscreen
         put_active_subscr(misc,y,sspSCROLLING);
-        
         advanceframe(false);
-        
         if(Quit)
             return;
     }
-    
     bool done=false;
-    
     do
     {
 		load_control_state();
 		int32_t pos = Bpos;
-		
 		if(rUp())         Bpos = selectWpn_new(SEL_UP, pos);
 		else if(rDown())  Bpos = selectWpn_new(SEL_DOWN, pos);
 		else if(rLeft())  Bpos = selectWpn_new(SEL_LEFT, pos);
@@ -148,7 +129,7 @@ void dosubscr(miscQdata *misc)
 		}
 		else if(rRbtn() )
 		{
-			if (!get_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP)) 
+			if (!get_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP))
 			{
 				Bpos = selectWpn_new(SEL_RIGHT, pos);
 			}
@@ -189,11 +170,9 @@ void dosubscr(miscQdata *misc)
 				game->ywpn = game->bwpn;
 				directItemY = directItemB;
 			}
-			
 			Bwpn = t;
 			game->forced_bwpn = -1; //clear forced if the item is selected using the actual subscreen
 			if(!b_only) sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
-			
 			game->bwpn = Bpos;
 			directItemB = directItem;
 		}
@@ -218,7 +197,6 @@ void dosubscr(miscQdata *misc)
 				game->ywpn = game->awpn;
 				directItemY = directItemA;
 			}
-			
 			Awpn = t;
 			sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 			game->awpn = Bpos;
@@ -246,7 +224,6 @@ void dosubscr(miscQdata *misc)
 				game->ywpn = game->xwpn;
 				directItemY = directItemX;
 			}
-			
 			Xwpn = t;
 			sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 			game->xwpn = Bpos;
@@ -274,27 +251,21 @@ void dosubscr(miscQdata *misc)
 				game->xwpn = game->ywpn;
 				directItemX = directItemY;
 			}
-			
 			Ywpn = t;
 			sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 			game->ywpn = Bpos;
 			game->forced_ywpn = -1; //clear forced if the item is selected using the actual subscreen
 			directItemY = directItem;
 		}
-        
         if(pos!=Bpos)
             sfx(QMisc.miscsfx[sfxSUBSCR_CURSOR_MOVE]);
-            
         do_dcounters();
         Hero.refill();
-        
         //put_passive_subscr(framebuf,misc,0,174-miny,showtime,true);
         //blit(scrollbuf,framebuf,0,6,0,6-miny,256,168);
         //put_active_subscr(misc,miny,true);
-        
         //fill in the screen with black to prevent the hall of mirrors effect
         rectfill(framebuf, 0, 0, 255, 223, 0);
-        
         if(COOLSCROLL)
         {
             //copy the playing field back onto the screen
@@ -304,36 +275,28 @@ void dosubscr(miscQdata *misc)
         {
             //nothing to do; the playing field has scrolled off the screen
         }
-        
         //throw the passive subscreen onto the screen
         put_passive_subscr(framebuf,misc,0,176-2-miny,showtime,sspDOWN);
         //put the active subscreen above the passive subscreen
         put_active_subscr(misc,miny,sspDOWN);
-        
-        
         advanceframe(false);
-        
         if(NESquit && Up() && cAbtn() && cBbtn())
         {
             down_control_states[btnUp] = true;
             Quit=qQUIT;
         }
-        
         if(Quit)
             return;
-            
         if(rSbtn())
             done=true;
     }
     while(!done);
-    
     for(int32_t y=6; y<=174; y+=3*Hero.subscr_speed)
     {
         do_dcounters();
         Hero.refill();
         //fill in the screen with black to prevent the hall of mirrors effect
         rectfill(framebuf, 0, 0, 255, 223, 0);
-        
         if(COOLSCROLL)
         {
             //copy the playing field back onto the screen
@@ -344,23 +307,19 @@ void dosubscr(miscQdata *misc)
             //scroll the playing field (copy the copy we made)
             blit(scrollbuf,framebuf,256,0,0,176-2-y+passive_subscreen_height,256,y);
         }
-        
         //throw the passive subscreen onto the screen
         put_passive_subscr(framebuf,misc,0,176-2-y,showtime,sspSCROLLING);
         //put the active subscreen above the passive subscreen
         put_active_subscr(misc,y,sspSCROLLING);
         advanceframe(false);
-        
         if(Quit)
             return;
     }
-    
     //  Sitems.clear();
     if(usebombpal)
     {
         memcpy(RAMpal, temppal, PAL_SIZE*sizeof(RGB));
     }
-    
     resume_sfx(WAV_BRANG);
 }
 
@@ -374,13 +333,10 @@ void markBmap(int32_t dir, int32_t sc)
     {
         return;
     }
-    
     byte drow = DMaps[get_currdmap()].grid[sc>>4];
     byte mask = 1 << (7-((sc&15)-DMaps[get_currdmap()].xoff));
     int32_t di = (get_currdmap() << 7) + (sc & 0x7F); //+ ((sc&0xF)-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff));
     int32_t code = 0;
-    
-    
     switch((DMaps[get_currdmap()].type&dmfTYPE))
     {
     case dmDNGN:
@@ -389,31 +345,25 @@ void markBmap(int32_t dir, int32_t sc)
 			// check dmap
 			if((drow&mask)==0) //Only squares marked in dmap editor can be charted
 				return;
-				
 			// calculate code
 			for(int32_t i=3; i>=0; i--)
 			{
 				code <<= 1;
 				code += tmpscr->door[i]&1; //Mark directions only for sides that have the door state set
 			}
-			
 			// mark the map
 			game->bmaps[di] = code|128;
 		}
 		else goto bmaps_default;
         break;
-        
     case dmOVERW:
 		if(get_bit(quest_rules, qr_NO_OVERWORLD_MAP_CHARTING))
 			break;
-        
     default:
 	bmaps_default:
         game->bmaps[di] |= 128;
-        
         if(dir>=0)
             game->bmaps[di] |= (1<<dir);
-            
         break;
     }
 }

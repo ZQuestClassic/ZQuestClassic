@@ -87,14 +87,14 @@ Next: <a href="Extended-Asm.html#Extended-Asm" accesskey="n" rel="next">Extended
 
 <p>The <code>asm</code> keyword is a GNU extension.
 When writing code that can be compiled with <samp>-ansi</samp> and the
-various <samp>-std</samp> options, use <code>__asm__</code> instead of 
+various <samp>-std</samp> options, use <code>__asm__</code> instead of
 <code>asm</code> (see <a href="Alternate-Keywords.html#Alternate-Keywords">Alternate Keywords</a>).
 </p>
 <a name="Qualifiers-1"></a>
 <h4 class="subsubheading">Qualifiers</h4>
 <dl compact="compact">
 <dt><code>volatile</code></dt>
-<dd><p>The optional <code>volatile</code> qualifier has no effect. 
+<dd><p>The optional <code>volatile</code> qualifier has no effect.
 All basic <code>asm</code> blocks are implicitly volatile.
 </p>
 </dd>
@@ -108,17 +108,17 @@ of the <code>asm</code> statement is taken as the smallest size possible (see <a
 <h4 class="subsubheading">Parameters</h4>
 <dl compact="compact">
 <dt><var>AssemblerInstructions</var></dt>
-<dd><p>This is a literal string that specifies the assembler code. The string can 
-contain any instructions recognized by the assembler, including directives. 
-GCC does not parse the assembler instructions themselves and 
-does not know what they mean or even whether they are valid assembler input. 
+<dd><p>This is a literal string that specifies the assembler code. The string can
+contain any instructions recognized by the assembler, including directives.
+GCC does not parse the assembler instructions themselves and
+does not know what they mean or even whether they are valid assembler input.
 </p>
-<p>You may place multiple assembler instructions together in a single <code>asm</code> 
-string, separated by the characters normally used in assembly code for the 
-system. A combination that works in most places is a newline to break the 
+<p>You may place multiple assembler instructions together in a single <code>asm</code>
+string, separated by the characters normally used in assembly code for the
+system. A combination that works in most places is a newline to break the
 line, plus a tab character (written as &lsquo;<samp>\n\t</samp>&rsquo;).
-Some assemblers allow semicolons as a line separator. However, 
-note that some assembler dialects use semicolons to start a comment. 
+Some assemblers allow semicolons as a line separator. However,
+note that some assembler dialects use semicolons to start a comment.
 </p></dd>
 </dl>
 
@@ -144,24 +144,24 @@ with the <code>naked</code> attribute also require basic <code>asm</code>
 (see <a href="Function-Attributes.html#Function-Attributes">Function Attributes</a>).
 </li></ul>
 
-<p>Safely accessing C data and calling functions from basic <code>asm</code> is more 
-complex than it may appear. To access C data, it is better to use extended 
+<p>Safely accessing C data and calling functions from basic <code>asm</code> is more
+complex than it may appear. To access C data, it is better to use extended
 <code>asm</code>.
 </p>
-<p>Do not expect a sequence of <code>asm</code> statements to remain perfectly 
-consecutive after compilation. If certain instructions need to remain 
+<p>Do not expect a sequence of <code>asm</code> statements to remain perfectly
+consecutive after compilation. If certain instructions need to remain
 consecutive in the output, put them in a single multi-instruction <code>asm</code>
-statement. Note that GCC&rsquo;s optimizers can move <code>asm</code> statements 
+statement. Note that GCC&rsquo;s optimizers can move <code>asm</code> statements
 relative to other code, including across jumps.
 </p>
-<p><code>asm</code> statements may not perform jumps into other <code>asm</code> statements. 
-GCC does not know about these jumps, and therefore cannot take 
-account of them when deciding how to optimize. Jumps from <code>asm</code> to C 
+<p><code>asm</code> statements may not perform jumps into other <code>asm</code> statements.
+GCC does not know about these jumps, and therefore cannot take
+account of them when deciding how to optimize. Jumps from <code>asm</code> to C
 labels are only supported in extended <code>asm</code>.
 </p>
-<p>Under certain circumstances, GCC may duplicate (or remove duplicates of) your 
-assembly code when optimizing. This can lead to unexpected duplicate 
-symbol errors during compilation if your assembly code defines symbols or 
+<p>Under certain circumstances, GCC may duplicate (or remove duplicates of) your
+assembly code when optimizing. This can lead to unexpected duplicate
+symbol errors during compilation if your assembly code defines symbols or
 labels.
 </p>
 <p><strong>Warning:</strong> The C standards do not specify semantics for <code>asm</code>,
@@ -183,17 +183,17 @@ with extended <code>asm</code>.  See
 from basic asm to extended asm</a> for information about how to perform this
 conversion.
 </p>
-<p>The compiler copies the assembler instructions in a basic <code>asm</code> 
-verbatim to the assembly language output file, without 
+<p>The compiler copies the assembler instructions in a basic <code>asm</code>
+verbatim to the assembly language output file, without
 processing dialects or any of the &lsquo;<samp>%</samp>&rsquo; operators that are available with
-extended <code>asm</code>. This results in minor differences between basic 
-<code>asm</code> strings and extended <code>asm</code> templates. For example, to refer to 
+extended <code>asm</code>. This results in minor differences between basic
+<code>asm</code> strings and extended <code>asm</code> templates. For example, to refer to
 registers you might use &lsquo;<samp>%eax</samp>&rsquo; in basic <code>asm</code> and
 &lsquo;<samp>%%eax</samp>&rsquo; in extended <code>asm</code>.
 </p>
 <p>On targets such as x86 that support multiple assembler dialects,
-all basic <code>asm</code> blocks use the assembler dialect specified by the 
-<samp>-masm</samp> command-line option (see <a href="x86-Options.html#x86-Options">x86 Options</a>).  
+all basic <code>asm</code> blocks use the assembler dialect specified by the
+<samp>-masm</samp> command-line option (see <a href="x86-Options.html#x86-Options">x86 Options</a>).
 Basic <code>asm</code> provides no
 mechanism to provide different assembler strings for different dialects.
 </p>

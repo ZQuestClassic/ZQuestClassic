@@ -50,13 +50,13 @@ ffc script HardhatBeetle
                     knockbackCounter = 0;
             }
 
-            //Chase Link         
+            //Chase Link
             else
             {
                 if(ss < maxStep)
                 {
                     counter = (counter + 1)%24;
-                    if(counter==0) 
+                    if(counter==0)
                         ss = Clamp(ss+(maxStep-minStep)/24, minStep, maxStep);
                 }
                 int angle = Angle(Ghost_X, Ghost_Y, Link->X, Link->Y);

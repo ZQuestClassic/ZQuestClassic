@@ -20,11 +20,11 @@ const int EZBF_KNOCKBACK    = 100000000b;
 ffc script EZBoss{
 	void run(int enemyid){
 		int i; int j; int k; int angle; int dist; int x; int y;
-		
+
 		npc ghost = Ghost_InitAutoGhost(this, enemyid);
 		Ghost_SetFlag(GHF_STUN);
 		Ghost_SetFlag(GHF_CLOCK);
-		
+
 		int movementStyle = ghost->Attributes[0];
 		int attack1 = ghost->Attributes[1];
 		int attack2 = ghost->Attributes[2];
@@ -34,17 +34,17 @@ ffc script EZBoss{
 		int fireSFX = ghost->Attributes[7];
 		int fireSPR = ghost->Attributes[8];
 		int flags = ghost->Attributes[9];
-		
+
 		int w = size&1111b;
 		int h = (size>>4)&1111b;
 		if(h==0)
 			h = w;
 		w = Clamp(w, 1, 4);
 		h = Clamp(h, 1, 4);
-			
+
 		int combo = ghost->Attributes[10];
 		Ghost_Transform(this, ghost, -1, -1, w, h);
-		
+
 		if(flags&EZBF_8WAY)
 			Ghost_SetFlag(GHF_8WAY);
 		else if(flags&EZBF_4WAY)
@@ -62,18 +62,18 @@ ffc script EZBoss{
 		if(flags&EZBF_KNOCKBACK){
 			Ghost_SetFlag(GHF_KNOCKBACK);
 		}
-		
+
 		int stepCounter = -1;
 		int attackCooldown = ghost->Haltrate*10;
 		int stepAngle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
 		int vX; int vY;
-		
+
 		if(movementStyle==4){
 			angle = Rand(360);
 			vX = VectorX(ghost->Step/100, angle);
 			vY = VectorY(ghost->Step/100, angle);
 		}
-		
+
 		while(true){
 			bool attackCond = false;
 			//Handle Movement
@@ -112,7 +112,7 @@ ffc script EZBoss{
 					vX = -vX;
 				if((vY<0&&!Ghost_CanMove(DIR_UP, 1, 0)) || (vY>0&&!Ghost_CanMove(DIR_DOWN, 1, 0)))
 					vY = -vY;
-					
+
 				Ghost_Dir = EZB_AngleDir(this, ghost, Angle(0, 0, vX*10, vY*10));
 				if(flags&EZBF_FACELINK)
 					EZB_FaceLink(this, ghost);
@@ -126,12 +126,12 @@ ffc script EZBoss{
 				Ghost_Dir = EZB_AngleDir(this, ghost, stepAngle);
 				if(flags&EZBF_FACELINK)
 					EZB_FaceLink(this, ghost);
-					
+
 				if(attackCooldown>0)
 					attackCooldown--;
 				else if(Rand(24)==0)
 					attackCond = true;
-					
+
 				stepCounter++;
 				if(stepCounter>80&&Rand(10)==0){
 					stepAngle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
@@ -148,7 +148,7 @@ ffc script EZBoss{
 					vX = -vX;
 				if((vY<0&&!Ghost_CanMove(DIR_UP, 1, 0)) || (vY>0&&!Ghost_CanMove(DIR_DOWN, 1, 0)))
 					vY = -vY;
-					
+
 				Ghost_Dir = EZB_AngleDir(this, ghost, Angle(0, 0, vX*10, vY*10));
 				if(flags&EZBF_FACELINK)
 					EZB_FaceLink(this, ghost);
@@ -178,7 +178,7 @@ ffc script EZBoss{
 				if(Rand(ghost->Rate)==0)
 					attackCond = true;
 			}
-			
+
 			if(attackCond&&attack1){
 				//Select an attack
 				int attack;
@@ -188,7 +188,7 @@ ffc script EZBoss{
 					attack = Choose(attack1, attack2);
 				else
 					attack = Choose(attack1, attack2, attack3);
-			
+
 				if(attack==1){ //Dash
 					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
 					EZB_FaceLink(this, ghost);
@@ -565,7 +565,7 @@ ffc script EZBoss{
 					}
 				}
 				Ghost_Data = combo;
-				
+
 				attackCooldown = ghost->Haltrate*10;
 				if(movementStyle==4){ //Wall bounce
 					angle = Rand(360);
@@ -637,7 +637,7 @@ ffc script EZBoss{
 			wflags |= EWF_UNBLOCKABLE;
 		if(type==EW_BEAM||type==EW_ARROW||type==EW_MAGIC||type==EW_BOMB||type==EW_SBOMB)
 			wflags |= EWF_ROTATE;
-			
+
 		int fireSFX = ghost->Attributes[7];
 		int fireSPR = ghost->Attributes[8];
 		int sfx = fireSFX;
@@ -646,7 +646,7 @@ ffc script EZBoss{
 		int spr = fireSPR;
 		if(fireSPR<=0)
 			spr = -1;
-			
+
 		eweapon e = FireEWeapon(type, x, y, DegtoRad(angle), step, ghost->WeaponDamage, spr, sfx, wflags);
 		return e;
 	}
@@ -658,7 +658,7 @@ ffc script EZBoss{
 			h = w;
 		w = Clamp(w, 1, 4);
 		h = Clamp(h, 1, 4);
-		
+
 		Game->PlaySound(SFX_EZB_TELEPORT);
 		int tc;
 		ghost->CollDetection = false;
@@ -690,7 +690,7 @@ ffc script EZBoss{
 		}
 		ghost->DrawYOffset = -2;
 		ghost->CollDetection = true;
-	}	
+	}
 	int EZB_AngleDir(ffc this, npc ghost, int angle){
 		int flags = ghost->Attributes[9];
 		if(flags&EZBF_8WAY)

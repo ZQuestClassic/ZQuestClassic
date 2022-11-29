@@ -12,7 +12,7 @@ namespace Emily
 	typedef const long DEFINEL;
 	typedef const long CONFIGL;
 	typedef const bool CONFIGB;
-	
+
 	//start Directional Functions
 	/**
 	* Returns 1 if the dir is rightward, -1 if leftward, 0 if neither
@@ -178,7 +178,7 @@ namespace Emily
 		}
 		return dir;
 	} //end
-	
+
 	/**
 	* Flip a dir horizontally
 	*/
@@ -212,13 +212,13 @@ namespace Emily
 		return dir;
 	} //end
 	//end Directional Functions
-	
+
 	//start CanWalkM
 	/** If true, then calling CanWalkM with the current screen's mapdata will use `Screen->` instead of the provided `mapdata->` */
 	CONFIGB MAPDATA_USECURSCREEN = true;
 	//start Standard (only checks ahead)
 	/**
-	* This function (and set of overloads) acts as CanWalk, but uses an arbitrary 
+	* This function (and set of overloads) acts as CanWalk, but uses an arbitrary
 	*      `mapdata` pointer for solidity, rather than the current screen.
 	* Related: `CurMapdata()`
 	*/
@@ -271,7 +271,7 @@ namespace Emily
 		}
 		return false; //invalid direction
 	}
-	
+
 	//Current Screen
 	bool CanWalkS(int x, int y, int xx, int yy, int dir, int step)
 	{
@@ -343,7 +343,7 @@ namespace Emily
 		}
 		return false; //invalid direction
 	}
-	
+
 	//Current Screen
 	bool CanWalkSFull(int x, int y, int xx, int yy, int dir, int step)
 	{
@@ -366,7 +366,7 @@ namespace Emily
 	}
 	//end Full
 	//end CanWalkM
-	
+
 	/**
 	* Returns a mapdata pointer to the current screen (Perm version).
 	*/
@@ -374,7 +374,7 @@ namespace Emily
 	{
 		return Game->LoadMapData(Game->GetCurMap(), Game->GetCurScreen());
 	} //end
-	
+
 	/**
 	* Returns a mapdata pointer to the specified layer of the given pointer.
 	* Will be perm version unless 'Game->LoadTempScreen(0)' is provided, in which case
@@ -405,7 +405,7 @@ namespace Emily
 	{
 		return deltay / Sin(angle);
 	} //end
-	
+
 	//start Collsion Functions
 	/**
 	 * Checks if the given rectangle and triangle collide
@@ -424,7 +424,7 @@ namespace Emily
 			|| lineRectIntersect(tx1,ty1,tx3,ty3,left,right,top,bottom)
 			|| lineRectIntersect(tx3,ty3,tx2,ty2,left,right,top,bottom);
 	}
-	
+
 	/**
 	 * Checks if the given triangle collides with Hero, using Hero->BigHitbox's setting
 	 */
@@ -432,7 +432,7 @@ namespace Emily
 	{
 		return HeroTriangleCollision(tx1, ty1, tx2, ty2, tx3, ty3, Hero->BigHitbox);
 	}
-	
+
 	/**
 	 * Checks if the given triangle collides with Hero, with an option for bigHitbox
 	 */
@@ -440,7 +440,7 @@ namespace Emily
 	{
 		return TriangleRectCollision(tx1, ty1, tx2, ty2, tx3, ty3, Hero->X, bigHitbox ? Hero->Y : Hero->Y + 8, Hero->X + 15, Hero->Y + 15);
 	}
-	
+
 	/**
 	 * Returns true if the line specified by points (x1,y1), (x2,y2) intersects with the rectangle defined by (left,right,top,bottom)
 	 * Based on: https://seblee.me/2009/05/super-fast-trianglerectangle-intersection-test/
@@ -455,10 +455,10 @@ namespace Emily
 		}
 		int m = (y2-y1) / (x2-x1); //Slope
 		int b = y1 - (m*x1); //Y-intercept
-		
+
 		//Declare some vars
 		int top_intersect, bot_intersect;
-		
+
 		if(m>0) //For a positive slope, the top intersect is on the left
 		{
 			top_intersect = m*left + b;
@@ -469,13 +469,13 @@ namespace Emily
 			top_intersect = m*right + b;
 			bot_intersect = m*left + b;
 		}
-		
+
 		int top_overlap = Max(top_intersect,top_line);
 		int bot_overlap = Min(bot_intersect,bot_line);
-		
+
 		return (top_overlap<bot_overlap) && (!((bot_overlap<top) || (top_overlap>bottom)));
 	}
-	
+
 	/**
 	 * Returns true if a point (px,py) is within the triangle defined by (x1,y1), (x2,y2), (x3,y3)
 	 */
@@ -491,7 +491,7 @@ namespace Emily
 		return a1 + a2 + a3 == triangleArea;
 	}
 	//end
-	
+
 	/**
 	 * My attempt at a solid FFC function. Call `ffcSolid(ffc)` each frame to make the ffc solid.
 	 * This is not fully tested.
@@ -555,7 +555,7 @@ namespace Emily
 			return;
 		}//end
 	}//end
-	
+
 	/**
 	 * Returns true if Hero is scrolling, or about to begin scrolling. Any scripted draws intended to not draw during scrolling should run only if this returns false.
 	 * Due to variance with Hero's movement (1 or 2 pixels), this may sometimes return true extraneously.
@@ -568,7 +568,7 @@ namespace Emily
 			|| (Hero->Y <= 1 && Input->Button[CB_UP] && CanScrollInDir(DIR_UP))
 			|| (Hero->Y >= 159 && Input->Button[CB_DOWN] && CanScrollInDir(DIR_DOWN));
 	} //end
-	
+
 	/**
 	 * Returns true if Hero is scrolling, or about to begin scrolling. Any scripted draws intended to not draw during scrolling should run only if this returns false.
 	 * Due to variance with Hero's movement (1 or 2 pixels), this may sometimes return true extraneously.
@@ -577,7 +577,7 @@ namespace Emily
 	{
 		return Hero->IsWarping || HeroIsScrolling();
 	}
-	
+
 	/**
 	 * Returns true if scrolling in a particular direction from this screen is valid. This checks for the edge of the map, respecting sidewarps.
 	 */
@@ -598,7 +598,7 @@ namespace Emily
 		}
 		return false;
 	} //end
-	
+
 	/**
 	 * Returns the X-offset to add to a sprite's coordinate to be directly in front of it, by 'dist' pixels of them
 	 */
@@ -615,7 +615,7 @@ namespace Emily
 				return 15+dist;
 		}
 	} //end
-	
+
 	/**
 	 * Returns the Y-offset to add to a sprite's coordinate to be directly in front of it, by 'dist' pixels of them
 	 */
@@ -632,7 +632,7 @@ namespace Emily
 				return 8;
 		}
 	} //end
-	
+
 	/**
 	 * Zeroes all movement factors of an FFC
 	 */
@@ -641,7 +641,7 @@ namespace Emily
 		f->Vx = 0; f->Vy = 0;
 		f->Ax = 0; f->Ay = 0;
 	} //end
-	
+
 	//start Drawing Functions
 
 	//As the name of the function implies, this was stolen from Moosh.
@@ -655,7 +655,7 @@ namespace Emily
 			h = blockh*16;
 		Screen->DrawTile(layer, cx-w/2, cy-h/2, tile, blockw, blockh, cset, xscale, yscale, rx-w/2, ry-h/2, rangle, flip, transparency, opacity);
 	} //end
-	
+
 	/**
 	 * Colors the entire screen. bool subscrArea determines if the passive
 	 *     subscreen should be included.
@@ -664,7 +664,7 @@ namespace Emily
 	{
 		Screen->Rectangle(layer,0,subscrArea?-56:0,255,175,color,1,0,0,0,true,OP_OPAQUE);
 	} //end
-	
+
 	/**
 	 * This will work as DrawString, but, it can draw over multiple vertical lines.
 	 * Text over the Max Width, as well as newline characters ('\n'), will break to the next line.
@@ -799,7 +799,7 @@ namespace Emily
 		}
 	} //end
 
-	
+
 	/**
 	 * This will work as DrawString, but, it can draw over multiple vertical lines.
 	 * Text over the Max Width, as well as newline characters ('\n'), will break to the next line.
@@ -934,7 +934,7 @@ namespace Emily
 			y+=fontHeight+verticalSpacing;
 		}
 	} //end
-	
+
 	/**
 	 * Same as DrawStrings, but, does not draw anything.
 	 * Returns the number of lines that DrawStrings would use.
@@ -1066,295 +1066,295 @@ namespace Emily
 			case FONT_Z1:
 				strcpy(buf, "Zelda NES");
 				break;
-				
+
 			case FONT_Z3:
 				strcpy(buf, "Link to the Past");
 				break;
-				
+
 			case FONT_Z3SMALL:
 				strcpy(buf, "LttP Small");
 				break;
-				
+
 			case FONT_DEF:
 				strcpy(buf, "Allegro Default");
 				break;
-				
+
 			case FONT_L:
 				strcpy(buf, "GUI Font Bold");
 				break;
-				
+
 			case FONT_L2:
 				strcpy(buf, "GUI Font");
 				break;
-				
+
 			case FONT_P:
 				strcpy(buf, "GUI Font Narrow");
 				break;
-				
+
 			case FONT_MATRIX:
 				strcpy(buf, "Zelda NES (Matrix)");
 				break;
-				
+
 			case FONT_ZTIME:
 				strcpy(buf, "BS Time (Incomplete)");
 				break;
-				
+
 			case FONT_S:
 				strcpy(buf, "Small");
 				break;
-				
+
 			case FONT_S2:
 				strcpy(buf, "Small 2");
 				break;
-				
+
 			case FONT_SP:
 				strcpy(buf, "S. Proportional");
 				break;
-				
+
 			case FONT_SUBSCREEN1:
 				strcpy(buf, "SS 1 (Numerals)");
 				break;
-				
+
 			case FONT_SUBSCREEN2:
 				strcpy(buf, "SS 2 (Incomplete)");
 				break;
-				
+
 			case FONT_SUBSCREEN3:
 				strcpy(buf, "SS 3");
 				break;
-				
+
 			case FONT_SUBSCREEN4:
 				strcpy(buf, "SS 4 (Numerals)");
 				break;
-				
+
 			case FONT_LA:
 				strcpy(buf, "Link's Awakening");
 				break;
-				
+
 			case FONT_GORON:
 				strcpy(buf, "Goron");
 				break;
-				
+
 			case FONT_ZORAN:
 				strcpy(buf, "Zoran");
 				break;
-				
+
 			case FONT_HYLIAN1:
 				strcpy(buf, "Hylian 1");
 				break;
-				
+
 			case FONT_HYLIAN2:
 				strcpy(buf, "Hylian 2");
 				break;
-				
+
 			case FONT_HYLIAN3:
 				strcpy(buf, "Hylian 3");
 				break;
-				
+
 			case FONT_HYLIAN4:
 				strcpy(buf, "Hylian 4");
 				break;
-				
+
 			case FONT_GBORACLE:
 				strcpy(buf, "Oracle");
 				break;
-				
+
 			case FONT_GBORACLEP:
 				strcpy(buf, "Oracle Proportional");
 				break;
-				
+
 			case FONT_DSPHANTOM:
 				strcpy(buf, "Phantom");
 				break;
-				
+
 			case FONT_DSPHANTOMP:
 				strcpy(buf, "Phantom Proportional");
 				break;
-				
+
 			case FONT_ATARI800:
 				strcpy(buf, "Atari 800");
 				break;
-				
+
 			case FONT_ACORN:
 				strcpy(buf, "Acorn");
 				break;
-				
+
 			case FONT_ADOS:
 				strcpy(buf, "ADOS");
 				break;
-				
+
 			case FONT_ALLEGRO:
 				strcpy(buf, "Allegro");
 				break;
-				
+
 			case FONT_APPLE2:
 				strcpy(buf, "Apple II");
 				break;
-				
+
 			case FONT_APPLE2_80COL:
 				strcpy(buf, "Apple II 80 Column");
 				break;
-				
+
 			case FONT_APPLE2GS:
 				strcpy(buf, "Apple IIgs");
 				break;
-				
+
 			case FONT_AQUARIUS:
 				strcpy(buf, "Aquarius");
 				break;
-				
+
 			case FONT_ATARI400:
 				strcpy(buf, "Atari 400");
 				break;
-				
+
 			case FONT_C64:
 				strcpy(buf, "C64");
 				break;
-				
+
 			case FONT_C64_HIRES:
 				strcpy(buf, "C64 HiRes");
 				break;
-				
+
 			case FONT_CGA:
 				strcpy(buf, "IBM CGA");
 				break;
-				
+
 			case FONT_COCO:
 				strcpy(buf, "COCO Mode I");
 				break;
-				
+
 			case FONT_COCO2:
 				strcpy(buf, "COCO Mode II");
 				break;
-				
+
 			case FONT_COUPE:
 				strcpy(buf, "Coupe");
 				break;
-				
+
 			case FONT_CPC:
 				strcpy(buf, "Amstrad CPC");
 				break;
-				
+
 			case FONT_FANTASY:
 				strcpy(buf, "Fantasy Letters");
 				break;
-				
+
 			case FONT_FDS_KANA:
 				strcpy(buf, "FDS Katakana");
 				break;
-				
+
 			case FONT_FDSLIKE:
 				strcpy(buf, "FDSesque");
 				break;
-				
+
 			case FONT_FDS_ROMAN:
 				strcpy(buf, "FDS Roman");
 				break;
-				
+
 			case FONT_FF:
 				strcpy(buf, "FF");
 				break;
-				
+
 			case FONT_FUTHARK:
 				strcpy(buf, "Elder Futhark");
 				break;
-				
+
 			case FONT_GAIA:
 				strcpy(buf, "Gaia");
 				break;
-				
+
 			case FONT_HIRA:
 				strcpy(buf, "Hira");
 				break;
-				
+
 			case FONT_JP:
 				strcpy(buf, "JP Unsorted");
 				break;
-				
+
 			case FONT_KONG:
 				strcpy(buf, "Kong");
 				break;
-				
+
 			case FONT_MANA:
 				strcpy(buf, "Mana");
 				break;
-				
+
 			case FONT_MARIOLAND:
 				strcpy(buf, "Mario");
 				break;
-				
+
 			case FONT_MOT:
 				strcpy(buf, "Mot CPU");
 				break;
-				
+
 			case FONT_MSX0:
 				strcpy(buf, "MSX Mode 0");
 				break;
-				
+
 			case FONT_MSX1:
 				strcpy(buf, "MSX Mode 1");
 				break;
-				
+
 			case FONT_PET:
 				strcpy(buf, "PET");
 				break;
-				
+
 			case FONT_PSTART:
 				strcpy(buf, "Homebrew");
 				break;
-				
+
 			case FONT_SATURN:
 				strcpy(buf, "Mr. Saturn");
 				break;
-				
+
 			case FONT_SCIFI:
 				strcpy(buf, "Sci-Fi");
 				break;
-				
+
 			case FONT_SHERWOOD:
 				strcpy(buf, "Sherwood");
 				break;
-				
+
 			case FONT_SINQL:
 				strcpy(buf, "Sinclair QL");
 				break;
-				
+
 			case FONT_SPECTRUM:
 				strcpy(buf, "Spectrum");
 				break;
-				
+
 			case FONT_SPECTRUM_LG:
 				strcpy(buf, "Spectrum Large");
 				break;
-				
+
 			case FONT_TI99:
 				strcpy(buf, "TI99");
 				break;
-				
+
 			case FONT_TRS:
 				strcpy(buf, "TRS");
 				break;
-				
+
 			case FONT_Z2:
 				strcpy(buf, "Zelda 2");
 				break;
-				
+
 			case FONT_LISA:
 				strcpy(buf, "Lisa");
 				break;
-			
+
 			default:
 				strcpy(buf, "Unknown Font");
 				break;
 		}
 	} //end
-	
+
 	void colorscr_txt(int color, int txtcolor, int font, char32 buf, bool hidesubscr) //start
 	{
 		Screen->Rectangle(7, 0, hidesubscr ? -56 : 0, 256, 168, color, 1, 0, 0, 0, true, OP_OPAQUE);
 		DrawStrings(7, 128, ((224-Text->FontHeight(font))/2)-56, font, txtcolor, color, TF_CENTERED, buf, OP_OPAQUE, 2, 256);
 	} //end
-	
+
 	bitmap create(int w, int h) //start
 	{
 		if(Game->FFRules[qr_OLDCREATEBITMAP_ARGS])
@@ -1362,7 +1362,7 @@ namespace Emily
 		else
 			return Game->CreateBitmap(w, h);
 	} //end
-	
+
 	//start Fancy screenshot thing
 	DEFINE SCRNSHOT_DMAP = 511;
 	DEFINE SYS_WHITE = 0xF5, SYS_BLACK = 0xE0;
@@ -1519,7 +1519,7 @@ namespace Emily
 		bool msgfrz = Game->FFRules[qr_MSGFREEZE];
 		Game->FFRules[qr_MSGFREEZE] = false;
 		bitmap b = create(256*16,176*8);
-		
+
 		for(int map = 1; map <= Game->MapCount(); ++map)
 		{
 			dm->Map = map;
@@ -1636,7 +1636,7 @@ namespace Emily
 	} //end
 	//end
 
-	
+
 	/**
 	 * As memmove(), but with a larger buffer
 	 */

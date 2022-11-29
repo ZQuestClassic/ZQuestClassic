@@ -13,10 +13,10 @@ namespace script log
 	{
 		print("Testing %s\n","log.print()");
 		print("Test Number: %d\n",1);
-		
+
 		print("Testing %s, %s \n","log.print()","with iteration.");
 		print("Test %s %d \n","Number: ",2);
-		
+
 	}
 
 void print(int s, int v) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
@@ -29,11 +29,11 @@ void print(int s, int v) //what if we use an array literal for the inputs?. No, 
 		++buffer_pos; //we increment both iterators
 	}
 	//Now, we found an insertion token, so insert it
-	
+
 		//if ( s[string_pos] != '%' ) //copy the buffer text over to the buffer, until we find our token
 		//{
 		//	main_buf[buffer_pos] = s[string_pos];
-		//	++buffer_pos; 
+		//	++buffer_pos;
 		//}
 		//else //found a special token
 		//{
@@ -48,15 +48,15 @@ void print(int s, int v) //what if we use an array literal for the inputs?. No, 
 			{
 				main_buf[buffer_pos] = v[q]; 	//copy the string passed as a param
 								//over to the buffer
-				++buffer_pos; 
+				++buffer_pos;
 			}
-			
+
 			//main_buf[buffer_pos+q+1] = ' '; //add a trailing space
 			//++buffer_pos; //set up the buffer for the next char
 			++string_pos;
 			++string_pos;
 			break;
-				
+
 		}
 		case 'F':
 		case 'f':
@@ -80,7 +80,7 @@ void print(int s, int v) //what if we use an array literal for the inputs?. No, 
 		case 'D':
 		case 'd':
 		{
-			//++buffer_pos; 
+			//++buffer_pos;
 			//main_buf[buffer_pos+q+1] = ' '; //add a trailing space
 			int f_val[12];
 			itoa(f_val,v);
@@ -108,7 +108,7 @@ void print(int s, int v) //what if we use an array literal for the inputs?. No, 
 	//main_buf[buffer_pos+1] = '\n'; Put this in the string!
         TraceS(main_buf); //TraceNL();
 }
-    
+
 void print(int s, int v1, int v2) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
 {
 	int main_buf[2048];
@@ -118,12 +118,12 @@ void print(int s, int v1, int v2) //what if we use an array literal for the inpu
 		main_buf[buffer_pos] = s[string_pos];
 		++buffer_pos;
 	}
-	
+
 	int values[]={v1,v2};
 	int sz = 2;
 	int val_index = 0;
-	
-	do 
+
+	do
 	{
 		++string_pos;
 		//TraceS("Val index is: "); Trace(val_index); TraceNL();
@@ -141,12 +141,12 @@ void print(int s, int v1, int v2) //what if we use an array literal for the inpu
 					//values[val_index[q]]; 	//copy the string passed as a param
 									//over to the buffer
 					++buffer_pos;
-					
+
 				}
 				++string_pos;
 				++string_pos;
 				break;
-					
+
 			}
 			case 'F':
 			case 'f':
@@ -176,7 +176,7 @@ void print(int s, int v1, int v2) //what if we use an array literal for the inpu
 				//TraceS(f_val);
 				++string_pos;
 				++string_pos;
-				
+
 				break;
 
 			}
@@ -194,13 +194,13 @@ void print(int s, int v1, int v2) //what if we use an array literal for the inpu
 		++val_index; //increase for overloads
 		//we are on a token of %
 		//++string_pos; //stop forward to the char after %
-		
+
 	}while(val_index < sz);
 	//}while((s[string_pos])); //until we reach null in the main buffer
-	
+
         TraceS(main_buf); //TraceNL();
 }
-        
+
 void print(int s, int v1, int v2, int v3) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
 {
 	int main_buf[2048];
@@ -210,12 +210,12 @@ void print(int s, int v1, int v2, int v3) //what if we use an array literal for 
 		main_buf[buffer_pos] = s[string_pos];
 		++buffer_pos;
 	}
-	
+
 	int values[]={v1,v2,v3};
 	int sz = 3;
 	int val_index = 0;
-	
-	do 
+
+	do
 	{
 		++string_pos;
 		switch(s[string_pos])
@@ -231,12 +231,12 @@ void print(int s, int v1, int v2, int v3) //what if we use an array literal for 
 					//values[val_index[q]]; 	//copy the string passed as a param
 									//over to the buffer
 					++buffer_pos;
-					
+
 				}
 				++string_pos;
 				++string_pos;
 				break;
-					
+
 			}
 			case 'F':
 			case 'f':
@@ -266,7 +266,7 @@ void print(int s, int v1, int v2, int v3) //what if we use an array literal for 
 				//TraceS(f_val);
 				++string_pos;
 				++string_pos;
-				
+
 				break;
 
 			}
@@ -282,11 +282,11 @@ void print(int s, int v1, int v2, int v3) //what if we use an array literal for 
 		}
 		++val_index; //increase for overloads
 		//we are on a token of %
-		
+
 	}while(val_index < sz);
         TraceS(main_buf); //TraceNL();
 }
-            
+
 void print(int s, int v1, int v2, int v3, int v4) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
 {
 	int main_buf[2048];
@@ -296,12 +296,12 @@ void print(int s, int v1, int v2, int v3, int v4) //what if we use an array lite
 		main_buf[buffer_pos] = s[string_pos];
 		++buffer_pos;
 	}
-	
+
 	int values[]={v1,v2,v3,v4};
 	int sz = 4;
 	int val_index = 0;
-	
-	do 
+
+	do
 	{
 		++string_pos;
 		switch(s[string_pos])
@@ -317,12 +317,12 @@ void print(int s, int v1, int v2, int v3, int v4) //what if we use an array lite
 					//values[val_index[q]]; 	//copy the string passed as a param
 									//over to the buffer
 					++buffer_pos;
-					
+
 				}
 				++string_pos;
 				++string_pos;
 				break;
-					
+
 			}
 			case 'F':
 			case 'f':
@@ -352,7 +352,7 @@ void print(int s, int v1, int v2, int v3, int v4) //what if we use an array lite
 				//TraceS(f_val);
 				++string_pos;
 				++string_pos;
-				
+
 				break;
 
 			}
@@ -368,11 +368,11 @@ void print(int s, int v1, int v2, int v3, int v4) //what if we use an array lite
 		}
 		++val_index; //increase for overloads
 		//we are on a token of %
-		
+
 	}while(val_index < sz);
         TraceS(main_buf); //TraceNL();
 }
-                
+
 void print(int s, int v1, int v2, int v3, int v4, int v5) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
 {
 	int main_buf[2048];
@@ -382,12 +382,12 @@ void print(int s, int v1, int v2, int v3, int v4, int v5) //what if we use an ar
 		main_buf[buffer_pos] = s[string_pos];
 		++buffer_pos;
 	}
-	
+
 	int values[]={v1,v2,v3,v4,v5};
 	int sz = 5;
 	int val_index = 0;
-	
-	do 
+
+	do
 	{
 		++string_pos;
 		switch(s[string_pos])
@@ -403,12 +403,12 @@ void print(int s, int v1, int v2, int v3, int v4, int v5) //what if we use an ar
 					//values[val_index[q]]; 	//copy the string passed as a param
 									//over to the buffer
 					++buffer_pos;
-					
+
 				}
 				++string_pos;
 				++string_pos;
 				break;
-					
+
 			}
 			case 'F':
 			case 'f':
@@ -438,7 +438,7 @@ void print(int s, int v1, int v2, int v3, int v4, int v5) //what if we use an ar
 				//TraceS(f_val);
 				++string_pos;
 				++string_pos;
-				
+
 				break;
 
 			}
@@ -454,11 +454,11 @@ void print(int s, int v1, int v2, int v3, int v4, int v5) //what if we use an ar
 		}
 		++val_index; //increase for overloads
 		//we are on a token of %
-		
+
 	}while(val_index < sz);
         TraceS(main_buf); //TraceNL();
 }
-                    
+
 void print(int s, int v1, int v2, int v3, int v4, int v5, int v6) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
 {
 	int main_buf[2048];
@@ -468,12 +468,12 @@ void print(int s, int v1, int v2, int v3, int v4, int v5, int v6) //what if we u
 		main_buf[buffer_pos] = s[string_pos];
 		++buffer_pos;
 	}
-	
+
 	int values[]={v1,v2,v3,v4,v5,v6};
 	int sz = 6;
 	int val_index = 0;
-	
-	do 
+
+	do
 	{
 		++string_pos;
 		switch(s[string_pos])
@@ -489,12 +489,12 @@ void print(int s, int v1, int v2, int v3, int v4, int v5, int v6) //what if we u
 					//values[val_index[q]]; 	//copy the string passed as a param
 									//over to the buffer
 					++buffer_pos;
-					
+
 				}
 				++string_pos;
 				++string_pos;
 				break;
-					
+
 			}
 			case 'F':
 			case 'f':
@@ -524,7 +524,7 @@ void print(int s, int v1, int v2, int v3, int v4, int v5, int v6) //what if we u
 				//TraceS(f_val);
 				++string_pos;
 				++string_pos;
-				
+
 				break;
 
 			}
@@ -540,11 +540,11 @@ void print(int s, int v1, int v2, int v3, int v4, int v5, int v6) //what if we u
 		}
 		++val_index; //increase for overloads
 		//we are on a token of %
-		
+
 	}while(val_index < sz);
         TraceS(main_buf); //TraceNL();
 }
-                        
+
 void print(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
 {
 	int main_buf[2048];
@@ -554,12 +554,12 @@ void print(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7) //what
 		main_buf[buffer_pos] = s[string_pos];
 		++buffer_pos;
 	}
-	
+
 	int values[]={v1,v2,v3,v4,v5,v6,v7};
 	int sz = 7;
 	int val_index = 0;
-	
-	do 
+
+	do
 	{
 		++string_pos;
 		switch(s[string_pos])
@@ -575,12 +575,12 @@ void print(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7) //what
 					//values[val_index[q]]; 	//copy the string passed as a param
 									//over to the buffer
 					++buffer_pos;
-					
+
 				}
 				++string_pos;
 				++string_pos;
 				break;
-					
+
 			}
 			case 'F':
 			case 'f':
@@ -610,7 +610,7 @@ void print(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7) //what
 				//TraceS(f_val);
 				++string_pos;
 				++string_pos;
-				
+
 				break;
 
 			}
@@ -626,11 +626,11 @@ void print(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7) //what
 		}
 		++val_index; //increase for overloads
 		//we are on a token of %
-		
+
 	}while(val_index < sz);
         TraceS(main_buf); //TraceNL();
 }
-                            
+
 void print(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7, int v8) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
 {
 	int main_buf[2048];
@@ -640,12 +640,12 @@ void print(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7, int v8
 		main_buf[buffer_pos] = s[string_pos];
 		++buffer_pos;
 	}
-	
+
 	int values[]={v1,v2,v3,v4,v5,v6,v7,v8};
 	int sz = 8;
 	int val_index = 0;
-	
-	do 
+
+	do
 	{
 		++string_pos;
 		switch(s[string_pos])
@@ -661,12 +661,12 @@ void print(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7, int v8
 					//values[val_index[q]]; 	//copy the string passed as a param
 									//over to the buffer
 					++buffer_pos;
-					
+
 				}
 				++string_pos;
 				++string_pos;
 				break;
-					
+
 			}
 			case 'F':
 			case 'f':
@@ -696,7 +696,7 @@ void print(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7, int v8
 				//TraceS(f_val);
 				++string_pos;
 				++string_pos;
-				
+
 				break;
 
 			}
@@ -712,7 +712,7 @@ void print(int s, int v1, int v2, int v3, int v4, int v5, int v6, int v7, int v8
 		}
 		++val_index; //increase for overloads
 		//we are on a token of %
-		
+
 	}while(val_index < sz);
         TraceS(main_buf); //TraceNL();
 }

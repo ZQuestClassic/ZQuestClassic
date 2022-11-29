@@ -37,7 +37,7 @@ bool AnyNPCCollision(lweapon l){
 	return false;
 }
 
-npc NPCCollision(lweapon l){	
+npc NPCCollision(lweapon l){
 	npc coll;
 	if (!l->CollDetection) return coll;
 	for (int i=1; i<= Screen->NumNPCs(); i++){
@@ -51,7 +51,7 @@ npc NPCCollision(lweapon l){
 	return coll;
 }
 
-//Returns true if Lweapon actually hits given enemy, dealing damage and such. 
+//Returns true if Lweapon actually hits given enemy, dealing damage and such.
 bool HitEnemy(lweapon l, npc n){
 	if (!l->CollDetection) return false;
 	int defense = GetEnemyDefense(l);
@@ -64,7 +64,7 @@ bool HitEnemy(lweapon l, npc n){
 	return true;
 }
 
-//Returns pointer to NPC if the given Lweapon actually hits it, dealing damage and such. 
+//Returns pointer to NPC if the given Lweapon actually hits it, dealing damage and such.
 npc OnHitEnemy(lweapon l){
 	npc coll;
 	if (!l->CollDetection) return coll;
@@ -88,7 +88,7 @@ npc OnHitEnemy(lweapon l){
 	return coll;
 }
 
-//Returns true if Lweapon actually hits any enemy, dealing damage and such. 
+//Returns true if Lweapon actually hits any enemy, dealing damage and such.
 bool HitEnemy(lweapon l){
 	npc coll = OnHitEnemy(l);
 	return coll->isValid();
@@ -354,7 +354,7 @@ void DamageModifierEnemySpecific( lweapon l, int npcid, float modifier, int orig
 	DamageModifierEnemySpecific(l, npcid, modifier);
 }
 
-//Sets enemy defense for automatic checking against this lweapon. 
+//Sets enemy defense for automatic checking against this lweapon.
 void SetEnemyDefense(lweapon l, int defense){
 	l->Misc[LWEAPON_MISC_DEFENSE] = defense;
 }
@@ -364,13 +364,13 @@ void UpdateGhostedLweaponEnemyDefense(int defense, npc en){
 	else if (defense==NPCD_IGNORE_DEFENSES) en->Defense[NPCD_SCRIPT] = NPCDT_NONE;
 	else if (defense==NPCD_ALWAYS_BLOCK) en->Defense[NPCD_SCRIPT] = NPCDT_BLOCK;
 	else if (defense==NPCD_ALWAYS_STUN) en->Defense[NPCD_SCRIPT] = NPCDT_STUN;
-	else if (defense<=40)en->Defense[NPCD_SCRIPT] = GetCustomEnemyDefense(en->ID, defense-21);	
+	else if (defense<=40)en->Defense[NPCD_SCRIPT] = GetCustomEnemyDefense(en->ID, defense-21);
 }
 
 //Makes the current LW_SCRIPT lweapon to check against different enemy defenses.
 //npcid allows function to be restricted to specific NPC types. Set to 0 to turn this off.
 //!!Make sure no other scripts that works with LW_SCRIPT# lweapons should coexist with
-//!!the scripts that use this function or enemies will react weirdly when hit by script Lweapons. 
+//!!the scripts that use this function or enemies will react weirdly when hit by script Lweapons.
 void UseEnemyDefense(lweapon l, int npcid, int defense){
 	npc en;
 	for (int i=1; i<= Screen->NumNPCs(); i++){
@@ -389,7 +389,7 @@ void UseEnemyDefense(lweapon l, int npcid, int defense){
 				if ((en->Defense[NPCD_SCRIPT]==NPCDT_BLOCK4)&&(l->Damage<8)) en->Defense[NPCD_SCRIPT]=NPCDT_IGNORE;
 				if ((en->Defense[NPCD_SCRIPT]==NPCDT_BLOCK6)&&(l->Damage<12)) en->Defense[NPCD_SCRIPT]=NPCDT_IGNORE;
 				if ((en->Defense[NPCD_SCRIPT]==NPCDT_BLOCK8)&&(l->Damage<16)) en->Defense[NPCD_SCRIPT]=NPCDT_IGNORE;
-			}			
+			}
 			}
 		}
 	}

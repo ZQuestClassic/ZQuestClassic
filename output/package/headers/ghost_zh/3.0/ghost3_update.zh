@@ -21,7 +21,7 @@ namespace ghost3
 		// Handle gravity first
 		int jump = ghost->Jump;
 		ghost->Jump=0;
-		
+
 		unless(FlagIsSet(ghost, GHF_NO_FALL))
 		{
 			// Sideview: Jump/fall on Y axis
@@ -34,28 +34,28 @@ namespace ghost3
 					// change the enemy's direction here
 					bool setDir=FlagIsSet(ghost, GHF_SET_DIRECTION);
 					ghost3::UnsetFlag(ghost, GHF_SET_DIRECTION);
-					
+
 					// Jumping
 					if(jump>0)
 					{
 						// Set GHF_NO_FALL temporarily so CanMove(DIR_UP) can return true
 						ghost3::SetFlag(ghost, GHF_NO_FALL);
-						
+
 						ghost3::Move(ghost, DIR_UP, jump, Game->Ghost[GHV_DEFAULT_IMPRECISION]);
 						jump=Max(jump-Game->Gravity[GR_STRENGTH], -Game->Gravity[GR_TERMINALV]);
-						
+
 						// If it's still jumping, check if it can move any farther;
 						// if it can't, it's hit something and should begin falling
 						if(jump>0 && !CanMove(ghost, DIR_UP, 1, Game->Ghost[GHV_DEFAULT_IMPRECISION]))
 							jump=0;
-						
+
 						ghost3::UnsetFlag(ghost, GHF_NO_FALL);
 					}
 					// Falling
 					else
 					{
 						ghost3::Move(ghost, DIR_DOWN, -jump, Game->Ghost[GHV_DEFAULT_IMPRECISION]);
-						
+
 						// Can it fall farther?
 						if(CanMove(ghost, DIR_DOWN, 1, Game->Ghost[GHV_DEFAULT_IMPRECISION]))
 							jump=Max(jump-Game->Gravity[GR_STRENGTH], -Game->Gravity[GR_TERMINALV]);
@@ -63,7 +63,7 @@ namespace ghost3
 						else
 							jump=0;
 					}
-					
+
 					// Restore the flag
 					if(setDir)
 						ghost3::SetFlag(ghost, GHF_SET_DIRECTION);
@@ -96,7 +96,7 @@ namespace ghost3
 
 			ghost3::MoveXY(ghost, data[GHI_VX], data[GHI_VY], Game->Ghost[GHV_DEFAULT_IMPRECISION]);
 		}
-		
+
 		ghost3::Ghost_WaitframePart1(ghost, false);
 		ghost3::Ghost_WaitframeLight(ghost);
 		ghost3::ClearIFlags(ghost);
@@ -127,7 +127,7 @@ namespace ghost3
 		// Set direction based on movement
 		else if(FlagIsSet(ghost, GHF_SET_DIRECTION) &&
 			(data[GHI_PREVX] != ghost->X || data[GHI_PREVY] != ghost->Y))
-		{	
+		{
 			float xStep = ghost->X - data[GHI_PREVX];
 			float yStep = ghost->Y - data[GHI_PREVY];
 			// Use 8 directions if 8-way flag is set
@@ -180,7 +180,7 @@ namespace ghost3
 				data[GHI_TRAIL_CLK]%=data[GHI_TRAIL_FREQ];
 				unless (data[GHI_TRAIL_CLK])
 				{
-					eweapon e; 
+					eweapon e;
 					if (data[GHI_TRAIL_FLAGS] & GHTF_FLICKERING) e = FireEWeapon(EW_GHOSTED, data[GHI_PREVX], data[GHI_PREVY], 0, 0, 0, -1, 0, EWF_NO_COLLISION|EWF_FLICKER);
 					else e = FireEWeapon(EW_GHOSTED, data[GHI_PREVX], data[GHI_PREVY], 0, 0, 0, -1, 0, EWF_NO_COLLISION);
 					e->DrawXOffset = ghost->DrawXOffset;
@@ -239,13 +239,13 @@ namespace ghost3
 		ghost->BFlags[0] = false;
 		// Is it dead?
 		bool dead = isDead(ghost);
-		
+
 		// Not dead; was it hit, stunned, or frozen?
 		unless(dead)
 		{
 			dead = !ghost3::CheckFreeze(ghost);
 		}
-		
+
 		// Dead; clean up
 		if(dead)
 		{
@@ -256,10 +256,10 @@ namespace ghost3
 			}
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	enum GHI_ANIMSTYLES
 	{
 		GHI_AS_ENGINE,
@@ -274,7 +274,7 @@ namespace ghost3
 		GHI_AS_4COMBO,
 		GHI_AS_8COMBO
 	};
-	
+
 	void DrawAnimation(npc ghost)
 	{
 		if (ghost->isValid() && ghost->HP > 0)
@@ -295,7 +295,7 @@ namespace ghost3
 						ghost->ScriptTile += 20*(((ghost->ScriptTile/20)<<0) - ((curodata/20)<<0))*(ghost->TileHeight-1);
 					}
 					break;
-				
+
 				case GHI_AS_4DIR:
 					unless (data[GHI_NOLOOP] && data[GHI_ACLK] >= (Max(1, data[GHI_AFRAMES_UP+(NormalizeDir(ghost->Dir)%4)]) * Max(data[GHI_ASPEED_UP+(NormalizeDir(ghost->Dir)%4)],1))-1)
 					{
@@ -309,7 +309,7 @@ namespace ghost3
 						ghost->ScriptTile += 20*(((ghost->ScriptTile/20)<<0) - ((curodata/20)<<0))*(ghost->TileHeight-1);
 					}
 					break;
-					
+
 				case GHI_AS_4DIRDIAG:
 					int dir = 0;
 					if(ghost3::GetInternal(ghost, GHI_DIAGVY) < 0)
@@ -340,7 +340,7 @@ namespace ghost3
 						ghost->ScriptTile += 20*(((ghost->ScriptTile/20)<<0) - ((curodata/20)<<0))*(ghost->TileHeight-1);
 					}
 					break;
-					
+
 				case GHI_AS_8DIR:
 					unless (data[GHI_NOLOOP] && data[GHI_ACLK] >= Max(1, data[GHI_AFRAMES_UP+(NormalizeDir(ghost->Dir)%8)])*Max(data[GHI_ASPEED_UP+(NormalizeDir(ghost->Dir)%8)],1)-1)
 					{
@@ -354,19 +354,19 @@ namespace ghost3
 						ghost->ScriptTile += 20*(((ghost->ScriptTile/20)<<0) - ((curodata/20)<<0))*(ghost->TileHeight-1);
 					}
 					break;
-				
+
 				case GHI_AS_COMPLEX1:
 					ghost->ScriptTile = data[GHI_OTILE_UP];
 					break;
-					
+
 				case GHI_AS_COMPLEX4:
 					ghost->ScriptTile = data[GHI_OTILE_UP+(NormalizeDir(ghost->Dir)%4)];
 					break;
-					
+
 				case GHI_AS_COMPLEX8:
 					ghost->ScriptTile = data[GHI_OTILE_UP+(NormalizeDir(ghost->Dir)%8)];
 					break;
-				
+
 				default:
 					break;
 			}
@@ -379,20 +379,20 @@ namespace ghost3
 		if((FlagIsSet(ghost,GHF_CLOCK) && ClockIsActive()) ||
 		   (FlagIsSet(ghost,GHF_STUN) && ghost->Stun > 0))
 		{
-			
+
 			ghost3::SetIFlag(ghost, GHFI_WAS_FROZEN);
-			
+
 			// Do nothing except get hit until recovered
 			while((FlagIsSet(ghost,GHF_CLOCK) && ClockIsActive()) ||
 				  (FlagIsSet(ghost,GHF_STUN) && ghost->Stun > 0))
 			{
 				Ghost_WaitframeLight(ghost);
-				
+
 				unless(ghost->isValid())
 					return false;
 				else if(isDead(ghost))
 					return false;
-				
+
 				if(data[GHI_DATA] > 0)
 				{
 					if(FlagIsSet(ghost, GHF_8WAY) || FlagIsSet(ghost, GHF_4WAY))
@@ -413,7 +413,7 @@ namespace ghost3
 				}
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -458,7 +458,7 @@ namespace ghost3
 				Quit();
 			return false;
 		}
-		
+
 		return true;
 	}
 }

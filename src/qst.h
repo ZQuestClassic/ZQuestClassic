@@ -25,7 +25,6 @@ struct script_slot_data
 	std::string scriptname;
 	byte format;
 	std::string output;
-	
 	script_slot_data() : slotname(""), scriptname(""), output(""), format(SCRIPT_FORMAT_DEFAULT) {}
 	void update()
 	{
@@ -40,7 +39,6 @@ struct script_slot_data
 		output = temp;
 		free(temp);
 	}
-	
 	void updateName(std::string newname)
 	{
 		if(newname.at(0) == '+' || newname.at(0) == '=')
@@ -50,7 +48,6 @@ struct script_slot_data
 		else scriptname = newname;
 		update();
 	}
-	
 	void clear()
 	{
 		slotname = "";
@@ -58,32 +55,26 @@ struct script_slot_data
 		format = SCRIPT_FORMAT_DEFAULT;
 		output = "";
 	}
-	
 	bool hasScriptData()
 	{
 		return (scriptname != "") && (format != SCRIPT_FORMAT_INVALID);
 	}
-	
 	bool isEmpty()
 	{
 		return scriptname == "";
 	}
-	
 	bool isDisassembled()
 	{
 		return (format == SCRIPT_FORMAT_DISASSEMBLED);
 	}
-	
 	bool isImportedZASM()
 	{
 		return (format == SCRIPT_FORMAT_ZASM);
 	}
-	
 	bool isZASM()
 	{
 		return (isDisassembled() || isImportedZASM());
 	}
-	
 	std::string const* getFormatStr()
 	{
 		switch(format)
@@ -99,7 +90,6 @@ struct script_slot_data
 		}
 		return &DEFAULT_FORMAT;
 	}
-	
 	static const std::string DEFAULT_FORMAT;
 	static const std::string INVALID_FORMAT;
 	static const std::string ZASM_FORMAT;

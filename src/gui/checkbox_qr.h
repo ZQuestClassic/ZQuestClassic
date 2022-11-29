@@ -12,9 +12,7 @@ class QRCheckbox: public Checkbox
 {
 public:
 	QRCheckbox();
-	
 	void setQR(int32_t newqr);
-	
 private:
 	int32_t qr;
 

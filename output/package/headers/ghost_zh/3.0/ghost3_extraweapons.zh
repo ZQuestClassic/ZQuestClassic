@@ -3,12 +3,12 @@
 namespace ghost3
 {
 	const int EW_GHOSTED    = 39;
-	
+
 	enum EXWPNTYPES
 	{
 		EXWPN_LASER
 	};
-	
+
 	@Author("Dimi")
 	eweapon script GhostWeaponEX
 	{
@@ -61,9 +61,9 @@ namespace ghost3
 					B->Create(4, 256, 256);
 					B->Ellipse(4, x+VectorX(Round(width/curvedivisor), angle), y+VectorY(Round(width/curvedivisor), angle), Round(width/curvedivisor), Round(width/2), color, 1, x+VectorX(Round(width/curvedivisor), angle), y+VectorY(Round(width/curvedivisor), angle), angle, true, opacity);
 					B->Polygon(4, 4, arr2, color, opacity);
-					B->Blit(4, RT_SCREEN, 
-						0, 0, 256, 176, 
-						0, 0, 256, 176, 
+					B->Blit(4, RT_SCREEN,
+						0, 0, 256, 176,
+						0, 0, 256, 176,
 						0, 0, 0, BITDX_TRANS, -1,  true);
 					B->Free();
 				}
@@ -87,9 +87,9 @@ namespace ghost3
 				B->Ellipse(4, x+VectorX(Round(width/curvedivisor), angle), y+VectorY(Round(width/curvedivisor), angle), Round(width/curvedivisor), Round(width/2), color, 1, x+VectorX(Round(width/curvedivisor), angle), y+VectorY(Round(width/curvedivisor), angle), angle, true, opacity);
 				B->Polygon(4, 4, arr2, color, opacity);
 				//Screen->SetRenderTarget(RT_BITMAP4);
-				B->Blit(4, RT_SCREEN, 
-					0, 0, 256, 176, 
-					0, 0, 256, 176, 
+				B->Blit(4, RT_SCREEN,
+					0, 0, 256, 176,
+					0, 0, 256, 176,
 					0, 0, 0, BITDX_TRANS, -1,  true);
 				B->Free();
 			}
@@ -111,9 +111,9 @@ namespace ghost3
 					B->Create(4, 256, 256);
 					B->Ellipse(4, x+VectorX(Round(width/curvedivisor), angle), y+VectorY(Round(width/curvedivisor), angle), Round(width/curvedivisor), Round(width/2), color, 1, x+VectorX(Round(width/curvedivisor), angle), y+VectorY(Round(width/curvedivisor), angle), angle, true, opacity);
 					B->Polygon(4, 4, arr2, color, opacity);
-					B->Blit(4, -2, 
-						0, 0, 256, 176, 
-						0, 0, 256, 176, 
+					B->Blit(4, -2,
+						0, 0, 256, 176,
+						0, 0, 256, 176,
 						0, 0, 0, BITDX_TRANS, -1,  true);
 					B->Free();
 				}
@@ -129,9 +129,9 @@ namespace ghost3
 				B->Ellipse(4, x+VectorX(Round(width/curvedivisor), angle), y+VectorY(Round(width/curvedivisor), angle), Round(width/curvedivisor), Round(width/2), color, 1, x+VectorX(Round(width/curvedivisor), angle), y+VectorY(Round(width/curvedivisor), angle), angle, true, opacity);
 				B->Polygon(4, 4, arr2, color, opacity);
 				//Screen->SetRenderTarget(RT_BITMAP4);
-				B->Blit(4, RT_SCREEN, 
-					0, 0, 256, 176, 
-					0, 0, 256, 176, 
+				B->Blit(4, RT_SCREEN,
+					0, 0, 256, 176,
+					0, 0, 256, 176,
 					0, 0, 0, BITDX_TRANS, -1,  true);
 				B->Free();
 				//WizzrobeFlickerClear(npc this)
@@ -147,7 +147,7 @@ namespace ghost3
 
 	bool IsConvex(int a)
 	{
-		for(int i = 0; i < SizeOfArray(a); i+=2) 
+		for(int i = 0; i < SizeOfArray(a); i+=2)
 		{
 			int curx = a[i];
 			int cury = a[i+1];
@@ -165,7 +165,7 @@ namespace ghost3
 			unless (Sign(curanglediff) == Sign(nextanglediff)) return false;
 		}
 		return true;
-		
+
 	}
 
 	// Function to get the difference between two angles
@@ -173,20 +173,20 @@ namespace ghost3
 	{
 		// Get the difference between the two angles
 		float dif = angle2 - angle1;
-		
+
 		// Compensate for the difference being outside of normal bounds
 		if(dif >= PI)
 			dif -= 2 * PI;
 		else if(dif <= -1 * PI)
 			dif += 2 * PI;
-			
+
 		return dif;
 	}
 
 	bool SATCollision(int a, int b)
 	{
 		// loop over the vertices(-> edges -> axis) of the first polygon
-		for(int i = 0; i < SizeOfArray(a); i+=2) 
+		for(int i = 0; i < SizeOfArray(a); i+=2)
 		{
 			// calculate the normal vector of the current edge
 			// this is the axis will we check in this loop
@@ -208,14 +208,14 @@ namespace ghost3
 			int aMinProj = MAX_CONSTANT;
 			int bMaxProj = MIN_CONSTANT;
 			int bMinProj = MAX_CONSTANT;
-			for(int q = 0; q < SizeOfArray(a); q+=2) 
+			for(int q = 0; q < SizeOfArray(a); q+=2)
 			{
 				int proj = (a[q]*axis[0]) + (a[q+1]*axis[1]);
 				if(proj < aMinProj) aMinProj = proj;
 				if(proj > aMaxProj) aMaxProj = proj;
 			}
 
-			for(int q = 0; q < SizeOfArray(b); q+=2)  
+			for(int q = 0; q < SizeOfArray(b); q+=2)
 			{
 				int proj = (b[q]*axis[0]) + (b[q+1]*axis[1]);
 				if(proj < bMinProj) bMinProj = proj;
@@ -238,7 +238,7 @@ namespace ghost3
 	bool PolyCircleCollision(int a, int b)
 	{
 		// loop over the vertices(-> edges -> axis) of the first polygon
-		for(int i = 0; i < SizeOfArray(a); i+=2) 
+		for(int i = 0; i < SizeOfArray(a); i+=2)
 		{
 			// calculate the normal vector of the current edge
 			// this is the axis will we check in this loop
@@ -260,7 +260,7 @@ namespace ghost3
 			int aMinProj = MAX_CONSTANT;
 			int bMaxProj = (b[0]*axis[0]) + (b[1]*axis[1]);
 			int bMinProj = ((b[0]-b[2])*axis[0]) + ((b[1]-b[2])*axis[1]);
-			for(int q = 0; q < SizeOfArray(a); q+=2) 
+			for(int q = 0; q < SizeOfArray(a); q+=2)
 			{
 				int proj = (a[q]*axis[0]) + (a[q+1]*axis[1]);
 				if(proj < aMinProj) aMinProj = proj;

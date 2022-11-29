@@ -17,11 +17,9 @@ struct ListItem
 	ListItem(std::string text, int32_t value, int32_t tag = -1) noexcept:
 		text(std::move(text)), value(value), info(""), tag(tag)
 	{}
-	
 	ListItem(std::string text, int32_t value, std::string info, int32_t tag = -1) noexcept:
 		text(std::move(text)), value(value), info(std::move(info)), tag(tag)
 	{}
-	
 	ListItem() : value(-1), tag(-1){}
 
 	ListItem& operator=(const ListItem& other) = default;
@@ -59,7 +57,6 @@ public:
 			add(strings[i], i);
 		}
 	}
-	
 	ListData(::ListData const& jwinldata, int32_t valoffs = 0);
 
 	ListData(size_t numItems, std::function<std::string(size_t)> getString,
@@ -67,7 +64,6 @@ public:
 
 	ListData& operator=(const ListData& other) = default;
 	ListData& operator=(ListData&& other) noexcept = default;
-	
 	ListData operator+(ListData const& other) const;
 	ListData& operator+=(ListData const& other);
 
@@ -97,7 +93,6 @@ public:
 	{
 		return listItems.at(index).info;
 	}
-	
 	inline static const std::string nullstr = "";
 	inline const std::string& findText(int32_t key) const
 	{
@@ -108,7 +103,6 @@ public:
 		}
 		return nullstr;
 	}
-	
 	inline const std::string& findInfo(int32_t key) const
 	{
 		for(ListItem const& li : listItems)
@@ -118,7 +112,6 @@ public:
 		}
 		return nullstr;
 	}
-	
 	inline const size_t findIndex(int32_t key) const
 	{
 		for(size_t ind = 0; ind < listItems.size(); ++ind)
@@ -128,7 +121,6 @@ public:
 		}
 		return -1;
 	}
-	
 	inline void removeVal(int32_t key)
 	{
 		for(std::vector<ListItem>::iterator it = listItems.begin(); it != listItems.end();)
@@ -138,7 +130,6 @@ public:
 			else ++it;
 		}
 	}
-	
 	//Static constructors for specific lists
 	static ListData nullData()
 	{
@@ -150,24 +141,19 @@ public:
 	void add(std::string name, int32_t val) {listItems.emplace_back(name, val);};
 	void add(std::string name, int32_t val, std::string desc) {listItems.emplace_back(name, val,desc);};
 	void add(std::set<std::string> names, std::map<std::string, int32_t> vals);
-	
 	ListData copy()
 	{
 		ListData other = *this;
 		return other;
 	}
-	
 	//Modifies the listdata, and returns a self-reference
 	ListData& filter(std::function<bool(ListItem&)>);
 	ListData& alphabetize();
 	ListData& tag(int32_t tagval, bool onlyUntagged = false);
-	
 	ListItem& accessItem(int32_t val);
 	ListItem& accessIndex(size_t index);
-	
 private:
 	std::vector<ListItem> listItems;
-	
 	static const char* jwinWrapper(int32_t index, int32_t* size, void* owner);
 };
 

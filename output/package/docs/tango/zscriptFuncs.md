@@ -4,23 +4,23 @@
 
 void Tango_Start()
 :   Clears the menu and all text slots.
-    
+
     Call this in the active global script before the main loop.
- 
+
 void Tango_Update1()
 :   Processes each text slot and the menu.
-    
+
     After calling this function, the render target will be set to `RT_SCREEN`.
-    
+
     Call this in the active global script's main loop before `Waitdraw()`.
     It is recommended that it be called before any other functions so that
     the `TANGO_FLAG_BLOCK_INPUT` can be handled as soon as possible.
 
 void Tango_Update2()
 :   Draws all active text slots to the screen.
-    
+
     After calling this function, the render target will be set to `RT_SCREEN`.
-    
+
     Call this in the active global script's main loop after `Waitdraw()`.
     This should generally come after everything else that does any drawing,
     since you probably want text boxes drawn on top of everything else.
@@ -29,11 +29,11 @@ bool Tango_ValidateConfiguration()
 :   This function will check the arrays and text slot definitions for errors
     and print a report to allegro.log. It can't catch all possible errors,
     but it should get the most common ones. Returns true if no errors were found.
-    
+
     Note that not all potential problems are necessarily invalid; some, such as
     overlapping text slots, may be okay. These will be logged, but not
     considered errors.
-    
+
     This function should not be used in published quests. It only exists to
     help you configure tango.zh correctly.
 
@@ -53,7 +53,7 @@ bool Tango_ReserveSlot(int slot)
     Use this if you get a free slot and don't plan to use it immediately.
     Returns true if the reservation succeeded (i.e. the slot wasn't already
     reserved or active).
-    
+
     The reserved state will be cleared if `Tango_ClearSlot()` is called or Link
     moves to a new screen.
 
@@ -73,14 +73,14 @@ void Tango_LoadMessage(int slot, int messageID, int startChar)
 void Tango_AppendString(int slot, int string[], int startChar)
 void Tango_AppendMessage(int slot, int messageID, int startChar)
 :   Like the above, but specifies a starting point in the string to load.
-    
+
     Loading will start from the first character after `startChar`. For instance:
-    
+
         int str[]="abcd%efg";
         Tango_LoadString(0, str, '%');
-    
+
     will load "efg" into slot 0.
-    
+
     If the character specified is not in the string, the entire string
     will be loaded. The string must contain the actual character, not
     a character code (@##).
@@ -121,7 +121,7 @@ int Tango_GetStyleAttribute(int style, int attribute)
 :   Set or get an attribute of the given style. See [the style attributes
     section](constants.md#style-attributes) for the available attributes
     and expected values.
-    
+
     !!! warning
         Modifying a style in use by an active text slot
         is not guaranteed to work correctly.
@@ -173,7 +173,7 @@ int Tango_GetLastMenuChoice()
 :   Returns the value of the last selection made in a menu. Returns 0 if
     a non-persistent menu is currently active, no menu has been shown yet,
     or the user cancelled in the last menu.
-    
+
     If the menu is persistent, this function will only return each selection
     for a single frame before returning to 0.
 
@@ -183,12 +183,12 @@ int Tango_GetCurrentMenuChoice()
 
 bool Tango_MenuIsActive()
 :   Returns true if a menu is currently active.
-    
+
     !!! caution
         If you display a string that creates a menu, the menu will not
         be active until at least the next call to `Tango_Update1()`, even if
         `TANGO_FLAG_INSTANTANEOUS` is used.
-        
+
         This is not the case for menus created by scripts. The menu will be
         active as soon as `Tango_ActivateMenu()` is called.
 
@@ -196,7 +196,7 @@ void Tango_SaveMenuState(int state[])
 :   Store the current state of the menu into output. This will store the
     values and positions of the options, the cursor and sound settings, and
     the currently selected option.
-    
+
     The size of output must be at least `20 + 3 * __TANGO_MAX_MENU_ITEMS`.
     Later versions of tango.zh are likely to use more data; you may
     want to use a larger array for future-proofing.
@@ -207,7 +207,7 @@ void Tango_SetMenuAutosaveDest(int state[])
     be saved if the menu is closed for another reason. After setting
     the autosave array, you can call this again with an argument of `NULL`
     to clear it.
-    
+
     !!! note
         The data to be saved includes the autosave destination, so restoring
         the menu state with this array will set it up to autosave again.
@@ -256,7 +256,7 @@ void Tango_ScrollSlot(int slot, float amount)
 
 int Tango_GetCurrentSlot()
 :   Returns the ID of the slot currently being processed. This should only
-    be used in `__Tango_RunCustomFunction()`, `Tango_GetCustomVar()`, and 
+    be used in `__Tango_RunCustomFunction()`, `Tango_GetCustomVar()`, and
     `Tango_SetCustomVar()`. At any other time, the value is meaningless.
 
 void Tango_SaveSlotState(int slot, int output[], int bitmap)
@@ -264,10 +264,10 @@ void Tango_SaveSlotState(int slot, int output[])
 :   Store the state of a text slot into aoutputa. The current text, style,
     position, state, and variables will be saved. The style's data
     will not be saved.
-    
-    If `bitmap` is specified, the text already rendered will be copied to 
+
+    If `bitmap` is specified, the text already rendered will be copied to
     that bitmap, and the render target will be set to `RT_SCREEN` afterward.
-    
+
     The size of `output` must be at least the slot's length in the buffer + 21.
     Later versions of tango.zh are likely to use more data; you may
     want to use a larger array for future-proofing.
@@ -277,7 +277,7 @@ void Tango_RestoreSlotState(int slot, int oldState[])
 :   Restore the state of a slot saved with `Tango_SaveSlotState()`. The slot
     number should be the same, as it will be assumed that the position
     on the bitmap is the same.
-    
+
     If a bitmap is specified, the render target will be set to `RT_SCREEN`
     afterward.
 
@@ -285,10 +285,10 @@ float Tango_ConvertFunctionName(int name[])
 float Tango_ConvertVariableName(int name[])
 :   Returns the converted value of the given name and prints a constant
     definition to allegro.log. Do not include `@` in the name.
-    
+
         int name[] = "dostuff2";
         float value = Tango_ConvertFunctionName(name);
-    
+
     `value` will be equal to 543.3828, and allegro.log will contain
     `const float FUNC_DOSTUFF2 = 543.3828;`.
 

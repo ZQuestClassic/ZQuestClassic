@@ -33,25 +33,25 @@ if [ ! -z "${4:-}" ]; then
   #Filter out these defines
   grep -v -E 'V_ZC_(ALPHA|BETA|GAMMA|RELEASE)' src/metadata/versionsig.h > src/metadata/tmp
   mv src/metadata/tmp src/metadata/versionsig.h
-  
+
   if [ "$2" == "alpha" ]; then
     echo "#define V_ZC_ALPHA $4" >> src/metadata/versionsig.h
   else
     echo "#define V_ZC_ALPHA 0" >> src/metadata/versionsig.h
   fi
-  
+
   if [ "$2" == "beta" ]; then
     echo "#define V_ZC_BETA $4" >> src/metadata/versionsig.h
   else
     echo "#define V_ZC_BETA 0" >> src/metadata/versionsig.h
   fi
-  
+
   if [ "$2" == "gamma" ]; then
     echo "#define V_ZC_GAMMA $4" >> src/metadata/versionsig.h
   else
     echo "#define V_ZC_GAMMA 0" >> src/metadata/versionsig.h
   fi
-  
+
   if [ "$2" == "release" ]; then
     echo "#define V_ZC_RELEASE $4" >> src/metadata/versionsig.h
   else

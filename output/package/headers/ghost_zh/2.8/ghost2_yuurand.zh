@@ -11,7 +11,7 @@ void UpdateGhostZH1_YR()
 void UpdateEWeapons_YR()
 {
     eweapon wpn;
-    
+
     // Only update behavior if Link isn't holding up an item.
     if(!(Link->Action==LA_HOLD1LAND || Link->Action==LA_HOLD2LAND ||
          Link->Action==LA_HOLD1WATER || Link->Action==LA_HOLD2WATER))
@@ -19,30 +19,30 @@ void UpdateEWeapons_YR()
         for(int i=Screen->NumEWeapons(); i>0; i--)
         {
             wpn=Screen->LoadEWeapon(i);
-            
+
             // If this is a dummy, or if it's not a ghost.zh weapon, don't do anything
             if((wpn->Misc[__EWI_FLAGS]&__EWFI_IS_GHZH_EWPN)==0 ||
                (wpn->Misc[__EWI_FLAGS]&__EWFI_DUMMY)!=0)
                 continue;
 
-        
+
             UpdateEWeapon_YR(wpn);
         }
    }
-   
+
    // If he is, just update appearance-related flags.
    else
    {
         for(int i=Screen->NumEWeapons(); i>0; i--)
         {
             wpn=Screen->LoadEWeapon(i);
-            
+
             // If this is a dummy, or if it's not a ghost.zh weapon, don't do anything
             if((wpn->Misc[__EWI_FLAGS]&__EWFI_IS_GHZH_EWPN)==0 ||
                (wpn->Misc[__EWI_FLAGS]&__EWFI_DUMMY)!=0)
                 continue;
 
-        
+
             __UpdateEWeaponVisualFlags(wpn);
         }
    }
@@ -58,24 +58,24 @@ void Ghost_CheckHit_YR(ffc this, npc ghost)
         Ghost_HP=ghost->HP;
         if(__Ghost_FlashCounter<__GH_FLASH_TIME)
             __Ghost_FlashCounter=__GH_FLASH_TIME;
-        
+
         // Set knockback counter (but don't handle it yet)
         if(Ghost_FlagIsSet(GHF_KNOCKBACK))
         {
             int xDiff=Link->X-Ghost_X;
             int yDiff=Link->Y-Ghost_Y;
 			int P2switch;
-            
+
             // The correct way to find the knockback direction would be to check
             // the direction of the weapon, but that's not possible. Instead,
             // Link's position and direction are used.
-            
+
 			 if(G[G_MULTIPLAYER_ENABLED] == 1 && Distance(Ghost_X, Ghost_Y, Link->X, Link->Y) >Distance(Ghost_X, Ghost_Y, G[G_PLAYER_TWO_X], G[G_PLAYER_TWO_Y])){
 				xDiff=G[G_PLAYER_TWO_X]-Ghost_X;
 				yDiff=G[G_PLAYER_TWO_Y]-Ghost_Y;
 				P2switch = 1;
 			}
-			
+
             // If Link is close, use his direction
             if(Abs(xDiff)<(Ghost_TileWidth+1)*16 && Abs(yDiff)<(Ghost_TileHeight+1)*16)
             {
@@ -90,7 +90,7 @@ void Ghost_CheckHit_YR(ffc this, npc ghost)
 						__Ghost_KnockbackCounter=G[G_PLAYER_TWO_DIR]<<12|__GH_KNOCKBACK_TIME; // Direction and timer are stored together
 				}
             }
-            
+
             // If Link is far, use the direction from him to the enemy
             else
             {
@@ -121,29 +121,29 @@ void Ghost_CheckHit_YR(ffc this, npc ghost)
             }
         }
     }
-    
+
     // Handle knockback
     if(__Ghost_KnockbackCounter!=0)
     {
         int dir=__Ghost_KnockbackCounter>>12;
         int counter=__Ghost_KnockbackCounter&4095;
         int step=__GH_KNOCKBACK_STEP;
-        
+
         if(Ghost_FlagIsSet(GHF_REDUCED_KNOCKBACK))
             step/=2;
-        
+
         // Get knocked back
         if(Ghost_CanMove(dir, step, __GH_DEFAULT_IMPRECISION))
         {
             int dX=0;
             int dY=0;
-            
+
             counter--;
             if(counter>0)
                 __Ghost_KnockbackCounter=(dir<<12)|counter;
             else
                 __Ghost_KnockbackCounter=0;
-            
+
             if(dir==DIR_UP)
                 dY=-step;
             else if(dir==DIR_DOWN)
@@ -152,7 +152,7 @@ void Ghost_CheckHit_YR(ffc this, npc ghost)
                 dX=-step;
             else // Right
                 dX=step;
-            
+
             // Adjust all relevant position variables so this isn't mistaken for normal movement
             if(dX!=0)
             {
@@ -167,16 +167,16 @@ void Ghost_CheckHit_YR(ffc this, npc ghost)
                 Ghost_SetPosition(this, ghost);
             }
         }
-        
+
         // Can't move any farther; end knockback
         else
         {
             int newX=-1;
             int newY=-1;
-            
+
             __Ghost_KnockbackCounter=0;
             __Ghost_InternalFlags|=__GHFI_KNOCKBACK_INTERRUPTED;
-            
+
             if(dir==DIR_UP)
                 newY=Floor(Ghost_Y/8)*8;
             else if(dir==DIR_DOWN)
@@ -187,7 +187,7 @@ void Ghost_CheckHit_YR(ffc this, npc ghost)
                 newX=Floor(Ghost_X/8)*8;
             else // Right
                 newX=Ceiling((Ghost_X<<0)/8)*8;
-            
+
             if(newX!=-1)
             {
                 __Ghost_PrevX+=newX-Ghost_X;
@@ -214,7 +214,7 @@ void UpdateEWeapon_YR(eweapon wpn)
 {
     if((__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_SUSPEND)!=0)
         return;
-    
+
     // Needed for EWF_ROTATE_360
     int startX=wpn->X;
     int startY=wpn->Y;
@@ -277,8 +277,8 @@ void UpdateEWeapon_YR(eweapon wpn)
                 }
             }
         } // End movement updates
-        
-        
+
+
         // Start lifespan updates
         if(wpn->Misc[__EWI_LIFESPAN]!=0)
         {
@@ -351,7 +351,7 @@ void UpdateEWeapon_YR(eweapon wpn)
                 __DoEWeaponDeathRunScript(wpn);
         }
     } // End death effects
-    
+
     // Start flags
 
     if((wpn->Misc[__EWI_FLAGS]&EWF_SHADOW)!=0)
@@ -359,31 +359,31 @@ void UpdateEWeapon_YR(eweapon wpn)
         if(wpn->Z>0)
             DrawEWeaponShadow(wpn);
     }
-    
+
     if((wpn->Misc[__EWI_FLAGS]&EWF_ROTATE_360)!=0)
     {
         wpn->DrawXOffset=1000;
-        
+
         // Don't draw if Link is dead
         if(Link->HP<=0)
             return;
-        
+
         // Flickering? Nothing to do here.
         if((wpn->Misc[__EWI_FLAGS]&EWF_FLICKER)!=0 &&
            (__ghzhData[__GHI_GLOBAL_FLAGS]&__GHGF_FLICKER)!=0)
             return;
-        
+
         float endX;
         float endY;
         float angle;
-        
+
         // Get the angle first
         if(wpn->Angular)
             angle=RadtoDeg(wpn->Angle);
         else
         {
             int dir=__NormalizeDir(wpn->Dir);
-            
+
             if(dir==DIR_UP)
                 angle=-90;
             else if(dir==DIR_RIGHTUP)
@@ -401,7 +401,7 @@ void UpdateEWeapon_YR(eweapon wpn)
             else // DIR_LEFTUP
                 angle=-135;
         }
-        
+
         if(selfPropelled)
         {
             endX=wpn->X+wpn->Step/100*Cos(angle);
@@ -412,18 +412,18 @@ void UpdateEWeapon_YR(eweapon wpn)
             endX=wpn->Misc[__EWI_XPOS];
             endY=wpn->Misc[__EWI_YPOS];
         }
-        
+
         // If the weapon's moving, use that angle instead of
         // wpn->Angle or wpn->Dir
         if(!(startX==endX && startY==endY))
             angle=Angle(startX, startY, endX, endY);
-        
+
         int flip;
         if(angle>=0 && angle<180)
             flip=0;
         else
             flip=2;
-        
+
         // Currently, these are always drawn on layer 4.
         // That should probably be changed...
         Screen->DrawTile(4, endX, endY-wpn->Z, wpn->Tile,
@@ -440,11 +440,11 @@ void UpdateEWeapon_YR(eweapon wpn)
             else
                 wpn->DrawXOffset=0;
         }
-        
+
         if((wpn->Misc[__EWI_FLAGS]&EWF_ROTATE)!=0)
             SetEWeaponRotation(wpn);
     }
-    
+
     if((wpn->Misc[__EWI_FLAGS]&EWF_FAKE_Z)!=0 || __GH_FAKE_EWEAPON_Z!=0)
     {
         // For some reason, DrawZOffset is also HitZOffset,
@@ -453,7 +453,7 @@ void UpdateEWeapon_YR(eweapon wpn)
         wpn->HitYOffset=-wpn->Z;
         wpn->DrawYOffset=-wpn->Z;
     }
-    
+
     // End flags
 }
 
@@ -462,7 +462,7 @@ void UpdateEWeapon_YR(eweapon wpn)
 //Ghost_CheckHit(this, ghost, G,  G_PLAYER_TWO_X, G_PLAYER_TWO_Y)
 void Ghost_CheckHit(ffc this, npc ghost, int ptr, int indx_x, int indx_y)
 {
-    if(!(ptr>0)) 
+    if(!(ptr>0))
     {
 	    int ____err_no_array[]="Invalid array pointer passed to Ghost_CheckHit";
 	    TraceS(____err_no_array); TraceNL();
@@ -476,22 +476,22 @@ void Ghost_CheckHit(ffc this, npc ghost, int ptr, int indx_x, int indx_y)
         Ghost_HP=ghost->HP;
         if(__Ghost_FlashCounter<__GH_FLASH_TIME)
             __Ghost_FlashCounter=__GH_FLASH_TIME;
-        
+
         // Set knockback counter (but don't handle it yet)
         if(Ghost_FlagIsSet(GHF_KNOCKBACK))
         {
             int xDiff=Link->X-Ghost_X;
             int yDiff=Link->Y-Ghost_Y;
-            
+
             // The correct way to find the knockback direction would be to check
             // the direction of the weapon, but that's not possible. Instead,
             // Link's position and direction are used.
-		
+
 	    if(Distance(Ghost_X, Ghost_Y, Link->X, Link->Y) >Distance(Ghost_X, Ghost_Y, ptr[indx_x], ptr[indx_y])){
 				xDiff=ptr[indx_x]-Ghost_X;
 				yDiff=ptr[indx_y]-Ghost_Y;
 			}
-            
+
             // If Link is close, use his direction
             if(Abs(xDiff)<(Ghost_TileWidth+1)*16 && Abs(yDiff)<(Ghost_TileHeight+1)*16)
             {
@@ -499,7 +499,7 @@ void Ghost_CheckHit(ffc this, npc ghost, int ptr, int indx_x, int indx_y)
                    Ghost_FlagIsSet(GHF_KNOCKBACK_4WAY))
                     __Ghost_KnockbackCounter=Link->Dir<<12|__GH_KNOCKBACK_TIME; // Direction and timer are stored together
             }
-            
+
             // If Link is far, use the direction from him to the enemy
             else
             {
@@ -530,29 +530,29 @@ void Ghost_CheckHit(ffc this, npc ghost, int ptr, int indx_x, int indx_y)
             }
         }
     }
-    
+
     // Handle knockback
     if(__Ghost_KnockbackCounter!=0)
     {
         int dir=__Ghost_KnockbackCounter>>12;
         int counter=__Ghost_KnockbackCounter&4095;
         int step=__GH_KNOCKBACK_STEP;
-        
+
         if(Ghost_FlagIsSet(GHF_REDUCED_KNOCKBACK))
             step/=2;
-        
+
         // Get knocked back
         if(Ghost_CanMove(dir, step, __GH_DEFAULT_IMPRECISION))
         {
             int dX=0;
             int dY=0;
-            
+
             counter--;
             if(counter>0)
                 __Ghost_KnockbackCounter=(dir<<12)|counter;
             else
                 __Ghost_KnockbackCounter=0;
-            
+
             if(dir==DIR_UP)
                 dY=-step;
             else if(dir==DIR_DOWN)
@@ -561,7 +561,7 @@ void Ghost_CheckHit(ffc this, npc ghost, int ptr, int indx_x, int indx_y)
                 dX=-step;
             else // Right
                 dX=step;
-            
+
             // Adjust all relevant position variables so this isn't mistaken for normal movement
             if(dX!=0)
             {
@@ -576,16 +576,16 @@ void Ghost_CheckHit(ffc this, npc ghost, int ptr, int indx_x, int indx_y)
                 Ghost_SetPosition(this, ghost);
             }
         }
-        
+
         // Can't move any farther; end knockback
         else
         {
             int newX=-1;
             int newY=-1;
-            
+
             __Ghost_KnockbackCounter=0;
             __Ghost_InternalFlags|=__GHFI_KNOCKBACK_INTERRUPTED;
-            
+
             if(dir==DIR_UP)
                 newY=Floor(Ghost_Y/8)*8;
             else if(dir==DIR_DOWN)
@@ -596,7 +596,7 @@ void Ghost_CheckHit(ffc this, npc ghost, int ptr, int indx_x, int indx_y)
                 newX=Floor(Ghost_X/8)*8;
             else // Right
                 newX=Ceiling((Ghost_X<<0)/8)*8;
-            
+
             if(newX!=-1)
             {
                 __Ghost_PrevX+=newX-Ghost_X;
@@ -650,7 +650,7 @@ void __DoEWeaponDeathAimAtP2(eweapon wpn)
 //__DoEWeaponDeathAimAtP2(wp, G, G_PLAYER_TWO_X, G_PLAYER_TWO_Y
 void __DoEWeaponDeathAimAtP2(eweapon wpn, int ptr, int indx_x, int indx_y)
 {
-    if(!(ptr>0)) 
+    if(!(ptr>0))
     {
 	    int ____err_no_array[]="Invalid array pointer passed to __DoEWeaponDeathAimAtP2";
 	    TraceS(____err_no_array); TraceNL();
@@ -704,7 +704,7 @@ void __UpdateEWMHomingP2(eweapon wpn)
     // Turn toward Link
     if(diff<wpn->Misc[__EWI_MOVEMENT_ARG] || diff>6.2832-wpn->Misc[__EWI_MOVEMENT_ARG])
         wpn->Angle=targetAngle;
-    
+
     // Can't turn enough to point directly at him...
     else if(Sign(currentAngle-targetAngle)==Sign(diff-PI)) // current>target and diff>pi or
         wpn->Angle+=wpn->Misc[__EWI_MOVEMENT_ARG];         // current<target and diff<pi
@@ -712,7 +712,7 @@ void __UpdateEWMHomingP2(eweapon wpn)
         wpn->Angle-=wpn->Misc[__EWI_MOVEMENT_ARG];
 
     SetEWeaponDir(wpn);
-    
+
     // Decrement timer, unless it was negative to begin with
     if(wpn->Misc[__EWI_MOVEMENT_ARG_2]>0)
     {
@@ -726,7 +726,7 @@ void __UpdateEWMHomingP2(eweapon wpn)
 //__UpdateEWMHomingP2(eweapon wpn,(wpn, G, G_PLAYER_TWO_X, G_PLAYER_TWO_Y)
 void __UpdateEWMHomingP2(eweapon wpn, int ptr, int indx_x, int indx_y)
 {
-    if(!(ptr>0)) 
+    if(!(ptr>0))
     {
 	    int ____err_no_array[]="Invalid array pointer passed to __UpdateEWMHomingP2";
 	    TraceS(____err_no_array); TraceNL();
@@ -748,7 +748,7 @@ void __UpdateEWMHomingP2(eweapon wpn, int ptr, int indx_x, int indx_y)
     // Turn toward Link
     if(diff<wpn->Misc[__EWI_MOVEMENT_ARG] || diff>6.2832-wpn->Misc[__EWI_MOVEMENT_ARG])
         wpn->Angle=targetAngle;
-    
+
     // Can't turn enough to point directly at him...
     else if(Sign(currentAngle-targetAngle)==Sign(diff-PI)) // current>target and diff>pi or
         wpn->Angle+=wpn->Misc[__EWI_MOVEMENT_ARG];         // current<target and diff<pi
@@ -756,7 +756,7 @@ void __UpdateEWMHomingP2(eweapon wpn, int ptr, int indx_x, int indx_y)
         wpn->Angle-=wpn->Misc[__EWI_MOVEMENT_ARG];
 
     SetEWeaponDir(wpn);
-    
+
     // Decrement timer, unless it was negative to begin with
     if(wpn->Misc[__EWI_MOVEMENT_ARG_2]>0)
     {
@@ -810,7 +810,7 @@ void __UpdateEWMHomingReaimP2(eweapon wpn)
             wpn->Angle+=0.2;
             // Pick the direction based on the timer
             int dir=-wpn->Misc[__EWI_WORK]&110b;
-            
+
             if(dir==110b)
                 SetEWeaponRotation(wpn, DIR_UP);
             else if(dir==100b)
@@ -827,7 +827,7 @@ void __UpdateEWMHomingReaimP2(eweapon wpn)
 //__UpdateEWMHomingReaimP2(eweapon wpn,(wpn, G, G_PLAYER_TWO_X, G_PLAYER_TWO_Y)
 void __UpdateEWMHomingReaimP2(eweapon wpn, int ptr, int indx_x, int indx_y)
 {
-    if(!(ptr>0)) 
+    if(!(ptr>0))
     {
 	    int ____err_no_array[]="Invalid array pointer passed to __UpdateEWMHomingReaimP2";
 	    TraceS(____err_no_array); TraceNL();
@@ -875,7 +875,7 @@ void __UpdateEWMHomingReaimP2(eweapon wpn, int ptr, int indx_x, int indx_y)
             wpn->Angle+=0.2;
             // Pick the direction based on the timer
             int dir=-wpn->Misc[__EWI_WORK]&110b;
-            
+
             if(dir==110b)
                 SetEWeaponRotation(wpn, DIR_UP);
             else if(dir==100b)

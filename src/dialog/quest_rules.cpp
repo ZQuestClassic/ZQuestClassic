@@ -81,7 +81,7 @@ std::string const& getTagName(int32_t ruletype)
 
 static GUI::ListData animRulesList
 {
-	{ "BS-Zelda Animation Quirks", qr_BSZELDA, 
+	{ "BS-Zelda Animation Quirks", qr_BSZELDA,
 		"Affects a number of small miscellaneous stuff to make Z1 more"
 		" accurate to BS Zelda. Guy fires have their positions adjusted,"
 		" enemy spawn animations are faster, enemy and player death"
@@ -93,43 +93,43 @@ static GUI::ListData animRulesList
 		" as this rule fixes that behavior as well. If this rule is"
 		" disabled, Whistle Whirlwinds appear as flame for a single"
 		" frame when hitting the edge of the screen."},
-	{ "Circle Opening/Closing Wipes", qr_COOLSCROLL, 
+	{ "Circle Opening/Closing Wipes", qr_COOLSCROLL,
 		"Changes the animation going to/from full black when entering caves"
 		" or starting the game. If multiple are selected, it will be chosen"
 		" randomly between the ones that are selected. If none are selected,"
 		" the Z1 opening is used. This opening animation has a circle cut out"
 		" from the black expand either outwards or inwards."},
-	{ "Oval Opening/Closing Wipes", qr_OVALWIPE, 
+	{ "Oval Opening/Closing Wipes", qr_OVALWIPE,
 		"Changes the animation going to/from full black when entering caves"
 		" or starting the game. If multiple are selected, it will be chosen"
 		" randomly between the ones that are selected. If none are selected,"
 		" the Z1 opening is used. This opening animation has an oval cut out"
 		" from the black expand either outwards or inwards, recreating LTTP's"
 		" opening and game over screen." },
-	{ "Triangle Opening/Closing Wipes", qr_TRIANGLEWIPE, 
+	{ "Triangle Opening/Closing Wipes", qr_TRIANGLEWIPE,
 		"Changes the animation going to/from full black when entering caves"
 		" or starting the game. If multiple are selected, it will be chosen"
 		" randomly between the ones that are selected. If none are selected,"
 		" the Z1 opening is used. This opening animation has a rapidly"
 		" spinning triangle cut out from black expand either outwards or"
 		" inwards." },
-	{ "Super Mario All-Stars Opening/Closing Wipes", qr_SMASWIPE, 
+	{ "Super Mario All-Stars Opening/Closing Wipes", qr_SMASWIPE,
 		"Changes the animation going to/from full black when entering caves"
 		" or starting the game. If multiple are selected, it will be chosen"
 		" randomly between the ones that are selected. If none are selected,"
 		" the Z1 opening is used. This opening animation recreates the Super"
 		" Mario All Stars wipe; a bunch of mini triangles in a diamond pattern"
 		" expanding and cutting out the black." },
-	{ "Fade to/from Black Opening/Closing Wipes", qr_FADEBLACKWIPE, 
+	{ "Fade to/from Black Opening/Closing Wipes", qr_FADEBLACKWIPE,
 		"Changes the animation going to/from full black when entering caves"
 		" or starting the game. If multiple are selected, it will be chosen"
 		" randomly between the ones that are selected. If none are selected,"
 		" the Z1 opening is used. This opening animation smoothly fades the"
 		" whole palette to and from black." },
-	{ "No Screen Scrolling", qr_NOSCROLL, 
+	{ "No Screen Scrolling", qr_NOSCROLL,
 		"Removes the scrolling animation that happens when normally changing"
 		" screens; instead instantly warping you to the next screen." },
-	{ "Fast Dungeon Scrolling", qr_FASTDNGN, 
+	{ "Fast Dungeon Scrolling", qr_FASTDNGN,
 		"Prevents the speed of the scrolling animation when changing screens"
 		" from being halved within dungeons. When disabled, the scrolling"
 		" speed is a 4 frame initial delay, followed by 2 pixels per frame."
@@ -140,25 +140,25 @@ static GUI::ListData animRulesList
 		" in which case both 'Fast Dungeon Scrolling' and 'Smooth Vertical"
 		" Scrolling' are completely ignored and the scrolling speed will be"
 		" 16 pixels per frame in all directions." },
-	{ "Very Fast Scrolling", qr_VERYFASTSCROLLING, 
+	{ "Very Fast Scrolling", qr_VERYFASTSCROLLING,
 		"Greatly increases Screen Scrolling speed, making the screen scrolling"
 		" 16 pixels per frame in all directions when scrolling."},
-	{ "Smooth Vertical Scrolling", qr_SMOOTHVERTICALSCROLLING, 
+	{ "Smooth Vertical Scrolling", qr_SMOOTHVERTICALSCROLLING,
 		"If disabled, the screen scrolls 8 pixels every few frames going up"
 		" and down, which can cause weird snapping issues. If enabled, the"
 		" same speed for scrolling left and right is used for scrolling up"
 		" and down."},
-	{ "FFCs Are Visible While The Screen Is Scrolling", qr_FFCSCROLL, 
+	{ "FFCs Are Visible While The Screen Is Scrolling", qr_FFCSCROLL,
 		"Freeform combos will display when scrolling the screen. If disabled,"
 		" they won't be visible until after scrolling stops." },
-	{ "Interpolated Fading", qr_FADE, 
+	{ "Interpolated Fading", qr_FADE,
 		"If enabled, dark rooms and cave/passage entering will automatically"
 		" calculate the dark room colors. Enabling this also enables the usage"
 		" of Palette Cycling, but you lose the ability to manually decide dark"
 		" room colors."},
-	{ "Bomb Explosions Don't Flash Palette", qr_NOBOMBPALFLASH, 
+	{ "Bomb Explosions Don't Flash Palette", qr_NOBOMBPALFLASH,
 		"When enabled, bombs won't flash the screen when exploding." },
-	{ "Layers 1 and 2 Are Drawn Under Caves", qr_LAYER12UNDERCAVE, 
+	{ "Layers 1 and 2 Are Drawn Under Caves", qr_LAYER12UNDERCAVE,
 		"If enabled, the Player and the cave they're exiting/entering are"
 		" drawn above Layer 1 and 2 when entering/exiting a cave." },
 	{ "Translucent Shadows", qr_TRANSSHADOWS,
@@ -187,19 +187,19 @@ static GUI::ListData animRulesList
 		" change it by changing the current palette."
 		" \nIf disabled, CSet 8 will use the Main Palette, and will remain static"
 		" unless modified via script."},
-	{ "Fade CSet 1", qr_FADECS1, 
+	{ "Fade CSet 1", qr_FADECS1,
 		"When enabled, CSet 1 will also fade when in dark rooms or when scrolling."
 		" Limited only to Interpolated Fading."},
-	{ "Fade CSet 5", qr_FADECS5, 
+	{ "Fade CSet 5", qr_FADECS5,
 		"When enabled, CSet 5 will also fade when in dark rooms or when scrolling."
 		" Limited only to Interpolated Fading."},
-	{ "Fade CSet 7", qr_FADECS7, 
+	{ "Fade CSet 7", qr_FADECS7,
 		"When enabled, CSet 7 will also fade when in dark rooms or when scrolling."
 		" Limited only to Interpolated Fading."},
-	{ "Fade CSet 8", qr_FADECS8, 
+	{ "Fade CSet 8", qr_FADECS8,
 		"When enabled, CSet 8 will also fade when in dark rooms or when scrolling."
 		" Limited only to Interpolated Fading."},
-	{ "Fade CSet 9", qr_FADECS9, 
+	{ "Fade CSet 9", qr_FADECS9,
 		"When enabled, CSet 9 will also fade when in dark rooms or when scrolling."
 		" Limited only to Interpolated Fading."}
 };
@@ -212,57 +212,57 @@ static GUI::ListData comboRulesList
 	{ "Classic Respawn Points", qr_OLD_RESPAWN_POINTS,
 		"Respawn points on drowning/pitfall will always be the screen entry point with this checked."
 		"\nIf unchecked, the respawn will be the last safe place the player has stood, including across screens." },
-	{ "Smart Screen Scrolling", qr_SMARTSCREENSCROLL, 
+	{ "Smart Screen Scrolling", qr_SMARTSCREENSCROLL,
 		"Before scrolling the screen, checks the destination screen"
 		" and position to see if it's solid. If so, scrolling is cancelled."
 		" This rule is incredibly buggy on it's own, and is nigh unusable"
 		" without 'Fixed Smart Scrolling' enabled."},
-	{ "Fixed Smart Scrolling", qr_SMARTER_SMART_SCROLL, 
+	{ "Fixed Smart Scrolling", qr_SMARTER_SMART_SCROLL,
 		"Fixes the many, many bugs with Smart Scrolling. Solidity on"
 		" layers is now respected, Secret states and the like are now"
 		" obeyed, and it now checks the Player's entire hitbox instead"
 		" of the upperleft most corner."},
-	{ "Can't Push Blocks Onto Unwalkable Combos", qr_SOLIDBLK, 
+	{ "Can't Push Blocks Onto Unwalkable Combos", qr_SOLIDBLK,
 		"Prevents you from pushing a push block into a solid combo."
 		" The exception is Block Hole flagged combos, which can still"
 		" be pushed into regardless of solidity."},
-	{ "Push Blocks Don't Move When Bumped", qr_HESITANTPUSHBLOCKS, 
+	{ "Push Blocks Don't Move When Bumped", qr_HESITANTPUSHBLOCKS,
 		"Makes it so all push blocks must be pushed against for 4 frames"
 		" before pushing. If this rule is off, simply bumping into the"
 		" push block while facing it will instantly make it be pushed."
 		" Note that this rule does not affect Push (Wait) or similar"
 		" blocks, which both have a hardcoded 16 frame delay and need"
 		" all enemies to be killed."},
-	{ "Moving pushblock switch blocks obey switch toggle", qr_SWITCHES_AFFECT_MOVINGBLOCKS, 
+	{ "Moving pushblock switch blocks obey switch toggle", qr_SWITCHES_AFFECT_MOVINGBLOCKS,
 		"If enabled, when a crystal switch toggles, it will toggle any"
 		" pushblocks that are currently moving, while they are moving."},
-	{ "Burn Flags Are Triggered Instantly", qr_INSTABURNFLAGS, 
+	{ "Burn Flags Are Triggered Instantly", qr_INSTABURNFLAGS,
 		"Makes it so Fire weapons instantly trigger secrets upon touching"
 		" a burn spot. If this rule is disabled, fire weapons need to linger"
 		" on a burn trigger for almost a second to trigger them. A hidden"
 		" side effect of this rule is that if you have the Magic Book,"
 		" Wand Magic can also trigger fire secrets just by passing over"
 		" the flag if the book would make it leave fire afterwards."},
-	{ "Magic Mirror/Prism Combos Reflect Enemy and Scripted Sword Beams", qr_SWORDMIRROR, 
+	{ "Magic Mirror/Prism Combos Reflect Enemy and Scripted Sword Beams", qr_SWORDMIRROR,
 		"Allows sword beams to reflect off Mirror/Prism Combos. Note"
 		" that this does not affect the Sword Beams that come from"
 		" the Player's Sword; to have those reflect off mirrors, check"
 		" the 'Sword Beams Reflect off Mirror/Prism Combos' Item Flag on"
 		" the sword items you wish to have reflecting Sword Beams for in"
 		" the item editor."},
-	{ "Magic Mirrors Reflect Scripted Whirlwinds", qr_WHIRLWINDMIRROR, 
+	{ "Magic Mirrors Reflect Scripted Whirlwinds", qr_WHIRLWINDMIRROR,
 		"Let's script-created Wind Weapons reflect off Mirrors. Note"
 		" that this does not affect whistle-created whirlwinds; to"
 		" have those reflect, check the 'Whirlwinds Reflect off"
 		" Prism/Mirror Combos' Item Flag on the whistle item in the"
 		" item editor."},
-	{ "Combo Cycling On Layers", qr_CMBCYCLELAYERS, 
+	{ "Combo Cycling On Layers", qr_CMBCYCLELAYERS,
 		"Allows combos to combo cycle when placed on Layers 1-6." },
-	{ "Lesser Damage Combos Take Priority", qr_DMGCOMBOPRI, 
+	{ "Lesser Damage Combos Take Priority", qr_DMGCOMBOPRI,
 		"If this is enabled and you touch two damage combos at once,"
 		" the one with less damage takes priority. If disabled, the"
 		" one with more damage takes priority."},
-	{ "Set Continue Point Even If Arrival Square Isn't Set", qr_WARPSIGNOREARRIVALPOINT, 
+	{ "Set Continue Point Even If Arrival Square Isn't Set", qr_WARPSIGNOREARRIVALPOINT,
 		"When enabled, this rule will set the continue point on"
 		" Entrance/Exit warps and Scrolling Warps (provided the"
 		" latter can set continue points; see 'Scrolling Warps Don't"
@@ -280,89 +280,89 @@ static GUI::ListData comboRulesList
 		" you leave Warp Return A at 0, 0, you can control whether or not"
 		" an Entrance/Exit or Scrolling Warp will set your continue point"
 		" or not."},
-	{ "Use Warp Return Points Only", qr_NOARRIVALPOINT, 
+	{ "Use Warp Return Points Only", qr_NOARRIVALPOINT,
 		"Instead of using the screen's Arrival Square for continuing,"
 		" the game uses Warp Return A as the continue point. With this"
 		" enabled, the Arrival Square is useless."},
-	{ "Scrolling Warps Don't Set The Continue Point", qr_NOSCROLLCONTINUE, 
+	{ "Scrolling Warps Don't Set The Continue Point", qr_NOSCROLLCONTINUE,
 		"If enabled, Scrolling Warps will never set the screen's"
 		" continue point."},
-	{ "Use Old-Style Warp Detection (NES Movement Only)", qr_OLDSTYLEWARP, 
+	{ "Use Old-Style Warp Detection (NES Movement Only)", qr_OLDSTYLEWARP,
 		"If enabled, you must be aligned with the 8x8 X and Y grid to"
 		" trigger warps. If disabled, or if No GridLock or Diagonal"
 		" Movement are enabled, warps can trigger even with X/Y values"
 		" not evenly divisible by 8."},
-	{ "Damage Combos Work On Layers 1 And 2", qr_DMGCOMBOLAYERFIX, 
+	{ "Damage Combos Work On Layers 1 And 2", qr_DMGCOMBOLAYERFIX,
 		"Allows Damage Combos to work on Layers 1 and 2."},
-	{ "Hookshot/SwitchHook Combos Work On Layers 1 And 2", qr_HOOKSHOTLAYERFIX, 
+	{ "Hookshot/SwitchHook Combos Work On Layers 1 And 2", qr_HOOKSHOTLAYERFIX,
 		"Allows the Hookshot/SwitchHook to grab onto combos on Layers 1 and 2." },
-	{ "Hookshot/SwitchHook Combos Work On All Layers", qr_HOOKSHOTALLLAYER, 
+	{ "Hookshot/SwitchHook Combos Work On All Layers", qr_HOOKSHOTALLLAYER,
 		"Allows the Hookshot/SwitchHook to grab onto combos on any layer." },
-	{ "Broken Mirror And Sword Beam Interaction", qr_OLDMIRRORCOMBOS, 
+	{ "Broken Mirror And Sword Beam Interaction", qr_OLDMIRRORCOMBOS,
 		"If enabled, the positioning of reflected sword weapons is"
 		" positioned incorrectly, usually leading to it being more"
 		" to the northwest."},
-	{ "Always Face Up On Sideview Ladders", qr_SIDEVIEWLADDER_FACEUP, 
+	{ "Always Face Up On Sideview Ladders", qr_SIDEVIEWLADDER_FACEUP,
 		"When enabled, the Player will always face up when standing"
 		" or walking on a sideview ladder. This does not force the"
 		" player to face up when attacking or doing anything that"
 		" isn't walking or standing."},
-	{ "Press 'Down' To Fall Through Sideview Platforms", qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS, 
+	{ "Press 'Down' To Fall Through Sideview Platforms", qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS,
 		"When enabled, the Player can press down to fall through"
 		" a sideview platform flagged combo." },
-	{ "Press 'Down+Jump' To Fall Through Sideview Platforms", qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS, 
+	{ "Press 'Down+Jump' To Fall Through Sideview Platforms", qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS,
 		"When enabled, the Player can press down while using the"
 		" Roc's Feather to fall through a sideview platform"
 		" flagged combo." },
-	{ "Falling Through Sideview Platforms Respects 'Drunk' Inputs", qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK, 
+	{ "Falling Through Sideview Platforms Respects 'Drunk' Inputs", qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK,
 		"If enabled, Drunk Player pressing down (or down+jump) can"
 		" accidentally fall through a sideview platform."},
-	{ "Pressing Down Will Not Grab Sideview Ladders", qr_DOWN_DOESNT_GRAB_LADDERS, 
+	{ "Pressing Down Will Not Grab Sideview Ladders", qr_DOWN_DOESNT_GRAB_LADDERS,
 		"If enabled, the Player can't grab onto Sideview Ladders by"
 		" pressing down; only pressing up can grab sideview ladders." },
-	{ "Custom Combos Work On Layers 1 And 2", qr_CUSTOMCOMBOSLAYERS1AND2, 
+	{ "Custom Combos Work On Layers 1 And 2", qr_CUSTOMCOMBOSLAYERS1AND2,
 		"If enabled, Layers 1 and 2 will also be checked for custom"
 		" triggers ('Triggers' tab in the Combo Editor). Only affects weapon trigger types."},
-	{ "Custom Combos Work On All Layers", qr_CUSTOMCOMBOS_EVERY_LAYER, 
+	{ "Custom Combos Work On All Layers", qr_CUSTOMCOMBOS_EVERY_LAYER,
 		"If enabled, all layers will also be checked for custom"
 		" triggers ('Triggers' tab in the Combo Editor). Only affects weapon trigger types."},
-	{ "Slash Combos Work On Layers 1 And 2", qr_BUSHESONLAYERS1AND2, 
+	{ "Slash Combos Work On Layers 1 And 2", qr_BUSHESONLAYERS1AND2,
 		"If enabled, Bushes, Flowers, Tall Grass, Generic Combos, and"
 		" etc will work on Layers 1 and 2."},
-	{ "Auto Combos Work On Layer 1", qr_AUTOCOMBO_LAYER_1, 
+	{ "Auto Combos Work On Layer 1", qr_AUTOCOMBO_LAYER_1,
 		"If enabled, Autowarps and Automatic Triggers will work on Layer 1." },
-	{ "Auto Combos Work On Layer 2", qr_AUTOCOMBO_LAYER_2, 
+	{ "Auto Combos Work On Layer 2", qr_AUTOCOMBO_LAYER_2,
 		"If enabled, Autowarps and Automatic Triggers will work on Layer 2." },
-	{ "Auto Combos Work On All Layers", qr_AUTOCOMBO_ANY_LAYER, 
+	{ "Auto Combos Work On All Layers", qr_AUTOCOMBO_ANY_LAYER,
 		"If enabled, Autowarps and Automatic Triggers will work on any layer." },
-	{ "Overhead Combos work on Layers 1 and 2", qr_OVERHEAD_COMBOS_L1_L2, 
+	{ "Overhead Combos work on Layers 1 and 2", qr_OVERHEAD_COMBOS_L1_L2,
 		"If enabled, Overhead Combos placed on Layers 1 and 2 will still"
 		" draw over Layer 4." },
-	{ "Block Triggers Are Perm For Non-Heavy Blocks", qr_NONHEAVY_BLOCKTRIGGER_PERM, 
+	{ "Block Triggers Are Perm For Non-Heavy Blocks", qr_NONHEAVY_BLOCKTRIGGER_PERM,
 		"If enabled, push blocks will set the secret screen state when"
 		" triggering secrets. If disabled, the secrets will reset when"
 		" you leave and return to the screen. Note that Heavy push"
 		" blocks already set the secret screen state even with this"
 		" disabled."},
-	{ "Pushblocks Work On Layer 1 And 2", qr_PUSHBLOCK_LAYER_1_2, 
+	{ "Pushblocks Work On Layer 1 And 2", qr_PUSHBLOCK_LAYER_1_2,
 		"If enabled, pushblocks can be placed on Layers 1 and 2 and"
 		" function. Note that the push order goes from top to bottom."},
-	{ "Block holes / triggers only trigger on same layer as block", qr_BLOCKHOLE_SAME_ONLY, 
+	{ "Block holes / triggers only trigger on same layer as block", qr_BLOCKHOLE_SAME_ONLY,
 		"If enabled, pushblocks will only trigger block holes and block triggers on the same layer."},
 	{ "Block Triggers improved locking", qr_BLOCKS_DONT_LOCK_OTHER_LAYERS,
 		"Block triggers will not lock blocks in place as they normally do. Blocks"
 		" on the same layer as the trigger will lock normally, but blocks on other layers"
 		" will not lock until all triggers are covered (thus triggering secrets). At this"
 		" time, ALL blocks on triggers will click into place."},
-	{ "New Combo Animation", qr_NEW_COMBO_ANIMATION, 
+	{ "New Combo Animation", qr_NEW_COMBO_ANIMATION,
 		"Internally changes how Combo Animation is handled. Required"
 		" for combodata->OriginalTile."},
-	{ "New Water Collision", qr_SMARTER_WATER, 
+	{ "New Water Collision", qr_SMARTER_WATER,
 		"Internally changes how water is checked to allow for easier"
 		" feature additions. It also allows the Player to disembark"
 		" out of water onto an FFC or Bridge combo. 'Water Works On"
 		" Layer 1/Layer 2' relies on this Quest Rule."},
-	{ "Disable LA_HOPPING", qr_NO_HOPPING, 
+	{ "Disable LA_HOPPING", qr_NO_HOPPING,
 		"Disables the transition state when entering/exiting walkable"
 		" water where the Player walks for a few frames without any"
 		" player control. This transition state, also known as LA_HOPPING,"
@@ -371,7 +371,7 @@ static GUI::ListData comboRulesList
 		" habit of glitching you through walls without your control and"
 		" softlocking you. Note that LA_HOPPING is still enabled in certain"
 		" necessary cases, such as when entering or exiting solid water."},
-	{ "Can't Swim In Solid Water", qr_NO_SOLID_SWIM, 
+	{ "Can't Swim In Solid Water", qr_NO_SOLID_SWIM,
 		"If enabled, prevents swimming in solid water. Normally,"
 		" when disabled, you can swim in walkable water (only if"
 		" 'Player Drowns in Walkable Water' is checked) and solid water"
@@ -379,32 +379,32 @@ static GUI::ListData comboRulesList
 		" state). Because of this, you could never have partially solid"
 		" water. This changes it so only walkable water is swimmable,"
 		" allowing you to have partially swimmable water."},
-	{ "Water Works On Layer 1", qr_WATER_ON_LAYER_1, 
+	{ "Water Works On Layer 1", qr_WATER_ON_LAYER_1,
 		"Allows water to work on Layer 1. Water placed on Layer 1"
 		" acts as a Bridge combo, overwriting the solidity/properties"
 		" of combos placed below it. Requires 'New Water Collision'"},
-	{ "Water Works On Layer 2", qr_WATER_ON_LAYER_2, 
+	{ "Water Works On Layer 2", qr_WATER_ON_LAYER_2,
 		"Allows water to work on Layer 2. Water placed on Layer 2"
 		" acts as a Bridge combo, overwriting the solidity/properties"
 		" of combos placed below it. Requires 'New Water Collision'"},
-	{ "Sideview Swimming", qr_SIDESWIM, 
+	{ "Sideview Swimming", qr_SIDESWIM,
 		"Enables Sideview Swimming. With this enabled, the Player"
 		" gains a whole set of new actions and custom physics when"
 		" in water placed in Sideview. If disabled, water in Sideview"
 		" acts very oddly, with gravity still applying."},
-	{ "Player Faces Left/Right While Sideview Swimming", qr_SIDESWIMDIR, 
+	{ "Player Faces Left/Right While Sideview Swimming", qr_SIDESWIMDIR,
 		"When enabled, the Player can only face Left and Right in sideview water."},
-	{ "New Shallow Water Detection", qr_SHALLOW_SENSITIVE, 
+	{ "New Shallow Water Detection", qr_SHALLOW_SENSITIVE,
 		"When enabled, Shallow Water will use the same collision"
 		" used to check if the Player should swim/drown. If disabled,"
 		" you can get situations where you're swimming but the shallow"
 		" water graphic displays."},
-	{ "New Tall Grass Detection", qr_GRASS_SENSITIVE, 
+	{ "New Tall Grass Detection", qr_GRASS_SENSITIVE,
 		"When enabled, Tall Grass will use the same collision"
 		" used to check if the Player should swim/drown. If disabled,"
 		" you can get situations where you're swimming but the tall"
 		" grass graphic displays."},
-	{ "Better Sideview Damage Combo Detection", qr_LESS_AWFUL_SIDESPIKES, 
+	{ "Better Sideview Damage Combo Detection", qr_LESS_AWFUL_SIDESPIKES,
 		"When enabled, damage combos in sideview will only do their"
 		" check if the Player is standing on solid ground and is"
 		" mostly on the damage combo. This does not affect the"
@@ -418,14 +418,14 @@ static GUI::ListData comboRulesList
 		"If enabled, fairy ring flags will heal item jinxes when the player steps on them."
 		" This used to also affect potions and triforce pieces, but this behavior has since"
 		" been relocated to the respective item flags."},
-	{ "Light Beams draw Transparently", qr_LIGHTBEAM_TRANSPARENT, 
+	{ "Light Beams draw Transparently", qr_LIGHTBEAM_TRANSPARENT,
 		"Light Beams from Spotlight combos are transparently drawn."},
-	{ "Less Arbitrary Dock Combos", qr_BETTER_RAFT, 
+	{ "Less Arbitrary Dock Combos", qr_BETTER_RAFT,
 		"If enabled, the player will be able to raft off a dock if there is a raft flag in"
 		" either of the 4 directions from the dock, regardless of direction. If disabled, the"
 		" player can only raft if there is a raft flag in the direction they are facing when they"
 		" step on the dock."},
-	{ "More Sensitive Dock Combos", qr_BETTER_RAFT_2, 
+	{ "More Sensitive Dock Combos", qr_BETTER_RAFT_2,
 		"If enabled, the collision for dock combos will only check the bottom part of the player's"
 		" hitbox, as opposed to the bottom and top parts of their hitbox."},
 	{ "Docks use Raft Item's sound", qr_RAFT_SOUND,
@@ -438,19 +438,19 @@ static GUI::ListData comboRulesList
 
 static GUI::ListData compatRulesList
 {
-	{ "Old GOTOLESS Behavior", qr_GOTOLESSNOTEQUAL, 
+	{ "Old GOTOLESS Behavior", qr_GOTOLESSNOTEQUAL,
 		"If enabled, the ZASM GOTOLESS will return true if less"
 		" or equal than the compared value. If disabled, it will"
 		" only return true if it's less than the compared value." },
-	{ "Old Lens Drawing Order", qr_OLDLENSORDER, 
+	{ "Old Lens Drawing Order", qr_OLDLENSORDER,
 		"If enabled, Lens hints will draw on layer 0 and hide"
 		" Layer 1 and 2 if there is a secret on that combo."
 		" If disabled, hints will draw above Layer 2 without"
 		" hiding Layers 1 and 2."},
-	{ "No Fairy Guy Fires", qr_NOFAIRYGUYFIRES, 
+	{ "No Fairy Guy Fires", qr_NOFAIRYGUYFIRES,
 		"If enabled, Fairy Guys will not have fires, and will"
 		" not block the upper portion of the screen."},
-	{ "Continuous Step Triggers", qr_TRIGGERSREPEAT, 
+	{ "Continuous Step Triggers", qr_TRIGGERSREPEAT,
 		"If enabled, step triggers that change to another step"
 		" trigger will trigger without you needing to step off"
 		" them. Normally, step triggers have a safety feature"
@@ -459,42 +459,42 @@ static GUI::ListData compatRulesList
 		" different position. This rule disables that behavior,"
 		" allowing you to keep triggering step triggers that appear"
 		" under you without moving off of it."},
-	{ "Downward Hookshot Bug", qr_HOOKSHOTDOWNBUG, 
+	{ "Downward Hookshot Bug", qr_HOOKSHOTDOWNBUG,
 		"If this QR is enabled, using the hookshot downwards will"
 		" offset it by 4 pixels downwards, possibly allowing it to"
 		" clip through half solid combos."},
-	{ "Hardcoded open doors", qr_REPLACEOPENDOORS, 
+	{ "Hardcoded open doors", qr_REPLACEOPENDOORS,
 		"If this is enabled, Open Doors in NES Dungeon screens will"
 		" replace the tiles in the door position with the open door"
 		" tiles. With this disabled, you can have different tiles"
 		" occupy the Open Door space."},
-	{ "No Solid Damage Combos", qr_NOSOLIDDAMAGECOMBOS, 
+	{ "No Solid Damage Combos", qr_NOSOLIDDAMAGECOMBOS,
 		"Disables solid damage combos. You can only take damage by"
 		" stepping on a walkable damage combo. Note that this does"
 		" not affect solid sideview damage combos that you step on,"
 		" you will still take damage from those even if this rule"
 		" is on."},
-	{ "Old Hookshot Grab Checking", qr_OLDHOOKSHOTGRAB, 
+	{ "Old Hookshot Grab Checking", qr_OLDHOOKSHOTGRAB,
 		"If this is enabled, the check for if a hookshot has grabbed a"
 		" combo going left or right will check it's Y value plus 7."
 		" If disabled, it will check it's Y value plus 13. Note that"
 		" the hookshot's Y position is 3 pixels more than the Player's when"
 		" facing left/right, and note that this rule does not affect"
 		" the hookshot when travelling up or down."},
-	{ "Peahats Are Vulnerable When Frozen By Clocks", qr_PEAHATCLOCKVULN, 
+	{ "Peahats Are Vulnerable When Frozen By Clocks", qr_PEAHATCLOCKVULN,
 		"If this rule is enabled, Peahats will be vulnerable when a Clock"
 		" item is active. This rule only works if the rule 'Enemies Jump/Fly"
 		" Through Z-Axis' is disabled."},
-	{ "Weapons With No Collision Detection Move Offscreen", qr_OFFSCREENWEAPONS, 
+	{ "Weapons With No Collision Detection Move Offscreen", qr_OFFSCREENWEAPONS,
 		"If enabled, weapons with no collision won't be killed if they"
 		" move offscreen. If disabled, they'll be killed when they move"
 		" offscreen."},
-	{ "Old Special Room Screenstate Detection", qr_ITEMPICKUPSETSBELOW, 
+	{ "Old Special Room Screenstate Detection", qr_ITEMPICKUPSETSBELOW,
 		"If enabled, Guy Rooms are flagged with mITEM instead of mSPECIALITEM"
 		" if they are outside of a cave screen. This means that they set"
 		" the Screen Item state, and collecting the Screen Item will"
 		" remove the Guy."},
-	{ "Sideview Spike Detection Prior to 2.50.1RC3", qr_OLDSIDEVIEWSPIKES, 
+	{ "Sideview Spike Detection Prior to 2.50.1RC3", qr_OLDSIDEVIEWSPIKES,
 		"Sideview spikes were changed in newer 2.50 quests to be much"
 		" more sensitive and check further below you, and also check"
 		" the ceiling if you bonk against it. Checking this will revert"
@@ -503,70 +503,70 @@ static GUI::ListData compatRulesList
 		" the ceiling above you when bumping into the ceiling. Note that"
 		" if you have 'Better Sideview Damage Combo Detection' enabled,"
 		" the only thing this rule affects is the ceiling portion of the rule."},
-	{ "Infinite Magic Prevents Items From Draining Rupees", qr_OLDINFMAGIC, 
+	{ "Infinite Magic Prevents Items From Draining Rupees", qr_OLDINFMAGIC,
 		"Recreates a bug where infinite magic would skip the entire pay"
 		" cost check, even if the counter it was paying was rupees."
 		" If enabled, having infinite magic means you won't pay any"
 		" rupees for rupee-costing items. If disabled, having infinite"
 		" magic won't affect rupee-costing items."},
-	{ "Use DrawBitmap() Offsets Prior to 2.50.2", qr_BITMAPOFFSETFIX, 
+	{ "Use DrawBitmap() Offsets Prior to 2.50.2", qr_BITMAPOFFSETFIX,
 		"Recreates a bug where for the first frame it was created,"
 		" the top of the bitmap would start at the top of the subscreen,"
 		" before moving back down to the regular playing field. If this"
 		" is disabled, it'll use the fixed behavior, where it'll always"
 		" draw where the playing field is."},
-	{ "Old (Faster) Sprite Drawing", qr_OLDSPRITEDRAWS, 
+	{ "Old (Faster) Sprite Drawing", qr_OLDSPRITEDRAWS,
 		"If enabled, the old method for drawing sprites is used."
 		" The old method is faster, but lacks many features such as"
 		" sprite rotations and scaling."},
-	{ "Old (Instant) F6 Menu", qr_OLD_F6, 
+	{ "Old (Instant) F6 Menu", qr_OLD_F6,
 		"Changes how F6 works internally. With this rule on, it uses"
 		" the old method, where the f6 menu is less than a frame faster."
 		" With it off, it uses the new method, which is required for F6"
 		" Scripts to work but causes the f6 to happen less than a frame"
 		" later."},
-	{ "Broken ASkipY Animation Frames", qr_BROKEN_ASKIP_Y_FRAMES, 
+	{ "Broken ASkipY Animation Frames", qr_BROKEN_ASKIP_Y_FRAMES,
 		"In older versions, Combo Anim Y was bugged, where the check"
 		" for if a combo is at its last tile of animation was using"
 		" poor math for Combo Anim Y. This would result in combos"
 		" looping much earlier than they should. This rule is auto"
 		" checked for older quests, but should be left off as it may"
 		" cause unintended effects."},
-	{ "Enemies Clip Through Top-Half Walkable Combos", qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY, 
+	{ "Enemies Clip Through Top-Half Walkable Combos", qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY,
 		"If enabled, enemies will only check the bottom half of a"
 		" combo for it's solidity when choosing where it can walk."
 		" If disabled, enemies can't walk into a combo if any part"
 		" of it is solid."},
-	{ "Old Sideview Ceiling Collision", qr_OLD_SIDEVIEW_CEILING_COLLISON, 
+	{ "Old Sideview Ceiling Collision", qr_OLD_SIDEVIEW_CEILING_COLLISON,
 		"If this is enabled, the player's entire hitbox is checked"
 		" for hitting a ceiling, instead of just their bottom half."
 		" Additionally, it allows the Player to clip into ceilings"
 		" immediately above their heads when they start the Jump from"
 		" land, as the solidity isn't checked until they are in the air."},
-	{ "Items set to 0 AFrames ignore AFrame changes", qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES, 
+	{ "Items set to 0 AFrames ignore AFrame changes", qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES,
 		"In older versions, if an item's AFrame value was changed via"
 		" script but it was initialized with 0 AFrames, it would ignore"
 		" the script change and continue as if it had a single frame."
 		" This rule emulates this behavior."},
-	{ "Old Enemy Knockback Collision", qr_OLD_ENEMY_KNOCKBACK_COLLISION, 
+	{ "Old Enemy Knockback Collision", qr_OLD_ENEMY_KNOCKBACK_COLLISION,
 		"If enabled, you are unable to knockback an enemy if it can't"
 		" move 12 pixels in the direction it would be knocked back into."
 		" If disabled, it will check it's knockback speed (which defaults"
 		" to 4), see if it can move 1 frame of knockback speed in that"
 		" direction, and if it can't, won't be knocked back."},
-	{ "Check Clip for Custom / Script Type Weapons on Screen Edge", qr_CHECKSCRIPTWEAPONOFFSCREENCLIP, 
+	{ "Check Clip for Custom / Script Type Weapons on Screen Edge", qr_CHECKSCRIPTWEAPONOFFSCREENCLIP,
 		"If enabled, LW_SCRIPT and EW_SCRIPT weapons are killed earlier"
 		" before hitting the edge of the screen."},
-	{ "1.92 Dungeon Autowalk Speed", qr_SHORTDGNWALK, 
+	{ "1.92 Dungeon Autowalk Speed", qr_SHORTDGNWALK,
 		"If enabled, the Player autowalks a few pixels less into dungeon"
 		" screens than he usually does."},
-	{ "Old String Margins", qr_OLD_STRING_EDITOR_MARGINS, 
+	{ "Old String Margins", qr_OLD_STRING_EDITOR_MARGINS,
 		"If enabled, disables the border spacing of strings and allows"
 		" strings to extend past the bottom of the message box."},
-	{ "Old String Frame Width/Height", qr_STRING_FRAME_OLD_WIDTH_HEIGHT, 
+	{ "Old String Frame Width/Height", qr_STRING_FRAME_OLD_WIDTH_HEIGHT,
 		"If enabled, all strings default to 25x4 as opposed to 26x5."
 		" Enabled by default for 2.50 quests and below."},
-	{ "Old Slash Combo Secret Flag Behavior", qr_OLD_SLASHNEXT_SECRETS, 
+	{ "Old Slash Combo Secret Flag Behavior", qr_OLD_SLASHNEXT_SECRETS,
 		"This QR changes the behavior of Slash combos when they have a"
 		" secret combo on top of them. The old behavior (used when this"
 		" rule is enabled) is that when slashed, instead of becoming"
@@ -578,28 +578,28 @@ static GUI::ListData compatRulesList
 		" space/keeping organization. The new behavior (used if this rule"
 		" is disabled) will ignore the secret flag, treating it as just a"
 		" regular Slash combo."},
-	{ "Overworld Minimap Ignores Map Item", qr_BROKEN_OVERWORLD_MINIMAP, 
+	{ "Overworld Minimap Ignores Map Item", qr_BROKEN_OVERWORLD_MINIMAP,
 		"If enabled, the overworld minimap for possessing the dungeon map is"
 		" unused, and the graphic used will always be the dungeon map-less"
 		" version. This Quest Rule only exists to be turned on automatically"
 		" for old quests."},
-	{ "Old (Broken) Ring Power Maths", qr_BROKEN_RING_POWER, 
+	{ "Old (Broken) Ring Power Maths", qr_BROKEN_RING_POWER,
 		"If enabled, uses the old buggy math for negative powered ring weapons;"
 		" the old math accidentally had double negatives, which turned negative"
 		" values back into positive values. If disabled, the fixed behavior is"
 		" used, which allows for proper negative defense (negative defense"
 		" meaning the player takes more damage). This rule exists only to be"
 		" enabled automatically for old quests."},
-	{ "Overworld DMaps Do Not Chart Progress", qr_NO_OVERWORLD_MAP_CHARTING, 
+	{ "Overworld DMaps Do Not Chart Progress", qr_NO_OVERWORLD_MAP_CHARTING,
 		"Uses old (nonexistent) behavior for overworld charting. If enabled,"
 		" you can't use dmapdata->Charted on overworlds. If disabled, you can"
 		" use dmapdata->Charted, and the Large Map subscreen item will chart"
-		" places you'd been if an overworld dmap uses that subscreen."}, 
-	{ "Dungeon DMaps Use Classic Charting", qr_DUNGEONS_USE_CLASSIC_CHARTING, 
+		" places you'd been if an overworld dmap uses that subscreen."},
+	{ "Dungeon DMaps Use Classic Charting", qr_DUNGEONS_USE_CLASSIC_CHARTING,
 		"Uses old internal charting behavior for dungeons. Disabled for all"
 		" new quests; it's only here to be turned on in older quests in the"
 		" case it breaks something. Affects dmapdata->Charted on dungeon dmaps."},
-	{ "Allow Editing Combo 0", qr_ALLOW_EDITING_COMBO_0, 
+	{ "Allow Editing Combo 0", qr_ALLOW_EDITING_COMBO_0,
 		"Allows the editing of Combo 0 in the editor. Combo 0 is assumed to"
 		" be empty space at all times and is what's used by default on newly"
 		" created screens or layers. Setting it to anything but completely"
@@ -607,7 +607,7 @@ static GUI::ListData compatRulesList
 		" accidentally causing bugs by editing Combo 0, Combo 0 was locked"
 		" from being edited. If this quest rule is enabled, you are able to"
 		" edit Combo 0, though it is *not* recommended."},
-	{ "Old Chest Collision", qr_OLD_CHEST_COLLISION, 
+	{ "Old Chest Collision", qr_OLD_CHEST_COLLISION,
 		"Enabling this rule brings back the old chest behavior. The old chest"
 		" behavior required the player to be below the chest facing up (or,"
 		" if the screen was sideview, to the side of the chest facing left"
@@ -622,7 +622,7 @@ static GUI::ListData compatRulesList
 	{ "Old Lockblock Collision", qr_OLD_LOCKBLOCK_COLLISION,
 		"Lockblocks behave as they used to if disabled; otherwise they operate"
 		" similarly to chests." },
-	{ "Broken Horizontal Weapon Animation", qr_BROKEN_HORIZONTAL_WEAPON_ANIM, 
+	{ "Broken Horizontal Weapon Animation", qr_BROKEN_HORIZONTAL_WEAPON_ANIM,
 		"In older versions, weapon types with different left/right facing tiles,"
 		" such as Arrows or the Sword, had a bug where if their sprite was animated,"
 		" it would only use the default tile and it's animation, instead of using"
@@ -632,27 +632,27 @@ static GUI::ListData compatRulesList
 		"If this rule is enabled, Enemies->Secret will only trigger Secret Flags 16"
 		" through 31. It will not trigger weapon triggers such as burn triggers or"
 		" bomb triggers."},
-	{ "Old CSet2 Handling", qr_OLDCS2, 
+	{ "Old CSet2 Handling", qr_OLDCS2,
 		"If this is enabled, you can access csets 12 through 15 via a combo's"
 		" cset2 value. However, because these are reserved and prone to change"
 		" with different editor themes, this functionality was removed. If this"
 		" rule is disabled, only CSets 0-11 are allowed, and the wrapping is"
 		" changed as well."},
-	{ "Hardcoded Shadow/Spawn/Death anim frames", qr_HARDCODED_ENEMY_ANIMS, 
+	{ "Hardcoded Shadow/Spawn/Death anim frames", qr_HARDCODED_ENEMY_ANIMS,
 		"If this is enabled, enemies spawning, shadow, and death animations are"
 		" hardcoded. They will use hardcoded aframe and aspeed values regardless"
 		" of what they are set as in the sprite editor. If this is disabled,"
 		" these sprites will obey the values set in their respective sprite data."
 		" Note that this rule also affects the 'death poof' the Player does when"
 		" they die!"},
-	{ "Old Itemdata Script timing", qr_OLD_ITEMDATA_SCRIPT_TIMING, 
+	{ "Old Itemdata Script timing", qr_OLD_ITEMDATA_SCRIPT_TIMING,
 		"Changes the timing of itemdata scripts. If this is disabled, they run"
 		" immediately before the Player's internal code. If this is enabled,"
 		" it will run immediately after."},
-	{ "Old fairy spawn limit", qr_OLD_FAIRY_LIMIT, 
+	{ "Old fairy spawn limit", qr_OLD_FAIRY_LIMIT,
 		"If this rule is enabled, there is a limit of one fairy onscreen that enemies"
 		" and combos can drop."},
-	{ "Arrows clip farther into dungeon walls", qr_ARROWCLIP, 
+	{ "Arrows clip farther into dungeon walls", qr_ARROWCLIP,
 		"If this rule is enabled, arrows will still check for secrets even while they"
 		" are 'blinking out'. This lets them hit triggers on top of blocking combos and"
 		" on the edges of dungeon walls."},
@@ -662,7 +662,7 @@ static GUI::ListData compatRulesList
 		" occupies the space, it will trigger the new trigger too."
 		" If a sword trigger is not continuous and it becomes another trigger, you"
 		" will need to slash the sword again to trigger the new trigger."},
-	{ "Ladder takes precedence over North and South water", qr_OLD_210_WATER, 
+	{ "Ladder takes precedence over North and South water", qr_OLD_210_WATER,
 		"This rule changes whether the ladder or the flippers takes priority when"
 		" entering water from below or above. If this rule is enabled, the ladder"
 		" takes priority. If this rule is disabled, the flippers take priority."
@@ -765,7 +765,7 @@ static GUI::ListData compatRulesList
 		"If enabled, Angular Reflected Weapons use completely wrong code. This is only"
 		" here for compatibility purposes; enabling this is liable to result in undefined"
 		" behavior. Keep this disabled."},
-	{ "Old Bridge Combo Behavior", qr_OLD_BRIDGE_COMBOS, 
+	{ "Old Bridge Combo Behavior", qr_OLD_BRIDGE_COMBOS,
 		"If enabled, Bridge Combos use the solidity box instead of the effects square to determine"
 		" what sections the bridge covers. Solid portions will use the solidity of what is beneath"
 		" it, while walkable portions will be walkable regardless of what is beneath it. \nIf disabled,"
@@ -878,7 +878,7 @@ static GUI::ListData enemiesRulesList
 		" invulnerability while flying but will instead fly high enough that most"
 		" weapons can't hit it without the player jumping, and Summoner Wizzrobes"
 		" will spawn their summoned enemies in the air."},
-	{ "Hide Enemy-Carried Items", qr_HIDECARRIEDITEMS, 
+	{ "Hide Enemy-Carried Items", qr_HIDECARRIEDITEMS,
 		"If enabled, enemy-carried items are moved offscreen whenever the item"
 		"-carrying enemy spawns, and is only moved back whenever the enemy dies."
 		" This prevents the player from bumping into the enemy to pick up the item"
@@ -899,7 +899,7 @@ static GUI::ListData enemiesRulesList
 		" marked as having killed the not-returning enemy. Otherwise, if disabled,"
 		" killing any enemy with 'Never Returns After Death' will prevent any other"
 		" enemy in the room with that flag set from also returning."},
-	{ "Line of Sight Traps Obey Solidity And Don't Have Hardcoded Directions", qr_MEANTRAPS, 
+	{ "Line of Sight Traps Obey Solidity And Don't Have Hardcoded Directions", qr_MEANTRAPS,
 		"If enabled, Line of Sight traps will return when they hit a solid object."
 		" If disabled, they will only return depending on their position as"
 		" determined by 'Line-of-Sight Traps Can Move Across Entire Screen'."
@@ -907,7 +907,7 @@ static GUI::ListData enemiesRulesList
 		" hardcoded based on it's position. If this rule is enabled, they are"
 		" not hardcoded. If this rule is disabled, traps will be unable to"
 		" travel in certain directions if placed in specific positions."},
-	{ "Line-of-Sight Traps Can Move Across Entire Screen", qr_MEANPLACEDTRAPS, 
+	{ "Line-of-Sight Traps Can Move Across Entire Screen", qr_MEANPLACEDTRAPS,
 		"If enabled, Line of Sight traps will only be stopped either by hitting"
 		" the screen edge or, if the rule 'Line of Sight Traps Obey Solidity"
 		" And Don't Have Hardcoded Directions' is enabled, by hitting a"
@@ -961,8 +961,7 @@ static GUI::ListData enemiesRulesList
 	{ "Quake Hammer Stuns Leevers", qr_QUAKE_STUNS_LEEVERS,
 		"If enabled, Quake Hammer can stun Leevers. This barely does anything if 'Leever's Still"
 		" Submerge If Stunned' is enabled."},
-		
-	//Maybe we should keep this one last always? -Deedee 
+	//Maybe we should keep this one last always? -Deedee
 	{ "Enemies Can Go Out of Bounds (Offscreen)", qr_OUTOFBOUNDSENEMIES,
 		"If enabled, enemies can go out of bounds without getting removed. This is"
 		" mainly intended for script use and should not be turned on unless a script"
@@ -1109,7 +1108,7 @@ static GUI::ListData miscRulesList
 		" Circle will be centered around the Player. If disabled, they will center on the center of the"
 		" screen, or 125, 88."},
 	{ "No Healing Fairy Heart Circle", qr_NOHEARTRING,
-		"If enabled, the circle of hearts that normally display around the player when they step on a Fairy" 
+		"If enabled, the circle of hearts that normally display around the player when they step on a Fairy"
 		" Circle will not display."},
 	{ "No Saving When Continuing", qr_NOSAVE,
 		"If enabled, removes the 'Save' option from the Game Over screen. Saving must be done through other methods."},
@@ -1188,7 +1187,7 @@ static GUI::ListData miscRulesList
 		" as you can jump over water and pits, scroll the screen, and set your respawn point over top of a pit, or even sequence"
 		" break where you aren't supposed to by drowning in water on the next screen, and jumping again after respawning. Enabling"
 		" this will prevent you from changing screens while jumping or otherwise in the air, allowing you to design around the feather easier."},
-	{ "Higher Maximum Playtime", qr_GREATER_MAX_TIME, 
+	{ "Higher Maximum Playtime", qr_GREATER_MAX_TIME,
 		"Bumps up the Max Playtime from 99 hours, 5 minutes, and 54 seconds, to 9000 hours."
 		"Has no downsides, is only here for compatibility sake."},
 	{ "New Dark Rooms", qr_NEW_DARKROOM,
@@ -1421,7 +1420,6 @@ static GUI::ListData weaponsRulesList
 		" Zelda games where the players own bombs can hurt them. This used to affect player-placed bombs,"
 		" but that functionality has since been moved to the bomb item in the item editor. This rule now"
 		" only determines if script-created player bombs can hurt the player."},
-	
 	//should maybe keep this last as well? -Deedee
 	{ "Weapons Move Offscreen (Buggy, use at own risk)", qr_WEAPONSMOVEOFFSCREEN,
 		"If enabled, weapons can go out of bounds without getting removed. This is"
@@ -1445,7 +1443,6 @@ GUI::ListData const& combinedQRList()
 		nesfixesRulesList.tag(rules_nesfix);
 		playerRulesList.tag(rules_player);
 		weaponsRulesList.tag(rules_weapon);
-		
 		combinedRulesList = animRulesList + comboRulesList + compatRulesList
 			+ enemiesRulesList + itemRulesList + miscRulesList + nesfixesRulesList
 			+ playerRulesList + weaponsRulesList;
@@ -1532,7 +1529,6 @@ GUI::ListData const& combinedZSRList()
 		objectRulesList.tag(rules_zs_object);
 		drawingRulesList.tag(rules_zs_drawing);
 		bugfixRulesList.tag(rules_zs_bugfix);
-		
 		combinedZSRulesList = scriptRulesList + instructionRulesList
 			+ objectRulesList + drawingRulesList + bugfixRulesList;
 		combinedZSRulesList.alphabetize();
@@ -1622,19 +1618,14 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
-	
 	memcpy(local_qrs, realqrs, QR_SZ); //Load QRs
-	
 	if(searchmode)
 	{
 		std::string lower_search = searchstring;
 		lowerstr(lower_search);
-		
 		GUI::ListData tosearch = combinedQRList();
 		if(zs_search)
 			tosearch += combinedZSRList();
-		
 		window = Window(
 			title = "Search Quest Rules",
 			onEnter = message::OK,

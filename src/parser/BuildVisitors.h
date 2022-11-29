@@ -22,7 +22,6 @@ namespace ZScript
 		void visit(AST& node, void* param = NULL);
 		void literalVisit(AST& node, void* param = NULL);
 		void literalVisit(AST* node, void* param = NULL);
-	
 		virtual void caseDefault(AST& host, void* param);
 		virtual void caseSetOption(ASTSetOption& host, void* param);
 		virtual void caseUsing(ASTUsingDecl& host, void* param = NULL);
@@ -103,10 +102,8 @@ namespace ZScript
 
 		template <class Container>
 		void addOpcodes(Container const& container);
-	
 		void deallocateArrayRef(int32_t arrayRef);
 		void deallocateRefsUntilCount(int32_t count);
-		
 		std::vector<std::shared_ptr<Opcode>> result;
 		int32_t returnlabelid;
 		int32_t returnRefCount;
@@ -156,7 +153,6 @@ namespace ZScript
 
 		template <class Container>
 		void addOpcodes(Container const& container);
-	
 		std::vector<std::shared_ptr<Opcode>> result;
 	};
 
@@ -166,10 +162,8 @@ namespace ZScript
 	{
 	public:
 		GetLabels(std::set<int32_t>& usedLabels) : usedLabels(usedLabels) {}
-		
 		std::set<int32_t>& usedLabels;
 		std::vector<int32_t> newLabels;
-		
 		void caseLabel(LabelArgument& host, void*)
 		{
 			int32_t id = host.getID();
@@ -186,12 +180,10 @@ namespace ZScript
 		{
 			std::map<int32_t, int32_t> *labels = (std::map<int32_t, int32_t> *)param;
 			int32_t lineno = (*labels)[host.getID()];
-			
 			if(lineno==0)
 			{
 				zconsole_error("Internal error: couldn't find function label %d", host.getID());
 			}
-			
 			host.setLineNo(lineno);
 		}
 	};

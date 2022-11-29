@@ -18,7 +18,7 @@ const int EVENT_CHECKBOX_CHANGED = 4;
 void Signal_Draw(int id, int x, int y)
 {
     int type=GUI_Data[id+WIDGET_TYPE];
-    
+
     if(type==WTYPE_WINDOW)
         Window_Draw(id, x, y);
     else if(type==WTYPE_BUTTON)
@@ -36,7 +36,7 @@ void Signal_Draw(int id, int x, int y)
 void Signal_OnMouseEnter(int id)
 {
     int type=GUI_Data[id+WIDGET_TYPE];
-    
+
     if(type==WTYPE_BUTTON)
         Button_OnMouseEnter(id);
     else if(type==WTYPE_RADIO_BUTTON)
@@ -48,7 +48,7 @@ void Signal_OnMouseEnter(int id)
 void Signal_OnMouseExit(int id)
 {
     int type=GUI_Data[id+WIDGET_TYPE];
-    
+
     if(type==WTYPE_BUTTON)
         Button_OnMouseExit(id);
     else if(type==WTYPE_RADIO_BUTTON)
@@ -61,7 +61,7 @@ void Signal_OnMouseExit(int id)
 void Signal_OnMouseMove(int id, int x, int y)
 {
     int type=GUI_Data[id+WIDGET_TYPE];
-    
+
     if(type==WTYPE_WINDOW)
         Window_OnMouseMove(id, x, y);
 }
@@ -69,7 +69,7 @@ void Signal_OnMouseMove(int id, int x, int y)
 void Signal_OnMousePress(int id)
 {
     int type=GUI_Data[id+WIDGET_TYPE];
-    
+
     if(type==WTYPE_BUTTON)
         Button_OnMousePress(id);
     else if(type==WTYPE_RADIO_BUTTON)
@@ -81,7 +81,7 @@ void Signal_OnMousePress(int id)
 void Signal_OnMouseRelease(int id)
 {
     int type=GUI_Data[id+WIDGET_TYPE];
-    
+
     if(type==WTYPE_BUTTON)
         Button_OnMouseRelease(id);
     else if(type==WTYPE_RADIO_BUTTON)
@@ -93,7 +93,7 @@ void Signal_OnMouseRelease(int id)
 void Signal_OnMouseWheelUp(int id)
 {
     int type=GUI_Data[id+WIDGET_TYPE];
-    
+
     if(type==WTYPE_SPINNER)
         Spinner_OnMouseWheelUp(id);
 }
@@ -101,7 +101,7 @@ void Signal_OnMouseWheelUp(int id)
 void Signal_OnMouseWheelDown(int id)
 {
     int type=GUI_Data[id+WIDGET_TYPE];
-    
+
     if(type==WTYPE_SPINNER)
         Spinner_OnMouseWheelDown(id);
 }

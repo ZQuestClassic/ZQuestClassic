@@ -137,7 +137,7 @@ instruction. Pointers to this address space are 16 bits wide.
 <p>These are 16-bit address spaces locating data in section
 <code>.progmem<var>N</var>.data</code> where <var>N</var> refers to
 address space <code>__flash<var>N</var></code>.
-The compiler sets the <code>RAMPZ</code> segment register appropriately 
+The compiler sets the <code>RAMPZ</code> segment register appropriately
 before reading data by means of the <code>ELPM</code> instruction.
 </p>
 </dd>
@@ -180,7 +180,7 @@ int main (void)
 </pre></div>
 
 <p>For each named address space supported by avr-gcc there is an equally
-named but uppercase built-in macro defined. 
+named but uppercase built-in macro defined.
 The purpose is to facilitate testing if respective address space
 support is available or not:
 </p>

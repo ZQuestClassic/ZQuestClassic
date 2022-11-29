@@ -31,7 +31,6 @@ struct ffdata
 	int32_t script;
 	int32_t initd[8];
 	int32_t inita[2];
-	
 	ffdata();
 	ffdata(mapscr const* scr, int32_t ind);
 	void clear();
@@ -54,15 +53,12 @@ public:
 private:
 	std::shared_ptr<GUI::Widget> FFC_INITD(int index);
 	void refreshScript();
-	
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::SelComboSwatch> cmbsw;
-	
 	std::string h_initd[8];
 	std::shared_ptr<GUI::TextField> tf_initd[8];
 	std::shared_ptr<GUI::Button> ib_initds[8];
 	std::shared_ptr<GUI::Label> l_initds[8];
-	
 	ffdata ffc;
 	mapscr* thescr;
 	int32_t ffind;

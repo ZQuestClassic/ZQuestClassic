@@ -198,18 +198,18 @@ bool lineBoxCollision(int lineX1, int lineY1, int lineX2, int lineY2, int boxX1,
 	// Shrink down the box for the border
 	boxX1 += boxBorder; boxY1 += boxBorder;
 	boxX2 -= boxBorder; boxY2 -= boxBorder;
-	
+
 	// If the line isn't vertical
 	if(lineX2!=lineX1)
 	{
-		
+
 		float i0 = (boxX1 - lineX1)/(lineX2-lineX1);
 		float i1 = (boxX2 - lineX1)/(lineX2-lineX1);
-		
+
 		float yA = lineY1 + i0*(lineY2-lineY1);
 		float yB = lineY1 + i1*(lineY2-lineY1);
-		
-		
+
+
 		if(Max(boxX1, boxX2) >= Min(lineX1, lineX2) && Min(boxX1, boxX2) <= Max(lineX1, lineX2) &&
 			Max(boxY1, boxY2) >= Min(lineY1, lineY2) && Min(boxY1, boxY2) <= Max(lineY1, lineY2))
 		{
@@ -227,18 +227,18 @@ bool lineBoxCollision(int lineX1, int lineY1, int lineX2, int lineY2, int boxX1,
 		// Basically we need to find the top and bottom y values of the line to check for intersection
 		float lineYMin = lineY1;
 		float lineYMax = lineY2;
-		
+
 		if(lineYMin > lineYMax)
 		{
 			lineYMin = lineY2;
 			lineYMax = lineY1;
 		}
-		
+
 		// If either point intersects
 		if((boxY1 >= lineYMin && boxY1 <= lineYMax) || (boxY2 >= lineYMin && boxY2 <= lineYMax))
 			return true;
 	}
-	
+
 	return false;
 } //! End of lineBoxCollision
 
@@ -247,12 +247,12 @@ float angleDifference(float angle1, float angle2)
 {
 	// Get the difference between the two angles
 	float dif = angle2 - angle1;
-	
+
 	// Compensate for the difference being outside of normal bounds
 	if(dif >= PI)
 		dif -= 2 * PI;
 	else if(dif <= -1 * PI)
 		dif += 2 * PI;
-		
+
 	return dif;
 }

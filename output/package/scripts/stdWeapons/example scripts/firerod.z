@@ -20,7 +20,7 @@ ffc script FireRod{
 		PutFFCInFrontOfLink(magic, 16);
 		Game->PlaySound(SFX_FIRE);
 		MeleeWeaponEndStrike(this, wand, wand->Misc[LWEAPON_MISC_ORIGTILE], 12, 2, 2);
-	}	
+	}
 }
 
 ffc script FireRodFlame{

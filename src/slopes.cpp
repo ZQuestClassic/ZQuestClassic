@@ -15,7 +15,6 @@ slope_info::slope_info(newcombo const& cmb, zfix const& xoffs, zfix const& yoffs
 	y1 = yoffs + int32_t(cmb.attrishorts[1]);
 	x2 = xoffs + int32_t(cmb.attrishorts[2]);
 	y2 = yoffs + int32_t(cmb.attrishorts[3]);
-	
 	if(x1 > x2)
 	{
 		zc_swap(x1,x2);
@@ -69,7 +68,6 @@ slope_info slope_object::get_info() const
 	newcombo const& cmb = combobuf[*id];
 	if(cmb.type != cSLOPE)
 		return slope_info();
-	
 	return slope_info(cmb, ff ? ffc->x : xoffs, ff ? ffc->y : yoffs);
 }
 
@@ -184,7 +182,7 @@ slope_object const& get_slope(int32_t tx, int32_t ty, int32_t tw, int32_t th)
 	{
 		slope_object const& obj = p.second;
 		slope_info const& s = obj.get_info();
-		if (lineBoxCollision(s.x1, s.y1, s.x2, s.y2, tx, ty, tw, th)) 
+		if (lineBoxCollision(s.x1, s.y1, s.x2, s.y2, tx, ty, tw, th))
 		{
 			zfix cx = tx + tw/2 - 1;
 			zfix cy = ty + th/2 - 1;
@@ -268,10 +266,8 @@ bool slide_slope(solid_object* obj, zfix& dx, zfix& dy, zfix& ID)
 	if (!obj->sideview_mode()) return false;
 	zfix tx = obj->x+obj->hxofs+obj->sxofs, ty = obj->y+obj->hyofs+obj->syofs,
 		tw = obj->hxsz+obj->sxsz_ofs, th = obj->hysz+obj->sysz_ofs;
-		
 	dx = dy = 0;
 	zfix otx = tx, oty = ty;
-	
 	for (auto const& p : slopes)
 	{
 		slope_object const& obj = p.second;

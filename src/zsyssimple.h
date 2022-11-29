@@ -13,4 +13,3 @@ void box_eol();
 void Z_message(char *format,...);
 
 #endif
- 

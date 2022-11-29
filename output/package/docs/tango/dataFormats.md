@@ -92,9 +92,9 @@ what is being drawn.
 TANGO_DRAW_RECT
 TANGO_DRAW_RECT_TRANS
 :   A plain rectangle, either opaque or transparent.
-    
+
     Data:
-    
+
     1. CSet
     2. Color (0-15 within the CSet)
     3. X position
@@ -105,9 +105,9 @@ TANGO_DRAW_RECT_TRANS
 TANGO_DRAW_TILE
 TANGO_DRAW_TILE_TRANS
 :   A block of tiles, either opaque or transparent.
-    
+
     Data:
-    
+
     1. Starting tile
     2. CSet
     3. X position
@@ -118,9 +118,9 @@ TANGO_DRAW_TILE_TRANS
 TANGO_DRAW_COMBO
 TANGO_DRAW_COMBO_TRANS
 :   A block of tiles drawn from a combo, either opaque or transparent.
-    
+
     Data:
-    
+
     1. Starting combo
     2. CSet
     3. X position
@@ -133,9 +133,9 @@ TANGO_DRAW_TEXT
     the slot is active. The font must be a Tango font, not a built-in one.
     If you want to center the text, you can use `Tango_GetStringWidth()`
     to find its width.
-    
+
     Data:
-    
+
     1. String pointer
     2. Font
     3. CSet
@@ -182,27 +182,27 @@ tile-based characters can use multiple colors, and they can even be 8-bit.
 A font definition is an array consisting of the following data, in order:
 
 1. Font type
-    
+
     This must be one of:
-    
+
     * `TANGO_FONT_BUILTIN`
     * `TANGO_FONT_EXTENDED`
     * `TANGO_FONT_CUSTOM`
 
 2. Width type
-    
+
     This must be one of:
-    
+
     * `TANGO_FONT_MONOSPACE`
     * `TANGO_FONT_PROPORTIONAL`
 
 3. Font ID
-    
+
     For built-in and extended fonts, this is the value of the built-in font;
     use one of std.zh's `FONT` constants. Custom fonts ignore this value.
 
 4. Tile start
-    
+
     This is the tile used by the first extended character (256) in extended
     fonts or the first printable character (33, '!') in custom fonts. Built-in
     fonts ignore this value.
@@ -220,7 +220,7 @@ A font definition is an array consisting of the following data, in order:
     not the total line height.
 
 7. (and up) Character widths in pixels
-    
+
     The width of each character, including any trailing space. In monospaced
     fonts, this is a single value. For proportional fonts, this is a list of
     widths for each character starting from space (32). Characters 32-126

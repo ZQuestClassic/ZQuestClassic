@@ -98,7 +98,6 @@ int32_t get_conveyor(int32_t x, int32_t y)
 		for (int32_t i = 0; i <= 1; ++i)
 		{
 			if(!tmpscr2[i].valid) continue;
-			
 			auto tcid = MAPCOMBO2(i,x,y);
 			if(is_conveyor(combobuf[tcid].type))
 			{
@@ -122,7 +121,6 @@ int32_t get_conveyor(int32_t x, int32_t y)
 		for (int32_t i = 0; i <= 1; ++i)
 		{
 			if(!tmpscr2[i].valid) continue;
-			
 			auto tcid = MAPCOMBO2(i,x,y);
 			if(combobuf[tcid].type == cBRIDGE)
 			{
@@ -171,7 +169,6 @@ void sprite::check_conveyor()
             {
                 y=y+abs(deltay);
             }
-            
             if(deltax<0&&!_walkflag(x-2,y+8,1))
             {
                 x=x-abs(deltax);
@@ -297,14 +294,11 @@ bool movingblock::animate(int32_t)
 		solid_update(false);
 		return false;
 	}
-		
 	move(step);
-	
 	if(--clk==0)
 	{
 		trigger = false; bhole = false;
 		blockmoving=false;
-		
 		if((fallCombo = getpitfall(x+8,y+8)))
 		{
 			fallclk = PITFALL_FALL_FRAMES;
@@ -361,7 +355,6 @@ bool movingblock::animate(int32_t)
 					m->sflag[combopos]=mfPUSHED;
 			}
 		}
-		
 		if((f1==mfBLOCKHOLE)||f2==mfBLOCKHOLE)
 		{
 			m->data[combopos]+=1;
@@ -399,7 +392,6 @@ bool movingblock::animate(int32_t)
 		else if(!fallclk&&!drownclk)
 		{
 			f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
-			
 			if(!(force_many || (f2==mfPUSHUDINS && dir<=down) ||
 					(f2==mfPUSHLRINS && dir>=left) ||
 					(f2==mfPUSHUINS && dir==up) ||
@@ -412,7 +404,6 @@ bool movingblock::animate(int32_t)
 			}
 		}
 		if(fallclk||drownclk) return false;
-		
 		bool didtrigger = trigger;
 		if(didtrigger)
 		{
@@ -446,16 +437,13 @@ bool movingblock::animate(int32_t)
 				if(!didtrigger) break;
 			}
 		}
-		
 		if(oldflag>=mfPUSHUDINS && !(trigger && !(no_trig_replace && trig_is_layer))
 			&& !bhole)
 		{
 			m->sflag[combopos]=oldflag;
 		}
-		
 		//triggers a secret
 		f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
-		
 		if((oldflag==mfPUSH4 ||
 			(oldflag==mfPUSHUD && dir<=down) ||
 			(oldflag==mfPUSHLR && dir>=left) ||
@@ -501,7 +489,6 @@ bool movingblock::animate(int32_t)
 					}
 				}
 			}
-			
 			if(hiddenstair(0,true))
 			{
 				sfx(tmpscr->secretsfx);
@@ -509,7 +496,6 @@ bool movingblock::animate(int32_t)
 			else
 			{
 				hidden_entrance(0,true,true);
-				
 				if((combobuf[bcombo].type == cPUSH_WAIT) ||
 						(combobuf[bcombo].type == cPUSH_HW) ||
 						(combobuf[bcombo].type == cPUSH_HW2) || didtrigger)
@@ -517,12 +503,10 @@ bool movingblock::animate(int32_t)
 					sfx(tmpscr->secretsfx);
 				}
 			}
-			
 			if(isdungeon() && tmpscr->flags&fSHUTTERS)
 			{
 				opendoors=8;
 			}
-			
 			if(canPermSecret())
 			{
 				if(get_bit(quest_rules, qr_NONHEAVY_BLOCKTRIGGER_PERM) ||
@@ -533,10 +517,8 @@ bool movingblock::animate(int32_t)
 				}
 			}
 		}
-		
 		putcombo(scrollbuf,x,y,bcombo,cs);
 	}
-	
 	return false;
 }
 

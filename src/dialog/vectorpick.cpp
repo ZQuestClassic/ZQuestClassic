@@ -27,11 +27,8 @@ std::shared_ptr<GUI::Widget> VectorPickDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Key;
 	using namespace GUI::Props;
-	
 	std::shared_ptr<GUI::Grid> wingrid, sgrid;
-	
 	sgrid = GUI::Internal::makeRows(sized(2,4));
-	
 	window = Window(
 		title = "Vector Editor",
 		minwidth = 30_em,
@@ -55,7 +52,6 @@ std::shared_ptr<GUI::Widget> VectorPickDialog::view()
 			)
 		)
 	);
-	
 	if(min)
 	{
 		if(local_vec.size() < min)
@@ -66,10 +62,8 @@ std::shared_ptr<GUI::Widget> VectorPickDialog::view()
 		if(local_vec.size() > max)
 			local_vec.resize(max);
 	}
-	
 	bool atmin = (min && local_vec.size() <= min) || local_vec.empty();
 	bool atmax = max && local_vec.size() >= max;
-	
 	if(min || max)
 	{
 		char buf[256];
@@ -88,7 +82,6 @@ std::shared_ptr<GUI::Widget> VectorPickDialog::view()
 		}
 		wingrid->add(Label(text = buf));
 	}
-	
 	wingrid->add(Row(padding = 0_px,
 		Button(
 			text = "Empty",
@@ -104,14 +97,13 @@ std::shared_ptr<GUI::Widget> VectorPickDialog::view()
 		Button(
 			text = "Fill",
 			onClick = message::RELOAD,
-			disabled = atmax || !max, 
+			disabled = atmax || !max,
 			onPressFunc = [&]()
 			{
 				local_vec.resize(max);
 			}
 		)
 	));
-	
 	for(size_t ind = 0; ind < local_vec.size(); ++ind)
 	{
 		std::shared_ptr<GUI::Grid> row = Row(framed = true);

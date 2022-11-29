@@ -25,7 +25,6 @@ public:
 	void setMiniCrn(int32_t val);
 	void setTileWid(int32_t val);
 	void setTileHei(int32_t val);
-	
 	void click();
 
 	int32_t getTile();
@@ -44,13 +43,11 @@ public:
 	{
 		onSelectFunc = newOnSelect;
 	}
-	
 	template<typename T>
 	RequireMessage<T> onSelectionChanged(T m)
 	{
 		message = static_cast<int32_t>(m);
 	}
-	
 	int32_t sel_color;
 	void calc_selcolor();
 protected:
@@ -67,7 +64,6 @@ private:
 	bool minionly;
 	DialogRef alDialog;
 	std::function<void(int32_t,int32_t,int32_t,int32_t)> onSelectFunc;
-	
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;
 	void realize(DialogRunner& runner) override;

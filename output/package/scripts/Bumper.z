@@ -4,7 +4,7 @@ const int SFX_LTTP_BUMPER = 76; //The sound that plays when Link hits a bumper
 
 const int MAX_PUSH = 4; //Max speed the script can move Link in one frame
 
-//Combo Setup: Each set of bumper combos should be arranged as so: 
+//Combo Setup: Each set of bumper combos should be arranged as so:
 //Bumper Frame 1
 //Bumper Frame 2
 //Bumper Frame 3

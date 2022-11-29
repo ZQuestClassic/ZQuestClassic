@@ -16,7 +16,6 @@ class DDPanel: public TabPanel
 {
 public:
 	DDPanel();
-	
 	void linkVals(int32_t* vals);
 	void setCount(size_t count);
 	void loadDDList(GUI::ListData const& theData);

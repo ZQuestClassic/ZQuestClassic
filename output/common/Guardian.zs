@@ -20,10 +20,10 @@ namespace std
 			{
 			    float angle=wpn->Angle%6.2832;
 			    int dir;
-			    
+
 			    if(angle<0)
 				angle+=6.2832;
-			    
+
 			    if(angle<0.3927 || angle>5.8905)
 				dir=DIR_RIGHT;
 			    else if(angle<1.1781)
@@ -55,8 +55,8 @@ namespace std
 			    wpn->Angle=ArcTan(Link->X-x, Link->Y-y)+angle;
 
 
-			    Aim(wpn); 
-			    
+			    Aim(wpn);
+
 			    return wpn;
 			}
 			//DEFAULT VALUES
@@ -68,17 +68,17 @@ namespace std
 			const int COOLDOWN	= 150;
 			const int WEAPONID	= EW_SCRIPT1;
 			const int SOUND		= 70;
-			
+
 		}
 	}
 }
 
 npc script Guardian
 {
-	
-	
+
+
 	void run (int angleOfVision, int shotStep, int shotCooldownTime, int weaponType, int shotSFX, int laserColour)
-	{  
+	{
 		//Get attributes
 		angleOfVision = (this->InitD[0] > 0 ) ? this->InitD[0] : std::weapons::laser::ANGLE_VISION;
 		shotStep = (this->InitD[1] > 0 ) ? this->InitD[1] : std::weapons::laser::SPEED;
@@ -86,12 +86,12 @@ npc script Guardian
 		weaponType = (this->InitD[3] > 0 ) ? this->InitD[3] : std::weapons::laser::WEAPONID;
 		shotSFX = (this->InitD[4] > 0 ) ? this->InitD[4]: std::weapons::laser::SOUND;
 		laserColour = (this->InitD[5] > 0 ) ? this->InitD[5]: std::weapons::laser::COLOUR;
- 
+
 		int laserStartX;
 		int laserStartY;
- 
+
 		eweapon beam;
- 
+
 		while(this->isValid())
 		{
 			laserStartX = this->X + 8;
@@ -107,11 +107,11 @@ npc script Guardian
 				if ( (Abs((Angle(CenterX(this), CenterY(this), CenterLinkX(), CenterLinkY())) - (Dir4Angle(this->Dir)))) <= angleOfVision/2 )
 				{
 					shotCooldownTime = (this->InitD[2] > 0 ) ? this->InitD[2] : std::weapons::laser::COOLDOWN; //can reduce down by reading InitD again -Z
-        
+
 					laserStartX = CenterX(this);
 					laserStartY = CenterY(this);
-					
-					
+
+
 					/*beam = Screen->CreateEWeapon(weaponType);
 					beam->X = laserStartX;
 					beam->Y = laserStartY;
@@ -124,15 +124,15 @@ npc script Guardian
 					//beam->DrawXOffset = 999; //Draw off-screen
 				}
 			}
-  
+
 			//Draw laser beam
 			if ( beam->isValid() )
 			{
 				Screen->Line(std::weapons::laser::LAYER, laserStartX, laserStartY, CenterX(beam), CenterY(beam), laserColour, 1, 0, 0, 0, std::weapons::laser::OPACITY);
 			}
- 
+
 			Waitframe();
 		}
 	}
 }
-  
+
