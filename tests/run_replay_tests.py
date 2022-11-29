@@ -72,7 +72,7 @@ if args.filter:
         exit(1)
 if args.ci:
     skip_in_ci = [
-        # None!
+        'solid.zplay' if args.ci == 'windows' else None,
     ]
     tests = [t for t in tests if t.name not in skip_in_ci]
 
