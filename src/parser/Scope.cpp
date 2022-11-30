@@ -4,7 +4,7 @@
 
 #include <set>
 #include "CompileError.h"
-#include "GlobalSymbols.h"
+#include "LibrarySymbols.h"
 #include "Types.h"
 #include "ZScript.h"
 

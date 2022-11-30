@@ -1210,8 +1210,23 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		for (auto it = host.parameters.begin();
 			it != host.parameters.end(); ++it)
 		{
-			visit(*it, param);
-			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			//Compile-time constants can be optimized slightly...
+			if(std::optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
+				addOpcode(new OPushImmediate(new LiteralArgument(*val)));
+			else
+			{
+				visit(*it, param);
+				addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			}
+		}
+		//push any optional parameter values
+		auto num_actual_params = func.paramTypes.size();
+		auto used_opt_params = num_actual_params - host.parameters.size();
+		auto opt_param_count = func.opt_vals.size();
+		auto skipped_optional_params = opt_param_count - used_opt_params;
+		for(auto q = skipped_optional_params; q < opt_param_count; ++q)
+		{
+			addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
 		}
 		
 		std::vector<std::shared_ptr<Opcode>> const& funcCode = func.getCode();
@@ -1281,7 +1296,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			}
 		}
-		//push any std::optional parameter values
+		//push any optional parameter values
 		auto num_actual_params = func.paramTypes.size();
 		auto used_opt_params = num_actual_params - host.parameters.size();
 		auto opt_param_count = func.opt_vals.size();

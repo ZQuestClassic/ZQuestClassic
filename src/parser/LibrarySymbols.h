@@ -33,6 +33,18 @@ struct AccessorTable
 	int32_t numParams;
     int32_t params[20];
 };
+struct AccessorTable2
+{
+    string name;
+	int32_t tag;
+    int32_t rettype;
+    int32_t var;
+    //int32_t numindex; //!TODO Remove this bullshit
+	int32_t funcFlags;
+	//int32_t numParams;
+    vector<int32_t> params;
+    vector<int32_t> optparams;
+};
 
 class LibrarySymbols
 {
@@ -43,12 +55,16 @@ public:
     virtual ~LibrarySymbols();
 
 protected:
+	LibrarySymbols() : refVar(0), hasPrefixType(true),
+		table(nullptr), table2(nullptr)
+	{}
     AccessorTable *table;
-	LibrarySymbols() : refVar(0), hasPrefixType(true) {}
+    AccessorTable2 *table2;
     int32_t refVar;
 	bool hasPrefixType;
 
 	ZScript::Function* getFunction(string const& name, int32_t numParams) const;
+	ZScript::Function* getFunction2(string const& name, int32_t tag = 0) const;
 
 private:
 	map<std::pair<string, int32_t>, ZScript::Function*> functions;

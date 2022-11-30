@@ -5,7 +5,7 @@
 #include "ByteCode.h"
 #include "CompileError.h"
 #include "CompileOption.h"
-#include "GlobalSymbols.h"
+#include "LibrarySymbols.h"
 #include "y.tab.hpp"
 #include <iostream>
 #include <assert.h>
@@ -58,66 +58,76 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 	zscript_error_out = false;
 	ScriptParser::initialize();
 	
-	zconsole_info("%s", "Pass 1: Parsing");
-
-	unique_ptr<ASTFile> root(parseFile(filename, true));
-	if(zscript_error_out) return nullptr;
-	if (!root.get())
+	try
 	{
-		log_error(CompileError::CantOpenSource(NULL));
+		zconsole_info("%s", "Pass 1: Parsing");
+
+		unique_ptr<ASTFile> root(parseFile(filename, true));
+		if(zscript_error_out) return nullptr;
+		if (!root.get())
+		{
+			log_error(CompileError::CantOpenSource(NULL));
+			return nullptr;
+		}
+
+		zconsole_info("%s", "Pass 2: Preprocessing");
+
+		if (!ScriptParser::preprocess(root.get(), ScriptParser::recursionLimit))
+			return nullptr;
+		if(zscript_error_out) return nullptr;
+
+		SimpleCompileErrorHandler handler;
+		Program program(*root, &handler);
+		if (handler.hasError())
+			return nullptr;
+		if(zscript_error_out) return nullptr;
+
+		zconsole_info("%s", "Pass 3: Registration");
+
+		RegistrationVisitor regVisitor(program);
+		if(regVisitor.hasFailed()) return nullptr;
+		if(zscript_error_out) return nullptr;
+
+		zconsole_info("%s", "Pass 4: Analyzing Code");
+
+		SemanticAnalyzer semanticAnalyzer(program);
+		if (semanticAnalyzer.hasFailed() || regVisitor.hasFailed())
+			return nullptr;
+		if(zscript_error_out) return nullptr;
+
+		FunctionData fd(program);
+		if(zscript_error_out) return nullptr;
+		if (fd.globalVariables.size() > MAX_SCRIPT_REGISTERS)
+		{
+			log_error(CompileError::TooManyGlobal(NULL));
+			return nullptr;
+		}
+
+		zconsole_info("%s", "Pass 5: Generating object code");
+
+		unique_ptr<IntermediateData> id(ScriptParser::generateOCode(fd));
+		if (!id.get())
+			return nullptr;
+		if(zscript_error_out) return nullptr;
+		
+		zconsole_info("%s", "Pass 6: Assembling");
+
+		ScriptParser::assemble(id.get());
+
+		unique_ptr<ScriptsData> result(new ScriptsData(program));
+		if(zscript_error_out) return nullptr;
+
+		zconsole_info("%s", "Success!");
+
+		return unique_ptr<ScriptsData>(result.release());
+	}
+	catch (std::runtime_error &e)
+	{
+		zconsole_error("An unexpected runtime error has occurred:");
+		zconsole_error("    %s", e.what());
+		zscript_had_warn_err = zscript_error_out = true;
 		return nullptr;
 	}
-
-	zconsole_info("%s", "Pass 2: Preprocessing");
-
-	if (!ScriptParser::preprocess(root.get(), ScriptParser::recursionLimit))
-		return nullptr;
-	if(zscript_error_out) return nullptr;
-
-	SimpleCompileErrorHandler handler;
-	Program program(*root, &handler);
-	if (handler.hasError())
-		return nullptr;
-	if(zscript_error_out) return nullptr;
-
-	zconsole_info("%s", "Pass 3: Registration");
-
-	RegistrationVisitor regVisitor(program);
-	if(regVisitor.hasFailed()) return nullptr;
-	if(zscript_error_out) return nullptr;
-
-	zconsole_info("%s", "Pass 4: Analyzing Code");
-
-	SemanticAnalyzer semanticAnalyzer(program);
-	if (semanticAnalyzer.hasFailed() || regVisitor.hasFailed())
-		return nullptr;
-	if(zscript_error_out) return nullptr;
-
-	FunctionData fd(program);
-	if(zscript_error_out) return nullptr;
-	if (fd.globalVariables.size() > MAX_SCRIPT_REGISTERS)
-	{
-		log_error(CompileError::TooManyGlobal(NULL));
-		return nullptr;
-	}
-
-	zconsole_info("%s", "Pass 5: Generating object code");
-
-	unique_ptr<IntermediateData> id(ScriptParser::generateOCode(fd));
-	if (!id.get())
-		return nullptr;
-	if(zscript_error_out) return nullptr;
-	
-	zconsole_info("%s", "Pass 6: Assembling");
-
-	ScriptParser::assemble(id.get());
-
-	unique_ptr<ScriptsData> result(new ScriptsData(program));
-	if(zscript_error_out) return nullptr;
-
-	zconsole_info("%s", "Success!");
-
-	return unique_ptr<ScriptsData>(result.release());
 }
 
 int32_t ScriptParser::vid = 0;
