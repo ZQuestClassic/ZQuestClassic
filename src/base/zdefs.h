@@ -2672,7 +2672,12 @@ struct zasm_meta
 	{
 		return !(*this == other);
 	}
+	
+	bool parse_meta(const char *buffer);
+	std::string get_meta() const;
 };
+int32_t get_script_type(std::string const& name);
+std::string get_script_name(int32_t type);
 
 struct ffscript
 {

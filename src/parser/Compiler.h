@@ -117,23 +117,18 @@ namespace ZScript
 		}
 		disassembled_script_data() : format(SCRIPT_FORMAT_DEFAULT)
 		{}
-		void write(FILE* dest, bool al = false)
+		void write(FILE* dest, bool al = false) const
 		{
-			std::string str = get_meta(first);
+			std::string str = "\n\n"+first.get_meta();
 			fwrite(str.c_str(), sizeof(char), str.size(), dest);
 			if(al)
-			{
-				al_trace("\n%s\n",first.script_name.c_str());
 				safe_al_trace(str.c_str());
-			}
 			for(auto& line : second)
 			{
 				str = line->printLine();
 				fwrite(str.c_str(), sizeof(char), str.size(), dest);
 				if(al)
-				{
 					al_trace("%s",str.c_str());
-				}
 			}
 		}
 	};
