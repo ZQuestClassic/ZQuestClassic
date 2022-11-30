@@ -779,7 +779,7 @@ bool trigger_step(int32_t lyr, int32_t pos)
 					++tmpscr->data[q];
 				}
 			}
-			if (get_bit(quest_rules,qr_FFCTRIGGER))
+			if (!get_bit(quest_rules,qr_FFCTRIGGER))
 			{
 				word c = tmpscr->numFFC();
 				for(word i=0; i<c; i++)
@@ -803,7 +803,7 @@ bool trigger_step(int32_t lyr, int32_t pos)
 					++tmpscr->data[q];
 				}
 			}
-			if (get_bit(quest_rules,qr_FFCTRIGGER))
+			if (!get_bit(quest_rules,qr_FFCTRIGGER))
 			{
 				word c = tmpscr->numFFC();
 				for(word i=0; i<c; i++)
@@ -851,7 +851,7 @@ bool trigger_step_ffc(int32_t pos)
 					++tmpscr->data[q];
 				}
 			}
-			if (get_bit(quest_rules,qr_FFCTRIGGER))
+			if (!get_bit(quest_rules,qr_FFCTRIGGER))
 			{
 				word c = tmpscr->numFFC();
 				for(word i=0; i<c; i++)
@@ -875,7 +875,7 @@ bool trigger_step_ffc(int32_t pos)
 					++tmpscr->data[q];
 				}
 			}
-			if (get_bit(quest_rules,qr_FFCTRIGGER))
+			if (!get_bit(quest_rules,qr_FFCTRIGGER))
 			{
 				word c = tmpscr->numFFC();
 				for(word i=0; i<c; i++)
@@ -1146,6 +1146,109 @@ bool trigger_chest(int32_t lyr, int32_t pos)
 	}
 	return true;
 }
+
+bool trigger_chest_ffc(int32_t pos)
+{
+	if(unsigned(pos) >= MAXFFCS) return false;
+	ffcdata& ffc = tmpscr->ffcs[pos];
+	newcombo const& cmb = combobuf[ffc.getData()];
+	int32_t cid = ffc.getData();
+	switch(cmb.type)
+	{
+		case cLOCKEDCHEST: //Special flags!
+			//if(!usekey()) return; //Old check
+			if(!try_locked_combo(cmb)) return false;
+			
+			if(cmb.usrflags&cflag16)
+			{
+				setxmapflag(1<<cmb.attribytes[5]);
+				remove_xstatecombos((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				break;
+			}
+			setmapflag(mLOCKEDCHEST);
+			break;
+			
+		case cCHEST:
+			if(cmb.usrflags&cflag16)
+			{
+				setxmapflag(1<<cmb.attribytes[5]);
+				remove_xstatecombos((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				break;
+			}
+			setmapflag(mCHEST);
+			break;
+			
+		case cBOSSCHEST:
+			if(!(game->lvlitems[dlevel]&liBOSSKEY)) return false;
+			// Run Boss Key Script
+			int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
+			for ( int32_t q = 0; q < MAXITEMS; ++q )
+			{
+				if ( itemsbuf[q].family == itype_bosskey )
+				{
+					key_item = q; break;
+				}
+			}
+			if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+			{
+				ri = &(itemScriptData[key_item]);
+				for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+				ri->Clear();
+				item_doscript[key_item] = 1;
+				itemscriptInitialised[key_item] = 0;
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+				FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+			}
+			
+			if(cmb.usrflags&cflag16)
+			{
+				setxmapflag(1<<cmb.attribytes[5]);
+				remove_xstatecombos((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				break;
+			}
+			setmapflag(mBOSSCHEST);
+			break;
+	}
+	
+	sfx(cmb.attribytes[3]); //opening sfx
+	
+	bool itemflag = false;
+	if(combobuf[cid].flag==mfARMOS_ITEM)
+	{
+		itemflag = true;
+	}
+	bool itemstate = false;
+	int32_t ipflag = 0;
+	if(cmb.usrflags & cflag7)
+	{
+		itemstate = getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+		ipflag = (currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? ipONETIME : ipONETIME2;
+	}
+	if(itemflag && !itemstate)
+	{
+		int32_t pflags = ipflag | ipBIGRANGE | ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0);
+		int32_t itid = cmb.attrishorts[2];
+		switch(itid)
+		{
+			case -10: case -11: case -12: case -13:
+			case -14: case -15: case -16: case -17:
+			{
+				int32_t di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
+				itid = game->screen_d[di][abs(itid)-10] / 10000L;
+				break;
+			}
+			case -1:
+				itid = tmpscr->catchall;
+				break;
+		}
+		if(unsigned(itid) >= MAXITEMS) itid = 0;
+		item* itm = new item(Hero.getX(), Hero.getY(), 0, itid, pflags, 0);
+		itm->set_forcegrab(true);
+		items.add(itm);
+	}
+	return true;
+}
+
 
 bool trigger_lockblock(int32_t lyr, int32_t pos)
 {
@@ -1968,6 +2071,48 @@ void do_ex_trigger(int32_t lyr, int32_t pos)
 		}
 	}
 }
+
+void do_ex_trigger_ffc(int32_t pos)
+{
+	if(unsigned(pos) >= MAXFFCS) return;
+	ffcdata& ffc = tmpscr->ffcs[pos];
+	int32_t cid = ffc.getData();
+	int32_t ocs = ffc.cset;
+	newcombo const& cmb = combobuf[cid];	
+	if(cmb.trigchange)
+	{
+		ffc.setData(cid+cmb.trigchange);
+	}
+	if(cmb.trigcschange)
+	{
+		ffc.cset = (ocs+cmb.trigcschange) & 0xF;
+	}
+	if(cmb.triggerflags[0] & combotriggerRESETANIM)
+	{
+		newcombo& rcmb = combobuf[ffc.getData()];
+		rcmb.tile = rcmb.o_tile;
+		rcmb.cur_frame=0;
+		rcmb.aclk = 0;
+	}
+	
+	if(cmb.trigcopycat) //has a copycat set
+	{
+		if(!copycat_id) //not already in a copycat
+		{
+			bool skipself = ffc.getData() == cid;
+			copycat_id = cmb.trigcopycat;
+			for(auto cclayer = 0; cclayer < 7; ++cclayer)
+			{
+				for(auto ccpos = 0; ccpos < 176; ++ccpos)
+				{
+					do_copycat_trigger(cclayer, ccpos);
+				}
+			}
+			copycat_id = 0;
+		}
+	}
+}
+
 bool force_ex_trigger(int32_t lyr, int32_t pos, char xstate)
 {
 	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
@@ -1978,6 +2123,22 @@ bool force_ex_trigger(int32_t lyr, int32_t pos, char xstate)
 		if(xstate >= 0 || getxmapflag(1<<cmb.exstate))
 		{
 			do_ex_trigger(lyr,pos);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool force_ex_trigger_ffc(int32_t pos, char xstate)
+{
+	if(unsigned(pos) >= MAXFFCS) return false;
+	ffcdata& ffc = tmpscr->ffcs[pos];
+	newcombo const& cmb = combobuf[ffc.getData()];	
+	if(cmb.exstate > -1 && (xstate < 0 || xstate == cmb.exstate))
+	{
+		if(xstate >= 0 || getxmapflag(1<<cmb.exstate))
+		{
+			do_ex_trigger_ffc(pos);
 			return true;
 		}
 	}

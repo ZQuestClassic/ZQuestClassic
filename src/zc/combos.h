@@ -25,6 +25,7 @@ void trigger_cuttable_ffc(int32_t pos);
 bool trigger_step(int32_t lyr, int32_t pos);
 bool trigger_step_ffc(int32_t pos);
 bool trigger_chest(int32_t lyr, int32_t pos);
+bool trigger_chest_ffc(int32_t pos);
 bool trigger_lockblock(int32_t lyr, int32_t pos);
 bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir = -1);
 bool trigger_damage_combo(int32_t cid, int32_t hdir = -1, bool force_solid = false);
@@ -32,7 +33,9 @@ bool trigger_stepfx(int32_t lyr, int32_t pos, bool stepped = false);
 void trigger_save(newcombo const& cmb);
 
 void do_ex_trigger(int32_t lyr, int32_t pos);
+void do_ex_trigger_ffc(int32_t pos);
 bool force_ex_trigger(int32_t lyr, int32_t pos, char xstate = -1);
+bool force_ex_trigger_ffc(int32_t pos, char xstate = -1);
 bool do_trigger_combo(int32_t layer, int32_t pos, int32_t special = 0, weapon* w = NULL);
 
 bool do_lift_combo(int32_t lyr, int32_t pos, int32_t gloveid);

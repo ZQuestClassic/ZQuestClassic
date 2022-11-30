@@ -1614,6 +1614,34 @@ bool remove_xstatecombos2(mapscr *s, mapscr *t, int32_t mi, byte xflag, bool tri
 			}
 		}
 	}
+	if (!get_bit(quest_rules,qr_FFCTRIGGER))
+	{
+		word c = tmpscr->numFFC();
+		for(word i=0; i<c; i++)
+		{
+			ffcdata& ffc2 = tmpscr->ffcs[i];
+			newcombo const& cmb = combobuf[ffc2.getData()];
+			if(triggers && force_ex_trigger_ffc(i,xflag))
+				didit = true;
+			else switch(cmb.type)
+			{
+				case cLOCKBLOCK: case cLOCKBLOCK2:
+				case cBOSSLOCKBLOCK: case cBOSSLOCKBLOCK2:
+				case cCHEST: case cCHEST2:
+				case cLOCKEDCHEST: case cLOCKEDCHEST2:
+				case cBOSSCHEST: case cBOSSCHEST2:
+				{
+					if(!(cmb.usrflags&cflag16)) continue; //custom state instead of normal state
+					if(cmb.attribytes[5] == xflag)
+					{
+						ffc2.incData(1);
+						didit=true;
+					}
+					break;
+				}
+			}
+		}
+	}
 	
 	return didit;
 }
