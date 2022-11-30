@@ -282,7 +282,7 @@ int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y)
 
 // True if the FFC covers x, y and is not ethereal or a changer.
 // Used by MAPFFCOMBO(), MAPFFCOMBOFLAG, and getFFCAt().
-inline bool ffcIsAt(int32_t index, int32_t x, int32_t y)
+bool ffcIsAt(int32_t index, int32_t x, int32_t y)
 {
     int32_t fx=tmpscr->ffcs[index].x.getInt();
     if(x<fx || x>fx+(tmpscr->ffEffectWidth(index)-1)) // FFC sizes are weird.
