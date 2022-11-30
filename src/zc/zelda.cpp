@@ -435,7 +435,7 @@ int32_t hooked_combopos = -1, switchhook_cost_item = -1;
 int32_t is_conveyor_stunned = 0;
 uint16_t hooked_layerbits = 0;
 int32_t hooked_undercombos[14] = {0};
-sprite* switching_object = NULL;
+solid_object* switching_object = NULL;
 
 byte COOLSCROLL = 0;
 

@@ -29,11 +29,12 @@ public:
 	word script;
 	int32_t initd[INITIAL_D];
 	int32_t inita[INITIAL_A];
-	bool initialized;
+	bool initialized, hooked;
 	
 	ffcdata();
 	~ffcdata();
 	ffcdata(ffcdata const& other);
+	virtual void solid_update(bool push = true) override;
 	virtual void copy(ffcdata const& other);
 	void changerCopy(ffcdata& other, int32_t i = -1, int32_t j = -1);
 	ffcdata& operator=(ffcdata const& other);
@@ -41,8 +42,8 @@ public:
 	
 	void setData(word newdata);
 	void incData(int32_t inc);
-	word getData();
 	word const& getData() const {return data;}
+	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay);
 	
 	virtual bool setSolid(bool set);
 	virtual void updateSolid();

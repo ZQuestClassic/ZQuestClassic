@@ -1405,12 +1405,39 @@ bool isSwitchHookable(newcombo const& cmb)
 	return cmb.genflags & cflag2;
 }
 
-int32_t check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook)
+bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, int32_t *retcpos, int32_t *retffcpos)
 {
-	int32_t id = MAPCOMBO2(layer-1,x,y);
-	if(id < 1) return -1; //Never hook combo 0
-	newcombo const& cmb = combobuf[id];
-	return (switchhook ? isSwitchHookable(cmb) : isHSGrabbable(cmb)) ? COMBOPOS(x,y) : -1;
+	int32_t cpos = -1;
+	if(retcpos)
+	{
+		int32_t id = MAPCOMBO2(layer-1,x,y);
+		if(id > 0)
+		{
+			newcombo const& cmb = combobuf[id];
+			cpos = (switchhook ? isSwitchHookable(cmb) : isHSGrabbable(cmb)) ? COMBOPOS(x,y) : -1;
+		}
+	}
+	int32_t ffcpos = -1;
+	if(retffcpos && !get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+	{
+		word c = tmpscr->numFFC();
+		for(word i=0; i<c; i++)
+		{
+			if(ffcIsAt(i, x, y))
+			{
+				ffcdata& ffc2 = tmpscr->ffcs[i];
+				newcombo const& cmb = combobuf[ffc2.getData()];
+				if (switchhook ? isSwitchHookable(cmb) : isHSGrabbable(cmb))
+				{
+					ffcpos = i;
+					break;
+				}
+			}
+		}
+	}
+	if (retcpos && cpos > -1) *retcpos = cpos;
+	if (retffcpos && ffcpos > -1) *retffcpos = ffcpos;
+	return (cpos > -1 || ffcpos > -1);
 }
 
 bool ishookshottable(int32_t bx, int32_t by)
@@ -1540,7 +1567,7 @@ bool remove_screenstatecombos2(mapscr *s, mapscr *t, int32_t what1, int32_t what
 		}
 	}
 	
-	if (!get_bit(quest_rules,qr_FFCTRIGGER))
+	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 	{
 		word c = tmpscr->numFFC();
 		for(word i=0; i<c; i++)
@@ -1632,7 +1659,7 @@ bool remove_xstatecombos2(mapscr *s, mapscr *t, int32_t mi, byte xflag, bool tri
 			}
 		}
 	}
-	if (!get_bit(quest_rules,qr_FFCTRIGGER))
+	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 	{
 		word c = tmpscr->numFFC();
 		for(word i=0; i<c; i++)
@@ -3033,33 +3060,9 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basesc
 		case -3:                                                //freeform combos
 			for(int32_t i = (basescr->numFFC()-1); i >= 0; --i)
 			{
-				if(basescr->ffcs[i].getData())
-				{
-					if(!(basescr->ffcs[i].flags&ffCHANGER) //If FFC is a changer, don't draw
-						&& !((basescr->ffcs[i].flags&ffLENSINVIS) && lensclk) //If lens is active and ffc is invis to lens, don't draw
-						&& (!(basescr->ffcs[i].flags&ffLENSVIS) || lensclk)) //If FFC does not require lens, or lens is active, draw
-					{
-						if(scrolling && (basescr->ffcs[i].flags & ffCARRYOVER) != 0 && tempscreen == 3)
-							continue; //If scrolling, only draw carryover ffcs from newscr and not oldscr,
-							
-						//otherwise we'll draw the same one twice
-						
-						if(!!(basescr->ffcs[i].flags&ffOVERLAY) == (type==-4)) //what exactly is this supposed to mean?
-						{
-							int32_t tx=((basescr->ffcs[i].x.getInt()));
-							int32_t ty=((basescr->ffcs[i].y.getInt()))+playing_field_offset;
-							
-							if(basescr->ffcs[i].flags&ffTRANS)
-							{
-								overcomboblocktranslucent(bmp, tx-x, ty-y, basescr->ffcs[i].getData(), basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i),128);
-							}
-							else
-							{
-								overcomboblock(bmp, tx-x, ty-y, basescr->ffcs[i].getData(), basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i));
-							}
-						}
-					}
-				}
+				if(scrolling && (basescr->ffcs[i].flags & ffCARRYOVER) != 0 && tempscreen == 3)
+					continue; //If scrolling, only draw carryover ffcs from newscr and not oldscr,
+				basescr->ffcs[i].draw(bmp, -x, -y+playing_field_offset, (type==-4));
 			}
 			
 			return;

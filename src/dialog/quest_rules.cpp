@@ -860,7 +860,10 @@ static GUI::ListData compatRulesList
 	{ "Wizzrobes use old submerge code", qr_OLD_WIZZROBE_SUBMERGING,
 		"If enabled, wizzrobes will not read as 'Submerged' to ZScript, and will use hardcoded"
 			" offsets. If disabled, relative offsets will be used, and 'Submerged' will read"
-			" as true when vanished."}
+			" as true when vanished."},
+	{ "Old FFC Functionality", qr_OLD_FFC_FUNCTIONALITY,
+		"If enabled, FFCs will lack certain functionality, such as hookshotability, switch_hookability,"
+		" and ffc triggers, among other misc changes."}
 };
 
 static GUI::ListData enemiesRulesList

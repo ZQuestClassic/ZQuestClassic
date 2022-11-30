@@ -779,7 +779,7 @@ bool trigger_step(int32_t lyr, int32_t pos)
 					++tmpscr->data[q];
 				}
 			}
-			if (!get_bit(quest_rules,qr_FFCTRIGGER))
+			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
 				word c = tmpscr->numFFC();
 				for(word i=0; i<c; i++)
@@ -803,7 +803,7 @@ bool trigger_step(int32_t lyr, int32_t pos)
 					++tmpscr->data[q];
 				}
 			}
-			if (!get_bit(quest_rules,qr_FFCTRIGGER))
+			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
 				word c = tmpscr->numFFC();
 				for(word i=0; i<c; i++)
@@ -851,7 +851,7 @@ bool trigger_step_ffc(int32_t pos)
 					++tmpscr->data[q];
 				}
 			}
-			if (!get_bit(quest_rules,qr_FFCTRIGGER))
+			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
 				word c = tmpscr->numFFC();
 				for(word i=0; i<c; i++)
@@ -875,7 +875,7 @@ bool trigger_step_ffc(int32_t pos)
 					++tmpscr->data[q];
 				}
 			}
-			if (!get_bit(quest_rules,qr_FFCTRIGGER))
+			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
 				word c = tmpscr->numFFC();
 				for(word i=0; i<c; i++)
@@ -2152,12 +2152,10 @@ bool trigger_stepfx_ffc(int32_t pos, bool stepped)
 }
 
 
-bool trigger_switchhookblock(int32_t lyr, int32_t pos)
+bool trigger_switchhookblock(int32_t pos)
 {
-	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
+	if(unsigned(pos) > 175) return false;
 	if(Hero.switchhookclk) return false;
-	mapscr* tmp = FFCore.tempScreens[lyr];
-	newcombo const& cmb = combobuf[tmp->data[pos]];
 	switching_object = NULL;
 	hooked_combopos = pos;
 	hooked_layerbits = 0;
@@ -2167,6 +2165,18 @@ bool trigger_switchhookblock(int32_t lyr, int32_t pos)
 		Hero.reset_hookshot();
 		return false;
 	}
+	return true;
+}
+
+bool trigger_switchhookblock_ffc(int32_t pos)
+{
+	if(unsigned(pos) >= MAXFFCS) return false;
+	if(Hero.switchhookclk) return false;
+	ffcdata& ffc = tmpscr->ffcs[pos];
+	switching_object = &ffc;
+	hooked_combopos = -1;
+	hooked_layerbits = 0;
+	Hero.doSwitchHook(game->get_switchhookstyle());
 	return true;
 }
 
@@ -2649,7 +2659,7 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 						break;
 					
 					case cSWITCHHOOK:
-						if(!trigger_switchhookblock(lyr,pos))
+						if(!trigger_switchhookblock(pos))
 							return false;
 						break;
 					

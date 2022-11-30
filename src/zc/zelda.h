@@ -433,7 +433,7 @@ extern int32_t hooked_combopos, switchhook_cost_item;
 extern int32_t is_conveyor_stunned;
 extern uint16_t hooked_layerbits;
 extern int32_t hooked_undercombos[14];
-extern sprite* switching_object;
+extern solid_object* switching_object;
 
 extern byte COOLSCROLL;
 
