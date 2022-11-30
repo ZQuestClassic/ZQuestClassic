@@ -349,7 +349,6 @@ int32_t showxypos_cursor_x;
 int32_t showxypos_cursor_y;
 bool showxypos_cursor_icon=false;
 
-bool close_button_quit=false;
 bool canfill=true;                                          //to prevent double-filling (which stops undos)
 bool resize_mouse_pos=false;                                //for eyeball combos
 int32_t lens_hint_item[MAXITEMS][2];                            //aclk, aframe

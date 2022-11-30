@@ -13,6 +13,8 @@ using namespace util;
 extern PALETTE RAMpal;
 extern bool update_hw_pal;
 
+volatile bool close_button_quit = false;
+
 const char months[13][13] =
 { 
 	"Nonetober", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"

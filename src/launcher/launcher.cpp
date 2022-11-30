@@ -33,7 +33,6 @@ int32_t zq_screen_h=600;
 BITMAP *tmp_scr;
 BITMAP *mouse_bmp;
 int32_t gui_colorset = 99;
-volatile bool close_button_quit = false;
 
 byte quest_rules[QUESTRULES_NEW_SIZE];
 

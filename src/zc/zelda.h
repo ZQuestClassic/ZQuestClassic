@@ -375,7 +375,6 @@ extern volatile int32_t script_counter;
 #endif
 extern bool halt;
 extern bool screenscrolling;
-extern bool close_button_quit;
 extern int32_t jwin_pal[jcMAX];
 extern int32_t gui_colorset;
 extern int32_t fullscreen;

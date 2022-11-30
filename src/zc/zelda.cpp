@@ -351,7 +351,6 @@ byte screengrid_layer[2][22]={0};
 byte ffcgrid[MAXFFCS/8]={0};
 bool halt=false;
 bool screenscrolling=false;
-bool close_button_quit=false;
 PALETTE tempbombpal;
 bool usebombpal = false;
 

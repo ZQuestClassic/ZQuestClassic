@@ -380,6 +380,8 @@ extern int32_t CSET_SHFT;
 extern int32_t readsize, writesize;
 extern bool fake_pack_writing;
 
+extern volatile bool close_button_quit;
+
 // system colors
 #define lc1(x) ((x)+192)                                    // offset to 'level bg color' x (row 12)
 #define lc2(x) ((x)+208)                                    // offset to 'level fg color' x (row 13)

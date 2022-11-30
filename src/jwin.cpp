@@ -5625,6 +5625,11 @@ int32_t _jwin_do_menu(MENU *menu, MENU_INFO *parent, int32_t bar, int32_t x, int
     
     do
     {
+		if(close_button_quit)
+		{
+			ret = -1;
+			goto getout;
+		}
         rest(1);
         old_sel = m.sel;
         

@@ -4250,10 +4250,15 @@ void f_Quit(int32_t type)
 {
 	if(type==qQUIT && !Playing)
 		return;
-		
-	music_pause();
-	pause_all_sfx();
-	system_pal();
+	
+	bool from_menu = is_sys_pal;
+	
+	if(!from_menu)
+	{
+		music_pause();
+		pause_all_sfx();
+	}
+	enter_sys_pal();
 	clear_keybuf();
 	
 	replay_poll();
@@ -4280,17 +4285,21 @@ void f_Quit(int32_t type)
 	{
 		kill_sfx();
 		music_stop();
-		game_pal();
+		exit_sys_pal();
 		update_hw_screen();
 	}
 	else
 	{
-		game_pal();
-		music_resume();
-		resume_all_sfx();
+		exit_sys_pal();
+		if(!from_menu)
+		{
+			music_resume();
+			resume_all_sfx();
+		}
 	}
 	
-	show_mouse(NULL);
+	if(!from_menu)
+		show_mouse(NULL);
 	eat_buttons();
 	
 	zc_readrawkey(KEY_ESC);
@@ -8692,6 +8701,12 @@ void System()
 		
 	do
 	{
+		if(close_button_quit)
+		{
+			close_button_quit = false;
+			f_Quit(qEXIT);
+			if(Quit) break;
+		}
 		rest(17);
 		
 		if(mouse_down && !gui_mouse_b())
@@ -8775,20 +8790,19 @@ void System()
 		// press menu to drop the menu
 		if(rMbtn())
 			simulate_keypress(KEY_G << 8);
-			
+		
+		if(input_idle(true) > after_time())
+			// run Screeen Saver
 		{
-			if(input_idle(true) > after_time())
-				// run Screeen Saver
-			{
-				// Screen saver enabled for now.
-				clear_keybuf();
-				scare_mouse();
-				Matrix(ss_speed, ss_density, 0);
-				system_pal();
-				unscare_mouse();
-				broadcast_dialog_message(MSG_DRAW, 0);
-			}
+			// Screen saver enabled for now.
+			clear_keybuf();
+			scare_mouse();
+			Matrix(ss_speed, ss_density, 0);
+			system_pal();
+			unscare_mouse();
+			broadcast_dialog_message(MSG_DRAW, 0);
 		}
+		
 		update_hw_screen();
 	}
 	while(update_dialog(p));
