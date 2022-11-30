@@ -1888,6 +1888,17 @@ void hidden_entrance(int32_t tmp,bool refresh, bool high16only,int32_t single) /
 			}
 		}
 	}
+	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+	{
+		word c = tmpscr->numFFC();
+		for(word i=0; i<c; i++)
+		{
+			ffcdata& ffc = tmpscr->ffcs[i];
+			newcombo const& cmb = combobuf[ffc.getData()];
+			if(cmb.triggerflags[2] & combotriggerSECRETSTR)
+				do_trigger_combo_ffc(i);
+		}
+	}
 	hidden_entrance2(tmpscr + tmp, tmpscr2, high16only, single);
 }
 void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Perhaps better known as 'Trigger Secrets'

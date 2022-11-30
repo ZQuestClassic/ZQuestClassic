@@ -2410,6 +2410,14 @@ void do_ex_trigger(int32_t lyr, int32_t pos)
 					do_copycat_trigger(cclayer, ccpos);
 				}
 			}
+			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+			{
+				word c = tmpscr->numFFC();
+				for(word i=0; i<c; i++)
+				{
+					do_copycat_trigger_ffc(i);
+				}
+			}
 			copycat_id = 0;
 		}
 	}
@@ -2452,6 +2460,16 @@ void do_ex_trigger_ffc(int32_t pos)
 				}
 			}
 			copycat_id = 0;
+			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+			{
+				word c = tmpscr->numFFC();
+				for(word i=0; i<c; i++)
+				{
+					if (i == pos && skipself)
+						continue;
+					do_copycat_trigger_ffc(i);
+				}
+			}
 		}
 	}
 }
@@ -2800,6 +2818,14 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 							do_copycat_trigger(cclayer, ccpos);
 						}
 					}
+					if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+					{
+						word c = tmpscr->numFFC();
+						for(word i=0; i<c; i++)
+						{
+							do_copycat_trigger_ffc(i);
+						}
+					}
 					copycat_id = 0;
 				}
 			}
@@ -3121,6 +3147,16 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 						for(auto ccpos = 0; ccpos < 176; ++ccpos)
 						{
 							do_copycat_trigger(cclayer, ccpos);
+						}
+					}
+					if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+					{
+						word c = tmpscr->numFFC();
+						for(word i=0; i<c; i++)
+						{
+							if (i == pos && skipself)
+								continue;
+							do_copycat_trigger_ffc(i);
 						}
 					}
 					copycat_id = 0;
