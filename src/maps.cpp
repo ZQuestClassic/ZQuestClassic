@@ -1540,6 +1540,24 @@ bool remove_screenstatecombos2(mapscr *s, mapscr *t, int32_t what1, int32_t what
 		}
 	}
 	
+	if (!get_bit(quest_rules,qr_FFCTRIGGER))
+	{
+		word c = tmpscr->numFFC();
+		for(word i=0; i<c; i++)
+		{
+			ffcdata& ffc2 = tmpscr->ffcs[i];
+			newcombo const& cmb = combobuf[ffc2.getData()];
+			if(cmb.usrflags&cflag16) continue; //custom state instead of normal state
+			if((cmb.type== what1) || (cmb.type== what2))
+			{
+				ffc2.incData(1);
+				didit=true;
+			}
+		}
+	}
+	
+	
+	
 	return didit;
 }
 

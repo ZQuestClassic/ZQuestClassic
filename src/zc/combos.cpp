@@ -1309,6 +1309,67 @@ bool trigger_lockblock(int32_t lyr, int32_t pos)
 	return true;
 }
 
+bool trigger_lockblock_ffc(int32_t pos)
+{
+	if(unsigned(pos) >= MAXFFCS) return false;
+	ffcdata& ffc = tmpscr->ffcs[pos];
+	newcombo const& cmb = combobuf[ffc.getData()];
+	switch(cmb.type)
+	{
+		case cLOCKBLOCK: //Special flags!
+			if(!try_locked_combo(cmb)) return false;
+			if(cmb.usrflags&cflag16)
+			{
+				setxmapflag(1<<cmb.attribytes[5]);
+				remove_xstatecombos((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				break;
+			}
+			setmapflag(mLOCKBLOCK);
+			remove_lockblocks((currscr>=128)?1:0);
+			break;
+			
+		case cBOSSLOCKBLOCK:
+		{
+			if (!(game->lvlitems[dlevel] & liBOSSKEY)) return false;
+			// Run Boss Key Script
+			int32_t key_item = 0;
+			for (int32_t q = 0; q < MAXITEMS; ++q)
+			{
+				if (itemsbuf[q].family == itype_bosskey)
+				{
+					key_item = q; break;
+				}
+			}
+			if (key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)))
+			{
+				ri = &(itemScriptData[key_item]);
+				for (int32_t q = 0; q < 1024; q++) item_stack[key_item][q] = 0xFFFF;
+				ri->Clear();
+				item_doscript[key_item] = 1;
+				itemscriptInitialised[key_item] = 0;
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+				FFCore.deallocateAllArrays(SCRIPT_ITEM, (key_item));
+			}
+			
+			if(cmb.usrflags&cflag16)
+			{
+				setxmapflag(1<<cmb.attribytes[5]);
+				remove_xstatecombos((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				break;
+			}
+			setmapflag(mBOSSLOCKBLOCK);
+			remove_bosslockblocks((currscr >= 128) ? 1 : 0);
+			break;
+		}
+		default: return false;
+	}
+	
+	if(cmb.attribytes[3])
+		sfx(cmb.attribytes[3]); //opening sfx
+	return true;
+}
+
+
 bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 {
 	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
