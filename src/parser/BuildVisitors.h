@@ -209,7 +209,7 @@ namespace ZScript
 				else if (host.id == -10000)
 					host.val = argcount * 10000;
 				else return;
-				host.val += host.ofs;
+				host.val += host.offs;
 			}
 		}
 	};
