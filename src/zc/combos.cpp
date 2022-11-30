@@ -2846,6 +2846,7 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 
 bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 {
+	if (get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY)) return false;
 	if(unsigned(pos) >= MAXFFCS) return false;
 	ffcdata& ffc = tmpscr->ffcs[pos];
 	cmbtimer& timer = ffc_trig_timers[pos];
