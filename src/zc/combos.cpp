@@ -779,6 +779,18 @@ bool trigger_step(int32_t lyr, int32_t pos)
 					++tmpscr->data[q];
 				}
 			}
+			if (get_bit(quest_rules,qr_FFCTRIGGER))
+			{
+				word c = tmpscr->numFFC();
+				for(word i=0; i<c; i++)
+				{
+					ffcdata& ffc2 = tmpscr->ffcs[i];
+					if (ffc2.getData() == id)
+					{
+						ffc2.incData(1);
+					}
+				}
+			}
 			if(tmp != tmpscr) ++tmp->data[pos];
 			break;
 		}
@@ -791,12 +803,97 @@ bool trigger_step(int32_t lyr, int32_t pos)
 					++tmpscr->data[q];
 				}
 			}
+			if (get_bit(quest_rules,qr_FFCTRIGGER))
+			{
+				word c = tmpscr->numFFC();
+				for(word i=0; i<c; i++)
+				{
+					ffcdata& ffc2 = tmpscr->ffcs[i];
+					if (isStepType(combobuf[ffc2.getData()].type))
+					{
+						ffc2.incData(1);
+					}
+				}
+			}
 			if(tmp != tmpscr) ++tmp->data[pos];
 			break;
 		}
 	}
 	return true;
 }
+
+bool trigger_step_ffc(int32_t pos)
+{
+	if(unsigned(pos) >= MAXFFCS) return false;
+	ffcdata& ffc = tmpscr->ffcs[pos];
+	newcombo const& cmb = combobuf[ffc.getData()];
+	if(!isStepType(cmb.type) || cmb.type == cSTEPCOPY) return false;
+	if(cmb.attribytes[1] && !game->item[cmb.attribytes[1]])
+		return false; //lacking required item
+	if((cmb.usrflags & cflag1) && !Hero.HasHeavyBoots())
+		return false;
+	if(cmb.attribytes[0])
+		sfx(cmb.attribytes[0], pan(ffc.x));
+	switch(cmb.type)
+	{
+		case cSTEP:
+		{
+			ffc.incData(1); 
+			break;
+		}
+		case cSTEPSAME:
+		{
+			int32_t id = ffc.getData();
+			for(auto q = 0; q < 176; ++q)
+			{
+				if(tmpscr->data[q] == id)
+				{
+					++tmpscr->data[q];
+				}
+			}
+			if (get_bit(quest_rules,qr_FFCTRIGGER))
+			{
+				word c = tmpscr->numFFC();
+				for(word i=0; i<c; i++)
+				{
+					ffcdata& ffc2 = tmpscr->ffcs[i];
+					if (ffc2.getData() == id && i != pos)
+					{
+						ffc2.incData(1);
+					}
+				}
+			}
+			ffc.incData(1);
+			break;
+		}
+		case cSTEPALL:
+		{
+			for(auto q = 0; q < 176; ++q)
+			{
+				if(isStepType(combobuf[tmpscr->data[q]].type))
+				{
+					++tmpscr->data[q];
+				}
+			}
+			if (get_bit(quest_rules,qr_FFCTRIGGER))
+			{
+				word c = tmpscr->numFFC();
+				for(word i=0; i<c; i++)
+				{
+					ffcdata& ffc2 = tmpscr->ffcs[i];
+					if (isStepType(combobuf[ffc2.getData()].type) && i != pos)
+					{
+						ffc2.incData(1);
+					}
+				}
+			}
+			ffc.incData(1);
+			break;
+		}
+	}
+	return true;
+}
+
 
 bool can_locked_combo(newcombo const& cmb) //cLOCKBLOCK or cLOCKEDCHEST specifically
 {
