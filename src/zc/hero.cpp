@@ -145,6 +145,27 @@ static inline bool on_sideview_solid_oldpos(int32_t x, int32_t y, int32_t oldx, 
 	return false;
 }
 
+// True if the FFC covers x, y and is not ethereal or a changer.
+// Used by MAPFFCOMBO(), MAPFFCOMBOFLAG, and getFFCAt().
+inline bool ffcIsAt(int32_t index, int32_t x, int32_t y)
+{
+    int32_t fx=tmpscr->ffcs[index].x.getInt();
+    if(x<fx || x>fx+(tmpscr->ffEffectWidth(index)-1)) // FFC sizes are weird.
+        return false;
+    
+    int32_t fy=tmpscr->ffcs[index].y.getInt();
+    if(y<fy || y>fy+(tmpscr->ffEffectHeight(index)-1))
+        return false;
+    
+    if((tmpscr->ffcs[index].flags&(ffCHANGER|ffETHEREAL))!=0)
+        return false;
+	
+    if(tmpscr->ffcs[index].getData()<=0)
+        return false;
+    
+    return true;
+}
+
 
 bool usingActiveShield(int32_t itmid)
 {
@@ -9500,6 +9521,11 @@ bool HeroClass::animate(int32_t)
 		
 		newcombo const& cmb = combobuf[tmpscr->ffcs[i].getData()];
 		
+		if (cmb.triggerflags[1]&combotriggerAUTOMATIC)
+		{
+			do_trigger_combo_ffc(i);
+		}
+		
 		if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
 		{
 			if(cmb.type==cAWARPA)
@@ -12192,6 +12218,21 @@ void handle_lens_triggers(int32_t l_id)
 				: (cmb.triggerflags[1] & combotriggerLENSOFF))
 			{
 				do_trigger_combo(layer, pos);
+			}
+		}
+	}
+	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+	{
+		word c = tmpscr->numFFC();
+		for(word i=0; i<c; i++)
+		{
+			ffcdata& ffc = tmpscr->ffcs[i];
+			newcombo const& cmb = combobuf[ffc.getData()];
+			if(enabled ? (cmb.triggerflags[1] & combotriggerLENSON)
+				: (cmb.triggerflags[1] & combotriggerLENSOFF))
+			{
+				do_trigger_combo_ffc(i);
+				break;
 			}
 		}
 	}
@@ -18898,6 +18939,23 @@ void HeroClass::checkgenpush()
 		if(cmb2.triggerflags[1] & combotriggerPUSH)
 			do_trigger_combo(layer,pos2);
 	}
+	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+	{
+		word c = tmpscr->numFFC();
+		for(word i=0; i<c; i++)
+		{
+			if (ffcIsAt(i, bx, by) || ffcIsAt(i, bx2, by2))
+			{
+				ffcdata& ffc = tmpscr->ffcs[i];
+				newcombo const& cmb3 = combobuf[ffc.getData()];
+				if(cmb3.triggerflags[1] & combotriggerPUSH)
+				{
+					do_trigger_combo_ffc(i);
+					break;
+				}
+			}
+		}
+	}
 }
 
 void HeroClass::checksigns() //Also checks for generic trigger buttons
@@ -18937,6 +18995,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	}
 	
 	int32_t found = -1;
+	int32_t foundffc = -1;
 	int32_t found_lyr = 0;
 	bool found_sign = false;
 	int32_t tmp_cid = MAPCOMBO(bx,by);
@@ -18984,7 +19043,26 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		}
 	}
 	
-	if(found<0)
+	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+	{
+		word c = tmpscr->numFFC();
+		for(word i=0; i<c; i++)
+		{
+			if (ffcIsAt(i, bx, by) || ffcIsAt(i, bx2, by2))
+			{
+				ffcdata& ffc = tmpscr->ffcs[i];
+				tmp_cmb = &combobuf[ffc.getData()];
+				if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
+				|| tmp_cmb->triggerbtn) && true) //!TODO: FFC effect flag?
+				{
+					foundffc = i;
+					break;
+				}
+			}
+		}
+	}
+	
+	if(found<0 && foundffc < 0)
 	{
 		for(int32_t i=0; i<6; i++)
 		{
@@ -19032,8 +19110,8 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		}
 	}
 	
-	if(found<0) return;
-	newcombo const& cmb = combobuf[found];
+	if(found<0&&foundffc<0) return;
+	newcombo const& cmb = (foundffc<0?combobuf[found]:combobuf[tmpscr->ffcs[foundffc].getData()]);
 	
 	byte signInput = 0;
 	bool didsign = false;
@@ -19103,7 +19181,12 @@ endsigns:
 			break;
 	}
 	if(getIntBtnInput(cmb.triggerbtn, true, true, false, false) || checkIntBtnVal(cmb.triggerbtn, signInput))
-		do_trigger_combo(found_lyr, COMBOPOS(fx,fy), didsign ? ctrigIGNORE_SIGN : 0);
+	{
+		if (foundffc >= 0)
+			do_trigger_combo_ffc(foundffc, didsign ? ctrigIGNORE_SIGN : 0);
+		else 
+			do_trigger_combo(found_lyr, COMBOPOS(fx,fy), didsign ? ctrigIGNORE_SIGN : 0);
+	}
 	else if(cmb.type == cBUTTONPROMPT)
 	{
 		prompt_combo = cmb.attributes[0]/10000;
@@ -20320,6 +20403,45 @@ void HeroClass::handleSpotlights()
 			}
 		}
 	}
+	word c = tmpscr->numFFC();
+	for(word i=0; i<c; i++)
+	{
+		ffcdata& ffc = tmpscr->ffcs[i];
+		newcombo const* cmb = &combobuf[ffc.getData()];
+		size_t pos = COMBOPOS(ffc.x+8, ffc.y+8);
+		if(cmb->type == cLIGHTTARGET)
+		{
+			int32_t trigflag = cmb->attribytes[4] ? (1 << (cmb->attribytes[4]-1)) : ~0;
+			hastrigs = true;
+			bool trigged = (istrig[pos]&trigflag);
+			if(cmb->usrflags&cflag2) //Invert
+				trigged = !trigged;
+			if(cmb->usrflags&cflag1) //Solved Version
+			{
+				if(!(alltrig || trigged)) //Revert
+				{
+					ffc.incData(-1);
+					istrigged = false;
+				}
+			}
+			else //Unsolved version
+			{
+				if(alltrig || trigged) //Light
+					ffc.incData(1);
+				else istrigged = false;
+			}
+		}
+		else if(cmb->triggerflags[1] & (combotriggerLIGHTON|combotriggerLIGHTOFF))
+		{
+			int32_t trigflag = cmb->triglbeam ? (1 << (cmb->triglbeam-1)) : ~0;
+			bool trigged = (istrig[pos]&trigflag);
+			if(trigged ? (cmb->triggerflags[1] & combotriggerLIGHTON)
+				: (cmb->triggerflags[1] & combotriggerLIGHTOFF))
+			{
+				do_trigger_combo_ffc(pos);
+			}
+		}
+	}
 	if(hastrigs && istrigged && !alltrig)
 	{
 		hidden_entrance(0,true,false,-7);
@@ -20601,6 +20723,16 @@ void HeroClass::checkspecial()
 				{
 					do_trigger_combo(lyr,pos);
 				}
+			}
+		}
+		word c = tmpscr->numFFC();
+		for(word i=0; i<c; i++)
+		{
+			ffcdata& ffc = tmpscr->ffcs[i];
+			newcombo const& cmb = combobuf[ffc.getData()];
+			if(cmb.triggerflags[2] & combotriggerKILLENEMIES)
+			{
+				do_trigger_combo_ffc(i);
 			}
 		}
 		if(tmpscr->flags9 & fENEMY_WAVES)
@@ -21179,6 +21311,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 	{
 		int32_t poses[4];
 		int32_t sensPoses[4];
+		int32_t xPoses[4] = {tx + 4, tx + 11, tx, tx + 15};
+		int32_t yPoses[4] = {ty + 4, ty + 11, ty+(bigHitbox?0:8), ty + 15};
 		if(diagonalMovement||NO_GRIDLOCK)
 			getPoses(poses, tx+4, ty+4, tx+11, ty+11);
 		else getPoses(poses, tx, ty, tx+15, ty+15);
@@ -21221,6 +21355,30 @@ void HeroClass::checkspecial2(int32_t *ls)
 				if(cmb2 && (cmb2->triggerflags[0] & combotriggerSTEPSENS))
 				{
 					do_trigger_combo(lyr,sensPoses[p]);
+				}
+			}
+		}
+		word c = tmpscr->numFFC();
+		for(word i=0; i<c; i++)
+		{
+			bool found = false;
+			for(auto xch = 0; xch < 2; ++xch)
+			{
+				for(auto ych = 0; ych < 2; ++ych)
+				{
+					if (ffcIsAt(i, xPoses[xch], yPoses[ych]))
+					{
+						found = true;
+					}
+				}
+			}
+			if (found)
+			{
+				ffcdata& ffc = tmpscr->ffcs[i];
+				newcombo const* cmb = &combobuf[ffc.getData()];
+				if (cmb->triggerflags[0] & (combotriggerSTEP|combotriggerSTEPSENS))
+				{
+					do_trigger_combo_ffc(i);
 				}
 			}
 		}

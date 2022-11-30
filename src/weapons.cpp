@@ -603,10 +603,10 @@ void do_generic_combo_ffc(weapon *w, int32_t pos, int32_t cid, int32_t ft)
 static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *c, int32_t layer = 0/*, int32_t comboid, int32_t flag*/)
 {
     //find out which combo row/column the coordinates are in
-    bx=vbound(bx, 0, 255) & 0xF0;
-    by=vbound(by, 0, 175) & 0xF0;
+	bx=vbound(bx, 0, 255) & 0xF0;
+	by=vbound(by, 0, 175) & 0xF0;
 	if(screenIsScrolling()) return;
-	int32_t cid = ( layer ) ? MAPCOMBOL(layer,bx,by) : MAPCOMBO(bx,by);
+	int32_t cid = (layer) ? MAPCOMBOL(layer,bx,by) : MAPCOMBO(bx,by);
 	if(!MatchComboTrigger(w, c, cid)) return;
 	if(w->weapon_dying_frame) return;
 	do_trigger_combo(layer, COMBOPOS(bx,by), 0, w);
@@ -919,6 +919,7 @@ weapon::weapon(weapon const & other):
 	//}
 	for ( int32_t q = 0; q < 22; q++ ) wscreengrid[q] = 0;
 	memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
+	memset(wscreengrid_ffc, 0, sizeof(wscreengrid_ffc));
 	for( int32_t q = 0; q < 8; q++ ) 
 	{
 		weap_initd[q] = other.weap_initd[q];
@@ -1214,6 +1215,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	linkedItem = 0;
 	for ( int32_t q = 0; q < 22; q++ ) wscreengrid[q] = 0;
 		memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
+		memset(wscreengrid_ffc, 0, sizeof(wscreengrid_ffc));
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
 		
 	ScriptGenerated = script_gen; //t/b/a for script generated swords and other HeroCLass items. 
