@@ -79,19 +79,28 @@ double zc_get_monitor_scale()
 #ifdef _WIN32
 	if (all_get_display())
 	{
+		// GetDpiForWindow only works for Windows 10 and greater.
 		// why not use al_get_monitor_dpi? Because allegro uses GetDpiForMonitor,
 		// which is an older API.
-		HWND hwnd = al_get_win_window_handle(all_get_display());
-		int dpi = GetDpiForWindow(hwnd);
-		return dpi / 96.0;
+		HMODULE user32 = LoadLibraryW(L"user32");
+
+		typedef UINT (WINAPI *GetDpiForWindowPROC)(HWND hwnd);
+		GetDpiForWindowPROC imp_GetDpiForWindow =
+			(GetDpiForWindowPROC) GetProcAddress(user32, "GetDpiForWindow");
+		if (user32 && user32 != INVALID_HANDLE_VALUE) {
+			HWND hwnd = al_get_win_window_handle(all_get_display());
+			int dpi = imp_GetDpiForWindow(hwnd);
+			FreeLibrary(user32);
+			return dpi / 96.0;
+		}
+
+		return al_get_monitor_dpi(0) / 96.0;
 	}
-	else
-	{
-		HDC hdc = GetDC(NULL);
-		int dpi = GetDeviceCaps(hdc, LOGPIXELSX);
-		ReleaseDC(NULL, hdc);
-		return dpi / 96.0;
-	}
+
+	HDC hdc = GetDC(NULL);
+	int dpi = GetDeviceCaps(hdc, LOGPIXELSX);
+	ReleaseDC(NULL, hdc);
+	return dpi / 96.0;
 #else
 	return al_get_monitor_dpi(0) / 96.0;
 #endif
