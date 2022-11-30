@@ -87,6 +87,8 @@ public:
 	byte defense[edefLAST255];
 	byte hitsfx,deadsfx;
 	bool submerged;
+	
+	word ffcactivated;
 
 	int32_t  clk2,sclk;
 	int32_t  starting_hp;
@@ -286,7 +288,8 @@ protected:
 	// to allow for different sfx on defeating enemy
 	virtual void death_sfx();
 	virtual void move(zfix dx,zfix dy);
-	virtual void removearmos(int32_t ax,int32_t ay);
+	virtual void removearmos(int32_t ax,int32_t ay, word ffcactive = 0);
+	virtual void removearmosffc(int32_t pos);
 	virtual void move(zfix s);
 	void leave_item();
 	
@@ -398,7 +401,8 @@ public:
 	virtual void break_shield();
 };
 
-void removearmos(int32_t ax,int32_t ay);
+void removearmos(int32_t ax,int32_t ay, word ffcactive = 0);
+void removearmosffc(int32_t pos);
 
 class eGhini : public enemy
 {

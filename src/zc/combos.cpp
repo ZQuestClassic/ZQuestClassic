@@ -1619,6 +1619,94 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 	return true;
 }
 
+bool trigger_armos_grave_ffc(int32_t pos, int32_t trigdir)
+{
+	if(unsigned(pos) >= MAXFFCS) return false;
+	if(guygridffc[pos]) return false; //Currently activating
+	int32_t gc = 0;
+	for(int32_t i=0; i<guys.Count(); ++i)
+	{
+		if(((enemy*)guys.spr(i))->mainguy)
+		{
+			++gc;
+		}
+	}
+	if(gc > 10) return false; //Don't do it if there's already 10 enemies onscreen
+	//!TODO: Maybe allow a custom limit?
+	ffcdata& ffc = tmpscr->ffcs[pos];
+	newcombo const& cmb = combobuf[ffc.getData()];
+	int32_t eclk = -14;
+	int32_t id2 = 0;
+	int32_t tx = ffc.x, ty = ffc.y;
+	bool nextcmb = false;
+	switch(cmb.type)
+	{
+		case cARMOS:
+		{
+			if(cmb.usrflags&cflag1) //custom ID
+			{
+				int32_t r = (cmb.usrflags&cflag2) ? zc_oldrand()%2 : 0;
+				id2 = cmb.attribytes[0+r];
+			}
+			else //default ID
+			{
+				for(int32_t i=0; i<eMAXGUYS; i++)
+				{
+					if(guysbuf[i].flags2&cmbflag_armos)
+					{
+						id2=i;
+						
+						// This is mostly for backwards-compatability
+						if(guysbuf[i].family==eeWALK && guysbuf[i].misc9==e9tARMOS)
+						{
+							eclk=0;
+						}
+						
+						break;
+					}
+				}
+			}
+			break;
+		}
+		case cBSGRAVE:
+			nextcmb = true;
+			[[fallthrough]];
+		case cGRAVE:
+		{
+			if(cmb.usrflags&cflag1) //Custom ID
+			{
+				int32_t r = (cmb.usrflags&cflag2) ? zc_oldrand()%2 : 0;
+				id2 = cmb.attribytes[0+r];
+			}
+			else //Default ID
+			{
+				for(int32_t i=0; i<eMAXGUYS; i++)
+				{
+					if(guysbuf[i].flags2&cmbflag_ghini)
+					{
+						id2=i;
+						eclk=0; // This is mostly for backwards-compatability
+						break;
+					}
+				}
+			}
+			if(nextcmb)
+				ffc.incData(1);
+			break;
+		}
+		default: return false;
+	}
+	guygridffc[pos] = 61;
+	if(addenemy(tx,ty+3,id2,eclk))
+	{
+		((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
+		((enemy*)guys.spr(guys.Count()-1))->ffcactivated=pos+1;
+	}
+	else return false;
+	return true;
+}
+
+
 bool trigger_damage_combo(int32_t cid, int32_t hdir, bool force_solid)
 {
 	if(hdir > 3) hdir = -1;
