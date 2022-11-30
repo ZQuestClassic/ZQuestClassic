@@ -32,10 +32,10 @@ static bool mouse_hidden = false;
 static bool have_touch_input = false;
 
 // local edit
-static bool mouse_is_ready = false;
-void all_mouse_is_ready(bool b)
+static bool should_show_mouse = false;
+void all_should_show_mouse(bool b)
 {
-    mouse_is_ready = b;
+    should_show_mouse = b;
 }
 
 static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
@@ -64,8 +64,11 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
                 case ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY:
                 {
                     _mouse_on = -1;
-                    // TODO: feels like this shouldn't be needed. for osx, it helps.
-                    // al_show_mouse_cursor(all_get_display());
+                    // https://github.com/liballeg/allegro5/issues/1388
+                    if (should_show_mouse)
+                        al_show_mouse_cursor(all_get_display());
+                    else
+                        al_hide_mouse_cursor(all_get_display());
                     break;
                 }
                 case ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY:
