@@ -407,7 +407,7 @@ int32_t main(int32_t argc, char **argv)
 		for(auto& p : result->theScripts)
 		{
 			disassembled_script_data const& data = p.second;
-			data.write(outfile);
+			data.write(outfile,false,true);
 		}
 		fclose(outfile);
 	}

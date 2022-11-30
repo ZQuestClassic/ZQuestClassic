@@ -1665,7 +1665,7 @@ namespace ZScript
 		//val of -10000 means the same, but *10000 the size
 		//no other values at this time
 	public:
-		VargsArgument(int32_t id, int32_t offs = 0, int32_t v = 0) : id(id), val(v) {}
+		VargsArgument(int32_t id, int32_t offs = 0, int32_t v = 0) : id(id), offs(offs), val(v) {}
 		std::string toString();
 		void execute(ArgumentVisitor &host, void *param)
 		{
