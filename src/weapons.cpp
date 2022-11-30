@@ -600,15 +600,31 @@ void do_generic_combo_ffc(weapon *w, int32_t pos, int32_t cid, int32_t ft)
 }
 
 //Checks if a weapon triggers a combo at a given bx/by
-static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *c, int32_t layer = 0/*, int32_t comboid, int32_t flag*/)
+static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *cbuf, int32_t layer = 0/*, int32_t comboid, int32_t flag*/)
 {
-    //find out which combo row/column the coordinates are in
+	if (screenIsScrolling()) return;
+	if(w->weapon_dying_frame) return;
+	if (!layer)
+	{
+		if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+		{
+			word c = tmpscr->numFFC();
+			for(word i=0; i<c; i++)
+			{
+				if (ffcIsAt(i, bx, by))
+				{
+					ffcdata& ffc = tmpscr->ffcs[i];
+					if(!MatchComboTrigger(w, cbuf, ffc.getData())) continue;
+					do_trigger_combo_ffc(i, 0, w);
+				}
+			}
+		}
+	}
+	//find out which combo row/column the coordinates are in
 	bx=vbound(bx, 0, 255) & 0xF0;
 	by=vbound(by, 0, 175) & 0xF0;
-	if(screenIsScrolling()) return;
 	int32_t cid = (layer) ? MAPCOMBOL(layer,bx,by) : MAPCOMBO(bx,by);
-	if(!MatchComboTrigger(w, c, cid)) return;
-	if(w->weapon_dying_frame) return;
+	if(!MatchComboTrigger(w, cbuf, cid)) return;
 	do_trigger_combo(layer, COMBOPOS(bx,by), 0, w);
 }
 
