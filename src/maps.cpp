@@ -4612,6 +4612,17 @@ void openshutters()
 				do_trigger_combo(lyr,pos);
 		}
 	}
+	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+	{
+		word c = tmpscr->numFFC();
+		for(word i=0; i<c; i++)
+		{
+			ffcdata& ffc = tmpscr->ffcs[i];
+			newcombo const& cmb = combobuf[ffc.getData()];
+			if(cmb.triggerflags[0] & combotriggerSHUTTER)
+				do_trigger_combo_ffc(i);
+		}
+	}
 		
 	sfx(WAV_DOOR,128);
 }

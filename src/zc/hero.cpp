@@ -20417,7 +20417,7 @@ void HeroClass::handleSpotlights()
 			if(trigged ? (cmb->triggerflags[1] & combotriggerLIGHTON)
 				: (cmb->triggerflags[1] & combotriggerLIGHTOFF))
 			{
-				do_trigger_combo_ffc(pos);
+				do_trigger_combo_ffc(i);
 			}
 		}
 	}
