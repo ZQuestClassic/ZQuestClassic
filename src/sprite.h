@@ -79,7 +79,7 @@ public:
      * To jump over a sprite, you must be higher than its z+hzsz.
      * Enemies have hzsz of 0 so that Hero can jump over them (see LA.)
      */
-    int32_t id,dir;
+    int32_t id;
     zfix slopeid;
     byte onplatid = 0;
     bool angular,canfreeze;
@@ -136,7 +136,6 @@ public:
 	byte spr_death_anim_frm, spr_spawn_anim_frm;
 	
 	byte glowRad, glowShape;
-	bool switch_hooked;
 	
 	int32_t ignore_delete;
     

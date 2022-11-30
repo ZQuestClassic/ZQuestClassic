@@ -18,7 +18,8 @@ public:
 	zfix old_x, old_y, old_x2, old_y2;
 	int32_t hxsz,hysz,hxofs,hyofs;
 	int32_t sxofs,syofs,sxsz_ofs,sysz_ofs;
-	int32_t solidflags;
+	int32_t solidflags, dir;
+	bool switch_hooked;
 	
 	solid_object();
 	~solid_object();
@@ -36,7 +37,7 @@ public:
 	virtual bool collide(int32_t tx, int32_t ty, int32_t tw, int32_t th) const;
 	
 	void draw(BITMAP *dest, int32_t tx, int32_t ty, int32_t col);
-	void solid_update(bool push = true);
+	virtual void solid_update(bool push = true);
 	virtual void solid_push(solid_object* pusher);
 	//Overload to do damage to Hero on pushing them
 	virtual void doContactDamage(int32_t hdir){}

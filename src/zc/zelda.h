@@ -430,7 +430,7 @@ extern int32_t hooked_combopos, switchhook_cost_item;
 extern int32_t is_conveyor_stunned;
 extern uint16_t hooked_layerbits;
 extern int32_t hooked_undercombos[14];
-extern sprite* switching_object;
+extern solid_object* switching_object;
 
 extern byte COOLSCROLL;
 
@@ -445,6 +445,7 @@ extern char   cheat_goto_dmap_str[4];
 extern char   cheat_goto_screen_str[3];
 extern int16_t  visited[6];
 extern byte   guygrid[176];
+extern byte   guygridffc[MAXFFCS];
 extern mapscr tmpscr[2];
 extern mapscr tmpscr2[6];
 extern mapscr tmpscr3[6];

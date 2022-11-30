@@ -75,7 +75,7 @@ solid_object::solid_object() : solid(false), in_solid_arr(false),
 	ignore_solid_temp(false),
 	hxsz(16), hysz(16), hxofs(0), hyofs(0),
 	sxofs(0), syofs(0), sxsz_ofs(0), sysz_ofs(0),
-	solidflags(0)
+	solidflags(0), dir(-1), switch_hooked(false)
 {}
 
 solid_object::~solid_object()
@@ -103,6 +103,8 @@ void solid_object::copy(solid_object const& other)
 	sxsz_ofs = other.sxsz_ofs;
 	sysz_ofs = other.sysz_ofs;
 	solidflags = other.solidflags;
+	dir = other.dir;
+	switch_hooked = other.switch_hooked;
 	setSolid(other.solid);
 }
 

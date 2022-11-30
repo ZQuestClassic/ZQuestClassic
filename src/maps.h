@@ -18,6 +18,7 @@ int32_t COMBOPOS_B(int32_t x, int32_t y);
 int32_t COMBOX(int32_t pos);
 int32_t COMBOY(int32_t pos);
 int32_t mapind(int32_t map, int32_t scr);
+inline bool ffcIsAt(int32_t index, int32_t x, int32_t y);
 
 extern bool triggered_screen_secrets;
 
@@ -101,7 +102,7 @@ bool isstepable(int32_t combo);                                 //can use ladder
 bool isHSComboFlagType(int32_t type);
 bool isHSGrabbable(newcombo const& cmb);
 bool isSwitchHookable(newcombo const& cmb);
-int32_t check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook);
+bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, int32_t *retcpos = nullptr, int32_t *retffcpos = nullptr);
 bool ishookshottable(int32_t bx, int32_t by);
 bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by);
 bool hiddenstair(int32_t tmp, bool redraw);                      // tmp = index of tmpscr[]

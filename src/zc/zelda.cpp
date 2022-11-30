@@ -422,7 +422,7 @@ int32_t hooked_combopos = -1, switchhook_cost_item = -1;
 int32_t is_conveyor_stunned = 0;
 uint16_t hooked_layerbits = 0;
 int32_t hooked_undercombos[14] = {0};
-sprite* switching_object = NULL;
+solid_object* switching_object = NULL;
 
 byte COOLSCROLL = 0;
 
@@ -436,6 +436,7 @@ char   cheat_goto_dmap_str[4]={0};
 char   cheat_goto_screen_str[3]={0};
 int16_t  visited[6]={0};
 byte   guygrid[176]={0};
+byte   guygridffc[MAXFFCS]={0};
 mapscr tmpscr[2];
 mapscr tmpscr2[6];
 mapscr tmpscr3[6];
@@ -1351,6 +1352,9 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
     
     for(int32_t i=0; i<176; i++)
         guygrid[i]=0;
+
+    for(int32_t i=0; i<MAXFFCS; i++)
+        guygridffc[i]=0;
         
     sle_clk=0;
     blockmoving=false;
@@ -3527,6 +3531,13 @@ void game_loop()
 				if(guygrid[i]>0)
 				{
 					--guygrid[i];
+				}
+			}
+			for(int32_t i=0; i<MAXFFCS; i++)
+			{
+				if(guygridffc[i]>0)
+				{
+					--guygridffc[i];
 				}
 			}
 		}

@@ -1,11 +1,17 @@
 #include "base/zdefs.h"
 #include "ffc.h"
+#include "tiles.h"
+#include "sprite.h"
+extern sprite_list Lwpns;
 
 #ifdef IS_PLAYER
 #include "combos.h"
 #include "maps.h"
+#include "hero.h"
 extern newcombo *combobuf;
 extern mapscr tmpscr[2];
+extern int16_t lensclk;
+extern HeroClass Hero;
 void screen_ffc_modify_postroutine(word index);
 #endif
 
@@ -132,6 +138,7 @@ void ffcdata::clear()
 	txsz = tysz = 1;
 	hxsz = hysz = 16;
 	initialized = false;
+	hooked = false;
 	script = 0;
 	memset(initd, 0, sizeof(initd));
 	memset(inita, 0, sizeof(inita));
@@ -153,6 +160,49 @@ void ffcdata::incData(int32_t inc)
 	setData(data+inc);
 }
 
+void ffcdata::draw(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay)
+{
+	if (!data) return;
+	if (flags&ffCHANGER) return;
+	#ifdef IS_PLAYER
+	if ((flags&ffLENSINVIS) && lensclk) return; //If lens is active and ffc is invis to lens, don't draw
+	if ((flags&ffLENSVIS) && !lensclk) return; //If FFC does not require lens, or lens is active, draw
+	
+	if (switch_hooked)
+	{
+		switch(Hero.switchhookstyle)
+		{
+			default: case swPOOF:
+				break;
+			case swFLICKER:
+			{
+				if (abs(Hero.switchhookclk-33)&0b1000)
+					break;
+				return;
+			}
+			case swRISE:
+				yofs -= 8-(abs(Hero.switchhookclk-32)/4);
+				break;
+		}
+	}
+	#endif
+	
+	if(!(flags&ffOVERLAY) == !overlay) //force cast both of these to boolean. They're both not, so same as if they weren't not.
+	{
+		int32_t tx = x + xofs;
+		int32_t ty = y + yofs;
+		
+		if(flags&ffTRANS)
+		{
+			overcomboblocktranslucent(dest, tx, ty, data, cset, txsz, tysz,128);
+		}
+		else
+		{
+			overcomboblock(dest, tx, ty, data, cset, txsz, tysz);
+		}
+	}
+}
+
 bool ffcdata::setSolid(bool set) //exists so that ffcs can do special handling for whether to make something solid or not.
 {
 	bool actual = set && !(flags&ffCHANGER) && loaded;
@@ -164,6 +214,27 @@ void ffcdata::updateSolid()
 {
 	if(setSolid(flags&ffSOLID))
 		solid_update(false);
+}
+
+void ffcdata::solid_update(bool push)
+{
+#ifdef IS_PLAYER
+	if (hooked && push)
+	{
+		if (Lwpns.idFirst(wHookshot) > -1)
+		{
+			zfix dx = (x - old_x);
+			zfix dy = (y - old_y);
+			if (dx) 
+				Hero.setXfix(Hero.getX() + dx);
+			if (dy)
+				Hero.setYfix(Hero.getY() + dy);
+		}
+		else
+			hooked = false;
+	}
+#endif
+	solid_object::solid_update(push);
 }
 
 void ffcdata::setLoaded(bool set)

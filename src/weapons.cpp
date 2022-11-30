@@ -486,16 +486,145 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	if ( combobuf[cid].usrflags&cflag8 ) killgenwpn(w);
 }
 
-//Checks if a weapon triggers a combo at a given bx/by
-static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *c, int32_t layer = 0/*, int32_t comboid, int32_t flag*/)
+void do_generic_combo_ffc(weapon *w, int32_t pos, int32_t cid, int32_t ft)
 {
-    //find out which combo row/column the coordinates are in
-    bx=vbound(bx, 0, 255) & 0xF0;
-    by=vbound(by, 0, 175) & 0xF0;
-	if(screenIsScrolling()) return;
-	int32_t cid = ( layer ) ? MAPCOMBOL(layer,bx,by) : MAPCOMBO(bx,by);
-	if(!MatchComboTrigger(w, c, cid)) return;
+	if ( combobuf[cid].type < cTRIGGERGENERIC && !(combobuf[cid].usrflags&cflag9 )  )  //Script combos need an 'Engine' flag
+	{ 
+		return;
+	} 
+	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
+	byte* grid = w->wscreengrid_ffc;
+	ffcdata& ffc = tmpscr->ffcs[pos];
+	if ( !(get_bit(grid,pos)) || (combobuf[cid].usrflags&cflag5) ) 
+	{
+		if ((combobuf[cid].usrflags&cflag1)) 
+		{
+			if (combobuf[cid].usrflags & cflag10)
+			{
+				switch (combobuf[cid].attribytes[0])
+				{
+					case 0:
+					case 1:
+					default:
+						decorations.add(new dBushLeaves(ffc.x, ffc.y, dBUSHLEAVES, 0, 0));
+						break;
+					case 2:
+						decorations.add(new dFlowerClippings(ffc.x, ffc.y, dFLOWERCLIPPINGS, 0, 0));
+						break;
+					case 3:
+						decorations.add(new dGrassClippings(ffc.x, ffc.y, dGRASSCLIPPINGS, 0, 0));
+						break;
+				}
+			}
+			else decorations.add(new comboSprite(ffc.x, ffc.y, 0, 0, combobuf[cid].attribytes[0]));
+		}
+		int32_t it = -1;
+		int32_t thedropset = -1;
+		if ( (combobuf[cid].usrflags&cflag2) )
+		{
+			if ( combobuf[cid].usrflags&cflag11 ) //specific item
+			{
+				it = combobuf[cid].attribytes[1];
+			}
+			else
+			{
+				it = select_dropitem(combobuf[cid].attribytes[1]);
+				thedropset = combobuf[cid].attribytes[1];
+			}
+		}
+		if( it != -1 )
+		{
+			item* itm = (new item(ffc.x, ffc.y,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			itm->from_dropset = thedropset;
+			items.add(itm);
+		}
+		
+		//drop special room item
+		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(mSPECIALITEM))
+		{
+			items.add(new item(ffc.x, ffc.y,
+				(zfix)0,
+				tmpscr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[tmpscr->item].family==itype_triforcepiece ||
+				(tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+		}
+		//screen secrets
+		if ( combobuf[cid].usrflags&cflag7 )
+		{
+			screen_ffc_modify_preroutine(pos);
+			ffc.setData(tmpscr->secretcombo[ft]);
+			ffc.cset = tmpscr->secretcset[ft];
+			// newflag = s->secretflag[ft];
+			screen_ffc_modify_postroutine(pos);
+			if ( combobuf[cid].attribytes[2] > 0 )
+				sfx(combobuf[cid].attribytes[2],int32_t(ffc.x));
+		}
+		
+		//loop next combo
+		if((combobuf[cid].usrflags&cflag4))
+		{
+			do
+			{
+				screen_ffc_modify_preroutine(pos);
+				
+				//undercombo or next?
+				if((combobuf[cid].usrflags&cflag12))
+				{
+					ffc.setData(tmpscr->undercombo);
+					ffc.cset = tmpscr->undercset;	
+				}
+				else
+					ffc.setData(vbound(ffc.getData()+1,0,MAXCOMBOS));
+				
+				screen_ffc_modify_postroutine(pos);
+				
+				if (combobuf[cid].usrflags&cflag8) w->dead = 1;
+				if (combobuf[cid].usrflags&cflag12) break; //No continuous for undercombo
+				if (combobuf[cid].usrflags&cflag5) cid = ffc.getData(); //cid needs to be set to data so continuous combos work
+				
+			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
+			if ( (combobuf[cid].attribytes[2]) > 0 )
+				sfx(combobuf[cid].attribytes[2],int32_t(ffc.x));
+			
+			
+		}
+		if((combobuf[cid].usrflags&cflag14)) //drop enemy
+		{
+			addenemy(ffc.x,ffc.y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
+		}
+		//zprint("continuous\n");
+		
+	}
+	set_bit(grid,pos,1);
+	
+	if (combobuf[cid].usrflags&cflag8) killgenwpn(w);
+}
+
+//Checks if a weapon triggers a combo at a given bx/by
+static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *cbuf, int32_t layer = 0/*, int32_t comboid, int32_t flag*/)
+{
+	if (screenIsScrolling()) return;
 	if(w->weapon_dying_frame) return;
+	if (!layer)
+	{
+		if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+		{
+			word c = tmpscr->numFFC();
+			for(word i=0; i<c; i++)
+			{
+				if (ffcIsAt(i, bx, by))
+				{
+					ffcdata& ffc = tmpscr->ffcs[i];
+					if(!MatchComboTrigger(w, cbuf, ffc.getData())) continue;
+					do_trigger_combo_ffc(i, 0, w);
+				}
+			}
+		}
+	}
+	//find out which combo row/column the coordinates are in
+	bx=vbound(bx, 0, 255) & 0xF0;
+	by=vbound(by, 0, 175) & 0xF0;
+	int32_t cid = (layer) ? MAPCOMBOL(layer,bx,by) : MAPCOMBO(bx,by);
+	if(!MatchComboTrigger(w, cbuf, cid)) return;
 	do_trigger_combo(layer, COMBOPOS(bx,by), 0, w);
 }
 
@@ -806,6 +935,7 @@ weapon::weapon(weapon const & other):
 	//}
 	for ( int32_t q = 0; q < 22; q++ ) wscreengrid[q] = 0;
 	memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
+	memset(wscreengrid_ffc, 0, sizeof(wscreengrid_ffc));
 	for( int32_t q = 0; q < 8; q++ ) 
 	{
 		weap_initd[q] = other.weap_initd[q];
@@ -1101,6 +1231,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	linkedItem = 0;
 	for ( int32_t q = 0; q < 22; q++ ) wscreengrid[q] = 0;
 		memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
+		memset(wscreengrid_ffc, 0, sizeof(wscreengrid_ffc));
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
 		
 	ScriptGenerated = script_gen; //t/b/a for script generated swords and other HeroCLass items. 
@@ -5044,7 +5175,8 @@ bool weapon::animate(int32_t index)
 			// Hookshot grab and retract code 
 			//Diagonal Hookshot (2)
 			
-			int32_t hookedpos = -1;
+			int32_t cpos = -1;
+			int32_t ffcpos = -1;
 			
 			if(misc==0)
 			{
@@ -5061,239 +5193,87 @@ bool weapon::animate(int32_t index)
 				if(findentrance(x,y,mfHOOKSHOT,true)) dead=1;
 			
 				//Look for grab combos based on direction.
-				if(dir==up)
+				int32_t tx = -1, ty = -1, tx2 = -1, ty2 = -1;
+				bool oldshot = (get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw);
+				switch(Y_DIR(dir))
 				{
-					hookedpos = check_hshot(-1,x+2,y+7,sw);
+					case up:
+						tx2 = x + 2;
+						ty2 = y + 7;
+						break;
+					case down:
+						tx2 = x + 12;
+						ty2 = y + 12;
+						break;
+				}
+				switch(X_DIR(dir))
+				{
+					case left:
+						tx = x + 6;
+						ty = y + (oldshot?7:13);
+						break;
+					case right:
+						tx = x + 9;
+						ty = y + (oldshot?7:13);
+						break;
+				}
+				
+				bool hitsolid = false;
+				int32_t maxlayer = 0;
+				if (get_bit(quest_rules, qr_HOOKSHOTALLLAYER)) maxlayer = 6;
+				else if (get_bit(quest_rules, qr_HOOKSHOTLAYERFIX)) maxlayer = 2;
+				
+				if(tx > -1)
+				{
+					hooked = check_hshot(-1,tx, ty, sw, &cpos, &ffcpos);
 					
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
-					{
-						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
-						{
-							hookedpos = check_hshot(lyr,x+2,y+7,sw);
-						}
-					}
-					if(hookedpos>-1) hooked = true;
+					for(auto lyr = 1; !hooked && lyr <= maxlayer; ++lyr)
+						hooked = check_hshot(lyr,tx,ty,sw, &cpos);
 						
-					if(!hooked && _walkflag(x+2,y+7,1) && !ishookshottable((int32_t)x+2,(int32_t)y+7))
-					{
-						dead=1;
-					}
+					if(_walkflag(tx,ty,1) && !ishookshottable(tx,ty))
+						hitsolid = true;
+				}
+				if(tx2 > -1 && !hooked)
+				{
+					hooked = check_hshot(-1,tx2, ty2, sw, &cpos, &ffcpos);
+					
+					for(auto lyr = 1; !hooked && lyr <= maxlayer; ++lyr)
+						hooked = check_hshot(lyr,tx2,ty2,sw, &cpos);
+						
+					if(_walkflag(tx2,ty2,1) && !ishookshottable(tx2,ty2))
+						hitsolid=true;
 				}
 				
-				if(dir==down)
-				{
-					hookedpos = check_hshot(-1,x+12,y+12,sw);
-					
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
-					{
-						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
-						{
-							hookedpos = check_hshot(lyr,x+12,y+12,sw);
-						}
-					}
-					if(hookedpos>-1) hooked = true;
-					
-					if(!hooked && _walkflag(x+12,y+12,1) && !ishookshottable((int32_t)x+12,(int32_t)y+12))
-					{
-						dead=1;
-					}
-				}
-				
-				if(dir==left)
-				{
-					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
-					{
-						hookedpos = check_hshot(-1,x+6,y+7,sw);
-					}
-					else hookedpos = check_hshot(-1,x+6,y+13,sw);
-					
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
-					{
-						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
-						{
-							hookedpos = check_hshot(lyr,x+6,y+13,sw);
-						}
-					}
-					if(hookedpos>-1) hooked = true;
-					
-					if(!hooked && _walkflag(x+6,y+13,1) && !ishookshottable((int32_t)x+6,(int32_t)y+13))
-					{
-						dead=1;
-					}
-				}
-				
-				if(dir==right)
-				{
-					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
-					{
-						hookedpos = check_hshot(-1,x+9,y+7,sw);
-					}
-					else hookedpos = check_hshot(-1,x+9,y+13,sw);
-					
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
-					{
-						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
-						{
-							hookedpos = check_hshot(lyr,x+9,y+13,sw);
-						}
-					}
-					if(hookedpos>-1) hooked = true;
-					
-					if(!hooked && _walkflag(x+9,y+13,1) && !ishookshottable((int32_t)x+9,(int32_t)y+13))
-					{
-						dead=1;
-					}
-				}
-				//Diagonal Hookshot (3)
-				//Diagonal Hookshot Grab Points
-				//! -Z Hookshot diagonals. Will need bugtesting galore. 
-				if ( dir == r_down ) 
-				{
-					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
-					{
-						hookedpos = check_hshot(-1,x+9,y+7,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(-1,x+12,y+12,sw);
-					}
-					else
-					{
-						hookedpos = check_hshot(-1,x+9,y+13,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(-1,x+12,y+12,sw);
-					}
-					
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
-					{
-						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
-						{
-							hookedpos = check_hshot(lyr,x+9,y+13,sw);
-							if(hookedpos<0)
-								hookedpos = check_hshot(lyr,x+12,y+12,sw);
-						}
-					}
-					if(hookedpos>-1) hooked = true;
-					
-					//right
-					if(!hooked &&  ( ( ( _walkflag(x+9,y+13,1) && !ishookshottable((int32_t)x+9,(int32_t)y+13)) ) ||
-						//down
-						(_walkflag(x+12,y+12,1) && !ishookshottable((int32_t)x+12,(int32_t)y+12)) ) )
-					{
-						dead=1;
-					}
-				}
-				if ( dir == l_down ) 
-				{
-					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
-					{
-						hookedpos = check_hshot(-1,x+6,y+7,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(-1,x+12,y+12,sw);
-					}
-					else
-					{
-						hookedpos = check_hshot(-1,x+6,y+13,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(-1,x+12,y+12,sw);
-					}
-					
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
-					{
-						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
-						{
-							hookedpos = check_hshot(lyr,x+6,y+13,sw);
-							if(hookedpos<0)
-								hookedpos = check_hshot(lyr,x+12,y+12,sw);
-						}
-					}
-					if(hookedpos>-1) hooked = true;
-					
-					if(!hooked && ( ( ( _walkflag(x+6,y+13,1) && !ishookshottable((int32_t)x+6,(int32_t)y+13)) ) ||
-						//down
-						(_walkflag(x+12,y+12,1) && !ishookshottable((int32_t)x+12,(int32_t)y+12)) ) )
-					{
-						dead=1;
-					}
-				}
-				if ( dir == r_up ) 
-				{
-					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
-					{
-						hookedpos = check_hshot(-1,x+9,y+7,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(-1,x+2,y+7,sw);
-					}
-					else
-					{
-						hookedpos = check_hshot(-1,x+9,y+13,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(-1,x+2,y+7,sw);
-					}
-					
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
-					{
-						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
-						{
-							hookedpos = check_hshot(lyr,x+9,y+13,sw);
-							if(hookedpos<0)
-								hookedpos = check_hshot(lyr,x+2,y+7,sw);
-						}
-					}
-					if(hookedpos>-1) hooked = true;
-					
-					if(!hooked &&  ( ( ( _walkflag(x+9,y+13,1) && !ishookshottable((int32_t)x+9,(int32_t)y+13)) ) ||
-						//up
-						(_walkflag(x+2,y+7,1) && !ishookshottable((int32_t)x+2,(int32_t)y+7)) ) )
-					{
-						dead=1;
-					}
-				}
-				if ( dir == l_up ) 
-				{
-					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
-					{
-						hookedpos = check_hshot(-1,x+6,y+7,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(-1,x+2,y+7,sw);
-					}
-					else
-					{
-						hookedpos = check_hshot(-1,x+6,y+13,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(-1,x+2,y+7,sw);
-					}
-					
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
-					{
-						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
-						{
-							hookedpos = check_hshot(lyr,x+6,y+13,sw);
-							if(hookedpos<0)
-								hookedpos = check_hshot(lyr,x+2,y+7,sw);
-						}
-					}
-					if(hookedpos>-1) hooked = true;
-					
-					if(!hooked && ( ( ( _walkflag(x+6,y+13,1) && !ishookshottable((int32_t)x+6,(int32_t)y+13)) ) ||
-						//up
-						(_walkflag(x+2,y+7,1) && !ishookshottable((int32_t)x+2,(int32_t)y+7)) ) )
-					{
-						dead=1;
-					}
-				}
+				if (hitsolid && !hooked) 
+					dead = 1;
 			}
 			
 			if(hooked)
 			{
-				hooked_combopos = hookedpos;
+				if (cpos > -1)
+					hooked_combopos = cpos;
 				misc=sw?2:1;
 				step=0;
 				pull_hero=true;
 				if(sw)
 				{
+					if (ffcpos > -1)
+					{
+						switching_object = &(tmpscr->ffcs[ffcpos]);
+						switching_object->switch_hooked = true;
+						tmpscr->ffcs[ffcpos].hooked = true;
+					}
 					Hero.doSwitchHook(hshot.misc5);
 					sfx(hshot.usesound2,pan(int32_t(x)));
 					stop_sfx(hshot.usesound);
 					hs_switcher = true;
+				}
+				else
+				{
+					if (ffcpos > -1)
+					{
+						tmpscr->ffcs[ffcpos].hooked = true;
+					}
 				}
 			}
 			

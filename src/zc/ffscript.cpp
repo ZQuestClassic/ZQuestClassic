@@ -26842,7 +26842,11 @@ void FFScript::AlloffLimited(int32_t flagset)
 	
 	for(int32_t i=0; i<176; i++)
 		guygrid[i]=0;
+	
+	for(int32_t i=0; i<MAXFFCS; i++)
+		guygridffc[i]=0;
 		
+	
 	sle_clk=0;
 	
 	if(usebombpal)
