@@ -1325,7 +1325,8 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		// Count number of casts.
 		Function& function = **it;
 		int32_t castCount = 0;
-		for(size_t i = 0; i < parameterTypes.size(); ++i)
+		size_t lowsize = zc_min(parameterTypes.size(), function.paramTypes.size());
+		for(size_t i = 0; i < lowsize; ++i)
 		{
 			DataType const& from = getNaiveType(*parameterTypes[i], scope);
 			DataType const& to = getNaiveType(*function.paramTypes[i], scope);

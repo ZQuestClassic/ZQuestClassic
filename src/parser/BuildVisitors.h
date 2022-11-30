@@ -195,6 +195,22 @@ namespace ZScript
 			host.setLineNo(lineno);
 		}
 	};
+
+	class SetVargs : public ArgumentVisitor
+	{
+	public:
+		void caseVargs(VargsArgument& host, void* param)
+		{
+			if (param)
+			{
+				int32_t argcount = *(int32_t*)param;
+				if (host.id == -1)
+					host.val = argcount;
+				else if (host.id == -10000)
+					host.val = argcount * 10000;
+			}
+		}
+	};
 }
 #endif
 

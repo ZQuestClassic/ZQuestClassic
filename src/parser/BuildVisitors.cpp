@@ -1219,21 +1219,36 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			}
 		}
-		//push any optional parameter values
-		auto num_actual_params = func.paramTypes.size();
-		auto used_opt_params = num_actual_params - host.parameters.size();
-		auto opt_param_count = func.opt_vals.size();
-		auto skipped_optional_params = opt_param_count - used_opt_params;
-		for(auto q = skipped_optional_params; q < opt_param_count; ++q)
+		int32_t num_actual_params = func.paramTypes.size();
+		int32_t num_used_params = host.parameters.size();
+		int32_t used_opt_params = num_actual_params - num_used_params;
+		if(used_opt_params > 0)
 		{
-			addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
+			auto opt_param_count = func.opt_vals.size();
+			auto skipped_optional_params = opt_param_count - used_opt_params;
+			//push any optional parameter values
+			for(auto q = skipped_optional_params; q < opt_param_count; ++q)
+			{
+				addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
+			}
 		}
 		
+		bool vargs = func.getFlag(FUNCFLAG_VARARGS);
+		int32_t vargcount = 0;
+		if(vargs && used_opt_params < 0)
+		{
+			vargcount = -used_opt_params;
+		}
+		
+		SetVargs sv;
 		std::vector<std::shared_ptr<Opcode>> const& funcCode = func.getCode();
 		for(auto it = funcCode.begin();
 			it != funcCode.end(); ++it)
 		{
-			addOpcode((*it)->makeClone());
+			Opcode* code = (*it)->makeClone();
+			if(vargs)
+				code->execute(sv, &vargcount);
+			addOpcode(code);
 		}
 	
 		if(host.left->isTypeArrow())

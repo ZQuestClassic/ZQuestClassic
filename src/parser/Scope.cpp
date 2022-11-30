@@ -527,20 +527,21 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 			it = functions.erase(it);
 			continue;
 		}
+		bool vargs = function.getFlag(FUNCFLAG_VARARGS);
 		
 		auto targetSize = parameterTypes.size();
 		auto maxSize = function.paramTypes.size();
 		auto minSize = maxSize - function.opt_vals.size();
 		// Match against parameter count, including std::optional params.
-		if (maxSize < targetSize || minSize > targetSize)
+		if (minSize > targetSize || (!vargs && maxSize < targetSize))
 		{
 			it = functions.erase(it);
 			continue;
 		}
-
+		auto lowsize = zc_min(maxSize, parameterTypes.size());
 		// Check parameter types.
 		bool parametersMatch = true;
-		for (size_t i = 0; i < parameterTypes.size(); ++i)
+		for (size_t i = 0; i < lowsize; ++i)
 		{
 			if (!parameterTypes[i]->canCastTo(*function.paramTypes[i]))
 			{

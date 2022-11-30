@@ -17,6 +17,9 @@ using std::shared_ptr;
 #define MAXDMAPS         512
 #define MAXLEVELS        512
 
+#define FL_INL     FUNCFLAG_INLINE
+#define FL_VARG    FUNCFLAG_VARARGS
+
 //sanity underflow
 #define typeVOID ZVARTYPEID_VOID
 #define S ZVARTYPEID_SCREEN
@@ -101,6 +104,8 @@ function->internal_flags |= IFUNCFLAG_REASSIGNPTR
 */
 #define POP_ARGS(num_args, t) \
 	addOpcode2 (code, new OPopArgsRegister(new VarArgument(t), new LiteralArgument(num_args)))
+#define POP_VARGS(t) \
+	addOpcode2 (code, new OPopArgsRegister(new VarArgument(t), new VargsArgument(-1)))
 
 //{ Older defines
 #define ARGS_4(t, arg1, arg2, arg3, arg4) \
@@ -340,19 +345,6 @@ function->internal_flags |= IFUNCFLAG_REASSIGNPTR
 	addOpcode2 (code, new OPopRegister(new VarArgument(EXP1))); \
 	POPREF(); \
 	addOpcode2 (code, new ocode(new VarArgument(EXP1))); \
-	RETURN(); \
-	function->giveCode(code); \
-} \
-
-//This will trace the float value of any pointer type to allegro.log. 
-#define TRACING_FUNCTION(flabel, numparam) \
-{ \
-	Function* function = getFunction(flabel, numparam); \
-	int32_t label = function->getLabel(); \
-	vector<shared_ptr<Opcode>> code; \
-	addOpcode2 (code, new OPopRegister(new VarArgument(EXP2))); \
-	LABELBACK(label); \
-	addOpcode2 (code, new OTraceRegister(new VarArgument(EXP2))); \
 	RETURN(); \
 	function->giveCode(code); \
 } \

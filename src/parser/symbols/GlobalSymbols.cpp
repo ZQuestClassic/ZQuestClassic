@@ -3,53 +3,10 @@
 const int32_t radsperdeg = 572958;
 GlobalSymbols GlobalSymbols::singleton;
 
-static AccessorTable GlobalTable[] =
-{
-//	  name,                     rettype,                     setorget,     var,   numindex,   funcFlags,                            numParams,   params
-	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    1,           { ZVARTYPEID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    2,           { ZVARTYPEID_CHAR, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    3,           { ZVARTYPEID_CHAR, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    4,           { ZVARTYPEID_CHAR, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    5,           { ZVARTYPEID_CHAR, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    6,           { ZVARTYPEID_CHAR, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    7,           { ZVARTYPEID_CHAR, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    8,           { ZVARTYPEID_CHAR, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    9,           { ZVARTYPEID_CHAR, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                   10,           { ZVARTYPEID_CHAR, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                   11,           { ZVARTYPEID_CHAR, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                   12,           { ZVARTYPEID_CHAR, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                   13,           { ZVARTYPEID_CHAR, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                   14,           { ZVARTYPEID_CHAR, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1 } },
-	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                   15,           { ZVARTYPEID_CHAR, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1 } },
-	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                   16,           { ZVARTYPEID_CHAR, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, -1, -1, -1, -1 } },
-	{ "printf",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                   17,           { ZVARTYPEID_CHAR, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, -1, -1, -1 } },
-	
-	{ "sprintf",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           { ZVARTYPEID_CHAR, ZVARTYPEID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "sprintf",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    3,           {  ZVARTYPEID_CHAR, ZVARTYPEID_CHAR,ZVARTYPEID_UNTYPED,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1 } },
-	{ "sprintf",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    4,           {  ZVARTYPEID_CHAR, ZVARTYPEID_CHAR,ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1 } },
-	{ "sprintf",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    5,           {  ZVARTYPEID_CHAR, ZVARTYPEID_CHAR,ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1 } },
-	{ "sprintf",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    6,           {  ZVARTYPEID_CHAR, ZVARTYPEID_CHAR,ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1 } },
-	{ "sprintf",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    7,           {  ZVARTYPEID_CHAR, ZVARTYPEID_CHAR,ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1 } },
-	{ "sprintf",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    8,           {  ZVARTYPEID_CHAR, ZVARTYPEID_CHAR,ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1 } },
-	{ "sprintf",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    9,           {  ZVARTYPEID_CHAR, ZVARTYPEID_CHAR,ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1 } },
-	{ "sprintf",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                   10,           {  ZVARTYPEID_CHAR, ZVARTYPEID_CHAR,ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1 } },
-	{ "sprintf",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                   11,           {  ZVARTYPEID_CHAR, ZVARTYPEID_CHAR,ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1 } },
-	{ "sprintf",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                   12,           {  ZVARTYPEID_CHAR, ZVARTYPEID_CHAR,ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1 } },
-	{ "sprintf",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                   13,           {  ZVARTYPEID_CHAR, ZVARTYPEID_CHAR,ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1 } },
-	{ "sprintf",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                   14,           {  ZVARTYPEID_CHAR, ZVARTYPEID_CHAR,ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED,                 -1,                 -1,                 -1,                 -1,                 -1,                 -1 } },
-	{ "sprintf",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                   15,           {  ZVARTYPEID_CHAR, ZVARTYPEID_CHAR,ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED,                 -1,                 -1,                 -1,                 -1,                 -1 } },
-	{ "sprintf",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                   16,           {  ZVARTYPEID_CHAR, ZVARTYPEID_CHAR,ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED,                 -1,                 -1,                 -1,                 -1 } },
-	{ "sprintf",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                   17,           {  ZVARTYPEID_CHAR, ZVARTYPEID_CHAR,ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED,                 -1,                 -1,                 -1 } },
-	{ "sprintf",                ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                   18,           {  ZVARTYPEID_CHAR, ZVARTYPEID_CHAR,ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED, ZVARTYPEID_UNTYPED,                 -1,                 -1 } },
-//	TYPE_UNTYPED
-	
-	{ "",                       -1,                          -1,           -1,    -1,         0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
-};
-
 static AccessorTable2 GlobalTable2[] =
 {
 //	  name,                    tag,                  rettype,  var,  funcFlags,  params,optparams
-	{ "Rand",                    0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT } },
+	{ "Rand",                    0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT },{} },
 	{ "Quit",                    0,          ZVARTYPEID_VOID,   -1,  0,          {},{} },
 	{ "Waitframe",               0,          ZVARTYPEID_VOID,   -1,  0,          {},{} },
 	{ "Waitdraw",                0,          ZVARTYPEID_VOID,   -1,  0,          {},{} },
@@ -87,7 +44,7 @@ static AccessorTable2 GlobalTable2[] =
 	{ "Ln",                      0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT },{} },
 	{ "Sqrt",                    0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT },{} },
 	{ "CopyTile",                0,          ZVARTYPEID_VOID,   -1,  0,          { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT },{} },
-	
+
 	{ "SwapTile",                0,          ZVARTYPEID_VOID,   -1,  0,          { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT },{} },
 	{ "ClearTile",               0,          ZVARTYPEID_VOID,   -1,  0,          { ZVARTYPEID_FLOAT },{} },
 	{ "GetScriptRAM",            0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT },{} },
@@ -123,11 +80,11 @@ static AccessorTable2 GlobalTable2[] =
 	{ "Floor",                   0,       ZVARTYPEID_UNTYPED,   -1,  0,          { ZVARTYPEID_UNTYPED },{} },
 	{ "Ceiling",                 0,       ZVARTYPEID_UNTYPED,   -1,  0,          { ZVARTYPEID_UNTYPED },{} },
 	{ "GetSystemTime",           0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT },{} },
-	
+
 	{ "Distance",                0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT },{} },
-	{ "Distance",                0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT },{} },
+	{ "Distance",                1,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT },{} },
 	{ "LongDistance",            0,          ZVARTYPEID_LONG,   -1,  0,          { ZVARTYPEID_LONG, ZVARTYPEID_LONG, ZVARTYPEID_LONG, ZVARTYPEID_LONG },{} },
-	{ "LongDistance",            0,          ZVARTYPEID_LONG,   -1,  0,          { ZVARTYPEID_LONG, ZVARTYPEID_LONG, ZVARTYPEID_LONG, ZVARTYPEID_LONG, ZVARTYPEID_LONG },{} },
+	{ "LongDistance",            1,          ZVARTYPEID_LONG,   -1,  0,          { ZVARTYPEID_LONG, ZVARTYPEID_LONG, ZVARTYPEID_LONG, ZVARTYPEID_LONG, ZVARTYPEID_LONG },{} },
 	{ "strcmp",                  0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT },{} },
 	{ "strncmp",                 0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT },{} },
 	{ "stricmp",                 0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT },{} },
@@ -146,23 +103,27 @@ static AccessorTable2 GlobalTable2[] =
 	{ "xtoi",                    0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT },{} },
 	{ "SaveSRAM",                0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT },{} },
 	{ "LoadSRAM",                0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT },{} },
-	
+
 	{ "strcat",                  0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT },{} },
 	{ "strchr",                  0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT },{} },
 	{ "strcspn",                 0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT },{} },
 	{ "strspn",                  0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT },{} },
 	{ "strstr",                  0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT },{} },
 	{ "strrchr",                 0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT },{} },
-	
+
 	{ "SRand",                   0,          ZVARTYPEID_VOID,   -1,  0,          { ZVARTYPEID_LONG },{} },
-	{ "SRand",                   0,          ZVARTYPEID_LONG,   -1,  0,          {},{} },
-	
+	{ "SRand",                   1,          ZVARTYPEID_LONG,   -1,  0,          {},{} },
+
 	{ "IsValidArray",            0,          ZVARTYPEID_BOOL,   -1,  0,          { ZVARTYPEID_UNTYPED },{} },
-	
+
 	 { "EngineDegtoRad",         0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT },{} },
 	 { "EngineRadtoDeg",         0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT },{} },
 	{ "DegtoRad",                0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT },{} },
 	{ "RadtoDeg",                0,         ZVARTYPEID_FLOAT,   -1,  0,          { ZVARTYPEID_FLOAT },{} },
+
+	{ "printf",                  0,          ZVARTYPEID_VOID,   -1,  FL_VARG,    { ZVARTYPEID_CHAR },{} },
+	{ "sprintf",                 0,         ZVARTYPEID_FLOAT,   -1,  FL_VARG,    { ZVARTYPEID_CHAR, ZVARTYPEID_CHAR },{} },
+	
 	{ "",                        0,          ZVARTYPEID_VOID,   -1,  0,          {}, {}}
 	//Unused old junk
 	//overload, 2 args
@@ -184,7 +145,6 @@ static AccessorTable2 GlobalTable2[] =
 
 GlobalSymbols::GlobalSymbols()
 {
-    table = GlobalTable;
     table2 = GlobalTable2;
     refVar = NUL;
 	hasPrefixType = false;
@@ -196,7 +156,7 @@ void GlobalSymbols::generateCode()
 	/*
     //untyped NULL()(global)
     {
-	    Function* function = getFunction("NULL", 1);
+	    Function* function = getFunction2("NULL");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop pointer, and ignore it
@@ -207,11 +167,11 @@ void GlobalSymbols::generateCode()
         function->giveCode(code);
     }
 	*/
-    
+
     //one input, one return
     //untyped Untype(untype)
     {
-	    Function* function = getFunction("Untype", 1);
+	    Function* function = getFunction2("Untype");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop pointer, and ignore it
@@ -226,7 +186,7 @@ void GlobalSymbols::generateCode()
     }
     //float Distance(game, int32_t, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction("Distance", 4);
+		Function* function = getFunction2("Distance",0);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -241,7 +201,7 @@ void GlobalSymbols::generateCode()
 	}
 	//float Distance(game, int32_t, int32_t, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction("Distance", 5);
+		Function* function = getFunction2("Distance", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -251,14 +211,14 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
 		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-		
+
 		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(DISTANCESCALE)));
 		RETURN();
 		function->giveCode(code);
 	}
 	//int32_t LongDistance(game, int32_t, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction("LongDistance", 4);
+		Function* function = getFunction2("LongDistance");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -273,7 +233,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t LongDistance(game, int32_t, int32_t, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction("LongDistance", 5);
+		Function* function = getFunction2("LongDistance", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -283,15 +243,15 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
 		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-		
+
 		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(LONGDISTANCESCALE)));
 		RETURN();
 		function->giveCode(code);
 	}
-	
+
     //int32_t Rand(int32_t maxval)
     {
-	    Function* function = getFunction("Rand", 1);
+	    Function* function = getFunction2("Rand");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop maxval
@@ -301,10 +261,10 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-	
+
     //int_full SRand(int_full seed)
     {
-	    Function* function = getFunction("SRand", 1);
+	    Function* function = getFunction2("SRand");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop seed
@@ -314,10 +274,10 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-	
+
     //int_full SRand()
     {
-	    Function* function = getFunction("SRand", 0);
+	    Function* function = getFunction2("SRand", 1);
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OSRandRand(new VarArgument(EXP1)));
@@ -325,10 +285,10 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
+
 	//bool IsValidArray(untyped)
 	{
-		Function* function = getFunction("IsValidArray", 1);
+		Function* function = getFunction2("IsValidArray");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//Pop array ptr
@@ -338,10 +298,10 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-    
+
     //int32_t GetSystemTime(int32_t category)
     {
-	    Function* function = getFunction("GetSystemTime", 1);
+	    Function* function = getFunction2("GetSystemTime");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -350,10 +310,10 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
+
     //void Quit()
     {
-	    Function* function = getFunction("Quit", 0);
+	    Function* function = getFunction2("Quit");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OQuit());
@@ -362,7 +322,7 @@ void GlobalSymbols::generateCode()
     }
     //void Waitframe()
     {
-	    Function* function = getFunction("Waitframe", 0);
+	    Function* function = getFunction2("Waitframe");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OWaitframe());
@@ -372,7 +332,7 @@ void GlobalSymbols::generateCode()
     }
     //void Waitdraw()
     {
-	    Function* function = getFunction("Waitdraw", 0);
+	    Function* function = getFunction2("Waitdraw");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OWaitdraw());
@@ -382,7 +342,7 @@ void GlobalSymbols::generateCode()
     }
 	//void WaitTo(int32_t, bool)
 	{
-	    Function* function = getFunction("WaitTo", 2);
+	    Function* function = getFunction2("WaitTo");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -394,7 +354,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int WaitEvent()
 	{
-	    Function* function = getFunction("WaitEvent", 0);
+	    Function* function = getFunction2("WaitEvent");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OWaitEvent());
@@ -414,26 +374,68 @@ void GlobalSymbols::generateCode()
         function->giveCode(code);
     }
     {
-	 TRACING_FUNCTION("TraceLWeapon", 1);   
+		Function* function = getFunction2("TraceLWeapon");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OTraceRegister(new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
     }
     {
-	 TRACING_FUNCTION("TraceEWeapon", 1);   
+		Function* function = getFunction2("TraceEWeapon");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OTraceRegister(new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
     }
     {
-	 TRACING_FUNCTION("TraceNPC", 1);   
+		Function* function = getFunction2("TraceNPC");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OTraceRegister(new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
     }
     {
-	 TRACING_FUNCTION("TraceFFC", 1);   
+		Function* function = getFunction2("TraceFFC");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OTraceRegister(new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
     }
     {
-	 TRACING_FUNCTION("TraceItem", 1);   
+		Function* function = getFunction2("TraceItem");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OTraceRegister(new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
     }
     {
-	 TRACING_FUNCTION("TraceItemData", 1);   
+		Function* function = getFunction2("TraceItemData");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OTraceRegister(new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
     }
     //void TraceB(bool val)
     {
-	    Function* function = getFunction("TraceB", 1);
+	    Function* function = getFunction2("TraceB");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -444,7 +446,7 @@ void GlobalSymbols::generateCode()
     }
     //void TraceS(bool val)
     {
-	    Function* function = getFunction("TraceS", 1);
+	    Function* function = getFunction2("TraceS");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
@@ -455,7 +457,7 @@ void GlobalSymbols::generateCode()
     }
     //void TraceNL()
     {
-	    Function* function = getFunction("TraceNL", 0);
+	    Function* function = getFunction2("TraceNL");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OTrace3());
@@ -465,7 +467,7 @@ void GlobalSymbols::generateCode()
     }
     //void ClearTrace()
     {
-	    Function* function = getFunction("ClearTrace", 0);
+	    Function* function = getFunction2("ClearTrace");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OTrace4());
@@ -475,19 +477,19 @@ void GlobalSymbols::generateCode()
     }
     //void TraceToBase(float, float, float)
     {
-	    Function* function = getFunction("TraceToBase", 3);
+	    Function* function = getFunction2("TraceToBase");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OTrace5Register());
         LABELBACK(label);
 		POP_ARGS(3, NUL);
-        
+
         RETURN();
         function->giveCode(code);
     }
     //int32_t Sin(int32_t val)
     {
-	    Function* function = getFunction("Sin", 1);
+	    Function* function = getFunction2("Sin");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -498,7 +500,7 @@ void GlobalSymbols::generateCode()
     }
     //int32_t RadianSin(int32_t val)
     {
-	    Function* function = getFunction("RadianSin", 1);
+	    Function* function = getFunction2("RadianSin");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -510,7 +512,7 @@ void GlobalSymbols::generateCode()
     }
     //int32_t ArcSin(int32_t val)
     {
-	    Function* function = getFunction("ArcSin", 1);
+	    Function* function = getFunction2("ArcSin");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -521,7 +523,7 @@ void GlobalSymbols::generateCode()
     }
     //int32_t Cos(int32_t val)
     {
-	    Function* function = getFunction("Cos", 1);
+	    Function* function = getFunction2("Cos");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -532,7 +534,7 @@ void GlobalSymbols::generateCode()
     }
     //int32_t RadianCos(int32_t val)
     {
-	    Function* function = getFunction("RadianCos", 1);
+	    Function* function = getFunction2("RadianCos");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -544,7 +546,7 @@ void GlobalSymbols::generateCode()
     }
     //int32_t ArcCos(int32_t val)
     {
-	    Function* function = getFunction("ArcCos", 1);
+	    Function* function = getFunction2("ArcCos");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -555,7 +557,7 @@ void GlobalSymbols::generateCode()
     }
     //int32_t Tan(int32_t val)
     {
-	    Function* function = getFunction("Tan", 1);
+	    Function* function = getFunction2("Tan");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -566,7 +568,7 @@ void GlobalSymbols::generateCode()
     }
     //int32_t ArcTan(int32_t X, int32_t Y)
     {
-	    Function* function = getFunction("ArcTan", 2);
+	    Function* function = getFunction2("ArcTan");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -576,10 +578,10 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
+
     //int32_t RadianTan(int32_t val)
     {
-	    Function* function = getFunction("RadianTan", 1);
+	    Function* function = getFunction2("RadianTan");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -591,7 +593,7 @@ void GlobalSymbols::generateCode()
     }
     //int32_t Max(int32_t first, int32_t second)
     {
-	    Function* function = getFunction("Max", 2);
+	    Function* function = getFunction2("Max");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -603,7 +605,7 @@ void GlobalSymbols::generateCode()
     }
     //int32_t Min(int32_t first, int32_t second)
     {
-	    Function* function = getFunction("Min", 2);
+	    Function* function = getFunction2("Min");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -615,7 +617,7 @@ void GlobalSymbols::generateCode()
     }
     //int32_t Pow(int32_t first, int32_t second)
     {
-	    Function* function = getFunction("Pow", 2);
+	    Function* function = getFunction2("Pow");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -627,7 +629,7 @@ void GlobalSymbols::generateCode()
     }
     //int32_t LPow(int32_t first, int32_t second)
     {
-	    Function* function = getFunction("LPow", 2);
+	    Function* function = getFunction2("LPow");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -639,7 +641,7 @@ void GlobalSymbols::generateCode()
     }
     //int32_t InvPow(int32_t first, int32_t second)
     {
-	    Function* function = getFunction("InvPow", 2);
+	    Function* function = getFunction2("InvPow");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -651,7 +653,7 @@ void GlobalSymbols::generateCode()
     }
     //int32_t Factorial(int32_t val)
     {
-	    Function* function = getFunction("Factorial", 1);
+	    Function* function = getFunction2("Factorial");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -662,7 +664,7 @@ void GlobalSymbols::generateCode()
     }
     //int32_t Abs(int32_t val)
     {
-	    Function* function = getFunction("Abs", 1);
+	    Function* function = getFunction2("Abs");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -673,7 +675,7 @@ void GlobalSymbols::generateCode()
     }
     //int32_t Log10(int32_t val)
     {
-	    Function* function = getFunction("Log10", 1);
+	    Function* function = getFunction2("Log10");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -684,7 +686,7 @@ void GlobalSymbols::generateCode()
     }
     //int32_t Ln(int32_t val)
     {
-	    Function* function = getFunction("Ln", 1);
+	    Function* function = getFunction2("Ln");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -695,7 +697,7 @@ void GlobalSymbols::generateCode()
     }
     //int32_t Sqrt(int32_t val)
     {
-	    Function* function = getFunction("Sqrt", 1);
+	    Function* function = getFunction2("Sqrt");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -704,11 +706,11 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
-    
+
+
     //int32_t CopyTile(int32_t source, int32_t dest)
     {
-	    Function* function = getFunction("CopyTile", 2);
+	    Function* function = getFunction2("CopyTile");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -718,11 +720,11 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
-    
+
+
     //int32_t SwapTile(int32_t first, int32_t second)
     {
-	    Function* function = getFunction("SwapTile", 2);
+	    Function* function = getFunction2("SwapTile");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -732,10 +734,10 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
+
     //int32_t OverlayTile(int32_t first, int32_t second)
     {
-	    Function* function = getFunction("OverlayTile", 2);
+	    Function* function = getFunction2("OverlayTile");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -745,10 +747,10 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
+
     //void ClearTile(int32_t tile)
     {
-	    Function* function = getFunction("ClearTile", 1);
+	    Function* function = getFunction2("ClearTile");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -759,7 +761,7 @@ void GlobalSymbols::generateCode()
     }
     //void GetGlobalRAM(int32_t)
     {
-	    Function* function = getFunction("GetGlobalRAM", 1);
+	    Function* function = getFunction2("GetGlobalRAM");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the params
@@ -771,7 +773,7 @@ void GlobalSymbols::generateCode()
     }
     //void SetGlobalRAM(int32_t, int32_t)
     {
-	    Function* function = getFunction("SetGlobalRAM", 2);
+	    Function* function = getFunction2("SetGlobalRAM");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the params
@@ -784,7 +786,7 @@ void GlobalSymbols::generateCode()
     }
     //void GetScriptRAM(int32_t)
     {
-	    Function* function = getFunction("GetScriptRAM", 1);
+	    Function* function = getFunction2("GetScriptRAM");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the params
@@ -797,7 +799,7 @@ void GlobalSymbols::generateCode()
     }
     //void SetScriptRAM(int32_t, int32_t)
     {
-	    Function* function = getFunction("SetScriptRAM", 2);
+	    Function* function = getFunction2("SetScriptRAM");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the params
@@ -810,7 +812,7 @@ void GlobalSymbols::generateCode()
     }
     //void SetColorBuffer(int32_t amount, int32_t offset, int32_t stride, int32_t *ptr)
     {
-	    Function* function = getFunction("SetColorBuffer", 4);
+	    Function* function = getFunction2("SetColorBuffer");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OSetColorBufferRegister());
@@ -824,7 +826,7 @@ void GlobalSymbols::generateCode()
     }
     //void SetDepthBuffer(int32_t amount, int32_t offset, int32_t stride, int32_t *ptr)
     {
-	    Function* function = getFunction("SetDepthBuffer", 4);
+	    Function* function = getFunction2("SetDepthBuffer");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OSetDepthBufferRegister());
@@ -838,7 +840,7 @@ void GlobalSymbols::generateCode()
     }
     //void GetColorBuffer(int32_t amount, int32_t offset, int32_t stride, int32_t *ptr)
     {
-	    Function* function = getFunction("GetColorBuffer", 4);
+	    Function* function = getFunction2("GetColorBuffer");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OGetColorBufferRegister());
@@ -852,7 +854,7 @@ void GlobalSymbols::generateCode()
     }
     //void GetDepthBuffer(int32_t amount, int32_t offset, int32_t stride, int32_t *ptr)
     {
-	    Function* function = getFunction("GetDepthBuffer", 4);
+	    Function* function = getFunction2("GetDepthBuffer");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OGetDepthBufferRegister());
@@ -866,7 +868,7 @@ void GlobalSymbols::generateCode()
     }
     //int32_t SizeOfArray(int32_t val)
     {
-	    Function* function = getFunction("SizeOfArray", 1);
+	    Function* function = getFunction2("SizeOfArray");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -877,7 +879,7 @@ void GlobalSymbols::generateCode()
     }
     //void ResizeArray(untyped ptr, int sz)
     {
-	    Function* function = getFunction("ResizeArray", 2);
+	    Function* function = getFunction2("ResizeArray");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -889,7 +891,7 @@ void GlobalSymbols::generateCode()
     }
     //void OwnArray(untyped ptr)
     {
-	    Function* function = getFunction("OwnArray", 1);
+	    Function* function = getFunction2("OwnArray");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -900,7 +902,7 @@ void GlobalSymbols::generateCode()
     }
     //void OwnObject(untyped ptr)
     {
-	    Function* function = getFunction("OwnObject", 1);
+	    Function* function = getFunction2("OwnObject");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -911,7 +913,7 @@ void GlobalSymbols::generateCode()
     }
     //void GlobalObject(untyped ptr)
     {
-	    Function* function = getFunction("GlobalObject", 1);
+	    Function* function = getFunction2("GlobalObject");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -922,7 +924,7 @@ void GlobalSymbols::generateCode()
     }
     //void DestroyArray(untyped ptr)
     {
-	    Function* function = getFunction("DestroyArray", 1);
+	    Function* function = getFunction2("DestroyArray");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -931,9 +933,9 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
+
     {
-	    Function* function = getFunction("Byte", 1);
+	    Function* function = getFunction2("Byte");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -943,7 +945,7 @@ void GlobalSymbols::generateCode()
         function->giveCode(code);
     }
     {
-	    Function* function = getFunction("Int8", 1);
+	    Function* function = getFunction2("Int8");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -953,7 +955,7 @@ void GlobalSymbols::generateCode()
         function->giveCode(code);
     }
     {
-	    Function* function = getFunction("SignedByte", 1);
+	    Function* function = getFunction2("SignedByte");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -963,7 +965,7 @@ void GlobalSymbols::generateCode()
         function->giveCode(code);
     }
     {
-	    Function* function = getFunction("Word", 1);
+	    Function* function = getFunction2("Word");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -973,7 +975,7 @@ void GlobalSymbols::generateCode()
         function->giveCode(code);
     }
     {
-	    Function* function = getFunction("Int16", 1);
+	    Function* function = getFunction2("Int16");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -983,7 +985,7 @@ void GlobalSymbols::generateCode()
         function->giveCode(code);
     }
     {
-	    Function* function = getFunction("Short", 1);
+	    Function* function = getFunction2("Short");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -993,7 +995,7 @@ void GlobalSymbols::generateCode()
         function->giveCode(code);
     }
     {
-	    Function* function = getFunction("Integer", 1);
+	    Function* function = getFunction2("Integer");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1003,7 +1005,7 @@ void GlobalSymbols::generateCode()
         function->giveCode(code);
     }
     {
-	    Function* function = getFunction("Floor", 1);
+	    Function* function = getFunction2("Floor");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1013,7 +1015,7 @@ void GlobalSymbols::generateCode()
         function->giveCode(code);
     }
     {
-	    Function* function = getFunction("Ceiling", 1);
+	    Function* function = getFunction2("Ceiling");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1024,7 +1026,7 @@ void GlobalSymbols::generateCode()
     }
     //int32_t SizeOfArrayFFC(ffc *ptr)
     {
-	    Function* function = getFunction("SizeOfArrayFFC", 1);
+	    Function* function = getFunction2("SizeOfArrayFFC");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1033,10 +1035,10 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
+
      //int32_t SizeOfArrayNPC(npc *ptr)
     {
-	    Function* function = getFunction("SizeOfArrayNPC", 1);
+	    Function* function = getFunction2("SizeOfArrayNPC");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1044,11 +1046,11 @@ void GlobalSymbols::generateCode()
         addOpcode2 (code, new OArraySizeN(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
-    } 
-    
+    }
+
     //int32_t SizeOfArrayBool(bool *ptr)
     {
-	    Function* function = getFunction("SizeOfArrayBool", 1);
+	    Function* function = getFunction2("SizeOfArrayBool");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1058,7 +1060,7 @@ void GlobalSymbols::generateCode()
         function->giveCode(code);
     } //int32_t SizeOfArrayItem(item *ptr)
     {
-	    Function* function = getFunction("SizeOfArrayItem", 1);
+	    Function* function = getFunction2("SizeOfArrayItem");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1068,7 +1070,7 @@ void GlobalSymbols::generateCode()
         function->giveCode(code);
     } //int32_t SizeOfArrayItemdata(itemdata *ptr)
     {
-	    Function* function = getFunction("SizeOfArrayItemdata", 1);
+	    Function* function = getFunction2("SizeOfArrayItemdata");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1078,7 +1080,7 @@ void GlobalSymbols::generateCode()
         function->giveCode(code);
     } //int32_t SizeOfArrayLWeapon(lweapon *ptr)
     {
-	    Function* function = getFunction("SizeOfArrayLWeapon", 1);
+	    Function* function = getFunction2("SizeOfArrayLWeapon");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1086,10 +1088,10 @@ void GlobalSymbols::generateCode()
         addOpcode2 (code, new OArraySizeL(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
-    } 
+    }
     //int32_t SaveSRAM(eweapon *ptr)
     {
-	    Function* function = getFunction("SaveSRAM", 2);
+	    Function* function = getFunction2("SaveSRAM");
 	    int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1101,7 +1103,7 @@ void GlobalSymbols::generateCode()
     }
     //int32_t LoadSRAM(eweapon *ptr)
     {
-	    Function* function = getFunction("LoadSRAM", 2);
+	    Function* function = getFunction2("LoadSRAM");
 	    int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1113,7 +1115,7 @@ void GlobalSymbols::generateCode()
     }
     //int32_t SizeOfArrayEWeapon(eweapon *ptr)
     {
-	    Function* function = getFunction("SizeOfArrayEWeapon", 1);
+	    Function* function = getFunction2("SizeOfArrayEWeapon");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1125,7 +1127,7 @@ void GlobalSymbols::generateCode()
     //String and Array Functions (String.h, Array.h)
     	//int32_t strlen(*p)
 	{
-		Function* function = getFunction("strlen", 1);
+		Function* function = getFunction2("strlen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1136,7 +1138,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void strcpy(str* dest, str* src)
 	{
-		Function* function = getFunction("strcpy", 2);
+		Function* function = getFunction2("strcpy");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1148,7 +1150,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void itoacat(str* dest, int32_t)
 	{
-		Function* function = getFunction("itoacat", 2);
+		Function* function = getFunction2("itoacat");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1160,7 +1162,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t strcmp(*a, *b)
 	{
-		Function* function = getFunction("strcmp",2);
+		Function* function = getFunction2("strcmp");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1172,7 +1174,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t strncmp(*a, *b, int32_t len)
 	{
-		Function* function = getFunction("strncmp", 3);
+		Function* function = getFunction2("strncmp");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1185,7 +1187,7 @@ void GlobalSymbols::generateCode()
 	}
     //int32_t stricmp(*a, *b)
 	{
-		Function* function = getFunction("stricmp",2);
+		Function* function = getFunction2("stricmp");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1197,7 +1199,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t strnicmp(*a, *b, int32_t len)
 	{
-		Function* function = getFunction("strnicmp", 3);
+		Function* function = getFunction2("strnicmp");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1208,10 +1210,10 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-    
+
 	//int32_t ArrayCopy(int32_t source, int32_t dest)
 	{
-		Function* function = getFunction("ArrayCopy", 2);
+		Function* function = getFunction2("ArrayCopy");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1223,7 +1225,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t atoi(*p)
 	{
-		Function* function = getFunction("atoi", 1);
+		Function* function = getFunction2("atoi");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1234,7 +1236,7 @@ void GlobalSymbols::generateCode()
 	}
 	/*int32_t atoi2(*a, *b)
 	{
-		Function* function = getFunction("atoi",2);
+		Function* function = getFunction2("atoi");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1244,10 +1246,10 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}*/
-	
+
 	//int32_t ilen(*p)
 	{
-		Function* function = getFunction("ilen", 1);
+		Function* function = getFunction2("ilen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1258,7 +1260,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t utol(*p)
 	{
-		Function* function = getFunction("utol", 1);
+		Function* function = getFunction2("utol");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1269,7 +1271,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t ltou(*p)
 	{
-		Function* function = getFunction("ltou", 1);
+		Function* function = getFunction2("ltou");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1280,7 +1282,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t convcase(*p)
 	{
-		Function* function = getFunction("convcase", 1);
+		Function* function = getFunction2("convcase");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1292,7 +1294,7 @@ void GlobalSymbols::generateCode()
         /*
 	//int32_t ilen2(*a, *b)
 	{
-		Function* function = getFunction("ilen",2);
+		Function* function = getFunction2("ilen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1303,11 +1305,11 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 	*/
-    
-	
+
+
 	//void itoa_c(str* dest, int32_t)
 	{
-		Function* function = getFunction("itoa", 2);
+		Function* function = getFunction2("itoa");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1319,7 +1321,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void xtoa_c(str* dest, int32_t)
 	{
-		Function* function = getFunction("xtoa", 2);
+		Function* function = getFunction2("xtoa");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1331,7 +1333,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t xtoi(*p)
 	{
-		Function* function = getFunction("xtoi", 1);
+		Function* function = getFunction2("xtoi");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1342,7 +1344,7 @@ void GlobalSymbols::generateCode()
 	}
 	/*int32_t remchr(*a, *b)
 	{
-		Function* function = getFunction("remchr",2);
+		Function* function = getFunction2("remchr");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1354,7 +1356,7 @@ void GlobalSymbols::generateCode()
 	}*/
 	//int32_t strcat(*a, *b)
 	{
-		Function* function = getFunction("strcat",2);
+		Function* function = getFunction2("strcat");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1366,7 +1368,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t strchr(*a, *b)
 	{
-		Function* function = getFunction("strchr",2);
+		Function* function = getFunction2("strchr");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1378,7 +1380,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t strcspn(*a, *b)
 	{
-		Function* function = getFunction("strcspn",2);
+		Function* function = getFunction2("strcspn");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1390,7 +1392,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t strspn(*a, *b)
 	{
-		Function* function = getFunction("strspn",2);
+		Function* function = getFunction2("strspn");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1402,7 +1404,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t strstr(*a, *b)
 	{
-		Function* function = getFunction("strstr",2);
+		Function* function = getFunction2("strstr");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1414,7 +1416,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t strrchr(*a, *b)
 	{
-		Function* function = getFunction("strrchr",2);
+		Function* function = getFunction2("strrchr");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1427,7 +1429,7 @@ void GlobalSymbols::generateCode()
 	/*
 	//int32_t xlen(*p)
 	{
-		Function* function = getFunction("xlen", 1);
+		Function* function = getFunction2("xlen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1438,7 +1440,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t xlen(*a, *b)
 	{
-		Function* function = getFunction("xlen",2);
+		Function* function = getFunction2("xlen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1450,7 +1452,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t xtoa(*a, *b)
 	{
-		Function* function = getFunction("xtoa",2);
+		Function* function = getFunction2("xtoa");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1462,7 +1464,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t xtoi(*p)
 	{
-		Function* function = getFunction("xtoi", 1);
+		Function* function = getFunction2("xtoi");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1473,7 +1475,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t xtoi2(*a, *b)
 	{
-		Function* function = getFunction("xtoi",2);
+		Function* function = getFunction2("xtoi");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1484,34 +1486,34 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 	*/
-	
+
 	//void printf(str* format, untyped args...)
-	for(int32_t q = 0; q <= 16; ++q) //16 args max
 	{
-		Function* function = getFunction("printf", q+1);
+		Function* function = getFunction2("printf");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPrintfImmediate(new LiteralArgument(q * 10000)));
+		addOpcode2 (code, new OPrintfImmediate(new VargsArgument(-10000)));
 		LABELBACK(label);
-		POP_ARGS(q+1, NUL);
+		POP_ARGS(1,NUL);
+		POP_VARGS(NUL);
 		RETURN();
 		function->giveCode(code);
 	}
 	//void sprintf(str* buf, str* format, untyped args...)
-	for(int32_t q = 0; q <= 16; ++q) //16 args max
 	{
-		Function* function = getFunction("sprintf", q+2);
+		Function* function = getFunction2("sprintf");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OSPrintfImmediate(new LiteralArgument(q * 10000)));
+		addOpcode2 (code, new OSPrintfImmediate(new VargsArgument(-10000)));
 		LABELBACK(label);
-		POP_ARGS(q+2, NUL);
+		POP_ARGS(2,NUL);
+		POP_VARGS(NUL);
 		RETURN();
 		function->giveCode(code);
 	}
 	//int32_t EngineDegtoRad(int32_t val)
 	{
-		Function* function = getFunction("EngineDegtoRad", 1);
+		Function* function = getFunction2("EngineDegtoRad");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1522,7 +1524,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t EngineRadtoDeg(int32_t val)
 	{
-		Function* function = getFunction("EngineRadtoDeg", 1);
+		Function* function = getFunction2("EngineRadtoDeg");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1533,7 +1535,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t DegtoRad(int32_t val)
 	{
-		Function* function = getFunction("DegtoRad", 1);
+		Function* function = getFunction2("DegtoRad");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1544,7 +1546,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t RadtoDeg(int32_t val)
 	{
-		Function* function = getFunction("RadtoDeg", 1);
+		Function* function = getFunction2("RadtoDeg");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));

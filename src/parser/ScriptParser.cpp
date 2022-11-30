@@ -121,7 +121,7 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 
 		return unique_ptr<ScriptsData>(result.release());
 	}
-	catch (std::runtime_error &e)
+	catch (std::exception &e)
 	{
 		zconsole_error("An unexpected runtime error has occurred:");
 		zconsole_error("    %s", e.what());

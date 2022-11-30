@@ -246,6 +246,8 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 			function->hasPrefixType = true; //Print the first type differently in error messages!
 		
 		function->opt_vals = entry.optparams;
+		if(function->getFlag(FUNCFLAG_VARARGS))
+			function->setFlag(FUNCFLAG_INLINE);
 		
 		// Generate function code for getters/setters
 		int32_t label = function->getLabel();
@@ -275,7 +277,7 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 Function* LibrarySymbols::getFunction(std::string const& name, int32_t numParams) const
 {
 	std::pair<std::string, int32_t> p = make_pair(name, numParams);
-	Function* ret = find<Function*>(functions, p).value_or(boost::add_pointer<Function>::type());
+	Function* ret = find<Function*>(functions, p).value_or(nullptr);
 	if(!ret)
 	{
 		char buf[256];
@@ -288,14 +290,13 @@ Function* LibrarySymbols::getFunction(std::string const& name, int32_t numParams
 Function* LibrarySymbols::getFunction2(std::string const& name, int32_t tag) const
 {
 	std::pair<std::string, int32_t> p = make_pair(name, -1-tag);
-	Function* ret = find<Function*>(functions, p).value_or(boost::add_pointer<Function>::type());
+	Function* ret = find<Function*>(functions, p).value_or(nullptr);
 	if(!ret)
 	{
 		char buf[256];
 		sprintf(buf, "Unique internal function %s not found with tag %d!", name.c_str(), tag);
 		throw std::runtime_error(buf);
 	}
-	assert(ret);
 	return ret;
 }
 

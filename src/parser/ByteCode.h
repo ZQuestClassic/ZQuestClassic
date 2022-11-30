@@ -1520,6 +1520,7 @@ namespace ZScript
 	class GlobalArgument;
 	class StringArgument;
 	class VectorArgument;
+	class VargsArgument;
 
 	class ArgumentVisitor
 	{
@@ -1530,6 +1531,7 @@ namespace ZScript
 		virtual void caseVar(VarArgument&, void *){}
 		virtual void caseLabel(LabelArgument&, void *){}
 		virtual void caseGlobal(GlobalArgument&, void *){}
+		virtual void caseVargs(VargsArgument&, void *){}
 		virtual ~ArgumentVisitor() {}
 	};
 
@@ -1655,6 +1657,25 @@ namespace ZScript
 		int32_t ID;
 		int32_t lineno;
 		bool haslineno;
+	};
+	
+	class VargsArgument : public Argument
+	{
+		//val of -1 means it should become a LiteralArgument of args size
+		//val of -10000 means the same, but *10000 the size
+		//no other values at this time
+	public:
+		VargsArgument(int32_t id, int32_t v = 0) : id(id), val(v) {}
+		std::string toString();
+		void execute(ArgumentVisitor &host, void *param)
+		{
+			host.caseVargs(*this,param);
+		}
+		Argument *clone()
+		{
+			return new VargsArgument(id,val);
+		}
+		int32_t id,val;
 	};
 
 	class UnaryOpcode : public Opcode

@@ -8016,11 +8016,22 @@ int32_t devTimestmp();
 #if DEVLEVEL > 1
 int32_t setCheat();
 #endif //DEVLEVEL > 1
+enum
+{
+	dv_log,
+	// dv_dbg,
+	dv_tmpstmp,
+	#if DEVLEVEL > 1
+	dv_nil,
+	dv_setcheat,
+	#endif //DEVLEVEL > 1
+	dv_max
+};
 static MENU dev_menu[] =
 {
-	{ (char *)"&Force Error Log",		   devLogging,			  NULL,			 D_SELECTED, NULL },
-	{ (char *)"&Extra Debug Log",		   devDebug,				NULL,			 D_SELECTED, NULL },
-	{ (char *)"&Timestamp Log",			 devTimestmp,			 NULL,			 D_SELECTED, NULL },
+	{ (char *)"&Force Error Log",		   devLogging,			  NULL,			 0, NULL },
+	// { (char *)"&Extra Debug Log",		   devDebug,				NULL,			 0, NULL },
+	{ (char *)"&Timestamp Log",			 devTimestmp,			 NULL,			 0, NULL },
 	#if DEVLEVEL > 1
 	{ (char *)"",						   NULL,					NULL,			 0,		  NULL },
 	{ (char *)"Set &Cheat",				 setCheat,				NULL,			 0,		  NULL },
@@ -8030,19 +8041,19 @@ static MENU dev_menu[] =
 int32_t devLogging()
 {
 	dev_logging = !dev_logging;
-	dev_menu[0].flags = dev_logging ? D_SELECTED : 0;
+	dev_menu[dv_log].flags = dev_logging ? D_SELECTED : 0;
 	return D_O_K;
 }
-int32_t devDebug()
-{
-	dev_debug = !dev_debug;
-	dev_menu[1].flags = dev_debug ? D_SELECTED : 0;
-	return D_O_K;
-}
+// int32_t devDebug()
+// {
+	// dev_debug = !dev_debug;
+	// dev_menu[dv_dbg].flags = dev_debug ? D_SELECTED : 0;
+	// return D_O_K;
+// }
 int32_t devTimestmp()
 {
 	dev_timestmp = !dev_timestmp;
-	dev_menu[2].flags = dev_timestmp ? D_SELECTED : 0;
+	dev_menu[dv_tmpstmp].flags = dev_timestmp ? D_SELECTED : 0;
 	return D_O_K;
 }
 #if DEVLEVEL > 1
@@ -8060,14 +8071,11 @@ MENU the_player_menu[] =
 	{ (char *)"&Settings",				  NULL,					settings_menu,			 0, NULL },
 	{ (char *)"&Cheat",					 NULL,					cheat_menu,				0, NULL },
 	{ (char *)"&Fixes",					 NULL,					fixes_menu,				0, NULL },
+	{ (char *)"&ZC",					  NULL,					misc_menu,				 0, NULL },
 	#if DEVLEVEL > 0
-	{ (char *)"&ZC",					  NULL,					misc_menu,				 0, NULL },
 	{ (char *)"&Dev",					   NULL,					dev_menu,				  0, NULL },
-	{ NULL,								 NULL,					NULL,					  0, NULL }
-	#else
-	{ (char *)"&ZC",					  NULL,					misc_menu,				 0, NULL },
-	{ NULL,								 NULL,					NULL,					  0, NULL }
 	#endif
+	{ NULL,								 NULL,					NULL,					  0, NULL }
 };
 
 MENU the_player_menu2[] =
@@ -8075,16 +8083,11 @@ MENU the_player_menu2[] =
 	{ (char *)"&Game",					  NULL,					game_menu,				 0, NULL },
 	{ (char *)"&Settings",				  NULL,					settings_menu,			 0, NULL },
 	{ (char *)"&Fixes",					 NULL,					fixes_menu,				0, NULL },
-	
+	{ (char *)"&ZC",					  NULL,					misc_menu,				 0, NULL },
 	#if DEVLEVEL > 0
-	{ (char *)"&ZC",					  NULL,					misc_menu,				 0, NULL },
 	{ (char *)"&Dev",					   NULL,					dev_menu,				  0, NULL },
-	{ NULL,								 NULL,					NULL,					  0, NULL }
-	#else
-	{ (char *)"&ZC",					  NULL,					misc_menu,				 0, NULL },
-	{ NULL,								 NULL,					NULL,					  0, NULL }
 	#endif
-	
+	{ NULL,								 NULL,					NULL,					  0, NULL }
 };
 
 int32_t onMIDIPatch()
@@ -8671,7 +8674,7 @@ void System()
 	
 	game_menu[2].flags = getsaveslot() > -1 ? 0 : D_DISABLED;
 	#if DEVLEVEL > 1
-	dev_menu[4].flags = Playing ? 0 : D_DISABLED;
+	dev_menu[dv_setcheat].flags = Playing ? 0 : D_DISABLED;
 	#endif
 	game_menu[3].flags =
 		misc_menu[5].flags = Playing ? 0 : D_DISABLED;
