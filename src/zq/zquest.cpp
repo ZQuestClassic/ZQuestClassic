@@ -26399,26 +26399,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&ffscripts[it->first+1],tempfile,false);
@@ -26446,26 +26427,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&globalscripts[it->first],tempfile,false);
@@ -26493,26 +26455,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&itemscripts[it->first+1],tempfile,false);
@@ -26539,26 +26482,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&guyscripts[it->first+1],tempfile,false);
@@ -26585,26 +26509,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&lwpnscripts[it->first+1],tempfile,false);
@@ -26631,26 +26536,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&ewpnscripts[it->first+1],tempfile,false);
@@ -26677,26 +26563,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&playerscripts[it->first+1],tempfile,false);
@@ -26723,26 +26590,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&dmapscripts[it->first+1],tempfile,false);
@@ -26769,26 +26617,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&screenscripts[it->first+1],tempfile,false);
@@ -26815,26 +26644,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&itemspritescripts[it->first+1],tempfile,false);
@@ -26862,26 +26672,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&comboscripts[it->first+1],tempfile,false);
@@ -26908,26 +26699,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&genericscripts[it->first+1],tempfile,false);

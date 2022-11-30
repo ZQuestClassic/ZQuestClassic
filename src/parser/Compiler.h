@@ -10,6 +10,7 @@
 #include "Types.h"
 #include "parserDefs.h"
 #include "ffasmexport.h"
+#include "ffasm.h"
 
 #include <cstdio>
 #include <map>
@@ -116,6 +117,25 @@ namespace ZScript
 		}
 		disassembled_script_data() : format(SCRIPT_FORMAT_DEFAULT)
 		{}
+		void write(FILE* dest, bool al = false)
+		{
+			std::string str = get_meta(first);
+			fwrite(str.c_str(), sizeof(char), str.size(), dest);
+			if(al)
+			{
+				al_trace("\n%s\n",first.script_name.c_str());
+				safe_al_trace(str.c_str());
+			}
+			for(auto& line : second)
+			{
+				str = line->printLine();
+				fwrite(str.c_str(), sizeof(char), str.size(), dest);
+				if(al)
+				{
+					al_trace("%s",str.c_str());
+				}
+			}
+		}
 	};
 
 	class ScriptsData

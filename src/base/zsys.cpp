@@ -28,6 +28,7 @@ using std::getline;
 #include <conio.h>
 #endif
 
+#include "zsyssimple.h"
 #include "base/zdefs.h"
 #include "base/zsys.h"
 #include "zc_sys.h"
