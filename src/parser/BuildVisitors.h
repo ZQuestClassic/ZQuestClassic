@@ -208,6 +208,8 @@ namespace ZScript
 					host.val = argcount;
 				else if (host.id == -10000)
 					host.val = argcount * 10000;
+				else return;
+				host.val += host.ofs;
 			}
 		}
 	};

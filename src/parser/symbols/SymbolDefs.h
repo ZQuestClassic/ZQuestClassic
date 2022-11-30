@@ -104,8 +104,8 @@ function->internal_flags |= IFUNCFLAG_REASSIGNPTR
 */
 #define POP_ARGS(num_args, t) \
 	addOpcode2 (code, new OPopArgsRegister(new VarArgument(t), new LiteralArgument(num_args)))
-#define POP_VARGS(t) \
-	addOpcode2 (code, new OPopArgsRegister(new VarArgument(t), new VargsArgument(-1)))
+#define POP_VARGS(ofs,t) \
+	addOpcode2 (code, new OPopArgsRegister(new VarArgument(t), new VargsArgument(-1,ofs)))
 
 //{ Older defines
 #define ARGS_4(t, arg1, arg2, arg3, arg4) \

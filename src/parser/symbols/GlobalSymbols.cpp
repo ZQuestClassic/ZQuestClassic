@@ -1494,8 +1494,7 @@ void GlobalSymbols::generateCode()
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPrintfImmediate(new VargsArgument(-10000)));
 		LABELBACK(label);
-		POP_ARGS(1,NUL);
-		POP_VARGS(NUL);
+		POP_VARGS(1,NUL);
 		RETURN();
 		function->giveCode(code);
 	}
@@ -1506,8 +1505,7 @@ void GlobalSymbols::generateCode()
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OSPrintfImmediate(new VargsArgument(-10000)));
 		LABELBACK(label);
-		POP_ARGS(2,NUL);
-		POP_VARGS(NUL);
+		POP_VARGS(2,NUL);
 		RETURN();
 		function->giveCode(code);
 	}
