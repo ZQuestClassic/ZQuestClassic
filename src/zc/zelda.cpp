@@ -5325,8 +5325,8 @@ int main(int argc, char **argv)
 	resy *= monitor_scale;
 
 	// TODO: consolidate "resx" and "resy" variables with window_width,height.
-	window_width = resx;
-	window_height = resy;
+	// window_width = resx;
+	// window_height = resy;
 	
 	if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
 	{

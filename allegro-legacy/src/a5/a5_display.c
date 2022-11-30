@@ -811,6 +811,10 @@ void all_set_fullscreen_flag(bool fullscreen)
 // local edit
 bool all_get_fullscreen_flag()
 {
+  if (_a5_display)
+  {
+    return (al_get_display_flags(_a5_display) & (ALLEGRO_FULLSCREEN | ALLEGRO_FULLSCREEN_WINDOW)) != 0;
+  }
   return _a5_display_fullscreen;
 }
 

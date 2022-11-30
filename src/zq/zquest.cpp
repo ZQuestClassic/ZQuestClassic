@@ -32637,26 +32637,20 @@ int32_t save_config_file()
     set_config_int("zquest","overwrite_prevention",OverwriteProtection);
     set_config_int("zquest","import_map_bias",ImportMapBias);
     
-    if (all_get_display() && !all_get_fullscreen_flag()) 
+    if (all_get_display() && !all_get_fullscreen_flag() && SaveDragResize) 
     {
-		if (SaveDragResize)
+		double monitor_scale = zc_get_monitor_scale();
+		window_width = al_get_display_width(all_get_display()) / monitor_scale;
+		window_height = al_get_display_height(all_get_display()) / monitor_scale;
+		if (is_large) 
 		{
-			double monitor_scale = zc_get_monitor_scale();
-			window_width = al_get_display_width(all_get_display()) / monitor_scale;
-			window_height = al_get_display_height(all_get_display()) / monitor_scale;
+			set_config_int("zquest","large_window_width",window_width);
+			set_config_int("zquest","large_window_height",window_height);
 		}
-		if (window_width > 0 && window_height > 0)
+		else
 		{
-			if (is_large) 
-			{
-				set_config_int("zquest","large_window_width",window_width);
-				set_config_int("zquest","large_window_height",window_height);
-			}
-			else
-			{
-				set_config_int("zquest","small_window_width",window_width);
-				set_config_int("zquest","small_window_height",window_height);
-			}
+			set_config_int("zquest","small_window_width",window_width);
+			set_config_int("zquest","small_window_height",window_height);
 		}
     }
     if (all_get_display() && !all_get_fullscreen_flag() && SaveWinPos)
@@ -32674,13 +32668,6 @@ int32_t save_config_file()
     set_config_int("zquest","small",UseSmall);
     set_config_int("zquest","rulesetdialog",RulesetDialog);
     set_config_int("zquest","enable_tooltips",EnableTooltips);
-    
-    if (all_get_display() && SaveDragResize)
-    {
-        double monitor_scale = zc_get_monitor_scale();
-        window_width = al_get_display_width(all_get_display()) / monitor_scale;
-        window_height = al_get_display_height(all_get_display()) / monitor_scale;
-    }
     
     for(int32_t x=0; x<7; x++)
     {

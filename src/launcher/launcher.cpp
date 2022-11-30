@@ -181,10 +181,7 @@ int32_t main(int32_t argc, char* argv[])
 
 	// TODO: remember window size.
 	double monitor_scale = zc_get_monitor_scale();
-	int window_width = zq_screen_w * monitor_scale;
-	int window_height = zq_screen_h * monitor_scale;
-
-	int32_t videofail = set_gfx_mode(GFX_AUTODETECT_WINDOWED,window_width,window_height,0,0);
+	int32_t videofail = set_gfx_mode(GFX_AUTODETECT_WINDOWED,zq_screen_w * monitor_scale,zq_screen_h * monitor_scale,0,0);
 	
 	if(videofail)
 	{

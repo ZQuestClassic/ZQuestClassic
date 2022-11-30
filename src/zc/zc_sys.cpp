@@ -521,13 +521,6 @@ void save_game_configs()
 	set_config_int(cfg_sect,"clicktofreeze", (int32_t)ClickToFreeze);
 	set_config_int(cfg_sect,"title",title_version);
 	//set_config_int(cfg_sect,"lister_pattern_matching",abc_patternmatch);  //Enable once there is a GUI way to toggle this. 
-   
-	if (all_get_display() && !all_get_fullscreen_flag() && SaveDragResize)
-	{
-		double monitor_scale = zc_get_monitor_scale();
-		window_width = al_get_display_width(all_get_display()) / monitor_scale;
-		window_height = al_get_display_height(all_get_display()) / monitor_scale;
-	}
 	
 	if (all_get_display() && !all_get_fullscreen_flag()&& SaveWinPos)
 	{
@@ -537,8 +530,11 @@ void save_game_configs()
 		set_config_int(cfg_sect,"window_y",o_window_y);
 	}
 	
-	if (window_width > 0 && window_height > 0)
+	if (all_get_display() && !all_get_fullscreen_flag() && SaveDragResize)
 	{
+		double monitor_scale = zc_get_monitor_scale();
+		window_width = al_get_display_width(all_get_display()) / monitor_scale;
+		window_height = al_get_display_height(all_get_display()) / monitor_scale;
 		set_config_int(cfg_sect,"window_width",window_width);
 		set_config_int(cfg_sect,"window_height",window_height);
 	}
