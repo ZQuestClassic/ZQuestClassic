@@ -3,7 +3,7 @@ name: Code Coverage
 on:
   workflow_dispatch:
   push:
-    branches: ['2.55-master']
+    branches: ['main']
     paths: ['tests/**']
 
 jobs:
