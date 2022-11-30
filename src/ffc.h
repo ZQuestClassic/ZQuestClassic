@@ -45,13 +45,13 @@ public:
 	word const& getData() const {return data;}
 	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay);
 	
-	virtual bool setSolid(bool set);
-	virtual void updateSolid();
+	virtual bool setSolid(bool set) override;
+	virtual void updateSolid() override;
 	void setLoaded(bool set);
 	bool getLoaded() const;
 	
 	//Overload to do damage to Hero on pushing them
-	virtual void doContactDamage(int32_t hdir);
+	virtual void doContactDamage(int32_t hdir) override;
 private:
 	word data;
 	bool loaded;
