@@ -1442,31 +1442,32 @@ bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, int32_t *
 
 bool ishookshottable(int32_t bx, int32_t by)
 {
-    if(!_walkflag(bx,by,1))
-        return true;
-        
-    bool ret = true;
-    
-    for(int32_t i=2; i>=0; i--)
-    {
-        int32_t c = MAPCOMBO2(i-1,bx,by);
-        int32_t t = combobuf[c].type;
-        
-        if(i == 0 && (t == cHOOKSHOTONLY || t == cLADDERHOOKSHOT)) return true;
-        
-        bool dried = (iswater_type(t) && DRIEDLAKE);
-        
-        int32_t b=1;
-        
-        if(bx&8) b<<=2;
-        
-        if(by&8) b<<=1;
-        
-        if(combobuf[c].walk&b && !dried && !(combo_class_buf[t].ladder_pass && t!=cLADDERONLY) && t!=cHOOKSHOTONLY)
-            ret = false;
-    }
-    
-    return ret;
+	if(!_walkflag(bx,by,1))
+		return true;
+	
+	if (collide_object(bx, by, 1, 1))
+		return false;
+	
+	for(int32_t i=2; i>=0; i--)
+	{
+		int32_t c = MAPCOMBO2(i-1,bx,by);
+		int32_t t = combobuf[c].type;
+		
+		if(i == 0 && (t == cHOOKSHOTONLY || t == cLADDERHOOKSHOT)) return true;
+		
+		bool dried = (iswater_type(t) && DRIEDLAKE);
+		
+		int32_t b=1;
+		
+		if(bx&8) b<<=2;
+		
+		if(by&8) b<<=1;
+		
+		if(combobuf[c].walk&b && !dried && !(combo_class_buf[t].ladder_pass && t!=cLADDERONLY) && t!=cHOOKSHOTONLY)
+			return false;
+	}
+	
+	return false;
 }
 
 bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by)
@@ -1479,8 +1480,9 @@ bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by)
 	
 	if(!_walkflag(bx,by,1, m))
 		return true;
-		
-	bool ret = true;
+	
+	if (collide_object(bx, by, 1, 1))
+		return false;
 	
 	for(int32_t i=2; i>=0; i--)
 	{
@@ -1498,10 +1500,10 @@ bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by)
 		if(by&8) b<<=1;
 		
 		if(combobuf[c].walk&b && !(combo_class_buf[t].ladder_pass && t!=cLADDERONLY) && t!=cHOOKSHOTONLY)
-			ret = false;
+			return false;
 	}
 	
-	return ret;
+	return true;
 }
 
 bool hiddenstair(int32_t tmp,bool redraw)                       // tmp = index of tmpscr[]

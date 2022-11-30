@@ -2155,6 +2155,7 @@ bool trigger_switchhookblock_ffc(int32_t pos)
 	if(Hero.switchhookclk) return false;
 	ffcdata& ffc = tmpscr->ffcs[pos];
 	switching_object = &ffc;
+	switching_object->switch_hooked = true;
 	hooked_combopos = -1;
 	hooked_layerbits = 0;
 	Hero.doSwitchHook(game->get_switchhookstyle());
