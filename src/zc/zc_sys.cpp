@@ -295,24 +295,24 @@ void load_game_configs()
 	analog_movement = (zc_get_config(cfg_sect,"analog_movement",1));
    
 	//cheat modifier keya
-	cheat_modifier_keys[0] = zc_get_config(cfg_sect,"key_cheatmod_a1",KEY_LSHIFT);
+	cheat_modifier_keys[0] = zc_get_config(cfg_sect,"key_cheatmod_a1",KEY_ZC_LCONTROL);
 	cheat_modifier_keys[1] = zc_get_config(cfg_sect,"key_cheatmod_a2",0);
-	cheat_modifier_keys[2] = zc_get_config(cfg_sect,"key_cheatmod_b1",KEY_RSHIFT);
+	cheat_modifier_keys[2] = zc_get_config(cfg_sect,"key_cheatmod_b1",KEY_ZC_RCONTROL);
 	cheat_modifier_keys[3] = zc_get_config(cfg_sect,"key_cheatmod_b2",0);
    
 	if((uint32_t)joystick_index >= MAX_JOYSTICKS)
 		joystick_index = 0;
 	   
-	Akey = zc_get_config(cfg_sect,"key_a",KEY_ALT);
-	Bkey = zc_get_config(cfg_sect,"key_b",KEY_ZC_LCONTROL);
+	Akey = zc_get_config(cfg_sect,"key_a",KEY_Z);
+	Bkey = zc_get_config(cfg_sect,"key_b",KEY_X);
 	Skey = zc_get_config(cfg_sect,"key_s",KEY_ENTER);
-	Lkey = zc_get_config(cfg_sect,"key_l",KEY_Z);
-	Rkey = zc_get_config(cfg_sect,"key_r",KEY_X);
+	Lkey = zc_get_config(cfg_sect,"key_l",KEY_Q);
+	Rkey = zc_get_config(cfg_sect,"key_r",KEY_W);
 	Pkey = zc_get_config(cfg_sect,"key_p",KEY_SPACE);
-	Exkey1 = zc_get_config(cfg_sect,"key_ex1",KEY_Q);
-	Exkey2 = zc_get_config(cfg_sect,"key_ex2",KEY_W);
-	Exkey3 = zc_get_config(cfg_sect,"key_ex3",KEY_A);
-	Exkey4 = zc_get_config(cfg_sect,"key_ex4",KEY_S);
+	Exkey1 = zc_get_config(cfg_sect,"key_ex1",KEY_A);
+	Exkey2 = zc_get_config(cfg_sect,"key_ex2",KEY_S);
+	Exkey3 = zc_get_config(cfg_sect,"key_ex3",KEY_D);
+	Exkey4 = zc_get_config(cfg_sect,"key_ex4",KEY_C);
    
 	DUkey = zc_get_config(cfg_sect,"key_up",   KEY_UP);
 	DDkey = zc_get_config(cfg_sect,"key_down", KEY_DOWN);
@@ -7897,8 +7897,8 @@ static void set_controls_menu_active()
 
 static MENU settings_menu[] =
 {
-	{ (char *)"C&ontrols",				  NULL,					controls_menu,			 0, NULL },
 	{ (char *)"&Sound...",				  onSound,				 NULL,					  0, NULL },
+	{ (char *)"C&ontrols",				  NULL,					controls_menu,			 0, NULL },
 	{ (char *)"&Title Screen",			  NULL,					title_menu,				0, NULL },
 	{ (char *)"Name &Entry Mode",		   NULL,					name_entry_mode_menu,	  0, NULL },
 	{ (char *)"",						   NULL,					NULL,					  0, NULL },
@@ -8715,7 +8715,7 @@ void System()
 		title_menu[1].flags = (title_version==1) ? D_SELECTED : 0;
 		title_menu[2].flags = (title_version==2) ? D_SELECTED : 0;
 		
-		settings_menu[0].flags = replay_is_replaying() ? D_DISABLED : 0;
+		settings_menu[1].flags = replay_is_replaying() ? D_DISABLED : 0;
 		settings_menu[5].flags = Throttlefps?D_SELECTED:0;
 		settings_menu[6].flags = ShowFPS?D_SELECTED:0;
 		settings_menu[7].flags = TransLayers?D_SELECTED:0;
