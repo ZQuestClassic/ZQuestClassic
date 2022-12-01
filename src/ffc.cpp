@@ -530,7 +530,7 @@ void mapscr::update_ffc_count(word spos)
 			break;
 		}
 	}
-	if (lastffc < 32 && get_bit(quest_rules, qr_OLD_FFC_FUNCTIONALITY))
-		lastffc = 32;
+	if (lastffc < 31 && get_bit(quest_rules, qr_OLD_FFC_FUNCTIONALITY))
+		lastffc = 31;
 }
 
