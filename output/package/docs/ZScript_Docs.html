@@ -269,7 +269,7 @@
 <body class = "pagecont">
 <header class = "pagecont">
 	<h1>ZScript Documentation (Under Construction)</h1>
-	<p>Last Updated: November 28, 2022 at 1:24 AM EST (<a href="https://www.zeldaclassic.com/zscript-docs/" target="_blank" rel="noopener noreferrer">Latest</a>)</p>
+	<p>Last Updated: December 1, 2022 at 6:04 AM EST (<a href="https://www.zeldaclassic.com/zscript-docs/" target="_blank" rel="noopener noreferrer">Latest</a>)</p>
 </header>
 <main class = "pagecont">
 	<a class = "link" data-link = "root" data-bid = 0 data-tid = 0>Return to Top</a>
@@ -370,7 +370,7 @@
 			<p class = "tab" data-jump = "Ceiling / Floor" data-bid = 19 data-tid = -1>Ceiling / Floor</p>
 			<p class = "tab" data-jump = "Factorial" data-bid = 20 data-tid = -1>Factorial</p>
 			<p class = "tab" data-jump = "Log10 / Ln" data-bid = 21 data-tid = -1>Log10 / Ln</p>
-			<p class = "tab" data-jump = "Min / Max" data-bid = 22 data-tid = -1>Min / Max</p>
+			<p class = "tab" data-jump = "Min / Max / Choose" data-bid = 22 data-tid = -1>Min / Max / Choose</p>
 			<p class = "tab" data-jump = "Pow / InvPow" data-bid = 23 data-tid = -1>Pow / InvPow</p>
 			<p class = "tab" data-jump = "Sqrt" data-bid = 24 data-tid = -1>Sqrt</p>
 			<p class = "tab" data-jump = "Trig Functions ;; Sin / Cos / Tan / ArcSin / ArcCos / ArcTan / RadianSin / RadianCos / RadianTan ;; Trig Functions" data-bid = 25 data-tid = -1>Trig Functions</p>
@@ -884,11 +884,14 @@ Returns the log<sub>10</sub> of the value. Values <= 0 return 0.
 
 <h3>float Ln(float val);</h3>
 Returns the natural log (log<sub>e</sub>) of the value. Values <= 0  return 0.</div>
-		<div class = "cntnt" data-bid = 22 data-tid = -1 hidden><h3>float Min(float a, float b);</h3>
-Returns a or b, whichever is <em>lower</em>.
+		<div class = "cntnt" data-bid = 22 data-tid = -1 hidden><h3>untyped Min(<a class = "ttip">...untyped args<span class = "ttt">Takes 2+ untyped args</span></a>);</h3>
+Returns the <em>lowest</em> parameter.
 
-<h3>float Max(float a, float b);</h3>
-Returns a or b, whichever is <em>higher</em>.</div>
+<h3>untyped Max(<a class = "ttip">...untyped args<span class = "ttt">Takes 2+ untyped args</span></a>);</h3>
+Returns the <em>highest</em> parameter.
+
+<h3>untyped Choose(<a class = "ttip">...untyped args<span class = "ttt">Takes 1+ untyped args</span></a>);</h3>
+Returns a random parameter, using the global RandGen.</div>
 		<div class = "cntnt" data-bid = 23 data-tid = -1 hidden><h3>int Pow(int base, int exp);</h3>
 Returns 'base<sup>exp</sup>', undefined for '0<sup>0</sup>'. Negative values of 'exp' work, though may not be useful, as the return value is truncated to the nearest integer.
 
@@ -933,7 +936,7 @@ Prints the passed value to the <a class = 'link' data-link = 'Output Console'>ou
 		<div class = "cntnt" data-bid = 33 data-tid = -1 hidden><h3>void ClearTrace();</h3>
 
 Clears the logs from <a class = 'link' data-link = 'allegro.log'>allegro.log</a>, and clears the <a class = 'link' data-link = 'output console'>output console</a>.</div>
-		<div class = "cntnt" data-bid = 34 data-tid = -1 hidden><h3>void printf(char32[] format_string, <a class = "ttip">...untyped args<span class = "ttt">Takes 0 to 16 (inclusive) untyped args</span></a>);</h3>
+		<div class = "cntnt" data-bid = 34 data-tid = -1 hidden><h3>void printf(char32[] format_string, <a class = "ttip">...untyped args<span class = "ttt">Takes 0+ untyped args</span></a>);</h3>
 
 Prints the specified format_string to the <a class = 'link' data-link = 'Output Console'>output console</a>, using the given args to fill in parts of the string that are specially marked. Does not include a newline character after the string.
 
@@ -966,7 +969,7 @@ Returns the number of characters in the string that are taken up by a number (as
 		<div class = "cntnt" data-bid = 38 data-tid = -1 hidden><h3>int itoacat(char32[] dest, int val);</h3>
 
 Appends the value 'val' on the end of the 'dest' string; combining <a class = 'link' data-link = 'itoa'>itoa</a> with <a class = 'link' data-link = 'strcat'>strcat</a></div>
-		<div class = "cntnt" data-bid = 39 data-tid = -1 hidden><h3>void sprintf(char32[] dest, char32[] format_string, <a class = "ttip">...untyped args<span class = "ttt">Takes 0 to 16 (inclusive); untyped args</span></a>);</h3>
+		<div class = "cntnt" data-bid = 39 data-tid = -1 hidden><h3>void sprintf(char32[] dest, char32[] format_string, <a class = "ttip">...untyped args<span class = "ttt">Takes 0+ untyped args</span></a>);</h3>
 
 Acts exactly as <a class = 'link' data-link = 'printf'>printf</a>, except instead of printing the result to the <a class = 'link' data-link = 'Output Console'>output console</a>, it is instead placed in the 'dest' buffer.</div>
 		<div class = "cntnt" data-bid = 40 data-tid = -1 hidden><h3>char32[] strcat(char32[] dest, char32[] src);</h3>
