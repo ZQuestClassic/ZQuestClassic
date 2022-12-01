@@ -110,7 +110,7 @@ disassembled_script_data disassemble_script(script_data const* script)
 
 void write_script(FILE* dest, disassembled_script_data const& data)
 {
-	string meta_str = get_meta(data.first);
+	string meta_str = data.first.get_meta();
 	fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), dest);
 	for(auto line = data.second.begin(); line != data.second.end(); ++line)
 	{

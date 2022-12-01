@@ -8,6 +8,7 @@
 extern byte quest_rules[QUESTRULES_NEW_SIZE];
 
 using std::string;
+using std::ostringstream;
 using namespace util;
 
 extern PALETTE RAMpal;
@@ -1694,4 +1695,5 @@ void zinitdata::copy(zinitdata const& other)
 	}
 	memcpy(gen_eventstate,other.gen_eventstate,sizeof(gen_eventstate));
 }
+
 

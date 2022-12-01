@@ -293,6 +293,12 @@ int32_t main(int32_t argc, char **argv)
 		console_path = argv[console_path_index + 1];
 	else console_path = "";
 	
+	int32_t zasm_out_index = used_switch(argc, argv, "-zasm");
+	bool zasm_out_append = used_switch(argc, argv, "-append");
+	string zasm_out = "";
+	if(zasm_out_index)
+		zasm_out = argv[zasm_out_index + 1];
+	
 	child_process_handler* cph = (linked ? new child_process_handler() : nullptr);
 	ConsoleWrite = cph;
 	if(allegro_init() != 0)
@@ -395,6 +401,17 @@ int32_t main(int32_t argc, char **argv)
 		}
 		else zconsole_info("Compile finished with exit code '0' (success)");
 	}
+	if(!zasm_out.empty())
+	{
+		FILE *outfile = fopen(zasm_out.c_str(), zasm_out_append ? "a" : "w");
+		for(auto& p : result->theScripts)
+		{
+			disassembled_script_data const& data = p.second;
+			data.write(outfile,false,true);
+		}
+		fclose(outfile);
+	}
+	
 	if(cph) delete cph;
 	return res;
 }

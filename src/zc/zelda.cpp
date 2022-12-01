@@ -130,9 +130,9 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #endif
 
 #if DEVLEVEL > 0
-bool dev_logging = true;
-bool dev_debug = true;
-bool dev_timestmp = true;
+bool dev_logging = false;
+bool dev_debug = false; //UNUSED
+bool dev_timestmp = false;
 #endif
 
 ZCMUSIC *zcmusic = NULL;

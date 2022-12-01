@@ -15,6 +15,7 @@ using namespace util;
 #define FUNCFLAG_CONSTRUCTOR        0x08
 #define FUNCFLAG_DESTRUCTOR         0x10
 #define FUNCFLAG_CLASSFUNC          0x20
+#define FUNCFLAG_VARARGS            0x40
 
 #define IFUNCFLAG_SKIPPOINTER		0x01
 #define IFUNCFLAG_REASSIGNPTR		0x02

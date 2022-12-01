@@ -13,7 +13,7 @@ using namespace ZScript;
 using std::ostringstream;
 using std::string;
 
-string LiteralArgument::toString()
+string la_toString(int32_t value)
 {
     char temp[128];
     string sign = value < 0 ? "-" : "";
@@ -30,6 +30,11 @@ string LiteralArgument::toString()
         second = "0" + second;
         
     return sign + first + "." + second;
+}
+
+string LiteralArgument::toString()
+{
+	return la_toString(value);
 }
 
 string ZScript::VarToString(int32_t ID)
@@ -2265,6 +2270,11 @@ string LabelArgument::toStringSetV()
         sprintf(temp, "%.4f", lineno * 0.0001f);
         return string(temp);
     }
+}
+
+string VargsArgument::toString()
+{
+	return la_toString(val);
 }
 
 string StringArgument::toString()
