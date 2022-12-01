@@ -5,9 +5,9 @@ ModuleSymbols ModuleSymbols::singleton = ModuleSymbols();
 static AccessorTable ModuleTable[] =
 {
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
-	{ "GetInt",              ZVARTYPEID_FLOAT,          FUNCTION,     0,                1,             0,                      3,           { ZVARTYPEID_MODULE, ZVARTYPEID_CHAR, ZVARTYPEID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetItemClass",              ZVARTYPEID_VOID,          FUNCTION,     0,                1,             0,                      3,           { ZVARTYPEID_MODULE, ZVARTYPEID_CHAR, ZVARTYPEID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetString",             ZVARTYPEID_VOID,          FUNCTION,     0,                1,             0,                      4,           { ZVARTYPEID_MODULE, ZVARTYPEID_CHAR, ZVARTYPEID_CHAR, ZVARTYPEID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "GetInt",              ZTID_FLOAT,          FUNCTION,     0,                1,             0,                      3,           { ZTID_MODULE, ZTID_CHAR, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "GetItemClass",              ZTID_VOID,          FUNCTION,     0,                1,             0,                      3,           { ZTID_MODULE, ZTID_CHAR, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "GetString",             ZTID_VOID,          FUNCTION,     0,                1,             0,                      4,           { ZTID_MODULE, ZTID_CHAR, ZTID_CHAR, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
 

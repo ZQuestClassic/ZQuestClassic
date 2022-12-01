@@ -2,90 +2,84 @@
 
 BitmapSymbols BitmapSymbols::singleton = BitmapSymbols();
 
-static AccessorTable BitmapTable[] =
-{
-//	  name,                     rettype,                  setorget,     var,                  num,           funcFlags,                            numParams,   params
-	{ "GetPixel",               ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "CountColor",             ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      6,           { ZVARTYPEID_BITMAP, ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-//	{ "Create",                 ZVARTYPEID_BITMAP,        FUNCTION,     0,                    1,             0,                                    3,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Rectangle",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    13,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_BOOL,      ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                      } },
-	{ "Circle",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    12,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_BOOL,      ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           } },
-	{ "Arc",                    ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    15,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_BOOL,      ZVARTYPEID_BOOL,      ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           } },
-	{ "Ellipse",                ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    13,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_BOOL,      ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           } },
-	{ "Line",                   ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    12,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           } },
-	{ "Spline",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    12,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           } },
-	{ "PutPixel",               ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    9,           {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                              } },
-	{ "DrawCharacter",          ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    11,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                              } },
-	{ "DrawInteger",            ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    12,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                              } },
-	{ "DrawTile",               ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    16,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,      ZVARTYPEID_BOOL,    ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           } },
-	{ "DrawTileCloaked",        ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    8,           {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,     -1,     -1,     -1,     -1,     -1,      -1,    -1,                           -1,                           -1,                           -1,                           -1,                           } },
-	{ "DrawCombo",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    17,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,      ZVARTYPEID_BOOL,    ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           } },
-	{ "DrawComboCloaked",       ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    8,           {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,     -1,     -1,     -1,     -1,     -1,     -1,      -1,    -1,                           -1,                           -1,                           -1,                           } },
-	{ "Quad",                   ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    17,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,  ZVARTYPEID_FLOAT,                         ZVARTYPEID_BITMAP,                           -1,                           -1,                           -1,                           } },
-	{ "Triangle",               ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    15,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,                      ZVARTYPEID_BITMAP,                           -1,                           -1,                           -1,                           -1,                           -1,                           } },
-	{ "Quad3D",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    10,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,    ZVARTYPEID_BITMAP,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                              } },
-	{ "Triangle3D",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    10,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,    ZVARTYPEID_BITMAP,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                              } },
-	{ "FastTile",               ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    7,           {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,                           -1,                          -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                              } },
-	{ "FastCombo",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    7,           {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,                           -1,                          -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                              } },
-	{ "DrawString",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    10,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                              } },
-	{ "DrawString",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    11,          {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                              } },
-	{ "DrawLayer",              typeVOID,                 FUNCTION,     0,                    1,             0,                                    9,           ARGS_8(ZVARTYPEID_BITMAP,F,F,F,F,F,F,F,F) },
-	{ "DrawLayerSolid",         typeVOID,                 FUNCTION,     0,                    1,             0,                                    9,           ARGS_8(ZVARTYPEID_BITMAP,F,F,F,F,F,F,F,F) },
-	{ "DrawLayerSolidity",      typeVOID,                 FUNCTION,     0,                    1,             0,                                    9,           ARGS_8(ZVARTYPEID_BITMAP,F,F,F,F,F,F,F,F) },
-	{ "DrawLayerComboTypes",    typeVOID,                 FUNCTION,     0,                    1,             0,                                    9,           ARGS_8(ZVARTYPEID_BITMAP,F,F,F,F,F,F,F,F) },
-	{ "DrawLayerComboFlags",    typeVOID,                 FUNCTION,     0,                    1,             0,                                    9,           ARGS_8(ZVARTYPEID_BITMAP,F,F,F,F,F,F,F,F) },
-	{ "DrawLayerComboIFlags",   typeVOID,                 FUNCTION,     0,                    1,             0,                                    9,           ARGS_8(ZVARTYPEID_BITMAP,F,F,F,F,F,F,F,F) },
-	{ "DrawScreen",             typeVOID,                 FUNCTION,     0,                    1,             0,                                    7,           ARGS_6(ZVARTYPEID_BITMAP,F,F,F,F,F,F) },
-	{ "DrawScreenSolid",        typeVOID,                 FUNCTION,     0,                    1,             0,                                    7,           ARGS_6(ZVARTYPEID_BITMAP,F,F,F,F,F,F) },
-	{ "DrawScreenSolidity",     typeVOID,                 FUNCTION,     0,                    1,             0,                                    7,           ARGS_6(ZVARTYPEID_BITMAP,F,F,F,F,F,F) },
-	{ "DrawScreenComboTypes",   typeVOID,                 FUNCTION,     0,                    1,             0,                                    7,           ARGS_6(ZVARTYPEID_BITMAP,F,F,F,F,F,F) },
-	{ "DrawScreenComboFlags",   typeVOID,                 FUNCTION,     0,                    1,             0,                                    7,           ARGS_6(ZVARTYPEID_BITMAP,F,F,F,F,F,F) },
-	{ "DrawScreenComboIFlags",  typeVOID,                 FUNCTION,     0,                    1,             0,                                    7,           ARGS_6(ZVARTYPEID_BITMAP,F,F,F,F,F,F) },
-	{ "Blit",                   ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    17,          { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT,ZVARTYPEID_UNTYPED,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_BOOL, -1,                           -1,                           -1,                              } },
-	{ "BlitTo",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    17,          { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT,ZVARTYPEID_UNTYPED,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_BOOL, -1,                           -1,                           -1,                              } },
-	{ "RevBlit",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    17,          { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT,ZVARTYPEID_UNTYPED,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_BOOL, -1,                           -1,                           -1,                              } },
-//	{ "Mode7",                  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    17,          { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT,ZVARTYPEID_UNTYPED,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_BOOL, -1,                           -1,                           -1,                              } },
-	{ "DrawPlane",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    14,          { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT,ZVARTYPEID_UNTYPED,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_FLOAT,ZVARTYPEID_BOOL,-1,-1,-1, -1,                           -1,                           -1,                              } },
-	{ "isValid",                ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_BITMAP, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "isAllocated",            ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_BITMAP, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWidth",               ZVARTYPEID_FLOAT,         GETTER,       BITMAPWIDTH,          1,             0,                                    1,           { ZVARTYPEID_BITMAP, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWidth",               ZVARTYPEID_VOID,          SETTER,       BITMAPWIDTH,          1,             0,                                    2,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHeight",              ZVARTYPEID_FLOAT,         GETTER,       BITMAPHEIGHT,         1,             0,                                    1,           { ZVARTYPEID_BITMAP, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHeight",              ZVARTYPEID_VOID,          SETTER,       BITMAPHEIGHT,         1,             0,                                    2,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Write",                  ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    4,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Read",                   ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Create",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    4,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Polygon",                ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             0,                                    6,           {  ZVARTYPEID_BITMAP,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,     -1,     -1,     -1,         -1,     -1,     -1,     -1,     -1,  -1,                         -1,                           -1,                           -1,                           -1,                           } },
-	{ "ClearToColor",           ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Free",                   ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_BITMAP, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Own",                    ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_BITMAP, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "DrawFrame",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                     10,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "WriteTile",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      7,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "Dither",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      6,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_UNTYPED, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "ReplaceColors",          ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      5,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "ShiftColors",            ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      5,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MaskedDraw",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      4,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MaskedDraw",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      5,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MaskedDraw",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      6,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MaskedBlit",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      5,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_BITMAP, ZVARTYPEID_BITMAP, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MaskedBlit",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      6,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_BITMAP, ZVARTYPEID_BITMAP, ZVARTYPEID_BOOL, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MaskedBlit",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      7,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_BITMAP, ZVARTYPEID_BITMAP, ZVARTYPEID_BOOL, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-
-	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
-};
-
 static AccessorTable2 BitmapTable2[] =
 {
-//	  name,          tag,                  rettype,  var,  funcFlags,  params,optparams
-	{ "Clear",         0,          ZVARTYPEID_VOID,   -1,  0,          { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT }, { 0 } },
-	{ "",              0,          ZVARTYPEID_VOID,   -1,  0,          {}, {}}
+//	  name,                    tag,            rettype,  var,          funcFlags,  params,optparams
+	{ "getWidth",                0,         ZTID_FLOAT,   BITMAPWIDTH,         0,  { ZTID_BITMAP },{} },
+	{ "setWidth",                0,          ZTID_VOID,   BITMAPWIDTH,         0,  { ZTID_BITMAP, ZTID_FLOAT },{} },
+	{ "getHeight",               0,         ZTID_FLOAT,   BITMAPHEIGHT,        0,  { ZTID_BITMAP },{} },
+	{ "setHeight",               0,          ZTID_VOID,   BITMAPHEIGHT,        0,  { ZTID_BITMAP, ZTID_FLOAT },{} },
+	
+	{ "GetPixel",                0,         ZTID_FLOAT,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "CountColor",              0,         ZTID_FLOAT,   -1,                  0,  { ZTID_BITMAP, ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ -10000 } },
+	{ "Rectangle",               0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_FLOAT },{ 10000, 0, 0, 0, 10000, 1280000 } },
+	{ "Circle",                  0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_FLOAT },{ 10000, 0, 0, 0, 10000, 1280000 } },
+	{ "Arc",                     0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_BOOL, ZTID_FLOAT },{ 10000, 0, 0, 0, 10000, 10000, 1280000 } },
+	{ "Ellipse",                 0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_FLOAT },{ 10000, 0, 0, 0, 10000, 1280000 } },
+	{ "Line",                    0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 10000, 0, 0, 0, 1280000 } },
+	{ "Spline",                  0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 10000 } },
+	{ "PutPixel",                0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0, 0, 0, 1280000 } },
+	{ "DrawCharacter",           0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_CHAR, ZTID_FLOAT },{ 1280000 } },
+	{ "DrawInteger",             0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0, 1280000 } },
+	{ "DrawTile",                0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_FLOAT },{ -10000, -10000, 0, 0, 0, 10000, 1280000 } },
+	{ "DrawTileCloaked",         0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
+	{ "DrawCombo",               0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_FLOAT },{ -10000, -10000, 0, 0, 0, 10000, 1280000 } },
+	{ "DrawComboCloaked",        0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
+	{ "Quad",                    0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BITMAP },{} },
+	{ "Triangle",                0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BITMAP },{} },
+	{ "Quad3D",                  0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BITMAP },{} },
+	{ "Triangle3D",              0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BITMAP },{} },
+	{ "FastTile",                0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 1280000 } },
+	{ "FastCombo",               0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 1280000 } },
+	{ "DrawString",              0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_CHAR, ZTID_FLOAT },{ 1280000 } },
+	{ "DrawString",              1,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_CHAR, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "DrawLayer",               0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0, 1280000 } },
+	{ "DrawScreen",              0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
+	{ "DrawScreenSolid",         0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
+	{ "DrawScreenSolidity",      0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
+	{ "DrawScreenComboTypes",    0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
+	{ "DrawScreenComboFlags",    0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
+	{ "DrawScreenComboIFlags",   0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
+	{ "Blit",                    0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_UNTYPED, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 0, 0, 0, 0, 0, 10000 } },
+	{ "BlitTo",                  0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_UNTYPED, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 0, 0, 0, 0, 0, 10000 } },
+	{ "RevBlit",                 0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_UNTYPED, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 0, 0, 0, 0, 0, 10000 } },
+	{ "DrawPlane",               0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_UNTYPED, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 10000, 10000, 10000 } },
+	{ "isValid",                 0,          ZTID_BOOL,   -1,                  0,  { ZTID_BITMAP },{} },
+	{ "isAllocated",             0,          ZTID_BOOL,   -1,                  0,  { ZTID_BITMAP },{} },
+	{ "Write",                   0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_CHAR, ZTID_BOOL },{ 0 } },
+	{ "Read",                    0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_CHAR },{} },
+	{ "Create",                  0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0, 2560000, 2560000 } },
+	{ "Polygon",                 0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 1280000 } },
+	{ "ClearToColor",            0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "Free",                    0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP },{} },
+	{ "Own",                     0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP },{} },
+	{ "DrawFrame",               0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_FLOAT },{ 10000, 1280000 } },
+	{ "WriteTile",               0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_BOOL },{ 10000, 0 } },
+	
+	{ "Dither",                  0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_UNTYPED, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "ReplaceColors",           0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "ShiftColors",             0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "MaskedDraw",              0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_BITMAP, ZTID_FLOAT },{} },
+	{ "MaskedDraw",              1,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "MaskedDraw",              2,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "MaskedBlit",              0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_BITMAP, ZTID_BITMAP, ZTID_BOOL },{} },
+	{ "MaskedBlit",              1,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_BITMAP, ZTID_BITMAP, ZTID_BOOL, ZTID_FLOAT },{} },
+	{ "MaskedBlit",              2,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_BITMAP, ZTID_BITMAP, ZTID_BOOL, ZTID_FLOAT, ZTID_FLOAT },{} },
+	
+	{ "Clear",                   0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT }, { 0 } },
+	
+	//Undocumented? Why?
+	{ "DrawLayerSolid",          0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "DrawLayerSolidity",       0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "DrawLayerComboTypes",     0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "DrawLayerComboFlags",     0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "DrawLayerComboIFlags",    0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	
+	{ "",                        0,          ZTID_VOID,   -1,                  0,  {},{} }
 };
 
 BitmapSymbols::BitmapSymbols()
 {
-    table = BitmapTable;
     table2 = BitmapTable2;
 	refVar = REFBITMAP;
 }
@@ -94,7 +88,7 @@ void BitmapSymbols::generateCode()
 {
 	//void GetPixel(bitmap, x, y)
 	{
-		Function* function = getFunction("GetPixel", 3);
+		Function* function = getFunction2("GetPixel");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -107,9 +101,9 @@ void BitmapSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//void GetPixel(bitmap, bitmap, int, int, int, int)
+	//void CountColor(bitmap, bitmap, int, int, int, int)
 	{
-		Function* function = getFunction("CountColor", 6);
+		Function* function = getFunction2("CountColor");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -122,7 +116,7 @@ void BitmapSymbols::generateCode()
 	/*
 	//int32_t Create(bitmap, int32_t map,int32_t scr)
 	{
-		Function* function = getFunction("Create", 3);
+		Function* function = getFunction2("Create");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -138,7 +132,7 @@ void BitmapSymbols::generateCode()
 	*/
 	 //void Rectangle(bitmap, float, float, float, float, float, float, float, float, float, float, bool, float)
 	{
-		Function* function = getFunction("Rectangle", 13);
+		Function* function = getFunction2("Rectangle");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPRectangleRegister());
@@ -152,7 +146,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawFrame(bitmap, float, float, float, float, float, float, float, bool, float)
 	{
-		Function* function = getFunction("DrawFrame", 10);
+		Function* function = getFunction2("DrawFrame");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPFrameRegister());
@@ -166,7 +160,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Read(bitmap, layer, "filename")
 	{
-		Function* function = getFunction("Read", 3);
+		Function* function = getFunction2("Read");
 		
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
@@ -198,7 +192,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Create(bitmap, layer, int32_t h, int32_t w)
 	{
-		Function* function = getFunction("Create", 4);
+		Function* function = getFunction2("Create");
 		
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
@@ -215,7 +209,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Write(bitmap, layer, "filename")
 	{
-		Function* function = getFunction("Write", 4);
+		Function* function = getFunction2("Write");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OWriteBitmap());
@@ -229,7 +223,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Circle(bitmap, float, float, float, float, float, float, float, float, float, bool, float)
 	{
-		Function* function = getFunction("Circle", 12);
+		Function* function = getFunction2("Circle");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPCircleRegister());
@@ -243,7 +237,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Arc(bitmap, float, float, float, float, float, float, float, float, float, float, float, bool, bool, float)
 	{
-		Function* function = getFunction("Arc", 15);
+		Function* function = getFunction2("Arc");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPArcRegister());
@@ -257,7 +251,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Ellipse(bitmap, float, float, float, float, float, bool, float, float, float)
 	{
-		Function* function = getFunction("Ellipse", 13);
+		Function* function = getFunction2("Ellipse");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPEllipseRegister());
@@ -271,7 +265,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Line(bitmap, float, float, float, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction("Line", 12);
+		Function* function = getFunction2("Line");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPLineRegister());
@@ -285,7 +279,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Spline(bitmap, float, float, float, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction("Spline", 12);
+		Function* function = getFunction2("Spline");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPSplineRegister());
@@ -299,7 +293,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void PutPixel(bitmap, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction("PutPixel", 9);
+		Function* function = getFunction2("PutPixel");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPPutPixelRegister());
@@ -313,7 +307,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawCharacter(bitmap, float, float, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction("DrawCharacter", 11);
+		Function* function = getFunction2("DrawCharacter");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawCharRegister());
@@ -327,7 +321,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawInteger(bitmap, float, float, float, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction("DrawInteger", 12);
+		Function* function = getFunction2("DrawInteger");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawIntRegister());
@@ -341,7 +335,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawTile(bitmap, float, float, float, float, float, bool, float, float, float)
 	{
-		Function* function = getFunction("DrawTile", 16);
+		Function* function = getFunction2("DrawTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawTileRegister());
@@ -355,7 +349,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawTileCloaked(bitmap, ...args)
 	{
-		Function* function = getFunction("DrawTileCloaked", 8);
+		Function* function = getFunction2("DrawTileCloaked");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawTileCloakedRegister());
@@ -369,7 +363,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawCombo(bitmap, float, float, float, float, float, bool, float, float, float)
 	{
-		Function* function = getFunction("DrawCombo", 17);
+		Function* function = getFunction2("DrawCombo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawComboRegister());
@@ -383,7 +377,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawComboCloaked(bitmap, ...args)
 	{
-		Function* function = getFunction("DrawComboCloaked", 8);
+		Function* function = getFunction2("DrawComboCloaked");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawComboCloakedRegister());
@@ -397,7 +391,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Quad(bitmap, float, float, float, float, float, float, float, float, float, bitmap)
 	{
-		Function* function = getFunction("Quad", 17);
+		Function* function = getFunction2("Quad");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPQuadRegister());
@@ -412,7 +406,7 @@ void BitmapSymbols::generateCode()
 	//void Polygon(bitmap, float, float, float, float, float)
 	
 	{
-		Function* function = getFunction("Polygon", 6);
+		Function* function = getFunction2("Polygon");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPPolygonRegister());
@@ -427,7 +421,7 @@ void BitmapSymbols::generateCode()
     
 	//void Triangle(bitmap, float, float, float, float, float, float, float, float, float, bitmap)
 	{
-		Function* function = getFunction("Triangle", 15);
+		Function* function = getFunction2("Triangle");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPTriangleRegister());
@@ -442,7 +436,7 @@ void BitmapSymbols::generateCode()
     
 	//void Quad3D(bitmap, float, float, float, float, float, float, float, float, float, bitmap)
 	{
-		Function* function = getFunction("Quad3D", 10);
+		Function* function = getFunction2("Quad3D");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPQuad3DRegister());
@@ -456,7 +450,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Triangle3D(bitmap, float, float, float, float, float, float, float, float, float, bitmap)
 	{
-		Function* function = getFunction("Triangle3D", 10);
+		Function* function = getFunction2("Triangle3D");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPTriangle3DRegister());
@@ -471,7 +465,7 @@ void BitmapSymbols::generateCode()
     
 	//void FastTile(bitmap, float, float, float, float, float)
 	{
-		Function* function = getFunction("FastTile", 7);
+		Function* function = getFunction2("FastTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPFastTileRegister());
@@ -485,7 +479,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void FastCombo(bitmap, float, float, float, float, float)
 	{
-		Function* function = getFunction("FastCombo", 7);
+		Function* function = getFunction2("FastCombo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPFastComboRegister());
@@ -499,7 +493,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawString(bitmap, float, float, float, float, float, float, float, int32_t *string)
 	{
-		Function* function = getFunction("DrawString", 10);
+		Function* function = getFunction2("DrawString");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawStringRegister());
@@ -513,7 +507,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawString(bitmap, float, float, float, float, float, float, float, int32_t *string)
 	{
-		Function* function = getFunction("DrawString", 12);
+		Function* function = getFunction2("DrawString", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawString2Register());
@@ -527,7 +521,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawLayer(bitmap, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction("DrawLayer", 9);
+		Function* function = getFunction2("DrawLayer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawLayerRegister());
@@ -541,7 +535,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawLayerComboIFlags(bitmap, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction("DrawLayerComboIFlags", 9);
+		Function* function = getFunction2("DrawLayerComboIFlags");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawScreenCIFlagRegister());
@@ -555,7 +549,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawLayerComboFlags(bitmap, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction("DrawLayerComboFlags", 9);
+		Function* function = getFunction2("DrawLayerComboFlags");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawScreenCFlagRegister());
@@ -569,7 +563,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawLayerSolid(bitmap, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction("DrawLayerSolid", 9);
+		Function* function = getFunction2("DrawLayerSolid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawScreenSolidMaskRegister());
@@ -583,7 +577,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawLayerComboTypes(bitmap, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction("DrawLayerComboTypes", 9);
+		Function* function = getFunction2("DrawLayerComboTypes");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawScreenCTypeRegister());
@@ -598,7 +592,7 @@ void BitmapSymbols::generateCode()
 	
 	//void DrawLayerSolidity(bitmap, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction("DrawLayerSolidity", 9);
+		Function* function = getFunction2("DrawLayerSolidity");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawScreenSolidityRegister());
@@ -612,7 +606,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawScreen(bitmap, float, float, float, float, float, float)
 	{
-		Function* function = getFunction("DrawScreen", 7);
+		Function* function = getFunction2("DrawScreen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawScreenRegister());
@@ -627,7 +621,7 @@ void BitmapSymbols::generateCode()
 	
 	//void DrawScreenSolidity(bitmap, float, float, float, float, float, float)
 	{
-		Function* function = getFunction("DrawScreenSolidity", 7);
+		Function* function = getFunction2("DrawScreenSolidity");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawScreenSolidRegister());
@@ -642,7 +636,7 @@ void BitmapSymbols::generateCode()
 	
 	//void DrawScreenSolid(bitmap, float, float, float, float, float, float)
 	{
-		Function* function = getFunction("DrawScreenSolid", 7);
+		Function* function = getFunction2("DrawScreenSolid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawScreenSolid2Register());
@@ -656,7 +650,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawScreenComboTypes(bitmap, float, float, float, float, float, float)
 	{
-		Function* function = getFunction("DrawScreenComboTypes", 7);
+		Function* function = getFunction2("DrawScreenComboTypes");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawScreenComboTRegister());
@@ -670,7 +664,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawScreenComboFlags(bitmap, float, float, float, float, float, float)
 	{
-		Function* function = getFunction("DrawScreenComboFlags", 7);
+		Function* function = getFunction2("DrawScreenComboFlags");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawScreenComboFRegister());
@@ -684,7 +678,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawScreenComboFlags(bitmap, float, float, float, float, float, float)
 	{
-		Function* function = getFunction("DrawScreenComboIFlags", 7);
+		Function* function = getFunction2("DrawScreenComboIFlags");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawScreenComboIRegister());
@@ -700,7 +694,7 @@ void BitmapSymbols::generateCode()
     
 	//void DrawBitmapEx(bitmap, float, float, float, float, float, float, float, float, float, float, bool)
 	{
-		Function* function = getFunction("Blit", 17);
+		Function* function = getFunction2("Blit");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawBitmapExRegister());
@@ -714,7 +708,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawPlane(bitmap, float, float, float, float, float, float, float, float, float, float, bool)
 	{
-		Function* function = getFunction("DrawPlane", 14);
+		Function* function = getFunction2("DrawPlane");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPMode7());
@@ -728,7 +722,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawBitmapEx(bitmap, float, float, float, float, float, float, float, float, float, float, bool)
 	{
-		Function* function = getFunction("BlitTo", 17);
+		Function* function = getFunction2("BlitTo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPBlitTO());
@@ -742,7 +736,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawBitmapEx(bitmap, float, float, float, float, float, float, float, float, float, float, bool)
 	{
-		Function* function = getFunction("RevBlit", 17);
+		Function* function = getFunction2("RevBlit");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPBlitTO());
@@ -756,7 +750,7 @@ void BitmapSymbols::generateCode()
 	}
 	//bool isValid(bitmap)
 	{
-		Function* function = getFunction("isValid", 1);
+		Function* function = getFunction2("isValid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -769,7 +763,7 @@ void BitmapSymbols::generateCode()
 	}
 	//bool isAllocated(bitmap)
 	{
-		Function* function = getFunction("isAllocated", 1);
+		Function* function = getFunction2("isAllocated");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -782,7 +776,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void ClearToColor(bitmap, layer, color)
 	{
-		Function* function = getFunction("ClearToColor", 3);
+		Function* function = getFunction2("ClearToColor");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBitmapClearToColor());
@@ -797,7 +791,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Free(bitmap)
 	{
-		Function* function = getFunction("Free", 1);
+		Function* function = getFunction2("Free");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -810,7 +804,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Own(bitmap)
 	{
-		Function* function = getFunction("Own", 1);
+		Function* function = getFunction2("Own");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -824,7 +818,7 @@ void BitmapSymbols::generateCode()
 	
 	//void WriteTile(bitmap, int32_t, int32_t, int32_t, int32_t, bool, bool)
 	{
-		Function* function = getFunction("WriteTile", 7);
+		Function* function = getFunction2("WriteTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBitmapWriteTile());
@@ -839,7 +833,7 @@ void BitmapSymbols::generateCode()
 	
 	//void Dither(bitmap, int32_t, int32_t, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction("Dither", 6);
+		Function* function = getFunction2("Dither");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBitmapDither());
@@ -854,7 +848,7 @@ void BitmapSymbols::generateCode()
 	
 	//void ReplaceColors(bitmap, int32_t, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction("ReplaceColors", 5);
+		Function* function = getFunction2("ReplaceColors");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBitmapReplColor());
@@ -869,7 +863,7 @@ void BitmapSymbols::generateCode()
 	
 	//void ShiftColors(bitmap, int32_t, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction("ShiftColors", 5);
+		Function* function = getFunction2("ShiftColors");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBitmapShiftColor());
@@ -884,7 +878,7 @@ void BitmapSymbols::generateCode()
 	
 	//void MaskedDraw(bitmap, int32_t, bitmap, int32_t)
 	{
-		Function* function = getFunction("MaskedDraw", 4);
+		Function* function = getFunction2("MaskedDraw");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBitmapMaskDraw());
@@ -898,7 +892,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void MaskedDraw(bitmap, int32_t, bitmap, int32_t, int32_t)
 	{
-		Function* function = getFunction("MaskedDraw", 5);
+		Function* function = getFunction2("MaskedDraw", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBitmapMaskDraw2());
@@ -912,7 +906,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void MaskedDraw(bitmap, int32_t, bitmap, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction("MaskedDraw", 6);
+		Function* function = getFunction2("MaskedDraw", 2);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBitmapMaskDraw3());
@@ -926,7 +920,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void MaskedBlit(bitmap, int32_t, bitmap, bitmap)
 	{
-		Function* function = getFunction("MaskedBlit", 5);
+		Function* function = getFunction2("MaskedBlit");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBitmapMaskBlit());
@@ -940,7 +934,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void MaskedBlit(bitmap, int32_t, bitmap, bitmap, int32_t)
 	{
-		Function* function = getFunction("MaskedBlit", 6);
+		Function* function = getFunction2("MaskedBlit", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBitmapMaskBlit2());
@@ -954,7 +948,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void MaskedBlit(bitmap, int32_t, bitmap, bitmap, int32_t, int32_t)
 	{
-		Function* function = getFunction("MaskedBlit", 7);
+		Function* function = getFunction2("MaskedBlit", 2);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBitmapMaskBlit3());

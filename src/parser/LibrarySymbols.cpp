@@ -4,51 +4,51 @@ LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
 {
     switch (typeId)
     {
-    case ZVARTYPEID_FFC: return &FFCSymbols::getInst();
-    case ZVARTYPEID_PLAYER: return &HeroSymbols::getInst();
-    case ZVARTYPEID_SCREEN: return &ScreenSymbols::getInst();
-    case ZVARTYPEID_GAME: return &GameSymbols::getInst();
-    case ZVARTYPEID_ITEM: return &ItemSymbols::getInst();
-    case ZVARTYPEID_ITEMCLASS: return &ItemclassSymbols::getInst();
-    case ZVARTYPEID_NPC: return &NPCSymbols::getInst();
-    case ZVARTYPEID_LWPN: return &HeroWeaponSymbols::getInst();
-    case ZVARTYPEID_EWPN: return &EnemyWeaponSymbols::getInst();
-    case ZVARTYPEID_NPCDATA: return &NPCDataSymbols::getInst();
-    case ZVARTYPEID_DEBUG: return &DebugSymbols::getInst();
-    case ZVARTYPEID_AUDIO: return &AudioSymbols::getInst();
-    case ZVARTYPEID_COMBOS: return &CombosPtrSymbols::getInst();
-    case ZVARTYPEID_SPRITEDATA: return &SpriteDataSymbols::getInst();
-    case ZVARTYPEID_GRAPHICS: return &GraphicsSymbols::getInst();
-    case ZVARTYPEID_BITMAP: return &BitmapSymbols::getInst();
-    case ZVARTYPEID_TEXT: return &TextPtrSymbols::getInst();
-    case ZVARTYPEID_INPUT: return &InputSymbols::getInst();
-    case ZVARTYPEID_MAPDATA: return &MapDataSymbols::getInst();
-    case ZVARTYPEID_DMAPDATA: return &DMapDataSymbols::getInst();
-    case ZVARTYPEID_ZMESSAGE: return &MessageDataSymbols::getInst();
-    case ZVARTYPEID_SHOPDATA: return &ShopDataSymbols::getInst();
-    case ZVARTYPEID_UNTYPED: return &UntypedSymbols::getInst();
-    case ZVARTYPEID_DROPSET: return &DropsetSymbols::getInst();
-    case ZVARTYPEID_PONDS: return &PondSymbols::getInst();
-    case ZVARTYPEID_WARPRING: return &WarpringSymbols::getInst();
-    case ZVARTYPEID_DOORSET: return &DoorsetSymbols::getInst();
-    case ZVARTYPEID_ZUICOLOURS: return &MiscColourSymbols::getInst();
-    case ZVARTYPEID_RGBDATAOLD: return &RGBSymbolsOld::getInst();
-    case ZVARTYPEID_PALETTEOLD: return &PaletteSymbolsOld::getInst();
-    case ZVARTYPEID_TUNES: return &TunesSymbols::getInst();
-    case ZVARTYPEID_PALCYCLE: return &PalCycleSymbols::getInst();
-    case ZVARTYPEID_GAMEDATA: return &GamedataSymbols::getInst();
-    case ZVARTYPEID_CHEATS: return &CheatsSymbols::getInst();
-	case ZVARTYPEID_FILESYSTEM: return &FileSystemSymbols::getInst();
-	case ZVARTYPEID_SUBSCREENDATA: return &SubscreenDataSymbols::getInst();
-	case ZVARTYPEID_FILE: return &FileSymbols::getInst();
-	case ZVARTYPEID_DIRECTORY: return &DirectorySymbols::getInst();
-	case ZVARTYPEID_STACK: return &StackSymbols::getInst();
-	case ZVARTYPEID_MODULE: return &ModuleSymbols::getInst();
-	case ZVARTYPEID_RNG: return &RNGSymbols::getInst();
-	case ZVARTYPEID_PALDATA: return &PalDataSymbols::getInst();
-	case ZVARTYPEID_BOTTLETYPE: return &BottleTypeSymbols::getInst();
-	case ZVARTYPEID_BOTTLESHOP: return &BottleShopSymbols::getInst();
-	case ZVARTYPEID_GENERICDATA: return &GenericDataSymbols::getInst();
+    case ZTID_FFC: return &FFCSymbols::getInst();
+    case ZTID_PLAYER: return &HeroSymbols::getInst();
+    case ZTID_SCREEN: return &ScreenSymbols::getInst();
+    case ZTID_GAME: return &GameSymbols::getInst();
+    case ZTID_ITEM: return &ItemSymbols::getInst();
+    case ZTID_ITEMCLASS: return &ItemclassSymbols::getInst();
+    case ZTID_NPC: return &NPCSymbols::getInst();
+    case ZTID_LWPN: return &HeroWeaponSymbols::getInst();
+    case ZTID_EWPN: return &EnemyWeaponSymbols::getInst();
+    case ZTID_NPCDATA: return &NPCDataSymbols::getInst();
+    case ZTID_DEBUG: return &DebugSymbols::getInst();
+    case ZTID_AUDIO: return &AudioSymbols::getInst();
+    case ZTID_COMBOS: return &CombosPtrSymbols::getInst();
+    case ZTID_SPRITEDATA: return &SpriteDataSymbols::getInst();
+    case ZTID_GRAPHICS: return &GraphicsSymbols::getInst();
+    case ZTID_BITMAP: return &BitmapSymbols::getInst();
+    case ZTID_TEXT: return &TextPtrSymbols::getInst();
+    case ZTID_INPUT: return &InputSymbols::getInst();
+    case ZTID_MAPDATA: return &MapDataSymbols::getInst();
+    case ZTID_DMAPDATA: return &DMapDataSymbols::getInst();
+    case ZTID_ZMESSAGE: return &MessageDataSymbols::getInst();
+    case ZTID_SHOPDATA: return &ShopDataSymbols::getInst();
+    case ZTID_UNTYPED: return &UntypedSymbols::getInst();
+    case ZTID_DROPSET: return &DropsetSymbols::getInst();
+    case ZTID_PONDS: return &PondSymbols::getInst();
+    case ZTID_WARPRING: return &WarpringSymbols::getInst();
+    case ZTID_DOORSET: return &DoorsetSymbols::getInst();
+    case ZTID_ZUICOLOURS: return &MiscColourSymbols::getInst();
+    case ZTID_RGBDATAOLD: return &RGBSymbolsOld::getInst();
+    case ZTID_PALETTEOLD: return &PaletteSymbolsOld::getInst();
+    case ZTID_TUNES: return &TunesSymbols::getInst();
+    case ZTID_PALCYCLE: return &PalCycleSymbols::getInst();
+    case ZTID_GAMEDATA: return &GamedataSymbols::getInst();
+    case ZTID_CHEATS: return &CheatsSymbols::getInst();
+	case ZTID_FILESYSTEM: return &FileSystemSymbols::getInst();
+	case ZTID_SUBSCREENDATA: return &SubscreenDataSymbols::getInst();
+	case ZTID_FILE: return &FileSymbols::getInst();
+	case ZTID_DIRECTORY: return &DirectorySymbols::getInst();
+	case ZTID_STACK: return &StackSymbols::getInst();
+	case ZTID_MODULE: return &ModuleSymbols::getInst();
+	case ZTID_RNG: return &RNGSymbols::getInst();
+	case ZTID_PALDATA: return &PalDataSymbols::getInst();
+	case ZTID_BOTTLETYPE: return &BottleTypeSymbols::getInst();
+	case ZTID_BOTTLESHOP: return &BottleShopSymbols::getInst();
+	case ZTID_GENERICDATA: return &GenericDataSymbols::getInst();
     default: return NULL;
     }
 }
@@ -198,7 +198,7 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 		{
 			if (isArray)
 				setIndexedVariable(refVar, function, entry.var);
-			else if (entry.params[1] == ZVARTYPEID_BOOL)
+			else if (entry.params[1] == ZTID_BOOL)
 				setBoolVariable(refVar, function, entry.var);
 			else
 				setVariable(refVar, function, entry.var);
@@ -262,7 +262,7 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 		{
 			if (isArray)
 				setIndexedVariable(refVar, function, entry.var);
-			else if (entry.params.size() > 1 && entry.params[1] == ZVARTYPEID_BOOL)
+			else if (entry.params.size() > 1 && entry.params[1] == ZTID_BOOL)
 				setBoolVariable(refVar, function, entry.var);
 			else
 				setVariable(refVar, function, entry.var);
@@ -330,7 +330,7 @@ static AccessorTable PondsTable[] =
 {
 //	All of these return a function label error when used:
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
-	 { "getTest",                ZVARTYPEID_FLOAT,         GETTER,       DEBUGREFFFC,      1,             0,                                    1,           { ZVARTYPEID_PONDS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	 { "getTest",                ZTID_FLOAT,         GETTER,       DEBUGREFFFC,      1,             0,                                    1,           { ZTID_PONDS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    1,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
@@ -351,7 +351,7 @@ static AccessorTable WarpringTable[] =
 {
 //	All of these return a function label error when used:
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
-	 { "getTest",                ZVARTYPEID_FLOAT,         GETTER,       DEBUGREFFFC,      1,             0,                                    1,           { ZVARTYPEID_WARPRING, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	 { "getTest",                ZTID_FLOAT,         GETTER,       DEBUGREFFFC,      1,             0,                                    1,           { ZTID_WARPRING, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
@@ -372,7 +372,7 @@ static AccessorTable DoorsetTable[] =
 {
 //	All of these return a function label error when used:
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
-	 { "getTest",                ZVARTYPEID_FLOAT,         GETTER,       DEBUGREFFFC,      1,             0,                                    1,           { ZVARTYPEID_DOORSET, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	 { "getTest",                ZTID_FLOAT,         GETTER,       DEBUGREFFFC,      1,             0,                                    1,           { ZTID_DOORSET, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
@@ -393,7 +393,7 @@ static AccessorTable MiscColoursTable[] =
 {
 //	All of these return a function label error when used:
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
-	 { "getTest",                ZVARTYPEID_FLOAT,         GETTER,       DEBUGREFFFC,      1,             0,                                    1,           { ZVARTYPEID_ZUICOLOURS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	 { "getTest",                ZTID_FLOAT,         GETTER,       DEBUGREFFFC,      1,             0,                                    1,           { ZTID_ZUICOLOURS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
@@ -434,7 +434,7 @@ static AccessorTable PaletteTable[] =
 {
 //	All of these return a function label error when used:
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
-	 { "getTest",                ZVARTYPEID_FLOAT,         GETTER,       DEBUGREFFFC,      1,             0,                                    1,           { ZVARTYPEID_PALETTEOLD, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	 { "getTest",                ZTID_FLOAT,         GETTER,       DEBUGREFFFC,      1,             0,                                    1,           { ZTID_PALETTEOLD, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
@@ -455,7 +455,7 @@ static AccessorTable TunesTable[] =
 {
 //	All of these return a function label error when used:
 //	  name,                     rettype,                  setorget,     var,             numindex,      funcFlags,                            numParams,       params
-	 { "getTest",                ZVARTYPEID_FLOAT,         GETTER,       DEBUGREFFFC,     1,             0,                                    1,           { ZVARTYPEID_TUNES, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	 { "getTest",                ZTID_FLOAT,         GETTER,       DEBUGREFFFC,     1,             0,                                    1,           { ZTID_TUNES, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,              -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
@@ -476,7 +476,7 @@ static AccessorTable PalCycleTable[] =
 {
 //	All of these return a function label error when used:
 //	  name,                     rettype,                  setorget,     var,               numindex,      funcFlags,                            numParams,   params
-	 { "getTest",                ZVARTYPEID_FLOAT,         GETTER,       DEBUGREFFFC,       1,             0,                                    1,           { ZVARTYPEID_PALCYCLE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	 { "getTest",                ZTID_FLOAT,         GETTER,       DEBUGREFFFC,       1,             0,                                    1,           { ZTID_PALCYCLE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,                -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
@@ -497,7 +497,7 @@ static AccessorTable GameDataTable[] =
 {
 //	All of these return a function label error when used:
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
-	 { "getTest",                ZVARTYPEID_FLOAT,         GETTER,       DEBUGREFFFC,      1,             0,                                    1,           { ZVARTYPEID_GAMEDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	 { "getTest",                ZTID_FLOAT,         GETTER,       DEBUGREFFFC,      1,             0,                                    1,           { ZTID_GAMEDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
@@ -518,7 +518,7 @@ static AccessorTable CheatTable[] =
 {
 //	All of these return a function label error when used:
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
-	 { "getTest",                ZVARTYPEID_FLOAT,         GETTER,       DEBUGREFFFC,      1,             0,                                    1,           { ZVARTYPEID_CHEATS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	 { "getTest",                ZTID_FLOAT,         GETTER,       DEBUGREFFFC,      1,             0,                                    1,           { ZTID_CHEATS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
@@ -539,7 +539,7 @@ SubscreenDataSymbols SubscreenDataSymbols::singleton = SubscreenDataSymbols();
 static AccessorTable SubscreenDataTable[] =
 {
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
-//	{ "DirExists",              ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             0,                                    2,           { ZVARTYPEID_FILESYSTEM, ZVARTYPEID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+//	{ "DirExists",              ZTID_BOOL,          FUNCTION,     0,                1,             0,                                    2,           { ZTID_FILESYSTEM, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };

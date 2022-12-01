@@ -226,63 +226,6 @@ int CenterY(eweapon anEWeapon) { return anEWeapon->Y+8*anEWeapon->TileHeight; }
 int CenterY(lweapon anLWeapon) { return anLWeapon->Y+8*anLWeapon->TileHeight; }
 int CenterY(item it) { return it->Y+8*it->TileHeight; }
 
-
-// Chooses one of the options randomly and fairly.
-float Choose(float a, float b) 
-{
-	return ( (!Rand(2)) ? a : b );
-}
-
-float Choose(float a, float b, float c) 
-{
-	int r = Rand(3);
-	switch(r)
-	{
-		case 0: return a;
-		case 1: return b;
-		default: return c;
-	}
-}
-
-float Choose(float a, float b, float c, float d) 
-{
-	int r = Rand(4);
-	switch(r)
-	{
-		case 0: return a;
-		case 1: return b;
-		case 2: return c;
-		default: return d;
-	}
-}
-
-float Choose(float a, float b, float c, float d, float e) 
-{
-	int r = Rand(5);
-	switch(r)
-	{
-		case 0: return a;
-		case 1: return b;
-		case 2: return c;
-		case 3: return d;
-		default: return e;
-	}
-}
-
-float Choose(float a, float b, float c, float d, float e, float f) 
-{
-	int r = Rand(6);
-	switch(r)
-	{
-		case 0: return a;
-		case 1: return b;
-		case 2: return c;
-		case 3: return d;
-		case 4: return e;
-		default: return f;
-	}
-}
-
 //Returns true if the two circles c1 and c2 overlap.
 bool CircleCollision(int c1x, int c1y, int radius1, int c2x, int c2y, int radius2) 
 {
@@ -877,16 +820,6 @@ int DirRad(int dir)
 	}
 } 
 
-namespace std
-{
-	//Returns the distance between two sets of coordinates using Pythagoras' Theorem
-	float Distance(int x1, int y1, int x2, int y2) 
-	{
-		int x = (x1-x2);
-		int y = (y1-y2);
-		return Sqrt(x*x+y*y);
-	}
-}
 // Returns the squared distance of a vector.
 float DistanceSquared( float x, float y ) 
 {
@@ -4386,6 +4319,68 @@ float WrapDegrees( float degrees )
 
 namespace std
 {
+	//Returns the distance between two sets of coordinates using Pythagoras' Theorem
+	float Distance(int x1, int y1, int x2, int y2) 
+	{
+		int x = (x1-x2);
+		int y = (y1-y2);
+		return Sqrt(x*x+y*y);
+	}// Chooses one of the options randomly and fairly.
+	
+	float Choose(float a, float b) 
+	{
+		return ( (!Rand(2)) ? a : b );
+	}
+
+	float Choose(float a, float b, float c) 
+	{
+		int r = Rand(3);
+		switch(r)
+		{
+			case 0: return a;
+			case 1: return b;
+			default: return c;
+		}
+	}
+
+	float Choose(float a, float b, float c, float d) 
+	{
+		int r = Rand(4);
+		switch(r)
+		{
+			case 0: return a;
+			case 1: return b;
+			case 2: return c;
+			default: return d;
+		}
+	}
+
+	float Choose(float a, float b, float c, float d, float e) 
+	{
+		int r = Rand(5);
+		switch(r)
+		{
+			case 0: return a;
+			case 1: return b;
+			case 2: return c;
+			case 3: return d;
+			default: return e;
+		}
+	}
+
+	float Choose(float a, float b, float c, float d, float e, float f) 
+	{
+		int r = Rand(6);
+		switch(r)
+		{
+			case 0: return a;
+			case 1: return b;
+			case 2: return c;
+			case 3: return d;
+			case 4: return e;
+			default: return f;
+		}
+	}
 	////clkptr is an array, sized at least [1], frames is the duration on/off, so, 10 would be on for ten frames, then off for ten frames
 	bool blink(int clkptr, int frames)
 	{

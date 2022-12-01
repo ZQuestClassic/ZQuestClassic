@@ -5,11 +5,11 @@ DirectorySymbols DirectorySymbols::singleton = DirectorySymbols();
 static AccessorTable DirectoryTable[] =
 {
 //	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
-	{ "getSize",                ZVARTYPEID_FLOAT,         GETTER,       DIRECTORYSIZE,    1,             0,                                    1,           { ZVARTYPEID_DIRECTORY, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetFilename",            ZVARTYPEID_BOOL,          FUNCTION,     0,                1,             0,                                    3,           { ZVARTYPEID_DIRECTORY, ZVARTYPEID_FLOAT, ZVARTYPEID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Reload",                 ZVARTYPEID_VOID,          FUNCTION,     0,                1,             0,                                    1,           { ZVARTYPEID_DIRECTORY, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Free",                   ZVARTYPEID_VOID,          FUNCTION,     0,                1,             0,                                    1,           { ZVARTYPEID_DIRECTORY, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Own",                    ZVARTYPEID_VOID,          FUNCTION,     0,                1,             0,                                    1,           { ZVARTYPEID_DIRECTORY, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getSize",                ZTID_FLOAT,         GETTER,       DIRECTORYSIZE,    1,             0,                                    1,           { ZTID_DIRECTORY, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "GetFilename",            ZTID_BOOL,          FUNCTION,     0,                1,             0,                                    3,           { ZTID_DIRECTORY, ZTID_FLOAT, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "Reload",                 ZTID_VOID,          FUNCTION,     0,                1,             0,                                    1,           { ZTID_DIRECTORY, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "Free",                   ZTID_VOID,          FUNCTION,     0,                1,             0,                                    1,           { ZTID_DIRECTORY, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "Own",                    ZTID_VOID,          FUNCTION,     0,                1,             0,                                    1,           { ZTID_DIRECTORY, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };

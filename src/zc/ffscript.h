@@ -1074,6 +1074,9 @@ void do_tracebool(const bool v);
 void do_tracestring();
 void do_printf(const bool v);
 void do_sprintf(const bool v);
+void do_varg_max();
+void do_varg_min();
+void do_varg_choose();
 void do_breakpoint();
 void do_trace(bool v);
 void do_tracenl();
@@ -3410,6 +3413,9 @@ enum ASM_DEFINE
 	PALDATACOPYCSET,
 	PALDATAFREE,
 	PALDATAOWN,
+	MAXVARG,
+	MINVARG,
+	CHOOSEVARG,
 	
 	NUMCOMMANDS           //0x01F6
 };

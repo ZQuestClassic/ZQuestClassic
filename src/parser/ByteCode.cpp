@@ -2806,6 +2806,18 @@ string OMaxRegister::toString()
 {
     return "MAXR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
+string OMaxNew::toString()
+{
+    return "MAXVARG " + getArgument()->toString();
+}
+string OMinNew::toString()
+{
+    return "MINVARG " + getArgument()->toString();
+}
+string OChoose::toString()
+{
+    return "CHOOSEVARG " + getArgument()->toString();
+}
 
 string OPowRegister::toString()
 {

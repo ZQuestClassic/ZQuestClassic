@@ -1331,8 +1331,8 @@ RootScope::RootScope(TypeStore& typeStore)
     GlobalSymbols::getInst().addSymbolsToScope(*this);
 
 	// Create builtin classes (not primitives like void, float, and bool).
-	for (DataTypeId typeId = ZVARTYPEID_CLASS_START;
-	     typeId < ZVARTYPEID_CLASS_END; ++typeId)
+	for (DataTypeId typeId = ZTID_CLASS_START;
+	     typeId < ZTID_CLASS_END; ++typeId)
 	{
 		DataTypeClass const& type =
 			*static_cast<DataTypeClass const*>(DataType::get(typeId));

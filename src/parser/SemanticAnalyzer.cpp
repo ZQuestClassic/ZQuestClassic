@@ -138,14 +138,14 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 		DataTypeId thisTypeId = script->getType().getThisTypeId();
 		switch(thisTypeId)
 		{
-			case ZVARTYPEID_PLAYER:
+			case ZTID_PLAYER:
 				function.thisVar =
 					BuiltinConstant::create(functionScope, DataType::PLAYER, "this", 0);
 				break;
-			case ZVARTYPEID_SCREEN:
+			case ZTID_SCREEN:
 				function.thisVar =
 					BuiltinConstant::create(functionScope, DataType::SCREEN, "this", 0);
-			case ZVARTYPEID_VOID:
+			case ZTID_VOID:
 				break;
 			default:
 				DataType const* thisType = scope->getTypeStore().getType(thisTypeId);

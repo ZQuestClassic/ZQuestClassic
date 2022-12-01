@@ -29518,6 +29518,15 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 			case MAXR:
 				do_max(false);
 				break;
+			case MAXVARG:
+				FFCore.do_varg_max();
+				break;
+			case MINVARG:
+				FFCore.do_varg_min();
+				break;
+			case CHOOSEVARG:
+				FFCore.do_varg_choose();
+				break;
 				
 			case MAXV:
 				do_max(true);
@@ -38702,6 +38711,9 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "PALDATACOPYCSET",           0,   0,   0,   0 },
 	{ "PALDATAFREE",           0,   0,   0,   0 },
 	{ "PALDATAOWN",           0,   0,   0,   0 },
+	{ "MAXVARG",           1,   1,   0,   0 },
+	{ "MINVARG",           1,   1,   0,   0 },
+	{ "CHOOSEVARG",           1,   1,   0,   0 },
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -40667,6 +40679,43 @@ void FFScript::do_sprintf(const bool v)
 		ri->d[rEXP1] = ArrayH::strlen(dest_arrayptr);
 	}
 	else ri->d[rEXP1] = output.size();
+}
+void FFScript::do_varg_max()
+{
+	int32_t num_args = sarg1;
+	int32_t val = 0;
+	if (num_args > 0)
+		val = SH::read_stack(ri->sp + 0);
+	for(auto q = 1; q < num_args; ++q)
+	{
+		int32_t tval = SH::read_stack(ri->sp + q);
+		if(tval > val) val = tval;
+	}
+	ri->d[rEXP1] = val;
+}
+void FFScript::do_varg_min()
+{
+	int32_t num_args = sarg1;
+	int32_t val = 0;
+	if (num_args > 0)
+		val = SH::read_stack(ri->sp + 0);
+	for(auto q = 1; q < num_args; ++q)
+	{
+		int32_t tval = SH::read_stack(ri->sp + q);
+		if(tval < val) val = tval;
+	}
+	ri->d[rEXP1] = val;
+}
+void FFScript::do_varg_choose()
+{
+	int32_t num_args = sarg1;
+	int32_t val = 0;
+	if(num_args > 0)
+	{
+		int32_t choice = zc_rand(num_args-1);
+		val = SH::read_stack(ri->sp + choice);
+	}
+	ri->d[rEXP1] = val;
 }
 
 void FFScript::do_breakpoint()

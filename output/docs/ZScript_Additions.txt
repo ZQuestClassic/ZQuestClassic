@@ -2901,14 +2901,14 @@ long LongDistance(long x1, long y1, long x1, long y2, long scale)
  * Takes args only as long (e.g. 100L).
  * Retrns a vale as a long.
  
-float EngineDegtoRad(float deg)
+float DegtoRad(float deg)
  * Converts Degrees to Radians. More accurate than the old std_functions DegtoRad.
  * Because radians are mostly decimal and zscript can only have 4 decimals, there is very minor inaccuracies
  * with this conversion that are not feasibly fixable; however, it is still more accurate than the old std.zh conversion function,
  * where the old conversion could potentially be 2 entire degrees off at certain angles, while this version only loses about 0.0004 degrees of accuracy.
  * In addition, casting between EngineDegtoRad and EngineRadtoDeg repeatedly will *not* lose additional precision with each call; only the first call will lose precision.
  
-float EngineRadtoDeg(float deg)
+float RadtoDeg(float deg)
  * Converts Radians to Degrees. More accurate than the old std_functions RadtoDeg.
  * See above (EngineDegtoRad) for more details on how this is more accurate.
  
@@ -3062,7 +3062,7 @@ int strcspn(string[], string_keys[]);
  * 'string_keys' is found
 
 void sprintf(char32[] buf, char32[] format, ...untyped...)
- * Takes a buffer, a format string, and anywhere between 0 and 16 (inclusive) untyped arguments.
+ * Takes a buffer, a format string, and 0+ untyped arguments.
  * The untyped arguments will be inserted to the string at points in the format string.
  * Points are specified using '%'. The letter after is used to determine the type of the arg.
  *     "%i" - Integer. Inserts the number as a string, without decimal places.
@@ -3092,10 +3092,17 @@ void sprintf(char32[] buf, char32[] format, ...untyped...)
  *     to hold the output.
 
 void printf(char32 format[], ...untyped...)
- * Takes a format string, and anywhere between 0 and 16 (inclusive) untyped arguments.
+ * Takes a format string, and 0+ untyped arguments.
  * Same as 'sprintf', but instead of placing the result in a buffer, will instead
  *     trace the result, as with "TraceS()".
- 
+
+untyped Min(untyped, untyped, ...untyped);
+ * Takes 2 or more untyped arguments, and returns the lowest value between them.
+untyped Max(untyped, untyped, ...untyped);
+ * Takes 2 or more untyped arguments, and returns the highest value between them.
+untyped Choose(untyped, ...untyped);
+ * Takes 1 or more untyped arguments, and returns a random argument.
+
 int GetSystemTime(int index);
  * Returns the time (Real Time Clock) data from the system on which ZC is running.
  * You may read the following indices: Year, month, day of the month (n/month), day of the week (n/7), 
@@ -6962,19 +6969,19 @@ int Frames;
 int NextData;
  * 
 
-int NextCSet; 
+int NextCSet;
  *
 
-int NextTimer; 
+int NextTimer;
  *
 
-int Flag; 
+int Flag;
  * The inherent flag bound to the combo.
 
 int SkipAnim; //needs to be renamed to SkipAnimX
  * Corresponds to 'A.SkipX' in the Combo Editor.
 
-int SkipAnimY; 
+int SkipAnimY;
  * Corresponds to 'A.SkipX' in the Combo Editor.
 
 int AnimFlags;
@@ -6985,20 +6992,20 @@ int AnimFlags;
  *  AF_TRANSPARENT Toggle Transparent
  * Use bitwise operators with these constants to read/set these flags.
 
-int Expansion[6]; 
+int Expansion[6];
  * Reserved for future use by the Combo Editor.
 	
-int Attributes[4]; 
+int Attributes[4];
  * Corresponds to Attributes[0] through Attributes[3] on the 'Attributes'
  * 	tab in the Combo Editor.
  * Min value MIN_FLOAT, max value MAX_FLOAT.
  
- int Attribytes[8]; 
+ int Attribytes[8];
  * Corresponds to Attribytes[0] through Attribytes[7] on the 'Attribytes'
  * 	tab in the Combo Editor.
  * Min value MIN_BYTE, max value MAX_BYTE.
  
- int Attrishorts[8]; 
+ int Attrishorts[8];
  * Corresponds to Attrishorts[0] through Attrishorts[7] on the 'Attrishorts'
  * 	tab in the Combo Editor.
  * Min value MIN_SHORT, max value MAX_SHORT.
@@ -7686,13 +7693,9 @@ int MessageHeight(int msg);
 ///  bitmap  ///
 ////////////////								// Bitmap
 
-//void DrawPlane(int layer, int rt, int srcX, int srcY, 
-//		int srcW, int srcH, int destW, int destH, 
-//		int angle, int cx, int cy, int space_z, int horizon, 
-//		int scale_x, int scale_y);
 void DrawPlane(int layer, bitmap src, int src_x, int src_y, int dest_x,
 			int dest_y, int dest_w, int dest_h, int space_z, int horizon, 
-			float scale_x, float scale_y, bool mask);
+			float scale_x = 1, float scale_y = 1, bool mask = true);
  * Draws a scaled 'Mode 7' style effect, line-by-line, where each raster is scaled down toward 
  * a horizon point.
  
@@ -7732,7 +7735,7 @@ bool isAllocated();
 int GetPixel(int x, int y);
  * Returns the palette index value of a pixel on the current bitmap pointer.
 
-void Create(int layer, int width, int height);
+void Create(int layer = 0, int width = 256, int height = 256);
  * Creates a bitmap on a bitmap pointer, with a size of height, width.
  * Destroys any existing bitmap on that pointer before creating a new one.
  * You can use this on an initialized bitmap pointer; either one allocated with 'Game->AllocateBitmap()', or
@@ -7743,7 +7746,7 @@ void Create(int layer, int width, int height);
  *       This WILL NOT clear a specific 'layer' of a bitmap. 
  *       Layers in ZC are only an expression of drawing order/sequence!
  
-void Clear(int layer);
+void Clear(int layer = 0);
  * Clears the bitmap to colour 0. 
  * Note: The 'layer' arg in this function is exclusively for ordering. 
  *       This WILL NOT write out a specific 'layer' of a bitmap.
@@ -7771,7 +7774,7 @@ void Read(int layer, "filename");
  * 	The file is missing.
  * 	The filename is incorrect. Remember that POSIX filesystems are Case-SenSitive. 
  
-void Write(int layer, "filename", bool allow_overwrite);
+void Write(int layer, "filename", bool allow_overwrite = false);
  * Writes a bitmap out as a graphic file.
  * This supports the following formats/extensions:
  *     .png, .gif, .pcx, .tgx, and .bmp. 
@@ -7790,7 +7793,7 @@ void Write(int layer, "filename", bool allow_overwrite);
  *     to "[zc root]".
  * Remember that POSIX filesystems are Case-SenSitive. 
 
-void WriteTile( int layer, int x, int y, int tile, bool is8bit, bool mask);
+void WriteTile( int layer, int x, int y, int tile, bool is8bit = true, bool mask = false);
  * Writes a 16x16 area from (x,y) of the bitmap at layer 'layer' 
  *     TO the tile page, overwriting the tile 'tile', either 4 or 8 bit.
  * If 'mask' is true, overlays instead of overwrites
@@ -7826,7 +7829,7 @@ void ReplaceColors( int layer, int color, int startCol, int endCol )
 void ShiftColors( int layer, int shift, int startCol, int endCol )
  * Adds 'shift' to colors >= startCol and <= endCol
 
-int CountColor(bitmap mask, int x, int y, int checkColor, int maskColor);
+int CountColor(bitmap mask, int x, int y, int checkColor, int maskColor = -1);
  * Checks the area of the bitmap specified by the mask for the specified 'checkColor',
  *     returning how many pixels match.
  * If 'maskColor' is '-1', any non-0 portion of the mask bitmap will be checked.
@@ -7837,16 +7840,12 @@ int CountColor(bitmap mask, int x, int y, int checkColor, int maskColor);
  *     only whatever was drawn to the bitmap at the end of the previous frame will
  *     (similar to GetPixel())
 
-void Blit	
-	( 
-		int layer, 
-		bitmap target, 
-		int source_x, int source_y, int source_w, int source_h, 
-		int dest_x, int dest_y, int dest_w, int dest_h, 
-		float rotation, int cx, int cy, int mode, int lit,  bool mask
-	);
-			
- * BLITS THE BITMAP ON POINTER 'b' TO A TARGET BITMAP. 
+void Blit(int layer, bitmap target,
+		int source_x, int source_y, int source_w, int source_h,
+		int dest_x, int dest_y, int dest_w, int dest_h,
+		float rotation = 0, int cx = 0, int cy = 0,
+		int mode = 0, int lit = 0,  bool mask = true);
+ * BLITS THE BITMAP ON POINTER 'b' TO A TARGET BITMAP.
  * As DrawBitmapEx(), except that it draws FROM an initialised bitmap pointer,
  * TO a target bitmap, which may be a user-created bitmap, or it may be the screen.
  * To draw to the screen, or to one of the old system bitmaps, use the RT_* value from std_constants.zh
@@ -7862,21 +7861,16 @@ void Blit
  * You can also set a pivot point for the rotation, using 'int cx' and 'int cy'
  * If these are non-zero, the rotation anchor point will centre on these coordinates.
  * You may specify a colour to 'int lit' to use a lit mode. This tints the entire bitmap using that
- * colour index of the main palette. 
+ * colour index of the main palette.
 
 
-void RevBlit 
-void BlitTo 
-	( 
-		int layer, 
-		bitmap source, 
-		int source_x, int source_y, int source_w, int source_h, 
-		int dest_x, int dest_y, int dest_w, int dest_h, 
-		float rotation, int cx, int cy, int mode, int lit,  bool mask
-	);
-			
+void BlitTo(int layer, bitmap source,
+		int source_x, int source_y, int source_w, int source_h,
+		int dest_x, int dest_y, int dest_w, int dest_h,
+		float rotation = 0, int cx = 0, int cy = 0,
+		int mode = 0, int lit = 0,  bool mask = true);
  * BLITS ANOTHER BITMAP TO THE POINTER 'b'.
- * As DrawBitmapEx(), except that it draws TO an initialised bitmap pointer,
+ * As Blit(), except that it draws TO an initialised bitmap pointer,
  * FROM a source bitmap, which may be a user-created bitmap, or it may be the screen.
  * To draw to the screen, or to one of the old system bitmaps, use the RT_* value from std_constants.zh
  *	as the argument to 'bitmap source'.
@@ -7893,95 +7887,95 @@ void BlitTo
  * You may specify a colour to 'int lit' to use a lit mode. This tints the entire bitmap using that
  * colour index of the main palette. 
 
-void Rectangle(int layer, 
-			int x, int y, int x2, int y2, 
-			int color, float scale, 
-			int rx, int ry, int rangle, 
-			bool fill, int opacity		);
+void Rectangle(int layer,
+			int x, int y, int x2, int y2,
+			int color, float scale = 1,
+			int rx = 0, int ry = 0, int rangle = 0,
+			bool fill = true, int opacity = OP_OPAQUE);
  * Identical to Screen->Rectangle(), but it draws to a target bitmap.
 
-void Circle(int layer, 
-		int x, int y, int radius, 
-		int color, float scale, 
-		int rx, int ry, int rangle, 
-		bool fill, int opacity	);
+void Circle(int layer,
+		int x, int y, int radius,
+		int color, float scale = 1,
+		int rx = 0, int ry = 0, int rangle = 0,
+		bool fill = true, int opacity = OP_OPAQUE);
  * Identical to Screen->Circle(), but it draws to a target bitmap.
 
 void Arc(int layer, 
 		int x, int y, int radius, int startangle, int endangle, 
-		int color, float scale, 
-		int rx, int ry, int rangle, 
-		bool closed, bool fill, int opacity	);
+		int color, float scale = 1, 
+		int rx = 0, int ry = 0, int rangle = 0, 
+		bool closed = true, bool fill = true, int opacity = OP_OPAQUE);
  * Identical to Screen->Arc(), but it draws to a target bitmap.
 
 void Ellipse(int layer, 
 		int x, int y, int xradius, int yradius, 
-		int color, float scale, 
-		int rx, int ry, int rangle, 
-		bool fill, int opacity);
+		int color, float scale = 1,
+		int rx = 0, int ry = 0, int rangle = 0,
+		bool fill = true, int opacity = OP_OPAQUE);
  * Identical to Screen->Ellipse(), but it draws to a target bitmap.
 
 void Line(int layer, int x, int y, int x2, int y2, 
-		int color, float scale, 
-		int rx, int ry, int rangle, 
-		int opacity);
+		int color, float scale = 1,
+		int rx = 0, int ry = 0, int rangle = 0,
+		int opacity = OP_OPAQUE);
  * Identical to Screen->Line(), but it draws to a target bitmap.
 
 void Spline(int layer, 
 		int x1, int y1, int x2, int y2, #
 		int x3, int y3,int x4, int y4, 
-		int color, int opacity);
+		int color, int opacity = OP_OPAQUE);
  * Identical to Screen->Spline(), but it draws to a target bitmap.
 
 void PutPixel(int layer, int x, int y, 
 		int color, 
-		int rx, int ry, int rangle, 
-		int opacity);
+		int rx = 0, int ry = 0, int rangle = 0,
+		int opacity = OP_OPAQUE);
  * Identical to Screen->PutPixel(), but it draws to a target bitmap.
 
 void DrawCharacter(int layer, int x, int y, 
 			int font, int color, int background_color, 
 			int width, int height, 'char', 
-			int opacity );
+			int opacity = OP_OPAQUE);
  * Identical to Screen->DrawCharacter(), but it draws to a target bitmap.
 
 void DrawInteger(int layer, int x, int y, 
 			int font, int color, int background_color, 
-			int width, int height, int number, int number_decimal_places, 
-			int opacity);
+			int width, int height, int number, int number_decimal_places = 0, 
+			int opacity = OP_OPAQUE);
  * Identical to Screen->DrawInteger(), but it draws to a target bitmap.
 
-void DrawTile(int layer, int x, int y, 
-		int tile, int blockw, int blockh, 
-		int cset, int xscale, int yscale, 
-		int rx, int ry, int rangle, 
-		int flip, 
-		bool transparency, int opacity);
+void DrawTile(int layer, int x, int y,
+		int tile, int blockw, int blockh,
+		int cset, int xscale = -1, int yscale = -1,
+		int rx = 0, int ry = 0, int rangle = 0,
+		int flip = 0,
+		bool transparency = true, int opacity = OP_OPAQUE);
  * Identical to Screen->DrawTile(), but it draws to a target bitmap.
 
 void DrawTileCloaked(int layer, int x, int y,
 		int tile, int blockw, int blockh,
-		int flip);
+		int flip = 0);
  * Identical to Screen->DrawTileCloaked(), but it draws to a target bitmap.
 
 void DrawComboCloaked(int layer, int x, int y,
 		int combo, int tilewidth, int tileheight,
-		int flip);
+		int flip = 0);
  * Identical to Screen->DrawComboCloaked(), but it draws to a target bitmap.
 
-void DrawComboint layer, int x, int y, 
-		int combo, int w, int h, 
-		int cset, int xscale, int yscale, 
-		int rx, int ry, int rangle, 
-		int frame, int flip, 
-		bool transparency, int opacity);
+void DrawCombo(int layer, int x, int y,
+		int combo, int w, int h,
+		int cset, int xscale = -1, int yscale = -1,
+		int rx = 0, int ry = 0, int rangle = 0,
+		int flip = 0,
+		bool transparency = true, int opacity = OP_OPAQUE);
  * Identical to Screen->DrawCombo(), but it draws to a target bitmap.
 
 void DrawString(int layer, 
 			int x, int y, 
 			int font, int color, int background_color, int format, 
 			"string", 
-			int opacity );
+			int opacity = OP_OPAQUE);
  * Identical to Screen->DrawString(), but it draws to a target bitmap.
  
 void DrawString(int layer, 
@@ -7994,13 +7988,13 @@ void DrawString(int layer,
 
 void DrawLayer(int layer, 
 			int source_map, int source_screen, int source_layer, 
-			int x, int y, float rotation, int opacity);
+			int x, int y, float rotation = 0, int opacity = OP_OPAQUE);
  * Identical to Screen->DrawLayer(), but it draws to a target bitmap.
  
 void DrawFrame(int layer,
 			int x, int y, int tile, int cset,
-			int width, int height, bool overlay,
-			int opacity);
+			int width, int height, bool overlay = true,
+			int opacity = OP_OPAQUE);
  * Identical to Screen->DrawFrame(), but it draws to a target bitmap.
 
 Quad( int layer, 
@@ -8064,15 +8058,15 @@ void Triangle3D( int layer,
 
 void FastTile(int layer, int x, int y, 
 		int tile, int cset, 
-		int opacity );
+		int opacity = OP_OPAQUE);
  * Identical to Screen->FastTile(), but it draws to a target bitmap.
 
 void FastCombo(int layer, int x, int y, 
 		int combo, int cset, 
-		int opacity );
+		int opacity = OP_OPAQUE);
  * Identical to Screen->FastCombo(), but it draws to a target bitmap.
 
-void Polygon(int layer, int num_points, int vertices[], int colour, int transparency);
+void Polygon(int layer, int num_points, int vertices[], int colour, int opacity = OP_OPAQUE);
 	ZASM: POLYGON
  * Draws a polygon to the bitmap, with a number of points specified as int points,
  * with vertices supplied as an array. 
@@ -8080,21 +8074,21 @@ void Polygon(int layer, int num_points, int vertices[], int colour, int transpar
  
 void DrawScreen	(int layer, 
 			int map, int source_screen, 
-			int x, int y, float rotation);
+			int x, int y, float rotation = 0);
 			
  * Draws an entire screen from screen on map on the specified layer of the bitmap at (x,y).
  * If rotation is not zero, it(the entire screen) will rotate about its center.
 
 void DrawScreenSolid	(int layer, 
 			int map, int source_screen, 
-			int x, int y, float rotation);
+			int x, int y, float rotation = 0);
 			
  * Draws the solidity mask entire screen from screen on map on the specified layer of the bitmap at (x,y) in colour index 1.
  * If rotation is not zero, it(the entire screen) will rotate about its center.
 
 void DrawScreenSolidity	(int layer, 
 			int map, int source_screen, 
-			int x, int y, float rotation);
+			int x, int y, float rotation = 0);
 			
  * Draws the solidity value for each combo position of an entire screen from screen on map on 
  * the specified layer of the bitmap at (x,y).
@@ -8103,7 +8097,7 @@ void DrawScreenSolidity	(int layer,
  
 void DrawScreenComboTypes	(int layer, 
 			int map, int source_screen, 
-			int x, int y, float rotation);
+			int x, int y, float rotation = 0);
 			
  * Draws the combo type value for each combo position of an entire screen from screen on map on 
  * the specified layer of the bitmap at (x,y).
@@ -8112,7 +8106,7 @@ void DrawScreenComboTypes	(int layer,
 
 void DrawScreenComboFlags	(int layer, 
 			int map, int source_screen, 
-			int x, int y, float rotation);
+			int x, int y, float rotation = 0);
 			
  * Draws the combo flag value for each combo position of an entire screen from screen on map on 
  * the specified layer of the bitmap at (x,y).
@@ -8121,7 +8115,7 @@ void DrawScreenComboFlags	(int layer,
 
 void DrawScreenComboIFlags	(int layer, 
 			int map, int source_screen, 
-			int x, int y, float rotation);
+			int x, int y, float rotation = 0);
 			
  * Draws the combo inh.flag value for each combo position of an entire screen from screen on map on 
  * the specified layer of the bitmap at (x,y).

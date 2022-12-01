@@ -836,18 +836,18 @@ ScriptsData::ScriptsData(Program& program)
 				it != run->paramTypes.end(); ++it)
 			{
 				std::optional<DataTypeId> id = program.getTypeStore().getTypeId(**it);
-				meta.run_types[ind] = id ? *id : ZVARTYPEID_VOID;
+				meta.run_types[ind] = id ? *id : ZTID_VOID;
 				int8_t ty = -1;
 				if(id) switch(*id)
 				{
-					case ZVARTYPEID_BOOL:
+					case ZTID_BOOL:
 						ty = nswapBOOL;
 						break;
-					case ZVARTYPEID_LONG:
+					case ZTID_LONG:
 						ty = nswapLDEC;
 						break;
-					case ZVARTYPEID_FLOAT:
-					case ZVARTYPEID_UNTYPED:
+					case ZTID_FLOAT:
+					case ZTID_UNTYPED:
 						ty = nswapDEC;
 						break;
 				}

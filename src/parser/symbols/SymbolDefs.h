@@ -21,22 +21,22 @@ using std::shared_ptr;
 #define FL_VARG    FUNCFLAG_VARARGS
 
 //sanity underflow
-#define typeVOID ZVARTYPEID_VOID
-#define S ZVARTYPEID_SCREEN
-#define F ZVARTYPEID_FLOAT
+#define typeVOID ZTID_VOID
+#define S ZTID_SCREEN
+#define F ZTID_FLOAT
 
-#define tV ZVARTYPEID_VOID
-#define tFF ZVARTYPEID_FFC
-#define tF ZVARTYPEID_FLOAT
-#define tN ZVARTYPEID_NPC
-#define tB ZVARTYPEID_BOOL
-#define tI ZVARTYPEID_ITEM
-#define tID ZVARTYPEID_ITEMCLASS
-#define tE ZVARTYPEID_EWEAPON
-#define tL ZVARTYPEID_LWEAPON
-#define tLI ZVARTYPEID_PLAYER
-#define tG ZVARTYPEID_GAME
-#define tS ZVARTYPEID_SCREEN
+#define tV ZTID_VOID
+#define tFF ZTID_FFC
+#define tF ZTID_FLOAT
+#define tN ZTID_NPC
+#define tB ZTID_BOOL
+#define tI ZTID_ITEM
+#define tID ZTID_ITEMCLASS
+#define tE ZTID_EWEAPON
+#define tL ZTID_LWEAPON
+#define tLI ZTID_PLAYER
+#define tG ZTID_GAME
+#define tS ZTID_SCREEN
 
 void addOpcode2(std::vector<std::shared_ptr<Opcode>>& v, Opcode* code);
 //New Types

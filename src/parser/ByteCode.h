@@ -3103,6 +3103,39 @@ namespace ZScript
 			return new OMinRegister(a->clone(), b->clone());
 		}
 	};
+	
+	class OMaxNew: public UnaryOpcode
+	{
+	public:
+		OMaxNew(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OMaxNew(a->clone());
+		}
+	};
+	
+	class OMinNew: public UnaryOpcode
+	{
+	public:
+		OMinNew(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OMinNew(a->clone());
+		}
+	};
+	
+	class OChoose: public UnaryOpcode
+	{
+	public:
+		OChoose(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OChoose(a->clone());
+		}
+	};
 
 	class OPowRegister : public BinaryOpcode
 	{
