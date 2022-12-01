@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2022-11-29 09:49:28</td>
+      <td>2022-12-01 00:41:11</td>
     </tr>
   </table>
 </div>
@@ -3131,7 +3131,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">close_button_quit</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">jwin_pal</span><span class="p">[</span><span class="n">jcMAX</span><span class="p">];</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3139,7 +3139,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">jwin_pal</span><span class="p">[</span><span class="n">jcMAX</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">gui_colorset</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3147,7 +3147,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">gui_colorset</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">fullscreen</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3155,7 +3155,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">fullscreen</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">frame_rest_suggest</span><span class="p">,</span><span class="w"> </span><span class="n">forceExit</span><span class="p">,</span><span class="w"> </span><span class="n">zc_vsync</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3163,7 +3163,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">frame_rest_suggest</span><span class="p">,</span><span class="w"> </span><span class="n">forceExit</span><span class="p">,</span><span class="w"> </span><span class="n">zc_vsync</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">zc_color_depth</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3171,7 +3171,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">zc_color_depth</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">use_debug_console</span><span class="p">,</span><span class="w"> </span><span class="n">console_on_top</span><span class="p">,</span><span class="w"> </span><span class="n">use_win32_proc</span><span class="p">,</span><span class="w"> </span><span class="n">zasm_debugger</span><span class="p">,</span><span class="w"> </span><span class="n">zscript_debugger</span><span class="p">;</span><span class="w"> </span><span class="c1">//windows only</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3179,7 +3179,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">use_debug_console</span><span class="p">,</span><span class="w"> </span><span class="n">console_on_top</span><span class="p">,</span><span class="w"> </span><span class="n">use_win32_proc</span><span class="p">,</span><span class="w"> </span><span class="n">zasm_debugger</span><span class="p">,</span><span class="w"> </span><span class="n">zscript_debugger</span><span class="p">;</span><span class="w"> </span><span class="c1">//windows only</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -3187,7 +3187,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#ifdef _SCRIPT_COUNTER</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3195,7 +3195,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#ifdef _SCRIPT_COUNTER</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">update_script_counter</span><span class="p">();</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3203,7 +3203,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">update_script_counter</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src "><span class="cp">#endif</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3211,7 +3211,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -3219,7 +3219,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">PALETTE</span><span class="w"> </span><span class="n">tempbombpal</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3227,7 +3227,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">PALETTE</span><span class="w"> </span><span class="n">tempbombpal</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">usebombpal</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3235,7 +3235,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">usebombpal</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -3243,7 +3243,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">slot_arg</span><span class="p">,</span><span class="w"> </span><span class="n">slot_arg2</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3251,7 +3251,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">slot_arg</span><span class="p">,</span><span class="w"> </span><span class="n">slot_arg2</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">SAVE_FILE</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3259,7 +3259,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">SAVE_FILE</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -3267,7 +3267,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">homescr</span><span class="p">,</span><span class="n">currscr</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">currmap</span><span class="p">,</span><span class="n">dlevel</span><span class="p">,</span><span class="n">warpscr</span><span class="p">,</span><span class="n">worldscr</span><span class="p">,</span><span class="n">scrolling_scr</span><span class="p">,</span><span class="n">scrolling_map</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3275,7 +3275,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">homescr</span><span class="p">,</span><span class="n">currscr</span><span class="p">,</span><span class="n">frame</span><span class="p">,</span><span class="n">currmap</span><span class="p">,</span><span class="n">dlevel</span><span class="p">,</span><span class="n">warpscr</span><span class="p">,</span><span class="n">worldscr</span><span class="p">,</span><span class="n">scrolling_scr</span><span class="p">,</span><span class="n">scrolling_map</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newscr_clk</span><span class="p">,</span><span class="n">opendoors</span><span class="p">,</span><span class="n">currdmap</span><span class="p">,</span><span class="n">fadeclk</span><span class="p">,</span><span class="n">currgame</span><span class="p">,</span><span class="n">listpos</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3283,7 +3283,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newscr_clk</span><span class="p">,</span><span class="n">opendoors</span><span class="p">,</span><span class="n">currdmap</span><span class="p">,</span><span class="n">fadeclk</span><span class="p">,</span><span class="n">currgame</span><span class="p">,</span><span class="n">listpos</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">lastentrance</span><span class="p">,</span><span class="n">lastentrance_dmap</span><span class="p">,</span><span class="w"> </span><span class="n">prices</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="n">loadside</span><span class="p">,</span><span class="w"> </span><span class="n">Bwpn</span><span class="p">,</span><span class="w"> </span><span class="n">Awpn</span><span class="p">,</span><span class="w"> </span><span class="n">Xwpn</span><span class="p">,</span><span class="w"> </span><span class="n">Ywpn</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3291,7 +3291,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">lastentrance</span><span class="p">,</span><span class="n">lastentrance_dmap</span><span class="p">,</span><span class="w"> </span><span class="n">prices</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="n">loadside</span><span class="p">,</span><span class="w"> </span><span class="n">Bwpn</span><span class="p">,</span><span class="w"> </span><span class="n">Awpn</span><span class="p">,</span><span class="w"> </span><span class="n">Xwpn</span><span class="p">,</span><span class="w"> </span><span class="n">Ywpn</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">digi_volume</span><span class="p">,</span><span class="n">midi_volume</span><span class="p">,</span><span class="n">sfx_volume</span><span class="p">,</span><span class="n">emusic_volume</span><span class="p">,</span><span class="n">currmidi</span><span class="p">,</span><span class="n">hasitem</span><span class="p">,</span><span class="n">whistleclk</span><span class="p">,</span><span class="n">pan_style</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3299,7 +3299,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">digi_volume</span><span class="p">,</span><span class="n">midi_volume</span><span class="p">,</span><span class="n">sfx_volume</span><span class="p">,</span><span class="n">emusic_volume</span><span class="p">,</span><span class="n">currmidi</span><span class="p">,</span><span class="n">hasitem</span><span class="p">,</span><span class="n">whistleclk</span><span class="p">,</span><span class="n">pan_style</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">analog_movement</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3307,7 +3307,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">analog_movement</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">joystick_index</span><span class="p">,</span><span class="n">Akey</span><span class="p">,</span><span class="n">Bkey</span><span class="p">,</span><span class="n">Skey</span><span class="p">,</span><span class="n">Lkey</span><span class="p">,</span><span class="n">Rkey</span><span class="p">,</span><span class="n">Pkey</span><span class="p">,</span><span class="n">Exkey1</span><span class="p">,</span><span class="n">Exkey2</span><span class="p">,</span><span class="n">Exkey3</span><span class="p">,</span><span class="n">Exkey4</span><span class="p">,</span><span class="n">Abtn</span><span class="p">,</span><span class="n">Bbtn</span><span class="p">,</span><span class="n">Sbtn</span><span class="p">,</span><span class="n">Mbtn</span><span class="p">,</span><span class="n">Lbtn</span><span class="p">,</span><span class="n">Rbtn</span><span class="p">,</span><span class="n">Pbtn</span><span class="p">,</span><span class="n">Exbtn1</span><span class="p">,</span><span class="n">Exbtn2</span><span class="p">,</span><span class="n">Exbtn3</span><span class="p">,</span><span class="n">Exbtn4</span><span class="p">,</span><span class="n">Quit</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3315,7 +3315,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">joystick_index</span><span class="p">,</span><span class="n">Akey</span><span class="p">,</span><span class="n">Bkey</span><span class="p">,</span><span class="n">Skey</span><span class="p">,</span><span class="n">Lkey</span><span class="p">,</span><span class="n">Rkey</span><span class="p">,</span><span class="n">Pkey</span><span class="p">,</span><span class="n">Exkey1</span><span class="p">,</span><span class="n">Exkey2</span><span class="p">,</span><span class="n">Exkey3</span><span class="p">,</span><span class="n">Exkey4</span><span class="p">,</span><span class="n">Abtn</span><span class="p">,</span><span class="n">Bbtn</span><span class="p">,</span><span class="n">Sbtn</span><span class="p">,</span><span class="n">Mbtn</span><span class="p">,</span><span class="n">Lbtn</span><span class="p">,</span><span class="n">Rbtn</span><span class="p">,</span><span class="n">Pbtn</span><span class="p">,</span><span class="n">Exbtn1</span><span class="p">,</span><span class="n">Exbtn2</span><span class="p">,</span><span class="n">Exbtn3</span><span class="p">,</span><span class="n">Exbtn4</span><span class="p">,</span><span class="n">Quit</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">GameFlags</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3323,7 +3323,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">GameFlags</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">js_stick_1_x_stick</span><span class="p">,</span><span class="w"> </span><span class="n">js_stick_1_x_axis</span><span class="p">,</span><span class="w"> </span><span class="n">js_stick_1_x_offset</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3331,7 +3331,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">js_stick_1_x_stick</span><span class="p">,</span><span class="w"> </span><span class="n">js_stick_1_x_axis</span><span class="p">,</span><span class="w"> </span><span class="n">js_stick_1_x_offset</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">js_stick_1_y_stick</span><span class="p">,</span><span class="w"> </span><span class="n">js_stick_1_y_axis</span><span class="p">,</span><span class="w"> </span><span class="n">js_stick_1_y_offset</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3339,7 +3339,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">js_stick_1_y_stick</span><span class="p">,</span><span class="w"> </span><span class="n">js_stick_1_y_axis</span><span class="p">,</span><span class="w"> </span><span class="n">js_stick_1_y_offset</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">js_stick_2_x_stick</span><span class="p">,</span><span class="w"> </span><span class="n">js_stick_2_x_axis</span><span class="p">,</span><span class="w"> </span><span class="n">js_stick_2_x_offset</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3347,7 +3347,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">js_stick_2_x_stick</span><span class="p">,</span><span class="w"> </span><span class="n">js_stick_2_x_axis</span><span class="p">,</span><span class="w"> </span><span class="n">js_stick_2_x_offset</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">js_stick_2_y_stick</span><span class="p">,</span><span class="w"> </span><span class="n">js_stick_2_y_axis</span><span class="p">,</span><span class="w"> </span><span class="n">js_stick_2_y_offset</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3355,7 +3355,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">js_stick_2_y_stick</span><span class="p">,</span><span class="w"> </span><span class="n">js_stick_2_y_axis</span><span class="p">,</span><span class="w"> </span><span class="n">js_stick_2_y_offset</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">DUkey</span><span class="p">,</span><span class="w"> </span><span class="n">DDkey</span><span class="p">,</span><span class="w"> </span><span class="n">DLkey</span><span class="p">,</span><span class="w"> </span><span class="n">DRkey</span><span class="p">,</span><span class="w"> </span><span class="n">DUbtn</span><span class="p">,</span><span class="w"> </span><span class="n">DDbtn</span><span class="p">,</span><span class="w"> </span><span class="n">DLbtn</span><span class="p">,</span><span class="w"> </span><span class="n">DRbtn</span><span class="p">,</span><span class="w"> </span><span class="n">ss_after</span><span class="p">,</span><span class="w"> </span><span class="n">ss_speed</span><span class="p">,</span><span class="w"> </span><span class="n">ss_density</span><span class="p">,</span><span class="w"> </span><span class="n">ss_enable</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3363,7 +3363,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">DUkey</span><span class="p">,</span><span class="w"> </span><span class="n">DDkey</span><span class="p">,</span><span class="w"> </span><span class="n">DLkey</span><span class="p">,</span><span class="w"> </span><span class="n">DRkey</span><span class="p">,</span><span class="w"> </span><span class="n">DUbtn</span><span class="p">,</span><span class="w"> </span><span class="n">DDbtn</span><span class="p">,</span><span class="w"> </span><span class="n">DLbtn</span><span class="p">,</span><span class="w"> </span><span class="n">DRbtn</span><span class="p">,</span><span class="w"> </span><span class="n">ss_after</span><span class="p">,</span><span class="w"> </span><span class="n">ss_speed</span><span class="p">,</span><span class="w"> </span><span class="n">ss_density</span><span class="p">,</span><span class="w"> </span><span class="n">ss_enable</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">hs_startx</span><span class="p">,</span><span class="w"> </span><span class="n">hs_starty</span><span class="p">,</span><span class="w"> </span><span class="n">hs_xdist</span><span class="p">,</span><span class="w"> </span><span class="n">hs_ydist</span><span class="p">,</span><span class="w"> </span><span class="n">clockclk</span><span class="p">,</span><span class="w"> </span><span class="n">clock_zoras</span><span class="p">[</span><span class="n">eMAXGUYS</span><span class="p">];</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3371,7 +3371,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">hs_startx</span><span class="p">,</span><span class="w"> </span><span class="n">hs_starty</span><span class="p">,</span><span class="w"> </span><span class="n">hs_xdist</span><span class="p">,</span><span class="w"> </span><span class="n">hs_ydist</span><span class="p">,</span><span class="w"> </span><span class="n">clockclk</span><span class="p">,</span><span class="w"> </span><span class="n">clock_zoras</span><span class="p">[</span><span class="n">eMAXGUYS</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">swordhearts</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span><span class="w"> </span><span class="n">currcset</span><span class="p">,</span><span class="w"> </span><span class="n">currspal6</span><span class="p">,</span><span class="w"> </span><span class="n">currspal14</span><span class="p">,</span><span class="w"> </span><span class="n">gfc</span><span class="p">,</span><span class="w"> </span><span class="n">gfc2</span><span class="p">,</span><span class="w"> </span><span class="n">pitx</span><span class="p">,</span><span class="w"> </span><span class="n">pity</span><span class="p">,</span><span class="w"> </span><span class="n">refill_what</span><span class="p">,</span><span class="w"> </span><span class="n">refill_why</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3379,7 +3379,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">swordhearts</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span><span class="w"> </span><span class="n">currcset</span><span class="p">,</span><span class="w"> </span><span class="n">currspal6</span><span class="p">,</span><span class="w"> </span><span class="n">currspal14</span><span class="p">,</span><span class="w"> </span><span class="n">gfc</span><span class="p">,</span><span class="w"> </span><span class="n">gfc2</span><span class="p">,</span><span class="w"> </span><span class="n">pitx</span><span class="p">,</span><span class="w"> </span><span class="n">pity</span><span class="p">,</span><span class="w"> </span><span class="n">refill_what</span><span class="p">,</span><span class="w"> </span><span class="n">refill_why</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">heart_beep_timer</span><span class="p">,</span><span class="w"> </span><span class="n">new_enemy_tile_start</span><span class="p">,</span><span class="w"> </span><span class="n">nets</span><span class="p">,</span><span class="w"> </span><span class="n">magicitem</span><span class="p">,</span><span class="w"> </span><span class="n">nayruitem</span><span class="p">,</span><span class="w"> </span><span class="n">title_version</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3387,7 +3387,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">heart_beep_timer</span><span class="p">,</span><span class="w"> </span><span class="n">new_enemy_tile_start</span><span class="p">,</span><span class="w"> </span><span class="n">nets</span><span class="p">,</span><span class="w"> </span><span class="n">magicitem</span><span class="p">,</span><span class="w"> </span><span class="n">nayruitem</span><span class="p">,</span><span class="w"> </span><span class="n">title_version</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">magiccastclk</span><span class="p">,</span><span class="w"> </span><span class="n">castx</span><span class="p">,</span><span class="w"> </span><span class="n">casty</span><span class="p">,</span><span class="w"> </span><span class="n">quakeclk</span><span class="p">,</span><span class="w"> </span><span class="n">wavy</span><span class="p">,</span><span class="w"> </span><span class="n">df_x</span><span class="p">,</span><span class="w"> </span><span class="n">df_y</span><span class="p">,</span><span class="w"> </span><span class="n">nl1_x</span><span class="p">,</span><span class="w"> </span><span class="n">nl1_y</span><span class="p">,</span><span class="w"> </span><span class="n">nl2_x</span><span class="p">,</span><span class="w"> </span><span class="n">nl2_y</span><span class="p">,</span><span class="w"> </span><span class="n">magicdrainclk</span><span class="p">,</span><span class="w"> </span><span class="n">conveyclk</span><span class="p">,</span><span class="w"> </span><span class="n">memrequested</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3395,7 +3395,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">magiccastclk</span><span class="p">,</span><span class="w"> </span><span class="n">castx</span><span class="p">,</span><span class="w"> </span><span class="n">casty</span><span class="p">,</span><span class="w"> </span><span class="n">quakeclk</span><span class="p">,</span><span class="w"> </span><span class="n">wavy</span><span class="p">,</span><span class="w"> </span><span class="n">df_x</span><span class="p">,</span><span class="w"> </span><span class="n">df_y</span><span class="p">,</span><span class="w"> </span><span class="n">nl1_x</span><span class="p">,</span><span class="w"> </span><span class="n">nl1_y</span><span class="p">,</span><span class="w"> </span><span class="n">nl2_x</span><span class="p">,</span><span class="w"> </span><span class="n">nl2_y</span><span class="p">,</span><span class="w"> </span><span class="n">magicdrainclk</span><span class="p">,</span><span class="w"> </span><span class="n">conveyclk</span><span class="p">,</span><span class="w"> </span><span class="n">memrequested</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">newconveyorclk</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3403,7 +3403,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">newconveyorclk</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">dword</span><span class="w"> </span><span class="n">fps_secs</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3411,7 +3411,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">dword</span><span class="w"> </span><span class="n">fps_secs</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">avgfps</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3419,7 +3419,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="n">avgfps</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -3427,7 +3427,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">cheats_execute_goto</span><span class="p">,</span><span class="w"> </span><span class="n">cheats_execute_light</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3435,7 +3435,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">cheats_execute_goto</span><span class="p">,</span><span class="w"> </span><span class="n">cheats_execute_light</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">blockmoving</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3443,7 +3443,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">blockmoving</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">Throttlefps</span><span class="p">,</span><span class="w"> </span><span class="n">MenuOpen</span><span class="p">,</span><span class="w"> </span><span class="n">ClickToFreeze</span><span class="p">,</span><span class="w"> </span><span class="n">Paused</span><span class="p">,</span><span class="w"> </span><span class="n">Saving</span><span class="p">,</span><span class="w"> </span><span class="n">Advance</span><span class="p">,</span><span class="w"> </span><span class="n">ShowFPS</span><span class="p">,</span><span class="w"> </span><span class="n">Showpal</span><span class="p">,</span><span class="w"> </span><span class="n">Playing</span><span class="p">,</span><span class="w"> </span><span class="n">FrameSkip</span><span class="p">,</span><span class="w"> </span><span class="n">TransLayers</span><span class="p">,</span><span class="w"> </span><span class="n">disableClickToFreeze</span><span class="p">,</span><span class="w"> </span><span class="n">SaveDragResize</span><span class="p">,</span><span class="w"> </span><span class="n">DragAspect</span><span class="p">,</span><span class="w"> </span><span class="n">SaveWinPos</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3451,7 +3451,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">Throttlefps</span><span class="p">,</span><span class="w"> </span><span class="n">MenuOpen</span><span class="p">,</span><span class="w"> </span><span class="n">ClickToFreeze</span><span class="p">,</span><span class="w"> </span><span class="n">Paused</span><span class="p">,</span><span class="w"> </span><span class="n">Saving</span><span class="p">,</span><span class="w"> </span><span class="n">Advance</span><span class="p">,</span><span class="w"> </span><span class="n">ShowFPS</span><span class="p">,</span><span class="w"> </span><span class="n">Showpal</span><span class="p">,</span><span class="w"> </span><span class="n">Playing</span><span class="p">,</span><span class="w"> </span><span class="n">FrameSkip</span><span class="p">,</span><span class="w"> </span><span class="n">TransLayers</span><span class="p">,</span><span class="w"> </span><span class="n">disableClickToFreeze</span><span class="p">,</span><span class="w"> </span><span class="n">SaveDragResize</span><span class="p">,</span><span class="w"> </span><span class="n">DragAspect</span><span class="p">,</span><span class="w"> </span><span class="n">SaveWinPos</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">LastWidth</span><span class="p">,</span><span class="w"> </span><span class="n">LastHeight</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3459,7 +3459,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">LastWidth</span><span class="p">,</span><span class="w"> </span><span class="n">LastHeight</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">refreshpal</span><span class="p">,</span><span class="n">blockpath</span><span class="p">,</span><span class="n">__debug</span><span class="p">,</span><span class="n">loaded_guys</span><span class="p">,</span><span class="n">freeze_guys</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3467,7 +3467,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">refreshpal</span><span class="p">,</span><span class="n">blockpath</span><span class="p">,</span><span class="n">__debug</span><span class="p">,</span><span class="n">loaded_guys</span><span class="p">,</span><span class="n">freeze_guys</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">loaded_enemies</span><span class="p">,</span><span class="n">drawguys</span><span class="p">,</span><span class="n">details</span><span class="p">,</span><span class="n">debug_enabled</span><span class="p">,</span><span class="n">watch</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3475,7 +3475,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">loaded_enemies</span><span class="p">,</span><span class="n">drawguys</span><span class="p">,</span><span class="n">details</span><span class="p">,</span><span class="n">debug_enabled</span><span class="p">,</span><span class="n">watch</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">down_control_states</span><span class="p">[</span><span class="n">controls</span><span class="o">::</span><span class="n">btnLast</span><span class="p">];</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3483,7 +3483,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">down_control_states</span><span class="p">[</span><span class="n">controls</span><span class="o">::</span><span class="n">btnLast</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">F12</span><span class="p">,</span><span class="n">F11</span><span class="p">,</span><span class="n">F5</span><span class="p">,</span><span class="n">keyI</span><span class="p">,</span><span class="w"> </span><span class="n">keyQ</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3491,7 +3491,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">F12</span><span class="p">,</span><span class="n">F11</span><span class="p">,</span><span class="n">F5</span><span class="p">,</span><span class="n">keyI</span><span class="p">,</span><span class="w"> </span><span class="n">keyQ</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">SystemKeys</span><span class="p">,</span><span class="n">NESquit</span><span class="p">,</span><span class="n">volkeys</span><span class="p">,</span><span class="n">useCD</span><span class="p">,</span><span class="n">boughtsomething</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3499,7 +3499,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">SystemKeys</span><span class="p">,</span><span class="n">NESquit</span><span class="p">,</span><span class="n">volkeys</span><span class="p">,</span><span class="n">useCD</span><span class="p">,</span><span class="n">boughtsomething</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">fixed_door</span><span class="p">,</span><span class="w"> </span><span class="n">darkroom</span><span class="p">,</span><span class="n">naturaldark</span><span class="p">,</span><span class="n">BSZ</span><span class="p">;</span><span class="w">            </span><span class="c1">//,NEWSUBSCR;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3507,7 +3507,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">fixed_door</span><span class="p">,</span><span class="w"> </span><span class="n">darkroom</span><span class="p">,</span><span class="n">naturaldark</span><span class="p">,</span><span class="n">BSZ</span><span class="p">;</span><span class="w">            </span><span class="c1">//,NEWSUBSCR;</span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">hookshot_used</span><span class="p">,</span><span class="w"> </span><span class="n">hookshot_frozen</span><span class="p">,</span><span class="w"> </span><span class="n">pull_hero</span><span class="p">,</span><span class="w"> </span><span class="n">hs_fix</span><span class="p">,</span><span class="w"> </span><span class="n">hs_switcher</span><span class="p">,</span><span class="w"> </span><span class="n">cheat_superman</span><span class="p">,</span><span class="w"> </span><span class="n">gofast</span><span class="p">,</span><span class="w"> </span><span class="n">checkhero</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3515,7 +3515,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">hookshot_used</span><span class="p">,</span><span class="w"> </span><span class="n">hookshot_frozen</span><span class="p">,</span><span class="w"> </span><span class="n">pull_hero</span><span class="p">,</span><span class="w"> </span><span class="n">hs_fix</span><span class="p">,</span><span class="w"> </span><span class="n">hs_switcher</span><span class="p">,</span><span class="w"> </span><span class="n">cheat_superman</span><span class="p">,</span><span class="w"> </span><span class="n">gofast</span><span class="p">,</span><span class="w"> </span><span class="n">checkhero</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">ewind_restart</span><span class="p">,</span><span class="w"> </span><span class="n">didpit</span><span class="p">,</span><span class="w"> </span><span class="n">heart_beep</span><span class="p">,</span><span class="w"> </span><span class="n">pausenow</span><span class="p">,</span><span class="w"> </span><span class="n">castnext</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3523,7 +3523,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">ewind_restart</span><span class="p">,</span><span class="w"> </span><span class="n">didpit</span><span class="p">,</span><span class="w"> </span><span class="n">heart_beep</span><span class="p">,</span><span class="w"> </span><span class="n">pausenow</span><span class="p">,</span><span class="w"> </span><span class="n">castnext</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">add_df1asparkle</span><span class="p">,</span><span class="w"> </span><span class="n">add_df1bsparkle</span><span class="p">,</span><span class="w"> </span><span class="n">add_nl1asparkle</span><span class="p">,</span><span class="w"> </span><span class="n">add_nl1bsparkle</span><span class="p">,</span><span class="w"> </span><span class="n">add_nl2asparkle</span><span class="p">,</span><span class="w"> </span><span class="n">add_nl2bsparkle</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3531,7 +3531,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">add_df1asparkle</span><span class="p">,</span><span class="w"> </span><span class="n">add_df1bsparkle</span><span class="p">,</span><span class="w"> </span><span class="n">add_nl1asparkle</span><span class="p">,</span><span class="w"> </span><span class="n">add_nl1bsparkle</span><span class="p">,</span><span class="w"> </span><span class="n">add_nl2asparkle</span><span class="p">,</span><span class="w"> </span><span class="n">add_nl2bsparkle</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">is_on_conveyor</span><span class="p">,</span><span class="w"> </span><span class="n">activated_timed_warp</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3539,7 +3539,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">is_on_conveyor</span><span class="p">,</span><span class="w"> </span><span class="n">activated_timed_warp</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">hooked_combopos</span><span class="p">,</span><span class="w"> </span><span class="n">switchhook_cost_item</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3547,7 +3547,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">hooked_combopos</span><span class="p">,</span><span class="w"> </span><span class="n">switchhook_cost_item</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">is_conveyor_stunned</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3555,7 +3555,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">is_conveyor_stunned</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">hooked_layerbits</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3563,7 +3563,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">hooked_layerbits</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">hooked_undercombos</span><span class="p">[</span><span class="mi">14</span><span class="p">];</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3571,7 +3571,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">hooked_undercombos</span><span class="p">[</span><span class="mi">14</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">solid_object</span><span class="o">*</span><span class="w"> </span><span class="n">switching_object</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3579,7 +3579,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">sprite</span><span class="o">*</span><span class="w"> </span><span class="n">switching_object</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -3587,7 +3587,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">COOLSCROLL</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3595,7 +3595,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">COOLSCROLL</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -3603,7 +3603,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">SnapshotFormat</span><span class="p">,</span><span class="w"> </span><span class="n">NameEntryMode</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3611,7 +3611,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">SnapshotFormat</span><span class="p">,</span><span class="w"> </span><span class="n">NameEntryMode</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -3619,7 +3619,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">add_asparkle</span><span class="p">,</span><span class="w"> </span><span class="n">add_bsparkle</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3627,7 +3627,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">add_asparkle</span><span class="p">,</span><span class="w"> </span><span class="n">add_bsparkle</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -3635,7 +3635,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">show_layer_0</span><span class="p">,</span><span class="w"> </span><span class="n">show_layer_1</span><span class="p">,</span><span class="w"> </span><span class="n">show_layer_2</span><span class="p">,</span><span class="w"> </span><span class="n">show_layer_3</span><span class="p">,</span><span class="w"> </span><span class="n">show_layer_4</span><span class="p">,</span><span class="w"> </span><span class="n">show_layer_5</span><span class="p">,</span><span class="w"> </span><span class="n">show_layer_6</span><span class="p">,</span><span class="w"> </span><span class="n">show_layer_over</span><span class="p">,</span><span class="w"> </span><span class="n">show_layer_push</span><span class="p">,</span><span class="w"> </span><span class="n">show_sprites</span><span class="p">,</span><span class="w"> </span><span class="n">show_ffcs</span><span class="p">,</span><span class="w"> </span><span class="n">show_hitboxes</span><span class="p">,</span><span class="w"> </span><span class="n">show_walkflags</span><span class="p">,</span><span class="w"> </span><span class="n">show_ff_scripts</span><span class="p">,</span><span class="w"> </span><span class="n">show_effectflags</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3643,7 +3643,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">show_layer_0</span><span class="p">,</span><span class="w"> </span><span class="n">show_layer_1</span><span class="p">,</span><span class="w"> </span><span class="n">show_layer_2</span><span class="p">,</span><span class="w"> </span><span class="n">show_layer_3</span><span class="p">,</span><span class="w"> </span><span class="n">show_layer_4</span><span class="p">,</span><span class="w"> </span><span class="n">show_layer_5</span><span class="p">,</span><span class="w"> </span><span class="n">show_layer_6</span><span class="p">,</span><span class="w"> </span><span class="n">show_layer_over</span><span class="p">,</span><span class="w"> </span><span class="n">show_layer_push</span><span class="p">,</span><span class="w"> </span><span class="n">show_sprites</span><span class="p">,</span><span class="w"> </span><span class="n">show_ffcs</span><span class="p">,</span><span class="w"> </span><span class="n">show_hitboxes</span><span class="p">,</span><span class="w"> </span><span class="n">show_walkflags</span><span class="p">,</span><span class="w"> </span><span class="n">show_ff_scripts</span><span class="p">,</span><span class="w"> </span><span class="n">show_effectflags</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -3651,7 +3651,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w">    </span><span class="n">cheat_goto_dmap</span><span class="p">,</span><span class="w"> </span><span class="n">cheat_goto_screen</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3659,7 +3659,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w">    </span><span class="n">cheat_goto_dmap</span><span class="p">,</span><span class="w"> </span><span class="n">cheat_goto_screen</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">char</span><span class="w">   </span><span class="n">cheat_goto_dmap_str</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3667,7 +3667,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">char</span><span class="w">   </span><span class="n">cheat_goto_dmap_str</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">char</span><span class="w">   </span><span class="n">cheat_goto_screen_str</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3675,7 +3675,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">char</span><span class="w">   </span><span class="n">cheat_goto_screen_str</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int16_t</span><span class="w">  </span><span class="n">visited</span><span class="p">[</span><span class="mi">6</span><span class="p">];</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3683,7 +3683,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int16_t</span><span class="w">  </span><span class="n">visited</span><span class="p">[</span><span class="mi">6</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">byte</span><span class="w">   </span><span class="n">guygrid</span><span class="p">[</span><span class="mi">176</span><span class="p">];</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3691,7 +3691,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">byte</span><span class="w">   </span><span class="n">guygrid</span><span class="p">[</span><span class="mi">176</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">byte</span><span class="w">   </span><span class="n">guygridffc</span><span class="p">[</span><span class="n">MAXFFCS</span><span class="p">];</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">

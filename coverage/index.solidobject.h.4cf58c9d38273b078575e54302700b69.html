@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2022-11-29 09:49:28</td>
+      <td>2022-12-01 00:41:11</td>
     </tr>
   </table>
 </div>
@@ -75,35 +75,35 @@
     </tr>
     <tr>
       <td>
-        <a href="#l42">solid_object::doContactDamage(int)</a>
+        <a href="#l43">solid_object::doContactDamage(int)</a>
       </td>
       <td>
-        <a href="#l42">42</a>
+        <a href="#l43">43</a>
       </td>
       <td>
-        <a href="#l42"> not called</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <a href="#l51">solid_object::is_unpushable() const</a>
-      </td>
-      <td>
-        <a href="#l51">51</a>
-      </td>
-      <td>
-        <a href="#l51"> not called</a>
+        <a href="#l43"> not called</a>
       </td>
     </tr>
     <tr>
       <td>
-        <a href="#l44">solid_object::sideview_mode() const</a>
+        <a href="#l52">solid_object::is_unpushable() const</a>
       </td>
       <td>
-        <a href="#l44">44</a>
+        <a href="#l52">52</a>
       </td>
       <td>
-        <a href="#l44"> not called</a>
+        <a href="#l52"> not called</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="#l45">solid_object::sideview_mode() const</a>
+      </td>
+      <td>
+        <a href="#l45">45</a>
+      </td>
+      <td>
+        <a href="#l45"> not called</a>
       </td>
     </tr>
   </table>
@@ -286,7 +286,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">solidflags</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">solidflags</span><span class="p">,</span><span class="w"> </span><span class="n">dir</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -294,7 +294,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">switch_hooked</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -302,7 +302,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">solid_object</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -310,7 +310,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="o">~</span><span class="n">solid_object</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">solid_object</span><span class="p">();</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -318,7 +318,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">copy</span><span class="p">(</span><span class="n">solid_object</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">other</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="o">~</span><span class="n">solid_object</span><span class="p">();</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -326,7 +326,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">solid_object</span><span class="p">(</span><span class="n">solid_object</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">other</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">copy</span><span class="p">(</span><span class="n">solid_object</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">other</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -334,7 +334,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">solid_object</span><span class="o">&amp;</span><span class="w"> </span><span class="n">operator</span><span class="o">=</span><span class="p">(</span><span class="n">solid_object</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">other</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">solid_object</span><span class="p">(</span><span class="n">solid_object</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">other</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -342,7 +342,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="n">solid_object</span><span class="o">&amp;</span><span class="w"> </span><span class="n">operator</span><span class="o">=</span><span class="p">(</span><span class="n">solid_object</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">other</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -350,7 +350,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">setSolid</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">set</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -358,7 +358,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">getSolid</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">setSolid</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">set</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -366,7 +366,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">updateSolid</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">getSolid</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -374,7 +374,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setTempNonsolid</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">set</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">updateSolid</span><span class="p">();</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -382,7 +382,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">getTempNonsolid</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setTempNonsolid</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">set</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -390,7 +390,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">getTempNonsolid</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -398,7 +398,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">collide</span><span class="p">(</span><span class="n">solid_object</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">other</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -406,7 +406,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">collide</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">tx</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ty</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">tw</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">th</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">collide</span><span class="p">(</span><span class="n">solid_object</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">other</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -414,7 +414,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">collide</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">tx</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ty</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">tw</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">th</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -422,7 +422,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">draw</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">tx</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ty</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">col</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -430,7 +430,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">solid_update</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">push</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">draw</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">tx</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ty</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">col</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -438,7 +438,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">solid_push</span><span class="p">(</span><span class="n">solid_object</span><span class="o">*</span><span class="w"> </span><span class="n">pusher</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">solid_update</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">push</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -446,11 +446,19 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">//Overload to do damage to Hero on pushing them</span></td>
+      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">solid_push</span><span class="p">(</span><span class="n">solid_object</span><span class="o">*</span><span class="w"> </span><span class="n">pusher</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
       <td class="lineno"><a id="l42" href="#l42">42</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="c1">//Overload to do damage to Hero on pushing them</span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l43" href="#l43">43</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
@@ -458,7 +466,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l43" href="#l43">43</a></td>
+      <td class="lineno"><a id="l44" href="#l44">44</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -466,7 +474,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l44" href="#l44">44</a></td>
+      <td class="lineno"><a id="l45" href="#l45">45</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
@@ -474,7 +482,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l45" href="#l45">45</a></td>
+      <td class="lineno"><a id="l46" href="#l46">46</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -482,7 +490,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l46" href="#l46">46</a></td>
+      <td class="lineno"><a id="l47" href="#l47">47</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -490,7 +498,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l47" href="#l47">47</a></td>
+      <td class="lineno"><a id="l48" href="#l48">48</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -498,7 +506,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l48" href="#l48">48</a></td>
+      <td class="lineno"><a id="l49" href="#l49">49</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -506,7 +514,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l49" href="#l49">49</a></td>
+      <td class="lineno"><a id="l50" href="#l50">50</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -514,7 +522,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l50" href="#l50">50</a></td>
+      <td class="lineno"><a id="l51" href="#l51">51</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -522,7 +530,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l51" href="#l51">51</a></td>
+      <td class="lineno"><a id="l52" href="#l52">52</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
@@ -530,7 +538,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l52" href="#l52">52</a></td>
+      <td class="lineno"><a id="l53" href="#l53">53</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -538,7 +546,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l53" href="#l53">53</a></td>
+      <td class="lineno"><a id="l54" href="#l54">54</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -546,19 +554,11 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l54" href="#l54">54</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="p">};</span><span class="w"></span></td>
-    </tr>
-
-    <tr class="source-line">
       <td class="lineno"><a id="l55" href="#l55">55</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="p">};</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -582,7 +582,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -590,11 +590,19 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#endif</span></td>
     </tr>
 
     <tr class="source-line">
       <td class="lineno"><a id="l60" href="#l60">60</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l61" href="#l61">61</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
