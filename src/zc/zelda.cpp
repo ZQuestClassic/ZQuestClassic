@@ -4654,6 +4654,18 @@ int main(int argc, char **argv)
 		quit_game();
 	}
 
+	if(!al_install_audio())
+	{
+		Z_error_fatal("Failed al_install_audio");
+		quit_game();
+	}
+
+	if(!al_init_acodec_addon())
+	{
+		Z_error_fatal("Failed al_init_acodec_addon");
+		quit_game();
+	}
+
 	al5img_init();
 	register_png_file_type();
 

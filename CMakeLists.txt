@@ -109,6 +109,9 @@ add_definitions(-DALLEGRO_KCM_AUDIO_SRC)
 add_definitions(-DALLEGRO_UNSTABLE)
 option(SHARED "" ON)
 
+set (MINIMP3_INCLUDE_DIRS ./include/minimp3)
+include_directories(./include/minimp3)
+
 FetchContent_Declare(
   allegro5
   GIT_REPOSITORY https://github.com/connorjclark/allegro5.git
@@ -170,6 +173,7 @@ endif()
 #############################################################
 
 include_directories(./include/xxhash)
+# 
 include_directories(./src)
 # TODO: remove
 include_directories(./src/zc)
@@ -274,7 +278,7 @@ elseif(EMSCRIPTEN)
 
 	# TODO: figure out media libraries. probably replace this with w/e SDL offers.
 	# set(IMAGELIBS algif ldpng jpgal png z)
-	# set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
+	# set(SOUNDLIBS aldmb alogg dumb gme asound)
 	# set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm dl)
 
 	add_compile_options("-m32")
@@ -287,7 +291,7 @@ elseif(LINUX)
 	add_definitions(-DALLEGRO_LINUX) # Mistakenly used in the source.
 
 	set(IMAGELIBS ldpng png z)
-	set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
+	set(SOUNDLIBS aldmb alogg dumb gme asound)
 	set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm dl)
 
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32 -static-libgcc -export-dynamic")
@@ -440,22 +444,6 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 		set(SOUND_LIB_SHARED SHARED)
 	endif()
 
-	add_library(almp3 ${SOUND_LIB_SHARED}
-		allegro-addons/almp3/src/almp3.c
-		allegro-addons/almp3/decoder/common.c
-		allegro-addons/almp3/decoder/dct64_i386.c
-		allegro-addons/almp3/decoder/decode_i386.c
-		allegro-addons/almp3/decoder/interface.c
-		allegro-addons/almp3/decoder/layer2.c
-		allegro-addons/almp3/decoder/layer3.c
-		allegro-addons/almp3/decoder/tabinit.c
-	)
-	target_include_directories(almp3 PUBLIC
-		allegro-addons/almp3/include
-		allegro-addons/almp3/decoder
-	)
-	target_link_libraries(almp3 PUBLIC allegro_with_legacy)
-
 	add_library(alogg ${SOUND_LIB_SHARED}
 		allegro-addons/alogg/decoder/libogg/macos/compat/strdup.c
 		allegro-addons/alogg/decoder/libogg/src/bitwise.c
@@ -518,21 +506,20 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	add_library(dumb_headers INTERFACE)
 	target_include_directories(dumb_headers INTERFACE ${dumb_external_SOURCE_DIR}/include)
 
-	set(SOUNDLIBS alpng almp3 alogg gme gme_headers aldmb dumb dumb_headers)
+	set(SOUNDLIBS alpng alogg gme gme_headers aldmb dumb dumb_headers)
 endif()
 
 if(MSVC AND (MSVC_VERSION GREATER 1600))
 	set(ZCSOUNDLIBSEXTRA legacy_stdio_definitions)
 endif()
 add_library(zcsound SHARED ${ZCSOUNDSOURCES})
-target_link_libraries(zcsound PUBLIC allegro_with_legacy zcbase ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
+target_link_libraries(zcsound PUBLIC allegro_with_legacy zcbase ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA} allegro_audio allegro_acodec)
 
 if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	target_compile_definitions(zcsound PRIVATE SOUND_LIBS_BUILT_FROM_SOURCE)
 else()
 	include_directories(./include/dumb)
 	include_directories(./include/alogg)
-	include_directories(./include/almp3)
 	include_directories(./include/gme)
 endif()
 
@@ -767,8 +754,8 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 	set_target_properties(zelda zquest zscript zlauncher PROPERTIES FOLDER "")
 	set_target_properties(zcbase zcgui zcsound PROPERTIES FOLDER "Our Libraries")
-	set_target_properties(gme dumb aldmb almp3 alogg PROPERTIES FOLDER Sound)
-	set_target_properties(allegro allegro_audio allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif alpng al5_example PROPERTIES FOLDER Allegro)
+	set_target_properties(gme dumb aldmb alogg PROPERTIES FOLDER Sound)
+	set_target_properties(allegro allegro_audio allegro_acodec allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif alpng al5_example PROPERTIES FOLDER Allegro)
 	set_target_properties(zconsole zconsolelogger PROPERTIES FOLDER ZConsole)
 	if(WANT_SENTRY)
 		set_target_properties(crashpad_client crashpad_compat crashpad_getopt crashpad_handler crashpad_handler_lib crashpad_minidump crashpad_snapshot crashpad_tools crashpad_util crashpad_zlib mini_chromium sentry PROPERTIES FOLDER Sentry)
