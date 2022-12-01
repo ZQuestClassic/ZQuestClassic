@@ -1637,7 +1637,8 @@ void zinitdata::copy(zinitdata const& other)
 	
 	subscreen_style = other.subscreen_style;
 	usecustomsfx = other.usecustomsfx;
-	max_rupees, max_keys = other.max_rupees, max_keys;
+	max_rupees = other.max_rupees;
+	max_keys = other.max_keys;
 	gravity = other.gravity;
 	gravity2 = other.gravity2;
 	terminalv = other.terminalv;
