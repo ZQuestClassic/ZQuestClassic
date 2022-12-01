@@ -22,6 +22,8 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 # don't clutter up the Solution file. https://gitlab.kitware.com/cmake/cmake/-/issues/21730
 set_property(GLOBAL PROPERTY CTEST_TARGETS_ADDED 1)
 
+set(BUILD_TESTING OFF CACHE BOOL "")
+
 if(UNIX AND NOT APPLE)
 	set(LINUX TRUE)
 endif()
@@ -71,6 +73,7 @@ if(NOT EMSCRIPTEN)
 
 	set(PNG_BUILD_ZLIB ON CACHE BOOL "")
 	set(PNG_STATIC OFF CACHE BOOL "")
+	set(PNG_TESTS OFF CACHE BOOL "")
 	set(WANT_IMAGE_PNG OFF)
 	FetchContent_Declare(
 		png
@@ -762,10 +765,37 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 
 	# Organize into folders
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-	set_target_properties(zcsound gme dumb aldmb almp3 alogg PROPERTIES FOLDER Sound)
-	set_target_properties(allegro allegro_audio allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif al5_example PROPERTIES FOLDER Allegro)
+	set_target_properties(zelda zquest zscript zlauncher PROPERTIES FOLDER "")
+	set_target_properties(zcbase zcgui zcsound PROPERTIES FOLDER "Our Libraries")
+	set_target_properties(gme dumb aldmb almp3 alogg PROPERTIES FOLDER Sound)
+	set_target_properties(allegro allegro_audio allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif alpng al5_example PROPERTIES FOLDER Allegro)
 	set_target_properties(zconsole zconsolelogger PROPERTIES FOLDER ZConsole)
 	if(WANT_SENTRY)
 		set_target_properties(crashpad_client crashpad_compat crashpad_getopt crashpad_handler crashpad_handler_lib crashpad_minidump crashpad_snapshot crashpad_tools crashpad_util crashpad_zlib mini_chromium sentry PROPERTIES FOLDER Sentry)
 	endif()
+
+	# Put everything else in "Other" folder
+	function(get_all_targets var)
+		set(targets)
+		get_all_targets_recursive(targets ${CMAKE_CURRENT_SOURCE_DIR})
+		set(${var} ${targets} PARENT_SCOPE)
+	endfunction()
+
+	macro(get_all_targets_recursive targets dir)
+		get_property(subdirectories DIRECTORY ${dir} PROPERTY SUBDIRECTORIES)
+		foreach(subdir ${subdirectories})
+			get_all_targets_recursive(${targets} ${subdir})
+		endforeach()
+
+		get_property(current_targets DIRECTORY ${dir} PROPERTY BUILDSYSTEM_TARGETS)
+		list(APPEND ${targets} ${current_targets})
+	endmacro()
+
+	get_all_targets(all_targets)
+	foreach(target IN LISTS all_targets)
+		get_property(folder_set TARGET ${target} PROPERTY FOLDER SET)
+		if(NOT folder_set)
+			set_target_properties(${target} PROPERTIES FOLDER Other)
+		endif()
+	endforeach()
 endif()
