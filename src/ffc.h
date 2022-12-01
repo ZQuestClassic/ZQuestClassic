@@ -136,20 +136,7 @@ struct mapscr
 	
 	ffcdata ffcs[MAXFFCS];
 	
-	void update_ffc_count(word spos = 0)
-	{
-		if(spos < lastffc || spos > MAXFFCS)
-			spos = lastffc;
-		lastffc = 0;
-		for(word w = spos; w > 0; --w)
-		{
-			if(ffcs[w].data)
-			{
-				lastffc = w;
-				break;
-			}
-		}
-	}
+	void update_ffc_count(word spos = 0);
 	void update_ffc_data(word index, bool valid)
 	{
 		if(valid)

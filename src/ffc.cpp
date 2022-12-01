@@ -1,8 +1,10 @@
 #include "base/zdefs.h"
+#include "base/zsys.h"
 #include "ffc.h"
 #include "tiles.h"
 #include "sprite.h"
 extern sprite_list Lwpns;
+extern byte quest_rules[QUESTRULES_NEW_SIZE];
 
 #ifdef IS_PLAYER
 #include "combos.h"
@@ -515,4 +517,20 @@ mapscr& mapscr::operator=(mapscr const& other)
 	return *this;
 }
 
+void mapscr::update_ffc_count(word spos)
+{
+	if(spos < lastffc || spos > MAXFFCS)
+		spos = lastffc;
+	lastffc = 0;
+	for(word w = spos; w > 0; --w)
+	{
+		if(ffcs[w].data)
+		{
+			lastffc = w;
+			break;
+		}
+	}
+	if (lastffc < 32 && get_bit(quest_rules, qr_OLD_FFC_FUNCTIONALITY))
+		lastffc = 32;
+}
 
