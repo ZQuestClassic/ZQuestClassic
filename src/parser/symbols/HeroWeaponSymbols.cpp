@@ -10,7 +10,7 @@ static AccessorTable2 lwpnTable2[] =
 	{ "getSpecial",                 0,         ZTID_FLOAT,   LWPNSPECIAL,               0,  { ZTID_LWPN },{} },
 	{ "setSpecial",                 0,          ZTID_VOID,   LWPNSPECIAL,               0,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	{ "_getMax",                    0,         ZTID_FLOAT,   SPRITEMAXLWPN,             0,  { ZTID_LWPN },{} },
-	{ "_setMax",                    1,          ZTID_VOID,   SPRITEMAXLWPN,             0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "_setMax",                    0,          ZTID_VOID,   SPRITEMAXLWPN,             0,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	{ "getY",                       0,         ZTID_FLOAT,   LWPNY,                     0,  { ZTID_LWPN },{} },
 	{ "setY",                       0,          ZTID_VOID,   LWPNY,                     0,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	{ "getZ",                       0,         ZTID_FLOAT,   LWPNZ,                     0,  { ZTID_LWPN },{} },

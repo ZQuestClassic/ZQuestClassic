@@ -7,7 +7,7 @@ static AccessorTable2 itemTable2[] =
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "getUID",                     0,         ZTID_FLOAT,   ITEMSCRIPTUID,             0,  { ZTID_ITEM },{} },
 	{ "_getMax",                    0,         ZTID_FLOAT,   SPRITEMAXITEM,             0,  { ZTID_ITEM },{} },
-	{ "_setMax",                    1,          ZTID_VOID,   SPRITEMAXITEM,             0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "_setMax",                    0,          ZTID_VOID,   SPRITEMAXITEM,             0,  { ZTID_ITEM, ZTID_FLOAT },{} },
 	{ "getX",                       0,         ZTID_FLOAT,   ITEMX,                     0,  { ZTID_ITEM },{} },
 	{ "setX",                       0,          ZTID_VOID,   ITEMX,                     0,  { ZTID_ITEM, ZTID_FLOAT },{} },
 	{ "getY",                       0,         ZTID_FLOAT,   ITEMY,                     0,  { ZTID_ITEM },{} },
