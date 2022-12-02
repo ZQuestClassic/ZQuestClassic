@@ -2,250 +2,243 @@
 
 NPCDataSymbols NPCDataSymbols::singleton = NPCDataSymbols();
 
-static AccessorTable NPCDataTable[] =
+static AccessorTable2 NPCDataTable2[] =
 {
-//	  name,                       rettype,                 setorget,     var,                  numindex,      funcFlags,                            numParams,   params
+	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 //	datatype variables
-	{ "getTile",                  ZTID_FLOAT,        GETTER,       NPCDATATILE,          1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTile",                  ZTID_VOID,         SETTER,       NPCDATATILE,          1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFlags",                 ZTID_FLOAT,        GETTER,       NPCDATAFLAGS,         1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFlags",                 ZTID_VOID,         SETTER,       NPCDATAFLAGS,         1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFlags2",                ZTID_FLOAT,        GETTER,       NPCDATAFLAGS2,        1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFlags2",                ZTID_VOID,         SETTER,       NPCDATAFLAGS2,        1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWidth",                 ZTID_FLOAT,        GETTER,       NPCDATAWIDTH,         1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWidth",                 ZTID_VOID,         SETTER,       NPCDATAWIDTH,         1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHeight",                ZTID_FLOAT,        GETTER,       NPCDATAHEIGHT,        1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHeight",                ZTID_VOID,         SETTER,       NPCDATAHEIGHT,        1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSTile",                 ZTID_FLOAT,        GETTER,       NPCDATASTILE,         1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSTile",                 ZTID_VOID,         SETTER,       NPCDATASTILE,         1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSWidth",                ZTID_FLOAT,        GETTER,       NPCDATASWIDTH,        1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSWidth",                ZTID_VOID,         SETTER,       NPCDATASWIDTH,        1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSHeight",               ZTID_FLOAT,        GETTER,       NPCDATASHEIGHT,       1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSHeight",               ZTID_VOID,         SETTER,       NPCDATASHEIGHT,       1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getExTile",                ZTID_FLOAT,        GETTER,       NPCDATAETILE,         1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setExTile",                ZTID_VOID,         SETTER,       NPCDATAETILE,         1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getExWidth",               ZTID_FLOAT,        GETTER,       NPCDATAEWIDTH,        1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setExWidth",               ZTID_VOID,         SETTER,       NPCDATAEWIDTH,        1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getExHeight",              ZTID_FLOAT,        GETTER,       NPCDATAEHEIGHT,       1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setExHeight",              ZTID_VOID,         SETTER,       NPCDATAEHEIGHT,       1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHP",                    ZTID_FLOAT,        GETTER,       NPCDATAHP,            1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHP",                    ZTID_VOID,         SETTER,       NPCDATAHP,            1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFamily",                ZTID_FLOAT,        GETTER,       NPCDATAFAMILY,        1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFamily",                ZTID_VOID,         SETTER,       NPCDATAFAMILY,        1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getCSet",                  ZTID_FLOAT,        GETTER,       NPCDATACSET,          1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setCSet",                  ZTID_VOID,         SETTER,       NPCDATACSET,          1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getAnim",                  ZTID_FLOAT,        GETTER,       NPCDATAANIM,          1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setAnim",                  ZTID_VOID,         SETTER,       NPCDATAANIM,          1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getExAnim",                ZTID_FLOAT,        GETTER,       NPCDATAEANIM,         1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setExAnim",                ZTID_VOID,         SETTER,       NPCDATAEANIM,         1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFramerate",             ZTID_FLOAT,        GETTER,       NPCDATAFRAMERATE,     1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFramerate",             ZTID_VOID,         SETTER,       NPCDATAFRAMERATE,     1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getExFramerate",           ZTID_FLOAT,        GETTER,       NPCDATAEFRAMERATE,    1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setExFramerate",           ZTID_VOID,         SETTER,       NPCDATAEFRAMERATE,    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTouchDamage",           ZTID_FLOAT,        GETTER,       NPCDATATOUCHDAMAGE,   1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTouchDamage",           ZTID_VOID,         SETTER,       NPCDATATOUCHDAMAGE,   1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWeaponDamage",          ZTID_FLOAT,        GETTER,       NPCDATAWEAPONDAMAGE,  1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWeaponDamage",          ZTID_VOID,         SETTER,       NPCDATAWEAPONDAMAGE,  1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWeapon",                ZTID_FLOAT,        GETTER,       NPCDATAWEAPON,        1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWeapon",                ZTID_VOID,         SETTER,       NPCDATAWEAPON,        1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getRandom",                ZTID_FLOAT,        GETTER,       NPCDATARANDOM,        1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setRandom",                ZTID_VOID,         SETTER,       NPCDATARANDOM,        1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHaltrate",              ZTID_FLOAT,        GETTER,       NPCDATAHALT,          1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHaltrate",              ZTID_VOID,         SETTER,       NPCDATAHALT,          1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getStep",                  ZTID_FLOAT,        GETTER,       NPCDATASTEP,          1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setStep",                  ZTID_VOID,         SETTER,       NPCDATASTEP,          1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHoming",                ZTID_FLOAT,        GETTER,       NPCDATAHOMING,        1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHoming",                ZTID_VOID,         SETTER,       NPCDATAHOMING,        1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHunger",                ZTID_FLOAT,        GETTER,       NPCDATAHUNGER,        1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHunger",                ZTID_VOID,         SETTER,       NPCDATAHUNGER,        1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDropset",               ZTID_FLOAT,        GETTER,       NPCDATADROPSET,       1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDropset",               ZTID_VOID,         SETTER,       NPCDATADROPSET,       1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getBGSFX",                 ZTID_FLOAT,        GETTER,       NPCDATABGSFX,         1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setBGSFX",                 ZTID_VOID,         SETTER,       NPCDATABGSFX,         1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDeathSFX",              ZTID_FLOAT,        GETTER,       NPCDATADEATHSFX,      1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDeathSFX",              ZTID_VOID,         SETTER,       NPCDATADEATHSFX,      1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitSFX",                ZTID_FLOAT,        GETTER,       NPCDATAHITSFX,        1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitSFX",                ZTID_VOID,         SETTER,       NPCDATAHITSFX,        1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-//	{ "getFireSFX",               ZTID_FLOAT,        GETTER,       SPRITEDATATYPE,       1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-//	{ "setFireSFX",               ZTID_VOID,         SETTER,       SPRITEDATATYPE,       1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrawXOffset",           ZTID_FLOAT,        GETTER,       NPCDATAXOFS,          1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrawXOffset",           ZTID_VOID,         SETTER,       NPCDATAXOFS,          1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrawYOffset",           ZTID_FLOAT,        GETTER,       NPCDATAYOFS,          1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrawYOffset",           ZTID_VOID,         SETTER,       NPCDATAYOFS,          1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrawZOffset",           ZTID_FLOAT,        GETTER,       NPCDATAZOFS,          1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrawZOffset",           ZTID_VOID,         SETTER,       NPCDATAZOFS,          1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitXOffset",            ZTID_FLOAT,        GETTER,       NPCDATAHXOFS,         1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitXOffset",            ZTID_VOID,         SETTER,       NPCDATAHXOFS,         1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitYOffset",            ZTID_FLOAT,        GETTER,       NPCDATAHYOFS,         1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitYOffset",            ZTID_VOID,         SETTER,       NPCDATAHYOFS,         1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitWidth",              ZTID_FLOAT,        GETTER,       NPCDATAHITWIDTH,      1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitWidth",              ZTID_VOID,         SETTER,       NPCDATAHITWIDTH,      1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitHeight",             ZTID_FLOAT,        GETTER,       NPCDATAHITHEIGHT,     1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitHeight",             ZTID_VOID,         SETTER,       NPCDATAHITHEIGHT,     1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitZHeight",            ZTID_FLOAT,        GETTER,       NPCDATAHITZ,          1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitZHeight",            ZTID_VOID,         SETTER,       NPCDATAHITZ,          1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTileWidth",             ZTID_FLOAT,        GETTER,       NPCDATATILEWIDTH,     1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTileWidth",             ZTID_VOID,         SETTER,       NPCDATATILEWIDTH,     1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTileHeight",            ZTID_FLOAT,        GETTER,       NPCDATATILEHEIGHT,    1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTileHeight",            ZTID_VOID,         SETTER,       NPCDATATILEHEIGHT,    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWeaponSprite",          ZTID_FLOAT,        GETTER,       NPCDATAWPNSPRITE,     1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWeaponSprite",          ZTID_VOID,         SETTER,       NPCDATAWPNSPRITE,     1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDefense[]",             ZTID_FLOAT,        GETTER,       NPCDATADEFENSE,       42,            0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDefense[]",             ZTID_VOID,         SETTER,       NPCDATADEFENSE,       42,            0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSizeFlag[]",            ZTID_BOOL,         GETTER,       NPCDATASIZEFLAG,      2,             0,                                    2,           { ZTID_FFC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSizeFlag[]",            ZTID_VOID,         SETTER,       NPCDATASIZEFLAG,      2,             0,                                    3,           { ZTID_FFC, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getAttributes[]",          ZTID_FLOAT,        GETTER,       NPCDATAATTRIBUTE,     32,            0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setAttributes[]",          ZTID_VOID,         SETTER,       NPCDATAATTRIBUTE,     32,            0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getShield[]",              ZTID_BOOL,         GETTER,       NPCDATASHIELD,        5,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setShield[]",              ZTID_VOID,         SETTER,       NPCDATASHIELD,        5,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getBFlags[]",              ZTID_BOOL,         GETTER,       NPCDATABEHAVIOUR,     16,            0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setBFlags[]",              ZTID_VOID,         SETTER,       NPCDATABEHAVIOUR,     16,            0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFrozenTile",            ZTID_FLOAT,        GETTER,       NPCDATAFROZENTILE,    1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFrozenTile",            ZTID_VOID,         SETTER,       NPCDATAFROZENTILE,    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFrozenCSet",            ZTID_FLOAT,        GETTER,       NPCDATAFROZENCSET,    1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFrozenCSet",            ZTID_VOID,         SETTER,       NPCDATAFROZENCSET,    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScript",                ZTID_FLOAT,        GETTER,       NPCDATASCRIPT,        1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setScript",                ZTID_VOID,         SETTER,       NPCDATASCRIPT,        1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getInitD[]",               ZTID_FLOAT,        GETTER,       NPCDATAINITD,         8,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setInitD[]",               ZTID_VOID,         SETTER,       NPCDATAINITD,         8,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getTile",                    0,         ZTID_FLOAT,   NPCDATATILE,               0,  { ZTID_NPCDATA },{} },
+	{ "setTile",                    0,          ZTID_VOID,   NPCDATATILE,               0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getFlags",                   0,         ZTID_FLOAT,   NPCDATAFLAGS,              0,  { ZTID_NPCDATA },{} },
+	{ "setFlags",                   0,          ZTID_VOID,   NPCDATAFLAGS,              0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getFlags2",                  0,         ZTID_FLOAT,   NPCDATAFLAGS2,             0,  { ZTID_NPCDATA },{} },
+	{ "setFlags2",                  0,          ZTID_VOID,   NPCDATAFLAGS2,             0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getWidth",                   0,         ZTID_FLOAT,   NPCDATAWIDTH,              0,  { ZTID_NPCDATA },{} },
+	{ "setWidth",                   0,          ZTID_VOID,   NPCDATAWIDTH,              0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getHeight",                  0,         ZTID_FLOAT,   NPCDATAHEIGHT,             0,  { ZTID_NPCDATA },{} },
+	{ "setHeight",                  0,          ZTID_VOID,   NPCDATAHEIGHT,             0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getSTile",                   0,         ZTID_FLOAT,   NPCDATASTILE,              0,  { ZTID_NPCDATA },{} },
+	{ "setSTile",                   0,          ZTID_VOID,   NPCDATASTILE,              0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getSWidth",                  0,         ZTID_FLOAT,   NPCDATASWIDTH,             0,  { ZTID_NPCDATA },{} },
+	{ "setSWidth",                  0,          ZTID_VOID,   NPCDATASWIDTH,             0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getSHeight",                 0,         ZTID_FLOAT,   NPCDATASHEIGHT,            0,  { ZTID_NPCDATA },{} },
+	{ "setSHeight",                 0,          ZTID_VOID,   NPCDATASHEIGHT,            0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getExTile",                  0,         ZTID_FLOAT,   NPCDATAETILE,              0,  { ZTID_NPCDATA },{} },
+	{ "setExTile",                  0,          ZTID_VOID,   NPCDATAETILE,              0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getExWidth",                 0,         ZTID_FLOAT,   NPCDATAEWIDTH,             0,  { ZTID_NPCDATA },{} },
+	{ "setExWidth",                 0,          ZTID_VOID,   NPCDATAEWIDTH,             0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getExHeight",                0,         ZTID_FLOAT,   NPCDATAEHEIGHT,            0,  { ZTID_NPCDATA },{} },
+	{ "setExHeight",                0,          ZTID_VOID,   NPCDATAEHEIGHT,            0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getHP",                      0,         ZTID_FLOAT,   NPCDATAHP,                 0,  { ZTID_NPCDATA },{} },
+	{ "setHP",                      0,          ZTID_VOID,   NPCDATAHP,                 0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getFamily",                  0,         ZTID_FLOAT,   NPCDATAFAMILY,             0,  { ZTID_NPCDATA },{} },
+	{ "setFamily",                  0,          ZTID_VOID,   NPCDATAFAMILY,             0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getCSet",                    0,         ZTID_FLOAT,   NPCDATACSET,               0,  { ZTID_NPCDATA },{} },
+	{ "setCSet",                    0,          ZTID_VOID,   NPCDATACSET,               0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getAnim",                    0,         ZTID_FLOAT,   NPCDATAANIM,               0,  { ZTID_NPCDATA },{} },
+	{ "setAnim",                    0,          ZTID_VOID,   NPCDATAANIM,               0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getExAnim",                  0,         ZTID_FLOAT,   NPCDATAEANIM,              0,  { ZTID_NPCDATA },{} },
+	{ "setExAnim",                  0,          ZTID_VOID,   NPCDATAEANIM,              0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getFramerate",               0,         ZTID_FLOAT,   NPCDATAFRAMERATE,          0,  { ZTID_NPCDATA },{} },
+	{ "setFramerate",               0,          ZTID_VOID,   NPCDATAFRAMERATE,          0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getExFramerate",             0,         ZTID_FLOAT,   NPCDATAEFRAMERATE,         0,  { ZTID_NPCDATA },{} },
+	{ "setExFramerate",             0,          ZTID_VOID,   NPCDATAEFRAMERATE,         0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getTouchDamage",             0,         ZTID_FLOAT,   NPCDATATOUCHDAMAGE,        0,  { ZTID_NPCDATA },{} },
+	{ "setTouchDamage",             0,          ZTID_VOID,   NPCDATATOUCHDAMAGE,        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getWeaponDamage",            0,         ZTID_FLOAT,   NPCDATAWEAPONDAMAGE,       0,  { ZTID_NPCDATA },{} },
+	{ "setWeaponDamage",            0,          ZTID_VOID,   NPCDATAWEAPONDAMAGE,       0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getWeapon",                  0,         ZTID_FLOAT,   NPCDATAWEAPON,             0,  { ZTID_NPCDATA },{} },
+	{ "setWeapon",                  0,          ZTID_VOID,   NPCDATAWEAPON,             0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getRandom",                  0,         ZTID_FLOAT,   NPCDATARANDOM,             0,  { ZTID_NPCDATA },{} },
+	{ "setRandom",                  0,          ZTID_VOID,   NPCDATARANDOM,             0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getHaltrate",                0,         ZTID_FLOAT,   NPCDATAHALT,               0,  { ZTID_NPCDATA },{} },
+	{ "setHaltrate",                0,          ZTID_VOID,   NPCDATAHALT,               0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getStep",                    0,         ZTID_FLOAT,   NPCDATASTEP,               0,  { ZTID_NPCDATA },{} },
+	{ "setStep",                    0,          ZTID_VOID,   NPCDATASTEP,               0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getHoming",                  0,         ZTID_FLOAT,   NPCDATAHOMING,             0,  { ZTID_NPCDATA },{} },
+	{ "setHoming",                  0,          ZTID_VOID,   NPCDATAHOMING,             0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getHunger",                  0,         ZTID_FLOAT,   NPCDATAHUNGER,             0,  { ZTID_NPCDATA },{} },
+	{ "setHunger",                  0,          ZTID_VOID,   NPCDATAHUNGER,             0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getDropset",                 0,         ZTID_FLOAT,   NPCDATADROPSET,            0,  { ZTID_NPCDATA },{} },
+	{ "setDropset",                 0,          ZTID_VOID,   NPCDATADROPSET,            0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getBGSFX",                   0,         ZTID_FLOAT,   NPCDATABGSFX,              0,  { ZTID_NPCDATA },{} },
+	{ "setBGSFX",                   0,          ZTID_VOID,   NPCDATABGSFX,              0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getDeathSFX",                0,         ZTID_FLOAT,   NPCDATADEATHSFX,           0,  { ZTID_NPCDATA },{} },
+	{ "setDeathSFX",                0,          ZTID_VOID,   NPCDATADEATHSFX,           0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getHitSFX",                  0,         ZTID_FLOAT,   NPCDATAHITSFX,             0,  { ZTID_NPCDATA },{} },
+	{ "setHitSFX",                  0,          ZTID_VOID,   NPCDATAHITSFX,             0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+//	{ "getFireSFX",                 0,         ZTID_FLOAT,   SPRITEDATATYPE,            0,  { ZTID_NPCDATA },{} },
+//	{ "setFireSFX",                 0,          ZTID_VOID,   SPRITEDATATYPE,            0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getDrawXOffset",             0,         ZTID_FLOAT,   NPCDATAXOFS,               0,  { ZTID_NPCDATA },{} },
+	{ "setDrawXOffset",             0,          ZTID_VOID,   NPCDATAXOFS,               0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getDrawYOffset",             0,         ZTID_FLOAT,   NPCDATAYOFS,               0,  { ZTID_NPCDATA },{} },
+	{ "setDrawYOffset",             0,          ZTID_VOID,   NPCDATAYOFS,               0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getDrawZOffset",             0,         ZTID_FLOAT,   NPCDATAZOFS,               0,  { ZTID_NPCDATA },{} },
+	{ "setDrawZOffset",             0,          ZTID_VOID,   NPCDATAZOFS,               0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getHitXOffset",              0,         ZTID_FLOAT,   NPCDATAHXOFS,              0,  { ZTID_NPCDATA },{} },
+	{ "setHitXOffset",              0,          ZTID_VOID,   NPCDATAHXOFS,              0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getHitYOffset",              0,         ZTID_FLOAT,   NPCDATAHYOFS,              0,  { ZTID_NPCDATA },{} },
+	{ "setHitYOffset",              0,          ZTID_VOID,   NPCDATAHYOFS,              0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getHitWidth",                0,         ZTID_FLOAT,   NPCDATAHITWIDTH,           0,  { ZTID_NPCDATA },{} },
+	{ "setHitWidth",                0,          ZTID_VOID,   NPCDATAHITWIDTH,           0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getHitHeight",               0,         ZTID_FLOAT,   NPCDATAHITHEIGHT,          0,  { ZTID_NPCDATA },{} },
+	{ "setHitHeight",               0,          ZTID_VOID,   NPCDATAHITHEIGHT,          0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getHitZHeight",              0,         ZTID_FLOAT,   NPCDATAHITZ,               0,  { ZTID_NPCDATA },{} },
+	{ "setHitZHeight",              0,          ZTID_VOID,   NPCDATAHITZ,               0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getTileWidth",               0,         ZTID_FLOAT,   NPCDATATILEWIDTH,          0,  { ZTID_NPCDATA },{} },
+	{ "setTileWidth",               0,          ZTID_VOID,   NPCDATATILEWIDTH,          0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getTileHeight",              0,         ZTID_FLOAT,   NPCDATATILEHEIGHT,         0,  { ZTID_NPCDATA },{} },
+	{ "setTileHeight",              0,          ZTID_VOID,   NPCDATATILEHEIGHT,         0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getWeaponSprite",            0,         ZTID_FLOAT,   NPCDATAWPNSPRITE,          0,  { ZTID_NPCDATA },{} },
+	{ "setWeaponSprite",            0,          ZTID_VOID,   NPCDATAWPNSPRITE,          0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getDefense[]",               0,         ZTID_FLOAT,   NPCDATADEFENSE,            0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "setDefense[]",               0,          ZTID_VOID,   NPCDATADEFENSE,            0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getSizeFlag[]",              0,          ZTID_BOOL,   NPCDATASIZEFLAG,           0,  { ZTID_FFC, ZTID_FLOAT },{} },
+	{ "setSizeFlag[]",              0,          ZTID_VOID,   NPCDATASIZEFLAG,           0,  { ZTID_FFC, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getAttributes[]",            0,         ZTID_FLOAT,   NPCDATAATTRIBUTE,          0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "setAttributes[]",            0,          ZTID_VOID,   NPCDATAATTRIBUTE,          0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getShield[]",                0,          ZTID_BOOL,   NPCDATASHIELD,             0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "setShield[]",                0,          ZTID_VOID,   NPCDATASHIELD,             0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getBFlags[]",                0,          ZTID_BOOL,   NPCDATABEHAVIOUR,          0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "setBFlags[]",                0,          ZTID_VOID,   NPCDATABEHAVIOUR,          0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getFrozenTile",              0,         ZTID_FLOAT,   NPCDATAFROZENTILE,         0,  { ZTID_NPCDATA },{} },
+	{ "setFrozenTile",              0,          ZTID_VOID,   NPCDATAFROZENTILE,         0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getFrozenCSet",              0,         ZTID_FLOAT,   NPCDATAFROZENCSET,         0,  { ZTID_NPCDATA },{} },
+	{ "setFrozenCSet",              0,          ZTID_VOID,   NPCDATAFROZENCSET,         0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getScript",                  0,         ZTID_FLOAT,   NPCDATASCRIPT,             0,  { ZTID_NPCDATA },{} },
+	{ "setScript",                  0,          ZTID_VOID,   NPCDATASCRIPT,             0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getInitD[]",                 0,         ZTID_FLOAT,   NPCDATAINITD,              0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "setInitD[]",                 0,          ZTID_VOID,   NPCDATAINITD,              0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getWeaponScript",          ZTID_FLOAT,        GETTER,       NPCDATAWEAPONSCRIPT,  1,             0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWeaponScript",          ZTID_VOID,         SETTER,       NPCDATAWEAPONSCRIPT,  1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWeaponInitD[]",         ZTID_FLOAT,        GETTER,       NPCDATAWEAPONINITD,   8,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWeaponInitD[]",         ZTID_VOID,         SETTER,       NPCDATAWEAPONINITD,   8,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getWeaponScript",            0,         ZTID_FLOAT,   NPCDATAWEAPONSCRIPT,       0,  { ZTID_NPCDATA },{} },
+	{ "setWeaponScript",            0,          ZTID_VOID,   NPCDATAWEAPONSCRIPT,       0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getWeaponInitD[]",           0,         ZTID_FLOAT,   NPCDATAWEAPONINITD,        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "setWeaponInitD[]",           0,          ZTID_VOID,   NPCDATAWEAPONINITD,        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getShadowSprite",        ZTID_FLOAT,         GETTER,       NPCDSHADOWSPR,         1,           0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setShadowSprite",        ZTID_VOID,          SETTER,       NPCDSHADOWSPR,         1,           0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSpawnSprite",         ZTID_FLOAT,         GETTER,       NPCDSPAWNSPR,          1,           0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSpawnSprite",         ZTID_VOID,          SETTER,       NPCDSPAWNSPR,          1,           0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDeathSprite",         ZTID_FLOAT,         GETTER,       NPCDDEATHSPR,          1,           0,                                    1,           { ZTID_NPCDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDeathSprite",         ZTID_VOID,          SETTER,       NPCDDEATHSPR,          1,           0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getShadowSprite",            0,         ZTID_FLOAT,   NPCDSHADOWSPR,             0,  { ZTID_NPCDATA },{} },
+	{ "setShadowSprite",            0,          ZTID_VOID,   NPCDSHADOWSPR,             0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getSpawnSprite",             0,         ZTID_FLOAT,   NPCDSPAWNSPR,              0,  { ZTID_NPCDATA },{} },
+	{ "setSpawnSprite",             0,          ZTID_VOID,   NPCDSPAWNSPR,              0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "getDeathSprite",             0,         ZTID_FLOAT,   NPCDDEATHSPR,              0,  { ZTID_NPCDATA },{} },
+	{ "setDeathSprite",             0,          ZTID_VOID,   NPCDDEATHSPR,              0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
 	
-	{ "GetInitDLabel",            ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MatchInitDLabel",          ZTID_BOOL,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetName",                  ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "GetInitDLabel",              0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "MatchInitDLabel",            0,          ZTID_BOOL,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetName",                    0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
 	
 //{	Functions
 //	one inout, no return
-	{ "GetTile",                  ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetEHeight",               ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetFlags",                 ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetFlags2",                ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetWidth",                 ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetHeight",                ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetSTile",                 ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetSWidth",                ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetSHeight",               ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetETile",                 ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetEWidth",                ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetHP",                    ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetFamily",                ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetCSet",                  ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetAnim",                  ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetEAnim",                 ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetFramerate",             ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetEFramerate",            ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetTouchDamage",           ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetWeaponDamage",          ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetWeapon",                ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetRandom",                ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetHaltRate",              ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetStep",                  ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetHoming",                ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetHunger",                ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetDropset",               ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetBGSFX",                 ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetHitSFX",                ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetDeathSFX",              ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetDrawXOffset",           ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetDrawYOffset",           ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetDrawZOffset",           ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetHitXOffset",            ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetHitYOffset",            ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetHitWidth",              ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetHitHeight",             ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetHitZHeight",            ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetTileWidth",             ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetTileHeight",            ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetWeaponSprite",          ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    2,           { ZTID_NPCDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "GetTile",                    0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetEHeight",                 0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetFlags",                   0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetFlags2",                  0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetWidth",                   0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetHeight",                  0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetSTile",                   0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetSWidth",                  0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetSHeight",                 0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetETile",                   0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetEWidth",                  0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetHP",                      0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetFamily",                  0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetCSet",                    0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetAnim",                    0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetEAnim",                   0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetFramerate",               0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetEFramerate",              0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetTouchDamage",             0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetWeaponDamage",            0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetWeapon",                  0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetRandom",                  0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetHaltRate",                0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetStep",                    0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetHoming",                  0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetHunger",                  0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetDropset",                 0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetBGSFX",                   0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetHitSFX",                  0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetDeathSFX",                0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetDrawXOffset",             0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetDrawYOffset",             0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetDrawZOffset",             0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetHitXOffset",              0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetHitYOffset",              0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetHitWidth",                0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetHitHeight",               0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetHitZHeight",              0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetTileWidth",               0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetTileHeight",              0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
+	{ "GetWeaponSprite",            0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
 //	two inouts, one return
 
-	{ "GetScriptDefense",         ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetDefense",               ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetSizeFlag",              ZTID_BOOL,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetAttribute",             ZTID_FLOAT,        FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "GetScriptDefense",           0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetDefense",                 0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetSizeFlag",                0,          ZTID_BOOL,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetAttribute",               0,         ZTID_FLOAT,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 
 //	two inputs, no return
-	{ "SetTile",                  ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetEHeight",               ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetFlags",                 ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetFlags2",                ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetWidth",                 ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetHeight",                ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetSTile",                 ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetSWidth",                ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetSHeight",               ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetETile",                 ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetEWidth",                ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetHP",                    ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetFamily",                ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetCSet",                  ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetAnim",                  ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetEAnim",                 ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetFramerate",             ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetEFramerate",            ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetTouchDamage",           ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetWeaponDamage",          ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetWeapon",                ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetRandom",                ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetHaltRate",              ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetStep",                  ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetHoming",                ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetHunger",                ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetDropset",               ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetBGSFX",                 ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetHitSFX",                ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetDeathSFX",              ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetDrawXOffset",           ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetDrawYOffset",           ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetDrawZOffset",           ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetHitXOffset",            ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetHitYOffset",            ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetHitWidth",              ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetHitHeight",             ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetHitZHeight",            ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetTileWidth",             ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetTileHeight",            ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetWeaponSprite",          ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    3,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "SetTile",                    0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetEHeight",                 0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetFlags",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetFlags2",                  0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetWidth",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetHeight",                  0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetSTile",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetSWidth",                  0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetSHeight",                 0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetETile",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetEWidth",                  0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetHP",                      0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetFamily",                  0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetCSet",                    0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetAnim",                    0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetEAnim",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetFramerate",               0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetEFramerate",              0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetTouchDamage",             0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetWeaponDamage",            0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetWeapon",                  0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetRandom",                  0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetHaltRate",                0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetStep",                    0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetHoming",                  0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetHunger",                  0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetDropset",                 0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetBGSFX",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetHitSFX",                  0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetDeathSFX",                0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetDrawXOffset",             0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetDrawYOffset",             0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetDrawZOffset",             0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetHitXOffset",              0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetHitYOffset",              0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetHitWidth",                0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetHitHeight",               0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetHitZHeight",              0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetTileWidth",               0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetTileHeight",              0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetWeaponSprite",            0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 //	two inputs, no return
 
-	{ "SetScriptDefense",         ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    4,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetDefense",               ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    4,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetSizeFlag",              ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    4,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetAttribute",             ZTID_VOID,         FUNCTION,     0,                    1,             0,                                    4,           { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-/*
-	Use functions that accept two args (ID, value) per field for setters
-	use functions that accept one arg (ID) per field as getters
-	Plus One master function to set all attriutes using an array?
-*/   
-	
+	{ "SetScriptDefense",           0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetDefense",                 0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetSizeFlag",                0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "SetAttribute",               0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 //}
 	
-	{ "",                         -1,                      -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
 NPCDataSymbols::NPCDataSymbols()
 {
-	table = NPCDataTable;
-	refVar = REFNPCCLASS; // NUL; //
+	table2 = NPCDataTable2;
+	refVar = REFNPCCLASS;
 }
 
 void NPCDataSymbols::generateCode()
 {
 	//GetTile(NPCData, int32_t)
 	{
-	
-		Function* function = getFunction("GetTile", 2);
+		Function* function = getFunction2("GetTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -259,7 +252,7 @@ void NPCDataSymbols::generateCode()
 	
 	//void GetName(npcdata, int32_t)
 	{
-		Function* function = getFunction("GetName", 2);
+		Function* function = getFunction2("GetName");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -272,9 +265,8 @@ void NPCDataSymbols::generateCode()
 		function->giveCode(code);
 	}
 	//void GetInitDLabel(npc, int32_t buffer[], int32_t d)
-	//void GetDMapMusicFilename(game, int32_t, int32_t)
 	{
-		Function* function = getFunction("GetInitDLabel", 3);
+		Function* function = getFunction2("GetInitDLabel");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -289,7 +281,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//bool MatchInitDLabel(npc, "label", d)
 	{
-		Function* function = getFunction("MatchInitDLabel", 3);
+		Function* function = getFunction2("MatchInitDLabel");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -301,12 +293,11 @@ void NPCDataSymbols::generateCode()
 		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(NPCMATCHINITDLABEL)));
 		RETURN();
 		function->giveCode(code);
-	
 	}
 	
 	//GetEHeight(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetEHeight", 2);
+		Function* function = getFunction2("GetEHeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -319,7 +310,7 @@ void NPCDataSymbols::generateCode()
 
 	//int32_t GetScriptDefense((NPCData, int32_t, int32_t)
 	{
-		Function* function = getFunction("GetScriptDefense", 3);
+		Function* function = getFunction2("GetScriptDefense");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -334,7 +325,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//int32_t GetDefense(NPCData, int32_t, int32_t)
 	{
-		Function* function = getFunction("GetDefense", 3);
+		Function* function = getFunction2("GetDefense");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -349,7 +340,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//int32_t GetSizeFlag(NPCData, int32_t, int32_t)
 	{
-		Function* function = getFunction("GetSizeFlag", 3);
+		Function* function = getFunction2("GetSizeFlag");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -364,7 +355,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//int32_t GetAttribute(NPCData, int32_t, int32_t)
 	{
-		Function* function = getFunction("GetAttribute", 3);
+		Function* function = getFunction2("GetAttribute");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -383,7 +374,7 @@ void NPCDataSymbols::generateCode()
 	
 	//void SetScriptDefense(NPCData, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScriptDefense", 4);
+		Function* function = getFunction2("SetScriptDefense");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -401,7 +392,7 @@ void NPCDataSymbols::generateCode()
 	
 	//void SetDefense(NPCData, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetDefense", 4);
+		Function* function = getFunction2("SetDefense");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -419,7 +410,7 @@ void NPCDataSymbols::generateCode()
 	
 	//void SetSizeFlag(NPCData, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetSizeFlag", 4);
+		Function* function = getFunction2("SetSizeFlag");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -437,7 +428,7 @@ void NPCDataSymbols::generateCode()
 	
 	//void SetAttribute(NPCData, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetAttribute", 4);
+		Function* function = getFunction2("SetAttribute");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -453,7 +444,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetFlags(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetFlags", 2);
+		Function* function = getFunction2("GetFlags");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -466,7 +457,7 @@ void NPCDataSymbols::generateCode()
 	
 	//GetFlags2(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetFlags2", 2);
+		Function* function = getFunction2("GetFlags2");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -479,7 +470,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetWidth(game, int32_t)
 	{
-		Function* function = getFunction("GetWidth", 2);
+		Function* function = getFunction2("GetWidth");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -491,7 +482,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetHeight(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetHeight", 2);
+		Function* function = getFunction2("GetHeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -503,7 +494,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetSTile(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetSTile", 2);
+		Function* function = getFunction2("GetSTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -515,7 +506,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetSWidth(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetSWidth", 2);
+		Function* function = getFunction2("GetSWidth");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -528,7 +519,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetSHeight(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetSHeight", 2);
+		Function* function = getFunction2("GetSHeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -541,7 +532,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetETile(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetETile", 2);
+		Function* function = getFunction2("GetETile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -554,7 +545,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetEWidth(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetEWidth", 2);
+		Function* function = getFunction2("GetEWidth");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -567,7 +558,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetHP(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetHP", 2);
+		Function* function = getFunction2("GetHP");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -580,7 +571,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetFamily(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetFamily", 2);
+		Function* function = getFunction2("GetFamily");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -593,7 +584,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetCSet(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetCSet", 2);
+		Function* function = getFunction2("GetCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -606,7 +597,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//SetDMapIntro(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetAnim", 2);
+		Function* function = getFunction2("GetAnim");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -619,7 +610,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetEAnim(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetEAnim", 2);
+		Function* function = getFunction2("GetEAnim");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -632,7 +623,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetFramerate(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetFramerate", 2);
+		Function* function = getFunction2("GetFramerate");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -645,7 +636,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetEFramerate(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetEFramerate", 2);
+		Function* function = getFunction2("GetEFramerate");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -658,7 +649,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetTouchDamage(NPCData,, int32_t)
 	{
-		Function* function = getFunction("GetTouchDamage", 2);
+		Function* function = getFunction2("GetTouchDamage");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -671,7 +662,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetWeaponDamage(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetWeaponDamage", 2);
+		Function* function = getFunction2("GetWeaponDamage");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -684,7 +675,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetWeapon(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetWeapon", 2);
+		Function* function = getFunction2("GetWeapon");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -697,7 +688,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetRandom(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetRandom", 2);
+		Function* function = getFunction2("GetRandom");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -710,7 +701,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetHaltRate(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetHaltRate", 2);
+		Function* function = getFunction2("GetHaltRate");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -723,7 +714,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetStep(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetStep", 2);
+		Function* function = getFunction2("GetStep");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -736,7 +727,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetHoming(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetHoming", 2);
+		Function* function = getFunction2("GetHoming");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -749,7 +740,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetHunger(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetHunger", 2);
+		Function* function = getFunction2("GetHunger");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -762,7 +753,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetDropset(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetDropset", 2);
+		Function* function = getFunction2("GetDropset");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -775,7 +766,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetBGSFX(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetBGSFX", 2);
+		Function* function = getFunction2("GetBGSFX");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -788,7 +779,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetHitSFX(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetHitSFX", 2);
+		Function* function = getFunction2("GetHitSFX");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -801,7 +792,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetDeathSFX(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetDeathSFX", 2);
+		Function* function = getFunction2("GetDeathSFX");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -814,7 +805,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetDrawXOffset(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetDrawXOffset", 2);
+		Function* function = getFunction2("GetDrawXOffset");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -827,7 +818,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetDrawYOffset(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetDrawYOffset", 2);
+		Function* function = getFunction2("GetDrawYOffset");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -840,7 +831,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetDrawZOffset(NPCData,int32_t)
 	{
-		Function* function = getFunction("GetDrawZOffset", 2);
+		Function* function = getFunction2("GetDrawZOffset");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -853,7 +844,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetHitXOffset(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetHitXOffset", 2);
+		Function* function = getFunction2("GetHitXOffset");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -866,7 +857,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetHitYOffset(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetHitYOffset", 2);
+		Function* function = getFunction2("GetHitYOffset");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -879,7 +870,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetHitWidth(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetHitWidth", 2);
+		Function* function = getFunction2("GetHitWidth");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -892,7 +883,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetHitHeight(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetHitHeight", 2);
+		Function* function = getFunction2("GetHitHeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -905,7 +896,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetHitZHeight(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetHitZHeight", 2);
+		Function* function = getFunction2("GetHitZHeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -918,7 +909,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetTileWidth(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetTileWidth", 2);
+		Function* function = getFunction2("GetTileWidth");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -931,7 +922,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetTileHeight(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetTileHeight", 2);
+		Function* function = getFunction2("GetTileHeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -944,7 +935,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetWeaponSprite(NPCData, int32_t)
 	{
-		Function* function = getFunction("GetWeaponSprite", 2);
+		Function* function = getFunction2("GetWeaponSprite");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -957,7 +948,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//SetFlags(NPCData, int32_t, int32_t)
 	{
-		Function* function = getFunction("SetFlags", 3);
+		Function* function = getFunction2("SetFlags");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -972,7 +963,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//SetTile(NPCData, int32_t, int32_t)
 	{
-		Function* function = getFunction("SetTile", 3);
+		Function* function = getFunction2("SetTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -987,7 +978,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//SetEHeight(NPCData, int32_t, int32_t)
 	{
-		Function* function = getFunction("SetEHeight", 3);
+		Function* function = getFunction2("SetEHeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1002,7 +993,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//SetFlags2(NPCData, int32_t, int32_t)
 	{
-		Function* function = getFunction("SetFlags2", 3);
+		Function* function = getFunction2("SetFlags2");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1017,7 +1008,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//SetWidth(NPCData, int32_t, int32_t)
 	{
-		Function* function = getFunction("SetWidth", 3);
+		Function* function = getFunction2("SetWidth");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1032,7 +1023,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//SetHeight(NPCData, int32_t, int32_t)
 	{
-		Function* function = getFunction("SetHeight", 3);
+		Function* function = getFunction2("SetHeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1047,7 +1038,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//SetSTile(NPCData, int32_t, int32_t)
 	{
-		Function* function = getFunction("SetSTile", 3);
+		Function* function = getFunction2("SetSTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1062,7 +1053,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//SetSWidth(NPCData, int32_t, int32_t)
 	{
-		Function* function = getFunction("SetSWidth", 3);
+		Function* function = getFunction2("SetSWidth");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1077,7 +1068,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//SetSHeight(NPCData, int32_t, int32_t)
 	{
-		Function* function = getFunction("SetSHeight", 3);
+		Function* function = getFunction2("SetSHeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1092,7 +1083,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//SetETile(NPCData, int32_t, int32_t)
 	{
-		Function* function = getFunction("SetETile", 3);
+		Function* function = getFunction2("SetETile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1107,7 +1098,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//SetEWidth(NPCData, int32_t, int32_t)
 	{
-		Function* function = getFunction("SetEWidth", 3);
+		Function* function = getFunction2("SetEWidth");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1122,7 +1113,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//SetHP(NPCData, int32_t, int32_t)
 	{
-		Function* function = getFunction("SetHP", 3);
+		Function* function = getFunction2("SetHP");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1137,7 +1128,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//SetFamily(NPCData, int32_t, int32_t)
 	{
-		Function* function = getFunction("SetFamily", 3);
+		Function* function = getFunction2("SetFamily");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1152,7 +1143,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//SetCSet(NPCData, int32_t, int32_t)
 	{
-		Function* function = getFunction("SetCSet", 3);
+		Function* function = getFunction2("SetCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1167,7 +1158,7 @@ void NPCDataSymbols::generateCode()
 	}
 	//SetDMapIntro(NPCData, int32_t, int32_t)
 	{
-		Function* function = getFunction("SetAnim", 3);
+		Function* function = getFunction2("SetAnim");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
