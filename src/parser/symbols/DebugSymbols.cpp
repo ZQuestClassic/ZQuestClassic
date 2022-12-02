@@ -2,65 +2,65 @@
 
 DebugSymbols DebugSymbols::singleton = DebugSymbols();
 
-static AccessorTable DebugTable[] =
+static AccessorTable2 DebugTable2[] =
 {
-//	name,                        rettype,                  setorget,     var,                  numindex,      params
+	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 //	All of these return a function label error when used:
-	{ "getRefFFC",               ZTID_FLOAT,         GETTER,       DEBUGREFFFC,          1,             0,                                    1,           { ZTID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getRefItem",              ZTID_FLOAT,         GETTER,       DEBUGREFITEM,         1,             0,                                    1,           { ZTID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getRefItemdata",          ZTID_FLOAT,         GETTER,       DEBUGREFITEMDATA,     1,             0,                                    1,           { ZTID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getRefNPC",               ZTID_FLOAT,         GETTER,       DEBUGREFNPC,          1,             0,                                    1,           { ZTID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getRefLWeapon",           ZTID_FLOAT,         GETTER,       DEBUGREFLWEAPON,      1,             0,                                    1,           { ZTID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getRefEWeapon",           ZTID_FLOAT,         GETTER,       DEBUGREFEWEAPON,      1,             0,                                    1,           { ZTID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSP",                   ZTID_FLOAT,         GETTER,       DEBUGSP,              1,             0,                                    1,           { ZTID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getPC",                   ZTID_FLOAT,         GETTER,       PC,                   1,             0,                                    1,           { ZTID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setRefFFC",               ZTID_FLOAT,         SETTER,       DEBUGREFFFC,          1,             0,                                    1,           { ZTID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setRefItem",              ZTID_FLOAT,         SETTER,       DEBUGREFITEM,         1,             0,                                    1,           { ZTID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setRefItemdata",          ZTID_FLOAT,         SETTER,       DEBUGREFITEMDATA,     1,             0,                                    1,           { ZTID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setRefNPC",               ZTID_FLOAT,         SETTER,       DEBUGREFNPC,          1,             0,                                    1,           { ZTID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setRefLWeapon",           ZTID_FLOAT,         SETTER,       DEBUGREFLWEAPON,      1,             0,                                    1,           { ZTID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setRefEWeapon",           ZTID_FLOAT,         SETTER,       DEBUGREFEWEAPON,      1,             0,                                    1,           { ZTID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setPC",                   ZTID_FLOAT,         SETTER,       PC,                   1,             0,                                    1,           { ZTID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSP",                   ZTID_FLOAT,         SETTER,       DEBUGSP,              1,             0,                                    1,           { ZTID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getGDR[]",                ZTID_FLOAT,         GETTER,       DEBUGGDR,             256,           0,                                    2,           { ZTID_DEBUG, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setGDR[]",                ZTID_VOID,          SETTER,       DEBUGGDR,             256,           0,                                    3,           { ZTID_DEBUG, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getRefFFC",                  0,         ZTID_FLOAT,   DEBUGREFFFC,               0,  { ZTID_DEBUG },{} },
+	{ "getRefItem",                 0,         ZTID_FLOAT,   DEBUGREFITEM,              0,  { ZTID_DEBUG },{} },
+	{ "getRefItemdata",             0,         ZTID_FLOAT,   DEBUGREFITEMDATA,          0,  { ZTID_DEBUG },{} },
+	{ "getRefNPC",                  0,         ZTID_FLOAT,   DEBUGREFNPC,               0,  { ZTID_DEBUG },{} },
+	{ "getRefLWeapon",              0,         ZTID_FLOAT,   DEBUGREFLWEAPON,           0,  { ZTID_DEBUG },{} },
+	{ "getRefEWeapon",              0,         ZTID_FLOAT,   DEBUGREFEWEAPON,           0,  { ZTID_DEBUG },{} },
+	{ "getSP",                      0,         ZTID_FLOAT,   DEBUGSP,                   0,  { ZTID_DEBUG },{} },
+	{ "getPC",                      0,         ZTID_FLOAT,   PC,                        0,  { ZTID_DEBUG },{} },
+	{ "setRefFFC",                  0,         ZTID_FLOAT,   DEBUGREFFFC,               0,  { ZTID_DEBUG },{} },
+	{ "setRefItem",                 0,         ZTID_FLOAT,   DEBUGREFITEM,              0,  { ZTID_DEBUG },{} },
+	{ "setRefItemdata",             0,         ZTID_FLOAT,   DEBUGREFITEMDATA,          0,  { ZTID_DEBUG },{} },
+	{ "setRefNPC",                  0,         ZTID_FLOAT,   DEBUGREFNPC,               0,  { ZTID_DEBUG },{} },
+	{ "setRefLWeapon",              0,         ZTID_FLOAT,   DEBUGREFLWEAPON,           0,  { ZTID_DEBUG },{} },
+	{ "setRefEWeapon",              0,         ZTID_FLOAT,   DEBUGREFEWEAPON,           0,  { ZTID_DEBUG },{} },
+	{ "setPC",                      0,         ZTID_FLOAT,   PC,                        0,  { ZTID_DEBUG },{} },
+	{ "setSP",                      0,         ZTID_FLOAT,   DEBUGSP,                   0,  { ZTID_DEBUG },{} },
+	{ "getGDR[]",                   0,         ZTID_FLOAT,   DEBUGGDR,                  0,  { ZTID_DEBUG, ZTID_FLOAT },{} },
+	{ "setGDR[]",                   0,          ZTID_VOID,   DEBUGGDR,                  0,  { ZTID_DEBUG, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
 //	These all work, but may not be permitted by the rest of the dev team. 
 //	At least they are now in a pointer class that denotes that they can be dangerous. 
-	{ "GetBoolPointer",          ZTID_FLOAT,         FUNCTION,     0,                    1,             0,                                    2,           { ZTID_DEBUG, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetBoolPointer",          ZTID_BOOL,          FUNCTION,     0,                    1,             0,                                    2,           { ZTID_DEBUG, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetNPCPointer",           ZTID_FLOAT,         FUNCTION,     0,                    1,             0,                                    2,           { ZTID_DEBUG, ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetNPCPointer",           ZTID_NPC,           FUNCTION,     0,                    1,             0,                                    2,           { ZTID_DEBUG, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetLWeaponPointer",       ZTID_FLOAT,         FUNCTION,     0,                    1,             0,                                    2,           { ZTID_DEBUG, ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetLWeaponPointer",       ZTID_LWPN,          FUNCTION,     0,                    1,             0,                                    2,           { ZTID_DEBUG, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetEWeaponPointer",       ZTID_FLOAT,         FUNCTION,     0,                    1,             0,                                    2,           { ZTID_DEBUG, ZTID_EWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetEWeaponPointer",       ZTID_EWPN,          FUNCTION,     0,                    1,             0,                                    2,           { ZTID_DEBUG, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetFFCPointer",           ZTID_FLOAT,         FUNCTION,     0,                    1,             0,                                    2,           { ZTID_DEBUG, ZTID_FFC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetFFCPointer",           ZTID_FFC,           FUNCTION,     0,                    1,             0,                                    2,           { ZTID_DEBUG, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetItemPointer",          ZTID_FLOAT,         FUNCTION,     0,                    1,             0,                                    2,           { ZTID_DEBUG, ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetItemPointer",          ZTID_ITEM,          FUNCTION,     0,                    1,             0,                                    2,           { ZTID_DEBUG, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetItemdataPointer",      ZTID_FLOAT,         FUNCTION,     0,                    1,             0,                                    2,           { ZTID_DEBUG, ZTID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetItemdataPointer",      ZTID_ITEMCLASS,     FUNCTION,     0,                    1,             0,                                    2,           { ZTID_DEBUG, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "GetBoolPointer",             0,         ZTID_FLOAT,   -1,                        0,  { ZTID_DEBUG, ZTID_BOOL },{} },
+	{ "SetBoolPointer",             0,          ZTID_BOOL,   -1,                        0,  { ZTID_DEBUG, ZTID_FLOAT },{} },
+	{ "GetNPCPointer",              0,         ZTID_FLOAT,   -1,                        0,  { ZTID_DEBUG, ZTID_NPC },{} },
+	{ "SetNPCPointer",              0,           ZTID_NPC,   -1,                        0,  { ZTID_DEBUG, ZTID_FLOAT },{} },
+	{ "GetLWeaponPointer",          0,         ZTID_FLOAT,   -1,                        0,  { ZTID_DEBUG, ZTID_LWPN },{} },
+	{ "SetLWeaponPointer",          0,          ZTID_LWPN,   -1,                        0,  { ZTID_DEBUG, ZTID_FLOAT },{} },
+	{ "GetEWeaponPointer",          0,         ZTID_FLOAT,   -1,                        0,  { ZTID_DEBUG, ZTID_EWPN },{} },
+	{ "SetEWeaponPointer",          0,          ZTID_EWPN,   -1,                        0,  { ZTID_DEBUG, ZTID_FLOAT },{} },
+	{ "GetFFCPointer",              0,         ZTID_FLOAT,   -1,                        0,  { ZTID_DEBUG, ZTID_FFC },{} },
+	{ "SetFFCPointer",              0,           ZTID_FFC,   -1,                        0,  { ZTID_DEBUG, ZTID_FLOAT },{} },
+	{ "GetItemPointer",             0,         ZTID_FLOAT,   -1,                        0,  { ZTID_DEBUG, ZTID_ITEM },{} },
+	{ "SetItemPointer",             0,          ZTID_ITEM,   -1,                        0,  { ZTID_DEBUG, ZTID_FLOAT },{} },
+	{ "GetItemdataPointer",         0,         ZTID_FLOAT,   -1,                        0,  { ZTID_DEBUG, ZTID_ITEMCLASS },{} },
+	{ "SetItemdataPointer",         0,     ZTID_ITEMCLASS,   -1,                        0,  { ZTID_DEBUG, ZTID_FLOAT },{} },
 	
-	{ "getPlayfieldOffset",      ZTID_FLOAT,         GETTER,       GAMEPLAYFIELDOFS,     1,             0,                                    1,           { ZTID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "TriggerSecret",           ZTID_VOID,          FUNCTION,     0,                    1,             0,                                    2,           { ZTID_DEBUG, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "ChangeFFCScript",         ZTID_VOID,          FUNCTION,     0,                    1,             0,                                    2,           { ZTID_DEBUG, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getPlayfieldOffset",         0,         ZTID_FLOAT,   GAMEPLAYFIELDOFS,          0,  { ZTID_DEBUG },{} },
+	{ "TriggerSecret",              0,          ZTID_VOID,   -1,                        0,  { ZTID_DEBUG, ZTID_FLOAT },{} },
+	{ "ChangeFFCScript",            0,          ZTID_VOID,   -1,                        0,  { ZTID_DEBUG, ZTID_FLOAT },{} },
 	
-	{ "getD[]",                     ZTID_FLOAT,         GETTER,       DEBUGD,               256,           0,                                    2,           { ZTID_DEBUG, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setD[]",                     ZTID_FLOAT,         SETTER,       DEBUGD,               256,           0,                                    3,           { ZTID_DEBUG, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "NULL",                    ZTID_UNTYPED,       GETTER,       DONULL,               1,             0,                                    1,           { ZTID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Null",                    ZTID_UNTYPED,       GETTER,       DONULL,               1,             0,                                    1,           { ZTID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getNULL",                 ZTID_UNTYPED,       GETTER,       DONULL,               1,             0,                                    1,           { ZTID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getNull",                 ZTID_UNTYPED,       GETTER,       DONULL,               1,             0,                                    1,           { ZTID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Breakpoint",              ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_DEBUG, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTesting",              ZTID_BOOL,          GETTER,       DEBUGTESTING,         1,             0,                                    1,           { ZTID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getD[]",                     0,         ZTID_FLOAT,   DEBUGD,                    0,  { ZTID_DEBUG, ZTID_FLOAT },{} },
+	{ "setD[]",                     0,         ZTID_FLOAT,   DEBUGD,                    0,  { ZTID_DEBUG, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "NULL",                       0,       ZTID_UNTYPED,   DONULL,                    0,  { ZTID_DEBUG },{} },
+	{ "Null",                       0,       ZTID_UNTYPED,   DONULL,                    0,  { ZTID_DEBUG },{} },
+	{ "getNULL",                    0,       ZTID_UNTYPED,   DONULL,                    0,  { ZTID_DEBUG },{} },
+	{ "getNull",                    0,       ZTID_UNTYPED,   DONULL,                    0,  { ZTID_DEBUG },{} },
+	{ "Breakpoint",                 0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_DEBUG, ZTID_CHAR },{} },
+	{ "getTesting",                 0,          ZTID_BOOL,   DEBUGTESTING,              0,  { ZTID_DEBUG },{} },
 	
-	{ "",                        -1,                       -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
 DebugSymbols::DebugSymbols()
 {
-	table = DebugTable;
+	table2 = DebugTable2;
 	refVar = NUL;
 }
 
@@ -68,7 +68,7 @@ void DebugSymbols::generateCode()
 {
 	//int32_t GetPointer(itemclass, itemclass)
 	{
-		Function* function = getFunction("GetItemdataPointer", 2);
+		Function* function = getFunction2("GetItemdataPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -82,7 +82,7 @@ void DebugSymbols::generateCode()
 	
 	//int32_t SetPointer(itemclass, float)
 	{
-		Function* function = getFunction("SetItemdataPointer", 2);
+		Function* function = getFunction2("SetItemdataPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -95,7 +95,7 @@ void DebugSymbols::generateCode()
 	}
 	//int32_t GetPointer(item, item)
 	{
-		Function* function = getFunction("GetItemPointer", 2);
+		Function* function = getFunction2("GetItemPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -109,7 +109,7 @@ void DebugSymbols::generateCode()
 	
 	//int32_t SetPointer(item, float)
 	{
-		Function* function = getFunction("SetItemPointer", 2);
+		Function* function = getFunction2("SetItemPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -122,7 +122,7 @@ void DebugSymbols::generateCode()
 	}    
 	//int32_t GetPointer(ffc, ffc)
 	{
-		Function* function = getFunction("GetFFCPointer", 2);
+		Function* function = getFunction2("GetFFCPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -136,7 +136,7 @@ void DebugSymbols::generateCode()
 	
 	//int32_t SetPointer(ffc, float)
 	{
-		Function* function = getFunction("SetFFCPointer", 2);
+		Function* function = getFunction2("SetFFCPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -149,7 +149,7 @@ void DebugSymbols::generateCode()
 	}
 		  //int32_t GetPointer(eweapon, eweapon)
 	{
-		Function* function = getFunction("GetEWeaponPointer", 2);
+		Function* function = getFunction2("GetEWeaponPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -163,7 +163,7 @@ void DebugSymbols::generateCode()
 	
 	//int32_t SetPointer(eweapon, float)
 	{
-		Function* function = getFunction("SetEWeaponPointer", 2);
+		Function* function = getFunction2("SetEWeaponPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -176,7 +176,7 @@ void DebugSymbols::generateCode()
 	}
 	   //int32_t GetPointer(lweapon, lweapon)
 	{
-		Function* function = getFunction("GetLWeaponPointer", 2);
+		Function* function = getFunction2("GetLWeaponPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -190,7 +190,7 @@ void DebugSymbols::generateCode()
 	
 	//int32_t SetPointer(lweapon, float)
 	{
-		Function* function = getFunction("SetLWeaponPointer", 2);
+		Function* function = getFunction2("SetLWeaponPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -203,7 +203,7 @@ void DebugSymbols::generateCode()
 	}
 	 //int32_t GetPointer(npc, ffc)
 	{
-		Function* function = getFunction("GetNPCPointer", 2);
+		Function* function = getFunction2("GetNPCPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -217,7 +217,7 @@ void DebugSymbols::generateCode()
 	
 	//int32_t SetPointer(npc, float)
 	{
-		Function* function = getFunction("SetNPCPointer", 2);
+		Function* function = getFunction2("SetNPCPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -230,7 +230,7 @@ void DebugSymbols::generateCode()
 	}
 	//int32_t GetPointer(game, bool)
 	{
-		Function* function = getFunction("GetBoolPointer", 2);
+		Function* function = getFunction2("GetBoolPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -244,7 +244,7 @@ void DebugSymbols::generateCode()
 	
 	//int32_t SetPointer(game, float)
 	{
-		Function* function = getFunction("SetBoolPointer", 2);
+		Function* function = getFunction2("SetBoolPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -259,7 +259,7 @@ void DebugSymbols::generateCode()
 	
 	//void TriggerSecret(game, int32_t)
 	{
-		Function* function = getFunction("TriggerSecret", 2);
+		Function* function = getFunction2("TriggerSecret");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -274,7 +274,7 @@ void DebugSymbols::generateCode()
 	
 	//void Breakpoint(debug, char)
 	{
-		Function* function = getFunction("Breakpoint", 2);
+		Function* function = getFunction2("Breakpoint");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
