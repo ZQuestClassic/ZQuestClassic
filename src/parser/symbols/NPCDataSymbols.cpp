@@ -255,8 +255,6 @@ void NPCDataSymbols::generateCode()
 		addOpcode2 (code, new ONDataBaseTile(new VarArgument(EXP1),new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
-	
-	//GET_GUYDATA_MEMBER("Tile", ONDataBaseTile);
 	}
 	
 	//void GetName(npcdata, int32_t)
@@ -274,7 +272,7 @@ void NPCDataSymbols::generateCode()
 		function->giveCode(code);
 	}
 	//void GetInitDLabel(npc, int32_t buffer[], int32_t d)
-	 //void GetDMapMusicFilename(game, int32_t, int32_t)
+	//void GetDMapMusicFilename(game, int32_t, int32_t)
 	{
 		Function* function = getFunction("GetInitDLabel", 3);
 		int32_t label = function->getLabel();
@@ -307,10 +305,17 @@ void NPCDataSymbols::generateCode()
 	}
 	
 	//GetEHeight(NPCData, int32_t)
-	 {
-	GET_GUYDATA_MEMBER("GetEHeight", ONDataEHeight);
-	 }
-	
+	{
+		Function* function = getFunction("GetEHeight", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		POPREF();
+		addOpcode2 (code, new ONDataEHeight(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
 
 	//int32_t GetScriptDefense((NPCData, int32_t, int32_t)
 	{
@@ -374,9 +379,9 @@ void NPCDataSymbols::generateCode()
 	}
 	
 	
-	  //three inputs, no return
+	//three inputs, no return
 	
-	  //void SetScriptDefense(NPCData, int32_t,int32_t,int32_t)
+	//void SetScriptDefense(NPCData, int32_t,int32_t,int32_t)
 	{
 		Function* function = getFunction("SetScriptDefense", 4);
 		int32_t label = function->getLabel();
@@ -392,9 +397,9 @@ void NPCDataSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	  //three inputs, no return
+	//three inputs, no return
 	
-	  //void SetDefense(NPCData, int32_t,int32_t,int32_t)
+	//void SetDefense(NPCData, int32_t,int32_t,int32_t)
 	{
 		Function* function = getFunction("SetDefense", 4);
 		int32_t label = function->getLabel();
@@ -410,9 +415,9 @@ void NPCDataSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	  //three inputs, no return
+	//three inputs, no return
 	
-	  //void SetSizeFlag(NPCData, int32_t,int32_t,int32_t)
+	//void SetSizeFlag(NPCData, int32_t,int32_t,int32_t)
 	{
 		Function* function = getFunction("SetSizeFlag", 4);
 		int32_t label = function->getLabel();
@@ -428,9 +433,9 @@ void NPCDataSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	  //three inputs, no return
+	//three inputs, no return
 	
-	  //void SetAttribute(NPCData, int32_t,int32_t,int32_t)
+	//void SetAttribute(NPCData, int32_t,int32_t,int32_t)
 	{
 		Function* function = getFunction("SetAttribute", 4);
 		int32_t label = function->getLabel();
@@ -448,8 +453,17 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetFlags(NPCData, int32_t)
 	{
-	GET_GUYDATA_MEMBER("GetFlags", ONDataFlags);
+		Function* function = getFunction("GetFlags", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		POPREF();
+		addOpcode2 (code, new ONDataFlags(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
 	}
+	
 	//GetFlags2(NPCData, int32_t)
 	{
 		Function* function = getFunction("GetFlags2", 2);
@@ -465,15 +479,39 @@ void NPCDataSymbols::generateCode()
 	}
 	//GetWidth(game, int32_t)
 	{
-	GET_GUYDATA_MEMBER("GetWidth", ONDataWidth);
+		Function* function = getFunction("GetWidth", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		POPREF();
+		addOpcode2 (code, new ONDataWidth(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
 	}
 	//GetHeight(NPCData, int32_t)
 	{
-	GET_GUYDATA_MEMBER("GetHeight", ONDataHeight);
+		Function* function = getFunction("GetHeight", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		POPREF();
+		addOpcode2 (code, new ONDataHeight(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
 	}
 	//GetSTile(NPCData, int32_t)
 	{
-	GET_GUYDATA_MEMBER("GetSTile", ONDataTile);
+		Function* function = getFunction("GetSTile", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		POPREF();
+		addOpcode2 (code, new ONDataTile(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
 	}
 	//GetSWidth(NPCData, int32_t)
 	{
@@ -932,7 +970,7 @@ void NPCDataSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	 //SetTile(NPCData, int32_t, int32_t)
+	//SetTile(NPCData, int32_t, int32_t)
 	{
 		Function* function = getFunction("SetTile", 3);
 		int32_t label = function->getLabel();
@@ -947,7 +985,7 @@ void NPCDataSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	 //SetEHeight(NPCData, int32_t, int32_t)
+	//SetEHeight(NPCData, int32_t, int32_t)
 	{
 		Function* function = getFunction("SetEHeight", 3);
 		int32_t label = function->getLabel();

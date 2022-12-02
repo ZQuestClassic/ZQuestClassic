@@ -493,7 +493,6 @@ void GameSymbols::generateCode()
 		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFMAPDATA)));
 		RETURN();
 		function->giveCode(code);     
-	//LOAD_REFDATA("LoadMapData", OLoadMapDataRegister, REFMAPDATA);
 	}
 	*/
 	
@@ -605,12 +604,6 @@ void GameSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);    
 	}
-	//ScreenData
-	/*
-	{
-	LOAD_REFDATA("LoadScreenData", OLoadScreenDataRegister, NUL); //Change when we set this up! -Z
-	}
-	*/
 	//Bitmap
 	{
 		Function* function = getFunction("LoadBitmapID", 2);
@@ -2395,16 +2388,6 @@ void GameSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	/*
-	{
-		TWO_INPUT_NO_RETURN("SetContinueScreen",OSSetContinueScreen);
-	}
-	*/
-	/*
-	{
-		TWO_INPUT_NO_RETURN("SetContinueString",OSSetContinueString);
-	}
-	*/
 	//int32_t GetScreenWarpReturnY(game,int32_t,int32_t,int32_t)
 	{
 		Function* function = getFunction("GetScreenWarpReturnY", 4);

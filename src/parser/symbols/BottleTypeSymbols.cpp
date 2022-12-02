@@ -18,12 +18,12 @@ static AccessorTable2 BottleTypeTable2[] =
 	{ "getNextType",             0,         ZTID_FLOAT,   BOTTLENEXT,    0,  { ZTID_BOTTLETYPE },{} },
 	{ "setNextType",             0,          ZTID_VOID,   BOTTLENEXT,    0,  { ZTID_BOTTLETYPE, ZTID_FLOAT },{} },
 	
-	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+	{ "",                        0,          ZTID_VOID,   -1,          0,  {},{} }
 };
 
 BottleTypeSymbols::BottleTypeSymbols()
 {
-	table = BottleTypeTable2;
+	table2 = BottleTypeTable2;
 	refVar = REFBOTTLETYPE;
 }
 

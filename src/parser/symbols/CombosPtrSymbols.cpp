@@ -456,476 +456,1866 @@ CombosPtrSymbols::CombosPtrSymbols()
 void CombosPtrSymbols::generateCode()
 {
 	{
-		ONE_INPUT_ONE_RETURN("GetBlockEnemies",OCDataBlockEnemy);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetBlockHole",OCDataBlockHole);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetBlockTrigger",OCDataBlockTrig);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetConveyorSpeedX",OCDataConveyX);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetConveyorSpeedY",OCDataConveyY);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetCreateEnemy",OCDataCreateNPC);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetCreateEnemyWhen",OCDataCreateEnemW);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetCreateEnemyChnge",OCDataCreateEnemC);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetDirChangeType",OCDataDirch);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetDistanceChangeTiles",OCDataDistTiles);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetDiveItem",OCDataDiveItem);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetDock",OCDataDock);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetFairy",OCDataFairy);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetFFComboChangeAttrib",OCDataAttrib);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetFootDecorationsTile",OCDataDecoTile);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetFootDecorationsType",OCDataDecoType);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetHookshotGrab",OCDataHookshotGrab);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetLadderPass",OCDataLadderPass);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetLockBlockType",OCDataLockBlock);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetLockBlockChange",OCDataLockBlockChange);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetMagicMirror",OCDataMagicMirror);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetModifyHPAmount",OCDataModHP);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetModifyHPDelay",OCDataModHPDelay);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetModifyHPType",OCDataModHpType);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetModifyMPAmount",OCDataModMP);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetModifyMPDelay",OCDataMpdMPDelay);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetModifyMPType",OCDataModMPType);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetNoPushBlocks",OCDataNoPush);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetOverhead",OCDataOverhead);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetPlaceEnemy",OCDataEnemyLoc);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetPushDirection",OCDataPushDir);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetPushWeight",OCDataPushWeight);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetPushWait",OCDataPushWait);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetPushed",OCDataPushed);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetRaft",OCDataRaft);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetResetRoom",OCDataResetRoom);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetSavePoint",OCDataSavePoint);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetScreenFreeze",OCDataFreeezeScreen);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetSecretCombo",OCDataSecretCombo);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetSingular",OCDataSingular);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetSlowMove",OCDataSlowMove);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetStatue",OCDataStatue);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetStepType",OCDataStepType);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetStepChangeTo",OCDataSteoChange);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetStrikeRemnants",OCDataStrikeRem);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetStrikeRemnantsType",OCDataStrikeRemType);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetStrikeChange",OCDataStrikeChange);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetStrikeItem",OCDataStrikeChangeItem);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetTouchItem",OCDataTouchItem);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetTouchStairs",OCDataTouchStairs);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetTriggerType",OCDataTriggerType);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetTriggerSens",OCDataTriggerSens);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetWarpType",OCDataWarpType);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetWarpSens",OCDataWarpSens);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetWarpDirect",OCDataWarpDirect);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetWarpLocation",OCDataWarpLoc);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetWater",OCDataWater);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetWhistle",OCDataWhistle);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetWinGame",OCDataWinGame);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetBlockWeaponLevel",OCDataWeapBlockLevel);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetTile",OCDataTile);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetFlip",OCDataFlip);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetWalkability",OCDataWalkability);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetType",OCDataType);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetCSets",OCDataCSets);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetFoo",OCDataFoo);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetFrames",OCDataFrames);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetSpeed",OCDataSpeed);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetNextCombo",OCDataNext);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetNextCSet",OCDataNextCSet);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetFlag",OCDataFlag);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetSkipAnim",OCSetDataSkipAnim);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetNextTimer",OCDataTimer);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetSkipAnimY",OCDataAnimY);
-	}
-	{
-		ONE_INPUT_ONE_RETURN("GetAnimFlags",OCDataAnimFlags);
-	}
-	
-	{
-		TWO_INPUT_NO_RETURN("SetBlockEnemies",OCSetDataBlockEnemy);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetBlockHole",OCSetDataBlockHole);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetBlockTrigger",OCSetDataBlockTrig);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetConveyorSpeedX",OCSetDataConveyX);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetConveyorSpeedY",OCSetDataConveyY);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetCreateEnemy",OCSetDataCreateNPC);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetCreateEnemyWhen",OCSetDataCreateEnemW);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetCreateEnemyChnge",OCSetDataCreateEnemC);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetDirChangeType",OCSetDataDirch);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetDistanceChangeTiles",OCSetDataDistTiles);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetDiveItem",OCSetDataDiveItem);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetDock",OCSetDataDock);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetFairy",OCSetDataFairy);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetFFComboChangeAttrib",OCSetDataAttrib);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetFootDecorationsTile",OCSetDataDecoTile);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetFootDecorationsType",OCSetDataDecoType);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetHookshotGrab",OCSetDataHookshotGrab);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetLadderPass",OCSetDataLadderPass);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetLockBlockType",OCSetDataLockBlock);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetLockBlockChange",OCSetDataLockBlockChange);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetMagicMirror",OCSetDataMagicMirror);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetModifyHPAmount",OCSetDataModHP);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetModifyHPDelay",OCSetDataModHPDelay);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetModifyHPType",OCSetDataModHpType);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetModifyMPAmount",OCSetDataModMP);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetModifyMPDelay",OCSetDataMpdMPDelay);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetModifyMPType",OCSetDataModMPType);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetNoPushBlocks",OCSetDataNoPush);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetOverhead",OCSetDataOverhead);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetPlaceEnemy",OCSetDataEnemyLoc);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetPushDirection",OCSetDataPushDir);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetPushWeight",OCSetDataPushWeight);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetPushWait",OCSetDataPushWait);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetPushed",OCSetDataPushed);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetRaft",OCSetDataRaft);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetResetRoom",OCSetDataResetRoom);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetSavePoint",OCSetDataSavePoint);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetScreenFreeze",OCSetDataFreeezeScreen);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetSecretCombo",OCSetDataSecretCombo);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetSingular",OCSetDataSingular);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetSlowMove",OCSetDataSlowMove);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetStatue",OCSetDataStatue);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetStepType",OCSetDataStepType);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetStepChangeTo",OCSetDataSteoChange);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetStrikeRemnants",OCSetDataStrikeRem);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetStrikeRemnantsType",OCSetDataStrikeRemType);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetStrikeChange",OCSetDataStrikeChange);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetStrikeItem",OCSetDataStrikeChangeItem);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetTouchItem",OCSetDataTouchItem);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetTouchStairs",OCSetDataTouchStairs);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetTriggerType",OCSetDataTriggerType);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetTriggerSens",OCSetDataTriggerSens);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetWarpType",OCSetDataWarpType);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetWarpSens",OCSetDataWarpSens);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetWarpDirect",OCSetDataWarpDirect);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetWarpLocation",OCSetDataWarpLoc);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetWater",OCSetDataWater);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetWhistle",OCSetDataWhistle);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetWinGame",OCSetDataWinGame);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetBlockWeaponLevel",OCSetDataWeapBlockLevel);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetTile",OCSetDataTile);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetFlip",OCSetDataFlip);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetWalkability",OCSetDataWalkability);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetType",OCSetDataType);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetCSets",OCSetDataCSets);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetFoo",OCSetDataFoo);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetFrames",OCSetDataFrames);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetSpeed",OCSetDataSpeed);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetNextCombo",OCSetDataNext);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetNextCSet",OCSetDataNextCSet);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetFlag",OCSetDataFlag);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetSkipAnim",OCSetDataSkipAnim);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetNextTimer",OCSetDataTimer);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetSkipAnimY",OCSetDataAnimY);
-	}
-	{
-		TWO_INPUT_NO_RETURN("SetAnimFlags",OCSetDataAnimFlags);
-	}
-	
-	{
-		TWO_INPUT_ONE_RETURN("GetBlockWeapon",OCDataBlockWeapon);
-	}
-	{
-		TWO_INPUT_ONE_RETURN("GetExpansion",OCDataExpansion);
-	}
-	{
-		TWO_INPUT_ONE_RETURN("GetStrikeWeapons",OCDataStrikeWeapon);
-	}
-	{
-	THREE_INPUT_NO_RETURN("SetBlockWeapon", SCDBLOCKWEAPON);
-	}
-	/*
-	{
-	THREE_INPUT_NO_RETURN("SetExpansion", SCDEXPANSION);
-	}
-	*/
-	{
-	THREE_INPUT_NO_RETURN("SetStrikeWeapons", SCDSTRIKEWEAPONS);
+		Function* function = getFunction("GetBlockEnemies", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataBlockEnemy(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetBlockHole", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataBlockHole(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetBlockTrigger", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataBlockTrig(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetConveyorSpeedX", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataConveyX(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetConveyorSpeedY", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataConveyY(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetCreateEnemy", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataCreateNPC(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetCreateEnemyWhen", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataCreateEnemW(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetCreateEnemyChnge", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataCreateEnemC(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetDirChangeType", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataDirch(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetDistanceChangeTiles", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataDistTiles(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetDiveItem", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataDiveItem(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetDock", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataDock(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetFairy", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataFairy(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetFFComboChangeAttrib", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataAttrib(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetFootDecorationsTile", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataDecoTile(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetFootDecorationsType", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataDecoType(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetHookshotGrab", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataHookshotGrab(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetLadderPass", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataLadderPass(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetLockBlockType", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataLockBlock(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetLockBlockChange", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataLockBlockChange(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetMagicMirror", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataMagicMirror(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetModifyHPAmount", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataModHP(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetModifyHPDelay", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataModHPDelay(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetModifyHPType", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataModHpType(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetModifyMPAmount", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataModMP(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetModifyMPDelay", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataMpdMPDelay(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetModifyMPType", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataModMPType(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetNoPushBlocks", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataNoPush(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetOverhead", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataOverhead(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetPlaceEnemy", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataEnemyLoc(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetPushDirection", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataPushDir(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetPushWeight", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataPushWeight(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetPushWait", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataPushWait(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetPushed", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataPushed(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetRaft", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataRaft(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetResetRoom", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataResetRoom(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetSavePoint", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataSavePoint(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetScreenFreeze", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataFreeezeScreen(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetSecretCombo", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataSecretCombo(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetSingular", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataSingular(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetSlowMove", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataSlowMove(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetStatue", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataStatue(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetStepType", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataStepType(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetStepChangeTo", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataSteoChange(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetStrikeRemnants", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataStrikeRem(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetStrikeRemnantsType", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataStrikeRemType(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetStrikeChange", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataStrikeChange(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetStrikeItem", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataStrikeChangeItem(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetTouchItem", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataTouchItem(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetTouchStairs", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataTouchStairs(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetTriggerType", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataTriggerType(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetTriggerSens", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataTriggerSens(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetWarpType", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataWarpType(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetWarpSens", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataWarpSens(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetWarpDirect", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataWarpDirect(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetWarpLocation", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataWarpLoc(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetWater", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataWater(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetWhistle", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataWhistle(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetWinGame", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataWinGame(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetBlockWeaponLevel", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataWeapBlockLevel(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetTile", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataTile(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetFlip", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataFlip(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetWalkability", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataWalkability(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetType", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataType(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetCSets", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataCSets(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetFoo", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataFoo(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetFrames", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataFrames(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetSpeed", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataSpeed(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetNextCombo", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataNext(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetNextCSet", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataNextCSet(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetFlag", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataFlag(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetSkipAnim", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCSetDataSkipAnim(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetNextTimer", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataTimer(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetSkipAnimY", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataAnimY(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("GetAnimFlags", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataAnimFlags(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction("SetBlockEnemies", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataBlockEnemy(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetBlockHole", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataBlockHole(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetBlockTrigger", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataBlockTrig(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetConveyorSpeedX", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataConveyX(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetConveyorSpeedY", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataConveyY(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetCreateEnemy", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataCreateNPC(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetCreateEnemyWhen", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataCreateEnemW(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetCreateEnemyChnge", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataCreateEnemC(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetDirChangeType", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataDirch(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetDistanceChangeTiles", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataDistTiles(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetDiveItem", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataDiveItem(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetDock", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataDock(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetFairy", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataFairy(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetFFComboChangeAttrib", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataAttrib(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetFootDecorationsTile", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataDecoTile(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetFootDecorationsType", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataDecoType(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetHookshotGrab", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataHookshotGrab(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetLadderPass", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataLadderPass(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetLockBlockType", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataLockBlock(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetLockBlockChange", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataLockBlockChange(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetMagicMirror", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataMagicMirror(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetModifyHPAmount", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataModHP(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetModifyHPDelay", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataModHPDelay(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetModifyHPType", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataModHpType(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetModifyMPAmount", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataModMP(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetModifyMPDelay", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataMpdMPDelay(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetModifyMPType", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataModMPType(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetNoPushBlocks", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataNoPush(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetOverhead", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataOverhead(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetPlaceEnemy", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataEnemyLoc(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetPushDirection", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataPushDir(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetPushWeight", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataPushWeight(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetPushWait", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataPushWait(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetPushed", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataPushed(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetRaft", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataRaft(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetResetRoom", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataResetRoom(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetSavePoint", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataSavePoint(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetScreenFreeze", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataFreeezeScreen(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetSecretCombo", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataSecretCombo(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetSingular", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataSingular(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetSlowMove", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataSlowMove(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetStatue", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataStatue(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetStepType", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataStepType(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetStepChangeTo", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataSteoChange(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetStrikeRemnants", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataStrikeRem(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetStrikeRemnantsType", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataStrikeRemType(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetStrikeChange", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataStrikeChange(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetStrikeItem", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataStrikeChangeItem(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetTouchItem", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataTouchItem(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetTouchStairs", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataTouchStairs(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetTriggerType", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataTriggerType(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetTriggerSens", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataTriggerSens(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetWarpType", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataWarpType(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetWarpSens", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataWarpSens(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetWarpDirect", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataWarpDirect(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetWarpLocation", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataWarpLoc(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetWater", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataWater(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetWhistle", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataWhistle(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetWinGame", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataWinGame(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetBlockWeaponLevel", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataWeapBlockLevel(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetTile", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataTile(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetFlip", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataFlip(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetWalkability", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataWalkability(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetType", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataType(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetCSets", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataCSets(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetFoo", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataFoo(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetFrames", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataFrames(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetSpeed", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataSpeed(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetNextCombo", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataNext(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetNextCSet", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataNextCSet(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetFlag", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataFlag(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetSkipAnim", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataSkipAnim(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetNextTimer", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataTimer(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetSkipAnimY", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataAnimY(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetAnimFlags", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataAnimFlags(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("GetBlockWeapon", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		POPREF();
+		addOpcode2 (code, new OCDataBlockWeapon(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("GetExpansion", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		POPREF();
+		addOpcode2 (code, new OCDataExpansion(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("GetStrikeWeapons", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		POPREF();
+		addOpcode2 (code, new OCDataStrikeWeapon(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetBlockWeapon", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SCDBLOCKWEAPON), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction("SetStrikeWeapons", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SCDSTRIKEWEAPONS), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
 	}
 }
 
