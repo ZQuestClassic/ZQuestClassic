@@ -2,27 +2,27 @@
 
 RNGSymbols RNGSymbols::singleton = RNGSymbols();
 
-static AccessorTable RNGTable[] =
+static AccessorTable2 RNGTable2[] =
 {
-//	  name,                     rettype,                     setorget,     var,   numindex,   funcFlags,                            numParams,   params
-//	{ "DirExists",              ZTID_BOOL,             FUNCTION,     0,     1,          0,                                    2,           { ZTID_FILESYSTEM, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Rand",                   ZTID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZTID_RNG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Rand",                   ZTID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZTID_RNG, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Rand",                   ZTID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      3,           { ZTID_RNG, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LRand",                  ZTID_LONG,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZTID_RNG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LRand",                  ZTID_LONG,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZTID_RNG, ZTID_LONG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LRand",                  ZTID_LONG,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      3,           { ZTID_RNG, ZTID_LONG, ZTID_LONG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SRand",                  ZTID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZTID_RNG, ZTID_LONG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SRand",                  ZTID_LONG,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZTID_RNG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Free",                   ZTID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZTID_RNG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Own",                    ZTID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZTID_RNG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
+//	{ "DirExists",                  0,          ZTID_BOOL,   -1,                        0,  { ZTID_FILESYSTEM, ZTID_CHAR },{} },
+	{ "Rand",                       0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_RNG },{} },
+	{ "Rand",                       1,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_RNG, ZTID_FLOAT },{} },
+	{ "Rand",                       2,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_RNG, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "LRand",                      0,          ZTID_LONG,   -1,                   FL_INL,  { ZTID_RNG },{} },
+	{ "LRand",                      1,          ZTID_LONG,   -1,                   FL_INL,  { ZTID_RNG, ZTID_LONG },{} },
+	{ "LRand",                      2,          ZTID_LONG,   -1,                   FL_INL,  { ZTID_RNG, ZTID_LONG, ZTID_LONG },{} },
+	{ "SRand",                      0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_RNG, ZTID_LONG },{} },
+	{ "SRand",                      1,          ZTID_LONG,   -1,                   FL_INL,  { ZTID_RNG },{} },
+	{ "Free",                       0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_RNG },{} },
+	{ "Own",                        0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_RNG },{} },
 	
-	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
 RNGSymbols::RNGSymbols()
 {
-	table = RNGTable;
+	table2 = RNGTable2;
 	refVar = REFRNG;
 }
 
@@ -30,7 +30,7 @@ void RNGSymbols::generateCode()
 {
 	//int32_t Rand()
 	{
-		Function* function = getFunction("Rand", 1);
+		Function* function = getFunction2("Rand");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -43,7 +43,7 @@ void RNGSymbols::generateCode()
 	}
 	//int32_t Rand(int32_t bound)
 	{
-		Function* function = getFunction("Rand", 2);
+		Function* function = getFunction2("Rand", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -56,7 +56,7 @@ void RNGSymbols::generateCode()
 	}
 	//int32_t Rand(int32_t bound1, int32_t bound2)
 	{
-		Function* function = getFunction("Rand", 3);
+		Function* function = getFunction2("Rand", 2);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -70,7 +70,7 @@ void RNGSymbols::generateCode()
 	}
 	//int32_t LRand()
 	{
-		Function* function = getFunction("LRand", 1);
+		Function* function = getFunction2("LRand");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -83,7 +83,7 @@ void RNGSymbols::generateCode()
 	}
 	//int32_t LRand(int32_t bound)
 	{
-		Function* function = getFunction("LRand", 2);
+		Function* function = getFunction2("LRand", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -96,7 +96,7 @@ void RNGSymbols::generateCode()
 	}
 	//int32_t LRand(int32_t bound1, int32_t bound2)
 	{
-		Function* function = getFunction("LRand", 3);
+		Function* function = getFunction2("LRand", 2);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -110,7 +110,7 @@ void RNGSymbols::generateCode()
 	}
 	//void SRand(int32_t seed)
 	{
-		Function* function = getFunction("SRand", 2);
+		Function* function = getFunction2("SRand");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop seed
@@ -123,7 +123,7 @@ void RNGSymbols::generateCode()
 	}
 	//int32_t SRand()
 	{
-		Function* function = getFunction("SRand", 1);
+		Function* function = getFunction2("SRand", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		ASSERT_NON_NUL();
@@ -135,7 +135,7 @@ void RNGSymbols::generateCode()
 	}
 	//void Free()
 	{
-		Function* function = getFunction("Free", 1);
+		Function* function = getFunction2("Free");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -148,7 +148,7 @@ void RNGSymbols::generateCode()
 	}
 	//void Own()
 	{
-		Function* function = getFunction("Own", 1);
+		Function* function = getFunction2("Own");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
