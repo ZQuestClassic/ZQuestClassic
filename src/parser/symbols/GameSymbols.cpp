@@ -291,7 +291,7 @@ static AccessorTable2 gameTable2[] =
 	{ "LoadBottleData",             0,    ZTID_BOTTLETYPE,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "LoadBottleShopData",         0,    ZTID_BOTTLESHOP,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "LoadGenericData",            0,   ZTID_GENERICDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
-	{ "CreateBitmap",               0,        ZTID_BITMAP,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "CreateBitmap",               0,        ZTID_BITMAP,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{ 2560000, 2560000 } },
 	{ "PlayOgg",                    0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "GetOggPos",                  0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME },{} },
 	{ "SetOggPos",                  0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },

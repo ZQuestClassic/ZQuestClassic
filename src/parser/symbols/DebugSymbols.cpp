@@ -52,7 +52,7 @@ static AccessorTable2 DebugTable2[] =
 	{ "_getNull",                   0,       ZTID_UNTYPED,   DONULL,                    0,  { ZTID_DEBUG },{} },
 	{ "getNULL",                    0,       ZTID_UNTYPED,   DONULL,                    0,  { ZTID_DEBUG },{} },
 	{ "getNull",                    0,       ZTID_UNTYPED,   DONULL,                    0,  { ZTID_DEBUG },{} },
-	{ "Breakpoint",                 0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_DEBUG, ZTID_CHAR },{} },
+	{ "Breakpoint",                 0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_DEBUG, ZTID_CHAR },{ 0 } },
 	{ "getTesting",                 0,          ZTID_BOOL,   DEBUGTESTING,              0,  { ZTID_DEBUG },{} },
 	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }

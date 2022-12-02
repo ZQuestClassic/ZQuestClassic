@@ -3395,7 +3395,7 @@ bool SkipF6;
 bool SkipCredits;
  * If set true, the credits sequence shown at the end of the game is skipped.
 
-bitmap CreateBitmap(int width, int height);
+bitmap CreateBitmap(int width = 256, int height = 256);
  * Creates a bitmap with a size of height, width, and returns its pointer.
 
 bitmap LoadBitmapID(int id);
@@ -3889,7 +3889,7 @@ int ReadString(char32[] buf);
  *     end of the string.
  * Returns the length of the string read into 'buf'.
 
-int ReadChars(char32[] buf, int count, int pos);
+int ReadChars(char32[] buf, int count = -1, int pos = 0);
  * Reads a section of characters from the file.
  * Starts placing characters at 'buf[pos]'.
  *     If 'pos' is negative, starts at 'buf[0]'.
@@ -3899,7 +3899,7 @@ int ReadChars(char32[] buf, int count, int pos);
  * Will always add a null character at the end of the read characters.
  * Returns the number of characters read, excluding the added null character.
  
-int ReadBytes(untyped[] buf, int count, int pos);
+int ReadBytes(untyped[] buf, int count = -1, int pos = 0);
  * Reads a section of binary data from the file.
  * Starts placing data at 'buf[pos]'.
  *     If 'pos' is negative, starts at 'buf[0]'.
@@ -3910,7 +3910,7 @@ int ReadBytes(untyped[] buf, int count, int pos);
  *     This means that the binary data cannot contain decimal places.
  * Returns the number of bytes read.
 
-int ReadInts(untyped[] buf, int count, int pos);
+int ReadInts(untyped[] buf, int count = -1, int pos = 0);
  * Reads a section of binary data from the file.
  * Starts placing data at 'buf[pos]'.
  *     If 'pos' is negative, starts at 'buf[0]'.
@@ -3925,7 +3925,7 @@ int WriteString(char32[] str);
  * Writes the string stored in 'str' to the file.
  * Returns the number of characters successfully written.
 
-int WriteChars(char32[] buf, int count, int pos);
+int WriteChars(char32[] buf, int count = -1, int pos = 0);
  * Writes characters from 'buf' to file.
  * Starts at 'buf[pos]'.
  *     If 'pos' is negative, starts at 'buf[0]'.
@@ -3934,7 +3934,7 @@ int WriteChars(char32[] buf, int count, int pos);
  * If 'count' is positive, writes 'count' characters from buf.
  * Returns the number of characters successfully written.
  
-int WriteBytes(untyped[] arr, int count, int pos);
+int WriteBytes(untyped[] arr, int count = -1, int pos = 0);
  * Writes 8b binary data from 'arr' to file.
  * The binary data written will be 8b; such that writing '1' will write '1' to file.
  *     This means that the binary data cannot contain decimal places.
@@ -3945,7 +3945,7 @@ int WriteBytes(untyped[] arr, int count, int pos);
  * If 'count' is positive, writes 'count' ints from arr.
  * Returns the number of bytes successfully written.
 
-int WriteInts(untyped[] arr, int count, int pos);
+int WriteInts(untyped[] arr, int count = -1, int pos = 0);
  * Writes 32b binary data from 'arr' to file.
  * The binary data written will be 32b; such that writing '1' will write '10000' to file.
  *     This means that the binary data can contain decimal places; writing '0.0001' will write '1' to file.
@@ -3981,7 +3981,7 @@ long Pos;
  *     to the same position later using 'Seek()' (if there are characters put back using
  *     'UngetChar()' still pending of being read, the behavior is undefined).
 
-bool Seek(long pos, bool from_current);
+bool Seek(long pos, bool from_current = false);
  * Moves the current position of the file.
  * 'pos' is a 32b value, where '1L' represents 1 byte; similar to 'Pos'.
  * If 'from_current' is true, it moves forward from the current position.
@@ -8333,7 +8333,7 @@ Functions for debugging, and raw access to the internal ZASM stack and mechanics
 bool Testing;
  * Returns true if this instance of ZC was launched from the 'Quest->Test' option in ZQ.
 
-void Breakpoint(char[] string);
+void Breakpoint(char[] string = NULL);
  * If the ZASM debugger is open, this will break execution, and print the given string.
  * Break controls:
  *     'Insert' - break, or step forward if broken
