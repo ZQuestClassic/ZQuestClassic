@@ -3176,6 +3176,27 @@ __________      .__        __                    _____                ___.
 //  Game  //
 //////////// Game
 
+int GetCurScreen();
+int CurScreen; //Read-only
+ * The current screen, relative to the top-left corner of the map
+
+int GetCurDMapScreen();
+int CurDMScreen; //Read-only
+ * The current screen, relative to the top-left corner of the DMap
+ * (Accounts for the DMap offset)
+
+int GetCurMap();
+int CurMap; //Read-only
+ * The current map
+
+int GetCurDMap();
+int CurDMap; //Read-only
+ * The current dmap
+
+int GetCurLevel();
+int CurLevel; //Read-only
+ * The current dmap level
+
 int Cheat;
  * The current cheat level activated (0-4)
  * Writing this >0 will enable cheats, even if normally disabled in the quest.

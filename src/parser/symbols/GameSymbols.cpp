@@ -2,312 +2,318 @@
 
 GameSymbols GameSymbols::singleton = GameSymbols();
 
-static AccessorTable gameTable[] =
+static AccessorTable2 gameTable2[] =
 {
-//	  name,                            rettype,                  setorget,     var,                  numindex,       funcFlags,                            numParams,   params
-	{ "IncrementQuest",                   ZTID_FLOAT,         GETTER,       INCQST,                 1,             0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MaxNPCs",                   ZTID_FLOAT,         GETTER,       SPRITEMAXNPC,                 1,             0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MaxNPCs",                   ZTID_VOID,          SETTER,       SPRITEMAXNPC,                 1,             0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MaxLWeapons",                   ZTID_FLOAT,         GETTER,       SPRITEMAXLWPN,                 1,             0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MaxLWeapons",                   ZTID_VOID,          SETTER,       SPRITEMAXLWPN,                 1,             0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MaxEWeapons",                   ZTID_FLOAT,         GETTER,       SPRITEMAXEWPN,                 1,             0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MaxEWeapons",                   ZTID_VOID,          SETTER,       SPRITEMAXEWPN,                 1,             0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MaxItemsprites",                   ZTID_FLOAT,         GETTER,       SPRITEMAXITEM,                 1,             0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MaxItemsprites",                   ZTID_VOID,          SETTER,       SPRITEMAXITEM,                 1,             0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSTD[]",                 ZTID_UNTYPED,         GETTER,       STDARR,         256,              0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSTD[]",                 ZTID_VOID,          SETTER,       STDARR,         256,              0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getGhost[]",                 ZTID_UNTYPED,         GETTER,       GHOSTARR,         256,              0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setGhost[]",                 ZTID_VOID,          SETTER,       GHOSTARR,         256,              0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTango[]",                 ZTID_UNTYPED,         GETTER,       TANGOARR,         256,              0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTango[]",                 ZTID_VOID,          SETTER,       TANGOARR,         256,              0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetCurScreen",                  ZTID_FLOAT,         GETTER,       CURSCR,               1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetCurDMapScreen",              ZTID_FLOAT,         GETTER,       CURDSCR,              1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetCurMap",                     ZTID_FLOAT,         GETTER,       CURMAP,               1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetCurDMap",                    ZTID_FLOAT,         GETTER,       CURDMAP,              1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetCurLevel",                   ZTID_FLOAT,         GETTER,       CURLEVEL,             1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getNumDeaths",                  ZTID_FLOAT,         GETTER,       GAMEDEATHS,           1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setNumDeaths",                  ZTID_VOID,          SETTER,       GAMEDEATHS,           1,              0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getCheat",                      ZTID_FLOAT,         GETTER,       GAMECHEAT,            1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setCheat",                      ZTID_VOID,          SETTER,       GAMECHEAT,            1,              0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMaxCheat",                   ZTID_FLOAT,         GETTER,       GAMEMAXCHEAT,            1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMaxCheat",                   ZTID_VOID,          SETTER,       GAMEMAXCHEAT,            1,              0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSubscreenSpeed",                       ZTID_LONG,          GETTER,       ACTIVESSSPEED,             1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSubscreenSpeed",                       ZTID_VOID,          SETTER,       ACTIVESSSPEED,             1,              0,                                    2,           { ZTID_GAME, ZTID_LONG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTime",                       ZTID_LONG,          GETTER,       GAMETIME,             1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTime",                       ZTID_VOID,          SETTER,       GAMETIME,             1,              0,                                    2,           { ZTID_GAME, ZTID_LONG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHasPlayed",                  ZTID_BOOL,          GETTER,       GAMEHASPLAYED,        1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHasPlayed",                  ZTID_VOID,          SETTER,       GAMEHASPLAYED,        1,              0,                                    2,           { ZTID_GAME, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTypingMode",                 ZTID_BOOL,          GETTER,       TYPINGMODE,           1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTypingMode",                 ZTID_VOID,          SETTER,       TYPINGMODE,           1,              0,                                    2,           { ZTID_GAME, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTimeValid",                  ZTID_BOOL,          GETTER,       GAMETIMEVALID,        1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTimeValid",                  ZTID_VOID,          SETTER,       GAMETIMEVALID,        1,              0,                                    2,           { ZTID_GAME, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getGuyCount[]",                 ZTID_FLOAT,         GETTER,       GAMEGUYCOUNT,         2,              0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setGuyCount[]",                 ZTID_VOID,          SETTER,       GAMEGUYCOUNT,         2,              0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getContinueScreen",             ZTID_FLOAT,         GETTER,       GAMECONTSCR,          1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setContinueScreen",             ZTID_VOID,          SETTER,       GAMECONTSCR,          1,              0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getContinueDMap",               ZTID_FLOAT,         GETTER,       GAMECONTDMAP,         1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setContinueDMap",               ZTID_VOID,          SETTER,       GAMECONTDMAP,         1,              0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getCounter[]",                  ZTID_FLOAT,         GETTER,       GAMECOUNTERD,         32,             0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setCounter[]",                  ZTID_VOID,          SETTER,       GAMECOUNTERD,         32,             0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMCounter[]",                 ZTID_FLOAT,         GETTER,       GAMEMCOUNTERD,        32,             0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMCounter[]",                 ZTID_VOID,          SETTER,       GAMEMCOUNTERD,        32,             0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDCounter[]",                 ZTID_FLOAT,         GETTER,       GAMEDCOUNTERD,        32,             0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDCounter[]",                 ZTID_VOID,          SETTER,       GAMEDCOUNTERD,        32,             0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getGeneric[]",                  ZTID_FLOAT,         GETTER,       GAMEGENERICD,         256,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setGeneric[]",                  ZTID_VOID,          SETTER,       GAMEGENERICD,         256,            0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMisc[]",                     ZTID_UNTYPED,       GETTER,       GAMEMISC,             32,             0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMisc[]",                     ZTID_VOID,          SETTER,       GAMEMISC,             32,             0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLItems[]",                   ZTID_FLOAT,         GETTER,       GAMELITEMSD,          512,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLItems[]",                   ZTID_VOID,          SETTER,       GAMELITEMSD,          512,            0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLKeys[]",                    ZTID_FLOAT,         GETTER,       GAMELKEYSD,           512,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLKeys[]",                    ZTID_VOID,          SETTER,       GAMELKEYSD,           512,            0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLSwitches[]",                ZTID_LONG,          GETTER,       GAMELSWITCH,          512,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLSwitches[]",                ZTID_VOID,          SETTER,       GAMELSWITCH,          512,            0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_LONG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getGSwitch[]",                  ZTID_FLOAT,         GETTER,       GAMEGSWITCH,          256,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setGSwitch[]",                  ZTID_VOID,          SETTER,       GAMEGSWITCH,          256,            0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getBottleState[]",              ZTID_FLOAT,         GETTER,       GAMEBOTTLEST,         256,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setBottleState[]",              ZTID_VOID,          SETTER,       GAMEBOTTLEST,         256,            0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenState",                ZTID_BOOL,          FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenState",                ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    5,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenD",                    ZTID_UNTYPED,       FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      3,           { ZTID_GAME, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenD",                    ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetDMapScreenD",                ZTID_UNTYPED,       FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetDMapScreenD",                ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    5,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LoadItemData",                  ZTID_ITEMCLASS,     FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "PlaySound",                     ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "PlayMIDI",                      ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "PlayEnhancedMusic",             ZTID_BOOL,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetDMapMusicFilename",          ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetDMapMusicTrack",             ZTID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetDMapEnhancedMusic",          ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetComboData",                  ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetComboData",                  ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    5,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetComboCSet",                  ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetComboCSet",                  ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    5,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetComboFlag",                  ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetComboFlag",                  ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    5,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetComboType",                  ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetComboType",                  ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    5,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetComboInherentFlag",          ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetComboInherentFlag",          ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    5,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetComboSolid",                 ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetComboSolid",                 ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    5,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetMIDI",                       ZTID_FLOAT,         GETTER,       GETMIDI,              1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenFlags",                ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenEFlags",               ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDMapFlags[]",                ZTID_FLOAT,         GETTER,       DMAPFLAGSD,           512,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDMapFlags[]",                ZTID_VOID,          SETTER,       DMAPFLAGSD,           512,            0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDMapLevel[]",                ZTID_FLOAT,         GETTER,       DMAPLEVELD,           512,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDMapLevel[]",                ZTID_VOID,          SETTER,       DMAPLEVELD,           512,            0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDMapCompass[]",              ZTID_FLOAT,         GETTER,       DMAPCOMPASSD,         512,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDMapCompass[]",              ZTID_VOID,          SETTER,       DMAPCOMPASSD,         512,            0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDMapContinue[]",             ZTID_FLOAT,         GETTER,       DMAPCONTINUED,        512,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDMapContinue[]",             ZTID_VOID,          SETTER,       DMAPCONTINUED,        512,            0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDMapMIDI[]",                 ZTID_FLOAT,         GETTER,       DMAPMIDID,            512,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDMapMIDI[]",                 ZTID_VOID,          SETTER,       DMAPMIDID,            512,            0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Save",                          ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "End",                           ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Continue",                      ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SaveAndQuit",                   ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SaveAndContinue",               ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "ShowContinueScreen",            ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "ComboTile",                     ZTID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetSaveName",                   ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetSaveName",                   ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetMessage",                    ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetDMapName",                   ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetDMapTitle",                  ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetDMapIntro",                  ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getStandalone",                 ZTID_BOOL,          GETTER,       GAMESTANDALONE,       1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setStandalone",                 ZTID_VOID,          SETTER,       GAMESTANDALONE,       1,              0,                                    2,           { ZTID_GAME, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "ShowSaveScreen",                ZTID_BOOL,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "ShowSaveQuitScreen",            ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLastEntranceScreen",         ZTID_FLOAT,         GETTER,       GAMEENTRSCR,          1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLastEntranceScreen",         ZTID_VOID,          SETTER,       GAMEENTRSCR,          1,              0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLastEntranceDMap",           ZTID_FLOAT,         GETTER,       GAMEENTRDMAP,         1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLastEntranceDMap",           ZTID_VOID,          SETTER,       GAMEENTRDMAP,         1,              0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getClickToFreezeEnabled",       ZTID_BOOL,          GETTER,       GAMECLICKFREEZE,      1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setClickToFreezeEnabled",       ZTID_VOID,          SETTER,       GAMECLICKFREEZE,      1,              0,                                    2,           { ZTID_GAME, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDMapOffset[]",               ZTID_FLOAT,         GETTER,       DMAPOFFSET,           512,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDMapOffset[]",               ZTID_VOID,          SETTER,       DMAPOFFSET,           512,            0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDMapMap[]",                  ZTID_FLOAT,         GETTER,       DMAPMAP,              512,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDMapMap[]",                  ZTID_VOID,          SETTER,       DMAPMAP,              512,            0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetFFCScript",                  ZTID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetComboScript",                  ZTID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
+	{ "_getIncrementQuest",         0,         ZTID_FLOAT,   INCQST,                    0,  { ZTID_GAME },{} },
+	{ "_getMaxNPCs",                0,         ZTID_FLOAT,   SPRITEMAXNPC,              0,  { ZTID_GAME },{} },
+	{ "_setMaxNPCs",                1,          ZTID_VOID,   SPRITEMAXNPC,              0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "_getMaxLWeapons",            0,         ZTID_FLOAT,   SPRITEMAXLWPN,             0,  { ZTID_GAME },{} },
+	{ "_setMaxLWeapons",            1,          ZTID_VOID,   SPRITEMAXLWPN,             0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "_getMaxEWeapons",            0,         ZTID_FLOAT,   SPRITEMAXEWPN,             0,  { ZTID_GAME },{} },
+	{ "_setMaxEWeapons",            1,          ZTID_VOID,   SPRITEMAXEWPN,             0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "_getMaxItemsprites",         0,         ZTID_FLOAT,   SPRITEMAXITEM,             0,  { ZTID_GAME },{} },
+	{ "_setMaxItemsprites",         1,          ZTID_VOID,   SPRITEMAXITEM,             0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "getSTD[]",                   0,       ZTID_UNTYPED,   STDARR,                    0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setSTD[]",                   0,          ZTID_VOID,   STDARR,                    0,  { ZTID_GAME, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "getGhost[]",                 0,       ZTID_UNTYPED,   GHOSTARR,                  0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setGhost[]",                 0,          ZTID_VOID,   GHOSTARR,                  0,  { ZTID_GAME, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "getTango[]",                 0,       ZTID_UNTYPED,   TANGOARR,                  0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setTango[]",                 0,          ZTID_VOID,   TANGOARR,                  0,  { ZTID_GAME, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "_getGetCurScreen",           0,         ZTID_FLOAT,   CURSCR,                    0,  { ZTID_GAME },{} },
+	{ "_getGetCurDMapScreen",       0,         ZTID_FLOAT,   CURDSCR,                   0,  { ZTID_GAME },{} },
+	{ "_getGetCurMap",              0,         ZTID_FLOAT,   CURMAP,                    0,  { ZTID_GAME },{} },
+	{ "_getGetCurDMap",             0,         ZTID_FLOAT,   CURDMAP,                   0,  { ZTID_GAME },{} },
+	{ "_getGetCurLevel",            0,         ZTID_FLOAT,   CURLEVEL,                  0,  { ZTID_GAME },{} },
+	{ "getCurScreen",               0,         ZTID_FLOAT,   CURSCR,                    0,  { ZTID_GAME },{} },
+	{ "getCurDMapScreen",           0,         ZTID_FLOAT,   CURDSCR,                   0,  { ZTID_GAME },{} },
+	{ "getCurDMScreen",             0,         ZTID_FLOAT,   CURDSCR,                   0,  { ZTID_GAME },{} },
+	{ "getCurMap",                  0,         ZTID_FLOAT,   CURMAP,                    0,  { ZTID_GAME },{} },
+	{ "getCurDMap",                 0,         ZTID_FLOAT,   CURDMAP,                   0,  { ZTID_GAME },{} },
+	{ "getCurLevel",                0,         ZTID_FLOAT,   CURLEVEL,                  0,  { ZTID_GAME },{} },
+	{ "getNumDeaths",               0,         ZTID_FLOAT,   GAMEDEATHS,                0,  { ZTID_GAME },{} },
+	{ "setNumDeaths",               0,          ZTID_VOID,   GAMEDEATHS,                0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "getCheat",                   0,         ZTID_FLOAT,   GAMECHEAT,                 0,  { ZTID_GAME },{} },
+	{ "setCheat",                   0,          ZTID_VOID,   GAMECHEAT,                 0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "getMaxCheat",                0,         ZTID_FLOAT,   GAMEMAXCHEAT,              0,  { ZTID_GAME },{} },
+	{ "setMaxCheat",                0,          ZTID_VOID,   GAMEMAXCHEAT,              0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "getSubscreenSpeed",          0,          ZTID_LONG,   ACTIVESSSPEED,             0,  { ZTID_GAME },{} },
+	{ "setSubscreenSpeed",          0,          ZTID_VOID,   ACTIVESSSPEED,             0,  { ZTID_GAME, ZTID_LONG },{} },
+	{ "getTime",                    0,          ZTID_LONG,   GAMETIME,                  0,  { ZTID_GAME },{} },
+	{ "setTime",                    0,          ZTID_VOID,   GAMETIME,                  0,  { ZTID_GAME, ZTID_LONG },{} },
+	{ "getHasPlayed",               0,          ZTID_BOOL,   GAMEHASPLAYED,             0,  { ZTID_GAME },{} },
+	{ "setHasPlayed",               0,          ZTID_VOID,   GAMEHASPLAYED,             0,  { ZTID_GAME, ZTID_BOOL },{} },
+	{ "getTypingMode",              0,          ZTID_BOOL,   TYPINGMODE,                0,  { ZTID_GAME },{} },
+	{ "setTypingMode",              0,          ZTID_VOID,   TYPINGMODE,                0,  { ZTID_GAME, ZTID_BOOL },{} },
+	{ "getTimeValid",               0,          ZTID_BOOL,   GAMETIMEVALID,             0,  { ZTID_GAME },{} },
+	{ "setTimeValid",               0,          ZTID_VOID,   GAMETIMEVALID,             0,  { ZTID_GAME, ZTID_BOOL },{} },
+	{ "getGuyCount[]",              0,         ZTID_FLOAT,   GAMEGUYCOUNT,              0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setGuyCount[]",              0,          ZTID_VOID,   GAMEGUYCOUNT,              0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getContinueScreen",          0,         ZTID_FLOAT,   GAMECONTSCR,               0,  { ZTID_GAME },{} },
+	{ "setContinueScreen",          0,          ZTID_VOID,   GAMECONTSCR,               0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "getContinueDMap",            0,         ZTID_FLOAT,   GAMECONTDMAP,              0,  { ZTID_GAME },{} },
+	{ "setContinueDMap",            0,          ZTID_VOID,   GAMECONTDMAP,              0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "getCounter[]",               0,         ZTID_FLOAT,   GAMECOUNTERD,              0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setCounter[]",               0,          ZTID_VOID,   GAMECOUNTERD,              0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getMCounter[]",              0,         ZTID_FLOAT,   GAMEMCOUNTERD,             0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setMCounter[]",              0,          ZTID_VOID,   GAMEMCOUNTERD,             0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getDCounter[]",              0,         ZTID_FLOAT,   GAMEDCOUNTERD,             0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setDCounter[]",              0,          ZTID_VOID,   GAMEDCOUNTERD,             0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getGeneric[]",               0,         ZTID_FLOAT,   GAMEGENERICD,              0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setGeneric[]",               0,          ZTID_VOID,   GAMEGENERICD,              0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getMisc[]",                  0,       ZTID_UNTYPED,   GAMEMISC,                  0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setMisc[]",                  0,          ZTID_VOID,   GAMEMISC,                  0,  { ZTID_GAME, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "getLItems[]",                0,         ZTID_FLOAT,   GAMELITEMSD,               0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setLItems[]",                0,          ZTID_VOID,   GAMELITEMSD,               0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getLKeys[]",                 0,         ZTID_FLOAT,   GAMELKEYSD,                0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setLKeys[]",                 0,          ZTID_VOID,   GAMELKEYSD,                0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getLSwitches[]",             0,          ZTID_LONG,   GAMELSWITCH,               0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setLSwitches[]",             0,          ZTID_VOID,   GAMELSWITCH,               0,  { ZTID_GAME, ZTID_FLOAT, ZTID_LONG },{} },
+	{ "getGSwitch[]",               0,         ZTID_FLOAT,   GAMEGSWITCH,               0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setGSwitch[]",               0,          ZTID_VOID,   GAMEGSWITCH,               0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getBottleState[]",           0,         ZTID_FLOAT,   GAMEBOTTLEST,              0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setBottleState[]",           0,          ZTID_VOID,   GAMEBOTTLEST,              0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenState",             0,          ZTID_BOOL,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenState",             0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "GetScreenD",                 0,       ZTID_UNTYPED,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "SetScreenD",                 0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetDMapScreenD",             0,       ZTID_UNTYPED,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetDMapScreenD",             0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "LoadItemData",               0,     ZTID_ITEMCLASS,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "PlaySound",                  0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "PlayMIDI",                   0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "PlayEnhancedMusic",          0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetDMapMusicFilename",       0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetDMapMusicTrack",          0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "SetDMapEnhancedMusic",       0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetComboData",               0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetComboData",               0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetComboCSet",               0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetComboCSet",               0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetComboFlag",               0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetComboFlag",               0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetComboType",               0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetComboType",               0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetComboInherentFlag",       0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetComboInherentFlag",       0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetComboSolid",              0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetComboSolid",              0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "_getGetMIDI",                0,         ZTID_FLOAT,   GETMIDI,                   0,  { ZTID_GAME },{} },
+	{ "GetScreenFlags",             0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenEFlags",            0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getDMapFlags[]",             0,         ZTID_FLOAT,   DMAPFLAGSD,                0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setDMapFlags[]",             0,          ZTID_VOID,   DMAPFLAGSD,                0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getDMapLevel[]",             0,         ZTID_FLOAT,   DMAPLEVELD,                0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setDMapLevel[]",             0,          ZTID_VOID,   DMAPLEVELD,                0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getDMapCompass[]",           0,         ZTID_FLOAT,   DMAPCOMPASSD,              0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setDMapCompass[]",           0,          ZTID_VOID,   DMAPCOMPASSD,              0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getDMapContinue[]",          0,         ZTID_FLOAT,   DMAPCONTINUED,             0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setDMapContinue[]",          0,          ZTID_VOID,   DMAPCONTINUED,             0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getDMapMIDI[]",              0,         ZTID_FLOAT,   DMAPMIDID,                 0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setDMapMIDI[]",              0,          ZTID_VOID,   DMAPMIDID,                 0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "Save",                       0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
+	{ "End",                        0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
+	{ "Continue",                   0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
+	{ "SaveAndQuit",                0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
+	{ "SaveAndContinue",            0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
+	{ "ShowContinueScreen",         0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
+	{ "ComboTile",                  0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "GetSaveName",                0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "SetSaveName",                0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "GetMessage",                 0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetDMapName",                0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetDMapTitle",               0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetDMapIntro",               0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getStandalone",              0,          ZTID_BOOL,   GAMESTANDALONE,            0,  { ZTID_GAME },{} },
+	{ "setStandalone",              0,          ZTID_VOID,   GAMESTANDALONE,            0,  { ZTID_GAME, ZTID_BOOL },{} },
+	{ "ShowSaveScreen",             0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_GAME },{} },
+	{ "ShowSaveQuitScreen",         0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
+	{ "getLastEntranceScreen",      0,         ZTID_FLOAT,   GAMEENTRSCR,               0,  { ZTID_GAME },{} },
+	{ "setLastEntranceScreen",      0,          ZTID_VOID,   GAMEENTRSCR,               0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "getLastEntranceDMap",        0,         ZTID_FLOAT,   GAMEENTRDMAP,              0,  { ZTID_GAME },{} },
+	{ "setLastEntranceDMap",        0,          ZTID_VOID,   GAMEENTRDMAP,              0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "getClickToFreezeEnabled",    0,          ZTID_BOOL,   GAMECLICKFREEZE,           0,  { ZTID_GAME },{} },
+	{ "setClickToFreezeEnabled",    0,          ZTID_VOID,   GAMECLICKFREEZE,           0,  { ZTID_GAME, ZTID_BOOL },{} },
+	{ "getDMapOffset[]",            0,         ZTID_FLOAT,   DMAPOFFSET,                0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setDMapOffset[]",            0,          ZTID_VOID,   DMAPOFFSET,                0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getDMapMap[]",               0,         ZTID_FLOAT,   DMAPMAP,                   0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setDMapMap[]",               0,          ZTID_VOID,   DMAPMAP,                   0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetFFCScript",               0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "GetComboScript",             0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
 //	Get an item script ID, similar to GetFFCScript()
-	{ "GetItemScript",                 ZTID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetNPCScript",                 ZTID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetLWeaponScript",                 ZTID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetEWeaponScript",                 ZTID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetPlayerScript",                 ZTID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetLinkScript",                 ZTID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetGlobalScript",                 ZTID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetDMapScript",                 ZTID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenScript",                 ZTID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetItemSpriteScript",                 ZTID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetUntypedScript",                 ZTID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetSubscreenScript",                 ZTID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetNPC",                 ZTID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetItem",                 ZTID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetCombo",                 ZTID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetDMap",                 ZTID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetHeroScript",                 ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetGenericScript",                 ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "GetItemScript",              0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "GetNPCScript",               0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "GetLWeaponScript",           0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "GetEWeaponScript",           0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "GetPlayerScript",            0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "GetLinkScript",              0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "GetGlobalScript",            0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "GetDMapScript",              0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "GetScreenScript",            0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "GetItemSpriteScript",        0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "GetUntypedScript",           0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "GetSubscreenScript",         0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "GetNPC",                     0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "GetItem",                    0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "GetCombo",                   0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "GetDMap",                    0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "GetHeroScript",              0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "GetGenericScript",           0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT },{} },
 //	Monochrome mode
-	{ "GreyscaleOn",                   ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GreyscaleOff",                  ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "GreyscaleOn",                0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
+	{ "GreyscaleOff",               0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
 //	Joypad and Keyboard. -Z
-	{ "getFFRules[]",                  ZTID_BOOL,          GETTER,       FFRULE,               800,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFFRules[]",                  ZTID_VOID,          SETTER,       FFRULE,               800,            0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getButtonPress[]",              ZTID_BOOL,          GETTER,       BUTTONPRESS,          18,             0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setButtonPress[]",              ZTID_VOID,          SETTER,       BUTTONPRESS,          18,             0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getButtonInput[]",              ZTID_BOOL,          GETTER,       BUTTONINPUT,          18,             0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setButtonInput[]",              ZTID_VOID,          SETTER,       BUTTONINPUT,          18,             0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getButtonHeld[]",               ZTID_BOOL,          GETTER,       BUTTONHELD,           18,             0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setButtonHeld[]",               ZTID_VOID,          SETTER,       BUTTONHELD,           18,             0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getReadKey[]",                  ZTID_BOOL,          GETTER,       READKEY,              127,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-//	{ "ReadKey",                       ZTID_BOOL,          GETTER,       READKEY,              1,              0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSkipCredits",                ZTID_BOOL,          GETTER,       SKIPCREDITS,          1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSkipCredits",                ZTID_VOID,          SETTER,       SKIPCREDITS,          1,              0,                                    2,           { ZTID_GAME, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSkipF6",                     ZTID_BOOL,          GETTER,       SKIPF6,               1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSkipF6",                     ZTID_VOID,          SETTER,       SKIPF6,               1,              0,                                    2,           { ZTID_GAME, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSuspend[]",              ZTID_BOOL,          GETTER,       GAMESUSPEND,         68,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSuspend[]",              ZTID_VOID,          SETTER,       GAMESUSPEND,         68,            0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	// { "getResume[]",              ZTID_BOOL,          GETTER,       GAMERESUME,         36,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	// { "setResume[]",              ZTID_VOID,          SETTER,       GAMERESUME,         36,            0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDisableItem[]",              ZTID_BOOL,          GETTER,       DISABLEDITEM,         256,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDisableItem[]",              ZTID_VOID,          SETTER,       DISABLEDITEM,         256,            0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getJoypadPress[]",              ZTID_BOOL,          GETTER,       JOYPADPRESS,          18,             0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFFRules[]",               0,          ZTID_BOOL,   FFRULE,                    0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setFFRules[]",               0,          ZTID_VOID,   FFRULE,                    0,  { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getButtonPress[]",           0,          ZTID_BOOL,   BUTTONPRESS,               0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setButtonPress[]",           0,          ZTID_VOID,   BUTTONPRESS,               0,  { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getButtonInput[]",           0,          ZTID_BOOL,   BUTTONINPUT,               0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setButtonInput[]",           0,          ZTID_VOID,   BUTTONINPUT,               0,  { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getButtonHeld[]",            0,          ZTID_BOOL,   BUTTONHELD,                0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setButtonHeld[]",            0,          ZTID_VOID,   BUTTONHELD,                0,  { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getReadKey[]",               0,          ZTID_BOOL,   READKEY,                   0,  { ZTID_GAME, ZTID_FLOAT },{} },
+//	{ "_getReadKey",                0,          ZTID_BOOL,   READKEY,                   0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "getSkipCredits",             0,          ZTID_BOOL,   SKIPCREDITS,               0,  { ZTID_GAME },{} },
+	{ "setSkipCredits",             0,          ZTID_VOID,   SKIPCREDITS,               0,  { ZTID_GAME, ZTID_BOOL },{} },
+	{ "getSkipF6",                  0,          ZTID_BOOL,   SKIPF6,                    0,  { ZTID_GAME },{} },
+	{ "setSkipF6",                  0,          ZTID_VOID,   SKIPF6,                    0,  { ZTID_GAME, ZTID_BOOL },{} },
+	{ "getSuspend[]",               0,          ZTID_BOOL,   GAMESUSPEND,               0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setSuspend[]",               0,          ZTID_VOID,   GAMESUSPEND,               0,  { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL },{} },
+//	{ "getResume[]",                0,          ZTID_BOOL,   GAMERESUME,                0,  { ZTID_GAME, ZTID_FLOAT },{} },
+//	{ "setResume[]",                0,          ZTID_VOID,   GAMERESUME,                0,  { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getDisableItem[]",           0,          ZTID_BOOL,   DISABLEDITEM,              0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setDisableItem[]",           0,          ZTID_VOID,   DISABLEDITEM,              0,  { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getJoypadPress[]",           0,          ZTID_BOOL,   JOYPADPRESS,               0,  { ZTID_GAME, ZTID_FLOAT },{} },
 //	Read or change the palette (level palette) for any given DMap
-	{ "getDMapPalette[]",              ZTID_FLOAT,         GETTER,       DMAPLEVELPAL,         512,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDMapPalette[]",              ZTID_VOID,          SETTER,       DMAPLEVELPAL,         512,            0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getDMapPalette[]",           0,         ZTID_FLOAT,   DMAPLEVELPAL,              0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setDMapPalette[]",           0,          ZTID_VOID,   DMAPLEVELPAL,              0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
 //	Get the map count 
-	{ "MapCount",                      ZTID_FLOAT,         GETTER,       GAMEMAXMAPS,          1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "_getMapCount",               0,         ZTID_FLOAT,   GAMEMAXMAPS,               0,  { ZTID_GAME },{} },
 //	Versioning
-	{ "getZScriptVersion",             ZTID_FLOAT,         GETTER,       ZSCRIPTVERSION,         1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getVersion",                    ZTID_FLOAT,         GETTER,       ZELDAVERSION,         1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getBuild",                      ZTID_FLOAT,         GETTER,       ZELDABUILD,           1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getBeta",                       ZTID_FLOAT,         GETTER,       ZELDABETA,            1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDisableActiveSubscreen",     ZTID_BOOL,          GETTER,       NOACTIVESUBSC,        1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDisableActiveSubscreen",     ZTID_VOID,          SETTER,       NOACTIVESUBSC,        1,              0,                                    2,           { ZTID_GAME, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetMessage",                    ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetDMapName",                   ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetDMapTitle",                  ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetDMapIntro",                  ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenEnemy",                ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenEnemy",                ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    5,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenDoor",                 ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenDoor",                 ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    5,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getZScriptVersion",          0,         ZTID_FLOAT,   ZSCRIPTVERSION,            0,  { ZTID_GAME },{} },
+	{ "getVersion",                 0,         ZTID_FLOAT,   ZELDAVERSION,              0,  { ZTID_GAME },{} },
+	{ "getBuild",                   0,         ZTID_FLOAT,   ZELDABUILD,                0,  { ZTID_GAME },{} },
+	{ "getBeta",                    0,         ZTID_FLOAT,   ZELDABETA,                 0,  { ZTID_GAME },{} },
+	{ "getDisableActiveSubscreen",  0,          ZTID_BOOL,   NOACTIVESUBSC,             0,  { ZTID_GAME },{} },
+	{ "setDisableActiveSubscreen",  0,          ZTID_VOID,   NOACTIVESUBSC,             0,  { ZTID_GAME, ZTID_BOOL },{} },
+	{ "SetMessage",                 0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetDMapName",                0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetDMapTitle",               0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetDMapIntro",               0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenEnemy",             0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenEnemy",             0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenDoor",              0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenDoor",              0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "SetScreenWidth",                ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenWidth",                ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenHeight",               ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenHeight",               ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenViewX",                ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenViewX",                ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenViewY",                ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenViewY",                ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenGuy",                  ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenGuy",                  ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenString",               ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenString",               ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenRoomType",             ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenRoomType",             ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenEntryX",               ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenEntryX",               ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "SetScreenWidth",             0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenWidth",             0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenHeight",            0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenHeight",            0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenViewX",             0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenViewX",             0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenViewY",             0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenViewY",             0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenGuy",               0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenGuy",               0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenString",            0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenString",            0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenRoomType",          0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenRoomType",          0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenEntryX",            0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenEntryX",            0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "SetScreenEntryY",               ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenEntryY",               ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenItem",                 ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenItem",                 ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenUndercombo",           ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenUndercombo",           ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenUnderCSet",            ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenUnderCSet",            ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenCatchall",             ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenCatchall",             ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenLayerOpacity",         ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    5,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenLayerOpacity",         ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenSecretCombo",          ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    5,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenSecretCombo",          ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenSecretCSet",           ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    5,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenSecretCSet",           ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenSecretFlag",           ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    5,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenSecretFlag",           ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenLayerMap",             ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    5,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenLayerMap",             ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenLayerScreen",          ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    5,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenLayerScreen",          ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenPath",                 ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    5,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenPath",                 ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenWarpReturnX",          ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    5,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenWarpReturnX",          ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenWarpReturnY",          ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    5,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenWarpReturnY",          ZTID_FLOAT,         FUNCTION,     0,                    1,              0,                                    4,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHighestStringID",            ZTID_FLOAT,         GETTER,       GAMENUMMESSAGES,      1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getNumMessages",                ZTID_FLOAT,         GETTER,       GAMENUMMESSAGES,      1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "SetScreenEntryY",            0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenEntryY",            0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenItem",              0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenItem",              0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenUndercombo",        0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenUndercombo",        0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenUnderCSet",         0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenUnderCSet",         0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenCatchall",          0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenCatchall",          0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenLayerOpacity",      0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenLayerOpacity",      0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenSecretCombo",       0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenSecretCombo",       0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenSecretCSet",        0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenSecretCSet",        0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenSecretFlag",        0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenSecretFlag",        0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenLayerMap",          0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenLayerMap",          0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenLayerScreen",       0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenLayerScreen",       0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenPath",              0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenPath",              0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenWarpReturnX",       0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenWarpReturnX",       0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenWarpReturnY",       0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetScreenWarpReturnY",       0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getHighestStringID",         0,         ZTID_FLOAT,   GAMENUMMESSAGES,           0,  { ZTID_GAME },{} },
+	{ "getNumMessages",             0,         ZTID_FLOAT,   GAMENUMMESSAGES,           0,  { ZTID_GAME },{} },
 	
-	{ "setGameOverScreen[]",           ZTID_VOID,          SETTER,       SETGAMEOVERELEMENT,   12,             0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setGameOverStrings[]",          ZTID_VOID,          SETTER,       SETGAMEOVERSTRING,    3,              0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setGameOverScreen[]",        0,          ZTID_VOID,   SETGAMEOVERELEMENT,        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "setGameOverStrings[]",       0,          ZTID_VOID,   SETGAMEOVERSTRING,         0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-//	{ "SetContinueScreen[]",           ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-//	{ "SetContinueString[]",           ZTID_VOID,          FUNCTION,     0,                    1,              0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+//	{ "SetContinueScreen[]",        0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+//	{ "SetContinueString[]",        0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
 /*	
-	{ "getJoypad[]",                   ZTID_FLOAT,         GETTER,       JOYPADPRESS,          18,             0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getPress[]",                    ZTID_BOOL,          GETTER,       BUTTONPRESS,          18,             0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setPress[]",                    ZTID_VOID,          SETTER,       BUTTONPRESS,          18,             0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getButton[]",                   ZTID_BOOL,          GETTER,       BUTTONINPUT,          18,             0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setButton[]",                   ZTID_VOID,          SETTER,       BUTTONINPUT,          18,             0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHold[]",                     ZTID_BOOL,          GETTER,       BUTTONHELD,           18,             0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHold[]",                     ZTID_VOID,          SETTER,       BUTTONHELD,           18,             0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getReadKey[]",                  ZTID_BOOL,          GETTER,       READKEY,              127,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getKey[]",                      ZTID_BOOL,          GETTER,       RAWKEY,             127,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setKey[]",                      ZTID_VOID,          SETTER,       RAWKEY,             127,            0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMouse[]",                    ZTID_FLOAT,         GETTER,       MOUSEARR,             6,              0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMouse[]",                    ZTID_VOID,          SETTER,       MOUSEARR,             6,              0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getJoypad[]",                0,         ZTID_FLOAT,   JOYPADPRESS,               0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "getPress[]",                 0,          ZTID_BOOL,   BUTTONPRESS,               0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setPress[]",                 0,          ZTID_VOID,   BUTTONPRESS,               0,  { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getButton[]",                0,          ZTID_BOOL,   BUTTONINPUT,               0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setButton[]",                0,          ZTID_VOID,   BUTTONINPUT,               0,  { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getHold[]",                  0,          ZTID_BOOL,   BUTTONHELD,                0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setHold[]",                  0,          ZTID_VOID,   BUTTONHELD,                0,  { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getReadKey[]",               1,          ZTID_BOOL,   READKEY,                   0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "getKey[]",                   0,          ZTID_BOOL,   RAWKEY,                    0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setKey[]",                   0,          ZTID_VOID,   RAWKEY,                    0,  { ZTID_GAME, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getMouse[]",                 0,         ZTID_FLOAT,   MOUSEARR,                  0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setMouse[]",                 0,          ZTID_VOID,   MOUSEARR,                  0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
 */	
 //	New Datatypes
-	{ "LoadNPCData",                   ZTID_NPCDATA,       FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LoadComboData",                 ZTID_COMBOS,        FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LoadMapData",                   ZTID_MAPDATA,       FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LoadTempScreen",                ZTID_MAPDATA,       FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LoadScrollingScreen",           ZTID_MAPDATA,       FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LoadSpriteData",                ZTID_SPRITEDATA,    FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LoadShopData",                  ZTID_SHOPDATA,      FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LoadInfoShopData",              ZTID_SHOPDATA,      FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-//	{ "LoadScreenData",                ZTID_ITEMCLASS,     FUNCTION,     0,                    1,              0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LoadBitmapID",                  ZTID_BITMAP,        FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LoadMessageData",               ZTID_ZMESSAGE,      FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LoadDMapData",                  ZTID_DMAPDATA,      FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LoadDropset",                   ZTID_DROPSET,       FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LoadRNG",                       ZTID_RNG,           FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LoadStack",                     ZTID_STACK,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LoadBottleData",                ZTID_BOTTLETYPE,    FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LoadBottleShopData",            ZTID_BOTTLESHOP,    FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LoadGenericData",               ZTID_GENERICDATA,   FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "CreateBitmap",                  ZTID_BITMAP,        FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "PlayOgg",                       ZTID_BOOL,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetOggPos",                     ZTID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetOggPos",                     ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetOggSpeed",                   ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "AllocateBitmap",                ZTID_BITMAP,        GETTER,       ALLOCATEBITMAPR,      1,              0,                                    1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getGravity[]",                  ZTID_FLOAT,         GETTER,       GAMEGRAVITY,          3,              0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setGravity[]",                  ZTID_VOID,          SETTER,       GAMEGRAVITY,          3,              0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScrolling[]",                ZTID_FLOAT,         GETTER,       GAMESCROLLING,        5,              0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Reload",                        ZTID_VOID,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           { ZTID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMiscSprites[]",              ZTID_FLOAT,         GETTER,       GAMEMISCSPR,          256,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMiscSprites[]",              ZTID_VOID,          SETTER,       GAMEMISCSPR,          256,            0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMiscSFX[]",                  ZTID_FLOAT,         GETTER,       GAMEMISCSFX,          256,            0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMiscSFX[]",                  ZTID_VOID,          SETTER,       GAMEMISCSFX,          256,            0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getEventData[]",                ZTID_UNTYPED,       GETTER,       GAMEEVENTDATA,        214748,         0,                                    2,           { ZTID_GAME, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setEventData[]",                ZTID_VOID,          SETTER,       GAMEEVENTDATA,        214748,         0,                                    3,           { ZTID_GAME, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "LoadNPCData",                0,       ZTID_NPCDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "LoadComboData",              0,        ZTID_COMBOS,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "LoadMapData",                0,       ZTID_MAPDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "LoadTempScreen",             0,       ZTID_MAPDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "LoadScrollingScreen",        0,       ZTID_MAPDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "LoadSpriteData",             0,    ZTID_SPRITEDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "LoadShopData",               0,      ZTID_SHOPDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "LoadInfoShopData",           0,      ZTID_SHOPDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+//	{ "LoadScreenData",             0,     ZTID_ITEMCLASS,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "LoadBitmapID",               0,        ZTID_BITMAP,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "LoadMessageData",            0,      ZTID_ZMESSAGE,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "LoadDMapData",               0,      ZTID_DMAPDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "LoadDropset",                0,       ZTID_DROPSET,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "LoadRNG",                    0,           ZTID_RNG,   -1,                   FL_INL,  { ZTID_GAME },{} },
+	{ "LoadStack",                  0,         ZTID_STACK,   -1,                   FL_INL,  { ZTID_GAME },{} },
+	{ "LoadBottleData",             0,    ZTID_BOTTLETYPE,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "LoadBottleShopData",         0,    ZTID_BOTTLESHOP,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "LoadGenericData",            0,   ZTID_GENERICDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "CreateBitmap",               0,        ZTID_BITMAP,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "PlayOgg",                    0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetOggPos",                  0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME },{} },
+	{ "SetOggPos",                  0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "SetOggSpeed",                0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "_getAllocateBitmap",         0,        ZTID_BITMAP,   ALLOCATEBITMAPR,           0,  { ZTID_GAME },{} },
+	{ "getGravity[]",               0,         ZTID_FLOAT,   GAMEGRAVITY,               0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setGravity[]",               0,          ZTID_VOID,   GAMEGRAVITY,               0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getScrolling[]",             0,         ZTID_FLOAT,   GAMESCROLLING,             0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "Reload",                     0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GAME },{} },
+	{ "getMiscSprites[]",           0,         ZTID_FLOAT,   GAMEMISCSPR,               0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setMiscSprites[]",           0,          ZTID_VOID,   GAMEMISCSPR,               0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getMiscSFX[]",               0,         ZTID_FLOAT,   GAMEMISCSFX,               0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setMiscSFX[]",               0,          ZTID_VOID,   GAMEMISCSFX,               0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getEventData[]",             0,       ZTID_UNTYPED,   GAMEEVENTDATA,             0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setEventData[]",             0,          ZTID_VOID,   GAMEEVENTDATA,             0,  { ZTID_GAME, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	
-	{ "",                              -1,                       -1,           -1,                   -1,             0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
 GameSymbols::GameSymbols()
 {
-	table = gameTable;
+	table2 = gameTable2;
 	refVar = NUL;
 }
 
@@ -315,7 +321,7 @@ void GameSymbols::generateCode()
 {
 	//itemclass LoadItemData(game, int32_t)
 	{
-		Function* function = getFunction("LoadItemData", 2);
+		Function* function = getFunction2("LoadItemData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -330,7 +336,7 @@ void GameSymbols::generateCode()
 	}
 	//NPCData
 	{
-		Function* function = getFunction("LoadNPCData", 2);
+		Function* function = getFunction2("LoadNPCData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -346,7 +352,7 @@ void GameSymbols::generateCode()
 	
 	//DMapdata
 	{
-		Function* function = getFunction("LoadDMapData", 2);
+		Function* function = getFunction2("LoadDMapData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -362,7 +368,7 @@ void GameSymbols::generateCode()
 	
 	//Dropset
 	{
-		Function* function = getFunction("LoadDropset", 2);
+		Function* function = getFunction2("LoadDropset");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -378,7 +384,7 @@ void GameSymbols::generateCode()
 	
 	//randgen LoadRNG(Game)
 	{
-		Function* function = getFunction("LoadRNG", 1);
+		Function* function = getFunction2("LoadRNG");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -391,7 +397,7 @@ void GameSymbols::generateCode()
 	
 	//stack LoadStack(Game)
 	{
-		Function* function = getFunction("LoadStack", 1);
+		Function* function = getFunction2("LoadStack");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -403,7 +409,7 @@ void GameSymbols::generateCode()
 	}
 	//BottleData
 	{
-		Function* function = getFunction("LoadBottleData", 2);
+		Function* function = getFunction2("LoadBottleData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -418,7 +424,7 @@ void GameSymbols::generateCode()
 	}
 	//BottleShopData
 	{
-		Function* function = getFunction("LoadBottleShopData", 2);
+		Function* function = getFunction2("LoadBottleShopData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -433,7 +439,7 @@ void GameSymbols::generateCode()
 	}
 	//GenericData
 	{
-		Function* function = getFunction("LoadGenericData", 2);
+		Function* function = getFunction2("LoadGenericData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -449,7 +455,7 @@ void GameSymbols::generateCode()
 	
 	//Messagedata
 	{
-		Function* function = getFunction("LoadMessageData", 2);
+		Function* function = getFunction2("LoadMessageData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -464,7 +470,7 @@ void GameSymbols::generateCode()
 	}
 	//ComboData
 	{
-		Function* function = getFunction("LoadComboData", 2);
+		Function* function = getFunction2("LoadComboData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -498,7 +504,7 @@ void GameSymbols::generateCode()
 	
 	//int32_t LoadMapData(mapdata, int32_t map,int32_t scr)
 	{
-		Function* function = getFunction("LoadMapData", 3);
+		Function* function = getFunction2("LoadMapData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -514,7 +520,7 @@ void GameSymbols::generateCode()
 	
 	//int32_t LoadTempScreen(game, int32_t layer)
 	{
-		Function* function = getFunction("LoadTempScreen", 2);
+		Function* function = getFunction2("LoadTempScreen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -529,7 +535,7 @@ void GameSymbols::generateCode()
 	
 	//int32_t LoadScrollingScreen(game, int32_t layer)
 	{
-		Function* function = getFunction("LoadScrollingScreen", 2);
+		Function* function = getFunction2("LoadScrollingScreen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -544,7 +550,7 @@ void GameSymbols::generateCode()
 	
 	//int32_t Create(bitmap, int32_t map,int32_t scr)
 	{
-		Function* function = getFunction("CreateBitmap", 3);
+		Function* function = getFunction2("CreateBitmap");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -561,7 +567,7 @@ void GameSymbols::generateCode()
 	//SpriteData
 	{
 		
-	Function* function = getFunction("LoadSpriteData", 2);
+	Function* function = getFunction2("LoadSpriteData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -576,7 +582,7 @@ void GameSymbols::generateCode()
 	}
 	//ShopData
 	{
-		Function* function = getFunction("LoadShopData", 2);
+		Function* function = getFunction2("LoadShopData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -591,7 +597,7 @@ void GameSymbols::generateCode()
 	}
 	//InfoShopData
 	{
-		Function* function = getFunction("LoadInfoShopData", 2);
+		Function* function = getFunction2("LoadInfoShopData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -606,7 +612,7 @@ void GameSymbols::generateCode()
 	}
 	//Bitmap
 	{
-		Function* function = getFunction("LoadBitmapID", 2);
+		Function* function = getFunction2("LoadBitmapID");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -622,7 +628,7 @@ void GameSymbols::generateCode()
 	
 	//bool GetScreenState(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenState", 4);
+		Function* function = getFunction2("GetScreenState");
 		int32_t label = function->getLabel();
 		int32_t done = ScriptParser::getUniqueLabelID();
 		vector<shared_ptr<Opcode>> code;
@@ -647,7 +653,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenState(game, int32_t,int32_t,int32_t,bool)
 	{
-		Function* function = getFunction("SetScreenState", 5);
+		Function* function = getFunction2("SetScreenState");
 		int32_t label = function->getLabel();
 		int32_t done = ScriptParser::getUniqueLabelID();
 		vector<shared_ptr<Opcode>> code;
@@ -672,7 +678,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenD(game, int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenD", 3);
+		Function* function = getFunction2("GetScreenD");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -687,7 +693,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenD(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenD", 4);
+		Function* function = getFunction2("SetScreenD");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -703,7 +709,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetDMapScreenD(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetDMapScreenD", 4);
+		Function* function = getFunction2("GetDMapScreenD");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -719,7 +725,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetDMapScreenD(game, int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetDMapScreenD", 5);
+		Function* function = getFunction2("SetDMapScreenD");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -736,7 +742,7 @@ void GameSymbols::generateCode()
 	}
 	//void PlaySound(game, int32_t)
 	{
-		Function* function = getFunction("PlaySound", 2);
+		Function* function = getFunction2("PlaySound");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -750,7 +756,7 @@ void GameSymbols::generateCode()
 	}
 	//void PlayMIDI(game, int32_t)
 	{
-		Function* function = getFunction("PlayMIDI", 2);
+		Function* function = getFunction2("PlayMIDI");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -764,7 +770,7 @@ void GameSymbols::generateCode()
 	}
 	//void PlayEnhancedMusic(game, int32_t, int32_t)
 	{
-		Function* function = getFunction("PlayEnhancedMusic", 3);
+		Function* function = getFunction2("PlayEnhancedMusic");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -779,7 +785,7 @@ void GameSymbols::generateCode()
 	}
 	//void GetDMapMusicFilename(game, int32_t, int32_t)
 	{
-		Function* function = getFunction("GetDMapMusicFilename", 3);
+		Function* function = getFunction2("GetDMapMusicFilename");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -794,7 +800,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetDMapMusicTrack(game, int32_t)
 	{
-		Function* function = getFunction("GetDMapMusicTrack", 2);
+		Function* function = getFunction2("GetDMapMusicTrack");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -807,7 +813,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetDMapEnhancedMusic(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetDMapEnhancedMusic", 4);
+		Function* function = getFunction2("SetDMapEnhancedMusic");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OSetDMapEnhancedMusic());
@@ -823,7 +829,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetComboData(int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetComboData", 4);
+		Function* function = getFunction2("GetComboData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -839,7 +845,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetComboData(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetComboData", 5);
+		Function* function = getFunction2("SetComboData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -856,7 +862,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetComboCSet(int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetComboCSet", 4);
+		Function* function = getFunction2("GetComboCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -872,7 +878,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetComboCSet(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetComboCSet", 5);
+		Function* function = getFunction2("SetComboCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -889,7 +895,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetComboFlag(int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetComboFlag", 4);
+		Function* function = getFunction2("GetComboFlag");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -905,7 +911,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetComboFlag(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetComboFlag", 5);
+		Function* function = getFunction2("SetComboFlag");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -922,7 +928,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetComboType(int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetComboType", 4);
+		Function* function = getFunction2("GetComboType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -938,7 +944,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetComboType(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetComboType", 5);
+		Function* function = getFunction2("SetComboType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -955,7 +961,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetComboInherentFlag(int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetComboInherentFlag", 4);
+		Function* function = getFunction2("GetComboInherentFlag");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -971,7 +977,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetComboInherentFlag(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetComboInherentFlag", 5);
+		Function* function = getFunction2("SetComboInherentFlag");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -988,7 +994,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetComboCollision(int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetComboSolid", 4);
+		Function* function = getFunction2("GetComboSolid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1004,7 +1010,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetComboCollision(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetComboSolid", 5);
+		Function* function = getFunction2("SetComboSolid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1021,7 +1027,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenFlags(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenFlags", 4);
+		Function* function = getFunction2("GetScreenFlags");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1037,7 +1043,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenEFlags(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenEFlags", 4);
+		Function* function = getFunction2("GetScreenEFlags");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1053,7 +1059,7 @@ void GameSymbols::generateCode()
 	}
 	//void Save(game)
 	{
-		Function* function = getFunction("Save", 1);
+		Function* function = getFunction2("Save");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1065,7 +1071,7 @@ void GameSymbols::generateCode()
 	}
 	//void End(game)
 	{
-		Function* function = getFunction("End", 1);
+		Function* function = getFunction2("End");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1078,7 +1084,7 @@ void GameSymbols::generateCode()
 	
 	//void Continue(game)
 	{
-		Function* function = getFunction("Continue", 1);
+		Function* function = getFunction2("Continue");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1091,7 +1097,7 @@ void GameSymbols::generateCode()
 	
 	//void SaveAndQuit(game)
 	{
-		Function* function = getFunction("SaveAndQuit", 1);
+		Function* function = getFunction2("SaveAndQuit");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1104,7 +1110,7 @@ void GameSymbols::generateCode()
 	
 	//void SaveAndContinue(game)
 	{
-		Function* function = getFunction("SaveAndContinue", 1);
+		Function* function = getFunction2("SaveAndContinue");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1116,7 +1122,7 @@ void GameSymbols::generateCode()
 	}
 	//void ShowContinueScreen(game)
 	{
-		Function* function = getFunction("ShowContinueScreen", 1);
+		Function* function = getFunction2("ShowContinueScreen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1128,7 +1134,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t ComboTile(game,int32_t)
 	{
-		Function* function = getFunction("ComboTile", 2);
+		Function* function = getFunction2("ComboTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1141,7 +1147,7 @@ void GameSymbols::generateCode()
 	}
 	//void GetSaveName(game, int32_t)
 	{
-		Function* function = getFunction("GetSaveName", 2);
+		Function* function = getFunction2("GetSaveName");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1155,7 +1161,7 @@ void GameSymbols::generateCode()
 	}
 	//void GetSaveName(game, int32_t)
 	{
-		Function* function = getFunction("SetSaveName", 2);
+		Function* function = getFunction2("SetSaveName");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1169,7 +1175,7 @@ void GameSymbols::generateCode()
 	}
 	//GetMessage(game, int32_t, int32_t)
 	{
-		Function* function = getFunction("GetMessage", 3);
+		Function* function = getFunction2("GetMessage");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1184,7 +1190,7 @@ void GameSymbols::generateCode()
 	}
 	//GetDMapName(game, int32_t, int32_t)
 	{
-		Function* function = getFunction("GetDMapName", 3);
+		Function* function = getFunction2("GetDMapName");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1199,7 +1205,7 @@ void GameSymbols::generateCode()
 	}
 	//GetDMapTitle(game, int32_t, int32_t)
 	{
-		Function* function = getFunction("GetDMapTitle", 3);
+		Function* function = getFunction2("GetDMapTitle");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1214,7 +1220,7 @@ void GameSymbols::generateCode()
 	}
 	//GetDMapIntro(game, int32_t, int32_t)
 	{
-		Function* function = getFunction("GetDMapIntro", 3);
+		Function* function = getFunction2("GetDMapIntro");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1232,7 +1238,7 @@ void GameSymbols::generateCode()
 	
 	//void GreyscaleOn(game)
 	{
-		Function* function = getFunction("GreyscaleOn", 1);
+		Function* function = getFunction2("GreyscaleOn");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1245,7 +1251,7 @@ void GameSymbols::generateCode()
 			
 	//void GreyscaleOff(game)
 	{
-		Function* function = getFunction("GreyscaleOff", 1);
+		Function* function = getFunction2("GreyscaleOff");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1259,7 +1265,7 @@ void GameSymbols::generateCode()
 	
    // SetMessage(game, int32_t, int32_t)
 	{
-		Function* function = getFunction("SetMessage", 3);
+		Function* function = getFunction2("SetMessage");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1274,7 +1280,7 @@ void GameSymbols::generateCode()
 	}
 	//SetDMapName(game, int32_t, int32_t)
 	{
-		Function* function = getFunction("SetDMapName", 3);
+		Function* function = getFunction2("SetDMapName");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1289,7 +1295,7 @@ void GameSymbols::generateCode()
 	}
 	//SetDMapTitle(game, int32_t, int32_t)
 	{
-		Function* function = getFunction("SetDMapTitle", 3);
+		Function* function = getFunction2("SetDMapTitle");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1304,7 +1310,7 @@ void GameSymbols::generateCode()
 	}
 	//SetDMapIntro(game, int32_t, int32_t)
 	{
-		Function* function = getFunction("SetDMapIntro", 3);
+		Function* function = getFunction2("SetDMapIntro");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1320,7 +1326,7 @@ void GameSymbols::generateCode()
 	
 	//bool ShowSaveScreen(game)
 	{
-		Function* function = getFunction("ShowSaveScreen", 1);
+		Function* function = getFunction2("ShowSaveScreen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1333,7 +1339,7 @@ void GameSymbols::generateCode()
 	
 	//void ShowSaveQuitScreen(game)
 	{
-		Function* function = getFunction("ShowSaveQuitScreen", 1);
+		Function* function = getFunction2("ShowSaveQuitScreen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1346,7 +1352,7 @@ void GameSymbols::generateCode()
 	
 	//int32_t GetFFCScript(game, int32_t)
 	{
-		Function* function = getFunction("GetFFCScript", 2);
+		Function* function = getFunction2("GetFFCScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1361,7 +1367,7 @@ void GameSymbols::generateCode()
 	
 	//int32_t GetComboScript(game, int32_t)
 	{
-		Function* function = getFunction("GetComboScript", 2);
+		Function* function = getFunction2("GetComboScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1377,7 +1383,7 @@ void GameSymbols::generateCode()
 	
 	 //int32_t GetItemScript(game, int32_t)
 	{
-		Function* function = getFunction("GetItemScript", 2);
+		Function* function = getFunction2("GetItemScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1392,7 +1398,7 @@ void GameSymbols::generateCode()
 	
 	 //int32_t GetNPCScript(game, int32_t)
 	{
-		Function* function = getFunction("GetNPCScript", 2);
+		Function* function = getFunction2("GetNPCScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1406,7 +1412,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetLWeaponScript(game, int32_t)
 	{
-		Function* function = getFunction("GetLWeaponScript", 2);
+		Function* function = getFunction2("GetLWeaponScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1420,7 +1426,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetEWeaponScript(game, int32_t)
 	{
-		Function* function = getFunction("GetEWeaponScript", 2);
+		Function* function = getFunction2("GetEWeaponScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1434,7 +1440,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetGenericScript(game, int32_t)
 	{
-		Function* function = getFunction("GetGenericScript", 2);
+		Function* function = getFunction2("GetGenericScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1448,7 +1454,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetHeroScript(game, int32_t)
 	{
-		Function* function = getFunction("GetHeroScript", 2);
+		Function* function = getFunction2("GetHeroScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1462,7 +1468,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetPlayerScript(game, int32_t)
 	{
-		Function* function = getFunction("GetPlayerScript", 2);
+		Function* function = getFunction2("GetPlayerScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1476,7 +1482,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetLinkScript(game, int32_t)
 	{
-		Function* function = getFunction("GetLinkScript", 2);
+		Function* function = getFunction2("GetLinkScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1490,7 +1496,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetGlobalScript(game, int32_t)
 	{
-		Function* function = getFunction("GetGlobalScript", 2);
+		Function* function = getFunction2("GetGlobalScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1504,7 +1510,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetDMapScript(game, int32_t)
 	{
-		Function* function = getFunction("GetDMapScript", 2);
+		Function* function = getFunction2("GetDMapScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1518,7 +1524,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenScript(game, int32_t)
 	{
-		Function* function = getFunction("GetScreenScript", 2);
+		Function* function = getFunction2("GetScreenScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1532,7 +1538,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetItemSpriteScript(game, int32_t)
 	{
-		Function* function = getFunction("GetItemSpriteScript", 2);
+		Function* function = getFunction2("GetItemSpriteScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1546,7 +1552,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetUntypedScript(game, int32_t)
 	{
-		Function* function = getFunction("GetUntypedScript", 2);
+		Function* function = getFunction2("GetUntypedScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1560,7 +1566,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetSubscreenScript(game, int32_t)
 	{
-		Function* function = getFunction("GetSubscreenScript", 2);
+		Function* function = getFunction2("GetSubscreenScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1574,7 +1580,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetNPC(game, int32_t)
 	{
-		Function* function = getFunction("GetNPC", 2);
+		Function* function = getFunction2("GetNPC");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1588,7 +1594,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetItem(game, int32_t)
 	{
-		Function* function = getFunction("GetItem", 2);
+		Function* function = getFunction2("GetItem");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1602,7 +1608,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetCombo(game, int32_t)
 	{
-		Function* function = getFunction("GetCombo", 2);
+		Function* function = getFunction2("GetCombo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1616,7 +1622,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetDMap(game, int32_t)
 	{
-		Function* function = getFunction("GetDMap", 2);
+		Function* function = getFunction2("GetDMap");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1631,7 +1637,7 @@ void GameSymbols::generateCode()
 	
 	 //int32_t GetScreenEnemy(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenEnemy", 4);
+		Function* function = getFunction2("GetScreenEnemy");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1647,7 +1653,7 @@ void GameSymbols::generateCode()
 	}
 	 //int32_t GetScreenDoor(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenDoor", 4);
+		Function* function = getFunction2("GetScreenDoor");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1663,7 +1669,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenEnemy(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenEnemy", 5);
+		Function* function = getFunction2("SetScreenEnemy");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1680,7 +1686,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenDoor(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenDoor", 5);
+		Function* function = getFunction2("SetScreenDoor");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1698,7 +1704,7 @@ void GameSymbols::generateCode()
 	
 	//void SetScreenWidth(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenWidth", 4);
+		Function* function = getFunction2("SetScreenWidth");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1714,7 +1720,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenWidth(game, int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenWidth", 3);
+		Function* function = getFunction2("GetScreenWidth");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1730,7 +1736,7 @@ void GameSymbols::generateCode()
 	
 	//void SetScreenHeight(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenHeight", 4);
+		Function* function = getFunction2("SetScreenHeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1746,7 +1752,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenHeight(game, int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenHeight", 3);
+		Function* function = getFunction2("GetScreenHeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1761,7 +1767,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenViewX(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenViewX", 4);
+		Function* function = getFunction2("SetScreenViewX");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1777,7 +1783,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenViewX(game, int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenViewX", 3);
+		Function* function = getFunction2("GetScreenViewX");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1792,7 +1798,7 @@ void GameSymbols::generateCode()
 	}
 	 //void SetScreenViewY(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenViewY", 4);
+		Function* function = getFunction2("SetScreenViewY");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1808,7 +1814,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenViewY(game, int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenViewY", 3);
+		Function* function = getFunction2("GetScreenViewY");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1823,7 +1829,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenGuy(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenGuy", 4);
+		Function* function = getFunction2("SetScreenGuy");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1839,7 +1845,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenGuy(game, int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenGuy", 3);
+		Function* function = getFunction2("GetScreenGuy");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1854,7 +1860,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenString(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenString", 4);
+		Function* function = getFunction2("SetScreenString");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1870,7 +1876,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenString(game, int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenString", 3);
+		Function* function = getFunction2("GetScreenString");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1885,7 +1891,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenRoomType(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenRoomType", 4);
+		Function* function = getFunction2("SetScreenRoomType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1901,7 +1907,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenRoomType(game, int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenRoomType", 3);
+		Function* function = getFunction2("GetScreenRoomType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1916,7 +1922,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenEntryX(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenEntryX", 4);
+		Function* function = getFunction2("SetScreenEntryX");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1932,7 +1938,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenEntryX(game, int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenEntryX", 3);
+		Function* function = getFunction2("GetScreenEntryX");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1947,7 +1953,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenEntryY(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenEntryY", 4);
+		Function* function = getFunction2("SetScreenEntryY");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1963,7 +1969,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenEntryY(game, int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenEntryY", 3);
+		Function* function = getFunction2("GetScreenEntryY");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1978,7 +1984,7 @@ void GameSymbols::generateCode()
 	}
 	 //void SetScreenItem(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenItem", 4);
+		Function* function = getFunction2("SetScreenItem");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1994,7 +2000,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenItem(game, int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenItem", 3);
+		Function* function = getFunction2("GetScreenItem");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2009,7 +2015,7 @@ void GameSymbols::generateCode()
 	}
 	 //void SetScreenUndercombo(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenUndercombo", 4);
+		Function* function = getFunction2("SetScreenUndercombo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2025,7 +2031,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenUndercombo(game, int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenUndercombo", 3);
+		Function* function = getFunction2("GetScreenUndercombo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2040,7 +2046,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenUnderCSet(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenUnderCSet", 4);
+		Function* function = getFunction2("SetScreenUnderCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2056,7 +2062,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenUnderCSet(game, int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenUnderCSet", 3);
+		Function* function = getFunction2("GetScreenUnderCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2071,7 +2077,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenCatchall(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenCatchall", 4);
+		Function* function = getFunction2("SetScreenCatchall");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2087,7 +2093,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenCatchall(game, int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenCatchall", 3);
+		Function* function = getFunction2("GetScreenCatchall");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2103,7 +2109,7 @@ void GameSymbols::generateCode()
 	
 	//void SetScreenLayerOpacity(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenLayerOpacity", 5);
+		Function* function = getFunction2("SetScreenLayerOpacity");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2120,7 +2126,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenLayerOpacity(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenLayerOpacity", 4);
+		Function* function = getFunction2("GetScreenLayerOpacity");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2137,7 +2143,7 @@ void GameSymbols::generateCode()
 
 	 //void SetScreenSecretCombo(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenSecretCombo", 5);
+		Function* function = getFunction2("SetScreenSecretCombo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2154,7 +2160,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenSecretCombo(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenSecretCombo", 4);
+		Function* function = getFunction2("GetScreenSecretCombo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2171,7 +2177,7 @@ void GameSymbols::generateCode()
 
 	 //void SetScreenSecretCSet(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenSecretCSet", 5);
+		Function* function = getFunction2("SetScreenSecretCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2188,7 +2194,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenSecretCSet(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenSecretCSet", 4);
+		Function* function = getFunction2("GetScreenSecretCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2204,7 +2210,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenSecretFlag(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenSecretFlag", 5);
+		Function* function = getFunction2("SetScreenSecretFlag");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2221,7 +2227,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenSecretFlag(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenSecretFlag", 4);
+		Function* function = getFunction2("GetScreenSecretFlag");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2238,7 +2244,7 @@ void GameSymbols::generateCode()
 
 	 //void SetScreenLayerMap(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenLayerMap", 5);
+		Function* function = getFunction2("SetScreenLayerMap");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2255,7 +2261,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenLayerMap(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenLayerMap", 4);
+		Function* function = getFunction2("GetScreenLayerMap");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2273,7 +2279,7 @@ void GameSymbols::generateCode()
 	
 	//void SetScreenLayerScreen(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenLayerScreen", 5);
+		Function* function = getFunction2("SetScreenLayerScreen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2290,7 +2296,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenLayerScreen(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenLayerScreen", 4);
+		Function* function = getFunction2("GetScreenLayerScreen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2307,7 +2313,7 @@ void GameSymbols::generateCode()
 
 	//void SetScreenPath(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenPath", 5);
+		Function* function = getFunction2("SetScreenPath");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2324,7 +2330,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenPath(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenPath", 4);
+		Function* function = getFunction2("GetScreenPath");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2340,7 +2346,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenWarpReturnX(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenWarpReturnX", 5);
+		Function* function = getFunction2("SetScreenWarpReturnX");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2357,7 +2363,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenWarpReturnX(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenWarpReturnX", 4);
+		Function* function = getFunction2("GetScreenWarpReturnX");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2373,7 +2379,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenWarpReturnY(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetScreenWarpReturnY", 5);
+		Function* function = getFunction2("SetScreenWarpReturnY");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2390,7 +2396,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenWarpReturnY(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetScreenWarpReturnY", 4);
+		Function* function = getFunction2("GetScreenWarpReturnY");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2406,7 +2412,7 @@ void GameSymbols::generateCode()
 	}
 	//void PlayOgg(game, int32_t, int32_t)
 	{
-		Function* function = getFunction("PlayOgg", 3);
+		Function* function = getFunction2("PlayOgg");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2421,7 +2427,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetOggPos(game)
 {
-		Function* function = getFunction("GetOggPos", 1);
+		Function* function = getFunction2("GetOggPos");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -2433,7 +2439,7 @@ void GameSymbols::generateCode()
 }
 	 //void SetOggPos(game, int32_t)
 	{
-		Function* function = getFunction("SetOggPos", 2);
+		Function* function = getFunction2("SetOggPos");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2448,7 +2454,7 @@ void GameSymbols::generateCode()
 	
 	//void SetOggSpeed(game, int32_t)
 	{
-		Function* function = getFunction("SetOggSpeed", 2);
+		Function* function = getFunction2("SetOggSpeed");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2463,7 +2469,7 @@ void GameSymbols::generateCode()
 	
 	//void Reload(game)
 	{
-		Function* function = getFunction("Reload", 1);
+		Function* function = getFunction2("Reload");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
