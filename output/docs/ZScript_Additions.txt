@@ -4052,7 +4052,7 @@ void Own();
 
 /////////////////
 ///   Stack   ///
-/////////////////
+///////////////// stack
 
 long Size;
  * Read-only. The size of the stack, given as a LONG.
