@@ -2,175 +2,175 @@
 
 HeroWeaponSymbols HeroWeaponSymbols::singleton = HeroWeaponSymbols();
 
-static AccessorTable lwpnTable[] =
+static AccessorTable2 lwpnTable2[] =
 {
-//	  name,                     rettype,                  setorget,     var,                  numindex,      funcFlags,                            numParams,   params
-	{ "getX",                   ZTID_FLOAT,         GETTER,       LWPNX,                1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setX",                   ZTID_VOID,          SETTER,       LWPNX,                1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSpecial",                   ZTID_FLOAT,         GETTER,       LWPNSPECIAL,                1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSpecial",                   ZTID_VOID,          SETTER,       LWPNSPECIAL,                1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Max",                   ZTID_FLOAT,         GETTER,       SPRITEMAXLWPN,                1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Max",                   ZTID_VOID,          SETTER,       SPRITEMAXLWPN,                1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getY",                   ZTID_FLOAT,         GETTER,       LWPNY,                1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setY",                   ZTID_VOID,          SETTER,       LWPNY,                1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getZ",                   ZTID_FLOAT,         GETTER,       LWPNZ,                1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setZ",                   ZTID_VOID,          SETTER,       LWPNZ,                1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getJump",                ZTID_FLOAT,         GETTER,       LWPNJUMP,             1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setJump",                ZTID_VOID,          SETTER,       LWPNJUMP,             1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDir",                 ZTID_FLOAT,         GETTER,       LWPNDIR,              1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDir",                 ZTID_VOID,          SETTER,       LWPNDIR,              1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getAngle",               ZTID_FLOAT,         GETTER,       LWPNANGLE,            1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setAngle",               ZTID_VOID,          SETTER,       LWPNANGLE,            1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getStep",                ZTID_FLOAT,         GETTER,       LWPNSTEP,             1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setStep",                ZTID_VOID,          SETTER,       LWPNSTEP,             1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getNumFrames",           ZTID_FLOAT,         GETTER,       LWPNFRAMES,           1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setNumFrames",           ZTID_VOID,          SETTER,       LWPNFRAMES,           1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFrame",               ZTID_FLOAT,         GETTER,       LWPNFRAME,            1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFrame",               ZTID_VOID,          SETTER,       LWPNFRAME,            1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrawStyle",           ZTID_FLOAT,         GETTER,       LWPNDRAWTYPE,         1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrawStyle",           ZTID_VOID,          SETTER,       LWPNDRAWTYPE,         1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getPower",               ZTID_FLOAT,         GETTER,       LWPNPOWER,            1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setPower",               ZTID_VOID,          SETTER,       LWPNPOWER,            1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDamage",              ZTID_FLOAT,         GETTER,       LWPNPOWER,            1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDamage",              ZTID_VOID,          SETTER,       LWPNPOWER,            1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getID",                  ZTID_FLOAT,         GETTER,       LWPNID,               1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setID",                  ZTID_VOID,          SETTER,       LWPNID,               1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getType",                ZTID_FLOAT,         GETTER,       LWPNID,               1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setType",                ZTID_VOID,          SETTER,       LWPNID,               1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFamily",              ZTID_FLOAT,         GETTER,       LWPNID,               1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFamily",              ZTID_VOID,          SETTER,       LWPNID,               1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getAngular",             ZTID_BOOL,          GETTER,       LWPNANGULAR,          1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setAngular",             ZTID_VOID,          SETTER,       LWPNANGULAR,          1,             0,                                    2,           { ZTID_LWPN, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getBehind",              ZTID_BOOL,          GETTER,       LWPNBEHIND,           1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setBehind",              ZTID_VOID,          SETTER,       LWPNBEHIND,           1,             0,                                    2,           { ZTID_LWPN, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getASpeed",              ZTID_FLOAT,         GETTER,       LWPNASPEED,           1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setASpeed",              ZTID_VOID,          SETTER,       LWPNASPEED,           1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTile",                ZTID_FLOAT,         GETTER,       LWPNTILE,             1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTile",                ZTID_VOID,          SETTER,       LWPNTILE,             1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScriptTile",          ZTID_FLOAT,         GETTER,       LWPNSCRIPTTILE,       1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setScriptTile",          ZTID_VOID,          SETTER,       LWPNSCRIPTTILE,       1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScriptFlip",          ZTID_FLOAT,         GETTER,       LWPNSCRIPTFLIP,       1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setScriptFlip",          ZTID_VOID,          SETTER,       LWPNSCRIPTFLIP,       1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFlashCSet",           ZTID_FLOAT,         GETTER,       LWPNFLASHCSET,        1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFlashCSet",           ZTID_VOID,          SETTER,       LWPNFLASHCSET,        1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDeadState",           ZTID_FLOAT,         GETTER,       LWPNDEAD,             1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDeadState",           ZTID_VOID,          SETTER,       LWPNDEAD,             1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getCSet",                ZTID_FLOAT,         GETTER,       LWPNCSET,             1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setCSet",                ZTID_VOID,          SETTER,       LWPNCSET,             1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFlash",               ZTID_BOOL,          GETTER,       LWPNFLASH,            1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFlash",               ZTID_VOID,          SETTER,       LWPNFLASH,            1,             0,                                    2,           { ZTID_LWPN, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFlip",                ZTID_FLOAT,         GETTER,       LWPNFLIP,             1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFlip",                ZTID_VOID,          SETTER,       LWPNFLIP,             1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getOriginalTile",        ZTID_FLOAT,         GETTER,       LWPNOTILE,            1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setOriginalTile",        ZTID_VOID,          SETTER,       LWPNOTILE,            1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getOriginalCSet",        ZTID_FLOAT,         GETTER,       LWPNOCSET,            1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setOriginalCSet",        ZTID_VOID,          SETTER,       LWPNOCSET,            1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getExtend",              ZTID_FLOAT,         GETTER,       LWPNEXTEND,           1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setExtend",              ZTID_VOID,          SETTER,       LWPNEXTEND,           1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitWidth",            ZTID_FLOAT,         GETTER,       LWPNHXSZ,             1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitWidth",            ZTID_VOID,          SETTER,       LWPNHXSZ,             1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitHeight",           ZTID_FLOAT,         GETTER,       LWPNHYSZ,             1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitHeight",           ZTID_VOID,          SETTER,       LWPNHYSZ,             1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitZHeight",          ZTID_FLOAT,         GETTER,       LWPNHZSZ,             1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitZHeight",          ZTID_VOID,          SETTER,       LWPNHZSZ,             1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTileWidth",           ZTID_FLOAT,         GETTER,       LWPNTXSZ,             1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTileWidth",           ZTID_VOID,          SETTER,       LWPNTXSZ,             1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTileHeight",          ZTID_FLOAT,         GETTER,       LWPNTYSZ,             1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTileHeight",          ZTID_VOID,          SETTER,       LWPNTYSZ,             1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrawXOffset",         ZTID_FLOAT,         GETTER,       LWPNXOFS,             1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrawXOffset",         ZTID_VOID,          SETTER,       LWPNXOFS,             1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrawYOffset",         ZTID_FLOAT,         GETTER,       LWPNYOFS,             1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrawYOffset",         ZTID_VOID,          SETTER,       LWPNYOFS,             1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTotalDYOffset",       ZTID_FLOAT,         GETTER,       LWPNTOTALDYOFFS,      1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTotalDYOffset",       ZTID_VOID,          SETTER,       LWPNTOTALDYOFFS,      1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrawZOffset",         ZTID_FLOAT,         GETTER,       LWPNZOFS,             1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrawZOffset",         ZTID_VOID,          SETTER,       LWPNZOFS,             1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitXOffset",          ZTID_FLOAT,         GETTER,       LWPNHXOFS,            1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitXOffset",          ZTID_VOID,          SETTER,       LWPNHXOFS,            1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitYOffset",          ZTID_FLOAT,         GETTER,       LWPNHYOFS,            1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitYOffset",          ZTID_VOID,          SETTER,       LWPNHYOFS,            1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "isValid",                ZTID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "UseSprite",              ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMisc[]",              ZTID_UNTYPED,       GETTER,       LWPNMISCD,            32,            0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMisc[]",              ZTID_VOID,          SETTER,       LWPNMISCD,            32,            0,                                    3,           { ZTID_LWPN, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getCollDetection",       ZTID_BOOL,          GETTER,       LWPNCOLLDET,          1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setCollDetection",       ZTID_VOID,          SETTER,       LWPNCOLLDET,          1,             0,                                    2,           { ZTID_LWPN, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getAnimation",           ZTID_BOOL,          GETTER,       LWPNENGINEANIMATE,    1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setAnimation",           ZTID_VOID,          SETTER,       LWPNENGINEANIMATE,    1,             0,                                    2,           { ZTID_LWPN, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-//	{ "getRange",               ZTID_FLOAT,         GETTER,       LWPNRANGE,            1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-//	{ "setRange",               ZTID_VOID,          SETTER,       LWPNRANGE,            1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getParent",              ZTID_FLOAT,         GETTER,       LWPNPARENT,           1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setParent",              ZTID_VOID,          SETTER,       LWPNPARENT,           1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLevel",               ZTID_FLOAT,         GETTER,       LWPNLEVEL,            1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLevel",               ZTID_VOID,          SETTER,       LWPNLEVEL,            1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScript",              ZTID_FLOAT,         GETTER,       LWPNSCRIPT,           1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setScript",              ZTID_VOID,          SETTER,       LWPNSCRIPT,           1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWeapon",              ZTID_FLOAT,         GETTER,       LWPNUSEWEAPON,        1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWeapon",              ZTID_VOID,          SETTER,       LWPNUSEWEAPON,        1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDefense",             ZTID_FLOAT,         GETTER,       LWPNUSEDEFENCE,       1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDefense",             ZTID_VOID,          SETTER,       LWPNUSEDEFENCE,       1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDefence",             ZTID_FLOAT,         GETTER,       LWPNUSEDEFENCE,       1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDefence",             ZTID_VOID,          SETTER,       LWPNUSEDEFENCE,       1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getInitD[]",             ZTID_UNTYPED,       GETTER,       LWPNINITD,            8,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setInitD[]",             ZTID_VOID,          SETTER,       LWPNINITD,            8,             0,                                    3,           { ZTID_LWPN, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
+	{ "getX",                       0,         ZTID_FLOAT,   LWPNX,                     0,  { ZTID_LWPN },{} },
+	{ "setX",                       0,          ZTID_VOID,   LWPNX,                     0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getSpecial",                 0,         ZTID_FLOAT,   LWPNSPECIAL,               0,  { ZTID_LWPN },{} },
+	{ "setSpecial",                 0,          ZTID_VOID,   LWPNSPECIAL,               0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "_getMax",                    0,         ZTID_FLOAT,   SPRITEMAXLWPN,             0,  { ZTID_LWPN },{} },
+	{ "_setMax",                    1,          ZTID_VOID,   SPRITEMAXLWPN,             0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getY",                       0,         ZTID_FLOAT,   LWPNY,                     0,  { ZTID_LWPN },{} },
+	{ "setY",                       0,          ZTID_VOID,   LWPNY,                     0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getZ",                       0,         ZTID_FLOAT,   LWPNZ,                     0,  { ZTID_LWPN },{} },
+	{ "setZ",                       0,          ZTID_VOID,   LWPNZ,                     0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getJump",                    0,         ZTID_FLOAT,   LWPNJUMP,                  0,  { ZTID_LWPN },{} },
+	{ "setJump",                    0,          ZTID_VOID,   LWPNJUMP,                  0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getDir",                     0,         ZTID_FLOAT,   LWPNDIR,                   0,  { ZTID_LWPN },{} },
+	{ "setDir",                     0,          ZTID_VOID,   LWPNDIR,                   0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getAngle",                   0,         ZTID_FLOAT,   LWPNANGLE,                 0,  { ZTID_LWPN },{} },
+	{ "setAngle",                   0,          ZTID_VOID,   LWPNANGLE,                 0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getStep",                    0,         ZTID_FLOAT,   LWPNSTEP,                  0,  { ZTID_LWPN },{} },
+	{ "setStep",                    0,          ZTID_VOID,   LWPNSTEP,                  0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getNumFrames",               0,         ZTID_FLOAT,   LWPNFRAMES,                0,  { ZTID_LWPN },{} },
+	{ "setNumFrames",               0,          ZTID_VOID,   LWPNFRAMES,                0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getFrame",                   0,         ZTID_FLOAT,   LWPNFRAME,                 0,  { ZTID_LWPN },{} },
+	{ "setFrame",                   0,          ZTID_VOID,   LWPNFRAME,                 0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getDrawStyle",               0,         ZTID_FLOAT,   LWPNDRAWTYPE,              0,  { ZTID_LWPN },{} },
+	{ "setDrawStyle",               0,          ZTID_VOID,   LWPNDRAWTYPE,              0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getPower",                   0,         ZTID_FLOAT,   LWPNPOWER,                 0,  { ZTID_LWPN },{} },
+	{ "setPower",                   0,          ZTID_VOID,   LWPNPOWER,                 0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getDamage",                  0,         ZTID_FLOAT,   LWPNPOWER,                 0,  { ZTID_LWPN },{} },
+	{ "setDamage",                  0,          ZTID_VOID,   LWPNPOWER,                 0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getID",                      0,         ZTID_FLOAT,   LWPNID,                    0,  { ZTID_LWPN },{} },
+	{ "setID",                      0,          ZTID_VOID,   LWPNID,                    0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getType",                    0,         ZTID_FLOAT,   LWPNID,                    0,  { ZTID_LWPN },{} },
+	{ "setType",                    0,          ZTID_VOID,   LWPNID,                    0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getFamily",                  0,         ZTID_FLOAT,   LWPNID,                    0,  { ZTID_LWPN },{} },
+	{ "setFamily",                  0,          ZTID_VOID,   LWPNID,                    0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getAngular",                 0,          ZTID_BOOL,   LWPNANGULAR,               0,  { ZTID_LWPN },{} },
+	{ "setAngular",                 0,          ZTID_VOID,   LWPNANGULAR,               0,  { ZTID_LWPN, ZTID_BOOL },{} },
+	{ "getBehind",                  0,          ZTID_BOOL,   LWPNBEHIND,                0,  { ZTID_LWPN },{} },
+	{ "setBehind",                  0,          ZTID_VOID,   LWPNBEHIND,                0,  { ZTID_LWPN, ZTID_BOOL },{} },
+	{ "getASpeed",                  0,         ZTID_FLOAT,   LWPNASPEED,                0,  { ZTID_LWPN },{} },
+	{ "setASpeed",                  0,          ZTID_VOID,   LWPNASPEED,                0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getTile",                    0,         ZTID_FLOAT,   LWPNTILE,                  0,  { ZTID_LWPN },{} },
+	{ "setTile",                    0,          ZTID_VOID,   LWPNTILE,                  0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getScriptTile",              0,         ZTID_FLOAT,   LWPNSCRIPTTILE,            0,  { ZTID_LWPN },{} },
+	{ "setScriptTile",              0,          ZTID_VOID,   LWPNSCRIPTTILE,            0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getScriptFlip",              0,         ZTID_FLOAT,   LWPNSCRIPTFLIP,            0,  { ZTID_LWPN },{} },
+	{ "setScriptFlip",              0,          ZTID_VOID,   LWPNSCRIPTFLIP,            0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getFlashCSet",               0,         ZTID_FLOAT,   LWPNFLASHCSET,             0,  { ZTID_LWPN },{} },
+	{ "setFlashCSet",               0,          ZTID_VOID,   LWPNFLASHCSET,             0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getDeadState",               0,         ZTID_FLOAT,   LWPNDEAD,                  0,  { ZTID_LWPN },{} },
+	{ "setDeadState",               0,          ZTID_VOID,   LWPNDEAD,                  0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getCSet",                    0,         ZTID_FLOAT,   LWPNCSET,                  0,  { ZTID_LWPN },{} },
+	{ "setCSet",                    0,          ZTID_VOID,   LWPNCSET,                  0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getFlash",                   0,          ZTID_BOOL,   LWPNFLASH,                 0,  { ZTID_LWPN },{} },
+	{ "setFlash",                   0,          ZTID_VOID,   LWPNFLASH,                 0,  { ZTID_LWPN, ZTID_BOOL },{} },
+	{ "getFlip",                    0,         ZTID_FLOAT,   LWPNFLIP,                  0,  { ZTID_LWPN },{} },
+	{ "setFlip",                    0,          ZTID_VOID,   LWPNFLIP,                  0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getOriginalTile",            0,         ZTID_FLOAT,   LWPNOTILE,                 0,  { ZTID_LWPN },{} },
+	{ "setOriginalTile",            0,          ZTID_VOID,   LWPNOTILE,                 0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getOriginalCSet",            0,         ZTID_FLOAT,   LWPNOCSET,                 0,  { ZTID_LWPN },{} },
+	{ "setOriginalCSet",            0,          ZTID_VOID,   LWPNOCSET,                 0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getExtend",                  0,         ZTID_FLOAT,   LWPNEXTEND,                0,  { ZTID_LWPN },{} },
+	{ "setExtend",                  0,          ZTID_VOID,   LWPNEXTEND,                0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getHitWidth",                0,         ZTID_FLOAT,   LWPNHXSZ,                  0,  { ZTID_LWPN },{} },
+	{ "setHitWidth",                0,          ZTID_VOID,   LWPNHXSZ,                  0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getHitHeight",               0,         ZTID_FLOAT,   LWPNHYSZ,                  0,  { ZTID_LWPN },{} },
+	{ "setHitHeight",               0,          ZTID_VOID,   LWPNHYSZ,                  0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getHitZHeight",              0,         ZTID_FLOAT,   LWPNHZSZ,                  0,  { ZTID_LWPN },{} },
+	{ "setHitZHeight",              0,          ZTID_VOID,   LWPNHZSZ,                  0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getTileWidth",               0,         ZTID_FLOAT,   LWPNTXSZ,                  0,  { ZTID_LWPN },{} },
+	{ "setTileWidth",               0,          ZTID_VOID,   LWPNTXSZ,                  0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getTileHeight",              0,         ZTID_FLOAT,   LWPNTYSZ,                  0,  { ZTID_LWPN },{} },
+	{ "setTileHeight",              0,          ZTID_VOID,   LWPNTYSZ,                  0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getDrawXOffset",             0,         ZTID_FLOAT,   LWPNXOFS,                  0,  { ZTID_LWPN },{} },
+	{ "setDrawXOffset",             0,          ZTID_VOID,   LWPNXOFS,                  0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getDrawYOffset",             0,         ZTID_FLOAT,   LWPNYOFS,                  0,  { ZTID_LWPN },{} },
+	{ "setDrawYOffset",             0,          ZTID_VOID,   LWPNYOFS,                  0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getTotalDYOffset",           0,         ZTID_FLOAT,   LWPNTOTALDYOFFS,           0,  { ZTID_LWPN },{} },
+	{ "setTotalDYOffset",           0,          ZTID_VOID,   LWPNTOTALDYOFFS,           0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getDrawZOffset",             0,         ZTID_FLOAT,   LWPNZOFS,                  0,  { ZTID_LWPN },{} },
+	{ "setDrawZOffset",             0,          ZTID_VOID,   LWPNZOFS,                  0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getHitXOffset",              0,         ZTID_FLOAT,   LWPNHXOFS,                 0,  { ZTID_LWPN },{} },
+	{ "setHitXOffset",              0,          ZTID_VOID,   LWPNHXOFS,                 0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getHitYOffset",              0,         ZTID_FLOAT,   LWPNHYOFS,                 0,  { ZTID_LWPN },{} },
+	{ "setHitYOffset",              0,          ZTID_VOID,   LWPNHYOFS,                 0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "isValid",                    0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_LWPN },{} },
+	{ "UseSprite",                  0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getMisc[]",                  0,       ZTID_UNTYPED,   LWPNMISCD,                 0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "setMisc[]",                  0,          ZTID_VOID,   LWPNMISCD,                 0,  { ZTID_LWPN, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "getCollDetection",           0,          ZTID_BOOL,   LWPNCOLLDET,               0,  { ZTID_LWPN },{} },
+	{ "setCollDetection",           0,          ZTID_VOID,   LWPNCOLLDET,               0,  { ZTID_LWPN, ZTID_BOOL },{} },
+	{ "getAnimation",               0,          ZTID_BOOL,   LWPNENGINEANIMATE,         0,  { ZTID_LWPN },{} },
+	{ "setAnimation",               0,          ZTID_VOID,   LWPNENGINEANIMATE,         0,  { ZTID_LWPN, ZTID_BOOL },{} },
+//	{ "getRange",                   0,         ZTID_FLOAT,   LWPNRANGE,                 0,  { ZTID_LWPN },{} },
+//	{ "setRange",                   0,          ZTID_VOID,   LWPNRANGE,                 0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getParent",                  0,         ZTID_FLOAT,   LWPNPARENT,                0,  { ZTID_LWPN },{} },
+	{ "setParent",                  0,          ZTID_VOID,   LWPNPARENT,                0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getLevel",                   0,         ZTID_FLOAT,   LWPNLEVEL,                 0,  { ZTID_LWPN },{} },
+	{ "setLevel",                   0,          ZTID_VOID,   LWPNLEVEL,                 0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getScript",                  0,         ZTID_FLOAT,   LWPNSCRIPT,                0,  { ZTID_LWPN },{} },
+	{ "setScript",                  0,          ZTID_VOID,   LWPNSCRIPT,                0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getWeapon",                  0,         ZTID_FLOAT,   LWPNUSEWEAPON,             0,  { ZTID_LWPN },{} },
+	{ "setWeapon",                  0,          ZTID_VOID,   LWPNUSEWEAPON,             0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getDefense",                 0,         ZTID_FLOAT,   LWPNUSEDEFENCE,            0,  { ZTID_LWPN },{} },
+	{ "setDefense",                 0,          ZTID_VOID,   LWPNUSEDEFENCE,            0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getDefence",                 0,         ZTID_FLOAT,   LWPNUSEDEFENCE,            0,  { ZTID_LWPN },{} },
+	{ "setDefence",                 0,          ZTID_VOID,   LWPNUSEDEFENCE,            0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getInitD[]",                 0,       ZTID_UNTYPED,   LWPNINITD,                 0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "setInitD[]",                 0,          ZTID_VOID,   LWPNINITD,                 0,  { ZTID_LWPN, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	
-	{ "getUID",                 ZTID_FLOAT,         GETTER,       LWEAPONSCRIPTUID,     1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Explode",                ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getRotation",            ZTID_FLOAT,         GETTER,       LWPNROTATION,         1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setRotation",            ZTID_VOID,          SETTER,       LWPNROTATION,         1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScale",               ZTID_FLOAT,         GETTER,       LWPNSCALE,            1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setScale",               ZTID_VOID,          SETTER,       LWPNSCALE,            1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getGravity",             ZTID_BOOL,          GETTER,       LWPNGRAVITY,          1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setGravity",             ZTID_VOID,          SETTER,       LWPNGRAVITY,          1,             0,                                    2,           { ZTID_LWPN, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFalling",             ZTID_FLOAT,         GETTER,       LWPNFALLCLK,          1,           0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFalling",             ZTID_VOID,          SETTER,       LWPNFALLCLK,          1,           0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFallCombo",           ZTID_FLOAT,         GETTER,       LWPNFALLCMB,          1,           0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFallCombo",           ZTID_VOID,          SETTER,       LWPNFALLCMB,          1,           0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMoveFlags[]",         ZTID_BOOL,          GETTER,       LWPNMOVEFLAGS,        2,           0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMoveFlags[]",         ZTID_VOID,          SETTER,       LWPNMOVEFLAGS,        2,           0,                                    3,           { ZTID_LWPN, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLightRadius",         ZTID_FLOAT,         GETTER,       LWPNGLOWRAD,          1,           0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLightRadius",         ZTID_VOID,          SETTER,       LWPNGLOWRAD,          1,           0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLightShape",          ZTID_FLOAT,         GETTER,       LWPNGLOWSHP,          1,           0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLightShape",          ZTID_VOID,          SETTER,       LWPNGLOWSHP,          1,           0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getUnblockable",         ZTID_FLOAT,         GETTER,       LWPNUNBL,             1,           0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setUnblockable",         ZTID_VOID,          SETTER,       LWPNUNBL,             1,           0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Remove",                 ZTID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getShadowSprite",        ZTID_FLOAT,         GETTER,       LWPNSHADOWSPR,        1,           0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setShadowSprite",        ZTID_VOID,          SETTER,       LWPNSHADOWSPR,        1,           0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSwitchHooked",        ZTID_BOOL,          GETTER,       LWSWHOOKED,           1,           0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSwitchHooked",        ZTID_VOID,          SETTER,       LWSWHOOKED,           1,           0,                                    2,           { ZTID_LWPN, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Switch",                 ZTID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrowning",            ZTID_FLOAT,         GETTER,       LWPNDROWNCLK,         1,           0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrowning",            ZTID_VOID,          SETTER,       LWPNDROWNCLK,         1,           0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrownCombo",          ZTID_FLOAT,         GETTER,       LWPNDROWNCMB,         1,           0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrownCombo",          ZTID_VOID,          SETTER,       LWPNDROWNCMB,         1,           0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFakeZ",               ZTID_FLOAT,         GETTER,       LWPNFAKEZ,            1,           0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFakeZ",               ZTID_VOID,          SETTER,       LWPNFAKEZ,            1,           0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFakeJump",            ZTID_FLOAT,         GETTER,       LWPNFAKEJUMP,         1,           0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFakeJump",            ZTID_VOID,          SETTER,       LWPNFAKEJUMP,         1,           0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getShadowXOffset",       ZTID_FLOAT,         GETTER,       LWPNSHADOWXOFS,       1,           0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setShadowXOffset",       ZTID_VOID,          SETTER,       LWPNSHADOWXOFS,       1,           0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getShadowYOffset",       ZTID_FLOAT,         GETTER,       LWPNSHADOWYOFS,       1,           0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setShadowYOffset",       ZTID_VOID,          SETTER,       LWPNSHADOWYOFS,       1,           0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDegAngle",            ZTID_FLOAT,         GETTER,       LWPNDEGANGLE,         1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDegAngle",            ZTID_VOID,          SETTER,       LWPNDEGANGLE,         1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getVx",                  ZTID_FLOAT,         GETTER,       LWPNVX,               1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setVx",                  ZTID_VOID,          SETTER,       LWPNVX,               1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getVy",                  ZTID_FLOAT,         GETTER,       LWPNVY,               1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setVy",                  ZTID_VOID,          SETTER,       LWPNVY,               1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getAutoRotate",          ZTID_BOOL,          GETTER,       LWPNAUTOROTATE,       1,             0,                                    1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setAutoRotate",          ZTID_VOID,          SETTER,       LWPNAUTOROTATE,       1,             0,                                    2,           { ZTID_LWPN, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MakeAngular",            ZTID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MakeDirectional",        ZTID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZTID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFlags[]",             ZTID_BOOL,          GETTER,       LWPNFLAGS,            1,             0,                                    2,           { ZTID_LWPN, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFlags[]",             ZTID_VOID,          SETTER,       LWPNFLAGS,            1,             0,                                    3,           { ZTID_LWPN, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getUID",                     0,         ZTID_FLOAT,   LWEAPONSCRIPTUID,          0,  { ZTID_LWPN },{} },
+	{ "Explode",                    0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getRotation",                0,         ZTID_FLOAT,   LWPNROTATION,              0,  { ZTID_LWPN },{} },
+	{ "setRotation",                0,          ZTID_VOID,   LWPNROTATION,              0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getScale",                   0,         ZTID_FLOAT,   LWPNSCALE,                 0,  { ZTID_LWPN },{} },
+	{ "setScale",                   0,          ZTID_VOID,   LWPNSCALE,                 0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getGravity",                 0,          ZTID_BOOL,   LWPNGRAVITY,               0,  { ZTID_LWPN },{} },
+	{ "setGravity",                 0,          ZTID_VOID,   LWPNGRAVITY,               0,  { ZTID_LWPN, ZTID_BOOL },{} },
+	{ "getFalling",                 0,         ZTID_FLOAT,   LWPNFALLCLK,               0,  { ZTID_LWPN },{} },
+	{ "setFalling",                 0,          ZTID_VOID,   LWPNFALLCLK,               0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getFallCombo",               0,         ZTID_FLOAT,   LWPNFALLCMB,               0,  { ZTID_LWPN },{} },
+	{ "setFallCombo",               0,          ZTID_VOID,   LWPNFALLCMB,               0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getMoveFlags[]",             0,          ZTID_BOOL,   LWPNMOVEFLAGS,             0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "setMoveFlags[]",             0,          ZTID_VOID,   LWPNMOVEFLAGS,             0,  { ZTID_LWPN, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getLightRadius",             0,         ZTID_FLOAT,   LWPNGLOWRAD,               0,  { ZTID_LWPN },{} },
+	{ "setLightRadius",             0,          ZTID_VOID,   LWPNGLOWRAD,               0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getLightShape",              0,         ZTID_FLOAT,   LWPNGLOWSHP,               0,  { ZTID_LWPN },{} },
+	{ "setLightShape",              0,          ZTID_VOID,   LWPNGLOWSHP,               0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getUnblockable",             0,         ZTID_FLOAT,   LWPNUNBL,                  0,  { ZTID_LWPN },{} },
+	{ "setUnblockable",             0,          ZTID_VOID,   LWPNUNBL,                  0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "Remove",                     0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_LWPN },{} },
+	{ "getShadowSprite",            0,         ZTID_FLOAT,   LWPNSHADOWSPR,             0,  { ZTID_LWPN },{} },
+	{ "setShadowSprite",            0,          ZTID_VOID,   LWPNSHADOWSPR,             0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getSwitchHooked",            0,          ZTID_BOOL,   LWSWHOOKED,                0,  { ZTID_LWPN },{} },
+	{ "setSwitchHooked",            0,          ZTID_VOID,   LWSWHOOKED,                0,  { ZTID_LWPN, ZTID_BOOL },{} },
+	{ "Switch",                     0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getDrowning",                0,         ZTID_FLOAT,   LWPNDROWNCLK,              0,  { ZTID_LWPN },{} },
+	{ "setDrowning",                0,          ZTID_VOID,   LWPNDROWNCLK,              0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getDrownCombo",              0,         ZTID_FLOAT,   LWPNDROWNCMB,              0,  { ZTID_LWPN },{} },
+	{ "setDrownCombo",              0,          ZTID_VOID,   LWPNDROWNCMB,              0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getFakeZ",                   0,         ZTID_FLOAT,   LWPNFAKEZ,                 0,  { ZTID_LWPN },{} },
+	{ "setFakeZ",                   0,          ZTID_VOID,   LWPNFAKEZ,                 0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getFakeJump",                0,         ZTID_FLOAT,   LWPNFAKEJUMP,              0,  { ZTID_LWPN },{} },
+	{ "setFakeJump",                0,          ZTID_VOID,   LWPNFAKEJUMP,              0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getShadowXOffset",           0,         ZTID_FLOAT,   LWPNSHADOWXOFS,            0,  { ZTID_LWPN },{} },
+	{ "setShadowXOffset",           0,          ZTID_VOID,   LWPNSHADOWXOFS,            0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getShadowYOffset",           0,         ZTID_FLOAT,   LWPNSHADOWYOFS,            0,  { ZTID_LWPN },{} },
+	{ "setShadowYOffset",           0,          ZTID_VOID,   LWPNSHADOWYOFS,            0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getDegAngle",                0,         ZTID_FLOAT,   LWPNDEGANGLE,              0,  { ZTID_LWPN },{} },
+	{ "setDegAngle",                0,          ZTID_VOID,   LWPNDEGANGLE,              0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getVx",                      0,         ZTID_FLOAT,   LWPNVX,                    0,  { ZTID_LWPN },{} },
+	{ "setVx",                      0,          ZTID_VOID,   LWPNVX,                    0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getVy",                      0,         ZTID_FLOAT,   LWPNVY,                    0,  { ZTID_LWPN },{} },
+	{ "setVy",                      0,          ZTID_VOID,   LWPNVY,                    0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getAutoRotate",              0,          ZTID_BOOL,   LWPNAUTOROTATE,            0,  { ZTID_LWPN },{} },
+	{ "setAutoRotate",              0,          ZTID_VOID,   LWPNAUTOROTATE,            0,  { ZTID_LWPN, ZTID_BOOL },{} },
+	{ "MakeAngular",                0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_LWPN },{} },
+	{ "MakeDirectional",            0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_LWPN },{} },
+	{ "getFlags[]",                 0,          ZTID_BOOL,   LWPNFLAGS,                 0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "setFlags[]",                 0,          ZTID_VOID,   LWPNFLAGS,                 0,  { ZTID_LWPN, ZTID_FLOAT, ZTID_BOOL },{} },
 	
-	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
 HeroWeaponSymbols::HeroWeaponSymbols()
 {
-	table = lwpnTable;
+	table2 = lwpnTable2;
 	refVar = REFLWPN;
 }
 
@@ -178,7 +178,7 @@ void HeroWeaponSymbols::generateCode()
 {
 	//bool isValid(lweapon)
 	{
-		Function* function = getFunction("isValid", 1);
+		Function* function = getFunction2("isValid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -191,7 +191,7 @@ void HeroWeaponSymbols::generateCode()
 	}
 	//void Explode(lweapon, int32_t)
 	{
-		Function* function = getFunction("Explode", 2);
+		Function* function = getFunction2("Explode");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -205,7 +205,7 @@ void HeroWeaponSymbols::generateCode()
 	}
 	//void UseSprite(lweapon, int32_t val)
 	{
-		Function* function = getFunction("UseSprite", 2);
+		Function* function = getFunction2("UseSprite");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the val
@@ -220,7 +220,7 @@ void HeroWeaponSymbols::generateCode()
 	}
 	//void Remove(lweapon)
 	{
-		Function* function = getFunction("Remove", 1);
+		Function* function = getFunction2("Remove");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -233,7 +233,7 @@ void HeroWeaponSymbols::generateCode()
 	}
 	//bool Switch(lweapon, int)
 	{
-		Function* function = getFunction("Switch", 2);
+		Function* function = getFunction2("Switch");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -247,7 +247,7 @@ void HeroWeaponSymbols::generateCode()
 	}
 	//void MakeAngular(lweapon)
 	{
-		Function* function = getFunction("MakeAngular", 1);
+		Function* function = getFunction2("MakeAngular");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -260,7 +260,7 @@ void HeroWeaponSymbols::generateCode()
 	}
 	//void MakeDirectional(lweapon)
 	{
-		Function* function = getFunction("MakeDirectional", 1);
+		Function* function = getFunction2("MakeDirectional");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
