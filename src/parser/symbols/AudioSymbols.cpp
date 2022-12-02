@@ -4,6 +4,7 @@ AudioSymbols AudioSymbols::singleton = AudioSymbols();
 
 static AccessorTable2 AudioTable2[] =
 {
+//	  name,                    tag,            rettype,  var,  funcFlags,  params,optparams
 	{ "PlaySound",               0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
 	{ "EndSound",                0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
 	{ "PauseSound",              0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
@@ -28,244 +29,244 @@ static AccessorTable2 AudioTable2[] =
 	{ "setVolume[]",             0,          ZTID_VOID,   AUDIOVOLUME, 0,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
 	{ "",                        0,          ZTID_VOID,   -1,          0,  {},{} }
-}
+};
 
 AudioSymbols::AudioSymbols()
 {
-    table2 = AudioTable2;
-    refVar = NUL;
+	table2 = AudioTable2;
+	refVar = NUL;
 }
 
 void AudioSymbols::generateCode()
 {
-    //void AdjustVolume(audio, int32_t)
-    {
-        Function* function = getFunction2("AdjustMusicVolume");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OAdjustVolumeRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void AdjustSFXVolume(audio, int32_t)
-    {
-        Function* function = getFunction2("AdjustSFXVolume");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OAdjustSFXVolumeRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //void AdjustSound(game, int32_t,int32_t,bool)
-    {
-        Function* function = getFunction2("AdjustSound");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(ADJUSTSFX), new VarArgument(SFTEMP)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void PlaySound(game, int32_t)
-    {
-        Function* function = getFunction2("PlaySound");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OPlaySoundRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //void EndSound(game, int32_t)
-    {
-        Function* function = getFunction2("EndSound");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OEndSoundRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //void PauseSound(game, int32_t)
-    {
-        Function* function = getFunction2("PauseSound");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OPauseSoundRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //void ContinueSound(game, int32_t)
-    {
-        Function* function = getFunction2("ContinueSound");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OContinueSFX(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //void ResumeSound(game, int32_t)
-    {
-        Function* function = getFunction2("ResumeSound");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OResumeSoundRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //void PauseCurMIDI(game)
-    {
-        Function* function = getFunction2("PauseCurMIDI");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop pointer, and ignore it
+	//void AdjustVolume(audio, int32_t)
+	{
+		Function* function = getFunction2("AdjustMusicVolume");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OAdjustVolumeRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void AdjustSFXVolume(audio, int32_t)
+	{
+		Function* function = getFunction2("AdjustSFXVolume");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OAdjustSFXVolumeRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void AdjustSound(game, int32_t,int32_t,bool)
+	{
+		Function* function = getFunction2("AdjustSound");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(ADJUSTSFX), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void PlaySound(game, int32_t)
+	{
+		Function* function = getFunction2("PlaySound");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OPlaySoundRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void EndSound(game, int32_t)
+	{
+		Function* function = getFunction2("EndSound");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OEndSoundRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void PauseSound(game, int32_t)
+	{
+		Function* function = getFunction2("PauseSound");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OPauseSoundRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void ContinueSound(game, int32_t)
+	{
+		Function* function = getFunction2("ContinueSound");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OContinueSFX(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void ResumeSound(game, int32_t)
+	{
+		Function* function = getFunction2("ResumeSound");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OResumeSoundRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void PauseCurMIDI(game)
+	{
+		Function* function = getFunction2("PauseCurMIDI");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop pointer, and ignore it
 		ASSERT_NUL();
-        addOpcode2 (code, new OPauseMusic());
-        LABELBACK(label);
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //void ResumeCurMIDI(game)
-    {
-        Function* function = getFunction2("ResumeCurMIDI");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop pointer, and ignore it
+		addOpcode2 (code, new OPauseMusic());
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void ResumeCurMIDI(game)
+	{
+		Function* function = getFunction2("ResumeCurMIDI");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop pointer, and ignore it
 		ASSERT_NUL();
-        addOpcode2 (code, new OResumeMusic());
-        LABELBACK(label);
-        RETURN();
-        function->giveCode(code);
-    }
-    //void PlayMIDI(game, int32_t)
-    {
-        Function* function = getFunction2("PlayMIDI");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OPlayMIDIRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void PlayEnhancedMusic(game, int32_t, int32_t)
-    {
-        Function* function = getFunction2("PlayEnhancedMusic");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OPlayEnhancedMusic(new VarArgument(EXP2), new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void PlayEnhancedMusicEx(game, int32_t, int32_t)
-    {
-        Function* function = getFunction2("PlayOgg");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OPlayEnhancedMusicEx(new VarArgument(EXP2), new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetEnhancedMusicPos(game)
+		addOpcode2 (code, new OResumeMusic());
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void PlayMIDI(game, int32_t)
+	{
+		Function* function = getFunction2("PlayMIDI");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OPlayMIDIRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void PlayEnhancedMusic(game, int32_t, int32_t)
+	{
+		Function* function = getFunction2("PlayEnhancedMusic");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OPlayEnhancedMusic(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void PlayEnhancedMusicEx(game, int32_t, int32_t)
+	{
+		Function* function = getFunction2("PlayOgg");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OPlayEnhancedMusicEx(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetEnhancedMusicPos(game)
 {
-	    Function* function = getFunction2("GetOggPos");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop pointer, and ignore it
+		Function* function = getFunction2("GetOggPos");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop pointer, and ignore it
 		ASSERT_NUL();
-        addOpcode2 (code, new OGetEnhancedMusicPos(new VarArgument(EXP1)));
-        LABELBACK(label);
-        RETURN();
-        function->giveCode(code);
+		addOpcode2 (code, new OGetEnhancedMusicPos(new VarArgument(EXP1)));
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
 }
-     //void SetEnhancedMusicPos(game, int32_t)
-    {
-	    Function* function = getFunction2("SetOggPos");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetEnhancedMusicPos(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetEnhancedMusicSpeed(game, int32_t)
-    {
-	    Function* function = getFunction2("SetOggSpeed");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetEnhancedMusicSpeed(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
+	 //void SetEnhancedMusicPos(game, int32_t)
+	{
+		Function* function = getFunction2("SetOggPos");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetEnhancedMusicPos(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetEnhancedMusicSpeed(game, int32_t)
+	{
+		Function* function = getFunction2("SetOggSpeed");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetEnhancedMusicSpeed(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 }
 
