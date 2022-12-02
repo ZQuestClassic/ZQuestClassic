@@ -2,39 +2,37 @@
 
 AudioSymbols AudioSymbols::singleton = AudioSymbols();
 
-static AccessorTable AudioTable[] =
+static AccessorTable2 AudioTable2[] =
 {
-//	name,                     rettype,                  setorget,     var,                  numindex,      params
-	{ "PlaySound",            ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_AUDIO, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "EndSound",             ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_AUDIO, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "PauseSound",           ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_AUDIO, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "ResumeSound",          ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_AUDIO, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "ContinueSound",        ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_AUDIO, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "AdjustMusicVolume",    ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_AUDIO, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "AdjustSFXVolume",      ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_AUDIO, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "AdjustSound",          ZTID_VOID,          FUNCTION,     0,                    1,             0,                                    4,           { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "PauseCurMIDI",         ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZTID_AUDIO, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "ResumeCurMIDI",        ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZTID_AUDIO, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "PlaySound",               0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "EndSound",                0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "PauseSound",              0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "ResumeSound",             0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "ContinueSound",           0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "AdjustMusicVolume",       0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "AdjustSFXVolume",         0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "AdjustSound",             0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "PauseCurMIDI",            0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO },{} },
+	{ "ResumeCurMIDI",           0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO },{} },
+	{ "PlayMIDI",                0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "PlayEnhancedMusic",       0,          ZTID_BOOL,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getPanStyle",             0,         ZTID_FLOAT,   AUDIOPAN,    0,  { ZTID_AUDIO },{} },
+	{ "setPanStyle",             0,          ZTID_VOID,   AUDIOPAN,    0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
 	
-	{ "PlayMIDI",             ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_AUDIO, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "PlayEnhancedMusic",    ZTID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      3,           { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "PlayOgg",              ZTID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      3,           { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "GetOggPos",            ZTID_FLOAT,         FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZTID_AUDIO, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "SetOggPos",            ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_AUDIO, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "SetOggSpeed",          ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_AUDIO, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-
+	//Undocumented intentionally
+	{ "PlayOgg",                 0,          ZTID_BOOL,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetOggPos",               0,         ZTID_FLOAT,   -1,          0,  { ZTID_AUDIO },{} },
+	{ "SetOggPos",               0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "SetOggSpeed",             0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "getVolume[]",             0,         ZTID_FLOAT,   AUDIOVOLUME, 0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "setVolume[]",             0,          ZTID_VOID,   AUDIOVOLUME, 0,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	 { "getVolume[]",          ZTID_FLOAT,         GETTER,       AUDIOVOLUME,          4,             0,                                    2,           { ZTID_AUDIO, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setVolume[]",          ZTID_VOID,          SETTER,       AUDIOVOLUME,          4,             0,                                    3,           { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getPanStyle",          ZTID_FLOAT,         GETTER,       AUDIOPAN,             1,             0,                                    1,           { ZTID_AUDIO, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setPanStyle",          ZTID_VOID,          SETTER,       AUDIOPAN,             1,             0,                                    2,           { ZTID_AUDIO, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
-	{ "",                     -1,                       -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
-};
+	{ "",                        0,          ZTID_VOID,   -1,          0,  {},{} }
+}
 
 AudioSymbols::AudioSymbols()
 {
-    table = AudioTable;
+    table2 = AudioTable2;
     refVar = NUL;
 }
 
@@ -42,7 +40,7 @@ void AudioSymbols::generateCode()
 {
     //void AdjustVolume(audio, int32_t)
     {
-        Function* function = getFunction("AdjustMusicVolume", 2);
+        Function* function = getFunction2("AdjustMusicVolume");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the param
@@ -56,7 +54,7 @@ void AudioSymbols::generateCode()
     }
     //void AdjustSFXVolume(audio, int32_t)
     {
-        Function* function = getFunction("AdjustSFXVolume", 2);
+        Function* function = getFunction2("AdjustSFXVolume");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the param
@@ -71,7 +69,7 @@ void AudioSymbols::generateCode()
     
     //void AdjustSound(game, int32_t,int32_t,bool)
     {
-        Function* function = getFunction("AdjustSound", 4);
+        Function* function = getFunction2("AdjustSound");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the params
@@ -87,7 +85,7 @@ void AudioSymbols::generateCode()
     }
     //void PlaySound(game, int32_t)
     {
-        Function* function = getFunction("PlaySound", 2);
+        Function* function = getFunction2("PlaySound");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the param
@@ -102,7 +100,7 @@ void AudioSymbols::generateCode()
     
     //void EndSound(game, int32_t)
     {
-        Function* function = getFunction("EndSound", 2);
+        Function* function = getFunction2("EndSound");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the param
@@ -117,7 +115,7 @@ void AudioSymbols::generateCode()
     
     //void PauseSound(game, int32_t)
     {
-        Function* function = getFunction("PauseSound", 2);
+        Function* function = getFunction2("PauseSound");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the param
@@ -132,7 +130,7 @@ void AudioSymbols::generateCode()
     
     //void ContinueSound(game, int32_t)
     {
-        Function* function = getFunction("ContinueSound", 2);
+        Function* function = getFunction2("ContinueSound");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the param
@@ -147,7 +145,7 @@ void AudioSymbols::generateCode()
     
     //void ResumeSound(game, int32_t)
     {
-        Function* function = getFunction("ResumeSound", 2);
+        Function* function = getFunction2("ResumeSound");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the param
@@ -162,7 +160,7 @@ void AudioSymbols::generateCode()
     
     //void PauseCurMIDI(game)
     {
-        Function* function = getFunction("PauseCurMIDI", 1);
+        Function* function = getFunction2("PauseCurMIDI");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop pointer, and ignore it
@@ -175,7 +173,7 @@ void AudioSymbols::generateCode()
     
     //void ResumeCurMIDI(game)
     {
-        Function* function = getFunction("ResumeCurMIDI", 1);
+        Function* function = getFunction2("ResumeCurMIDI");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop pointer, and ignore it
@@ -187,7 +185,7 @@ void AudioSymbols::generateCode()
     }
     //void PlayMIDI(game, int32_t)
     {
-        Function* function = getFunction("PlayMIDI", 2);
+        Function* function = getFunction2("PlayMIDI");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the param
@@ -201,7 +199,7 @@ void AudioSymbols::generateCode()
     }
     //void PlayEnhancedMusic(game, int32_t, int32_t)
     {
-        Function* function = getFunction("PlayEnhancedMusic", 3);
+        Function* function = getFunction2("PlayEnhancedMusic");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the params
@@ -216,7 +214,7 @@ void AudioSymbols::generateCode()
     }
     //void PlayEnhancedMusicEx(game, int32_t, int32_t)
     {
-        Function* function = getFunction("PlayOgg", 3);
+        Function* function = getFunction2("PlayOgg");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the params
@@ -231,7 +229,7 @@ void AudioSymbols::generateCode()
     }
     //int32_t GetEnhancedMusicPos(game)
 {
-	    Function* function = getFunction("GetOggPos", 1);
+	    Function* function = getFunction2("GetOggPos");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop pointer, and ignore it
@@ -243,7 +241,7 @@ void AudioSymbols::generateCode()
 }
      //void SetEnhancedMusicPos(game, int32_t)
     {
-	    Function* function = getFunction("SetOggPos", 2);
+	    Function* function = getFunction2("SetOggPos");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the params
@@ -257,7 +255,7 @@ void AudioSymbols::generateCode()
     }
     //void SetEnhancedMusicSpeed(game, int32_t)
     {
-	    Function* function = getFunction("SetOggSpeed", 2);
+	    Function* function = getFunction2("SetOggSpeed");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the params
