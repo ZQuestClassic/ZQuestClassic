@@ -131,19 +131,19 @@ static AccessorTable2 GlobalTable2[] =
 	{ "",                        0,          ZTID_VOID,   -1,          0,  {},{} }
 	//Unused old junk
 	//overload, 2 args
-	// { "atoi",                 ZTID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           { ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	// { "xtoi",                 ZTID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           { ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+//	{ "atoi",                       0,         ZTID_FLOAT,   -1,                        0,  { ZTID_FLOAT, ZTID_FLOAT },{} },
+//	{ "xtoi",                       0,         ZTID_FLOAT,   -1,                        0,  { ZTID_FLOAT },{} },
 	//overload, 2 args
-	// { "xtoi",                 ZTID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           { ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	// { "xlen",                 ZTID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           { ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+//	{ "xtoi",                       1,         ZTID_FLOAT,   -1,                        0,  { ZTID_FLOAT, ZTID_FLOAT },{} },
+//	{ "xlen",                       0,         ZTID_FLOAT,   -1,                        0,  { ZTID_FLOAT },{} },
 	//overload, 2 args
-	// { "xlen",                 ZTID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           { ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	// { "xtoa",                  ZTID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           { ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+//	{ "xlen",                       1,         ZTID_FLOAT,   -1,                        0,  { ZTID_FLOAT, ZTID_FLOAT },{} },
+//	{ "xtoa",                       0,         ZTID_FLOAT,   -1,                        0,  { ZTID_FLOAT, ZTID_FLOAT },{} },
 	//overload, 2 args
-	// { "ilen",                 ZTID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           { ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	//  { "CalculateSpline",        0,          ZTID_FLOAT,            FUNCTION,     0,     1,          0,                                    7,           { ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	//  { "CollisionRect",          0,           ZTID_BOOL,             FUNCTION,     0,     1,          0,                                    8,           { ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	//  { "CollisionBox",           0,           ZTID_BOOL,             FUNCTION,     0,     1,          0,                                    12,          { ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1 } },
+//	{ "ilen",                       0,         ZTID_FLOAT,   -1,                        0,  { ZTID_FLOAT, ZTID_FLOAT },{} },
+//	{ "CalculateSpline",            0,         ZTID_FLOAT,   -1,                        0,  { ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+//	{ "CollisionRect",              0,          ZTID_BOOL,   -1,                        0,  { ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+//	{ "CollisionBox",               0,          ZTID_BOOL,   -1,                        0,  { ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 
 };
 

@@ -2,39 +2,39 @@
 
 GraphicsSymbols GraphicsSymbols::singleton = GraphicsSymbols();
 
-static AccessorTable GraphicsTable[] =
+static AccessorTable2 GraphicsTable2[] =
 {
-//	  name,                     rettype,            setorget,    var,        num,           funcFlags,                            numParams,   params
-	{ "Wavy",                   ZTID_VOID,    FUNCTION,    0,          1,             FUNCFLAG_INLINE,                      2,           { ZTID_GRAPHICS, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Zap",                    ZTID_VOID,    FUNCTION,    0,          1,             FUNCFLAG_INLINE,                      2,           { ZTID_GRAPHICS, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Greyscale",              ZTID_VOID,    FUNCTION,    0,          1,             FUNCFLAG_INLINE,                      2,           { ZTID_GRAPHICS, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Monochrome",             ZTID_VOID,    FUNCTION,    0,          1,             FUNCFLAG_INLINE,                      2,           { ZTID_GRAPHICS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Tint",                   ZTID_VOID,    FUNCTION,    0,          1,             0,                                    4,           { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MonochromeHue",          ZTID_VOID,    FUNCTION,    0,          1,             0,                                    5,           { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "ClearTint",              ZTID_VOID,    FUNCTION,    0,          1,             FUNCFLAG_INLINE,                      1,           { ZTID_GRAPHICS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getIsBlankTile[]",       ZTID_FLOAT,   GETTER,      ISBLANKTILE,214500,        0,                                    2,           { ZTID_GRAPHICS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "NumDraws",               ZTID_FLOAT,   GETTER,      NUMDRAWS,   1,             0,                                    1,           { ZTID_GRAPHICS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MaxDraws",               ZTID_FLOAT,   GETTER,      MAXDRAWS,   1,             0,                                    1,           { ZTID_GRAPHICS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetPixel",               ZTID_FLOAT,   FUNCTION,    0,          1,             0,                                    4,           { ZTID_GRAPHICS, ZTID_UNTYPED, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "CreatePalData",          ZTID_PALDATA, FUNCTION,    0,          1,             FUNCFLAG_INLINE,                      1,           { ZTID_GRAPHICS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "CreatePalData",          ZTID_PALDATA, FUNCTION,    0,          1,             FUNCFLAG_INLINE,                      2,           { ZTID_GRAPHICS, ZTID_RGBDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MixColor",               ZTID_RGBDATA, FUNCTION,    0,          1,             FUNCFLAG_INLINE,                      5,           { ZTID_GRAPHICS, ZTID_RGBDATA, ZTID_RGBDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "CreateRGB",              ZTID_RGBDATA, FUNCTION,    0,          1,             FUNCFLAG_INLINE,                      2,           { ZTID_GRAPHICS, ZTID_LONG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "CreateRGB",              ZTID_RGBDATA, FUNCTION,    0,          1,             FUNCFLAG_INLINE,                      4,           { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
+	{ "Wavy",                       0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_BOOL },{} },
+	{ "Zap",                        0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_BOOL },{} },
+	{ "Greyscale",                  0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_BOOL },{} },
+	{ "Monochrome",                 0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_FLOAT },{} },
+	{ "Tint",                       0,          ZTID_VOID,   -1,                        0,  { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "MonochromeHue",              0,          ZTID_VOID,   -1,                        0,  { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "ClearTint",                  0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GRAPHICS },{} },
+	{ "getIsBlankTile[]",           0,         ZTID_FLOAT,   ISBLANKTILE,               0,  { ZTID_GRAPHICS, ZTID_FLOAT },{} },
+	{ "_getNumDraws",               0,         ZTID_FLOAT,   NUMDRAWS,                  0,  { ZTID_GRAPHICS },{} },
+	{ "_getMaxDraws",               0,         ZTID_FLOAT,   MAXDRAWS,                  0,  { ZTID_GRAPHICS },{} },
+	{ "GetPixel",                   0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GRAPHICS, ZTID_UNTYPED, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "CreatePalData",              0,       ZTID_PALDATA,   -1,                   FL_INL,  { ZTID_GRAPHICS },{} },
+	{ "CreatePalData",              1,       ZTID_PALDATA,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_RGBDATA },{} },
+	{ "MixColor",                   0,       ZTID_RGBDATA,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_RGBDATA, ZTID_RGBDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "CreateRGB",                  0,       ZTID_RGBDATA,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_LONG },{} },
+	{ "CreateRGB",                  1,       ZTID_RGBDATA,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 
-	{ "",                -1,                 -1,          -1,         -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
 GraphicsSymbols::GraphicsSymbols()
 {
-	table = GraphicsTable;
+	table2 = GraphicsTable2;
 	refVar = NUL;
 }
 
 void GraphicsSymbols::generateCode()
 {
 	{
-		Function* function = getFunction("Wavy", 2);
+		Function* function = getFunction2("Wavy");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		// Pop argument.
@@ -49,7 +49,7 @@ void GraphicsSymbols::generateCode()
 	
 	//int32_t GetPixel(graphics,bitmap,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetPixel", 4);
+		Function* function = getFunction2("GetPixel");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -64,7 +64,7 @@ void GraphicsSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction("Zap", 2);
+		Function* function = getFunction2("Zap");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		// Pop argument.
@@ -77,7 +77,7 @@ void GraphicsSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction("Greyscale", 2);
+		Function* function = getFunction2("Greyscale");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		// Pop argument.
@@ -90,7 +90,7 @@ void GraphicsSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction("Monochrome", 2);
+		Function* function = getFunction2("Monochrome");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		// Pop argument.
@@ -105,7 +105,7 @@ void GraphicsSymbols::generateCode()
 
 	//void Tint(graphics, float, float, float)
 	{
-			Function* function = getFunction("Tint", 4);
+			Function* function = getFunction2("Tint");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OTintR());
@@ -121,7 +121,7 @@ void GraphicsSymbols::generateCode()
 	}
 	//void MonochromeHue(graphics, float, float, float, bool)
 	{
-			Function* function = getFunction("MonochromeHue", 5);
+			Function* function = getFunction2("MonochromeHue");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OMonoHueR());
@@ -139,7 +139,7 @@ void GraphicsSymbols::generateCode()
 	
 	//void ClearTint()
 	{
-		 Function* function = getFunction("ClearTint", 1);
+		 Function* function = getFunction2("ClearTint");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OClearTint());
@@ -151,7 +151,7 @@ void GraphicsSymbols::generateCode()
 
 	//paldata CreatePalData(graphics)
 	{
-		Function* function = getFunction("CreatePalData", 1);
+		Function* function = getFunction2("CreatePalData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -163,7 +163,7 @@ void GraphicsSymbols::generateCode()
 	}
 	//paldata CreatePalData(graphics, rgb)
 	{
-		Function* function = getFunction("CreatePalData", 2);
+		Function* function = getFunction2("CreatePalData", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -177,7 +177,7 @@ void GraphicsSymbols::generateCode()
 	}
 	//rgb MixColor(graphics, rgb, rgb, float, float)
 	{
-		Function* function = getFunction("MixColor", 5);
+		Function* function = getFunction2("MixColor");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -191,7 +191,7 @@ void GraphicsSymbols::generateCode()
 	}
 	//rgb CreateRGB(graphics, float)
 	{
-		Function* function = getFunction("CreateRGB", 2);
+		Function* function = getFunction2("CreateRGB");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -205,7 +205,7 @@ void GraphicsSymbols::generateCode()
 	}
 	//rgb CreateRGB(graphics, float, float, float)
 	{
-		Function* function = getFunction("CreateRGB", 4);
+		Function* function = getFunction2("CreateRGB", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
