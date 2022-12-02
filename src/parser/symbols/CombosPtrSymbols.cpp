@@ -7,13 +7,13 @@ static AccessorTable2 CombosTable2[] =
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	
 //	newcombo struct
-	{ "PosX",                       0,         ZTID_FLOAT,   COMBOXR,                   0,  { ZTID_COMBOS },{} },
+	{ "_getPosX",                   0,         ZTID_FLOAT,   COMBOXR,                   0,  { ZTID_COMBOS },{} },
 	{ "getX",                       0,         ZTID_FLOAT,   COMBOXR,                   0,  { ZTID_COMBOS },{} },
 	{ "getY",                       0,         ZTID_FLOAT,   COMBOYR,                   0,  { ZTID_COMBOS },{} },
-	{ "PosY",                       0,         ZTID_FLOAT,   COMBOYR,                   0,  { ZTID_COMBOS },{} },
-	{ "Pos",                        0,         ZTID_FLOAT,   COMBOPOSR,                 0,  { ZTID_COMBOS },{} },
+	{ "_getPosY",                   0,         ZTID_FLOAT,   COMBOYR,                   0,  { ZTID_COMBOS },{} },
+	{ "_getPos",                    0,         ZTID_FLOAT,   COMBOPOSR,                 0,  { ZTID_COMBOS },{} },
 	{ "getPos",                     0,         ZTID_FLOAT,   COMBOPOSR,                 0,  { ZTID_COMBOS },{} },
-	{ "Layer",                      0,         ZTID_FLOAT,   COMBOLAYERR,               0,  { ZTID_COMBOS },{} },
+	{ "_getLayer",                  0,         ZTID_FLOAT,   COMBOLAYERR,               0,  { ZTID_COMBOS },{} },
 	{ "getLayer",                   0,         ZTID_FLOAT,   COMBOLAYERR,               0,  { ZTID_COMBOS },{} },
 	{ "getInitD[]",                 0,       ZTID_UNTYPED,   COMBODATAINITD,            0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	{ "setInitD[]",                 0,          ZTID_VOID,   COMBODATAINITD,            0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_UNTYPED },{} },
@@ -275,8 +275,8 @@ static AccessorTable2 CombosTable2[] =
 	{ "setBlockWeaponLevel",        0,          ZTID_VOID,   COMBODBLOCKWPNLEVEL,       0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	
 //	Functions
-//	{ "GetName",                  ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-//	{ "SetName",                  ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+//	{ "GetName",                    0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+//	{ "SetName",                    0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	
 	
 //	one input, one return

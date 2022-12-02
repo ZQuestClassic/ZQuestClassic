@@ -227,7 +227,23 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 		// Create function object.
 		Function* function;
 		auto setorget = FUNCTION;
-		if (entry.var > -1 && name.substr(0, 3) == "set")
+		bool internal = name[0] == '_';
+		if(internal)
+		{
+			if(name.substr(0,4) == "_set")
+			{
+				setorget = SETTER;
+				varName = varName.substr(4); // Strip out "_set".
+				function = scope.addFunction(returnType, varName, paramTypes, blankParams, entry.funcFlags);
+			}
+			else if(name.substr(0,4) == "_get")
+			{
+				setorget = GETTER;
+				varName = varName.substr(4); // Strip out "_get".
+				function = scope.addFunction(returnType, varName, paramTypes, blankParams, entry.funcFlags);
+			}
+		}
+		else if (entry.var > -1 && name.substr(0, 3) == "set")
 		{
 			setorget = SETTER;
 			varName = varName.substr(3); // Strip out "set".
