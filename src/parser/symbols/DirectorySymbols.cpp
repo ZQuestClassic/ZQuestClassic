@@ -2,21 +2,21 @@
 
 DirectorySymbols DirectorySymbols::singleton = DirectorySymbols();
 
-static AccessorTable DirectoryTable[] =
+static AccessorTable2 DirectoryTable2[] =
 {
-//	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
-	{ "getSize",                ZTID_FLOAT,         GETTER,       DIRECTORYSIZE,    1,             0,                                    1,           { ZTID_DIRECTORY, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetFilename",            ZTID_BOOL,          FUNCTION,     0,                1,             0,                                    3,           { ZTID_DIRECTORY, ZTID_FLOAT, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Reload",                 ZTID_VOID,          FUNCTION,     0,                1,             0,                                    1,           { ZTID_DIRECTORY, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Free",                   ZTID_VOID,          FUNCTION,     0,                1,             0,                                    1,           { ZTID_DIRECTORY, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Own",                    ZTID_VOID,          FUNCTION,     0,                1,             0,                                    1,           { ZTID_DIRECTORY, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
+	{ "getSize",                    0,         ZTID_FLOAT,   DIRECTORYSIZE,             0,  { ZTID_DIRECTORY },{} },
+	{ "GetFilename",                0,          ZTID_BOOL,   -1,                        0,  { ZTID_DIRECTORY, ZTID_FLOAT, ZTID_CHAR },{} },
+	{ "Reload",                     0,          ZTID_VOID,   -1,                        0,  { ZTID_DIRECTORY },{} },
+	{ "Free",                       0,          ZTID_VOID,   -1,                        0,  { ZTID_DIRECTORY },{} },
+	{ "Own",                        0,          ZTID_VOID,   -1,                        0,  { ZTID_DIRECTORY },{} },
 	
-	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
 DirectorySymbols::DirectorySymbols()
 {
-	table = DirectoryTable;
+	table2 = DirectoryTable2;
 	refVar = REFDIRECTORY;
 }
 
@@ -24,7 +24,7 @@ void DirectorySymbols::generateCode()
 {
 	//bool GetFilename(directory, int32_t, char32)
 	{
-		Function* function = getFunction("GetFilename", 3);
+		Function* function = getFunction2("GetFilename");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -39,7 +39,7 @@ void DirectorySymbols::generateCode()
 	}
 	//void Reload(directory)
 	{
-		Function* function = getFunction("Reload", 1);
+		Function* function = getFunction2("Reload");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -52,7 +52,7 @@ void DirectorySymbols::generateCode()
 	}
 	//void Free(directory)
 	{
-		Function* function = getFunction("Free", 1);
+		Function* function = getFunction2("Free");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -65,7 +65,7 @@ void DirectorySymbols::generateCode()
 	}
 	//void Own(directory)
 	{
-		Function* function = getFunction("Own", 1);
+		Function* function = getFunction2("Own");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
