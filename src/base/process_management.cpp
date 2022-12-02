@@ -175,12 +175,10 @@ void launch_file(std::string const& file)
 	strcat(path_buf, "\\\\");
 	strcat(path_buf, file.c_str());
 	ShellExecute(0, 0, path_buf, 0, 0, SW_NORMAL);
+#elif defined(ALLEGRO_MACOSX)
+	std::string command = "open " + file;
+	system(command.c_str());
 #else
-	//!TODO Open a file, os-based.
-	//Ex: 'launch_file("docs/ZScript_Docs.html")',
-	// should open the html file with the default program for html
-	//Ex: 'launch_file("include/std_zh")',
-	// should launch the folder std_zh in a file explorer
+	// TODO
 #endif
 }
-
