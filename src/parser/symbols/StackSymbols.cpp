@@ -2,7 +2,7 @@
 
 StackSymbols StackSymbols::singleton = StackSymbols();
 
-static AccessorTable2 StackTable2[] =
+static AccessorTable StackTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "getSize",                    0,          ZTID_LONG,   STACKSIZE,                 0,  { ZTID_STACK },{} },
@@ -24,7 +24,7 @@ static AccessorTable2 StackTable2[] =
 
 StackSymbols::StackSymbols()
 {
-	table2 = StackTable2;
+	table = StackTable;
 	refVar = REFSTACK;
 }
 

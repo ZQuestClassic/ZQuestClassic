@@ -2,7 +2,7 @@
 
 HeroWeaponSymbols HeroWeaponSymbols::singleton = HeroWeaponSymbols();
 
-static AccessorTable2 lwpnTable2[] =
+static AccessorTable lwpnTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "getX",                       0,         ZTID_FLOAT,   LWPNX,                     0,  { ZTID_LWPN },{} },
@@ -170,7 +170,7 @@ static AccessorTable2 lwpnTable2[] =
 
 HeroWeaponSymbols::HeroWeaponSymbols()
 {
-	table2 = lwpnTable2;
+	table = lwpnTable;
 	refVar = REFLWPN;
 }
 

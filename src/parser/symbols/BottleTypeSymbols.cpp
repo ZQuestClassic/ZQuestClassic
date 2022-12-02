@@ -2,7 +2,7 @@
 
 BottleTypeSymbols BottleTypeSymbols::singleton = BottleTypeSymbols();
 
-static AccessorTable2 BottleTypeTable2[] =
+static AccessorTable BottleTypeTable[] =
 {
 //	  name,                    tag,            rettype,  var,    funcFlags,  params,optparams
 	{ "GetName",                 0,          ZTID_VOID,   -1,            0,  { ZTID_BOTTLETYPE, ZTID_CHAR },{} },
@@ -23,7 +23,7 @@ static AccessorTable2 BottleTypeTable2[] =
 
 BottleTypeSymbols::BottleTypeSymbols()
 {
-	table2 = BottleTypeTable2;
+	table = BottleTypeTable;
 	refVar = REFBOTTLETYPE;
 }
 

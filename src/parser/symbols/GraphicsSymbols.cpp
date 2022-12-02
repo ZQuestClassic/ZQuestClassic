@@ -2,7 +2,7 @@
 
 GraphicsSymbols GraphicsSymbols::singleton = GraphicsSymbols();
 
-static AccessorTable2 GraphicsTable2[] =
+static AccessorTable GraphicsTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "Wavy",                       0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_BOOL },{} },
@@ -27,7 +27,7 @@ static AccessorTable2 GraphicsTable2[] =
 
 GraphicsSymbols::GraphicsSymbols()
 {
-	table2 = GraphicsTable2;
+	table = GraphicsTable;
 	refVar = NUL;
 }
 

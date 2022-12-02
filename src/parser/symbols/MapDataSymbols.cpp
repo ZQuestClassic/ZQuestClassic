@@ -2,7 +2,7 @@
 
 MapDataSymbols MapDataSymbols::singleton = MapDataSymbols();
 
-static AccessorTable2 MapDataTable2[] =
+static AccessorTable MapDataTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "isSolid",                    0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
@@ -332,7 +332,7 @@ static AccessorTable2 MapDataTable2[] =
 
 MapDataSymbols::MapDataSymbols()
 {
-	table2 = MapDataTable2;
+	table = MapDataTable;
 	refVar = REFMAPDATA; //NUL; //
 }
 

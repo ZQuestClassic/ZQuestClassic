@@ -2,7 +2,7 @@
 
 AudioSymbols AudioSymbols::singleton = AudioSymbols();
 
-static AccessorTable2 AudioTable2[] =
+static AccessorTable AudioTable[] =
 {
 //	  name,                    tag,            rettype,  var,  funcFlags,  params,optparams
 	{ "PlaySound",               0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
@@ -33,7 +33,7 @@ static AccessorTable2 AudioTable2[] =
 
 AudioSymbols::AudioSymbols()
 {
-	table2 = AudioTable2;
+	table = AudioTable;
 	refVar = NUL;
 }
 

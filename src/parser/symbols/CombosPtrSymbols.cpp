@@ -2,7 +2,7 @@
 
 CombosPtrSymbols CombosPtrSymbols::singleton = CombosPtrSymbols();
 
-static AccessorTable2 CombosTable2[] =
+static AccessorTable CombosTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	
@@ -449,7 +449,7 @@ static AccessorTable2 CombosTable2[] =
 
 CombosPtrSymbols::CombosPtrSymbols()
 {
-	table2 = CombosTable2;
+	table = CombosTable;
 	refVar = REFCOMBODATA; //NUL;
 }
 

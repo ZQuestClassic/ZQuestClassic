@@ -2,7 +2,7 @@
 
 ShopDataSymbols ShopDataSymbols::singleton = ShopDataSymbols();
 
-static AccessorTable2 ShopDataTable2[] =
+static AccessorTable ShopDataTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "getType",                    0,         ZTID_FLOAT,   SHOPDATATYPE,              0,  { ZTID_SHOPDATA },{} },
@@ -18,12 +18,12 @@ static AccessorTable2 ShopDataTable2[] =
 	{ "getString[]",                0,         ZTID_FLOAT,   SHOPDATASTRING,            0,  { ZTID_SHOPDATA, ZTID_FLOAT },{} },
 	{ "setString[]",                0,          ZTID_VOID,   SHOPDATASTRING,            0,  { ZTID_SHOPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "",                       -1,                       -1,           -1,                -1,            0,                                    1,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
 ShopDataSymbols::ShopDataSymbols()
 {
-	table2 = ShopDataTable2;
+	table = ShopDataTable;
 	refVar = REFSHOPDATA;
 }
 

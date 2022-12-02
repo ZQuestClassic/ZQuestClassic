@@ -2,7 +2,7 @@
 
 ItemclassSymbols ItemclassSymbols::singleton = ItemclassSymbols();
 
-static AccessorTable2 itemclassTable2[] =
+static AccessorTable itemclassTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "getFamily",                  0,         ZTID_FLOAT,   ITEMCLASSFAMILY,           0,  { ZTID_ITEMCLASS },{} },
@@ -213,7 +213,7 @@ static AccessorTable2 itemclassTable2[] =
 
 ItemclassSymbols::ItemclassSymbols()
 {
-	table2 = itemclassTable2;
+	table = itemclassTable;
 	refVar = REFITEMCLASS;
 }
 

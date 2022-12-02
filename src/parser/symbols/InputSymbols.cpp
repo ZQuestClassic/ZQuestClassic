@@ -2,7 +2,7 @@
 
 InputSymbols InputSymbols::singleton = InputSymbols();
 
-static AccessorTable2 InputTable2[] =
+static AccessorTable InputTable[] =
 {
 //	All of these return a function label error when used:
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
@@ -39,7 +39,7 @@ static AccessorTable2 InputTable2[] =
 
 InputSymbols::InputSymbols()
 {
-	table2 = InputTable2;
+	table = InputTable;
 	refVar = NUL;
 }
 

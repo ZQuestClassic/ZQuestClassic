@@ -2,7 +2,7 @@
 
 RNGSymbols RNGSymbols::singleton = RNGSymbols();
 
-static AccessorTable2 RNGTable2[] =
+static AccessorTable RNGTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 //	{ "DirExists",                  0,          ZTID_BOOL,   -1,                        0,  { ZTID_FILESYSTEM, ZTID_CHAR },{} },
@@ -22,7 +22,7 @@ static AccessorTable2 RNGTable2[] =
 
 RNGSymbols::RNGSymbols()
 {
-	table2 = RNGTable2;
+	table = RNGTable;
 	refVar = REFRNG;
 }
 

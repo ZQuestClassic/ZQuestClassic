@@ -2,7 +2,7 @@
 
 GameSymbols GameSymbols::singleton = GameSymbols();
 
-static AccessorTable2 gameTable2[] =
+static AccessorTable gameTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "_getIncrementQuest",         0,         ZTID_FLOAT,   INCQST,                    0,  { ZTID_GAME },{} },
@@ -313,7 +313,7 @@ static AccessorTable2 gameTable2[] =
 
 GameSymbols::GameSymbols()
 {
-	table2 = gameTable2;
+	table = gameTable;
 	refVar = NUL;
 }
 

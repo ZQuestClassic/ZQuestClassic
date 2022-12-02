@@ -2,7 +2,7 @@
 
 EnemyWeaponSymbols EnemyWeaponSymbols::singleton = EnemyWeaponSymbols();
 
-static AccessorTable2 ewpnTable2[] =
+static AccessorTable ewpnTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "getLevel",                   0,         ZTID_FLOAT,   EWPNLEVEL,                 0,  { ZTID_EWPN },{} },
@@ -162,7 +162,7 @@ static AccessorTable2 ewpnTable2[] =
 
 EnemyWeaponSymbols::EnemyWeaponSymbols()
 {
-	table2 = ewpnTable2;
+	table = ewpnTable;
 	refVar = REFEWPN;
 }
 

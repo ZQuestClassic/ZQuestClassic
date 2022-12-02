@@ -2,7 +2,7 @@
 
 TextPtrSymbols TextPtrSymbols::singleton = TextPtrSymbols();
 
-static AccessorTable2 TextTable2[] =
+static AccessorTable TextTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "StringWidth",                0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_TEXT, ZTID_CHAR, ZTID_FLOAT },{} },
@@ -18,7 +18,7 @@ static AccessorTable2 TextTable2[] =
 
 TextPtrSymbols::TextPtrSymbols()
 {
-	table2 = TextTable2;
+	table = TextTable;
 	refVar = NUL;
 }
 

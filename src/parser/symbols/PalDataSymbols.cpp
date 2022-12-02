@@ -2,7 +2,7 @@
 
 PalDataSymbols PalDataSymbols::singleton = PalDataSymbols();
 
-static AccessorTable2 PalDataTable2[] =
+static AccessorTable PalDataTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 //	{ "DirExists",                  0,          ZTID_BOOL,   -1,                        0,  { ZTID_FILESYSTEM, ZTID_CHAR },{} },
@@ -42,7 +42,7 @@ static AccessorTable2 PalDataTable2[] =
 
 PalDataSymbols::PalDataSymbols()
 {
-	table2 = PalDataTable2;
+	table = PalDataTable;
 	refVar = REFPALDATA;
 }
 

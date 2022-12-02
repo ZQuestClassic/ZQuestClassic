@@ -2,7 +2,7 @@
 
 BitmapSymbols BitmapSymbols::singleton = BitmapSymbols();
 
-static AccessorTable2 BitmapTable2[] =
+static AccessorTable BitmapTable[] =
 {
 //	  name,                    tag,            rettype,  var,          funcFlags,  params,optparams
 	{ "getWidth",                0,         ZTID_FLOAT,   BITMAPWIDTH,         0,  { ZTID_BITMAP },{} },
@@ -80,7 +80,7 @@ static AccessorTable2 BitmapTable2[] =
 
 BitmapSymbols::BitmapSymbols()
 {
-    table2 = BitmapTable2;
+    table = BitmapTable;
 	refVar = REFBITMAP;
 }
 

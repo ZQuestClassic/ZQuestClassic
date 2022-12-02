@@ -2,7 +2,7 @@
 
 NPCSymbols NPCSymbols::singleton = NPCSymbols();
 
-static AccessorTable2 npcTable2[] =
+static AccessorTable npcTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "getX",                       0,         ZTID_FLOAT,   NPCX,                      0,  { ZTID_NPC },{} },
@@ -247,7 +247,7 @@ static AccessorTable2 npcTable2[] =
 
 NPCSymbols::NPCSymbols()
 {
-	table2 = npcTable2;
+	table = npcTable;
 	refVar = REFNPC;
 }
 

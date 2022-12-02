@@ -2,7 +2,7 @@
 
 FileSystemSymbols FileSystemSymbols::singleton = FileSystemSymbols();
 
-static AccessorTable2 FileSystemTable2[] =
+static AccessorTable FileSystemTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "DirExists",                  0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_FILESYSTEM, ZTID_CHAR },{} },
@@ -15,7 +15,7 @@ static AccessorTable2 FileSystemTable2[] =
 
 FileSystemSymbols::FileSystemSymbols()
 {
-	table2 = FileSystemTable2;
+	table = FileSystemTable;
 	refVar = NUL;
 }
 

@@ -2,7 +2,7 @@
 
 BottleShopSymbols BottleShopSymbols::singleton = BottleShopSymbols();
 
-static AccessorTable2 BottleShopTable2[] =
+static AccessorTable BottleShopTable[] =
 {
 //	  name,                    tag,            rettype,  var,  funcFlags,  params,optparams
 	{ "GetName",                 0,          ZTID_VOID,   -1,          0,  { ZTID_BOTTLESHOP, ZTID_CHAR },{} },
@@ -23,7 +23,7 @@ static AccessorTable2 BottleShopTable2[] =
 
 BottleShopSymbols::BottleShopSymbols()
 {
-	table2 = BottleShopTable2;
+	table = BottleShopTable;
 	refVar = REFBOTTLESHOP;
 }
 

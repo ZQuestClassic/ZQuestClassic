@@ -2,7 +2,7 @@
 
 DMapDataSymbols DMapDataSymbols::singleton = DMapDataSymbols();
 
-static AccessorTable2 DMapDataTable2[] =
+static AccessorTable DMapDataTable[] =
 {
 //	All of these return a function label error when used:
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
@@ -86,7 +86,7 @@ static AccessorTable2 DMapDataTable2[] =
 
 DMapDataSymbols::DMapDataSymbols()
 {
-	table2 = DMapDataTable2;
+	table = DMapDataTable;
 	refVar = REFDMAPDATA;
 }
 

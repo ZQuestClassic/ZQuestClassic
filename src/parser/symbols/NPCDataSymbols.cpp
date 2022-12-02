@@ -2,7 +2,7 @@
 
 NPCDataSymbols NPCDataSymbols::singleton = NPCDataSymbols();
 
-static AccessorTable2 NPCDataTable2[] =
+static AccessorTable NPCDataTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 //	datatype variables
@@ -230,7 +230,7 @@ static AccessorTable2 NPCDataTable2[] =
 
 NPCDataSymbols::NPCDataSymbols()
 {
-	table2 = NPCDataTable2;
+	table = NPCDataTable;
 	refVar = REFNPCCLASS;
 }
 

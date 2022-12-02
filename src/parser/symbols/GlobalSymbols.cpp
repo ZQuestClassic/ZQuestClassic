@@ -3,7 +3,7 @@
 const int32_t radsperdeg = 572958;
 GlobalSymbols GlobalSymbols::singleton;
 
-static AccessorTable2 GlobalTable2[] =
+static AccessorTable GlobalTable[] =
 {
 //	  name,                    tag,            rettype,  var,  funcFlags,  params,optparams
 	{ "Quit",                    0,          ZTID_VOID,   -1,          0,  {},{} },
@@ -149,7 +149,7 @@ static AccessorTable2 GlobalTable2[] =
 
 GlobalSymbols::GlobalSymbols()
 {
-	table2 = GlobalTable2;
+	table = GlobalTable;
 	refVar = NUL;
 	hasPrefixType = false;
 }

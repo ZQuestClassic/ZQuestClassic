@@ -2,7 +2,7 @@
 
 ScreenSymbols ScreenSymbols::singleton = ScreenSymbols();
 
-static AccessorTable2 ScreenTable2[] =
+static AccessorTable ScreenTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "getD[]",                     0,       ZTID_UNTYPED,   SDD,                       0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
@@ -375,7 +375,7 @@ static AccessorTable2 ScreenTable2[] =
 
 ScreenSymbols::ScreenSymbols()
 {
-	table2 = ScreenTable2;
+	table = ScreenTable;
 	refVar = NUL;
 }
 

@@ -2,7 +2,7 @@
 
 SpriteDataSymbols SpriteDataSymbols::singleton = SpriteDataSymbols();
 
-static AccessorTable2 SpriteDataTable2[] =
+static AccessorTable SpriteDataTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "getTile",                    0,         ZTID_FLOAT,   SPRITEDATATILE,            0,  { ZTID_SPRITEDATA },{} },
@@ -23,7 +23,7 @@ static AccessorTable2 SpriteDataTable2[] =
 
 SpriteDataSymbols::SpriteDataSymbols()
 {
-	table2 = SpriteDataTable2;
+	table = SpriteDataTable;
 	refVar = REFSPRITEDATA;
 }
 

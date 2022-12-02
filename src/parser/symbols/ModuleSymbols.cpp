@@ -2,7 +2,7 @@
 
 ModuleSymbols ModuleSymbols::singleton = ModuleSymbols();
 
-static AccessorTable2 ModuleTable2[] =
+static AccessorTable ModuleTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "GetInt",                     0,         ZTID_FLOAT,   -1,                        0,  { ZTID_MODULE, ZTID_CHAR, ZTID_CHAR },{} },
@@ -13,7 +13,7 @@ static AccessorTable2 ModuleTable2[] =
 
 ModuleSymbols::ModuleSymbols()
 {
-	table2 = ModuleTable2;
+	table = ModuleTable;
 	refVar = NUL;
 }
 

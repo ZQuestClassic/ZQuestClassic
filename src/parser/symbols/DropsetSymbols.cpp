@@ -2,7 +2,7 @@
 
 DropsetSymbols DropsetSymbols::singleton = DropsetSymbols();
 
-static AccessorTable2 DropsetTable2[] =
+static AccessorTable DropsetTable[] =
 {
 //	All of these return a function label error when used:
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
@@ -22,7 +22,7 @@ static AccessorTable2 DropsetTable2[] =
 
 DropsetSymbols::DropsetSymbols()
 {
-	table2 = DropsetTable2;
+	table = DropsetTable;
 	refVar = REFDROPS;
 }
 

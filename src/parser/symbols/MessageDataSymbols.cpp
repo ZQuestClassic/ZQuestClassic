@@ -2,7 +2,7 @@
 
 MessageDataSymbols MessageDataSymbols::singleton = MessageDataSymbols();
 
-static AccessorTable2 MessageDataTable2[] =
+static AccessorTable MessageDataTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "Get",                        0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_ZMESSAGE, ZTID_FLOAT },{} },
@@ -62,7 +62,7 @@ static AccessorTable2 MessageDataTable2[] =
 
 MessageDataSymbols::MessageDataSymbols()
 {
-    table2 = MessageDataTable2;
+    table = MessageDataTable;
     refVar = REFMSGDATA;
 }
 

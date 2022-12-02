@@ -2,7 +2,7 @@
 
 DirectorySymbols DirectorySymbols::singleton = DirectorySymbols();
 
-static AccessorTable2 DirectoryTable2[] =
+static AccessorTable DirectoryTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "getSize",                    0,         ZTID_FLOAT,   DIRECTORYSIZE,             0,  { ZTID_DIRECTORY },{} },
@@ -16,7 +16,7 @@ static AccessorTable2 DirectoryTable2[] =
 
 DirectorySymbols::DirectorySymbols()
 {
-	table2 = DirectoryTable2;
+	table = DirectoryTable;
 	refVar = REFDIRECTORY;
 }
 

@@ -2,7 +2,7 @@
 
 HeroSymbols HeroSymbols::singleton = HeroSymbols();
 
-static AccessorTable2 HeroSTable2[] =
+static AccessorTable HeroSTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "getX",                       0,         ZTID_FLOAT,   LINKX,                     0,  { ZTID_PLAYER },{} },
@@ -283,7 +283,7 @@ static AccessorTable2 HeroSTable2[] =
 
 HeroSymbols::HeroSymbols()
 {
-	table2 = HeroSTable2;
+	table = HeroSTable;
 	refVar = NUL;
 }
 

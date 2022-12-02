@@ -2,7 +2,7 @@
 
 DebugSymbols DebugSymbols::singleton = DebugSymbols();
 
-static AccessorTable2 DebugTable2[] =
+static AccessorTable DebugTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 //	All of these return a function label error when used:
@@ -60,7 +60,7 @@ static AccessorTable2 DebugTable2[] =
 
 DebugSymbols::DebugSymbols()
 {
-	table2 = DebugTable2;
+	table = DebugTable;
 	refVar = NUL;
 }
 

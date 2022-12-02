@@ -2,7 +2,7 @@
 
 GenericDataSymbols GenericDataSymbols::singleton = GenericDataSymbols();
 
-static AccessorTable2 GenericDataTable2[] =
+static AccessorTable GenericDataTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "RunFrozen",                  0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_GENERICDATA },{} },
@@ -25,7 +25,7 @@ static AccessorTable2 GenericDataTable2[] =
 
 GenericDataSymbols::GenericDataSymbols()
 {
-	table2 = GenericDataTable2;
+	table = GenericDataTable;
 	refVar = REFGENERICDATA;
 }
 

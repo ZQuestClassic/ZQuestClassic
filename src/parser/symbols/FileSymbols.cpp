@@ -2,7 +2,7 @@
 
 FileSymbols FileSymbols::singleton = FileSymbols();
 
-static AccessorTable2 FileTable2[] =
+static AccessorTable FileTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "Open",                       0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_FILE, ZTID_CHAR },{} },
@@ -40,7 +40,7 @@ static AccessorTable2 FileTable2[] =
 
 FileSymbols::FileSymbols()
 {
-	table2 = FileTable2;
+	table = FileTable;
 	refVar = REFFILE;
 }
 

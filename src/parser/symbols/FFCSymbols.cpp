@@ -2,7 +2,7 @@
 
 FFCSymbols FFCSymbols::singleton = FFCSymbols();
 
-static AccessorTable2 FFCTable2[] =
+static AccessorTable FFCTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "getData",                    0,         ZTID_FLOAT,   DATA,                      0,  { ZTID_FFC },{} },
@@ -51,7 +51,7 @@ static AccessorTable2 FFCTable2[] =
 
 FFCSymbols::FFCSymbols()
 {
-	table2 = FFCTable2;
+	table = FFCTable;
 	refVar = REFFFC;
 }
 

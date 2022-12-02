@@ -2,7 +2,7 @@
 
 ItemSymbols ItemSymbols::singleton = ItemSymbols();
 
-static AccessorTable2 itemTable2[] =
+static AccessorTable itemTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	{ "getUID",                     0,         ZTID_FLOAT,   ITEMSCRIPTUID,             0,  { ZTID_ITEM },{} },
@@ -139,7 +139,7 @@ static AccessorTable2 itemTable2[] =
 
 ItemSymbols::ItemSymbols()
 {
-	table2 = itemTable2;
+	table = itemTable;
 	refVar = REFITEM;
 }
 
