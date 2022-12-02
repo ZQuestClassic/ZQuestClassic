@@ -2,20 +2,20 @@
 
 FileSystemSymbols FileSystemSymbols::singleton = FileSystemSymbols();
 
-static AccessorTable FileSystemTable[] =
+static AccessorTable2 FileSystemTable2[] =
 {
-//	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
-	{ "DirExists",              ZTID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           { ZTID_FILESYSTEM, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "FileExists",             ZTID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           { ZTID_FILESYSTEM, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Remove",                 ZTID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           { ZTID_FILESYSTEM, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LoadDirectory",          ZTID_DIRECTORY,     FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           { ZTID_FILESYSTEM, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
+	{ "DirExists",                  0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_FILESYSTEM, ZTID_CHAR },{} },
+	{ "FileExists",                 0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_FILESYSTEM, ZTID_CHAR },{} },
+	{ "Remove",                     0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_FILESYSTEM, ZTID_CHAR },{} },
+	{ "LoadDirectory",              0,     ZTID_DIRECTORY,   -1,                   FL_INL,  { ZTID_FILESYSTEM, ZTID_CHAR },{} },
 	
-	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
 FileSystemSymbols::FileSystemSymbols()
 {
-	table = FileSystemTable;
+	table2 = FileSystemTable2;
 	refVar = NUL;
 }
 
@@ -23,7 +23,7 @@ void FileSystemSymbols::generateCode()
 {
 	//bool DirExists(FileSystem, char32*)
 	{
-		Function* function = getFunction("DirExists", 2);
+		Function* function = getFunction2("DirExists");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -37,7 +37,7 @@ void FileSystemSymbols::generateCode()
 	}
 	//bool FileExists(FileSystem, char32*)
 	{
-		Function* function = getFunction("FileExists", 2);
+		Function* function = getFunction2("FileExists");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -51,7 +51,7 @@ void FileSystemSymbols::generateCode()
 	}
 	//bool Remove(FileSystem, char32*)
 	{
-		Function* function = getFunction("Remove", 2);
+		Function* function = getFunction2("Remove");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -65,7 +65,7 @@ void FileSystemSymbols::generateCode()
 	}
 	//directory LoadDirectory(FileSystem, char32*)
 	{
-		Function* function = getFunction("LoadDirectory", 2);
+		Function* function = getFunction2("LoadDirectory");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
