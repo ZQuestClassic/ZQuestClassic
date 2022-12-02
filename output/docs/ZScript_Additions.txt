@@ -5151,7 +5151,7 @@ int Slide();
  * This is called as a part of scripted walking functions, such as 'ConstantWalk()', automatically.
  * Return: 0 if no knockback occurred, 1 if scripted knockback ('->Knockback()') occurred, 2 if engine knockback occurred.
 
-bool Knockback(int time, int dir, int speed);
+bool Knockback(int time, int dir, int speed = 4);
  * Attempt to knock an enemy back.
  * 'time' is the number of frames to knock back.
  * 'speed' is how many pixels per frame the npc will move.
@@ -5228,7 +5228,7 @@ bool CanMove(int array[]);
  * 	{int ndir, int step, int special} 
  * 	{int ndir,int step,int special,int dx1,int dy1,int dx2,int dy2}
 	
-int LinedUp(int range, bool dir8);
+int LinedUp(int range, bool dir8 = false);
  * Checks if enemy is lined up with Link.
  * If so, returns direction Link is at as compared to enemy.
  * Returns -1 if not lined up. Range is inclusive.
@@ -5242,7 +5242,7 @@ bool MovePaused();
  *   i.e. spawning, dying, stunned, clock active, etc
  * Should be checked before calling movement functions below
 
-bool MoveXY(float dx, float dy, int special)
+bool MoveXY(float dx, float dy, int special = SPW_NONE)
  * Attempts to move the enemy by 'dx, dy'; obeying solidity.
  * Use the 'SPW_' constants to provide a special value;
  *     i.e. 'SPW_FLOATER' for flying enemies.
@@ -5250,11 +5250,11 @@ bool MoveXY(float dx, float dy, int special)
  * Returns true if the enemy moves the full distance,
  *     false if it is blocked by something.
  
-bool CanMoveXY(float dx, float dy, int special)
+bool CanMoveXY(float dx, float dy, int special = SPW_NONE)
  * Same as above, but doesn't actually move the enemy,
  *     just returns the success state if it were to move.
 
-bool Move(int dir, float pxamnt, int special)
+bool Move(int dir, float pxamnt, int special = SPW_NONE)
  * Attempts to move the enemy by 'pxamnt' pixels in the
  *     'dir' direction; obeying solidity.
  * Use the 'SPW_' constants to provide a special value;
@@ -5263,11 +5263,11 @@ bool Move(int dir, float pxamnt, int special)
  * Returns true if the enemy moves the full distance,
  *     false if it is blocked by something.
  
-bool CanMove(int dir, float pxamnt, int special)
+bool CanMove(int dir, float pxamnt, int special = SPW_NONE)
  * Same as above, but doesn't actually move the enemy,
  *     just returns the success state if it were to move.
 
-bool MoveAtAngle(float degrees, float pxamnt, int special)
+bool MoveAtAngle(float degrees, float pxamnt, int special = SPW_NONE)
  * Attempts to move the enemy by 'pxamnt' pixels in the
  *     'degrees' angle; obeying solidity.
  * Use the 'SPW_' constants to provide a special value;
@@ -5276,7 +5276,7 @@ bool MoveAtAngle(float degrees, float pxamnt, int special)
  * Returns true if the enemy moves the full distance,
  *     false if it is blocked by something.
  
-bool CanMoveAtAngle(float degrees, float pxamnt, int special)
+bool CanMoveAtAngle(float degrees, float pxamnt, int special = SPW_NONE)
  * Same as above, but doesn't actually move the enemy,
  *     just returns the success state if it were to move.
 
@@ -5299,7 +5299,7 @@ npc Create(int array[]);
  * 	{ int id } 
  * 	{ int id, int x, int y }
 	
-void BreathAttack(bool seeklink);
+void BreathAttack(bool seeklink = false);
  * Fires the breath weapon set to the enemy.
 
 bool Collision(int obj_type, untyped obj_pointer);
