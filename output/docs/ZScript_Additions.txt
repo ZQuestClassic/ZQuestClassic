@@ -5902,7 +5902,7 @@ int Damage;
  * The damage produced by weapons generated from tis item.
  * Identical to itemdata->Power, provided for uniformity it weapons.
 
-void RunScript(int mode);
+void RunScript(int mode = 1);
  * Runs the script assigned to this item at any arbitrary time.
  * Mode Settings:
  * 0 : SCRIPT_MODE_END 
