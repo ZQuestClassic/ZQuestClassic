@@ -5564,7 +5564,7 @@ int TileMod;
  * Read-only
  * The current *total* Player Tile Modifier.
 
-void Kill(bool bypass_revive);
+void Kill(bool bypass_revive = false);
  * Kills the player. Their HP will be set to 0, and 'Immortal' will be bypassed.
  * If 'bypass_revive' is true, bottles will not be checked for revival items,
  *     and the normal single frame delay before death that is used for script-revival
