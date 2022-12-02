@@ -16,8 +16,8 @@ static AccessorTable DirectoryTable[] =
 
 DirectorySymbols::DirectorySymbols()
 {
-    table = DirectoryTable;
-    refVar = REFDIRECTORY;
+	table = DirectoryTable;
+	refVar = REFDIRECTORY;
 }
 
 void DirectorySymbols::generateCode()

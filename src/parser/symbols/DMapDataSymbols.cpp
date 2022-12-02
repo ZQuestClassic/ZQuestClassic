@@ -86,8 +86,8 @@ static AccessorTable DMapDataTable[] =
 
 DMapDataSymbols::DMapDataSymbols()
 {
-    table = DMapDataTable;
-    refVar = REFDMAPDATA;
+	table = DMapDataTable;
+	refVar = REFDMAPDATA;
 }
 
 void DMapDataSymbols::generateCode()

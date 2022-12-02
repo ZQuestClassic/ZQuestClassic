@@ -60,229 +60,229 @@ static AccessorTable DebugTable[] =
 
 DebugSymbols::DebugSymbols()
 {
-    table = DebugTable;
-    refVar = NUL;
+	table = DebugTable;
+	refVar = NUL;
 }
 
 void DebugSymbols::generateCode()
 {
 	//int32_t GetPointer(itemclass, itemclass)
-    {
-        Function* function = getFunction("GetItemdataPointer", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetItemDataPointer(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //int32_t SetPointer(itemclass, float)
-    {
-        Function* function = getFunction("SetItemdataPointer", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetItemDataPointer(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetPointer(item, item)
-    {
-        Function* function = getFunction("GetItemPointer", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetItemPointer(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //int32_t SetPointer(item, float)
-    {
-        Function* function = getFunction("SetItemPointer", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetItemPointer(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }    
-    //int32_t GetPointer(ffc, ffc)
-    {
-        Function* function = getFunction("GetFFCPointer", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetFFCPointer(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //int32_t SetPointer(ffc, float)
-    {
-        Function* function = getFunction("SetFFCPointer", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetFFCPointer(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-          //int32_t GetPointer(eweapon, eweapon)
-    {
-        Function* function = getFunction("GetEWeaponPointer", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetEWeaponPointer(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //int32_t SetPointer(eweapon, float)
-    {
-        Function* function = getFunction("SetEWeaponPointer", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetEWeaponPointer(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-       //int32_t GetPointer(lweapon, lweapon)
-    {
-        Function* function = getFunction("GetLWeaponPointer", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetLWeaponPointer(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //int32_t SetPointer(lweapon, float)
-    {
-        Function* function = getFunction("SetLWeaponPointer", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetLWeaponPointer(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
+	{
+		Function* function = getFunction("GetItemdataPointer", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetItemDataPointer(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//int32_t SetPointer(itemclass, float)
+	{
+		Function* function = getFunction("SetItemdataPointer", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetItemDataPointer(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetPointer(item, item)
+	{
+		Function* function = getFunction("GetItemPointer", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetItemPointer(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//int32_t SetPointer(item, float)
+	{
+		Function* function = getFunction("SetItemPointer", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetItemPointer(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}    
+	//int32_t GetPointer(ffc, ffc)
+	{
+		Function* function = getFunction("GetFFCPointer", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetFFCPointer(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//int32_t SetPointer(ffc, float)
+	{
+		Function* function = getFunction("SetFFCPointer", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetFFCPointer(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+		  //int32_t GetPointer(eweapon, eweapon)
+	{
+		Function* function = getFunction("GetEWeaponPointer", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetEWeaponPointer(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//int32_t SetPointer(eweapon, float)
+	{
+		Function* function = getFunction("SetEWeaponPointer", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetEWeaponPointer(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	   //int32_t GetPointer(lweapon, lweapon)
+	{
+		Function* function = getFunction("GetLWeaponPointer", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetLWeaponPointer(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//int32_t SetPointer(lweapon, float)
+	{
+		Function* function = getFunction("SetLWeaponPointer", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetLWeaponPointer(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 	 //int32_t GetPointer(npc, ffc)
-    {
-        Function* function = getFunction("GetNPCPointer", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetNPCPointer(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //int32_t SetPointer(npc, float)
-    {
-        Function* function = getFunction("SetNPCPointer", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetNPCPointer(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetPointer(game, bool)
-    {
-        Function* function = getFunction("GetBoolPointer", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetBoolPointer(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //int32_t SetPointer(game, float)
-    {
-        Function* function = getFunction("SetBoolPointer", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetBoolPointer(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    
-    //void TriggerSecret(game, int32_t)
-    {
-        Function* function = getFunction("TriggerSecret", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OTriggerSecretRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
+	{
+		Function* function = getFunction("GetNPCPointer", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetNPCPointer(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//int32_t SetPointer(npc, float)
+	{
+		Function* function = getFunction("SetNPCPointer", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetNPCPointer(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetPointer(game, bool)
+	{
+		Function* function = getFunction("GetBoolPointer", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetBoolPointer(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//int32_t SetPointer(game, float)
+	{
+		Function* function = getFunction("SetBoolPointer", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetBoolPointer(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	
+	//void TriggerSecret(game, int32_t)
+	{
+		Function* function = getFunction("TriggerSecret", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OTriggerSecretRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
 	//void Breakpoint(debug, char)
 	{
-	    Function* function = getFunction("Breakpoint", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
+		Function* function = getFunction("Breakpoint", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
 		POPREF();
-        addOpcode2 (code, new OBreakpoint(new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
+		addOpcode2 (code, new OBreakpoint(new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
 	}
 }
 

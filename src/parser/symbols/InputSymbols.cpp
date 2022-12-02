@@ -39,8 +39,8 @@ static AccessorTable InputTable[] =
 
 InputSymbols::InputSymbols()
 {
-    table = InputTable;
-    refVar = NUL;
+	table = InputTable;
+	refVar = NUL;
 }
 
 void InputSymbols::generateCode()

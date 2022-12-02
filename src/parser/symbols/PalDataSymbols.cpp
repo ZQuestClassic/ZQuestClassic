@@ -51,16 +51,16 @@ void PalDataSymbols::generateCode()
 	//void LoadLevelPalette(paldata, int32_t)
 	{
 		Function* function = getFunction("LoadLevelPalette", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
 		LABELBACK(label);
 		//pop pointer
 		POPREF();
 		addOpcode2 (code, new OLoadLevelPalette(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
+		RETURN();
+		function->giveCode(code);
 	}
 	//void LoadSpritePalette(paldata, int32_t)
 	{

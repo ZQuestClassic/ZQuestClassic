@@ -166,18 +166,18 @@ function->internal_flags |= IFUNCFLAG_REASSIGNPTR
 //LoadRefData
 #define LOAD_REFDATA(flabel, ffins, ref_var, numparam) \
 { \
-        Function* function = getFunction(flabel, numparam); \
-        int32_t label = function->getLabel(); \
-        vector<shared_ptr<Opcode>> code; \
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1))); \
-        LABELBACK(label); \
-        POPREF(); \
-        addOpcode2 (code, new ffins(new VarArgument(EXP1))); \
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(ref_var))); \
-        RETURN(); \
-        function->giveCode(code); \
+		Function* function = getFunction(flabel, numparam); \
+		int32_t label = function->getLabel(); \
+		vector<shared_ptr<Opcode>> code; \
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1))); \
+		LABELBACK(label); \
+		POPREF(); \
+		addOpcode2 (code, new ffins(new VarArgument(EXP1))); \
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(ref_var))); \
+		RETURN(); \
+		function->giveCode(code); \
 } \
-    
+	
 //Guydata member with one input, one return
 #define GET_GUYDATA_MEMBER(flabel, ffins) \
 { \
@@ -259,14 +259,14 @@ function->internal_flags |= IFUNCFLAG_REASSIGNPTR
 //void function(int32_t) -- follows pattern of cleartile() and trace()
 #define ONE_INPUT_NO_RETURN(flabel, ocode) \
 { \
-        id = getFunction(flabel, 1)->id; \
-        int32_t label = function->getLabel(); \
-        vector<shared_ptr<Opcode>> code; \
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2))); \
-        LABELBACK(label); \
-        addOpcode2 (code, new ocode(new VarArgument(EXP2))); \
+		id = getFunction(flabel, 1)->id; \
+		int32_t label = function->getLabel(); \
+		vector<shared_ptr<Opcode>> code; \
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2))); \
+		LABELBACK(label); \
+		addOpcode2 (code, new ocode(new VarArgument(EXP2))); \
 	RETURN(); \
-        function->giveCode(code); \
+		function->giveCode(code); \
 } \
 
 //int32_t function(int32_t)
@@ -274,14 +274,14 @@ function->internal_flags |= IFUNCFLAG_REASSIGNPTR
 { \
 	Function* function = getFunction(flabel, 2); \
 	int32_t label = function->getLabel(); \
-        vector<shared_ptr<Opcode>> code; \
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1))); \
-        LABELBACK(label); \
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2))); \
-        POPREF(); \
-        addOpcode2 (code, new ocode(new VarArgument(EXP1),new VarArgument(EXP2))); \
+		vector<shared_ptr<Opcode>> code; \
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1))); \
+		LABELBACK(label); \
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2))); \
+		POPREF(); \
+		addOpcode2 (code, new ocode(new VarArgument(EXP1),new VarArgument(EXP2))); \
 	RETURN(); \
-        function->giveCode(code); \
+		function->giveCode(code); \
 } \
 
 
@@ -289,48 +289,48 @@ function->internal_flags |= IFUNCFLAG_REASSIGNPTR
 #define TWO_INPUT_NO_RETURN(flabel, ocode) \
 { \
 	Function* function = getFunction(flabel, 3); \
-        int32_t label = function->getLabel(); \
-        vector<shared_ptr<Opcode>> code; \
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2))); \
-        LABELBACK(label); \
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2))); \
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP))); \
-        addOpcode2 (code, new ocode(new VarArgument(EXP2), new VarArgument(EXP1))); \
-        RETURN();                                  \
-        function->giveCode(code); \
+		int32_t label = function->getLabel(); \
+		vector<shared_ptr<Opcode>> code; \
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2))); \
+		LABELBACK(label); \
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2))); \
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP))); \
+		addOpcode2 (code, new ocode(new VarArgument(EXP2), new VarArgument(EXP1))); \
+		RETURN();                                  \
+		function->giveCode(code); \
 } \
-    
+	
 	
 	
 //int32_t function(int32_t, int32_t)
 #define TWO_INPUT_ONE_RETURN(flabel, ocode) \
 { \
-        Function* function = getFunction(flabel, 3); \
-        int32_t label = function->getLabel(); \
-        vector<shared_ptr<Opcode>> code; \
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2))); \
-        LABELBACK(label); \
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX))); \
-        POPREF(); \
-        addOpcode2 (code, new ocode(new VarArgument(EXP1))); \
-        RETURN();                    \
-        function->giveCode(code); \
+		Function* function = getFunction(flabel, 3); \
+		int32_t label = function->getLabel(); \
+		vector<shared_ptr<Opcode>> code; \
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2))); \
+		LABELBACK(label); \
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX))); \
+		POPREF(); \
+		addOpcode2 (code, new ocode(new VarArgument(EXP1))); \
+		RETURN();                    \
+		function->giveCode(code); \
 } \
 
 //void function(int32_t, int32_t, int32_t)
 #define THREE_INPUT_NO_RETURN(flabel,zasmid) \
 { \
-        Function* function = getFunction(flabel, 4); \
-        int32_t label = function->getLabel(); \
-        vector<shared_ptr<Opcode>> code; \
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP))); \
-        LABELBACK(label); \
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2))); \
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX))); \
-        POPREF(); \
-        addOpcode2 (code, new OSetRegister(new VarArgument(zasmid), new VarArgument(SFTEMP))); \
-        RETURN();                                  \
-        function->giveCode(code); \
+		Function* function = getFunction(flabel, 4); \
+		int32_t label = function->getLabel(); \
+		vector<shared_ptr<Opcode>> code; \
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP))); \
+		LABELBACK(label); \
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2))); \
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX))); \
+		POPREF(); \
+		addOpcode2 (code, new OSetRegister(new VarArgument(zasmid), new VarArgument(SFTEMP))); \
+		RETURN();                                  \
+		function->giveCode(code); \
 } \
 
 //Three Inputs, One Return -- based on int32_t GetScreenEFlags(int32_t map, int32_t screen, int32_t flagset);	

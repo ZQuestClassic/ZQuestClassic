@@ -162,8 +162,8 @@ static AccessorTable ewpnTable[] =
 
 EnemyWeaponSymbols::EnemyWeaponSymbols()
 {
-    table = ewpnTable;
-    refVar = REFEWPN;
+	table = ewpnTable;
+	refVar = REFEWPN;
 }
 
 void EnemyWeaponSymbols::generateCode()

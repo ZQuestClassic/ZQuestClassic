@@ -149,8 +149,8 @@ static AccessorTable2 GlobalTable2[] =
 
 GlobalSymbols::GlobalSymbols()
 {
-    table2 = GlobalTable2;
-    refVar = NUL;
+	table2 = GlobalTable2;
+	refVar = NUL;
 	hasPrefixType = false;
 }
 
@@ -1535,38 +1535,38 @@ void GlobalSymbols::generateCode()
 	}
 
 	//untyped Max(untyped first, untyped second, untyped ..args)
-    {
-	    Function* function = getFunction2("Max");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OMaxNew(new VargsArgument(-1,2)));
+	{
+		Function* function = getFunction2("Max");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OMaxNew(new VargsArgument(-1,2)));
 		POP_VARGS(2,NUL);
-        LABELBACK(label);
-        RETURN();
-        function->giveCode(code);
-    }
-    //untyped Min(untyped first, untyped second, untyped ..args)
-    {
-	    Function* function = getFunction2("Min");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OMinNew(new VargsArgument(-1,2)));
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	//untyped Min(untyped first, untyped second, untyped ..args)
+	{
+		Function* function = getFunction2("Min");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OMinNew(new VargsArgument(-1,2)));
 		POP_VARGS(2,NUL);
-        LABELBACK(label);
-        RETURN();
-        function->giveCode(code);
-    }
-    //untyped Choose(untyped first, untyped ..args)
-    {
-	    Function* function = getFunction2("Choose");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OChoose(new VargsArgument(-1,1)));
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	//untyped Choose(untyped first, untyped ..args)
+	{
+		Function* function = getFunction2("Choose");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OChoose(new VargsArgument(-1,1)));
 		POP_VARGS(1,NUL);
-        LABELBACK(label);
-        RETURN();
-        function->giveCode(code);
-    }
-    
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	
 }
 

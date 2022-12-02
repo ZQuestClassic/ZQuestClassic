@@ -22,8 +22,8 @@ static AccessorTable DropsetTable[] =
 
 DropsetSymbols::DropsetSymbols()
 {
-    table = DropsetTable;
-    refVar = REFDROPS;
+	table = DropsetTable;
+	refVar = REFDROPS;
 }
 
 void DropsetSymbols::generateCode()

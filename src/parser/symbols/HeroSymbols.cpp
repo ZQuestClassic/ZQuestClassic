@@ -283,241 +283,241 @@ static AccessorTable HeroSTable[] =
 
 HeroSymbols::HeroSymbols()
 {
-    table = HeroSTable;
-    refVar = NUL;
+	table = HeroSTable;
+	refVar = NUL;
 }
 
 void HeroSymbols::generateCode()
 {
-    //Warp(link, int32_t, int32_t)
-    {
-	    Function* function = getFunction("Warp", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        //pop ffc, and ignore it
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        //ffc must be this (link is not a user-accessible type)
-        addOpcode2 (code, new OWarp(new VarArgument(EXP2), new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    {
+	//Warp(link, int32_t, int32_t)
+	{
+		Function* function = getFunction("Warp", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		//pop ffc, and ignore it
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		//ffc must be this (link is not a user-accessible type)
+		addOpcode2 (code, new OWarp(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
 	Function* function = getFunction("WarpEx", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OHeroWarpExRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);    
-    }
-    {
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OHeroWarpExRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);    
+	}
+	{
 	Function* function = getFunction("Warp", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OHeroWarpExRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);    
-    }
-    {
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OHeroWarpExRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);    
+	}
+	{
 	Function* function = getFunction("Explode", 2);
 	int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OHeroExplodeRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);        
-    }
-       //void SetItemSlot(link, int32_t item, int32_t slot, int32_t force)
-    {
-	    Function* function = getFunction("SetItemSlot", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SETITEMSLOT), new VarArgument(SFTEMP)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //void SetItemA(link, int32_t)
-    {
-	    Function* function = getFunction("SetItemA", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        //addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OSetRegister(new VarArgument(GAMESETA), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetItemB(link, int32_t)
-    {
-	    Function* function = getFunction("SetItemB", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        //addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OSetRegister(new VarArgument(GAMESETB), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //PitWarp(link, int32_t, int32_t)
-    {
-	    Function* function = getFunction("PitWarp", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        //pop ffc, and ignore it
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        //ffc must be this (link is not a user-accessible type)
-        addOpcode2 (code, new OPitWarp(new VarArgument(EXP2), new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //SelectAWeapon(link, int32_t)
-    {
-	    Function* function = getFunction("SelectAWeapon", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer and ignore it
-        POPREF();
-        addOpcode2 (code, new OSelectAWeaponRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //SelectBWeapon(link, int32_t)
-    {
-	    Function* function = getFunction("SelectBWeapon", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer and ignore it
-        POPREF();
-        addOpcode2 (code, new OSelectBWeaponRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //SelectXWeapon(link, int32_t)
-    {
-	    Function* function = getFunction("SelectXWeapon", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer and ignore it
-        POPREF();
-        addOpcode2 (code, new OSelectXWeaponRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //SelectYWeapon(link, int32_t)
-    {
-	    Function* function = getFunction("SelectYWeapon", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer and ignore it
-        POPREF();
-        addOpcode2 (code, new OSelectYWeaponRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetOriginaTile(link, int32_t,int32_t)
-    {
-        Function* function = getFunction("GetOriginalTile", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(LINKOTILE)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetOriginalFlip(link, int32_t,int32_t)
-    {
-        Function* function = getFunction("GetOriginalFlip", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(LINKOFLIP)));
-        RETURN();
-        function->giveCode(code);
-    }
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OHeroExplodeRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);        
+	}
+	   //void SetItemSlot(link, int32_t item, int32_t slot, int32_t force)
+	{
+		Function* function = getFunction("SetItemSlot", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SETITEMSLOT), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void SetItemA(link, int32_t)
+	{
+		Function* function = getFunction("SetItemA", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		//addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OSetRegister(new VarArgument(GAMESETA), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetItemB(link, int32_t)
+	{
+		Function* function = getFunction("SetItemB", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		//addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OSetRegister(new VarArgument(GAMESETB), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//PitWarp(link, int32_t, int32_t)
+	{
+		Function* function = getFunction("PitWarp", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		//pop ffc, and ignore it
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		//ffc must be this (link is not a user-accessible type)
+		addOpcode2 (code, new OPitWarp(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//SelectAWeapon(link, int32_t)
+	{
+		Function* function = getFunction("SelectAWeapon", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer and ignore it
+		POPREF();
+		addOpcode2 (code, new OSelectAWeaponRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//SelectBWeapon(link, int32_t)
+	{
+		Function* function = getFunction("SelectBWeapon", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer and ignore it
+		POPREF();
+		addOpcode2 (code, new OSelectBWeaponRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//SelectXWeapon(link, int32_t)
+	{
+		Function* function = getFunction("SelectXWeapon", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer and ignore it
+		POPREF();
+		addOpcode2 (code, new OSelectXWeaponRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//SelectYWeapon(link, int32_t)
+	{
+		Function* function = getFunction("SelectYWeapon", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer and ignore it
+		POPREF();
+		addOpcode2 (code, new OSelectYWeaponRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetOriginaTile(link, int32_t,int32_t)
+	{
+		Function* function = getFunction("GetOriginalTile", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(LINKOTILE)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetOriginalFlip(link, int32_t,int32_t)
+	{
+		Function* function = getFunction("GetOriginalFlip", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(LINKOFLIP)));
+		RETURN();
+		function->giveCode(code);
+	}
 	//bool SwitchCombo(link, int, int)
-    {
-        Function* function = getFunction("SwitchCombo", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSwitchCombo(new VarArgument(EXP1), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //bool Kill(player, bool)
-    {
-        Function* function = getFunction("Kill", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OKillPlayer(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
+	{
+		Function* function = getFunction("SwitchCombo", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSwitchCombo(new VarArgument(EXP1), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//bool Kill(player, bool)
+	{
+		Function* function = getFunction("Kill", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OKillPlayer(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 }
 

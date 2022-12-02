@@ -24,8 +24,8 @@ static AccessorTable ShopDataTable[] =
 
 ShopDataSymbols::ShopDataSymbols()
 {
-    table = ShopDataTable;
-    refVar = REFSHOPDATA;
+	table = ShopDataTable;
+	refVar = REFSHOPDATA;
 }
 
 void ShopDataSymbols::generateCode()

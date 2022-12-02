@@ -247,8 +247,8 @@ static AccessorTable npcTable[] =
 
 NPCSymbols::NPCSymbols()
 {
-    table = npcTable;
-    refVar = REFNPC;
+	table = npcTable;
+	refVar = REFNPC;
 }
 
 void NPCSymbols::generateCode()
@@ -282,7 +282,7 @@ void NPCSymbols::generateCode()
 	}
 	//void Explode(npc, int32_t)
 	{
-		    Function* function = getFunction("Explode", 2);
+			Function* function = getFunction("Explode", 2);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -570,11 +570,11 @@ void NPCSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-    
+	
 	//npc Create(int32_t array[])
 	{
 		Function* function = getFunction("Create", 2);
-        
+		
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -628,20 +628,20 @@ void NPCSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-    //bool Switch(npc, int)
-    {
-        Function* function = getFunction("Switch", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer
-        POPREF();
-        addOpcode2 (code, new OSwitchNPC(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
+	//bool Switch(npc, int)
+	{
+		Function* function = getFunction("Switch", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new OSwitchNPC(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 	//bool MovePaused(npc)
 	{
 		Function* function = getFunction("MovePaused", 1);

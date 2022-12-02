@@ -20,8 +20,8 @@ static AccessorTable TextTable[] =
 
 TextPtrSymbols::TextPtrSymbols()
 {
-    table = TextTable;
-    refVar = NUL;
+	table = TextTable;
+	refVar = NUL;
 }
 
 void TextPtrSymbols::generateCode()

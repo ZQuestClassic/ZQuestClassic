@@ -24,8 +24,8 @@ static AccessorTable StackTable[] =
 
 StackSymbols::StackSymbols()
 {
-    table = StackTable;
-    refVar = REFSTACK;
+	table = StackTable;
+	refVar = REFSTACK;
 }
 
 void StackSymbols::generateCode()

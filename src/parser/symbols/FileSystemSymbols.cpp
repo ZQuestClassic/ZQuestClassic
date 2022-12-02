@@ -15,67 +15,67 @@ static AccessorTable FileSystemTable[] =
 
 FileSystemSymbols::FileSystemSymbols()
 {
-    table = FileSystemTable;
-    refVar = NUL;
+	table = FileSystemTable;
+	refVar = NUL;
 }
 
 void FileSystemSymbols::generateCode()
 {
 	//bool DirExists(FileSystem, char32*)
-    {
-	    Function* function = getFunction("DirExists", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer
-        POPREF();
-        addOpcode2 (code, new ODirExists(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
+	{
+		Function* function = getFunction("DirExists", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new ODirExists(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 	//bool FileExists(FileSystem, char32*)
-    {
-	    Function* function = getFunction("FileExists", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer
-        POPREF();
-        addOpcode2 (code, new OFileExists(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
+	{
+		Function* function = getFunction("FileExists", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new OFileExists(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 	//bool Remove(FileSystem, char32*)
-    {
-	    Function* function = getFunction("Remove", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer
-        POPREF();
-        addOpcode2 (code, new OFileSystemRemove(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
+	{
+		Function* function = getFunction("Remove", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new OFileSystemRemove(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 	//directory LoadDirectory(FileSystem, char32*)
-    {
-	    Function* function = getFunction("LoadDirectory", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer
-        POPREF();
-        addOpcode2 (code, new OLoadDirectoryRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
+	{
+		Function* function = getFunction("LoadDirectory", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new OLoadDirectoryRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 }
 

@@ -25,23 +25,23 @@ static AccessorTable GenericDataTable[] =
 
 GenericDataSymbols::GenericDataSymbols()
 {
-    table = GenericDataTable;
-    refVar = REFGENERICDATA;
+	table = GenericDataTable;
+	refVar = REFGENERICDATA;
 }
 
 void GenericDataSymbols::generateCode()
 {
-    //RunFrozen(genericdata)
+	//RunFrozen(genericdata)
 	{
 		Function* function = getFunction("RunFrozen", 1);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop pointer
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop pointer
 		ASSERT_NON_NUL();
-        POPREF();
-        LABELBACK(label);
-        addOpcode2 (code, new ORunGenericFrozenScript(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
+		POPREF();
+		LABELBACK(label);
+		addOpcode2 (code, new ORunGenericFrozenScript(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
 	}
 }

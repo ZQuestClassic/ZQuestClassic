@@ -139,39 +139,39 @@ static AccessorTable itemTable[] =
 
 ItemSymbols::ItemSymbols()
 {
-    table = itemTable;
-    refVar = REFITEM;
+	table = itemTable;
+	refVar = REFITEM;
 }
 
 void ItemSymbols::generateCode()
 {
-    //bool isValid(item)
-    {
-	    Function* function = getFunction("isValid", 1);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the pointer
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //Check validity
-        addOpcode2 (code, new OIsValidItem(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void Explode(ITEM, int32_t)
-    {
-	    Function* function = getFunction("Explode", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OItemExplodeRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
+	//bool isValid(item)
+	{
+		Function* function = getFunction("isValid", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the pointer
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Check validity
+		addOpcode2 (code, new OIsValidItem(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Explode(ITEM, int32_t)
+	{
+		Function* function = getFunction("Explode", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OItemExplodeRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 	//void Remove(itemsprite)
 	{
 		Function* function = getFunction("Remove", 1);
@@ -186,18 +186,18 @@ void ItemSymbols::generateCode()
 		function->giveCode(code);
 	}
 	//bool Switch(itemsprite, int)
-    {
-        Function* function = getFunction("Switch", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSwitchItem(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
+	{
+		Function* function = getFunction("Switch", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSwitchItem(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 }
 

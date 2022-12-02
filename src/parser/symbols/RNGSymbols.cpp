@@ -22,8 +22,8 @@ static AccessorTable RNGTable[] =
 
 RNGSymbols::RNGSymbols()
 {
-    table = RNGTable;
-    refVar = REFRNG;
+	table = RNGTable;
+	refVar = REFRNG;
 }
 
 void RNGSymbols::generateCode()
@@ -109,30 +109,30 @@ void RNGSymbols::generateCode()
 		function->giveCode(code);
 	}
 	//void SRand(int32_t seed)
-    {
-	    Function* function = getFunction("SRand", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop seed
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
+	{
+		Function* function = getFunction("SRand", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop seed
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 		POPREF();
-        addOpcode2 (code, new ORNGSeed(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t SRand()
-    {
-	    Function* function = getFunction("SRand", 1);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new ORNGSeed(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t SRand()
+	{
+		Function* function = getFunction("SRand", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
 		ASSERT_NON_NUL();
 		POPREF();
-        LABELBACK(label);
-        addOpcode2 (code, new ORNGRSeed());
-        RETURN();
-        function->giveCode(code);
-    }
+		LABELBACK(label);
+		addOpcode2 (code, new ORNGRSeed());
+		RETURN();
+		function->giveCode(code);
+	}
 	//void Free()
 	{
 		Function* function = getFunction("Free", 1);

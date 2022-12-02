@@ -40,8 +40,8 @@ static AccessorTable FileTable[] =
 
 FileSymbols::FileSymbols()
 {
-    table = FileTable;
-    refVar = REFFILE;
+	table = FileTable;
+	refVar = REFFILE;
 }
 
 void FileSymbols::generateCode()

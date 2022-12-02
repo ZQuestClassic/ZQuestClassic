@@ -51,8 +51,8 @@ static AccessorTable FFCTable[] =
 
 FFCSymbols::FFCSymbols()
 {
-    table = FFCTable;
-    refVar = REFFFC;
+	table = FFCTable;
+	refVar = REFFFC;
 }
 
 void FFCSymbols::generateCode()

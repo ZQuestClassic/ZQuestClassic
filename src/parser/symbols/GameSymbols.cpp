@@ -307,243 +307,243 @@ static AccessorTable gameTable[] =
 
 GameSymbols::GameSymbols()
 {
-    table = gameTable;
-    refVar = NUL;
+	table = gameTable;
+	refVar = NUL;
 }
 
 void GameSymbols::generateCode()
 {
-    //itemclass LoadItemData(game, int32_t)
-    {
-	    Function* function = getFunction("LoadItemData", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OLoadItemDataRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFITEMCLASS)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //NPCData
-    {
-	    Function* function = getFunction("LoadNPCData", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OLoadNPCDataRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFNPCCLASS)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //DMapdata
-    {
-	    Function* function = getFunction("LoadDMapData", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OLoadDMapDataRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFDMAPDATA)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //Dropset
-    {
-	    Function* function = getFunction("LoadDropset", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OLoadDropsetRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFDROPS)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //randgen LoadRNG(Game)
-    {
-	    Function* function = getFunction("LoadRNG", 1);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop pointer
-        POPREF();
-        addOpcode2 (code, new OLoadRNG());
-        LABELBACK(label);
-        RETURN();
-        function->giveCode(code);
-    }
+	//itemclass LoadItemData(game, int32_t)
+	{
+		Function* function = getFunction("LoadItemData", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadItemDataRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFITEMCLASS)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//NPCData
+	{
+		Function* function = getFunction("LoadNPCData", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadNPCDataRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFNPCCLASS)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//DMapdata
+	{
+		Function* function = getFunction("LoadDMapData", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadDMapDataRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFDMAPDATA)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//Dropset
+	{
+		Function* function = getFunction("LoadDropset", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadDropsetRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFDROPS)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//randgen LoadRNG(Game)
+	{
+		Function* function = getFunction("LoadRNG", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new OLoadRNG());
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
 	
 	//stack LoadStack(Game)
-    {
-	    Function* function = getFunction("LoadStack", 1);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop pointer
-        POPREF();
-        addOpcode2 (code, new OLoadStack());
-        LABELBACK(label);
-        RETURN();
-        function->giveCode(code);
-    }
-    //BottleData
-    {
-	    Function* function = getFunction("LoadBottleData", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OLoadBottleTypeRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFBOTTLETYPE)));
-        RETURN();
-        function->giveCode(code);
-    }
+	{
+		Function* function = getFunction("LoadStack", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new OLoadStack());
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	//BottleData
+	{
+		Function* function = getFunction("LoadBottleData", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadBottleTypeRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFBOTTLETYPE)));
+		RETURN();
+		function->giveCode(code);
+	}
 	//BottleShopData
-    {
-	    Function* function = getFunction("LoadBottleShopData", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OLoadBShopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFBOTTLESHOP)));
-        RETURN();
-        function->giveCode(code);
-    }
+	{
+		Function* function = getFunction("LoadBottleShopData", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadBShopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFBOTTLESHOP)));
+		RETURN();
+		function->giveCode(code);
+	}
 	//GenericData
-    {
-	    Function* function = getFunction("LoadGenericData", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OLoadGenericDataR(new VarArgument(EXP1)));
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFGENERICDATA)));
-        RETURN();
-        function->giveCode(code);
-    }
+	{
+		Function* function = getFunction("LoadGenericData", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadGenericDataR(new VarArgument(EXP1)));
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFGENERICDATA)));
+		RETURN();
+		function->giveCode(code);
+	}
 	
 	//Messagedata
-    {
-	    Function* function = getFunction("LoadMessageData", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OLoadMessageDataRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFMSGDATA)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //ComboData
-    {
-	    Function* function = getFunction("LoadComboData", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OLoadComboDataRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFCOMBODATA)));
-        RETURN();
-        function->giveCode(code); 
-    }
-    //MapData
-    /*
-    { //LoadMapData(int32_t map, int32_t screen)
+	{
+		Function* function = getFunction("LoadMessageData", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadMessageDataRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFMSGDATA)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//ComboData
+	{
+		Function* function = getFunction("LoadComboData", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadComboDataRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFCOMBODATA)));
+		RETURN();
+		function->giveCode(code); 
+	}
+	//MapData
+	/*
+	{ //LoadMapData(int32_t map, int32_t screen)
 	Function* function = getFunction("LoadMapData", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
 	addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OLoadMapDataRegister(new VarArgument(EXP1), new VarArgument(INDEX)));
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFMAPDATA)));
-        RETURN();
-        function->giveCode(code);     
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadMapDataRegister(new VarArgument(EXP1), new VarArgument(INDEX)));
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFMAPDATA)));
+		RETURN();
+		function->giveCode(code);     
 	//LOAD_REFDATA("LoadMapData", OLoadMapDataRegister, REFMAPDATA);
-    }
-    */
-    
-    //int32_t LoadMapData(mapdata, int32_t map,int32_t scr)
-    {
-        Function* function = getFunction("LoadMapData", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(LOADMAPDATA)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //int32_t LoadTempScreen(game, int32_t layer)
-    {
-        Function* function = getFunction("LoadTempScreen", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OLoadTmpScr(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //int32_t LoadScrollingScreen(game, int32_t layer)
-    {
-        Function* function = getFunction("LoadScrollingScreen", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OLoadScrollScr(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
+	}
+	*/
 	
-    //int32_t Create(bitmap, int32_t map,int32_t scr)
+	//int32_t LoadMapData(mapdata, int32_t map,int32_t scr)
+	{
+		Function* function = getFunction("LoadMapData", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(LOADMAPDATA)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//int32_t LoadTempScreen(game, int32_t layer)
+	{
+		Function* function = getFunction("LoadTempScreen", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadTmpScr(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//int32_t LoadScrollingScreen(game, int32_t layer)
+	{
+		Function* function = getFunction("LoadScrollingScreen", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadScrollScr(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//int32_t Create(bitmap, int32_t map,int32_t scr)
 	{
 		Function* function = getFunction("CreateBitmap", 3);
 		int32_t label = function->getLabel();
@@ -559,1936 +559,1936 @@ void GameSymbols::generateCode()
 		function->giveCode(code);
 	}
    
-    //SpriteData
-    {
-	    
+	//SpriteData
+	{
+		
 	Function* function = getFunction("LoadSpriteData", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OLoadSpriteDataRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFSPRITEDATA)));
-        RETURN();
-        function->giveCode(code);    
-    }
-    //ShopData
-    {
-	    Function* function = getFunction("LoadShopData", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OLoadShopDataRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFSHOPDATA)));
-        RETURN();
-        function->giveCode(code);    
-    }
-    //InfoShopData
-    {
-	    Function* function = getFunction("LoadInfoShopData", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OLoadInfoShopDataRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFSHOPDATA)));
-        RETURN();
-        function->giveCode(code);    
-    }
-    //ScreenData
-    /*
-    {
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadSpriteDataRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFSPRITEDATA)));
+		RETURN();
+		function->giveCode(code);    
+	}
+	//ShopData
+	{
+		Function* function = getFunction("LoadShopData", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadShopDataRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFSHOPDATA)));
+		RETURN();
+		function->giveCode(code);    
+	}
+	//InfoShopData
+	{
+		Function* function = getFunction("LoadInfoShopData", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadInfoShopDataRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFSHOPDATA)));
+		RETURN();
+		function->giveCode(code);    
+	}
+	//ScreenData
+	/*
+	{
 	LOAD_REFDATA("LoadScreenData", OLoadScreenDataRegister, NUL); //Change when we set this up! -Z
-    }
-    */
-    //Bitmap
-    {
-	    Function* function = getFunction("LoadBitmapID", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OLoadBitmapDataRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFBITMAP)));
-        RETURN();
-        function->giveCode(code);   
-    }
-    
-    //bool GetScreenState(game, int32_t,int32_t,int32_t)
-    {
-        Function* function = getFunction("GetScreenState", 4);
-        int32_t label = function->getLabel();
-        int32_t done = ScriptParser::getUniqueLabelID();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OSubImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
-        addOpcode2 (code, new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(1360000)));
-        addOpcode2 (code, new OAddRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENSTATEDD)));
-        addOpcode2 (code, new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-        addOpcode2 (code, new OGotoTrueImmediate(new LabelArgument(done)));
-        addOpcode2 (code, new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
-        addOpcode2 (code, new OGotoImmediate(new LabelArgument(done)));
-        addOpcode2 (code, new OReturn());
-        LABELBACK(done);
-        function->giveCode(code);
-    }
-    //void SetScreenState(game, int32_t,int32_t,int32_t,bool)
-    {
-        Function* function = getFunction("SetScreenState", 5);
-        int32_t label = function->getLabel();
-        int32_t done = ScriptParser::getUniqueLabelID();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OSubImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
-        addOpcode2 (code, new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(1360000)));
-        addOpcode2 (code, new OAddRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OCompareImmediate(new VarArgument(SFTEMP), new LiteralArgument(0)));
-        addOpcode2 (code, new OGotoTrueImmediate(new LabelArgument(done)));
-        addOpcode2 (code, new OSetImmediate(new VarArgument(SFTEMP), new LiteralArgument(10000)));
-        addOpcode2 (code, new OSetRegister(new VarArgument(SCREENSTATEDD), new VarArgument(SFTEMP)));
-        LABELBACK(done);
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenD(game, int32_t,int32_t)
-    {
-        Function* function = getFunction("GetScreenD", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SDDD)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetScreenD(game, int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenD", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SDDD), new VarArgument(SFTEMP)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetDMapScreenD(game, int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetDMapScreenD", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SDDDD)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetDMapScreenD(game, int32_t,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetDMapScreenD", 5);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SDDDD), new VarArgument(SFTEMP)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void PlaySound(game, int32_t)
-    {
-	    Function* function = getFunction("PlaySound", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OPlaySoundRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void PlayMIDI(game, int32_t)
-    {
-	    Function* function = getFunction("PlayMIDI", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OPlayMIDIRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void PlayEnhancedMusic(game, int32_t, int32_t)
-    {
-	    Function* function = getFunction("PlayEnhancedMusic", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OPlayEnhancedMusic(new VarArgument(EXP2), new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void GetDMapMusicFilename(game, int32_t, int32_t)
-    {
-	    Function* function = getFunction("GetDMapMusicFilename", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetDMapMusicFilename(new VarArgument(EXP2), new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetDMapMusicTrack(game, int32_t)
-    {
-	    Function* function = getFunction("GetDMapMusicTrack", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetDMapMusicTrack(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetDMapEnhancedMusic(game, int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetDMapEnhancedMusic", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OSetDMapEnhancedMusic());
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        POPREF();
-        
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetComboData(int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetComboData", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(COMBODDM)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetComboData(int32_t,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetComboData", 5);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(COMBODDM), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetComboCSet(int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetComboCSet", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(COMBOCDM)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetComboCSet(int32_t,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetComboCSet", 5);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(COMBOCDM), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetComboFlag(int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetComboFlag", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(COMBOFDM)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetComboFlag(int32_t,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetComboFlag", 5);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(COMBOFDM), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetComboType(int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetComboType", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(COMBOTDM)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetComboType(int32_t,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetComboType", 5);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(COMBOTDM), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetComboInherentFlag(int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetComboInherentFlag", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(COMBOIDM)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetComboInherentFlag(int32_t,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetComboInherentFlag", 5);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(COMBOIDM), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetComboCollision(int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetComboSolid", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(COMBOSDM)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetComboCollision(int32_t,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetComboSolid", 5);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(COMBOSDM), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenFlags(game,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenFlags", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetScreenFlags(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenEFlags(game,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenEFlags", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetScreenEFlags(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void Save(game)
-    {
-	    Function* function = getFunction("Save", 1);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop pointer, and ignore it
+	}
+	*/
+	//Bitmap
+	{
+		Function* function = getFunction("LoadBitmapID", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadBitmapDataRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFBITMAP)));
+		RETURN();
+		function->giveCode(code);   
+	}
+	
+	//bool GetScreenState(game, int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenState", 4);
+		int32_t label = function->getLabel();
+		int32_t done = ScriptParser::getUniqueLabelID();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OSubImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
+		addOpcode2 (code, new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(1360000)));
+		addOpcode2 (code, new OAddRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENSTATEDD)));
+		addOpcode2 (code, new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		addOpcode2 (code, new OGotoTrueImmediate(new LabelArgument(done)));
+		addOpcode2 (code, new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
+		addOpcode2 (code, new OGotoImmediate(new LabelArgument(done)));
+		addOpcode2 (code, new OReturn());
+		LABELBACK(done);
+		function->giveCode(code);
+	}
+	//void SetScreenState(game, int32_t,int32_t,int32_t,bool)
+	{
+		Function* function = getFunction("SetScreenState", 5);
+		int32_t label = function->getLabel();
+		int32_t done = ScriptParser::getUniqueLabelID();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OSubImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
+		addOpcode2 (code, new OMultImmediate(new VarArgument(EXP1), new LiteralArgument(1360000)));
+		addOpcode2 (code, new OAddRegister(new VarArgument(INDEX), new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OCompareImmediate(new VarArgument(SFTEMP), new LiteralArgument(0)));
+		addOpcode2 (code, new OGotoTrueImmediate(new LabelArgument(done)));
+		addOpcode2 (code, new OSetImmediate(new VarArgument(SFTEMP), new LiteralArgument(10000)));
+		addOpcode2 (code, new OSetRegister(new VarArgument(SCREENSTATEDD), new VarArgument(SFTEMP)));
+		LABELBACK(done);
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenD(game, int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenD", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SDDD)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetScreenD(game, int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenD", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SDDD), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetDMapScreenD(game, int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("GetDMapScreenD", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SDDDD)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetDMapScreenD(game, int32_t,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetDMapScreenD", 5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SDDDD), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void PlaySound(game, int32_t)
+	{
+		Function* function = getFunction("PlaySound", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OPlaySoundRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void PlayMIDI(game, int32_t)
+	{
+		Function* function = getFunction("PlayMIDI", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OPlayMIDIRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void PlayEnhancedMusic(game, int32_t, int32_t)
+	{
+		Function* function = getFunction("PlayEnhancedMusic", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OPlayEnhancedMusic(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void GetDMapMusicFilename(game, int32_t, int32_t)
+	{
+		Function* function = getFunction("GetDMapMusicFilename", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetDMapMusicFilename(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetDMapMusicTrack(game, int32_t)
+	{
+		Function* function = getFunction("GetDMapMusicTrack", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetDMapMusicTrack(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetDMapEnhancedMusic(game, int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetDMapEnhancedMusic", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OSetDMapEnhancedMusic());
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		//pop pointer, and ignore it
+		POPREF();
+		
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetComboData(int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("GetComboData", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(COMBODDM)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetComboData(int32_t,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetComboData", 5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(COMBODDM), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetComboCSet(int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("GetComboCSet", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(COMBOCDM)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetComboCSet(int32_t,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetComboCSet", 5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(COMBOCDM), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetComboFlag(int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("GetComboFlag", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(COMBOFDM)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetComboFlag(int32_t,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetComboFlag", 5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(COMBOFDM), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetComboType(int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("GetComboType", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(COMBOTDM)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetComboType(int32_t,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetComboType", 5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(COMBOTDM), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetComboInherentFlag(int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("GetComboInherentFlag", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(COMBOIDM)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetComboInherentFlag(int32_t,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetComboInherentFlag", 5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(COMBOIDM), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetComboCollision(int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("GetComboSolid", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(COMBOSDM)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetComboCollision(int32_t,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetComboSolid", 5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(COMBOSDM), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenFlags(game,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenFlags", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetScreenFlags(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenEFlags(game,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenEFlags", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetScreenEFlags(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Save(game)
+	{
+		Function* function = getFunction("Save", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop pointer, and ignore it
 		ASSERT_NUL();
-        addOpcode2 (code, new OSave());
-        LABELBACK(label);
-        RETURN();
-        function->giveCode(code);
-    }
-    //void End(game)
-    {
-	    Function* function = getFunction("End", 1);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop pointer, and ignore it
+		addOpcode2 (code, new OSave());
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void End(game)
+	{
+		Function* function = getFunction("End", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop pointer, and ignore it
 		ASSERT_NUL();
-        addOpcode2 (code, new OEnd());
-        LABELBACK(label);
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //void Continue(game)
-    {
-	    Function* function = getFunction("Continue", 1);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop pointer, and ignore it
+		addOpcode2 (code, new OEnd());
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void Continue(game)
+	{
+		Function* function = getFunction("Continue", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop pointer, and ignore it
 		ASSERT_NUL();
-        addOpcode2 (code, new OGameContinue());
-        LABELBACK(label);
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //void SaveAndQuit(game)
-    {
-	    Function* function = getFunction("SaveAndQuit", 1);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop pointer, and ignore it
-        addOpcode2 (code, new OPopRegister(new VarArgument(refVar)));
-        LABELBACK(label);
-        addOpcode2 (code, new OGameSaveQuit());
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //void SaveAndContinue(game)
-    {
-	    Function* function = getFunction("SaveAndContinue", 1);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop pointer, and ignore it
-        addOpcode2 (code, new OPopRegister(new VarArgument(refVar)));
-        LABELBACK(label);
-        addOpcode2 (code, new OGameSaveContinue());
-        RETURN();
-        function->giveCode(code);
-    }
-    //void ShowContinueScreen(game)
-    {
-	    Function* function = getFunction("ShowContinueScreen", 1);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop pointer, and ignore it
+		addOpcode2 (code, new OGameContinue());
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void SaveAndQuit(game)
+	{
+		Function* function = getFunction("SaveAndQuit", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop pointer, and ignore it
+		addOpcode2 (code, new OPopRegister(new VarArgument(refVar)));
+		LABELBACK(label);
+		addOpcode2 (code, new OGameSaveQuit());
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void SaveAndContinue(game)
+	{
+		Function* function = getFunction("SaveAndContinue", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop pointer, and ignore it
+		addOpcode2 (code, new OPopRegister(new VarArgument(refVar)));
+		LABELBACK(label);
+		addOpcode2 (code, new OGameSaveContinue());
+		RETURN();
+		function->giveCode(code);
+	}
+	//void ShowContinueScreen(game)
+	{
+		Function* function = getFunction("ShowContinueScreen", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop pointer, and ignore it
 		ASSERT_NUL();
-        addOpcode2 (code, new OShowF6Screen());
-        LABELBACK(label);
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t ComboTile(game,int32_t)
-    {
-	    Function* function = getFunction("ComboTile", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OComboTile(new VarArgument(EXP1),new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void GetSaveName(game, int32_t)
-    {
-	    Function* function = getFunction("GetSaveName", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetSaveName(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void GetSaveName(game, int32_t)
-    {
-	    Function* function = getFunction("SetSaveName", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetSaveName(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //GetMessage(game, int32_t, int32_t)
-    {
-	    Function* function = getFunction("GetMessage", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        addOpcode2 (code, new OGetMessage(new VarArgument(EXP2), new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //GetDMapName(game, int32_t, int32_t)
-    {
-	    Function* function = getFunction("GetDMapName", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        addOpcode2 (code, new OGetDMapName(new VarArgument(EXP2), new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //GetDMapTitle(game, int32_t, int32_t)
-    {
-	    Function* function = getFunction("GetDMapTitle", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        addOpcode2 (code, new OGetDMapTitle(new VarArgument(EXP2), new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //GetDMapIntro(game, int32_t, int32_t)
-    {
-	    Function* function = getFunction("GetDMapIntro", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        addOpcode2 (code, new OGetDMapIntro(new VarArgument(EXP2), new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    
-    
-    //void GreyscaleOn(game)
-    {
-	    Function* function = getFunction("GreyscaleOn", 1);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop pointer, and ignore it
+		addOpcode2 (code, new OShowF6Screen());
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t ComboTile(game,int32_t)
+	{
+		Function* function = getFunction("ComboTile", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OComboTile(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void GetSaveName(game, int32_t)
+	{
+		Function* function = getFunction("GetSaveName", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetSaveName(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void GetSaveName(game, int32_t)
+	{
+		Function* function = getFunction("SetSaveName", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetSaveName(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//GetMessage(game, int32_t, int32_t)
+	{
+		Function* function = getFunction("GetMessage", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		//pop pointer, and ignore it
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OGetMessage(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//GetDMapName(game, int32_t, int32_t)
+	{
+		Function* function = getFunction("GetDMapName", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		//pop pointer, and ignore it
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OGetDMapName(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//GetDMapTitle(game, int32_t, int32_t)
+	{
+		Function* function = getFunction("GetDMapTitle", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		//pop pointer, and ignore it
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OGetDMapTitle(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//GetDMapIntro(game, int32_t, int32_t)
+	{
+		Function* function = getFunction("GetDMapIntro", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		//pop pointer, and ignore it
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OGetDMapIntro(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	
+	
+	//void GreyscaleOn(game)
+	{
+		Function* function = getFunction("GreyscaleOn", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop pointer, and ignore it
 		ASSERT_NUL();
-        addOpcode2 (code, new OGreyscaleOn());
-        LABELBACK(label);
-        RETURN();
-        function->giveCode(code);
-    }
-            
+		addOpcode2 (code, new OGreyscaleOn());
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+			
 	//void GreyscaleOff(game)
-    {
-	    Function* function = getFunction("GreyscaleOff", 1);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop pointer, and ignore it
+	{
+		Function* function = getFunction("GreyscaleOff", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop pointer, and ignore it
 		ASSERT_NUL();
-        addOpcode2 (code, new OGreyscaleOff());
-        LABELBACK(label);
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    
+		addOpcode2 (code, new OGreyscaleOff());
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	
    // SetMessage(game, int32_t, int32_t)
-    {
-	    Function* function = getFunction("SetMessage", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        addOpcode2 (code, new OSetMessage(new VarArgument(EXP2), new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //SetDMapName(game, int32_t, int32_t)
-    {
-	    Function* function = getFunction("SetDMapName", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        addOpcode2 (code, new OSetDMapName(new VarArgument(EXP2), new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //SetDMapTitle(game, int32_t, int32_t)
-    {
-	    Function* function = getFunction("SetDMapTitle", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        addOpcode2 (code, new OSetDMapTitle(new VarArgument(EXP2), new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //SetDMapIntro(game, int32_t, int32_t)
-    {
-	    Function* function = getFunction("SetDMapIntro", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        addOpcode2 (code, new OSetDMapIntro(new VarArgument(EXP2), new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //bool ShowSaveScreen(game)
-    {
-	    Function* function = getFunction("ShowSaveScreen", 1);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop pointer, and ignore it
+	{
+		Function* function = getFunction("SetMessage", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		//pop pointer, and ignore it
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OSetMessage(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//SetDMapName(game, int32_t, int32_t)
+	{
+		Function* function = getFunction("SetDMapName", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		//pop pointer, and ignore it
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OSetDMapName(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//SetDMapTitle(game, int32_t, int32_t)
+	{
+		Function* function = getFunction("SetDMapTitle", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		//pop pointer, and ignore it
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OSetDMapTitle(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//SetDMapIntro(game, int32_t, int32_t)
+	{
+		Function* function = getFunction("SetDMapIntro", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		//pop pointer, and ignore it
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OSetDMapIntro(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//bool ShowSaveScreen(game)
+	{
+		Function* function = getFunction("ShowSaveScreen", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop pointer, and ignore it
 		ASSERT_NUL();
-        addOpcode2 (code, new OShowSaveScreen(new VarArgument(EXP1)));
-        LABELBACK(label);
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //void ShowSaveQuitScreen(game)
-    {
-	    Function* function = getFunction("ShowSaveQuitScreen", 1);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop pointer, and ignore it
+		addOpcode2 (code, new OShowSaveScreen(new VarArgument(EXP1)));
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void ShowSaveQuitScreen(game)
+	{
+		Function* function = getFunction("ShowSaveQuitScreen", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop pointer, and ignore it
 		ASSERT_NUL();
-        addOpcode2 (code, new OShowSaveQuitScreen());
-        LABELBACK(label);
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //int32_t GetFFCScript(game, int32_t)
-    {
-	    Function* function = getFunction("GetFFCScript", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetFFCScript(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //int32_t GetComboScript(game, int32_t)
-    {
-	    Function* function = getFunction("GetComboScript", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetComboScript(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    
-     //int32_t GetItemScript(game, int32_t)
-    {
-	    Function* function = getFunction("GetItemScript", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetItemScript(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-     //int32_t GetNPCScript(game, int32_t)
-    {
-	    Function* function = getFunction("GetNPCScript", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGETNPCSCRIPT(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetLWeaponScript(game, int32_t)
-    {
-	    Function* function = getFunction("GetLWeaponScript", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGETLWEAPONSCRIPT(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetEWeaponScript(game, int32_t)
-    {
-	    Function* function = getFunction("GetEWeaponScript", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGETEWEAPONSCRIPT(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetGenericScript(game, int32_t)
-    {
-	    Function* function = getFunction("GetGenericScript", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGETGENERICSCRIPT(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetHeroScript(game, int32_t)
-    {
-	    Function* function = getFunction("GetHeroScript", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGETHEROSCRIPT(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetPlayerScript(game, int32_t)
-    {
-	    Function* function = getFunction("GetPlayerScript", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGETHEROSCRIPT(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetLinkScript(game, int32_t)
-    {
-	    Function* function = getFunction("GetLinkScript", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGETHEROSCRIPT(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetGlobalScript(game, int32_t)
-    {
-	    Function* function = getFunction("GetGlobalScript", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGETGLOBALSCRIPT(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetDMapScript(game, int32_t)
-    {
-	    Function* function = getFunction("GetDMapScript", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGETDMAPSCRIPT(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenScript(game, int32_t)
-    {
-	    Function* function = getFunction("GetScreenScript", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGETSCREENSCRIPT(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetItemSpriteScript(game, int32_t)
-    {
-	    Function* function = getFunction("GetItemSpriteScript", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGETSPRITESCRIPT(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetUntypedScript(game, int32_t)
-    {
-	    Function* function = getFunction("GetUntypedScript", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGETUNTYPEDSCRIPT(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetSubscreenScript(game, int32_t)
-    {
-	    Function* function = getFunction("GetSubscreenScript", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGETSUBSCREENSCRIPT(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetNPC(game, int32_t)
-    {
-	    Function* function = getFunction("GetNPC", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGETNPCBYNAME(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetItem(game, int32_t)
-    {
-	    Function* function = getFunction("GetItem", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGETITEMBYNAME(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetCombo(game, int32_t)
-    {
-	    Function* function = getFunction("GetCombo", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGETCOMBOBYNAME(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetDMap(game, int32_t)
-    {
-	    Function* function = getFunction("GetDMap", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGETDMAPBYNAME(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-     //int32_t GetScreenEnemy(game,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenEnemy", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetScreenEnemy(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-     //int32_t GetScreenDoor(game,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenDoor", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetScreenDoor(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetScreenEnemy(int32_t,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenEnemy", 5);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SETSCREENENEMY), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetScreenDoor(int32_t,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenDoor", 5);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SETSCREENDOOR), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //void SetScreenWidth(game, int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenWidth", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SCREENWIDTH), new VarArgument(SFTEMP)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenWidth(game, int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenWidth", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENWIDTH)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //void SetScreenHeight(game, int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenHeight", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SCREENHEIGHT), new VarArgument(SFTEMP)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenHeight(game, int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenHeight", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENHEIGHT)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetScreenViewX(game, int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenViewX", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SCREENVIEWX), new VarArgument(SFTEMP)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenViewX(game, int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenViewX", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENVIEWX)));
-        RETURN();
-        function->giveCode(code);
-    }
-     //void SetScreenViewY(game, int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenViewY", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SCREENVIEWY), new VarArgument(SFTEMP)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenViewY(game, int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenViewY", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENVIEWY)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetScreenGuy(game, int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenGuy", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SCREENGUY), new VarArgument(SFTEMP)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenGuy(game, int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenGuy", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENGUY)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetScreenString(game, int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenString", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SCREENSTRING), new VarArgument(SFTEMP)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenString(game, int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenString", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENSTRING)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetScreenRoomType(game, int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenRoomType", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SCREENROOM), new VarArgument(SFTEMP)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenRoomType(game, int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenRoomType", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENROOM)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetScreenEntryX(game, int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenEntryX", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SCREENENTX), new VarArgument(SFTEMP)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenEntryX(game, int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenEntryX", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENENTX)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetScreenEntryY(game, int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenEntryY", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SCREENENTY), new VarArgument(SFTEMP)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenEntryY(game, int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenEntryY", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENENTY)));
-        RETURN();
-        function->giveCode(code);
-    }
-     //void SetScreenItem(game, int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenItem", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SCREENITEM), new VarArgument(SFTEMP)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenItem(game, int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenItem", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENITEM)));
-        RETURN();
-        function->giveCode(code);
-    }
-     //void SetScreenUndercombo(game, int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenUndercombo", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SCREENUNDCMB), new VarArgument(SFTEMP)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenUndercombo(game, int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenUndercombo", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENUNDCMB)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetScreenUnderCSet(game, int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenUnderCSet", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SCREENUNDCST), new VarArgument(SFTEMP)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenUnderCSet(game, int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenUnderCSet", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENUNDCST)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetScreenCatchall(game, int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenCatchall", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SCREENCATCH), new VarArgument(SFTEMP)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenCatchall(game, int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenCatchall", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENCATCH)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //void SetScreenLayerOpacity(int32_t,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenLayerOpacity", 5);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SETSCREENLAYOP), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenLayerOpacity(game,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenLayerOpacity", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetScreenLayerOpacity(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
+		addOpcode2 (code, new OShowSaveQuitScreen());
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//int32_t GetFFCScript(game, int32_t)
+	{
+		Function* function = getFunction("GetFFCScript", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetFFCScript(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//int32_t GetComboScript(game, int32_t)
+	{
+		Function* function = getFunction("GetComboScript", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetComboScript(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	
+	 //int32_t GetItemScript(game, int32_t)
+	{
+		Function* function = getFunction("GetItemScript", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetItemScript(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	 //int32_t GetNPCScript(game, int32_t)
+	{
+		Function* function = getFunction("GetNPCScript", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGETNPCSCRIPT(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetLWeaponScript(game, int32_t)
+	{
+		Function* function = getFunction("GetLWeaponScript", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGETLWEAPONSCRIPT(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetEWeaponScript(game, int32_t)
+	{
+		Function* function = getFunction("GetEWeaponScript", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGETEWEAPONSCRIPT(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetGenericScript(game, int32_t)
+	{
+		Function* function = getFunction("GetGenericScript", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGETGENERICSCRIPT(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetHeroScript(game, int32_t)
+	{
+		Function* function = getFunction("GetHeroScript", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGETHEROSCRIPT(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetPlayerScript(game, int32_t)
+	{
+		Function* function = getFunction("GetPlayerScript", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGETHEROSCRIPT(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetLinkScript(game, int32_t)
+	{
+		Function* function = getFunction("GetLinkScript", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGETHEROSCRIPT(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetGlobalScript(game, int32_t)
+	{
+		Function* function = getFunction("GetGlobalScript", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGETGLOBALSCRIPT(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetDMapScript(game, int32_t)
+	{
+		Function* function = getFunction("GetDMapScript", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGETDMAPSCRIPT(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenScript(game, int32_t)
+	{
+		Function* function = getFunction("GetScreenScript", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGETSCREENSCRIPT(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetItemSpriteScript(game, int32_t)
+	{
+		Function* function = getFunction("GetItemSpriteScript", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGETSPRITESCRIPT(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetUntypedScript(game, int32_t)
+	{
+		Function* function = getFunction("GetUntypedScript", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGETUNTYPEDSCRIPT(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetSubscreenScript(game, int32_t)
+	{
+		Function* function = getFunction("GetSubscreenScript", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGETSUBSCREENSCRIPT(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetNPC(game, int32_t)
+	{
+		Function* function = getFunction("GetNPC", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGETNPCBYNAME(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetItem(game, int32_t)
+	{
+		Function* function = getFunction("GetItem", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGETITEMBYNAME(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetCombo(game, int32_t)
+	{
+		Function* function = getFunction("GetCombo", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGETCOMBOBYNAME(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetDMap(game, int32_t)
+	{
+		Function* function = getFunction("GetDMap", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGETDMAPBYNAME(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	 //int32_t GetScreenEnemy(game,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenEnemy", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetScreenEnemy(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	 //int32_t GetScreenDoor(game,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenDoor", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetScreenDoor(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetScreenEnemy(int32_t,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenEnemy", 5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SETSCREENENEMY), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetScreenDoor(int32_t,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenDoor", 5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SETSCREENDOOR), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void SetScreenWidth(game, int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenWidth", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SCREENWIDTH), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenWidth(game, int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenWidth", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENWIDTH)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void SetScreenHeight(game, int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenHeight", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SCREENHEIGHT), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenHeight(game, int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenHeight", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENHEIGHT)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetScreenViewX(game, int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenViewX", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SCREENVIEWX), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenViewX(game, int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenViewX", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENVIEWX)));
+		RETURN();
+		function->giveCode(code);
+	}
+	 //void SetScreenViewY(game, int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenViewY", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SCREENVIEWY), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenViewY(game, int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenViewY", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENVIEWY)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetScreenGuy(game, int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenGuy", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SCREENGUY), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenGuy(game, int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenGuy", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENGUY)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetScreenString(game, int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenString", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SCREENSTRING), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenString(game, int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenString", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENSTRING)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetScreenRoomType(game, int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenRoomType", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SCREENROOM), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenRoomType(game, int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenRoomType", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENROOM)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetScreenEntryX(game, int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenEntryX", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SCREENENTX), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenEntryX(game, int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenEntryX", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENENTX)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetScreenEntryY(game, int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenEntryY", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SCREENENTY), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenEntryY(game, int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenEntryY", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENENTY)));
+		RETURN();
+		function->giveCode(code);
+	}
+	 //void SetScreenItem(game, int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenItem", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SCREENITEM), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenItem(game, int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenItem", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENITEM)));
+		RETURN();
+		function->giveCode(code);
+	}
+	 //void SetScreenUndercombo(game, int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenUndercombo", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SCREENUNDCMB), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenUndercombo(game, int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenUndercombo", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENUNDCMB)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetScreenUnderCSet(game, int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenUnderCSet", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SCREENUNDCST), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenUnderCSet(game, int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenUnderCSet", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENUNDCST)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetScreenCatchall(game, int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenCatchall", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SCREENCATCH), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenCatchall(game, int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenCatchall", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(SCREENCATCH)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void SetScreenLayerOpacity(int32_t,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenLayerOpacity", 5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SETSCREENLAYOP), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenLayerOpacity(game,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenLayerOpacity", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetScreenLayerOpacity(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 
-     //void SetScreenSecretCombo(int32_t,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenSecretCombo", 5);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SETSCREENSECCMB), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenSecretCombo(game,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenSecretCombo", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetScreenSecretCombo(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
+	 //void SetScreenSecretCombo(int32_t,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenSecretCombo", 5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SETSCREENSECCMB), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenSecretCombo(game,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenSecretCombo", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetScreenSecretCombo(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 
-     //void SetScreenSecretCSet(int32_t,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenSecretCSet", 5);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SETSCREENSECCST), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenSecretCSet(game,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenSecretCSet", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetScreenSecretCSet(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetScreenSecretFlag(int32_t,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenSecretFlag", 5);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SETSCREENSECFLG), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenSecretFlag(game,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenSecretFlag", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetScreenSecretFlag(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
+	 //void SetScreenSecretCSet(int32_t,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenSecretCSet", 5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SETSCREENSECCST), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenSecretCSet(game,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenSecretCSet", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetScreenSecretCSet(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetScreenSecretFlag(int32_t,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenSecretFlag", 5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SETSCREENSECFLG), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenSecretFlag(game,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenSecretFlag", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetScreenSecretFlag(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 
-     //void SetScreenLayerMap(int32_t,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenLayerMap", 5);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SETSCREENLAYMAP), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenLayerMap(game,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenLayerMap", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetScreenLayerMap(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
+	 //void SetScreenLayerMap(int32_t,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenLayerMap", 5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SETSCREENLAYMAP), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenLayerMap(game,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenLayerMap", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetScreenLayerMap(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 
-    
-    //void SetScreenLayerScreen(int32_t,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenLayerScreen", 5);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SETSCREENLAYSCR), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenLayerScreen(game,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenLayerScreen", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetScreenLayerScreen(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
+	
+	//void SetScreenLayerScreen(int32_t,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenLayerScreen", 5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SETSCREENLAYSCR), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenLayerScreen(game,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenLayerScreen", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetScreenLayerScreen(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 
-    //void SetScreenPath(int32_t,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenPath", 5);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SETSCREENPATH), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenPath(game,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenPath", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetScreenPath(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetScreenWarpReturnX(int32_t,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenWarpReturnX", 5);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SETSCREENWARPRX), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetScreenWarpReturnX(game,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenWarpReturnX", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetScreenWarpReturnX(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetScreenWarpReturnY(int32_t,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("SetScreenWarpReturnY", 5);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SETSCREENWARPRY), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    /*
-    {
-        TWO_INPUT_NO_RETURN("SetContinueScreen",OSSetContinueScreen);
-    }
-    */
-    /*
-    {
-        TWO_INPUT_NO_RETURN("SetContinueString",OSSetContinueString);
-    }
-    */
-    //int32_t GetScreenWarpReturnY(game,int32_t,int32_t,int32_t)
-    {
-	    Function* function = getFunction("GetScreenWarpReturnY", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetScreenWarpReturnY(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void PlayOgg(game, int32_t, int32_t)
-    {
-	    Function* function = getFunction("PlayOgg", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OPlayEnhancedMusicEx(new VarArgument(EXP2), new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetOggPos(game)
+	//void SetScreenPath(int32_t,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenPath", 5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SETSCREENPATH), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenPath(game,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenPath", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetScreenPath(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetScreenWarpReturnX(int32_t,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenWarpReturnX", 5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SETSCREENWARPRX), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetScreenWarpReturnX(game,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenWarpReturnX", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetScreenWarpReturnX(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetScreenWarpReturnY(int32_t,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("SetScreenWarpReturnY", 5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SETSCREENWARPRY), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	/*
+	{
+		TWO_INPUT_NO_RETURN("SetContinueScreen",OSSetContinueScreen);
+	}
+	*/
+	/*
+	{
+		TWO_INPUT_NO_RETURN("SetContinueString",OSSetContinueString);
+	}
+	*/
+	//int32_t GetScreenWarpReturnY(game,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("GetScreenWarpReturnY", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetScreenWarpReturnY(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void PlayOgg(game, int32_t, int32_t)
+	{
+		Function* function = getFunction("PlayOgg", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OPlayEnhancedMusicEx(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetOggPos(game)
 {
-	    Function* function = getFunction("GetOggPos", 1);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop pointer, and ignore it
+		Function* function = getFunction("GetOggPos", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop pointer, and ignore it
 		ASSERT_NUL();
-        addOpcode2 (code, new OGetEnhancedMusicPos(new VarArgument(EXP1)));
-        LABELBACK(label);
-        RETURN();
-        function->giveCode(code);
+		addOpcode2 (code, new OGetEnhancedMusicPos(new VarArgument(EXP1)));
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
 }
-     //void SetOggPos(game, int32_t)
-    {
-	    Function* function = getFunction("SetOggPos", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetEnhancedMusicPos(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //void SetOggSpeed(game, int32_t)
-    {
-	    Function* function = getFunction("SetOggSpeed", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetEnhancedMusicSpeed(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
+	 //void SetOggPos(game, int32_t)
+	{
+		Function* function = getFunction("SetOggPos", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetEnhancedMusicPos(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void SetOggSpeed(game, int32_t)
+	{
+		Function* function = getFunction("SetOggSpeed", 2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetEnhancedMusicSpeed(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 	
 	//void Reload(game)
-    {
-	    Function* function = getFunction("Reload", 1);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop pointer, and ignore it
+	{
+		Function* function = getFunction("Reload", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop pointer, and ignore it
 		ASSERT_NUL();
-        addOpcode2 (code, new OGameReload());
-        LABELBACK(label);
-        RETURN();
-        function->giveCode(code);
-    }
+		addOpcode2 (code, new OGameReload());
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
 }
 

@@ -170,8 +170,8 @@ static AccessorTable lwpnTable[] =
 
 HeroWeaponSymbols::HeroWeaponSymbols()
 {
-    table = lwpnTable;
-    refVar = REFLWPN;
+	table = lwpnTable;
+	refVar = REFLWPN;
 }
 
 void HeroWeaponSymbols::generateCode()

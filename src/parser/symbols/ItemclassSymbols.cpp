@@ -213,40 +213,40 @@ static AccessorTable itemclassTable[] =
 
 ItemclassSymbols::ItemclassSymbols()
 {
-    table = itemclassTable;
-    refVar = REFITEMCLASS;
+	table = itemclassTable;
+	refVar = REFITEMCLASS;
 }
 
 void ItemclassSymbols::generateCode()
 {
-    //void GetName(itemclass, int32_t)
-    {
+	//void GetName(itemclass, int32_t)
+	{
 		Function* function = getFunction("GetName", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OGetItemName(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void RunScript(itemclass)
-    {
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OGetItemName(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void RunScript(itemclass)
+	{
 	Function* function = getFunction("RunScript", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new ORunItemScript(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new ORunItemScript(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
 }
 

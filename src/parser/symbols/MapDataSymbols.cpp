@@ -332,8 +332,8 @@ static AccessorTable MapDataTable[] =
 
 MapDataSymbols::MapDataSymbols()
 {
-    table = MapDataTable;
-    refVar = REFMAPDATA; //NUL; //
+	table = MapDataTable;
+	refVar = REFMAPDATA; //NUL; //
 }
 
 void MapDataSymbols::generateCode()
@@ -387,7 +387,7 @@ void MapDataSymbols::generateCode()
 		function->giveCode(code);
 	
 	}
-    
+	
 	//void SetFFCInitD(mapsc, int32_t,int32_t,int32_t,int32_t)
 	{
 		Function* function = getFunction("SetFFCInitD", 4);
@@ -404,8 +404,8 @@ void MapDataSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-    
-    
+	
+	
 	//int32_t GetFFCInitA(mapscr, int32_t,int32_t,int32_t)
 	{
 		Function* function = getFunction("GetFFCInitA", 3);
@@ -422,7 +422,7 @@ void MapDataSymbols::generateCode()
 		function->giveCode(code);
 	
 	}
-    
+	
 	//void SetFFCInitA(mapsc, int32_t,int32_t,int32_t,int32_t)
 	{
 		Function* function = getFunction("SetFFCInitA", 4);

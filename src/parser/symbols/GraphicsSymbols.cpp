@@ -27,8 +27,8 @@ static AccessorTable GraphicsTable[] =
 
 GraphicsSymbols::GraphicsSymbols()
 {
-    table = GraphicsTable;
-    refVar = NUL;
+	table = GraphicsTable;
+	refVar = NUL;
 }
 
 void GraphicsSymbols::generateCode()
@@ -105,7 +105,7 @@ void GraphicsSymbols::generateCode()
 
 	//void Tint(graphics, float, float, float)
 	{
-		    Function* function = getFunction("Tint", 4);
+			Function* function = getFunction("Tint", 4);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OTintR());
@@ -121,7 +121,7 @@ void GraphicsSymbols::generateCode()
 	}
 	//void MonochromeHue(graphics, float, float, float, bool)
 	{
-		    Function* function = getFunction("MonochromeHue", 5);
+			Function* function = getFunction("MonochromeHue", 5);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OMonoHueR());

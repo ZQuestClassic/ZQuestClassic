@@ -13,8 +13,8 @@ static AccessorTable ModuleTable[] =
 
 ModuleSymbols::ModuleSymbols()
 {
-    table = ModuleTable;
-    refVar = NUL;
+	table = ModuleTable;
+	refVar = NUL;
 }
 
 void ModuleSymbols::generateCode()
