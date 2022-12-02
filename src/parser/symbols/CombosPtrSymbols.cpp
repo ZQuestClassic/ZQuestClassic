@@ -4,928 +4,2318 @@ CombosPtrSymbols CombosPtrSymbols::singleton = CombosPtrSymbols();
 
 static AccessorTable CombosTable[] =
 {
-//	  name,                       rettype,                  setorget,     var,                          numindex,      funcFlags,                            numParams,   params
+	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
 	
 //	newcombo struct
-	{ "PosX",                     ZTID_FLOAT,         GETTER,       COMBOXR,                      1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getX",                     ZTID_FLOAT,         GETTER,       COMBOXR,                      1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getY",                     ZTID_FLOAT,         GETTER,       COMBOYR,                      1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "PosY",                     ZTID_FLOAT,         GETTER,       COMBOYR,                      1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Pos",                      ZTID_FLOAT,         GETTER,       COMBOPOSR,                    1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getPos",                   ZTID_FLOAT,         GETTER,       COMBOPOSR,                    1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Layer",                    ZTID_FLOAT,         GETTER,       COMBOLAYERR,                  1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLayer",                 ZTID_FLOAT,         GETTER,       COMBOLAYERR,                  1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getInitD[]",               ZTID_UNTYPED,       GETTER,       COMBODATAINITD,               2,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setInitD[]",               ZTID_VOID,          SETTER,       COMBODATAINITD,               2,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getID",                    ZTID_FLOAT,         GETTER,       COMBODATAID,                  1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getOriginalTile",          ZTID_FLOAT,         GETTER,       COMBODOTILE,                  1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setOriginalTile",          ZTID_VOID,          SETTER,       COMBODOTILE,                  1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFrame",                 ZTID_FLOAT,         GETTER,       COMBODFRAME,                  1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFrame",                 ZTID_VOID,          SETTER,       COMBODFRAME,                  1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getAClk",                  ZTID_FLOAT,         GETTER,       COMBODACLK,                   1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setAClk",                  ZTID_VOID,          SETTER,       COMBODACLK,                   1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTile",                  ZTID_FLOAT,         GETTER,       COMBODTILE,                   1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTile",                  ZTID_VOID,          SETTER,       COMBODTILE,                   1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScript",                  ZTID_FLOAT,         GETTER,       COMBODATASCRIPT,                   1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setScript",                  ZTID_VOID,          SETTER,       COMBODATASCRIPT,                   1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getASpeed",                ZTID_FLOAT,         GETTER,       COMBODASPEED,                 1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setASpeed",                ZTID_VOID,          SETTER,       COMBODASPEED,                 1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFlip",                  ZTID_FLOAT,         GETTER,       COMBODFLIP,                   1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFlip",                  ZTID_VOID,          SETTER,       COMBODFLIP,                   1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWalk",                  ZTID_FLOAT,         GETTER,       COMBODWALK,                   1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWalk",                  ZTID_VOID,          SETTER,       COMBODWALK,                   1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getEffect",                ZTID_FLOAT,         GETTER,       COMBODEFFECT,                 1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setEffect",                ZTID_VOID,          SETTER,       COMBODEFFECT,                 1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getType",                  ZTID_FLOAT,         GETTER,       COMBODTYPE,                   1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setType",                  ZTID_VOID,          SETTER,       COMBODTYPE,                   1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getCSet",                  ZTID_FLOAT,         GETTER,       COMBODCSET,                   1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setCSet",                  ZTID_VOID,          SETTER,       COMBODCSET,                   1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getCSet2",                 ZTID_FLOAT,         GETTER,       COMBODCSET,                   1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setCSet2",                 ZTID_VOID,          SETTER,       COMBODCSET,                   1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getCSet2Flags",            ZTID_FLOAT,         GETTER,       COMBODCSET2FLAGS,             1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setCSet2Flags",            ZTID_VOID,          SETTER,       COMBODCSET2FLAGS,             1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFoo",                   ZTID_FLOAT,         GETTER,       COMBODFOO,                    1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFoo",                   ZTID_VOID,          SETTER,       COMBODFOO,                    1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFrames",                ZTID_FLOAT,         GETTER,       COMBODFRAMES,                 1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFrames",                ZTID_VOID,          SETTER,       COMBODFRAMES,                 1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getNextData",              ZTID_FLOAT,         GETTER,       COMBODNEXTD,                  1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setNextData",              ZTID_VOID,          SETTER,       COMBODNEXTD,                  1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getNextCSet",              ZTID_FLOAT,         GETTER,       COMBODNEXTC,                  1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setNextCSet",              ZTID_VOID,          SETTER,       COMBODNEXTC,                  1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFlag",                  ZTID_FLOAT,         GETTER,       COMBODFLAG,                   1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFlag",                  ZTID_VOID,          SETTER,       COMBODFLAG,                   1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSkipAnim",              ZTID_FLOAT,         GETTER,       COMBODSKIPANIM,               1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSkipAnim",              ZTID_VOID,          SETTER,       COMBODSKIPANIM,               1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getNextTimer",             ZTID_FLOAT,         GETTER,       COMBODNEXTTIMER,              1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setNextTimer",             ZTID_VOID,          SETTER,       COMBODNEXTTIMER,              1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSkipAnimY",             ZTID_FLOAT,         GETTER,       COMBODAKIMANIMY,              1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSkipAnimY",             ZTID_VOID,          SETTER,       COMBODAKIMANIMY,              1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getAnimFlags",             ZTID_FLOAT,         GETTER,       COMBODANIMFLAGS,              1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setAnimFlags",             ZTID_VOID,          SETTER,       COMBODANIMFLAGS,              1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getExpansion[]",           ZTID_FLOAT,         GETTER,       COMBODEXPANSION,              6,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setExpansion[]",           ZTID_VOID,          SETTER,       COMBODEXPANSION,              6,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getAttributes[]",          ZTID_FLOAT,         GETTER,       COMBODATTRIBUTES,             4,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setAttributes[]",          ZTID_VOID,          SETTER,       COMBODATTRIBUTES,             4,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getAttribytes[]",          ZTID_FLOAT,         GETTER,       COMBODATTRIBYTES,             8,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setAttribytes[]",          ZTID_VOID,          SETTER,       COMBODATTRIBYTES,             8,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getAttrishorts[]",         ZTID_FLOAT,         GETTER,       COMBODATTRISHORTS,            8,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setAttrishorts[]",         ZTID_VOID,          SETTER,       COMBODATTRISHORTS,            8,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTriggerFlags[]",        ZTID_FLOAT,         GETTER,       COMBODTRIGGERFLAGS,           3,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTriggerFlags[]",        ZTID_VOID,          SETTER,       COMBODTRIGGERFLAGS,           3,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTrigFlags[]",           ZTID_BOOL,          GETTER,       COMBODTRIGGERFLAGS2,         96,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTrigFlags[]",           ZTID_VOID,          SETTER,       COMBODTRIGGERFLAGS2,         96,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTriggerButton[]",       ZTID_BOOL,          GETTER,       COMBODTRIGGERBUTTON,          8,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTriggerButton[]",       ZTID_VOID,          SETTER,       COMBODTRIGGERBUTTON,          8,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getUserFlags",             ZTID_FLOAT,         GETTER,       COMBODUSRFLAGS,               1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setUserFlags",             ZTID_VOID,          SETTER,       COMBODUSRFLAGS,               1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFlags[]",               ZTID_BOOL,          GETTER,       COMBODUSRFLAGARR,            16,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFlags[]",               ZTID_VOID,          SETTER,       COMBODUSRFLAGARR,            16,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getGenFlags[]",            ZTID_BOOL,          GETTER,       COMBODGENFLAGARR,             2,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setGenFlags[]",            ZTID_VOID,          SETTER,       COMBODGENFLAGARR,             2,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTriggerLevel",          ZTID_FLOAT,         GETTER,       COMBODTRIGGERLEVEL,           1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTriggerLevel",          ZTID_VOID,          SETTER,       COMBODTRIGGERLEVEL,           1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTriggerItem",           ZTID_FLOAT,         GETTER,       COMBODTRIGGERITEM,            1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTriggerItem",           ZTID_VOID,          SETTER,       COMBODTRIGGERITEM,            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTriggerTimer",          ZTID_FLOAT,         GETTER,       COMBODTRIGGERTIMER,           1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTriggerTimer",          ZTID_VOID,          SETTER,       COMBODTRIGGERTIMER,           1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTriggerSFX",            ZTID_FLOAT,         GETTER,       COMBODTRIGGERSFX,             1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTriggerSFX",            ZTID_VOID,          SETTER,       COMBODTRIGGERSFX,             1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTriggerChange",         ZTID_FLOAT,         GETTER,       COMBODTRIGGERCHANGECMB,       1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTriggerChange",         ZTID_VOID,          SETTER,       COMBODTRIGGERCHANGECMB,       1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTriggerProximity",      ZTID_FLOAT,         GETTER,       COMBODTRIGGERPROX,            1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTriggerProximity",      ZTID_VOID,          SETTER,       COMBODTRIGGERPROX,            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTriggerLightBeam",      ZTID_FLOAT,         GETTER,       COMBODTRIGGERLIGHTBEAM,       1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTriggerLightBeam",      ZTID_VOID,          SETTER,       COMBODTRIGGERLIGHTBEAM,       1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTriggerCounter",        ZTID_FLOAT,         GETTER,       COMBODTRIGGERCTR,             1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTriggerCounter",        ZTID_VOID,          SETTER,       COMBODTRIGGERCTR,             1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTriggerCtrAmount",      ZTID_FLOAT,         GETTER,       COMBODTRIGGERCTRAMNT,         1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTriggerCtrAmount",      ZTID_VOID,          SETTER,       COMBODTRIGGERCTRAMNT,         1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTrigCooldown",          ZTID_FLOAT,         GETTER,       COMBODTRIGGERCOOLDOWN,        1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTrigCooldown",          ZTID_VOID,          SETTER,       COMBODTRIGGERCOOLDOWN,        1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTrigCopycat",           ZTID_FLOAT,         GETTER,       COMBODTRIGGERCOPYCAT,         1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTrigCopycat",           ZTID_VOID,          SETTER,       COMBODTRIGGERCOPYCAT,         1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTrigSpawnItemPickup",   ZTID_FLOAT,         GETTER,       COMBODTRIGITEMPICKUP,         1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTrigSpawnItemPickup",   ZTID_VOID,          SETTER,       COMBODTRIGITEMPICKUP,         1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTrigExState",           ZTID_FLOAT,         GETTER,       COMBODTRIGEXSTATE,            1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTrigExState",           ZTID_VOID,          SETTER,       COMBODTRIGEXSTATE,            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTrigSpawnEnemy",        ZTID_FLOAT,         GETTER,       COMBODTRIGSPAWNENEMY,         1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTrigSpawnEnemy",        ZTID_VOID,          SETTER,       COMBODTRIGSPAWNENEMY,         1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTrigSpawnItem",         ZTID_FLOAT,         GETTER,       COMBODTRIGSPAWNITEM,          1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTrigSpawnItem",         ZTID_VOID,          SETTER,       COMBODTRIGSPAWNITEM,          1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTrigCSetChange",        ZTID_FLOAT,         GETTER,       COMBODTRIGCSETCHANGE,         1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTrigCSetChange",        ZTID_VOID,          SETTER,       COMBODTRIGCSETCHANGE,         1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLiftGFXCombo",          ZTID_FLOAT,         GETTER,       COMBODLIFTGFXCOMBO,           1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLiftGFXCombo",          ZTID_VOID,          SETTER,       COMBODLIFTGFXCOMBO,           1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLiftGFXCSet",           ZTID_FLOAT,         GETTER,       COMBODLIFTGFXCCSET,           1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLiftGFXCSet",           ZTID_VOID,          SETTER,       COMBODLIFTGFXCCSET,           1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLiftUnderCombo",        ZTID_FLOAT,         GETTER,       COMBODLIFTUNDERCMB,           1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLiftUnderCombo",        ZTID_VOID,          SETTER,       COMBODLIFTUNDERCMB,           1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLiftUnderCSet",         ZTID_FLOAT,         GETTER,       COMBODLIFTUNDERCS,            1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLiftUnderCSet",         ZTID_VOID,          SETTER,       COMBODLIFTUNDERCS,            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLiftDamage",            ZTID_FLOAT,         GETTER,       COMBODLIFTDAMAGE,             1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLiftDamage",            ZTID_VOID,          SETTER,       COMBODLIFTDAMAGE,             1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLiftLevel",             ZTID_FLOAT,         GETTER,       COMBODLIFTLEVEL,              1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLiftLevel",             ZTID_VOID,          SETTER,       COMBODLIFTLEVEL,              1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLiftItem",              ZTID_FLOAT,         GETTER,       COMBODLIFTITEM,               1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLiftItem",              ZTID_VOID,          SETTER,       COMBODLIFTITEM,               1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLiftFlags[]",           ZTID_BOOL,          GETTER,       COMBODLIFTFLAGS,              1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLiftFlags[]",           ZTID_VOID,          SETTER,       COMBODLIFTFLAGS,              1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLiftGFXType",           ZTID_FLOAT,         GETTER,       COMBODLIFTGFXTYPE,            1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLiftGFXType",           ZTID_VOID,          SETTER,       COMBODLIFTGFXTYPE,            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLiftGFXSprite",         ZTID_FLOAT,         GETTER,       COMBODLIFTGFXSPRITE,          1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLiftGFXSprite",         ZTID_VOID,          SETTER,       COMBODLIFTGFXSPRITE,          1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLiftSFX",               ZTID_FLOAT,         GETTER,       COMBODLIFTSFX,                1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLiftSFX",               ZTID_VOID,          SETTER,       COMBODLIFTSFX,                1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLiftBreakSprite",       ZTID_FLOAT,         GETTER,       COMBODLIFTBREAKSPRITE,        1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLiftBreakSprite",       ZTID_VOID,          SETTER,       COMBODLIFTBREAKSPRITE,        1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLiftBreakSFX",          ZTID_FLOAT,         GETTER,       COMBODLIFTBREAKSFX,           1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLiftBreakSFX",          ZTID_VOID,          SETTER,       COMBODLIFTBREAKSFX,           1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLiftHeight",            ZTID_FLOAT,         GETTER,       COMBODLIFTHEIGHT,             1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLiftHeight",            ZTID_VOID,          SETTER,       COMBODLIFTHEIGHT,             1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLiftTime",              ZTID_FLOAT,         GETTER,       COMBODLIFTTIME,               1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLiftTime",              ZTID_VOID,          SETTER,       COMBODLIFTTIME,               1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "_getPosX",                   0,         ZTID_FLOAT,   COMBOXR,                   0,  { ZTID_COMBOS },{} },
+	{ "getX",                       0,         ZTID_FLOAT,   COMBOXR,                   0,  { ZTID_COMBOS },{} },
+	{ "getY",                       0,         ZTID_FLOAT,   COMBOYR,                   0,  { ZTID_COMBOS },{} },
+	{ "_getPosY",                   0,         ZTID_FLOAT,   COMBOYR,                   0,  { ZTID_COMBOS },{} },
+	{ "_getPos",                    0,         ZTID_FLOAT,   COMBOPOSR,                 0,  { ZTID_COMBOS },{} },
+	{ "getPos",                     0,         ZTID_FLOAT,   COMBOPOSR,                 0,  { ZTID_COMBOS },{} },
+	{ "_getLayer",                  0,         ZTID_FLOAT,   COMBOLAYERR,               0,  { ZTID_COMBOS },{} },
+	{ "getLayer",                   0,         ZTID_FLOAT,   COMBOLAYERR,               0,  { ZTID_COMBOS },{} },
+	{ "getInitD[]",                 0,       ZTID_UNTYPED,   COMBODATAINITD,            0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "setInitD[]",                 0,          ZTID_VOID,   COMBODATAINITD,            0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "getID",                      0,         ZTID_FLOAT,   COMBODATAID,               0,  { ZTID_COMBOS },{} },
+	{ "getOriginalTile",            0,         ZTID_FLOAT,   COMBODOTILE,               0,  { ZTID_COMBOS },{} },
+	{ "setOriginalTile",            0,          ZTID_VOID,   COMBODOTILE,               0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getFrame",                   0,         ZTID_FLOAT,   COMBODFRAME,               0,  { ZTID_COMBOS },{} },
+	{ "setFrame",                   0,          ZTID_VOID,   COMBODFRAME,               0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getAClk",                    0,         ZTID_FLOAT,   COMBODACLK,                0,  { ZTID_COMBOS },{} },
+	{ "setAClk",                    0,          ZTID_VOID,   COMBODACLK,                0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTile",                    0,         ZTID_FLOAT,   COMBODTILE,                0,  { ZTID_COMBOS },{} },
+	{ "setTile",                    0,          ZTID_VOID,   COMBODTILE,                0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getScript",                  0,         ZTID_FLOAT,   COMBODATASCRIPT,           0,  { ZTID_COMBOS },{} },
+	{ "setScript",                  0,          ZTID_VOID,   COMBODATASCRIPT,           0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getASpeed",                  0,         ZTID_FLOAT,   COMBODASPEED,              0,  { ZTID_COMBOS },{} },
+	{ "setASpeed",                  0,          ZTID_VOID,   COMBODASPEED,              0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getFlip",                    0,         ZTID_FLOAT,   COMBODFLIP,                0,  { ZTID_COMBOS },{} },
+	{ "setFlip",                    0,          ZTID_VOID,   COMBODFLIP,                0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getWalk",                    0,         ZTID_FLOAT,   COMBODWALK,                0,  { ZTID_COMBOS },{} },
+	{ "setWalk",                    0,          ZTID_VOID,   COMBODWALK,                0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getEffect",                  0,         ZTID_FLOAT,   COMBODEFFECT,              0,  { ZTID_COMBOS },{} },
+	{ "setEffect",                  0,          ZTID_VOID,   COMBODEFFECT,              0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getType",                    0,         ZTID_FLOAT,   COMBODTYPE,                0,  { ZTID_COMBOS },{} },
+	{ "setType",                    0,          ZTID_VOID,   COMBODTYPE,                0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getCSet",                    0,         ZTID_FLOAT,   COMBODCSET,                0,  { ZTID_COMBOS },{} },
+	{ "setCSet",                    0,          ZTID_VOID,   COMBODCSET,                0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getCSet2",                   0,         ZTID_FLOAT,   COMBODCSET,                0,  { ZTID_COMBOS },{} },
+	{ "setCSet2",                   0,          ZTID_VOID,   COMBODCSET,                0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getCSet2Flags",              0,         ZTID_FLOAT,   COMBODCSET2FLAGS,          0,  { ZTID_COMBOS },{} },
+	{ "setCSet2Flags",              0,          ZTID_VOID,   COMBODCSET2FLAGS,          0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getFoo",                     0,         ZTID_FLOAT,   COMBODFOO,                 0,  { ZTID_COMBOS },{} },
+	{ "setFoo",                     0,          ZTID_VOID,   COMBODFOO,                 0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getFrames",                  0,         ZTID_FLOAT,   COMBODFRAMES,              0,  { ZTID_COMBOS },{} },
+	{ "setFrames",                  0,          ZTID_VOID,   COMBODFRAMES,              0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getNextData",                0,         ZTID_FLOAT,   COMBODNEXTD,               0,  { ZTID_COMBOS },{} },
+	{ "setNextData",                0,          ZTID_VOID,   COMBODNEXTD,               0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getNextCSet",                0,         ZTID_FLOAT,   COMBODNEXTC,               0,  { ZTID_COMBOS },{} },
+	{ "setNextCSet",                0,          ZTID_VOID,   COMBODNEXTC,               0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getFlag",                    0,         ZTID_FLOAT,   COMBODFLAG,                0,  { ZTID_COMBOS },{} },
+	{ "setFlag",                    0,          ZTID_VOID,   COMBODFLAG,                0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getSkipAnim",                0,         ZTID_FLOAT,   COMBODSKIPANIM,            0,  { ZTID_COMBOS },{} },
+	{ "setSkipAnim",                0,          ZTID_VOID,   COMBODSKIPANIM,            0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getNextTimer",               0,         ZTID_FLOAT,   COMBODNEXTTIMER,           0,  { ZTID_COMBOS },{} },
+	{ "setNextTimer",               0,          ZTID_VOID,   COMBODNEXTTIMER,           0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getSkipAnimY",               0,         ZTID_FLOAT,   COMBODAKIMANIMY,           0,  { ZTID_COMBOS },{} },
+	{ "setSkipAnimY",               0,          ZTID_VOID,   COMBODAKIMANIMY,           0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getAnimFlags",               0,         ZTID_FLOAT,   COMBODANIMFLAGS,           0,  { ZTID_COMBOS },{} },
+	{ "setAnimFlags",               0,          ZTID_VOID,   COMBODANIMFLAGS,           0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getExpansion[]",             0,         ZTID_FLOAT,   COMBODEXPANSION,           0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "setExpansion[]",             0,          ZTID_VOID,   COMBODEXPANSION,           0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "getAttributes[]",            0,         ZTID_FLOAT,   COMBODATTRIBUTES,          0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "setAttributes[]",            0,          ZTID_VOID,   COMBODATTRIBUTES,          0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "getAttribytes[]",            0,         ZTID_FLOAT,   COMBODATTRIBYTES,          0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "setAttribytes[]",            0,          ZTID_VOID,   COMBODATTRIBYTES,          0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "getAttrishorts[]",           0,         ZTID_FLOAT,   COMBODATTRISHORTS,         0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "setAttrishorts[]",           0,          ZTID_VOID,   COMBODATTRISHORTS,         0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "getTriggerFlags[]",          0,         ZTID_FLOAT,   COMBODTRIGGERFLAGS,        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "setTriggerFlags[]",          0,          ZTID_VOID,   COMBODTRIGGERFLAGS,        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "getTrigFlags[]",             0,          ZTID_BOOL,   COMBODTRIGGERFLAGS2,       0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "setTrigFlags[]",             0,          ZTID_VOID,   COMBODTRIGGERFLAGS2,       0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getTriggerButton[]",         0,          ZTID_BOOL,   COMBODTRIGGERBUTTON,       0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "setTriggerButton[]",         0,          ZTID_VOID,   COMBODTRIGGERBUTTON,       0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getUserFlags",               0,         ZTID_FLOAT,   COMBODUSRFLAGS,            0,  { ZTID_COMBOS },{} },
+	{ "setUserFlags",               0,          ZTID_VOID,   COMBODUSRFLAGS,            0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getFlags[]",                 0,          ZTID_BOOL,   COMBODUSRFLAGARR,          0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "setFlags[]",                 0,          ZTID_VOID,   COMBODUSRFLAGARR,          0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getGenFlags[]",              0,          ZTID_BOOL,   COMBODGENFLAGARR,          0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "setGenFlags[]",              0,          ZTID_VOID,   COMBODGENFLAGARR,          0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getTriggerLevel",            0,         ZTID_FLOAT,   COMBODTRIGGERLEVEL,        0,  { ZTID_COMBOS },{} },
+	{ "setTriggerLevel",            0,          ZTID_VOID,   COMBODTRIGGERLEVEL,        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTriggerItem",             0,         ZTID_FLOAT,   COMBODTRIGGERITEM,         0,  { ZTID_COMBOS },{} },
+	{ "setTriggerItem",             0,          ZTID_VOID,   COMBODTRIGGERITEM,         0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTriggerTimer",            0,         ZTID_FLOAT,   COMBODTRIGGERTIMER,        0,  { ZTID_COMBOS },{} },
+	{ "setTriggerTimer",            0,          ZTID_VOID,   COMBODTRIGGERTIMER,        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTriggerSFX",              0,         ZTID_FLOAT,   COMBODTRIGGERSFX,          0,  { ZTID_COMBOS },{} },
+	{ "setTriggerSFX",              0,          ZTID_VOID,   COMBODTRIGGERSFX,          0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTriggerChange",           0,         ZTID_FLOAT,   COMBODTRIGGERCHANGECMB,    0,  { ZTID_COMBOS },{} },
+	{ "setTriggerChange",           0,          ZTID_VOID,   COMBODTRIGGERCHANGECMB,    0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTriggerProximity",        0,         ZTID_FLOAT,   COMBODTRIGGERPROX,         0,  { ZTID_COMBOS },{} },
+	{ "setTriggerProximity",        0,          ZTID_VOID,   COMBODTRIGGERPROX,         0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTriggerLightBeam",        0,         ZTID_FLOAT,   COMBODTRIGGERLIGHTBEAM,    0,  { ZTID_COMBOS },{} },
+	{ "setTriggerLightBeam",        0,          ZTID_VOID,   COMBODTRIGGERLIGHTBEAM,    0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTriggerCounter",          0,         ZTID_FLOAT,   COMBODTRIGGERCTR,          0,  { ZTID_COMBOS },{} },
+	{ "setTriggerCounter",          0,          ZTID_VOID,   COMBODTRIGGERCTR,          0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTriggerCtrAmount",        0,         ZTID_FLOAT,   COMBODTRIGGERCTRAMNT,      0,  { ZTID_COMBOS },{} },
+	{ "setTriggerCtrAmount",        0,          ZTID_VOID,   COMBODTRIGGERCTRAMNT,      0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTrigCooldown",            0,         ZTID_FLOAT,   COMBODTRIGGERCOOLDOWN,     0,  { ZTID_COMBOS },{} },
+	{ "setTrigCooldown",            0,          ZTID_VOID,   COMBODTRIGGERCOOLDOWN,     0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTrigCopycat",             0,         ZTID_FLOAT,   COMBODTRIGGERCOPYCAT,      0,  { ZTID_COMBOS },{} },
+	{ "setTrigCopycat",             0,          ZTID_VOID,   COMBODTRIGGERCOPYCAT,      0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTrigSpawnItemPickup",     0,         ZTID_FLOAT,   COMBODTRIGITEMPICKUP,      0,  { ZTID_COMBOS },{} },
+	{ "setTrigSpawnItemPickup",     0,          ZTID_VOID,   COMBODTRIGITEMPICKUP,      0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTrigExState",             0,         ZTID_FLOAT,   COMBODTRIGEXSTATE,         0,  { ZTID_COMBOS },{} },
+	{ "setTrigExState",             0,          ZTID_VOID,   COMBODTRIGEXSTATE,         0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTrigSpawnEnemy",          0,         ZTID_FLOAT,   COMBODTRIGSPAWNENEMY,      0,  { ZTID_COMBOS },{} },
+	{ "setTrigSpawnEnemy",          0,          ZTID_VOID,   COMBODTRIGSPAWNENEMY,      0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTrigSpawnItem",           0,         ZTID_FLOAT,   COMBODTRIGSPAWNITEM,       0,  { ZTID_COMBOS },{} },
+	{ "setTrigSpawnItem",           0,          ZTID_VOID,   COMBODTRIGSPAWNITEM,       0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTrigCSetChange",          0,         ZTID_FLOAT,   COMBODTRIGCSETCHANGE,      0,  { ZTID_COMBOS },{} },
+	{ "setTrigCSetChange",          0,          ZTID_VOID,   COMBODTRIGCSETCHANGE,      0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getLiftGFXCombo",            0,         ZTID_FLOAT,   COMBODLIFTGFXCOMBO,        0,  { ZTID_COMBOS },{} },
+	{ "setLiftGFXCombo",            0,          ZTID_VOID,   COMBODLIFTGFXCOMBO,        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getLiftGFXCSet",             0,         ZTID_FLOAT,   COMBODLIFTGFXCCSET,        0,  { ZTID_COMBOS },{} },
+	{ "setLiftGFXCSet",             0,          ZTID_VOID,   COMBODLIFTGFXCCSET,        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getLiftUnderCombo",          0,         ZTID_FLOAT,   COMBODLIFTUNDERCMB,        0,  { ZTID_COMBOS },{} },
+	{ "setLiftUnderCombo",          0,          ZTID_VOID,   COMBODLIFTUNDERCMB,        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getLiftUnderCSet",           0,         ZTID_FLOAT,   COMBODLIFTUNDERCS,         0,  { ZTID_COMBOS },{} },
+	{ "setLiftUnderCSet",           0,          ZTID_VOID,   COMBODLIFTUNDERCS,         0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getLiftDamage",              0,         ZTID_FLOAT,   COMBODLIFTDAMAGE,          0,  { ZTID_COMBOS },{} },
+	{ "setLiftDamage",              0,          ZTID_VOID,   COMBODLIFTDAMAGE,          0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getLiftLevel",               0,         ZTID_FLOAT,   COMBODLIFTLEVEL,           0,  { ZTID_COMBOS },{} },
+	{ "setLiftLevel",               0,          ZTID_VOID,   COMBODLIFTLEVEL,           0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getLiftItem",                0,         ZTID_FLOAT,   COMBODLIFTITEM,            0,  { ZTID_COMBOS },{} },
+	{ "setLiftItem",                0,          ZTID_VOID,   COMBODLIFTITEM,            0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getLiftFlags[]",             0,          ZTID_BOOL,   COMBODLIFTFLAGS,           0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "setLiftFlags[]",             0,          ZTID_VOID,   COMBODLIFTFLAGS,           0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getLiftGFXType",             0,         ZTID_FLOAT,   COMBODLIFTGFXTYPE,         0,  { ZTID_COMBOS },{} },
+	{ "setLiftGFXType",             0,          ZTID_VOID,   COMBODLIFTGFXTYPE,         0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getLiftGFXSprite",           0,         ZTID_FLOAT,   COMBODLIFTGFXSPRITE,       0,  { ZTID_COMBOS },{} },
+	{ "setLiftGFXSprite",           0,          ZTID_VOID,   COMBODLIFTGFXSPRITE,       0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getLiftSFX",                 0,         ZTID_FLOAT,   COMBODLIFTSFX,             0,  { ZTID_COMBOS },{} },
+	{ "setLiftSFX",                 0,          ZTID_VOID,   COMBODLIFTSFX,             0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getLiftBreakSprite",         0,         ZTID_FLOAT,   COMBODLIFTBREAKSPRITE,     0,  { ZTID_COMBOS },{} },
+	{ "setLiftBreakSprite",         0,          ZTID_VOID,   COMBODLIFTBREAKSPRITE,     0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getLiftBreakSFX",            0,         ZTID_FLOAT,   COMBODLIFTBREAKSFX,        0,  { ZTID_COMBOS },{} },
+	{ "setLiftBreakSFX",            0,          ZTID_VOID,   COMBODLIFTBREAKSFX,        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getLiftHeight",              0,         ZTID_FLOAT,   COMBODLIFTHEIGHT,          0,  { ZTID_COMBOS },{} },
+	{ "setLiftHeight",              0,          ZTID_VOID,   COMBODLIFTHEIGHT,          0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getLiftTime",                0,         ZTID_FLOAT,   COMBODLIFTTIME,            0,  { ZTID_COMBOS },{} },
+	{ "setLiftTime",                0,          ZTID_VOID,   COMBODLIFTTIME,            0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	
 	
 	
 //	comboclass struct
 //	"Name" -> Needs to be a function, GetName(int32_t string[])
-	{ "getBlockNPC",              ZTID_FLOAT,         GETTER,       COMBODBLOCKNPC,               1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setBlockNPC",              ZTID_VOID,          SETTER,       COMBODBLOCKNPC,               1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getBlockHole",             ZTID_FLOAT,         GETTER,       COMBODBLOCKHOLE,              1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setBlockHole",             ZTID_VOID,          SETTER,       COMBODBLOCKHOLE,              1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getBlockTrigger",          ZTID_FLOAT,         GETTER,       COMBODBLOCKTRIG,              1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setBlockTrigger",          ZTID_VOID,          SETTER,       COMBODBLOCKTRIG,              1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getBlockWeapon[]",         ZTID_FLOAT,         GETTER,       COMBODBLOCKWEAPON,            32,            0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setBlockWeapon[]",         ZTID_VOID,          SETTER,       COMBODBLOCKWEAPON,            32,            0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getConveyorSpeedX",        ZTID_FLOAT,         GETTER,       COMBODCONVXSPEED,             1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setConveyorSpeedX",        ZTID_VOID,          SETTER,       COMBODCONVXSPEED,             1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getConveyorSpeedY",        ZTID_FLOAT,         GETTER,       COMBODCONVYSPEED,             1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setConveyorSpeedY",        ZTID_VOID,          SETTER,       COMBODCONVYSPEED,             1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSpawnNPC",              ZTID_FLOAT,         GETTER,       COMBODSPAWNNPC,               1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSpawnNPC",              ZTID_VOID,          SETTER,       COMBODSPAWNNPC,               1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSpawnNPCWhen",          ZTID_FLOAT,         GETTER,       COMBODSPAWNNPCWHEN,           1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSpawnNPCWhen",          ZTID_VOID,          SETTER,       COMBODSPAWNNPCWHEN,           1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSpawnNPCCHange",        ZTID_FLOAT,         GETTER,       COMBODSPAWNNPCCHANGE,         1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSpawnNPCChange",        ZTID_VOID,          SETTER,       COMBODSPAWNNPCCHANGE,         1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDirChange",             ZTID_FLOAT,         GETTER,       COMBODDIRCHANGETYPE,          1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDirChange",             ZTID_VOID,          SETTER,       COMBODDIRCHANGETYPE,          1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDistanceChangeTiles",   ZTID_FLOAT,         GETTER,       COMBODDISTANCECHANGETILES,    1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDistanceChangeTiles",   ZTID_VOID,          SETTER,       COMBODDISTANCECHANGETILES,    1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDiveItem",              ZTID_FLOAT,         GETTER,       COMBODDIVEITEM,               1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDiveItem",              ZTID_VOID,          SETTER,       COMBODDIVEITEM,               1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDock",                  ZTID_FLOAT,         GETTER,       COMBODDOCK,                   1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDock",                  ZTID_VOID,          SETTER,       COMBODDOCK,                   1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFairy",                 ZTID_FLOAT,         GETTER,       COMBODFAIRY,                  1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFairy",                 ZTID_VOID,          SETTER,       COMBODFAIRY,                  1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFFCAttributeChange",    ZTID_FLOAT,         GETTER,       COMBODFFATTRCHANGE,           1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFFCAttributeChange",    ZTID_VOID,          SETTER,       COMBODFFATTRCHANGE,           1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDecorationTile",        ZTID_FLOAT,         GETTER,       COMBODFOORDECOTILE,           1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDecorationTile",        ZTID_VOID,          SETTER,       COMBODFOORDECOTILE,           1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDecorationType",        ZTID_FLOAT,         GETTER,       COMBODFOORDECOTYPE,           1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDecorationType",        ZTID_VOID,          SETTER,       COMBODFOORDECOTYPE,           1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHookshot",              ZTID_FLOAT,         GETTER,       COMBODHOOKSHOTPOINT,          1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHookshot",              ZTID_VOID,          SETTER,       COMBODHOOKSHOTPOINT,          1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLadder",                ZTID_FLOAT,         GETTER,       COMBODLADDERPASS,             1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLadder",                ZTID_VOID,          SETTER,       COMBODLADDERPASS,             1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLockBlock",             ZTID_FLOAT,         GETTER,       COMBODLOCKBLOCK,              1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLockBlock",             ZTID_VOID,          SETTER,       COMBODLOCKBLOCK,              1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLockBlockChange",       ZTID_FLOAT,         GETTER,       COMBODLOCKBLOCKCHANGE,        1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLockBlockChange",       ZTID_VOID,          SETTER,       COMBODLOCKBLOCKCHANGE,        1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMirror",                ZTID_FLOAT,         GETTER,       COMBODMAGICMIRROR,            1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMirror",                ZTID_VOID,          SETTER,       COMBODMAGICMIRROR,            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDamageAmount",          ZTID_FLOAT,         GETTER,       COMBODMODHPAMOUNT,            1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDamageAmount",          ZTID_VOID,          SETTER,       COMBODMODHPAMOUNT,            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDamageDelay",           ZTID_FLOAT,         GETTER,       COMBODMODHPDELAY,             1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDamageDelay",           ZTID_VOID,          SETTER,       COMBODMODHPDELAY,             1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDamageType",            ZTID_FLOAT,         GETTER,       COMBODMODHPTYPE,              1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDamageType",            ZTID_VOID,          SETTER,       COMBODMODHPTYPE,              1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMagicAmount",           ZTID_FLOAT,         GETTER,       COMBODNMODMPAMOUNT,           1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMagicAmount",           ZTID_VOID,          SETTER,       COMBODNMODMPAMOUNT,           1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMagicDelay",            ZTID_FLOAT,         GETTER,       COMBODMODMPDELAY,             1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMagicDelay",            ZTID_VOID,          SETTER,       COMBODMODMPDELAY,             1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMagicType",             ZTID_FLOAT,         GETTER,       COMBODMODMPTYPE,              1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMagicType",             ZTID_VOID,          SETTER,       COMBODMODMPTYPE,              1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getNoPushBlocks",          ZTID_FLOAT,         GETTER,       COMBODNOPUSHBLOCK,            1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setNoPushBlocks",          ZTID_VOID,          SETTER,       COMBODNOPUSHBLOCK,            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getOverhead",              ZTID_FLOAT,         GETTER,       COMBODOVERHEAD,               1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setOverhead",              ZTID_VOID,          SETTER,       COMBODOVERHEAD,               1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getPlaceNPC",              ZTID_FLOAT,         GETTER,       COMBODPLACENPC,               1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setPlaceNPC",              ZTID_VOID,          SETTER,       COMBODPLACENPC,               1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getPushDir",               ZTID_FLOAT,         GETTER,       COMBODPUSHDIR,                1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setPushDir",               ZTID_VOID,          SETTER,       COMBODPUSHDIR,                1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getPushDelay",             ZTID_FLOAT,         GETTER,       COMBODPUSHWAIT,               42,            0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setPushDelay",             ZTID_VOID,          SETTER,       COMBODPUSHWAIT,               42,            0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getPushHeavy",             ZTID_FLOAT,         GETTER,       COMBODPUSHHEAVY,              1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setPushHeavy",             ZTID_VOID,          SETTER,       COMBODPUSHHEAVY,              1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getPushed",                ZTID_FLOAT,         GETTER,       COMBODPUSHED,                 1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setPushed",                ZTID_VOID,          SETTER,       COMBODPUSHED,                 1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getRaft",                  ZTID_FLOAT,         GETTER,       COMBODRAFT,                   1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setRaft",                  ZTID_VOID,          SETTER,       COMBODRAFT,                   1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getResetRoom",             ZTID_FLOAT,         GETTER,       COMBODRESETROOM,              1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setResetRoom",             ZTID_VOID,          SETTER,       COMBODRESETROOM,              1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSavePoint",             ZTID_FLOAT,         GETTER,       COMBODSAVEPOINTTYPE,          1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSavePoint",             ZTID_VOID,          SETTER,       COMBODSAVEPOINTTYPE,          1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFreezeScreen",          ZTID_FLOAT,         GETTER,       COMBODSCREENFREEZETYPE,       1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFreezeScreen",          ZTID_VOID,          SETTER,       COMBODSCREENFREEZETYPE,       1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSecretCombo",           ZTID_FLOAT,         GETTER,       COMBODSECRETCOMBO,            1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSecretCombo",           ZTID_VOID,          SETTER,       COMBODSECRETCOMBO,            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSingular",              ZTID_FLOAT,         GETTER,       COMBODSINGULAR,               1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSingular",              ZTID_VOID,          SETTER,       COMBODSINGULAR,               1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSlowWalk",              ZTID_FLOAT,         GETTER,       COMBODSLOWWALK,               1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSlowWalk",              ZTID_VOID,          SETTER,       COMBODSLOWWALK,               1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getStatue",                ZTID_FLOAT,         GETTER,       COMBODSTATUETYPE,             1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setStatue",                ZTID_VOID,          SETTER,       COMBODSTATUETYPE,             1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getStep",                  ZTID_FLOAT,         GETTER,       COMBODSTEPTYPE,               1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setStep",                  ZTID_VOID,          SETTER,       COMBODSTEPTYPE,               1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getStepChange",            ZTID_FLOAT,         GETTER,       COMBODSTEPCHANGEINTO,         1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setStepChange",            ZTID_VOID,          SETTER,       COMBODSTEPCHANGEINTO,         1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getStrike[]",              ZTID_FLOAT,         GETTER,       COMBODSTRIKEWEAPONS,          32,            0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setStrike[]",              ZTID_VOID,          SETTER,       COMBODSTRIKEWEAPONS,          32,            0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getStrikeRemnants",        ZTID_FLOAT,         GETTER,       COMBODSTRIKEREMNANTS,         1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setStrikeRemnants",        ZTID_VOID,          SETTER,       COMBODSTRIKEREMNANTS,         1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getStrikeRemnantsType",    ZTID_FLOAT,         GETTER,       COMBODSTRIKEREMNANTSTYPE,     1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setStrikeRemnantsType",    ZTID_VOID,          SETTER,       COMBODSTRIKEREMNANTSTYPE,     1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getStrikeChange",          ZTID_FLOAT,         GETTER,       COMBODSTRIKECHANGE,           1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setStrikeChange",          ZTID_VOID,          SETTER,       COMBODSTRIKECHANGE,           1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getStrikeItem",            ZTID_FLOAT,         GETTER,       COMBODTOUCHITEM,              1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setStrikeItem",            ZTID_VOID,          SETTER,       COMBODTOUCHITEM,              1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTouchItem",             ZTID_FLOAT,         GETTER,       COMBODTOUCHITEM,              1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTouchItem",             ZTID_VOID,          SETTER,       COMBODTOUCHITEM,              1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTouchStairs",           ZTID_FLOAT,         GETTER,       COMBODTOUCHSTAIRS,            1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTouchStairs",           ZTID_VOID,          SETTER,       COMBODTOUCHSTAIRS,            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTriggerType",           ZTID_FLOAT,         GETTER,       COMBODTRIGGERTYPE,            1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTriggerType",           ZTID_VOID,          SETTER,       COMBODTRIGGERTYPE,            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTriggerSensitivity",    ZTID_FLOAT,         GETTER,       COMBODTRIGGERSENS,            1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTriggerSensitivity",    ZTID_VOID,          SETTER,       COMBODTRIGGERSENS,            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWarp",                  ZTID_FLOAT,         GETTER,       COMBODWARPTYPE,               1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWarp",                  ZTID_VOID,          SETTER,       COMBODWARPTYPE,               1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWarpSensitivity",       ZTID_FLOAT,         GETTER,       COMBODWARPSENS,               1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWarpSensitivity",       ZTID_VOID,          SETTER,       COMBODWARPSENS,               1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWarpDirect",            ZTID_FLOAT,         GETTER,       COMBODWARPDIRECT,             1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWarpDirect",            ZTID_VOID,          SETTER,       COMBODWARPDIRECT,             1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWarpLocation",          ZTID_FLOAT,         GETTER,       COMBODWARPLOCATION,           1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWarpLocation",          ZTID_VOID,          SETTER,       COMBODWARPLOCATION,           1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWater",                 ZTID_FLOAT,         GETTER,       COMBODWATER,                  1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWater",                 ZTID_VOID,          SETTER,       COMBODWATER,                  1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWhistle",               ZTID_FLOAT,         GETTER,       COMBODWHISTLE,                1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWhistle",               ZTID_VOID,          SETTER,       COMBODWHISTLE,                1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWinGame",               ZTID_FLOAT,         GETTER,       COMBODWINGAME,                1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWinGame",               ZTID_VOID,          SETTER,       COMBODWINGAME,                1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getBlockWeaponLevel",      ZTID_FLOAT,         GETTER,       COMBODBLOCKWPNLEVEL,          1,             0,                                    1,           { ZTID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setBlockWeaponLevel",      ZTID_VOID,          SETTER,       COMBODBLOCKWPNLEVEL,          1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getBlockNPC",                0,         ZTID_FLOAT,   COMBODBLOCKNPC,            0,  { ZTID_COMBOS },{} },
+	{ "setBlockNPC",                0,          ZTID_VOID,   COMBODBLOCKNPC,            0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getBlockHole",               0,         ZTID_FLOAT,   COMBODBLOCKHOLE,           0,  { ZTID_COMBOS },{} },
+	{ "setBlockHole",               0,          ZTID_VOID,   COMBODBLOCKHOLE,           0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getBlockTrigger",            0,         ZTID_FLOAT,   COMBODBLOCKTRIG,           0,  { ZTID_COMBOS },{} },
+	{ "setBlockTrigger",            0,          ZTID_VOID,   COMBODBLOCKTRIG,           0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getBlockWeapon[]",           0,         ZTID_FLOAT,   COMBODBLOCKWEAPON,         0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "setBlockWeapon[]",           0,          ZTID_VOID,   COMBODBLOCKWEAPON,         0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "getConveyorSpeedX",          0,         ZTID_FLOAT,   COMBODCONVXSPEED,          0,  { ZTID_COMBOS },{} },
+	{ "setConveyorSpeedX",          0,          ZTID_VOID,   COMBODCONVXSPEED,          0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getConveyorSpeedY",          0,         ZTID_FLOAT,   COMBODCONVYSPEED,          0,  { ZTID_COMBOS },{} },
+	{ "setConveyorSpeedY",          0,          ZTID_VOID,   COMBODCONVYSPEED,          0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getSpawnNPC",                0,         ZTID_FLOAT,   COMBODSPAWNNPC,            0,  { ZTID_COMBOS },{} },
+	{ "setSpawnNPC",                0,          ZTID_VOID,   COMBODSPAWNNPC,            0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getSpawnNPCWhen",            0,         ZTID_FLOAT,   COMBODSPAWNNPCWHEN,        0,  { ZTID_COMBOS },{} },
+	{ "setSpawnNPCWhen",            0,          ZTID_VOID,   COMBODSPAWNNPCWHEN,        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getSpawnNPCCHange",          0,         ZTID_FLOAT,   COMBODSPAWNNPCCHANGE,      0,  { ZTID_COMBOS },{} },
+	{ "setSpawnNPCChange",          0,          ZTID_VOID,   COMBODSPAWNNPCCHANGE,      0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getDirChange",               0,         ZTID_FLOAT,   COMBODDIRCHANGETYPE,       0,  { ZTID_COMBOS },{} },
+	{ "setDirChange",               0,          ZTID_VOID,   COMBODDIRCHANGETYPE,       0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getDistanceChangeTiles",     0,         ZTID_FLOAT,   COMBODDISTANCECHANGETILES, 0,  { ZTID_COMBOS },{} },
+	{ "setDistanceChangeTiles",     0,          ZTID_VOID,   COMBODDISTANCECHANGETILES, 0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getDiveItem",                0,         ZTID_FLOAT,   COMBODDIVEITEM,            0,  { ZTID_COMBOS },{} },
+	{ "setDiveItem",                0,          ZTID_VOID,   COMBODDIVEITEM,            0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getDock",                    0,         ZTID_FLOAT,   COMBODDOCK,                0,  { ZTID_COMBOS },{} },
+	{ "setDock",                    0,          ZTID_VOID,   COMBODDOCK,                0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getFairy",                   0,         ZTID_FLOAT,   COMBODFAIRY,               0,  { ZTID_COMBOS },{} },
+	{ "setFairy",                   0,          ZTID_VOID,   COMBODFAIRY,               0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getFFCAttributeChange",      0,         ZTID_FLOAT,   COMBODFFATTRCHANGE,        0,  { ZTID_COMBOS },{} },
+	{ "setFFCAttributeChange",      0,          ZTID_VOID,   COMBODFFATTRCHANGE,        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getDecorationTile",          0,         ZTID_FLOAT,   COMBODFOORDECOTILE,        0,  { ZTID_COMBOS },{} },
+	{ "setDecorationTile",          0,          ZTID_VOID,   COMBODFOORDECOTILE,        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getDecorationType",          0,         ZTID_FLOAT,   COMBODFOORDECOTYPE,        0,  { ZTID_COMBOS },{} },
+	{ "setDecorationType",          0,          ZTID_VOID,   COMBODFOORDECOTYPE,        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getHookshot",                0,         ZTID_FLOAT,   COMBODHOOKSHOTPOINT,       0,  { ZTID_COMBOS },{} },
+	{ "setHookshot",                0,          ZTID_VOID,   COMBODHOOKSHOTPOINT,       0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getLadder",                  0,         ZTID_FLOAT,   COMBODLADDERPASS,          0,  { ZTID_COMBOS },{} },
+	{ "setLadder",                  0,          ZTID_VOID,   COMBODLADDERPASS,          0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getLockBlock",               0,         ZTID_FLOAT,   COMBODLOCKBLOCK,           0,  { ZTID_COMBOS },{} },
+	{ "setLockBlock",               0,          ZTID_VOID,   COMBODLOCKBLOCK,           0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getLockBlockChange",         0,         ZTID_FLOAT,   COMBODLOCKBLOCKCHANGE,     0,  { ZTID_COMBOS },{} },
+	{ "setLockBlockChange",         0,          ZTID_VOID,   COMBODLOCKBLOCKCHANGE,     0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getMirror",                  0,         ZTID_FLOAT,   COMBODMAGICMIRROR,         0,  { ZTID_COMBOS },{} },
+	{ "setMirror",                  0,          ZTID_VOID,   COMBODMAGICMIRROR,         0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getDamageAmount",            0,         ZTID_FLOAT,   COMBODMODHPAMOUNT,         0,  { ZTID_COMBOS },{} },
+	{ "setDamageAmount",            0,          ZTID_VOID,   COMBODMODHPAMOUNT,         0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getDamageDelay",             0,         ZTID_FLOAT,   COMBODMODHPDELAY,          0,  { ZTID_COMBOS },{} },
+	{ "setDamageDelay",             0,          ZTID_VOID,   COMBODMODHPDELAY,          0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getDamageType",              0,         ZTID_FLOAT,   COMBODMODHPTYPE,           0,  { ZTID_COMBOS },{} },
+	{ "setDamageType",              0,          ZTID_VOID,   COMBODMODHPTYPE,           0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getMagicAmount",             0,         ZTID_FLOAT,   COMBODNMODMPAMOUNT,        0,  { ZTID_COMBOS },{} },
+	{ "setMagicAmount",             0,          ZTID_VOID,   COMBODNMODMPAMOUNT,        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getMagicDelay",              0,         ZTID_FLOAT,   COMBODMODMPDELAY,          0,  { ZTID_COMBOS },{} },
+	{ "setMagicDelay",              0,          ZTID_VOID,   COMBODMODMPDELAY,          0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getMagicType",               0,         ZTID_FLOAT,   COMBODMODMPTYPE,           0,  { ZTID_COMBOS },{} },
+	{ "setMagicType",               0,          ZTID_VOID,   COMBODMODMPTYPE,           0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getNoPushBlocks",            0,         ZTID_FLOAT,   COMBODNOPUSHBLOCK,         0,  { ZTID_COMBOS },{} },
+	{ "setNoPushBlocks",            0,          ZTID_VOID,   COMBODNOPUSHBLOCK,         0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getOverhead",                0,         ZTID_FLOAT,   COMBODOVERHEAD,            0,  { ZTID_COMBOS },{} },
+	{ "setOverhead",                0,          ZTID_VOID,   COMBODOVERHEAD,            0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getPlaceNPC",                0,         ZTID_FLOAT,   COMBODPLACENPC,            0,  { ZTID_COMBOS },{} },
+	{ "setPlaceNPC",                0,          ZTID_VOID,   COMBODPLACENPC,            0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getPushDir",                 0,         ZTID_FLOAT,   COMBODPUSHDIR,             0,  { ZTID_COMBOS },{} },
+	{ "setPushDir",                 0,          ZTID_VOID,   COMBODPUSHDIR,             0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getPushDelay",               0,         ZTID_FLOAT,   COMBODPUSHWAIT,            0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "setPushDelay",               0,          ZTID_VOID,   COMBODPUSHWAIT,            0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getPushHeavy",               0,         ZTID_FLOAT,   COMBODPUSHHEAVY,           0,  { ZTID_COMBOS },{} },
+	{ "setPushHeavy",               0,          ZTID_VOID,   COMBODPUSHHEAVY,           0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getPushed",                  0,         ZTID_FLOAT,   COMBODPUSHED,              0,  { ZTID_COMBOS },{} },
+	{ "setPushed",                  0,          ZTID_VOID,   COMBODPUSHED,              0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getRaft",                    0,         ZTID_FLOAT,   COMBODRAFT,                0,  { ZTID_COMBOS },{} },
+	{ "setRaft",                    0,          ZTID_VOID,   COMBODRAFT,                0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getResetRoom",               0,         ZTID_FLOAT,   COMBODRESETROOM,           0,  { ZTID_COMBOS },{} },
+	{ "setResetRoom",               0,          ZTID_VOID,   COMBODRESETROOM,           0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getSavePoint",               0,         ZTID_FLOAT,   COMBODSAVEPOINTTYPE,       0,  { ZTID_COMBOS },{} },
+	{ "setSavePoint",               0,          ZTID_VOID,   COMBODSAVEPOINTTYPE,       0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getFreezeScreen",            0,         ZTID_FLOAT,   COMBODSCREENFREEZETYPE,    0,  { ZTID_COMBOS },{} },
+	{ "setFreezeScreen",            0,          ZTID_VOID,   COMBODSCREENFREEZETYPE,    0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getSecretCombo",             0,         ZTID_FLOAT,   COMBODSECRETCOMBO,         0,  { ZTID_COMBOS },{} },
+	{ "setSecretCombo",             0,          ZTID_VOID,   COMBODSECRETCOMBO,         0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getSingular",                0,         ZTID_FLOAT,   COMBODSINGULAR,            0,  { ZTID_COMBOS },{} },
+	{ "setSingular",                0,          ZTID_VOID,   COMBODSINGULAR,            0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getSlowWalk",                0,         ZTID_FLOAT,   COMBODSLOWWALK,            0,  { ZTID_COMBOS },{} },
+	{ "setSlowWalk",                0,          ZTID_VOID,   COMBODSLOWWALK,            0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getStatue",                  0,         ZTID_FLOAT,   COMBODSTATUETYPE,          0,  { ZTID_COMBOS },{} },
+	{ "setStatue",                  0,          ZTID_VOID,   COMBODSTATUETYPE,          0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getStep",                    0,         ZTID_FLOAT,   COMBODSTEPTYPE,            0,  { ZTID_COMBOS },{} },
+	{ "setStep",                    0,          ZTID_VOID,   COMBODSTEPTYPE,            0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getStepChange",              0,         ZTID_FLOAT,   COMBODSTEPCHANGEINTO,      0,  { ZTID_COMBOS },{} },
+	{ "setStepChange",              0,          ZTID_VOID,   COMBODSTEPCHANGEINTO,      0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getStrike[]",                0,         ZTID_FLOAT,   COMBODSTRIKEWEAPONS,       0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "setStrike[]",                0,          ZTID_VOID,   COMBODSTRIKEWEAPONS,       0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "getStrikeRemnants",          0,         ZTID_FLOAT,   COMBODSTRIKEREMNANTS,      0,  { ZTID_COMBOS },{} },
+	{ "setStrikeRemnants",          0,          ZTID_VOID,   COMBODSTRIKEREMNANTS,      0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getStrikeRemnantsType",      0,         ZTID_FLOAT,   COMBODSTRIKEREMNANTSTYPE,  0,  { ZTID_COMBOS },{} },
+	{ "setStrikeRemnantsType",      0,          ZTID_VOID,   COMBODSTRIKEREMNANTSTYPE,  0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getStrikeChange",            0,         ZTID_FLOAT,   COMBODSTRIKECHANGE,        0,  { ZTID_COMBOS },{} },
+	{ "setStrikeChange",            0,          ZTID_VOID,   COMBODSTRIKECHANGE,        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getStrikeItem",              0,         ZTID_FLOAT,   COMBODTOUCHITEM,           0,  { ZTID_COMBOS },{} },
+	{ "setStrikeItem",              0,          ZTID_VOID,   COMBODTOUCHITEM,           0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTouchItem",               0,         ZTID_FLOAT,   COMBODTOUCHITEM,           0,  { ZTID_COMBOS },{} },
+	{ "setTouchItem",               0,          ZTID_VOID,   COMBODTOUCHITEM,           0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTouchStairs",             0,         ZTID_FLOAT,   COMBODTOUCHSTAIRS,         0,  { ZTID_COMBOS },{} },
+	{ "setTouchStairs",             0,          ZTID_VOID,   COMBODTOUCHSTAIRS,         0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTriggerType",             0,         ZTID_FLOAT,   COMBODTRIGGERTYPE,         0,  { ZTID_COMBOS },{} },
+	{ "setTriggerType",             0,          ZTID_VOID,   COMBODTRIGGERTYPE,         0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTriggerSensitivity",      0,         ZTID_FLOAT,   COMBODTRIGGERSENS,         0,  { ZTID_COMBOS },{} },
+	{ "setTriggerSensitivity",      0,          ZTID_VOID,   COMBODTRIGGERSENS,         0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getWarp",                    0,         ZTID_FLOAT,   COMBODWARPTYPE,            0,  { ZTID_COMBOS },{} },
+	{ "setWarp",                    0,          ZTID_VOID,   COMBODWARPTYPE,            0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getWarpSensitivity",         0,         ZTID_FLOAT,   COMBODWARPSENS,            0,  { ZTID_COMBOS },{} },
+	{ "setWarpSensitivity",         0,          ZTID_VOID,   COMBODWARPSENS,            0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getWarpDirect",              0,         ZTID_FLOAT,   COMBODWARPDIRECT,          0,  { ZTID_COMBOS },{} },
+	{ "setWarpDirect",              0,          ZTID_VOID,   COMBODWARPDIRECT,          0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getWarpLocation",            0,         ZTID_FLOAT,   COMBODWARPLOCATION,        0,  { ZTID_COMBOS },{} },
+	{ "setWarpLocation",            0,          ZTID_VOID,   COMBODWARPLOCATION,        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getWater",                   0,         ZTID_FLOAT,   COMBODWATER,               0,  { ZTID_COMBOS },{} },
+	{ "setWater",                   0,          ZTID_VOID,   COMBODWATER,               0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getWhistle",                 0,         ZTID_FLOAT,   COMBODWHISTLE,             0,  { ZTID_COMBOS },{} },
+	{ "setWhistle",                 0,          ZTID_VOID,   COMBODWHISTLE,             0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getWinGame",                 0,         ZTID_FLOAT,   COMBODWINGAME,             0,  { ZTID_COMBOS },{} },
+	{ "setWinGame",                 0,          ZTID_VOID,   COMBODWINGAME,             0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getBlockWeaponLevel",        0,         ZTID_FLOAT,   COMBODBLOCKWPNLEVEL,       0,  { ZTID_COMBOS },{} },
+	{ "setBlockWeaponLevel",        0,          ZTID_VOID,   COMBODBLOCKWPNLEVEL,       0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	
 //	Functions
-//	{ "GetName",                  ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-//	{ "SetName",                  ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+//	{ "GetName",                    0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+//	{ "SetName",                    0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	
 	
 //	one input, one return
-	{ "GetBlockEnemies",          ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetBlockHole",             ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetBlockTrigger",          ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetConveyorSpeedX",        ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetConveyorSpeedY",        ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetCreateEnemy",           ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetCreateEnemyWhen",       ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetCreateEnemyChnge",      ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetDirChangeType",         ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetDistanceChangeTiles",   ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetDiveItem",              ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetDock",                  ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetFairy",                 ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetFFComboChangeAttrib",   ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetFootDecorationsTile",   ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetFootDecorationsType",   ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetHookshotGrab",          ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetLadderPass",            ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetLockBlockType",         ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetLockBlockChange",       ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetMagicMirror",           ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetModifyHPAmount",        ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetModifyHPDelay",         ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetModifyHPType",          ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetModifyMPAmount",        ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetModifyMPDelay",         ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetModifyMPType",          ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetNoPushBlocks",          ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetOverhead",              ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetPlaceEnemy",            ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetPushDirection",         ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetPushWeight",            ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetPushWait",              ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetPushed",                ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetRaft",                  ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetResetRoom",             ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetSavePoint",             ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetScreenFreeze",          ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetSecretCombo",           ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetSingular",              ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetSlowMove",              ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetStatue",                ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetStepType",              ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetStepChangeTo",          ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetStrikeRemnants",        ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetStrikeRemnantsType",    ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetStrikeChange",          ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetStrikeItem",            ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetTouchItem",             ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetTouchStairs",           ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetTriggerType",           ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetTriggerSens",           ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetWarpType",              ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetWarpSens",              ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetWarpDirect",            ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetWarpLocation",          ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetWater",                 ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetWhistle",               ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetWinGame",               ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetBlockWeaponLevel",      ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetTile",                  ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetFlip",                  ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetWalkability",           ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetType",                  ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetCSets",                 ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetFoo",                   ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetFrames",                ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetSpeed",                 ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetNextCombo",             ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetNextCSet",              ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetFlag",                  ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetSkipAnim",              ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetNextTimer",             ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetSkipAnimY",             ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetAnimFlags",             ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    2,           { ZTID_COMBOS, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "GetBlockEnemies",            0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetBlockHole",               0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetBlockTrigger",            0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetConveyorSpeedX",          0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetConveyorSpeedY",          0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetCreateEnemy",             0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetCreateEnemyWhen",         0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetCreateEnemyChnge",        0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetDirChangeType",           0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetDistanceChangeTiles",     0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetDiveItem",                0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetDock",                    0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetFairy",                   0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetFFComboChangeAttrib",     0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetFootDecorationsTile",     0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetFootDecorationsType",     0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetHookshotGrab",            0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetLadderPass",              0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetLockBlockType",           0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetLockBlockChange",         0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetMagicMirror",             0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetModifyHPAmount",          0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetModifyHPDelay",           0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetModifyHPType",            0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetModifyMPAmount",          0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetModifyMPDelay",           0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetModifyMPType",            0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetNoPushBlocks",            0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetOverhead",                0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetPlaceEnemy",              0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetPushDirection",           0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetPushWeight",              0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetPushWait",                0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetPushed",                  0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetRaft",                    0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetResetRoom",               0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetSavePoint",               0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetScreenFreeze",            0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetSecretCombo",             0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetSingular",                0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetSlowMove",                0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetStatue",                  0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetStepType",                0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetStepChangeTo",            0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetStrikeRemnants",          0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetStrikeRemnantsType",      0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetStrikeChange",            0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetStrikeItem",              0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetTouchItem",               0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetTouchStairs",             0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetTriggerType",             0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetTriggerSens",             0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetWarpType",                0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetWarpSens",                0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetWarpDirect",              0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetWarpLocation",            0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetWater",                   0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetWhistle",                 0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetWinGame",                 0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetBlockWeaponLevel",        0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetTile",                    0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetFlip",                    0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetWalkability",             0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetType",                    0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetCSets",                   0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetFoo",                     0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetFrames",                  0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetSpeed",                   0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetNextCombo",               0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetNextCSet",                0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetFlag",                    0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetSkipAnim",                0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetNextTimer",               0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetSkipAnimY",               0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "GetAnimFlags",               0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	
 //	two inputs, one return
-	{ "GetBlockWeapon",           ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetExpansion",             ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetStrikeWeapons",         ZTID_FLOAT,         FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "GetBlockWeapon",             0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetExpansion",               0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetStrikeWeapons",           0,         ZTID_FLOAT,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
 //	two inputs, no return
-	{ "SetBlockEnemies",          ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetBlockHole",             ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetBlockTrigger",          ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetConveyorSpeedX",        ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetConveyorSpeedY",        ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetCreateEnemy",           ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetCreateEnemyWhen",       ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetCreateEnemyChnge",      ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetDirChangeType",         ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetDistanceChangeTiles",   ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetDiveItem",              ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetDock",                  ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetFairy",                 ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetFFComboChangeAttrib",   ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetFootDecorationsTile",   ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetFootDecorationsType",   ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetHookshotGrab",          ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetLadderPass",            ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetLockBlockType",         ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetLockBlockChange",       ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetMagicMirror",           ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetModifyHPAmount",        ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetModifyHPDelay",         ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetModifyHPType",          ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetModifyMPAmount",        ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetModifyMPDelay",         ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetModifyMPType",          ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetNoPushBlocks",          ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetOverhead",              ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetPlaceEnemy",            ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetPushDirection",         ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetPushWeight",            ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetPushWait",              ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetPushed",                ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetRaft",                  ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetResetRoom",             ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetSavePoint",             ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetScreenFreeze",          ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetSecretCombo",           ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetSingular",              ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetSlowMove",              ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetStatue",                ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetStepType",              ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetStepChangeTo",          ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetStrikeRemnants",        ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetStrikeRemnantsType",    ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetStrikeChange",          ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetStrikeItem",            ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetTouchItem",             ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetTouchStairs",           ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetTriggerType",           ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetTriggerSens",           ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetWarpType",              ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetWarpSens",              ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetWarpDirect",            ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetWarpLocation",          ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetWater",                 ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetWhistle",               ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetWinGame",               ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetBlockWeaponLevel",      ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetTile",                  ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetFlip",                  ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetWalkability",           ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetType",                  ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetCSets",                 ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetFoo",                   ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetFrames",                ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetSpeed",                 ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetNextCombo",             ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetNextCSet",              ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetFlag",                  ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetSkipAnim",              ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetNextTimer",             ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetSkipAnimY",             ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetAnimFlags",             ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    3,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "SetBlockEnemies",            0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetBlockHole",               0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetBlockTrigger",            0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetConveyorSpeedX",          0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetConveyorSpeedY",          0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetCreateEnemy",             0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetCreateEnemyWhen",         0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetCreateEnemyChnge",        0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetDirChangeType",           0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetDistanceChangeTiles",     0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetDiveItem",                0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetDock",                    0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetFairy",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetFFComboChangeAttrib",     0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetFootDecorationsTile",     0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetFootDecorationsType",     0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetHookshotGrab",            0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetLadderPass",              0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetLockBlockType",           0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetLockBlockChange",         0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetMagicMirror",             0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetModifyHPAmount",          0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetModifyHPDelay",           0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetModifyHPType",            0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetModifyMPAmount",          0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetModifyMPDelay",           0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetModifyMPType",            0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetNoPushBlocks",            0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetOverhead",                0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetPlaceEnemy",              0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetPushDirection",           0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetPushWeight",              0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetPushWait",                0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetPushed",                  0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetRaft",                    0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetResetRoom",               0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetSavePoint",               0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetScreenFreeze",            0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetSecretCombo",             0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetSingular",                0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetSlowMove",                0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetStatue",                  0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetStepType",                0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetStepChangeTo",            0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetStrikeRemnants",          0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetStrikeRemnantsType",      0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetStrikeChange",            0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetStrikeItem",              0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetTouchItem",               0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetTouchStairs",             0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetTriggerType",             0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetTriggerSens",             0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetWarpType",                0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetWarpSens",                0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetWarpDirect",              0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetWarpLocation",            0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetWater",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetWhistle",                 0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetWinGame",                 0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetBlockWeaponLevel",        0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetTile",                    0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetFlip",                    0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetWalkability",             0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetType",                    0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetCSets",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetFoo",                     0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetFrames",                  0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetSpeed",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetNextCombo",               0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetNextCSet",                0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetFlag",                    0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetSkipAnim",                0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetNextTimer",               0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetSkipAnimY",               0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetAnimFlags",               0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
 //	three inputs, no return
-	{ "SetBlockWeapon",           ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    4,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetExpansion",             ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    4,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetStrikeWeapons",         ZTID_VOID,          FUNCTION,     0,                            1,             0,                                    4,           { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "SetBlockWeapon",             0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetExpansion",               1,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetStrikeWeapons",           0,          ZTID_VOID,   -1,                        0,  { ZTID_COMBOS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
 	
-	{ "",                         -1,                       -1,           -1,                           -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
 CombosPtrSymbols::CombosPtrSymbols()
 {
-    table = CombosTable;
-    refVar = REFCOMBODATA; //NUL;
+	table = CombosTable;
+	refVar = REFCOMBODATA; //NUL;
 }
 
 void CombosPtrSymbols::generateCode()
 {
-    {
-        ONE_INPUT_ONE_RETURN("GetBlockEnemies",OCDataBlockEnemy);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetBlockHole",OCDataBlockHole);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetBlockTrigger",OCDataBlockTrig);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetConveyorSpeedX",OCDataConveyX);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetConveyorSpeedY",OCDataConveyY);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetCreateEnemy",OCDataCreateNPC);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetCreateEnemyWhen",OCDataCreateEnemW);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetCreateEnemyChnge",OCDataCreateEnemC);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetDirChangeType",OCDataDirch);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetDistanceChangeTiles",OCDataDistTiles);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetDiveItem",OCDataDiveItem);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetDock",OCDataDock);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetFairy",OCDataFairy);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetFFComboChangeAttrib",OCDataAttrib);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetFootDecorationsTile",OCDataDecoTile);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetFootDecorationsType",OCDataDecoType);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetHookshotGrab",OCDataHookshotGrab);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetLadderPass",OCDataLadderPass);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetLockBlockType",OCDataLockBlock);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetLockBlockChange",OCDataLockBlockChange);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetMagicMirror",OCDataMagicMirror);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetModifyHPAmount",OCDataModHP);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetModifyHPDelay",OCDataModHPDelay);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetModifyHPType",OCDataModHpType);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetModifyMPAmount",OCDataModMP);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetModifyMPDelay",OCDataMpdMPDelay);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetModifyMPType",OCDataModMPType);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetNoPushBlocks",OCDataNoPush);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetOverhead",OCDataOverhead);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetPlaceEnemy",OCDataEnemyLoc);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetPushDirection",OCDataPushDir);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetPushWeight",OCDataPushWeight);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetPushWait",OCDataPushWait);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetPushed",OCDataPushed);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetRaft",OCDataRaft);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetResetRoom",OCDataResetRoom);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetSavePoint",OCDataSavePoint);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetScreenFreeze",OCDataFreeezeScreen);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetSecretCombo",OCDataSecretCombo);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetSingular",OCDataSingular);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetSlowMove",OCDataSlowMove);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetStatue",OCDataStatue);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetStepType",OCDataStepType);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetStepChangeTo",OCDataSteoChange);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetStrikeRemnants",OCDataStrikeRem);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetStrikeRemnantsType",OCDataStrikeRemType);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetStrikeChange",OCDataStrikeChange);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetStrikeItem",OCDataStrikeChangeItem);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetTouchItem",OCDataTouchItem);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetTouchStairs",OCDataTouchStairs);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetTriggerType",OCDataTriggerType);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetTriggerSens",OCDataTriggerSens);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetWarpType",OCDataWarpType);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetWarpSens",OCDataWarpSens);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetWarpDirect",OCDataWarpDirect);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetWarpLocation",OCDataWarpLoc);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetWater",OCDataWater);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetWhistle",OCDataWhistle);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetWinGame",OCDataWinGame);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetBlockWeaponLevel",OCDataWeapBlockLevel);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetTile",OCDataTile);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetFlip",OCDataFlip);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetWalkability",OCDataWalkability);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetType",OCDataType);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetCSets",OCDataCSets);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetFoo",OCDataFoo);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetFrames",OCDataFrames);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetSpeed",OCDataSpeed);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetNextCombo",OCDataNext);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetNextCSet",OCDataNextCSet);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetFlag",OCDataFlag);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetSkipAnim",OCSetDataSkipAnim);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetNextTimer",OCDataTimer);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetSkipAnimY",OCDataAnimY);
-    }
-    {
-        ONE_INPUT_ONE_RETURN("GetAnimFlags",OCDataAnimFlags);
-    }
-    
-    {
-        TWO_INPUT_NO_RETURN("SetBlockEnemies",OCSetDataBlockEnemy);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetBlockHole",OCSetDataBlockHole);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetBlockTrigger",OCSetDataBlockTrig);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetConveyorSpeedX",OCSetDataConveyX);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetConveyorSpeedY",OCSetDataConveyY);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetCreateEnemy",OCSetDataCreateNPC);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetCreateEnemyWhen",OCSetDataCreateEnemW);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetCreateEnemyChnge",OCSetDataCreateEnemC);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetDirChangeType",OCSetDataDirch);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetDistanceChangeTiles",OCSetDataDistTiles);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetDiveItem",OCSetDataDiveItem);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetDock",OCSetDataDock);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetFairy",OCSetDataFairy);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetFFComboChangeAttrib",OCSetDataAttrib);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetFootDecorationsTile",OCSetDataDecoTile);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetFootDecorationsType",OCSetDataDecoType);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetHookshotGrab",OCSetDataHookshotGrab);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetLadderPass",OCSetDataLadderPass);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetLockBlockType",OCSetDataLockBlock);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetLockBlockChange",OCSetDataLockBlockChange);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetMagicMirror",OCSetDataMagicMirror);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetModifyHPAmount",OCSetDataModHP);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetModifyHPDelay",OCSetDataModHPDelay);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetModifyHPType",OCSetDataModHpType);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetModifyMPAmount",OCSetDataModMP);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetModifyMPDelay",OCSetDataMpdMPDelay);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetModifyMPType",OCSetDataModMPType);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetNoPushBlocks",OCSetDataNoPush);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetOverhead",OCSetDataOverhead);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetPlaceEnemy",OCSetDataEnemyLoc);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetPushDirection",OCSetDataPushDir);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetPushWeight",OCSetDataPushWeight);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetPushWait",OCSetDataPushWait);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetPushed",OCSetDataPushed);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetRaft",OCSetDataRaft);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetResetRoom",OCSetDataResetRoom);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetSavePoint",OCSetDataSavePoint);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetScreenFreeze",OCSetDataFreeezeScreen);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetSecretCombo",OCSetDataSecretCombo);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetSingular",OCSetDataSingular);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetSlowMove",OCSetDataSlowMove);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetStatue",OCSetDataStatue);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetStepType",OCSetDataStepType);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetStepChangeTo",OCSetDataSteoChange);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetStrikeRemnants",OCSetDataStrikeRem);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetStrikeRemnantsType",OCSetDataStrikeRemType);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetStrikeChange",OCSetDataStrikeChange);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetStrikeItem",OCSetDataStrikeChangeItem);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetTouchItem",OCSetDataTouchItem);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetTouchStairs",OCSetDataTouchStairs);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetTriggerType",OCSetDataTriggerType);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetTriggerSens",OCSetDataTriggerSens);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetWarpType",OCSetDataWarpType);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetWarpSens",OCSetDataWarpSens);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetWarpDirect",OCSetDataWarpDirect);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetWarpLocation",OCSetDataWarpLoc);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetWater",OCSetDataWater);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetWhistle",OCSetDataWhistle);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetWinGame",OCSetDataWinGame);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetBlockWeaponLevel",OCSetDataWeapBlockLevel);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetTile",OCSetDataTile);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetFlip",OCSetDataFlip);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetWalkability",OCSetDataWalkability);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetType",OCSetDataType);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetCSets",OCSetDataCSets);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetFoo",OCSetDataFoo);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetFrames",OCSetDataFrames);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetSpeed",OCSetDataSpeed);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetNextCombo",OCSetDataNext);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetNextCSet",OCSetDataNextCSet);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetFlag",OCSetDataFlag);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetSkipAnim",OCSetDataSkipAnim);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetNextTimer",OCSetDataTimer);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetSkipAnimY",OCSetDataAnimY);
-    }
-    {
-        TWO_INPUT_NO_RETURN("SetAnimFlags",OCSetDataAnimFlags);
-    }
-    
-    {
-        TWO_INPUT_ONE_RETURN("GetBlockWeapon",OCDataBlockWeapon);
-    }
-    {
-        TWO_INPUT_ONE_RETURN("GetExpansion",OCDataExpansion);
-    }
-    {
-        TWO_INPUT_ONE_RETURN("GetStrikeWeapons",OCDataStrikeWeapon);
-    }
-    {
-	THREE_INPUT_NO_RETURN("SetBlockWeapon", SCDBLOCKWEAPON);
-    }
-    /*
-    {
-	THREE_INPUT_NO_RETURN("SetExpansion", SCDEXPANSION);
-    }
-    */
-    {
-	THREE_INPUT_NO_RETURN("SetStrikeWeapons", SCDSTRIKEWEAPONS);
-    }
+	{
+		Function* function = getFunction2("GetBlockEnemies");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataBlockEnemy(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetBlockHole");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataBlockHole(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetBlockTrigger");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataBlockTrig(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetConveyorSpeedX");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataConveyX(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetConveyorSpeedY");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataConveyY(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetCreateEnemy");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataCreateNPC(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetCreateEnemyWhen");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataCreateEnemW(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetCreateEnemyChnge");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataCreateEnemC(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetDirChangeType");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataDirch(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetDistanceChangeTiles");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataDistTiles(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetDiveItem");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataDiveItem(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetDock");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataDock(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetFairy");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataFairy(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetFFComboChangeAttrib");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataAttrib(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetFootDecorationsTile");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataDecoTile(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetFootDecorationsType");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataDecoType(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetHookshotGrab");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataHookshotGrab(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetLadderPass");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataLadderPass(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetLockBlockType");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataLockBlock(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetLockBlockChange");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataLockBlockChange(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetMagicMirror");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataMagicMirror(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetModifyHPAmount");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataModHP(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetModifyHPDelay");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataModHPDelay(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetModifyHPType");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataModHpType(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetModifyMPAmount");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataModMP(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetModifyMPDelay");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataMpdMPDelay(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetModifyMPType");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataModMPType(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetNoPushBlocks");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataNoPush(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetOverhead");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataOverhead(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetPlaceEnemy");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataEnemyLoc(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetPushDirection");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataPushDir(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetPushWeight");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataPushWeight(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetPushWait");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataPushWait(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetPushed");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataPushed(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetRaft");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataRaft(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetResetRoom");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataResetRoom(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetSavePoint");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataSavePoint(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetScreenFreeze");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataFreeezeScreen(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetSecretCombo");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataSecretCombo(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetSingular");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataSingular(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetSlowMove");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataSlowMove(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetStatue");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataStatue(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetStepType");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataStepType(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetStepChangeTo");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataSteoChange(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetStrikeRemnants");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataStrikeRem(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetStrikeRemnantsType");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataStrikeRemType(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetStrikeChange");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataStrikeChange(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetStrikeItem");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataStrikeChangeItem(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetTouchItem");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataTouchItem(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetTouchStairs");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataTouchStairs(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetTriggerType");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataTriggerType(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetTriggerSens");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataTriggerSens(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetWarpType");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataWarpType(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetWarpSens");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataWarpSens(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetWarpDirect");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataWarpDirect(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetWarpLocation");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataWarpLoc(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetWater");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataWater(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetWhistle");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataWhistle(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetWinGame");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataWinGame(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetBlockWeaponLevel");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataWeapBlockLevel(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetTile");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataTile(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetFlip");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataFlip(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetWalkability");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataWalkability(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetType");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataType(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetCSets");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataCSets(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetFoo");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataFoo(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetFrames");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataFrames(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetSpeed");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataSpeed(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetNextCombo");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataNext(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetNextCSet");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataNextCSet(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetFlag");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataFlag(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetSkipAnim");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCSetDataSkipAnim(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetNextTimer");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataTimer(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetSkipAnimY");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataAnimY(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("GetAnimFlags");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		POPREF();
+		addOpcode2 (code, new OCDataAnimFlags(new VarArgument(EXP1),new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);;
+	}
+	{
+		Function* function = getFunction2("SetBlockEnemies");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataBlockEnemy(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetBlockHole");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataBlockHole(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetBlockTrigger");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataBlockTrig(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetConveyorSpeedX");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataConveyX(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetConveyorSpeedY");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataConveyY(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetCreateEnemy");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataCreateNPC(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetCreateEnemyWhen");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataCreateEnemW(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetCreateEnemyChnge");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataCreateEnemC(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetDirChangeType");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataDirch(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetDistanceChangeTiles");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataDistTiles(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetDiveItem");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataDiveItem(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetDock");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataDock(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetFairy");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataFairy(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetFFComboChangeAttrib");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataAttrib(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetFootDecorationsTile");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataDecoTile(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetFootDecorationsType");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataDecoType(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetHookshotGrab");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataHookshotGrab(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetLadderPass");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataLadderPass(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetLockBlockType");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataLockBlock(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetLockBlockChange");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataLockBlockChange(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetMagicMirror");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataMagicMirror(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetModifyHPAmount");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataModHP(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetModifyHPDelay");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataModHPDelay(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetModifyHPType");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataModHpType(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetModifyMPAmount");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataModMP(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetModifyMPDelay");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataMpdMPDelay(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetModifyMPType");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataModMPType(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetNoPushBlocks");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataNoPush(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetOverhead");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataOverhead(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetPlaceEnemy");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataEnemyLoc(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetPushDirection");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataPushDir(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetPushWeight");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataPushWeight(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetPushWait");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataPushWait(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetPushed");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataPushed(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetRaft");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataRaft(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetResetRoom");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataResetRoom(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetSavePoint");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataSavePoint(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetScreenFreeze");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataFreeezeScreen(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetSecretCombo");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataSecretCombo(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetSingular");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataSingular(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetSlowMove");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataSlowMove(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetStatue");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataStatue(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetStepType");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataStepType(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetStepChangeTo");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataSteoChange(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetStrikeRemnants");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataStrikeRem(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetStrikeRemnantsType");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataStrikeRemType(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetStrikeChange");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataStrikeChange(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetStrikeItem");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataStrikeChangeItem(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetTouchItem");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataTouchItem(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetTouchStairs");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataTouchStairs(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetTriggerType");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataTriggerType(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetTriggerSens");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataTriggerSens(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetWarpType");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataWarpType(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetWarpSens");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataWarpSens(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetWarpDirect");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataWarpDirect(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetWarpLocation");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataWarpLoc(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetWater");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataWater(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetWhistle");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataWhistle(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetWinGame");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataWinGame(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetBlockWeaponLevel");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataWeapBlockLevel(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetTile");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataTile(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetFlip");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataFlip(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetWalkability");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataWalkability(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetType");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataType(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetCSets");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataCSets(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetFoo");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataFoo(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetFrames");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataFrames(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetSpeed");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataSpeed(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetNextCombo");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataNext(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetNextCSet");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataNextCSet(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetFlag");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataFlag(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetSkipAnim");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataSkipAnim(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetNextTimer");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataTimer(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetSkipAnimY");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataAnimY(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetAnimFlags");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OCSetDataAnimFlags(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("GetBlockWeapon");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		POPREF();
+		addOpcode2 (code, new OCDataBlockWeapon(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("GetExpansion");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		POPREF();
+		addOpcode2 (code, new OCDataExpansion(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("GetStrikeWeapons");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		POPREF();
+		addOpcode2 (code, new OCDataStrikeWeapon(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetBlockWeapon");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SCDBLOCKWEAPON), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+		Function* function = getFunction2("SetStrikeWeapons");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SCDSTRIKEWEAPONS), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
 }
 

@@ -4,35 +4,35 @@ StackSymbols StackSymbols::singleton = StackSymbols();
 
 static AccessorTable StackTable[] =
 {
-//	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
-	{ "getSize",                ZTID_LONG,          GETTER,       STACKSIZE,        1,             0,                                    1,           { ZTID_STACK, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFull",                ZTID_BOOL,          GETTER,       STACKFULL,        1,             0,                                    1,           { ZTID_STACK, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Free",                   ZTID_VOID,          FUNCTION,     0,                1,             0,                                    1,           { ZTID_STACK, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Own",                    ZTID_VOID,          FUNCTION,     0,                1,             0,                                    1,           { ZTID_STACK, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Clear",                  ZTID_VOID,          FUNCTION,     0,                1,             0,                                    1,           { ZTID_STACK, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "PushBack",               ZTID_VOID,          FUNCTION,     0,                1,             0,                                    2,           { ZTID_STACK, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "PushFront",              ZTID_VOID,          FUNCTION,     0,                1,             0,                                    2,           { ZTID_STACK, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "PopBack",                ZTID_UNTYPED,       FUNCTION,     0,                1,             0,                                    1,           { ZTID_STACK, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "PopFront",               ZTID_UNTYPED,       FUNCTION,     0,                1,             0,                                    1,           { ZTID_STACK, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "PeekBack",               ZTID_UNTYPED,       FUNCTION,     0,                1,             0,                                    1,           { ZTID_STACK, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "PeekFront",              ZTID_UNTYPED,       FUNCTION,     0,                1,             0,                                    1,           { ZTID_STACK, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Get",                    ZTID_UNTYPED,       FUNCTION,     0,                1,             0,                                    2,           { ZTID_STACK, ZTID_LONG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Set",                    ZTID_VOID,          FUNCTION,     0,                1,             0,                                    3,           { ZTID_STACK, ZTID_LONG, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
+	{ "getSize",                    0,          ZTID_LONG,   STACKSIZE,                 0,  { ZTID_STACK },{} },
+	{ "getFull",                    0,          ZTID_BOOL,   STACKFULL,                 0,  { ZTID_STACK },{} },
+	{ "Free",                       0,          ZTID_VOID,   -1,                        0,  { ZTID_STACK },{} },
+	{ "Own",                        0,          ZTID_VOID,   -1,                        0,  { ZTID_STACK },{} },
+	{ "Clear",                      0,          ZTID_VOID,   -1,                        0,  { ZTID_STACK },{} },
+	{ "PushBack",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_STACK, ZTID_UNTYPED },{} },
+	{ "PushFront",                  0,          ZTID_VOID,   -1,                        0,  { ZTID_STACK, ZTID_UNTYPED },{} },
+	{ "PopBack",                    0,       ZTID_UNTYPED,   -1,                        0,  { ZTID_STACK },{} },
+	{ "PopFront",                   0,       ZTID_UNTYPED,   -1,                        0,  { ZTID_STACK },{} },
+	{ "PeekBack",                   0,       ZTID_UNTYPED,   -1,                        0,  { ZTID_STACK },{} },
+	{ "PeekFront",                  0,       ZTID_UNTYPED,   -1,                        0,  { ZTID_STACK },{} },
+	{ "Get",                        0,       ZTID_UNTYPED,   -1,                        0,  { ZTID_STACK, ZTID_LONG },{} },
+	{ "Set",                        0,          ZTID_VOID,   -1,                        0,  { ZTID_STACK, ZTID_LONG, ZTID_UNTYPED },{} },
 	
-	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
 StackSymbols::StackSymbols()
 {
-    table = StackTable;
-    refVar = REFSTACK;
+	table = StackTable;
+	refVar = REFSTACK;
 }
 
 void StackSymbols::generateCode()
 {
 	//void Free(stack)
 	{
-		Function* function = getFunction("Free", 1);
+		Function* function = getFunction2("Free");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -45,7 +45,7 @@ void StackSymbols::generateCode()
 	}
 	//void Own(stack)
 	{
-		Function* function = getFunction("Own", 1);
+		Function* function = getFunction2("Own");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -58,7 +58,7 @@ void StackSymbols::generateCode()
 	}
 	//void Clear(stack)
 	{
-		Function* function = getFunction("Clear", 1);
+		Function* function = getFunction2("Clear");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -71,7 +71,7 @@ void StackSymbols::generateCode()
 	}
 	//untyped PopBack(stack)
 	{
-		Function* function = getFunction("PopBack", 1);
+		Function* function = getFunction2("PopBack");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -84,7 +84,7 @@ void StackSymbols::generateCode()
 	}
 	//untyped PopFront(stack)
 	{
-		Function* function = getFunction("PopFront", 1);
+		Function* function = getFunction2("PopFront");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -97,7 +97,7 @@ void StackSymbols::generateCode()
 	}
 	//untyped PeekBack(stack)
 	{
-		Function* function = getFunction("PeekBack", 1);
+		Function* function = getFunction2("PeekBack");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -110,7 +110,7 @@ void StackSymbols::generateCode()
 	}
 	//untyped PeekFront(stack)
 	{
-		Function* function = getFunction("PeekFront", 1);
+		Function* function = getFunction2("PeekFront");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -123,7 +123,7 @@ void StackSymbols::generateCode()
 	}
 	//void PushBack(stack, untyped)
 	{
-		Function* function = getFunction("PushBack", 2);
+		Function* function = getFunction2("PushBack");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -136,7 +136,7 @@ void StackSymbols::generateCode()
 	}
 	//void PushFront(stack, untyped)
 	{
-		Function* function = getFunction("PushFront", 2);
+		Function* function = getFunction2("PushFront");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -149,7 +149,7 @@ void StackSymbols::generateCode()
 	}
 	//untyped Get(stack, long)
 	{
-		Function* function = getFunction("Get", 2);
+		Function* function = getFunction2("Get");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -162,7 +162,7 @@ void StackSymbols::generateCode()
 	}
 	//void Set(stack, long, untyped)
 	{
-		Function* function = getFunction("Set", 3);
+		Function* function = getFunction2("Set");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));

@@ -3,7 +3,7 @@
 const int32_t radsperdeg = 572958;
 GlobalSymbols GlobalSymbols::singleton;
 
-static AccessorTable2 GlobalTable2[] =
+static AccessorTable GlobalTable[] =
 {
 //	  name,                    tag,            rettype,  var,  funcFlags,  params,optparams
 	{ "Quit",                    0,          ZTID_VOID,   -1,          0,  {},{} },
@@ -131,26 +131,26 @@ static AccessorTable2 GlobalTable2[] =
 	{ "",                        0,          ZTID_VOID,   -1,          0,  {},{} }
 	//Unused old junk
 	//overload, 2 args
-	// { "atoi",                 ZTID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           { ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	// { "xtoi",                 ZTID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           { ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+//	{ "atoi",                       0,         ZTID_FLOAT,   -1,                        0,  { ZTID_FLOAT, ZTID_FLOAT },{} },
+//	{ "xtoi",                       0,         ZTID_FLOAT,   -1,                        0,  { ZTID_FLOAT },{} },
 	//overload, 2 args
-	// { "xtoi",                 ZTID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           { ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	// { "xlen",                 ZTID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           { ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+//	{ "xtoi",                       1,         ZTID_FLOAT,   -1,                        0,  { ZTID_FLOAT, ZTID_FLOAT },{} },
+//	{ "xlen",                       0,         ZTID_FLOAT,   -1,                        0,  { ZTID_FLOAT },{} },
 	//overload, 2 args
-	// { "xlen",                 ZTID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           { ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	// { "xtoa",                  ZTID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           { ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+//	{ "xlen",                       1,         ZTID_FLOAT,   -1,                        0,  { ZTID_FLOAT, ZTID_FLOAT },{} },
+//	{ "xtoa",                       0,         ZTID_FLOAT,   -1,                        0,  { ZTID_FLOAT, ZTID_FLOAT },{} },
 	//overload, 2 args
-	// { "ilen",                 ZTID_FLOAT,            FUNCTION,     0,     1,          0,                                    2,           { ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	//  { "CalculateSpline",        0,          ZTID_FLOAT,            FUNCTION,     0,     1,          0,                                    7,           { ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	//  { "CollisionRect",          0,           ZTID_BOOL,             FUNCTION,     0,     1,          0,                                    8,           { ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	//  { "CollisionBox",           0,           ZTID_BOOL,             FUNCTION,     0,     1,          0,                                    12,          { ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1 } },
+//	{ "ilen",                       0,         ZTID_FLOAT,   -1,                        0,  { ZTID_FLOAT, ZTID_FLOAT },{} },
+//	{ "CalculateSpline",            0,         ZTID_FLOAT,   -1,                        0,  { ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+//	{ "CollisionRect",              0,          ZTID_BOOL,   -1,                        0,  { ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+//	{ "CollisionBox",               0,          ZTID_BOOL,   -1,                        0,  { ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 
 };
 
 GlobalSymbols::GlobalSymbols()
 {
-    table2 = GlobalTable2;
-    refVar = NUL;
+	table = GlobalTable;
+	refVar = NUL;
 	hasPrefixType = false;
 }
 
@@ -1535,38 +1535,38 @@ void GlobalSymbols::generateCode()
 	}
 
 	//untyped Max(untyped first, untyped second, untyped ..args)
-    {
-	    Function* function = getFunction2("Max");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OMaxNew(new VargsArgument(-1,2)));
+	{
+		Function* function = getFunction2("Max");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OMaxNew(new VargsArgument(-1,2)));
 		POP_VARGS(2,NUL);
-        LABELBACK(label);
-        RETURN();
-        function->giveCode(code);
-    }
-    //untyped Min(untyped first, untyped second, untyped ..args)
-    {
-	    Function* function = getFunction2("Min");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OMinNew(new VargsArgument(-1,2)));
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	//untyped Min(untyped first, untyped second, untyped ..args)
+	{
+		Function* function = getFunction2("Min");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OMinNew(new VargsArgument(-1,2)));
 		POP_VARGS(2,NUL);
-        LABELBACK(label);
-        RETURN();
-        function->giveCode(code);
-    }
-    //untyped Choose(untyped first, untyped ..args)
-    {
-	    Function* function = getFunction2("Choose");
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        addOpcode2 (code, new OChoose(new VargsArgument(-1,1)));
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	//untyped Choose(untyped first, untyped ..args)
+	{
+		Function* function = getFunction2("Choose");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OChoose(new VargsArgument(-1,1)));
 		POP_VARGS(1,NUL);
-        LABELBACK(label);
-        RETURN();
-        function->giveCode(code);
-    }
-    
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	
 }
 

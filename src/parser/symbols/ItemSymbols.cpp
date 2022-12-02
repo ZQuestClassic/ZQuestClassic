@@ -4,177 +4,177 @@ ItemSymbols ItemSymbols::singleton = ItemSymbols();
 
 static AccessorTable itemTable[] =
 {
-//	  name,                     rettype,                  setorget,     var,                  numindex,      funcFlags,                            numParams,   params
-	{ "getUID",                 ZTID_FLOAT,         GETTER,       ITEMSCRIPTUID,        1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Max",                   ZTID_FLOAT,         GETTER,       SPRITEMAXITEM,                1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Max",                   ZTID_VOID,          SETTER,       SPRITEMAXITEM,                1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getX",                   ZTID_FLOAT,         GETTER,       ITEMX,                1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setX",                   ZTID_VOID,          SETTER,       ITEMX,                1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getY",                   ZTID_FLOAT,         GETTER,       ITEMY,                1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setY",                   ZTID_VOID,          SETTER,       ITEMY,                1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getZ",                   ZTID_FLOAT,         GETTER,       ITEMZ,                1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setZ",                   ZTID_VOID,          SETTER,       ITEMZ,                1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getJump",                ZTID_FLOAT,         GETTER,       ITEMJUMP,             1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setJump",                ZTID_VOID,          SETTER,       ITEMJUMP,             1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrawStyle",           ZTID_FLOAT,         GETTER,       ITEMDRAWTYPE,         1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrawStyle",           ZTID_VOID,          SETTER,       ITEMDRAWTYPE,         1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getID",                  ZTID_FLOAT,         GETTER,       ITEMID,               1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setID",                  ZTID_VOID,          SETTER,       ITEMID,               1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getType",                ZTID_FLOAT,         GETTER,       ITEMFAMILY,           1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setType",                ZTID_VOID,          SETTER,       ITEMFAMILY,           1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFamily",              ZTID_FLOAT,         GETTER,       ITEMFAMILY,           1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFamily",              ZTID_VOID,          SETTER,       ITEMFAMILY,           1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLevel",               ZTID_FLOAT,         GETTER,       ITEMLEVEL,            1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLevel",               ZTID_VOID,          SETTER,       ITEMLEVEL,            1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTile",                ZTID_FLOAT,         GETTER,       ITEMTILE,             1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTile",                ZTID_VOID,          SETTER,       ITEMTILE,             1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScriptTile",          ZTID_FLOAT,         GETTER,       ITEMSCRIPTTILE,       1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setScriptTile",          ZTID_VOID,          SETTER,       ITEMSCRIPTTILE,       1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScriptFlip",          ZTID_FLOAT,         GETTER,       ITEMSCRIPTFLIP,        1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setScriptFlip",          ZTID_VOID,          SETTER,       ITEMSCRIPTFLIP,        1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getOriginalTile",        ZTID_FLOAT,         GETTER,       ITEMOTILE,            1,             0,                                    1,           {  ZTID_ITEM,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                          } },
-	{ "setOriginalTile",        ZTID_VOID,          SETTER,       ITEMOTILE,            1,             0,                                    2,           {  ZTID_ITEM,          ZTID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                          } },
-	{ "getCSet",                ZTID_FLOAT,         GETTER,       ITEMCSET,             1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setCSet",                ZTID_VOID,          SETTER,       ITEMCSET,             1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFlashCSet",           ZTID_FLOAT,         GETTER,       ITEMFLASHCSET,        1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFlashCSet",           ZTID_VOID,          SETTER,       ITEMFLASHCSET,        1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getNumFrames",           ZTID_FLOAT,         GETTER,       ITEMFRAMES,           1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setNumFrames",           ZTID_VOID,          SETTER,       ITEMFRAMES,           1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFrame",               ZTID_FLOAT,         GETTER,       ITEMFRAME,            1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFrame",               ZTID_VOID,          SETTER,       ITEMFRAME,            1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getASpeed",              ZTID_FLOAT,         GETTER,       ITEMASPEED,           1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setASpeed",              ZTID_VOID,          SETTER,       ITEMASPEED,           1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDelay",               ZTID_FLOAT,         GETTER,       ITEMDELAY,            1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDelay",               ZTID_VOID,          SETTER,       ITEMDELAY,            1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFlash",               ZTID_BOOL,          GETTER,       ITEMFLASH,            1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFlash",               ZTID_VOID,          SETTER,       ITEMFLASH,            1,             0,                                    1,           { ZTID_ITEM, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFlip",                ZTID_FLOAT,         GETTER,       ITEMFLIP,             1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFlip",                ZTID_VOID,          SETTER,       ITEMFLIP,             1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getExtend",              ZTID_FLOAT,         GETTER,       ITEMEXTEND,           1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setExtend",              ZTID_VOID,          SETTER,       ITEMEXTEND,           1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitWidth",            ZTID_FLOAT,         GETTER,       ITEMHXSZ,             1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitWidth",            ZTID_VOID,          SETTER,       ITEMHXSZ,             1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitHeight",           ZTID_FLOAT,         GETTER,       ITEMHYSZ,             1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitHeight",           ZTID_VOID,          SETTER,       ITEMHYSZ,             1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitZHeight",          ZTID_FLOAT,         GETTER,       ITEMHZSZ,             1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitZHeight",          ZTID_VOID,          SETTER,       ITEMHZSZ,             1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTileWidth",           ZTID_FLOAT,         GETTER,       ITEMTXSZ,             1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTileWidth",           ZTID_VOID,          SETTER,       ITEMTXSZ,             1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTileHeight",          ZTID_FLOAT,         GETTER,       ITEMTYSZ,             1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTileHeight",          ZTID_VOID,          SETTER,       ITEMTYSZ,             1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrawXOffset",         ZTID_FLOAT,         GETTER,       ITEMXOFS,             1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrawXOffset",         ZTID_VOID,          SETTER,       ITEMXOFS,             1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrawYOffset",         ZTID_FLOAT,         GETTER,       ITEMYOFS,             1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrawYOffset",         ZTID_VOID,          SETTER,       ITEMYOFS,             1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrawZOffset",         ZTID_FLOAT,         GETTER,       ITEMZOFS,             1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrawZOffset",         ZTID_VOID,          SETTER,       ITEMZOFS,             1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitXOffset",          ZTID_FLOAT,         GETTER,       ITEMHXOFS,            1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitXOffset",          ZTID_VOID,          SETTER,       ITEMHXOFS,            1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitYOffset",          ZTID_FLOAT,         GETTER,       ITEMHYOFS,            1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitYOffset",          ZTID_VOID,          SETTER,       ITEMHYOFS,            1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getPickup",              ZTID_FLOAT,         GETTER,       ITEMPICKUP,           1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setPickup",              ZTID_VOID,          SETTER,       ITEMPICKUP,           1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "isValid",                ZTID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMisc[]",              ZTID_UNTYPED,       GETTER,       ITEMMISCD,            32,            0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMisc[]",              ZTID_VOID,          SETTER,       ITEMMISCD,            32,            0,                                    3,           { ZTID_ITEM, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getInitD[]",             ZTID_UNTYPED,       GETTER,       ITEMSPRITEINITD,      8,            0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setInitD[]",             ZTID_VOID,          SETTER,       ITEMSPRITEINITD,      8,            0,                                    3,           { ZTID_ITEM, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getAClock",              ZTID_FLOAT,         GETTER,       ITEMACLK,             1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setAClock",              ZTID_VOID,          SETTER,       ITEMACLK,             1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
+	{ "getUID",                     0,         ZTID_FLOAT,   ITEMSCRIPTUID,             0,  { ZTID_ITEM },{} },
+	{ "_getMax",                    0,         ZTID_FLOAT,   SPRITEMAXITEM,             0,  { ZTID_ITEM },{} },
+	{ "_setMax",                    0,          ZTID_VOID,   SPRITEMAXITEM,             0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getX",                       0,         ZTID_FLOAT,   ITEMX,                     0,  { ZTID_ITEM },{} },
+	{ "setX",                       0,          ZTID_VOID,   ITEMX,                     0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getY",                       0,         ZTID_FLOAT,   ITEMY,                     0,  { ZTID_ITEM },{} },
+	{ "setY",                       0,          ZTID_VOID,   ITEMY,                     0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getZ",                       0,         ZTID_FLOAT,   ITEMZ,                     0,  { ZTID_ITEM },{} },
+	{ "setZ",                       0,          ZTID_VOID,   ITEMZ,                     0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getJump",                    0,         ZTID_FLOAT,   ITEMJUMP,                  0,  { ZTID_ITEM },{} },
+	{ "setJump",                    0,          ZTID_VOID,   ITEMJUMP,                  0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getDrawStyle",               0,         ZTID_FLOAT,   ITEMDRAWTYPE,              0,  { ZTID_ITEM },{} },
+	{ "setDrawStyle",               0,          ZTID_VOID,   ITEMDRAWTYPE,              0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getID",                      0,         ZTID_FLOAT,   ITEMID,                    0,  { ZTID_ITEM },{} },
+	{ "setID",                      0,          ZTID_VOID,   ITEMID,                    0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getType",                    0,         ZTID_FLOAT,   ITEMFAMILY,                0,  { ZTID_ITEM },{} },
+	{ "setType",                    0,          ZTID_VOID,   ITEMFAMILY,                0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getFamily",                  0,         ZTID_FLOAT,   ITEMFAMILY,                0,  { ZTID_ITEM },{} },
+	{ "setFamily",                  0,          ZTID_VOID,   ITEMFAMILY,                0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getLevel",                   0,         ZTID_FLOAT,   ITEMLEVEL,                 0,  { ZTID_ITEM },{} },
+	{ "setLevel",                   0,          ZTID_VOID,   ITEMLEVEL,                 0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getTile",                    0,         ZTID_FLOAT,   ITEMTILE,                  0,  { ZTID_ITEM },{} },
+	{ "setTile",                    0,          ZTID_VOID,   ITEMTILE,                  0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getScriptTile",              0,         ZTID_FLOAT,   ITEMSCRIPTTILE,            0,  { ZTID_ITEM },{} },
+	{ "setScriptTile",              0,          ZTID_VOID,   ITEMSCRIPTTILE,            0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getScriptFlip",              0,         ZTID_FLOAT,   ITEMSCRIPTFLIP,            0,  { ZTID_ITEM },{} },
+	{ "setScriptFlip",              0,          ZTID_VOID,   ITEMSCRIPTFLIP,            0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getOriginalTile",            0,         ZTID_FLOAT,   ITEMOTILE,                 0,  { ZTID_ITEM },{} },
+	{ "setOriginalTile",            0,          ZTID_VOID,   ITEMOTILE,                 0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getCSet",                    0,         ZTID_FLOAT,   ITEMCSET,                  0,  { ZTID_ITEM },{} },
+	{ "setCSet",                    0,          ZTID_VOID,   ITEMCSET,                  0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getFlashCSet",               0,         ZTID_FLOAT,   ITEMFLASHCSET,             0,  { ZTID_ITEM },{} },
+	{ "setFlashCSet",               0,          ZTID_VOID,   ITEMFLASHCSET,             0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getNumFrames",               0,         ZTID_FLOAT,   ITEMFRAMES,                0,  { ZTID_ITEM },{} },
+	{ "setNumFrames",               0,          ZTID_VOID,   ITEMFRAMES,                0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getFrame",                   0,         ZTID_FLOAT,   ITEMFRAME,                 0,  { ZTID_ITEM },{} },
+	{ "setFrame",                   0,          ZTID_VOID,   ITEMFRAME,                 0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getASpeed",                  0,         ZTID_FLOAT,   ITEMASPEED,                0,  { ZTID_ITEM },{} },
+	{ "setASpeed",                  0,          ZTID_VOID,   ITEMASPEED,                0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getDelay",                   0,         ZTID_FLOAT,   ITEMDELAY,                 0,  { ZTID_ITEM },{} },
+	{ "setDelay",                   0,          ZTID_VOID,   ITEMDELAY,                 0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getFlash",                   0,          ZTID_BOOL,   ITEMFLASH,                 0,  { ZTID_ITEM },{} },
+	{ "setFlash",                   0,          ZTID_VOID,   ITEMFLASH,                 0,  { ZTID_ITEM, ZTID_BOOL },{} },
+	{ "getFlip",                    0,         ZTID_FLOAT,   ITEMFLIP,                  0,  { ZTID_ITEM },{} },
+	{ "setFlip",                    0,          ZTID_VOID,   ITEMFLIP,                  0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getExtend",                  0,         ZTID_FLOAT,   ITEMEXTEND,                0,  { ZTID_ITEM },{} },
+	{ "setExtend",                  0,          ZTID_VOID,   ITEMEXTEND,                0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getHitWidth",                0,         ZTID_FLOAT,   ITEMHXSZ,                  0,  { ZTID_ITEM },{} },
+	{ "setHitWidth",                0,          ZTID_VOID,   ITEMHXSZ,                  0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getHitHeight",               0,         ZTID_FLOAT,   ITEMHYSZ,                  0,  { ZTID_ITEM },{} },
+	{ "setHitHeight",               0,          ZTID_VOID,   ITEMHYSZ,                  0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getHitZHeight",              0,         ZTID_FLOAT,   ITEMHZSZ,                  0,  { ZTID_ITEM },{} },
+	{ "setHitZHeight",              0,          ZTID_VOID,   ITEMHZSZ,                  0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getTileWidth",               0,         ZTID_FLOAT,   ITEMTXSZ,                  0,  { ZTID_ITEM },{} },
+	{ "setTileWidth",               0,          ZTID_VOID,   ITEMTXSZ,                  0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getTileHeight",              0,         ZTID_FLOAT,   ITEMTYSZ,                  0,  { ZTID_ITEM },{} },
+	{ "setTileHeight",              0,          ZTID_VOID,   ITEMTYSZ,                  0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getDrawXOffset",             0,         ZTID_FLOAT,   ITEMXOFS,                  0,  { ZTID_ITEM },{} },
+	{ "setDrawXOffset",             0,          ZTID_VOID,   ITEMXOFS,                  0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getDrawYOffset",             0,         ZTID_FLOAT,   ITEMYOFS,                  0,  { ZTID_ITEM },{} },
+	{ "setDrawYOffset",             0,          ZTID_VOID,   ITEMYOFS,                  0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getDrawZOffset",             0,         ZTID_FLOAT,   ITEMZOFS,                  0,  { ZTID_ITEM },{} },
+	{ "setDrawZOffset",             0,          ZTID_VOID,   ITEMZOFS,                  0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getHitXOffset",              0,         ZTID_FLOAT,   ITEMHXOFS,                 0,  { ZTID_ITEM },{} },
+	{ "setHitXOffset",              0,          ZTID_VOID,   ITEMHXOFS,                 0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getHitYOffset",              0,         ZTID_FLOAT,   ITEMHYOFS,                 0,  { ZTID_ITEM },{} },
+	{ "setHitYOffset",              0,          ZTID_VOID,   ITEMHYOFS,                 0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getPickup",                  0,         ZTID_FLOAT,   ITEMPICKUP,                0,  { ZTID_ITEM },{} },
+	{ "setPickup",                  0,          ZTID_VOID,   ITEMPICKUP,                0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "isValid",                    0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_ITEM },{} },
+	{ "getMisc[]",                  0,       ZTID_UNTYPED,   ITEMMISCD,                 0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "setMisc[]",                  0,          ZTID_VOID,   ITEMMISCD,                 0,  { ZTID_ITEM, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "getInitD[]",                 0,       ZTID_UNTYPED,   ITEMSPRITEINITD,           0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "setInitD[]",                 0,          ZTID_VOID,   ITEMSPRITEINITD,           0,  { ZTID_ITEM, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "getAClock",                  0,         ZTID_FLOAT,   ITEMACLK,                  0,  { ZTID_ITEM },{} },
+	{ "setAClock",                  0,          ZTID_VOID,   ITEMACLK,                  0,  { ZTID_ITEM, ZTID_FLOAT },{} },
 	
-	{ "getPickupString",        ZTID_FLOAT,         GETTER,       ITEMPSTRING,          1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setPickupString",        ZTID_VOID,          SETTER,       ITEMPSTRING,          1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getPickupStringFlags",   ZTID_FLOAT,         GETTER,       ITEMPSTRINGFLAGS,     1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setPickupStringFlags",   ZTID_VOID,          SETTER,       ITEMPSTRINGFLAGS,     1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSizeFlags",           ZTID_FLOAT,         GETTER,       ITEMOVERRIDEFLAGS,    1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSizeFlags",           ZTID_VOID,          SETTER,       ITEMOVERRIDEFLAGS,    1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Explode",                ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getRotation",            ZTID_FLOAT,         GETTER,       ITEMROTATION,         1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setRotation",            ZTID_VOID,          SETTER,       ITEMROTATION,         1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScale",               ZTID_FLOAT,         GETTER,       ITEMSCALE,            1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setScale",               ZTID_VOID,          SETTER,       ITEMSCALE,            1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScript",              ZTID_FLOAT,         GETTER,       ITEMSPRITESCRIPT,     1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setScript",              ZTID_VOID,          SETTER,       ITEMSPRITESCRIPT,     1,             0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getGravity",              ZTID_BOOL,         GETTER,       ITEMGRAVITY,     1,             0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setGravity",              ZTID_VOID,          SETTER,       ITEMGRAVITY,     1,             0,                                    2,           { ZTID_ITEM, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFalling",             ZTID_FLOAT,         GETTER,       ITEMFALLCLK,          1,           0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFalling",             ZTID_VOID,          SETTER,       ITEMFALLCLK,          1,           0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFallCombo",           ZTID_FLOAT,         GETTER,       ITEMFALLCMB,          1,           0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFallCombo",           ZTID_VOID,          SETTER,       ITEMFALLCMB,          1,           0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMoveFlags[]",         ZTID_BOOL,          GETTER,       ITEMMOVEFLAGS,        2,           0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMoveFlags[]",         ZTID_VOID,          SETTER,       ITEMMOVEFLAGS,        2,           0,                                    3,           { ZTID_ITEM, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLightRadius",         ZTID_FLOAT,         GETTER,       ITEMGLOWRAD,          1,           0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLightRadius",         ZTID_VOID,          SETTER,       ITEMGLOWRAD,          1,           0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLightShape",          ZTID_FLOAT,         GETTER,       ITEMGLOWSHP,          1,           0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLightShape",          ZTID_VOID,          SETTER,       ITEMGLOWSHP,          1,           0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDir",                 ZTID_FLOAT,         GETTER,       ITEMDIR,              1,           0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDir",                 ZTID_VOID,          SETTER,       ITEMDIR,              1,           0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getAnimation",           ZTID_FLOAT,         GETTER,       ITEMENGINEANIMATE,    1,           0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setAnimation",           ZTID_VOID,          SETTER,       ITEMENGINEANIMATE,    1,           0,                                    2,           { ZTID_ITEM, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Remove",                 ZTID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getShadowSprite",        ZTID_FLOAT,         GETTER,       ITEMSHADOWSPR,        1,           0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setShadowSprite",        ZTID_VOID,          SETTER,       ITEMSHADOWSPR,        1,           0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDroppedBy",           ZTID_FLOAT,         GETTER,       ITEMDROPPEDBY,        1,           0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDroppedBy",           ZTID_VOID,          SETTER,       ITEMDROPPEDBY,        1,           0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSwitchHooked",        ZTID_BOOL,          GETTER,       ITMSWHOOKED,          1,           0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSwitchHooked",        ZTID_VOID,          SETTER,       ITMSWHOOKED,          1,           0,                                    2,           { ZTID_ITEM, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Switch",                 ZTID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrowning",            ZTID_FLOAT,         GETTER,       ITEMDROWNCLK,         1,           0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrowning",            ZTID_VOID,          SETTER,       ITEMDROWNCLK,         1,           0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrownCombo",          ZTID_FLOAT,         GETTER,       ITEMDROWNCMB,         1,           0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrownCombo",          ZTID_VOID,          SETTER,       ITEMDROWNCMB,         1,           0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFakeZ",               ZTID_FLOAT,         GETTER,       ITEMFAKEZ,            1,           0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFakeZ",               ZTID_VOID,          SETTER,       ITEMFAKEZ,            1,           0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFakeJump",            ZTID_FLOAT,         GETTER,       ITEMFAKEJUMP,         1,           0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFakeJump",            ZTID_VOID,          SETTER,       ITEMFAKEJUMP,         1,           0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getShadowXOffset",       ZTID_FLOAT,         GETTER,       ITEMSHADOWXOFS,       1,           0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setShadowXOffset",       ZTID_VOID,          SETTER,       ITEMSHADOWXOFS,       1,           0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getShadowYOffset",       ZTID_FLOAT,         GETTER,       ITEMSHADOWYOFS,       1,           0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setShadowYOffset",       ZTID_VOID,          SETTER,       ITEMSHADOWYOFS,       1,           0,                                    2,           { ZTID_ITEM, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getForceGrab",           ZTID_BOOL,          GETTER,       ITEMFORCEGRAB,        1,           0,                                    1,           { ZTID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setForceGrab",           ZTID_VOID,          SETTER,       ITEMFORCEGRAB,        1,           0,                                    2,           { ZTID_ITEM, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getPickupString",            0,         ZTID_FLOAT,   ITEMPSTRING,               0,  { ZTID_ITEM },{} },
+	{ "setPickupString",            0,          ZTID_VOID,   ITEMPSTRING,               0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getPickupStringFlags",       0,         ZTID_FLOAT,   ITEMPSTRINGFLAGS,          0,  { ZTID_ITEM },{} },
+	{ "setPickupStringFlags",       0,          ZTID_VOID,   ITEMPSTRINGFLAGS,          0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getSizeFlags",               0,         ZTID_FLOAT,   ITEMOVERRIDEFLAGS,         0,  { ZTID_ITEM },{} },
+	{ "setSizeFlags",               0,          ZTID_VOID,   ITEMOVERRIDEFLAGS,         0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "Explode",                    0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getRotation",                0,         ZTID_FLOAT,   ITEMROTATION,              0,  { ZTID_ITEM },{} },
+	{ "setRotation",                0,          ZTID_VOID,   ITEMROTATION,              0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getScale",                   0,         ZTID_FLOAT,   ITEMSCALE,                 0,  { ZTID_ITEM },{} },
+	{ "setScale",                   0,          ZTID_VOID,   ITEMSCALE,                 0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getScript",                  0,         ZTID_FLOAT,   ITEMSPRITESCRIPT,          0,  { ZTID_ITEM },{} },
+	{ "setScript",                  0,          ZTID_VOID,   ITEMSPRITESCRIPT,          0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getGravity",                 0,          ZTID_BOOL,   ITEMGRAVITY,               0,  { ZTID_ITEM },{} },
+	{ "setGravity",                 0,          ZTID_VOID,   ITEMGRAVITY,               0,  { ZTID_ITEM, ZTID_BOOL },{} },
+	{ "getFalling",                 0,         ZTID_FLOAT,   ITEMFALLCLK,               0,  { ZTID_ITEM },{} },
+	{ "setFalling",                 0,          ZTID_VOID,   ITEMFALLCLK,               0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getFallCombo",               0,         ZTID_FLOAT,   ITEMFALLCMB,               0,  { ZTID_ITEM },{} },
+	{ "setFallCombo",               0,          ZTID_VOID,   ITEMFALLCMB,               0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getMoveFlags[]",             0,          ZTID_BOOL,   ITEMMOVEFLAGS,             0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "setMoveFlags[]",             0,          ZTID_VOID,   ITEMMOVEFLAGS,             0,  { ZTID_ITEM, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getLightRadius",             0,         ZTID_FLOAT,   ITEMGLOWRAD,               0,  { ZTID_ITEM },{} },
+	{ "setLightRadius",             0,          ZTID_VOID,   ITEMGLOWRAD,               0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getLightShape",              0,         ZTID_FLOAT,   ITEMGLOWSHP,               0,  { ZTID_ITEM },{} },
+	{ "setLightShape",              0,          ZTID_VOID,   ITEMGLOWSHP,               0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getDir",                     0,         ZTID_FLOAT,   ITEMDIR,                   0,  { ZTID_ITEM },{} },
+	{ "setDir",                     0,          ZTID_VOID,   ITEMDIR,                   0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getAnimation",               0,         ZTID_FLOAT,   ITEMENGINEANIMATE,         0,  { ZTID_ITEM },{} },
+	{ "setAnimation",               0,          ZTID_VOID,   ITEMENGINEANIMATE,         0,  { ZTID_ITEM, ZTID_BOOL },{} },
+	{ "Remove",                     0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_ITEM },{} },
+	{ "getShadowSprite",            0,         ZTID_FLOAT,   ITEMSHADOWSPR,             0,  { ZTID_ITEM },{} },
+	{ "setShadowSprite",            0,          ZTID_VOID,   ITEMSHADOWSPR,             0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getDroppedBy",               0,         ZTID_FLOAT,   ITEMDROPPEDBY,             0,  { ZTID_ITEM },{} },
+	{ "setDroppedBy",               0,          ZTID_VOID,   ITEMDROPPEDBY,             0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getSwitchHooked",            0,          ZTID_BOOL,   ITMSWHOOKED,               0,  { ZTID_ITEM },{} },
+	{ "setSwitchHooked",            0,          ZTID_VOID,   ITMSWHOOKED,               0,  { ZTID_ITEM, ZTID_BOOL },{} },
+	{ "Switch",                     0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getDrowning",                0,         ZTID_FLOAT,   ITEMDROWNCLK,              0,  { ZTID_ITEM },{} },
+	{ "setDrowning",                0,          ZTID_VOID,   ITEMDROWNCLK,              0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getDrownCombo",              0,         ZTID_FLOAT,   ITEMDROWNCMB,              0,  { ZTID_ITEM },{} },
+	{ "setDrownCombo",              0,          ZTID_VOID,   ITEMDROWNCMB,              0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getFakeZ",                   0,         ZTID_FLOAT,   ITEMFAKEZ,                 0,  { ZTID_ITEM },{} },
+	{ "setFakeZ",                   0,          ZTID_VOID,   ITEMFAKEZ,                 0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getFakeJump",                0,         ZTID_FLOAT,   ITEMFAKEJUMP,              0,  { ZTID_ITEM },{} },
+	{ "setFakeJump",                0,          ZTID_VOID,   ITEMFAKEJUMP,              0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getShadowXOffset",           0,         ZTID_FLOAT,   ITEMSHADOWXOFS,            0,  { ZTID_ITEM },{} },
+	{ "setShadowXOffset",           0,          ZTID_VOID,   ITEMSHADOWXOFS,            0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getShadowYOffset",           0,         ZTID_FLOAT,   ITEMSHADOWYOFS,            0,  { ZTID_ITEM },{} },
+	{ "setShadowYOffset",           0,          ZTID_VOID,   ITEMSHADOWYOFS,            0,  { ZTID_ITEM, ZTID_FLOAT },{} },
+	{ "getForceGrab",               0,          ZTID_BOOL,   ITEMFORCEGRAB,             0,  { ZTID_ITEM },{} },
+	{ "setForceGrab",               0,          ZTID_VOID,   ITEMFORCEGRAB,             0,  { ZTID_ITEM, ZTID_BOOL },{} },
 	
-	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
 ItemSymbols::ItemSymbols()
 {
-    table = itemTable;
-    refVar = REFITEM;
+	table = itemTable;
+	refVar = REFITEM;
 }
 
 void ItemSymbols::generateCode()
 {
-    //bool isValid(item)
-    {
-	    Function* function = getFunction("isValid", 1);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the pointer
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //Check validity
-        addOpcode2 (code, new OIsValidItem(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void Explode(ITEM, int32_t)
-    {
-	    Function* function = getFunction("Explode", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OItemExplodeRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
+	//bool isValid(item)
+	{
+		Function* function = getFunction2("isValid");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the pointer
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Check validity
+		addOpcode2 (code, new OIsValidItem(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Explode(ITEM, int32_t)
+	{
+		Function* function = getFunction2("Explode");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OItemExplodeRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 	//void Remove(itemsprite)
 	{
-		Function* function = getFunction("Remove", 1);
+		Function* function = getFunction2("Remove");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -186,18 +186,18 @@ void ItemSymbols::generateCode()
 		function->giveCode(code);
 	}
 	//bool Switch(itemsprite, int)
-    {
-        Function* function = getFunction("Switch", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSwitchItem(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
+	{
+		Function* function = getFunction2("Switch");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSwitchItem(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 }
 

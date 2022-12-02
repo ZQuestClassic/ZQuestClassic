@@ -4,258 +4,258 @@ NPCSymbols NPCSymbols::singleton = NPCSymbols();
 
 static AccessorTable npcTable[] =
 {
-//	  name,                     rettype,                  setorget,     var,                  numindex,      funcFlags,                            numParams,   params
-	{ "getX",                   ZTID_FLOAT,         GETTER,       NPCX,                 1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setX",                   ZTID_VOID,          SETTER,       NPCX,                 1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFrame",               ZTID_FLOAT,         GETTER,       NPCFRAME,                 1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFrame",               ZTID_VOID,          SETTER,       NPCFRAME,                 1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Max",                    ZTID_FLOAT,         GETTER,       SPRITEMAXNPC,                 1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Max",                    ZTID_VOID,          SETTER,       SPRITEMAXNPC,                 1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getY",                   ZTID_FLOAT,         GETTER,       NPCY,                 1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setY",                   ZTID_VOID,          SETTER,       NPCY,                 1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getZ",                   ZTID_FLOAT,         GETTER,       NPCZ,                 1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setZ",                   ZTID_VOID,          SETTER,       NPCZ,                 1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getJump",                ZTID_FLOAT,         GETTER,       NPCJUMP,              1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setJump",                ZTID_VOID,          SETTER,       NPCJUMP,              1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDir",                 ZTID_FLOAT,         GETTER,       NPCDIR,               1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDir",                 ZTID_VOID,          SETTER,       NPCDIR,               1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSlideClock",                 ZTID_FLOAT,         GETTER,       NPCSLIDECLK,               1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSlideClock",                 ZTID_VOID,          SETTER,       NPCSLIDECLK,               1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFading",                 ZTID_FLOAT,         GETTER,       NPCFADING,               1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFading",                 ZTID_VOID,          SETTER,       NPCFADING,               1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getRate",                ZTID_FLOAT,         GETTER,       NPCRATE,              1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setRate",                ZTID_VOID,          SETTER,       NPCRATE,              1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHoming",              ZTID_FLOAT,         GETTER,       NPCHOMING,            1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHoming",              ZTID_VOID,          SETTER,       NPCHOMING,            1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getStep",                ZTID_FLOAT,         GETTER,       NPCSTEP,              1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setStep",                ZTID_VOID,          SETTER,       NPCSTEP,              1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getASpeed",              ZTID_FLOAT,         GETTER,       NPCFRAMERATE,         1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setASpeed",              ZTID_VOID,          SETTER,       NPCFRAMERATE,         1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHalt",            ZTID_FLOAT,         GETTER,       NPCHALTCLK,          1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHalt",            ZTID_VOID,          SETTER,       NPCHALTCLK,          1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMoveStatus",            ZTID_FLOAT,         GETTER,       NPCMOVESTATUS,          1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMoveStatus",            ZTID_VOID,          SETTER,       NPCMOVESTATUS,          1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHaltrate",            ZTID_FLOAT,         GETTER,       NPCHALTRATE,          1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHaltrate",            ZTID_VOID,          SETTER,       NPCHALTRATE,          1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getRandom",            ZTID_FLOAT,         GETTER,       NPCRANDOM,          1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setRandom",            ZTID_VOID,          SETTER,       NPCRANDOM,          1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrawStyle",           ZTID_FLOAT,         GETTER,       NPCDRAWTYPE,          1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrawStyle",           ZTID_VOID,          SETTER,       NPCDRAWTYPE,          1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHP",                  ZTID_FLOAT,         GETTER,       NPCHP,                1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHP",                  ZTID_VOID,          SETTER,       NPCHP,                1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getID",                  ZTID_FLOAT,         GETTER,       NPCID,                1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setID",                  ZTID_VOID,          SETTER,       NPCID,                1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getType",                ZTID_FLOAT,         GETTER,       NPCTYPE,              1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setType",                ZTID_VOID,          SETTER,       NPCTYPE,              1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFamily",              ZTID_FLOAT,         GETTER,       NPCTYPE,              1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFamily",              ZTID_VOID,          SETTER,       NPCTYPE,              1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDamage",              ZTID_FLOAT,         GETTER,       NPCDP,                1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDamage",              ZTID_VOID,          SETTER,       NPCDP,                1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWeaponDamage",        ZTID_FLOAT,         GETTER,       NPCWDP,               1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWeaponDamage",        ZTID_VOID,          SETTER,       NPCWDP,               1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTile",                ZTID_FLOAT,         GETTER,       NPCTILE,              1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTile",                ZTID_VOID,          SETTER,       NPCTILE,              1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScriptTile",          ZTID_FLOAT,         GETTER,       NPCSCRIPTTILE,        1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setScriptTile",          ZTID_VOID,          SETTER,       NPCSCRIPTTILE,        1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScriptFlip",          ZTID_FLOAT,         GETTER,       NPCSCRIPTFLIP,        1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setScriptFlip",          ZTID_VOID,          SETTER,       NPCSCRIPTFLIP,        1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getOriginalTile",        ZTID_FLOAT,         GETTER,       NPCOTILE,             1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setOriginalTile",        ZTID_VOID,          SETTER,       NPCOTILE,             1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWeapon",              ZTID_FLOAT,         GETTER,       NPCWEAPON,            1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWeapon",              ZTID_VOID,          SETTER,       NPCWEAPON,            1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getItemSet",             ZTID_FLOAT,         GETTER,       NPCITEMSET,           1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setItemSet",             ZTID_VOID,          SETTER,       NPCITEMSET,           1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDropset",             ZTID_FLOAT,         GETTER,       NPCITEMSET,           1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDropset",             ZTID_VOID,          SETTER,       NPCITEMSET,           1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getCSet",                ZTID_FLOAT,         GETTER,       NPCCSET,              1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setCSet",                ZTID_VOID,          SETTER,       NPCCSET,              1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getBossPal",             ZTID_FLOAT,         GETTER,       NPCBOSSPAL,           1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setBossPal",             ZTID_VOID,          SETTER,       NPCBOSSPAL,           1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSFX",                 ZTID_FLOAT,         GETTER,       NPCBGSFX,             1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSFX",                 ZTID_VOID,          SETTER,       NPCBGSFX,             1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getExtend",              ZTID_FLOAT,         GETTER,       NPCEXTEND,            1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setExtend",              ZTID_VOID,          SETTER,       NPCEXTEND,            1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitWidth",            ZTID_FLOAT,         GETTER,       NPCHXSZ,              1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitWidth",            ZTID_VOID,          SETTER,       NPCHXSZ,              1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitHeight",           ZTID_FLOAT,         GETTER,       NPCHYSZ,              1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitHeight",           ZTID_VOID,          SETTER,       NPCHYSZ,              1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitZHeight",          ZTID_FLOAT,         GETTER,       NPCHZSZ,              1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitZHeight",          ZTID_VOID,          SETTER,       NPCHZSZ,              1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTileWidth",           ZTID_FLOAT,         GETTER,       NPCTXSZ,              1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTileWidth",           ZTID_VOID,          SETTER,       NPCTXSZ,              1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTileHeight",          ZTID_FLOAT,         GETTER,       NPCTYSZ,              1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTileHeight",          ZTID_VOID,          SETTER,       NPCTYSZ,              1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrawXOffset",         ZTID_FLOAT,         GETTER,       NPCXOFS,              1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrawXOffset",         ZTID_VOID,          SETTER,       NPCXOFS,              1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrawYOffset",         ZTID_FLOAT,         GETTER,       NPCYOFS,              1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrawYOffset",         ZTID_VOID,          SETTER,       NPCYOFS,              1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTotalDYOffset",       ZTID_FLOAT,         GETTER,       NPCTOTALDYOFFS,       1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTotalDYOffset",       ZTID_VOID,          SETTER,       NPCTOTALDYOFFS,       1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrawZOffset",         ZTID_FLOAT,         GETTER,       NPCZOFS,              1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrawZOffset",         ZTID_VOID,          SETTER,       NPCZOFS,              1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitXOffset",          ZTID_FLOAT,         GETTER,       NPCHXOFS,             1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitXOffset",          ZTID_VOID,          SETTER,       NPCHXOFS,             1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitYOffset",          ZTID_FLOAT,         GETTER,       NPCHYOFS,             1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitYOffset",          ZTID_VOID,          SETTER,       NPCHYOFS,             1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "isValid",                ZTID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Explode",                ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
+	{ "getX",                       0,         ZTID_FLOAT,   NPCX,                      0,  { ZTID_NPC },{} },
+	{ "setX",                       0,          ZTID_VOID,   NPCX,                      0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getFrame",                   0,         ZTID_FLOAT,   NPCFRAME,                  0,  { ZTID_NPC },{} },
+	{ "setFrame",                   0,          ZTID_VOID,   NPCFRAME,                  0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "_getMax",                    0,         ZTID_FLOAT,   SPRITEMAXNPC,              0,  { ZTID_NPC },{} },
+	{ "_setMax",                    0,          ZTID_VOID,   SPRITEMAXNPC,              0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getY",                       0,         ZTID_FLOAT,   NPCY,                      0,  { ZTID_NPC },{} },
+	{ "setY",                       0,          ZTID_VOID,   NPCY,                      0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getZ",                       0,         ZTID_FLOAT,   NPCZ,                      0,  { ZTID_NPC },{} },
+	{ "setZ",                       0,          ZTID_VOID,   NPCZ,                      0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getJump",                    0,         ZTID_FLOAT,   NPCJUMP,                   0,  { ZTID_NPC },{} },
+	{ "setJump",                    0,          ZTID_VOID,   NPCJUMP,                   0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getDir",                     0,         ZTID_FLOAT,   NPCDIR,                    0,  { ZTID_NPC },{} },
+	{ "setDir",                     0,          ZTID_VOID,   NPCDIR,                    0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getSlideClock",              0,         ZTID_FLOAT,   NPCSLIDECLK,               0,  { ZTID_NPC },{} },
+	{ "setSlideClock",              0,          ZTID_VOID,   NPCSLIDECLK,               0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getFading",                  0,         ZTID_FLOAT,   NPCFADING,                 0,  { ZTID_NPC },{} },
+	{ "setFading",                  0,          ZTID_VOID,   NPCFADING,                 0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getRate",                    0,         ZTID_FLOAT,   NPCRATE,                   0,  { ZTID_NPC },{} },
+	{ "setRate",                    0,          ZTID_VOID,   NPCRATE,                   0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getHoming",                  0,         ZTID_FLOAT,   NPCHOMING,                 0,  { ZTID_NPC },{} },
+	{ "setHoming",                  0,          ZTID_VOID,   NPCHOMING,                 0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getStep",                    0,         ZTID_FLOAT,   NPCSTEP,                   0,  { ZTID_NPC },{} },
+	{ "setStep",                    0,          ZTID_VOID,   NPCSTEP,                   0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getASpeed",                  0,         ZTID_FLOAT,   NPCFRAMERATE,              0,  { ZTID_NPC },{} },
+	{ "setASpeed",                  0,          ZTID_VOID,   NPCFRAMERATE,              0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getHalt",                    0,         ZTID_FLOAT,   NPCHALTCLK,                0,  { ZTID_NPC },{} },
+	{ "setHalt",                    0,          ZTID_VOID,   NPCHALTCLK,                0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getMoveStatus",              0,         ZTID_FLOAT,   NPCMOVESTATUS,             0,  { ZTID_NPC },{} },
+	{ "setMoveStatus",              0,          ZTID_VOID,   NPCMOVESTATUS,             0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getHaltrate",                0,         ZTID_FLOAT,   NPCHALTRATE,               0,  { ZTID_NPC },{} },
+	{ "setHaltrate",                0,          ZTID_VOID,   NPCHALTRATE,               0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getRandom",                  0,         ZTID_FLOAT,   NPCRANDOM,                 0,  { ZTID_NPC },{} },
+	{ "setRandom",                  0,          ZTID_VOID,   NPCRANDOM,                 0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getDrawStyle",               0,         ZTID_FLOAT,   NPCDRAWTYPE,               0,  { ZTID_NPC },{} },
+	{ "setDrawStyle",               0,          ZTID_VOID,   NPCDRAWTYPE,               0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getHP",                      0,         ZTID_FLOAT,   NPCHP,                     0,  { ZTID_NPC },{} },
+	{ "setHP",                      0,          ZTID_VOID,   NPCHP,                     0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getID",                      0,         ZTID_FLOAT,   NPCID,                     0,  { ZTID_NPC },{} },
+	{ "setID",                      0,          ZTID_VOID,   NPCID,                     0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getType",                    0,         ZTID_FLOAT,   NPCTYPE,                   0,  { ZTID_NPC },{} },
+	{ "setType",                    0,          ZTID_VOID,   NPCTYPE,                   0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getFamily",                  0,         ZTID_FLOAT,   NPCTYPE,                   0,  { ZTID_NPC },{} },
+	{ "setFamily",                  0,          ZTID_VOID,   NPCTYPE,                   0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getDamage",                  0,         ZTID_FLOAT,   NPCDP,                     0,  { ZTID_NPC },{} },
+	{ "setDamage",                  0,          ZTID_VOID,   NPCDP,                     0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getWeaponDamage",            0,         ZTID_FLOAT,   NPCWDP,                    0,  { ZTID_NPC },{} },
+	{ "setWeaponDamage",            0,          ZTID_VOID,   NPCWDP,                    0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getTile",                    0,         ZTID_FLOAT,   NPCTILE,                   0,  { ZTID_NPC },{} },
+	{ "setTile",                    0,          ZTID_VOID,   NPCTILE,                   0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getScriptTile",              0,         ZTID_FLOAT,   NPCSCRIPTTILE,             0,  { ZTID_NPC },{} },
+	{ "setScriptTile",              0,          ZTID_VOID,   NPCSCRIPTTILE,             0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getScriptFlip",              0,         ZTID_FLOAT,   NPCSCRIPTFLIP,             0,  { ZTID_NPC },{} },
+	{ "setScriptFlip",              0,          ZTID_VOID,   NPCSCRIPTFLIP,             0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getOriginalTile",            0,         ZTID_FLOAT,   NPCOTILE,                  0,  { ZTID_NPC },{} },
+	{ "setOriginalTile",            0,          ZTID_VOID,   NPCOTILE,                  0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getWeapon",                  0,         ZTID_FLOAT,   NPCWEAPON,                 0,  { ZTID_NPC },{} },
+	{ "setWeapon",                  0,          ZTID_VOID,   NPCWEAPON,                 0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getItemSet",                 0,         ZTID_FLOAT,   NPCITEMSET,                0,  { ZTID_NPC },{} },
+	{ "setItemSet",                 0,          ZTID_VOID,   NPCITEMSET,                0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getDropset",                 0,         ZTID_FLOAT,   NPCITEMSET,                0,  { ZTID_NPC },{} },
+	{ "setDropset",                 0,          ZTID_VOID,   NPCITEMSET,                0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getCSet",                    0,         ZTID_FLOAT,   NPCCSET,                   0,  { ZTID_NPC },{} },
+	{ "setCSet",                    0,          ZTID_VOID,   NPCCSET,                   0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getBossPal",                 0,         ZTID_FLOAT,   NPCBOSSPAL,                0,  { ZTID_NPC },{} },
+	{ "setBossPal",                 0,          ZTID_VOID,   NPCBOSSPAL,                0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getSFX",                     0,         ZTID_FLOAT,   NPCBGSFX,                  0,  { ZTID_NPC },{} },
+	{ "setSFX",                     0,          ZTID_VOID,   NPCBGSFX,                  0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getExtend",                  0,         ZTID_FLOAT,   NPCEXTEND,                 0,  { ZTID_NPC },{} },
+	{ "setExtend",                  0,          ZTID_VOID,   NPCEXTEND,                 0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getHitWidth",                0,         ZTID_FLOAT,   NPCHXSZ,                   0,  { ZTID_NPC },{} },
+	{ "setHitWidth",                0,          ZTID_VOID,   NPCHXSZ,                   0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getHitHeight",               0,         ZTID_FLOAT,   NPCHYSZ,                   0,  { ZTID_NPC },{} },
+	{ "setHitHeight",               0,          ZTID_VOID,   NPCHYSZ,                   0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getHitZHeight",              0,         ZTID_FLOAT,   NPCHZSZ,                   0,  { ZTID_NPC },{} },
+	{ "setHitZHeight",              0,          ZTID_VOID,   NPCHZSZ,                   0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getTileWidth",               0,         ZTID_FLOAT,   NPCTXSZ,                   0,  { ZTID_NPC },{} },
+	{ "setTileWidth",               0,          ZTID_VOID,   NPCTXSZ,                   0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getTileHeight",              0,         ZTID_FLOAT,   NPCTYSZ,                   0,  { ZTID_NPC },{} },
+	{ "setTileHeight",              0,          ZTID_VOID,   NPCTYSZ,                   0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getDrawXOffset",             0,         ZTID_FLOAT,   NPCXOFS,                   0,  { ZTID_NPC },{} },
+	{ "setDrawXOffset",             0,          ZTID_VOID,   NPCXOFS,                   0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getDrawYOffset",             0,         ZTID_FLOAT,   NPCYOFS,                   0,  { ZTID_NPC },{} },
+	{ "setDrawYOffset",             0,          ZTID_VOID,   NPCYOFS,                   0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getTotalDYOffset",           0,         ZTID_FLOAT,   NPCTOTALDYOFFS,            0,  { ZTID_NPC },{} },
+	{ "setTotalDYOffset",           0,          ZTID_VOID,   NPCTOTALDYOFFS,            0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getDrawZOffset",             0,         ZTID_FLOAT,   NPCZOFS,                   0,  { ZTID_NPC },{} },
+	{ "setDrawZOffset",             0,          ZTID_VOID,   NPCZOFS,                   0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getHitXOffset",              0,         ZTID_FLOAT,   NPCHXOFS,                  0,  { ZTID_NPC },{} },
+	{ "setHitXOffset",              0,          ZTID_VOID,   NPCHXOFS,                  0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getHitYOffset",              0,         ZTID_FLOAT,   NPCHYOFS,                  0,  { ZTID_NPC },{} },
+	{ "setHitYOffset",              0,          ZTID_VOID,   NPCHYOFS,                  0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "isValid",                    0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC },{} },
+	{ "Explode",                    0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT },{} },
 	
-	{ "getMisc[]",              ZTID_UNTYPED,       GETTER,       NPCMISCD,             32,            0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMisc[]",              ZTID_VOID,          SETTER,       NPCMISCD,             32,            0,                                    3,           { ZTID_NPC, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getInitD[]",             ZTID_UNTYPED,       GETTER,       NPCINITD,             8,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setInitD[]",             ZTID_VOID,          SETTER,       NPCINITD,             8,             0,                                    3,           { ZTID_NPC, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getAttributes[]",        ZTID_UNTYPED,       GETTER,       NPCDD,                32,            0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setAttributes[]",        ZTID_VOID,          SETTER,       NPCDD,                32,            0,                                    3,           { ZTID_NPC, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMiscFlags",           ZTID_FLOAT,         GETTER,       NPCMFLAGS,            1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMiscFlags",           ZTID_VOID,          SETTER,       NPCMFLAGS,            1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getCollDetection",       ZTID_BOOL,          GETTER,       NPCCOLLDET,           1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setCollDetection",       ZTID_VOID,          SETTER,       NPCCOLLDET,           1,             0,                                    2,           { ZTID_NPC, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getGravity",       ZTID_BOOL,          GETTER,       NPCGRAVITY,           1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setGravity",       ZTID_VOID,          SETTER,       NPCGRAVITY,           1,             0,                                    2,           { ZTID_NPC, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getAnimation",           ZTID_BOOL,          GETTER,       NPCENGINEANIMATE,     1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setAnimation",           ZTID_VOID,          SETTER,       NPCENGINEANIMATE,     1,             0,                                    2,           { ZTID_NPC, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Submerged",                ZTID_BOOL,          GETTER,       NPCSUBMERGED,              1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getStun",                ZTID_FLOAT,         GETTER,       NPCSTUN,              1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setStun",                ZTID_VOID,          SETTER,       NPCSTUN,              1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getCore",                ZTID_BOOL,          GETTER,       NPCISCORE,            1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setCore",                ZTID_VOID,          SETTER,       NPCISCORE,            1,             0,                                    2,           { ZTID_NPC, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDefense[]",           ZTID_FLOAT,         GETTER,       NPCDEFENSED,          42,            0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDefense[]",           ZTID_VOID,          SETTER,       NPCDEFENSED,          42,            0,                                    3,           { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitBy[]",             ZTID_UNTYPED,       GETTER,       NPCHITBY,             16,            0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitBy[]",             ZTID_VOID,          SETTER,       NPCHITBY,             16,            0,                                    3,           { ZTID_NPC, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetName",                ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHunger",              ZTID_FLOAT,         GETTER,       NPCHUNGER,            1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHunger",              ZTID_VOID,          SETTER,       NPCHUNGER,            1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "BreakShield",            ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWeaponSprite",        ZTID_FLOAT,         GETTER,       NPCWEAPSPRITE,        1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWeaponSprite",        ZTID_VOID,          SETTER,       NPCWEAPSPRITE,        1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getMisc[]",                  0,       ZTID_UNTYPED,   NPCMISCD,                  0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "setMisc[]",                  0,          ZTID_VOID,   NPCMISCD,                  0,  { ZTID_NPC, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "getInitD[]",                 0,       ZTID_UNTYPED,   NPCINITD,                  0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "setInitD[]",                 0,          ZTID_VOID,   NPCINITD,                  0,  { ZTID_NPC, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "getAttributes[]",            0,       ZTID_UNTYPED,   NPCDD,                     0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "setAttributes[]",            0,          ZTID_VOID,   NPCDD,                     0,  { ZTID_NPC, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "getMiscFlags",               0,         ZTID_FLOAT,   NPCMFLAGS,                 0,  { ZTID_NPC },{} },
+	{ "setMiscFlags",               0,          ZTID_VOID,   NPCMFLAGS,                 0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getCollDetection",           0,          ZTID_BOOL,   NPCCOLLDET,                0,  { ZTID_NPC },{} },
+	{ "setCollDetection",           0,          ZTID_VOID,   NPCCOLLDET,                0,  { ZTID_NPC, ZTID_BOOL },{} },
+	{ "getGravity",                 0,          ZTID_BOOL,   NPCGRAVITY,                0,  { ZTID_NPC },{} },
+	{ "setGravity",                 0,          ZTID_VOID,   NPCGRAVITY,                0,  { ZTID_NPC, ZTID_BOOL },{} },
+	{ "getAnimation",               0,          ZTID_BOOL,   NPCENGINEANIMATE,          0,  { ZTID_NPC },{} },
+	{ "setAnimation",               0,          ZTID_VOID,   NPCENGINEANIMATE,          0,  { ZTID_NPC, ZTID_BOOL },{} },
+	{ "_getSubmerged",              0,          ZTID_BOOL,   NPCSUBMERGED,              0,  { ZTID_NPC },{} },
+	{ "getStun",                    0,         ZTID_FLOAT,   NPCSTUN,                   0,  { ZTID_NPC },{} },
+	{ "setStun",                    0,          ZTID_VOID,   NPCSTUN,                   0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getCore",                    0,          ZTID_BOOL,   NPCISCORE,                 0,  { ZTID_NPC },{} },
+	{ "setCore",                    0,          ZTID_VOID,   NPCISCORE,                 0,  { ZTID_NPC, ZTID_BOOL },{} },
+	{ "getDefense[]",               0,         ZTID_FLOAT,   NPCDEFENSED,               0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "setDefense[]",               0,          ZTID_VOID,   NPCDEFENSED,               0,  { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getHitBy[]",                 0,       ZTID_UNTYPED,   NPCHITBY,                  0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "setHitBy[]",                 0,          ZTID_VOID,   NPCHITBY,                  0,  { ZTID_NPC, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "GetName",                    0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getHunger",                  0,         ZTID_FLOAT,   NPCHUNGER,                 0,  { ZTID_NPC },{} },
+	{ "setHunger",                  0,          ZTID_VOID,   NPCHUNGER,                 0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "BreakShield",                0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_NPC },{} },
+	{ "getWeaponSprite",            0,         ZTID_FLOAT,   NPCWEAPSPRITE,             0,  { ZTID_NPC },{} },
+	{ "setWeaponSprite",            0,          ZTID_VOID,   NPCWEAPSPRITE,             0,  { ZTID_NPC, ZTID_FLOAT },{} },
 //	2.future srit compatibility. -Z
-	{ "getScriptDefense[]",     ZTID_FLOAT,         GETTER,       NPCSCRDEFENSED,       10,            0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setScriptDefense[]",     ZTID_VOID,          SETTER,       NPCSCRDEFENSED,       10,            0,                                    3,           { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getScriptDefense[]",         0,         ZTID_FLOAT,   NPCSCRDEFENSED,            0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "setScriptDefense[]",         0,          ZTID_VOID,   NPCSCRDEFENSED,            0,  { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
 	
-	{ "getInvFrames",           ZTID_FLOAT,         GETTER,       NPCINVINC,            1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setInvFrames",           ZTID_VOID,          SETTER,       NPCINVINC,            1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getInvincible",          ZTID_FLOAT,         GETTER,       NPCSUPERMAN,          1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setInvincible",          ZTID_VOID,          SETTER,       NPCSUPERMAN,          1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getRingleader",          ZTID_BOOL,          GETTER,       NPCRINGLEAD,          1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setRingleader",          ZTID_VOID,          SETTER,       NPCRINGLEAD,          1,             0,                                    2,           { ZTID_NPC, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHasItem",             ZTID_BOOL,          GETTER,       NPCHASITEM,           1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHasItem",             ZTID_VOID,          SETTER,       NPCHASITEM,           1,             0,                                    2,           { ZTID_NPC, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getShield[]",            ZTID_BOOL,          GETTER,       NPCSHIELD,            5,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setShield[]",            ZTID_VOID,          SETTER,       NPCSHIELD,            5,             0,                                    3,           { ZTID_NPC, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getBFlags[]",            ZTID_BOOL,          GETTER,       NPCBEHAVIOUR,         16,            0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setBFlags[]",            ZTID_VOID,          SETTER,       NPCBEHAVIOUR,         16,            0,                                    3,           { ZTID_NPC, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getInvFrames",               0,         ZTID_FLOAT,   NPCINVINC,                 0,  { ZTID_NPC },{} },
+	{ "setInvFrames",               0,          ZTID_VOID,   NPCINVINC,                 0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getInvincible",              0,         ZTID_FLOAT,   NPCSUPERMAN,               0,  { ZTID_NPC },{} },
+	{ "setInvincible",              0,          ZTID_VOID,   NPCSUPERMAN,               0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getRingleader",              0,          ZTID_BOOL,   NPCRINGLEAD,               0,  { ZTID_NPC },{} },
+	{ "setRingleader",              0,          ZTID_VOID,   NPCRINGLEAD,               0,  { ZTID_NPC, ZTID_BOOL },{} },
+	{ "getHasItem",                 0,          ZTID_BOOL,   NPCHASITEM,                0,  { ZTID_NPC },{} },
+	{ "setHasItem",                 0,          ZTID_VOID,   NPCHASITEM,                0,  { ZTID_NPC, ZTID_BOOL },{} },
+	{ "getShield[]",                0,          ZTID_BOOL,   NPCSHIELD,                 0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "setShield[]",                0,          ZTID_VOID,   NPCSHIELD,                 0,  { ZTID_NPC, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getBFlags[]",                0,          ZTID_BOOL,   NPCBEHAVIOUR,              0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "setBFlags[]",                0,          ZTID_VOID,   NPCBEHAVIOUR,              0,  { ZTID_NPC, ZTID_FLOAT, ZTID_BOOL },{} },
 	
-	{ "getFrozen",              ZTID_FLOAT,         GETTER,       NPCFROZEN,            1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFrozen",              ZTID_VOID,          SETTER,       NPCFROZEN,            1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getUID",                 ZTID_FLOAT,         GETTER,       NPCSCRIPTUID,         1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-//	{ "setUID",                 ZTID_VOID,          SETTER,       NPCSCRIPTUID,         1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFrozen",                  0,         ZTID_FLOAT,   NPCFROZEN,                 0,  { ZTID_NPC },{} },
+	{ "setFrozen",                  0,          ZTID_VOID,   NPCFROZEN,                 0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getUID",                     0,         ZTID_FLOAT,   NPCSCRIPTUID,              0,  { ZTID_NPC },{} },
+//	{ "setUID",                     0,          ZTID_VOID,   NPCSCRIPTUID,              0,  { ZTID_NPC, ZTID_FLOAT },{} },
 	
-	{ "getFrozenTile",          ZTID_FLOAT,         GETTER,       NPCFROZENTILE,        1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFrozenTile",          ZTID_VOID,          SETTER,       NPCFROZENTILE,        1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFrozenTile",              0,         ZTID_FLOAT,   NPCFROZENTILE,             0,  { ZTID_NPC },{} },
+	{ "setFrozenTile",              0,          ZTID_VOID,   NPCFROZENTILE,             0,  { ZTID_NPC, ZTID_FLOAT },{} },
 	
-	{ "getParentUID",          ZTID_FLOAT,         GETTER,       NPCPARENTUID,        1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setParentUID",          ZTID_VOID,          SETTER,       NPCPARENTUID,        1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getParentUID",               0,         ZTID_FLOAT,   NPCPARENTUID,              0,  { ZTID_NPC },{} },
+	{ "setParentUID",               0,          ZTID_VOID,   NPCPARENTUID,              0,  { ZTID_NPC, ZTID_FLOAT },{} },
 	
-	{ "getFrozenCSet",          ZTID_FLOAT,         GETTER,       NPCFROZENCSET,        1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFrozenCSet",          ZTID_VOID,          SETTER,       NPCFROZENCSET,        1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitDir",              ZTID_FLOAT,         GETTER,       NPCHITDIR,            1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitDir",          ZTID_VOID,          SETTER,       NPCHITDIR,        1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScript",              ZTID_FLOAT,         GETTER,       NPCSCRIPT,            1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setScript",              ZTID_VOID,          SETTER,       NPCSCRIPT,            1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFrozenCSet",              0,         ZTID_FLOAT,   NPCFROZENCSET,             0,  { ZTID_NPC },{} },
+	{ "setFrozenCSet",              0,          ZTID_VOID,   NPCFROZENCSET,             0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getHitDir",                  0,         ZTID_FLOAT,   NPCHITDIR,                 0,  { ZTID_NPC },{} },
+	{ "setHitDir",                  0,          ZTID_VOID,   NPCHITDIR,                 0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getScript",                  0,         ZTID_FLOAT,   NPCSCRIPT,                 0,  { ZTID_NPC },{} },
+	{ "setScript",                  0,          ZTID_VOID,   NPCSCRIPT,                 0,  { ZTID_NPC, ZTID_FLOAT },{} },
 	
-	{ "isDead",                 ZTID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "CanSlide",               ZTID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Slide",                  ZTID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Remove",                 ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "StopBGSFX",              ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Attack",                 ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "NewDir",                 ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "ConstantWalk",           ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "ConstantWalk8",          ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "VariableWalk",           ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "VariableWalk8",          ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "HaltingWalk",            ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "HaltingWalk8",           ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "FloatingWalk",           ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "BreathAttack",           ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_NPC, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "NewDir8",                ZTID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Collision",              ZTID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      3,           { ZTID_NPC, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LinedUp",                ZTID_FLOAT,         FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      3,           { ZTID_NPC, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "LinkInRange",            ZTID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "CanMove",                ZTID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SimulateHit",            ZTID_BOOL,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Create",                 ZTID_NPC,           FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getRotation",            ZTID_FLOAT,         GETTER,       NPCROTATION,          1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setRotation",            ZTID_VOID,          SETTER,       NPCROTATION,          1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScale",               ZTID_FLOAT,         GETTER,       NPCSCALE,             1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setScale",               ZTID_VOID,          SETTER,       NPCSCALE,             1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getImmortal",            ZTID_BOOL,          GETTER,       NPCIMMORTAL,          1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setImmortal",            ZTID_VOID,          SETTER,       NPCIMMORTAL,          1,             0,                                    2,           { ZTID_NPC, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getNoSlide",             ZTID_BOOL,          GETTER,       NPCNOSLIDE,           1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setNoSlide",             ZTID_VOID,          SETTER,       NPCNOSLIDE,           1,             0,                                    2,           { ZTID_NPC, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getNoScriptKnockback",   ZTID_BOOL,          GETTER,       NPCNOSCRIPTKB,        1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setNoScriptKnockback",   ZTID_VOID,          SETTER,       NPCNOSCRIPTKB,        1,             0,                                    2,           { ZTID_NPC, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSlideSpeed",          ZTID_FLOAT,         GETTER,       NPCKNOCKBACKSPEED,    1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSlideSpeed",          ZTID_VOID,          SETTER,       NPCKNOCKBACKSPEED,    1,             0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Knockback",              ZTID_BOOL,          FUNCTION,     0,                    1,             0,                                    4,           { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFalling",             ZTID_FLOAT,         GETTER,       NPCFALLCLK,          1,           0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFalling",             ZTID_VOID,          SETTER,       NPCFALLCLK,          1,           0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFallCombo",           ZTID_FLOAT,         GETTER,       NPCFALLCMB,          1,           0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFallCombo",           ZTID_VOID,          SETTER,       NPCFALLCMB,          1,           0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMoveFlags[]",         ZTID_BOOL,          GETTER,       NPCMOVEFLAGS,        8,           0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMoveFlags[]",         ZTID_VOID,          SETTER,       NPCMOVEFLAGS,        8,           0,                                    3,           { ZTID_NPC, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLightRadius",         ZTID_FLOAT,         GETTER,       NPCGLOWRAD,           1,           0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLightRadius",         ZTID_VOID,          SETTER,       NPCGLOWRAD,           1,           0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLightShape",          ZTID_FLOAT,         GETTER,       NPCGLOWSHP,           1,           0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLightShape",          ZTID_VOID,          SETTER,       NPCGLOWSHP,           1,           0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getShadowSprite",        ZTID_FLOAT,         GETTER,       NPCSHADOWSPR,         1,           0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setShadowSprite",        ZTID_VOID,          SETTER,       NPCSHADOWSPR,         1,           0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSpawnSprite",         ZTID_FLOAT,         GETTER,       NPCSPAWNSPR,          1,           0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSpawnSprite",         ZTID_VOID,          SETTER,       NPCSPAWNSPR,          1,           0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDeathSprite",         ZTID_FLOAT,         GETTER,       NPCDEATHSPR,          1,           0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDeathSprite",         ZTID_VOID,          SETTER,       NPCDEATHSPR,          1,           0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSwitchHooked",        ZTID_BOOL,          GETTER,       NPCSWHOOKED,          1,             0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSwitchHooked",        ZTID_VOID,          SETTER,       NPCSWHOOKED,          1,             0,                                    2,           { ZTID_NPC, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Switch",                 ZTID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MovePaused",             ZTID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Move",                   ZTID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      4,           { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MoveAtAngle",            ZTID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      4,           { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MoveXY",                 ZTID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      4,           { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "CanMove",                ZTID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      4,           { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "CanMoveAtAngle",         ZTID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      4,           { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "CanMoveXY",              ZTID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      4,           { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setInvFlicker",          ZTID_VOID,          SETTER,       NPCCANFLICKER,        1,           0,                                    2,           { ZTID_NPC, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getInvFlicker",          ZTID_BOOL,          GETTER,       NPCCANFLICKER,        1,           0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrowning",             ZTID_FLOAT,         GETTER,       NPCDROWNCLK,          1,           0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrowning",             ZTID_VOID,          SETTER,       NPCDROWNCLK,          1,           0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrownCombo",           ZTID_FLOAT,         GETTER,       NPCDROWNCMB,          1,           0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrownCombo",           ZTID_VOID,          SETTER,       NPCDROWNCMB,          1,           0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFakeZ",           ZTID_FLOAT,         GETTER,       NPCFAKEZ,          1,           0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFakeZ",           ZTID_VOID,          SETTER,       NPCFAKEZ,          1,           0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFakeJump",           ZTID_FLOAT,         GETTER,       NPCFAKEJUMP,          1,           0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFakeJump",           ZTID_VOID,          SETTER,       NPCFAKEJUMP,          1,           0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getShadowXOffset",           ZTID_FLOAT,         GETTER,       NPCSHADOWXOFS,          1,           0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setShadowXOffset",           ZTID_VOID,          SETTER,       NPCSHADOWXOFS,          1,           0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getShadowYOffset",           ZTID_FLOAT,         GETTER,       NPCSHADOWYOFS,          1,           0,                                    1,           { ZTID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setShadowYOffset",           ZTID_VOID,          SETTER,       NPCSHADOWYOFS,          1,           0,                                    2,           { ZTID_NPC, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "isDead",                     0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC },{} },
+	{ "CanSlide",                   0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC },{} },
+	{ "Slide",                      0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC },{} },
+	{ "Remove",                     0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_NPC },{} },
+	{ "StopBGSFX",                  0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_NPC },{} },
+	{ "Attack",                     0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_NPC },{} },
+	{ "NewDir",                     0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "ConstantWalk",               0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "ConstantWalk8",              0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "VariableWalk",               0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "VariableWalk8",              0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "HaltingWalk",                0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "HaltingWalk8",               0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "FloatingWalk",               0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "BreathAttack",               0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_NPC, ZTID_BOOL },{ 0 } },
+	{ "NewDir8",                    0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "Collision",                  0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "LinedUp",                    0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT, ZTID_BOOL },{ 0 } },
+	{ "LinkInRange",                0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "CanMove",                    0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "SimulateHit",                0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "Create",                     0,           ZTID_NPC,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getRotation",                0,         ZTID_FLOAT,   NPCROTATION,               0,  { ZTID_NPC },{} },
+	{ "setRotation",                0,          ZTID_VOID,   NPCROTATION,               0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getScale",                   0,         ZTID_FLOAT,   NPCSCALE,                  0,  { ZTID_NPC },{} },
+	{ "setScale",                   0,          ZTID_VOID,   NPCSCALE,                  0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getImmortal",                0,          ZTID_BOOL,   NPCIMMORTAL,               0,  { ZTID_NPC },{} },
+	{ "setImmortal",                0,          ZTID_VOID,   NPCIMMORTAL,               0,  { ZTID_NPC, ZTID_BOOL },{} },
+	{ "getNoSlide",                 0,          ZTID_BOOL,   NPCNOSLIDE,                0,  { ZTID_NPC },{} },
+	{ "setNoSlide",                 0,          ZTID_VOID,   NPCNOSLIDE,                0,  { ZTID_NPC, ZTID_BOOL },{} },
+	{ "getNoScriptKnockback",       0,          ZTID_BOOL,   NPCNOSCRIPTKB,             0,  { ZTID_NPC },{} },
+	{ "setNoScriptKnockback",       0,          ZTID_VOID,   NPCNOSCRIPTKB,             0,  { ZTID_NPC, ZTID_BOOL },{} },
+	{ "getSlideSpeed",              0,         ZTID_FLOAT,   NPCKNOCKBACKSPEED,         0,  { ZTID_NPC },{} },
+	{ "setSlideSpeed",              0,          ZTID_VOID,   NPCKNOCKBACKSPEED,         0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "Knockback",                  0,          ZTID_BOOL,   -1,                        0,  { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 40000 } },
+	{ "getFalling",                 0,         ZTID_FLOAT,   NPCFALLCLK,                0,  { ZTID_NPC },{} },
+	{ "setFalling",                 0,          ZTID_VOID,   NPCFALLCLK,                0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getFallCombo",               0,         ZTID_FLOAT,   NPCFALLCMB,                0,  { ZTID_NPC },{} },
+	{ "setFallCombo",               0,          ZTID_VOID,   NPCFALLCMB,                0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getMoveFlags[]",             0,          ZTID_BOOL,   NPCMOVEFLAGS,              0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "setMoveFlags[]",             0,          ZTID_VOID,   NPCMOVEFLAGS,              0,  { ZTID_NPC, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getLightRadius",             0,         ZTID_FLOAT,   NPCGLOWRAD,                0,  { ZTID_NPC },{} },
+	{ "setLightRadius",             0,          ZTID_VOID,   NPCGLOWRAD,                0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getLightShape",              0,         ZTID_FLOAT,   NPCGLOWSHP,                0,  { ZTID_NPC },{} },
+	{ "setLightShape",              0,          ZTID_VOID,   NPCGLOWSHP,                0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getShadowSprite",            0,         ZTID_FLOAT,   NPCSHADOWSPR,              0,  { ZTID_NPC },{} },
+	{ "setShadowSprite",            0,          ZTID_VOID,   NPCSHADOWSPR,              0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getSpawnSprite",             0,         ZTID_FLOAT,   NPCSPAWNSPR,               0,  { ZTID_NPC },{} },
+	{ "setSpawnSprite",             0,          ZTID_VOID,   NPCSPAWNSPR,               0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getDeathSprite",             0,         ZTID_FLOAT,   NPCDEATHSPR,               0,  { ZTID_NPC },{} },
+	{ "setDeathSprite",             0,          ZTID_VOID,   NPCDEATHSPR,               0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getSwitchHooked",            0,          ZTID_BOOL,   NPCSWHOOKED,               0,  { ZTID_NPC },{} },
+	{ "setSwitchHooked",            0,          ZTID_VOID,   NPCSWHOOKED,               0,  { ZTID_NPC, ZTID_BOOL },{} },
+	{ "Switch",                     0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "MovePaused",                 0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC },{} },
+	{ "Move",                       0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
+	{ "MoveAtAngle",                0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
+	{ "MoveXY",                     0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
+	{ "CanMove",                    1,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
+	{ "CanMoveAtAngle",             0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
+	{ "CanMoveXY",                  0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
+	{ "setInvFlicker",              0,          ZTID_VOID,   NPCCANFLICKER,             0,  { ZTID_NPC, ZTID_BOOL },{} },
+	{ "getInvFlicker",              0,          ZTID_BOOL,   NPCCANFLICKER,             0,  { ZTID_NPC },{} },
+	{ "getDrowning",                0,         ZTID_FLOAT,   NPCDROWNCLK,               0,  { ZTID_NPC },{} },
+	{ "setDrowning",                0,          ZTID_VOID,   NPCDROWNCLK,               0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getDrownCombo",              0,         ZTID_FLOAT,   NPCDROWNCMB,               0,  { ZTID_NPC },{} },
+	{ "setDrownCombo",              0,          ZTID_VOID,   NPCDROWNCMB,               0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getFakeZ",                   0,         ZTID_FLOAT,   NPCFAKEZ,                  0,  { ZTID_NPC },{} },
+	{ "setFakeZ",                   0,          ZTID_VOID,   NPCFAKEZ,                  0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getFakeJump",                0,         ZTID_FLOAT,   NPCFAKEJUMP,               0,  { ZTID_NPC },{} },
+	{ "setFakeJump",                0,          ZTID_VOID,   NPCFAKEJUMP,               0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getShadowXOffset",           0,         ZTID_FLOAT,   NPCSHADOWXOFS,             0,  { ZTID_NPC },{} },
+	{ "setShadowXOffset",           0,          ZTID_VOID,   NPCSHADOWXOFS,             0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getShadowYOffset",           0,         ZTID_FLOAT,   NPCSHADOWYOFS,             0,  { ZTID_NPC },{} },
+	{ "setShadowYOffset",           0,          ZTID_VOID,   NPCSHADOWYOFS,             0,  { ZTID_NPC, ZTID_FLOAT },{} },
 	
 	
-	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
 NPCSymbols::NPCSymbols()
 {
-    table = npcTable;
-    refVar = REFNPC;
+	table = npcTable;
+	refVar = REFNPC;
 }
 
 void NPCSymbols::generateCode()
 {
 	//bool isValid(npc)
 	{
-		Function* function = getFunction("isValid", 1);
+		Function* function = getFunction2("isValid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -268,7 +268,7 @@ void NPCSymbols::generateCode()
 	}
 	//void GetName(npc, int32_t)
 	{
-		Function* function = getFunction("GetName", 2);
+		Function* function = getFunction2("GetName");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -282,7 +282,7 @@ void NPCSymbols::generateCode()
 	}
 	//void Explode(npc, int32_t)
 	{
-		    Function* function = getFunction("Explode", 2);
+			Function* function = getFunction2("Explode");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -296,7 +296,7 @@ void NPCSymbols::generateCode()
 	}
 	//void BreakShield(npc)
 	{
-		Function* function = getFunction("BreakShield", 1);
+		Function* function = getFunction2("BreakShield");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -309,7 +309,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool isDead(npc)
 	{
-		Function* function = getFunction("isDead", 1);
+		Function* function = getFunction2("isDead");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -322,7 +322,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool CanSlide(npc)
 	{
-		Function* function = getFunction("CanSlide", 1);
+		Function* function = getFunction2("CanSlide");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -335,7 +335,7 @@ void NPCSymbols::generateCode()
 	}
 	//int32_t Slide(npc)
 	{
-		Function* function = getFunction("Slide", 1);
+		Function* function = getFunction2("Slide");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -348,7 +348,7 @@ void NPCSymbols::generateCode()
 	}
 	//void Remove(npc)
 	{
-		Function* function = getFunction("Remove", 1);
+		Function* function = getFunction2("Remove");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -361,7 +361,7 @@ void NPCSymbols::generateCode()
 	}
 	//void StopBGSFX(npc)
 	{
-		Function* function = getFunction("StopBGSFX", 1);
+		Function* function = getFunction2("StopBGSFX");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -374,7 +374,7 @@ void NPCSymbols::generateCode()
 	}
 	//void Attack(npc)
 	{
-		Function* function = getFunction("Attack", 1);
+		Function* function = getFunction2("Attack");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -387,7 +387,7 @@ void NPCSymbols::generateCode()
 	}
 	//void NewDir(int32_t arr[])
 	{
-		Function* function = getFunction("NewDir", 2);
+		Function* function = getFunction2("NewDir");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -401,7 +401,7 @@ void NPCSymbols::generateCode()
 	}
 	//void ConstantWalk(int32_t arr[])
 	{
-		Function* function = getFunction("ConstantWalk", 2);
+		Function* function = getFunction2("ConstantWalk");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -416,7 +416,7 @@ void NPCSymbols::generateCode()
 	
 	//void ConstantWalk8(int32_t arr[])
 	{
-		Function* function = getFunction("ConstantWalk8", 2);
+		Function* function = getFunction2("ConstantWalk8");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -431,7 +431,7 @@ void NPCSymbols::generateCode()
 	
 	//void VariableWalk(int32_t arr[])
 	{
-		Function* function = getFunction("VariableWalk", 2);
+		Function* function = getFunction2("VariableWalk");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -445,7 +445,7 @@ void NPCSymbols::generateCode()
 	}
 	//void VariableWalk8(int32_t arr[])
 	{
-		Function* function = getFunction("VariableWalk8", 2);
+		Function* function = getFunction2("VariableWalk8");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -459,7 +459,7 @@ void NPCSymbols::generateCode()
 	}
 	//void HaltingWalk(int32_t arr[])
 	{
-		Function* function = getFunction("HaltingWalk", 2);
+		Function* function = getFunction2("HaltingWalk");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -473,7 +473,7 @@ void NPCSymbols::generateCode()
 	}
 	//void HaltingWalk8(int32_t arr[])
 	{
-		Function* function = getFunction("HaltingWalk8", 2);
+		Function* function = getFunction2("HaltingWalk8");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -487,7 +487,7 @@ void NPCSymbols::generateCode()
 	}
 	//void FloatingWalk(int32_t arr[])
 	{
-		Function* function = getFunction("FloatingWalk", 2);
+		Function* function = getFunction2("FloatingWalk");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -501,7 +501,7 @@ void NPCSymbols::generateCode()
 	}
 	//void BreathAttack(bool seeklink)
 	{
-		Function* function = getFunction("BreathAttack", 2);
+		Function* function = getFunction2("BreathAttack");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -515,7 +515,7 @@ void NPCSymbols::generateCode()
 	}
 	//void NewDir8(int32_t arr[])
 	{
-		Function* function = getFunction("NewDir8", 2);
+		Function* function = getFunction2("NewDir8");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -529,7 +529,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool Collision(int32_t obj_type, untyped obj_pointer)
 	{
-		Function* function = getFunction("Collision", 3);
+		Function* function = getFunction2("Collision");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -544,7 +544,7 @@ void NPCSymbols::generateCode()
 	}
 	//int32_t LinedUp(int32_t range, bool dir8)
 	{
-		Function* function = getFunction("LinedUp", 3);
+		Function* function = getFunction2("LinedUp");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -559,7 +559,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool HeroInRange(int32_t dist_in_pixels)
 	{
-		Function* function = getFunction("LinkInRange", 2);
+		Function* function = getFunction2("LinkInRange");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -570,11 +570,11 @@ void NPCSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-    
+	
 	//npc Create(int32_t array[])
 	{
-		Function* function = getFunction("Create", 2);
-        
+		Function* function = getFunction2("Create");
+		
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -589,7 +589,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool CanMove(int32_t array[])
 	{
-		Function* function = getFunction("CanMove", 2);
+		Function* function = getFunction2("CanMove");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -602,7 +602,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool SimulateHit(int32_t array[])
 	{
-		Function* function = getFunction("SimulateHit", 2);
+		Function* function = getFunction2("SimulateHit");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -615,7 +615,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool Knockback(int32_t time, int32_t dir, int32_t spd)
 	{
-		Function* function = getFunction("Knockback", 4);
+		Function* function = getFunction2("Knockback");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
@@ -628,23 +628,23 @@ void NPCSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-    //bool Switch(npc, int)
-    {
-        Function* function = getFunction("Switch", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer
-        POPREF();
-        addOpcode2 (code, new OSwitchNPC(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
+	//bool Switch(npc, int)
+	{
+		Function* function = getFunction2("Switch");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new OSwitchNPC(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 	//bool MovePaused(npc)
 	{
-		Function* function = getFunction("MovePaused", 1);
+		Function* function = getFunction2("MovePaused");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		ASSERT_NON_NUL();
@@ -656,7 +656,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool Move(npc, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction("Move", 4);
+		Function* function = getFunction2("Move");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -671,7 +671,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool MoveAtAngle(npc, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction("MoveAtAngle", 4);
+		Function* function = getFunction2("MoveAtAngle");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -686,7 +686,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool MoveXY(npc, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction("MoveXY", 4);
+		Function* function = getFunction2("MoveXY");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -701,7 +701,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool CanMove(npc, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction("CanMove", 4);
+		Function* function = getFunction2("CanMove", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -716,7 +716,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool CanMoveAtAngle(npc, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction("CanMoveAtAngle", 4);
+		Function* function = getFunction2("CanMoveAtAngle");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -731,7 +731,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool CanMoveXY(npc, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction("CanMoveXY", 4);
+		Function* function = getFunction2("CanMoveXY");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params

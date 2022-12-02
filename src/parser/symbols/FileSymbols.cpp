@@ -4,51 +4,51 @@ FileSymbols FileSymbols::singleton = FileSymbols();
 
 static AccessorTable FileTable[] =
 {
-//	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
-	{ "Open",                   ZTID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           { ZTID_FILE, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Create",                 ZTID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           { ZTID_FILE, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "OpenMode",               ZTID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      3,           { ZTID_FILE, ZTID_CHAR, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Close",                  ZTID_VOID,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      1,           { ZTID_FILE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Free",                   ZTID_VOID,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      1,           { ZTID_FILE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Own",                    ZTID_VOID,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      1,           { ZTID_FILE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "isAllocated",            ZTID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      1,           { ZTID_FILE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "isValid",                ZTID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      1,           { ZTID_FILE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Allocate",               ZTID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      1,           { ZTID_FILE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Flush",                  ZTID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      1,           { ZTID_FILE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "ReadChars",              ZTID_FLOAT,         FUNCTION,     0,                1,             0,                                    4,           { ZTID_FILE, ZTID_CHAR, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "ReadInts",               ZTID_FLOAT,         FUNCTION,     0,                1,             0,                                    4,           { ZTID_FILE, ZTID_CHAR, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "WriteChars",             ZTID_FLOAT,         FUNCTION,     0,                1,             0,                                    4,           { ZTID_FILE, ZTID_CHAR, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "WriteInts",              ZTID_FLOAT,         FUNCTION,     0,                1,             0,                                    4,           { ZTID_FILE, ZTID_CHAR, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "ReadString",             ZTID_FLOAT,         FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           { ZTID_FILE, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "WriteString",            ZTID_FLOAT,         FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           { ZTID_FILE, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetChar",                ZTID_CHAR,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      1,           { ZTID_FILE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "PutChar",                ZTID_CHAR,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           { ZTID_FILE, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "UngetChar",              ZTID_CHAR,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           { ZTID_FILE, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Seek",                   ZTID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      3,           { ZTID_FILE, ZTID_LONG, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Rewind",                 ZTID_VOID,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      1,           { ZTID_FILE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "ClearError",             ZTID_VOID,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      1,           { ZTID_FILE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getPos",                 ZTID_LONG,          GETTER,       FILEPOS,          1,             0,                                    1,           { ZTID_FILE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getEOF",                 ZTID_FLOAT,         GETTER,       FILEEOF,          1,             0,                                    1,           { ZTID_FILE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getError",               ZTID_FLOAT,         GETTER,       FILEERR,          1,             0,                                    1,           { ZTID_FILE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetError",               ZTID_VOID,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           { ZTID_FILE, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Remove",                 ZTID_BOOL,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      1,           { ZTID_FILE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "WriteBytes",             ZTID_FLOAT,         FUNCTION,     0,                1,             0,                                    4,           { ZTID_FILE, ZTID_CHAR, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "ReadBytes",              ZTID_FLOAT,         FUNCTION,     0,                1,             0,                                    4,           { ZTID_FILE, ZTID_CHAR, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
+	{ "Open",                       0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_FILE, ZTID_CHAR },{} },
+	{ "Create",                     0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_FILE, ZTID_CHAR },{} },
+	{ "OpenMode",                   0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_FILE, ZTID_CHAR, ZTID_CHAR },{} },
+	{ "Close",                      0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_FILE },{} },
+	{ "Free",                       0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_FILE },{} },
+	{ "Own",                        0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_FILE },{} },
+	{ "isAllocated",                0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_FILE },{} },
+	{ "isValid",                    0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_FILE },{} },
+	{ "Allocate",                   0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_FILE },{} },
+	{ "Flush",                      0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_FILE },{} },
+	{ "ReadChars",                  0,         ZTID_FLOAT,   -1,                        0,  { ZTID_FILE, ZTID_CHAR, ZTID_FLOAT, ZTID_FLOAT },{ -10000, 0 } },
+	{ "ReadInts",                   0,         ZTID_FLOAT,   -1,                        0,  { ZTID_FILE, ZTID_CHAR, ZTID_FLOAT, ZTID_FLOAT },{ -10000, 0 } },
+	{ "WriteChars",                 0,         ZTID_FLOAT,   -1,                        0,  { ZTID_FILE, ZTID_CHAR, ZTID_FLOAT, ZTID_FLOAT },{ -10000, 0 } },
+	{ "WriteInts",                  0,         ZTID_FLOAT,   -1,                        0,  { ZTID_FILE, ZTID_CHAR, ZTID_FLOAT, ZTID_FLOAT },{ -10000, 0 } },
+	{ "ReadString",                 0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_FILE, ZTID_CHAR },{} },
+	{ "WriteString",                0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_FILE, ZTID_CHAR },{} },
+	{ "GetChar",                    0,          ZTID_CHAR,   -1,                   FL_INL,  { ZTID_FILE },{} },
+	{ "PutChar",                    0,          ZTID_CHAR,   -1,                   FL_INL,  { ZTID_FILE, ZTID_CHAR },{} },
+	{ "UngetChar",                  0,          ZTID_CHAR,   -1,                   FL_INL,  { ZTID_FILE, ZTID_CHAR },{} },
+	{ "Seek",                       0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_FILE, ZTID_LONG, ZTID_BOOL },{ 0 } },
+	{ "Rewind",                     0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_FILE },{} },
+	{ "ClearError",                 0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_FILE },{} },
+	{ "getPos",                     0,          ZTID_LONG,   FILEPOS,                   0,  { ZTID_FILE },{} },
+	{ "getEOF",                     0,         ZTID_FLOAT,   FILEEOF,                   0,  { ZTID_FILE },{} },
+	{ "getError",                   0,         ZTID_FLOAT,   FILEERR,                   0,  { ZTID_FILE },{} },
+	{ "GetError",                   0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_FILE, ZTID_CHAR },{} },
+	{ "Remove",                     0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_FILE },{} },
+	{ "WriteBytes",                 0,         ZTID_FLOAT,   -1,                        0,  { ZTID_FILE, ZTID_CHAR, ZTID_FLOAT, ZTID_FLOAT },{ -10000, 0 } },
+	{ "ReadBytes",                  0,         ZTID_FLOAT,   -1,                        0,  { ZTID_FILE, ZTID_CHAR, ZTID_FLOAT, ZTID_FLOAT },{ -10000, 0 } },
 	
-	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
 FileSymbols::FileSymbols()
 {
-    table = FileTable;
-    refVar = REFFILE;
+	table = FileTable;
+	refVar = REFFILE;
 }
 
 void FileSymbols::generateCode()
 {
 	//bool Open(file, char32*)
 	{
-		Function* function = getFunction("Open", 2);
+		Function* function = getFunction2("Open");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -63,7 +63,7 @@ void FileSymbols::generateCode()
 	}
 	//bool Create(file, char32*)
 	{
-		Function* function = getFunction("Create", 2);
+		Function* function = getFunction2("Create");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -78,7 +78,7 @@ void FileSymbols::generateCode()
 	}
 	//void Close(file)
 	{
-		Function* function = getFunction("Close", 1);
+		Function* function = getFunction2("Close");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -91,7 +91,7 @@ void FileSymbols::generateCode()
 	}
 	//void Free(file)
 	{
-		Function* function = getFunction("Free", 1);
+		Function* function = getFunction2("Free");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -104,7 +104,7 @@ void FileSymbols::generateCode()
 	}
 	//void Own(file)
 	{
-		Function* function = getFunction("Own", 1);
+		Function* function = getFunction2("Own");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -117,7 +117,7 @@ void FileSymbols::generateCode()
 	}
 	//bool isAllocated(file)
 	{
-		Function* function = getFunction("isAllocated", 1);
+		Function* function = getFunction2("isAllocated");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -130,7 +130,7 @@ void FileSymbols::generateCode()
 	}
 	//bool isValid(file)
 	{
-		Function* function = getFunction("isValid", 1);
+		Function* function = getFunction2("isValid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -143,7 +143,7 @@ void FileSymbols::generateCode()
 	}
 	//bool Allocate(file)
 	{
-		Function* function = getFunction("Allocate", 1);
+		Function* function = getFunction2("Allocate");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -157,7 +157,7 @@ void FileSymbols::generateCode()
 	}
 	//bool Flush(file)
 	{
-		Function* function = getFunction("Flush", 1);
+		Function* function = getFunction2("Flush");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -170,7 +170,7 @@ void FileSymbols::generateCode()
 	}
 	//int32_t ReadChars(file, char32*, int32_t, int32_t)
 	{
-		Function* function = getFunction("ReadChars", 4);
+		Function* function = getFunction2("ReadChars");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
@@ -185,7 +185,7 @@ void FileSymbols::generateCode()
 	}
 	//int32_t ReadString(file, char32*)
 	{
-		Function* function = getFunction("ReadString", 2);
+		Function* function = getFunction2("ReadString");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -198,7 +198,7 @@ void FileSymbols::generateCode()
 	}
 	//int32_t ReadInts(file, char32*, int32_t, int32_t)
 	{
-		Function* function = getFunction("ReadInts", 4);
+		Function* function = getFunction2("ReadInts");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
@@ -213,7 +213,7 @@ void FileSymbols::generateCode()
 	}
 	//int32_t WriteChars(file, char32*, int32_t, int32_t)
 	{
-		Function* function = getFunction("WriteChars", 4);
+		Function* function = getFunction2("WriteChars");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
@@ -228,7 +228,7 @@ void FileSymbols::generateCode()
 	}
 	//int32_t WriteString(file, char32*)
 	{
-		Function* function = getFunction("WriteString", 2);
+		Function* function = getFunction2("WriteString");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -241,7 +241,7 @@ void FileSymbols::generateCode()
 	}
 	//int32_t WriteInts(file, char32*, int32_t, int32_t)
 	{
-		Function* function = getFunction("WriteInts", 4);
+		Function* function = getFunction2("WriteInts");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
@@ -256,7 +256,7 @@ void FileSymbols::generateCode()
 	}
 	//char32 GetChar(file)
 	{
-		Function* function = getFunction("GetChar", 1);
+		Function* function = getFunction2("GetChar");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -269,7 +269,7 @@ void FileSymbols::generateCode()
 	}
 	//char32 PutChar(file, char32 c)
 	{
-		Function* function = getFunction("PutChar", 2);
+		Function* function = getFunction2("PutChar");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -282,7 +282,7 @@ void FileSymbols::generateCode()
 	}
 	//char32 UngetChar(file, char32 c)
 	{
-		Function* function = getFunction("UngetChar", 2);
+		Function* function = getFunction2("UngetChar");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -295,7 +295,7 @@ void FileSymbols::generateCode()
 	}
 	//bool Seek(file, int_full, bool)
 	{
-		Function* function = getFunction("Seek", 3);
+		Function* function = getFunction2("Seek");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -309,7 +309,7 @@ void FileSymbols::generateCode()
 	}
 	//void Rewind(file)
 	{
-		Function* function = getFunction("Rewind", 1);
+		Function* function = getFunction2("Rewind");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -322,7 +322,7 @@ void FileSymbols::generateCode()
 	}
 	//void ClearError(file)
 	{
-		Function* function = getFunction("ClearError", 1);
+		Function* function = getFunction2("ClearError");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -335,7 +335,7 @@ void FileSymbols::generateCode()
 	}
 	//int32_t OpenMode(file, char32*, char32*)
 	{
-		Function* function = getFunction("OpenMode", 3);
+		Function* function = getFunction2("OpenMode");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -350,7 +350,7 @@ void FileSymbols::generateCode()
 	}
 	//int32_t GetError(file, char32*)
 	{
-		Function* function = getFunction("GetError", 2);
+		Function* function = getFunction2("GetError");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -363,7 +363,7 @@ void FileSymbols::generateCode()
 	}
 	//bool Remove(file)
 	{
-		Function* function = getFunction("Remove", 1);
+		Function* function = getFunction2("Remove");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -376,7 +376,7 @@ void FileSymbols::generateCode()
 	}
 	//int32_t WriteBytes(file, char32*, int32_t, int32_t)
 	{
-		Function* function = getFunction("WriteBytes", 4);
+		Function* function = getFunction2("WriteBytes");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
@@ -391,7 +391,7 @@ void FileSymbols::generateCode()
 	}
 	//int32_t ReadBytes(file, char32*, int32_t, int32_t)
 	{
-		Function* function = getFunction("ReadBytes", 4);
+		Function* function = getFunction2("ReadBytes");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));

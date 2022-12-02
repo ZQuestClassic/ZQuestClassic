@@ -4,343 +4,343 @@ MapDataSymbols MapDataSymbols::singleton = MapDataSymbols();
 
 static AccessorTable MapDataTable[] =
 {
-//	  name,                                     rettype,          setorget,     var,                 numindex,             funcFlags,                            numParams,   params
-	{ "isSolid",                        ZTID_BOOL,          FUNCTION,     0,                          1,             FUNCFLAG_INLINE,                      3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "isSolidLayer",                   ZTID_BOOL,          FUNCTION,     0,                          1,             0,                                    4,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
+	{ "isSolid",                    0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "isSolidLayer",               0,          ZTID_BOOL,   -1,                        0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getValid",                       ZTID_FLOAT,         GETTER,       MAPDATAVALID,               1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setValid",                       ZTID_VOID,          SETTER,       MAPDATAVALID,               1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getValid",                   0,         ZTID_FLOAT,   MAPDATAVALID,              0,  { ZTID_MAPDATA },{} },
+	{ "setValid",                   0,          ZTID_VOID,   MAPDATAVALID,              0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getGuy",                         ZTID_FLOAT,         GETTER,       MAPDATAGUY,                 1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setGuy",                         ZTID_VOID,          SETTER,       MAPDATAGUY,                 1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getGuy",                     0,         ZTID_FLOAT,   MAPDATAGUY,                0,  { ZTID_MAPDATA },{} },
+	{ "setGuy",                     0,          ZTID_VOID,   MAPDATAGUY,                0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getString",                      ZTID_FLOAT,         GETTER,       MAPDATASTRING,              1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setString",                      ZTID_VOID,          SETTER,       MAPDATASTRING,              1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getString",                  0,         ZTID_FLOAT,   MAPDATASTRING,             0,  { ZTID_MAPDATA },{} },
+	{ "setString",                  0,          ZTID_VOID,   MAPDATASTRING,             0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getRoomType",                    ZTID_FLOAT,         GETTER,       MAPDATAROOM,                1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setRoomType",                    ZTID_VOID,          SETTER,       MAPDATAROOM,                1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getRoomType",                0,         ZTID_FLOAT,   MAPDATAROOM,               0,  { ZTID_MAPDATA },{} },
+	{ "setRoomType",                0,          ZTID_VOID,   MAPDATAROOM,               0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getItem",                        ZTID_FLOAT,         GETTER,       MAPDATAITEM,                1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setItem",                        ZTID_VOID,          SETTER,       MAPDATAITEM,                1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getItem",                    0,         ZTID_FLOAT,   MAPDATAITEM,               0,  { ZTID_MAPDATA },{} },
+	{ "setItem",                    0,          ZTID_VOID,   MAPDATAITEM,               0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	 { "getHasItem",                     ZTID_FLOAT,         GETTER,       MAPDATAHASITEM,             1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setHasItem",                     ZTID_VOID,          SETTER,       MAPDATAHASITEM,             1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getHasItem",                 0,         ZTID_FLOAT,   MAPDATAHASITEM,            0,  { ZTID_MAPDATA },{} },
+	{ "setHasItem",                 0,          ZTID_VOID,   MAPDATAHASITEM,            0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getTileWarpType[]",              ZTID_FLOAT,         GETTER,       MAPDATATILEWARPTYPE,        4,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTileWarpType[]",              ZTID_VOID,          SETTER,       MAPDATATILEWARPTYPE,        4,             0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getTileWarpType[]",          0,         ZTID_FLOAT,   MAPDATATILEWARPTYPE,       0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setTileWarpType[]",          0,          ZTID_VOID,   MAPDATATILEWARPTYPE,       0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getScript",                      ZTID_FLOAT,         GETTER,       MAPDATASCRIPT,              1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setScript",                      ZTID_VOID,          SETTER,       MAPDATASCRIPT,              1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getScript",                  0,         ZTID_FLOAT,   MAPDATASCRIPT,             0,  { ZTID_MAPDATA },{} },
+	{ "setScript",                  0,          ZTID_VOID,   MAPDATASCRIPT,             0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getInitD[]",                     ZTID_UNTYPED,       GETTER,       MAPDATAINITDARRAY,          8,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setInitD[]",                     ZTID_VOID,          SETTER,       MAPDATAINITDARRAY,          8,             0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getInitD[]",                 0,       ZTID_UNTYPED,   MAPDATAINITDARRAY,         0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setInitD[]",                 0,          ZTID_VOID,   MAPDATAINITDARRAY,         0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	
-	{ "getTileWarpOverlay[]",           ZTID_BOOL,          GETTER,       MAPDATATILEWARPOVFLAGS,     4,             0,                                    1,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTileWarpOverlay[]",           ZTID_VOID,          SETTER,       MAPDATATILEWARPOVFLAGS,     4,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getTileWarpOverlay[]",       0,          ZTID_BOOL,   MAPDATATILEWARPOVFLAGS,    0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setTileWarpOverlay[]",       0,          ZTID_VOID,   MAPDATATILEWARPOVFLAGS,    0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL },{} },
 	
-	{ "getDoorComboSet",                ZTID_FLOAT,         GETTER,       MAPDATADOORCOMBOSET,        1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDoorComboSet",                ZTID_VOID,          SETTER,       MAPDATADOORCOMBOSET,        1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getDoorComboSet",            0,         ZTID_FLOAT,   MAPDATADOORCOMBOSET,       0,  { ZTID_MAPDATA },{} },
+	{ "setDoorComboSet",            0,          ZTID_VOID,   MAPDATADOORCOMBOSET,       0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getWarpReturnX[]",               ZTID_FLOAT,         GETTER,       MAPDATAWARPRETX,            4,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWarpReturnX[]",               ZTID_VOID,          SETTER,       MAPDATAWARPRETX,            4,             0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getWarpReturnX[]",           0,         ZTID_FLOAT,   MAPDATAWARPRETX,           0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setWarpReturnX[]",           0,          ZTID_VOID,   MAPDATAWARPRETX,           0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getWarpReturnY[]",               ZTID_FLOAT,         GETTER,       MAPDATAWARPRETY,            4,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWarpReturnY[]",               ZTID_VOID,          SETTER,       MAPDATAWARPRETY,            4,             0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getWarpReturnY[]",           0,         ZTID_FLOAT,   MAPDATAWARPRETY,           0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setWarpReturnY[]",           0,          ZTID_VOID,   MAPDATAWARPRETY,           0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	 { "getWarpReturnC",                 ZTID_FLOAT,         GETTER,       MAPDATAWARPRETURNC,         1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setWarpReturnC",                 ZTID_VOID,          SETTER,       MAPDATAWARPRETURNC,         1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getWarpReturnC",             0,         ZTID_FLOAT,   MAPDATAWARPRETURNC,        0,  { ZTID_MAPDATA },{} },
+	{ "setWarpReturnC",             0,          ZTID_VOID,   MAPDATAWARPRETURNC,        0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getStairsX",                     ZTID_FLOAT,         GETTER,       MAPDATASTAIRX,              1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setStairsX",                     ZTID_VOID,          SETTER,       MAPDATASTAIRX,              1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getStairsX",                 0,         ZTID_FLOAT,   MAPDATASTAIRX,             0,  { ZTID_MAPDATA },{} },
+	{ "setStairsX",                 0,          ZTID_VOID,   MAPDATASTAIRX,             0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getStairsY",                     ZTID_FLOAT,         GETTER,       MAPDATASTAIRY,              1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setStairsY",                     ZTID_VOID,          SETTER,       MAPDATASTAIRY,              1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getStairsY",                 0,         ZTID_FLOAT,   MAPDATASTAIRY,             0,  { ZTID_MAPDATA },{} },
+	{ "setStairsY",                 0,          ZTID_VOID,   MAPDATASTAIRY,             0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getItemX",                       ZTID_FLOAT,         GETTER,       MAPDATAITEMX,               1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setItemX",                       ZTID_VOID,          SETTER,       MAPDATAITEMX,               1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getItemX",                   0,         ZTID_FLOAT,   MAPDATAITEMX,              0,  { ZTID_MAPDATA },{} },
+	{ "setItemX",                   0,          ZTID_VOID,   MAPDATAITEMX,              0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getItemY",                       ZTID_FLOAT,         GETTER,       MAPDATAITEMY,               1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setItemY",                       ZTID_VOID,          SETTER,       MAPDATAITEMY,               1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getItemY",                   0,         ZTID_FLOAT,   MAPDATAITEMY,              0,  { ZTID_MAPDATA },{} },
+	{ "setItemY",                   0,          ZTID_VOID,   MAPDATAITEMY,              0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	 { "getCSet",                        ZTID_FLOAT,         GETTER,       MAPDATACOLOUR,              1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setCSet",                        ZTID_VOID,          SETTER,       MAPDATACOLOUR,              1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getCSet",                    0,         ZTID_FLOAT,   MAPDATACOLOUR,             0,  { ZTID_MAPDATA },{} },
+	{ "setCSet",                    0,          ZTID_VOID,   MAPDATACOLOUR,             0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getPalette",                     ZTID_FLOAT,         GETTER,       MAPDATACOLOUR,              1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setPalette",                     ZTID_VOID,          SETTER,       MAPDATACOLOUR,              1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getPalette",                 0,         ZTID_FLOAT,   MAPDATACOLOUR,             0,  { ZTID_MAPDATA },{} },
+	{ "setPalette",                 0,          ZTID_VOID,   MAPDATACOLOUR,             0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	 { "getEnemyFlags",                  ZTID_FLOAT,         GETTER,       MAPDATAENEMYFLAGS,          1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setEnemyFlags",                  ZTID_VOID,          SETTER,       MAPDATAENEMYFLAGS,          1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getEnemyFlags",              0,         ZTID_FLOAT,   MAPDATAENEMYFLAGS,         0,  { ZTID_MAPDATA },{} },
+	{ "setEnemyFlags",              0,          ZTID_VOID,   MAPDATAENEMYFLAGS,         0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getDoor[]",                      ZTID_FLOAT,         GETTER,       MAPDATADOOR,                4,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDoor[]",                      ZTID_VOID,          SETTER,       MAPDATADOOR,                4,             0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getDoor[]",                  0,         ZTID_FLOAT,   MAPDATADOOR,               0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setDoor[]",                  0,          ZTID_VOID,   MAPDATADOOR,               0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getTileWarpDMap[]",              ZTID_FLOAT,         GETTER,       MAPDATATILEWARPDMAP,        4,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTileWarpDMap[]",              ZTID_VOID,          SETTER,       MAPDATATILEWARPDMAP,        4,             0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getTileWarpDMap[]",          0,         ZTID_FLOAT,   MAPDATATILEWARPDMAP,       0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setTileWarpDMap[]",          0,          ZTID_VOID,   MAPDATATILEWARPDMAP,       0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getTileWarpScreen[]",            ZTID_FLOAT,         GETTER,       MAPDATATILEWARPSCREEN,      4,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTileWarpScreen[]",            ZTID_VOID,          SETTER,       MAPDATATILEWARPSCREEN,      4,             0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getTileWarpScreen[]",        0,         ZTID_FLOAT,   MAPDATATILEWARPSCREEN,     0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setTileWarpScreen[]",        0,          ZTID_VOID,   MAPDATATILEWARPSCREEN,     0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getExitDir",                     ZTID_FLOAT,         GETTER,       MAPDATAEXITDIR,             1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setExitDir",                     ZTID_VOID,          SETTER,       MAPDATAEXITDIR,             1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getExitDir",                 0,         ZTID_FLOAT,   MAPDATAEXITDIR,            0,  { ZTID_MAPDATA },{} },
+	{ "setExitDir",                 0,          ZTID_VOID,   MAPDATAEXITDIR,            0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getEnemy[]",                     ZTID_FLOAT,         GETTER,       MAPDATAENEMY,               10,            0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setEnemy[]",                     ZTID_VOID,          SETTER,       MAPDATAENEMY,               10,            0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getEnemy[]",                 0,         ZTID_FLOAT,   MAPDATAENEMY,              0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setEnemy[]",                 0,          ZTID_VOID,   MAPDATAENEMY,              0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getPattern",                     ZTID_FLOAT,         GETTER,       MAPDATAPATTERN,             1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setPattern",                     ZTID_VOID,          SETTER,       MAPDATAPATTERN,             1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getPattern",                 0,         ZTID_FLOAT,   MAPDATAPATTERN,            0,  { ZTID_MAPDATA },{} },
+	{ "setPattern",                 0,          ZTID_VOID,   MAPDATAPATTERN,            0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getSideWarpType[]",              ZTID_FLOAT,         GETTER,       MAPDATASIDEWARPTYPE,        4,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSideWarpType[]",              ZTID_VOID,          SETTER,       MAPDATASIDEWARPTYPE,        4,             0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getSideWarpType[]",          0,         ZTID_FLOAT,   MAPDATASIDEWARPTYPE,       0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setSideWarpType[]",          0,          ZTID_VOID,   MAPDATASIDEWARPTYPE,       0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getSideWarpOverlay[]",           ZTID_FLOAT,         GETTER,       MAPDATASIDEWARPOVFLAGS,     4,             0,                                    1,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSideWarpOverlay[]",           ZTID_VOID,          SETTER,       MAPDATASIDEWARPOVFLAGS,     4,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getSideWarpOverlay[]",       0,         ZTID_FLOAT,   MAPDATASIDEWARPOVFLAGS,    0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setSideWarpOverlay[]",       0,          ZTID_VOID,   MAPDATASIDEWARPOVFLAGS,    0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL },{} },
 	
-	{ "getWarpArrivalX",                ZTID_FLOAT,         GETTER,       MAPDATAWARPARRIVALX,        1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWarpArrivalX",                ZTID_VOID,          SETTER,       MAPDATAWARPARRIVALX,        1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getWarpArrivalX",            0,         ZTID_FLOAT,   MAPDATAWARPARRIVALX,       0,  { ZTID_MAPDATA },{} },
+	{ "setWarpArrivalX",            0,          ZTID_VOID,   MAPDATAWARPARRIVALX,       0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getWarpArrivalY",                ZTID_FLOAT,         GETTER,       MAPDATAWARPARRIVALY,        1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setWarpArrivalY",                ZTID_VOID,          SETTER,       MAPDATAWARPARRIVALY,        1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getWarpArrivalY",            0,         ZTID_FLOAT,   MAPDATAWARPARRIVALY,       0,  { ZTID_MAPDATA },{} },
+	{ "setWarpArrivalY",            0,          ZTID_VOID,   MAPDATAWARPARRIVALY,       0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getMazePath[]",                  ZTID_FLOAT,         GETTER,       MAPDATAPATH,                4,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMazePath[]",                  ZTID_VOID,          SETTER,       MAPDATAPATH,                4,             0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getMazePath[]",              0,         ZTID_FLOAT,   MAPDATAPATH,               0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setMazePath[]",              0,          ZTID_VOID,   MAPDATAPATH,               0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getSideWarpScreen[]",            ZTID_FLOAT,         GETTER,       MAPDATASIDEWARPSC,          4,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSideWarpScreen[]",            ZTID_VOID,          SETTER,       MAPDATASIDEWARPSC,          4,             0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getSideWarpScreen[]",        0,         ZTID_FLOAT,   MAPDATASIDEWARPSC,         0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setSideWarpScreen[]",        0,          ZTID_VOID,   MAPDATASIDEWARPSC,         0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getSideWarpID[]",            ZTID_FLOAT,         GETTER,       MAPDATASIDEWARPID,          4,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSideWarpID[]",            ZTID_VOID,          SETTER,       MAPDATASIDEWARPID,          4,             0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getSideWarpID[]",            0,         ZTID_FLOAT,   MAPDATASIDEWARPID,         0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setSideWarpID[]",            0,          ZTID_VOID,   MAPDATASIDEWARPID,         0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getTileWarpReturnSquare[]",            ZTID_FLOAT,         GETTER,       MAPDATATWARPRETSQR,          4,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTileWarpReturnSquare[]",            ZTID_VOID,          SETTER,       MAPDATATWARPRETSQR,          4,             0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSideWarpReturnSquare[]",            ZTID_FLOAT,         GETTER,       MAPDATASWARPRETSQR,          4,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSideWarpReturnSquare[]",            ZTID_VOID,          SETTER,       MAPDATASWARPRETSQR,          4,             0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getTileWarpReturnSquare[]",  0,         ZTID_FLOAT,   MAPDATATWARPRETSQR,        0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setTileWarpReturnSquare[]",  0,          ZTID_VOID,   MAPDATATWARPRETSQR,        0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getSideWarpReturnSquare[]",  0,         ZTID_FLOAT,   MAPDATASWARPRETSQR,        0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setSideWarpReturnSquare[]",  0,          ZTID_VOID,   MAPDATASWARPRETSQR,        0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getSideWarpDMap[]",              ZTID_FLOAT,         GETTER,       MAPDATASIDEWARPDMAP,        4,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSideWarpDMap[]",              ZTID_VOID,          SETTER,       MAPDATASIDEWARPDMAP,        4,             0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getSideWarpDMap[]",          0,         ZTID_FLOAT,   MAPDATASIDEWARPDMAP,       0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setSideWarpDMap[]",          0,          ZTID_VOID,   MAPDATASIDEWARPDMAP,       0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	 { "getSideWarpIndex",               ZTID_FLOAT,         GETTER,       MAPDATASIDEWARPINDEX,       1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setSideWarpIndex",               ZTID_VOID,          SETTER,       MAPDATASIDEWARPINDEX,       1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getSideWarpIndex",           0,         ZTID_FLOAT,   MAPDATASIDEWARPINDEX,      0,  { ZTID_MAPDATA },{} },
+	{ "setSideWarpIndex",           0,          ZTID_VOID,   MAPDATASIDEWARPINDEX,      0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getUnderCombo",                  ZTID_FLOAT,         GETTER,       MAPDATAUNDERCOMBO,          1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setUnderCombo",                  ZTID_VOID,          SETTER,       MAPDATAUNDERCOMBO,          1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getUnderCombo",              0,         ZTID_FLOAT,   MAPDATAUNDERCOMBO,         0,  { ZTID_MAPDATA },{} },
+	{ "setUnderCombo",              0,          ZTID_VOID,   MAPDATAUNDERCOMBO,         0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getUnderCSet",                   ZTID_FLOAT,         GETTER,       MAPDATAUNDERCSET,           1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setUnderCSet",                   ZTID_VOID,          SETTER,       MAPDATAUNDERCSET,           1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getUnderCSet",               0,         ZTID_FLOAT,   MAPDATAUNDERCSET,          0,  { ZTID_MAPDATA },{} },
+	{ "setUnderCSet",               0,          ZTID_VOID,   MAPDATAUNDERCSET,          0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getCatchall",                    ZTID_FLOAT,         GETTER,       MAPDATACATCHALL,            1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setCatchall",                    ZTID_VOID,          SETTER,       MAPDATACATCHALL,            1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getCatchall",                0,         ZTID_FLOAT,   MAPDATACATCHALL,           0,  { ZTID_MAPDATA },{} },
+	{ "setCatchall",                0,          ZTID_VOID,   MAPDATACATCHALL,           0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getCSensitive",                  ZTID_FLOAT,         GETTER,       MAPDATACSENSITIVE,          1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setCSensitive",                  ZTID_VOID,          SETTER,       MAPDATACSENSITIVE,          1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getCSensitive",              0,         ZTID_FLOAT,   MAPDATACSENSITIVE,         0,  { ZTID_MAPDATA },{} },
+	{ "setCSensitive",              0,          ZTID_VOID,   MAPDATACSENSITIVE,         0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getNoReset",                     ZTID_FLOAT,         GETTER,       MAPDATANORESET,             1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setNoReset",                     ZTID_VOID,          SETTER,       MAPDATANORESET,             1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getNoReset",                 0,         ZTID_FLOAT,   MAPDATANORESET,            0,  { ZTID_MAPDATA },{} },
+	{ "setNoReset",                 0,          ZTID_VOID,   MAPDATANORESET,            0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getNoCarry",                     ZTID_FLOAT,         GETTER,       MAPDATANOCARRY,             1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setNoCarry",                     ZTID_VOID,          SETTER,       MAPDATANOCARRY,             1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getNoCarry",                 0,         ZTID_FLOAT,   MAPDATANOCARRY,            0,  { ZTID_MAPDATA },{} },
+	{ "setNoCarry",                 0,          ZTID_VOID,   MAPDATANOCARRY,            0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getLayerMap[]",                  ZTID_FLOAT,         GETTER,       MAPDATALAYERMAP,            7,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLayerMap[]",                  ZTID_VOID,          SETTER,       MAPDATALAYERMAP,            7,             0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getLayerMap[]",              0,         ZTID_FLOAT,   MAPDATALAYERMAP,           0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setLayerMap[]",              0,          ZTID_VOID,   MAPDATALAYERMAP,           0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getLayerScreen[]",               ZTID_FLOAT,         GETTER,       MAPDATALAYERSCREEN,         7,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLayerScreen[]",               ZTID_VOID,          SETTER,       MAPDATALAYERSCREEN,         7,             0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getLayerScreen[]",           0,         ZTID_FLOAT,   MAPDATALAYERSCREEN,        0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setLayerScreen[]",           0,          ZTID_VOID,   MAPDATALAYERSCREEN,        0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getLayerOpacity[]",              ZTID_FLOAT,         GETTER,       MAPDATALAYEROPACITY,        7,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLayerOpacity[]",              ZTID_VOID,          SETTER,       MAPDATALAYEROPACITY,        7,             0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getLayerOpacity[]",          0,         ZTID_FLOAT,   MAPDATALAYEROPACITY,       0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setLayerOpacity[]",          0,          ZTID_VOID,   MAPDATALAYEROPACITY,       0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getLayerInvisible[]",            ZTID_BOOL,          GETTER,       MAPDATALAYERINVIS,          7,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLayerInvisible[]",            ZTID_VOID,          SETTER,       MAPDATALAYERINVIS,          7,             0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getLayerInvisible[]",        0,          ZTID_BOOL,   MAPDATALAYERINVIS,         0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setLayerInvisible[]",        0,          ZTID_VOID,   MAPDATALAYERINVIS,         0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL },{} },
 	
-	{ "getScriptDraws[]",               ZTID_BOOL,          GETTER,       MAPDATASCRIPTDRAWS,         8,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setScriptDraws[]",               ZTID_VOID,          SETTER,       MAPDATASCRIPTDRAWS,         8,             0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getScriptDraws[]",           0,          ZTID_BOOL,   MAPDATASCRIPTDRAWS,        0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setScriptDraws[]",           0,          ZTID_VOID,   MAPDATASCRIPTDRAWS,        0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL },{} },
 	
 	
-	{ "getTimedWarpTimer",              ZTID_FLOAT,         GETTER,       MAPDATATIMEDWARPTICS,       1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTimedWarpTimer",              ZTID_VOID,          SETTER,       MAPDATATIMEDWARPTICS,       1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getTimedWarpTimer",          0,         ZTID_FLOAT,   MAPDATATIMEDWARPTICS,      0,  { ZTID_MAPDATA },{} },
+	{ "setTimedWarpTimer",          0,          ZTID_VOID,   MAPDATATIMEDWARPTICS,      0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getNextMap",                     ZTID_FLOAT,         GETTER,       MAPDATANEXTMAP,             1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setNextMap",                     ZTID_VOID,          SETTER,       MAPDATANEXTMAP,             1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getNextMap",                 0,         ZTID_FLOAT,   MAPDATANEXTMAP,            0,  { ZTID_MAPDATA },{} },
+	{ "setNextMap",                 0,          ZTID_VOID,   MAPDATANEXTMAP,            0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getNextScreen",                  ZTID_FLOAT,         GETTER,       MAPDATANEXTSCREEN,          1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setNextScreen",                  ZTID_VOID,          SETTER,       MAPDATANEXTSCREEN,          1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getNextScreen",              0,         ZTID_FLOAT,   MAPDATANEXTSCREEN,         0,  { ZTID_MAPDATA },{} },
+	{ "setNextScreen",              0,          ZTID_VOID,   MAPDATANEXTSCREEN,         0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
 	
-	{ "getCarryoverMap",                ZTID_FLOAT,         GETTER,       MAPDATANEXTMAP,             1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setCarryoverMap",                ZTID_VOID,          SETTER,       MAPDATANEXTMAP,             1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getCarryoverMap",            0,         ZTID_FLOAT,   MAPDATANEXTMAP,            0,  { ZTID_MAPDATA },{} },
+	{ "setCarryoverMap",            0,          ZTID_VOID,   MAPDATANEXTMAP,            0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getCarryoverScreen",             ZTID_FLOAT,         GETTER,       MAPDATANEXTSCREEN,          1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setCarryoverSreen",              ZTID_VOID,          SETTER,       MAPDATANEXTSCREEN,          1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getCarryoverScreen",         0,         ZTID_FLOAT,   MAPDATANEXTSCREEN,         0,  { ZTID_MAPDATA },{} },
+	{ "setCarryoverSreen",          0,          ZTID_VOID,   MAPDATANEXTSCREEN,         0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getSecretCombo[]",               ZTID_FLOAT,         GETTER,       MAPDATASECRETCOMBO,         128,           0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSecretCombo[]",               ZTID_VOID,          SETTER,       MAPDATASECRETCOMBO,         128,           0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getSecretCombo[]",           0,         ZTID_FLOAT,   MAPDATASECRETCOMBO,        0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setSecretCombo[]",           0,          ZTID_VOID,   MAPDATASECRETCOMBO,        0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getSecretCSet[]",                ZTID_FLOAT,         GETTER,       MAPDATASECRETCSET,          128,           0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSecretCSet[]",                ZTID_VOID,          SETTER,       MAPDATASECRETCSET,          128,           0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getSecretCSet[]",            0,         ZTID_FLOAT,   MAPDATASECRETCSET,         0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setSecretCSet[]",            0,          ZTID_VOID,   MAPDATASECRETCSET,         0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getSecretFlags[]",               ZTID_FLOAT,         GETTER,       MAPDATASECRETFLAG,          128,           0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSecretFlags[]",               ZTID_VOID,          SETTER,       MAPDATASECRETFLAG,          128,           0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getSecretFlags[]",           0,         ZTID_FLOAT,   MAPDATASECRETFLAG,         0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setSecretFlags[]",           0,          ZTID_VOID,   MAPDATASECRETFLAG,         0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	 { "getViewX",                       ZTID_FLOAT,         GETTER,       MAPDATAVIEWX,               1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setViewX",                       ZTID_VOID,          SETTER,       MAPDATAVIEWX,               1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getViewX",                   0,         ZTID_FLOAT,   MAPDATAVIEWX,              0,  { ZTID_MAPDATA },{} },
+	{ "setViewX",                   0,          ZTID_VOID,   MAPDATAVIEWX,              0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	 { "getViewY",                       ZTID_FLOAT,         GETTER,       MAPDATAVIEWY,               1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setViewY",                       ZTID_VOID,          SETTER,       MAPDATAVIEWY,               1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getViewY",                   0,         ZTID_FLOAT,   MAPDATAVIEWY,              0,  { ZTID_MAPDATA },{} },
+	{ "setViewY",                   0,          ZTID_VOID,   MAPDATAVIEWY,              0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	 { "getWidth",                       ZTID_FLOAT,         GETTER,       MAPDATASCREENWIDTH,         1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setWidth",                       ZTID_VOID,          SETTER,       MAPDATASCREENWIDTH,         1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getWidth",                   0,         ZTID_FLOAT,   MAPDATASCREENWIDTH,        0,  { ZTID_MAPDATA },{} },
+	{ "setWidth",                   0,          ZTID_VOID,   MAPDATASCREENWIDTH,        0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	 { "getHeight",                      ZTID_FLOAT,         GETTER,       MAPDATASCREENHEIGHT,        1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setHeight",                      ZTID_VOID,          SETTER,       MAPDATASCREENHEIGHT,        1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getHeight",                  0,         ZTID_FLOAT,   MAPDATASCREENHEIGHT,       0,  { ZTID_MAPDATA },{} },
+	{ "setHeight",                  0,          ZTID_VOID,   MAPDATASCREENHEIGHT,       0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	 { "getEntryX",                      ZTID_FLOAT,         GETTER,       MAPDATAENTRYX,              1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setEntryX",                      ZTID_VOID,          SETTER,       MAPDATAENTRYX,              1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getEntryX",                  0,         ZTID_FLOAT,   MAPDATAENTRYX,             0,  { ZTID_MAPDATA },{} },
+	{ "setEntryX",                  0,          ZTID_VOID,   MAPDATAENTRYX,             0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	 { "getEntryY",                      ZTID_FLOAT,         GETTER,       MAPDATAENTRYY,              1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setEntryY",                      ZTID_VOID,          SETTER,       MAPDATAENTRYY,              1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getEntryY",                  0,         ZTID_FLOAT,   MAPDATAENTRYY,             0,  { ZTID_MAPDATA },{} },
+	{ "setEntryY",                  0,          ZTID_VOID,   MAPDATAENTRYY,             0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	 { "getNumFFCs[]",                   ZTID_BOOL,          GETTER,       MAPDATANUMFF,              33,            0,                                    1,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getNumFFCs[]",               0,          ZTID_BOOL,   MAPDATANUMFF,              0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	//read-only, for now?
-	 { "setNumFFCs[]",                   ZTID_VOID,          SETTER,       MAPDATANUMFF,              33,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setNumFFCs[]",               0,          ZTID_VOID,   MAPDATANUMFF,              0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL },{} },
 	
-	{ "getFFCData[]",                   ZTID_FLOAT,         GETTER,       MAPDATAFFDATA,              33,            0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFFCData[]",                   ZTID_VOID,          SETTER,       MAPDATAFFDATA,              33,            0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFFCData[]",               0,         ZTID_FLOAT,   MAPDATAFFDATA,             0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setFFCData[]",               0,          ZTID_VOID,   MAPDATAFFDATA,             0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getFFCCSet[]",                   ZTID_FLOAT,         GETTER,       MAPDATAFFCSET,              33,            0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFFCCSet[]",                   ZTID_VOID,          SETTER,       MAPDATAFFCSET,              33,            0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFFCCSet[]",               0,         ZTID_FLOAT,   MAPDATAFFCSET,             0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setFFCCSet[]",               0,          ZTID_VOID,   MAPDATAFFCSET,             0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getFFCDelay[]",                  ZTID_FLOAT,         GETTER,       MAPDATAFFDELAY,             33,            0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFFCDelay[]",                  ZTID_VOID,          SETTER,       MAPDATAFFDELAY,             33,            0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFFCDelay[]",              0,         ZTID_FLOAT,   MAPDATAFFDELAY,            0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setFFCDelay[]",              0,          ZTID_VOID,   MAPDATAFFDELAY,            0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getFFCX[]",                      ZTID_FLOAT,         GETTER,       MAPDATAFFX,                 33,            0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFFCX[]",                      ZTID_VOID,          SETTER,       MAPDATAFFX,                 33,            0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFFCX[]",                  0,         ZTID_FLOAT,   MAPDATAFFX,                0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setFFCX[]",                  0,          ZTID_VOID,   MAPDATAFFX,                0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getFFCY[]",                      ZTID_FLOAT,         GETTER,       MAPDATAFFY,                 33,            0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFFCY[]",                      ZTID_VOID,          SETTER,       MAPDATAFFY,                 33,            0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFFCY[]",                  0,         ZTID_FLOAT,   MAPDATAFFY,                0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setFFCY[]",                  0,          ZTID_VOID,   MAPDATAFFY,                0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getFFCVx[]",                     ZTID_FLOAT,         GETTER,       MAPDATAFFXDELTA,            33,            0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFFCVx[]",                     ZTID_VOID,          SETTER,       MAPDATAFFXDELTA,            33,            0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFFCVx[]",                 0,         ZTID_FLOAT,   MAPDATAFFXDELTA,           0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setFFCVx[]",                 0,          ZTID_VOID,   MAPDATAFFXDELTA,           0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getFFCVy[]",                     ZTID_FLOAT,         GETTER,       MAPDATAFFYDELTA,            33,            0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFFCVy[]",                     ZTID_VOID,          SETTER,       MAPDATAFFYDELTA,            33,            0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFFCVy[]",                 0,         ZTID_FLOAT,   MAPDATAFFYDELTA,           0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setFFCVy[]",                 0,          ZTID_VOID,   MAPDATAFFYDELTA,           0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getFFCAx[]",                     ZTID_FLOAT,         GETTER,       MAPDATAFFXDELTA2,           33,            0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFFCAx[]",                     ZTID_VOID,          SETTER,       MAPDATAFFXDELTA2,           33,            0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFFCAx[]",                 0,         ZTID_FLOAT,   MAPDATAFFXDELTA2,          0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setFFCAx[]",                 0,          ZTID_VOID,   MAPDATAFFXDELTA2,          0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getFFCAy[]",                     ZTID_FLOAT,         GETTER,       MAPDATAFFYDELTA2,           33,            0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFFCAy[]",                     ZTID_VOID,          SETTER,       MAPDATAFFYDELTA2,           33,            0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFFCAy[]",                 0,         ZTID_FLOAT,   MAPDATAFFYDELTA2,          0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setFFCAy[]",                 0,          ZTID_VOID,   MAPDATAFFYDELTA2,          0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getFFCFlags[]",                  ZTID_FLOAT,         GETTER,       MAPDATAFFFLAGS,             33,            0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFFCFlags[]",                  ZTID_VOID,          SETTER,       MAPDATAFFFLAGS,             33,            0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFFCFlags[]",              0,         ZTID_FLOAT,   MAPDATAFFFLAGS,            0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setFFCFlags[]",              0,          ZTID_VOID,   MAPDATAFFFLAGS,            0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getFFCEffectWidth[]",            ZTID_FLOAT,         GETTER,       MAPDATAFFEFFECTWIDTH,       33,            0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFFCEffectWidth[]",            ZTID_VOID,          SETTER,       MAPDATAFFEFFECTWIDTH,       33,            0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFFCEffectWidth[]",        0,         ZTID_FLOAT,   MAPDATAFFEFFECTWIDTH,      0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setFFCEffectWidth[]",        0,          ZTID_VOID,   MAPDATAFFEFFECTWIDTH,      0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getFFCEffectHeight[]",           ZTID_FLOAT,         GETTER,       MAPDATAFFEFFECTHEIGHT,      33,            0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFFCEffectHeight[]",           ZTID_VOID,          SETTER,       MAPDATAFFEFFECTHEIGHT,      33,            0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFFCEffectHeight[]",       0,         ZTID_FLOAT,   MAPDATAFFEFFECTHEIGHT,     0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setFFCEffectHeight[]",       0,          ZTID_VOID,   MAPDATAFFEFFECTHEIGHT,     0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getFFCTileWidth[]",              ZTID_FLOAT,         GETTER,       MAPDATAFFWIDTH,             33,            0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFFCTileWidth[]",              ZTID_VOID,          SETTER,       MAPDATAFFWIDTH,             33,            0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFFCTileWidth[]",          0,         ZTID_FLOAT,   MAPDATAFFWIDTH,            0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setFFCTileWidth[]",          0,          ZTID_VOID,   MAPDATAFFWIDTH,            0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getFFCTileHeight[]",             ZTID_FLOAT,         GETTER,       MAPDATAFFHEIGHT,            33,            0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFFCTileHeight[]",             ZTID_VOID,          SETTER,       MAPDATAFFHEIGHT,            33,            0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFFCTileHeight[]",         0,         ZTID_FLOAT,   MAPDATAFFHEIGHT,           0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setFFCTileHeight[]",         0,          ZTID_VOID,   MAPDATAFFHEIGHT,           0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getFFCLink[]",                   ZTID_FLOAT,         GETTER,       MAPDATAFFLINK,              33,            0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFFCLink[]",                   ZTID_VOID,          SETTER,       MAPDATAFFLINK,              33,            0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFFCLink[]",               0,         ZTID_FLOAT,   MAPDATAFFLINK,             0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setFFCLink[]",               0,          ZTID_VOID,   MAPDATAFFLINK,             0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getFFCScript[]",                 ZTID_FLOAT,         GETTER,       MAPDATAFFSCRIPT,            33,            0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFFCScript[]",                 ZTID_VOID,          SETTER,       MAPDATAFFSCRIPT,            33,            0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFFCScript[]",             0,         ZTID_FLOAT,   MAPDATAFFSCRIPT,           0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setFFCScript[]",             0,          ZTID_VOID,   MAPDATAFFSCRIPT,           0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	 { "getFFCRunning[]",                ZTID_BOOL,          GETTER,       MAPDATAFFINITIALISED,       33,            0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setFFCRunning[]",                ZTID_VOID,          SETTER,       MAPDATAFFINITIALISED,       33,            0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFFCRunning[]",            0,          ZTID_BOOL,   MAPDATAFFINITIALISED,      0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setFFCRunning[]",            0,          ZTID_VOID,   MAPDATAFFINITIALISED,      0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL },{} },
 	
-	 { "getScriptEntry",                 ZTID_FLOAT,         GETTER,       MAPDATASCRIPTENTRY,         1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setScriptEntry",                 ZTID_VOID,          SETTER,       MAPDATASCRIPTENTRY,         1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getScriptEntry",             0,         ZTID_FLOAT,   MAPDATASCRIPTENTRY,        0,  { ZTID_MAPDATA },{} },
+	{ "setScriptEntry",             0,          ZTID_VOID,   MAPDATASCRIPTENTRY,        0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	 { "getScriptOccupancy",             ZTID_FLOAT,         GETTER,       MAPDATASCRIPTOCCUPANCY,     1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setScriptOccupancy",             ZTID_VOID,          SETTER,       MAPDATASCRIPTOCCUPANCY,     1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getScriptOccupancy",         0,         ZTID_FLOAT,   MAPDATASCRIPTOCCUPANCY,    0,  { ZTID_MAPDATA },{} },
+	{ "setScriptOccupancy",         0,          ZTID_VOID,   MAPDATASCRIPTOCCUPANCY,    0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	 { "getExitScript",                  ZTID_FLOAT,         GETTER,       MAPDATASCRIPTEXIT,          1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setExitScript",                  ZTID_VOID,          SETTER,       MAPDATASCRIPTEXIT,          1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getExitScript",              0,         ZTID_FLOAT,   MAPDATASCRIPTEXIT,         0,  { ZTID_MAPDATA },{} },
+	{ "setExitScript",              0,          ZTID_VOID,   MAPDATASCRIPTEXIT,         0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	 { "getOceanSFX",                    ZTID_FLOAT,         GETTER,       MAPDATAOCEANSFX,            1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setOceanSFX",                    ZTID_VOID,          SETTER,       MAPDATAOCEANSFX,            1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getAmbientSFX",                  ZTID_FLOAT,         GETTER,       MAPDATAOCEANSFX,            1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setAmbientSFX",                  ZTID_VOID,          SETTER,       MAPDATAOCEANSFX,            1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getOceanSFX",                0,         ZTID_FLOAT,   MAPDATAOCEANSFX,           0,  { ZTID_MAPDATA },{} },
+	{ "setOceanSFX",                0,          ZTID_VOID,   MAPDATAOCEANSFX,           0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "getAmbientSFX",              0,         ZTID_FLOAT,   MAPDATAOCEANSFX,           0,  { ZTID_MAPDATA },{} },
+	{ "setAmbientSFX",              0,          ZTID_VOID,   MAPDATAOCEANSFX,           0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getBossSFX",                     ZTID_FLOAT,         GETTER,       MAPDATABOSSSFX,             1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setBossSFX",                     ZTID_VOID,          SETTER,       MAPDATABOSSSFX,             1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getBossSFX",                 0,         ZTID_FLOAT,   MAPDATABOSSSFX,            0,  { ZTID_MAPDATA },{} },
+	{ "setBossSFX",                 0,          ZTID_VOID,   MAPDATABOSSSFX,            0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getSecretSFX",                   ZTID_FLOAT,         GETTER,       MAPDATASECRETSFX,           1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSecretSFX",                   ZTID_VOID,          SETTER,       MAPDATASECRETSFX,           1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getSecretSFX",               0,         ZTID_FLOAT,   MAPDATASECRETSFX,          0,  { ZTID_MAPDATA },{} },
+	{ "setSecretSFX",               0,          ZTID_VOID,   MAPDATASECRETSFX,          0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getItemSFX",                     ZTID_FLOAT,         GETTER,       MAPDATAHOLDUPSFX,           1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setItemSFX",                     ZTID_VOID,          SETTER,       MAPDATAHOLDUPSFX,           1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getItemSFX",                 0,         ZTID_FLOAT,   MAPDATAHOLDUPSFX,          0,  { ZTID_MAPDATA },{} },
+	{ "setItemSFX",                 0,          ZTID_VOID,   MAPDATAHOLDUPSFX,          0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getMIDI",                        ZTID_FLOAT,         GETTER,       MAPDATASCREENMIDI,          1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMIDI",                        ZTID_VOID,          SETTER,       MAPDATASCREENMIDI,          1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getMIDI",                    0,         ZTID_FLOAT,   MAPDATASCREENMIDI,         0,  { ZTID_MAPDATA },{} },
+	{ "setMIDI",                    0,          ZTID_VOID,   MAPDATASCREENMIDI,         0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getLensLayer",                   ZTID_FLOAT,         GETTER,       MAPDATALENSLAYER,           1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setLensLayer",                   ZTID_VOID,          SETTER,       MAPDATALENSLAYER,           1,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getLensLayer",               0,         ZTID_FLOAT,   MAPDATALENSLAYER,          0,  { ZTID_MAPDATA },{} },
+	{ "setLensLayer",               0,          ZTID_VOID,   MAPDATALENSLAYER,          0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getFlags[]",                     ZTID_FLOAT,         GETTER,       MAPDATAFLAGS,               10,            0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFlags[]",                     ZTID_VOID,          SETTER,       MAPDATAFLAGS,               10,            0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFlags[]",                 0,         ZTID_FLOAT,   MAPDATAFLAGS,              0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setFlags[]",                 0,          ZTID_VOID,   MAPDATAFLAGS,              0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 //	array of 11
-	{ "getD[]",                         ZTID_UNTYPED,       GETTER,       MAPDATAMISCD,               8,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setD[]",                         ZTID_VOID,          SETTER,       MAPDATAMISCD,               8,             0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getD[]",                     0,       ZTID_UNTYPED,   MAPDATAMISCD,              0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setD[]",                     0,          ZTID_VOID,   MAPDATAMISCD,              0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_UNTYPED },{} },
 //	array of 10 MAPDATAMISCD
-	{ "getComboD[]",                    ZTID_FLOAT,         GETTER,       MAPDATACOMBODD,             176,           0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setComboD[]",                    ZTID_VOID,          SETTER,       MAPDATACOMBODD,             176,           0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getComboC[]",                    ZTID_FLOAT,         GETTER,       MAPDATACOMBOCD,             176,           0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setComboC[]",                    ZTID_VOID,          SETTER,       MAPDATACOMBOCD,             176,           0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getComboF[]",                    ZTID_FLOAT,         GETTER,       MAPDATACOMBOFD,             176,           0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setComboF[]",                    ZTID_VOID,          SETTER,       MAPDATACOMBOFD,             176,           0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getComboI[]",                    ZTID_FLOAT,         GETTER,       MAPDATACOMBOID,             176,           0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setComboI[]",                    ZTID_VOID,          SETTER,       MAPDATACOMBOID,             176,           0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getComboT[]",                    ZTID_FLOAT,         GETTER,       MAPDATACOMBOTD,             176,           0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setComboT[]",                    ZTID_VOID,          SETTER,       MAPDATACOMBOTD,             176,           0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getComboS[]",                    ZTID_FLOAT,         GETTER,       MAPDATACOMBOSD,             176,           0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setComboS[]",                    ZTID_VOID,          SETTER,       MAPDATACOMBOSD,             176,           0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getComboE[]",                    ZTID_FLOAT,         GETTER,       MAPDATACOMBOED,             176,           0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setComboE[]",                    ZTID_VOID,          SETTER,       MAPDATACOMBOED,             176,           0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getState[]",                     ZTID_BOOL,          GETTER,       MAPDATASCREENSTATED,        32,            0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setState[]",                     ZTID_VOID,          SETTER,       MAPDATASCREENSTATED,        32,            0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getExState[]",                   ZTID_BOOL,          GETTER,       MAPDATAEXSTATED,            32,            0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setExState[]",                   ZTID_VOID,          SETTER,       MAPDATAEXSTATED,            32,            0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSFlags[]",                     ZTID_FLOAT,         GETTER,       MAPDATASCREENFLAGSD,        10,            0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-//	{ "setFlags[]",                     ZTID_VOID,          SETTER,       MAPDATASCREENFLAGSD,        10,            0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getComboD[]",                0,         ZTID_FLOAT,   MAPDATACOMBODD,            0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setComboD[]",                0,          ZTID_VOID,   MAPDATACOMBODD,            0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getComboC[]",                0,         ZTID_FLOAT,   MAPDATACOMBOCD,            0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setComboC[]",                0,          ZTID_VOID,   MAPDATACOMBOCD,            0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getComboF[]",                0,         ZTID_FLOAT,   MAPDATACOMBOFD,            0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setComboF[]",                0,          ZTID_VOID,   MAPDATACOMBOFD,            0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getComboI[]",                0,         ZTID_FLOAT,   MAPDATACOMBOID,            0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setComboI[]",                0,          ZTID_VOID,   MAPDATACOMBOID,            0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getComboT[]",                0,         ZTID_FLOAT,   MAPDATACOMBOTD,            0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setComboT[]",                0,          ZTID_VOID,   MAPDATACOMBOTD,            0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getComboS[]",                0,         ZTID_FLOAT,   MAPDATACOMBOSD,            0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setComboS[]",                0,          ZTID_VOID,   MAPDATACOMBOSD,            0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getComboE[]",                0,         ZTID_FLOAT,   MAPDATACOMBOED,            0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setComboE[]",                0,          ZTID_VOID,   MAPDATACOMBOED,            0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getState[]",                 0,          ZTID_BOOL,   MAPDATASCREENSTATED,       0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setState[]",                 0,          ZTID_VOID,   MAPDATASCREENSTATED,       0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getExState[]",               0,          ZTID_BOOL,   MAPDATAEXSTATED,           0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setExState[]",               0,          ZTID_VOID,   MAPDATAEXSTATED,           0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getSFlags[]",                0,         ZTID_FLOAT,   MAPDATASCREENFLAGSD,       0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+//	{ "setFlags[]",                 1,          ZTID_VOID,   MAPDATASCREENFLAGSD,       0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 //	This is read-only, but it was not previously blocked! -Z
-	{ "getEFlags[]",                    ZTID_FLOAT,         GETTER,       MAPDATASCREENEFLAGSD,       3,             0,                                    2,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getEFlags[]",                0,         ZTID_FLOAT,   MAPDATASCREENEFLAGSD,      0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 //	This is read-only, but it was not previously blocked! -Z
-//	{ "setEFlags[]",                    ZTID_VOID,          SETTER,       MAPDATASCREENEFLAGSD,       3,             0,                                    3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+//	{ "setEFlags[]",                0,          ZTID_VOID,   MAPDATASCREENEFLAGSD,      0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
 //	Functions
 
-	{ "GetFFCInitD",                    ZTID_UNTYPED,       FUNCTION,     0,                          1,             FUNCFLAG_INLINE,                      3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetFFCInitD",                    ZTID_VOID,          FUNCTION,     0,                          1,             0,                                    4,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "GetFFCInitD",                0,       ZTID_UNTYPED,   -1,                   FL_INL,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetFFCInitD",                0,          ZTID_VOID,   -1,                        0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	
-	{ "GetFFCInitA",                    ZTID_FLOAT,         FUNCTION,     0,                          1,             FUNCFLAG_INLINE,                      3,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetFFCInitA",                    ZTID_FLOAT,         FUNCTION,     0,                          1,             0,                                    4,           { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "GetFFCInitA",                0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SetFFCInitA",                0,         ZTID_FLOAT,   -1,                        0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getMap",                         ZTID_FLOAT,         GETTER,       MAPDATAMAP,                 1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMap",                         ZTID_FLOAT,         SETTER,       MAPDATAMAP,                 1,             0,                                    1,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScreen",                      ZTID_FLOAT,         GETTER,       MAPDATASCREEN,              1,             0,                                    1,           { ZTID_MAPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setScreen",                      ZTID_FLOAT,         SETTER,       MAPDATASCREEN,              1,             0,                                    1,           { ZTID_MAPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getMap",                     0,         ZTID_FLOAT,   MAPDATAMAP,                0,  { ZTID_MAPDATA },{} },
+	{ "setMap",                     0,         ZTID_FLOAT,   MAPDATAMAP,                0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "getScreen",                  0,         ZTID_FLOAT,   MAPDATASCREEN,             0,  { ZTID_MAPDATA },{} },
+	{ "setScreen",                  0,         ZTID_FLOAT,   MAPDATASCREEN,             0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 //	Get/SetFFCMiscD
 	
-	{ "",                               -1,                       -1,           -1,                         -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
 MapDataSymbols::MapDataSymbols()
 {
-    table = MapDataTable;
-    refVar = REFMAPDATA; //NUL; //
+	table = MapDataTable;
+	refVar = REFMAPDATA; //NUL; //
 }
 
 void MapDataSymbols::generateCode()
 {
 	//bool isSolid(screen, int32_t, int32_t)
 	{
-		Function* function = getFunction("isSolid", 3);
+		Function* function = getFunction2("isSolid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -356,7 +356,7 @@ void MapDataSymbols::generateCode()
 	
 	//bool isSolidLayer(screen, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction("isSolidLayer", 4);
+		Function* function = getFunction2("isSolidLayer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -373,7 +373,7 @@ void MapDataSymbols::generateCode()
 
 	//int32_t GetFFCInitD(mapscr, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetFFCInitD", 3);
+		Function* function = getFunction2("GetFFCInitD");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -387,10 +387,10 @@ void MapDataSymbols::generateCode()
 		function->giveCode(code);
 	
 	}
-    
+	
 	//void SetFFCInitD(mapsc, int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetFFCInitD", 4);
+		Function* function = getFunction2("SetFFCInitD");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -404,11 +404,11 @@ void MapDataSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-    
-    
+	
+	
 	//int32_t GetFFCInitA(mapscr, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("GetFFCInitA", 3);
+		Function* function = getFunction2("GetFFCInitA");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -422,10 +422,10 @@ void MapDataSymbols::generateCode()
 		function->giveCode(code);
 	
 	}
-    
+	
 	//void SetFFCInitA(mapsc, int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction("SetFFCInitA", 4);
+		Function* function = getFunction2("SetFFCInitA");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params

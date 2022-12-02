@@ -3176,6 +3176,27 @@ __________      .__        __                    _____                ___.
 //  Game  //
 //////////// Game
 
+int GetCurScreen();
+int CurScreen; //Read-only
+ * The current screen, relative to the top-left corner of the map
+
+int GetCurDMapScreen();
+int CurDMScreen; //Read-only
+ * The current screen, relative to the top-left corner of the DMap
+ * (Accounts for the DMap offset)
+
+int GetCurMap();
+int CurMap; //Read-only
+ * The current map
+
+int GetCurDMap();
+int CurDMap; //Read-only
+ * The current dmap
+
+int GetCurLevel();
+int CurLevel; //Read-only
+ * The current dmap level
+
 int Cheat;
  * The current cheat level activated (0-4)
  * Writing this >0 will enable cheats, even if normally disabled in the quest.
@@ -3374,7 +3395,7 @@ bool SkipF6;
 bool SkipCredits;
  * If set true, the credits sequence shown at the end of the game is skipped.
 
-bitmap CreateBitmap(int width, int height);
+bitmap CreateBitmap(int width = 256, int height = 256);
  * Creates a bitmap with a size of height, width, and returns its pointer.
 
 bitmap LoadBitmapID(int id);
@@ -3868,7 +3889,7 @@ int ReadString(char32[] buf);
  *     end of the string.
  * Returns the length of the string read into 'buf'.
 
-int ReadChars(char32[] buf, int count, int pos);
+int ReadChars(char32[] buf, int count = -1, int pos = 0);
  * Reads a section of characters from the file.
  * Starts placing characters at 'buf[pos]'.
  *     If 'pos' is negative, starts at 'buf[0]'.
@@ -3878,7 +3899,7 @@ int ReadChars(char32[] buf, int count, int pos);
  * Will always add a null character at the end of the read characters.
  * Returns the number of characters read, excluding the added null character.
  
-int ReadBytes(untyped[] buf, int count, int pos);
+int ReadBytes(untyped[] buf, int count = -1, int pos = 0);
  * Reads a section of binary data from the file.
  * Starts placing data at 'buf[pos]'.
  *     If 'pos' is negative, starts at 'buf[0]'.
@@ -3889,7 +3910,7 @@ int ReadBytes(untyped[] buf, int count, int pos);
  *     This means that the binary data cannot contain decimal places.
  * Returns the number of bytes read.
 
-int ReadInts(untyped[] buf, int count, int pos);
+int ReadInts(untyped[] buf, int count = -1, int pos = 0);
  * Reads a section of binary data from the file.
  * Starts placing data at 'buf[pos]'.
  *     If 'pos' is negative, starts at 'buf[0]'.
@@ -3904,7 +3925,7 @@ int WriteString(char32[] str);
  * Writes the string stored in 'str' to the file.
  * Returns the number of characters successfully written.
 
-int WriteChars(char32[] buf, int count, int pos);
+int WriteChars(char32[] buf, int count = -1, int pos = 0);
  * Writes characters from 'buf' to file.
  * Starts at 'buf[pos]'.
  *     If 'pos' is negative, starts at 'buf[0]'.
@@ -3913,7 +3934,7 @@ int WriteChars(char32[] buf, int count, int pos);
  * If 'count' is positive, writes 'count' characters from buf.
  * Returns the number of characters successfully written.
  
-int WriteBytes(untyped[] arr, int count, int pos);
+int WriteBytes(untyped[] arr, int count = -1, int pos = 0);
  * Writes 8b binary data from 'arr' to file.
  * The binary data written will be 8b; such that writing '1' will write '1' to file.
  *     This means that the binary data cannot contain decimal places.
@@ -3924,7 +3945,7 @@ int WriteBytes(untyped[] arr, int count, int pos);
  * If 'count' is positive, writes 'count' ints from arr.
  * Returns the number of bytes successfully written.
 
-int WriteInts(untyped[] arr, int count, int pos);
+int WriteInts(untyped[] arr, int count = -1, int pos = 0);
  * Writes 32b binary data from 'arr' to file.
  * The binary data written will be 32b; such that writing '1' will write '10000' to file.
  *     This means that the binary data can contain decimal places; writing '0.0001' will write '1' to file.
@@ -3960,7 +3981,7 @@ long Pos;
  *     to the same position later using 'Seek()' (if there are characters put back using
  *     'UngetChar()' still pending of being read, the behavior is undefined).
 
-bool Seek(long pos, bool from_current);
+bool Seek(long pos, bool from_current = false);
  * Moves the current position of the file.
  * 'pos' is a 32b value, where '1L' represents 1 byte; similar to 'Pos'.
  * If 'from_current' is true, it moves forward from the current position.
@@ -4031,7 +4052,7 @@ void Own();
 
 /////////////////
 ///   Stack   ///
-/////////////////
+///////////////// stack
 
 long Size;
  * Read-only. The size of the stack, given as a LONG.
@@ -4309,7 +4330,8 @@ void DrawBitmapEx	( int layer,
 			int bitmap_id, 
 			int source_x, int source_y, int source_w, int source_h, 
 			int dest_x, int dest_y, int dest_w, int dest_h, 
-			float rotation, int cx, int cy, int mode, int lit,  bool mask);
+			float rotation = 0, int cx = 0, int cy = 0,
+			int mode = 0, int lit = 0,  bool mask = true);
 
  * As DrawBitmap(), except that it can do more things. 
  * Now supports multiple MODES, OR'd together as a bitmask:
@@ -4375,7 +4397,7 @@ void Lines(int layer, int ptr[]);
  *	{ x, y, x2, y2, colour, scale, rx, ry, angle, opacity }
  *	...per line that you want to draw.
 	
-void Polygon(int layer, int num_points, int vertices[], int colour, int transparency);
+void Polygon(int layer, int num_points, int vertices[], int colour, int opacity = OP_OPAQUE);
 	ZASM: POLYGON
  * Draws a polygon to the screen, with a number of points specified as int points,
  * with vertices supplied as an array. 
@@ -5130,7 +5152,7 @@ int Slide();
  * This is called as a part of scripted walking functions, such as 'ConstantWalk()', automatically.
  * Return: 0 if no knockback occurred, 1 if scripted knockback ('->Knockback()') occurred, 2 if engine knockback occurred.
 
-bool Knockback(int time, int dir, int speed);
+bool Knockback(int time, int dir, int speed = 4);
  * Attempt to knock an enemy back.
  * 'time' is the number of frames to knock back.
  * 'speed' is how many pixels per frame the npc will move.
@@ -5207,7 +5229,7 @@ bool CanMove(int array[]);
  * 	{int ndir, int step, int special} 
  * 	{int ndir,int step,int special,int dx1,int dy1,int dx2,int dy2}
 	
-int LinedUp(int range, bool dir8);
+int LinedUp(int range, bool dir8 = false);
  * Checks if enemy is lined up with Link.
  * If so, returns direction Link is at as compared to enemy.
  * Returns -1 if not lined up. Range is inclusive.
@@ -5221,7 +5243,7 @@ bool MovePaused();
  *   i.e. spawning, dying, stunned, clock active, etc
  * Should be checked before calling movement functions below
 
-bool MoveXY(float dx, float dy, int special)
+bool MoveXY(float dx, float dy, int special = SPW_NONE)
  * Attempts to move the enemy by 'dx, dy'; obeying solidity.
  * Use the 'SPW_' constants to provide a special value;
  *     i.e. 'SPW_FLOATER' for flying enemies.
@@ -5229,11 +5251,11 @@ bool MoveXY(float dx, float dy, int special)
  * Returns true if the enemy moves the full distance,
  *     false if it is blocked by something.
  
-bool CanMoveXY(float dx, float dy, int special)
+bool CanMoveXY(float dx, float dy, int special = SPW_NONE)
  * Same as above, but doesn't actually move the enemy,
  *     just returns the success state if it were to move.
 
-bool Move(int dir, float pxamnt, int special)
+bool Move(int dir, float pxamnt, int special = SPW_NONE)
  * Attempts to move the enemy by 'pxamnt' pixels in the
  *     'dir' direction; obeying solidity.
  * Use the 'SPW_' constants to provide a special value;
@@ -5242,11 +5264,11 @@ bool Move(int dir, float pxamnt, int special)
  * Returns true if the enemy moves the full distance,
  *     false if it is blocked by something.
  
-bool CanMove(int dir, float pxamnt, int special)
+bool CanMove(int dir, float pxamnt, int special = SPW_NONE)
  * Same as above, but doesn't actually move the enemy,
  *     just returns the success state if it were to move.
 
-bool MoveAtAngle(float degrees, float pxamnt, int special)
+bool MoveAtAngle(float degrees, float pxamnt, int special = SPW_NONE)
  * Attempts to move the enemy by 'pxamnt' pixels in the
  *     'degrees' angle; obeying solidity.
  * Use the 'SPW_' constants to provide a special value;
@@ -5255,7 +5277,7 @@ bool MoveAtAngle(float degrees, float pxamnt, int special)
  * Returns true if the enemy moves the full distance,
  *     false if it is blocked by something.
  
-bool CanMoveAtAngle(float degrees, float pxamnt, int special)
+bool CanMoveAtAngle(float degrees, float pxamnt, int special = SPW_NONE)
  * Same as above, but doesn't actually move the enemy,
  *     just returns the success state if it were to move.
 
@@ -5278,7 +5300,7 @@ npc Create(int array[]);
  * 	{ int id } 
  * 	{ int id, int x, int y }
 	
-void BreathAttack(bool seeklink);
+void BreathAttack(bool seeklink = false);
  * Fires the breath weapon set to the enemy.
 
 bool Collision(int obj_type, untyped obj_pointer);
@@ -5543,7 +5565,7 @@ int TileMod;
  * Read-only
  * The current *total* Player Tile Modifier.
 
-void Kill(bool bypass_revive);
+void Kill(bool bypass_revive = false);
  * Kills the player. Their HP will be set to 0, and 'Immortal' will be bypassed.
  * If 'bypass_revive' is true, bottles will not be checked for revival items,
  *     and the normal single frame delay before death that is used for script-revival
@@ -5881,7 +5903,7 @@ int Damage;
  * The damage produced by weapons generated from tis item.
  * Identical to itemdata->Power, provided for uniformity it weapons.
 
-void RunScript(int mode);
+void RunScript(int mode = 1);
  * Runs the script assigned to this item at any arbitrary time.
  * Mode Settings:
  * 0 : SCRIPT_MODE_END 
@@ -8269,13 +8291,13 @@ void WriteCycleCSet(int pal, int cset);
  * Writes a cset of the paldata to a level's cycle/dark room palette.
  * Empty color indices will be skipped.
 
-void Mix(paldata start, paldata end, float percent, int color_space);
+void Mix(paldata start, paldata end, float percent = 0.5, int color_space = CSPACE_RGB);
  * Interpolates all the colors on a paldata between start and end.
  * The value of percent should range from 0-1, with 0 representing the starting color.
  * Color space specifies a color space to interpolate through, changing the resulting average.
  * See CSPACE_ constants in std_constants.zh
 
-void MixCSet(paldata start, paldata end, int cset, float percent, int color_space);
+void MixCSet(paldata start, paldata end, int cset, float percent = 0.5, int color_space = CSPACE_RGB);
  * Interpolates all the colors in a cset on a paldata between start and end.
  * The value of percent should range from 0-1, with 0 representing the starting color.
  * Color space specifies a color space to interpolate through, changing the resulting average.
@@ -8312,7 +8334,7 @@ Functions for debugging, and raw access to the internal ZASM stack and mechanics
 bool Testing;
  * Returns true if this instance of ZC was launched from the 'Quest->Test' option in ZQ.
 
-void Breakpoint(char[] string);
+void Breakpoint(char[] string = NULL);
  * If the ZASM debugger is open, this will break execution, and print the given string.
  * Break controls:
  *     'Insert' - break, or step forward if broken

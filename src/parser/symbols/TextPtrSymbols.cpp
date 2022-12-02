@@ -4,31 +4,29 @@ TextPtrSymbols TextPtrSymbols::singleton = TextPtrSymbols();
 
 static AccessorTable TextTable[] =
 {
-//	All of these return a function label error when used:
-//	  name,                     rettype,                  setorget,     var,                    numindex,      funcFlags,                            numParams,   params
-//	{ "getTest",                ZTID_FLOAT,         GETTER,       DEBUGREFFFC,            1,             0,                                    1,           { ZTID_TEXT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "StringWidth",            ZTID_FLOAT,         FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      3,           { ZTID_TEXT, ZTID_CHAR, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "CharWidth",              ZTID_FLOAT,         FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      3,           { ZTID_TEXT, ZTID_CHAR, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "StringHeight",           ZTID_FLOAT,         FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      3,           { ZTID_TEXT, ZTID_CHAR, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "CharHeight",             ZTID_FLOAT,         FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      3,           { ZTID_TEXT, ZTID_CHAR, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "FontHeight",             ZTID_FLOAT,         FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_TEXT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MessageWidth",           ZTID_FLOAT,         FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      3,           { ZTID_TEXT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "MessageHeight",          ZTID_FLOAT,         FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZTID_TEXT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
+	{ "StringWidth",                0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_TEXT, ZTID_CHAR, ZTID_FLOAT },{} },
+	{ "CharWidth",                  0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_TEXT, ZTID_CHAR, ZTID_FLOAT },{} },
+	{ "StringHeight",               0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_TEXT, ZTID_CHAR, ZTID_FLOAT },{} },
+	{ "CharHeight",                 0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_TEXT, ZTID_CHAR, ZTID_FLOAT },{} },
+	{ "FontHeight",                 0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_TEXT, ZTID_FLOAT },{} },
+	{ "MessageWidth",               0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_TEXT, ZTID_FLOAT },{} },
+	{ "MessageHeight",              0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_TEXT, ZTID_FLOAT },{} },
 	
-	{ "",                       -1,                       -1,           -1,                     -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
 TextPtrSymbols::TextPtrSymbols()
 {
-    table = TextTable;
-    refVar = NUL;
+	table = TextTable;
+	refVar = NUL;
 }
 
 void TextPtrSymbols::generateCode()
 {
 	//void StringWidth(char32 ptr, int32_t font)
 	{
-		Function* function = getFunction("StringWidth", 3);
+		Function* function = getFunction2("StringWidth");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the font
@@ -44,7 +42,7 @@ void TextPtrSymbols::generateCode()
 	}
 	//void CharWidth(char32 chr, int32_t font)
 	{
-		Function* function = getFunction("CharWidth", 3);
+		Function* function = getFunction2("CharWidth");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the font
@@ -60,7 +58,7 @@ void TextPtrSymbols::generateCode()
 	}
 	//void StringHeight(char32 ptr, int32_t font)
 	{
-		Function* function = getFunction("StringHeight", 3);
+		Function* function = getFunction2("StringHeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the font
@@ -76,7 +74,7 @@ void TextPtrSymbols::generateCode()
 	}
 	//void CharHeight(char32 chr, int32_t font)
 	{
-		Function* function = getFunction("CharHeight", 3);
+		Function* function = getFunction2("CharHeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the font
@@ -92,7 +90,7 @@ void TextPtrSymbols::generateCode()
 	}
 	//void FontHeight(int32_t font)
 	{
-		Function* function = getFunction("FontHeight", 2);
+		Function* function = getFunction2("FontHeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the font
@@ -106,7 +104,7 @@ void TextPtrSymbols::generateCode()
 	}
 	//void MessageWidth(int32_t message)
 	{
-		Function* function = getFunction("MessageWidth", 2);
+		Function* function = getFunction2("MessageWidth");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the message
@@ -120,7 +118,7 @@ void TextPtrSymbols::generateCode()
 	}
 	//void MessageHeight(int32_t message)
 	{
-		Function* function = getFunction("MessageHeight", 2);
+		Function* function = getFunction2("MessageHeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the message

@@ -25,23 +25,10 @@ static const int32_t FUNCTION = 2;
 struct AccessorTable
 {
     string name;
-    int32_t rettype;
-    int32_t setorget;
-    int32_t var;
-    int32_t numindex; //!TODO Remove this bullshit
-	int32_t funcFlags;
-	int32_t numParams;
-    int32_t params[20];
-};
-struct AccessorTable2
-{
-    string name;
 	int32_t tag;
     int32_t rettype;
     int32_t var;
-    //int32_t numindex; //!TODO Remove this bullshit
 	int32_t funcFlags;
-	//int32_t numParams;
     vector<int32_t> params;
     vector<int32_t> optparams;
 };
@@ -56,10 +43,9 @@ public:
 
 protected:
 	LibrarySymbols() : refVar(0), hasPrefixType(true),
-		table(nullptr), table2(nullptr)
+		table(nullptr)
 	{}
     AccessorTable *table;
-    AccessorTable2 *table2;
     int32_t refVar;
 	bool hasPrefixType;
 
@@ -67,10 +53,11 @@ protected:
 	ZScript::Function* getFunction2(string const& name, int32_t tag = 0) const;
 
 private:
+	static LibrarySymbols nilsymbols;
 	map<std::pair<string, int32_t>, ZScript::Function*> functions;
 	
 	// Generates the code for functions which can't be auto generated.
-	virtual void generateCode() = 0;
+	virtual void generateCode(){};
 };
 
 class GlobalSymbols : public LibrarySymbols
@@ -203,9 +190,6 @@ private:
 	void generateCode();
 };
 
-//New Types
-
-//Graphics
 class GraphicsSymbols : public LibrarySymbols
 {
 public:
@@ -220,7 +204,6 @@ private:
     void generateCode();
 };
 
-// Bitmap
 class BitmapSymbols : public LibrarySymbols
 {
 public:
@@ -235,7 +218,6 @@ private:
     void generateCode();
 };
 
-//SpriteData
 class SpriteDataSymbols : public LibrarySymbols
 {
 public:
@@ -250,7 +232,6 @@ private:
     void generateCode();
 };
 
-//DMapData
 class DMapDataSymbols : public LibrarySymbols
 {
 public:
@@ -265,8 +246,6 @@ private:
     void generateCode();
 };
 
-
-//MessageData
 class MessageDataSymbols : public LibrarySymbols
 {
 public:
@@ -281,7 +260,6 @@ private:
     void generateCode();
 };
 
-//ShopData
 class ShopDataSymbols : public LibrarySymbols
 {
 public:
@@ -295,8 +273,6 @@ private:
     ShopDataSymbols();
     void generateCode();
 };
-
-//ComboData->
 
 class CombosPtrSymbols : public LibrarySymbols
 {
@@ -312,8 +288,6 @@ private:
     void generateCode();
 };
 
-//Audio->
-
 class AudioSymbols : public LibrarySymbols
 {
 public:
@@ -326,8 +300,6 @@ private:
     AudioSymbols();
 	void generateCode();
 };
-
-//Debug->
 
 class DebugSymbols : public LibrarySymbols
 {
@@ -342,8 +314,6 @@ private:
 	void generateCode();
 };
 
-//NPCData->
-
 class NPCDataSymbols : public LibrarySymbols
 {
 public:
@@ -357,7 +327,6 @@ private:
 	void generateCode();
 };
 
-//Text->
 class TextPtrSymbols : public LibrarySymbols
 {
 public:
@@ -372,7 +341,6 @@ private:
     void generateCode();
 };
 
-//Filesystem->
 class FileSystemSymbols : public LibrarySymbols
 {
 public:
@@ -387,7 +355,6 @@ private:
     void generateCode();
 };
 
-//Input->
 class InputSymbols : public LibrarySymbols
 {
 public:
@@ -402,7 +369,6 @@ private:
     void generateCode();
 };
 
-//MapData->
 class MapDataSymbols : public LibrarySymbols
 {
 public:
@@ -417,22 +383,6 @@ private:
     void generateCode();
 };
 
-//nil
-class UntypedSymbols : public LibrarySymbols
-{
-public:
-    static UntypedSymbols &getInst()
-    {
-        return singleton;
-    }
-protected:
-private:
-    static UntypedSymbols singleton;
-    UntypedSymbols();
-    void generateCode();
-};
-
-//dropdata
 class DropsetSymbols : public LibrarySymbols
 {
 public:
@@ -444,156 +394,6 @@ protected:
 private:
     static DropsetSymbols singleton;
     DropsetSymbols();
-    void generateCode();
-};
-
-//ponddata
-class PondSymbols : public LibrarySymbols
-{
-public:
-    static PondSymbols &getInst()
-    {
-        return singleton;
-    }
-protected:
-private:
-    static PondSymbols singleton;
-    PondSymbols();
-    void generateCode();
-};
-
-//warpringdata
-class WarpringSymbols : public LibrarySymbols
-{
-public:
-    static WarpringSymbols &getInst()
-    {
-        return singleton;
-    }
-protected:
-private:
-    static WarpringSymbols singleton;
-    WarpringSymbols();
-    void generateCode();
-};
-
-//doorsetdata
-class DoorsetSymbols : public LibrarySymbols
-{
-public:
-    static DoorsetSymbols &getInst()
-    {
-        return singleton;
-    }
-protected:
-private:
-    static DoorsetSymbols singleton;
-    DoorsetSymbols();
-    void generateCode();
-};
-
-//misccolordata
-class MiscColourSymbols : public LibrarySymbols
-{
-public:
-    static MiscColourSymbols &getInst()
-    {
-        return singleton;
-    }
-protected:
-private:
-    static MiscColourSymbols singleton;
-    MiscColourSymbols();
-    void generateCode();
-};
-
-//rgbdata
-class RGBSymbolsOld : public LibrarySymbols
-{
-public:
-    static RGBSymbolsOld &getInst()
-    {
-        return singleton;
-    }
-protected:
-private:
-    static RGBSymbolsOld singleton;
-    RGBSymbolsOld();
-    void generateCode();
-};
-
-//palettedata
-class PaletteSymbolsOld : public LibrarySymbols
-{
-public:
-    static PaletteSymbolsOld &getInst()
-    {
-        return singleton;
-    }
-protected:
-private:
-    static PaletteSymbolsOld singleton;
-    PaletteSymbolsOld();
-    void generateCode();
-};
-
-//tunesdata
-class TunesSymbols : public LibrarySymbols
-{
-public:
-    static TunesSymbols &getInst()
-    {
-        return singleton;
-    }
-protected:
-private:
-    static TunesSymbols singleton;
-    TunesSymbols();
-    void generateCode();
-};
-
-//palcycledata
-class PalCycleSymbols : public LibrarySymbols
-{
-public:
-    static PalCycleSymbols &getInst()
-    {
-        return singleton;
-    }
-protected:
-private:
-    static PalCycleSymbols singleton;
-    PalCycleSymbols();
-    void generateCode();
-};
-
-//gamedata
-class GamedataSymbols : public LibrarySymbols
-{
-public:
-    static GamedataSymbols &getInst()
-    {
-        return singleton;
-    }
-protected:
-private:
-    static GamedataSymbols singleton;
-    GamedataSymbols();
-    void generateCode();
-};
-
-//cheatdata
-class CheatsSymbols : public LibrarySymbols
-{
-public:
-    static CheatsSymbols &getInst()
-    {
-        return singleton;
-    }
-protected:
-private:
-    static CheatsSymbols singleton;
-    CheatsSymbols();
     void generateCode();
 };
 
@@ -636,20 +436,6 @@ protected:
 private:
     static StackSymbols singleton;
     StackSymbols();
-    void generateCode();
-};
-
-class SubscreenDataSymbols : public LibrarySymbols
-{
-public:
-    static SubscreenDataSymbols &getInst()
-    {
-        return singleton;
-    }
-protected:
-private:
-    static SubscreenDataSymbols singleton;
-    SubscreenDataSymbols();
     void generateCode();
 };
 

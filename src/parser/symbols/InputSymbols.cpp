@@ -5,42 +5,42 @@ InputSymbols InputSymbols::singleton = InputSymbols();
 static AccessorTable InputTable[] =
 {
 //	All of these return a function label error when used:
-//	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
-	 { "getJoypad[]",            ZTID_BOOL,          GETTER,       JOYPADPRESS,      18,            0,                                    2,           { ZTID_INPUT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getPress[]",             ZTID_BOOL,          GETTER,       BUTTONPRESS,      18,            0,                                    2,           { ZTID_INPUT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setPress[]",             ZTID_VOID,          SETTER,       BUTTONPRESS,      18,            0,                                    3,           { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getButton[]",            ZTID_BOOL,          GETTER,       BUTTONINPUT,      18,            0,                                    2,           { ZTID_INPUT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setButton[]",            ZTID_VOID,          SETTER,       BUTTONINPUT,      18,            0,                                    3,           { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getHold[]",              ZTID_BOOL,          GETTER,       BUTTONHELD,       18,            0,                                    2,           { ZTID_INPUT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setHold[]",              ZTID_VOID,          SETTER,       BUTTONHELD,       18,            0,                                    3,           { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getReadKey[]",           ZTID_BOOL,          GETTER,       READKEY,          127,           0,                                    2,           { ZTID_INPUT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-//	{ "getSimulateKeypress[]",  ZTID_BOOL,          GETTER,       SIMULATEKEYPRESS, 127,           0,                                    2,           { ZTID_INPUT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setSimulateKeypress[]",  ZTID_VOID,          SETTER,       SIMULATEKEYPRESS, 127,           0,                                    3,           { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getKeyRaw[]",            ZTID_BOOL,          GETTER,       RAWKEY,           127,           0,                                    2,           { ZTID_INPUT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setKeyRaw[]",            ZTID_VOID,          SETTER,       RAWKEY,           127,           0,                                    3,           { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getKeyPress[]",          ZTID_BOOL,          GETTER,       KEYPRESS,         127,           0,                                    2,           { ZTID_INPUT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setKeyPress[]",          ZTID_VOID,          SETTER,       KEYPRESS,         127,           0,                                    3,           { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getKey[]",               ZTID_BOOL,          GETTER,       KEYINPUT,         127,           0,                                    2,           { ZTID_INPUT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setKey[]",               ZTID_VOID,          SETTER,       KEYINPUT,         127,           0,                                    3,           { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMouse[]",             ZTID_UNTYPED,       GETTER,       MOUSEARR,         6,             0,                                    2,           { ZTID_INPUT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMouse[]",             ZTID_VOID,          SETTER,       MOUSEARR,         6,             0,                                    3,           { ZTID_INPUT, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getKeyBindings[]",       ZTID_FLOAT,         GETTER,       KEYBINDINGS,      14,            0,                                    2,           { ZTID_INPUT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setKeyBindings[]",       ZTID_VOID,          SETTER,       KEYBINDINGS,      14,            0,                                    3,           { ZTID_INPUT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getModifierKeys",        ZTID_FLOAT,         GETTER,       KEYMODIFIERS,     1,             0,                                    1,           { ZTID_INPUT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setModifierKeys",        ZTID_VOID,          SETTER,       KEYMODIFIERS,     1,             0,                                    2,           { ZTID_INPUT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
+	{ "getJoypad[]",                0,          ZTID_BOOL,   JOYPADPRESS,               0,  { ZTID_INPUT, ZTID_FLOAT },{} },
+	{ "getPress[]",                 0,          ZTID_BOOL,   BUTTONPRESS,               0,  { ZTID_INPUT, ZTID_FLOAT },{} },
+	{ "setPress[]",                 0,          ZTID_VOID,   BUTTONPRESS,               0,  { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getButton[]",                0,          ZTID_BOOL,   BUTTONINPUT,               0,  { ZTID_INPUT, ZTID_FLOAT },{} },
+	{ "setButton[]",                0,          ZTID_VOID,   BUTTONINPUT,               0,  { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getHold[]",                  0,          ZTID_BOOL,   BUTTONHELD,                0,  { ZTID_INPUT, ZTID_FLOAT },{} },
+	{ "setHold[]",                  0,          ZTID_VOID,   BUTTONHELD,                0,  { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getReadKey[]",               0,          ZTID_BOOL,   READKEY,                   0,  { ZTID_INPUT, ZTID_FLOAT },{} },
+//	{ "getSimulateKeypress[]",      0,          ZTID_BOOL,   SIMULATEKEYPRESS,          0,  { ZTID_INPUT, ZTID_FLOAT },{} },
+	{ "setSimulateKeypress[]",      0,          ZTID_VOID,   SIMULATEKEYPRESS,          0,  { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getKeyRaw[]",                0,          ZTID_BOOL,   RAWKEY,                    0,  { ZTID_INPUT, ZTID_FLOAT },{} },
+	{ "setKeyRaw[]",                0,          ZTID_VOID,   RAWKEY,                    0,  { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getKeyPress[]",              0,          ZTID_BOOL,   KEYPRESS,                  0,  { ZTID_INPUT, ZTID_FLOAT },{} },
+	{ "setKeyPress[]",              0,          ZTID_VOID,   KEYPRESS,                  0,  { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getKey[]",                   0,          ZTID_BOOL,   KEYINPUT,                  0,  { ZTID_INPUT, ZTID_FLOAT },{} },
+	{ "setKey[]",                   0,          ZTID_VOID,   KEYINPUT,                  0,  { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getMouse[]",                 0,       ZTID_UNTYPED,   MOUSEARR,                  0,  { ZTID_INPUT, ZTID_FLOAT },{} },
+	{ "setMouse[]",                 0,          ZTID_VOID,   MOUSEARR,                  0,  { ZTID_INPUT, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "getKeyBindings[]",           0,         ZTID_FLOAT,   KEYBINDINGS,               0,  { ZTID_INPUT, ZTID_FLOAT },{} },
+	{ "setKeyBindings[]",           0,          ZTID_VOID,   KEYBINDINGS,               0,  { ZTID_INPUT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getModifierKeys",            0,         ZTID_FLOAT,   KEYMODIFIERS,              0,  { ZTID_INPUT },{} },
+	{ "setModifierKeys",            0,          ZTID_VOID,   KEYMODIFIERS,              0,  { ZTID_INPUT, ZTID_FLOAT },{} },
 	
-	{ "getDisableKey[]",        ZTID_BOOL,          GETTER,       DISABLEKEY,       127,           0,                                    2,           { ZTID_INPUT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDisableKey[]",        ZTID_VOID,          SETTER,       DISABLEKEY,       127,           0,                                    3,           { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDisableButton[]",     ZTID_BOOL,          GETTER,       DISABLEBUTTON,    18,            0,                                    2,           { ZTID_INPUT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDisableButton[]",     ZTID_VOID,          SETTER,       DISABLEBUTTON,    18,            0,                                    3,           { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getDisableKey[]",            0,          ZTID_BOOL,   DISABLEKEY,                0,  { ZTID_INPUT, ZTID_FLOAT },{} },
+	{ "setDisableKey[]",            0,          ZTID_VOID,   DISABLEKEY,                0,  { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getDisableButton[]",         0,          ZTID_BOOL,   DISABLEBUTTON,             0,  { ZTID_INPUT, ZTID_FLOAT },{} },
+	{ "setDisableButton[]",         0,          ZTID_VOID,   DISABLEBUTTON,             0,  { ZTID_INPUT, ZTID_FLOAT, ZTID_BOOL },{} },
 	
-	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
 InputSymbols::InputSymbols()
 {
-    table = InputTable;
-    refVar = NUL;
+	table = InputTable;
+	refVar = NUL;
 }
 
 void InputSymbols::generateCode()

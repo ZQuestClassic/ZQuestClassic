@@ -4,28 +4,27 @@ ShopDataSymbols ShopDataSymbols::singleton = ShopDataSymbols();
 
 static AccessorTable ShopDataTable[] =
 {
-//	All of these return a function label error when used:
-//	  name,                     rettype,                  setorget,     var,               numindex,      funcFlags,                            numParams,   params
-	{ "getType",                ZTID_FLOAT,         GETTER,       SHOPDATATYPE,       1,             0,                                    1,           { ZTID_SHOPDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getItem[]",              ZTID_FLOAT,         GETTER,       SHOPDATAITEM,      3,             0,                                    2,           { ZTID_SHOPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setItem[]",              ZTID_VOID,          SETTER,       SHOPDATAITEM,      3,             0,                                    3,           { ZTID_SHOPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
+	{ "getType",                    0,         ZTID_FLOAT,   SHOPDATATYPE,              0,  { ZTID_SHOPDATA },{} },
+	{ "getItem[]",                  0,         ZTID_FLOAT,   SHOPDATAITEM,              0,  { ZTID_SHOPDATA, ZTID_FLOAT },{} },
+	{ "setItem[]",                  0,          ZTID_VOID,   SHOPDATAITEM,              0,  { ZTID_SHOPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getHasItem[]",           ZTID_BOOL,          GETTER,       SHOPDATAHASITEM,   3,             0,                                    2,           { ZTID_SHOPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHasItem[]",           ZTID_VOID,          SETTER,       SHOPDATAHASITEM,   3,             0,                                    3,           { ZTID_SHOPDATA, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getHasItem[]",               0,          ZTID_BOOL,   SHOPDATAHASITEM,           0,  { ZTID_SHOPDATA, ZTID_FLOAT },{} },
+	{ "setHasItem[]",               0,          ZTID_VOID,   SHOPDATAHASITEM,           0,  { ZTID_SHOPDATA, ZTID_FLOAT, ZTID_BOOL },{} },
 	
-	{ "getPrice[]",             ZTID_FLOAT,         GETTER,       SHOPDATAPRICE,     3,             0,                                    2,           { ZTID_SHOPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setPrice[]",             ZTID_VOID,          SETTER,       SHOPDATAPRICE,     3,             0,                                    3,           { ZTID_SHOPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getPrice[]",                 0,         ZTID_FLOAT,   SHOPDATAPRICE,             0,  { ZTID_SHOPDATA, ZTID_FLOAT },{} },
+	{ "setPrice[]",                 0,          ZTID_VOID,   SHOPDATAPRICE,             0,  { ZTID_SHOPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "getString[]",            ZTID_FLOAT,         GETTER,       SHOPDATASTRING,    3,             0,                                    2,           { ZTID_SHOPDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setString[]",            ZTID_VOID,          SETTER,       SHOPDATASTRING,    3,             0,                                    3,           { ZTID_SHOPDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getString[]",                0,         ZTID_FLOAT,   SHOPDATASTRING,            0,  { ZTID_SHOPDATA, ZTID_FLOAT },{} },
+	{ "setString[]",                0,          ZTID_VOID,   SHOPDATASTRING,            0,  { ZTID_SHOPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
-	{ "",                       -1,                       -1,           -1,                -1,            0,                                    1,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
 ShopDataSymbols::ShopDataSymbols()
 {
-    table = ShopDataTable;
-    refVar = REFSHOPDATA;
+	table = ShopDataTable;
+	refVar = REFSHOPDATA;
 }
 
 void ShopDataSymbols::generateCode()

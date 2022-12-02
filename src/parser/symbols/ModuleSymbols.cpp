@@ -4,24 +4,24 @@ ModuleSymbols ModuleSymbols::singleton = ModuleSymbols();
 
 static AccessorTable ModuleTable[] =
 {
-//	  name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
-	{ "GetInt",              ZTID_FLOAT,          FUNCTION,     0,                1,             0,                      3,           { ZTID_MODULE, ZTID_CHAR, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetItemClass",              ZTID_VOID,          FUNCTION,     0,                1,             0,                      3,           { ZTID_MODULE, ZTID_CHAR, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetString",             ZTID_VOID,          FUNCTION,     0,                1,             0,                      4,           { ZTID_MODULE, ZTID_CHAR, ZTID_CHAR, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
+	{ "GetInt",                     0,         ZTID_FLOAT,   -1,                        0,  { ZTID_MODULE, ZTID_CHAR, ZTID_CHAR },{} },
+	{ "GetItemClass",               0,          ZTID_VOID,   -1,                        0,  { ZTID_MODULE, ZTID_CHAR, ZTID_CHAR },{} },
+	{ "GetString",                  0,          ZTID_VOID,   -1,                        0,  { ZTID_MODULE, ZTID_CHAR, ZTID_CHAR, ZTID_CHAR },{} },
+	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
 ModuleSymbols::ModuleSymbols()
 {
-    table = ModuleTable;
-    refVar = NUL;
+	table = ModuleTable;
+	refVar = NUL;
 }
 
 void ModuleSymbols::generateCode()
 {
 	//int32_t GetInt(file, char32* section, char32* entry)
 	{
-		Function* function = getFunction("GetInt", 3);
+		Function* function = getFunction2("GetInt");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -36,7 +36,7 @@ void ModuleSymbols::generateCode()
 	}
 	//int32_t GetString(file, char32* dest, char32* section, char32* entry)
 	{
-		Function* function = getFunction("GetString", 4);
+		Function* function = getFunction2("GetString");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -52,7 +52,7 @@ void ModuleSymbols::generateCode()
 	}
 	//GetItemClass(char32* dest, int32_t ic)
 	{
-		Function* function = getFunction("GetItemClass", 3);
+		Function* function = getFunction2("GetItemClass");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params

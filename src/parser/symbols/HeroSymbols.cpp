@@ -4,520 +4,520 @@ HeroSymbols HeroSymbols::singleton = HeroSymbols();
 
 static AccessorTable HeroSTable[] =
 {
-//	  name,                     rettype,                  setorget,     var,                  numindex,    funcFlags,                            numParams,   params
-	{ "getX",                   ZTID_FLOAT,         GETTER,       LINKX,                1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setX",                   ZTID_VOID,          SETTER,       LINKX,                1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getY",                   ZTID_FLOAT,         GETTER,       LINKY,                1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setY",                   ZTID_VOID,          SETTER,       LINKY,                1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getZ",                   ZTID_FLOAT,         GETTER,       LINKZ,                1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setZ",                   ZTID_VOID,          SETTER,       LINKZ,                1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getJump",                ZTID_FLOAT,         GETTER,       LINKJUMP,             1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setJump",                ZTID_VOID,          SETTER,       LINKJUMP,             1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDir",                 ZTID_FLOAT,         GETTER,       LINKDIR,              1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDir",                 ZTID_VOID,          SETTER,       LINKDIR,              1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitDir",              ZTID_FLOAT,         GETTER,       LINKHITDIR,           1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitDir",              ZTID_VOID,          SETTER,       LINKHITDIR,           1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSwordJinx",           ZTID_FLOAT,         GETTER,       LINKSWORDJINX,        1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSwordJinx",           ZTID_VOID,          SETTER,       LINKSWORDJINX,        1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getItemJinx",            ZTID_FLOAT,         GETTER,       LINKITEMJINX,         1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setItemJinx",            ZTID_VOID,          SETTER,       LINKITEMJINX,         1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHP",                  ZTID_FLOAT,         GETTER,       LINKHP,               1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHP",                  ZTID_VOID,          SETTER,       LINKHP,               1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMP",                  ZTID_FLOAT,         GETTER,       LINKMP,               1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMP",                  ZTID_VOID,          SETTER,       LINKMP,               1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMaxHP",               ZTID_FLOAT,         GETTER,       LINKMAXHP,            1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMaxHP",               ZTID_VOID,          SETTER,       LINKMAXHP,            1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMaxMP",               ZTID_FLOAT,         GETTER,       LINKMAXMP,            1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMaxMP",               ZTID_VOID,          SETTER,       LINKMAXMP,            1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getAction",              ZTID_FLOAT,         GETTER,       LINKACTION,           1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setAction",              ZTID_VOID,          SETTER,       LINKACTION,           1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTileMod",             ZTID_FLOAT,         GETTER,       LINKTILEMOD,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTileMod",             ZTID_VOID,          SETTER,       LINKTILEMOD,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHeldItem",            ZTID_FLOAT,         GETTER,       LINKHELD,             1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHeldItem",            ZTID_VOID,          SETTER,       LINKHELD,             1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Warp",                   ZTID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      3,           { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Warp",                   ZTID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "WarpEx",                 ZTID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Explode",                ZTID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "PitWarp",                ZTID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      3,           { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getInputStart",          ZTID_BOOL,          GETTER,       INPUTSTART,           1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setInputStart",          ZTID_VOID,          SETTER,       INPUTSTART,           1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getInputMap",            ZTID_BOOL,          GETTER,       INPUTMAP,             1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setInputMap",            ZTID_VOID,          SETTER,       INPUTMAP,             1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getInputUp",             ZTID_BOOL,          GETTER,       INPUTUP,              1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setInputUp",             ZTID_VOID,          SETTER,       INPUTUP,              1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getInputDown",           ZTID_BOOL,          GETTER,       INPUTDOWN,            1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setInputDown",           ZTID_VOID,          SETTER,       INPUTDOWN,            1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getInputLeft",           ZTID_BOOL,          GETTER,       INPUTLEFT,            1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setInputLeft",           ZTID_VOID,          SETTER,       INPUTLEFT,            1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getInputRight",          ZTID_BOOL,          GETTER,       INPUTRIGHT,           1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setInputRight",          ZTID_VOID,          SETTER,       INPUTRIGHT,           1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getInputA",              ZTID_BOOL,          GETTER,       INPUTA,               1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setInputA",              ZTID_VOID,          SETTER,       INPUTA,               1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getInputB",              ZTID_BOOL,          GETTER,       INPUTB,               1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setInputB",              ZTID_VOID,          SETTER,       INPUTB,               1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getInputL",              ZTID_BOOL,          GETTER,       INPUTL,               1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setInputL",              ZTID_VOID,          SETTER,       INPUTL,               1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getInputR",              ZTID_BOOL,          GETTER,       INPUTR,               1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setInputR",              ZTID_VOID,          SETTER,       INPUTR,               1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getInputEx1",            ZTID_BOOL,          GETTER,       INPUTEX1,             1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setInputEx1",            ZTID_VOID,          SETTER,       INPUTEX1,             1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getInputEx2",            ZTID_BOOL,          GETTER,       INPUTEX2,             1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setInputEx2",            ZTID_VOID,          SETTER,       INPUTEX2,             1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getInputEx3",            ZTID_BOOL,          GETTER,       INPUTEX3,             1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setInputEx3",            ZTID_VOID,          SETTER,       INPUTEX3,             1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getInputEx4",            ZTID_BOOL,          GETTER,       INPUTEX4,             1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setInputEx4",            ZTID_VOID,          SETTER,       INPUTEX4,             1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getPressStart",          ZTID_BOOL,          GETTER,       INPUTPRESSSTART,      1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setPressStart",          ZTID_VOID,          SETTER,       INPUTPRESSSTART,      1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getPressUp",             ZTID_BOOL,          GETTER,       INPUTPRESSUP,         1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setPressUp",             ZTID_VOID,          SETTER,       INPUTPRESSUP,         1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getPressDown",           ZTID_BOOL,          GETTER,       INPUTPRESSDOWN,       1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setPressDown",           ZTID_VOID,          SETTER,       INPUTPRESSDOWN,       1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getPressLeft",           ZTID_BOOL,          GETTER,       INPUTPRESSLEFT,       1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setPressLeft",           ZTID_VOID,          SETTER,       INPUTPRESSLEFT,       1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getPressRight",          ZTID_BOOL,          GETTER,       INPUTPRESSRIGHT,      1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setPressRight",          ZTID_VOID,          SETTER,       INPUTPRESSRIGHT,      1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getPressA",              ZTID_BOOL,          GETTER,       INPUTPRESSA,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setPressA",              ZTID_VOID,          SETTER,       INPUTPRESSA,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getPressB",              ZTID_BOOL,          GETTER,       INPUTPRESSB,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setPressB",              ZTID_VOID,          SETTER,       INPUTPRESSB,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getPressL",              ZTID_BOOL,          GETTER,       INPUTPRESSL,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setPressL",              ZTID_VOID,          SETTER,       INPUTPRESSL,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getPressR",              ZTID_BOOL,          GETTER,       INPUTPRESSR,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setPressR",              ZTID_VOID,          SETTER,       INPUTPRESSR,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getPressEx1",            ZTID_BOOL,          GETTER,       INPUTPRESSEX1,        1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setPressEx1",            ZTID_VOID,          SETTER,       INPUTPRESSEX1,        1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getPressEx2",            ZTID_BOOL,          GETTER,       INPUTPRESSEX2,        1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setPressEx2",            ZTID_VOID,          SETTER,       INPUTPRESSEX2,        1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getPressEx3",            ZTID_BOOL,          GETTER,       INPUTPRESSEX3,        1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setPressEx3",            ZTID_VOID,          SETTER,       INPUTPRESSEX3,        1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getPressEx4",            ZTID_BOOL,          GETTER,       INPUTPRESSEX4,        1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setPressEx4",            ZTID_VOID,          SETTER,       INPUTPRESSEX4,        1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getInputMouseX",         ZTID_FLOAT,         GETTER,       INPUTMOUSEX,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setInputMouseX",         ZTID_VOID,          SETTER,       INPUTMOUSEX,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getInputMouseY",         ZTID_FLOAT,         GETTER,       INPUTMOUSEY,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setInputMouseY",         ZTID_VOID,          SETTER,       INPUTMOUSEY,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getInputMouseZ",         ZTID_FLOAT,         GETTER,       INPUTMOUSEZ,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setInputMouseZ",         ZTID_VOID,          SETTER,       INPUTMOUSEZ,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getInputMouseB",         ZTID_FLOAT,         GETTER,       INPUTMOUSEB,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setInputMouseB",         ZTID_VOID,          SETTER,       INPUTMOUSEB,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getItem[]",              ZTID_BOOL,          GETTER,       LINKITEMD,            256,         0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setItem[]",              ZTID_VOID,          SETTER,       LINKITEMD,            256,         0,                                    3,           { ZTID_PLAYER, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSteps[]",             ZTID_FLOAT,         GETTER,       HEROSTEPS,            8,         0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSteps[]",             ZTID_VOID,          SETTER,       HEROSTEPS,            8,         0,                                    3,           { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getHitWidth",            ZTID_FLOAT,         GETTER,       LINKHXSZ,             1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setHitWidth",            ZTID_VOID,          SETTER,       LINKHXSZ,             1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getStep",                ZTID_FLOAT,         GETTER,       HEROSTEPRATE,         1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setStep",                ZTID_VOID,          SETTER,       HEROSTEPRATE,         1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getHitHeight",           ZTID_FLOAT,         GETTER,       LINKHYSZ,             1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setHitHeight",           ZTID_VOID,          SETTER,       LINKHYSZ,             1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getHitZHeight",          ZTID_FLOAT,         GETTER,       LINKHZSZ,             1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setHitZHeight",          ZTID_VOID,          SETTER,       LINKHZSZ,             1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getTileWidth",           ZTID_FLOAT,         GETTER,       LINKTXSZ,             1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setTileWidth",           ZTID_VOID,          SETTER,       LINKTXSZ,             1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getTileHeight",          ZTID_FLOAT,         GETTER,       LINKTYSZ,             1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setTileHeight",          ZTID_VOID,          SETTER,       LINKTYSZ,             1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getDrawXOffset",         ZTID_FLOAT,         GETTER,       LINKXOFS,             1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setDrawXOffset",         ZTID_VOID,          SETTER,       LINKXOFS,             1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getDrawYOffset",         ZTID_FLOAT,         GETTER,       LINKYOFS,             1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setDrawYOffset",         ZTID_VOID,          SETTER,       LINKYOFS,             1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getTotalDYOffset",       ZTID_FLOAT,         GETTER,       HEROTOTALDYOFFS,      1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setTotalDYOffset",       ZTID_VOID,          SETTER,       HEROTOTALDYOFFS,      1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getDrawZOffset",         ZTID_FLOAT,         GETTER,       LINKZOFS,             1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setDrawZOffset",         ZTID_VOID,          SETTER,       LINKZOFS,             1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getHitXOffset",          ZTID_FLOAT,         GETTER,       LINKHXOFS,            1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setHitXOffset",          ZTID_VOID,          SETTER,       LINKHXOFS,            1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getHitYOffset",          ZTID_FLOAT,         GETTER,       LINKHYOFS,            1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setHitYOffset",          ZTID_VOID,          SETTER,       LINKHYOFS,            1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrunk",               ZTID_FLOAT,         GETTER,       LINKDRUNK,            1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrunk",               ZTID_VOID,          SETTER,       LINKDRUNK,            1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getEquipment",           ZTID_FLOAT,         GETTER,       LINKEQUIP,            1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setEquipment",           ZTID_VOID,          SETTER,       LINKEQUIP,            1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getInputAxisUp",         ZTID_BOOL,          GETTER,       INPUTAXISUP,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setInputAxisUp",         ZTID_VOID,          SETTER,       INPUTAXISUP,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getInputAxisDown",       ZTID_BOOL,          GETTER,       INPUTAXISDOWN,        1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setInputAxisDown",       ZTID_VOID,          SETTER,       INPUTAXISDOWN,        1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getInputAxisLeft",       ZTID_BOOL,          GETTER,       INPUTAXISLEFT,        1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setInputAxisLeft",       ZTID_VOID,          SETTER,       INPUTAXISLEFT,        1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getInputAxisRight",      ZTID_BOOL,          GETTER,       INPUTAXISRIGHT,       1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setInputAxisRight",      ZTID_VOID,          SETTER,       INPUTAXISRIGHT,       1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getPressAxisUp",         ZTID_BOOL,          GETTER,       INPUTPRESSAXISUP,     1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setPressAxisUp",         ZTID_VOID,          SETTER,       INPUTPRESSAXISUP,     1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getPressAxisDown",       ZTID_BOOL,          GETTER,       INPUTPRESSAXISDOWN,   1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setPressAxisDown",       ZTID_VOID,          SETTER,       INPUTPRESSAXISDOWN,   1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getPressAxisLeft",       ZTID_BOOL,          GETTER,       INPUTPRESSAXISLEFT,   1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setPressAxisLeft",       ZTID_VOID,          SETTER,       INPUTPRESSAXISLEFT,   1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getPressAxisRight",      ZTID_BOOL,          GETTER,       INPUTPRESSAXISRIGHT,  1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setPressAxisRight",      ZTID_VOID,          SETTER,       INPUTPRESSAXISRIGHT,  1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHealthBeep",          ZTID_FLOAT,         GETTER,       HEROHEALTHBEEP,            1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHealthBeep",          ZTID_VOID,          SETTER,       HEROHEALTHBEEP,            1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getInvisible",           ZTID_BOOL,          GETTER,       LINKINVIS,            1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setInvisible",           ZTID_VOID,          SETTER,       LINKINVIS,            1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getNoStepForward",       ZTID_BOOL,          GETTER,       HERONOSTEPFORWARD,    1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setNoStepForward",       ZTID_VOID,          SETTER,       HERONOSTEPFORWARD,    1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getAnimation",           ZTID_FLOAT,         GETTER,       LINKENGINEANIMATE,    1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setAnimation",           ZTID_VOID,          SETTER,       LINKENGINEANIMATE,    1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getCollDetection",       ZTID_BOOL,          GETTER,       LINKINVINC,           1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setCollDetection",       ZTID_VOID,          SETTER,       LINKINVINC,           1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMisc[]",              ZTID_UNTYPED,       GETTER,       LINKMISCD,            32,          0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMisc[]",              ZTID_VOID,          SETTER,       LINKMISCD,            32,          0,                                    3,           { ZTID_PLAYER, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDefense[]",           ZTID_FLOAT,         GETTER,       LINKDEFENCE,          256,         0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDefense[]",           ZTID_VOID,          SETTER,       LINKDEFENCE,          256,         0,                                    3,           { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHitBy[]",             ZTID_UNTYPED,       GETTER,       LINKHITBY,            10,          0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHitBy[]",             ZTID_VOID,          SETTER,       LINKHITBY,            10,          0,                                    3,           { ZTID_PLAYER, ZTID_FLOAT, ZTID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLadderX",             ZTID_FLOAT,         GETTER,       LINKLADDERX,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getLadderY",             ZTID_FLOAT,         GETTER,       LINKLADDERY,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getTile",                ZTID_FLOAT,         GETTER,       LINKTILE,             1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setTile",                ZTID_VOID,          SETTER,       LINKTILE,             1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFlip",                ZTID_FLOAT,         GETTER,       LINKFLIP,             1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFlip",                ZTID_VOID,          SETTER,       LINKFLIP,             1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "getPressMap",            ZTID_BOOL,          GETTER,       INPUTPRESSMAP,        1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "setPressMap",            ZTID_VOID,          SETTER,       INPUTPRESSMAP,        1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SelectAWeapon",          ZTID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SelectBWeapon",          ZTID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SelectXWeapon",          ZTID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SelectYWeapon",          ZTID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setInvFrames",           ZTID_VOID,          SETTER,       LINKINVFRAME,         1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getInvFrames",           ZTID_FLOAT,         GETTER,       LINKINVFRAME,         1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setInvFlicker",          ZTID_VOID,          SETTER,       LINKCANFLICKER,       1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getInvFlicker",          ZTID_BOOL,          GETTER,       LINKCANFLICKER,       1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setHurtSound",           ZTID_VOID,          SETTER,       LINKHURTSFX,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getHurtSound",           ZTID_FLOAT,         GETTER,       LINKHURTSFX,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-//	{ "getUsingItem",           ZTID_FLOAT,         GETTER,       LINKUSINGITEM,        1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-//	{ "setUsingItem",           ZTID_VOID,          SETTER,       LINKUSINGITEM,        1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-//	{ "getAttack",              ZTID_FLOAT,         GETTER,       LINKUSINGITEMA,       1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-//	{ "setAttack",              ZTID_VOID,          SETTER,       LINKUSINGITEMA,       1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetItemA",               ZTID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SetItemB",               ZTID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	 { "SetItemSlot",            ZTID_VOID,          FUNCTION,     0,                    1,           0,                                    4,           { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setItemB",               ZTID_VOID,          SETTER,       LINKITEMB,            1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setItemA",               ZTID_VOID,          SETTER,       LINKITEMA,            1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getItemB",               ZTID_FLOAT,         GETTER,       LINKITEMB,            1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getItemA",               ZTID_FLOAT,         GETTER,       LINKITEMA,            1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getItemX",               ZTID_FLOAT,         GETTER,       LINKITEMX,            1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setItemX",               ZTID_VOID,          SETTER,       LINKITEMX,            1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getItemY",               ZTID_FLOAT,         GETTER,       LINKITEMY,            1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setItemY",               ZTID_VOID,          SETTER,       LINKITEMY,            1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getEaten",               ZTID_FLOAT,         GETTER,       LINKEATEN,            1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setEaten",               ZTID_VOID,          SETTER,       LINKEATEN,            1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getGrabbed",             ZTID_BOOL,          GETTER,       LINKGRABBED,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setGrabbed",             ZTID_VOID,          SETTER,       LINKGRABBED,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getStun",                ZTID_FLOAT,         GETTER,       LINKSTUN,             1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setStun",                ZTID_VOID,          SETTER,       LINKSTUN,             1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getBunnyClk",            ZTID_FLOAT,         GETTER,       HEROBUNNY,            1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setBunnyClk",            ZTID_VOID,          SETTER,       HEROBUNNY,            1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getPushing",             ZTID_FLOAT,         GETTER,       LINKPUSH,             1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setPushing",             ZTID_VOID,          SETTER,       LINKPUSH,             1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScriptCSet",          ZTID_FLOAT,         GETTER,       HEROSCRIPTCSET,       1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setScriptCSet",          ZTID_VOID,          SETTER,       HEROSCRIPTCSET,       1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScriptTile",          ZTID_FLOAT,         GETTER,       LINKSCRIPTTILE,       1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setScriptTile",          ZTID_VOID,          SETTER,       LINKSCRIPTTILE,       1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScriptFlip",          ZTID_FLOAT,         GETTER,       LINKSCRIPFLIP,        1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setScriptFlip",          ZTID_VOID,          SETTER,       LINKSCRIPFLIP,        1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDiagonal",            ZTID_BOOL,          GETTER,       LINKDIAG,             1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDiagonal",            ZTID_VOID,          SETTER,       LINKDIAG,             1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getBigHitbox",           ZTID_BOOL,          GETTER,       LINKBIGHITBOX,        1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setBigHitbox",           ZTID_VOID,          SETTER,       LINKBIGHITBOX,        1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getGravity",             ZTID_BOOL,          GETTER,       LINKGRAVITY,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setGravity",             ZTID_VOID,          SETTER,       LINKGRAVITY,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getRotation",            ZTID_FLOAT,         GETTER,       LINKROTATION,         1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setRotation",            ZTID_VOID,          SETTER,       LINKROTATION,         1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScale",               ZTID_FLOAT,         GETTER,       LINKSCALE,            1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setScale",               ZTID_VOID,          SETTER,       LINKSCALE,            1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetOriginalTile",        ZTID_FLOAT,         FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      3,           { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "GetOriginalFlip",        ZTID_FLOAT,         FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      3,           { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getClimbing",            ZTID_BOOL,          GETTER,       LINKCLIMBING,         1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setClimbing",            ZTID_VOID,          SETTER,       LINKCLIMBING,         1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getJumpCount",           ZTID_FLOAT,         GETTER,       HEROJUMPCOUNT,        1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setJumpCount",           ZTID_VOID,          SETTER,       HEROJUMPCOUNT,        1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getPitPullDir",          ZTID_FLOAT,         GETTER,       HEROPULLDIR,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getPitPullTimer",        ZTID_FLOAT,         GETTER,       HEROPULLCLK,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setPitPullTimer",        ZTID_VOID,          SETTER,       HEROPULLCLK,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFalling",             ZTID_FLOAT,         GETTER,       HEROFALLCLK,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFalling",             ZTID_VOID,          SETTER,       HEROFALLCLK,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFallCombo",           ZTID_FLOAT,         GETTER,       HEROFALLCMB,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFallCombo",           ZTID_VOID,          SETTER,       HEROFALLCMB,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getMoveFlags[]",         ZTID_BOOL,          GETTER,       HEROMOVEFLAGS,        2,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setMoveFlags[]",         ZTID_VOID,          SETTER,       HEROMOVEFLAGS,        2,           0,                                    3,           { ZTID_PLAYER, ZTID_FLOAT, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getClockActive",         ZTID_BOOL,          GETTER,       CLOCKACTIVE,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setClockActive",         ZTID_VOID,          SETTER,       CLOCKACTIVE,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getClockTimer",          ZTID_FLOAT,         GETTER,       CLOCKCLK,             1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setClockTimer",          ZTID_VOID,          SETTER,       CLOCKCLK,             1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getCSet",                ZTID_FLOAT,         GETTER,       LINKCSET,             1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setCSet",                ZTID_VOID,          SETTER,       LINKCSET,             1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getIsWarping",           ZTID_BOOL,          GETTER,       HEROISWARPING,        1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
+	{ "getX",                       0,         ZTID_FLOAT,   LINKX,                     0,  { ZTID_PLAYER },{} },
+	{ "setX",                       0,          ZTID_VOID,   LINKX,                     0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getY",                       0,         ZTID_FLOAT,   LINKY,                     0,  { ZTID_PLAYER },{} },
+	{ "setY",                       0,          ZTID_VOID,   LINKY,                     0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getZ",                       0,         ZTID_FLOAT,   LINKZ,                     0,  { ZTID_PLAYER },{} },
+	{ "setZ",                       0,          ZTID_VOID,   LINKZ,                     0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getJump",                    0,         ZTID_FLOAT,   LINKJUMP,                  0,  { ZTID_PLAYER },{} },
+	{ "setJump",                    0,          ZTID_VOID,   LINKJUMP,                  0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getDir",                     0,         ZTID_FLOAT,   LINKDIR,                   0,  { ZTID_PLAYER },{} },
+	{ "setDir",                     0,          ZTID_VOID,   LINKDIR,                   0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getHitDir",                  0,         ZTID_FLOAT,   LINKHITDIR,                0,  { ZTID_PLAYER },{} },
+	{ "setHitDir",                  0,          ZTID_VOID,   LINKHITDIR,                0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getSwordJinx",               0,         ZTID_FLOAT,   LINKSWORDJINX,             0,  { ZTID_PLAYER },{} },
+	{ "setSwordJinx",               0,          ZTID_VOID,   LINKSWORDJINX,             0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getItemJinx",                0,         ZTID_FLOAT,   LINKITEMJINX,              0,  { ZTID_PLAYER },{} },
+	{ "setItemJinx",                0,          ZTID_VOID,   LINKITEMJINX,              0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getHP",                      0,         ZTID_FLOAT,   LINKHP,                    0,  { ZTID_PLAYER },{} },
+	{ "setHP",                      0,          ZTID_VOID,   LINKHP,                    0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getMP",                      0,         ZTID_FLOAT,   LINKMP,                    0,  { ZTID_PLAYER },{} },
+	{ "setMP",                      0,          ZTID_VOID,   LINKMP,                    0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getMaxHP",                   0,         ZTID_FLOAT,   LINKMAXHP,                 0,  { ZTID_PLAYER },{} },
+	{ "setMaxHP",                   0,          ZTID_VOID,   LINKMAXHP,                 0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getMaxMP",                   0,         ZTID_FLOAT,   LINKMAXMP,                 0,  { ZTID_PLAYER },{} },
+	{ "setMaxMP",                   0,          ZTID_VOID,   LINKMAXMP,                 0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getAction",                  0,         ZTID_FLOAT,   LINKACTION,                0,  { ZTID_PLAYER },{} },
+	{ "setAction",                  0,          ZTID_VOID,   LINKACTION,                0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getTileMod",                 0,         ZTID_FLOAT,   LINKTILEMOD,               0,  { ZTID_PLAYER },{} },
+	{ "setTileMod",                 0,          ZTID_VOID,   LINKTILEMOD,               0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getHeldItem",                0,         ZTID_FLOAT,   LINKHELD,                  0,  { ZTID_PLAYER },{} },
+	{ "setHeldItem",                0,          ZTID_VOID,   LINKHELD,                  0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "Warp",                       0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "Warp",                       1,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "WarpEx",                     0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "Explode",                    0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "PitWarp",                    0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getInputStart",              0,          ZTID_BOOL,   INPUTSTART,                0,  { ZTID_PLAYER },{} },
+	{ "setInputStart",              0,          ZTID_VOID,   INPUTSTART,                0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getInputMap",                0,          ZTID_BOOL,   INPUTMAP,                  0,  { ZTID_PLAYER },{} },
+	{ "setInputMap",                0,          ZTID_VOID,   INPUTMAP,                  0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getInputUp",                 0,          ZTID_BOOL,   INPUTUP,                   0,  { ZTID_PLAYER },{} },
+	{ "setInputUp",                 0,          ZTID_VOID,   INPUTUP,                   0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getInputDown",               0,          ZTID_BOOL,   INPUTDOWN,                 0,  { ZTID_PLAYER },{} },
+	{ "setInputDown",               0,          ZTID_VOID,   INPUTDOWN,                 0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getInputLeft",               0,          ZTID_BOOL,   INPUTLEFT,                 0,  { ZTID_PLAYER },{} },
+	{ "setInputLeft",               0,          ZTID_VOID,   INPUTLEFT,                 0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getInputRight",              0,          ZTID_BOOL,   INPUTRIGHT,                0,  { ZTID_PLAYER },{} },
+	{ "setInputRight",              0,          ZTID_VOID,   INPUTRIGHT,                0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getInputA",                  0,          ZTID_BOOL,   INPUTA,                    0,  { ZTID_PLAYER },{} },
+	{ "setInputA",                  0,          ZTID_VOID,   INPUTA,                    0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getInputB",                  0,          ZTID_BOOL,   INPUTB,                    0,  { ZTID_PLAYER },{} },
+	{ "setInputB",                  0,          ZTID_VOID,   INPUTB,                    0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getInputL",                  0,          ZTID_BOOL,   INPUTL,                    0,  { ZTID_PLAYER },{} },
+	{ "setInputL",                  0,          ZTID_VOID,   INPUTL,                    0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getInputR",                  0,          ZTID_BOOL,   INPUTR,                    0,  { ZTID_PLAYER },{} },
+	{ "setInputR",                  0,          ZTID_VOID,   INPUTR,                    0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getInputEx1",                0,          ZTID_BOOL,   INPUTEX1,                  0,  { ZTID_PLAYER },{} },
+	{ "setInputEx1",                0,          ZTID_VOID,   INPUTEX1,                  0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getInputEx2",                0,          ZTID_BOOL,   INPUTEX2,                  0,  { ZTID_PLAYER },{} },
+	{ "setInputEx2",                0,          ZTID_VOID,   INPUTEX2,                  0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getInputEx3",                0,          ZTID_BOOL,   INPUTEX3,                  0,  { ZTID_PLAYER },{} },
+	{ "setInputEx3",                0,          ZTID_VOID,   INPUTEX3,                  0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getInputEx4",                0,          ZTID_BOOL,   INPUTEX4,                  0,  { ZTID_PLAYER },{} },
+	{ "setInputEx4",                0,          ZTID_VOID,   INPUTEX4,                  0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getPressStart",              0,          ZTID_BOOL,   INPUTPRESSSTART,           0,  { ZTID_PLAYER },{} },
+	{ "setPressStart",              0,          ZTID_VOID,   INPUTPRESSSTART,           0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getPressUp",                 0,          ZTID_BOOL,   INPUTPRESSUP,              0,  { ZTID_PLAYER },{} },
+	{ "setPressUp",                 0,          ZTID_VOID,   INPUTPRESSUP,              0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getPressDown",               0,          ZTID_BOOL,   INPUTPRESSDOWN,            0,  { ZTID_PLAYER },{} },
+	{ "setPressDown",               0,          ZTID_VOID,   INPUTPRESSDOWN,            0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getPressLeft",               0,          ZTID_BOOL,   INPUTPRESSLEFT,            0,  { ZTID_PLAYER },{} },
+	{ "setPressLeft",               0,          ZTID_VOID,   INPUTPRESSLEFT,            0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getPressRight",              0,          ZTID_BOOL,   INPUTPRESSRIGHT,           0,  { ZTID_PLAYER },{} },
+	{ "setPressRight",              0,          ZTID_VOID,   INPUTPRESSRIGHT,           0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getPressA",                  0,          ZTID_BOOL,   INPUTPRESSA,               0,  { ZTID_PLAYER },{} },
+	{ "setPressA",                  0,          ZTID_VOID,   INPUTPRESSA,               0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getPressB",                  0,          ZTID_BOOL,   INPUTPRESSB,               0,  { ZTID_PLAYER },{} },
+	{ "setPressB",                  0,          ZTID_VOID,   INPUTPRESSB,               0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getPressL",                  0,          ZTID_BOOL,   INPUTPRESSL,               0,  { ZTID_PLAYER },{} },
+	{ "setPressL",                  0,          ZTID_VOID,   INPUTPRESSL,               0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getPressR",                  0,          ZTID_BOOL,   INPUTPRESSR,               0,  { ZTID_PLAYER },{} },
+	{ "setPressR",                  0,          ZTID_VOID,   INPUTPRESSR,               0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getPressEx1",                0,          ZTID_BOOL,   INPUTPRESSEX1,             0,  { ZTID_PLAYER },{} },
+	{ "setPressEx1",                0,          ZTID_VOID,   INPUTPRESSEX1,             0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getPressEx2",                0,          ZTID_BOOL,   INPUTPRESSEX2,             0,  { ZTID_PLAYER },{} },
+	{ "setPressEx2",                0,          ZTID_VOID,   INPUTPRESSEX2,             0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getPressEx3",                0,          ZTID_BOOL,   INPUTPRESSEX3,             0,  { ZTID_PLAYER },{} },
+	{ "setPressEx3",                0,          ZTID_VOID,   INPUTPRESSEX3,             0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getPressEx4",                0,          ZTID_BOOL,   INPUTPRESSEX4,             0,  { ZTID_PLAYER },{} },
+	{ "setPressEx4",                0,          ZTID_VOID,   INPUTPRESSEX4,             0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getInputMouseX",             0,         ZTID_FLOAT,   INPUTMOUSEX,               0,  { ZTID_PLAYER },{} },
+	{ "setInputMouseX",             0,          ZTID_VOID,   INPUTMOUSEX,               0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getInputMouseY",             0,         ZTID_FLOAT,   INPUTMOUSEY,               0,  { ZTID_PLAYER },{} },
+	{ "setInputMouseY",             0,          ZTID_VOID,   INPUTMOUSEY,               0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getInputMouseZ",             0,         ZTID_FLOAT,   INPUTMOUSEZ,               0,  { ZTID_PLAYER },{} },
+	{ "setInputMouseZ",             0,          ZTID_VOID,   INPUTMOUSEZ,               0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getInputMouseB",             0,         ZTID_FLOAT,   INPUTMOUSEB,               0,  { ZTID_PLAYER },{} },
+	{ "setInputMouseB",             0,          ZTID_VOID,   INPUTMOUSEB,               0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getItem[]",                  0,          ZTID_BOOL,   LINKITEMD,                 0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "setItem[]",                  0,          ZTID_VOID,   LINKITEMD,                 0,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getSteps[]",                 0,         ZTID_FLOAT,   HEROSTEPS,                 0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "setSteps[]",                 0,          ZTID_VOID,   HEROSTEPS,                 0,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getHitWidth",                0,         ZTID_FLOAT,   LINKHXSZ,                  0,  { ZTID_PLAYER },{} },
+	{ "setHitWidth",                0,          ZTID_VOID,   LINKHXSZ,                  0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getStep",                    0,         ZTID_FLOAT,   HEROSTEPRATE,              0,  { ZTID_PLAYER },{} },
+	{ "setStep",                    0,          ZTID_VOID,   HEROSTEPRATE,              0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getHitHeight",               0,         ZTID_FLOAT,   LINKHYSZ,                  0,  { ZTID_PLAYER },{} },
+	{ "setHitHeight",               0,          ZTID_VOID,   LINKHYSZ,                  0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getHitZHeight",              0,         ZTID_FLOAT,   LINKHZSZ,                  0,  { ZTID_PLAYER },{} },
+	{ "setHitZHeight",              0,          ZTID_VOID,   LINKHZSZ,                  0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getTileWidth",               0,         ZTID_FLOAT,   LINKTXSZ,                  0,  { ZTID_PLAYER },{} },
+	{ "setTileWidth",               0,          ZTID_VOID,   LINKTXSZ,                  0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getTileHeight",              0,         ZTID_FLOAT,   LINKTYSZ,                  0,  { ZTID_PLAYER },{} },
+	{ "setTileHeight",              0,          ZTID_VOID,   LINKTYSZ,                  0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getDrawXOffset",             0,         ZTID_FLOAT,   LINKXOFS,                  0,  { ZTID_PLAYER },{} },
+	{ "setDrawXOffset",             0,          ZTID_VOID,   LINKXOFS,                  0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getDrawYOffset",             0,         ZTID_FLOAT,   LINKYOFS,                  0,  { ZTID_PLAYER },{} },
+	{ "setDrawYOffset",             0,          ZTID_VOID,   LINKYOFS,                  0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getTotalDYOffset",           0,         ZTID_FLOAT,   HEROTOTALDYOFFS,           0,  { ZTID_PLAYER },{} },
+	{ "setTotalDYOffset",           0,          ZTID_VOID,   HEROTOTALDYOFFS,           0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getDrawZOffset",             0,         ZTID_FLOAT,   LINKZOFS,                  0,  { ZTID_PLAYER },{} },
+	{ "setDrawZOffset",             0,          ZTID_VOID,   LINKZOFS,                  0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getHitXOffset",              0,         ZTID_FLOAT,   LINKHXOFS,                 0,  { ZTID_PLAYER },{} },
+	{ "setHitXOffset",              0,          ZTID_VOID,   LINKHXOFS,                 0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getHitYOffset",              0,         ZTID_FLOAT,   LINKHYOFS,                 0,  { ZTID_PLAYER },{} },
+	{ "setHitYOffset",              0,          ZTID_VOID,   LINKHYOFS,                 0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getDrunk",                   0,         ZTID_FLOAT,   LINKDRUNK,                 0,  { ZTID_PLAYER },{} },
+	{ "setDrunk",                   0,          ZTID_VOID,   LINKDRUNK,                 0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getEquipment",               0,         ZTID_FLOAT,   LINKEQUIP,                 0,  { ZTID_PLAYER },{} },
+	{ "setEquipment",               0,          ZTID_VOID,   LINKEQUIP,                 0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getInputAxisUp",             0,          ZTID_BOOL,   INPUTAXISUP,               0,  { ZTID_PLAYER },{} },
+	{ "setInputAxisUp",             0,          ZTID_VOID,   INPUTAXISUP,               0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getInputAxisDown",           0,          ZTID_BOOL,   INPUTAXISDOWN,             0,  { ZTID_PLAYER },{} },
+	{ "setInputAxisDown",           0,          ZTID_VOID,   INPUTAXISDOWN,             0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getInputAxisLeft",           0,          ZTID_BOOL,   INPUTAXISLEFT,             0,  { ZTID_PLAYER },{} },
+	{ "setInputAxisLeft",           0,          ZTID_VOID,   INPUTAXISLEFT,             0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getInputAxisRight",          0,          ZTID_BOOL,   INPUTAXISRIGHT,            0,  { ZTID_PLAYER },{} },
+	{ "setInputAxisRight",          0,          ZTID_VOID,   INPUTAXISRIGHT,            0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getPressAxisUp",             0,          ZTID_BOOL,   INPUTPRESSAXISUP,          0,  { ZTID_PLAYER },{} },
+	{ "setPressAxisUp",             0,          ZTID_VOID,   INPUTPRESSAXISUP,          0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getPressAxisDown",           0,          ZTID_BOOL,   INPUTPRESSAXISDOWN,        0,  { ZTID_PLAYER },{} },
+	{ "setPressAxisDown",           0,          ZTID_VOID,   INPUTPRESSAXISDOWN,        0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getPressAxisLeft",           0,          ZTID_BOOL,   INPUTPRESSAXISLEFT,        0,  { ZTID_PLAYER },{} },
+	{ "setPressAxisLeft",           0,          ZTID_VOID,   INPUTPRESSAXISLEFT,        0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getPressAxisRight",          0,          ZTID_BOOL,   INPUTPRESSAXISRIGHT,       0,  { ZTID_PLAYER },{} },
+	{ "setPressAxisRight",          0,          ZTID_VOID,   INPUTPRESSAXISRIGHT,       0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getHealthBeep",              0,         ZTID_FLOAT,   HEROHEALTHBEEP,            0,  { ZTID_PLAYER },{} },
+	{ "setHealthBeep",              0,          ZTID_VOID,   HEROHEALTHBEEP,            0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getInvisible",               0,          ZTID_BOOL,   LINKINVIS,                 0,  { ZTID_PLAYER },{} },
+	{ "setInvisible",               0,          ZTID_VOID,   LINKINVIS,                 0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getNoStepForward",           0,          ZTID_BOOL,   HERONOSTEPFORWARD,         0,  { ZTID_PLAYER },{} },
+	{ "setNoStepForward",           0,          ZTID_VOID,   HERONOSTEPFORWARD,         0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getAnimation",               0,         ZTID_FLOAT,   LINKENGINEANIMATE,         0,  { ZTID_PLAYER },{} },
+	{ "setAnimation",               0,          ZTID_VOID,   LINKENGINEANIMATE,         0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getCollDetection",           0,          ZTID_BOOL,   LINKINVINC,                0,  { ZTID_PLAYER },{} },
+	{ "setCollDetection",           0,          ZTID_VOID,   LINKINVINC,                0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getMisc[]",                  0,       ZTID_UNTYPED,   LINKMISCD,                 0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "setMisc[]",                  0,          ZTID_VOID,   LINKMISCD,                 0,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "getDefense[]",               0,         ZTID_FLOAT,   LINKDEFENCE,               0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "setDefense[]",               0,          ZTID_VOID,   LINKDEFENCE,               0,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getHitBy[]",                 0,       ZTID_UNTYPED,   LINKHITBY,                 0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "setHitBy[]",                 0,          ZTID_VOID,   LINKHITBY,                 0,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "getLadderX",                 0,         ZTID_FLOAT,   LINKLADDERX,               0,  { ZTID_PLAYER },{} },
+	{ "getLadderY",                 0,         ZTID_FLOAT,   LINKLADDERY,               0,  { ZTID_PLAYER },{} },
+	{ "getTile",                    0,         ZTID_FLOAT,   LINKTILE,                  0,  { ZTID_PLAYER },{} },
+	{ "setTile",                    0,          ZTID_VOID,   LINKTILE,                  0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getFlip",                    0,         ZTID_FLOAT,   LINKFLIP,                  0,  { ZTID_PLAYER },{} },
+	{ "setFlip",                    0,          ZTID_VOID,   LINKFLIP,                  0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getPressMap",                0,          ZTID_BOOL,   INPUTPRESSMAP,             0,  { ZTID_PLAYER },{} },
+	{ "setPressMap",                0,          ZTID_VOID,   INPUTPRESSMAP,             0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "SelectAWeapon",              0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "SelectBWeapon",              0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "SelectXWeapon",              0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "SelectYWeapon",              0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "setInvFrames",               0,          ZTID_VOID,   LINKINVFRAME,              0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getInvFrames",               0,         ZTID_FLOAT,   LINKINVFRAME,              0,  { ZTID_PLAYER },{} },
+	{ "setInvFlicker",              0,          ZTID_VOID,   LINKCANFLICKER,            0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getInvFlicker",              0,          ZTID_BOOL,   LINKCANFLICKER,            0,  { ZTID_PLAYER },{} },
+	{ "setHurtSound",               0,          ZTID_VOID,   LINKHURTSFX,               0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getHurtSound",               0,         ZTID_FLOAT,   LINKHURTSFX,               0,  { ZTID_PLAYER },{} },
+//	{ "getUsingItem",               0,         ZTID_FLOAT,   LINKUSINGITEM,             0,  { ZTID_PLAYER },{} },
+//	{ "setUsingItem",               0,          ZTID_VOID,   LINKUSINGITEM,             0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+//	{ "getAttack",                  0,         ZTID_FLOAT,   LINKUSINGITEMA,            0,  { ZTID_PLAYER },{} },
+//	{ "setAttack",                  0,          ZTID_VOID,   LINKUSINGITEMA,            0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "SetItemA",                   0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "SetItemB",                   0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "SetItemSlot",                0,          ZTID_VOID,   -1,                        0,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "setItemB",                   0,          ZTID_VOID,   LINKITEMB,                 0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "setItemA",                   0,          ZTID_VOID,   LINKITEMA,                 0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getItemB",                   0,         ZTID_FLOAT,   LINKITEMB,                 0,  { ZTID_PLAYER },{} },
+	{ "getItemA",                   0,         ZTID_FLOAT,   LINKITEMA,                 0,  { ZTID_PLAYER },{} },
+	{ "getItemX",                   0,         ZTID_FLOAT,   LINKITEMX,                 0,  { ZTID_PLAYER },{} },
+	{ "setItemX",                   0,          ZTID_VOID,   LINKITEMX,                 0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getItemY",                   0,         ZTID_FLOAT,   LINKITEMY,                 0,  { ZTID_PLAYER },{} },
+	{ "setItemY",                   0,          ZTID_VOID,   LINKITEMY,                 0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getEaten",                   0,         ZTID_FLOAT,   LINKEATEN,                 0,  { ZTID_PLAYER },{} },
+	{ "setEaten",                   0,          ZTID_VOID,   LINKEATEN,                 0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getGrabbed",                 0,          ZTID_BOOL,   LINKGRABBED,               0,  { ZTID_PLAYER },{} },
+	{ "setGrabbed",                 0,          ZTID_VOID,   LINKGRABBED,               0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getStun",                    0,         ZTID_FLOAT,   LINKSTUN,                  0,  { ZTID_PLAYER },{} },
+	{ "setStun",                    0,          ZTID_VOID,   LINKSTUN,                  0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getBunnyClk",                0,         ZTID_FLOAT,   HEROBUNNY,                 0,  { ZTID_PLAYER },{} },
+	{ "setBunnyClk",                0,          ZTID_VOID,   HEROBUNNY,                 0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getPushing",                 0,         ZTID_FLOAT,   LINKPUSH,                  0,  { ZTID_PLAYER },{} },
+	{ "setPushing",                 0,          ZTID_VOID,   LINKPUSH,                  0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getScriptCSet",              0,         ZTID_FLOAT,   HEROSCRIPTCSET,            0,  { ZTID_PLAYER },{} },
+	{ "setScriptCSet",              0,          ZTID_VOID,   HEROSCRIPTCSET,            0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getScriptTile",              0,         ZTID_FLOAT,   LINKSCRIPTTILE,            0,  { ZTID_PLAYER },{} },
+	{ "setScriptTile",              0,          ZTID_VOID,   LINKSCRIPTTILE,            0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getScriptFlip",              0,         ZTID_FLOAT,   LINKSCRIPFLIP,             0,  { ZTID_PLAYER },{} },
+	{ "setScriptFlip",              0,          ZTID_VOID,   LINKSCRIPFLIP,             0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getDiagonal",                0,          ZTID_BOOL,   LINKDIAG,                  0,  { ZTID_PLAYER },{} },
+	{ "setDiagonal",                0,          ZTID_VOID,   LINKDIAG,                  0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getBigHitbox",               0,          ZTID_BOOL,   LINKBIGHITBOX,             0,  { ZTID_PLAYER },{} },
+	{ "setBigHitbox",               0,          ZTID_VOID,   LINKBIGHITBOX,             0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getGravity",                 0,          ZTID_BOOL,   LINKGRAVITY,               0,  { ZTID_PLAYER },{} },
+	{ "setGravity",                 0,          ZTID_VOID,   LINKGRAVITY,               0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getRotation",                0,         ZTID_FLOAT,   LINKROTATION,              0,  { ZTID_PLAYER },{} },
+	{ "setRotation",                0,          ZTID_VOID,   LINKROTATION,              0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getScale",                   0,         ZTID_FLOAT,   LINKSCALE,                 0,  { ZTID_PLAYER },{} },
+	{ "setScale",                   0,          ZTID_VOID,   LINKSCALE,                 0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "GetOriginalTile",            0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetOriginalFlip",            0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getClimbing",                0,          ZTID_BOOL,   LINKCLIMBING,              0,  { ZTID_PLAYER },{} },
+	{ "setClimbing",                0,          ZTID_VOID,   LINKCLIMBING,              0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getJumpCount",               0,         ZTID_FLOAT,   HEROJUMPCOUNT,             0,  { ZTID_PLAYER },{} },
+	{ "setJumpCount",               0,          ZTID_VOID,   HEROJUMPCOUNT,             0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getPitPullDir",              0,         ZTID_FLOAT,   HEROPULLDIR,               0,  { ZTID_PLAYER },{} },
+	{ "getPitPullTimer",            0,         ZTID_FLOAT,   HEROPULLCLK,               0,  { ZTID_PLAYER },{} },
+	{ "setPitPullTimer",            0,          ZTID_VOID,   HEROPULLCLK,               0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getFalling",                 0,         ZTID_FLOAT,   HEROFALLCLK,               0,  { ZTID_PLAYER },{} },
+	{ "setFalling",                 0,          ZTID_VOID,   HEROFALLCLK,               0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getFallCombo",               0,         ZTID_FLOAT,   HEROFALLCMB,               0,  { ZTID_PLAYER },{} },
+	{ "setFallCombo",               0,          ZTID_VOID,   HEROFALLCMB,               0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getMoveFlags[]",             0,          ZTID_BOOL,   HEROMOVEFLAGS,             0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "setMoveFlags[]",             0,          ZTID_VOID,   HEROMOVEFLAGS,             0,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getClockActive",             0,          ZTID_BOOL,   CLOCKACTIVE,               0,  { ZTID_PLAYER },{} },
+	{ "setClockActive",             0,          ZTID_VOID,   CLOCKACTIVE,               0,  { ZTID_PLAYER, ZTID_BOOL },{} },
+	{ "getClockTimer",              0,         ZTID_FLOAT,   CLOCKCLK,                  0,  { ZTID_PLAYER },{} },
+	{ "setClockTimer",              0,          ZTID_VOID,   CLOCKCLK,                  0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getCSet",                    0,         ZTID_FLOAT,   LINKCSET,                  0,  { ZTID_PLAYER },{} },
+	{ "setCSet",                    0,          ZTID_VOID,   LINKCSET,                  0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getIsWarping",               0,          ZTID_BOOL,   HEROISWARPING,             0,  { ZTID_PLAYER },{} },
 	
-	{ "getRespawnX",            ZTID_FLOAT,         GETTER,       HERORESPAWNX,         1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setRespawnX",            ZTID_VOID,          SETTER,       HERORESPAWNX,         1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getRespawnY",            ZTID_FLOAT,         GETTER,       HERORESPAWNY,         1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setRespawnY",            ZTID_VOID,          SETTER,       HERORESPAWNY,         1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getRespawnDMap",         ZTID_FLOAT,         GETTER,       HERORESPAWNDMAP,      1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setRespawnDMap",         ZTID_VOID,          SETTER,       HERORESPAWNDMAP,      1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getRespawnScreen",       ZTID_FLOAT,         GETTER,       HERORESPAWNSCR,       1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setRespawnScreen",       ZTID_VOID,          SETTER,       HERORESPAWNSCR,       1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSwitchTimer",         ZTID_FLOAT,         GETTER,       HEROSWITCHTIMER,      1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSwitchTimer",         ZTID_VOID,          SETTER,       HEROSWITCHTIMER,      1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getSwitchMaxTimer",      ZTID_FLOAT,         GETTER,       HEROSWITCHMAXTIMER,   1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setSwitchMaxTimer",      ZTID_VOID,          SETTER,       HEROSWITCHMAXTIMER,   1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getImmortal",            ZTID_FLOAT,         GETTER,       HEROIMMORTAL,         1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setImmortal",            ZTID_VOID,          SETTER,       HEROIMMORTAL,         1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SwitchCombo",            ZTID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      3,           { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "Kill",                   ZTID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           { ZTID_PLAYER, ZTID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrowning",             ZTID_FLOAT,         GETTER,       HERODROWNCLK,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrowning",             ZTID_VOID,          SETTER,       HERODROWNCLK,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getDrownCombo",           ZTID_FLOAT,         GETTER,       HERODROWNCMB,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setDrownCombo",           ZTID_VOID,          SETTER,       HERODROWNCMB,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFakeZ",           ZTID_FLOAT,         GETTER,       HEROFAKEZ,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFakeZ",           ZTID_VOID,          SETTER,       HEROFAKEZ,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getFakeJump",           ZTID_FLOAT,         GETTER,       HEROFAKEJUMP,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setFakeJump",           ZTID_VOID,          SETTER,       HEROFAKEJUMP,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getShadowXOffset",           ZTID_FLOAT,         GETTER,       HEROSHADOWXOFS,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setShadowXOffset",           ZTID_VOID,          SETTER,       HEROSHADOWXOFS,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getShadowYOffset",           ZTID_FLOAT,         GETTER,       HEROSHADOWYOFS,          1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "setShadowYOffset",           ZTID_VOID,          SETTER,       HEROSHADOWYOFS,          1,           0,                                    2,           { ZTID_PLAYER, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getStanding",                ZTID_BOOL,          GETTER,       HEROSTANDING,            1,           0,                                    1,           { ZTID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getRespawnX",                0,         ZTID_FLOAT,   HERORESPAWNX,              0,  { ZTID_PLAYER },{} },
+	{ "setRespawnX",                0,          ZTID_VOID,   HERORESPAWNX,              0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getRespawnY",                0,         ZTID_FLOAT,   HERORESPAWNY,              0,  { ZTID_PLAYER },{} },
+	{ "setRespawnY",                0,          ZTID_VOID,   HERORESPAWNY,              0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getRespawnDMap",             0,         ZTID_FLOAT,   HERORESPAWNDMAP,           0,  { ZTID_PLAYER },{} },
+	{ "setRespawnDMap",             0,          ZTID_VOID,   HERORESPAWNDMAP,           0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getRespawnScreen",           0,         ZTID_FLOAT,   HERORESPAWNSCR,            0,  { ZTID_PLAYER },{} },
+	{ "setRespawnScreen",           0,          ZTID_VOID,   HERORESPAWNSCR,            0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getSwitchTimer",             0,         ZTID_FLOAT,   HEROSWITCHTIMER,           0,  { ZTID_PLAYER },{} },
+	{ "setSwitchTimer",             0,          ZTID_VOID,   HEROSWITCHTIMER,           0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getSwitchMaxTimer",          0,         ZTID_FLOAT,   HEROSWITCHMAXTIMER,        0,  { ZTID_PLAYER },{} },
+	{ "setSwitchMaxTimer",          0,          ZTID_VOID,   HEROSWITCHMAXTIMER,        0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getImmortal",                0,         ZTID_FLOAT,   HEROIMMORTAL,              0,  { ZTID_PLAYER },{} },
+	{ "setImmortal",                0,          ZTID_VOID,   HEROIMMORTAL,              0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "SwitchCombo",                0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "Kill",                       0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_BOOL },{ 0 } },
+	{ "getDrowning",                0,         ZTID_FLOAT,   HERODROWNCLK,              0,  { ZTID_PLAYER },{} },
+	{ "setDrowning",                0,          ZTID_VOID,   HERODROWNCLK,              0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getDrownCombo",              0,         ZTID_FLOAT,   HERODROWNCMB,              0,  { ZTID_PLAYER },{} },
+	{ "setDrownCombo",              0,          ZTID_VOID,   HERODROWNCMB,              0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getFakeZ",                   0,         ZTID_FLOAT,   HEROFAKEZ,                 0,  { ZTID_PLAYER },{} },
+	{ "setFakeZ",                   0,          ZTID_VOID,   HEROFAKEZ,                 0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getFakeJump",                0,         ZTID_FLOAT,   HEROFAKEJUMP,              0,  { ZTID_PLAYER },{} },
+	{ "setFakeJump",                0,          ZTID_VOID,   HEROFAKEJUMP,              0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getShadowXOffset",           0,         ZTID_FLOAT,   HEROSHADOWXOFS,            0,  { ZTID_PLAYER },{} },
+	{ "setShadowXOffset",           0,          ZTID_VOID,   HEROSHADOWXOFS,            0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getShadowYOffset",           0,         ZTID_FLOAT,   HEROSHADOWYOFS,            0,  { ZTID_PLAYER },{} },
+	{ "setShadowYOffset",           0,          ZTID_VOID,   HEROSHADOWYOFS,            0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getStanding",                0,          ZTID_BOOL,   HEROSTANDING,              0,  { ZTID_PLAYER },{} },
 	
-	{ "",                       -1,                       -1,           -1,                   -1,          0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
 HeroSymbols::HeroSymbols()
 {
-    table = HeroSTable;
-    refVar = NUL;
+	table = HeroSTable;
+	refVar = NUL;
 }
 
 void HeroSymbols::generateCode()
 {
-    //Warp(link, int32_t, int32_t)
-    {
-	    Function* function = getFunction("Warp", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        //pop ffc, and ignore it
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        //ffc must be this (link is not a user-accessible type)
-        addOpcode2 (code, new OWarp(new VarArgument(EXP2), new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    {
-	Function* function = getFunction("WarpEx", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OHeroWarpExRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);    
-    }
-    {
-	Function* function = getFunction("Warp", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OHeroWarpExRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);    
-    }
-    {
-	Function* function = getFunction("Explode", 2);
+	//Warp(link, int32_t, int32_t)
+	{
+		Function* function = getFunction2("Warp");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		//pop ffc, and ignore it
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		//ffc must be this (link is not a user-accessible type)
+		addOpcode2 (code, new OWarp(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	{
+	Function* function = getFunction2("WarpEx");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OHeroWarpExRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);    
+	}
+	{
+	Function* function = getFunction2("Warp", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OHeroWarpExRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);    
+	}
+	{
+	Function* function = getFunction2("Explode");
 	int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OHeroExplodeRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);        
-    }
-       //void SetItemSlot(link, int32_t item, int32_t slot, int32_t force)
-    {
-	    Function* function = getFunction("SetItemSlot", 4);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(SETITEMSLOT), new VarArgument(SFTEMP)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //void SetItemA(link, int32_t)
-    {
-	    Function* function = getFunction("SetItemA", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        //addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OSetRegister(new VarArgument(GAMESETA), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //void SetItemB(link, int32_t)
-    {
-	    Function* function = getFunction("SetItemB", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        //addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        addOpcode2 (code, new OSetRegister(new VarArgument(GAMESETB), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    
-    //PitWarp(link, int32_t, int32_t)
-    {
-	    Function* function = getFunction("PitWarp", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        //pop ffc, and ignore it
-        addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
-        //ffc must be this (link is not a user-accessible type)
-        addOpcode2 (code, new OPitWarp(new VarArgument(EXP2), new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //SelectAWeapon(link, int32_t)
-    {
-	    Function* function = getFunction("SelectAWeapon", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer and ignore it
-        POPREF();
-        addOpcode2 (code, new OSelectAWeaponRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //SelectBWeapon(link, int32_t)
-    {
-	    Function* function = getFunction("SelectBWeapon", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer and ignore it
-        POPREF();
-        addOpcode2 (code, new OSelectBWeaponRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //SelectXWeapon(link, int32_t)
-    {
-	    Function* function = getFunction("SelectXWeapon", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer and ignore it
-        POPREF();
-        addOpcode2 (code, new OSelectXWeaponRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //SelectYWeapon(link, int32_t)
-    {
-	    Function* function = getFunction("SelectYWeapon", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer and ignore it
-        POPREF();
-        addOpcode2 (code, new OSelectYWeaponRegister(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetOriginaTile(link, int32_t,int32_t)
-    {
-        Function* function = getFunction("GetOriginalTile", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(LINKOTILE)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //int32_t GetOriginalFlip(link, int32_t,int32_t)
-    {
-        Function* function = getFunction("GetOriginalFlip", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(LINKOFLIP)));
-        RETURN();
-        function->giveCode(code);
-    }
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OHeroExplodeRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);        
+	}
+	   //void SetItemSlot(link, int32_t item, int32_t slot, int32_t force)
+	{
+		Function* function = getFunction2("SetItemSlot");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(SETITEMSLOT), new VarArgument(SFTEMP)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void SetItemA(link, int32_t)
+	{
+		Function* function = getFunction2("SetItemA");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		//addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OSetRegister(new VarArgument(GAMESETA), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetItemB(link, int32_t)
+	{
+		Function* function = getFunction2("SetItemB");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		//addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		addOpcode2 (code, new OSetRegister(new VarArgument(GAMESETB), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//PitWarp(link, int32_t, int32_t)
+	{
+		Function* function = getFunction2("PitWarp");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		//pop ffc, and ignore it
+		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		//ffc must be this (link is not a user-accessible type)
+		addOpcode2 (code, new OPitWarp(new VarArgument(EXP2), new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//SelectAWeapon(link, int32_t)
+	{
+		Function* function = getFunction2("SelectAWeapon");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer and ignore it
+		POPREF();
+		addOpcode2 (code, new OSelectAWeaponRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//SelectBWeapon(link, int32_t)
+	{
+		Function* function = getFunction2("SelectBWeapon");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer and ignore it
+		POPREF();
+		addOpcode2 (code, new OSelectBWeaponRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//SelectXWeapon(link, int32_t)
+	{
+		Function* function = getFunction2("SelectXWeapon");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer and ignore it
+		POPREF();
+		addOpcode2 (code, new OSelectXWeaponRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//SelectYWeapon(link, int32_t)
+	{
+		Function* function = getFunction2("SelectYWeapon");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer and ignore it
+		POPREF();
+		addOpcode2 (code, new OSelectYWeaponRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetOriginaTile(link, int32_t,int32_t)
+	{
+		Function* function = getFunction2("GetOriginalTile");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(LINKOTILE)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetOriginalFlip(link, int32_t,int32_t)
+	{
+		Function* function = getFunction2("GetOriginalFlip");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(LINKOFLIP)));
+		RETURN();
+		function->giveCode(code);
+	}
 	//bool SwitchCombo(link, int, int)
-    {
-        Function* function = getFunction("SwitchCombo", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSwitchCombo(new VarArgument(EXP1), new VarArgument(EXP2)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //bool Kill(player, bool)
-    {
-        Function* function = getFunction("Kill", 2);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the param
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        LABELBACK(label);
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OKillPlayer(new VarArgument(EXP1)));
-        RETURN();
-        function->giveCode(code);
-    }
+	{
+		Function* function = getFunction2("SwitchCombo");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OSwitchCombo(new VarArgument(EXP1), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//bool Kill(player, bool)
+	{
+		Function* function = getFunction2("Kill");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OKillPlayer(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
 }
 
