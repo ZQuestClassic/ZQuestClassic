@@ -8290,13 +8290,13 @@ void WriteCycleCSet(int pal, int cset);
  * Writes a cset of the paldata to a level's cycle/dark room palette.
  * Empty color indices will be skipped.
 
-void Mix(paldata start, paldata end, float percent, int color_space);
+void Mix(paldata start, paldata end, float percent = 0.5, int color_space = CSPACE_RGB);
  * Interpolates all the colors on a paldata between start and end.
  * The value of percent should range from 0-1, with 0 representing the starting color.
  * Color space specifies a color space to interpolate through, changing the resulting average.
  * See CSPACE_ constants in std_constants.zh
 
-void MixCSet(paldata start, paldata end, int cset, float percent, int color_space);
+void MixCSet(paldata start, paldata end, int cset, float percent = 0.5, int color_space = CSPACE_RGB);
  * Interpolates all the colors in a cset on a paldata between start and end.
  * The value of percent should range from 0-1, with 0 representing the starting color.
  * Color space specifies a color space to interpolate through, changing the resulting average.

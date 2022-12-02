@@ -2,47 +2,47 @@
 
 PalDataSymbols PalDataSymbols::singleton = PalDataSymbols();
 
-static AccessorTable PalDataTable[] =
+static AccessorTable2 PalDataTable2[] =
 {
-	//	  name,                     rettype,                     setorget,     var,                numindex,   funcFlags,                            numParams,   params
-	//	{ "DirExists",              ZTID_BOOL,             FUNCTION,     0,                  1,          0,                                    2,           { ZTID_FILESYSTEM, ZTID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "LoadLevelPalette",       ZTID_VOID,             FUNCTION,     0,                  1,          FUNCFLAG_INLINE,                      2,           { ZTID_PALDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "LoadSpritePalette",      ZTID_VOID,             FUNCTION,     0,                  1,          FUNCFLAG_INLINE,                      2,           { ZTID_PALDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "LoadMainPalette",        ZTID_VOID,             FUNCTION,     0,                  1,          FUNCFLAG_INLINE,                      1,           { ZTID_PALDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "LoadCyclePalette",       ZTID_VOID,             FUNCTION,     0,                  1,          FUNCFLAG_INLINE,                      2,           { ZTID_PALDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "LoadBitmapPalette",      ZTID_VOID,             FUNCTION,     0,                  1,          FUNCFLAG_INLINE,                      2,           { ZTID_PALDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "WriteLevelPalette",      ZTID_VOID,             FUNCTION,     0,                  1,          FUNCFLAG_INLINE,                      2,           { ZTID_PALDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "WriteLevelCSet",         ZTID_VOID,             FUNCTION,     0,                  1,          FUNCFLAG_INLINE,                      3,           { ZTID_PALDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "WriteSpritePalette",     ZTID_VOID,             FUNCTION,     0,                  1,          FUNCFLAG_INLINE,                      2,           { ZTID_PALDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "WriteSpriteCSet",        ZTID_VOID,             FUNCTION,     0,                  1,          FUNCFLAG_INLINE,                      3,           { ZTID_PALDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "WriteMainPalette",       ZTID_VOID,             FUNCTION,     0,                  1,          FUNCFLAG_INLINE,                      1,           { ZTID_PALDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "WriteMainCSet",          ZTID_VOID,             FUNCTION,     0,                  1,          FUNCFLAG_INLINE,                      2,           { ZTID_PALDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "WriteCyclePalette",      ZTID_VOID,             FUNCTION,     0,                  1,          FUNCFLAG_INLINE,                      2,           { ZTID_PALDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "WriteCycleCSet",         ZTID_VOID,             FUNCTION,     0,                  1,          FUNCFLAG_INLINE,                      3,           { ZTID_PALDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "ColorValid",             ZTID_BOOL,             FUNCTION,     0,                  1,          FUNCFLAG_INLINE,                      2,           { ZTID_PALDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "ClearColor",             ZTID_VOID,             FUNCTION,     0,                  1,          FUNCFLAG_INLINE,                      2,           { ZTID_PALDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "ClearCSet",              ZTID_VOID,             FUNCTION,     0,                  1,          FUNCFLAG_INLINE,                      2,           { ZTID_PALDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "Mix",                    ZTID_VOID,             FUNCTION,     0,                  1,          FUNCFLAG_INLINE,                      5,           { ZTID_PALDATA, ZTID_PALDATA, ZTID_PALDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "MixCSet",                ZTID_VOID,             FUNCTION,     0,                  1,          FUNCFLAG_INLINE,                      6,           { ZTID_PALDATA, ZTID_PALDATA, ZTID_PALDATA, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "Copy",                   ZTID_VOID,             FUNCTION,     0,                  1,          FUNCFLAG_INLINE,                      2,           { ZTID_PALDATA, ZTID_PALDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "CopyCSet",               ZTID_VOID,             FUNCTION,     0,                  1,          FUNCFLAG_INLINE,                      4,           { ZTID_PALDATA, ZTID_PALDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "Free",                   ZTID_VOID,             FUNCTION,     0,                  1,          FUNCFLAG_INLINE,                      1,           { ZTID_PALDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "Own",                    ZTID_VOID,             FUNCTION,     0,                  1,          FUNCFLAG_INLINE,                      1,           { ZTID_PALDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "getColor[]",             ZTID_RGBDATA,          GETTER,       PALDATACOLOR,     256,          FUNCFLAG_INLINE,                      2,           { ZTID_PALDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "setColor[]",             ZTID_VOID,             SETTER,       PALDATACOLOR,     256,          FUNCFLAG_INLINE,                      3,           { ZTID_PALDATA, ZTID_FLOAT, ZTID_RGBDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "getR[]",                 ZTID_FLOAT,            GETTER,       PALDATAR,         256,          FUNCFLAG_INLINE,                      2,           { ZTID_PALDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "setR[]",                 ZTID_VOID,             SETTER,       PALDATAR,         256,          FUNCFLAG_INLINE,                      3,           { ZTID_PALDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "getG[]",                 ZTID_FLOAT,            GETTER,       PALDATAG,         256,          FUNCFLAG_INLINE,                      2,           { ZTID_PALDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "setG[]",                 ZTID_VOID,             SETTER,       PALDATAG,         256,          FUNCFLAG_INLINE,                      3,           { ZTID_PALDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "getB[]",                 ZTID_FLOAT,            GETTER,       PALDATAB,         256,          FUNCFLAG_INLINE,                      2,           { ZTID_PALDATA, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-		{ "setB[]",                 ZTID_VOID,             SETTER,       PALDATAB,         256,          FUNCFLAG_INLINE,                      3,           { ZTID_PALDATA, ZTID_FLOAT, ZTID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
+//	{ "DirExists",                  0,          ZTID_BOOL,   -1,                        0,  { ZTID_FILESYSTEM, ZTID_CHAR },{} },
+	{ "LoadLevelPalette",           0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA, ZTID_FLOAT },{} },
+	{ "LoadSpritePalette",          0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA, ZTID_FLOAT },{} },
+	{ "LoadMainPalette",            0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA },{} },
+	{ "LoadCyclePalette",           0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA, ZTID_FLOAT },{} },
+	{ "LoadBitmapPalette",          0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA, ZTID_FLOAT },{} },
+	{ "WriteLevelPalette",          0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA, ZTID_FLOAT },{} },
+	{ "WriteLevelCSet",             0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "WriteSpritePalette",         0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA, ZTID_FLOAT },{} },
+	{ "WriteSpriteCSet",            0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "WriteMainPalette",           0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA },{} },
+	{ "WriteMainCSet",              0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA, ZTID_FLOAT },{} },
+	{ "WriteCyclePalette",          0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA, ZTID_FLOAT },{} },
+	{ "WriteCycleCSet",             0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "ColorValid",                 0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_PALDATA, ZTID_FLOAT },{} },
+	{ "ClearColor",                 0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA, ZTID_FLOAT },{} },
+	{ "ClearCSet",                  0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA, ZTID_FLOAT },{} },
+	{ "Mix",                        0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA, ZTID_PALDATA, ZTID_PALDATA, ZTID_FLOAT, ZTID_FLOAT },{ 5000, 0 } },
+	{ "MixCSet",                    0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA, ZTID_PALDATA, ZTID_PALDATA, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 5000, 0 } },
+	{ "Copy",                       0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA, ZTID_PALDATA },{} },
+	{ "CopyCSet",                   0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA, ZTID_PALDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "Free",                       0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA },{} },
+	{ "Own",                        0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PALDATA },{} },
+	{ "getColor[]",                 0,       ZTID_RGBDATA,   PALDATACOLOR,         FL_INL,  { ZTID_PALDATA, ZTID_FLOAT },{} },
+	{ "setColor[]",                 0,          ZTID_VOID,   PALDATACOLOR,         FL_INL,  { ZTID_PALDATA, ZTID_FLOAT, ZTID_RGBDATA },{} },
+	{ "getR[]",                     0,         ZTID_FLOAT,   PALDATAR,             FL_INL,  { ZTID_PALDATA, ZTID_FLOAT },{} },
+	{ "setR[]",                     0,          ZTID_VOID,   PALDATAR,             FL_INL,  { ZTID_PALDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getG[]",                     0,         ZTID_FLOAT,   PALDATAG,             FL_INL,  { ZTID_PALDATA, ZTID_FLOAT },{} },
+	{ "setG[]",                     0,          ZTID_VOID,   PALDATAG,             FL_INL,  { ZTID_PALDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getB[]",                     0,         ZTID_FLOAT,   PALDATAB,             FL_INL,  { ZTID_PALDATA, ZTID_FLOAT },{} },
+	{ "setB[]",                     0,          ZTID_VOID,   PALDATAB,             FL_INL,  { ZTID_PALDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 
-		{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
 PalDataSymbols::PalDataSymbols()
 {
-	table = PalDataTable;
+	table2 = PalDataTable2;
 	refVar = REFPALDATA;
 }
 
@@ -50,7 +50,7 @@ void PalDataSymbols::generateCode()
 {
 	//void LoadLevelPalette(paldata, int32_t)
 	{
-		Function* function = getFunction("LoadLevelPalette", 2);
+		Function* function = getFunction2("LoadLevelPalette");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -64,7 +64,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void LoadSpritePalette(paldata, int32_t)
 	{
-		Function* function = getFunction("LoadSpritePalette", 2);
+		Function* function = getFunction2("LoadSpritePalette");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -78,7 +78,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void LoadMainPalette(paldata)
 	{
-		Function* function = getFunction("LoadMainPalette", 1);
+		Function* function = getFunction2("LoadMainPalette");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -90,7 +90,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void LoadCyclePalette(paldata, int32_t)
 	{
-		Function* function = getFunction("LoadCyclePalette", 2);
+		Function* function = getFunction2("LoadCyclePalette");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -104,7 +104,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void LoadBitmapPalette(paldata, int32_t)
 	{
-		Function* function = getFunction("LoadBitmapPalette", 2);
+		Function* function = getFunction2("LoadBitmapPalette");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -118,7 +118,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void WriteLevelPalette(paldata, int32_t)
 	{
-		Function* function = getFunction("WriteLevelPalette", 2);
+		Function* function = getFunction2("WriteLevelPalette");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -132,7 +132,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void WriteLevelCSet(paldata, int32_t, int32_t)
 	{
-		Function* function = getFunction("WriteLevelCSet", 3);
+		Function* function = getFunction2("WriteLevelCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -147,7 +147,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void WriteSpritePalette(paldata, int32_t)
 	{
-		Function* function = getFunction("WriteSpritePalette", 2);
+		Function* function = getFunction2("WriteSpritePalette");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -161,7 +161,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void WriteSpriteCSet(paldata, int32_t, int32_t)
 	{
-		Function* function = getFunction("WriteSpriteCSet", 3);
+		Function* function = getFunction2("WriteSpriteCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -176,7 +176,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void WriteMainPalette(paldata)
 	{
-		Function* function = getFunction("WriteMainPalette", 1);
+		Function* function = getFunction2("WriteMainPalette");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -188,7 +188,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void WriteMainCSet(paldata, int32_t)
 	{
-		Function* function = getFunction("WriteMainCSet", 2);
+		Function* function = getFunction2("WriteMainCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -202,7 +202,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void WriteCyclePalette(paldata, int32_t)
 	{
-		Function* function = getFunction("WriteCyclePalette", 2);
+		Function* function = getFunction2("WriteCyclePalette");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -216,7 +216,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void WriteCycleCSet(paldata, int32_t, int32_t)
 	{
-		Function* function = getFunction("WriteCycleCSet", 3);
+		Function* function = getFunction2("WriteCycleCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -231,7 +231,7 @@ void PalDataSymbols::generateCode()
 	}
 	//bool ColorValid(paldata, int32_t)
 	{
-		Function* function = getFunction("ColorValid", 2);
+		Function* function = getFunction2("ColorValid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -245,7 +245,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void ClearColor(paldata, int32_t)
 	{
-		Function* function = getFunction("ClearColor", 2);
+		Function* function = getFunction2("ClearColor");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -259,7 +259,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void ClearCSet(paldata, int32_t)
 	{
-		Function* function = getFunction("ClearCSet", 2);
+		Function* function = getFunction2("ClearCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -273,7 +273,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void Mix(paldata, paldata, paldata, int32_t, int32_t)
 	{
-		Function* function = getFunction("Mix", 5);
+		Function* function = getFunction2("Mix");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2(code, new OPalDataMix());
@@ -286,7 +286,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void MixCSet(paldata, paldata, paldata, int32_t, int32_t, ints32_t)
 	{
-		Function* function = getFunction("MixCSet", 6);
+		Function* function = getFunction2("MixCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2(code, new OPalDataMixCSet());
@@ -300,7 +300,7 @@ void PalDataSymbols::generateCode()
 	
 	//void Copy(paldata, paldata)
 	{
-		Function* function = getFunction("Copy", 2);
+		Function* function = getFunction2("Copy");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2(code, new OPopRegister(new VarArgument(EXP1)));
@@ -313,7 +313,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void CopyCSet(paldata, paldata, int32_t, int32_t)
 	{
-		Function* function = getFunction("CopyCSet", 4);
+		Function* function = getFunction2("CopyCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2(code, new OPalDataCopyCSet());
@@ -326,7 +326,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void Free()
 	{
-		Function* function = getFunction("Free", 1);
+		Function* function = getFunction2("Free");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -339,7 +339,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void Own()
 	{
-		Function* function = getFunction("Own", 1);
+		Function* function = getFunction2("Own");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
