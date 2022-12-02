@@ -1,5 +1,6 @@
 #include "symbols/SymbolDefs.h"
 
+LibrarySymbols LibrarySymbols::nilsymbols = LibrarySymbols();
 LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
 {
     switch (typeId)
@@ -37,7 +38,7 @@ LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
 		case ZTID_BOTTLETYPE: return &BottleTypeSymbols::getInst();
 		case ZTID_BOTTLESHOP: return &BottleShopSymbols::getInst();
 		case ZTID_GENERICDATA: return &GenericDataSymbols::getInst();
-		default: return NULL;
+		default: return &nilsymbols;
     }
 }
 

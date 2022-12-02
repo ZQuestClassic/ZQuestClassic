@@ -53,10 +53,11 @@ protected:
 	ZScript::Function* getFunction2(string const& name, int32_t tag = 0) const;
 
 private:
+	static LibrarySymbols nilsymbols;
 	map<std::pair<string, int32_t>, ZScript::Function*> functions;
 	
 	// Generates the code for functions which can't be auto generated.
-	virtual void generateCode() = 0;
+	virtual void generateCode(){};
 };
 
 class GlobalSymbols : public LibrarySymbols
