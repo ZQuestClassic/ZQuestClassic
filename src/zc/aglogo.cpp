@@ -138,7 +138,7 @@ int32_t aglogo_new_nofire(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t 
     
     int32_t fadecnt=0;
     bool blackout=false;
-    logovolume = get_config_int("zeldadx","logo_volume",255);
+    logovolume = zc_get_config("zeldadx","logo_volume",255);
     play_sample((SAMPLE*)datafile[WAV_00_AGFIRE].dat,logovolume,128,1000,true);
     blit((BITMAP*)datafile[RLE_AGTEXT].dat,frame,0,0,0,0,256,224);
     textout_ex(frame, dsphantompfont, "Celebrating Twenty Years", 79-32-1, 170-1, 3, -1);
@@ -215,7 +215,7 @@ int32_t aglogo(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t resy)
     
     int32_t fadecnt=0;
     bool blackout=false;
-    logovolume = get_config_int("zeldadx","logo_volume",255);
+    logovolume = zc_get_config("zeldadx","logo_volume",255);
     play_sample((SAMPLE*)datafile[WAV_00_AGFIRE].dat,logovolume,128,1000,true);
     blit((BITMAP*)datafile[RLE_AGTEXT].dat,frame,0,0,0,0,256,224);
     textout_ex(frame, dsphantompfont, "Celebrating Twenty Years", 79-32-1, 170-1, 3, -1);
@@ -304,7 +304,7 @@ int32_t aglogo_old(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t resy)
 	
 	int32_t fadecnt=0;
 	bool blackout=false;
-	logovolume = get_config_int("zeldadx","logo_volume",255);
+	logovolume = zc_get_config("zeldadx","logo_volume",255);
 	play_sample((SAMPLE*)datafile[WAV_00_AGFIRE].dat,logovolume,128,1000,true);
 	
 	do

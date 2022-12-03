@@ -349,9 +349,8 @@ int32_t main(int32_t argc, char **argv)
 		cph->write(&syncthing, sizeof(int32_t));
 	}
 	
-	zc_set_config_standard();
 	memset(FFCore.scriptRunString,0,sizeof(FFCore.scriptRunString));
-	char const* runstr = zc_get_config(zc_get_standard_config_name(),"Compiler","run_string","run");
+	char const* runstr = zc_get_config("Compiler","run_string","run");
 	strcpy(FFCore.scriptRunString, runstr);
 	updateIncludePaths();
 	// Any errors will be printed to stdout.

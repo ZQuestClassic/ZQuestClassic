@@ -63,6 +63,38 @@ void OptionsDialog::loadOptions()
 
 void OptionsDialog::saveOptions()
 {
+	for(auto ind = 0; ind < OPT_MAX; ++ind)
+	{
+		if(opt_changed[ind])
+			saveOption(ind);
+	}
+}
+void OptionsDialog::saveOption(int ind)
+{
+	switch(ind)
+	{
+		case OPT_CURS_LARGE:
+			zc_set_config("zquest", "cursor_scale_large", opts[OPT_CURS_LARGE] / 10000.0);
+			break;
+		case OPT_CURS_SMALL:
+			zc_set_config("zquest", "cursor_scale_small", opts[OPT_CURS_SMALL] / 10000.0);
+			break;
+		case OPT_COMPILE_OK:
+			zc_set_config("Compiler", "compile_success_sample", opts[OPT_COMPILE_OK]);
+			break;
+		case OPT_COMPILE_ERR:
+			break;
+			zc_set_config("Compiler", "compile_error_sample", opts[OPT_COMPILE_ERR]);
+			break;
+		case OPT_COMPILE_DONE:
+			break;
+			zc_set_config("Compiler", "compile_finish_sample", opts[OPT_COMPILE_DONE]);
+			break;
+		case OPT_COMPILE_VOL:
+			break;
+			zc_set_config("Compiler", "compile_audio_volume", opts[OPT_COMPILE_VOL]);
+			break;
+	}
 	MouseScroll = opts[OPT_MOUSESCROLL];
 	SavePaths = opts[OPT_SAVEPATHS];
 	CycleOn = opts[OPT_PALCYCLE];
@@ -96,12 +128,6 @@ void OptionsDialog::saveOptions()
 	KeyboardRepeatDelay = opts[OPT_KBREPDEL];
 	KeyboardRepeatRate = opts[OPT_KBREPRATE];
 	KeyboardRepeatRate = opts[OPT_KBREPRATE];
-	zc_set_config("zquest", "cursor_scale_large", opts[OPT_CURS_LARGE] / 10000.0);
-	zc_set_config("zquest", "cursor_scale_small", opts[OPT_CURS_SMALL] / 10000.0);
-	zc_set_config("Compiler", "compile_success_sample", opts[OPT_COMPILE_OK]);
-	zc_set_config("Compiler", "compile_error_sample", opts[OPT_COMPILE_ERR]);
-	zc_set_config("Compiler", "compile_finish_sample", opts[OPT_COMPILE_DONE]);
-	zc_set_config("Compiler", "compile_audio_volume", opts[OPT_COMPILE_VOL]);
 	DisableLPalShortcuts = opts[OPT_DISABLE_LPAL_SHORTCUT];
 	skipLayerWarning = opts[OPT_SKIP_LAYER_WARNING];
 	numericalFlags = opts[OPT_NUMERICAL_FLAG_LIST];
@@ -113,6 +139,7 @@ void OptionsDialog::saveOptions()
 OptionsDialog::OptionsDialog() : sfx_list(GUI::ZCListData::sfxnames(true))
 {
 	loadOptions();
+	memset(opt_changed, 0, sizeof(opt_changed));
 }
 
 //{ Macros
@@ -125,6 +152,7 @@ Checkbox( \
 	onToggleFunc = [&](bool state) \
 	{ \
 		opts[optind] = state ? 1 : 0; \
+		opt_changed[optind] = true; \
 	} \
 )
 
@@ -138,6 +166,7 @@ Checkbox( \
 	onToggleFunc = [&](bool state) \
 	{ \
 		opts[optind] = state ? 1 : 0; \
+		opt_changed[optind] = true; \
 	} \
 )
 
@@ -150,6 +179,7 @@ TextField(type = GUI::TextField::type::INT_DECIMAL, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		opts[optind] = val; \
+		opt_changed[optind] = true; \
 	}) \
 
 #define ROW_TF_FLOAT(optind, optlabel, minval, maxval) \
@@ -161,6 +191,7 @@ TextField(type = GUI::TextField::type::FIXED_DECIMAL, places = 4, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		opts[optind] = val; \
+		opt_changed[optind] = true; \
 	}) \
 
 #define ROW_DDOWN(optind, optlabel, lister) \
@@ -173,6 +204,7 @@ DropDownList( \
 	onSelectFunc = [&](int32_t val) \
 	{ \
 		opts[optind] = val; \
+		opt_changed[optind] = true; \
 	} \
 )
 

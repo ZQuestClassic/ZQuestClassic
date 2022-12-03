@@ -25001,11 +25001,9 @@ int32_t onZScriptCompilerSettings()
 		
 	zscript_parser_dlg[0].dp2=lfont;
 	
-	set_config_file("zscript.cfg");
-	zscript_parser_dlg[13].d1 = zc_get_config("Compiler","NO_ERROR_HALT",0);
-	zscript_parser_dlg[15].d1 = zc_get_config("Compiler","HEADER_GUARD",1);
-	zscript_parser_dlg[26].d1 = zc_get_config("Compiler","WARN_DEPRECATED",0);
-	set_config_file("zquest.cfg");
+	zscript_parser_dlg[13].d1 = zc_get_config("Compiler","NO_ERROR_HALT",0,App::zscript);
+	zscript_parser_dlg[15].d1 = zc_get_config("Compiler","HEADER_GUARD",1,App::zscript);
+	zscript_parser_dlg[26].d1 = zc_get_config("Compiler","WARN_DEPRECATED",0,App::zscript);
 	//memset(tempincludepath,0,sizeof(tempincludepath));
 	strcpy(tempincludepath,FFCore.includePathString);
 	//al_trace("Include path string in editbox should be: %s\n",tempincludepath);
@@ -25045,13 +25043,11 @@ int32_t onZScriptCompilerSettings()
 		al_trace("\n");
 		memset(FFCore.includePathString,0,sizeof(FFCore.includePathString));
 		strcpy(FFCore.includePathString,tempincludepath);
-		set_config_file("zscript.cfg");
-		zc_set_config("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
-		zc_set_config("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
-		zc_set_config("Compiler","WARN_DEPRECATED",zscript_parser_dlg[26].d1);
+		zc_set_config("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1,App::zscript);
+		zc_set_config("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1,App::zscript);
+		zc_set_config("Compiler","WARN_DEPRECATED",zscript_parser_dlg[26].d1,App::zscript);
 		memset(FFCore.scriptRunString, 0, sizeof(FFCore.scriptRunString));
 		strcpy(FFCore.scriptRunString,temprunstring);
-		set_config_file("zquest.cfg");
 		FFCore.updateIncludePaths();
 		ZQincludePaths = FFCore.includePaths;
 		write_includepaths();
@@ -29847,7 +29843,7 @@ int32_t main(int32_t argc,char **argv)
 	}
 
 	// Merge old a4 config into a5 system config.
-	ALLEGRO_CONFIG *tempcfg = al_load_config_file(zc_get_standard_config_name());
+	ALLEGRO_CONFIG *tempcfg = al_load_config_file(get_config_file_name());
 	if (tempcfg) {
 		al_merge_config_into(al_get_system_config(), tempcfg);
 		al_destroy_config(tempcfg);
@@ -29869,9 +29865,6 @@ int32_t main(int32_t argc,char **argv)
 	em_mark_initializing_status();
 	em_init_fs();
 #endif
-	
-	//set_config_file("ag.cfg");
-	zc_set_config_standard();
 
 #ifdef __EMSCRIPTEN__
 	if(zc_get_config("zquest","open_debug_console",0) || DEVLEVEL)
@@ -30448,7 +30441,6 @@ int32_t main(int32_t argc,char **argv)
 	PreFillMapTilePage		  =  zc_get_config("zquest","PreFillMapTilePage",0);
 	//ViewLayer3BG = zc_get_config("zquest","ViewLayer3BG",0);
 	//ViewLayer2BG = zc_get_config("zquest","ViewLayer2BG",0);
-	zc_get_config("zquest","auto_filenew_bugfixes",1);
 	
 	//This is too much work to fix for 2.5. :| -Gleeok
 	//zqColorDepth				  = zc_get_config("zquest","zq_color_depth",8);
@@ -33016,14 +33008,10 @@ void clear_tooltip()
     update_tooltip(-1, -1, -1, -1, 0, 0, NULL);
 }
 
-void ZQ_ClearQuestPath(){
-	//last_quest_name = "";
-	//SetAllegroString last_quest_name ""
+void ZQ_ClearQuestPath()
+{
 	set_config_string("zquest","win_last_quest",NULL);
-	strcpy(filepath,zc_get_config("zquest","win_last_quest",""));
-	
-	
-	
+	strcpy(filepath,"");
 }
 
 void __zc_always_assert(bool e, const char* expression, const char* file, int32_t line)
@@ -33136,9 +33124,7 @@ void FFScript::updateIncludePaths()
 void FFScript::initRunString()
 {
 	memset(scriptRunString,0,sizeof(scriptRunString));
-	set_config_file("zscript.cfg");
-	strcpy(scriptRunString,zc_get_config("Compiler","run_string","run"));
-	zc_set_config_standard();
+	strcpy(scriptRunString,zc_get_config("Compiler","run_string","run",App::zscript));
 }
 
 void FFScript::initIncludePaths()

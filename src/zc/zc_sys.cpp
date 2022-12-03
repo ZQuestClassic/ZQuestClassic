@@ -276,9 +276,7 @@ int32_t d_dummy_proc(int32_t,DIALOG *,int32_t)
 
 void load_game_configs()
 {
-	//set_config_file("zc.cfg"); //shift back when done
-	//load the module
-	strcpy(moduledata.module_name,get_config_string("ZCMODULE",qst_module_name,"classic.zmod"));
+	strcpy(moduledata.module_name,zc_get_config("ZCMODULE",qst_module_name,"classic.zmod"));
 	joystick_index = zc_get_config(cfg_sect,"joystick_index",0);
 	js_stick_1_x_stick = zc_get_config(cfg_sect,"js_stick_1_x_stick",0);
 	js_stick_1_x_axis = zc_get_config(cfg_sect,"js_stick_1_x_axis",0);
@@ -409,7 +407,7 @@ void load_game_configs()
 #endif
 
 	char const* default_path = "";
-	strcpy(qstdir,get_config_string(cfg_sect,qst_dir_name,default_path));
+	strcpy(qstdir,zc_get_config(cfg_sect,qst_dir_name,default_path));
    
 	if(strlen(qstdir)==0)
 	{
@@ -655,7 +653,7 @@ void load_mouse()
 	system_pal();
 	scare_mouse();
 	set_mouse_sprite(NULL);
-	int32_t sz = vbound(int32_t(16*(is_large ? get_config_float("zeldadx","cursor_scale_large",1.5) : get_config_float("zeldadx","cursor_scale_small",1))),16,80);
+	int32_t sz = vbound(int32_t(16*(is_large ? zc_get_config("zeldadx","cursor_scale_large",1.5) : zc_get_config("zeldadx","cursor_scale_small",1))),16,80);
 	for(int32_t j = 0; j < 4; ++j)
 	{
 		BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
@@ -5296,8 +5294,8 @@ int32_t OnnClearQuestDir()
 	{
 		set_config_string("zeldadx","win_qst_dir","");
 		flush_config_file();
-		strcpy(qstdir,get_config_string("zeldadx","win_qst_dir",""));
-		//strcpy(filepath,get_config_string("zeldadx","win_qst_dir",""));
+		strcpy(qstdir,zc_get_config("zeldadx","win_qst_dir",""));
+		//strcpy(filepath,zc_get_config("zeldadx","win_qst_dir",""));
 		save_game_configs();
 #ifdef __EMSCRIPTEN__
 		em_sync_fs();

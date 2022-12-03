@@ -12161,10 +12161,11 @@ int32_t get_register(const int32_t arg)
 			}	
 			else
 			{
-				set_config_file(moduledata.module_name);
-				ret = get_config_int(sectionid.c_str(), elementid.c_str(), 0)*10000;
+				zc_push_config();
+				zc_config_file(moduledata.module_name);
+				ret = zc_get_config_basic(sectionid.c_str(), elementid.c_str(), 0)*10000;
 				//return config file to zc.cfg
-				zc_set_config_standard();
+				zc_pop_config();
 			}
 			break;
 		}
@@ -21655,14 +21656,15 @@ void set_register(const int32_t arg, const int32_t value)
 		}	
 		else
 		{
-			///set config file
-			set_config_file(moduledata.module_name);
-			strcpy(buffer,get_config_string(sectionid.c_str(), elementid.c_str(), ""));
+			zc_push_config();
+			//set config file
+			zc_config_file(moduledata.module_name);
+			strcpy(buffer,zc_get_config_basic(sectionid.c_str(), elementid.c_str(), ""));
 			buffer[255] = '\0';
 			if(ArrayH::setArray(buf_pointer, buffer) == SH::_Overflow)
 				Z_scripterrlog("Dest string supplied to 'Module->GetString()' is not large enough\n");
 			//return config file to zc.cfg
-			zc_set_config_standard();
+			zc_pop_config();
 		}
 	
 		break;
@@ -36072,9 +36074,7 @@ void FFScript::updateIncludePaths()
 void FFScript::initRunString()
 {
 	memset(scriptRunString,0,sizeof(scriptRunString));
-	set_config_file("zscript.cfg");
-	strcpy(scriptRunString,zc_get_config("Compiler","run_string","run"));
-	zc_set_config_standard();
+	strcpy(scriptRunString,zc_get_config("Compiler","run_string","run",App::zscript));
 }
 
 void FFScript::initIncludePaths()

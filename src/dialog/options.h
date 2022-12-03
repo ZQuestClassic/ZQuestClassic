@@ -43,9 +43,11 @@ private:
 		OPT_MAX
 	};
 	int32_t opts[OPT_MAX];
+	bool opt_changed[OPT_MAX];
 	GUI::ListData sfx_list;
 	void loadOptions();
 	void saveOptions();
+	void saveOption(int ind);
 };
 
 #endif

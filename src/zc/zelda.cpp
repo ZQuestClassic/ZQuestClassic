@@ -1712,7 +1712,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 		}
 		
 		ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags,printmetadata,report,qst_num);
-		//zprint2("qstpath: '%s', qstdir(cfg): '%s', standalone_quest: '%s'\n",qstpath,get_config_string("zeldadx",qst_dir_name,""),standalone_quest?standalone_quest:"");
+		//zprint2("qstpath: '%s', qstdir(cfg): '%s', standalone_quest: '%s'\n",qstpath,zc_get_config("zeldadx",qst_dir_name,""),standalone_quest?standalone_quest:"");
 		//setPackfilePassword(NULL);
 		
 		if(!g->title[0] || g->get_hasplayed() == 0)
@@ -4623,7 +4623,7 @@ int main(int argc, char **argv)
 	}
 
 	// Merge old a4 config into a5 system config.
-	ALLEGRO_CONFIG *tempcfg = al_load_config_file(zc_get_standard_config_name());
+	ALLEGRO_CONFIG *tempcfg = al_load_config_file(get_config_file_name());
 	if (tempcfg) {
 		al_merge_config_into(al_get_system_config(), tempcfg);
 		al_destroy_config(tempcfg);
@@ -4670,12 +4670,9 @@ int main(int argc, char **argv)
 	register_png_file_type();
 
 	three_finger_flag=false;
-	
-	// set and load game configurations
-	zc_set_config_standard();
 
 	for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
-	strcpy(save_file_name,get_config_string("SAVEFILE","save_filename","zc.sav"));
+	strcpy(save_file_name,zc_get_config("SAVEFILE","save_filename","zc.sav"));
 #ifdef __EMSCRIPTEN__
 	// There was a bug that causes browser zc.cfg files to use the wrong value for the save file.
 	if (strcmp(save_file_name, "zc.sav") == 0)
@@ -4683,15 +4680,7 @@ int main(int argc, char **argv)
 #endif
 	SAVE_FILE = (char *)save_file_name;
 	
-	if(!zc_config_standard_exists())
-	{
-		load_game_configs();
-	}
-	else
-	{
-		load_game_configs();
-		save_game_configs();
-	}
+	load_game_configs();
 	
 #ifndef __APPLE__ // Should be done on Mac, too, but I haven't gotten that working
 	// if(!is_only_instance("zc.lck"))
@@ -4705,7 +4694,7 @@ int main(int argc, char **argv)
 	
 	//Set up MODULES: This must occur before trying to load the default quests, as the 
 	//data for quest names and so forth is set by the MODULE file!
-	//strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module", moduledata.module_name));
+	//strcpy(moduledata.module_name,zc_get_config("ZCMODULE","current_module", moduledata.module_name));
 	//al_trace("Before zcm.init, the current module is: %s\n", moduledata.module_name)
 	if ( !(zcm.init(true)) ) 
 	{
@@ -4997,7 +4986,7 @@ int main(int argc, char **argv)
 	if(used_switch(argc,argv,"-v1")) Throttlefps=true;
 	
 	resolve_password(zeldapwd);
-	debug_enabled = used_switch(argc,argv,"-d") && !strcmp(get_config_string("zeldadx","debug",""),zeldapwd);
+	debug_enabled = used_switch(argc,argv,"-d") && !strcmp(zc_get_config("zeldadx","debug",""),zeldapwd);
 	set_debug(debug_enabled);
 	
 	skipicon = standalone_mode || used_switch(argc,argv,"-quickload") || zc_get_config("zeldadx","skip_icons",0);
@@ -5040,16 +5029,16 @@ int main(int argc, char **argv)
 	
 	int32_t checked_epilepsy = zc_get_config("zeldadx","checked_epilepsy",0);
 	/*
-	if ( !strcmp(get_config_string("zeldadx","debug",""),"") )
+	if ( !strcmp(zc_get_config("zeldadx","debug",""),"") )
 	{
 		for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
 			strcpy(save_file_name,"zc.sav");
 		SAVE_FILE = (char *)save_file_name;  
 	}
-	else*/ //if ( strcmp(get_config_string("zeldadx","debug","")) )
+	else*/ //if ( strcmp(zc_get_config("zeldadx","debug","")) )
 	{	    
 		for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
-			strcpy(save_file_name,get_config_string("SAVEFILE","save_filename","zc.sav"));
+			strcpy(save_file_name,zc_get_config("SAVEFILE","save_filename","zc.sav"));
 		SAVE_FILE = (char *)save_file_name;
 	}
 	//al_trace("Current save file is: %s\n", save_file_name);

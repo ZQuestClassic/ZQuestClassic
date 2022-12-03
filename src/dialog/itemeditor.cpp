@@ -39,7 +39,6 @@ void call_item_editor(int32_t index)
 		_reload_editor = false;
 		ItemEditorDialog(static_ref, reset_name.c_str(), index).show();
 	}
-	zc_set_config("zquest","show_itemscript_meta_type",item_use_script_data);
 }
 
 static const GUI::ListData ScriptDataList
@@ -2429,6 +2428,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										onSelectFunc = [&](int32_t val)
 										{
 											item_use_script_data = val;
+											zc_set_config("zquest","show_itemscript_meta_type",val);
 											refreshScripts();
 										}
 									)
@@ -3757,6 +3757,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										onSelectFunc = [&](int32_t val)
 										{
 											item_use_script_data = val;
+											zc_set_config("zquest","show_itemscript_meta_type",val);
 											refreshScripts();
 										}
 									)
