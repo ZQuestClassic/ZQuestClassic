@@ -3651,17 +3651,6 @@ bool Button[18];
  * Note, this value can be temporarily "eaten" (set to false when it is true) for the remainder of the frame,
  * but will be reset to the true hardware value for the next frame.
  *	Replaces Link->Input*.
- 
-bool Hold[18];
- * An array of boolean values that correspond to whether a control button is currently held down.
- * May be identical to Input->Button[] in some regards. If never written to, represents the _exact_
- * hardware state of the buttons.
- * You should likely never write to this; if you want to disable a button press for this frame, set
- * Press[] and Button[] to false (or use NoAction).
- * Hold[] gets set by the engine every frame based on:
- *   1) the current hardware button state (always ignoring whatever a script did via Button)
- * Nothing in-engine accesses these values.
- * Use the CB_* constants to access this array.
 
 bool Press[18];
  * An array of boolean values that correspond to whether a control button was pressed this frame.
@@ -3677,13 +3666,7 @@ bool DisableButton[18];
  * Setting an index of this to 'true' will prevent the ENGINE from reading that button as pressed/held
  * Scripts will still read the button normally, ignoring this
  * This allows disabling the engine's button, while not disabling the button for scripts.
- * Use the CB_* constants to access this array. 
- 
-bool ReadKey[127] ( should become a function ReadKey()? )
- * As 'Key[]', except that reading a key with ReadKey[] will ignore further input from that key, 
-   until it is released. 
- * Read-only.
- * Use the KEY_* constants to access this array. 
+ * Use the CB_* constants to access this array.
  
 bool Key[127];
  * Returns true if a key was down this frame.
@@ -3707,7 +3690,7 @@ bool DisableKey[127];
  * Currently, KEY_F7, KEY_F8, and KEY_F9 cannot be disabled.
  * Use the KEY_* constants to access this array. 
  
-bool Joypad[18]; //this is erroneously set up as TYPE_FLOAT in the parser.
+bool Joypad[18];
  * Similar to Press, except that it only returns presses from a joystick device, not a keyboard.
  * Use the CB_* constants to access this array. 
  

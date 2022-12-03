@@ -427,7 +427,7 @@ namespace ZScript
 		~Function();
 		
 		DataType const* returnType;
-		std::string name;
+		std::string name, info;
 		bool hasPrefixType;
 		byte extra_vargs;
 		std::vector<DataType const*> paramTypes;
@@ -472,10 +472,14 @@ namespace ZScript
 		bool prototype;
 		ASTExprConst* defaultReturn;
 		
+		bool shouldShowDepr(bool err) const;
+		void ShownDepr(bool err);
+		
 	private:
 		mutable std::optional<int32_t> label;
 		mutable std::optional<int32_t> altlabel;
 		int32_t flags;
+		byte shown_depr;
 
 		// Code implementing this function.
 		std::vector<std::shared_ptr<Opcode>> ownedCode;

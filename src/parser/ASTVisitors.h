@@ -233,8 +233,10 @@ namespace ZScript
 		void fail() {failure = true;}
 	
 		// Used to signal that a compile error has occured.
-		void handleError(CompileError const& error) /*override*/;
+		void handleError(CompileError const& error, std::string const* inf = nullptr) /*override*/;
 		bool hasError() const /*override*/ {return failure;}
+
+		void deprecWarn(AST* host, std::string const& s1, std::string const& s2);
 	
 		// Visits a single node. The only virtual visit function as all others
 		// defer to this one.
@@ -362,6 +364,7 @@ namespace ZScript
 		               AST* node = NULL,
 		               bool twoWay = false);
 	protected:
+		void deprecWarn(Function* func, AST* host, std::string const& s1, std::string const& s2);
 		// Returns true if we have failed or for some other reason must break out
 		// of recursion. Should be called with the current node and param between
 		// each action that can fail.

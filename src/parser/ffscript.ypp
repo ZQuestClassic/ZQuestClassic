@@ -2057,16 +2057,12 @@ Literal_Array_Body :
 
 /*        programs */
 
-static bool is_buffer_file = false;
 std::string yyerrstr(string const& msg, int32_t row, int32_t col, char const* txt)
 {
 	ostringstream out;
-	out << msg << " [";
-	if (is_buffer_file)
-		out << "ZQ_BUFFER ";
-	else
-		out << curfilename << " ";
-	out << "Line " << row << " "
+	out << msg << " ["
+	    << curfilename << " "
+	    << "Line " << row << " "
 	    << "Column " << col;
 	if (yyleng)
 	    out << " '" << txt << "'";
@@ -2100,7 +2096,6 @@ namespace ZScript
 {
 	std::unique_ptr<ASTFile> parseFile(std::string const& filename, bool is_buf)
 	{
-		is_buffer_file = is_buf;
 		std::unique_ptr<ASTFile> result;
 
 		// Reset lexer.
@@ -2114,7 +2109,7 @@ namespace ZScript
 			zconsole_error("Can't open input file");
 			return nullptr;
 		}
-		curfilename = filename;
+		curfilename = is_buf ? "ZQ_BUFFER" : filename;
 
 		// Run the parser.
 		if (yyparse(result))
