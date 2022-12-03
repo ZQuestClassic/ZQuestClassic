@@ -1005,30 +1005,6 @@ int32_t onSpacebar()
     return D_O_K;
 }
 
-int32_t onSaveZQuestSettings()
-{
-	if(jwin_alert3(
-			"Save Configuration",
-			"Are you sure that you wish to save your present configuration settings?",
-			"This will overwrite your prior settings!",
-			NULL,
-		 "&Yes",
-		"&No",
-		NULL,
-		'y',
-		'n',
-		0,
-		lfont) == 1)
-	{
-		save_config_file();
-		return D_O_K;
-	}
-	else return D_O_K;
-
-}
-
-
-
 int32_t onClearQuestFilepath()
 {
 	if(jwin_alert3(

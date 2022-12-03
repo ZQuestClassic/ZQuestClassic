@@ -86,7 +86,6 @@ extern particle_list particles;
 extern int32_t loadlast;
 extern word passive_subscreen_doscript;
 extern bool passive_subscreen_waitdraw;
-byte disable_direct_updating;
 byte use_dwm_flush;
 byte use_save_indicator;
 byte midi_patch_fix;
@@ -390,9 +389,6 @@ void load_game_configs()
 	//use_win7_keyboard_fix = (byte) zc_get_config(cfg_sect,"use_win7_key_fix",0);
 	use_win32_proc = (byte) zc_get_config(cfg_sect,"zc_win_proc_fix",0); //buggy
    
-	// This seems to fix some problems on Windows 7
-	disable_direct_updating = (byte) zc_get_config("graphics","disable_direct_updating",1);
-   
 	// This one's for Aero
 	use_dwm_flush = (byte) zc_get_config("zeldadx","use_dwm_flush",0);
    
@@ -509,7 +505,6 @@ void save_game_configs()
 	set_config_int(cfg_sect,"vsync",zc_vsync);
 	set_config_int(cfg_sect,"throttlefps", (int32_t)Throttlefps);
 	set_config_int(cfg_sect,"translayers",(int32_t)TransLayers);
-	set_config_int(cfg_sect,"snapshot_format",SnapshotFormat);
 	set_config_int(cfg_sect,"name_entry_mode",NameEntryMode);
 	set_config_int(cfg_sect,"showfps",(int32_t)ShowFPS);
 	set_config_int(cfg_sect,"save_drag_resize",(int32_t)SaveDragResize);
@@ -518,7 +513,6 @@ void save_game_configs()
 	set_config_int(cfg_sect,"fastquit",(int32_t)NESquit);
 	set_config_int(cfg_sect,"clicktofreeze", (int32_t)ClickToFreeze);
 	set_config_int(cfg_sect,"title",title_version);
-	//set_config_int(cfg_sect,"lister_pattern_matching",abc_patternmatch);  //Enable once there is a GUI way to toggle this. 
 	
 	if (all_get_display() && !all_get_fullscreen_flag()&& SaveWinPos)
 	{
@@ -546,7 +540,6 @@ void save_game_configs()
 	set_config_int(cfg_sect,"ss_speed",ss_speed);
 	set_config_int(cfg_sect,"ss_density",ss_density);
 	set_config_int(cfg_sect,"heart_beep",heart_beep);
-	set_config_int(cfg_sect,"gui_colorset",gui_colorset);
 	set_config_int(cfg_sect,"use_sfx_dat",sfxdat);
 	set_config_int(cfg_sect,"fullscreen",fullscreen);
 	set_config_int(cfg_sect,"color_depth",zc_color_depth);
@@ -560,7 +553,6 @@ void save_game_configs()
 	set_config_int("CONSOLE","console_on_top",console_on_top);
 	//set_config_int(cfg_sect,"use_win7_key_fix",use_win7_keyboard_fix);
 	set_config_int(cfg_sect,"zc_win_proc_fix",use_win32_proc);
-	set_config_int("graphics","disable_direct_updating",disable_direct_updating);
 	set_config_int("zeldadx","use_dwm_flush",use_dwm_flush);
 	set_config_int("zeldadx","midi_patch_fix",midi_patch_fix);
 	set_config_int("CONSOLE","monochrome_debuggers",monochrome_console);
@@ -8229,6 +8221,7 @@ int32_t onSetSnapshotFormat()
 		SnapshotFormat=6;
 		break;
 	}
+	zc_set_config("Compiler", "snapshot_format", SnapshotFormat);
 	
 	snapshot_format_menu[SnapshotFormat].flags=D_SELECTED;
 	return D_O_K;

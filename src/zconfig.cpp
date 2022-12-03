@@ -1,5 +1,6 @@
 #include "base/zc_alleg.h"
 #include "zconfig.h"
+#include <string>
 
 char const* get_config_file_name(App a)
 {

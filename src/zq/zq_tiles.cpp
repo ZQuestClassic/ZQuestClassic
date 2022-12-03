@@ -4216,11 +4216,23 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 	
 	int32_t cdepth=leech_dlg[31].d1+1;
 	int32_t newformat=0;
-	LeechUpdate=atoi(updatestring);
-	LeechUpdateTiles=(leech_dlg[7].flags&D_SELECTED)?1:0;
+	auto lu = atoi(updatestring);
+	auto lut = (leech_dlg[7].flags&D_SELECTED)?1:0;
+	if(LeechUpdate!=lu)
+	{
+		LeechUpdate=lu;
+		zc_set_config("zquest","leech_update",LeechUpdate);
+	}
+	if(LeechUpdateTiles!=lut)
+	{
+		LeechUpdateTiles=lut;
+		zc_set_config("zquest","leech_update_tiles",LeechUpdateTiles);
+	}
 	
+	int32_t old_dupe[4];
 	for(int32_t j=0; j<4; j++)
 	{
+		old_dupe[j] = DuplicateAction[j];
 		for(int32_t i=0; i<3; i++)
 		{
 			if(leech_dlg[i+16+(j*3)].flags&D_SELECTED)
@@ -4229,8 +4241,21 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 			}
 		}
 	}
+	if(old_dupe[0] != DuplicateAction[0])
+		set_config_int("zquest","normal_duplicate_action",DuplicateAction[0]);
+	if(old_dupe[0] != DuplicateAction[1])
+		set_config_int("zquest","horizontal_duplicate_action",DuplicateAction[1]);
+	if(old_dupe[0] != DuplicateAction[2])
+		set_config_int("zquest","vertical_duplicate_action",DuplicateAction[2]);
+	if(old_dupe[0] != DuplicateAction[3])
+		set_config_int("zquest","both_duplicate_action",DuplicateAction[3]);
 	
-	OnlyCheckNewTilesForDuplicates=leech_dlg[10].flags&D_SELECTED?1:0;
+	auto ocntfd = leech_dlg[10].flags&D_SELECTED?1:0;
+	if(OnlyCheckNewTilesForDuplicates!=ocntfd)
+	{
+		OnlyCheckNewTilesForDuplicates=ocntfd;
+		zc_set_config("zquest","only_check_new_tiles_for_duplicates",ocntfd);
+	}
 	
 	leeching_from_tiles=false;
 	

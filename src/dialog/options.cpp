@@ -68,72 +68,171 @@ void OptionsDialog::saveOptions()
 		if(opt_changed[ind])
 			saveOption(ind);
 	}
+	
+	set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate); //Reset keyboard rate
+	load_mice(); //Reset cursor scale
 }
 void OptionsDialog::saveOption(int ind)
 {
+	auto v = opts[ind];
 	switch(ind)
 	{
+		case OPT_SKIP_LAYER_WARNING:
+			skipLayerWarning = v;
+			zc_set_config("Compiler", "skip_layer_warning", v);
+			break;
+		case OPT_MOUSESCROLL:
+			MouseScroll = v;
+			zc_set_config("Compiler", "mouse_scroll", v);
+			break;
+		case OPT_DISABLE_LPAL_SHORTCUT:
+			DisableLPalShortcuts = v;
+			zc_set_config("Compiler", "dis_lpal_shortcut", v);
+			break;
+		case OPT_DISABLE_COMPILE_CONSOLE:
+			DisableCompileConsole = v;
+			zc_set_config("Compiler", "internal_compile_console", v);
+			break;
+		case OPT_INITSCR_WARN:
+			WarnOnInitChanged = v;
+			zc_set_config("Compiler", "warn_initscript_changes", v);
+			break;
+		case OPT_STATIC_INVAL:
+			InvalidStatic = v;
+			zc_set_config("Compiler", "invalid_static", v);
+			break;
+		case OPT_NUMERICAL_FLAG_LIST:
+			numericalFlags = v;
+			zc_set_config("Compiler", "numerical_flags", v);
+			break;
+		case OPT_TILE_PROT:
+			TileProtection = v;
+			zc_set_config("Compiler", "tile_protection", v);
+			break;
+		case OPT_GRIDCOL:
+			GridColor = v;
+			zc_set_config("Compiler", "grid_color", v);
+			break;
+		case OPT_SNAPFORMAT:
+			SnapshotFormat = v;
+			zc_set_config("Compiler", "snapshot_format", v);
+			break;
+		case OPT_RELOAD_QUEST:
+			OpenLastQuest = v;
+			zc_set_config("Compiler", "open_last_quest", v);
+			break;
+		case OPT_MISALIGNS:
+			ShowMisalignments = v;
+			zc_set_config("Compiler", "show_misalignments", v);
+			break;
 		case OPT_CURS_LARGE:
-			zc_set_config("zquest", "cursor_scale_large", opts[OPT_CURS_LARGE] / 10000.0);
+			zc_set_config("zquest", "cursor_scale_large", v / 10000.0);
 			break;
 		case OPT_CURS_SMALL:
-			zc_set_config("zquest", "cursor_scale_small", opts[OPT_CURS_SMALL] / 10000.0);
+			zc_set_config("zquest", "cursor_scale_small", v / 10000.0);
 			break;
 		case OPT_COMPILE_OK:
-			zc_set_config("Compiler", "compile_success_sample", opts[OPT_COMPILE_OK]);
+			zc_set_config("Compiler", "compile_success_sample", v);
 			break;
 		case OPT_COMPILE_ERR:
-			break;
-			zc_set_config("Compiler", "compile_error_sample", opts[OPT_COMPILE_ERR]);
+			zc_set_config("Compiler", "compile_error_sample", v);
 			break;
 		case OPT_COMPILE_DONE:
-			break;
-			zc_set_config("Compiler", "compile_finish_sample", opts[OPT_COMPILE_DONE]);
+			zc_set_config("Compiler", "compile_finish_sample", v);
 			break;
 		case OPT_COMPILE_VOL:
+			zc_set_config("Compiler", "compile_audio_volume", v);
 			break;
-			zc_set_config("Compiler", "compile_audio_volume", opts[OPT_COMPILE_VOL]);
+		case OPT_NEXTPREVIEW:
+			NoScreenPreview = v;
+			zc_set_config("zquest","no_preview",v);
+			break;
+		case OPT_PATTERNSEARCH:
+			abc_patternmatch = v;
+			zc_set_config("zquest","lister_pattern_matching",v);
+			break;
+		case OPT_TOOLTIPS:
+			EnableTooltips = v;
+			zc_set_config("zquest","enable_tooltips",v);
+			break;
+		case OPT_RULESET:
+			RulesetDialog = v;
+			zc_set_config("zquest","rulesetdialog",v);
+			break;
+		case OPT_SMALLMODE:
+			UseSmall = v;
+			zc_set_config("zquest","small",v);
+			break;
+		case OPT_KBREPDEL:
+			KeyboardRepeatDelay = v;
+			zc_set_config("zquest","keyboard_repeat_delay",v);
+			break;
+		case OPT_KBREPRATE:
+			KeyboardRepeatRate = v;
+			zc_set_config("zquest","keyboard_repeat_rate",v);
+			break;
+		case OPT_ANIM_COMBOS:
+			AnimationOn = v;
+			zc_set_config("zquest","animation_on",v);
+			break;
+		case OPT_ABRETENTION:
+			AutoBackupRetention = v;
+			zc_set_config("zquest","auto_backup_retention",v);
+			break;
+		case OPT_ASINTERVAL:
+			time(&auto_save_time_start); //Reset autosave timer
+			AutoSaveInterval = v;
+			zc_set_config("zquest","auto_save_interval",v);
+			break;
+		case OPT_ASRETENTION:
+			AutoSaveRetention = v;
+			zc_set_config("zquest","auto_save_retention",v);
+			break;
+		case OPT_UNCOMP_AUTOSAVE:
+			UncompressedAutoSaves = v;
+			zc_set_config("zquest","uncompressed_auto_saves",v);
+			break;
+		case OPT_OW_PROT:
+			OverwriteProtection = v;
+			zc_set_config("zquest","overwrite_prevention",v);
+			break;
+		case OPT_SAVEPATHS:
+			SavePaths = v;
+			zc_set_config("zquest","save_paths",v);
+			break;
+		case OPT_PALCYCLE:
+			CycleOn = v;
+			zc_set_config("zquest","cycle_on",v);
+			break;
+		case OPT_VSYNC:
+			Vsync = v;
+			zc_set_config("zquest","vsync",v);
+			break;
+		case OPT_FPS:
+			ShowFPS = v;
+			zc_set_config("zquest","showfps",v);
+			break;
+		case OPT_SAVEDRAGRESIZE:
+			SaveDragResize = v;
+			zc_set_config("zquest","save_drag_resize",v);
+			break;
+		case OPT_DRAGASPECT:
+			DragAspect = v;
+			zc_set_config("zquest","drag_aspect",v);
+			break;
+		case OPT_SAVEWINPOS:
+			SaveWinPos = v;
+			zc_set_config("zquest","save_window_position",v);
+			break;
+		case OPT_COMB_BRUSH:
+			ComboBrush = v;
+			zc_set_config("zquest","combo_brush",v);
+			break;
+		case OPT_FLOAT_BRUSH:
+			FloatBrush = v;
+			zc_set_config("zquest","float_brush",v);
 			break;
 	}
-	MouseScroll = opts[OPT_MOUSESCROLL];
-	SavePaths = opts[OPT_SAVEPATHS];
-	CycleOn = opts[OPT_PALCYCLE];
-	Vsync = opts[OPT_VSYNC];
-	ShowFPS = opts[OPT_FPS];
-	SaveDragResize = opts[OPT_SAVEDRAGRESIZE];
-	SaveWinPos = opts[OPT_SAVEWINPOS];
-	DragAspect = opts[OPT_DRAGASPECT];
-	ComboBrush = opts[OPT_COMB_BRUSH];
-	FloatBrush = opts[OPT_FLOAT_BRUSH];
-	OpenLastQuest = opts[OPT_RELOAD_QUEST];
-	ShowMisalignments = opts[OPT_MISALIGNS];
-	AnimationOn = opts[OPT_ANIM_COMBOS];
-	OverwriteProtection = opts[OPT_OW_PROT];
-	TileProtection = opts[OPT_TILE_PROT];
-	InvalidStatic = opts[OPT_STATIC_INVAL];
-	UseSmall = opts[OPT_SMALLMODE];
-	RulesetDialog = opts[OPT_RULESET];
-	EnableTooltips = opts[OPT_TOOLTIPS];
-	abc_patternmatch = opts[OPT_PATTERNSEARCH];
-	NoScreenPreview = opts[OPT_NEXTPREVIEW];
-	WarnOnInitChanged = opts[OPT_INITSCR_WARN];
-	AutoBackupRetention = opts[OPT_ABRETENTION];
-	if(AutoSaveInterval != opts[OPT_ASINTERVAL])
-		time(&auto_save_time_start); //Reset autosave timer
-	AutoSaveInterval = opts[OPT_ASINTERVAL];
-	AutoSaveRetention = opts[OPT_ASRETENTION];
-	UncompressedAutoSaves = opts[OPT_UNCOMP_AUTOSAVE];
-	GridColor = opts[OPT_GRIDCOL];
-	SnapshotFormat = opts[OPT_SNAPFORMAT];
-	KeyboardRepeatDelay = opts[OPT_KBREPDEL];
-	KeyboardRepeatRate = opts[OPT_KBREPRATE];
-	KeyboardRepeatRate = opts[OPT_KBREPRATE];
-	DisableLPalShortcuts = opts[OPT_DISABLE_LPAL_SHORTCUT];
-	skipLayerWarning = opts[OPT_SKIP_LAYER_WARNING];
-	numericalFlags = opts[OPT_NUMERICAL_FLAG_LIST];
-	DisableCompileConsole = opts[OPT_DISABLE_COMPILE_CONSOLE];
-	load_mice(); //Reset cursor scale
-	set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate); //Reset keyboard rate
 }
 
 OptionsDialog::OptionsDialog() : sfx_list(GUI::ZCListData::sfxnames(true))

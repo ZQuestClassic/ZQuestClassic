@@ -288,6 +288,14 @@ int32_t favorite_combos[MAXFAVORITECOMBOS];
 int32_t favorite_comboaliases[MAXFAVORITECOMBOALIASES];
 int32_t favorite_commands[MAXFAVORITECOMMANDS];
 
+void write_fav_command(int ind, int val)
+{
+	favorite_commands[ind] = val;
+    char buf[32];
+	sprintf(buf, "command%02d", ind+1);
+	zc_set_config("zquest", buf, val);
+}
+
 #define MAXPOOLCOMBOS MAXFAVORITECOMBOS
 
 struct cmbdat_pair
@@ -495,7 +503,6 @@ int32_t window_width, window_height;
 bool Vsync = false, ShowFPS = false, SaveDragResize = false, DragAspect = false, SaveWinPos=false;
 int32_t ComboBrush = 0;                                             //show the brush instead of the normal mouse
 int32_t ComboBrushPause = 0;                                        //temporarily disable the combo brush
-int32_t BrushPosition = 0;                                          //top left, middle, bottom right, etc.
 int32_t FloatBrush = 0;                                             //makes the combo brush float a few pixels up and left
 //complete with shadow
 int32_t OpenLastQuest = 0;                                          //makes the program reopen the quest that was
@@ -517,7 +524,6 @@ int32_t BrushWidth=1, BrushHeight=1;
 bool quit=false,saved=true;
 bool __debug=false;
 //bool usetiles=true;
-byte LayerMask[2]={0};                                          //determines which layers are on or off.  0-15
 int32_t LayerMaskInt[7]={0};
 int32_t CurrentLayer=0;
 int32_t DuplicateAction[4]={0};
@@ -571,11 +577,24 @@ int32_t ff_combo = 0;
 
 int32_t Frameskip = 0, RequestedFPS = 60, zqUseWin32Proc = 1, ForceExit = 0;
 int32_t zqColorDepth = 8;
-byte disable_direct_updating = 0;
 int32_t joystick_index=0;
 
 char *getBetaControlString();
 
+void set_last_timed_save(char const* buf)
+{
+	if(buf && buf[0])
+	{
+		if(buf != last_timed_save)
+			strcpy(last_timed_save, buf);
+    }
+	else
+	{
+		last_timed_save[0] = 0;
+		buf = nullptr;
+	}
+	zc_set_config("zquest","last_timed_save",buf);
+}
 
 void loadlvlpal(int32_t level);
 bool get_debug()
@@ -1368,9 +1387,8 @@ static MENU etc_menu[] =
 	{ (char *)"&Stop tunes",                stopMusic,                 NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&Debug Console",             toggleConsole,             NULL,                     0,            NULL   },
-	{ (char *)"Save ZQuest &Configuraton",  onSaveZQuestSettings,      NULL,                     0,            NULL   },
-	// 15
 	{ (char *)"C&lear Quest Filepath",      onClearQuestFilepath,      NULL,                     0,            NULL   },
+	// 15
 	{ (char *)"&Take Snapshot\tZ",          onSnapshot,                NULL,                     0,            NULL   },
 	{ (char *)"&Modules",                   NULL,                      module_menu,              0,            NULL   },
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
@@ -1422,13 +1440,12 @@ static MENU etc_menu_smallmode[] =
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&Debug Console",             toggleConsole,             NULL,                     0,            NULL   },
 	// 10
-	{ (char *)"Save ZQuest Configuraton",   onSaveZQuestSettings,      NULL,                     0,            NULL   },
 	{ (char *)"Clear Quest Filepath",       onClearQuestFilepath,      NULL,                     0,            NULL   },
 	{ (char *)"&Take ZQ Snapshot\tZ",       onSnapshot,                NULL,                     0,            NULL   },
 	{ (char *)"Take &Screen Snapshot",      onMapscrSnapshot,          NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	// 15
 	{ (char *)"&Modules",                   NULL,                      module_menu,              0,            NULL   },
+	// 15
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 void set_console_state()
@@ -1575,6 +1592,7 @@ int32_t onFullScreen()
 	    set_display_switch_mode(SWITCH_BACKGROUND);
 	    set_display_switch_callback(SWITCH_OUT, switch_out);
 	    set_display_switch_callback(SWITCH_IN, switch_in);
+		zc_set_config("zquest","fullscreen", is_windowed_mode() ? 0 : 1);
 	    return D_REDRAW;
     }
     else return D_O_K;
@@ -1611,10 +1629,12 @@ int32_t onToggleGrid()
     if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
     {
         GridColor=(GridColor+8)%16;
+		zc_set_config("Compiler", "grid_color", GridColor);
     }
     else
     {
         ShowGrid=!ShowGrid;
+		zc_set_config("zquest","show_grid",ShowGrid);
     }
     
     return D_O_K;
@@ -1623,18 +1643,21 @@ int32_t onToggleGrid()
 int32_t onToggleShowScripts()
 {
     ShowFFScripts=!ShowFFScripts;
+    zc_set_config("zquest","showffscripts",ShowFFScripts);
     return D_O_K;
 }
 
 int32_t onToggleShowSquares()
 {
     ShowSquares=!ShowSquares;
+    zc_set_config("zquest","showsquares",ShowSquares);
     return D_O_K;
 }
 
 int32_t onToggleShowInfo()
 {
     ShowInfo=!ShowInfo;
+	zc_set_config("zquest","showinfo",ShowInfo);
     return D_O_K;
 }
 
@@ -10790,11 +10813,11 @@ void domouse()
 						font=tfont;
 						if(ctrl)
 						{
-							favorite_commands[cmd]=0;
+							write_fav_command(cmd,0);
 						}
 						else if(shift || favorite_commands[cmd]==0)
 						{
-							favorite_commands[cmd]=onCommand(favorite_commands[cmd]);
+							write_fav_command(cmd,onCommand(favorite_commands[cmd]));
 						}
 						else
 						{
@@ -11304,7 +11327,7 @@ void domouse()
 						true,
 						isFavCmdSelected(favorite_commands[cmd])))*/
 					{
-						favorite_commands[cmd]=onCommand(favorite_commands[cmd]);
+						write_fav_command(cmd,onCommand(favorite_commands[cmd]));
 					}
 					
 					font=tfont;
@@ -30407,7 +30430,6 @@ int32_t main(int32_t argc,char **argv)
 	DragAspect						= zc_get_config("zquest","drag_aspect",0)!=0;
 	SaveWinPos						= zc_get_config("zquest","save_window_position",0)!=0;
 	ComboBrush					 = zc_get_config("zquest","combo_brush",0);
-	BrushPosition				  = zc_get_config("zquest","brush_position",0);
 	FloatBrush					 = zc_get_config("zquest","float_brush",0);
 	UseSmall					   = zc_get_config("zquest","small",0);
 	RulesetDialog				  = zc_get_config("zquest","rulesetdialog",1);
@@ -30448,13 +30470,13 @@ int32_t main(int32_t argc,char **argv)
 #ifdef _WIN32
 	zqUseWin32Proc				 = zc_get_config("zquest","zq_win_proc_fix",0);
 	
-	// This seems to fix some problems on Windows 7
-	disable_direct_updating = (byte) zc_get_config("graphics","disable_direct_updating",1);
 #endif
 	
-	if(RequestedFPS < 12) RequestedFPS = 12;
-	
-	if(RequestedFPS > 60) RequestedFPS = 60;
+	if(RequestedFPS < 12 || RequestedFPS> 60)
+	{
+		RequestedFPS = vbound(RequestedFPS,12,60);
+		set_config_int("zquest","fps",RequestedFPS);
+	}
 	
 	LOCK_VARIABLE(myvsync);
 	LOCK_FUNCTION(myvsync_callback);
@@ -30467,15 +30489,13 @@ int32_t main(int32_t argc,char **argv)
 	
 	// 1 <= zcmusic_bufsz <= 128
 	zcmusic_bufsz = vbound(zc_get_config("zquest","zqmusic_bufsz",64),1,128);
-	int32_t tempvalue				  = zc_get_config("zquest","layer_mask",-1);
-	int32_t usefullscreen				 = zc_get_config("zquest","fullscreen",0);
+	byte layermask = zc_get_config("zquest","layer_mask",0x7F);
+	int32_t usefullscreen = zc_get_config("zquest","fullscreen",0);
 	tempmode = (usefullscreen == 0 ? GFX_AUTODETECT_WINDOWED : GFX_AUTODETECT_FULLSCREEN);
-	LayerMask[0]=byte(tempvalue&0xFF);
-	LayerMask[1]=byte((tempvalue>>8)&0xFF);
 	
 	for(int32_t x=0; x<7; x++)
 	{
-		LayerMaskInt[x]=get_bit(LayerMask,x);
+		LayerMaskInt[x]=get_bit(&layermask,x);
 	}
 	
 	DuplicateAction[0]			 = zc_get_config("zquest","normal_duplicate_action",2);
@@ -31625,7 +31645,7 @@ void quit_game()
     deallocate_biic_list();
     
     
-    last_timed_save[0]=0;
+    set_last_timed_save(nullptr);
     save_config_file();
     set_palette(black_palette);
     zc_stop_midi();
@@ -31808,7 +31828,7 @@ void quit_game2()
     deallocate_biic_list();
     
     
-    last_timed_save[0]=0;
+    set_last_timed_save(nullptr);
     save_config_file();
     set_palette(black_palette);
     zc_stop_midi();
@@ -32385,55 +32405,16 @@ int32_t save_config_file()
     chop_path(imagepath2);
     chop_path(tmusicpath2);
     
-	set_config_string("ZCMODULE","current_module",moduledata.module_name);
+	zc_set_config("ZCMODULE","current_module",moduledata.module_name);
 	//
 	write_includepaths();
-	//
-	set_config_string("Compiler","run_string",FFCore.scriptRunString);
 	
-    set_config_string("zquest",data_path_name,datapath2);
-    set_config_string("zquest",midi_path_name,midipath2);
-    set_config_string("zquest",image_path_name,imagepath2);
-    set_config_string("zquest",tmusic_path_name,tmusicpath2);
-    set_config_string("zquest",last_quest_name,filepath);
-    set_config_string("zquest","last_timed_save",last_timed_save);
-    set_config_int("zquest","mouse_scroll",MouseScroll);
-	set_config_int("zquest","dis_lpal_shortcut",DisableLPalShortcuts);
-	set_config_int("zquest","internal_compile_console",DisableCompileConsole);
-    set_config_int("zquest","warn_initscript_changes",WarnOnInitChanged);
-    set_config_int("zquest","invalid_static",InvalidStatic);
-//	set_config_int("zquest","cursorblink_style",MMapCursorStyle); // You cannot do this unless the value is changed by the user via the GUI! -Z
-    set_config_int("zquest","skip_layer_warning",skipLayerWarning);
-    set_config_int("zquest","numerical_flags",numericalFlags);
-    set_config_int("zquest","tile_protection",TileProtection);
-    set_config_int("zquest","showinfo",ShowInfo);
-    set_config_int("zquest","show_grid",ShowGrid);
-    set_config_int("zquest","grid_color",GridColor);
-    set_config_int("zquest","snapshot_format",SnapshotFormat);
-    set_config_int("zquest","save_paths",SavePaths);
-    set_config_int("zquest","cycle_on",CycleOn);
-    set_config_int("zquest","vsync",Vsync);
-    set_config_int("zquest","showfps",ShowFPS);
-    set_config_int("zquest","save_drag_resize",SaveDragResize);
-    set_config_int("zquest","drag_aspect",DragAspect);
-    set_config_int("zquest","save_window_position",SaveWinPos);
-    set_config_int("zquest","combo_brush",ComboBrush);
-    set_config_int("zquest","brush_position",BrushPosition);
-    set_config_int("zquest","float_brush",FloatBrush);
-    set_config_int("zquest","open_last_quest",OpenLastQuest);
-    set_config_int("zquest","show_misalignments",ShowMisalignments);
-    set_config_int("zquest","fullscreen", is_windowed_mode() ? 0 : 1);
-    set_config_int("zquest","showffscripts",ShowFFScripts);
-    set_config_int("zquest","showsquares",ShowSquares);
-    
-    set_config_int("zquest","animation_on",AnimationOn);
-    set_config_int("zquest","auto_backup_retention",AutoBackupRetention);
-    set_config_int("zquest","auto_save_interval",AutoSaveInterval);
-    set_config_int("zquest","auto_save_retention",AutoSaveRetention);
-    set_config_int("zquest","uncompressed_auto_saves",UncompressedAutoSaves);
-    set_config_int("zquest","overwrite_prevention",OverwriteProtection);
-    set_config_int("zquest","import_map_bias",ImportMapBias);
-    
+    zc_set_config("zquest",data_path_name,datapath2);
+    zc_set_config("zquest",midi_path_name,midipath2);
+    zc_set_config("zquest",image_path_name,imagepath2);
+    zc_set_config("zquest",tmusic_path_name,tmusicpath2);
+    zc_set_config("zquest",last_quest_name,filepath);
+	
     if (all_get_display() && !all_get_fullscreen_flag() && SaveDragResize) 
     {
 		double monitor_scale = zc_get_monitor_scale();
@@ -32441,55 +32422,30 @@ int32_t save_config_file()
 		window_height = al_get_display_height(all_get_display()) / monitor_scale;
 		if (is_large) 
 		{
-			set_config_int("zquest","large_window_width",window_width);
-			set_config_int("zquest","large_window_height",window_height);
+			zc_set_config("zquest","large_window_width",window_width);
+			zc_set_config("zquest","large_window_height",window_height);
 		}
 		else
 		{
-			set_config_int("zquest","small_window_width",window_width);
-			set_config_int("zquest","small_window_height",window_height);
+			zc_set_config("zquest","small_window_width",window_width);
+			zc_set_config("zquest","small_window_height",window_height);
 		}
     }
     if (all_get_display() && !all_get_fullscreen_flag() && SaveWinPos)
     {
 		int o_window_x, o_window_y;
 		al_get_window_position(all_get_display(), &o_window_x, &o_window_y);
-		set_config_int("zquest", "window_x", o_window_x);
-		set_config_int("zquest", "window_y", o_window_y);
+		zc_set_config("zquest", "window_x", o_window_x);
+		zc_set_config("zquest", "window_y", o_window_y);
     }
     
-    set_config_int("zquest","keyboard_repeat_delay",KeyboardRepeatDelay);
-    set_config_int("zquest","keyboard_repeat_rate",KeyboardRepeatRate);
-    
-    set_config_int("zquest","zqmusic_bufsz",zcmusic_bufsz);
-    set_config_int("zquest","small",UseSmall);
-    set_config_int("zquest","rulesetdialog",RulesetDialog);
-    set_config_int("zquest","enable_tooltips",EnableTooltips);
-    
+	byte b = 0;
     for(int32_t x=0; x<7; x++)
     {
-        set_bit(LayerMask,x, LayerMaskInt[x]);
+        set_bit(&b,x,LayerMaskInt[x]);
     }
     
-    int32_t tempvalue=LayerMask[0]+(LayerMask[1]<<8);
-    set_config_int("zquest","layer_mask",tempvalue);
-    set_config_int("zquest","normal_duplicate_action",DuplicateAction[0]);
-    set_config_int("zquest","horizontal_duplicate_action",DuplicateAction[1]);
-    set_config_int("zquest","vertical_duplicate_action",DuplicateAction[2]);
-    set_config_int("zquest","both_duplicate_action",DuplicateAction[3]);
-    set_config_int("zquest","leech_update",LeechUpdate);
-    set_config_int("zquest","leech_update_tiles",LeechUpdateTiles);
-    set_config_int("zquest","only_check_new_tiles_for_duplicates",OnlyCheckNewTilesForDuplicates);
-    set_config_int("zquest","gui_colorset",gui_colorset);
-    set_config_int("zquest","lister_pattern_matching",abc_patternmatch);
-    set_config_int("zquest","no_preview",NoScreenPreview);
-	//set_config_int("Compiler","try_recovering_missing_scripts",try_recovering_missing_scripts);
-    
-    for(int32_t x=0; x<MAXFAVORITECOMMANDS; ++x)
-    {
-        sprintf(cmdnametitle, "command%02d", x+1);
-        set_config_int("zquest",cmdnametitle,favorite_commands[x]);
-    }
+    zc_set_config("zquest","layer_mask",b);
     
     for(int32_t x=1; x<qt_count+1; x++)
     {
@@ -32498,8 +32454,8 @@ int32_t save_config_file()
         
         if(QuestTemplates[x].path[0]!=0)
         {
-            set_config_string("zquest",qtnametitle,QuestTemplates[x].name);
-            set_config_string("zquest",qtpathtitle,QuestTemplates[x].path);
+            zc_set_config("zquest",qtnametitle,QuestTemplates[x].name);
+            zc_set_config("zquest",qtpathtitle,QuestTemplates[x].path);
         }
         else
         {
@@ -32507,24 +32463,10 @@ int32_t save_config_file()
         }
     }
     
-    //purge old section names here
-    set_config_string("zquest","auto_backup",NULL);
-    
     //save the beta warning confirmation info
 	char *uniquestr = getBetaControlString();
-	set_config_string("zquest", "beta_warning", uniquestr);
+	zc_set_config("zquest", "beta_warning", uniquestr);
 	delete[] uniquestr;
-    
-    set_config_int("zquest","fps",RequestedFPS);
-    set_config_int("zquest","frameskip",Frameskip);
-// set_config_int("zquest","zq_color_depth",zqColorDepth);
-    set_config_int("zquest","force_exit",ForceExit);
-    
-#ifdef _WIN32
-    set_config_int("zquest","zq_win_proc_fix",zqUseWin32Proc);
-    set_config_int("graphics","disable_direct_updating",disable_direct_updating);
-#endif
-    
     
     flush_config_file();
 #ifdef __EMSCRIPTEN__
@@ -32574,6 +32516,7 @@ void check_autosave()
                 replace_extension(last_timed_save, filepath, "qt0", 2047);
             else
                 strcpy(last_timed_save, "untitled.qt0");
+			set_last_timed_save(last_timed_save);
             go();
             
             if((header.zelda_version != ZELDA_VERSION || header.build != VERSION_BUILD) && first_save)
@@ -32589,10 +32532,9 @@ void check_autosave()
             if(ret)
             {
                 jwin_alert("Error","Timed save did not complete successfully.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                last_timed_save[0]=0;
+                set_last_timed_save(nullptr);
             }
             
-//        jwin_alert("Timed Save","A timed save should happen here",NULL,NULL,"OK",NULL,13,27,lfont);
             save_config_file();
             time(&auto_save_time_start);
             comeback();
@@ -32803,7 +32745,7 @@ command_pair commands[cmdMAX]=
     { "Report: Script Locations",           0, (intF) onScriptLocationReport },
     { "Report: What Links Here",            0, (intF) onWhatWarpsReport },
     { "Report: Integrity Check",            0, (intF) onIntegrityCheckAll },
-    { "Save ZQuest Settings",               0, (intF) onSaveZQuestSettings },
+    { " Save ZQuest Settings",              0, NULL },
     { "Clear Quest Filepath",               0, (intF) onClearQuestFilepath },
     { "Find Buggy Next->",                  0, (intF) onBuggedNextComboLocationReport },
     { "Rules - ZScript",                    0, (intF) onZScriptSettings },
