@@ -4656,14 +4656,13 @@ int main(int argc, char **argv)
 
 	if(!al_install_audio())
 	{
-		Z_error_fatal("Failed al_install_audio");
-		quit_game();
+		// We can continue even with no audio.
+		al_trace("Failed al_install_audio");
 	}
 
 	if(!al_init_acodec_addon())
 	{
-		Z_error_fatal("Failed al_init_acodec_addon");
-		quit_game();
+		al_trace("Failed al_init_acodec_addon");
 	}
 
 	al5img_init();
