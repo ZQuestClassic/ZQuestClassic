@@ -105,7 +105,7 @@ public:
     
     void Dispose()
     {
-        if(_parent_bmp)
+        if(_parent_bmp && system_driver)
             destroy_bitmap(_parent_bmp), _parent_bmp = 0;
     }
     
