@@ -3642,23 +3642,36 @@ bool SimulateKeypress[127];
  * the user pressing the A key on their keyboard.
  * Writing this false has no effect. 
 
-bool Press[18];
- * An array of boolean values that correspond to whether a control button, or a keyboard
- * 	key bound to a control button, was pressed this frame.
- *	Replaces Link->Press*.
- * Use the CB_* constants to access this array. 
-
 bool Button[18];
- * An array of boolean values that correspond to whether a control button, or a keyboard
- * 	key bound to a control button, was held down this frame.
- *	Replaces Link->Input*.
+ * An array of boolean values that correspond to whether a control button is currently held down.
+ * Any modifications to this array will be reset to the baseline hardware state on the next frame.
  * Use the CB_* constants to access this array. 
+ * Button[] gets set by the engine every frame based on:
+ *  1) the current hardware button state (always ignoring what a script did via Button)
+ * Note, this value can be temporarily "eaten" (set to false when it is true) for the remainder of the frame,
+ * but will be reset to the true hardware value for the next frame.
+ *	Replaces Link->Input*.
  
 bool Hold[18];
- * An array of boolean values that correspond to whether a control button, or a keyboard
- * 	key bound to a control button, was held down this frame.
- * May be identical to Input->Press[] in some regards.
+ * An array of boolean values that correspond to whether a control button is currently held down.
+ * May be identical to Input->Button[] in some regards. If never written to, represents the _exact_
+ * hardware state of the buttons.
+ * You should likely never write to this; if you want to disable a button press for this frame, set
+ * Press[] and Button[] to false (or use NoAction).
+ * Hold[] gets set by the engine every frame based on:
+ *   1) the current hardware button state (always ignoring whatever a script did via Button)
+ * Nothing in-engine accesses these values.
+ * Use the CB_* constants to access this array.
+
+bool Press[18];
+ * An array of boolean values that correspond to whether a control button was pressed this frame.
+ * Will be true exactly once for every physical button press, on the first frame.
+ * Press[] gets set by the engine every frame based on:
+ *   1) current value of Hold (whatever value it is, naturally set or by script)
+ *   2) the current hardware button state (always ignoring what a script did via Button)
+ * Nothing in-engine accesses these values.
  * Use the CB_* constants to access this array. 
+ *	Replaces Link->Press*.
  
 bool DisableButton[18];
  * Setting an index of this to 'true' will prevent the ENGINE from reading that button as pressed/held
