@@ -171,6 +171,8 @@ void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
 		{
 			zcmusic_poll();
 		}
+
+		update_hw_screen();
 	}
 	
 	//if(Quit)

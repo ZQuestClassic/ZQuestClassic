@@ -4811,6 +4811,8 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		{
 			zcmusic_poll();
 		}
+
+		update_hw_screen();
 	}
 	
 	if(Quit)
