@@ -41,7 +41,7 @@ void AudioSymbols::generateCode()
 {
 	//void AdjustVolume(audio, int32_t)
 	{
-		Function* function = getFunction2("AdjustMusicVolume");
+		Function* function = getFunction("AdjustMusicVolume");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -55,7 +55,7 @@ void AudioSymbols::generateCode()
 	}
 	//void AdjustSFXVolume(audio, int32_t)
 	{
-		Function* function = getFunction2("AdjustSFXVolume");
+		Function* function = getFunction("AdjustSFXVolume");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -70,7 +70,7 @@ void AudioSymbols::generateCode()
 	
 	//void AdjustSound(game, int32_t,int32_t,bool)
 	{
-		Function* function = getFunction2("AdjustSound");
+		Function* function = getFunction("AdjustSound");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -86,7 +86,7 @@ void AudioSymbols::generateCode()
 	}
 	//void PlaySound(game, int32_t)
 	{
-		Function* function = getFunction2("PlaySound");
+		Function* function = getFunction("PlaySound");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -101,7 +101,7 @@ void AudioSymbols::generateCode()
 	
 	//void EndSound(game, int32_t)
 	{
-		Function* function = getFunction2("EndSound");
+		Function* function = getFunction("EndSound");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -116,7 +116,7 @@ void AudioSymbols::generateCode()
 	
 	//void PauseSound(game, int32_t)
 	{
-		Function* function = getFunction2("PauseSound");
+		Function* function = getFunction("PauseSound");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -131,7 +131,7 @@ void AudioSymbols::generateCode()
 	
 	//void ContinueSound(game, int32_t)
 	{
-		Function* function = getFunction2("ContinueSound");
+		Function* function = getFunction("ContinueSound");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -146,7 +146,7 @@ void AudioSymbols::generateCode()
 	
 	//void ResumeSound(game, int32_t)
 	{
-		Function* function = getFunction2("ResumeSound");
+		Function* function = getFunction("ResumeSound");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -161,7 +161,7 @@ void AudioSymbols::generateCode()
 	
 	//void PauseCurMIDI(game)
 	{
-		Function* function = getFunction2("PauseCurMIDI");
+		Function* function = getFunction("PauseCurMIDI");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -174,7 +174,7 @@ void AudioSymbols::generateCode()
 	
 	//void ResumeCurMIDI(game)
 	{
-		Function* function = getFunction2("ResumeCurMIDI");
+		Function* function = getFunction("ResumeCurMIDI");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -186,7 +186,7 @@ void AudioSymbols::generateCode()
 	}
 	//void PlayMIDI(game, int32_t)
 	{
-		Function* function = getFunction2("PlayMIDI");
+		Function* function = getFunction("PlayMIDI");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -200,7 +200,7 @@ void AudioSymbols::generateCode()
 	}
 	//void PlayEnhancedMusic(game, int32_t, int32_t)
 	{
-		Function* function = getFunction2("PlayEnhancedMusic");
+		Function* function = getFunction("PlayEnhancedMusic");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -215,7 +215,7 @@ void AudioSymbols::generateCode()
 	}
 	//void PlayEnhancedMusicEx(game, int32_t, int32_t)
 	{
-		Function* function = getFunction2("PlayOgg");
+		Function* function = getFunction("PlayOgg");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -230,7 +230,7 @@ void AudioSymbols::generateCode()
 	}
 	//int32_t GetEnhancedMusicPos(game)
 {
-		Function* function = getFunction2("GetOggPos");
+		Function* function = getFunction("GetOggPos");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -242,7 +242,7 @@ void AudioSymbols::generateCode()
 }
 	 //void SetEnhancedMusicPos(game, int32_t)
 	{
-		Function* function = getFunction2("SetOggPos");
+		Function* function = getFunction("SetOggPos");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -256,7 +256,7 @@ void AudioSymbols::generateCode()
 	}
 	//void SetEnhancedMusicSpeed(game, int32_t)
 	{
-		Function* function = getFunction2("SetOggSpeed");
+		Function* function = getFunction("SetOggSpeed");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params

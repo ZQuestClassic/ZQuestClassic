@@ -32,7 +32,7 @@ void StackSymbols::generateCode()
 {
 	//void Free(stack)
 	{
-		Function* function = getFunction2("Free");
+		Function* function = getFunction("Free");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -45,7 +45,7 @@ void StackSymbols::generateCode()
 	}
 	//void Own(stack)
 	{
-		Function* function = getFunction2("Own");
+		Function* function = getFunction("Own");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -58,7 +58,7 @@ void StackSymbols::generateCode()
 	}
 	//void Clear(stack)
 	{
-		Function* function = getFunction2("Clear");
+		Function* function = getFunction("Clear");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -71,7 +71,7 @@ void StackSymbols::generateCode()
 	}
 	//untyped PopBack(stack)
 	{
-		Function* function = getFunction2("PopBack");
+		Function* function = getFunction("PopBack");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -84,7 +84,7 @@ void StackSymbols::generateCode()
 	}
 	//untyped PopFront(stack)
 	{
-		Function* function = getFunction2("PopFront");
+		Function* function = getFunction("PopFront");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -97,7 +97,7 @@ void StackSymbols::generateCode()
 	}
 	//untyped PeekBack(stack)
 	{
-		Function* function = getFunction2("PeekBack");
+		Function* function = getFunction("PeekBack");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -110,7 +110,7 @@ void StackSymbols::generateCode()
 	}
 	//untyped PeekFront(stack)
 	{
-		Function* function = getFunction2("PeekFront");
+		Function* function = getFunction("PeekFront");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -123,7 +123,7 @@ void StackSymbols::generateCode()
 	}
 	//void PushBack(stack, untyped)
 	{
-		Function* function = getFunction2("PushBack");
+		Function* function = getFunction("PushBack");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -136,7 +136,7 @@ void StackSymbols::generateCode()
 	}
 	//void PushFront(stack, untyped)
 	{
-		Function* function = getFunction2("PushFront");
+		Function* function = getFunction("PushFront");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -149,7 +149,7 @@ void StackSymbols::generateCode()
 	}
 	//untyped Get(stack, long)
 	{
-		Function* function = getFunction2("Get");
+		Function* function = getFunction("Get");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -162,7 +162,7 @@ void StackSymbols::generateCode()
 	}
 	//void Set(stack, long, untyped)
 	{
-		Function* function = getFunction2("Set");
+		Function* function = getFunction("Set");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));

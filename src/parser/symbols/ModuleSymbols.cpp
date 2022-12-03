@@ -21,7 +21,7 @@ void ModuleSymbols::generateCode()
 {
 	//int32_t GetInt(file, char32* section, char32* entry)
 	{
-		Function* function = getFunction2("GetInt");
+		Function* function = getFunction("GetInt");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -36,7 +36,7 @@ void ModuleSymbols::generateCode()
 	}
 	//int32_t GetString(file, char32* dest, char32* section, char32* entry)
 	{
-		Function* function = getFunction2("GetString");
+		Function* function = getFunction("GetString");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -52,7 +52,7 @@ void ModuleSymbols::generateCode()
 	}
 	//GetItemClass(char32* dest, int32_t ic)
 	{
-		Function* function = getFunction2("GetItemClass");
+		Function* function = getFunction("GetItemClass");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params

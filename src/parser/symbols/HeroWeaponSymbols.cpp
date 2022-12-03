@@ -178,7 +178,7 @@ void HeroWeaponSymbols::generateCode()
 {
 	//bool isValid(lweapon)
 	{
-		Function* function = getFunction2("isValid");
+		Function* function = getFunction("isValid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -191,7 +191,7 @@ void HeroWeaponSymbols::generateCode()
 	}
 	//void Explode(lweapon, int32_t)
 	{
-		Function* function = getFunction2("Explode");
+		Function* function = getFunction("Explode");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -205,7 +205,7 @@ void HeroWeaponSymbols::generateCode()
 	}
 	//void UseSprite(lweapon, int32_t val)
 	{
-		Function* function = getFunction2("UseSprite");
+		Function* function = getFunction("UseSprite");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the val
@@ -220,7 +220,7 @@ void HeroWeaponSymbols::generateCode()
 	}
 	//void Remove(lweapon)
 	{
-		Function* function = getFunction2("Remove");
+		Function* function = getFunction("Remove");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -233,7 +233,7 @@ void HeroWeaponSymbols::generateCode()
 	}
 	//bool Switch(lweapon, int)
 	{
-		Function* function = getFunction2("Switch");
+		Function* function = getFunction("Switch");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -247,7 +247,7 @@ void HeroWeaponSymbols::generateCode()
 	}
 	//void MakeAngular(lweapon)
 	{
-		Function* function = getFunction2("MakeAngular");
+		Function* function = getFunction("MakeAngular");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -260,7 +260,7 @@ void HeroWeaponSymbols::generateCode()
 	}
 	//void MakeDirectional(lweapon)
 	{
-		Function* function = getFunction2("MakeDirectional");
+		Function* function = getFunction("MakeDirectional");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer

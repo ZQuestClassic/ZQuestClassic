@@ -31,7 +31,7 @@ void BottleShopSymbols::generateCode()
 {
 	//void GetName(bottleshopdata, char)
 	{
-		Function* function = getFunction2("GetName");
+		Function* function = getFunction("GetName");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -45,7 +45,7 @@ void BottleShopSymbols::generateCode()
 	}
 	//void SetName(bottleshopdata, char)
 	{
-		Function* function = getFunction2("SetName");
+		Function* function = getFunction("SetName");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param

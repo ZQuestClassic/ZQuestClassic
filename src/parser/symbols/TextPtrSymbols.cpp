@@ -26,7 +26,7 @@ void TextPtrSymbols::generateCode()
 {
 	//void StringWidth(char32 ptr, int32_t font)
 	{
-		Function* function = getFunction2("StringWidth");
+		Function* function = getFunction("StringWidth");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the font
@@ -42,7 +42,7 @@ void TextPtrSymbols::generateCode()
 	}
 	//void CharWidth(char32 chr, int32_t font)
 	{
-		Function* function = getFunction2("CharWidth");
+		Function* function = getFunction("CharWidth");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the font
@@ -58,7 +58,7 @@ void TextPtrSymbols::generateCode()
 	}
 	//void StringHeight(char32 ptr, int32_t font)
 	{
-		Function* function = getFunction2("StringHeight");
+		Function* function = getFunction("StringHeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the font
@@ -74,7 +74,7 @@ void TextPtrSymbols::generateCode()
 	}
 	//void CharHeight(char32 chr, int32_t font)
 	{
-		Function* function = getFunction2("CharHeight");
+		Function* function = getFunction("CharHeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the font
@@ -90,7 +90,7 @@ void TextPtrSymbols::generateCode()
 	}
 	//void FontHeight(int32_t font)
 	{
-		Function* function = getFunction2("FontHeight");
+		Function* function = getFunction("FontHeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the font
@@ -104,7 +104,7 @@ void TextPtrSymbols::generateCode()
 	}
 	//void MessageWidth(int32_t message)
 	{
-		Function* function = getFunction2("MessageWidth");
+		Function* function = getFunction("MessageWidth");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the message
@@ -118,7 +118,7 @@ void TextPtrSymbols::generateCode()
 	}
 	//void MessageHeight(int32_t message)
 	{
-		Function* function = getFunction2("MessageHeight");
+		Function* function = getFunction("MessageHeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the message

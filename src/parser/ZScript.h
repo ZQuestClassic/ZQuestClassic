@@ -429,6 +429,7 @@ namespace ZScript
 		DataType const* returnType;
 		std::string name;
 		bool hasPrefixType;
+		byte extra_vargs;
 		std::vector<DataType const*> paramTypes;
 		std::vector<std::string const*> paramNames;
 		std::vector<int32_t> opt_vals;

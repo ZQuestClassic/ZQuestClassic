@@ -553,7 +553,7 @@ Function::Function(DataType const* returnType, string const& name,
 	: node(NULL), internalScope(NULL), thisVar(NULL),
 	  returnType(returnType), name(name), paramTypes(paramTypes), paramNames(paramNames), opt_vals(),
 	  id(id), label(std::nullopt), flags(flags), internal_flags(internal_flags), hasPrefixType(false),
-	  prototype(prototype), defaultReturn(defaultReturn)
+	  prototype(prototype), defaultReturn(defaultReturn), extra_vargs(0)
 {}
 
 Function::~Function()

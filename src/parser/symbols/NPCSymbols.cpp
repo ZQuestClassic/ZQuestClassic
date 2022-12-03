@@ -255,7 +255,7 @@ void NPCSymbols::generateCode()
 {
 	//bool isValid(npc)
 	{
-		Function* function = getFunction2("isValid");
+		Function* function = getFunction("isValid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -268,7 +268,7 @@ void NPCSymbols::generateCode()
 	}
 	//void GetName(npc, int32_t)
 	{
-		Function* function = getFunction2("GetName");
+		Function* function = getFunction("GetName");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -282,7 +282,7 @@ void NPCSymbols::generateCode()
 	}
 	//void Explode(npc, int32_t)
 	{
-			Function* function = getFunction2("Explode");
+			Function* function = getFunction("Explode");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -296,7 +296,7 @@ void NPCSymbols::generateCode()
 	}
 	//void BreakShield(npc)
 	{
-		Function* function = getFunction2("BreakShield");
+		Function* function = getFunction("BreakShield");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -309,7 +309,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool isDead(npc)
 	{
-		Function* function = getFunction2("isDead");
+		Function* function = getFunction("isDead");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -322,7 +322,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool CanSlide(npc)
 	{
-		Function* function = getFunction2("CanSlide");
+		Function* function = getFunction("CanSlide");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -335,7 +335,7 @@ void NPCSymbols::generateCode()
 	}
 	//int32_t Slide(npc)
 	{
-		Function* function = getFunction2("Slide");
+		Function* function = getFunction("Slide");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -348,7 +348,7 @@ void NPCSymbols::generateCode()
 	}
 	//void Remove(npc)
 	{
-		Function* function = getFunction2("Remove");
+		Function* function = getFunction("Remove");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -361,7 +361,7 @@ void NPCSymbols::generateCode()
 	}
 	//void StopBGSFX(npc)
 	{
-		Function* function = getFunction2("StopBGSFX");
+		Function* function = getFunction("StopBGSFX");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -374,7 +374,7 @@ void NPCSymbols::generateCode()
 	}
 	//void Attack(npc)
 	{
-		Function* function = getFunction2("Attack");
+		Function* function = getFunction("Attack");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -387,7 +387,7 @@ void NPCSymbols::generateCode()
 	}
 	//void NewDir(int32_t arr[])
 	{
-		Function* function = getFunction2("NewDir");
+		Function* function = getFunction("NewDir");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -401,7 +401,7 @@ void NPCSymbols::generateCode()
 	}
 	//void ConstantWalk(int32_t arr[])
 	{
-		Function* function = getFunction2("ConstantWalk");
+		Function* function = getFunction("ConstantWalk");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -416,7 +416,7 @@ void NPCSymbols::generateCode()
 	
 	//void ConstantWalk8(int32_t arr[])
 	{
-		Function* function = getFunction2("ConstantWalk8");
+		Function* function = getFunction("ConstantWalk8");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -431,7 +431,7 @@ void NPCSymbols::generateCode()
 	
 	//void VariableWalk(int32_t arr[])
 	{
-		Function* function = getFunction2("VariableWalk");
+		Function* function = getFunction("VariableWalk");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -445,7 +445,7 @@ void NPCSymbols::generateCode()
 	}
 	//void VariableWalk8(int32_t arr[])
 	{
-		Function* function = getFunction2("VariableWalk8");
+		Function* function = getFunction("VariableWalk8");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -459,7 +459,7 @@ void NPCSymbols::generateCode()
 	}
 	//void HaltingWalk(int32_t arr[])
 	{
-		Function* function = getFunction2("HaltingWalk");
+		Function* function = getFunction("HaltingWalk");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -473,7 +473,7 @@ void NPCSymbols::generateCode()
 	}
 	//void HaltingWalk8(int32_t arr[])
 	{
-		Function* function = getFunction2("HaltingWalk8");
+		Function* function = getFunction("HaltingWalk8");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -487,7 +487,7 @@ void NPCSymbols::generateCode()
 	}
 	//void FloatingWalk(int32_t arr[])
 	{
-		Function* function = getFunction2("FloatingWalk");
+		Function* function = getFunction("FloatingWalk");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -501,7 +501,7 @@ void NPCSymbols::generateCode()
 	}
 	//void BreathAttack(bool seeklink)
 	{
-		Function* function = getFunction2("BreathAttack");
+		Function* function = getFunction("BreathAttack");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -515,7 +515,7 @@ void NPCSymbols::generateCode()
 	}
 	//void NewDir8(int32_t arr[])
 	{
-		Function* function = getFunction2("NewDir8");
+		Function* function = getFunction("NewDir8");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -529,7 +529,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool Collision(int32_t obj_type, untyped obj_pointer)
 	{
-		Function* function = getFunction2("Collision");
+		Function* function = getFunction("Collision");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -544,7 +544,7 @@ void NPCSymbols::generateCode()
 	}
 	//int32_t LinedUp(int32_t range, bool dir8)
 	{
-		Function* function = getFunction2("LinedUp");
+		Function* function = getFunction("LinedUp");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -559,7 +559,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool HeroInRange(int32_t dist_in_pixels)
 	{
-		Function* function = getFunction2("LinkInRange");
+		Function* function = getFunction("LinkInRange");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -573,7 +573,7 @@ void NPCSymbols::generateCode()
 	
 	//npc Create(int32_t array[])
 	{
-		Function* function = getFunction2("Create");
+		Function* function = getFunction("Create");
 		
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
@@ -589,7 +589,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool CanMove(int32_t array[])
 	{
-		Function* function = getFunction2("CanMove");
+		Function* function = getFunction("CanMove");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -602,7 +602,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool SimulateHit(int32_t array[])
 	{
-		Function* function = getFunction2("SimulateHit");
+		Function* function = getFunction("SimulateHit");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -615,7 +615,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool Knockback(int32_t time, int32_t dir, int32_t spd)
 	{
-		Function* function = getFunction2("Knockback");
+		Function* function = getFunction("Knockback");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
@@ -630,7 +630,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool Switch(npc, int)
 	{
-		Function* function = getFunction2("Switch");
+		Function* function = getFunction("Switch");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -644,7 +644,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool MovePaused(npc)
 	{
-		Function* function = getFunction2("MovePaused");
+		Function* function = getFunction("MovePaused");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		ASSERT_NON_NUL();
@@ -656,7 +656,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool Move(npc, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction2("Move");
+		Function* function = getFunction("Move");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -671,7 +671,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool MoveAtAngle(npc, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction2("MoveAtAngle");
+		Function* function = getFunction("MoveAtAngle");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -686,7 +686,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool MoveXY(npc, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction2("MoveXY");
+		Function* function = getFunction("MoveXY");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -701,7 +701,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool CanMove(npc, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction2("CanMove", 1);
+		Function* function = getFunction("CanMove", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -716,7 +716,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool CanMoveAtAngle(npc, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction2("CanMoveAtAngle");
+		Function* function = getFunction("CanMoveAtAngle");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -731,7 +731,7 @@ void NPCSymbols::generateCode()
 	}
 	//bool CanMoveXY(npc, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction2("CanMoveXY");
+		Function* function = getFunction("CanMoveXY");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params

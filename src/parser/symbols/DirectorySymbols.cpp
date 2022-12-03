@@ -24,7 +24,7 @@ void DirectorySymbols::generateCode()
 {
 	//bool GetFilename(directory, int32_t, char32)
 	{
-		Function* function = getFunction2("GetFilename");
+		Function* function = getFunction("GetFilename");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -39,7 +39,7 @@ void DirectorySymbols::generateCode()
 	}
 	//void Reload(directory)
 	{
-		Function* function = getFunction2("Reload");
+		Function* function = getFunction("Reload");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -52,7 +52,7 @@ void DirectorySymbols::generateCode()
 	}
 	//void Free(directory)
 	{
-		Function* function = getFunction2("Free");
+		Function* function = getFunction("Free");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -65,7 +65,7 @@ void DirectorySymbols::generateCode()
 	}
 	//void Own(directory)
 	{
-		Function* function = getFunction2("Own");
+		Function* function = getFunction("Own");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer

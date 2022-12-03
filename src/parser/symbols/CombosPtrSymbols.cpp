@@ -456,7 +456,7 @@ CombosPtrSymbols::CombosPtrSymbols()
 void CombosPtrSymbols::generateCode()
 {
 	{
-		Function* function = getFunction2("GetBlockEnemies");
+		Function* function = getFunction("GetBlockEnemies");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -468,7 +468,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetBlockHole");
+		Function* function = getFunction("GetBlockHole");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -480,7 +480,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetBlockTrigger");
+		Function* function = getFunction("GetBlockTrigger");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -492,7 +492,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetConveyorSpeedX");
+		Function* function = getFunction("GetConveyorSpeedX");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -504,7 +504,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetConveyorSpeedY");
+		Function* function = getFunction("GetConveyorSpeedY");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -516,7 +516,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetCreateEnemy");
+		Function* function = getFunction("GetCreateEnemy");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -528,7 +528,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetCreateEnemyWhen");
+		Function* function = getFunction("GetCreateEnemyWhen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -540,7 +540,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetCreateEnemyChnge");
+		Function* function = getFunction("GetCreateEnemyChnge");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -552,7 +552,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetDirChangeType");
+		Function* function = getFunction("GetDirChangeType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -564,7 +564,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetDistanceChangeTiles");
+		Function* function = getFunction("GetDistanceChangeTiles");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -576,7 +576,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetDiveItem");
+		Function* function = getFunction("GetDiveItem");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -588,7 +588,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetDock");
+		Function* function = getFunction("GetDock");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -600,7 +600,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetFairy");
+		Function* function = getFunction("GetFairy");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -612,7 +612,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetFFComboChangeAttrib");
+		Function* function = getFunction("GetFFComboChangeAttrib");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -624,7 +624,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetFootDecorationsTile");
+		Function* function = getFunction("GetFootDecorationsTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -636,7 +636,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetFootDecorationsType");
+		Function* function = getFunction("GetFootDecorationsType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -648,7 +648,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetHookshotGrab");
+		Function* function = getFunction("GetHookshotGrab");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -660,7 +660,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetLadderPass");
+		Function* function = getFunction("GetLadderPass");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -672,7 +672,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetLockBlockType");
+		Function* function = getFunction("GetLockBlockType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -684,7 +684,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetLockBlockChange");
+		Function* function = getFunction("GetLockBlockChange");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -696,7 +696,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetMagicMirror");
+		Function* function = getFunction("GetMagicMirror");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -708,7 +708,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetModifyHPAmount");
+		Function* function = getFunction("GetModifyHPAmount");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -720,7 +720,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetModifyHPDelay");
+		Function* function = getFunction("GetModifyHPDelay");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -732,7 +732,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetModifyHPType");
+		Function* function = getFunction("GetModifyHPType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -744,7 +744,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetModifyMPAmount");
+		Function* function = getFunction("GetModifyMPAmount");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -756,7 +756,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetModifyMPDelay");
+		Function* function = getFunction("GetModifyMPDelay");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -768,7 +768,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetModifyMPType");
+		Function* function = getFunction("GetModifyMPType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -780,7 +780,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetNoPushBlocks");
+		Function* function = getFunction("GetNoPushBlocks");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -792,7 +792,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetOverhead");
+		Function* function = getFunction("GetOverhead");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -804,7 +804,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetPlaceEnemy");
+		Function* function = getFunction("GetPlaceEnemy");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -816,7 +816,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetPushDirection");
+		Function* function = getFunction("GetPushDirection");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -828,7 +828,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetPushWeight");
+		Function* function = getFunction("GetPushWeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -840,7 +840,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetPushWait");
+		Function* function = getFunction("GetPushWait");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -852,7 +852,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetPushed");
+		Function* function = getFunction("GetPushed");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -864,7 +864,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetRaft");
+		Function* function = getFunction("GetRaft");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -876,7 +876,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetResetRoom");
+		Function* function = getFunction("GetResetRoom");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -888,7 +888,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetSavePoint");
+		Function* function = getFunction("GetSavePoint");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -900,7 +900,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetScreenFreeze");
+		Function* function = getFunction("GetScreenFreeze");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -912,7 +912,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetSecretCombo");
+		Function* function = getFunction("GetSecretCombo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -924,7 +924,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetSingular");
+		Function* function = getFunction("GetSingular");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -936,7 +936,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetSlowMove");
+		Function* function = getFunction("GetSlowMove");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -948,7 +948,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetStatue");
+		Function* function = getFunction("GetStatue");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -960,7 +960,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetStepType");
+		Function* function = getFunction("GetStepType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -972,7 +972,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetStepChangeTo");
+		Function* function = getFunction("GetStepChangeTo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -984,7 +984,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetStrikeRemnants");
+		Function* function = getFunction("GetStrikeRemnants");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -996,7 +996,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetStrikeRemnantsType");
+		Function* function = getFunction("GetStrikeRemnantsType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1008,7 +1008,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetStrikeChange");
+		Function* function = getFunction("GetStrikeChange");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1020,7 +1020,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetStrikeItem");
+		Function* function = getFunction("GetStrikeItem");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1032,7 +1032,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetTouchItem");
+		Function* function = getFunction("GetTouchItem");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1044,7 +1044,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetTouchStairs");
+		Function* function = getFunction("GetTouchStairs");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1056,7 +1056,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetTriggerType");
+		Function* function = getFunction("GetTriggerType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1068,7 +1068,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetTriggerSens");
+		Function* function = getFunction("GetTriggerSens");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1080,7 +1080,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetWarpType");
+		Function* function = getFunction("GetWarpType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1092,7 +1092,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetWarpSens");
+		Function* function = getFunction("GetWarpSens");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1104,7 +1104,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetWarpDirect");
+		Function* function = getFunction("GetWarpDirect");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1116,7 +1116,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetWarpLocation");
+		Function* function = getFunction("GetWarpLocation");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1128,7 +1128,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetWater");
+		Function* function = getFunction("GetWater");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1140,7 +1140,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetWhistle");
+		Function* function = getFunction("GetWhistle");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1152,7 +1152,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetWinGame");
+		Function* function = getFunction("GetWinGame");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1164,7 +1164,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetBlockWeaponLevel");
+		Function* function = getFunction("GetBlockWeaponLevel");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1176,7 +1176,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetTile");
+		Function* function = getFunction("GetTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1188,7 +1188,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetFlip");
+		Function* function = getFunction("GetFlip");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1200,7 +1200,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetWalkability");
+		Function* function = getFunction("GetWalkability");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1212,7 +1212,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetType");
+		Function* function = getFunction("GetType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1224,7 +1224,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetCSets");
+		Function* function = getFunction("GetCSets");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1236,7 +1236,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetFoo");
+		Function* function = getFunction("GetFoo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1248,7 +1248,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetFrames");
+		Function* function = getFunction("GetFrames");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1260,7 +1260,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetSpeed");
+		Function* function = getFunction("GetSpeed");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1272,7 +1272,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetNextCombo");
+		Function* function = getFunction("GetNextCombo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1284,7 +1284,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetNextCSet");
+		Function* function = getFunction("GetNextCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1296,7 +1296,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetFlag");
+		Function* function = getFunction("GetFlag");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1308,7 +1308,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetSkipAnim");
+		Function* function = getFunction("GetSkipAnim");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1320,7 +1320,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetNextTimer");
+		Function* function = getFunction("GetNextTimer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1332,7 +1332,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetSkipAnimY");
+		Function* function = getFunction("GetSkipAnimY");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1344,7 +1344,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("GetAnimFlags");
+		Function* function = getFunction("GetAnimFlags");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1356,7 +1356,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);;
 	}
 	{
-		Function* function = getFunction2("SetBlockEnemies");
+		Function* function = getFunction("SetBlockEnemies");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1368,7 +1368,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetBlockHole");
+		Function* function = getFunction("SetBlockHole");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1380,7 +1380,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetBlockTrigger");
+		Function* function = getFunction("SetBlockTrigger");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1392,7 +1392,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetConveyorSpeedX");
+		Function* function = getFunction("SetConveyorSpeedX");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1404,7 +1404,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetConveyorSpeedY");
+		Function* function = getFunction("SetConveyorSpeedY");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1416,7 +1416,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetCreateEnemy");
+		Function* function = getFunction("SetCreateEnemy");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1428,7 +1428,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetCreateEnemyWhen");
+		Function* function = getFunction("SetCreateEnemyWhen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1440,7 +1440,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetCreateEnemyChnge");
+		Function* function = getFunction("SetCreateEnemyChnge");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1452,7 +1452,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetDirChangeType");
+		Function* function = getFunction("SetDirChangeType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1464,7 +1464,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetDistanceChangeTiles");
+		Function* function = getFunction("SetDistanceChangeTiles");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1476,7 +1476,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetDiveItem");
+		Function* function = getFunction("SetDiveItem");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1488,7 +1488,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetDock");
+		Function* function = getFunction("SetDock");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1500,7 +1500,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetFairy");
+		Function* function = getFunction("SetFairy");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1512,7 +1512,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetFFComboChangeAttrib");
+		Function* function = getFunction("SetFFComboChangeAttrib");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1524,7 +1524,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetFootDecorationsTile");
+		Function* function = getFunction("SetFootDecorationsTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1536,7 +1536,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetFootDecorationsType");
+		Function* function = getFunction("SetFootDecorationsType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1548,7 +1548,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetHookshotGrab");
+		Function* function = getFunction("SetHookshotGrab");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1560,7 +1560,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetLadderPass");
+		Function* function = getFunction("SetLadderPass");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1572,7 +1572,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetLockBlockType");
+		Function* function = getFunction("SetLockBlockType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1584,7 +1584,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetLockBlockChange");
+		Function* function = getFunction("SetLockBlockChange");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1596,7 +1596,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetMagicMirror");
+		Function* function = getFunction("SetMagicMirror");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1608,7 +1608,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetModifyHPAmount");
+		Function* function = getFunction("SetModifyHPAmount");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1620,7 +1620,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetModifyHPDelay");
+		Function* function = getFunction("SetModifyHPDelay");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1632,7 +1632,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetModifyHPType");
+		Function* function = getFunction("SetModifyHPType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1644,7 +1644,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetModifyMPAmount");
+		Function* function = getFunction("SetModifyMPAmount");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1656,7 +1656,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetModifyMPDelay");
+		Function* function = getFunction("SetModifyMPDelay");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1668,7 +1668,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetModifyMPType");
+		Function* function = getFunction("SetModifyMPType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1680,7 +1680,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetNoPushBlocks");
+		Function* function = getFunction("SetNoPushBlocks");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1692,7 +1692,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetOverhead");
+		Function* function = getFunction("SetOverhead");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1704,7 +1704,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetPlaceEnemy");
+		Function* function = getFunction("SetPlaceEnemy");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1716,7 +1716,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetPushDirection");
+		Function* function = getFunction("SetPushDirection");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1728,7 +1728,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetPushWeight");
+		Function* function = getFunction("SetPushWeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1740,7 +1740,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetPushWait");
+		Function* function = getFunction("SetPushWait");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1752,7 +1752,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetPushed");
+		Function* function = getFunction("SetPushed");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1764,7 +1764,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetRaft");
+		Function* function = getFunction("SetRaft");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1776,7 +1776,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetResetRoom");
+		Function* function = getFunction("SetResetRoom");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1788,7 +1788,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetSavePoint");
+		Function* function = getFunction("SetSavePoint");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1800,7 +1800,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetScreenFreeze");
+		Function* function = getFunction("SetScreenFreeze");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1812,7 +1812,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetSecretCombo");
+		Function* function = getFunction("SetSecretCombo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1824,7 +1824,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetSingular");
+		Function* function = getFunction("SetSingular");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1836,7 +1836,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetSlowMove");
+		Function* function = getFunction("SetSlowMove");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1848,7 +1848,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetStatue");
+		Function* function = getFunction("SetStatue");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1860,7 +1860,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetStepType");
+		Function* function = getFunction("SetStepType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1872,7 +1872,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetStepChangeTo");
+		Function* function = getFunction("SetStepChangeTo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1884,7 +1884,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetStrikeRemnants");
+		Function* function = getFunction("SetStrikeRemnants");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1896,7 +1896,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetStrikeRemnantsType");
+		Function* function = getFunction("SetStrikeRemnantsType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1908,7 +1908,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetStrikeChange");
+		Function* function = getFunction("SetStrikeChange");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1920,7 +1920,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetStrikeItem");
+		Function* function = getFunction("SetStrikeItem");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1932,7 +1932,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetTouchItem");
+		Function* function = getFunction("SetTouchItem");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1944,7 +1944,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetTouchStairs");
+		Function* function = getFunction("SetTouchStairs");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1956,7 +1956,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetTriggerType");
+		Function* function = getFunction("SetTriggerType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1968,7 +1968,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetTriggerSens");
+		Function* function = getFunction("SetTriggerSens");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1980,7 +1980,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetWarpType");
+		Function* function = getFunction("SetWarpType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1992,7 +1992,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetWarpSens");
+		Function* function = getFunction("SetWarpSens");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2004,7 +2004,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetWarpDirect");
+		Function* function = getFunction("SetWarpDirect");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2016,7 +2016,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetWarpLocation");
+		Function* function = getFunction("SetWarpLocation");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2028,7 +2028,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetWater");
+		Function* function = getFunction("SetWater");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2040,7 +2040,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetWhistle");
+		Function* function = getFunction("SetWhistle");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2052,7 +2052,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetWinGame");
+		Function* function = getFunction("SetWinGame");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2064,7 +2064,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetBlockWeaponLevel");
+		Function* function = getFunction("SetBlockWeaponLevel");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2076,7 +2076,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetTile");
+		Function* function = getFunction("SetTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2088,7 +2088,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetFlip");
+		Function* function = getFunction("SetFlip");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2100,7 +2100,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetWalkability");
+		Function* function = getFunction("SetWalkability");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2112,7 +2112,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetType");
+		Function* function = getFunction("SetType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2124,7 +2124,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetCSets");
+		Function* function = getFunction("SetCSets");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2136,7 +2136,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetFoo");
+		Function* function = getFunction("SetFoo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2148,7 +2148,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetFrames");
+		Function* function = getFunction("SetFrames");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2160,7 +2160,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetSpeed");
+		Function* function = getFunction("SetSpeed");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2172,7 +2172,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetNextCombo");
+		Function* function = getFunction("SetNextCombo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2184,7 +2184,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetNextCSet");
+		Function* function = getFunction("SetNextCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2196,7 +2196,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetFlag");
+		Function* function = getFunction("SetFlag");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2208,7 +2208,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetSkipAnim");
+		Function* function = getFunction("SetSkipAnim");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2220,7 +2220,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetNextTimer");
+		Function* function = getFunction("SetNextTimer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2232,7 +2232,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetSkipAnimY");
+		Function* function = getFunction("SetSkipAnimY");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2244,7 +2244,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetAnimFlags");
+		Function* function = getFunction("SetAnimFlags");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2256,7 +2256,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("GetBlockWeapon");
+		Function* function = getFunction("GetBlockWeapon");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2268,7 +2268,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("GetExpansion");
+		Function* function = getFunction("GetExpansion");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2280,7 +2280,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("GetStrikeWeapons");
+		Function* function = getFunction("GetStrikeWeapons");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -2292,7 +2292,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetBlockWeapon");
+		Function* function = getFunction("SetBlockWeapon");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
@@ -2305,7 +2305,7 @@ void CombosPtrSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SetStrikeWeapons");
+		Function* function = getFunction("SetStrikeWeapons");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));

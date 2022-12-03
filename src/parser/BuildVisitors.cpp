@@ -1206,23 +1206,46 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			//push it onto the stack
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		}
+		
+		bool vargs = func.getFlag(FUNCFLAG_VARARGS);
+		size_t num_actual_params = func.paramTypes.size()-func.extra_vargs;
+		size_t num_used_params = host.parameters.size();
+		int v = num_used_params-num_actual_params;
+		
+		size_t vargcount = 0;
+		size_t used_opt_params = 0;
+		(v>0 ? vargcount : used_opt_params) = abs(v);
 		//push the parameters, in forward order
-		for (auto it = host.parameters.begin();
-			it != host.parameters.end(); ++it)
+		size_t param_indx = 0;
+		for (; param_indx < host.parameters.size()-vargcount; ++param_indx)
 		{
+			auto& arg = host.parameters.at(param_indx);
 			//Compile-time constants can be optimized slightly...
-			if(std::optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
+			if(std::optional<int32_t> val = arg->getCompileTimeValue(this, scope))
 				addOpcode(new OPushImmediate(new LiteralArgument(*val)));
 			else
 			{
-				visit(*it, param);
+				visit(arg, param);
 				addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			}
 		}
-		int32_t num_actual_params = func.paramTypes.size();
-		int32_t num_used_params = host.parameters.size();
-		int32_t used_opt_params = num_actual_params - num_used_params;
-		if(used_opt_params > 0)
+		if(vargcount)
+		{
+			//push the vargs, in forward order
+			for (; param_indx < host.parameters.size(); ++param_indx)
+			{
+				auto& arg = host.parameters.at(param_indx);
+				//Compile-time constants can be optimized slightly...
+				if(std::optional<int32_t> val = arg->getCompileTimeValue(this, scope))
+					addOpcode(new OPushVargV(new LiteralArgument(*val)));
+				else
+				{
+					visit(arg, param);
+					addOpcode(new OPushVargR(new VarArgument(EXP1)));
+				}
+			}
+		}
+		else if(used_opt_params)
 		{
 			auto opt_param_count = func.opt_vals.size();
 			auto skipped_optional_params = opt_param_count - used_opt_params;
@@ -1233,22 +1256,11 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			}
 		}
 		
-		bool vargs = func.getFlag(FUNCFLAG_VARARGS);
-		int32_t vargcount = 0;
-		if(vargs && used_opt_params < 0)
-		{
-			vargcount = -used_opt_params;
-		}
-		
-		SetVargs sv;
 		std::vector<std::shared_ptr<Opcode>> const& funcCode = func.getCode();
 		for(auto it = funcCode.begin();
 			it != funcCode.end(); ++it)
 		{
-			Opcode* code = (*it)->makeClone();
-			if(vargs)
-				code->execute(sv, &vargcount);
-			addOpcode(code);
+			addOpcode((*it)->makeClone());
 		}
 	
 		if(host.left->isTypeArrow())

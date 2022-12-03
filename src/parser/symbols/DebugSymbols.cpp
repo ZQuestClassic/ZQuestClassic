@@ -68,7 +68,7 @@ void DebugSymbols::generateCode()
 {
 	//int32_t GetPointer(itemclass, itemclass)
 	{
-		Function* function = getFunction2("GetItemdataPointer");
+		Function* function = getFunction("GetItemdataPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -82,7 +82,7 @@ void DebugSymbols::generateCode()
 	
 	//int32_t SetPointer(itemclass, float)
 	{
-		Function* function = getFunction2("SetItemdataPointer");
+		Function* function = getFunction("SetItemdataPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -95,7 +95,7 @@ void DebugSymbols::generateCode()
 	}
 	//int32_t GetPointer(item, item)
 	{
-		Function* function = getFunction2("GetItemPointer");
+		Function* function = getFunction("GetItemPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -109,7 +109,7 @@ void DebugSymbols::generateCode()
 	
 	//int32_t SetPointer(item, float)
 	{
-		Function* function = getFunction2("SetItemPointer");
+		Function* function = getFunction("SetItemPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -122,7 +122,7 @@ void DebugSymbols::generateCode()
 	}    
 	//int32_t GetPointer(ffc, ffc)
 	{
-		Function* function = getFunction2("GetFFCPointer");
+		Function* function = getFunction("GetFFCPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -136,7 +136,7 @@ void DebugSymbols::generateCode()
 	
 	//int32_t SetPointer(ffc, float)
 	{
-		Function* function = getFunction2("SetFFCPointer");
+		Function* function = getFunction("SetFFCPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -149,7 +149,7 @@ void DebugSymbols::generateCode()
 	}
 		  //int32_t GetPointer(eweapon, eweapon)
 	{
-		Function* function = getFunction2("GetEWeaponPointer");
+		Function* function = getFunction("GetEWeaponPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -163,7 +163,7 @@ void DebugSymbols::generateCode()
 	
 	//int32_t SetPointer(eweapon, float)
 	{
-		Function* function = getFunction2("SetEWeaponPointer");
+		Function* function = getFunction("SetEWeaponPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -176,7 +176,7 @@ void DebugSymbols::generateCode()
 	}
 	   //int32_t GetPointer(lweapon, lweapon)
 	{
-		Function* function = getFunction2("GetLWeaponPointer");
+		Function* function = getFunction("GetLWeaponPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -190,7 +190,7 @@ void DebugSymbols::generateCode()
 	
 	//int32_t SetPointer(lweapon, float)
 	{
-		Function* function = getFunction2("SetLWeaponPointer");
+		Function* function = getFunction("SetLWeaponPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -203,7 +203,7 @@ void DebugSymbols::generateCode()
 	}
 	 //int32_t GetPointer(npc, ffc)
 	{
-		Function* function = getFunction2("GetNPCPointer");
+		Function* function = getFunction("GetNPCPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -217,7 +217,7 @@ void DebugSymbols::generateCode()
 	
 	//int32_t SetPointer(npc, float)
 	{
-		Function* function = getFunction2("SetNPCPointer");
+		Function* function = getFunction("SetNPCPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -230,7 +230,7 @@ void DebugSymbols::generateCode()
 	}
 	//int32_t GetPointer(game, bool)
 	{
-		Function* function = getFunction2("GetBoolPointer");
+		Function* function = getFunction("GetBoolPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -244,7 +244,7 @@ void DebugSymbols::generateCode()
 	
 	//int32_t SetPointer(game, float)
 	{
-		Function* function = getFunction2("SetBoolPointer");
+		Function* function = getFunction("SetBoolPointer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -259,7 +259,7 @@ void DebugSymbols::generateCode()
 	
 	//void TriggerSecret(game, int32_t)
 	{
-		Function* function = getFunction2("TriggerSecret");
+		Function* function = getFunction("TriggerSecret");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -274,7 +274,7 @@ void DebugSymbols::generateCode()
 	
 	//void Breakpoint(debug, char)
 	{
-		Function* function = getFunction2("Breakpoint");
+		Function* function = getFunction("Breakpoint");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));

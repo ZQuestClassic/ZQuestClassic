@@ -552,6 +552,7 @@ std::string *sargstr;
 refInfo *ri = NULL;
 script_data *curscript = NULL;
 int32_t(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
+std::vector<int32_t> zs_vargs;
 byte curScriptType;
 word curScriptNum;
 bool script_funcrun = false;
@@ -21975,6 +21976,11 @@ void do_push(const bool v)
 	--ri->sp;
 	SH::write_stack(ri->sp, value);
 }
+void do_push_varg(const bool v)
+{
+	const int32_t value = SH::get_arg(sarg1, v);
+	zs_vargs.push_back(value);
+}
 
 void do_pop()
 {
@@ -28655,7 +28661,7 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 	sarg2 = curscript->zasm[ri->pc].arg2;
 	sargstr = curscript->zasm[ri->pc].strptr;
 	sargvec = curscript->zasm[ri->pc].vecptr;
-	
+	zs_vargs.clear();
 	
 #ifdef _FFDISSASSEMBLY
 	
@@ -29520,6 +29526,10 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 			case MAXR:
 				do_max(false);
 				break;
+			case MAXV:
+				do_max(true);
+				break;
+			
 			case MAXVARG:
 				FFCore.do_varg_max();
 				break;
@@ -29529,9 +29539,12 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 			case CHOOSEVARG:
 				FFCore.do_varg_choose();
 				break;
-				
-			case MAXV:
-				do_max(true);
+			
+			case PUSHVARGV:
+				do_push_varg(true);
+				break;
+			case PUSHVARGR:
+				do_push_varg(false);
 				break;
 				
 			case RNDR:
@@ -29781,11 +29794,17 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 				break;
 			
 			case PRINTFV:
-				FFCore.do_printf(true);
+				FFCore.do_printf(true, false);
 				break;
-			
 			case SPRINTFV:
-				FFCore.do_sprintf(true);
+				FFCore.do_sprintf(true, false);
+				break;
+				
+			case PRINTFVARG:
+				FFCore.do_printf(true, true);
+				break;
+			case SPRINTFVARG:
+				FFCore.do_sprintf(true, true);
 				break;
 			
 			case BREAKPOINT:
@@ -38713,9 +38732,13 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "PALDATACOPYCSET",           0,   0,   0,   0 },
 	{ "PALDATAFREE",           0,   0,   0,   0 },
 	{ "PALDATAOWN",           0,   0,   0,   0 },
-	{ "MAXVARG",           1,   1,   0,   0 },
-	{ "MINVARG",           1,   1,   0,   0 },
-	{ "CHOOSEVARG",           1,   1,   0,   0 },
+	{ "MAXVARG",           0,   0,   0,   0 },
+	{ "MINVARG",           0,   0,   0,   0 },
+	{ "CHOOSEVARG",           0,   0,   0,   0 },
+	{ "PUSHVARGV",           1,   1,   0,   0 },
+	{ "PUSHVARGR",           1,   0,   0,   0 },
+	{ "PRINTFVARG",           0,   0,   0,   0 },
+	{ "SPRINTFVARG",           0,   0,   0,   0 },
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -40417,7 +40440,7 @@ void FFScript::do_tracestring()
 	traceStr(str);
 }
 
-string zs_sprintf(char const* format, int32_t num_args)
+string zs_sprintf(char const* format, int32_t num_args, const bool varg)
 {
 	int32_t arg_offset = ((ri->sp + num_args) - 1);
 	int32_t next_arg = 0;
@@ -40425,7 +40448,14 @@ string zs_sprintf(char const* format, int32_t num_args)
 	ostringstream oss;
 	while(format[0] != '\0')
 	{
-		int32_t arg_val = ( (next_arg >= num_args) ? 0 : (SH::read_stack(arg_offset - next_arg)) );
+		int32_t arg_val = 0;
+		if(next_arg < num_args)
+		{
+			if(varg)
+				arg_val = zs_vargs.at(next_arg);
+			else
+				arg_val = SH::read_stack(arg_offset - next_arg);
+		}
 		char buf[256] = {0};
 		for ( int32_t q = 0; q < 256; ++q )
 		{
@@ -40655,68 +40685,90 @@ string zs_sprintf(char const* format, int32_t num_args)
 	return oss.str();
 }
 
-void FFScript::do_printf(const bool v)
+void FFScript::do_printf(const bool v, const bool varg)
 {
-	int32_t num_args = SH::get_arg(sarg1, v) / 10000;
-	int32_t format_arrayptr = SH::read_stack(ri->sp + num_args) / 10000;
+	int32_t num_args, dest_arrayptr, format_arrayptr;
+	if(varg)
+	{
+		num_args = zs_vargs.size();
+		format_arrayptr = SH::read_stack(ri->sp) / 10000;
+	}
+	else
+	{
+		num_args = SH::get_arg(sarg1, v) / 10000;
+		format_arrayptr = SH::read_stack(ri->sp + num_args) / 10000;
+	}
 	string formatstr;
 	ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
-	formatstr += "\0"; //In the event that the user passed an array w/o NULL, don't crash.
 	
-	traceStr(zs_sprintf(formatstr.c_str(), num_args));
+	traceStr(zs_sprintf(formatstr.c_str(), num_args, varg));
+	if(varg) zs_vargs.clear();
 }
-void FFScript::do_sprintf(const bool v)
+void FFScript::do_sprintf(const bool v, const bool varg)
 {
-	int32_t num_args = SH::get_arg(sarg1, v) / 10000;
-	int32_t dest_arrayptr = SH::read_stack(ri->sp + num_args + 1) / 10000;
-	int32_t format_arrayptr = SH::read_stack(ri->sp + num_args) / 10000;
+	int32_t num_args, dest_arrayptr, format_arrayptr;
+	if(varg)
+	{
+		num_args = zs_vargs.size();
+		dest_arrayptr = SH::read_stack(ri->sp + 1) / 10000;
+		format_arrayptr = SH::read_stack(ri->sp) / 10000;
+	}
+	else
+	{
+		num_args = SH::get_arg(sarg1, v) / 10000;
+		dest_arrayptr = SH::read_stack(ri->sp + num_args + 1) / 10000;
+		format_arrayptr = SH::read_stack(ri->sp + num_args) / 10000;
+	}
 	string formatstr;
 	ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
-	formatstr += "\0"; //In the event that the user passed an array w/o NULL, don't crash.
 	
-	string output = zs_sprintf(formatstr.c_str(), num_args);
+	string output = zs_sprintf(formatstr.c_str(), num_args, varg);
 	if(ArrayH::setArray(dest_arrayptr, output) == SH::_Overflow)
 	{
 		Z_scripterrlog("Dest string supplied to 'sprintf()' not large enough\n");
 		ri->d[rEXP1] = ArrayH::strlen(dest_arrayptr);
 	}
 	else ri->d[rEXP1] = output.size();
+	if(varg) zs_vargs.clear();
 }
 void FFScript::do_varg_max()
 {
-	int32_t num_args = sarg1;
+	int32_t num_args = zs_vargs.size();
 	int32_t val = 0;
 	if (num_args > 0)
-		val = SH::read_stack(ri->sp + 0);
+		val = zs_vargs.at(0);
 	for(auto q = 1; q < num_args; ++q)
 	{
-		int32_t tval = SH::read_stack(ri->sp + q);
+		int32_t tval = zs_vargs.at(q);
 		if(tval > val) val = tval;
 	}
+	zs_vargs.clear();
 	ri->d[rEXP1] = val;
 }
 void FFScript::do_varg_min()
 {
-	int32_t num_args = sarg1;
+	int32_t num_args = zs_vargs.size();
 	int32_t val = 0;
 	if (num_args > 0)
-		val = SH::read_stack(ri->sp + 0);
+		val = zs_vargs.at(0);
 	for(auto q = 1; q < num_args; ++q)
 	{
-		int32_t tval = SH::read_stack(ri->sp + q);
+		int32_t tval = zs_vargs.at(q);
 		if(tval < val) val = tval;
 	}
+	zs_vargs.clear();
 	ri->d[rEXP1] = val;
 }
 void FFScript::do_varg_choose()
 {
-	int32_t num_args = sarg1;
+	int32_t num_args = zs_vargs.size();
 	int32_t val = 0;
 	if(num_args > 0)
 	{
 		int32_t choice = zc_rand(num_args-1);
-		val = SH::read_stack(ri->sp + choice);
+		val = zs_vargs.at(choice);
 	}
+	zs_vargs.clear();
 	ri->d[rEXP1] = val;
 }
 

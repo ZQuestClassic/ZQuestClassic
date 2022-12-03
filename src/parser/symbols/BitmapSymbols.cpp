@@ -88,7 +88,7 @@ void BitmapSymbols::generateCode()
 {
 	//void GetPixel(bitmap, x, y)
 	{
-		Function* function = getFunction2("GetPixel");
+		Function* function = getFunction("GetPixel");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -103,7 +103,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void CountColor(bitmap, bitmap, int, int, int, int)
 	{
-		Function* function = getFunction2("CountColor");
+		Function* function = getFunction("CountColor");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -116,7 +116,7 @@ void BitmapSymbols::generateCode()
 	/*
 	//int32_t Create(bitmap, int32_t map,int32_t scr)
 	{
-		Function* function = getFunction2("Create");
+		Function* function = getFunction("Create");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -132,7 +132,7 @@ void BitmapSymbols::generateCode()
 	*/
 	 //void Rectangle(bitmap, float, float, float, float, float, float, float, float, float, float, bool, float)
 	{
-		Function* function = getFunction2("Rectangle");
+		Function* function = getFunction("Rectangle");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPRectangleRegister());
@@ -146,7 +146,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawFrame(bitmap, float, float, float, float, float, float, float, bool, float)
 	{
-		Function* function = getFunction2("DrawFrame");
+		Function* function = getFunction("DrawFrame");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPFrameRegister());
@@ -160,7 +160,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Read(bitmap, layer, "filename")
 	{
-		Function* function = getFunction2("Read");
+		Function* function = getFunction("Read");
 		
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
@@ -176,7 +176,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Clear(bitmap, layer)
 	{
-		Function* function = getFunction2("Clear");
+		Function* function = getFunction("Clear");
 		
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
@@ -192,7 +192,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Create(bitmap, layer, int32_t h, int32_t w)
 	{
-		Function* function = getFunction2("Create");
+		Function* function = getFunction("Create");
 		
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
@@ -209,7 +209,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Write(bitmap, layer, "filename")
 	{
-		Function* function = getFunction2("Write");
+		Function* function = getFunction("Write");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OWriteBitmap());
@@ -223,7 +223,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Circle(bitmap, float, float, float, float, float, float, float, float, float, bool, float)
 	{
-		Function* function = getFunction2("Circle");
+		Function* function = getFunction("Circle");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPCircleRegister());
@@ -237,7 +237,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Arc(bitmap, float, float, float, float, float, float, float, float, float, float, float, bool, bool, float)
 	{
-		Function* function = getFunction2("Arc");
+		Function* function = getFunction("Arc");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPArcRegister());
@@ -251,7 +251,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Ellipse(bitmap, float, float, float, float, float, bool, float, float, float)
 	{
-		Function* function = getFunction2("Ellipse");
+		Function* function = getFunction("Ellipse");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPEllipseRegister());
@@ -265,7 +265,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Line(bitmap, float, float, float, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("Line");
+		Function* function = getFunction("Line");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPLineRegister());
@@ -279,7 +279,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Spline(bitmap, float, float, float, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("Spline");
+		Function* function = getFunction("Spline");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPSplineRegister());
@@ -293,7 +293,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void PutPixel(bitmap, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("PutPixel");
+		Function* function = getFunction("PutPixel");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPPutPixelRegister());
@@ -307,7 +307,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawCharacter(bitmap, float, float, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("DrawCharacter");
+		Function* function = getFunction("DrawCharacter");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawCharRegister());
@@ -321,7 +321,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawInteger(bitmap, float, float, float, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("DrawInteger");
+		Function* function = getFunction("DrawInteger");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawIntRegister());
@@ -335,7 +335,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawTile(bitmap, float, float, float, float, float, bool, float, float, float)
 	{
-		Function* function = getFunction2("DrawTile");
+		Function* function = getFunction("DrawTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawTileRegister());
@@ -349,7 +349,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawTileCloaked(bitmap, ...args)
 	{
-		Function* function = getFunction2("DrawTileCloaked");
+		Function* function = getFunction("DrawTileCloaked");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawTileCloakedRegister());
@@ -363,7 +363,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawCombo(bitmap, float, float, float, float, float, bool, float, float, float)
 	{
-		Function* function = getFunction2("DrawCombo");
+		Function* function = getFunction("DrawCombo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawComboRegister());
@@ -377,7 +377,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawComboCloaked(bitmap, ...args)
 	{
-		Function* function = getFunction2("DrawComboCloaked");
+		Function* function = getFunction("DrawComboCloaked");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawComboCloakedRegister());
@@ -391,7 +391,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Quad(bitmap, float, float, float, float, float, float, float, float, float, bitmap)
 	{
-		Function* function = getFunction2("Quad");
+		Function* function = getFunction("Quad");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPQuadRegister());
@@ -406,7 +406,7 @@ void BitmapSymbols::generateCode()
 	//void Polygon(bitmap, float, float, float, float, float)
 	
 	{
-		Function* function = getFunction2("Polygon");
+		Function* function = getFunction("Polygon");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPPolygonRegister());
@@ -421,7 +421,7 @@ void BitmapSymbols::generateCode()
     
 	//void Triangle(bitmap, float, float, float, float, float, float, float, float, float, bitmap)
 	{
-		Function* function = getFunction2("Triangle");
+		Function* function = getFunction("Triangle");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPTriangleRegister());
@@ -436,7 +436,7 @@ void BitmapSymbols::generateCode()
     
 	//void Quad3D(bitmap, float, float, float, float, float, float, float, float, float, bitmap)
 	{
-		Function* function = getFunction2("Quad3D");
+		Function* function = getFunction("Quad3D");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPQuad3DRegister());
@@ -450,7 +450,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Triangle3D(bitmap, float, float, float, float, float, float, float, float, float, bitmap)
 	{
-		Function* function = getFunction2("Triangle3D");
+		Function* function = getFunction("Triangle3D");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPTriangle3DRegister());
@@ -465,7 +465,7 @@ void BitmapSymbols::generateCode()
     
 	//void FastTile(bitmap, float, float, float, float, float)
 	{
-		Function* function = getFunction2("FastTile");
+		Function* function = getFunction("FastTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPFastTileRegister());
@@ -479,7 +479,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void FastCombo(bitmap, float, float, float, float, float)
 	{
-		Function* function = getFunction2("FastCombo");
+		Function* function = getFunction("FastCombo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPFastComboRegister());
@@ -493,7 +493,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawString(bitmap, float, float, float, float, float, float, float, int32_t *string)
 	{
-		Function* function = getFunction2("DrawString");
+		Function* function = getFunction("DrawString");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawStringRegister());
@@ -507,7 +507,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawString(bitmap, float, float, float, float, float, float, float, int32_t *string)
 	{
-		Function* function = getFunction2("DrawString", 1);
+		Function* function = getFunction("DrawString", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawString2Register());
@@ -521,7 +521,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawLayer(bitmap, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("DrawLayer");
+		Function* function = getFunction("DrawLayer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawLayerRegister());
@@ -535,7 +535,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawLayerComboIFlags(bitmap, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("DrawLayerComboIFlags");
+		Function* function = getFunction("DrawLayerComboIFlags");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawScreenCIFlagRegister());
@@ -549,7 +549,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawLayerComboFlags(bitmap, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("DrawLayerComboFlags");
+		Function* function = getFunction("DrawLayerComboFlags");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawScreenCFlagRegister());
@@ -563,7 +563,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawLayerSolid(bitmap, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("DrawLayerSolid");
+		Function* function = getFunction("DrawLayerSolid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawScreenSolidMaskRegister());
@@ -577,7 +577,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawLayerComboTypes(bitmap, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("DrawLayerComboTypes");
+		Function* function = getFunction("DrawLayerComboTypes");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawScreenCTypeRegister());
@@ -592,7 +592,7 @@ void BitmapSymbols::generateCode()
 	
 	//void DrawLayerSolidity(bitmap, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("DrawLayerSolidity");
+		Function* function = getFunction("DrawLayerSolidity");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawScreenSolidityRegister());
@@ -606,7 +606,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawScreen(bitmap, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("DrawScreen");
+		Function* function = getFunction("DrawScreen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawScreenRegister());
@@ -621,7 +621,7 @@ void BitmapSymbols::generateCode()
 	
 	//void DrawScreenSolidity(bitmap, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("DrawScreenSolidity");
+		Function* function = getFunction("DrawScreenSolidity");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawScreenSolidRegister());
@@ -636,7 +636,7 @@ void BitmapSymbols::generateCode()
 	
 	//void DrawScreenSolid(bitmap, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("DrawScreenSolid");
+		Function* function = getFunction("DrawScreenSolid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawScreenSolid2Register());
@@ -650,7 +650,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawScreenComboTypes(bitmap, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("DrawScreenComboTypes");
+		Function* function = getFunction("DrawScreenComboTypes");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawScreenComboTRegister());
@@ -664,7 +664,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawScreenComboFlags(bitmap, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("DrawScreenComboFlags");
+		Function* function = getFunction("DrawScreenComboFlags");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawScreenComboFRegister());
@@ -678,7 +678,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawScreenComboFlags(bitmap, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("DrawScreenComboIFlags");
+		Function* function = getFunction("DrawScreenComboIFlags");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawScreenComboIRegister());
@@ -694,7 +694,7 @@ void BitmapSymbols::generateCode()
     
 	//void DrawBitmapEx(bitmap, float, float, float, float, float, float, float, float, float, float, bool)
 	{
-		Function* function = getFunction2("Blit");
+		Function* function = getFunction("Blit");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPDrawBitmapExRegister());
@@ -708,7 +708,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawPlane(bitmap, float, float, float, float, float, float, float, float, float, float, bool)
 	{
-		Function* function = getFunction2("DrawPlane");
+		Function* function = getFunction("DrawPlane");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPMode7());
@@ -722,7 +722,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawBitmapEx(bitmap, float, float, float, float, float, float, float, float, float, float, bool)
 	{
-		Function* function = getFunction2("BlitTo");
+		Function* function = getFunction("BlitTo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPBlitTO());
@@ -736,7 +736,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void DrawBitmapEx(bitmap, float, float, float, float, float, float, float, float, float, float, bool)
 	{
-		Function* function = getFunction2("RevBlit");
+		Function* function = getFunction("RevBlit");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBMPBlitTO());
@@ -750,7 +750,7 @@ void BitmapSymbols::generateCode()
 	}
 	//bool isValid(bitmap)
 	{
-		Function* function = getFunction2("isValid");
+		Function* function = getFunction("isValid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -763,7 +763,7 @@ void BitmapSymbols::generateCode()
 	}
 	//bool isAllocated(bitmap)
 	{
-		Function* function = getFunction2("isAllocated");
+		Function* function = getFunction("isAllocated");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -776,7 +776,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void ClearToColor(bitmap, layer, color)
 	{
-		Function* function = getFunction2("ClearToColor");
+		Function* function = getFunction("ClearToColor");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBitmapClearToColor());
@@ -791,7 +791,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Free(bitmap)
 	{
-		Function* function = getFunction2("Free");
+		Function* function = getFunction("Free");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -804,7 +804,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void Own(bitmap)
 	{
-		Function* function = getFunction2("Own");
+		Function* function = getFunction("Own");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -818,7 +818,7 @@ void BitmapSymbols::generateCode()
 	
 	//void WriteTile(bitmap, int32_t, int32_t, int32_t, int32_t, bool, bool)
 	{
-		Function* function = getFunction2("WriteTile");
+		Function* function = getFunction("WriteTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBitmapWriteTile());
@@ -833,7 +833,7 @@ void BitmapSymbols::generateCode()
 	
 	//void Dither(bitmap, int32_t, int32_t, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction2("Dither");
+		Function* function = getFunction("Dither");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBitmapDither());
@@ -848,7 +848,7 @@ void BitmapSymbols::generateCode()
 	
 	//void ReplaceColors(bitmap, int32_t, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction2("ReplaceColors");
+		Function* function = getFunction("ReplaceColors");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBitmapReplColor());
@@ -863,7 +863,7 @@ void BitmapSymbols::generateCode()
 	
 	//void ShiftColors(bitmap, int32_t, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction2("ShiftColors");
+		Function* function = getFunction("ShiftColors");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBitmapShiftColor());
@@ -878,7 +878,7 @@ void BitmapSymbols::generateCode()
 	
 	//void MaskedDraw(bitmap, int32_t, bitmap, int32_t)
 	{
-		Function* function = getFunction2("MaskedDraw");
+		Function* function = getFunction("MaskedDraw");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBitmapMaskDraw());
@@ -892,7 +892,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void MaskedDraw(bitmap, int32_t, bitmap, int32_t, int32_t)
 	{
-		Function* function = getFunction2("MaskedDraw", 1);
+		Function* function = getFunction("MaskedDraw", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBitmapMaskDraw2());
@@ -906,7 +906,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void MaskedDraw(bitmap, int32_t, bitmap, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction2("MaskedDraw", 2);
+		Function* function = getFunction("MaskedDraw", 2);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBitmapMaskDraw3());
@@ -920,7 +920,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void MaskedBlit(bitmap, int32_t, bitmap, bitmap)
 	{
-		Function* function = getFunction2("MaskedBlit");
+		Function* function = getFunction("MaskedBlit");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBitmapMaskBlit());
@@ -934,7 +934,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void MaskedBlit(bitmap, int32_t, bitmap, bitmap, int32_t)
 	{
-		Function* function = getFunction2("MaskedBlit", 1);
+		Function* function = getFunction("MaskedBlit", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBitmapMaskBlit2());
@@ -948,7 +948,7 @@ void BitmapSymbols::generateCode()
 	}
 	//void MaskedBlit(bitmap, int32_t, bitmap, bitmap, int32_t, int32_t)
 	{
-		Function* function = getFunction2("MaskedBlit", 2);
+		Function* function = getFunction("MaskedBlit", 2);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OBitmapMaskBlit3());

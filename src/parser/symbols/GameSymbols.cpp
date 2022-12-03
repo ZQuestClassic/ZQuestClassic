@@ -321,7 +321,7 @@ void GameSymbols::generateCode()
 {
 	//itemclass LoadItemData(game, int32_t)
 	{
-		Function* function = getFunction2("LoadItemData");
+		Function* function = getFunction("LoadItemData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -336,7 +336,7 @@ void GameSymbols::generateCode()
 	}
 	//NPCData
 	{
-		Function* function = getFunction2("LoadNPCData");
+		Function* function = getFunction("LoadNPCData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -352,7 +352,7 @@ void GameSymbols::generateCode()
 	
 	//DMapdata
 	{
-		Function* function = getFunction2("LoadDMapData");
+		Function* function = getFunction("LoadDMapData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -368,7 +368,7 @@ void GameSymbols::generateCode()
 	
 	//Dropset
 	{
-		Function* function = getFunction2("LoadDropset");
+		Function* function = getFunction("LoadDropset");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -384,7 +384,7 @@ void GameSymbols::generateCode()
 	
 	//randgen LoadRNG(Game)
 	{
-		Function* function = getFunction2("LoadRNG");
+		Function* function = getFunction("LoadRNG");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -397,7 +397,7 @@ void GameSymbols::generateCode()
 	
 	//stack LoadStack(Game)
 	{
-		Function* function = getFunction2("LoadStack");
+		Function* function = getFunction("LoadStack");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -409,7 +409,7 @@ void GameSymbols::generateCode()
 	}
 	//BottleData
 	{
-		Function* function = getFunction2("LoadBottleData");
+		Function* function = getFunction("LoadBottleData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -424,7 +424,7 @@ void GameSymbols::generateCode()
 	}
 	//BottleShopData
 	{
-		Function* function = getFunction2("LoadBottleShopData");
+		Function* function = getFunction("LoadBottleShopData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -439,7 +439,7 @@ void GameSymbols::generateCode()
 	}
 	//GenericData
 	{
-		Function* function = getFunction2("LoadGenericData");
+		Function* function = getFunction("LoadGenericData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -455,7 +455,7 @@ void GameSymbols::generateCode()
 	
 	//Messagedata
 	{
-		Function* function = getFunction2("LoadMessageData");
+		Function* function = getFunction("LoadMessageData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -470,7 +470,7 @@ void GameSymbols::generateCode()
 	}
 	//ComboData
 	{
-		Function* function = getFunction2("LoadComboData");
+		Function* function = getFunction("LoadComboData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -483,28 +483,9 @@ void GameSymbols::generateCode()
 		RETURN();
 		function->giveCode(code); 
 	}
-	//MapData
-	/*
-	{ //LoadMapData(int32_t map, int32_t screen)
-	Function* function = getFunction("LoadMapData", 2);
-		int32_t label = function->getLabel();
-		vector<shared_ptr<Opcode>> code;
-		//pop off the param
-		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-		LABELBACK(label);
-	addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
-		POPREF();
-		addOpcode2 (code, new OLoadMapDataRegister(new VarArgument(EXP1), new VarArgument(INDEX)));
-		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFMAPDATA)));
-		RETURN();
-		function->giveCode(code);     
-	}
-	*/
-	
 	//int32_t LoadMapData(mapdata, int32_t map,int32_t scr)
 	{
-		Function* function = getFunction2("LoadMapData");
+		Function* function = getFunction("LoadMapData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -520,7 +501,7 @@ void GameSymbols::generateCode()
 	
 	//int32_t LoadTempScreen(game, int32_t layer)
 	{
-		Function* function = getFunction2("LoadTempScreen");
+		Function* function = getFunction("LoadTempScreen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -535,7 +516,7 @@ void GameSymbols::generateCode()
 	
 	//int32_t LoadScrollingScreen(game, int32_t layer)
 	{
-		Function* function = getFunction2("LoadScrollingScreen");
+		Function* function = getFunction("LoadScrollingScreen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -550,7 +531,7 @@ void GameSymbols::generateCode()
 	
 	//int32_t Create(bitmap, int32_t map,int32_t scr)
 	{
-		Function* function = getFunction2("CreateBitmap");
+		Function* function = getFunction("CreateBitmap");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -567,7 +548,7 @@ void GameSymbols::generateCode()
 	//SpriteData
 	{
 		
-	Function* function = getFunction2("LoadSpriteData");
+	Function* function = getFunction("LoadSpriteData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -582,7 +563,7 @@ void GameSymbols::generateCode()
 	}
 	//ShopData
 	{
-		Function* function = getFunction2("LoadShopData");
+		Function* function = getFunction("LoadShopData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -597,7 +578,7 @@ void GameSymbols::generateCode()
 	}
 	//InfoShopData
 	{
-		Function* function = getFunction2("LoadInfoShopData");
+		Function* function = getFunction("LoadInfoShopData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -612,7 +593,7 @@ void GameSymbols::generateCode()
 	}
 	//Bitmap
 	{
-		Function* function = getFunction2("LoadBitmapID");
+		Function* function = getFunction("LoadBitmapID");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -628,7 +609,7 @@ void GameSymbols::generateCode()
 	
 	//bool GetScreenState(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenState");
+		Function* function = getFunction("GetScreenState");
 		int32_t label = function->getLabel();
 		int32_t done = ScriptParser::getUniqueLabelID();
 		vector<shared_ptr<Opcode>> code;
@@ -653,7 +634,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenState(game, int32_t,int32_t,int32_t,bool)
 	{
-		Function* function = getFunction2("SetScreenState");
+		Function* function = getFunction("SetScreenState");
 		int32_t label = function->getLabel();
 		int32_t done = ScriptParser::getUniqueLabelID();
 		vector<shared_ptr<Opcode>> code;
@@ -678,7 +659,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenD(game, int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenD");
+		Function* function = getFunction("GetScreenD");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -693,7 +674,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenD(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenD");
+		Function* function = getFunction("SetScreenD");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -709,7 +690,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetDMapScreenD(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetDMapScreenD");
+		Function* function = getFunction("GetDMapScreenD");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -725,7 +706,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetDMapScreenD(game, int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetDMapScreenD");
+		Function* function = getFunction("SetDMapScreenD");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -742,7 +723,7 @@ void GameSymbols::generateCode()
 	}
 	//void PlaySound(game, int32_t)
 	{
-		Function* function = getFunction2("PlaySound");
+		Function* function = getFunction("PlaySound");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -756,7 +737,7 @@ void GameSymbols::generateCode()
 	}
 	//void PlayMIDI(game, int32_t)
 	{
-		Function* function = getFunction2("PlayMIDI");
+		Function* function = getFunction("PlayMIDI");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -770,7 +751,7 @@ void GameSymbols::generateCode()
 	}
 	//void PlayEnhancedMusic(game, int32_t, int32_t)
 	{
-		Function* function = getFunction2("PlayEnhancedMusic");
+		Function* function = getFunction("PlayEnhancedMusic");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -785,7 +766,7 @@ void GameSymbols::generateCode()
 	}
 	//void GetDMapMusicFilename(game, int32_t, int32_t)
 	{
-		Function* function = getFunction2("GetDMapMusicFilename");
+		Function* function = getFunction("GetDMapMusicFilename");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -800,7 +781,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetDMapMusicTrack(game, int32_t)
 	{
-		Function* function = getFunction2("GetDMapMusicTrack");
+		Function* function = getFunction("GetDMapMusicTrack");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -813,7 +794,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetDMapEnhancedMusic(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetDMapEnhancedMusic");
+		Function* function = getFunction("SetDMapEnhancedMusic");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OSetDMapEnhancedMusic());
@@ -829,7 +810,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetComboData(int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetComboData");
+		Function* function = getFunction("GetComboData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -845,7 +826,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetComboData(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetComboData");
+		Function* function = getFunction("SetComboData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -862,7 +843,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetComboCSet(int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetComboCSet");
+		Function* function = getFunction("GetComboCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -878,7 +859,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetComboCSet(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetComboCSet");
+		Function* function = getFunction("SetComboCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -895,7 +876,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetComboFlag(int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetComboFlag");
+		Function* function = getFunction("GetComboFlag");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -911,7 +892,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetComboFlag(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetComboFlag");
+		Function* function = getFunction("SetComboFlag");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -928,7 +909,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetComboType(int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetComboType");
+		Function* function = getFunction("GetComboType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -944,7 +925,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetComboType(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetComboType");
+		Function* function = getFunction("SetComboType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -961,7 +942,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetComboInherentFlag(int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetComboInherentFlag");
+		Function* function = getFunction("GetComboInherentFlag");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -977,7 +958,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetComboInherentFlag(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetComboInherentFlag");
+		Function* function = getFunction("SetComboInherentFlag");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -994,7 +975,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetComboCollision(int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetComboSolid");
+		Function* function = getFunction("GetComboSolid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1010,7 +991,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetComboCollision(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetComboSolid");
+		Function* function = getFunction("SetComboSolid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1027,7 +1008,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenFlags(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenFlags");
+		Function* function = getFunction("GetScreenFlags");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1043,7 +1024,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenEFlags(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenEFlags");
+		Function* function = getFunction("GetScreenEFlags");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1059,7 +1040,7 @@ void GameSymbols::generateCode()
 	}
 	//void Save(game)
 	{
-		Function* function = getFunction2("Save");
+		Function* function = getFunction("Save");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1071,7 +1052,7 @@ void GameSymbols::generateCode()
 	}
 	//void End(game)
 	{
-		Function* function = getFunction2("End");
+		Function* function = getFunction("End");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1084,7 +1065,7 @@ void GameSymbols::generateCode()
 	
 	//void Continue(game)
 	{
-		Function* function = getFunction2("Continue");
+		Function* function = getFunction("Continue");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1097,7 +1078,7 @@ void GameSymbols::generateCode()
 	
 	//void SaveAndQuit(game)
 	{
-		Function* function = getFunction2("SaveAndQuit");
+		Function* function = getFunction("SaveAndQuit");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1110,7 +1091,7 @@ void GameSymbols::generateCode()
 	
 	//void SaveAndContinue(game)
 	{
-		Function* function = getFunction2("SaveAndContinue");
+		Function* function = getFunction("SaveAndContinue");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1122,7 +1103,7 @@ void GameSymbols::generateCode()
 	}
 	//void ShowContinueScreen(game)
 	{
-		Function* function = getFunction2("ShowContinueScreen");
+		Function* function = getFunction("ShowContinueScreen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1134,7 +1115,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t ComboTile(game,int32_t)
 	{
-		Function* function = getFunction2("ComboTile");
+		Function* function = getFunction("ComboTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1147,7 +1128,7 @@ void GameSymbols::generateCode()
 	}
 	//void GetSaveName(game, int32_t)
 	{
-		Function* function = getFunction2("GetSaveName");
+		Function* function = getFunction("GetSaveName");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1161,7 +1142,7 @@ void GameSymbols::generateCode()
 	}
 	//void GetSaveName(game, int32_t)
 	{
-		Function* function = getFunction2("SetSaveName");
+		Function* function = getFunction("SetSaveName");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1175,7 +1156,7 @@ void GameSymbols::generateCode()
 	}
 	//GetMessage(game, int32_t, int32_t)
 	{
-		Function* function = getFunction2("GetMessage");
+		Function* function = getFunction("GetMessage");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1190,7 +1171,7 @@ void GameSymbols::generateCode()
 	}
 	//GetDMapName(game, int32_t, int32_t)
 	{
-		Function* function = getFunction2("GetDMapName");
+		Function* function = getFunction("GetDMapName");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1205,7 +1186,7 @@ void GameSymbols::generateCode()
 	}
 	//GetDMapTitle(game, int32_t, int32_t)
 	{
-		Function* function = getFunction2("GetDMapTitle");
+		Function* function = getFunction("GetDMapTitle");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1220,7 +1201,7 @@ void GameSymbols::generateCode()
 	}
 	//GetDMapIntro(game, int32_t, int32_t)
 	{
-		Function* function = getFunction2("GetDMapIntro");
+		Function* function = getFunction("GetDMapIntro");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1238,7 +1219,7 @@ void GameSymbols::generateCode()
 	
 	//void GreyscaleOn(game)
 	{
-		Function* function = getFunction2("GreyscaleOn");
+		Function* function = getFunction("GreyscaleOn");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1251,7 +1232,7 @@ void GameSymbols::generateCode()
 			
 	//void GreyscaleOff(game)
 	{
-		Function* function = getFunction2("GreyscaleOff");
+		Function* function = getFunction("GreyscaleOff");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1265,7 +1246,7 @@ void GameSymbols::generateCode()
 	
    // SetMessage(game, int32_t, int32_t)
 	{
-		Function* function = getFunction2("SetMessage");
+		Function* function = getFunction("SetMessage");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1280,7 +1261,7 @@ void GameSymbols::generateCode()
 	}
 	//SetDMapName(game, int32_t, int32_t)
 	{
-		Function* function = getFunction2("SetDMapName");
+		Function* function = getFunction("SetDMapName");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1295,7 +1276,7 @@ void GameSymbols::generateCode()
 	}
 	//SetDMapTitle(game, int32_t, int32_t)
 	{
-		Function* function = getFunction2("SetDMapTitle");
+		Function* function = getFunction("SetDMapTitle");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1310,7 +1291,7 @@ void GameSymbols::generateCode()
 	}
 	//SetDMapIntro(game, int32_t, int32_t)
 	{
-		Function* function = getFunction2("SetDMapIntro");
+		Function* function = getFunction("SetDMapIntro");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1326,7 +1307,7 @@ void GameSymbols::generateCode()
 	
 	//bool ShowSaveScreen(game)
 	{
-		Function* function = getFunction2("ShowSaveScreen");
+		Function* function = getFunction("ShowSaveScreen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1339,7 +1320,7 @@ void GameSymbols::generateCode()
 	
 	//void ShowSaveQuitScreen(game)
 	{
-		Function* function = getFunction2("ShowSaveQuitScreen");
+		Function* function = getFunction("ShowSaveQuitScreen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1352,7 +1333,7 @@ void GameSymbols::generateCode()
 	
 	//int32_t GetFFCScript(game, int32_t)
 	{
-		Function* function = getFunction2("GetFFCScript");
+		Function* function = getFunction("GetFFCScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1367,7 +1348,7 @@ void GameSymbols::generateCode()
 	
 	//int32_t GetComboScript(game, int32_t)
 	{
-		Function* function = getFunction2("GetComboScript");
+		Function* function = getFunction("GetComboScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1383,7 +1364,7 @@ void GameSymbols::generateCode()
 	
 	 //int32_t GetItemScript(game, int32_t)
 	{
-		Function* function = getFunction2("GetItemScript");
+		Function* function = getFunction("GetItemScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1398,7 +1379,7 @@ void GameSymbols::generateCode()
 	
 	 //int32_t GetNPCScript(game, int32_t)
 	{
-		Function* function = getFunction2("GetNPCScript");
+		Function* function = getFunction("GetNPCScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1412,7 +1393,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetLWeaponScript(game, int32_t)
 	{
-		Function* function = getFunction2("GetLWeaponScript");
+		Function* function = getFunction("GetLWeaponScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1426,7 +1407,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetEWeaponScript(game, int32_t)
 	{
-		Function* function = getFunction2("GetEWeaponScript");
+		Function* function = getFunction("GetEWeaponScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1440,7 +1421,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetGenericScript(game, int32_t)
 	{
-		Function* function = getFunction2("GetGenericScript");
+		Function* function = getFunction("GetGenericScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1454,7 +1435,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetHeroScript(game, int32_t)
 	{
-		Function* function = getFunction2("GetHeroScript");
+		Function* function = getFunction("GetHeroScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1468,7 +1449,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetPlayerScript(game, int32_t)
 	{
-		Function* function = getFunction2("GetPlayerScript");
+		Function* function = getFunction("GetPlayerScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1482,7 +1463,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetLinkScript(game, int32_t)
 	{
-		Function* function = getFunction2("GetLinkScript");
+		Function* function = getFunction("GetLinkScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1496,7 +1477,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetGlobalScript(game, int32_t)
 	{
-		Function* function = getFunction2("GetGlobalScript");
+		Function* function = getFunction("GetGlobalScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1510,7 +1491,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetDMapScript(game, int32_t)
 	{
-		Function* function = getFunction2("GetDMapScript");
+		Function* function = getFunction("GetDMapScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1524,7 +1505,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenScript(game, int32_t)
 	{
-		Function* function = getFunction2("GetScreenScript");
+		Function* function = getFunction("GetScreenScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1538,7 +1519,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetItemSpriteScript(game, int32_t)
 	{
-		Function* function = getFunction2("GetItemSpriteScript");
+		Function* function = getFunction("GetItemSpriteScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1552,7 +1533,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetUntypedScript(game, int32_t)
 	{
-		Function* function = getFunction2("GetUntypedScript");
+		Function* function = getFunction("GetUntypedScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1566,7 +1547,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetSubscreenScript(game, int32_t)
 	{
-		Function* function = getFunction2("GetSubscreenScript");
+		Function* function = getFunction("GetSubscreenScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1580,7 +1561,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetNPC(game, int32_t)
 	{
-		Function* function = getFunction2("GetNPC");
+		Function* function = getFunction("GetNPC");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1594,7 +1575,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetItem(game, int32_t)
 	{
-		Function* function = getFunction2("GetItem");
+		Function* function = getFunction("GetItem");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1608,7 +1589,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetCombo(game, int32_t)
 	{
-		Function* function = getFunction2("GetCombo");
+		Function* function = getFunction("GetCombo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1622,7 +1603,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetDMap(game, int32_t)
 	{
-		Function* function = getFunction2("GetDMap");
+		Function* function = getFunction("GetDMap");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -1637,7 +1618,7 @@ void GameSymbols::generateCode()
 	
 	 //int32_t GetScreenEnemy(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenEnemy");
+		Function* function = getFunction("GetScreenEnemy");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1653,7 +1634,7 @@ void GameSymbols::generateCode()
 	}
 	 //int32_t GetScreenDoor(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenDoor");
+		Function* function = getFunction("GetScreenDoor");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1669,7 +1650,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenEnemy(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenEnemy");
+		Function* function = getFunction("SetScreenEnemy");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1686,7 +1667,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenDoor(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenDoor");
+		Function* function = getFunction("SetScreenDoor");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1704,7 +1685,7 @@ void GameSymbols::generateCode()
 	
 	//void SetScreenWidth(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenWidth");
+		Function* function = getFunction("SetScreenWidth");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1720,7 +1701,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenWidth(game, int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenWidth");
+		Function* function = getFunction("GetScreenWidth");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1736,7 +1717,7 @@ void GameSymbols::generateCode()
 	
 	//void SetScreenHeight(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenHeight");
+		Function* function = getFunction("SetScreenHeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1752,7 +1733,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenHeight(game, int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenHeight");
+		Function* function = getFunction("GetScreenHeight");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1767,7 +1748,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenViewX(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenViewX");
+		Function* function = getFunction("SetScreenViewX");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1783,7 +1764,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenViewX(game, int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenViewX");
+		Function* function = getFunction("GetScreenViewX");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1798,7 +1779,7 @@ void GameSymbols::generateCode()
 	}
 	 //void SetScreenViewY(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenViewY");
+		Function* function = getFunction("SetScreenViewY");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1814,7 +1795,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenViewY(game, int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenViewY");
+		Function* function = getFunction("GetScreenViewY");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1829,7 +1810,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenGuy(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenGuy");
+		Function* function = getFunction("SetScreenGuy");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1845,7 +1826,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenGuy(game, int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenGuy");
+		Function* function = getFunction("GetScreenGuy");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1860,7 +1841,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenString(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenString");
+		Function* function = getFunction("SetScreenString");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1876,7 +1857,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenString(game, int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenString");
+		Function* function = getFunction("GetScreenString");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1891,7 +1872,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenRoomType(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenRoomType");
+		Function* function = getFunction("SetScreenRoomType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1907,7 +1888,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenRoomType(game, int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenRoomType");
+		Function* function = getFunction("GetScreenRoomType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1922,7 +1903,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenEntryX(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenEntryX");
+		Function* function = getFunction("SetScreenEntryX");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1938,7 +1919,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenEntryX(game, int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenEntryX");
+		Function* function = getFunction("GetScreenEntryX");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1953,7 +1934,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenEntryY(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenEntryY");
+		Function* function = getFunction("SetScreenEntryY");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1969,7 +1950,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenEntryY(game, int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenEntryY");
+		Function* function = getFunction("GetScreenEntryY");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1984,7 +1965,7 @@ void GameSymbols::generateCode()
 	}
 	 //void SetScreenItem(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenItem");
+		Function* function = getFunction("SetScreenItem");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2000,7 +1981,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenItem(game, int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenItem");
+		Function* function = getFunction("GetScreenItem");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2015,7 +1996,7 @@ void GameSymbols::generateCode()
 	}
 	 //void SetScreenUndercombo(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenUndercombo");
+		Function* function = getFunction("SetScreenUndercombo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2031,7 +2012,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenUndercombo(game, int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenUndercombo");
+		Function* function = getFunction("GetScreenUndercombo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2046,7 +2027,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenUnderCSet(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenUnderCSet");
+		Function* function = getFunction("SetScreenUnderCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2062,7 +2043,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenUnderCSet(game, int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenUnderCSet");
+		Function* function = getFunction("GetScreenUnderCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2077,7 +2058,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenCatchall(game, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenCatchall");
+		Function* function = getFunction("SetScreenCatchall");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2093,7 +2074,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenCatchall(game, int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenCatchall");
+		Function* function = getFunction("GetScreenCatchall");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2109,7 +2090,7 @@ void GameSymbols::generateCode()
 	
 	//void SetScreenLayerOpacity(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenLayerOpacity");
+		Function* function = getFunction("SetScreenLayerOpacity");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2126,7 +2107,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenLayerOpacity(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenLayerOpacity");
+		Function* function = getFunction("GetScreenLayerOpacity");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2143,7 +2124,7 @@ void GameSymbols::generateCode()
 
 	 //void SetScreenSecretCombo(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenSecretCombo");
+		Function* function = getFunction("SetScreenSecretCombo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2160,7 +2141,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenSecretCombo(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenSecretCombo");
+		Function* function = getFunction("GetScreenSecretCombo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2177,7 +2158,7 @@ void GameSymbols::generateCode()
 
 	 //void SetScreenSecretCSet(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenSecretCSet");
+		Function* function = getFunction("SetScreenSecretCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2194,7 +2175,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenSecretCSet(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenSecretCSet");
+		Function* function = getFunction("GetScreenSecretCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2210,7 +2191,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenSecretFlag(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenSecretFlag");
+		Function* function = getFunction("SetScreenSecretFlag");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2227,7 +2208,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenSecretFlag(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenSecretFlag");
+		Function* function = getFunction("GetScreenSecretFlag");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2244,7 +2225,7 @@ void GameSymbols::generateCode()
 
 	 //void SetScreenLayerMap(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenLayerMap");
+		Function* function = getFunction("SetScreenLayerMap");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2261,7 +2242,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenLayerMap(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenLayerMap");
+		Function* function = getFunction("GetScreenLayerMap");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2279,7 +2260,7 @@ void GameSymbols::generateCode()
 	
 	//void SetScreenLayerScreen(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenLayerScreen");
+		Function* function = getFunction("SetScreenLayerScreen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2296,7 +2277,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenLayerScreen(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenLayerScreen");
+		Function* function = getFunction("GetScreenLayerScreen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2313,7 +2294,7 @@ void GameSymbols::generateCode()
 
 	//void SetScreenPath(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenPath");
+		Function* function = getFunction("SetScreenPath");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2330,7 +2311,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenPath(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenPath");
+		Function* function = getFunction("GetScreenPath");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2346,7 +2327,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenWarpReturnX(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenWarpReturnX");
+		Function* function = getFunction("SetScreenWarpReturnX");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2363,7 +2344,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenWarpReturnX(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenWarpReturnX");
+		Function* function = getFunction("GetScreenWarpReturnX");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2379,7 +2360,7 @@ void GameSymbols::generateCode()
 	}
 	//void SetScreenWarpReturnY(int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetScreenWarpReturnY");
+		Function* function = getFunction("SetScreenWarpReturnY");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2396,7 +2377,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetScreenWarpReturnY(game,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetScreenWarpReturnY");
+		Function* function = getFunction("GetScreenWarpReturnY");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2412,7 +2393,7 @@ void GameSymbols::generateCode()
 	}
 	//void PlayOgg(game, int32_t, int32_t)
 	{
-		Function* function = getFunction2("PlayOgg");
+		Function* function = getFunction("PlayOgg");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2427,7 +2408,7 @@ void GameSymbols::generateCode()
 	}
 	//int32_t GetOggPos(game)
 {
-		Function* function = getFunction2("GetOggPos");
+		Function* function = getFunction("GetOggPos");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -2439,7 +2420,7 @@ void GameSymbols::generateCode()
 }
 	 //void SetOggPos(game, int32_t)
 	{
-		Function* function = getFunction2("SetOggPos");
+		Function* function = getFunction("SetOggPos");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2454,7 +2435,7 @@ void GameSymbols::generateCode()
 	
 	//void SetOggSpeed(game, int32_t)
 	{
-		Function* function = getFunction2("SetOggSpeed");
+		Function* function = getFunction("SetOggSpeed");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -2469,7 +2450,7 @@ void GameSymbols::generateCode()
 	
 	//void Reload(game)
 	{
-		Function* function = getFunction2("Reload");
+		Function* function = getFunction("Reload");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it

@@ -34,7 +34,7 @@ GraphicsSymbols::GraphicsSymbols()
 void GraphicsSymbols::generateCode()
 {
 	{
-		Function* function = getFunction2("Wavy");
+		Function* function = getFunction("Wavy");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		// Pop argument.
@@ -49,7 +49,7 @@ void GraphicsSymbols::generateCode()
 	
 	//int32_t GetPixel(graphics,bitmap,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetPixel");
+		Function* function = getFunction("GetPixel");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -64,7 +64,7 @@ void GraphicsSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("Zap");
+		Function* function = getFunction("Zap");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		// Pop argument.
@@ -77,7 +77,7 @@ void GraphicsSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("Greyscale");
+		Function* function = getFunction("Greyscale");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		// Pop argument.
@@ -90,7 +90,7 @@ void GraphicsSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("Monochrome");
+		Function* function = getFunction("Monochrome");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		// Pop argument.
@@ -105,7 +105,7 @@ void GraphicsSymbols::generateCode()
 
 	//void Tint(graphics, float, float, float)
 	{
-			Function* function = getFunction2("Tint");
+			Function* function = getFunction("Tint");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OTintR());
@@ -121,7 +121,7 @@ void GraphicsSymbols::generateCode()
 	}
 	//void MonochromeHue(graphics, float, float, float, bool)
 	{
-			Function* function = getFunction2("MonochromeHue");
+			Function* function = getFunction("MonochromeHue");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OMonoHueR());
@@ -139,7 +139,7 @@ void GraphicsSymbols::generateCode()
 	
 	//void ClearTint()
 	{
-		 Function* function = getFunction2("ClearTint");
+		 Function* function = getFunction("ClearTint");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OClearTint());
@@ -151,7 +151,7 @@ void GraphicsSymbols::generateCode()
 
 	//paldata CreatePalData(graphics)
 	{
-		Function* function = getFunction2("CreatePalData");
+		Function* function = getFunction("CreatePalData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -163,7 +163,7 @@ void GraphicsSymbols::generateCode()
 	}
 	//paldata CreatePalData(graphics, rgb)
 	{
-		Function* function = getFunction2("CreatePalData", 1);
+		Function* function = getFunction("CreatePalData", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -177,7 +177,7 @@ void GraphicsSymbols::generateCode()
 	}
 	//rgb MixColor(graphics, rgb, rgb, float, float)
 	{
-		Function* function = getFunction2("MixColor");
+		Function* function = getFunction("MixColor");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -191,7 +191,7 @@ void GraphicsSymbols::generateCode()
 	}
 	//rgb CreateRGB(graphics, float)
 	{
-		Function* function = getFunction2("CreateRGB");
+		Function* function = getFunction("CreateRGB");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -205,7 +205,7 @@ void GraphicsSymbols::generateCode()
 	}
 	//rgb CreateRGB(graphics, float, float, float)
 	{
-		Function* function = getFunction2("CreateRGB", 1);
+		Function* function = getFunction("CreateRGB", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param

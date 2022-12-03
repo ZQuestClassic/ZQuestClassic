@@ -1126,9 +1126,13 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "PALDATACOPYCSET",           0,   0,   0,   0 },
 	{ "PALDATAFREE",           0,   0,   0,   0 },
 	{ "PALDATAOWN",           0,   0,   0,   0 },
-	{ "MAXVARG",           1,   1,   0,   0 },
-	{ "MINVARG",           1,   1,   0,   0 },
-	{ "CHOOSEVARG",           1,   1,   0,   0 },
+	{ "MAXVARG",           0,   0,   0,   0 },
+	{ "MINVARG",           0,   0,   0,   0 },
+	{ "CHOOSEVARG",           0,   0,   0,   0 },
+	{ "PUSHVARGV",           1,   1,   0,   0 },
+	{ "PUSHVARGR",           1,   0,   0,   0 },
+	{ "PRINTFVARG",           0,   0,   0,   0 },
+	{ "SPRINTFVARG",           0,   0,   0,   0 },
 	{ "",                    0,   0,   0,   0}
 };
 

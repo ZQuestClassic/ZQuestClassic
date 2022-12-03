@@ -340,7 +340,7 @@ void MapDataSymbols::generateCode()
 {
 	//bool isSolid(screen, int32_t, int32_t)
 	{
-		Function* function = getFunction2("isSolid");
+		Function* function = getFunction("isSolid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -356,7 +356,7 @@ void MapDataSymbols::generateCode()
 	
 	//bool isSolidLayer(screen, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction2("isSolidLayer");
+		Function* function = getFunction("isSolidLayer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -373,7 +373,7 @@ void MapDataSymbols::generateCode()
 
 	//int32_t GetFFCInitD(mapscr, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetFFCInitD");
+		Function* function = getFunction("GetFFCInitD");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -390,7 +390,7 @@ void MapDataSymbols::generateCode()
 	
 	//void SetFFCInitD(mapsc, int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetFFCInitD");
+		Function* function = getFunction("SetFFCInitD");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -408,7 +408,7 @@ void MapDataSymbols::generateCode()
 	
 	//int32_t GetFFCInitA(mapscr, int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetFFCInitA");
+		Function* function = getFunction("GetFFCInitA");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -425,7 +425,7 @@ void MapDataSymbols::generateCode()
 	
 	//void SetFFCInitA(mapsc, int32_t,int32_t,int32_t,int32_t)
 	{
-		Function* function = getFunction2("SetFFCInitA");
+		Function* function = getFunction("SetFFCInitA");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params

@@ -25,12 +25,15 @@ static const int32_t FUNCTION = 2;
 struct AccessorTable
 {
     string name;
-	int32_t tag;
+	byte tag;
     int32_t rettype;
     int32_t var;
 	int32_t funcFlags;
     vector<int32_t> params;
     vector<int32_t> optparams;
+	byte extra_vargs; //how many listd params should be treatd as vargs
+	
+	AccessorTable(string const&, byte, int32_t, int32_t, int32_t, vector<int32_t>const&, vector<int32_t> const&, byte v = 0);
 };
 
 class LibrarySymbols
@@ -49,12 +52,11 @@ protected:
     int32_t refVar;
 	bool hasPrefixType;
 
-	ZScript::Function* getFunction(string const& name, int32_t numParams) const;
-	ZScript::Function* getFunction2(string const& name, int32_t tag = 0) const;
+	ZScript::Function* getFunction(string const& name, byte tag = 0) const;
 
 private:
 	static LibrarySymbols nilsymbols;
-	map<std::pair<string, int32_t>, ZScript::Function*> functions;
+	map<std::pair<string, byte>, ZScript::Function*> functions;
 	
 	// Generates the code for functions which can't be auto generated.
 	virtual void generateCode(){};

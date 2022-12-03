@@ -291,7 +291,7 @@ void HeroSymbols::generateCode()
 {
 	//Warp(link, int32_t, int32_t)
 	{
-		Function* function = getFunction2("Warp");
+		Function* function = getFunction("Warp");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -306,7 +306,7 @@ void HeroSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-	Function* function = getFunction2("WarpEx");
+	Function* function = getFunction("WarpEx");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -319,7 +319,7 @@ void HeroSymbols::generateCode()
 		function->giveCode(code);    
 	}
 	{
-	Function* function = getFunction2("Warp", 1);
+	Function* function = getFunction("Warp", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -332,7 +332,7 @@ void HeroSymbols::generateCode()
 		function->giveCode(code);    
 	}
 	{
-	Function* function = getFunction2("Explode");
+	Function* function = getFunction("Explode");
 	int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -346,7 +346,7 @@ void HeroSymbols::generateCode()
 	}
 	   //void SetItemSlot(link, int32_t item, int32_t slot, int32_t force)
 	{
-		Function* function = getFunction2("SetItemSlot");
+		Function* function = getFunction("SetItemSlot");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -363,7 +363,7 @@ void HeroSymbols::generateCode()
 	
 	//void SetItemA(link, int32_t)
 	{
-		Function* function = getFunction2("SetItemA");
+		Function* function = getFunction("SetItemA");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -376,7 +376,7 @@ void HeroSymbols::generateCode()
 	}
 	//void SetItemB(link, int32_t)
 	{
-		Function* function = getFunction2("SetItemB");
+		Function* function = getFunction("SetItemB");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -390,7 +390,7 @@ void HeroSymbols::generateCode()
 	
 	//PitWarp(link, int32_t, int32_t)
 	{
-		Function* function = getFunction2("PitWarp");
+		Function* function = getFunction("PitWarp");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -406,7 +406,7 @@ void HeroSymbols::generateCode()
 	}
 	//SelectAWeapon(link, int32_t)
 	{
-		Function* function = getFunction2("SelectAWeapon");
+		Function* function = getFunction("SelectAWeapon");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -420,7 +420,7 @@ void HeroSymbols::generateCode()
 	}
 	//SelectBWeapon(link, int32_t)
 	{
-		Function* function = getFunction2("SelectBWeapon");
+		Function* function = getFunction("SelectBWeapon");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -434,7 +434,7 @@ void HeroSymbols::generateCode()
 	}
 	//SelectXWeapon(link, int32_t)
 	{
-		Function* function = getFunction2("SelectXWeapon");
+		Function* function = getFunction("SelectXWeapon");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -448,7 +448,7 @@ void HeroSymbols::generateCode()
 	}
 	//SelectYWeapon(link, int32_t)
 	{
-		Function* function = getFunction2("SelectYWeapon");
+		Function* function = getFunction("SelectYWeapon");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -462,7 +462,7 @@ void HeroSymbols::generateCode()
 	}
 	//int32_t GetOriginaTile(link, int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetOriginalTile");
+		Function* function = getFunction("GetOriginalTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -477,7 +477,7 @@ void HeroSymbols::generateCode()
 	}
 	//int32_t GetOriginalFlip(link, int32_t,int32_t)
 	{
-		Function* function = getFunction2("GetOriginalFlip");
+		Function* function = getFunction("GetOriginalFlip");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -492,7 +492,7 @@ void HeroSymbols::generateCode()
 	}
 	//bool SwitchCombo(link, int, int)
 	{
-		Function* function = getFunction2("SwitchCombo");
+		Function* function = getFunction("SwitchCombo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -507,7 +507,7 @@ void HeroSymbols::generateCode()
 	}
 	//bool Kill(player, bool)
 	{
-		Function* function = getFunction2("Kill");
+		Function* function = getFunction("Kill");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param

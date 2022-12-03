@@ -50,7 +50,7 @@ void PalDataSymbols::generateCode()
 {
 	//void LoadLevelPalette(paldata, int32_t)
 	{
-		Function* function = getFunction2("LoadLevelPalette");
+		Function* function = getFunction("LoadLevelPalette");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -64,7 +64,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void LoadSpritePalette(paldata, int32_t)
 	{
-		Function* function = getFunction2("LoadSpritePalette");
+		Function* function = getFunction("LoadSpritePalette");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -78,7 +78,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void LoadMainPalette(paldata)
 	{
-		Function* function = getFunction2("LoadMainPalette");
+		Function* function = getFunction("LoadMainPalette");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -90,7 +90,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void LoadCyclePalette(paldata, int32_t)
 	{
-		Function* function = getFunction2("LoadCyclePalette");
+		Function* function = getFunction("LoadCyclePalette");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -104,7 +104,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void LoadBitmapPalette(paldata, int32_t)
 	{
-		Function* function = getFunction2("LoadBitmapPalette");
+		Function* function = getFunction("LoadBitmapPalette");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -118,7 +118,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void WriteLevelPalette(paldata, int32_t)
 	{
-		Function* function = getFunction2("WriteLevelPalette");
+		Function* function = getFunction("WriteLevelPalette");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -132,7 +132,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void WriteLevelCSet(paldata, int32_t, int32_t)
 	{
-		Function* function = getFunction2("WriteLevelCSet");
+		Function* function = getFunction("WriteLevelCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -147,7 +147,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void WriteSpritePalette(paldata, int32_t)
 	{
-		Function* function = getFunction2("WriteSpritePalette");
+		Function* function = getFunction("WriteSpritePalette");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -161,7 +161,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void WriteSpriteCSet(paldata, int32_t, int32_t)
 	{
-		Function* function = getFunction2("WriteSpriteCSet");
+		Function* function = getFunction("WriteSpriteCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -176,7 +176,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void WriteMainPalette(paldata)
 	{
-		Function* function = getFunction2("WriteMainPalette");
+		Function* function = getFunction("WriteMainPalette");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -188,7 +188,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void WriteMainCSet(paldata, int32_t)
 	{
-		Function* function = getFunction2("WriteMainCSet");
+		Function* function = getFunction("WriteMainCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -202,7 +202,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void WriteCyclePalette(paldata, int32_t)
 	{
-		Function* function = getFunction2("WriteCyclePalette");
+		Function* function = getFunction("WriteCyclePalette");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -216,7 +216,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void WriteCycleCSet(paldata, int32_t, int32_t)
 	{
-		Function* function = getFunction2("WriteCycleCSet");
+		Function* function = getFunction("WriteCycleCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -231,7 +231,7 @@ void PalDataSymbols::generateCode()
 	}
 	//bool ColorValid(paldata, int32_t)
 	{
-		Function* function = getFunction2("ColorValid");
+		Function* function = getFunction("ColorValid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -245,7 +245,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void ClearColor(paldata, int32_t)
 	{
-		Function* function = getFunction2("ClearColor");
+		Function* function = getFunction("ClearColor");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -259,7 +259,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void ClearCSet(paldata, int32_t)
 	{
-		Function* function = getFunction2("ClearCSet");
+		Function* function = getFunction("ClearCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -273,7 +273,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void Mix(paldata, paldata, paldata, int32_t, int32_t)
 	{
-		Function* function = getFunction2("Mix");
+		Function* function = getFunction("Mix");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2(code, new OPalDataMix());
@@ -286,7 +286,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void MixCSet(paldata, paldata, paldata, int32_t, int32_t, ints32_t)
 	{
-		Function* function = getFunction2("MixCSet");
+		Function* function = getFunction("MixCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2(code, new OPalDataMixCSet());
@@ -300,7 +300,7 @@ void PalDataSymbols::generateCode()
 	
 	//void Copy(paldata, paldata)
 	{
-		Function* function = getFunction2("Copy");
+		Function* function = getFunction("Copy");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2(code, new OPopRegister(new VarArgument(EXP1)));
@@ -313,7 +313,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void CopyCSet(paldata, paldata, int32_t, int32_t)
 	{
-		Function* function = getFunction2("CopyCSet");
+		Function* function = getFunction("CopyCSet");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2(code, new OPalDataCopyCSet());
@@ -326,7 +326,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void Free()
 	{
-		Function* function = getFunction2("Free");
+		Function* function = getFunction("Free");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -339,7 +339,7 @@ void PalDataSymbols::generateCode()
 	}
 	//void Own()
 	{
-		Function* function = getFunction2("Own");
+		Function* function = getFunction("Own");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer

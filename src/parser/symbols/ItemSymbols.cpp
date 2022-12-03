@@ -147,7 +147,7 @@ void ItemSymbols::generateCode()
 {
 	//bool isValid(item)
 	{
-		Function* function = getFunction2("isValid");
+		Function* function = getFunction("isValid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -160,7 +160,7 @@ void ItemSymbols::generateCode()
 	}
 	//void Explode(ITEM, int32_t)
 	{
-		Function* function = getFunction2("Explode");
+		Function* function = getFunction("Explode");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -174,7 +174,7 @@ void ItemSymbols::generateCode()
 	}
 	//void Remove(itemsprite)
 	{
-		Function* function = getFunction2("Remove");
+		Function* function = getFunction("Remove");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -187,7 +187,7 @@ void ItemSymbols::generateCode()
 	}
 	//bool Switch(itemsprite, int)
 	{
-		Function* function = getFunction2("Switch");
+		Function* function = getFunction("Switch");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params

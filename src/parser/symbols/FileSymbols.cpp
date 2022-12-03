@@ -48,7 +48,7 @@ void FileSymbols::generateCode()
 {
 	//bool Open(file, char32*)
 	{
-		Function* function = getFunction2("Open");
+		Function* function = getFunction("Open");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -63,7 +63,7 @@ void FileSymbols::generateCode()
 	}
 	//bool Create(file, char32*)
 	{
-		Function* function = getFunction2("Create");
+		Function* function = getFunction("Create");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -78,7 +78,7 @@ void FileSymbols::generateCode()
 	}
 	//void Close(file)
 	{
-		Function* function = getFunction2("Close");
+		Function* function = getFunction("Close");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -91,7 +91,7 @@ void FileSymbols::generateCode()
 	}
 	//void Free(file)
 	{
-		Function* function = getFunction2("Free");
+		Function* function = getFunction("Free");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -104,7 +104,7 @@ void FileSymbols::generateCode()
 	}
 	//void Own(file)
 	{
-		Function* function = getFunction2("Own");
+		Function* function = getFunction("Own");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -117,7 +117,7 @@ void FileSymbols::generateCode()
 	}
 	//bool isAllocated(file)
 	{
-		Function* function = getFunction2("isAllocated");
+		Function* function = getFunction("isAllocated");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -130,7 +130,7 @@ void FileSymbols::generateCode()
 	}
 	//bool isValid(file)
 	{
-		Function* function = getFunction2("isValid");
+		Function* function = getFunction("isValid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -143,7 +143,7 @@ void FileSymbols::generateCode()
 	}
 	//bool Allocate(file)
 	{
-		Function* function = getFunction2("Allocate");
+		Function* function = getFunction("Allocate");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -157,7 +157,7 @@ void FileSymbols::generateCode()
 	}
 	//bool Flush(file)
 	{
-		Function* function = getFunction2("Flush");
+		Function* function = getFunction("Flush");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -170,7 +170,7 @@ void FileSymbols::generateCode()
 	}
 	//int32_t ReadChars(file, char32*, int32_t, int32_t)
 	{
-		Function* function = getFunction2("ReadChars");
+		Function* function = getFunction("ReadChars");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
@@ -185,7 +185,7 @@ void FileSymbols::generateCode()
 	}
 	//int32_t ReadString(file, char32*)
 	{
-		Function* function = getFunction2("ReadString");
+		Function* function = getFunction("ReadString");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -198,7 +198,7 @@ void FileSymbols::generateCode()
 	}
 	//int32_t ReadInts(file, char32*, int32_t, int32_t)
 	{
-		Function* function = getFunction2("ReadInts");
+		Function* function = getFunction("ReadInts");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
@@ -213,7 +213,7 @@ void FileSymbols::generateCode()
 	}
 	//int32_t WriteChars(file, char32*, int32_t, int32_t)
 	{
-		Function* function = getFunction2("WriteChars");
+		Function* function = getFunction("WriteChars");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
@@ -228,7 +228,7 @@ void FileSymbols::generateCode()
 	}
 	//int32_t WriteString(file, char32*)
 	{
-		Function* function = getFunction2("WriteString");
+		Function* function = getFunction("WriteString");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -241,7 +241,7 @@ void FileSymbols::generateCode()
 	}
 	//int32_t WriteInts(file, char32*, int32_t, int32_t)
 	{
-		Function* function = getFunction2("WriteInts");
+		Function* function = getFunction("WriteInts");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
@@ -256,7 +256,7 @@ void FileSymbols::generateCode()
 	}
 	//char32 GetChar(file)
 	{
-		Function* function = getFunction2("GetChar");
+		Function* function = getFunction("GetChar");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -269,7 +269,7 @@ void FileSymbols::generateCode()
 	}
 	//char32 PutChar(file, char32 c)
 	{
-		Function* function = getFunction2("PutChar");
+		Function* function = getFunction("PutChar");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -282,7 +282,7 @@ void FileSymbols::generateCode()
 	}
 	//char32 UngetChar(file, char32 c)
 	{
-		Function* function = getFunction2("UngetChar");
+		Function* function = getFunction("UngetChar");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -295,7 +295,7 @@ void FileSymbols::generateCode()
 	}
 	//bool Seek(file, int_full, bool)
 	{
-		Function* function = getFunction2("Seek");
+		Function* function = getFunction("Seek");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -309,7 +309,7 @@ void FileSymbols::generateCode()
 	}
 	//void Rewind(file)
 	{
-		Function* function = getFunction2("Rewind");
+		Function* function = getFunction("Rewind");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -322,7 +322,7 @@ void FileSymbols::generateCode()
 	}
 	//void ClearError(file)
 	{
-		Function* function = getFunction2("ClearError");
+		Function* function = getFunction("ClearError");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -335,7 +335,7 @@ void FileSymbols::generateCode()
 	}
 	//int32_t OpenMode(file, char32*, char32*)
 	{
-		Function* function = getFunction2("OpenMode");
+		Function* function = getFunction("OpenMode");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -350,7 +350,7 @@ void FileSymbols::generateCode()
 	}
 	//int32_t GetError(file, char32*)
 	{
-		Function* function = getFunction2("GetError");
+		Function* function = getFunction("GetError");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -363,7 +363,7 @@ void FileSymbols::generateCode()
 	}
 	//bool Remove(file)
 	{
-		Function* function = getFunction2("Remove");
+		Function* function = getFunction("Remove");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -376,7 +376,7 @@ void FileSymbols::generateCode()
 	}
 	//int32_t WriteBytes(file, char32*, int32_t, int32_t)
 	{
-		Function* function = getFunction2("WriteBytes");
+		Function* function = getFunction("WriteBytes");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
@@ -391,7 +391,7 @@ void FileSymbols::generateCode()
 	}
 	//int32_t ReadBytes(file, char32*, int32_t, int32_t)
 	{
-		Function* function = getFunction2("ReadBytes");
+		Function* function = getFunction("ReadBytes");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));

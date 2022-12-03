@@ -383,7 +383,7 @@ void ScreenSymbols::generateCode()
 {
 	//item LoadItem(screen, int32_t)
 	{
-		Function* function = getFunction2("LoadItem");
+		Function* function = getFunction("LoadItem");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -400,7 +400,7 @@ void ScreenSymbols::generateCode()
 	}
 	//item CreateItem(screen, int32_t)
 	{
-		Function* function = getFunction2("CreateItem");
+		Function* function = getFunction("CreateItem");
 		
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
@@ -416,7 +416,7 @@ void ScreenSymbols::generateCode()
 	}
 	//ffc LoadFFC(screen, int32_t)
 	{
-		Function* function = getFunction2("LoadFFC");
+		Function* function = getFunction("LoadFFC");
 		
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
@@ -432,7 +432,7 @@ void ScreenSymbols::generateCode()
 	}
 	//npc LoadNPC(screen, int32_t)
 	{
-		Function* function = getFunction2("LoadNPC");
+		Function* function = getFunction("LoadNPC");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -449,7 +449,7 @@ void ScreenSymbols::generateCode()
 	}
 	//npc CreateNPC(screen, int32_t)
 	{
-		Function* function = getFunction2("CreateNPC");
+		Function* function = getFunction("CreateNPC");
 		
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
@@ -465,7 +465,7 @@ void ScreenSymbols::generateCode()
 	}
 	//npc LoadLWeapon(screen, int32_t)
 	{
-		Function* function = getFunction2("LoadLWeapon");
+		Function* function = getFunction("LoadLWeapon");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -482,7 +482,7 @@ void ScreenSymbols::generateCode()
 	}
 	//npc CreateLWeapon(screen, int32_t)
 	{
-		Function* function = getFunction2("CreateLWeapon");
+		Function* function = getFunction("CreateLWeapon");
 		
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
@@ -499,7 +499,7 @@ void ScreenSymbols::generateCode()
 	
 	//lweapon CreateLWeaponDX(screen, int32_t type, int32_t itemid)
 	{
-		Function* function = getFunction2("CreateLWeaponDx");
+		Function* function = getFunction("CreateLWeaponDx");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -515,7 +515,7 @@ void ScreenSymbols::generateCode()
 	 
 	//ewpn LoadEWeapon(screen, int32_t)
 	{
-		Function* function = getFunction2("LoadEWeapon");
+		Function* function = getFunction("LoadEWeapon");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -532,7 +532,7 @@ void ScreenSymbols::generateCode()
 	}
 	//npc LoadNPCByUID(screen, int32_t)
 	{
-		Function* function = getFunction2("LoadNPCByUID");
+		Function* function = getFunction("LoadNPCByUID");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -549,7 +549,7 @@ void ScreenSymbols::generateCode()
 	
 	 //npc LoadLWeaponByUID(screen, int32_t)
 	{
-		Function* function = getFunction2("LoadLWeaponByUID");
+		Function* function = getFunction("LoadLWeaponByUID");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -565,7 +565,7 @@ void ScreenSymbols::generateCode()
 	
 	//ewpn LoadEWeaponByUID(screen, int32_t)
 	{
-		Function* function = getFunction2("LoadEWeaponByUID");
+		Function* function = getFunction("LoadEWeaponByUID");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -580,7 +580,7 @@ void ScreenSymbols::generateCode()
 	}
 	//ewpn CreateEWeapon(screen, int32_t)
 	{
-		Function* function = getFunction2("CreateEWeapon");
+		Function* function = getFunction("CreateEWeapon");
 		
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
@@ -596,7 +596,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void ClearSprites(screen, int32_t)
 	{
-		Function* function = getFunction2("ClearSprites");
+		Function* function = getFunction("ClearSprites");
 		
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
@@ -612,7 +612,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void Rectangle(screen, float, float, float, float, float, float, float, float, float, float, bool, float)
 	{
-		Function* function = getFunction2("Rectangle");
+		Function* function = getFunction("Rectangle");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new ORectangleRegister());
@@ -626,7 +626,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void DrawFrame(screen, float, float, float, float, float, float, float, bool, float)
 	{
-		Function* function = getFunction2("DrawFrame");
+		Function* function = getFunction("DrawFrame");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OFrameRegister());
@@ -640,7 +640,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void Circle(screen, float, float, float, float, float, float, float, float, float, bool, float)
 	{
-		Function* function = getFunction2("Circle");
+		Function* function = getFunction("Circle");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OCircleRegister());
@@ -654,7 +654,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void Arc(screen, float, float, float, float, float, float, float, float, float, float, float, bool, bool, float)
 	{
-		Function* function = getFunction2("Arc");
+		Function* function = getFunction("Arc");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OArcRegister());
@@ -668,7 +668,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void Ellipse(screen, float, float, float, float, float, bool, float, float, float)
 	{
-		Function* function = getFunction2("Ellipse");
+		Function* function = getFunction("Ellipse");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OEllipseRegister());
@@ -682,7 +682,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void Line(screen, float, float, float, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("Line");
+		Function* function = getFunction("Line");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OLineRegister());
@@ -696,7 +696,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void Spline(screen, float, float, float, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("Spline");
+		Function* function = getFunction("Spline");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OSplineRegister());
@@ -710,7 +710,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void PutPixel(screen, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("PutPixel");
+		Function* function = getFunction("PutPixel");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPutPixelRegister());
@@ -724,7 +724,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void PutPixels(screen, float, float, float, float, float)
 	{
-		Function* function = getFunction2("PutPixels");
+		Function* function = getFunction("PutPixels");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPutPixelArrayRegister());
@@ -738,7 +738,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void DrawTiles(screen, float, float)
 	{
-		Function* function = getFunction2("DrawTiles");
+		Function* function = getFunction("DrawTiles");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPutTileArrayRegister());
@@ -752,7 +752,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void DrawCombos(screen, float, float)
 	{
-		Function* function = getFunction2("DrawCombos");
+		Function* function = getFunction("DrawCombos");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OFastComboArrayRegister());
@@ -766,7 +766,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void Lines(screen, float, float)
 	{
-		Function* function = getFunction2("Lines");
+		Function* function = getFunction("Lines");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPutLinesArrayRegister());
@@ -780,7 +780,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void DrawCharacter(screen, float, float, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("DrawCharacter");
+		Function* function = getFunction("DrawCharacter");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new ODrawCharRegister());
@@ -794,7 +794,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void DrawInteger(screen, float, float, float, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("DrawInteger");
+		Function* function = getFunction("DrawInteger");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new ODrawIntRegister());
@@ -808,7 +808,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void DrawTile(screen, float, float, float, float, float, bool, float, float, float)
 	{
-		Function* function = getFunction2("DrawTile");
+		Function* function = getFunction("DrawTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new ODrawTileRegister());
@@ -822,7 +822,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void DrawTileCloaked(screen, ...args)
 	{
-		Function* function = getFunction2("DrawTileCloaked");
+		Function* function = getFunction("DrawTileCloaked");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new ODrawTileCloakedRegister());
@@ -836,7 +836,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void DrawCombo(screen, float, float, float, float, float, bool, float, float, float)
 	{
-		Function* function = getFunction2("DrawCombo");
+		Function* function = getFunction("DrawCombo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new ODrawComboRegister());
@@ -850,7 +850,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void DrawComboCloaked(screen, ...args)
 	{
-		Function* function = getFunction2("DrawComboCloaked");
+		Function* function = getFunction("DrawComboCloaked");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new ODrawComboCloakedRegister());
@@ -864,7 +864,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void Quad(screen, float, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("Quad");
+		Function* function = getFunction("Quad");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OQuadRegister());
@@ -879,7 +879,7 @@ void ScreenSymbols::generateCode()
 	//void Polygon(screen, float, float, float, float, float)
 	
 	{
-		Function* function = getFunction2("Polygon");
+		Function* function = getFunction("Polygon");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPolygonRegister());
@@ -894,7 +894,7 @@ void ScreenSymbols::generateCode()
 	
 	//void Triangle(screen, float, float, float, float, float, float, float, float, float)
 	{
-	Function* function = getFunction2("Triangle");
+	Function* function = getFunction("Triangle");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OTriangleRegister());
@@ -909,7 +909,7 @@ void ScreenSymbols::generateCode()
 	
 	//void Quad3D(screen, float, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("Quad3D");
+		Function* function = getFunction("Quad3D");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OQuad3DRegister());
@@ -923,7 +923,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void Triangle3D(screen, float, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("Triangle3D");
+		Function* function = getFunction("Triangle3D");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OTriangle3DRegister());
@@ -938,7 +938,7 @@ void ScreenSymbols::generateCode()
 	
 	//void FastTile(screen, float, float, float, float, float)
 	{
-		Function* function = getFunction2("FastTile");
+		Function* function = getFunction("FastTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OFastTileRegister());
@@ -952,7 +952,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void FastCombo(screen, float, float, float, float, float)
 	{
-		Function* function = getFunction2("FastCombo");
+		Function* function = getFunction("FastCombo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OFastComboRegister());
@@ -966,7 +966,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void DrawString(screen, float, float, float, float, float, float, float, int32_t *string)
 	{
-		Function* function = getFunction2("DrawString");
+		Function* function = getFunction("DrawString");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new ODrawStringRegister());
@@ -980,7 +980,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void DrawString(screen, float, float, float, float, float, float, float, int32_t *string)
 	{
-		Function* function = getFunction2("DrawString", 1);
+		Function* function = getFunction("DrawString", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new ODrawString2Register());
@@ -994,7 +994,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void DrawLayer(screen, float, float, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("DrawLayer");
+		Function* function = getFunction("DrawLayer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new ODrawLayerRegister());
@@ -1008,7 +1008,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void DrawScreen(screen, float, float, float, float, float, float)
 	{
-		Function* function = getFunction2("DrawScreen");
+		Function* function = getFunction("DrawScreen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new ODrawScreenRegister());
@@ -1022,7 +1022,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void DrawBitmap(screen, float, float, float, float, float, float, float, float, float, bool)
 	{
-		Function* function = getFunction2("DrawBitmap");
+		Function* function = getFunction("DrawBitmap");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new ODrawBitmapRegister());
@@ -1037,7 +1037,7 @@ void ScreenSymbols::generateCode()
 	
 	//void DrawBitmapEx(screen, float, float, float, float, float, float, float, float, float, float, bool)
 	{
-		Function* function = getFunction2("DrawBitmapEx");
+		Function* function = getFunction("DrawBitmapEx");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new ODrawBitmapExRegister());
@@ -1052,7 +1052,7 @@ void ScreenSymbols::generateCode()
 	
 	//void SetRenderTarget(bitmap)
 	{
-		Function* function = getFunction2("SetRenderTarget");
+		Function* function = getFunction("SetRenderTarget");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OSetRenderTargetRegister());
@@ -1066,7 +1066,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void Message(screen, float)
 	{
-		Function* function = getFunction2("Message");
+		Function* function = getFunction("Message");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1079,7 +1079,7 @@ void ScreenSymbols::generateCode()
 	}
 	//bool isSolid(screen, int32_t, int32_t)
 	{
-		Function* function = getFunction2("isSolid");
+		Function* function = getFunction("isSolid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1094,7 +1094,7 @@ void ScreenSymbols::generateCode()
 	}
 	//bool isSolidLayer(screen, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction2("isSolidLayer");
+		Function* function = getFunction("isSolidLayer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -1110,7 +1110,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void SetSideWarp(screen, float, float, float, float)
 	{
-		Function* function = getFunction2("SetSideWarp");
+		Function* function = getFunction("SetSideWarp");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OSetSideWarpRegister());
@@ -1127,7 +1127,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void SetTileWarp(screen, float, float, float, float)
 	{
-		Function* function = getFunction2("SetTileWarp");
+		Function* function = getFunction("SetTileWarp");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OSetTileWarpRegister());
@@ -1144,7 +1144,7 @@ void ScreenSymbols::generateCode()
 	}
 	//float LayerScreen(screen, float)
 	{
-		Function* function = getFunction2("LayerScreen");
+		Function* function = getFunction("LayerScreen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1157,7 +1157,7 @@ void ScreenSymbols::generateCode()
 	}
 	//float LayerMap(screen, float)
 	{
-		Function* function = getFunction2("LayerMap");
+		Function* function = getFunction("LayerMap");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1170,7 +1170,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void TriggerSecrets(screen)
 	{
-		Function* function = getFunction2("TriggerSecrets");
+		Function* function = getFunction("TriggerSecrets");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		ASSERT_NUL();
@@ -1181,7 +1181,7 @@ void ScreenSymbols::generateCode()
 	}
 	//void ZapIn(screen)
 	{
-		Function* function = getFunction2("ZapIn");
+		Function* function = getFunction("ZapIn");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1195,7 +1195,7 @@ void ScreenSymbols::generateCode()
 
 	//void ZapOut(screen)
 	{
-		Function* function = getFunction2("ZapOut");
+		Function* function = getFunction("ZapOut");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1208,7 +1208,7 @@ void ScreenSymbols::generateCode()
 	
 	 //void OpeningWipe(screen)
 	{
-		Function* function = getFunction2("OpeningWipe");
+		Function* function = getFunction("OpeningWipe");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1221,7 +1221,7 @@ void ScreenSymbols::generateCode()
 
 	//void WavyIn(screen)
 	{
-		Function* function = getFunction2("WavyIn");
+		Function* function = getFunction("WavyIn");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1234,7 +1234,7 @@ void ScreenSymbols::generateCode()
 			
 	//void WavyOut(screen)
 	{
-		Function* function = getFunction2("WavyOut");
+		Function* function = getFunction("WavyOut");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1247,7 +1247,7 @@ void ScreenSymbols::generateCode()
 	
 	//int32_t GetSideWarpDMap(screen, int32_t)
 	{
-		Function* function = getFunction2("GetSideWarpDMap");
+		Function* function = getFunction("GetSideWarpDMap");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1260,7 +1260,7 @@ void ScreenSymbols::generateCode()
 	}
 	//int32_t GetSideWarpScreen(screen, int32_t)
 	{
-		Function* function = getFunction2("GetSideWarpScreen");
+		Function* function = getFunction("GetSideWarpScreen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1273,7 +1273,7 @@ void ScreenSymbols::generateCode()
 	}
 	//int32_t GetSideWarpType(screen, int32_t)
 	{
-		Function* function = getFunction2("GetSideWarpType");
+		Function* function = getFunction("GetSideWarpType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1286,7 +1286,7 @@ void ScreenSymbols::generateCode()
 	}
 	//int32_t GetTileWarpDMap(screen, int32_t)
 	{
-		Function* function = getFunction2("GetTileWarpDMap");
+		Function* function = getFunction("GetTileWarpDMap");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1299,7 +1299,7 @@ void ScreenSymbols::generateCode()
 	}
 	//int32_t GetTileWarpScreen(screen, int32_t)
 	{
-		Function* function = getFunction2("GetTileWarpScreen");
+		Function* function = getFunction("GetTileWarpScreen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1312,7 +1312,7 @@ void ScreenSymbols::generateCode()
 	}
 	//int32_t GetTileWarpType(screen, int32_t)
 	{
-		Function* function = getFunction2("GetTileWarpType");
+		Function* function = getFunction("GetTileWarpType");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1326,7 +1326,7 @@ void ScreenSymbols::generateCode()
 	
 	//void ZapIn(screen)
 	{
-		Function* function = getFunction2("ZapIn");
+		Function* function = getFunction("ZapIn");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1339,7 +1339,7 @@ void ScreenSymbols::generateCode()
 	
 	 //void ClosingWipe(screen)
 	{
-		Function* function = getFunction2("ClosingWipe");
+		Function* function = getFunction("ClosingWipe");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1352,7 +1352,7 @@ void ScreenSymbols::generateCode()
 	
 	 //void OpeningWipe(screen, int32_t)
 	{
-		Function* function = getFunction2("OpeningWipe", 1);
+		Function* function = getFunction("OpeningWipe", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1366,7 +1366,7 @@ void ScreenSymbols::generateCode()
 	
 	//void ClosingWipe(screen, int32_t)
 	{
-		Function* function = getFunction2("ClosingWipe", 1);
+		Function* function = getFunction("ClosingWipe", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1379,7 +1379,7 @@ void ScreenSymbols::generateCode()
 	}
 	//bool SpawnScreenEnemies(screen)
 	{
-		Function* function = getFunction2("SpawnScreenEnemies");
+		Function* function = getFunction("SpawnScreenEnemies");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -1391,7 +1391,7 @@ void ScreenSymbols::generateCode()
 	}
 	//bool TriggerCombo(screen,lyr,pos)
 	{
-		Function* function = getFunction2("TriggerCombo");
+		Function* function = getFunction("TriggerCombo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));

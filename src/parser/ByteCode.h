@@ -1520,7 +1520,6 @@ namespace ZScript
 	class GlobalArgument;
 	class StringArgument;
 	class VectorArgument;
-	class VargsArgument;
 
 	class ArgumentVisitor
 	{
@@ -1531,7 +1530,6 @@ namespace ZScript
 		virtual void caseVar(VarArgument&, void *){}
 		virtual void caseLabel(LabelArgument&, void *){}
 		virtual void caseGlobal(GlobalArgument&, void *){}
-		virtual void caseVargs(VargsArgument&, void *){}
 		virtual ~ArgumentVisitor() {}
 	};
 
@@ -1657,25 +1655,6 @@ namespace ZScript
 		int32_t ID;
 		int32_t lineno;
 		bool haslineno;
-	};
-	
-	class VargsArgument : public Argument
-	{
-		//val of -1 means it should become a LiteralArgument of args size
-		//val of -10000 means the same, but *10000 the size
-		//no other values at this time
-	public:
-		VargsArgument(int32_t id, int32_t offs = 0, int32_t v = 0) : id(id), offs(offs), val(v) {}
-		std::string toString();
-		void execute(ArgumentVisitor &host, void *param)
-		{
-			host.caseVargs(*this,param);
-		}
-		Argument *clone()
-		{
-			return new VargsArgument(id,offs,val);
-		}
-		int32_t id,offs,val;
 	};
 
 	class UnaryOpcode : public Opcode
@@ -2568,6 +2547,28 @@ namespace ZScript
 			return new OPopArgsRegister(a->clone(),b->clone());
 		}
 	};
+	
+	class OPushVargV : public UnaryOpcode
+	{
+	public:
+		OPushVargV(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OPushVargV(a->clone());
+		}
+	};
+	
+	class OPushVargR : public UnaryOpcode
+	{
+	public:
+		OPushVargR(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OPushVargR(a->clone());
+		}
+	};
 
 	class OLoadIndirect : public BinaryOpcode
 	{
@@ -2694,6 +2695,26 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OSPrintfImmediate(a->clone());
+		}
+	};
+
+	class OPrintfVargs : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OPrintfVargs();
+		}
+	};
+
+	class OSPrintfVargs : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OSPrintfVargs();
 		}
 	};
 
@@ -3104,36 +3125,33 @@ namespace ZScript
 		}
 	};
 	
-	class OMaxNew: public UnaryOpcode
+	class OMaxNew: public Opcode
 	{
 	public:
-		OMaxNew(Argument *A) : UnaryOpcode(A) {}
 		std::string toString();
 		Opcode *clone()
 		{
-			return new OMaxNew(a->clone());
+			return new OMaxNew();
 		}
 	};
 	
-	class OMinNew: public UnaryOpcode
+	class OMinNew: public Opcode
 	{
 	public:
-		OMinNew(Argument *A) : UnaryOpcode(A) {}
 		std::string toString();
 		Opcode *clone()
 		{
-			return new OMinNew(a->clone());
+			return new OMinNew();
 		}
 	};
 	
-	class OChoose: public UnaryOpcode
+	class OChoose: public Opcode
 	{
 	public:
-		OChoose(Argument *A) : UnaryOpcode(A) {}
 		std::string toString();
 		Opcode *clone()
 		{
-			return new OChoose(a->clone());
+			return new OChoose();
 		}
 	};
 

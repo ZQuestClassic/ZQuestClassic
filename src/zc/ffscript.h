@@ -1072,8 +1072,8 @@ void do_xtoa();
 
 void do_tracebool(const bool v);
 void do_tracestring();
-void do_printf(const bool v);
-void do_sprintf(const bool v);
+void do_printf(const bool v, const bool varg);
+void do_sprintf(const bool v, const bool varg);
 void do_varg_max();
 void do_varg_min();
 void do_varg_choose();
@@ -3416,6 +3416,10 @@ enum ASM_DEFINE
 	MAXVARG,
 	MINVARG,
 	CHOOSEVARG,
+	PUSHVARGV,
+	PUSHVARGR,
+	PRINTFVARG,
+	SPRINTFVARG,
 	
 	NUMCOMMANDS           //0x01F6
 };

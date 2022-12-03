@@ -106,9 +106,9 @@ static AccessorTable GlobalTable[] =
 	{ "printf",                  0,          ZTID_VOID,   -1,    FL_VARG,  { ZTID_CHAR },{} },
 	{ "sprintf",                 0,         ZTID_FLOAT,   -1,    FL_VARG,  { ZTID_CHAR, ZTID_CHAR },{} },
 	
-	{ "Max",                     0,       ZTID_UNTYPED,   -1,    FL_VARG,  { ZTID_UNTYPED, ZTID_UNTYPED },{} },
-	{ "Min",                     0,       ZTID_UNTYPED,   -1,    FL_VARG,  { ZTID_UNTYPED, ZTID_UNTYPED },{} },
-	{ "Choose",                  0,       ZTID_UNTYPED,   -1,    FL_VARG,  { ZTID_UNTYPED },{} },
+	{ "Max",                     0,       ZTID_UNTYPED,   -1,    FL_VARG,  { ZTID_UNTYPED, ZTID_UNTYPED },{},2 },
+	{ "Min",                     0,       ZTID_UNTYPED,   -1,    FL_VARG,  { ZTID_UNTYPED, ZTID_UNTYPED },{},2 },
+	{ "Choose",                  0,       ZTID_UNTYPED,   -1,    FL_VARG,  { ZTID_UNTYPED },{},1 },
 	
 	//Undocumented intentionally - compat only
 	{ "Rand",                    0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT },{} },
@@ -160,7 +160,7 @@ void GlobalSymbols::generateCode()
 	/*
 	//untyped NULL()(global)
 	{
-		Function* function = getFunction2("NULL");
+		Function* function = getFunction("NULL");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -175,7 +175,7 @@ void GlobalSymbols::generateCode()
 	//one input, one return
 	//untyped Untype(untype)
 	{
-		Function* function = getFunction2("Untype");
+		Function* function = getFunction("Untype");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -190,7 +190,7 @@ void GlobalSymbols::generateCode()
 	}
 	//float Distance(game, int32_t, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction2("Distance",0);
+		Function* function = getFunction("Distance",0);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -205,7 +205,7 @@ void GlobalSymbols::generateCode()
 	}
 	//float Distance(game, int32_t, int32_t, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction2("Distance", 1);
+		Function* function = getFunction("Distance", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -222,7 +222,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t LongDistance(game, int32_t, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction2("LongDistance");
+		Function* function = getFunction("LongDistance");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -237,7 +237,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t LongDistance(game, int32_t, int32_t, int32_t, int32_t, int32_t)
 	{
-		Function* function = getFunction2("LongDistance", 1);
+		Function* function = getFunction("LongDistance", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -255,7 +255,7 @@ void GlobalSymbols::generateCode()
 
 	//int32_t Rand(int32_t maxval)
 	{
-		Function* function = getFunction2("Rand");
+		Function* function = getFunction("Rand");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop maxval
@@ -268,7 +268,7 @@ void GlobalSymbols::generateCode()
 
 	//int_full SRand(int_full seed)
 	{
-		Function* function = getFunction2("SRand");
+		Function* function = getFunction("SRand");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop seed
@@ -281,7 +281,7 @@ void GlobalSymbols::generateCode()
 
 	//int_full SRand()
 	{
-		Function* function = getFunction2("SRand", 1);
+		Function* function = getFunction("SRand", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OSRandRand(new VarArgument(EXP1)));
@@ -292,7 +292,7 @@ void GlobalSymbols::generateCode()
 
 	//bool IsValidArray(untyped)
 	{
-		Function* function = getFunction2("IsValidArray");
+		Function* function = getFunction("IsValidArray");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//Pop array ptr
@@ -305,7 +305,7 @@ void GlobalSymbols::generateCode()
 
 	//int32_t GetSystemTime(int32_t category)
 	{
-		Function* function = getFunction2("GetSystemTime");
+		Function* function = getFunction("GetSystemTime");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -317,7 +317,7 @@ void GlobalSymbols::generateCode()
 
 	//void Quit()
 	{
-		Function* function = getFunction2("Quit");
+		Function* function = getFunction("Quit");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OQuit());
@@ -326,7 +326,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void Waitframe()
 	{
-		Function* function = getFunction2("Waitframe");
+		Function* function = getFunction("Waitframe");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OWaitframe());
@@ -336,7 +336,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void Waitdraw()
 	{
-		Function* function = getFunction2("Waitdraw");
+		Function* function = getFunction("Waitdraw");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OWaitdraw());
@@ -346,7 +346,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void WaitTo(int32_t, bool)
 	{
-		Function* function = getFunction2("WaitTo");
+		Function* function = getFunction("WaitTo");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -358,7 +358,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int WaitEvent()
 	{
-		Function* function = getFunction2("WaitEvent");
+		Function* function = getFunction("WaitEvent");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OWaitEvent());
@@ -368,7 +368,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void Trace(int32_t val)
 	{
-		Function* function = getFunction2("Trace");
+		Function* function = getFunction("Trace");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -378,7 +378,7 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("TraceLWeapon");
+		Function* function = getFunction("TraceLWeapon");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -388,7 +388,7 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("TraceEWeapon");
+		Function* function = getFunction("TraceEWeapon");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -398,7 +398,7 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("TraceNPC");
+		Function* function = getFunction("TraceNPC");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -408,7 +408,7 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("TraceFFC");
+		Function* function = getFunction("TraceFFC");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -418,7 +418,7 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("TraceItem");
+		Function* function = getFunction("TraceItem");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -428,7 +428,7 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("TraceItemData");
+		Function* function = getFunction("TraceItemData");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -439,7 +439,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void TraceB(bool val)
 	{
-		Function* function = getFunction2("TraceB");
+		Function* function = getFunction("TraceB");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -450,7 +450,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void TraceS(bool val)
 	{
-		Function* function = getFunction2("TraceS");
+		Function* function = getFunction("TraceS");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
@@ -461,7 +461,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void TraceNL()
 	{
-		Function* function = getFunction2("TraceNL");
+		Function* function = getFunction("TraceNL");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OTrace3());
@@ -471,7 +471,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void ClearTrace()
 	{
-		Function* function = getFunction2("ClearTrace");
+		Function* function = getFunction("ClearTrace");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OTrace4());
@@ -481,7 +481,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void TraceToBase(float, float, float)
 	{
-		Function* function = getFunction2("TraceToBase");
+		Function* function = getFunction("TraceToBase");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OTrace5Register());
@@ -493,7 +493,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t Sin(int32_t val)
 	{
-		Function* function = getFunction2("Sin");
+		Function* function = getFunction("Sin");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -504,7 +504,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t RadianSin(int32_t val)
 	{
-		Function* function = getFunction2("RadianSin");
+		Function* function = getFunction("RadianSin");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -516,7 +516,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t ArcSin(int32_t val)
 	{
-		Function* function = getFunction2("ArcSin");
+		Function* function = getFunction("ArcSin");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -527,7 +527,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t Cos(int32_t val)
 	{
-		Function* function = getFunction2("Cos");
+		Function* function = getFunction("Cos");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -538,7 +538,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t RadianCos(int32_t val)
 	{
-		Function* function = getFunction2("RadianCos");
+		Function* function = getFunction("RadianCos");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -550,7 +550,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t ArcCos(int32_t val)
 	{
-		Function* function = getFunction2("ArcCos");
+		Function* function = getFunction("ArcCos");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -561,7 +561,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t Tan(int32_t val)
 	{
-		Function* function = getFunction2("Tan");
+		Function* function = getFunction("Tan");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -572,7 +572,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t ArcTan(int32_t X, int32_t Y)
 	{
-		Function* function = getFunction2("ArcTan");
+		Function* function = getFunction("ArcTan");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -585,7 +585,7 @@ void GlobalSymbols::generateCode()
 
 	//int32_t RadianTan(int32_t val)
 	{
-		Function* function = getFunction2("RadianTan");
+		Function* function = getFunction("RadianTan");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -597,7 +597,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t Pow(int32_t first, int32_t second)
 	{
-		Function* function = getFunction2("Pow");
+		Function* function = getFunction("Pow");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -609,7 +609,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t LPow(int32_t first, int32_t second)
 	{
-		Function* function = getFunction2("LPow");
+		Function* function = getFunction("LPow");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -621,7 +621,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t InvPow(int32_t first, int32_t second)
 	{
-		Function* function = getFunction2("InvPow");
+		Function* function = getFunction("InvPow");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -633,7 +633,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t Factorial(int32_t val)
 	{
-		Function* function = getFunction2("Factorial");
+		Function* function = getFunction("Factorial");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -644,7 +644,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t Abs(int32_t val)
 	{
-		Function* function = getFunction2("Abs");
+		Function* function = getFunction("Abs");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -655,7 +655,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t Log10(int32_t val)
 	{
-		Function* function = getFunction2("Log10");
+		Function* function = getFunction("Log10");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -666,7 +666,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t Ln(int32_t val)
 	{
-		Function* function = getFunction2("Ln");
+		Function* function = getFunction("Ln");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -677,7 +677,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t Sqrt(int32_t val)
 	{
-		Function* function = getFunction2("Sqrt");
+		Function* function = getFunction("Sqrt");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -690,7 +690,7 @@ void GlobalSymbols::generateCode()
 
 	//int32_t CopyTile(int32_t source, int32_t dest)
 	{
-		Function* function = getFunction2("CopyTile");
+		Function* function = getFunction("CopyTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -704,7 +704,7 @@ void GlobalSymbols::generateCode()
 
 	//int32_t SwapTile(int32_t first, int32_t second)
 	{
-		Function* function = getFunction2("SwapTile");
+		Function* function = getFunction("SwapTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -717,7 +717,7 @@ void GlobalSymbols::generateCode()
 
 	//int32_t OverlayTile(int32_t first, int32_t second)
 	{
-		Function* function = getFunction2("OverlayTile");
+		Function* function = getFunction("OverlayTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -730,7 +730,7 @@ void GlobalSymbols::generateCode()
 
 	//void ClearTile(int32_t tile)
 	{
-		Function* function = getFunction2("ClearTile");
+		Function* function = getFunction("ClearTile");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -741,7 +741,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void GetGlobalRAM(int32_t)
 	{
-		Function* function = getFunction2("GetGlobalRAM");
+		Function* function = getFunction("GetGlobalRAM");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -753,7 +753,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void SetGlobalRAM(int32_t, int32_t)
 	{
-		Function* function = getFunction2("SetGlobalRAM");
+		Function* function = getFunction("SetGlobalRAM");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -766,7 +766,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void GetScriptRAM(int32_t)
 	{
-		Function* function = getFunction2("GetScriptRAM");
+		Function* function = getFunction("GetScriptRAM");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -779,7 +779,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void SetScriptRAM(int32_t, int32_t)
 	{
-		Function* function = getFunction2("SetScriptRAM");
+		Function* function = getFunction("SetScriptRAM");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -792,7 +792,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void SetColorBuffer(int32_t amount, int32_t offset, int32_t stride, int32_t *ptr)
 	{
-		Function* function = getFunction2("SetColorBuffer");
+		Function* function = getFunction("SetColorBuffer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OSetColorBufferRegister());
@@ -806,7 +806,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void SetDepthBuffer(int32_t amount, int32_t offset, int32_t stride, int32_t *ptr)
 	{
-		Function* function = getFunction2("SetDepthBuffer");
+		Function* function = getFunction("SetDepthBuffer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OSetDepthBufferRegister());
@@ -820,7 +820,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void GetColorBuffer(int32_t amount, int32_t offset, int32_t stride, int32_t *ptr)
 	{
-		Function* function = getFunction2("GetColorBuffer");
+		Function* function = getFunction("GetColorBuffer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OGetColorBufferRegister());
@@ -834,7 +834,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void GetDepthBuffer(int32_t amount, int32_t offset, int32_t stride, int32_t *ptr)
 	{
-		Function* function = getFunction2("GetDepthBuffer");
+		Function* function = getFunction("GetDepthBuffer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OGetDepthBufferRegister());
@@ -848,7 +848,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t SizeOfArray(int32_t val)
 	{
-		Function* function = getFunction2("SizeOfArray");
+		Function* function = getFunction("SizeOfArray");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -859,7 +859,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void ResizeArray(untyped ptr, int sz)
 	{
-		Function* function = getFunction2("ResizeArray");
+		Function* function = getFunction("ResizeArray");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -871,7 +871,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void OwnArray(untyped ptr)
 	{
-		Function* function = getFunction2("OwnArray");
+		Function* function = getFunction("OwnArray");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -882,7 +882,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void OwnObject(untyped ptr)
 	{
-		Function* function = getFunction2("OwnObject");
+		Function* function = getFunction("OwnObject");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -893,7 +893,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void GlobalObject(untyped ptr)
 	{
-		Function* function = getFunction2("GlobalObject");
+		Function* function = getFunction("GlobalObject");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -904,7 +904,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void DestroyArray(untyped ptr)
 	{
-		Function* function = getFunction2("DestroyArray");
+		Function* function = getFunction("DestroyArray");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -915,7 +915,7 @@ void GlobalSymbols::generateCode()
 	}
 
 	{
-		Function* function = getFunction2("Byte");
+		Function* function = getFunction("Byte");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -925,7 +925,7 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("Int8");
+		Function* function = getFunction("Int8");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -935,7 +935,7 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("SignedByte");
+		Function* function = getFunction("SignedByte");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -945,7 +945,7 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("Word");
+		Function* function = getFunction("Word");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -955,7 +955,7 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("Int16");
+		Function* function = getFunction("Int16");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -965,7 +965,7 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("Short");
+		Function* function = getFunction("Short");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -975,7 +975,7 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("Integer");
+		Function* function = getFunction("Integer");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -985,7 +985,7 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("Floor");
+		Function* function = getFunction("Floor");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -995,7 +995,7 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	}
 	{
-		Function* function = getFunction2("Ceiling");
+		Function* function = getFunction("Ceiling");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1006,7 +1006,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t SizeOfArrayFFC(ffc *ptr)
 	{
-		Function* function = getFunction2("SizeOfArrayFFC");
+		Function* function = getFunction("SizeOfArrayFFC");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1018,7 +1018,7 @@ void GlobalSymbols::generateCode()
 
 	 //int32_t SizeOfArrayNPC(npc *ptr)
 	{
-		Function* function = getFunction2("SizeOfArrayNPC");
+		Function* function = getFunction("SizeOfArrayNPC");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1030,7 +1030,7 @@ void GlobalSymbols::generateCode()
 
 	//int32_t SizeOfArrayBool(bool *ptr)
 	{
-		Function* function = getFunction2("SizeOfArrayBool");
+		Function* function = getFunction("SizeOfArrayBool");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1040,7 +1040,7 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	} //int32_t SizeOfArrayItem(item *ptr)
 	{
-		Function* function = getFunction2("SizeOfArrayItem");
+		Function* function = getFunction("SizeOfArrayItem");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1050,7 +1050,7 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	} //int32_t SizeOfArrayItemdata(itemdata *ptr)
 	{
-		Function* function = getFunction2("SizeOfArrayItemdata");
+		Function* function = getFunction("SizeOfArrayItemdata");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1060,7 +1060,7 @@ void GlobalSymbols::generateCode()
 		function->giveCode(code);
 	} //int32_t SizeOfArrayLWeapon(lweapon *ptr)
 	{
-		Function* function = getFunction2("SizeOfArrayLWeapon");
+		Function* function = getFunction("SizeOfArrayLWeapon");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1071,7 +1071,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t SaveSRAM(eweapon *ptr)
 	{
-		Function* function = getFunction2("SaveSRAM");
+		Function* function = getFunction("SaveSRAM");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1083,7 +1083,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t LoadSRAM(eweapon *ptr)
 	{
-		Function* function = getFunction2("LoadSRAM");
+		Function* function = getFunction("LoadSRAM");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1095,7 +1095,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t SizeOfArrayEWeapon(eweapon *ptr)
 	{
-		Function* function = getFunction2("SizeOfArrayEWeapon");
+		Function* function = getFunction("SizeOfArrayEWeapon");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -1107,7 +1107,7 @@ void GlobalSymbols::generateCode()
 	//String and Array Functions (String.h, Array.h)
 		//int32_t strlen(*p)
 	{
-		Function* function = getFunction2("strlen");
+		Function* function = getFunction("strlen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1118,7 +1118,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void strcpy(str* dest, str* src)
 	{
-		Function* function = getFunction2("strcpy");
+		Function* function = getFunction("strcpy");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1130,7 +1130,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void itoacat(str* dest, int32_t)
 	{
-		Function* function = getFunction2("itoacat");
+		Function* function = getFunction("itoacat");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1142,7 +1142,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t strcmp(*a, *b)
 	{
-		Function* function = getFunction2("strcmp");
+		Function* function = getFunction("strcmp");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1154,7 +1154,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t strncmp(*a, *b, int32_t len)
 	{
-		Function* function = getFunction2("strncmp");
+		Function* function = getFunction("strncmp");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1167,7 +1167,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t stricmp(*a, *b)
 	{
-		Function* function = getFunction2("stricmp");
+		Function* function = getFunction("stricmp");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1179,7 +1179,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t strnicmp(*a, *b, int32_t len)
 	{
-		Function* function = getFunction2("strnicmp");
+		Function* function = getFunction("strnicmp");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1193,7 +1193,7 @@ void GlobalSymbols::generateCode()
 
 	//int32_t ArrayCopy(int32_t source, int32_t dest)
 	{
-		Function* function = getFunction2("ArrayCopy");
+		Function* function = getFunction("ArrayCopy");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1205,7 +1205,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t atoi(*p)
 	{
-		Function* function = getFunction2("atoi");
+		Function* function = getFunction("atoi");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1216,7 +1216,7 @@ void GlobalSymbols::generateCode()
 	}
 	/*int32_t atoi2(*a, *b)
 	{
-		Function* function = getFunction2("atoi");
+		Function* function = getFunction("atoi");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1229,7 +1229,7 @@ void GlobalSymbols::generateCode()
 
 	//int32_t ilen(*p)
 	{
-		Function* function = getFunction2("ilen");
+		Function* function = getFunction("ilen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1240,7 +1240,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t utol(*p)
 	{
-		Function* function = getFunction2("utol");
+		Function* function = getFunction("utol");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1251,7 +1251,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t ltou(*p)
 	{
-		Function* function = getFunction2("ltou");
+		Function* function = getFunction("ltou");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1262,7 +1262,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t convcase(*p)
 	{
-		Function* function = getFunction2("convcase");
+		Function* function = getFunction("convcase");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1274,7 +1274,7 @@ void GlobalSymbols::generateCode()
 		/*
 	//int32_t ilen2(*a, *b)
 	{
-		Function* function = getFunction2("ilen");
+		Function* function = getFunction("ilen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1289,7 +1289,7 @@ void GlobalSymbols::generateCode()
 
 	//void itoa_c(str* dest, int32_t)
 	{
-		Function* function = getFunction2("itoa");
+		Function* function = getFunction("itoa");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1301,7 +1301,7 @@ void GlobalSymbols::generateCode()
 	}
 	//void xtoa_c(str* dest, int32_t)
 	{
-		Function* function = getFunction2("xtoa");
+		Function* function = getFunction("xtoa");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1313,7 +1313,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t xtoi(*p)
 	{
-		Function* function = getFunction2("xtoi");
+		Function* function = getFunction("xtoi");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1324,7 +1324,7 @@ void GlobalSymbols::generateCode()
 	}
 	/*int32_t remchr(*a, *b)
 	{
-		Function* function = getFunction2("remchr");
+		Function* function = getFunction("remchr");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1336,7 +1336,7 @@ void GlobalSymbols::generateCode()
 	}*/
 	//int32_t strcat(*a, *b)
 	{
-		Function* function = getFunction2("strcat");
+		Function* function = getFunction("strcat");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1348,7 +1348,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t strchr(*a, *b)
 	{
-		Function* function = getFunction2("strchr");
+		Function* function = getFunction("strchr");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1360,7 +1360,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t strcspn(*a, *b)
 	{
-		Function* function = getFunction2("strcspn");
+		Function* function = getFunction("strcspn");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1372,7 +1372,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t strspn(*a, *b)
 	{
-		Function* function = getFunction2("strspn");
+		Function* function = getFunction("strspn");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1384,7 +1384,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t strstr(*a, *b)
 	{
-		Function* function = getFunction2("strstr");
+		Function* function = getFunction("strstr");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1396,7 +1396,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t strrchr(*a, *b)
 	{
-		Function* function = getFunction2("strrchr");
+		Function* function = getFunction("strrchr");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1409,7 +1409,7 @@ void GlobalSymbols::generateCode()
 	/*
 	//int32_t xlen(*p)
 	{
-		Function* function = getFunction2("xlen");
+		Function* function = getFunction("xlen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1420,7 +1420,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t xlen(*a, *b)
 	{
-		Function* function = getFunction2("xlen");
+		Function* function = getFunction("xlen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1432,7 +1432,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t xtoa(*a, *b)
 	{
-		Function* function = getFunction2("xtoa");
+		Function* function = getFunction("xtoa");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1444,7 +1444,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t xtoi(*p)
 	{
-		Function* function = getFunction2("xtoi");
+		Function* function = getFunction("xtoi");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1455,7 +1455,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t xtoi2(*a, *b)
 	{
-		Function* function = getFunction2("xtoi");
+		Function* function = getFunction("xtoi");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
@@ -1469,29 +1469,29 @@ void GlobalSymbols::generateCode()
 
 	//void printf(str* format, untyped args...)
 	{
-		Function* function = getFunction2("printf");
+		Function* function = getFunction("printf");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OPrintfImmediate(new VargsArgument(-10000)));
+		addOpcode2 (code, new OPrintfVargs());
 		LABELBACK(label);
-		POP_VARGS(1,NUL);
+		POP_ARGS(1,NUL);
 		RETURN();
 		function->giveCode(code);
 	}
 	//void sprintf(str* buf, str* format, untyped args...)
 	{
-		Function* function = getFunction2("sprintf");
+		Function* function = getFunction("sprintf");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OSPrintfImmediate(new VargsArgument(-10000)));
+		addOpcode2 (code, new OSPrintfVargs());
 		LABELBACK(label);
-		POP_VARGS(2,NUL);
+		POP_ARGS(2,NUL);
 		RETURN();
 		function->giveCode(code);
 	}
 	//int32_t EngineDegtoRad(int32_t val)
 	{
-		Function* function = getFunction2("EngineDegtoRad");
+		Function* function = getFunction("EngineDegtoRad");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1502,7 +1502,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t EngineRadtoDeg(int32_t val)
 	{
-		Function* function = getFunction2("EngineRadtoDeg");
+		Function* function = getFunction("EngineRadtoDeg");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1513,7 +1513,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t DegtoRad(int32_t val)
 	{
-		Function* function = getFunction2("DegtoRad");
+		Function* function = getFunction("DegtoRad");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1524,7 +1524,7 @@ void GlobalSymbols::generateCode()
 	}
 	//int32_t RadtoDeg(int32_t val)
 	{
-		Function* function = getFunction2("RadtoDeg");
+		Function* function = getFunction("RadtoDeg");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -1536,33 +1536,30 @@ void GlobalSymbols::generateCode()
 
 	//untyped Max(untyped first, untyped second, untyped ..args)
 	{
-		Function* function = getFunction2("Max");
+		Function* function = getFunction("Max");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OMaxNew(new VargsArgument(-1,2)));
-		POP_VARGS(2,NUL);
+		addOpcode2 (code, new OMaxNew());
 		LABELBACK(label);
 		RETURN();
 		function->giveCode(code);
 	}
 	//untyped Min(untyped first, untyped second, untyped ..args)
 	{
-		Function* function = getFunction2("Min");
+		Function* function = getFunction("Min");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OMinNew(new VargsArgument(-1,2)));
-		POP_VARGS(2,NUL);
+		addOpcode2 (code, new OMinNew());
 		LABELBACK(label);
 		RETURN();
 		function->giveCode(code);
 	}
 	//untyped Choose(untyped first, untyped ..args)
 	{
-		Function* function = getFunction2("Choose");
+		Function* function = getFunction("Choose");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OChoose(new VargsArgument(-1,1)));
-		POP_VARGS(1,NUL);
+		addOpcode2 (code, new OChoose());
 		LABELBACK(label);
 		RETURN();
 		function->giveCode(code);

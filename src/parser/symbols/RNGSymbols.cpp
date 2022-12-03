@@ -30,7 +30,7 @@ void RNGSymbols::generateCode()
 {
 	//int32_t Rand()
 	{
-		Function* function = getFunction2("Rand");
+		Function* function = getFunction("Rand");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -43,7 +43,7 @@ void RNGSymbols::generateCode()
 	}
 	//int32_t Rand(int32_t bound)
 	{
-		Function* function = getFunction2("Rand", 1);
+		Function* function = getFunction("Rand", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -56,7 +56,7 @@ void RNGSymbols::generateCode()
 	}
 	//int32_t Rand(int32_t bound1, int32_t bound2)
 	{
-		Function* function = getFunction2("Rand", 2);
+		Function* function = getFunction("Rand", 2);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -70,7 +70,7 @@ void RNGSymbols::generateCode()
 	}
 	//int32_t LRand()
 	{
-		Function* function = getFunction2("LRand");
+		Function* function = getFunction("LRand");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -83,7 +83,7 @@ void RNGSymbols::generateCode()
 	}
 	//int32_t LRand(int32_t bound)
 	{
-		Function* function = getFunction2("LRand", 1);
+		Function* function = getFunction("LRand", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
@@ -96,7 +96,7 @@ void RNGSymbols::generateCode()
 	}
 	//int32_t LRand(int32_t bound1, int32_t bound2)
 	{
-		Function* function = getFunction2("LRand", 2);
+		Function* function = getFunction("LRand", 2);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -110,7 +110,7 @@ void RNGSymbols::generateCode()
 	}
 	//void SRand(int32_t seed)
 	{
-		Function* function = getFunction2("SRand");
+		Function* function = getFunction("SRand");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop seed
@@ -123,7 +123,7 @@ void RNGSymbols::generateCode()
 	}
 	//int32_t SRand()
 	{
-		Function* function = getFunction2("SRand", 1);
+		Function* function = getFunction("SRand", 1);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		ASSERT_NON_NUL();
@@ -135,7 +135,7 @@ void RNGSymbols::generateCode()
 	}
 	//void Free()
 	{
-		Function* function = getFunction2("Free");
+		Function* function = getFunction("Free");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer
@@ -148,7 +148,7 @@ void RNGSymbols::generateCode()
 	}
 	//void Own()
 	{
-		Function* function = getFunction2("Own");
+		Function* function = getFunction("Own");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer

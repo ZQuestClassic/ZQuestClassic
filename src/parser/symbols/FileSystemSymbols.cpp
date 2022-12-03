@@ -23,7 +23,7 @@ void FileSystemSymbols::generateCode()
 {
 	//bool DirExists(FileSystem, char32*)
 	{
-		Function* function = getFunction2("DirExists");
+		Function* function = getFunction("DirExists");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -37,7 +37,7 @@ void FileSystemSymbols::generateCode()
 	}
 	//bool FileExists(FileSystem, char32*)
 	{
-		Function* function = getFunction2("FileExists");
+		Function* function = getFunction("FileExists");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -51,7 +51,7 @@ void FileSystemSymbols::generateCode()
 	}
 	//bool Remove(FileSystem, char32*)
 	{
-		Function* function = getFunction2("Remove");
+		Function* function = getFunction("Remove");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -65,7 +65,7 @@ void FileSystemSymbols::generateCode()
 	}
 	//directory LoadDirectory(FileSystem, char32*)
 	{
-		Function* function = getFunction2("LoadDirectory");
+		Function* function = getFunction("LoadDirectory");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params

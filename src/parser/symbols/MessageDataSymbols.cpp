@@ -70,7 +70,7 @@ void MessageDataSymbols::generateCode()
 {
     // Get("dest_string[]")
     {
-	    Function* function = getFunction2("Get"); 
+	    Function* function = getFunction("Get"); 
 	    int32_t label = function->getLabel(); 
 	    vector<shared_ptr<Opcode>> code;
 	    addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
@@ -82,7 +82,7 @@ void MessageDataSymbols::generateCode()
     }
     // Set("src_string[]")
     {
-	    Function* function = getFunction2("Set"); 
+	    Function* function = getFunction("Set"); 
 	    int32_t label = function->getLabel(); 
 	    vector<shared_ptr<Opcode>> code; 
 	    addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));

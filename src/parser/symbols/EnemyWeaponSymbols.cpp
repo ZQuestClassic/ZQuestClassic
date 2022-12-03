@@ -170,7 +170,7 @@ void EnemyWeaponSymbols::generateCode()
 {
 	//bool isValid(eweapon)
 	{
-		Function* function = getFunction2("isValid");
+		Function* function = getFunction("isValid");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -183,7 +183,7 @@ void EnemyWeaponSymbols::generateCode()
 	}
 	//void Explode(eweapon, int32_t)
 	{
-		Function* function = getFunction2("Explode");
+		Function* function = getFunction("Explode");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -197,7 +197,7 @@ void EnemyWeaponSymbols::generateCode()
 	}
 	//void UseSprite(eweapon, int32_t val)
 	{
-		Function* function = getFunction2("UseSprite");
+		Function* function = getFunction("UseSprite");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the val
@@ -212,7 +212,7 @@ void EnemyWeaponSymbols::generateCode()
 	}
 	//void Remove(eweapon)
 	{
-		Function* function = getFunction2("Remove");
+		Function* function = getFunction("Remove");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -225,7 +225,7 @@ void EnemyWeaponSymbols::generateCode()
 	}
 	//bool Switch(eweapon, int)
 	{
-		Function* function = getFunction2("Switch");
+		Function* function = getFunction("Switch");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -239,7 +239,7 @@ void EnemyWeaponSymbols::generateCode()
 	}
 	//bool MakeAngular(eweapon)
 	{
-		Function* function = getFunction2("MakeAngular");
+		Function* function = getFunction("MakeAngular");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer
@@ -252,7 +252,7 @@ void EnemyWeaponSymbols::generateCode()
 	}
 	//bool MakeDirectional(eweapon)
 	{
-		Function* function = getFunction2("MakeAngular");
+		Function* function = getFunction("MakeAngular");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the pointer

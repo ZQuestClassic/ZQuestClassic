@@ -221,7 +221,7 @@ void ItemclassSymbols::generateCode()
 {
 	//void GetName(itemclass, int32_t)
 	{
-		Function* function = getFunction2("GetName");
+		Function* function = getFunction("GetName");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -235,7 +235,7 @@ void ItemclassSymbols::generateCode()
 	}
 	//void RunScript(itemclass)
 	{
-		Function* function = getFunction2("RunScript");
+		Function* function = getFunction("RunScript");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param

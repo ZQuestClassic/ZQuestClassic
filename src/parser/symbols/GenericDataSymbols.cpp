@@ -33,7 +33,7 @@ void GenericDataSymbols::generateCode()
 {
 	//RunFrozen(genericdata)
 	{
-		Function* function = getFunction2("RunFrozen");
+		Function* function = getFunction("RunFrozen");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer

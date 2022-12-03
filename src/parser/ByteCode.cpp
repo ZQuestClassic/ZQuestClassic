@@ -2272,11 +2272,6 @@ string LabelArgument::toStringSetV()
     }
 }
 
-string VargsArgument::toString()
-{
-	return la_toString(val);
-}
-
 string StringArgument::toString()
 {
 	return util::escape_string(value);
@@ -2672,6 +2667,16 @@ string OPopArgsRegister::toString()
     return "POPARGS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+string OPushVargV::toString()
+{
+    return "PUSHVARGV " + getArgument()->toString();
+}
+
+string OPushVargR::toString()
+{
+    return "PUSHVARGR " + getArgument()->toString();
+}
+
 string OLoadIndirect::toString()
 {
     return "LOADI " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
@@ -2808,15 +2813,15 @@ string OMaxRegister::toString()
 }
 string OMaxNew::toString()
 {
-    return "MAXVARG " + getArgument()->toString();
+    return "MAXVARG";
 }
 string OMinNew::toString()
 {
-    return "MINVARG " + getArgument()->toString();
+    return "MINVARG";
 }
 string OChoose::toString()
 {
-    return "CHOOSEVARG " + getArgument()->toString();
+    return "CHOOSEVARG";
 }
 
 string OPowRegister::toString()
@@ -3033,6 +3038,16 @@ string OPrintfImmediate::toString()
 string OSPrintfImmediate::toString()
 {
 	return "SPRINTFV " + getArgument()->toString();
+}
+
+string OPrintfVargs::toString()
+{
+	return "PRINTFVARG";
+}
+
+string OSPrintfVargs::toString()
+{
+	return "SPRINTFVARG";
 }
 
 string OBreakpoint::toString()

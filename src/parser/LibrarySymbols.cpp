@@ -1,5 +1,14 @@
 #include "symbols/SymbolDefs.h"
 
+AccessorTable::AccessorTable(std::string const& name, byte tag, int32_t rettype,
+	int32_t var, int32_t flags,
+	vector<int32_t>const& params, vector<int32_t> const& optparams,
+	byte extra_vargs)
+	: name(name), tag(tag), rettype(rettype), var(var),
+	funcFlags(flags), extra_vargs(extra_vargs),
+	params(params), optparams(optparams)
+{}
+
 LibrarySymbols LibrarySymbols::nilsymbols = LibrarySymbols();
 LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
 {
@@ -182,14 +191,16 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 			}
 			function = scope.addFunction(returnType, varName, paramTypes, blankParams, entry.funcFlags);
 		}
-		functions[make_pair(name,-1-entry.tag)] = function;
+		functions[make_pair(name,entry.tag)] = function;
 		if(hasPrefixType)
 			function->hasPrefixType = true; //Print the first type differently in error messages!
 		
 		function->opt_vals = entry.optparams;
 		if(function->getFlag(FUNCFLAG_VARARGS))
+		{
+			function->extra_vargs = entry.extra_vargs;
 			function->setFlag(FUNCFLAG_INLINE);
-		
+		}
 		// Generate function code for getters/setters
 		int32_t label = function->getLabel();
 		if (setorget == GETTER)
@@ -215,22 +226,9 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 	functions.clear();
 }
 
-Function* LibrarySymbols::getFunction(std::string const& name, int32_t numParams) const
+Function* LibrarySymbols::getFunction(std::string const& name, byte tag) const
 {
-	std::pair<std::string, int32_t> p = make_pair(name, numParams);
-	Function* ret = find<Function*>(functions, p).value_or(nullptr);
-	if(!ret)
-	{
-		char buf[512];
-		sprintf(buf, "Unique internal function %s not found with %d parameters!", name.c_str(), numParams);
-		throw std::runtime_error(buf);
-	}
-	return ret;
-}
-
-Function* LibrarySymbols::getFunction2(std::string const& name, int32_t tag) const
-{
-	std::pair<std::string, int32_t> p = make_pair(name, -1-tag);
+	std::pair<std::string, int32_t> p = make_pair(name, tag);
 	Function* ret = find<Function*>(functions, p).value_or(nullptr);
 	if(!ret)
 	{
