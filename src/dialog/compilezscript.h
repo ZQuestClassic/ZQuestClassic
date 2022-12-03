@@ -13,7 +13,7 @@ int32_t onCompileScript();
 class CompileZScriptDialog: public GUI::Dialog<CompileZScriptDialog>
 {
 public:
-	enum class message { LOAD, EXPORT, EDIT, DOCS, STD_ZH, COMPILE, CANCEL };
+	enum class message { LOAD, EXPORT, EDIT, DOCS, STD_ZH, COMPILE, CANCEL, SETTINGS };
 
 	CompileZScriptDialog();
 

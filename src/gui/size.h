@@ -63,6 +63,11 @@ public:
 		return Size(value*v);
 	}
 	
+	inline constexpr Size operator*(const double v) const noexcept
+	{
+		return Size(int32_t(value*v));
+	}
+	
 	inline constexpr Size operator*(const Size& other) const noexcept
 	{
 		return Size(value*other.value);
@@ -75,6 +80,11 @@ public:
 	inline constexpr Size operator/(const int32_t v) const noexcept
 	{
 		return Size(value/v);
+	}
+	
+	inline constexpr Size operator/(const double v) const noexcept
+	{
+		return Size(int32_t(value/v));
 	}
 	
 	inline constexpr Size operator/(const Size& other) const noexcept
