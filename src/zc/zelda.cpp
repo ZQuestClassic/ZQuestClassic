@@ -4657,12 +4657,12 @@ int main(int argc, char **argv)
 	if(!al_install_audio())
 	{
 		// We can continue even with no audio.
-		al_trace("Failed al_install_audio");
+		Z_error("Failed al_install_audio");
 	}
 
 	if(!al_init_acodec_addon())
 	{
-		al_trace("Failed al_init_acodec_addon");
+		Z_error("Failed al_init_acodec_addon");
 	}
 
 	al5img_init();
