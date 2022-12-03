@@ -26,7 +26,7 @@ enum ReplayMode
 };
 
 std::string replay_mode_to_string(ReplayMode mode);
-void replay_start(ReplayMode mode_, std::string filename_);
+void replay_start(ReplayMode mode_, std::string filename_, int frame);
 void replay_continue(std::string filename_);
 void replay_poll();
 bool replay_add_snapshot_frame(std::string frames_shorthand);

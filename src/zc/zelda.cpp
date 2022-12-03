@@ -1839,7 +1839,7 @@ int32_t init_game()
 				"Yes","No",13,27,lfont)==1)
 			{
 				saves[currgame].replay_file = replay_path;
-				replay_start(ReplayMode::Record, replay_path);
+				replay_start(ReplayMode::Record, replay_path, -1);
 				replay_set_debug(replay_debug);
 				replay_set_sync_rng(true);
 				replay_set_meta("qst", relativize_path(game->qstpath));
@@ -4475,10 +4475,10 @@ int32_t onFullscreen()
 }
 
 static bool current_session_is_replay = false;
-static void load_replay_file(ReplayMode mode, std::string replay_file)
+static void load_replay_file(ReplayMode mode, std::string replay_file, int frame)
 {
 	ASSERT(mode == ReplayMode::Replay || mode == ReplayMode::Assert || mode == ReplayMode::Update);
-	replay_start(mode, replay_file);
+	replay_start(mode, replay_file, frame);
 	testingqst_name = replay_get_meta_str("qst");
 	if (replay_get_meta_bool("test_mode"))
 	{
@@ -5489,25 +5489,29 @@ int main(int argc, char **argv)
 	int update_arg = used_switch(argc, argv, "-update");
 	int frame_arg = used_switch(argc, argv, "-frame");
 
+	int frame = -1;
+	if (frame_arg > 0)
+		frame = std::stoi(argv[frame_arg + 1]);
+
 	replay_debug = zc_get_config("zeldadx","replay_debug",0) == 1 || used_switch(argc, argv, "-replay-debug") > 0;
 	if (replay_arg > 0)
 	{
-		load_replay_file(ReplayMode::Replay, argv[replay_arg + 1]);
+		load_replay_file(ReplayMode::Replay, argv[replay_arg + 1], frame);
 	}
 	else if (assert_arg > 0)
 	{
-		load_replay_file(ReplayMode::Assert, argv[assert_arg + 1]);
+		load_replay_file(ReplayMode::Assert, argv[assert_arg + 1], frame);
 	}
 	else if (update_arg > 0)
 	{
-		load_replay_file(ReplayMode::Update, argv[update_arg + 1]);
+		load_replay_file(ReplayMode::Update, argv[update_arg + 1], frame);
 	}
 	else if (record_arg > 0)
 	{
 		ASSERT(zqtesting_mode);
 		int replay_name_arg = used_switch(argc, argv, "-replay-name");
 
-		replay_start(ReplayMode::Record, argv[record_arg + 1]);
+		replay_start(ReplayMode::Record, argv[record_arg + 1], -1);
 		replay_set_debug(replay_debug);
 		replay_set_sync_rng(true);
 		replay_set_meta("qst", testingqst_name);
@@ -5519,8 +5523,6 @@ int main(int argc, char **argv)
 			replay_set_meta("name", argv[replay_name_arg + 1]);
 		use_testingst_start = true;
 	}
-	if (frame_arg > 0)
-		replay_set_frame_arg(std::stoi(argv[frame_arg + 1]));
 	if (snapshot_arg > 0)
 		replay_add_snapshot_frame(argv[snapshot_arg + 1]);
 	
@@ -5634,7 +5636,7 @@ int main(int argc, char **argv)
 reload_for_replay_file:
 	if (load_replay_file_deffered_called)
 	{
-		load_replay_file(load_replay_file_mode, load_replay_file_filename);
+		load_replay_file(load_replay_file_mode, load_replay_file_filename, -1);
 		load_replay_file_deffered_called = false;
 	}
 

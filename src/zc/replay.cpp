@@ -686,6 +686,12 @@ static void load_replay(std::string filename)
 
             replay_log.push_back(std::make_shared<KeyReplayStep>(frame, type, button_index, key_index));
         }
+
+        if (frame_arg != -1 && replay_log.size() && replay_log.back()->frame > frame_arg && mode != ReplayMode::ManualTakeover)
+        {
+            replay_log.pop_back();
+            break;
+        }
     }
 
     file.close();
@@ -751,8 +757,7 @@ static void check_assert()
     if (has_assert_failed)
         return;
 
-    size_t replay_log_size = frame_arg == -1 ? replay_log.size() : frame_arg;
-    while (assert_current_index < replay_log_size && replay_log[assert_current_index]->frame <= frame_count)
+    while (assert_current_index < replay_log.size() && replay_log[assert_current_index]->frame <= frame_count)
     {
         if (assert_current_index >= record_log.size())
             break;
@@ -868,7 +873,7 @@ std::string replay_mode_to_string(ReplayMode mode)
 	return "unknown";
 }
 
-void replay_start(ReplayMode mode_, std::string filename_)
+void replay_start(ReplayMode mode_, std::string filename_, int frame)
 {
     ASSERT(mode == ReplayMode::Off);
     ASSERT(mode_ != ReplayMode::Off && mode_ != ReplayMode::ManualTakeover);
@@ -880,7 +885,7 @@ void replay_start(ReplayMode mode_, std::string filename_)
     gfx_got_mismatch = false;
     filename = filename_;
     manual_takeover_start_index = assert_current_index = replay_log_current_index = frame_count = 0;
-    frame_arg = -1;
+    frame_arg = frame;
     prev_gfx_hash = 0;
     prev_gfx_hash_was_same = false;
     prev_debug_x = prev_debug_y = -1;
@@ -991,7 +996,7 @@ void replay_poll()
             jwin_alert("Recording", "Re-recording until new screen is loaded", NULL, NULL, "OK", NULL, 13, 27, lfont);
             exit_sys_pal();
         }
-        else
+        else if (mode != ReplayMode::Assert)
         {
             Throttlefps = true;
             Paused = true;
@@ -1021,9 +1026,7 @@ void replay_poll()
         check_assert();
         if (mode != ReplayMode::Off)
         {
-            if (replay_log_current_index == replay_log.size() && assert_current_index == replay_log.size())
-                replay_stop();
-            else if (has_assert_failed && (frame_count - replay_log[assert_current_index]->frame > 60*60 || frame_count > replay_log.back()->frame))
+            if (has_assert_failed && (frame_count - replay_log[assert_current_index]->frame > 60*60 || frame_count > replay_log.back()->frame))
                 replay_stop();
         }
         break;
@@ -1039,6 +1042,34 @@ void replay_poll()
     }
 
     maybe_take_snapshot();
+
+    if (mode == ReplayMode::Assert)
+    {
+        if (frame_arg != -1 && frame_arg == frame_count)
+        {
+            Throttlefps = true;
+            Paused = true;
+            replay_forget_input();
+            replay_stop();
+            enter_sys_pal();
+            jwin_alert("Recording", "Assert stopped at requested frame", NULL, NULL, "OK", NULL, 13, 27, lfont);
+            exit_sys_pal();
+            return;
+        }
+
+        if (replay_log_current_index == assert_current_index && assert_current_index == replay_log.size())
+        {
+            replay_stop();
+            return;
+        }
+
+        if (has_assert_failed && (frame_count - replay_log[assert_current_index]->frame > 60*60 || frame_count > replay_log.back()->frame))
+        {
+            replay_stop();
+            return;
+        }
+    }
+
     rng_seed_count_this_frame.clear();
     frame_count++;
 }
