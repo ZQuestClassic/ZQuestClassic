@@ -79,6 +79,18 @@ if args.ci:
     tests = [t for t in tests if t.name not in skip_in_ci]
 
 
+def time_format(seconds: int):
+    if seconds is not None:
+        seconds = int(seconds)
+        m = seconds // 60
+        s = seconds % 3600 % 60
+        if m > 0:
+            return '{}m {:02d}s'.format(m, s)
+        elif s > 0:
+            return '{}s'.format(s)
+    return '-'
+
+
 def read_last_contentful_line(file):
     f = pathlib.Path(test).open('rb')
     try:  # catch OSError in case of a one line file
@@ -114,7 +126,7 @@ def run_replay_test(replay_file):
         exe_args.extend(['-frame', str(args.frame)])
     if args.snapshot is not None:
         exe_args.extend(['-snapshot', args.snapshot])
-    
+
     last_step = read_last_contentful_line(replay_file)
     num_frames = int(last_step.split(' ')[1])
     num_frames_checked = num_frames
@@ -206,12 +218,15 @@ for i in range(args.retries + 1):
 
     for test in [t for t in tests if not test_states[t]]:
         print(f'= {test.relative_to(replays_dir)} ... ', end='', flush=True)
+        start = timer()
         test_states[test], stdout, stderr, diff, fps = run_replay_test(test)
+        duration = timer() - start
         status_emoji = '✅' if test_states[test] else '❌'
+
+        message = f'{status_emoji} {time_format(duration)}'
         if fps != None:
-            print(f'{status_emoji} {fps} fps')
-        else:
-            print(status_emoji)
+            message += f', {fps} fps'
+        print(message)
 
         # Only print on failure and last attempt.
         if not test_states[test] and i == args.retries:
