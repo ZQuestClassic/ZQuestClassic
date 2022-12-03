@@ -308,16 +308,20 @@ void ZScript::logDebugMessage(const char* msg)
 ////////////////////////////////////////////////////////////////
 // CompileErrorHandler
 
-void SimpleCompileErrorHandler::handleError(CompileError const& error)
+void SimpleCompileErrorHandler::handleError(CompileError const& error, std::string const* inf)
 {
 	if (error.isStrict())
 	{
 		++errorCount_;
-		zconsole_error("%s", error.toString().c_str());
+		if(inf && inf->size())
+			zconsole_error("%s\nINFO: %s",error.toString().c_str(),inf->c_str());
+		else zconsole_error("%s",error.toString().c_str());
 	}
 	else
 	{
 		++warningCount_;
-		zconsole_warn("%s", error.toString().c_str());
+		if(inf && inf->size())
+			zconsole_warn("%s\nINFO: %s",error.toString().c_str(),inf->c_str());
+		else zconsole_warn("%s",error.toString().c_str());
 	}
 }

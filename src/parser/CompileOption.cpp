@@ -124,6 +124,7 @@ void CompileOption::initialize()
 	}
 	//Update default values, always:
 	updateDefaults();
+	flush_config_file();
 }
 
 void CompileOption::updateDefaults()

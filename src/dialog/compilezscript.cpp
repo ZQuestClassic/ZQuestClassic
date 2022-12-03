@@ -20,6 +20,7 @@ void doEditZScript(int32_t bg,int32_t fg);
 void clear_map_states();
 void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool fromCompile);
 bool do_slots(map<string, disassembled_script_data> &scripts);
+int32_t onZScriptCompilerSettings();
 
 extern string zScript;
 extern FFScript FFCore;
@@ -91,10 +92,13 @@ void CompileZScriptDialog::updateLabels()
 	labels[1]->setText(buf);
 }
 
-#define BTN(txt, msg) \
+#define BTN(txt, msg, w) \
 Button( \
 	fitParent = true, \
-	text = txt, \
+	padding = 0_px, \
+	text = (txt), \
+	width = (w), \
+	height = 3_em, \
 	onClick = message::msg \
 )
 
@@ -102,6 +106,9 @@ std::shared_ptr<GUI::Widget> CompileZScriptDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
+	const GUI::Size panel_width = 150_px;
+	const GUI::Size col_spacing = 4_px;
+	const GUI::Size row_spacing = 4_px;
 	
 	window = Window(
 		title = "Compile ZScript",
@@ -110,17 +117,28 @@ std::shared_ptr<GUI::Widget> CompileZScriptDialog::view()
 		Column(
 			labels[0] = Label(hAlign = 0.0),
 			labels[1] = Label(hAlign = 0.0),
-			Rows<3>(padding = 0_px,
-				BTN("&Load",LOAD),
-				BTN("E&xport",EXPORT),
-				BTN("&Edit",EDIT),
+			Column(hPadding = 0_px, vPadding = DEFAULT_PADDING*2,
+				rowSpacing = row_spacing,
 				//
-				BTN("&Docs",DOCS),
-				BTN("&std_zh",STD_ZH),
-				DummyWidget(),
+				Row(padding = 0_px,
+					columnSpacing = col_spacing,
+					BTN("&Load",LOAD,panel_width/3),
+					BTN("E&xport",EXPORT,panel_width/3),
+					BTN("&Edit",EDIT,panel_width/3)
+				),
 				//
-				BTN("&Compile",COMPILE),
-				BTN("Cancel",CANCEL)
+				Row(padding = 0_px,
+					columnSpacing = col_spacing,
+					BTN("&Docs",DOCS,panel_width/3),
+					BTN("&std_zh",STD_ZH,panel_width/3),
+					BTN("Settings",SETTINGS,panel_width/3)
+				),
+				//
+				Row(padding = 0_px,
+					columnSpacing = col_spacing,
+					BTN("&Compile",COMPILE,panel_width/2+col_spacing/2),
+					BTN("Cancel",CANCEL,panel_width/2+col_spacing/2)
+				)
 			)
 		)
 	);
@@ -212,6 +230,10 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::STD_ZH:
 			if(util::checkPath("include/std_zh",true))
 				launch_file("include/std_zh");
+			return false;
+		
+		case message::SETTINGS:
+			onZScriptCompilerSettings();
 			return false;
 		
 		case message::COMPILE:

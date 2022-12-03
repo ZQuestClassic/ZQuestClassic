@@ -4,29 +4,29 @@ AudioSymbols AudioSymbols::singleton = AudioSymbols();
 
 static AccessorTable AudioTable[] =
 {
-//	  name,                    tag,            rettype,  var,  funcFlags,  params,optparams
-	{ "PlaySound",               0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
-	{ "EndSound",                0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
-	{ "PauseSound",              0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
-	{ "ResumeSound",             0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
-	{ "ContinueSound",           0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
-	{ "AdjustMusicVolume",       0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
-	{ "AdjustSFXVolume",         0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
-	{ "AdjustSound",             0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{} },
-	{ "PauseCurMIDI",            0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO },{} },
-	{ "ResumeCurMIDI",           0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO },{} },
-	{ "PlayMIDI",                0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
-	{ "PlayEnhancedMusic",       0,          ZTID_BOOL,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "getPanStyle",             0,         ZTID_FLOAT,   AUDIOPAN,    0,  { ZTID_AUDIO },{} },
-	{ "setPanStyle",             0,          ZTID_VOID,   AUDIOPAN,    0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+//	  name,                    tag,            rettype,  var,             funcFlags,  params,optparams
+	{ "PlaySound",               0,          ZTID_VOID,   -1,                     0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "EndSound",                0,          ZTID_VOID,   -1,                     0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "PauseSound",              0,          ZTID_VOID,   -1,                     0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "ResumeSound",             0,          ZTID_VOID,   -1,                     0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "ContinueSound",           0,          ZTID_VOID,   -1,                     0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "AdjustMusicVolume",       0,          ZTID_VOID,   -1,                     0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "AdjustSFXVolume",         0,          ZTID_VOID,   -1,                     0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "PauseCurMIDI",            0,          ZTID_VOID,   -1,                     0,  { ZTID_AUDIO },{} },
+	{ "ResumeCurMIDI",           0,          ZTID_VOID,   -1,                     0,  { ZTID_AUDIO },{} },
+	{ "PlayMIDI",                0,          ZTID_VOID,   -1,                     0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "PlayEnhancedMusic",       0,          ZTID_BOOL,   -1,                     0,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getPanStyle",             0,         ZTID_FLOAT,   AUDIOPAN,               0,  { ZTID_AUDIO },{} },
+	{ "setPanStyle",             0,          ZTID_VOID,   AUDIOPAN,               0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
 	
 	//Undocumented intentionally
-	{ "PlayOgg",                 0,          ZTID_BOOL,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "GetOggPos",               0,         ZTID_FLOAT,   -1,          0,  { ZTID_AUDIO },{} },
-	{ "SetOggPos",               0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
-	{ "SetOggSpeed",             0,          ZTID_VOID,   -1,          0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
-	{ "getVolume[]",             0,         ZTID_FLOAT,   AUDIOVOLUME, 0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
-	{ "setVolume[]",             0,          ZTID_VOID,   AUDIOVOLUME, 0,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "AdjustSound",             0,          ZTID_VOID,   -1,               FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "PlayOgg",                 0,          ZTID_BOOL,   -1,               FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetOggPos",               0,         ZTID_FLOAT,   -1,               FL_DEPR,  { ZTID_AUDIO },{} },
+	{ "SetOggPos",               0,          ZTID_VOID,   -1,               FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "SetOggSpeed",             0,          ZTID_VOID,   -1,               FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "getVolume[]",             0,         ZTID_FLOAT,   AUDIOVOLUME,      FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "setVolume[]",             0,          ZTID_VOID,   AUDIOVOLUME,      FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
 	{ "",                        0,          ZTID_VOID,   -1,          0,  {},{} }
 };

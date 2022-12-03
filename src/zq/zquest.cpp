@@ -24811,7 +24811,7 @@ void showScriptInfo(zasm_meta const* meta)
 
 static int32_t compiler_tab_list_global[] =
 {
-	10,11,12,13,14,15,16,18,19,20,21,
+	10,11,12,13,14,15,16,18,19,20,21,25,26,
 	-1
 };
 
@@ -24857,32 +24857,57 @@ static ListData zcompiler_halt_list(zcompiler_haltlist, &pfont);
 
 const char *zcompiler_guardlist(int32_t index, int32_t *list_size)
 {
-    if(index >= 0)
-    {
-        bound(index,0,3);
-        
-	switch(index)
-        {
-        case 0:
-            return "Disable";
-            
-        case 1:
-            return "Enable";
+	if(index >= 0)
+	{
+		bound(index,0,3);
+		
+		switch(index)
+		{
+			case 0:
+				return "Disable";
+			
+			case 1:
+				return "Enable";
+			
+			case 2:
+				return "Error, Enable";
+			
+			case 3:
+				return "Warn, Enable";
+		}
+	}
 	
-	case 2:
-            return "Error, Enable";
-	
-	case 3:
-            return "Warn, Enable";
-        }
-	
-    }
-    
-    *list_size = 4;
-    return NULL;
+	*list_size = 4;
+	return NULL;
 }
 
 static ListData zcompiler_header_guard_list(zcompiler_guardlist, &pfont);
+
+const char *zcompiler_deprlist(int32_t index, int32_t *list_size)
+{
+	if(index >= 0)
+	{
+		if(index < 0 || index > 2)
+			index = 1;
+		
+		switch(index)
+		{
+			case 0:
+				return "Ignore";
+			
+			case 1:
+				return "Warn";
+			
+			case 2:
+				return "Error";
+		}
+	}
+	
+	*list_size = 3;
+	return NULL;
+}
+
+static ListData zcompiler_depr_list(zcompiler_deprlist, &pfont);
 
 char tempincludepath[MAX_INCLUDE_PATH_CHARS];
 char temprunstring[21];
@@ -24934,6 +24959,12 @@ static DIALOG zscript_parser_dlg[] =
 	{ jwin_check_proc,      10, 32+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Binary Operations use true 32-bit Int", NULL, NULL },
 	{ jwin_check_proc,      10, 32+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Switch/case of strings is case-insensitive", NULL, NULL },
 	
+	//25
+	{ jwin_text_proc,           86,     38+38,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+		(void *) ": On Deprecated Use",                  NULL,   NULL                  },
+	{ jwin_droplist_proc,     10,     32+38,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+		(void *) &zcompiler_depr_list,						 NULL,   NULL 				   },
+	
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
@@ -24973,6 +25004,7 @@ int32_t onZScriptCompilerSettings()
 	set_config_file("zscript.cfg");
 	zscript_parser_dlg[13].d1 = zc_get_config("Compiler","NO_ERROR_HALT",0);
 	zscript_parser_dlg[15].d1 = zc_get_config("Compiler","HEADER_GUARD",1);
+	zscript_parser_dlg[26].d1 = zc_get_config("Compiler","WARN_DEPRECATED",0);
 	set_config_file("zquest.cfg");
 	//memset(tempincludepath,0,sizeof(tempincludepath));
 	strcpy(tempincludepath,FFCore.includePathString);
@@ -25016,6 +25048,7 @@ int32_t onZScriptCompilerSettings()
 		set_config_file("zscript.cfg");
 		zc_set_config("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
 		zc_set_config("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
+		zc_set_config("Compiler","WARN_DEPRECATED",zscript_parser_dlg[26].d1);
 		memset(FFCore.scriptRunString, 0, sizeof(FFCore.scriptRunString));
 		strcpy(FFCore.scriptRunString,temprunstring);
 		set_config_file("zquest.cfg");

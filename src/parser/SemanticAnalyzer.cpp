@@ -1186,6 +1186,8 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 							leftType->getName().c_str()));
 			return;
 		}
+		
+		deprecWarn(host.readFunction, &host, "Variable", leftType->getName() + "->" + host.right);
 	}
 
 	// Find write function.
@@ -1212,6 +1214,8 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 							leftType->getName().c_str()));
 			return;
 		}
+		
+		deprecWarn(host.writeFunction, &host, "Variable", leftType->getName() + "->" + host.right);
 	}
 
 	if (host.index)
@@ -1483,6 +1487,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	}
 	
 	host.binding = bestFunctions.front();
+	deprecWarn(host.binding, &host, "Function", host.binding->getSignature().asString());
 }
 
 void SemanticAnalyzer::caseExprNegate(ASTExprNegate& host, void*)

@@ -996,7 +996,7 @@ Function* BasicScope::addGetter(
 	if (find<Function*>(getters_, name)) return NULL;
 
 	Function* fun = new Function(
-			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID());
+			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags);
 	getters_[name] = fun;
 	return fun;
 }
@@ -1008,7 +1008,7 @@ Function* BasicScope::addSetter(
 	if (find<Function*>(setters_, name)) return NULL;
 
 	Function* fun = new Function(
-			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID());
+			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags);
 	setters_[name] = fun;
 	return fun;
 }

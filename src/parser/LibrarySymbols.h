@@ -32,8 +32,11 @@ struct AccessorTable
     vector<int32_t> params;
     vector<int32_t> optparams;
 	byte extra_vargs; //how many listd params should be treatd as vargs
+	string info;
 	
-	AccessorTable(string const&, byte, int32_t, int32_t, int32_t, vector<int32_t>const&, vector<int32_t> const&, byte v = 0);
+	AccessorTable(string const& name, byte tag, int32_t rettype, int32_t var, int32_t flags,
+		vector<int32_t>const& params, vector<int32_t> const& opts, byte exvargs = 0,
+		string const& info = "");
 };
 
 class LibrarySymbols

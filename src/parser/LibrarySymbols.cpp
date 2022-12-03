@@ -3,10 +3,10 @@
 AccessorTable::AccessorTable(std::string const& name, byte tag, int32_t rettype,
 	int32_t var, int32_t flags,
 	vector<int32_t>const& params, vector<int32_t> const& optparams,
-	byte extra_vargs)
+	byte extra_vargs, string const& info)
 	: name(name), tag(tag), rettype(rettype), var(var),
 	funcFlags(flags), extra_vargs(extra_vargs),
-	params(params), optparams(optparams)
+	params(params), optparams(optparams), info(info)
 {}
 
 LibrarySymbols LibrarySymbols::nilsymbols = LibrarySymbols();
@@ -196,6 +196,7 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 			function->hasPrefixType = true; //Print the first type differently in error messages!
 		
 		function->opt_vals = entry.optparams;
+		function->info = entry.info;
 		if(function->getFlag(FUNCFLAG_VARARGS))
 		{
 			function->extra_vargs = entry.extra_vargs;
