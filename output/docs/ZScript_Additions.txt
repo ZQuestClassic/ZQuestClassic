@@ -2675,6 +2675,14 @@ To use these, call the #option directive, followed by the flag macro, and (on | 
 		Valid values: 'on', 'off', 'inherit', 'default'
 		If on, switch-case on string literals will be case-insensitive.
 		Else, they will be case-sensitive.
+	
+	WARN_DEPRECATED
+		Off by default.
+		Valid values: 'on'/'warn', 'off', 'error', 'inherit', 'default'
+		On using a deprecated internal function/variable, a compile
+			warning will be thrown.
+		If 'off', this is disabled.
+		If 'error', a compile error will be thrown instead of a warning.
 		
 Files default to inheriting the option state of the file that imported them. For the buffer, this will use the defaults.
 You may force an option to its' default value by setting it to 'default'
