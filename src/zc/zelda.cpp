@@ -90,7 +90,7 @@ int32_t DMapEditorLastMaptileUsed = 0;
 int32_t switch_type = 0; //Init here to avoid Linux building error in g++.
 bool saved = true;
 bool zqtesting_mode = false;
-static char testingqst_name[512] = {0};
+static std::string testingqst_name;
 bool use_testingst_start = false;
 static uint16_t testingqst_dmap = 0;
 static uint8_t testingqst_screen = 0;
@@ -4479,7 +4479,7 @@ static void load_replay_file(ReplayMode mode, std::string replay_file)
 {
 	ASSERT(mode == ReplayMode::Replay || mode == ReplayMode::Assert || mode == ReplayMode::Update);
 	replay_start(mode, replay_file);
-	strcpy(testingqst_name, replay_get_meta_str("qst").c_str());
+	testingqst_name = replay_get_meta_str("qst");
 	if (replay_get_meta_bool("test_mode"))
 	{
 		testingqst_dmap = replay_get_meta_int("starting_dmap");
@@ -5444,14 +5444,14 @@ int main(int argc, char **argv)
 			exit(1);
 		}
 		bool error = false;
-		strcpy(testingqst_name, argv[test_arg+1]);
+		testingqst_name = argv[test_arg+1];
 		int32_t dm = atoi(argv[test_arg+2]);
 		int32_t scr = atoi(argv[test_arg+3]);
 		int32_t retsqr = (test_arg+4 >= argc) ? 0 : atoi(argv[test_arg+4]);
-		if(!fileexists(testingqst_name))
+		if(!fileexists(testingqst_name.c_str()))
 		{
 			Z_error_fatal( "-test invalid parameter: 'quest_file_path' was '%s',"
-				" but that file does not exist!\n", testingqst_name);
+				" but that file does not exist!\n", testingqst_name.c_str());
 			error = true;
 		}
 		if(unsigned(dm) >= MAXDMAPS)
@@ -5470,7 +5470,7 @@ int main(int argc, char **argv)
 		
 		if(error)
 		{
-			Z_error_fatal("Failed '-test \"%s\" %d %d'\n", testingqst_name, dm, scr);
+			Z_error_fatal("Failed '-test \"%s\" %d %d'\n", testingqst_name.c_str(), dm, scr);
 			exit(1);
 		}
 		use_testingst_start = true;
@@ -5666,7 +5666,7 @@ reload_for_replay_file:
 		{
 			saves[0].set_continue_scrn(0xFF);
 		}
-		strcpy(saves[0].qstpath, testingqst_name);
+		strcpy(saves[0].qstpath, testingqst_name.c_str());
 		saves[0].set_quest(0xFF);
 		if (replay_is_active())
 		{
@@ -5680,7 +5680,7 @@ reload_for_replay_file:
 		saves[0].set_timevalid(1);
 		clearConsole();
 		if (use_testingst_start)
-			Z_message("Test mode: \"%s\", %d, %d\n", testingqst_name, testingqst_dmap, testingqst_screen);
+			Z_message("Test mode: \"%s\", %d, %d\n", testingqst_name.c_str(), testingqst_dmap, testingqst_screen);
 		if (replay_is_active())
 			printf("Replay is active\n");
 	}
