@@ -134,10 +134,10 @@ def run_replay_test(replay_file):
     # Cap the length of a replay in CI.
     if args.ci:
         max_duration = 5 * 60
-        fps = 800
-        estimated_duration = num_frames / fps
+        estimated_fps = 1500
+        estimated_duration = num_frames / estimated_fps
         if estimated_duration > max_duration:
-            num_frames_checked = fps * max_duration
+            num_frames_checked = estimated_fps * max_duration
             estimated_duration = max_duration
         timeout = max(60 + estimated_duration * 1.5, 60 * 3)
         if args.ci == 'windows':
@@ -167,8 +167,7 @@ def run_replay_test(replay_file):
     allegro_log_path = None
     max_attempts = 5
     for i in range(0, max_attempts):
-        allegro_log_path = pathlib.Path(
-            args.build_folder) / (pathlib.Path(replay_file).stem + f'.{i}.log')
+        allegro_log_path = pathlib.Path(args.build_folder) / f'{replay_file.stem}.{i}.log'
         start = timer()
         try:
             process_result = subprocess.run(exe_args,
