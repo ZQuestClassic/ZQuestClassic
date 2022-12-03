@@ -34,6 +34,7 @@
 import argparse
 import subprocess
 import os
+import sys
 import difflib
 import pathlib
 import shutil
@@ -41,6 +42,9 @@ from time import sleep
 from timeit import default_timer as timer
 
 ASSERT_FAILED_EXIT_CODE = 120
+
+if os.name == 'nt':
+    sys.stdout.reconfigure(encoding='utf-8')
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--build_folder', default='build/Debug')
