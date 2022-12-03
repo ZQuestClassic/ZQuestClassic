@@ -2448,7 +2448,10 @@ int32_t zc_trace_handler(const char * msg)
     // printf("%s", msg);
     if(trace_file == 0)
     {
-        trace_file = fopen("allegro.log", "a+");
+        if (getenv("ALLEGRO_LEGACY_TRACE"))
+            trace_file = fopen(getenv("ALLEGRO_LEGACY_TRACE"), "a+");
+        else
+            trace_file = fopen("allegro.log", "a+");
         
         if(0==trace_file)
         {
@@ -2468,7 +2471,10 @@ void zc_trace_clear()
         fclose(trace_file);
     }
     
-    trace_file = fopen("allegro.log", "w");
+    if (getenv("ALLEGRO_LEGACY_TRACE"))
+        trace_file = fopen(getenv("ALLEGRO_LEGACY_TRACE"), "w");
+    else
+        trace_file = fopen("allegro.log", "w");
     ASSERT(trace_file);
 }
 
