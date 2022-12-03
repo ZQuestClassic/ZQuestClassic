@@ -40,6 +40,8 @@ import shutil
 from time import sleep
 from timeit import default_timer as timer
 
+ASSERT_FAILED_EXIT_CODE = 120
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--build_folder', default='build/Debug')
 parser.add_argument('--filter')
@@ -138,7 +140,9 @@ def run_replay_test(replay_file):
         exe_args.extend(['-frame', str(num_frames_checked)])
 
     fps = None
-    for _ in range(0, 5):
+    success = False
+    max_attempts = 5
+    for i in range(0, max_attempts):
         try:
             start = timer()
             process_result = subprocess.run(exe_args,
@@ -151,9 +155,13 @@ def run_replay_test(replay_file):
                 # TODO: we only know the fps if the replay succeeded.
                 if process_result.returncode == 0:
                     fps = int(num_frames_checked / (timer() - start))
+                    success = True
+                elif process_result.returncode != ASSERT_FAILED_EXIT_CODE:
+                    print(f'process failed with unexpected code {process_result.returncode}')
                 break
-            print('did not start correctly, trying again...')
-            sleep(1)
+            if i != max_attempts - 1:
+                print('did not start correctly, trying again...')
+                sleep(1)
         except subprocess.TimeoutExpired as e:
             return False, f'{e}\n\n{e.stdout}', e.stderr, None, None
 
@@ -175,7 +183,7 @@ def run_replay_test(replay_file):
         else:
             diff = 'missing roundtrip file, cannnot diff'
 
-    return process_result.returncode == 0, process_result.stdout, process_result.stderr, diff, fps
+    return success, process_result.stdout, process_result.stderr, diff, fps
 
 
 test_states = {}
