@@ -151,18 +151,37 @@ def run_replay_test(replay_file):
         print(f"(-frame {num_frames_checked}, only doing {100 * num_frames_checked / num_frames:.2f}%) ", end='', flush=True)
         exe_args.extend(['-frame', str(num_frames_checked)])
 
+    def fill_log(process_result, allegro_log_path):
+        allegro_log = None
+        if allegro_log_path and allegro_log_path.exists():
+            allegro_log = allegro_log_path.read_text()
+        return {
+            'stdout': process_result.stdout,
+            'stderr': process_result.stderr,
+            'allegro': allegro_log,
+        }
+
+    log = None
     fps = None
     success = False
+    allegro_log_path = None
     max_attempts = 5
     for i in range(0, max_attempts):
+        allegro_log_path = pathlib.Path(
+            args.build_folder) / (pathlib.Path(replay_file).stem + f'.{i}.log')
+        start = timer()
         try:
-            start = timer()
             process_result = subprocess.run(exe_args,
                                             cwd=args.build_folder if os.name == 'nt' else None,
+                                            env={
+                                                **os.environ,
+                                                'ALLEGRO_LEGACY_TRACE': allegro_log_path.name
+                                            },
                                             stdout=subprocess.PIPE,
                                             stderr=subprocess.PIPE,
                                             text=True,
                                             timeout=timeout)
+            log = fill_log(process_result, allegro_log_path)
             if 'Replay is active' in process_result.stdout:
                 # TODO: we only know the fps if the replay succeeded.
                 if process_result.returncode == 0:
@@ -175,7 +194,12 @@ def run_replay_test(replay_file):
                 print('did not start correctly, trying again...')
                 sleep(1)
         except subprocess.TimeoutExpired as e:
-            return False, f'{e}\n\n{e.stdout}', e.stderr, None, None
+            log = fill_log(e, allegro_log_path)
+            log['stdout'] = f'{e}\n\n' + log['stdout']
+            return False, log, None, None
+        finally:
+            if allegro_log_path:
+                allegro_log_path.unlink(missing_ok=True)
 
     diff = None
     if not args.update and process_result.returncode == 120:
@@ -195,7 +219,7 @@ def run_replay_test(replay_file):
         else:
             diff = 'missing roundtrip file, cannnot diff'
 
-    return success, process_result.stdout, process_result.stderr, diff, fps
+    return success, log, diff, fps
 
 
 test_states = {}
@@ -219,7 +243,7 @@ for i in range(args.retries + 1):
     for test in [t for t in tests if not test_states[t]]:
         print(f'= {test.relative_to(replays_dir)} ... ', end='', flush=True)
         start = timer()
-        test_states[test], stdout, stderr, diff, fps = run_replay_test(test)
+        test_states[test], log, diff, fps = run_replay_test(test)
         duration = timer() - start
         status_emoji = '✅' if test_states[test] else '❌'
 
@@ -231,9 +255,11 @@ for i in range(args.retries + 1):
         # Only print on failure and last attempt.
         if not test_states[test] and i == args.retries:
             print('stdout:')
-            print(stdout)
+            print(log['stdout'])
             print('\nstderr:')
-            print(stderr)
+            print(log['stderr'])
+            print('\nallegro:')
+            print(log['allegro'])
             print('\ndiff:')
             print(diff)
 
