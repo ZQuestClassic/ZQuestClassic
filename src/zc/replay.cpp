@@ -903,8 +903,6 @@ void replay_start(ReplayMode mode_, std::string filename_)
         break;
     }
     case ReplayMode::Replay:
-        load_replay(filename);
-        break;
     case ReplayMode::Assert:
     case ReplayMode::Update:
         load_replay(filename);
@@ -1597,11 +1595,13 @@ void replay_set_rng_seed(zc_randgen *rng, int seed)
         {
             int line_number = replay_log_current_index + meta_map.size() + 1;
             std::string error = fmt::format("<{}> rng desync! stopping replay", line_number);
+            std::string error2 = fmt::format("frame {}", frame_count);
             fprintf(stderr, "%s\n", error.c_str());
+            fprintf(stderr, "%s\n", error2.c_str());
             replay_stop();
 
             enter_sys_pal();
-            jwin_alert("Recording", error.c_str(), NULL, NULL, "OK", NULL, 13, 27, lfont);
+            jwin_alert("Recording", error.c_str(), error2.c_str(), NULL, "OK", NULL, 13, 27, lfont);
             exit_sys_pal();
         }
     }
