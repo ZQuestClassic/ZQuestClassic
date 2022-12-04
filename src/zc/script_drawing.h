@@ -39,7 +39,8 @@ public:
     
     ~SmallBitmapTextureCache()
     {
-        Dispose();
+        if (system_driver)
+            Dispose();
     }
     
     void Dispose()
