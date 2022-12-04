@@ -28370,8 +28370,6 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			
 			if (!(guys.spr(GuyH::getNPCIndex(i))->initialised))
 			{
-				al_trace("(guys.spr(GuyH::getNPCIndex(i))->initialised) is %d\n",(guys.spr(GuyH::getNPCIndex(i))->initialised));
-				
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 					ri->d[q] = wa->initD[q];
@@ -28396,7 +28394,6 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			
 			if (!(Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised))
 			{
-				al_trace("(Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised) is %d\n",(Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised));
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 	
@@ -28424,7 +28421,6 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			ri->ewpn = wa->getUID();
 			if (!(Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised))
 			{
-				al_trace("(Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised) is %d\n",(Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised));
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 					
@@ -28451,7 +28447,6 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			ri->itemref = wa->getUID();
 			if (!(items.spr(ItemH::getItemIndex(i))->initialised))
 			{
-				al_trace("(items.spr(ItemH::getItemIndex(i))->initialised) is %d\n",(items.spr(ItemH::getItemIndex(i))->initialised));
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 					
