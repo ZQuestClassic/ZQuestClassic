@@ -1,0 +1,58 @@
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        type: string
+      arch:
+        type: string
+
+jobs:
+  build:
+    # See https://github.com/community/community/discussions/40777
+    # uses: ./.github/workflows/build.yml
+    uses: ArmageddonGames/ZQuestClassic/.github/workflows/build.yml@main
+    with:
+      runs-on: ${{ inputs.runs-on }}
+      arch: ${{ inputs.arch }}
+
+  test:
+    needs: ["build"]
+    runs-on: ${{ inputs.runs-on }}
+    steps:
+      - name: git clone
+        uses: nschloe/action-cached-lfs-checkout@v1
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ needs.build.outputs.build-artifact-name }}
+          path: ${{ needs.build.outputs.build-artifact-name }}
+      - name: Prepare build folder
+        uses: knicknic/os-specific-run@v1.0.3
+        with:
+          windows: |
+            chcp 65001
+            echo ("BUILD_FOLDER=${{ needs.build.outputs.build-artifact-name }}") >> $env:GITHUB_ENV
+          macos: |
+            echo "BUILD_FOLDER=${{ needs.build.outputs.build-artifact-name }}/ZeldaClassic.app/Contents/Resources" >> "$GITHUB_ENV"
+            chmod +x ${{ needs.build.outputs.build-artifact-name }}/ZeldaClassic.app/Contents/Resources/zelda
+            chmod +x ${{ needs.build.outputs.build-artifact-name }}/ZeldaClassic.app/Contents/Resources/zscript
+
+      - name: Test zscript
+        uses: knicknic/os-specific-run@v1.0.3
+        with:
+          windows: |
+            cd ${{ env.BUILD_FOLDER }}
+            ./zscript.exe -input "include/std.zh" -unlinked
+          macosx: |
+            cd ${{ env.BUILD_FOLDER }}
+            ./zscript -input "include/std.zh" -unlinked
+
+      - name: Run replay tests
+        run: python3 -Xutf8 tests/run_replay_tests.py --build_folder ${{ env.BUILD_FOLDER }} --retries 1 --ci ${{ inputs.runs-on }}
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: replays ${{ inputs.arch }}
+          path: |
+            ${{ github.workspace }}/tests/replays/*.zplay.roundtrip
+            ${{ github.workspace }}/tests/replays/*.bmp

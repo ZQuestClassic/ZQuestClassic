@@ -1,0 +1,111 @@
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        type: string
+      arch:
+        type: string
+    outputs:
+      build-artifact-name:
+        description: "The name of the artifact that should be downloaded by the caller workflow"
+        value: build-${{ inputs.runs-on }}-${{ inputs.arch }}
+
+env:
+  CCACHE_BASEDIR: ${{ github.workspace }}
+  CCACHE_DIR: ${{ github.workspace }}/.ccache
+  CCACHE_MAXSIZE: 400M
+  CCACHE_SLOPPINESS: time_macros
+
+jobs:
+  build:
+    runs-on: ${{ inputs.runs-on }}
+    steps:
+      # Install dependencies.
+      - name: git clone
+        uses: actions/checkout@v3
+
+      - name: Install Node.js 16.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+
+      - if: ${{ contains(inputs.runs-on, 'windows') }}
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ inputs.arch }}
+
+      - if: ${{ contains(inputs.runs-on, 'windows') }}
+        name: Install Dependencies
+        uses: crazy-max/ghaction-chocolatey@v1
+        with:
+          args: install .github/dependencies.config -y
+
+      - if: ${{ contains(inputs.runs-on, 'mac') }}
+        run: brew install ninja dylibbundler create-dmg ccache
+
+      - if: ${{ contains(inputs.runs-on, 'mac') }}
+        name: Build and install Bison
+        run: |
+          wget http://ftp.gnu.org/gnu/bison/bison-3.6.tar.gz
+          tar -zxvf bison-3.6.tar.gz
+          cd bison-3.6
+          ./configure
+          make
+          sudo make install
+
+      # Setup build cache via ccache.
+      - name: ccache cache files
+        uses: actions/cache@v3
+        with:
+          path: .ccache
+          key: ${{ inputs.runs-on }}-${{ inputs.arch }}-ccache-${{ github.run_id }}
+          restore-keys: ${{ inputs.runs-on }}-${{ inputs.arch }}-
+      - run: ccache -z
+
+      # Configure build.
+      - name: Set environment variables
+        uses: knicknic/os-specific-run@v1.0.3
+        with:
+          windows: |
+            chcp 65001
+            echo ("BUILD_FOLDER=.") >> $env:GITHUB_ENV
+            echo ("PACKAGE_FOLDER=output/_auto/buildpack") >> $env:GITHUB_ENV
+          macos: |
+            echo "BUILD_FOLDER=build" >> "$GITHUB_ENV"
+            echo "PACKAGE_FOLDER=output/_auto/zelda-classic-mac" >> "$GITHUB_ENV"
+      - run: cp src/metadata/*.h.sig src/metadata/sigs/
+      - name: Configure build
+        run: >
+          cmake -S . -B ${{ env.BUILD_FOLDER }} -G 'Ninja Multi-Config'
+          -DCMAKE_WIN32_EXECUTABLE=1
+          -DCMAKE_C_COMPILER_LAUNCHER=ccache
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+      # Build things individually just to have some separation in the GHA UI.
+      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target allegro -j 4
+      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target zcsound -j 4
+      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target zquest -j 4
+      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target zelda -j 4
+      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target zscript -j 4
+      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target zlauncher -j 4
+      # TODO: fix error from png-fix-itxt.exe on windows.
+      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release -j 4
+        if: ${{ contains(inputs.runs-on, 'mac') }}
+      - run: ccache -s
+
+      # Package.
+      - name: Package
+        uses: knicknic/os-specific-run@v1.0.3
+        with:
+          windows: |
+            cd output/_auto
+            ./buildpack.bat N
+          macos: |
+            cd output/_auto
+            ./buildpack_osx.sh
+
+      # Make build result available to other jobs.
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build-${{ inputs.runs-on }}-${{ inputs.arch }}
+          path: ${{ env.PACKAGE_FOLDER }}

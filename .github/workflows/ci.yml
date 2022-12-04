@@ -4,131 +4,24 @@ on:
   push:
   pull_request:
 
-env:
-  CCACHE_BASEDIR: ${{ github.workspace }}
-  CCACHE_DIR: ${{ github.workspace }}/.ccache
-  CCACHE_MAXSIZE: 400M
-  CCACHE_SLOPPINESS: time_macros
-
 jobs:
-  compile-windows:
-    runs-on: windows-2022
+  test:
     strategy:
       matrix:
-        arch:
-          - x64
-          - win32
+        include:
+          - runs-on: windows-2022
+            arch: x64
+          - runs-on: windows-2022
+            arch: win32
+          - runs-on: macos-12
+            arch: intel
       fail-fast: false
-
-    steps:
-    - uses: ilammy/msvc-dev-cmd@v1
-      with:
-        arch: ${{ matrix.arch }}
-
-    - name: git clone
-      uses: nschloe/action-cached-lfs-checkout@v1
-
-    - name: Install Dependencies
-      uses: crazy-max/ghaction-chocolatey@v1
-      with:
-        args: install .github/dependencies.config -y
-    
-    # Setup build cache via ccache.
-    - name: ccache cache files
-      uses: actions/cache@v3
-      with:
-        path: .ccache
-        key: win-${{ matrix.arch }}-ccache-${{ github.run_id }}
-        restore-keys: win-${{ matrix.arch }}-
-    - run: ccache -z
-
-    - run: cp src/metadata/*.h.sig src/metadata/sigs/
-    - name: Configure build
-      run: >
-        cmake -S . -B . -G 'Ninja Multi-Config'
-        -DCMAKE_WIN32_EXECUTABLE=1
-        -DCMAKE_C_COMPILER_LAUNCHER=ccache
-        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-
-    # Build things individually just to have some separation in the GHA UI.
-    - run: cmake --build . --config Release --target allegro -j 4
-    - run: cmake --build . --config Release --target zcsound -j 4
-    - run: cmake --build . --config Release --target zquest -j 4
-    - run: cmake --build . --config Release --target zelda -j 4
-    - run: cmake --build . --config Release --target zscript -j 4
-    - run: cmake --build . --config Release --target zlauncher -j 4
-    - run: ccache -s
-    
-    # Check ZScript
-    - run: ./buildpack.bat N
-      working-directory: output/_auto
-    - run: ./zscript.exe -input "include/std.zh" -unlinked
-      working-directory: output/_auto/buildpack
-    
-    # Run replay tests.
-    - run: python3 -Xutf8 ${{ github.workspace }}/tests/run_replay_tests.py --build_folder=. --retries=1 --ci windows
-      working-directory: output/_auto/buildpack
-    - uses: actions/upload-artifact@v3
-      if: failure()
-      with:
-        name: replays ${{ matrix.arch }}
-        path: |
-          ${{ github.workspace }}/tests/replays/*.zplay.roundtrip
-          ${{ github.workspace }}/tests/replays/*.bmp
-
-  compile-mac:
-    runs-on: macos-12
-
-    steps:
-    - name: git clone
-      uses: nschloe/action-cached-lfs-checkout@v1
-    
-    - run: brew install ninja dylibbundler create-dmg ccache
-    - name: Install Bison
-      run: |
-        wget http://ftp.gnu.org/gnu/bison/bison-3.6.tar.gz
-        tar -zxvf bison-3.6.tar.gz
-        cd bison-3.6
-        ./configure
-        make
-        sudo make install
-
-    # Setup build cache via ccache.
-    - name: ccache cache files
-      uses: actions/cache@v3
-      with:
-        path: .ccache
-        key: osx-ccache-${{ github.run_id }}
-        restore-keys: osx-ccache-
-    - run: ccache -z
-
-    - run: cp src/metadata/*.h.sig src/metadata/sigs/
-    - name: Configure build
-      run: >
-        cmake -S . -B build -G 'Ninja Multi-Config' .
-        -DCMAKE_C_COMPILER_LAUNCHER=ccache
-        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-
-    #Build
-    - run: cmake --build build --config Release
-    - run: ccache -s
-    
-    # Check ZScript
-    - run: ./buildpack_osx.sh
-      working-directory: output/_auto
-    - run: ./zscript -input "include/std.zh" -unlinked
-      working-directory: output/_auto/zelda-classic-mac/ZeldaClassic.app/Contents/Resources
-    
-    # Run replay tests.
-    - run: python3 ${{ github.workspace }}/tests/run_replay_tests.py --build_folder=. --retries=1 --ci osx
-      working-directory: output/_auto/zelda-classic-mac/ZeldaClassic.app/Contents/Resources
-    - uses: actions/upload-artifact@v3
-      if: failure()
-      with:
-        name: replays osx
-        path: |
-          ${{ github.workspace }}/tests/replays/*.zplay.roundtrip
-          ${{ github.workspace }}/tests/replays/*.bmp
+    # See https://github.com/community/community/discussions/40777
+    # uses: ./.github/workflows/test.yml
+    uses: ArmageddonGames/ZQuestClassic/.github/workflows/test.yml@main
+    with:
+      runs-on: ${{ matrix.runs-on }}
+      arch: ${{ matrix.arch }}
 
   compile-web:
     runs-on: macos-12
@@ -139,8 +32,8 @@ jobs:
 
       - uses: mymindstorm/setup-emsdk@v11
         with:
-          version: '3.1.24'
-          actions-cache-folder: 'emsdk-cache'
+          version: "3.1.24"
+          actions-cache-folder: "emsdk-cache"
       - run: brew install ninja ccache
       - name: Install Bison
         run: |
