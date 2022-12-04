@@ -464,7 +464,6 @@ bool OptionsDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			[[fallthrough]];
 		default:
 			//cleanup
-			save_config_file();
 			setup_combo_animations();
 			setup_combo_animations2();
 			refresh(rALL);

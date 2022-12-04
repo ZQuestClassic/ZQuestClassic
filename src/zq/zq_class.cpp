@@ -6969,7 +6969,7 @@ void popup_bugfix_dlg(char* cfg)
 				}
 				if(dsa)
 				{
-					zc_set_config("zquest","dsa_compatrule",1);
+					zc_set_config("zquest",cfg,1);
 				}
 			},
 			"Yes","No",

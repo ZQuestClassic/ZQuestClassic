@@ -27895,7 +27895,6 @@ int32_t load_zmod_module_file()
 	    strcpy(moduledata.module_name, temppath);
 	    al_trace("New Module Path is: %s \n", moduledata.module_name);
 	    zc_set_config("ZCMODULE","current_module",moduledata.module_name);
-	    //save_game_configs();
 	    zcm.init(true); //Load the module values.
 	    build_biic_list();
 	    build_bief_list();
@@ -30512,7 +30511,7 @@ int32_t main(int32_t argc,char **argv)
 	midi_volume					= zc_get_config("zquest", "midi", 255);
 	
 	abc_patternmatch			   = zc_get_config("zquest", "lister_pattern_matching", 1);
-	NoScreenPreview			   = zc_get_config("zquest", "no_preview", 1);
+	NoScreenPreview			   = zc_get_config("zquest", "no_preview", 0);
 	
 	monochrome_console = zc_get_config("CONSOLE","monochrome_debuggers",0)?1:0;
 	

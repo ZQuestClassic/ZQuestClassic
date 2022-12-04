@@ -267,6 +267,8 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 /**********************************/
 
 static char cfg_sect[] = "zeldadx"; //We need to rename this.
+static char ctrl_sect[] = "Controls";
+static char sfx_sect[] = "Volume";
 
 int32_t d_dummy_proc(int32_t,DIALOG *,int32_t)
 {
@@ -276,73 +278,73 @@ int32_t d_dummy_proc(int32_t,DIALOG *,int32_t)
 void load_game_configs()
 {
 	strcpy(moduledata.module_name,zc_get_config("ZCMODULE",qst_module_name,"classic.zmod"));
-	joystick_index = zc_get_config(cfg_sect,"joystick_index",0);
-	js_stick_1_x_stick = zc_get_config(cfg_sect,"js_stick_1_x_stick",0);
-	js_stick_1_x_axis = zc_get_config(cfg_sect,"js_stick_1_x_axis",0);
-	js_stick_1_x_offset = zc_get_config(cfg_sect,"js_stick_1_x_offset",0) ? 128 : 0;
-	js_stick_1_y_stick = zc_get_config(cfg_sect,"js_stick_1_y_stick",0);
-	js_stick_1_y_axis = zc_get_config(cfg_sect,"js_stick_1_y_axis",1);
-	js_stick_1_y_offset = zc_get_config(cfg_sect,"js_stick_1_y_offset",0) ? 128 : 0;
-	js_stick_2_x_stick = zc_get_config(cfg_sect,"js_stick_2_x_stick",1);
-	js_stick_2_x_axis = zc_get_config(cfg_sect,"js_stick_2_x_axis",0);
-	js_stick_2_x_offset = zc_get_config(cfg_sect,"js_stick_2_x_offset",0) ? 128 : 0;
-	js_stick_2_y_stick = zc_get_config(cfg_sect,"js_stick_2_y_stick",1);
-	js_stick_2_y_axis = zc_get_config(cfg_sect,"js_stick_2_y_axis",1);
-	js_stick_2_y_offset = zc_get_config(cfg_sect,"js_stick_2_y_offset",0) ? 128 : 0;
-	analog_movement = (zc_get_config(cfg_sect,"analog_movement",1));
+	joystick_index = zc_get_config(ctrl_sect,"joystick_index",0);
+	js_stick_1_x_stick = zc_get_config(ctrl_sect,"js_stick_1_x_stick",0);
+	js_stick_1_x_axis = zc_get_config(ctrl_sect,"js_stick_1_x_axis",0);
+	js_stick_1_x_offset = zc_get_config(ctrl_sect,"js_stick_1_x_offset",0) ? 128 : 0;
+	js_stick_1_y_stick = zc_get_config(ctrl_sect,"js_stick_1_y_stick",0);
+	js_stick_1_y_axis = zc_get_config(ctrl_sect,"js_stick_1_y_axis",1);
+	js_stick_1_y_offset = zc_get_config(ctrl_sect,"js_stick_1_y_offset",0) ? 128 : 0;
+	js_stick_2_x_stick = zc_get_config(ctrl_sect,"js_stick_2_x_stick",1);
+	js_stick_2_x_axis = zc_get_config(ctrl_sect,"js_stick_2_x_axis",0);
+	js_stick_2_x_offset = zc_get_config(ctrl_sect,"js_stick_2_x_offset",0) ? 128 : 0;
+	js_stick_2_y_stick = zc_get_config(ctrl_sect,"js_stick_2_y_stick",1);
+	js_stick_2_y_axis = zc_get_config(ctrl_sect,"js_stick_2_y_axis",1);
+	js_stick_2_y_offset = zc_get_config(ctrl_sect,"js_stick_2_y_offset",0) ? 128 : 0;
+	analog_movement = (zc_get_config(ctrl_sect,"analog_movement",1));
    
 	//cheat modifier keya
-	cheat_modifier_keys[0] = zc_get_config(cfg_sect,"key_cheatmod_a1",KEY_ZC_LCONTROL);
-	cheat_modifier_keys[1] = zc_get_config(cfg_sect,"key_cheatmod_a2",0);
-	cheat_modifier_keys[2] = zc_get_config(cfg_sect,"key_cheatmod_b1",KEY_ZC_RCONTROL);
-	cheat_modifier_keys[3] = zc_get_config(cfg_sect,"key_cheatmod_b2",0);
+	cheat_modifier_keys[0] = zc_get_config(ctrl_sect,"key_cheatmod_a1",KEY_ZC_LCONTROL);
+	cheat_modifier_keys[1] = zc_get_config(ctrl_sect,"key_cheatmod_a2",0);
+	cheat_modifier_keys[2] = zc_get_config(ctrl_sect,"key_cheatmod_b1",KEY_ZC_RCONTROL);
+	cheat_modifier_keys[3] = zc_get_config(ctrl_sect,"key_cheatmod_b2",0);
    
 	if((uint32_t)joystick_index >= MAX_JOYSTICKS)
 		joystick_index = 0;
 	   
-	Akey = zc_get_config(cfg_sect,"key_a",KEY_Z);
-	Bkey = zc_get_config(cfg_sect,"key_b",KEY_X);
-	Skey = zc_get_config(cfg_sect,"key_s",KEY_ENTER);
-	Lkey = zc_get_config(cfg_sect,"key_l",KEY_Q);
-	Rkey = zc_get_config(cfg_sect,"key_r",KEY_W);
-	Pkey = zc_get_config(cfg_sect,"key_p",KEY_SPACE);
-	Exkey1 = zc_get_config(cfg_sect,"key_ex1",KEY_A);
-	Exkey2 = zc_get_config(cfg_sect,"key_ex2",KEY_S);
-	Exkey3 = zc_get_config(cfg_sect,"key_ex3",KEY_D);
-	Exkey4 = zc_get_config(cfg_sect,"key_ex4",KEY_C);
+	Akey = zc_get_config(ctrl_sect,"key_a",KEY_Z);
+	Bkey = zc_get_config(ctrl_sect,"key_b",KEY_X);
+	Skey = zc_get_config(ctrl_sect,"key_s",KEY_ENTER);
+	Lkey = zc_get_config(ctrl_sect,"key_l",KEY_Q);
+	Rkey = zc_get_config(ctrl_sect,"key_r",KEY_W);
+	Pkey = zc_get_config(ctrl_sect,"key_p",KEY_SPACE);
+	Exkey1 = zc_get_config(ctrl_sect,"key_ex1",KEY_A);
+	Exkey2 = zc_get_config(ctrl_sect,"key_ex2",KEY_S);
+	Exkey3 = zc_get_config(ctrl_sect,"key_ex3",KEY_D);
+	Exkey4 = zc_get_config(ctrl_sect,"key_ex4",KEY_C);
    
-	DUkey = zc_get_config(cfg_sect,"key_up",   KEY_UP);
-	DDkey = zc_get_config(cfg_sect,"key_down", KEY_DOWN);
-	DLkey = zc_get_config(cfg_sect,"key_left", KEY_LEFT);
-	DRkey = zc_get_config(cfg_sect,"key_right",KEY_RIGHT);
+	DUkey = zc_get_config(ctrl_sect,"key_up",   KEY_UP);
+	DDkey = zc_get_config(ctrl_sect,"key_down", KEY_DOWN);
+	DLkey = zc_get_config(ctrl_sect,"key_left", KEY_LEFT);
+	DRkey = zc_get_config(ctrl_sect,"key_right",KEY_RIGHT);
    
-	Abtn = zc_get_config(cfg_sect,"btn_a",2);
-	Bbtn = zc_get_config(cfg_sect,"btn_b",1);
-	Sbtn = zc_get_config(cfg_sect,"btn_s",10);
-	Mbtn = zc_get_config(cfg_sect,"btn_m",9);
-	Lbtn = zc_get_config(cfg_sect,"btn_l",5);
-	Rbtn = zc_get_config(cfg_sect,"btn_r",6);
-	Pbtn = zc_get_config(cfg_sect,"btn_p",12);
-	Exbtn1 = zc_get_config(cfg_sect,"btn_ex1",7);
-	Exbtn2 = zc_get_config(cfg_sect,"btn_ex2",8);
-	Exbtn3 = zc_get_config(cfg_sect,"btn_ex3",4);
-	Exbtn4 = zc_get_config(cfg_sect,"btn_ex4",3);
+	Abtn = zc_get_config(ctrl_sect,"btn_a",2);
+	Bbtn = zc_get_config(ctrl_sect,"btn_b",1);
+	Sbtn = zc_get_config(ctrl_sect,"btn_s",10);
+	Mbtn = zc_get_config(ctrl_sect,"btn_m",9);
+	Lbtn = zc_get_config(ctrl_sect,"btn_l",5);
+	Rbtn = zc_get_config(ctrl_sect,"btn_r",6);
+	Pbtn = zc_get_config(ctrl_sect,"btn_p",12);
+	Exbtn1 = zc_get_config(ctrl_sect,"btn_ex1",7);
+	Exbtn2 = zc_get_config(ctrl_sect,"btn_ex2",8);
+	Exbtn3 = zc_get_config(ctrl_sect,"btn_ex3",4);
+	Exbtn4 = zc_get_config(ctrl_sect,"btn_ex4",3);
    
-	DUbtn = zc_get_config(cfg_sect,"btn_up",13);
-	DDbtn = zc_get_config(cfg_sect,"btn_down",14);
-	DLbtn = zc_get_config(cfg_sect,"btn_left",15);
-	DRbtn = zc_get_config(cfg_sect,"btn_right",16);
+	DUbtn = zc_get_config(ctrl_sect,"btn_up",13);
+	DDbtn = zc_get_config(ctrl_sect,"btn_down",14);
+	DLbtn = zc_get_config(ctrl_sect,"btn_left",15);
+	DRbtn = zc_get_config(ctrl_sect,"btn_right",16);
 	
 	epilepsyFlashReduction = zc_get_config(cfg_sect,"epilepsy_flash_reduction",0);
 
-	digi_volume = zc_get_config(cfg_sect,"digi",248);
-	midi_volume = zc_get_config(cfg_sect,"midi",255);
-	sfx_volume = zc_get_config(cfg_sect,"sfx",248);
-	emusic_volume = zc_get_config(cfg_sect,"emusic",248);
-	pan_style = zc_get_config(cfg_sect,"pan",1);
+	digi_volume = zc_get_config(sfx_sect,"digi",248);
+	midi_volume = zc_get_config(sfx_sect,"midi",255);
+	sfx_volume = zc_get_config(sfx_sect,"sfx",248);
+	emusic_volume = zc_get_config(sfx_sect,"emusic",248);
+	pan_style = zc_get_config(sfx_sect,"pan",1);
 	// 1 <= zcmusic_bufsz <= 128
-	zcmusic_bufsz = vbound(zc_get_config(cfg_sect,"zcmusic_bufsz",64),1,128);
-	volkeys = zc_get_config(cfg_sect,"volkeys",0)!=0;
+	zcmusic_bufsz = vbound(zc_get_config(sfx_sect,"zcmusic_bufsz",64),1,128);
+	volkeys = zc_get_config(sfx_sect,"volkeys",0)!=0;
 	zc_vsync = zc_get_config(cfg_sect,"vsync",0);
 	Throttlefps = zc_get_config(cfg_sect,"throttlefps",1)!=0;
 	TransLayers = zc_get_config(cfg_sect,"translayers",1)!=0;
@@ -384,7 +386,6 @@ void load_game_configs()
 #ifdef _WIN32
 	zasm_debugger = (byte) zc_get_config("CONSOLE","print_ZASM",0);
 	zscript_debugger = (byte) zc_get_config("CONSOLE","ZScript_Debugger",0);
-	console_on_top = (byte) zc_get_config("CONSOLE","console_on_top",0);
 	//use_win7_keyboard_fix = (byte) zc_get_config(cfg_sect,"use_win7_key_fix",0);
 	use_win32_proc = (byte) zc_get_config(cfg_sect,"zc_win_proc_fix",0); //buggy
    
@@ -432,62 +433,62 @@ void save_control_configs(bool kb)
 {
 	if(kb)
 	{
-		zc_set_config(cfg_sect,"key_cheatmod_a1",cheat_modifier_keys[0]);
-		zc_set_config(cfg_sect,"key_cheatmod_a2",cheat_modifier_keys[1]);
-		zc_set_config(cfg_sect,"key_cheatmod_b1",cheat_modifier_keys[2]);
-		zc_set_config(cfg_sect,"key_cheatmod_b2",cheat_modifier_keys[3]);
+		zc_set_config(ctrl_sect,"key_cheatmod_a1",cheat_modifier_keys[0]);
+		zc_set_config(ctrl_sect,"key_cheatmod_a2",cheat_modifier_keys[1]);
+		zc_set_config(ctrl_sect,"key_cheatmod_b1",cheat_modifier_keys[2]);
+		zc_set_config(ctrl_sect,"key_cheatmod_b2",cheat_modifier_keys[3]);
 		
 		if (!replay_is_replaying())
 		{
-			zc_set_config(cfg_sect,"key_a",Akey);
-			zc_set_config(cfg_sect,"key_b",Bkey);
-			zc_set_config(cfg_sect,"key_s",Skey);
-			zc_set_config(cfg_sect,"key_l",Lkey);
-			zc_set_config(cfg_sect,"key_r",Rkey);
-			zc_set_config(cfg_sect,"key_p",Pkey);
-			zc_set_config(cfg_sect,"key_ex1",Exkey1);
-			zc_set_config(cfg_sect,"key_ex2",Exkey2);
-			zc_set_config(cfg_sect,"key_ex3",Exkey3);
-			zc_set_config(cfg_sect,"key_ex4",Exkey4);
-			zc_set_config(cfg_sect,"key_up",   DUkey);
-			zc_set_config(cfg_sect,"key_down", DDkey);
-			zc_set_config(cfg_sect,"key_left", DLkey);
-			zc_set_config(cfg_sect,"key_right",DRkey);
+			zc_set_config(ctrl_sect,"key_a",Akey);
+			zc_set_config(ctrl_sect,"key_b",Bkey);
+			zc_set_config(ctrl_sect,"key_s",Skey);
+			zc_set_config(ctrl_sect,"key_l",Lkey);
+			zc_set_config(ctrl_sect,"key_r",Rkey);
+			zc_set_config(ctrl_sect,"key_p",Pkey);
+			zc_set_config(ctrl_sect,"key_ex1",Exkey1);
+			zc_set_config(ctrl_sect,"key_ex2",Exkey2);
+			zc_set_config(ctrl_sect,"key_ex3",Exkey3);
+			zc_set_config(ctrl_sect,"key_ex4",Exkey4);
+			zc_set_config(ctrl_sect,"key_up",   DUkey);
+			zc_set_config(ctrl_sect,"key_down", DDkey);
+			zc_set_config(ctrl_sect,"key_left", DLkey);
+			zc_set_config(ctrl_sect,"key_right",DRkey);
 		}
 	}
 	else
 	{
-		zc_set_config(cfg_sect,"joystick_index",joystick_index);
-		zc_set_config(cfg_sect,"js_stick_1_x_stick",js_stick_1_x_stick);
-		zc_set_config(cfg_sect,"js_stick_1_x_axis",js_stick_1_x_axis);
-		zc_set_config(cfg_sect,"js_stick_1_x_offset",js_stick_1_x_offset ? 1 : 0);
-		zc_set_config(cfg_sect,"js_stick_1_y_stick",js_stick_1_y_stick);
-		zc_set_config(cfg_sect,"js_stick_1_y_axis",js_stick_1_y_axis);
-		zc_set_config(cfg_sect,"js_stick_1_y_offset",js_stick_1_y_offset ? 1 : 0);
-		zc_set_config(cfg_sect,"js_stick_2_x_stick",js_stick_2_x_stick);
-		zc_set_config(cfg_sect,"js_stick_2_x_axis",js_stick_2_x_axis);
-		zc_set_config(cfg_sect,"js_stick_2_x_offset",js_stick_2_x_offset ? 1 : 0);
-		zc_set_config(cfg_sect,"js_stick_2_y_stick",js_stick_2_y_stick);
-		zc_set_config(cfg_sect,"js_stick_2_y_axis",js_stick_2_y_axis);
-		zc_set_config(cfg_sect,"js_stick_2_y_offset",js_stick_2_y_offset ? 1 : 0);
-		zc_set_config(cfg_sect,"analog_movement",analog_movement);
+		zc_set_config(ctrl_sect,"joystick_index",joystick_index);
+		zc_set_config(ctrl_sect,"js_stick_1_x_stick",js_stick_1_x_stick);
+		zc_set_config(ctrl_sect,"js_stick_1_x_axis",js_stick_1_x_axis);
+		zc_set_config(ctrl_sect,"js_stick_1_x_offset",js_stick_1_x_offset ? 1 : 0);
+		zc_set_config(ctrl_sect,"js_stick_1_y_stick",js_stick_1_y_stick);
+		zc_set_config(ctrl_sect,"js_stick_1_y_axis",js_stick_1_y_axis);
+		zc_set_config(ctrl_sect,"js_stick_1_y_offset",js_stick_1_y_offset ? 1 : 0);
+		zc_set_config(ctrl_sect,"js_stick_2_x_stick",js_stick_2_x_stick);
+		zc_set_config(ctrl_sect,"js_stick_2_x_axis",js_stick_2_x_axis);
+		zc_set_config(ctrl_sect,"js_stick_2_x_offset",js_stick_2_x_offset ? 1 : 0);
+		zc_set_config(ctrl_sect,"js_stick_2_y_stick",js_stick_2_y_stick);
+		zc_set_config(ctrl_sect,"js_stick_2_y_axis",js_stick_2_y_axis);
+		zc_set_config(ctrl_sect,"js_stick_2_y_offset",js_stick_2_y_offset ? 1 : 0);
+		zc_set_config(ctrl_sect,"analog_movement",analog_movement);
 		
-		zc_set_config(cfg_sect,"btn_a",Abtn);
-		zc_set_config(cfg_sect,"btn_b",Bbtn);
-		zc_set_config(cfg_sect,"btn_s",Sbtn);
-		zc_set_config(cfg_sect,"btn_m",Mbtn);
-		zc_set_config(cfg_sect,"btn_l",Lbtn);
-		zc_set_config(cfg_sect,"btn_r",Rbtn);
-		zc_set_config(cfg_sect,"btn_p",Pbtn);
-		zc_set_config(cfg_sect,"btn_ex1",Exbtn1);
-		zc_set_config(cfg_sect,"btn_ex2",Exbtn2);
-		zc_set_config(cfg_sect,"btn_ex3",Exbtn3);
-		zc_set_config(cfg_sect,"btn_ex4",Exbtn4);
+		zc_set_config(ctrl_sect,"btn_a",Abtn);
+		zc_set_config(ctrl_sect,"btn_b",Bbtn);
+		zc_set_config(ctrl_sect,"btn_s",Sbtn);
+		zc_set_config(ctrl_sect,"btn_m",Mbtn);
+		zc_set_config(ctrl_sect,"btn_l",Lbtn);
+		zc_set_config(ctrl_sect,"btn_r",Rbtn);
+		zc_set_config(ctrl_sect,"btn_p",Pbtn);
+		zc_set_config(ctrl_sect,"btn_ex1",Exbtn1);
+		zc_set_config(ctrl_sect,"btn_ex2",Exbtn2);
+		zc_set_config(ctrl_sect,"btn_ex3",Exbtn3);
+		zc_set_config(ctrl_sect,"btn_ex4",Exbtn4);
 		
-		zc_set_config(cfg_sect,"btn_up",DUbtn);
-		zc_set_config(cfg_sect,"btn_down",DDbtn);
-		zc_set_config(cfg_sect,"btn_left",DLbtn);
-		zc_set_config(cfg_sect,"btn_right",DRbtn);
+		zc_set_config(ctrl_sect,"btn_up",DUbtn);
+		zc_set_config(ctrl_sect,"btn_down",DDbtn);
+		zc_set_config(ctrl_sect,"btn_left",DLbtn);
+		zc_set_config(ctrl_sect,"btn_right",DRbtn);
 	}
 }
 
@@ -5351,7 +5352,7 @@ int32_t onNESquit()
 int32_t onVolKeys()
 {
 	volkeys = !volkeys;
-	zc_set_config(cfg_sect,"volkeys",(int32_t)volkeys);
+	zc_set_config(sfx_sect,"volkeys",(int32_t)volkeys);
 	return D_O_K;
 }
 
@@ -7339,12 +7340,12 @@ int32_t onSound()
 			if(sfx_voice[i] > 0)
 				voice_set_volume(sfx_voice[i], sfx_volume);
 		}
-		zc_set_config(cfg_sect,"digi",digi_volume);
-		zc_set_config(cfg_sect,"midi",midi_volume);
-		zc_set_config(cfg_sect,"sfx",sfx_volume);
-		zc_set_config(cfg_sect,"emusic",emusic_volume);
-		zc_set_config(cfg_sect,"pan",pan_style);
-		zc_set_config(cfg_sect,"zcmusic_bufsz",zcmusic_bufsz);
+		zc_set_config(sfx_sect,"digi",digi_volume);
+		zc_set_config(sfx_sect,"midi",midi_volume);
+		zc_set_config(sfx_sect,"sfx",sfx_volume);
+		zc_set_config(sfx_sect,"emusic",emusic_volume);
+		zc_set_config(sfx_sect,"pan",pan_style);
+		zc_set_config(sfx_sect,"zcmusic_bufsz",zcmusic_bufsz);
 	}
 	else
 	{

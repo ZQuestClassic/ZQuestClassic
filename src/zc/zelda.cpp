@@ -368,7 +368,7 @@ int32_t gui_colorset=0;
 int32_t fullscreen = 0;
 byte frame_rest_suggest=0,forceExit=0,zc_vsync=0;
 byte zc_color_depth=8;
-byte console_on_top = 0, use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build configs
+byte use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build configs
 int32_t homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0;
 int32_t newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
 int32_t lastentrance=0,lastentrance_dmap=0,prices[3]= {0},loadside = 0, Bwpn = 0, Awpn = 0, Xwpn = 0, Ywpn = 0;
@@ -4441,7 +4441,7 @@ int32_t onFullscreen()
 	    if(success)
 		{
 			fullscreen=!fullscreen;
-			zc_set_config(cfg_sect,"fullscreen",fullscreen);
+			zc_set_config("zeldadx","fullscreen",fullscreen);
 	    }
 		else
 	    {
@@ -4905,7 +4905,7 @@ int main(int argc, char **argv)
 				
 			default:
 				zc_color_depth = 8; //invalid configuration, set to default in config file.
-				zc_set_config(cfg_sect,"color_depth",zc_color_depth);
+				zc_set_config("zeldadx","color_depth",zc_color_depth);
 				set_color_depth(8);
 				break;
 		}
@@ -5009,7 +5009,7 @@ int main(int argc, char **argv)
 	}
 	
 	int32_t fast_start = debug_enabled || used_switch(argc,argv,"-fast") || (!standalone_mode && (load_save || (slot_arg && (argc>(slot_arg+1)))));
-	skip_title = used_switch(argc, argv, "-notitle") > 0 || zc_get_config("zeldadx","skip_title",1);
+	skip_title = used_switch(argc, argv, "-notitle") > 0 || zc_get_config("zeldadx","skip_title",0);
 	int32_t save_arg = used_switch(argc,argv,"-savefile");
 	
 	int32_t checked_epilepsy = zc_get_config("zeldadx","checked_epilepsy",0);
@@ -5516,7 +5516,7 @@ int main(int argc, char **argv)
 				epilepsyFlashReduction = 1;
 			}
 			zc_set_config("zeldadx","checked_epilepsy",1);
-			zc_set_config(cfg_sect,"epilepsy_flash_reduction",epilepsyFlashReduction);
+			zc_set_config("zeldadx","epilepsy_flash_reduction",epilepsyFlashReduction);
 			checked_epilepsy = 1;
 		}
 	}

@@ -193,8 +193,8 @@ void load_udef_colorset(App a, PALETTE pal)
 	
 	fix_filename_case(tmp_themefile);
 	fix_filename_slashes(tmp_themefile);
-	if(defaulted_theme
-		&& zc_get_config("Theme","dvc1_r",4,a)==zc_get_config("Theme","dvc1_r",5,a))
+	zc_get_config("Theme","dvc1_r",0,a); //check for the int's existence
+	if(defaulted_theme && zc_cfg_defaulted)
 	{
 		//Write these back to the custom theme file
 		strcpy(tmp_themefile, get_app_theme_filename());
@@ -204,10 +204,7 @@ void load_udef_colorset(App a, PALETTE pal)
 	else load_themefile(tmp_themefile, pal);
 	if (defaulted_theme)
 	{
-		zc_push_config();
-		zc_config_file(get_config_base_name(a));
-		zc_set_config_basic("Theme", "theme_filename", tmp_themefile);
-		zc_pop_config();
+		zc_set_config("Theme", "theme_filename", tmp_themefile);
 	}
 }
 

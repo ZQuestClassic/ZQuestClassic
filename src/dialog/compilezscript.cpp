@@ -54,7 +54,7 @@ void compile_sfx(bool success)
 		compile_success_sample = vbound(zc_get_config("Compiler","compile_success_sample",20),0,255);
 		if ( compile_success_sample > 0 )
 		{
-			compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",200),0,255);
+			compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",100),0,255);
 			if(sfxdat)
 				sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
 			else sfx_voice[compile_success_sample]=allocate_voice(&customsfxdata[compile_success_sample]);
@@ -65,10 +65,10 @@ void compile_sfx(bool success)
 	else
 	{
 		compile_success_sample = 0;
-		compile_error_sample = vbound(zc_get_config("Compiler","compile_error_sample",20),0,255);
+		compile_error_sample = vbound(zc_get_config("Compiler","compile_error_sample",28),0,255);
 		if ( compile_error_sample > 0 )
 		{
-			compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",200),0,255);
+			compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",100),0,255);
 			if(sfxdat)
 				sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
 			else sfx_voice[compile_error_sample]=allocate_voice(&customsfxdata[compile_error_sample]);
