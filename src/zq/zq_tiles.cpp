@@ -4243,11 +4243,11 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 	}
 	if(old_dupe[0] != DuplicateAction[0])
 		zc_set_config("zquest","normal_duplicate_action",DuplicateAction[0]);
-	if(old_dupe[0] != DuplicateAction[1])
+	if(old_dupe[1] != DuplicateAction[1])
 		zc_set_config("zquest","horizontal_duplicate_action",DuplicateAction[1]);
-	if(old_dupe[0] != DuplicateAction[2])
+	if(old_dupe[2] != DuplicateAction[2])
 		zc_set_config("zquest","vertical_duplicate_action",DuplicateAction[2]);
-	if(old_dupe[0] != DuplicateAction[3])
+	if(old_dupe[3] != DuplicateAction[3])
 		zc_set_config("zquest","both_duplicate_action",DuplicateAction[3]);
 	
 	auto ocntfd = leech_dlg[10].flags&D_SELECTED?1:0;

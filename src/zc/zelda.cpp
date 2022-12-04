@@ -368,7 +368,7 @@ int32_t gui_colorset=0;
 int32_t fullscreen = 0;
 byte frame_rest_suggest=0,forceExit=0,zc_vsync=0;
 byte zc_color_depth=8;
-byte use_debug_console=0, console_on_top = 0, use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build configs
+byte console_on_top = 0, use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build configs
 int32_t homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0;
 int32_t newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
 int32_t lastentrance=0,lastentrance_dmap=0,prices[3]= {0},loadside = 0, Bwpn = 0, Awpn = 0, Xwpn = 0, Ywpn = 0;
@@ -1199,8 +1199,6 @@ void Z_eventlog(const char *format,...)
         va_end(ap);
         al_trace("%s",buf);
         
-        if(zconsole)
-            printf("%s",buf);
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf); }
     }
@@ -1220,10 +1218,6 @@ void Z_scripterrlog(const char * const format,...)
         va_end(ap);
         al_trace("%s",buf);
         
-        if(zconsole)
-		{
-            printf("%s",buf);
-		}
 		if ( zscript_debugger ) 
 		{
 			zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
@@ -4445,8 +4439,11 @@ int32_t onFullscreen()
 	    
 	    bool success=setGraphicsMode(!windowed);
 	    if(success)
-		fullscreen=!fullscreen;
-	    else
+		{
+			fullscreen=!fullscreen;
+			zc_set_config(cfg_sect,"fullscreen",fullscreen);
+	    }
+		else
 	    {
 		// Try to restore the previous mode, then...
 		success=setGraphicsMode(windowed);
@@ -4581,13 +4578,6 @@ int main(int argc, char **argv)
 	register_trace_handler(zc_trace_handler);
 	
 	// allocate quest data buffers
-#ifdef _WIN32
-	if(used_switch(argc, argv, "-console") || used_switch(argc, argv, "-con"))
-	{
-		DebugConsole::Open();
-		zconsole = true;
-	}
-#endif
 	memrequested += 4096;
 	Z_message("Allocating quest path buffers (%s)...", byte_conversion2(4096,memrequested,-1,-1));
 	qstdir = (char*)malloc(2048);
@@ -4703,12 +4693,6 @@ int main(int argc, char **argv)
 	
 #ifdef _WIN32
 	
-	//launch debug console if requested.
-	if(use_debug_console != FALSE)
-	{
-		DebugConsole::Open();
-		zconsole = true;
-	}
 	if ( zscript_debugger )
 	{
 		FFCore.ZScriptConsole(true);
@@ -4725,21 +4709,21 @@ int main(int argc, char **argv)
 		if (pt == -1)
 		{
 			Z_error_fatal("Could not open pseudo terminal; error number: %d.\n", errno);
-			use_debug_console = 0; goto no_lx_console;
+			goto no_lx_console;
 		}
 		ptname = ptsname(pt);
 		if (!ptname)
 		{
 			Z_error_fatal("Could not get pseudo terminal device name.\n");
 			close(pt);
-			use_debug_console = 0; goto no_lx_console;
+			goto no_lx_console;
 		}
 
 		if (unlockpt(pt) == -1)
 		{
 			Z_error_fatal("Could not get pseudo terminal device name.\n");
 			close(pt);
-			use_debug_console = 0; goto no_lx_console;
+			goto no_lx_console;
 		}
 
 		lxconsole_oss << "xterm -S" << (strrchr(ptname, '/')+1) << "/" << pt << " &";
@@ -4759,13 +4743,13 @@ int main(int argc, char **argv)
 		{
 			Z_error_fatal("Could not redirect standard output.\n");
 			close(pt);
-			use_debug_console = 0; goto no_lx_console;
+			goto no_lx_console;
 		}
 		if (dup2(pt, 2) <0)
 		{
 			Z_error_fatal("Could not redirect standard error output.\n");
 			close(pt);
-			use_debug_console = 0; goto no_lx_console;
+			goto no_lx_console;
 		}
 	} //this is in a block because I want it in a block. -Z
 	else
@@ -4921,6 +4905,7 @@ int main(int argc, char **argv)
 				
 			default:
 				zc_color_depth = 8; //invalid configuration, set to default in config file.
+				zc_set_config(cfg_sect,"color_depth",zc_color_depth);
 				set_color_depth(8);
 				break;
 		}
@@ -5531,7 +5516,7 @@ int main(int argc, char **argv)
 				epilepsyFlashReduction = 1;
 			}
 			zc_set_config("zeldadx","checked_epilepsy",1);
-			save_game_configs();
+			zc_set_config(cfg_sect,"epilepsy_flash_reduction",epilepsyFlashReduction);
 			checked_epilepsy = 1;
 		}
 	}

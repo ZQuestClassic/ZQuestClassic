@@ -185,6 +185,4 @@ void zc_trace_clear();
 
 void sane_destroy_bitmap(BITMAP **bmp);
 
-extern bool zconsole;
-
 #endif                                                      // _ZSYS_H_
