@@ -31,7 +31,7 @@ jobs:
     outputs:
       should_run: ${{ steps.should_run_cron.outputs.should_run || steps.should_run_normal.outputs.should_run }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: print latest_commit
         run: echo ${{ github.sha }}
 
@@ -57,7 +57,7 @@ jobs:
       release_name: ${{ steps.make-vars.outputs.release_name }}
     steps:
       - name: git clone
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - run: git fetch --prune --unshallow --tags
       - name: Get current time
         uses: josStorer/get-current-time@v2
@@ -106,7 +106,7 @@ jobs:
         arch: ${{ matrix.arrays.arch }}
 
     - name: git clone
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Install Dependencies
       uses: crazy-max/ghaction-chocolatey@v1
@@ -152,7 +152,7 @@ jobs:
 
     steps:
     - name: git clone
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - run: brew install ninja dylibbundler create-dmg
     - name: Install Bison
@@ -193,7 +193,7 @@ jobs:
 
     steps:
       - name: git clone
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup Sentry CLI
         if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
         uses: mathieu-bour/setup-sentry-cli@1.2.0
