@@ -5193,17 +5193,20 @@ bool weapon::animate(int32_t index)
 				if(findentrance(x,y,mfHOOKSHOT,true)) dead=1;
 			
 				//Look for grab combos based on direction.
-				int32_t tx = -1, ty = -1, tx2 = -1, ty2 = -1;
+				int32_t tx = -1, ty = -1, tx2 = -1, ty2 = -1, ty3 = -1;
+				//ty3 is for the old hookshot collision. Hookshot blocks would block the hookshot but not grab them in certain scenarios.
 				bool oldshot = (get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw);
 				switch(Y_DIR(dir))
 				{
 					case up:
 						tx2 = x + 2;
 						ty2 = y + 7;
+						ty3 = y + 7;
 						break;
 					case down:
 						tx2 = x + 12;
 						ty2 = y + 12;
+						ty3 = y + 12;
 						break;
 				}
 				switch(X_DIR(dir))
@@ -5211,10 +5214,12 @@ bool weapon::animate(int32_t index)
 					case left:
 						tx = x + 6;
 						ty = y + (oldshot?7:13);
+						ty3 = y + 13;
 						break;
 					case right:
 						tx = x + 9;
 						ty = y + (oldshot?7:13);
+						ty3 = y + 13;
 						break;
 				}
 				
@@ -5230,7 +5235,7 @@ bool weapon::animate(int32_t index)
 					for(auto lyr = 1; !hooked && lyr <= maxlayer; ++lyr)
 						hooked = check_hshot(lyr,tx,ty,sw, &cpos);
 						
-					if(_walkflag(tx,ty,1) && !ishookshottable(tx,ty))
+					if(_walkflag(tx,ty3,1) && !ishookshottable(tx,ty3))
 						hitsolid = true;
 				}
 				if(tx2 > -1 && !hooked)
@@ -5240,7 +5245,7 @@ bool weapon::animate(int32_t index)
 					for(auto lyr = 1; !hooked && lyr <= maxlayer; ++lyr)
 						hooked = check_hshot(lyr,tx2,ty2,sw, &cpos);
 						
-					if(_walkflag(tx2,ty2,1) && !ishookshottable(tx2,ty2))
+					if(_walkflag(tx2,ty3,1) && !ishookshottable(tx2,ty3))
 						hitsolid=true;
 				}
 				
