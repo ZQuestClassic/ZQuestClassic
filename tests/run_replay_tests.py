@@ -67,6 +67,7 @@ if args.update:
 elif args.replay:
     mode = 'replay'
 
+is_windows_ci = args.ci and 'windows' in args.ci
 script_dir = os.path.dirname(os.path.realpath(__file__))
 replays_dir = os.path.join(script_dir, 'replays')
 tests = list(pathlib.Path(replays_dir).glob('*.zplay'))
@@ -78,7 +79,7 @@ if args.filter:
         exit(1)
 if args.ci:
     skip_in_ci = [
-        'solid.zplay' if args.ci == 'windows' else None,
+        'solid.zplay' if is_windows_ci else None,
     ]
     tests = [t for t in tests if t.name not in skip_in_ci]
 
@@ -146,7 +147,7 @@ def run_replay_test(replay_file):
             num_frames_checked = estimated_fps * max_duration
             estimated_duration = max_duration
         timeout = max(60 + estimated_duration * 1.5, 60 * 3)
-        if args.ci == 'windows':
+        if is_windows_ci:
             timeout *= 2
     else:
         timeout = None
