@@ -139,6 +139,8 @@ def run_replay_test(replay_file):
     if args.ci:
         max_duration = 5 * 60
         estimated_fps = 1500
+        if replay_file.name == 'stellar_seas_randomizer.zplay':
+            estimated_fps = 150
         estimated_duration = num_frames / estimated_fps
         if estimated_duration > max_duration:
             num_frames_checked = estimated_fps * max_duration
