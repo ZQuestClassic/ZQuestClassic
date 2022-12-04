@@ -200,7 +200,7 @@ def run_replay_test(replay_file):
                 sleep(1)
         except subprocess.TimeoutExpired as e:
             log = fill_log(e, allegro_log_path)
-            log['stdout'] = f'{e}\n\n' + log['stdout']
+            log['stdout'] = f'{e}\n\n{log["stdout"]}'
             return False, log, None, None
         finally:
             if allegro_log_path:
