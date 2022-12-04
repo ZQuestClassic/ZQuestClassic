@@ -59,6 +59,8 @@ void zc_pop_config()
 }
 
 static char cfg_str[2048];
+bool zc_cfg_defaulted = false;
+
 int32_t zc_get_config(char const* header, char const* name, int32_t default_val, App a)
 {
 	zc_push_config();
@@ -66,6 +68,7 @@ int32_t zc_get_config(char const* header, char const* name, int32_t default_val,
 	auto def = get_config_int(header,name,default_val);
 	zc_config_file(get_config_file_name(a));
 	auto ret = get_config_int(header,name,def);
+	zc_cfg_defaulted = get_config_defaulted();
 	zc_pop_config();
 	return ret;
 }
@@ -76,6 +79,7 @@ double zc_get_config(char const* header, char const* name, double default_val, A
 	auto def = get_config_float(header,name,default_val);
 	zc_config_file(get_config_file_name(a));
 	auto ret = get_config_float(header,name,def);
+	zc_cfg_defaulted = get_config_defaulted();
 	zc_pop_config();
 	return ret;
 }
@@ -86,10 +90,11 @@ char const* zc_get_config(char const* header, char const* name, char const* defa
 	std::string def = get_config_string(header,name,default_val?default_val:"");
 	zc_config_file(get_config_file_name(a));
 	char const* ret = get_config_string(header,name,def.c_str());
-	zc_pop_config();
+	zc_cfg_defaulted = get_config_defaulted();
 	if(!ret)
 		cfg_str[0] = 0;
 	else strcpy(cfg_str, ret);
+	zc_pop_config();
 	return cfg_str;
 }
 void zc_set_config(char const* header, char const* name, int32_t val, App a)

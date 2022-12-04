@@ -5284,10 +5284,9 @@ int32_t OnnClearQuestDir()
 		0, 
 		lfont) == 1)	
 	{
-		set_config_string("zeldadx","win_qst_dir","");
+		zc_set_config("zeldadx","win_qst_dir","");
 		flush_config_file();
-		strcpy(qstdir,zc_get_config("zeldadx","win_qst_dir",""));
-		//strcpy(filepath,zc_get_config("zeldadx","win_qst_dir",""));
+		strcpy(qstdir,"");
 		save_game_configs();
 #ifdef __EMSCRIPTEN__
 		em_sync_fs();
@@ -6325,7 +6324,7 @@ int32_t zc_load_zmod_module_file()
 		memset(moduledata.module_name, 0, sizeof(moduledata.module_name));
 		strcpy(moduledata.module_name, modulepath);
 		al_trace("New Module Path is: %s \n", moduledata.module_name);
-		set_config_string("ZCMODULE","current_module",moduledata.module_name);
+		zc_set_config("ZCMODULE","current_module",moduledata.module_name);
 		//save_game_configs();
 		zcm.init(true); //Load the module values.
 		moduledata.refresh_title_screen = 1;
@@ -7550,7 +7549,7 @@ int32_t onEpilepsy()
 	{
 		if ( epilepsyFlashReduction ) epilepsyFlashReduction = 0;
 		else epilepsyFlashReduction = 1;
-		set_config_int("zeldadx","checked_epilepsy",1);
+		zc_set_config("zeldadx","checked_epilepsy",1);
 		save_game_configs();
 	}
 	return D_O_K;
@@ -8221,7 +8220,7 @@ int32_t onSetSnapshotFormat()
 		SnapshotFormat=6;
 		break;
 	}
-	zc_set_config("Compiler", "snapshot_format", SnapshotFormat);
+	zc_set_config("zeldadx", "snapshot_format", SnapshotFormat);
 	
 	snapshot_format_menu[SnapshotFormat].flags=D_SELECTED;
 	return D_O_K;

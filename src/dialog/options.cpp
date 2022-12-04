@@ -79,51 +79,51 @@ void OptionsDialog::saveOption(int ind)
 	{
 		case OPT_SKIP_LAYER_WARNING:
 			skipLayerWarning = v;
-			zc_set_config("Compiler", "skip_layer_warning", v);
+			zc_set_config("zquest", "skip_layer_warning", v);
 			break;
 		case OPT_MOUSESCROLL:
 			MouseScroll = v;
-			zc_set_config("Compiler", "mouse_scroll", v);
+			zc_set_config("zquest", "mouse_scroll", v);
 			break;
 		case OPT_DISABLE_LPAL_SHORTCUT:
 			DisableLPalShortcuts = v;
-			zc_set_config("Compiler", "dis_lpal_shortcut", v);
+			zc_set_config("zquest", "dis_lpal_shortcut", v);
 			break;
 		case OPT_DISABLE_COMPILE_CONSOLE:
 			DisableCompileConsole = v;
-			zc_set_config("Compiler", "internal_compile_console", v);
+			zc_set_config("zquest", "internal_compile_console", v);
 			break;
 		case OPT_INITSCR_WARN:
 			WarnOnInitChanged = v;
-			zc_set_config("Compiler", "warn_initscript_changes", v);
+			zc_set_config("zquest", "warn_initscript_changes", v);
 			break;
 		case OPT_STATIC_INVAL:
 			InvalidStatic = v;
-			zc_set_config("Compiler", "invalid_static", v);
+			zc_set_config("zquest", "invalid_static", v);
 			break;
 		case OPT_NUMERICAL_FLAG_LIST:
 			numericalFlags = v;
-			zc_set_config("Compiler", "numerical_flags", v);
+			zc_set_config("zquest", "numerical_flags", v);
 			break;
 		case OPT_TILE_PROT:
 			TileProtection = v;
-			zc_set_config("Compiler", "tile_protection", v);
+			zc_set_config("zquest", "tile_protection", v);
 			break;
 		case OPT_GRIDCOL:
 			GridColor = v;
-			zc_set_config("Compiler", "grid_color", v);
+			zc_set_config("zquest", "grid_color", v);
 			break;
 		case OPT_SNAPFORMAT:
 			SnapshotFormat = v;
-			zc_set_config("Compiler", "snapshot_format", v);
+			zc_set_config("zquest", "snapshot_format", v);
 			break;
 		case OPT_RELOAD_QUEST:
 			OpenLastQuest = v;
-			zc_set_config("Compiler", "open_last_quest", v);
+			zc_set_config("zquest", "open_last_quest", v);
 			break;
 		case OPT_MISALIGNS:
 			ShowMisalignments = v;
-			zc_set_config("Compiler", "show_misalignments", v);
+			zc_set_config("zquest", "show_misalignments", v);
 			break;
 		case OPT_CURS_LARGE:
 			zc_set_config("zquest", "cursor_scale_large", v / 10000.0);

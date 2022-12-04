@@ -5530,7 +5530,7 @@ int main(int argc, char **argv)
 			{
 				epilepsyFlashReduction = 1;
 			}
-			set_config_int("zeldadx","checked_epilepsy",1);
+			zc_set_config("zeldadx","checked_epilepsy",1);
 			save_game_configs();
 			checked_epilepsy = 1;
 		}

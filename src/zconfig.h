@@ -9,6 +9,7 @@ void zc_config_file(char const* fl);
 void zc_push_config();
 void zc_pop_config();
 
+extern bool zc_cfg_defaulted;
 int32_t zc_get_config(char const* header, char const* name, int32_t default_val, App a = App::undefined);
 double zc_get_config(char const* header, char const* name, double default_val, App a = App::undefined);
 char const* zc_get_config(char const* header, char const* name, char const* default_val, App a = App::undefined);

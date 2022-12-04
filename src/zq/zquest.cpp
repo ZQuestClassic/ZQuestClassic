@@ -1629,7 +1629,7 @@ int32_t onToggleGrid()
     if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
     {
         GridColor=(GridColor+8)%16;
-		zc_set_config("Compiler", "grid_color", GridColor);
+		zc_set_config("zquest", "grid_color", GridColor);
     }
     else
     {
@@ -25024,9 +25024,10 @@ int32_t onZScriptCompilerSettings()
 		
 	zscript_parser_dlg[0].dp2=lfont;
 	
-	zscript_parser_dlg[13].d1 = zc_get_config("Compiler","NO_ERROR_HALT",0,App::zscript);
-	zscript_parser_dlg[15].d1 = zc_get_config("Compiler","HEADER_GUARD",1,App::zscript);
-	zscript_parser_dlg[26].d1 = zc_get_config("Compiler","WARN_DEPRECATED",0,App::zscript);
+	int32_t old_cfgs[3];
+	zscript_parser_dlg[13].d1 = old_cfgs[0] = zc_get_config("Compiler","NO_ERROR_HALT",0,App::zscript);
+	zscript_parser_dlg[15].d1 = old_cfgs[1] = zc_get_config("Compiler","HEADER_GUARD",1,App::zscript);
+	zscript_parser_dlg[26].d1 = old_cfgs[2] = zc_get_config("Compiler","WARN_DEPRECATED",0,App::zscript);
 	//memset(tempincludepath,0,sizeof(tempincludepath));
 	strcpy(tempincludepath,FFCore.includePathString);
 	//al_trace("Include path string in editbox should be: %s\n",tempincludepath);
@@ -25061,20 +25062,19 @@ int32_t onZScriptCompilerSettings()
 		{
 			set_bit(quest_rules, zscripparsertrules[i], zscript_parser_dlg[i+6].flags & D_SELECTED);
 		}
-		al_trace("Current include path string: ");
-		safe_al_trace(tempincludepath);
-		al_trace("\n");
 		memset(FFCore.includePathString,0,sizeof(FFCore.includePathString));
 		strcpy(FFCore.includePathString,tempincludepath);
-		zc_set_config("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1,App::zscript);
-		zc_set_config("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1,App::zscript);
-		zc_set_config("Compiler","WARN_DEPRECATED",zscript_parser_dlg[26].d1,App::zscript);
+		if(old_cfgs[0] == zscript_parser_dlg[13].d1)
+			zc_set_config("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1,App::zscript);
+		if(old_cfgs[1] == zscript_parser_dlg[15].d1)
+			zc_set_config("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1,App::zscript);
+		if(old_cfgs[2] == zscript_parser_dlg[26].d1)
+			zc_set_config("Compiler","WARN_DEPRECATED",zscript_parser_dlg[26].d1,App::zscript);
 		memset(FFCore.scriptRunString, 0, sizeof(FFCore.scriptRunString));
 		strcpy(FFCore.scriptRunString,temprunstring);
 		FFCore.updateIncludePaths();
 		ZQincludePaths = FFCore.includePaths;
 		write_includepaths();
-		
 	}
 	
 	return D_O_K;
@@ -27894,7 +27894,7 @@ int32_t load_zmod_module_file()
 	    memset(moduledata.module_name, 0, sizeof(moduledata.module_name));
 	    strcpy(moduledata.module_name, temppath);
 	    al_trace("New Module Path is: %s \n", moduledata.module_name);
-	    set_config_string("ZCMODULE","current_module",moduledata.module_name);
+	    zc_set_config("ZCMODULE","current_module",moduledata.module_name);
 	    //save_game_configs();
 	    zcm.init(true); //Load the module values.
 	    build_biic_list();
@@ -30475,7 +30475,7 @@ int32_t main(int32_t argc,char **argv)
 	if(RequestedFPS < 12 || RequestedFPS> 60)
 	{
 		RequestedFPS = vbound(RequestedFPS,12,60);
-		set_config_int("zquest","fps",RequestedFPS);
+		zc_set_config("zquest","fps",RequestedFPS);
 	}
 	
 	LOCK_VARIABLE(myvsync);
@@ -31580,7 +31580,6 @@ int32_t main(int32_t argc,char **argv)
 	return 0;
 // memset(qtpathtitle,0,10);//UNREACHABLE
 }
-
 END_OF_MAIN()
 
 
@@ -32952,7 +32951,7 @@ void clear_tooltip()
 
 void ZQ_ClearQuestPath()
 {
-	set_config_string("zquest","win_last_quest",NULL);
+	zc_set_config("zquest","win_last_quest",NULL);
 	strcpy(filepath,"");
 }
 
