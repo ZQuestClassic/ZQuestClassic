@@ -5681,11 +5681,11 @@ int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t c)
 				break;
 				
 			case 2:
-				sprintf(str_a,"%3d",midi_volume);
-				sprintf(str_b,"%3d",digi_volume);
-				sprintf(str_l,"%3d",emusic_volume);
-				sprintf(str_m,"%3dKB",zcmusic_bufsz);
-				sprintf(str_r,"%3d",sfx_volume);
+				sprintf(str_a,"   %3d",midi_volume);
+				sprintf(str_b,"   %3d",digi_volume);
+				sprintf(str_l,"   %3d",emusic_volume);
+				sprintf(str_m,"   %3dKB",zcmusic_bufsz);
+				sprintf(str_r,"   %3d",sfx_volume);
 				strcpy(str_s,pan_str[pan_style]);
 				sprintf(str_leftmod1,"%3d\n%s",cheat_modifier_keys[0],key_str[cheat_modifier_keys[0]]);
 				sprintf(str_leftmod2,"%3d\n%s",cheat_modifier_keys[1],key_str[cheat_modifier_keys[1]]);

@@ -193,8 +193,9 @@ void load_udef_colorset(App a, PALETTE pal)
 	
 	fix_filename_case(tmp_themefile);
 	fix_filename_slashes(tmp_themefile);
-	zc_get_config("Theme","dvc1_r",0,a); //check for the int's existence
-	if(defaulted_theme && zc_cfg_defaulted)
+	if(defaulted_theme &&
+		(zc_get_config("Theme", "dvc1_r", 1, a)
+		!= zc_get_config("Theme", "dvc1_r", 2, a)))
 	{
 		//Write these back to the custom theme file
 		strcpy(tmp_themefile, get_app_theme_filename());
