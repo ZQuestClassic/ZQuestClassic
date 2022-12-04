@@ -32950,7 +32950,7 @@ void clear_tooltip()
 
 void ZQ_ClearQuestPath()
 {
-	zc_set_config("zquest","win_last_quest",NULL);
+	zc_set_config("zquest","win_last_quest",(char const*)nullptr);
 	strcpy(filepath,"");
 }
 
