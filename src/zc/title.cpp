@@ -2331,7 +2331,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	if(readsaves(saves,f)!=0)
 		goto reset;
 		
-		strcpy(iname, get_config_string("SAVEFILE","save_filename","zc.sav"));
+		strcpy(iname, zc_get_config("SAVEFILE","save_filename","zc.sav"));
 	
 	for(int32_t i=0; iname[i]!='\0'; iname[i]=='.'?iname[i]='\0':i++)
 	{
@@ -2361,7 +2361,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	//Load game icons
 	for(int32_t i=0; i<MAXSAVES; i++)
 	{
-		byte showmetadata = get_config_int("zeldadx","print_metadata_for_each_save_slot",0);
+		byte showmetadata = zc_get_config("zeldadx","print_metadata_for_each_save_slot",0);
 		//zprint2("Reading Save Slot %d\n", i);
 		
 		if(strlen(saves[i].qstpath))
@@ -2380,7 +2380,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 			}
 			else
 			{
-				if(!iconbuffer[i].loaded || get_config_int("zeldadx","reload_game_icons",0))
+				if(!iconbuffer[i].loaded || zc_get_config("zeldadx","reload_game_icons",0))
 				{
 					int32_t ret2 = load_quest(saves+i, false, showmetadata);
 					

@@ -368,7 +368,7 @@ int32_t gui_colorset=0;
 int32_t fullscreen = 0;
 byte frame_rest_suggest=0,forceExit=0,zc_vsync=0;
 byte zc_color_depth=8;
-byte use_debug_console=0, console_on_top = 0, use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build configs
+byte use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build configs
 int32_t homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0;
 int32_t newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
 int32_t lastentrance=0,lastentrance_dmap=0,prices[3]= {0},loadside = 0, Bwpn = 0, Awpn = 0, Xwpn = 0, Ywpn = 0;
@@ -1199,8 +1199,6 @@ void Z_eventlog(const char *format,...)
         va_end(ap);
         al_trace("%s",buf);
         
-        if(zconsole)
-            printf("%s",buf);
 		if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf); }
     }
@@ -1220,10 +1218,6 @@ void Z_scripterrlog(const char * const format,...)
         va_end(ap);
         al_trace("%s",buf);
         
-        if(zconsole)
-		{
-            printf("%s",buf);
-		}
 		if ( zscript_debugger ) 
 		{
 			zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
@@ -1712,7 +1706,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 		}
 		
 		ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags,printmetadata,report,qst_num);
-		//zprint2("qstpath: '%s', qstdir(cfg): '%s', standalone_quest: '%s'\n",qstpath,get_config_string("zeldadx",qst_dir_name,""),standalone_quest?standalone_quest:"");
+		//zprint2("qstpath: '%s', qstdir(cfg): '%s', standalone_quest: '%s'\n",qstpath,zc_get_config("zeldadx",qst_dir_name,""),standalone_quest?standalone_quest:"");
 		//setPackfilePassword(NULL);
 		
 		if(!g->title[0] || g->get_hasplayed() == 0)
@@ -4445,8 +4439,11 @@ int32_t onFullscreen()
 	    
 	    bool success=setGraphicsMode(!windowed);
 	    if(success)
-		fullscreen=!fullscreen;
-	    else
+		{
+			fullscreen=!fullscreen;
+			zc_set_config("zeldadx","fullscreen",fullscreen);
+	    }
+		else
 	    {
 		// Try to restore the previous mode, then...
 		success=setGraphicsMode(windowed);
@@ -4581,13 +4578,6 @@ int main(int argc, char **argv)
 	register_trace_handler(zc_trace_handler);
 	
 	// allocate quest data buffers
-#ifdef _WIN32
-	if(used_switch(argc, argv, "-console") || used_switch(argc, argv, "-con"))
-	{
-		DebugConsole::Open();
-		zconsole = true;
-	}
-#endif
 	memrequested += 4096;
 	Z_message("Allocating quest path buffers (%s)...", byte_conversion2(4096,memrequested,-1,-1));
 	qstdir = (char*)malloc(2048);
@@ -4623,7 +4613,7 @@ int main(int argc, char **argv)
 	}
 
 	// Merge old a4 config into a5 system config.
-	ALLEGRO_CONFIG *tempcfg = al_load_config_file(zc_get_standard_config_name());
+	ALLEGRO_CONFIG *tempcfg = al_load_config_file(get_config_file_name());
 	if (tempcfg) {
 		al_merge_config_into(al_get_system_config(), tempcfg);
 		al_destroy_config(tempcfg);
@@ -4669,12 +4659,9 @@ int main(int argc, char **argv)
 	register_png_file_type();
 
 	three_finger_flag=false;
-	
-	// set and load game configurations
-	zc_set_config_standard();
 
 	for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
-	strcpy(save_file_name,get_config_string("SAVEFILE","save_filename","zc.sav"));
+	strcpy(save_file_name,zc_get_config("SAVEFILE","save_filename","zc.sav"));
 #ifdef __EMSCRIPTEN__
 	// There was a bug that causes browser zc.cfg files to use the wrong value for the save file.
 	if (strcmp(save_file_name, "zc.sav") == 0)
@@ -4682,15 +4669,7 @@ int main(int argc, char **argv)
 #endif
 	SAVE_FILE = (char *)save_file_name;
 	
-	if(!zc_config_standard_exists())
-	{
-		load_game_configs();
-	}
-	else
-	{
-		load_game_configs();
-		save_game_configs();
-	}
+	load_game_configs();
 	
 #ifndef __APPLE__ // Should be done on Mac, too, but I haven't gotten that working
 	// if(!is_only_instance("zc.lck"))
@@ -4704,7 +4683,7 @@ int main(int argc, char **argv)
 	
 	//Set up MODULES: This must occur before trying to load the default quests, as the 
 	//data for quest names and so forth is set by the MODULE file!
-	//strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module", moduledata.module_name));
+	//strcpy(moduledata.module_name,zc_get_config("ZCMODULE","current_module", moduledata.module_name));
 	//al_trace("Before zcm.init, the current module is: %s\n", moduledata.module_name)
 	if ( !(zcm.init(true)) ) 
 	{
@@ -4713,12 +4692,6 @@ int main(int argc, char **argv)
 	
 #ifdef _WIN32
 	
-	//launch debug console if requested.
-	if(use_debug_console != FALSE)
-	{
-		DebugConsole::Open();
-		zconsole = true;
-	}
 	if ( zscript_debugger )
 	{
 		FFCore.ZScriptConsole(true);
@@ -4735,21 +4708,21 @@ int main(int argc, char **argv)
 		if (pt == -1)
 		{
 			Z_error_fatal("Could not open pseudo terminal; error number: %d.\n", errno);
-			use_debug_console = 0; goto no_lx_console;
+			goto no_lx_console;
 		}
 		ptname = ptsname(pt);
 		if (!ptname)
 		{
 			Z_error_fatal("Could not get pseudo terminal device name.\n");
 			close(pt);
-			use_debug_console = 0; goto no_lx_console;
+			goto no_lx_console;
 		}
 
 		if (unlockpt(pt) == -1)
 		{
 			Z_error_fatal("Could not get pseudo terminal device name.\n");
 			close(pt);
-			use_debug_console = 0; goto no_lx_console;
+			goto no_lx_console;
 		}
 
 		lxconsole_oss << "xterm -S" << (strrchr(ptname, '/')+1) << "/" << pt << " &";
@@ -4769,13 +4742,13 @@ int main(int argc, char **argv)
 		{
 			Z_error_fatal("Could not redirect standard output.\n");
 			close(pt);
-			use_debug_console = 0; goto no_lx_console;
+			goto no_lx_console;
 		}
 		if (dup2(pt, 2) <0)
 		{
 			Z_error_fatal("Could not redirect standard error output.\n");
 			close(pt);
-			use_debug_console = 0; goto no_lx_console;
+			goto no_lx_console;
 		}
 	} //this is in a block because I want it in a block. -Z
 	else
@@ -4931,6 +4904,7 @@ int main(int argc, char **argv)
 				
 			default:
 				zc_color_depth = 8; //invalid configuration, set to default in config file.
+				zc_set_config("zeldadx","color_depth",zc_color_depth);
 				set_color_depth(8);
 				break;
 		}
@@ -4996,7 +4970,7 @@ int main(int argc, char **argv)
 	if(used_switch(argc,argv,"-v1")) Throttlefps=true;
 	
 	resolve_password(zeldapwd);
-	debug_enabled = used_switch(argc,argv,"-d") && !strcmp(get_config_string("zeldadx","debug",""),zeldapwd);
+	debug_enabled = used_switch(argc,argv,"-d") && !strcmp(zc_get_config("zeldadx","debug",""),zeldapwd);
 	set_debug(debug_enabled);
 	
 	skipicon = standalone_mode || used_switch(argc,argv,"-quickload") || zc_get_config("zeldadx","skip_icons",0);
@@ -5034,21 +5008,21 @@ int main(int argc, char **argv)
 	}
 	
 	int32_t fast_start = debug_enabled || used_switch(argc,argv,"-fast") || (!standalone_mode && (load_save || (slot_arg && (argc>(slot_arg+1)))));
-	skip_title = used_switch(argc, argv, "-notitle") > 0 || zc_get_config("zeldadx","skip_title",1);
+	skip_title = used_switch(argc, argv, "-notitle") > 0 || zc_get_config("zeldadx","skip_title",0);
 	int32_t save_arg = used_switch(argc,argv,"-savefile");
 	
 	int32_t checked_epilepsy = zc_get_config("zeldadx","checked_epilepsy",0);
 	/*
-	if ( !strcmp(get_config_string("zeldadx","debug",""),"") )
+	if ( !strcmp(zc_get_config("zeldadx","debug",""),"") )
 	{
 		for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
 			strcpy(save_file_name,"zc.sav");
 		SAVE_FILE = (char *)save_file_name;  
 	}
-	else*/ //if ( strcmp(get_config_string("zeldadx","debug","")) )
+	else*/ //if ( strcmp(zc_get_config("zeldadx","debug","")) )
 	{	    
 		for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
-			strcpy(save_file_name,get_config_string("SAVEFILE","save_filename","zc.sav"));
+			strcpy(save_file_name,zc_get_config("SAVEFILE","save_filename","zc.sav"));
 		SAVE_FILE = (char *)save_file_name;
 	}
 	//al_trace("Current save file is: %s\n", save_file_name);
@@ -5540,8 +5514,8 @@ int main(int argc, char **argv)
 			{
 				epilepsyFlashReduction = 1;
 			}
-			set_config_int("zeldadx","checked_epilepsy",1);
-			save_game_configs();
+			zc_set_config("zeldadx","checked_epilepsy",1);
+			zc_set_config("zeldadx","epilepsy_flash_reduction",epilepsyFlashReduction);
 			checked_epilepsy = 1;
 		}
 	}

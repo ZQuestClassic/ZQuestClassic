@@ -5742,8 +5742,8 @@ void load_themefile(char const* fpath, PALETTE pal);
 void load_themefile(char const* fpath);
 void save_themefile(char const* fpath, PALETTE pal);
 void save_themefile(char const* fpath);
-void load_udef_colorset(char const* fpath, PALETTE pal);
-void load_udef_colorset(char const* fpath);
+void load_udef_colorset(App a, PALETTE pal);
+void load_udef_colorset(App a);
 void load_colorset(int32_t colorset, PALETTE pal);
 void load_colorset(int32_t colorset);
 

@@ -49,7 +49,6 @@ void update_hw_screen(bool force);
 
 CConsoleLoggerEx zscript_coloured_console;
 extern bool is_zquest();
-bool zconsole = false;
 
 char *time_str_long(dword time)
 {
@@ -338,8 +337,6 @@ void Z_message(const char *format,...)
     al_trace("%s",buf);
     zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
-    if(zconsole)
-        printf("%s",buf);
 }
 
 void Z_title(const char *format,...)
@@ -383,9 +380,6 @@ void Z_title(const char *format,...)
 #else
     al_trace("%s\n",buf);
     
-    if(zconsole)
-        printf("%s\n",buf);
-    
 #endif
 	
     if(zscript_coloured_console.valid())
@@ -411,10 +405,6 @@ void zprint(const char * const format,...)
 		va_end(ap);
 		al_trace("%s",buf);
 		
-		if(zconsole)
-		{
-			printf("%s",buf);
-		}
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
 	}
@@ -430,10 +420,6 @@ void zprint2(const char * const format,...)
 	va_end(ap);
 	safe_al_trace(buf);
 	
-	if(zconsole)
-	{
-		printf("%s",buf);
-	}
 	zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
 }

@@ -29,6 +29,7 @@ using namespace util;
 
 #define OPTTYPE_QR                  0
 #define OPTTYPE_CONFIG              1
+#define OPTTYPE_CONFIG_FLOAT        2
 
 #define MAX_INCLUDE_PATH_CHARS      65535
 

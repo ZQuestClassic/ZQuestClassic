@@ -101,13 +101,11 @@ int32_t main(int32_t argc, char* argv[])
 	}
 
 	// Merge old a4 config into a5 system config.
-	ALLEGRO_CONFIG *tempcfg = al_load_config_file(zc_get_standard_config_name());
+	ALLEGRO_CONFIG *tempcfg = al_load_config_file(get_config_file_name());
 	if (tempcfg) {
 		al_merge_config_into(al_get_system_config(), tempcfg);
 		al_destroy_config(tempcfg);
 	}
-
-	zc_set_config_standard();
 
 	if(install_timer() < 0
 		|| install_keyboard() < 0

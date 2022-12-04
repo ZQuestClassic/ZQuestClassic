@@ -102,7 +102,7 @@ void load_mice()
 {
 	scare_mouse();
 	set_mouse_sprite(NULL);
-	int32_t sz = vbound(int32_t(16*(is_large ? get_config_float("zquest","cursor_scale_large",1.5) : get_config_float("zquest","cursor_scale_small",1))),16,80);
+	int32_t sz = vbound(int32_t(16*(is_large ? zc_get_config("zquest","cursor_scale_large",1.5) : zc_get_config("zquest","cursor_scale_small",1))),16,80);
 	for(int32_t i=0; i<MOUSE_BMP_MAX; i++)
 	{
 		for(int32_t j=0; j<4; j++)
@@ -1004,30 +1004,6 @@ int32_t onSpacebar()
     combo_cols=!combo_cols;
     return D_O_K;
 }
-
-int32_t onSaveZQuestSettings()
-{
-	if(jwin_alert3(
-			"Save Configuration",
-			"Are you sure that you wish to save your present configuration settings?",
-			"This will overwrite your prior settings!",
-			NULL,
-		 "&Yes",
-		"&No",
-		NULL,
-		'y',
-		'n',
-		0,
-		lfont) == 1)
-	{
-		save_config_file();
-		return D_O_K;
-	}
-	else return D_O_K;
-
-}
-
-
 
 int32_t onClearQuestFilepath()
 {

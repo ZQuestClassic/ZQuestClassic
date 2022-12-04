@@ -20,8 +20,8 @@ set -eu
 find "$rel" -name "*.dylib" -exec cp {} "$nb" \;
 
 # Change some defaults.
-sed -i -e 's/fullscreen = 0/fullscreen = 1/' "$nb/zquest.cfg"
-sed -i -e 's/fullscreen = 0/fullscreen = 1/' "$nb/zc.cfg"
+sed -i -e 's/fullscreen = 0/fullscreen = 1/' "$nb/base_config/zquest.cfg"
+sed -i -e 's/fullscreen = 0/fullscreen = 1/' "$nb/base_config/zc.cfg"
 find "$nb" -name "*.cfg-e" -exec rm {} \;
 
 # Delete things Mac build won't need.

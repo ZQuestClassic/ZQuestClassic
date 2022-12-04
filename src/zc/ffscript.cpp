@@ -12161,10 +12161,11 @@ int32_t get_register(const int32_t arg)
 			}	
 			else
 			{
-				set_config_file(moduledata.module_name);
-				ret = get_config_int(sectionid.c_str(), elementid.c_str(), 0)*10000;
+				zc_push_config();
+				zc_config_file(moduledata.module_name);
+				ret = zc_get_config_basic(sectionid.c_str(), elementid.c_str(), 0)*10000;
 				//return config file to zc.cfg
-				zc_set_config_standard();
+				zc_pop_config();
 			}
 			break;
 		}
@@ -21655,14 +21656,15 @@ void set_register(const int32_t arg, const int32_t value)
 		}	
 		else
 		{
-			///set config file
-			set_config_file(moduledata.module_name);
-			strcpy(buffer,get_config_string(sectionid.c_str(), elementid.c_str(), ""));
+			zc_push_config();
+			//set config file
+			zc_config_file(moduledata.module_name);
+			strcpy(buffer,zc_get_config_basic(sectionid.c_str(), elementid.c_str(), ""));
 			buffer[255] = '\0';
 			if(ArrayH::setArray(buf_pointer, buffer) == SH::_Overflow)
 				Z_scripterrlog("Dest string supplied to 'Module->GetString()' is not large enough\n");
 			//return config file to zc.cfg
-			zc_set_config_standard();
+			zc_pop_config();
 		}
 	
 		break;
@@ -36072,9 +36074,7 @@ void FFScript::updateIncludePaths()
 void FFScript::initRunString()
 {
 	memset(scriptRunString,0,sizeof(scriptRunString));
-	set_config_file("zscript.cfg");
-	strcpy(scriptRunString,zc_get_config("Compiler","run_string","run"));
-	zc_set_config_standard();
+	strcpy(scriptRunString,zc_get_config("Compiler","run_string","run",App::zscript));
 }
 
 void FFScript::initIncludePaths()
@@ -40214,21 +40214,18 @@ void clearConsole()
 }
 void FFScript::ZScriptConsole(bool open)
 {
-	al_trace("Opening ZScript Console");
 	if ( open )
 	{
 		zscript_coloured_console.Create("ZScript Debug Console", 600, 200, NULL, NULL);
 		clearConsole();
-	
-		//coloured_console.SetAsDefaultOutput();
 		zscript_debugger = 1;
 	}
 	else
 	{
-		//close
 		zscript_coloured_console.Close();
 		zscript_debugger = 0;
 	}
+	zc_set_config("CONSOLE","ZScript_Debugger",zscript_debugger);
 }
 
 void FFScript::ZScriptConsolePrint(int32_t attributes,const char *format,...)
@@ -40258,6 +40255,7 @@ void FFScript::ZASMPrint(bool open)
 		coloured_console.Close();
 		zasm_debugger = 0;
 	}
+	zc_set_config("CONSOLE","print_ZASM",zasm_debugger);
 }
 
 std::string ZASMVarToString(int32_t arg)
@@ -40391,8 +40389,6 @@ void FFScript::do_trace(bool v)
 	TraceScriptIDs();
 	al_trace("%s\n", s2.c_str());
 	
-	if(zconsole)
-		printf("%s\n", s2.c_str());
 	if ( zscript_debugger ) 
 	{
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
@@ -40406,9 +40402,6 @@ void FFScript::do_tracebool(const bool v)
 	TraceScriptIDs();
 	al_trace("%s\n", temp ? "true": "false");
 	
-	if(zconsole)
-		printf("%s\n", temp ? "true": "false");
-	
 	if ( zscript_debugger ) 
 	{
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
@@ -40420,9 +40413,6 @@ void traceStr(string const& str)
 {
 	FFCore.TraceScriptIDs();
 	safe_al_trace(str.c_str());
-	
-	if(zconsole)
-		printf("%s", str.c_str());
 	
 	if ( zscript_debugger ) 
 	{
@@ -40785,9 +40775,6 @@ void FFScript::do_breakpoint()
 	TraceScriptIDs();
 	al_trace("%s\n", str.c_str());
 	
-	if(zconsole)
-		printf("%s\n", str.c_str());
-	
 	if ( zscript_debugger ) 
 	{
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | 
@@ -40805,9 +40792,7 @@ void FFScript::do_tracenl()
 {
 	al_trace("\n");
 	
-	if(zconsole)
-		printf("\n");
-		if ( zscript_debugger ) 
+	if ( zscript_debugger ) 
 	{
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"\n");
@@ -41023,9 +41008,6 @@ void FFScript::do_tracetobase()
 	}
 	TraceScriptIDs();
 	al_trace("%s\n", s2.c_str());
-	
-	if(zconsole)
-		printf("%s\n", s2.c_str());
 	
 	if ( zscript_debugger ) 
 	{

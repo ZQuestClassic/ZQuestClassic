@@ -75,7 +75,6 @@ bool call_combo_editor(int32_t index)
 		ComboEditorDialog(index, true).show();
 	}
 	if(!edited) CSet = cs;
-	zc_set_config("zquest","show_comboscript_meta_attribs",combo_use_script_data?1:0);
 	return edited;
 }
 
@@ -3246,6 +3245,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							onToggleFunc = [&](bool state)
 							{
 								combo_use_script_data = state;
+								zc_set_config("zquest","show_comboscript_meta_attribs",state?1:0);
 								loadComboType();
 							})
 					))
@@ -4326,6 +4326,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							onToggleFunc = [&](bool state)
 							{
 								combo_use_script_data = state;
+								zc_set_config("zquest","show_comboscript_meta_attribs",state?1:0);
 								loadComboType();
 							})
 					))

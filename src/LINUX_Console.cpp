@@ -10,36 +10,29 @@
 	std::ostringstream lxconsole_oss;
 #endif
 
-#ifdef _WIN32
-    
-    if(used_switch(argc, argv, "-console") || used_switch(argc, argv, "-con"))
-    {
-        DebugConsole::Open();
-        zconsole = true;
-    }
-    
-#else //Unix
+//Unix
+#ifndef _WIN32
 
     { // Let's try making a console for Linux -Z
 	pt = posix_openpt(O_RDWR);
 	if (pt == -1)
 	{
 		Z_error_fatal("Could not open pseudo terminal; error number: %d.\n", errno);
-		use_debug_console = 0; goto no_lx_console;
+		goto no_lx_console;
 	}
 	ptname = ptsname(pt);
 	if (!ptname)
 	{
 		Z_error_fatal("Could not get pseudo terminal device name.\n");
 		close(pt);
-		use_debug_console = 0; goto no_lx_console;
+		goto no_lx_console;
 	}
 
 	if (unlockpt(pt) == -1)
 	{
 		Z_error_fatal("Could not get pseudo terminal device name.\n");
 		close(pt);
-		use_debug_console = 0; goto no_lx_console;
+		goto no_lx_console;
 	}
 
 	lxconsole_oss << "xterm -S" << (strrchr(ptname, '/')+1) << "/" << pt << " &";
@@ -59,13 +52,13 @@
 	{
 		Z_error_fatal("Could not redirect standard output.\n");
 		close(pt);
-		use_debug_console = 0; goto no_lx_console;
+		goto no_lx_console;
 	}
 	if (dup2(pt, 2) <0)
 	{
 		Z_error_fatal("Could not redirect standard error output.\n");
 		close(pt);
-		use_debug_console = 0; goto no_lx_console;
+		goto no_lx_console;
 	}
     } //this is in a block because I want it in a block. -Z
     

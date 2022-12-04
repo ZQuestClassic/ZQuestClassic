@@ -86,7 +86,6 @@ extern particle_list particles;
 extern int32_t loadlast;
 extern word passive_subscreen_doscript;
 extern bool passive_subscreen_waitdraw;
-byte disable_direct_updating;
 byte use_dwm_flush;
 byte use_save_indicator;
 byte midi_patch_fix;
@@ -268,6 +267,8 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 /**********************************/
 
 static char cfg_sect[] = "zeldadx"; //We need to rename this.
+static char ctrl_sect[] = "Controls";
+static char sfx_sect[] = "Volume";
 
 int32_t d_dummy_proc(int32_t,DIALOG *,int32_t)
 {
@@ -276,76 +277,74 @@ int32_t d_dummy_proc(int32_t,DIALOG *,int32_t)
 
 void load_game_configs()
 {
-	//set_config_file("zc.cfg"); //shift back when done
-	//load the module
-	strcpy(moduledata.module_name,get_config_string("ZCMODULE",qst_module_name,"classic.zmod"));
-	joystick_index = zc_get_config(cfg_sect,"joystick_index",0);
-	js_stick_1_x_stick = zc_get_config(cfg_sect,"js_stick_1_x_stick",0);
-	js_stick_1_x_axis = zc_get_config(cfg_sect,"js_stick_1_x_axis",0);
-	js_stick_1_x_offset = zc_get_config(cfg_sect,"js_stick_1_x_offset",0) ? 128 : 0;
-	js_stick_1_y_stick = zc_get_config(cfg_sect,"js_stick_1_y_stick",0);
-	js_stick_1_y_axis = zc_get_config(cfg_sect,"js_stick_1_y_axis",1);
-	js_stick_1_y_offset = zc_get_config(cfg_sect,"js_stick_1_y_offset",0) ? 128 : 0;
-	js_stick_2_x_stick = zc_get_config(cfg_sect,"js_stick_2_x_stick",1);
-	js_stick_2_x_axis = zc_get_config(cfg_sect,"js_stick_2_x_axis",0);
-	js_stick_2_x_offset = zc_get_config(cfg_sect,"js_stick_2_x_offset",0) ? 128 : 0;
-	js_stick_2_y_stick = zc_get_config(cfg_sect,"js_stick_2_y_stick",1);
-	js_stick_2_y_axis = zc_get_config(cfg_sect,"js_stick_2_y_axis",1);
-	js_stick_2_y_offset = zc_get_config(cfg_sect,"js_stick_2_y_offset",0) ? 128 : 0;
-	analog_movement = (zc_get_config(cfg_sect,"analog_movement",1));
+	strcpy(moduledata.module_name,zc_get_config("ZCMODULE",qst_module_name,"classic.zmod"));
+	joystick_index = zc_get_config(ctrl_sect,"joystick_index",0);
+	js_stick_1_x_stick = zc_get_config(ctrl_sect,"js_stick_1_x_stick",0);
+	js_stick_1_x_axis = zc_get_config(ctrl_sect,"js_stick_1_x_axis",0);
+	js_stick_1_x_offset = zc_get_config(ctrl_sect,"js_stick_1_x_offset",0) ? 128 : 0;
+	js_stick_1_y_stick = zc_get_config(ctrl_sect,"js_stick_1_y_stick",0);
+	js_stick_1_y_axis = zc_get_config(ctrl_sect,"js_stick_1_y_axis",1);
+	js_stick_1_y_offset = zc_get_config(ctrl_sect,"js_stick_1_y_offset",0) ? 128 : 0;
+	js_stick_2_x_stick = zc_get_config(ctrl_sect,"js_stick_2_x_stick",1);
+	js_stick_2_x_axis = zc_get_config(ctrl_sect,"js_stick_2_x_axis",0);
+	js_stick_2_x_offset = zc_get_config(ctrl_sect,"js_stick_2_x_offset",0) ? 128 : 0;
+	js_stick_2_y_stick = zc_get_config(ctrl_sect,"js_stick_2_y_stick",1);
+	js_stick_2_y_axis = zc_get_config(ctrl_sect,"js_stick_2_y_axis",1);
+	js_stick_2_y_offset = zc_get_config(ctrl_sect,"js_stick_2_y_offset",0) ? 128 : 0;
+	analog_movement = (zc_get_config(ctrl_sect,"analog_movement",1));
    
 	//cheat modifier keya
-	cheat_modifier_keys[0] = zc_get_config(cfg_sect,"key_cheatmod_a1",KEY_ZC_LCONTROL);
-	cheat_modifier_keys[1] = zc_get_config(cfg_sect,"key_cheatmod_a2",0);
-	cheat_modifier_keys[2] = zc_get_config(cfg_sect,"key_cheatmod_b1",KEY_ZC_RCONTROL);
-	cheat_modifier_keys[3] = zc_get_config(cfg_sect,"key_cheatmod_b2",0);
+	cheat_modifier_keys[0] = zc_get_config(ctrl_sect,"key_cheatmod_a1",KEY_ZC_LCONTROL);
+	cheat_modifier_keys[1] = zc_get_config(ctrl_sect,"key_cheatmod_a2",0);
+	cheat_modifier_keys[2] = zc_get_config(ctrl_sect,"key_cheatmod_b1",KEY_ZC_RCONTROL);
+	cheat_modifier_keys[3] = zc_get_config(ctrl_sect,"key_cheatmod_b2",0);
    
 	if((uint32_t)joystick_index >= MAX_JOYSTICKS)
 		joystick_index = 0;
 	   
-	Akey = zc_get_config(cfg_sect,"key_a",KEY_Z);
-	Bkey = zc_get_config(cfg_sect,"key_b",KEY_X);
-	Skey = zc_get_config(cfg_sect,"key_s",KEY_ENTER);
-	Lkey = zc_get_config(cfg_sect,"key_l",KEY_Q);
-	Rkey = zc_get_config(cfg_sect,"key_r",KEY_W);
-	Pkey = zc_get_config(cfg_sect,"key_p",KEY_SPACE);
-	Exkey1 = zc_get_config(cfg_sect,"key_ex1",KEY_A);
-	Exkey2 = zc_get_config(cfg_sect,"key_ex2",KEY_S);
-	Exkey3 = zc_get_config(cfg_sect,"key_ex3",KEY_D);
-	Exkey4 = zc_get_config(cfg_sect,"key_ex4",KEY_C);
+	Akey = zc_get_config(ctrl_sect,"key_a",KEY_Z);
+	Bkey = zc_get_config(ctrl_sect,"key_b",KEY_X);
+	Skey = zc_get_config(ctrl_sect,"key_s",KEY_ENTER);
+	Lkey = zc_get_config(ctrl_sect,"key_l",KEY_Q);
+	Rkey = zc_get_config(ctrl_sect,"key_r",KEY_W);
+	Pkey = zc_get_config(ctrl_sect,"key_p",KEY_SPACE);
+	Exkey1 = zc_get_config(ctrl_sect,"key_ex1",KEY_A);
+	Exkey2 = zc_get_config(ctrl_sect,"key_ex2",KEY_S);
+	Exkey3 = zc_get_config(ctrl_sect,"key_ex3",KEY_D);
+	Exkey4 = zc_get_config(ctrl_sect,"key_ex4",KEY_C);
    
-	DUkey = zc_get_config(cfg_sect,"key_up",   KEY_UP);
-	DDkey = zc_get_config(cfg_sect,"key_down", KEY_DOWN);
-	DLkey = zc_get_config(cfg_sect,"key_left", KEY_LEFT);
-	DRkey = zc_get_config(cfg_sect,"key_right",KEY_RIGHT);
+	DUkey = zc_get_config(ctrl_sect,"key_up",   KEY_UP);
+	DDkey = zc_get_config(ctrl_sect,"key_down", KEY_DOWN);
+	DLkey = zc_get_config(ctrl_sect,"key_left", KEY_LEFT);
+	DRkey = zc_get_config(ctrl_sect,"key_right",KEY_RIGHT);
    
-	Abtn = zc_get_config(cfg_sect,"btn_a",2);
-	Bbtn = zc_get_config(cfg_sect,"btn_b",1);
-	Sbtn = zc_get_config(cfg_sect,"btn_s",10);
-	Mbtn = zc_get_config(cfg_sect,"btn_m",9);
-	Lbtn = zc_get_config(cfg_sect,"btn_l",5);
-	Rbtn = zc_get_config(cfg_sect,"btn_r",6);
-	Pbtn = zc_get_config(cfg_sect,"btn_p",12);
-	Exbtn1 = zc_get_config(cfg_sect,"btn_ex1",7);
-	Exbtn2 = zc_get_config(cfg_sect,"btn_ex2",8);
-	Exbtn3 = zc_get_config(cfg_sect,"btn_ex3",4);
-	Exbtn4 = zc_get_config(cfg_sect,"btn_ex4",3);
+	Abtn = zc_get_config(ctrl_sect,"btn_a",2);
+	Bbtn = zc_get_config(ctrl_sect,"btn_b",1);
+	Sbtn = zc_get_config(ctrl_sect,"btn_s",10);
+	Mbtn = zc_get_config(ctrl_sect,"btn_m",9);
+	Lbtn = zc_get_config(ctrl_sect,"btn_l",5);
+	Rbtn = zc_get_config(ctrl_sect,"btn_r",6);
+	Pbtn = zc_get_config(ctrl_sect,"btn_p",12);
+	Exbtn1 = zc_get_config(ctrl_sect,"btn_ex1",7);
+	Exbtn2 = zc_get_config(ctrl_sect,"btn_ex2",8);
+	Exbtn3 = zc_get_config(ctrl_sect,"btn_ex3",4);
+	Exbtn4 = zc_get_config(ctrl_sect,"btn_ex4",3);
    
-	DUbtn = zc_get_config(cfg_sect,"btn_up",13);
-	DDbtn = zc_get_config(cfg_sect,"btn_down",14);
-	DLbtn = zc_get_config(cfg_sect,"btn_left",15);
-	DRbtn = zc_get_config(cfg_sect,"btn_right",16);
+	DUbtn = zc_get_config(ctrl_sect,"btn_up",13);
+	DDbtn = zc_get_config(ctrl_sect,"btn_down",14);
+	DLbtn = zc_get_config(ctrl_sect,"btn_left",15);
+	DRbtn = zc_get_config(ctrl_sect,"btn_right",16);
 	
 	epilepsyFlashReduction = zc_get_config(cfg_sect,"epilepsy_flash_reduction",0);
 
-	digi_volume = zc_get_config(cfg_sect,"digi",248);
-	midi_volume = zc_get_config(cfg_sect,"midi",255);
-	sfx_volume = zc_get_config(cfg_sect,"sfx",248);
-	emusic_volume = zc_get_config(cfg_sect,"emusic",248);
-	pan_style = zc_get_config(cfg_sect,"pan",1);
+	digi_volume = zc_get_config(sfx_sect,"digi",248);
+	midi_volume = zc_get_config(sfx_sect,"midi",255);
+	sfx_volume = zc_get_config(sfx_sect,"sfx",248);
+	emusic_volume = zc_get_config(sfx_sect,"emusic",248);
+	pan_style = zc_get_config(sfx_sect,"pan",1);
 	// 1 <= zcmusic_bufsz <= 128
-	zcmusic_bufsz = vbound(zc_get_config(cfg_sect,"zcmusic_bufsz",64),1,128);
-	volkeys = zc_get_config(cfg_sect,"volkeys",0)!=0;
+	zcmusic_bufsz = vbound(zc_get_config(sfx_sect,"zcmusic_bufsz",64),1,128);
+	volkeys = zc_get_config(sfx_sect,"volkeys",0)!=0;
 	zc_vsync = zc_get_config(cfg_sect,"vsync",0);
 	Throttlefps = zc_get_config(cfg_sect,"throttlefps",1)!=0;
 	TransLayers = zc_get_config(cfg_sect,"translayers",1)!=0;
@@ -385,15 +384,10 @@ void load_game_configs()
 	forceExit = (byte) zc_get_config(cfg_sect,"force_exit",0);
    
 #ifdef _WIN32
-	use_debug_console = (byte) zc_get_config(cfg_sect,"debug_console",0);
 	zasm_debugger = (byte) zc_get_config("CONSOLE","print_ZASM",0);
 	zscript_debugger = (byte) zc_get_config("CONSOLE","ZScript_Debugger",0);
-	console_on_top = (byte) zc_get_config("CONSOLE","console_on_top",0);
 	//use_win7_keyboard_fix = (byte) zc_get_config(cfg_sect,"use_win7_key_fix",0);
 	use_win32_proc = (byte) zc_get_config(cfg_sect,"zc_win_proc_fix",0); //buggy
-   
-	// This seems to fix some problems on Windows 7
-	disable_direct_updating = (byte) zc_get_config("graphics","disable_direct_updating",1);
    
 	// This one's for Aero
 	use_dwm_flush = (byte) zc_get_config("zeldadx","use_dwm_flush",0);
@@ -402,14 +396,13 @@ void load_game_configs()
 	midi_patch_fix = (byte) zc_get_config("zeldadx","midi_patch_fix",1);
 	monochrome_console = (byte) zc_get_config("CONSOLE","monochrome_debuggers",0);
 #else //UNIX
-	use_debug_console = false;//(byte) zc_get_config(cfg_sect,"debug_console",0);
 	zasm_debugger = (byte) zc_get_config("CONSOLE","print_ZASM",0);
 	zscript_debugger = (byte) zc_get_config("CONSOLE","ZScript_Debugger",0);
 	monochrome_console = (byte) zc_get_config("CONSOLE","monochrome_debuggers",0);
 #endif
 
 	char const* default_path = "";
-	strcpy(qstdir,get_config_string(cfg_sect,qst_dir_name,default_path));
+	strcpy(qstdir,zc_get_config(cfg_sect,qst_dir_name,default_path));
    
 	if(strlen(qstdir)==0)
 	{
@@ -436,98 +429,81 @@ void load_game_configs()
 	zc_192b163_warp_compatibility = zc_get_config(cfg_sect,"zc_192b163_warp_compatibility",0);
 }
 
+void save_control_configs(bool kb)
+{
+	if(kb)
+	{
+		zc_set_config(ctrl_sect,"key_cheatmod_a1",cheat_modifier_keys[0]);
+		zc_set_config(ctrl_sect,"key_cheatmod_a2",cheat_modifier_keys[1]);
+		zc_set_config(ctrl_sect,"key_cheatmod_b1",cheat_modifier_keys[2]);
+		zc_set_config(ctrl_sect,"key_cheatmod_b2",cheat_modifier_keys[3]);
+		
+		if (!replay_is_replaying())
+		{
+			zc_set_config(ctrl_sect,"key_a",Akey);
+			zc_set_config(ctrl_sect,"key_b",Bkey);
+			zc_set_config(ctrl_sect,"key_s",Skey);
+			zc_set_config(ctrl_sect,"key_l",Lkey);
+			zc_set_config(ctrl_sect,"key_r",Rkey);
+			zc_set_config(ctrl_sect,"key_p",Pkey);
+			zc_set_config(ctrl_sect,"key_ex1",Exkey1);
+			zc_set_config(ctrl_sect,"key_ex2",Exkey2);
+			zc_set_config(ctrl_sect,"key_ex3",Exkey3);
+			zc_set_config(ctrl_sect,"key_ex4",Exkey4);
+			zc_set_config(ctrl_sect,"key_up",   DUkey);
+			zc_set_config(ctrl_sect,"key_down", DDkey);
+			zc_set_config(ctrl_sect,"key_left", DLkey);
+			zc_set_config(ctrl_sect,"key_right",DRkey);
+		}
+	}
+	else
+	{
+		zc_set_config(ctrl_sect,"joystick_index",joystick_index);
+		zc_set_config(ctrl_sect,"js_stick_1_x_stick",js_stick_1_x_stick);
+		zc_set_config(ctrl_sect,"js_stick_1_x_axis",js_stick_1_x_axis);
+		zc_set_config(ctrl_sect,"js_stick_1_x_offset",js_stick_1_x_offset ? 1 : 0);
+		zc_set_config(ctrl_sect,"js_stick_1_y_stick",js_stick_1_y_stick);
+		zc_set_config(ctrl_sect,"js_stick_1_y_axis",js_stick_1_y_axis);
+		zc_set_config(ctrl_sect,"js_stick_1_y_offset",js_stick_1_y_offset ? 1 : 0);
+		zc_set_config(ctrl_sect,"js_stick_2_x_stick",js_stick_2_x_stick);
+		zc_set_config(ctrl_sect,"js_stick_2_x_axis",js_stick_2_x_axis);
+		zc_set_config(ctrl_sect,"js_stick_2_x_offset",js_stick_2_x_offset ? 1 : 0);
+		zc_set_config(ctrl_sect,"js_stick_2_y_stick",js_stick_2_y_stick);
+		zc_set_config(ctrl_sect,"js_stick_2_y_axis",js_stick_2_y_axis);
+		zc_set_config(ctrl_sect,"js_stick_2_y_offset",js_stick_2_y_offset ? 1 : 0);
+		zc_set_config(ctrl_sect,"analog_movement",analog_movement);
+		
+		zc_set_config(ctrl_sect,"btn_a",Abtn);
+		zc_set_config(ctrl_sect,"btn_b",Bbtn);
+		zc_set_config(ctrl_sect,"btn_s",Sbtn);
+		zc_set_config(ctrl_sect,"btn_m",Mbtn);
+		zc_set_config(ctrl_sect,"btn_l",Lbtn);
+		zc_set_config(ctrl_sect,"btn_r",Rbtn);
+		zc_set_config(ctrl_sect,"btn_p",Pbtn);
+		zc_set_config(ctrl_sect,"btn_ex1",Exbtn1);
+		zc_set_config(ctrl_sect,"btn_ex2",Exbtn2);
+		zc_set_config(ctrl_sect,"btn_ex3",Exbtn3);
+		zc_set_config(ctrl_sect,"btn_ex4",Exbtn4);
+		
+		zc_set_config(ctrl_sect,"btn_up",DUbtn);
+		zc_set_config(ctrl_sect,"btn_down",DDbtn);
+		zc_set_config(ctrl_sect,"btn_left",DLbtn);
+		zc_set_config(ctrl_sect,"btn_right",DRbtn);
+	}
+}
+
 void save_game_configs()
 {
 	packfile_password("");
- 
-	set_config_string("ZCMODULE",qst_module_name,moduledata.module_name);
 	
-	set_config_int(cfg_sect,"joystick_index",joystick_index);
-	set_config_int(cfg_sect,"js_stick_1_x_stick",js_stick_1_x_stick);
-	set_config_int(cfg_sect,"js_stick_1_x_axis",js_stick_1_x_axis);
-	set_config_int(cfg_sect,"js_stick_1_x_offset",js_stick_1_x_offset ? 1 : 0);
-	set_config_int(cfg_sect,"js_stick_1_y_stick",js_stick_1_y_stick);
-	set_config_int(cfg_sect,"js_stick_1_y_axis",js_stick_1_y_axis);
-	set_config_int(cfg_sect,"js_stick_1_y_offset",js_stick_1_y_offset ? 1 : 0);
-	set_config_int(cfg_sect,"js_stick_2_x_stick",js_stick_2_x_stick);
-	set_config_int(cfg_sect,"js_stick_2_x_axis",js_stick_2_x_axis);
-	set_config_int(cfg_sect,"js_stick_2_x_offset",js_stick_2_x_offset ? 1 : 0);
-	set_config_int(cfg_sect,"js_stick_2_y_stick",js_stick_2_y_stick);
-	set_config_int(cfg_sect,"js_stick_2_y_axis",js_stick_2_y_axis);
-	set_config_int(cfg_sect,"js_stick_2_y_offset",js_stick_2_y_offset ? 1 : 0);
-	set_config_int(cfg_sect,"analog_movement",analog_movement);
-	
-	 //cheat modifier keya
-   
-	set_config_int(cfg_sect,"key_cheatmod_a1",cheat_modifier_keys[0]);
-	set_config_int(cfg_sect,"key_cheatmod_a2",cheat_modifier_keys[1]);
-	set_config_int(cfg_sect,"key_cheatmod_b1",cheat_modifier_keys[2]);
-	set_config_int(cfg_sect,"key_cheatmod_b2",cheat_modifier_keys[3]);
-   
-	if (!replay_is_replaying())
-	{
-		set_config_int(cfg_sect,"key_a",Akey);
-		set_config_int(cfg_sect,"key_b",Bkey);
-		set_config_int(cfg_sect,"key_s",Skey);
-		set_config_int(cfg_sect,"key_l",Lkey);
-		set_config_int(cfg_sect,"key_r",Rkey);
-		set_config_int(cfg_sect,"key_p",Pkey);
-		set_config_int(cfg_sect,"key_ex1",Exkey1);
-		set_config_int(cfg_sect,"key_ex2",Exkey2);
-		set_config_int(cfg_sect,"key_ex3",Exkey3);
-		set_config_int(cfg_sect,"key_ex4",Exkey4);
-		set_config_int(cfg_sect,"key_up",   DUkey);
-		set_config_int(cfg_sect,"key_down", DDkey);
-		set_config_int(cfg_sect,"key_left", DLkey);
-		set_config_int(cfg_sect,"key_right",DRkey);
-	}
-   
-	set_config_int(cfg_sect,"btn_a",Abtn);
-	set_config_int(cfg_sect,"btn_b",Bbtn);
-	set_config_int(cfg_sect,"btn_s",Sbtn);
-	set_config_int(cfg_sect,"btn_m",Mbtn);
-	set_config_int(cfg_sect,"btn_l",Lbtn);
-	set_config_int(cfg_sect,"btn_r",Rbtn);
-	set_config_int(cfg_sect,"btn_p",Pbtn);
-	set_config_int(cfg_sect,"btn_ex1",Exbtn1);
-	set_config_int(cfg_sect,"btn_ex2",Exbtn2);
-	set_config_int(cfg_sect,"btn_ex3",Exbtn3);
-	set_config_int(cfg_sect,"btn_ex4",Exbtn4);
-   
-	set_config_int(cfg_sect,"btn_up",DUbtn);
-	set_config_int(cfg_sect,"btn_down",DDbtn);
-	set_config_int(cfg_sect,"btn_left",DLbtn);
-	set_config_int(cfg_sect,"btn_right",DRbtn);
-	
-	set_config_int(cfg_sect,"epilepsy_flash_reduction",epilepsyFlashReduction);
-   
-	set_config_int(cfg_sect,"digi",digi_volume);
-	set_config_int(cfg_sect,"midi",midi_volume);
-	set_config_int(cfg_sect,"sfx",sfx_volume);
-	set_config_int(cfg_sect,"emusic",emusic_volume);
-	set_config_int(cfg_sect,"pan",pan_style);
-	set_config_int(cfg_sect,"zcmusic_bufsz",zcmusic_bufsz);
-	set_config_int(cfg_sect,"volkeys",(int32_t)volkeys);
-	set_config_int(cfg_sect,"vsync",zc_vsync);
-	set_config_int(cfg_sect,"throttlefps", (int32_t)Throttlefps);
-	set_config_int(cfg_sect,"translayers",(int32_t)TransLayers);
-	set_config_int(cfg_sect,"snapshot_format",SnapshotFormat);
-	set_config_int(cfg_sect,"name_entry_mode",NameEntryMode);
-	set_config_int(cfg_sect,"showfps",(int32_t)ShowFPS);
-	set_config_int(cfg_sect,"save_drag_resize",(int32_t)SaveDragResize);
-	set_config_int(cfg_sect,"save_window_position",(int32_t)SaveWinPos);
-	set_config_int(cfg_sect,"drag_aspect",(int32_t)DragAspect);
-	set_config_int(cfg_sect,"fastquit",(int32_t)NESquit);
-	set_config_int(cfg_sect,"clicktofreeze", (int32_t)ClickToFreeze);
-	set_config_int(cfg_sect,"title",title_version);
-	//set_config_int(cfg_sect,"lister_pattern_matching",abc_patternmatch);  //Enable once there is a GUI way to toggle this. 
+	zc_set_config("ZCMODULE",qst_module_name,moduledata.module_name);
 	
 	if (all_get_display() && !all_get_fullscreen_flag()&& SaveWinPos)
 	{
 		int o_window_x, o_window_y;
 		al_get_window_position(all_get_display(), &o_window_x, &o_window_y);
-		set_config_int(cfg_sect,"window_x",o_window_x);
-		set_config_int(cfg_sect,"window_y",o_window_y);
+		zc_set_config(cfg_sect,"window_x",o_window_x);
+		zc_set_config(cfg_sect,"window_y",o_window_y);
 	}
 	
 	if (all_get_display() && !all_get_fullscreen_flag() && SaveDragResize)
@@ -535,47 +511,17 @@ void save_game_configs()
 		double monitor_scale = zc_get_monitor_scale();
 		window_width = al_get_display_width(all_get_display()) / monitor_scale;
 		window_height = al_get_display_height(all_get_display()) / monitor_scale;
-		set_config_int(cfg_sect,"window_width",window_width);
-		set_config_int(cfg_sect,"window_height",window_height);
+		zc_set_config(cfg_sect,"window_width",window_width);
+		zc_set_config(cfg_sect,"window_height",window_height);
 	}
-   
-	set_config_int(cfg_sect,"load_last",loadlast);
+	
+	zc_set_config(cfg_sect,"load_last",loadlast);
 	chop_path(qstdir);
-	set_config_string(cfg_sect,qst_dir_name,qstdir);
-	set_config_string("SAVEFILE","save_filename",save_file_name);
-	set_config_int(cfg_sect,"ss_enable",ss_enable);
-	set_config_int(cfg_sect,"ss_after",ss_after);
-	set_config_int(cfg_sect,"ss_speed",ss_speed);
-	set_config_int(cfg_sect,"ss_density",ss_density);
-	set_config_int(cfg_sect,"heart_beep",heart_beep);
-	set_config_int(cfg_sect,"gui_colorset",gui_colorset);
-	set_config_int(cfg_sect,"use_sfx_dat",sfxdat);
-	set_config_int(cfg_sect,"fullscreen",fullscreen);
-	set_config_int(cfg_sect,"color_depth",zc_color_depth);
-	set_config_int(cfg_sect,"frame_rest_suggest",frame_rest_suggest);
-	set_config_int(cfg_sect,"force_exit",forceExit);
-   
-#ifdef _WIN32
-	set_config_int(cfg_sect,"debug_console",use_debug_console);
-	set_config_int("CONSOLE","print_ZASM",zasm_debugger);
-	set_config_int("CONSOLE","ZScript_Debugger",zscript_debugger);
-	set_config_int("CONSOLE","console_on_top",console_on_top);
-	//set_config_int(cfg_sect,"use_win7_key_fix",use_win7_keyboard_fix);
-	set_config_int(cfg_sect,"zc_win_proc_fix",use_win32_proc);
-	set_config_int("graphics","disable_direct_updating",disable_direct_updating);
-	set_config_int("zeldadx","use_dwm_flush",use_dwm_flush);
-	set_config_int("zeldadx","midi_patch_fix",midi_patch_fix);
-	set_config_int("CONSOLE","monochrome_debuggers",monochrome_console);
-	set_config_int("zeldadx","debug_console",zconsole);
-#endif
-   
-#ifdef ALLEGRO_LINUX
-	set_config_string("sound","patches",samplepath); // set to sample sound path set for DIGMIDI driver in Linux ~ Takuya
-#endif
-   
-	set_config_int(cfg_sect,"save_indicator",use_save_indicator);
-	set_config_int(cfg_sect,"zc_192b163_warp_compatibility",zc_192b163_warp_compatibility);
-   
+	zc_set_config(cfg_sect,qst_dir_name,qstdir);
+	zc_set_config("SAVEFILE","save_filename",save_file_name);
+	zc_set_config(cfg_sect,"use_sfx_dat",sfxdat);
+	zc_set_config(cfg_sect,"frame_rest_suggest",frame_rest_suggest);
+	
 	flush_config_file();
 #ifdef __EMSCRIPTEN__
 	em_sync_fs();
@@ -655,7 +601,7 @@ void load_mouse()
 	system_pal();
 	scare_mouse();
 	set_mouse_sprite(NULL);
-	int32_t sz = vbound(int32_t(16*(is_large ? get_config_float("zeldadx","cursor_scale_large",1.5) : get_config_float("zeldadx","cursor_scale_small",1))),16,80);
+	int32_t sz = vbound(int32_t(16*(is_large ? zc_get_config("zeldadx","cursor_scale_large",1.5) : zc_get_config("zeldadx","cursor_scale_small",1))),16,80);
 	for(int32_t j = 0; j < 4; ++j)
 	{
 		BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
@@ -4474,6 +4420,7 @@ void syskeys()
 		else
 		{
 			Throttlefps=!Throttlefps;
+			zc_set_config(cfg_sect,"throttlefps", (int32_t)Throttlefps);
 			logic_counter=0;
 		}
 	}
@@ -4488,7 +4435,11 @@ void syskeys()
 	
 	if(zc_read_system_key(KEY_CLOSEBRACE))	if(frame_rest_suggest <= 2) frame_rest_suggest++;
 	
-	if(zc_read_system_key(KEY_F2))	ShowFPS=!ShowFPS;
+	if(zc_read_system_key(KEY_F2))
+	{
+		ShowFPS=!ShowFPS;
+		zc_set_config(cfg_sect,"showfps",(int32_t)ShowFPS);
+	}
 	
 	if(zc_read_system_key(KEY_F3) && Playing)	Paused=!Paused;
 	
@@ -5241,20 +5192,21 @@ int32_t onEsc() // Unused?? -L
 int32_t onVsync()
 {
 	Throttlefps = !Throttlefps;
-	save_game_configs();
+	zc_set_config(cfg_sect,"throttlefps", (int32_t)Throttlefps);
 	return D_O_K;
 }
 
 int32_t onWinPosSave()
 {
 	SaveWinPos = !SaveWinPos;
+	zc_set_config(cfg_sect,"save_window_position",(int32_t)SaveWinPos);
 	return D_O_K;
 }
 
 int32_t onClickToFreeze()
 {
 	ClickToFreeze = !ClickToFreeze;
-	save_game_configs();
+	zc_set_config(cfg_sect,"clicktofreeze", (int32_t)ClickToFreeze);
 	return D_O_K;
 }
 
@@ -5294,11 +5246,9 @@ int32_t OnnClearQuestDir()
 		0, 
 		lfont) == 1)	
 	{
-		set_config_string("zeldadx","win_qst_dir","");
+		zc_set_config("zeldadx","win_qst_dir","");
 		flush_config_file();
-		strcpy(qstdir,get_config_string("zeldadx","win_qst_dir",""));
-		//strcpy(filepath,get_config_string("zeldadx","win_qst_dir",""));
-		save_game_configs();
+		strcpy(qstdir,"");
 #ifdef __EMSCRIPTEN__
 		em_sync_fs();
 #endif
@@ -5327,16 +5277,12 @@ int32_t onConsoleZASM()
 				if(ret)
 				{
 					FFCore.ZASMPrint(true);
-					zasm_debugger = 1;
-					save_game_configs();
 				}
 			}).show();
 		return D_O_K;
 	}
 	else
 	{
-		zasm_debugger = 0;
-		save_game_configs();
 		FFCore.ZASMPrint(false);
 		return D_O_K;
 	}
@@ -5357,16 +5303,12 @@ int32_t onConsoleZScript()
 				if(ret)
 				{
 					FFCore.ZScriptConsole(true);
-					zscript_debugger = 1;
-					save_game_configs();
 				}
 			}).show();
 		return D_O_K;
 	}
 	else
 	{
-		zscript_debugger = 0;
-		save_game_configs();
 		FFCore.ZScriptConsole(false);
 		return D_O_K;
 	}
@@ -5382,40 +5324,42 @@ int32_t onFrameSkip()
 int32_t onSaveDragResize()
 {
 	SaveDragResize = !SaveDragResize;
+	zc_set_config(cfg_sect,"save_drag_resize",(int32_t)SaveDragResize);
 	return D_O_K;
 }
 
 int32_t onDragAspect()
 {
 	DragAspect = !DragAspect;
+	zc_set_config(cfg_sect,"drag_aspect",(int32_t)DragAspect);
 	return D_O_K;
 }
 
 int32_t onTransLayers()
 {
 	TransLayers = !TransLayers;
-	save_game_configs();
+	zc_set_config(cfg_sect,"translayers",(int32_t)TransLayers);
 	return D_O_K;
 }
 
 int32_t onNESquit()
 {
 	NESquit = !NESquit;
-	save_game_configs();
+	zc_set_config(cfg_sect,"fastquit",(int32_t)NESquit);
 	return D_O_K;
 }
 
 int32_t onVolKeys()
 {
 	volkeys = !volkeys;
-	save_game_configs();
+	zc_set_config(sfx_sect,"volkeys",(int32_t)volkeys);
 	return D_O_K;
 }
 
 int32_t onShowFPS()
 {
 	ShowFPS = !ShowFPS;
-	save_game_configs();
+	zc_set_config(cfg_sect,"showfps",(int32_t)ShowFPS);
 	return D_O_K;
 }
 
@@ -5737,11 +5681,11 @@ int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t c)
 				break;
 				
 			case 2:
-				sprintf(str_a,"%3d",midi_volume);
-				sprintf(str_b,"%3d",digi_volume);
-				sprintf(str_l,"%3d",emusic_volume);
-				sprintf(str_m,"%3dKB",zcmusic_bufsz);
-				sprintf(str_r,"%3d",sfx_volume);
+				sprintf(str_a,"   %3d",midi_volume);
+				sprintf(str_b,"   %3d",digi_volume);
+				sprintf(str_l,"   %3d",emusic_volume);
+				sprintf(str_m,"   %3dKB",zcmusic_bufsz);
+				sprintf(str_r,"   %3d",sfx_volume);
 				strcpy(str_s,pan_str[pan_style]);
 				sprintf(str_leftmod1,"%3d\n%s",cheat_modifier_keys[0],key_str[cheat_modifier_keys[0]]);
 				sprintf(str_leftmod2,"%3d\n%s",cheat_modifier_keys[1],key_str[cheat_modifier_keys[1]]);
@@ -6335,8 +6279,7 @@ int32_t zc_load_zmod_module_file()
 		memset(moduledata.module_name, 0, sizeof(moduledata.module_name));
 		strcpy(moduledata.module_name, modulepath);
 		al_trace("New Module Path is: %s \n", moduledata.module_name);
-		set_config_string("ZCMODULE","current_module",moduledata.module_name);
-		//save_game_configs();
+		zc_set_config("ZCMODULE","current_module",moduledata.module_name);
 		zcm.init(true); //Load the module values.
 		moduledata.refresh_title_screen = 1;
 //		refresh_select_screen = 1;
@@ -7138,7 +7081,10 @@ int32_t onKeyboard()
 				}
 			}
 			if(uniqueError.size() == 0)
+			{
 				done = true;
+				save_control_configs(true);
+			}
 			else
 			{
 				box_start(1, "Duplicate Keys", lfont, sfont, false, keyboard_control_dlg[0].w,keyboard_control_dlg[0].h, 2);
@@ -7268,7 +7214,6 @@ int32_t onKeyboard()
         rest(1);
 	}
 	
-	save_game_configs();
 	return D_O_K;
 }
 
@@ -7302,7 +7247,10 @@ int32_t onGamepad()
 	int32_t ret = zc_popup_dialog(gamepad_dlg,4);
 	
 	if(ret == 4) //OK
+	{
 		analog_movement = gamepad_dlg[56].flags&D_SELECTED;
+		save_control_configs(false);
+	}
 	else //Cancel
 	{
 		Abtn = a;
@@ -7322,7 +7270,6 @@ int32_t onGamepad()
 		DRbtn = right;
 	}
 	
-	save_game_configs();
 	return D_O_K;
 }
 
@@ -7393,6 +7340,12 @@ int32_t onSound()
 			if(sfx_voice[i] > 0)
 				voice_set_volume(sfx_voice[i], sfx_volume);
 		}
+		zc_set_config(sfx_sect,"digi",digi_volume);
+		zc_set_config(sfx_sect,"midi",midi_volume);
+		zc_set_config(sfx_sect,"sfx",sfx_volume);
+		zc_set_config(sfx_sect,"emusic",emusic_volume);
+		zc_set_config(sfx_sect,"pan",pan_style);
+		zc_set_config(sfx_sect,"zcmusic_bufsz",zcmusic_bufsz);
 	}
 	else
 	{
@@ -7404,7 +7357,6 @@ int32_t onSound()
 		pan_style	 = p;
 	}
 	
-	save_game_configs();
 	return D_O_K;
 }
 
@@ -7508,16 +7460,19 @@ int32_t onExit()
 int32_t onTitle_NES()
 {
 	title_version=0;
+	zc_set_config(cfg_sect,"title",title_version);
 	return D_O_K;
 }
 int32_t onTitle_DX()
 {
 	title_version=1;
+	zc_set_config(cfg_sect,"title",title_version);
 	return D_O_K;
 }
 int32_t onTitle_25()
 {
 	title_version=2;
+	zc_set_config(cfg_sect,"title",title_version);
 	return D_O_K;
 }
 
@@ -7525,21 +7480,20 @@ int32_t onDebug()
 {
 	if(debug_enabled)
 		set_debug(!get_debug());
-	save_game_configs();	
 	return D_O_K;
 }
 
 int32_t onHeartBeep()
 {
 	heart_beep=!heart_beep;
-	save_game_configs();
+	zc_set_config(cfg_sect,"heart_beep",heart_beep);
 	return D_O_K;
 }
 
 int32_t onSaveIndicator()
 {
 	use_save_indicator=!use_save_indicator;
-	save_game_configs();
+	zc_set_config(cfg_sect,"save_indicator",use_save_indicator);
 	return D_O_K;
 }
 
@@ -7558,10 +7512,9 @@ int32_t onEpilepsy()
 		0, 
 		lfont) == 1)
 	{
-		if ( epilepsyFlashReduction ) epilepsyFlashReduction = 0;
-		else epilepsyFlashReduction = 1;
-		set_config_int("zeldadx","checked_epilepsy",1);
-		save_game_configs();
+		epilepsyFlashReduction = epilepsyFlashReduction ? 0 : 1;
+		zc_set_config("zeldadx","checked_epilepsy",1);
+		zc_set_config(cfg_sect,"epilepsy_flash_reduction",epilepsyFlashReduction);
 	}
 	return D_O_K;
 }
@@ -7808,9 +7761,10 @@ static DIALOG scrsaver_dlg[] =
 int32_t onScreenSaver()
 {
 	scrsaver_dlg[0].dp2=lfont;
-	scrsaver_dlg[5].d1 = scrsaver_dlg[5].d2 = ss_after;
-	scrsaver_dlg[6].d2 = ss_speed;
-	scrsaver_dlg[7].d2 = ss_density;
+	int32_t oldcfgs[3];
+	scrsaver_dlg[5].d1 = scrsaver_dlg[5].d2 = oldcfgs[0] = ss_after;
+	scrsaver_dlg[6].d2 = oldcfgs[1] = ss_speed;
+	scrsaver_dlg[7].d2 = oldcfgs[2] = ss_density;
 	
 	if(is_large)
 		large_dialog(scrsaver_dlg);
@@ -7822,6 +7776,12 @@ int32_t onScreenSaver()
 		ss_after   = scrsaver_dlg[5].d1;
 		ss_speed   = scrsaver_dlg[6].d2;
 		ss_density = scrsaver_dlg[7].d2;
+		if(oldcfgs[0] != ss_after)
+			zc_set_config(cfg_sect,"ss_after",ss_after);
+		if(oldcfgs[1] != ss_speed)
+			zc_set_config(cfg_sect,"ss_speed",ss_speed);
+		if(oldcfgs[2] != ss_density)
+			zc_set_config(cfg_sect,"ss_density",ss_density);
 	}
 	
 	if(ret == 9)
@@ -8103,31 +8063,31 @@ int32_t onMIDIPatch()
 		0, 
 		lfont) == 1)
 	{
-		if (midi_patch_fix) midi_patch_fix = 0;
-		
-		else midi_patch_fix = 1;	
-		
+		midi_patch_fix = midi_patch_fix ? 0 : 1;
+		zc_set_config("zeldadx","midi_patch_fix",midi_patch_fix);
 	}
 	fixes_menu[0].flags =(midi_patch_fix)?D_SELECTED:0;
-	save_game_configs();
 	return D_O_K;
 }
 
 int32_t onKeyboardEntry()
 {
 	NameEntryMode=0;
+	zc_set_config(cfg_sect,"name_entry_mode",NameEntryMode);
 	return D_O_K;
 }
 
 int32_t onLetterGridEntry()
 {
 	NameEntryMode=1;
+	zc_set_config(cfg_sect,"name_entry_mode",NameEntryMode);
 	return D_O_K;
 }
 
 int32_t onExtLetterGridEntry()
 {
 	NameEntryMode=2;
+	zc_set_config(cfg_sect,"name_entry_mode",NameEntryMode);
 	return D_O_K;
 }
 
@@ -8231,6 +8191,7 @@ int32_t onSetSnapshotFormat()
 		SnapshotFormat=6;
 		break;
 	}
+	zc_set_config("zeldadx", "snapshot_format", SnapshotFormat);
 	
 	snapshot_format_menu[SnapshotFormat].flags=D_SELECTED;
 	return D_O_K;
