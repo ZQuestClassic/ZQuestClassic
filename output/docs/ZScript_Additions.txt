@@ -2893,12 +2893,11 @@ void Waitframe();
 void Waitdraw();
  * Attempts to wait until later in a frame. Script-type-dependant.
 
-void WaitTo(int script_timing, bool at_least);
+void WaitTo(int script_timing, bool at_least = false);
  * Only for passively-running 'Generic Scripts'
  * Waits until the specified timing.
  * If 'at_least' is true, any later timing will also end the wait.
  * Use the 'SCR_TIMING_' constants from 'std_constants.zh' for 'script_timing'
- * !WIP! Timings are subject to change
 
 int WaitEvent();
  * Only for passively-running 'Generic Scripts'
@@ -6289,16 +6288,14 @@ int PortraitTileHeight;
  * If 0, no portrait will be displayed.
  * Max value 14
 
-int TextWidth;
+int TextWidth();
  * Returns the width, in pixels, of the message.
  * This uses the font and text as set in the 'Strings' editor,
  * 	and ignores both trailing spaces and line breaks.
- * Read-Only
 
-int TextHeight;
+int TextHeight();
  * Returns the height, in pixels, of the message.
  * This uses the font as set in the 'Strings' editor, and ignores line breaks.
- * Read-Only
 
 int Length;
  * Returns the length, in characters, of the message string text
@@ -7545,7 +7542,6 @@ Commands for graphics, sound, text, and bitmap objects.
 
 int GetPixel(bitmap b, int x, int y);
  * Returns the palette index value for a pixel on a bitmap, at coordinates x, y on that bitmap.
- * The value is expressed as float at this time. 
 
 int NumDraws();
  * Returns the number of script draws that have been executed during the current frame.
@@ -7558,7 +7554,7 @@ void Monochrome(int mode);
  * or uniform colour distribution.
  * This respects the current DMap (level) palette, and it affects the entire main game palette. 
 
-void MonochromeHue(int red, int green, int blue, bool distributed);
+void MonochromeHue(int red, int green, int blue, bool distributed = true);
  * Sets the entire display to monochrome output, using either distributed using a uniform mode, or
  * a differential mode selected from `bool distributed`, using a hue based on the values that you supply
  * as `red`, `green`, and `blue`. 
@@ -7594,7 +7590,7 @@ paldata CreatePalData();
 paldata CreatePalData(rgb color);
  * Creates a new paldata with all colors filled to the same rgb value.
 
-rgb MixColor(rgb clr_start, rgb clr_end, float percent, int color_space);
+rgb MixColor(rgb clr_start, rgb clr_end, float percent, int color_space = CSPACE_RGB);
  * Interpolates a color between clr_start and clr_end and then returns the resulting rgb.
  * The value of percent should range from 0-1, with 0 representing the starting color.
  * Color space specifies a color space to interpolate through, changing the resulting average.

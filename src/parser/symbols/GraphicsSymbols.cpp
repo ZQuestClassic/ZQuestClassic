@@ -10,7 +10,7 @@ static AccessorTable GraphicsTable[] =
 	{ "Greyscale",                  0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_BOOL },{} },
 	{ "Monochrome",                 0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_FLOAT },{} },
 	{ "Tint",                       0,          ZTID_VOID,   -1,                        0,  { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "MonochromeHue",              0,          ZTID_VOID,   -1,                        0,  { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "MonochromeHue",              0,          ZTID_VOID,   -1,                        0,  { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 10000 } },
 	{ "ClearTint",                  0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GRAPHICS },{} },
 	{ "getIsBlankTile[]",           0,         ZTID_FLOAT,   ISBLANKTILE,               0,  { ZTID_GRAPHICS, ZTID_FLOAT },{} },
 	{ "_getNumDraws",               0,         ZTID_FLOAT,   NUMDRAWS,                  0,  { ZTID_GRAPHICS },{} },
@@ -18,7 +18,7 @@ static AccessorTable GraphicsTable[] =
 	{ "GetPixel",                   0,         ZTID_FLOAT,   -1,                        0,  { ZTID_GRAPHICS, ZTID_UNTYPED, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "CreatePalData",              0,       ZTID_PALDATA,   -1,                   FL_INL,  { ZTID_GRAPHICS },{} },
 	{ "CreatePalData",              1,       ZTID_PALDATA,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_RGBDATA },{} },
-	{ "MixColor",                   0,       ZTID_RGBDATA,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_RGBDATA, ZTID_RGBDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "MixColor",                   0,       ZTID_RGBDATA,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_RGBDATA, ZTID_RGBDATA, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
 	{ "CreateRGB",                  0,       ZTID_RGBDATA,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_LONG },{} },
 	{ "CreateRGB",                  1,       ZTID_RGBDATA,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 

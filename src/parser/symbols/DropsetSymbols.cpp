@@ -4,9 +4,7 @@ DropsetSymbols DropsetSymbols::singleton = DropsetSymbols();
 
 static AccessorTable DropsetTable[] =
 {
-//	All of these return a function label error when used:
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
-//	{ "getTest",                    0,         ZTID_FLOAT,   DEBUGREFFFC,               0,  { ZTID_DROPSET },{} },
 	{ "getItems[]",                 0,         ZTID_FLOAT,   DROPSETITEMS,              0,  { ZTID_DROPSET, ZTID_FLOAT },{} },
 	{ "setItems[]",                 0,          ZTID_VOID,   DROPSETITEMS,              0,  { ZTID_DROPSET, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "getChances[]",               0,         ZTID_FLOAT,   DROPSETCHANCES,            0,  { ZTID_DROPSET, ZTID_FLOAT },{} },

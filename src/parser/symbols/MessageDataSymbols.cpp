@@ -14,8 +14,6 @@ static AccessorTable MessageDataTable[] =
 	{ "setTile",                    0,          ZTID_VOID,   MESSAGEDATATILE,           0,  { ZTID_ZMESSAGE, ZTID_FLOAT },{} },
 	{ "getCSet",                    0,         ZTID_FLOAT,   MESSAGEDATACSET,           0,  { ZTID_ZMESSAGE },{} },
 	{ "setCSet",                    0,          ZTID_VOID,   MESSAGEDATACSET,           0,  { ZTID_ZMESSAGE, ZTID_FLOAT },{} },
-	{ "getTransparent",             0,          ZTID_BOOL,   MESSAGEDATATRANS,          0,  { ZTID_ZMESSAGE },{} },
-	{ "setTransparent",             0,          ZTID_VOID,   MESSAGEDATATRANS,          0,  { ZTID_ZMESSAGE, ZTID_BOOL },{} },
 	{ "getFont",                    0,         ZTID_FLOAT,   MESSAGEDATAFONT,           0,  { ZTID_ZMESSAGE },{} },
 	{ "setFont",                    0,          ZTID_VOID,   MESSAGEDATAFONT,           0,  { ZTID_ZMESSAGE, ZTID_FLOAT },{} },
 	{ "getX",                       0,         ZTID_FLOAT,   MESSAGEDATAX,              0,  { ZTID_ZMESSAGE },{} },
@@ -34,8 +32,6 @@ static AccessorTable MessageDataTable[] =
 	{ "setVSpace",                  0,          ZTID_VOID,   MESSAGEDATAVSPACE,         0,  { ZTID_ZMESSAGE, ZTID_FLOAT },{} },
 	{ "getHSpace",                  0,         ZTID_FLOAT,   MESSAGEDATAHSPACE,         0,  { ZTID_ZMESSAGE },{} },
 	{ "setHSpace",                  0,          ZTID_VOID,   MESSAGEDATAHSPACE,         0,  { ZTID_ZMESSAGE, ZTID_FLOAT },{} },
-	{ "getFlag",                    0,         ZTID_FLOAT,   MESSAGEDATAFLAGS,          0,  { ZTID_ZMESSAGE },{} },
-	{ "setFlag",                    0,          ZTID_VOID,   MESSAGEDATAFLAGS,          0,  { ZTID_ZMESSAGE, ZTID_FLOAT },{} },
 	{ "getFlags[]",                 0,          ZTID_BOOL,   MESSAGEDATAFLAGSARR,       0,  { ZTID_ZMESSAGE, ZTID_FLOAT },{} },
 	{ "setFlags[]",                 0,          ZTID_VOID,   MESSAGEDATAFLAGSARR,       0,  { ZTID_ZMESSAGE, ZTID_FLOAT, ZTID_BOOL },{} },
 	{ "getMargins[]",               0,         ZTID_FLOAT,   MESSAGEDATAMARGINS,        0,  { ZTID_ZMESSAGE, ZTID_FLOAT },{} },
@@ -56,6 +52,11 @@ static AccessorTable MessageDataTable[] =
 	{ "_getTextWidth",              0,         ZTID_FLOAT,   MESSAGEDATATEXTWID,        0,  { ZTID_ZMESSAGE },{} },
 	{ "getLength",                  0,         ZTID_FLOAT,   MESSAGEDATATEXTLEN,        0,  { ZTID_ZMESSAGE },{} },
 	{ "setLength",                  0,          ZTID_VOID,   MESSAGEDATATEXTLEN,        0,  { ZTID_ZMESSAGE, ZTID_FLOAT },{} },
+	
+	{ "getTransparent",             0,          ZTID_BOOL,   MESSAGEDATATRANS,    FL_DEPR,  { ZTID_ZMESSAGE },{},0,"Unused! Does nothing!" },
+	{ "setTransparent",             0,          ZTID_VOID,   MESSAGEDATATRANS,    FL_DEPR,  { ZTID_ZMESSAGE, ZTID_BOOL },{},0,"Unused! Does nothing!" },
+	{ "getFlag",                    0,         ZTID_FLOAT,   MESSAGEDATAFLAGS,    FL_DEPR,  { ZTID_ZMESSAGE },{},0,"Use '->Flags[]' instead!" },
+	{ "setFlag",                    0,          ZTID_VOID,   MESSAGEDATAFLAGS,    FL_DEPR,  { ZTID_ZMESSAGE, ZTID_FLOAT },{},0,"Use '->Flags[]' instead!" },
 	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
