@@ -9367,34 +9367,12 @@ int32_t next_press_btn()
 	}
 }
 
-static bool rButton(bool(proc)(),bool &flag)
+static bool rButton(bool &btn, bool &flag, bool* rawbtn = nullptr)
 {
-	if(!proc())
-	{
-		flag=false;
-	}
-	else if(!flag)
-	{
-		flag=true;
-		return true;
-	}
+	bool ret = btn && !flag;
+	flag = rawbtn ? *rawbtn : btn;
 	
-	return false;
-}
-
-static bool rButton(bool &btn, bool &flag)
-{
-	if(!btn)
-	{
-		flag=false;
-	}
-	else if(!flag)
-	{
-		flag=true;
-		return true;
-	}
-	
-	return false;
+	return ret;
 }
 static bool rButtonPeek(bool btn, bool flag)
 {
@@ -9484,6 +9462,11 @@ bool button_hold[ZC_CONTROL_STATES] = {false, false, false, false, false, false,
 
 void load_control_state()
 {
+	if(!(replay_is_replaying() && replay_get_version() < 8))
+		for(int i = 0; i < ZC_CONTROL_STATES; ++i)
+		{
+			rButton(down_control_states[i], raw_control_state[i]);
+		}
 	if (!replay_is_replaying())
 	{
 		raw_control_state[0]=zc_getrawkey(DUkey, true)||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset < -STICK_PRECISION : joybtn(DUbtn));
@@ -9528,12 +9511,12 @@ void load_control_state()
 
 	// Some test replay files were made before a serious input bug was fixed, so instead
 	// of re-doing them or tossing them out, just check for that zplay version.
-	bool botched_input = replay_is_replaying() && replay_get_version() == 1;
+	bool botched_input = replay_is_replaying() && replay_get_version() > 1 && replay_get_version() < 8;
 	for (int i = 0; i < ZC_CONTROL_STATES; i++)
 	{
+		if(botched_input)
+			down_control_states[i] = !control_state[i];
 		control_state[i] = raw_control_state[i];
-		if(!botched_input && !control_state[i])
-			down_control_states[i] = false;
 	}
 	
 	button_press[0]=rButton(control_state[0],button_hold[0]);
@@ -9582,33 +9565,38 @@ bool zc_key_pressed()
 
 bool getInput(int32_t btn, bool press, bool drunk, bool ignoreDisable, bool eatEntirely, bool peek)
 {
-	bool ret = false, drunkstate = false;
+	bool ret = false, drunkstate = false, rawret = false;
 	bool* flag = &down_control_states[btn];
 	switch(btn)
 	{
 		case btnF12:
 			ret = zc_getkey(KEY_F12, ignoreDisable);
+			rawret = zc_getrawkey(KEY_F12, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnF11:
 			ret = zc_getkey(KEY_F11, ignoreDisable);
+			rawret = zc_getrawkey(KEY_F11, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnF5:
 			ret = zc_getkey(KEY_F5, ignoreDisable);
+			rawret = zc_getrawkey(KEY_F5, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnQ:
 			ret = zc_getkey(KEY_Q, ignoreDisable);
+			rawret = zc_getrawkey(KEY_Q, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnI:
 			ret = zc_getkey(KEY_I, ignoreDisable);
+			rawret = zc_getrawkey(KEY_I, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnM:
 			if(FFCore.kb_typing_mode) return false;
-			ret = zc_getrawkey(KEY_ESC, ignoreDisable);
+			rawret = ret = zc_getrawkey(KEY_ESC, ignoreDisable);
 			eatEntirely = false;
 			break;
 		default: //control_state[] index
@@ -9616,13 +9604,14 @@ bool getInput(int32_t btn, bool press, bool drunk, bool ignoreDisable, bool eatE
 			if(!ignoreDisable && get_bit(quest_rules, qr_FIXDRUNKINPUTS) && disable_control[btn]) drunk = false;
 			else if(btn<11) drunkstate = drunk_toggle_state[btn];
 			ret = control_state[btn] && (ignoreDisable || !disable_control[btn]);
+			rawret = raw_control_state[btn];
 	}
 	assert(flag);
 	if(press)
 	{
 		if(peek)
 			ret = rButtonPeek(ret, *flag);
-		else ret = rButton(ret, *flag);
+		else ret = rButton(ret, *flag, &rawret);
 	}
 	if(eatEntirely && ret) control_state[btn] = false;
 	if(drunk && drunkstate) ret = !ret;
