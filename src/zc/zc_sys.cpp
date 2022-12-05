@@ -9511,7 +9511,7 @@ void load_control_state()
 
 	// Some test replay files were made before a serious input bug was fixed, so instead
 	// of re-doing them or tossing them out, just check for that zplay version.
-	bool botched_input = replay_is_replaying() && replay_get_version() > 1 && replay_get_version() < 8;
+	bool botched_input = replay_is_replaying() && replay_get_version() != 1 && replay_get_version() < 8;
 	for (int i = 0; i < ZC_CONTROL_STATES; i++)
 	{
 		if(botched_input)
@@ -9609,8 +9609,11 @@ bool getInput(int32_t btn, bool press, bool drunk, bool ignoreDisable, bool eatE
 	assert(flag);
 	if(press)
 	{
+		
 		if(peek)
 			ret = rButtonPeek(ret, *flag);
+		else if(replay_is_replaying() && replay_get_version() < 8)
+			ret = rButton(ret, *flag);
 		else ret = rButton(ret, *flag, &rawret);
 	}
 	if(eatEntirely && ret) control_state[btn] = false;
