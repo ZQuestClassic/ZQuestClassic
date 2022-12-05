@@ -77,6 +77,7 @@ using std::ostringstream;
 
 extern zinitdata zinit;
 int32_t hangcount = 0;
+bool can_neg_array = true;
 
 extern byte monochrome_console;
 
@@ -1830,9 +1831,10 @@ public:
 		return _NoError;
 	}
 	
-	static INLINE int32_t checkUserArrayIndex(const int32_t index, const dword size)
+	static INLINE int32_t checkUserArrayIndex(const int32_t index, const dword size, const bool neg = false)
 	{
-		if(index < 0 || index >= int32_t(size))
+		
+		if(index < (neg ? -int32_t(size) : 0) || index >= int32_t(size))
 		{
 			Z_scripterrlog("Invalid index (%ld) to local array of size %ld\n", index, size);
 			return _OutOfBounds;
@@ -2444,29 +2446,39 @@ public:
 	}
 	
 	//Get element from array
-	static INLINE int32_t getElement(const int32_t ptr, const int32_t offset)
+	static INLINE int32_t getElement(const int32_t ptr, int32_t offset,
+		const bool neg = false)
 	{
 		ZScriptArray& a = getArray(ptr);
 		
 		if (&a == &INVALIDARRAY)
 			return -10000;
 			
-		if(BC::checkUserArrayIndex(offset, a.Size()) == _NoError)
+		if(BC::checkUserArrayIndex(offset, a.Size(), neg) == _NoError)
+		{
+			if(offset < 0)
+				offset += a.Size(); //[-1] becomes [size-1] -Em
 			return a[offset];
+		}
 		else
 			return -10000;
 	}
 	
 	//Set element in array
-	static INLINE void setElement(const int32_t ptr, const int32_t offset, const int32_t value)
+	static INLINE void setElement(const int32_t ptr, int32_t offset,
+		const int32_t value, const bool neg = false)
 	{
 		ZScriptArray& a = getArray(ptr);
 		
 		if (&a == &INVALIDARRAY)
 			return;
 			
-		if(BC::checkUserArrayIndex(offset, a.Size()) == _NoError)
+		if(BC::checkUserArrayIndex(offset, a.Size(), neg) == _NoError)
+		{
+			if(offset < 0)
+				offset += a.Size(); //[-1] becomes [size-1] -Em
 			a[offset] = value;
+		}
 	}
 	
 	//Puts values of a zscript array into a client <type> array. returns 0 on success. Overloaded
@@ -3832,9 +3844,7 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case FFRULE:
-			// DUkey, DDkey, DLkey, DRkey, Akey, Bkey, Skey, Lkey, Rkey, Pkey, Exkey1, Exkey2, Exkey3, Exkey4 };
 		{
-			//Read-only
 			int32_t ruleid = vbound((ri->d[rINDEX]/10000),0,qr_MAX);
 			ret = get_bit(quest_rules,ruleid)?10000:0;
 		}
@@ -13639,6 +13649,9 @@ void set_register(const int32_t arg, const int32_t value)
 					break;
 				case qr_LTTPCOLLISION:
 					Hero.setBigHitbox(value?1:0);
+					break;
+				case qr_ZS_NO_NEG_ARRAY:
+					can_neg_array = !value;
 					break;
 			}
 		}
@@ -28138,8 +28151,14 @@ void do_combotile(const bool v)
 void do_readpod(const bool v)
 {
 	int32_t indx = SH::get_arg(sarg2, v) / 10000;
-	int32_t val = ArrayH::getElement(ri->d[rINDEX] / 10000, indx);
+	int32_t val = ArrayH::getElement(ri->d[rINDEX] / 10000, indx, can_neg_array);
 	set_register(sarg1, val);
+}
+void do_writepod(const bool v1, const bool v2)
+{
+	int32_t indx = SH::get_arg(sarg1, v1) / 10000;
+	int32_t val = SH::get_arg(sarg2, v2);
+	ArrayH::setElement(ri->d[rINDEX] / 10000, indx, val, can_neg_array);
 }
 void do_writepodstr()
 {
@@ -28152,12 +28171,6 @@ void do_writepodarr()
 	if(!sargvec) return;
 	auto ptr = get_register(sarg1) / 10000;
 	ArrayH::setArray(ptr, sargvec->size(), sargvec->data(), false);
-}
-void do_writepod(const bool v1, const bool v2)
-{
-	int32_t indx = SH::get_arg(sarg1, v1) / 10000;
-	int32_t val = SH::get_arg(sarg2, v2);
-	ArrayH::setElement(ri->d[rINDEX] / 10000, indx, val);
 }
 int32_t get_object_arr(size_t sz)
 {
@@ -34942,6 +34955,8 @@ void FFScript::init()
 	
 	temp_no_stepforward = 0;
 	nostepforward = 0;
+	
+	can_neg_array = !get_bit(quest_rules,qr_ZS_NO_NEG_ARRAY);
 	
 	numscriptdraws = 0;
 	max_ff_rules = qr_MAX;

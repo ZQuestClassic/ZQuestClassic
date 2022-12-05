@@ -1498,7 +1498,11 @@ GUI::ListData instructionRulesList
 	{ "Writing Screen->EntryX, EntryY Resets Spawn Points", qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS },
 	{ "Log on Loading Invalid UID", qr_LOG_INVALID_UID_LOAD },
 	{ "Broken Combodata->InitD[]", qr_COMBODATA_INITD_MULT_TENK },
-	{ "Script writes to Hero->Step don't carry over", qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER }
+	{ "Script writes to Hero->Step don't carry over", qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER },
+	{ "Disable accessing negative array indexes", qr_ZS_NO_NEG_ARRAY, "If enabled,"
+		" the new feature allowing accessing negative indexes of an array to backwards-index them"
+		" (i.e. 'arr[-1]' is the LAST element in the array) will be DISABLED if this is on."
+		"\nUseful for debugging if you're using this feature *by mistake*." }
 };
 
 GUI::ListData objectRulesList
@@ -1597,7 +1601,7 @@ void applyRuleTemplate(int32_t ruleTemplate)
 				qr_BROKENCHARINTDRAWING, qr_NO_OVERWRITING_HOPPING,
 				qr_OLD_PRINTF_ARGS, qr_COMBODATA_INITD_MULT_TENK,
 				qr_OLDQUESTMISC, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS,
-				qr_BROKEN_GETPIXEL_VALUE,
+				qr_BROKEN_GETPIXEL_VALUE, qr_ZS_NO_NEG_ARRAY,
 			};
 			for(int32_t qr : zsOnRules)
 			{
