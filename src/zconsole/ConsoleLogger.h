@@ -210,9 +210,13 @@ public:
 	
 	// write string , use specified color
 	int32_t cprintf(int32_t attributes,const char *format,...);
+	// write string, no buffer/printf
+	int32_t safeprint(int32_t attributes,const char *str);
 	
 	// write string , use current color
 	int32_t cprintf(const char *format,...);
+	// write string, no buffer/printf
+	int32_t safeprint(const char *str);
 	
 	// goto(x,y)
 	void gotoxy(int32_t x,int32_t y);
@@ -343,9 +347,13 @@ public:
 	
 	// write string , use specified color
 	int32_t cprintf(int32_t attributes,const char *format,...);
+	// write string, no buffer/printf
+	int32_t safeprint(int32_t attributes,const char *str);
 	
 	// write string , use current color
 	int32_t cprintf(const char *format,...);
+	// write string, no buffer/printf
+	int32_t safeprint(const char *str);
 	
 	// goto(x,y)
 	void gotoxy(int32_t x,int32_t y);

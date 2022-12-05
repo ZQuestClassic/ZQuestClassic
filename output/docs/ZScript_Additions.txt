@@ -3102,6 +3102,10 @@ void sprintf(char32[] buf, char32[] format, ...untyped...)
  *     "%X" - Hexadecimal, uppercase. Same as above, but uses uppercase for letters.
  *     "%b" - Binary (integer). Inserts the number, not including decimals, in binary.
  *     "%B" - Binary (long). Inserts the number in long binary.
+ *     "%a?" - Array (integer). Prints out a full array. Must be followed
+ *             by another letter. Each array element will be formatted based on that letter.
+ *             Ex: '%al' prints an array of longs, '%08b' prints an array of Binary(integer)
+ *                 with a min digits of 8.
  *     "%%" - Inserts a single '%' character, without trying to read it as an argument.
  *     "%" followed by anything other than the above is considered an error. This should never be done.
  * Flags can be used between the '%' and the letter.

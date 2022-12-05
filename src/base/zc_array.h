@@ -42,6 +42,8 @@ ArrayIterator<*>{
 #ifndef __zc_array_h_
 #define __zc_array_h_
 
+#include <sstream>
+#include <functional>
 //#define _DEBUGZCARRAY
 
 
@@ -297,6 +299,28 @@ public:
 		return vec;
 	}
     
+	std::string asString(std::function<char const*(int32_t)> formatter, const size_type& limit) const
+	{
+		std::ostringstream oss;
+		oss << "{ ";
+		char buf[32];
+		size_type s = _size;
+		bool overflow = limit < s;
+		if(overflow)
+			s = limit;
+		
+		for(auto q = 0; q < s; ++q)
+		{
+			oss << formatter(_ptr[q]);
+            if (q + 1 < s)
+                oss << ", ";
+		}
+        if (overflow)
+            oss << ", ...";
+		oss << " }";
+		return oss.str();
+	}
+	
     reference At(size_type _X)
     {
         if(!_Bounds(_X))
