@@ -17,6 +17,12 @@ jobs:
 
   test:
     needs: ["build"]
+    strategy:
+      matrix:
+        num_shards: [6]
+        shard_index: [1, 2, 3, 4, 5, 6]
+      fail-fast: false
+    name: Replays ${{ matrix.shard_index }}/${{ matrix.num_shards }}
     runs-on: ${{ inputs.runs-on }}
     steps:
       - name: git clone
@@ -37,7 +43,8 @@ jobs:
             chmod +x ${{ needs.build.outputs.build-artifact-name }}/ZeldaClassic.app/Contents/Resources/zelda
             chmod +x ${{ needs.build.outputs.build-artifact-name }}/ZeldaClassic.app/Contents/Resources/zscript
 
-      - name: Test zscript
+      - if: ${{ matrix.shard_index == 1 }}
+        name: Test zscript
         uses: knicknic/os-specific-run@v1.0.3
         with:
           windows: |
@@ -48,11 +55,11 @@ jobs:
             ./zscript -input "include/std.zh" -unlinked
 
       - name: Run replay tests
-        run: python3 -Xutf8 tests/run_replay_tests.py --build_folder ${{ env.BUILD_FOLDER }} --retries 1 --ci ${{ inputs.runs-on }}
+        run: python3 -Xutf8 tests/run_replay_tests.py --build_folder ${{ env.BUILD_FOLDER }} --retries 1 --ci ${{ inputs.runs-on }} --shard ${{ matrix.shard_index }}/${{ matrix.num_shards }}
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: replays ${{ inputs.arch }}
+          name: replays ${{ inputs.arch }} ${{ matrix.shard_index }} of ${{ matrix.num_shards }}
           path: |
             ${{ github.workspace }}/tests/replays/*.zplay.roundtrip
             ${{ github.workspace }}/tests/replays/*.bmp

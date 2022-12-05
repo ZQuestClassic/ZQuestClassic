@@ -38,6 +38,7 @@ import sys
 import difflib
 import pathlib
 import shutil
+import functools
 from time import sleep
 from timeit import default_timer as timer
 
@@ -55,6 +56,8 @@ parser.add_argument('--snapshot')
 parser.add_argument('--retries', type=int, default=0)
 parser.add_argument('--frame', type=int)
 parser.add_argument('--ci')
+parser.add_argument('--shard')
+parser.add_argument('--print_shards', action='store_true')
 parser.add_argument('--replay', action='store_true')
 args = parser.parse_args()
 
@@ -82,6 +85,10 @@ if args.ci:
         'solid.zplay' if is_windows_ci else None,
     ]
     tests = [t for t in tests if t.name not in skip_in_ci]
+if args.shard:
+    shard_index, num_shards = (int(s) for s in args.shard.split('/'))
+    if shard_index > num_shards or shard_index <= 0 or num_shards <= 0:
+        raise ValueError('invalid --shard')
 
 
 def time_format(seconds: int):
@@ -97,7 +104,7 @@ def time_format(seconds: int):
 
 
 def read_last_contentful_line(file):
-    f = pathlib.Path(test).open('rb')
+    f = pathlib.Path(file).open('rb')
     try:  # catch OSError in case of a one line file
         f.seek(-2, os.SEEK_END)
         found_content = False
@@ -112,6 +119,67 @@ def read_last_contentful_line(file):
     except OSError:
         f.seek(0)
     return f.readline().decode()
+
+
+@functools.cache
+def get_replay_data(file):
+    last_step = read_last_contentful_line(file)
+    frames = int(last_step.split(' ')[1])
+
+    # Based on speed found on win32 in CI. Should be manually updated occasionally.
+    estimated_fps = 1500
+    if file.name == 'stellar_seas_randomizer.zplay':
+        estimated_fps = 150
+
+    frames_limited = frames
+    estimated_duration = frames / estimated_fps
+    if args.ci:
+        max_duration = 5 * 60
+        if estimated_duration > max_duration:
+            frames_limited = estimated_fps * max_duration
+            estimated_duration = max_duration
+
+    return {
+        'frames': frames,
+        'frames_limited': frames_limited,
+        'estimated_fps': estimated_fps,
+        'estimated_duration': round(estimated_duration),
+    }
+
+
+# https://stackoverflow.com/a/6856593/2788187
+def get_shards(tests, n):
+    result = [[] for i in range(n)]
+    sums = {i: 0 for i in range(n)}
+    c = 0
+    for test in tests:
+        for i in sums:
+            if c == sums[i]:
+                result[i].append(test)
+                break
+        sums[i] += get_replay_data(test)['estimated_duration']
+        c = min(sums.values())
+    return result
+
+
+tests.sort(key=lambda test: -get_replay_data(test)['estimated_duration'])
+
+if args.print_shards:
+    ss = 1
+    for shard in get_shards(tests, num_shards):
+        total_duration = sum(get_replay_data(test)['estimated_duration'] for test in shard)
+        print(ss, total_duration, ' '.join(test.name for test in shard))
+        ss += 1
+    exit(0)
+
+if args.shard:
+    tests = get_shards(tests, num_shards)[shard_index - 1]
+
+if args.ci:
+    total_frames = sum(get_replay_data(test)['frames'] for test in tests)
+    total_frames_limited = sum(get_replay_data(test)['frames_limited'] for test in tests)
+    frames_limited_ratio = total_frames_limited / total_frames
+    print(f'\nframes limited: {frames_limited_ratio * 100:.2f}%')
 
 
 def run_replay_test(replay_file):
@@ -132,31 +200,20 @@ def run_replay_test(replay_file):
     if args.snapshot is not None:
         exe_args.extend(['-snapshot', args.snapshot])
 
-    last_step = read_last_contentful_line(replay_file)
-    num_frames = int(last_step.split(' ')[1])
-    num_frames_checked = num_frames
+    replay_data = get_replay_data(replay_file)
+    frames = replay_data['frames']
+    frames_limited = replay_data['frames_limited']
 
     # Cap the length of a replay in CI.
+    timeout = None
     if args.ci:
-        max_duration = 5 * 60
-        estimated_fps = 1500
-        if replay_file.name == 'stellar_seas_randomizer.zplay':
-            estimated_fps = 150
-        estimated_duration = num_frames / estimated_fps
-        if estimated_duration > max_duration:
-            num_frames_checked = estimated_fps * max_duration
-            estimated_duration = max_duration
-        timeout = max(60 + estimated_duration * 1.5, 60 * 3)
-        if is_windows_ci:
-            timeout *= 2
-    else:
-        timeout = None
+        timeout = max(60 + replay_data['estimated_duration'] * 3, 60 * 5)
 
-    if args.frame is not None and args.frame < num_frames:
-        num_frames_checked = args.frame
-    if num_frames_checked != num_frames:
-        print(f"(-frame {num_frames_checked}, only doing {100 * num_frames_checked / num_frames:.2f}%) ", end='', flush=True)
-        exe_args.extend(['-frame', str(num_frames_checked)])
+    if args.frame is not None and args.frame < frames:
+        frames_limited = args.frame
+    if frames_limited != frames:
+        print(f"(-frame {frames_limited}, only doing {100 * frames_limited / frames:.2f}%) ", end='', flush=True)
+        exe_args.extend(['-frame', str(frames_limited)])
 
     def fill_log(process_result, allegro_log_path):
         allegro_log = None
@@ -191,7 +248,7 @@ def run_replay_test(replay_file):
             if 'Replay is active' in process_result.stdout:
                 # TODO: we only know the fps if the replay succeeded.
                 if process_result.returncode == 0:
-                    fps = int(num_frames_checked / (timer() - start))
+                    fps = int(frames_limited / (timer() - start))
                     success = True
                 elif process_result.returncode != ASSERT_FAILED_EXIT_CODE:
                     print(f'process failed with unexpected code {process_result.returncode}')
