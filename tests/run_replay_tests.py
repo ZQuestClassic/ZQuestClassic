@@ -128,13 +128,20 @@ def get_replay_data(file):
 
     # Based on speed found on win32 in CI. Should be manually updated occasionally.
     estimated_fps = 1500
-    if file.name == 'stellar_seas_randomizer.zplay':
-        estimated_fps = 150
+    estimated_fps_overrides = {
+        'classic_1st.zplay': 1400,
+        'demosp253.zplay': 800,
+        'first_quest_layered.zplay': 1200,
+        'nes-remastered.zplay': 1400,
+        'stellar_seas_randomizer.zplay': 150,
+    }
+    if file.name in estimated_fps_overrides:
+        estimated_fps = estimated_fps_overrides[file.name]
 
     frames_limited = frames
     estimated_duration = frames / estimated_fps
     if args.ci:
-        max_duration = 5 * 60
+        max_duration = 10 * 60
         if estimated_duration > max_duration:
             frames_limited = estimated_fps * max_duration
             estimated_duration = max_duration
@@ -164,13 +171,12 @@ def get_shards(tests, n):
 
 tests.sort(key=lambda test: -get_replay_data(test)['estimated_duration'])
 
-if args.print_shards:
+if args.shard and args.print_shards:
     ss = 1
     for shard in get_shards(tests, num_shards):
         total_duration = sum(get_replay_data(test)['estimated_duration'] for test in shard)
         print(ss, total_duration, ' '.join(test.name for test in shard))
         ss += 1
-    exit(0)
 
 if args.shard:
     tests = get_shards(tests, num_shards)[shard_index - 1]
@@ -180,6 +186,9 @@ if args.ci:
     total_frames_limited = sum(get_replay_data(test)['frames_limited'] for test in tests)
     frames_limited_ratio = total_frames_limited / total_frames
     print(f'\nframes limited: {frames_limited_ratio * 100:.2f}%')
+
+if args.print_shards:
+    exit(0)
 
 
 def run_replay_test(replay_file):
