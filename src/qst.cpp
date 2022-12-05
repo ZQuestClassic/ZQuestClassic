@@ -3648,6 +3648,11 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY,1);
 		set_bit(quest_rules,qr_OLD_WIZZROBE_SUBMERGING,1);
 	}
+	if(compatrule_version < 35)
+	{
+		// Leaving this commented for now, might need to enable later -Em
+		// set_bit(quest_rules,qr_ZS_NO_NEG_ARRAY,1);
+	}
 	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);

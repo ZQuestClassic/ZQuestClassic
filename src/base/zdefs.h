@@ -303,7 +303,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        1
 
-#define V_COMPATRULE       34
+#define V_COMPATRULE       35
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -1118,12 +1118,8 @@ enum
 	
 	//ZScript Parser //room for 20 of these
 	//80
-	qr_PARSER_250DIVISION = 80*8, //2.50 integer division bug emulation
-	qr_PARSER_NO_LOGGING, //Default off. If on, `Trace()` does not do anything.
-	qr_PARSER_SHORT_CIRCUIT, //Default on.
-	qr_PARSER_BOOL_TRUE_DECIMAL, //Default off
-	qr_SPRITEXY_IS_FLOAT,
-	qr_PARSER_TRUE_INT_SIZE, //Default on
+	qr_PARSER_250DIVISION = 80*8, qr_PARSER_NO_LOGGING, qr_PARSER_SHORT_CIRCUIT, qr_PARSER_BOOL_TRUE_DECIMAL,
+	qr_SPRITEXY_IS_FLOAT, qr_PARSER_TRUE_INT_SIZE,
 	qr_WPNANIMFIX, /* Not Implemented : This was in 2.50.2, but never used. */ 
 	qr_NOSCRIPTSDURINGSCROLL, /* Not Implemented : This was in 2.50.2, but never used. */
 	//81
@@ -1141,6 +1137,8 @@ enum
 	//85
 	qr_OLD_SLASHNEXT_SECRETS, qr_STEP_IS_FLOAT, qr_OLDMAPDATAFLAGS, qr_OLD_PRINTF_ARGS,
 	qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN, qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS, qr_LOG_INVALID_UID_LOAD, qr_COMBODATA_INITD_MULT_TENK,
+	//86
+	qr_ZS_NO_NEG_ARRAY,
 	
     qr_MAX
 };

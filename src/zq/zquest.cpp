@@ -30128,13 +30128,12 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(!helpbuf)
 	{
-
-	FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Memory Error: \n%s\n", 
-		"Failed to allocate EWditor Help buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
-	);
+		FFCore.ZScriptConsole
+		(
+			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Memory Error: \n%s\n", 
+			"Failed to allocate EWditor Help buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
+		);
 
 		Z_error_fatal("Error allocating help buffer.");
 		quit_game();
@@ -30937,12 +30936,11 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(used_switch(argc,argv,"-q"))
 	{
-
-	FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"-q switch used, quitting program.\n"
-	);
+		FFCore.ZScriptConsole
+		(
+			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"-q switch used, quitting program.\n"
+		);
 
 		Z_message("-q switch used, quitting program.\n");
 		quit_game();
@@ -33237,22 +33235,12 @@ void FFScript::ZScriptConsole(bool open)
 	#endif	
 }
 
-void FFScript::ZScriptConsole(int32_t attributes,const char *format,...)
+template <typename ...Params>
+void FFScript::ZScriptConsole(int32_t attributes,const char *format, Params&&... params)
 {
 	#ifdef _WIN32
 	initConsole();
-	zscript_coloured_console.cprintf( attributes, format );
-	#endif	
-}
-
-
-
-void FFScript::ZScriptConsolePrint(int32_t attributes,const char *format,...)
-{
-	#ifdef _WIN32
-	
-	coloured_console.cprintf( attributes,format);
-	//coloured_console.print();
+	zscript_coloured_console.cprintf( attributes, format, std::forward<Params>(params)... );
 	#endif	
 }
 

@@ -73,7 +73,7 @@ std::shared_ptr<GUI::Widget> ScriptRulesDialog::view()
 					)
 				),
 				TabRef(
-					name = "Bugfix",
+					name = "Compat",
 					QRPanel(
 						margins = 0_px,
 						padding = 2_spx,

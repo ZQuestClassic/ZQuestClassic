@@ -77,6 +77,7 @@ using std::ostringstream;
 
 extern zinitdata zinit;
 int32_t hangcount = 0;
+bool can_neg_array = true;
 
 extern byte monochrome_console;
 
@@ -1830,9 +1831,10 @@ public:
 		return _NoError;
 	}
 	
-	static INLINE int32_t checkUserArrayIndex(const int32_t index, const dword size)
+	static INLINE int32_t checkUserArrayIndex(const int32_t index, const dword size, const bool neg = false)
 	{
-		if(index < 0 || index >= int32_t(size))
+		
+		if(index < (neg ? -int32_t(size) : 0) || index >= int32_t(size))
 		{
 			Z_scripterrlog("Invalid index (%ld) to local array of size %ld\n", index, size);
 			return _OutOfBounds;
@@ -2444,29 +2446,39 @@ public:
 	}
 	
 	//Get element from array
-	static INLINE int32_t getElement(const int32_t ptr, const int32_t offset)
+	static INLINE int32_t getElement(const int32_t ptr, int32_t offset,
+		const bool neg = false)
 	{
 		ZScriptArray& a = getArray(ptr);
 		
 		if (&a == &INVALIDARRAY)
 			return -10000;
 			
-		if(BC::checkUserArrayIndex(offset, a.Size()) == _NoError)
+		if(BC::checkUserArrayIndex(offset, a.Size(), neg) == _NoError)
+		{
+			if(offset < 0)
+				offset += a.Size(); //[-1] becomes [size-1] -Em
 			return a[offset];
+		}
 		else
 			return -10000;
 	}
 	
 	//Set element in array
-	static INLINE void setElement(const int32_t ptr, const int32_t offset, const int32_t value)
+	static INLINE void setElement(const int32_t ptr, int32_t offset,
+		const int32_t value, const bool neg = false)
 	{
 		ZScriptArray& a = getArray(ptr);
 		
 		if (&a == &INVALIDARRAY)
 			return;
 			
-		if(BC::checkUserArrayIndex(offset, a.Size()) == _NoError)
+		if(BC::checkUserArrayIndex(offset, a.Size(), neg) == _NoError)
+		{
+			if(offset < 0)
+				offset += a.Size(); //[-1] becomes [size-1] -Em
 			a[offset] = value;
+		}
 	}
 	
 	//Puts values of a zscript array into a client <type> array. returns 0 on success. Overloaded
@@ -3832,9 +3844,7 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case FFRULE:
-			// DUkey, DDkey, DLkey, DRkey, Akey, Bkey, Skey, Lkey, Rkey, Pkey, Exkey1, Exkey2, Exkey3, Exkey4 };
 		{
-			//Read-only
 			int32_t ruleid = vbound((ri->d[rINDEX]/10000),0,qr_MAX);
 			ret = get_bit(quest_rules,ruleid)?10000:0;
 		}
@@ -13639,6 +13649,9 @@ void set_register(const int32_t arg, const int32_t value)
 					break;
 				case qr_LTTPCOLLISION:
 					Hero.setBigHitbox(value?1:0);
+					break;
+				case qr_ZS_NO_NEG_ARRAY:
+					can_neg_array = !value;
 					break;
 			}
 		}
@@ -28138,8 +28151,14 @@ void do_combotile(const bool v)
 void do_readpod(const bool v)
 {
 	int32_t indx = SH::get_arg(sarg2, v) / 10000;
-	int32_t val = ArrayH::getElement(ri->d[rINDEX] / 10000, indx);
+	int32_t val = ArrayH::getElement(ri->d[rINDEX] / 10000, indx, can_neg_array);
 	set_register(sarg1, val);
+}
+void do_writepod(const bool v1, const bool v2)
+{
+	int32_t indx = SH::get_arg(sarg1, v1) / 10000;
+	int32_t val = SH::get_arg(sarg2, v2);
+	ArrayH::setElement(ri->d[rINDEX] / 10000, indx, val, can_neg_array);
 }
 void do_writepodstr()
 {
@@ -28152,12 +28171,6 @@ void do_writepodarr()
 	if(!sargvec) return;
 	auto ptr = get_register(sarg1) / 10000;
 	ArrayH::setArray(ptr, sargvec->size(), sargvec->data(), false);
-}
-void do_writepod(const bool v1, const bool v2)
-{
-	int32_t indx = SH::get_arg(sarg1, v1) / 10000;
-	int32_t val = SH::get_arg(sarg2, v2);
-	ArrayH::setElement(ri->d[rINDEX] / 10000, indx, val);
 }
 int32_t get_object_arr(size_t sz)
 {
@@ -28695,7 +28708,7 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 			//Halt on new script if set to advance to next script
 			FFCore.zasm_break_mode = ZASM_BREAK_HALT;
 			FFCore.TraceScriptIDs(true);
-			coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | 
+			coloured_console.safeprint((CConsoleLoggerEx::COLOR_RED | 
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Breaking for script start\n");
 		}
 		else FFCore.zasm_break_mode = ZASM_BREAK_NONE;
@@ -28704,7 +28717,7 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 	{
 		//Print new script metadata when starting script
 		FFCore.TraceScriptIDs(true);
-		coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | 
+		coloured_console.safeprint((CConsoleLoggerEx::COLOR_RED | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Start of script\n");
 	}
 	
@@ -34938,6 +34951,8 @@ void FFScript::init()
 	temp_no_stepforward = 0;
 	nostepforward = 0;
 	
+	can_neg_array = !get_bit(quest_rules,qr_ZS_NO_NEG_ARRAY);
+	
 	numscriptdraws = 0;
 	max_ff_rules = qr_MAX;
 	coreflags = 0;
@@ -40136,7 +40151,8 @@ script_variable ZASMVars[]=
 ///----------------------------------------------------------------------------------------------------//
 //Debugger and Logging Consoles
 
-void FFScript::ZScriptConsole(int32_t attributes,const char *format,...)
+template <typename ...Params>
+void FFScript::ZScriptConsole(int32_t attributes,const char *format, Params&&... params)
 {
 	//if ( open )
 	{
@@ -40146,7 +40162,7 @@ void FFScript::ZScriptConsole(int32_t attributes,const char *format,...)
 		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Logging Console\n");
 	
-		zscript_coloured_console.cprintf( attributes, format );
+		zscript_coloured_console.cprintf( attributes, format, std::forward<Params>(params)...);
 	}
 	//else
 	//{
@@ -40223,12 +40239,6 @@ void FFScript::ZScriptConsole(bool open)
 	zc_set_config("CONSOLE","ZScript_Debugger",zscript_debugger);
 }
 
-void FFScript::ZScriptConsolePrint(int32_t attributes,const char *format,...)
-{
-	coloured_console.cprintf( attributes,format);
-	//coloured_console.print();
-}
-
 void FFScript::ZASMPrint(bool open)
 {
 	if(SKIPZASMPRINT()) return;
@@ -40238,8 +40248,8 @@ void FFScript::ZASMPrint(bool open)
 		coloured_console.Create("ZASM Debugger", 600, 200, NULL, NULL);
 		coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
 		coloured_console.gotoxy(0,0);
-		coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZASM Stack Trace:\n");
+		coloured_console.safeprint( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZASM Stack Trace:\n");
 		//coloured_console.SetAsDefaultOutput();
 		zasm_debugger = 1;
 		zasm_break_mode = ZASM_BREAK_HALT;
@@ -40290,52 +40300,52 @@ void FFScript::ZASMPrintCommand(const word scommand)
 	if(s_c.args == 2)
 	{
 		coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%14s: ", s_c.name);
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%14s: ", s_c.name);
 		
 		if(s_c.arg1_type == 0)
 		{
 			coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
-			//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d), ", s_v.name, get_register(sarg1));
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\t %s (val = %2d), ", ZASMVarToString(sarg1).c_str(), get_register(sarg1));
+				//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d), ", s_v.name, get_register(sarg1));
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\t %s (val = %2d), ", ZASMVarToString(sarg1).c_str(), get_register(sarg1));
 		}
 		else
 		{
 			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %2d), ", "immediate", sarg1);
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %2d), ", "immediate", sarg1);
 		}
 		if(s_c.arg2_type == 0)
 		{
 			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
-			//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", s_v.name, get_register(sarg2));
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, "\t %s (val = %2d)\n", ZASMVarToString(sarg2).c_str(), get_register(sarg2));
+				//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", s_v.name, get_register(sarg2));
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, "\t %s (val = %2d)\n", ZASMVarToString(sarg2).c_str(), get_register(sarg2));
 		}
 		else
 		{
 			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %2d)\n", "immediate", sarg2);
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %2d)\n", "immediate", sarg2);
 		}
 	}
 	else if(s_c.args == 1)
 	{
 		coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%14s: ", s_c.name);
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%14s: ", s_c.name);
 		
 		if(s_c.arg1_type == 0)
 		{
 			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
-			//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", s_v.name, get_register(sarg1));
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\t %w (val = %2d)\n", ZASMVarToString(sarg1).c_str(), get_register(sarg1));
+				//CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %9d)\n", s_v.name, get_register(sarg1));
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\t %w (val = %2d)\n", ZASMVarToString(sarg1).c_str(), get_register(sarg1));
 		}
 		else
 		{
 			coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY |  
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %2d)\n", "immediate", sarg1);
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%10s (val = %2d)\n", "immediate", sarg1);
 		}
 	}
 	else
 	{
 		coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%14s\n",s_c.name);
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%14s\n",s_c.name);
 	}
 	//s_c.name is the string with the instruction
 	
@@ -40349,9 +40359,9 @@ void FFScript::ZASMPrintVarSet(const int32_t arg, int32_t argval)
 	// script_variable s_v = ZASMVars[arg];
 	//s_v.name is the string with the instruction
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
-	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Set: %s\t",ZASMVarToString(arg).c_str());
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Set: %s\t",ZASMVarToString(arg).c_str());
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%d\n",argval);
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%d\n",argval);
 	//coloured_console.print();
 }
 
@@ -40362,9 +40372,9 @@ void FFScript::ZASMPrintVarGet(const int32_t arg, int32_t argval)
 	// script_variable s_v = ZASMVars[arg];
 	//s_v.name is the string with the instruction
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_WHITE | 
-	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Get: %s\t",ZASMVarToString(arg).c_str());
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Get: %s\t",ZASMVarToString(arg).c_str());
 	coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%d\n",argval);
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%d\n",argval);
 	//coloured_console.print();
 }
 
@@ -40380,14 +40390,14 @@ void FFScript::do_trace(bool v)
 	char tmp[100];
 	sprintf(tmp, (temp < 0 ? "%06d" : "%05d"), temp);
 	string s2(tmp);
-	s2 = s2.substr(0, s2.size() - 4) + "." + s2.substr(s2.size() - 4, 4);
+	s2 = s2.substr(0, s2.size() - 4) + "." + s2.substr(s2.size() - 4, 4) + "\n";
 	TraceScriptIDs();
-	al_trace("%s\n", s2.c_str());
+	al_trace("%s", s2.c_str());
 	
 	if ( zscript_debugger ) 
 	{
-		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", s2.c_str());
+		zscript_coloured_console.safeprint((CConsoleLoggerEx::COLOR_WHITE | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),s2.c_str());
 	}
 }
 
@@ -40395,12 +40405,13 @@ void FFScript::do_tracebool(const bool v)
 {
 	int32_t temp = SH::get_arg(sarg1, v);
 	TraceScriptIDs();
-	al_trace("%s\n", temp ? "true": "false");
+	char const* str = temp ? "true\n" : "false\n";
+	al_trace("%s", str);
 	
 	if ( zscript_debugger ) 
 	{
-		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", temp ? "true": "false");
+		zscript_coloured_console.safeprint((CConsoleLoggerEx::COLOR_WHITE | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),str);
 	}
 }
 
@@ -40411,8 +40422,8 @@ void traceStr(string const& str)
 	
 	if ( zscript_debugger ) 
 	{
-		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s", str.c_str());
+		zscript_coloured_console.safeprint((CConsoleLoggerEx::COLOR_WHITE | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),str.c_str());
 	}
 }
 
@@ -40423,6 +40434,174 @@ void FFScript::do_tracestring()
 	ArrayH::getString(arrayptr, str, 512);
 	str += "\0"; //In the event that the user passed an array w/o NULL, don't crash.
 	traceStr(str);
+}
+
+bool is_valid_format(char c)
+{
+	switch(c)
+	{
+		case 'f': case 'd': case 'i': case 'p':
+		case 'l': case 's': case 'c': case 'X':
+		case 'x': case 'b': case 'B': case 'a':
+			return true;
+	}
+	return false;
+}
+char const* zs_formatter(char const* format, int32_t arg, int32_t mindig)
+{
+	static std::string ret;
+	
+	ret.clear();
+	if(format)
+	{
+		char mindigbuf[8] = {0};
+		if(mindig)
+			sprintf(mindigbuf, "%%0%d%c", mindig,
+				(format[0] == 'x' || format[0] == 'X') ? format[0] : 'd');
+		bool tempbool = false;
+		switch(format[0])
+		{
+			case 'f':
+				tempbool = true;
+				[[fallthrough]];
+			case 'd':
+				if(arg%10000)
+					tempbool = true;
+				[[fallthrough]];
+			case 'i':
+			case 'p':
+			{
+				char argbuf[32] = {0};
+				bool neg = arg < 0;
+				if(mindig)
+					sprintf(argbuf,mindigbuf,arg / 10000);
+				else zc_itoa(arg / 10000, argbuf);
+				
+				if(tempbool) //add decimal places
+				{
+					arg = abs(arg);
+					auto ind = strlen(argbuf);
+					argbuf[ind++] = '.';
+					for(int div = 1000; div > 0; div /= 10)
+						argbuf[ind++] = '0' + (arg/div)%10;
+					for(--ind; argbuf[ind]=='0' && argbuf[ind-1]!='-'; --ind)
+					{
+						argbuf[ind] = 0;
+					}
+				}
+				
+				if(neg && argbuf[0] != '-')
+					ret = "-";
+				ret += argbuf;
+				return ret.c_str();
+			}
+			//
+			case 'l':
+			{
+				char argbuf[32] = {0};
+				if(mindig)
+					sprintf(argbuf, mindigbuf, arg);
+				else zc_itoa(arg, argbuf);
+				
+				ret = argbuf;
+				return ret.c_str();
+			}
+			//
+			case 's':
+			{
+				if(mindig)
+					Z_scripterrlog("Cannot use minimum digits flag for '%%s'\n");
+				if(arg)
+				{
+					int32_t strptr = (arg / 10000);
+					ZScriptArray& a = ArrayH::getArray(strptr);
+					if(a == INVALIDARRAY)
+						ret = "<INVALID STRING>";
+					else ArrayH::getString(strptr, ret, MAX_ZC_ARRAY_SIZE);
+				}
+				else ret = "<NULL>";
+				return ret.c_str();
+			}
+			case 'c':
+			{
+				if(mindig)
+					Z_scripterrlog("Cannot use minimum digits flag for '%%c'\n");
+				int32_t c = (arg / 10000);
+				if ( (char(c)) != c )
+				{
+					Z_scripterrlog("Illegal char value (%d) passed to sprintf as '%%c' arg\n", c);
+					Z_scripterrlog("Value of invalid char will overflow.\n");
+				}
+				ret.push_back(char(c));
+				return ret.c_str();
+			}
+			//
+			case 'X':
+				tempbool = true;
+				[[fallthrough]];
+			case 'x':
+			{
+				char argbuf[32] = {0};
+				if(mindig)
+					sprintf(argbuf,mindigbuf,arg / 10000);
+				else zc_itoa( (arg/10000), argbuf, 16 ); //base 16; hex
+				
+				for ( int32_t inx = 0; inx < 16; ++inx ) //set chosen caps
+				{
+					argbuf[inx] = ( tempbool ? toupper(argbuf[inx]) : tolower(argbuf[inx]) );
+				}
+				ret = "0x";
+				ret += argbuf;
+				return ret.c_str();
+			}
+			//
+			case 'b': //int binary
+				arg /= 10000;
+				[[fallthrough]];
+			case 'B': //long binary
+			{
+				char argbuf[33] = {0};
+				int num_digits = mindig;
+				for(int q = num_digits; q < 32; ++q)
+					if(arg&(1<<q))
+						num_digits = q+1;
+				for(int q = 0; q < num_digits; ++q)
+				{
+					argbuf[q] = (arg&(1<<(num_digits-q-1)))
+						? '1' : '0';
+				}
+				ret = argbuf;
+				return ret.c_str();
+			}
+			case 'a': //array
+			{
+				if(arg)
+				{
+					if(!is_valid_format(format[1]))
+					{
+						Z_scripterrlog("Format '%%a%c' is invalid!\n",format[1]);
+						break;
+					}
+					ZScriptArray& a = ArrayH::getArray(arg / 10000);
+					if(a == INVALIDARRAY)
+						ret = "{ INVALID ARRAY }";
+					else ret = a.asString([&](int32_t val)
+						{
+							return zs_formatter(format+1, val, mindig);
+						}, 214748);
+				}
+				else ret = "{ NULL }";
+				return ret.c_str();
+			}
+			default:
+			{
+				Z_scripterrlog("Error: '%%%c' is not a valid printf argument.\n",format[0]);
+				return ret.c_str();
+			}
+		}
+	}
+	Z_scripterrlog("Error: No format parameter given for zs_formatter\n");
+	return ret.c_str();
 }
 
 string zs_sprintf(char const* format, int32_t num_args, const bool varg)
@@ -40502,136 +40681,33 @@ string zs_sprintf(char const* format, int32_t num_args, const bool varg)
 				}
 				char mindigbuf[8] = {0};
 				sprintf(mindigbuf, "%%0%d%c", min_digits, hex ? format[0] : 'd');
+				bool tempbool = false;
 				switch( format[0] )
 				{
 					case 'd':
-					{
-						if( (arg_val % 10000) )
-						{
-							goto zsprintf_float;
-						}
-						else
-						{
-							goto zsprintf_int;
-						}
-					}
-					case 'i':
-					case 'p':
-					{
-						zsprintf_int:
-						{
-							char argbuf[32] = {0};
-							if(min_digits)
-								sprintf(argbuf,mindigbuf,arg_val / 10000);
-							else zc_itoa(arg_val / 10000, argbuf);
-							++next_arg;
-							oss << buf << argbuf;
-							q = 300; //break main loop
-							break;
-						}
-					}
 					case 'f':
-					{
-						zsprintf_float:
-						{
-							char argbuf[32] = {0};
-							if(min_digits)
-								sprintf(argbuf,mindigbuf,abs(arg_val / 10000));
-							else zc_itoa(abs(arg_val / 10000), argbuf);
-							int32_t inx = 0; for( ; argbuf[inx]; ++inx );
-							argbuf[inx++] = '.';
-							argbuf[inx++] = '0' + abs( ( (arg_val / 1000) % 10 ) );
-							argbuf[inx++] = '0' + abs( ( (arg_val / 100) % 10 ) );
-							argbuf[inx++] = '0' + abs( ( (arg_val / 10) % 10 ) );
-							argbuf[inx] = '0' + abs( (arg_val % 10) );
-							for ( int32_t i = 0; i < 3; ++i )
-							{
-								if( argbuf[inx-i] == '0') argbuf[inx-i] = 0; //Trim trailing 0s
-								else break;
-							}
-							++next_arg;
-							char buf2[32] = {0};
-							sprintf(buf2, "%s%s", arg_val < 0 ? "-" : "", argbuf);
-							oss << buf << buf2;
-							q = 300; //break main loop
-							break;
-						}
-					}
+					case 'i': case 'p':
 					case 'l':
-					{
-						char argbuf[32] = {0};
-						if(min_digits)
-							sprintf(argbuf,mindigbuf,arg_val);
-						else zc_itoa(arg_val, argbuf);
-						++next_arg;
-						oss << buf << argbuf;
-						q = 300; //break main loop
-						break;
-					}
 					case 's':
-					{
-						if(min_digits)
-							Z_scripterrlog("Cannot use minimum digits flag for '%%s'\n");
-						int32_t strptr = (arg_val / 10000);
-						string str;
-						ArrayH::getString(strptr, str, MAX_ZC_ARRAY_SIZE);
-						oss << buf << str.c_str();
-						++next_arg;
-						q = 300; //break main loop
-						break;
-					}
 					case 'c':
+					case 'x': case 'X':
+					case 'b':  case 'B':
 					{
-						if(min_digits)
-							Z_scripterrlog("Cannot use minimum digits flag for '%%c'\n");
-						int32_t c = (arg_val / 10000);
 						++next_arg;
-						if ( (char(c)) != c )
-						{
-							Z_scripterrlog("Illegal char value (%d) passed to sprintf as '%%c' arg\n", c);
-							Z_scripterrlog("Value of invalid char will overflow.\n");
-						}
-						buf[q] = (char(c));
-						oss << buf;
+						oss << buf << zs_formatter(format,arg_val,min_digits);
 						q = 300; //break main loop
 						break;
 					}
-					case 'x':
-						hex_upper = false;
-						[[fallthrough]];
-					case 'X':
+					case 'a': //array print
 					{
-						char argbuf[32] = {0};
-						if(min_digits)
-							sprintf(argbuf,mindigbuf,arg_val / 10000);
-						else zc_itoa( (arg_val/10000), argbuf, 16 ); //base 16; hex
-						
-						for ( int32_t inx = 0; inx < 16; ++inx ) //set chosen caps
-						{
-							argbuf[inx] = ( hex_upper ? toupper(argbuf[inx]) : tolower(argbuf[inx]) );
-						}
 						++next_arg;
-						oss << buf << "0x" << argbuf;
-						q = 300; //break main loop
-						break;
-					}
-					case 'b': //int binary
-						arg_val /= 10000;
-						[[fallthrough]];
-					case 'B': //long binary
-					{
-						char argbuf[33] = {0};
-						int num_digits = min_digits;
-						for(int q = num_digits; q < 32; ++q)
-							if(arg_val&(1<<q))
-								num_digits = q+1;
-						for(int q = 0; q < num_digits; ++q)
+						oss << buf << zs_formatter(format,arg_val,min_digits);
+						while(format[0] == 'a')
 						{
-							argbuf[q] = (arg_val&(1<<(num_digits-q-1)))
-								? '1' : '0';
+							if(is_valid_format(format[1]))
+								++format;
+							else break;
 						}
-						++next_arg;
-						oss << buf << argbuf;
 						q = 300; //break main loop
 						break;
 					}
@@ -40764,22 +40840,22 @@ void FFScript::do_breakpoint()
 	if(arrayptr && sarg1 != NUL)
 	{
 		ArrayH::getString(arrayptr, str, 512);
-		str = "Breakpoint: " + str;
+		str = "Breakpoint: " + str + "\n";
 	}
-	else str = "Breakpoint";
+	else str = "Breakpoint\n";
 	TraceScriptIDs();
-	al_trace("%s\n", str.c_str());
+	al_trace("%s", str.c_str());
 	
 	if ( zscript_debugger ) 
 	{
-		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", str.c_str());
+		zscript_coloured_console.safeprint((CConsoleLoggerEx::COLOR_RED | 
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),str.c_str());
 	}
 	if( zasm_debugger )
 	{
 		FFCore.zasm_break_mode = ZASM_BREAK_HALT; //Halt ZASM debugger; break execution
-		coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", str.c_str());
+		coloured_console.safeprint((CConsoleLoggerEx::COLOR_RED | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),str.c_str());
 	}
 }
 
@@ -40789,7 +40865,7 @@ void FFScript::do_tracenl()
 	
 	if ( zscript_debugger ) 
 	{
-		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
+		zscript_coloured_console.safeprint((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"\n");
 	}
 }
@@ -40814,7 +40890,7 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 		//
 		
 		al_trace("%s", buf);
-		if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+		if ( cond ) {console.safeprint((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),buf); }
 	}
 	if(get_bit(quest_rules,qr_TRACESCRIPTIDS) || DEVLOGGING )
@@ -40937,8 +41013,8 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 		
 		al_trace("%s", buf);
 		if ( cond )
-			console.cprintf((CConsoleLoggerEx::COLOR_GREEN|CConsoleLoggerEx::COLOR_INTENSITY|
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s", buf);
+			console.safeprint((CConsoleLoggerEx::COLOR_GREEN|CConsoleLoggerEx::COLOR_INTENSITY|
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),buf);
 	}
 }
 
@@ -41002,12 +41078,13 @@ void FFScript::do_tracetobase()
 		break;
 	}
 	TraceScriptIDs();
-	al_trace("%s\n", s2.c_str());
+	s2 += "\n";
+	al_trace("%s", s2.c_str());
 	
 	if ( zscript_debugger ) 
 	{
-		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s\n", s2.c_str());
+		zscript_coloured_console.safeprint((CConsoleLoggerEx::COLOR_WHITE | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),s2.c_str());
 	}
 }
 

@@ -999,6 +999,22 @@ the values in the enumerated list.
 		int arr[sARR_MAX];
 		
 	--end example]
+	
+//////////////////////////
+// Array Reverse Access //
+//////////////////////////
+
+	Arrays now support negative indexing to access from the back.
+	
+	[example--
+		int arr[] = {0, 3, 7, 2, 5};
+		Trace(arr[-1]); //5
+		Trace(arr[-2]); //2
+		Trace(arr[-3]); //7
+		Trace(arr[-4]); //3
+		Trace(arr[-5]); //0
+		Trace(arr[-6]); // Error: Out of bounds
+	--end example]
 
 
 /////////////////////	
@@ -3086,6 +3102,10 @@ void sprintf(char32[] buf, char32[] format, ...untyped...)
  *     "%X" - Hexadecimal, uppercase. Same as above, but uses uppercase for letters.
  *     "%b" - Binary (integer). Inserts the number, not including decimals, in binary.
  *     "%B" - Binary (long). Inserts the number in long binary.
+ *     "%a?" - Array (integer). Prints out a full array. Must be followed
+ *             by another letter. Each array element will be formatted based on that letter.
+ *             Ex: '%al' prints an array of longs, '%08b' prints an array of Binary(integer)
+ *                 with a min digits of 8.
  *     "%%" - Inserts a single '%' character, without trying to read it as an argument.
  *     "%" followed by anything other than the above is considered an error. This should never be done.
  * Flags can be used between the '%' and the letter.

@@ -1084,9 +1084,9 @@ void do_cleartrace();
 bool print_ZASM;
 void do_tracetobase();
 void ZScriptConsole(bool open);
-void ZScriptConsole(int32_t attributes,const char *format,...);
+template <typename ...Params>
+void ZScriptConsole(int32_t attributes,const char *format, Params&&... params);
 void TraceScriptIDs(bool zasm_console = false);
-void ZScriptConsolePrint(int32_t colourformat, const char * const format,...);
 void ZASMPrint(bool open);
 void ZASMPrintCommand(const word scommand);
 void ZASMPrintVarSet(const int32_t arg, int32_t argval);
