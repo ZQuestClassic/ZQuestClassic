@@ -9514,9 +9514,9 @@ void load_control_state()
 	bool botched_input = replay_is_replaying() && replay_get_version() != 1 && replay_get_version() < 8;
 	for (int i = 0; i < ZC_CONTROL_STATES; i++)
 	{
+		control_state[i] = raw_control_state[i];
 		if(botched_input)
 			down_control_states[i] = !control_state[i];
-		control_state[i] = raw_control_state[i];
 	}
 	
 	button_press[0]=rButton(control_state[0],button_hold[0]);
