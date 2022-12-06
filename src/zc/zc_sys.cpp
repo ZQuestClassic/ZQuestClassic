@@ -9413,58 +9413,17 @@ static bool rButtonPeek(bool btn, bool flag)
 // Updated only by keyboard/gamepad.
 // If in replay mode, this is set directly by the replay system.
 // This should never be read from directly - use control_state instead.
-bool raw_control_state[ZC_CONTROL_STATES]=
-{
-	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
-};
+bool raw_control_state[ZC_CONTROL_STATES];
 
 // Every call to load_control_state (pretty much every frame) resets this to be equal to raw_control_state.
 // This state can drift from raw_control_state if button states are "eaten" or overriden by a script. But that only
 // lasts until the next call to load_control_state.
-bool control_state[ZC_CONTROL_STATES]=
-{
-	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
-};
-
-bool disable_control[ZC_CONTROL_STATES]=
-{
-	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
-};
-
-bool drunk_toggle_state[11]=
-{
-	false, false, false, false, false, false, false, false, false, false, false
-};
-
-bool disabledKeys[127]=
-{
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false
-};
-
-bool KeyInput[127]=
-{
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false
-};
-
-bool KeyPress[127]=
-{
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false
-};
+bool control_state[ZC_CONTROL_STATES];
+bool disable_control[ZC_CONTROL_STATES];
+bool drunk_toggle_state[11];
+bool disabledKeys[127];
+bool KeyInput[127];
+bool KeyPress[127];
 
 bool key_current_frame[127];
 bool key_previous_frame[127];
@@ -9473,8 +9432,8 @@ static bool key_system[127];
 static bool key_system_previous[127];
 static bool key_system_press[127];
 
-bool button_press[ZC_CONTROL_STATES] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
-bool button_hold[ZC_CONTROL_STATES] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+bool button_press[ZC_CONTROL_STATES];
+bool button_hold[ZC_CONTROL_STATES];
 
 #define STICK_1_X joy[joystick_index].stick[js_stick_1_x_stick].axis[js_stick_1_x_axis]
 #define STICK_1_Y joy[joystick_index].stick[js_stick_1_y_stick].axis[js_stick_1_y_axis]
