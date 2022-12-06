@@ -385,8 +385,23 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			if(FLAG(1))
 				_SET(power, "Jump Power:", "The player will jump with a force of 'power'");
 			else _SET(power, "Jump Power:", "The player will jump with a force of '(power*80)+160)'");
+			if(FLAG(2))
+				_SET(misc[2], "Held Gravity", "Gravity applied to Link when this item is held. Used for variable jumps"
+					" such as holding the button to jump higher. Value is divided by 100 (314 would be equal to 3.14).");
+			if(FLAG(5))
+				_SET(misc[3], "Held Terminal Velocity", "Max fall speed of Link when this item is held. Useful for floating down while holding jump.");
 			_SET(flag[0], "Jump is Power/100", "If enabled, the player jumps with a force"
 				" of 'power' instead of '(power*80)+160'");
+			_SET(flag[1], "Hold to change player gravity", "If enabled, holding the button this item is attached to will change"
+				" the player's gravity to the value specified in attributes[2]");
+			_SET(flag[4], "Hold to change player terminal velocity", "If enabled, holding the button this item is attached to will change"
+				" the player's terminal velocity (max fall speed) to the value specified in attributes[3]");
+			if(FLAG(2))
+				_SET(flag[2], "Held Gravity doesn't affect downward momentum", "If enabled, 'Hold to change player gravity' will"
+					" not affect the player when falling.");
+			if(FLAG(2))
+				_SET(flag[3], "Held Gravity doesn't affect upward momentum", "If enabled, 'Hold to change player gravity' will"
+					" not affect the player when rising.");
 			inf->actionsnd[0] = "Jumping Sound:";
 			break;
 		}

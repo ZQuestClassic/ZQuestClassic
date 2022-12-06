@@ -642,6 +642,7 @@ const int32_t SEL_VERIFY_RIGHT = 5;
 int32_t selectWpn_new(int32_t type, int32_t startpos, int32_t forbiddenpos = -1, int32_t fp2 = -1, int32_t fp3 = -1);
 bool isWpnPressed(int32_t wpn);
 int32_t getWpnPressed(int32_t wpn);
+int32_t getRocsPressed();
 bool isItmPressed(int32_t itmid);
 int32_t selectSword();
 int32_t selectItemclass(int32_t itemclass);

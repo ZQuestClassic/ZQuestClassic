@@ -7734,6 +7734,23 @@ bool HeroClass::animate(int32_t)
 		}
 	}
 	bool platformfell2 = false;
+	int32_t gravity3 = (zinit.gravity2/100);
+	int32_t termv = (zinit.terminalv);
+	int32_t rocs = getRocsPressed();
+	if (rocs != -1)
+	{
+		itemdata const& itm = itemsbuf[rocs];
+		if (itm.flags & ITEM_FLAG2) 
+		{
+			if ((!(itm.flags & ITEM_FLAG3) || fall < 0) && 
+				(!(itm.flags & ITEM_FLAG4) || fall > 0)) gravity3 = itm.misc3;
+		}
+		if (itm.flags & ITEM_FLAG5) 
+		{
+			termv = itm.misc4;
+			if (fall > termv) fall = termv;
+		}
+	}
 	if(sideview_mode())  // Sideview gravity
 	{
 		//Handle falling through a platform
@@ -7863,12 +7880,12 @@ bool HeroClass::animate(int32_t)
 			stop_item_sfx(itype_hoverboots);
 			hoverclk = -hoverclk;
 			reset_ladder();
-			fall = (zinit.gravity2 / 100);
+			fall = gravity3;
 			inair = false;
 		}
 		else if (hoverclk < 1 && !inair && fall == 0 && !platformfell)
 		{
-			zfix my = y + (zinit.gravity2/100);
+			zfix my = y + gravity3;
 			needFall = true;
 			for (zfix ty = y+1; ty < my; ++ty)
 			{
@@ -7890,7 +7907,7 @@ bool HeroClass::animate(int32_t)
 		else needFall = true;
 		// Continue falling.
 		
-		if(fall <= (int32_t)zinit.terminalv && needFall)
+		if(fall <= termv && needFall)
 		{
 			inair = true;
 			if(fall != 0 || hoverclk>0)
@@ -7943,11 +7960,11 @@ bool HeroClass::animate(int32_t)
 				
 				if(!hoverclk && !ladderx && !laddery)
 				{
-					fall += (zinit.gravity2 / 100);
+					fall += gravity3;
 					hoverflags |= HOV_OUT | HOV_PITFALL_OUT;
 				}
 			}
-			else if(fall+int32_t((zinit.gravity2 / 100)) > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots) && !ladderx && !laddery && !(hoverflags & HOV_OUT))
+			else if(fall+gravity3 > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots) && !ladderx && !laddery && !(hoverflags & HOV_OUT))
 			{
 				int32_t itemid = current_item_id(itype_hoverboots);
 				if(hoverclk < 0)
@@ -7971,7 +7988,7 @@ bool HeroClass::animate(int32_t)
 			}
 			else if(!ladderx && !laddery && !getOnSideviewLadder() && !IsSideSwim())
 			{
-				fall += (zinit.gravity2 / 100);
+				fall += gravity3;
 				
 			}
 		}
@@ -8086,7 +8103,7 @@ bool HeroClass::animate(int32_t)
 				}
 			}
 		}
-		if(fall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_REAL_Z) && z>0 || fakefall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_FAKE_Z) && fakez > 0)
+		if(fall <= termv && !(moveflags & FLAG_NO_REAL_Z) && z>0 || fakefall <= termv && !(moveflags & FLAG_NO_FAKE_Z) && fakez > 0)
 		{
 			if(fall != 0 || fakefall != 0 || hoverclk>0)
 				jumping++;
@@ -8100,12 +8117,12 @@ bool HeroClass::animate(int32_t)
 				
 				if(!hoverclk)
 				{
-					if (fall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_REAL_Z) && z > 0) fall += (zinit.gravity2 / 100);
-					if (fakefall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_FAKE_Z) && fakez > 0) fakefall += (zinit.gravity2 / 100);
+					if (fall <= termv && !(moveflags & FLAG_NO_REAL_Z) && z > 0) fall += gravity3;
+					if (fakefall <= termv && !(moveflags & FLAG_NO_FAKE_Z) && fakez > 0) fakefall += gravity3;
 					hoverflags |= HOV_OUT | HOV_PITFALL_OUT;
 				}
 			}
-			else if(((fall+(int32_t)(zinit.gravity2 / 100) > 0 && fall<=0 && !(moveflags & FLAG_NO_REAL_Z) && z > 0) || (fakefall+(int32_t)(zinit.gravity2 / 100) > 0 && fakefall<=0 && !(moveflags & FLAG_NO_FAKE_Z) && fakez > 0)) && can_use_item(itype_hoverboots,i_hoverboots) && !(hoverflags & HOV_OUT))
+			else if(((fall+(int32_t)(zinit.gravity2 / 100) > 0 && fall<=0 && !(moveflags & FLAG_NO_REAL_Z) && z > 0) || (fakefall+gravity3 > 0 && fakefall<=0 && !(moveflags & FLAG_NO_FAKE_Z) && fakez > 0)) && can_use_item(itype_hoverboots,i_hoverboots) && !(hoverflags & HOV_OUT))
 			{
 				if(hoverclk < 0)
 					hoverclk = -hoverclk;
@@ -8127,8 +8144,8 @@ bool HeroClass::animate(int32_t)
 			}
 			else 
 			{
-				if (fall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_REAL_Z) && z > 0) fall += (zinit.gravity2 / 100);
-				if (fakefall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_FAKE_Z) && fakez > 0) fakefall += (zinit.gravity2 / 100);
+				if (fall <= termv && !(moveflags & FLAG_NO_REAL_Z) && z > 0) fall += gravity3;
+				if (fakefall <= termv && !(moveflags & FLAG_NO_FAKE_Z) && fakez > 0) fakefall += gravity3;
 			}
 		}
 		if (fakez<0) fakez = 0;
@@ -26482,6 +26499,29 @@ int32_t getWpnPressed(int32_t itype)
     if((itype==getItemFamily(itemsbuf,Ywpn&0xFFF)) && DrunkcEx2btn()) return Ywpn;
     
     return -1;
+}
+
+int32_t getRocsPressed()
+{
+	int32_t jumpid = current_item_id(itype_rocs,true,true);
+	
+	if(unsigned(jumpid) >= MAXITEMS) jumpid = -1;
+	
+	if (jumpid != -1)
+	{
+		itemdata const& itm = itemsbuf[jumpid];
+		
+		byte intbtn = byte(itm.misc2&0xFF);
+		if(getIntBtnInput(intbtn, false, true, false, false, true))
+			return jumpid; //not pressed
+	}
+
+	if((itype_rocs==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return Bwpn;
+	if((itype_rocs==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn()) return Awpn;
+	if((itype_rocs==getItemFamily(itemsbuf,Xwpn&0xFFF)) && DrunkcEx1btn()) return Xwpn;
+	if((itype_rocs==getItemFamily(itemsbuf,Ywpn&0xFFF)) && DrunkcEx2btn()) return Ywpn;
+
+	return -1;
 }
 
 bool isItmPressed(int32_t itmid)
