@@ -7135,6 +7135,11 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 		paymagiccost(stompid);
 		hit_enemy(hit2,wStomp,itemsbuf[stompid].power*game->get_hero_dmgmult(),x,y,0,stompid);
 		
+		if(itemsbuf[stompid].flags & ITEM_FLAG1)
+		{
+			fall = -(itemsbuf[stompid].misc1);
+		}
+		
 		if(itemsbuf[stompid].flags & ITEM_DOWNGRADE)
 			game->set_item(stompid,false);
 			

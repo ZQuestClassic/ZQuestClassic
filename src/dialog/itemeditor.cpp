@@ -809,6 +809,11 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		case itype_stompboots:
 		{
 			inf->power = "Damage:";
+			_SET(flag[0], "Can bounce off enemies", "If enabled, damaging an enemy with this will cause the player to bounce upwards."
+				" The jump speed gained is set by Attributes[0]");
+			if(FLAG(1))
+				_SET(misc[0], "Bounce Power:", "Amount of jump power gained from a bounce."
+					" This value is equal to setting Player->Jump by value divided by 100");
 			break;
 		}
 		case itype_bow:
