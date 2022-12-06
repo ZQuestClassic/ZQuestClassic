@@ -23971,39 +23971,6 @@ void do_loadnpc(const bool v)
 	}
 }
 
-/* script_UID is not yet part of sprite class. 
-
-void FFScript::do_loaditem_by_script_uid(const bool v)
-{
-	int32_t sUID = SH::get_arg(sarg1, v) / 10000; //script UID
-	for(int32_t j = 0; j < items.Count(); j++)
-		if(items.spr(j)->script_UID == sUID)
-		{
-			ri->itemref = items.spr(j)->getUID();
-		return;
-		}
-	ri->itemref = MAX_DWORD;
-	//error here.
-	//Z_eventlog("Script loaded NPC with UID = %ld\n", ri->guyref);
-}
-
-void FFScript::do_loadnpc_by_script_uid(const bool v)
-{
-	int32_t sUID = SH::get_arg(sarg1, v) / 10000; //script UID
-	//int32_t ct = guys.Count();
-	for(int32_t j = 0; j < guys.Count(); j++)
-		if(guys.spr(j)->script_UID == sUID)
-		{
-			ri->guyref = guys.spr(j)->getUID();
-		return;
-		}
-	ri->guyref = MAX_DWORD;
-	//error here.
-	//Z_eventlog("Script loaded NPC with UID = %ld\n", ri->guyref);
-}
-
-*/
-
 void FFScript::do_loaddmapdata(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;

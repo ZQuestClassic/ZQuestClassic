@@ -359,16 +359,17 @@ static AccessorTable ScreenTable[] =
 	{ "getInitD[]",                 0,       ZTID_UNTYPED,   SCREENINITD,               0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "setInitD[]",                 0,          ZTID_VOID,   SCREENINITD,               0,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	
-	{ "LoadNPCByUID",               0,           ZTID_NPC,   -1,                   FL_INL,  { ZTID_SCREEN, ZTID_FLOAT },{} },
-	{ "LoadLWeaponByUID",           0,          ZTID_LWPN,   -1,                   FL_INL,  { ZTID_SCREEN, ZTID_FLOAT },{} },
-	{ "LoadEWeaponByUID",           0,          ZTID_EWPN,   -1,                   FL_INL,  { ZTID_SCREEN, ZTID_FLOAT },{} },
-	
 	{ "DrawFrame",                  0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_FLOAT },{} },
 	
 	{ "_getSecretsTriggered",       0,          ZTID_BOOL,   SCREENSECRETSTRIGGERED,    0,  { ZTID_SCREEN },{} },
 	
 	{ "SpawnScreenEnemies",         0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_SCREEN },{} },
 	{ "TriggerCombo",               0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_FLOAT },{} },
+	
+	//Undocumented intentionally
+	{ "LoadNPCByUID",               0,           ZTID_NPC,   -1,                  FL_DEPR,  { ZTID_SCREEN, ZTID_FLOAT },{} },
+	{ "LoadLWeaponByUID",           0,          ZTID_LWPN,   -1,                  FL_DEPR,  { ZTID_SCREEN, ZTID_FLOAT },{} },
+	{ "LoadEWeaponByUID",           0,          ZTID_EWPN,   -1,                  FL_DEPR,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };

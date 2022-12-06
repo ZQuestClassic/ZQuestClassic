@@ -99,9 +99,6 @@ static AccessorTable ewpnTable[] =
 	{ "setCollDetection",           0,          ZTID_VOID,   EWPNCOLLDET,               0,  { ZTID_EWPN, ZTID_BOOL },{} },
 	{ "getAnimation",               0,         ZTID_FLOAT,   EWPNENGINEANIMATE,         0,  { ZTID_EWPN },{} },
 	{ "setAnimation",               0,          ZTID_VOID,   EWPNENGINEANIMATE,         0,  { ZTID_EWPN, ZTID_BOOL },{} },
-	{ "getUID",                     0,         ZTID_FLOAT,   EWEAPONSCRIPTUID,          0,  { ZTID_EWPN },{} },
-	{ "getParentUID",               0,         ZTID_FLOAT,   EWPNPARENTUID,             0,  { ZTID_EWPN },{} },
-	{ "setParentUID",               0,          ZTID_VOID,   EWPNPARENTUID,             0,  { ZTID_EWPN, ZTID_FLOAT },{} },
 	{ "getScript",                  0,         ZTID_FLOAT,   EWPNSCRIPT,                0,  { ZTID_EWPN },{} },
 	{ "setScript",                  0,          ZTID_VOID,   EWPNSCRIPT,                0,  { ZTID_EWPN, ZTID_FLOAT },{} },
 	{ "getInitD[]",                 0,       ZTID_UNTYPED,   EWPNINITD,                 0,  { ZTID_EWPN, ZTID_FLOAT },{} },
@@ -156,6 +153,11 @@ static AccessorTable ewpnTable[] =
 	{ "MakeDirectional",            0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_EWPN },{} },
 	{ "getFlags[]",                 0,          ZTID_BOOL,   EWPNFLAGS,                 0,  { ZTID_EWPN, ZTID_FLOAT },{} },
 	{ "setFlags[]",                 0,          ZTID_VOID,   EWPNFLAGS,                 0,  { ZTID_EWPN, ZTID_FLOAT, ZTID_BOOL },{} },
+	
+	//Intentionally undocumented
+	{ "getUID",                     0,         ZTID_FLOAT,   EWEAPONSCRIPTUID,    FL_DEPR,  { ZTID_EWPN },{} },
+	{ "getParentUID",               0,         ZTID_FLOAT,   EWPNPARENTUID,       FL_DEPR,  { ZTID_EWPN },{} },
+	{ "setParentUID",               0,          ZTID_VOID,   EWPNPARENTUID,       FL_DEPR,  { ZTID_EWPN, ZTID_FLOAT },{} },
 	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };

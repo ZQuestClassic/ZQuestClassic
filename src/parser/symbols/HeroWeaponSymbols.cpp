@@ -114,7 +114,6 @@ static AccessorTable lwpnTable[] =
 	{ "getInitD[]",                 0,       ZTID_UNTYPED,   LWPNINITD,                 0,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	{ "setInitD[]",                 0,          ZTID_VOID,   LWPNINITD,                 0,  { ZTID_LWPN, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	
-	{ "getUID",                     0,         ZTID_FLOAT,   LWEAPONSCRIPTUID,          0,  { ZTID_LWPN },{} },
 	{ "Explode",                    0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	{ "getRotation",                0,         ZTID_FLOAT,   LWPNROTATION,              0,  { ZTID_LWPN },{} },
 	{ "setRotation",                0,          ZTID_VOID,   LWPNROTATION,              0,  { ZTID_LWPN, ZTID_FLOAT },{} },
@@ -164,6 +163,9 @@ static AccessorTable lwpnTable[] =
 	{ "MakeDirectional",            0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_LWPN },{} },
 	{ "getFlags[]",                 0,          ZTID_BOOL,   LWPNFLAGS,                 0,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	{ "setFlags[]",                 0,          ZTID_VOID,   LWPNFLAGS,                 0,  { ZTID_LWPN, ZTID_FLOAT, ZTID_BOOL },{} },
+	
+	//Intentionally undocumented
+	{ "getUID",                     0,         ZTID_FLOAT,   LWEAPONSCRIPTUID,    FL_DEPR,  { ZTID_LWPN },{} },
 	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };

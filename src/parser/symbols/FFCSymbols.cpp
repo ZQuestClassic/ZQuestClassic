@@ -25,7 +25,6 @@ static AccessorTable FFCTable[] =
 	{ "setAx",                      0,          ZTID_VOID,   XD2,                       0,  { ZTID_FFC, ZTID_FLOAT },{} },
 	{ "getAy",                      0,         ZTID_FLOAT,   YD2,                       0,  { ZTID_FFC },{} },
 	{ "setAy",                      0,          ZTID_VOID,   YD2,                       0,  { ZTID_FFC, ZTID_FLOAT },{} },
-//	{ "WasTriggered",               0,          ZTID_BOOL,   -1,                        0,  { ZTID_FFC },{} },
 	{ "getFlags[]",                 0,          ZTID_BOOL,   FFFLAGSD,                  0,  { ZTID_FFC, ZTID_FLOAT },{} },
 	{ "setFlags[]",                 0,          ZTID_VOID,   FFFLAGSD,                  0,  { ZTID_FFC, ZTID_FLOAT, ZTID_BOOL },{} },
 	{ "getTileWidth",               0,         ZTID_FLOAT,   FFTWIDTH,                  0,  { ZTID_FFC },{} },
@@ -42,8 +41,6 @@ static AccessorTable FFCTable[] =
 	{ "setMisc[]",                  0,          ZTID_VOID,   FFMISCD,                   0,  { ZTID_FFC, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	{ "getInitD[]",                 0,       ZTID_UNTYPED,   FFINITDD,                  0,  { ZTID_FFC, ZTID_FLOAT },{} },
 	{ "setInitD[]",                 0,          ZTID_VOID,   FFINITDD,                  0,  { ZTID_FFC, ZTID_FLOAT, ZTID_UNTYPED },{} },
-//	{ "getD[]",                     0,         ZTID_FLOAT,   FFDD,                      0,  { ZTID_FFC, ZTID_FLOAT },{} },
-//	{ "setD[]",                     0,          ZTID_VOID,   FFDD,                      0,  { ZTID_FFC, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "getID",                      0,         ZTID_FLOAT,   FFCID,                     0,  { ZTID_FFC },{} },
 	{ "setID",                      0,          ZTID_VOID,   FFCID,                     0,  { ZTID_FFC, ZTID_FLOAT },{} },
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }

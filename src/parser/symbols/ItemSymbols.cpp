@@ -5,7 +5,6 @@ ItemSymbols ItemSymbols::singleton = ItemSymbols();
 static AccessorTable itemTable[] =
 {
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
-	{ "getUID",                     0,         ZTID_FLOAT,   ITEMSCRIPTUID,             0,  { ZTID_ITEM },{} },
 	{ "_getMax",                    0,         ZTID_FLOAT,   SPRITEMAXITEM,             0,  { ZTID_ITEM },{} },
 	{ "_setMax",                    0,          ZTID_VOID,   SPRITEMAXITEM,             0,  { ZTID_ITEM, ZTID_FLOAT },{} },
 	{ "getX",                       0,         ZTID_FLOAT,   ITEMX,                     0,  { ZTID_ITEM },{} },
@@ -133,6 +132,9 @@ static AccessorTable itemTable[] =
 	{ "setShadowYOffset",           0,          ZTID_VOID,   ITEMSHADOWYOFS,            0,  { ZTID_ITEM, ZTID_FLOAT },{} },
 	{ "getForceGrab",               0,          ZTID_BOOL,   ITEMFORCEGRAB,             0,  { ZTID_ITEM },{} },
 	{ "setForceGrab",               0,          ZTID_VOID,   ITEMFORCEGRAB,             0,  { ZTID_ITEM, ZTID_BOOL },{} },
+	
+	//Intentionally undocumented
+	{ "getUID",                     0,         ZTID_FLOAT,   ITEMSCRIPTUID,       FL_DEPR,  { ZTID_ITEM },{} },
 	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };

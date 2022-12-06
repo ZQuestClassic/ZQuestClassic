@@ -1245,7 +1245,6 @@ You may now explicitly cast a value, using a type in angle braces.
 You may now use the arrow (->) operator on functions of datatypes/pointers, including
 cases where you are not using the base function in an assign.
 	Examples:
-	int x = Screen->LoadNPCByUID(this->ParentUID)->X;
 	int sfx = Game->LoadItemData(16)->UseSound;
 	int ilvl = Game->LoadItemData(Screen->LoadLWeapon(1)->Parent)->Level;
 	
@@ -4247,27 +4246,6 @@ bool TriggerCombo(int layer, int pos);
  *     layer or pos is invalid.
  * If no 'Triggers' tab behaviors are set, won't do anything.
 
-npc LoadNPCByUID(int uid);
- * Returns an npc pointer to an npc on the screen if its UID matches
- * the input 'uid'.
- * Returns -1 on no match. 
- * If you load npcs by UID, remember to always run an isValid() check on their
- * pointer, prior to performing any actions with it, as UIDs can become stale.
- 
-lweapon LoadLWeaponByUID(int uid);
- * Returns an lweapon pointer to an lweapon on the screen if its UID matches
- * the input 'uid'.
- * Returns -1 on no match. 
- * If you load lweapon by UID, remember to always run an isValid() check on their
- * pointer, prior to performing any actions with it, as UIDs can become stale.
- 
-eweapon LoadEWeaponByUID(int uid);
- * Returns an eweapon pointer to an eweapon on the screen if its UID matches
- * the input 'uid'.
- * Returns -1 on no match. 
- * If you load lweapon by UID, remember to always run an isValid() check on their
- * pointer, prior to performing any actions with it, as UIDs can become stale.
- 
 int Script;
  * The screendata script used for the current screen.
 
@@ -4688,7 +4666,7 @@ The following are the members for sprite objects (Hero, npc, lweapon, eweapon, a
 
 ////////////////////
 ///  Itemsprite  ///
-////////////////////
+//////////////////// itemsprite
 
 bool Animation;
  * Normally 'true'. If enabled, the item is animated by the ZC engine.
@@ -4758,13 +4736,6 @@ int SizeFlags;
  * Values are ORd together, as follows:
  *
  *
-
-
-float UID;	
- * Each itemsprite created by ZC in in a given session is assigned a unique ID (UID).
- * Returns the UID of an itemsprite.
- * UIDs begin at 00000.0001 and overflow at 217478.3648. 
- *	Note: This allows for 2,147,483,647 unique items, per-session.
 
 int AClock 
  * The clock used for the itemsprite's animation cycle. 
@@ -4845,7 +4816,7 @@ int FakeJump;
 
 /////////////////
 ///  *weapon  ///
-/////////////////								// Weapon
+///////////////// weapon
 
 int TotalDrawYOffset;
  * READ-ONLY
@@ -4917,13 +4888,6 @@ int Level;
  * EWeapons: The first bit (Level&1) is used to set a 'boss/unblockable'
  * state. If this bit is 1, then the weapon is a boss weapon.
  * Otherwise it is a normal weapon, blocked by standard shield flags.
-
-float UID;
- * Each weapon created by ZC in in a given session is assigned a unique ID (UID).
- * Returns the UID of a weapon.
- * UIDs begin at 00000.0001 and overflow at 217478.3648. 
- *	Note: This allows for 2,147,483,647 unique weapons, per-session.
-
 
 untyped Misc[32];		
  * Expanded from a size of [16] to [32]. An array of 32 miscellaneous variables for you to use as you please.
@@ -5012,17 +4976,13 @@ bool Flags[1];
 
 ///////////////////////////
 ///  EWeapon  Specific  ///
-///////////////////////////							// EWeapon
+/////////////////////////// eweapon
 
-float ParentUID;
- * Returns the UID of the NPC that controls this eweapon.
- * Useful in weapon scripts, using Screen->LoadNPCBYUID(this->ParentUID).
- * Returns 0 is there is no npc controlling the weapon.
- * Remember that UIDs become stale if the npc is destroyed!
+n/a
 
 ///////////////////////////
 ///  LWeapon  Specific  ///
-///////////////////////////							// LWeapon
+/////////////////////////// lweapon
 
 int Special;
  * The special info for the lweapon.
@@ -5060,21 +5020,7 @@ int AClock
 
 /////////////
 ///  npc  ///
-/////////////	
-	
-										// npc
-
-float ParentUID;
- * Returns the UID of the NPC that is a parent, or core (bool Core)
- * of the NPC assigned to the present pointer. 
- * If there is no parent, then this returns NULL.
- * Useful in npc scripts, using Screen->LoadNPCBYUID(this->ParentUID).
- 
-float UID;
- * Each npc created by ZC in in a given session is assigned a unique ID (UID).
- * Returns the UID of an npc.
- * UIDs begin at 00000.0001 and overflow at 217478.3648. 
- *	Note: This allows for 2,147,483,647 unique npcs, per-session.
+///////////// npc
 
 bool InvFlicker;			
  * If set false, the npc will neither flash, nor flicker when invincible. 

@@ -149,14 +149,9 @@ static AccessorTable npcTable[] =
 	
 	{ "getFrozen",                  0,         ZTID_FLOAT,   NPCFROZEN,                 0,  { ZTID_NPC },{} },
 	{ "setFrozen",                  0,          ZTID_VOID,   NPCFROZEN,                 0,  { ZTID_NPC, ZTID_FLOAT },{} },
-	{ "getUID",                     0,         ZTID_FLOAT,   NPCSCRIPTUID,              0,  { ZTID_NPC },{} },
-//	{ "setUID",                     0,          ZTID_VOID,   NPCSCRIPTUID,              0,  { ZTID_NPC, ZTID_FLOAT },{} },
 	
 	{ "getFrozenTile",              0,         ZTID_FLOAT,   NPCFROZENTILE,             0,  { ZTID_NPC },{} },
 	{ "setFrozenTile",              0,          ZTID_VOID,   NPCFROZENTILE,             0,  { ZTID_NPC, ZTID_FLOAT },{} },
-	
-	{ "getParentUID",               0,         ZTID_FLOAT,   NPCPARENTUID,              0,  { ZTID_NPC },{} },
-	{ "setParentUID",               0,          ZTID_VOID,   NPCPARENTUID,              0,  { ZTID_NPC, ZTID_FLOAT },{} },
 	
 	{ "getFrozenCSet",              0,         ZTID_FLOAT,   NPCFROZENCSET,             0,  { ZTID_NPC },{} },
 	{ "setFrozenCSet",              0,          ZTID_VOID,   NPCFROZENCSET,             0,  { ZTID_NPC, ZTID_FLOAT },{} },
@@ -241,6 +236,12 @@ static AccessorTable npcTable[] =
 	{ "getShadowYOffset",           0,         ZTID_FLOAT,   NPCSHADOWYOFS,             0,  { ZTID_NPC },{} },
 	{ "setShadowYOffset",           0,          ZTID_VOID,   NPCSHADOWYOFS,             0,  { ZTID_NPC, ZTID_FLOAT },{} },
 	
+	//Intentionally undocumented
+	{ "getUID",                     0,         ZTID_FLOAT,   NPCSCRIPTUID,        FL_DEPR,  { ZTID_NPC },{} },
+//	{ "setUID",                     0,          ZTID_VOID,   NPCSCRIPTUID,        FL_DEPR,  { ZTID_NPC, ZTID_FLOAT },{} },
+	
+	{ "getParentUID",               0,         ZTID_FLOAT,   NPCPARENTUID,        FL_DEPR,  { ZTID_NPC },{} },
+	{ "setParentUID",               0,          ZTID_VOID,   NPCPARENTUID,        FL_DEPR,  { ZTID_NPC, ZTID_FLOAT },{} },
 	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
