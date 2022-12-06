@@ -7,7 +7,6 @@ Refactor configs to only make a config file when the user changes configs in ZC/
 	allows copying over entire folder with a nightly while still remembering your old settings
 Negative array accessors from Python; allows using negative numbers in an array to get that 
 	many indexes away from the max of the array.
-Fix input bug for real.
 	( EmilyV, 5th Dec, 2022 )
 
 Use new library for MP3s, less buggy MP3s
@@ -109,7 +108,7 @@ Added snapshot mode to replay. This allows you to specify specific frames at whi
 Combo editor can change names of attributes/bytes/shorts and flags based on script metadata of currently selected script
 	( EmilyV, 25th Oct, 2022 )
 
-Lots of web fixes
+Merged web port
 	( connorjclark, 24th Oct, 2022 )
 
 Fix import header guard issue with same-name files
