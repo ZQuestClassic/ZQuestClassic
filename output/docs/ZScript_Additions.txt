@@ -4401,8 +4401,8 @@ void Polygon(int layer, int num_points, int vertices[], int colour, int opacity 
  
 void DrawFrame(int layer,
 			int x, int y, int tile, int cset,
-			int width, int height, bool overlay,
-			int opacity);
+			int width, int height, bool overlay = true,
+			int opacity = OP_OPAQUE);
  * Draws a frame using a 2x2 block of tiles, where the upper-left corner of which is the 'tile' value
  * This works based on how the engine subscreen frame object works, stretching the frame from those tiles
  *     to whatever size you specify.
@@ -7963,11 +7963,11 @@ void DrawFrame(int layer,
 			int opacity = OP_OPAQUE);
  * Identical to Screen->DrawFrame(), but it draws to a target bitmap.
 
-Quad( int layer, 
+void Quad( int layer, 
 	int x1, int y1, int x2, int y2, 
 	int x3, int y3, int x4, int y4,
 	int w, int h, int cset, int flip, 
-	int texture, int render_mode, bitmap render_source)
+	int texture, int render_mode, bitmap render_source = NULL)
  * Identical to Screen->Quad(), but it draws to a target bitmap, and you can specify a bitmap as your texture.
  * Pass the bitmap pointer that you want to use to 'bitmap render_source'.
  * If you do not wish to use a bitmap as a texture, pass NULL to the arg 'bitmap render_source'.

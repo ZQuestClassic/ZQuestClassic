@@ -1240,7 +1240,7 @@ void do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         return;
     }
     
-    if(xscale<0||yscale<0)
+    if(xscale<=0||yscale<=0)
         canscale = false; //default size
         
     if((xscale>0 && yscale>0) || rotation)   //scaled or rotated
@@ -1442,7 +1442,7 @@ void do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         return;
     }
     
-    if(xscale<0||yscale<0)
+    if(xscale<=0||yscale<=0)
         canscale = false; //default size
         
     if((xscale>0 && yscale>0) || rotation)   //scaled or rotated
