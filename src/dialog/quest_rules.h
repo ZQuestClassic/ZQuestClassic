@@ -23,7 +23,7 @@ public:
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
-
+	void reloadQRs();
 private:
 	std::shared_ptr<GUI::TextField> mapCountTF;
 	std::shared_ptr<GUI::Window> window;

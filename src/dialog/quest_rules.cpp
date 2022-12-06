@@ -1618,9 +1618,15 @@ void applyRuleTemplate(int32_t ruleTemplate)
 	saved = false;
 }
 
+void QRDialog::reloadQRs()
+{
+	memcpy(local_qrs, realqrs, QR_SZ);
+}
 QRDialog::QRDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*)> setQRs):
 	setQRs(setQRs), qrs_per_tab(qrs_per_tab), realqrs(qrs), searchmode(false)
-{}
+{
+	reloadQRs();
+}
 
 static std::string searchstring;
 static int32_t scroll_pos1;
@@ -1629,9 +1635,6 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
-	
-	memcpy(local_qrs, realqrs, QR_SZ); //Load QRs
 	
 	if(searchmode)
 	{
@@ -1921,10 +1924,12 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			return false;
 		case message::RULESET:
 			call_ruleset_dlg();
+			reloadQRs();
 			rerun_dlg = true;
 			return true;
 		case message::RULETMP:
 			call_ruletemplate_dlg();
+			reloadQRs();
 			rerun_dlg = true;
 			return true;
 		case message::CHEATS:
@@ -1938,6 +1943,7 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			if(load_qr_hexstr_clipboard())
 			{
 				popup_bugfix_dlg("dsa_compatrule2");
+				reloadQRs();
 				rerun_dlg = true;
 				return true;
 			}
@@ -1952,7 +1958,8 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			bool do_rerun = false;
 			auto dlg = QRDialog(local_qrs, qrs_per_tab, [&](byte* qrs)
 				{
-					memcpy(local_qrs, qrs, QR_SZ);
+					memcpy(quest_rules, qrs, QR_SZ);
+					reloadQRs();
 					do_rerun = true;
 				});
 			dlg.searchmode = true;
