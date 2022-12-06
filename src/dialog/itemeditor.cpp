@@ -814,6 +814,8 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			if(FLAG(1))
 				_SET(misc[0], "Bounce Power:", "Amount of jump power gained from a bounce."
 					" This value is equal to setting Player->Jump by value divided by 100");
+			_SET(misc[1], "Block Flags:", "(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script=128, Fireball2=256)\n"
+				"Sum all of the values you want to apply. Weapons with their flags set will be blocked if the player lands on them.");
 			break;
 		}
 		case itype_bow:

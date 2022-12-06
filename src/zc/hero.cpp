@@ -6027,6 +6027,83 @@ int32_t HeroClass::EwpnHit()
 			
 			if((ew->ignoreHero)==true || ew->fallclk|| ew->drownclk)
 				break;
+			
+			int32_t stompid = current_item_id(itype_stompboots);
+			
+			if(current_item(itype_stompboots) && checkbunny(stompid) && checkmagiccost(stompid) && (stomping ||
+			((z+fakez) > (ew->z+(ew->fakez))) ||
+			((isSideViewHero() && (y+16)-(ew->y)<=14) && falling_oldy<y)))
+			{
+				itemdata const& stomp = itemsbuf[stompid];
+				bool remove = false;
+				switch(ew->id)
+				{
+					case ewFireball2:
+					case ewFireball:
+						if(ew->type & 1) //Boss fireball
+						{
+							if(stomp.misc2 & (shFIREBALL2))
+								remove = true;
+						}
+						else
+						{
+							if(stomp.misc2 & (shFIREBALL))
+								remove = true;
+						}
+						
+						break;
+						
+					case ewMagic:
+						if((stomp.misc2 & shMAGIC))
+							remove = true;
+						break;
+						
+					case ewSword:
+						if((stomp.misc2 & shSWORD))
+							remove = true;
+							
+						break;
+						
+					case ewFlame:
+						if((stomp.misc2 & shFLAME))
+							remove = true;
+							
+						break;
+						
+					case ewRock:
+						if((stomp.misc2 & shROCK))
+							remove = true;
+							
+						break;
+						
+					case ewArrow:
+						if((stomp.misc2 & shARROW))
+							remove = true;
+							
+						break;
+						
+					case ewBrang:
+						if((stomp.misc2 & shBRANG))
+							remove = true;
+							
+						break;
+						
+					default: // Just throw the script weapons in here...
+						if(ew->id>=wScript1 && ew->id<=wScript10)
+						{
+							if((stomp.misc2 & shSCRIPT))
+								remove = true;
+						}
+						
+						break;
+				}
+				if (remove)
+				{
+					ew->onhit(false);
+					sfx(WAV_CHINK,pan(x.getInt()));
+					continue;
+				}
+			}
 		
 			int32_t defresult = defend(ew);
 			if ( defresult == -1 ) return -1; //The weapon did something special, but it is otherwise ignored, possibly killed by defend(). 
