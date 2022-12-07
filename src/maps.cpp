@@ -3307,15 +3307,23 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 		}
 		bool doladdercheck = true;
 		//if ( iswaterex(cmbdat, currmap, currscr, lyr, tx2, ty2, true, false, false)!=0 )
-		if (iswater_type(c.type) && !DRIEDLAKE) //Yes, I realize this is horribly inaccurate; the alternative is the game chugging every time you turn on walk cheats.
+		
+		if ((c.walk&(1<<(i+4))) && ((c.walk&(1<<i) && ((c.usrflags&cflag4)) && c.type == cWATER) || c.type == cSHALLOWWATER)) 
+		{
+			for(int32_t k=0; k<8; k+=2)
+				for(int32_t j=0; j<8; j+=2)
+					if(((k+j)/2)%2)
+						rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,makecol(85,85,255));
+		}
+		if (iswater_type(c.type) && !DRIEDLAKE && !((c.walk&(1<<(i+4))) && ((c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)) && c.type == cWATER)))) //Yes, I realize this is horribly inaccurate; the alternative is the game chugging every time you turn on walk cheats.
 		{
 			if (get_bit(quest_rules,  qr_NO_SOLID_SWIM)) doladdercheck = false;
 			if((lyr==0 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && lyr == 1) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && lyr == 2)) && get_bit(quest_rules, qr_DROWN))
 				rectfill(dest,tx,ty,tx+7,ty+7,makecol(85,85,255));
-			else rectfill(dest,tx,ty,tx+7,ty+7,makecol(0,0,255));
+			else rectfill(dest,tx,ty,tx+7,ty+7,makecol(170,170,170));
 		}
 		
-		if(c.walk&(1<<i) && !(iswater_type(c.type) && DRIEDLAKE))  // Check for dried lake (watertype && not water)
+		if(c.walk&(1<<i) && !(iswater_type(c.type) && DRIEDLAKE) && !((c.walk&(1<<(i+4))) && ((c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)) && c.type == cWATER))))  // Check for dried lake (watertype && not water)
 		{
 			if(c.type==cLADDERHOOKSHOT && isstepable(cmbdat) && ishookshottable(xx,yy))
 			{

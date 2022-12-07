@@ -1152,8 +1152,14 @@ void zmap::put_walkflags_layered(BITMAP *dest,int32_t x,int32_t y,int32_t pos,in
 			if (i >= 3) break;
 			else continue;
 		}
-		if(!(c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4))) && (layer==-1 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 0) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 1)) && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
-			rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
+		if ((c.walk&(1<<(i+4))) && ((c.walk&(1<<i) && ((c.usrflags&cflag4)) && c.type == cWATER) || c.type == cSHALLOWWATER)) 
+		{
+			for(int32_t k=0; k<8; k+=2)
+				for(int32_t j=0; j<8; j+=2)
+					if(((k+j)/2)%2) rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(11));
+		}
+		if (!(c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4))) && (layer==-1 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 0) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 1)) && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
+			rectfill(dest,tx,ty,tx+7,ty+7,vc(11));
 			
 		if(c.walk&(1<<i) && !(combo_class_buf[c.type].water!=0 && ((c.usrflags&cflag3) || (c.usrflags&cflag4))))
 		{
@@ -1312,10 +1318,17 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int32_t x,int32_t y,int32
 		{
 			continue;
 		}
-		if((layer==-1 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 0) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 1)) && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
-			rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
+		if(!(c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4))) && (layer==-1 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 0) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 1)) && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
+			rectfill(dest,tx,ty,tx+7,ty+7,vc(11));
+		
 			
-		if(c.walk&(1<<i))
+		if ((c.walk&(1<<(i+4))) && ((c.walk&(1<<i) && ((c.usrflags&cflag4)) && c.type == cWATER) || c.type == cSHALLOWWATER)) 
+		{
+			for(int32_t k=0; k<8; k+=2)
+				for(int32_t j=0; j<8; j+=2)
+					if(((k+j)/2)%2) rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(11));
+		}
+		if(c.walk&(1<<i) && !(combo_class_buf[c.type].water!=0 && ((c.usrflags&cflag3) || (c.usrflags&cflag4))))
 		{
 			if(c.type==cLADDERHOOKSHOT && isstepable(MAPCOMBO3(map, screen, layer, cx,cy)) && ishookshottable(map, screen, cx,cy,i) && layer < 0)
 			{
@@ -1443,11 +1456,11 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t layer)
 		int32_t tx=((i&2)<<2)+x;
 		int32_t ty=((i&1)<<3)+y;
 		
-		if(combo_class_buf[c.type].water!=0)
+		if(!(c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4))) && combo_class_buf[c.type].water!=0)
 		{
 			if ((layer==0 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 1) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 2)) && get_bit(quest_rules, qr_DROWN))
 			{
-				rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
+				rectfill(dest,tx,ty,tx+7,ty+7,vc(11));
 				//al_trace("water, drown\n");
 			}
 			else
@@ -1456,8 +1469,15 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t layer)
 				//al_trace("water, no drown\n");
 			}
 		}
+		
 			
-		if(c.walk&(1<<i))
+		if ((c.walk&(1<<(i+4))) && ((c.walk&(1<<i) && ((c.usrflags&cflag4)) && c.type == cWATER) || c.type == cSHALLOWWATER)) 
+		{
+			for(int32_t k=0; k<8; k+=2)
+				for(int32_t j=0; j<8; j+=2)
+					if(((k+j)/2)%2) rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(11));
+		}
+		if(c.walk&(1<<i) && !(combo_class_buf[c.type].water!=0 && ((c.usrflags&cflag3) || (c.usrflags&cflag4))))
 		{
 			if(c.type==cLADDERHOOKSHOT)
 			{
