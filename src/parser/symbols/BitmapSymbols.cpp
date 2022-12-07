@@ -35,14 +35,8 @@ static AccessorTable BitmapTable[] =
 	{ "DrawString",              1,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_CHAR, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "DrawLayer",               0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0, 1280000 } },
 	{ "DrawScreen",              0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
-	{ "DrawScreenSolid",         0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
-	{ "DrawScreenSolidity",      0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
-	{ "DrawScreenComboTypes",    0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
-	{ "DrawScreenComboFlags",    0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
-	{ "DrawScreenComboIFlags",   0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
 	{ "Blit",                    0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_UNTYPED, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 0, 0, 0, 0, 0, 10000 } },
 	{ "BlitTo",                  0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_UNTYPED, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 0, 0, 0, 0, 0, 10000 } },
-	{ "RevBlit",                 0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_UNTYPED, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 0, 0, 0, 0, 0, 10000 } },
 	{ "DrawPlane",               0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_UNTYPED, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 10000, 10000, 10000 } },
 	{ "isValid",                 0,          ZTID_BOOL,   -1,                  0,  { ZTID_BITMAP },{} },
 	{ "isAllocated",             0,          ZTID_BOOL,   -1,                  0,  { ZTID_BITMAP },{} },
@@ -68,12 +62,21 @@ static AccessorTable BitmapTable[] =
 	
 	{ "Clear",                   0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT }, { 0 } },
 	
+	{ "DrawScreenSolid",         0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
+	{ "DrawScreenSolidity",      0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
+	{ "DrawScreenComboTypes",    0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
+	{ "DrawScreenComboFlags",    0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
+	{ "DrawScreenComboIFlags",   0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
+	
 	//Undocumented? Why?
 	{ "DrawLayerSolid",          0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "DrawLayerSolidity",       0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "DrawLayerComboTypes",     0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "DrawLayerComboFlags",     0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "DrawLayerComboIFlags",    0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	
+	//Intentionally Undocumented
+	{ "RevBlit",                 0,          ZTID_VOID,   -1,                  0,  { ZTID_BITMAP, ZTID_FLOAT, ZTID_UNTYPED, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 0, 0, 0, 0, 0, 10000 } },
 	
 	{ "",                        0,          ZTID_VOID,   -1,                  0,  {},{} }
 };

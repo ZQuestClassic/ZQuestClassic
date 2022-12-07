@@ -7842,7 +7842,7 @@ void BlitTo(int layer, bitmap source,
  *	as the argument to 'bitmap source'.
  * To draw from a user created bitmap, pass its pointer to 'bitmap source.
  *
- * RevBlit supports multiple MODES, OR'd together as a bitmask:
+ * BlitTo supports multiple MODES, OR'd together as a bitmask:
  * const int BITDX_NORMAL = 0;
  * const int BITDX_TRANS = 0x01; //Translucent
  * const int BITDX_PIVOT = 0x02; //THe sprite will rotate at a specific point, instead of its centre.
