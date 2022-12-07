@@ -2583,6 +2583,11 @@ string OWaitframe::toString()
     return "WAITFRAME";
 }
 
+string OWaitframes::toString()
+{
+    return "WAITFRAMESR " + getArgument()->toString();
+}
+
 string OWaitdraw::toString()
 {
     return "WAITDRAW";

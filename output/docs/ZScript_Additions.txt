@@ -2889,6 +2889,11 @@ Available annotations:
 void Waitframe();
  * Pauses the script until the start of the next frame
 
+void Waitframes(int count);
+ * Waitframe() for 'count' frames in a row.
+ * If 'count <= 0', no wait occurs.
+ * 'count' will be rounded up.
+
 void Waitdraw();
  * Attempts to wait until later in a frame. Script-type-dependant.
 

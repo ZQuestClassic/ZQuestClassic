@@ -8,6 +8,7 @@ static AccessorTable GlobalTable[] =
 //	  name,                    tag,            rettype,  var,  funcFlags,  params,optparams
 	{ "Quit",                    0,          ZTID_VOID,   -1,          0,  {},{} },
 	{ "Waitframe",               0,          ZTID_VOID,   -1,          0,  {},{} },
+	{ "Waitframes",              0,          ZTID_VOID,   -1,          0,  { ZTID_FLOAT },{} },
 	{ "Waitdraw",                0,          ZTID_VOID,   -1,          0,  {},{} },
 	{ "WaitTo",                  0,          ZTID_VOID,   -1,          0,  { ZTID_FLOAT, ZTID_BOOL },{ 0 } },
 	{ "WaitEvent",               0,         ZTID_FLOAT,   -1,          0,  {},{} },
@@ -331,6 +332,17 @@ void GlobalSymbols::generateCode()
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OWaitframe());
 		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Waitframes(int count)
+	{
+		Function* function = getFunction("Waitframes");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OWaitframes(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
 	}
