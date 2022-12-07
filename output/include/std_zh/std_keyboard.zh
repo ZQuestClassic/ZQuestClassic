@@ -63,14 +63,14 @@ key presses from being read as joystick inputs.
 bool ReadKey(int key)
 {
 	//NoAction();
-	return Input->ReadKey[key];
+	return Input->KeyPress[key];
 }
 
 bool KeyPress(int key){ return Input->Key[key]; }
 
 char32 GetKeyPress(int key)
 {
-	if ( Input->ReadKey[key] ) return KeyToChar(key);
+	if ( Input->KeyPress[key] ) return KeyToChar(key);
 	else return -1; //Is this safe? Should we return 0, which is null?
 }
 
@@ -96,8 +96,8 @@ bool PressLinuxMenu()  { return (Input->ModifierKeys&KB_MENU_FLAG); }
 //Note that these keys are used by the ZC Ui. You can read them this way, but you should not expect
 //a user to utilise them, for input, without some kind of interupt system.
 // Input->DisableKey[] can be used to disable F keys, aside from F7,F8,F9. -V
-bool FKey(int f){ if ( f > 0 && f < 13 ) return Input->ReadKey[46+f]; else return false; }
-bool EscKey() { return Input->ReadKey[KEY_ESC]; } 
+bool FKey(int f){ if ( f > 0 && f < 13 ) return Input->KeyPress[46+f]; else return false; }
+bool EscKey() { return Input->KeyPress[KEY_ESC]; } 
 
 
 
