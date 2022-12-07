@@ -731,6 +731,18 @@ static void save_snapshot(BITMAP* bitmap, PALETTE pal, int frame, bool was_unexp
 	save_bitmap(img_filename.c_str(), bitmap, pal);
 }
 
+static void save_history_snapshots()
+{
+	for (auto framebuf_history : framebuf_history)
+	{
+		if (framebuf_history.frame > 0)
+		{
+			save_snapshot(framebuf_history.bitmap, framebuf_history.pal, framebuf_history.frame, false);
+			framebuf_history.frame = -1;
+		}
+	}
+}
+
 static void do_replaying_poll()
 {
     while (replay_log_current_index < replay_log.size() && replay_log[replay_log_current_index]->frame == frame_count)
@@ -779,12 +791,7 @@ static void check_assert()
                 exit_sys_pal();
             }
 
-            // Save the history bitmaps.
-            for (auto framebuf_history : framebuf_history)
-            {
-                if (framebuf_history.frame > 0)
-                    save_snapshot(framebuf_history.bitmap, framebuf_history.pal, framebuf_history.frame, false);
-            }
+            save_history_snapshots();
 
             // Snapshot the next few frames.
             for (int i = 0; i < ASSERT_SNAPSHOT_BUFFER; i++)
@@ -1630,6 +1637,7 @@ void replay_set_rng_seed(zc_randgen *rng, int seed)
             std::string error2 = fmt::format("frame {}", frame_count);
             fprintf(stderr, "%s\n", error.c_str());
             fprintf(stderr, "%s\n", error2.c_str());
+            save_history_snapshots();
             replay_stop();
 
             enter_sys_pal();
