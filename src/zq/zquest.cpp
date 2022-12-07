@@ -25064,11 +25064,11 @@ int32_t onZScriptCompilerSettings()
 		}
 		memset(FFCore.includePathString,0,sizeof(FFCore.includePathString));
 		strcpy(FFCore.includePathString,tempincludepath);
-		if(old_cfgs[0] == zscript_parser_dlg[13].d1)
+		if(old_cfgs[0] != zscript_parser_dlg[13].d1)
 			zc_set_config("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1,App::zscript);
-		if(old_cfgs[1] == zscript_parser_dlg[15].d1)
+		if(old_cfgs[1] != zscript_parser_dlg[15].d1)
 			zc_set_config("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1,App::zscript);
-		if(old_cfgs[2] == zscript_parser_dlg[26].d1)
+		if(old_cfgs[2] != zscript_parser_dlg[26].d1)
 			zc_set_config("Compiler","WARN_DEPRECATED",zscript_parser_dlg[26].d1,App::zscript);
 		memset(FFCore.scriptRunString, 0, sizeof(FFCore.scriptRunString));
 		strcpy(FFCore.scriptRunString,temprunstring);
