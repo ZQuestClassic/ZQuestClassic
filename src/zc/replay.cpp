@@ -705,6 +705,7 @@ static void save_replay(std::string filename, const std::vector<std::shared_ptr<
 {
     std::time_t ct = std::time(0);
     replay_set_meta("time_updated", strtok(ctime(&ct), "\n"));
+    replay_set_meta("zc_version_updated", getProgramVerStr());
     replay_set_meta("version", version);
 
     std::ofstream out(filename, std::ios::binary);
@@ -912,6 +913,7 @@ void replay_start(ReplayMode mode_, std::string filename_, int frame)
         version = VERSION;
         std::time_t ct = std::time(0);
         replay_set_meta("time_created", strtok(ctime(&ct), "\n"));
+        replay_set_meta("zc_version_created", getProgramVerStr());
         KeyMapReplayStep::current = KeyMapReplayStep::make(0);
         break;
     }
