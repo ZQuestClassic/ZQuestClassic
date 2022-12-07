@@ -91,6 +91,8 @@ static void init_render_tree()
 
 	gui_mouse_x = zc_gui_mouse_x;
 	gui_mouse_y = zc_gui_mouse_y;
+
+	al_set_new_bitmap_flags(0);
 }
 
 static void configure_render_tree()
@@ -228,7 +230,7 @@ void render_zc()
 	al_clear_to_color(al_map_rgb_f(0, 0, 0));
 	render_tree_draw(&rti_root);
 
-	ALLEGRO_FONT* font = zc_get_builtin_font();
+	static ALLEGRO_FONT* font = al_create_builtin_font();
 	static int font_scale = 3;
 
 	std::vector<std::string> lines_left;

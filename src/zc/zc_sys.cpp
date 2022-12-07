@@ -8559,8 +8559,6 @@ void switch_out_callback()
 
 void switch_in_callback()
 {
-	zc_update_builtin_font();
-
 	if(pause_in_background)
 	{
 		return;

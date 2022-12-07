@@ -32,6 +32,8 @@ static void init_render_tree()
 
 	gui_mouse_x = zc_gui_mouse_x;
 	gui_mouse_y = zc_gui_mouse_y;
+
+	al_set_new_bitmap_flags(0);
 }
 
 static void configure_render_tree()

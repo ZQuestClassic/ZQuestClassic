@@ -146,25 +146,3 @@ void zc_process_display_events()
 	// TODO: should do this only in response to a resize event
 	doAspectResize();
 }
-
-static ALLEGRO_FONT* builtin_font;
-
-void zc_update_builtin_font()
-{
-	if (!builtin_font)
-		return;
-	
-	// Only a problem for fullscreen (at least, directx).
-	if (!all_get_fullscreen_flag())
-		return;
-	
-	al_destroy_font(builtin_font);
-	builtin_font = al_create_builtin_font();
-}
-
-ALLEGRO_FONT* zc_get_builtin_font()
-{
-	if (!builtin_font)
-		builtin_font = al_create_builtin_font();
-	return builtin_font;
-}
