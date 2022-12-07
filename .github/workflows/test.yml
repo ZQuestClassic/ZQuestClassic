@@ -59,7 +59,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: replays ${{ inputs.arch }} ${{ matrix.shard_index }} of ${{ matrix.num_shards }}
+          name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
           path: |
             ${{ github.workspace }}/tests/replays/*.zplay.roundtrip
             ${{ github.workspace }}/tests/replays/*.bmp
